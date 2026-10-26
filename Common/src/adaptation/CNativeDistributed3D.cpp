@@ -90,7 +90,8 @@ struct BatchVeto {
 struct Claim {
   Id vertex = 0;
   int caller = 0;
-  template <class S> void Fields(S& s) { s(vertex, caller); }
+  unsigned priority = 0;
+  template <class S> void Fields(S& s) { s(vertex, caller, priority); }
 };
 struct Veto {
   int caller = 0;
@@ -246,10 +247,11 @@ void Directory::Commit(Prepared&& prepared) noexcept {
 namespace {
 struct CollisionProposal {
   int owner=0;
+  unsigned priority=0;
   size_t count=0,removed_count=0;
   std::array<Cell,MaximumReplacementCells> cells{};
   std::array<Id,MaximumCavityCells> removed{};
-  template<class S>void Fields(S& s){s(owner,count,removed_count,cells,removed);}
+  template<class S>void Fields(S& s){s(owner,priority,count,removed_count,cells,removed);}
 };
 std::array<su2double,6> CollisionBounds(const Cell& cell) {
   std::array<su2double,6> box{INFINITY,INFINITY,INFINITY,-INFINITY,-INFINITY,-INFINITY};
@@ -264,7 +266,7 @@ std::array<su2double,6> CollisionBounds(const Cell& cell) {
 }
 }
 bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,
-                          std::string& reason,size_t ceiling,size_t caller_bytes,bool* deferred) {
+                          std::string& reason,size_t ceiling,size_t caller_bytes,bool* deferred,unsigned priority) {
   Timer timer(stats.collision_seconds);CLocalFailure failure;
   if(deferred)*deferred=false;
   auto admit=[&](size_t extra) {
@@ -316,7 +318,7 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
       for(size_t j=0;j<i;++j)if(!ConformingDisjoint(fresh.cells[i],fresh.cells[j]))candidate=false;
     }
     if(candidate) {
-      CollisionProposal p;p.owner=world.rank;p.count=fresh.cells.size();p.removed_count=old.cells.size();
+      CollisionProposal p;p.owner=world.rank;p.priority=priority;p.count=fresh.cells.size();p.removed_count=old.cells.size();
       std::copy(fresh.cells.begin(),fresh.cells.end(),p.cells.begin());
       for(size_t k=0;k<old.cells.size();++k)p.removed[k]=old.cells[k].id;
       std::sort(p.removed.begin(),p.removed.begin()+p.removed_count);local.push_back(std::move(p));
@@ -379,10 +381,16 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
       std::sort(eligible.begin(),eligible.end());
       if(std::adjacent_find(eligible.begin(),eligible.end())!=eligible.end())
         throw std::runtime_error("Repeated current collision owner.");
-      std::vector<const CollisionProposal*> selected;selected.reserve(eligible.size());
+      std::vector<const CollisionProposal*> ordered,selected;ordered.reserve(eligible.size());selected.reserve(eligible.size());
       for(int owner:eligible) {
         const auto proposal=std::find_if(proposals.begin(),proposals.end(),[&](const auto& p){return p.owner==owner;});
         if(proposal==proposals.end())throw std::runtime_error("Missing eligible collision proposal.");
+        ordered.push_back(&*proposal);
+      }
+      std::sort(ordered.begin(),ordered.end(),[](const auto* a,const auto* b) {
+        return std::tie(a->priority,a->owner)<std::tie(b->priority,b->owner);
+      });
+      for(const auto* proposal:ordered) {
         bool compatible=true;
         for(const auto* peer:selected) {
           for(size_t i=0;i<proposal->count && compatible;++i)for(size_t j=0;j<peer->count && compatible;++j) {
@@ -394,8 +402,8 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
           }
           if(!compatible)break;
         }
-        if(compatible)selected.push_back(&*proposal);
-        else if(owner==world.rank) {
+        if(compatible)selected.push_back(proposal);
+        else if(proposal->owner==world.rank) {
           candidate=false;if(deferred)*deferred=true;
           reason="Native3D projected candidate deferred by a conflicting peer.";
         }
@@ -906,7 +914,7 @@ ReservationBatch Directory::ChooseBatch(const std::vector<std::vector<Id>>& foot
   if (!result.valid) { result.chosen.clear(); ++stats.rejected; }
   return result;
 }
-bool Directory::Reserve(const Imported& imported, bool active, std::string& reason, size_t ceiling, size_t caller_bytes) {
+bool Directory::Reserve(const Imported& imported, bool active, std::string& reason, size_t ceiling, size_t caller_bytes,unsigned priority) {
   Timer timer(stats.reservation_seconds);
   ++stats.reservations;
   CLocalFailure failure;
@@ -925,7 +933,7 @@ bool Directory::Reserve(const Imported& imported, bool active, std::string& reas
     if (active) {
       std::set<Id> vertices;
       for (const auto& row : imported.cells) for (auto node : row.cell.v) vertices.insert(node.id);
-      for (auto id : vertices) to[Rendezvous({false, id})].push_back({id, world.rank});
+      for (auto id : vertices) to[Rendezvous({false, id})].push_back({id, world.rank,priority});
     }
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
@@ -934,20 +942,21 @@ bool Directory::Reserve(const Imported& imported, bool active, std::string& reas
   if (!admitted) failure.Set(3, 0, "Native 3D reservation transport exceeds budget.");
   std::vector<std::vector<Veto>> reply;
   peak = transfer_memory::Add(baseline, transfer_memory::Bytes(to), transfer_memory::Bytes(claims),
-      transfer_memory::Mul(world.size, sizeof(std::vector<Veto>)), MapBytes<std::map<Id, int>>(claims.size()),
+      transfer_memory::Mul(world.size, sizeof(std::vector<Veto>)), MapBytes<std::map<Id, std::pair<unsigned,int>>>(claims.size()),
       transfer_memory::GrowthBound(claims.size(), sizeof(Veto)));
   stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, peak);
   if (peak == SIZE_MAX || peak > ceiling) failure.Set(3, 0, "Native 3D reservation replies exceed budget.");
   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
   try {
     reply.resize(world.size);
-    std::map<Id, int> winner;
+    std::map<Id, std::pair<unsigned,int>> winner;
     for (const auto& row : claims) {
       const auto old = winner.find(row.vertex);
-      if (old == winner.end()) winner.emplace(row.vertex, row.caller);
-      else old->second = std::min(old->second, row.caller);
+      const auto order=std::make_pair(row.priority,row.caller);
+      if (old == winner.end()) winner.emplace(row.vertex, order);
+      else old->second = std::min(old->second, order);
     }
-    for (const auto& row : claims) if (winner.at(row.vertex) != row.caller) reply[row.caller].push_back({row.caller});
+    for (const auto& row : claims) if (winner.at(row.vertex).second != row.caller) reply[row.caller].push_back({row.caller});
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
   const auto veto = world.exchange(reply, &admitted, ceiling,

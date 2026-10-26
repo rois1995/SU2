@@ -278,6 +278,8 @@ TEST_CASE("Native tetrahedral MPI claims elect one nonconflicting proposal", "[N
   const bool chosen = directory.Reserve(imported, true, reason);
   CHECK(chosen == (world.rank == 0));
   CHECK(world.sum(chosen) == 1);
+  const bool prioritized=directory.Reserve(imported,true,reason,SIZE_MAX,0,unsigned(world.size-1-world.rank));
+  CHECK(prioritized==(world.rank==world.size-1));CHECK(world.sum(prioritized)==1);
   CHECK(directory.Snapshot() == saved);
   CHECK(Bytes(owned) == mesh);
   Report("conflict", world, directory);
@@ -3225,6 +3227,10 @@ TEST_CASE("Final reservations include expanded candidates and completed peers wi
   CHECK(directory.Reserve(final,active,reason)==(world.rank==0));
   CHECK(Bytes(input)==before);CHECK(directory.Snapshot()==metadata);
   if(world.rank==1)CHECK(reason=="Native 3D conflicting dependency reservation.");
+  CHECK(directory.Reserve(initial,active,reason,SIZE_MAX,0,world.rank==1?0u:1u)==active);
+  CHECK(directory.Reserve(final,active,reason,SIZE_MAX,0,world.rank==1?0u:1u)==(world.rank==1));
+  if(world.rank==0)CHECK(reason=="Native 3D conflicting dependency reservation.");
+  CHECK(Bytes(input)==before);CHECK(directory.Snapshot()==metadata);
 }
 
 TEST_CASE("Rejected working states are observable without changing accepted inputs", "[NativeRejectedState3D]") {
@@ -3425,21 +3431,25 @@ TEST_CASE("Native current collision index follows remote publication and retains
   auto duplicate=query;duplicate.cells.push_back(query.cells[0]);duplicate.cells.back().id=21;
   candidate=world.rank==0;REQUIRE(directory.Clearance(owned,{},duplicate,candidate,reason));CHECK(world.sum(candidate)==0);
   if(world.size>1) {
-    auto peers=[&](const Patch& first,const Patch& second,int accepted,bool expectDeferred) {
+    auto peers=[&](const Patch& first,const Patch& second,int accepted,bool expectDeferred,bool prefer_second=false) {
       bool active=world.rank<2,deferred=false;
-      REQUIRE(directory.Clearance(owned,{},world.rank?second:first,active,reason,SIZE_MAX,0,&deferred));
+      REQUIRE(directory.Clearance(owned,{},world.rank?second:first,active,reason,SIZE_MAX,0,&deferred,
+          prefer_second && world.rank!=1?1u:0u));
       INFO(reason);CHECK(world.sum(active)==accepted);CHECK(world.sum(deferred)==int(expectDeferred));
       CHECK(Bytes(owned)==saved);CHECK(directory.Snapshot()==savedMetadata);
       return active;
     };
     const Patch overlap{{cell(21,200,.2,.2,.2,.5).cell},{}};
     const bool selected=peers(query,overlap,1,true);CHECK(selected==(world.rank==0));
+    CHECK(peers(query,overlap,1,true,true)==(world.rank==1));
     const Patch disjoint{{cell(22,300,2,0,0,.5).cell},{}};
     CHECK(peers(query,disjoint,2,false)==(world.rank<2));
+    CHECK(peers(query,disjoint,2,false,true)==(world.rank<2));
     // The first proposal hits the published obstacle at x=4; its peer only intersects that rejected proposal.
     const Patch obstructed{{cell(23,400,3,0,0,2).cell},{}};
     const Patch free{{cell(24,500,3.1,.05,.05,.1).cell},{}};
     CHECK(peers(obstructed,free,1,false)==(world.rank==1));
+    CHECK(peers(free,obstructed,1,false,true)==(world.rank==0));
   }
 }
 

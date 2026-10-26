@@ -103,7 +103,9 @@ class Directory {
    * phase together, and certify an unchanged complete oriented skin/old vertices before publication.
    * Adjacent cells may share read-only vertices; general surface/movement edits must use ReserveBatch. */
   ReservationBatch ReserveInteriors(const ImportedBatch& imported, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
-  bool Reserve(const Imported& imported, bool active, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+  /*! Lower priority values win conflicting claims; ownership breaks equal-priority ties. */
+  bool Reserve(const Imported& imported, bool active, std::string& reason, size_t ceiling = SIZE_MAX,
+               size_t caller_bytes = 0, unsigned priority = 0);
   /*! Owner-routed prevalidated replacement. Stages all new mesh/directory nodes before the common vote;
    * version/budget/rank veto leaves both accepted stores unchanged. No allocation after publication vote.
    * Reused cell IDs must advance version. Caller reserves globally unique new IDs and validates complete geometry. */
@@ -116,9 +118,9 @@ class Directory {
   /*! Collective exact contact veto against the current published mesh. Private replacement cells are broadcast;
    * local cached boxes plus published additions cover every current cell. False return is a protocol/resource
    * failure; candidate=false is a geometric veto or a deferred peer conflict. Eligible peers are selected
-   * in owner order after current-mesh vetoes. Publication invalidates stale cell IDs/versions. */
+   * in priority/owner order after current-mesh vetoes. Publication invalidates stale cell IDs/versions. */
   bool Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,std::string& reason,
-                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0,bool* deferred=nullptr);
+                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0,bool* deferred=nullptr,unsigned priority=0);
   size_t ResidentBytes() const;
   const DirectoryStats& Statistics() const { return stats; }
   std::vector<char> Snapshot() const;

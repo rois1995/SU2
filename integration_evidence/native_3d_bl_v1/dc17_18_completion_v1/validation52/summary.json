@@ -1,0 +1,39 @@
+{
+  "status": "terminal: serial16/16 pass; all6 priority/flat tests pass; cubic retains2 geometry violations",
+  "base_commit": "b214ff210b",
+  "prior_failure": "51 all6 cubic work4093/4096; all shape gates pass but17 size and12 geometry violations remain",
+  "changes": [
+    "Geometry-first priority through initial/expanded/final dependency reservations and peer collision selection",
+    "Preserve default owner ordering, disjoint concurrency and current-mesh/exact-contact vetoes",
+    "Reverse-priority dependency and collision tests including obstructed preferred peer"
+  ],
+  "acceptance": [
+    "Focused serial repair/runtime and priority tests",
+    "All6 flat/cubic Euler/RANS transfer/reload and priority/conflict tests",
+    "Connected serial/MPI then full M6"
+  ],
+  "verified_source_inputs": 990,
+  "build_session": 45125,
+  "build_exit": 0,
+  "runtime_pins": 19,
+  "build_largest_process_kib": 4092384,
+  "build_elapsed": "15:02.08",
+  "all_workers6_session": 89207,
+  "all_workers6_exit": 2,
+  "all_workers6_counts": {
+    "total": 224,
+    "shape": 0,
+    "size": 0,
+    "geometry": 2
+  },
+  "focused_session": 14333,
+  "focused_exit": 0,
+  "focused_cases": 16,
+  "focused_assertions": 2532,
+  "focused_seconds": 23.27,
+  "all_workers6_seconds": 37.06,
+  "all_workers6_cases_per_rank": 9,
+  "all_workers6_passed_per_rank": 8,
+  "terminal_pins_verified": true,
+  "next": "Reuse existing duplicate proposal election for concurrent refinement; replicated edge demands currently each consume proposal work before reservation. Preserve geometry priority and disjoint concurrency."
+}

@@ -1,0 +1,256 @@
+diff --git a/Common/include/adaptation/CNativeDistributed3D.hpp b/Common/include/adaptation/CNativeDistributed3D.hpp
+index f64752ccd8..890f470893 100644
+--- a/Common/include/adaptation/CNativeDistributed3D.hpp
++++ b/Common/include/adaptation/CNativeDistributed3D.hpp
+@@ -103,7 +103,9 @@ class Directory {
+    * phase together, and certify an unchanged complete oriented skin/old vertices before publication.
+    * Adjacent cells may share read-only vertices; general surface/movement edits must use ReserveBatch. */
+   ReservationBatch ReserveInteriors(const ImportedBatch& imported, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+-  bool Reserve(const Imported& imported, bool active, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
++  /*! Lower priority values win conflicting claims; ownership breaks equal-priority ties. */
++  bool Reserve(const Imported& imported, bool active, std::string& reason, size_t ceiling = SIZE_MAX,
++               size_t caller_bytes = 0, unsigned priority = 0);
+   /*! Owner-routed prevalidated replacement. Stages all new mesh/directory nodes before the common vote;
+    * version/budget/rank veto leaves both accepted stores unchanged. No allocation after publication vote.
+    * Reused cell IDs must advance version. Caller reserves globally unique new IDs and validates complete geometry. */
+@@ -116,9 +118,9 @@ class Directory {
+   /*! Collective exact contact veto against the current published mesh. Private replacement cells are broadcast;
+    * local cached boxes plus published additions cover every current cell. False return is a protocol/resource
+    * failure; candidate=false is a geometric veto or a deferred peer conflict. Eligible peers are selected
+-   * in owner order after current-mesh vetoes. Publication invalidates stale cell IDs/versions. */
++   * in priority/owner order after current-mesh vetoes. Publication invalidates stale cell IDs/versions. */
+   bool Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,std::string& reason,
+-                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0,bool* deferred=nullptr);
++                 size_t ceiling=SIZE_MAX,size_t caller_bytes=0,bool* deferred=nullptr,unsigned priority=0);
+   size_t ResidentBytes() const;
+   const DirectoryStats& Statistics() const { return stats; }
+   std::vector<char> Snapshot() const;
+diff --git a/Common/src/adaptation/CNativeDistributed3D.cpp b/Common/src/adaptation/CNativeDistributed3D.cpp
+index 79e485d63b..edd835aaa1 100644
+--- a/Common/src/adaptation/CNativeDistributed3D.cpp
++++ b/Common/src/adaptation/CNativeDistributed3D.cpp
+@@ -90,7 +90,8 @@ struct BatchVeto {
+ struct Claim {
+   Id vertex = 0;
+   int caller = 0;
+-  template <class S> void Fields(S& s) { s(vertex, caller); }
++  unsigned priority = 0;
++  template <class S> void Fields(S& s) { s(vertex, caller, priority); }
+ };
+ struct Veto {
+   int caller = 0;
+@@ -246,10 +247,11 @@ void Directory::Commit(Prepared&& prepared) noexcept {
+ namespace {
+ struct CollisionProposal {
+   int owner=0;
++  unsigned priority=0;
+   size_t count=0,removed_count=0;
+   std::array<Cell,MaximumReplacementCells> cells{};
+   std::array<Id,MaximumCavityCells> removed{};
+-  template<class S>void Fields(S& s){s(owner,count,removed_count,cells,removed);}
++  template<class S>void Fields(S& s){s(owner,priority,count,removed_count,cells,removed);}
+ };
+ std::array<su2double,6> CollisionBounds(const Cell& cell) {
+   std::array<su2double,6> box{INFINITY,INFINITY,INFINITY,-INFINITY,-INFINITY,-INFINITY};
+@@ -264,7 +266,7 @@ std::array<su2double,6> CollisionBounds(const Cell& cell) {
+ }
+ }
+ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,
+-                          std::string& reason,size_t ceiling,size_t caller_bytes,bool* deferred) {
++                          std::string& reason,size_t ceiling,size_t caller_bytes,bool* deferred,unsigned priority) {
+   Timer timer(stats.collision_seconds);CLocalFailure failure;
+   if(deferred)*deferred=false;
+   auto admit=[&](size_t extra) {
+@@ -316,7 +318,7 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
+       for(size_t j=0;j<i;++j)if(!ConformingDisjoint(fresh.cells[i],fresh.cells[j]))candidate=false;
+     }
+     if(candidate) {
+-      CollisionProposal p;p.owner=world.rank;p.count=fresh.cells.size();p.removed_count=old.cells.size();
++      CollisionProposal p;p.owner=world.rank;p.priority=priority;p.count=fresh.cells.size();p.removed_count=old.cells.size();
+       std::copy(fresh.cells.begin(),fresh.cells.end(),p.cells.begin());
+       for(size_t k=0;k<old.cells.size();++k)p.removed[k]=old.cells[k].id;
+       std::sort(p.removed.begin(),p.removed.begin()+p.removed_count);local.push_back(std::move(p));
+@@ -379,10 +381,16 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
+       std::sort(eligible.begin(),eligible.end());
+       if(std::adjacent_find(eligible.begin(),eligible.end())!=eligible.end())
+         throw std::runtime_error("Repeated current collision owner.");
+-      std::vector<const CollisionProposal*> selected;selected.reserve(eligible.size());
++      std::vector<const CollisionProposal*> ordered,selected;ordered.reserve(eligible.size());selected.reserve(eligible.size());
+       for(int owner:eligible) {
+         const auto proposal=std::find_if(proposals.begin(),proposals.end(),[&](const auto& p){return p.owner==owner;});
+         if(proposal==proposals.end())throw std::runtime_error("Missing eligible collision proposal.");
++        ordered.push_back(&*proposal);
++      }
++      std::sort(ordered.begin(),ordered.end(),[](const auto* a,const auto* b) {
++        return std::tie(a->priority,a->owner)<std::tie(b->priority,b->owner);
++      });
++      for(const auto* proposal:ordered) {
+         bool compatible=true;
+         for(const auto* peer:selected) {
+           for(size_t i=0;i<proposal->count && compatible;++i)for(size_t j=0;j<peer->count && compatible;++j) {
+@@ -394,8 +402,8 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
+           }
+           if(!compatible)break;
+         }
+-        if(compatible)selected.push_back(&*proposal);
+-        else if(owner==world.rank) {
++        if(compatible)selected.push_back(proposal);
++        else if(proposal->owner==world.rank) {
+           candidate=false;if(deferred)*deferred=true;
+           reason="Native3D projected candidate deferred by a conflicting peer.";
+         }
+@@ -906,7 +914,7 @@ ReservationBatch Directory::ChooseBatch(const std::vector<std::vector<Id>>& foot
+   if (!result.valid) { result.chosen.clear(); ++stats.rejected; }
+   return result;
+ }
+-bool Directory::Reserve(const Imported& imported, bool active, std::string& reason, size_t ceiling, size_t caller_bytes) {
++bool Directory::Reserve(const Imported& imported, bool active, std::string& reason, size_t ceiling, size_t caller_bytes,unsigned priority) {
+   Timer timer(stats.reservation_seconds);
+   ++stats.reservations;
+   CLocalFailure failure;
+@@ -925,7 +933,7 @@ bool Directory::Reserve(const Imported& imported, bool active, std::string& reas
+     if (active) {
+       std::set<Id> vertices;
+       for (const auto& row : imported.cells) for (auto node : row.cell.v) vertices.insert(node.id);
+-      for (auto id : vertices) to[Rendezvous({false, id})].push_back({id, world.rank});
++      for (auto id : vertices) to[Rendezvous({false, id})].push_back({id, world.rank,priority});
+     }
+   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
+   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
+@@ -934,20 +942,21 @@ bool Directory::Reserve(const Imported& imported, bool active, std::string& reas
+   if (!admitted) failure.Set(3, 0, "Native 3D reservation transport exceeds budget.");
+   std::vector<std::vector<Veto>> reply;
+   peak = transfer_memory::Add(baseline, transfer_memory::Bytes(to), transfer_memory::Bytes(claims),
+-      transfer_memory::Mul(world.size, sizeof(std::vector<Veto>)), MapBytes<std::map<Id, int>>(claims.size()),
++      transfer_memory::Mul(world.size, sizeof(std::vector<Veto>)), MapBytes<std::map<Id, std::pair<unsigned,int>>>(claims.size()),
+       transfer_memory::GrowthBound(claims.size(), sizeof(Veto)));
+   stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, peak);
+   if (peak == SIZE_MAX || peak > ceiling) failure.Set(3, 0, "Native 3D reservation replies exceed budget.");
+   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
+   try {
+     reply.resize(world.size);
+-    std::map<Id, int> winner;
++    std::map<Id, std::pair<unsigned,int>> winner;
+     for (const auto& row : claims) {
+       const auto old = winner.find(row.vertex);
+-      if (old == winner.end()) winner.emplace(row.vertex, row.caller);
+-      else old->second = std::min(old->second, row.caller);
++      const auto order=std::make_pair(row.priority,row.caller);
++      if (old == winner.end()) winner.emplace(row.vertex, order);
++      else old->second = std::min(old->second, order);
+     }
+-    for (const auto& row : claims) if (winner.at(row.vertex) != row.caller) reply[row.caller].push_back({row.caller});
++    for (const auto& row : claims) if (winner.at(row.vertex).second != row.caller) reply[row.caller].push_back({row.caller});
+   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
+   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
+   const auto veto = world.exchange(reply, &admitted, ceiling,
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index 7ea1501046..68dfafe7fe 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -1589,7 +1589,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       {
+         Timer timer(stats.reservation_seconds,options.timings);
+         chosen=directory.Reserve(imported,choice.active,result.reason,options.memory_ceiling,
+-            transfer_memory::Add(bytes(),source.ResidentBytes()));
++            transfer_memory::Add(bytes(),source.ResidentBytes()),choice.geometric?0u:1u);
+         stats.conflicts+=choice.active && !chosen;
+         if (!world.sum(chosen)) ready=false;
+       }
+@@ -2095,7 +2095,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         if(!(ready=vote(failure)))return false;
+         bool reserved=false;
+         {Timer timer(stats.reservation_seconds,options.timings);
+-          reserved=directory.Reserve(imported,search || approved,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
++          reserved=directory.Reserve(imported,search || approved,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.geometric?0u:1u);}
+         if((search || approved) && !reserved) {
+           if(result.reason=="Native 3D conflicting dependency reservation.") {
+             ++stats.conflicts;
+@@ -2217,7 +2217,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         bool reserved=false;
+         {Timer timer(stats.reservation_seconds,options.timings);
+           reserved=directory.Reserve(imported,strip || wallSplit,result.reason,options.memory_ceiling,
+-              transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
++              transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.geometric?0u:1u);}
+         if((strip || wallSplit) && !reserved) {
+           if(concurrent && result.reason=="Native 3D conflicting dependency reservation.")++stats.conflicts;
+           else failure.Set(1,0,"Native3D strip lost its complete-star reservation.");
+@@ -2748,7 +2748,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         if(!(ready=vote(failure)))return finish();
+         if(!world.maximum(joint))break;
+         const bool reserved=directory.Reserve(imported,joint,result.reason,options.memory_ceiling,
+-            transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
++            transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.geometric?0u:1u);
+         CLocalFailure reservation_failure;
+         if(joint && !reserved) {
+           if(concurrent && result.reason=="Native 3D conflicting dependency reservation.")++stats.conflicts;
+@@ -2908,7 +2908,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+     if(curved && world.maximum(surface_edit)) {
+       const bool prior=approved;bool deferred=false;
+       if(!directory.Clearance(working,old,fresh,approved,result.reason,options.memory_ceiling,
+-          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),&deferred))return finish();
++          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),&deferred,choice.geometric?0u:1u))return finish();
+       if(deferred){chosen=false;++stats.conflicts;++stats.rejected;++stats.proposal_deferred;}
+       else if(prior && !approved)geometry_trial(false);
+     }
+@@ -2929,7 +2929,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       if(!vote(final_failure))return finish();
+       ++stats.final_reservations;
+       const bool admitted=directory.Reserve(imported,approved,result.reason,options.memory_ceiling,
+-          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
++          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.geometric?0u:1u);
+       if(approved && !admitted) {
+         if(result.reason=="Native 3D conflicting dependency reservation.") {
+           approved=false;chosen=false;++stats.conflicts;++stats.rejected;++stats.proposal_deferred;
+diff --git a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+index 4cc77e49b7..035b09211a 100644
+--- a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+@@ -278,6 +278,8 @@ TEST_CASE("Native tetrahedral MPI claims elect one nonconflicting proposal", "[N
+   const bool chosen = directory.Reserve(imported, true, reason);
+   CHECK(chosen == (world.rank == 0));
+   CHECK(world.sum(chosen) == 1);
++  const bool prioritized=directory.Reserve(imported,true,reason,SIZE_MAX,0,unsigned(world.size-1-world.rank));
++  CHECK(prioritized==(world.rank==world.size-1));CHECK(world.sum(prioritized)==1);
+   CHECK(directory.Snapshot() == saved);
+   CHECK(Bytes(owned) == mesh);
+   Report("conflict", world, directory);
+@@ -3225,6 +3227,10 @@ TEST_CASE("Final reservations include expanded candidates and completed peers wi
+   CHECK(directory.Reserve(final,active,reason)==(world.rank==0));
+   CHECK(Bytes(input)==before);CHECK(directory.Snapshot()==metadata);
+   if(world.rank==1)CHECK(reason=="Native 3D conflicting dependency reservation.");
++  CHECK(directory.Reserve(initial,active,reason,SIZE_MAX,0,world.rank==1?0u:1u)==active);
++  CHECK(directory.Reserve(final,active,reason,SIZE_MAX,0,world.rank==1?0u:1u)==(world.rank==1));
++  if(world.rank==0)CHECK(reason=="Native 3D conflicting dependency reservation.");
++  CHECK(Bytes(input)==before);CHECK(directory.Snapshot()==metadata);
+ }
+ 
+ TEST_CASE("Rejected working states are observable without changing accepted inputs", "[NativeRejectedState3D]") {
+@@ -3425,21 +3431,25 @@ TEST_CASE("Native current collision index follows remote publication and retains
+   auto duplicate=query;duplicate.cells.push_back(query.cells[0]);duplicate.cells.back().id=21;
+   candidate=world.rank==0;REQUIRE(directory.Clearance(owned,{},duplicate,candidate,reason));CHECK(world.sum(candidate)==0);
+   if(world.size>1) {
+-    auto peers=[&](const Patch& first,const Patch& second,int accepted,bool expectDeferred) {
++    auto peers=[&](const Patch& first,const Patch& second,int accepted,bool expectDeferred,bool prefer_second=false) {
+       bool active=world.rank<2,deferred=false;
+-      REQUIRE(directory.Clearance(owned,{},world.rank?second:first,active,reason,SIZE_MAX,0,&deferred));
++      REQUIRE(directory.Clearance(owned,{},world.rank?second:first,active,reason,SIZE_MAX,0,&deferred,
++          prefer_second && world.rank!=1?1u:0u));
+       INFO(reason);CHECK(world.sum(active)==accepted);CHECK(world.sum(deferred)==int(expectDeferred));
+       CHECK(Bytes(owned)==saved);CHECK(directory.Snapshot()==savedMetadata);
+       return active;
+     };
+     const Patch overlap{{cell(21,200,.2,.2,.2,.5).cell},{}};
+     const bool selected=peers(query,overlap,1,true);CHECK(selected==(world.rank==0));
++    CHECK(peers(query,overlap,1,true,true)==(world.rank==1));
+     const Patch disjoint{{cell(22,300,2,0,0,.5).cell},{}};
+     CHECK(peers(query,disjoint,2,false)==(world.rank<2));
++    CHECK(peers(query,disjoint,2,false,true)==(world.rank<2));
+     // The first proposal hits the published obstacle at x=4; its peer only intersects that rejected proposal.
+     const Patch obstructed{{cell(23,400,3,0,0,2).cell},{}};
+     const Patch free{{cell(24,500,3.1,.05,.05,.1).cell},{}};
+     CHECK(peers(obstructed,free,1,false)==(world.rank==1));
++    CHECK(peers(free,obstructed,1,false,true)==(world.rank==0));
+   }
+ }
+ 

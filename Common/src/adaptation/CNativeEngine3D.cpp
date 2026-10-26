@@ -1589,7 +1589,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       {
         Timer timer(stats.reservation_seconds,options.timings);
         chosen=directory.Reserve(imported,choice.active,result.reason,options.memory_ceiling,
-            transfer_memory::Add(bytes(),source.ResidentBytes()));
+            transfer_memory::Add(bytes(),source.ResidentBytes()),choice.geometric?0u:1u);
         stats.conflicts+=choice.active && !chosen;
         if (!world.sum(chosen)) ready=false;
       }
@@ -2095,7 +2095,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!(ready=vote(failure)))return false;
         bool reserved=false;
         {Timer timer(stats.reservation_seconds,options.timings);
-          reserved=directory.Reserve(imported,search || approved,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
+          reserved=directory.Reserve(imported,search || approved,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.geometric?0u:1u);}
         if((search || approved) && !reserved) {
           if(result.reason=="Native 3D conflicting dependency reservation.") {
             ++stats.conflicts;
@@ -2217,7 +2217,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         bool reserved=false;
         {Timer timer(stats.reservation_seconds,options.timings);
           reserved=directory.Reserve(imported,strip || wallSplit,result.reason,options.memory_ceiling,
-              transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
+              transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.geometric?0u:1u);}
         if((strip || wallSplit) && !reserved) {
           if(concurrent && result.reason=="Native 3D conflicting dependency reservation.")++stats.conflicts;
           else failure.Set(1,0,"Native3D strip lost its complete-star reservation.");
@@ -2748,7 +2748,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!(ready=vote(failure)))return finish();
         if(!world.maximum(joint))break;
         const bool reserved=directory.Reserve(imported,joint,result.reason,options.memory_ceiling,
-            transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
+            transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.geometric?0u:1u);
         CLocalFailure reservation_failure;
         if(joint && !reserved) {
           if(concurrent && result.reason=="Native 3D conflicting dependency reservation.")++stats.conflicts;
@@ -2908,7 +2908,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(curved && world.maximum(surface_edit)) {
       const bool prior=approved;bool deferred=false;
       if(!directory.Clearance(working,old,fresh,approved,result.reason,options.memory_ceiling,
-          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),&deferred))return finish();
+          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),&deferred,choice.geometric?0u:1u))return finish();
       if(deferred){chosen=false;++stats.conflicts;++stats.rejected;++stats.proposal_deferred;}
       else if(prior && !approved)geometry_trial(false);
     }
@@ -2929,7 +2929,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!vote(final_failure))return finish();
       ++stats.final_reservations;
       const bool admitted=directory.Reserve(imported,approved,result.reason,options.memory_ceiling,
-          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
+          transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.geometric?0u:1u);
       if(approved && !admitted) {
         if(result.reason=="Native 3D conflicting dependency reservation.") {
           approved=false;chosen=false;++stats.conflicts;++stats.rejected;++stats.proposal_deferred;
