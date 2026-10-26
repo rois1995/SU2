@@ -15,7 +15,10 @@ peer contact selection; independent proposals still commit concurrently.
 
 The focused priority tests also pass (4 cases, 31 assertions). Connected serial qualification passes 127 cases and 1,082,802 assertions.
 Connected MPI qualification also passes: 118 cases on each of six ranks.
-Full M6 Euler is now running on six ranks; no accepted full-M6 result exists yet.
+Full M6 Euler6 rejected at the native time limit: 24,972 private edits, 427,852
+private cells, 235,717 cached invalid cells and 235,227 queued edges. It reached
+six simultaneous commits, but no mesh or transfer was accepted. Original CFD
+state was retained. Driver exit zero does not change that result.
 
 Required gates remain q ≥ 0.20, J ≥ 0.05, metric edges ≤ 1.8, first height within
 10%, geometry preservation, the configured 500k metric-complexity target,
@@ -28,6 +31,15 @@ production work is bounded by `max(4096, 64 × initial cells)`; time, storage,
 local-cavity and sampling limits separately bound resource use. These limits do
 not replace the mesh-quality gates. Exhaustion means the search is unfinished,
 not that the requested quality is impossible.
+
+The supplied MPI audit request and Loseille/Alauzet/Menier paper were assessed
+against the current code and validation54:
+[assessment and next decisions](Handbook/MPI_AUDIT_AND_LOSEILLE_ASSESSMENT.md).
+Native already uses a separate weighted tetrahedron partition; M6 enabled it.
+The paper's current/target metric mismatch model and hierarchical interface
+recovery are candidates to evaluate, not implemented fixes. Its published quality
+outliers do not establish our strict acceptance gates. No new benchmark or C++
+change was made for this assessment; DC-17/DC-18 remain open.
 
 ## Checkpoints
 
@@ -44,7 +56,7 @@ not that the requested quality is impossible.
 | `b214ff210b` — WIP | Retain one candidate for bounded repair after ordinary construction | Validation51 serial and six-rank flat runtime pass; cubic six-rank runtime remains incomplete. |
 | `2a214b1058` — WIP | Geometry-first distributed conflict priority | Serial and priority/conflict tests pass; six-rank cubic runtime retains two geometry violations. |
 | `4ffe4e507d` — WIP | Coalesce replicated concurrent edge demands | One-budget election passes; curved refinement completes, but subsequent coarsening exhausts remaining work. |
-| `e9263060cf` | Order distributed proposals by geometric benefit and metric length | Serial 127 cases, MPI6 118/rank and all-worker Euler/RANS transfer/reload pass. Full M6 is running. |
+| `e9263060cf` | Order distributed proposals by geometric benefit and metric length | Serial 127 cases, MPI6 118/rank and all-worker Euler/RANS transfer/reload pass. Full M6 rejects at its time limit. |
 
 `72c4684264` preserves the repair-accounting evidence and links its checkpoint.
 Documentation-only commits may follow an implementation checkpoint.
@@ -59,7 +71,7 @@ Documentation-only commits may follow an implementation checkpoint.
 | Validation48 | Empty-rank reproducer passes on all six ranks. Connected MPI passes114/116 cases per rank. | Cubic runtime exhausts4096 with3 active workers. With all six active, affine runtime stalls with1 bad cell and cubic runtime exhausts4096. A collapse-filter counter fixture also fails. |
 | Validation49 diagnostic | Whole-mesh topology leaves the affine bad cell; one insertion/flip removes it. Cubic45 bad cells become34 with topology and88 with full interior repair. | Larger late repair alone is insufficient. Diagnostic meshes are not runtime acceptance. |
 | Validation50 | Build passes; focused14/16 cases,2,227/2,233 assertions pass. | Early candidate optimization starves ordinary joint placement:69 calls/0 accepted. Valid star repair creates32 cells; its fixture assumes12. |
-| Validation54 | Focused 4 cases/31 assertions and all-six-worker 11 cases per rank pass. | Flat and cubic Euler/RANS complete with transfer/reload; curved total work 1,975/4,096. Connected serial127 and MPI6 118 cases/rank pass; full M6 pending. |
+| Validation54 | Focused 4 cases/31 assertions and all-six-worker 11 cases per rank pass. | Flat and cubic Euler/RANS complete with transfer/reload; curved total work 1,975/4,096. Connected serial127 and MPI6 118 cases/rank pass; full M6 rejects at its time limit. |
 | Validation53 | MPI6 passes 9/10 cases per rank, including one-budget shared-edge election. | Curved refinement completes at work 4,066; coarsening exhausts its remaining 30. No accepted workflow yet. |
 | Validation52 | Serial 16 cases/2,532 assertions pass; MPI6 passes 8/9 cases per rank. Flat transfer/reload and priority checks pass. | Cubic improves to zero shape/size failures and two geometry failures; work limit remains unchanged. |
 | Validation51 | Build and16 focused cases/2,532 assertions pass. All six flat runtime and collapse-filter checks pass; cubic runtime rejects. | Retain one candidate for bounded repair after ordinary construction. Preserve all final gates; replace the star fixture's count restriction with an explicit volume check. |
@@ -77,6 +89,12 @@ units. The rejected private mesh has 209 cells and zero shape/size/geometry
 violations; transfer/reload is still not reached. The documented coarsening
 completion contract remains in force. Next: carry the full serial demand ordering
 through distributed conflicts, including geometric benefit and metric length.
+
+The short M6 CPU sample shows substantial MPI collective waiting alongside
+active candidate reconstruction and donor queries. This is a five-second sample,
+not whole-event timing. The full counters show 76,739 shape refusals and only
+115 validated optimizer calls out of 2,113. Preserve the failed evidence and
+review the difficult-region construction before adding further local fallbacks.
 
 ## Next acceptance steps
 

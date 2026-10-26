@@ -5,30 +5,35 @@ verified closed. Do not end with WIP while independent work remains. Keep the lo
 [TODO](ADAPTATION_TODO.md) and tracked [progress companion](ADAPTATION_PROGRESS.md)
 current. Detailed evidence/history: [curved source/construction](Handbook/DC18_CURVED_SOURCE.md)
 and [completion handbook](Handbook/DC17_DC18_COMPLETION_2026_10_25.md).
+Latest user-requested [MPI audit/paper assessment](Handbook/MPI_AUDIT_AND_LOSEILLE_ASSESSMENT.md)
+corrects the regeneration premise: separate weighted tetrahedral partitioning is
+already implemented/enabled. Paper was read previously; mismatch-based work and
+hierarchical interface recovery need evaluation, not blind adoption. No new run/code.
 
 Target: accepted full M6 Euler then RANS adaptation, general metric/geometry-driven
 operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexity
 (not tet-count), geometry, conservative transfer and restart. Curvature uses
 ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
 
-ACTIVE:54 full M6 Euler6 session64848 running. Connected MPI56906 terminal/pass118 cases/rank; serial34415
-passes127/1,082,802; all-worker89244 passes11/rank; focused4/31 and build64078 pass.
-Source990/runtime19 pins and independently frozen stage receipts verified.
-Curved Refine1750+Coarsen225=1975/4096; flat82+23=105. Euler/RANS BDF2 transfer
-and SU2/CGNS reload pass.54 implementation checkpoint e9263060cf saved and pushed.
-Full M6 Euler is running under54/m6_euler (same verified47 inputs):
-6ranks,500k metric-complexity,HAUSD1e-4,1800native seconds,outer2400,12GiB/rank.
-Run low-priority with one owned job; monitor actual RAM/CPU. Keep C++/binaries pinned.
-Five-second perf capture13781 terminal (491 samples). Decoder91717 interrupted after
-DWARF errors; symbol-only reports terminal/pass. About74% inclusive CPU samples in
-MPI_Allreduce, active reconstruction/donor measurement; not whole-event timing.
-Loaded MPI/library runtime hashes saved in54/m6_euler/loaded_runtime_pins.json. Raw
-54/m6_euler/live_profile.data stays local (do not add raw sampled stacks to git).
-53 checkpoint4ffe4e507d pushed; fork approval persists. Initial54 build23366 failure
-retained (wire priority type); search priority uses supported double, never certifies.
-54 carries geometry benefit/cell/edge and metric length/edge before rank using
-existing proposal metadata/unsigned reservation priorities at all initial/expanded/
-final/contact calls. Duplicate election and independent concurrency remain.
+ACTIVE: no owned job.54 full M6 Euler6 session64848 terminal (driver0, native REJECTED).
+Native1805.12s, whole1980.41s, largest process736,780KiB (not whole-job peak).
+24,972 private edits/31,133 attempts;427,852 cells;235,717 cached invalid;
+235,227 queued edges;76,739 shape refusals;2113 optimizer calls/115 validated;
+max6 simultaneous commits. Original CFD mesh/solution retained, no transfer accepted.
+Source990/runtime19,81 loaded MPI/library pins, inputs and connected receipts verify.
+54 connected qualification remains passed: serial127/1,082,802; MPI6 118/rank;
+all-worker11/rank incl cubic Euler/RANS BDF2+SU2/CGNS reload; focused4/31.
+Implementation e9263060cf and docs68621318f5 pushed to approved fork/branch.
+NEXT: preserve full-M6 failure checkpoint, then diagnose difficult-region construction.
+Do not add local fallbacks or raise limits blindly. M6 restart_adap_00000.dat
+contains exact original 61,330-node sensor metric (Metric_XX..ZZ,23 fields), usable
+with existing hidden NativeFrozenVolume3D replay. Verify coordinate/ID correspondence.
+Investigate fixed cavity/surface constraints and bad boundary triangles, using
+actual frozen M6 field and bounded witnesses; do not substitute toy-case success.
+Profile13781 terminal:491 user-CPU samples, about74% inclusive in MPI_Allreduce,
+active reconstruction/donor measurement. Decoder91717 interrupted after DWARF errors;
+symbol-only reports pass. Raw54/m6_euler/live_profile.data remains LOCAL ONLY.
+No raw sampled stacks or large restart binaries added to git; pin their hashes.
 
 Latest production checkpoint895ab7274a: empty initial FVM ranks fix; four-point sphere
 import passes on6 ranks.4933586627 fixed optimizer work accounting;47 serial125
@@ -37,7 +42,8 @@ work4096 and collapse-filter counter fail. All-worker48 affine stagnates with1 b
 cell; cubic exhausts4096.49 diagnostic build95165/probe6364 terminal, pins verified:
 whole-mesh topology cannot fix affine last cell; one insertion/flip can. Cubic45bad
 ->34 topology, ->88 full-interior/boundary at8-sweep cap, normalizedminimum0.0394.
-No diagnostic output is an accepted mesh. No full M6 run since43 (rejected1800s).
+No diagnostic output is an accepted mesh. These are historical validations47–49;
+the current full-M6 failure is validation54 above.
 
 50 connected implementation checkpoint7113fd984d (WIP;51 correction checkpoint b214ff210b): Runtime Absolute shape policy;
 bounded optimizer repair of private candidates before publication, both resident and

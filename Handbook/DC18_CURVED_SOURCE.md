@@ -4,7 +4,8 @@ Current state, 2026-10-26: full-M6 original-source coverage is qualified by
 validations32–34. Persisted curved runtime now passes six-worker Euler/RANS
 adaptation, conservative BDF2 transfer and SU2/CGNS reload (validation54,
 checkpoint `e9263060cf`). Connected serial127 cases and MPI6 118 cases/rank pass.
-Full M6 Euler is running; no accepted full-M6 adaptation exists yet. Automatic
+Full M6 Euler validation54 rejected at the native time limit; no full-M6 adaptation
+has been accepted. Automatic
 curved initialization remains absent and BL construction remains guarded.
 See the [progress companion](../ADAPTATION_PROGRESS.md) and
 [current handoff](../HANDOFF_Codex.md) for live campaign state.

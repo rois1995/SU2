@@ -1,5 +1,5 @@
 {
-  "status": "connected qualification passes; full M6 Euler6 running",
+  "status": "terminal: connected qualification passes; full M6 Euler6 rejects at native time limit",
   "base_commit": "4ffe4e507d",
   "changes": [
     "Carry serial geometry-benefit/cell/edge and metric-length/edge ordering through existing shared proposal election",
@@ -96,5 +96,28 @@
   "connected_pins_verified": true,
   "m6_euler_session": 64848,
   "checkpoint": "e9263060cf",
-  "pushed_checkpoint": "e9263060cf"
+  "pushed_checkpoint": "e9263060cf",
+  "m6_euler_exit": 0,
+  "m6_euler_accepted": false,
+  "m6_euler_elapsed_seconds": 1980.41,
+  "m6_euler_native_seconds": 1805.1213859450002,
+  "m6_euler_largest_process_kib": 736780,
+  "m6_euler_analysis": {
+    "accepted": 24972,
+    "attempted": 31133,
+    "final_owned_cells": 427852,
+    "cached_invalid_cells": 235717,
+    "remaining_edges": 235227,
+    "metric_shape_rejected": 76739,
+    "geometry_progress": 5405,
+    "optimization_trials": 2113,
+    "optimization_validated": 115,
+    "global_work": 199331,
+    "work_limit": 19414976,
+    "maximum_parallel_commits": 6,
+    "stop": "time_budget",
+    "native_event_accepted": false,
+    "solver_handle_terminal": true
+  },
+  "terminal_pins_verified": true
 }
