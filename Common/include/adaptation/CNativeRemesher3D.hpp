@@ -81,6 +81,10 @@ class CNativeRemesher3D final : public CRemesher {
   void SetRejectedTrialObserver(decltype(SU2Native3D::EngineOptions::rejected_trial) observer) {
     options.rejected_trial=std::move(observer);
   }
+  void SetTransactionObserver(SU2Native3D::Feature feature,
+                              decltype(SU2Native3D::EngineOptions::transaction_observer) observer) {
+    options.capture_feature=feature; options.transaction_observer=std::move(observer);
+  }
   /*! Install a construction (ADAP_BL_METHOD= FIRST_ROW); `accepted` runs inside the published result's onAccepted,
    *  after the CFD replacement succeeded (continuation state of the construction is committed there). */
   void SetConstruction(ConstructionFactory construct, std::function<void()> accepted = {}) {

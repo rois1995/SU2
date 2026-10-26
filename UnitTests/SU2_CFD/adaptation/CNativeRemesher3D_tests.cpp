@@ -30,6 +30,7 @@
 #include "fixtures/native_bl_test_roles.inc"
 using namespace transfer_test;
 using namespace SU2Native3D;
+#include "fixtures/native_transaction_capture.inc"
 
 #if defined(__GNUC__) && defined(__linux__)
 // Optional test-only PMPI collector; ordinary binaries do not supply these symbols.
@@ -482,6 +483,9 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
         <<",\"exact_weight_match\":true,\"exact_query_tensors_match\":true,\"CFD_steps\":0,\"mesh_constructed\":false}\n";
     out.close();REQUIRE(bool(out));driver.Finalize();return;
   }
+  NativeTransactionCapture transaction;
+  if(std::getenv("SU2_NATIVE_TRANSACTION_CAPTURE"))
+    native->SetTransactionObserver({{{23754,24333,0}},2},[&](const TransactionView& view){transaction.Observe(view);});
   struct Witness {Patch before,after;Feature feature;MetricDiagnosis metric;bool geometry;std::string reason;size_t sequence;};
   std::vector<Witness> witnesses;witnesses.reserve(12);
   std::set<std::tuple<unsigned,std::array<Id,3>,unsigned,bool>> sampled;
@@ -527,6 +531,18 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
       out<<"]}";
     };
     patch("before",w.before);patch("after",w.after);out<<"}\n";out.close();REQUIRE(bool(out));
+  }
+  if(std::getenv("SU2_NATIVE_TRANSACTION_CAPTURE")) {
+    CLocalFailure diagnostic_failure;
+    try {
+      transaction.Save(world.rank);
+      if(!transaction.begun || transaction.truncated || !transaction.reference)
+        throw std::runtime_error("Incomplete bounded transaction capture.");
+      transaction.ReplayFirst(world.rank);
+    }catch(const std::exception& e){diagnostic_failure.Set(2,0,e.what());}
+     catch(...){diagnostic_failure.Set(2,0,"Transaction replay assertion failed.");}
+    const auto diagnostic_vote=world.elect(diagnostic_failure);INFO(diagnostic_vote.message);REQUIRE_FALSE(diagnostic_vote.any);
+    transaction.CheckContext(world);
   }
   const auto& stats=native->Statistics();CHECK(stats.complete==(result.status==CRemeshResult::Status::COMPLETE));
   if(world.rank==0) {

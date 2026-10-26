@@ -1,0 +1,7 @@
+{"global_cells": 303428, "global_nodes": 61353, "selected_rank": 2, "round": 4, "events": 70, "dependency_records_verified": 722, "initial_star": [114549, 136288], "full_current_mesh_available": true, "complete_growth_replay": false, "external_contact_certified": false, "accepted_repair": false}
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/diagnostic56/analyze.py", line 94, in <module>
+    if __name__=='__main__':main()
+  File "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/diagnostic56/analyze.py", line 91, in main
+    assert archive_bytes<=25*1024*1024,('witness output cap exceeded',archive_bytes)
+AssertionError: ('witness output cap exceeded', 30306315)

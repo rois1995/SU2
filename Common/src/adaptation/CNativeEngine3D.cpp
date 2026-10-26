@@ -577,8 +577,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     return valid;
   };
-  const bool observe_rejections=world.maximum(bool(options.rejected_trial));
+  const bool observe_rejections=world.maximum(bool(options.rejected_trial) || bool(options.transaction_observer));
   const bool observe_state=world.maximum(bool(options.rejected_state));
+  bool transaction_captured=false;
   bool layer_active=false,region_active=false;Clock::time_point layer_started,region_started;
   auto finish=[&]() {
     if(region_active && options.timings)stats.reconstruction_seconds+=std::chrono::duration<double>(Clock::now()-region_started).count();
@@ -1622,11 +1623,34 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       for(const auto& c:old.cells)if(std::find(quality_parents.begin(),quality_parents.end(),c.id)==quality_parents.end())return false;
       return true;
     };
-    auto guarded_geometry=[&](bool valid){return geometry_trial(valid && height_check(fresh,result.reason));};
     Node point;
     bool approved=false, moved=false, repair_approved=false, cavity_inserted=false;
     MetricDiagnosis certified;
     bool geometric_progress=false;
+    std::unique_ptr<FrozenField> field;
+    const auto epoch=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);
+    const auto token=transfer_memory::Add(transfer_memory::Mul(epoch,options.candidate_batch),slot);
+    const auto offset=transfer_memory::Mul(token,MaximumReplacementCells);
+    const size_t construction_nodes=!options.wall_heights.empty() ? MaximumReplacementCells+3 : composition ? 9 : curved ? 2 : 1;
+    const size_t node_stride=construction_nodes+160;
+    const auto node_offset=transfer_memory::Mul(token,node_stride);
+    bool capture=false, capture_selected=false;
+    const Feature transaction_feature=repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2};
+    if(options.transaction_observer && !transaction_captured) {
+      capture_selected=chosen && transaction_feature.count==options.capture_feature.count &&
+          transaction_feature.vertices==options.capture_feature.vertices;
+      capture=world.maximum(capture_selected);
+      transaction_captured=capture;
+    }
+    auto observe_transaction=[&](const char* stage,bool passed,const DonorPatch* donors=nullptr) {
+      if(capture)options.transaction_observer({stage,transaction_feature,uint64_t(round),capture_selected,passed,
+          working,geometry,dependencies,imported,old,fresh,point,maximum_cell+1+offset,maximum_node+1+node_offset,
+          certified,result.reason,donors,composition,options.edge_breakpoints});
+    };
+    auto guarded_geometry=[&](bool valid,const char* operation="geometry") {
+      const bool passed=geometry_trial(valid && height_check(fresh,result.reason));
+      observe_transaction(operation,passed);return passed;
+    };
     auto geometric_change=[&](bool candidate,MetricChange kind) {
       if(!candidate || !curved)return candidate;
       try {
@@ -1641,13 +1665,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         return true;
       }catch(const std::exception& e){result.reason=e.what();return guarded_geometry(false);}
     };
-    std::unique_ptr<FrozenField> field;
-    const auto epoch=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);
-    const auto token=transfer_memory::Add(transfer_memory::Mul(epoch,options.candidate_batch),slot);
-    const auto offset=transfer_memory::Mul(token,MaximumReplacementCells);
-    const size_t construction_nodes=!options.wall_heights.empty() ? MaximumReplacementCells+3 : composition ? 9 : curved ? 2 : 1;
-    const size_t node_stride=construction_nodes+160;
-    const auto node_offset=transfer_memory::Mul(token,node_stride);
+    try {observe_transaction("begin",chosen);}catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(options.transaction_observer && !vote(failure))return finish();
     Point splitPosition{},centralPosition{};bool split_failed=false,central_available=false;
     const bool physical_edge=chosen && std::any_of(imported.cells.begin(),imported.cells.end(),[&](const OwnedCell& c) {
       const auto faces=Faces(c.cell);
@@ -1696,6 +1715,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(chosen)try {
         Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
         const auto components=AssociatedExtensions(seed.cells,geometry);
+        observe_transaction("split_donors",seed.valid,&seed);
         FrozenField target(std::move(seed.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
         FieldAccounting accounting{stats,target};
         bool conflict=false;
@@ -1725,22 +1745,22 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           old=GeometryPatch(imported, &geometry);
           const auto a=choice.measure.a,b=choice.measure.b;
           if (!repairing && coarsening) approved=guarded_geometry(CollapseVertex(old,choice.edge[1],choice.edge[0],maximum_cell+1+offset,
-              geometry,fresh,result.reason));
+              geometry,fresh,result.reason),"CollapseVertex");
           else if (!repairing) {
             point={maximum_node+1+node_offset,{double((static_cast<long double>(a.x)+b.x)/2),
                 double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)}};
             if(composition)point.p=splitPosition;
-            approved=guarded_geometry(SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));
+            approved=guarded_geometry(SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"SplitEdge");
             if (!approved) {
-              approved=guarded_geometry(InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));
+              approved=guarded_geometry(InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"InsertEdgeCavity");
               cavity_inserted=approved;
             }
             if(!approved && physical_edge && composition && central_available &&
                 (point.p.x!=centralPosition.x || point.p.y!=centralPosition.y || point.p.z!=centralPosition.z)) {
               point.p=centralPosition;
-              approved=guarded_geometry(SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));
+              approved=guarded_geometry(SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"SplitEdge");
               if(!approved) {
-                approved=guarded_geometry(InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));
+                approved=guarded_geometry(InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason),"InsertEdgeCavity");
                 cavity_inserted=approved;
               }
             }
@@ -1814,6 +1834,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (!streamed && metric_needed) try {
         CpuTimer private_cpu(stats.metric_cpu_seconds,options.timings);
         const auto components=AssociatedExtensions(sensors.cells,geometry);
+        observe_transaction("support_donors",sensors.valid,&sensors);
         field=std::make_unique<FrozenField>(std::move(sensors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
         PatchMetric metric;
         std::map<Edge,EdgeMeasure> reuse;
@@ -1858,7 +1879,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 if(composition)point=ConstrainMovePoint(old,vertex,point,options.wall_heights,geometry);
                 ++stats.repair_proposals;
                 { Timer geometry_timer(stats.reconstruction_seconds,options.timings); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
-                approved=guarded_geometry(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason)); }
+                approved=guarded_geometry(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason),"MoveVertex"); }
                 if (approved) approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
                 if (approved) { moved=true; break; }
               }
@@ -1868,7 +1889,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 if (++proposals>16) break;
                 ++stats.repair_proposals;
                 { Timer geometry_timer(stats.reconstruction_seconds,options.timings); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
-                  approved=guarded_geometry(Reconnect(old,row.first,first,geometry,fresh,result.reason)); }
+                  approved=guarded_geometry(Reconnect(old,row.first,first,geometry,fresh,result.reason),"Reconnect"); }
                 if (approved) approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
                 if (approved) break;
               }
@@ -1948,7 +1969,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             MetricStats counted;
             std::unique_ptr<FrozenField> target;
             try {
+              observe_transaction("metric_donors",donors.valid,&donors);
               const auto components=AssociatedExtensions(donors.cells,geometry);
+              observe_transaction("support_donors",donors.valid,&donors);
               target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
               for (size_t i=slot;i<std::min(slot+batch,cells.size());++i) {
                 const auto part=MeasureMetricCells({cells[i]},*target,&counted,&reuse,shape,shape ? &certified : nullptr,&campaign_edges);
@@ -2038,6 +2061,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             options.rejected_trial(old,fresh,stats.last_rejected_feature,certified,candidate,result.reason);
           }catch(const std::exception& e){observed.Set(2,0,e.what());}
         }
+        try {observe_transaction("metric",valid);}catch(const std::exception& e){observed.Set(2,0,e.what());}
         if(observe_rejections || (!repairing && !coarsening))ready=vote(observed);
         if(completed)certified=retained;
         return valid;
@@ -2138,6 +2162,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(search)try {
           Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
           const auto components=AssociatedExtensions(support.cells,geometry);
+          observe_transaction("support_donors",support.valid,&support);
           FrozenField target(std::move(support.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
           FieldAccounting accounting{stats,target};std::vector<std::pair<Id,Id>> reserved_apices;
           for(size_t i=0;i<apices.size();++i)reserved_apices.emplace_back(apices[i],maximum_node+2+i+node_offset);
@@ -2255,6 +2280,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(strip)try {
           Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
           const auto components=AssociatedExtensions(donors.cells,geometry);
+          observe_transaction("support_donors",donors.valid,&donors);
           FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
           FieldAccounting accounting{stats,target};std::map<Id,Node> nodes;
           for(const auto& c:old.cells)for(auto n:c.v)nodes.emplace(n.id,n);
@@ -2586,13 +2612,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               if(retained_frame && frame<retained_frames && wallSplit) {
                 ++stats.wall_topology_trials;
                 if(frame==0)candidate=guarded_geometry(RefitWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
-                    maximum_cell+1+offset,options.wall_heights,geometry,fresh,refit_obstruction,result.reason));
+                    maximum_cell+1+offset,options.wall_heights,geometry,fresh,refit_obstruction,result.reason),"RefitWallSplit");
                 else candidate=guarded_geometry(ReconstructWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
-                    maximum_cell+1+offset,options.wall_heights,geometry,fresh,obstruction,result.reason,nullptr,options.surface_tolerance));
+                    maximum_cell+1+offset,options.wall_heights,geometry,fresh,obstruction,result.reason,nullptr,options.surface_tolerance),"ReconstructWallSplit");
               } else if(!retained_frame || frame>=retained_frames) {
                 candidate=guarded_geometry(ReconstructSplitPatch(old,choice.edge,point,{maximum_node+2+node_offset,{}},
                     frame>retained_frames?nearPlacement:placement,maximum_cell+1+offset,geometry,
-                    fresh,obstruction,result.reason,nullptr,options.wall_heights));
+                    fresh,obstruction,result.reason,nullptr,options.wall_heights),"ReconstructSplitPatch");
               }
             }catch(const std::exception& e){failure.Set(2,0,e.what());}
             ready=vote(failure);
@@ -2634,6 +2660,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               if(!(ready=vote(local)))return finish();
               if(active && donors.valid)try {
                 const auto components=AssociatedExtensions(donors.cells,geometry);
+                observe_transaction("support_donors",donors.valid,&donors);
                 FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
                 FieldAccounting accounting{stats,target};
                 Patch proposal;std::string rejected;
@@ -2771,6 +2798,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }
         if(!(ready=vote(reservation_failure)))return finish();
         if(!world.maximum(joint))break;
+        try {observe_transaction("growth_reserved",reserved);}catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(capture && !vote(failure))return finish();
         const bool measured=measure_private(joint ? old.cells : empty,before,false,reuse);
         if(!ready)return finish();
         CLocalFailure old_invalid;if(joint && !measured)old_invalid.Set(1,0,result.reason);
@@ -2853,13 +2882,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                   point.p={double(p.x+step*(moveCenter.x-p.x)),double(p.y+step*(moveCenter.y-p.y)),double(p.z+step*(moveCenter.z-p.z))};
                   point=ConstrainMovePoint(old,vertex,point,options.wall_heights,geometry);
                 }
-                candidate=guarded_geometry(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason));
+                candidate=guarded_geometry(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason),"MoveVertex");
               }
             } else if (!move_trial) {
               auto apex=nodes.begin(); std::advance(apex,trial-3);
               if(move && repairing && choice.feature.count==1)
-                candidate=guarded_geometry(CollapseVertex(old,vertex,apex->first,first,geometry,fresh,result.reason));
-              else candidate=guarded_geometry(Reconnect(old,apex->first,first,geometry,fresh,result.reason));
+                candidate=guarded_geometry(CollapseVertex(old,vertex,apex->first,first,geometry,fresh,result.reason),"CollapseVertex");
+              else candidate=guarded_geometry(Reconnect(old,apex->first,first,geometry,fresh,result.reason),"Reconnect");
             }
           } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
           ready=vote(failure);
@@ -2881,6 +2910,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(eligible && repair_work<repair_budget && donors.valid)try {
           fresh=quality_candidate;
           const auto components=AssociatedExtensions(donors.cells,geometry);
+          observe_transaction("support_donors",donors.valid,&donors);
           FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
           FieldAccounting accounting{stats,target};Timer timer(stats.reconstruction_seconds,options.timings);
           candidate=guarded_geometry(optimize_patch(fresh,RegionMetric(target),true));
@@ -2904,6 +2934,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!donors.valid && !DonorCap(donors.reason)){result.reason=donors.reason;return finish();}
         if(repair_work<repair_budget && !approved && donors.valid)try {
           const auto components=AssociatedExtensions(donors.cells,geometry);
+          observe_transaction("support_donors",donors.valid,&donors);
           FrozenField proposal_field(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
           FieldAccounting accounting{stats,proposal_field};
           Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
@@ -2919,6 +2950,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       if (repair_approved && !repairing) ++stats.fallback_accepted;
     }
+    try {observe_transaction("construction_end",approved);}catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(options.transaction_observer && !vote(failure))return finish();
     const bool surface_edit=approved && !SameSkin(old,fresh);
     if(curved && world.maximum(surface_edit)) {
       const bool prior=approved;bool deferred=false;
@@ -2961,6 +2994,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }catch(const std::exception& e){approved=false;result.reason=e.what();}
     if(approved && !coarsening && !repairing && !repair_approved)
       for(const auto& cell:fresh.cells)for(auto node:cell.v)if(node.id==point.id)point=node;
+    try {observe_transaction("transaction_end",approved);}catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(options.transaction_observer && !vote(failure))return finish();
     if (chosen && !approved) {
       // Keep the completed rejection consistent with the earlier private/budget-exit sample.
       stats.last_metric_rejection=certified;

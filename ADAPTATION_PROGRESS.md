@@ -64,6 +64,18 @@ context before repair. Local transaction acceptance and final-patch edge accepta
 are distinct. No production fix, new numerical validation or capability closure is
 claimed by this documentation checkpoint.
 
+Diagnostic56 capture is terminal and passes (MPI6, native72.287s, launch80.475s;
+no accepted mesh). It preserves the full303,428-cell current mesh at round4 and
+70 selected transaction events. The initial split and first shape failure reproduce
+exactly; a fresh directory confirms dependency versions/reservation and external
+contact. Maximum integrated candidate edge1.59836 passes; q=.183972/J=.042790 fail.
+The transaction uses all12 growth iterations, then13 reconnections. Independent
+checks verify722 dependency records against global ownership. Captured geometry
+parameters agree across all ranks. Lossless deduplication keeps the capture below
+25MiB; the initial archive-size refusal is retained. Full construction-call replay
+and one bounded fixed-skin connectivity repair are being implemented from these
+saved inputs, without another MPI prefix. No construction-policy change or DC closure.
+
 ## Checkpoints
 
 | Checkpoint | Change | Validation status |

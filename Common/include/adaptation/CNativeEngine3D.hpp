@@ -11,6 +11,26 @@
 namespace SU2Native3D {
 constexpr double CoarseningMetricEdge = .9;  // Frozen candidate hysteresis; final upper/shape gates remain strict.
 constexpr size_t MaximumCandidateBatch = 8;
+/*! Borrowed diagnostic view; callbacks copy bounded data and never call collectives or mutate state. */
+struct TransactionView {
+  const char* stage;
+  Feature feature;
+  uint64_t round;
+  bool selected, passed;
+  const Owned& working;
+  const PlanarReference& geometry;
+  const Dependencies& dependencies;
+  const Imported& imported;
+  const Patch& old;
+  const Patch& fresh;
+  Node point;
+  Id first_cell, first_node;
+  const MetricDiagnosis& metric;
+  const std::string& reason;
+  const DonorPatch* donors;
+  const MetricComposition& composition;
+  const MetricEdgeBreakpoints& breakpoints;
+};
 struct EngineOptions {
   size_t maximum_rounds = 0, memory_ceiling = size_t(2) << 30, caller_bytes = 0;
   // Zero rounds uses a work-bounded search; positive rounds remain an explicit diagnostic ceiling.
@@ -24,6 +44,9 @@ struct EngineOptions {
   std::function<void(const Patch&,const Patch&,Feature,const MetricDiagnosis&,bool,const std::string&)> rejected_trial;
   // Optional rank-local diagnostic: cells and their matching private geometry; no collectives or retention.
   std::function<void(const Owned&,const PlanarReference&,const std::string&)> rejected_state;
+  // Diagnostic selector only: first matching reserved transaction; configure identically on all workers.
+  Feature capture_feature{};
+  std::function<void(const TransactionView&)> transaction_observer;
   bool timings = false;
   size_t candidate_batch = MaximumCandidateBatch;  // Internal control for paired correctness/work comparisons.
 };

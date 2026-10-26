@@ -15,17 +15,26 @@ operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexit
 (not tet-count), geometry, conservative transfer and restart. Curvature uses
 ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
 
-ACTIVE: no owned job. Follow-up diagnostic55 terminal; primary handover:
-[M6 diagnostic decision](Handbook/M6_DIAGNOSTIC_DECISION.md). Test-only capture/PMPI
-hooks in NativeFrozenVolume3D; production numerical source unchanged. Build35749,
-plain93702, observed94465, independent witness8056 all terminal. Two fixed-work2048
-MPI6 runs match ten counters/rank:476 private edits,879 shape refusals, no accepted mesh.
-Observed MPI-call18.74–26.00s/rank over62.72s; useful compute and overhead unresolved.
-28 snapshots,16 positive-volume shape failures independently reproduced. No repaired
-accepted witness. Offline proxy sum5,664,358 matches production in aggregate only;
-max591/no1024clipping applies to the replica, not verified production per-cell weights.
-Current partition already balances proxy max/mean4.699->1.08449. Details/pins under
-dc17_18_completion_v1/diagnostic55; raw metric/compiled profiler stay local.
+ACTIVE: diagnostic56 serial-replay test build session42038; pinned sources must
+remain unchanged until it is terminal. The single MPI6 capture94073 is terminal/pass
+(native72.287s, launch80.475s, work2048 rejection), with all ten diagnostic55 numerical
+counters matching. Initial split and first shape failure replay exactly; dependencies,
+reservation and external contact pass. Max integrated edge1.59836 passes; q=.183972,
+J=.042790 fail. Full current303,428-cell mesh,70 events and722 verified dependency
+records retained. Twelve growth iterations and thirteen reconnections are now visible.
+Details/current work: [transaction replay](Handbook/M6_TRANSACTION_REPLAY.md).
+Offline85224 terminal/refused before replay: the diagnostic mistakenly used1GiB
+as the conservative reference-decoding allowance. The corrected build uses the
+existing2GiB decoder default; offline.py now monitors/enforces actual1GiB process RSS.
+Offline2 session56448 terminal: all26 construction calls/11 shape messages replay
+exactly. Repair setup failed because a deadline composition incorrectly changed the
+field path; build42038 removes it and moves enforcement to offline.py (actual RSS1GiB,
+repair wall60s, whole-process CPU60s stricter, launcher90s). Next run offline3.
+Next: finish bounded fixed-skin repair and preserve local rejection reasons;
+no second MPI prefix. Large snapshots stay local with lossless archive/hash receipts.
+Diagnostic55 remains the proxy/MPI baseline: partition balances supplied work4.699->
+1.08449; useful-compute attribution unresolved. Production shape policy remains
+Absolute; diagnostic hooks do not change it. No accepted full M6 or repaired witness.
 
 54 full M6 Euler6 session64848 terminal (driver0, native REJECTED).
 Native1805.12s, whole1980.41s, largest process736,780KiB (not whole-job peak).
