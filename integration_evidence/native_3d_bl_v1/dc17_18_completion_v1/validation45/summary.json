@@ -1,5 +1,5 @@
 {
-  "status": "build starting; unvalidated",
+  "status": "terminal: focused checks fail; no MPI or M6",
   "base_commit": "e398807a2c",
   "source_inputs": 989,
   "prior_failure": "validation44: fixture surface tolerance missing; planar conditioning regression; hidden sphere cap; curved runtime repair work cap",
@@ -15,5 +15,24 @@
     "Connected serial/MPI2 and all-worker curved transfer/reload",
     "Full M6 accepted mesh still required"
   ],
-  "build_session": 66808
+  "build_session": 66808,
+  "build_exit": 0,
+  "verified_source_inputs": 989,
+  "runtime_pins": 19,
+  "build_elapsed": "13:10.59",
+  "build_largest_process_kib": 4092364,
+  "focused_session": 6243,
+  "focused_exit": 12,
+  "focused_cases": 22,
+  "focused_passed": 19,
+  "focused_assertions": 1066866,
+  "focused_failures": 12,
+  "focused_seconds": 42.77,
+  "focused_largest_process_kib": 143060,
+  "terminal_pins_verified": true,
+  "failures": [
+    "Collapsed second moment .00504901 vs .006: ordinary two-point Gaussian loses degree4 with Jacobian",
+    "Hidden sphere finishes density/volume/moments within cap but has8 zero weights due endpoint rounding",
+    "Cubic Euler/RANS still exhaust work4096 with7 invalid cells; reordering single-point placement is insufficient"
+  ]
 }

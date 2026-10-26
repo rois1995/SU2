@@ -541,6 +541,11 @@ TEST_CASE("Native 3D shape admission: validity-only generation keeps the final g
   CHECK_FALSE(ValidateMetricChange(1,before,2,flat,MetricChange::Refine,reason,&d));
   // progress rules are unchanged: a coarsening that adds cells is still refused
   CHECK_FALSE(ValidateMetricChange(1,before,2,poor,MetricChange::Coarsen,reason,&d));CHECK(d.failure==MetricFailure::Progress);
+  // Construction repair uses the optimizer's worst normalized quality; spare Jacobian margin may repair q.
+  const auto weak_q=metric(.19,.1),repaired_q=metric(.21,.08),weaker_J=metric(.22,.051);
+  CHECK(ValidateMetricChange(1,weak_q,1,repaired_q,MetricChange::Repair,reason,&d));CHECK(d.quality_progress);
+  CHECK_FALSE(ValidateMetricChange(1,repaired_q,1,weak_q,MetricChange::Repair,reason,&d));
+  CHECK_FALSE(ValidateMetricChange(1,repaired_q,1,weaker_J,MetricChange::Repair,reason,&d));
   // measured cells: the private-trial shape gate follows the mode, the final patch gate stays absolute
   DonorCell donor;donor.cell={0,{{{0,{-10,-10,-10}},{1,{40,-10,-10}},{2,{-10,40,-10}},{3,{-10,-10,40}}}}};donor.sensor.fill(Tensor{1,0,0,1,0,.0004});  // z compressed by 50: q ~ .06, J ~ .01
   FrozenField field({donor});

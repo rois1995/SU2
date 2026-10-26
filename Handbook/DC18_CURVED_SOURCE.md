@@ -361,3 +361,34 @@ runtime checks before full M6. These changes remain unvalidated during the build
 User reminder2026-10-26: up to6 simultaneous MPI ranks authorized. Next connected
 MPI qualification and full M6 may use6 after serial failures are resolved and
 host RAM checked. One owned heavy job; record changed CPU resources in comparisons.
+
+Validation45 terminal: build790.59s/4,092,364KiB largest process passes;989 source
+and19 runtime hashes verify. Focused6243:19/22 cases pass,1,066,854/1,066,866
+assertions,42.77s,143,060KiB largest process. No MPI/M6. Planar complexity and
+mapped-star fixture pass. Hidden sphere completes density/volume/first moments
+within65536 points but8 returned weights are zero. The ordinary2-point rule also
+fails the pre-existing collapsed second moment (.00504901 vs.006). The collapse
+Jacobian raises polynomial degree; retain it in the Gaussian weight measure.
+Endpoint t rounds to1 on sub-ulp intervals, so computing (1-t)^2 loses positive
+measure; compute the remaining distance directly from right/half/node instead.
+
+Reordering point placement is insufficient: cubic Euler/RANS still hits4096 work
+with7 invalid cells. Do not keep changing search order or raise the limit. The
+runtime repair vocabulary lacks the existing optimizer's general edge/face swaps.
+Its quality progress also requires both raw minima to be monotone, whereas the
+optimizer uses min(q/.20,J/.05). In validity-only construction, align that shared
+progress objective; exact final gates and nonincreasing changed-edge excess stay.
+
+Validation46 build56379 active. Replace the new point-placement fallback by
+bounded fixed-boundary topology optimization on complete imported cavities: edge/
+face swaps and interior collapses, no boundary operations, no smoothing/insertions
+or new nodes. Local temporary cell IDs are remapped into the reserved128-cell
+range; reject oversized output. Exact fixed interface, height and original-field
+metric gates still authorize publication. Candidate operations capped160, cache1024,
+existing scratch admission; resident and streamed callers share the same helper.
+Two new diagnostics count optimizer trials and validated proposals. New policy
+assertions cover worst-score improvement/reversal/regression. Quadrature derives
+positive2-node Gaussian integration for the actual quadratic collapse weight,
+retaining moments through cubic degree; hidden-sphere test adds all second moments.
+Independent7-ratio weighted moment checks pass; not production acceptance. All45
+failures, connected serial/six-rank/all-worker workflows and full M6 remain required.

@@ -3041,18 +3041,31 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
         // Sub-ulp endpoints can round to one point; retain their positive barycentric measure.
         const auto cuts=start==end?std::vector<double>{0,1}:EdgeBreakpoints(start,end,std::max(2.,bandRatio),4);
         auto radial=[&](double left,double right,unsigned order,std::vector<IntegrationPoint3D>& samples) {
-          double value=0;const double half=.5*(right-left),center=.5*(right+left);
+          double value=0;const long double half=.5L*((long double)right-left);
+          std::array<long double,2> nodes2{gauss2[0],gauss2[1]},weights2{1,1};
+          if(order==2 && chart.collapsed) {
+            // Integrate against the collapse weight itself, retaining polynomial moments with two positive nodes.
+            const long double a=.5L*((1.L-left)+(1.L-right)),r=half/a;
+            const long double m0=2+2*r*r/3,m1=-4*r/3,m2=2.L/3+2*r*r/5,m3=-4*r/5;
+            const auto alpha=-(m3-m1*m2/m0)/(m2-m1*m1/m0),beta=-(m2+alpha*m1)/m0;
+            const auto root=std::sqrt(alpha*alpha-4*beta);
+            nodes2={(-alpha-root)/2,(-alpha+root)/2};
+            weights2[0]=(m0*nodes2[1]-m1)/(nodes2[1]-nodes2[0]);weights2[1]=m0-weights2[0];
+            for(auto& w:weights2)w*=a*a;
+          }
           for(unsigned g=0;g<order;++g) {
-            const double t=center+half*(order==7?gauss7[g]:(order==5?gauss[g]:gauss2[g]));
+            const long double node=order==7?gauss7[g]:(order==5?gauss[g]:nodes2[g]);
+            const long double remaining=(1.L-right)+half*(1-node),t=1-remaining;
             std::array<double,4> parent{};BLPoint3D position{};
             for(unsigned k=0;k<4;++k) {
-              parent[k]=(1-t)*entry[k]+t*exit[k];
+              parent[k]=double(remaining*entry[k]+t*exit[k]);
               for(unsigned j=0;j<3;++j)position[j]+=parent[k]*tetrahedron[k][j];
             }
             SetBLSourceQuery(tetrahedron,originalSource,reversed,parent,position);
-            const double collapse=chart.collapsed?(1-t)*(1-t):1.;
-            IntegrationPoint3D point{parent,double(jacobian*half*collapse*(order==7?weights7[g]:(order==5?weights[g]:1.))),
-                SamplePoints({position[0],position[1],position[2]})};
+            const long double collapse=chart.collapsed && order!=2?remaining*remaining:1;
+            const double weight=double(jacobian*half*collapse*(order==7?weights7[g]:(order==5?weights[g]:weights2[g])));
+            if(!(weight>0) || !std::isfinite(weight))throw std::runtime_error("Unrepresentable native3D radial integration weight.");
+            IntegrationPoint3D point{parent,weight,SamplePoints({position[0],position[1],position[2]})};
             value+=point.weight*probe(point);samples.push_back(std::move(point));
           }
           return value;
@@ -3076,7 +3089,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
         };
         auto addRadial=[&](double left,double right,unsigned depth) {
           RadialPanel panel{left,right,0,0,0,depth};
-          // Two points exactly retain volume and first moments of the collapsed quadratic Jacobian.
+          // The weighted two-point rule preserves moments through cubic degree.
           panel.value=radial(left,right,2,panel.points);
           panel.comparison=radial(left,right,5,panel.comparisonPoints);
           panel.error=std::abs(panel.comparison-panel.value);retain(std::move(panel));

@@ -1606,15 +1606,17 @@ TEST_CASE("Visible wall samples cannot hide an enclosed thin spherical second wa
     CHECK(actual==Approx(oracle).epsilon(1e-6));
   }
   const auto rule=layers.IntegrationRule3D(cell,1.5,density);double volume=0,measured=0;bool found=false;
-  std::array<double,3> moments{};
+  std::array<double,3> moments{};std::array<std::array<double,3>,3> second{};
   for(const auto& p:rule) {
     CHECK(p.weight>0);volume+=p.weight;measured+=p.weight*density(p);
     for(unsigned d=0;d<3;++d)moments[d]+=p.weight*p.barycentric[d+1];
+    for(unsigned d=0;d<3;++d)for(unsigned e=0;e<3;++e)second[d][e]+=p.weight*p.barycentric[d+1]*p.barycentric[e+1];
     CHECK(std::any_of(p.samples.begin(),p.samples.end(),[](const auto& s){return s.wall==0;}));
     found=found||std::any_of(p.samples.begin(),p.samples.end(),[](const auto& s){return s.wall==1;});
   }
   REQUIRE(found);CHECK(volume==Approx(1./6).epsilon(2e-10));
   for(double moment:moments)CHECK(moment==Approx(1./24).epsilon(2e-10));
+  for(unsigned d=0;d<3;++d)for(unsigned e=0;e<3;++e)CHECK(second[d][e]==Approx(d==e?1./60:1./120).epsilon(2e-10));
   INFO("points="<<rule.size()<<" measured="<<measured<<" radial="<<expected);
   CHECK(measured==Approx(expected).epsilon(8e-4));
 }

@@ -3,7 +3,8 @@
 Active request: keep implementing until the TODO and newly found defects are
 verified closed, beginning with DC-17/DC-18. Do not end with a WIP final while
 independent work remains. Keep [ADAPTATION_TODO.md](ADAPTATION_TODO.md) current.
-The [completion handbook](Handbook/DC17_DC18_COMPLETION_2026_10_25.md) preserves
+The [progress companion](ADAPTATION_PROGRESS.md) gives the concise checkpoint/result
+history and must stay current alongside the TODO. The [completion handbook](Handbook/DC17_DC18_COMPLETION_2026_10_25.md) preserves
 all diagnoses, failed trials, source/runtime provenance and current acceptance.
 
 Standing target: accepted full M6 Euler then RANS adaptation, general geometry/
@@ -12,7 +13,9 @@ metric-driven operators, unchanged q>=.20, J>=.05, edge<=1.8, first height withi
 User curvature decision: configured ADAP_HAUSD in mesh units, independent of h0
 and ramp. No implicit chord inference or silent tightening to h0.
 
-Current local checkpoint `e398807a2c` (scheduling/concurrency; full M6 open).
+Current local checkpoint `c02010b08d` (explicit WIP: validation45 corrections
+building;43/44 failures preserved). Previous validated scheduling/concurrency
+checkpoint `e398807a2c`; full M6 remains open.
 Full M6 curved-source/field qualification
 passes (validation32–34):450,221 source cells, all48,954 reference facets queried,
 293,724 directed chords, exact serial/MPI2 record identity including ownership.
@@ -57,21 +60,33 @@ Connected serial104/105 cases (15,578/15,580 assertions): cubic Euler/RANS reach
 2 invalid cells then work cap4096;24 expensive placement trials run before cheap
 moves. No MPI/M6 run44. All failures and terminal receipt pins retained.
 
-ACTIVE: validation45 build session66808; pinned C++ unchanged until terminal.
-Runtime still scopes ValidityOnly with restoration and strict final completion.
-Repair now tries cheap existing moves/reconnections before bounded interior placement;
-reserves its evaluation budget collectively, refunds unused reservations, and keeps
-scratch admission. Both resident/streamed callers use ordinary final validation.
-Mapped-star fixture now supplies surface tolerance; uniform/sheared mapped/plain
-stars require moved, strict accepted mesh and immutable input/parameters (a cheap
-move is allowed to succeed without invoking placement).
-Quadrature: radial_fan is explicit chart-coordinate metadata; ordinary collapsed
-charts keep gradient splitting. Radial fans use longest-edge conditioning. Retained
-radial integration starts with2 points (exact volume/first moments with quadratic
-collapse Jacobian), compares5, upgrades against7; same tolerances and work/point
-caps. Bounded scalar3/5 rule remains. These revisions are UNVALIDATED.
-See validation45/summary.json and implementation.patch; fix all44 failures before
-MPI/all-worker qualification and another full M6. Full M6 remains open.
+Validation45 terminal: build66808 passes (790.59s, largest process4,092,364KiB).
+Focused6243 fails12 assertions/3 of22 cases (1,066,854/1,066,866 pass),42.77s.
+Mapped-star omission and planar complexity regression fixed. Hidden sphere now
+finishes density/volume/first moments within cap but has8 zero weights from endpoint
+rounding. Ordinary two-point radial integration breaks existing collapsed second
+moment (.00504901 vs.006). Cubic Euler/RANS still exhaust work4096 with7 invalid
+cells; reordering point-placement search is insufficient.989 source and19 runtime
+pins verify; no MPI/M6. Failed evidence preserved under45.
+
+ACTIVE: validation46 build56379; pinned C++ unchanged until terminal.
+Connected redesign: reuse existing topology optimizer (interior edge/face swaps and
+collapses; fixed boundary, no smoothing/insertions/new nodes) on bounded repair
+cavities after cheap moves/reconnections. Remap local cell IDs into reserved range,
+keep physical skin, exact ValidateFixedInterface, height and full frozen metric
+revalidation. Candidate operations remain capped160; cache1024; existing scratch
+admission. Both resident/streamed callers; new optimization_trials/validated stats.
+ValidityOnly Repair now uses the optimizer's minimum normalized q/J progress,
+allowing spare margin in one measure to repair the other. Absolute-mode behavior,
+nonincreasing changed-edge excess and final q>=.20/J>=.05/edge gates unchanged.
+Focused policy test checks improvement/reversal/worst-score regression.
+Quadrature now derives2 nodes/weights for the actual quadratic collapse measure,
+keeping polynomial moments through cubic degree; stable remaining-distance
+arithmetic avoids zero weights at rounded endpoints. Existing5/7 comparison,
+all tolerances/caps retained. Hidden sphere adds second-moment assertions. Independent
+weighted_radial_probe.py checks positivity and moments for7 ratios; not acceptance.
+See46/summary.json and implementation.patch. Must resolve45 failures before the
+six-rank milestone and full M6. No accepted full M6 exists.
 
 Next: complete production geometry construction and its runtime workflow, then
 connected metric/support/quadrature, wall refinement and initialization.

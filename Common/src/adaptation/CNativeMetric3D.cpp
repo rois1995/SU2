@@ -407,7 +407,10 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
     for (const auto id : old_vertices) gone += !fresh_vertices.count(id);
     const bool vertex_removal = gone > relocated || fresh_vertices.size() < old_vertices.size() + 1;
     const bool size_insertion = !vertex_removal && longest_removed > SplitInsertionLength;
-    const bool quality_progress =
+    const auto score=[](const PatchMetric& m){return std::min(m.minimum_mean_ratio/MinimumMeanRatio,
+                                                           m.minimum_scaled_jacobian/MinimumScaledJacobian);};
+    const bool quality_progress = kind==MetricChange::Repair && GetShapeAdmission()==ShapeAdmission::ValidityOnly ?
+        score(measured)>score(before)+1e-7 :
         (measured.minimum_mean_ratio > before.minimum_mean_ratio + 1e-7 &&
          measured.minimum_scaled_jacobian >= before.minimum_scaled_jacobian * (1 - 1e-12)) ||
         (measured.minimum_scaled_jacobian > before.minimum_scaled_jacobian + 1e-7 &&

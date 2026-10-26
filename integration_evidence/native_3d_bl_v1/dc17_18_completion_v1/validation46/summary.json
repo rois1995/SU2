@@ -1,0 +1,19 @@
+{
+  "status": "build starting; unvalidated",
+  "base_commit": "c02010b08d",
+  "source_inputs": 990,
+  "prior_failure": "validation45: collapsed second moments,8 zero radial weights, cubic Euler/RANS repair cap with7 invalid cells",
+  "changes": [
+    "Two-node Gaussian rule for the actual quadratic collapse weight; stable endpoint remaining-distance arithmetic",
+    "Hidden sphere adds second moments; all previous positivity and accuracy assertions retained",
+    "Reuse existing fixed-boundary edge/face swaps and interior collapses on bounded repair cavities; no new nodes; exact interface and frozen metric revalidation",
+    "ValidityOnly Repair uses the same minimum normalized q/J objective as the existing optimizer; default Absolute and final gates unchanged",
+    "Work/storage/candidate identity bounds retained; optimizer trials and validated candidates reported"
+  ],
+  "acceptance": [
+    "Resolve all previous focused failures without raising limits",
+    "Connected serial and six-rank MPI plus all-worker curved transfer/reload",
+    "Full M6 accepted mesh, transfer and restart still required"
+  ],
+  "build_session": 56379
+}
