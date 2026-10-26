@@ -1255,9 +1255,11 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
       "Native3D BL curved mapped queries are not integrated; refusing a faceted substitute.");
   const auto saved=state.original;const auto savedPoints=parameters->Snapshot();
   ImportedGeometry output;std::string reason;BridgeStats stats;
-  CHECK_FALSE(ImportGeometry(*test.config,test.Geometry(),nullptr,state,output,reason,stats,SIZE_MAX));
-  CHECK(reason.find("curved mapped adaptation is not integrated")!=std::string::npos);
-  CHECK(state.original==saved);CHECK(parameters->Snapshot()==savedPoints);CHECK(output.cells.empty());
+  REQUIRE(ImportGeometry(*test.config,test.Geometry(),nullptr,state,output,reason,stats,SIZE_MAX));
+  CHECK(reason.empty());CHECK(output.cells.size()==imported.cells.size());
+  CHECK(CPassiveComm::Allreduce(uint64_t(output.original.size()),CPassiveComm::Op::SUM,SU2_MPI::GetComm())>
+        CPassiveComm::Allreduce(uint64_t(imported.original.size()),CPassiveComm::Op::SUM,SU2_MPI::GetComm()));
+  CHECK(state.original==saved);CHECK(parameters->Snapshot()==savedPoints);
 }
 
 TEST_CASE("Native3D volume integration resolves a far vertex closest to another wall face", "[NativeVolumeBL3D]") {

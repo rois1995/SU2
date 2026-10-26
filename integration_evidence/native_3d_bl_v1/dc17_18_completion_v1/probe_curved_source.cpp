@@ -6,8 +6,8 @@ int main(int argc,char** argv) {
   SU2_MPI::Init(&argc,&argv);int status=1;
   try {
     using namespace SU2Native3D;
-    World world;if(world.size!=1 || argc<4 || argc>6 || (argc>=5 && std::string(argv[4])!="--surface"))
-      throw std::runtime_error("usage: probe sidecar donors output [--surface [first-facet]] (serial)");
+    World world;if(argc<4 || argc>6 || (argc>=5 && (world.size!=1 || std::string(argv[4])!="--surface")))
+      throw std::runtime_error("usage: probe sidecar donors output [--surface [first-facet]] (surface sampling is serial)");
     const size_t ceiling=size_t(12)<<30;
     std::ifstream file(argv[1]);std::ostringstream text;text<<file.rdbuf();if(!file)throw std::runtime_error("Cannot read curved sidecar.");
     auto state=DecodeReference(text.str(),size_t(2)<<30);
@@ -73,11 +73,16 @@ int main(int argc,char** argv) {
     }
     double radius=0;for(const auto& row:state.original->Parameters()->Geometry().Errors())
       radius=std::max(radius,4*state.original->Parameters()->Geometry().EnvelopeError(row.first));
+    source.erase(std::remove_if(source.begin(),source.end(),[&](const DonorCell& d){return d.cell.id%world.size!=Id(world.rank);}),source.end());
+    for(auto i=owned.begin();i!=owned.end();)if(i->first%world.size!=Id(world.rank))i=owned.erase(i);else ++i;
+    const size_t local_count=source.size();
+    const std::string output=std::string(argv[3])+(world.size==1?"":".rank"+std::to_string(world.rank));
     BridgeStats stats;std::string reason;
     const auto live=transfer_memory::Add(OwnedStorageBytes(owned),ReferenceStorageBytes(state),transfer_memory::Bytes(source));
     const bool accepted=Coverage(world,owned,source,*state.original,1e-4,live,ceiling,stats,reason,180,true);
-    std::ofstream out(argv[3]);out<<std::setprecision(17)<<"{\"admitted\":"<<(accepted?"true":"false")
-      <<",\"mesh_constructed\":false,\"radius\":"<<radius<<",\"source_cells_before\":"<<count
+    std::ofstream out(output);out<<std::setprecision(17)<<"{\"admitted\":"<<(accepted?"true":"false")
+      <<",\"mesh_constructed\":false,\"radius\":"<<radius<<",\"rank\":"<<world.rank<<",\"ranks\":"<<world.size
+      <<",\"global_original_cells\":"<<count<<",\"source_cells_before\":"<<local_count
       <<",\"source_cells_after\":"<<source.size()<<",\"shell_nodes\":"<<stats.source_envelope_nodes
       <<",\"shell_cells\":"<<stats.source_envelope_cells<<",\"solves\":"<<stats.source_envelope_solves
       <<",\"contacts\":"<<stats.source_envelope_contacts<<",\"distances\":"<<stats.source_envelope_distances
@@ -97,7 +102,7 @@ int main(int argc,char** argv) {
       for(size_t k=0;k<source.size();++k){DonorCell row;decode(row);std::vector<char> a,b;RecordStream ea(a),eb(b);ea(row);eb(source[k]);
         if(a!=b)throw std::runtime_error("Source snapshot round-trip mismatch.");}
       if(!decode.End())throw std::runtime_error("Source snapshot trailing data.");
-      std::ofstream saved(std::string(argv[3])+".donors",std::ios::binary);saved.write(bytes.data(),bytes.size());saved.close();
+      std::ofstream saved(output+".donors",std::ios::binary);saved.write(bytes.data(),bytes.size());saved.close();
       if(!saved)throw std::runtime_error("Cannot preserve admitted source snapshot.");
     }
     std::cout<<"source_admitted="<<accepted<<" reason="<<reason<<std::endl;status=accepted?0:2;

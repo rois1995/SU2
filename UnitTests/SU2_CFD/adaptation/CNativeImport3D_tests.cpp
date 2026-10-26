@@ -2553,14 +2553,17 @@ TEST_CASE("Mapped boundary records follow actual CFD reader numbering output and
 
 TEST_CASE("Mapped native runtime completes a uniform target before conservative BDF2 transfer", "[NativeMappedRuntime3D]") {
   World world;const bool rans=GENERATE(false,true);
+  const bool curved=GENERATE(false,true);
   const auto physics=rans?std::string("SOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 1e6\nREYNOLDS_LENGTH= 1\n"):std::string("SOLVER= EULER\n");
   const auto all=std::getenv("SU2_NATIVE_MAPPED_ALL_WORKERS");
   const int workers=all&&std::string(all)=="1"?world.size:(world.size>1?world.size/2:1);
   auto config=MakeConfig(3,physics+"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_HESSIAN_NOISE= 0\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\n"
-      "ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "+std::to_string(workers)+"\nTIME_DOMAIN= YES\nTIME_STEP= .001\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n");
+      "ADAP_NATIVE_REPARTITION= YES\nADAP_HAUSD= .001\nADAP_NATIVE_RANKS= "+std::to_string(workers)+"\nTIME_DOMAIN= YES\nTIME_STEP= .001\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n");
   auto mesh=BoxMesh(3,1,false);for(size_t p=0;p<mesh.GetnPoint();++p)mesh.coord[3*p+1]+=.37*mesh.coord[3*p]+.61*mesh.coord[3*p+2];
   const auto base=AffineFlow(3);
-  const transfer_test::Field flow=[base,rans](const su2double* x,su2double* u){base(x,u);if(rans){u[1]=20*x[2];u[2]=3*x[2];u[3]=2*x[2];}};
+  const transfer_test::Field flow=[base,rans,curved](const su2double* x,su2double* u){
+    if(curved){const std::array<su2double,5> constant{1.,.2,.1,.05,3.};std::copy(constant.begin(),constant.end(),u);}
+    else {base(x,u);if(rans){u[1]=20*x[2];u[2]=3*x[2];u[3]=2*x[2];}}};
   MeshSolution current(config.get(),mesh,0);current.SetField(FLOW_SOL,flow);
   if(rans)current.SetField(TURB_SOL,[](const su2double*,su2double* u){u[0]=.01;});
   for(auto slot:{FLOW_SOL,TURB_SOL}) {
@@ -2570,8 +2573,23 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
     }
   }
   auto reference=std::make_shared<ReferenceState>();ImportGeometry(*config,current.Fine(),nullptr,*reference);
+  if(curved) {
+    std::reverse(reference->marker_names.begin(),reference->marker_names.end());
+    for(auto& f:reference->facets)f.marker=reference->marker_names.size()-1-f.marker;
+    reference->original=std::make_shared<PlanarReference>(reference->facets);
+  }
   std::map<Id,double> errors;for(auto f:reference->facets)errors.emplace(f.id,1e-13);
-  auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference->original,errors,7,SIZE_MAX,std::getenv("SU2_NATIVE_MAPPED_COMPONENTS")!=nullptr);
+  SU2NativeGeometry::MappedFacetReference::CurvedNets nets;
+  if(curved) {
+    const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+    for(const auto& f:reference->facets) {
+      for(unsigned q=0;q<10;++q){long double x=0,y=0,z=0;for(unsigned k=0;k<3;++k){
+        x+=powers[q][k]*(long double)f.v[k].p.x;y+=powers[q][k]*(long double)f.v[k].p.y;z+=powers[q][k]*(long double)f.v[k].p.z;}
+        nets[f.id][q]={double(x/3),double(y/3),double(z/3)};}
+      if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))nets[f.id][9].z-=.02;
+    }
+  }
+  auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference->original,errors,7,SIZE_MAX,!curved && std::getenv("SU2_NATIVE_MAPPED_COMPONENTS")!=nullptr,nets);
   BoundaryPoints points;std::vector<SurfaceFace> skin;
   for(auto f:reference->facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});}
   reference->original=PlanarReference::WithParameters(reference->original,std::make_shared<BoundaryParameterState>(authority,points,skin));
@@ -2579,22 +2597,61 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
   su2activematrix sensor(current.Fine().GetnPointDomain(),6);
   for(size_t p=0;p<sensor.rows();++p)for(unsigned k=0;k<6;++k)sensor(p,k)=(k==0||k==3||k==5)?4.:0.;
   EngineOptions limits;limits.maximum_seconds=120;limits.timings=true;
+  if(curved)limits.rejected_state=[&](const Owned& owned,const PlanarReference& geometry,const std::string& why) {
+    std::ofstream out("cubic_runtime_rejected_"+std::to_string(rans)+"_"+std::to_string(world.rank)+".txt");
+    out<<std::setprecision(17)<<why<<'\n';
+    for(const auto& row:owned) {
+      const auto& c=row.second.cell;const auto m=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},Tensor{4,0,0,4,0,4});
+      double error=0;
+      for(unsigned k=0;k<4;++k)if(row.second.physical[k].present) {
+        std::array<Point,3> p{};unsigned at=0;for(unsigned i=0;i<4;++i)if(i!=k)p[at++]=c.v[i].p;
+        if(k%2)std::swap(p[1],p[2]);
+        error=std::max(error,geometry.SurfaceError(row.second.physical[k].facet,p));
+      }
+      if(m.mean_ratio>=.20 && m.minimum_scaled_jacobian>=.05 && m.maximum_edge<=1.8 && error<=.001)continue;
+      out<<c.id<<" q="<<m.mean_ratio<<" J="<<m.minimum_scaled_jacobian<<" edge="<<m.maximum_edge<<" surface="<<error<<'\n';
+      for(auto n:c.v)out<<n.id<<' '<<n.p.x<<' '<<n.p.y<<' '<<n.p.z<<'\n';
+    }
+  };
   CNativeRemesher3D backend(reference,limits);const auto result=backend.Remesh(*config,current.Fine(),sensor);
   INFO("refine="<<EngineStopName(backend.Statistics().refine.stop)<<", coarsen="<<EngineStopName(backend.Statistics().coarsen.stop));
   REQUIRE(result.status==CRemeshResult::Status::COMPLETE);CHECK(EncodeReference(*reference)==original_reference);CHECK(State(current)==saved);
+  if(curved)CHECK(CPassiveComm::Allreduce(backend.Statistics().refine.geometry_progress,CPassiveComm::Op::SUM,world.comm)>0);
   MeshSolution accepted(config.get(),result.slices,0);CConservativeTransfer transfer;
   {Mute mute;transfer.Transfer(config.get(),current.Donor(),accepted.geometry,accepted.solver);}
-  const auto name=rans?"mapped_runtime_rans":"mapped_runtime_euler";
+  const std::string name=std::string(curved?"cubic_":"")+(rans?"mapped_runtime_rans":"mapped_runtime_euler");
   const auto transported=result.slices.FetchPointMetric(accepted.Fine());
   SaveStates(world,name,current,accepted,transported,4.);SaveProjection(world,name,transfer);
+  std::vector<bool> wall(accepted.Fine().GetnPoint(),false);double volumeScale=1,momentumScale=1;
+  if(curved && rans) {
+    // Closed-wall domain growth conserves content; no-slip momentum moves to the free dual volumes.
+    for(unsigned short m=0;m<accepted.Fine().GetnMarker();++m)if(config->GetMarker_All_KindBC(m)==HEAT_FLUX)
+      for(unsigned long v=0;v<accepted.Fine().GetnVertex(m);++v)wall[accepted.Fine().vertex[m][v]->GetNode()]=true;
+    std::vector<Id> localWall;for(size_t p=0;p<wall.size();++p)if(wall[p])localWall.push_back(accepted.Fine().nodes->GetGlobalIndex(p));
+    const auto globalWall=world.exchange(std::vector<std::vector<Id>>(world.size,localWall));
+    const std::set<Id> wallIds(globalWall.begin(),globalWall.end());
+    for(size_t p=0;p<wall.size();++p)wall[p]=wallIds.count(accepted.Fine().nodes->GetGlobalIndex(p));
+    double oldVolume=0,newVolume=0,freeVolume=0;
+    for(unsigned long p=0;p<current.Fine().GetnPointDomain();++p)oldVolume+=SU2_TYPE::GetValue(current.Fine().nodes->GetVolume(p));
+    for(unsigned long p=0;p<accepted.Fine().GetnPointDomain();++p) {
+      const double volume=SU2_TYPE::GetValue(accepted.Fine().nodes->GetVolume(p));newVolume+=volume;if(!wall[p])freeVolume+=volume;
+    }
+    oldVolume=CPassiveComm::Allreduce(oldVolume,CPassiveComm::Op::SUM,world.comm);
+    newVolume=CPassiveComm::Allreduce(newVolume,CPassiveComm::Op::SUM,world.comm);
+    freeVolume=CPassiveComm::Allreduce(freeVolume,CPassiveComm::Op::SUM,world.comm);
+    REQUIRE(newVolume>oldVolume);REQUIRE(freeVolume>0);REQUIRE(freeVolume<newVolume);
+    volumeScale=oldVolume/newVolume;momentumScale=oldVolume/freeVolume;
+    CHECK(transfer.GetSummary().nWallPoints>0);CHECK(transfer.GetSummary().nTurbLimited==0);
+  }
   double error=0;
   for(unsigned long p=0;p<accepted.Fine().GetnPoint();++p) {
     su2double expected[MAXVAR]{};flow(accepted.Fine().nodes->GetCoord(p),expected);const auto* nodes=accepted.solver[MESH_0][FLOW_SOL]->GetNodes();
+    if(curved && rans)for(unsigned k=0;k<5;++k)expected[k]*=(k==0||k==4)?volumeScale:(wall[p]?0:momentumScale);
     for(unsigned k=0;k<5;++k){error=std::max(error,RelDiff(nodes->GetSolution(p,k),expected[k]));
       error=std::max(error,RelDiff(nodes->GetSolution_time_n(p,k),expected[k]));error=std::max(error,RelDiff(nodes->GetSolution_time_n1(p,k),.96875*expected[k]));}
     if(rans){const auto* turb=accepted.solver[MESH_0][TURB_SOL]->GetNodes();CHECK(turb->GetSolution(p,0)>=0);CHECK(turb->GetSolution_time_n(p,0)>=0);CHECK(turb->GetSolution_time_n1(p,0)>=0);
-      error=std::max(error,RelDiff(turb->GetSolution(p,0),.01));error=std::max(error,RelDiff(turb->GetSolution_time_n(p,0),.01));
-      error=std::max(error,RelDiff(turb->GetSolution_time_n1(p,0),.0096875));}
+      error=std::max(error,RelDiff(turb->GetSolution(p,0),.01*volumeScale));error=std::max(error,RelDiff(turb->GetSolution_time_n(p,0),.01*volumeScale));
+      error=std::max(error,RelDiff(turb->GetSolution_time_n1(p,0),.0096875*volumeScale));}
   }
   CHECK(CPassiveComm::Allreduce(error,CPassiveComm::Op::MAX,world.comm)<2e-9);CHECK(State(current)==saved);
   if(result.beforeAcceptance)REQUIRE(CPassiveComm::Allreduce(int(result.beforeAcceptance()),CPassiveComm::Op::MIN,world.comm));

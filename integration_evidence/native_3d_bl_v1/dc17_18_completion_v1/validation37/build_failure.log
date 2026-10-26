@@ -1,0 +1,37 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/7] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativePredicates3D.cpp.o
+[2/7] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o
+[3/7] Linking static target Common/src/libSU2AccurateSum.a
+[4/7] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o
+FAILED: [code=1] UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o 
+c++ -IUnitTests/test_driver.p -IUnitTests -I../../UnitTests -ISU2_CFD/src -I../../SU2_CFD/src -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I../../externals/catch2 -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -pthread -fPIC -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o -MF UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o.d -o UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o -c ../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp: In lambda function:
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2605:39: error: ‘Faces’ was not declared in this scope; did you mean ‘faces’?
+ 2605 |       double error=0;const auto faces=Faces(c);
+      |                                       ^~~~~
+      |                                       faces
+ninja: build stopped: subcommand failed.
+Command exited with non-zero status 1
+	Command being timed: "/home/rausa/Software/su2-develop/ninja -C integration_evidence/build-integrated-v2 -j1 UnitTests/test_driver SU2_CFD/src/SU2_CFD"
+	User time (seconds): 64.09
+	System time (seconds): 1.37
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:06.85
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1560328
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 912415
+	Voluntary context switches: 60
+	Involuntary context switches: 790
+	Swaps: 0
+	File system inputs: 8
+	File system outputs: 248408
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

@@ -1,0 +1,14 @@
+{
+  "status": "serial passed; MPI test-only halo marker oracle defect",
+  "change": "correct pointwise RANS oracle for closed-wall domain growth and no-slip redistribution; independent geometry volume/marker oracle verified flow/history to8.88e-16 in validation37",
+  "production_sources": "unchanged from validation37; do not rerun M6 for test-only correction",
+  "build_session": 91200,
+  "build_exit": 0,
+  "serial_session": 46476,
+  "serial_exit": 0,
+  "serial_cases": 98,
+  "serial_assertions": 15718,
+  "mpi_session": 24127,
+  "mpi_exit": 1,
+  "mpi_failure": "RANS pointwise oracle classifies halo wall nodes using only local physical marker faces; owned saved states agree with independent geometry oracle"
+}

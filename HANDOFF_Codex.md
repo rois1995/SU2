@@ -12,21 +12,31 @@ metric-driven operators, unchanged q>=.20, J>=.05, edge<=1.8, first height withi
 User curvature decision: configured ADAP_HAUSD in mesh units, independent of h0
 and ramp. No implicit chord inference or silent tightening to h0.
 
-Current curved-source stage: validation32 admits the complete M6 source shell
-under unchanged gates:146,862 positive/conforming exterior tets,4,860,163 exact
-contacts and650,106 control-hull separation checks;450,221 total source cells.
-Whole63.66s, process peak817,540KiB, requested storage1.63GB. Serial29 cases/
-3,055 assertions; MPI2 each29 cases,3,741/3,780 assertions. Source/runtime pins
-verify. The154.9MB source snapshot has exact serialization round-trip validation.
-Validation30's incomplete polytope axes were diagnosed and fixed; previous folded
-shell failures remain preserved. See [curved-source details](Handbook/DC18_CURVED_SOURCE.md).
-Validation33 field job7949 passes all48,954 facets:489,540 point queries,
-293,724 directed chord integrations, original P1 priority retained; worst reversal
-relative error2.16e-19. Whole126.95s, process peak526,068KiB. All pins verify.
-Next qualify two-rank M6 source construction against the exact saved records.
-Curved clearance/local differential geometry checkpoint61bf6cc4c1 remains validated
-on325 M6 queries, including65 certified fluid-side1e-6 offsets. No adapted mesh
-has passed the complete acceptance gates; automatic curved import/BL stay guarded.
+Current local checkpoint10c24a78ce. Full M6 curved-source/field qualification
+passes (validation32–34):450,221 source cells, all48,954 reference facets queried,
+293,724 directed chords, exact serial/MPI2 record identity including ownership.
+Curved first-height clearance/local differential geometry remains validated on
+325 M6 queries, including65 certified fluid-side1e-6 offsets (validation25).
+See [curved-source history and current design](Handbook/DC18_CURVED_SOURCE.md).
+
+Production persisted curved import now works, including marker-name reordering.
+Validation37 fixes private mapped geometry scoring and reuses exact original-parent
+support/nodal chords. Both small cubic runtime branches complete with159 cells,
+conservative BDF2 accounting and SU2/CGNS reload. Full M6 job25094 finished with
+adaptation rejected: all303,359 initial cells measured in41.24s,99 accepted edits,
+then301.36s deadline. Original CFD state retained; no accepted full M6 exists.
+The next limitation is whole-mesh collision-index rebuild on every surface edit
+(174.42s unclassified refine time). Reuse Directory/CADTElemClass with publication
+invalidation, exact contacts and remote queries; design is in the linked handbook.
+
+Validation38 corrects the RANS test oracle for closed-wall volume conservation
+and no-slip redistribution. Independent saved-mesh flow/history error8.88e-16.
+Serial46476 passes98 cases/15,718 assertions. MPI24127 exposes local-only wall
+classification of halo nodes (owned states correct); validation39 gathers physical
+wall global IDs for the oracle. Build85486 and MPI2 job20715 pass98 cases/rank (16,342/16,021 assertions);
+serial runtime61407 passes487 assertions. All jobs terminal; all pins verified. Production unchanged from validation37; no M6 rerun for
+these test-only fixes. Gates/deadline unchanged. Automatic curved initialization
+is absent and BL support/quadrature remains guarded.
 - Shared Option A field is used by normalization, profile selection, construction,
   reassessment and original-family correction; finer sensor directions survive.
 - Registered-column cavities resolve the remaining M6 first-height witnesses.
@@ -43,10 +53,10 @@ has passed the complete acceptance gates; automatic curved import/BL stay guarde
   work2,336/16,384, query time1.59s, whole10.09s, process peak314,412KiB.
   Source/input/binary/runtime pins verify for validation23.
 
-Next: qualify the admitted source through actual field queries/chords, then
+Next: complete production geometry construction and its runtime workflow, then
 connected metric/support/quadrature, wall refinement and initialization.
-Import and BL construction explicitly refuse incomplete curved production use;
-remove these guards only when all affected consumers are qualified. FIRST_ROW W
+Qualify the newly connected persisted curved import through full runtime workflows;
+keep the separate BL refusal until its support/quadrature consumers are complete. FIRST_ROW W
 currently lacks a SurfaceError demand. Fitted-plane seam release must survive
 curved promotion. The new positive bound certifies local normal clearance, not global embedding.
 

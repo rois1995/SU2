@@ -267,6 +267,20 @@ bool ClipInterval(const Tetrahedron& t, Point a, Point b, Integer<198>& volume,
 }
 bool Clip(const Cell& cell, Point a, Point b, WorkPiece& result, KernelStats* stats) {
   const Tetrahedron t{cell.v[0].p, cell.v[1].p, cell.v[2].p, cell.v[3].p};
+  // TraceSegment has validated positive orientation; exact nodal endpoints span the entire edge.
+  size_t first=4,last=4;
+  for(size_t i=0;i<4;++i) {
+    if(a.x==t[i].x && a.y==t[i].y && a.z==t[i].z)first=i;
+    if(b.x==t[i].x && b.y==t[i].y && b.z==t[i].z)last=i;
+  }
+  if(first<4 && last<4) {
+    result.begin=Root(false);result.end=Root(true);
+    result.piece.begin=0;result.piece.end=result.piece.width=1;
+    result.piece.begin_weights[first]=1;result.piece.end_weights[last]=1;
+    result.support[0]=std::min(cell.v[first].id,cell.v[last].id);
+    result.support[1]=std::max(cell.v[first].id,cell.v[last].id);result.support_size=2;
+    return true;
+  }
   Integer<198> volume;
   std::array<Integer<198>, 4> va, vb;
   Root lo(false), hi(true);

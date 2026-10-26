@@ -991,9 +991,6 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
     const auto presence_high=CPassiveComm::Allreduce(presence,CPassiveComm::Op::MAX,parent.comm);
     if(presence_low!=presence_high)
       failure.Set(1,0,"Native3D import reference/sensor/declaration presence differs across ranks.");
-    // shortcut: v7 geometry can be inspected/persisted, but the complete curved adaptation path is not qualified.
-    if(state.original && state.original->Mapped() && !state.original->Parameters()->Geometry().Curves().empty())
-      failure.Set(1,0,"Native3D curved mapped adaptation is not integrated; reference retained unchanged.");
     if(!Vote(parent,failure,reason))return false;
     const size_t declaration_bytes=HasSymmetryReference(config)?8*SymmetryFileBytes:0;
     std::vector<SymmetryPlane> declared_planes;
@@ -1244,14 +1241,25 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
       }
     }
     const auto& authority = state.original ? state : pending;
-    if (authority.marker_names != names) failure.Set(1, 0, "Native3D immutable physical marker names changed.");
+    if (authority.marker_names.size() != names.size()) failure.Set(1, 0, "Native3D immutable physical marker names changed.");
     CollectiveFailure(failure, CURRENT_FUNCTION);
     CLocalFailure declaration_failure;
     try {CheckDeclaredSymmetry(authority,declared_planes);}catch(const std::exception& e){declaration_failure.Set(1,0,e.what());}
     if(!Vote(parent,declaration_failure,reason))return false;
     if (!Admit(parent, transfer_memory::Add(reference_base,
-                   state.original ? 0 : ReferenceStorageBytes(pending), authority.original->SearchWorkspaceBytes()),
+                   state.original ? 0 : ReferenceStorageBytes(pending), authority.original->SearchWorkspaceBytes(),
+                   transfer_memory::Mul(names.size(),sizeof(size_t))),
                ceiling, stats, reason)) return false;
+    // Reader/config marker order may change; physical names retain the persisted authority identities.
+    std::vector<size_t> marker_alias;marker_alias.reserve(names.size());
+    for(const auto& name:names) {
+      const auto found=std::find(authority.marker_names.begin(),authority.marker_names.end(),name);
+      const size_t index=found-authority.marker_names.begin();
+      if(found==authority.marker_names.end() || std::find(marker_alias.begin(),marker_alias.end(),index)!=marker_alias.end())
+        failure.Set(1,0,"Native3D immutable physical marker names changed.");
+      marker_alias.push_back(index);
+    }
+    CollectiveFailure(failure,CURRENT_FUNCTION);
     try {
       for (auto b : bindings) {
         auto& cell = result.cells.at(b.cell);
@@ -1261,7 +1269,7 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
           for (auto n : cell.cell.v)
             if (n.id == face[k]) p[k] = n.p;
         Id chosen = 0;
-        if (!authority.original->FindFace(b.marker, p, chosen))
+        if (!authority.original->FindFace(marker_alias.at(b.marker), p, chosen))
           throw std::invalid_argument("Native3D physical triangle leaves its immutable oriented marker facets.");
         if(authority.original->Mapped()) {
           const auto* parameters=authority.original->Parameters();const auto found=parameters->Surface().find(Key(face));
@@ -1286,7 +1294,8 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
       CollectiveFailure(failure,CURRENT_FUNCTION);
     }
     if(!Coverage(parent,result.cells,result.original,*authority.original,SU2_TYPE::GetValue(config.GetAdap_Hausd()),
-                 transfer_memory::Add(reference_base,state.original ? 0 : ReferenceStorageBytes(pending)),ceiling,stats,reason,
+                 transfer_memory::Add(reference_base,state.original ? 0 : ReferenceStorageBytes(pending),
+                                      transfer_memory::Bytes(marker_alias)),ceiling,stats,reason,
                  SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time()),
                  // DC-16: the exact envelope audit is skipped only on intermediate FIRST_ROW ramp events
                  !(config.GetKind_Adap_BL_Method()==ADAP_BL_METHOD::FIRST_ROW && !config.GetAdap_BL_RampFinal())))

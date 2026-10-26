@@ -163,6 +163,11 @@ TEST_CASE("Native exact segment vertices reuse unit weights without snapping nea
     const auto near=std::nextafter(scale,0.);
     const auto pieces=TraceSegment({&cell},{0,0,0},{near,0,0});REQUIRE(pieces.size()==1);
     CHECK(pieces[0].end_weights[1]==static_cast<long double>(near)/scale);CHECK(pieces[0].end_weights[0]>0);
+    auto unrelated=cell;for(auto& n:unrelated.v)n.id+=4;
+    CHECK_THROWS_AS(TraceSegment({&cell,&unrelated},cell.v[0].p,cell.v[1].p),std::runtime_error);
+    const auto layered=TraceSegment({&cell,&unrelated},cell.v[0].p,cell.v[1].p,nullptr,1);
+    REQUIRE(layered.size()==1);CHECK(layered[0].donor==0);CHECK(layered[0].begin_weights[0]==1);
+    CHECK(layered[0].end_weights[1]==1);
     auto invalid=cell;std::swap(invalid.v[0],invalid.v[1]);
     CHECK_THROWS_AS(TraceSegment({&cell,&invalid},cell.v[0].p,cell.v[1].p),std::invalid_argument);
   }

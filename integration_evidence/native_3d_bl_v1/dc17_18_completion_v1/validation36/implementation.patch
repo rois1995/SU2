@@ -1,0 +1,141 @@
+diff --git a/Common/src/adaptation/CNativeImport3D.cpp b/Common/src/adaptation/CNativeImport3D.cpp
+index f9c5d13c7d..9aa5109ae2 100644
+--- a/Common/src/adaptation/CNativeImport3D.cpp
++++ b/Common/src/adaptation/CNativeImport3D.cpp
+@@ -991,9 +991,6 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
+     const auto presence_high=CPassiveComm::Allreduce(presence,CPassiveComm::Op::MAX,parent.comm);
+     if(presence_low!=presence_high)
+       failure.Set(1,0,"Native3D import reference/sensor/declaration presence differs across ranks.");
+-    // shortcut: v7 geometry can be inspected/persisted, but the complete curved adaptation path is not qualified.
+-    if(state.original && state.original->Mapped() && !state.original->Parameters()->Geometry().Curves().empty())
+-      failure.Set(1,0,"Native3D curved mapped adaptation is not integrated; reference retained unchanged.");
+     if(!Vote(parent,failure,reason))return false;
+     const size_t declaration_bytes=HasSymmetryReference(config)?8*SymmetryFileBytes:0;
+     std::vector<SymmetryPlane> declared_planes;
+@@ -1244,14 +1241,25 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
+       }
+     }
+     const auto& authority = state.original ? state : pending;
+-    if (authority.marker_names != names) failure.Set(1, 0, "Native3D immutable physical marker names changed.");
++    if (authority.marker_names.size() != names.size()) failure.Set(1, 0, "Native3D immutable physical marker names changed.");
+     CollectiveFailure(failure, CURRENT_FUNCTION);
+     CLocalFailure declaration_failure;
+     try {CheckDeclaredSymmetry(authority,declared_planes);}catch(const std::exception& e){declaration_failure.Set(1,0,e.what());}
+     if(!Vote(parent,declaration_failure,reason))return false;
+     if (!Admit(parent, transfer_memory::Add(reference_base,
+-                   state.original ? 0 : ReferenceStorageBytes(pending), authority.original->SearchWorkspaceBytes()),
++                   state.original ? 0 : ReferenceStorageBytes(pending), authority.original->SearchWorkspaceBytes(),
++                   transfer_memory::Mul(names.size(),sizeof(size_t))),
+                ceiling, stats, reason)) return false;
++    // Reader/config marker order may change; physical names retain the persisted authority identities.
++    std::vector<size_t> marker_alias;marker_alias.reserve(names.size());
++    for(const auto& name:names) {
++      const auto found=std::find(authority.marker_names.begin(),authority.marker_names.end(),name);
++      const size_t index=found-authority.marker_names.begin();
++      if(found==authority.marker_names.end() || std::find(marker_alias.begin(),marker_alias.end(),index)!=marker_alias.end())
++        failure.Set(1,0,"Native3D immutable physical marker names changed.");
++      marker_alias.push_back(index);
++    }
++    CollectiveFailure(failure,CURRENT_FUNCTION);
+     try {
+       for (auto b : bindings) {
+         auto& cell = result.cells.at(b.cell);
+@@ -1261,7 +1269,7 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
+           for (auto n : cell.cell.v)
+             if (n.id == face[k]) p[k] = n.p;
+         Id chosen = 0;
+-        if (!authority.original->FindFace(b.marker, p, chosen))
++        if (!authority.original->FindFace(marker_alias.at(b.marker), p, chosen))
+           throw std::invalid_argument("Native3D physical triangle leaves its immutable oriented marker facets.");
+         if(authority.original->Mapped()) {
+           const auto* parameters=authority.original->Parameters();const auto found=parameters->Surface().find(Key(face));
+@@ -1286,7 +1294,8 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
+       CollectiveFailure(failure,CURRENT_FUNCTION);
+     }
+     if(!Coverage(parent,result.cells,result.original,*authority.original,SU2_TYPE::GetValue(config.GetAdap_Hausd()),
+-                 transfer_memory::Add(reference_base,state.original ? 0 : ReferenceStorageBytes(pending)),ceiling,stats,reason,
++                 transfer_memory::Add(reference_base,state.original ? 0 : ReferenceStorageBytes(pending),
++                                      transfer_memory::Bytes(marker_alias)),ceiling,stats,reason,
+                  SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time()),
+                  // DC-16: the exact envelope audit is skipped only on intermediate FIRST_ROW ramp events
+                  !(config.GetKind_Adap_BL_Method()==ADAP_BL_METHOD::FIRST_ROW && !config.GetAdap_BL_RampFinal())))
+diff --git a/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp b/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
+index 2eaa7d824f..d40b42ece1 100644
+--- a/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
+@@ -1255,9 +1255,11 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
+       "Native3D BL curved mapped queries are not integrated; refusing a faceted substitute.");
+   const auto saved=state.original;const auto savedPoints=parameters->Snapshot();
+   ImportedGeometry output;std::string reason;BridgeStats stats;
+-  CHECK_FALSE(ImportGeometry(*test.config,test.Geometry(),nullptr,state,output,reason,stats,SIZE_MAX));
+-  CHECK(reason.find("curved mapped adaptation is not integrated")!=std::string::npos);
+-  CHECK(state.original==saved);CHECK(parameters->Snapshot()==savedPoints);CHECK(output.cells.empty());
++  REQUIRE(ImportGeometry(*test.config,test.Geometry(),nullptr,state,output,reason,stats,SIZE_MAX));
++  CHECK(reason.empty());CHECK(output.cells.size()==imported.cells.size());
++  CHECK(CPassiveComm::Allreduce(uint64_t(output.original.size()),CPassiveComm::Op::SUM,SU2_MPI::GetComm())>
++        CPassiveComm::Allreduce(uint64_t(imported.original.size()),CPassiveComm::Op::SUM,SU2_MPI::GetComm()));
++  CHECK(state.original==saved);CHECK(parameters->Snapshot()==savedPoints);
+ }
+ 
+ TEST_CASE("Native3D volume integration resolves a far vertex closest to another wall face", "[NativeVolumeBL3D]") {
+diff --git a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+index b5600aff0b..2ce3b46854 100644
+--- a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+@@ -2553,14 +2553,17 @@ TEST_CASE("Mapped boundary records follow actual CFD reader numbering output and
+ 
+ TEST_CASE("Mapped native runtime completes a uniform target before conservative BDF2 transfer", "[NativeMappedRuntime3D]") {
+   World world;const bool rans=GENERATE(false,true);
++  const bool curved=GENERATE(false,true);
+   const auto physics=rans?std::string("SOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 1e6\nREYNOLDS_LENGTH= 1\n"):std::string("SOLVER= EULER\n");
+   const auto all=std::getenv("SU2_NATIVE_MAPPED_ALL_WORKERS");
+   const int workers=all&&std::string(all)=="1"?world.size:(world.size>1?world.size/2:1);
+   auto config=MakeConfig(3,physics+"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_HESSIAN_NOISE= 0\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\n"
+-      "ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "+std::to_string(workers)+"\nTIME_DOMAIN= YES\nTIME_STEP= .001\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n");
++      "ADAP_NATIVE_REPARTITION= YES\nADAP_HAUSD= .001\nADAP_NATIVE_RANKS= "+std::to_string(workers)+"\nTIME_DOMAIN= YES\nTIME_STEP= .001\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n");
+   auto mesh=BoxMesh(3,1,false);for(size_t p=0;p<mesh.GetnPoint();++p)mesh.coord[3*p+1]+=.37*mesh.coord[3*p]+.61*mesh.coord[3*p+2];
+   const auto base=AffineFlow(3);
+-  const transfer_test::Field flow=[base,rans](const su2double* x,su2double* u){base(x,u);if(rans){u[1]=20*x[2];u[2]=3*x[2];u[3]=2*x[2];}};
++  const transfer_test::Field flow=[base,rans,curved](const su2double* x,su2double* u){
++    if(curved){const std::array<su2double,5> constant{1.,.2,.1,.05,3.};std::copy(constant.begin(),constant.end(),u);}
++    else {base(x,u);if(rans){u[1]=20*x[2];u[2]=3*x[2];u[3]=2*x[2];}}};
+   MeshSolution current(config.get(),mesh,0);current.SetField(FLOW_SOL,flow);
+   if(rans)current.SetField(TURB_SOL,[](const su2double*,su2double* u){u[0]=.01;});
+   for(auto slot:{FLOW_SOL,TURB_SOL}) {
+@@ -2570,8 +2573,23 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative
+     }
+   }
+   auto reference=std::make_shared<ReferenceState>();ImportGeometry(*config,current.Fine(),nullptr,*reference);
++  if(curved) {
++    std::reverse(reference->marker_names.begin(),reference->marker_names.end());
++    for(auto& f:reference->facets)f.marker=reference->marker_names.size()-1-f.marker;
++    reference->original=std::make_shared<PlanarReference>(reference->facets);
++  }
+   std::map<Id,double> errors;for(auto f:reference->facets)errors.emplace(f.id,1e-13);
+-  auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference->original,errors,7,SIZE_MAX,std::getenv("SU2_NATIVE_MAPPED_COMPONENTS")!=nullptr);
++  SU2NativeGeometry::MappedFacetReference::CurvedNets nets;
++  if(curved) {
++    const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
++    for(const auto& f:reference->facets) {
++      for(unsigned q=0;q<10;++q){long double x=0,y=0,z=0;for(unsigned k=0;k<3;++k){
++        x+=powers[q][k]*(long double)f.v[k].p.x;y+=powers[q][k]*(long double)f.v[k].p.y;z+=powers[q][k]*(long double)f.v[k].p.z;}
++        nets[f.id][q]={double(x/3),double(y/3),double(z/3)};}
++      if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))nets[f.id][9].z-=.02;
++    }
++  }
++  auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference->original,errors,7,SIZE_MAX,!curved && std::getenv("SU2_NATIVE_MAPPED_COMPONENTS")!=nullptr,nets);
+   BoundaryPoints points;std::vector<SurfaceFace> skin;
+   for(auto f:reference->facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});}
+   reference->original=PlanarReference::WithParameters(reference->original,std::make_shared<BoundaryParameterState>(authority,points,skin));
+@@ -2582,9 +2600,10 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative
+   CNativeRemesher3D backend(reference,limits);const auto result=backend.Remesh(*config,current.Fine(),sensor);
+   INFO("refine="<<EngineStopName(backend.Statistics().refine.stop)<<", coarsen="<<EngineStopName(backend.Statistics().coarsen.stop));
+   REQUIRE(result.status==CRemeshResult::Status::COMPLETE);CHECK(EncodeReference(*reference)==original_reference);CHECK(State(current)==saved);
++  if(curved)CHECK(CPassiveComm::Allreduce(backend.Statistics().refine.geometry_progress,CPassiveComm::Op::SUM,world.comm)>0);
+   MeshSolution accepted(config.get(),result.slices,0);CConservativeTransfer transfer;
+   {Mute mute;transfer.Transfer(config.get(),current.Donor(),accepted.geometry,accepted.solver);}
+-  const auto name=rans?"mapped_runtime_rans":"mapped_runtime_euler";
++  const std::string name=std::string(curved?"cubic_":"")+(rans?"mapped_runtime_rans":"mapped_runtime_euler");
+   const auto transported=result.slices.FetchPointMetric(accepted.Fine());
+   SaveStates(world,name,current,accepted,transported,4.);SaveProjection(world,name,transfer);
+   double error=0;

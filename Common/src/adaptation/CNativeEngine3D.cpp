@@ -381,11 +381,13 @@ class Selection {
           long double progress=-INFINITY;
           try {
             const Point middle{double((static_cast<long double>(a.x)+b.x)/2),double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)};
-            const auto projected=geometry.Project(owned.physical[slot].facet,middle);
+            const Patch patch{{cell},{{faces[slot],owned.physical[slot].facet}}};
+            auto parameters=geometry.PrivateParameters(patch);const auto& proposal=parameters?*parameters:geometry;
+            const auto projected=proposal.Project(owned.physical[slot].facet,middle);
             auto left=triangle,right=triangle;left[j]=projected;right[i]=projected;
-            const auto before=GeometryExcess(Patch{{cell},{{faces[slot],owned.physical[slot].facet}}},geometry,tolerance);
-            const double l=std::max(0.,geometry.SurfaceError(owned.physical[slot].facet,left)-allowed);
-            const double r=std::max(0.,geometry.SurfaceError(owned.physical[slot].facet,right)-allowed);
+            const auto before=GeometryExcess(patch,proposal,tolerance);
+            const double l=std::max(0.,proposal.SurfaceError(owned.physical[slot].facet,left)-allowed);
+            const double r=std::max(0.,proposal.SurfaceError(owned.physical[slot].facet,right)-allowed);
             auto area=[](const std::array<Point,3>& t) {
               const long double ax=static_cast<long double>(t[1].x)-t[0].x,ay=static_cast<long double>(t[1].y)-t[0].y,az=static_cast<long double>(t[1].z)-t[0].z;
               const long double bx=static_cast<long double>(t[2].x)-t[0].x,by=static_cast<long double>(t[2].y)-t[0].y,bz=static_cast<long double>(t[2].z)-t[0].z;
@@ -931,7 +933,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       ValidateTensor(sensor);return sensor;
     }catch(...){++stats.field_failures;throw;}
   };
-  auto import_source=[&](const std::vector<Cell>& cells,size_t extra,bool layer) {
+  auto import_source=[&](const std::vector<Cell>& cells,size_t extra,bool layer,
+                         const std::vector<unsigned char>* requests=nullptr) {
     auto failed=[&](){DonorPatch patch;patch.reason=result.reason;return patch;};
     if(!admit(transfer_memory::Add(extra,transfer_memory::Bytes(cells),transfer_memory::Mul(cells.size(),sizeof(Point)))))return failed();
     CLocalFailure failure;std::vector<Point> points;
@@ -964,10 +967,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }}catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure))return failed();
     // Original edges use their exact nodal P1; all other edges and centroids stay strictly inside a parent.
-    // First-row cones preserve this property; arbitrary reconstruction still needs full-cell imports.
+    // First-row cones and original-cell measurement preserve this property.
     if(!world.maximum(!supported))return patch;
     // shortcut: shared-face inserted points retain full imports; extend only with canonical-source equivalence proof.
     patch={};std::vector<Point>().swap(points);count_import();
+    if(requests)return source.ImportMetricSamples(cells,eligible_extensions,options.memory_ceiling,
+        transfer_memory::Add(bytes(),directory.ResidentBytes(),extra),*requests);
     return source.ImportCells(cells,options.memory_ceiling,
         transfer_memory::Add(bytes(),directory.ResidentBytes(),extra));
   };
@@ -1243,9 +1248,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         try {requests=MetricEdgeRequests(regions,reuse,field_identity,&campaign_edges);}
         catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!vote(failure))return false;
-        {Timer timer(stats.donor_seconds,options.timings,seed ? &stats.seed_seconds : &stats.update_seconds);++stats.donor_batches;
-          imported=source.ImportMetricSamples(regions,eligible_extensions,options.memory_ceiling,
-              transfer_memory::Add(bytes(),directory.ResidentBytes(),MaximumFrozenFieldBytes,plan_scratch),requests);}
+        {Timer timer(stats.donor_seconds,options.timings,seed ? &stats.seed_seconds : &stats.update_seconds);
+          imported=import_source(regions,transfer_memory::Add(MaximumFrozenFieldBytes,plan_scratch),false,&requests);}
 
         if (imported.valid) break;
         if (batch==1) { result.reason=imported.reason; return false; }

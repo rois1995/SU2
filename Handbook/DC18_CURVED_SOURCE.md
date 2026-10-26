@@ -1,6 +1,7 @@
 # DC18 curved original-source coverage — active
 
-Current implementation remains guarded against automatic curved import/BL use.
+Automatic curved initialization remains absent and BL construction remains guarded.
+Validation35 drafts explicit persisted-curved import after source qualification.
 Validated clearance checkpoint61bf6cc4c1; failed source trials/diagnosis2047a0ddf4.
 [Prior work and evidence](DC17_DC18_COMPLETION_2026_10_25.md).
 
@@ -103,3 +104,100 @@ of the smooth target; actual boundary/volume embedding and final geometry gates
 remain separate. The full-current-source face is a connected seed for the convex
 hull: separation from every augmented outer boundary keeps the whole hull in the
 same source-domain component, not merely the sampled curved surface.
+
+Local checkpoint10c24a78ce preserves validated source/field stages and all failed
+trials/diagnoses. Validation34 build44520/full M6 two-rank source75726 passed. Probe reads/validates the same original source, then partitions by CFD
+cell id before the actual collective Coverage call. Each rank saves its admitted
+records. Compare every serialized cell, nodal tensor, extension component and
+parent against validation32 after canonical ordering; verify owner routing too.
+Comparison52994 passes all450,221 records bit-identically, including CFD owner
+routing. Canonical SHA256 b29e92f644cc7e6e053d4a2fe1b3972842e98fdc24a51501b4f785e85fdb7817.
+Whole50.37s; largest reported process RSS670,760KiB is not a whole-job peak.
+Source/runtime pins verify against the executed source checkpoint.
+
+## Connected runtime integration — validation35 draft
+
+The missing capability is a complete geometry-driven remesh and transfer using
+the persisted cubic authority. Source/field prerequisites are now qualified, so
+the blanket ImportGeometry refusal is removed in draft. Import still checks exact
+reader identities, bindings, topology, positive source geometry and coverage.
+The separate FromNativeReference BL refusal remains until complete curved field
+support/quadrature/chord integration is implemented. No automatic curve promotion.
+
+Reuse the mapped-runtime fixture with an actual cubic boundary displacement and
+constant physical/BDF2 states. Require geometry progress, complete remeshing,
+conservative state transfer, unchanged pre-acceptance state and output/reload.
+The existing affine field fixture stays included. Full M6 Euler runs first using
+the actual source mesh and saved authority, pressure/Mach sensor from one flow
+iteration, target500k, HAUSD1e-4,12GiB/rank and300s native deadline. This is a
+workflow validation, not a converged aerodynamic solution. All final quality,
+Jacobian, edge, geometry, budget, transfer and restart gates remain required.
+Build86606 passed in192.95s, process peak2,871,324KiB. Full M6 Euler job16314
+terminated exit1 at120.84s: metric normalization reached500000.0000000185 with
+zero directed gradation violations; subsequent import rejected marker ordering.
+Case validation35/m6_euler/run.cfg and source/runtime pins are preserved. If construction fails,
+preserve its limiting witness and reconsider the missing coordination; passing
+source checks alone does not close DC18. Repeated adapted-source construction
+also needs qualification: its current full-original-patch hull may be conservative.
+
+Validation36 fixes marker correspondence by physical name. The mesh/reference
+both contain FARFIELD, SYMMETRY and WING3D, but CMeshGather orders by config
+marker kind while the supplied reference orders by name. Require equal counts
+and a bijection; preserve original marker IDs and reject missing/extra/duplicate
+names. Lookup storage remains included through source admission. Reversed-label
+curved runtime coverage exercises this path. Its HAUSD is explicitly .001 so
+actual curvature must be resolved; affine component-mode coverage stays separate
+from the presently facet-local cubic authority. Build71798 passed. Full M6
+rerun54252 finished: production source import passes, but initial measurement
+reaches only145,160/303,359 cells in300.655s, before any construction. Source
+filtering costs105.03s and exact edge tracing83.73s. Process exit0 retains the
+original mesh; it is not adaptation acceptance. Runtime88847 exit2: affine,
+reader and guard checks pass, but both cubic cases stagnate after33 accepted
+edits with8 invalid cells. All jobs terminal; failed patch/pins/logs preserved.
+
+Connected correction in progress: geometry scoring currently uses public mapped
+Project, whose proposal throws; use the existing private parameter overlay.
+Measurement should reuse the existing original-parent proof before requesting
+full edge support; exact original nodal chords can also use unit endpoint weights
+without changing overlap checks. Require runtime completion and full M6 progress
+under the same300s deadline, then final mesh/transfer/restart acceptance.
+
+Validation37 implements that connected correction. Build34909 found a test-only
+diagnostic helper scope error; corrected, build81190 passes. Serial14459 runs70
+cases/12,669 assertions:69 cases pass. Both cubic branches now complete with159
+cells and write/reload SU2 and CGNS. The single failed assertion assumes constant
+RANS state survives domain growth: production correctly conserves closed-wall
+content and imposes zero wall momentum, redistributing to other points. Existing
+SaveProjection checks pass all totals/history/domain accounting. Correct the
+pointwise oracle from independent donor/target/free-node volumes and marker IDs,
+retaining tolerances. Full M6 rerun25094 is terminal, process exit0 but adaptation rejected at301.36s: all303,359 initial cells measured in41.24s and99 edits accepted. Original CFD state retained. Donor filtering0.73s, exact edge trace1.45s;174.42s remains outside timed phases. Clearance rebuilds the whole current-mesh DonorImport on each surface edit; replace that repeated setup with a reusable current-mesh collision search while retaining exact contacts, deletion/movement invalidation and remote queries. Do not raise the deadline.
+
+Independent saved-mesh RANS oracle uses tetrahedral volumes/4 and physical wall
+markers; all flow/history states agree to8.88e-16. Validation38 applies this
+pointwise expectation in the runtime test, including SA scalar volume scaling.
+Production sources are unchanged from validation37; no M6 rerun for this test-only
+correction. Connected serial/MPI checks remain required before the checkpoint.
+
+Next implementation design (not yet implemented): reuse Directory, whose Publish
+already atomically owns cell additions/removals. Add a lazy local CADTElemClass
+box index over (cell ID,version), plus a bounded set of cells added since its
+build. Queries broadcast bounded replacement/removed-cell records with existing
+World transport; each rank checks current indexed and added cells with exact
+ConformingDisjoint, returning vetoes to proposal owners. Version checks ignore
+stale entries; Publish stages added-ID nodes before its final vote and updates
+index bookkeeping without allocation after commit. Rebuild from current Owned
+when the added set reaches an amortized threshold; avoid a new geometry mode or
+source-policy change. Include index/query scratch in Directory resident/admission
+bounds and add collision timings/counters. Qualify remote obstacles, deleted and
+moved/reused-ID cells, rejected publication, empty ranks and memory refusal before
+rerunning full M6 under unchanged gates. Existing 2D CollisionVeto uses the same
+bounded proposal broadcast and owner veto pattern; 3D retains full-cell contacts.
+
+Validation38 serial passes98 cases/15,718 assertions. MPI24127 found a test-only
+halo wall-membership error: local physical faces do not identify every halo wall
+node. Validation39 gathers global physical wall IDs; build85486 and MPI20715 pass
+98 cases/rank (16,342/16,021 assertions),22.31s. Largest reported process RSS45,612KiB,
+not whole-job peak. Serial runtime61407 passes487 assertions in18.29s,45,464KiB.
+All source/runtime pins verify. Broader serial evidence38 remains applicable:
+only the runtime test oracle changed; no production changes since37. All jobs
+terminal. The repeated full-M6 collision-index rebuild remains the next work.
