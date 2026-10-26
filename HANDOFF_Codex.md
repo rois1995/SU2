@@ -11,7 +11,7 @@ operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexit
 (not tet-count), geometry, conservative transfer and restart. Curvature uses
 ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
 
-ACTIVE: no owned job.52 build45125, all-worker89207 and focused14333 terminal.
+ACTIVE:53 build session5012 running; sources pinned.52 build45125, all-worker89207 and focused14333 terminal.
 52 source990/runtime19 pins verified; all receipts saved. Serial16/2532 passes.
 All6 priority/conflict, flat runtime and collapse checks pass (8/9 cases/rank).
 Cubic work4096 rejects:224 cells,zero shape/size failures,two surface errors.00125
@@ -22,7 +22,7 @@ are charged independently and later lose reservation; collapse already coalesces
 Retain geometric intent when electing a duplicate owner; preserve disjoint
 concurrency and all work/geometry/shape gates. Add a shared-body-diagonal regression
 with one unique proposal budget, then rerun all6 curved runtime before broad/M6.
-52 checkpoint pending; do not change sources until checkpoint saved.
+52 checkpoint2a214b1058 saved.53 source pins/patch/summary saved; do not edit C++ during build.
 
 Latest production checkpoint895ab7274a: empty initial FVM ranks fix; four-point sphere
 import passes on6 ranks.4933586627 fixed optimizer work accounting;47 serial125
@@ -62,8 +62,9 @@ handles; one owned heavy job,nice19,single-threaded libraries,ninja-j1. Ninja is
 integration_evidence/build-integrated-v2/compile-tmp. Preserve terminal receipts and
 source/runtime/input hashes. Build initial50 log/pins preserved separately.
 
-Remote push was rejected by automatic approval review; destination approval remains
-pending. Do not retry remote export without approval. Local checkpoints authorized.
+User explicitly approved push to rois1995/SU2 branch codex/native-3d-bl on2026-10-26.
+Prior destination approval block is resolved; push of saved checkpoints starting.
+53 implementation remains uncommitted/pinned until its campaign completes.
 Local checkpoint retry after review timeout succeeded (895ab7274a); no local block.
 TODO intentionally untracked; progress companion tracked. Leave unrelated dc11/dc15
 logs and untracked planning files alone. Git status needs --ignore-submodules.

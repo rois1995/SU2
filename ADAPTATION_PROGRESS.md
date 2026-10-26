@@ -37,6 +37,7 @@ Curvature uses `ADAP_HAUSD` in mesh units, independently of h0.
 | `895ab7274a` | Handle empty initial FVM graph ranks | Four-point import passes on six ranks. Distributed repair failures remain. |
 | `7113fd984d` — WIP | Couple bounded candidate repair to strict construction admission | Builds; validation50 fails runtime and a fixed-cell-count assertion. Corrected in validation51. |
 
+| `2a214b1058` — WIP | Geometry-first distributed conflict priority | Serial and priority/conflict tests pass; six-rank cubic runtime retains two geometry violations. |
 | `b214ff210b` — WIP | Retain one candidate for bounded repair after ordinary construction | Validation51 serial and six-rank flat runtime pass; cubic six-rank runtime remains incomplete. |
 
 `72c4684264` preserves the repair-accounting evidence and links its checkpoint.
@@ -60,6 +61,10 @@ boundary/parameter bindings, reserves separate new-node identities, and refunds
 unused work immediately. The global work limits and final gates are unchanged.
 The collapse-filter fixture keeps its known local witness on two ownership groups
 while every MPI rank participates; its original filter and mesh assertions remain.
+
+Validation53 reuses duplicate-edge election for concurrent refinement before
+import and work charging. A shared-edge regression requires completion with one
+proposal budget. Implementation is pinned for build; validation is pending.
 
 ## Next acceptance steps
 
@@ -88,5 +93,6 @@ is an unanswered question.
 - [Validation52](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation52/summary.json).
 - [Validation51](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation51/summary.json).
 
-Checkpoints are local. Remote export remains pending destination approval after
-an earlier automatic approval review rejected the push.
+The user approved pushing checkpoints to `rois1995/SU2`, branch
+`codex/native-3d-bl`, on 2026-10-26. The first push is pending; validation53
+implementation remains uncommitted while its build/test campaign runs.
