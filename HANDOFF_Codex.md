@@ -12,17 +12,21 @@ metric-driven operators, unchanged q>=.20, J>=.05, edge<=1.8, first height withi
 User curvature decision: configured ADAP_HAUSD in mesh units, independent of h0
 and ramp. No implicit chord inference or silent tightening to h0.
 
-Current validated source stage: validation25, local checkpoint61bf6cc4c1.
-Curved first-height/curvature checks pass25 cases/2,335 serial assertions and
-2,336 assertions per MPI rank. All325 M6 queries pass, including65 certified
-fluid-side1e-6 offsets; max work2,336, queries4.57s, whole13.06s, peak314,176KiB.
-Validation24's tilted-plane clearance failure is fixed and preserved as evidence.
-Validation26/27 source-shell runs terminated exit2 at sorted face284 (reference
-7440, wing/symmetry junction), for both global and local radii. The local trial
-is preserved in validation27/local_source_trial.patch and reverted. All owned
-handles are terminal. Validation28 shows the shell crosses the nose and displaces
-~32mm through symmetry, while nearby controls move fluidward. Next measure
-actual curved-surface coverage in frozen original donors before redesign.
+Current curved-source stage: validation32 admits the complete M6 source shell
+under unchanged gates:146,862 positive/conforming exterior tets,4,860,163 exact
+contacts and650,106 control-hull separation checks;450,221 total source cells.
+Whole63.66s, process peak817,540KiB, requested storage1.63GB. Serial29 cases/
+3,055 assertions; MPI2 each29 cases,3,741/3,780 assertions. Source/runtime pins
+verify. The154.9MB source snapshot has exact serialization round-trip validation.
+Validation30's incomplete polytope axes were diagnosed and fixed; previous folded
+shell failures remain preserved. See [curved-source details](Handbook/DC18_CURVED_SOURCE.md).
+Validation33 field job7949 passes all48,954 facets:489,540 point queries,
+293,724 directed chord integrations, original P1 priority retained; worst reversal
+relative error2.16e-19. Whole126.95s, process peak526,068KiB. All pins verify.
+Next qualify two-rank M6 source construction against the exact saved records.
+Curved clearance/local differential geometry checkpoint61bf6cc4c1 remains validated
+on325 M6 queries, including65 certified fluid-side1e-6 offsets. No adapted mesh
+has passed the complete acceptance gates; automatic curved import/BL stay guarded.
 - Shared Option A field is used by normalization, profile selection, construction,
   reassessment and original-family correction; finer sensor directions survive.
 - Registered-column cavities resolve the remaining M6 first-height witnesses.
@@ -39,9 +43,8 @@ actual curved-surface coverage in frozen original donors before redesign.
   work2,336/16,384, query time1.59s, whole10.09s, process peak314,412KiB.
   Source/input/binary/runtime pins verify for validation23.
 
-Next: actual M6 source-envelope admission, then connected metric/support/
-quadrature, wall refinement and initialization. Current coverage uses one global
-4*maximum-displacement radius; qualify it before redesigning the shell.
+Next: qualify the admitted source through actual field queries/chords, then
+connected metric/support/quadrature, wall refinement and initialization.
 Import and BL construction explicitly refuse incomplete curved production use;
 remove these guards only when all affected consumers are qualified. FIRST_ROW W
 currently lacks a SurfaceError demand. Fitted-plane seam release must survive

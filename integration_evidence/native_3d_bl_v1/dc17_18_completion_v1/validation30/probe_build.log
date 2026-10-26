@@ -1,0 +1,58 @@
+In file included from [01m[K/usr/include/c++/9/tuple:39[m[K,
+                 from [01m[K/usr/include/c++/9/functional:54[m[K,
+                 from [01m[K/usr/include/c++/9/pstl/glue_algorithm_defs.h:13[m[K,
+                 from [01m[K/usr/include/c++/9/algorithm:71[m[K,
+                 from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/../../include/adaptation/CNativeNearContainment.hpp:12[m[K,
+                 from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeImport3D.cpp:7[m[K,
+                 from [01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/probe_curved_source.cpp:2[m[K:
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeImport3D.cpp: In instantiation of ‘[01m[KSU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(auto:16)> [with auto:16 = SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(size_t, size_t)>][m[K’:
+[01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeImport3D.cpp:310:165:[m[K   required from here
+[01m[K/usr/include/c++/9/array:94:12:[m[K [01;36m[Knote: [m[K‘[01m[Kstruct std::array<double, 3>[m[K’ has no user-provided default constructor
+   94 |     struct [01;36m[Karray[m[K
+      |            [01;36m[K^~~~~[m[K
+[01m[K/usr/include/c++/9/array:110:56:[m[K [01;36m[Knote: [m[Kand the implicitly-defined constructor does not initialize ‘[01m[Kdouble std::array<double, 3>::_M_elems [3][m[K’
+  110 |       typename _AT_Type::_Type                         [01;36m[K_M_elems[m[K;
+      |                                                        [01;36m[K^~~~~~~~[m[K
+[01m[K/usr/include/c++/9/array:94:12:[m[K [01;36m[Knote: [m[K‘[01m[Kstruct std::array<double, 3>[m[K’ has no user-provided default constructor
+   94 |     struct [01;36m[Karray[m[K
+      |            [01;36m[K^~~~~[m[K
+[01m[K/usr/include/c++/9/array:110:56:[m[K [01;36m[Knote: [m[Kand the implicitly-defined constructor does not initialize ‘[01m[Kdouble std::array<double, 3>::_M_elems [3][m[K’
+  110 |       typename _AT_Type::_Type                         [01;36m[K_M_elems[m[K;
+      |                                                        [01;36m[K^~~~~~~~[m[K
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeImport3D.cpp: In instantiation of ‘[01m[KSU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(auto:16)> [with auto:16 = SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(size_t, size_t)>][m[K’:
+[01m[K/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativeImport3D.cpp:323:4:[m[K   required from here
+[01m[K/usr/include/c++/9/array:94:12:[m[K [01;36m[Knote: [m[K‘[01m[Kstruct std::array<double, 3>[m[K’ has no user-provided default constructor
+   94 |     struct [01;36m[Karray[m[K
+      |            [01;36m[K^~~~~[m[K
+[01m[K/usr/include/c++/9/array:110:56:[m[K [01;36m[Knote: [m[Kand the implicitly-defined constructor does not initialize ‘[01m[Kdouble std::array<double, 3>::_M_elems [3][m[K’
+  110 |       typename _AT_Type::_Type                         [01;36m[K_M_elems[m[K;
+      |                                                        [01;36m[K^~~~~~~~[m[K
+[01m[K/usr/include/c++/9/array:94:12:[m[K [01;36m[Knote: [m[K‘[01m[Kstruct std::array<double, 3>[m[K’ has no user-provided default constructor
+   94 |     struct [01;36m[Karray[m[K
+      |            [01;36m[K^~~~~[m[K
+[01m[K/usr/include/c++/9/array:110:56:[m[K [01;36m[Knote: [m[Kand the implicitly-defined constructor does not initialize ‘[01m[Kdouble std::array<double, 3>::_M_elems [3][m[K’
+  110 |       typename _AT_Type::_Type                         [01;36m[K_M_elems[m[K;
+      |                                                        [01;36m[K^~~~~~~~[m[K
+	Command being timed: "python3 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/build_probe.py validation30 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/probe_curved_source.cpp"
+	User time (seconds): 16.69
+	System time (seconds): 0.64
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:17.43
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 757848
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 308907
+	Voluntary context switches: 21
+	Involuntary context switches: 1814
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 254984
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

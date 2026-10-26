@@ -1,0 +1,46 @@
+CURVED_BL_GRADATION sensor_ratio=1 composed_ratio=30.650992757221807
+CURVED_BL_GRADATION sensor_ratio=1 composed_ratio=30.650992757221807
+DC16 joint source work bound 1000000 (max(10^6, 128 x 12 skin faces))
+Native joint affine source: radius=4e-13 nodes=8 cells=36 column_work=102 contacts=702 distances=144 seconds=0.00522436
+DC16 joint source work bound 1000000 (max(10^6, 128 x 12 skin faces))
+Native joint affine source: radius=4e-13 nodes=8 cells=36 column_work=102 contacts=702 distances=144 seconds=0.00534524
+DC16 joint source work bound 1000000 (max(10^6, 128 x 12 skin faces))
+Native joint affine source: radius=4e-13 nodes=8 cells=36 column_work=102 contacts=702 distances=144 seconds=0.00527359
+DC16 joint source work bound 1000000 (max(10^6, 128 x 12 skin faces))
+Native joint affine source: radius=4e-13 nodes=8 cells=36 column_work=102 contacts=702 distances=144 seconds=0.00526931
+DC16 joint source work bound 1000000 (max(10^6, 128 x 24 skin faces))
+NATIVE3D rank=0 ranks=2 workers=1 complete=0 detailed=0 total=0.11932520199999996 other=0.0001207669999999661 cpu=0.118754 idle_cpu=0 support=3.3092999999984052e-05 reference=6.5129999999857802e-06 import=0.00053387999999998659 source=4.3139999999941558e-05 weights=0.00017606900000000092 partition=6.441300000004091e-05 donor_migration=1.2278000000032208e-05 communicator=2.5310000000167143e-05 refine=0.11829743399999992 coarsen=0 wait=1.2049000000069476e-05 return=6.6999999992489734e-08 policy=1.2399999993473187e-07 reassessment=6.4999999938031294e-08 normalization=0 initial=6 final=0 refine_accepted=2 coarsen_accepted=0 tracked_bytes=521176 tracked_calls=2621 nested_tracked_collectives=0.0005610010000004495 tracked_import_bytes=2448 tracked_import_calls=6 nested_tracked_import=5.2759999998874818e-06 tracked_parent_bytes=22512 tracked_parent_calls=33 nested_tracked_parent=2.8491000000130384e-05 tracked_worker_bytes=496216 tracked_worker_calls=2582 nested_tracked_worker=0.00052723400000043164 native_bound=16120937 process_peak_rss=32768000
+NATIVE3D rank=1 ranks=2 workers=1 complete=0 detailed=0 total=0.11932186899999997 other=1.3785000000154923e-05 cpu=0.001547 idle_cpu=0.00068199999999999999 support=3.3056000000031283e-05 reference=6.553999999936444e-06 import=0.00053383000000006842 source=4.250699999996943e-05 weights=0.00017556599999990485 partition=6.3754000000026956e-05 donor_migration=1.2175000000058667e-05 communicator=1.4034999999967823e-05 refine=0 coarsen=0 wait=0.11842616199999989 return=1.2799999993262645e-07 policy=1.880000000120674e-07 reassessment=1.2900000001536682e-07 normalization=0 initial=6 final=0 refine_accepted=0 coarsen_accepted=0 tracked_bytes=592 tracked_calls=39 nested_tracked_collectives=5.5518000000254197e-05 tracked_import_bytes=432 tracked_import_calls=6 nested_tracked_import=6.3510000000155387e-06 tracked_parent_bytes=160 tracked_parent_calls=33 nested_tracked_parent=4.9167000000238659e-05 tracked_worker_bytes=0 tracked_worker_calls=0 nested_tracked_worker=0 native_bound=1240736 process_peak_rss=31989760
+Native3D rejected event: Native3D joint repair exhausted the global work budget. Last local rejection: feature 2:1: Native3D geometric refinement adds frozen metric excess or removes no geometric freedom.; accepted CFD mesh/solution retained.
+Native3D frozen stages: count=1 shared_work=32 correction_trials=0 correction=0 correction_status=1 correction_density_queries=0 correction_geometry_queries=0 correction_seconds=0 reason=
+NATIVE3D rank=0 ranks=2 workers=2 complete=0 detailed=0 total=0.12328933400000008 other=0.00107832699999999 cpu=0.122612 idle_cpu=0 support=5.2920000001011047e-06 reference=6.3790000000008007e-06 import=0.00074702799999992742 source=8.5314000000002999e-05 weights=0.00018192100000002931 partition=0.0003667259999999839 donor_migration=1.675899999997732e-05 communicator=2.7321000000024576e-05 refine=0.12076768100000002 coarsen=0 wait=6.1449999999574345e-06 return=1.5500000005719272e-07 policy=1.4199999998076862e-07 reassessment=1.4400000003522706e-07 normalization=0 initial=6 final=0 refine_accepted=2 coarsen_accepted=0 tracked_bytes=509888 tracked_calls=2596 nested_tracked_collectives=0.0018733250000005919 tracked_import_bytes=2448 tracked_import_calls=6 nested_tracked_import=6.099000000037158e-06 tracked_parent_bytes=22512 tracked_parent_calls=33 nested_tracked_parent=4.554099999998229e-05 tracked_worker_bytes=484928 tracked_worker_calls=2557 nested_tracked_worker=0.0018216850000005724 native_bound=16400346 process_peak_rss=33910784
+NATIVE3D rank=1 ranks=2 workers=2 complete=0 detailed=0 total=0.12327672699999992 other=1.0650999999972655e-05 cpu=0.12195299999999999 idle_cpu=0 support=5.4290000000012384e-06 reference=6.2419999999896447e-06 import=0.00074730299999992145 source=8.4334999999935434e-05 weights=0.00018149800000000216 partition=0.00036466499999998625 donor_migration=1.8446000000005291e-05 communicator=2.8749999999910791e-05 refine=0.12076288400000001 coarsen=0 wait=0.0010659940000000701 return=1.5799999997234693e-07 policy=2.4100000006743727e-07 reassessment=1.3100000006982526e-07 normalization=0 initial=6 final=0 refine_accepted=0 coarsen_accepted=0 tracked_bytes=149648 tracked_calls=2596 nested_tracked_collectives=0.0096459109999958992 tracked_import_bytes=432 tracked_import_calls=6 nested_tracked_import=7.0829999999633131e-06 tracked_parent_bytes=160 tracked_parent_calls=33 nested_tracked_parent=6.6862999999361961e-05 tracked_worker_bytes=149056 tracked_worker_calls=2557 nested_tracked_worker=0.0095719649999965739 native_bound=16331386 process_peak_rss=31989760
+Native3D rejected event: Native3D joint repair exhausted the global work budget. Last local rejection: feature 2:1: Native3D geometric refinement adds frozen metric excess or removes no geometric freedom.; accepted CFD mesh/solution retained.
+Native3D frozen stages: count=1 shared_work=32 correction_trials=0 correction=0 correction_status=1 correction_density_queries=0 correction_geometry_queries=0 correction_seconds=0 reason=
+[1;32mPassed all 29 test cases with 3741 assertions.[0m
+
+[1;32mPassed all 29 test cases with 3780 assertions.[0m
+
+	Command being timed: "timeout --kill-after=10s 180s mpirun -np 2 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeCurvedMapped3D],[NativeCurvedMappedGuards3D],[NativeMappedFacetGeometry],[NativeMappedPublication3D],[NativeMappedRealized3D],[NativeMappedComponent3D],[NativeParametricGeometry],[NativeAffineSourceGeometry],[NativeFirstLayer3D],[NativeCurvedBL3D],[NativeJointAffineSource3D],[NativeGeneratedCoverage3D] --reporter compact"
+	User time (seconds): 6.15
+	System time (seconds): 0.06
+	Percent of CPU this job got: 177%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:03.51
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 34768
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2105
+	Minor (reclaiming a frame) page faults: 7591
+	Voluntary context switches: 2137
+	Involuntary context switches: 499
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 17104
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

@@ -570,3 +570,18 @@ radius from tangential curved-edge displacement. These measured signs diagnose
 an unnecessary solid-side extrusion; they are not a whole-domain containment
 certificate. Next measure actual curved-surface coverage in original donors and
 retain every uncovered witness before designing directional coverage.
+
+Validation29 source probe93601/74640 completed:342,678 actual curved-surface
+samples on all48,954 facets.78,209 samples lack original source coverage
+(78,179 wing,30 symmetry,0 farfield);15,291 facets have an uncovered sample.
+Whole25.46s, process peak407,280KiB. Each facet has an independent receipt;
+all planned indices and source/runtime hashes verify. This rules out simply
+omitting exterior support. Sampling is not a whole-domain containment proof.
+The older source-policy handbook also records a rational counterexample to
+nearest-face continuation and rejected wide collars; these remain rejected.
+
+The current source construction and validation30–33 are maintained in
+[DC18_CURVED_SOURCE.md](DC18_CURVED_SOURCE.md). Validation32 certifies the full
+M6 source shell after replacing unnecessary isotropic displacement with directional
+proposals and complete outward control-hull separation. This is source qualification;
+complete field/mesh/transfer/restart gates remain mandatory and unclosed.

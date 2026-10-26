@@ -1,0 +1,298 @@
+diff --git a/Common/include/adaptation/CNativeAffineReference.hpp b/Common/include/adaptation/CNativeAffineReference.hpp
+index 120780707d..9cce1bd49c 100644
+--- a/Common/include/adaptation/CNativeAffineReference.hpp
++++ b/Common/include/adaptation/CNativeAffineReference.hpp
+@@ -113,6 +113,22 @@ class MappedFacetReference {
+   static constexpr size_t ClearanceWork=16384;
+   /*! Additional scratch bound for one active query; immutable authority storage is separate. */
+   size_t CurvedQueryWorkspaceBytes(size_t maximum_work)const;
++  /*! Convex hull of an immutable curved patch and current source face, including realization error. */
++  class SourcePatch {
++   public:
++    std::array<Point,2> Bounds()const;
++    double OutwardDisplacement()const;
++    bool Separated(const std::array<Point,3>& outer,uint64_t& work,uint64_t maximum_work)const;
++    static size_t WorkspaceBytes();
++   private:
++    friend class MappedFacetReference;
++    SourcePatch()=default;
++    std::array<Point,10> lower{},upper{};
++    std::array<Point,3> source{};
++    double margin=0;
++  };
++  SourcePatch PrepareSourcePatch(Id facet,const std::array<SurfaceBinding,3>& binding,
++                                 const std::array<Point,3>& source)const;
+   /*! Physical displacement from the original flat facet, including realization error. */
+   double EnvelopeError(Id facet)const;
+   /*! Outward bound between a flat realized child and its curved parameter patch. */
+diff --git a/Common/src/adaptation/CNativeAffineReference.cpp b/Common/src/adaptation/CNativeAffineReference.cpp
+index 5cc5444a5c..c16d02ac45 100644
+--- a/Common/src/adaptation/CNativeAffineReference.cpp
++++ b/Common/src/adaptation/CNativeAffineReference.cpp
+@@ -51,6 +51,10 @@ Box Blossom(const MappedFacetReference::CubicNet& net,const std::array<Box,3>& a
+   }
+   return level[0];
+ }
++Box LinearPoint(const std::array<Point,3>& source,const Box& parameter) {
++  Box out{};for(unsigned d=0;d<3;++d)for(unsigned k=0;k<3;++k)out[d]=Add(out[d],Multiply(parameter[k],Values(source[k])[d]));
++  return out;
++}
+ double NormBound(const Box& a) {
+   Range sum;
+   for(const auto& r:a){const auto bound=std::max(std::abs(r.lo),std::abs(r.hi));sum=Add(sum,Multiply({bound,bound},bound));}
+@@ -713,6 +717,77 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
+   if(!std::isfinite(result.curvature1)||!std::isfinite(result.curvature2))throw std::invalid_argument("Unrepresentable curved principal curvature.");
+   return result;
+ }
++MappedFacetReference::SourcePatch MappedFacetReference::PrepareSourcePatch(Id facet,
++    const std::array<SurfaceBinding,3>& binding,const std::array<Point,3>& source)const {
++  if(!ContainsFace(facet,binding,source))throw std::invalid_argument("Source face leaves its mapped parameter patch.");
++  SourcePatch out;out.source=source;
++  const auto error=errors.find(facet);out.margin=error==errors.end()?0:error->second;
++  std::array<Box,10> controls;
++  const auto curve=curves.find(facet);
++  if(curve!=curves.end()) {
++    // Any future flat child may span current source-face seams within this immutable patch.
++    for(unsigned q=0;q<10;++q)controls[q]=Exact(curve->second[q]);
++  } else {
++    for(unsigned q=0;q<10;++q) {
++      Box parameter;for(unsigned d=0;d<3;++d){const auto r=(long double)CubicIndex[q][d]/3;parameter[d]={std::nextafter(r,-INFINITY),std::nextafter(r,INFINITY)};}
++      controls[q]=LinearPoint(source,parameter);
++    }
++  }
++  for(unsigned q=0;q<10;++q) {
++    Vec lo,hi;for(unsigned d=0;d<3;++d){lo[d]=std::nextafter(double(controls[q][d].lo),-INFINITY);hi[d]=std::nextafter(double(controls[q][d].hi),INFINITY);}
++    out.lower[q]=ToPoint(lo);out.upper[q]=ToPoint(hi);Finite(out.lower[q]);Finite(out.upper[q]);
++  }
++  return out;
++}
++std::array<Point,2> MappedFacetReference::SourcePatch::Bounds()const {
++  Vec lo{{INFINITY,INFINITY,INFINITY}},hi{{-INFINITY,-INFINITY,-INFINITY}};
++  for(unsigned d=0;d<3;++d) {
++    for(unsigned q=0;q<10;++q){lo[d]=std::min(lo[d],Values(lower[q])[d]);hi[d]=std::max(hi[d],Values(upper[q])[d]);}
++    for(auto p:source){lo[d]=std::min(lo[d],Values(p)[d]);hi[d]=std::max(hi[d],Values(p)[d]);}
++    lo[d]=std::nextafter(double(Subtract(lo[d],margin).lo),-INFINITY);
++    hi[d]=std::nextafter(double(Add({hi[d],hi[d]},{margin,margin}).hi),INFINITY);
++  }
++  const auto a=ToPoint(lo),b=ToPoint(hi);Finite(a);Finite(b);return {a,b};
++}
++double MappedFacetReference::SourcePatch::OutwardDisplacement()const {
++  const auto origin=Exact(source[0]);const auto normal=CrossBox(Difference(Exact(source[1]),origin),Difference(Exact(source[2]),origin));
++  long double length=0,projection=0;
++  for(const auto& r:normal)length=std::max({length,r.lo,-r.hi});
++  if(!(length>0 && std::isfinite(length)))throw std::invalid_argument("Unrepresentable source-face normal.");
++  for(unsigned q=0;q<10;++q) {
++    Box point;for(unsigned d=0;d<3;++d)point[d]={Values(lower[q])[d],Values(upper[q])[d]};
++    projection=std::max(projection,DotBox(Difference(point,origin),normal).hi);
++  }
++  const auto bound=Add({0,std::nextafter(projection/length,INFINITY)},{margin,margin}).hi;
++  const double result=std::nextafter(double(bound),INFINITY);
++  if(!std::isfinite(result))throw std::invalid_argument("Unrepresentable source-face displacement.");
++  return result;
++}
++size_t MappedFacetReference::SourcePatch::WorkspaceBytes(){return 32768;}
++bool MappedFacetReference::SourcePatch::Separated(const std::array<Point,3>& outer,uint64_t& work,uint64_t maximum_work)const {
++  for(auto p:outer)Finite(p);
++  if(work>=maximum_work)throw std::length_error("Curved source separation work exhausted.");++work;
++  std::array<Box,13> hull;
++  for(unsigned q=0;q<10;++q)for(unsigned d=0;d<3;++d)hull[q][d]={Values(lower[q])[d],Values(upper[q])[d]};
++  for(unsigned k=0;k<3;++k)hull[10+k]=Exact(source[k]);
++  auto separated=[&](const Box& direction) {
++    Vec n;for(unsigned d=0;d<3;++d)n[d]=double((direction[d].lo+direction[d].hi)/2);
++    const auto axis=Exact(ToPoint(n));const auto length=NormBound(axis);
++    if(!(std::isfinite(length)&&length>std::numeric_limits<double>::min()))return false;
++    long double lo=INFINITY,hi=-INFINITY,olo=INFINITY,ohi=-INFINITY;
++    for(const auto& p:hull){const auto r=DotBox(Difference(p,Exact(outer[0])),axis);lo=std::min(lo,r.lo);hi=std::max(hi,r.hi);}
++    for(auto p:outer){const auto r=DotBox(Difference(Exact(p),Exact(outer[0])),axis);olo=std::min(olo,r.lo);ohi=std::max(ohi,r.hi);}
++    const auto gap=std::max(Subtract({olo,olo},{hi,hi}).lo,Subtract({lo,lo},{ohi,ohi}).lo);
++    const auto required=Multiply({margin,margin},length).hi;
++    return std::isfinite(gap)&&std::isfinite(required)&&gap>=required;
++  };
++  std::array<Box,3> edge,flat;
++  for(unsigned k=0;k<3;++k){edge[k]=Difference(Exact(outer[(k+1)%3]),Exact(outer[k]));flat[k]=Difference(hull[10+(k+1)%3],hull[10+k]);}
++  if(separated(CrossBox(edge[0],edge[1])) || separated(CrossBox(flat[0],flat[1])))return true;
++  for(unsigned d=0;d<3;++d){Box axis{};axis[d]={1,1};if(separated(axis))return true;}
++  for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)if(separated(CrossBox(flat[i],edge[j])))return true;
++  return false;
++}
+ double MappedFacetReference::EnvelopeError(Id facet)const {
+   const auto e=errors.find(facet);const double numerical=e==errors.end()?0.:e->second;
+   const auto found=curves.find(facet);if(found==curves.end())return numerical;
+diff --git a/Common/src/adaptation/CNativeImport3D.cpp b/Common/src/adaptation/CNativeImport3D.cpp
+index 31be553376..f9c5d13c7d 100644
+--- a/Common/src/adaptation/CNativeImport3D.cpp
++++ b/Common/src/adaptation/CNativeImport3D.cpp
+@@ -346,7 +346,7 @@ struct Binding {
+ 
+ /*! One closed current-source shell, not independent projections or a new physical authority.
+  * Accepted original embedding is a precondition. Positive product cells plus conforming shell/old-boundary
+- * contacts certify the augmented embedding; old/outer separation supplies a complete numerical query band.
++ * contacts certify the augmented embedding; separation supplies the numerical band or complete curved child hulls.
+  * Analytic physical envelopes stay on their qualified paths until joint coverage is independently admitted. */
+ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>& source,
+     const PlanarReference& reference,double maximum_seconds,size_t live,size_t ceiling,
+@@ -358,7 +358,8 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+   CLocalFailure failure;
+   auto vote=[&](){return Vote(world,failure,reason);};
+   auto within=[&](){return !(maximum_seconds>0) || world.seconds()-started<maximum_seconds;};
+-  double radius=0;Id component=UINT64_MAX,maximum_cell=0;
++  double radius=0,minimum_radius=INFINITY;Id component=UINT64_MAX,maximum_cell=0;
++  const auto* mapped=reference.Parameters();const bool curved=mapped && !mapped->Geometry().Curves().empty();
+   try {
+     if(!reference.Analytic().empty())throw std::invalid_argument("Unsupported joint affine/analytic original-source envelope; accepted state unchanged.");
+     for(const auto& row:reference.Affine()) {
+@@ -366,7 +367,10 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+       component=std::min(component,reference.Canonical(row.first));
+     }
+     if(reference.Mapped()) {
+-      for(const auto& row:reference.Parameters()->Geometry().Errors())radius=std::max(radius,4*reference.Parameters()->Geometry().EnvelopeError(row.first));
++      for(const auto& row:mapped->Geometry().Errors()) {
++        radius=std::max(radius,4*(curved?row.second:mapped->Geometry().EnvelopeError(row.first)));
++        minimum_radius=std::min(minimum_radius,row.second);
++      }
+       component=reference.ExtensionComponents().front();
+     }
+     if(!(std::isfinite(radius)&&radius>0) || component==UINT64_MAX)
+@@ -407,6 +411,8 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+   // Maps, full product geometry, replicated boundary witness transport, planned checks and tree buffers.
+   const auto base=transfer_memory::Add(live,transfer_memory::Mul(count,8192),
+       transfer_memory::Mul(witnesses,3*sizeof(OwnedCell)),transfer_memory::Mul(2*maximum_work,3*sizeof(size_t)),
++      curved?SU2NativeGeometry::MappedFacetReference::SourcePatch::WorkspaceBytes():0,
++      curved?transfer_memory::Mul(3*count,sizeof(SU2NativeGeometry::MappedFacetReference::SourcePatch)+sizeof(double)):0,
+       transfer_memory::GrowthBound(transfer_memory::Add(source.size(),3*local_faces),sizeof(DonorCell)));
+   if(!count || !witnesses || witnesses>count || count>ULONG_MAX/24 ||
+       transfer_memory::Add(maximum_cell,1,transfer_memory::Mul(12,transfer_memory::Add(maximum_cell,1)))==SIZE_MAX)
+@@ -421,6 +427,7 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+   stats.source_envelope_payload_seconds+=world.seconds()-payload_started;
+   stats.source_envelope_payload_bytes+=all.size()*sizeof(OwnedCell);
+   std::vector<Facet> skin;std::vector<std::pair<Id,unsigned>> parents;
++  std::vector<SU2NativeGeometry::MappedFacetReference::SourcePatch> patches;std::vector<double> face_radius;
+   std::map<std::pair<Id,unsigned>,size_t> slots;std::map<Id,Point> original;
+   std::map<Id,std::vector<size_t>> incident;
+   try {
+@@ -437,6 +444,17 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+         Facet f;f.id=skin.size();
+         for(unsigned k=0;k<3;++k)for(auto node:row.cell.v)if(node.id==faces[slot][k])f.v[k]=node;
+         skin.push_back(f);parents.push_back({row.cell.id,slot});
++        if(curved) {
++          std::array<SU2NativeGeometry::SurfaceBinding,3> binding;std::array<Point,3> points;
++          for(unsigned k=0;k<3;++k) {
++            const auto* record=mapped->Find(f.v[k].id);
++            if(!record)throw std::invalid_argument("Curved source face lost its persisted binding.");
++            binding[k]=record->binding;points[k]=f.v[k].p;
++          }
++          patches.push_back(mapped->Geometry().PrepareSourcePatch(row.physical[slot].facet,binding,points));
++          // This only proposes a shell; complete swept-patch separation below certifies its coverage.
++          face_radius.push_back(std::max(minimum_radius,patches.back().OutwardDisplacement()));
++        }
+       }
+     }
+     // Face/node keys, not rank ownership or marker/body assumptions, fix all arithmetic order.
+@@ -444,8 +462,10 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+     std::sort(order.begin(),order.end(),[&](size_t a,size_t b){return Key({skin[a].v[0].id,skin[a].v[1].id,skin[a].v[2].id})<
+         Key({skin[b].v[0].id,skin[b].v[1].id,skin[b].v[2].id});});
+     auto old_skin=skin;auto old_parents=parents;
++    auto old_patches=patches;auto old_radius=face_radius;
+     for(size_t i=0;i<order.size();++i) {
+       skin[i]=old_skin[order[i]];skin[i].id=i;parents[i]=old_parents[order[i]];slots.emplace(parents[i],i);
++      if(curved){patches[i]=old_patches[order[i]];face_radius[i]=old_radius[order[i]];}
+       const int orientation=Parity({skin[i].v[0].id,skin[i].v[1].id,skin[i].v[2].id});
+       std::sort(skin[i].v.begin(),skin[i].v.end(),[](Node a,Node b){return a.id<b.id;});
+       if(orientation<0)std::swap(skin[i].v[1],skin[i].v[2]);
+@@ -468,8 +488,9 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+     for(const auto& row:incident) {
+       if(!within())throw std::length_error("Joint source column elapsed resource budget exhausted.");
+       std::vector<std::array<Point,3>> faces;faces.reserve(row.second.size());
+-      for(auto i:row.second)faces.push_back({skin[i].v[0].p,skin[i].v[1].p,skin[i].v[2].p});
+-      columns.push_back({span+row.first,SU2NativeGeometry::SourceColumn(original.at(row.first),faces,radius,solves,maximum_work)});
++      double local=curved?0:radius;
++      for(auto i:row.second){faces.push_back({skin[i].v[0].p,skin[i].v[1].p,skin[i].v[2].p});if(curved)local=std::max(local,face_radius[i]);}
++      columns.push_back({span+row.first,SU2NativeGeometry::SourceColumn(original.at(row.first),faces,local,solves,maximum_work)});
+     }
+   }catch(const std::length_error& e){failure.Set(3,0,e.what());}
+    catch(const std::bad_alloc& e){failure.Set(3,0,e.what());}
+@@ -544,6 +565,15 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+     for(size_t i=world.rank;i<count;i+=world.size) {
+       if(!within())throw std::length_error("Joint source distance planning elapsed resource budget exhausted.");
+       std::array<su2double,3> lo,hi;
++      if(curved) {
++        const auto bounds=patches[i].Bounds();lo={bounds[0].x,bounds[0].y,bounds[0].z};hi={bounds[1].x,bounds[1].y,bounds[1].z};
++        tree->DetermineIntersectingElements(lo.data(),hi.data(),candidates);
++        candidates.erase(std::remove_if(candidates.begin(),candidates.end(),[&](auto j){return j<witnesses;}),candidates.end());
++        for(auto& j:candidates)j=(j-witnesses)/3;
++        std::sort(candidates.begin(),candidates.end());candidates.erase(std::unique(candidates.begin(),candidates.end()),candidates.end());
++        for(auto j:candidates)keep(j,i,true);
++        continue;
++      }
+       for(unsigned axis=0;axis<3;++axis) {
+         double first=INFINITY,last=-INFINITY;
+         for(auto p:outer_faces[i]){const double q=axis==0?p.x:axis==1?p.y:p.z;first=std::min(first,q);last=std::max(last,q);}
+@@ -564,6 +594,12 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+     if(i%128==0 && !within())throw std::length_error("Joint source audit elapsed resource budget exhausted.");
+     const auto c=checks[i];
+     if(c.distance) {
++      if(curved) {
++        const auto budget=maximum_work/world.size+(uint64_t(world.rank)<maximum_work%world.size);
++        if(!patches[c.b].Separated(outer_faces[c.a],distances,budget))
++          throw std::invalid_argument("Uncertified swept curved-source patch "+std::to_string(c.b)+" against outer face "+std::to_string(c.a));
++        continue;
++      }
+       ++distances;const auto& f=skin[c.b];
+       if(!SU2NativeGeometry::SourceFacesSeparated(outer_faces[c.a],{f.v[0].p,f.v[1].p,f.v[2].p},radius))
+         throw std::invalid_argument("Uncertified joint original-source envelope coverage at face "+std::to_string(c.a));
+@@ -596,7 +632,8 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
+     }
+   }catch(const std::exception& e){failure.Set(3,0,e.what());}
+   if(!vote())return false;
+-  if(!world.rank)std::cout<<"Native joint affine source: radius="<<radius<<" nodes="<<columns.size()<<" cells="<<3*count
++  if(!world.rank)std::cout<<"Native joint "<<(curved?"curved source: maximum_proposal_radius=":"affine source: radius=")
++      <<(curved?*std::max_element(face_radius.begin(),face_radius.end()):radius)<<" nodes="<<columns.size()<<" cells="<<3*count
+       <<" column_work="<<stats.source_envelope_solves<<" contacts="<<stats.source_envelope_contacts
+       <<" distances="<<stats.source_envelope_distances<<" seconds="<<world.seconds()-started<<std::endl;
+   return true;
+diff --git a/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp b/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
+index b734deb7a0..742efec4af 100644
+--- a/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
+@@ -687,9 +687,31 @@ TEST_CASE("Curved first-height clearance and principal curvature use the persist
+     const auto clearance=plane.ClosestCurved(3,query,1e-10,16384);
+     CHECK(clearance.clearance_lower>0);CHECK(clearance.clearance_lower<=clearance.upper);
+     CHECK(clearance.upper==Approx(1e-6).margin(1e-12));
++    const std::array<SurfaceBinding,3> binding{{plane.Vertex(0),plane.Vertex(1),plane.Vertex(2)}};
++    std::array<Point,3> source;for(unsigned k=0;k<3;++k)source[k]=tilted[3].v[k].p;
++    const auto patch=plane.PrepareSourcePatch(3,binding,source);
++    CHECK(patch.OutwardDisplacement()<1e-10);
++    for(auto& p:source){p.x+=.8e-3;p.z+=.6e-3;}uint64_t work=0;
++    CHECK(patch.Separated(source,work,1024));
+   }
+   nets[3][9].z=.1;
+   auto geometry=std::make_shared<MappedFacetReference>(base,errors,1,SIZE_MAX,false,nets);
++  const std::array<SurfaceBinding,3> sourceBinding{{geometry->Vertex(0),geometry->Vertex(1),geometry->Vertex(2)}};
++  const std::array<Point,3> sourceFace{{n[0].p,n[1].p,n[2].p}};
++  const auto sourcePatch=geometry->PrepareSourcePatch(3,sourceBinding,sourceFace);
++  CHECK(sourcePatch.OutwardDisplacement()>=.1);CHECK(sourcePatch.OutwardDisplacement()<.100000001);
++  const auto bounds=sourcePatch.Bounds();CHECK(bounds[0].z<0);CHECK(bounds[1].z>.1);
++  uint64_t sourceWork=0;
++  // The exact graph peaks at .6/27, but coverage must certify the complete child-chord hull.
++  CHECK_FALSE(sourcePatch.Separated({{{0,0,.03},{3,0,.03},{0,3,.03}}},sourceWork,1024));
++  CHECK(sourcePatch.Separated({{{0,0,.2},{3,0,.2},{0,3,.2}}},sourceWork,1024));
++  sourceWork=0;
++  CHECK_THROWS_AS(sourcePatch.Separated({{{0,0,.01},{3,0,.01},{0,3,.01}}},sourceWork,0),std::length_error);
++  CHECK_THROWS(geometry->PrepareSourcePatch(3,sourceBinding,{{{0,0,.01},n[1].p,n[2].p}}));
++  const std::array<SurfaceBinding,3> childBinding{{geometry->Vertex(0),geometry->EdgePoint({0,1},.5),geometry->FacetPoint(3,.25,.25)}};
++  std::array<Point,3> childFace;for(unsigned k=0;k<3;++k)childFace[k]=geometry->Realize(childBinding[k]);
++  const auto childPatch=geometry->PrepareSourcePatch(3,childBinding,childFace);sourceWork=0;
++  CHECK(childPatch.Separated({{{0,0,.2},{3,0,.2},{0,3,.2}}},sourceWork,1024));
+   const auto point=geometry->Realize(geometry->FacetPoint(3,1./3,1./3));
+   const auto differential=geometry->ClosestCurved(3,point,1e-10,16384);
+   CHECK(differential.upper<1e-10);CHECK(differential.normal.z==Approx(1).margin(1e-10));
+@@ -705,6 +727,9 @@ TEST_CASE("Curved first-height clearance and principal curvature use the persist
+   const auto outside=geometry->ClosestCurved(3,{point.x,point.y,point.z+.01},1e-8,16384);
+   CHECK(outside.clearance_lower<0);
+   nets[3][9].z=-.1;geometry=std::make_shared<MappedFacetReference>(base,errors,2,SIZE_MAX,false,nets);
++  const auto fluidward=geometry->PrepareSourcePatch(3,{{geometry->Vertex(0),geometry->Vertex(1),geometry->Vertex(2)}},sourceFace);
++  CHECK(fluidward.OutwardDisplacement()<1e-10);sourceWork=0;
++  CHECK(fluidward.Separated({{{0,0,.001},{3,0,.001},{0,3,.001}}},sourceWork,1024));
+   auto parameters=ComponentState(geometry,facets);const auto reference=PlanarReference::WithParameters(base,parameters);
+   CHECK(reference->SearchWorkspaceBytes()>=geometry->CurvedQueryWorkspaceBytes(MappedFacetReference::ClearanceWork));
+   for(double h:{.001,.1}) {

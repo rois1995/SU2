@@ -51,6 +51,10 @@ Box Blossom(const MappedFacetReference::CubicNet& net,const std::array<Box,3>& a
   }
   return level[0];
 }
+Box LinearPoint(const std::array<Point,3>& source,const Box& parameter) {
+  Box out{};for(unsigned d=0;d<3;++d)for(unsigned k=0;k<3;++k)out[d]=Add(out[d],Multiply(parameter[k],Values(source[k])[d]));
+  return out;
+}
 double NormBound(const Box& a) {
   Range sum;
   for(const auto& r:a){const auto bound=std::max(std::abs(r.lo),std::abs(r.hi));sum=Add(sum,Multiply({bound,bound},bound));}
@@ -712,6 +716,83 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   result.direction1=ToPoint(d1);result.direction2=ToPoint(d2);Finite(result.direction1);Finite(result.direction2);
   if(!std::isfinite(result.curvature1)||!std::isfinite(result.curvature2))throw std::invalid_argument("Unrepresentable curved principal curvature.");
   return result;
+}
+MappedFacetReference::SourcePatch MappedFacetReference::PrepareSourcePatch(Id facet,
+    const std::array<SurfaceBinding,3>& binding,const std::array<Point,3>& source)const {
+  if(!ContainsFace(facet,binding,source))throw std::invalid_argument("Source face leaves its mapped parameter patch.");
+  SourcePatch out;out.source=source;
+  const auto error=errors.find(facet);out.margin=error==errors.end()?0:error->second;
+  std::array<Box,10> controls;
+  const auto curve=curves.find(facet);
+  if(curve!=curves.end()) {
+    // Any future flat child may span current source-face seams within this immutable patch.
+    for(unsigned q=0;q<10;++q)controls[q]=Exact(curve->second[q]);
+  } else {
+    for(unsigned q=0;q<10;++q) {
+      Box parameter;for(unsigned d=0;d<3;++d){const auto r=(long double)CubicIndex[q][d]/3;parameter[d]={std::nextafter(r,-INFINITY),std::nextafter(r,INFINITY)};}
+      controls[q]=LinearPoint(source,parameter);
+    }
+  }
+  for(unsigned q=0;q<10;++q) {
+    Vec lo,hi;for(unsigned d=0;d<3;++d){lo[d]=std::nextafter(double(controls[q][d].lo),-INFINITY);hi[d]=std::nextafter(double(controls[q][d].hi),INFINITY);}
+    out.lower[q]=ToPoint(lo);out.upper[q]=ToPoint(hi);Finite(out.lower[q]);Finite(out.upper[q]);
+  }
+  return out;
+}
+std::array<Point,2> MappedFacetReference::SourcePatch::Bounds()const {
+  Vec lo{{INFINITY,INFINITY,INFINITY}},hi{{-INFINITY,-INFINITY,-INFINITY}};
+  for(unsigned d=0;d<3;++d) {
+    for(unsigned q=0;q<10;++q){lo[d]=std::min(lo[d],Values(lower[q])[d]);hi[d]=std::max(hi[d],Values(upper[q])[d]);}
+    for(auto p:source){lo[d]=std::min(lo[d],Values(p)[d]);hi[d]=std::max(hi[d],Values(p)[d]);}
+    lo[d]=std::nextafter(double(Subtract(lo[d],margin).lo),-INFINITY);
+    hi[d]=std::nextafter(double(Add({hi[d],hi[d]},{margin,margin}).hi),INFINITY);
+  }
+  const auto a=ToPoint(lo),b=ToPoint(hi);Finite(a);Finite(b);return {a,b};
+}
+double MappedFacetReference::SourcePatch::OutwardDisplacement()const {
+  const auto origin=Exact(source[0]);const auto normal=CrossBox(Difference(Exact(source[1]),origin),Difference(Exact(source[2]),origin));
+  long double length=0,projection=0;
+  for(const auto& r:normal)length=std::max({length,r.lo,-r.hi});
+  if(!(length>0 && std::isfinite(length)))throw std::invalid_argument("Unrepresentable source-face normal.");
+  for(unsigned q=0;q<10;++q) {
+    Box point;for(unsigned d=0;d<3;++d)point[d]={Values(lower[q])[d],Values(upper[q])[d]};
+    projection=std::max(projection,DotBox(Difference(point,origin),normal).hi);
+  }
+  const auto bound=Add({0,std::nextafter(projection/length,INFINITY)},{margin,margin}).hi;
+  const double result=std::nextafter(double(bound),INFINITY);
+  if(!std::isfinite(result))throw std::invalid_argument("Unrepresentable source-face displacement.");
+  return result;
+}
+size_t MappedFacetReference::SourcePatch::WorkspaceBytes(){return 32768;}
+bool MappedFacetReference::SourcePatch::Separated(const std::array<Point,3>& outer,uint64_t& work,uint64_t maximum_work)const {
+  for(auto p:outer)Finite(p);
+  if(work>=maximum_work)throw std::length_error("Curved source separation work exhausted.");++work;
+  std::array<Box,13> hull;
+  for(unsigned q=0;q<10;++q)for(unsigned d=0;d<3;++d)hull[q][d]={Values(lower[q])[d],Values(upper[q])[d]};
+  for(unsigned k=0;k<3;++k)hull[10+k]=Exact(source[k]);
+  auto separated=[&](const Box& direction) {
+    Vec n;for(unsigned d=0;d<3;++d)n[d]=double((direction[d].lo+direction[d].hi)/2);
+    const auto axis=Exact(ToPoint(n));const auto length=NormBound(axis);
+    if(!(std::isfinite(length)&&length>std::numeric_limits<double>::min()))return false;
+    long double lo=INFINITY,hi=-INFINITY,olo=INFINITY,ohi=-INFINITY;
+    for(const auto& p:hull){const auto r=DotBox(Difference(p,Exact(outer[0])),axis);lo=std::min(lo,r.lo);hi=std::max(hi,r.hi);}
+    for(auto p:outer){const auto r=DotBox(Difference(Exact(p),Exact(outer[0])),axis);olo=std::min(olo,r.lo);ohi=std::max(ohi,r.hi);}
+    const auto gap=std::max(Subtract({olo,olo},{hi,hi}).lo,Subtract({lo,lo},{ohi,ohi}).lo);
+    const auto required=Multiply({margin,margin},length).hi;
+    return std::isfinite(gap)&&std::isfinite(required)&&gap>=required;
+  };
+  std::array<Box,3> edge,flat;
+  for(unsigned k=0;k<3;++k){edge[k]=Difference(Exact(outer[(k+1)%3]),Exact(outer[k]));flat[k]=Difference(hull[10+(k+1)%3],hull[10+k]);}
+  if(separated(CrossBox(edge[0],edge[1])) || separated(CrossBox(flat[0],flat[1])))return true;
+  for(unsigned d=0;d<3;++d){Box axis{};axis[d]={1,1};if(separated(axis))return true;}
+  for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)if(separated(CrossBox(flat[i],edge[j])))return true;
+  // Curved controls form a polytope, whose faces/edges need not follow the source triangle.
+  for(unsigned i=0;i<hull.size();++i)for(unsigned j=i+1;j<hull.size();++j) {
+    const auto tangent=Difference(hull[j],hull[i]);
+    for(unsigned k=j+1;k<hull.size();++k)if(separated(CrossBox(tangent,Difference(hull[k],hull[i]))))return true;
+    for(const auto& e:edge)if(separated(CrossBox(tangent,e)))return true;
+  }
+  return false;
 }
 double MappedFacetReference::EnvelopeError(Id facet)const {
   const auto e=errors.find(facet);const double numerical=e==errors.end()?0.:e->second;

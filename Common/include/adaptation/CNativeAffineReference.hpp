@@ -113,6 +113,22 @@ class MappedFacetReference {
   static constexpr size_t ClearanceWork=16384;
   /*! Additional scratch bound for one active query; immutable authority storage is separate. */
   size_t CurvedQueryWorkspaceBytes(size_t maximum_work)const;
+  /*! Convex hull of an immutable curved patch and current source face, including realization error. */
+  class SourcePatch {
+   public:
+    std::array<Point,2> Bounds()const;
+    double OutwardDisplacement()const;
+    bool Separated(const std::array<Point,3>& outer,uint64_t& work,uint64_t maximum_work)const;
+    static size_t WorkspaceBytes();
+   private:
+    friend class MappedFacetReference;
+    SourcePatch()=default;
+    std::array<Point,10> lower{},upper{};
+    std::array<Point,3> source{};
+    double margin=0;
+  };
+  SourcePatch PrepareSourcePatch(Id facet,const std::array<SurfaceBinding,3>& binding,
+                                 const std::array<Point,3>& source)const;
   /*! Physical displacement from the original flat facet, including realization error. */
   double EnvelopeError(Id facet)const;
   /*! Outward bound between a flat realized child and its curved parameter patch. */

@@ -346,7 +346,7 @@ struct Binding {
 
 /*! One closed current-source shell, not independent projections or a new physical authority.
  * Accepted original embedding is a precondition. Positive product cells plus conforming shell/old-boundary
- * contacts certify the augmented embedding; old/outer separation supplies a complete numerical query band.
+ * contacts certify the augmented embedding; separation supplies the numerical band or complete curved child hulls.
  * Analytic physical envelopes stay on their qualified paths until joint coverage is independently admitted. */
 bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>& source,
     const PlanarReference& reference,double maximum_seconds,size_t live,size_t ceiling,
@@ -358,7 +358,8 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
   CLocalFailure failure;
   auto vote=[&](){return Vote(world,failure,reason);};
   auto within=[&](){return !(maximum_seconds>0) || world.seconds()-started<maximum_seconds;};
-  double radius=0;Id component=UINT64_MAX,maximum_cell=0;
+  double radius=0,minimum_radius=INFINITY;Id component=UINT64_MAX,maximum_cell=0;
+  const auto* mapped=reference.Parameters();const bool curved=mapped && !mapped->Geometry().Curves().empty();
   try {
     if(!reference.Analytic().empty())throw std::invalid_argument("Unsupported joint affine/analytic original-source envelope; accepted state unchanged.");
     for(const auto& row:reference.Affine()) {
@@ -366,7 +367,10 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
       component=std::min(component,reference.Canonical(row.first));
     }
     if(reference.Mapped()) {
-      for(const auto& row:reference.Parameters()->Geometry().Errors())radius=std::max(radius,4*reference.Parameters()->Geometry().EnvelopeError(row.first));
+      for(const auto& row:mapped->Geometry().Errors()) {
+        radius=std::max(radius,4*(curved?row.second:mapped->Geometry().EnvelopeError(row.first)));
+        minimum_radius=std::min(minimum_radius,row.second);
+      }
       component=reference.ExtensionComponents().front();
     }
     if(!(std::isfinite(radius)&&radius>0) || component==UINT64_MAX)
@@ -407,6 +411,8 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
   // Maps, full product geometry, replicated boundary witness transport, planned checks and tree buffers.
   const auto base=transfer_memory::Add(live,transfer_memory::Mul(count,8192),
       transfer_memory::Mul(witnesses,3*sizeof(OwnedCell)),transfer_memory::Mul(2*maximum_work,3*sizeof(size_t)),
+      curved?SU2NativeGeometry::MappedFacetReference::SourcePatch::WorkspaceBytes():0,
+      curved?transfer_memory::Mul(3*count,sizeof(SU2NativeGeometry::MappedFacetReference::SourcePatch)+sizeof(double)):0,
       transfer_memory::GrowthBound(transfer_memory::Add(source.size(),3*local_faces),sizeof(DonorCell)));
   if(!count || !witnesses || witnesses>count || count>ULONG_MAX/24 ||
       transfer_memory::Add(maximum_cell,1,transfer_memory::Mul(12,transfer_memory::Add(maximum_cell,1)))==SIZE_MAX)
@@ -421,6 +427,7 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
   stats.source_envelope_payload_seconds+=world.seconds()-payload_started;
   stats.source_envelope_payload_bytes+=all.size()*sizeof(OwnedCell);
   std::vector<Facet> skin;std::vector<std::pair<Id,unsigned>> parents;
+  std::vector<SU2NativeGeometry::MappedFacetReference::SourcePatch> patches;std::vector<double> face_radius;
   std::map<std::pair<Id,unsigned>,size_t> slots;std::map<Id,Point> original;
   std::map<Id,std::vector<size_t>> incident;
   try {
@@ -437,6 +444,17 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
         Facet f;f.id=skin.size();
         for(unsigned k=0;k<3;++k)for(auto node:row.cell.v)if(node.id==faces[slot][k])f.v[k]=node;
         skin.push_back(f);parents.push_back({row.cell.id,slot});
+        if(curved) {
+          std::array<SU2NativeGeometry::SurfaceBinding,3> binding;std::array<Point,3> points;
+          for(unsigned k=0;k<3;++k) {
+            const auto* record=mapped->Find(f.v[k].id);
+            if(!record)throw std::invalid_argument("Curved source face lost its persisted binding.");
+            binding[k]=record->binding;points[k]=f.v[k].p;
+          }
+          patches.push_back(mapped->Geometry().PrepareSourcePatch(row.physical[slot].facet,binding,points));
+          // This only proposes a shell; complete swept-patch separation below certifies its coverage.
+          face_radius.push_back(std::max(minimum_radius,patches.back().OutwardDisplacement()));
+        }
       }
     }
     // Face/node keys, not rank ownership or marker/body assumptions, fix all arithmetic order.
@@ -444,8 +462,10 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
     std::sort(order.begin(),order.end(),[&](size_t a,size_t b){return Key({skin[a].v[0].id,skin[a].v[1].id,skin[a].v[2].id})<
         Key({skin[b].v[0].id,skin[b].v[1].id,skin[b].v[2].id});});
     auto old_skin=skin;auto old_parents=parents;
+    auto old_patches=patches;auto old_radius=face_radius;
     for(size_t i=0;i<order.size();++i) {
       skin[i]=old_skin[order[i]];skin[i].id=i;parents[i]=old_parents[order[i]];slots.emplace(parents[i],i);
+      if(curved){patches[i]=old_patches[order[i]];face_radius[i]=old_radius[order[i]];}
       const int orientation=Parity({skin[i].v[0].id,skin[i].v[1].id,skin[i].v[2].id});
       std::sort(skin[i].v.begin(),skin[i].v.end(),[](Node a,Node b){return a.id<b.id;});
       if(orientation<0)std::swap(skin[i].v[1],skin[i].v[2]);
@@ -468,8 +488,9 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
     for(const auto& row:incident) {
       if(!within())throw std::length_error("Joint source column elapsed resource budget exhausted.");
       std::vector<std::array<Point,3>> faces;faces.reserve(row.second.size());
-      for(auto i:row.second)faces.push_back({skin[i].v[0].p,skin[i].v[1].p,skin[i].v[2].p});
-      columns.push_back({span+row.first,SU2NativeGeometry::SourceColumn(original.at(row.first),faces,radius,solves,maximum_work)});
+      double local=curved?0:radius;
+      for(auto i:row.second){faces.push_back({skin[i].v[0].p,skin[i].v[1].p,skin[i].v[2].p});if(curved)local=std::max(local,face_radius[i]);}
+      columns.push_back({span+row.first,SU2NativeGeometry::SourceColumn(original.at(row.first),faces,local,solves,maximum_work)});
     }
   }catch(const std::length_error& e){failure.Set(3,0,e.what());}
    catch(const std::bad_alloc& e){failure.Set(3,0,e.what());}
@@ -544,6 +565,15 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
     for(size_t i=world.rank;i<count;i+=world.size) {
       if(!within())throw std::length_error("Joint source distance planning elapsed resource budget exhausted.");
       std::array<su2double,3> lo,hi;
+      if(curved) {
+        const auto bounds=patches[i].Bounds();lo={bounds[0].x,bounds[0].y,bounds[0].z};hi={bounds[1].x,bounds[1].y,bounds[1].z};
+        tree->DetermineIntersectingElements(lo.data(),hi.data(),candidates);
+        candidates.erase(std::remove_if(candidates.begin(),candidates.end(),[&](auto j){return j<witnesses;}),candidates.end());
+        for(auto& j:candidates)j=(j-witnesses)/3;
+        std::sort(candidates.begin(),candidates.end());candidates.erase(std::unique(candidates.begin(),candidates.end()),candidates.end());
+        for(auto j:candidates)keep(j,i,true);
+        continue;
+      }
       for(unsigned axis=0;axis<3;++axis) {
         double first=INFINITY,last=-INFINITY;
         for(auto p:outer_faces[i]){const double q=axis==0?p.x:axis==1?p.y:p.z;first=std::min(first,q);last=std::max(last,q);}
@@ -564,6 +594,12 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
     if(i%128==0 && !within())throw std::length_error("Joint source audit elapsed resource budget exhausted.");
     const auto c=checks[i];
     if(c.distance) {
+      if(curved) {
+        const auto budget=maximum_work/world.size+(uint64_t(world.rank)<maximum_work%world.size);
+        if(!patches[c.b].Separated(outer_faces[c.a],distances,budget))
+          throw std::invalid_argument("Uncertified swept curved-source patch "+std::to_string(c.b)+" against outer face "+std::to_string(c.a));
+        continue;
+      }
       ++distances;const auto& f=skin[c.b];
       if(!SU2NativeGeometry::SourceFacesSeparated(outer_faces[c.a],{f.v[0].p,f.v[1].p,f.v[2].p},radius))
         throw std::invalid_argument("Uncertified joint original-source envelope coverage at face "+std::to_string(c.a));
@@ -596,7 +632,8 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
     }
   }catch(const std::exception& e){failure.Set(3,0,e.what());}
   if(!vote())return false;
-  if(!world.rank)std::cout<<"Native joint affine source: radius="<<radius<<" nodes="<<columns.size()<<" cells="<<3*count
+  if(!world.rank)std::cout<<"Native joint "<<(curved?"curved source: maximum_proposal_radius=":"affine source: radius=")
+      <<(curved?*std::max_element(face_radius.begin(),face_radius.end()):radius)<<" nodes="<<columns.size()<<" cells="<<3*count
       <<" column_work="<<stats.source_envelope_solves<<" contacts="<<stats.source_envelope_contacts
       <<" distances="<<stats.source_envelope_distances<<" seconds="<<world.seconds()-started<<std::endl;
   return true;

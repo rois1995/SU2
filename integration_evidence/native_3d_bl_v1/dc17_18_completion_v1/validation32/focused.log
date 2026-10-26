@@ -1,0 +1,34 @@
+CURVED_BL_GRADATION sensor_ratio=1 composed_ratio=30.650992757221807
+DC16 joint source work bound 1000000 (max(10^6, 128 x 12 skin faces))
+Native joint affine source: radius=4e-13 nodes=8 cells=36 column_work=102 contacts=702 distances=144 seconds=0.010085
+DC16 joint source work bound 1000000 (max(10^6, 128 x 12 skin faces))
+Native joint affine source: radius=4e-13 nodes=8 cells=36 column_work=102 contacts=702 distances=144 seconds=0.0100429
+DC16 joint source work bound 1000000 (max(10^6, 128 x 24 skin faces))
+NATIVE3D rank=0 ranks=1 workers=1 complete=0 detailed=0 total=0.12086121899999999 other=6.7289999999692318e-06 cpu=0.119504 idle_cpu=0 support=3.9339999999971065e-06 reference=1.7769999999944774e-06 import=0.00049621500000000818 source=3.7381000000002995e-05 weights=0.00021484500000000517 partition=5.2187999999994683e-05 donor_migration=1.0033000000006509e-05 communicator=3.2693000000000305e-05 refine=0.119991629 coarsen=0 wait=1.3009000000008264e-05 return=2.9200000001283755e-07 policy=1.1699999999392752e-07 reassessment=3.7699999999585287e-07 normalization=0 initial=6 final=0 refine_accepted=2 coarsen_accepted=0 tracked_bytes=521624 tracked_calls=2621 nested_tracked_collectives=0.00059117199999944581 tracked_import_bytes=2880 tracked_import_calls=6 nested_tracked_import=1.6659999999973918e-06 tracked_parent_bytes=22528 tracked_parent_calls=33 nested_tracked_parent=9.6829999999964445e-06 tracked_worker_bytes=496216 tracked_worker_calls=2582 nested_tracked_worker=0.00057982299999945197 native_bound=16120905 process_peak_rss=35172352
+Native3D rejected event: Native3D joint repair exhausted the global work budget. Last local rejection: feature 2:1: Native3D geometric refinement adds frozen metric excess or removes no geometric freedom.; accepted CFD mesh/solution retained.
+Native3D frozen stages: count=1 shared_work=32 correction_trials=0 correction=0 correction_status=1 correction_density_queries=0 correction_geometry_queries=0 correction_seconds=0 reason=
+Passed all 29 test cases with 3055 assertions.
+
+	Command being timed: "timeout --kill-after=10s 180s /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeCurvedMapped3D],[NativeCurvedMappedGuards3D],[NativeMappedFacetGeometry],[NativeMappedPublication3D],[NativeMappedRealized3D],[NativeMappedComponent3D],[NativeParametricGeometry],[NativeAffineSourceGeometry],[NativeFirstLayer3D],[NativeCurvedBL3D],[NativeJointAffineSource3D],[NativeGeneratedCoverage3D] --reporter compact"
+	User time (seconds): 2.97
+	System time (seconds): 0.01
+	Percent of CPU this job got: 88%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:03.37
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 37080
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 3159
+	Voluntary context switches: 906
+	Involuntary context switches: 344
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 328
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

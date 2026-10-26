@@ -8,11 +8,37 @@ int main(int argc,char** argv) {
   SU2_MPI::Init(&argc,&argv);int status=1;
   try {
     using namespace SU2Native3D;
-    if(argc!=4)throw std::runtime_error("usage: probe sidecar sorted-face-index output.json");
+    if(argc!=4 && argc!=5)throw std::runtime_error("usage: probe sidecar sorted-face-index [outer-face-index] output.json");
     std::ifstream in(argv[1]);std::ostringstream text;text<<in.rdbuf();if(!in)throw std::runtime_error("Cannot read sidecar.");
     const auto state=DecodeReference(text.str(),size_t(2)<<30);const auto& g=state.original->Parameters()->Geometry();
     auto facets=state.facets;auto key=[](const Facet& f){Face k{{f.v[0].id,f.v[1].id,f.v[2].id}};std::sort(k.begin(),k.end());return k;};
     std::sort(facets.begin(),facets.end(),[&](const auto& a,const auto& b){return key(a)<key(b);});
+    if(argc==5) {
+      const auto& patch=facets.at(std::stoull(argv[2]));const auto& outer=facets.at(std::stoull(argv[3]));
+      auto prepare=[&](const Facet& f){std::array<SU2NativeGeometry::SurfaceBinding,3> binding;
+        for(unsigned k=0;k<3;++k)binding[k]=state.original->Parameters()->Find(f.v[k].id)->binding;
+        return g.PrepareSourcePatch(f.id,binding,{{f.v[0].p,f.v[1].p,f.v[2].p}});};
+      double minimum=INFINITY;for(const auto& row:g.Errors())minimum=std::min(minimum,row.second);
+      std::ofstream out(argv[4]);out<<std::setprecision(17);auto point=[&](Point p){out<<'['<<p.x<<','<<p.y<<','<<p.z<<']';};
+      out<<"{\"patch\":"<<patch.id<<",\"patch_marker\":"<<patch.marker<<",\"outer\":"<<outer.id<<",\"outer_marker\":"<<outer.marker
+        <<",\"margin\":"<<g.Errors().at(patch.id)<<",\"controls\":[";bool separator=false;
+      for(auto p:g.Curves().at(patch.id)){if(separator)out<<',';separator=true;point(p);}
+      out<<"],\"source\":[";for(unsigned k=0;k<3;++k){if(k)out<<',';point(patch.v[k].p);}
+      out<<"],\"columns\":[";std::array<Point,3> columns;uint64_t work=0;
+      for(unsigned k=0;k<3;++k) {
+        const auto node=outer.v[k];std::vector<std::array<Point,3>> incident;double radius=0;
+        for(auto f:facets)if(std::any_of(f.v.begin(),f.v.end(),[&](Node n){return n.id==node.id;})) {
+          radius=std::max({radius,minimum,prepare(f).OutwardDisplacement()});
+          std::rotate(f.v.begin(),std::min_element(f.v.begin(),f.v.end(),[](Node a,Node b){return a.id<b.id;}),f.v.end());
+          incident.push_back({f.v[0].p,f.v[1].p,f.v[2].p});
+        }
+        columns[k]=SU2NativeGeometry::SourceColumn(node.p,incident,radius,work,1000000);
+        if(k)out<<',';out<<"{\"id\":"<<node.id<<",\"radius\":"<<radius<<",\"original\":";point(node.p);out<<",\"point\":";point(columns[k]);out<<'}';
+      }
+      uint64_t separation=0;const bool pass=prepare(patch).Separated(columns,separation,1000000);
+      out<<"],\"separated\":"<<(pass?"true":"false")<<"}\n";out.close();if(!out)throw std::runtime_error("Cannot preserve hull witness.");
+      SU2_MPI::Finalize();return 0;
+    }
     const auto& face=facets.at(std::stoull(argv[2]));auto nodes=face.v;
     std::sort(nodes.begin(),nodes.end(),[](const auto& a,const auto& b){return a.id<b.id;});
     double radius=0;for(const auto& f:facets)radius=std::max(radius,4*g.EnvelopeError(f.id));

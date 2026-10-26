@@ -687,9 +687,33 @@ TEST_CASE("Curved first-height clearance and principal curvature use the persist
     const auto clearance=plane.ClosestCurved(3,query,1e-10,16384);
     CHECK(clearance.clearance_lower>0);CHECK(clearance.clearance_lower<=clearance.upper);
     CHECK(clearance.upper==Approx(1e-6).margin(1e-12));
+    const std::array<SurfaceBinding,3> binding{{plane.Vertex(0),plane.Vertex(1),plane.Vertex(2)}};
+    std::array<Point,3> source;for(unsigned k=0;k<3;++k)source[k]=tilted[3].v[k].p;
+    const auto patch=plane.PrepareSourcePatch(3,binding,source);
+    CHECK(patch.OutwardDisplacement()<1e-10);
+    for(auto& p:source){p.x+=.8e-3;p.z+=.6e-3;}uint64_t work=0;
+    CHECK(patch.Separated(source,work,1024));
   }
   nets[3][9].z=.1;
   auto geometry=std::make_shared<MappedFacetReference>(base,errors,1,SIZE_MAX,false,nets);
+  const std::array<SurfaceBinding,3> sourceBinding{{geometry->Vertex(0),geometry->Vertex(1),geometry->Vertex(2)}};
+  const std::array<Point,3> sourceFace{{n[0].p,n[1].p,n[2].p}};
+  const auto sourcePatch=geometry->PrepareSourcePatch(3,sourceBinding,sourceFace);
+  CHECK(sourcePatch.OutwardDisplacement()>=.1);CHECK(sourcePatch.OutwardDisplacement()<.100000001);
+  const auto bounds=sourcePatch.Bounds();CHECK(bounds[0].z<0);CHECK(bounds[1].z>.1);
+  uint64_t sourceWork=0;
+  // The exact graph peaks at .6/27, but coverage must certify the complete child-chord hull.
+  CHECK_FALSE(sourcePatch.Separated({{{0,0,.03},{3,0,.03},{0,3,.03}}},sourceWork,1024));
+  CHECK(sourcePatch.Separated({{{0,0,.2},{3,0,.2},{0,3,.2}}},sourceWork,1024));
+  // Both triangles' edges are horizontal; their axes miss this curved-hull side separation.
+  CHECK(sourcePatch.Separated({{{2,2,.02},{3,1.5,.02},{1.5,3,.02}}},sourceWork,1024));
+  sourceWork=0;
+  CHECK_THROWS_AS(sourcePatch.Separated({{{0,0,.01},{3,0,.01},{0,3,.01}}},sourceWork,0),std::length_error);
+  CHECK_THROWS(geometry->PrepareSourcePatch(3,sourceBinding,{{{0,0,.01},n[1].p,n[2].p}}));
+  const std::array<SurfaceBinding,3> childBinding{{geometry->Vertex(0),geometry->EdgePoint({0,1},.5),geometry->FacetPoint(3,.25,.25)}};
+  std::array<Point,3> childFace;for(unsigned k=0;k<3;++k)childFace[k]=geometry->Realize(childBinding[k]);
+  const auto childPatch=geometry->PrepareSourcePatch(3,childBinding,childFace);sourceWork=0;
+  CHECK(childPatch.Separated({{{0,0,.2},{3,0,.2},{0,3,.2}}},sourceWork,1024));
   const auto point=geometry->Realize(geometry->FacetPoint(3,1./3,1./3));
   const auto differential=geometry->ClosestCurved(3,point,1e-10,16384);
   CHECK(differential.upper<1e-10);CHECK(differential.normal.z==Approx(1).margin(1e-10));
@@ -705,6 +729,9 @@ TEST_CASE("Curved first-height clearance and principal curvature use the persist
   const auto outside=geometry->ClosestCurved(3,{point.x,point.y,point.z+.01},1e-8,16384);
   CHECK(outside.clearance_lower<0);
   nets[3][9].z=-.1;geometry=std::make_shared<MappedFacetReference>(base,errors,2,SIZE_MAX,false,nets);
+  const auto fluidward=geometry->PrepareSourcePatch(3,{{geometry->Vertex(0),geometry->Vertex(1),geometry->Vertex(2)}},sourceFace);
+  CHECK(fluidward.OutwardDisplacement()<1e-10);sourceWork=0;
+  CHECK(fluidward.Separated({{{0,0,.001},{3,0,.001},{0,3,.001}}},sourceWork,1024));
   auto parameters=ComponentState(geometry,facets);const auto reference=PlanarReference::WithParameters(base,parameters);
   CHECK(reference->SearchWorkspaceBytes()>=geometry->CurvedQueryWorkspaceBytes(MappedFacetReference::ClearanceWork));
   for(double h:{.001,.1}) {
