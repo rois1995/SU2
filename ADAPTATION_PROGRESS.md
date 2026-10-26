@@ -15,14 +15,21 @@ peer contact selection; independent proposals still commit concurrently.
 
 The focused priority tests also pass (4 cases, 31 assertions). Connected serial qualification passes 127 cases and 1,082,802 assertions.
 Connected MPI qualification also passes: 118 cases on each of six ranks.
-Full M6 is prepared but has not been rerun or accepted.
+Full M6 Euler is now running on six ranks; no accepted full-M6 result exists yet.
 
 Required gates remain q ≥ 0.20, J ≥ 0.05, metric edges ≤ 1.8, first height within
 10%, geometry preservation, the configured 500k metric-complexity target,
 conservative transfer and restart. The target is not a literal tetrahedron count.
 Curvature uses `ADAP_HAUSD` in mesh units, independently of h0.
 
-## Local checkpoints
+Work budgets count attempted proposals and repair trials, not generated cells.
+The 4,096 limit quoted below belongs to the small regression workflows. Automatic
+production work is bounded by `max(4096, 64 × initial cells)`; time, storage,
+local-cavity and sampling limits separately bound resource use. These limits do
+not replace the mesh-quality gates. Exhaustion means the search is unfinished,
+not that the requested quality is impossible.
+
+## Checkpoints
 
 | Checkpoint | Change | Validation status |
 | --- | --- | --- |
@@ -34,10 +41,10 @@ Curvature uses `ADAP_HAUSD` in mesh units, independently of h0.
 | `4933586627` | Charge actual optimizer work and refund unused reservations | Validation47 serial passes; later six-rank qualification exposes further failures. |
 | `895ab7274a` | Handle empty initial FVM graph ranks | Four-point import passes on six ranks. Distributed repair failures remain. |
 | `7113fd984d` — WIP | Couple bounded candidate repair to strict construction admission | Builds; validation50 fails runtime and a fixed-cell-count assertion. Corrected in validation51. |
-
-| `4ffe4e507d` — WIP | Coalesce replicated concurrent edge demands | One-budget election passes; curved refinement completes, but subsequent coarsening exhausts remaining work. |
-| `2a214b1058` — WIP | Geometry-first distributed conflict priority | Serial and priority/conflict tests pass; six-rank cubic runtime retains two geometry violations. |
 | `b214ff210b` — WIP | Retain one candidate for bounded repair after ordinary construction | Validation51 serial and six-rank flat runtime pass; cubic six-rank runtime remains incomplete. |
+| `2a214b1058` — WIP | Geometry-first distributed conflict priority | Serial and priority/conflict tests pass; six-rank cubic runtime retains two geometry violations. |
+| `4ffe4e507d` — WIP | Coalesce replicated concurrent edge demands | One-budget election passes; curved refinement completes, but subsequent coarsening exhausts remaining work. |
+| `e9263060cf` | Order distributed proposals by geometric benefit and metric length | Serial 127 cases, MPI6 118/rank and all-worker Euler/RANS transfer/reload pass. Full M6 is running. |
 
 `72c4684264` preserves the repair-accounting evidence and links its checkpoint.
 Documentation-only commits may follow an implementation checkpoint.
@@ -101,7 +108,7 @@ is an unanswered question.
 - [Validation51](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation51/summary.json).
 
 The user approved pushing checkpoints to `rois1995/SU2`, branch
-`codex/native-3d-bl`, on 2026-10-26. Push succeeded through `4ffe4e507d` on
+`codex/native-3d-bl`, on 2026-10-26. Push succeeded through `e9263060cf` on
 [the fork branch](https://github.com/rois1995/SU2/tree/codex/native-3d-bl).
 Validation53 is checkpointed and pushed with its incomplete workflow result.
 Validation54 passes focused, all-worker and connected serial/MPI checks. Its

@@ -1,13 +1,20 @@
 # DC18 curved original-source coverage — active
 
-Automatic curved initialization remains absent and BL construction remains guarded.
-Validation35 drafts explicit persisted-curved import after source qualification.
-Validated clearance checkpoint61bf6cc4c1; failed source trials/diagnosis2047a0ddf4.
-[Prior work and evidence](DC17_DC18_COMPLETION_2026_10_25.md).
+Current state, 2026-10-26: full-M6 original-source coverage is qualified by
+validations32–34. Persisted curved runtime now passes six-worker Euler/RANS
+adaptation, conservative BDF2 transfer and SU2/CGNS reload (validation54,
+checkpoint `e9263060cf`). Connected serial127 cases and MPI6 118 cases/rank pass.
+Full M6 Euler is running; no accepted full-M6 adaptation exists yet. Automatic
+curved initialization remains absent and BL construction remains guarded.
+See the [progress companion](../ADAPTATION_PROGRESS.md) and
+[current handoff](../HANDOFF_Codex.md) for live campaign state.
+[Prior field/BL work and evidence](DC17_DC18_COMPLETION_2026_10_25.md).
 
-The missing capability is complete original-source support for the admitted curved
-boundary, with original P1 priority, continuous compatible exterior traces, exact
-positive/conforming source geometry, bounded preparation and shared MPI policy.
+## Source coverage design and evidence (validations26–34)
+
+This completed coverage effort addressed original-source support for the admitted
+curved boundary, with original P1 priority, continuous compatible exterior traces,
+exact positive/conforming source geometry, bounded preparation and shared MPI policy.
 Nearest-face extrapolation has an exact discontinuity counterexample and remains
 rejected. Sampling alone cannot admit a source domain.
 

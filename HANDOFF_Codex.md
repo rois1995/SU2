@@ -11,14 +11,19 @@ operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexit
 (not tet-count), geometry, conservative transfer and restart. Curvature uses
 ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
 
-ACTIVE: no owned job.54 connected MPI56906 terminal/pass118 cases/rank; serial34415
+ACTIVE:54 full M6 Euler6 session64848 running. Connected MPI56906 terminal/pass118 cases/rank; serial34415
 passes127/1,082,802; all-worker89244 passes11/rank; focused4/31 and build64078 pass.
 Source990/runtime19 pins and independently frozen stage receipts verified.
 Curved Refine1750+Coarsen225=1975/4096; flat82+23=105. Euler/RANS BDF2 transfer
-and SU2/CGNS reload pass.54 implementation checkpoint/push next, then full M6.
-Full M6 Euler inputs prepared under54/m6_euler (same verified47 inputs), NOT started:
+and SU2/CGNS reload pass.54 implementation checkpoint e9263060cf saved and pushed.
+Full M6 Euler is running under54/m6_euler (same verified47 inputs):
 6ranks,500k metric-complexity,HAUSD1e-4,1800native seconds,outer2400,12GiB/rank.
 Run low-priority with one owned job; monitor actual RAM/CPU. Keep C++/binaries pinned.
+Five-second perf capture13781 terminal (491 samples). Decoder91717 interrupted after
+DWARF errors; symbol-only reports terminal/pass. About74% inclusive CPU samples in
+MPI_Allreduce, active reconstruction/donor measurement; not whole-event timing.
+Loaded MPI/library runtime hashes saved in54/m6_euler/loaded_runtime_pins.json. Raw
+54/m6_euler/live_profile.data stays local (do not add raw sampled stacks to git).
 53 checkpoint4ffe4e507d pushed; fork approval persists. Initial54 build23366 failure
 retained (wire priority type); search priority uses supported double, never certifies.
 54 carries geometry benefit/cell/edge and metric length/edge before rank using
