@@ -7401,6 +7401,14 @@ void CPhysicalGeometry::SetColorGrid_Parallel(const CConfig* config) {
 
   if (size == SINGLE_NODE) return;
 
+  // With at most one point per rank, the linear distribution is already balanced; ParMETIS rejects empty ranks.
+  if (Global_nPointDomain <= static_cast<unsigned long>(size)) {
+    for (unsigned long iPoint = 0; iPoint < nPoint; ++iPoint) nodes->SetColor(iPoint, rank);
+    decltype(xadj)().swap(xadj);
+    decltype(adjacency)().swap(adjacency);
+    return;
+  }
+
   MPI_Comm comm = SU2_MPI::GetComm();
 
   /*--- Linear partitioner object to help prepare parmetis data. ---*/

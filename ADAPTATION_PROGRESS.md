@@ -11,7 +11,10 @@ The current work connects construction to distributed quality repair and correct
 bounded geometric integration. Validation46 passes all selected integration checks, including positive sphere weights
 and second moments. Cubic Euler/RANS still fails its repair work limit. Validation47
 corrects overcharging of optimizer work: all 12 focused cases pass, including
-curved Euler/RANS transfer and reload. Connected serial qualification is running.
+curved Euler/RANS transfer and reload. Connected serial qualification passes 125 cases and 1,082,524 assertions; six-rank MPI aborts on a four-point sphere imported across six ranks. Validation48
+fixes that empty-rank partitioning path: the reproducer passes on all six ranks;
+connected MPI passes114/116 cases per rank. Distributed runtime repair and a
+collapse-filter counter assertion remain open. All-worker runtime also rejects.
 
 The final requirements remain q ≥ 0.20, J ≥ 0.05, metric edges ≤ 1.8, first height
 within 10%, geometry preservation, the configured 500k metric-complexity target,
@@ -48,14 +51,26 @@ Connected changes in validation46:
 | Full M6, validation43, MPI2 | Rejected at the 1800-second native limit: 26,567 private edits; 218,099 cached invalid cells. 238,305 metric trials refused intermediate shape. | Scheduling improvements alone do not complete construction. The accepted CFD state is retained. |
 | Validation44 | Build passes. Repair 10/11, volume 8/10 and connected serial 104/105 cases pass. | Fix the mapped fixture's missing tolerance; preserve planar integration; address sphere point usage and curved-runtime repair cost. |
 | Validation45 | Build passes. Focused checks: 19/22 cases, 1,066,854/1,066,866 assertions pass. | The mapped fixture and planar complexity regression are fixed. Sphere density/volume/first moments finish within the cap, but eight zero weights and a second-moment regression remain. Cubic Euler/RANS still exhaust repair work with seven invalid cells. |
+| Validation47 connected | Serial125 cases/1,082,524 assertions pass. MPI6 aborts in a four-point sphere import before completing the campaign. | Empty initial graph ranks reach ParMETIS; validation48 fixes this production import path. No full M6 run started. |
 | Validation47 focused | Build and 12/12 cases, 2,183 assertions pass. | Curved Euler/RANS completes with zero invalid cells and work1,180/4,096. Connected serial/MPI and full M6 remain required. |
 | Validation46 | Build passes; 21/22 cases and 1,066,877/1,066,879 assertions pass. | All selected integration checks pass. Cubic Euler/RANS reaches work4096 with 14 invalid cells. No six-rank or full M6 result exists for this change. |
 
 Validation47 refunds unused optimizer work using its actual trial count, at both
 resident and streamed repair callers. The reservation and global limit are unchanged;
 a runtime guard rejects any optimizer overrun. Build and all 12 focused cases pass (2,183 assertions). Both curved runtime cases
-finish refinement with zero invalid cells and work1,180/4,096. Broader serial and
-six-rank qualification remain pending.
+finish refinement with zero invalid cells and work1,180/4,096. Broader serial passes 125 cases/1,082,524 assertions. Six-rank MPI aborts in initial partitioning of a four-point sphere (empty graph
+ranks). Validation48 preserves the already balanced linear distribution for this
+degenerate graph; ordinary graph partitioning remains unchanged. Build and the
+six-rank reproducer pass. Connected MPI passes114/116 cases per rank; curved
+Euler/RANS exhausts work4096 with three active workers. With all six active, affine
+cases stagnate with one invalid cell and curved cases exhaust work. The collapse
+filter counter fixture also needs diagnosis; its final mesh audit passes. No full
+M6 run starts until these failures are resolved.
+
+Validation49 adds bounded diagnostics to compare the existing optimizer on complete
+rejected test meshes. It changes no production repair algorithm or acceptance gate.
+The comparison will identify whether local cavity limits or operator freedom block
+repair; diagnostic output cannot count as an accepted runtime mesh.
 
 ## Next acceptance steps
 

@@ -1,5 +1,5 @@
 {
-  "status": "focused passes; connected serial starting",
+  "status": "terminal: serial passes; MPI6 exposes empty-rank initial partition abort",
   "base_commit": "3deed0ca3c",
   "change": "Charge actual optimizer trials at both repair callers; refund unused reservation; guard overrun. Work cap4096 unchanged.",
   "prior_result": "validation46 integration passes; cubic Euler/RANS remains rejected",
@@ -20,5 +20,16 @@
   "focused_seconds": 77.72,
   "focused_largest_process_kib": 48096,
   "curved_refine_work": 1180,
-  "curved_refine_invalid": 0
+  "curved_refine_invalid": 0,
+  "serial_exit": 0,
+  "serial_cases": 125,
+  "serial_assertions": 1082524,
+  "serial_seconds": 110.07,
+  "serial_largest_process_kib": 142196,
+  "mpi6_session": 14985,
+  "mpi6_exit": 1,
+  "mpi6_seconds": 2.19,
+  "mpi6_failure": "Four-point sphere on six ranks: ParMETIS rejects null adjacency/empty graph ranks in CPhysicalGeometry::SetColorGrid_Parallel",
+  "terminal_pins_verified": true,
+  "m6_status": "prepared only; not started"
 }

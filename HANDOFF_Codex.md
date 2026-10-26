@@ -39,10 +39,19 @@ moment (.00504901 vs.006). Cubic Euler/RANS still exhaust work4096 with7 invalid
 cells; reordering point-placement search is insufficient.989 source and19 runtime
 pins verify; no MPI/M6. Failed evidence preserved under45.
 
-ACTIVE: validation47 serial58788 running. Build19887 and focused13770 terminal/pass.
-Focused12 cases/2,183 assertions,77.72s,largest process48,096KiB. Both cubic runtime
-Euler/RANS complete with zero invalid cells and work1,180/4,096. Connected serial
-then six-rank MPI/all-worker qualification and full M6 remain. Validation46 build56379 and focused7723 are terminal.
+ACTIVE: validation49 diagnostic build95165 running.48 all handles terminal: build8260,
+focused6 sphere pass; connected30312 exit3,114/116 cases/rank (curved runtime and
+collapse-filter counter). All-worker65345 exit4: affine Euler/RANS stagnates with
+one invalid cell at254 work; cubic Euler/RANS work4096. No M6 started.48 pins verify.
+49 adds only test diagnostics (plus retained48 partition fix): full rejected-cell
+dumps for affine/cubic; SU2_NATIVE_MAPPED_REPAIR_PROBE with ALL_WORKERS=1 gathers
+<=4096 cells onto rank0 and compares topology-only/full-interior/boundary-enabled
+existing optimizer at4096 operations/5s per mode. No production reconstruction
+fallback or gate changes. Goal: identify cavity reach vs missing operator freedom.
+Do not change pinned sources during build/run; then diagnose and implement the
+connected repair capability. Collapse-filter fixture count failure still needs
+qualification without weakening its witness/mesh audit.
+Validation46 build56379 and focused7723 are terminal.
 Focused21/22 cases,1,066,877/1,066,879 assertions pass. All volume/integration cases
 pass, including hidden sphere positivity/second moments. Cubic Euler/RANS still
 fails work4096 with14 invalid cells (25 optimizer calls,5 validated).990 source,

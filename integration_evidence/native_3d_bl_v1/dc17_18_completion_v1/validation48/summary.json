@@ -1,0 +1,31 @@
+{
+  "status": "terminal: import fix passes; distributed runtime repair remains rejected",
+  "base_commit": "4933586627",
+  "source_inputs": 990,
+  "change": "FVM initial partition retains one-point-per-rank linear assignment when points <= ranks; no null/empty ParMETIS graph. Ordinary graph partitioning unchanged.",
+  "acceptance": [
+    "MPI6 previously failing generated sphere import",
+    "Connected MPI6 and all-worker curved Euler/RANS",
+    "Full M6 accepted mesh transfer restart"
+  ],
+  "reused_evidence": "validation47 serial125 cases/1082524 assertions; new change only reaches parallel degenerate initial graph partition",
+  "build_session": 8260,
+  "build_exit": 0,
+  "build_seconds": 40.12,
+  "build_largest_process_kib": 2876236,
+  "verified_source_inputs": 990,
+  "runtime_pins": 19,
+  "focused6_exit": 0,
+  "focused6_passed_ranks": 6,
+  "mpi6_session": 30312,
+  "mpi6_exit": 3,
+  "mpi6_seconds": 50.86,
+  "mpi6_failure": "Curved Euler/RANS exhaust work4096 with51 invalid cells total and4 queued edges; only rank0 executes optimizer44 calls/4 validated. Collapse-filter fixture counter assertion also fails.",
+  "mpi6_cases_per_rank": 116,
+  "mpi6_passed_per_rank": 114,
+  "all_workers6_session": 65345,
+  "all_workers6_exit": 4,
+  "all_workers6_seconds": 59.77,
+  "all_workers6_failure": "All four runtime combinations reject: affine Euler/RANS stagnates at work254 with one invalid cell; curved Euler/RANS exhausts work4096. No full M6 started.",
+  "terminal_pins_verified": true
+}

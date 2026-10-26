@@ -406,3 +406,23 @@ Validation47 build19887 and focused13770 pass.12 cases/2,183 assertions,77.72s;
 both cubic Euler/RANS refine completes with zero invalid cells atwork1,180/4,096,
 70 optimizer calls/10 validated. This resolves the overcharged-reservation regression,
 not full M6 acceptance. Connected serial58788 running before six-rank qualification.
+
+Validation47 connected serial passes125 cases/1,082,524 assertions,110.07s. MPI6
+session14985 aborts after2.19s on generated-sphere import: four graph vertices on
+six ranks pass null adjacency to ParMETIS, which also rejects zero local vertices.
+47 source/runtime pins verify terminal; no full M6 or all-worker run.48 retains
+the balanced one-point-per-rank linear FVM assignment when global points<=ranks,
+freeing CSR storage as usual. This fixes the shared production import entry point;
+ordinary larger-graph partitioning stays unchanged. Existing six-rank sphere case
+is the reproducer.
+
+Validation48 import fix passes the four-point sphere on all6 ranks. Connected
+MPI6 session30312 passes114/116 cases/rank,50.86s; cubic Euler/RANS exhausts4096
+with51 invalid cells total. Rank0 executes44 optimizer calls/4 validated; other
+workers retain invalid cells. The exact-collapse-filter fixture's positive-filter
+count assertion also fails (checks and final mesh audit pass). All-worker65345
+terminal59.77s: affine Euler/RANS stagnates at254 work with one invalid cell;
+curved Euler/RANS exhausts4096. Source/runtime pins verify. No M6 started.
+Before expanding local fallbacks, compare the existing whole-mesh optimizer on
+these rejected small meshes to identify missing cavity coordination versus missing
+operator freedom. Diagnostic outcomes cannot establish accepted runtime meshes.
