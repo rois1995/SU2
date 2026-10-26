@@ -8,7 +8,10 @@ Updated: 2026-10-26.
 
 **DC-17 and DC-18 remain open. No full M6 adaptation has passed final acceptance.**
 The current work connects construction to distributed quality repair and corrects
-bounded geometric integration. Validation46 is building; its changes are unvalidated.
+bounded geometric integration. Validation46 passes all selected integration checks, including positive sphere weights
+and second moments. Cubic Euler/RANS still fails its repair work limit. Validation47
+corrects overcharging of optimizer work: all 12 focused cases pass, including
+curved Euler/RANS transfer and reload. Connected serial qualification is running.
 
 The final requirements remain q ≥ 0.20, J ≥ 0.05, metric edges ≤ 1.8, first height
 within 10%, geometry preservation, the configured 500k metric-complexity target,
@@ -23,9 +26,9 @@ Curvature uses `ADAP_HAUSD` in mesh units, independently of h0.
 | `79bfba6f8f` | Reuse the collision search while retaining exact contact checks | Connected serial/MPI checks pass. Full M6 validation41 still rejects its private mesh. |
 | `e398807a2c` | Reactivate curved demands after neighboring edits; admit compatible concurrent proposals | 105 serial cases, 105 cases per MPI2 rank and all-worker curved runtime checks pass. Two simultaneous commits are exercised. Full M6 validation43 fails final acceptance. |
 | `c02010b08d` — WIP | Connect validity-only construction and bounded point-placement repair; revise radial integration | Preserves failed M6 and validation44 evidence. Subsequent validation45 still fails, as recorded below. This is not a validated capability checkpoint. |
-| `3deed0ca3c` — WIP | Connect bounded topology repair and weighted radial integration; add this companion | Validation46 is building. Preserves validation45 failures and their provenance; final acceptance remains open. |
+| `3deed0ca3c` — WIP | Connect bounded topology repair and weighted radial integration; add this companion | Validation46 passes 21/22 cases. Integration defects are fixed; cubic Euler/RANS still exhausts repair work. Final acceptance remains open. |
 
-Current unvalidated correction, validation46:
+Connected changes in validation46:
 
 - Replace the new single-point search with the existing bounded topology optimizer
   for repair cavities. It can swap edges/faces and collapse interior vertices;
@@ -44,7 +47,14 @@ Current unvalidated correction, validation46:
 | Full M6, validation43, MPI2 | Rejected at the 1800-second native limit: 26,567 private edits; 218,099 cached invalid cells. 238,305 metric trials refused intermediate shape. | Scheduling improvements alone do not complete construction. The accepted CFD state is retained. |
 | Validation44 | Build passes. Repair 10/11, volume 8/10 and connected serial 104/105 cases pass. | Fix the mapped fixture's missing tolerance; preserve planar integration; address sphere point usage and curved-runtime repair cost. |
 | Validation45 | Build passes. Focused checks: 19/22 cases, 1,066,854/1,066,866 assertions pass. | The mapped fixture and planar complexity regression are fixed. Sphere density/volume/first moments finish within the cap, but eight zero weights and a second-moment regression remain. Cubic Euler/RANS still exhaust repair work with seven invalid cells. |
-| Validation46 | Build active; independent weighted-rule moment check passes. | Production integration and repair are **not yet validated**. No six-rank or full M6 result exists for this change. |
+| Validation47 focused | Build and 12/12 cases, 2,183 assertions pass. | Curved Euler/RANS completes with zero invalid cells and work1,180/4,096. Connected serial/MPI and full M6 remain required. |
+| Validation46 | Build passes; 21/22 cases and 1,066,877/1,066,879 assertions pass. | All selected integration checks pass. Cubic Euler/RANS reaches work4096 with 14 invalid cells. No six-rank or full M6 result exists for this change. |
+
+Validation47 refunds unused optimizer work using its actual trial count, at both
+resident and streamed repair callers. The reservation and global limit are unchanged;
+a runtime guard rejects any optimizer overrun. Build and all 12 focused cases pass (2,183 assertions). Both curved runtime cases
+finish refinement with zero invalid cells and work1,180/4,096. Broader serial and
+six-rank qualification remain pending.
 
 ## Next acceptance steps
 

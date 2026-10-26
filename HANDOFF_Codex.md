@@ -14,51 +14,21 @@ User curvature decision: configured ADAP_HAUSD in mesh units, independent of h0
 and ramp. No implicit chord inference or silent tightening to h0.
 
 Current implementation checkpoint `3deed0ca3c` (explicit WIP: validation46
-corrections building;43–45 failures preserved; progress companion added). Previous validated scheduling/concurrency
+corrections tested21/22;43–46 failures preserved; progress companion added). Previous validated scheduling/concurrency
 checkpoint `e398807a2c`; full M6 remains open.
 Full M6 curved-source/field qualification
 passes (validation32–34):450,221 source cells, all48,954 reference facets queried,
 293,724 directed chords, exact serial/MPI2 record identity including ownership.
 Persisted curved import, marker-name reordering, private geometry scoring and
-original-parent support are connected. Small cubic Euler/RANS runtime meshes
+original-parent support are connected. Baseline43 small cubic Euler/RANS runtime meshes
 complete with conservative BDF2 accounting and SU2/CGNS reload. See
 [curved-source history and current design](Handbook/DC18_CURVED_SOURCE.md).
 
-Collision reuse and original source/field qualification are validated; detailed
-records and previous failures are in the curved-source handbook. Baseline41 is
-terminal/rejected:41,632 edits,511,810 private cells at1801.78s. It retained2,638
-geometry violations with EMPTY geometry queue and292,368 metric/height violations.
-95,049 metric trials failed shape vs1,944 size-progress failures. Original CFD state
-retained. Source/runtime pins verify; this motivated scheduling and admission work.
-
-Validation42 is terminal;988 source/input and19 runtime pins verify. Build25343
-passes (1003.45s, process peak4,090,520KiB); geometry/runtime70748 passes9 cases/
-1,323 assertions. Cubic Euler/RANS each reactivate75 geometric requests and
-complete transfer/reload. Geometry memo key checks pass. Volume66000:9/10 cases
-pass, hidden sphere still exhausts65536 points (retained65446, panel297, ray1).
-No M6 run42. Shared IntegrationColumns3D removes duplicate local recursion but
-needs better off-centre angular conditioning; preserve failure and limits.
-
-Validation43 is terminal;989 source/input and19 runtime pins verify. Build78606,
-serial105 cases/15,872 assertions, MPI2 105/rank (16,513/16,205) and all-worker
-397/431 assertions pass. Cubic Euler/RANS each complete with2 simultaneous commits,
-strict final mesh, conservative transfer and SU2/CGNS reload.
-Full M6 MPI2 session75390 is terminal/rejected:26,567 accepted private edits,
-435,293 private cells,218,099 cached invalid cells,184,650 queued edges at the
-1800s native limit (1908.44s whole run; largest reported process1,548,176KiB).
-21,866 geometric requests reactivated. Current-mesh/peer collision checks and final
-reservations ran;238,305 metric shape refusals vs6,177 progress refusals remain.
-Rank0 retains1,203 geometry violations with no currently admissible geometry edge.
-This is failed acceptance, not a speedup or a completed capability.
-
-Validation44 terminal: build6283 passes (481.39s, largest process4,092,072KiB),
-989 source/input and19 runtime pins verify. Repair10/11 cases: new mapped star
-omits mandatory positive surface tolerance; plain optimized star passes. Volume8/10:
-hidden sphere still hits65536 points (65443/panel297), and longest-edge splitting
-on ordinary collapsed charts regresses planar complexity648.985 vs656.152.
-Connected serial104/105 cases (15,578/15,580 assertions): cubic Euler/RANS reaches
-2 invalid cells then work cap4096;24 expensive placement trials run before cheap
-moves. No MPI/M6 run44. All failures and terminal receipt pins retained.
+Validated baseline43:105 serial cases,105 cases/rank on MPI2 and all-worker cubic
+runtime transfer/reload pass. Full M6 MPI2 is still rejected:26,567 private edits,
+218,099 cached invalid cells at1800s;238,305 shape refusals motivated runtime
+admission work. The [progress companion](ADAPTATION_PROGRESS.md) and curved-source
+handbook preserve41–44 failures, counters, timings and complete evidence paths.
 
 Validation45 terminal: build66808 passes (790.59s, largest process4,092,364KiB).
 Focused6243 fails12 assertions/3 of22 cases (1,066,854/1,066,866 pass),42.77s.
@@ -69,7 +39,17 @@ moment (.00504901 vs.006). Cubic Euler/RANS still exhaust work4096 with7 invalid
 cells; reordering point-placement search is insufficient.989 source and19 runtime
 pins verify; no MPI/M6. Failed evidence preserved under45.
 
-ACTIVE: validation46 build56379; pinned C++ unchanged until terminal.
+ACTIVE: validation47 serial58788 running. Build19887 and focused13770 terminal/pass.
+Focused12 cases/2,183 assertions,77.72s,largest process48,096KiB. Both cubic runtime
+Euler/RANS complete with zero invalid cells and work1,180/4,096. Connected serial
+then six-rank MPI/all-worker qualification and full M6 remain. Validation46 build56379 and focused7723 are terminal.
+Focused21/22 cases,1,066,877/1,066,879 assertions pass. All volume/integration cases
+pass, including hidden sphere positivity/second moments. Cubic Euler/RANS still
+fails work4096 with14 invalid cells (25 optimizer calls,5 validated).990 source,
+19 runtime and29 receipt pins verified before edits. No MPI/M6 for46.
+47 changes only Engine3D: refund unused optimizer reservation from report.trials,
+both resident and streamed callers; runtime guard rejects reservation overrun.
+Keep pinned sources unchanged once build/run starts. Work cap4096 unchanged.
 Connected redesign: reuse existing topology optimizer (interior edge/face swaps and
 collapses; fixed boundary, no smoothing/insertions/new nodes) on bounded repair
 cavities after cheap moves/reconnections. Remap local cell IDs into reserved range,
@@ -102,7 +82,7 @@ profile0 821,265+/-53,688; profile1 2,298,938+/-198,670, mostly the outer tail.
 Validation21 rejects the diagnostic normal cap (best1,182,909+/-67,994).
 The existing normal-only relaxation contract remains in force. An asynchronous
 question about permitting tangential growth outside the protected band is pending.
-Do not treat silence as approval. Hidden-sphere quadrature work exhaustion remains.
+Do not treat silence as approval. Hidden-sphere integration passes46 under unchanged caps; whole-field normalization remains open.
 
 Automatic approval review blocked pushing to origin; destination approval remains
 pending. Do not retry remote export without approval. Local checkpoints are allowed.

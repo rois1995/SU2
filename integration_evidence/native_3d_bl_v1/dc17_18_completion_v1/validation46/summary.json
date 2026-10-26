@@ -1,5 +1,5 @@
 {
-  "status": "build starting; unvalidated",
+  "status": "terminal: integration/repair primitives pass; cubic runtime still fails work cap",
   "base_commit": "c02010b08d",
   "source_inputs": 990,
   "prior_failure": "validation45: collapsed second moments,8 zero radial weights, cubic Euler/RANS repair cap with7 invalid cells",
@@ -15,5 +15,19 @@
     "Connected serial and six-rank MPI plus all-worker curved transfer/reload",
     "Full M6 accepted mesh, transfer and restart still required"
   ],
-  "build_session": 56379
+  "build_session": 56379,
+  "build_exit": 0,
+  "verified_source_inputs": 990,
+  "runtime_pins": 19,
+  "build_elapsed": "12:15.29",
+  "build_largest_process_kib": 4092248,
+  "focused_session": 7723,
+  "focused_exit": 2,
+  "focused_cases": 22,
+  "focused_passed": 21,
+  "focused_assertions": 1066879,
+  "focused_failures": 2,
+  "terminal_pins_verified": true,
+  "volume_status": "All selected volume cases pass including hidden sphere positive weights and second moments under existing caps",
+  "runtime_failure": "Cubic Euler/RANS work4096:109 rounds,80 edits,25 optimizer calls,5 validated,14 invalid cells; charges reservation160 per call rather than actual optimizer operations"
 }

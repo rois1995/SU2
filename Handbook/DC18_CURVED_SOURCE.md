@@ -392,3 +392,17 @@ positive2-node Gaussian integration for the actual quadratic collapse weight,
 retaining moments through cubic degree; hidden-sphere test adds all second moments.
 Independent7-ratio weighted moment checks pass; not production acceptance. All45
 failures, connected serial/six-rank/all-worker workflows and full M6 remain required.
+
+Validation46 terminal: build56379 passes735.29s; focused7723 passes21/22 cases,
+1,066,877/1,066,879 assertions. All selected volume checks pass, including positive
+hidden-sphere weights and second moments under unchanged65536 cap. Cubic Euler/RANS
+still fails4096 work with14 invalid cells,25 optimizer calls/5 validated.990 source,
+19 runtime and29 receipt hashes verify. No MPI/M6. The accounting charges160 reserved
+operations even when the optimizer stops earlier. Validation47 uses actual report.trials
+and refunds unused reservation at both callers; a runtime guard rejects overrun.
+No limit or acceptance gate increases.
+
+Validation47 build19887 and focused13770 pass.12 cases/2,183 assertions,77.72s;
+both cubic Euler/RANS refine completes with zero invalid cells atwork1,180/4,096,
+70 optimizer calls/10 validated. This resolves the overcharged-reservation regression,
+not full M6 acceptance. Connected serial58788 running before six-rank qualification.
