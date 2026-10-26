@@ -1,0 +1,112 @@
+Filters: [NativeInteractingBLVolume3D],[NativeCurvedBLVolume3D],[NativeCylinderBLVolume3D],[NativeComplexityEstimate3D],[NativeParallelBL3D],[NativeVolumeBL3D]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Native3D complexity integrates the geometric BL with sensor-only donors
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1203
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1218: FAILED:
+  CHECK( test.solver[FLOW_SOL]->GetMetricComplexityFinal()==Approx(reference).epsilon(5e-4) )
+with expansion:
+  648.9846113648 == Approx( 656.1522579418 )
+with message:
+  Native BL geometry wall: largest local subset 8 of 8 supplied wall faces
+  (before duplicate removal).
+  Native BL D1 features: segments=0 image_segments=0 corners=0 image_corners=0
+  carrier_ends=0 carrier_corners=0 free_corners=0 planes=0 angle=45 slope=0.
+  262364 maximum_radius=0 identity=1274326272357027093
+  Native3D bounded complexity switch: rank=0 cell=1 reason=Native3D BL column
+  point budget exhausted: retained=65228 panel=470 ray=5
+  Sensor-only donor metric statistics:
+  Minimum density: 1.
+  Maximum density: 1.
+  Maximum cell AR: 1.
+  Mesh complexity after native constraints: 648.985 (ADAP_COMPLEXITY= 100).
+  Sensor metric complexity before gradation: 1.
+  Sensor-only donor complexity after gradation: 1.
+  Native geometric integration: 0 points, preparation 0.000380432 s.
+  Native3D complexity normalization: status=outside_estimated_bounds estimate=
+  648.98461136481797 uncertainty_indicator=28.142448837726192 requested_rtol=9.
+  9999999999999995e-07 trials=1 log_scale=-3.0701134573253945 frozen_core=1
+  provisional=1 proven_error_bound=0; target remains frozen during remeshing.
+  Native3D support correction: samples=8192 inside=6007 nonzero=6007
+  sensor_lower=1 sensor_upper=1 sensor_quadrature=1 correction=647.
+  98461136481797 empirical_SE=9.3808162792420493 background_roundoff_indicator=
+  4.2632564145606011e-14 preparation_seconds_max=0.036575742000000133
+  background_seconds_max=9.3153999999984194e-05 correction_seconds_max=0.
+  0031495180000002954 reduction_seconds_max=6.3299999997212808e-07
+  assessment_seconds_max=0.0032445469999999865 retained_bytes_max=2798024
+  background_determinants=1056 correction_queries=6007 background_rank_builds=1
+  background_rank_reuses=0 sensor_interval_indicator=0 correction_indicator=28.
+  14244883772615 correction_batches=1 between_batch_indicator=0
+  refinement_rank_attempts=0 refinement_rank_stages=0 support_build_work=150
+  support_pdf_candidates=21536 donor_index_rank_builds=1
+  donor_preparation_batches=1024 preparation_bytes_max=0
+  preparation_geometry_point_queries=6007
+  donor_searches_during_density_assessments=0 geometry_queries_during_trials=0
+  global_rank_profile_refreshes=0
+  Native3D target-density quadrature: 2.56712 s (maximum accumulated rank time)
+  , 1 cell rule builds, 0 exact-target reuses, 1023897 strict density
+  evaluations.
+  Native metric work: 1 complexity trials, 1 total gradation sweeps, 27 owned-
+  point visits; gradation 3.9714e-05 s, halo 1.729e-06 s, sweep reductions 8.
+  6e-08 s (maximum accumulated rank times).
+  Native gradation tensor updates: 0 of 27 owned-point visits.
+  Native sensor gradation: 1 sweeps, fixed point reached, maximum transported-
+  metric ratio 1, directed edges above 1+1e-5: 0.
+  Native composed nodal audit: maximum transported-metric ratio 1, directed
+  edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
+  WARNING: Geometric BL complexity target 100 is outside the estimated bounds;
+  integrated complexity 648.985. BL and finer sensor demands are retained.
+
+DC16 joint source work bound 1000000 (max(10^6, 128 x 48 skin faces))
+Native joint curved source: maximum_proposal_radius=1.00022e-12 nodes=26 cells=144 column_work=98 contacts=5976 distances=768 seconds=0.287331
+NativeBL3DQuadrature {"tiny":false,"shifted":false,"points":36285,"integral":2.4773319773161657,"reference":2.4775664409698486,"analytic_on_rule":2.4773319773161626,"pointwise_mismatch":5.2069459854919842e-14,"stronger_points":24108,"stronger_integral":95.235368957601665,"stronger_reference":95.234018527627256}
+NativeBL3DQuadrature {"tiny":false,"shifted":true,"points":36558,"integral":2.4773331321828747,"reference":2.4775664409698486,"analytic_on_rule":2.4773331321828693,"pointwise_mismatch":4.8738790781044372e-14,"stronger_points":25083,"stronger_integral":95.23351583326226,"stronger_reference":95.234018527627256}
+NativeBL3DQuadrature {"tiny":true,"shifted":false,"points":45125,"integral":3.0907616320329141,"reference":3.0906002613307315,"analytic_on_rule":3.0907616320329154,"pointwise_mismatch":8.1934459217336553e-14,"stronger_points":23328,"stronger_integral":83215.417079479623,"stronger_reference":83215.373370106012}
+NativeBL3DQuadrature {"tiny":true,"shifted":true,"points":47302,"integral":3.0907740232308427,"reference":3.0906002613307315,"analytic_on_rule":3.0907740232308463,"pointwise_mismatch":6.0396132539608516e-14,"stronger_points":23085,"stronger_integral":83215.395306002698,"stronger_reference":83215.373370106012}
+-------------------------------------------------------------------------------
+Visible wall samples cannot hide an enclosed thin spherical second wall
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1576
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1576: FAILED:
+  {Unknown expression after the reported line}
+due to unexpected exception with message:
+  Native3D BL column point budget exhausted: retained=65443 panel=297 ray=1
+
+CYLINDER_VOLUME points=13635 native=5.2251424751487132 independent_polar=5.2251439647137747 reference_delta=2.1819519373522667e-06
+===============================================================================
+test cases:      10 |       8 passed | 2 failed
+assertions: 1073616 | 1073614 passed | 2 failed
+
+Command exited with non-zero status 2
+	Command being timed: "timeout 300 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeInteractingBLVolume3D],[NativeCurvedBLVolume3D],[NativeCylinderBLVolume3D],[NativeComplexityEstimate3D],[NativeParallelBL3D],[NativeVolumeBL3D]"
+	User time (seconds): 18.07
+	System time (seconds): 0.04
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:18.53
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 76604
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 14070
+	Voluntary context switches: 910
+	Involuntary context switches: 2047
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 2

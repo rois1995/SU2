@@ -12,7 +12,8 @@ metric-driven operators, unchanged q>=.20, J>=.05, edge<=1.8, first height withi
 User curvature decision: configured ADAP_HAUSD in mesh units, independent of h0
 and ramp. No implicit chord inference or silent tightening to h0.
 
-Current local checkpoint `79bfba6f8f`. Full M6 curved-source/field qualification
+Current local checkpoint `e398807a2c` (scheduling/concurrency; full M6 open).
+Full M6 curved-source/field qualification
 passes (validation32–34):450,221 source cells, all48,954 reference facets queried,
 293,724 directed chords, exact serial/MPI2 record identity including ownership.
 Persisted curved import, marker-name reordering, private geometry scoring and
@@ -20,19 +21,12 @@ original-parent support are connected. Small cubic Euler/RANS runtime meshes
 complete with conservative BDF2 accounting and SU2/CGNS reload. See
 [curved-source history and current design](Handbook/DC18_CURVED_SOURCE.md).
 
-Collision-index reuse is implemented and validated (validation40): serial99 cases/
-15,752 assertions; MPI2 99 cases/rank,16,376/16,055 assertions; all-active-worker
-runtime408/442 assertions. Tests cover ID/version movement, deletion, rollback,
-rebuild and collective memory refusal. Exact contacts and owner vetoes remain.
-Full M6 comparison job20721 is terminal:3,122 accepted edits (was99),38 collision
-builds,1,040,674 exact contacts in22.11s; native300.89s,135,178 invalid cells and
-80,523 queued edges remain. Original CFD state retained; no accepted M6.
-
-Validation41 is terminal/rejected, process exit0; source/runtime pins verify.
-Native1801.78s, whole1992.14s, peak2,836,992KiB. Accepted41,632/48,705 edits:
-9,622 geometric,21,252 size-progress;511,810 private cells. Remaining geometry
-violations2,638 with EMPTY geometry queue;292,368 metric/height violations,
-257,684 metric edges. No accepted mesh; original CFD state retained.
+Collision reuse and original source/field qualification are validated; detailed
+records and previous failures are in the curved-source handbook. Baseline41 is
+terminal/rejected:41,632 edits,511,810 private cells at1801.78s. It retained2,638
+geometry violations with EMPTY geometry queue and292,368 metric/height violations.
+95,049 metric trials failed shape vs1,944 size-progress failures. Original CFD state
+retained. Source/runtime pins verify; this motivated scheduling and admission work.
 
 Validation42 is terminal;988 source/input and19 runtime pins verify. Build25343
 passes (1003.45s, process peak4,090,520KiB); geometry/runtime70748 passes9 cases/
@@ -42,24 +36,42 @@ pass, hidden sphere still exhausts65536 points (retained65446, panel297, ray1).
 No M6 run42. Shared IntegrationColumns3D removes duplicate local recursion but
 needs better off-centre angular conditioning; preserve failure and limits.
 
-ACTIVE: validation43 full M6 MPI2 session75390 running; pinned C++ unchanged.
-Build78606 passes (898.60s, process peak4,090,492KiB);989 source/input pins
-verify,19 runtime files pinned. Serial70556 passes105 cases/15,872 assertions;
-MPI24618 passes105 cases/rank (16,513/16,205). All-worker55579 passes397/431
-assertions; both cubic branches reach2 simultaneous commits and complete strict
-mesh, conservative transfer and SU2/CGNS reload.
-Directory selects compatible peers only after current-mesh owner vetoes; peer
-conflicts defer without blocking the edge. Curved refinement uses the existing
-concurrent path; final dependency reservations/atomic parameter publication stay.
-Tests cover overlap, independent peers and vetoed-first/valid-second interaction.
-All-worker cubic runtime requires multiple parallel commits. Qualify connected
-serial/MPI before full M6 MPI2 at1800s and all unchanged mesh/500k gates. CPU use
-changes from1 to2 workers, so do not claim a same-resource elapsed speedup.
+Validation43 is terminal;989 source/input and19 runtime pins verify. Build78606,
+serial105 cases/15,872 assertions, MPI2 105/rank (16,513/16,205) and all-worker
+397/431 assertions pass. Cubic Euler/RANS each complete with2 simultaneous commits,
+strict final mesh, conservative transfer and SU2/CGNS reload.
+Full M6 MPI2 session75390 is terminal/rejected:26,567 accepted private edits,
+435,293 private cells,218,099 cached invalid cells,184,650 queued edges at the
+1800s native limit (1908.44s whole run; largest reported process1,548,176KiB).
+21,866 geometric requests reactivated. Current-mesh/peer collision checks and final
+reservations ran;238,305 metric shape refusals vs6,177 progress refusals remain.
+Rank0 retains1,203 geometry violations with no currently admissible geometry edge.
+This is failed acceptance, not a speedup or a completed capability.
 
-New caller gap: normal runtime Refine still uses Absolute per-edit shape gates;
-ValidityOnly/RefineOptimize is serial and not connected there. Qualify construction
-plus repair/optimization under the user’s final-only quality policy; do not simply
-relax admission. See current curved-source handbook.
+Validation44 terminal: build6283 passes (481.39s, largest process4,092,072KiB),
+989 source/input and19 runtime pins verify. Repair10/11 cases: new mapped star
+omits mandatory positive surface tolerance; plain optimized star passes. Volume8/10:
+hidden sphere still hits65536 points (65443/panel297), and longest-edge splitting
+on ordinary collapsed charts regresses planar complexity648.985 vs656.152.
+Connected serial104/105 cases (15,578/15,580 assertions): cubic Euler/RANS reaches
+2 invalid cells then work cap4096;24 expensive placement trials run before cheap
+moves. No MPI/M6 run44. All failures and terminal receipt pins retained.
+
+ACTIVE: validation45 build session66808; pinned C++ unchanged until terminal.
+Runtime still scopes ValidityOnly with restoration and strict final completion.
+Repair now tries cheap existing moves/reconnections before bounded interior placement;
+reserves its evaluation budget collectively, refunds unused reservations, and keeps
+scratch admission. Both resident/streamed callers use ordinary final validation.
+Mapped-star fixture now supplies surface tolerance; uniform/sheared mapped/plain
+stars require moved, strict accepted mesh and immutable input/parameters (a cheap
+move is allowed to succeed without invoking placement).
+Quadrature: radial_fan is explicit chart-coordinate metadata; ordinary collapsed
+charts keep gradient splitting. Radial fans use longest-edge conditioning. Retained
+radial integration starts with2 points (exact volume/first moments with quadratic
+collapse Jacobian), compares5, upgrades against7; same tolerances and work/point
+caps. Bounded scalar3/5 rule remains. These revisions are UNVALIDATED.
+See validation45/summary.json and implementation.patch; fix all44 failures before
+MPI/all-worker qualification and another full M6. Full M6 remains open.
 
 Next: complete production geometry construction and its runtime workflow, then
 connected metric/support/quadrature, wall refinement and initialization.
@@ -82,7 +94,10 @@ pending. Do not retry remote export without approval. Local checkpoints are allo
 Leave unrelated dc11/dc15 campaign logs and untracked planning files untouched.
 Git status needs --ignore-submodules (pre-existing broken Eigen submodule gitdir).
 
-One owned heavy job, nice19, libraries single-threaded, build-j1. Ninja1.13 at
+User reminder2026-10-26: up to6 MPI ranks are authorized. Use a six-rank
+qualification at the next connected milestone after serial failures are resolved;
+check actual RAM before the full M6 run. One owned heavy job, nice19, libraries
+single-threaded, build-j1. Ninja1.13 at
 /home/rausa/Software/su2-develop/ninja; compile scratch on4TB at
 integration_evidence/build-integrated-v2/compile-tmp. Check actual host load/RAM
 and live handles before sustained work. Never edit pinned C++ during a build/run.

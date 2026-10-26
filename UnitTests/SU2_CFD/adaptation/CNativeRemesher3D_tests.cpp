@@ -83,7 +83,9 @@ TEST_CASE("Native3D default ownership survives rejection after private accepted 
   EngineOptions limited;
   limited.maximum_rounds = 1;
   CNativeRemesher3D rejected(reference, limited);
+  const auto previous_shape=GetShapeAdmission();
   const auto bad = rejected.Remesh(*config, donor.Fine(), sensor);
+  CHECK(GetShapeAdmission()==previous_shape);
   CHECK(bad.status != CRemeshResult::Status::COMPLETE);
   CHECK_FALSE(bad.onAccepted);
   CHECK_FALSE(reference->original);
@@ -95,6 +97,7 @@ TEST_CASE("Native3D default ownership survives rejection after private accepted 
   // Retry the same accepted CFD mesh and unchanged frozen sensor, without partitioning it.
   CNativeRemesher3D backend(reference);
   const auto result = backend.Remesh(*config, donor.Fine(), sensor);
+  CHECK(GetShapeAdmission()==previous_shape);
   REQUIRE(result.status == CRemeshResult::Status::COMPLETE);
   CHECK_FALSE(reference->original);
   CHECK(backend.Statistics().partition.destinations.empty());

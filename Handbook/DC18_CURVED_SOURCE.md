@@ -261,7 +261,7 @@ limit (retained65446, panel297, ray1). Preserve the failure; shared global error
 allocation alone does not resolve an off-centre fan’s angular conditioning. All
 988 source/input and19 runtime pins verify after terminal tests. No M6 run42.
 
-### Validation43: concurrent curved proposals (implemented, unvalidated)
+### Validation43: concurrent curved proposals (connected checks pass; M6 running)
 
 The previous Engine excluded curved geometry from concurrent proposals. Directory
 now selects a deterministic compatible subset after all current-mesh owner vetoes.
@@ -276,8 +276,8 @@ all-worker cubic Euler/RANS transfer/reload with multiple commits per round.
 Direct tests cover overlapping peers, disjoint peers and a physically vetoed first
 proposal that must not exclude a valid peer. All-worker curved runtime additionally
 requires multiple commits in a round. Use existing fixed-record transport, bounds,
-exact contacts and publication. Validation42 jobs are terminal;43 build follows
-source/config pinning. Broader serial/MPI checks precede the full M6 MPI2 workflow
+exact contacts and publication. Validation42 jobs are terminal;43 build and connected serial/MPI checks pass.
+The full M6 MPI2 workflow is now running
 with1800s/500k/q/J/edge/geometry/transfer gates unchanged. This adds a second active
 worker; elapsed comparisons must account for the changed CPU resources.
 
@@ -318,3 +318,46 @@ complete with2 simultaneous commits, accepted final meshes, conservative transfe
 and SU2/CGNS reload.989 source/input and19 runtime pins verify before full M6.
 Full M6 MPI2 session75390 is running at unchanged1800s native/2400s outer limits,
 500k metric target and all quality/geometry gates. Keep pinned sources unchanged.
+
+M6 MPI2 short profile (43,10s/972 samples, zero lost) confirms active reconstruction,
+not deadlock: ReconstructSplitPatch36.28%, Measure26.71%, MPI Allreduce26.52%
+inclusive. SurfaceError is below the5% report threshold in this sample. This is
+a diagnostic sample at about6min, not a whole-run performance comparison. Source
+and binaries remain pinned; raw7.971MB perf data stays local with terminal hash.
+
+Validation43 full M6 MPI2 is terminal/rejected (75390, process exit0). Whole-run
+1908.44s, largest reported process1,548,176KiB; this is not whole-job peak memory.
+26,567 accepted/46,881 attempted private edits,435,293 final private cells,
+218,099 cached invalid cells and184,650 queued edges. Geometry progress9,643,
+reactivations21,866; rank0 still has1,203 geometric violations and no admissible
+geometry edge.238,305 metric shape refusals vs6,177 progress refusals strengthen
+the caller-gap diagnosis. All989 source/input and19 runtime pins verify before
+edits. Failed logs, profile and terminal receipt pins retained under43.
+
+Validation44 applies the connected construction/repair design above plus collapsed
+fan longest-edge conditioning. Added resident-path scratch admission as well as
+existing streamed admission; global work charges the optimizer evaluation bound.
+Four uniform/sheared × plain/mapped complete-star variants exercise both callers;
+runtime tests check restoration on rejection and success. Hidden-sphere validation
+also checks positive weights and exact volume/first moments. Build6283 is active;
+no passing claim until focused and connected checks finish. Full M6 remains open.
+
+Validation44 terminal: build481.39s/4,092,072KiB largest process passes;989 source
+and19 runtime hashes verify. Repair10/11 (mapped fixture missing surface tolerance),
+volume8/10 (hidden sphere point cap; planar complexity648.985 vs656.152), connected
+serial104/105 (cubic Euler/RANS work cap4096 at2 invalid cells,24 placement trials).
+No MPI/M6. Terminal failed logs and receipt pins retained. Generic collapsed charts
+must keep density-gradient splitting; radial-fan coordinates need distinct conditioning.
+The retained3-point-per-band floor spends most of the65536 point cap before the
+angular estimate reaches target; a2-point start preserves exact volume/first moments
+and still compares against5/7. This is not a reason to increase the cap.
+
+Validation45 builds under66808: explicit radial_fan chart metadata,2-point retained
+radial baseline, mapped test tolerance, and cheap repair before expensive placement.
+Global work reserves the search bound and refunds it when unused. No acceptance
+threshold is changed. Need all failed cases, connected serial/MPI2 and all-worker
+runtime checks before full M6. These changes remain unvalidated during the build.
+
+User reminder2026-10-26: up to6 simultaneous MPI ranks authorized. Next connected
+MPI qualification and full M6 may use6 after serial failures are resolved and
+host RAM checked. One owned heavy job; record changed CPU resources in comparisons.

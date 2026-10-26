@@ -1,0 +1,19 @@
+{
+  "status": "build starting; unvalidated",
+  "base_commit": "e398807a2c",
+  "source_inputs": 989,
+  "prior_failure": "validation44: fixture surface tolerance missing; planar conditioning regression; hidden sphere cap; curved runtime repair work cap",
+  "changes": [
+    "Supply mapped-star test surface tolerance",
+    "Retain gradient splitting for ordinary collapsed charts, use longest physical edge only for radial fans",
+    "Retain two-point radial rule compared against5 and7, exact positive volume and first moments; same accuracy and limits",
+    "Try ordinary repair moves/reconnections first; charge bounded point-placement work only when used"
+  ],
+  "acceptance": [
+    "All44 regressions resolved under original limits",
+    "Strict final shape/length and immutable input/parameter tests",
+    "Connected serial/MPI2 and all-worker curved transfer/reload",
+    "Full M6 accepted mesh still required"
+  ],
+  "build_session": 66808
+}

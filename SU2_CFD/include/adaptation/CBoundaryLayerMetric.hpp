@@ -367,7 +367,7 @@ class CBoundaryLayerMetric {
     std::array<std::array<double,3>,3> projection{};
     std::array<long double,3> axial{};
     long double area=0;
-    bool collapsed=false;
+    bool collapsed=false,radial_fan=false;
   };
   std::vector<IntegrationPoint3D> IntegrationRule3DVisible(const std::array<std::array<double,3>,4>& tetrahedron,
       const std::vector<SupportFace3D>& support,double bandRatio,const IntegrationDensity3D& density,

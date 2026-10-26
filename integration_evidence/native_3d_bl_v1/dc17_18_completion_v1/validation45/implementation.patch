@@ -1,0 +1,284 @@
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index 09188e73cd..3f060e1316 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -430,6 +430,16 @@ struct HeightPolicyRow {
+   int marker=0;double height=0,growth=0,thickness=0;
+   template<class S>void Fields(S& s){s(marker,height,growth,thickness);}
+ };
++bool OptimizedInteriorMove(const Patch& old,Id vertex,Node& point,Id first,const RegionMetric& target,
++                           const PlanarReference& geometry,Patch& fresh,std::string& reason,size_t budget) {
++  Point start{};bool found=false;
++  for(const auto& c:old.cells)for(auto n:c.v)if(n.id==vertex){start=n.p;found=true;}
++  if(!found)return false;
++  std::vector<Cell> placed;double score=0;
++  if(!PlaceConeInsertion(old.cells,start,point.id,first,target,placed,score,nullptr,.6,budget,vertex))return false;
++  point=placed.front().v[0];
++  return MoveVertex(old,vertex,point,first,geometry,fresh,reason);
++}
+ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
+                    const PlanarReference& accepted_geometry, MetricComposition composition, EngineOptions options, MetricChange intent) {
+   const auto started=Clock::now();
+@@ -1728,6 +1738,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)));
+     if (streamed && !admit(private_scratch)) return finish();
+     if (streamed) ++stats.private_query_retries;
++    size_t move_budget=0,move_work=0;
++    if(repairing) {
++      const bool interior=chosen && choice.feature.count==1 &&
++          std::none_of(old.surface.begin(),old.surface.end(),[&](const auto& f){
++            return std::find(f.v.begin(),f.v.end(),choice.feature.vertices[0])!=f.v.end();});
++      const auto count=CPassiveComm::Allreduce(uint64_t(interior),CPassiveComm::Op::SUM,world.comm);
++      const auto budget=count?std::min<uint64_t>(160,(stats.work_limit-stats.global_work)/count):0;
++      if(budget && !streamed && !admit(transfer_memory::Add(private_scratch,transfer_memory::Bytes(sensors.cells))))return finish();
++      stats.global_work+=count*budget;if(interior)move_budget=budget;
++    }
+     {
+       Timer timer(stats.metric_seconds,options.timings);
+       const double reconstruction_before=stats.reconstruction_seconds;
+@@ -1780,6 +1800,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+                 if (approved) approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
+                 if (approved) { moved=true; break; }
+               }
++              if(!approved && move_budget) {
++                move_work=move_budget;++stats.repair_proposals;++stats.placement_trials;point.id=maximum_node+1+node_offset;
++                {Timer geometry_timer(stats.reconstruction_seconds,options.timings);CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
++                  approved=guarded_geometry(OptimizedInteriorMove(old,vertex,point,first,RegionMetric(*field),geometry,fresh,result.reason,move_budget));}
++                if(approved)approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
++                if(approved){moved=true;++stats.placement_moves;++stats.placement_validated;return true;}
++              }
+             } else {
+               unsigned proposals=0;
+               for (const auto& row:nodes) {
+@@ -2689,8 +2716,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       }
+       if (!ready) return finish();
+       Point moveCenter{};
+-      if(composition && world.maximum(fallback && move)) {
+-        const bool participating=fallback && move;
++      if(composition && world.maximum(fallback && move && !approved)) {
++        const bool participating=fallback && move && !approved;
+         std::set<Id> neighbors;std::map<Id,Tensor> samples;Point origin{};
+         try {if(participating) {
+           origin=nodes.at(vertex).p;
+@@ -2770,8 +2797,32 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         if (!ready) return finish();
+         if (valid) { approved=true; repair_approved=true; moved=move_trial; }
+       }
++      if(repairing && world.maximum(move_budget!=0 && !approved)) {
++        DonorPatch donors;
++        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
++          donors=source.ImportCells(move_budget && !approved?old.cells:empty,options.memory_ceiling,
++              transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
++        bool candidate=false;
++        if(!donors.valid && !DonorCap(donors.reason)){result.reason=donors.reason;return finish();}
++        if(move_budget && !approved && donors.valid)try {
++          move_work=move_budget;++stats.repair_proposals;++stats.placement_trials;point.id=maximum_node+1+node_offset;
++          const auto components=AssociatedExtensions(donors.cells,geometry);
++          FrozenField proposal_field(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
++          FieldAccounting accounting{stats,proposal_field};
++          Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
++          candidate=guarded_geometry(OptimizedInteriorMove(old,vertex,point,maximum_cell+1+offset,
++              RegionMetric(proposal_field),geometry,fresh,result.reason,move_budget));
++        }catch(const std::exception& e){failure.Set(2,0,e.what());}
++        if(!(ready=vote(failure)))return finish();
++        if(world.maximum(candidate)) {
++          const bool placed=validate_private(candidate,MetricChange::Repair);
++          if(!ready)return finish();
++          if(placed){approved=repair_approved=moved=true;++stats.placement_moves;++stats.placement_validated;}
++        }
++      }
+       if (repair_approved && !repairing) ++stats.fallback_accepted;
+     }
++    if(repairing)stats.global_work-=CPassiveComm::Allreduce(uint64_t(move_budget-move_work),CPassiveComm::Op::SUM,world.comm);
+     const bool surface_edit=approved && !SameSkin(old,fresh);
+     if(curved && world.maximum(surface_edit)) {
+       const bool prior=approved;bool deferred=false;
+diff --git a/Common/src/adaptation/CNativeRemesher3D.cpp b/Common/src/adaptation/CNativeRemesher3D.cpp
+index 902959f535..560ef18c6c 100644
+--- a/Common/src/adaptation/CNativeRemesher3D.cpp
++++ b/Common/src/adaptation/CNativeRemesher3D.cpp
+@@ -449,6 +449,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry&
+             }
+             stats.phases[8] += workers.seconds() - begin;
+           } else {
++          struct RestoreShape {ShapeAdmission previous=GetShapeAdmission();~RestoreShape(){SetShapeAdmission(previous);}} restore_shape;
++          SetShapeAdmission(ShapeAdmission::ValidityOnly);
+           auto refined = Refine(workers, working, *worker_source, *pending->state.original, composition, kernel);
+           stats.refine = refined.stats;
+           const bool rebuilt_domain=refined.rebuilt_domain;
+diff --git a/SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp b/SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp
+index 66d73f90b8..e4ecfc17e8 100644
+--- a/SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp
++++ b/SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp
+@@ -367,7 +367,7 @@ class CBoundaryLayerMetric {
+     std::array<std::array<double,3>,3> projection{};
+     std::array<long double,3> axial{};
+     long double area=0;
+-    bool collapsed=false;
++    bool collapsed=false,radial_fan=false;
+   };
+   std::vector<IntegrationPoint3D> IntegrationRule3DVisible(const std::array<std::array<double,3>,4>& tetrahedron,
+       const std::vector<SupportFace3D>& support,double bandRatio,const IntegrationDensity3D& density,
+diff --git a/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp b/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+index 4fbaa1262b..dec0403fb7 100644
+--- a/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
++++ b/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+@@ -2411,7 +2411,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+       ClosestPointTriangle(a,b,c,origin,weights);std::array<double,4> anchor{};
+       for(unsigned j=0;j<3;++j)anchor[ids[j]]=SU2_TYPE::GetValue(weights[j]);
+       for(unsigned j=0;j<3;++j) {
+-        Column3D column;column.collapsed=true;column.entry[0]=anchor;
++        Column3D column;column.collapsed=column.radial_fan=true;column.entry[0]=anchor;
+         column.entry[1][ids[j]]=1;column.entry[2][ids[(j+1)%3]]=1;
+         BLTetrahedron region;region[0]=center;
+         for(unsigned v=0;v<3;++v) {
+@@ -2819,6 +2819,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+   size_t visited=0;std::vector<IntegrationPoint3D> rule;
+   const double gauss[5]={-.90617984593866399280,-.53846931010568309104,0,.53846931010568309104,.90617984593866399280};
+   const double weights[5]={.23692688505618908751,.47862867049936646804,128./225,.47862867049936646804,.23692688505618908751};
++  const double gauss2[2]={-.57735026918962576451,.57735026918962576451};
+   const double gauss3[3]={-.77459666924148337704,0,.77459666924148337704},weights3[3]={5./9,8./9,5./9};
+   const double gauss7[7]={-.94910791234275852453,-.74153118559939443986,-.40584515137739716691,0,
+       .40584515137739716691,.74153118559939443986,.94910791234275852453};
+@@ -2999,7 +3000,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+       unsigned first=0,last=1;double difference=0;
+       for(unsigned i=0;i<3;++i)for(unsigned j=i+1;j<3;++j) {
+         double score=std::abs(parent.vertexValues[i]-parent.vertexValues[j]);
+-        if(parent.unresolved) {
++        if(parent.unresolved || charts[parent.chart].radial_fan) {
+           score=0;for(unsigned d=0;d<3;++d) {
+             long double delta=0;for(unsigned k=0;k<3;++k)delta+=((long double)parent.triangle[i][k]-parent.triangle[j][k])*charts[parent.chart].projection[k][d];
+             score+=double(delta*delta);
+@@ -3042,7 +3043,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+         auto radial=[&](double left,double right,unsigned order,std::vector<IntegrationPoint3D>& samples) {
+           double value=0;const double half=.5*(right-left),center=.5*(right+left);
+           for(unsigned g=0;g<order;++g) {
+-            const double t=center+half*(order==7?gauss7[g]:(order==5?gauss[g]:gauss3[g]));
++            const double t=center+half*(order==7?gauss7[g]:(order==5?gauss[g]:gauss2[g]));
+             std::array<double,4> parent{};BLPoint3D position{};
+             for(unsigned k=0;k<4;++k) {
+               parent[k]=(1-t)*entry[k]+t*exit[k];
+@@ -3050,7 +3051,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+             }
+             SetBLSourceQuery(tetrahedron,originalSource,reversed,parent,position);
+             const double collapse=chart.collapsed?(1-t)*(1-t):1.;
+-            IntegrationPoint3D point{parent,double(jacobian*half*collapse*(order==7?weights7[g]:(order==5?weights[g]:weights3[g]))),
++            IntegrationPoint3D point{parent,double(jacobian*half*collapse*(order==7?weights7[g]:(order==5?weights[g]:1.))),
+                 SamplePoints({position[0],position[1],position[2]})};
+             value+=point.weight*probe(point);samples.push_back(std::move(point));
+           }
+@@ -3075,7 +3076,8 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+         };
+         auto addRadial=[&](double left,double right,unsigned depth) {
+           RadialPanel panel{left,right,0,0,0,depth};
+-          panel.value=radial(left,right,3,panel.points);
++          // Two points exactly retain volume and first moments of the collapsed quadratic Jacobian.
++          panel.value=radial(left,right,2,panel.points);
+           panel.comparison=radial(left,right,5,panel.comparisonPoints);
+           panel.error=std::abs(panel.comparison-panel.value);retain(std::move(panel));
+         };
+@@ -3167,8 +3169,8 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+       }
+       if(length>longest){longest=length;a=i;b=j;}
+     }
+-    // Thin footprints need refinement across their density gradient, not along the longest wall edge.
+-    if(!panel.unresolved) {
++    // Use density gradients for thin footprints; radial fans need well-conditioned angular panels.
++    if(!panel.unresolved && !charts[panel.cone].radial_fan) {
+       double difference=0,scale=0;for(auto value:panel.vertexValues)scale=std::max(scale,std::abs(value));
+       for(unsigned i=0;i<3;++i)for(unsigned j=i+1;j<3;++j) {
+         const auto change=std::abs(panel.vertexValues[i]-panel.vertexValues[j]);
+diff --git a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+index 3d2f4f51a1..ac9384b658 100644
+--- a/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp
+@@ -3439,3 +3439,45 @@ TEST_CASE("Native current collision index follows remote publication and retains
+     CHECK(peers(obstructed,free,1,false)==(world.rank==1));
+   }
+ }
++
++TEST_CASE("Native MPI interior placement repairs a complete star through ordinary transactions", "[NativeInteriorPlacement3D]") {
++  World world;
++  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
++  SetShapeAdmission(ShapeAdmission::ValidityOnly);
++  for(bool sheared:{false,true})for(bool mapped:{false,true}) {
++    auto fixture=Box(1.,sheared);fixture.patch.cells.clear();
++    const Node center{8,{.95+(sheared?.93:0),.93,.9}};
++    for(const auto& f:fixture.facets) {
++      Cell c{fixture.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
++      if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[2],c.v[3]);
++      fixture.patch.cells.push_back(c);
++    }
++    const Tensor tensor=sheared?Tensor{1,-1,0,2,0,1}:Tensor{1,0,0,1,0,1};
++    std::shared_ptr<const PlanarReference> reference=std::make_shared<PlanarReference>(fixture.facets);
++    if(mapped) {
++      std::map<Id,double> errors;for(const auto& f:fixture.facets)errors.emplace(f.id,1e-13);
++      auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference,errors,7);
++      BoundaryPoints points;for(const auto& f:fixture.facets)for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});
++      reference=PlanarReference::WithParameters(reference,std::make_shared<BoundaryParameterState>(authority,points,fixture.patch.surface));
++    }
++    const auto parameters=mapped?reference->Parameters()->Snapshot():std::vector<char>{};
++    const auto input=Partition(Rows(fixture.patch),world),saved=input;
++    unsigned bad=0;for(const auto& row:input) {
++      const auto& v=row.second.cell.v;const auto q=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
++      bad+=q.mean_ratio<MinimumMeanRatio || q.minimum_scaled_jacobian<MinimumScaledJacobian;
++    }
++    REQUIRE(world.sum(bad)>0);
++    EngineOptions options;options.maximum_rounds=128;options.timings=true;options.surface_tolerance=1e-12;
++    const auto result=Repair(world,input,Uniform(input,tensor),*reference,{},options);INFO(result.reason);
++    REQUIRE(result.valid);CHECK(world.sum(result.stats.moved)>0);
++    CHECK(result.stats.cached_invalid_cells==0);CHECK(Bytes(input)==Bytes(saved));
++    if(mapped)CHECK(reference->Parameters()->Snapshot()==parameters);
++    CHECK(Audit(world,result.cells,fixture,12));
++    for(const auto& row:result.cells) {
++      const auto& v=row.second.cell.v;const auto q=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
++      CHECK(q.mean_ratio>=MinimumMeanRatio);CHECK(q.minimum_scaled_jacobian>=MinimumScaledJacobian);
++      CHECK(q.maximum_edge<=MaximumMetricEdge);
++    }
++    EngineReport(result,world,sheared?"interior_placement_sheared":"interior_placement_uniform");
++  }
++}
+diff --git a/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp b/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
+index d40b42ece1..94d7fc9dc4 100644
+--- a/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
+@@ -1606,12 +1606,15 @@ TEST_CASE("Visible wall samples cannot hide an enclosed thin spherical second wa
+     CHECK(actual==Approx(oracle).epsilon(1e-6));
+   }
+   const auto rule=layers.IntegrationRule3D(cell,1.5,density);double volume=0,measured=0;bool found=false;
++  std::array<double,3> moments{};
+   for(const auto& p:rule) {
+-    volume+=p.weight;measured+=p.weight*density(p);
++    CHECK(p.weight>0);volume+=p.weight;measured+=p.weight*density(p);
++    for(unsigned d=0;d<3;++d)moments[d]+=p.weight*p.barycentric[d+1];
+     CHECK(std::any_of(p.samples.begin(),p.samples.end(),[](const auto& s){return s.wall==0;}));
+     found=found||std::any_of(p.samples.begin(),p.samples.end(),[](const auto& s){return s.wall==1;});
+   }
+   REQUIRE(found);CHECK(volume==Approx(1./6).epsilon(2e-10));
++  for(double moment:moments)CHECK(moment==Approx(1./24).epsilon(2e-10));
+   INFO("points="<<rule.size()<<" measured="<<measured<<" radial="<<expected);
+   CHECK(measured==Approx(expected).epsilon(8e-4));
+ }
+diff --git a/UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp b/UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp
+index c9654fb112..2449eb14f5 100644
+--- a/UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp
+@@ -83,7 +83,9 @@ TEST_CASE("Native3D default ownership survives rejection after private accepted
+   EngineOptions limited;
+   limited.maximum_rounds = 1;
+   CNativeRemesher3D rejected(reference, limited);
++  const auto previous_shape=GetShapeAdmission();
+   const auto bad = rejected.Remesh(*config, donor.Fine(), sensor);
++  CHECK(GetShapeAdmission()==previous_shape);
+   CHECK(bad.status != CRemeshResult::Status::COMPLETE);
+   CHECK_FALSE(bad.onAccepted);
+   CHECK_FALSE(reference->original);
+@@ -95,6 +97,7 @@ TEST_CASE("Native3D default ownership survives rejection after private accepted
+   // Retry the same accepted CFD mesh and unchanged frozen sensor, without partitioning it.
+   CNativeRemesher3D backend(reference);
+   const auto result = backend.Remesh(*config, donor.Fine(), sensor);
++  CHECK(GetShapeAdmission()==previous_shape);
+   REQUIRE(result.status == CRemeshResult::Status::COMPLETE);
+   CHECK_FALSE(reference->original);
+   CHECK(backend.Statistics().partition.destinations.empty());

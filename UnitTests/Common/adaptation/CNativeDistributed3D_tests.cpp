@@ -3439,3 +3439,45 @@ TEST_CASE("Native current collision index follows remote publication and retains
     CHECK(peers(obstructed,free,1,false)==(world.rank==1));
   }
 }
+
+TEST_CASE("Native MPI interior placement repairs a complete star through ordinary transactions", "[NativeInteriorPlacement3D]") {
+  World world;
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  for(bool sheared:{false,true})for(bool mapped:{false,true}) {
+    auto fixture=Box(1.,sheared);fixture.patch.cells.clear();
+    const Node center{8,{.95+(sheared?.93:0),.93,.9}};
+    for(const auto& f:fixture.facets) {
+      Cell c{fixture.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
+      if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[2],c.v[3]);
+      fixture.patch.cells.push_back(c);
+    }
+    const Tensor tensor=sheared?Tensor{1,-1,0,2,0,1}:Tensor{1,0,0,1,0,1};
+    std::shared_ptr<const PlanarReference> reference=std::make_shared<PlanarReference>(fixture.facets);
+    if(mapped) {
+      std::map<Id,double> errors;for(const auto& f:fixture.facets)errors.emplace(f.id,1e-13);
+      auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference,errors,7);
+      BoundaryPoints points;for(const auto& f:fixture.facets)for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});
+      reference=PlanarReference::WithParameters(reference,std::make_shared<BoundaryParameterState>(authority,points,fixture.patch.surface));
+    }
+    const auto parameters=mapped?reference->Parameters()->Snapshot():std::vector<char>{};
+    const auto input=Partition(Rows(fixture.patch),world),saved=input;
+    unsigned bad=0;for(const auto& row:input) {
+      const auto& v=row.second.cell.v;const auto q=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
+      bad+=q.mean_ratio<MinimumMeanRatio || q.minimum_scaled_jacobian<MinimumScaledJacobian;
+    }
+    REQUIRE(world.sum(bad)>0);
+    EngineOptions options;options.maximum_rounds=128;options.timings=true;options.surface_tolerance=1e-12;
+    const auto result=Repair(world,input,Uniform(input,tensor),*reference,{},options);INFO(result.reason);
+    REQUIRE(result.valid);CHECK(world.sum(result.stats.moved)>0);
+    CHECK(result.stats.cached_invalid_cells==0);CHECK(Bytes(input)==Bytes(saved));
+    if(mapped)CHECK(reference->Parameters()->Snapshot()==parameters);
+    CHECK(Audit(world,result.cells,fixture,12));
+    for(const auto& row:result.cells) {
+      const auto& v=row.second.cell.v;const auto q=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
+      CHECK(q.mean_ratio>=MinimumMeanRatio);CHECK(q.minimum_scaled_jacobian>=MinimumScaledJacobian);
+      CHECK(q.maximum_edge<=MaximumMetricEdge);
+    }
+    EngineReport(result,world,sheared?"interior_placement_sheared":"interior_placement_uniform");
+  }
+}

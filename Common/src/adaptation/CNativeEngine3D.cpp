@@ -430,6 +430,16 @@ struct HeightPolicyRow {
   int marker=0;double height=0,growth=0,thickness=0;
   template<class S>void Fields(S& s){s(marker,height,growth,thickness);}
 };
+bool OptimizedInteriorMove(const Patch& old,Id vertex,Node& point,Id first,const RegionMetric& target,
+                           const PlanarReference& geometry,Patch& fresh,std::string& reason,size_t budget) {
+  Point start{};bool found=false;
+  for(const auto& c:old.cells)for(auto n:c.v)if(n.id==vertex){start=n.p;found=true;}
+  if(!found)return false;
+  std::vector<Cell> placed;double score=0;
+  if(!PlaceConeInsertion(old.cells,start,point.id,first,target,placed,score,nullptr,.6,budget,vertex))return false;
+  point=placed.front().v[0];
+  return MoveVertex(old,vertex,point,first,geometry,fresh,reason);
+}
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                    const PlanarReference& accepted_geometry, MetricComposition composition, EngineOptions options, MetricChange intent) {
   const auto started=Clock::now();
@@ -1728,6 +1738,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)));
     if (streamed && !admit(private_scratch)) return finish();
     if (streamed) ++stats.private_query_retries;
+    size_t move_budget=0,move_work=0;
+    if(repairing) {
+      const bool interior=chosen && choice.feature.count==1 &&
+          std::none_of(old.surface.begin(),old.surface.end(),[&](const auto& f){
+            return std::find(f.v.begin(),f.v.end(),choice.feature.vertices[0])!=f.v.end();});
+      const auto count=CPassiveComm::Allreduce(uint64_t(interior),CPassiveComm::Op::SUM,world.comm);
+      const auto budget=count?std::min<uint64_t>(160,(stats.work_limit-stats.global_work)/count):0;
+      if(budget && !streamed && !admit(transfer_memory::Add(private_scratch,transfer_memory::Bytes(sensors.cells))))return finish();
+      stats.global_work+=count*budget;if(interior)move_budget=budget;
+    }
     {
       Timer timer(stats.metric_seconds,options.timings);
       const double reconstruction_before=stats.reconstruction_seconds;
@@ -1779,6 +1799,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 approved=guarded_geometry(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason)); }
                 if (approved) approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
                 if (approved) { moved=true; break; }
+              }
+              if(!approved && move_budget) {
+                move_work=move_budget;++stats.repair_proposals;++stats.placement_trials;point.id=maximum_node+1+node_offset;
+                {Timer geometry_timer(stats.reconstruction_seconds,options.timings);CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
+                  approved=guarded_geometry(OptimizedInteriorMove(old,vertex,point,first,RegionMetric(*field),geometry,fresh,result.reason,move_budget));}
+                if(approved)approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
+                if(approved){moved=true;++stats.placement_moves;++stats.placement_validated;return true;}
               }
             } else {
               unsigned proposals=0;
@@ -2689,8 +2716,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       if (!ready) return finish();
       Point moveCenter{};
-      if(composition && world.maximum(fallback && move)) {
-        const bool participating=fallback && move;
+      if(composition && world.maximum(fallback && move && !approved)) {
+        const bool participating=fallback && move && !approved;
         std::set<Id> neighbors;std::map<Id,Tensor> samples;Point origin{};
         try {if(participating) {
           origin=nodes.at(vertex).p;
@@ -2770,8 +2797,32 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if (!ready) return finish();
         if (valid) { approved=true; repair_approved=true; moved=move_trial; }
       }
+      if(repairing && world.maximum(move_budget!=0 && !approved)) {
+        DonorPatch donors;
+        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+          donors=source.ImportCells(move_budget && !approved?old.cells:empty,options.memory_ceiling,
+              transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
+        bool candidate=false;
+        if(!donors.valid && !DonorCap(donors.reason)){result.reason=donors.reason;return finish();}
+        if(move_budget && !approved && donors.valid)try {
+          move_work=move_budget;++stats.repair_proposals;++stats.placement_trials;point.id=maximum_node+1+node_offset;
+          const auto components=AssociatedExtensions(donors.cells,geometry);
+          FrozenField proposal_field(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
+          FieldAccounting accounting{stats,proposal_field};
+          Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+          candidate=guarded_geometry(OptimizedInteriorMove(old,vertex,point,maximum_cell+1+offset,
+              RegionMetric(proposal_field),geometry,fresh,result.reason,move_budget));
+        }catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!(ready=vote(failure)))return finish();
+        if(world.maximum(candidate)) {
+          const bool placed=validate_private(candidate,MetricChange::Repair);
+          if(!ready)return finish();
+          if(placed){approved=repair_approved=moved=true;++stats.placement_moves;++stats.placement_validated;}
+        }
+      }
       if (repair_approved && !repairing) ++stats.fallback_accepted;
     }
+    if(repairing)stats.global_work-=CPassiveComm::Allreduce(uint64_t(move_budget-move_work),CPassiveComm::Op::SUM,world.comm);
     const bool surface_edit=approved && !SameSkin(old,fresh);
     if(curved && world.maximum(surface_edit)) {
       const bool prior=approved;bool deferred=false;

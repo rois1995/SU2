@@ -2411,7 +2411,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
       ClosestPointTriangle(a,b,c,origin,weights);std::array<double,4> anchor{};
       for(unsigned j=0;j<3;++j)anchor[ids[j]]=SU2_TYPE::GetValue(weights[j]);
       for(unsigned j=0;j<3;++j) {
-        Column3D column;column.collapsed=true;column.entry[0]=anchor;
+        Column3D column;column.collapsed=column.radial_fan=true;column.entry[0]=anchor;
         column.entry[1][ids[j]]=1;column.entry[2][ids[(j+1)%3]]=1;
         BLTetrahedron region;region[0]=center;
         for(unsigned v=0;v<3;++v) {
@@ -2819,6 +2819,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
   size_t visited=0;std::vector<IntegrationPoint3D> rule;
   const double gauss[5]={-.90617984593866399280,-.53846931010568309104,0,.53846931010568309104,.90617984593866399280};
   const double weights[5]={.23692688505618908751,.47862867049936646804,128./225,.47862867049936646804,.23692688505618908751};
+  const double gauss2[2]={-.57735026918962576451,.57735026918962576451};
   const double gauss3[3]={-.77459666924148337704,0,.77459666924148337704},weights3[3]={5./9,8./9,5./9};
   const double gauss7[7]={-.94910791234275852453,-.74153118559939443986,-.40584515137739716691,0,
       .40584515137739716691,.74153118559939443986,.94910791234275852453};
@@ -2999,7 +3000,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
       unsigned first=0,last=1;double difference=0;
       for(unsigned i=0;i<3;++i)for(unsigned j=i+1;j<3;++j) {
         double score=std::abs(parent.vertexValues[i]-parent.vertexValues[j]);
-        if(parent.unresolved) {
+        if(parent.unresolved || charts[parent.chart].radial_fan) {
           score=0;for(unsigned d=0;d<3;++d) {
             long double delta=0;for(unsigned k=0;k<3;++k)delta+=((long double)parent.triangle[i][k]-parent.triangle[j][k])*charts[parent.chart].projection[k][d];
             score+=double(delta*delta);
@@ -3042,7 +3043,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
         auto radial=[&](double left,double right,unsigned order,std::vector<IntegrationPoint3D>& samples) {
           double value=0;const double half=.5*(right-left),center=.5*(right+left);
           for(unsigned g=0;g<order;++g) {
-            const double t=center+half*(order==7?gauss7[g]:(order==5?gauss[g]:gauss3[g]));
+            const double t=center+half*(order==7?gauss7[g]:(order==5?gauss[g]:gauss2[g]));
             std::array<double,4> parent{};BLPoint3D position{};
             for(unsigned k=0;k<4;++k) {
               parent[k]=(1-t)*entry[k]+t*exit[k];
@@ -3050,7 +3051,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
             }
             SetBLSourceQuery(tetrahedron,originalSource,reversed,parent,position);
             const double collapse=chart.collapsed?(1-t)*(1-t):1.;
-            IntegrationPoint3D point{parent,double(jacobian*half*collapse*(order==7?weights7[g]:(order==5?weights[g]:weights3[g]))),
+            IntegrationPoint3D point{parent,double(jacobian*half*collapse*(order==7?weights7[g]:(order==5?weights[g]:1.))),
                 SamplePoints({position[0],position[1],position[2]})};
             value+=point.weight*probe(point);samples.push_back(std::move(point));
           }
@@ -3075,7 +3076,8 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
         };
         auto addRadial=[&](double left,double right,unsigned depth) {
           RadialPanel panel{left,right,0,0,0,depth};
-          panel.value=radial(left,right,3,panel.points);
+          // Two points exactly retain volume and first moments of the collapsed quadratic Jacobian.
+          panel.value=radial(left,right,2,panel.points);
           panel.comparison=radial(left,right,5,panel.comparisonPoints);
           panel.error=std::abs(panel.comparison-panel.value);retain(std::move(panel));
         };
@@ -3167,8 +3169,8 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
       }
       if(length>longest){longest=length;a=i;b=j;}
     }
-    // Thin footprints need refinement across their density gradient, not along the longest wall edge.
-    if(!panel.unresolved) {
+    // Use density gradients for thin footprints; radial fans need well-conditioned angular panels.
+    if(!panel.unresolved && !charts[panel.cone].radial_fan) {
       double difference=0,scale=0;for(auto value:panel.vertexValues)scale=std::max(scale,std::abs(value));
       for(unsigned i=0;i<3;++i)for(unsigned j=i+1;j<3;++j) {
         const auto change=std::abs(panel.vertexValues[i]-panel.vertexValues[j]);
