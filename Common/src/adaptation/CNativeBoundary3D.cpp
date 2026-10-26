@@ -381,6 +381,7 @@ bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const Planar
         report.maximum_relative_error=error;report.worst_facet=face.facet;report.worst_cell=cell;report.worst_apex=apex.p;
       }
     }
+    report.measured=true;
     if(report.reference_clearance_failures)throw std::invalid_argument("Native3D geometry-height incompatibility of the normal-row proposal at facet "+
         std::to_string(report.reference_clearance_facet)+" cell "+std::to_string(report.reference_clearance_cell)+
         " clearance/h0="+std::to_string(report.minimum_reference_clearance_ratio)+

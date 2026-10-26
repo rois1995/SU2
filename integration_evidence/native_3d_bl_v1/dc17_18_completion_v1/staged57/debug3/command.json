@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "120",
+    "gdb",
+    "--batch",
+    "-x",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/debug3/inspect.gdb",
+    "--args",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeTransactionReplay3D]"
+  ],
+  "environment": {
+    "SU2_NATIVE_TRANSACTION_BOUNDARY_OPTIMIZER": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "SU2_NATIVE_TRANSACTION_REPLAY": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/replay_input",
+    "SU2_NATIVE_TRANSACTION_REFERENCE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/diagnostic55/observed/m6.su2.native_ref",
+    "SU2_NATIVE_TRANSACTION_HAUSD": "0.0001"
+  }
+}

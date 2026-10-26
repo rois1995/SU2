@@ -15,11 +15,14 @@ struct OptimizeOptions {
   size_t maximum_work = SIZE_MAX;   // Bound on evaluated candidate operations.
   size_t maximum_shell = 8;         // Edge removal shells 3 <= n <= maximum_shell (2n-4 new cells).
   bool swaps = true, collapses = true, smoothing = true;
+  const PlanarReference* geometry = nullptr;  // Enables physical-boundary motion through forward geometry bindings.
+  WallHeights wall_heights;
+  double surface_tolerance = 0;
   bool boundary = true;             // O5/O6 boundary flips/contractions (off on a mapped parameter reference).
   bool insertions = true;           // DC-13: O7 shell / O8 neighbourhood / O7L length-driven vertex insertion.
   size_t placement_budget = 160;    // Approximate cone evaluations of one placement search (proposal only).
   std::set<Id> frozen_cells;        // No operation may replace these cells (caller-certified first rows).
-  std::set<Id> frozen_vertices;     // Never moved or removed (boundary vertices are always fixed).
+  std::set<Id> frozen_vertices;     // Never moved or removed (including physical boundary vertices).
   std::set<Id> keep_vertices;       // May move (new identity, relabel) but are never removed (no collapse).
   /*! DC-17: a cell holding one of these vertices keeps its topology: no swap, collapse, insertion or boundary
    *  operation replaces it; vertex moves (O4) of its other vertices stay allowed. The caller passes vertices that never
@@ -46,19 +49,20 @@ struct OptimizeReport {
   size_t placements = 0, placement_refusals = 0;   // placement searches; proposals refused by the exact checks
   uint64_t placement_evaluations = 0;               // approximate cone evaluations (no field query)
   size_t bad_before = 0, bad_after = 0;
-  double minimum_before = 0, minimum_after = 0;  // Minimum score min(q/.20, J/.05) over unfrozen cells.
+  double minimum_before = 0, minimum_after = 0;  // Minimum metric/first-height score over unfrozen cells.
   uint64_t point_queries = 0, edge_integrations = 0, edge_surrogates = 0;
   double seconds = 0;
   std::string stop;
-  std::map<Id, Id> relabel;  // Moved interior vertex: previous identity -> new identity (chains resolved).
+  BoundaryPoints parameters;  // Private bindings of moved physical points; caller publishes atomically with cells.
+  std::map<Id, Id> relabel;  // Moved vertex: previous identity -> new identity (chains resolved).
 };
 /*! Serial mesh-wide optimization in the frozen target, measured in the metric (actual centroid tensors).
  * Operations: edge removal n -> 2n-4 with an optimal ring triangulation (3-2, 4-4, ...), face removal 2-3, interior vertex
  * collapse and interior vertex smoothing (metric spring proposal and hinge Gauss-Newton step; the moved vertex gets a new
  * identity), boundary edge flips and boundary vertex contractions between faces bound to one facet (coplanar within 1e-12
  * relative, unfolded, area-preserving, prescribed oriented skin; no new point, so no new boundary parameters). No skin
- * vertex moves; physical bindings follow their faces. Every accepted operation strictly raises the minimum score
- * min(q/.20, J/.05) of its replaced cells (the only certified monotone quantity), keeps exact positive orientation and
+ * vertex moves without an explicit geometry authority; certified physical moves carry new forward parameters. Every accepted operation strictly raises the minimum score
+ * metric/first-height score of its replaced cells (the certified monotone quantity), keeps exact positive orientation and
  * validity of every fresh cell (q > 0, J >= ValiditySliverJacobian). Edge guard: candidates are screened with a Simpson
  * estimate from three point tensors; an accepted operation integrates exactly every new edge whose estimate exceeds 1.4
  * and refuses it above max(1.8, the edge it replaces); estimates <= 1.4 are not integrated (heuristic, not a certificate:

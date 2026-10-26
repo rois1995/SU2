@@ -6,6 +6,17 @@ Updated: 2026-10-26. Detailed failures and provenance remain linked below.
 ## Current result
 
 **DC-17 and DC-18 remain open. No full M6 adaptation has passed final acceptance.**
+
+Active implementation remains unvalidated. The first connected build passed, but
+the captured M6 midpoint test made0 moves in24 trials (0.033s). Debugging the unchanged
+binary identified the monotonic approximation-error veto. The next connected
+revision permits quality/refinement to exchange remaining geometric deficits,
+tracks measured first-height/footprint deficits in optimization and adds requested-
+altitude proposals. Strict final acceptance and hard geometry validity remain.
+Physical bindings/parameters and feature-keyed concurrent repair are connected.
+See [staged implementation](Handbook/STAGED_NATIVE_ADAPTATION.md). Curved chart
+mobility and complete M6 acceptance remain open. Latest pushed: `d9e840ba35`.
+
 Validation54 passes the full six-worker flat and cubic Euler/RANS workflows,
 including conservative BDF2 transfer and SU2/CGNS reload. All 11 selected cases
 pass on every rank. The curved workflow uses 1,975 of 4,096 work units: 1,750 for

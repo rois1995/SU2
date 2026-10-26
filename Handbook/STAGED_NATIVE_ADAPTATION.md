@@ -10,7 +10,8 @@ remains the acceptance target, followed by the other fields/geometries in the le
 Construct a geometrically valid provisional mesh under the target geometry and wall
 constraints, improve its metric quality through movement and topology changes, and
 publish only after complete strict validation and conservative transfer/restart.
-Current production instead forces Absolute admission before Refine and Coarsen.
+The prior production path forced Absolute admission before Refine and Coarsen;
+the active, unvalidated change now uses ValidityOnly with the strict final census.
 A serial RefineOptimize wrapper exists, but falls back to ordinary Refine on MPI.
 Its RegionFieldService executes the private constructor on rank0. These are not a
 completed distributed staged workflow.
@@ -67,6 +68,49 @@ ladder. Use this saved state to test the quality stage after a valid midpoint sp
    election/conflict ordering for vertex/edge/face repairs. Partition interfaces
    must be revisited through complete cross-owner stars; never freeze them forever.
    The rank0 regional query service is not a parallel optimizer.
+
+## Current implementation, 2026-10-26
+
+Active source is unvalidated after the first integrated diagnostic. Build2 passed
+(session3212,447.5s, pins unchanged). Its saved-M6 quality test failed:
+24 trials,0 moves,0.033s, no caps. The unmodified-binary debugger trace identifies
+the extra monotonic surface-error veto: the midpoint seed has weighted squared
+surface-error excess1.0514311742511105e-14; all six quality-improving proposals
+increase it (minimum1.4848961336968936e-14). This is distinct from leaving the
+prescribed geometry. Evidence: `staged57/offline1`, `debug1`–`debug3`; debugger2
+stopped on an optimized-out variable, debugger3 completed. Debugger exit0 is not
+a passing numerical test.
+
+The connected revision now:
+
+- Carries physical bindings and private moved-point parameters through the shared
+  repair optimizer; artificial interfaces require complete stars before movement.
+- Elects duplicate vertex/edge/face features and reserves complete final footprints
+  for concurrent quality repair, using the existing directory and contact protocol.
+- Runs production with validity-only shape admission and the unchanged strict
+  final census. Quality repairs may leave surface-error deficits for refinement;
+  exact geometry membership, orientation and publication contact checks remain.
+- Distinguishes fully measured first-height deficits from invalid/partial geometry
+  measurements. Only measured altitude/footprint deficits become provisional;
+  positive curved-reference clearance remains mandatory.
+- Scores requested height and normal footprint alongside metric quality, caches
+  immutable current-cell height scores, and proposes requested-altitude projection
+  and normal-row positions. A separately measured height improvement may authorize
+  a valid repair even if metric quality alone is not increasing. Exact changed-edge
+  guards and every final gate remain active.
+
+The M6 quality-stage test reports remaining geometric excess explicitly; passing
+it would demonstrate a provisional repair, not an accepted full mesh. The shared
+MPI interior-star test now also starts from wrong first heights and requires
+strict final height, metric quality, unchanged original inputs and mapped state,
+in uniform/sheared fields with faceted/mapped walls. Independent-star tests require
+simultaneous commits. Neither test has run on this latest revision yet.
+
+Still open: curved cross-chart movement of smooth original vertices; coupled
+surface/apex freedoms beyond individual complete-star movement; complete difficult
+M6 acceptance and the wider ledger. Split cleanup deliberately retains coordinates
+until its relocation accounting is connected. Final-only size handling still has
+monotone changed-edge guards; do not claim all intermediate restrictions are gone.
 
 ## Acceptance and validation cadence
 

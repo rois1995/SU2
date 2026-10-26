@@ -3504,9 +3504,9 @@ TEST_CASE("Native MPI interior placement repairs a complete star through ordinar
   World world;
   struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
-  for(bool sheared:{false,true})for(bool mapped:{false,true}) {
+  for(bool sheared:{false,true})for(bool mapped:{false,true})for(bool height:{false,true}) {
     auto fixture=Box(1.,sheared);fixture.patch.cells.clear();
-    const Node center{8,{.95+(sheared?.93:0),.93,.9}};
+    const Node center=height?Node{8,{.5+(sheared?.5:0),.5,.65}}:Node{8,{.95+(sheared?.93:0),.93,.9}};
     for(const auto& f:fixture.facets) {
       Cell c{fixture.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
       if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[2],c.v[3]);
@@ -3526,13 +3526,27 @@ TEST_CASE("Native MPI interior placement repairs a complete star through ordinar
       const auto& v=row.second.cell.v;const auto q=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
       bad+=q.mean_ratio<MinimumMeanRatio || q.minimum_scaled_jacobian<MinimumScaledJacobian;
     }
-    REQUIRE(world.sum(bad)>0);
+    if(!height)REQUIRE(world.sum(bad)>0);
     EngineOptions options;options.maximum_rounds=128;options.timings=true;options.surface_tolerance=1e-12;
+    if(height) {
+      for(const auto& f:fixture.facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))options.wall_heights.emplace(f.marker,.35);
+      FirstHeightReport report;std::string reason;
+      CHECK_FALSE(CheckFirstHeight(fixture.patch,options.wall_heights,*reference,report,reason));
+      CHECK(report.measured);CHECK(report.height_failures>0);
+      auto invalid=fixture.patch;invalid.cells.clear();
+      CHECK_FALSE(CheckFirstHeight(invalid,options.wall_heights,*reference,report,reason));CHECK_FALSE(report.measured);
+    }
     const auto result=Repair(world,input,Uniform(input,tensor),*reference,{},options);INFO(result.reason);
-    REQUIRE(result.valid);CHECK(world.sum(result.stats.moved)>0);
+    REQUIRE(result.valid);CHECK(world.sum(result.stats.moved+result.stats.optimization_validated)>0);
     CHECK(result.stats.cached_invalid_cells==0);CHECK(Bytes(input)==Bytes(saved));
     if(mapped)CHECK(reference->Parameters()->Snapshot()==parameters);
     CHECK(Audit(world,result.cells,fixture,world.sum(int(result.cells.size()))));
+    if(height)for(const auto& row:result.cells) {
+      Patch patch;patch.cells.push_back(row.second.cell);const auto faces=Faces(row.second.cell);
+      for(unsigned k=0;k<4;++k)if(row.second.physical[k].present)patch.surface.push_back({faces[k],row.second.physical[k].facet});
+      FirstHeightReport report;std::string reason;
+      CHECK(CheckFirstHeight(patch,options.wall_heights,result.reference?*result.reference:*reference,report,reason));
+    }
     long double volume=0;
     for(const auto& row:result.cells) {
       const auto& v=row.second.cell.v;const auto q=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
@@ -3542,5 +3556,37 @@ TEST_CASE("Native MPI interior placement repairs a complete star through ordinar
     }
     CHECK(CPassiveComm::Allreduce(double(volume),CPassiveComm::Op::SUM,world.comm)==Approx(1.).margin(1e-12));
     EngineReport(result,world,sheared?"interior_placement_sheared":"interior_placement_uniform");
+  }
+}
+
+TEST_CASE("Independent quality stars commit concurrently with final strict acceptance", "[NativeConcurrentRepair3D]") {
+  World world;
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  Fixture fixture;Owned input;
+  for(int copy=0;copy<world.size;++copy) {
+    auto box=Box();box.patch.cells.clear();const Node center{8,{.95,.93,.9}};
+    for(const auto& f:box.facets) {
+      Cell c{box.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
+      if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[2],c.v[3]);
+      box.patch.cells.push_back(c);
+    }
+    for(auto& c:box.patch.cells){c.id+=100*copy;for(auto& n:c.v){n.id+=16*copy;n.p.x+=3*copy;}}
+    for(auto& f:box.patch.surface){f.facet+=12*copy;for(auto& id:f.v)id+=16*copy;}
+    for(auto& f:box.facets){f.id+=12*copy;for(auto& n:f.v){n.id+=16*copy;n.p.x+=3*copy;}}
+    if(copy==world.rank)for(const auto& row:Rows(box.patch))input.emplace(row.cell.id,row);
+    fixture.patch.cells.insert(fixture.patch.cells.end(),box.patch.cells.begin(),box.patch.cells.end());
+    fixture.patch.surface.insert(fixture.patch.surface.end(),box.patch.surface.begin(),box.patch.surface.end());
+    fixture.facets.insert(fixture.facets.end(),box.facets.begin(),box.facets.end());
+  }
+  const auto saved=Bytes(input);const PlanarReference geometry(fixture.facets);
+  const Tensor tensor{1,0,0,1,0,1};EngineOptions options;options.maximum_rounds=128;
+  const auto result=Repair(world,input,Uniform(input,tensor),geometry,{},options);INFO(result.reason);
+  REQUIRE(result.valid);CHECK(result.stats.cached_invalid_cells==0);CHECK(Bytes(input)==saved);
+  CHECK(Audit(world,result.cells,fixture,world.sum(int(result.cells.size()))));
+  if(world.size>1){CHECK(result.stats.maximum_parallel_commits==unsigned(world.size));CHECK(result.stats.final_reservations>0);}
+  for(const auto& row:result.cells) {
+    const auto& v=row.second.cell.v;const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
+    CHECK(m.mean_ratio>=MinimumMeanRatio);CHECK(m.minimum_scaled_jacobian>=MinimumScaledJacobian);CHECK(m.maximum_edge<=MaximumMetricEdge);
   }
 }

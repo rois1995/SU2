@@ -63,6 +63,15 @@ bool Same(Point a, Point b) { return a.x==b.x && a.y==b.y && a.z==b.z; }
 bool DonorCap(const std::string& reason) {
   return reason=="Original donor import exceeds patch budget." || reason=="Original donor union exceeds patch budget.";
 }
+// Requested altitude and normal footprint are optimization deficits; unresolved geometry is not.
+double HeightScore(const Patch& patch,const WallHeights& heights,const PlanarReference& geometry) {
+  if(heights.empty())return INFINITY;
+  FirstHeightReport report;std::string reason;
+  if(CheckFirstHeight(patch,heights,geometry,report,reason))return INFINITY;
+  if(!report.measured || report.reference_clearance_failures || report.missing_cells)return -INFINITY;
+  const double deficit=std::max(report.maximum_relative_error/heights.tolerance-1.,-3*report.minimum_barycentric);
+  return 1/(1+std::max(deficit,2e-6));
+}
 using RepairFeature = std::pair<unsigned,std::array<Id,3>>;
 long double GeometryExcess(const Patch& patch,const PlanarReference& base_geometry,double tolerance) {
   auto parameters=base_geometry.PrivateParameters(patch);const auto& geometry=parameters?*parameters:base_geometry;
@@ -92,8 +101,8 @@ struct Choice {
   long double priority_score=0;Id priority_cell=0;unsigned reservation_priority=0;
 };
 struct ProposalKey {
-  Edge edge{};int rank=0;size_t slot=0;bool geometric=false;double score=0;Id cell=0;
-  template<class S> void Fields(S& s){s(edge,rank,slot,geometric,score,cell);}
+  Feature feature;int rank=0;size_t slot=0;bool geometric=false;double score=0;Id cell=0;
+  template<class S> void Fields(S& s){s(feature,rank,slot,geometric,score,cell);}
 };
 class Selection {
  public:
@@ -434,20 +443,31 @@ struct HeightPolicyRow {
   template<class S>void Fields(S& s){s(marker,height,growth,thickness);}
 };
 bool OptimizedRepairPatch(const Patch& old,Id first,Id first_node,const RegionMetric& target,
-                          Patch& fresh,std::string& reason,size_t& work,bool preserve_vertices) {
-  Owned local;
-  for(auto c:old.cells){c.id=local.size();OwnedCell row;row.cell=c;local.emplace(c.id,row);}
+                          Patch& fresh,std::string& reason,size_t& work,bool preserve_vertices,
+                          const PlanarReference& geometry,const WallHeights& heights,double surface_tolerance) {
+  Owned local;std::map<Face,Id> physical;for(const auto& f:old.surface)physical.emplace(Key(f.v),f.facet);
+  for(auto c:old.cells){c.id=local.size();OwnedCell row;row.cell=c;const auto faces=Faces(c);
+    for(unsigned k=0;k<4;++k){const auto found=physical.find(Key(faces[k]));if(found!=physical.end())row.physical[k]={true,found->second};}
+    local.emplace(c.id,row);}
+  auto parameters=geometry.PrivateParameters(old);
   OptimizeOptions options;options.maximum_work=work;options.cache_entries=8*MaximumReplacementCells;
-  options.boundary=options.smoothing=false;options.collapses=!preserve_vertices;
+  options.boundary=false;options.smoothing=!preserve_vertices;options.collapses=!preserve_vertices;
+  options.geometry=parameters?parameters.get():&geometry;options.wall_heights=heights;options.surface_tolerance=surface_tolerance;
   OptimizeReport report;Id node=first_node,cell=local.size();
   const bool changed=OptimizeMetricMesh(local,target,node,cell,options,report);
   if(report.trials>work)throw std::logic_error("Native repair optimizer exceeded its work reservation.");
   if(node-first_node>report.trials)throw std::logic_error("Native repair optimizer exceeded its node reservation.");
   work=report.trials;
   if(!changed || local.size()>MaximumReplacementCells)return false;
-  Patch proposal;proposal.surface=old.surface;proposal.parameters=old.parameters;
-  for(const auto& row:local){auto c=row.second.cell;c.id=first+proposal.cells.size();proposal.cells.push_back(c);}
-  if(!ValidateFixedInterface(old.cells,proposal.cells,reason))return false;
+  Patch proposal;proposal.parameters=old.parameters;
+  for(const auto& p:report.parameters)proposal.parameters.insert_or_assign(p.first,p.second);
+  for(const auto& row:local){auto c=row.second.cell;c.id=first+proposal.cells.size();proposal.cells.push_back(c);
+    const auto faces=Faces(c);for(unsigned k=0;k<4;++k)if(row.second.physical[k].present)proposal.surface.push_back({faces[k],row.second.physical[k].facet});}
+  std::map<Face,Face> expected;
+  for(auto face:Incidence(old.cells).Boundary())if(!physical.count(Key(face)))expected.emplace(Key(face),face);
+  for(auto face:proposal.surface){std::rotate(face.v.begin(),std::min_element(face.v.begin(),face.v.end()),face.v.end());expected.emplace(Key(face.v),face.v);}
+  std::vector<Face> skin;for(const auto& f:expected)skin.push_back(f.second);
+  if(!ValidatePrescribedInterface(old.cells,proposal.cells,skin,reason))return false;
   fresh=std::move(proposal);return true;
 }
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
@@ -514,9 +534,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   auto coalesce=[&](std::vector<Choice>& choices) {
     const bool collapse=coarsening && !curved && !composition;
-    const bool concurrent_refine=!coarsening && (curved || composition) && options.candidate_batch>1;
-    if(repairing || world.size==1 || (!collapse && !concurrent_refine))return true;
-    // Replicated edge demands are one proposal; directed collapses retain distinct endpoints.
+    const bool concurrent_refine=(repairing || (!coarsening && (curved || composition))) && options.candidate_batch>1;
+    if(world.size==1 || (!collapse && !concurrent_refine))return true;
+    const auto feature=[&](const Choice& c){return repairing?c.feature:Feature{{c.edge[0],c.edge[1],0},2};};
+    // Replicated vertex/edge/face demands are one proposal; directed collapses retain distinct endpoints.
     const auto scratch=transfer_memory::Mul(transfer_memory::Mul(world.size,MaximumCandidateBatch),
         8*sizeof(ProposalKey)+8*sizeof(void*));
     if(!admit(scratch))return false;
@@ -524,7 +545,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     try {
       if(choices.size()>MaximumCandidateBatch)throw std::logic_error("Native edge proposal table exceeds its bound.");
       std::vector<ProposalKey> local;
-      for(size_t i=0;i<choices.size();++i)local.push_back({choices[i].edge,world.rank,i,choices[i].geometric,
+      for(size_t i=0;i<choices.size();++i)local.push_back({feature(choices[i]),world.rank,i,choices[i].geometric,
           double(choices[i].priority_score),choices[i].priority_cell});
       to.assign(world.size,local);
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -535,16 +556,18 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     try {
       if(all.size()>std::numeric_limits<unsigned>::max())throw std::logic_error("Native edge proposal ordering exceeds its bound.");
       for(const auto& key:all)
-        if(key.rank<0 || key.rank>=world.size || key.slot>=MaximumCandidateBatch || key.edge[0]==key.edge[1] || !std::isfinite(key.score))
+        if(key.rank<0 || key.rank>=world.size || key.slot>=MaximumCandidateBatch || key.feature.count<1 || key.feature.count>3 || !std::isfinite(key.score))
           throw std::logic_error("Invalid native edge proposal identity/priority.");
+      for(const auto& key:all)for(unsigned i=0;i<key.feature.count;++i)for(unsigned j=i+1;j<key.feature.count;++j)
+        if(key.feature.vertices[i]==key.feature.vertices[j])throw std::logic_error("Repeated native proposal feature vertex.");
       // Demand priority precedes ownership; this score orders search, never certifies a mesh.
       std::sort(all.begin(),all.end(),[](const auto& a,const auto& b) {
-        return std::make_tuple(!a.geometric,a.score,a.cell,a.edge,a.rank,a.slot)<
-               std::make_tuple(!b.geometric,b.score,b.cell,b.edge,b.rank,b.slot);
+        return std::make_tuple(!a.geometric,a.score,a.cell,a.feature.count,a.feature.vertices,a.rank,a.slot)<
+               std::make_tuple(!b.geometric,b.score,b.cell,b.feature.count,b.feature.vertices,b.rank,b.slot);
       });
       std::vector<Choice> unique;
       for(size_t i=0;i<choices.size();++i) {
-        const auto owner=std::find_if(all.begin(),all.end(),[&](const auto& key){return key.edge==choices[i].edge;});
+        const auto owner=std::find_if(all.begin(),all.end(),[&](const auto& key){const auto f=feature(choices[i]);return key.feature.count==f.count && key.feature.vertices==f.vertices;});
         if(owner==all.end())throw std::logic_error("Missing native edge proposal.");
         if(owner->rank!=world.rank || owner->slot!=i)++stats.proposal_duplicates;
         else {
@@ -558,12 +581,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   std::string last_rejection;
   uint64_t progress_at_window=0, attempted_at_window=0;
-  auto height_check=[&](const Patch& patch,std::string& reason) {
+  auto height_check=[&](const Patch& patch,std::string& reason,bool provisional=false) {
     if(options.wall_heights.empty())return true;
     ++stats.height_checks;FirstHeightReport report;
     const bool valid=CheckFirstHeight(patch,options.wall_heights,geometry,report,reason);
     stats.height_rejected+=report.height_failures || report.missing_cells;
-    stats.footprint_rejected+=report.footprint_failures!=0;return valid;
+    stats.footprint_rejected+=report.footprint_failures!=0;
+    if(provisional && GetShapeAdmission()==ShapeAdmission::ValidityOnly && report.measured &&
+        !report.reference_clearance_failures && !report.missing_cells){reason.clear();return true;}
+    return valid;
   };
   auto geometry_trial=[&](bool valid) {
     ++stats.geometry_trials; stats.geometry_rejected+=!valid; return valid;
@@ -1420,7 +1446,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (!ready) return finish();
     }
     ++stats.rounds;
-    const bool concurrent=(composition || curved) && !repairing && !coarsening && options.candidate_batch>1 && world.size>1;
+    const bool concurrent=(repairing || ((composition || curved) && !coarsening)) && options.candidate_batch>1 && world.size>1;
     stats.concurrent_rounds+=concurrent;
     const bool batched=!curved && !composition && !repairing && (!coarsening || !bad_field) && options.candidate_batch>1;
     std::vector<Choice> choices;
@@ -1530,7 +1556,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     } else {
       Timer timer(stats.selection_seconds,options.timings);
       if((curved || composition) && !concurrent) {
-        // Single-proposal requests and repair/coarsening retain their established serial ordering.
+        // Single-proposal requests and coarsening retain their established serial ordering.
         if(composition && !curved && !repairing) {
           // Choose global metric priority before ownership; rank numbering must not decide the next edit.
           const double priority=choice.active ? double(selection.Priority(choice.measure.length)) : INFINITY;
@@ -1648,8 +1674,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           certified,result.reason,donors,composition,options.edge_breakpoints});
     };
     auto guarded_geometry=[&](bool valid,const char* operation="geometry") {
-      const bool passed=geometry_trial(valid && height_check(fresh,result.reason));
+      const bool passed=geometry_trial(valid && height_check(fresh,result.reason,true));
       observe_transaction(operation,passed);return passed;
+    };
+    auto repair_kind=[&]() {
+      if(GetShapeAdmission()!=ShapeAdmission::ValidityOnly || options.wall_heights.empty())return MetricChange::Repair;
+      const auto before=HeightScore(old,options.wall_heights,geometry),after=HeightScore(fresh,options.wall_heights,geometry);
+      return std::isfinite(before) && after>before+1e-6 ? MetricChange::GeometryRepair : MetricChange::Repair;
     };
     auto geometric_change=[&](bool candidate,MetricChange kind) {
       if(!candidate || !curved)return candidate;
@@ -1659,7 +1690,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         geometric_progress=before>0 && after<before*(1-1e-12L);
         if((kind==MetricChange::GeometryRefine && !geometric_progress) ||
            (kind==MetricChange::Coarsen && after>0) ||
-           (kind!=MetricChange::GeometryRefine && after>before)) {
+           (kind!=MetricChange::GeometryRefine && after>before &&
+            !(kind==MetricChange::Repair && GetShapeAdmission()==ShapeAdmission::ValidityOnly))) {
           result.reason="Native3D candidate does not preserve/improve its frozen geometry error.";return guarded_geometry(false);
         }
         return true;
@@ -1813,7 +1845,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       size_t used=reserved;repair_work+=reserved;
       ++stats.repair_proposals;++stats.optimization_trials;
       const bool changed=OptimizedRepairPatch(candidate,maximum_cell+1+offset,first_node,target,
-                                              fresh,result.reason,used,preserve_vertices);
+                                              fresh,result.reason,used,preserve_vertices,geometry,options.wall_heights,options.surface_tolerance);
       repair_work-=reserved-used;
       return changed;
     };
@@ -1880,7 +1912,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 ++stats.repair_proposals;
                 { Timer geometry_timer(stats.reconstruction_seconds,options.timings); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
                 approved=guarded_geometry(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason),"MoveVertex"); }
-                if (approved) approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
+                if (approved) approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,repair_kind(),*field,metric,result.reason,nullptr,&reuse,&certified),certified);
                 if (approved) { moved=true; break; }
               }
             } else {
@@ -1890,14 +1922,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 ++stats.repair_proposals;
                 { Timer geometry_timer(stats.reconstruction_seconds,options.timings); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
                   approved=guarded_geometry(Reconnect(old,row.first,first,geometry,fresh,result.reason),"Reconnect"); }
-                if (approved) approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
+                if (approved) approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,repair_kind(),*field,metric,result.reason,nullptr,&reuse,&certified),certified);
                 if (approved) break;
               }
             }
             if(!approved && !quality_matches() && repair_work<repair_budget) {
               {Timer geometry_timer(stats.reconstruction_seconds,options.timings);CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
                 approved=guarded_geometry(optimize_patch(old,RegionMetric(*field),false));}
-              if(approved)approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
+              if(approved)approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,repair_kind(),*field,metric,result.reason,nullptr,&reuse,&certified),certified);
               if(approved){moved=false;++stats.optimization_validated;}
             }
             return approved;
@@ -2033,7 +2065,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         bool valid=false;
         { Timer timer(stats.metric_seconds,options.timings); CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
           if (candidate) {
-            const auto effective=(kind==MetricChange::Repair && geometric_progress) ? MetricChange::GeometryRepair : kind;
+            const auto effective=kind==MetricChange::Repair ? (geometric_progress?MetricChange::GeometryRepair:repair_kind()) : kind;
             if (measured) valid=ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),metric,effective,result.reason,&certified,relocated);
             if(valid && no_new_oversized)for(const auto& edge:metric.edges)if(edge.second.length>MaximumMetricEdge) {
               const auto previous=before.edges.find(edge.first);
@@ -3246,12 +3278,15 @@ class MeshOptimizer {
   const OptimizeOptions& options;
   OptimizeReport& report;
   Clock::time_point started;
+  std::unique_ptr<PlanarReference> moved_geometry;
   bool changed=false,limited=false;
   std::unordered_map<Id,std::vector<Id>> star;   // vertex -> incident cells
   std::unordered_map<Id,Point> points;
-  std::set<Id> fixed;                            // skin (physical or artificial) vertices: never moved or removed
+  std::map<Face,Id> physical;                    // Current physical faces for first-height deficits.
+  std::set<Id> fixed;                            // skin vertices: only geometry-certified movement may change them
   std::map<Id,std::array<double,3>> sliding;     // TEST-ONLY diagnostic sliding planes (options.diagnostic_sliding, follows moves)
   std::set<Id> keep;                             // options.keep_vertices, following moves (never collapsed)
+  std::unordered_map<Id,double> height_scores;  // Current cells are immutable by identity.
   std::unordered_map<std::array<double,3>,Tensor,CoordinateHash> tensors;
   std::map<std::array<Id,4>,CellQuality> qualities;  // ordered cell vertex ids (an identity keeps its coordinates)
   std::map<std::array<double,6>,long double> exact;
@@ -3262,15 +3297,17 @@ class MeshOptimizer {
     return limited;
   }
   void Bound() {
+    if(height_scores.size()>=options.cache_entries)height_scores.clear();
     if(tensors.size()>=options.cache_entries)tensors.clear();
     if(qualities.size()>=options.cache_entries)qualities.clear();
     if(exact.size()>=options.cache_entries)exact.clear();
   }
   void Index() {
-    star.clear();points.clear();fixed.clear();std::map<Face,int> uses;
+    star.clear();points.clear();fixed.clear();physical.clear();std::map<Face,int> uses;
     for(const auto& row:mesh) {
       for(const auto& n:row.second.cell.v){star[n.id].push_back(row.first);points[n.id]=n.p;}
-      for(auto f:OppositeFaces(row.second.cell)){std::sort(f.begin(),f.end());++uses[f];}
+      const auto faces=OppositeFaces(row.second.cell);
+      for(unsigned k=0;k<4;++k){const auto f=Key(faces[k]);++uses[f];if(row.second.physical[k].present)physical.emplace(f,row.second.physical[k].facet);}
     }
     for(const auto& u:uses)if(u.second==1)fixed.insert(u.first.begin(),u.first.end());
     sliding=options.diagnostic_sliding;keep=options.keep_vertices;
@@ -3292,13 +3329,30 @@ class MeshOptimizer {
   }
   double Score(const Cell& c){return Quality(c).Score();}
   // DC-17: score of a current mesh cell, from the caller's identity memo when given (same exact measure)
+  Patch GeometryPatch(const std::vector<Cell>& cells) const {
+    Patch patch;patch.cells=cells;
+    for(const auto& c:cells)for(auto f:OppositeFaces(c)){const auto b=physical.find(Key(f));if(b!=physical.end())patch.surface.push_back({f,b->second});}
+    return patch;
+  }
+  double Height(const Patch& patch) const {
+    if(!options.geometry || options.wall_heights.empty())return INFINITY;
+    return HeightScore(patch,options.wall_heights,moved_geometry?*moved_geometry:*options.geometry);
+  }
   double RowScore(Id id,const Cell& c){
-    if(options.mesh_quality){CellQuality r;if(options.mesh_quality(id,r.q,r.J))return r.Score();}
-    return Score(c);}
+    CellQuality cached;
+    const double score=options.mesh_quality && options.mesh_quality(id,cached.q,cached.J)?cached.Score():Score(c);
+    if(options.wall_heights.empty())return score;
+    auto found=height_scores.find(id);
+    if(found==height_scores.end()) {
+      if(height_scores.size()>=options.cache_entries)height_scores.clear();
+      found=height_scores.emplace(id,Height(GeometryPatch({c}))).first;
+    }
+    return std::min(score,found->second);}
   double MinScore(const std::vector<Id>& ids){double m=INFINITY;for(Id id:ids)m=std::min(m,RowScore(id,mesh.at(id).cell));return m;}
   // minimum score of fresh cells, -INFINITY if one is not valid (q > 0, J >= ValiditySliverJacobian)
-  double FreshScore(const std::vector<Cell>& cells,bool memo=true) {
-    double m=INFINITY;for(const auto& c:cells){const auto r=Quality(c,memo);if(!r.Valid())return -INFINITY;m=std::min(m,r.Score());}return m;}
+  double FreshScore(const std::vector<Cell>& cells,bool memo=true,const Patch* patch=nullptr) {
+    double m=INFINITY;for(const auto& c:cells){const auto r=Quality(c,memo);if(!r.Valid())return -INFINITY;m=std::min(m,r.Score());}
+    return options.wall_heights.empty()?m:std::min(m,Height(patch?*patch:GeometryPatch(cells)));}
   long double Estimate(Point a,Point b) {
     const Point mid{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)};
     ++report.edge_surrogates;
@@ -3347,14 +3401,14 @@ class MeshOptimizer {
     std::map<Face,FacetBinding> bindings=added;std::set<Face> oldPhysical;
     for(Id id:old) {
       const auto& row=mesh.at(id);const auto faces=OppositeFaces(row.cell);
-      for(unsigned k=0;k<4;++k)if(row.physical[k].present){auto f=faces[k];std::sort(f.begin(),f.end());bindings.emplace(f,row.physical[k]);oldPhysical.insert(f);}
+      for(unsigned k=0;k<4;++k)if(row.physical[k].present){auto f=faces[k];std::sort(f.begin(),f.end());bindings.emplace(f,row.physical[k]);oldPhysical.insert(f);physical.erase(f);}
       for(const auto& n:row.cell.v){auto& s=star[n.id];s.erase(std::remove(s.begin(),s.end(),id),s.end());}
       mesh.erase(id);
     }
     std::set<Face> used;
     for(auto& c:fresh) {
       c.id=next_cell++;OwnedCell row;row.cell=c;row.version=1;const auto faces=OppositeFaces(c);
-      for(unsigned k=0;k<4;++k){auto f=faces[k];std::sort(f.begin(),f.end());const auto b=bindings.find(f);if(b!=bindings.end()){row.physical[k]=b->second;used.insert(f);}}
+      for(unsigned k=0;k<4;++k){auto f=faces[k];std::sort(f.begin(),f.end());const auto b=bindings.find(f);if(b!=bindings.end()){row.physical[k]=b->second;used.insert(f);physical.insert_or_assign(f,b->second.facet);}}
       if(!mesh.emplace(c.id,row).second)throw std::logic_error("Native3D optimizer repeated a cell identity.");
       for(const auto& n:c.v){star[n.id].push_back(c.id);points[n.id]=n.p;}
     }
@@ -3367,6 +3421,7 @@ class MeshOptimizer {
   bool FaceSwap(const Face& f);
   bool Collapse(Id p,Id q);
   bool Smooth(Id p);
+  bool SmoothBoundary(Id p);
   bool TryCell(Id id);
   // DC-13 (DC13_PLAN sect. 1): cone re-meshing of a star-shaped cavity from one new placed vertex
   enum class Insert { Shell, Neighbourhood, Length };
@@ -3507,9 +3562,93 @@ bool MeshOptimizer::Collapse(Id p,Id q) {
   if(!Interface(old,fresh))return false;
   Commit(old,fresh,p);++report.collapses;return true;
 }
-// O4: interior vertex p moved to the best of {metric spring point, hinge Gauss-Newton step} x relaxations {1,1/2,1/4};
-// the moved vertex takes a fresh identity (an identity keeps its coordinates).
+// Physical stars move through their forward geometry bindings; artificial interfaces remain fixed.
+bool MeshOptimizer::SmoothBoundary(Id p) {
+  if(Limited() || !options.geometry || options.frozen_vertices.count(p))return false;
+  const auto found=star.find(p);
+  if(found==star.end() || found->second.empty() || found->second.size()>MaximumCavityCells)return false;
+  const auto old=found->second;Patch patch;
+  for(Id id:old) {
+    if(options.frozen_cells.count(id))return false;
+    const auto& row=mesh.at(id);patch.cells.push_back(row.cell);const auto faces=OppositeFaces(row.cell);
+    for(unsigned k=0;k<4;++k)if(row.physical[k].present)patch.surface.push_back({faces[k],row.physical[k].facet});
+  }
+  if(patch.surface.empty())return false;
+  std::set<Face> physical;for(const auto& f:patch.surface)physical.insert(Key(f.v));
+  for(auto f:Incidence(patch.cells).Boundary())
+    if(std::find(f.begin(),f.end(),p)!=f.end() && !physical.count(Key(f)))return false;
+  const auto& geometry=moved_geometry?*moved_geometry:*options.geometry;
+  try{geometry.ExportParameters(patch);}catch(const std::exception&){return false;}
+  const double before=MinScore(old);const auto origin=points.at(p);
+  const long double geometric_before=GetShapeAdmission()==ShapeAdmission::Absolute?GeometryExcess(patch,geometry,options.surface_tolerance):0;
+  std::vector<Point> targets;std::set<Id> neighbors;
+  for(const auto& c:patch.cells)for(auto n:c.v)if(n.id!=p)neighbors.insert(n.id);
+  if(geometry.Mapped()) {
+    const auto binding=patch.parameters.at(p).binding;const auto& authority=geometry.Parameters()->Geometry();
+    if(binding.dimension==0 && authority.PhysicalSupport(binding))return false;
+    if(binding.dimension==1 && (!authority.ReferenceComponents() || authority.PhysicalSupport(binding))) {
+      Edge support{};bool located=false;
+      authority.ForFacets(binding,[&](Id facet) {
+        if(located)return;const auto& f=geometry.Get(facet);
+        for(unsigned k=0;k<3;++k){Edge e{f.v[k].id,f.v[(k+1)%3].id};std::sort(e.begin(),e.end());
+          if(authority.EdgePoint(e,.5).feature==binding.feature){support=e;located=true;break;}}
+      });
+      if(!located)return false;
+      Point a{},b{};
+      authority.ForFacets(binding,[&](Id facet){for(auto n:geometry.Get(facet).v){if(n.id==support[0])a=n.p;if(n.id==support[1])b=n.p;}});
+      // Search the forward parameter, not a chord-plane derivative of the already curved point.
+      for(unsigned level=1;level<=4;++level) {
+        const unsigned denominator=1u<<level;
+        for(unsigned k=1;k<denominator;k+=2){const long double t=static_cast<long double>(k)/denominator;
+          targets.push_back({double(a.x+t*(b.x-(long double)a.x)),double(a.y+t*(b.y-(long double)a.y)),double(a.z+t*(b.z-(long double)a.z))});}
+      }
+    } else if(binding.dimension==2 && !authority.ReferenceComponents()) {
+      const auto& f=geometry.Get(binding.feature);
+      for(double h:{.25,.125,.0625,.03125})for(const auto d:std::array<std::array<int,2>,6>{{{{1,0}},{{-1,0}},{{0,1}},{{0,-1}},{{1,-1}},{{-1,1}}}}) {
+        const long double u=binding.u+h*d[0],v=binding.v+h*d[1];if(u<=0 || v<=0 || u+v>=1)continue;
+        const auto a=f.v[0].p,b=f.v[1].p,c=f.v[2].p;
+        targets.push_back({double(a.x+u*(b.x-(long double)a.x)+v*(c.x-(long double)a.x)),
+            double(a.y+u*(b.y-(long double)a.y)+v*(c.y-(long double)a.y)),double(a.z+u*(b.z-(long double)a.z)+v*(c.z-(long double)a.z))});
+      }
+    }
+  }
+  if(targets.empty())try {
+    std::vector<std::pair<Point,Tensor>> samples;double radius=INFINITY;
+    for(Id n:neighbors){samples.emplace_back(points.at(n),At(points.at(n)));radius=std::min(radius,double(Norm3(origin,points.at(n))));}
+    targets.push_back(MetricMeanPoint(origin,samples));
+    for(double step:{.25,.125,.0625})for(unsigned axis=0;axis<3;++axis)for(double sign:{-1.,1.}) {
+      Point q=origin;if(axis==0)q.x+=sign*step*radius;else if(axis==1)q.y+=sign*step*radius;else q.z+=sign*step*radius;targets.push_back(q);
+    }
+  }catch(const std::exception&){return false;}
+  Patch best;double best_score=before;
+  for(Point target_point:targets) {
+    if(Limited())break;++report.trials;Patch candidate;std::string reason;
+    if(!MoveVertex(patch,p,{next_node,target_point},next_cell,geometry,candidate,reason)){++report.rejected_interface;continue;}
+    const double score=FreshScore(candidate.cells,false,&candidate);
+    if(!std::isfinite(score)){++report.rejected_validity;continue;}
+    if(!(score>best_score+Gain)){++report.rejected_quality;continue;}
+    FirstHeightReport height;
+    if(GetShapeAdmission()==ShapeAdmission::Absolute && !CheckFirstHeight(candidate,options.wall_heights,geometry,height,reason)){++report.rejected_frozen;continue;}
+    if(GetShapeAdmission()==ShapeAdmission::Absolute && GeometryExcess(candidate,geometry,options.surface_tolerance)>geometric_before){++report.rejected_interface;continue;}
+    bool sized=true;
+    for(const auto& c:candidate.cells)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)
+      if((c.v[i].id==next_node || c.v[j].id==next_node) && !Certified(c.v[i].p,c.v[j].p,MaximumMetricEdge))sized=false;
+    if(!sized){++report.rejected_edge;continue;}
+    best_score=score;best=std::move(candidate);
+    if(best_score>=1)break;
+  }
+  if(best.cells.empty())return false;
+  auto parameters=geometry.PrivateParameters(best);
+  std::map<Face,FacetBinding> added;for(const auto& f:best.surface)added.emplace(Key(f.v),FacetBinding{true,f.facet});
+  const Id moved=next_node++;Commit(old,best.cells,p,added);
+  for(const auto& row:best.parameters)report.parameters.insert_or_assign(row.first,row.second);
+  if(parameters)moved_geometry=std::move(parameters);
+  fixed.erase(p);fixed.insert(moved);if(keep.erase(p))keep.insert(moved);
+  Id first=p;for(const auto& row:report.relabel)if(row.second==p){first=row.first;break;}
+  report.relabel[first]=moved;++report.moves;return true;
+}
 bool MeshOptimizer::Smooth(Id p) {
+  if(fixed.count(p) && !sliding.count(p) && options.geometry)return SmoothBoundary(p);
   if(Limited()||!Movable(p))return false;
   const auto old=star.at(p);const Point x0=points.at(p);
   std::set<Id> nbr;for(Id id:old)for(const auto& v:mesh.at(id).cell.v)if(v.id!=p)nbr.insert(v.id);
@@ -3520,6 +3659,23 @@ bool MeshOptimizer::Smooth(Id p) {
     const long double dx=(long double)px.x-x0.x,dy=(long double)px.y-x0.y,dz=(long double)px.z-x0.z;shortest=std::min(shortest,std::sqrt(dx*dx+dy*dy+dz*dz));}
   const long double limit=std::max<long double>(MaximumMetricEdge,oldMax);
   std::vector<Point> targets;
+  if(options.geometry && !options.wall_heights.empty()) {
+    std::vector<Cell> cells;for(Id id:old)cells.push_back(mesh.at(id).cell);
+    const auto patch=GeometryPatch(cells);
+    for(const auto& f:patch.surface) {
+      const auto h=options.wall_heights.find(options.geometry->Get(f.facet).marker);
+      if(h==options.wall_heights.end() || std::find(f.v.begin(),f.v.end(),p)!=f.v.end())continue;
+      bool apex=false;for(const auto& c:patch.cells){unsigned hits=0;for(auto n:c.v)hits+=std::find(f.v.begin(),f.v.end(),n.id)!=f.v.end();apex=apex || hits==3;}
+      if(!apex)continue;
+      const auto a=points.at(f.v[0]),b=points.at(f.v[1]),c=points.at(f.v[2]);long double normal[3];const auto area=Area2(a,b,c,normal);
+      if(!(area>0))continue;
+      const long double correction=(((long double)x0.x-a.x)*normal[0]+((long double)x0.y-a.y)*normal[1]+
+          ((long double)x0.z-a.z)*normal[2])/area+h->second;
+      targets.push_back({double(x0.x-correction*normal[0]/area),double(x0.y-correction*normal[1]/area),double(x0.z-correction*normal[2]/area)});
+      targets.push_back({double(((long double)a.x+b.x+c.x)/3-h->second*normal[0]/area),
+          double(((long double)a.y+b.y+c.y)/3-h->second*normal[1]/area),double(((long double)a.z+b.z+c.z)/3-h->second*normal[2]/area)});
+    }
+  }
   try{std::vector<std::pair<Point,Tensor>> samples;for(Id x:nbr)samples.push_back({points.at(x),At(points.at(x))});targets.push_back(MetricMeanPoint(x0,samples));}catch(const std::exception&){}
   try{  // damped hinge Gauss-Newton on the failing cells of the star (LinearizeMetricShape residuals, 1% interior aim)
     long double g[3]={0,0,0},H[3][3]={{0,0,0},{0,0,0},{0,0,0}};bool any=false;
@@ -3717,7 +3873,7 @@ bool MeshOptimizer::TryCell(Id id) {
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){if(!mesh.count(id))return true;if(EdgeRemoval(std::min(c.v[i].id,c.v[j].id),std::max(c.v[i].id,c.v[j].id)))return true;}
     for(auto f:OppositeFaces(c)){if(!mesh.count(id))return true;std::sort(f.begin(),f.end());if(FaceSwap(f))return true;}
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){if(!mesh.count(id))return true;
-      if(options.boundary&&fixed.count(c.v[i].id)&&fixed.count(c.v[j].id)&&BoundaryFlip(c.v[i].id,c.v[j].id))return true;}
+      if(options.boundary&&!options.geometry&&fixed.count(c.v[i].id)&&fixed.count(c.v[j].id)&&BoundaryFlip(c.v[i].id,c.v[j].id))return true;}
   }
   if(options.insertions) {  // DC-13 O7 (longest edges first) and O8
     std::vector<std::pair<long double,std::pair<Id,Id>>> edges;
@@ -3731,7 +3887,7 @@ bool MeshOptimizer::TryCell(Id id) {
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){long double l=INFINITY;try{l=Estimate(c.v[i].p,c.v[j].p);}catch(const std::exception&){}edges.push_back({l,{c.v[i].id,c.v[j].id}});}
     std::sort(edges.begin(),edges.end());
     for(const auto& e:edges){if(!mesh.count(id))return true;if(Collapse(e.second.first,e.second.second)||Collapse(e.second.second,e.second.first))return true;}
-    if(options.boundary)for(const auto& e:edges){if(!mesh.count(id))return true;if(BoundaryCollapse(e.second.first,e.second.second)||BoundaryCollapse(e.second.second,e.second.first))return true;}
+    if(options.boundary&&!options.geometry)for(const auto& e:edges){if(!mesh.count(id))return true;if(BoundaryCollapse(e.second.first,e.second.second)||BoundaryCollapse(e.second.second,e.second.first))return true;}
   }
   if(options.smoothing)for(const auto& v:c.v){if(!mesh.count(id))return true;if(Smooth(v.id))return true;}
   return false;

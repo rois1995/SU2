@@ -146,6 +146,7 @@ std::shared_ptr<const PlanarReference> PromoteFacetedReference(std::shared_ptr<c
 std::shared_ptr<const PlanarReference> FitPlanarMarkers(std::shared_ptr<const PlanarReference> reference,
     const std::vector<Facet>& facets,const std::set<int>& planar_markers,double relative_tolerance,size_t& fitted,size_t ceiling=SIZE_MAX);
 struct FirstHeightReport {
+  bool measured=false;  // All faces measured; a partial report never authorizes a provisional mesh.
   size_t wall_faces=0, height_failures=0, footprint_failures=0, missing_cells=0;
   size_t reference_clearance_failures=0;
   double minimum_reference_clearance_ratio=std::numeric_limits<double>::infinity();
