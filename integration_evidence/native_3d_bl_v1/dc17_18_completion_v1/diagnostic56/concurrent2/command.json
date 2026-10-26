@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "120",
+    "mpirun",
+    "--bind-to",
+    "none",
+    "-np",
+    "2",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeConcurrentComposed3D],[NativeCurvedTransaction3D]"
+  ],
+  "threads": 1
+}

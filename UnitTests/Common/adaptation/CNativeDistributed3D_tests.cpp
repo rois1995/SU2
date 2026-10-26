@@ -3208,6 +3208,20 @@ TEST_CASE("Faceted composed proposals publish independent complete cavities conc
   }
   EngineReport(result,world,"concurrent_composed_complete");
   MeshRecords("concurrent_composed_initial",world,input);MeshRecords("concurrent_composed_accepted",world,result.cells);
+  if(world.size>1) {
+    auto mixed=original;for(auto& donor:mixed)if(donor.cell.id<100)donor.sensor.fill({1e8,0,0,1.21,0,1.21});
+    EngineOptions observed;observed.maximum_rounds=1;observed.edge_breakpoints=options.edge_breakpoints;
+    observed.capture_feature={{{0,6,0}},2};std::string construction_refusal,terminal_refusal;bool ended=false;
+    observed.transaction_observer=[&](const TransactionView& view) {
+      if(!view.selected)return;
+      if(std::string(view.stage)=="construction_end" && !view.passed)construction_refusal=view.reason;
+      if(std::string(view.stage)=="transaction_end") {ended=true;CHECK_FALSE(view.passed);terminal_refusal=view.reason;}
+    };
+    const auto rejected=Refine(world,input,mixed,geometry,compose,observed);
+    CHECK(world.sum(int(rejected.stats.accepted))==world.size-1);CHECK(Bytes(input)==frozen);
+    if(!world.rank){REQUIRE(ended);REQUIRE_FALSE(construction_refusal.empty());CHECK(terminal_refusal==construction_refusal);}
+  }
+
 }
 
 TEST_CASE("Conflicting composed refinements prioritize the global metric demand before rank", "[NativeConcurrentComposed3D]") {

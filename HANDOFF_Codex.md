@@ -15,26 +15,20 @@ operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexit
 (not tet-count), geometry, conservative transfer and restart. Curvature uses
 ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
 
-ACTIVE: diagnostic56 serial-replay test build session42038; pinned sources must
-remain unchanged until it is terminal. The single MPI6 capture94073 is terminal/pass
-(native72.287s, launch80.475s, work2048 rejection), with all ten diagnostic55 numerical
-counters matching. Initial split and first shape failure replay exactly; dependencies,
-reservation and external contact pass. Max integrated edge1.59836 passes; q=.183972,
-J=.042790 fail. Full current303,428-cell mesh,70 events and722 verified dependency
-records retained. Twelve growth iterations and thirteen reconnections are now visible.
-Details/current work: [transaction replay](Handbook/M6_TRANSACTION_REPLAY.md).
-Offline85224 terminal/refused before replay: the diagnostic mistakenly used1GiB
-as the conservative reference-decoding allowance. The corrected build uses the
-existing2GiB decoder default; offline.py now monitors/enforces actual1GiB process RSS.
-Offline2 session56448 terminal: all26 construction calls/11 shape messages replay
-exactly. Repair setup failed because a deadline composition incorrectly changed the
-field path; build42038 removes it and moves enforcement to offline.py (actual RSS1GiB,
-repair wall60s, whole-process CPU60s stricter, launcher90s). Next run offline3.
-Next: finish bounded fixed-skin repair and preserve local rejection reasons;
-no second MPI prefix. Large snapshots stay local with lossless archive/hash receipts.
-Diagnostic55 remains the proxy/MPI baseline: partition balances supplied work4.699->
-1.08449; useful-compute attribution unresolved. Production shape policy remains
-Absolute; diagnostic hooks do not change it. No accepted full M6 or repaired witness.
+ACTIVE: test-only surface-placement probe build7712 is running (one worker; pinned C++). Previous build64033,
+offline5 session19972 and concurrent2 session29830 are terminal. Offline5 staged
+interior seed still fails q=.09641,J=.022545; max edge1.59836/interface pass,128 total
+trials,0.031s branch. Independent enumeration proves one physical child face cannot
+be filled admissibly using any of the six fixed vertices (not general infeasibility).
+Next: existing PlaceSplitPatch under GeometryRefine terminal checks; no new M6 prefix.
+The engine diagnostic fix now preserves refusals across peer contact/reservation
+votes; MPI2 passes5 tests/rank (81/121 assertions). Production construction and gates
+remain unchanged. All26 original calls/11 shape messages replay exactly.
+Details: [transaction replay](Handbook/M6_TRANSACTION_REPLAY.md). No accepted local
+repair or full M6. Capture94073:72.287s native/work2048 rejection, all diagnostic55
+counters match. Large303,428-cell capture stays local with hashes. Latest pushed
+checkpoint4e1c3be1ef; subsequent connected work is being checkpointed. Do not edit
+pinned C++ during the next build/replay. No larger construction cap or full1800s rerun.
 
 54 full M6 Euler6 session64848 terminal (driver0, native REJECTED).
 Native1805.12s, whole1980.41s, largest process736,780KiB (not whole-job peak).
@@ -48,12 +42,7 @@ Implementation e9263060cf and docs68621318f5 pushed to approved fork/branch.
 Independent review of f5e9456f06 reconciled:
 [findings and implementation qualifications](Handbook/M6_REVIEW_RECONCILIATION.md).
 Witness table now separates failed-cell q/J from patch minima; MPI1.428 is only a
-hypothetical accounting quotient. No production defect/fix or new numerical run.
-NEXT: complete-context transaction replay for edge23754–24333 first; independent
-81–17687 only after faithful replay is established. Existing observer lacks required
-pre-transaction context; implementation remains open. Distinguish local transaction
-admission from final-patch edge acceptance. No generic audit, new repartitioner, relaxed
-gate or full1800s rerun. Failure checkpoint/assessment5f469f7800 already pushed.
+hypothetical accounting quotient. That review itself established no production numerical defect.
 Do not add local fallbacks or raise limits blindly. M6 restart_adap_00000.dat
 contains exact original 61,330-node sensor metric (Metric_XX..ZZ,23 fields), usable
 with existing hidden NativeFrozenVolume3D replay. Verify coordinate/ID correspondence.
@@ -64,7 +53,7 @@ active reconstruction/donor measurement. Decoder91717 interrupted after DWARF er
 symbol-only reports pass. Raw54/m6_euler/live_profile.data remains LOCAL ONLY.
 No raw sampled stacks or large restart binaries added to git; pin their hashes.
 
-Latest production checkpoint895ab7274a: empty initial FVM ranks fix; four-point sphere
+Historical checkpoint895ab7274a: empty initial FVM ranks fix; four-point sphere
 import passes on6 ranks.4933586627 fixed optimizer work accounting;47 serial125
 cases/1,082,524 assertions pass.48 MPI6 passes114/116 cases/rank: cubic runtime
 work4096 and collapse-filter counter fail. All-worker48 affine stagnates with1 bad

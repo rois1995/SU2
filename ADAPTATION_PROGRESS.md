@@ -72,9 +72,15 @@ contact. Maximum integrated candidate edge1.59836 passes; q=.183972/J=.042790 fa
 The transaction uses all12 growth iterations, then13 reconnections. Independent
 checks verify722 dependency records against global ownership. Captured geometry
 parameters agree across all ranks. Lossless deduplication keeps the capture below
-25MiB; the initial archive-size refusal is retained. Full construction-call replay
-and one bounded fixed-skin connectivity repair are being implemented from these
-saved inputs, without another MPI prefix. No construction-policy change or DC closure.
+25MiB; the initial archive-size refusal is retained. Offline3 exactly replays all26
+construction calls and11 shape refusals, then finds no changed repair candidate in
+6 connectivity and9 optimizer trials. No resource limit was reached. The interior-vertex seed also fails
+(q=.09641,J=.022545,128 total trials). Independent enumeration identifies a physical
+child triangle with no admissible apex among the six fixed vertices. The next probe
+reuses surface placement to test a different construction freedom. The concurrent
+contact/reservation diagnostic fix passes5 tests on each of2 ranks. No construction-policy
+change, accepted repaired witness or DC closure. See the
+[transaction replay report](Handbook/M6_TRANSACTION_REPLAY.md).
 
 ## Checkpoints
 

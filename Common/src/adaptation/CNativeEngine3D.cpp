@@ -2952,6 +2952,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     try {observe_transaction("construction_end",approved);}catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(options.transaction_observer && !vote(failure))return finish();
+    // Successful peer contact/reservation votes must not erase this worker's construction refusal.
+    const std::string pending_rejection=chosen && !approved ? result.reason : std::string{};
     const bool surface_edit=approved && !SameSkin(old,fresh);
     if(curved && world.maximum(surface_edit)) {
       const bool prior=approved;bool deferred=false;
@@ -2987,6 +2989,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       const auto commits=CPassiveComm::Allreduce(uint64_t(approved),CPassiveComm::Op::SUM,world.comm);
       stats.maximum_parallel_commits=std::max(stats.maximum_parallel_commits,commits);
     }
+    if(chosen && !approved && !pending_rejection.empty())result.reason=pending_rejection;
     std::vector<BoundaryParameterEdit> parameter_edits;
     if(approved && geometry.Mapped())try {
       geometry.ExportParameters(old);geometry.ExportParameters(fresh);

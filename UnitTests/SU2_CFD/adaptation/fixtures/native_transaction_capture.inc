@@ -254,6 +254,16 @@ TEST_CASE("Saved native transaction construction replay", "[.][NativeTransaction
   std::ofstream strict("strict_replay.json");strict<<"{\"construction_calls\":"<<constructions<<",\"shape_failures\":"<<metrics
     <<",\"calls_and_failure_reasons_exact\":"<<exact<<",\"growth_selection_policy_replayed\":false,\"MPI_peer_schedule_replayed\":false}\n";
   strict.close();REQUIRE(bool(strict));REQUIRE(exact);REQUIRE(first);REQUIRE(constructions==26);
+  size_t seed_event=1;
+  if(const auto* seed=std::getenv("SU2_NATIVE_TRANSACTION_SEED_EVENT")) {
+    seed_event=std::stoul(seed);REQUIRE(seed_event<capture.events.size());
+    first=&capture.events[seed_event];REQUIRE(first->passed);
+    REQUIRE((first->stage=="SplitEdge" || first->stage=="ReconstructSplitPatch"));
+  }
+  std::set<Id> boundary_vertices,all_vertices;
+  for(const auto& f:Incidence(first->fresh.cells).Boundary())boundary_vertices.insert(f.begin(),f.end());
+  for(const auto& c:first->fresh.cells)for(auto n:c.v)all_vertices.insert(n.id);
+  const auto interior_vertices=all_vertices.size()-boundary_vertices.size();
   // The live capture already certified first-cavity completeness, versions, reservation and exterior contact.
   // Here one bounded connectivity repair keeps that initial candidate's complete curved skin fixed.
   const auto start=std::chrono::steady_clock::now();const auto cpu=std::clock();
@@ -263,22 +273,31 @@ TEST_CASE("Saved native transaction construction replay", "[.][NativeTransaction
   REQUIRE(initial.minimum_mean_ratio>0);REQUIRE(initial.minimum_scaled_jacobian>=ValiditySliverJacobian);
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
   Patch repaired;ConnectivityRepairReport report;std::string reason;
-  bool changed=RepairMetricConnectivity(first->fresh,repair_field,*capture.reference,{},first->first_cell,
+  const bool surface_placement=std::getenv("SU2_NATIVE_TRANSACTION_SURFACE_PLACEMENT");
+  JointSplitReport placement_report;bool changed=false;std::string method="connectivity";
+  if(surface_placement) {
+    REQUIRE(seed_event==1);
+    PlaceSplitPatch(first->old,edge,first->point,{},first->first_cell,repair_field,*capture.reference,{},
+        repaired,placement_report,reason,256);
+    // The existing placer uses size-refinement progress internally; assess its best valid proposal for geometry below.
+    if(!placement_report.best.cells.empty()){repaired=placement_report.best;changed=true;}
+    method="surface_placement";
+  } else changed=RepairMetricConnectivity(first->fresh,repair_field,*capture.reference,{},first->first_cell,
       repaired,report,reason,64,false);
-  size_t optimizer_trials=0;std::string method="connectivity";
+  size_t optimizer_trials=0;OptimizeReport optimized;
   // A second bounded alternative starts from the same seed; no partial repair is published or chained.
   bool strict_shape=false;
   if(changed) {
     const auto m=MeasureMetricCells(repaired.cells,repair_field);
     strict_shape=m.minimum_mean_ratio>=MinimumMeanRatio && m.minimum_scaled_jacobian>=MinimumScaledJacobian;
   }
-  if(!strict_shape && report.trials<256) {
+  if(!surface_placement && !strict_shape && report.trials<256) {
     Owned cells;for(auto cell:first->fresh.cells){OwnedCell row;row.cell=cell;cells.emplace(cell.id,row);}
     OptimizeOptions options;options.maximum_work=256-report.trials;options.maximum_seconds=std::max(0.001,
         60-std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count());
     options.boundary=false;options.collapses=false;options.smoothing=true;
     Id node=first->first_node+2,cell=first->first_cell+MaximumReplacementCells;
-    OptimizeReport optimized;const bool improved=OptimizeMetricMesh(cells,RegionMetric(repair_field),node,cell,options,optimized);
+    const bool improved=OptimizeMetricMesh(cells,RegionMetric(repair_field),node,cell,options,optimized);
     optimizer_trials=optimized.trials;
     if(improved && cells.size()<=MaximumReplacementCells && node-first->first_node<=162) {
       repaired=first->fresh;repaired.cells.clear();
@@ -287,9 +306,19 @@ TEST_CASE("Saved native transaction construction replay", "[.][NativeTransaction
     }
   }
   SetShapeAdmission(ShapeAdmission::Absolute);
-  bool interface=false,transaction=false,final_patch=false,contact=false;PatchMetric measured;
+  bool interface=false,geometry_progress=false,transaction=false,final_patch=false,contact=false;PatchMetric measured;
   if(changed) {
-    interface=ValidateFixedInterface(first->fresh.cells,repaired.cells,reason,nullptr,MaximumReplacementCells);
+    NativeTransactionCapture::Write("repair_candidate.bin",NativeTransactionCapture::PatchBytes(repaired));
+    if(surface_placement) {
+      std::set<Face> physical;
+      for(auto f:first->old.surface){std::sort(f.v.begin(),f.v.end());physical.insert(f.v);}
+      std::vector<Face> expected;
+      for(auto f:Incidence(first->old.cells).Boundary()){auto key=f;std::sort(key.begin(),key.end());if(!physical.count(key))expected.push_back(f);}
+      for(auto f:repaired.surface)expected.push_back(f.v);
+      interface=ValidatePrescribedInterface(first->old.cells,repaired.cells,expected,reason,nullptr,MaximumReplacementCells);
+    } else interface=ValidateFixedInterface(first->fresh.cells,repaired.cells,reason,nullptr,MaximumReplacementCells);
+    const auto before_geometry=TransactionSurfaceExcess(first->old,*capture.reference,tolerance);
+    geometry_progress=before_geometry>0 && TransactionSurfaceExcess(repaired,*capture.reference,tolerance)<before_geometry*(1-1e-12L);
     if(interface) {
       const auto before=MeasureMetricCells(first->old.cells,repair_field);
       measured=MeasureMetricCells(repaired.cells,repair_field);
@@ -297,25 +326,30 @@ TEST_CASE("Saved native transaction construction replay", "[.][NativeTransaction
       if(transaction)final_patch=ValidateMetricPatch(repaired.cells,repair_field,measured,reason);
     }
   }
-  if(transaction) {
+  if(transaction && geometry_progress) {
     Owned current;
     for(int rank=0;rank<6;++rank) {
       const auto bytes=TransactionRead(root+"/transaction_rank"+std::to_string(rank)+"_working.bin");RecordStream stream(bytes);
       for(auto c:TransactionVector<OwnedCell>(stream,1000000))REQUIRE(current.emplace(c.cell.id,std::move(c)).second);REQUIRE(stream.End());
     }
-    Directory directory(world,false,capture.reference->Parameters());REQUIRE(directory.Build(current,reason,size_t(1)<<30));
-    contact=true;REQUIRE(directory.Clearance(current,first->old,repaired,contact,reason,size_t(1)<<30));
+    Directory directory(world,false,capture.reference->Parameters());REQUIRE(directory.Build(current,reason,size_t(12)<<30));
+    contact=true;REQUIRE(directory.Clearance(current,first->old,repaired,contact,reason,size_t(12)<<30));
   }
   const double seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
   const double cpu_seconds=double(std::clock()-cpu)/CLOCKS_PER_SEC;
-  REQUIRE(report.trials+optimizer_trials<=256);const bool capped=seconds>60 || cpu_seconds>60;
-  std::ofstream out("repair_replay.json");out<<std::setprecision(17)<<"{\"changed\":"<<changed<<",\"trials\":"<<report.trials
-    <<",\"optimizer_trials\":"<<optimizer_trials<<",\"method\":"<<std::quoted(method)
+  REQUIRE(report.trials+optimizer_trials+placement_report.trials<=256);const bool capped=seconds>60 || cpu_seconds>60;
+  std::ofstream out("repair_replay.json");out<<std::setprecision(17)<<"{\"seed_event\":"<<seed_event<<",\"seed_interior_vertices\":"<<interior_vertices<<",\"changed\":"<<changed<<",\"trials\":"<<report.trials
+    <<",\"optimizer_trials\":"<<optimizer_trials<<",\"placement_trials\":"<<placement_report.trials
+    <<",\"placement_geometry_rejected\":"<<placement_report.geometry_rejected<<",\"optimizer_moves\":"<<optimized.moves
+    <<",\"optimizer_stop\":"<<std::quoted(optimized.stop)<<",\"method\":"<<std::quoted(method)
     <<",\"flips\":"<<report.flips<<",\"moves\":"<<report.moves<<",\"removals\":"<<report.removals
-    <<",\"fixed_interface\":"<<interface<<",\"transaction_metric\":"<<transaction<<",\"final_patch_metric\":"<<final_patch
-    <<",\"external_contact\":"<<contact<<",\"q\":"<<measured.minimum_mean_ratio<<",\"J\":"<<measured.minimum_scaled_jacobian
-    <<",\"maximum_edge\":"<<double(measured.maximum_length)<<",\"seconds\":"<<seconds<<",\"cpu_seconds\":"<<cpu_seconds
+    <<",\"prescribed_interface\":"<<interface<<",\"geometry_progress\":"<<geometry_progress<<",\"transaction_metric\":"<<transaction<<",\"final_patch_metric\":"<<final_patch
+    <<",\"external_contact\":"<<contact<<",\"candidate_measured\":"<<(changed && interface)<<",\"q\":";
+  if(changed && interface)out<<measured.minimum_mean_ratio;else out<<"null";
+  out<<",\"J\":";if(changed && interface)out<<measured.minimum_scaled_jacobian;else out<<"null";
+  out<<",\"maximum_edge\":";if(changed && interface)out<<double(measured.maximum_length);else out<<"null";
+  out<<",\"seconds\":"<<seconds<<",\"cpu_seconds\":"<<cpu_seconds
     <<",\"time_cap_reached\":"<<capped<<",\"reason\":"<<std::quoted(reason)
-    <<",\"accepted_local_repair\":"<<(transaction && interface && contact && !capped)
+    <<",\"accepted_local_repair\":"<<(transaction && interface && geometry_progress && contact && !capped)
     <<",\"full_mesh_accepted\":false}\n";out.close();REQUIRE(bool(out));
 }

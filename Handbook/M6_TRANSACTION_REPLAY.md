@@ -1,9 +1,11 @@
 # M6 transaction replay — diagnostic56
 
-Current: the single bounded MPI capture and initial-candidate replay pass. All26 recorded construction calls and11 shape refusals reproduce exactly
-in the standalone replay (offline2); the bounded fixed-skin repair harness is being
-corrected. No accepted local repair or full-M6 mesh has been obtained; DC-17/DC-18 remain
-open. This implements the next experiment from the
+Current: all26 recorded construction calls and11 shape refusals replay exactly.
+Neither the initial fixed-skin repair nor the staged interior-vertex repair passes
+strict shape. Exhaustive fixed-vertex enumeration identifies one wall child triangle
+with no admissible existing apex. The next bounded probe reuses surface placement.
+The lost-rejection diagnostic is fixed and passes MPI2 regression. No accepted local
+repair or full-M6 mesh exists; DC-17/DC-18 remain open. This follows the
 [independent review reconciliation](M6_REVIEW_RECONCILIATION.md).
 
 ## Verified capture
@@ -75,17 +77,59 @@ unchanged sensor in a deadline composition requires a geometry edge policy. The
 correction retains the original uncomposed field and enforces CPU/wall limits in
 the launcher; it does not add dummy geometry bands or change metric arithmetic.
 
-## Remaining experiment
+## Bounded repair result and next experiment
 
-Use the saved input records to reproduce every recorded construction call and
-shape refusal before interpreting an alternative. This is local call replay, not
-re-execution of the MPI peer schedule or proof that the growth-selection policy is
-optimal. Then test bounded existing connectivity repair and, if needed, an interior optimizer
-from the same initial candidate, preserving its curved skin. The alternatives share
-256 trials and60s, and do not chain an incomplete repair or change production policy. Restore Absolute admission for the terminal
-transaction; independently check all integrated edges, geometry/interface, source
-queries and external contact. Report transaction and final-patch acceptance separately.
+Offline3 (session18011, exit0) passes2,408 assertions, including all26 construction
+calls and11 exact shape-refusal messages. Its repair attempts make no change:
+6 connectivity trials and9 optimizer trials, branch wall0.00265s/CPU0.00399s;
+maximum process RSS324,316KiB. No time/work/RSS limit is reached. The q/J=1 and
+maximum-edge=0 fields in this historical receipt are unmeasured defaults, not a
+candidate certificate; the updated reporter emits null for unmeasured values.
 
-No second MPI prefix, larger construction caps, production shape-policy switch,
+The initial four-cell split has no interior vertex that can move while its complete
+skin remains fixed. The next existing reconstruction (event3, eight cells) introduces
+one interior vertex. Test that saved seed with the same existing repair/optimizer
+and unchanged final gates. This isolates whether staged construction supplies the
+missing freedom; it does not justify accepting the intermediate mesh. The alternatives
+share256 trials and60s. Restore Absolute admission for terminal transaction checks;
+check the fixed interface, integrated edges, source queries and external contact.
+Report transaction and final-patch acceptance separately. No repaired witness exists yet.
+
+The production diagnostic defect is fixed and diagnostic56/concurrent2 passes all5
+selected tests on both ranks (81/121 assertions,2.680s launcher): a peer's successful
+final reservation clears an inactive worker's local construction refusal. The engine now preserves
+that refusal across contact and reservation votes without changing protocol failure
+agreement or admission.
+
+No second full-M6 MPI prefix, larger construction caps, production shape-policy switch,
 new partitioner, full1800s campaign, conservative transfer or restart is justified
-by the capture alone. Preserve source/build pins throughout each running stage.
+by this result. Preserve source/build pins throughout each running stage.
+
+## Staged seed result and fixed-vertex obstruction
+
+Offline4 could not initialize Open MPI inside the sandbox; no replay ran. Offline5
+runs on the host and passes2,411 assertions. The eight-cell seed has one interior
+vertex and the same old footprint, complete skin coordinates and physical faces as
+the direct split (`seed_context_check.json`). Connectivity uses64 trials and10 moves;
+the separate interior optimizer uses64 trials and supplies the reported candidate.
+Its full minima q=.096410391,J=.022544997 fail; max edge1.598362316 and fixed interface
+pass. Branch wall.03076s/CPU.03305s; no time/RSS cap, launcher14.697s. The connectivity
+sub-budget was reached, while the separate optimizer did not exhaust the shared256
+trial cap. Neither changed candidate establishes acceptance or impossibility.
+
+Independent enumeration in `fixed_vertex_skin_check.json` checks all15 possible
+nondegenerate tetrahedra on the initial six vertices, with exact original-donor
+containment for every centroid. The physical child face23754–24461–119505 has no
+q>=.20,J>=.05 apex among the other three existing vertices. Even allowing exterior
+or overlapping cells cannot satisfy this necessary condition. Thus flips using only
+these fixed vertices cannot fill this fixed skin admissibly. Added vertices or
+changed surface placement are not excluded; this is not general infeasibility.
+
+Next connected construction question: the current curved geometric-refinement path
+keeps the split position fixed while growing volume fans. The existing
+`PlaceSplitPatch` can coordinate surface placement but is used for size-driven
+refinement. Probe its best geometry-valid candidate against GeometryRefine, full
+shape/edge checks, curvature progress and current-mesh contact, using captured state
+and unchanged256-trial/60s/1GiB-RSS limits. This is test-only; no new production
+construction path is enabled. The serial directory uses production's12GiB conservative
+storage allowance, independently of the enforced1GiB measured process RSS cap.
