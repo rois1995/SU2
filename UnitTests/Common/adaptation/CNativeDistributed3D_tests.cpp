@@ -10,6 +10,7 @@
 #include "../../../Common/include/adaptation/CNativeRegionField3D.hpp"
 #include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
+#include "../../../Common/include/adaptation/CNativeOptimize3D.hpp"
 #include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
 #include "SimplexMeshTestCase.hpp"
 #include <cmath>
@@ -773,8 +774,11 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
              << " metric_shape_rejected=" << s.metric_shape_rejected << " metric_progress_rejected=" << s.metric_progress_rejected
              << " metric_measurement_rejected=" << s.metric_measurement_rejected
              << " sample_metric_present=" << (s.last_metric_rejection.failure!=MetricFailure::None)
-             << " sample_q=" << s.last_metric_rejection.minimum_mean_ratio << " sample_j=" << s.last_metric_rejection.minimum_scaled_jacobian
-             << " sample_cell=" << s.last_metric_rejection.weakest_cell << " sample_sliver=" << s.last_metric_rejection.sliver_cell
+             << " sample_shape_measured=" << s.last_metric_rejection.shape_measured << " sample_q=";
+  if(s.last_metric_rejection.shape_measured)line << s.last_metric_rejection.minimum_mean_ratio;else line << "unavailable";
+  line << " sample_j=";
+  if(s.last_metric_rejection.shape_measured)line << s.last_metric_rejection.minimum_scaled_jacobian;else line << "unavailable";
+  line << " sample_cell=" << s.last_metric_rejection.weakest_cell << " sample_sliver=" << s.last_metric_rejection.sliver_cell
              << " sample_feature=" << s.last_rejected_feature.count << " sample_v0=" << s.last_rejected_feature.vertices[0]
              << " sample_v1=" << s.last_rejected_feature.vertices[1] << " sample_v2=" << s.last_rejected_feature.vertices[2]
              << " sample_x=" << s.last_rejected_cavity_centroid.x << " sample_y=" << s.last_rejected_cavity_centroid.y << " sample_z=" << s.last_rejected_cavity_centroid.z
@@ -3584,7 +3588,9 @@ TEST_CASE("Native MPI interior placement repairs a complete star through ordinar
       CHECK_FALSE(CheckFirstHeight(invalid,options.wall_heights,*reference,report,reason));CHECK_FALSE(report.measured);
     }
     const auto result=Repair(world,input,Uniform(input,tensor),*reference,{},options);INFO(result.reason);
-    REQUIRE(result.valid);CHECK(world.sum(result.stats.moved+result.stats.optimization_validated)>0);
+    REQUIRE(result.valid);
+    if(height)CHECK(world.maximum(Bytes(result.cells)!=Bytes(input)));
+    else CHECK(world.sum(result.stats.moved+result.stats.optimization_validated)>0);
     CHECK(result.stats.cached_invalid_cells==0);CHECK(Bytes(input)==Bytes(saved));
     if(mapped)CHECK(reference->Parameters()->Snapshot()==parameters);
     CHECK(Audit(world,result.cells,fixture,world.sum(int(result.cells.size()))));
@@ -3604,6 +3610,123 @@ TEST_CASE("Native MPI interior placement repairs a complete star through ordinar
     CHECK(CPassiveComm::Allreduce(double(volume),CPassiveComm::Op::SUM,world.comm)==Approx(1.).margin(1e-12));
     EngineReport(result,world,sheared?"interior_placement_sheared":"interior_placement_uniform");
   }
+}
+
+TEST_CASE("Quality repair completes a useful pass before revisiting construction debt", "[NativeQualityPass3D]") {
+  World world;Fixture fixture;Owned input;
+  const int copies=std::max(8,2*world.size);
+  auto append=[&](Fixture piece,Id cells,Id nodes,Id facets,double shift,int owner) {
+    for(auto& c:piece.patch.cells){c.id+=cells;for(auto& n:c.v){n.id+=nodes;n.p.x+=shift;}}
+    for(auto& f:piece.patch.surface){f.facet+=facets;for(auto& id:f.v)id+=nodes;}
+    for(auto& f:piece.facets){f.id+=facets;for(auto& n:f.v){n.id+=nodes;n.p.x+=shift;}}
+    if(owner==world.rank)for(const auto& row:Rows(piece.patch))input.emplace(row.cell.id,row);
+    fixture.patch.cells.insert(fixture.patch.cells.end(),piece.patch.cells.begin(),piece.patch.cells.end());
+    fixture.patch.surface.insert(fixture.patch.surface.end(),piece.patch.surface.begin(),piece.patch.surface.end());
+    fixture.facets.insert(fixture.facets.end(),piece.facets.begin(),piece.facets.end());
+  };
+  for(int copy=1;copy<=copies;++copy) {
+    auto box=Box();box.patch.cells.clear();const Node center{8,{.95,.93,.9}};
+    for(const auto& f:box.facets) {
+      Cell c{box.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
+      if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[2],c.v[3]);
+      box.patch.cells.push_back(c);
+    }
+    append(std::move(box),100*copy,16*copy,12*copy,3*copy,(copy-1)%world.size);
+  }
+  // This independent long edge cannot be split within the complete-star admission bound.
+  append(AxisWheel(70),1000000,1000000,1000000,0,0);
+  auto good=Box();const double good_shift=3*(copies+1);
+  std::set<std::array<double,3>> unchanged_centroids;
+  for(const auto& c:good.patch.cells){const auto p=Centroid(c);unchanged_centroids.insert({p.x+good_shift,p.y,p.z});}
+  append(std::move(good),100*(copies+1),16*(copies+1),12*(copies+1),good_shift,0);
+  const auto saved=Bytes(input);const PlanarReference reference(fixture.facets);
+  unsigned unchanged_queries=0;
+  auto compose=[&](Point p,Tensor tensor){unchanged_queries+=unchanged_centroids.count({p.x,p.y,p.z});return tensor;};
+  EngineOptions options;options.maximum_rounds=128*(copies+1);options.maximum_work=4096*copies;
+  options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
+  const auto result=Repair(world,input,Uniform(input,Tensor{}),reference,compose,options);INFO(result.reason);
+  CHECK(world.sum(result.stats.moved+result.stats.optimization_validated)>=unsigned(copies));
+  CHECK(result.stats.construction_returns<=1);CHECK(result.stats.quality_stages<=2);
+  CHECK(world.sum(unchanged_queries)==unchanged_centroids.size()*result.stats.quality_stages);
+  CHECK(result.stats.global_work<=options.maximum_work);CHECK(Bytes(input)==saved);
+  std::set<int> checked;
+  for(const auto& row:result.cells) {
+    const auto& c=row.second.cell;
+    if(c.v[0].p.x<3 || c.v[0].p.x>3*copies+1)continue;
+    const auto m=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},Tensor{});
+    CHECK(m.mean_ratio>=MinimumMeanRatio);CHECK(m.minimum_scaled_jacobian>=MinimumScaledJacobian);checked.insert(int(std::floor(c.v[0].p.x/3)));
+  }
+  for(int copy=1;copy<=copies;++copy)CHECK(world.maximum(checked.count(copy)!=0));
+  EngineReport(result,world,"quality_pass_with_construction_debt");
+}
+
+TEST_CASE("Coarsening revisits short edges created by quality repair", "[NativeCoarsenQualityReturn3D]") {
+  World world;const double length=1.272;auto box=Box();Fixture fixture;
+  std::map<Id,Node> nodes;
+  for(auto f:box.facets)for(auto n:f.v){n.p={length*n.p.x,length*n.p.y,length*n.p.z};nodes.emplace(n.id,n);}
+  const Node roof{8,{length/2,length/2,length+.02}},center{9,{length/2,length/2,.05}};
+  auto append=[&](std::array<Node,3> triangle) {
+    if(Orientation(center.p,triangle[0].p,triangle[1].p,triangle[2].p)<0)std::swap(triangle[1],triangle[2]);
+    const Id id=fixture.facets.size();fixture.facets.push_back({id,int(id)+10,triangle});
+    fixture.patch.surface.push_back({{triangle[0].id,triangle[1].id,triangle[2].id},id});
+    fixture.patch.cells.push_back({id,{center,triangle[0],triangle[1],triangle[2]}});
+  };
+  for(const auto& f:box.facets) {
+    if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==1;}))continue;
+    append({nodes.at(f.v[0].id),nodes.at(f.v[1].id),nodes.at(f.v[2].id)});
+  }
+  const std::array<Id,4> rim{4,5,6,7};
+  for(unsigned k=0;k<4;++k)append({nodes.at(rim[k]),nodes.at(rim[(k+1)%4]),roof});
+  size_t bad=0,short_edges=0;std::set<Edge> seen;
+  for(const auto& c:fixture.patch.cells) {
+    const auto m=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},Tensor{});
+    bad+=m.mean_ratio<MinimumMeanRatio || m.minimum_scaled_jacobian<MinimumScaledJacobian;
+    REQUIRE(m.maximum_edge<=MaximumMetricEdge);
+    for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j) {
+      Edge e{c.v[i].id,c.v[j].id};std::sort(e.begin(),e.end());if(!seen.insert(e).second)continue;
+      const auto a=c.v[i].p,b=c.v[j].p;const double distance=std::hypot(a.x-b.x,a.y-b.y,a.z-b.z);
+      if(e[1]==center.id)CHECK(distance>=CoarseningMetricEdge);
+      if(distance<CoarseningMetricEdge) {++short_edges;CHECK(e[1]==roof.id);CHECK(e[0]>=4);CHECK(e[0]<=7);}
+    }
+  }
+  REQUIRE(bad>0);REQUIRE(short_edges==4);
+  const PlanarReference reference(fixture.facets);const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+  EngineOptions options;options.maximum_rounds=256;options.maximum_work=4096;
+  const auto result=Coarsen(world,input,Uniform(input,Tensor{}),reference,{},options);INFO(result.reason);
+  REQUIRE(result.valid);CHECK(result.stats.construction_returns>=1);
+  CHECK(world.sum(result.stats.moved+result.stats.optimization_validated)>0);
+  CHECK(world.sum(result.stats.collapse_filtered+result.stats.rejected)>0);CHECK(world.sum(result.collapses.size())>0);
+  bool roof_collapse=false;for(const auto& e:result.collapses)roof_collapse=roof_collapse || e[0]==roof.id;
+  CHECK(world.maximum(roof_collapse));CHECK(Bytes(input)==saved);
+  CHECK(Audit(world,result.cells,fixture,world.sum(result.cells.size())));
+  for(const auto& row:result.cells) {
+    const auto& c=row.second.cell;const auto m=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},Tensor{});
+    CHECK(m.mean_ratio>=MinimumMeanRatio);CHECK(m.minimum_scaled_jacobian>=MinimumScaledJacobian);CHECK(m.maximum_edge<=MaximumMetricEdge);
+  }
+  EngineReport(result,world,"coarsen_after_quality_publication");
+}
+
+TEST_CASE("Metric optimizer moves an interior apex to satisfy requested first height", "[NativeHeightOptimization3D]") {
+  auto fixture=Box();fixture.patch.cells.clear();const Node center{8,{.5,.5,.65}};
+  for(const auto& f:fixture.facets) {
+    Cell c{fixture.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
+    if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[2],c.v[3]);
+    fixture.patch.cells.push_back(c);
+  }
+  const PlanarReference reference(fixture.facets);Owned mesh;
+  for(const auto& row:Rows(fixture.patch))mesh.emplace(row.cell.id,row);
+  const auto saved=Bytes(mesh);WallHeights heights;
+  for(const auto& f:fixture.facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights.emplace(f.marker,.35);
+  FirstHeightReport height;std::string reason;CHECK_FALSE(CheckFirstHeight(fixture.patch,heights,reference,height,reason));
+  FrozenField field(Uniform(mesh,Tensor{}));RegionMetric target(field);Id node=9,cell=12;
+  OptimizeOptions options;options.geometry=&reference;options.wall_heights=heights;options.maximum_work=1024;
+  options.swaps=options.collapses=options.boundary=options.insertions=false;
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);OptimizeReport report;
+  REQUIRE(OptimizeMetricMesh(mesh,target,node,cell,options,report));CHECK(report.moves>0);CHECK(Bytes(mesh)!=saved);
+  std::vector<OwnedCell> rows;for(const auto& row:mesh)rows.push_back(row.second);
+  const auto final=PatchOf(rows);CHECK(CheckFirstHeight(final,heights,reference,height,reason));
+  PatchMetric metric;CHECK(ValidateMetricPatch(final.cells,field,metric,reason));
 }
 
 TEST_CASE("Independent quality stars commit concurrently with final strict acceptance", "[NativeConcurrentRepair3D]") {

@@ -1,0 +1,39 @@
+"""One-worker checkpoint build with frozen inputs and process-tree resource receipts."""
+import json, os, subprocess, sys, time
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent
+sys.path.insert(0,str(ROOT.parent/'diagnostic56'))
+from run import sha, save
+name='build'+str(int(sys.argv[1]))
+assert not (ROOT/(name+'_status.json')).exists(), 'Inspect the previous owned handle before retrying'
+paths=set(json.loads((ROOT/'build4_source_pins.json').read_text()))
+paths.add(str(Path(__file__).resolve()))
+pins={p:sha(p) for p in sorted(paths)}
+save(ROOT/(name+'_source_pins.json'),pins)
+command=json.loads((ROOT/'build4_command.json').read_text())
+command['argv'].append('SU2_CFD/src/SU2_CFD')
+env=os.environ.copy();env.update(command['environment'])
+save(ROOT/(name+'_command.json'),command)
+start=time.time()
+with (ROOT/(name+'.log')).open('w') as log, (ROOT/(name+'_resources.jsonl')).open('w') as receipt:
+    p=subprocess.Popen(command['argv'],env=env,stdout=log,stderr=subprocess.STDOUT)
+    save(ROOT/(name+'_status.json'),dict(state='running',pid=p.pid,start=start,pinned_files=len(pins)))
+    print(name,'RUNNING',p.pid,'pinned_files',len(pins),flush=True)
+    while p.poll() is None:
+        pending=[p.pid];seen=set();rows=[]
+        while pending:
+            pid=pending.pop()
+            if pid in seen:continue
+            seen.add(pid)
+            try:
+                proc=Path('/proc')/str(pid)
+                pending.extend(map(int,(proc/'task'/str(pid)/'children').read_text().split()))
+                rows.append(dict(pid=pid,rss=int((proc/'statm').read_text().split()[1])*os.sysconf('SC_PAGE_SIZE'),name=(proc/'comm').read_text().strip()))
+            except (FileNotFoundError,ProcessLookupError):pass
+        receipt.write(json.dumps(dict(elapsed=time.time()-start,processes=rows,summed_rss=sum(r['rss'] for r in rows)))+'\n');receipt.flush()
+        time.sleep(3)
+    code=p.wait()
+changed=[p for p,h in pins.items() if sha(p)!=h]
+result=dict(state='terminal',exit_code=code,seconds=time.time()-start,pins_verified=not changed,changed=changed)
+save(ROOT/(name+'_status.json'),result);print(json.dumps(result),flush=True)
+raise SystemExit(code or bool(changed))

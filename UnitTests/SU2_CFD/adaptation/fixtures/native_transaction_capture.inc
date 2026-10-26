@@ -362,10 +362,15 @@ TEST_CASE("Saved native transaction construction replay", "[.][NativeTransaction
     if(surface_placement || boundary_optimizer) {
       std::set<Face> physical;
       for(auto f:first->old.surface){std::sort(f.v.begin(),f.v.end());physical.insert(f.v);}
-      std::vector<Face> expected;
-      for(auto f:Incidence(first->old.cells).Boundary()){auto key=f;std::sort(key.begin(),key.end());if(!physical.count(key))expected.push_back(f);}
-      for(auto f:repaired.surface)expected.push_back(f.v);
-      std::sort(expected.begin(),expected.end(),[](Face a,Face b){std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());return a<b;});
+      std::map<Face,Face> expected_by_key;
+      for(auto f:Incidence(first->old.cells).Boundary()) {
+        auto key=f;std::sort(key.begin(),key.end());if(!physical.count(key))expected_by_key.emplace(key,f);
+      }
+      for(auto f:repaired.surface) {
+        std::rotate(f.v.begin(),std::min_element(f.v.begin(),f.v.end()),f.v.end());
+        auto key=f.v;std::sort(key.begin(),key.end());expected_by_key.emplace(key,f.v);
+      }
+      std::vector<Face> expected;for(const auto& face:expected_by_key)expected.push_back(face.second);
       interface=ValidatePrescribedInterface(first->old.cells,repaired.cells,expected,reason,nullptr,MaximumReplacementCells);
     } else interface=ValidateFixedInterface(first->fresh.cells,repaired.cells,reason,nullptr,MaximumReplacementCells);
     const auto before_geometry=TransactionSurfaceExcess(first->old,*capture.reference,tolerance);

@@ -135,7 +135,7 @@ inline bool CavityFirstChild(State& s,Rows10& rows,Id cell,const Face& key,std::
       ids.assign(in.begin(),in.end());try{old=PatchOf(s,ids);}catch(const std::exception& x){why=x.what();break;}
       fresh=Patch{};fresh.surface=old.surface;fresh.parameters=old.parameters;
       try{if(!Cone(old.cells,{s.next_node,p},s.next_cell,fresh.cells,why))break;s.reference->ExportParameters(fresh);}catch(const std::exception& x){why=x.what();break;}
-      std::vector<Face> thin;for(const auto& c:fresh.cells)if(!Positive(c.v) || (GetShapeAdmission()!=ShapeAdmission::ValidityOnly && !Valid(Shape(s,c)))){Face f{};unsigned k=0;for(auto nn:c.v)if(nn.id!=s.next_node&&k<3)f[k++]=nn.id;thin.push_back(f);}
+      std::vector<Face> thin;for(const auto& c:fresh.cells)if(!Positive(c.v) || (GetShapeAdmission()!=ShapeAdmission::ValidityOnly && Invalid(Shape(s,c)))){Face f{};unsigned k=0;for(auto nn:c.v)if(nn.id!=s.next_node&&k<3)f[k++]=nn.id;thin.push_back(f);}
       if(thin.empty()){built=true;break;}
       if(widen==8){why="cone cells stay invalid after widening";break;}
       bool grew=false;

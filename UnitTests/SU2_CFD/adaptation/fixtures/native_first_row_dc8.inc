@@ -925,6 +925,7 @@ Decision Admit8(State& s,const Patch& old,const Patch& fresh,Kind kind) {
     before=MeasureMetricCells(old.cells,*s.field,nullptr,&reuse,false);StoreLengths(s,before);}
   catch(const std::exception& e){base.category=5;base.reason=e.what();return base;}
   base.q_old=before.minimum_mean_ratio;base.J_old=before.minimum_scaled_jacobian;base.q_new=after.minimum_mean_ratio;base.J_new=after.minimum_scaled_jacobian;
+  base.shape_measured=true;base.first_q=base.first_J=base.other_q=base.other_J=1;
   for(const auto& c:fresh.cells){const auto sh=ShapeOf(s,c);
     if(IsFirstChild(s,fresh,c)){base.first_q=std::min(base.first_q,sh.q);base.first_J=std::min(base.first_J,sh.J);}
     else{base.other_q=std::min(base.other_q,sh.q);base.other_J=std::min(base.other_J,sh.J);}}

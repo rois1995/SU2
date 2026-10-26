@@ -397,6 +397,14 @@ bool CheckFirstHeight(const Patch& patch,const WallHeights& heights,const Planar
 }
 
 namespace {
+bool AdmitFirstHeight(const Patch& patch,const WallHeights& heights,const PlanarReference& reference,
+                      FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr) {
+  if(CheckFirstHeight(patch,heights,reference,report,reason,stats))return true;
+  // Private construction/repair may owe height or footprint quality, never geometric clearance.
+  if(GetShapeAdmission()==ShapeAdmission::ValidityOnly && report.measured &&
+      !report.missing_cells && !report.reference_clearance_failures){reason.clear();return true;}
+  return false;
+}
 bool CarveFirstLayer(const Patch& old,const Node* background,Id first_wall_node,Id first_cell,
                          const WallHeights& heights,const PlanarReference& base_reference,
                          Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats) {
@@ -463,7 +471,7 @@ bool CarveFirstLayer(const Patch& old,const Node* background,Id first_wall_node,
       for(size_t k=0;k<proposal.cells.size();++k)proposal.cells[k].id=first_cell+k;
     }
     Finish(old,proposal,skin,physical,reference,stats);
-    if(!CheckFirstHeight(proposal,heights,reference,report,reason,stats))throw std::invalid_argument(reason);
+    if(!AdmitFirstHeight(proposal,heights,reference,report,reason,stats))throw std::invalid_argument(reason);
     fresh=std::move(proposal);reason.clear();return true;
   }catch(const std::exception& error){reason=error.what();return false;}
 }
@@ -1609,7 +1617,7 @@ bool SplitHeightStar(Patch& patch,Id vertex,const std::array<Node,2>& points,
         for(auto p:descendants[side]) {
           Patch single;single.cells={cell({Node{points[side].id,p},v[0],v[1],v[2]})};single.surface={wall->second};
           FirstHeightReport height;std::string rejected;
-          if(CheckFirstHeight(single,heights,reference,height,rejected)){allowed=true;break;}
+          if(AdmitFirstHeight(single,heights,reference,height,rejected)){allowed=true;break;}
         }
       }
       // Source side is label0; selecting label0 cuts i->sink and selecting label1 cuts source->i.
@@ -1696,7 +1704,7 @@ bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cel
     for(const auto& face:skin)if(Has(face.second,vertex))
       throw std::invalid_argument("Native3D height reconstruction needs a complete interior vertex star.");
     FirstHeightReport height;
-    if(!CheckFirstHeight(old,heights,reference,height,reason))throw std::invalid_argument(reason);
+    if(!AdmitFirstHeight(old,heights,reference,height,reason))throw std::invalid_argument(reason);
     std::map<Edge,unsigned> border;std::vector<SurfaceFace> walls;
     for(const auto& entry:physical)if(heights.count(reference.Get(entry.second.facet).marker)) {
       const auto& face=entry.second;
@@ -1766,7 +1774,7 @@ bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cel
         ++report.trials;++report.connectivity_trials;SplitHeightStar(proposal,first_node+1,{{{first_node+4,leaves[2]},{first_node+5,leaves[3]}}},
             {{{leaves[2]},{leaves[3]}}},first_cell,reference,heights,reason);
         proposal.surface.clear();Finish(old,proposal,skin,physical,reference,nullptr);
-        if(!CheckFirstHeight(proposal,heights,reference,height,reason)){++report.height_rejected;continue;}
+        if(!AdmitFirstHeight(proposal,heights,reference,height,reason)){++report.height_rejected;continue;}
         report.best=proposal;
         fresh=std::move(proposal);reason.clear();return true;
       }catch(const std::exception& error){++report.geometry_rejected;reason=error.what();}
@@ -1805,7 +1813,7 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
         ++report.geometry_rejected;return false;
       }
       FirstHeightReport height;
-      if(!CheckFirstHeight(proposal,heights,reference,height,reason)){++report.height_rejected;return false;}
+      if(!AdmitFirstHeight(proposal,heights,reference,height,reason)){++report.height_rejected;return false;}
       report.best=std::move(proposal);
       fresh=report.best;
       reason.clear();
@@ -1917,8 +1925,8 @@ bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first
     Bounds(old);Endpoints(edge);FirstHeightReport height;
     const Incidence index(old.cells,stats);const auto old_skin=index.Boundary();
     ValidateSurfaceTopology(old_skin,true,4*MaximumReplacementCells,&obstruction);
-    if(heights.empty() || !CheckFirstHeight(old,heights,reference,height,reason,stats))
-      throw std::invalid_argument("Native3D wall refit needs an admissible prescribed-height input: "+reason);
+    if(heights.empty() || !AdmitFirstHeight(old,heights,reference,height,reason,stats))
+      throw std::invalid_argument("Native3D wall refit needs a geometrically admissible wall input: "+reason);
     std::set<Id> apices;
     for(const auto& face:old.surface)if(Has(face.v,edge[0]) && Has(face.v,edge[1]) && heights.count(reference.Get(face.facet).marker))
       for(const auto& c:old.cells) {
@@ -1989,7 +1997,7 @@ bool RefitWallSplit(const Patch& old,Edge edge,Node point,Id first_apex,Id first
       RestorePatchPoints(proposal,wanted,first,reason,stats);
     }
     proposal.surface.clear();Finish(old,proposal,skin,physical,reference,stats);
-    if(!CheckFirstHeight(proposal,heights,reference,height,reason,stats))throw std::invalid_argument(reason);
+    if(!AdmitFirstHeight(proposal,heights,reference,height,reason,stats))throw std::invalid_argument(reason);
     fresh=std::move(proposal);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
@@ -2004,8 +2012,8 @@ bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_no
     if(!std::isfinite(surface_tolerance) || surface_tolerance<0)
       throw std::invalid_argument("Native3D coupled wall split has an invalid surface tolerance.");
     FirstHeightReport height;
-    if(heights.empty() || !CheckFirstHeight(old,heights,reference,height,reason,stats))
-      throw std::invalid_argument("Native3D retained wall split needs an admissible prescribed-height input: "+reason);
+    if(heights.empty() || !AdmitFirstHeight(old,heights,reference,height,reason,stats))
+      throw std::invalid_argument("Native3D retained wall split needs a geometrically admissible wall input: "+reason);
     Patch proposal;
     if(!SplitSurfaceStrip(old,edge,point,{},first,reference,proposal,reason,stats))throw std::invalid_argument(reason);
     size_t perimeter_points=0;
@@ -2113,7 +2121,7 @@ bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_no
       protected_faces.insert(Key(face.v));
     }
     proposal.surface.clear();Finish(old,proposal,skin,physical,reference,stats);
-    if(!CheckFirstHeight(proposal,heights,reference,height,reason,stats))throw std::invalid_argument(reason);
+    if(!AdmitFirstHeight(proposal,heights,reference,height,reason,stats))throw std::invalid_argument(reason);
     fresh=std::move(proposal);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
@@ -2232,7 +2240,7 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
       RestorePatchPoints(proposal,nodes,first,reason,stats);
       proposal.surface.clear();
       Finish(old,proposal,skin,physical,reference,stats);
-      if(!CheckFirstHeight(proposal,heights,reference,report,reason,stats))throw std::invalid_argument(reason);
+      if(!AdmitFirstHeight(proposal,heights,reference,report,reason,stats))throw std::invalid_argument(reason);
     }
     fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);reason.clear();return true;
   }catch(const std::exception& e){if(wallObstruction!=Face{})obstruction=wallObstruction;reason=e.what();return false;}
@@ -2414,7 +2422,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
       throw std::invalid_argument("Native3D private connectivity repair exceeds its cell/trial bound.");
     const auto skin=SkinMap(Incidence(old.cells).Boundary());CheckSurface(old,skin,reference,nullptr);
     FirstHeightReport height;
-    if(!CheckFirstHeight(old,heights,reference,height,reason))throw std::invalid_argument(reason);
+    if(!AdmitFirstHeight(old,heights,reference,height,reason))throw std::invalid_argument(reason);
     Patch working=old;
     std::map<std::array<Id,4>,double> losses;
     // The loss of one cell is a function of its ordered vertex coordinates only (frozen target): `measured` keeps it
@@ -2461,7 +2469,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
           for(auto& c:proposal.cells)for(auto& n:c.v)if(points.count(n.id))n.p=points.at(n.id);
           std::string rejected;
           if(!ValidateFixedInterface(working.cells,proposal.cells,rejected,topology,MaximumReplacementCells)){++report.move_geometry_rejected;continue;}
-          if(!CheckFirstHeight(proposal,heights,reference,height,rejected)){++report.move_height_rejected;continue;}
+          if(!AdmitFirstHeight(proposal,heights,reference,height,rejected)){++report.move_height_rejected;continue;}
           losses.clear();double after=0;
           try{after=total(proposal.cells);}catch(const std::exception&){losses.clear();++report.move_loss_rejected;continue;}
           if(!(after==0 || after<report.after_loss*(1-1e-8)-1e-14)){losses.clear();++report.move_loss_rejected;continue;}
@@ -2508,7 +2516,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
           if(proposal.cells.empty() || first>UINT64_MAX-(proposal.cells.size()-1))continue;
           for(size_t i=0;i<proposal.cells.size();++i)proposal.cells[i].id=first+i;
           if(!ValidateFixedInterface(working.cells,proposal.cells,rejected,topology,MaximumReplacementCells) ||
-             !CheckFirstHeight(proposal,heights,reference,height,rejected))continue;
+             !AdmitFirstHeight(proposal,heights,reference,height,rejected))continue;
           working=std::move(proposal);rejected_states.clear();++report.removals;
           report.after_loss=total(working.cells);changed=true;break;
         }
@@ -2545,7 +2553,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
         proposal.cells.insert(proposal.cells.end(),replacement.begin(),replacement.end());
         if(proposal.cells.size()>MaximumReplacementCells || first>UINT64_MAX-(proposal.cells.size()-1))return false;
         for(size_t i=0;i<proposal.cells.size();++i)proposal.cells[i].id=first+i;
-        if(!CheckFirstHeight(proposal,heights,reference,height,rejected))return false;
+        if(!AdmitFirstHeight(proposal,heights,reference,height,rejected))return false;
         rejected_states.erase(key);
         working=std::move(proposal);++report.flips;report.after_loss=total(working.cells);return true;
       };
@@ -2596,7 +2604,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
           for(auto& c:proposal.cells)for(auto& n:c.v){const auto found=moved.find(n.id);if(found!=moved.end())n.p=found->second;}
           std::string rejected;
           if(!ValidateFixedInterface(old.cells,proposal.cells,rejected,topology,MaximumReplacementCells)){++report.move_geometry_rejected;continue;}
-          if(!CheckFirstHeight(proposal,heights,reference,height,rejected)){++report.move_height_rejected;continue;}
+          if(!AdmitFirstHeight(proposal,heights,reference,height,rejected)){++report.move_height_rejected;continue;}
           losses.clear();double after=0;
           try {after=total(proposal.cells);}catch(const std::exception&){losses.clear();++report.move_loss_rejected;continue;}
           if(!(after<report.after_loss*(1-1e-8)-1e-14)){losses.clear();++report.move_loss_rejected;continue;}
@@ -2642,7 +2650,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
             if(proposal.cells.size()>MaximumReplacementCells || first>UINT64_MAX-(proposal.cells.size()-1)){losses.clear();++report.move_geometry_rejected;continue;}
             // Retained cells already use the caller range: renumber before incidence/height validation.
             for(size_t i=0;i<proposal.cells.size();++i)proposal.cells[i].id=first+i;
-            if(!CheckFirstHeight(proposal,heights,reference,height,rejected)){losses.clear();++report.move_height_rejected;continue;}
+            if(!AdmitFirstHeight(proposal,heights,reference,height,rejected)){losses.clear();++report.move_height_rejected;continue;}
             working=std::move(proposal);losses.clear();rejected_states.clear();++report.moves;++report.vertex_moves;
             report.after_loss=total(working.cells);changed=true;break;
           }

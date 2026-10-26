@@ -7,22 +7,27 @@ Updated: 2026-10-26. Detailed failures and provenance remain linked below.
 
 **DC-17 and DC-18 remain open. No full M6 adaptation has passed final acceptance.**
 
-Active implementation remains unvalidated. The first connected build passed, but
-the captured M6 midpoint test made0 moves in24 trials (0.033s). Debugging the unchanged
-binary identified the monotonic approximation-error veto. The next connected
-revision permits quality/refinement to exchange remaining geometric deficits,
-tracks measured first-height/footprint deficits in optimization and adds requested-
-altitude proposals. Strict final acceptance and hard geometry validity remain.
-Physical bindings/parameters and feature-keyed concurrent repair are connected.
-See [staged implementation](Handbook/STAGED_NATIVE_ADAPTATION.md). Curved chart
-mobility and complete M6 acceptance remain open. Latest pushed: `6cf0dcedfd` (WIP). Build3/session10140 passed; subsequent
-stage-separation edits are unvalidated. Integrated build5/session20546 is running
-with933 pinned source/build inputs, including .inl/.inc files. Construction now separates edge guidance
-from q/J sampling; FIRST_ROW handoff and no-progress stage coordination are
-implemented and awaiting validation. No final acceptance claim. External-SSD reference inputs are copied
-locally and hash-verified: [archive record](Handbook/ADAPTATION_REFERENCE_INPUTS.md).
+Validity-first construction, explicit shape-unavailable records, FIRST_ROW handoff,
+measured provisional height admission and useful quality passes are implemented.
+Build8 passes with all933 source/build pins unchanged. The saved M6 offline3
+repair passes strict q/J/edge, prescribed interface and external contact: q=.2446273,
+J=.0532005,edge=1.5983623 after1 move/12 trials. It still owes surface approximation;
+this is a LOCAL repair witness, never full-mesh acceptance.
 
-Validation54 passes the full six-worker flat and cubic Euler/RANS workflows,
+Focused serial passes23/24 cases (3345/3361 assertions). Direct optimizer height
+recovery and private height admission pass. Only the multi-star fixture reaches
+its112-round test cap before all stars finish; its strict q/J assertions remain.
+The current revision also restores Coarsen's short-edge sweep after productive quality
+passes: quality can create new short edges. Production budgets remain unchanged.
+Build9/session76705 is active with sources frozen, linking tests and the full CFD
+driver. The new roof regression requires quality repair followed by a resumed
+collapse sweep and strict final acceptance.
+See [staged implementation](Handbook/STAGED_NATIVE_ADAPTATION.md). Curved chart
+mobility, distributed qualification and accepted full M6 remain open.
+Latest pushed: `36de990633` (WIP). External-SSD references are copied locally and
+hash-verified: [archive record](Handbook/ADAPTATION_REFERENCE_INPUTS.md).
+
+Validation54 is historical evidence predating the current code. Validation54 passes the full six-worker flat and cubic Euler/RANS workflows,
 including conservative BDF2 transfer and SU2/CGNS reload. All 11 selected cases
 pass on every rank. The curved workflow uses 1,975 of 4,096 work units: 1,750 for
 refinement and 225 for coarsening. The flat workflow uses 105 total. Full demand

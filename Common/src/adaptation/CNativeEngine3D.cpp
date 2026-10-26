@@ -133,9 +133,9 @@ class Selection {
       std::swap(edge[0],edge[1]);
     }
   }
-  size_t invalid = 0, construction_invalid = 0, unmeasured_shape = 0, repair_bytes = 0;
+  size_t invalid = 0, construction_invalid = 0, quality_invalid = 0, unmeasured_shape = 0, repair_bytes = 0;
   struct EdgeState { EdgeMeasure measure; size_t users = 0; std::array<size_t,2> forbidden{}; };
-  struct CellState { std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{}; std::array<Id,4> vertices{}; std::array<long double,6> geometry_scores{}; bool valid = false,target_valid=false,geometry_invalid=false,construction_valid=false,shape_measured=false; };
+  struct CellState { std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{}; std::array<Id,4> vertices{}; std::array<long double,6> geometry_scores{}; bool valid = false,target_valid=false,geometry_invalid=false,construction_valid=false,quality_valid=false,shape_measured=false; };
   std::map<Id,CellState> cells;
   std::map<Edge,EdgeState> edges;
   std::set<std::pair<long double,Edge>> queue;
@@ -283,6 +283,7 @@ class Selection {
     if (found==cells.end()) throw std::logic_error("Missing native 3D cached cell removal.");
     invalid -= !found->second.valid;
     construction_invalid -= !found->second.construction_valid;
+    quality_invalid -= !found->second.quality_valid;
     unmeasured_shape -= !found->second.shape_measured;
     for(size_t i=0;i<6;++i)geometry_queue.erase({-found->second.geometry_scores[i],id,found->second.edges[i]});
     for (Id vertex:found->second.vertices) {
@@ -334,11 +335,11 @@ class Selection {
     }
     return blocked;
   }
-  void Add(const OwnedCell& owned, const PatchMetric& metric, bool valid, const std::string& reason) {
+  void Add(const OwnedCell& owned, const PatchMetric& metric, bool valid, bool quality_valid, const std::string& reason) {
     const auto& cell=owned.cell;
     if (metric.edges.size()!=6 || !std::isfinite(metric.maximum_length))
       throw std::runtime_error(reason.empty()?"Incomplete native 3D initial/updated metric measurement.":reason);
-    CellState row; row.valid=row.target_valid=valid;row.shape_measured=metric.shape_measured;
+    CellState row; row.valid=row.target_valid=valid;row.shape_measured=metric.shape_measured;row.quality_valid=quality_valid;
     row.construction_valid=metric.maximum_length<=MaximumMetricEdge;
     std::map<Edge,long double> geometry_scores;
     if (!geometry.ExtensionComponents().empty()) {
@@ -402,6 +403,7 @@ class Selection {
     if (!inserted.second) throw std::logic_error("Duplicate native 3D cached cell.");
     invalid += !inserted.first->second.valid;
     construction_invalid += !inserted.first->second.construction_valid;
+    quality_invalid += !inserted.first->second.quality_valid;
     unmeasured_shape += !inserted.first->second.shape_measured;
     if (track_repairs && !inserted.first->second.valid) AddRepairs(cell);
   }
@@ -417,7 +419,7 @@ class Selection {
   void Reset(bool improvement) {
     cells.clear();edges.clear();queue.clear();geometry_queue.clear();vertex_cells.clear();blocked_edges.clear();
     cell_repairs.clear();repair_users.clear();repair_queue.clear();
-    invalid=construction_invalid=unmeasured_shape=repair_bytes=vertex_links=blocked_links=0;
+    invalid=construction_invalid=quality_invalid=unmeasured_shape=repair_bytes=vertex_links=blocked_links=0;
     track_repairs=repair_event=improvement;prune_collapses=false;
   }
 };
@@ -1300,7 +1302,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           std::string reason;
           MetricStats counted;
           const auto& cell=working.at(ids[i]).cell;
-          bool strict=false;
+          bool strict=false,quality_valid=false;
           if(phase==Phase::Construction) {
             metric=MeasureMetricEdges({cell},field,&counted,&reuse,&campaign_edges);
             strict=metric.maximum_length<=MaximumMetricEdge;
@@ -1309,9 +1311,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             std::string height_reason;
             const bool height_valid=height_check(GeometryPatch(Imported{{working.at(ids[i])},true,{}}, &geometry),height_reason);
             if(!height_valid)reason=height_reason;
+            quality_valid=metric.shape_measured && std::isfinite(metric.minimum_mean_ratio) && std::isfinite(metric.minimum_scaled_jacobian) &&
+                metric.minimum_mean_ratio>=MinimumMeanRatio &&
+                metric.minimum_scaled_jacobian>=MinimumScaledJacobian && height_valid;
             strict=metric_valid && height_valid;
           }
-          selection.Add(working.at(ids[i]),metric,strict,reason);
+          selection.Add(working.at(ids[i]),metric,strict,quality_valid,reason);
           for(const auto& edge:metric.edges)reuse.insert_or_assign(edge.first,edge.second);
           stats.edge_evaluations+=counted.edge_evaluations;
           stats.edge_reused+=counted.edge_reused;
@@ -1397,7 +1402,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     if (!ready) return finish();
     if(refill) {ready=seed_next();if(!ready)return finish();continue;}
-    if(phase==Phase::Improvement && world.maximum(improvement_changed) && world.maximum(selection.construction_invalid!=0)) {
+    // Amortize the strict census over a useful repair pass before retrying outstanding construction.
+    if(phase==Phase::Improvement && world.maximum(improvement_changed) && (coarsening || world.maximum(selection.construction_invalid!=0)) &&
+        (!world.maximum(selection.quality_invalid!=0) || !any)) {
       if(!enter_phase(Phase::Construction))return finish();
       continue;
     }
@@ -1412,7 +1419,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         return finish();
       }
     }
-    if (complete && phase==Phase::Improvement && !world.maximum(selection.unmeasured_shape!=0)) {
+    if (complete && phase==Phase::Improvement && !world.maximum(selection.unmeasured_shape!=0 || selection.quality_invalid!=0 || selection.construction_invalid!=0)) {
       result.valid=true;result.reason.clear();return finish();
     }
     {
@@ -3103,7 +3110,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     Timer timer(stats.completion_seconds,options.timings);
     const int incomplete=world.maximum(selection.cells.size()!=working.size() ? 3 :
         (selection.invalid ? 2 : (coarsening && !selection.queue.empty() ? 1 : 0)));
-    result.valid=phase==Phase::Improvement && incomplete==0 && !world.maximum(selection.unmeasured_shape!=0);
+    result.valid=phase==Phase::Improvement && incomplete==0 && !world.maximum(selection.unmeasured_shape!=0 || selection.quality_invalid!=0 ||
+        selection.construction_invalid!=0 || (coarsening && improvement_changed));
     stats.stop=result.valid ? EngineStop::Complete : EngineStop::RoundBudget;
     if (incomplete==1)
       result.reason="Native 3D coarsening round limit reached with valid cached metric cells and pending collapse candidates.";
@@ -3111,7 +3119,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       result.reason="Native 3D adaptation round limit reached before cached metric size/shape gates were satisfied.";
     else if (incomplete==3)
       result.reason="Native 3D adaptation round limit reached with incomplete metric-cell measurements.";
-    else if(!result.valid)result.reason="Native 3D adaptation round limit reached before strict quality-stage census.";
+    else if(!result.valid)result.reason="Native 3D adaptation round limit reached before strict quality/coarsening completion.";
     else result.reason.clear();
   }
   return finish();

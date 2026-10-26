@@ -1,0 +1,22 @@
+{
+  "build": "build8",
+  "case": "serial",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeStagedConstruction3D],[NativeConstructionHandoff3D],[NativeShapeAdmission3D],[NativeFirstLayer3D],[NativeOptimize3D],[NativeJointGeometry3D],[NativeInteriorPlacement3D],[NativeConcurrentRepair3D],[NativeQualityPass3D],[NativeHeightOptimization3D]"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "timeout_seconds": 600
+}

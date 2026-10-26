@@ -15,12 +15,18 @@ operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexit
 (not tet-count), geometry, conservative transfer and restart. Curvature uses
 ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
 
-ACTIVE: integrated build5/session20546 is running with one low-priority worker.
-933 source/build files are pinned, now explicitly including .inl/.inc inputs.
-No source edits while this job or its validation campaign runs. Build3/session10140
-passed before the new stage-separation changes; current changes are unvalidated.
-Agents have released construction, FIRST_ROW handoff and phase coordination changes.
-The external-SSD reference files are copied and hash-verified locally; see below.
+ACTIVE: build9/session76705 is running; all sources/helpers frozen. It links both
+test_driver and SU2_CFD. Build8/session57428 passed (396.46s), all933
+pins unchanged. Offline3/session76089 passes the saved M6 LOCAL repair:1 move,
+12 trials, q=.2446273,J=.0532005,edge=1.5983623; prescribed interface/contact and
+metric gates pass. Surface approximation remains provisional debt; not a full mesh.
+Serial/session77808 passes23/24 cases. Only the new multi-star quality-pass fixture
+hits its112-round cap before all stars finish. Direct height recovery and provisional
+height admission pass. The current revision restores Coarsen's short-edge sweep
+after productive quality passes and fixes that test allowance (production unchanged).
+Then build both test_driver and SU2_CFD, run focused distributed checks and full M6.
+All failures/receipts remain in staged57 and its linked handbook.
+External-SSD reference files are copied and hash-verified locally; see below.
 
 LATEST USER STEERING: construction must not measure/rank q/J or require shape
 progress. J>=.001 is also a quality gate, not geometric validity. Construction
@@ -37,10 +43,13 @@ deficits to construction. No-progress phase bouncing must reject, not loop.
 The saved M6 midpoint test previously made0 moves in24 trials because of a monotonic
 surface-error veto, not a budget. The revision permits provisional approximation
 error debt while retaining geometry membership/contact and strict final acceptance.
-No new numerical validation yet. Curved cross-chart movement and full M6 acceptance
+Useful quality passes now amortize censuses; shared internal height admissions
+allow measured provisional deficits while retaining geometric clearance.
+Curved cross-chart movement and full M6 acceptance
 remain open. Follow [connected scope](Handbook/STAGED_NATIVE_ADAPTATION.md).
 
-Latest pushed checkpoint6cf0dcedfd saves the unvalidated connected implementation
+Latest pushed checkpoint36de990633 saves the unvalidated explicit construction/improvement stages;
+checkpoint6cf0dcedfd saves the earlier connected implementation
 and the diagnosed M6 quality-stage refusal; d9e840ba35 holds the earlier LOCAL witness. All26 original calls/11 shape refusals replay exactly;
 this is diagnosis, not full-mesh acceptance. Details:
 [transaction replay](Handbook/M6_TRANSACTION_REPLAY.md) and
@@ -72,7 +81,7 @@ integration_evidence/build-integrated-v2/compile-tmp. Preserve terminal receipts
 source/runtime/input hashes. Build initial50 log/pins preserved separately.
 
 User explicitly approved pushes to rois1995/SU2 branch codex/native-3d-bl.
-Approval persists; no destination question is needed. Latest pushed6cf0dcedfd (WIP); build3 session10140 is terminal/pass.
+Approval persists; no destination question is needed. Latest pushed36de990633 (WIP); build9/session76705 is active; prior owned handles are terminal.
 TODO intentionally untracked; progress companion tracked. Leave unrelated dc11/dc15
 logs and untracked planning files alone. Git status needs --ignore-submodules.
 [AGENTS.md](AGENTS.md) holds permanent cadence/architecture/resource instructions.

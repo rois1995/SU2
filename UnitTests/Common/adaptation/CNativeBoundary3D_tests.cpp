@@ -1907,6 +1907,30 @@ TEST_CASE("D1 features are never smoothed: a crease point slides only along its 
   CHECK_FALSE(reference.ContainsFace(1,spanning));CHECK_FALSE(reference.ContainsFace(2,spanning));
 }
 
+TEST_CASE("Native wall construction carries height debt without certifying final acceptance", "[NativeFirstLayer3D]") {
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+  const auto old=Cube();const auto saved=Connectivity(old);const PlanarReference reference(Facets(old));
+  WallHeights heights;
+  for(const auto& f:Facets(old))if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
+  REQUIRE_FALSE(heights.empty());
+  std::vector<DonorCell> donors;
+  for(const auto& c:old.cells){DonorCell donor;donor.cell=c;donor.sensor.fill(Tensor{});donors.push_back(donor);}
+  FrozenField field(donors);Patch fresh;JointSplitReport report;std::string reason;
+  SetShapeAdmission(ShapeAdmission::Absolute);
+  CHECK_FALSE(PlaceSplitPatch(old,{0,2},{100,{.5,.5,0}},{},1000,field,reference,heights,fresh,report,reason));
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  REQUIRE(PlaceSplitPatch(old,{0,2},{100,{.5,.5,0}},{},1000,field,reference,heights,fresh,report,reason));
+  for(const auto& c:fresh.cells)CHECK(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0);
+  FirstHeightReport height;
+  CHECK_FALSE(CheckFirstHeight(fresh,heights,reference,height,reason));
+  CHECK(height.measured);CHECK(height.height_failures>0);CHECK(height.missing_cells==0);
+  CHECK(height.reference_clearance_failures==0);CHECK(Connectivity(old)==saved);
+  auto invalid=heights;invalid.begin()->second=std::numeric_limits<double>::quiet_NaN();
+  const auto retained=Connectivity(fresh);
+  CHECK_FALSE(PlaceSplitPatch(old,{0,2},{100,{.5,.5,0}},{},1000,field,reference,invalid,fresh,report,reason));
+  CHECK(Connectivity(fresh)==retained);
+}
+
 TEST_CASE("Native3D first-height tolerance is inclusive at dyadic and computed bounds", "[NativeFirstLayer3D]") {
   // One wall child: base in z=0 (unit cross product), apex (.25,.25,z) inside the face; altitude is exactly z.
   auto child=[](double z) {

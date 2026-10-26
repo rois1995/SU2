@@ -270,13 +270,23 @@ inline LTx LayerTransaction(State& s,const std::function<bool(Id)>& below,const 
     for(const auto& c:old.cells){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)ka=CellKey(c);}
     for(const auto& c:fresh){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)kb=CellKey(c);}
     if(ka!=kb){tx.cls="invariant";tx.witness="the lift would change a first child";return tx;}}
-  // D.2: a wall face of the cavity keeps a passing first child (height T and validity)
+  // D.2 preserves a unique positive first child and certified clearance. In ValidityOnly,
+  // requested-height tolerance is provisional; strict legacy diagnostics retain HeightT.
   for(const auto& sf:out.surface){if(!s.walls.count(markerOf(sf.facet)))continue;const auto key=Sorted(sf.v);
     Patch before,after;for(const auto& c:old.cells){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)before.cells.push_back(c);}
     for(const auto& c:fresh){unsigned k=0;for(auto n:c.v)k+=Has(key,n.id);if(k==3)after.cells.push_back(c);}
     before.surface=after.surface={sf};before.parameters=old.parameters;after.parameters=out.parameters;
-    std::string w0,w1;const bool was=before.cells.size()==1&&HeightT(s,before,w0)&&Orientation(before.cells.front().v[0].p,before.cells.front().v[1].p,before.cells.front().v[2].p,before.cells.front().v[3].p)>0;
-    if(was&&!(after.cells.size()==1&&HeightT(s,after,w1)&&Orientation(after.cells.front().v[0].p,after.cells.front().v[1].p,after.cells.front().v[2].p,after.cells.front().v[3].p)>0)){tx.cls="invariant";tx.witness="a wall face loses its passing first child";return tx;}}
+    std::string w0,w1;
+    const auto height_ok=[&](const Patch& child,std::string& witness) {
+      if(child.cells.size()!=1)return false;
+      const bool measured=validityOnlyConstruction
+          ? HeightConstruct(child,s.heights,*s.reference,nullptr,&witness)
+          : HeightT(s,child,witness);
+      const auto& c=child.cells.front();
+      return measured&&Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0;
+    };
+    const bool was=height_ok(before,w0);
+    if(was&&!height_ok(after,w1)){tx.cls="invariant";tx.witness="a wall face loses its passing geometric first child";return tx;}}
   for(const auto& c:fresh)if(!(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0)){tx.cls="validity";tx.witness="fresh cell has nonpositive exact orientation";return tx;}
   tx.fresh=std::move(out);tx.ok=true;return tx;
 }

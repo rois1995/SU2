@@ -40,7 +40,7 @@ ladder. Use this saved state to test the quality stage after a valid midpoint sp
 
 ## Connected implementation scope
 
-1. **Geometry mobility.** Reuse MoveVertex and forward boundary bindings. Distinguish
+1. **Geometry mobility.** See the [cross-chart diagnosis and certificate design](CURVED_BOUNDARY_MOBILITY.md). Reuse MoveVertex and forward boundary bindings. Distinguish
    actual physical corners/creases from original mesh-chart boundaries. New points
    can already move within their finite support; original mapped vertices currently
    have dimension0 bindings and are pinned. Curved facet-local authority also treats
@@ -142,5 +142,82 @@ opportunity; no speedup is established yet.
 
 Build4/session95149 stopped on a long-double/double `std::min` type mismatch in
 regional geometric junction placement (72.1s, pins unchanged). Corrected the explicit
-comparison type; build5/session20546 is running with933 pinned inputs. No numerical
-validation yet. Build receipts stay under `staged57`.
+comparison type. Build5/session20546 then compiled the shared adaptation sources
+but stopped on FIRST_ROW helper API errors (288.4s, pins unchanged). Restored the
+legacy diagnostic admission implementation and corrected the stale helper call;
+build6/session5459 is running with933 pinned inputs. No numerical validation yet.
+Build receipts stay under `staged57`.
+
+Read-only review during build6 confirms the final census rejects unknown/nonfinite
+shape and finds no reachable production construction q/J or .001 floor. Remaining
+height-policy gaps: BLGrowth12 D2 preserves a prior passing requested-height child
+using strict HeightT; some shared wall constructors internally reject strict
+CheckFirstHeight deficits before the engine can allow provisional height debt.
+Assess operator-specific row placement separately from these universal preservation
+vetoes. These findings are not closed by a successful compile or local Euler replay.
+
+Build6 passed (738.8s,933 pins unchanged). Offline2/session19070 terminal failure:
+optimizer moved the midpoint once in12 trials (0.00775s branch), then the diagnostic
+expected skin used uncanonical cyclic vertex rotations. `interface_analysis.json`
+independently decodes the old/candidate records: same8 face keys and same oriented
+faces after cyclic normalization;3 raw rotations differ. Production already performs
+that normalization. Test correction does not alter interface, metric or contact gates.
+Those latter gates were not reached; no accepted local repair claim yet.
+Focused serial/session67260:20/21 cases pass (2806/2810 assertions). Only the height
+variants of the interior-star fixture fail its movement-stat assertion: the first-row
+constructor already satisfies the final height and mesh gates without optimizer moves.
+All source pins remained unchanged. Next connected revision fixes these test contracts,
+tracks quality/height debt separately to amortize full censuses across productive
+repair passes, and removes universal intermediate height vetoes in shared constructors.
+
+The connected revision built successfully in build8/session57428 (396.46s, all933
+pins unchanged). General construction/repair admissions share a private height helper that
+permits fully measured height/footprint debt only under ValidityOnly; all missing
+child, partial-measurement and reference-clearance failures remain hard. Strict final
+CheckFirstHeight is unchanged. BLGrowth12 D2 uses the same existing provisional
+height contract. Separate cached quality/height debt keeps incremental repairs in
+one useful pass; return to construction requires actual publication and either no
+quality debt or exhausted repair work. Existing event bounds/final gates remain.
+New focused tests cover height-debt admission with strict final rejection, direct
+optimizer height recovery, and multiple repair rounds without repeatedly querying
+an untouched component's centroids. The multi-star test uses the existing per-star
+work allowance multiplied by its copies; production limits are unchanged.
+
+Build7 is terminal (198.3s, all933 pins unchanged): the saved-cavity fixture used
+a private `Key` helper outside its namespace. The fixture now sorts its local
+face key directly. Build8/session57428 rebuilds that fixture; production code
+and acceptance gates are unchanged by this compile correction.
+
+## Current qualification and next connected correction
+
+All build8 validation handles are terminal. `staged57/offline3` (session76089)
+passes in18.03s with unchanged pins and no caps. Its production boundary optimizer
+makes1 move in12 trials; q=.2446272866,J=.0532005356,edge=1.5983623161.
+Prescribed interface, transaction/final patch metric and external contact pass.
+Surface excess remains1.7747488435e-13, so `final_geometry=0` and
+`full_mesh_accepted=false`; it is only an accepted LOCAL provisional repair.
+Largest sampled individual process RSS921,788,416 bytes, not whole-job peak.
+
+Focused serial `cases/serial_20261026T181653_3818417` (session77808) is terminal:
+23/24 cases and3345/3361 assertions pass;6.38s, pins unchanged. The16 failures are
+q/J checks on eight partly repaired stars when that new fixture reaches its112-round
+cap. Direct optimizer height recovery, intermediate height admission and all prior
+selected cases pass. Its allowance will reuse128 rounds per star plus blocked-region
+work; production limits and strict assertions remain unchanged.
+
+Read-only stage review also found a completion obligation: Coarsen suppresses its
+short-edge queue during quality improvement, so a quality edit can create a short
+edge that never gets revisited. Return to construction after any productive Coarsen
+quality pass, even without upper-size/surface debt; the publication flag prevents
+zero-work bouncing. A roofed-box regression will require actual quality movement,
+resumed collapse and final strict acceptance. Build9 will also link SU2_CFD for the
+unchanged six-rank full M6 campaign; no accepted full M6 is claimed.
+
+Build9/session76705 is active, linking both UnitTests/test_driver and SU2_CFD.
+All933 compiled/source/build inputs are frozen. The Coarsen fix includes the
+round-cap completion path. Legacy diagnostic (inactive production path) full-shape
+minima now initialize after measurement; unknown records remain NaN. New run_m6.py
+requires a successful build receipt that explicitly includes the CFD target, verifies
+input/runtime provenance and cannot treat solver exit0 alone as native acceptance.
+Its acceptance parser self-check covers saved rejection, success, missing ranks,
+explicit rejection and solver failure. No full M6 job is running yet.
