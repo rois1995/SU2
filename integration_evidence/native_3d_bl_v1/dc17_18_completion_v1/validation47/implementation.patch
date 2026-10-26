@@ -1,0 +1,42 @@
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index ecf73ab605..5ae1e66ee5 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -431,13 +431,16 @@ struct HeightPolicyRow {
+   template<class S>void Fields(S& s){s(marker,height,growth,thickness);}
+ };
+ bool OptimizedRepairPatch(const Patch& old,Id first,const RegionMetric& target,
+-                          Patch& fresh,std::string& reason,size_t budget) {
++                          Patch& fresh,std::string& reason,size_t& work) {
+   Owned local;
+   for(auto c:old.cells){c.id=local.size();OwnedCell row;row.cell=c;local.emplace(c.id,row);}
+-  OptimizeOptions options;options.maximum_work=budget;options.cache_entries=8*MaximumReplacementCells;
++  OptimizeOptions options;options.maximum_work=work;options.cache_entries=8*MaximumReplacementCells;
+   options.boundary=options.smoothing=options.insertions=false;
+   OptimizeReport report;Id node=0,cell=local.size();
+-  if(!OptimizeMetricMesh(local,target,node,cell,options,report) || local.size()>MaximumReplacementCells)return false;
++  const bool changed=OptimizeMetricMesh(local,target,node,cell,options,report);
++  if(report.trials>work)throw std::logic_error("Native repair optimizer exceeded its work reservation.");
++  work=report.trials;
++  if(!changed || local.size()>MaximumReplacementCells)return false;
+   Patch proposal;proposal.surface=old.surface;
+   for(const auto& row:local){auto c=row.second.cell;c.id=first+proposal.cells.size();proposal.cells.push_back(c);}
+   if(!ValidateFixedInterface(old.cells,proposal.cells,reason))return false;
+@@ -1814,7 +1817,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+             if(!approved && repair_budget) {
+               repair_work=repair_budget;++stats.repair_proposals;++stats.optimization_trials;
+               {Timer geometry_timer(stats.reconstruction_seconds,options.timings);CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
+-                approved=guarded_geometry(OptimizedRepairPatch(old,first,RegionMetric(*field),fresh,result.reason,repair_budget));}
++                approved=guarded_geometry(OptimizedRepairPatch(old,first,RegionMetric(*field),fresh,result.reason,repair_work));}
+               if(approved)approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
+               if(approved){moved=false;++stats.optimization_validated;}
+             }
+@@ -2811,7 +2814,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+           FieldAccounting accounting{stats,proposal_field};
+           Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+           candidate=guarded_geometry(OptimizedRepairPatch(old,maximum_cell+1+offset,
+-              RegionMetric(proposal_field),fresh,result.reason,repair_budget));
++              RegionMetric(proposal_field),fresh,result.reason,repair_work));
+         }catch(const std::exception& e){failure.Set(2,0,e.what());}
+         if(!(ready=vote(failure)))return finish();
+         if(world.maximum(candidate)) {
