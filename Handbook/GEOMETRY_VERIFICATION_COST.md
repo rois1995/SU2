@@ -99,3 +99,14 @@ do not raise the limit or report a full-workflow milestone.
 Fresh six-rank M6 build46 is running without debugger attachment. Broader
 serial/MPI, independently resumable wide workflows and accepted M6/BL transfer/
 restart remain required. Pinned code and helpers stay unchanged during the run.
+
+Build46 raw captures independently decode60 cells/29 nodes/27 boundary points/
+50 faces, revision20, with zero explicit traces/covers in both variants. Build41
+had88/37/30/56, revision23 and likewise zero descriptors; these are different
+trajectories, not matched event costs. Exclusive work across the two physics runs
+and budget scopes totals129,734,316: BindingParameters34,218,138,
+EqualTraces29,909,348, CoverageTraces28,630,540, ValidateCoverage23,020,230.
+The remaining small-workflow failure therefore does not demonstrate renewed
+persisted descriptor growth. The reviewable implementation checkpoint is
+`6c067993cb`, pushed to the authorized fork/branch. No quality or resource gate
+was loosened. Detailed receipt: build46 mapped case `work_attribution.json`.
