@@ -24,17 +24,17 @@ and [curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md).
 ## Latest validation and next step
 
 
-Implementation in progress: stage existing-point relaxation before topology
+Build19/session53468 ACTIVE: existing-point relaxation before topology
 improvement/enrichment, with bounded shared work and accepted nested operation
 counts. M6 shard comparison found 3,215 new interior points, no removed or moved
 entry points, and unchanged physical bindings. All 947 commits were nested
-optimizer results, hidden by the old reconnected counter. This change is not yet
-built or validated and does not resolve cross-chart mobility.
+optimizer results, hidden by the old reconnected counter. Source and focused regressions are implemented; the one-worker build is active.
+All compiled C++/helpers are frozen. This does not resolve cross-chart mobility.
 
 Build18 M6 stage/session11197 is TERMINAL PASS:623.327s, pins unchanged, six
 complete rank shards and four quality windows; original donors unchanged. The
 diagnostic stop is private state, not exact continuation or final acceptance.
-No owned job remains live; all main C++/tests/helpers stayed pinned.
+The diagnostic job is terminal; build19 is the only live heavy job.
 Build18/session62205 PASS726.79s/933 unchanged pins. Focused serial stage_checks/
 session45262 PASS10.5101s,6 cases/4419 assertions,unchanged pins. Six-rank
 stage_checks6/session51405 PASS11.5294s,all pins unchanged. Host preflight saved

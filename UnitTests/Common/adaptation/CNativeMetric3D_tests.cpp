@@ -732,6 +732,24 @@ TEST_CASE("Native 3D optimizer: smoothing, collapse, frozen sets, skin and deter
    CHECK(OptimizeMetricMesh(mesh,target,nn,nc,options,report));const auto after=Facts(mesh,field);
    CHECK(report.moves>=1);CHECK(after.min>before.min);CHECK(after.skin==before.skin);CHECK(after.positive);CHECK(report.relabel.count(20)==1);
    CHECK(std::abs(double(after.volume-before.volume))<=1e-12*std::abs(double(before.volume)));}
+  // Every admitted star gets a coordinate pass before any enrichment, with all operators enabled.
+  {auto pair=cells;for(auto tet:cells){for(auto& v:tet){v.id+=100;v.p.x+=3;}pair.push_back(tet);}
+   Owned mesh=MeshOf(pair);const auto before=Facts(mesh,field);OptimizeOptions staged;staged.maximum_sweeps=1;staged.maximum_work=160;
+   OptimizeReport report;Id nn=1000,nc=10000;
+   REQUIRE(OptimizeMetricMesh(mesh,target,nn,nc,staged,report));const auto after=Facts(mesh,field);
+   CHECK(report.moves==2);CHECK(report.relabel.count(20)==1);CHECK(report.relabel.count(120)==1);
+   CHECK(report.shell_insertions+report.neighbourhood_insertions+report.length_insertions==0);
+   CHECK(report.collapses==0);CHECK(after.cells==before.cells);CHECK(after.bad==0);CHECK(after.positive);CHECK(after.skin==before.skin);
+   CHECK(report.trials<=staged.maximum_work);}
+  // A refused coordinate pass exhausts only its share; enrichment still gets its reserved trial.
+  {auto scaled=cells;for(auto& tet:scaled)for(auto& v:tet){v.p.x*=3;v.p.y*=3;v.p.z*=3;}
+   const RegionMetric refusing([&field](Point p){return field.Query(p).target;},[](Point,Point){return 100.L;});
+   Owned mesh=MeshOf(scaled);const auto before=Facts(mesh,field);OptimizeOptions staged;
+   staged.swaps=staged.collapses=false;staged.maximum_sweeps=1;staged.maximum_work=2;
+   OptimizeReport report;Id nn=100,nc=1000;
+   CHECK_FALSE(OptimizeMetricMesh(mesh,refusing,nn,nc,staged,report));
+   CHECK(report.trials==2);CHECK(report.placements==2);CHECK(report.rejected_edge>0);CHECK(report.moves==0);CHECK(report.stop=="limit");
+   CHECK(mesh.size()==before.cells);CHECK(Facts(mesh,field).skin==before.skin);CHECK(nn==100);CHECK(nc==1000);}
   // a frozen vertex is never moved; frozen cells are never replaced
   {Owned mesh=MeshOf(cells);OptimizeOptions frozen=options;frozen.frozen_vertices={20};OptimizeReport report;Id nn=100,nc=1000;
    CHECK_FALSE(OptimizeMetricMesh(mesh,target,nn,nc,frozen,report));CHECK(report.moves==0);}
@@ -791,6 +809,16 @@ TEST_CASE("Native 3D optimizer: sliver removal by vertex insertion (O7/O8) and l
   // lower faces to q; swaps, collapse and smoothing disabled: only a vertex insertion can remove it
   const Node a{1,{1,0,0}},b{2,{-1,0,0}},cc{3,{0,1,.02}},d{4,{0,-1,.02}},p{5,{0,0,1}},q{6,{0,0,-1}};
   auto sliverMesh=[&]{return std::vector<std::array<Node,4>>{Tet(a,b,cc,d),Tet(p,a,cc,d),Tet(p,b,cc,d),Tet(q,a,b,cc),Tet(q,a,b,d)};};
+  // Pinned skin points do not consume the relaxation share or suppress necessary insertion.
+  {Owned mesh=MeshOf(sliverMesh());OptimizeOptions staged;staged.swaps=staged.collapses=false;staged.maximum_work=160;
+   OptimizeReport report;Id nn=100,nc=1000;
+   REQUIRE(OptimizeMetricMesh(mesh,target,nn,nc,staged,report));CHECK(report.moves==0);
+   CHECK(report.shell_insertions+report.neighbourhood_insertions+report.length_insertions>0);CHECK(report.trials<=staged.maximum_work);
+   for(size_t budget:{size_t(0),size_t(1)}) {
+     Owned limited=MeshOf(sliverMesh());staged.maximum_work=budget;OptimizeReport bounded;nn=100;nc=1000;
+     OptimizeMetricMesh(limited,target,nn,nc,staged,bounded);CHECK(bounded.trials==budget);CHECK(bounded.stop=="limit");
+     CHECK(bounded.moves==0);CHECK(bounded.placements==budget);
+   }}
   {Owned mesh=MeshOf(sliverMesh());const auto before=Facts(mesh,field);REQUIRE(before.positive);REQUIRE(before.bad>0);
    OptimizeOptions ins;ins.swaps=false;ins.collapses=false;ins.smoothing=false;OptimizeReport report;Id nn=100,nc=1000;
    CHECK(OptimizeMetricMesh(mesh,target,nn,nc,ins,report));const auto after=Facts(mesh,field);

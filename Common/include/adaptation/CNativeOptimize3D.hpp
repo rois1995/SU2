@@ -10,7 +10,7 @@
 #include <set>
 namespace SU2Native3D {
 struct OptimizeOptions {
-  size_t maximum_sweeps = 8;        // Inner sweeps over the bad cells per call.
+  size_t maximum_sweeps = 8;        // Relaxation, topology repair, then enrichment over the current bad cells.
   double maximum_seconds = 0;       // Optional elapsed bound (0: none).
   size_t maximum_work = SIZE_MAX;   // Bound on evaluated candidate operations.
   size_t maximum_shell = 8;         // Edge removal shells 3 <= n <= maximum_shell (2n-4 new cells).
@@ -71,6 +71,8 @@ struct OptimizeReport {
  * the cone from one new interior vertex, O8 the bad cell and its face neighbours, O7L the shell of an interior edge
  * longer than 1.8 (size split: both halves estimated <= .6 of it). Placements are proposed with vertex-mean tensors
  * (no acceptance on them) and accepted only through the exact checks above.
+ * Each sweep relaxes existing vertices before swaps/collapses and then insertion. Remaining finite work is shared
+ * equally among remaining enabled stages; unused work passes forward, so refused moves cannot starve enrichment.
  * Returns true if the mesh changed. Identities: new cells from next_cell, moved/new vertices from next_node. */
 bool OptimizeMetricMesh(Owned& mesh, const RegionMetric& target, Id& next_node, Id& next_cell,
                         const OptimizeOptions& options, OptimizeReport& report);

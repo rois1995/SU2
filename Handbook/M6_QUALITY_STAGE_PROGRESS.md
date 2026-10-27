@@ -5,7 +5,8 @@ integrated in build18/session62205 (PASS726.79s/933 pins); focused serial
 stage_checks/session45262 PASS10.5101s/6 cases/4419 assertions and MPI6
 stage_checks6/session51405 PASS11.5294s. M6 capture/session11197 is TERMINAL
 PASS623.327s, pins unchanged, with six complete rank shards, four quality windows
-and unchanged original donors. No job remains live. Complete accepted M6 adaptation
+and unchanged original donors. Build19/session53468 now compiles the connected
+quality-staging change, with one low-priority worker and pinned C++/helpers. Complete accepted M6 adaptation
 remains the milestone.
 See [staged adaptation](STAGED_NATIVE_ADAPTATION.md) and
 [curved boundary mobility](CURVED_BOUNDARY_MOBILITY.md).
@@ -44,14 +45,17 @@ optimizer call; the snapshots do not expose those transient operations.
 Evidence: [topology comparison](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_stage_20261027T094843_1705337/topology_comparison.json),
 produced by the checked `staged57/analyze_stage_topology.py` decoder.
 
-**Connected change in progress, not yet validated:** separate existing-point
+**Connected change implemented, build19 active; not yet validated:** separate existing-point
 relaxation, topology improvement and enrichment across the optimizer's current
 bad-cell worklist. The old first-success order puts insertions before collapses
 and smoothing, so repeatedly successful insertion can bypass those operators.
 Reuse Smooth/SmoothBoundary and existing exact admission; reserve bounded work
 for later enabled stages within the unchanged total budget. Newly inserted points
 get relaxation opportunity on the next sweep. Publish nested operation counts
-only with accepted outer transactions. This addresses an evidenced ordering
+only with accepted outer transactions. Nested counts describe committed internal
+operations, not net differences: an inserted-then-collapsed point contributes to
+both counts. Read-only review found no blocking source defect; runtime checks
+remain pending. This addresses an evidenced ordering
 limitation; it does not establish M6 convergence or cross-chart mobility. Keep
 minimum-score admission for now: the small combined q/J increase alone does not
 justify a new aggregate gate. Validate the connected change on the captured M6

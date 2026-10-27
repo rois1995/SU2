@@ -18,6 +18,7 @@ REPO = ROOT.parents[3]
 BINARY = REPO / "integration_evidence/build-integrated-v2/UnitTests/test_driver"
 CASES = {
     "m6_stage": (6, "[NativeFrozenVolume3D]"),
+    "quality_checks": (1, "[NativeOptimize3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeStageProgress3D]"),
     "stage_checks": (1, "[NativeStageProgress3D],[NativeStageCapture3D],[NativeCoarsenQualityReturn3D]"),
     "stage_checks6": (6, "[NativeStageProgress3D],[NativeStageCapture3D],[NativeCoarsenQualityReturn3D]"),
     "connected_fix": (1, "[NativeMappedRuntime3D],[NativeMesh3D],[NativeAutomaticRepair3D],[NativeOriginalSupport3D],[NativeShapeAdmission3D]"),

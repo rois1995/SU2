@@ -4053,10 +4053,12 @@ TEST_CASE("Metric optimizer moves an interior apex to satisfy requested first he
   FirstHeightReport height;std::string reason;CHECK_FALSE(CheckFirstHeight(fixture.patch,heights,reference,height,reason));
   FrozenField field(Uniform(mesh,Tensor{}));RegionMetric target(field);Id node=9,cell=12;
   OptimizeOptions options;options.geometry=&reference;options.wall_heights=heights;options.maximum_work=1024;
-  options.swaps=options.collapses=options.boundary=options.insertions=false;
+  SECTION("coordinate relaxation alone") {options.swaps=options.collapses=options.boundary=options.insertions=false;}
+  SECTION("coordinate relaxation precedes enabled enrichment") {}
   struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
   SetShapeAdmission(ShapeAdmission::ValidityOnly);OptimizeReport report;
   REQUIRE(OptimizeMetricMesh(mesh,target,node,cell,options,report));CHECK(report.moves>0);CHECK(Bytes(mesh)!=saved);
+  CHECK(report.shell_insertions+report.neighbourhood_insertions+report.length_insertions==0);CHECK(mesh.size()==fixture.patch.cells.size());
   std::vector<OwnedCell> rows;for(const auto& row:mesh)rows.push_back(row.second);
   const auto final=PatchOf(rows);CHECK(CheckFirstHeight(final,heights,reference,height,reason));
   PatchMetric metric;CHECK(ValidateMetricPatch(final.cells,field,metric,reason));

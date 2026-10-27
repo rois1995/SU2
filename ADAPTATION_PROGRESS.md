@@ -16,18 +16,18 @@ transfer/reload, repeated curved restart, and distributed history/recovery.
 [Transfer-only ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 
 
-Implementation in progress: stage existing-point relaxation before topology
+Build19/session53468 ACTIVE: existing-point relaxation before topology
 improvement/enrichment, with bounded shared work and accepted nested operation
 counts. M6 shard comparison found 3,215 new interior points, no removed or moved
 entry points, and unchanged physical bindings. All 947 commits were nested
-optimizer results, hidden by the old reconnected counter. This change is not yet
-built or validated and does not resolve cross-chart mobility.
+optimizer results, hidden by the old reconnected counter. Source and focused regressions are implemented; the one-worker build is active.
+All compiled C++/helpers are frozen. This does not resolve cross-chart mobility.
 
 Build18/session62205 PASS726.79s/933 unchanged pins. Focused serial stage_checks/
 session45262 PASS10.5101s/6 cases/4419 assertions; six-rank stage_checks6/session51405
 PASS11.5294s. M6 stage capture/session11197 is TERMINAL PASS in623.327s: pins
 unchanged, six complete rank shards, four quality windows and original donors
-unchanged. No owned job is live. This validates quality-stage observations and
+unchanged. The later build19 is active. This validates quality-stage observations and
 complete private-state capture; it does not establish full convergence, exact
 continuation or final mesh acceptance. Focused checks compare observed/unobserved mesh,
 work and field queries, independently check shape/height debt, and exercise
@@ -45,7 +45,7 @@ CFD state was retained. Its counters alone do not prove opposing quality debt,
 boundary pins or parallel throughput caused rejection. The new capture addresses
 that evidence gap before changing quality admission or coordination.
 
-Latest pushed `b6a976235f`: diagnostic WIP now building. `f27662eb31` preserves the
+Latest pushed `64953f3b69`: completed diagnostic receipts and enrichment diagnosis. `f27662eb31` preserves the
 passing build17 integration receipts. Prior failures, fixes and limited witnesses
 remain in [archived validation history](Handbook/VALIDATION_HISTORY_THROUGH_BUILD17.md)
 and [staged implementation](Handbook/STAGED_NATIVE_ADAPTATION.md). Full M6,

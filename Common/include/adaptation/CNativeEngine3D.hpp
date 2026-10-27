@@ -164,6 +164,7 @@ struct EngineStats {
   uint64_t repair_proposals = 0, moved = 0, reconnected = 0, inserted = 0;
   uint64_t placement_classified_vertices = 0, placement_dependency_expansions = 0;
   uint64_t optimization_trials = 0, optimization_validated = 0;
+  uint64_t optimization_moves = 0, optimization_insertions = 0, optimization_collapses = 0, optimization_swaps = 0;  // Nested operations in published repairs only.
   uint64_t placement_connectivity_trials = 0, placement_flips = 0, placement_moves = 0;
   uint64_t metric_linearizations = 0, metric_probes = 0, metric_linear_iterations = 0, metric_solve_trials = 0;
   uint64_t placement_trials = 0, placement_validated = 0;  // Bounded joint placement; validation precedes publication/clearance.

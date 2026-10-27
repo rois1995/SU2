@@ -787,6 +787,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " wall_joint_move_height_rejected=" << e.wall_joint_move_height_rejected << " wall_joint_move_loss_rejected=" << e.wall_joint_move_loss_rejected
              << " oversized_stars=" << e.oversized_stars
              << " optimization_trials=" << e.optimization_trials << " optimization_validated=" << e.optimization_validated
+             << " optimization_moves=" << e.optimization_moves << " optimization_insertions=" << e.optimization_insertions
+             << " optimization_collapses=" << e.optimization_collapses << " optimization_swaps=" << e.optimization_swaps
              << " placement_connectivity_trials=" << e.placement_connectivity_trials << " placement_flips=" << e.placement_flips << " placement_moves=" << e.placement_moves
              << " placement_dependency_expansions=" << e.placement_dependency_expansions
              << " placement_classified_vertices=" << e.placement_classified_vertices

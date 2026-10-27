@@ -602,9 +602,12 @@ struct HeightPolicyRow {
   int marker=0;double height=0,growth=0,thickness=0;
   template<class S>void Fields(S& s){s(marker,height,growth,thickness);}
 };
+struct OptimizationOperations {uint64_t moves=0,insertions=0,collapses=0,swaps=0;};
 bool OptimizedRepairPatch(const Patch& old,Id first,Id first_node,const RegionMetric& target,
                           Patch& fresh,std::string& reason,size_t& work,bool preserve_vertices,
-                          const PlanarReference& geometry,const WallHeights& heights,double surface_tolerance) {
+                          const PlanarReference& geometry,const WallHeights& heights,double surface_tolerance,
+                          OptimizationOperations& operations) {
+  operations={};
   Owned local;std::map<Face,Id> physical;for(const auto& f:old.surface)physical.emplace(Key(f.v),f.facet);
   for(auto c:old.cells){c.id=local.size();OwnedCell row;row.cell=c;const auto faces=Faces(c);
     for(unsigned k=0;k<4;++k){const auto found=physical.find(Key(faces[k]));if(found!=physical.end())row.physical[k]={true,found->second};}
@@ -628,7 +631,10 @@ bool OptimizedRepairPatch(const Patch& old,Id first,Id first_node,const RegionMe
   for(auto face:proposal.surface){std::rotate(face.v.begin(),std::min_element(face.v.begin(),face.v.end()),face.v.end());expected.emplace(Key(face.v),face.v);}
   std::vector<Face> skin;for(const auto& f:expected)skin.push_back(f.second);
   if(!ValidatePrescribedInterface(old.cells,proposal.cells,skin,reason))return false;
-  fresh=std::move(proposal);return true;
+  fresh=std::move(proposal);
+  operations={report.moves,report.shell_insertions+report.neighbourhood_insertions+report.length_insertions,
+              report.collapses+report.boundary_collapses,report.edge_removals+report.length_removals+report.face_swaps+report.boundary_flips};
+  return true;
 }
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                    const PlanarReference& accepted_geometry, MetricComposition composition, EngineOptions options, MetricChange intent) {
@@ -2115,6 +2121,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     Patch old,fresh;
     Node point;
     bool approved=false, moved=false, repair_approved=false, cavity_inserted=false;
+    bool optimization_approved=false;OptimizationOperations repair_optimization;
     MetricDiagnosis certified;
     bool geometric_progress=false;
     std::unique_ptr<FrozenField> field;
@@ -2300,13 +2307,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(world.maximum(repair_budget>repair_work) &&
         !admit(transfer_memory::Add(private_scratch,transfer_memory::Bytes(sensors.cells))))return finish();
     auto optimize_patch=[&](const Patch& candidate,const RegionMetric& target,bool preserve_vertices) {
+      optimization_approved=false;repair_optimization={};
       const auto reserved=repair_budget-repair_work;
       if(!reserved)return false;
       const Id first_node=maximum_node+1+node_offset+construction_nodes+repair_work;
       size_t used=reserved;repair_work+=reserved;
       ++stats.repair_proposals;++stats.optimization_trials;
       const bool changed=OptimizedRepairPatch(candidate,maximum_cell+1+offset,first_node,target,
-                                              fresh,result.reason,used,preserve_vertices,geometry,options.wall_heights,options.surface_tolerance);
+                                              fresh,result.reason,used,preserve_vertices,geometry,options.wall_heights,options.surface_tolerance,repair_optimization);
       repair_work-=reserved-used;
       return changed;
     };
@@ -2378,7 +2386,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               {Timer geometry_timer(stats.reconstruction_seconds,options.timings);CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
                 approved=guarded_geometry(optimize_patch(old,RegionMetric(*field),false));}
               if(approved)approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,repair_kind(),*field,metric,result.reason,nullptr,&reuse,&certified),certified);
-              if(approved){moved=false;++stats.optimization_validated;}
+              if(approved){moved=false;optimization_approved=true;++stats.optimization_validated;}
             }
             return approved;
           };
@@ -3394,7 +3402,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(world.maximum(candidate)) {
           const bool placed=validate_private(candidate,MetricChange::Repair);
           if(!ready)return finish();
-          if(placed){approved=repair_approved=true;moved=false;++stats.optimization_validated;}
+          if(placed){approved=repair_approved=true;moved=false;optimization_approved=true;++stats.optimization_validated;}
         }
       }
       if (repair_approved && !repairing) ++stats.fallback_accepted;
@@ -3563,6 +3571,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           improvement_changed=improvement_changed || repairing;
           construction_changed=construction_changed || !repairing;
           ++stats.accepted;
+          if(optimization_approved) {
+            stats.optimization_moves+=repair_optimization.moves;
+            stats.optimization_insertions+=repair_optimization.insertions;
+            stats.optimization_collapses+=repair_optimization.collapses;
+            stats.optimization_swaps+=repair_optimization.swaps;
+          }
           stats.geometry_progress+=geometric_progress;
           stats.size_progress+=certified.size_progress;
           stats.quality_progress+=certified.quality_progress;
@@ -3734,6 +3748,7 @@ class MeshOptimizer {
   Clock::time_point started;
   std::unique_ptr<PlanarReference> moved_geometry;
   bool changed=false,limited=false;
+  size_t stage_work_end=SIZE_MAX;
   std::unordered_map<Id,std::vector<Id>> star;   // vertex -> incident cells
   std::unordered_map<Id,Point> points;
   std::map<Face,Id> physical;                    // Current physical faces for first-height deficits.
@@ -3748,7 +3763,7 @@ class MeshOptimizer {
     if(limited)return true;
     if(report.trials>=options.maximum_work)limited=true;
     if(options.maximum_seconds>0 && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)limited=true;
-    return limited;
+    return limited || report.trials>=stage_work_end;
   }
   void Bound() {
     if(height_scores.size()>=options.cache_entries)height_scores.clear();
@@ -3876,7 +3891,7 @@ class MeshOptimizer {
   bool Collapse(Id p,Id q);
   bool Smooth(Id p);
   bool SmoothBoundary(Id p);
-  bool TryCell(Id id);
+  bool TryCell(Id id,bool enrichment);
   // DC-13 (DC13_PLAN sect. 1): cone re-meshing of a star-shaped cavity from one new placed vertex
   enum class Insert { Shell, Neighbourhood, Length };
   bool ConeReplace(const std::vector<Id>& old,Point start,Insert kind,const std::pair<Id,Id>* split=nullptr,long double removed=0);
@@ -4321,29 +4336,28 @@ bool MeshOptimizer::NeighbourhoodInsert(Id cell) {
   if(Frozen(cell))return false;
   return ConeReplace(old,Centroid(c),Insert::Neighbourhood);
 }
-bool MeshOptimizer::TryCell(Id id) {
+bool MeshOptimizer::TryCell(Id id,bool enrichment) {
   const Cell c=mesh.at(id).cell;
-  if(options.swaps) {
+  if(!enrichment && options.swaps) {
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){if(!mesh.count(id))return true;if(EdgeRemoval(std::min(c.v[i].id,c.v[j].id),std::max(c.v[i].id,c.v[j].id)))return true;}
     for(auto f:OppositeFaces(c)){if(!mesh.count(id))return true;std::sort(f.begin(),f.end());if(FaceSwap(f))return true;}
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){if(!mesh.count(id))return true;
       if(options.boundary&&!options.geometry&&fixed.count(c.v[i].id)&&fixed.count(c.v[j].id)&&BoundaryFlip(c.v[i].id,c.v[j].id))return true;}
   }
-  if(options.insertions) {  // DC-13 O7 (longest edges first) and O8
+  if(enrichment && options.insertions) {  // DC-13 O7 (longest edges first) and O8
     std::vector<std::pair<long double,std::pair<Id,Id>>> edges;
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){long double l=0;try{l=Estimate(c.v[i].p,c.v[j].p);}catch(const std::exception&){}edges.push_back({-l,{c.v[i].id,c.v[j].id}});}
     std::sort(edges.begin(),edges.end());
     for(const auto& e:edges){if(!mesh.count(id))return true;if(ShellInsert(e.second.first,e.second.second))return true;}
     if(!mesh.count(id))return true;if(NeighbourhoodInsert(id))return true;
   }
-  if(options.collapses) {
+  if(!enrichment && options.collapses) {
     std::vector<std::pair<long double,std::pair<Id,Id>>> edges;
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){long double l=INFINITY;try{l=Estimate(c.v[i].p,c.v[j].p);}catch(const std::exception&){}edges.push_back({l,{c.v[i].id,c.v[j].id}});}
     std::sort(edges.begin(),edges.end());
     for(const auto& e:edges){if(!mesh.count(id))return true;if(Collapse(e.second.first,e.second.second)||Collapse(e.second.second,e.second.first))return true;}
     if(options.boundary&&!options.geometry)for(const auto& e:edges){if(!mesh.count(id))return true;if(BoundaryCollapse(e.second.first,e.second.second)||BoundaryCollapse(e.second.second,e.second.first))return true;}
   }
-  if(options.smoothing)for(const auto& v:c.v){if(!mesh.count(id))return true;if(Smooth(v.id))return true;}
   return false;
 }
 bool MeshOptimizer::Run() {
@@ -4352,19 +4366,42 @@ bool MeshOptimizer::Run() {
   census(report.bad_before,report.minimum_before);
   while(report.sweeps<options.maximum_sweeps) {
     ++report.sweeps;
-    std::vector<std::pair<double,Id>> bad;for(const auto& row:mesh){if(Limited())break;if(options.frozen_cells.count(row.first))continue;const double s=RowScore(row.first,row.second.cell);if(s<1)bad.emplace_back(s,row.first);}
-    std::sort(bad.begin(),bad.end());size_t accepted=0;
-    for(const auto& row:bad){if(Limited())break;if(!mesh.count(row.second))continue;if(RowScore(row.second,mesh.at(row.second).cell)>=1)continue;if(TryCell(row.second))++accepted;}
-    // O1L: interior edges longer than 1.8 (estimate screen, exact length) removed by the best ring triangulation
-    if((options.swaps||options.insertions)&&!Limited()){std::vector<std::pair<long double,std::pair<Id,Id>>> longs;std::set<std::pair<Id,Id>> seen;
-      for(const auto& row:mesh){if(Limited())break;if(Frozen(row.first))continue;const auto& c=row.second.cell;for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){
-        const auto e=std::minmax(c.v[i].id,c.v[j].id);if(!seen.insert(e).second)continue;
-        try{if(Estimate(c.v[i].p,c.v[j].p)<=1.6L)continue;const auto l=Exact(c.v[i].p,c.v[j].p);if(l>MaximumMetricEdge)longs.push_back({-l,e});}catch(const std::exception&){}}}
-      std::sort(longs.begin(),longs.end());report.long_edges_seen+=longs.size();
-      for(const auto& e:longs){if(Limited())break;if(!Adjacent(e.second.first,e.second.second))continue;
-        if((options.swaps&&EdgeRemoval(e.second.first,e.second.second,true))||(options.insertions&&ShellInsert(e.second.first,e.second.second,true)))++accepted;}}
+    size_t accepted=0;
+    const std::array<bool,3> enabled{options.smoothing,options.swaps||options.collapses,options.insertions};
+    for(unsigned stage=0;stage<enabled.size();++stage) {
+      stage_work_end=options.maximum_work;
+      if(!enabled[stage] || Limited())continue;
+      const size_t remaining=std::count(enabled.begin()+stage,enabled.end(),true);
+      // A phase refusal is temporary: reserve work for every later enabled phase, including enrichment.
+      stage_work_end=report.trials+(options.maximum_work-report.trials)/remaining;
+      std::vector<std::pair<double,Id>> bad;
+      for(const auto& row:mesh){if(Limited())break;if(options.frozen_cells.count(row.first))continue;
+        const double s=RowScore(row.first,row.second.cell);if(s<1)bad.emplace_back(s,row.first);}
+      std::sort(bad.begin(),bad.end());
+      if(stage==0) {
+        std::set<Id> seen;std::vector<Id> vertices;
+        for(const auto& row:bad)for(const auto& v:mesh.at(row.second).cell.v)if(seen.insert(v.id).second)vertices.push_back(v.id);
+        for(Id v:vertices){if(Limited())break;const auto s=star.find(v);if(s==star.end() || s->second.empty())continue;
+          if(MinScore(s->second)<1 && Smooth(v))++accepted;}
+      } else {
+        for(const auto& row:bad){if(Limited())break;if(!mesh.count(row.second))continue;
+          if(RowScore(row.second,mesh.at(row.second).cell)<1 && TryCell(row.second,stage==2))++accepted;}
+        // Length repair follows the same topology/enrichment ordering as quality repair.
+        if((stage==1?options.swaps:options.insertions)&&!Limited()) {
+          std::vector<std::pair<long double,std::pair<Id,Id>>> longs;std::set<std::pair<Id,Id>> seen;
+          for(const auto& row:mesh){if(Limited())break;if(Frozen(row.first))continue;const auto& c=row.second.cell;
+            for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){const auto e=std::minmax(c.v[i].id,c.v[j].id);if(!seen.insert(e).second)continue;
+              try{if(Estimate(c.v[i].p,c.v[j].p)<=1.6L)continue;const auto l=Exact(c.v[i].p,c.v[j].p);
+                if(l>MaximumMetricEdge)longs.push_back({-l,e});}catch(const std::exception&){}}}
+          std::sort(longs.begin(),longs.end());report.long_edges_seen+=longs.size();
+          for(const auto& e:longs){if(Limited())break;if(!Adjacent(e.second.first,e.second.second))continue;
+            if(stage==1?EdgeRemoval(e.second.first,e.second.second,true):ShellInsert(e.second.first,e.second.second,true))++accepted;}
+        }
+      }
+    }
+    stage_work_end=options.maximum_work;
     if(Limited()){report.stop="limit";break;}
-    if(!accepted){report.stop=bad.empty()?"complete":"no progress";break;}
+    if(!accepted){census(report.bad_after,report.minimum_after);report.stop=report.bad_after?"no progress":"complete";break;}
   }
   if(report.stop.empty())report.stop="sweep cap";
   census(report.bad_after,report.minimum_after);

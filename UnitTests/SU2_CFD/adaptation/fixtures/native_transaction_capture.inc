@@ -220,6 +220,8 @@ struct NativeStageCapture {
       <<",\"complete\":"<<(view.complete?"true":"false")<<",\"reason\":"<<std::quoted(reason)<<",\"work\":{\"global\":"<<s.global_work
       <<",\"limit\":"<<s.work_limit<<",\"rounds\":"<<s.rounds<<",\"accepted\":"<<s.accepted
       <<",\"moved\":"<<s.moved<<",\"reconnected\":"<<s.reconnected<<",\"inserted\":"<<s.inserted
+      <<",\"optimization_moves\":"<<s.optimization_moves<<",\"optimization_insertions\":"<<s.optimization_insertions
+      <<",\"optimization_collapses\":"<<s.optimization_collapses<<",\"optimization_swaps\":"<<s.optimization_swaps
       <<",\"quality_progress\":"<<s.quality_progress<<",\"size_progress\":"<<s.size_progress
       <<",\"geometry_progress\":"<<s.geometry_progress<<",\"remaining_repairs\":"<<p.remaining_repairs
       <<"},\"elapsed_seconds\":";
@@ -317,6 +319,8 @@ struct NativeStageCapture {
        <<",\"limit\":"<<s.work_limit<<",\"rounds\":"<<s.rounds<<",\"accepted\":"<<s.accepted
        <<",\"rejected\":"<<s.rejected<<",\"moved\":"<<s.moved<<",\"reconnected\":"<<s.reconnected
        <<",\"inserted\":"<<s.inserted<<",\"quality_progress\":"<<s.quality_progress
+       <<",\"optimization_moves\":"<<s.optimization_moves<<",\"optimization_insertions\":"<<s.optimization_insertions
+       <<",\"optimization_collapses\":"<<s.optimization_collapses<<",\"optimization_swaps\":"<<s.optimization_swaps
        <<",\"size_progress\":"<<s.size_progress<<",\"geometry_progress\":"<<s.geometry_progress<<'}'
        <<",\"policies\":{\"surface_tolerance\":";Number(out,view.surface_tolerance);
     out<<",\"maximum_seconds\":";Number(out,view.maximum_seconds);
