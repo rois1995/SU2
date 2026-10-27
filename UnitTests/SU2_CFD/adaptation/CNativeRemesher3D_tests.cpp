@@ -265,6 +265,7 @@ TEST_CASE("Native3D configured work and time ceilings preserve CFD and BDF donor
 
 TEST_CASE("Native3D remeshes an externally frozen original sensor field without advancing CFD", "[.][NativeFrozenVolume3D]") {
   World world;
+  const size_t stage_capture_windows=NativeStageCapture::ParseWindowLimit(std::getenv("SU2_NATIVE_STAGE_CAPTURE_WINDOWS"));
   const auto* configFile=std::getenv("SU2_NATIVE_FROZEN_CONFIG");
   const auto* sensorFile=std::getenv("SU2_NATIVE_FROZEN_SENSOR3D");
   REQUIRE(configFile);REQUIRE(sensorFile);
@@ -484,6 +485,10 @@ TEST_CASE("Native3D remeshes an externally frozen original sensor field without 
     out.close();REQUIRE(bool(out));driver.Finalize();return;
   }
   NativeTransactionCapture transaction;
+  NativeStageCapture stage_capture;
+  stage_capture.max_quality_windows=stage_capture_windows;
+  if(stage_capture_windows||std::getenv("SU2_NATIVE_STAGE_CAPTURE"))
+    native->SetStageObserver([&](const StageProgressView& view){stage_capture.Observe(view,world.rank);},NativeStageCapture::limit);
   if(std::getenv("SU2_NATIVE_TRANSACTION_CAPTURE"))
     native->SetTransactionObserver({{{23754,24333,0}},2},[&](const TransactionView& view){transaction.Observe(view);});
   struct Witness {Patch before,after;Feature feature;MetricDiagnosis metric;bool geometry;std::string reason;size_t sequence;};

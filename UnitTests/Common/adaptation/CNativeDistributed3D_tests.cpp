@@ -3546,7 +3546,7 @@ TEST_CASE("Complete coordinate stars cross payload pages and publish atomically"
   }
 }
 
-TEST_CASE("Distributed repair moves complete large stars without changing cell ownership or identities", "[NativeCoordinateStar3D]") {
+TEST_CASE("Distributed repair moves complete large stars without changing cell ownership or identities", "[NativeCoordinateStar3D][NativeStageProgress3D]") {
   World world;
   for(unsigned levels:{1u,2u}) {
     auto fixture=IcosphereStar(levels);
@@ -3571,7 +3571,41 @@ TEST_CASE("Distributed repair moves complete large stars without changing cell o
     }
     REQUIRE(world.sum(initial_bad)>0);
     EngineOptions options;options.candidate_batch=1;options.maximum_rounds=1;options.maximum_work=4096;
-    const auto result=Repair(world,input,Uniform(input,tensor),geometry,{},options);INFO(result.reason);
+    const auto source=Uniform(input,tensor);
+    const auto baseline=Repair(world,input,source,geometry,{},options);
+    size_t quality_records=0,exit_records=0;bool diagnostics_match=true,construction_unmeasured=true;
+    options.stage_observer=[&](const StageProgressView& view) {
+      const auto& progress=view.progress;
+      diagnostics_match &= progress.owned_cells==view.working.size() &&
+          progress.measured_cells+progress.unmeasured_cells==view.working.size() &&
+          progress.shape_measured_cells+progress.shape_unmeasured_cells==view.working.size();
+      if(view.phase==EnginePhase::Construction)
+        construction_unmeasured &= progress.shape_measured_cells==0 && progress.q_hinge_squared==0 && progress.j_hinge_squared==0;
+      quality_records+=std::string(view.stage)=="quality_entry";
+      exit_records+=std::string(view.stage)=="exit";
+      if(!progress.complete)return;
+      long double q_debt=0,j_debt=0,size_debt=0;size_t q_bad=0,j_bad=0,size_bad=0;
+      for(const auto& row:view.working) {
+        const auto& v=row.second.cell.v;
+        const auto measured=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
+        const long double q=std::max(0.,1-measured.mean_ratio/MinimumMeanRatio);
+        const long double j=std::max(0.,1-measured.minimum_scaled_jacobian/MinimumScaledJacobian);
+        q_debt+=q*q;j_debt+=j*j;q_bad+=q>0;j_bad+=j>0;
+        size_bad+=measured.maximum_edge>MaximumMetricEdge;
+        for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b) {
+          const auto excess=std::max(0.L,MetricNorm(v[a].p,v[b].p,tensor)/MaximumMetricEdge-1);
+          size_debt+=excess*excess;
+        }
+      }
+      const auto close=[](long double a,long double b){return std::abs(a-b)<=1e-11L*std::max(1.L,std::abs(b));};
+      diagnostics_match &= progress.q_bad_cells==q_bad && progress.j_bad_cells==j_bad && progress.size_bad_cells==size_bad &&
+          close(progress.q_hinge_squared,q_debt) && close(progress.j_hinge_squared,j_debt) && close(progress.size_hinge_squared,size_debt);
+    };
+    const auto result=Repair(world,input,source,geometry,{},options);INFO(result.reason);
+    CHECK(diagnostics_match);CHECK(construction_unmeasured);CHECK(quality_records==1);CHECK(exit_records==1);
+    CHECK(result.valid==baseline.valid);CHECK(Bytes(result.cells)==Bytes(baseline.cells));
+    CHECK(result.stats.field_requests==baseline.stats.field_requests);CHECK(result.stats.field_edges==baseline.stats.field_edges);
+    CHECK(result.stats.global_work==baseline.stats.global_work);CHECK(result.stats.accepted==baseline.stats.accepted);
     CHECK(result.stats.quality_stages==1);CHECK(world.sum(result.stats.moved)==1);
     CHECK(result.cells.size()==input.size());CHECK(Bytes(input)==saved);
     for(const auto& row:result.cells) {
@@ -3586,6 +3620,24 @@ TEST_CASE("Distributed repair moves complete large stars without changing cell o
     CHECK(Audit(world,result.cells,fixture,fixture.patch.cells.size()));
     CHECK(result.stats.global_work<=options.maximum_work);
   }
+}
+
+TEST_CASE("Stage diagnostics elect callback failures and admit their storage before invocation", "[NativeStageProgress3D]") {
+  World world;const auto fixture=Box();const PlanarReference geometry(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),world),saved=input;
+  const auto source=Uniform(input,{1,0,0,1,0,1});
+  EngineOptions options;options.maximum_work=64;options.maximum_rounds=4;
+  bool observed=false;
+  options.stage_observer=[&](const StageProgressView& view) {
+    observed=true;
+    if(!world.rank && std::string(view.stage)=="quality_entry")throw std::runtime_error("stage observer test failure");
+  };
+  const auto rejected=Repair(world,input,source,geometry,{},options);
+  CHECK(observed);CHECK_FALSE(rejected.valid);CHECK(rejected.stats.stop==EngineStop::Failure);
+  CHECK(rejected.reason.find("stage observer test failure")!=std::string::npos);CHECK(Bytes(input)==Bytes(saved));
+  observed=false;options.stage_observer_bytes=SIZE_MAX;
+  const auto refused=Repair(world,input,source,geometry,{},options);
+  CHECK_FALSE(refused.valid);CHECK_FALSE(observed);CHECK(Bytes(input)==Bytes(saved));
 }
 
 TEST_CASE("Oversized complete stars block batched and planned proposals without failing the event", "[NativeDistributed3D][NativeOversizedStar3D]") {
@@ -3922,7 +3974,33 @@ TEST_CASE("Unproductive coarsening closures restore strict ownership and revisit
     for(const auto& row:input) {
       PatchMetric measured;REQUIRE(ValidateMetricPatch({row.second.cell},initial,measured,reason));
     }
+    bool height_diagnostics_match=true,saw_height_debt=false;
+    options.stage_observer=[&](const StageProgressView& view) {
+      const auto& progress=view.progress;
+      if(view.phase==EnginePhase::Construction) {
+        height_diagnostics_match &= progress.height_measured_cells==0;
+        return;
+      }
+      if(!progress.complete)return;
+      size_t bad=0;long double debt=0;
+      for(const auto& row:view.working) {
+        Patch patch;patch.cells.push_back(row.second.cell);const auto faces=Faces(row.second.cell);
+        for(unsigned k=0;k<4;++k)if(row.second.physical[k].present)
+          patch.surface.push_back({faces[k],row.second.physical[k].facet});
+        view.geometry.ExportParameters(patch);
+        FirstHeightReport report;std::string why;
+        const bool valid=CheckFirstHeight(patch,view.wall_heights,view.geometry,report,why);
+        bad+=!valid;
+        const auto h=std::max(0.L,static_cast<long double>(report.maximum_relative_error)/view.wall_heights.tolerance-1);
+        const auto f=std::max(0.L,-3.L*report.minimum_barycentric);debt+=h*h+f*f;
+      }
+      height_diagnostics_match &= progress.height_measured_cells==view.working.size() && progress.height_bad_cells==bad &&
+          std::abs(progress.height_hinge_squared-debt)<=1e-11L*std::max(1.L,debt);
+      saw_height_debt|=bad>0;
+    };
     const auto result=Coarsen(world,input,Uniform(input,tensor),*reference,{},options);INFO(result.reason);
+    CHECK(height_diagnostics_match);CHECK(world.maximum(saw_height_debt));
+    options.stage_observer={};
     REQUIRE(result.valid);CHECK(result.stats.coarsen_checkpoints>0);
     // Every geometrically feasible center removal destroys a requested first height. The
     // retained twelve corner triangles each need their own height-valid incident cell.

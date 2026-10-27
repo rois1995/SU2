@@ -3,6 +3,7 @@ import json
 import os
 import re
 import shutil
+import struct
 import subprocess
 import sys
 import time
@@ -16,6 +17,8 @@ from run import sha, save
 REPO = ROOT.parents[3]
 BINARY = REPO / "integration_evidence/build-integrated-v2/UnitTests/test_driver"
 CASES = {
+    "m6_stage": (6, "[NativeFrozenVolume3D]"),
+    "stage_checks": (1, "[NativeStageProgress3D],[NativeStageCapture3D],[NativeCoarsenQualityReturn3D]"),
     "connected_fix": (1, "[NativeMappedRuntime3D],[NativeMesh3D],[NativeAutomaticRepair3D],[NativeOriginalSupport3D],[NativeShapeAdmission3D]"),
     'serial_full': (1, '[NativeCollision3D],[NativeMesh3D],[NativeOriginalSupport3D],[NativeMetricFootprint3D],[NativeMetricSamples3D],[NativeCurvedMapped3D],[NativeCurvedMappedGuards3D],[NativeMappedFacetGeometry],[NativeMappedPublication3D],[NativeMappedRealized3D],[NativeMappedComponent3D],[NativeParametricGeometry],[NativeAffineSourceGeometry],[NativeFirstLayer3D],[NativeCurvedBL3D],[NativeJointAffineSource3D],[NativeGeneratedCoverage3D],[NativeMappedRuntime3D],[NativeMappedReader3D],[NativeConcurrentComposed3D],[NativeCollapseFilter3D],[NativeInteriorPlacement3D],[NativeAutomaticRepair3D],[NativeShapeAdmission3D],[NativeOptimize3D],[NativeDefault3D],[NativePolicyRuntime3D],[NativeInteractingBLVolume3D],[NativeCurvedBLVolume3D],[NativeCylinderBLVolume3D],[NativeComplexityEstimate3D],[NativeParallelBL3D],[NativeVolumeBL3D],[NativeStagedConstruction3D],[NativeConstructionHandoff3D],[NativeJointGeometry3D],[NativeConcurrentRepair3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D]'),
     'mpi6': (6, '[NativeCollision3D],[NativeMesh3D],[NativeOriginalSupport3D],[NativeMetricFootprint3D],[NativeMetricSamples3D],[NativeCurvedMapped3D],[NativeCurvedMappedGuards3D],[NativeMappedFacetGeometry],[NativeMappedPublication3D],[NativeMappedRealized3D],[NativeMappedComponent3D],[NativeParametricGeometry],[NativeAffineSourceGeometry],[NativeFirstLayer3D],[NativeCurvedBL3D],[NativeJointAffineSource3D],[NativeGeneratedCoverage3D],[NativeMappedRuntime3D],[NativeMappedReader3D],[NativeConcurrentComposed3D],[NativeCollapseFilter3D],[NativeInteriorPlacement3D],[NativeAutomaticRepair3D],[NativeShapeAdmission3D],[NativeOptimize3D],[NativeDefault3D],[NativePolicyRuntime3D],[NativeStagedConstruction3D],[NativeConstructionHandoff3D],[NativeJointGeometry3D],[NativeConcurrentRepair3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D]'),
@@ -29,7 +32,7 @@ CASES = {
 }
 
 # Connected construction/quality coordination regression, shared by focused and broad campaigns.
-COORDINATION = "[NativeCoordinateStar3D],[NativeMetricSplitRule3D],[NativeRepairFairness3D],[NativeConstructionSweep3D],[NativeCoarsenQualityReturn3D],[ConservativeClipRobustness]"
+COORDINATION = "[NativeCoordinateStar3D],[NativeMetricSplitRule3D],[NativeRepairFairness3D],[NativeConstructionSweep3D],[NativeCoarsenQualityReturn3D],[ConservativeClipRobustness],[NativeStageProgress3D],[NativeStageCapture3D]"
 for name in ("serial", "serial_full", "mpi6", "connected_fix"):
     ranks, filters = CASES[name]
     CASES[name] = ranks, filters + "," + COORDINATION
@@ -80,9 +83,81 @@ def sample_tree(pid):
     return rows
 
 
+def prepare_stage_case(attempt):
+    """Use the exact archived build13 field; a bounded observer stops after four quality windows."""
+    previous = ROOT / "m6_runs/euler_build13"
+    archive = ROOT.parent / "diagnostic55"
+    manifest_path = archive / "input_manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    files = {"m6.su2": (previous / "m6.su2", "mesh_sha256"),
+             "m6.su2.native_ref": (previous / "m6.su2.native_ref", "reference_sha256"),
+             "sensor_original.bin": (archive / "sensor_original.bin", "sensor_sha256"),
+             "restart_flow_adap_00000.dat": (previous / "restart_flow_adap_00000.dat", "restart_sha256")}
+    pinned = [manifest_path, previous / "run.cfg", archive / "prepare.py"]
+    for name, (path, key) in files.items():
+        if sha(path) != manifest[key]:
+            raise RuntimeError("M6 archived-field provenance changed: " + str(path))
+        pinned.append(path)
+        if name != "restart_flow_adap_00000.dat":
+            (attempt / name).symlink_to(path.resolve())
+    shutil.copyfile(previous / "run.cfg", attempt / "run.cfg")
+    pinned.append(attempt / "run.cfg")
+    return pinned, {"SU2_NATIVE_FROZEN_CONFIG": str(attempt / "run.cfg"),
+                    "SU2_NATIVE_FROZEN_SENSOR3D": str(attempt / "sensor_original.bin"),
+                    "SU2_NATIVE_STAGE_CAPTURE": "1", "SU2_NATIVE_STAGE_CAPTURE_WINDOWS": "4"}
+
+
+def validate_stage_shards(attempt, ranks):
+    """Byte completeness and frozen-source identity; not mesh acceptance or exact continuation."""
+    receipts = {}
+    windows = None
+    for rank in range(ranks):
+        donor_hash = None
+        for label in ("quality_entry", "observation_stop"):
+            path = attempt / f"stage_{label}_rank{rank}_manifest.json"
+            data = json.loads(path.read_text())
+            if (data.get("rank") != rank or not data.get("complete_shard") or
+                    not data.get("private_capture") or data.get("final_mesh_accepted") or
+                    data.get("exact_continuation") or data.get("record_format") != 1):
+                raise RuntimeError("Invalid private stage manifest: " + str(path))
+            if label == "observation_stop" and (not data.get("diagnostic_observation_stop") or
+                    data.get("quality_windows_observed") != 4):
+                raise RuntimeError("Missing bounded quality observation stop: " + str(path))
+            receipts[str(path)] = sha(path)
+            for kind, count_key in (("owned", "working_rows"), ("donors", "donor_rows")):
+                payload = attempt / data["files"][kind]
+                record_bytes = data["owned_record_bytes" if kind == "owned" else "donor_record_bytes"]
+                with payload.open("rb") as stream:
+                    count = struct.unpack("=Q", stream.read(8))[0]
+                if count != data[count_key] or payload.stat().st_size != 8 + count * record_bytes:
+                    raise RuntimeError("Truncated stage row shard: " + str(payload))
+                receipts[str(payload)] = sha(payload)
+                if kind == "donors":
+                    if donor_hash is not None and donor_hash != receipts[str(payload)]:
+                        raise RuntimeError("Original donors changed between stage snapshots")
+                    donor_hash = receipts[str(payload)]
+            if data["parameters_present"]:
+                payload = attempt / data["files"]["parameters"]
+                if payload.stat().st_size != data["parameters_payload_bytes"]:
+                    raise RuntimeError("Truncated stage geometry payload: " + str(payload))
+                receipts[str(payload)] = sha(payload)
+        trace = attempt / f"stage_trace_rank{rank}.jsonl"
+        rows = [json.loads(line) for line in trace.read_text().splitlines()]
+        if sum(row["stage"] == "window" and row["phase"] == "improvement" for row in rows) != 4:
+            raise RuntimeError("Incomplete quality-stage trend: " + str(trace))
+        sequence = [(row["stage"], row["phase"], row["round"]) for row in rows]
+        if windows is not None and sequence != windows:
+            raise RuntimeError("Stage trace rounds differ between workers")
+        windows = sequence
+        receipts[str(trace)] = sha(trace)
+    save(attempt / "stage_output_pins.json", receipts)
+    return {"complete_rank_shards": ranks, "quality_windows": 4, "original_donors_unchanged": True,
+            "exact_continuation": False, "full_mesh_acceptance": False}
+
+
 def main():
     if len(sys.argv) != 3 or not re.fullmatch(r"build[1-9][0-9]*", sys.argv[1]) or sys.argv[2] not in CASES:
-        raise SystemExit("usage: run_cases.py buildN connected_fix|serial|serial_full|mpi2|mpi6|allworker6")
+        raise SystemExit("usage: run_cases.py buildN " + "|".join(CASES))
     build, case = sys.argv[1], sys.argv[2]
     ranks, filter_expr = CASES[case]
     build_status_path = ROOT / f"{build}_status.json"
@@ -110,6 +185,11 @@ def main():
         for path in [BINARY, *libraries, *helper_paths, build_status_path, source_pins_path, runtime_manifest]:
             pins[str(path)] = sha(path)
         pins.update(runtime_pins)
+        stage_environment = {}
+        if case == "m6_stage":
+            stage_inputs, stage_environment = prepare_stage_case(attempt)
+            for path in stage_inputs:
+                pins[str(path)] = sha(path)
         utility_names = ["nice", "timeout"] + (["mpirun"] if ranks > 1 else [])
         utility_names.append("/usr/bin/time")
         utilities = [(Path(shutil.which(name) or "/nonexistent") if not name.startswith("/") else Path(name)).resolve()
@@ -121,9 +201,11 @@ def main():
         save(attempt / "pins.json", pins)
         env = os.environ.copy()
         env.update(OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1")
+        env.update(stage_environment)
         if case == "allworker6":
             env["SU2_NATIVE_MAPPED_ALL_WORKERS"] = "1"
-        argv = ["nice", "-n", "19", "/usr/bin/time", "-v", "timeout", "600"]
+        timeout_seconds = 2400 if case == "m6_stage" else 600
+        argv = ["nice", "-n", "19", "/usr/bin/time", "-v", "timeout", str(timeout_seconds)]
         if ranks > 1:
             argv += ["mpirun", "--bind-to", "none", "-n", str(ranks)]
         argv += [str(BINARY), filter_expr]
@@ -132,7 +214,7 @@ def main():
             "environment": {key: value for key, value in env.items()
                             if key.startswith(("SU2_NATIVE_", "OMPI_")) or
                             key in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS")},
-            "timeout_seconds": 600,
+            "timeout_seconds": timeout_seconds,
         })
         largest_sampled_rss = 0
         with (attempt / "run.log").open("w") as log, (attempt / "resources.jsonl").open("w") as receipt:
@@ -154,6 +236,12 @@ def main():
                   "pins_verified": not changed, "changed": changed,
                   "largest_sampled_individual_process_rss_bytes": largest_sampled_rss,
                   "rss_note": "sampled process RSS; not a whole-job peak"}
+        if case == "m6_stage" and code == 0 and not changed:
+            try:
+                result["stage_capture"] = validate_stage_shards(attempt, ranks)
+            except Exception as error:
+                result["diagnostic_error"] = str(error)
+                result["exit_code"] = code = 1
         save(status_path, result)
         print(json.dumps(result))
         raise SystemExit(code or int(bool(changed)))

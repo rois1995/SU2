@@ -50,7 +50,11 @@ build17 passed135.20s/933 unchanged pins. Broad serial77363 PASS179 cases/
 to use distributed counterparts (serial evidence retained). MPI6/session4734 PASS
 43.79s:156 cases on each rank, unchanged pins. The integration milestone is
 validated; full M6 acceptance remains open. Next: incremental quality-stage defect
-trends and complete private-state capture under the [reviewed design](Handbook/M6_QUALITY_STAGE_PROGRESS.md). Transfer findings: [ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
+trends and complete private-state capture under the [reviewed design](Handbook/M6_QUALITY_STAGE_PROGRESS.md).
+That diagnostics implementation is now integrated; build18/session62205 active,
+933 source pins frozen,one worker. Focused invariant checks precede the bounded
+four-quality-window capture on the exact build13 frozen M6 field. No convergence
+change or new final acceptance claim. Transfer findings: [ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 [Diagnosis and replay](Handbook/TRANSFER_CLIPPING_UNDERFLOW.md). Full M6 quality closure is still a separate open capability.
 Previous build12 rejected during construction on the4096 notification scan limit.
 

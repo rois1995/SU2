@@ -78,6 +78,9 @@ class CNativeRemesher3D final : public CRemesher {
   void SetRejectedStateObserver(decltype(SU2Native3D::EngineOptions::rejected_state) observer) {
     options.rejected_state=std::move(observer);
   }
+  void SetStageObserver(decltype(SU2Native3D::EngineOptions::stage_observer) observer,size_t reserved_bytes=0) {
+    options.stage_observer=std::move(observer);options.stage_observer_bytes=reserved_bytes;
+  }
   void SetRejectedTrialObserver(decltype(SU2Native3D::EngineOptions::rejected_trial) observer) {
     options.rejected_trial=std::move(observer);
   }

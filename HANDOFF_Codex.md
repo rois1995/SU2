@@ -23,7 +23,8 @@ and [curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md).
 
 ## Live work and next validation
 
-No heavy job is active. Build17/session53915 passed135.20s with933 unchanged pins.
+ACTIVE: build18/session62205,933 source pins,one nice19 worker. All main C++/
+tests/helpers are FROZEN. Build17/session53915 passed135.20s with933 unchanged pins.
 Broad serial/session77363 PASS61.68s:179 cases/1,121,211 assertions. MPI6/session4734
 PASS43.79s:156 cases on every rank, all pins unchanged. The first MPI launch97981
 stopped on a serial-only fixture selection error; its receipt is preserved. Serial
@@ -36,13 +37,22 @@ Curved Euler/RANS transfer/reload, repeated curved lifecycle/restart, distribute
 transfer/kernel/history/recovery checks pass. This is not full M6 acceptance.
 [Transfer-only ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 
-Active implementation: quality-stage measurement/capture, with admission/election
-and all final gates unchanged. Agent staged_engine owns Engine.hpp/.cpp and
-Remesher.hpp; root owns diagnostic fixture/capture/tests. No build until all edits
-are reviewed and released. Reuse existing one-cell census, Add/Drop cache updates,
+Quality-stage measurement/capture implementation is integrated and building,
+with admission/election and final gates unchanged. All agents released sources.
+Incremental diagnostics reuse the one-cell census, Add/Drop cache updates,
 FirstHeightReport and SurfaceError results; no construction q/J, duplicate audit or
-per-proposal collective. Rank-local trend/shard capture must expose partial data
-and preserve original frozen donors and matching private geometry.
+per-proposal collective. Rank-local traces/shards preserve original frozen donors,
+matching private geometry and explicit unknown/partial state. Observer storage is
+admitted; a failed observer cannot run again on exit. Optional diagnostic stop
+saves observation_stop shards before electing its intentional exception.
+
+Next: build18 -> stage_checks (constant-field/height debt, unchanged work/query/mesh,
+observer failure/storage, serialization) -> m6_stage using run_cases.py. M6 uses the
+bit-identical build13 archived sensor and unchanged configuration/geometry; it
+stops after four quality windows and checks complete six-rank shards, lengths,
+donor hashes and synchronized trace rounds. This is diagnostic private state,
+not exact continuation, full mesh acceptance or transfer. Python receipt self-check
+passes valid cases and six malformed/truncated/provenance cases.
 Design and diagnostic acceptance: [quality-stage progress](Handbook/M6_QUALITY_STAGE_PROGRESS.md).
 
 Existing `staged57/build_checkpoint.py` and `run_cases.py` retain unique pinned
@@ -75,8 +85,9 @@ Normal-only contract still binds; tangential growth outside protected band unans
 
 ## Checkpoints and preserved history
 
-Latest pushed `c659e03cf5`: connected transfer validation, corrected large-star
-fixture and collision paging correction (MPI validation pending). Earlier
+Latest pushed `f27662eb31`: passing broad serial/MPI integration receipts and
+quality-stage measurement design. `c659e03cf5` contains the corrected large-star
+fixture and collision paging correction. Earlier
 `6aee162837` contains coarsening closure and clipping correction/regressions. Code536025f6e4 contains
 construction generations, fair repair service and complete-star movement. Earlier builds and local
 repair witnesses do not validate current code. Details: [staged history](Handbook/STAGED_NATIVE_ADAPTATION.md),

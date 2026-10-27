@@ -145,7 +145,14 @@ class Selection {
   }
   size_t invalid = 0, construction_invalid = 0, quality_invalid = 0, unmeasured_shape = 0, repair_bytes = 0;
   struct EdgeState { EdgeMeasure measure; size_t users = 0; std::array<size_t,2> forbidden{}; };
-  struct CellState { std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{}; std::array<Id,4> vertices{}; std::array<long double,6> geometry_scores{}; bool valid = false,target_valid=false,geometry_invalid=false,construction_valid=false,quality_valid=false,shape_measured=false; };
+  struct CellDebt {
+    long double q=0,j=0,size=0,height=0,geometry=0;
+    bool q_measured=false,j_measured=false,height_measured=false,geometry_measured=true,height_unresolved=false;
+    bool q_bad=false,j_bad=false,size_bad=false,height_bad=false;
+  };
+  StageProgress debt;
+  bool progress_consistent=true,census_started=false;
+  struct CellState { CellDebt debt;std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{}; std::array<Id,4> vertices{}; std::array<long double,6> geometry_scores{}; bool valid = false,target_valid=false,geometry_invalid=false,construction_valid=false,quality_valid=false,shape_measured=false; };
   std::map<Id,CellState> cells;
   std::map<Edge,EdgeState> edges;
   std::set<std::pair<long double,Edge>> queue;
@@ -160,6 +167,43 @@ class Selection {
   size_t Bytes() const {
     return transfer_memory::Add(MapBytes(cells),MapBytes(edges),MapBytes(queue),MapBytes(construction_frontier),MapBytes(cell_repairs),MapBytes(repair_users),MapBytes(repair_queue),MapBytes(repair_zero),repair_bytes,
         MapBytes(geometry_queue),MapBytes(vertex_cells),MapBytes(blocked_edges),transfer_memory::Mul(transfer_memory::Add(vertex_links,blocked_links),sizeof(Id)+4*sizeof(void*)));
+  }
+  void Account(const CellState& row,bool add) {
+    const auto count=[&](size_t& total,size_t value){if(add)total+=value;else total-=value;};
+    const auto& d=row.debt;const long double sign=add?1.L:-1.L;
+    count(debt.q_measured_cells,d.q_measured);count(debt.j_measured_cells,d.j_measured);
+    count(debt.shape_measured_cells,d.q_measured && d.j_measured);
+    count(debt.height_measured_cells,d.height_measured);count(debt.geometry_measured_cells,d.geometry_measured);
+    count(debt.height_unresolved_cells,d.height_unresolved);
+    count(debt.q_bad_cells,d.q_bad);count(debt.j_bad_cells,d.j_bad);count(debt.size_bad_cells,d.size_bad);
+    count(debt.height_bad_cells,d.height_bad);count(debt.geometry_bad_cells,row.geometry_invalid);
+    debt.q_hinge_squared+=sign*d.q;debt.j_hinge_squared+=sign*d.j;
+    debt.size_hinge_squared+=sign*d.size;debt.height_hinge_squared+=sign*d.height;
+    debt.geometry_excess_squared+=sign*d.geometry;
+  }
+  StageProgress Progress(size_t owned)const {
+    StageProgress result=progress_consistent?debt:StageProgress{};
+    result.cache_consistent=progress_consistent;result.owned_cells=owned;
+    result.measured_cells=progress_consistent?cells.size():0;
+    result.invalid_cells=progress_consistent?invalid:0;
+    result.construction_invalid_cells=progress_consistent?construction_invalid:0;
+    result.quality_invalid_cells=progress_consistent?quality_invalid:0;
+    result.remaining_edges=queue.size()+geometry_queue.size();result.remaining_repairs=repair_queue.size();
+    result.unmeasured_cells=owned-result.measured_cells;
+    result.shape_unmeasured_cells=owned-result.shape_measured_cells;
+    result.height_requested=!heights.empty();result.surface_error_requested=!geometry.ExtensionComponents().empty();
+    result.height_unmeasured_cells=result.height_requested?owned-result.height_measured_cells:0;
+    result.geometry_unmeasured_cells=owned-result.geometry_measured_cells;
+    result.census_complete=result.measured_cells==owned && progress_consistent && census_started;
+    result.shape_complete=result.shape_measured_cells==owned && progress_consistent && census_started;
+    result.height_complete=(!result.height_requested || !result.height_unmeasured_cells) && progress_consistent;
+    result.geometry_complete=!result.geometry_unmeasured_cells && progress_consistent;
+    result.complete=result.census_complete && result.shape_complete && result.height_complete && result.geometry_complete;
+    // Incremental subtraction can leave round-off below zero after a large number of updates.
+    result.q_hinge_squared=std::max(0.L,result.q_hinge_squared);result.j_hinge_squared=std::max(0.L,result.j_hinge_squared);
+    result.size_hinge_squared=std::max(0.L,result.size_hinge_squared);result.height_hinge_squared=std::max(0.L,result.height_hinge_squared);
+    result.geometry_excess_squared=std::max(0.L,result.geometry_excess_squared);
+    return result;
   }
   Choice Best(bool repairing) const {
     if (repairing) {
@@ -305,6 +349,7 @@ class Selection {
   void Drop(Id id) {
     const auto found = cells.find(id);
     if (found==cells.end()) throw std::logic_error("Missing native 3D cached cell removal.");
+    Account(found->second,false);
     invalid -= !found->second.valid;
     construction_invalid -= !found->second.construction_valid;
     quality_invalid -= !found->second.quality_valid;
@@ -360,12 +405,38 @@ class Selection {
     }
     return blocked;
   }
-  void Add(const OwnedCell& owned, const PatchMetric& metric, bool valid, bool quality_valid, const std::string& reason) {
+  void Add(const OwnedCell& owned, const PatchMetric& metric, bool valid, bool quality_valid, const std::string& reason,
+           const FirstHeightReport* height=nullptr,bool height_valid=true) {
     const auto& cell=owned.cell;
     if (metric.edges.size()!=6 || !std::isfinite(metric.maximum_length))
       throw std::runtime_error(reason.empty()?"Incomplete native 3D initial/updated metric measurement.":reason);
     CellState row; row.valid=row.target_valid=valid;row.shape_measured=metric.shape_measured;row.quality_valid=quality_valid;
     row.construction_valid=metric.maximum_length<=MaximumMetricEdge;
+    auto hinge=[](long double value){return std::max(0.L,value);};
+    auto& d=row.debt;
+    d.q_measured=metric.shape_measured && std::isfinite(metric.minimum_mean_ratio);
+    d.j_measured=metric.shape_measured && std::isfinite(metric.minimum_scaled_jacobian);
+    if(d.q_measured) {
+      const auto r=hinge(1.L-static_cast<long double>(metric.minimum_mean_ratio)/MinimumMeanRatio);d.q=r*r;
+      d.q_bad=metric.minimum_mean_ratio<MinimumMeanRatio;
+    }
+    if(d.j_measured) {
+      const auto r=hinge(1.L-static_cast<long double>(metric.minimum_scaled_jacobian)/MinimumScaledJacobian);d.j=r*r;
+      d.j_bad=metric.minimum_scaled_jacobian<MinimumScaledJacobian;
+    }
+    d.size_bad=metric.maximum_length>MaximumMetricEdge;
+    for(const auto& edge:metric.edges) {
+      const auto r=hinge(edge.second.length/MaximumMetricEdge-1.L);d.size+=r*r;
+    }
+    if(height && !heights.empty()) {
+      d.height_measured=height->measured && std::isfinite(height->maximum_relative_error) && std::isfinite(height->minimum_barycentric);
+      d.height_bad=!height_valid;
+      d.height_unresolved=!d.height_measured || height->missing_cells || height->reference_clearance_failures;
+      if(d.height_measured) {
+        const auto r=hinge(static_cast<long double>(height->maximum_relative_error)/heights.tolerance-1.L);
+        const auto f=hinge(-3.L*height->minimum_barycentric);d.height=r*r+f*f;
+      }
+    }
     std::map<Edge,long double> geometry_scores;
     if (!geometry.ExtensionComponents().empty()) {
       const auto faces=Faces(cell);
@@ -374,6 +445,9 @@ class Selection {
         for(size_t i=0;i<3;++i)for(auto n:cell.v)if(n.id==faces[slot][i])triangle[i]=n.p;
         const double error=geometry.SurfaceError(owned.physical[slot].facet,triangle);
         const auto allowed=tolerance;
+        if(std::isfinite(error)) {
+          const auto excess=hinge(static_cast<long double>(error)-allowed);d.geometry+=excess*excess;
+        } else d.geometry_measured=false;
         if(error<=allowed)continue;
         row.valid=false;row.geometry_invalid=true;
         for(size_t i=0;i<3;++i)for(size_t j=i+1;j<3;++j) {
@@ -400,6 +474,7 @@ class Selection {
         }
       }
     }
+    if(!d.geometry_measured)d.geometry=0;
     for (size_t i=0;i<4;++i) {
       row.vertices[i]=cell.v[i].id;
       vertex_links+=vertex_cells[row.vertices[i]].insert(cell.id).second;
@@ -426,6 +501,7 @@ class Selection {
     row.construction_valid=row.construction_valid && !row.geometry_invalid;
     const auto inserted=cells.emplace(cell.id,std::move(row));
     if (!inserted.second) throw std::logic_error("Duplicate native 3D cached cell.");
+    Account(inserted.first->second,true);
     invalid += !inserted.first->second.valid;
     construction_invalid += !inserted.first->second.construction_valid;
     quality_invalid += !inserted.first->second.quality_valid;
@@ -492,6 +568,7 @@ class Selection {
     cells.clear();edges.clear();queue.clear();geometry_queue.clear();construction_frontier.clear();vertex_cells.clear();
     cell_repairs.clear();repair_users.clear();repair_queue.clear();repair_zero.clear();
     invalid=construction_invalid=quality_invalid=unmeasured_shape=repair_bytes=vertex_links=0;
+    debt={};progress_consistent=true;census_started=false;
     track_repairs=repair_event=improvement;prune_collapses=false;
   }
 };
@@ -557,10 +634,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                    const PlanarReference& accepted_geometry, MetricComposition composition, EngineOptions options, MetricChange intent) {
   struct RestoreAdmission {ShapeAdmission previous=GetShapeAdmission();~RestoreAdmission(){SetShapeAdmission(previous);}} admission;
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
-  enum class Phase { Construction, Improvement };
+  using Phase=EnginePhase;
   Phase phase=Phase::Construction;
   bool region_rebuilt=false,improvement_changed=false,construction_changed=false,construction_handoff_progress=false;
   uint64_t phase_start_round=0;
+  if(options.stage_observer)options.caller_bytes=transfer_memory::Add(options.caller_bytes,options.stage_observer_bytes);
   const auto started=Clock::now();
   const auto started_cpu=options.timings ? std::clock() : std::clock_t{};
   std::shared_ptr<BoundaryParameterState> private_parameters;std::shared_ptr<const PlanarReference> private_geometry;
@@ -638,7 +716,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     retired_directory.maximum_work_bytes=std::max(retired_directory.maximum_work_bytes,old.maximum_work_bytes);
   };
   size_t accepted_bytes=MapBytes(accepted);
-  auto selection_bound=[&](bool repairs) { return coarsening ? (repairs ? 8192u : 5120u) : (repairs ? 6144u : 3072u); };
+  auto selection_bound=[&](bool repairs) { return transfer_memory::Add(sizeof(Selection::CellDebt),
+      coarsening ? (repairs ? 8192u : 5120u) : (repairs ? 6144u : 3072u)); };
   std::vector<Id> initial,eligible_extensions;
   auto vote=[&](const CLocalFailure& local) {
     const auto elected=world.elect(local);
@@ -763,10 +842,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   std::string last_rejection;
   uint64_t progress_at_window=0, attempted_at_window=0;
-  auto height_check=[&](const Patch& patch,std::string& reason,bool provisional=false) {
+  auto height_check=[&](const Patch& patch,std::string& reason,bool provisional=false,FirstHeightReport* measured=nullptr) {
     if(options.wall_heights.empty())return true;
     ++stats.height_checks;FirstHeightReport report;
     const bool valid=CheckFirstHeight(patch,options.wall_heights,geometry,report,reason);
+    if(measured)*measured=report;
     stats.height_rejected+=report.height_failures || report.missing_cells;
     stats.footprint_rejected+=report.footprint_failures!=0;
     if(provisional && GetShapeAdmission()==ShapeAdmission::ValidityOnly && report.measured &&
@@ -787,6 +867,26 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   const bool observe_rejections=world.maximum(bool(options.rejected_trial) || bool(options.transaction_observer));
   const bool observe_state=world.maximum(bool(options.rejected_state));
+  const bool observe_stage=world.maximum(bool(options.stage_observer));
+  bool stage_storage_admitted=false,stage_observer_failed=false,construction_entry_reported=false;
+  auto observe_progress=[&](const char* stage) {
+    if(!observe_stage || !stage_storage_admitted || stage_observer_failed)return !stage_observer_failed;
+    CLocalFailure failure;
+    if(options.stage_observer)try {
+      const auto progress=selection.Progress(working.size());
+      options.stage_observer({stage,phase,stats.rounds,result.valid,progress.complete,progress,stats,result.reason,
+          working,original,geometry,composition,options.edge_breakpoints,options.wall_heights,options.region_walls,
+          options.surface_tolerance,options.maximum_seconds,std::chrono::duration<double>(Clock::now()-started).count(),
+          options.maximum_rounds,options.maximum_work,options.memory_ceiling,options.caller_bytes,options.stage_observer_bytes});
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    const auto elected=world.elect(failure);
+    if(elected.any) {
+      stage_observer_failed=true;result.valid=false;stats.stop=EngineStop::Failure;
+      result.reason+=" Stage progress observer failed: "+elected.message;
+      return false;
+    }
+    return true;
+  };
   bool transaction_captured=false;
   bool layer_active=false,region_active=false;Clock::time_point layer_started,region_started;
   auto finish=[&]() {
@@ -847,7 +947,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.donor_search_seconds = donor.search_seconds; stats.donor_filter_seconds = donor.filter_seconds;
     stats.metric_support_cells=donor.metric_sample_cells;stats.metric_support_edges=donor.metric_edge_queries;stats.metric_support_skipped=donor.metric_edge_skipped;stats.metric_support_duplicates=donor.metric_edge_duplicates;
     stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, donor.maximum_work_bytes);
-    result.cells.swap(working);result.parameters=private_parameters;result.reference=private_geometry;
+    result.parameters=private_parameters;result.reference=private_geometry;
     if(curved && !result.valid && !selection.cells.empty()) {
       size_t metric_bad=0,geometry_bad=0;
       for(const auto& row:selection.cells){metric_bad+=!row.second.target_valid;geometry_bad+=row.second.geometry_invalid;}
@@ -864,8 +964,23 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           stats.metric_seconds+stats.routing_seconds+stats.publication_seconds+stats.update_seconds+stats.completion_seconds+stats.collision_seconds;
       stats.other_seconds=stats.total_seconds-phases-stats.layer_seconds;
     }
+    observe_progress("exit");
+    stats.tracked_bytes=world.bytes_sent-tracked_bytes_begin;
+    stats.tracked_calls=world.collective_calls-tracked_calls_begin;
+    stats.tracked_collective_seconds=world.collective_seconds-tracked_seconds_begin;
+    if(options.timings) {
+      const auto total=std::chrono::duration<double>(Clock::now()-started).count();
+      stats.other_seconds+=total-stats.total_seconds;stats.total_seconds=total;
+      stats.process_cpu_seconds=double(std::clock()-started_cpu)/CLOCKS_PER_SEC;
+    }
+    result.rebuilt_domain=result.valid && region_rebuilt;
+    result.cells.swap(working);
     return std::move(result);
   };
+  if(observe_stage) {
+    stage_storage_admitted=admit(0);
+    if(!stage_storage_admitted)return finish();
+  }
   bool ready=false;
   Id maximum_node=0,maximum_cell=0;
   {
@@ -1427,6 +1542,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto measure=[&](const std::vector<Id>& ids,bool seed,double* enclosing_seconds) {
     const auto plan_scratch=transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*));
     if(!admit(transfer_memory::Add(plan_scratch,transfer_memory::Mul(MeasurementBatch,sizeof(Cell)+sizeof(unsigned char)))))return false;
+    selection.census_started=true;
     const size_t count=CPassiveComm::Allreduce(ids.size(),CPassiveComm::Op::MAX,world.comm);
     for (size_t slot=0; slot<count;) {
       if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
@@ -1471,21 +1587,22 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           std::string reason;
           MetricStats counted;
           const auto& cell=working.at(ids[i]).cell;
-          bool strict=false,quality_valid=false;
+          bool strict=false,quality_valid=false,height_valid=true;FirstHeightReport height;
           if(phase==Phase::Construction) {
             metric=MeasureMetricEdges({cell},field,&counted,&reuse,&campaign_edges);
             strict=metric.maximum_length<=MaximumMetricEdge;
           } else {
             const bool metric_valid=ValidateMetricPatch({cell},field,metric,reason,&counted,&reuse);
             std::string height_reason;
-            const bool height_valid=height_check(GeometryPatch(Imported{{working.at(ids[i])},true,{}}, &geometry),height_reason);
+            height_valid=height_check(GeometryPatch(Imported{{working.at(ids[i])},true,{}}, &geometry),height_reason,false,&height);
             if(!height_valid)reason=height_reason;
             quality_valid=metric.shape_measured && std::isfinite(metric.minimum_mean_ratio) && std::isfinite(metric.minimum_scaled_jacobian) &&
                 metric.minimum_mean_ratio>=MinimumMeanRatio &&
                 metric.minimum_scaled_jacobian>=MinimumScaledJacobian && height_valid;
             strict=metric_valid && height_valid;
           }
-          selection.Add(working.at(ids[i]),metric,strict,quality_valid,reason);
+          selection.Add(working.at(ids[i]),metric,strict,quality_valid,reason,
+              phase==Phase::Improvement && !options.wall_heights.empty()?&height:nullptr,height_valid);
           for(const auto& edge:metric.edges)reuse.insert_or_assign(edge.first,edge.second);
           stats.edge_evaluations+=counted.edge_evaluations;
           stats.edge_reused+=counted.edge_reused;
@@ -1517,6 +1634,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     return vote(failure) && measure(next,true,&stats.seed_seconds);
   };
   auto enter_phase=[&](Phase next) {
+    if(phase==Phase::Construction && !construction_entry_reported) {
+      if(!observe_progress("construction_entry"))return false;
+      construction_entry_reported=true;
+    }
     construction_handoff_progress=next==Phase::Improvement && world.maximum(construction_changed);
     if(next==Phase::Construction)construction_changed=false;
     phase=next;repairing=next==Phase::Improvement;improvement_changed=false;phase_start_round=stats.rounds;
@@ -1537,7 +1658,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(!vote(failure))return false;
     seed_slot=initial.size();
     // A phase census has no enclosing update timer to debit for donor imports.
-    const bool measured=measure(initial,false,nullptr);retired_edges.clear();return measured;
+    const bool measured=measure(initial,false,nullptr);retired_edges.clear();
+    if(!measured)return false;
+    if(!repairing)construction_entry_reported=true;
+    return observe_progress(repairing?"quality_entry":"construction_entry");
   };
   auto discard_checkpoint=[&]() {
     if(checkpoint.directory)retire_directory(checkpoint.directory->Statistics());
@@ -1731,6 +1855,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         // Valid coarsening may exhaust rejected directions without changing an already admissible mesh.
         if (!mesh_progress) ++stats.stagnant_windows;
         if (!mesh_progress && search_progress) ++stats.search_windows;
+        if(!observe_progress("window"))return finish();
         // Fresh rejected directions are finite search work even on invalid meshes; do not declare infeasibility early.
         if (!mesh_progress && !search_progress) {
           if(phase==Phase::Construction && !world.maximum(selection.cells.size()!=working.size())) {
@@ -3401,6 +3526,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           transfer_memory::Add(bytes(),source.ResidentBytes(),MaximumFrozenFieldBytes),parameter_edits);
     }
     if (!ready) return finish();
+    if(!removed.empty() || !added.empty())selection.progress_consistent=false;
     // A completed attempt is served once on every replica. Conflict/deferred candidates never
     // enter this receipt stream and retain their waiting age.
     if(!service_frontier(repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2},chosen,approved))return finish();
@@ -3429,6 +3555,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           for (auto key : cached->second.edges)retired_edges.emplace(key,selection.edges.at(key).measure);
           selection.Drop(row.cell);
         }
+        selection.progress_consistent=true;
         for (const auto& row : added) changed.push_back(row.cell.id);
         for (auto row : failures) selection.Block(row.edge,row.feature,repairing);
         if (approved) {

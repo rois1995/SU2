@@ -1,7 +1,7 @@
 # M6 quality-stage progress
 
-Reviewed design, 2026-10-27. This is a measurement/capture plan, not a validated
-convergence change. Complete accepted M6 adaptation remains the milestone.
+Reviewed design, 2026-10-27. Measurement/capture implementation is integrated in active
+build18/session62205, not yet validated; this is not a convergence change. Complete accepted M6 adaptation remains the milestone.
 See [staged adaptation](STAGED_NATIVE_ADAPTATION.md) and
 [curved boundary mobility](CURVED_BOUNDARY_MOBILITY.md).
 
@@ -111,3 +111,22 @@ Ultimate acceptance still requires complete M6 Euler then RANS adaptation, stric
 q>=.20/J>=.05, edges<=1.8, requested first-height tolerance (±10%), prescribed geometry/features,
 body separation/contact, complexity 500,000 and conservative transfer/BDF/restart
 checks under unchanged resource limits. A diagnostic or local repair is no substitute.
+
+Current implementation preparation: stage cache/borrowed observer, streamed owner
+and immutable donor shards, bounded parameter payload, and explicit private
+manifest. The opt-in frozen M6 diagnostic saves first quality entry and stops after
+four measured improvement windows, saving `observation_stop` on every worker
+before the collectively elected diagnostic exception. That deliberate stop is not
+infeasibility or final mesh acceptance. Ordinary failure retains `rejected_exit`
+when the observer is healthy. Function-valued composition/breakpoints and exact
+queue continuation are explicitly not serialized.
+
+The build13 `restart_flow_adap_00000.dat` has SHA256
+`c91d06b38e840aaada5a8ac417d1f937cdda4b5f5de7d587f7d17bbfc08e236b`,
+identical to diagnostic55's pinned extraction input. All 61,330 coordinates, IDs
+and sensor tensors match the existing `sensor_original.bin` bit-for-bit. Reuse
+that source with build13's configuration/authority; no repeated sensor extraction
+or field substitution is needed. `staged57/run_cases.py m6_stage` (with buildN as
+its first argument) pins these inputs and verifies complete rank shards, record
+lengths, matching immutable donor hashes and four trace windows. Its standalone
+`test_stage_receipts.py` rejects missing/truncated shards and changed donor data.

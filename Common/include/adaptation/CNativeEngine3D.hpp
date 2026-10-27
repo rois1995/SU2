@@ -11,6 +11,48 @@
 namespace SU2Native3D {
 constexpr double CoarseningMetricEdge = .9;  // Frozen candidate hysteresis; final upper/shape gates remain strict.
 constexpr size_t MaximumCandidateBatch = 8;
+enum class EnginePhase { Construction, Improvement };
+struct EngineStats;
+/*! Rank-local owned-cell diagnostics. Sums cover measured cells only; completeness/counts must
+ * accompany them. Edge debt counts all six cell incidences, not unique global edges. */
+struct StageProgress {
+  size_t owned_cells=0,measured_cells=0,unmeasured_cells=0;
+  size_t invalid_cells=0,construction_invalid_cells=0,quality_invalid_cells=0,remaining_edges=0,remaining_repairs=0;
+  size_t shape_measured_cells=0,shape_unmeasured_cells=0;
+  size_t q_measured_cells=0,j_measured_cells=0,height_measured_cells=0,height_unmeasured_cells=0;
+  size_t geometry_measured_cells=0,geometry_unmeasured_cells=0;
+  size_t height_unresolved_cells=0;  // Missing/nonfinite report or unresolved reference-clearance validity.
+  size_t q_bad_cells=0,j_bad_cells=0,size_bad_cells=0,height_bad_cells=0,geometry_bad_cells=0;
+  // Shape: max(0,1-q/.20)^2 and max(0,1-J/.05)^2. Size: sum over six incidences
+  // of max(0,L/1.8-1)^2. Height: per-cell report max-error/tolerance excess squared
+  // plus max(0,-3*minimum_barycentric)^2; zero measured/unmeasured counts mean not requested.
+  long double q_hinge_squared=0,j_hinge_squared=0,size_hinge_squared=0,height_hinge_squared=0;
+  long double geometry_excess_squared=0;  // Sum of squared physical surface-error excesses (length squared).
+  bool height_requested=false,surface_error_requested=false;
+  bool cache_consistent=true;  // False during an interrupted publication/cache update: all current data unknown.
+  bool census_complete=false,shape_complete=false,height_complete=false,geometry_complete=false,complete=false;
+};
+/*! Borrowed synchronous view. No collectives, mutation or retained references in observers.
+ * `valid` is final acceptance only; `complete` means all diagnostic channels are measured.
+ * Function objects are borrowed rebuilding context, not a serializable field specification. */
+struct StageProgressView {
+  const char* stage;  // construction_entry, quality_entry, window, exit
+  EnginePhase phase;
+  uint64_t round;
+  bool valid,complete;
+  const StageProgress& progress;
+  const EngineStats& stats;
+  const std::string& reason;
+  const Owned& working;
+  const std::vector<DonorCell>& original;
+  const PlanarReference& geometry;
+  const MetricComposition& composition;
+  const MetricEdgeBreakpoints& breakpoints;
+  const WallHeights& wall_heights;
+  const std::map<int,RegionWallPolicy>& region_walls;
+  double surface_tolerance,maximum_seconds,elapsed_seconds;
+  size_t maximum_rounds,maximum_work,memory_ceiling,caller_bytes,stage_observer_bytes;
+};
 /*! Borrowed diagnostic view; callbacks copy bounded data and never call collectives or mutate state. */
 struct TransactionView {
   const char* stage;
@@ -47,6 +89,8 @@ struct EngineOptions {
   // Diagnostic selector only: first matching reserved transaction; configure identically on all workers.
   Feature capture_feature{};
   std::function<void(const TransactionView&)> transaction_observer;
+  std::function<void(const StageProgressView&)> stage_observer;
+  size_t stage_observer_bytes=0;  // Additional observer storage reserved in every runtime admission while installed.
   bool timings = false;
   size_t candidate_batch = MaximumCandidateBatch;  // Internal control for paired correctness/work comparisons.
 };
