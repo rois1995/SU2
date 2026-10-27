@@ -32,13 +32,13 @@ filters retain conservative transfer and `[NativeCurvedLifecycle3D]`.
 The expanded compiled selection and execution remain to be verified.
 This is a validation coverage gap, not an identified transfer defect.
 
-Build34 expanded serial/session69002 failed in mapped curved Euler/RANS runtime after
-29 private edits at the unchanged atlas work budget 67207168; the remap/Finish cost
-diagnosis is pending. Pins remained unchanged; MPI and M6 retry have not run.
+Build35 and build36 passed with 950 unchanged pins. Build36 serial_full/session68944 TERMINAL FAIL99.7804s, pins unchanged: 226/228 cases and 1129639/1129642 assertions passed; largest sampled individual RSS145432576 bytes. Evidence: `staged57/cases/serial_full_20261027T153436_2673844`. The overlapping-star test exhausted atlas work on event 5 (sixth move); curved Euler/RANS runtime again exhausted 67207168 work after 29 accepted private edits and 35 attempts. Retained path history is an architectural blockage not resolved by discarding interior cuts. Develop a connected strategy before MPI or M6 retry; accepted mesh, transfer and restart remain unqualified.
 
 Full M6 transfer remains unqualified because no complete accepted M6 mesh exists.
 
 ## TR-003 — Source envelopes must retain cross-chart correspondence
+
+Qualification is pending the [working-surface reconstruction decision](WORKING_SURFACE_RECONSTRUCTION_DECISION.md) and compatibility probe; native geometry authority and transfer/restart gates remain unchanged.
 
 **Status:** integration requirement confirmed by caller inspection; implementation
 in progress, not validated. No accepted cross-chart mesh has yet been produced.

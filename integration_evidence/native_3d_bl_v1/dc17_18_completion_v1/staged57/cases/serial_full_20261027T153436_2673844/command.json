@@ -1,0 +1,22 @@
+{
+  "build": "build36",
+  "case": "serial_full",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeCollision3D],[NativeMesh3D],[NativeOriginalSupport3D],[NativeMetricFootprint3D],[NativeMetricSamples3D],[NativeCurvedMapped3D],[NativeCurvedMappedGuards3D],[NativeMappedFacetGeometry],[NativeMappedPublication3D],[NativeMappedRealized3D],[NativeMappedComponent3D],[NativeParametricGeometry],[NativeAffineSourceGeometry],[NativeFirstLayer3D],[NativeCurvedBL3D],[NativeJointAffineSource3D],[NativeGeneratedCoverage3D],[NativeMappedRuntime3D],[NativeMappedReader3D],[NativeConcurrentComposed3D],[NativeCollapseFilter3D],[NativeInteriorPlacement3D],[NativeAutomaticRepair3D],[NativeShapeAdmission3D],[NativeOptimize3D],[NativeDefault3D],[NativePolicyRuntime3D],[NativeInteractingBLVolume3D],[NativeCurvedBLVolume3D],[NativeCylinderBLVolume3D],[NativeComplexityEstimate3D],[NativeParallelBL3D],[NativeVolumeBL3D],[NativeStagedConstruction3D],[NativeConstructionHandoff3D],[NativeJointGeometry3D],[NativeConcurrentRepair3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeCoordinateStar3D],[NativeMetricSplitRule3D],[NativeRepairFairness3D],[NativeConstructionSweep3D],[NativeCoarsenQualityReturn3D],[ConservativeClipRobustness],[NativeStageProgress3D],[NativeStageCapture3D],[NativeAtlas3D],[NativeCurvedAtlas3D],[NativeAffineGeometry],[NativeAtlasReferenceIO3D],[NativeReferenceTriangulation3D],[NativeAtlasCoordinatedPublication3D],[NativeGeometryBackend3D],Convex clipping:*,Distributed conservative projection:*,Conservative kernels:*,Distributed conservative kernels:*,Transfer admissibility:*,Distributed conservative transfer:*,Single precision transfer contract,[NativeCurvedLifecycle3D],[NativeCurvedTransaction3D],[NativeRuntime3D],[NativeCurvedRuntime3D],[NativePolicyVeto3D],[NativeBLPolicyRuntime3D],Distributed barycentric transfer:*,Conservative projection:*,Conservative transfer:*"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "timeout_seconds": 600
+}

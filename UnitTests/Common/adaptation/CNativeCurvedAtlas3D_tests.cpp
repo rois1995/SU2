@@ -234,3 +234,45 @@ TEST_CASE("A nonseparating crease retains two local sheets during a vertex move"
   for(const auto& cell:fresh.cells)CHECK(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
   CHECK(state->Snapshot()==snapshot);
 }
+
+TEST_CASE("Overlapping curved stars retain bounded correspondence across alternating moves", "[NativeCurvedAtlas3D][NativeOverlappingAtlas3D]") {
+  RemappingFixture fixture(false);auto setup=RemappingBudget();const auto qb=fixture.geometry->EdgePoint({0,20},.5);
+  auto points=fixture.points;points.emplace(60,BoundaryPoint{{60,fixture.geometry->Realize(qb)},qb});
+  auto surface=fixture.surface;surface.erase(surface.begin(),surface.begin()+2);
+  surface.insert(surface.begin(),{{{10,0,60},0},{{10,60,20},0},{{20,60,30},1},{{60,0,30},1}});
+  auto accepted=std::make_shared<BoundaryParameterState>(fixture.geometry,points,surface,1,SIZE_MAX,0,BoundaryCoverage{},fixture.policy,&setup);
+  surface.clear();for(const auto& row:accepted->Surface())surface.push_back(row.second);
+  const auto original=fixture.state->Snapshot();Id moving[2]={0,60};
+  using Measures=std::array<size_t,5>;std::map<unsigned,Measures> baseline;
+  for(unsigned event=0;event<16;++event) {
+    const unsigned phase=event%4,slot=event%2;const Id old=moving[slot],next=100+event;
+    auto budget=RemappingBudget();std::string reason;const auto snapshot=accepted->Snapshot();
+    auto reference=PlanarReference::WithParameters(fixture.definition,accepted);
+    Patch patch;for(const auto& face:surface)if(std::find(face.v.begin(),face.v.end(),old)!=face.v.end())patch.surface.push_back(face);
+    CurvedAtlas atlas;const bool prepared=PrepareCurvedAtlas(patch,*reference,old,atlas,budget,reason);INFO(event);INFO(reason);REQUIRE(prepared);
+    const std::array<SurfaceBinding,4> bindings{{fixture.geometry->FacetPoint(1,.75,.125),fixture.geometry->FacetPoint(0,.5,.375),
+                                                  fixture.geometry->FacetPoint(3,.75,.125),fixture.geometry->FacetPoint(1,.5,.125)}};
+    const auto binding=bindings[phase];points.erase(old);points.emplace(next,BoundaryPoint{{next,fixture.geometry->Realize(binding)},binding});
+    auto local=fixture.Moved(old,next,patch.surface);BoundaryCoverage fresh;
+    const bool remapped=RemapAtlasSurface(atlas,local,points,fresh,budget,reason);INFO(reason);REQUIRE(remapped);
+    BoundaryCoverage coverage=accepted->Coverage();for(const auto& face:patch.surface)coverage.faces.erase(face.v);
+    for(const auto& row:fresh.faces)coverage.faces.insert_or_assign(row.first,row.second);
+    surface=fixture.Moved(old,next,surface);std::set<Edge> edges;
+    for(const auto& face:surface)for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());edges.insert(edge);}
+    for(auto it=coverage.traces.begin();it!=coverage.traces.end();)if(!edges.count(it->first))it=coverage.traces.erase(it);else ++it;
+    for(const auto& row:fresh.traces)coverage.traces.insert_or_assign(row.first,row.second);
+    auto next_state=std::make_shared<BoundaryParameterState>(fixture.geometry,points,surface,accepted->Revision()+1,SIZE_MAX,0,coverage,fixture.policy,&budget);
+    CHECK(accepted->Snapshot()==snapshot);CHECK(fixture.state->Snapshot()==original);CHECK(next_state->Authority()==fixture.geometry);
+    CHECK(next_state->Mobility().bodies==fixture.policy.bodies);
+    size_t face_pieces=0,trace_pieces=0,bits=0;
+    auto ratio=[&](const ExactRatio& r){for(const auto* limbs:{&r.numerator,&r.denominator})if(!limbs->empty()){
+      size_t width=32*(limbs->size()-1);for(uint32_t top=limbs->back();top;top>>=1)++width;bits=std::max(bits,width);}};
+    auto bary=[&](const ExactBary& b){ratio(b.u);ratio(b.v);};
+    for(const auto& row:coverage.faces)for(const auto& piece:row.second.pieces){++face_pieces;for(const auto& b:piece.reference)bary(b);for(const auto& b:piece.active)bary(b);}
+    for(const auto& row:coverage.traces)for(const auto& piece:row.second.pieces){++trace_pieces;bary(piece.first);bary(piece.last);ratio(piece.end);}
+    const Measures measures{{face_pieces,trace_pieces,bits,budget.work,budget.peak_bytes}};INFO(phase);INFO(budget.work);INFO(budget.peak_bytes);
+    if(event>=4){const auto found=baseline.find(phase);if(found==baseline.end())baseline.emplace(phase,measures);
+      else for(unsigned k=0;k<measures.size();++k)CHECK(measures[k]<=found->second[k]);}
+    accepted=std::move(next_state);surface.clear();for(const auto& row:accepted->Surface())surface.push_back(row.second);moving[slot]=next;
+  }
+}

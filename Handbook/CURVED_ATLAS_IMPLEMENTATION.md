@@ -525,4 +525,14 @@ session69002 is live; source/helpers frozen until terminal.
 
 ## Current integration work
 
-Build35/session41478 is live; C++ sources and validation helpers are frozen. Finish now uses direct immutable-chart ExportParameters and CheckSurface only when all affected patch, private-view and accepted face/edge correspondence is implicit and candidate bindings support the anchors. Explicit or cross-chart correspondence selects fresh PL reconstruction upfront, with no failure fallback. Prepare retains whole-union, trace and incident-face proofs. Existing fixtures now check these predicates and per-phase work/peak bounds over 16 events. Build34 failure showed unnecessary reconstruction, not renewed history growth. Build35 is unvalidated; qualify curved runtime, then broader serial/MPI and the difficult M6 workflow.
+The [working-surface reconstruction decision](WORKING_SURFACE_RECONSTRUCTION_DECISION.md) calls for a mature-backend compatibility probe before implementation resumes. Geometry Central on fixed input with a disposable overlay is a candidate, not a selected production backend; vendored Eigen is the practical linear-algebra reuse candidate instead of custom CG. Independent per-edge chart work is not the selected joint-network production design. Canonical trace, trace coverage and integration changes are unbuilt, unvalidated WIP and frozen. No jobs are live. Native geometry authority and all final gates remain unchanged.
+
+Build35 and build36 passed with 950 unchanged pins. Build36 serial_full/session68944 TERMINAL FAIL99.7804s, pins unchanged: 226/228 cases and 1129639/1129642 assertions passed; largest sampled individual RSS145432576 bytes. Evidence: `staged57/cases/serial_full_20261027T153436_2673844`. The overlapping-star test exhausted atlas work on event 5 (sixth move); curved Euler/RANS runtime again exhausted 67207168 work after 29 accepted private edits and 35 attempts. Retained path history is an architectural blockage not resolved by discarding interior cuts. Develop a connected strategy before MPI or M6 retry; accepted mesh, transfer and restart remain unqualified.
+
+Finish uses direct immutable-chart ExportParameters and CheckSurface only when
+patch, private-view and accepted face/edge correspondence is implicit and candidate
+bindings support the anchors. Explicit or cross-chart correspondence selects fresh
+PL reconstruction upfront, without a failure fallback. Prepare retains whole-union,
+trace and incident-face proofs. Same-star oscillation alone does not establish
+bounded cost for moving neighbors; the overlapping-star failure demonstrates the
+remaining limitation. Existing predicate and repeated-event resource tests remain.
