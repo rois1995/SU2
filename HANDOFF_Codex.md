@@ -61,12 +61,19 @@ The identical whole-workflow failure is not resolved by the neighboring-path fix
 Do not raise limits or claim capability completion. MPI broad and wider workflows
 are still due after this serial blocker is understood.
 
-Build41/session87438 is LIVE, single worker. Changes are diagnostic only: opt-in
-AtlasOps inclusive/exclusive work attribution and bounded raw rejected-state
-capture before geometry measurements can themselves fail at exhaustion.
-`mapped_work_trace` is the focused failing runtime selector. Keep pinned sources
-unchanged until terminal. Use its receipts to choose the connected verification/
-construction change; no cache/gate/budget change has been made.
+Build41–45 diagnostics identify why curved runtime queues no geometry edges:
+all457 build45 split probes throw before scoring (133 boundary points passed to
+interior-only binding,324 transient projection face identity refusals). Build45
+is terminal PASS141.20s; focused certificate test1 passes, test2 has a private-view
+fixture setup error. Runtime replay fails17.91s unchanged pins/gates. Build46 passed90.19s; focused93 assertions/2 cases PASS6.96s. It
+corrects canonical boundary strata and transient forward-association containment
+and error queries. Mapped replay FAIL13.98s:318/342 probes score,9 geometry-progress
+edits,22 accepted/30 attempts,31 queued edges at unchanged work67,207,168.
+Fresh six-rank M6 build46/session32081 is LIVE without debugger attach; keep
+pinned sources/helpers unchanged. Compiled filters PASS237serial/214MPI/55atlas
+with all intended cases, including both new tests and separate wide workflows. See
+[verification diagnosis](Handbook/GEOMETRY_VERIFICATION_COST.md). No accepted
+mesh or full workflow has been established; broad and fresh M6 remain due.
 
 The [architecture review](Handbook/WORKING_SURFACE_RECONSTRUCTION_DECISION.md)
 compares Gmsh, CGAL, Mmg, Omega_h and Geometry Central. The narrow fixed-input
@@ -110,3 +117,5 @@ metadata. Run one owned heavy job at a time, nice19, one build worker, single-th
 libraries and at most six local MPI ranks. Check host RAM/load and live handles;
 use 4TB `integration_evidence/build-integrated-v2/compile-tmp`, never root/tmp for
 builds. External-SSD inputs are archived and hash verified: [reference archive](Handbook/ADAPTATION_REFERENCE_INPUTS.md).
+
+Current complete-workflow cost diagnosis and shared certificate design: [geometry verification cost](Handbook/GEOMETRY_VERIFICATION_COST.md).

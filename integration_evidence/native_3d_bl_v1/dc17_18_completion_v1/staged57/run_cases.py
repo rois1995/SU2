@@ -20,6 +20,8 @@ CASES = {
     "m6_stage": (6, "[NativeFrozenVolume3D]"),
     "cost_checks": (1, "[NativeOverlappingAtlas3D]"),
     "mapped_work_trace": (1, "[NativeMappedRuntime3D]"),
+    "mapped_runtime": (1, "[NativeMappedRuntime3D]"),
+    "single_certificate_checks": (1, "[NativeSingleChartCertificate3D]"),
     "workflow_solved6": (6, "[NativeSolvedEuler3D]"),
     "workflow_primitive6": (6, "[NativePrimitiveRuntime3D]"),
     "workflow_resolved_m1": (6, "[NativeResolvedEuler3D]"),

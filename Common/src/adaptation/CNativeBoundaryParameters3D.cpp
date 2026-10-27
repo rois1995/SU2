@@ -826,6 +826,14 @@ SU2NativeGeometry::SurfaceBinding PlanarReference::ProposedBinding(Point p,const
   if(!(largest>0&&std::isfinite(determinant)))throw std::invalid_argument("Unresolved mapped facet parameter proposal.");
   const double u=double(((q[x]-a[x])*(c[y]-a[y])-(q[y]-a[y])*(c[x]-a[x]))/determinant);
   const double v=double(((b[x]-a[x])*(q[y]-a[y])-(b[y]-a[y])*(q[x]-a[x]))/determinant);
+  const auto remainder=Orientation({1,0,0},{0,1,0},{u,v,0},{0,0,1});
+  if(std::isfinite(u)&&std::isfinite(v)&&u>=0&&v>=0&&remainder>=0&&(u==0||v==0||remainder==0)) {
+    // FacetPoint represents only the open facet; preserve canonical boundary strata.
+    Edge edge=u==0?Edge{f.v[0].id,f.v[2].id}:v==0?Edge{f.v[0].id,f.v[1].id}:Edge{f.v[1].id,f.v[2].id};
+    double t=u==0?v:v==0?u:v;
+    if(edge[0]>edge[1]){std::swap(edge[0],edge[1]);t=1-t;}
+    return geometry.EdgePoint(edge,t);
+  }
   return geometry.FacetPoint(id,u,v);
 }
 Node PlanarReference::BindNewPoint(Node point,const std::set<Id>& incident)const {
@@ -853,8 +861,14 @@ bool PlanarReference::ParameterContainsFace(Id facet,const std::array<Point,3>& 
   }
   if(!AtlasActive(*parameter_view->accepted)&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty())return g.ContainsFace(facet,b,p,stats);
   if(!parameter_view->reservation)return false;auto& budget=*parameter_view->reservation;std::string reason;FaceCoverage cover;std::array<EdgeTrace,3> traces;
-  if(!ResolveCoverage(face,cover,budget,reason))return false;
-  for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};if(!ResolveTrace(edge,face,traces[k],budget,reason))return false;if(edge[0]>edge[1])traces[k]=ReverseTrace(traces[k],budget);}
+  const bool transient=std::find(face.v.begin(),face.v.end(),UINT64_MAX)!=face.v.end();
+  if(transient) {
+    // A projection probe has associations but no publishable mesh face identity.
+    if(!g.ResolveSingleChart(facet,b,cover,budget,reason)||!g.CoverageTraces(cover,traces,budget,reason))return false;
+  } else if(!ResolveCoverage(face,cover,budget,reason))return false;
+  for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};
+    if(transient&&(edge[0]==UINT64_MAX||edge[1]==UINT64_MAX))continue;
+    if(!ResolveTrace(edge,face,traces[k],budget,reason))return false;if(edge[0]>edge[1])traces[k]=ReverseTrace(traces[k],budget);}
   try{CheckPolicyCoverage(facet,cover,parameter_view->accepted->Mobility(),g,budget,reason);}catch(const std::exception&){return false;}
   return g.ValidateCoverage(facet,b,p,cover,traces,budget,reason);
 }
@@ -885,10 +899,13 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)con
   for(unsigned k=0;k<3;++k){const auto b=Parameter(p[k]);if(!b)throw std::invalid_argument("Unbound mapped surface error query.");binding[k]=b->binding;
     const auto plane=Affine().find(facet);if(plane!=Affine().end())maximum=std::max(maximum,SU2NativeGeometry::AffineChart(plane->second).ErrorBound(p[k]));}
   if(!AtlasActive(*parameter_view->accepted)&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty())return std::max(maximum,g.SurfaceError(facet,binding,p));
-  SurfaceFace face;face.facet=facet;for(unsigned k=0;k<3;++k)face.v[k]=Parameter(p[k])->node.id;
+  SurfaceFace face;face.facet=facet;bool transient=false;
+  for(unsigned k=0;k<3;++k){face.v[k]=Parameter(p[k])->node.id;transient=transient||face.v[k]==UINT64_MAX;}
   if(!parameter_view->reservation)throw std::invalid_argument("Mapped atlas error query lacks admitted geometry work.");
   auto& budget=*parameter_view->reservation;std::string reason;FaceCoverage cover;
-  if(!ResolveCoverage(face,cover,budget,reason))throw std::invalid_argument(reason);
+  // Projection probes have forward bindings, not published mesh identities or face records.
+  const bool resolved=transient?g.ResolveSingleChart(facet,binding,cover,budget,reason):ResolveCoverage(face,cover,budget,reason);
+  if(!resolved)throw std::invalid_argument(reason);
   CheckPolicyCoverage(facet,cover,parameter_view->accepted->Mobility(),g,budget,reason);
   return std::max(maximum,g.SurfaceError(cover,p,budget));
 }

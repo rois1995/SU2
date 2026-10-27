@@ -308,16 +308,29 @@ std::array<Box,10> RestrictBoxes(const std::array<Box,10>& net,const std::array<
   return result;
 }
 void PositiveProjectedNet(const std::array<Box,10>& net,const Box& normal,AtlasOps& op) {
-  std::vector<std::array<Box,10>> pending{net};
+  using Part=std::array<Box,10>;std::vector<Part> pending;
+  auto reserve=[&](size_t needed) {
+    if(needed>pending.capacity()) {
+      const auto next=std::max(needed,transfer_memory::Mul(pending.capacity(),2));
+      op.Storage(transfer_memory::Mul(transfer_memory::Add(pending.capacity(),next),sizeof(Part)));
+      pending.reserve(next);
+    }
+    op.Storage(transfer_memory::Mul(pending.capacity(),sizeof(Part)));
+  };
+  reserve(1);pending.push_back(net);
   const std::array<Box,3> left{Exact({1,0,0}),Exact({.5,.5,0}),Exact({.5,0,.5})},
       right{Exact({.5,.5,0}),Exact({0,1,0}),Exact({0,.5,.5})},
       top{Exact({.5,0,.5}),Exact({0,.5,.5}),Exact({0,0,1})},
       middle{Exact({.5,.5,0}),Exact({0,.5,.5}),Exact({.5,0,.5})};
   while(!pending.empty()) {
     op.Work();const auto part=pending.back();pending.pop_back();bool positive=true,nonpositive=true;
-    for(const auto& n:CubicNormalControls(part)){const auto r=DotBox(n,normal);positive=positive&&r.lo>0;nonpositive=nonpositive&&r.hi<=0;}
+    const auto controls=CubicNormalControls(part);
+    for(const auto& n:controls){const auto r=DotBox(n,normal);positive=positive&&r.lo>0;nonpositive=nonpositive&&r.hi<=0;}
+    // Quartic vertex controls are actual corner normals: one nonpositive corner refutes positivity.
+    for(unsigned k=0;k<3;++k)if(DotBox(controls[PolynomialIndex(4,k==0?4:0,k==1?4:0)],normal).hi<=0)
+      throw std::invalid_argument("Curved region has nonpositive projected Jacobian.");
     if(positive)continue;if(nonpositive)throw std::invalid_argument("Curved region has nonpositive projected Jacobian.");
-    op.Storage(transfer_memory::Mul(pending.size()+4,sizeof(part)));
+    reserve(transfer_memory::Add(pending.size(),4));
     pending.push_back(RestrictBoxes(part,left));pending.push_back(RestrictBoxes(part,right));pending.push_back(RestrictBoxes(part,top));pending.push_back(RestrictBoxes(part,middle));
   }
 }
@@ -1161,8 +1174,31 @@ bool MappedFacetReference::CoverageTraces(const FaceCoverage& coverage,std::arra
     AtlasBudget& budget,std::string& reason)const {
   try {
     AtlasOps op{budget,__func__};op.Storage(transfer_memory::Mul(coverage.pieces.size(),3*(sizeof(TracePiece)+1024)));
+    auto spell=[&](TracePiece& trace) {
+      for(unsigned z=0;z<3;++z)if(!op.Compare(op.Weight(trace.first,z),op.Integer(0))&&!op.Compare(op.Weight(trace.last,z),op.Integer(0))) {
+        const auto& f=reference->Get(trace.facet);SU2Native3D::Edge edge{f.v[(z+1)%3].id,f.v[(z+2)%3].id};std::sort(edge.begin(),edge.end());
+        const auto& incident=edge_facets.at(EdgeIdentity(edge));const Id canonical=*std::min_element(incident.begin(),incident.end());
+        if(canonical!=trace.facet) {
+          auto remap=[&](const ExactBary& p){std::map<Id,ExactRatio> w;for(unsigned j=0;j<3;++j)w.emplace(f.v[j].id,op.Weight(p,j));const auto& g=reference->Get(canonical);
+            return ExactBary{w.count(g.v[1].id)?w.at(g.v[1].id):op.Integer(0),w.count(g.v[2].id)?w.at(g.v[2].id):op.Integer(0)};};
+          trace.first=remap(trace.first);trace.last=remap(trace.last);trace.facet=canonical;
+        }break;
+      }
+    };
     struct Segment {ExactRatio start;TracePiece piece;};std::array<std::vector<Segment>,3> boundary;
     if(coverage.pieces.empty())throw std::invalid_argument("Empty curved face coverage.");
+    if(coverage.pieces.size()==1) {
+      const auto& piece=coverage.pieces.front();reference->Get(piece.facet);bool identity=true;
+      for(unsigned k=0;k<3;++k){op.Bary(piece.reference[k]);op.Bary(piece.active[k]);
+        identity=identity&&!op.Compare(piece.active[k].u,op.Integer(k==1))&&!op.Compare(piece.active[k].v,op.Integer(k==2));}
+      if(identity) {
+        if(op.Compare(op.Orient(piece.reference[0],piece.reference[1],piece.reference[2]),op.Integer(0))<=0)
+          throw std::invalid_argument("Curved coverage reverses its reference simplex.");
+        std::array<EdgeTrace,3> out;for(unsigned k=0;k<3;++k){TracePiece trace{piece.facet,piece.reference[k],piece.reference[(k+1)%3],op.Integer(1)};
+          spell(trace);out[k].pieces.push_back(std::move(trace));}
+        result=std::move(out);reason.clear();return true;
+      }
+    }
     for(const auto& piece:coverage.pieces) {
       reference->Get(piece.facet);
       for(unsigned k=0;k<3;++k){op.Bary(piece.reference[k]);op.Bary(piece.active[k]);}
@@ -1177,17 +1213,7 @@ bool MappedFacetReference::CoverageTraces(const FaceCoverage& coverage,std::arra
         const auto first=t(k),last=t(next);
         if(op.Compare(first,last)>=0)throw std::invalid_argument("Curved coverage boundary reverses or collapses.");
         TracePiece trace{piece.facet,piece.reference[k],piece.reference[next],last};
-        // A trace on an original seam has one canonical chart spelling, independent of incident face.
-        for(unsigned z=0;z<3;++z)if(!op.Compare(op.Weight(trace.first,z),op.Integer(0))&&!op.Compare(op.Weight(trace.last,z),op.Integer(0))) {
-          const auto& f=reference->Get(trace.facet);SU2Native3D::Edge edge{f.v[(z+1)%3].id,f.v[(z+2)%3].id};std::sort(edge.begin(),edge.end());
-          const auto& incident=edge_facets.at(EdgeIdentity(edge));const Id canonical=*std::min_element(incident.begin(),incident.end());
-          if(canonical!=trace.facet) {
-            auto remap=[&](const ExactBary& p){std::map<Id,ExactRatio> w;for(unsigned j=0;j<3;++j)w.emplace(f.v[j].id,op.Weight(p,j));const auto& g=reference->Get(canonical);
-              return ExactBary{w.count(g.v[1].id)?w.at(g.v[1].id):op.Integer(0),w.count(g.v[2].id)?w.at(g.v[2].id):op.Integer(0)};};
-            trace.first=remap(trace.first);trace.last=remap(trace.last);trace.facet=canonical;
-          }
-          break;
-        }
+        spell(trace);
         boundary[side].push_back({first,std::move(trace)});
       }
     }
@@ -1210,13 +1236,15 @@ bool MappedFacetReference::CoverageTraces(const FaceCoverage& coverage,std::arra
 bool MappedFacetReference::EqualTraces(const EdgeTrace& a,const EdgeTrace& b,AtlasBudget& budget,std::string& reason)const {
   try {
     AtlasOps op{budget,__func__};
-    auto check=[&](const EdgeTrace& trace){auto last=op.Integer(0);AtlasKey previous;bool first=true;
+    auto check=[&](const EdgeTrace& trace){auto last=op.Integer(0);AtlasKey previous,start;bool first=true;
       for(const auto& p:trace.pieces){op.Bary(p.first);op.Bary(p.last);if(op.Compare(p.end,last)<=0||op.Compare(p.end,op.Integer(1))>0)throw std::invalid_argument("Invalid curved trace interval.");
-        if(ReferenceKey(*reference,p.facet,p.first,op)==ReferenceKey(*reference,p.facet,p.last,op))throw std::invalid_argument("Collapsed curved trace path.");
-        auto key=ReferenceKey(*reference,p.facet,p.first,op);if(!first&&key!=previous)throw std::invalid_argument("Discontinuous curved edge trace.");
-        previous=ReferenceKey(*reference,p.facet,p.last,op);last=p.end;first=false;}
-      if(first||op.Compare(last,op.Integer(1)))throw std::invalid_argument("Incomplete curved edge trace.");};
-    check(a);check(b);size_t i=0,j=0;auto begin=op.Integer(0),sa=begin,sb=begin;
+        auto key=ReferenceKey(*reference,p.facet,p.first,op),end_key=ReferenceKey(*reference,p.facet,p.last,op);
+        if(key==end_key)throw std::invalid_argument("Collapsed curved trace path.");
+        if(first)start=key;if(!first&&key!=previous)throw std::invalid_argument("Discontinuous curved edge trace.");
+        previous=std::move(end_key);last=p.end;first=false;}
+      if(first||op.Compare(last,op.Integer(1)))throw std::invalid_argument("Incomplete curved edge trace.");return std::make_pair(std::move(start),std::move(previous));};
+    const auto ak=check(a),bk=check(b);if(a.pieces.size()==1&&b.pieces.size()==1){if(ak!=bk)throw std::invalid_argument("Curved edge reference paths or active parameters differ.");reason.clear();return true;}
+    size_t i=0,j=0;auto begin=op.Integer(0),sa=begin,sb=begin;
     while(i<a.pieces.size()&&j<b.pieces.size()) {
       op.Work();const auto& x=a.pieces[i];const auto& y=b.pieces[j];const auto end=op.Compare(x.end,y.end)<0?x.end:y.end;
       auto key=[&](const TracePiece& p,const ExactRatio& start,const ExactRatio& t){return ReferenceKey(*reference,p.facet,op.Lerp(p.first,p.last,op.Div(op.Sub(t,start),op.Sub(p.end,start))),op);};
@@ -1251,6 +1279,12 @@ bool MappedFacetReference::ValidateCoverage(Id anchor,const std::array<SurfaceBi
         throw std::invalid_argument("Curved coverage piece reverses or degenerates.");
       PositiveProjectedNet(RestrictNet(*this,p.facet,p.reference,op),flat_normal,op);
       for(unsigned k=0;k<3;++k)edges.push_back({0,p.facet,p.active[k],p.active[(k+1)%3],p.reference[k],p.reference[(k+1)%3],1,i});
+    }
+    if(coverage.pieces.size()==1) {
+      const auto& p=coverage.pieces.front();bool identity=true;
+      for(unsigned k=0;k<3;++k)identity=identity&&!op.Compare(p.active[k].u,op.Integer(k==1))&&!op.Compare(p.active[k].v,op.Integer(k==2));
+      if(identity){std::array<EdgeTrace,3> derived;op.Check(CoverageTraces(coverage,derived,budget,op.reason));
+        for(unsigned k=0;k<3;++k)op.Check(EqualTraces(derived[k],traces[k],budget,op.reason));reason.clear();return true;}
     }
     const std::array<ExactBary,3> unit{{{op.Integer(0),op.Integer(0)},{op.Integer(1),op.Integer(0)},{op.Integer(0),op.Integer(1)}}};
     for(unsigned k=0;k<3;++k)edges.push_back({0,anchor,unit[k],unit[(k+1)%3],{}, {},-1,SIZE_MAX});

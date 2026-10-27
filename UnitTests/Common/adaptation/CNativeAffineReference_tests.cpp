@@ -1083,3 +1083,83 @@ TEST_CASE("A nonseparating protected crease cannot be buried inside one active f
   CHECK(conforming->ContainsFace(100,triangle));CHECK(std::isfinite(conforming->SurfaceError(100,triangle)));
   CHECK(state->Snapshot()==saved);
 }
+
+TEST_CASE("Single-chart curved certificates agree with a subdivided map and retain refusals", "[NativeCurvedAtlas3D][NativeSingleChartCertificate3D]") {
+  const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;auto setup=GeometryAtlasBudget();std::string reason;
+  const auto one=GeometryRatio(1,setup),zero=GeometryRatio(0,setup);ExactRatio third;
+  REQUIRE(ExactDivide(one,GeometryRatio(3,setup),third,setup,reason));
+  const auto& facet=fixture.facets[0];
+  const std::array<std::array<SurfaceBinding,3>,3> cases{{
+    {{g.Vertex(facet.v[0].id),g.Vertex(facet.v[1].id),g.Vertex(facet.v[2].id)}},
+    {{g.FacetPoint(0,.125,.125),g.FacetPoint(0,.75,.125),g.FacetPoint(0,.125,.75)}},
+    {{g.FacetPoint(0,.1,.25),g.FacetPoint(0,.6,.25),g.FacetPoint(0,.35,.25000001)}}
+  }};
+  for(size_t sample=0;sample<cases.size();++sample) {
+    const auto& binding=cases[sample];std::array<Point,3> actual;
+    for(unsigned k=0;k<3;++k)actual[k]=g.Realize(binding[k]);
+    FaceCoverage single;REQUIRE(g.ResolveSingleChart(0,binding,single,setup,reason));
+    const auto& source=single.pieces.front();ExactBary center{zero,zero};
+    for(const auto& p:source.reference){ExactRatio value;
+      REQUIRE(ExactAdd(center.u,p.u,value,setup,reason));center.u=std::move(value);
+      REQUIRE(ExactAdd(center.v,p.v,value,setup,reason));center.v=std::move(value);}
+    REQUIRE(ExactMultiply(center.u,third,center.u,setup,reason));REQUIRE(ExactMultiply(center.v,third,center.v,setup,reason));
+    FaceCoverage split;for(unsigned k=0;k<3;++k){CoveragePiece p;p.facet=0;
+      p.reference={source.reference[k],source.reference[(k+1)%3],center};
+      p.active={source.active[k],source.active[(k+1)%3],ExactBary{third,third}};split.pieces.push_back(std::move(p));}
+    std::array<EdgeTrace,3> traces,divided;REQUIRE(g.CoverageTraces(single,traces,setup,reason));REQUIRE(g.CoverageTraces(split,divided,setup,reason));
+    for(unsigned k=0;k<3;++k)REQUIRE(g.EqualTraces(traces[k],divided[k],setup,reason));
+    auto fast=GeometryAtlasBudget(),generic=GeometryAtlasBudget();
+    const bool single_ok=g.ValidateCoverage(0,binding,actual,single,traces,fast,reason);
+    if(sample==2)CHECK(reason.find("projected Jacobian")!=std::string::npos);
+    const bool split_ok=g.ValidateCoverage(0,binding,actual,split,divided,generic,reason);
+    INFO(sample);INFO(reason);CHECK(single_ok==split_ok);CHECK(single_ok==(sample<2));
+    if(sample==2)continue;
+    auto moved=actual;moved[0].z+=.001;auto denied=GeometryAtlasBudget();
+    CHECK_FALSE(g.ValidateCoverage(0,binding,moved,single,traces,denied,reason));
+    auto malformed=traces;malformed[0].pieces.front().end=GeometryRatio(.5,setup);auto interval=GeometryAtlasBudget();
+    CHECK_FALSE(g.ValidateCoverage(0,binding,actual,single,malformed,interval,reason));
+    auto missing=single;missing.pieces.front().active[1].u=GeometryRatio(.5,setup);auto hole=GeometryAtlasBudget();
+    CHECK_FALSE(g.ValidateCoverage(0,binding,actual,missing,traces,hole,reason));
+    // Equal endpoint keys cannot excuse a bent multi-piece route through the facet interior.
+    auto bent=traces;auto first=bent[0].pieces.front(),last=first;
+    first.last=last.first=center;first.end=GeometryRatio(.5,setup);bent[0].pieces={first,last};auto path=GeometryAtlasBudget();
+    CHECK_FALSE(g.ValidateCoverage(0,binding,actual,single,bent,path,reason));
+  }
+}
+
+TEST_CASE("Curved geometry error probes use projected associations without publishing mesh IDs", "[NativeCurvedAtlas3D][NativeSingleChartCertificate3D]") {
+  using namespace SU2Native3D;
+  const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;std::string reason;auto budget=GeometryAtlasBudget();
+  BoundaryPoints points;std::vector<SurfaceFace> skin;std::map<int,int> roles;
+  for(const auto& f:fixture.facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});roles.emplace(f.marker,2);
+    for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,g.Vertex(n.id)});}
+  auto accepted=std::make_shared<BoundaryParameterState>(fixture.geometry,points,skin);
+  accepted=accepted->WithMobilityPolicy(60,roles,budget);
+  const std::shared_ptr<const PlanarReference> definition(fixture.geometry,&g.Reference());
+  auto reference=PlanarReference::WithParameters(definition,accepted);
+  const auto snapshot=accepted->Snapshot();auto probe=reference->PrivateParameters(Patch{},&budget);REQUIRE(probe);const auto& face=fixture.facets[0];
+  const Point flat{.5*face.v[0].p.x+.25*face.v[1].p.x+.25*face.v[2].p.x,
+                   .5*face.v[0].p.y+.25*face.v[1].p.y+.25*face.v[2].p.y,
+                   .5*face.v[0].p.z+.25*face.v[1].p.z+.25*face.v[2].p.z};
+  const auto projected=probe->Project(0,flat);const auto binding=g.FacetPoint(0,.25,.25);
+  REQUIRE(g.Admissible(binding,projected));CHECK(projected.z!=flat.z);
+  const std::array<SurfaceBinding,3> bindings{{g.Vertex(face.v[0].id),g.Vertex(face.v[1].id),binding}};
+  const std::array<Point,3> actual{{face.v[0].p,face.v[1].p,projected}};FaceCoverage cover;
+  REQUIRE(g.ResolveSingleChart(0,bindings,cover,budget,reason));const double expected=g.SurfaceError(cover,actual,budget);
+  CHECK(probe->SurfaceError(0,actual)==Approx(expected).margin(1e-12));CHECK(std::isfinite(expected));
+  for(unsigned k=0;k<3;++k) {
+    const unsigned j=(k+1)%3,other=(k+2)%3;const auto a=face.v[k],b=face.v[j],c=face.v[other];
+    Edge edge{a.id,b.id};std::sort(edge.begin(),edge.end());const auto midpoint=g.EdgePoint(edge,.5);
+    const Point input{(a.p.x+b.p.x)/2,(a.p.y+b.p.y)/2,(a.p.z+b.p.z)/2};
+    const auto point=probe->Project(0,input);INFO(k);CHECK(g.Admissible(midpoint,point));
+    CHECK(g.MobilityDimension(midpoint,accepted->Mobility())==(accepted->Mobility().features.count(edge)?1:2));
+    for(unsigned side=0;side<2;++side) {
+      const std::array<SurfaceBinding,3> child=side==0?std::array<SurfaceBinding,3>{{g.Vertex(a.id),midpoint,g.Vertex(c.id)}}:
+          std::array<SurfaceBinding,3>{{midpoint,g.Vertex(b.id),g.Vertex(c.id)}};
+      const std::array<Point,3> triangle=side==0?std::array<Point,3>{{a.p,point,c.p}}:std::array<Point,3>{{point,b.p,c.p}};
+      FaceCoverage explicit_cover;const bool resolved=g.ResolveSingleChart(0,child,explicit_cover,budget,reason);INFO(reason);REQUIRE(resolved);
+      const auto explicit_error=g.SurfaceError(explicit_cover,triangle,budget);CHECK(probe->SurfaceError(0,triangle)==Approx(explicit_error).margin(1e-12));
+    }
+  }
+  CHECK(accepted->Snapshot()==snapshot);CHECK(accepted->Records().size()==points.size());
+}

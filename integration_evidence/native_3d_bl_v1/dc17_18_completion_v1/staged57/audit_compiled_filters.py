@@ -39,6 +39,7 @@ def main():
     tests = {p: CASE.findall(p.read_text()) for p in NEW + OTHER}
     if any(not tests[p] for p in NEW): raise RuntimeError('No literal test cases found in a required file')
     common = {name for p in NEW for name, _ in tests[p]}
+    common |= {name for p in OTHER for name, tags in tests[p] if '[NativeSingleChartCertificate3D]' in tags}
     prefixes = ('Distributed barycentric transfer:', 'Convex clipping:', 'Distributed conservative projection:',
                 'Conservative kernels:', 'Distributed conservative kernels:', 'Transfer admissibility:',
                 'Distributed conservative transfer:')
@@ -48,7 +49,7 @@ def main():
     serial_extra = {name for name, _ in tests[CFD / 'CConservativeTransfer_tests.cpp']
                     if name.startswith(('Conservative projection:', 'Conservative transfer:'))}
     if not broad: raise RuntimeError('No supplemental tests found')
-    specific = {'mapped_work_trace': 'NativeMappedRuntime3D', 'm6_stage': 'NativeFrozenVolume3D', 'cost_checks': 'NativeOverlappingAtlas3D',
+    specific = {'single_certificate_checks': 'NativeSingleChartCertificate3D', 'mapped_runtime': 'NativeMappedRuntime3D', 'mapped_work_trace': 'NativeMappedRuntime3D', 'm6_stage': 'NativeFrozenVolume3D', 'cost_checks': 'NativeOverlappingAtlas3D',
                 'workflow_solved6': 'NativeSolvedEuler3D', 'workflow_primitive6': 'NativePrimitiveRuntime3D',
                 'workflow_resolved_m1': 'NativeResolvedEuler3D', 'workflow_resolved_m2': 'NativeResolvedEuler3D',
                 'workflow_resolved_m4': 'NativeResolvedEuler3D'}

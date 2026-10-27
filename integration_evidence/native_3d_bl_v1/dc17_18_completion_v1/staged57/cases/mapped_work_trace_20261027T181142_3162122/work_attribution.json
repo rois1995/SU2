@@ -1,0 +1,90 @@
+{
+  "scope": "diagnostic caller attribution, not accepted adaptation; exclusive totals combine multiple budget scopes",
+  "status": {
+    "state": "terminal",
+    "exit_code": 2,
+    "seconds": 14.889603853225708,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 45334528,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T181142_3162122/run.log": "2a519bb5a12ee3ab3954fa438fafe5dabdba8a922e0955351a47fb23659ebf6b",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T181142_3162122/status.json": "cbcc222a6fa1968abefcd6d8b1dbcc785625be3e7e9a9bdf67ab34475b014cd2",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/analyze_stage_topology.py": "0a6dd7e5affbd4eef3ffa55f36a9e894f6655b80400515ce04020abfeffc401a"
+  },
+  "exclusive_work": 133753416,
+  "operations": {
+    "BuildMobilityPolicy": {
+      "calls": 2,
+      "inclusive": 62,
+      "exclusive": 62,
+      "exclusive_fraction": 4.635395629820774e-07
+    },
+    "BindingParameters": {
+      "calls": 55358,
+      "inclusive": 24674392,
+      "exclusive": 24674392,
+      "exclusive_fraction": 0.18447672394400752
+    },
+    "ResolveSingleChart": {
+      "calls": 15334,
+      "inclusive": 23012048,
+      "exclusive": 2433980,
+      "exclusive_fraction": 0.01819751654043737
+    },
+    "SurfaceError": {
+      "calls": 1460,
+      "inclusive": 1722352,
+      "exclusive": 1722352,
+      "exclusive_fraction": 0.012877069248085597
+    },
+    "CoverageTraces": {
+      "calls": 12576,
+      "inclusive": 28812208,
+      "exclusive": 28812208,
+      "exclusive_fraction": 0.21541287588497926
+    },
+    "EqualTraces": {
+      "calls": 9430,
+      "inclusive": 27011584,
+      "exclusive": 27011584,
+      "exclusive_fraction": 0.2019506103679625
+    },
+    "ValidateCoverage": {
+      "calls": 3144,
+      "inclusive": 86672786,
+      "exclusive": 48322792,
+      "exclusive_fraction": 0.3612826755766746
+    },
+    "ValidateCoverageReplacement": {
+      "calls": 44,
+      "inclusive": 776046,
+      "exclusive": 776046,
+      "exclusive_fraction": 0.005802064898290149
+    }
+  },
+  "validated_raw_captures": [
+    {
+      "manifest": "cubic_runtime_rejected_0_rank0_manifest.json",
+      "cells": 88,
+      "nodes": 37,
+      "boundary_points": 30,
+      "boundary_faces": 56,
+      "generation": 23,
+      "explicit_traces": 0,
+      "explicit_covers": 0
+    },
+    {
+      "manifest": "cubic_runtime_rejected_1_rank0_manifest.json",
+      "cells": 88,
+      "nodes": 37,
+      "boundary_points": 30,
+      "boundary_faces": 56,
+      "generation": 23,
+      "explicit_traces": 0,
+      "explicit_covers": 0
+    }
+  ]
+}

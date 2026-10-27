@@ -16,6 +16,15 @@ transfer/reload, repeated curved restart, and distributed history/recovery.
 [Transfer-only ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 
 
+Build41–45 diagnosis: the captured failing mapped runtime has 88 cells, 30 boundary
+points and 56 faces with zero explicit trace/cover descriptors. Build44 still failed
+after 30 private edits and 42 attempts with eight geometry cells and no queued geometry
+edges. Build45 recorded 457 projected-edge probes: 133 invalid facet-interior
+bindings at boundary points and 324 parameter-authority refusals; all threw before
+progress scoring. Build46 is running with shared query corrections; results are
+pending. See [geometry verification cost](Handbook/GEOMETRY_VERIFICATION_COST.md) for receipts and unchanged gates.
+No complete accepted mesh or transfer/restart qualification follows.
+
 Build32/session33069 PASS78.14s/950 unchanged pins. Clean working-reference
 reconstruction, coordinated shared paths and the native backend interface now
 pass focused atlas_checks/session40070:45 cases/7561 assertions,38.79s,
@@ -196,3 +205,7 @@ The user approved pushing checkpoints to `rois1995/SU2`, branch
 Validation53 is checkpointed and pushed with its incomplete workflow result.
 Validation54 passes focused, all-worker and connected serial/MPI checks. Its
 implementation remains pinned for the pending full-M6 campaign.
+
+Current complete-workflow cost diagnosis and shared certificate design: [geometry verification cost](Handbook/GEOMETRY_VERIFICATION_COST.md).
+
+Build46 PASS90.19s, focused temporary-association/geometry-certificate checks PASS93 assertions/2 cases. Mapped replay FAIL13.98s:318/342 probes score,9 geometry-progress edits,22 accepted/30 attempts,31 queued edges at unchanged work67207168. Zero-queue defect fixed; complete generation still fails. Fresh six-rank M6/session32081 running without debugger. Compiled filters237serial/214MPI/55atlas include all required cases.

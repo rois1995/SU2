@@ -1,0 +1,120 @@
+{
+  "scope": "private diagnostic caller attribution; exclusive work combines budget scopes, not accepted adaptation",
+  "status": {
+    "state": "terminal",
+    "exit_code": 2,
+    "seconds": 13.976719617843628,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 46133248,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T184654_3259508/run.log": "709315fea75b7be47beac59b6a4b26cec2b2f8e8efe3b444d3ff038681f4178d",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T184654_3259508/status.json": "58a087f92592c9db69c6158a8bc9306c5b10e57f79d05b18af10f5e225ed3afe",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/analyze_stage_topology.py": "0a6dd7e5affbd4eef3ffa55f36a9e894f6655b80400515ce04020abfeffc401a",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T184654_3259508/cubic_runtime_rejected_0_rank0_manifest.json": "617464455ffc2e0d75865803037702bfcf596dee386cb85d815c7abdafac3746",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T184654_3259508/cubic_runtime_rejected_0_rank0_owned.bin": "443be96236e513bf0820da4672665d69551e6453523dba721b8ed01cff379492",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T184654_3259508/cubic_runtime_rejected_0_rank0_parameters.bin": "076e42af796ecdebbbeb6aef11cb59177f09420b5eeb07a6f170d03c1d71fc2a",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T184654_3259508/cubic_runtime_rejected_0_rank0.native_ref": "8a01f1a30cf6d01a89b940ec130c4e63cdd666a145a8de31a6cff7c6c265bd38",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T184654_3259508/cubic_runtime_rejected_1_rank0_manifest.json": "1bcc4e047c804dd9e51a9bcc78210c2318aa3ff5634b10a228166196143476b3",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T184654_3259508/cubic_runtime_rejected_1_rank0_owned.bin": "443be96236e513bf0820da4672665d69551e6453523dba721b8ed01cff379492",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T184654_3259508/cubic_runtime_rejected_1_rank0_parameters.bin": "5eb7b3c665999a4c0017e955356535dad910d797d638f8c2866a545b7db94946",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T184654_3259508/cubic_runtime_rejected_1_rank0.native_ref": "2d35e44b588ef99553ddb136b12d9a4a402b15e3f2afc0bc45ce2b8b4a891020"
+  },
+  "exclusive_work": 129734316,
+  "operations": {
+    "BuildMobilityPolicy": {
+      "calls": 2,
+      "inclusive": 62,
+      "exclusive": 62,
+      "exclusive_fraction": 4.778997717149871e-07
+    },
+    "BindingParameters": {
+      "calls": 63988,
+      "inclusive": 34218138,
+      "exclusive": 34218138,
+      "exclusive_fraction": 0.26375548933406334
+    },
+    "ResolveSingleChart": {
+      "calls": 17376,
+      "inclusive": 35974094,
+      "exclusive": 8540216,
+      "exclusive_fraction": 0.06582850446446259
+    },
+    "SurfaceError": {
+      "calls": 1808,
+      "inclusive": 4884264,
+      "exclusive": 4884264,
+      "exclusive_fraction": 0.03764820404186661
+    },
+    "CoverageTraces": {
+      "calls": 15188,
+      "inclusive": 28630540,
+      "exclusive": 28630540,
+      "exclusive_fraction": 0.2206859440334969
+    },
+    "EqualTraces": {
+      "calls": 11864,
+      "inclusive": 29909348,
+      "exclusive": 29909348,
+      "exclusive_fraction": 0.2305430738926469
+    },
+    "ValidateCoverage": {
+      "calls": 3956,
+      "inclusive": 69321538,
+      "exclusive": 23020230,
+      "exclusive_fraction": 0.1774413332552661
+    },
+    "ValidateCoverageReplacement": {
+      "calls": 38,
+      "inclusive": 531518,
+      "exclusive": 531518,
+      "exclusive_fraction": 0.004096973078425912
+    }
+  },
+  "captures": [
+    {
+      "manifest": "cubic_runtime_rejected_0_rank0_manifest.json",
+      "cells": 60,
+      "nodes": 29,
+      "physical_vertices": 27,
+      "header": [
+        7,
+        20,
+        27,
+        50,
+        0
+      ],
+      "schema": 8,
+      "trace_records": 0,
+      "face_records": 0
+    },
+    {
+      "manifest": "cubic_runtime_rejected_1_rank0_manifest.json",
+      "cells": 60,
+      "nodes": 29,
+      "physical_vertices": 27,
+      "header": [
+        7,
+        20,
+        27,
+        50,
+        0
+      ],
+      "schema": 8,
+      "trace_records": 0,
+      "face_records": 0
+    }
+  ],
+  "build41_reference": {
+    "cells": 88,
+    "nodes": 37,
+    "boundary_points": 30,
+    "boundary_faces": 56,
+    "explicit_trace_records": 0,
+    "explicit_face_records": 0,
+    "exclusive_work": 133753416
+  },
+  "note": "Current captures are final per variant; counts are not a matched time trajectory."
+}

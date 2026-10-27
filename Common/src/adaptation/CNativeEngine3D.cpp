@@ -12,6 +12,8 @@
 #include <chrono>
 #include <cmath>
 #include <cstring>
+#include <cstdio>
+#include <cstdlib>
 #include <unordered_map>
 #include <ctime>
 #include <set>
@@ -447,6 +449,7 @@ class Selection {
       }
     }
     std::map<Edge,long double> geometry_scores;
+    static const bool trace_geometry=[](){const char* value=std::getenv("SU2_NATIVE_GEOMETRY_WORK_TRACE");return value&&std::strcmp(value,"1")==0;}();
     if (!geometry.ExtensionComponents().empty()) {
       const auto faces=Faces(cell);
       for(size_t slot=0;slot<4;++slot)if(owned.physical[slot].present) {
@@ -478,7 +481,10 @@ class Selection {
               return std::hypot(ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx);
             };
             progress=before-l*l*area(left)-r*r*area(right);
-          }catch(const std::exception&) {} // Complete-star reconstruction remains the authoritative feasibility check.
+            if(trace_geometry)std::fprintf(stderr,"NATIVE_GEOMETRY_PROBE facet=%llu edge=%llu,%llu error=%.17g tolerance=%.17g progress=%.21Lg\n",
+                static_cast<unsigned long long>(owned.physical[slot].facet),static_cast<unsigned long long>(key[0]),static_cast<unsigned long long>(key[1]),error,allowed,progress);
+          }catch(const std::exception& e) {if(trace_geometry)std::fprintf(stderr,"NATIVE_GEOMETRY_PROBE facet=%llu edge=%llu,%llu error=%.17g tolerance=%.17g exception=%s\n",
+                static_cast<unsigned long long>(owned.physical[slot].facet),static_cast<unsigned long long>(key[0]),static_cast<unsigned long long>(key[1]),error,allowed,e.what());} // Complete-star reconstruction remains the authoritative feasibility check.
           if(progress>0)geometry_scores[key]+=progress;
         }
       }

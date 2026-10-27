@@ -1,0 +1,54 @@
+{
+  "time": 1793125994.1365542,
+  "owned_pids": [
+    3213128,
+    3213129,
+    3213130,
+    3213131
+  ],
+  "timeout_group": 3213129,
+  "signal": "SIGTERM",
+  "reason": "Known projected-invalid witness has negative corner Jacobians; existing Bernstein test lacks point counterexample rejection and keeps subdividing. Stop focused diagnostic before changing pinned source; no debugger attached.",
+  "witness": {
+    "parameters": [
+      [
+        0.1,
+        0.25
+      ],
+      [
+        0.6,
+        0.25
+      ],
+      [
+        0.35,
+        0.25000001
+      ]
+    ],
+    "corner_projection_double": [
+      -7.27609389580064e-06,
+      -9.479688350506534e-07,
+      1.170828008410553e-05
+    ],
+    "analytic_surface": "x=v/2, y=u+v/2, z=-0.18*(1-u-v)*u*v"
+  },
+  "final_processes": [
+    {
+      "pid": 3213128,
+      "state": "gone"
+    },
+    {
+      "pid": 3213129,
+      "state": "gone"
+    },
+    {
+      "pid": 3213130,
+      "state": "gone"
+    },
+    {
+      "pid": 3213131,
+      "state": "gone"
+    }
+  ],
+  "all_terminal": true,
+  "checked_at": 1793125999.7726626
+}

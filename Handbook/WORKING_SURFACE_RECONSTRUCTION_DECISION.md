@@ -19,10 +19,11 @@ neighboring transaction imports those paths as boundary constraints. Discarding
 face-interior cuts does not remove that recurrence. The earlier same-star
 oscillation keeps its perimeter fixed and misses it.
 
-The working tree contains an **unvalidated connected prototype** separating fixed
-reference edge planning from prescribed-trace face reconstruction. It was frozen
-unbuilt for this review; build37 subsequently passed with1293 unchanged pins.
-Its independent original-star/strip path selector is custom and
+At the time of this review the connected prototype was frozen unbuilt; build37
+subsequently compiled it. Build39 passed 53 focused cases/8247 assertions, and
+build40's 16-event neighboring-star cost case met its phase bounds. The full mapped
+runtime still fails, so this is narrow fixture qualification. Its independent
+original-star/strip path selector is custom and
 does not establish joint network admissibility. It must not become the production
 strategy merely because its primitive tests pass. Latest pushed source checkpoint
 before the compatibility results: `a61e28bf58`, explicitly WIP.
@@ -322,3 +323,5 @@ persistence qualified without exercising the actual accepted mesh.
   10%, prescribed geometry tolerance/features/bodies and500k metric complexity.
   No budget increase, quality-gate weakening, CFD-mode dispatch or alternate local
   fallback is part of resolving this blocker.
+
+The separate unchanged implicit-workflow failure is now attributed to generic single-triangle verification; see [measured cost and connected certificate design](GEOMETRY_VERIFICATION_COST.md). This does not close the explicit-network or accepted-M6 obligations.

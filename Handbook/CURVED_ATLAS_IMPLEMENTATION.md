@@ -525,7 +525,16 @@ session69002 is live; source/helpers frozen until terminal.
 
 ## Current integration work
 
-The [working-surface reconstruction decision](WORKING_SURFACE_RECONSTRUCTION_DECISION.md) calls for a mature-backend compatibility probe before implementation resumes. Geometry Central on fixed input with a disposable overlay is a candidate, not a selected production backend; vendored Eigen is the practical linear-algebra reuse candidate instead of custom CG. Independent per-edge chart work is not the selected joint-network production design. Canonical trace, trace coverage and integration changes are unbuilt, unvalidated WIP and frozen. No jobs are live. Native geometry authority and all final gates remain unchanged.
+Build41–45 diagnosis: the captured failing mapped runtime has 88 cells, 30 boundary
+points and 56 faces with zero explicit trace/cover descriptors. Build44 still failed
+after 30 private edits and 42 attempts with eight geometry cells and no queued geometry
+edges. Build45 recorded 457 projected-edge probes: 133 invalid facet-interior
+bindings at boundary points and 324 parameter-authority refusals; all threw before
+progress scoring. Build46 is running with shared query corrections; results are
+pending. See [geometry verification cost](GEOMETRY_VERIFICATION_COST.md) for receipts and unchanged gates.
+No complete accepted mesh or transfer/restart qualification follows.
+
+The [working-surface reconstruction decision](WORKING_SURFACE_RECONSTRUCTION_DECISION.md) calls for a mature-backend compatibility probe before implementation resumes. Geometry Central on fixed input with a disposable overlay is a candidate, not a selected production backend; vendored Eigen is the practical linear-algebra reuse candidate instead of custom CG. Independent per-edge chart work is not the selected joint-network production design. Canonical trace and trace coverage have narrow focused validation; build46 is running for the shared query correction. Native geometry authority and all final gates remain unchanged.
 
 Build35 and build36 passed with 950 unchanged pins. Build36 serial_full/session68944 TERMINAL FAIL99.7804s, pins unchanged: 226/228 cases and 1129639/1129642 assertions passed; largest sampled individual RSS145432576 bytes. Evidence: `staged57/cases/serial_full_20261027T153436_2673844`. The overlapping-star test exhausted atlas work on event 5 (sixth move); curved Euler/RANS runtime again exhausted 67207168 work after 29 accepted private edits and 35 attempts. Retained path history is an architectural blockage not resolved by discarding interior cuts. Develop a connected strategy before MPI or M6 retry; accepted mesh, transfer and restart remain unqualified.
 
