@@ -40,6 +40,7 @@ struct Dependencies {
 struct DependencyBatch {
   std::vector<Dependencies> candidates;
   bool valid = false;  // Common storage/protocol success; each candidate still requires its own valid flag.
+  std::vector<size_t> pass_deferred;  // Original candidate slots touching an accepted cavity in this construction pass.
   std::vector<size_t> refused;  // PlanBatch: input indexes refused for an oversized complete star (blocked by caller).
   std::string reason;
 };
@@ -55,7 +56,7 @@ struct ImportedBatch {
   std::string reason;
 };
 struct ReservationBatch {
-  std::vector<bool> chosen;
+  std::vector<bool> chosen,pass_deferred;
   bool valid = false;
   std::string reason;
 };
@@ -107,6 +108,11 @@ class Directory {
    * Adjacent cells may share read-only vertices; general surface/movement edits must use ReserveBatch. */
   ReservationBatch ReserveInteriors(const ImportedBatch& imported, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   /*! Lower priority values win conflicting claims; ownership breaks equal-priority ties. */
+  /*! All workers begin/end together after Build. Claims are transient and installed only by Publish.
+   * Vertex-disjoint construction passes defer conflicts without vetoing the next pass. */
+  void BeginConstructionPass() noexcept {construction_pass=true;pass_vertices.clear();}
+  void EndConstructionPass() noexcept {construction_pass=false;pass_vertices.clear();}
+  bool PassDeferred()const{return last_pass_deferred;}
   bool Reserve(const Imported& imported, bool active, std::string& reason, size_t ceiling = SIZE_MAX,
                size_t caller_bytes = 0, unsigned priority = 0);
   /*! Owner-routed prevalidated replacement. Stages all new mesh/directory nodes before the common vote;
@@ -156,6 +162,7 @@ class Directory {
   using Stars = std::map<Key, Star>;
   struct Prepared {
     Stars changed;
+    std::set<Id> pass_vertices;
     bool valid = false;
     std::string reason;
   };
@@ -163,6 +170,8 @@ class Directory {
   const bool track_changes;
   std::vector<Id> changed_vertices;
   Stars stars;
+  bool construction_pass=false,last_pass_deferred=false;
+  std::set<Id> pass_vertices;
   DirectoryStats stats;
   size_t resident_payload_bytes = 0;
   bool initialized = false;
@@ -172,11 +181,12 @@ class Directory {
                   DependencyBatch* batch, size_t ceiling, size_t caller_bytes, std::string& reason,
                   std::vector<std::vector<Id>>* footprints = nullptr, bool coordinate_stars = false);
   ReservationBatch ReserveBatchImpl(const ImportedBatch& imported, size_t ceiling, size_t caller_bytes, bool interiors);
-  ReservationBatch ChooseBatch(const std::vector<std::vector<Id>>& footprints, size_t ceiling, size_t caller_bytes);
+  ReservationBatch ChooseBatch(const std::vector<std::vector<Id>>& footprints, size_t ceiling, size_t caller_bytes, bool vertices=true);
   Prepared Prepare(const std::vector<OwnedCell>& removed, const std::vector<OwnedCell>& added,
                    size_t ceiling, size_t baseline);
   bool NotifyChanges(const Prepared& prepared, std::vector<Id>& changed, std::string& reason,
                      size_t ceiling, size_t baseline);
+  size_t PreparedBytes(const Prepared& prepared) const;
   void Commit(Prepared&& prepared) noexcept;
 };
 }  // namespace SU2Native3D

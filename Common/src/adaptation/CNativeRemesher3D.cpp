@@ -510,41 +510,26 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
             stats.phases[8] += workers.seconds() - begin;
           }
           if(valid) {
-          const auto refine_begin=workers.seconds();
-          auto refined = Refine(workers, working, *worker_source, *pending->state.original, composition, kernel);
-          stats.refine = refined.stats;
-          const bool rebuilt_domain=refined.rebuilt_domain;
-          valid = refined.valid;
-          if(valid && refined.reference)pending->state.original=std::move(refined.reference);
-          detail = refined.reason;
-          working.swap(refined.cells);
-          Owned().swap(refined.cells);
-          std::vector<SplitRecord>().swap(refined.splits);
-          std::vector<Edge>().swap(refined.collapses);
-          stats.phases[8] += workers.seconds() - refine_begin;
-          if (valid) {
-            kernel.maximum_work-=refined.stats.global_work;
-            if (control.maximum_seconds) {
-              kernel.maximum_seconds=CPassiveComm::Allreduce(worker_seconds-(workers.seconds()-worker_start),CPassiveComm::Op::MIN,workers.comm);
-              if (!(kernel.maximum_seconds>0)) {
-                valid=false; detail="Native3D elapsed deadline exhausted between refinement and coarsening.";
+            const auto refine_begin=workers.seconds();
+            auto refined = AdaptMetric(workers, working, *worker_source, *pending->state.original, composition, kernel);
+            stats.refine = refined.stats;
+            valid = refined.valid;
+            if(valid && refined.reference)pending->state.original=std::move(refined.reference);
+            detail = refined.reason;
+            working.swap(refined.cells);
+            Owned().swap(refined.cells);
+            std::vector<SplitRecord>().swap(refined.splits);
+            std::vector<Edge>().swap(refined.collapses);
+            stats.phases[8] += workers.seconds() - refine_begin;
+            if (valid) {
+              kernel.maximum_work-=refined.stats.global_work;
+              if (control.maximum_seconds) {
+                kernel.maximum_seconds=CPassiveComm::Allreduce(worker_seconds-(workers.seconds()-worker_start),CPassiveComm::Op::MIN,workers.comm);
+                if (!(kernel.maximum_seconds>0)) {
+                  valid=false; detail="Native3D elapsed deadline exhausted after metric adaptation.";
+                }
               }
             }
-          }
-          // A complete domain reconstruction already resampled surface and volume in both metric directions.
-          if (valid && !rebuilt_domain && kernel.maximum_work) {
-            const auto begin_coarse = workers.seconds();
-            auto coarse = Coarsen(workers, working, *worker_source, *pending->state.original, composition, kernel);
-            stats.coarsen = coarse.stats;
-            valid = coarse.valid;
-            if(valid && coarse.reference)pending->state.original=std::move(coarse.reference);
-            detail = coarse.reason;
-            working.swap(coarse.cells);
-            Owned().swap(coarse.cells);
-            std::vector<SplitRecord>().swap(coarse.splits);
-            std::vector<Edge>().swap(coarse.collapses);
-            stats.phases[9] += workers.seconds() - begin_coarse;
-          }
           }
         } catch (const CElectedFailure& e) {
           valid = false;
@@ -818,6 +803,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " stop=" << EngineStopName(e.stop) << " global_work=" << e.global_work << " work_limit=" << e.work_limit
              << " progress_windows=" << e.progress_windows << " stagnant_windows=" << e.stagnant_windows << " search_windows=" << e.search_windows
              << " geometry_progress=" << e.geometry_progress << " geometry_reactivated=" << e.geometry_reactivated << " size_progress=" << e.size_progress << " quality_progress=" << e.quality_progress << " cell_removals=" << e.cell_removals
+             << " bidirectional=" << e.bidirectional << " length_split_passes=" << e.length_split_passes
+             << " length_collapse_passes=" << e.length_collapse_passes << " length_splits=" << e.length_splits
+             << " length_collapses=" << e.length_collapses << " length_pass_deferred=" << e.length_pass_deferred << " length_expansion_deferrals=" << e.length_expansion_deferrals
              << " quality_stages=" << e.quality_stages << " construction_returns=" << e.construction_returns
              << " coarsen_checkpoints=" << e.coarsen_checkpoints << " coarsen_committed_passes=" << e.coarsen_committed_passes
              << " coarsen_rolled_back_passes=" << e.coarsen_rolled_back_passes << " coarsen_retired_directions=" << e.coarsen_retired_directions

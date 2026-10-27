@@ -33,6 +33,8 @@ CASES = {
     "workflow_resolved_m1": (6, "[NativeResolvedEuler3D]"),
     "workflow_resolved_m2": (6, "[NativeResolvedEuler3D]"),
     "workflow_resolved_m4": (6, "[NativeResolvedEuler3D]"),
+    "bidirectional": (1, "[NativeBidirectionalLength3D],[NativeConstructionPassClaims3D]"),
+    "bidirectional6": (6, "[NativeBidirectionalLength3D],[NativeConstructionPassClaims3D]"),
     "quality_cache": (1, "[NativeQualityPass3D]"),
     "quality_cache6": (6, "[NativeQualityPass3D]"),
     "quality_checks": (1, "[NativeOptimize3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeStageProgress3D]"),
@@ -64,7 +66,7 @@ for name in ("serial", "serial_full", "mpi6", "connected_fix"):
 
 for name in ("serial_full", "mpi6"):
     ranks, filters = CASES[name]
-    filters += ",[NativeReference3D]"
+    filters += ",[NativeReference3D],[NativeBidirectionalLength3D],[NativeConstructionPassClaims3D]"
     CASES[name] = ranks, filters + (",[NativeAtlas3D],[NativeCurvedAtlas3D],[NativeAffineGeometry],[NativeAtlasReferenceIO3D],"
                                    "[NativeReferenceTriangulation3D],[NativeAtlasCoordinatedPublication3D],[NativeGeometryBackend3D],[NativeCanonicalTrace3D],[NativeTraceCoverage3D],"
                                    "Convex clipping:*,"

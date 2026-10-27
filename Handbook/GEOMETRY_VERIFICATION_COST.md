@@ -406,5 +406,4 @@ source-envelope/schema8 test passes with bounded reported phase costs. Broad ser
 and MPI both fail on curved runtime and a stale quality-query fixture expectation.
 Source64 corrects the fixture with row/version/content assertions; build64 and the
 focused serial/MPI6 quality-cache checks pass. The broad failures remain; no full
-M6 or curved CFD transfer is accepted. The bidirectional metric-length design is
-unimplemented. Details and receipts are in [handoff](../HANDOFF_Codex.md).
+M6 or curved CFD transfer is accepted. The bidirectional metric-length candidate is under build66 and unvalidated; see [design](METRIC_LENGTH_SATISFACTION_DESIGN.md). Details and receipts are in [handoff](../HANDOFF_Codex.md).

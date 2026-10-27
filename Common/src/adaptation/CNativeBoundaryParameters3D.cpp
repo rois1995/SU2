@@ -373,6 +373,13 @@ const BoundaryPoint* BoundaryParameterState::Find(Point point)const {
   for(auto x:PointKey(point))if(!std::isfinite(x))throw std::invalid_argument("Nonfinite boundary parameter lookup.");
   const auto p=coordinates.find(PointKey(point));return p==coordinates.end()?nullptr:Find(p->second);
 }
+size_t BoundaryParameterState::Publication::ResidentBytes()const {
+  return transfer_memory::Add(MapBytes(added),MapBytes(coordinates),MapBytes(supports),
+      MapBytes(removed),MapBytes(final_counts),MapBytes(surface_added),MapBytes(surface_removed),
+      BoundaryCoverageBytes(coverage_added),MapBytes(coverage_removed),MapBytes(traces_removed),
+      MapBytes(edge_counts),MapBytes(edge_incident),MapBytes(edge_faces_added),MapBytes(edge_faces_removed),
+      MapBytes(facet_faces_added),MapBytes(facet_faces_removed));
+}
 size_t BoundaryParameterState::ResidentBytes()const {return transfer_memory::Add(sizeof(*this),MapBytes(records),MapBytes(coordinates),MapBytes(supports),MapBytes(surface),MapBytes(edge_counts),MapBytes(edge_incident),MapBytes(edge_faces),MapBytes(facet_faces),BoundaryCoverageBytes(coverage),PolicyBytes(mobility));}
 size_t BoundaryParameterState::SnapshotBytes()const {SU2NativeBoundary2D::RecordStream measure;WriteSnapshot(measure,*this);return measure.Size();}
 std::vector<char> BoundaryParameterState::Snapshot()const {

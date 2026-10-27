@@ -70,7 +70,7 @@ Build63 normalization passes serial and MPI6 with frozen legacy source-envelope
 checks and schema8 decode/move/publication continuation; the repeated 16-event MPI
 fixture also passes. These checks do not exercise CFD solution transfer or restart.
 Broad serial and MPI63 both fail the curved runtime before completion; neither qualifies the full campaign.
-Full source, solution transfer and restart qualification remains open.
+Source66 bidirectional construction is under build and supplies no new source or CFD transfer qualification. Full source, solution transfer and restart qualification remains open.
 
 Qualification is pending the [working-surface reconstruction decision](WORKING_SURFACE_RECONSTRUCTION_DECISION.md). The fixed-reference compatibility probe passes its narrow representation scope; it does not qualify native transfer/restart.
 

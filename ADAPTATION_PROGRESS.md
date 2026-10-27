@@ -5,6 +5,19 @@ Updated: 2026-10-27. Detailed failures and provenance remain linked below.
 
 ## Current result
 
+Source66 candidate is under build and unvalidated: one metric lifecycle alternates
+split/collapse passes using rendezvous claims, followed by quality and final gates.
+Build65 was owner-cancelled after 51.1455s (exit 130, pins unchanged); all 22
+recorded processes exited before edits. Review fixed four secondary reservations
+misclassifying pass deferral and added bidirectional-mode agreement. Expanded
+footprint and mismatched-entry MPI tests are added; full engine growth remains
+uncovered. Joint coarsening uses concurrent complete-star final reservations; a
+three-component fixture requires parallel work before quality. Build66/session54808
+(ninja PID4068717) is live, with 1293 source/helper pins frozen, one low-priority
+worker and 4TB temporary storage. Next: bidirectional serial/MPI6, production CFD,
+and early M6 with length diagnostics. See [design](Handbook/METRIC_LENGTH_SATISFACTION_DESIGN.md).
+
+
 **DC-17 and DC-18 remain open. No full M6 adaptation has passed final acceptance.**
 
 Build63 PASS66.1366s; all 17 build PIDs gone. Nineteen compiled filter audits
@@ -24,7 +37,7 @@ with unchanged pins: each rank passed 220/222 cases, with the same three failed
 assertions; the empty-rank fixture passed and all nine processes exited. Source64
 corrects the stale fixture expectation and strengthens row/version/content checks.
 Build64 PASS96.1853s; focused quality_cache serial and MPI6 pass in 6.8561s and
-6.8769s respectively, all owned processes gone. All 21 compiled filter selections pass in build64; no owned job remains live. These focused passes do not qualify the failed
+6.8769s respectively, all owned processes gone. All 21 compiled filter selections pass in build64. These focused passes do not qualify the failed
 broad campaigns. No complete M6 or CFD transfer/restart is accepted.
 Source61 build PASS36.124s; source60 reference I/O PASS 5 cases/96 assertions.
 Source61 broad MPI aborted exit134 after 24/25 cases per rank: fixture point-0 read
@@ -46,7 +59,7 @@ No accepted mesh or transfer/restart workflow follows.
 
 Source60 per-rank bounds failed; Directory hashes IDs before modulo, so stride
 alone did not fix home balance. Source61 aggregate workspace bounds pass. Local
-index/closure and full M6/CFD transfer remain open; latest pushed 765d0d4207.
+index/closure and full M6/CFD transfer remain open; geometry-validation checkpoint 9ae6b94886.
 
 
 Build54 PASS1225.30s, 1293 pins unchanged; single-certificate checks PASS
@@ -94,7 +107,7 @@ remain unqualified.
 
 
 The local support-index draft is not merged; the global normalizer was rejected
-for locality and accounting. Latest pushed checkpoint: 765d0d4207.
+for locality and accounting. Latest pushed checkpoint: 9ae6b94886.
 
 Build53 passed; atlas_checks_20261027T205356_3596433 PASS52.007s with
 unchanged pins. Mapped runtime_20261027T205308_3593869 FAIL11.87s, 201/203

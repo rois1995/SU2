@@ -4110,3 +4110,121 @@ TEST_CASE("Independent quality stars commit concurrently with final strict accep
     CHECK(m.mean_ratio>=MinimumMeanRatio);CHECK(m.minimum_scaled_jacobian>=MinimumScaledJacobian);CHECK(m.maximum_edge<=MaximumMetricEdge);
   }
 }
+
+TEST_CASE("Metric adaptation resolves opposing length demands before shape census", "[NativeBidirectionalLength3D]") {
+  World world; Fixture fixture; Owned input;
+  auto append=[&](Fixture piece,Id offset,double shift,int owner) {
+    for(auto& c:piece.patch.cells){c.id+=offset;for(auto& n:c.v){n.id+=offset;n.p.x+=shift;}}
+    for(auto& f:piece.patch.surface){f.facet+=offset;for(auto& id:f.v)id+=offset;}
+    for(auto& f:piece.facets){f.id+=offset;for(auto& n:f.v){n.id+=offset;n.p.x+=shift;}}
+    if(owner==world.rank)for(const auto& row:Rows(piece.patch))input.emplace(row.cell.id,row);
+    fixture.patch.cells.insert(fixture.patch.cells.end(),piece.patch.cells.begin(),piece.patch.cells.end());
+    fixture.patch.surface.insert(fixture.patch.surface.end(),piece.patch.surface.begin(),piece.patch.surface.end());
+    fixture.facets.insert(fixture.facets.end(),piece.facets.begin(),piece.facets.end());
+  };
+  auto fan=Box();fan.patch.cells.clear();const Node center{8,{.5,.5,.5}};
+  for(const auto& f:fan.facets){Cell c{fan.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
+    if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[2],c.v[3]);
+    fan.patch.cells.push_back(c);}
+  auto second_fan=fan;append(Box(),100,0,0);append(std::move(fan),1000,3,world.size>1?1:0);
+  append(std::move(second_fan),2000,6,world.size>2?2:world.size>1?1:0);
+  const PlanarReference geometry(fixture.facets);const auto saved=Bytes(input);
+  auto source=Uniform(input,Tensor{});
+  for(auto& donor:source)for(auto& metric:donor.sensor)
+    metric=donor.cell.id<1000?Tensor{4,0,0,4,0,4}:Tensor{.25,0,0,.25,0,.25};
+  const auto source_saved=source; // Compare serialized donor records below.
+  auto donorBytes=[](std::vector<DonorCell> rows){std::vector<char> b;RecordStream stream(b);for(auto& row:rows)stream(row);return b;};
+  bool saw_split=false,saw_collapse=false,construction_unmeasured=true,quality_seen=false;
+  uint64_t splits_before_quality=0,collapses_before_quality=0,parallel_before_quality=0;
+  bool first_collapse_seen=false,collapse_before_size_complete=false;
+  EngineOptions options;options.maximum_work=4096;
+  options.stage_observer=[&](const StageProgressView& view){
+    if(view.phase==EnginePhase::Improvement && !quality_seen) {
+      quality_seen=true;splits_before_quality=view.stats.length_splits;collapses_before_quality=view.stats.length_collapses;
+      parallel_before_quality=view.stats.maximum_parallel_commits;
+    }
+    if(view.phase!=EnginePhase::Construction || view.stats.quality_stages)return;
+    construction_unmeasured &= view.progress.q_measured_cells==0 && view.progress.j_measured_cells==0 && view.progress.shape_measured_cells==0;
+    if(std::string(view.stage)=="length_split_exit")saw_split=true;
+    if(std::string(view.stage)=="length_collapse_exit") {
+      saw_collapse=true;
+      if(!first_collapse_seen){first_collapse_seen=true;collapse_before_size_complete=view.progress.size_bad_cells!=0;}
+    }
+  };
+  const auto result=AdaptMetric(world,input,source,geometry,{},options);INFO(result.reason);
+  CHECK(result.stats.bidirectional);CHECK(result.stats.length_split_passes>0);CHECK(result.stats.length_collapse_passes>0);
+  CHECK(world.sum(result.stats.length_splits)>0);CHECK(world.sum(result.stats.length_collapses)>0);
+  CHECK(world.maximum(saw_split));CHECK(world.maximum(saw_collapse));CHECK(world.maximum(!construction_unmeasured)==0);
+  CHECK(world.maximum(collapse_before_size_complete));
+  if(world.size>=3)CHECK(world.maximum(parallel_before_quality)>=2);
+  CHECK(result.stats.global_work<=options.maximum_work);
+  CHECK(world.sum(splits_before_quality)>0);CHECK(world.sum(collapses_before_quality)>0);
+  CHECK(Bytes(input)==saved);CHECK(donorBytes(source)==donorBytes(source_saved));
+  REQUIRE(result.valid);
+  for(const auto& row:result.cells){const auto& c=row.second.cell;
+    CHECK(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0);
+    const Tensor m=c.v[0].p.x<2?Tensor{4,0,0,4,0,4}:Tensor{.25,0,0,.25,0,.25};
+    const auto quality=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},m);
+    CHECK(quality.mean_ratio>=MinimumMeanRatio);CHECK(quality.minimum_scaled_jacobian>=MinimumScaledJacobian);
+    CHECK(quality.maximum_edge<=MaximumMetricEdge);
+  }
+}
+
+TEST_CASE("Construction pass claims only committed cavity vertices", "[NativeConstructionPassClaims3D]") {
+  World world;auto rows=Rows(Box().patch),other=rows;
+  for(auto& row:other){row.cell.id+=100;for(auto& node:row.cell.v){node.id+=100;node.p.x+=3;}
+    for(auto& face:row.physical)if(face.present)face.facet+=100;rows.push_back(row);}
+  auto owned=Partition(rows,world);Directory directory(world);std::string reason;
+  REQUIRE(directory.Build(owned,reason));
+  std::vector<Dependency> removed;std::vector<OwnedCell> added;
+  if(owned.count(0)){auto row=owned.at(0);removed.push_back({row.cell.id,row.version,world.rank});++row.version;added.push_back(row);}
+  const auto feature=Feature{{0,0,0},1};
+  directory.BeginConstructionPass();
+  const auto initial=directory.Snapshot(),mesh=Bytes(owned);
+  CHECK_FALSE(directory.Publish(owned,removed,added,world.rank!=0,reason));
+  CHECK(directory.Snapshot()==initial);CHECK(Bytes(owned)==mesh);
+  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,world.rank?SIZE_MAX:1));
+  CHECK(directory.Snapshot()==initial);CHECK(Bytes(owned)==mesh);
+  auto deps=directory.Lookup(Query(world,feature));REQUIRE(deps.valid);
+  auto imported=directory.Fetch(deps,owned);REQUIRE(imported.valid);
+  const bool before=directory.Reserve(imported,world.rank==0,reason);
+  CHECK(world.rank!=0 || before);CHECK_FALSE(directory.PassDeferred());
+  REQUIRE(directory.Publish(owned,removed,added,true,reason));
+  deps=directory.Lookup(Query(world,feature));REQUIRE(deps.valid);
+  imported=directory.Fetch(deps,owned);REQUIRE(imported.valid);
+  const bool held=directory.Reserve(imported,world.rank==0,reason);
+  if(!world.rank){CHECK_FALSE(held);CHECK(directory.PassDeferred());}
+  auto separate=directory.Lookup(Query(world,Feature{{100,0,0},1}));REQUIRE(separate.valid);
+  auto enlarged=directory.Fetch(separate,owned);REQUIRE(enlarged.valid);
+  CHECK(directory.Reserve(enlarged,world.rank==0,reason)==(world.rank==0));CHECK_FALSE(directory.PassDeferred());
+  if(!world.rank)enlarged.cells.insert(enlarged.cells.end(),imported.cells.begin(),imported.cells.end());
+  const bool expanded=directory.Reserve(enlarged,world.rank==0,reason);
+  if(!world.rank){CHECK_FALSE(expanded);CHECK(directory.PassDeferred());}
+  const auto batch=directory.LookupBatch(Query(world,feature));REQUIRE(batch.valid);
+  const auto payload=directory.FetchBatch(batch,owned);REQUIRE(payload.valid);
+  const auto reserved=directory.ReserveBatch(payload);REQUIRE(reserved.valid);
+  if(!world.rank){CHECK(reserved.chosen.size()==1);if(reserved.chosen.size()==1){CHECK_FALSE(reserved.chosen[0]);CHECK(reserved.pass_deferred[0]);}}
+  std::vector<size_t> slots;const auto plan=directory.PlanBatch(Query(world,feature),slots);REQUIRE(plan.valid);
+  if(!world.rank){CHECK(plan.pass_deferred==std::vector<size_t>{0});CHECK(slots.empty());}
+  ImportedBatch interiors;interiors.valid=true;
+  if(!world.rank){Imported one;one.valid=true;one.cells.push_back(owned.at(0));interiors.candidates.push_back(one);}
+  const auto interior=directory.ReserveInteriors(interiors);REQUIRE(interior.valid);
+  if(!world.rank){CHECK(interior.chosen.size()==1);if(interior.chosen.size()==1){CHECK(interior.chosen[0]);CHECK_FALSE(interior.pass_deferred[0]);}}
+  directory.BeginConstructionPass();
+  CHECK(directory.Reserve(imported,world.rank==0,reason)==(world.rank==0));CHECK_FALSE(directory.PassDeferred());
+  const auto fresh=directory.Snapshot();
+  CHECK_FALSE(directory.Publish(owned,{}, {},world.rank!=0,reason));CHECK(directory.Snapshot()==fresh);
+  CHECK(directory.Reserve(imported,world.rank==0,reason)==(world.rank==0));CHECK_FALSE(directory.PassDeferred());
+  directory.EndConstructionPass();
+  const bool after=directory.Reserve(imported,world.rank==0,reason);
+  CHECK(world.rank!=0 || after);CHECK_FALSE(directory.PassDeferred());
+}
+
+TEST_CASE("Metric lifecycle disagreement is refused collectively", "[NativeBidirectionalLength3D]") {
+  World world;if(world.size<2){SUCCEED("Mixed worker entry points require multiple ranks.");return;}
+  const auto fixture=Box();const auto owned=Partition(Rows(fixture.patch),world);const auto saved=Bytes(owned);
+  const PlanarReference geometry(fixture.facets);const auto donors=Uniform(owned,Tensor{});
+  const auto result=world.rank?Refine(world,owned,donors,geometry):AdaptMetric(world,owned,donors,geometry);
+  CHECK_FALSE(result.valid);CHECK(result.reason.find("intent differs across workers")!=std::string::npos);
+  CHECK(Bytes(owned)==saved);
+}

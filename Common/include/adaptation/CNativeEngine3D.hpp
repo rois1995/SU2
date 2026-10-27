@@ -36,7 +36,7 @@ struct StageProgress {
  * `valid` is final acceptance only; `complete` means all diagnostic channels are measured.
  * Function objects are borrowed rebuilding context, not a serializable field specification. */
 struct StageProgressView {
-  const char* stage;  // construction_entry, quality_entry, window, exit
+  const char* stage;  // construction_entry, length_split_exit, length_collapse_exit, quality_entry, window, exit
   EnginePhase phase;
   uint64_t round;
   bool valid,complete;
@@ -115,6 +115,8 @@ struct EngineStats {
   // Strict checkpoints certify hard mesh constraints; speculative publications are counted independently.
   uint64_t coarsen_checkpoints=0,coarsen_committed_passes=0,coarsen_rolled_back_passes=0;
   uint64_t coarsen_retired_directions=0,coarsen_restored_cells=0,coarsen_rolled_back_collapses=0;
+  bool bidirectional=false;
+  uint64_t length_split_passes=0,length_collapse_passes=0,length_splits=0,length_collapses=0,length_pass_deferred=0,length_expansion_deferrals=0;
   uint64_t quality_stages=0,construction_returns=0;  // Fresh strict censuses and size/geometry returns within this event.
   uint64_t region_field_points=0,region_field_sensor_hits=0,region_field_interior_hits=0;
   uint64_t region_field_edges=0,region_field_edge_hits=0,region_field_imports=0;
@@ -212,12 +214,14 @@ struct EngineResult {
   std::string reason;
   EngineStats stats;
 };
-/*! Distributed validity-first construction followed by metric/first-height quality improvement.
- * Construction uses exact-positive cells, geometry and frozen edge lengths; complete construction starts a
- * fresh strict q/J/size/height census and the dependency-tracked distributed repair queue. Improvement may
- * return new size/surface deficits to construction; every re-entry measures shape afresh. Budgets, source and
- * private geometry are shared across phases. Accepted input/source remain unchanged; only complete strict
- * final acceptance makes the private result valid. All worker ranks call together. */
+/*! Production metric adaptation alternates vertex-disjoint split/collapse passes, followed by
+ * metric/BL quality improvement. Exact positivity, geometry and frozen edge lengths govern construction;
+ * missing q/J/height measurements are added at quality entry and versioned certificates remain reusable.
+ * Donors, private geometry, ownership and work/deadline are shared. Only complete strict final acceptance
+ * makes the private result valid. All worker ranks call together. */
+EngineResult AdaptMetric(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
+                    const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
+/*! Refinement construction uses the same staged quality closure and unchanged final gates. */
 EngineResult Refine(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                     const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
 /*! General directed vertex-star coarsening on the same frozen-target transaction path. A successful event

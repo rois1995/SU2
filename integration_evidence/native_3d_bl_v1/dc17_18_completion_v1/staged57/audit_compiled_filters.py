@@ -19,7 +19,7 @@ OTHER = [COMMON / 'CNativeAffineReference_tests.cpp', COMMON / 'CNativeDistribut
          CFD / 'CConservativeTransfer_tests.cpp']
 BROAD_TAGS = {'NativeCurvedTransaction3D', 'NativeRuntime3D', 'NativeCurvedRuntime3D',
               'NativePolicyVeto3D', 'NativeBLPolicyRuntime3D', 'NativeCurvedLifecycle3D',
-              'NativeAtlasCoordinatedPublication3D', 'NativeMappedRuntime3D', 'NativeConstructionSweep3D', 'NativeReference3D'}
+              'NativeAtlasCoordinatedPublication3D', 'NativeMappedRuntime3D', 'NativeConstructionSweep3D', 'NativeReference3D', 'NativeBidirectionalLength3D', 'NativeConstructionPassClaims3D'}
 CASE = re.compile(r'TEST_CASE\s*\(\s*"([^"\n]+)"\s*,\s*"([^"\n]*)"', re.M)
 
 
@@ -49,11 +49,11 @@ def main():
     serial_extra = {name for name, _ in tests[CFD / 'CConservativeTransfer_tests.cpp']
                     if name.startswith(('Conservative projection:', 'Conservative transfer:'))}
     if not broad: raise RuntimeError('No supplemental tests found')
-    specific = {'quality_cache': 'NativeQualityPass3D', 'quality_cache6': 'NativeQualityPass3D', 'normalization': 'NativeWorkingSurfaceNormalization3D', 'normalization6': 'NativeWorkingSurfaceNormalization3D', 'single_certificate_checks': 'NativeSingleChartCertificate3D', 'mapped_runtime': 'NativeMappedRuntime3D', 'mapped_work_trace': 'NativeMappedRuntime3D', 'm6_stage': 'NativeFrozenVolume3D', 'cost_checks': 'NativeOverlappingAtlas3D', 'overlap_publication': 'NativeOverlappingPublication3D', 'overlap_publication6': 'NativeOverlappingPublication3D', 'reference_io': 'NativeReference3D', 'reference_io6': 'NativeReference3D',
+    specific = {'bidirectional': 'NativeBidirectionalLength3D', 'bidirectional6': 'NativeBidirectionalLength3D', 'quality_cache': 'NativeQualityPass3D', 'quality_cache6': 'NativeQualityPass3D', 'normalization': 'NativeWorkingSurfaceNormalization3D', 'normalization6': 'NativeWorkingSurfaceNormalization3D', 'single_certificate_checks': 'NativeSingleChartCertificate3D', 'mapped_runtime': 'NativeMappedRuntime3D', 'mapped_work_trace': 'NativeMappedRuntime3D', 'm6_stage': 'NativeFrozenVolume3D', 'cost_checks': 'NativeOverlappingAtlas3D', 'overlap_publication': 'NativeOverlappingPublication3D', 'overlap_publication6': 'NativeOverlappingPublication3D', 'reference_io': 'NativeReference3D', 'reference_io6': 'NativeReference3D',
                 'workflow_solved6': 'NativeSolvedEuler3D', 'workflow_primitive6': 'NativePrimitiveRuntime3D',
                 'workflow_resolved_m1': 'NativeResolvedEuler3D', 'workflow_resolved_m2': 'NativeResolvedEuler3D',
                 'workflow_resolved_m4': 'NativeResolvedEuler3D'}
-    required = {case: {name for p in NEW + OTHER for name, tags in tests[p] if '[' + tag + ']' in tags or (case=='single_certificate_checks' and '[NativeAcceptedFaceCertificate3D]' in tags)}
+    required = {case: {name for p in NEW + OTHER for name, tags in tests[p] if '[' + tag + ']' in tags or (case=='single_certificate_checks' and '[NativeAcceptedFaceCertificate3D]' in tags) or (case in ('bidirectional','bidirectional6') and '[NativeConstructionPassClaims3D]' in tags)}
                 for case, tag in specific.items()}
     if any(not names for names in required.values()): raise RuntimeError('A specific case has no matching source test')
     env = os.environ.copy(); env.update(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')

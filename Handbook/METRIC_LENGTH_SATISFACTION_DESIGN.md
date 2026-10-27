@@ -1,7 +1,9 @@
 # Metric-length satisfaction: proposed staging and M6 cost evidence
 
-Design record, 2026-10-27. Scheduling is not implemented or validated.
+Design record, 2026-10-27. The connected scheduling candidate is applied and build66 is live; it is unvalidated.
 The geometry-closure candidate is a separate connected change. DC-17/DC-18 remain open.
+
+Build65 was owner-cancelled (51.1455s, exit 130, unchanged pins; all 22 processes gone). Source66 fixes secondary pass-deferral handling and mode agreement; direct footprint and mismatched-entry MPI tests and a three-component joint-coarsening fixture await validation. Next are focused serial/MPI6, production CFD and early M6 length diagnostics.
 
 ## Evidence and source identity
 
@@ -199,3 +201,65 @@ Established comparator: Omega_h satisfy_lengths alternates refine_by_size and
 coarsen_by_size before quality (Omega_h_adapt.cpp160–175):
 https://raw.githubusercontent.com/sandialabs/omega_h/main/src/Omega_h_adapt.cpp
 Its quality-ranked criteria are not permission to add q/J to this construction stage.
+
+
+## Connected source66 candidate (2026-10-28; unvalidated)
+
+Production now calls AdaptMetric through the existing Adapt lifetime. Standalone
+Refine/Coarsen/Repair retain their construction/checkpoint policies. Direction is
+separate from strict standalone coarsening rollback; only the final strict census
+can accept the outer transaction. The legacy `refine` diagnostic slot stores the
+joint lifecycle, with explicit split/collapse pass and acceptance counters; there
+is no second independent coarsen budget.
+
+A full entry-edge sweep alone can delay the opposite operation for many thousands
+of commits. The candidate therefore reuses Directory's distributed vertex-footprint
+reservation as an independent construction pass. Successful Publish stages all
+changed working-vertex keys on their existing rendezvous owners; allocation-free
+Commit installs these transient claims. Failed/vetoed publication installs none.
+Later intersecting cavities receive a distinct pass deferral in single, batch and
+planned reservation. Service removes that candidate only from the current frontier,
+not from later passes. Resetting the direction discards every claim; quality runs
+without construction claims. Interior reservations use their existing cell namespace.
+
+Split/collapse rejection caches remain separate. A globally productive pass dirties
+both directional caches; the next entry conservatively drops stale refusals. Quality
+movement similarly invalidates them before returning to construction. Queues are
+rebuilt through existing ChangePhase and retain checked version/coordinate/field
+certificates. No q/J measurement or ranking is added to construction.
+
+New pass receipts report local current edges (shared MPI edges may be counted on
+multiple ranks), short/long populations, min/max length, cell-incidence size debt,
+geometry/size bad-cell counts, prior q/J measurement counts, accepted directions,
+arithmetic work, admitted storage and elapsed time. These are diagnostics, not gates.
+
+Publication accounting also retains the staged directory/parameter records through
+later parameter proof and changed-owner notification. This includes staged pass
+claims and their admitted nodes; memory/time/work limits are unchanged. Claims are
+process-local scheduling data and never enter native reference archives or restart.
+
+Focused protocol tests cover committed claims, pass deferral/reset, veto/low-memory
+atomicity and the separate interior reservation namespace. The mixed-length fixture
+requires actual splits and collapses before quality, zero initial construction
+shape measurements, final gates and immutable input/source. These are unbuilt tests,
+not qualification. Complete CFD/M6, repeated adaptation, transfer and restart remain
+required, along with the existing geometry qualification and all unresolved failures.
+
+
+Build65 was owner-cancelled after51.1455s with unchanged pins when read-only
+review found pass vetoes misclassified by four secondary reservation callers.
+All22 recorded processes exited before source edits. The callers now use the
+typed pass flag, stop the local deferred growth and retain collective participation;
+mixed AdaptMetric/Refine calls are elected as mode disagreement before divergence.
+Build66 must qualify these fixes. An expanded-footprint Directory regression is
+not a full engine-growth continuation regression; diagnostics count actual expanded
+pass deferrals for difficult-target assessment.
+
+Joint coarsening also uses the existing concurrent complete-vertex-star and final
+reservation path. The mixed-length fixture has one long-edge component and two
+short-edge fans; on at least three ranks it requires parallel commits before
+quality, with the first collapse pass occurring while oversized cells remain.
+Standalone coarsening semantics are retained. Curved/composed multi-slot batches
+remain separate: expansion can invalidate an unprocessed slot's imported rows;
+committed-pass claims alone do not protect future batch leases. No blind batch
+flag change is part of this candidate.

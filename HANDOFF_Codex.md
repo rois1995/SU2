@@ -20,6 +20,18 @@ may move on prescribed geometry. Scenario labels must not dispatch reconstructio
 
 ## Current work and evidence
 
+Source66 candidate is under build and unvalidated: one metric lifecycle alternates
+split/collapse passes using rendezvous claims, followed by quality and final gates.
+Build65 was owner-cancelled after 51.1455s (exit 130, pins unchanged); all 22
+recorded processes exited before edits. Review fixed four secondary reservations
+misclassifying pass deferral and added bidirectional-mode agreement. Expanded
+footprint and mismatched-entry MPI tests are added; full engine growth remains
+uncovered. Joint coarsening uses concurrent complete-star final reservations; a
+three-component fixture requires parallel work before quality. Build66/session54808
+(ninja PID4068717) is live, with 1293 source/helper pins frozen, one low-priority
+worker and 4TB temporary storage. Next: bidirectional serial/MPI6, production CFD,
+and early M6 with length diagnostics. See [design](Handbook/METRIC_LENGTH_SATISFACTION_DESIGN.md).
+
 Build63 PASS66.1366s; all 17 build PIDs gone. Nineteen compiled filter audits
 pass (245 serial/222 MPI selected). Normalization passes serial 745 assertions
 in 15.9078s and MPI6 in 16.796s (727/721/721/721/715/715 assertions); all nine
@@ -37,10 +49,10 @@ with unchanged pins: each rank passed 220/222 cases, with the same three failed
 assertions; the empty-rank fixture passed and all nine processes exited. Source64
 corrects the stale fixture expectation and strengthens row/version/content checks.
 Build64 PASS96.1853s; focused quality_cache serial and MPI6 pass in 6.8561s and
-6.8769s respectively, all owned processes gone. All 21 compiled filter selections pass in build64; no owned job remains live. These focused passes do not qualify the failed
+6.8769s respectively, all owned processes gone. All 21 compiled filter selections pass in build64. These focused passes do not qualify the failed
 broad campaigns. No complete M6 or CFD transfer/restart is accepted.
 
-Latest pushed checkpoint `765d0d4207` on authorized origin rois1995/SU2, branch
+Geometry-validation checkpoint `9ae6b94886` on authorized origin rois1995/SU2, branch
 codex/native-3d-bl; it is incomplete. Source63 broad MPI confirms the nonempty-rank
 broadcast correction. Detailed earlier build/fixture failures are in [progress](ADAPTATION_PROGRESS.md).
 
@@ -52,14 +64,10 @@ RSS was 6,387,077,120 bytes; largest sampled individual RSS 1,096,867,840 bytes;
 neither is a whole-job peak. Evidence: `staged57/m6_runs/euler_build61_working_surface`.
 No accepted mesh or transfer/restart workflow follows.
 
-Source48 M6 stopped at its elapsed-time limit without an accepted mesh; its six
-quality-entry archives are verified and pushed as private diagnostics, with
-source_valid=false and exact_continuation=false. They do not establish transfer,
-restart or a runtime checkpoint. This full-CFD run used `run_m6`, not the four-window diagnostic stop. See [progress](ADAPTATION_PROGRESS.md) and
-[curved implementation history](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
+Source48 quality-entry archives are private diagnostics, not accepted restart evidence; see [progress](ADAPTATION_PROGRESS.md).
 
 The support-index and normalization candidate has serial and MPI6 fixture evidence.
-The bidirectional metric-length design remains unimplemented. Preserve source, body and feature constraints, resource
+The bidirectional metric-length candidate is unvalidated. Preserve source, body and feature constraints, resource
 limits and all final gates. Related decisions: [working-surface reconstruction](Handbook/WORKING_SURFACE_RECONSTRUCTION_DECISION.md),
 [curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md), [staged adaptation](Handbook/STAGED_NATIVE_ADAPTATION.md)
 and [transfer findings](Handbook/TRANSFER_OPERATORS_FINDINGS.md).

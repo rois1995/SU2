@@ -258,7 +258,8 @@ TEST_CASE("Native3D configured work and time ceilings preserve CFD and BDF donor
   if(world.rank<workers) {
     const auto& stats=complete.Statistics();
     CHECK(stats.refine.global_work+stats.coarsen.global_work<=2048);
-    CHECK(stats.coarsen.work_limit==2048-stats.refine.global_work);
+    CHECK(stats.refine.bidirectional);CHECK(stats.refine.work_limit==2048);
+    CHECK(stats.coarsen.work_limit==0);
   }
 }
 

@@ -43,6 +43,7 @@ struct RemeshStats {
   ComplexityReassessment3D complexity;
   DonorImportStats source;
   PartitionStats partition;
+  // The legacy refine diagnostic slot holds the shared production metric lifecycle; no second coarsen budget.
   EngineStats construction_stats, refine, coarsen;
   // Import owns a separate World; weight/return scopes are already inside the parent's totals.
   uint64_t communication_bytes = 0, communication_calls = 0, initial_cells = 0, final_cells = 0;
@@ -64,7 +65,7 @@ class CNativeRemesher3D final : public CRemesher {
       const CConfig&,const CGeometry&,const su2activematrix&)>;
   /*! Provisional construction on the worker communicator: the accepted import, immutable original donors,
    * pending reference, composition and shared event controls. A valid construction continues through distributed
-   * Refine/Coarsen and strict final acceptance before CFD publication. `report` also records rejection. */
+   * bidirectional metric adaptation and strict final acceptance before CFD publication. `report` also records rejection. */
   using ConstructionFactory = std::function<SU2Native3D::EngineResult(SU2Native3D::World&,const SU2Native3D::Owned&,
       const std::vector<SU2Native3D::DonorCell>&,const SU2Native3D::ReferenceState&,SU2Native3D::MetricComposition,
       const SU2Native3D::EngineOptions&,std::string& report)>;

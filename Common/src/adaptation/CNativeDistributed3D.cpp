@@ -104,8 +104,8 @@ struct BatchClaim {
   template <class S> void Fields(S& s) { s(vertex, caller, ticket); }
 };
 struct BatchVeto {
-  unsigned ticket = 0;
-  template <class S> void Fields(S& s) { s(ticket); }
+  unsigned ticket = 0;bool pass_deferred=false;
+  template <class S> void Fields(S& s) { s(ticket,pass_deferred); }
 };
 struct Claim {
   Id vertex = 0;
@@ -114,8 +114,8 @@ struct Claim {
   template <class S> void Fields(S& s) { s(vertex, caller, priority); }
 };
 struct Veto {
-  int caller = 0;
-  template <class S> void Fields(S& s) { s(caller); }
+  int caller = 0;bool pass_deferred=false;
+  template <class S> void Fields(S& s) { s(caller,pass_deferred); }
 };
 }  // namespace
 int Directory::Rendezvous(Key key) const {
@@ -148,12 +148,13 @@ Directory::Directory(World& world,bool track_changes,BoundaryParameterState* par
     :world(world),track_changes(track_changes),parameters(parameters) {}
 Directory::~Directory()=default;
 size_t Directory::ResidentBytes() const {
-  return transfer_memory::Add(MapBytes<Stars>(stars.size()), resident_payload_bytes, transfer_memory::Bytes(changed_vertices),
+  return transfer_memory::Add(MapBytes<Stars>(stars.size()), resident_payload_bytes, transfer_memory::Bytes(changed_vertices),MapBytes<std::set<Id>>(pass_vertices.size()),
       collision?transfer_memory::Add(sizeof(CollisionIndex),collision->Bytes()):0);
 }
 std::vector<char> Directory::Snapshot() const {
   std::vector<char> bytes;
-  RecordStream stream(bytes);
+  RecordStream stream(bytes);bool active=construction_pass;uint64_t held=pass_vertices.size();stream(active,held);
+  for(auto vertex:pass_vertices)stream(vertex);
   for (const auto& star : stars)
     for (auto row : star.second) stream(row.second);
   return bytes;
@@ -191,7 +192,7 @@ Directory::Prepared Directory::Prepare(const std::vector<OwnedCell>& removed, co
   const auto records = world.exchange(to, &admitted, ceiling, input_bytes);
   if (!admitted) failure.Set(3, 0, "Native 3D directory transport exceeds budget.");
   const auto changed_peak = transfer_memory::Add(input_bytes, transfer_memory::Bytes(to),
-      transfer_memory::Bytes(records), MapBytes<std::set<Key>>(records.size()), MapBytes<Stars>(records.size()));
+      transfer_memory::Bytes(records), MapBytes<std::set<Key>>(records.size()), MapBytes<Stars>(records.size()),construction_pass?MapBytes<std::set<Id>>(records.size()):0);
   stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, changed_peak);
   if (changed_peak == SIZE_MAX || changed_peak > ceiling) failure.Set(3, 0, "Native 3D changed-key staging exceeds budget.");
   if (!Vote(failure, result.reason)) return result;
@@ -205,7 +206,7 @@ Directory::Prepared Directory::Prepare(const std::vector<OwnedCell>& removed, co
     }
     peak = transfer_memory::Add(input_bytes, transfer_memory::Bytes(to), transfer_memory::Bytes(records),
         MapBytes<decltype(changed)>(changed.size()), MapBytes<Stars>(changed.size()), copied,
-        MapBytes<Star>(records.size()));
+        MapBytes<Star>(records.size()),construction_pass?MapBytes<std::set<Id>>(records.size()):0);
     stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, peak);
     if (peak == SIZE_MAX || peak > ceiling) failure.Set(3, 0, "Native 3D directory staging exceeds budget.");
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
@@ -214,6 +215,7 @@ Directory::Prepared Directory::Prepare(const std::vector<OwnedCell>& removed, co
     for (auto key : changed) {
       const auto old = stars.find(key);
       result.changed.emplace(key, old == stars.end() ? Star{} : old->second);
+      if(construction_pass && !key.first)result.pass_vertices.insert(key.second);
     }
     for (const auto& row : records)
       if (row.erase) {
@@ -248,6 +250,7 @@ Directory::Prepared Directory::Prepare(const std::vector<OwnedCell>& removed, co
   return result;
 }
 void Directory::Commit(Prepared&& prepared) noexcept {
+  while(!prepared.pass_vertices.empty())pass_vertices.insert(prepared.pass_vertices.extract(prepared.pass_vertices.begin()));
   for (auto it = prepared.changed.begin(); it != prepared.changed.end();) {
     auto old = stars.find(it->first);
     if (old != stars.end()) resident_payload_bytes -= MapBytes<Star>(old->second.size());
@@ -906,7 +909,7 @@ DependencyBatch Directory::PlanBatch(const std::vector<Feature>& features, std::
     // An oversized complete star has an empty footprint, is never elected and is reported for blocking.
     if(!candidate.valid && !candidate.oversized)failure.Set(1,0,candidate.reason);
   }
-  const auto compact=transfer_memory::Mul(features.size(),2*sizeof(size_t)+sizeof(Dependencies));
+  const auto compact=transfer_memory::Mul(features.size(),3*sizeof(size_t)+sizeof(Dependencies));
   const auto baseline=transfer_memory::Add(caller_bytes,transfer_memory::Bytes(features),dependencies,compact);
   const auto peak=transfer_memory::Add(baseline,ResidentBytes());
   stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
@@ -916,15 +919,16 @@ DependencyBatch Directory::PlanBatch(const std::vector<Feature>& features, std::
   if(!election.valid){result.valid=false;result.reason=election.reason;result.candidates.clear();return result;}
   try {
     std::vector<Dependencies> chosen;chosen.reserve(features.size());slots.reserve(features.size());
-    result.refused.reserve(features.size());
+    result.refused.reserve(features.size());result.pass_deferred.reserve(features.size());
     for(size_t i=0;i<election.chosen.size();++i) {
       if(result.candidates[i].oversized){result.refused.push_back(i);continue;}
+      if(election.pass_deferred[i]){result.pass_deferred.push_back(i);continue;}
       if(election.chosen[i]){slots.push_back(i);chosen.push_back(std::move(result.candidates[i]));}
     }
     result.candidates.swap(chosen);
   }catch(const std::exception& e){failure.Set(2,0,e.what());}
   result.valid=Vote(failure,result.reason);
-  if(!result.valid){slots.clear();result.candidates.clear();result.refused.clear();++stats.rejected;}
+  if(!result.valid){slots.clear();result.candidates.clear();result.refused.clear();result.pass_deferred.clear();++stats.rejected;}
   return result;
 }
 ReservationBatch Directory::ReserveBatch(const ImportedBatch& imported, size_t ceiling, size_t caller_bytes) {
@@ -965,20 +969,20 @@ ReservationBatch Directory::ReserveBatchImpl(const ImportedBatch& imported,size_
     }
   }catch(const std::exception& e){failure.Set(2,0,e.what());}
   if(!Vote(failure,result.reason)){++stats.rejected;return result;}
-  return ChooseBatch(footprints,ceiling,baseline);
+  return ChooseBatch(footprints,ceiling,baseline,!interiors);
 }
-ReservationBatch Directory::ChooseBatch(const std::vector<std::vector<Id>>& footprints, size_t ceiling, size_t caller_bytes) {
+ReservationBatch Directory::ChooseBatch(const std::vector<std::vector<Id>>& footprints, size_t ceiling, size_t caller_bytes, bool vertex_keys) {
   ReservationBatch result;CLocalFailure failure;size_t vertices=0,footprint_bytes=transfer_memory::Bytes(footprints);
   for(const auto& row:footprints){vertices=transfer_memory::Add(vertices,row.size());footprint_bytes=transfer_memory::Add(footprint_bytes,transfer_memory::Bytes(row));}
-  const auto baseline=transfer_memory::Add(caller_bytes,ResidentBytes(),footprint_bytes,transfer_memory::Mul(footprints.size(),sizeof(bool)));
+  const auto baseline=transfer_memory::Add(caller_bytes,ResidentBytes(),footprint_bytes,transfer_memory::Mul(transfer_memory::Add(footprints.size(),64),2*sizeof(bool)));
   auto peak=transfer_memory::Add(baseline,transfer_memory::Mul(world.size,sizeof(std::vector<BatchClaim>)),
       transfer_memory::GrowthBound(vertices,sizeof(BatchClaim)));stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
   if(peak==SIZE_MAX || peak>ceiling)failure.Set(3,0,"Native 3D candidate footprint claims exceed budget.");
-  if(!Vote(failure,result.reason)){result.chosen.clear();++stats.rejected;return result;}
+  if(!Vote(failure,result.reason)){result.chosen.clear();result.pass_deferred.clear();++stats.rejected;return result;}
   std::vector<std::vector<BatchClaim>> to;
   try {
     if(footprints.size()>MaximumDirectoryFeatures)throw std::runtime_error("Native 3D candidate footprint count exceeds budget.");
-    to.resize(world.size);result.chosen.resize(footprints.size(),false);
+    to.resize(world.size);result.chosen.resize(footprints.size(),false);result.pass_deferred.resize(footprints.size(),false);
     for(size_t i=0;i<footprints.size();++i) {
       const auto& row=footprints[i];if(row.empty())continue;
       if(row.size()>4*MaximumCavityCells || !std::is_sorted(row.begin(),row.end()) || std::adjacent_find(row.begin(),row.end())!=row.end())
@@ -987,7 +991,7 @@ ReservationBatch Directory::ChooseBatch(const std::vector<std::vector<Id>>& foot
       result.chosen[i]=true;
     }
   }catch(const std::exception& e){failure.Set(2,0,e.what());}
-  if(!Vote(failure,result.reason)){result.chosen.clear();++stats.rejected;return result;}
+  if(!Vote(failure,result.reason)){result.chosen.clear();result.pass_deferred.clear();++stats.rejected;return result;}
   bool admitted=false;
   const auto claims=world.exchange(to,&admitted,ceiling,baseline);
   if (!admitted) failure.Set(3,0,"Native 3D batch reservation transport exceeds budget.");
@@ -997,7 +1001,7 @@ ReservationBatch Directory::ChooseBatch(const std::vector<std::vector<Id>>& foot
       transfer_memory::GrowthBound(claims.size(),sizeof(BatchVeto)));
   stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
   if (peak==SIZE_MAX || peak>ceiling) failure.Set(3,0,"Native 3D batch reservation replies exceed budget.");
-  if (!Vote(failure,result.reason)) { result.chosen.clear(); ++stats.rejected; return result; }
+  if (!Vote(failure,result.reason)) { result.chosen.clear();result.pass_deferred.clear(); ++stats.rejected; return result; }
   std::vector<std::vector<BatchVeto>> reply;
   try {
     reply.resize(world.size);
@@ -1009,26 +1013,28 @@ ReservationBatch Directory::ChooseBatch(const std::vector<std::vector<Id>>& foot
       const auto inserted=winner.emplace(row.vertex,priority);
       if (!inserted.second) inserted.first->second=std::min(inserted.first->second,priority);
     }
-    for (const auto& row:claims) if (winner.at(row.vertex)!=std::make_pair(row.caller,row.ticket))
-      reply[row.caller].push_back({row.ticket});
+    for (const auto& row:claims) {
+      const bool held=construction_pass && vertex_keys && pass_vertices.count(row.vertex);
+      if(held || winner.at(row.vertex)!=std::make_pair(row.caller,row.ticket))reply[row.caller].push_back({row.ticket,held});
+    }
   } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
-  if (!Vote(failure,result.reason)) { result.chosen.clear(); ++stats.rejected; return result; }
+  if (!Vote(failure,result.reason)) { result.chosen.clear();result.pass_deferred.clear(); ++stats.rejected; return result; }
   const auto vetoes=world.exchange(reply,&admitted,ceiling,
       transfer_memory::Add(baseline,transfer_memory::Bytes(to),transfer_memory::Bytes(claims)));
   if (!admitted) failure.Set(3,0,"Native 3D batch reservation replies exceed budget.");
   try {
     for (const auto& veto:vetoes) {
       if (veto.ticket>=result.chosen.size()) throw std::runtime_error("Native 3D invalid batch reservation veto.");
-      result.chosen[veto.ticket]=false;
+      result.chosen[veto.ticket]=false;result.pass_deferred[veto.ticket]=result.pass_deferred[veto.ticket]||veto.pass_deferred;
     }
   } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
   result.valid=Vote(failure,result.reason);
-  if (!result.valid) { result.chosen.clear(); ++stats.rejected; }
+  if (!result.valid) { result.chosen.clear();result.pass_deferred.clear(); ++stats.rejected; }
   return result;
 }
 bool Directory::Reserve(const Imported& imported, bool active, std::string& reason, size_t ceiling, size_t caller_bytes,unsigned priority) {
   Timer timer(stats.reservation_seconds);
-  ++stats.reservations;
+  ++stats.reservations;last_pass_deferred=false;
   CLocalFailure failure;
   std::vector<std::vector<Claim>> to;
   const auto baseline = transfer_memory::Add(caller_bytes, ResidentBytes(), transfer_memory::Bytes(imported.cells));
@@ -1074,23 +1080,33 @@ bool Directory::Reserve(const Imported& imported, bool active, std::string& reas
       if (old == winner.end()) winner.emplace(row.vertex, order);
       else old->second = std::min(old->second, order);
     }
-    for (const auto& row : claims) if (winner.at(row.vertex).second != row.caller) reply[row.caller].push_back({row.caller});
+    for (const auto& row : claims) {
+      const bool held=construction_pass && pass_vertices.count(row.vertex);
+      if(held || winner.at(row.vertex).second!=row.caller)reply[row.caller].push_back({row.caller,held});
+    }
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
   const auto veto = world.exchange(reply, &admitted, ceiling,
       transfer_memory::Add(baseline, transfer_memory::Bytes(to), transfer_memory::Bytes(claims)));
   if (!admitted) { reason = "Native 3D reservation replies exceed budget."; ++stats.rejected; return false; }
-  if (!veto.empty()) { reason = "Native 3D conflicting dependency reservation."; ++stats.rejected; return false; }
+  for(const auto& row:veto)last_pass_deferred=last_pass_deferred||row.pass_deferred;
+  if (!veto.empty()) { reason = last_pass_deferred?"Native 3D cavity deferred to the next construction pass.":"Native 3D conflicting dependency reservation."; ++stats.rejected; return false; }
   reason.clear();
   return active;
+}
+size_t Directory::PreparedBytes(const Prepared& prepared) const {
+  size_t bytes=transfer_memory::Add(MapBytes<Stars>(prepared.changed.size()),
+      MapBytes<std::set<Id>>(prepared.pass_vertices.size()));
+  for(const auto& star:prepared.changed)bytes=transfer_memory::Add(bytes,MapBytes<Star>(star.second.size()));
+  return bytes;
 }
 bool Directory::NotifyChanges(const Prepared& prepared, std::vector<Id>& changed, std::string& reason,
                               size_t ceiling, size_t baseline) {
   Timer timer(stats.change_seconds);
   CLocalFailure failure;
-  size_t staged_bytes=MapBytes<Stars>(prepared.changed.size()), records=0;
+  const size_t staged_bytes=PreparedBytes(prepared);
+  size_t records=0;
   for (const auto& star:prepared.changed) {
-    staged_bytes=transfer_memory::Add(staged_bytes,MapBytes<Star>(star.second.size()));
     if (star.first.first) continue;
     const auto prior=stars.find(star.first);
     const size_t old_size=prior==stars.end() ? 0 : prior->second.size();
@@ -1322,9 +1338,9 @@ bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, co
   reason = prepared.reason;
   if (!prepared.valid) { ++stats.rejected; return false; }
   BoundaryParameterState::Publication parameter_stage;
-  if(parameters && !PrepareParameters(old,added,parameter_edits,parameter_stage,reason,ceiling,transfer_memory::Add(baseline,ResidentBytes()),coverage,reservation)) {++stats.rejected;return false;}
+  if(parameters && !PrepareParameters(old,added,parameter_edits,parameter_stage,reason,ceiling,transfer_memory::Add(baseline,ResidentBytes(),PreparedBytes(prepared)),coverage,reservation)) {++stats.rejected;return false;}
   std::vector<Id> changed;
-  if (track_changes && !NotifyChanges(prepared,changed,reason,ceiling,baseline)) { ++stats.rejected; return false; }
+  if (track_changes && !NotifyChanges(prepared,changed,reason,ceiling,transfer_memory::Add(baseline,parameter_stage.ResidentBytes()))) { ++stats.rejected; return false; }
   // All stores and notifications are staged before the final common vote; publication allocates nothing.
   for (const auto& row : old) {
     owned.erase(row.cell.id);if(collision)collision->added.erase(row.cell.id);

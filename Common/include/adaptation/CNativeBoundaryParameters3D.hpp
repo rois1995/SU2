@@ -59,6 +59,7 @@ class BoundaryParameterState {
   using FacetFaceIndex=std::set<std::pair<Id,Face>>;
   using FacetFaceRange=std::pair<FacetFaceIndex::const_iterator,FacetFaceIndex::const_iterator>;
   struct Publication {
+    size_t ResidentBytes() const;
     Entries added;
     std::map<Coordinate,Id> coordinates;
     std::map<Support,Id> supports;

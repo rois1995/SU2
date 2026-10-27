@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/home/rausa/Software/su2-develop/ninja",
+    "-C",
+    "integration_evidence/build-integrated-v2",
+    "-j1",
+    "UnitTests/test_driver",
+    "-k",
+    "0",
+    "SU2_CFD/src/SU2_CFD"
+  ],
+  "environment": {
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NINJA": "/home/rausa/Software/su2-develop/ninja"
+  }
+}
