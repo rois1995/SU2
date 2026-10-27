@@ -2617,6 +2617,29 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
   EngineOptions limits;limits.maximum_seconds=120;limits.timings=true;
   limits.rejected_state=[&](const Owned& owned,const PlanarReference& geometry,const std::string& why) {
     const auto name=std::string(curved?"cubic":"affine")+"_runtime_rejected_"+std::to_string(rans);
+    const char* trace=std::getenv("SU2_NATIVE_GEOMETRY_WORK_TRACE");
+    if(trace&&std::string(trace)=="1") {
+      const auto* parameters=geometry.Parameters();if(!parameters)throw std::runtime_error("Rejected capture lacks boundary parameters.");
+      constexpr size_t ceiling=size_t(128)<<20,scratch=1024;const auto size=parameters->PayloadBytes();
+      if(owned.size()>(ceiling-scratch)/sizeof(OwnedCell))throw std::length_error("Rejected cell capture exceeds admission.");
+      const auto retained=scratch+owned.size()*sizeof(OwnedCell);
+      if(original_reference.size()>ceiling-retained || size>(ceiling-retained-original_reference.size())/2)throw std::length_error("Rejected capture payload exceeds admission.");
+      const auto prefix=name+"_rank"+std::to_string(world.rank),owned_name=prefix+"_owned.bin",parameter_name=prefix+"_parameters.bin",reference_name=prefix+".native_ref";
+      std::ofstream cells(owned_name,std::ios::binary|std::ios::trunc);if(!cells)throw std::runtime_error("Cannot open rejected owned capture.");
+      std::vector<char> bytes;bytes.reserve(scratch);
+      auto write=[&](auto value){bytes.clear();RecordStream stream(bytes);stream(value);cells.write(bytes.data(),bytes.size());if(!cells)throw std::runtime_error("Cannot write rejected owned capture.");};
+      write(uint64_t(owned.size()));for(const auto& row:owned)write(row.second);
+      cells.close();if(!cells)throw std::runtime_error("Cannot close rejected owned capture.");
+      const auto payload=parameters->Payload();if(payload.size()!=size)throw std::runtime_error("Rejected parameter payload size changed.");
+      std::ofstream parameter_file(parameter_name,std::ios::binary|std::ios::trunc);parameter_file.write(payload.data(),payload.size());parameter_file.close();
+      if(!parameter_file)throw std::runtime_error("Cannot write rejected parameter capture.");
+      std::ofstream authority_file(reference_name,std::ios::binary|std::ios::trunc);authority_file.write(original_reference.data(),original_reference.size());authority_file.close();
+      if(!authority_file)throw std::runtime_error("Cannot write rejected original authority.");
+      std::ofstream manifest(prefix+"_manifest.json");manifest<<"{\"record_format\":1,\"complete_shard\":true,\"scope\":\"private_mapped_runtime_rejection\",\"private_capture\":true,\"final_mesh_accepted\":false,\"rank\":"<<world.rank
+        <<",\"generation\":"<<parameters->Revision()<<",\"owned_count\":"<<owned.size()<<",\"parameter_bytes\":"<<size
+        <<",\"owned\":\""<<owned_name<<"\",\"parameters\":\""<<parameter_name<<"\",\"authority\":\""<<reference_name<<"\"}\n";
+      manifest.close();if(!manifest)throw std::runtime_error("Cannot write rejected capture manifest.");
+    }
     std::ofstream out(name+"_"+std::to_string(world.rank)+".txt");
     out<<std::setprecision(17)<<why<<'\n';
     for(const auto& row:owned) {

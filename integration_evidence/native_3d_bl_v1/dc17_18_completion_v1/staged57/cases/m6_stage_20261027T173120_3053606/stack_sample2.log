@@ -1,0 +1,21 @@
+No symbol table is loaded.  Use the "file" command.
+[New LWP 3053780]
+[New LWP 3053782]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007f49a379d330 in ?? () from /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_btl_vader.so
+#0  0x00007f49a379d330 in ?? () from /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_btl_vader.so
+#1  0x000000000803a1e0 in ?? ()
+#2  0x0000563e0804a770 in ?? ()
+#3  0x0000563e0804a800 in ?? ()
+#4  0x00007f4900001000 in ?? ()
+#5  0x00000000000836b4 in ?? ()
+#6  0x0000000000000002 in ?? ()
+#7  0x0000000000000002 in ?? ()
+#8  0x8277ebca5a420400 in ?? ()
+#9  0x00007f49a947a7c0 in ?? () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#10 0x0000000000000002 in ?? ()
+#11 0x0000000000000002 in ?? ()
+#12 0x00007f49a94475e4 in ?? () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#13 0x0000000000000000 in ?? ()
+[Inferior 1 (process 3053772) detached]

@@ -15,11 +15,11 @@ NEW = [COMMON / ('CNative' + name + '_tests.cpp') for name in
        ('Atlas3D', 'CurvedAtlas3D', 'CanonicalTrace3D', 'TraceCoverage3D',
         'ReferenceTriangulation3D', 'GeometryBackend3D')]
 OTHER = [COMMON / 'CNativeAffineReference_tests.cpp', COMMON / 'CNativeDistributed3D_tests.cpp',
-         CFD / 'CNativeImport3D_tests.cpp', CFD / 'DistributedTransfer_tests.cpp',
+         CFD / 'CNativeImport3D_tests.cpp', CFD / 'CNativeRemesher3D_tests.cpp', CFD / 'DistributedTransfer_tests.cpp',
          CFD / 'CConservativeTransfer_tests.cpp']
 BROAD_TAGS = {'NativeCurvedTransaction3D', 'NativeRuntime3D', 'NativeCurvedRuntime3D',
               'NativePolicyVeto3D', 'NativeBLPolicyRuntime3D', 'NativeCurvedLifecycle3D',
-              'NativeAtlasCoordinatedPublication3D'}
+              'NativeAtlasCoordinatedPublication3D', 'NativeMappedRuntime3D'}
 CASE = re.compile(r'TEST_CASE\s*\(\s*"([^"\n]+)"\s*,\s*"([^"\n]*)"', re.M)
 
 
@@ -48,14 +48,21 @@ def main():
     serial_extra = {name for name, _ in tests[CFD / 'CConservativeTransfer_tests.cpp']
                     if name.startswith(('Conservative projection:', 'Conservative transfer:'))}
     if not broad: raise RuntimeError('No supplemental tests found')
+    specific = {'mapped_work_trace': 'NativeMappedRuntime3D', 'm6_stage': 'NativeFrozenVolume3D', 'cost_checks': 'NativeOverlappingAtlas3D',
+                'workflow_solved6': 'NativeSolvedEuler3D', 'workflow_primitive6': 'NativePrimitiveRuntime3D',
+                'workflow_resolved_m1': 'NativeResolvedEuler3D', 'workflow_resolved_m2': 'NativeResolvedEuler3D',
+                'workflow_resolved_m4': 'NativeResolvedEuler3D'}
+    required = {case: {name for p in NEW + OTHER for name, tags in tests[p] if '[' + tag + ']' in tags}
+                for case, tag in specific.items()}
+    if any(not names for names in required.values()): raise RuntimeError('A specific case has no matching source test')
     env = os.environ.copy(); env.update(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
-    for case in ('serial_full', 'mpi6', 'atlas_checks'):
+    for case in ('serial_full', 'mpi6', 'atlas_checks', *specific):
         output = ROOT / (build + '_' + case + '_filter_audit.json')
         listing = ROOT / (build + '_' + case + '_selected_tests.log')
         if output.exists() or listing.exists(): raise RuntimeError('Audit receipt already exists: ' + str(output))
         argv = ['nice', '-n', '19', 'timeout', '30', str(BINARY), CASES[case][1], '--list-test-names-only']
         result = subprocess.run(argv, capture_output=True, text=True, env=env)
-        names = result.stdout.splitlines(); expected = common | (broad if case != 'atlas_checks' else set())
+        names = result.stdout.splitlines(); expected = required[case] if case in specific else common | (broad if case != 'atlas_checks' else set())
         if case == 'serial_full': expected |= serial_extra
         changed = [p for p,h in pins.items() if sha(Path(p)) != h]
         missing = sorted(expected - set(names))

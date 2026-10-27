@@ -1,0 +1,155 @@
+{
+  "time": 1793123572.9385707,
+  "leader": 3053761,
+  "owned_pids": [
+    3053761,
+    3053762,
+    3053763,
+    3053772,
+    3053771,
+    3053770,
+    3053769,
+    3053768,
+    3053767
+  ],
+  "signal": "SIGTERM",
+  "reason": "Interrupted diagnostic after a timed debugger attach left one worker stopped; collective stacks cannot establish a native MPI defect. All owned descendants verified terminal. Fresh unattached run required.",
+  "after_signal": [
+    {
+      "pid": 3053761,
+      "state": "gone"
+    },
+    {
+      "pid": 3053762,
+      "state": "S"
+    },
+    {
+      "pid": 3053763,
+      "state": "S"
+    },
+    {
+      "pid": 3053772,
+      "state": "T"
+    },
+    {
+      "pid": 3053771,
+      "state": "R"
+    },
+    {
+      "pid": 3053770,
+      "state": "R"
+    },
+    {
+      "pid": 3053769,
+      "state": "R"
+    },
+    {
+      "pid": 3053768,
+      "state": "R"
+    },
+    {
+      "pid": 3053767,
+      "state": "R"
+    }
+  ],
+  "all_terminal": true,
+  "checked_at": 1793123638.7523093,
+  "remaining_process_groups": [
+    {
+      "pid": 3053762,
+      "state": "S",
+      "pgid": 3053762,
+      "cpu_seconds": 0.0
+    },
+    {
+      "pid": 3053763,
+      "state": "S",
+      "pgid": 3053762,
+      "cpu_seconds": 0.06
+    },
+    {
+      "pid": 3053772,
+      "state": "T",
+      "pgid": 3053772,
+      "cpu_seconds": 931.96
+    },
+    {
+      "pid": 3053771,
+      "state": "R",
+      "pgid": 3053771,
+      "cpu_seconds": 1268.63
+    },
+    {
+      "pid": 3053770,
+      "state": "R",
+      "pgid": 3053770,
+      "cpu_seconds": 1264.2
+    },
+    {
+      "pid": 3053769,
+      "state": "R",
+      "pgid": 3053769,
+      "cpu_seconds": 1265.62
+    },
+    {
+      "pid": 3053768,
+      "state": "R",
+      "pgid": 3053768,
+      "cpu_seconds": 1265.98
+    },
+    {
+      "pid": 3053767,
+      "state": "R",
+      "pgid": 3053767,
+      "cpu_seconds": 1265.8
+    }
+  ],
+  "descendant_group_signal": {
+    "time": 1793123620.3121378,
+    "pgid": 3053762,
+    "signal": "SIGTERM",
+    "resumed_stopped": [
+      3053772
+    ]
+  },
+  "final_processes": [
+    {
+      "pid": 3053761,
+      "state": "gone"
+    },
+    {
+      "pid": 3053762,
+      "state": "gone"
+    },
+    {
+      "pid": 3053763,
+      "state": "gone"
+    },
+    {
+      "pid": 3053772,
+      "state": "gone"
+    },
+    {
+      "pid": 3053771,
+      "state": "gone"
+    },
+    {
+      "pid": 3053770,
+      "state": "gone"
+    },
+    {
+      "pid": 3053769,
+      "state": "gone"
+    },
+    {
+      "pid": 3053768,
+      "state": "gone"
+    },
+    {
+      "pid": 3053767,
+      "state": "gone"
+    }
+  ],
+  "interpretation": "Interrupted diagnostic, not evidence of a native MPI mismatch: timed initial gdb attach left pid3053772 stopped (T), CPU931.96s while peers1264\u20131269s; later samples restored that stop. Source inspection found no local-collective mismatch at sampled vote/release. Must rerun without attach.",
+  "original_interpretation_before_debugger_stop_discovered": "Repeated saved all-worker stacks show persistent collective divergence: one at Engine vote3442/ElectFailure MAX, five at release_optimization3443/SUM; no geometry computation. Stop diagnostic, retain all evidence and original inputs."
+}

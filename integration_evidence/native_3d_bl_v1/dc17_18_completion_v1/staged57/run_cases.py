@@ -18,6 +18,13 @@ REPO = ROOT.parents[3]
 BINARY = REPO / "integration_evidence/build-integrated-v2/UnitTests/test_driver"
 CASES = {
     "m6_stage": (6, "[NativeFrozenVolume3D]"),
+    "cost_checks": (1, "[NativeOverlappingAtlas3D]"),
+    "mapped_work_trace": (1, "[NativeMappedRuntime3D]"),
+    "workflow_solved6": (6, "[NativeSolvedEuler3D]"),
+    "workflow_primitive6": (6, "[NativePrimitiveRuntime3D]"),
+    "workflow_resolved_m1": (6, "[NativeResolvedEuler3D]"),
+    "workflow_resolved_m2": (6, "[NativeResolvedEuler3D]"),
+    "workflow_resolved_m4": (6, "[NativeResolvedEuler3D]"),
     "quality_checks": (1, "[NativeOptimize3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeStageProgress3D]"),
     "stage_checks": (1, "[NativeStageProgress3D],[NativeStageCapture3D],[NativeCoarsenQualityReturn3D]"),
     "stage_checks6": (6, "[NativeStageProgress3D],[NativeStageCapture3D],[NativeCoarsenQualityReturn3D]"),
@@ -200,6 +207,10 @@ def main():
             pins[str(path)] = sha(path)
         pins.update(runtime_pins)
         stage_environment = {}
+        if case == "mapped_work_trace":
+            stage_environment["SU2_NATIVE_GEOMETRY_WORK_TRACE"] = "1"
+        if case.startswith("workflow_resolved_m"):
+            stage_environment["SU2_NATIVE_RESOLVED_WORKERS"] = case.rsplit("m", 1)[1]
         if case == "m6_stage":
             stage_inputs, stage_environment = prepare_stage_case(attempt)
             for path in stage_inputs:

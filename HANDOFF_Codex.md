@@ -38,12 +38,35 @@ overlapping-star moves with per-phase descriptor/bit-width/work/storage bounds,
 actual curved operator movement, collective embedding rejection, owner publication,
 source and archive checks. It does not qualify an accepted mesh or full workflow.
 
-Six-rank M6 build39 diagnostic is LIVE: session96782,
-`staged57/cases/m6_stage_20261027T173120_3053606`, pid3053761. Its status/owned handle
-must be terminal before editing pinned C++/helpers or starting another heavy job.
-The observer requests four private quality windows; a completed capture would still
-not establish final mesh acceptance. Broader workflow serial/MPI regression is due
-at this connected milestone after the M6 diagnostic.
+Six-rank M6 build39 diagnostic is TERMINAL INTERRUPTED: session96782,
+`staged57/cases/m6_stage_20261027T173120_3053606`, wrapper -15/1295.38s,
+unchanged pins. **Instrumentation confound:** initial timed GDB left a worker
+stopped, explaining later vote/release skew. No native MPI mismatch is established.
+All owned descendants are verified gone; see its `DIAGNOSTIC_INTERRUPTION.md` and
+`termination_receipt.json`. Do not reuse this as M6 acceptance or a native stall.
+Run a fresh M6 without attach after connected workflow checks.
+
+Build40 passed36.15s/1293 unchanged pins. Numeric cost case
+`staged57/cases/cost_checks_20261027T175644_3119990` passes16 moves and its
+independent summary:7 points/10 faces,10–16 cover pieces,10–15 trace pieces,
+54–55 bits,4.29–11.15 million arithmetic work,5.76–6.27MB admitted peak,
+0.60–0.66s per private move. Returning phases satisfy descriptor/work/byte bounds.
+This is small private surface-move scope, not full-event throughput.
+
+Build40 broad serial `staged57/cases/serial_full_20261027T175719_3121798`
+TERMINAL FAIL102.73s, unchanged pins:234/235 cases,1130211/1130213 assertions.
+Curved Euler/RANS mapped runtime still exhausts67207168 arithmetic work after29
+private edits/35 attempts, with8 geometry-debt cells and no metric/height debt.
+The identical whole-workflow failure is not resolved by the neighboring-path fix.
+Do not raise limits or claim capability completion. MPI broad and wider workflows
+are still due after this serial blocker is understood.
+
+Build41/session87438 is LIVE, single worker. Changes are diagnostic only: opt-in
+AtlasOps inclusive/exclusive work attribution and bounded raw rejected-state
+capture before geometry measurements can themselves fail at exhaustion.
+`mapped_work_trace` is the focused failing runtime selector. Keep pinned sources
+unchanged until terminal. Use its receipts to choose the connected verification/
+construction change; no cache/gate/budget change has been made.
 
 The [architecture review](Handbook/WORKING_SURFACE_RECONSTRUCTION_DECISION.md)
 compares Gmsh, CGAL, Mmg, Omega_h and Geometry Central. The narrow fixed-input
@@ -65,7 +88,10 @@ relaxing the exact chain or embedding gates. Full history/provenance:
 
 Compiled build38 filter audit selects all intended cases:235 serial (66 required),
 212 MPI (52 required),53 focused (29 required). Build39 changes no case names or
-filters; rerun the inexpensive binary audit before broader regression. Use the
+filters; rerun the inexpensive binary audit before broader regression. The helper
+now also requires mapped runtime and audits the single M6 frozen-field case.
+Separately schedule the existing solved Euler, primitive runtime and resolved
+Euler/restart workflows: they are not selected by current broad filters. Use the
 existing `staged57/build_checkpoint.py`, `run_cases.py` and
 `audit_compiled_filters.py` with unique receipts. Preserve successful stages and
 failures; do not raise limits or add alternate path fallbacks after a stall.

@@ -571,6 +571,30 @@ Build39 passed75.18s/1293 unchanged pins. Focused run
 assertions in47.83s, pins unchanged. This includes the previously failing16-event
 overlapping-star sequence with per-phase descriptor/width/work/storage bounds.
 The collective network counterexample and owner-publication rejection pass.
-These remain fixture/connected-check scope; six-rank M6 diagnostic is now live
-at `staged57/cases/m6_stage_20261027T173120_3053606`, session96782. No accepted
+These remain fixture/connected-check scope. Six-rank M6 diagnostic
+`staged57/cases/m6_stage_20261027T173120_3053606`, session96782, ended interrupted
+-15/1295.38s, unchanged pins. The timed initial GDB attach left a worker stopped;
+subsequent collective-skew samples are confounded and do not establish a native
+MPI defect. All descendants are verified terminal; see that case's
+`DIAGNOSTIC_INTERRUPTION.md`. A fresh run without attach is required. No accepted
 mesh or full transfer/restart qualification follows from the focused pass.
+
+
+## Numeric costs and remaining complete-workflow failure
+
+Build40 passes36.15s/1293 unchanged pins. Cost case
+`staged57/cases/cost_checks_20261027T175644_3119990` is terminal PASS17.70s:
+16 events, independently validated `reference_cost_summary.json`, current7 points/
+10 faces,10–16 cover pieces,10–15 trace pieces,54–55 bits,4,291,860–11,154,420
+arithmetic work,5,759,072–6,270,752 admitted peak bytes. Returning phases satisfy
+all count/width/work/storage bounds. Per-private-move wall time0.599–0.660s;
+process lifetime RSS29.25–29.44MB is not an event-local allocation peak.
+
+Broad serial `staged57/cases/serial_full_20261027T175719_3121798` fails in102.73s,
+pins unchanged:234/235 cases,1130211/1130213 assertions. Both curved Euler/RANS
+variants of mapped runtime still exhaust67,207,168 arithmetic work after29
+accepted private edits/35 attempts, with8 geometry-debt cells and no metric/height
+debt. All other selected cases pass. This unchanged failure lies outside the
+neighboring-path success; do not declare full bounded-cost mesh construction or
+conservative transfer/restart qualified. Geometry-work caller attribution and raw
+rejection capture are being built as diagnostics before choosing a further change.

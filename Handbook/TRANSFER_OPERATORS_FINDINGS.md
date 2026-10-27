@@ -42,11 +42,14 @@ Qualification is pending the [working-surface reconstruction decision](WORKING_S
 
 Read-only integration tracing confirms source cells are frozen from accepted
 associations before the Engine's private clone, and post-transfer reader/rebinding
-uses the accepted current generation. A concrete publication gap remains under
-validation: cover/trace metadata could change without replacing owning volume
-rows, bypassing cell-version/cache invalidation even though curved envelopes can
-change. Build38 adds collective owner-closure enforcement and an atomic rejection
-regression. Preserve the independent donor coverage and conservation gates; no
+uses the accepted current generation. A concrete publication gap was found: cover/trace metadata could change
+without replacing owning volume rows, bypassing cell-version/cache invalidation
+even though curved envelopes can change. Collective owner-closure enforcement
+and its atomic rejection regression now pass the build39 focused run (53 cases/
+8247 assertions, unchanged pins). Build40 broad serial passes234/235 selected cases, but the curved Euler/RANS
+mapped-runtime contexts reject during generation at the unchanged geometry work
+cap, before their BDF2 transfer/reload checks can run. Those coupled workflows and
+six-rank qualification remain due; this is not evidence of a new transfer defect. Preserve the independent donor coverage and conservation gates; no
 accepted M6 transfer or restart is claimed.
 
 **Status:** integration requirement confirmed by caller inspection; implementation

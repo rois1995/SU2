@@ -52,10 +52,22 @@ swapped two controls. Build39 corrects both and the focused run passes. The conn
 metadata refresh must replace its owning volume rows so existing cell versions
 and notifications invalidate dependent work. Donor-generation tracing found no
 separate freeze/persistence mismatch. Build39 now passes the53-case focused run (8247 assertions,47.83s, unchanged
-pins), including16 overlapping moves. Six-rank M6 build39 diagnostic is live;
-full accepted adaptation/transfer/restart remains unqualified.
+pins), including16 overlapping moves. Six-rank M6 build39 diagnostic was interrupted after a timed debugger left
+one worker stopped; -15/1295.38s with unchanged pins, all descendants now gone.
+The apparent collective skew is instrumentation-confounded, not a demonstrated
+native defect. A fresh unattached M6 run is required. Build40 adds numeric event
+receipts and resumable workflow selection; full adaptation/transfer/restart remains
+unqualified.
+Build40 cost_checks passes all16 moves with saved numeric per-event receipts:
+7 points/10 faces,10–16 cover pieces,10–15 trace pieces,54–55 bits,
+4.29–11.15m arithmetic work,5.76–6.27MB admitted peak,0.60–0.66s per move.
+Returning phases meet the count/work/storage bounds. Broad serial build40 still
+fails234/235 cases (1130211/1130213 assertions,102.73s, unchanged pins): curved
+Euler/RANS mapped runtime reaches the identical67207168 work cap after29 private
+edits. This prevents capability acceptance. Build41 adds diagnostic attribution
+and raw rejection capture; no work limit or final gate is changed.
 
-Build35 and build36 passed with 950 unchanged pins. Build36 serial_full/session68944 TERMINAL FAIL99.7804s, pins unchanged: 226/228 cases and 1129639/1129642 assertions passed; largest sampled individual RSS145432576 bytes. Evidence: `staged57/cases/serial_full_20261027T153436_2673844`. The overlapping-star test exhausted atlas work on event 5 (sixth move); curved Euler/RANS runtime again exhausted 67207168 work after 29 accepted private edits and 35 attempts. Retained path history is an architectural blockage not resolved by discarding interior cuts. Develop a connected strategy before MPI or M6 retry; accepted mesh, transfer and restart remain unqualified.
+Build35 and build36 passed with 950 unchanged pins. Build36 serial_full/session68944 TERMINAL FAIL99.7804s, pins unchanged: 226/228 cases and 1129639/1129642 assertions passed; largest sampled individual RSS145432576 bytes. Evidence: `staged57/cases/serial_full_20261027T153436_2673844`. The overlapping-star test exhausted atlas work on event 5 (sixth move); curved Euler/RANS runtime again exhausted 67207168 work after 29 accepted private edits and 35 attempts. Retained path history is an architectural blockage not resolved by discarding interior cuts. This motivated the connected strategy above; accepted mesh, transfer and restart remain unqualified.
 
 
 Build19 serial182 cases/1,121,344 assertions and MPI6 all159 cases/rank passed;

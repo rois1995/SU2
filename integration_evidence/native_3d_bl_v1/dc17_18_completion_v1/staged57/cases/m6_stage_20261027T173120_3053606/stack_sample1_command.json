@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "timeout",
+    "8",
+    "gdb",
+    "--batch",
+    "--nx",
+    "--nh",
+    "-q",
+    "-iex",
+    "set auto-load off",
+    "-ex",
+    "set pagination off",
+    "-ex",
+    "thread apply all bt 12",
+    "-ex",
+    "detach",
+    "-p",
+    "3053772"
+  ],
+  "time": 1793123283.005491,
+  "scope": "diagnostic backtrace only; brief attach/detach, no source or inferior commands changed"
+}

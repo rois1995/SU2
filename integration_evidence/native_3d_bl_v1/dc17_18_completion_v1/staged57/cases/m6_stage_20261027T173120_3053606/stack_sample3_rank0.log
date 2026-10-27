@@ -1,0 +1,25 @@
+No symbol table is loaded.  Use the "file" command.
+[New LWP 3053780]
+[New LWP 3053782]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007f49a379d330 in ?? () from /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_btl_vader.so
+#0  0x00007f49a379d330 in ?? () from /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_btl_vader.so
+#1  0x00007f49a94f7854 in opal_progress () from /lib/x86_64-linux-gnu/libopen-pal.so.40
+#2  0x00007f49a9c05905 in ompi_request_default_wait () from /lib/x86_64-linux-gnu/libmpi.so.40
+#3  0x00007f49a9c5f83c in ompi_coll_base_sendrecv_actual () from /lib/x86_64-linux-gnu/libmpi.so.40
+#4  0x00007f49a9c60042 in ompi_coll_base_allreduce_intra_recursivedoubling () from /lib/x86_64-linux-gnu/libmpi.so.40
+#5  0x00007f49a9c1b411 in PMPI_Allreduce () from /lib/x86_64-linux-gnu/libmpi.so.40
+#6  0x0000563df912b1fb in CPassiveComm::AllreduceMax(unsigned long, ompi_communicator_t*) ()
+#7  0x0000563df933668e in ElectFailure(CLocalFailure const&, ompi_communicator_t*) ()
+#8  0x0000563df95deb66 in SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange)::{lambda(CLocalFailure const&)#3}::operator()(CLocalFailure const&) const ()
+#9  0x0000563df963b643 in SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange) ()
+#10 0x0000563df964f90a in SU2Native3D::Refine(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions) ()
+#11 0x0000563df93a5ef2 in CNativeRemesher3D::Remesh(CConfig const&, CGeometry const&, C2DContainer<unsigned long, double, (StorageType)0, 64ul, 0ul, 0ul> const&) ()
+#12 0x0000563df7f35101 in C_A_T_C_H_T_E_S_T_19() ()
+#13 0x0000563df85cc7b3 in Catch::RunContext::invokeActiveTestCase() ()
+#14 0x0000563df85dec4e in Catch::RunContext::runCurrentTest(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) ()
+#15 0x0000563df85f773e in Catch::RunContext::runTest(Catch::TestCase const&) ()
+#16 0x0000563df85ff0c0 in Catch::Session::runInternal() ()
+#17 0x0000563df85ff692 in Catch::Session::run() ()
+[Inferior 1 (process 3053772) detached]

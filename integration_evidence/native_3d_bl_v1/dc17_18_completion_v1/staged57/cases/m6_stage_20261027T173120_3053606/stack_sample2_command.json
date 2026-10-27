@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "timeout",
+    "8",
+    "gdb",
+    "--batch",
+    "--nx",
+    "--nh",
+    "--readnever",
+    "-q",
+    "-iex",
+    "set auto-load off",
+    "-iex",
+    "set auto-solib-add off",
+    "-iex",
+    "set debuginfod enabled off",
+    "-ex",
+    "set pagination off",
+    "-ex",
+    "bt 14",
+    "-ex",
+    "detach",
+    "-p",
+    "3053772"
+  ],
+  "time": 1793123312.5700045,
+  "scope": "minimal-symbol backtrace only; no source or inferior commands changed"
+}

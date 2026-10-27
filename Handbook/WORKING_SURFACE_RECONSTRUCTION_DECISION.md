@@ -147,6 +147,38 @@ mesh entities, current endpoint precision and actual current geometric
 intersections. It must not depend on how many previous adaptations generated the
 state. This is a design obligation, not a claim already proved by the WIP code.
 
+### Candidate representation and cost argument
+
+For an ordinary internal edge the proposed path is a function of the immutable
+original charts, fixed body/feature policy and two current associations. It does
+not import the prior face subdivision or prior internal path. One original star
+or a deterministically selected original-facet strip supplies the proposal; its
+piece count cannot exceed that chart's original facets. This choice is custom.
+It proposes a route; it does not prove that the complete prescribed graph is
+routable by those routes. The collective embedding certificate is mandatory.
+
+All incident candidate faces use the same proposed contract. A patch perimeter
+keeps its accepted contract because its other incident face is outside the
+transaction. When an edge becomes internal to a subsequent neighboring patch,
+both incident faces participate and its path is rebuilt against original geometry.
+New interface paths are never formed by appending clipped subdivisions to an
+old path. Genuine curves retain their topological arc but merge obsolete knots
+on the same original edge; they do not become artificial fixed CFD boundaries.
+
+The fresh PSLG is seeded by the accepted region's geometric perimeter, current
+associations and current proposed edge paths. Old face-interior knots are omitted.
+For an admitted noncrossing network, reference triangulation size is controlled
+by those current constraints and the original reference region. Additional chord
+points are interior geometry correspondence, not new CFD points or future path
+inputs. The sparse solve produces dyadic proposal coordinates; exact positivity,
+physical cubic orientation/contact and region/feature certificates remain separate.
+Current input precision and geometric intersections still affect arithmetic cost.
+This argument removes the specific historical recurrence; it is not a universal
+complexity or robustness proof. Legacy interface descriptors can still cost work
+until coordinated replacement, and arbitrary proposed networks may be refused.
+Save measured counts/work/bytes/time across repeated complete adaptations before
+qualifying bounded production cost.
+
 The immediate reuse decision is to use the existing Eigen dependency for sparse
 linear algebra if a face-interior solve remains necessary, instead of adding a
 second custom CG implementation. Eigen exposes sparse CG with explicit iteration
@@ -251,7 +283,8 @@ difficult runtime/M6 target, reject the candidate and reconsider joint topology
 reconstruction; do not add alternate path selectors or increase budgets. This
 candidate is now qualified only by build39's focused53 cases/8247 assertions,
 including the16-event overlapping-star failure and atomic crossed-network/owner
-rejection. Six-rank M6 diagnostic is running. This is not a proven general
+rejection. Six-rank M6 was interrupted by a diagnostic debugger STOP confound; a fresh
+unattached run is required and no native MPI defect is established. This is not a proven general
 graph-routing algorithm or a completed adaptation/transfer/restart workflow.
 
 A complete six-face M6 wing star is extracted using the existing mesh parser,

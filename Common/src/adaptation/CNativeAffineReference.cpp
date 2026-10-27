@@ -11,6 +11,8 @@
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <cstring>
+#include <cstdio>
+#include <cstdlib>
 #include <numeric>
 #include <queue>
 #include <type_traits>
@@ -122,6 +124,14 @@ double CubicDeviation(const MappedFacetReference::CubicNet& net,const std::array
 }
 struct AtlasOps {
   AtlasBudget& budget;std::string reason;
+  const char* name;size_t start=0,children=0;AtlasOps* previous=nullptr;
+  static AtlasOps*& Active(){static thread_local AtlasOps* active=nullptr;return active;}
+  static bool Trace(){static const bool enabled=[](){const char* value=std::getenv("SU2_NATIVE_GEOMETRY_WORK_TRACE");return value&&std::strcmp(value,"1")==0;}();return enabled;}
+  AtlasOps(AtlasBudget& b,const char* operation):budget(b),name(operation){if(Trace()){start=budget.work;previous=Active();Active()=this;}}
+  AtlasOps(const AtlasOps&)=delete;AtlasOps& operator=(const AtlasOps&)=delete;
+  ~AtlasOps() noexcept {if(!Trace())return;Active()=previous;const size_t total=budget.work>=start?budget.work-start:0;
+    for(auto* parent=previous;parent;parent=parent->previous)if(&parent->budget==&budget){parent->children+=total;break;}
+    std::fprintf(stderr,"NATIVE_GEOMETRY_WORK operation=%s total=%zu exclusive=%zu\n",name,total,total>=children?total-children:0);}
   void Check(bool ok){if(!ok)throw std::runtime_error(reason);}
   void Work(){if(budget.work>=budget.maximum_work)throw std::length_error("Curved atlas work exhausted.");++budget.work;}
   void Storage(size_t bytes) {
@@ -763,7 +773,7 @@ bool MappedFacetReference::PhysicalSupport(const SurfaceBinding& binding)const {
 bool MappedFacetReference::BuildMobilityPolicy(double angle,const std::map<int,int>& roles,MobilityPolicy& result,
     AtlasBudget& budget,std::string& reason)const {
   try {
-    AtlasOps op{budget};op.Storage(transfer_memory::Mul(reference->Facets().size()+edges.size(),512));
+    AtlasOps op{budget,__func__};op.Storage(transfer_memory::Mul(reference->Facets().size()+edges.size(),512));
     if(!(std::isfinite(angle)&&angle>=0&&angle<=180))throw std::invalid_argument("Invalid geometry feature angle.");
     MobilityPolicy policy;policy.angle=angle;policy.roles=roles;policy.bodies=body_roots;
     for(const auto& f:reference->Facets()) {
@@ -1098,7 +1108,7 @@ MappedFacetReference::SourcePatch MappedFacetReference::PrepareSourcePatch(Id fa
 bool MappedFacetReference::BindingParameters(Id facet,const SurfaceBinding& binding,ExactBary& result,
     AtlasBudget& budget,std::string& reason)const {
   try {
-    AtlasOps op{budget};const auto p=FacetParameters(facet,binding);
+    AtlasOps op{budget,__func__};const auto p=FacetParameters(facet,binding);
     auto coordinate=[&](unsigned d){const auto a=Values(p.origin)[d],b=Values(p.first)[d],c=Values(p.second)[d];
       return op.Add(op.Binary(a),op.Add(op.Mul(op.Binary(p.u),op.Sub(op.Binary(b),op.Binary(a))),op.Mul(op.Binary(p.v),op.Sub(op.Binary(c),op.Binary(a)))));};
     ExactBary out{coordinate(1),coordinate(2)};op.Bary(out);result=std::move(out);reason.clear();return true;
@@ -1106,13 +1116,13 @@ bool MappedFacetReference::BindingParameters(Id facet,const SurfaceBinding& bind
 }
 bool MappedFacetReference::ReferencePointKey(Id facet,const ExactBary& point,std::vector<uint64_t>& result,
     AtlasBudget& budget,std::string& reason)const {
-  try {AtlasOps op{budget};auto out=ReferenceKey(*reference,facet,point,op);result=std::move(out);reason.clear();return true;}
+  try {AtlasOps op{budget,__func__};auto out=ReferenceKey(*reference,facet,point,op);result=std::move(out);reason.clear();return true;}
   catch(const std::exception& e){reason=e.what();return false;}
 }
 bool MappedFacetReference::ReferenceParameters(Id facet,const std::vector<uint64_t>& key,ExactBary& result,
     AtlasBudget& budget,std::string& reason)const {
   try {
-    AtlasOps op{budget};const auto& f=reference->Get(facet);ExactBary out{op.Integer(0),op.Integer(0)};
+    AtlasOps op{budget,__func__};const auto& f=reference->Get(facet);ExactBary out{op.Integer(0),op.Integer(0)};
     auto has=[&](Id id){for(auto n:f.v)if(n.id==id)return true;return false;};
     if(key.size()==2&&key[0]==0) {
       if(!nodes.count(key[1]))throw std::invalid_argument("Unknown original vertex key.");
@@ -1136,7 +1146,7 @@ bool MappedFacetReference::ReferenceParameters(Id facet,const std::vector<uint64
 bool MappedFacetReference::ResolveSingleChart(Id facet,const std::array<SurfaceBinding,3>& binding,
     FaceCoverage& result,AtlasBudget& budget,std::string& reason)const {
   try {
-    AtlasOps op{budget};op.Storage(sizeof(FaceCoverage)+sizeof(CoveragePiece)+4096);
+    AtlasOps op{budget,__func__};op.Storage(sizeof(FaceCoverage)+sizeof(CoveragePiece)+4096);
     CoveragePiece piece;piece.facet=facet;
     for(unsigned k=0;k<3;++k) {
       op.Check(BindingParameters(facet,binding[k],piece.reference[k],budget,op.reason));
@@ -1150,7 +1160,7 @@ bool MappedFacetReference::ResolveSingleChart(Id facet,const std::array<SurfaceB
 bool MappedFacetReference::CoverageTraces(const FaceCoverage& coverage,std::array<EdgeTrace,3>& result,
     AtlasBudget& budget,std::string& reason)const {
   try {
-    AtlasOps op{budget};op.Storage(transfer_memory::Mul(coverage.pieces.size(),3*(sizeof(TracePiece)+1024)));
+    AtlasOps op{budget,__func__};op.Storage(transfer_memory::Mul(coverage.pieces.size(),3*(sizeof(TracePiece)+1024)));
     struct Segment {ExactRatio start;TracePiece piece;};std::array<std::vector<Segment>,3> boundary;
     if(coverage.pieces.empty())throw std::invalid_argument("Empty curved face coverage.");
     for(const auto& piece:coverage.pieces) {
@@ -1199,7 +1209,7 @@ bool MappedFacetReference::CoverageTraces(const FaceCoverage& coverage,std::arra
 }
 bool MappedFacetReference::EqualTraces(const EdgeTrace& a,const EdgeTrace& b,AtlasBudget& budget,std::string& reason)const {
   try {
-    AtlasOps op{budget};
+    AtlasOps op{budget,__func__};
     auto check=[&](const EdgeTrace& trace){auto last=op.Integer(0);AtlasKey previous;bool first=true;
       for(const auto& p:trace.pieces){op.Bary(p.first);op.Bary(p.last);if(op.Compare(p.end,last)<=0||op.Compare(p.end,op.Integer(1))>0)throw std::invalid_argument("Invalid curved trace interval.");
         if(ReferenceKey(*reference,p.facet,p.first,op)==ReferenceKey(*reference,p.facet,p.last,op))throw std::invalid_argument("Collapsed curved trace path.");
@@ -1221,7 +1231,7 @@ bool MappedFacetReference::ValidateCoverage(Id anchor,const std::array<SurfaceBi
     const std::array<Point,3>& realized,const FaceCoverage& coverage,const std::array<EdgeTrace,3>& traces,
     AtlasBudget& budget,std::string& reason)const {
   try {
-    AtlasOps op{budget};const auto& anchored=reference->Get(anchor);std::vector<AtlasEdge> edges;
+    AtlasOps op{budget,__func__};const auto& anchored=reference->Get(anchor);std::vector<AtlasEdge> edges;
     if(coverage.pieces.empty())throw std::invalid_argument("Empty curved face coverage.");
     op.Storage(transfer_memory::Mul(coverage.pieces.size()+1,3*(sizeof(AtlasEdge)+1024)));
     std::array<AtlasKey,3> corners;
@@ -1261,7 +1271,7 @@ bool MappedFacetReference::ValidateCoverage(Id anchor,const std::array<SurfaceBi
 bool MappedFacetReference::ValidateCoverageReplacement(const std::vector<FaceCoverage>& old,
     const std::vector<FaceCoverage>& fresh,AtlasBudget& budget,std::string& reason)const {
   try {
-    AtlasOps op{budget};size_t pieces=0;for(const auto* covers:{&old,&fresh})for(const auto& cover:*covers)pieces=transfer_memory::Add(pieces,cover.pieces.size());
+    AtlasOps op{budget,__func__};size_t pieces=0;for(const auto* covers:{&old,&fresh})for(const auto& cover:*covers)pieces=transfer_memory::Add(pieces,cover.pieces.size());
     const auto index_bytes=transfer_memory::Mul(pieces,128);op.Storage(index_bytes);
     struct Restore {AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
     budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,index_bytes);
@@ -1287,7 +1297,7 @@ bool MappedFacetReference::RegionBoundary(const std::vector<CoveragePiece>& regi
     const std::set<std::vector<uint64_t>>& mandatory,std::vector<RegionSegment>& result,
     AtlasBudget& budget,std::string& reason)const {
   try {
-    AtlasOps op{budget};if(region.empty())throw std::invalid_argument("Empty accepted reference region.");
+    AtlasOps op{budget,__func__};if(region.empty())throw std::invalid_argument("Empty accepted reference region.");
     const auto index_bytes=transfer_memory::Mul(region.size(),128);op.Storage(index_bytes);
     struct Restore {AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
     const auto indexed=transfer_memory::Add(budget.caller_bytes,index_bytes);budget.caller_bytes=indexed;
@@ -1367,7 +1377,7 @@ bool MappedFacetReference::RegionBoundary(const std::vector<CoveragePiece>& regi
 bool MappedFacetReference::CertifyEmbedding(const std::vector<CoveragePiece>& region,Point normal,
     AtlasBudget& budget,std::string& reason)const {
   try {
-    AtlasOps op{budget};Finite(normal);const auto n=Values(normal);double scale=0;for(double x:n)scale=std::max(scale,std::abs(x));
+    AtlasOps op{budget,__func__};Finite(normal);const auto n=Values(normal);double scale=0;for(double x:n)scale=std::max(scale,std::abs(x));
     if(!(scale>0)||region.empty())throw std::invalid_argument("Curved embedding needs a nonempty disk and projection normal.");
     Vec direction{};for(unsigned d=0;d<3;++d)direction[d]=n[d]/scale;
     unsigned axis=0;for(unsigned d=1;d<3;++d)if(std::abs(direction[d])<std::abs(direction[axis]))axis=d;
@@ -1487,7 +1497,7 @@ size_t MappedFacetReference::SourcePreparationBytes(size_t pieces) {
 }
 MappedFacetReference::SourcePatch MappedFacetReference::PrepareSourcePatch(const FaceCoverage& coverage,
     const std::array<Point,3>& source,AtlasBudget& budget)const {
-  AtlasOps op{budget};op.Storage(SourcePreparationBytes(coverage));if(coverage.pieces.empty())throw std::invalid_argument("Empty curved source coverage.");
+  AtlasOps op{budget,__func__};op.Storage(SourcePreparationBytes(coverage));if(coverage.pieces.empty())throw std::invalid_argument("Empty curved source coverage.");
   for(Point p:source)Finite(p);SourcePatch out;out.source=source;out.pieces.reserve(coverage.pieces.size());
   auto bound=[](const Box& p){Vec lo,hi;for(unsigned d=0;d<3;++d){lo[d]=std::nextafter(double(p[d].lo),-INFINITY);hi[d]=std::nextafter(double(p[d].hi),INFINITY);}Finite(ToPoint(lo));Finite(ToPoint(hi));return std::array<Point,2>{ToPoint(lo),ToPoint(hi)};};
   for(const auto& p:coverage.pieces) {
@@ -1501,7 +1511,7 @@ MappedFacetReference::SourcePatch MappedFacetReference::PrepareSourcePatch(const
 }
 double MappedFacetReference::SurfaceError(const FaceCoverage& coverage,const std::array<Point,3>& realized,
     AtlasBudget& budget)const {
-  AtlasOps op{budget};op.Storage(SourcePreparationBytes(coverage));if(coverage.pieces.empty())throw std::invalid_argument("Empty curved face error coverage.");
+  AtlasOps op{budget,__func__};op.Storage(SourcePreparationBytes(coverage));if(coverage.pieces.empty())throw std::invalid_argument("Empty curved face error coverage.");
   for(Point p:realized)Finite(p);double maximum=0;
   for(const auto& p:coverage.pieces) {
     op.Work();const auto controls=RestrictNet(*this,p.facet,p.reference,op);std::array<Box,3> flat;

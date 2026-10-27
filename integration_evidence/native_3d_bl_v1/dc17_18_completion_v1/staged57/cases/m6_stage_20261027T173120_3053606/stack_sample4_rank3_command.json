@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "timeout",
+    "8",
+    "gdb",
+    "--batch",
+    "--nx",
+    "--nh",
+    "-q",
+    "-iex",
+    "set auto-load off",
+    "-iex",
+    "set debuginfod enabled off",
+    "-iex",
+    "set debug-file-directory /nonexistent",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/diagnostic_symbols/test_driver.no_debug",
+    "-ex",
+    "bt 18",
+    "-ex",
+    "detach",
+    "-p",
+    "3053769"
+  ],
+  "time": 1793123500.990475,
+  "pid": 3053769
+}

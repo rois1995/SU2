@@ -6,6 +6,9 @@
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include <algorithm>
+#include <chrono>
+#include <iomanip>
+#include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 using namespace SU2Native3D;
 using namespace SU2NativeGeometry;
 namespace {
@@ -245,6 +248,7 @@ TEST_CASE("Overlapping curved stars retain bounded correspondence across alterna
   const auto original=fixture.state->Snapshot();Id moving[2]={0,60};
   using Measures=std::array<size_t,5>;std::map<unsigned,Measures> baseline;
   for(unsigned event=0;event<16;++event) {
+    const auto started=std::chrono::steady_clock::now();
     const unsigned phase=event%4,slot=event%2;const Id old=moving[slot],next=100+event;
     auto budget=RemappingBudget();std::string reason;const auto snapshot=accepted->Snapshot();
     auto reference=PlanarReference::WithParameters(fixture.definition,accepted);
@@ -273,6 +277,14 @@ TEST_CASE("Overlapping curved stars retain bounded correspondence across alterna
     const Measures measures{{face_pieces,trace_pieces,bits,budget.work,budget.peak_bytes}};INFO(phase);INFO(budget.work);INFO(budget.peak_bytes);
     if(event>=4){const auto found=baseline.find(phase);if(found==baseline.end())baseline.emplace(phase,measures);
       else for(unsigned k=0;k<measures.size();++k)CHECK(measures[k]<=found->second[k]);}
+    std::ostringstream cost;cost<<std::setprecision(17)<<"NATIVE_REFERENCE_EVENT {\"scope\":\"private_overlapping_surface_moves\",\"rank\":"<<SU2_MPI::GetRank()
+      <<",\"event\":"<<event<<",\"current_points\":"<<points.size()<<",\"current_faces\":"<<surface.size()
+      <<",\"reference_triangles\":"<<atlas.ReferenceTriangleCount()<<",\"face_pieces\":"<<face_pieces<<",\"trace_pieces\":"<<trace_pieces
+      <<",\"maximum_integer_bits\":"<<bits<<",\"arithmetic_work\":"<<budget.work<<",\"admitted_peak_bytes\":"<<budget.peak_bytes
+      <<",\"accepted_resident_bytes\":"<<next_state->ResidentBytes()<<",\"payload_bytes\":"<<next_state->PayloadBytes()
+      <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()
+      <<",\"lifetime_process_peak_rss_bytes\":"<<ProcessPeakRSS3D()<<"}\n";
+    std::cout<<cost.str();
     accepted=std::move(next_state);surface.clear();for(const auto& row:accepted->Surface())surface.push_back(row.second);moving[slot]=next;
   }
 }

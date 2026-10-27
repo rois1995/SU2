@@ -1,0 +1,22 @@
+No symbol table is loaded.  Use the "file" command.
+[New LWP 3053774]
+[New LWP 3053778]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007f403961d333 in ?? () from /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_btl_vader.so
+#0  0x00007f403961d333 in ?? () from /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_btl_vader.so
+#1  0x00007f404143c854 in opal_progress () from /lib/x86_64-linux-gnu/libopen-pal.so.40
+#2  0x00007f403963ca8d in mca_pml_ob1_recv () from /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_pml_ob1.so
+#3  0x00007f4041ba5366 in ompi_coll_base_allreduce_intra_recursivedoubling () from /lib/x86_64-linux-gnu/libmpi.so.40
+#4  0x00007f4041b60411 in PMPI_Allreduce () from /lib/x86_64-linux-gnu/libmpi.so.40
+#5  0x000055f8089cb69d in SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange) ()
+#6  0x000055f8089df90a in SU2Native3D::Refine(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions) ()
+#7  0x000055f808735ef2 in CNativeRemesher3D::Remesh(CConfig const&, CGeometry const&, C2DContainer<unsigned long, double, (StorageType)0, 64ul, 0ul, 0ul> const&) ()
+#8  0x000055f8072c5101 in C_A_T_C_H_T_E_S_T_19() ()
+#9  0x000055f80795c7b3 in Catch::RunContext::invokeActiveTestCase() ()
+#10 0x000055f80796ec4e in Catch::RunContext::runCurrentTest(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) ()
+#11 0x000055f80798773e in Catch::RunContext::runTest(Catch::TestCase const&) ()
+#12 0x000055f80798f0c0 in Catch::Session::runInternal() ()
+#13 0x000055f80798f692 in Catch::Session::run() ()
+#14 0x000055f806d10ce7 in main ()
+[Inferior 1 (process 3053769) detached]
