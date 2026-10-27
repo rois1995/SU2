@@ -66,8 +66,18 @@ void ReadRatio(SU2NativeBoundary2D::RecordStream& in,size_t bytes,ExactRatio& r,
 }
 void ReadBary(SU2NativeBoundary2D::RecordStream& in,size_t bytes,ExactBary& r,AtlasBudget& b){ReadRatio(in,bytes,r.u,b);ReadRatio(in,bytes,r.v,b);}
 EdgeTrace ReverseTrace(const EdgeTrace& t,AtlasBudget& budget) {
-  EdgeTrace out;out.pieces.reserve(t.pieces.size());ExactRatio one;std::string why;
+  ExactRatio one,previous;std::string why;int comparison=0;
   if(!ExactInteger(1,one,budget,why))throw std::invalid_argument(why);
+  if(t.pieces.empty())throw std::invalid_argument("Empty curved trace before reversal.");
+  for(const auto& piece:t.pieces) {
+    if(!ExactCompare(previous,piece.end,comparison,budget,why))throw std::invalid_argument(why);
+    if(comparison>=0)throw std::invalid_argument("Invalid curved trace interval before reversal.");
+    if(!ExactCompare(piece.end,one,comparison,budget,why))throw std::invalid_argument(why);
+    if(comparison>0)throw std::invalid_argument("Invalid curved trace interval before reversal.");
+    previous=piece.end;
+  }
+  if(comparison)throw std::invalid_argument("Incomplete curved trace before reversal.");
+  EdgeTrace out;out.pieces.reserve(t.pieces.size());
   for(size_t i=t.pieces.size();i;--i){auto p=t.pieces[i-1];std::swap(p.first,p.last);
     const ExactRatio begin=i==1?ExactRatio{}:t.pieces[i-2].end;
     if(!ExactSubtract(one,begin,p.end,budget,why))throw std::invalid_argument(why);out.pieces.push_back(std::move(p));}
@@ -913,10 +923,12 @@ bool PlanarReference::ParameterContainsFace(Id facet,const std::array<Point,3>& 
     // A projection probe has associations but no publishable mesh face identity.
     if(!g.ResolveSingleChart(facet,b,cover,budget,reason)||!g.CoverageTraces(cover,traces,budget,reason))return false;
   } else if(!ResolveCoverage(face,cover,budget,reason))return false;
-  for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};
-    if(pending[k]||pending[(k+1)%3])continue;
-    if(!ResolveTrace(edge,face,traces[k],budget,reason))return false;if(edge[0]>edge[1])traces[k]=ReverseTrace(traces[k],budget);}
-  try{CheckPolicyCoverage(facet,cover,parameter_view->accepted->Mobility(),g,budget,reason);}catch(const std::exception&){return false;}
+  try {
+    for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};
+      if(pending[k]||pending[(k+1)%3])continue;
+      if(!ResolveTrace(edge,face,traces[k],budget,reason))return false;if(edge[0]>edge[1])traces[k]=ReverseTrace(traces[k],budget);}
+    CheckPolicyCoverage(facet,cover,parameter_view->accepted->Mobility(),g,budget,reason);
+  }catch(const std::exception&){return false;}
   return g.ValidateCoverage(facet,b,p,cover,traces,budget,reason);
 }
 bool PlanarReference::ParameterFindFace(int marker,const std::array<Point,3>& p,Id& facet,KernelStats* stats)const {

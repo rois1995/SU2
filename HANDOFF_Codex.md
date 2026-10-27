@@ -73,7 +73,19 @@ Fresh M6 build46/session32081 is TERMINAL intentionally interrupted908.19s,
 pins unchanged: setup/source passed, no stage receipt, all six workers active
 in CPU observations, no debugger, all9 owned descendants gone. It establishes
 neither acceptance nor native deadlock/failure. See its INTENTIONAL_INTERRUPTION.md.
-Build47/session71724 is LIVE, single-worker build: lazy current-geometry demand
+Build47/session71724 TERMINAL PASS1210.22s/1293 pins. Focused4 cases:3 pass,
+114/116 assertions; real MAX-ID test exposes ReverseTrace sanitizing incomplete
+intervals. Activation and original query tests pass. Actual mapped workflow
+FAIL12.96s unchanged pins:49 accepted/346 attempts,17 geometry progress,
+292 optimization trials,0 cached-invalid cells/remaining edges at unchanged
+work67207168. No accepted return/transfer established. Filter audit PASS239serial/
+216MPI/57atlas, all4 required focused cases. Build48/session49785 TERMINAL PASS48.15s/1293 unchanged pins; all4 focused
+tests PASS9.88s (116 assertions). Mapped trace FAIL13.84s unchanged gates/work.
+Raw153cells/57nodes/47boundarypoints/90faces/revision40,0explicitcovers/traces.
+Empty selection follows phase reset, not a successful final census. Atlas_checks
+build48/session73200 TERMINAL PASS51.89s,57 cases/8363 assertions, unchanged pins.
+Routine Terra metric-only native-kernel census of captured153cells is in progress;
+no production sources changed. Full workflow remains blocked. Build47 implements: lazy current-geometry demand
 scheduling and accepted-face certificate ownership across queries/reconstruction/
 publication. First activation certifies legacy subfaces; exact original faces
 inherit immutable-authority proof. Pending association detection uses pointer

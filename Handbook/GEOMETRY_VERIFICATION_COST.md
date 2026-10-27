@@ -163,3 +163,44 @@ no validation or capability claim follows from applying it. Tests cover the
 legacy activation gap, exact accepted-face reuse, overrides and real MAX-valued
 mesh identities. Existing stale-view/publication and source/archive tests remain
 required, as do the actual mapped workflow and fresh M6.
+
+Build47 terminal PASS1210.22s/1293 unchanged pins. Filter audit PASS239serial/
+216MPI/57atlas and all4 focused cases. Focused tests:3/4 pass,114/116 assertions.
+Activation rejection and prior query tests pass. The real MAX-ID test found that
+ReverseTrace replaces the final interval endpoint without first checking it,
+allowing malformed input to become valid. Build48 validates nonempty, strictly
+increasing complete0-to-1 intervals before reversal; containment returns false
+for this malformed contract. No gate is relaxed.
+
+Actual build47 mapped runtime FAIL12.96s unchanged pins/limits:49 accepted edits/
+346 attempts,17 geometry-progress edits,292 optimization trials/2 validated,
+3 quality-progress reports. At exhaustion it reports0 cached-invalid cells,
+0 queued edges and repairs, but this is not a final complete census or an accepted
+return. Do not infer all final gates passed. Work remains67,207,168. Profile the
+remaining candidate/improvement/publication cost next; no budget increase.
+
+Build48 terminal PASS48.15s/1293 unchanged pins. All4 focused cases PASS9.88s,
+116 assertions. Mapped trace FAIL13.84s unchanged pins/limits. Current raw capture:
+153 cells/57 nodes/47 boundary points/90 faces, revision40;0 explicit traces/covers.
+The selection is empty after a phase reset; its zero counters are not a successful
+census. Exclusive work103,793,158 across scopes: BindingParameters22,181,942,
+CoverageTraces18,559,022, EqualTraces16,712,204, ValidateCoverage14,558,124,
+RegionBoundary10,697,586. This still does not demonstrate descriptor accumulation.
+Next: existing native-quality replay for the captured current mesh, repeated-edit/
+publication/source/archive regression, and fresh M6 on the connected scheduler.
+
+Build48 atlas_checks PASS51.89s,57 cases/8363 assertions, unchanged pins. This
+includes overlapping repeated movement and publication/source/archive obligations
+within fixture scope. Complete mapped adaptation remains failed. A bounded
+case-local native-kernel census is being prepared to distinguish actual metric/
+quality debt from empty selection statistics, reusing the compiled production
+Measure/Orientation implementation rather than another quality formula.
+
+Separate persistence-bound review remains open: BoundaryAtlasBudget derives its
+work/bit allowance from encoded atlas descriptors/policy, while implicit current
+point/face counts are not inputs. FromPayload and Rebind still validate every
+current face. A fixed original policy with growing implicit mesh therefore has
+constant archive arithmetic allowance. This is a source-level bound mismatch,
+not a demonstrated current-case failure; do not hide it with a blanket increase.
+Any correction must account for current mesh/descriptor complexity and retain
+full constructor/load proof. It does not explain the stage's separate67m cap.

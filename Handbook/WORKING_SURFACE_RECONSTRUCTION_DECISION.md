@@ -325,3 +325,37 @@ persistence qualified without exercising the actual accepted mesh.
   fallback is part of resolving this blocker.
 
 The separate unchanged implicit-workflow failure is now attributed to generic single-triangle verification; see [measured cost and connected certificate design](GEOMETRY_VERIFICATION_COST.md). This does not close the explicit-network or accepted-M6 obligations.
+
+## Build47: ownership and scheduling integration (validation pending)
+
+The build46 small workflow's zero explicit covers/traces distinguishes its
+failure from retained-path growth. Its queue nevertheless performs complete
+projection/coverage checks for all hypothetical split children before selection.
+Build47 removes that custom eager feasibility screen: each current bad physical
+face contributes geometry-excess squared times physical edge-span squared to
+its edge demands. This priority is a custom heuristic, not a convergence proof.
+The established scheduling separation is to enumerate demand, reserve/select a
+complete star, then prove the chosen replacement. GeometryRefine retains its
+strict before/after geometry progress and all validity/publication gates. A
+serviced edge retires from the generation; later frontier reseeding owns retry.
+
+Accepted-face proof ownership is shared by containment, parameter export and
+PrepareCurvedAtlas. Exact oriented topology, all point/binding coordinate bits,
+current state revision and absence of applicable overrides establish reuse.
+Publication keeps accepted before coverage in the region chain without repeating
+its per-face proof; every after face remains fully validated. Load validation
+and frozen donor restricted envelopes remain complete. No serialized flag,
+cache, epoch or archive format is added.
+
+First mobility activation previously copied legacy state whose chart containment
+was weaker than the actual-chord positive-projection certificate. Build47 proves
+non-original subfaces once at activation, including policy and retained traces.
+Exact cyclic original-facet faces inherit the authority constructor's certificate
+only with valid dimension-zero binding features and exact reference coordinates,
+and without applicable overrides. Pending-query provenance now follows actual
+pending records, so real UINT64_MAX mesh IDs cannot hide malformed edge contracts.
+
+This is one connected current-state ownership/scheduling change, not another
+path-routing fallback or an arithmetic limit increase. Its complete-workflow,
+repeated-edit, source/publication/archive and M6 validation is still pending.
+See [verification cost and trust boundaries](GEOMETRY_VERIFICATION_COST.md).

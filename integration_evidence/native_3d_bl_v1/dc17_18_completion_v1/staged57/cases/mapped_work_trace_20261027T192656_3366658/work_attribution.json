@@ -1,0 +1,146 @@
+{
+  "scope": "private diagnostic caller attribution; exclusive work combines budget scopes, not accepted adaptation",
+  "status": {
+    "state": "terminal",
+    "exit_code": 2,
+    "seconds": 13.839293956756592,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 46002176,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/run.log": "d3a882f9d983f4d8c63755baf0da120ff3adcf212e12452a76cc943a83530ec5",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/status.json": "7369c9edd84c7e22a909fe0e02dcbd1c467d92d4ff09e476978e81b43bc3ad38",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/analyze_stage_topology.py": "0a6dd7e5affbd4eef3ffa55f36a9e894f6655b80400515ce04020abfeffc401a",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/cubic_runtime_rejected_0_rank0_manifest.json": "827eafa86aeb3c7bdd642f847445b438fb9c669ebed3ebf7969243cab029af22",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/cubic_runtime_rejected_0_rank0_owned.bin": "83646d5c350391db8408c28f8ab373caf9c91568e14dd3dc9c506af429c9b4b5",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/cubic_runtime_rejected_0_rank0_parameters.bin": "6334665812dad1c0364a24c0336866fd5b170977106dade3e686d545b1992b63",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/cubic_runtime_rejected_0_rank0.native_ref": "8a01f1a30cf6d01a89b940ec130c4e63cdd666a145a8de31a6cff7c6c265bd38",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/cubic_runtime_rejected_1_rank0_manifest.json": "f4e0deba4c86698301b83e735af6f108cb0344762aa442e41390d99f5f58a522",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/cubic_runtime_rejected_1_rank0_owned.bin": "83646d5c350391db8408c28f8ab373caf9c91568e14dd3dc9c506af429c9b4b5",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/cubic_runtime_rejected_1_rank0_parameters.bin": "5977da9f71bdb7aa77118f8604808e56c78ae8f2e2eeea8d39bc1be38c073be2",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/cubic_runtime_rejected_1_rank0.native_ref": "2d35e44b588ef99553ddb136b12d9a4a402b15e3f2afc0bc45ce2b8b4a891020"
+  },
+  "exclusive_work": 103793158,
+  "operations": {
+    "BuildMobilityPolicy": {
+      "calls": 2,
+      "inclusive": 62,
+      "exclusive": 62,
+      "exclusive_fraction": 5.973418787392518e-07
+    },
+    "BindingParameters": {
+      "calls": 37720,
+      "inclusive": 22181942,
+      "exclusive": 22181942,
+      "exclusive_fraction": 0.21371295013492123
+    },
+    "ResolveSingleChart": {
+      "calls": 11718,
+      "inclusive": 24799166,
+      "exclusive": 6520592,
+      "exclusive_fraction": 0.06282294638342154
+    },
+    "SurfaceError": {
+      "calls": 1712,
+      "inclusive": 3151268,
+      "exclusive": 3151268,
+      "exclusive_fraction": 0.03036103786340136
+    },
+    "CoverageTraces": {
+      "calls": 7452,
+      "inclusive": 18559022,
+      "exclusive": 18559022,
+      "exclusive_fraction": 0.17880775917811462
+    },
+    "EqualTraces": {
+      "calls": 5664,
+      "inclusive": 16712204,
+      "exclusive": 16712204,
+      "exclusive_fraction": 0.16101450540699416
+    },
+    "ValidateCoverage": {
+      "calls": 1888,
+      "inclusive": 40687392,
+      "exclusive": 14558124,
+      "exclusive_fraction": 0.14026092163030632
+    },
+    "ValidateCoverageReplacement": {
+      "calls": 80,
+      "inclusive": 2597796,
+      "exclusive": 2597796,
+      "exclusive_fraction": 0.025028586180988924
+    },
+    "ReferencePointKey": {
+      "calls": 914,
+      "inclusive": 1668976,
+      "exclusive": 1668976,
+      "exclusive_fraction": 0.016079826764689057
+    },
+    "RegionBoundary": {
+      "calls": 20,
+      "inclusive": 10697586,
+      "exclusive": 10697586,
+      "exclusive_fraction": 0.10306638901959221
+    },
+    "ReferenceParameters": {
+      "calls": 432,
+      "inclusive": 719774,
+      "exclusive": 719774,
+      "exclusive_fraction": 0.006934696023026874
+    },
+    "CertifyEmbedding": {
+      "calls": 4,
+      "inclusive": 6425812,
+      "exclusive": 6425812,
+      "exclusive_fraction": 0.06190978407266498
+    }
+  },
+  "captures": [
+    {
+      "manifest": "cubic_runtime_rejected_0_rank0_manifest.json",
+      "cells": 153,
+      "nodes": 57,
+      "physical_vertices": 47,
+      "header": [
+        7,
+        40,
+        47,
+        90,
+        0
+      ],
+      "schema": 8,
+      "trace_records": 0,
+      "face_records": 0,
+      "maximum_integer_bits": "not decoded by stage analyzer"
+    },
+    {
+      "manifest": "cubic_runtime_rejected_1_rank0_manifest.json",
+      "cells": 153,
+      "nodes": 57,
+      "physical_vertices": 47,
+      "header": [
+        7,
+        40,
+        47,
+        90,
+        0
+      ],
+      "schema": 8,
+      "trace_records": 0,
+      "face_records": 0,
+      "maximum_integer_bits": "not decoded by stage analyzer"
+    }
+  ],
+  "reported_engine_counts": {
+    "accepted": 49,
+    "attempts": 346,
+    "geometry_progress": 17,
+    "optimization_trials": 292,
+    "quality_stages": 2,
+    "construction_returns": 2,
+    "work_limit": 67207168
+  },
+  "note": "Zero selection cells can follow phase reset and does not establish final gates."
+}
