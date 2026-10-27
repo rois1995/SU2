@@ -21,13 +21,21 @@ passes all 83 cases/19,836 assertions (22.62 s, unchanged pins). Broader serial
 validation completed with added kernel, recovery/history and repeated curved
 transfer/restart lifecycle coverage: all transfer checks pass. The overall serial
 run is 178/179 because of an unrelated collision paging regression. Build17 fixes
-that regression; broader MPI validation remains pending.
+that regression. Build17 broad serial passes all 179 cases/1,121,211 assertions
+(61.68 s, unchanged pins). First MPI6 launch stopped because the selector included
+serial-only geometry transfer fixtures requiring halo-free meshes. The selector
+now retains those tests in serial and uses distributed counterparts under MPI;
+the corrected six-rank run passed all 156 cases on each rank in 43.79 s with
+unchanged pins. This was a harness error, not a transfer defect. The clipping fix
+is now qualified by connected, broad serial and six-rank regression; full M6
+transfer remains a separate open obligation.
 Full M6 transfer remains unqualified because no complete accepted M6 mesh exists.
 
 ## TR-001 — Subnormal clipping distances lose valid intersections
 
 **Status:** confirmed defect; correction passes focused replay and connected
-transfer/reload validation; broader serial/MPI qualification pending.
+transfer/reload, broad serial and six-rank validation. Closed for this reproduced
+defect; wider M6 workflow qualification remains open.
 
 - Trigger: the curved RANS runtime fixture produces finite boundary coordinates
   containing `-denorm_min`. Build14 completed remeshing, but its BDF2 transfer
@@ -86,11 +94,18 @@ Evidence root:
 - `cases/serial_full_20261027T090323_1570933`: build16 broad serial,
   178/179 cases pass, unchanged pins, 60.69 s; all transfer groups pass,
   one collision paging failure outside transfer.
+- `cases/serial_full_20261027T090743_1583512`: build17 broad serial PASS,
+  179 cases/1,121,211 assertions, unchanged pins; collision regression fixed.
+- `cases/mpi6_20261027T090859_1586961`: terminal selector error; serial-only
+  geometry fixture rejected halo points. No transfer pass claimed for this attempt.
+- `cases/mpi6_20261027T091028_1591266`: build17 MPI6 PASS,156 cases/rank,
+  unchanged pins,43.79 s; distributed kernel/projection/transfer/history/recovery
+  and repeated curved restart coverage.
 
 ## TR-002 — Constant preservation alone misses coverage defects
 
 **Status:** demonstrated validation limitation; stronger regressions pass the
-connected run; broader distributed qualification pending.
+connected run and broad serial/MPI campaign. Retain these independent checks.
 
 The Euler constant field remained constant despite TR-001's lost overlap.
 Open-boundary fill/loss compensation can conceal the coverage defect in that
@@ -108,9 +123,8 @@ obligations.
 - Connected curved Euler/RANS transfer/reload and all three clipping regressions
   passed under unchanged expectations in build15. Retain this evidence when
   qualifying the complete corrected fixture suite.
-- Run appropriate broader conservative clipping/projection/transfer regression
-  in serial and MPI6 at the integration milestone; save source, binary, input,
-  configuration and helper provenance with terminal outcomes. The named single-
+- Broader serial and MPI6 conservative regression passed at build17. Receipts
+  above retain source, binary, runtime, configuration and helper provenance. The named single-
   precision contract test runs under the current binary precision; passing it in
   a double build does not qualify a separate single-precision build.
 - Verify complete accepted M6 Euler and RANS transfer, history and restart once

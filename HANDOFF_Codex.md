@@ -23,48 +23,32 @@ and [curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md).
 
 ## Live work and next validation
 
-ACTIVE: build17/session53915,933 pins,one nice19 worker; all main C++/tests/helpers FROZEN.
-Build16 serial_full/session2882 terminal:178/179 cases pass, unchanged pins,60.69s.
-All transfer/kernel/history/repeated-curved-restart checks pass. Only collision
-clearance fails: paged transport incorrectly required nonempty removed cells even
-for ordinary insertion/query proposals. Build17 requires nonempty removal only
-for coordinate-star mode, retaining ordinary clearance semantics and all contact
-checks. Existing collision regression exercises insertion, publication, deletion,
-rebuild, budget refusal and peer conflict.
-Build16/session41647 passed105.17s with933 unchanged pins. Connected_fix/session4342
-PASS:22.62s,83 cases/19,836 assertions, unchanged pins. Curved Euler/RANS
-transfer/reload, clipping regressions, strict coarsening rollback variants and
-large-star movement all pass. The movement fixture now approaches a face from
-inside, ensuring a real shape defect without invalid cells or oversized edges.
-Broader selectors now include conservative kernels, distributed recovery/history,
-precision contract and repeated curved transfer/restart lifecycle. The precision
-contract runs in this build's precision; this is not a separate float build.
+No heavy job is active. Build17/session53915 passed135.20s with933 unchanged pins.
+Broad serial/session77363 PASS61.68s:179 cases/1,121,211 assertions. MPI6/session4734
+PASS43.79s:156 cases on every rank, all pins unchanged. The first MPI launch97981
+stopped on a serial-only fixture selection error; its receipt is preserved. Serial
+geometry transfer tests stay in serial_full; MPI uses distributed counterparts.
 
-Integrated coarsening correction: strict checkpoints, net cell reduction across
-removal+quality closure, unchanged-support attempt ledger, finite-queue rollback,
-byte-accounted dormant Directory, persistent blocked directions. It restores exact
-owned cells/versions/parameters; collateral directions return. Real resource limits
-still reject. Flat and mapped height-constrained rollback variants pass; stretched
-variant and corrected large-star fixture pass the connected build16 run. No construction q/J floor.
-The old isolated copy in `dc17_18_completion_v1/coarsen_closure_worktree` is stale;
-do not copy it over main.
+Validated integration: strict coarsening checkpoints/rollback and support-based
+collapse retirement, complete coordinate-star movement, shared normalized clipping
+and nonfinite-volume handling, collision paging with empty ordinary removal lists.
+Curved Euler/RANS transfer/reload, repeated curved lifecycle/restart, distributed
+transfer/kernel/history/recovery checks pass. This is not full M6 acceptance.
+[Transfer-only ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 
-Actual saved6×128-cell transfer replay isolates NaN intersections in shared
-ConvexClipping.hpp: raw overlap NaN, split overlap.97888950039/lost.02111049961.
-Root's normalized signed-distance interpolation restores overlap1 and lost3.6e-16.
-Polygon and Polyhedron share CutFraction; nonfinite overlap volumes now fail
-explicitly. Reproducer/receipts: `staged57/transfer_coverage`. Three clipping regressions are integrated. All agent sources were released before
-build15; no agent may edit currently pinned files or start another job. Full diagnosis:
-[transfer clipping](Handbook/TRANSFER_CLIPPING_UNDERFLOW.md).
-Two Distributed fixtures are corrected:80-cell input must actually have quality
-debt; orthogonal stretch/pullback metric replaces invalid sheared first-height setup.
-Phase-census imports no longer debit an absent update timer.
+Active implementation: quality-stage measurement/capture, with admission/election
+and all final gates unchanged. Agent staged_engine owns Engine.hpp/.cpp and
+Remesher.hpp; root owns diagnostic fixture/capture/tests. No build until all edits
+are reviewed and released. Reuse existing one-cell census, Add/Drop cache updates,
+FirstHeightReport and SurfaceError results; no construction q/J, duplicate audit or
+per-proposal collective. Rank-local trend/shard capture must expose partial data
+and preserve original frozen donors and matching private geometry.
+Design and diagnostic acceptance: [quality-stage progress](Handbook/M6_QUALITY_STAGE_PROGRESS.md).
 
-Next: finish build17, rerun affected broader serial qualification, then MPI6. Existing `staged57/build_checkpoint.py` and
-`run_cases.py` save unique pinned/resource receipts. Connected selector includes
-coarsen closure and clipping regressions; broad selectors include conservative
-projection/transfer tests. Keep compiled sources/helpers frozen until owned job
-handle is terminal. No unqualified success claims or relaxed conservation checks.
+Existing `staged57/build_checkpoint.py` and `run_cases.py` retain unique pinned
+resource receipts. Broader selectors cover conservative transfer, recovery/history
+and repeated curved restart. The named precision contract runs in the current
+binary precision; no separate float-build qualification is claimed.
 
 ## Difficult target evidence and remaining capability
 
@@ -91,8 +75,9 @@ Normal-only contract still binds; tangential growth outside protected band unans
 
 ## Checkpoints and preserved history
 
-Latest pushed `6aee162837`: coarsening closure, clipping correction and regressions,
-with failed-workflow/replay evidence; integrated validation is pending. Code536025f6e4 contains
+Latest pushed `c659e03cf5`: connected transfer validation, corrected large-star
+fixture and collision paging correction (MPI validation pending). Earlier
+`6aee162837` contains coarsening closure and clipping correction/regressions. Code536025f6e4 contains
 construction generations, fair repair service and complete-star movement. Earlier builds and local
 repair witnesses do not validate current code. Details: [staged history](Handbook/STAGED_NATIVE_ADAPTATION.md),
 [completion](Handbook/DC17_DC18_COMPLETION_2026_10_25.md), [curved source](Handbook/DC18_CURVED_SOURCE.md),

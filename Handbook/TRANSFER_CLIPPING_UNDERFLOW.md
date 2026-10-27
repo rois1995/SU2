@@ -1,8 +1,8 @@
 # Conservative overlap clipping: subnormal-distance failure
 
 Current evidence, 2026-10-27. Build15 passed; its connected curved Euler/RANS transfer/reload
-checks and three clipping regressions pass. Broader serial/MPI qualification is
-pending; see the [current ledger](TRANSFER_OPERATORS_FINDINGS.md). All conservation/restart gates remain unchanged.
+checks and three clipping regressions pass. Build17 broad serial and MPI6
+qualification also pass; see the [current ledger](TRANSFER_OPERATORS_FINDINGS.md). All conservation/restart gates remain unchanged.
 
 ## Trigger and diagnosis
 

@@ -45,7 +45,12 @@ terminal178/179 cases pass,60.69s,unchanged pins. All transfer/kernel/history/
 curved lifecycle checks pass. Collision clearance exposed a paging regression:
 ordinary proposals with no removed cells were incorrectly rejected. Build17/
 session53915 restores this API while keeping nonempty coordinate-star admission;
-all sources/helpers frozen. Broader qualification remains incomplete. Transfer findings: [ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
+build17 passed135.20s/933 unchanged pins. Broad serial77363 PASS179 cases/
+1,121,211 assertions,61.68s,unchanged pins. MPI6/session97981 terminated on serial-only fixture selection; selector corrected
+to use distributed counterparts (serial evidence retained). MPI6/session4734 PASS
+43.79s:156 cases on each rank, unchanged pins. The integration milestone is
+validated; full M6 acceptance remains open. Next: incremental quality-stage defect
+trends and complete private-state capture under the [reviewed design](Handbook/M6_QUALITY_STAGE_PROGRESS.md). Transfer findings: [ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 [Diagnosis and replay](Handbook/TRANSFER_CLIPPING_UNDERFLOW.md). Full M6 quality closure is still a separate open capability.
 Previous build12 rejected during construction on the4096 notification scan limit.
 

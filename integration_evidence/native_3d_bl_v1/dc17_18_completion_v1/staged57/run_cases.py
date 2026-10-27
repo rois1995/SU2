@@ -37,11 +37,16 @@ for name in ("serial", "serial_full", "mpi6", "connected_fix"):
 
 for name in ("serial_full", "mpi6"):
     ranks, filters = CASES[name]
-    CASES[name] = ranks, filters + (",Convex clipping:*,Conservative projection:*,Conservative transfer:*,"
+    CASES[name] = ranks, filters + (",Convex clipping:*,"
                                    "Distributed conservative projection:*,Conservative kernels:*,"
                                    "Distributed conservative kernels:*,Transfer admissibility:*,"
                                    "Distributed conservative transfer:*,Single precision transfer contract,"
                                    "[NativeCurvedLifecycle3D]")
+
+# Geometry-based serial transfer fixtures require a halo-free mesh. Their distributed
+# counterparts above exercise gathered geometry, partition equivalence and history.
+ranks, filters = CASES["serial_full"]
+CASES["serial_full"] = ranks, filters + ",Conservative projection:*,Conservative transfer:*"
 
 
 def loaded_libraries():
