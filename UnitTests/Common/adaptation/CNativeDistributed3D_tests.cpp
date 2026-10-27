@@ -3875,8 +3875,15 @@ TEST_CASE("Quality repair completes a useful pass before revisiting construction
   options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
   const auto result=Repair(world,input,Uniform(input,Tensor{}),reference,compose,options);INFO(result.reason);
   CHECK(world.sum(result.stats.moved+result.stats.optimization_validated)>=unsigned(copies));
-  CHECK(result.stats.construction_returns<=1);CHECK(result.stats.quality_stages<=2);
-  CHECK(world.sum(unchanged_queries)==unchanged_centroids.size()*result.stats.quality_stages);
+  CHECK(result.stats.construction_returns<=1);CHECK(result.stats.quality_stages>=1);CHECK(result.stats.quality_stages<=2);
+  // The frozen-field census retains unchanged versioned rows across quality stages.
+  CHECK(world.sum(unchanged_queries)==unchanged_centroids.size());
+  for(const auto& row:input)if(row.first>=Id(100*(copies+1)) && row.first<Id(100*(copies+1)+100)) {
+    const auto found=result.cells.find(row.first);CHECK(found!=result.cells.end());
+    if(found==result.cells.end())continue;
+    CHECK(found->second.version==row.second.version);
+    Owned before{{row.first,row.second}},after{{found->first,found->second}};CHECK(Bytes(before)==Bytes(after));
+  }
   CHECK(result.stats.global_work<=options.maximum_work);CHECK(Bytes(input)==saved);
   std::set<int> checked;
   for(const auto& row:result.cells) {

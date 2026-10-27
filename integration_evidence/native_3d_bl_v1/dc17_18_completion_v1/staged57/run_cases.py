@@ -33,6 +33,8 @@ CASES = {
     "workflow_resolved_m1": (6, "[NativeResolvedEuler3D]"),
     "workflow_resolved_m2": (6, "[NativeResolvedEuler3D]"),
     "workflow_resolved_m4": (6, "[NativeResolvedEuler3D]"),
+    "quality_cache": (1, "[NativeQualityPass3D]"),
+    "quality_cache6": (6, "[NativeQualityPass3D]"),
     "quality_checks": (1, "[NativeOptimize3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeStageProgress3D]"),
     "stage_checks": (1, "[NativeStageProgress3D],[NativeStageCapture3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D]"),
     "stage_checks6": (6, "[NativeStageProgress3D],[NativeStageCapture3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D]"),

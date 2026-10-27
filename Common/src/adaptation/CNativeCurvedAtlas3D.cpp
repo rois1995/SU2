@@ -653,13 +653,17 @@ bool RebuildWorkingSurface(const SU2Native3D::BoundaryParameterState& state,Boun
       op.Work();const auto incident=state.IncidentFaces(edge);
       if(!incident[0]||!incident[1])throw std::invalid_argument("Working surface refresh lacks both incident physical faces.");
       inherited={};op.Sync();op.Check(state.ResolveTrace(edge,*incident[0],inherited,budget,op.reason));
-      // A genuine curve carries its model arc, including on closed chains.
-      if(TraceChain(inherited,geometry,policy,op))return;
-      const auto sheet=policy.sheets.at(incident[0]->facet);
-      if(policy.sheets.at(incident[1]->facet)!=sheet)throw std::invalid_argument("Working surface refresh crosses protected sheets.");
-      const auto* a=state.Find(edge[0]);const auto* b=state.Find(edge[1]);
-      if(!a||!b)throw std::invalid_argument("Working surface refresh lacks current endpoint associations.");
-      canonical={};op.Check(op.Delegate([&]{return CanonicalSurfaceTrace(geometry,policy,sheet,a->binding,b->binding,canonical,budget,op.reason);}));
+      canonical={};
+      if(TraceChain(inherited,geometry,policy,op)) {
+        // Keep the oriented model arc while discarding obsolete subdivision and active parameters.
+        op.Sync(TraceBytes(inherited));canonical=inherited;op.Sync();CleanFeatureTrace(canonical,geometry,policy,op);
+      } else {
+        const auto sheet=policy.sheets.at(incident[0]->facet);
+        if(policy.sheets.at(incident[1]->facet)!=sheet)throw std::invalid_argument("Working surface refresh crosses protected sheets.");
+        const auto* a=state.Find(edge[0]);const auto* b=state.Find(edge[1]);
+        if(!a||!b)throw std::invalid_argument("Working surface refresh lacks current endpoint associations.");
+        op.Check(op.Delegate([&]{return CanonicalSurfaceTrace(geometry,policy,sheet,a->binding,b->binding,canonical,budget,op.reason);}));
+      }
       if(identical(inherited,canonical))return;
       bool equal=false;op.Sync();op.Check(geometry.CompareTraces(inherited,canonical,equal,budget,op.reason));
       const auto old_cost=complexity(inherited),fresh_cost=complexity(canonical);

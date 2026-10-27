@@ -7,13 +7,29 @@ Updated: 2026-10-27. Detailed failures and provenance remain linked below.
 
 **DC-17 and DC-18 remain open. No full M6 adaptation has passed final acceptance.**
 
-Current candidate source62 is building with coordinated geometry normalization,
-derived support/incidence indices, typed trace comparison and admitted copies.
-It is unvalidated; legacy-path and continued publication/reload checks remain required.
+Build63 PASS66.1366s; all 17 build PIDs gone. Nineteen compiled filter audits
+pass (245 serial/222 MPI selected). Normalization passes serial 745 assertions
+in 15.9078s and MPI6 in 16.796s (727/721/721/721/715/715 assertions); all nine
+MPI PIDs gone. Repeated 16-event MPI publication/source-bound/schema8 test passes
+75.9713s; all nine PIDs gone. Its cost receipt records 12–20 face pieces, 13–19
+traces, 56–109 bits, 30,540,601–67,213,767 work excluding decode and 10,058,008–
+46,571,848 bytes aggregate admitted workspace. Sampled process-tree RSS ~214 MB
+is not peak allocation. Source-envelope checks are not CFD solution transfer.
+
+Broad serial `staged57/cases/serial_full_20261027T230545_3953311` FAIL176.0948s:
+243/245 cases and 1,134,704/1,134,707 assertions pass. Two failures are the known
+curved runtime; the third is a stale quality-stage query expectation (6 vs 12).
+Broad MPI63 `staged57/cases/mpi6_20261027T231001_3964969` FAIL177.1677s
+with unchanged pins: each rank passed 220/222 cases, with the same three failed
+assertions; the empty-rank fixture passed and all nine processes exited. Source64
+corrects the stale fixture expectation and strengthens row/version/content checks.
+Build64 PASS96.1853s; focused quality_cache serial and MPI6 pass in 6.8561s and
+6.8769s respectively, all owned processes gone. All 21 compiled filter selections pass in build64; no owned job remains live. These focused passes do not qualify the failed
+broad campaigns. No complete M6 or CFD transfer/restart is accepted.
 Source61 build PASS36.124s; source60 reference I/O PASS 5 cases/96 assertions.
 Source61 broad MPI aborted exit134 after 24/25 cases per rank: fixture point-0 read
 on an empty rank at CNativeImport3D_tests.cpp:1743. The nonempty-rank
-broadcast fix is applied in source62 and awaits its MPI regression.
+broadcast fix passed in the source63 broad MPI run.
 Source61 overlap_publication6_20261027T215151_3758648 PASS74.923s, all 16
 events: rank 0 passed 3494 assertions, each other rank 3445; all nine recorded
 processes are gone. publication_cost_summary.json verifies aggregate admitted
@@ -30,7 +46,7 @@ No accepted mesh or transfer/restart workflow follows.
 
 Source60 per-rank bounds failed; Directory hashes IDs before modulo, so stride
 alone did not fix home balance. Source61 aggregate workspace bounds pass. Local
-index/closure and full M6/CFD transfer remain open; latest pushed fa4c62876b.
+index/closure and full M6/CFD transfer remain open; latest pushed 765d0d4207.
 
 
 Build54 PASS1225.30s, 1293 pins unchanged; single-certificate checks PASS
@@ -78,7 +94,7 @@ remain unqualified.
 
 
 The local support-index draft is not merged; the global normalizer was rejected
-for locality and accounting. Latest pushed checkpoint: fa4c62876b.
+for locality and accounting. Latest pushed checkpoint: 765d0d4207.
 
 Build53 passed; atlas_checks_20261027T205356_3596433 PASS52.007s with
 unchanged pins. Mapped runtime_20261027T205308_3593869 FAIL11.87s, 201/203

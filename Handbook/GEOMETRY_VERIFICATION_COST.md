@@ -381,9 +381,8 @@ workspace and phase descriptor/work bounds, retaining per-rank statistics.
 Archive arithmetic is excluded; source-envelope checks are not CFD transfer.
 
 Full-CFD M6 build61/session99828 TERMINAL REJECT after 1864.11s: solver exit 0,
-native event accepted=false, pins unchanged. Native elapsed-time stop left
-The working mesh grew from 303,359 to 1,376,207 private cells (4.54×), with
-877,469 metric/height demands; quality was not reached. The 146,862 source-envelope
+native event accepted=false, pins unchanged. The working mesh grew from 303,359 to 1,376,207 private cells (4.54×), with
+877,469 metric demands (no requested BL in this run); quality was not reached. The 146,862 source-envelope
 cells are separate source metadata, not the initial working tetrahedron count. All nine owned processes are gone. Largest sampled process-tree aggregate
 RSS was 6,387,077,120 bytes; largest sampled individual RSS 1,096,867,840 bytes;
 neither is a whole-job peak. Evidence: `staged57/m6_runs/euler_build61_working_surface`.
@@ -399,3 +398,13 @@ must not be added to contact time. These are visits, not unique intersections.
 This supports a contact/coordination cost concern, not an arithmetic-only cause.
 Exact per-rank receipts and the unimplemented scheduling design are in
 [metric-length satisfaction](METRIC_LENGTH_SATISFACTION_DESIGN.md).
+
+## Source63–64 checkpoint
+
+Source63 normalization passes serial and MPI6, and its 16-event MPI publication/
+source-envelope/schema8 test passes with bounded reported phase costs. Broad serial
+and MPI both fail on curved runtime and a stale quality-query fixture expectation.
+Source64 corrects the fixture with row/version/content assertions; build64 and the
+focused serial/MPI6 quality-cache checks pass. The broad failures remain; no full
+M6 or curved CFD transfer is accepted. The bidirectional metric-length design is
+unimplemented. Details and receipts are in [handoff](../HANDOFF_Codex.md).

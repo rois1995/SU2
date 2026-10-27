@@ -5,6 +5,7 @@
  */
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeCurvedAtlas3D.hpp"
+#include "../../../Common/include/adaptation/CNativeTraceCoverage3D.hpp"
 #include "../../../Common/include/adaptation/CNativeDistributed3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
@@ -430,41 +431,81 @@ TEST_CASE("Neighboring curved moves publish and reload complete boundary state",
 }
 
 TEST_CASE("Legacy shared trace normalization publishes both owners and is idempotent", "[NativeCurvedAtlas3D][NativeWorkingSurfaceNormalization3D]") {
-  World world;RemappingFixture fixture(false);auto budget=RemappingBudget();std::string reason;
-  const Edge shared{0,20};BoundaryCoverage legacy;
-  auto mix=[&](const ExactBary& a,const ExactBary& b,double t){ExactBary out;ExactRatio left,right;
-    REQUIRE(ExactBinary64(1-t,left,budget,reason));REQUIRE(ExactBinary64(t,right,budget,reason));
-    auto component=[&](const ExactRatio& x,const ExactRatio& y){ExactRatio u,v,r;REQUIRE(ExactMultiply(x,left,u,budget,reason));
-      REQUIRE(ExactMultiply(y,right,v,budget,reason));REQUIRE(ExactAdd(u,v,r,budget,reason));return r;};
-    out.u=component(a.u,b.u);out.v=component(a.v,b.v);return out;};
-  for(auto face:fixture.surface)if(std::find(face.v.begin(),face.v.end(),shared[0])!=face.v.end()&&
-                                   std::find(face.v.begin(),face.v.end(),shared[1])!=face.v.end()) {
-    std::rotate(face.v.begin(),std::min_element(face.v.begin(),face.v.end()),face.v.end());
-    std::array<SurfaceBinding,3> bindings;for(unsigned k=0;k<3;++k)bindings[k]=fixture.points.at(face.v[k]).binding;
-    FaceCoverage identity;REQUIRE(fixture.geometry->ResolveSingleChart(face.facet,bindings,identity,budget,reason));
-    const auto& original=identity.pieces.front();ExactBary reference_center=original.reference[0],active_center=original.active[0];
-    // Binary-exact interior fan center: weights 3/8, 3/8, 1/4.
-    reference_center=mix(mix(original.reference[0],original.reference[1],.5),original.reference[2],.25);
-    active_center=mix(mix(original.active[0],original.active[1],.5),original.active[2],.25);
-    FaceCoverage cover;
-    for(unsigned k=0;k<3;++k){const unsigned j=(k+1)%3;Edge edge{face.v[k],face.v[j]},key=edge;std::sort(key.begin(),key.end());
-      auto append=[&](const ExactBary& a,const ExactBary& b,const ExactBary& x,const ExactBary& y){CoveragePiece piece;piece.facet=face.facet;
-        piece.reference={reference_center,a,b};piece.active={active_center,x,y};cover.pieces.push_back(std::move(piece));};
-      if(key==shared){const auto midpoint=mix(original.reference[k],original.reference[j],.5);
-        const auto parameter=mix(original.active[k],original.active[j],edge[0]<edge[1]?.25:.75);
-        append(original.reference[k],midpoint,original.active[k],parameter);append(midpoint,original.reference[j],parameter,original.active[j]);}
-      else append(original.reference[k],original.reference[j],original.active[k],original.active[j]);}
-    std::array<EdgeTrace,3> traces;REQUIRE(fixture.geometry->CoverageTraces(cover,traces,budget,reason));
-    for(unsigned k=0;k<3;++k)if(face.v[k]==shared[0]&&face.v[(k+1)%3]==shared[1])legacy.traces.emplace(shared,traces[k]);
-    Face key=face.v;std::rotate(key.begin(),std::min_element(key.begin(),key.end()),key.end());REQUIRE(key==face.v);
-    legacy.faces.emplace(key,std::move(cover));
+  World world;const unsigned variant=GENERATE(0u,1u,2u);INFO(variant);RemappingFixture fixture(false);auto budget=RemappingBudget();std::string reason;
+  struct RestoreAdmission {ShapeAdmission old=GetShapeAdmission();~RestoreAdmission(){SetShapeAdmission(old);}} restore;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  const Edge shared=variant==2?Edge{10,20}:Edge{0,20};BoundaryCoverage legacy;
+  if(variant!=1) {
+    auto mix=[&](const ExactBary& a,const ExactBary& b,double t){ExactBary out;ExactRatio left,right;
+      REQUIRE(ExactBinary64(1-t,left,budget,reason));REQUIRE(ExactBinary64(t,right,budget,reason));
+      auto component=[&](const ExactRatio& x,const ExactRatio& y){ExactRatio u,v,r;REQUIRE(ExactMultiply(x,left,u,budget,reason));
+        REQUIRE(ExactMultiply(y,right,v,budget,reason));REQUIRE(ExactAdd(u,v,r,budget,reason));return r;};
+      out.u=component(a.u,b.u);out.v=component(a.v,b.v);return out;};
+    for(auto face:fixture.surface)if(std::find(face.v.begin(),face.v.end(),shared[0])!=face.v.end()&&
+                                     std::find(face.v.begin(),face.v.end(),shared[1])!=face.v.end()) {
+      std::rotate(face.v.begin(),std::min_element(face.v.begin(),face.v.end()),face.v.end());
+      std::array<SurfaceBinding,3> bindings;for(unsigned k=0;k<3;++k)bindings[k]=fixture.points.at(face.v[k]).binding;
+      FaceCoverage identity;REQUIRE(fixture.geometry->ResolveSingleChart(face.facet,bindings,identity,budget,reason));
+      const auto& original=identity.pieces.front();ExactBary reference_center=original.reference[0],active_center=original.active[0];
+      // Binary-exact interior fan center: weights 3/8, 3/8, 1/4.
+      reference_center=mix(mix(original.reference[0],original.reference[1],.5),original.reference[2],.25);
+      active_center=mix(mix(original.active[0],original.active[1],.5),original.active[2],.25);
+      FaceCoverage cover;
+      for(unsigned k=0;k<3;++k){const unsigned j=(k+1)%3;Edge edge{face.v[k],face.v[j]},key=edge;std::sort(key.begin(),key.end());
+        auto append=[&](const ExactBary& a,const ExactBary& b,const ExactBary& x,const ExactBary& y){CoveragePiece piece;piece.facet=face.facet;
+          piece.reference={reference_center,a,b};piece.active={active_center,x,y};cover.pieces.push_back(std::move(piece));};
+        if(key==shared){const auto midpoint=mix(original.reference[k],original.reference[j],.5);
+          const auto parameter=mix(original.active[k],original.active[j],edge[0]<edge[1]?.25:.75);
+          append(original.reference[k],midpoint,original.active[k],parameter);append(midpoint,original.reference[j],parameter,original.active[j]);}
+        else append(original.reference[k],original.reference[j],original.active[k],original.active[j]);}
+      std::array<EdgeTrace,3> traces;REQUIRE(fixture.geometry->CoverageTraces(cover,traces,budget,reason));
+      for(unsigned k=0;k<3;++k)if(face.v[k]==shared[0]&&face.v[(k+1)%3]==shared[1])legacy.traces.emplace(shared,traces[k]);
+      Face key=face.v;std::rotate(key.begin(),std::min_element(key.begin(),key.end()),key.end());REQUIRE(key==face.v);
+      legacy.faces.emplace(key,std::move(cover));
+    }
+    REQUIRE(legacy.faces.size()==2);REQUIRE(legacy.traces.at(shared).pieces.size()==2);
+    for(const auto& face:legacy.faces)REQUIRE(face.second.pieces.size()==4);
   }
-  REQUIRE(legacy.faces.size()==2);REQUIRE(legacy.traces.at(shared).pieces.size()==2);
-  for(const auto& face:legacy.faces)REQUIRE(face.second.pieces.size()==4);
+  if(variant==1) {
+    std::vector<CoveragePiece> region;std::vector<SurfaceFace> selected;
+    std::map<Id,SurfaceBinding> bindings;std::map<Edge,EdgeTrace> traces;
+    for(auto face:fixture.surface)if(std::find(face.v.begin(),face.v.end(),shared[0])!=face.v.end()&&
+                                     std::find(face.v.begin(),face.v.end(),shared[1])!=face.v.end()) {
+      std::rotate(face.v.begin(),std::min_element(face.v.begin(),face.v.end()),face.v.end());selected.push_back(face);
+      std::array<SurfaceBinding,3> local;for(unsigned k=0;k<3;++k){local[k]=fixture.points.at(face.v[k]).binding;bindings.emplace(face.v[k],local[k]);}
+      FaceCoverage cover;REQUIRE(fixture.geometry->ResolveSingleChart(face.facet,local,cover,budget,reason));
+      region.insert(region.end(),cover.pieces.begin(),cover.pieces.end());
+      for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());if(traces.count(edge))continue;
+        EdgeTrace trace;REQUIRE(fixture.state->ResolveTrace(edge,face,trace,budget,reason));traces.emplace(edge,std::move(trace));}
+    }
+    REQUIRE(selected.size()==2);ExactBary first,last,middle;REQUIRE(fixture.geometry->BindingParameters(0,bindings.at(0),first,budget,reason));
+    REQUIRE(fixture.geometry->BindingParameters(0,bindings.at(20),last,budget,reason));
+    REQUIRE(ExactBinary64(.25,middle.u,budget,reason));REQUIRE(ExactBinary64(.25,middle.v,budget,reason));
+    ExactRatio half,one;REQUIRE(ExactBinary64(.5,half,budget,reason));REQUIRE(ExactInteger(1,one,budget,reason));
+    traces.at(shared).pieces={{0,first,middle,half},{0,middle,last,one}};
+    const bool built=RebuildTraceCoverage(*fixture.geometry,region,selected,bindings,traces,legacy.faces,budget,reason);INFO(reason);REQUIRE(built);
+    legacy.traces=std::move(traces);REQUIRE(legacy.traces.at(shared).pieces.size()==2);
+  }
   auto state=std::make_shared<BoundaryParameterState>(fixture.geometry,fixture.points,fixture.surface,1,SIZE_MAX,0,legacy,fixture.policy,&budget);
+  auto check_indices=[&](const BoundaryParameterState& current){
+    std::map<Edge,std::set<Face>> edges;std::map<Id,std::set<Face>> support;auto proof=RemappingBudget();
+    for(const auto& row:current.Surface()){const auto& face=row.second;FaceCoverage cover;
+      REQUIRE(current.ResolveCoverage(face,cover,proof,reason));
+      for(const auto& piece:cover.pieces)support[current.Geometry().Canonical(piece.facet)].insert(row.first);
+      for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());edges[edge].insert(row.first);}}
+    for(const auto& row:edges){std::set<Face> found;for(const auto* face:current.IncidentFaces(row.first))if(face){auto key=face->v;std::sort(key.begin(),key.end());found.insert(key);}CHECK(found==row.second);}
+    for(const auto& facet:fixture.facets){std::set<Face> found;const auto range=current.FacesOnOriginalFacet(facet.id);
+      for(auto it=range.first;it!=range.second;++it)found.insert(it->second);CHECK(found==support[current.Geometry().Canonical(facet.id)]);}
+  };check_indices(*state);
   const auto before=state->Snapshot();auto incident=state->IncidentFaces(shared);REQUIRE(incident[0]);REQUIRE(incident[1]);
   for(const auto* face:incident){const auto range=state->FacesOnOriginalFacet(face->facet);const auto key=[&](){auto f=face->v;std::sort(f.begin(),f.end());return f;}();
     CHECK(std::any_of(range.first,range.second,[&](const auto& entry){return entry.second==key;}));}
+  if(variant==2)REQUIRE(fixture.policy.features.count(shared));
+  auto refused=legacy;const auto refused_before=EncodeBoundaryAtlas(refused,fixture.policy);
+  auto no_work=RemappingBudget();no_work.maximum_work=0;
+  CHECK_FALSE(RebuildWorkingSurface(*state,refused,no_work,reason));CHECK(EncodeBoundaryAtlas(refused,fixture.policy)==refused_before);
+  auto no_memory=RemappingBudget();no_memory.maximum_bytes=0;
+  CHECK_FALSE(RebuildWorkingSurface(*state,refused,no_memory,reason));CHECK(EncodeBoundaryAtlas(refused,fixture.policy)==refused_before);
   BoundaryCoverage normalized;auto work=RemappingBudget();const bool rebuilt=RebuildWorkingSurface(*state,normalized,work,reason);INFO(reason);REQUIRE(rebuilt);
   REQUIRE(normalized.traces.count(shared));CHECK(normalized.traces.at(shared).pieces.size()==1);
   for(const auto* face:incident){REQUIRE(normalized.faces.count(face->v));CHECK(normalized.faces.at(face->v).pieces.size()==1);}
@@ -479,6 +520,15 @@ TEST_CASE("Legacy shared trace normalization publishes both owners and is idempo
     OwnedCell row;row.cell=cell;const auto faces=cell_faces(cell);
     for(unsigned k=0;k<4;++k)for(const auto& physical:fixture.surface){auto a=faces[k],b=physical.v;std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());if(a==b)row.physical[k]={true,physical.facet};}
     if(cell.id%world.size==unsigned(world.rank))REQUIRE(owned.emplace(cell.id,row).second);}
+  const auto frozen_source_state=std::make_shared<BoundaryParameterState>(*state);
+  const auto frozen_reference=frozen_source_state->Snapshot();
+  auto original_bounds=[&](){std::vector<double> values;auto source_work=RemappingBudget();
+    for(const auto& row:frozen_source_state->Surface()){FaceCoverage cover;REQUIRE(frozen_source_state->ResolveCoverage(row.second,cover,source_work,reason));
+      std::array<Point,3> chord;for(unsigned k=0;k<3;++k)chord[k]=frozen_source_state->Find(row.second.v[k])->node.p;
+      const auto bounds=fixture.geometry->PrepareSourcePatch(cover,chord,source_work).Bounds();
+      for(const auto& point:bounds){values.push_back(point.x);values.push_back(point.y);values.push_back(point.z);}}
+    return values;};
+  const auto frozen_bounds=original_bounds();
   Directory directory(world,true,state.get());REQUIRE(directory.Build(owned,reason));auto reject=RemappingBudget();
   const BoundaryCoverage empty;const auto& delta=world.rank?empty:normalized;
   CHECK_FALSE(directory.Publish(owned,{}, {},true,reason,SIZE_MAX,0,{},delta,&reject));CHECK(state->Snapshot()==before);
@@ -487,12 +537,44 @@ TEST_CASE("Legacy shared trace normalization publishes both owners and is idempo
   for(const auto& row:owned){bool changed=false;const auto faces=cell_faces(row.second.cell);
     for(unsigned k=0;k<4;++k)if(row.second.physical[k].present){auto key=faces[k];std::sort(key.begin(),key.end());changed|=affected.count(key);}
     if(changed){removed.push_back({row.first,row.second.version,world.rank});auto next=row.second;++next.version;added.push_back(next);}}
-  REQUIRE(CPassiveComm::Allreduce(uint64_t(removed.size()),CPassiveComm::Op::SUM,world.comm)>=2);auto publish=RemappingBudget();const bool done=directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,{},delta,&publish);INFO(reason);REQUIRE(done);
+  REQUIRE(CPassiveComm::Allreduce(uint64_t(removed.size()),CPassiveComm::Op::SUM,world.comm)>=2);auto partial=normalized;partial.faces.erase(old_incident[0].v);auto partial_budget=RemappingBudget();
+  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,{},world.rank?empty:partial,&partial_budget));
+  CHECK(state->Snapshot()==before);for(const auto& row:removed)CHECK(owned.at(row.cell).version==row.version);
+  auto publish=RemappingBudget();const bool done=directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,{},delta,&publish);INFO(reason);REQUIRE(done);
   REQUIRE(state->Coverage().traces.count(shared));CHECK(state->Coverage().traces.at(shared).pieces.size()==1);
   for(const auto& face:old_incident){REQUIRE(state->Coverage().faces.count(face.v));CHECK(state->Coverage().faces.at(face.v).pieces.size()==1);}
-  const auto after=state->Snapshot();BoundaryCoverage again;auto repeat=RemappingBudget();const bool rebuilt_again=RebuildWorkingSurface(*state,again,repeat,reason);INFO(reason);REQUIRE(rebuilt_again);
+  check_indices(*state);const auto after=state->Snapshot();BoundaryCoverage again;auto repeat=RemappingBudget();const bool rebuilt_again=RebuildWorkingSurface(*state,again,repeat,reason);INFO(reason);REQUIRE(rebuilt_again);
   CHECK(again.faces.empty());CHECK(again.traces.empty());CHECK(state->Snapshot()==after);
   const auto now=state->IncidentFaces(shared);REQUIRE(now[0]);REQUIRE(now[1]);
   for(const auto* face:now){const auto range=state->FacesOnOriginalFacet(face->facet);auto key=face->v;std::sort(key.begin(),key.end());
     CHECK(std::any_of(range.first,range.second,[&](const auto& entry){return entry.second==key;}));}
+  CHECK(frozen_source_state->Snapshot()==frozen_reference);CHECK(original_bounds()==frozen_bounds);
+  ReferenceState archive;archive.original=PlanarReference::WithParameters(fixture.definition,state);
+  archive.facets=fixture.facets;archive.marker_names={"body"};
+  const auto encoded=EncodeReference(archive);REQUIRE(encoded.find("SU2_NATIVE_REFERENCE_3D 8\n")==0);
+  auto decoded=DecodeReference(encoded);REQUIRE(decoded.original->Parameters());check_indices(*decoded.original->Parameters());CHECK(EncodeReference(decoded)==encoded);
+  // Rebuild a complete replicated coordinate star; owned rows are still partitioned.
+  Patch old;for(const auto& face:fixture.patch.surface){Cell cell;cell.id=face.facet;
+    for(unsigned k=0;k<3;++k)cell.v[k]=fixture.points.at(face.v[k]).node;cell.v[3]=fixture.points.at(50).node;
+    if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[0],cell.v[1]);old.cells.push_back(cell);}
+  for(const auto& cell:old.cells)for(const auto& f:cell_faces(cell))for(const auto& physical:fixture.surface){auto a=f,b=physical.v;
+    std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());if(a==b)old.surface.push_back(physical);}
+  auto movement=RemappingBudget();auto scoped=decoded.original->WithAtlasReservation(movement);scoped->ExportParameters(old);
+  Patch fresh;const bool moved=MoveVertex(old,0,{100,{.6,.5,-.01}},1000,*scoped,fresh,reason);INFO(reason);REQUIRE(moved);
+  for(const auto& c:fresh.cells)CHECK(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0);
+  Directory next_directory(world,true,decoded.original->Parameters());REQUIRE(next_directory.Build(owned,reason));
+  const std::vector<Feature> requests=world.rank?std::vector<Feature>{}:std::vector<Feature>{{{0,0,0},1}};
+  const auto dependencies=next_directory.Lookup(requests);REQUIRE(dependencies.valid);
+  const auto fetched=next_directory.Fetch(dependencies,owned);REQUIRE(fetched.valid);
+  const bool reserved=next_directory.Reserve(fetched,world.rank==0,reason);if(!world.rank)REQUIRE(reserved);
+  std::vector<std::vector<Dependency>> owner_removed(world.size);std::vector<std::vector<OwnedCell>> owner_added(world.size);
+  if(!world.rank){std::map<Id,int> owners;for(const auto& d:dependencies.cells){owner_removed[d.owner].push_back(d);owners.emplace(d.cell,d.owner);}
+    REQUIRE(fresh.cells.size()==old.cells.size());for(size_t i=0;i<fresh.cells.size();++i){OwnedCell row;row.cell=fresh.cells[i];const auto faces=cell_faces(row.cell);
+      for(unsigned k=0;k<4;++k)for(const auto& physical:fresh.surface){auto a=faces[k],b=physical.v;std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());if(a==b)row.physical[k]={true,physical.facet};}
+      owner_added[owners.at(old.cells[i].id)].push_back(row);}}
+  const auto removed_move=world.exchange(owner_removed);const auto added_move=world.exchange(owner_added);
+  const auto edits=world.rank?std::vector<BoundaryParameterEdit>{}:BoundaryParameterState::Changes(old,fresh,decoded.original->Parameters()->Revision());
+  const BoundaryCoverage no_delta;auto publish_move=RemappingBudget();
+  const bool continued=next_directory.Publish(owned,removed_move,added_move,true,reason,SIZE_MAX,0,edits,world.rank?no_delta:fresh.coverage,&publish_move);
+  INFO(reason);REQUIRE(continued);CHECK(frozen_source_state->Snapshot()==frozen_reference);CHECK(original_bounds()==frozen_bounds);
 }

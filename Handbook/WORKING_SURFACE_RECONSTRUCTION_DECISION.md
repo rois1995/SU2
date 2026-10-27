@@ -447,7 +447,7 @@ frozen donor interpretation; transferred/restarted target state uses the accepte
 working association generation. This avoids broadening strict volume-star operator
 inputs merely to carry geometry-only neighbors.
 
-The coordinated closure, typed trace comparison, admitted descriptor copies and derived indices are applied in the build62 candidate, currently unvalidated. Build61 M6 is terminal; its sources were not changed while it ran.
+The coordinated closure, typed trace comparison, admitted descriptor copies and derived indices passed the baseline build62 normalization case. Expanded source63 normalization variants pass serial and MPI6; build61 M6 remains terminal and unaccepted.
 Acceptance still requires a legacy noncanonical shared edge refreshed with its
 incident owners, actual neighboring operations/publication/source/reload over
 repeated events, accepted M6 and complete solution transfer/restart. The passing
@@ -479,3 +479,25 @@ cannot resolve this first-event scheduling limitation by itself.
 The [metric-length design and measured contact cost](METRIC_LENGTH_SATISFACTION_DESIGN.md)
 records the proposed shared-lifetime schedule, affected callers, safety hazards and
 acceptance conditions. It is not yet a validated implementation.
+
+## Current normalization qualification
+
+Build63 PASS66.1366s; all 17 build PIDs gone. Nineteen compiled filter audits
+pass (245 serial/222 MPI selected). Normalization passes serial 745 assertions
+in 15.9078s and MPI6 in 16.796s (727/721/721/721/715/715 assertions); all nine
+MPI PIDs gone. Repeated 16-event MPI publication/source-bound/schema8 test passes
+75.9713s; all nine PIDs gone. Its cost receipt records 12–20 face pieces, 13–19
+traces, 56–109 bits, 30,540,601–67,213,767 work excluding decode and 10,058,008–
+46,571,848 bytes aggregate admitted workspace. Sampled process-tree RSS ~214 MB
+is not peak allocation. Source-envelope checks are not CFD solution transfer.
+
+Broad serial `staged57/cases/serial_full_20261027T230545_3953311` FAIL176.0948s:
+243/245 cases and 1,134,704/1,134,707 assertions pass. Two failures are the known
+curved runtime; the third is a stale quality-stage query expectation (6 vs 12).
+Broad MPI63 `staged57/cases/mpi6_20261027T231001_3964969` FAIL177.1677s
+with unchanged pins: each rank passed 220/222 cases, with the same three failed
+assertions; the empty-rank fixture passed and all nine processes exited. Source64
+corrects the stale fixture expectation and strengthens row/version/content checks.
+Build64 PASS96.1853s; focused quality_cache serial and MPI6 pass in 6.8561s and
+6.8769s respectively, all owned processes gone. All 21 compiled filter selections pass in build64; no owned job remains live. These focused passes do not qualify the failed
+broad campaigns. No complete M6 or CFD transfer/restart is accepted.
