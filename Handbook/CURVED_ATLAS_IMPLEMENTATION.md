@@ -555,3 +555,22 @@ closure for association publication and an atomic missing-owner rejection test;
 validation is in progress. Source donor geometry is frozen before private edits;
 reader/rebind and sidecar persistence use the accepted generation after transfer.
 No accepted M6 mesh or native workflow qualification is claimed.
+
+
+Build38 passed111.93s/1293 unchanged pins. Its focused run
+`staged57/cases/atlas_checks_20261027T172708_3041237` failed8/53 cases,
+7799/7807 assertions,24.94s, unchanged pins. Seven failures shared a reference
+builder bug: boundary lists were compared with mandatory knots, although new
+knots can subdivide the same geometric chain. Final comparison now uses the
+existing collinear-chain canonicalizer without knot retention on both sides;
+mandatory-point/trace inclusion and all exact region/embedding checks remain.
+The eighth failure was a new fixture's reversed order of two cubic controls.
+
+Build39 passed75.18s/1293 unchanged pins. Focused run
+`staged57/cases/atlas_checks_20261027T173019_3050687` passes all53 cases/8247
+assertions in47.83s, pins unchanged. This includes the previously failing16-event
+overlapping-star sequence with per-phase descriptor/width/work/storage bounds.
+The collective network counterexample and owner-publication rejection pass.
+These remain fixture/connected-check scope; six-rank M6 diagnostic is now live
+at `staged57/cases/m6_stage_20261027T173120_3053606`, session96782. No accepted
+mesh or full transfer/restart qualification follows from the focused pass.

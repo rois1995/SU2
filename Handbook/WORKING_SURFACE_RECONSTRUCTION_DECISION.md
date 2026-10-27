@@ -249,7 +249,10 @@ collective certificate, rather than independent path selection, must establish a
 common embedding. If it cannot admit the overlapping-neighbor sequence and the
 difficult runtime/M6 target, reject the candidate and reconsider joint topology
 reconstruction; do not add alternate path selectors or increase budgets. This
-candidate remains unvalidated; it is not a proven general graph-routing algorithm.
+candidate is now qualified only by build39's focused53 cases/8247 assertions,
+including the16-event overlapping-star failure and atomic crossed-network/owner
+rejection. Six-rank M6 diagnostic is running. This is not a proven general
+graph-routing algorithm or a completed adaptation/transfer/restart workflow.
 
 A complete six-face M6 wing star is extracted using the existing mesh parser,
 with input/parser/extractor hashes and original IDs saved. Center ID4210 has a

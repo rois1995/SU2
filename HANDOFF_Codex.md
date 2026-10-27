@@ -30,55 +30,49 @@ unanswered. Preserve all final gates and avoid scenario-specific dispatch.
 
 ## Live work and validation
 
-Build33/session45827 PASS57.15s, 950 unchanged pins. Focused atlas checks pass
-45 cases/7610 assertions in 38.85s, including accepted lookup without a reservation
-and rejection of altered coordinates/orientation/marker. These focused results do
-not qualify an accepted M6 mesh or whole workflow. The prior build32 M6 diagnostic
-failed at import before meshing; its evidence and the intervening fix are recorded
-in [implementation history](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
+Architecture/publication checkpoint: `ca60c623c0` (WIP); build39 corrections
+and focused receipts are saved in its follow-up checkpoint. Native build39 passed75.18s with1293
+unchanged pins. Focused atlas_checks `staged57/cases/atlas_checks_20261027T173019_3050687`
+passes53 cases/8247 assertions,47.83s, unchanged pins. This includes16 alternating
+overlapping-star moves with per-phase descriptor/bit-width/work/storage bounds,
+actual curved operator movement, collective embedding rejection, owner publication,
+source and archive checks. It does not qualify an accepted mesh or full workflow.
 
-Six-rank M6 build33/session31910 TERMINAL REJECT190.56s, pins unchanged. It passed
-import/source preparation and made814 private edits, then rejected “Empty reference
-coverage replacement.” Original CFD mesh/solution retained; no quality-entry
-snapshot, so the diagnostic wrapper correctly fails. Evidence: `staged57/cases/m6_stage_20261027T145416_2560816`.
-Trace-only unchanged metadata incorrectly invoked a nonempty face-region proof.
-Build34/session16636 PASS87.15s/950 unchanged pins. The guard skips that proof
-only when both face lists are empty; changed traces still require all incident
-faces. Expanded build34 serial_full/session69002 TERMINAL FAIL94.85s, pins unchanged: 226/227 cases and 1129578/1129580 assertions passed. Mapped native runtime curved Euler/RANS failed after 29 private edits at the unchanged atlas work budget 67207168. Accepted mesh, transfer and restart remain unqualified.
+Six-rank M6 build39 diagnostic is LIVE: session96782,
+`staged57/cases/m6_stage_20261027T173120_3053606`, pid3053761. Its status/owned handle
+must be terminal before editing pinned C++/helpers or starting another heavy job.
+The observer requests four private quality windows; a completed capture would still
+not establish final mesh acceptance. Broader workflow serial/MPI regression is due
+at this connected milestone after the M6 diagnostic.
 
-Build35 and build36 passed with 950 unchanged pins. Build36 serial_full/session68944 TERMINAL FAIL99.7804s, pins unchanged: 226/228 cases and 1129639/1129642 assertions passed; largest sampled individual RSS145432576 bytes. Evidence: `staged57/cases/serial_full_20261027T153436_2673844`. The overlapping-star test exhausted atlas work on event 5 (sixth move); curved Euler/RANS runtime again exhausted 67207168 work after 29 accepted private edits and 35 attempts. Retained path history is an architectural blockage not resolved by discarding interior cuts. Develop a connected strategy before MPI or M6 retry; accepted mesh, transfer and restart remain unqualified.
+The [architecture review](Handbook/WORKING_SURFACE_RECONSTRUCTION_DECISION.md)
+compares Gmsh, CGAL, Mmg, Omega_h and Geometry Central. The narrow fixed-input
+Geometry Central probe completes16 moves on planar and faceted M6 stars, but
+cannot supply prescribed CFD graph recovery/movable feature retirement through
+the inspected APIs; no production dependency is added. Native edge proposals are
+admitted only through one shared reference PSLG, disjoint face disks, positive
+maps and exact region replacement. Eigen replaces custom PCG. Cover publication
+now requires replacement/versioning of owning volume rows. Donor freezing and
+accepted-generation persistence tracing found no separate mismatch.
 
-The fixed-reference compatibility probe now completes16 neighboring moves on both
-a planar disk and a faceted M6 wing star with stable current capacities and
-settled overlay counts. This qualifies representation/API scope only. Geometry
-Central does not provide the required prescribed CFD graph recovery or movable
-feature retirement through the inspected APIs; it is not selected as a complete
-production network engine. The next connected candidate uses native shared-PSLG
-reconstruction and a collective embedding certificate; independent canonical
-edge proposals are never sufficient admission. See the
-[architecture decision](Handbook/WORKING_SURFACE_RECONSTRUCTION_DECISION.md) and
-[probe measurements](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/reference_network_probe_v1/probe_summary.md).
-No full accepted mesh, transfer or restart has been established.
-Native build37 passed78.18s with1293 unchanged pins, including vendored Eigen.
-Build38 is validating the connected candidate plus publication owner closure:
-metadata refresh must replace its owning volume rows so existing cell versions
-and notifications invalidate dependent work. Donor-generation tracing found no
-separate freeze/persistence mismatch. No runtime pass is claimed yet.
+Preserve earlier failures: build36 overlapping stars exhausted work on move6;
+curved Euler/RANS exhausted67207168 after29 private edits. Build38 failed8/53
+focused cases: unchanged boundary subdivision was mistaken for changed geometry,
+and one new cubic fixture swapped controls. Build39 corrects these without
+relaxing the exact chain or embedding gates. Full history/provenance:
+[curved implementation](Handbook/CURVED_ATLAS_IMPLEMENTATION.md),
+[older validation](Handbook/VALIDATION_HISTORY_THROUGH_BUILD32.md).
 
-Latest pushed checkpoint: `a61e28bf58` (WIP; new connected prototype unbuilt). Cross-chart design, retained failures and
-validation: [curved atlas implementation](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
-The native [geometry-backend interface](Handbook/GEOMETRY_BACKEND_PLAN.md) is
-implemented and exercised; Open CASCADE/importers remain planned. Cubic geometry
-and existing archives remain authoritative. Detailed build13–32 evidence,
-checkpoints and links: [validation history](Handbook/VALIDATION_HISTORY_THROUGH_BUILD32.md).
-The capture analyzer supports legacy/schema8 payloads; synthetic checks pass.
+Compiled build38 filter audit selects all intended cases:235 serial (66 required),
+212 MPI (52 required),53 focused (29 required). Build39 changes no case names or
+filters; rerun the inexpensive binary audit before broader regression. Use the
+existing `staged57/build_checkpoint.py`, `run_cases.py` and
+`audit_compiled_filters.py` with unique receipts. Preserve successful stages and
+failures; do not raise limits or add alternate path fallbacks after a stall.
 
-The broad filters now include the previously omitted barycentric and connected
-runtime/history/veto cases. Build36 compiled selection verified all56 required cases:228 serial,205 MPI.
-Serial failure is recorded above; MPI was not repeated after that failure.
-Use existing `staged57/build_checkpoint.py` and `run_cases.py` with unique source,
-binary, runtime/input/helper and resource receipts. Preserve completed evidence;
-do not repeat blind timeouts or add local fallbacks without addressing the blockage.
+The [geometry interface](Handbook/GEOMETRY_BACKEND_PLAN.md) remains backend neutral;
+original cubic authority and schema8 archives remain authoritative. OCCT/importers
+remain planned. No full M6 adaptation, transfer or restart is accepted.
 
 ## Operations
 

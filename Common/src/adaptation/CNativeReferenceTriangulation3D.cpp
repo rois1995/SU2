@@ -211,7 +211,9 @@ bool RebuildReferenceTriangulation(const MappedFacetReference& geometry,const st
       for(const auto& edge:mesh->constraints)if(!HasEdge(*mesh,edge))throw std::logic_error("Reference recovery retired an earlier constraint.");
       mesh.reset();}
     if(output.empty()||covered_binding.size()!=bindings.size()||std::find(covered_trace.begin(),covered_trace.end(),0)!=covered_trace.end())throw std::invalid_argument("Reference reconstruction omits a current point or retained trace.");
-    op.Sync();op.Check(geometry.RegionBoundary(output,mandatory,rebuilt,budget,op.reason));
+    // New mandatory knots may split an unchanged region boundary; compare its geometric chains.
+    op.Sync();op.Check(geometry.RegionBoundary(accepted,{},boundary,budget,op.reason));
+    op.Sync();op.Check(geometry.RegionBoundary(output,{},rebuilt,budget,op.reason));
     auto less=[&](const RegionSegment& a,const RegionSegment& b){if(a.facet!=b.facet)return a.facet<b.facet;
       for(const auto pair:{std::make_pair(&a.first.u,&b.first.u),std::make_pair(&a.first.v,&b.first.v),std::make_pair(&a.last.u,&b.last.u),std::make_pair(&a.last.v,&b.last.v)}){
         const int order=op.Compare(*pair.first,*pair.second);if(order)return order<0;}return false;};

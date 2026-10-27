@@ -31,7 +31,7 @@ struct TraceFixture {
   MobilityPolicy policy;
   TraceFixture(std::vector<Facet> facets,double angle=45,bool cubic=false) {
     original=std::make_shared<PlanarReference>(facets);std::map<Id,double> errors;MappedFacetReference::CurvedNets nets;
-    const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,1,2},{0,2,1},{1,0,2},{2,0,1},{1,1,1}};
+    const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
     for(const auto& f:facets){errors.emplace(f.id,1e-12);if(cubic){auto& net=nets[f.id];
         for(unsigned q=0;q<10;++q){long double x=0,y=0,z=0;for(unsigned k=0;k<3;++k){
             x+=powers[q][k]*(long double)f.v[k].p.x;y+=powers[q][k]*(long double)f.v[k].p.y;z+=powers[q][k]*(long double)f.v[k].p.z;}

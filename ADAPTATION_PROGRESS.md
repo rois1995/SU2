@@ -45,10 +45,15 @@ edge proposals are never sufficient admission. See the
 [probe measurements](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/reference_network_probe_v1/probe_summary.md).
 No full accepted mesh, transfer or restart has been established.
 Native build37 passed78.18s with1293 unchanged pins, including vendored Eigen.
-Build38 is validating the connected candidate plus publication owner closure:
+Build38 passed111.93s/1293 unchanged pins. Its focused run failed8/53 cases
+(7799/7807 assertions passed,24.94s, pins unchanged): region-boundary
+comparison confused segmentation with geometry, and one new cubic fixture
+swapped two controls. Build39 corrects both and the focused run passes. The connected candidate also adds owner closure:
 metadata refresh must replace its owning volume rows so existing cell versions
 and notifications invalidate dependent work. Donor-generation tracing found no
-separate freeze/persistence mismatch. No runtime pass is claimed yet.
+separate freeze/persistence mismatch. Build39 now passes the53-case focused run (8247 assertions,47.83s, unchanged
+pins), including16 overlapping moves. Six-rank M6 build39 diagnostic is live;
+full accepted adaptation/transfer/restart remains unqualified.
 
 Build35 and build36 passed with 950 unchanged pins. Build36 serial_full/session68944 TERMINAL FAIL99.7804s, pins unchanged: 226/228 cases and 1129639/1129642 assertions passed; largest sampled individual RSS145432576 bytes. Evidence: `staged57/cases/serial_full_20261027T153436_2673844`. The overlapping-star test exhausted atlas work on event 5 (sixth move); curved Euler/RANS runtime again exhausted 67207168 work after 29 accepted private edits and 35 attempts. Retained path history is an architectural blockage not resolved by discarding interior cuts. Develop a connected strategy before MPI or M6 retry; accepted mesh, transfer and restart remain unqualified.
 
