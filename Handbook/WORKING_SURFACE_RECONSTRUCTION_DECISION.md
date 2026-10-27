@@ -359,3 +359,37 @@ This is one connected current-state ownership/scheduling change, not another
 path-routing fallback or an arithmetic limit increase. Its complete-workflow,
 repeated-edit, source/publication/archive and M6 validation is still pending.
 See [verification cost and trust boundaries](GEOMETRY_VERIFICATION_COST.md).
+
+## Connected closure review after build53
+
+The current implementation no longer feeds newly clipped interior subdivisions
+back into shared surface paths: interior/replaced paths use the fixed original
+charts and current endpoint associations; RebuildTraceCoverage takes its paths
+as const input. This removes the diagnosed recurrence in that scope. It does
+not prove arbitrary graph routing or normalize all old boundary contracts.
+
+An inherited local perimeter path is still copied unchanged. Publication checks
+that a changed shared path includes every accepted incident face and every owning
+volume row, but rejection is not closure assembly. A legacy noncanonical path can
+therefore keep constraining subsequent patches. Genuine closed feature curves
+also need an oriented model-arc association: endpoints alone cannot select one
+of two arcs. Preserve that topological information rather than calling it history.
+
+The next connected regression uses actual neighboring volume moves, Directory
+publication and schema8 decode continuation. The earlier16-event overlap fixture
+only remaps a private surface and constructs new parameter states directly; its
+stable counts/work do not qualify the distributed pipeline. Full CFD transfer,
+solution restart and accepted M6 remain separate required checks.
+
+A candidate normalization design is a geometry-only transaction before local
+construction: identify obsolete nonfeature contracts against the fixed reference,
+collect both incident faces and versioned volume owners, reconstruct the shared
+network without moving the physical chord mesh, then publish all changed covers,
+paths and owner versions atomically. This reuses existing metadata publication
+and leaves strict volume-operator input contracts intact. The closure must cover
+the new path's original-geometry footprint, not merely its two old incident faces;
+otherwise a route may leave that union. Plan that closure from current associations
+and the original geometry before reconstruction, rather than trying larger local
+patches after failures. Any support index/workspace must be admitted and discarded
+or rebuilt from current state. No budget increase or routing fallback is proposed.
+This is a design under review, not an implemented capability.

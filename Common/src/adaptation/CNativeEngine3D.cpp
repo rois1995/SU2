@@ -85,14 +85,16 @@ double HeightScore(const Patch& patch,const WallHeights& heights,const PlanarRef
   return 1/(1+std::max(deficit,2e-6));
 }
 using RepairFeature = std::pair<unsigned,std::array<Id,3>>;
-long double GeometryExcess(const Patch& patch,const PlanarReference& base_geometry,double tolerance) {
+// Call only for accepted surfaces or successful operators that have completed surface validation.
+long double CertifiedGeometryExcess(const Patch& patch,const PlanarReference& base_geometry,double tolerance) {
   auto parameters=base_geometry.PrivateParameters(patch);const auto& geometry=parameters?*parameters:base_geometry;
   std::map<Id,Point> nodes;
   for(const auto& c:patch.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
   long double excess=0;
   for(const auto& f:patch.surface) {
     const std::array<Point,3> p{nodes.at(f.v[0]),nodes.at(f.v[1]),nodes.at(f.v[2])};
-    const long double error=std::max(0.,geometry.SurfaceError(f.facet,p)-tolerance);
+    const double bound=geometry.SurfaceErrorForValidatedFace(f.facet,p);
+    const long double error=std::max(0.,bound-tolerance);
     const long double ax=static_cast<long double>(p[1].x)-p[0].x,ay=static_cast<long double>(p[1].y)-p[0].y,az=static_cast<long double>(p[1].z)-p[0].z;
     const long double bx=static_cast<long double>(p[2].x)-p[0].x,by=static_cast<long double>(p[2].y)-p[0].y,bz=static_cast<long double>(p[2].z)-p[0].z;
     excess+=error*error*std::hypot(ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx);
@@ -1236,7 +1238,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         options.memory_ceiling,transfer_memory::Add(bytes(),scratch,directory->ResidentBytes()),
         [&](const FrozenField& field){FieldCounts(stats,field);},tick);
     try {service.Run([&](const RegionMetric& target){
-      bool already_valid=GeometryExcess(old,geometry,options.surface_tolerance)==0;
+      bool already_valid=CertifiedGeometryExcess(old,geometry,options.surface_tolerance)==0;
       bool short_edges=false;
       if(already_valid)for(const auto& c:old.cells) {
         for(unsigned a=0;a<4 && already_valid;++a)for(unsigned b=a+1;b<4;++b) {
@@ -2250,8 +2252,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     auto geometric_change=[&](bool candidate,MetricChange kind) {
       if(!candidate || !curved)return candidate;
       try {
-        const auto before=GeometryExcess(old,geometry,options.surface_tolerance);
-        const auto after=GeometryExcess(fresh,geometry,options.surface_tolerance);
+        const auto before=CertifiedGeometryExcess(old,geometry,options.surface_tolerance);
+        const auto after=CertifiedGeometryExcess(fresh,geometry,options.surface_tolerance);
         geometric_progress=before>0 && after<before*(1-1e-12L);
         if((kind==MetricChange::GeometryRefine && !geometric_progress) ||
            (kind==MetricChange::Coarsen && after>0) ||
@@ -4153,7 +4155,7 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
   const auto& geometry=moved_geometry?*moved_geometry:*options.geometry;
   try{geometry.ExportParameters(patch);}catch(const std::exception&){return false;}
   const double before=MinScore(old);const auto origin=points.at(p);
-  const long double geometric_before=GetShapeAdmission()==ShapeAdmission::Absolute?GeometryExcess(patch,geometry,options.surface_tolerance):0;
+  const long double geometric_before=GetShapeAdmission()==ShapeAdmission::Absolute?CertifiedGeometryExcess(patch,geometry,options.surface_tolerance):0;
   std::vector<Point> targets;std::set<Id> neighbors;
   for(const auto& c:patch.cells)for(auto n:c.v)if(n.id!=p)neighbors.insert(n.id);
   if(geometry.Mapped()) {
@@ -4226,7 +4228,7 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
     auto candidate_parameters=geometry.PrivateParameters(candidate);const auto& candidate_geometry=candidate_parameters?*candidate_parameters:geometry;
     FirstHeightReport height;
     if(GetShapeAdmission()==ShapeAdmission::Absolute && !CheckFirstHeight(candidate,options.wall_heights,candidate_geometry,height,reason)){++report.rejected_frozen;continue;}
-    if(GetShapeAdmission()==ShapeAdmission::Absolute && GeometryExcess(candidate,candidate_geometry,options.surface_tolerance)>geometric_before){++report.rejected_interface;continue;}
+    if(GetShapeAdmission()==ShapeAdmission::Absolute && CertifiedGeometryExcess(candidate,candidate_geometry,options.surface_tolerance)>geometric_before){++report.rejected_interface;continue;}
     bool sized=true;
     for(const auto& c:candidate.cells)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)
       if((c.v[i].id==next_node || c.v[j].id==next_node) && !Certified(c.v[i].p,c.v[j].p,MaximumMetricEdge))sized=false;

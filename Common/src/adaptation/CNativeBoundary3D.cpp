@@ -1251,6 +1251,9 @@ bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle, 
   }
   return false;
 }
+double PlanarReference::SurfaceErrorForValidatedFace(Id id,const std::array<Point,3>& triangle) const {
+  return parameter_view?ParameterError(id,triangle):SurfaceError(id,triangle);
+}
 double PlanarReference::SurfaceError(Id id,const std::array<Point,3>& triangle,KernelStats* stats) const {
   if(parameter_view){if(!ParameterContainsFace(id,triangle,stats))throw std::invalid_argument("Mapped surface leaves its parameter authority.");return ParameterError(id,triangle);}
   id=Canonical(id);

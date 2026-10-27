@@ -17,7 +17,7 @@ nodes may move on the prescribed geometry. No accepted M6 workflow exists.
 
 ## Implemented connected direction
 
-Latest pushed checkpoint `e72901f3bd` on authorized `rois1995/SU2`, branch
+Latest pushed checkpoint `a5a301a0e7` on authorized `rois1995/SU2`, branch
 `codex/native-3d-bl`, explicitly incomplete. Fixed original geometry remains
 separate from current working associations. Canonical original-star/strip paths
 replace history-derived internal paths; one shared reference PSLG proves jointly
@@ -48,14 +48,14 @@ peak,0.592–0.640s/event; returning phases satisfy existing bounds. This is pri
 surface-move scope, not full adaptation. See atlas_checks_20261027T192923_3373582/
 reference_cost_summary.json under staged57.
 
-Complete mapped workflow still FAILS unchanged67,207,168 arithmetic work:
-49 private edits/346 attempts,17 geometry progress,292 optimization trials.
-Selection's empty counters follow phase reset, not acceptance. Captured153 cells/
-57 nodes/90 boundary faces/revision40 contain0 explicit covers/traces. Independent
-production-kernel census finds5 q/J-bad cells and10 oversize cells in2 disjoint
-regions,0 nonpositive orientations. Receipts and exact link/source provenance:
-`staged57/cases/mapped_work_trace_20261027T192656_3366658/`.
-[Current diagnosis](Handbook/GEOMETRY_VERIFICATION_COST.md) includes work attribution.
+Build52 focused stage checks PASS 8 cases/4505 assertions in 9.86465s;
+single-certificate checks PASS 4/123 in 10.819s; atlas checks PASS 57/8420 in
+51.881s, all with unchanged pins. The complete mapped Euler/RANS workflow still
+FAILS at unchanged 67,207,168 arithmetic work in 13.77s: 82 private accepted
+edits/345 attempts, 26 geometry progress, one quality stage, zero construction
+returns and 136 optimization trials. It did not reach transfer/restart. Earlier
+build48 private-capture census and diagnosis remain in
+[geometry verification cost](Handbook/GEOMETRY_VERIFICATION_COST.md).
 
 ## Latest M6 and live owned build
 
@@ -70,12 +70,11 @@ q/J measurements were0 in construction. Actual movement/swaps were observed,
 but accepted boundary movement still needs snapshot comparison, not counters.
 Five-second FP and three-second DWARF software perf sampling used no debugger/
 SIGSTOP. DWARF identifies generic ValidateCoverage/SplitAtlasEdges and repeated
-PrepareCurvedAtlas/CheckSurface/MoveVertex work, not an MPI mismatch. Complete
-quality-entry snapshots are being structurally validated/archived by Terra;
-source_valid=false/exact_continuation=false flags prohibit claiming runtime
-checkpoint or acceptance. Archive job is terminal:6 shards structurally decoded/stream-hash verified,
-667,993 cells/133,738 vertices/34,857 physical vertices,7 archives each<95MiB.
-See private_quality_entry_archive_receipt.json; raw data retained.
+PrepareCurvedAtlas/CheckSurface/MoveVertex work, not an MPI mismatch. The six complete quality-entry shards and common evidence were verified and pushed:
+667,993 cells/133,738 vertices/34,857 physical vertices, seven archives each
+under 95 MiB. They are private, not accepted, with source_valid=false and
+exact_continuation=false; they are neither runtime checkpoints nor transfer/restart
+evidence. See private_quality_entry_archive_receipt.json; raw data retained.
 
 Earlier build46 was deliberately interrupted908.19s to implement the connected
 change, but was progressing:66,336 accepted private edits at its last window.
@@ -83,26 +82,23 @@ Its interruption note is corrected; absence of a mesh snapshot did not mean no
 progress. Earlier build39's timed GDB left a rank stopped: instrumentation confound,
 not evidence of an MPI mismatch. Never repeat timed debugger attachment.
 
-## Current connected implementation — build50 running
+## Current connected implementation
 
-Phase/generation preservation is applied in CNativeEngine3D.cpp. Build49 passed
-99.18s/1293 unchanged pins. Mapped runtime FAIL13.85s unchanged limits:82 accepted/
-345 attempts,26 geometry progress,1 quality stage,0 construction returns;
-136 optimization trials. Geometry arithmetic67m is exhausted; subsequent
-refusals consume logical work4096. Private cached demands still include36
-geometry cells and57 metric/height cells; no accepted return/transfer.
+Build53 passed; atlas_checks_20261027T205356_3596433 PASS52.007s with
+unchanged pins. Mapped runtime_20261027T205308_3593869 FAIL11.87s, 201/203
+assertions: curved flow exhausted 67,207,168 arithmetic work after 60 private
+accepted edits/74 attempts and no quality stage; CFD state retained. Skipping
+proof changes the exhaustion location, so the numerical difference is not a
+causal comparison. Full mesh and transfer/restart remain unqualified.
 
-Build50/session94342 TERMINAL PASS96.17s. Stage checks6/7 cases,4439/4443
-assertions; four failures are obsolete construction height_measured==0 expectations.
-Tests now independently verify retained current heights/unknown counts.
-Build51/session91720, ninja3540771 is LIVE: copied explicit descriptor certificate
-reuse, projected volume-quality screening before full boundary reconstruction,
-actual trace override validation and differential preview/movement tests.
-Pinned C++/helpers stay unchanged. Build50 test updated from the obsolete
-“yield after one frontier” contract to productive descendant generations without
-q/J measurement. Keep pinned C++/helpers unchanged until terminal. Then run
-focused stage/coarsening/construction checks and compiled filter audit. Actual
-mapped workflow is still the known failing capability case; do not raise limits.
+Read-only review found the manual error-kernel duplication differed in binding,
+ID and transient semantics. The pending correction routes already-validated
+faces through shared PlanarReference::SurfaceErrorForValidatedFace and unchanged
+ParameterError, with checked legacy fallback. Engine callers were audited for
+accepted or successfully validated surfaces; differential tests compare exact
+errors for original faces, probe children and explicit coverage. Build54 is live
+(session3213, wrapper3599958); 1293 source pins remain frozen until terminal.
+
 
 The implementation preserves current rows/edge/geometry measurements through
 handoff, refreshing only missing shape/requested-height measurements. It checks
@@ -112,12 +108,9 @@ finite generations reseed current demand before quality; a stalled generation
 may hand off. Work/time/stagnation and all final gates remain. It is not yet
 validated as an integrated change and does not establish convergence.
 
-Next cost findings: boundary smoothing repeatedly prepares the same accepted
-star for19 proposals and reconstructs before scoring volume quality; exact copied
-accepted explicit descriptors also disable proof reuse. Generic arrangement
-verification is the measured M6 hot path. Assess connected proof ownership/
-operator preparation/quality screening, not arithmetic tweaks or budget growth.
-Reuse existing facilities and preserve frozen donor/source/load trust boundaries.
+Earlier profiling identified repeated accepted-star preparation and proof work;
+build52/53 address parts of that cost, with complete runtime validation pending.
+Preserve frozen donor/source/load trust boundaries and avoid budget growth.
 
 After integrated focused checks: appropriate broad serial/MPI and separately
 scheduled wider workflows, fresh M6, repeated adaptation/publication/transfer/

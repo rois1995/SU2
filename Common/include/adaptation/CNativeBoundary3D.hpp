@@ -80,6 +80,9 @@ class PlanarReference {
   /*! Conservative physical distance between a planar triangle and its analytic radial/graph authority.
    * Zero for exact faceted authority. Includes nodal projection residual and arithmetic envelope. */
   double SurfaceError(Id facet, const std::array<Point,3>& triangle, KernelStats* stats = nullptr) const;
+  /*! Error-only mapped query; caller must already have validated this exact face and associations.
+   * Unmapped geometry retains the checked path. Does not certify containment or publication. */
+  double SurfaceErrorForValidatedFace(Id facet,const std::array<Point,3>& triangle) const;
   /*! Lowest canonical same-marker patch containing the complete oriented triangle. Broad phase never admits geometry.
    * Missing/invalid geometry leaves facet unchanged; nonfinite query coordinates throw. */
   bool FindFace(int marker, const std::array<Point, 3>& triangle, Id& facet, KernelStats* stats = nullptr) const;

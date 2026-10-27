@@ -7,6 +7,22 @@ Updated: 2026-10-27. Detailed failures and provenance remain linked below.
 
 **DC-17 and DC-18 remain open. No full M6 adaptation has passed final acceptance.**
 
+Build53 passed; atlas_checks_20261027T205356_3596433 PASS52.007s with
+unchanged pins. Mapped runtime_20261027T205308_3593869 FAIL11.87s, 201/203
+assertions: curved flow exhausted 67,207,168 arithmetic work after 60 private
+accepted edits/74 attempts and no quality stage; CFD state retained. Skipping
+proof changes the exhaustion location, so the numerical difference is not a
+causal comparison. Full mesh and transfer/restart remain unqualified.
+
+Read-only review found the manual error-kernel duplication differed in binding,
+ID and transient semantics. The pending correction routes already-validated
+faces through shared PlanarReference::SurfaceErrorForValidatedFace and unchanged
+ParameterError, with checked legacy fallback. Engine callers were audited for
+accepted or successfully validated surfaces; differential tests compare exact
+errors for original faces, probe children and explicit coverage. Build54 is live
+(session3213, wrapper3599958); 1293 source pins remain frozen until terminal.
+
+
 Construction is validity-first and q/J-free; metric/BL-aware improvement follows,
 with all final q/J/size/height/geometry/transfer gates unchanged. The connected
 coarsening closure, large-star movement, clipping correction and collision paging

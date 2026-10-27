@@ -1147,6 +1147,7 @@ TEST_CASE("Curved geometry error probes use projected associations without publi
   const std::array<Point,3> actual{{face.v[0].p,face.v[1].p,projected}};FaceCoverage cover;
   REQUIRE(g.ResolveSingleChart(0,bindings,cover,budget,reason));const double expected=g.SurfaceError(cover,actual,budget);
   CHECK(probe->SurfaceError(0,actual)==Approx(expected).margin(1e-12));CHECK(std::isfinite(expected));
+  CHECK(probe->SurfaceErrorForValidatedFace(0,actual)==probe->SurfaceError(0,actual));
   for(unsigned k=0;k<3;++k) {
     const unsigned j=(k+1)%3,other=(k+2)%3;const auto a=face.v[k],b=face.v[j],c=face.v[other];
     Edge edge{a.id,b.id};std::sort(edge.begin(),edge.end());const auto midpoint=g.EdgePoint(edge,.5);
@@ -1159,6 +1160,7 @@ TEST_CASE("Curved geometry error probes use projected associations without publi
       const std::array<Point,3> triangle=side==0?std::array<Point,3>{{a.p,point,c.p}}:std::array<Point,3>{{point,b.p,c.p}};
       FaceCoverage explicit_cover;const bool resolved=g.ResolveSingleChart(0,child,explicit_cover,budget,reason);INFO(reason);REQUIRE(resolved);
       const auto explicit_error=g.SurfaceError(explicit_cover,triangle,budget);CHECK(probe->SurfaceError(0,triangle)==Approx(explicit_error).margin(1e-12));
+      CHECK(probe->SurfaceErrorForValidatedFace(0,triangle)==probe->SurfaceError(0,triangle));
     }
   }
   CHECK(accepted->Snapshot()==snapshot);CHECK(accepted->Records().size()==points.size());
@@ -1204,6 +1206,8 @@ TEST_CASE("Accepted face certificates require complete unchanged contracts", "[N
   explicit_data.traces.emplace(edge,edge_trace);
   auto explicit_state=std::make_shared<BoundaryParameterState>(fixture.geometry,points,skin,1,SIZE_MAX,0,explicit_data,state->Mobility(),&budget);
   auto explicit_reference=PlanarReference::WithParameters(definition,explicit_state);Patch copied;copied.coverage=explicit_data;
+  auto error_budget=GeometryAtlasBudget();auto error_view=explicit_reference->PrivateParameters(Patch{},&error_budget);
+  CHECK(error_view->SurfaceErrorForValidatedFace(face.facet,actual)==error_view->SurfaceError(face.facet,actual));
   auto copy_budget=GeometryAtlasBudget();copy_budget.maximum_work=0;auto copied_view=explicit_reference->PrivateParameters(copied,&copy_budget);
   CHECK(copied_view->HasAcceptedFaceCertificate(face,nodes,empty));CHECK(copied_view->ContainsFace(face.facet,actual));CHECK(copy_budget.work==0);
   copied.coverage.traces.at(edge).pieces.back().end=ExactRatio{};auto changed_budget=GeometryAtlasBudget();

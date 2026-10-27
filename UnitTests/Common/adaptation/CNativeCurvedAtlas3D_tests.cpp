@@ -101,8 +101,8 @@ TEST_CASE("Curved atlas refuses holes changed retained nodes and exhausted resou
   auto overridden=fixture.patch;const auto& face=overridden.surface.front();Edge edge{face.v[0],face.v[1]};std::sort(edge.begin(),edge.end());
   EdgeTrace malformed;auto override_work=RemappingBudget();REQUIRE(fixture.reference->ResolveTrace(edge,face,malformed,override_work,reason));
   REQUIRE_FALSE(malformed.pieces.empty());malformed.pieces.back().end=ExactRatio{};overridden.coverage.traces.emplace(edge,malformed);
-  auto changed=fixture.reference->PrivateParameters(overridden,&override_work);
-  CHECK_FALSE(PrepareCurvedAtlas(overridden,*changed,Id(0),atlas,override_work,reason));CHECK(atlas.data==saved);
+  auto trace_view=fixture.reference->PrivateParameters(overridden,&override_work);
+  CHECK_FALSE(PrepareCurvedAtlas(overridden,*trace_view,Id(0),atlas,override_work,reason));CHECK(atlas.data==saved);
   BoundaryCoverage output;REQUIRE(RemapAtlasSurface(atlas,fixture.patch.surface,fixture.points,output,budget,reason));
   const auto words=EncodeBoundaryAtlas(output,fixture.policy);
   auto work=RemappingBudget();work.maximum_work=0;CHECK_FALSE(RemapAtlasSurface(atlas,fixture.patch.surface,fixture.points,output,work,reason));

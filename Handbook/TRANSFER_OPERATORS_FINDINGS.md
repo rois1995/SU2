@@ -29,10 +29,29 @@ The next connected campaign now explicitly includes `Distributed barycentric tra
 `[NativeRuntime3D]`, `[NativeCurvedRuntime3D]`, `[NativePolicyVeto3D]`, and
 `[NativeBLPolicyRuntime3D]`; assess wider geometry/restart cases separately. The
 filters retain conservative transfer and `[NativeCurvedLifecycle3D]`.
-The expanded compiled selection and execution remain to be verified.
+Compiled build50 selections verify239 serial/216 MPI cases including the intended
+transfer/history cases. Execution of the updated integrated broad campaign and
+separately scheduled wide workflows is still pending generation closure.
 This is a validation coverage gap, not an identified transfer defect.
 
-Build35 and build36 passed with 950 unchanged pins. Build36 serial_full/session68944 TERMINAL FAIL99.7804s, pins unchanged: 226/228 cases and 1129639/1129642 assertions passed; largest sampled individual RSS145432576 bytes. Evidence: `staged57/cases/serial_full_20261027T153436_2673844`. The overlapping-star test exhausted atlas work on event 5 (sixth move); curved Euler/RANS runtime again exhausted 67207168 work after 29 accepted private edits and 35 attempts. Retained path history is an architectural blockage not resolved by discarding interior cuts. Develop a connected strategy before MPI or M6 retry; accepted mesh, transfer and restart remain unqualified.
+Current connected geometry/source qualification is build52: focused source/archive/
+publication tests pass within57 cases/8420 assertions, but the complete mapped
+Euler/RANS workflow still stops during generation at its unchanged arithmetic
+limit. Transfer and BDF/reload stages are not reached for those failing variants.
+Build52 mapped runtime failed in 13.77s after 82 private accepted edits/345
+attempts at the unchanged 67,207,168 work limit; its focused stage, certificate
+and atlas checks pass. Build53 separates internal already-certified GeometryExcess
+measurement from repeated validity proof, retaining trust boundaries; its mapped
+runtime is live and has no result yet. This is not a newly identified transfer-kernel
+defect. TR-003 remains pending.
+M6build48 stopped at elapsed time without an accepted mesh; its archived private
+quality-entry snapshots were verified and pushed but explicitly lack exact-continuation/source validity and
+must not be treated as solution-transfer or restart evidence. See the current
+[verification diagnosis](GEOMETRY_VERIFICATION_COST.md) for generation evidence.
+
+Historical build35/36 failures (including the sixth overlapping move and the
+curved runtime's29-edit stop) remain preserved in staged57 receipts. The current
+16-move bound passes, but that narrower progress does not qualify transfer.
 
 Full M6 transfer remains unqualified because no complete accepted M6 mesh exists.
 
