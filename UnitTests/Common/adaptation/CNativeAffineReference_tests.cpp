@@ -994,8 +994,18 @@ TEST_CASE("Coordinated retained-face covers reparameterize one shared trace atom
     delta.faces.emplace(key,cover);changed_face=key;unchanged_cover=identity;
   }
   REQUIRE(delta.faces.size()==2);REQUIRE(delta.traces.count(shared));
+  auto facade=PlanarReference::WithParameters(definition,state);Patch sparse;sparse.surface=surface;
+  CHECK_FALSE(facade->HasExplicitCoverage(sparse));
+  auto supplied=sparse;supplied.coverage=delta;CHECK(facade->HasExplicitCoverage(supplied));
+  auto overlay_work=GeometryAtlasBudget();auto overlay=facade->PrivateParameters(supplied,&overlay_work);
+  CHECK(overlay->HasExplicitCoverage(sparse));CHECK_FALSE(facade->HasExplicitCoverage(sparse));
   EdgeTrace inherited;auto trace_work=GeometryAtlasBudget();REQUIRE(state->ResolveTrace(shared,*state->IncidentFace(shared),inherited,trace_work,reason));
   CHECK_FALSE(geometry->EqualTraces(inherited,delta.traces.at(shared),trace_work,reason));
+  const auto trace_snapshot=state->Snapshot();BoundaryCoverage trace_only;trace_only.traces.emplace(shared,inherited);
+  auto same_work=GeometryAtlasBudget();const auto same=state->Prepare({}, {},reason,SIZE_MAX,0,trace_only,&same_work);INFO(reason);CHECK(same.valid);
+  CHECK(state->Snapshot()==trace_snapshot);trace_only.traces.at(shared)=delta.traces.at(shared);
+  auto changed_work=GeometryAtlasBudget();const auto changed=state->Prepare({}, {},reason,SIZE_MAX,0,trace_only,&changed_work);INFO(reason);CHECK_FALSE(changed.valid);
+  CHECK(state->Snapshot()==trace_snapshot);
   Owned owned;OwnedCell row;row.cell={0,{nodes.at(1),nodes.at(9),nodes.at(21),nodes.at(40)}};
   for(unsigned k=0;k<4;++k)row.physical[k]={true,100+k};if(!world.rank)owned.emplace(0,row);
   Directory directory(world,true,state.get());REQUIRE(directory.Build(owned,reason));const auto initial=state->Snapshot(),directory_before=directory.Snapshot();
@@ -1013,6 +1023,7 @@ TEST_CASE("Coordinated retained-face covers reparameterize one shared trace atom
   CHECK(state->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);CHECK(no_work.work==0);
   auto publication=GeometryAtlasBudget();const bool accepted=directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,{},delta,&publication);INFO(reason);REQUIRE(accepted);
   CHECK(state->Revision()==2);CHECK(state->Surface().size()==surface.size());CHECK(state->Records().size()==points.size());
+  CHECK(facade->HasExplicitCoverage(sparse));
   for(const auto& point:state->Records()){CHECK(point.second.faces==3);CHECK(point.second.point.binding.feature==points.at(point.first).binding.feature);
     CHECK(point.second.point.node.p.x==points.at(point.first).node.p.x);CHECK(point.second.point.node.p.y==points.at(point.first).node.p.y);CHECK(point.second.point.node.p.z==points.at(point.first).node.p.z);}
   CHECK(state->Coverage().faces.size()==2);CHECK(state->Snapshot()!=initial);CHECK(publication.work>0);CHECK(publication.work<=publication.maximum_work);

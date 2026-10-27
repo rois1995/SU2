@@ -168,7 +168,7 @@ TEST_CASE("Curved boundary vertex movement crosses seams on successive accepted 
 TEST_CASE("Fresh curved working patches forget interior history over repeated accepted events", "[NativeCurvedAtlasRemap3D][NativeCurvedAtlas3D]") {
   RemappingFixture fixture(false);auto accepted=fixture.state;auto parameters=fixture.points;
   auto surface=fixture.surface,local=fixture.patch.surface;BoundaryCoverage previous;
-  std::map<unsigned,std::vector<char>> repeated;Id moving=0;
+  std::map<unsigned,std::vector<char>> repeated;std::map<unsigned,std::pair<size_t,size_t>> resources;Id moving=0;
   for(unsigned event=0;event<16;++event) {
     auto budget=RemappingBudget();std::string reason;const auto snapshot=accepted->Snapshot();
     auto reference=PlanarReference::WithParameters(fixture.definition,accepted);
@@ -193,6 +193,9 @@ TEST_CASE("Fresh curved working patches forget interior history over repeated ac
     surface=fixture.Moved(moving,next,surface);
     auto next_state=std::make_shared<BoundaryParameterState>(fixture.geometry,parameters,surface,accepted->Revision()+1,
         SIZE_MAX,0,fresh,fixture.policy,&budget);
+    if(event>=2){const auto found=resources.find(phase);INFO(event);INFO(budget.work);INFO(budget.peak_bytes);
+      if(found==resources.end())resources.emplace(phase,std::make_pair(budget.work,budget.peak_bytes));
+      else {CHECK(budget.work<=found->second.first);CHECK(budget.peak_bytes<=found->second.second);}}
     CHECK(accepted->Snapshot()==snapshot);CHECK(next_state->Authority()==fixture.geometry);
     previous=std::move(fresh);local=std::move(candidate);accepted=std::move(next_state);moving=next;
   }

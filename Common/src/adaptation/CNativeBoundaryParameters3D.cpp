@@ -533,7 +533,7 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
         if(!geometry->ValidateCoverage(face.facet,binding,realized,cover,traces,budget,reason))throw std::invalid_argument(reason);
         (face.insert?after:before).push_back(std::move(cover));
       }
-      if(!geometry->ValidateCoverageReplacement(before,after,budget,reason))throw std::invalid_argument(reason);
+      if((!before.empty()||!after.empty())&&!geometry->ValidateCoverageReplacement(before,after,budget,reason))throw std::invalid_argument(reason);
     }
     for(const auto& row:degree) {
       const auto old=records.find(row.first);const uint64_t count=old==records.end()?0:old->second.faces;const int64_t delta=row.second;
@@ -666,6 +666,18 @@ void PlanarReference::ExportPointParameters(Patch& patch)const {
     BoundaryPoint record=*p;record.node={id,actual.at(id)};prepared.emplace(id,record);
   }
   patch.parameters.swap(prepared);
+}
+bool PlanarReference::HasExplicitCoverage(const Patch& patch)const {
+  if(!parameter_view)return false;parameter_view->Check();
+  if(!patch.coverage.faces.empty()||!patch.coverage.traces.empty())return true;
+  const auto& accepted=parameter_view->accepted->Coverage();
+  for(const auto& face:patch.surface) {
+    const auto key=FaceOrder(face.v);
+    if(parameter_view->coverage.faces.count(key)||accepted.faces.count(key))return true;
+    for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());
+      if(parameter_view->coverage.traces.count(edge)||accepted.traces.count(edge))return true;}
+  }
+  return false;
 }
 void PlanarReference::ExportParameters(Patch& patch,AtlasBudget* reservation)const {
   if(!parameter_view)return;parameter_view->Check();ExportPointParameters(patch);

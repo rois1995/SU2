@@ -55,6 +55,11 @@ for name in ("serial_full", "mpi6"):
                                    "Distributed conservative transfer:*,Single precision transfer contract,"
                                    "[NativeCurvedLifecycle3D]")
 
+    # Cover publication/history/restart and barycentric transfer as well as conservative kernels.
+    CASES[name] = ranks, CASES[name][1] + (",[NativeCurvedTransaction3D],[NativeRuntime3D],"
+                                         "[NativeCurvedRuntime3D],[NativePolicyVeto3D],"
+                                         "[NativeBLPolicyRuntime3D],Distributed barycentric transfer:*")
+
 # Geometry-based serial transfer fixtures require a halo-free mesh. Their distributed
 # counterparts above exercise gathered geometry, partition equivalence and history.
 ranks, filters = CASES["serial_full"]

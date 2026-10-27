@@ -23,6 +23,19 @@ MPI6/session24105 passes159 cases on every rank in37.58s, with unchanged pins.
 No new transfer defect was found. The difficult M6
 stage capture remains private progress and supplies no accepted transfer workflow.
 
+Audit found that the previous `serial_full` and `mpi6` filters omitted ordinary
+distributed barycentric cases and several runtime, history and veto fixtures.
+The next connected campaign now explicitly includes `Distributed barycentric transfer:*`, `[NativeCurvedTransaction3D]`,
+`[NativeRuntime3D]`, `[NativeCurvedRuntime3D]`, `[NativePolicyVeto3D]`, and
+`[NativeBLPolicyRuntime3D]`; assess wider geometry/restart cases separately. The
+filters retain conservative transfer and `[NativeCurvedLifecycle3D]`.
+The expanded compiled selection and execution remain to be verified.
+This is a validation coverage gap, not an identified transfer defect.
+
+Build34 expanded serial/session69002 failed in mapped curved Euler/RANS runtime after
+29 private edits at the unchanged atlas work budget 67207168; the remap/Finish cost
+diagnosis is pending. Pins remained unchanged; MPI and M6 retry have not run.
+
 Full M6 transfer remains unqualified because no complete accepted M6 mesh exists.
 
 ## TR-003 — Source envelopes must retain cross-chart correspondence

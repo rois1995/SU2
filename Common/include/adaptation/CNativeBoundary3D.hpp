@@ -99,6 +99,7 @@ class PlanarReference {
   SU2NativeGeometry::AtlasBudget* AtlasReservation()const;
   void ExportPointParameters(Patch& patch)const;
   void ExportParameters(Patch& patch,SU2NativeGeometry::AtlasBudget* reservation=nullptr)const;
+  bool HasExplicitCoverage(const Patch& patch)const;
   const SU2NativeGeometry::MobilityPolicy* Mobility()const;
   bool ResolveCoverage(const SurfaceFace&,SU2NativeGeometry::FaceCoverage&,SU2NativeGeometry::AtlasBudget&,std::string&)const;
   bool ResolveTrace(Edge,const SurfaceFace&,SU2NativeGeometry::EdgeTrace&,SU2NativeGeometry::AtlasBudget&,std::string&)const;

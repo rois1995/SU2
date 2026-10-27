@@ -304,10 +304,17 @@ void Finish(const Patch& old, Patch& proposal, const Skin& expected, const Physi
     auto* reservation=reference.AtlasReservation();
     if(!reservation)throw std::invalid_argument("Curved topology edit requires an admitted atlas reservation.");
     reference.ExportPointParameters(proposal);
-    SU2NativeGeometry::CurvedAtlas atlas;
-    if(!SU2NativeGeometry::PrepareCurvedAtlas(old,reference,std::nullopt,atlas,*reservation,reason) ||
-       !SU2NativeGeometry::RemapAtlasSurface(atlas,proposal.surface,proposal.parameters,proposal.coverage,*reservation,reason))
-      throw std::invalid_argument(reason);
+    bool direct=!reference.HasExplicitCoverage(old)&&!reference.HasExplicitCoverage(proposal);
+    const auto& geometry=reference.Parameters()->Geometry();
+    for(const auto& face:proposal.surface)for(Id id:face.v)
+      direct=direct&&geometry.Supports(face.facet,proposal.parameters.at(id).binding);
+    // Implicit chart-local edits already have exact reference coordinates; avoid constructing a second correspondence.
+    if(!direct) {
+      SU2NativeGeometry::CurvedAtlas atlas;
+      if(!SU2NativeGeometry::PrepareCurvedAtlas(old,reference,std::nullopt,atlas,*reservation,reason) ||
+         !SU2NativeGeometry::RemapAtlasSurface(atlas,proposal.surface,proposal.parameters,proposal.coverage,*reservation,reason))
+        throw std::invalid_argument(reason);
+    }
   }
   reference.ExportParameters(proposal);
   CheckSurface(proposal, expected, reference, stats);

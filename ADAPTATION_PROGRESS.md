@@ -29,8 +29,11 @@ Six-rank M6 build32/session90654 TERMINAL FAIL54.3039s, pins unchanged; largest 
 The import failure is a missing reservation on read-only accepted-state face lookup.
 Build33/session45827 PASS57.15s,950 unchanged pins. Focused atlas checks
 PASS38.85s:45 cases/7610 assertions, including exact accepted lookup without a
-reservation and rejection of altered coordinates/orientation/marker. M6 retry
-session31910 is live; C++/helpers remain frozen.
+reservation and rejection of altered coordinates/orientation/marker. M6 retry/session31910 TERMINAL REJECT190.56s with unchanged pins after814
+private edits; unchanged trace-only metadata incorrectly invoked an empty
+face-region proof. CFD state retained. Build34/session16636 PASS87.15s/950 unchanged pins. Expanded build34 serial_full/session69002 TERMINAL FAIL94.85s, pins unchanged: 226/227 cases and 1129578/1129580 assertions passed. Mapped native runtime curved Euler/RANS failed after 29 private edits at the unchanged atlas work budget 67207168. Accepted mesh, transfer and restart remain unqualified.
+
+Build35/session41478 is live; C++ sources and validation helpers are frozen. Finish now uses direct immutable-chart ExportParameters and CheckSurface only when all affected patch, private-view and accepted face/edge correspondence is implicit and candidate bindings support the anchors. Explicit or cross-chart correspondence selects fresh PL reconstruction upfront, with no failure fallback. Prepare retains whole-union, trace and incident-face proofs. Existing fixtures now check these predicates and per-phase work/peak bounds over 16 events. Build34 failure showed unnecessary reconstruction, not renewed history growth. Build35 is unvalidated; qualify curved runtime, then broader serial/MPI and the difficult M6 workflow.
 
 
 Build19 serial182 cases/1,121,344 assertions and MPI6 all159 cases/rank passed;

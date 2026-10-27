@@ -1,154 +1,74 @@
 # Codex handoff — current state, 2026-10-27
 
-Continue until DC-17/DC-18 and ensuing defects are verified closed. Keep the local
-[TODO](ADAPTATION_TODO.md) and tracked [progress companion](ADAPTATION_PROGRESS.md)
-current. Do not mistake a local repair, checkpoint or passing fixture for full
-adaptation acceptance. Permanent architecture/cadence/resource rules: [AGENTS.md](AGENTS.md).
-Keep transfer-specific bugs, improvements and validation status current in the
-[transfer operators ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
+Continue until DC-17/DC-18 and ensuing defects are verified closed. Maintain the
+local [TODO](ADAPTATION_TODO.md), tracked [progress](ADAPTATION_PROGRESS.md), and
+[transfer ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md). Architecture, cadence,
+resource and staged-construction instructions remain in [AGENTS.md](AGENTS.md).
 
-## Goal and direction
+## Goal and open obligations
 
-Accepted full ONERA M6 Euler adaptation, then RANS, through general metric/geometry
-operators: q>=.20,J>=.05,edge<=1.8,h0 within10%,500k metric complexity (not tet count),
-prescribed geometry/body/features, conservative transfer and restart. Curvature uses
-ADAP_HAUSD in mesh units independently ofh0. No full M6 has passed acceptance.
+Accepted full ONERA M6 Euler adaptation, then RANS, through general metric and
+geometry operators: q>=.20, J>=.05, edge<=1.8, requested h0 within 10%, 500k
+metric complexity (not tet count), prescribed geometry/body/features,
+conservative transfer and restart. ADAP_HAUSD is in mesh units independently of
+h0. No full M6 has passed acceptance.
 
-Construction is validity-first: no q/J measurement/ranking/floors; exact positivity,
-topology, authority membership/contact remain hard. Quality/BL-aware improvement
-follows with unchanged final gates. Physical boundary coordinates may change.
-Large complete vertex stars now move atomically across owners; original curved
-chart restrictions remain unresolved. See [staged scope](Handbook/STAGED_NATIVE_ADAPTATION.md)
-and [curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md).
+Construction is validity-first: no q/J measurement, shape ranking or quality
+veto; exact positivity, topology, authority/contact and body separation remain
+mandatory. Quality/BL-aware improvement enforces unchanged final gates. Boundary
+nodes may redistribute on prescribed geometry. Complete the distributed workflow
+and solver/transfer/restart checks; a local fixture or private capture is not an
+accepted mesh. See [staged scope](Handbook/STAGED_NATIVE_ADAPTATION.md) and
+[curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md).
+
+Open work includes changing-frame gradation (21/9,393 violations, worst 1.406),
+normal-only M6 budget profiles above 500k (best 821,265 +/- 53,688), whole-field
+normalization, curved BL support/chord/quadrature, FIRST_ROW surface-error demands,
+fitted seams, automatic curved initialization and transfer/restart qualification.
+Normal-only contract binds; tangential growth outside the protected band remains
+unanswered. Preserve all final gates and avoid scenario-specific dispatch.
 
 ## Live work and validation
 
-**Clean working-reference reconstruction passes focused checks; M6 remains open.**
-Build32/session33069 PASS78.14s/950 unchanged pins (build30 compiled production
-code but a test helper name failed; build31 linked after that fix). Focused
-atlas_checks/session40070 PASS38.79s:45 cases/7561 assertions, pins unchanged.
-Actual two-event MoveVertex,16-event repeated reconstruction with normalized
-stable descriptors, nonseparating feature motion/burial refusal, constrained
-reference history/holes, coordinated shared paths, cubic backend, archive/source
-checks pass. Compiled-binary listing verifies all14 intended cases in the three
-new test files are selected (45 total); earlier omitted-tag claims are corrected
-in the linked implementation history.
+Build33/session45827 PASS57.15s, 950 unchanged pins. Focused atlas checks pass
+45 cases/7610 assertions in 38.85s, including accepted lookup without a reservation
+and rejection of altered coordinates/orientation/marker. These focused results do
+not qualify an accepted M6 mesh or whole workflow. The prior build32 M6 diagnostic
+failed at import before meshing; its evidence and the intervening fix are recorded
+in [implementation history](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
 
-Six-rank M6 build32/session90654 TERMINAL FAIL54.3039s, pins unchanged; largest sampled individual RSS392314880 bytes. Setup work174193 passed, but import rejected “Native3D physical triangle leaves its immutable oriented marker facets.” before meshing. Evidence: `staged57/cases/m6_stage_20261027T144634_2539145`. Full accepted mesh, broad serial/MPI, adaptation, transfer and restart remain unqualified.
-The import failure is a missing reservation on read-only accepted-state face lookup.
-Build33/session45827 PASS57.15s,950 unchanged pins. Focused atlas checks
-PASS38.85s:45 cases/7610 assertions, including exact accepted lookup without a
-reservation and rejection of altered coordinates/orientation/marker. M6 retry
-session31910 is live; C++/helpers remain frozen.
+Six-rank M6 build33/session31910 TERMINAL REJECT190.56s, pins unchanged. It passed
+import/source preparation and made814 private edits, then rejected “Empty reference
+coverage replacement.” Original CFD mesh/solution retained; no quality-entry
+snapshot, so the diagnostic wrapper correctly fails. Evidence: `staged57/cases/m6_stage_20261027T145416_2560816`.
+Trace-only unchanged metadata incorrectly invoked a nonempty face-region proof.
+Build34/session16636 PASS87.15s/950 unchanged pins. The guard skips that proof
+only when both face lists are empty; changed traces still require all incident
+faces. Expanded build34 serial_full/session69002 TERMINAL FAIL94.85s, pins unchanged: 226/227 cases and 1129578/1129580 assertions passed. Mapped native runtime curved Euler/RANS failed after 29 private edits at the unchanged atlas work budget 67207168. Accepted mesh, transfer and restart remain unqualified.
 
+Build35/session41478 is live; C++ sources and validation helpers are frozen. Finish now uses direct immutable-chart ExportParameters and CheckSurface only when all affected patch, private-view and accepted face/edge correspondence is implicit and candidate bindings support the anchors. Explicit or cross-chart correspondence selects fresh PL reconstruction upfront, with no failure fallback. Prepare retains whole-union, trace and incident-face proofs. Existing fixtures now check these predicates and per-phase work/peak bounds over 16 events. Build34 failure showed unnecessary reconstruction, not renewed history growth. Build35 is unvalidated; qualify curved runtime, then broader serial/MPI and the difficult M6 workflow.
 
-Latest pushed WIP: `527cb68e53`; the canonical vertex/edge sampling correction and
-one public-error assertion fix are local. [Connected design and retained failures](Handbook/CURVED_ATLAS_IMPLEMENTATION.md),
-[backend/CAD plan](Handbook/GEOMETRY_BACKEND_PLAN.md). Open CASCADE/importers remain
-planned; current cubic authority and all native archives remain authoritative.
-
-The exact-coordinate fast paths certify floating bounds by exact comparison and
-recognize coprime dyadic coordinates; existing fallback/validation remains.
-Edge-normal restriction now uses Bernstein controls to avoid false sharp seams.
-See [implementation/validation findings](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
-Previous focused checkpoint: `f374ea8a23`; see the current checkpoint above.
-Primitive checkpoint `7e41461874` includes earlier standalone evidence. Detailed
-build/case receipts are in `staged57` under the DC17/18 evidence directory.
+Latest pushed checkpoint: `1975672936`. Cross-chart design, retained failures and
+validation: [curved atlas implementation](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
+The native [geometry-backend interface](Handbook/GEOMETRY_BACKEND_PLAN.md) is
+implemented and exercised; Open CASCADE/importers remain planned. Cubic geometry
+and existing archives remain authoritative. Detailed build13–32 evidence,
+checkpoints and links: [validation history](Handbook/VALIDATION_HISTORY_THROUGH_BUILD32.md).
 The capture analyzer supports legacy/schema8 payloads; synthetic checks pass.
-Broader serial/MPI and difficult M6 runs are pending on the new code.
 
- Build19 broad serial/
-session28247 PASS59.55s:182 cases/1,121,344 assertions. MPI6/session24105
-PASS37.58s:159 cases on every rank. Both preserve all pins. Receipts live under
-`staged57/cases/serial_full_20261027T103743_1836407` and
-`staged57/cases/mpi6_20261027T103917_1840976` in
-`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1`.
-
-M6 comparison/session40354 TERMINAL PASS613.220s with unchanged pins and complete
-six-rank shards. Every entry owned/donor/parameter shard is byte-identical to
-build18. At the same four-window stop, cells682,193 versus680,869, q debt6559.099
-versus6481.093, J11290.032 versus11193.364, nearly identical size debt892329.681.
-Nested490 moves include seven replaced physical entry points. Relaxation executes,
-but the short difficult-case result is worse. Do not tune another local ordering
-variant or repeat a blind full timeout; address connected cross-chart geometry.
-This remains private diagnostic state, not M6 acceptance or an infeasibility proof.
-
-Latest pushed `17902da07b`: staged existing-point relaxation, topology improvement,
-then enrichment, sharing existing bounded work; nested operation counts accrue
-only to published repairs. Build19/session53468 PASS729.749s,933 unchanged pins.
-Focused quality_checks/session37382 PASS9.470s,10 cases/4539 assertions. Initial
-sandbox launch89913 stopped before tests at MPI initialization; receipt retained.
-Build19 serial/MPI integration, transfer and restart pass. Full M6 acceptance
-remains unqualified.
-
-Pushed `64953f3b69` preserves build18 diagnostic receipts. Its six-rank capture/
-session11197 completed in623.327s with unchanged pins/donors and all complete shards.
-Over248 quality rounds, cells grew664,744→680,869, q debt rose0.76%, J debt fell0.30%,
-size debt fell1.28%. All947 commits came from nested optimization, hidden by the
-old reconnected counter. Shards prove3,215 added interior points, no removed/moved
-entry points and unchanged physical bindings. This supports correcting insertion
-before smoothing; it does not establish a new aggregate gate or M6 infeasibility.
-Current comparison stops after four quality windows, preserves private snapshots,
-and is neither exact scheduler continuation nor accepted adaptation.
-[Design, receipts and interpretation](Handbook/M6_QUALITY_STAGE_PROGRESS.md).
-
-Build18 observer/capture focused serial and MPI6 checks pass. Build17 broad serial
-passes179 cases/1,121,211 assertions and MPI6 passes156 cases/rank, with unchanged
-pins. That integration covers coarsening rollback, complete coordinate stars,
-clipping/collision fixes, curved Euler/RANS transfer/reload, history and restart.
-It does not validate the changed build19 workflow. Detailed evidence and earlier
-failed fixtures/launches: [validation history](Handbook/VALIDATION_HISTORY_THROUGH_BUILD17.md)
-and [transfer ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
-
-Use existing `staged57/build_checkpoint.py` and `run_cases.py`; retain unique source,
-binary, runtime/input/helper and resource receipts. The difficult-case
-comparison is complete; address the missing geometry capability and do not
-repeat blind timeouts or accumulate local fallbacks. Run broader integration at
-the connected milestone, preserving every final acceptance gate.
-
-## Difficult target evidence and remaining capability
-
-Full M6 build13/session70428 is TERMINAL REJECT:1863.87s wall,1802.45s native;
-solver0/nativefalse, all pins unchanged. It reached repair, never coarsening:
-774,314 private cells,275,115 cached invalid cells,1,240,202 repair demands after
-112,024 private publications. Work1,218,977/19,414,976; time exhausted. Three cells
-were unmeasured. Original CFD state retained. Sampled process-tree RSS maximum
-4.616GB, individual0.877GB; neither establishes a whole-job peak.
-`staged57/m6_runs/euler_build13/diagnosis.json` preserves six-rank evidence.
-
-Coarsening alone cannot close M6. The current staging change addresses evidenced
-enrichment ordering; original-chart boundary mobility is separately missing.
-Cross-chart movement requires shared feature/coverage/edge-trace semantics through
-publication, source reconstruction and restart, not removal of one guard.
-[Geometry capability and affected callers](Handbook/CURVED_BOUNDARY_MOBILITY.md).
-
-Other open scope: changing-frame gradation21/9,393 violations (worst1.406), normal-only
-M6 budget profiles above500k (best821,265+/-53,688), whole-field normalization,
-curved BL support/chord/quadrature, FIRST_ROW surface-error demands, fitted seams,
-automatic curved initialization, and complete solution-transfer/restart qualification.
-Normal-only contract still binds; tangential growth outside protected band unanswered.
-
-## Checkpoints and preserved history
-
-`f27662eb31` preserves build17 integration; `c659e03cf5` fixes the large-star
-fixture/collision paging; `6aee162837` contains coarsening closure and clipping;
-`536025f6e4` contains construction generations, fair repair and complete-star moves.
-Earlier builds and local
-repair witnesses do not validate current code. Details: [staged history](Handbook/STAGED_NATIVE_ADAPTATION.md),
-[completion](Handbook/DC17_DC18_COMPLETION_2026_10_25.md), [curved source](Handbook/DC18_CURVED_SOURCE.md),
-[validation47–54](Handbook/VALIDATION47_54_HANDOFF_HISTORY.md),
-[transaction replay](Handbook/M6_TRANSACTION_REPLAY.md),
-[independent review](Handbook/M6_REVIEW_RECONCILIATION.md),
-[MPI/paper assessment](Handbook/MPI_AUDIT_AND_LOSEILLE_ASSESSMENT.md).
+The broad filters now include the previously omitted barycentric and connected
+runtime/history/veto cases. Compiled selection verifies all30 required cases:227 serial,204 MPI; execution pending.
+Use existing `staged57/build_checkpoint.py` and `run_cases.py` with unique source,
+binary, runtime/input/helper and resource receipts. Preserve completed evidence;
+do not repeat blind timeouts or add local fallbacks without addressing the blockage.
 
 ## Operations
 
-Push authorization persists: origin rois1995/SU2, branch codex/native-3d-bl; no new
-permission question. Git metadata requires escalated execution; use explicit paths.
-TODO intentionally local/untracked. Leave unrelated dc11/dc15 logs and planning
-files alone. `git status --short --ignore-submodules` avoids broken Eigen metadata.
-One owned heavy job, nice19,one compiler worker,single-thread libraries,max6MPIranks.
-Check actual host RAM/load and live handles first. Use 4TB compile-tmp:
-`integration_evidence/build-integrated-v2/compile-tmp`, never root/tmp for builds.
-External-SSD references are locally archived/hash-verified:
-[reference archive](Handbook/ADAPTATION_REFERENCE_INPUTS.md).
+Push authorization persists for origin rois1995/SU2, branch codex/native-3d-bl;
+no new permission question. Git metadata requires escalated execution and explicit
+paths. TODO is intentionally local/untracked; leave unrelated dc11/dc15 logs and
+planning files alone. `git status --short --ignore-submodules` avoids broken Eigen
+metadata. Run one owned heavy job at a time, nice19, one build worker, single-thread
+libraries and at most six local MPI ranks. Check host RAM/load and live handles;
+use 4TB `integration_evidence/build-integrated-v2/compile-tmp`, never root/tmp for
+builds. External-SSD inputs are archived and hash verified: [reference archive](Handbook/ADAPTATION_REFERENCE_INPUTS.md).
