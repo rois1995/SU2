@@ -22,7 +22,7 @@ class CurvedAtlas {
   size_t ReferenceTriangleCount()const;
 };
 /*! moving_vertex releases a noncorner curve sample on each incident sheet's macroperimeter.
- * nullopt retains the accepted perimeter vertices. Holes/non-disks refuse. */
+ * nullopt retains the accepted perimeter vertices; moving-sheet charts require disk topology. */
 bool PrepareCurvedAtlas(const SU2Native3D::Patch&,const SU2Native3D::PlanarReference&,
                         std::optional<SU2Native3D::Id> moving_vertex,CurvedAtlas&,AtlasBudget&,std::string&);
 /*! Quantize a proposal to an immutable forward binding, then map that actual binding exactly
@@ -33,4 +33,7 @@ bool ProposeAtlasBinding(const CurvedAtlas&,SU2Native3D::Id old_vertex,SU2Native
  * Produces local explicit records; replacement, sheet membership and shared traces are certified. */
 bool RemapAtlasSurface(const CurvedAtlas&,const std::vector<SU2Native3D::SurfaceFace>&,
                        const SU2Native3D::BoundaryPoints&,BoundaryCoverage&,AtlasBudget&,std::string&);
+/*! Replace obsolete smooth-edge contracts and all affected face covers from fixed geometry.
+ * Genuine feature arcs remain authoritative; refusal leaves output unchanged. */
+bool RebuildWorkingSurface(const SU2Native3D::BoundaryParameterState&,BoundaryCoverage&,AtlasBudget&,std::string&);
 }  // namespace SU2NativeGeometry

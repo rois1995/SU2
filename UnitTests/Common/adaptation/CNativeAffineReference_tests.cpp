@@ -845,7 +845,14 @@ TEST_CASE("Shared curved edge paths compare exact parameterizations across subdi
   REQUIRE(ExactAdd(old.first.v,old.last.v,dv,budget,reason));REQUIRE(ExactMultiply(dv,half,dv,budget,reason));
   first.last=last.first={du,dv};first.end=half;EdgeTrace divided;divided.pieces={first,last};
   REQUIRE(g.EqualTraces(traces[0],divided,budget,reason));
-  divided.pieces[0].end=GeometryRatio(.25,budget);CHECK_FALSE(g.EqualTraces(traces[0],divided,budget,reason));
+  bool equal=false;REQUIRE(g.CompareTraces(traces[0],divided,equal,budget,reason));CHECK(equal);CHECK(reason.empty());
+  divided.pieces[0].end=GeometryRatio(.25,budget);equal=true;
+  REQUIRE(g.CompareTraces(traces[0],divided,equal,budget,reason));CHECK_FALSE(equal);CHECK(reason.empty());
+  CHECK_FALSE(g.EqualTraces(traces[0],divided,budget,reason));CHECK(reason=="Curved edge reference paths or active parameters differ.");
+  auto malformed=divided;malformed.pieces.back().end=ExactRatio{};equal=true;
+  CHECK_FALSE(g.CompareTraces(traces[0],malformed,equal,budget,reason));CHECK(equal);CHECK_FALSE(reason.empty());
+  auto exhausted=GeometryAtlasBudget();exhausted.maximum_work=0;equal=true;
+  CHECK_FALSE(g.CompareTraces(traces[0],traces[0],equal,exhausted,reason));CHECK(equal);CHECK_FALSE(reason.empty());
 }
 TEST_CASE("Coverage replacement cancels interior refinement and retains exact boundary multiplicity", "[NativeCurvedAtlas3D]") {
   const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;auto construction=GeometryAtlasBudget();std::string reason;

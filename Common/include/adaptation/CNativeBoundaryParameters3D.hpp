@@ -56,6 +56,8 @@ class BoundaryParameterState {
   using Coordinate=std::array<double,3>;
   using Entries=std::map<Id,Entry>;
   using Support=std::tuple<unsigned,Id,double,double>;
+  using FacetFaceIndex=std::set<std::pair<Id,Face>>;
+  using FacetFaceRange=std::pair<FacetFaceIndex::const_iterator,FacetFaceIndex::const_iterator>;
   struct Publication {
     Entries added;
     std::map<Coordinate,Id> coordinates;
@@ -69,6 +71,8 @@ class BoundaryParameterState {
     std::set<Edge> traces_removed;
     std::map<Edge,uint64_t> edge_counts;
     std::map<Edge,SurfaceFace> edge_incident;
+    std::set<std::pair<Edge,Face>> edge_faces_added,edge_faces_removed;
+    std::set<std::pair<Id,Face>> facet_faces_added,facet_faces_removed;
     uint64_t before=0,after=0;
     bool valid=false;
   };
@@ -83,6 +87,10 @@ class BoundaryParameterState {
   bool ResolveCoverage(const SurfaceFace&,SU2NativeGeometry::FaceCoverage&,SU2NativeGeometry::AtlasBudget&,std::string&)const;
   bool ResolveTrace(Edge,const SurfaceFace&,SU2NativeGeometry::EdgeTrace&,SU2NativeGeometry::AtlasBudget&,std::string&)const;
   const SurfaceFace* IncidentFace(Edge edge)const;
+  std::array<const SurfaceFace*,2> IncidentFaces(Edge edge)const;
+  /*! Borrowed views remain valid until Commit, assignment, replacement or destruction.
+   * Component-mode facet queries conservatively return the complete canonical component. */
+  FacetFaceRange FacesOnOriginalFacet(Id facet)const;
   const BoundaryPoint* Find(Id id)const;
   const BoundaryPoint* Find(Point point)const;
   const SU2NativeGeometry::MappedFacetReference& Geometry()const{return *geometry;}
@@ -125,6 +133,8 @@ class BoundaryParameterState {
   SU2NativeGeometry::MobilityPolicy mobility;
   std::map<Edge,uint64_t> edge_counts;
   std::map<Edge,SurfaceFace> edge_incident;
+  std::set<std::pair<Edge,Face>> edge_faces;
+  FacetFaceIndex facet_faces;
   uint64_t revision;
 };
 } // namespace SU2Native3D

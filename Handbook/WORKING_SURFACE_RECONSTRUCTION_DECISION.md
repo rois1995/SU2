@@ -416,3 +416,66 @@ The draft's undocumented aggregate topology allocation and worst-integer per-pie
 charges also need replacement with actual admitted storage bounds. These are
 reasons not to merge it. Preserve the established original geometry/current
 association design while resolving closure and routing as a connected capability.
+
+## Local closure design prepared during the build61 M6 run
+
+The revised draft streams current explicit contracts; it does not canonicalize
+clean implicit edges or allocate an entire temporary boundary graph. Two derived
+indices provide both incident faces and the current faces covering an original
+facet. Constructor/load/rebind rebuild the indices; publication updates only their
+changed records with allocation-free node transfer. Component queries use the
+same canonical entity spelling throughout.
+
+A candidate path uses the immutable original geometry and current endpoint
+associations. The planner gathers both incident faces and the current faces in
+its original support/vertex-star footprint before reconstruction. Genuine curve
+arcs remain fixed. Equal existing paths need replacement only when their stored
+complexity exceeds the current fixed-reference proposal. A typed trace comparison
+separates valid inequality from malformed input or resource refusal.
+
+The existing RebuildTraceCoverage receives the complete, already planned path
+network. Its positivity, per-face disk, shared-boundary and old/new region proofs
+remain mandatory. Independent canonical paths remain proposals: a crossing or
+protected-feature conflict refuses the transaction; no alternate-route retry is
+added. The original-support index must cover seam and vertex contacts as well as
+facet interiors.
+
+The engine freezes donors before any private normalization. It republishes all
+affected unchanged physical cells with advanced versions and their coordinated
+geometry records before current-target selection. Source reconstruction uses the
+frozen donor interpretation; transferred/restarted target state uses the accepted
+working association generation. This avoids broadening strict volume-star operator
+inputs merely to carry geometry-only neighbors.
+
+The coordinated closure, typed trace comparison, admitted descriptor copies and derived indices are applied in the build62 candidate, currently unvalidated. Build61 M6 is terminal; its sources were not changed while it ran.
+Acceptance still requires a legacy noncanonical shared edge refreshed with its
+incident owners, actual neighboring operations/publication/source/reload over
+repeated events, accepted M6 and complete solution transfer/restart. The passing
+16-event MPI workflow qualifies the present canonical path flow, not this new
+legacy-closure implementation or full CFD/M6 completion.
+
+
+## Build61 difficult-target diagnosis and next staging decision
+
+The full M6 run rejected at its unchanged elapsed-time limit: 303,359 working
+cells became 1,376,207 private cells, with 877,469 remaining metric demands.
+The 146,862 source-envelope records are a separate count. About 99.1% of
+attempted construction proposals succeeded; geometry demand was zero at exit,
+and there was no quality-stage entry, relocation, reconnection or coarsening.
+These counters establish a one-direction schedule and unresolved cost/growth,
+not an inability to create valid cells or proof of excess final resolution.
+The target complexity is 500,000, not a tetrahedron-count ceiling.
+
+Omega_h's length-satisfaction loop alternates refinement and coarsening before
+quality repair (the linked official adaptation source, lines160–175). Therefore
+absence of quality entry alone is not the fault. Native currently finishes
+refinement and its quality closure before enabling coarsening. The next staging
+design must consider bidirectional metric-length satisfaction on the current
+mesh, retaining validity-only construction and a later metric/BL quality stage.
+Do not replace this diagnosis with an early quality veto, an arbitrary cell cap,
+a larger timeout or another arithmetic-only optimization. Geometry normalization
+cannot resolve this first-event scheduling limitation by itself.
+
+The [metric-length design and measured contact cost](METRIC_LENGTH_SATISFACTION_DESIGN.md)
+records the proposed shared-lifetime schedule, affected callers, safety hazards and
+acceptance conditions. It is not yet a validated implementation.

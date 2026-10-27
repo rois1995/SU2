@@ -380,11 +380,22 @@ processes are gone. publication_cost_summary.json verifies aggregate admitted
 workspace and phase descriptor/work bounds, retaining per-rank statistics.
 Archive arithmetic is excluded; source-envelope checks are not CFD transfer.
 
-Full-CFD M6 is live: run_m6.py build61 euler_build61_working_surface,
-session99828 PID3775811. Native source setup passed at 174193 work, source
-reconstruction 12.235s. Six ranks, unchanged native 1800s/outer 2400s limits
-and configured working storage 12288 MiB/rank. Static command/pins/config are
-saved; C++ and run_cases/run_m6 helpers stay frozen until the owned handle is
-terminal. This is the single owned heavy job.
+Full-CFD M6 build61/session99828 TERMINAL REJECT after 1864.11s: solver exit 0,
+native event accepted=false, pins unchanged. Native elapsed-time stop left
+The working mesh grew from 303,359 to 1,376,207 private cells (4.54×), with
+877,469 metric/height demands; quality was not reached. The 146,862 source-envelope
+cells are separate source metadata, not the initial working tetrahedron count. All nine owned processes are gone. Largest sampled process-tree aggregate
+RSS was 6,387,077,120 bytes; largest sampled individual RSS 1,096,867,840 bytes;
+neither is a whole-job peak. Evidence: `staged57/m6_runs/euler_build61_working_surface`.
+No accepted mesh or transfer/restart workflow follows.
 
 Source61 aggregate admitted workspace comparisons pass; they do not establish physical whole-job peak memory.
+
+
+Build61's final engine summaries report 755.685–755.727s/rank in contact work
+out of about1729.85s/rank: 815,117,840 all-rank candidate visits and 59,287,969
+checks. Directory elected1,629,519 times/rank; its526.194–584.781s nested time
+must not be added to contact time. These are visits, not unique intersections.
+This supports a contact/coordination cost concern, not an arithmetic-only cause.
+Exact per-rank receipts and the unimplemented scheduling design are in
+[metric-length satisfaction](METRIC_LENGTH_SATISFACTION_DESIGN.md).

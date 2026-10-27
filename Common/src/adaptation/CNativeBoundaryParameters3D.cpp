@@ -138,7 +138,7 @@ struct AtlasStorage {
     const auto next=std::max(caller,live),cap=transfer_memory::Add(next,ceiling-caller);
     // A capacity allowance may saturate for an unlimited caller; the actual live request must remain finite.
     if(next==SIZE_MAX||next>limit)throw std::length_error("Atlas reserved live/scratch storage exceeds admission.");
-    budget->caller_bytes=next;budget->maximum_bytes=std::min(cap,limit);
+    budget->peak_bytes=std::max(budget->peak_bytes,next);budget->caller_bytes=next;budget->maximum_bytes=std::min(cap,limit);
   }
   ~AtlasStorage(){if(budget){budget->caller_bytes=caller;budget->maximum_bytes=ceiling;}}
 };
@@ -223,8 +223,11 @@ BoundaryParameterState::BoundaryParameterState(std::shared_ptr<const SU2NativeGe
   if(!geometry || !revision)throw std::invalid_argument("Invalid boundary parameter authority/revision.");
   if((policy.identity||!descriptors.faces.empty()||!descriptors.traces.empty())&&!reservation)
     throw std::invalid_argument("Active atlas initialization requires an admitted geometry reservation.");
+  size_t descriptor_pieces=0;for(const auto& row:descriptors.faces)descriptor_pieces=transfer_memory::Add(descriptor_pieces,row.second.pieces.size());
+  const auto index_bytes=transfer_memory::Add(transfer_memory::Mul(transfer_memory::Mul(surface.size(),3),sizeof(std::pair<Edge,Face>)+4*sizeof(void*)),
+      transfer_memory::Mul(transfer_memory::Add(surface.size(),descriptor_pieces),sizeof(std::pair<Id,Face>)+4*sizeof(void*)));
   const size_t bound=transfer_memory::Add(caller,geometry->ResidentBytes(),transfer_memory::Mul(points.size(),2048),transfer_memory::Mul(surface.size(),8192),transfer_memory::Mul(BoundaryCoverageBytes(descriptors),4),
-      transfer_memory::Mul(BoundaryAtlasBytes(descriptors,policy),4));
+      transfer_memory::Mul(BoundaryAtlasBytes(descriptors,policy),4),index_bytes);
   if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Boundary parameter initialization exceeds storage admission.");
   AtlasStorage reservation_storage(reservation,bound,ceiling);
   std::map<Id,SU2NativeGeometry::SurfaceBinding> bindings;std::map<Id,Point> actual;
@@ -267,6 +270,12 @@ BoundaryParameterState::BoundaryParameterState(std::shared_ptr<const SU2NativeGe
       FaceCoverage cover;if(!geometry->ResolveSingleChart(row.first,binding,cover,budget,reason))throw std::invalid_argument(reason);original.push_back(std::move(cover));
     }
     if(!geometry->ValidateCoverageReplacement(original,covers,budget,reason))throw std::invalid_argument(reason);
+  }
+  for(const auto& face:surface) {
+    const auto key=FaceKey(face.v);for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());edge_faces.emplace(edge,key);}
+    const auto found=coverage.faces.find(FaceOrder(face.v));
+    if(found==coverage.faces.end())facet_faces.emplace(geometry->Canonical(face.facet),key);
+    else for(const auto& piece:found->second.pieces)facet_faces.emplace(piece.facet,key);
   }
   for(auto face:surface){face.facet=geometry->Canonical(face.facet);face.v=FaceOrder(face.v);if(!this->surface.emplace(FaceKey(face.v),face).second)throw std::invalid_argument("Duplicate accepted parameter face.");
     for(Id id:face.v)++records.at(id).faces;
@@ -324,6 +333,7 @@ bool BoundaryParameterState::ResolveCoverage(const SurfaceFace& face,FaceCoverag
     const auto found=coverage.faces.find(FaceOrder(face.v));
     if(found!=coverage.faces.end()) {
       const auto key=found->first;unsigned rotation=0;while(key[rotation]!=face.v[0])++rotation;
+      AtlasStorage copy(&budget,transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(FaceBytes(found->second),2),FaceBytes(out)),budget.maximum_bytes);
       out=RotateCoverage(found->second,rotation,budget);return true;
     }
     std::array<SurfaceBinding,3> binding;for(unsigned k=0;k<3;++k){const auto p=Find(face.v[k]);if(!p)throw std::invalid_argument("Coverage face lacks a forward binding.");binding[k]=p->binding;}
@@ -333,22 +343,37 @@ bool BoundaryParameterState::ResolveCoverage(const SurfaceFace& face,FaceCoverag
 bool BoundaryParameterState::ResolveTrace(Edge edge,const SurfaceFace& face,EdgeTrace& out,AtlasBudget& budget,std::string& reason)const {
   try {
     std::sort(edge.begin(),edge.end());const auto found=coverage.traces.find(edge);
-    if(found!=coverage.traces.end()){out=found->second;return true;}
+    if(found!=coverage.traces.end()){AtlasStorage copy(&budget,transfer_memory::Add(budget.caller_bytes,TraceBytes(found->second),TraceBytes(out)),budget.maximum_bytes);out=found->second;return true;}
     std::array<SurfaceBinding,3> binding;for(unsigned k=0;k<3;++k){const auto p=Find(face.v[k]);if(!p)throw std::invalid_argument("Trace face lacks a forward binding.");binding[k]=p->binding;}
     FaceCoverage single;std::array<EdgeTrace,3> traces;
-    if(!geometry->ResolveSingleChart(face.facet,binding,single,budget,reason)||!geometry->CoverageTraces(single,traces,budget,reason))return false;
+    if(!geometry->ResolveSingleChart(face.facet,binding,single,budget,reason))return false;
+    AtlasStorage cover_memory(&budget,transfer_memory::Add(budget.caller_bytes,FaceBytes(single)),budget.maximum_bytes);
+    if(!geometry->CoverageTraces(single,traces,budget,reason))return false;
+    size_t trace_bytes=TraceBytes(out);for(const auto& trace:traces)trace_bytes=transfer_memory::Add(trace_bytes,TraceBytes(trace));
+    AtlasStorage trace_memory(&budget,transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(trace_bytes,2)),budget.maximum_bytes);
     for(unsigned k=0;k<3;++k){Edge candidate{face.v[k],face.v[(k+1)%3]},key=candidate;std::sort(key.begin(),key.end());
       if(key==edge){out=candidate[0]<candidate[1]?traces[k]:ReverseTrace(traces[k],budget);return true;}}
     throw std::invalid_argument("Trace is not incident to its physical face.");
   }catch(const std::exception& e){reason=e.what();return false;}
 }
 const SurfaceFace* BoundaryParameterState::IncidentFace(Edge edge)const {std::sort(edge.begin(),edge.end());const auto face=edge_incident.find(edge);return face==edge_incident.end()?nullptr:&face->second;}
+std::array<const SurfaceFace*,2> BoundaryParameterState::IncidentFaces(Edge edge)const {
+  std::sort(edge.begin(),edge.end());if(edge[0]==edge[1])throw std::invalid_argument("Degenerate boundary edge query.");
+  std::array<const SurfaceFace*,2> result{{nullptr,nullptr}};size_t count=0;
+  for(auto it=edge_faces.lower_bound({edge,Face{}});it!=edge_faces.end()&&it->first==edge;++it){
+    if(count==result.size())throw std::logic_error("Boundary edge incidence index is nonmanifold.");result[count++]=&surface.at(it->second);}
+  return result;
+}
+BoundaryParameterState::FacetFaceRange BoundaryParameterState::FacesOnOriginalFacet(Id facet)const {
+  facet=geometry->Canonical(facet);geometry->Reference().Get(facet);return {facet_faces.lower_bound({facet,Face{0,0,0}}),
+      facet_faces.upper_bound({facet,Face{UINT64_MAX,UINT64_MAX,UINT64_MAX}})};
+}
 const BoundaryPoint* BoundaryParameterState::Find(Id id)const {const auto p=records.find(id);return p==records.end()?nullptr:&p->second.point;}
 const BoundaryPoint* BoundaryParameterState::Find(Point point)const {
   for(auto x:PointKey(point))if(!std::isfinite(x))throw std::invalid_argument("Nonfinite boundary parameter lookup.");
   const auto p=coordinates.find(PointKey(point));return p==coordinates.end()?nullptr:Find(p->second);
 }
-size_t BoundaryParameterState::ResidentBytes()const {return transfer_memory::Add(sizeof(*this),MapBytes(records),MapBytes(coordinates),MapBytes(supports),MapBytes(surface),MapBytes(edge_counts),MapBytes(edge_incident),BoundaryCoverageBytes(coverage),PolicyBytes(mobility));}
+size_t BoundaryParameterState::ResidentBytes()const {return transfer_memory::Add(sizeof(*this),MapBytes(records),MapBytes(coordinates),MapBytes(supports),MapBytes(surface),MapBytes(edge_counts),MapBytes(edge_incident),MapBytes(edge_faces),MapBytes(facet_faces),BoundaryCoverageBytes(coverage),PolicyBytes(mobility));}
 size_t BoundaryParameterState::SnapshotBytes()const {SU2NativeBoundary2D::RecordStream measure;WriteSnapshot(measure,*this);return measure.Size();}
 std::vector<char> BoundaryParameterState::Snapshot()const {
   std::vector<char> bytes;bytes.reserve(SnapshotBytes());SU2NativeBoundary2D::RecordStream out(bytes);WriteSnapshot(out,*this);return bytes;
@@ -425,12 +450,17 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
     const std::vector<BoundaryFaceChange>& faces,std::string& reason,size_t ceiling,size_t caller,const BoundaryCoverage& delta,AtlasBudget* reservation)const {
   Publication staged;staged.before=staged.after=revision;
   try {
-    size_t inherited_bytes=0;
-    for(const auto& face:faces)if(!face.insert){const auto cover=coverage.faces.find(FaceOrder(face.nodes));if(cover!=coverage.faces.end())inherited_bytes=transfer_memory::Add(inherited_bytes,FaceBytes(cover->second));
+    size_t inherited_bytes=0,old_pieces=0,new_pieces=0;
+    for(const auto& row:delta.faces)new_pieces=transfer_memory::Add(new_pieces,row.second.pieces.size());
+    for(const auto& face:faces)if(!face.insert){const auto cover=coverage.faces.find(FaceOrder(face.nodes));if(cover!=coverage.faces.end()){inherited_bytes=transfer_memory::Add(inherited_bytes,FaceBytes(cover->second));old_pieces=transfer_memory::Add(old_pieces,cover->second.pieces.size());}
       for(unsigned k=0;k<3;++k){Edge edge{face.nodes[k],face.nodes[(k+1)%3]};std::sort(edge.begin(),edge.end());const auto trace=coverage.traces.find(edge);if(trace!=coverage.traces.end())inherited_bytes=transfer_memory::Add(inherited_bytes,TraceBytes(trace->second));}}
-    for(const auto& row:delta.faces){const auto cover=coverage.faces.find(row.first);if(cover!=coverage.faces.end())inherited_bytes=transfer_memory::Add(inherited_bytes,FaceBytes(cover->second));
+    for(const auto& row:delta.faces){const auto cover=coverage.faces.find(row.first);if(cover!=coverage.faces.end()){inherited_bytes=transfer_memory::Add(inherited_bytes,FaceBytes(cover->second));old_pieces=transfer_memory::Add(old_pieces,cover->second.pieces.size());}
       for(unsigned k=0;k<3;++k){Edge edge{row.first[k],row.first[(k+1)%3]};std::sort(edge.begin(),edge.end());const auto trace=coverage.traces.find(edge);if(trace!=coverage.traces.end())inherited_bytes=transfer_memory::Add(inherited_bytes,TraceBytes(trace->second));}}
-    const size_t bound=transfer_memory::Add(caller,ResidentBytes(),transfer_memory::Mul(inherited_bytes,4),transfer_memory::Mul(edits.size(),2048),transfer_memory::Mul(faces.size(),8192),transfer_memory::Mul(BoundaryCoverageBytes(delta),8));
+    const auto affected=transfer_memory::Add(faces.size(),delta.faces.size());
+    const auto index_bytes=transfer_memory::Add(transfer_memory::Mul(affected,sizeof(Face)+4*sizeof(void*)),
+        transfer_memory::Mul(transfer_memory::Mul(6,affected),sizeof(std::pair<Edge,Face>)+4*sizeof(void*)),
+        transfer_memory::Mul(transfer_memory::Mul(2,transfer_memory::Add(affected,old_pieces,new_pieces)),sizeof(std::pair<Id,Face>)+4*sizeof(void*)));
+    const size_t bound=transfer_memory::Add(caller,ResidentBytes(),transfer_memory::Mul(inherited_bytes,4),transfer_memory::Mul(edits.size(),2048),transfer_memory::Mul(faces.size(),8192),transfer_memory::Mul(BoundaryCoverageBytes(delta),8),index_bytes);
     if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Boundary parameter publication exceeds storage admission.");
     AtlasStorage reservation_storage(reservation,bound,ceiling);
     if(edits.empty() && faces.empty() && delta.faces.empty() && delta.traces.empty()){staged.valid=true;reason.clear();return staged;}
@@ -541,7 +571,9 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
           throw std::invalid_argument("Atlas trace delta has no surviving physical edge.");
         if(old!=edge_counts.end()) {EdgeTrace inherited;
           if(!accepted_trace(row.first,inherited))throw std::invalid_argument("Retained physical edge lacks its inherited atlas trace.");
-          if(!geometry->EqualTraces(inherited,row.second,budget,reason)) {
+          bool equal=false;
+          if(!geometry->CompareTraces(inherited,row.second,equal,budget,reason))throw std::invalid_argument(reason);
+          if(!equal) {
             const auto incident=coordinated.find(row.first);
             if(incident==coordinated.end()||incident->second.size()!=old->second)
               throw std::invalid_argument("Changed retained atlas trace requires every accepted incident face in the coordinated update.");
@@ -601,6 +633,25 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
         const auto next=row.second<0?count-uint64_t(-row.second):count+uint64_t(row.second);if(next!=0&&next!=2)throw std::invalid_argument("Nonmanifold boundary edge incidence.");staged.edge_counts.emplace(row.first,next);}
     }
     for(const auto& face:faces)if(face.insert)for(unsigned k=0;k<3;++k){Edge edge{face.nodes[k],face.nodes[(k+1)%3]};std::sort(edge.begin(),edge.end());staged.edge_incident.emplace(edge,SurfaceFace{FaceOrder(face.nodes),face.facet});}
+    std::set<Face> affected_faces=staged.surface_removed;for(const auto& row:staged.surface_added)affected_faces.insert(row.first);
+    for(const auto& row:staged.coverage_added.faces)affected_faces.insert(FaceKey(row.first));
+    auto index=[&](const SurfaceFace& face,const FaceCoverage* cover,auto& edge_index,auto& facet_index) {
+      const auto key=FaceKey(face.v);for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());edge_index.emplace(edge,key);}
+      if(!cover)facet_index.emplace(geometry->Canonical(face.facet),key);
+      else for(const auto& piece:cover->pieces)facet_index.emplace(piece.facet,key);
+    };
+    for(const auto& key:affected_faces) {
+      const auto old=surface.find(key);if(old!=surface.end()){const auto cover=coverage.faces.find(old->second.v);
+        index(old->second,cover==coverage.faces.end()?nullptr:&cover->second,staged.edge_faces_removed,staged.facet_faces_removed);}
+      const auto added=staged.surface_added.find(key);const auto* next=added!=staged.surface_added.end()?&added->second:
+          old!=surface.end()&&!staged.surface_removed.count(key)?&old->second:nullptr;
+      if(next) {
+        const FaceCoverage* descriptor=nullptr;const auto fresh=staged.coverage_added.faces.find(next->v);
+        if(fresh!=staged.coverage_added.faces.end())descriptor=&fresh->second;
+        else if(!staged.coverage_removed.count(next->v)){const auto prior=coverage.faces.find(next->v);if(prior!=coverage.faces.end())descriptor=&prior->second;}
+        index(*next,descriptor,staged.edge_faces_added,staged.facet_faces_added);
+      }
+    }
     staged.valid=true;reason.clear();return staged;
   }catch(const std::exception& e){reason=e.what();return {};}
 }
@@ -619,6 +670,10 @@ void BoundaryParameterState::Commit(Publication&& staged)noexcept {
   while(!staged.coverage_added.traces.empty()){auto node=staged.coverage_added.traces.extract(staged.coverage_added.traces.begin());coverage.traces.erase(node.key());coverage.traces.insert(std::move(node));}
   while(!staged.edge_counts.empty()){auto node=staged.edge_counts.extract(staged.edge_counts.begin());edge_counts.erase(node.key());if(node.mapped())edge_counts.insert(std::move(node));else edge_incident.erase(node.key());}
   while(!staged.edge_incident.empty()){auto node=staged.edge_incident.extract(staged.edge_incident.begin());edge_incident.erase(node.key());edge_incident.insert(std::move(node));}
+  for(const auto& key:staged.edge_faces_removed)edge_faces.erase(key);
+  while(!staged.edge_faces_added.empty())edge_faces.insert(staged.edge_faces_added.extract(staged.edge_faces_added.begin()));
+  for(const auto& key:staged.facet_faces_removed)facet_faces.erase(key);
+  while(!staged.facet_faces_added.empty())facet_faces.insert(staged.facet_faces_added.extract(staged.facet_faces_added.begin()));
   revision=staged.after;
 }
 } // namespace SU2Native3D
@@ -783,7 +838,9 @@ bool PlanarReference::ResolveCoverage(const SurfaceFace& face,FaceCoverage& out,
   try {
     if(!parameter_view)throw std::invalid_argument("Unmapped reference has no parameter coverage.");parameter_view->Check();
     const auto key=FaceOrder(face.v);const auto local=parameter_view->coverage.faces.find(key);
-    if(local!=parameter_view->coverage.faces.end()){unsigned rotation=0;while(key[rotation]!=face.v[0])++rotation;out=RotateCoverage(local->second,rotation,budget);return true;}
+    if(local!=parameter_view->coverage.faces.end()){unsigned rotation=0;while(key[rotation]!=face.v[0])++rotation;
+      AtlasStorage copy(&budget,transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(FaceBytes(local->second),2),FaceBytes(out)),budget.maximum_bytes);
+      out=RotateCoverage(local->second,rotation,budget);return true;}
     const auto accepted=parameter_view->accepted->Surface().find(FaceKey(face.v));
     if(accepted!=parameter_view->accepted->Surface().end()&&accepted->second.v==key&&accepted->second.facet==face.facet)
       return parameter_view->accepted->ResolveCoverage(face,out,budget,reason);
@@ -796,15 +853,21 @@ bool PlanarReference::ResolveCoverage(const SurfaceFace& face,FaceCoverage& out,
 bool PlanarReference::ResolveTrace(Edge edge,const SurfaceFace& face,EdgeTrace& out,AtlasBudget& budget,std::string& reason)const {
   try {
     if(!parameter_view)throw std::invalid_argument("Unmapped reference has no parameter traces.");parameter_view->Check();std::sort(edge.begin(),edge.end());
-    const auto local=parameter_view->coverage.traces.find(edge);if(local!=parameter_view->coverage.traces.end()){out=local->second;return true;}
-    const auto accepted=parameter_view->accepted->Coverage().traces.find(edge);if(accepted!=parameter_view->accepted->Coverage().traces.end()){out=accepted->second;return true;}
+    const auto local=parameter_view->coverage.traces.find(edge);if(local!=parameter_view->coverage.traces.end()){
+      AtlasStorage copy(&budget,transfer_memory::Add(budget.caller_bytes,TraceBytes(local->second),TraceBytes(out)),budget.maximum_bytes);out=local->second;return true;}
+    const auto accepted=parameter_view->accepted->Coverage().traces.find(edge);if(accepted!=parameter_view->accepted->Coverage().traces.end()){
+      AtlasStorage copy(&budget,transfer_memory::Add(budget.caller_bytes,TraceBytes(accepted->second),TraceBytes(out)),budget.maximum_bytes);out=accepted->second;return true;}
     const auto incident=parameter_view->accepted->IncidentFace(edge);
     if(incident)return parameter_view->accepted->ResolveTrace(edge,*incident,out,budget,reason);
     std::array<SurfaceBinding,3> binding;
     for(unsigned k=0;k<3;++k){const auto local=parameter_view->local.find(face.v[k]);const auto p=local==parameter_view->local.end()?parameter_view->accepted->Find(face.v[k]):&local->second;
       if(!p)throw std::invalid_argument("Candidate physical trace has no forward binding.");binding[k]=p->binding;}
     FaceCoverage single;std::array<EdgeTrace,3> direct;
-    if(!parameter_view->accepted->Geometry().ResolveSingleChart(face.facet,binding,single,budget,reason)||!parameter_view->accepted->Geometry().CoverageTraces(single,direct,budget,reason))return false;
+    if(!parameter_view->accepted->Geometry().ResolveSingleChart(face.facet,binding,single,budget,reason))return false;
+    AtlasStorage cover_memory(&budget,transfer_memory::Add(budget.caller_bytes,FaceBytes(single)),budget.maximum_bytes);
+    if(!parameter_view->accepted->Geometry().CoverageTraces(single,direct,budget,reason))return false;
+    size_t trace_bytes=TraceBytes(out);for(const auto& trace:direct)trace_bytes=transfer_memory::Add(trace_bytes,TraceBytes(trace));
+    AtlasStorage trace_memory(&budget,transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(trace_bytes,2)),budget.maximum_bytes);
     for(unsigned k=0;k<3;++k){Edge candidate{face.v[k],face.v[(k+1)%3]},key=candidate;std::sort(key.begin(),key.end());if(key==edge){out=candidate[0]<candidate[1]?direct[k]:ReverseTrace(direct[k],budget);return true;}}
     throw std::invalid_argument("Candidate trace is not an edge of its physical face.");
   }catch(const std::exception& e){reason=e.what();return false;}

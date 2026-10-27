@@ -19,6 +19,8 @@ BINARY = REPO / "integration_evidence/build-integrated-v2/UnitTests/test_driver"
 CASES = {
     "m6_stage": (6, "[NativeFrozenVolume3D]"),
     "cost_checks": (1, "[NativeOverlappingAtlas3D]"),
+    "normalization": (1, "[NativeWorkingSurfaceNormalization3D]"),
+    "normalization6": (6, "[NativeWorkingSurfaceNormalization3D]"),
     "overlap_publication": (1, "[NativeOverlappingPublication3D]"),
     "overlap_publication6": (6, "[NativeOverlappingPublication3D]"),
     "reference_io": (1, "[NativeReference3D],[NativeAtlasReferenceIO3D]"),

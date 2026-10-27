@@ -14,6 +14,7 @@
 #include <limits>
 #include <set>
 #include <stdexcept>
+#include <type_traits>
 
 namespace SU2NativeGeometry {
 namespace {
@@ -610,6 +611,89 @@ bool RemapAtlasSurface(const CurvedAtlas& atlas,const std::vector<SU2Native3D::S
     for(const auto& cover:d.old)for(const auto& piece:cover.pieces){Reserve(region.pieces,Plus(region.pieces.size(),1),op);op.Sync(PieceBound(op));
       region.pieces.push_back({piece.facet,piece.reference,{}});}
     op.Check(op.Delegate([&]{return RebuildTraceCoverage(geometry,region.pieces,faces,bindings,output.traces,output.faces,budget,op.reason);}));
+    result=std::move(output);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool RebuildWorkingSurface(const SU2Native3D::BoundaryParameterState& state,BoundaryCoverage& result,
+                           AtlasBudget& budget,std::string& reason) {
+  using namespace SU2Native3D;
+  if(!state.Mobility().identity||(state.Coverage().faces.empty()&&state.Coverage().traces.empty())) {
+    result={};reason.clear();return true;
+  }
+  BoundaryCoverage output;EdgeTrace inherited,canonical;FaceCoverage cover;
+  std::vector<CoveragePiece> region;std::vector<SurfaceFace> faces;std::map<Id,SurfaceBinding> bindings;
+  std::map<Edge,EdgeTrace> replacements;std::set<Face> selected;std::set<Id> visited;
+  size_t nodes=0,region_limbs=0;
+  try {
+    Ops op(budget,[&]{return Plus(nodes,Plus(region_limbs,Plus(Times(region.capacity(),sizeof(CoveragePiece)),
+        Plus(Times(faces.capacity(),sizeof(SurfaceFace)),Plus(FaceBytes(cover),Plus(TraceBytes(inherited),
+          Plus(TraceBytes(canonical),Plus(BoundaryCoverageBytes(output),BoundaryCoverageBytes(result)))))))));});
+    const auto& geometry=state.Geometry();const auto& policy=state.Mobility();
+    auto insert=[&](auto& set,const auto& value){if(set.count(value))return false;
+      const auto bytes=sizeof(typename std::decay_t<decltype(set)>::value_type)+4*sizeof(void*);
+      op.Sync(bytes);set.insert(value);nodes=Plus(nodes,bytes);return true;};
+    auto key=[](Face face){std::sort(face.begin(),face.end());return face;};
+    auto ratio_equal=[](const ExactRatio& a,const ExactRatio& b){return a.negative==b.negative&&a.numerator==b.numerator&&a.denominator==b.denominator;};
+    auto bary_equal=[&](const ExactBary& a,const ExactBary& b){return ratio_equal(a.u,b.u)&&ratio_equal(a.v,b.v);};
+    auto identical=[&](const EdgeTrace& a,const EdgeTrace& b){if(a.pieces.size()!=b.pieces.size())return false;
+      for(size_t k=0;k<a.pieces.size();++k){const auto& x=a.pieces[k];const auto& y=b.pieces[k];
+        if(x.facet!=y.facet||!bary_equal(x.first,y.first)||!bary_equal(x.last,y.last)||!ratio_equal(x.end,y.end))return false;}return true;};
+    auto complexity=[](const EdgeTrace& trace){size_t limbs=0,width=0;
+      auto ratio=[&](const ExactRatio& r){limbs=Plus(limbs,Plus(r.numerator.size(),r.denominator.size()));width=std::max({width,r.numerator.size(),r.denominator.size()});};
+      for(const auto& piece:trace.pieces){for(const auto* b:{&piece.first,&piece.last}){ratio(b->u);ratio(b->v);}ratio(piece.end);}
+      return std::array<size_t,3>{{trace.pieces.size(),limbs,width}};};
+    auto footprint=[&](Id facet,Id body){
+      for(const auto& node:geometry.Reference().Get(facet).v)geometry.ForFacets(geometry.Vertex(node.id),[&](Id support){
+        if(policy.bodies.at(support)!=body||!insert(visited,support))return;
+        const auto range=state.FacesOnOriginalFacet(support);
+        for(auto it=range.first;it!=range.second;++it){op.Work();insert(selected,it->second);}
+      });
+    };
+    auto plan=[&](Edge edge){
+      op.Work();const auto incident=state.IncidentFaces(edge);
+      if(!incident[0]||!incident[1])throw std::invalid_argument("Working surface refresh lacks both incident physical faces.");
+      inherited={};op.Sync();op.Check(state.ResolveTrace(edge,*incident[0],inherited,budget,op.reason));
+      // A genuine curve carries its model arc, including on closed chains.
+      if(TraceChain(inherited,geometry,policy,op))return;
+      const auto sheet=policy.sheets.at(incident[0]->facet);
+      if(policy.sheets.at(incident[1]->facet)!=sheet)throw std::invalid_argument("Working surface refresh crosses protected sheets.");
+      const auto* a=state.Find(edge[0]);const auto* b=state.Find(edge[1]);
+      if(!a||!b)throw std::invalid_argument("Working surface refresh lacks current endpoint associations.");
+      canonical={};op.Check(op.Delegate([&]{return CanonicalSurfaceTrace(geometry,policy,sheet,a->binding,b->binding,canonical,budget,op.reason);}));
+      if(identical(inherited,canonical))return;
+      bool equal=false;op.Sync();op.Check(geometry.CompareTraces(inherited,canonical,equal,budget,op.reason));
+      const auto old_cost=complexity(inherited),fresh_cost=complexity(canonical);
+      if(equal&&old_cost[0]<=fresh_cost[0]&&old_cost[1]<=fresh_cost[1]&&old_cost[2]<=fresh_cost[2])return;
+      for(const auto* face:incident)insert(selected,key(face->v));
+      const Id body=policy.bodies.at(incident[0]->facet);for(const auto& piece:canonical.pieces)footprint(piece.facet,body);
+      const auto bytes=Plus(sizeof(decltype(replacements)::value_type)+4*sizeof(void*),TraceBytes(canonical));
+      op.Sync(bytes);nodes=Plus(nodes,bytes);replacements.emplace(edge,std::move(canonical));
+    };
+    // Stream current explicit contracts. The incidence index avoids a global temporary edge table.
+    for(const auto& row:state.Coverage().traces)plan(row.first);
+    for(const auto& row:state.Coverage().faces)for(unsigned k=0;k<3;++k){const auto edge=Sorted(row.first[k],row.first[(k+1)%3]);
+      if(state.Coverage().traces.count(edge))continue;
+      const auto adjacent=state.IncidentFaces(edge);bool first=true;
+      for(const auto* other:adjacent)if(other&&key(other->v)<key(row.first)&&state.Coverage().faces.count(Ordered(other->v)))first=false;
+      if(first)plan(edge);
+    }
+    if(replacements.empty()){result={};reason.clear();return true;}
+    op.Sync(Times(selected.size(),sizeof(SurfaceFace)));faces.reserve(selected.size());
+    for(const auto& id:selected){const auto& face=state.Surface().at(id);faces.push_back(face);
+      cover={};op.Sync();op.Check(state.ResolveCoverage(face,cover,budget,op.reason));
+      for(const auto& piece:cover.pieces){size_t limbs=0;for(const auto* triangle:{&piece.reference,&piece.active})for(const auto& b:*triangle)limbs=Plus(limbs,BaryBytes(b));
+        Reserve(region,Plus(region.size(),1),op);op.Sync(limbs);region.push_back(piece);region_limbs=Plus(region_limbs,limbs);}
+      for(unsigned k=0;k<3;++k){const auto node=face.v[k];if(!bindings.count(node)){
+          const auto* point=state.Find(node);if(!point)throw std::invalid_argument("Working surface refresh lost an association.");
+          const auto bytes=sizeof(decltype(bindings)::value_type)+4*sizeof(void*);op.Sync(bytes);bindings.emplace(node,point->binding);nodes=Plus(nodes,bytes);}
+        const auto edge=Sorted(node,face.v[(k+1)%3]);if(output.traces.count(edge))continue;
+        const auto changed=replacements.find(edge);inherited={};
+        if(changed!=replacements.end()){op.Sync(TraceBytes(changed->second));inherited=changed->second;}
+        else {op.Sync();op.Check(state.ResolveTrace(edge,face,inherited,budget,op.reason));}
+        op.Sync(Plus(TraceBytes(inherited),sizeof(decltype(output.traces)::value_type)+4*sizeof(void*)));output.traces.emplace(edge,inherited);
+      }
+    }
+    op.Sync();op.Check(op.Delegate([&]{return RebuildTraceCoverage(geometry,region,faces,bindings,output.traces,output.faces,budget,op.reason);}));
     result=std::move(output);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }

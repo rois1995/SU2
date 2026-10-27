@@ -168,6 +168,8 @@ class MappedFacetReference {
   /*! Canonical point key in a supporting original chart; unsupported returns false with empty reason. */
   bool ReferenceParameters(Id facet,const std::vector<uint64_t>&,ExactBary&,AtlasBudget&,std::string& reason)const;
   bool CoverageTraces(const FaceCoverage&,std::array<EdgeTrace,3>&,AtlasBudget&,std::string& reason)const;
+  /*! False reports malformed input/resource refusal and leaves equal unchanged. */
+  bool CompareTraces(const EdgeTrace&,const EdgeTrace&,bool& equal,AtlasBudget&,std::string& reason)const;
   bool EqualTraces(const EdgeTrace&,const EdgeTrace&,AtlasBudget&,std::string& reason)const;
   /*! Traces are oriented 0->1,1->2,2->0; current-ID canonicalization belongs to the parameter layer. */
   bool ValidateCoverage(Id anchor,const std::array<SurfaceBinding,3>& binding,const std::array<Point,3>& realized,

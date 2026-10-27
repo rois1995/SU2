@@ -1169,6 +1169,47 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         transfer_memory::Add(bytes(),directory->ResidentBytes()));
   }
   if (!ready) return finish();
+  // Freeze donors first; normalization changes working associations, not the source interpretation.
+  if(atlas_geometry) {
+    if(!admit(0))return finish();
+    SU2NativeGeometry::BoundaryCoverage refreshed;CLocalFailure failure;
+    const auto before_work=atlas_budget.work;
+    try {
+      if(!SU2NativeGeometry::RebuildWorkingSurface(*geometry.Parameters(),refreshed,atlas_budget,result.reason))
+        failure.Set(2,0,result.reason);
+    }catch(const std::exception& error){failure.Set(2,0,error.what());}
+    if(!vote(failure))return finish();
+    if(world.maximum(!refreshed.faces.empty())) {
+      std::set<Face> affected;std::vector<Dependency> removed;std::vector<OwnedCell> added;
+      const auto face_storage=transfer_memory::Add(SU2Native3D::BoundaryCoverageBytes(refreshed),
+          transfer_memory::Mul(refreshed.faces.size(),sizeof(Face)+4*sizeof(void*)));
+      if(!admit(face_storage))return finish();
+      size_t count=0;
+      auto owns=[&](const OwnedCell& row){const auto faces=Faces(row.cell);
+        for(unsigned k=0;k<4;++k)if(row.physical[k].present&&affected.count(Key(faces[k])))return true;return false;};
+      try {
+        for(const auto& row:refreshed.faces)affected.insert(Key(row.first));
+        for(const auto& row:working)count+=owns(row.second);
+      }catch(const std::exception& error){failure.Set(2,0,error.what());}
+      if(!vote(failure))return finish();
+      const auto local_storage=transfer_memory::Add(face_storage,transfer_memory::Mul(count,sizeof(Dependency)+sizeof(OwnedCell)));
+      if(!admit(local_storage))return finish();
+      try {
+        removed.reserve(count);added.reserve(count);
+        for(const auto& row:working)if(owns(row.second)) {
+          if(row.second.version==UINT64_MAX)throw std::overflow_error("Working-surface owner version overflows.");
+          removed.push_back({row.first,row.second.version,world.rank});added.push_back(row.second);++added.back().version;
+        }
+      }catch(const std::exception& error){failure.Set(2,0,error.what());}
+      if(!vote(failure))return finish();
+      const SU2NativeGeometry::BoundaryCoverage empty;
+      if(!directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,
+          transfer_memory::Add(real_bytes(),source.ResidentBytes(),local_storage),{},
+          world.rank?empty:refreshed,&atlas_budget))return finish();
+      if(options.timings)std::cout<<"NATIVE3D working surface refresh rank="<<world.rank
+          <<" faces="<<refreshed.faces.size()<<" owners="<<added.size()<<" arithmetic_work="<<atlas_budget.work-before_work<<'\n';
+    }
+  }
   // A complete visible radial region is constructed as one transaction, never as a larger local cavity.
   const auto global_original=CPassiveComm::Allreduce(uint64_t(original.size()),CPassiveComm::Op::SUM,world.comm);
   const bool prismatic=!repairing && options.region_walls.size()==options.wall_heights.size() &&

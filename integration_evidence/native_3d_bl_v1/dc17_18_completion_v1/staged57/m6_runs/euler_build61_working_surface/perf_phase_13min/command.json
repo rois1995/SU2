@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "perf",
+    "record",
+    "-e",
+    "cpu-clock",
+    "-F",
+    "9",
+    "--call-graph",
+    "dwarf,8192",
+    "-p",
+    "3775817,3775818,3775819,3775820,3775821,3775822",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build61_working_surface/perf_phase_13min/perf.data",
+    "--",
+    "sleep",
+    "3"
+  ],
+  "scope": "non-stopping sample of six owned M6 ranks",
+  "started_at": 1793139093.1467628
+}

@@ -1233,7 +1233,7 @@ bool MappedFacetReference::CoverageTraces(const FaceCoverage& coverage,std::arra
     result=std::move(out);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
-bool MappedFacetReference::EqualTraces(const EdgeTrace& a,const EdgeTrace& b,AtlasBudget& budget,std::string& reason)const {
+bool MappedFacetReference::CompareTraces(const EdgeTrace& a,const EdgeTrace& b,bool& equal,AtlasBudget& budget,std::string& reason)const {
   try {
     AtlasOps op{budget,__func__};
     auto check=[&](const EdgeTrace& trace){auto last=op.Integer(0);AtlasKey previous,start;bool first=true;
@@ -1243,17 +1243,20 @@ bool MappedFacetReference::EqualTraces(const EdgeTrace& a,const EdgeTrace& b,Atl
         if(first)start=key;if(!first&&key!=previous)throw std::invalid_argument("Discontinuous curved edge trace.");
         previous=std::move(end_key);last=p.end;first=false;}
       if(first||op.Compare(last,op.Integer(1)))throw std::invalid_argument("Incomplete curved edge trace.");return std::make_pair(std::move(start),std::move(previous));};
-    const auto ak=check(a),bk=check(b);if(a.pieces.size()==1&&b.pieces.size()==1){if(ak!=bk)throw std::invalid_argument("Curved edge reference paths or active parameters differ.");reason.clear();return true;}
+    const auto ak=check(a),bk=check(b);if(a.pieces.size()==1&&b.pieces.size()==1){equal=ak==bk;reason.clear();return true;}
     size_t i=0,j=0;auto begin=op.Integer(0),sa=begin,sb=begin;
     while(i<a.pieces.size()&&j<b.pieces.size()) {
       op.Work();const auto& x=a.pieces[i];const auto& y=b.pieces[j];const auto end=op.Compare(x.end,y.end)<0?x.end:y.end;
       auto key=[&](const TracePiece& p,const ExactRatio& start,const ExactRatio& t){return ReferenceKey(*reference,p.facet,op.Lerp(p.first,p.last,op.Div(op.Sub(t,start),op.Sub(p.end,start))),op);};
-      if(key(x,sa,begin)!=key(y,sb,begin)||key(x,sa,end)!=key(y,sb,end))throw std::invalid_argument("Curved edge reference paths or active parameters differ.");
+      if(key(x,sa,begin)!=key(y,sb,begin)||key(x,sa,end)!=key(y,sb,end)){equal=false;reason.clear();return true;}
       if(!op.Compare(x.end,end)){sa=end;++i;}if(!op.Compare(y.end,end)){sb=end;++j;}begin=end;
     }
-    if(i!=a.pieces.size()||j!=b.pieces.size())throw std::invalid_argument("Curved edge trace lengths differ.");
-    reason.clear();return true;
+    equal=i==a.pieces.size()&&j==b.pieces.size();reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool MappedFacetReference::EqualTraces(const EdgeTrace& a,const EdgeTrace& b,AtlasBudget& budget,std::string& reason)const {
+  bool equal=false;if(!CompareTraces(a,b,equal,budget,reason))return false;
+  if(!equal)reason="Curved edge reference paths or active parameters differ.";return equal;
 }
 bool MappedFacetReference::ValidateCoverage(Id anchor,const std::array<SurfaceBinding,3>& binding,
     const std::array<Point,3>& realized,const FaceCoverage& coverage,const std::array<EdgeTrace,3>& traces,

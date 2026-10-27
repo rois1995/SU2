@@ -7,26 +7,30 @@ Updated: 2026-10-27. Detailed failures and provenance remain linked below.
 
 **DC-17 and DC-18 remain open. No full M6 adaptation has passed final acceptance.**
 
-Current source61: build PASS36.124s; source60 reference I/O PASS 5 cases/96 assertions.
+Current candidate source62 is building with coordinated geometry normalization,
+derived support/incidence indices, typed trace comparison and admitted copies.
+It is unvalidated; legacy-path and continued publication/reload checks remain required.
+Source61 build PASS36.124s; source60 reference I/O PASS 5 cases/96 assertions.
 Source61 broad MPI aborted exit134 after 24/25 cases per rank: fixture point-0 read
-on an empty rank at CNativeImport3D_tests.cpp:1743. The reviewed nonempty-rank
-broadcast draft remains unapplied; combine it with the next implementation build.
+on an empty rank at CNativeImport3D_tests.cpp:1743. The nonempty-rank
+broadcast fix is applied in source62 and awaits its MPI regression.
 Source61 overlap_publication6_20261027T215151_3758648 PASS74.923s, all 16
 events: rank 0 passed 3494 assertions, each other rank 3445; all nine recorded
 processes are gone. publication_cost_summary.json verifies aggregate admitted
 workspace and phase descriptor/work bounds, retaining per-rank statistics.
 Archive arithmetic is excluded; source-envelope checks are not CFD transfer.
 
-Full-CFD M6 is live: run_m6.py build61 euler_build61_working_surface,
-session99828 PID3775811. Native source setup passed at 174193 work, source
-reconstruction 12.235s. Six ranks, unchanged native 1800s/outer 2400s limits
-and configured working storage 12288 MiB/rank. Static command/pins/config are
-saved; C++ and run_cases/run_m6 helpers stay frozen until the owned handle is
-terminal. This is the single owned heavy job.
+Full-CFD M6 build61/session99828 TERMINAL REJECT after 1864.11s: solver exit 0,
+native event accepted=false, pins unchanged. The working mesh grew from 303,359 to 1,376,207 private cells (4.54×), with
+877,469 metric demands (no requested BL in this run); quality was not reached. The 146,862 source-envelope
+cells are separate source metadata, not the initial working tetrahedron count. All nine owned processes are gone. Largest sampled process-tree aggregate
+RSS was 6,387,077,120 bytes; largest sampled individual RSS 1,096,867,840 bytes;
+neither is a whole-job peak. Evidence: `staged57/m6_runs/euler_build61_working_surface`.
+No accepted mesh or transfer/restart workflow follows.
 
 Source60 per-rank bounds failed; Directory hashes IDs before modulo, so stride
 alone did not fix home balance. Source61 aggregate workspace bounds pass. Local
-index/closure and full M6/CFD transfer remain open; latest pushed 2e9d787265.
+index/closure and full M6/CFD transfer remain open; latest pushed fa4c62876b.
 
 
 Build54 PASS1225.30s, 1293 pins unchanged; single-certificate checks PASS
@@ -74,7 +78,7 @@ remain unqualified.
 
 
 The local support-index draft is not merged; the global normalizer was rejected
-for locality and accounting. Latest pushed checkpoint: 2e9d787265.
+for locality and accounting. Latest pushed checkpoint: fa4c62876b.
 
 Build53 passed; atlas_checks_20261027T205356_3596433 PASS52.007s with
 unchanged pins. Mapped runtime_20261027T205308_3593869 FAIL11.87s, 201/203

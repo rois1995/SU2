@@ -20,15 +20,15 @@ may move on prescribed geometry. Scenario labels must not dispatch reconstructio
 
 ## Current work and evidence
 
-Latest pushed checkpoint `2e9d787265` on authorized origin rois1995/SU2, branch
+Latest pushed checkpoint `fa4c62876b` on authorized origin rois1995/SU2, branch
 codex/native-3d-bl; it is incomplete. Source61 build PASS36.124s. Source60
 reference I/O PASS 5 cases/96 assertions; previous failed receipt remains preserved.
 Source61 broad MPI `staged57/cases/mpi6_20261027T214746_3747115` aborted exit134
 in 19.795s after 24/25 cases per rank, before the complete campaign or new overlap
 case. Address resolution identifies CNativeImport3D_tests.cpp:1743: fixture reads
-point 0 on an empty rank. Reviewed `/tmp/native_bl_empty_rank_draft.patch` elects
-an inhabited rank and broadcasts initial values; it is unapplied. Combine it with
-the next implementation build instead of rebuilding the large test unit alone.
+point 0 on an empty rank. The source62 candidate elects an inhabited rank and broadcasts initial values;
+its MPI regression is pending. Source62 is building with pinned sources; no other
+owned heavy job is running.
 
 Source61 overlap_publication6_20261027T215151_3758648 PASS74.923s, all 16
 events: rank 0 passed 3494 assertions, each other rank 3445; all nine recorded
@@ -36,12 +36,14 @@ processes are gone. publication_cost_summary.json verifies aggregate admitted
 workspace and phase descriptor/work bounds, retaining per-rank statistics.
 Archive arithmetic is excluded; source-envelope checks are not CFD transfer.
 
-Full-CFD M6 is live: run_m6.py build61 euler_build61_working_surface,
-session99828 PID3775811. Native source setup passed at 174193 work, source
-reconstruction 12.235s. Six ranks, unchanged native 1800s/outer 2400s limits
-and configured working storage 12288 MiB/rank. Static command/pins/config are
-saved; C++ and run_cases/run_m6 helpers stay frozen until the owned handle is
-terminal. This is the single owned heavy job.
+Full-CFD M6 build61/session99828 TERMINAL REJECT after 1864.11s: solver exit 0,
+native event accepted=false, pins unchanged. Native elapsed-time stop left
+The working mesh grew from 303,359 to 1,376,207 private cells (4.54×), with
+877,469 metric/height demands; quality was not reached. The 146,862 source-envelope
+cells are separate source metadata, not the initial working tetrahedron count. All nine owned processes are gone. Largest sampled process-tree aggregate
+RSS was 6,387,077,120 bytes; largest sampled individual RSS 1,096,867,840 bytes;
+neither is a whole-job peak. Evidence: `staged57/m6_runs/euler_build61_working_surface`.
+No accepted mesh or transfer/restart workflow follows.
 
 Source60 MPI had failed strict per-rank peak comparisons. Directory hashes IDs
 before modulo, so stride alone did not fix home balance; source61 aggregate
@@ -57,11 +59,12 @@ runtime and broad integrated qualification remain open.
 Source48 M6 stopped at its elapsed-time limit without an accepted mesh; its six
 quality-entry archives are verified and pushed as private diagnostics, with
 source_valid=false and exact_continuation=false. They do not establish transfer,
-restart or a runtime checkpoint. The current full-CFD run uses `run_m6`, not the four-window diagnostic stop. See [progress](ADAPTATION_PROGRESS.md) and
+restart or a runtime checkpoint. This full-CFD run used `run_m6`, not the four-window diagnostic stop. See [progress](ADAPTATION_PROGRESS.md) and
 [curved implementation history](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
 
-The support-index and normalization drafts remain unmerged; local retained-path
-closure is still required. Preserve source, body and feature constraints, resource
+The support-index and normalization candidate is applied but unvalidated.
+Legacy geometric-path, feature cleanup, reload/operator continuation and local
+closure qualification remain required. Preserve source, body and feature constraints, resource
 limits and all final gates. Related decisions: [working-surface reconstruction](Handbook/WORKING_SURFACE_RECONSTRUCTION_DECISION.md),
 [curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md), [staged adaptation](Handbook/STAGED_NATIVE_ADAPTATION.md)
 and [transfer findings](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
