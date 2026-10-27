@@ -1,0 +1,586 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/39] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeCurvedAtlas3D.cpp.o
+[2/39] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeReferenceTriangulation3D.cpp.o
+[3/39] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeGeometryBackend3D.cpp.o
+[4/39] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o
+[5/39] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o
+[6/39] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o
+[7/39] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o
+[8/39] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeRegion3D.cpp.o
+[9/39] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeRegionField3D.cpp.o
+[10/39] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDistributed3D.cpp.o
+[11/39] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o
+[12/39] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o
+[13/39] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativePartition3D.cpp.o
+[14/39] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeImport3D.cpp.o
+In file included from /usr/include/c++/9/tuple:39,
+                 from /usr/include/c++/9/functional:54,
+                 from /usr/include/c++/9/pstl/glue_algorithm_defs.h:13,
+                 from /usr/include/c++/9/algorithm:71,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeNearContainment.hpp:12,
+                 from ../../Common/src/adaptation/CNativeImport3D.cpp:7:
+../../Common/src/adaptation/CNativeImport3D.cpp: In instantiation of ‘SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(auto:16)> [with auto:16 = SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(size_t, size_t)>]’:
+../../Common/src/adaptation/CNativeImport3D.cpp:310:165:   required from here
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+../../Common/src/adaptation/CNativeImport3D.cpp: In instantiation of ‘SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(auto:16)> [with auto:16 = SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(size_t, size_t)>]’:
+../../Common/src/adaptation/CNativeImport3D.cpp:323:4:   required from here
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+[15/39] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeReferenceIO3D.cpp.o
+[16/39] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o
+[17/39] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o
+[18/39] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CDriver.cpp.o
+[19/39] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o
+[20/39] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o
+[21/39] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CNativeComplexity3D.cpp.o
+[22/39] Linking static target Common/src/libSU2AccurateSum.a
+[23/39] Linking static target Common/src/libSU2Common.a
+[24/39] Linking static target SU2_CFD/src/libSU2core.a
+[25/39] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o
+[26/39] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o
+[27/39] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o
+[28/39] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeMesh3D_tests.cpp.o
+[29/39] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeBoundary3D_tests.cpp.o
+[30/39] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeAffineReference_tests.cpp.o
+[31/39] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeCurvedAtlas3D_tests.cpp.o
+[32/39] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeReferenceTriangulation3D_tests.cpp.o
+FAILED: [code=1] UnitTests/test_driver.p/Common_adaptation_CNativeReferenceTriangulation3D_tests.cpp.o 
+c++ -IUnitTests/test_driver.p -IUnitTests -I../../UnitTests -ISU2_CFD/src -I../../SU2_CFD/src -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I../../externals/catch2 -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -pthread -fPIC -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ UnitTests/test_driver.p/Common_adaptation_CNativeReferenceTriangulation3D_tests.cpp.o -MF UnitTests/test_driver.p/Common_adaptation_CNativeReferenceTriangulation3D_tests.cpp.o.d -o UnitTests/test_driver.p/Common_adaptation_CNativeReferenceTriangulation3D_tests.cpp.o -c ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp: In function ‘void C_A_T_C_H_T_E_S_T_0()’:
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:42:51: error: reference to ‘Point’ is ambiguous
+   42 |   const std::vector<CoveragePiece> original{Piece(Point(0,0,budget),Point(1,0,budget),Point(0,1,budget),budget)};
+      |                                                   ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:42:69: error: reference to ‘Point’ is ambiguous
+   42 |   const std::vector<CoveragePiece> original{Piece(Point(0,0,budget),Point(1,0,budget),Point(0,1,budget),budget)};
+      |                                                                     ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:42:87: error: reference to ‘Point’ is ambiguous
+   42 |   const std::vector<CoveragePiece> original{Piece(Point(0,0,budget),Point(1,0,budget),Point(0,1,budget),budget)};
+      |                                                                                       ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:42:112: error: no matching function for call to ‘std::vector<SU2NativeGeometry::CoveragePiece>::vector(<brace-enclosed initializer list>)’
+   42 |   const std::vector<CoveragePiece> original{Piece(Point(0,0,budget),Point(1,0,budget),Point(0,1,budget),budget)};
+      |                                                                                                                ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:6:
+/usr/include/c++/9/bits/stl_vector.h:650:2: note: candidate: ‘template<class _InputIterator, class> std::vector<_Tp, _Alloc>::vector(_InputIterator, _InputIterator, const allocator_type&)’
+  650 |  vector(_InputIterator __first, _InputIterator __last,
+      |  ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:650:2: note:   template argument deduction/substitution failed:
+/usr/include/c++/9/bits/stl_vector.h:622:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::initializer_list<_Tp>, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  622 |       vector(initializer_list<value_type> __l,
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:622:7: note:   conversion of argument 1 would be ill-formed:
+/usr/include/c++/9/bits/stl_vector.h:604:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>&&, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  604 |       vector(vector&& __rv, const allocator_type& __m)
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:604:7: note:   candidate expects 2 arguments, 1 provided
+/usr/include/c++/9/bits/stl_vector.h:586:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>&&, const allocator_type&, std::false_type) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>; std::false_type = std::integral_constant<bool, false>]’
+  586 |       vector(vector&& __rv, const allocator_type& __m, false_type)
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:586:7: note:   candidate expects 3 arguments, 1 provided
+/usr/include/c++/9/bits/stl_vector.h:582:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>&&, const allocator_type&, std::true_type) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>; std::true_type = std::integral_constant<bool, true>]’
+  582 |       vector(vector&& __rv, const allocator_type& __m, true_type) noexcept
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:582:7: note:   candidate expects 3 arguments, 1 provided
+/usr/include/c++/9/bits/stl_vector.h:572:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(const std::vector<_Tp, _Alloc>&, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  572 |       vector(const vector& __x, const allocator_type& __a)
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:572:7: note:   candidate expects 2 arguments, 1 provided
+/usr/include/c++/9/bits/stl_vector.h:569:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>&&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  569 |       vector(vector&&) noexcept = default;
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:569:7: note:   conversion of argument 1 would be ill-formed:
+/usr/include/c++/9/bits/stl_vector.h:550:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(const std::vector<_Tp, _Alloc>&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  550 |       vector(const vector& __x)
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:550:7: note:   conversion of argument 1 would be ill-formed:
+/usr/include/c++/9/bits/stl_vector.h:519:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>::size_type, const value_type&, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::size_type = long unsigned int; std::vector<_Tp, _Alloc>::value_type = SU2NativeGeometry::CoveragePiece; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  519 |       vector(size_type __n, const value_type& __value,
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:519:7: note:   candidate expects 3 arguments, 1 provided
+/usr/include/c++/9/bits/stl_vector.h:507:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>::size_type, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::size_type = long unsigned int; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  507 |       vector(size_type __n, const allocator_type& __a = allocator_type())
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:507:7: note:   conversion of argument 1 would be ill-formed:
+/usr/include/c++/9/bits/stl_vector.h:494:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  494 |       vector(const allocator_type& __a) _GLIBCXX_NOEXCEPT
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:494:7: note:   conversion of argument 1 would be ill-formed:
+/usr/include/c++/9/bits/stl_vector.h:484:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector() [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  484 |       vector() = default;
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:484:7: note:   candidate expects 0 arguments, 1 provided
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:46:16: error: reference to ‘Point’ is ambiguous
+   46 |   const auto p=Point(.25,.25,budget),middle=Point(.375,.1875,budget),q=Point(.5,.125,budget);ExactRatio third;
+      |                ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:48:38: error: ‘middle’ was not declared in this scope
+   48 |   EdgeTrace trace;trace.pieces={{0,p,middle,third},{0,middle,q,Ratio(1,budget)}};const std::vector<EdgeTrace> traces{trace};
+      |                                      ^~~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:48:62: error: ‘q’ was not declared in this scope
+   48 |   EdgeTrace trace;trace.pieces={{0,p,middle,third},{0,middle,q,Ratio(1,budget)}};const std::vector<EdgeTrace> traces{trace};
+      |                                                              ^
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:48:80: error: no match for ‘operator=’ (operand types are ‘std::vector<SU2NativeGeometry::TracePiece>’ and ‘<brace-enclosed initializer list>’)
+   48 |   EdgeTrace trace;trace.pieces={{0,p,middle,third},{0,middle,q,Ratio(1,budget)}};const std::vector<EdgeTrace> traces{trace};
+      |                                                                                ^
+In file included from /usr/include/c++/9/vector:72,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:6:
+/usr/include/c++/9/bits/vector.tcc:198:5: note: candidate: ‘std::vector<_Tp, _Alloc>& std::vector<_Tp, _Alloc>::operator=(const std::vector<_Tp, _Alloc>&) [with _Tp = SU2NativeGeometry::TracePiece; _Alloc = std::allocator<SU2NativeGeometry::TracePiece>]’
+  198 |     vector<_Tp, _Alloc>::
+      |     ^~~~~~~~~~~~~~~~~~~
+/usr/include/c++/9/bits/vector.tcc:199:42: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const std::vector<SU2NativeGeometry::TracePiece>&’
+  199 |     operator=(const vector<_Tp, _Alloc>& __x)
+      |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:6:
+/usr/include/c++/9/bits/stl_vector.h:706:7: note: candidate: ‘std::vector<_Tp, _Alloc>& std::vector<_Tp, _Alloc>::operator=(std::vector<_Tp, _Alloc>&&) [with _Tp = SU2NativeGeometry::TracePiece; _Alloc = std::allocator<SU2NativeGeometry::TracePiece>]’
+  706 |       operator=(vector&& __x) noexcept(_Alloc_traits::_S_nothrow_move())
+      |       ^~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:706:26: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2NativeGeometry::TracePiece>&&’
+  706 |       operator=(vector&& __x) noexcept(_Alloc_traits::_S_nothrow_move())
+      |                 ~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:727:7: note: candidate: ‘std::vector<_Tp, _Alloc>& std::vector<_Tp, _Alloc>::operator=(std::initializer_list<_Tp>) [with _Tp = SU2NativeGeometry::TracePiece; _Alloc = std::allocator<SU2NativeGeometry::TracePiece>]’
+  727 |       operator=(initializer_list<value_type> __l)
+      |       ^~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:727:46: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::initializer_list<SU2NativeGeometry::TracePiece>’
+  727 |       operator=(initializer_list<value_type> __l)
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp: In function ‘void C_A_T_C_H_T_E_S_T_3()’:
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:63:16: error: reference to ‘Point’ is ambiguous
+   63 |   const auto a=Point(.125,.125,budget),b=Point(.625,.125,budget),c=Point(.625,.25,budget),d=Point(.25,.25,budget),e=Point(.25,.625,budget),f=Point(.125,.625,budget);
+      |                ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:64:45: error: ‘b’ was not declared in this scope
+   64 |   std::vector<CoveragePiece> region{Piece(a,b,d,budget),Piece(b,c,d,budget),Piece(a,d,f,budget),Piece(d,e,f,budget)},fresh;
+      |                                             ^
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:64:47: error: ‘d’ was not declared in this scope
+   64 |   std::vector<CoveragePiece> region{Piece(a,b,d,budget),Piece(b,c,d,budget),Piece(a,d,f,budget),Piece(d,e,f,budget)},fresh;
+      |                                               ^
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:64:65: error: ‘c’ was not declared in this scope
+   64 |   std::vector<CoveragePiece> region{Piece(a,b,d,budget),Piece(b,c,d,budget),Piece(a,d,f,budget),Piece(d,e,f,budget)},fresh;
+      |                                                                 ^
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:64:87: error: ‘f’ was not declared in this scope
+   64 |   std::vector<CoveragePiece> region{Piece(a,b,d,budget),Piece(b,c,d,budget),Piece(a,d,f,budget),Piece(d,e,f,budget)},fresh;
+      |                                                                                       ^
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:64:105: error: ‘e’ was not declared in this scope
+   64 |   std::vector<CoveragePiece> region{Piece(a,b,d,budget),Piece(b,c,d,budget),Piece(a,d,f,budget),Piece(d,e,f,budget)},fresh;
+      |                                                                                                         ^
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:64:116: error: no matching function for call to ‘std::vector<SU2NativeGeometry::CoveragePiece>::vector(<brace-enclosed initializer list>)’
+   64 |   std::vector<CoveragePiece> region{Piece(a,b,d,budget),Piece(b,c,d,budget),Piece(a,d,f,budget),Piece(d,e,f,budget)},fresh;
+      |                                                                                                                    ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:6:
+/usr/include/c++/9/bits/stl_vector.h:650:2: note: candidate: ‘template<class _InputIterator, class> std::vector<_Tp, _Alloc>::vector(_InputIterator, _InputIterator, const allocator_type&)’
+  650 |  vector(_InputIterator __first, _InputIterator __last,
+      |  ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:650:2: note:   template argument deduction/substitution failed:
+/usr/include/c++/9/bits/stl_vector.h:622:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::initializer_list<_Tp>, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  622 |       vector(initializer_list<value_type> __l,
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:622:7: note:   candidate expects 2 arguments, 4 provided
+/usr/include/c++/9/bits/stl_vector.h:604:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>&&, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  604 |       vector(vector&& __rv, const allocator_type& __m)
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:604:7: note:   candidate expects 2 arguments, 4 provided
+/usr/include/c++/9/bits/stl_vector.h:586:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>&&, const allocator_type&, std::false_type) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>; std::false_type = std::integral_constant<bool, false>]’
+  586 |       vector(vector&& __rv, const allocator_type& __m, false_type)
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:586:7: note:   candidate expects 3 arguments, 4 provided
+/usr/include/c++/9/bits/stl_vector.h:582:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>&&, const allocator_type&, std::true_type) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>; std::true_type = std::integral_constant<bool, true>]’
+  582 |       vector(vector&& __rv, const allocator_type& __m, true_type) noexcept
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:582:7: note:   candidate expects 3 arguments, 4 provided
+/usr/include/c++/9/bits/stl_vector.h:572:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(const std::vector<_Tp, _Alloc>&, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  572 |       vector(const vector& __x, const allocator_type& __a)
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:572:7: note:   candidate expects 2 arguments, 4 provided
+/usr/include/c++/9/bits/stl_vector.h:569:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>&&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  569 |       vector(vector&&) noexcept = default;
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:569:7: note:   candidate expects 1 argument, 4 provided
+/usr/include/c++/9/bits/stl_vector.h:550:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(const std::vector<_Tp, _Alloc>&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  550 |       vector(const vector& __x)
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:550:7: note:   candidate expects 1 argument, 4 provided
+/usr/include/c++/9/bits/stl_vector.h:519:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>::size_type, const value_type&, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::size_type = long unsigned int; std::vector<_Tp, _Alloc>::value_type = SU2NativeGeometry::CoveragePiece; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  519 |       vector(size_type __n, const value_type& __value,
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:519:7: note:   candidate expects 3 arguments, 4 provided
+/usr/include/c++/9/bits/stl_vector.h:507:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>::size_type, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::size_type = long unsigned int; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  507 |       vector(size_type __n, const allocator_type& __a = allocator_type())
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:507:7: note:   candidate expects 2 arguments, 4 provided
+/usr/include/c++/9/bits/stl_vector.h:494:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  494 |       vector(const allocator_type& __a) _GLIBCXX_NOEXCEPT
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:494:7: note:   candidate expects 1 argument, 4 provided
+/usr/include/c++/9/bits/stl_vector.h:484:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector() [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  484 |       vector() = default;
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:484:7: note:   candidate expects 0 arguments, 4 provided
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:66:37: error: unable to deduce ‘std::initializer_list<auto>&&’ from ‘{a, b, c, d, e, f}’
+   66 |   for(const auto& point:{a,b,c,d,e,f})CHECK(Has(fresh,point));
+      |                                     ^
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp: In function ‘void C_A_T_C_H_T_E_S_T_5()’:
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:71:39: error: reference to ‘Point’ is ambiguous
+   71 |   const std::array<ExactBary,3> outer{Point(.0625,.0625,budget),Point(.8125,.0625,budget),Point(.0625,.8125,budget)};
+      |                                       ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:71:65: error: reference to ‘Point’ is ambiguous
+   71 |   const std::array<ExactBary,3> outer{Point(.0625,.0625,budget),Point(.8125,.0625,budget),Point(.0625,.8125,budget)};
+      |                                                                 ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:71:91: error: reference to ‘Point’ is ambiguous
+   71 |   const std::array<ExactBary,3> outer{Point(.0625,.0625,budget),Point(.8125,.0625,budget),Point(.0625,.8125,budget)};
+      |                                                                                           ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:72:39: error: reference to ‘Point’ is ambiguous
+   72 |   const std::array<ExactBary,3> inner{Point(.25,.25,budget),Point(.375,.25,budget),Point(.25,.375,budget)};
+      |                                       ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:72:61: error: reference to ‘Point’ is ambiguous
+   72 |   const std::array<ExactBary,3> inner{Point(.25,.25,budget),Point(.375,.25,budget),Point(.25,.375,budget)};
+      |                                                             ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:72:84: error: reference to ‘Point’ is ambiguous
+   72 |   const std::array<ExactBary,3> inner{Point(.25,.25,budget),Point(.375,.25,budget),Point(.25,.375,budget)};
+      |                                                                                    ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:75:26: error: reference to ‘Point’ is ambiguous
+   75 |   region.push_back(Piece(Point(.8125,.125,budget),Point(.84375,.125,budget),Point(.8125,.15625,budget),budget));
+      |                          ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:75:51: error: reference to ‘Point’ is ambiguous
+   75 |   region.push_back(Piece(Point(.8125,.125,budget),Point(.84375,.125,budget),Point(.8125,.15625,budget),budget));
+      |                                                   ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:75:77: error: reference to ‘Point’ is ambiguous
+   75 |   region.push_back(Piece(Point(.8125,.125,budget),Point(.84375,.125,budget),Point(.8125,.15625,budget),budget));
+      |                                                                             ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:78:72: error: reference to ‘Point’ is ambiguous
+   78 |   const auto saved=Words(fresh);EdgeTrace crossing;crossing.pieces={{0,Point(.1875,.3125,budget),Point(.4375,.3125,budget),Ratio(1,budget)}};
+      |                                                                        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:78:98: error: reference to ‘Point’ is ambiguous
+   78 |   const auto saved=Words(fresh);EdgeTrace crossing;crossing.pieces={{0,Point(.1875,.3125,budget),Point(.4375,.3125,budget),Ratio(1,budget)}};
+      |                                                                                                  ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:78:140: error: no match for ‘operator=’ (operand types are ‘std::vector<SU2NativeGeometry::TracePiece>’ and ‘<brace-enclosed initializer list>’)
+   78 |   const auto saved=Words(fresh);EdgeTrace crossing;crossing.pieces={{0,Point(.1875,.3125,budget),Point(.4375,.3125,budget),Ratio(1,budget)}};
+      |                                                                                                                                            ^
+In file included from /usr/include/c++/9/vector:72,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:6:
+/usr/include/c++/9/bits/vector.tcc:198:5: note: candidate: ‘std::vector<_Tp, _Alloc>& std::vector<_Tp, _Alloc>::operator=(const std::vector<_Tp, _Alloc>&) [with _Tp = SU2NativeGeometry::TracePiece; _Alloc = std::allocator<SU2NativeGeometry::TracePiece>]’
+  198 |     vector<_Tp, _Alloc>::
+      |     ^~~~~~~~~~~~~~~~~~~
+/usr/include/c++/9/bits/vector.tcc:199:42: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const std::vector<SU2NativeGeometry::TracePiece>&’
+  199 |     operator=(const vector<_Tp, _Alloc>& __x)
+      |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:6:
+/usr/include/c++/9/bits/stl_vector.h:706:7: note: candidate: ‘std::vector<_Tp, _Alloc>& std::vector<_Tp, _Alloc>::operator=(std::vector<_Tp, _Alloc>&&) [with _Tp = SU2NativeGeometry::TracePiece; _Alloc = std::allocator<SU2NativeGeometry::TracePiece>]’
+  706 |       operator=(vector&& __x) noexcept(_Alloc_traits::_S_nothrow_move())
+      |       ^~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:706:26: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2NativeGeometry::TracePiece>&&’
+  706 |       operator=(vector&& __x) noexcept(_Alloc_traits::_S_nothrow_move())
+      |                 ~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:727:7: note: candidate: ‘std::vector<_Tp, _Alloc>& std::vector<_Tp, _Alloc>::operator=(std::initializer_list<_Tp>) [with _Tp = SU2NativeGeometry::TracePiece; _Alloc = std::allocator<SU2NativeGeometry::TracePiece>]’
+  727 |       operator=(initializer_list<value_type> __l)
+      |       ^~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:727:46: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::initializer_list<SU2NativeGeometry::TracePiece>’
+  727 |       operator=(initializer_list<value_type> __l)
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp: In function ‘void C_A_T_C_H_T_E_S_T_8()’:
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:83:111: error: reference to ‘Point’ is ambiguous
+   83 |   auto geometry=Geometry();auto budget=Budget();std::string why;const std::vector<CoveragePiece> region{Piece(Point(0,0,budget),Point(1,0,budget),Point(0,1,budget),budget)};
+      |                                                                                                               ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:83:129: error: reference to ‘Point’ is ambiguous
+   83 |   auto geometry=Geometry();auto budget=Budget();std::string why;const std::vector<CoveragePiece> region{Piece(Point(0,0,budget),Point(1,0,budget),Point(0,1,budget),budget)};
+      |                                                                                                                                 ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:83:147: error: reference to ‘Point’ is ambiguous
+   83 |   auto geometry=Geometry();auto budget=Budget();std::string why;const std::vector<CoveragePiece> region{Piece(Point(0,0,budget),Point(1,0,budget),Point(0,1,budget),budget)};
+      |                                                                                                                                                   ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:14:11: note: candidates are: ‘SU2NativeGeometry::ExactBary {anonymous}::Point(double, double, SU2NativeGeometry::AtlasBudget&)’
+   14 | ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+      |           ^~~~~
+In file included from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeTopology3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeCavity3D.hpp:8,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeAffineReference.hpp:7,
+                 from ../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeReferenceTriangulation3D.hpp:7,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:7:
+../../UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeMesh3D.hpp:14:8: note:                 ‘struct SU2Native3D::Point’
+   14 | struct Point {
+      |        ^~~~~
+../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:83:172: error: no matching function for call to ‘std::vector<SU2NativeGeometry::CoveragePiece>::vector(<brace-enclosed initializer list>)’
+   83 |   auto geometry=Geometry();auto budget=Budget();std::string why;const std::vector<CoveragePiece> region{Piece(Point(0,0,budget),Point(1,0,budget),Point(0,1,budget),budget)};
+      |                                                                                                                                                                            ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp:6:
+/usr/include/c++/9/bits/stl_vector.h:650:2: note: candidate: ‘template<class _InputIterator, class> std::vector<_Tp, _Alloc>::vector(_InputIterator, _InputIterator, const allocator_type&)’
+  650 |  vector(_InputIterator __first, _InputIterator __last,
+      |  ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:650:2: note:   template argument deduction/substitution failed:
+/usr/include/c++/9/bits/stl_vector.h:622:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::initializer_list<_Tp>, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  622 |       vector(initializer_list<value_type> __l,
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:622:7: note:   conversion of argument 1 would be ill-formed:
+/usr/include/c++/9/bits/stl_vector.h:604:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>&&, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  604 |       vector(vector&& __rv, const allocator_type& __m)
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:604:7: note:   candidate expects 2 arguments, 1 provided
+/usr/include/c++/9/bits/stl_vector.h:586:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>&&, const allocator_type&, std::false_type) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>; std::false_type = std::integral_constant<bool, false>]’
+  586 |       vector(vector&& __rv, const allocator_type& __m, false_type)
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:586:7: note:   candidate expects 3 arguments, 1 provided
+/usr/include/c++/9/bits/stl_vector.h:582:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>&&, const allocator_type&, std::true_type) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>; std::true_type = std::integral_constant<bool, true>]’
+  582 |       vector(vector&& __rv, const allocator_type& __m, true_type) noexcept
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:582:7: note:   candidate expects 3 arguments, 1 provided
+/usr/include/c++/9/bits/stl_vector.h:572:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(const std::vector<_Tp, _Alloc>&, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  572 |       vector(const vector& __x, const allocator_type& __a)
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:572:7: note:   candidate expects 2 arguments, 1 provided
+/usr/include/c++/9/bits/stl_vector.h:569:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>&&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  569 |       vector(vector&&) noexcept = default;
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:569:7: note:   conversion of argument 1 would be ill-formed:
+/usr/include/c++/9/bits/stl_vector.h:550:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(const std::vector<_Tp, _Alloc>&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  550 |       vector(const vector& __x)
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:550:7: note:   conversion of argument 1 would be ill-formed:
+/usr/include/c++/9/bits/stl_vector.h:519:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>::size_type, const value_type&, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::size_type = long unsigned int; std::vector<_Tp, _Alloc>::value_type = SU2NativeGeometry::CoveragePiece; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  519 |       vector(size_type __n, const value_type& __value,
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:519:7: note:   candidate expects 3 arguments, 1 provided
+/usr/include/c++/9/bits/stl_vector.h:507:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(std::vector<_Tp, _Alloc>::size_type, const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::size_type = long unsigned int; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  507 |       vector(size_type __n, const allocator_type& __a = allocator_type())
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:507:7: note:   conversion of argument 1 would be ill-formed:
+/usr/include/c++/9/bits/stl_vector.h:494:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector(const allocator_type&) [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>; std::vector<_Tp, _Alloc>::allocator_type = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  494 |       vector(const allocator_type& __a) _GLIBCXX_NOEXCEPT
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:494:7: note:   conversion of argument 1 would be ill-formed:
+/usr/include/c++/9/bits/stl_vector.h:484:7: note: candidate: ‘std::vector<_Tp, _Alloc>::vector() [with _Tp = SU2NativeGeometry::CoveragePiece; _Alloc = std::allocator<SU2NativeGeometry::CoveragePiece>]’
+  484 |       vector() = default;
+      |       ^~~~~~
+/usr/include/c++/9/bits/stl_vector.h:484:7: note:   candidate expects 0 arguments, 1 provided
+[33/39] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeGeometryBackend3D_tests.cpp.o
+[34/39] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeMetric3D_tests.cpp.o
+[35/39] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeDistributed3D_tests.cpp.o
+[36/39] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativePartition3D_tests.cpp.o
+[37/39] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeReferenceIO_tests.cpp.o
+[38/39] Linking target SU2_CFD/src/SU2_CFD
+ninja: build stopped: cannot make progress due to previous errors.

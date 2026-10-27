@@ -11,9 +11,9 @@ using namespace SU2NativeGeometry;
 namespace {
 AtlasBudget Budget(){return {size_t(1)<<28,size_t(1)<<28,4096};}
 ExactRatio Ratio(double value,AtlasBudget& budget){ExactRatio r;std::string why;REQUIRE(ExactBinary64(value,r,budget,why));return r;}
-ExactBary Point(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
+ExactBary RefPoint(double u,double v,AtlasBudget& budget){return {Ratio(u,budget),Ratio(v,budget)};}
 CoveragePiece Piece(ExactBary a,ExactBary b,ExactBary c,AtlasBudget& budget){return {0,{std::move(a),std::move(b),std::move(c)},
-  {Point(0,0,budget),Point(1,0,budget),Point(0,1,budget)}};}
+  {RefPoint(0,0,budget),RefPoint(1,0,budget),RefPoint(0,1,budget)}};}
 std::shared_ptr<MappedFacetReference> Geometry(){using namespace SU2Native3D;
   const Node a{0,{0,0,0}},b{1,{1,0,0}},c{2,{0,1,0}},d{3,{0,0,1}};
   std::vector<Facet> f{{0,0,{a,c,b}},{1,0,{a,b,d}},{2,0,{b,c,d}},{3,0,{a,d,c}}};std::map<Id,double> errors;
@@ -39,11 +39,11 @@ double TwiceArea(const std::vector<CoveragePiece>& pieces){auto budget=Budget();
 
 TEST_CASE("Fresh reference triangulation discards historical interior cuts and preserves trace t", "[NativeReferenceTriangulation3D]") {
   auto geometry=Geometry();auto budget=Budget();std::string why;
-  const std::vector<CoveragePiece> original{Piece(Point(0,0,budget),Point(1,0,budget),Point(0,1,budget),budget)};
+  const std::vector<CoveragePiece> original{Piece(RefPoint(0,0,budget),RefPoint(1,0,budget),RefPoint(0,1,budget),budget)};
   const auto historical=Refine(Refine(original,budget),budget);REQUIRE(historical.size()==9);
   std::map<SU2Native3D::Id,SurfaceBinding> current{{10,geometry->Vertex(0)},{20,geometry->Vertex(2)},{30,geometry->Vertex(1)},
     {40,geometry->FacetPoint(0,.25,.25)},{50,geometry->FacetPoint(0,.5,.125)}};
-  const auto p=Point(.25,.25,budget),middle=Point(.375,.1875,budget),q=Point(.5,.125,budget);ExactRatio third;
+  const auto p=RefPoint(.25,.25,budget),middle=RefPoint(.375,.1875,budget),q=RefPoint(.5,.125,budget);ExactRatio third;
   REQUIRE(ExactDivide(Ratio(1,budget),Ratio(3,budget),third,budget,why));
   EdgeTrace trace;trace.pieces={{0,p,middle,third},{0,middle,q,Ratio(1,budget)}};const std::vector<EdgeTrace> traces{trace};
   std::vector<uint64_t> t_before;REQUIRE(ExactEncode(traces[0].pieces[0].end,t_before,budget,why));
@@ -60,7 +60,7 @@ TEST_CASE("Fresh reference triangulation discards historical interior cuts and p
 
 TEST_CASE("Fresh reference constraints recover a concave polygon without metric-ranked ears", "[NativeReferenceTriangulation3D]") {
   auto geometry=Geometry();auto budget=Budget();std::string why;
-  const auto a=Point(.125,.125,budget),b=Point(.625,.125,budget),c=Point(.625,.25,budget),d=Point(.25,.25,budget),e=Point(.25,.625,budget),f=Point(.125,.625,budget);
+  const auto a=RefPoint(.125,.125,budget),b=RefPoint(.625,.125,budget),c=RefPoint(.625,.25,budget),d=RefPoint(.25,.25,budget),e=RefPoint(.25,.625,budget),f=RefPoint(.125,.625,budget);
   std::vector<CoveragePiece> region{Piece(a,b,d,budget),Piece(b,c,d,budget),Piece(a,d,f,budget),Piece(d,e,f,budget)},fresh;
   REQUIRE(RebuildReferenceTriangulation(*geometry,region,{}, {},fresh,budget,why));CHECK(fresh.size()==4);CHECK(TwiceArea(fresh)==.21875);
   for(const auto& point:{a,b,c,d,e,f})CHECK(Has(fresh,point));
@@ -68,19 +68,19 @@ TEST_CASE("Fresh reference constraints recover a concave polygon without metric-
 
 TEST_CASE("Fresh per-chart winding keeps holes and disconnected components", "[NativeReferenceTriangulation3D]") {
   auto geometry=Geometry();auto budget=Budget();std::string why;
-  const std::array<ExactBary,3> outer{Point(.0625,.0625,budget),Point(.8125,.0625,budget),Point(.0625,.8125,budget)};
-  const std::array<ExactBary,3> inner{Point(.25,.25,budget),Point(.375,.25,budget),Point(.25,.375,budget)};
+  const std::array<ExactBary,3> outer{RefPoint(.0625,.0625,budget),RefPoint(.8125,.0625,budget),RefPoint(.0625,.8125,budget)};
+  const std::array<ExactBary,3> inner{RefPoint(.25,.25,budget),RefPoint(.375,.25,budget),RefPoint(.25,.375,budget)};
   std::vector<CoveragePiece> region;for(unsigned k=0;k<3;++k){const auto next=(k+1)%3;
     region.push_back(Piece(outer[k],outer[next],inner[next],budget));region.push_back(Piece(outer[k],inner[next],inner[k],budget));}
-  region.push_back(Piece(Point(.8125,.125,budget),Point(.84375,.125,budget),Point(.8125,.15625,budget),budget));
+  region.push_back(Piece(RefPoint(.8125,.125,budget),RefPoint(.84375,.125,budget),RefPoint(.8125,.15625,budget),budget));
   std::vector<CoveragePiece> fresh;INFO(why);REQUIRE(RebuildReferenceTriangulation(*geometry,region,{}, {},fresh,budget,why));
   CHECK(fresh.size()==7);CHECK(TwiceArea(fresh)==.5478515625);
-  const auto saved=Words(fresh);EdgeTrace crossing;crossing.pieces={{0,Point(.1875,.3125,budget),Point(.4375,.3125,budget),Ratio(1,budget)}};
+  const auto saved=Words(fresh);EdgeTrace crossing;crossing.pieces={{0,RefPoint(.1875,.3125,budget),RefPoint(.4375,.3125,budget),Ratio(1,budget)}};
   auto refusal=Budget();CHECK_FALSE(RebuildReferenceTriangulation(*geometry,region,{}, {crossing},fresh,refusal,why));CHECK(Words(fresh)==saved);
 }
 
 TEST_CASE("Fresh reference reconstruction refuses resource and malformed-region failures atomically", "[NativeReferenceTriangulation3D]") {
-  auto geometry=Geometry();auto budget=Budget();std::string why;const std::vector<CoveragePiece> region{Piece(Point(0,0,budget),Point(1,0,budget),Point(0,1,budget),budget)};
+  auto geometry=Geometry();auto budget=Budget();std::string why;const std::vector<CoveragePiece> region{Piece(RefPoint(0,0,budget),RefPoint(1,0,budget),RefPoint(0,1,budget),budget)};
   std::vector<CoveragePiece> output=region;const auto saved=Words(output);
   auto work=Budget();work.maximum_work=0;CHECK_FALSE(RebuildReferenceTriangulation(*geometry,region,{}, {},output,work,why));CHECK(Words(output)==saved);
   auto bytes=Budget();bytes.maximum_bytes=1;CHECK_FALSE(RebuildReferenceTriangulation(*geometry,region,{}, {},output,bytes,why));CHECK(Words(output)==saved);

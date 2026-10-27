@@ -1061,7 +1061,7 @@ TEST_CASE("A nonseparating protected crease cannot be buried inside one active f
     candidate.coverage.traces.emplace(edge,std::move(trace));}
   const auto saved=state->Snapshot();auto query_work=GeometryAtlasBudget();auto query=reference->PrivateParameters(candidate,&query_work);
   CHECK_FALSE(query->ContainsFace(100,realized));
-  CHECK_THROWS_WITH(query->SurfaceError(100,realized),"Protected original feature lies inside an active physical face.");
+  CHECK_THROWS_WITH(query->SurfaceError(100,realized),"Mapped surface leaves its parameter authority.");
   CHECK(state->Snapshot()==saved);
   auto conforming_work=GeometryAtlasBudget();auto conforming=reference->WithAtlasReservation(conforming_work);const auto& accepted=definition->Get(100);
   const std::array<Point,3> triangle{accepted.v[0].p,accepted.v[1].p,accepted.v[2].p};

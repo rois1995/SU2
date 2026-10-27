@@ -1,7 +1,8 @@
 # Geometry backend plan
 
-Status: native interface/adapter implementation is underway; it is unbuilt and
-unvalidated. Open CASCADE/importers remain planned. Current
+Status: native interface/adapter implemented; build32 and focused45-case suite
+pass, including backend cases and existing cubic differential checks. Broader
+M6/transfer/restart qualification remains open. Open CASCADE/importers are planned. Current
 atlas implementation and its outstanding work are described in
 [CURVED_ATLAS_IMPLEMENTATION.md](CURVED_ATLAS_IMPLEMENTATION.md).
 

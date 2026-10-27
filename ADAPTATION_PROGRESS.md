@@ -16,22 +16,22 @@ transfer/reload, repeated curved restart, and distributed history/recovery.
 [Transfer-only ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 
 
-Build28/session96276 PASS78.17s/944 unchanged pins. Connected curved mobility
-now passes focused atlas_checks/session76464:25 cases/4261 assertions,9.48s,
-unchanged pins. Geometry, v8 persistence, atomic publication and source kernels pass. Encoding scratch, Bernstein edge-normal bounds and exact
-arithmetic cost were corrected; independent fixture transactions keep separate
-unchanged1M-work reservations. No production cap or final gate was raised.
-Six-rank M6 diagnostic/session51670 FAIL178.39s, pins unchanged: setup
-exhausted arithmetic work before meshing. Policyclassified23806 freesurfacepoints,
-671curvepoints and2fixedpoints. Metadata-only activation now clones the validated
-accepted state while preserving full untrusted-input audits. Build29/session26845
-PASS1108.27s/944 unchanged pins. The earlier filter omitted the remapper-specific
-tag; corrected selection now includes its motion/second-event and migration
-cases:28/29 pass,4317/4318 assertions,14.68s, unchanged pins. The second
-remap exhausts work in the exact2-chain arrangement; internal edges will be
-cancelled before subdivision. A direct two-event MoveVertex test is added.
-Broader integration and full M6 acceptance remain open.
-[Implementation and retained failures](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
+Build32/session33069 PASS78.14s/950 unchanged pins. Clean working-reference
+reconstruction, coordinated shared paths and the native backend interface now
+pass focused atlas_checks/session40070:45 cases/7561 assertions,38.79s,
+unchanged pins. Actual two-event movement,16-event reconstruction with stable
+normalized descriptors, nonseparating features, region history/holes, metadata
+publication, native archive and source checks pass. Compiled-binary listing
+verifies all14 intended new-file cases selected (45 total). Earlier test-tag
+omissions and all failures remain documented; those earlier passes did not
+qualify the omitted remapper cases.
+Six-rank M6 build32/session90654 TERMINAL FAIL54.3039s, pins unchanged; largest sampled individual RSS392314880 bytes. Setup work174193 passed, but import rejected “Native3D physical triangle leaves its immutable oriented marker facets.” before meshing. Evidence: `staged57/cases/m6_stage_20261027T144634_2539145`. Full accepted mesh, broad serial/MPI, adaptation, transfer and restart remain unqualified.
+The import failure is a missing reservation on read-only accepted-state face lookup.
+Build33/session45827 PASS57.15s,950 unchanged pins. Focused atlas checks
+PASS38.85s:45 cases/7610 assertions, including exact accepted lookup without a
+reservation and rejection of altered coordinates/orientation/marker. M6 retry
+session31910 is live; C++/helpers remain frozen.
+
 
 Build19 serial182 cases/1,121,344 assertions and MPI6 all159 cases/rank passed;
 its four-window M6 diagnostic worsened early quality debt and did not establish

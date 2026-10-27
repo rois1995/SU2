@@ -833,6 +833,12 @@ bool PlanarReference::ParameterContainsFace(Id facet,const std::array<Point,3>& 
   std::array<SU2NativeGeometry::SurfaceBinding,3> b;SurfaceFace face;face.facet=facet;
   for(unsigned k=0;k<3;++k){const auto q=Parameter(p[k]);if(!q)return false;b[k]=q->binding;face.v[k]=q->node.id;}
   const auto& g=parameter_view->accepted->Geometry();
+  // Accepted coordinates/topology already carry a coverage certificate; read-only import needs no new arithmetic reservation.
+  if(!parameter_view->private_view&&parameter_view->local.empty()&&parameter_view->pending.empty()&&
+      parameter_view->surface.empty()&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty()) {
+    const auto found=parameter_view->accepted->Surface().find(FaceKey(face.v));
+    if(found!=parameter_view->accepted->Surface().end()&&found->second.v==FaceOrder(face.v)&&found->second.facet==facet)return true;
+  }
   if(!AtlasActive(*parameter_view->accepted)&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty())return g.ContainsFace(facet,b,p,stats);
   if(!parameter_view->reservation)return false;auto& budget=*parameter_view->reservation;std::string reason;FaceCoverage cover;std::array<EdgeTrace,3> traces;
   if(!ResolveCoverage(face,cover,budget,reason))return false;

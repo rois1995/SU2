@@ -438,7 +438,7 @@ Build28 PASS78.17s/944 unchanged pins. Focused atlas_checks
 unchanged1M-work reservations; earlier attempted-work receipts remain asserted.
 No production cap was raised. Certified nearby-double bounds and canonical-dyadic
 GCD shortcuts reduce actual arithmetic work without skipping validation. Full
-M6 diagnostic/session51670 is running on six ranks; acceptance remains open.
+The later build32 M6 diagnostic result is recorded below; acceptance remains open.
 
 Difficult M6 build28 diagnostic is terminal FAIL178.39s, unchanged pins
 (`staged57/cases/m6_stage_20261027T121816_2120374`): policy derivation reports674
@@ -482,3 +482,29 @@ stay specialized. New operator, repeated-event, nonseparating-feature, region
 history-equivalence, coordinated-publication and backend cases are selected.
 The source-tag audit found all14 cases in the three new test files selected;
 runtime listing and results remain pending. No M6 acceptance is claimed.
+
+Build30 terminal compiler failure1180.22s/950 unchanged pins: production code
+compiled, new reference tests used an ambiguous Point helper. Terra renamed it;
+build31 PASS24.07s. The first verified45-case run failed7 assertions: six proposal
+samples used interior-only bindings at original vertices/edges, and one assertion
+expected an internal diagnostic hidden by the public API. Canonical support
+selection and the public-message assertion corrected these without changing gates.
+Build32 PASS78.14s/950 unchanged pins. Focused
+`staged57/cases/atlas_checks_20261027T144415_2532842` PASS38.79s,45 cases/7561
+assertions, pins unchanged. Compiled test listing/filter audit confirms all14
+intended cases in the three new files selected. Actual MoveVertex/repeated state,
+16-event descriptor stability, nonseparating curve motion, protected-curve burial
+refusal, history-equivalent reference triangulation/holes, coordinated metadata,
+backend differential/projection and source/archive cases pass. These remain
+focused connected evidence, not accepted M6/whole workflow. Six-rank M6 build32/session90654 TERMINAL FAIL54.3039s, pins unchanged; largest sampled individual RSS392314880 bytes. Setup work174193 passed, but import rejected “Native3D physical triangle leaves its immutable oriented marker facets.” before meshing. Evidence: `staged57/cases/m6_stage_20261027T144634_2539145`. Full accepted mesh, broad serial/MPI, adaptation, transfer and restart remain unqualified.
+
+
+Build33 addresses the M6 import caller mismatch: active mobility routed even exact
+accepted faces through a required transaction reservation, absent in read-only
+import. Recognize only identical accepted oriented topology on a clean, nonprivate
+parameter view; local changes/proposals retain the existing certification path.
+The policy-migration regression now checks accepted lookup with no reservation and
+refuses changed coordinates, reversed orientation and a different marker. Build33
+passed57.15s/950 unchanged pins. Focused atlas checks
+`cases/atlas_checks_20261027T145320_2558161` pass38.85s/45 cases/7610 assertions
+with unchanged pins. M6 retry/session31910 is live; no acceptance is implied.

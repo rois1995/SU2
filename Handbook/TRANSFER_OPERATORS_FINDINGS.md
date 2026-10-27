@@ -45,6 +45,11 @@ The shortcut now applies only to faceted mapped geometry; curved source shells
 must follow the complete envelope path. The corrected representation compiles in build28 and its focused source-kernel
 checks pass with unchanged pins; the complete transfer workflow remains pending.
 
+Build32 focused reconstruction/backend/source/archive selection passes45 cases/
+7561 assertions with unchanged pins. This includes the actual two-event movement
+and persisted-association machinery, but it does not establish complete
+conservative transfer/restart for the new M6 reconstruction path.
+
 Acceptance requires persistence/rebinding, source reconstruction, a second
 adaptation event and independent donor coverage/conservation checks. Earlier
 build19 transfer evidence does not qualify this changed representation.

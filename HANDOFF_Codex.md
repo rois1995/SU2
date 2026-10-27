@@ -23,39 +23,35 @@ and [curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md).
 
 ## Live work and validation
 
-**Connected curved mobility passes focused checks; M6 remains open.**
-Build28/session96276 PASS78.17s/944 unchanged pins. Focused atlas_checks/
-session76464 PASS9.48s:25 cases/4261 assertions, pins unchanged. This covers
-geometry, v8 archive, atomic publication and source kernels.
-Independent fixture transactions now retain separate unchanged1M-work reservations;
-production limits remain unchanged. Six-rank M6 diagnostic/session51670 is terminal FAIL178.39s, pins unchanged: policy
-setup exhausted arithmetic work before meshing. It classified674 protectededges,
-2corners,671curvepoints and23806 freesurfacepoints. Build29/session26845 PASS1108.27s/944 unchanged pins. Build30/session54900 is live:950 pinned inputs, one low-priority worker.
-All C++ and validation helpers are frozen.
-Metadata-only activation is implemented to clone the validated accepted state
-and verify its new policy, preserving full untrusted-input audits and limits.
+**Clean working-reference reconstruction passes focused checks; M6 remains open.**
+Build32/session33069 PASS78.14s/950 unchanged pins (build30 compiled production
+code but a test helper name failed; build31 linked after that fix). Focused
+atlas_checks/session40070 PASS38.79s:45 cases/7561 assertions, pins unchanged.
+Actual two-event MoveVertex,16-event repeated reconstruction with normalized
+stable descriptors, nonseparating feature motion/burial refusal, constrained
+reference history/holes, coordinated shared paths, cubic backend, archive/source
+checks pass. Compiled-binary listing verifies all14 intended cases in the three
+new test files are selected (45 total); earlier omitted-tag claims are corrected
+in the linked implementation history.
 
-Test-selection correction: the remapper's own tests used NativeCurvedAtlasRemap3D,
-which the focused filter omitted. Earlier motion/second-event claims were
-premature. Those tests now also carry the selected common tag; their first run completed:28/29 focused cases pass4317/4318 assertions,14.68s,
-pins unchanged. Migration and initial remapping/curve motion pass. The second
-accepted remap exhausts536M arithmetic work in the reference2-chain arrangement;
-exact internal-edge cancellation before subdivision is being implemented.
-A direct two-event MoveVertex caller test is added. Fresh reference reconstruction,
-coordinated metadata covers, local feature cuts and repeated-event tests are
-implemented and compiling in build30. Native backend queries are wired but
-remain runtime-unqualified: [CAD/backend plan](Handbook/GEOMETRY_BACKEND_PLAN.md).
-User direction: the next design must remove history-dependent descriptor growth.
-Clean working-patch reconstruction against original charts/current bindings is
-being designed; accepted interiors will not accumulate. Retained trace history
-requires coordinated incident-face replacement. No arithmetic-only milestone.
+Six-rank M6 build32/session90654 TERMINAL FAIL54.3039s, pins unchanged; largest sampled individual RSS392314880 bytes. Setup work174193 passed, but import rejected “Native3D physical triangle leaves its immutable oriented marker facets.” before meshing. Evidence: `staged57/cases/m6_stage_20261027T144634_2539145`. Full accepted mesh, broad serial/MPI, adaptation, transfer and restart remain unqualified.
+The import failure is a missing reservation on read-only accepted-state face lookup.
+Build33/session45827 PASS57.15s,950 unchanged pins. Focused atlas checks
+PASS38.85s:45 cases/7610 assertions, including exact accepted lookup without a
+reservation and rejection of altered coordinates/orientation/marker. M6 retry
+session31910 is live; C++/helpers remain frozen.
 
+
+Latest pushed WIP: `527cb68e53`; the canonical vertex/edge sampling correction and
+one public-error assertion fix are local. [Connected design and retained failures](Handbook/CURVED_ATLAS_IMPLEMENTATION.md),
+[backend/CAD plan](Handbook/GEOMETRY_BACKEND_PLAN.md). Open CASCADE/importers remain
+planned; current cubic authority and all native archives remain authoritative.
 
 The exact-coordinate fast paths certify floating bounds by exact comparison and
 recognize coprime dyadic coordinates; existing fallback/validation remains.
 Edge-normal restriction now uses Bernstein controls to avoid false sharp seams.
 See [implementation/validation findings](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
-Latest pushed checkpoint: `f374ea8a23` (focused integration passes; M6 pending).
+Previous focused checkpoint: `f374ea8a23`; see the current checkpoint above.
 Primitive checkpoint `7e41461874` includes earlier standalone evidence. Detailed
 build/case receipts are in `staged57` under the DC17/18 evidence directory.
 The capture analyzer supports legacy/schema8 payloads; synthetic checks pass.

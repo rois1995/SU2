@@ -113,6 +113,16 @@ TEST_CASE("Validated legacy parameters activate equivalent mobility metadata ato
   REQUIRE(migrated);CHECK(migrated->Snapshot()==fixture.state->Snapshot());
   CHECK(migrated->Authority().get()==fixture.geometry.get());CHECK(migrated->Revision()==revision);
   CHECK(migrated->Geometry().Version()==geometry_version);CHECK(legacy->Snapshot()==before);
+  const auto reference=PlanarReference::WithParameters(fixture.definition,migrated);
+  REQUIRE(reference->AtlasReservation()==nullptr);
+  for(const auto& face:migrated->Surface()) {
+    std::array<Point,3> triangle;for(unsigned k=0;k<3;++k)triangle[k]=migrated->Find(face.second.v[k])->node.p;
+    Id found=UINT64_MAX;CHECK(reference->FindFace(0,triangle,found));CHECK(found==face.second.facet);
+    CHECK(reference->ContainsFace(face.second.facet,triangle));
+    auto reversed=triangle;std::swap(reversed[0],reversed[1]);CHECK_FALSE(reference->ContainsFace(face.second.facet,reversed));
+    auto altered=triangle;altered[0].x+=.001;CHECK_FALSE(reference->ContainsFace(face.second.facet,altered));
+    CHECK_FALSE(reference->FindFace(1,triangle,found));
+  }
   const auto active=migrated->Snapshot();
   auto work=RemappingBudget();work.maximum_work=0;
   CHECK_THROWS(legacy->WithMobilityPolicy(45,{{0,2}},work));CHECK(legacy->Snapshot()==before);

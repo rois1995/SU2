@@ -309,6 +309,8 @@ size_t CurvedAtlasWorkspaceBytes(size_t bits) {
   }catch(const std::length_error&){return SIZE_MAX;}
 }
 
+namespace { SurfaceBinding Quantize(const MappedFacetReference&,Id,const ExactBary&,Ops&); }
+
 bool PrepareCurvedAtlas(const SU2Native3D::Patch& accepted,const SU2Native3D::PlanarReference& reference,
     std::optional<SU2Native3D::Id> moving,CurvedAtlas& result,AtlasBudget& budget,std::string& reason) {
   std::shared_ptr<CurvedAtlas::Data> data;FaceCoverage working,fresh_reference;std::array<EdgeTrace,3> working_traces;
@@ -387,11 +389,10 @@ bool PrepareCurvedAtlas(const SU2Native3D::Patch& accepted,const SU2Native3D::Pl
         Triangle triangle;triangle.facet=piece.facet;triangle.reference=piece.reference;
         for(unsigned k=0;k<3;++k) {
           triangle.vertex[k]=AddVertex(sheet,op.ReferenceKey(geometry,piece.facet,piece.reference[k]),op);
-          double u=std::clamp(op.Round(piece.reference[k].u),0.,1.),v=std::clamp(op.Round(piece.reference[k].v),0.,1.);
-          if((long double)u+v>1){v=double(1-(long double)u);if((long double)u+v>1)v=std::nextafter(v,0.);}
-          // These immutable-geometry samples propose positions; actual moved bindings are separately certified.
+          // Canonical support is required at original vertices/edges as well as chart interiors.
           GeometryEvaluation evaluation;op.Sync();
-          op.Check(data->backend->Evaluate(geometry.FacetPoint(piece.facet,u,v),std::nullopt,evaluation,budget,op.reason));triangle.flat[k]=evaluation.point;
+          const auto binding=Quantize(geometry,piece.facet,piece.reference[k],op);
+          op.Check(data->backend->Evaluate(binding,std::nullopt,evaluation,budget,op.reason));triangle.flat[k]=evaluation.point;
         }
         Reserve(sheet.triangles,Plus(sheet.triangles.size(),1),op);op.Sync(PieceBound(op));sheet.triangles.push_back(std::move(triangle));
       }
