@@ -45,7 +45,7 @@ subdir('adaptation')
 # Pure doubles: the same library for every build type; retain its existing name.
 accurate_sum_lib = static_library('SU2AccurateSum',
                                   files(['adaptation/CAccurateSum.cpp', 'adaptation/CNativePredicates2D.cpp',
-                                         'adaptation/CNativePredicates3D.cpp', 'adaptation/CNativeAtlas3D.cpp', 'adaptation/CNativeCurvedAtlas3D.cpp', 'adaptation/CNativeBoundaryParameters3D.cpp', 'adaptation/CNativeAffineReference.cpp', 'adaptation/CNativeTopology3D.cpp',
+                                         'adaptation/CNativePredicates3D.cpp', 'adaptation/CNativeAtlas3D.cpp', 'adaptation/CNativeCurvedAtlas3D.cpp', 'adaptation/CNativeReferenceTriangulation3D.cpp', 'adaptation/CNativeGeometryBackend3D.cpp', 'adaptation/CNativeBoundaryParameters3D.cpp', 'adaptation/CNativeAffineReference.cpp', 'adaptation/CNativeTopology3D.cpp',
                                          'adaptation/CNativeCavity3D.cpp', 'adaptation/CNativeField3D.cpp',
                                          'adaptation/CNativeBoundary3D.cpp', 'adaptation/CNativeMetric3D.cpp', 'adaptation/CNativeRegion3D.cpp', 'adaptation/CNativeRegionField3D.cpp',
                                          'adaptation/CNativeDistributed3D.cpp', 'adaptation/CNativeDonor3D.cpp', 'adaptation/CNativeEngine3D.cpp',

@@ -87,6 +87,7 @@ struct MobilityPolicy {
   std::set<Id> corners;
   std::map<Id,Id> bodies,sheets;          // Original facet -> edge-connected root.
 };
+struct RegionSegment {Id facet=0;ExactBary first,last;};
 /*! Explicit numerical mapping contract on immutable finite triangles.
  * Facet-local policy protects original edges. Reference-component policy releases only
  * the immutable reference's certified planar seams, preserving physical border chains.
@@ -117,6 +118,14 @@ class MappedFacetReference {
     Point direction1{},direction2{};
     size_t work=0;
   };
+  struct SurfaceEvaluation {
+    Point point{},normal{},first{},second{},direction1{},direction2{};
+    double curvature1=0,curvature2=0;
+  };
+  /*! Forward sided differential geometry, shared with ClosestCurved; never performs a closest-point search. */
+  SurfaceEvaluation EvaluateSurface(Id side,const SurfaceBinding&)const;
+  SU2Native3D::Edge OriginalEdge(Id feature)const{return edges.at(feature);}
+  Id Body(Id facet)const{return body_roots.at(facet);}
   /*! Closest distance to the edge-connected, same-marker curved component containing hint.
    * Outward control-hull subdivision certifies [lower,upper] to the requested absolute error.
    * The returned binding/normal describe the candidate point, not a certified unique minimizer.
@@ -156,6 +165,8 @@ class MappedFacetReference {
                           AtlasBudget&,std::string& reason)const;
   bool BindingParameters(Id facet,const SurfaceBinding&,ExactBary&,AtlasBudget&,std::string& reason)const;
   bool ReferencePointKey(Id facet,const ExactBary&,std::vector<uint64_t>&,AtlasBudget&,std::string& reason)const;
+  /*! Canonical point key in a supporting original chart; unsupported returns false with empty reason. */
+  bool ReferenceParameters(Id facet,const std::vector<uint64_t>&,ExactBary&,AtlasBudget&,std::string& reason)const;
   bool CoverageTraces(const FaceCoverage&,std::array<EdgeTrace,3>&,AtlasBudget&,std::string& reason)const;
   bool EqualTraces(const EdgeTrace&,const EdgeTrace&,AtlasBudget&,std::string& reason)const;
   /*! Traces are oriented 0->1,1->2,2->0; current-ID canonicalization belongs to the parameter layer. */
@@ -163,6 +174,11 @@ class MappedFacetReference {
                         const FaceCoverage&,const std::array<EdgeTrace,3>&,AtlasBudget&,std::string& reason)const;
   bool ValidateCoverageReplacement(const std::vector<FaceCoverage>& old,const std::vector<FaceCoverage>& fresh,
                                    AtlasBudget&,std::string& reason)const;
+  /*! Exact per-original-chart oriented region boundary, including holes/components.
+   * Mandatory canonical ReferencePointKeys retain current bindings and retained-trace parameter breaks. */
+  bool RegionBoundary(const std::vector<CoveragePiece>& accepted_region,
+                      const std::set<std::vector<uint64_t>>& mandatory_reference_keys,
+                      std::vector<RegionSegment>&,AtlasBudget&,std::string& reason)const;
   /*! Sufficient real C0 surface embedding certificate for a complete reference disk.
    * The supplied normal proposes a general projection basis; all actual basis arithmetic is enclosed.
    * Boundary arcs, chart gluing and vertex fan are certified, never replaced by corner chords. */

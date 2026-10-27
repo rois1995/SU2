@@ -19,6 +19,7 @@ class CurvedAtlas {
   struct Data;
   std::shared_ptr<const Data> data;
   size_t ResidentBytes()const;
+  size_t ReferenceTriangleCount()const;
 };
 /*! moving_vertex releases a noncorner curve sample on each incident sheet's macroperimeter.
  * nullopt retains the accepted perimeter vertices. Holes/non-disks refuse. */

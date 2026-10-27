@@ -73,9 +73,7 @@ void PrepareMobility(const CConfig& config,ReferenceState& state,size_t ceiling,
       throw std::invalid_argument("Persisted curved mobility policy differs from ADAP_ANGLE/marker roles.");
     return;
   }
-  const auto baseline=transfer_memory::Add(caller,state.original->ResidentBytes(),
-      transfer_memory::Mul(accepted->Records().size(),sizeof(BoundaryPoints::value_type)+4*sizeof(void*)),
-      transfer_memory::Mul(accepted->Surface().size(),sizeof(SurfaceFace)));
+  const auto baseline=transfer_memory::Add(caller,state.original->ResidentBytes());
   if(baseline==SIZE_MAX || baseline>=ceiling)throw std::length_error("Curved mobility setup exceeds storage admission.");
   SU2NativeGeometry::AtlasBudget budget;
   budget.maximum_bytes=ceiling;budget.caller_bytes=baseline;
@@ -84,19 +82,14 @@ void PrepareMobility(const CConfig& config,ReferenceState& state,size_t ceiling,
       SU2NativeGeometry::MappedFacetReference::ClearanceWork);
   if(budget.maximum_work==SIZE_MAX || budget.maximum_integer_bits==SIZE_MAX)
     throw std::length_error("Curved mobility setup reservation overflows.");
-  SU2NativeGeometry::MobilityPolicy policy;std::string reason;
-  if(!authority.BuildMobilityPolicy(angle,roles,policy,budget,reason))throw std::invalid_argument(reason);
+  auto prepared=accepted->WithMobilityPolicy(angle,roles,budget,ceiling,baseline);
   if(!SU2_MPI::GetRank()) {
-    std::array<size_t,3> dimensions{};
+    const auto& policy=prepared->Mobility();std::array<size_t,3> dimensions{};
     for(const auto& row:accepted->Records())++dimensions.at(authority.MobilityDimension(row.second.point.binding,policy));
     std::cout<<"Native3D curved mobility: protected_edges="<<policy.features.size()<<" corners="<<policy.corners.size()
-        <<" fixed_points="<<dimensions[0]<<" curve_points="<<dimensions[1]<<" surface_points="<<dimensions[2]<<std::endl;
+        <<" fixed_points="<<dimensions[0]<<" curve_points="<<dimensions[1]<<" surface_points="<<dimensions[2]
+        <<" setup_work="<<budget.work<<std::endl;
   }
-  BoundaryPoints points;std::vector<SurfaceFace> surface;surface.reserve(accepted->Surface().size());
-  for(const auto& row:accepted->Records())points.emplace(row.first,row.second.point);
-  for(const auto& row:accepted->Surface())surface.push_back(row.second);
-  auto prepared=std::make_shared<BoundaryParameterState>(accepted->Authority(),points,surface,accepted->Revision(),
-      ceiling,baseline,accepted->Coverage(),policy,&budget);
   state.original=state.original->WithParameterState(std::move(prepared));
 }
 }  // namespace

@@ -847,6 +847,74 @@ TEST_CASE("Shared curved edge paths compare exact parameterizations across subdi
   REQUIRE(g.EqualTraces(traces[0],divided,budget,reason));
   divided.pieces[0].end=GeometryRatio(.25,budget);CHECK_FALSE(g.EqualTraces(traces[0],divided,budget,reason));
 }
+TEST_CASE("Coverage replacement cancels interior refinement and retains exact boundary multiplicity", "[NativeCurvedAtlas3D]") {
+  const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;auto construction=GeometryAtlasBudget();std::string reason;
+  const auto whole=fixture.Cover(0,construction);auto refined=whole;const auto third=GeometryRatio(3,construction);
+  auto center=[&](const std::array<ExactBary,3>& triangle) {
+    ExactBary out;ExactRatio sum;
+    REQUIRE(ExactAdd(triangle[0].u,triangle[1].u,sum,construction,reason));REQUIRE(ExactAdd(sum,triangle[2].u,sum,construction,reason));
+    REQUIRE(ExactDivide(sum,third,out.u,construction,reason));
+    REQUIRE(ExactAdd(triangle[0].v,triangle[1].v,sum,construction,reason));REQUIRE(ExactAdd(sum,triangle[2].v,sum,construction,reason));
+    REQUIRE(ExactDivide(sum,third,out.v,construction,reason));return out;
+  };
+  for(unsigned level=0;level<4;++level) {
+    FaceCoverage next;
+    for(const auto& p:refined.pieces){const auto middle=center(p.reference);for(unsigned k=0;k<3;++k){CoveragePiece child;child.facet=p.facet;child.reference=child.active={p.reference[k],p.reference[(k+1)%3],middle};next.pieces.push_back(std::move(child));}}
+    refined=std::move(next);
+  }
+  auto check=GeometryAtlasBudget();check.maximum_work=size_t(1)<<22;
+  INFO(reason);REQUIRE(g.ValidateCoverageReplacement({whole},{refined},check,reason));
+  auto inside=[&](const ExactBary& p) {int u,v,sum;ExactRatio total;
+    REQUIRE(ExactCompare(p.u,GeometryRatio(0,construction),u,construction,reason));REQUIRE(ExactCompare(p.v,GeometryRatio(0,construction),v,construction,reason));
+    REQUIRE(ExactAdd(p.u,p.v,total,construction,reason));REQUIRE(ExactCompare(total,GeometryRatio(1,construction),sum,construction,reason));return u>0&&v>0&&sum<0;};
+  const auto interior=std::find_if(refined.pieces.begin(),refined.pieces.end(),[&](const auto& p){return inside(p.reference[0])&&inside(p.reference[1])&&inside(p.reference[2]);});
+  REQUIRE(interior!=refined.pieces.end());auto hole=refined;hole.pieces.erase(hole.pieces.begin()+std::distance(refined.pieces.begin(),interior));
+  auto hole_budget=GeometryAtlasBudget();CHECK_FALSE(g.ValidateCoverageReplacement({whole},{hole},hole_budget,reason));CHECK(reason.find("changes exact original-chart coverage")!=std::string::npos);
+  auto duplicated=refined;duplicated.pieces.insert(duplicated.pieces.end(),refined.pieces.begin(),refined.pieces.end());
+  auto duplicate_budget=GeometryAtlasBudget();CHECK_FALSE(g.ValidateCoverageReplacement({whole},{duplicated},duplicate_budget,reason));CHECK(reason.find("changes exact original-chart coverage")!=std::string::npos);
+  const auto& r=whole.pieces.front().reference;const ExactBary middle{GeometryRatio(.5,construction),GeometryRatio(0,construction)};
+  FaceCoverage boundary_split;for(const auto triangle:{std::array<ExactBary,3>{r[0],middle,r[2]},std::array<ExactBary,3>{middle,r[1],r[2]}}){CoveragePiece p;p.facet=0;p.reference=p.active=triangle;boundary_split.pieces.push_back(std::move(p));}
+  auto split_budget=GeometryAtlasBudget();REQUIRE(g.ValidateCoverageReplacement({whole},{boundary_split},split_budget,reason));
+  boundary_split.pieces[0].reference[1].v=boundary_split.pieces[1].reference[0].v=GeometryRatio(.125,construction);
+  auto mismatch_budget=GeometryAtlasBudget();CHECK_FALSE(g.ValidateCoverageReplacement({whole},{boundary_split},mismatch_budget,reason));CHECK(reason.find("changes exact original-chart coverage")!=std::string::npos);
+}
+TEST_CASE("Reference region boundaries retain holes components and mandatory trace points", "[NativeCurvedAtlas3D]") {
+  const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;auto budget=GeometryAtlasBudget();std::string reason;
+  auto point=[&](double u,double v){return ExactBary{GeometryRatio(u,budget),GeometryRatio(v,budget)};};
+  auto piece=[&](const ExactBary& a,const ExactBary& b,const ExactBary& c){CoveragePiece p;p.facet=0;p.reference=p.active={a,b,c};return p;};
+  const auto a=point(0,0),b=point(1,0),c=point(0,1),middle=point(.5,0);
+  const std::vector<CoveragePiece> divided{piece(a,middle,c),piece(middle,b,c)};
+  std::vector<RegionSegment> boundary;REQUIRE(g.RegionBoundary(divided,{},boundary,budget,reason));CHECK(boundary.size()==3);
+  std::vector<uint64_t> middle_key;REQUIRE(g.ReferencePointKey(0,middle,middle_key,budget,reason));
+  REQUIRE(g.RegionBoundary(divided,{middle_key},boundary,budget,reason));CHECK(boundary.size()==4);
+  const auto seam=point(0,.5);std::vector<uint64_t> seam_key;REQUIRE(g.ReferencePointKey(0,seam,seam_key,budget,reason));
+  ExactBary other;REQUIRE(g.ReferenceParameters(3,seam_key,other,budget,reason));std::vector<uint64_t> roundtrip;
+  REQUIRE(g.ReferencePointKey(3,other,roundtrip,budget,reason));CHECK(roundtrip==seam_key);
+  CHECK_FALSE(g.ReferenceParameters(1,middle_key,other,budget,reason));CHECK(reason.empty());
+  const std::array<ExactBary,3> outer{a,b,c},inner{point(.125,.125),point(.625,.125),point(.125,.625)};
+  std::vector<CoveragePiece> annulus;
+  for(unsigned k=0;k<3;++k){const auto next=(k+1)%3;annulus.push_back(piece(outer[k],outer[next],inner[next]));annulus.push_back(piece(outer[k],inner[next],inner[k]));}
+  REQUIRE(g.RegionBoundary(annulus,{},boundary,budget,reason));CHECK(boundary.size()==6);
+  auto loop_signs=[&](const std::vector<RegionSegment>& segments) {
+    std::map<std::vector<uint64_t>,std::pair<std::vector<uint64_t>,const RegionSegment*>> next;
+    for(const auto& e:segments){std::vector<uint64_t> first,last;REQUIRE(g.ReferencePointKey(e.facet,e.first,first,budget,reason));REQUIRE(g.ReferencePointKey(e.facet,e.last,last,budget,reason));REQUIRE(next.emplace(first,std::make_pair(last,&e)).second);}
+    std::vector<int> signs;std::set<std::vector<uint64_t>> visited;
+    for(const auto& row:next)if(!visited.count(row.first)) {
+      auto at=row.first;auto area=GeometryRatio(0,budget);
+      do {REQUIRE(visited.insert(at).second);const auto& entry=next.at(at);const auto& e=*entry.second;ExactRatio left,right,cross;
+        REQUIRE(ExactMultiply(e.first.u,e.last.v,left,budget,reason));REQUIRE(ExactMultiply(e.first.v,e.last.u,right,budget,reason));
+        REQUIRE(ExactSubtract(left,right,cross,budget,reason));REQUIRE(ExactAdd(area,cross,area,budget,reason));at=entry.first;
+      }while(at!=row.first);
+      int sign;REQUIRE(ExactCompare(area,GeometryRatio(0,budget),sign,budget,reason));signs.push_back(sign);
+    }
+    std::sort(signs.begin(),signs.end());return signs;
+  };
+  CHECK(loop_signs(boundary)==std::vector<int>{-1,1});
+  const std::vector<CoveragePiece> separated{piece(a,point(.25,0),point(0,.25)),piece(b,point(.75,.25),point(.75,0))};
+  REQUIRE(g.RegionBoundary(separated,{},boundary,budget,reason));CHECK(loop_signs(boundary)==std::vector<int>{1,1});
+  const auto saved=boundary.size();const auto whole=fixture.Cover(0,budget).pieces.front();
+  CHECK_FALSE(g.RegionBoundary({whole,whole},{},boundary,budget,reason));CHECK(reason.find("nonunit")!=std::string::npos);CHECK(boundary.size()==saved);
+}
 TEST_CASE("Cubic disk embedding certifies its real surface and protects C0 topology", "[NativeCurvedAtlas3D]") {
   const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;auto budget=GeometryAtlasBudget();std::string reason;
   std::vector<CoveragePiece> disk;for(Id f=0;f<4;++f)disk.push_back(fixture.Cover(f,budget).pieces.front());
@@ -884,4 +952,119 @@ TEST_CASE("Geometry mobility releases cubic seams and retains concave features a
   CHECK(protected_policy.features.count({0,8})==1);CHECK(carrier.MobilityDimension(carrier.EdgePoint({0,8},.5),protected_policy)==1);
   CHECK(std::abs(carrier.Realize(carrier.EdgePoint({0,8},.37)).z)<=1e-12);
   CHECK(protected_policy.identity!=policy.identity);CHECK(protected_policy.roles.at(1)==0);
+}
+
+TEST_CASE("Coordinated retained-face covers reparameterize one shared trace atomically", "[NativeMappedPublication3D][NativeAtlasCoordinatedPublication3D]") {
+  using namespace SU2Native3D;World world;const auto original=MappedTetrahedron();std::vector<Facet> facets;
+  for(auto row:original->Facets()){row.second.marker=0;facets.push_back(row.second);}
+  auto definition=std::make_shared<PlanarReference>(facets);std::map<Id,double> errors;
+  for(const auto& f:facets)errors.emplace(f.id,1e-13);
+  auto geometry=std::make_shared<MappedFacetReference>(definition,errors,7);BoundaryPoints points;std::vector<SurfaceFace> surface;
+  std::map<Id,Node> nodes;
+  for(const auto& facet:facets){surface.push_back({{facet.v[0].id,facet.v[1].id,facet.v[2].id},facet.id});
+    for(auto n:facet.v){nodes.emplace(n.id,n);points.emplace(n.id,BoundaryPoint{n,geometry->Vertex(n.id)});}}
+  auto state=std::make_shared<BoundaryParameterState>(geometry,points,surface);auto construction=GeometryAtlasBudget();std::string reason;
+  const Edge shared{1,9};BoundaryCoverage delta,compact;const ExactBary center{GeometryRatio(.25,construction),GeometryRatio(.25,construction)};
+  auto mix=[&](const ExactBary& a,const ExactBary& b,double t){ExactBary result;
+    const auto left=GeometryRatio(1-t,construction),right=GeometryRatio(t,construction);
+    auto coordinate=[&](const ExactRatio& x,const ExactRatio& y){ExactRatio first,last,out;
+      REQUIRE(ExactMultiply(x,left,first,construction,reason));REQUIRE(ExactMultiply(y,right,last,construction,reason));
+      REQUIRE(ExactAdd(first,last,out,construction,reason));return out;};
+    result.u=coordinate(a.u,b.u);result.v=coordinate(a.v,b.v);return result;
+  };
+  Face changed_face{};FaceCoverage unchanged_cover;
+  for(const auto& face:surface)if(std::find(face.v.begin(),face.v.end(),shared[0])!=face.v.end()&&std::find(face.v.begin(),face.v.end(),shared[1])!=face.v.end()) {
+    std::array<SurfaceBinding,3> bindings;for(unsigned k=0;k<3;++k)bindings[k]=points.at(face.v[k]).binding;
+    FaceCoverage identity;REQUIRE(geometry->ResolveSingleChart(face.facet,bindings,identity,construction,reason));REQUIRE(identity.pieces.size()==1);compact.faces.emplace(face.v,identity);
+    const auto& original_piece=identity.pieces.front();FaceCoverage cover;
+    for(unsigned k=0;k<3;++k) {
+      const unsigned next=(k+1)%3;Edge edge{face.v[k],face.v[next]},key=edge;std::sort(key.begin(),key.end());
+      auto append=[&](ExactBary r0,ExactBary r1,ExactBary a0,ExactBary a1){
+        CoveragePiece piece;piece.facet=face.facet;piece.reference={center,r0,r1};piece.active={center,a0,a1};cover.pieces.push_back(std::move(piece));};
+      if(key==shared) {
+        const auto reference_middle=mix(original_piece.reference[k],original_piece.reference[next],.5);
+        const auto active_middle=mix(original_piece.active[k],original_piece.active[next],edge[0]<edge[1]?.25:.75);
+        append(original_piece.reference[k],reference_middle,original_piece.active[k],active_middle);
+        append(reference_middle,original_piece.reference[next],active_middle,original_piece.active[next]);
+      } else append(original_piece.reference[k],original_piece.reference[next],original_piece.active[k],original_piece.active[next]);
+    }
+    std::array<EdgeTrace,3> traces;REQUIRE(geometry->CoverageTraces(cover,traces,construction,reason));
+    for(unsigned k=0;k<3;++k)if(face.v[k]==shared[0]&&face.v[(k+1)%3]==shared[1])delta.traces.emplace(shared,traces[k]);
+    auto key=face.v;std::rotate(key.begin(),std::min_element(key.begin(),key.end()),key.end());REQUIRE(key==face.v);
+    delta.faces.emplace(key,cover);changed_face=key;unchanged_cover=identity;
+  }
+  REQUIRE(delta.faces.size()==2);REQUIRE(delta.traces.count(shared));
+  EdgeTrace inherited;auto trace_work=GeometryAtlasBudget();REQUIRE(state->ResolveTrace(shared,*state->IncidentFace(shared),inherited,trace_work,reason));
+  CHECK_FALSE(geometry->EqualTraces(inherited,delta.traces.at(shared),trace_work,reason));
+  Owned owned;OwnedCell row;row.cell={0,{nodes.at(1),nodes.at(9),nodes.at(21),nodes.at(40)}};
+  for(unsigned k=0;k<4;++k)row.physical[k]={true,100+k};if(!world.rank)owned.emplace(0,row);
+  Directory directory(world,true,state.get());REQUIRE(directory.Build(owned,reason));const auto initial=state->Snapshot(),directory_before=directory.Snapshot();
+  std::vector<Dependency> removed;std::vector<OwnedCell> added;if(!world.rank){removed.push_back({0,0,0});row.version=1;added.push_back(row);}
+  auto partial=delta;partial.faces.erase(changed_face);auto partial_work=GeometryAtlasBudget();
+  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,{},partial,&partial_work));
+  CHECK(reason.find("every accepted incident face")!=std::string::npos);CHECK(state->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);
+  auto inconsistent=delta;inconsistent.faces.at(changed_face)=unchanged_cover;auto inconsistent_work=GeometryAtlasBudget();
+  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,{},inconsistent,&inconsistent_work));
+  CHECK(state->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);
+  auto memory_work=GeometryAtlasBudget();CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,world.rank?SIZE_MAX:1,0,{},delta,&memory_work));
+  CHECK(state->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);
+  auto no_work=GeometryAtlasBudget();no_work.maximum_work=0;
+  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,{},delta,&no_work));
+  CHECK(state->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);CHECK(no_work.work==0);
+  auto publication=GeometryAtlasBudget();const bool accepted=directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,{},delta,&publication);INFO(reason);REQUIRE(accepted);
+  CHECK(state->Revision()==2);CHECK(state->Surface().size()==surface.size());CHECK(state->Records().size()==points.size());
+  for(const auto& point:state->Records()){CHECK(point.second.faces==3);CHECK(point.second.point.binding.feature==points.at(point.first).binding.feature);
+    CHECK(point.second.point.node.p.x==points.at(point.first).node.p.x);CHECK(point.second.point.node.p.y==points.at(point.first).node.p.y);CHECK(point.second.point.node.p.z==points.at(point.first).node.p.z);}
+  CHECK(state->Coverage().faces.size()==2);CHECK(state->Snapshot()!=initial);CHECK(publication.work>0);CHECK(publication.work<=publication.maximum_work);
+  if(!world.rank){REQUIRE(owned.size()==1);CHECK(owned.at(0).version==1);}else CHECK(owned.empty());
+  auto final_work=GeometryAtlasBudget();EdgeTrace published;REQUIRE(state->ResolveTrace(shared,*state->IncidentFace(shared),published,final_work,reason));
+  CHECK(geometry->EqualTraces(published,delta.traces.at(shared),final_work,reason));
+  // A later coordinated refresh discards inherited subdivision history without changing CFD identities.
+  const auto expanded_bytes=state->PayloadBytes();compact.traces.emplace(shared,inherited);
+  if(!world.rank){removed.front().version=1;added.front().version=2;}
+  auto refresh_work=GeometryAtlasBudget();const bool refreshed=directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,{},compact,&refresh_work);INFO(reason);REQUIRE(refreshed);
+  CHECK(state->Revision()==3);CHECK(state->PayloadBytes()<expanded_bytes);CHECK(state->Coverage().traces.at(shared).pieces.size()==1);
+  for(const auto& face:compact.faces){REQUIRE(state->Coverage().faces.count(face.first));CHECK(state->Coverage().faces.at(face.first).pieces.size()==1);}
+  for(const auto& point:state->Records())CHECK(point.second.faces==3);
+  if(!world.rank)CHECK(owned.at(0).version==2);else CHECK(owned.empty());
+}
+
+TEST_CASE("A nonseparating protected crease cannot be buried inside one active face", "[NativeCurvedAtlas3D][NativeAtlasFeatureCoverage3D]") {
+  using namespace SU2Native3D;const auto original=MappedTetrahedron();std::vector<Facet> facets;std::map<Id,Node> nodes;
+  for(auto row:original->Facets()){row.second.marker=0;facets.push_back(row.second);for(auto n:row.second.v)nodes.emplace(n.id,n);}
+  auto definition=std::make_shared<PlanarReference>(facets);std::map<Id,double> errors;for(const auto& f:facets)errors.emplace(f.id,1e-13);
+  auto geometry=std::make_shared<MappedFacetReference>(definition,errors,7);BoundaryPoints points;std::vector<SurfaceFace> surface;
+  for(const auto& f:facets){surface.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,geometry->Vertex(n.id)});}
+  auto legacy=std::make_shared<BoundaryParameterState>(geometry,points,surface);auto policy_work=GeometryAtlasBudget();
+  auto state=legacy->WithMobilityPolicy(125,{{0,2}},policy_work);const auto& policy=state->Mobility();
+  REQUIRE(policy.features.count(Edge{21,40}));REQUIRE(policy.features.size()==1);
+  // The crease does not disconnect the global facet graph: the other two tetrahedron faces reconnect both sides.
+  REQUIRE(policy.sheets.at(100)==policy.sheets.at(101));
+  auto reference=PlanarReference::WithParameters(definition,state);auto construction=GeometryAtlasBudget();std::string reason;
+  const auto zero=GeometryRatio(0,construction),one=GeometryRatio(1,construction),half=GeometryRatio(.5,construction);
+  const std::map<Id,ExactBary> active{{1,{zero,zero}},{9,{one,zero}},{21,{zero,one}},{40,{half,zero}}};
+  FaceCoverage buried;
+  for(Id id:{Id(100),Id(101)}) {
+    const auto& facet=definition->Get(id);std::array<SurfaceBinding,3> binding;
+    for(unsigned k=0;k<3;++k)binding[k]=geometry->Vertex(facet.v[k].id);
+    FaceCoverage identity;REQUIRE(geometry->ResolveSingleChart(id,binding,identity,construction,reason));REQUIRE(identity.pieces.size()==1);
+    auto piece=identity.pieces.front();for(unsigned k=0;k<3;++k)piece.active[k]=active.at(facet.v[k].id);buried.pieces.push_back(std::move(piece));
+  }
+  const Face face{1,9,21};std::array<SurfaceBinding,3> binding;std::array<Point,3> realized;
+  for(unsigned k=0;k<3;++k){binding[k]=geometry->Vertex(face[k]);realized[k]=nodes.at(face[k]).p;}
+  std::array<EdgeTrace,3> oriented;REQUIRE(geometry->CoverageTraces(buried,oriented,construction,reason));
+  // Tiling, forward endpoints, shared paths and projected chart positivity alone do not protect a nonseparating crease.
+  const bool geometric=geometry->ValidateCoverage(100,binding,realized,buried,oriented,construction,reason);INFO(reason);REQUIRE(geometric);
+  Patch candidate;candidate.surface.push_back({face,100});candidate.coverage.faces.emplace(face,buried);
+  for(unsigned k=0;k<3;++k){candidate.parameters.emplace(face[k],points.at(face[k]));Edge edge{face[k],face[(k+1)%3]};auto trace=oriented[k];
+    if(edge[0]>edge[1]){std::swap(edge[0],edge[1]);REQUIRE(trace.pieces.size()==1);std::swap(trace.pieces.front().first,trace.pieces.front().last);}
+    candidate.coverage.traces.emplace(edge,std::move(trace));}
+  const auto saved=state->Snapshot();auto query_work=GeometryAtlasBudget();auto query=reference->PrivateParameters(candidate,&query_work);
+  CHECK_FALSE(query->ContainsFace(100,realized));
+  CHECK_THROWS_WITH(query->SurfaceError(100,realized),"Protected original feature lies inside an active physical face.");
+  CHECK(state->Snapshot()==saved);
+  auto conforming_work=GeometryAtlasBudget();auto conforming=reference->WithAtlasReservation(conforming_work);const auto& accepted=definition->Get(100);
+  const std::array<Point,3> triangle{accepted.v[0].p,accepted.v[1].p,accepted.v[2].p};
+  CHECK(conforming->ContainsFace(100,triangle));CHECK(std::isfinite(conforming->SurfaceError(100,triangle)));
+  CHECK(state->Snapshot()==saved);
 }

@@ -82,11 +82,29 @@ FaceCoverage RotateCoverage(FaceCoverage cover,unsigned rotation,AtlasBudget& bu
 }
 size_t FaceBytes(const FaceCoverage& cover){size_t n=transfer_memory::Bytes(cover.pieces);for(const auto& piece:cover.pieces)for(const auto* triangle:{&piece.reference,&piece.active})for(const auto& b:*triangle)n=transfer_memory::Add(n,BaryBytes(b));return n;}
 size_t TraceBytes(const EdgeTrace& trace){size_t n=transfer_memory::Bytes(trace.pieces);for(const auto& p:trace.pieces)n=transfer_memory::Add(n,BaryBytes(p.first),BaryBytes(p.last),RatioBytes(p.end));return n;}
-void CheckPolicyCoverage(Id anchor,const FaceCoverage& cover,const MobilityPolicy& policy) {
+void CheckPolicyCoverage(Id anchor,const FaceCoverage& cover,const MobilityPolicy& policy,
+    const MappedFacetReference& geometry,AtlasBudget& budget,std::string& reason) {
+  auto zero=[](const ExactRatio& value){return !value.negative&&value.numerator.empty()&&value.denominator.size()==1&&value.denominator.front()==1;};
+  auto zero_weight=[&](const ExactBary& point,unsigned weight){
+    if(weight==1)return zero(point.u);if(weight==2)return zero(point.v);
+    ExactRatio sum;if(!ExactAdd(point.u,point.v,sum,budget,reason))throw std::invalid_argument(reason);
+    return !sum.negative&&sum.numerator.size()==1&&sum.numerator.front()==1&&sum.denominator.size()==1&&sum.denominator.front()==1;
+  };
   for(const auto& piece:cover.pieces) {
-    if(!policy.identity) {if(piece.facet!=anchor)throw std::invalid_argument("Inactive mobility policy forbids cross-chart coverage.");}
-    else if(policy.bodies.at(piece.facet)!=policy.bodies.at(anchor)||policy.sheets.at(piece.facet)!=policy.sheets.at(anchor))
+    if(!policy.identity) {if(piece.facet!=anchor)throw std::invalid_argument("Inactive mobility policy forbids cross-chart coverage.");continue;}
+    if(policy.bodies.at(piece.facet)!=policy.bodies.at(anchor)||policy.sheets.at(piece.facet)!=policy.sheets.at(anchor))
       throw std::invalid_argument("Atlas coverage crosses a physical feature, marker interface, or body.");
+    const auto& facet=geometry.Reference().Get(piece.facet);
+    for(unsigned opposite=0;opposite<3;++opposite) {
+      Edge edge{facet.v[(opposite+1)%3].id,facet.v[(opposite+2)%3].id};std::sort(edge.begin(),edge.end());
+      if(!policy.features.count(edge))continue;
+      for(unsigned k=0;k<3;++k){const unsigned next=(k+1)%3;
+        if(!zero_weight(piece.reference[k],opposite)||!zero_weight(piece.reference[next],opposite))continue;
+        bool boundary=false;for(unsigned weight=0;weight<3&&!boundary;++weight)
+          boundary=zero_weight(piece.active[k],weight)&&zero_weight(piece.active[next],weight);
+        if(!boundary)throw std::invalid_argument("Protected original feature lies inside an active physical face.");
+      }
+    }
   }
 }
 size_t PolicyBytes(const MobilityPolicy& policy){return transfer_memory::Add(MapBytes(policy.roles),MapBytes(policy.features),MapBytes(policy.corners),MapBytes(policy.bodies),MapBytes(policy.sheets));}
@@ -215,7 +233,7 @@ BoundaryParameterState::BoundaryParameterState(std::shared_ptr<const SU2NativeGe
       for(unsigned k=0;k<3;++k){binding[k]=bindings.at(face.v[k]);realized[k]=actual.at(face.v[k]);used.insert(face.v[k]);
         Edge edge{face.v[k],face.v[(k+1)%3]};if(!ResolveTrace(edge,face,traces[k],budget,reason))throw std::invalid_argument(reason);
         if(edge[0]>edge[1])traces[k]=ReverseTrace(traces[k],budget);}
-      CheckPolicyCoverage(face.facet,cover,mobility);
+      CheckPolicyCoverage(face.facet,cover,mobility,*geometry,budget,reason);
       if(!geometry->ValidateCoverage(face.facet,binding,realized,cover,traces,budget,reason))throw std::invalid_argument(reason);
       skin.push_back(face.v);covers.push_back(std::move(cover));
     }
@@ -233,6 +251,27 @@ BoundaryParameterState::BoundaryParameterState(std::shared_ptr<const SU2NativeGe
   for(const auto& row:coverage.faces)if(!this->surface.count(FaceKey(row.first)) || this->surface.at(FaceKey(row.first)).v!=row.first)
     throw std::invalid_argument("Atlas cover has no accepted oriented physical face.");
   for(const auto& row:coverage.traces)if(!edge_counts.count(row.first))throw std::invalid_argument("Atlas trace has no accepted physical edge.");
+}
+std::shared_ptr<BoundaryParameterState> BoundaryParameterState::WithMobilityPolicy(double angle,const std::map<int,int>& roles,
+    AtlasBudget& reservation,size_t ceiling,size_t caller)const {
+  if(geometry->ReferenceComponents())throw std::invalid_argument("Curved mobility policy cannot reinterpret planar components.");
+  if(mobility.identity&&(angle!=mobility.angle||roles!=mobility.roles))
+    throw std::invalid_argument("Accepted boundary mobility policy differs from requested configuration.");
+  const auto live=transfer_memory::Add(caller,geometry->ResidentBytes(),ResidentBytes());
+  if(live==SIZE_MAX||live>ceiling)throw std::length_error("Boundary mobility policy setup exceeds storage admission.");
+  AtlasStorage scope(&reservation,live,ceiling);MobilityPolicy policy;std::string reason;
+  if(!geometry->BuildMobilityPolicy(angle,roles,policy,reservation,reason))throw std::invalid_argument(reason);
+  if(mobility.identity&&(mobility.version!=policy.version||mobility.identity!=policy.identity||
+      !EqualDouble(mobility.angle,policy.angle)||mobility.roles!=policy.roles||mobility.features!=policy.features||
+      mobility.corners!=policy.corners||mobility.bodies!=policy.bodies||mobility.sheets!=policy.sheets))
+    throw std::invalid_argument("Accepted boundary mobility policy differs from immutable geometry/configuration.");
+  for(Id corner:policy.corners)if(!supports.count(Support{0,corner,0,0}))
+    throw std::invalid_argument("Boundary mobility policy requires a missing genuine physical corner/branch.");
+  // Validated inactive covers stay inside their anchor chart, so metadata setup changes no geometric contract.
+  const auto peak=transfer_memory::Add(live,PolicyBytes(policy),ResidentBytes());
+  if(peak==SIZE_MAX||peak>ceiling)throw std::length_error("Boundary mobility policy copy exceeds storage admission.");
+  reservation.peak_bytes=std::max(reservation.peak_bytes,peak);
+  auto migrated=std::make_shared<BoundaryParameterState>(*this);migrated->mobility=std::move(policy);return migrated;
 }
 bool BoundaryParameterState::ResolveCoverage(const SurfaceFace& face,FaceCoverage& out,AtlasBudget& budget,std::string& reason)const {
   try {
@@ -343,6 +382,8 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
     size_t inherited_bytes=0;
     for(const auto& face:faces)if(!face.insert){const auto cover=coverage.faces.find(FaceOrder(face.nodes));if(cover!=coverage.faces.end())inherited_bytes=transfer_memory::Add(inherited_bytes,FaceBytes(cover->second));
       for(unsigned k=0;k<3;++k){Edge edge{face.nodes[k],face.nodes[(k+1)%3]};std::sort(edge.begin(),edge.end());const auto trace=coverage.traces.find(edge);if(trace!=coverage.traces.end())inherited_bytes=transfer_memory::Add(inherited_bytes,TraceBytes(trace->second));}}
+    for(const auto& row:delta.faces){const auto cover=coverage.faces.find(row.first);if(cover!=coverage.faces.end())inherited_bytes=transfer_memory::Add(inherited_bytes,FaceBytes(cover->second));
+      for(unsigned k=0;k<3;++k){Edge edge{row.first[k],row.first[(k+1)%3]};std::sort(edge.begin(),edge.end());const auto trace=coverage.traces.find(edge);if(trace!=coverage.traces.end())inherited_bytes=transfer_memory::Add(inherited_bytes,TraceBytes(trace->second));}}
     const size_t bound=transfer_memory::Add(caller,ResidentBytes(),transfer_memory::Mul(inherited_bytes,4),transfer_memory::Mul(edits.size(),2048),transfer_memory::Mul(faces.size(),8192),transfer_memory::Mul(BoundaryCoverageBytes(delta),8));
     if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Boundary parameter publication exceeds storage admission.");
     AtlasStorage reservation_storage(reservation,bound,ceiling);
@@ -415,18 +456,24 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
       if(!reservation)throw std::invalid_argument("Atlas publication lacks an admitted geometry reservation.");
       auto& budget=*reservation;std::map<Edge,int64_t> edge_degree;
       std::vector<FaceCoverage> before,after;
+      std::vector<BoundaryFaceChange> coverage_faces=faces;
+      std::map<Edge,std::set<Face>> coordinated;
+      auto include_incident=[&](const SurfaceFace& face){const auto key=FaceKey(face.v);
+        for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());coordinated[edge].insert(key);}};
+      for(const auto& key:staged.surface_removed)include_incident(surface.at(key));
       for(const auto& row:delta.faces) {
         if(row.first!=FaceOrder(row.first))throw std::invalid_argument("Atlas cover key is not cyclic canonical.");
-        const auto key=FaceKey(row.first);const auto added=staged.surface_added.find(key);
-        if(added==staged.surface_added.end()) {
-          const auto old=surface.find(key);const auto accepted=coverage.faces.find(row.first);
-          if(old==surface.end()||old->second.v!=row.first||accepted==coverage.faces.end() ||
-             EncodeBoundaryAtlas(BoundaryCoverage{{},{{row.first,row.second}}},{})!=EncodeBoundaryAtlas(BoundaryCoverage{{},{{accepted->first,accepted->second}}},{}))
-            throw std::invalid_argument("Atlas cover delta changes an untouched or absent physical face.");
-        } else {
+        const auto key=FaceKey(row.first);const auto added=staged.surface_added.find(key);const auto old=surface.find(key);
+        if(added!=staged.surface_added.end()) {
           if(added->second.v!=row.first)throw std::invalid_argument("Atlas cover orientation differs from added face.");
-          staged.coverage_added.faces.emplace(row);
+        } else {
+          if(old==surface.end()||old->second.v!=row.first||staged.surface_removed.count(key))
+            throw std::invalid_argument("Atlas cover delta has no retained oriented physical face.");
+          // Include metadata edits in the same old/new reference-chain proof without changing physical incidence.
+          coverage_faces.push_back({row.first,old->second.facet,false});coverage_faces.push_back({row.first,old->second.facet,true});
         }
+        if(old!=surface.end())include_incident(old->second);
+        staged.coverage_added.faces.emplace(row);
       }
       for(const auto& face:faces)for(unsigned k=0;k<3;++k){Edge edge{face.nodes[k],face.nodes[(k+1)%3]};std::sort(edge.begin(),edge.end());edge_degree[edge]+=face.insert?1:-1;}
       for(const auto& row:edge_degree) {
@@ -447,10 +494,15 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
         if(row.first[0]>=row.first[1] || (next==staged.edge_counts.end()?old==edge_counts.end():!next->second))
           throw std::invalid_argument("Atlas trace delta has no surviving physical edge.");
         if(old!=edge_counts.end()) {EdgeTrace inherited;
-          if(!accepted_trace(row.first,inherited)||!geometry->EqualTraces(inherited,row.second,budget,reason))throw std::invalid_argument("Retained physical edge changes its inherited atlas path/parameterization.");}
+          if(!accepted_trace(row.first,inherited))throw std::invalid_argument("Retained physical edge lacks its inherited atlas trace.");
+          if(!geometry->EqualTraces(inherited,row.second,budget,reason)) {
+            const auto incident=coordinated.find(row.first);
+            if(incident==coordinated.end()||incident->second.size()!=old->second)
+              throw std::invalid_argument("Changed retained atlas trace requires every accepted incident face in the coordinated update.");
+          }}
         staged.coverage_added.traces.emplace(row);
       }
-      for(const auto& face:faces) {
+      for(const auto& face:coverage_faces) {
         const SurfaceFace f{face.nodes,face.facet};FaceCoverage cover;
         std::array<SurfaceBinding,3> binding;std::array<Point,3> realized;
         for(unsigned k=0;k<3;++k){const auto& p=point(face.nodes[k],face.insert);binding[k]=p.binding;realized[k]=p.node.p;degree[face.nodes[k]]+=face.insert?1:-1;}
@@ -477,7 +529,7 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
             staged.coverage_added.traces.emplace(key,traces[k]);
           if(edge[0]>edge[1])traces[k]=ReverseTrace(traces[k],budget);
         }
-        CheckPolicyCoverage(face.facet,cover,mobility);
+        CheckPolicyCoverage(face.facet,cover,mobility,*geometry,budget,reason);
         if(!geometry->ValidateCoverage(face.facet,binding,realized,cover,traces,budget,reason))throw std::invalid_argument(reason);
         (face.insert?after:before).push_back(std::move(cover));
       }
@@ -636,7 +688,7 @@ void PlanarReference::ExportParameters(Patch& patch,AtlasBudget* reservation)con
       for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};if(!overlay->ResolveTrace(edge,face,traces[k],budget,reason))throw std::invalid_argument(reason);
         if(cross){auto key=edge;std::sort(key.begin(),key.end());patch.coverage.traces.emplace(key,traces[k]);}
         if(edge[0]>edge[1])traces[k]=ReverseTrace(traces[k],budget);}
-      CheckPolicyCoverage(face.facet,cover,parameter_view->accepted->Mobility());
+      CheckPolicyCoverage(face.facet,cover,parameter_view->accepted->Mobility(),parameter_view->accepted->Geometry(),budget,reason);
       if(!parameter_view->accepted->Geometry().ValidateCoverage(face.facet,binding,actual,cover,traces,budget,reason))throw std::invalid_argument(reason);
     }
   }
@@ -785,7 +837,7 @@ bool PlanarReference::ParameterContainsFace(Id facet,const std::array<Point,3>& 
   if(!parameter_view->reservation)return false;auto& budget=*parameter_view->reservation;std::string reason;FaceCoverage cover;std::array<EdgeTrace,3> traces;
   if(!ResolveCoverage(face,cover,budget,reason))return false;
   for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};if(!ResolveTrace(edge,face,traces[k],budget,reason))return false;if(edge[0]>edge[1])traces[k]=ReverseTrace(traces[k],budget);}
-  try{CheckPolicyCoverage(facet,cover,parameter_view->accepted->Mobility());}catch(const std::exception&){return false;}
+  try{CheckPolicyCoverage(facet,cover,parameter_view->accepted->Mobility(),g,budget,reason);}catch(const std::exception&){return false;}
   return g.ValidateCoverage(facet,b,p,cover,traces,budget,reason);
 }
 bool PlanarReference::ParameterFindFace(int marker,const std::array<Point,3>& p,Id& facet,KernelStats* stats)const {
@@ -819,7 +871,7 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)con
   if(!parameter_view->reservation)throw std::invalid_argument("Mapped atlas error query lacks admitted geometry work.");
   auto& budget=*parameter_view->reservation;std::string reason;FaceCoverage cover;
   if(!ResolveCoverage(face,cover,budget,reason))throw std::invalid_argument(reason);
-  CheckPolicyCoverage(facet,cover,parameter_view->accepted->Mobility());
+  CheckPolicyCoverage(facet,cover,parameter_view->accepted->Mobility(),g,budget,reason);
   return std::max(maximum,g.SurfaceError(cover,p,budget));
 }
 size_t PlanarReference::ParameterWorkspaceBytes()const {

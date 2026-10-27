@@ -18,11 +18,18 @@ transfer/reload, repeated curved restart, and distributed history/recovery.
 
 Build28/session96276 PASS78.17s/944 unchanged pins. Connected curved mobility
 now passes focused atlas_checks/session76464:25 cases/4261 assertions,9.48s,
-unchanged pins. Coverage/motion, second-event, v8 persistence, atomic publication
-and source kernels pass. Encoding scratch, Bernstein edge-normal bounds and exact
+unchanged pins. Geometry, v8 persistence, atomic publication and source kernels pass. Encoding scratch, Bernstein edge-normal bounds and exact
 arithmetic cost were corrected; independent fixture transactions keep separate
 unchanged1M-work reservations. No production cap or final gate was raised.
-Six-rank M6 diagnostic/session51670 is live; C++ and validation helpers are frozen.
+Six-rank M6 diagnostic/session51670 FAIL178.39s, pins unchanged: setup
+exhausted arithmetic work before meshing. Policyclassified23806 freesurfacepoints,
+671curvepoints and2fixedpoints. Metadata-only activation now clones the validated
+accepted state while preserving full untrusted-input audits. Build29/session26845
+PASS1108.27s/944 unchanged pins. The earlier filter omitted the remapper-specific
+tag; corrected selection now includes its motion/second-event and migration
+cases:28/29 pass,4317/4318 assertions,14.68s, unchanged pins. The second
+remap exhausts work in the exact2-chain arrangement; internal edges will be
+cancelled before subdivision. A direct two-event MoveVertex test is added.
 Broader integration and full M6 acceptance remain open.
 [Implementation and retained failures](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
 

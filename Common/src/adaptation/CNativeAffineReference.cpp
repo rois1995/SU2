@@ -207,6 +207,40 @@ std::vector<AtlasEdge> SplitAtlasEdges(const std::vector<AtlasEdge>& edges,Atlas
 }
 using AtlasEdgeKey=std::pair<AtlasKey,AtlasKey>;
 AtlasEdgeKey EdgeKeys(AtlasKey a,AtlasKey b,int& sign){if(b<a){std::swap(a,b);sign=-sign;}return {std::move(a),std::move(b)};}
+void AddChainMultiplicity(int& value,int delta) {
+  const int limit=std::numeric_limits<int>::max();
+  if((delta>0&&value>limit-delta)||(delta<0&&value<-limit-delta))throw std::length_error("Reference coverage edge multiplicity overflow.");
+  value+=delta;
+}
+size_t ReferenceEdgeBytes(const std::vector<AtlasEdge>& edges) {
+  size_t bytes=transfer_memory::GrowthBound(edges.size(),sizeof(AtlasEdge));
+  for(const auto& e:edges)for(const auto* p:{&e.a,&e.b,&e.ra,&e.rb})for(const auto* q:{&p->u,&p->v})bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q->numerator),transfer_memory::Bytes(q->denominator));
+  return bytes;
+}
+std::vector<AtlasEdge> CancelReferenceEdges(Id facet,const std::vector<std::pair<const CoveragePiece*,int>>& pieces,AtlasOps& op) {
+  auto& budget=op.budget;struct Restore {AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
+  const auto baseline=budget.caller_bytes;size_t retained=0;
+  struct ChainEdge {int count;const ExactBary* a;const ExactBary* b;size_t bytes;};std::map<AtlasEdgeKey,ChainEdge> chain;
+  for(const auto& record:pieces) {
+    const auto& p=*record.first;
+    for(unsigned k=0;k<3;++k) {
+      op.Work();const auto* a=&p.reference[k];const auto* b=&p.reference[(k+1)%3];
+      size_t words=12;for(const auto* point:{a,b})for(const auto* q:{&point->u,&point->v})words=transfer_memory::Add(words,q->numerator.size(),q->denominator.size());
+      const auto bytes=transfer_memory::Add(sizeof(decltype(chain)::value_type),4*sizeof(void*),transfer_memory::GrowthBound(words,sizeof(uint64_t)));
+      op.Storage(bytes);int sign=record.second;auto ka=op.Key(*a),kb=op.Key(*b);if(kb<ka)std::swap(a,b);
+      auto key=EdgeKeys(std::move(ka),std::move(kb),sign);const auto found=chain.find(key);
+      if(found==chain.end()){chain.emplace(std::move(key),ChainEdge{sign,a,b,bytes});retained=transfer_memory::Add(retained,bytes);}
+      else {AddChainMultiplicity(found->second.count,sign);if(!found->second.count){retained-=found->second.bytes;chain.erase(found);}}
+      budget.caller_bytes=transfer_memory::Add(baseline,retained);
+    }
+  }
+  size_t residual_bytes=transfer_memory::GrowthBound(chain.size(),sizeof(AtlasEdge));
+  for(const auto& row:chain)for(const auto* p:{row.second.a,row.second.b})for(const auto* q:{&p->u,&p->v})residual_bytes=transfer_memory::Add(residual_bytes,transfer_memory::Bytes(q->numerator),transfer_memory::Bytes(q->denominator));
+  residual_bytes=transfer_memory::Add(residual_bytes,transfer_memory::Mul(chain.size(),4*sizeof(uint32_t)));
+  op.Storage(residual_bytes);std::vector<AtlasEdge> edges;edges.reserve(chain.size());
+  for(const auto& row:chain){const auto& e=row.second;edges.push_back({facet,facet,*e.a,*e.b,{}, {},e.count,0});}
+  return edges;
+}
 std::array<Box,10> RestrictNet(const MappedFacetReference& geometry,Id facet,const std::array<ExactBary,3>& r,AtlasOps& op) {
   std::array<Box,3> parameter;for(unsigned k=0;k<3;++k){op.Bary(r[k]);parameter[k]=op.Parameter(r[k]);}
   const auto found=geometry.Curves().find(facet);const auto& f=geometry.Reference().Get(facet);
@@ -980,7 +1014,31 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
         region.clearance>0?region.clearance:-result.upper);
   }
   if(!std::isfinite(result.clearance_lower))throw std::logic_error("Curved clearance lost all possible nearest points.");
-  const auto r=ParameterBox(FacetParameters(result.facet,result.binding));const auto& net=curves.at(result.facet);
+  const auto evaluation=EvaluateSurface(result.facet,result.binding);result.normal=evaluation.normal;
+  result.curvature1=evaluation.curvature1;result.curvature2=evaluation.curvature2;
+  result.direction1=evaluation.direction1;result.direction2=evaluation.direction2;return result;
+}
+MappedFacetReference::SurfaceEvaluation MappedFacetReference::EvaluateSurface(Id side,const SurfaceBinding& binding)const {
+  bool incident=false;ForFacets(binding,[&](Id facet){incident=incident||facet==side;});
+  if(!incident)throw std::invalid_argument("Differential side does not support its forward binding.");
+  SurfaceEvaluation result;result.point=Realize(binding);const auto curve=curves.find(side);
+  if(curve==curves.end()) {
+    const auto& f=reference->Get(side);Vec first{},second{},n{};
+    for(unsigned d=0;d<3;++d){first[d]=double((long double)Values(f.v[1].p)[d]-Values(f.v[0].p)[d]);second[d]=double((long double)Values(f.v[2].p)[d]-Values(f.v[0].p)[d]);}
+    const auto plane=reference->Affine().find(side);
+    if(plane!=reference->Affine().end()) {
+      n=Values(plane->second.normal);const int orientation=SU2Native3D::SurfaceNormalSign(plane->second.normal,{f.v[0].p,f.v[1].p,f.v[2].p},nullptr);
+      if(!orientation)throw std::invalid_argument("Mapped planar side has unresolved orientation.");if(orientation<0)for(auto& x:n)x=-x;
+    } else for(unsigned d=0;d<3;++d)n[d]=first[(d+1)%3]*second[(d+2)%3]-first[(d+2)%3]*second[(d+1)%3];
+    const auto length=std::hypot(n[0],n[1],n[2]);if(!(length>0&&std::isfinite(length)))throw std::invalid_argument("Unrepresentable mapped planar normal.");
+    for(auto& x:n)x/=length;Vec t1=first;long double projection=0;for(unsigned d=0;d<3;++d)projection+=(long double)t1[d]*n[d];
+    for(unsigned d=0;d<3;++d)t1[d]=double(t1[d]-projection*n[d]);const auto tangent=std::hypot(t1[0],t1[1],t1[2]);
+    if(!(tangent>0&&std::isfinite(tangent)))throw std::invalid_argument("Unrepresentable mapped planar tangent.");
+    for(auto& x:t1)x/=tangent;Vec t2{};for(unsigned d=0;d<3;++d)t2[d]=n[(d+1)%3]*t1[(d+2)%3]-n[(d+2)%3]*t1[(d+1)%3];
+    result.normal=ToPoint(n);result.first=ToPoint(first);result.second=ToPoint(second);result.direction1=ToPoint(t1);result.direction2=ToPoint(t2);
+    Finite(result.first);Finite(result.second);Finite(result.direction1);Finite(result.direction2);return result;
+  }
+  const auto r=ParameterBox(FacetParameters(side,binding));const auto& net=curve->second;
   const auto base=Blossom(net,{Exact({1,0,0}),r,r});
   const auto normal=CrossBox(Difference(Blossom(net,{Exact({0,1,0}),r,r}),base),
                             Difference(Blossom(net,{Exact({0,0,1}),r,r}),base));
@@ -993,6 +1051,8 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   auto dot=[](const Wide& a,const Wide& b){long double out=0;for(unsigned d=0;d<3;++d)out+=a[d]*b[d];return out;};
   const auto u=midpoint(Difference(Blossom(net,{Exact({0,1,0}),r,r}),base),3);
   const auto v=midpoint(Difference(Blossom(net,{Exact({0,0,1}),r,r}),base),3);
+  Vec first{},next{};for(unsigned d=0;d<3;++d){first[d]=double(u[d]);next[d]=double(v[d]);}
+  result.first=ToPoint(first);result.second=ToPoint(next);Finite(result.first);Finite(result.second);
   const auto e0=Exact({1,0,0}),e1=Exact({0,1,0}),e2=Exact({0,0,1});
   const auto zero=Blossom(net,{e0,e0,r});
   auto second=[&](const Box& a,const Box& b){return midpoint(Difference(
@@ -1048,6 +1108,30 @@ bool MappedFacetReference::ReferencePointKey(Id facet,const ExactBary& point,std
     AtlasBudget& budget,std::string& reason)const {
   try {AtlasOps op{budget};auto out=ReferenceKey(*reference,facet,point,op);result=std::move(out);reason.clear();return true;}
   catch(const std::exception& e){reason=e.what();return false;}
+}
+bool MappedFacetReference::ReferenceParameters(Id facet,const std::vector<uint64_t>& key,ExactBary& result,
+    AtlasBudget& budget,std::string& reason)const {
+  try {
+    AtlasOps op{budget};const auto& f=reference->Get(facet);ExactBary out{op.Integer(0),op.Integer(0)};
+    auto has=[&](Id id){for(auto n:f.v)if(n.id==id)return true;return false;};
+    if(key.size()==2&&key[0]==0) {
+      if(!nodes.count(key[1]))throw std::invalid_argument("Unknown original vertex key.");
+      if(!has(key[1])){reason.clear();return false;}
+      out.u=op.Integer(f.v[1].id==key[1]);out.v=op.Integer(f.v[2].id==key[1]);
+    } else if(key.size()>=4&&key[0]==1) {
+      if(key[1]>=key[2])throw std::invalid_argument("Noncanonical original edge key.");
+      EdgeIdentity({key[1],key[2]});size_t offset=3;ExactRatio t;op.Check(ExactDecode(key,offset,t,budget,op.reason));
+      if(offset!=key.size()||op.Compare(t,op.Integer(0))<=0||op.Compare(t,op.Integer(1))>=0)throw std::invalid_argument("Invalid original edge key parameter.");
+      if(!has(key[1])||!has(key[2])){reason.clear();return false;}
+      auto weight=[&](Id id){return id==key[1]?op.Sub(op.Integer(1),t):id==key[2]?t:op.Integer(0);};
+      out={weight(f.v[1].id),weight(f.v[2].id)};
+    } else if(key.size()>=3&&key[0]==2) {
+      reference->Get(key[1]);size_t offset=2;op.Check(ExactDecode(key,offset,out.u,budget,op.reason));op.Check(ExactDecode(key,offset,out.v,budget,op.reason));op.Bary(out);
+      if(offset!=key.size()||op.Compare(out.u,op.Integer(0))<=0||op.Compare(out.v,op.Integer(0))<=0||op.Compare(op.Add(out.u,out.v),op.Integer(1))>=0)throw std::invalid_argument("Noncanonical original facet point key.");
+      if(facet!=key[1]){reason.clear();return false;}
+    } else throw std::invalid_argument("Invalid original reference point key.");
+    result=std::move(out);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
 }
 bool MappedFacetReference::ResolveSingleChart(Id facet,const std::array<SurfaceBinding,3>& binding,
     FaceCoverage& result,AtlasBudget& budget,std::string& reason)const {
@@ -1189,13 +1273,95 @@ bool MappedFacetReference::ValidateCoverageReplacement(const std::vector<FaceCov
     append(old,-1);append(fresh,1);if(groups.empty())throw std::invalid_argument("Empty reference coverage replacement.");
     // Only one original chart's exact arrangement is resident at a time, including full restart audits.
     for(const auto& group:groups) {
-      std::vector<AtlasEdge> edges;edges.reserve(3*group.second.size());
-      for(const auto& record:group.second){const auto& p=*record.first;for(unsigned k=0;k<3;++k)edges.push_back({p.facet,p.facet,p.reference[k],p.reference[(k+1)%3],{}, {},record.second,0});}
+      // The boundary operator is linear: cancel exact interior diagonals before arranging unequal subdivisions.
+      Restore chain_restore{budget,budget.caller_bytes};auto edges=CancelReferenceEdges(group.first,group.second,op);
+      if(edges.empty())continue;const auto bytes=ReferenceEdgeBytes(edges);op.Storage(bytes);budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,bytes);
       std::map<AtlasEdgeKey,int> count;
-      for(const auto& e:SplitAtlasEdges(edges,op)){int sign=e.sign;auto key=EdgeKeys(op.Key(e.a),op.Key(e.b),sign);count[std::move(key)]+=sign;}
+      for(const auto& e:SplitAtlasEdges(edges,op)){int sign=e.sign;auto key=EdgeKeys(op.Key(e.a),op.Key(e.b),sign);AddChainMultiplicity(count[std::move(key)],sign);}
       for(const auto& row:count)if(row.second)throw std::invalid_argument("Replacement changes exact original-chart coverage.");
     }
     reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool MappedFacetReference::RegionBoundary(const std::vector<CoveragePiece>& region,
+    const std::set<std::vector<uint64_t>>& mandatory,std::vector<RegionSegment>& result,
+    AtlasBudget& budget,std::string& reason)const {
+  try {
+    AtlasOps op{budget};if(region.empty())throw std::invalid_argument("Empty accepted reference region.");
+    const auto index_bytes=transfer_memory::Mul(region.size(),128);op.Storage(index_bytes);
+    struct Restore {AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
+    const auto indexed=transfer_memory::Add(budget.caller_bytes,index_bytes);budget.caller_bytes=indexed;
+    std::map<Id,std::vector<std::pair<const CoveragePiece*,int>>> groups;
+    for(const auto& p:region) {
+      reference->Get(p.facet);for(const auto& r:p.reference)op.Bary(r);
+      if(op.Compare(op.Orient(p.reference[0],p.reference[1],p.reference[2]),op.Integer(0))<=0)throw std::invalid_argument("Accepted reference region reverses or degenerates.");
+      groups[p.facet].push_back({&p,1});
+    }
+    std::vector<RegionSegment> out;size_t output_bytes=0;
+    for(const auto& group:groups) {
+      {
+        Restore local{budget,budget.caller_bytes};auto residual=CancelReferenceEdges(group.first,group.second,op);
+        const auto residual_bytes=ReferenceEdgeBytes(residual);op.Storage(residual_bytes);budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,residual_bytes);
+        auto split=SplitAtlasEdges(residual,op);const auto split_bytes=ReferenceEdgeBytes(split);op.Storage(split_bytes);budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,split_bytes);
+        struct BoundaryEdge {int count=0;const ExactBary* first=nullptr;const ExactBary* last=nullptr;};
+        std::map<AtlasEdgeKey,BoundaryEdge> boundary;size_t boundary_bytes=0;
+        for(const auto& e:split) {
+          size_t words=12;for(const auto* p:{&e.a,&e.b})for(const auto* q:{&p->u,&p->v})words=transfer_memory::Add(words,q->numerator.size(),q->denominator.size());
+          boundary_bytes=transfer_memory::Add(boundary_bytes,sizeof(decltype(boundary)::value_type),4*sizeof(void*),transfer_memory::GrowthBound(words,sizeof(uint64_t)));
+        }
+        op.Storage(boundary_bytes);budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,boundary_bytes);
+        for(const auto& e:split) {
+          int sign=e.sign;const auto* a=&e.a;const auto* b=&e.b;auto ka=op.Key(*a),kb=op.Key(*b);if(kb<ka)std::swap(a,b);
+          auto& value=boundary[EdgeKeys(std::move(ka),std::move(kb),sign)];AddChainMultiplicity(value.count,sign);value.first=a;value.last=b;
+        }
+        struct Link {const ExactBary* point=nullptr;size_t in=0,out=0,incoming=SIZE_MAX,outgoing=SIZE_MAX;bool fixed=false;};
+        std::map<AtlasKey,Link> links;
+        struct Segment {decltype(links)::iterator first,last;bool alive=true;};std::vector<Segment> segments;
+        size_t n=0,link_bytes=0;
+        for(const auto& row:boundary)if(row.second.count) {
+          if(row.second.count!=1&&row.second.count!=-1)throw std::invalid_argument("Accepted reference region has nonunit boundary multiplicity.");
+          ++n;link_bytes=transfer_memory::Add(link_bytes,2*(sizeof(decltype(links)::value_type)+4*sizeof(void*)),
+              transfer_memory::Bytes(row.first.first),transfer_memory::Bytes(row.first.second));
+        }
+        link_bytes=transfer_memory::Add(link_bytes,transfer_memory::GrowthBound(n,sizeof(Segment)),
+            transfer_memory::GrowthBound(transfer_memory::Mul(n,4),sizeof(decltype(links)::iterator)),transfer_memory::GrowthBound(n,sizeof(size_t)));
+        op.Storage(link_bytes);budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,link_bytes);segments.reserve(n);
+        for(const auto& row:boundary)if(row.second.count) {
+          const bool forward=row.second.count>0;const auto& a=forward?row.first.first:row.first.second;const auto& b=forward?row.first.second:row.first.first;
+          auto first=links.emplace(a,Link{}).first,last=links.emplace(b,Link{}).first;const size_t index=segments.size();
+          first->second.point=forward?row.second.first:row.second.last;last->second.point=forward?row.second.last:row.second.first;
+          ++first->second.out;first->second.outgoing=index;++last->second.in;last->second.incoming=index;segments.push_back({first,last,true});
+        }
+        std::vector<decltype(links)::iterator> queue;queue.reserve(links.size());
+        for(auto it=links.begin();it!=links.end();++it) {
+          if(it->second.in!=it->second.out)throw std::invalid_argument("Accepted reference region has an open boundary.");
+          it->second.fixed=mandatory.count(ReferenceKey(*reference,group.first,*it->second.point,op));queue.push_back(it);
+        }
+        while(!queue.empty()) {
+          op.Work();auto point=queue.back();queue.pop_back();auto& link=point->second;
+          if(link.fixed||link.in!=1||link.out!=1)continue;
+          const size_t a=link.incoming,b=link.outgoing;if(a==b||!segments[a].alive||!segments[b].alive)continue;
+          auto first=segments[a].first,last=segments[b].last;if(first==last)continue;
+          const auto& p=*first->second.point;const auto& q=*point->second.point;const auto& r=*last->second.point;
+          if(op.Compare(op.Orient(p,q,r),op.Integer(0)))continue;
+          const bool use_u=op.Compare(p.u,r.u);const auto& x=use_u?p.u:p.v;const auto& y=use_u?q.u:q.v;const auto& z=use_u?r.u:r.v;
+          const int direction=op.Compare(x,z);if(!direction||op.Compare(x,y)!=direction||op.Compare(y,z)!=direction)continue;
+          segments[a].last=last;segments[b].alive=false;link.in=link.out=0;
+          if(last->second.in==1)last->second.incoming=a;queue.push_back(first);queue.push_back(last);
+        }
+        std::vector<size_t> order;order.reserve(n);size_t added_bytes=0;
+        for(size_t i=0;i<segments.size();++i)if(segments[i].alive) {
+          order.push_back(i);added_bytes=transfer_memory::Add(added_bytes,3*sizeof(RegionSegment));
+          for(const auto* p:{segments[i].first->second.point,segments[i].last->second.point})for(const auto* q:{&p->u,&p->v})added_bytes=transfer_memory::Add(added_bytes,transfer_memory::Bytes(q->numerator),transfer_memory::Bytes(q->denominator));
+        }
+        std::sort(order.begin(),order.end(),[&](size_t a,size_t b){if(segments[a].first->first!=segments[b].first->first)return segments[a].first->first<segments[b].first->first;return segments[a].last->first<segments[b].last->first;});
+        op.Storage(added_bytes);out.reserve(transfer_memory::Add(out.size(),order.size()));
+        for(size_t i:order)out.push_back({group.first,*segments[i].first->second.point,*segments[i].last->second.point});
+        output_bytes=transfer_memory::Add(output_bytes,added_bytes);
+      }
+      budget.caller_bytes=transfer_memory::Add(indexed,output_bytes);
+    }
+    result=std::move(out);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
 bool MappedFacetReference::CertifyEmbedding(const std::vector<CoveragePiece>& region,Point normal,

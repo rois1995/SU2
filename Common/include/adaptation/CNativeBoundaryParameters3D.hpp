@@ -88,6 +88,9 @@ class BoundaryParameterState {
   const SU2NativeGeometry::MappedFacetReference& Geometry()const{return *geometry;}
   uint64_t Revision()const{return revision;}
   std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> Authority()const{return geometry;}
+  /*! Metadata-only policy setup over this validated state; geometry, topology and revision stay unchanged. */
+  std::shared_ptr<BoundaryParameterState> WithMobilityPolicy(double angle,const std::map<int,int>& roles,
+      SU2NativeGeometry::AtlasBudget& reservation,size_t ceiling=SIZE_MAX,size_t caller_bytes=0)const;
   /*! Boundary-only transport, sharing already agreed immutable authority/indexes. */
   size_t PayloadBytes()const;
   std::vector<char> Payload()const;
@@ -104,6 +107,7 @@ class BoundaryParameterState {
   /*! Global boundary-only deltas; caller transports/admit counts collectively before invoking.
    * Prepares changed map nodes only, never copies the entire accepted table per transaction.
    * Old/new ideal facet boundaries must agree, including exact feature subdivisions.
+   * Covers may update retained faces; changing a retained trace requires all accepted incident faces together.
    * Actual tetrahedra, embedding, metric/height and full-star reservations remain caller duties. */
   Publication Prepare(const std::vector<BoundaryParameterEdit>& edits,const std::vector<BoundaryFaceChange>& faces,
       std::string& reason,size_t ceiling=SIZE_MAX,size_t caller_bytes=0,

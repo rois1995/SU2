@@ -26,16 +26,36 @@ and [curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md).
 **Connected curved mobility passes focused checks; M6 remains open.**
 Build28/session96276 PASS78.17s/944 unchanged pins. Focused atlas_checks/
 session76464 PASS9.48s:25 cases/4261 assertions, pins unchanged. This covers
-geometry, motion, second-event, v8 archive, atomic publication and source kernels.
+geometry, v8 archive, atomic publication and source kernels.
 Independent fixture transactions now retain separate unchanged1M-work reservations;
-production limits remain unchanged. Six-rank M6 diagnostic/session51670 is live.
-All C++ and validation helpers remain frozen; no other heavy job is running.
+production limits remain unchanged. Six-rank M6 diagnostic/session51670 is terminal FAIL178.39s, pins unchanged: policy
+setup exhausted arithmetic work before meshing. It classified674 protectededges,
+2corners,671curvepoints and23806 freesurfacepoints. Build29/session26845 PASS1108.27s/944 unchanged pins. Build30/session54900 is live:950 pinned inputs, one low-priority worker.
+All C++ and validation helpers are frozen.
+Metadata-only activation is implemented to clone the validated accepted state
+and verify its new policy, preserving full untrusted-input audits and limits.
+
+Test-selection correction: the remapper's own tests used NativeCurvedAtlasRemap3D,
+which the focused filter omitted. Earlier motion/second-event claims were
+premature. Those tests now also carry the selected common tag; their first run completed:28/29 focused cases pass4317/4318 assertions,14.68s,
+pins unchanged. Migration and initial remapping/curve motion pass. The second
+accepted remap exhausts536M arithmetic work in the reference2-chain arrangement;
+exact internal-edge cancellation before subdivision is being implemented.
+A direct two-event MoveVertex caller test is added. Fresh reference reconstruction,
+coordinated metadata covers, local feature cuts and repeated-event tests are
+implemented and compiling in build30. Native backend queries are wired but
+remain runtime-unqualified: [CAD/backend plan](Handbook/GEOMETRY_BACKEND_PLAN.md).
+User direction: the next design must remove history-dependent descriptor growth.
+Clean working-patch reconstruction against original charts/current bindings is
+being designed; accepted interiors will not accumulate. Retained trace history
+requires coordinated incident-face replacement. No arithmetic-only milestone.
+
 
 The exact-coordinate fast paths certify floating bounds by exact comparison and
 recognize coprime dyadic coordinates; existing fallback/validation remains.
 Edge-normal restriction now uses Bernstein controls to avoid false sharp seams.
 See [implementation/validation findings](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
-Latest pushed connected WIP: `23037c0345`; subsequent corrections are local.
+Latest pushed checkpoint: `f374ea8a23` (focused integration passes; M6 pending).
 Primitive checkpoint `7e41461874` includes earlier standalone evidence. Detailed
 build/case receipts are in `staged57` under the DC17/18 evidence directory.
 The capture analyzer supports legacy/schema8 payloads; synthetic checks pass.

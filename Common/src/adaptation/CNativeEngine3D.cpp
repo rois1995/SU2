@@ -679,10 +679,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     options.caller_bytes=transfer_memory::Add(options.caller_bytes,AtlasScratchBytes);
     if(private_parameters->Mobility().identity||!private_parameters->Coverage().faces.empty()||!private_parameters->Coverage().traces.empty()) {
       atlas_budget.caller_bytes=parameter_bound-AtlasScratchBytes;atlas_budget.maximum_bytes=parameter_bound;
-      // Half the admitted workspace holds simultaneous rational/arithmetic arrays; half holds correspondence records.
+      // Half holds the nested planner/reconstruction arithmetic arrays; half holds correspondence records.
       size_t low=0,high=AtlasScratchBytes*8;
       while(low<high){const size_t bits=low+(high-low+1)/2;
-        if(SU2NativeGeometry::CurvedAtlasWorkspaceBytes(bits)<=AtlasScratchBytes/2)low=bits;else high=bits-1;}
+        if(transfer_memory::Mul(2,SU2NativeGeometry::CurvedAtlasWorkspaceBytes(bits))<=AtlasScratchBytes/2)low=bits;else high=bits-1;}
       if(!low)throw std::length_error("Native3D atlas integer workspace has no admitted capacity.");atlas_budget.maximum_integer_bits=low;
       atlas_geometry=private_geometry->WithAtlasReservation(atlas_budget);
     }

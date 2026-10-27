@@ -11,10 +11,16 @@ paths.add(str(Path(__file__).resolve()))
 paths.update(str(ROOT.parents[3]/p) for p in (
     'Common/include/adaptation/CNativeAtlas3D.hpp',
     'Common/include/adaptation/CNativeCurvedAtlas3D.hpp',
+    'Common/include/adaptation/CNativeReferenceTriangulation3D.hpp',
+    'Common/include/adaptation/CNativeGeometryBackend3D.hpp',
     'Common/src/adaptation/CNativeAtlas3D.cpp',
     'Common/src/adaptation/CNativeCurvedAtlas3D.cpp',
+    'Common/src/adaptation/CNativeReferenceTriangulation3D.cpp',
+    'Common/src/adaptation/CNativeGeometryBackend3D.cpp',
     'UnitTests/Common/adaptation/CNativeAtlas3D_tests.cpp',
     'UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp',
+    'UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp',
+    'UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp',
     'meson.build', 'Common/src/meson.build', 'Common/src/adaptation/meson.build',
     'SU2_CFD/src/meson.build', 'UnitTests/meson.build'))
 pins={p:sha(p) for p in sorted(paths)}

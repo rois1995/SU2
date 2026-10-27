@@ -111,7 +111,8 @@ class Directory {
                size_t caller_bytes = 0, unsigned priority = 0);
   /*! Owner-routed prevalidated replacement. Stages all new mesh/directory nodes before the common vote;
    * version/budget/rank veto leaves both accepted stores unchanged. No allocation after publication vote.
-   * Reused cell IDs must advance version. Caller reserves globally unique new IDs and validates complete geometry. */
+   * Reused cell IDs must advance version. Caller reserves globally unique new IDs and validates complete geometry.
+   * Coverage deltas may also update retained physical faces together with all incident covers of a changed trace. */
   bool Publish(Owned& owned, const std::vector<Dependency>& removed, const std::vector<OwnedCell>& added,
                bool prevalidated, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0,
                const std::vector<BoundaryParameterEdit>& parameter_edits = {},

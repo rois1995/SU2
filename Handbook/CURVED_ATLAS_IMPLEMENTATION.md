@@ -9,6 +9,24 @@ replaced seven generated physical points; all seven retained their dimension-one
 original-edge feature identities. These are on-chart edge slides, not released
 original reference vertices or demonstrated cross-chart freedom/M6 closure.
 
+## Current architectural decision: remove historical interior refinement
+
+User direction, 2026-10-27: arithmetic improvements alone do not close growth.
+The next implementation reconstructs a clean local working reference surface from
+immutable original charts, current forward bindings and required perimeter
+traces. Accepted coverage supplies its assigned reference region and boundary;
+its accumulated interior triangulation is discarded. Exact-edge cancellation is
+a certificate cost improvement, not a descriptor-growth solution.
+
+Acceptance must track piece/trace counts, rational sizes, actual work, bytes and
+transport through repeated and adjacent transactions, with immutable geometry,
+features, bodies, source/transfer/restart and final mesh gates preserved. Bounds
+must follow current constrained-region complexity, not event count. Retained
+interface traces cannot hide unbounded history: their simplification requires
+coordinated replacement of all incident faces or a reconstructed region that
+retires them. Qualify the saved difficult M6 support and full workflow; do not
+substitute passing primitive cases or larger budgets.
+
 ## Representation: retain the authority, persist the correspondence
 
 Keep `SurfaceBinding` as the forward point location on an original vertex, edge
@@ -184,10 +202,13 @@ implied by the new schema.
    records. Cancel internal coverage edges to obtain its reference domain and
    retained perimeter. Treat physical feature chains as boundaries between
    smooth sheets; do not combine disconnected bodies by marker.
-2. Build a common refinement of the **old accepted coverage**, original chart
-   cuts and retained traces. It need not include entire original facets. Each
-   sheet region must have certified disk topology for this atlas construction;
-   holes/cuts must remain explicit rather than being filled by a convex hull.
+2. Extract the accepted reference region's boundary, canceling internal pieces.
+   Build a fresh constrained triangulation from original facet triangles, current
+   associations and required boundary knots. Original facets are seeds, not a
+   convex-hull replacement for missing regions: exact winding keeps per-facet
+   holes and disconnected portions. Cut each local physical star at genuine
+   feature paths even when the global smooth-sheet graph remains connected.
+   Each glued local atlas domain still needs certified disk topology.
 3. Propose a local PL flattening of this refinement. Put retained perimeter CFD
    vertices on a deterministic convex polygon. Place every inherited trace knot
    at `(1-t)*A+t*B` on its perimeter edge using its stored exact `t`. Interior
@@ -202,9 +223,10 @@ implied by the new schema.
    sampling point uses its canonical chain parameter; a branch/corner is fixed.
    Two incident sheets share the same curve parameter/path. A carrier junction
    retains its simultaneous carrier constraints.
-5. Retriangulate the admitted sheet domain with unchanged perimeter and physical
-   constraints. Intersect the new active triangles with the refined atlas cells
-   using rational clipping. Each intersection yields both original parameters
+5. Retriangulate the admitted sheet domain with unchanged external interfaces
+   and physical constraints. Shared paths inside the admitted region may be
+   reconstructed only with all incident faces participating. Intersect new active
+   triangles with the freshly rebuilt reference cells using rational clipping. Each intersection yields both original parameters
    and active-face barycentrics. Emit coverage microtriangles and shared traces;
    prove positive tiling and exact equality to the old covered reference region.
 6. Rebuild the complete volume star, retaining exact-positive nondegenerate
@@ -417,3 +439,46 @@ unchanged1M-work reservations; earlier attempted-work receipts remain asserted.
 No production cap was raised. Certified nearby-double bounds and canonical-dyadic
 GCD shortcuts reduce actual arithmetic work without skipping validation. Full
 M6 diagnostic/session51670 is running on six ranks; acceptance remains open.
+
+Difficult M6 build28 diagnostic is terminal FAIL178.39s, unchanged pins
+(`staged57/cases/m6_stage_20261027T121816_2120374`): policy derivation reports674
+protected edges,2corners,671curve points and23806free surface points. Activation
+then exhausts its arithmetic budget re-auditing an already validated surface in
+the general constructor, before mesh construction starts. This is setup cost,
+not evidence of invalid mesh construction or failed smoothing. The connected
+correction migrates policy on a bounded copy of validated accepted state, verifies
+policy/physical corners, and preserves coordinates/bindings/coverage/version/
+revision. No bypass option is added to the untrusted constructor or decoders.
+Caps stay unchanged; migration-equivalence and rollback tests are added.
+
+Selection correction: the first focused runs selected NativeCurvedAtlas3D from
+the geometry tests, while the new remapper cases used NativeCurvedAtlasRemap3D.
+They therefore did not qualify the previously stated motion/second-event paths.
+The remapper cases now also carry the selected common tag; they and the new
+migration test must pass before claiming that coverage. Earlier counts25/4261
+remain valid for the actually selected geometry/publication/archive/source checks.
+
+Build29 PASS1108.27s/944 unchanged pins. Corrected focused selection
+`staged57/cases/atlas_checks_20261027T124528_2195618` is terminal:28/29 cases,
+4317/4318 assertions,14.68s, unchanged pins. Policy migration, first original-
+vertex remap and shared curve-sample motion pass. Second accepted remap exhausts
+its536M arithmetic work in ValidateCoverageReplacement->SplitAtlasEdges, proved
+by `remap_second_event_debug.log`. This identifies excessive pairwise work on
+microtriangle interior edges. The correction algebraically cancels exact directed
+edges first, then subdivides/checks the residual reference boundary. The same
+positive2-chain equality proof and resource limits remain. A separate direct
+MoveVertex/tetrahedron-star/second-accepted-state case is also added to check
+caller wiring. No M6 mesh or full transfer qualification is claimed.
+
+Connected reconstruction implementation is frozen for build30/session54900:
+950 pins, one low-priority worker. The new reference PSLG/corridor triangulator
+seeds no historical interior nodes; policy activation reuses validated state;
+shared-path metadata transactions require complete incidence; local feature arcs
+are cut independently of global connectivity; retired/coordinated curve paths
+use original-edge coordinates. Protected reference curves must map to an active
+face boundary. A small native backend adapter supplies real evaluation,
+association/support and bounded geometry queries, while PN/source certificates
+stay specialized. New operator, repeated-event, nonseparating-feature, region
+history-equivalence, coordinated-publication and backend cases are selected.
+The source-tag audit found all14 cases in the three new test files selected;
+runtime listing and results remain pending. No M6 acceptance is claimed.
