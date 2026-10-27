@@ -23,20 +23,23 @@ and [curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md).
 
 ## Live work and validation
 
-**Cross-chart mobility implementation is active and not integration-validated.**
-Build20 is terminal setup failure (3.09s, pins unchanged): Meson could not locate Ninja; the runner now records NINJA explicitly.
+**Connected curved mobility passes focused checks; M6 remains open.**
+Build28/session96276 PASS78.17s/944 unchanged pins. Focused atlas_checks/
+session76464 PASS9.48s:25 cases/4261 assertions, pins unchanged. This covers
+geometry, motion, second-event, v8 archive, atomic publication and source kernels.
+Independent fixture transactions now retain separate unchanged1M-work reservations;
+production limits remain unchanged. Six-rank M6 diagnostic/session51670 is live.
+All C++ and validation helpers remain frozen; no other heavy job is running.
 
-Checkpoint `7e41461874` saves the tested primitive. Exact arithmetic passed the standalone `staged57/atlas_arithmetic1` run: four cases,
-308 assertions, 17.90s including compilation, unchanged pins; its job is terminal.
-Build21/session45516 is live: one low-priority build worker, 944 pinned inputs.
-All C++ and validation helpers are frozen. Geometry, parameter/publication,
-remapper, source-envelope and operator/lifecycle wiring are implemented for
-first compilation; runtime qualification remains open.
-See [implementation contract](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
-The latest pushed primitive checkpoint is `7e41461874`; connected changes remain WIP.
-The staged topology analyzer now recognizes legacy and schema 8 parameter payloads;
-its synthetic header, appendix and truncation self-check passes. The `atlas_checks`
-case and broad-campaign tags are prepared for the connected build, not yet run.
+The exact-coordinate fast paths certify floating bounds by exact comparison and
+recognize coprime dyadic coordinates; existing fallback/validation remains.
+Edge-normal restriction now uses Bernstein controls to avoid false sharp seams.
+See [implementation/validation findings](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
+Latest pushed connected WIP: `23037c0345`; subsequent corrections are local.
+Primitive checkpoint `7e41461874` includes earlier standalone evidence. Detailed
+build/case receipts are in `staged57` under the DC17/18 evidence directory.
+The capture analyzer supports legacy/schema8 payloads; synthetic checks pass.
+Broader serial/MPI and difficult M6 runs are pending on the new code.
 
  Build19 broad serial/
 session28247 PASS59.55s:182 cases/1,121,344 assertions. MPI6/session24105

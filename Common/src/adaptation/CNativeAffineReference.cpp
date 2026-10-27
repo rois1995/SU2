@@ -231,12 +231,22 @@ Range CosineDegrees(double angle) {
   term=DividePositive(Multiply(term,square),49*50);return Add(sum,{-term.hi,term.hi});
 }
 Box EdgeNormal(const MappedFacetReference& geometry,Id facet,SU2Native3D::Edge edge,Range t) {
-  const auto& f=geometry.Reference().Get(facet);Box r{};
-  for(unsigned k=0;k<3;++k)r[k]=f.v[k].id==edge[0]?Subtract({1,1},t):f.v[k].id==edge[1]?t:Range{0,0};
+  const auto& f=geometry.Reference().Get(facet);
   const auto found=geometry.Curves().find(facet);
   if(found==geometry.Curves().end())return CrossBox(Difference(Exact(f.v[1].p),Exact(f.v[0].p)),Difference(Exact(f.v[2].p),Exact(f.v[0].p)));
-  const auto& net=found->second;const auto base=Blossom(net,{Exact({1,0,0}),r,r});
-  return CrossBox(Difference(Blossom(net,{Exact({0,1,0}),r,r}),base),Difference(Blossom(net,{Exact({0,0,1}),r,r}),base));
+  std::array<Box,10> controls;for(unsigned q=0;q<10;++q)controls[q]=Exact(found->second[q]);
+  const auto normal=CubicNormalControls(controls);std::array<Box,5> boundary;
+  unsigned first=0,last=0;for(unsigned k=0;k<3;++k){if(f.v[k].id==edge[0])first=k;if(f.v[k].id==edge[1])last=k;}
+  for(unsigned q=0;q<5;++q){unsigned power[3]={};power[first]=4-q;power[last]=q;boundary[q]=normal[PolynomialIndex(4,power[0],power[1])];}
+  // Restrict the quartic normal itself: independent boxes for t and 1-t lose the edge's correlations.
+  Box result;for(auto& d:result)d={INFINITY,-INFINITY};
+  for(unsigned q=0;q<5;++q) {
+    auto level=boundary;
+    for(unsigned step=0;step<4;++step){const long double s=step<4-q?t.lo:t.hi;
+      for(unsigned k=0;k<4-step;++k)for(unsigned d=0;d<3;++d)level[k][d]=Add(Multiply(level[k][d],Subtract({1,1},{s,s})),Multiply(level[k+1][d],s));}
+    for(unsigned d=0;d<3;++d){result[d].lo=std::min(result[d].lo,level[0][d].lo);result[d].hi=std::max(result[d].hi,level[0][d].hi);}
+  }
+  return result;
 }
 bool NormalAngleBound(const Box& a,const Box& b,Range cosine) {
   const auto aa=DotBox(a,a),bb=DotBox(b,b);if(!(aa.lo>0&&bb.lo>0))return false;

@@ -389,3 +389,31 @@ larger historical peak. Current allocations remain checked against the current
 window; the historical receipt remains cumulative. A focused exact-coordinate
 regression was added, awaiting the connected build. The earlier standalone
 arithmetic receipt qualifies the preceding primitive checkpoint, not this edit.
+
+Build23 completed in939.91s with944 unchanged pins. First focused atlas_checks
+(`staged57/cases/atlas_checks_20261027T115717_2061590`) is terminal:23 cases,
+19 passed/4 failed,4040/4045 assertions,6.57s, pins unchanged. New remapper motion
+and second-event fixtures passed; whole capability remains open. Failures exposed
+archive scratch omission and false feature pinning from correlated edge-normal
+intervals. The purported disconnected negative fixture was a valid notched disk;
+it must use genuinely disconnected support. Corrections are underway.
+
+Build24 PASS93.16s; first archive correction and edge-normal fix left two focused
+failures. Build25 diagnostic-only PASS57.14s identified EncodeReference's decode
+self-check storage bound and publication's arithmetic exhaustion. Build26
+PASS39.13s included the corrected bound and certified nearby-double proposal;
+focused23/24 cases passed. Build27 PASS33.08s includes dyadic coprime fast-path
+validation; focused24/25 cases pass4202/4203 assertions in9.54s, unchanged pins.
+The remaining fixture reaches publication after successful SplitEdge; debugger
+`publication_work_debug2.log` locates cumulative1M-work exhaustion in the exact
+old/new2-chain check. One fixture budget spans setup, split and repeated rejection/
+publication transactions; reservation ownership is being corrected without
+raising a production limit. Every failed receipt is retained under `staged57`.
+
+Build28 PASS78.17s/944 unchanged pins. Focused atlas_checks
+`staged57/cases/atlas_checks_20261027T121747_2119047` PASS9.48s:25 cases,
+4261 assertions, pins unchanged. Independent fixture transactions now own separate
+unchanged1M-work reservations; earlier attempted-work receipts remain asserted.
+No production cap was raised. Certified nearby-double bounds and canonical-dyadic
+GCD shortcuts reduce actual arithmetic work without skipping validation. Full
+M6 diagnostic/session51670 is running on six ranks; acceptance remains open.

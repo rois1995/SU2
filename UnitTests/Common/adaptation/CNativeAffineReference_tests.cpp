@@ -249,16 +249,20 @@ TEST_CASE("Mapped edge edits publish mesh and forward geometry atomically and su
   for(const auto& f:facets){old.surface.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});
     for(auto n:f.v){nodes.emplace(n.id,n);points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});}}
   old.cells.push_back({0,{nodes.at(1),nodes.at(9),nodes.at(21),nodes.at(40)}});
-  AtlasBudget budget{1000000,size_t(1)<<27,4096};BoundaryCoverage descriptors;std::string why;
+  // Each independent API transaction owns its reservation; keep every attempted-work receipt.
+  const AtlasBudget transaction_limits{1000000,size_t(1)<<27,4096};AtlasBudget setup_budget=transaction_limits;
+  AtlasBudget split_budget=transaction_limits,veto_budget=transaction_limits,storage_budget=transaction_limits;
+  AtlasBudget stale_budget=transaction_limits,publication_budget=transaction_limits,bad_trace_budget=transaction_limits;
+  BoundaryCoverage descriptors;std::string why;
   if(atlas)for(const auto& face:old.surface) {
     std::array<SurfaceBinding,3> bindings;for(unsigned k=0;k<3;++k)bindings[k]=points.at(face.v[k]).binding;
-    FaceCoverage cover;REQUIRE(authority->ResolveSingleChart(face.facet,bindings,cover,budget,why));descriptors.faces.emplace(face.v,cover);
-    std::array<EdgeTrace,3> traces;REQUIRE(authority->CoverageTraces(cover,traces,budget,why));
+    FaceCoverage cover;REQUIRE(authority->ResolveSingleChart(face.facet,bindings,cover,setup_budget,why));descriptors.faces.emplace(face.v,cover);
+    std::array<EdgeTrace,3> traces;REQUIRE(authority->CoverageTraces(cover,traces,setup_budget,why));
     for(unsigned k=0;k<3;++k)if(face.v[k]<face.v[(k+1)%3])descriptors.traces.emplace(Edge{face.v[k],face.v[(k+1)%3]},traces[k]);
   }
-  auto parameters=std::make_shared<BoundaryParameterState>(authority,points,old.surface,11,SIZE_MAX,0,descriptors,MobilityPolicy{},atlas?&budget:nullptr);
-  auto reference=PlanarReference::WithParameters(definition,parameters);reference->ExportParameters(old,atlas?&budget:nullptr);
-  if(atlas)reference=std::shared_ptr<const PlanarReference>(reference->PrivateParameters(old,&budget));
+  auto parameters=std::make_shared<BoundaryParameterState>(authority,points,old.surface,11,SIZE_MAX,0,descriptors,MobilityPolicy{},atlas?&setup_budget:nullptr);
+  auto reference=PlanarReference::WithParameters(definition,parameters);reference->ExportParameters(old,atlas?&setup_budget:nullptr);
+  if(atlas)reference=std::shared_ptr<const PlanarReference>(reference->PrivateParameters(old,&split_budget));
   const auto initial=parameters->Snapshot();
   auto restored=BoundaryParameterState::FromPayload(authority,parameters->Payload());
   CHECK(restored->Snapshot()==initial);CHECK(&restored->Geometry()==authority.get());
@@ -266,9 +270,12 @@ TEST_CASE("Mapped edge edits publish mesh and forward geometry atomically and su
   corrupt=parameters->Payload();corrupt.pop_back();CHECK_THROWS(BoundaryParameterState::FromPayload(authority,corrupt));
   CHECK_THROWS(BoundaryParameterState::FromPayload(authority,parameters->Payload(),1));
   const auto proposed=authority->Realize(authority->EdgePoint({1,9},.3));Patch fresh;std::string reason;
-  REQUIRE(SplitEdge(old,{1,9},{55,proposed},100,*reference,fresh,reason));
+  const bool built=SplitEdge(old,{1,9},{55,proposed},100,*reference,fresh,reason);
+  INFO(mode);INFO(reason);REQUIRE(built);
   REQUIRE(fresh.parameters.size()==5);CHECK(fresh.cells.size()==2);CHECK(fresh.surface.size()==6);
   CHECK(parameters->Snapshot()==initial);
+  const auto setup_work=setup_budget.work,split_work=split_budget.work;
+  if(atlas){CHECK(setup_work>0);CHECK(split_work>0);CHECK(setup_work<=setup_budget.maximum_work);CHECK(split_work<=split_budget.maximum_work);}
   auto rows=[&](const Patch& patch) {
     std::vector<OwnedCell> result;
     for(const auto& c:patch.cells) {
@@ -286,14 +293,21 @@ TEST_CASE("Mapped edge edits publish mesh and forward geometry atomically and su
   if(!world.rank)removed.push_back({0,0,0});
   for(auto row:rows(fresh))if(row.cell.id%world.size==unsigned(world.rank))added.push_back(row);
   const auto edits=world.rank?std::vector<BoundaryParameterEdit>{}:BoundaryParameterState::Changes(old,fresh,parameters->Revision());
-  CHECK_FALSE(directory.Publish(owned,removed,added,world.rank!=0,reason,SIZE_MAX,0,edits,fresh.coverage,atlas?&budget:nullptr));
+  CHECK_FALSE(directory.Publish(owned,removed,added,world.rank!=0,reason,SIZE_MAX,0,edits,fresh.coverage,atlas?&veto_budget:nullptr));
   CHECK(parameters->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);
-  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,world.rank?SIZE_MAX:1,0,edits,fresh.coverage,atlas?&budget:nullptr));
+  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,world.rank?SIZE_MAX:1,0,edits,fresh.coverage,atlas?&storage_budget:nullptr));
   CHECK(parameters->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);
   auto stale=edits;for(auto& e:stale)++e.revision;
-  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,stale,fresh.coverage,atlas?&budget:nullptr));
+  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,stale,fresh.coverage,atlas?&stale_budget:nullptr));
   CHECK(parameters->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);
-  INFO(reason);REQUIRE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,edits,fresh.coverage,atlas?&budget:nullptr));
+  const auto veto_work=veto_budget.work,storage_work=storage_budget.work,stale_work=stale_budget.work;
+  const bool published=directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,edits,fresh.coverage,atlas?&publication_budget:nullptr);
+  INFO("atlas work: setup="<<setup_work<<", split="<<split_work<<", veto="<<veto_work<<", storage="<<storage_work<<", stale="<<stale_work<<", publication="<<publication_budget.work);
+  INFO(reason);REQUIRE(published);
+  CHECK(setup_budget.work==setup_work);CHECK(split_budget.work==split_work);
+  CHECK(veto_budget.work==veto_work);CHECK(storage_budget.work==storage_work);CHECK(stale_budget.work==stale_work);
+  CHECK(veto_work<=veto_budget.maximum_work);CHECK(storage_work<=storage_budget.maximum_work);CHECK(stale_work<=stale_budget.maximum_work);
+  if(atlas){CHECK(publication_budget.work>0);CHECK(publication_budget.work<=publication_budget.maximum_work);}
   CHECK(parameters->Revision()==12);CHECK(parameters->Records().size()==5);CHECK(parameters->Surface().size()==6);
   CHECK(CPassiveComm::Allreduce(uint64_t(owned.size()),CPassiveComm::Op::SUM,world.comm)==2);
   ReferenceState state;state.original=reference;state.facets=facets;state.marker_names={"body"};
@@ -313,7 +327,9 @@ TEST_CASE("Mapped edge edits publish mesh and forward geometry atomically and su
     // An existing edge cannot acquire another active-edge parameterization even when its knots remain unchanged.
     auto bad=fresh.coverage;REQUIRE_FALSE(bad.traces.empty());auto& trace=bad.traces.begin()->second;REQUIRE_FALSE(trace.pieces.empty());
     trace.pieces.back().end=ExactRatio{};const auto snapshot=parameters->Snapshot();
-    CHECK_FALSE(parameters->Prepare({}, {},why,SIZE_MAX,0,bad,&budget).valid);CHECK(parameters->Snapshot()==snapshot);
+    CHECK_FALSE(parameters->Prepare({}, {},why,SIZE_MAX,0,bad,&bad_trace_budget).valid);CHECK(parameters->Snapshot()==snapshot);
+    CHECK(bad_trace_budget.work>0);CHECK(bad_trace_budget.work<=bad_trace_budget.maximum_work);
+    CHECK(publication_budget.work>0);CHECK(publication_budget.work<=publication_budget.maximum_work);
     CHECK_THROWS_AS(BoundaryParameterState(authority,points,old.surface,11,SIZE_MAX,0,descriptors),std::invalid_argument);
   }
   CHECK(parameters->Revision()==12);
@@ -836,7 +852,9 @@ TEST_CASE("Cubic disk embedding certifies its real surface and protects C0 topol
   std::vector<CoveragePiece> disk;for(Id f=0;f<4;++f)disk.push_back(fixture.Cover(f,budget).pieces.front());
   INFO(reason);REQUIRE(g.CertifyEmbedding(disk,{.1,.1,-1},budget,reason));
   auto reversed=GeometryAtlasBudget();CHECK_FALSE(g.CertifyEmbedding(disk,{0,0,1},reversed,reason));
-  auto disconnected=disk;disconnected.erase(disconnected.begin()+1);auto refusal=GeometryAtlasBudget();
+  auto notched=disk;notched.erase(notched.begin()+1);auto notch_budget=GeometryAtlasBudget();
+  REQUIRE(g.CertifyEmbedding(notched,{0,0,-1},notch_budget,reason));
+  const std::vector<CoveragePiece> disconnected{disk[0],disk[2]};auto refusal=GeometryAtlasBudget();
   CHECK_FALSE(g.CertifyEmbedding(disconnected,{0,0,-1},refusal,reason));
   using namespace SU2Native3D;std::array<Node,10> n;
   const std::array<Point,4> ring{{{1,0,0},{0,1,0},{-1,0,0},{0,-1,0}}};

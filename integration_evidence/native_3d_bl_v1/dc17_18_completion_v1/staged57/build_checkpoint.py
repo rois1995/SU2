@@ -20,7 +20,7 @@ paths.update(str(ROOT.parents[3]/p) for p in (
 pins={p:sha(p) for p in sorted(paths)}
 save(ROOT/(name+'_source_pins.json'),pins)
 command=json.loads((ROOT/'build4_command.json').read_text())
-command['argv'].append('SU2_CFD/src/SU2_CFD')
+command['argv'].extend(['-k','0','SU2_CFD/src/SU2_CFD'])
 command['environment']['NINJA']=command['argv'][3]
 env=os.environ.copy();env.update(command['environment'])
 save(ROOT/(name+'_command.json'),command)

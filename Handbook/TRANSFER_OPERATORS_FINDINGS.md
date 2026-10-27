@@ -42,7 +42,8 @@ parent face's complete envelope without unaccounted deep copies.
 Caller review also found that the intermediate-event thin-envelope shortcut used
 only immutable mapping roundoff. That does not bound a curved face's chord gap.
 The shortcut now applies only to faceted mapped geometry; curved source shells
-must follow the complete envelope path. This correction is unbuilt/unvalidated.
+must follow the complete envelope path. The corrected representation compiles in build28 and its focused source-kernel
+checks pass with unchanged pins; the complete transfer workflow remains pending.
 
 Acceptance requires persistence/rebinding, source reconstruction, a second
 adaptation event and independent donor coverage/conservation checks. Earlier

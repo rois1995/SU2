@@ -5,6 +5,7 @@
  */
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CNativeDistributed2D.hpp"
+#include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include "CNativePredicates3D_internal.hpp"
 #include <algorithm>
@@ -40,11 +41,11 @@ void WriteBary(SU2NativeBoundary2D::RecordStream& out,const ExactBary& b){WriteR
 void WriteAtlas(SU2NativeBoundary2D::RecordStream& out,const BoundaryCoverage& c,const MobilityPolicy& p) {
   uint64_t schema=1,version=p.version,id=p.identity,nr=p.roles.size(),nf=p.features.size(),nc=p.corners.size(),nb=p.bodies.size(),ns=p.sheets.size(),nt=c.traces.size(),np=c.faces.size();
   double angle=p.angle;out(schema,version,id,angle,nr,nf,nc,nb,ns,nt,np);
-  for(auto row:p.roles)out(row.first,row.second);
-  for(auto row:p.features)out(row.first,row.second);
+  for(const auto& row:p.roles){auto key=row.first,value=row.second;out(key,value);}
+  for(const auto& row:p.features){auto key=row.first;auto value=row.second;out(key,value);}
   for(auto value:p.corners)out(value);
-  for(auto row:p.bodies)out(row.first,row.second);
-  for(auto row:p.sheets)out(row.first,row.second);
+  for(const auto& row:p.bodies){auto key=row.first,value=row.second;out(key,value);}
+  for(const auto& row:p.sheets){auto key=row.first,value=row.second;out(key,value);}
   for(const auto& row:c.traces){auto key=row.first;uint64_t n=row.second.pieces.size();out(key,n);
     for(const auto& piece:row.second.pieces){auto facet=piece.facet;out(facet);WriteBary(out,piece.first);WriteBary(out,piece.last);WriteRatio(out,piece.end);}}
   for(const auto& row:c.faces){auto key=row.first;uint64_t n=row.second.pieces.size();out(key,n);
@@ -127,8 +128,9 @@ AtlasBudget BoundaryAtlasBudget(size_t encoded,size_t ceiling,size_t caller) {
   AtlasBudget budget;const auto words=Add(encoded/8,1);
   // Cubic limb-work envelope for canonical GCD/division; all storage/bit bounds derive from admitted wire words.
   budget.maximum_work=Mul(Mul(words,words),Mul(words,64));
-  const auto archive_peak=Add(caller,Mul(encoded,32));budget.maximum_bytes=std::min(ceiling,archive_peak);
   budget.maximum_integer_bits=Mul(encoded,16);budget.caller_bytes=caller;
+  const auto archive_peak=Add(caller,Mul(encoded,32),SU2NativeGeometry::CurvedAtlasWorkspaceBytes(budget.maximum_integer_bits));
+  budget.maximum_bytes=std::min(ceiling,archive_peak);
   if(budget.maximum_work==SIZE_MAX||budget.maximum_integer_bits==SIZE_MAX||archive_peak==SIZE_MAX||caller>budget.maximum_bytes)
     throw std::length_error("Atlas archive certificate resources overflow admission.");
   return budget;

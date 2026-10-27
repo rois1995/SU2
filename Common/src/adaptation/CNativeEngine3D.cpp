@@ -4094,9 +4094,9 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
     for(unsigned k=0;k<4;++k)if(row.physical[k].present)patch.surface.push_back({faces[k],row.physical[k].facet});
   }
   if(patch.surface.empty())return false;
-  std::set<Face> physical;for(const auto& f:patch.surface)physical.insert(Key(f.v));
+  std::set<Face> old_physical;for(const auto& f:patch.surface)old_physical.insert(Key(f.v));
   for(auto f:Incidence(patch.cells).Boundary())
-    if(std::find(f.begin(),f.end(),p)!=f.end() && !physical.count(Key(f)))return false;
+    if(std::find(f.begin(),f.end(),p)!=f.end() && !old_physical.count(Key(f)))return false;
   const auto& geometry=moved_geometry?*moved_geometry:*options.geometry;
   try{geometry.ExportParameters(patch);}catch(const std::exception&){return false;}
   const double before=MinScore(old);const auto origin=points.at(p);

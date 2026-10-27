@@ -1,0 +1,29 @@
+Breakpoint 1 at 0x122d70
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after fork from child process 2106451]
+[New Thread 0x7ffff760b700 (LWP 2106456)]
+[New Thread 0x7ffff6c56700 (LWP 2106622)]
+
+Thread 1 "test_driver" hit Breakpoint 1, 0x00007ffff7d2d270 in std::length_error::length_error(char const*) () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#0  0x00007ffff7d2d270 in std::length_error::length_error(char const*) () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#1  0x0000555555861ee0 in SU2NativeGeometry::(anonymous namespace)::Context::Work (this=<optimized out>, n=<optimized out>) at ../../Common/src/adaptation/CNativeAtlas3D.cpp:43
+#2  SU2NativeGeometry::(anonymous namespace)::Shape (a=..., c=...) at ../../Common/src/adaptation/CNativeAtlas3D.cpp:186
+#3  SU2NativeGeometry::(anonymous namespace)::Load (c=..., a=...) at ../../Common/src/adaptation/CNativeAtlas3D.cpp:194
+#4  0x0000555557307446 in SU2NativeGeometry::(anonymous namespace)::<lambda()>::operator()(void) const (__closure=0x7fffffff8380) at ../../Common/src/adaptation/CNativeAtlas3D.cpp:238
+#5  0x000055555730893e in SU2NativeGeometry::(anonymous namespace)::Attempt<SU2NativeGeometry::(anonymous namespace)::Arithmetic(const SU2NativeGeometry::ExactRatio&, const SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::string&, char)::<lambda()> >(std::string &, SU2NativeGeometry::(anonymous namespace)::<lambda()>) (reason="", operation=...) at ../../Common/src/adaptation/CNativeAtlas3D.cpp:231
+#6  0x0000555557308a46 in SU2NativeGeometry::(anonymous namespace)::Arithmetic (kind=45 '-', reason="", budget=..., out=..., b=..., a=...) at ../../Common/src/adaptation/CNativeAtlas3D.cpp:238
+#7  SU2NativeGeometry::ExactSubtract (a=..., b=..., out=..., budget=..., reason="") at ../../Common/src/adaptation/CNativeAtlas3D.cpp:269
+#8  0x0000555557350d32 in SU2NativeGeometry::(anonymous namespace)::AtlasOps::Sub (this=0x7fffffff8e60, a=..., b=...) at ../../Common/src/adaptation/CNativeAffineReference.cpp:134
+#9  0x0000555557375377 in SU2NativeGeometry::(anonymous namespace)::AtlasOps::Orient (c=..., b=..., a=..., this=0x7fffffff8e60) at ../../Common/src/adaptation/CNativeAffineReference.cpp:135
+#10 SU2NativeGeometry::(anonymous namespace)::SplitAtlasEdges (edges=..., op=...) at ../../Common/src/adaptation/CNativeAffineReference.cpp:195
+#11 0x000055555737b635 in SU2NativeGeometry::MappedFacetReference::ValidateCoverageReplacement (this=<optimized out>, old=std::vector of length 2, capacity 2 = {...}, fresh=std::vector of length 4, capacity 4 = {...}, budget=..., reason="") at ../../Common/src/adaptation/CNativeAffineReference.cpp:1195
+#12 0x0000555557333cf4 in SU2Native3D::BoundaryParameterState::Prepare (this=this@entry=0x555557e4fe80, edits=std::vector of length 1, capacity 1 = {...}, faces=std::vector of length 6, capacity 6 = {...}, reason="", ceiling=ceiling@entry=18446744073709551615, caller=<optimized out>, delta=..., reservation=<optimized out>) at /usr/include/c++/9/bits/shared_ptr_base.h:1020
+#13 0x0000555557468122 in SU2Native3D::Directory::PrepareParameters (this=0x7fffffffb270, old=..., added=..., edits=std::vector of length 1, capacity 1 = {...}, staged=..., reason="", ceiling=18446744073709551615, caller=27516, coverage=..., reservation=0x7fffffffacb0) at ../../Common/src/adaptation/../../include/adaptation/CTransferMemory.hpp:45
+#14 0x000055555746b472 in SU2Native3D::Directory::Publish (this=this@entry=0x7fffffffb270, owned=Python Exception <class 'AttributeError'> 'NoneType' object has no attribute 'pointer': 
+std::map with 1 element, removed=std::vector of length 1, capacity 1 = {...}, added=std::vector of length 2, capacity 2 = {...}, prevalidated=prevalidated@entry=true, reason="", ceiling=18446744073709551615, caller_bytes=<optimized out>, parameter_edits=std::vector of length 1, capacity 1 = {...}, coverage=..., reservation=0x7fffffffacb0) at ../../Common/src/adaptation/../../include/adaptation/CTransferMemory.hpp:45
+#15 0x00005555562994f3 in C_A_T_C_H_T_E_S_T_19 () at ../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:297
+#16 0x00005555564c6763 in Catch::RunContext::invokeActiveTestCase (this=0x7fffffffbe60) at ../../externals/catch2/catch.hpp:13027
+#17 0x00005555564d8bfe in Catch::RunContext::runCurrentTest (this=0x7fffffffbe60, redirectedCout=..., redirectedCerr="") at ../../externals/catch2/catch.hpp:13000
+#18 0x00005555564f16ee in Catch::RunContext::runTest (this=0x7fffffffbe60, testCase=...) at ../../externals/catch2/catch.hpp:12761
+#19 0x00005555564f9070 in Catch::(anonymous namespace)::TestGroup::execute (this=0x7fffffffbe50) at ../../externals/catch2/catch.hpp:13354

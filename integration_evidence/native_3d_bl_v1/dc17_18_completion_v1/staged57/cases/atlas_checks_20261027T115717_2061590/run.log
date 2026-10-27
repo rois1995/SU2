@@ -1,0 +1,92 @@
+Filters: [NativeAtlas3D],[NativeCurvedAtlas3D],[NativeMappedPublication3D],[NativeAffineGeometry],[NativeParametricGeometry],[NativeAffineSourceGeometry],[NativeAtlasReferenceIO3D],[NativeJointAffineSource3D],[NativeStageCapture3D]
+DC16 joint source work bound 1000000 (max(10^6, 128 x 12 skin faces))
+Native joint affine source: radius=4e-13 nodes=8 cells=36 column_work=102 contacts=702 distances=144 arithmetic_work_sum=0 arithmetic_limit_per_rank=0 seconds=0.0106984
+DC16 joint source work bound 1000000 (max(10^6, 128 x 12 skin faces))
+Native joint affine source: radius=4e-13 nodes=8 cells=36 column_work=102 contacts=702 distances=144 arithmetic_work_sum=0 arithmetic_limit_per_rank=0 seconds=0.0105472
+DC16 joint source work bound 1000000 (max(10^6, 128 x 24 skin faces))
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Mapped edge edits publish mesh and forward geometry atomically and survive
+reference persistence
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:241
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:242: FAILED:
+  {Unknown expression after the reported line}
+due to unexpected exception with message:
+  Curved atlas storage exhausted.
+
+-------------------------------------------------------------------------------
+Cubic disk embedding certifies its real surface and protects C0 topology
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:834
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:840: FAILED:
+  CHECK_FALSE( g.CertifyEmbedding(disconnected,{0,0,-1},refusal,reason) )
+with expansion:
+  !true
+with message:
+
+
+-------------------------------------------------------------------------------
+Geometry mobility releases cubic seams and retains concave features and
+carriers
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:852
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:855: FAILED:
+  CHECK( fixture.geometry->MobilityDimension(fixture.geometry->Vertex(8),policy)==2 )
+with expansion:
+  0 == 2
+
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:856: FAILED:
+  CHECK( fixture.geometry->MobilityDimension(fixture.geometry->EdgePoint({0,8},.5),policy)==2 )
+with expansion:
+  1 == 2
+
+-------------------------------------------------------------------------------
+Native v8 atlas sidecar preserves exact covers traces and independent policy
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeReferenceIO_tests.cpp:103
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeReferenceIO_tests.cpp:103: FAILED:
+  {Unknown expression after the reported line}
+due to unexpected exception with message:
+  Curved atlas storage exhausted.
+
+===============================================================================
+test cases:   23 |   19 passed | 4 failed
+assertions: 4045 | 4040 passed | 5 failed
+
+Command exited with non-zero status 5
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeAtlas3D],[NativeCurvedAtlas3D],[NativeMappedPublication3D],[NativeAffineGeometry],[NativeParametricGeometry],[NativeAffineSourceGeometry],[NativeAtlasReferenceIO3D],[NativeJointAffineSource3D],[NativeStageCapture3D]"
+	User time (seconds): 1.69
+	System time (seconds): 0.00
+	Percent of CPU this job got: 85%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:01.98
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 35340
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 2956
+	Voluntary context switches: 1165
+	Involuntary context switches: 48
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 440
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 5

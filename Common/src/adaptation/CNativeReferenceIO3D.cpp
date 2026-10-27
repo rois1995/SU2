@@ -6,6 +6,7 @@
  */
 
 #include "../../include/adaptation/CNativeReferenceIO3D.hpp"
+#include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include <cstdio>
 #include <charconv>
 #include <algorithm>
@@ -47,7 +48,8 @@ Header ReadHeader(std::istream& in, size_t bytes) {
 size_t DecodeBytes(size_t bytes, const Header& h) {
   return transfer_memory::Add(transfer_memory::Mul(bytes, 8), PlanarReference::ConstructionBytes(h.facets,h.analytic,h.affine),
       h.version>=5?transfer_memory::Add(transfer_memory::Mul(h.facets,4096),transfer_memory::Mul(h.points,2304),
-          transfer_memory::Mul(h.surface,8256),transfer_memory::Mul(h.atlas_words,256)):0);
+          transfer_memory::Mul(h.surface,8256),transfer_memory::Mul(h.atlas_words,256),
+          h.version==8?SU2NativeGeometry::CurvedAtlasWorkspaceBytes(transfer_memory::Mul(h.atlas_words,128)):0):0);
 }
 }  // namespace
 std::string EncodeReference(const ReferenceState& state) {

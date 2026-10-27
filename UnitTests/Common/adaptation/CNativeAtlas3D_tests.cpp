@@ -134,3 +134,19 @@ TEST_CASE("Exact atlas arithmetic retains historical peaks across admitted stora
   CHECK_FALSE(ExactInteger(3,second,budget,reason));
   CHECK(second.numerator==std::vector<uint32_t>{2});
 }
+
+TEST_CASE("Exact atlas bounds certify nearby floating proposals within bounded work", "[NativeAtlas3D]") {
+  auto prepared=Budget();const auto ratio=Fraction(1,3,prepared);
+  auto budget=Budget();budget.maximum_work=10000;std::array<double,2> bounds;std::string reason;
+  REQUIRE(ExactBounds(ratio,bounds,budget,reason));
+  CHECK(bounds[0]<=1./3.);CHECK(bounds[1]>=1./3.);
+  CHECK(std::nextafter(bounds[0],INFINITY)==bounds[1]);
+}
+
+TEST_CASE("Canonical dyadic validation avoids repeated binary GCD reduction", "[NativeAtlas3D]") {
+  auto prepared=Budget();ExactRatio value;std::string reason;
+  REQUIRE(ExactBinary64(.3,value,prepared,reason));
+  auto budget=Budget();budget.maximum_work=1200;
+  for(unsigned i=0;i<100;++i)REQUIRE(ExactValidate(value,budget,reason));
+  CHECK(budget.work<=budget.maximum_work);
+}

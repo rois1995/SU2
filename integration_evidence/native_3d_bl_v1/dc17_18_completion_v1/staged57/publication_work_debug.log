@@ -1,0 +1,22 @@
+Breakpoint 1 at 0x122d70
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after fork from child process 2097441]
+[New Thread 0x7ffff760b700 (LWP 2097446)]
+[New Thread 0x7ffff6c56700 (LWP 2097601)]
+
+Thread 1 "test_driver" hit Breakpoint 1, 0x00007ffff7d2d270 in std::length_error::length_error(char const*) () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#0  0x00007ffff7d2d270 in std::length_error::length_error(char const*) () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#1  0x0000555555860e21 in SU2NativeGeometry::(anonymous namespace)::Context::Work (this=<optimized out>, n=1) at ../../Common/src/adaptation/CNativeAtlas3D.cpp:43
+#2  SU2NativeGeometry::(anonymous namespace)::SubtractInPlace (c=..., a=..., b=...) at ../../Common/src/adaptation/CNativeAtlas3D.cpp:105
+#3  0x000055555730564a in SU2NativeGeometry::(anonymous namespace)::Gcd (c=..., first=..., second=...) at ../../Common/src/adaptation/CNativeAtlas3D.cpp:150
+#4  0x000055555730577e in SU2NativeGeometry::(anonymous namespace)::Load (c=..., a=...) at ../../Common/src/adaptation/CNativeAtlas3D.cpp:189
+#5  0x0000555557306b22 in SU2NativeGeometry::(anonymous namespace)::<lambda()>::operator()(void) const (__closure=0x7fffffff9680) at ../../Common/src/adaptation/CNativeAtlas3D.cpp:232
+#6  0x0000555557307ffe in SU2NativeGeometry::(anonymous namespace)::Attempt<SU2NativeGeometry::(anonymous namespace)::Arithmetic(const SU2NativeGeometry::ExactRatio&, const SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::string&, char)::<lambda()> >(std::string &, SU2NativeGeometry::(anonymous namespace)::<lambda()>) (reason="", operation=...) at ../../Common/src/adaptation/CNativeAtlas3D.cpp:225
+#7  0x0000555557308106 in SU2NativeGeometry::(anonymous namespace)::Arithmetic (kind=45 '-', reason="", budget=..., out=..., b=..., a=...) at ../../Common/src/adaptation/CNativeAtlas3D.cpp:232
+#8  SU2NativeGeometry::ExactSubtract (a=..., b=..., out=..., budget=..., reason="") at ../../Common/src/adaptation/CNativeAtlas3D.cpp:263
+#9  0x00005555573503f2 in SU2NativeGeometry::(anonymous namespace)::AtlasOps::Sub (this=0x7fffffff9db0, a=..., b=...) at ../../Common/src/adaptation/CNativeAffineReference.cpp:134
+#10 0x00005555573511f3 in SU2NativeGeometry::(anonymous namespace)::AtlasOps::Weight (this=0x7fffffff9db0, p=..., k=<optimized out>) at ../../Common/src/adaptation/CNativeAffineReference.cpp:139
+#11 0x000055555736d3b6 in SU2NativeGeometry::MappedFacetReference::CoverageTraces (this=0x555557fcbef0, coverage=..., result=..., budget=..., reason="") at /usr/include/c++/9/ext/new_allocator.h:119
+#12 0x0000555557334ded in SU2Native3D::PlanarReference::ResolveTrace (this=0x555557fec3b0, edge=..., face=..., out=..., budget=..., reason="") at /usr/include/c++/9/bits/shared_ptr_base.h:1020
+#13 0x000055555733a238 in SU2Native3D::PlanarReference::ExportParameters (this=this@entry=0x555557febc80, patch=..., reservation=reservation@entry=0x0) at /usr/include/c++/9/array:185

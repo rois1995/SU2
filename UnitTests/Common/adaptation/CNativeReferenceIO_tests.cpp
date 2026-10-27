@@ -120,14 +120,15 @@ TEST_CASE("Native v8 atlas sidecar preserves exact covers traces and independent
     // Store only forward-ID traces; their other incident face must recover the same accepted path.
     for(unsigned k=0;k<3;++k)if(face[k]<face[(k+1)%3])coverage.traces.emplace(N::Edge{face[k],face[(k+1)%3]},traces[k]);
   }
-  auto parameters=std::make_shared<N::BoundaryParameterState>(geometry,points,surface,9,SIZE_MAX,0,coverage,policy,&budget);
+  std::shared_ptr<N::BoundaryParameterState> parameters;
+  REQUIRE_NOTHROW(parameters=std::make_shared<N::BoundaryParameterState>(geometry,points,surface,9,SIZE_MAX,0,coverage,policy,&budget));
   N::ReferenceState state;state.facets=facets;state.marker_names={"body"};state.original=N::PlanarReference::WithParameters(definition,parameters);
-  const auto encoded=N::EncodeReference(state);REQUIRE(encoded.find("SU2_NATIVE_REFERENCE_3D 8\n")==0);
-  const auto recovered=N::DecodeReference(encoded);REQUIRE(recovered.original->Parameters());
+  std::string encoded;REQUIRE_NOTHROW(encoded=N::EncodeReference(state));REQUIRE(encoded.find("SU2_NATIVE_REFERENCE_3D 8\n")==0);
+  N::ReferenceState recovered;REQUIRE_NOTHROW(recovered=N::DecodeReference(encoded));REQUIRE(recovered.original->Parameters());
   CHECK(recovered.original->Parameters()->Geometry().Version()==37);CHECK(recovered.original->Parameters()->Mobility().version==1);
   CHECK(recovered.original->Parameters()->Mobility().identity==policy.identity);CHECK(N::EncodeReference(recovered)==encoded);
   const auto payload=parameters->Payload();CHECK(payload.size()==parameters->PayloadBytes());
-  const auto restored=N::BoundaryParameterState::FromPayload(geometry,payload);CHECK(restored->Snapshot()==parameters->Snapshot());
+  std::shared_ptr<N::BoundaryParameterState> restored;REQUIRE_NOTHROW(restored=N::BoundaryParameterState::FromPayload(geometry,payload));CHECK(restored->Snapshot()==parameters->Snapshot());
   auto truncated=payload;truncated.pop_back();CHECK_THROWS(N::BoundaryParameterState::FromPayload(geometry,truncated));
   CHECK_THROWS(N::BoundaryParameterState::FromPayload(geometry,payload,1));CHECK_THROWS(N::DecodeReference(encoded,1));
   CHECK_THROWS(N::DecodeReference(encoded+"trailing"));

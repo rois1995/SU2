@@ -86,6 +86,12 @@ void PrepareMobility(const CConfig& config,ReferenceState& state,size_t ceiling,
     throw std::length_error("Curved mobility setup reservation overflows.");
   SU2NativeGeometry::MobilityPolicy policy;std::string reason;
   if(!authority.BuildMobilityPolicy(angle,roles,policy,budget,reason))throw std::invalid_argument(reason);
+  if(!SU2_MPI::GetRank()) {
+    std::array<size_t,3> dimensions{};
+    for(const auto& row:accepted->Records())++dimensions.at(authority.MobilityDimension(row.second.point.binding,policy));
+    std::cout<<"Native3D curved mobility: protected_edges="<<policy.features.size()<<" corners="<<policy.corners.size()
+        <<" fixed_points="<<dimensions[0]<<" curve_points="<<dimensions[1]<<" surface_points="<<dimensions[2]<<std::endl;
+  }
   BoundaryPoints points;std::vector<SurfaceFace> surface;surface.reserve(accepted->Surface().size());
   for(const auto& row:accepted->Records())points.emplace(row.first,row.second.point);
   for(const auto& row:accepted->Surface())surface.push_back(row.second);

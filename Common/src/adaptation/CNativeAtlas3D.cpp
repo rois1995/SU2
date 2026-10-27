@@ -6,6 +6,7 @@
 #include "../../include/adaptation/CNativeAtlas3D.hpp"
 #include <algorithm>
 #include <cmath>
+#include <climits>
 #include <cstring>
 #include <limits>
 #include <stdexcept>
@@ -137,6 +138,12 @@ void Half(Context& c,Natural& a) {
   a.Trim();
 }
 Natural Gcd(Context& c,const Limbs& first,const Limbs& second) {
+  if(One(first)||One(second))return Small(c,1);
+  auto power_of_two=[&](const Limbs& limbs){bool found=false;
+    for(uint32_t limb:limbs){c.Work(1);if(limb){if(found||(limb&(limb-1)))return false;found=true;}}return found;};
+  // Canonical binary64 coordinates have an odd numerator and a power-of-two denominator.
+  if((!first.empty()&&(first[0]&1)&&power_of_two(second)) ||
+     (!second.empty()&&(second[0]&1)&&power_of_two(first)))return Small(c,1);
   auto a=Copy(c,first),b=Copy(c,second);
   if(a.limb.empty())return b;
   if(b.limb.empty())return a;
@@ -270,6 +277,27 @@ bool ExactBounds(const ExactRatio& a,std::array<double,2>& out,AtlasBudget& budg
     if(x.numerator.limb.empty()){out={0.,0.};return;}
     constexpr uint64_t maximum=UINT64_C(0x7fefffffffffffff);
     auto value=[](uint64_t bits){double v;std::memcpy(&v,&bits,8);return v;};
+    auto finish=[&](double lower,double upper){out=negative?std::array<double,2>{-upper,-lower}:std::array<double,2>{lower,upper};};
+    auto leading=[&](const Limbs& limbs){c.Work(std::min<size_t>(2,limbs.size()));
+      long double result=limbs.back();if(limbs.size()>1)result=std::ldexp(result,32)+limbs[limbs.size()-2];return result;};
+    const long double exponent=32*((long double)(x.numerator.limb.size()>2?x.numerator.limb.size()-2:0)-
+                                    (long double)(x.denominator.limb.size()>2?x.denominator.limb.size()-2:0));
+    if(exponent>=INT_MIN && exponent<=INT_MAX) {
+      double candidate=double(std::ldexp(leading(x.numerator.limb)/leading(x.denominator.limb),int(exponent)));
+      if(std::isinf(candidate))candidate=value(maximum);
+      auto proposed=Binary(c,candidate);const auto order=Order(c,proposed,x);
+      if(!order){finish(candidate,candidate);return;}
+      // The approximation only proposes a bracket; exact comparisons certify both adjacent endpoints.
+      if(order<0) {
+        const double upper=std::nextafter(candidate,std::numeric_limits<double>::infinity());
+        if(std::isinf(upper)){finish(candidate,upper);return;}
+        auto neighbor=Binary(c,upper);const auto side=Order(c,neighbor,x);
+        if(side>=0){finish(side?candidate:upper,upper);return;}
+      } else {
+        const double lower=std::nextafter(candidate,0.);auto neighbor=Binary(c,lower);const auto side=Order(c,neighbor,x);
+        if(side<=0){finish(lower,side?candidate:lower);return;}
+      }
+    }
     uint64_t low=0,high=maximum;
     while(low<high){c.Work(1);const uint64_t middle=low+(high-low)/2+1;
       auto point=Binary(c,value(middle));if(Order(c,point,x)<=0)low=middle;else high=middle-1;}
