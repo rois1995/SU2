@@ -1,0 +1,20 @@
+--- a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+@@ -1740,9 +1740,14 @@
+   SU2_MPI::Barrier(world.comm);const auto cfg=name+".cfg";
+   auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
+   auto* flow=driver->Solver().GetNodes();auto* turb=driver->Turbulence()->GetNodes();
+-  const double rho=SU2_TYPE::GetValue(flow->GetSolution(0,0)),momentum=SU2_TYPE::GetValue(flow->GetSolution(0,1));
+-  const double kinetic=momentum*momentum/(2*rho),internal=SU2_TYPE::GetValue(flow->GetSolution(0,4))-kinetic;
+-  const double viscosity=SU2_TYPE::GetValue(turb->GetSolution(0,0));REQUIRE(viscosity>0);
++  const int root=CPassiveComm::Allreduce(driver->Geometry().GetnPoint()?world.rank:world.size,CPassiveComm::Op::MIN,world.comm);
++  REQUIRE(root<world.size);std::vector<double> initial(4);
++  if(world.rank==root)initial={SU2_TYPE::GetValue(flow->GetSolution(0,0)),SU2_TYPE::GetValue(flow->GetSolution(0,1)),
++                              SU2_TYPE::GetValue(flow->GetSolution(0,4)),SU2_TYPE::GetValue(turb->GetSolution(0,0))};
++  CPassiveComm::Bcast(initial,root,world.comm);
++  const double rho=initial[0],momentum=initial[1];
++  const double kinetic=momentum*momentum/(2*rho),internal=initial[2]-kinetic;
++  const double viscosity=initial[3];REQUIRE(viscosity>0);
+   auto expectedFlow=[&](double z) {return std::array<double,5>{{rho,momentum*z,0,0,internal+kinetic*z}};};
+   for(unsigned long p=0;p<driver->Geometry().GetnPoint();++p) {
+     const double z=SU2_TYPE::GetValue(driver->Geometry().nodes->GetCoord(p,2));const auto values=expectedFlow(z);

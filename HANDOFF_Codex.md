@@ -1,129 +1,83 @@
 # Codex handoff — current state, 2026-10-27
 
-Continue DC-17/DC-18 and ensuing defects. Both remain open. Maintain the local
-[TODO](ADAPTATION_TODO.md), tracked [progress](ADAPTATION_PROGRESS.md), and
-[transfer-only ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md). Follow
-[AGENTS.md](AGENTS.md): capability-first, connected changes, one heavy job,
-nice19, one build worker, single-thread libraries, at most6 MPI ranks.
+Continue DC-17/DC-18 and ensuing defects. Keep [progress](ADAPTATION_PROGRESS.md),
+local [TODO](ADAPTATION_TODO.md) and the [transfer ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md)
+current. Follow [AGENTS.md](AGENTS.md) for architecture, validation and resource rules.
 
-## Goal and unchanged acceptance
+## Goal and unchanged gates
 
-Accepted full M6 Euler adaptation, then requested BL/RANS, conservative transfer,
-BDF/history, publication and restart. q>=.20, J>=.05, edge<=1.8, requested h0±10%,
-500k metric complexity (not tet count), prescribed geometry/body/features/contact
-and source/transfer gates. ADAP_HAUSD is an absolute mesh-unit length independent
-of h0. Construction measures no q/J; metric/BL-aware improvement follows. Boundary
-nodes may move on the prescribed geometry. No accepted M6 workflow exists.
+Complete accepted full ONERA M6 Euler adaptation, then the requested BL/RANS
+workflow, including conservative solution transfer, BDF/history, publication and
+restart. Final gates: q>=.20, J>=.05, edge<=1.8, requested h0 within 10%, 500k
+metric complexity (not tet count), prescribed geometry, body separation,
+features/contact and source/transfer checks. ADAP_HAUSD is an absolute mesh-unit
+length independent of h0. No full M6 adaptation has passed acceptance.
 
-## Implemented connected direction
+Construction is validity-first: exact positive nondegenerate cells, topology,
+authority and contact are mandatory; no q/J measurement, ranking or quality veto.
+Metric/BL-aware improvement follows and enforces all final gates. Boundary nodes
+may move on prescribed geometry. Scenario labels must not dispatch reconstruction.
 
-Latest pushed checkpoint `a5a301a0e7` on authorized `rois1995/SU2`, branch
-`codex/native-3d-bl`, explicitly incomplete. Fixed original geometry remains
-separate from current working associations. Canonical original-star/strip paths
-replace history-derived internal paths; one shared reference PSLG proves jointly
-admissible incident faces, positive maps and exact region replacement. Changed
-retained traces require all incident faces and owning volume-row version updates.
-Eigen replaces custom PCG. Existing cubic backend exercises a small geometry
-interface; optional CAD plan is STEP, then faceted STL and IGES. No new geometry
-library dependency/importers. See [architecture](Handbook/WORKING_SURFACE_RECONSTRUCTION_DECISION.md).
+## Current work and evidence
 
-Build47 additionally queues current geometry demand, leaving hypothetical child
-feasibility to the selected complete star. Accepted-face validity is reused by
-provenance across containment/export/reconstruction/publication; active load
-validation and new faces remain complete. First mobility activation now certifies
-legacy subfaces; exact original faces inherit the authority certificate. Pending
-associations are identified by ownership rather than MAX-valued IDs. Build48
-fixes ReverseTrace sanitizing malformed intervals before validation.
+Latest pushed checkpoint `2e9d787265` on authorized origin rois1995/SU2, branch
+codex/native-3d-bl; it is incomplete. Source61 build PASS36.124s. Source60
+reference I/O PASS 5 cases/96 assertions; previous failed receipt remains preserved.
+Source61 broad MPI `staged57/cases/mpi6_20261027T214746_3747115` aborted exit134
+in 19.795s after 24/25 cases per rank, before the complete campaign or new overlap
+case. Address resolution identifies CNativeImport3D_tests.cpp:1743: fixture reads
+point 0 on an empty rank. Reviewed `/tmp/native_bl_empty_rank_draft.patch` elects
+an inhabited rank and broadcasts initial values; it is unapplied. Combine it with
+the next implementation build instead of rebuilding the large test unit alone.
 
-## Validation and actual remaining failure
+Source61 overlap_publication6_20261027T215151_3758648 PASS74.923s, all 16
+events: rank 0 passed 3494 assertions, each other rank 3445; all nine recorded
+processes are gone. publication_cost_summary.json verifies aggregate admitted
+workspace and phase descriptor/work bounds, retaining per-rank statistics.
+Archive arithmetic is excluded; source-envelope checks are not CFD transfer.
 
-Build47 PASS1210.22s; build48 PASS48.15s,1293 unchanged pins. Build48 focused
-4 cases/116 assertions PASS9.88s; atlas_checks57 cases/8363 assertions PASS51.89s.
-Compiled47 filter audit selects239serial/216MPI/57atlas, all intended cases and
-separately scheduled wide workflows;48 changes no test source/helper/names.
+Full-CFD M6 is live: run_m6.py build61 euler_build61_working_surface,
+session99828 PID3775811. Native source setup passed at 174193 work, source
+reconstruction 12.235s. Six ranks, unchanged native 1800s/outer 2400s limits
+and configured working storage 12288 MiB/rank. Static command/pins/config are
+saved; C++ and run_cases/run_m6 helpers stay frozen until the owned handle is
+terminal. This is the single owned heavy job.
 
-Latest repeated-overlap receipt passes16 events:7 points/10 faces,10–16 covers,
-10–15 traces,54–55 bits,3.97–8.00m arithmetic work/event,5.76–6.27MB admitted
-peak,0.592–0.640s/event; returning phases satisfy existing bounds. This is private
-surface-move scope, not full adaptation. See atlas_checks_20261027T192923_3373582/
-reference_cost_summary.json under staged57.
+Source60 MPI had failed strict per-rank peak comparisons. Directory hashes IDs
+before modulo, so stride alone did not fix home balance; source61 aggregate
+admitted-workspace comparisons now pass and do not imply physical peak memory.
 
-Build52 focused stage checks PASS 8 cases/4505 assertions in 9.86465s;
-single-certificate checks PASS 4/123 in 10.819s; atlas checks PASS 57/8420 in
-51.881s, all with unchanged pins. The complete mapped Euler/RANS workflow still
-FAILS at unchanged 67,207,168 arithmetic work in 13.77s: 82 private accepted
-edits/345 attempts, 26 geometry progress, one quality stage, zero construction
-returns and 136 optimization trials. It did not reach transfer/restart. Earlier
-build48 private-capture census and diagnosis remain in
-[geometry verification cost](Handbook/GEOMETRY_VERIFICATION_COST.md).
+Source58 serial connected 16-event test PASS, 3488 assertions. It exercises actual
+neighboring moves, directory publication, schema8 reload and source-envelope
+bounds, not CFD transfer or solution restart. Archive scratch, configured caller
+ceiling and unlimited-capacity fixes and their limitations are in the
+[geometry-cost ledger](Handbook/GEOMETRY_VERIFICATION_COST.md). Full curved mapped
+runtime and broad integrated qualification remain open.
 
-## Latest M6 and live owned build
+Source48 M6 stopped at its elapsed-time limit without an accepted mesh; its six
+quality-entry archives are verified and pushed as private diagnostics, with
+source_valid=false and exact_continuation=false. They do not establish transfer,
+restart or a runtime checkpoint. The current full-CFD run uses `run_m6`, not the four-window diagnostic stop. See [progress](ADAPTATION_PROGRESS.md) and
+[curved implementation history](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
 
-M6 build48 session40090 TERMINAL1853.13s, wrapper3391763 and all9 known
-owned processes verified gone. Case `staged57/cases/m6_stage_20261027T193554_3391623`.
-Native elapsed-time stop during metric update; original CFD state retained.
-Diagnostic test exit0 is allowed, but wrapperFAIL1 correctly refuses incomplete
-four-quality-window campaign (missing observation_stop snapshot). Source pins
-unchanged. No accepted mesh/transfer. First quality-entry snapshot:667,993 cells,
-198,390 size-bad,7,090 geometry-bad,64,554 quality-invalid/1.17m repair features;
-q/J measurements were0 in construction. Actual movement/swaps were observed,
-but accepted boundary movement still needs snapshot comparison, not counters.
-Five-second FP and three-second DWARF software perf sampling used no debugger/
-SIGSTOP. DWARF identifies generic ValidateCoverage/SplitAtlasEdges and repeated
-PrepareCurvedAtlas/CheckSurface/MoveVertex work, not an MPI mismatch. The six complete quality-entry shards and common evidence were verified and pushed:
-667,993 cells/133,738 vertices/34,857 physical vertices, seven archives each
-under 95 MiB. They are private, not accepted, with source_valid=false and
-exact_continuation=false; they are neither runtime checkpoints nor transfer/restart
-evidence. See private_quality_entry_archive_receipt.json; raw data retained.
+The support-index and normalization drafts remain unmerged; local retained-path
+closure is still required. Preserve source, body and feature constraints, resource
+limits and all final gates. Related decisions: [working-surface reconstruction](Handbook/WORKING_SURFACE_RECONSTRUCTION_DECISION.md),
+[curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md), [staged adaptation](Handbook/STAGED_NATIVE_ADAPTATION.md)
+and [transfer findings](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 
-Earlier build46 was deliberately interrupted908.19s to implement the connected
-change, but was progressing:66,336 accepted private edits at its last window.
-Its interruption note is corrected; absence of a mesh snapshot did not mean no
-progress. Earlier build39's timed GDB left a rank stopped: instrumentation confound,
-not evidence of an MPI mismatch. Never repeat timed debugger attachment.
+Other open scope includes changing-frame gradation, M6 complexity normalization,
+curved BL support/chord/quadrature, FIRST_ROW geometry demand, fitted seams,
+automatic curved initialization, and full repeated adaptation/transfer/restart.
+Primitive passes and private snapshots do not close those obligations.
 
-## Current connected implementation
+## Operations
 
-Build53 passed; atlas_checks_20261027T205356_3596433 PASS52.007s with
-unchanged pins. Mapped runtime_20261027T205308_3593869 FAIL11.87s, 201/203
-assertions: curved flow exhausted 67,207,168 arithmetic work after 60 private
-accepted edits/74 attempts and no quality stage; CFD state retained. Skipping
-proof changes the exhaustion location, so the numerical difference is not a
-causal comparison. Full mesh and transfer/restart remain unqualified.
-
-Read-only review found the manual error-kernel duplication differed in binding,
-ID and transient semantics. The pending correction routes already-validated
-faces through shared PlanarReference::SurfaceErrorForValidatedFace and unchanged
-ParameterError, with checked legacy fallback. Engine callers were audited for
-accepted or successfully validated surfaces; differential tests compare exact
-errors for original faces, probe children and explicit coverage. Build54 is live
-(session3213, wrapper3599958); 1293 source pins remain frozen until terminal.
-
-
-The implementation preserves current rows/edge/geometry measurements through
-handoff, refreshing only missing shape/requested-height measurements. It checks
-owned versions, ordered IDs and endpoint/field certificates; preserves repair
-support/age/rejection state and full rollback reset. Productive non-coarsening
-finite generations reseed current demand before quality; a stalled generation
-may hand off. Work/time/stagnation and all final gates remain. It is not yet
-validated as an integrated change and does not establish convergence.
-
-Earlier profiling identified repeated accepted-star preparation and proof work;
-build52/53 address parts of that cost, with complete runtime validation pending.
-Preserve frozen donor/source/load trust boundaries and avoid budget growth.
-
-After integrated focused checks: appropriate broad serial/MPI and separately
-scheduled wider workflows, fresh M6, repeated adaptation/publication/transfer/
-restart. Use staged57 build_checkpoint.py/run_cases.py/audit_compiled_filters.py
-and resumable receipts. Primitive passes cannot replace accepted workflow.
-
-Other open findings include legacy uncoordinated perimeter normalization,
-changing-frame gradation21/9393 worst1.406, normal-only M6 profiles above500k,
-whole-field normalization, curved BL support/chord/quadrature, FIRST_ROW geometry
-demand, fitted seams/automatic initialization, and archive arithmetic allowances
-omitting implicit current-face count. See linked ledgers; no blanket budget raise.
-
-Detailed history: [curved implementation](Handbook/CURVED_ATLAS_IMPLEMENTATION.md),
-[staged adaptation](Handbook/STAGED_NATIVE_ADAPTATION.md),
-[curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md),
-[older validation](Handbook/VALIDATION_HISTORY_THROUGH_BUILD32.md).
+Push authorization persists for the origin and branch above; no new permission
+question. Git metadata requires escalated execution and explicit paths. TODO is
+local/untracked; leave unrelated dc11/dc15 logs and planning files alone. One owned
+heavy job at a time, nice19, one build worker, single-thread libraries, at most six
+local MPI ranks. Check load, available RAM and owned handles first; use
+`integration_evidence/build-integrated-v2/compile-tmp` on 4TB for builds. Preserve
+unique source, binary, configuration, input, helper and resource receipts, and
+resume only after verifying provenance. [Archived inputs](Handbook/ADAPTATION_REFERENCE_INPUTS.md).

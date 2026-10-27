@@ -136,7 +136,7 @@ struct AtlasOps {
   void Work(){if(budget.work>=budget.maximum_work)throw std::length_error("Curved atlas work exhausted.");++budget.work;}
   void Storage(size_t bytes) {
     const auto total=transfer_memory::Add(budget.caller_bytes,bytes);budget.peak_bytes=std::max(budget.peak_bytes,total);
-    if(total==SIZE_MAX || total>budget.maximum_bytes)throw std::length_error("Curved atlas storage exhausted.");
+    if(total==SIZE_MAX || total>budget.maximum_bytes)throw std::length_error("Curved atlas storage exhausted: requested "+std::to_string(total)+", ceiling "+std::to_string(budget.maximum_bytes)+".");
   }
   ExactRatio Integer(int64_t x){ExactRatio r;Check(ExactInteger(x,r,budget,reason));return r;}
   ExactRatio Binary(double x){ExactRatio r;Check(ExactBinary64(x,r,budget,reason));return r;}

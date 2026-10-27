@@ -19,6 +19,10 @@ BINARY = REPO / "integration_evidence/build-integrated-v2/UnitTests/test_driver"
 CASES = {
     "m6_stage": (6, "[NativeFrozenVolume3D]"),
     "cost_checks": (1, "[NativeOverlappingAtlas3D]"),
+    "overlap_publication": (1, "[NativeOverlappingPublication3D]"),
+    "overlap_publication6": (6, "[NativeOverlappingPublication3D]"),
+    "reference_io": (1, "[NativeReference3D],[NativeAtlasReferenceIO3D]"),
+    "reference_io6": (6, "[NativeReference3D],[NativeAtlasReferenceIO3D]"),
     "mapped_work_trace": (1, "[NativeMappedRuntime3D]"),
     "mapped_runtime": (1, "[NativeMappedRuntime3D]"),
     "single_certificate_checks": (1, "[NativeSingleChartCertificate3D],[NativeAcceptedFaceCertificate3D]"),
@@ -56,6 +60,7 @@ for name in ("serial", "serial_full", "mpi6", "connected_fix"):
 
 for name in ("serial_full", "mpi6"):
     ranks, filters = CASES[name]
+    filters += ",[NativeReference3D]"
     CASES[name] = ranks, filters + (",[NativeAtlas3D],[NativeCurvedAtlas3D],[NativeAffineGeometry],[NativeAtlasReferenceIO3D],"
                                    "[NativeReferenceTriangulation3D],[NativeAtlasCoordinatedPublication3D],[NativeGeometryBackend3D],[NativeCanonicalTrace3D],[NativeTraceCoverage3D],"
                                    "Convex clipping:*,"

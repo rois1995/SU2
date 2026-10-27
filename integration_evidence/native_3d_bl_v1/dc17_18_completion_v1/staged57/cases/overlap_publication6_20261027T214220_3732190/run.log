@@ -1,0 +1,420 @@
+[1;33mFilters: [NativeOverlappingPublication3D]
+[1;33mFilters: [NativeOverlappingPublication3D]
+[1;33mFilters: [NativeOverlappingPublication3D]
+[1;33mFilters: [NativeOverlappingPublication3D]
+[1;33mFilters: [NativeOverlappingPublication3D]
+[1;33mFilters: [NativeOverlappingPublication3D]
+[0mNATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":0,"operator_work":23566791,"operator_peak_bytes":1548492,"publication_work":6714807,"publication_peak_bytes":6300380,"source_envelope_work":259003,"source_envelope_peak_bytes":36024,"arithmetic_work_excludes_decode":30540601,"face_pieces":12,"trace_pieces":13,"maximum_integer_bits":56,"payload_bytes":10728,"resident_bytes":21804,"ascii_bytes":7144,"archive_load_peak_bytes":14763188,"seconds":3.7857294160000001,"lifetime_process_peak_rss_bytes":31531008}
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":1,"operator_work":35791471,"operator_peak_bytes":1168472,"publication_work":7780731,"publication_peak_bytes":1732384,"source_envelope_work":633317,"source_envelope_peak_bytes":36024,"arithmetic_work_excludes_decode":44205519,"face_pieces":20,"trace_pieces":19,"maximum_integer_bits":108,"payload_bytes":16792,"resident_bytes":30932,"ascii_bytes":9915,"archive_load_peak_bytes":12845284,"seconds":4.740459521,"lifetime_process_peak_rss_bytes":31801344}
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":2,"operator_work":53538475,"operator_peak_bytes":3045868,"publication_work":13185066,"publication_peak_bytes":7823836,"source_envelope_work":439005,"source_envelope_peak_bytes":36656,"arithmetic_work_excludes_decode":67162546,"face_pieces":18,"trace_pieces":18,"maximum_integer_bits":106,"payload_bytes":15272,"resident_bytes":28884,"ascii_bytes":9114,"archive_load_peak_bytes":18478396,"seconds":4.0297213800000007,"lifetime_process_peak_rss_bytes":32276480}
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":3,"operator_work":40894213,"operator_peak_bytes":2053748,"publication_work":10581201,"publication_peak_bytes":6869736,"source_envelope_work":353282,"source_envelope_peak_bytes":36656,"arithmetic_work_excludes_decode":51828696,"face_pieces":20,"trace_pieces":19,"maximum_integer_bits":56,"payload_bytes":16408,"resident_bytes":30740,"ascii_bytes":9492,"archive_load_peak_bytes":17504012,"seconds":4.1288002210000005,"lifetime_process_peak_rss_bytes":32317440}
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":4,"operator_work":42690596,"operator_peak_bytes":1575916,"publication_work":10260529,"publication_peak_bytes":6360520,"source_envelope_work":387331,"source_envelope_peak_bytes":36024,"arithmetic_work_excludes_decode":53338456,"face_pieces":18,"trace_pieces":18,"maximum_integer_bits":57,"payload_bytes":15080,"resident_bytes":28788,"ascii_bytes":9350,"archive_load_peak_bytes":17017596,"seconds":3.9854264420000001,"lifetime_process_peak_rss_bytes":32317440}
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":5,"operator_work":40657878,"operator_peak_bytes":1173972,"publication_work":8780580,"publication_peak_bytes":5933336,"source_envelope_work":657059,"source_envelope_peak_bytes":36024,"arithmetic_work_excludes_decode":50095517,"face_pieces":20,"trace_pieces":19,"maximum_integer_bits":109,"payload_bytes":16792,"resident_bytes":30932,"ascii_bytes":10310,"archive_load_peak_bytes":17042844,"seconds":4.0565189540000004,"lifetime_process_peak_rss_bytes":32317440}
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":6,"operator_work":53603920,"operator_peak_bytes":3045868,"publication_work":13170842,"publication_peak_bytes":7823404,"source_envelope_work":439005,"source_envelope_peak_bytes":36656,"arithmetic_work_excludes_decode":67213767,"face_pieces":18,"trace_pieces":18,"maximum_integer_bits":106,"payload_bytes":15272,"resident_bytes":28884,"ascii_bytes":9114,"archive_load_peak_bytes":18478396,"seconds":4.2298851820000003,"lifetime_process_peak_rss_bytes":32317440}
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":7,"operator_work":40894213,"operator_peak_bytes":2053748,"publication_work":10581201,"publication_peak_bytes":6869976,"source_envelope_work":353282,"source_envelope_peak_bytes":36656,"arithmetic_work_excludes_decode":51828696,"face_pieces":20,"trace_pieces":19,"maximum_integer_bits":56,"payload_bytes":16408,"resident_bytes":30740,"ascii_bytes":9492,"archive_load_peak_bytes":17504012,"seconds":4.2520075479999999,"lifetime_process_peak_rss_bytes":32317440}
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":8,"operator_work":42690596,"operator_peak_bytes":1575916,"publication_work":10260529,"publication_peak_bytes":6361192,"source_envelope_work":387331,"source_envelope_peak_bytes":36024,"arithmetic_work_excludes_decode":53338456,"face_pieces":18,"trace_pieces":18,"maximum_integer_bits":57,"payload_bytes":15080,"resident_bytes":28788,"ascii_bytes":9351,"archive_load_peak_bytes":17017604,"seconds":4.0152203660000003,"lifetime_process_peak_rss_bytes":32325632}
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0;37mtest_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+[0m-------------------------------------------------------------------------------
+[0mNeighboring curved moves publish and reload complete boundary state
+[0m-------------------------------------------------------------------------------
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:323
+...............................................................................
+
+[0m[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  6361192 (0x611068) <= 6360520 (0x610dc8)
+[0mwith messages:
+  8
+
+
+
+
+
+
+
+[0m
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0;37mtest_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+[0m-------------------------------------------------------------------------------
+[0mNeighboring curved moves publish and reload complete boundary state
+[0m-------------------------------------------------------------------------------
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:323
+...............................................................................
+
+[0m[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  6285872 (0x5fea30) <= 6285392 (0x5fe850)
+[0mwith messages:
+  8
+
+
+
+
+
+
+
+[0m
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0;37mtest_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+[0m-------------------------------------------------------------------------------
+[0mNeighboring curved moves publish and reload complete boundary state
+[0m-------------------------------------------------------------------------------
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:323
+...............................................................................
+
+[0m[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  6285488 (0x5fe8b0) <= 6285248 (0x5fe7c0)
+[0mwith messages:
+  8
+
+
+
+
+
+
+
+[0m
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0;37mtest_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+[0m-------------------------------------------------------------------------------
+[0mNeighboring curved moves publish and reload complete boundary state
+[0m-------------------------------------------------------------------------------
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:323
+...............................................................................
+
+[0m[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  5865520 (0x598030) <= 5865280 (0x597f40)
+[0mwith messages:
+  9
+
+
+
+
+
+
+
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":9,"operator_work":40657878,"operator_peak_bytes":1173972,"publication_work":8780580,"publication_peak_bytes":5934008,"source_envelope_work":657059,"source_envelope_peak_bytes":36024,"arithmetic_work_excludes_decode":50095517,"face_pieces":20,"trace_pieces":19,"maximum_integer_bits":109,"payload_bytes":16792,"resident_bytes":30932,"ascii_bytes":10311,"archive_load_peak_bytes":17042852,"seconds":4.0798135910000006,"lifetime_process_peak_rss_bytes":32325632}
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  5934008 (0x5a8bb8) <= 5933336 (0x5a8918)
+[0mwith messages:
+  9
+
+
+
+
+
+
+
+[0m
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0;37mtest_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+[0m-------------------------------------------------------------------------------
+[0mNeighboring curved moves publish and reload complete boundary state
+[0m-------------------------------------------------------------------------------
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:323
+...............................................................................
+
+[0m[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  7742484 (0x762414) <= 7742052 (0x762264)
+[0mwith messages:
+  10
+
+
+
+
+
+
+
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":10,"operator_work":53603920,"operator_peak_bytes":3045868,"publication_work":13170842,"publication_peak_bytes":7823884,"source_envelope_work":439005,"source_envelope_peak_bytes":36656,"arithmetic_work_excludes_decode":67213767,"face_pieces":18,"trace_pieces":18,"maximum_integer_bits":106,"payload_bytes":15272,"resident_bytes":28884,"ascii_bytes":9115,"archive_load_peak_bytes":18478404,"seconds":4.098298851,"lifetime_process_peak_rss_bytes":32374784}
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  7823884 (0x77620c) <= 7823404 (0x77602c)
+[0mwith messages:
+  10
+
+
+
+
+
+
+
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  7743156 (0x7626b4) <= 7742916 (0x7625c4)
+[0mwith messages:
+  10
+
+
+
+
+
+
+
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  6780424 (0x677608) <= 6780184 (0x677518)
+[0mwith messages:
+  11
+
+
+
+
+
+
+
+[0m
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0;37mtest_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+[0m-------------------------------------------------------------------------------
+[0mNeighboring curved moves publish and reload complete boundary state
+[0m-------------------------------------------------------------------------------
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:323
+...............................................................................
+
+[0m[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  6779896 (0x6773f8) <= 6779656 (0x677308)
+[0mwith messages:
+  11
+
+
+
+
+
+
+
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  6785488 (0x6789d0) <= 6785296 (0x678910)
+[0mwith messages:
+  11
+
+
+
+
+
+
+
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":11,"operator_work":40894213,"operator_peak_bytes":2053748,"publication_work":10581201,"publication_peak_bytes":6870216,"source_envelope_work":353282,"source_envelope_peak_bytes":36656,"arithmetic_work_excludes_decode":51828696,"face_pieces":20,"trace_pieces":19,"maximum_integer_bits":56,"payload_bytes":16408,"resident_bytes":30740,"ascii_bytes":9493,"archive_load_peak_bytes":17504020,"seconds":4.2560923060000002,"lifetime_process_peak_rss_bytes":32419840}
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  6870216 (0x68d4c8) <= 6869976 (0x68d3d8)
+[0mwith messages:
+  11
+
+
+
+
+
+
+
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  6282584 (0x5fdd58) <= 6282344 (0x5fdc68)
+[0mwith messages:
+  12
+
+
+
+
+
+
+
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  6286064 (0x5feaf0) <= 6285392 (0x5fe850)
+[0mwith messages:
+  12
+
+
+
+
+
+
+
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":12,"operator_work":42690596,"operator_peak_bytes":1575916,"publication_work":10260529,"publication_peak_bytes":6361000,"source_envelope_work":387331,"source_envelope_peak_bytes":36024,"arithmetic_work_excludes_decode":53338456,"face_pieces":18,"trace_pieces":18,"maximum_integer_bits":57,"payload_bytes":15080,"resident_bytes":28788,"ascii_bytes":9351,"archive_load_peak_bytes":17017604,"seconds":4.165395449,"lifetime_process_peak_rss_bytes":32419840}
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  6361000 (0x610fa8) <= 6360520 (0x610dc8)
+[0mwith messages:
+  12
+
+
+
+
+
+
+
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":13,"operator_work":40657878,"operator_peak_bytes":1173972,"publication_work":8780580,"publication_peak_bytes":5933336,"source_envelope_work":657059,"source_envelope_peak_bytes":36024,"arithmetic_work_excludes_decode":50095517,"face_pieces":20,"trace_pieces":19,"maximum_integer_bits":109,"payload_bytes":16792,"resident_bytes":30932,"ascii_bytes":10311,"archive_load_peak_bytes":17042852,"seconds":4.1891910700000006,"lifetime_process_peak_rss_bytes":32419840}
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  5859928 (0x596a58) <= 5859736 (0x596998)
+[0mwith messages:
+  13
+
+
+
+
+
+
+
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  5866432 (0x5983c0) <= 5865280 (0x597f40)
+[0mwith messages:
+  13
+
+
+
+
+
+
+
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  7748652 (0x763c2c) <= 7747740 (0x76389c)
+[0mwith messages:
+  14
+
+
+
+
+
+
+
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":14,"operator_work":53603920,"operator_peak_bytes":3045868,"publication_work":13170842,"publication_peak_bytes":7824076,"source_envelope_work":439005,"source_envelope_peak_bytes":36656,"arithmetic_work_excludes_decode":67213767,"face_pieces":18,"trace_pieces":18,"maximum_integer_bits":106,"payload_bytes":15272,"resident_bytes":28884,"ascii_bytes":9115,"archive_load_peak_bytes":18478404,"seconds":4.507800102,"lifetime_process_peak_rss_bytes":32419840}
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  7824076 (0x7762cc) <= 7823404 (0x77602c)
+[0mwith messages:
+  14
+
+
+
+
+
+
+
+[1;31m===============================================================================[0m[1;33m[0m[0;32m[0m
+test cases:    1[0;37m | [0m[0;32m   0 passed[0m[0;37m | [0m[1;31m1 failed[0m
+assertions: 3445[0;37m | [0m[0;32m3442 passed[0m[0;37m | [0m[1;31m3 failed[0m
+
+[1;31m===============================================================================[0m[1;33m[0m[0;32m[0m
+test cases:    1[0;37m | [0m[0;32m   0 passed[0m[0;37m | [0m[1;31m1 failed[0m
+assertions: 3445[0;37m | [0m[0;32m3443 passed[0m[0;37m | [0m[1;31m2 failed[0m
+
+[1;31m===============================================================================[0m[1;33m[0m[0;32m[0m
+test cases:    1[0;37m | [0m[0;32m   0 passed[0m[0;37m | [0m[1;31m1 failed[0m
+assertions: 3445[0;37m | [0m[0;32m3441 passed[0m[0;37m | [0m[1;31m4 failed[0m
+
+[1;31m===============================================================================[0m[1;33m[0m[0;32m[0m
+test cases:    1[0;37m | [0m[0;32m   0 passed[0m[0;37m | [0m[1;31m1 failed[0m
+assertions: 3445[0;37m | [0m[0;32m3444 passed[0m[0;37m | [0m[1;31m1 failed[0m
+
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":15,"operator_work":40894213,"operator_peak_bytes":2053748,"publication_work":10581201,"publication_peak_bytes":6870408,"source_envelope_work":353282,"source_envelope_peak_bytes":36656,"arithmetic_work_excludes_decode":51828696,"face_pieces":20,"trace_pieces":19,"maximum_integer_bits":56,"payload_bytes":16408,"resident_bytes":30740,"ascii_bytes":9493,"archive_load_peak_bytes":17504020,"seconds":4.0850803670000007,"lifetime_process_peak_rss_bytes":32419840}
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  6870408 (0x68d588) <= 6869976 (0x68d3d8)
+[0mwith messages:
+  15
+
+
+
+
+
+
+
+[0;37m../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:425: [0m[1;31mFAILED:
+[0m[0;36m  CHECK( measures[k]<=it->second[k] )
+[0mwith expansion:
+[1;33m  6781048 (0x677878) <= 6779656 (0x677308)
+[0mwith messages:
+  15
+
+
+
+
+
+
+
+[1;31m===============================================================================[0m[1;33m[0m[0;32m[0m
+test cases:    1[0;37m | [0m[0;32m   0 passed[0m[0;37m | [0m[1;31m1 failed[0m
+assertions: 3445[0;37m | [0m[0;32m3441 passed[0m[0;37m | [0m[1;31m4 failed[0m
+
+[1;31m===============================================================================[0m[1;33m[0m[0;32m[0m
+test cases:    1[0;37m | [0m[0;32m   0 passed[0m[0;37m | [0m[1;31m1 failed[0m
+assertions: 3494[0;37m | [0m[0;32m3487 passed[0m[0;37m | [0m[1;31m7 failed[0m
+
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun detected that one or more processes exited with non-zero status, thus causing
+the job to be terminated. The first process to do so was:
+
+  Process name: [[46703,1],0]
+  Exit code:    7
+--------------------------------------------------------------------------
+Command exited with non-zero status 7
+	Command being timed: "timeout 600 mpirun --bind-to none -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeOverlappingPublication3D]"
+	User time (seconds): 389.41
+	System time (seconds): 0.57
+	Percent of CPU this job got: 551%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:10.75
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 31712
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2224
+	Minor (reclaiming a frame) page faults: 17454
+	Voluntary context switches: 6669
+	Involuntary context switches: 99080
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 17016
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 7

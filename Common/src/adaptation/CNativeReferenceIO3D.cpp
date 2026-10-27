@@ -128,16 +128,17 @@ std::string EncodeReference(const ReferenceState& state) {
   DecodeReference(bytes);
   return bytes;
 }
-ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
+static ReferenceState DecodeReferenceImpl(const std::string& bytes,size_t ceiling,size_t& maximum_bytes) {
   if (transfer_memory::Mul(bytes.size(), 8) > ceiling)
-    throw std::invalid_argument("Native3D reference parsing exceeds storage budget.");
+    throw std::length_error("Native3D reference parsing exceeds storage budget.");
   std::istringstream in(bytes);
   in.imbue(std::locale::classic());
   const auto header = ReadHeader(in, bytes.size());
   const auto markers = header.markers, facets = header.facets;
   const size_t construction = PlanarReference::ConstructionBytes(facets,header.analytic,header.affine), requested = DecodeBytes(bytes.size(), header);
+  maximum_bytes=std::max(maximum_bytes,requested);
   if (requested == SIZE_MAX || requested > ceiling)
-    throw std::invalid_argument("Native3D reference decoding exceeds storage budget.");
+    throw std::length_error("Native3D reference decoding exceeds storage budget.");
   ReferenceState result;
   std::set<std::string> names;
   std::set<int> used;
@@ -221,11 +222,24 @@ ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
     auto mapped=std::make_shared<SU2NativeGeometry::MappedFacetReference>(result.original,errors,header.geometry_version,requested,header.version==6,curves);
     const auto caller=transfer_memory::Add(construction,transfer_memory::Mul(bytes.size(),8),
         transfer_memory::Mul(header.points,256),transfer_memory::Mul(header.surface,64));
-    auto reservation=BoundaryAtlasBudget(header.version==8?transfer_memory::Mul(header.atlas_words,8):0,requested,caller);
-    auto parameters=std::make_shared<BoundaryParameterState>(mapped,points,surface,header.revision,requested,caller,coverage,mobility,header.version==8?&reservation:nullptr);
-    result.original=PlanarReference::WithParameters(result.original,std::move(parameters));
+    auto reservation=BoundaryAtlasBudget(header.version==8?transfer_memory::Mul(header.atlas_words,8):0,ceiling,caller);
+    try {
+      auto parameters=std::make_shared<BoundaryParameterState>(mapped,points,surface,header.revision,ceiling,caller,coverage,mobility,header.version==8?&reservation:nullptr);
+      result.original=PlanarReference::WithParameters(result.original,std::move(parameters));
+    } catch(const std::exception& error) {
+      maximum_bytes=std::max(maximum_bytes,reservation.peak_bytes);
+      // Nested certificate helpers return reasons; recover the resource refusal without weakening validation.
+      if(reservation.peak_bytes>reservation.maximum_bytes)throw std::length_error(error.what());
+      throw;
+    }
+    maximum_bytes=std::max(maximum_bytes,reservation.peak_bytes);
   }
   return result;
+}
+ReferenceState DecodeReference(const std::string& bytes,size_t ceiling) {
+  size_t maximum_bytes=0;
+  try{return DecodeReferenceImpl(bytes,ceiling,maximum_bytes);}
+  catch(const std::length_error& error){throw std::invalid_argument(error.what());}
 }
 bool LoadReference(const std::string& filename, ReferenceState& state, bool& loaded, std::string& reason,
                    size_t ceiling, size_t caller_bytes, size_t& maximum_bytes) {
@@ -278,13 +292,19 @@ bool LoadReference(const std::string& filename, ReferenceState& state, bool& loa
   }
   CollectiveFailure(failure, CURRENT_FUNCTION);
   if (!admit(transfer_memory::Add(requested, transport))) return false;
-  ReferenceState pending;
+  ReferenceState pending;CLocalFailure memory_failure;size_t decode_peak=0;
+  const auto retained=transfer_memory::Add(caller_bytes,transport);
   try {
-    pending = DecodeReference(text, requested);
+    pending=DecodeReferenceImpl(text,ceiling-retained,decode_peak);
+  } catch(const std::length_error& e) {
+    memory_failure.Set(3,0,filename+": "+e.what());
   } catch (const std::exception& e) {
     failure.Set(1, 0, filename + ": " + e.what());
   }
+  maximum_bytes=std::max(maximum_bytes,transfer_memory::Add(retained,decode_peak));
   CollectiveFailure(failure, CURRENT_FUNCTION);
+  const auto refused=world.elect(memory_failure);
+  if(refused.any){reason=refused.message;return false;}
   state = std::move(pending);
   loaded = true;
   return true;

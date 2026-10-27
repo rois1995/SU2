@@ -1,0 +1,52 @@
+Filters: [NativeOverlappingPublication3D]
+NATIVE_PUBLICATION_EVENT {"scope":"private_neighbor_moves_publication_source_schema8","event":0,"operator_work":23566791,"operator_peak_bytes":1548492,"publication_work":6714807,"publication_peak_bytes":6266028,"source_envelope_work":259003,"source_envelope_peak_bytes":36024,"arithmetic_work_excludes_decode":30540601,"face_pieces":12,"trace_pieces":13,"maximum_integer_bits":56,"payload_bytes":10728,"resident_bytes":21804,"ascii_bytes":7144,"seconds":1.8647541320000001,"lifetime_process_peak_rss_bytes":29241344}
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Neighboring curved moves publish and reload complete boundary state
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:323
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp:323: FAILED:
+  {Unknown expression after the reported line}
+due to unexpected exception with messages:
+  1
+
+
+
+
+
+  Curved atlas storage exhausted.
+
+===============================================================================
+test cases:   1 |   0 passed | 1 failed
+assertions: 236 | 235 passed | 1 failed
+
+Command exited with non-zero status 1
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeOverlappingPublication3D]"
+	User time (seconds): 4.23
+	System time (seconds): 0.02
+	Percent of CPU this job got: 91%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:04.64
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 31012
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 2808
+	Voluntary context switches: 909
+	Involuntary context switches: 72
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

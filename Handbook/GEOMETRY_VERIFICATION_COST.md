@@ -336,3 +336,55 @@ ParameterError, with checked legacy fallback. Engine callers were audited for
 accepted or successfully validated surfaces; differential tests compare exact
 errors for original faces, probe children and explicit coverage. Build54 is live
 (session3213, wrapper3599958); 1293 source pins remain frozen until terminal.
+
+## Connected publication and archive validation
+
+Build56 PASS36.145s. The corrected connected test passed event 0 move,
+publication, schema8 reload and native source-envelope bounds, then failed at
+event 1 in EncodeReference self-validation via DecodeReference, before explicit load: 235/236 assertions, 9.997s. Event 0 used
+23,566,791 operator, 6,714,807 publication and 259,003 source work; 12 face
+pieces, 13 traces, 56 bits, 10,728-byte payload, 21,804-byte resident state and
+1.86475s. A nonstopping trace reproduced the decode-stage storage failure.
+BoundaryAtlasBudget now uses the caller-provided storage ceiling instead of an
+underestimated archive scratch cap; arithmetic limits and all certificates stay
+unchanged. Build57 subsequently completed; its result follows.
+Proof and full-pipeline cost remain unqualified; no accepted M6 or CFD transfer. Unless
+otherwise indicated, these are private diagnostic observations.
+
+Build57 PASS75.17s; its connected test failed again because the outer decoder
+passed its preliminary estimate as a hard ceiling (requested 5,977,496 vs
+5,866,824 bytes). Build58 PASS54.12s corrects the full decode/load admission chain:
+internal decode reports attempted peak against the configured caller ceiling;
+collective load accounts for retained caller and transport bytes and elects resource
+refusal while malformed archives remain fatal. The public DecodeReference wrapper
+preserves its invalid_argument API. Arithmetic limits and certificates are unchanged.
+
+Build58 serial connected test PASS66.929s, 3488 assertions, 16 events; verified
+publication_cost_summary records 12–20 covers, 13–19 traces, 56–109 bits,
+30.54–67.21m work excluding archive arithmetic and 12.8–18.5 MB archive load peak
+under the unchanged 2 GB ceiling. MPI6 completed all 16 operations, publication,
+load and source checks but FAIL76.955s on strict phase peak bounds by a few hundred
+bytes. Directory home mixes the ID hash before modulo; changing IDs altered owner balance rather
+than establishing history growth. Build59 holds new node/cell ID residues constant
+by world-size stride and adds one rank-0 deep-memory refusal at the prior measured
+peak minus one with unchanged state. It also selects existing NativeReference3D
+coverage in broad and reference_io1/6 cases. Build59/session61062 subsequently completed. The local index/closure remains open and unmerged; full M6 and CFD transfer
+remain unqualified.
+
+
+## Current MPI publication and M6 run
+
+Source61 overlap_publication6_20261027T215151_3758648 PASS74.923s, all 16
+events: rank 0 passed 3494 assertions, each other rank 3445; all nine recorded
+processes are gone. publication_cost_summary.json verifies aggregate admitted
+workspace and phase descriptor/work bounds, retaining per-rank statistics.
+Archive arithmetic is excluded; source-envelope checks are not CFD transfer.
+
+Full-CFD M6 is live: run_m6.py build61 euler_build61_working_surface,
+session99828 PID3775811. Native source setup passed at 174193 work, source
+reconstruction 12.235s. Six ranks, unchanged native 1800s/outer 2400s limits
+and configured working storage 12288 MiB/rank. Static command/pins/config are
+saved; C++ and run_cases/run_m6 helpers stay frozen until the owned handle is
+terminal. This is the single owned heavy job.
+
+Source61 aggregate admitted workspace comparisons pass; they do not establish physical whole-job peak memory.

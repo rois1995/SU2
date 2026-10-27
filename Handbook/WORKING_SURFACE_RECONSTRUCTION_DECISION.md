@@ -393,3 +393,26 @@ and the original geometry before reconstruction, rather than trying larger local
 patches after failures. Any support index/workspace must be admitted and discarded
 or rebuilt from current state. No budget increase or routing fallback is proposed.
 This is a design under review, not an implemented capability.
+
+The direct reusable reconstruction is RebuildTraceCoverage with the already
+planned immutable path map. PrepareCurvedAtlas with moving=nullopt does not run
+the moving-sheet disk tests: its blanket header wording about holes is stale.
+The existing reference triangulator handles union holes/components; each CFD
+face still must be a connected disk. Avoid RemapAtlasSurface for a planned
+normalization because it would choose the paths again and reparameterize curves.
+
+A draft global normalizer is not merged: scanning/replanning the entire current
+boundary at each event removes history dependence but does not establish local
+cost. The connected local design needs an admitted current original-support to
+working-face index, maintained/rebuilt with accepted associations and publication.
+No prototype of that scan is accepted as the solution to the locality obligation.
+
+Draft review also found that canonical-planning every clean implicit edge can
+refuse an already valid mesh solely because the custom route proposal fails.
+Byte identity would request changes even for semantically equal traces. Existing
+edge_incident stores one representative face, not a complete two-face closure;
+reuse Directory edge-star queries or extend the current support/incidence index.
+The draft's undocumented aggregate topology allocation and worst-integer per-piece
+charges also need replacement with actual admitted storage bounds. These are
+reasons not to merge it. Preserve the established original geometry/current
+association design while resolving closure and routing as a connected capability.

@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "30",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeCollision3D],[NativeMesh3D],[NativeOriginalSupport3D],[NativeMetricFootprint3D],[NativeMetricSamples3D],[NativeCurvedMapped3D],[NativeCurvedMappedGuards3D],[NativeMappedFacetGeometry],[NativeMappedPublication3D],[NativeMappedRealized3D],[NativeMappedComponent3D],[NativeParametricGeometry],[NativeAffineSourceGeometry],[NativeFirstLayer3D],[NativeCurvedBL3D],[NativeJointAffineSource3D],[NativeGeneratedCoverage3D],[NativeMappedRuntime3D],[NativeMappedReader3D],[NativeConcurrentComposed3D],[NativeCollapseFilter3D],[NativeInteriorPlacement3D],[NativeAutomaticRepair3D],[NativeShapeAdmission3D],[NativeOptimize3D],[NativeDefault3D],[NativePolicyRuntime3D],[NativeInteractingBLVolume3D],[NativeCurvedBLVolume3D],[NativeCylinderBLVolume3D],[NativeComplexityEstimate3D],[NativeParallelBL3D],[NativeVolumeBL3D],[NativeStagedConstruction3D],[NativeConstructionHandoff3D],[NativeJointGeometry3D],[NativeConcurrentRepair3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeCoordinateStar3D],[NativeMetricSplitRule3D],[NativeRepairFairness3D],[NativeConstructionSweep3D],[NativeCoarsenQualityReturn3D],[ConservativeClipRobustness],[NativeStageProgress3D],[NativeStageCapture3D],[NativeReference3D],[NativeAtlas3D],[NativeCurvedAtlas3D],[NativeAffineGeometry],[NativeAtlasReferenceIO3D],[NativeReferenceTriangulation3D],[NativeAtlasCoordinatedPublication3D],[NativeGeometryBackend3D],[NativeCanonicalTrace3D],[NativeTraceCoverage3D],Convex clipping:*,Distributed conservative projection:*,Conservative kernels:*,Distributed conservative kernels:*,Transfer admissibility:*,Distributed conservative transfer:*,Single precision transfer contract,[NativeCurvedLifecycle3D],[NativeCurvedTransaction3D],[NativeRuntime3D],[NativeCurvedRuntime3D],[NativePolicyVeto3D],[NativeBLPolicyRuntime3D],Distributed barycentric transfer:*,Conservative projection:*,Conservative transfer:*",
+    "--list-test-names-only"
+  ],
+  "exit_code": 244,
+  "selected_lines": 244,
+  "expected_cases": 77,
+  "missing": [],
+  "source_pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeAtlas3D_tests.cpp": "5cc697c93a4c86e4630427746cb5d884b2acf455e89324a2322c93092b305eaa",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp": "515fc3c7dedb327edf63900407808db33a0291228e9a620dbb91022aaf8c5eef",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeCanonicalTrace3D_tests.cpp": "8975f00e0b5d4dc53b7e5dd3271ed74be16600f9602e75bf8c770aac23079deb",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeTraceCoverage3D_tests.cpp": "bf922619e04a401088f3db2a3e379b4310be92fc836bb710bece50ec57694345",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeReferenceTriangulation3D_tests.cpp": "59a7deb23b0246a6f12a982b37bb6e89bc4bb54319e7ab3eb54b95e15cfb5627",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp": "7864c47c82834f0ad283fb705f50c3aa85c1b11f1b14d75959127a8a58073ffb",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp": "d39c881706dddb0500bbcbb5ca04750a72cb9992b11855abdcb9439ce9c56a6c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "fe79c2d89eac387f22dc4e025c7bec154eaea6c8e16ed51b54848d6b4470d4a2",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "b6be57bcaf07eda897a86f5428af7cce3b06f0be934568904c875b2bc2a33c56",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp": "beaa63b8654bee9cf8ecddeeccdf72136f6b31b5a550f385105e8e21db56d3e2",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/DistributedTransfer_tests.cpp": "66e778467aa37b6aaa80c0ac8201532580136982d0ddab18c26ff71ffea08fee",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/SU2_CFD/adaptation/CConservativeTransfer_tests.cpp": "43c8c6af29bbbcd7d98f4de826405bfb9588d9d6639b7f2175f892ae51a28d38",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/audit_compiled_filters.py": "04c6947a09b48f715a0b690e9503732d056f278c955fcce8e174e924286655ec",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_cases.py": "4de7e0dba0fce76e5c04afd24e8f371a2fa37a5d0458c20379f08e4f2a90f128",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver": "cca2adc42792d949c1cf82d4241ca1f8c6a7103330222663004bee7b7b44e2aa"
+  },
+  "binary_sha": "cca2adc42792d949c1cf82d4241ca1f8c6a7103330222663004bee7b7b44e2aa",
+  "helper_sha": "04c6947a09b48f715a0b690e9503732d056f278c955fcce8e174e924286655ec",
+  "changed": [],
+  "stderr": ""
+}

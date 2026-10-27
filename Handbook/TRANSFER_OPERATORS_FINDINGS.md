@@ -40,9 +40,18 @@ Euler/RANS workflow still stops during generation at its unchanged arithmetic
 limit. Transfer and BDF/reload stages are not reached for those failing variants.
 Build52 mapped runtime failed in 13.77s after 82 private accepted edits/345
 attempts at the unchanged 67,207,168 work limit; its focused stage, certificate
-and atlas checks pass. Build53 separates internal already-certified GeometryExcess
-measurement from repeated validity proof, retaining trust boundaries; its mapped
-runtime is live and has no result yet. This is not a newly identified transfer-kernel
+and atlas checks pass. Build53 separated internal already-certified GeometryExcess measurement from
+repeated validity proof; its mapped runtime failed before transfer. Build54's
+shared checked error query preserves trust boundaries; curved runtime again failed
+at the work cap after 88 private edits, while flat flows reached transfer. Build55's
+new connected neighboring-move fixture includes source-envelope bounds and schema8
+continuation but no CFD transfer; its first run failed on a fixture export omission.
+Build56's corrected fixture completed its first move, publication, source-envelope
+bounds and schema8 reload, then failed the next event during EncodeReference's
+decode self-validation. Build58 serial completed all 16 repeated move/publication/
+source-bound/schema8 cycles; its MPI6 run completed those operations but failed
+phase peak bounds. Source60 reference I/O passed 5 cases/96 assertions. Source61 broad MPI aborted in an empty-rank fixture before the complete campaign; its focused overlap MPI check subsequently passed all 16 events; source-envelope bounds are not CFD transfer. No new CFD transfer or solution-restart qualification follows.
+These do not exercise CFD solution transfer or solution restart. This is not a newly identified transfer-kernel
 defect. TR-003 remains pending.
 M6build48 stopped at elapsed time without an accepted mesh; its archived private
 quality-entry snapshots were verified and pushed but explicitly lack exact-continuation/source validity and

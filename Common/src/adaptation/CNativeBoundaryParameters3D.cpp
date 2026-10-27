@@ -136,7 +136,8 @@ struct AtlasStorage {
     if(!budget)return;caller=budget->caller_bytes;ceiling=budget->maximum_bytes;
     if(caller>ceiling)throw std::length_error("Invalid atlas scratch reservation.");
     const auto next=std::max(caller,live),cap=transfer_memory::Add(next,ceiling-caller);
-    if(next>limit||cap==SIZE_MAX)throw std::length_error("Atlas reserved live/scratch storage exceeds admission.");
+    // A capacity allowance may saturate for an unlimited caller; the actual live request must remain finite.
+    if(next==SIZE_MAX||next>limit)throw std::length_error("Atlas reserved live/scratch storage exceeds admission.");
     budget->caller_bytes=next;budget->maximum_bytes=std::min(cap,limit);
   }
   ~AtlasStorage(){if(budget){budget->caller_bytes=caller;budget->maximum_bytes=ceiling;}}
@@ -169,9 +170,9 @@ AtlasBudget BoundaryAtlasBudget(size_t encoded,size_t ceiling,size_t caller) {
   // Cubic limb-work envelope for canonical GCD/division; all storage/bit bounds derive from admitted wire words.
   budget.maximum_work=Mul(Mul(words,words),Mul(words,64));
   budget.maximum_integer_bits=Mul(encoded,16);budget.caller_bytes=caller;
-  const auto archive_peak=Add(caller,Mul(encoded,32),SU2NativeGeometry::CurvedAtlasWorkspaceBytes(budget.maximum_integer_bits));
-  budget.maximum_bytes=std::min(ceiling,archive_peak);
-  if(budget.maximum_work==SIZE_MAX||budget.maximum_integer_bits==SIZE_MAX||archive_peak==SIZE_MAX||caller>budget.maximum_bytes)
+  // Decoded face/region proofs admit their own workspace, which need not be linear in wire bytes.
+  budget.maximum_bytes=ceiling;
+  if(budget.maximum_work==SIZE_MAX||budget.maximum_integer_bits==SIZE_MAX||caller>budget.maximum_bytes)
     throw std::length_error("Atlas archive certificate resources overflow admission.");
   return budget;
 }

@@ -5,6 +5,9 @@
  */
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeCurvedAtlas3D.hpp"
+#include "../../../Common/include/adaptation/CNativeDistributed3D.hpp"
+#include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
+#include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include <algorithm>
 #include <chrono>
 #include <iomanip>
@@ -314,5 +317,114 @@ TEST_CASE("Overlapping curved stars retain bounded correspondence across alterna
       <<",\"lifetime_process_peak_rss_bytes\":"<<ProcessPeakRSS3D()<<"}\n";
     std::cout<<cost.str();
     accepted=std::move(next_state);surface.clear();for(const auto& row:accepted->Surface())surface.push_back(row.second);moving[slot]=next;
+  }
+}
+
+TEST_CASE("Neighboring curved moves publish and reload complete boundary state", "[NativeCurvedAtlas3D][NativeOverlappingPublication3D]") {
+  World world;RemappingFixture fixture(false);auto setup=RemappingBudget();std::string reason;
+  struct Restore {ShapeAdmission old=GetShapeAdmission();~Restore(){SetShapeAdmission(old);}} restore;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  const auto qb=fixture.geometry->EdgePoint({0,20},.5);auto points=fixture.points;
+  points.emplace(60,BoundaryPoint{{60,fixture.geometry->Realize(qb)},qb});
+  auto surface=fixture.surface;surface.erase(surface.begin(),surface.begin()+2);
+  surface.insert(surface.begin(),{{{10,0,60},0},{{10,60,20},0},{{20,60,30},1},{{60,0,30},1}});
+  auto state=std::make_shared<BoundaryParameterState>(fixture.geometry,points,surface,1,SIZE_MAX,0,BoundaryCoverage{},fixture.policy,&setup);
+  auto reference=PlanarReference::WithParameters(fixture.definition,state);
+  std::vector<Cell> global;for(const auto& face:surface)if(face.facet<4){Cell cell;cell.id=global.size();
+    for(unsigned k=0;k<3;++k)cell.v[k]=points.at(face.v[k]).node;cell.v[3]=points.at(50).node;
+    if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[0],cell.v[1]);
+    REQUIRE(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);global.push_back(cell);}
+  REQUIRE(global.size()==6);
+  auto cell_faces=[](const Cell& c){return std::array<Face,4>{{{c.v[1].id,c.v[2].id,c.v[3].id},{c.v[0].id,c.v[3].id,c.v[2].id},
+      {c.v[0].id,c.v[1].id,c.v[3].id},{c.v[0].id,c.v[2].id,c.v[1].id}}};};
+  auto rows=[&](const std::vector<Cell>& cells,const std::vector<SurfaceFace>& faces){std::vector<OwnedCell> out;
+    for(const auto& cell:cells){OwnedCell row;row.cell=cell;const auto boundary=cell_faces(cell);
+      for(unsigned k=0;k<4;++k)for(const auto& face:faces){auto a=boundary[k],b=face.v;std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());
+        if(a==b)row.physical[k]={true,face.facet};}out.push_back(row);}return out;};
+  Owned owned;for(auto row:rows(global,surface))if(row.cell.id%world.size==unsigned(world.rank))owned.emplace(row.cell.id,row);
+  Id moving[2]={0,60};using Measures=std::array<size_t,5>;std::map<unsigned,Measures> baseline;
+  for(unsigned event=0;event<16;++event){const auto started=std::chrono::steady_clock::now();auto budget=RemappingBudget();const unsigned phase=event%4,slot=event%2;const Id old=moving[slot],next=100+event;
+    auto scoped=reference->WithAtlasReservation(budget);Patch patch;
+    for(const auto& cell:global)if(std::any_of(cell.v.begin(),cell.v.end(),[&](const Node& n){return n.id==old;}))patch.cells.push_back(cell);
+    surface.clear();for(const auto& row:reference->Parameters()->Surface())surface.push_back(row.second);
+    for(const auto& cell:patch.cells)for(const auto& boundary:cell_faces(cell))for(const auto& face:surface){auto a=boundary,b=face.v;
+      std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());if(a==b)patch.surface.push_back(face);}
+    const std::array<SurfaceBinding,4> target{{fixture.geometry->FacetPoint(1,.75,.125),fixture.geometry->FacetPoint(0,.5,.375),
+                                               fixture.geometry->FacetPoint(3,.75,.125),fixture.geometry->FacetPoint(1,.5,.125)}};
+    const auto raw=fixture.geometry->Realize(target[phase]);const auto prior=reference->Parameters()->Find(old)->node.p;
+    scoped->ExportParameters(patch);
+    Patch fresh;const bool moved=MoveVertex(patch,old,{next,raw},1000+event*10,*scoped,fresh,reason);INFO(event);INFO(reason);REQUIRE(moved);
+    REQUIRE(fresh.parameters.count(next));const auto moved_point=fresh.parameters.at(next).node.p;
+    CHECK((moved_point.x!=prior.x||moved_point.y!=prior.y||moved_point.z!=prior.z));
+    for(const auto& cell:fresh.cells)CHECK(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
+    Directory directory(world,true,reference->Parameters());REQUIRE(directory.Build(owned,reason));
+    const std::vector<Feature> features=world.rank?std::vector<Feature>{}:std::vector<Feature>{{{old,0,0},1}};
+    const auto dependencies=directory.Lookup(features);INFO(dependencies.reason);REQUIRE(dependencies.valid);
+    const auto imported=directory.Fetch(dependencies,owned);INFO(imported.reason);REQUIRE(imported.valid);
+    const bool reserved=directory.Reserve(imported,world.rank==0,reason);INFO(reason);if(!world.rank)REQUIRE(reserved);
+    if(!world.rank){std::set<Id> expected,actual;for(const auto& c:patch.cells)expected.insert(c.id);for(const auto& row:imported.cells)actual.insert(row.cell.id);CHECK(actual==expected);}
+    const auto next_surface=fixture.Moved(old,next,surface);
+    std::vector<std::vector<Dependency>> removals(world.size);
+    std::vector<std::vector<OwnedCell>> additions(world.size);
+    if(!world.rank) {
+      std::map<Id,int> owners;for(const auto& dep:dependencies.cells){removals[dep.owner].push_back(dep);owners.emplace(dep.cell,dep.owner);}
+      const auto replacement=rows(fresh.cells,next_surface);REQUIRE(replacement.size()==patch.cells.size());
+      for(size_t i=0;i<replacement.size();++i)additions[owners.at(patch.cells[i].id)].push_back(replacement[i]);
+    }
+    const auto removed=world.exchange(removals);const auto added=world.exchange(additions);
+    const auto edits=world.rank?std::vector<BoundaryParameterEdit>{}:BoundaryParameterState::Changes(patch,fresh,reference->Parameters()->Revision());
+    auto publication_budget=RemappingBudget();const BoundaryCoverage no_coverage;const bool published=directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,edits,world.rank?no_coverage:fresh.coverage,&publication_budget);INFO(reason);REQUIRE(published);
+    for(const auto& cell:patch.cells)global.erase(std::remove_if(global.begin(),global.end(),[&](const Cell& c){return c.id==cell.id;}),global.end());
+    global.insert(global.end(),fresh.cells.begin(),fresh.cells.end());CHECK(global.size()==6);
+    CHECK(reference->Parameters()->Records().size()==7);CHECK(reference->Parameters()->Surface().size()==10);
+    ReferenceState archive;archive.original=reference;archive.facets=fixture.facets;archive.marker_names={"body"};
+    const auto encoded=EncodeReference(archive);CHECK(encoded.find("SU2_NATIVE_REFERENCE_3D 8\n")==0);
+    const std::string filename="neighboring_curved_working_state.native_ref";WriteReference(filename,archive);
+    auto loaded=archive;const auto before_load=EncodeReference(loaded);bool found=false;size_t load_peak=0;
+    const auto load_caller=ReferenceStorageBytes(loaded);
+    CHECK_FALSE(LoadReference(filename,loaded,found,reason,1,load_caller,load_peak));CHECK_FALSE(found);CHECK(EncodeReference(loaded)==before_load);
+    const bool reloaded=LoadReference(filename,loaded,found,reason,ReferenceStorageLimit3D,load_caller,load_peak);INFO(reason);REQUIRE(reloaded);REQUIRE(found);
+    REQUIRE(loaded.original->Parameters());CHECK(EncodeReference(loaded)==encoded);
+    if(event==1) {
+      const auto saved=loaded.original;const auto saved_parameters=saved->Parameters()->Snapshot();
+      const auto deep_caller=ReferenceStorageBytes(loaded);
+      const auto deep_ceiling=transfer_memory::Add(load_peak-load_caller,deep_caller)-1;
+      size_t refused_peak=0;
+      CHECK_FALSE(LoadReference(filename,loaded,found,reason,world.rank?ReferenceStorageLimit3D:deep_ceiling,deep_caller,refused_peak));
+      CHECK_FALSE(found);CHECK_FALSE(reason.empty());CHECK(loaded.original==saved);CHECK(saved->Parameters()->Snapshot()==saved_parameters);
+      if(!world.rank)CHECK(refused_peak>deep_ceiling);
+    }
+    reference=loaded.original;moving[slot]=next;
+    auto source_budget=RemappingBudget();
+    for(const auto& row:reference->Parameters()->Surface()) {
+      FaceCoverage source_cover;REQUIRE(reference->Parameters()->ResolveCoverage(row.second,source_cover,source_budget,reason));
+      std::array<Point,3> chord;for(unsigned k=0;k<3;++k)chord[k]=reference->Parameters()->Find(row.second.v[k])->node.p;
+      const auto source=reference->Parameters()->Geometry().PrepareSourcePatch(source_cover,chord,source_budget);
+      const auto bounds=source.Bounds();
+      for(const auto& point:chord){CHECK(point.x>=bounds[0].x);CHECK(point.x<=bounds[1].x);
+        CHECK(point.y>=bounds[0].y);CHECK(point.y<=bounds[1].y);CHECK(point.z>=bounds[0].z);CHECK(point.z<=bounds[1].z);}
+    }
+    const auto& coverage=reference->Parameters()->Coverage();size_t face_pieces=0,trace_pieces=0,bits=0;
+    auto ratio=[&](const ExactRatio& r){for(const auto* limbs:{&r.numerator,&r.denominator})if(!limbs->empty()){
+      size_t width=32*(limbs->size()-1);for(uint32_t top=limbs->back();top;top>>=1)++width;bits=std::max(bits,width);}};
+    auto bary=[&](const ExactBary& p){ratio(p.u);ratio(p.v);};
+    for(const auto& row:coverage.faces)for(const auto& piece:row.second.pieces){++face_pieces;for(const auto& p:piece.reference)bary(p);for(const auto& p:piece.active)bary(p);}
+    for(const auto& row:coverage.traces)for(const auto& piece:row.second.pieces){++trace_pieces;bary(piece.first);bary(piece.last);ratio(piece.end);}
+    const auto local_peak=std::max({budget.peak_bytes,publication_budget.peak_bytes,source_budget.peak_bytes});
+    // Hash rendezvous changes rank shares as IDs change; aggregate workspace tests history growth.
+    const auto aggregate_peak=CPassiveComm::Allreduce(uint64_t(local_peak),CPassiveComm::Op::SUM,world.comm);
+    const Measures measures{{face_pieces,trace_pieces,bits,budget.work+publication_budget.work+source_budget.work,size_t(aggregate_peak)}};
+    if(!world.rank)std::cout<<std::setprecision(17)<<"NATIVE_PUBLICATION_EVENT {\"scope\":\"private_neighbor_moves_publication_source_schema8\",\"event\":"<<event
+      <<",\"operator_work\":"<<budget.work<<",\"operator_peak_bytes\":"<<budget.peak_bytes
+      <<",\"publication_work\":"<<publication_budget.work<<",\"publication_peak_bytes\":"<<publication_budget.peak_bytes
+      <<",\"source_envelope_work\":"<<source_budget.work<<",\"source_envelope_peak_bytes\":"<<source_budget.peak_bytes
+      <<",\"arithmetic_work_excludes_decode\":"<<measures[3]<<",\"face_pieces\":"<<face_pieces<<",\"trace_pieces\":"<<trace_pieces
+      <<",\"maximum_integer_bits\":"<<bits<<",\"payload_bytes\":"<<reference->Parameters()->PayloadBytes()
+      <<",\"resident_bytes\":"<<reference->Parameters()->ResidentBytes()<<",\"ascii_bytes\":"<<encoded.size()
+      <<",\"archive_load_peak_bytes\":"<<load_peak
+      <<",\"aggregate_admitted_peak_bytes\":"<<aggregate_peak
+      <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()
+      <<",\"lifetime_process_peak_rss_bytes\":"<<ProcessPeakRSS3D()<<"}\n";
+    if(event>=4){auto it=baseline.find(phase);if(it==baseline.end())baseline.emplace(phase,measures);else for(unsigned k=0;k<measures.size();++k)CHECK(measures[k]<=it->second[k]);}
   }
 }
