@@ -1198,6 +1198,17 @@ TEST_CASE("Accepted face certificates require complete unchanged contracts", "[N
   auto no_work=GeometryAtlasBudget();no_work.maximum_work=0;auto certified=reference->PrivateParameters(unrelated,&no_work);
   const std::array<Point,3> actual{{nodes[0].node.p,nodes[1].node.p,nodes[2].node.p}};
   CHECK(certified->ContainsFace(face.facet,actual));CHECK(no_work.work==0);
+  BoundaryCoverage explicit_data;auto canonical_face=face.v;std::rotate(canonical_face.begin(),std::min_element(canonical_face.begin(),canonical_face.end()),canonical_face.end());
+  REQUIRE(canonical_face==face.v);explicit_data.faces.emplace(canonical_face,fixture.Cover(face.facet,budget));
+  auto edge_trace=traces[0];if(face.v[0]>face.v[1]){REQUIRE(edge_trace.pieces.size()==1);std::swap(edge_trace.pieces.front().first,edge_trace.pieces.front().last);}
+  explicit_data.traces.emplace(edge,edge_trace);
+  auto explicit_state=std::make_shared<BoundaryParameterState>(fixture.geometry,points,skin,1,SIZE_MAX,0,explicit_data,state->Mobility(),&budget);
+  auto explicit_reference=PlanarReference::WithParameters(definition,explicit_state);Patch copied;copied.coverage=explicit_data;
+  auto copy_budget=GeometryAtlasBudget();copy_budget.maximum_work=0;auto copied_view=explicit_reference->PrivateParameters(copied,&copy_budget);
+  CHECK(copied_view->HasAcceptedFaceCertificate(face,nodes,empty));CHECK(copied_view->ContainsFace(face.facet,actual));CHECK(copy_budget.work==0);
+  copied.coverage.traces.at(edge).pieces.back().end=ExactRatio{};auto changed_budget=GeometryAtlasBudget();
+  auto changed_view=explicit_reference->PrivateParameters(copied,&changed_budget);
+  CHECK_FALSE(changed_view->HasAcceptedFaceCertificate(face,nodes,empty));CHECK_FALSE(changed_view->ContainsFace(face.facet,actual));
   // A current maximum-valued mesh ID is not an unpublished projected association.
   std::map<Id,Id> numbering;for(const auto& row:state->Records())numbering.emplace(row.first,row.first);
   numbering.at(face.v[0])=UINT64_MAX;auto rebound=state->Rebind(numbering);

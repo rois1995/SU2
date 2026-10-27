@@ -98,6 +98,11 @@ TEST_CASE("Curved atlas refuses holes changed retained nodes and exhausted resou
   CHECK_FALSE(PrepareCurvedAtlas(fixture.patch,*fixture.reference,std::nullopt,atlas,limited,reason));CHECK(atlas.data==saved);
   auto partial=fixture.patch;partial.surface.erase(partial.surface.begin()+1);auto refusal=RemappingBudget();
   CHECK_FALSE(PrepareCurvedAtlas(partial,*fixture.reference,Id(0),atlas,refusal,reason));CHECK(atlas.data==saved);
+  auto overridden=fixture.patch;const auto& face=overridden.surface.front();Edge edge{face.v[0],face.v[1]};std::sort(edge.begin(),edge.end());
+  EdgeTrace malformed;auto override_work=RemappingBudget();REQUIRE(fixture.reference->ResolveTrace(edge,face,malformed,override_work,reason));
+  REQUIRE_FALSE(malformed.pieces.empty());malformed.pieces.back().end=ExactRatio{};overridden.coverage.traces.emplace(edge,malformed);
+  auto changed=fixture.reference->PrivateParameters(overridden,&override_work);
+  CHECK_FALSE(PrepareCurvedAtlas(overridden,*changed,Id(0),atlas,override_work,reason));CHECK(atlas.data==saved);
   BoundaryCoverage output;REQUIRE(RemapAtlasSurface(atlas,fixture.patch.surface,fixture.points,output,budget,reason));
   const auto words=EncodeBoundaryAtlas(output,fixture.policy);
   auto work=RemappingBudget();work.maximum_work=0;CHECK_FALSE(RemapAtlasSurface(atlas,fixture.patch.surface,fixture.points,output,work,reason));
@@ -150,8 +155,29 @@ TEST_CASE("Curved boundary vertex movement crosses seams on successive accepted 
     REQUIRE(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
     old.cells.push_back(cell);
   }
+  auto preview=[&](const Patch& patch,Id old_id,Node target,const PlanarReference& base) {
+    BoundaryPoint point;auto context=base.PrivateParameters(patch);REQUIRE(context);CurvedAtlas atlas;
+    const bool prepared=PrepareCurvedAtlas(patch,*context,old_id,atlas,budget,reason);INFO(reason);REQUIRE(prepared);
+    const bool proposed=ProposeAtlasBinding(atlas,old_id,target,point,budget,reason);INFO(reason);REQUIRE(proposed);return point;
+  };
+  auto compare=[&](const Patch& before,const Patch& after,Id old_id,const BoundaryPoint& proposed) {
+    const auto& actual=after.parameters.at(proposed.node.id);CHECK(actual.node.p.x==proposed.node.p.x);CHECK(actual.node.p.y==proposed.node.p.y);CHECK(actual.node.p.z==proposed.node.p.z);
+    CHECK(actual.binding.feature==proposed.binding.feature);CHECK(actual.binding.version==proposed.binding.version);CHECK(actual.binding.dimension==proposed.binding.dimension);
+    CHECK(actual.binding.u==proposed.binding.u);CHECK(actual.binding.v==proposed.binding.v);
+    for(const auto& cell:before.cells) {
+      auto predicted=cell.v;for(auto& node:predicted)if(node.id==old_id)node=proposed.node;
+      std::array<Id,4> key;for(unsigned k=0;k<4;++k)key[k]=predicted[k].id;std::sort(key.begin(),key.end());
+      auto found=std::find_if(after.cells.begin(),after.cells.end(),[&](const Cell& candidate){std::array<Id,4> ids;for(unsigned k=0;k<4;++k)ids[k]=candidate.v[k].id;std::sort(ids.begin(),ids.end());return ids==key;});
+      REQUIRE(found!=after.cells.end());const Tensor metric{};
+      const auto a=Measure({predicted[0].p,predicted[1].p,predicted[2].p,predicted[3].p},metric);
+      const auto b=Measure({found->v[0].p,found->v[1].p,found->v[2].p,found->v[3].p},metric);
+      CHECK(a.mean_ratio==Approx(b.mean_ratio));CHECK(a.minimum_scaled_jacobian==Approx(b.minimum_scaled_jacobian));
+    }
+  };
   const auto snapshot=fixture.state->Snapshot();Patch first;
+  const auto first_preview=preview(old,0,{100,{.6,.5,-.01}},*reference);
   const bool first_move=MoveVertex(old,0,{100,{.6,.5,-.01}},1000,*reference,first,reason);INFO(reason);REQUIRE(first_move);
+  compare(old,first,0,first_preview);
   REQUIRE(first.cells.size()==4);CHECK(first.coverage.faces.size()==4);
   for(const auto& cell:first.cells)CHECK(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
   CHECK(fixture.state->Snapshot()==snapshot);
@@ -160,7 +186,9 @@ TEST_CASE("Curved boundary vertex movement crosses seams on successive accepted 
   auto accepted=std::make_shared<BoundaryParameterState>(fixture.geometry,points,all,2,SIZE_MAX,0,first.coverage,fixture.policy,&budget);
   auto next_reference=PlanarReference::WithParameters(fixture.definition,accepted)->WithAtlasReservation(budget);
   const auto accepted_snapshot=accepted->Snapshot();Patch second;
+  const auto second_preview=preview(first,100,{101,{.38,.58,-.01}},*next_reference);
   const bool second_move=MoveVertex(first,100,{101,{.38,.58,-.01}},2000,*next_reference,second,reason);INFO(reason);REQUIRE(second_move);
+  compare(first,second,100,second_preview);
   CHECK(first.parameters.at(100).binding.dimension==2);CHECK(second.parameters.at(101).binding.dimension==2);
   CHECK(first.parameters.at(100).binding.feature!=second.parameters.at(101).binding.feature);
   REQUIRE(second.cells.size()==4);CHECK(second.coverage.faces.size()==4);

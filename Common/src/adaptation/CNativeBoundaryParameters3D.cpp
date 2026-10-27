@@ -29,6 +29,18 @@ bool Equal(const BoundaryPoint& a,const BoundaryPoint& b) {
 template<class M>size_t MapBytes(const M& m){return transfer_memory::Mul(m.size(),sizeof(typename M::value_type)+4*sizeof(void*));}
 void BoundaryIds(const Patch& patch,std::set<Id>& used){for(const auto& f:patch.surface)used.insert(f.v.begin(),f.v.end());}
 using namespace SU2NativeGeometry;
+bool Equal(const ExactRatio& a,const ExactRatio& b){return a.negative==b.negative&&a.numerator==b.numerator&&a.denominator==b.denominator;}
+bool Equal(const ExactBary& a,const ExactBary& b){return Equal(a.u,b.u)&&Equal(a.v,b.v);}
+bool Equal(const EdgeTrace& a,const EdgeTrace& b) {
+  return a.pieces.size()==b.pieces.size()&&std::equal(a.pieces.begin(),a.pieces.end(),b.pieces.begin(),[](const TracePiece& a,const TracePiece& b){
+    return a.facet==b.facet&&Equal(a.first,b.first)&&Equal(a.last,b.last)&&Equal(a.end,b.end);});
+}
+bool Equal(const FaceCoverage& a,const FaceCoverage& b) {
+  return a.pieces.size()==b.pieces.size()&&std::equal(a.pieces.begin(),a.pieces.end(),b.pieces.begin(),[](const CoveragePiece& a,const CoveragePiece& b){
+    if(a.facet!=b.facet)return false;
+    for(unsigned k=0;k<3;++k)if(!Equal(a.active[k],b.active[k])||!Equal(a.reference[k],b.reference[k]))return false;
+    return true;});
+}
 constexpr uint64_t AtlasSchema=0x4e41544956454138ULL;
 size_t RatioBytes(const ExactRatio& r){return transfer_memory::Add(transfer_memory::Bytes(r.numerator),transfer_memory::Bytes(r.denominator));}
 size_t BaryBytes(const ExactBary& b){return transfer_memory::Add(RatioBytes(b.u),RatioBytes(b.v));}
@@ -721,12 +733,17 @@ bool PlanarReference::HasAcceptedFaceCertificate(const SurfaceFace& face,const s
   if(found==state.Surface().end()||found->second.v!=key||found->second.facet!=face.facet)return false;
   const auto local_face=parameter_view->surface.find(FaceKey(face.v));
   if(local_face!=parameter_view->surface.end()&&(local_face->second.v!=key||local_face->second.facet!=face.facet))return false;
-  if(parameter_view->coverage.faces.count(key)||supplied.faces.count(key))return false;
+  const auto retained=[](const auto& proposed,const auto& accepted,const auto& key) {
+    const auto override=proposed.find(key);if(override==proposed.end())return true;
+    const auto original=accepted.find(key);return original!=accepted.end()&&Equal(override->second,original->second);
+  };
+  const auto& coverage=state.Coverage();
+  if(!retained(parameter_view->coverage.faces,coverage.faces,key)||!retained(supplied.faces,coverage.faces,key))return false;
   for(unsigned k=0;k<3;++k) {
     const auto* accepted=state.Find(face.v[k]);
     if(!accepted||!Equal(points[k],*accepted))return false;
     Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());
-    if(parameter_view->coverage.traces.count(edge)||supplied.traces.count(edge))return false;
+    if(!retained(parameter_view->coverage.traces,coverage.traces,edge)||!retained(supplied.traces,coverage.traces,edge))return false;
     const auto local=parameter_view->local.find(face.v[k]);
     if(local!=parameter_view->local.end()&&!Equal(local->second,*accepted))return false;
   }

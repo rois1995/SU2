@@ -1,0 +1,82 @@
+{
+  "scope": "private captured cells; native constant tensor quality/size only, not acceptance, geometry, BL or transfer",
+  "pins": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/native_quality_census.cpp": "2215d27504bdb4e9a2a4b2ee04e7e34ecd4e7c5a0f503a405eb0630fe9363e78",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/native_quality_census": "9a7d2662e739e7d87dc073490ee7674b094ce0041466676879cde64f3a637244",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/native_quality_driver_link_recipe.txt": "f336a6eb3ee70a2dc5abf3f33b92311047df8263d6efe17f0c6326567a1464d7",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/native_quality_link2_command.json": "a8824c5a0e0842877358ba8306878cf9a9d2a4a842d7e9f7d05a089b95eb6e4a",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/native_quality_link2.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/native_quality_link2_status.json": "2382927cce9a6bc4ed2cb285b748d221acd90b3631a3b50f64c8b36c7b4344d3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/native_quality_input_0.txt": "1ed2ed9b8d9ca3d4b51b3ac5510d8740e72bb622c8fe34b8de7783df84ac1350",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/native_quality_input_1.txt": "1ed2ed9b8d9ca3d4b51b3ac5510d8740e72bb622c8fe34b8de7783df84ac1350",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/cubic_runtime_rejected_0_rank0_owned.bin": "83646d5c350391db8408c28f8ab373caf9c91568e14dd3dc9c506af429c9b4b5",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/cubic_runtime_rejected_1_rank0_owned.bin": "83646d5c350391db8408c28f8ab373caf9c91568e14dd3dc9c506af429c9b4b5",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a": "b6c9e32254fe3a265025f736dccdc2bb925d8ea5a4f6079a425fe298b823da74",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/src/adaptation/CNativePredicates3D.cpp": "6c610bad5bebc8ec4fc403e82137e6f16f5fbf4e1b96781d460878610188a149",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeMesh3D.hpp": "42e2d7a305622bf8da8bc6da7685209cdd1619d7265723fee2136edd5b5c4aee",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/analyze_stage_topology.py": "0a6dd7e5affbd4eef3ffa55f36a9e894f6655b80400515ce04020abfeffc401a"
+  },
+  "pins_verified": true,
+  "results": [
+    {
+      "variant": 0,
+      "cells": 153,
+      "seconds": 0.007840871810913086,
+      "bad_q": 5,
+      "bad_J": 5,
+      "oversize": 10,
+      "nonpositive": 0,
+      "minimum_q": {
+        "id": 60497,
+        "orientation": 0.01600577023734531,
+        "q": 0.1430794209846515,
+        "J": 0.03201514774372057,
+        "edge": 2.4947995911495577
+      },
+      "minimum_J": {
+        "id": 60497,
+        "orientation": 0.01600577023734531,
+        "q": 0.1430794209846515,
+        "J": 0.03201514774372057,
+        "edge": 2.4947995911495577
+      },
+      "maximum_edge": {
+        "id": 60498,
+        "orientation": 0.02084032225586334,
+        "q": 0.14964981088536708,
+        "J": 0.04162077429984211,
+        "edge": 2.637877935007608
+      }
+    },
+    {
+      "variant": 1,
+      "cells": 153,
+      "seconds": 0.007784843444824219,
+      "bad_q": 5,
+      "bad_J": 5,
+      "oversize": 10,
+      "nonpositive": 0,
+      "minimum_q": {
+        "id": 60497,
+        "orientation": 0.01600577023734531,
+        "q": 0.1430794209846515,
+        "J": 0.03201514774372057,
+        "edge": 2.4947995911495577
+      },
+      "minimum_J": {
+        "id": 60497,
+        "orientation": 0.01600577023734531,
+        "q": 0.1430794209846515,
+        "J": 0.03201514774372057,
+        "edge": 2.4947995911495577
+      },
+      "maximum_edge": {
+        "id": 60498,
+        "orientation": 0.02084032225586334,
+        "q": 0.14964981088536708,
+        "J": 0.04162077429984211,
+        "edge": 2.637877935007608
+      }
+    }
+  ]
+}

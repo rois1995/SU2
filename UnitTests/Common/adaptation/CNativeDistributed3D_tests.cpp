@@ -932,7 +932,7 @@ TEST_CASE("Native composed measurements interleave complete cavities and certify
   CHECK_FALSE(Refine(world,input,unit,geometry,invalid,options).valid);CHECK(Bytes(input)==saved);
 }
 
-TEST_CASE("Construction yields its descendants to quality after servicing the entry frontier", "[NativeConstructionSweep3D]") {
+TEST_CASE("Productive construction services descendant generations before quality", "[NativeConstructionSweep3D]") {
   World world;const auto fixture=Box();const PlanarReference geometry(fixture.facets);
   const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
   std::set<Edge> entry;
@@ -940,9 +940,14 @@ TEST_CASE("Construction yields its descendants to quality after servicing the en
     Edge edge{c.v[i].id,c.v[j].id};std::sort(edge.begin(),edge.end());entry.insert(edge);
   }
   EngineOptions options;options.candidate_batch=1;options.maximum_rounds=entry.size()+1;options.maximum_work=4096;
-  const Tensor tensor{64,0,0,64,0,64};
+  const Tensor tensor{64,0,0,64,0,64};bool construction_unmeasured=true;
+  options.stage_observer=[&](const StageProgressView& view) {
+    if(view.phase==EnginePhase::Construction)construction_unmeasured &=
+        view.progress.shape_measured_cells==0 && view.progress.q_measured_cells==0 && view.progress.j_measured_cells==0;
+  };
   const auto result=Refine(world,input,Uniform(input,tensor),geometry,{},options);INFO(result.reason);
-  CHECK_FALSE(result.valid);CHECK(result.stats.quality_stages>0);CHECK(world.sum(result.stats.accepted)>0);
+  CHECK_FALSE(result.valid);CHECK(result.stats.quality_stages==0);CHECK(world.sum(result.stats.accepted)>0);
+  CHECK(world.sum(result.stats.attempted)>entry.size());CHECK(construction_unmeasured);
   bool descendant_debt=false;
   for(const auto& row:result.cells) {
     const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);
@@ -3978,10 +3983,13 @@ TEST_CASE("Unproductive coarsening closures restore strict ownership and revisit
     options.stage_observer=[&](const StageProgressView& view) {
       const auto& progress=view.progress;
       if(view.phase==EnginePhase::Construction) {
-        height_diagnostics_match &= progress.height_measured_cells==0;
-        return;
-      }
-      if(!progress.complete)return;
+        if(progress.height_measured_cells==0)return;
+        if(progress.height_measured_cells<view.working.size()) {
+          height_diagnostics_match &= progress.height_measured_cells+progress.height_unmeasured_cells==view.working.size() &&
+              !progress.height_complete && !progress.complete;
+          return;
+        }
+      } else if(!progress.complete)return;
       size_t bad=0;long double debt=0;
       for(const auto& row:view.working) {
         Patch patch;patch.cells.push_back(row.second.cell);const auto faces=Faces(row.second.cell);

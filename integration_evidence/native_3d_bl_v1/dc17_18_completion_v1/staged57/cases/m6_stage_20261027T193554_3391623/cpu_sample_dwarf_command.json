@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "perf",
+    "record",
+    "-F",
+    "9",
+    "-e",
+    "cpu-clock:u",
+    "--call-graph",
+    "dwarf,8192",
+    "-p",
+    "3391772",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_stage_20261027T193554_3391623/cpu_sample_dwarf.data",
+    "--",
+    "sleep",
+    "3"
+  ],
+  "scope": "non-stopping software sampling of owned active rank",
+  "time": 1793131567.4681058
+}

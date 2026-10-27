@@ -28,8 +28,8 @@ CASES = {
     "workflow_resolved_m2": (6, "[NativeResolvedEuler3D]"),
     "workflow_resolved_m4": (6, "[NativeResolvedEuler3D]"),
     "quality_checks": (1, "[NativeOptimize3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeStageProgress3D]"),
-    "stage_checks": (1, "[NativeStageProgress3D],[NativeStageCapture3D],[NativeCoarsenQualityReturn3D]"),
-    "stage_checks6": (6, "[NativeStageProgress3D],[NativeStageCapture3D],[NativeCoarsenQualityReturn3D]"),
+    "stage_checks": (1, "[NativeStageProgress3D],[NativeStageCapture3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D]"),
+    "stage_checks6": (6, "[NativeStageProgress3D],[NativeStageCapture3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D]"),
     "atlas_checks": (1, "[NativeAtlas3D],[NativeCurvedAtlas3D],[NativeMappedPublication3D],"
                         "[NativeAffineGeometry],[NativeParametricGeometry],[NativeAffineSourceGeometry],"
                         "[NativeAtlasReferenceIO3D],[NativeJointAffineSource3D],[NativeStageCapture3D],"

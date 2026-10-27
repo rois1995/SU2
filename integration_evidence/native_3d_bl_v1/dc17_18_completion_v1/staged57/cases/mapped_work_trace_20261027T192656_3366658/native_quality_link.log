@@ -1,0 +1,4 @@
+/usr/bin/ld: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/ccN8ZhoV.o: in function `main':
+native_quality_census.cpp:(.text+0x2e0): undefined reference to `SU2Native3D::Orientation(SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::KernelStats*)'
+/usr/bin/ld: native_quality_census.cpp:(.text+0x360): undefined reference to `SU2Native3D::Measure(std::array<SU2Native3D::Point, 4ul> const&, SU2Native3D::Tensor const&, SU2Native3D::KernelStats*)'
+collect2: error: ld returned 1 exit status

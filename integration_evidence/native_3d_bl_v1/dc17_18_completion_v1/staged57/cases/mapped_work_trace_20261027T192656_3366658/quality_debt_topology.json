@@ -1,0 +1,431 @@
+{
+  "scope": "private captured cells; shape/size adjacency only; binding dimension is not feature classification",
+  "sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/analyze_stage_topology.py": "0a6dd7e5affbd4eef3ffa55f36a9e894f6655b80400515ce04020abfeffc401a",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/native_quality_census.json": "e42ab5567506437a0fa6d7e15b94dd41db2b3c48a0767c787b5addcc733323d0",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/cubic_runtime_rejected_0_rank0_owned.bin": "83646d5c350391db8408c28f8ab373caf9c91568e14dd3dc9c506af429c9b4b5",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/cubic_runtime_rejected_0_rank0_parameters.bin": "6334665812dad1c0364a24c0336866fd5b170977106dade3e686d545b1992b63",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/native_quality_output_0.txt": "09d65c3794128da2a80f809afdf63a43ce97741a6c2b41b031110d723693f37b",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/native_quality_input_0.txt": "1ed2ed9b8d9ca3d4b51b3ac5510d8740e72bb622c8fe34b8de7783df84ac1350",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/cubic_runtime_rejected_1_rank0_owned.bin": "83646d5c350391db8408c28f8ab373caf9c91568e14dd3dc9c506af429c9b4b5",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/cubic_runtime_rejected_1_rank0_parameters.bin": "5977da9f71bdb7aa77118f8604808e56c78ae8f2e2eeea8d39bc1be38c073be2",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/native_quality_output_1.txt": "09d65c3794128da2a80f809afdf63a43ce97741a6c2b41b031110d723693f37b",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261027T192656_3366658/native_quality_input_1.txt": "1ed2ed9b8d9ca3d4b51b3ac5510d8740e72bb622c8fe34b8de7783df84ac1350"
+  },
+  "results": [
+    {
+      "variant": 0,
+      "bad_q_cells": [
+        47193,
+        60496,
+        60497,
+        60498,
+        60499
+      ],
+      "bad_J_cells": [
+        47193,
+        60496,
+        60497,
+        60498,
+        60499
+      ],
+      "oversize_cells": [
+        32850,
+        32852,
+        47191,
+        47193,
+        60496,
+        60497,
+        60498,
+        60499,
+        60506,
+        60507
+      ],
+      "union_cells": {
+        "32850": {
+          "nodes": [
+            32419,
+            41488,
+            16,
+            7792
+          ],
+          "physical_faces": 0
+        },
+        "32852": {
+          "nodes": [
+            41488,
+            33712,
+            16,
+            7792
+          ],
+          "physical_faces": 1
+        },
+        "47191": {
+          "nodes": [
+            59632,
+            7792,
+            41488,
+            32419
+          ],
+          "physical_faces": 0
+        },
+        "47193": {
+          "nodes": [
+            59632,
+            7792,
+            33712,
+            41488
+          ],
+          "physical_faces": 0
+        },
+        "60496": {
+          "nodes": [
+            76480,
+            7,
+            44080,
+            57040
+          ],
+          "physical_faces": 1
+        },
+        "60497": {
+          "nodes": [
+            76480,
+            7,
+            62224,
+            44080
+          ],
+          "physical_faces": 1
+        },
+        "60498": {
+          "nodes": [
+            76480,
+            7,
+            54448,
+            46672
+          ],
+          "physical_faces": 1
+        },
+        "60499": {
+          "nodes": [
+            76480,
+            7,
+            46672,
+            62224
+          ],
+          "physical_faces": 1
+        },
+        "60506": {
+          "nodes": [
+            76480,
+            32418,
+            46672,
+            54448
+          ],
+          "physical_faces": 0
+        },
+        "60507": {
+          "nodes": [
+            76480,
+            32418,
+            62224,
+            46672
+          ],
+          "physical_faces": 0
+        }
+      },
+      "face_components": [
+        [
+          32850,
+          32852,
+          47191,
+          47193
+        ],
+        [
+          60496,
+          60497,
+          60498,
+          60499,
+          60506,
+          60507
+        ]
+      ],
+      "vertex_components": [
+        [
+          32850,
+          32852,
+          47191,
+          47193
+        ],
+        [
+          60496,
+          60497,
+          60498,
+          60499,
+          60506,
+          60507
+        ]
+      ],
+      "boundary_nodes": {
+        "7": {
+          "dimension": 0,
+          "feature": 7
+        },
+        "16": {
+          "dimension": 1,
+          "feature": 2
+        },
+        "7792": {
+          "dimension": 1,
+          "feature": 8
+        },
+        "33712": {
+          "dimension": 2,
+          "feature": 0
+        },
+        "41488": {
+          "dimension": 2,
+          "feature": 0
+        },
+        "44080": {
+          "dimension": 1,
+          "feature": 9
+        },
+        "46672": {
+          "dimension": 1,
+          "feature": 6
+        },
+        "54448": {
+          "dimension": 2,
+          "feature": 6
+        },
+        "57040": {
+          "dimension": 2,
+          "feature": 8
+        },
+        "62224": {
+          "dimension": 1,
+          "feature": 12
+        }
+      },
+      "interior_nodes": [
+        32418,
+        32419,
+        59632,
+        76480
+      ],
+      "oversize_edges_constant_metric": {
+        "7,44080": 2.4947995911495577,
+        "46672,76480": 1.8333765927370334,
+        "7,46672": 2.637877935007608,
+        "7792,41488": 2.0507209098265906
+      }
+    },
+    {
+      "variant": 1,
+      "bad_q_cells": [
+        47193,
+        60496,
+        60497,
+        60498,
+        60499
+      ],
+      "bad_J_cells": [
+        47193,
+        60496,
+        60497,
+        60498,
+        60499
+      ],
+      "oversize_cells": [
+        32850,
+        32852,
+        47191,
+        47193,
+        60496,
+        60497,
+        60498,
+        60499,
+        60506,
+        60507
+      ],
+      "union_cells": {
+        "32850": {
+          "nodes": [
+            32419,
+            41488,
+            16,
+            7792
+          ],
+          "physical_faces": 0
+        },
+        "32852": {
+          "nodes": [
+            41488,
+            33712,
+            16,
+            7792
+          ],
+          "physical_faces": 1
+        },
+        "47191": {
+          "nodes": [
+            59632,
+            7792,
+            41488,
+            32419
+          ],
+          "physical_faces": 0
+        },
+        "47193": {
+          "nodes": [
+            59632,
+            7792,
+            33712,
+            41488
+          ],
+          "physical_faces": 0
+        },
+        "60496": {
+          "nodes": [
+            76480,
+            7,
+            44080,
+            57040
+          ],
+          "physical_faces": 1
+        },
+        "60497": {
+          "nodes": [
+            76480,
+            7,
+            62224,
+            44080
+          ],
+          "physical_faces": 1
+        },
+        "60498": {
+          "nodes": [
+            76480,
+            7,
+            54448,
+            46672
+          ],
+          "physical_faces": 1
+        },
+        "60499": {
+          "nodes": [
+            76480,
+            7,
+            46672,
+            62224
+          ],
+          "physical_faces": 1
+        },
+        "60506": {
+          "nodes": [
+            76480,
+            32418,
+            46672,
+            54448
+          ],
+          "physical_faces": 0
+        },
+        "60507": {
+          "nodes": [
+            76480,
+            32418,
+            62224,
+            46672
+          ],
+          "physical_faces": 0
+        }
+      },
+      "face_components": [
+        [
+          32850,
+          32852,
+          47191,
+          47193
+        ],
+        [
+          60496,
+          60497,
+          60498,
+          60499,
+          60506,
+          60507
+        ]
+      ],
+      "vertex_components": [
+        [
+          32850,
+          32852,
+          47191,
+          47193
+        ],
+        [
+          60496,
+          60497,
+          60498,
+          60499,
+          60506,
+          60507
+        ]
+      ],
+      "boundary_nodes": {
+        "7": {
+          "dimension": 0,
+          "feature": 7
+        },
+        "16": {
+          "dimension": 1,
+          "feature": 2
+        },
+        "7792": {
+          "dimension": 1,
+          "feature": 8
+        },
+        "33712": {
+          "dimension": 2,
+          "feature": 0
+        },
+        "41488": {
+          "dimension": 2,
+          "feature": 0
+        },
+        "44080": {
+          "dimension": 1,
+          "feature": 9
+        },
+        "46672": {
+          "dimension": 1,
+          "feature": 6
+        },
+        "54448": {
+          "dimension": 2,
+          "feature": 6
+        },
+        "57040": {
+          "dimension": 2,
+          "feature": 8
+        },
+        "62224": {
+          "dimension": 1,
+          "feature": 12
+        }
+      },
+      "interior_nodes": [
+        32418,
+        32419,
+        59632,
+        76480
+      ],
+      "oversize_edges_constant_metric": {
+        "7,44080": 2.4947995911495577,
+        "46672,76480": 1.8333765927370334,
+        "7,46672": 2.637877935007608,
+        "7792,41488": 2.0507209098265906
+      }
+    }
+  ]
+}

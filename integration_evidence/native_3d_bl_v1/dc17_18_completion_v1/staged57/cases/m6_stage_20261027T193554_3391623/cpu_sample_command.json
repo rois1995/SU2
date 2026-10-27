@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "perf",
+    "record",
+    "-F",
+    "19",
+    "-e",
+    "cpu-clock:u",
+    "--call-graph",
+    "fp",
+    "-p",
+    "3391774,3391773,3391772,3391771,3391770,3391769",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_stage_20261027T193554_3391623/cpu_sample.data",
+    "--",
+    "sleep",
+    "5"
+  ],
+  "scope": "owned M6 ranks only; software sampling, no debugger or SIGSTOP",
+  "time": 1793131100.857668
+}

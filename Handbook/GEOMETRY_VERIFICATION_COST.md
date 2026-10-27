@@ -97,7 +97,7 @@ interface defect is fixed, but generation still fails. Preserve this distinction
 do not raise the limit or report a full-workflow milestone.
 
 Fresh six-rank M6 build46 was intentionally interrupted908.19s without debugger
-attachment. Setup/source passed; no stage receipt. All workers remained active,
+attachment. Setup/source passed; no mesh snapshot. All workers remained active,
 and all owned descendants were verified gone. This is neither failure nor acceptance. Broader
 serial/MPI, independently resumable wide workflows and accepted M6/BL transfer/
 restart remain required. Pinned code and helpers stay unchanged during the run.
@@ -204,3 +204,118 @@ constant archive arithmetic allowance. This is a source-level bound mismatch,
 not a demonstrated current-case failure; do not hide it with a blanket increase.
 Any correction must account for current mesh/descriptor complexity and retain
 full constructor/load proof. It does not explain the stage's separate67m cap.
+
+M6 progress correction: stage_trace files exist even before mesh snapshots. Old
+build46's last aligned window13504 at828.68s had66,336 accepted private edits,
+4,447 geometry-progress edits and zero shape measurements. It was progressing
+when deliberately interrupted. Fresh build48 at window3904/338.76s has23,173
+accepted private edits and4,929 geometry-progress edits; all six ranks report
+zero shape measurements during construction. These are private operator/cost
+observations, not accepted meshes or repeated-event qualification.
+
+Independent native-kernel quality census of both build48 small captures:153
+cells,5 below q=.20,5 below J=.05,10 with edge>1.8,0 nonpositive orientations.
+Worst q=.1430794209846515/J=.03201514774372057 at cell60497; maximum edge
+2.637877935007608 at cell60498, uniform Tensor{4,0,0,4,0,4}. Saved sources,
+original link recipe/dependencies, raw/decoded input and production-kernel hashes
+are in the case-local native_quality_census.json. No geometry, BL, transfer or
+acceptance verdict follows from this metric-only census.
+
+## Next phase handoff change (reviewed draft, not applied)
+
+Selection.Reset currently discards current cell/edge/geometry measurements at
+each construction/improvement handoff. Publication already drops/replaces changed
+rows, including metadata-owner cell versions. Preserve current rows, incidence,
+frozen edge certificates and geometry scores; rebuild phase eligibility without
+new geometry queries. Construction decisions ignore stored q/J. Improvement
+measures only missing shape/requested-height values, with an in-place refresh
+that retains geometry/edge support. Unknown rows remain unknown after partial
+failure. Full reset remains mandatory after coarsening checkpoint rollback.
+
+Freshness must check owned version, ordered vertex IDs and cached endpoint/field
+certificates. Counters subtract/add exactly once; phase-facing valid/target_valid
+must be recomputed separately from stored quality. Preserve repair support,
+waiting age and rejection state; publication Touch owns reopening changed support.
+Reserve repair-map growth before phase transition. No new cache/epoch or relaxed
+acceptance/resource limit is involved. The uncompiled draft is temporary:
+`/tmp/dc17_phase_census_draft.cpp` and `.patch`. M6build48 is running, so compiled
+sources remain unchanged. Validate actual mapped workflow, stage-progress/partial
+census, coarsening rollback, stale metadata, repeated events and MPI before reuse
+is considered integrated; convergence is not implied by this design.
+
+Latest build48 repeated-overlap cost receipt also passes16 events under its
+independent summary:7 current points/10 faces,4–7 reference triangles,10–16 face
+pieces/10–15 trace pieces,54–55 bits,3,965,883–7,997,772 arithmetic work/event,
+5,759,072–6,270,752 admitted peak bytes,18,584–25,128 accepted resident bytes,
+8,376–12,224 payload bytes and0.592–0.640s/event. Returning phases satisfy the
+existing descriptor/width/work/storage bounds. Lifetime process RSS36,675,584 is
+not an event allocation peak. Scope is private overlapping surface movement,
+not full adaptation. Receipt: atlas_checks_20261027T192923_3373582/
+reference_cost_summary.json.
+
+M6 build48's first quality census at~737 engine seconds contains667,993 current
+cells:198,390 size-bad,7,090 geometry-bad,64,554 quality-invalid and1,174,431 repair
+features. This demonstrates premature quality handoff while productive target
+construction still has substantial debt. First quality window records27 real
+optimization moves and8 swaps, exercising mobility rather than fixtures alone.
+All remain private observations, not accepted adaptation.
+
+A five-second19Hz software perf sample of the six owned workers (528 samples,
+no debugger/SIGSTOP) shows five ranks polling MPI and one in geometry interval/
+exact-arithmetic work (Blossom, GCD/division and interval rounding). Frame-pointer
+unwinding is unreliable, so this does not identify a specific caller or prove a
+collective defect. Full command/data/reports are case-local. It motivates proper
+lifetime/scheduling assessment rather than arithmetic tuning or larger limits.
+
+Source-level follow-up: SmoothBoundary's active-mobility search enumerates a
+metric mean plus18 axis proposals; each MoveVertex re-prepares the same accepted
+star/atlas and reconstructs geometry before FreshScore rejects non-improving
+volume quality. A future operator change should reuse preparation for a fixed
+star and screen projected volume candidates before full surface reconstruction,
+using the same point associations/projection outcome. It must not reproject a
+realized point and assume the proposal is idempotent. This is a finding only;
+finish the connected phase/generation change and validate actual workflow before
+adding further operator machinery.
+
+M6 build48 TERMINAL1853.13s, unchanged pins. Native elapsed-time stop in metric
+update; original CFD mesh/solution retained. Testdriver exit0 permits that bounded
+diagnostic outcome, but wrapperFAIL1 correctly rejects missing planned four-window
+observation_stop data. All nine known owned processes verified terminal before
+any next source edit. First quality-entry snapshots are retained; manifests state
+source_valid=false and exact_continuation=false, so structural decoding is not a
+runtime restart/acceptance certificate.
+
+A second3-second9Hz DWARF sample of the active rank gives usable caller evidence:
+ValidateCoverage~70% inclusive, SplitAtlasEdges~57%, with repeated CheckSurface,
+PrepareCurvedAtlas/RebuildTraceCoverage/MoveVertex paths. Only23 samples; fractions
+are diagnostic, not a benchmark. Full data/reports saved, no debugger/SIGSTOP.
+This identifies generic arrangement verification during boundary-improvement
+proposals, rather than demonstrating a collective mismatch or a polynomial
+positivity recursion. Do not pursue an unobserved prover defect from leaf symbols.
+Another ownership follow-up: exact copies of accepted explicit descriptors in a
+private overlay currently suppress certificate reuse. A changed effective
+contract must revalidate; a bitwise identical copied contract need not. Assess
+this with operator preparation/quality screening after the phase/generation
+change, rather than adding arithmetic shortcuts.
+
+Build49 phase/generation change PASS99.18s; actual mapped workflowFAIL13.85s,
+82 edits/345 attempts,26 geometry-progress reports,1 quality stage and136
+optimization trials. Geometry arithmetic67m is exhausted; subsequent refusals
+also consume native logical4096. No budget was raised. Build50 revised obsolete
+one-frontier handoff test and passed96.17s. Focused stage checks6/7 cases,
+4439/4443 assertions: four failures are the old expectation that construction
+must erase already-known height values. The updated test independently checks
+fully retained heights and explicit unknown counts; final height/rollback gates
+remain unchanged.
+
+Build51 pending: exact copied accepted explicit descriptors can reuse their
+certificate; changed or malformed descriptors still revalidate. Atlas preparation
+now validates actual supplied traces, not only traces derived from the coverage,
+and its reversal checks input intervals. Boundary smoothing first projects the
+raw proposal with the same atlas routine and computes native volume-quality
+upper bound. Height can only lower that score, so a non-improving bound can be
+rejected before full surface reconstruction. Every surviving raw proposal still
+uses full MoveVertex/geometry/contact/height/source/publication checks. Preview
+contexts are destroyed before full reconstruction; no extra retained atlas cache
+or simultaneous workspace is introduced. Differential tests compare previewed
+points/bindings/tet quality with full moves across seams and repeated states.

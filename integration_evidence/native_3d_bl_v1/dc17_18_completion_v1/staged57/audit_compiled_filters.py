@@ -19,7 +19,7 @@ OTHER = [COMMON / 'CNativeAffineReference_tests.cpp', COMMON / 'CNativeDistribut
          CFD / 'CConservativeTransfer_tests.cpp']
 BROAD_TAGS = {'NativeCurvedTransaction3D', 'NativeRuntime3D', 'NativeCurvedRuntime3D',
               'NativePolicyVeto3D', 'NativeBLPolicyRuntime3D', 'NativeCurvedLifecycle3D',
-              'NativeAtlasCoordinatedPublication3D', 'NativeMappedRuntime3D'}
+              'NativeAtlasCoordinatedPublication3D', 'NativeMappedRuntime3D', 'NativeConstructionSweep3D'}
 CASE = re.compile(r'TEST_CASE\s*\(\s*"([^"\n]+)"\s*,\s*"([^"\n]*)"', re.M)
 
 

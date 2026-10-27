@@ -261,7 +261,10 @@ size_t CurvedAtlasWorkspaceBytes(size_t bits) {
   }catch(const std::length_error&){return SIZE_MAX;}
 }
 
-namespace { SurfaceBinding Quantize(const MappedFacetReference&,Id,const ExactBary&,Ops&); }
+namespace {
+SurfaceBinding Quantize(const MappedFacetReference&,Id,const ExactBary&,Ops&);
+EdgeTrace Reverse(const EdgeTrace&,Ops&);
+}
 
 bool PrepareCurvedAtlas(const SU2Native3D::Patch& accepted,const SU2Native3D::PlanarReference& reference,
     std::optional<SU2Native3D::Id> moving,CurvedAtlas& result,AtlasBudget& budget,std::string& reason) {
@@ -288,7 +291,10 @@ bool PrepareCurvedAtlas(const SU2Native3D::Patch& accepted,const SU2Native3D::Pl
       for(unsigned k=0;k<3;++k){bindings[k]=data->parameters.at(face.v[k]).binding;realized[k]=data->parameters.at(face.v[k]).node.p;}
       std::array<BoundaryPoint,3> points;for(unsigned k=0;k<3;++k)points[k]=data->parameters.at(face.v[k]);
       if(!reference.HasAcceptedFaceCertificate(face,points,accepted.coverage)) {
-        op.Check(geometry.CoverageTraces(cover,traces,budget,op.reason));op.Check(geometry.ValidateCoverage(face.facet,bindings,realized,cover,traces,budget,op.reason));
+        for(unsigned k=0;k<3;++k){const Edge edge{face.v[k],face.v[(k+1)%3]};
+          op.Check(reference.ResolveTrace(edge,face,traces[k],budget,op.reason));
+          if(edge[0]>edge[1])traces[k]=Reverse(traces[k],op);}
+        op.Check(geometry.ValidateCoverage(face.facet,bindings,realized,cover,traces,budget,op.reason));
       }
       for(const auto& p:cover.pieces)if(policy.sheets.at(p.facet)!=sheet_id->second||policy.bodies.at(p.facet)!=body->second||reference.Get(p.facet).marker!=reference.Get(face.facet).marker)
         throw std::invalid_argument("Atlas face crosses a protected sheet/body boundary.");
@@ -428,6 +434,11 @@ void Movement(const CurvedAtlas::Data& d,Id old,const SurfaceBinding& binding,Op
   if(!incident)throw std::invalid_argument("Atlas endpoint has no admitted sheet.");
 }
 EdgeTrace Reverse(const EdgeTrace& trace,Ops& op) {
+  auto previous=op.Integer(0);const auto one=op.Integer(1);
+  if(trace.pieces.empty())throw std::invalid_argument("Empty curved trace before reversal.");
+  for(const auto& p:trace.pieces){if(op.Compare(previous,p.end)>=0||op.Compare(p.end,one)>0)
+      throw std::invalid_argument("Invalid curved trace interval before reversal.");previous=p.end;}
+  if(op.Compare(previous,one))throw std::invalid_argument("Incomplete curved trace before reversal.");
   Scratch scratch(op,Times(trace.pieces.size(),PieceBound(op)));EdgeTrace out;out.pieces.reserve(trace.pieces.size());
   for(size_t i=trace.pieces.size();i;--i){op.Work();auto p=trace.pieces[i-1];std::swap(p.first,p.last);
     p.end=op.Sub(op.Integer(1),i>1?trace.pieces[i-2].end:op.Integer(0));out.pieces.push_back(std::move(p));}return out;

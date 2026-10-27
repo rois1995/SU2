@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "g++",
+    "-std=c++14",
+    "-O2",
+    "-fno-fast-math",
+    "-ffp-contract=off",
+    "native_quality_census.cpp",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a",
+    "-o",
+    "native_quality_census"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  }
+}
