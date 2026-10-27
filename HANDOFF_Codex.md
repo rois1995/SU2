@@ -21,10 +21,24 @@ Large complete vertex stars now move atomically across owners; original curved
 chart restrictions remain unresolved. See [staged scope](Handbook/STAGED_NATIVE_ADAPTATION.md)
 and [curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md).
 
-## Live work and next validation
+## Latest validation and next step
 
-ACTIVE: build18/session62205,933 source pins,one nice19 worker. All main C++/
-tests/helpers are FROZEN. Build17/session53915 passed135.20s with933 unchanged pins.
+
+Implementation in progress: stage existing-point relaxation before topology
+improvement/enrichment, with bounded shared work and accepted nested operation
+counts. M6 shard comparison found 3,215 new interior points, no removed or moved
+entry points, and unchanged physical bindings. All 947 commits were nested
+optimizer results, hidden by the old reconnected counter. This change is not yet
+built or validated and does not resolve cross-chart mobility.
+
+Build18 M6 stage/session11197 is TERMINAL PASS:623.327s, pins unchanged, six
+complete rank shards and four quality windows; original donors unchanged. The
+diagnostic stop is private state, not exact continuation or final acceptance.
+No owned job remains live; all main C++/tests/helpers stayed pinned.
+Build18/session62205 PASS726.79s/933 unchanged pins. Focused serial stage_checks/
+session45262 PASS10.5101s,6 cases/4419 assertions,unchanged pins. Six-rank
+stage_checks6/session51405 PASS11.5294s,all pins unchanged. Host preflight saved
+with34.77GB available RAM and no owned heavy predecessor. Build17/session53915 passed135.20s with933 unchanged pins.
 Broad serial/session77363 PASS61.68s:179 cases/1,121,211 assertions. MPI6/session4734
 PASS43.79s:156 cases on every rank, all pins unchanged. The first MPI launch97981
 stopped on a serial-only fixture selection error; its receipt is preserved. Serial
@@ -37,8 +51,8 @@ Curved Euler/RANS transfer/reload, repeated curved lifecycle/restart, distribute
 transfer/kernel/history/recovery checks pass. This is not full M6 acceptance.
 [Transfer-only ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 
-Quality-stage measurement/capture implementation is integrated and building,
-with admission/election and final gates unchanged. All agents released sources.
+Quality-stage measurement/capture implementation passed focused serial/MPI checks,
+with admission/election and final gates unchanged. Quality-staging edits are now active.
 Incremental diagnostics reuse the one-cell census, Add/Drop cache updates,
 FirstHeightReport and SurfaceError results; no construction q/J, duplicate audit or
 per-proposal collective. Rank-local traces/shards preserve original frozen donors,
@@ -46,10 +60,17 @@ matching private geometry and explicit unknown/partial state. Observer storage i
 admitted; a failed observer cannot run again on exit. Optional diagnostic stop
 saves observation_stop shards before electing its intentional exception.
 
-Next: build18 -> stage_checks (constant-field/height debt, unchanged work/query/mesh,
-observer failure/storage, serialization) -> m6_stage using run_cases.py. M6 uses the
+Focused serial stage_checks/session45262 PASS10.5101s/6 cases/4419 assertions;
+MPI6 stage_checks6/session51405 PASS11.5294s. The completed M6 stage capture shows
+mixed debt movement over only248 rounds: size debt fell, q/J debt shifted slightly,
+invalid-cell count rose. See the quantitative entry/stop table in
+[quality-stage progress](Handbook/M6_QUALITY_STAGE_PROGRESS.md). This is not a
+full convergence measurement or a reason to claim M6 acceptance.
+Serial/MPI checks passed
+constant-field/height debt, unchanged work/query/mesh, observer failure/storage
+and serialization. M6 used the
 bit-identical build13 archived sensor and unchanged configuration/geometry; it
-stops after four quality windows and checks complete six-rank shards, lengths,
+stopped after four quality windows and checked complete six-rank shards, lengths,
 donor hashes and synchronized trace rounds. This is diagnostic private state,
 not exact continuation, full mesh acceptance or transfer. Python receipt self-check
 passes valid cases and six malformed/truncated/provenance cases.
@@ -85,7 +106,9 @@ Normal-only contract still binds; tangential growth outside protected band unans
 
 ## Checkpoints and preserved history
 
-Latest pushed `f27662eb31`: passing broad serial/MPI integration receipts and
+Latest pushed `b6a976235f`: quality-stage diagnostics/capture WIP; its bounded
+M6 diagnostic is now complete.
+`f27662eb31` preserves passing broad serial/MPI integration receipts and the
 quality-stage measurement design. `c659e03cf5` contains the corrected large-star
 fixture and collision paging correction. Earlier
 `6aee162837` contains coarsening closure and clipping correction/regressions. Code536025f6e4 contains

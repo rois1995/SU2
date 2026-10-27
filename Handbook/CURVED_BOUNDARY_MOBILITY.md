@@ -1,7 +1,10 @@
 # Curved boundary mobility: missing geometry capability
 
-Read-only diagnosis, 2026-10-26. No implementation or numerical qualification is
-claimed here. Sources remain frozen for the integrated build/validation campaign.
+Read-only diagnosis, updated 2026-10-27. No curved cross-chart implementation or
+numerical qualification is claimed here. Build18 and its quality capture are
+terminal; no owned build/validation job remains live. Quality relaxation versus
+enrichment staging implementation is starting separately; it does not provide
+the cross-chart geometry capability described here.
 The target remains a complete accepted M6 Euler/RANS workflow under the unchanged
 geometry, contact, q/J/size/height, complexity, transfer and restart gates.
 
@@ -18,6 +21,13 @@ The optimizer's dimension-zero guard is only the first restriction:
   each individual original facet supporting an active face.
 - `CNativeBoundary3D.cpp::MoveVertex` retains the incident face labels and requires
   each moved point/whole triangle to remain inside those same finite charts.
+- `CNativeBoundary3D.cpp::ConstrainMovePoint` treats mapped cubic charts as
+  faceted planes because they are absent from `Analytic()`. Independent original
+  facet normals can give rank three and pin an original curved vertex; original
+  seam constraints can also restrict motion to an artificial chart edge. Both
+  distributed direct-move paths call it when metric composition is present.
+  Semantic geometry freedoms must replace these chart constraints while retaining
+  genuine feature, carrier and first-height apex constraints.
 - `MappedFacetReference::ValidateSurface` requires complete tiling of every
   original facet and its three border chains. `BoundaryParameterState::Prepare`
   conserves interfaces separately by original facet. Moving an original vertex
@@ -29,6 +39,12 @@ The optimizer's dimension-zero guard is only the first restriction:
 Removing the dimension-zero guard or broadening `Supports` cannot establish this
 capability. In particular, it would leave whole-face error, finite coverage,
 publication and future source reconstruction without valid certificates.
+
+`OptimizedRepairPatch` setting `options.boundary=false` is not a cause of this
+restriction. That option gates `BoundaryFlip` and `BoundaryCollapse` only when no
+geometry is supplied. With geometry and smoothing enabled, `Smooth` still calls
+`SmoothBoundary` for physical skin vertices; its binding guards and the shared
+geometry contracts above determine whether movement is allowed.
 
 `ClosestCurved` already finds a certified distance interval and candidate binding
 on an edge-connected same-marker component. Its documentation explicitly does
@@ -99,6 +115,25 @@ transactions. A local atlas certificate must either prove their agreement or
 carry the necessary parameter-path data through publication and persistence.
 This is the central cross-chart certification work, not an optimizer fallback.
 
+A proposed representation is a topology-preserving piecewise affine flattening
+of a bounded union of original reference triangles. Proposals would live in that
+domain and forward-evaluate the unchanged cubic nets. Canonical shared edge
+traces would be piecewise linear in original barycentric parameter domains;
+active faces would carry their partition into original-chart parameter pieces.
+Exact clipping predicates could operate in the flattened domain, with `Blossom`
+restricting the cubic pieces for whole-face error and source-envelope bounds.
+Inherited perimeter traces must agree exactly, including across later local
+atlases, workers and restart. Projected physical cubic edges are generally curved;
+clipping their corner triangles as straight boundaries does not certify coverage.
+
+This route is unimplemented and unproven. A bijective reference-domain flattening
+alone does not establish injectivity of the real cubic surface union or admissible
+embedding of the new flat faces. Complete local geometric injectivity,
+orientation, feature/carrier intersections, separation and contact certificates
+remain necessary; a common physical projection is only a possible sufficient
+certificate where it can be proved. Folded or unresolved geometry must refuse,
+without weakening geometry or replacing the immutable controls.
+
 Keep point bindings as forward chart/edge parameters where possible. Separate
 point support from whole-face multi-chart coverage rather than pretending every
 point belongs to every original facet in a component. Update the complete
@@ -113,8 +148,9 @@ Construction/quality stage budgets and final strict gates remain unchanged.
 2. `CNativeBoundaryParameters3D.hpp/cpp`: proposed moved binding, face lookup,
    publication interface conservation and serialized authority/coverage policy.
    A changed `Canonical` alone would corrupt the present facet-wise invariants.
-3. `CNativeBoundary3D.cpp`: `ProjectMovePoint`, `MoveVertex`, `Finish` and operators
-   reusing physical-face checks; complete moved faces must use the atlas contract.
+3. `CNativeBoundary3D.cpp`: `ProjectMovePoint`, `ConstrainMovePoint`, `MoveVertex`,
+   `Finish` and operators reusing physical-face checks; complete moved faces must
+   use the atlas contract and semantic feature/carrier constraints.
 4. `CNativeEngine3D.cpp`: `MeshOptimizer::SmoothBoundary` should use semantic
    mobility, then the shared move admission. The distributed quality lifecycle and
    its strict census remain the acceptance authority.
