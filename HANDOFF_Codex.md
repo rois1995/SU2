@@ -23,7 +23,22 @@ and [curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md).
 
 ## Live work and validation
 
-**No owned heavy job is live; source edits are released.** Build19 broad serial/
+**Cross-chart mobility implementation is active and not integration-validated.**
+Build20 is terminal setup failure (3.09s, pins unchanged): Meson could not locate Ninja; the runner now records NINJA explicitly.
+
+Checkpoint `7e41461874` saves the tested primitive. Exact arithmetic passed the standalone `staged57/atlas_arithmetic1` run: four cases,
+308 assertions, 17.90s including compilation, unchanged pins; its job is terminal.
+Build21/session45516 is live: one low-priority build worker, 944 pinned inputs.
+All C++ and validation helpers are frozen. Geometry, parameter/publication,
+remapper, source-envelope and operator/lifecycle wiring are implemented for
+first compilation; runtime qualification remains open.
+See [implementation contract](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
+The latest pushed primitive checkpoint is `7e41461874`; connected changes remain WIP.
+The staged topology analyzer now recognizes legacy and schema 8 parameter payloads;
+its synthetic header, appendix and truncation self-check passes. The `atlas_checks`
+case and broad-campaign tags are prepared for the connected build, not yet run.
+
+ Build19 broad serial/
 session28247 PASS59.55s:182 cases/1,121,344 assertions. MPI6/session24105
 PASS37.58s:159 cases on every rank. Both preserve all pins. Receipts live under
 `staged57/cases/serial_full_20261027T103743_1836407` and

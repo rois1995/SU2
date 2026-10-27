@@ -120,3 +120,17 @@ TEST_CASE("Atlas arithmetic refuses exhausted budgets and preserves outputs", "[
   std::vector<uint64_t> words{0,1,1,1,3};size_t offset=0;auto decode_budget=Budget();decode_budget.maximum_bytes=1;
   CHECK_FALSE(ExactDecode(words,offset,out,decode_budget,reason));CHECK(offset==0);CHECK(Same(out,sentinel));
 }
+
+TEST_CASE("Exact atlas arithmetic retains historical peaks across admitted storage windows", "[NativeAtlas3D]") {
+  auto budget=Budget();std::string reason;ExactRatio first,second;
+  budget.caller_bytes=1u<<20;
+  REQUIRE(ExactInteger(1,first,budget,reason));
+  const auto previous=budget.peak_bytes;
+  budget.caller_bytes=0;budget.maximum_bytes=4096;
+  REQUIRE(ExactInteger(2,second,budget,reason));
+  CHECK(second.numerator==std::vector<uint32_t>{2});
+  CHECK(budget.peak_bytes==previous);
+  budget.maximum_bytes=1;
+  CHECK_FALSE(ExactInteger(3,second,budget,reason));
+  CHECK(second.numerator==std::vector<uint32_t>{2});
+}

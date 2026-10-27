@@ -9,6 +9,9 @@
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO.hpp"
 #include "../../../Common/include/adaptation/CNativeFirstHeight.hpp"
+#include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
+#include "../../../Common/include/adaptation/CNativeOptimize3D.hpp"
+#include <algorithm>
 
 using namespace SU2NativeBoundary2D;
 
@@ -95,4 +98,52 @@ TEST_CASE("Native reference sidecar records the first-height tolerance and refus
   CHECK(SU2NativeFirstHeight::AdoptRecorded(0.125, 0.125) == 0.125);
   CHECK_THROWS(SU2NativeFirstHeight::AdoptRecorded(0.125, 0.1));
   CHECK_THROWS(SU2NativeFirstHeight::AdoptRecorded(0, 1.0));
+}
+
+TEST_CASE("Native v8 atlas sidecar preserves exact covers traces and independent policy", "[NativeAtlasReferenceIO3D]") {
+  namespace N=SU2Native3D;namespace G=SU2NativeGeometry;
+  const std::array<N::Node,4> nodes{{{1,{0,0,0}},{2,{1,0,0}},{3,{0,1,0}},{4,{0,0,1}}}};
+  std::vector<N::Facet> facets{{10,0,{nodes[1],nodes[2],nodes[3]}},{11,0,{nodes[0],nodes[3],nodes[2]}},
+                               {12,0,{nodes[0],nodes[1],nodes[3]}},{13,0,{nodes[0],nodes[2],nodes[1]}}};
+  auto definition=std::make_shared<N::PlanarReference>(facets);std::map<N::Id,double> errors;
+  for(const auto& f:facets)errors.emplace(f.id,1e-12);
+  auto geometry=std::make_shared<G::MappedFacetReference>(definition,errors,37);
+  G::AtlasBudget budget{1000000,size_t(1)<<24,4096};G::MobilityPolicy policy;std::string reason;
+  REQUIRE(geometry->BuildMobilityPolicy(35,{{0,2}},policy,budget,reason));
+  N::BoundaryPoints points;std::vector<N::SurfaceFace> surface;G::BoundaryCoverage coverage;
+  for(const auto& facet:facets) {
+    N::Face face{facet.v[0].id,facet.v[1].id,facet.v[2].id};std::rotate(face.begin(),std::min_element(face.begin(),face.end()),face.end());
+    surface.push_back({face,facet.id});std::array<G::SurfaceBinding,3> bindings;
+    for(unsigned k=0;k<3;++k){bindings[k]=geometry->Vertex(face[k]);points.emplace(face[k],N::BoundaryPoint{nodes[face[k]-1],bindings[k]});}
+    G::FaceCoverage cover;REQUIRE(geometry->ResolveSingleChart(facet.id,bindings,cover,budget,reason));coverage.faces.emplace(face,cover);
+    std::array<G::EdgeTrace,3> traces;REQUIRE(geometry->CoverageTraces(cover,traces,budget,reason));
+    // Store only forward-ID traces; their other incident face must recover the same accepted path.
+    for(unsigned k=0;k<3;++k)if(face[k]<face[(k+1)%3])coverage.traces.emplace(N::Edge{face[k],face[(k+1)%3]},traces[k]);
+  }
+  auto parameters=std::make_shared<N::BoundaryParameterState>(geometry,points,surface,9,SIZE_MAX,0,coverage,policy,&budget);
+  N::ReferenceState state;state.facets=facets;state.marker_names={"body"};state.original=N::PlanarReference::WithParameters(definition,parameters);
+  const auto encoded=N::EncodeReference(state);REQUIRE(encoded.find("SU2_NATIVE_REFERENCE_3D 8\n")==0);
+  const auto recovered=N::DecodeReference(encoded);REQUIRE(recovered.original->Parameters());
+  CHECK(recovered.original->Parameters()->Geometry().Version()==37);CHECK(recovered.original->Parameters()->Mobility().version==1);
+  CHECK(recovered.original->Parameters()->Mobility().identity==policy.identity);CHECK(N::EncodeReference(recovered)==encoded);
+  const auto payload=parameters->Payload();CHECK(payload.size()==parameters->PayloadBytes());
+  const auto restored=N::BoundaryParameterState::FromPayload(geometry,payload);CHECK(restored->Snapshot()==parameters->Snapshot());
+  auto truncated=payload;truncated.pop_back();CHECK_THROWS(N::BoundaryParameterState::FromPayload(geometry,truncated));
+  CHECK_THROWS(N::BoundaryParameterState::FromPayload(geometry,payload,1));CHECK_THROWS(N::DecodeReference(encoded,1));
+  CHECK_THROWS(N::DecodeReference(encoded+"trailing"));
+  auto archive=N::EncodeBoundaryAtlas(coverage,policy);G::BoundaryCoverage decoded;G::MobilityPolicy decoded_policy;
+  N::DecodeBoundaryAtlas(archive,decoded,decoded_policy);CHECK(N::EncodeBoundaryAtlas(decoded,decoded_policy)==archive);
+  auto noncanonical=archive;std::fill(noncanonical.end()-8,noncanonical.end(),0);
+  CHECK_THROWS(N::DecodeBoundaryAtlas(noncanonical,decoded,decoded_policy));
+  archive.pop_back();CHECK_THROWS(N::DecodeBoundaryAtlas(archive,decoded,decoded_policy));
+  CHECK(decoded_policy.identity==policy.identity);CHECK(N::EncodeBoundaryAtlas(decoded,decoded_policy)==N::EncodeBoundaryAtlas(coverage,policy));
+  N::Owned mesh;N::OwnedCell row;row.cell={0,nodes};for(unsigned k=0;k<4;++k)row.physical[k]={true,10+k};mesh.emplace(0,row);
+  N::RegionMetric target([](N::Point){return N::Tensor{};},[](N::Point,N::Point){return 1.L;});
+  N::OptimizeOptions options;options.geometry=state.original.get();N::OptimizeReport report;N::Id next_node=5,next_cell=1;
+  CHECK_FALSE(N::OptimizeMetricMesh(mesh,target,next_node,next_cell,options,report));CHECK(report.stop=="atlas reservation missing");
+  CHECK(report.trials==0);CHECK(mesh.size()==1);CHECK(next_node==5);CHECK(next_cell==1);
+  // No policy or descriptor upgrade is inferred for the legacy parameter authority.
+  auto legacy=std::make_shared<N::BoundaryParameterState>(geometry,points,surface);
+  state.original=N::PlanarReference::WithParameters(definition,legacy);const auto old=N::EncodeReference(state);
+  CHECK(old.find("SU2_NATIVE_REFERENCE_3D 5\n")==0);CHECK(N::DecodeReference(old).original->Parameters()->Mobility().identity==0);
 }

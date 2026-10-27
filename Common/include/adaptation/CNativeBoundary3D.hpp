@@ -28,6 +28,7 @@ struct Patch {
   std::vector<Cell> cells;
   std::vector<SurfaceFace> surface;
   BoundaryPoints parameters;  // Sparse private boundary geometry, never original sensor weights.
+  SU2NativeGeometry::BoundaryCoverage coverage;
 };
 /*! Analytic authority is declared per original finite facet, never inferred from its marker.
  * Sphere: origin=center, extent.x=radius. Bump: z=origin.z+extent.z*u(1-u)*v(1-v),
@@ -91,8 +92,16 @@ class PlanarReference {
   BoundaryParameterState* Parameters()const;
   std::shared_ptr<const PlanarReference> WithParameterState(std::shared_ptr<BoundaryParameterState> parameters)const;
   /*! Private operator overlay; null in the unchanged strict path. */
-  std::unique_ptr<PlanarReference> PrivateParameters(const Patch& patch)const;
-  void ExportParameters(Patch& patch)const;
+  std::unique_ptr<PlanarReference> PrivateParameters(const Patch& patch,SU2NativeGeometry::AtlasBudget* reservation=nullptr)const;
+  /*! Borrowed geometry work for this scope; never retain the view beyond the reservation's lifetime. */
+  std::unique_ptr<PlanarReference> WithAtlasReservation(SU2NativeGeometry::AtlasBudget& reservation)const;
+  /*! Borrowed from the scoped view; null when no caller admitted atlas work. */
+  SU2NativeGeometry::AtlasBudget* AtlasReservation()const;
+  void ExportPointParameters(Patch& patch)const;
+  void ExportParameters(Patch& patch,SU2NativeGeometry::AtlasBudget* reservation=nullptr)const;
+  const SU2NativeGeometry::MobilityPolicy* Mobility()const;
+  bool ResolveCoverage(const SurfaceFace&,SU2NativeGeometry::FaceCoverage&,SU2NativeGeometry::AtlasBudget&,std::string&)const;
+  bool ResolveTrace(Edge,const SurfaceFace&,SU2NativeGeometry::EdgeTrace&,SU2NativeGeometry::AtlasBudget&,std::string&)const;
   Node BindNewPoint(Node point,const std::set<Id>& incident)const;
   Node BindMovedPoint(Id old,Node point,const std::set<Id>& incident)const;
 

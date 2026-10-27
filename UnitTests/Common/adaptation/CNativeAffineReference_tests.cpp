@@ -239,7 +239,7 @@ TEST_CASE("Mapped finite facets preserve shared parameters complete coverage and
 }
 
 TEST_CASE("Mapped edge edits publish mesh and forward geometry atomically and survive reference persistence", "[NativeMappedPublication3D]") {
-  using namespace SU2Native3D;World world;const bool components=GENERATE(false,true);
+  using namespace SU2Native3D;World world;const unsigned mode=GENERATE(0u,1u,2u);const bool components=mode==1,atlas=mode==2;
   const auto original=MappedTetrahedron();std::vector<Facet> facets;
   for(auto row:original->Facets()){row.second.marker=0;facets.push_back(row.second);}
   auto definition=std::make_shared<PlanarReference>(facets);std::map<Id,double> errors;
@@ -249,8 +249,16 @@ TEST_CASE("Mapped edge edits publish mesh and forward geometry atomically and su
   for(const auto& f:facets){old.surface.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});
     for(auto n:f.v){nodes.emplace(n.id,n);points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});}}
   old.cells.push_back({0,{nodes.at(1),nodes.at(9),nodes.at(21),nodes.at(40)}});
-  auto parameters=std::make_shared<BoundaryParameterState>(authority,points,old.surface,11);
-  auto reference=PlanarReference::WithParameters(definition,parameters);reference->ExportParameters(old);
+  AtlasBudget budget{1000000,size_t(1)<<27,4096};BoundaryCoverage descriptors;std::string why;
+  if(atlas)for(const auto& face:old.surface) {
+    std::array<SurfaceBinding,3> bindings;for(unsigned k=0;k<3;++k)bindings[k]=points.at(face.v[k]).binding;
+    FaceCoverage cover;REQUIRE(authority->ResolveSingleChart(face.facet,bindings,cover,budget,why));descriptors.faces.emplace(face.v,cover);
+    std::array<EdgeTrace,3> traces;REQUIRE(authority->CoverageTraces(cover,traces,budget,why));
+    for(unsigned k=0;k<3;++k)if(face.v[k]<face.v[(k+1)%3])descriptors.traces.emplace(Edge{face.v[k],face.v[(k+1)%3]},traces[k]);
+  }
+  auto parameters=std::make_shared<BoundaryParameterState>(authority,points,old.surface,11,SIZE_MAX,0,descriptors,MobilityPolicy{},atlas?&budget:nullptr);
+  auto reference=PlanarReference::WithParameters(definition,parameters);reference->ExportParameters(old,atlas?&budget:nullptr);
+  if(atlas)reference=std::shared_ptr<const PlanarReference>(reference->PrivateParameters(old,&budget));
   const auto initial=parameters->Snapshot();
   auto restored=BoundaryParameterState::FromPayload(authority,parameters->Payload());
   CHECK(restored->Snapshot()==initial);CHECK(&restored->Geometry()==authority.get());
@@ -278,18 +286,18 @@ TEST_CASE("Mapped edge edits publish mesh and forward geometry atomically and su
   if(!world.rank)removed.push_back({0,0,0});
   for(auto row:rows(fresh))if(row.cell.id%world.size==unsigned(world.rank))added.push_back(row);
   const auto edits=world.rank?std::vector<BoundaryParameterEdit>{}:BoundaryParameterState::Changes(old,fresh,parameters->Revision());
-  CHECK_FALSE(directory.Publish(owned,removed,added,world.rank!=0,reason,SIZE_MAX,0,edits));
+  CHECK_FALSE(directory.Publish(owned,removed,added,world.rank!=0,reason,SIZE_MAX,0,edits,fresh.coverage,atlas?&budget:nullptr));
   CHECK(parameters->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);
-  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,world.rank?SIZE_MAX:1,0,edits));
+  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,world.rank?SIZE_MAX:1,0,edits,fresh.coverage,atlas?&budget:nullptr));
   CHECK(parameters->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);
   auto stale=edits;for(auto& e:stale)++e.revision;
-  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,stale));
+  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,stale,fresh.coverage,atlas?&budget:nullptr));
   CHECK(parameters->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);
-  INFO(reason);REQUIRE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,edits));
+  INFO(reason);REQUIRE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,edits,fresh.coverage,atlas?&budget:nullptr));
   CHECK(parameters->Revision()==12);CHECK(parameters->Records().size()==5);CHECK(parameters->Surface().size()==6);
   CHECK(CPassiveComm::Allreduce(uint64_t(owned.size()),CPassiveComm::Op::SUM,world.comm)==2);
   ReferenceState state;state.original=reference;state.facets=facets;state.marker_names={"body"};
-  const auto encoded=EncodeReference(state);CHECK(encoded.find(components?"SU2_NATIVE_REFERENCE_3D 6\n":"SU2_NATIVE_REFERENCE_3D 5\n")==0);
+  const auto encoded=EncodeReference(state);CHECK(encoded.find(atlas?"SU2_NATIVE_REFERENCE_3D 8\n":components?"SU2_NATIVE_REFERENCE_3D 6\n":"SU2_NATIVE_REFERENCE_3D 5\n")==0);
   CHECK(EncodeReference(DecodeReference(encoded))==encoded);
   CHECK_THROWS(DecodeReference(encoded+"trailing"));CHECK_THROWS(DecodeReference(encoded,1));
   std::map<Id,Id> numbering;for(auto row:parameters->Records())numbering.emplace(row.first,row.first+1000);
@@ -297,6 +305,17 @@ TEST_CASE("Mapped edge edits publish mesh and forward geometry atomically and su
   const auto& bound=rebound->Records().at(1055).point.binding;const auto& expected=parameters->Records().at(55).point.binding;
   CHECK(bound.feature==expected.feature);CHECK(bound.u==expected.u);CHECK(bound.v==expected.v);CHECK(bound.version==expected.version);
   numbering.erase(numbering.begin());CHECK_THROWS(parameters->Rebind(numbering));
+  if(atlas) {
+    CHECK_FALSE(parameters->Coverage().faces.empty());CHECK_FALSE(parameters->Coverage().traces.empty());
+    std::map<Id,Id> reversed,back;for(const auto& row:parameters->Records()){reversed.emplace(row.first,10000-row.first);back.emplace(10000-row.first,row.first);}
+    auto reverse=parameters->Rebind(reversed);auto restored=reverse->Rebind(back);
+    CHECK(EncodeBoundaryAtlas(restored->Coverage(),restored->Mobility())==EncodeBoundaryAtlas(parameters->Coverage(),parameters->Mobility()));
+    // An existing edge cannot acquire another active-edge parameterization even when its knots remain unchanged.
+    auto bad=fresh.coverage;REQUIRE_FALSE(bad.traces.empty());auto& trace=bad.traces.begin()->second;REQUIRE_FALSE(trace.pieces.empty());
+    trace.pieces.back().end=ExactRatio{};const auto snapshot=parameters->Snapshot();
+    CHECK_FALSE(parameters->Prepare({}, {},why,SIZE_MAX,0,bad,&budget).valid);CHECK(parameters->Snapshot()==snapshot);
+    CHECK_THROWS_AS(BoundaryParameterState(authority,points,old.surface,11,SIZE_MAX,0,descriptors),std::invalid_argument);
+  }
   CHECK(parameters->Revision()==12);
 }
 
@@ -750,4 +769,101 @@ TEST_CASE("Curved first-height clearance and principal curvature use the persist
     CHECK(report.reference_clearance_failures==(h==.1?0:1));
     CHECK((report.minimum_reference_clearance_ratio>0)==(h==.1));
   }
+}
+
+namespace {
+AtlasBudget GeometryAtlasBudget(){return {size_t(1)<<24,size_t(1)<<28,4096};}
+ExactRatio GeometryRatio(double x,AtlasBudget& budget) {
+  ExactRatio out;std::string reason;REQUIRE(ExactBinary64(x,out,budget,reason));return out;
+}
+struct CurvedAtlasFixture {
+  std::vector<SU2Native3D::Facet> facets;
+  std::shared_ptr<MappedFacetReference> geometry;
+  explicit CurvedAtlasFixture(double height=0,double bulge=.03) {
+    using namespace SU2Native3D;auto cube=ComponentCube(false);const Node middle{8,{.5,.5,height}};
+    facets={{0,0,{cube[0].v[0],cube[0].v[1],middle}},
+            {1,0,{cube[0].v[1],cube[0].v[2],middle}},
+            {2,0,{cube[0].v[2],cube[1].v[2],middle}},
+            {3,0,{cube[1].v[2],cube[0].v[0],middle}}};
+    for(size_t i=2;i<cube.size();++i){auto f=cube[i];f.id+=2;facets.push_back(f);}
+    MappedFacetReference::CurvedNets controls;std::map<Id,double> errors;
+    const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+    for(const auto& f:facets) {
+      errors.emplace(f.id,1e-12);auto& net=controls[f.id];
+      for(unsigned q=0;q<10;++q){long double x=0,y=0,z=0;for(unsigned k=0;k<3;++k){x+=powers[q][k]*(long double)f.v[k].p.x;y+=powers[q][k]*(long double)f.v[k].p.y;z+=powers[q][k]*(long double)f.v[k].p.z;}net[q]={double(x/3),double(y/3),double(z/3)};}
+      if(f.id<4)net[9].z-=bulge;
+    }
+    geometry=std::make_shared<MappedFacetReference>(std::make_shared<PlanarReference>(facets),errors,29,SIZE_MAX,false,controls);
+  }
+  FaceCoverage Cover(Id facet,AtlasBudget& budget)const {
+    std::array<SurfaceBinding,3> binding;for(unsigned k=0;k<3;++k)binding[k]=geometry->Vertex(facets.at(facet).v[k].id);
+    FaceCoverage cover;std::string reason;REQUIRE(geometry->ResolveSingleChart(facet,binding,cover,budget,reason));return cover;
+  }
+};
+}
+TEST_CASE("Curved coverage retains exact non-dyadic pieces and complete cubic error", "[NativeCurvedAtlas3D]") {
+  const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;auto budget=GeometryAtlasBudget();std::string reason;
+  const auto whole=fixture.Cover(0,budget);FaceCoverage refined;
+  ExactRatio third;REQUIRE(ExactDivide(GeometryRatio(1,budget),GeometryRatio(3,budget),third,budget,reason));
+  const ExactBary center{third,third};const auto& original=whole.pieces.front();
+  for(unsigned k=0;k<3;++k){CoveragePiece p;p.facet=0;p.reference=p.active={original.reference[k],original.reference[(k+1)%3],center};refined.pieces.push_back(p);}
+  std::array<SurfaceBinding,3> binding;std::array<Point,3> realized;
+  for(unsigned k=0;k<3;++k){const auto n=fixture.facets[0].v[k];binding[k]=g.Vertex(n.id);realized[k]=n.p;}
+  std::array<EdgeTrace,3> traces;REQUIRE(g.CoverageTraces(refined,traces,budget,reason));
+  INFO(reason);REQUIRE(g.ValidateCoverage(0,binding,realized,refined,traces,budget,reason));
+  REQUIRE(g.ValidateCoverageReplacement({whole},{refined},budget,reason));
+  const double error=g.SurfaceError(refined,realized,budget);CHECK(error>1e-3);CHECK(error<g.SurfaceError(whole,realized,budget));
+  const auto exact_surface=g.Realize(g.FacetPoint(0,1./3,1./3));CHECK(std::abs(exact_surface.z)<=error);
+  const auto envelope=g.PrepareSourcePatch(refined,realized,budget);CHECK(envelope.Bounds()[0].z<=exact_surface.z);
+  CHECK(envelope.OutwardDisplacement()>=std::abs(exact_surface.z));CHECK(envelope.OutwardDisplacement()<.03);
+  CHECK(MappedFacetReference::SourcePreparationBytes(refined)>=envelope.ResidentBytes());
+  auto corrupt=refined;std::swap(corrupt.pieces[0].active[0],corrupt.pieces[0].active[1]);
+  CHECK_FALSE(g.ValidateCoverage(0,binding,realized,corrupt,traces,budget,reason));
+  auto limited=GeometryAtlasBudget();limited.maximum_bytes=1;CHECK_THROWS(g.PrepareSourcePatch(refined,realized,limited));
+}
+TEST_CASE("Shared curved edge paths compare exact parameterizations across subdivisions", "[NativeCurvedAtlas3D]") {
+  const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;auto budget=GeometryAtlasBudget();std::string reason;
+  std::array<EdgeTrace,3> traces;REQUIRE(g.CoverageTraces(fixture.Cover(0,budget),traces,budget,reason));
+  const auto& old=traces[0].pieces.front();auto first=old,last=old;ExactRatio du,dv,half=GeometryRatio(.5,budget);
+  REQUIRE(ExactAdd(old.first.u,old.last.u,du,budget,reason));REQUIRE(ExactMultiply(du,half,du,budget,reason));
+  REQUIRE(ExactAdd(old.first.v,old.last.v,dv,budget,reason));REQUIRE(ExactMultiply(dv,half,dv,budget,reason));
+  first.last=last.first={du,dv};first.end=half;EdgeTrace divided;divided.pieces={first,last};
+  REQUIRE(g.EqualTraces(traces[0],divided,budget,reason));
+  divided.pieces[0].end=GeometryRatio(.25,budget);CHECK_FALSE(g.EqualTraces(traces[0],divided,budget,reason));
+}
+TEST_CASE("Cubic disk embedding certifies its real surface and protects C0 topology", "[NativeCurvedAtlas3D]") {
+  const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;auto budget=GeometryAtlasBudget();std::string reason;
+  std::vector<CoveragePiece> disk;for(Id f=0;f<4;++f)disk.push_back(fixture.Cover(f,budget).pieces.front());
+  INFO(reason);REQUIRE(g.CertifyEmbedding(disk,{.1,.1,-1},budget,reason));
+  auto reversed=GeometryAtlasBudget();CHECK_FALSE(g.CertifyEmbedding(disk,{0,0,1},reversed,reason));
+  auto disconnected=disk;disconnected.erase(disconnected.begin()+1);auto refusal=GeometryAtlasBudget();
+  CHECK_FALSE(g.CertifyEmbedding(disconnected,{0,0,-1},refusal,reason));
+  using namespace SU2Native3D;std::array<Node,10> n;
+  const std::array<Point,4> ring{{{1,0,0},{0,1,0},{-1,0,0},{0,-1,0}}};
+  for(unsigned k=0;k<8;++k)n[k]={k,ring[k%4]};n[8]={8,{0,0,0}};n[9]={9,{0,0,1}};
+  std::vector<Facet> faces;std::map<Id,double> errors;
+  for(unsigned k=0;k<8;++k){faces.push_back({Id(faces.size()),0,{n[8],n[(k+1)%8],n[k]}});faces.push_back({Id(faces.size()),0,{n[9],n[k],n[(k+1)%8]}});}
+  for(const auto& f:faces)errors.emplace(f.id,1e-12);MappedFacetReference branched(std::make_shared<PlanarReference>(faces),errors,31);
+  std::vector<CoveragePiece> twice;auto fan_budget=GeometryAtlasBudget();
+  for(unsigned k=0;k<8;++k){const auto& f=faces[2*k];FaceCoverage c;const std::array<SurfaceBinding,3> b{{branched.Vertex(f.v[0].id),branched.Vertex(f.v[1].id),branched.Vertex(f.v[2].id)}};
+    REQUIRE(branched.ResolveSingleChart(f.id,b,c,fan_budget,reason));twice.push_back(c.pieces.front());}
+  CHECK_FALSE(branched.CertifyEmbedding(twice,{0,0,-1},fan_budget,reason));CHECK(reason.find("local degree")!=std::string::npos);
+}
+TEST_CASE("Geometry mobility releases cubic seams and retains concave features and carriers", "[NativeCurvedAtlas3D]") {
+  const CurvedAtlasFixture fixture;auto budget=GeometryAtlasBudget();std::string reason;MobilityPolicy policy;
+  REQUIRE(fixture.geometry->BuildMobilityPolicy(60,{{0,2}},policy,budget,reason));CHECK(policy.identity!=0);
+  CHECK(fixture.geometry->MobilityDimension(fixture.geometry->Vertex(8),policy)==2);
+  CHECK(fixture.geometry->MobilityDimension(fixture.geometry->EdgePoint({0,8},.5),policy)==2);
+  CHECK(fixture.geometry->MobilityDimension(fixture.geometry->Vertex(0),policy)==0);
+  const CurvedAtlasFixture concave(.9,0);auto concave_budget=GeometryAtlasBudget();MobilityPolicy concave_policy;
+  REQUIRE(concave.geometry->BuildMobilityPolicy(60,{{0,2}},concave_policy,concave_budget,reason));
+  CHECK(concave_policy.features.count({0,8})==1);CHECK(concave.geometry->MobilityDimension(concave.geometry->Vertex(8),concave_policy)==0);
+  const CurvedAtlasFixture flat(0,0);auto facets=flat.facets;facets[0].marker=1;auto errors=flat.geometry->Errors();
+  const std::map<Id,AffineAuthority> planes{{0,{77,1,3,{0,0,0},{0,0,-1},1e-12}}};
+  MappedFacetReference carrier(std::make_shared<SU2Native3D::PlanarReference>(facets,SIZE_MAX,std::map<Id,SU2Native3D::AnalyticSurface>{},planes),errors,29,SIZE_MAX,false,flat.geometry->Curves());
+  auto carrier_budget=GeometryAtlasBudget();MobilityPolicy protected_policy;
+  REQUIRE(carrier.BuildMobilityPolicy(60,{{0,2},{1,0}},protected_policy,carrier_budget,reason));
+  CHECK(protected_policy.features.count({0,8})==1);CHECK(carrier.MobilityDimension(carrier.EdgePoint({0,8},.5),protected_policy)==1);
+  CHECK(std::abs(carrier.Realize(carrier.EdgePoint({0,8},.37)).z)<=1e-12);
+  CHECK(protected_policy.identity!=policy.identity);CHECK(protected_policy.roles.at(1)==0);
 }

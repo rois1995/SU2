@@ -8,10 +8,20 @@ name='build'+str(int(sys.argv[1]))
 assert not (ROOT/(name+'_status.json')).exists(), 'Inspect the previous owned handle before retrying'
 paths=set(json.loads((ROOT/'build4_source_pins.json').read_text()))
 paths.add(str(Path(__file__).resolve()))
+paths.update(str(ROOT.parents[3]/p) for p in (
+    'Common/include/adaptation/CNativeAtlas3D.hpp',
+    'Common/include/adaptation/CNativeCurvedAtlas3D.hpp',
+    'Common/src/adaptation/CNativeAtlas3D.cpp',
+    'Common/src/adaptation/CNativeCurvedAtlas3D.cpp',
+    'UnitTests/Common/adaptation/CNativeAtlas3D_tests.cpp',
+    'UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp',
+    'meson.build', 'Common/src/meson.build', 'Common/src/adaptation/meson.build',
+    'SU2_CFD/src/meson.build', 'UnitTests/meson.build'))
 pins={p:sha(p) for p in sorted(paths)}
 save(ROOT/(name+'_source_pins.json'),pins)
 command=json.loads((ROOT/'build4_command.json').read_text())
 command['argv'].append('SU2_CFD/src/SU2_CFD')
+command['environment']['NINJA']=command['argv'][3]
 env=os.environ.copy();env.update(command['environment'])
 save(ROOT/(name+'_command.json'),command)
 start=time.time()

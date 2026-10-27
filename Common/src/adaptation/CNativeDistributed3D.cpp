@@ -41,6 +41,25 @@ void Validate(const OwnedCell& row) {
   if (!(Orientation(v[0].p, v[1].p, v[2].p, v[3].p) > 0))
     throw std::invalid_argument("Native 3D ownership requires positive tetrahedra.");
 }
+class ParameterAtlasScope {
+ public:
+  explicit ParameterAtlasScope(SU2NativeGeometry::AtlasBudget* value):budget(value) {
+    if(budget){caller=budget->caller_bytes;maximum=budget->maximum_bytes;}
+  }
+  ~ParameterAtlasScope(){if(budget){budget->caller_bytes=caller;budget->maximum_bytes=maximum;}}
+  void Refresh(size_t live,size_t ceiling) {
+    if(!budget)return;if(caller>maximum)throw std::invalid_argument("Invalid atlas publication reservation.");const auto peak=transfer_memory::Add(live,maximum-caller);
+    if(live>ceiling||peak==SIZE_MAX)throw std::length_error("Atlas publication scratch reservation overflows admission.");
+    budget->caller_bytes=live;budget->maximum_bytes=std::min(ceiling,peak);
+  }
+ private:
+  SU2NativeGeometry::AtlasBudget* budget;size_t caller=0,maximum=0;
+};
+struct AtlasPage {
+  uint64_t source=0,revision=0,identity=0,sequence=0,total=0,used=0;
+  std::array<uint64_t,64> words{};
+  template<class S>void Fields(S& stream){stream(source,revision,identity,sequence,total,used,words);}
+};
 struct Query {
   Feature feature;
   int caller = 0;
@@ -1129,11 +1148,14 @@ bool Directory::AgreeParameters(std::string& reason,size_t ceiling,size_t caller
 }
 bool Directory::PrepareParameters(const std::vector<OwnedCell>& old,const std::vector<OwnedCell>& added,
     const std::vector<BoundaryParameterEdit>& edits,BoundaryParameterState::Publication& staged,
-    std::string& reason,size_t ceiling,size_t caller) {
+    std::string& reason,size_t ceiling,size_t caller,const SU2NativeGeometry::BoundaryCoverage& coverage,SU2NativeGeometry::AtlasBudget* reservation) {
   Timer timer(stats.parameter_publication_seconds);CLocalFailure failure;
-  const size_t local_bound=transfer_memory::Add(caller,transfer_memory::Mul(old.size()+added.size(),2048),transfer_memory::Mul(edits.size(),128));
+  const size_t local_bound=transfer_memory::Add(caller,transfer_memory::Mul(old.size()+added.size(),2048),transfer_memory::Mul(edits.size(),128),BoundaryCoverageBytes(coverage));
   stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,local_bound);
   if(local_bound==SIZE_MAX || local_bound>ceiling)failure.Set(3,0,"Boundary parameter face preparation exceeds storage admission.");
+  if(!Vote(failure,reason))return false;
+  ParameterAtlasScope atlas_scope(reservation);
+  try{atlas_scope.Refresh(local_bound,ceiling);}catch(const std::exception& e){failure.Set(3,0,e.what());}
   if(!Vote(failure,reason))return false;
   std::vector<BoundaryFaceChange> local_faces;
   try {
@@ -1154,9 +1176,60 @@ bool Directory::PrepareParameters(const std::vector<OwnedCell>& old,const std::v
     }
   }catch(const std::exception& e){failure.Set(2,0,e.what());}
   if(!Vote(failure,reason))return false;
+  const size_t local_encoded=coverage.faces.empty()&&coverage.traces.empty()?0:BoundaryAtlasBytes(coverage,{});
+  const size_t local_pages=local_encoded?transfer_memory::Add(local_encoded/8,63)/64:0;
+  const size_t global_pages=CPassiveComm::Allreduce(local_pages,CPassiveComm::Op::SUM,world.comm);
+  const auto atlas_peak=transfer_memory::Add(local_bound,transfer_memory::Mul(local_encoded,4),
+      transfer_memory::Mul(global_pages,transfer_memory::Mul(sizeof(AtlasPage),world.size+20)));
+  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,atlas_peak);
+  if(atlas_peak==SIZE_MAX||atlas_peak>ceiling)failure.Set(3,0,"Atlas descriptor page transport exceeds storage admission.");
+  if(global_pages&&!reservation)failure.Set(1,0,"Atlas descriptor transport lacks admitted geometry work.");
+  if(!Vote(failure,reason))return false;
+  SU2NativeGeometry::BoundaryCoverage global_coverage;
+  if(global_pages) {
+    std::vector<std::vector<AtlasPage>> to(world.size);
+    try {
+      const auto bytes=local_encoded?EncodeBoundaryAtlas(coverage,{},ceiling,local_bound):std::vector<char>{};
+      SU2NativeBoundary2D::RecordStream input(bytes);
+      std::vector<AtlasPage> pages;pages.reserve(local_pages);
+      for(size_t i=0;i<local_pages;++i){AtlasPage page;page.source=world.rank;page.revision=parameters->Revision();page.identity=parameters->Mobility().identity;page.sequence=i;page.total=local_pages;
+        page.used=std::min<size_t>(64,bytes.size()/8-i*64);for(size_t j=0;j<page.used;++j)input(page.words[j]);pages.push_back(page);}
+      for(auto& bucket:to)bucket=pages;
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!Vote(failure,reason))return false;
+    bool admitted=false;auto pages=world.exchange(to,&admitted,ceiling,atlas_peak);
+    if(!admitted){reason="Atlas descriptor fixed-page exchange refused storage.";return false;}
+    try {
+      std::sort(pages.begin(),pages.end(),[](const AtlasPage& a,const AtlasPage& b){return std::tie(a.source,a.sequence)<std::tie(b.source,b.sequence);});
+      for(size_t first=0;first<pages.size();) {
+        const auto source=pages[first].source,total=pages[first].total;size_t end=first;
+        while(end<pages.size()&&pages[end].source==source)++end;
+        if(source>=unsigned(world.size)||!total||end-first!=total)throw std::invalid_argument("Atlas descriptor source has missing/duplicate pages.");
+        std::vector<char> bytes;bytes.reserve(transfer_memory::Mul(total,512));SU2NativeBoundary2D::RecordStream output(bytes);
+        for(size_t i=first;i<end;++i){const auto& page=pages[i];
+          if(page.sequence!=i-first||page.total!=total||page.revision!=parameters->Revision()||page.identity!=parameters->Mobility().identity||!page.used||page.used>64||(i+1<end&&page.used!=64))
+            throw std::invalid_argument("Stale/inconsistent atlas descriptor page sequence.");
+          for(size_t j=0;j<page.used;++j){auto word=page.words[j];output(word);}}
+        SU2NativeGeometry::BoundaryCoverage decoded;SU2NativeGeometry::MobilityPolicy policy;
+        DecodeBoundaryAtlas(bytes,decoded,policy,ceiling,atlas_peak);
+        if(policy.identity||!policy.roles.empty()||!policy.features.empty()||!policy.corners.empty()||!policy.bodies.empty()||!policy.sheets.empty())throw std::invalid_argument("Atlas publication attempts a mobility-policy edit.");
+        for(auto& row:decoded.faces){const auto old=global_coverage.faces.find(row.first);
+          if(old!=global_coverage.faces.end()) {
+            SU2NativeGeometry::BoundaryCoverage a,b;a.faces.emplace(*old);b.faces.emplace(row.first,row.second);
+            if(EncodeBoundaryAtlas(a,{})!=EncodeBoundaryAtlas(b,{}))throw std::invalid_argument("Conflicting distributed atlas covers.");
+          } else global_coverage.faces.emplace(row.first,std::move(row.second));}
+        for(auto& row:decoded.traces){const auto old=global_coverage.traces.find(row.first);std::string detail;
+          if(old!=global_coverage.traces.end()){if(!parameters->Geometry().EqualTraces(old->second,row.second,*reservation,detail))throw std::invalid_argument("Conflicting distributed atlas traces: "+detail);}
+          else global_coverage.traces.emplace(row.first,std::move(row.second));}
+        first=end;
+      }
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!Vote(failure,reason))return false;
+    stats.parameter_payload_bytes+=transfer_memory::Mul(global_pages,560);
+  }
   const size_t changes=CPassiveComm::Allreduce(transfer_memory::Add(local_faces.size(),edits.size()),CPassiveComm::Op::SUM,world.comm);
-  if(!changes){staged.before=staged.after=parameters->Revision();staged.valid=true;return true;}
-  const size_t peak=transfer_memory::Add(local_bound,transfer_memory::Mul(changes,32768),
+  if(!changes && !global_pages){staged.before=staged.after=parameters->Revision();staged.valid=true;return true;}
+  const size_t peak=transfer_memory::Add(atlas_peak,BoundaryCoverageBytes(global_coverage),transfer_memory::Mul(changes,32768),
       transfer_memory::Mul(world.size,transfer_memory::Add(transfer_memory::Bytes(local_faces),transfer_memory::Bytes(edits))),
       transfer_memory::TransportBytes(world.size));
   stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
@@ -1167,8 +1240,10 @@ bool Directory::PrepareParameters(const std::vector<OwnedCell>& old,const std::v
   if(!admitted){reason="Boundary parameter face transport exceeds storage admission.";return false;}
   const auto global_edits=world.exchange(std::vector<std::vector<BoundaryParameterEdit>>(world.size,edits),&admitted,ceiling,transfer_memory::Add(common,transfer_memory::Bytes(faces)));
   if(!admitted){reason="Boundary parameter edit transport exceeds storage admission.";return false;}
+  try{atlas_scope.Refresh(peak,ceiling);}catch(const std::exception& e){failure.Set(3,0,e.what());}
+  if(!Vote(failure,reason))return false;
   std::string detail;
-  staged=parameters->Prepare(global_edits,faces,detail,ceiling,transfer_memory::Add(local_bound,transfer_memory::Bytes(faces),transfer_memory::Bytes(global_edits)));
+  staged=parameters->Prepare(global_edits,faces,detail,ceiling,transfer_memory::Add(local_bound,transfer_memory::Bytes(faces),transfer_memory::Bytes(global_edits),BoundaryCoverageBytes(global_coverage)),global_coverage,reservation);
   if(!staged.valid)failure.Set(1,0,detail);
   stats.parameter_edits+=global_edits.size();stats.parameter_faces+=faces.size();
   stats.parameter_payload_bytes+=global_edits.size()*88+faces.size()*40;
@@ -1176,16 +1251,16 @@ bool Directory::PrepareParameters(const std::vector<OwnedCell>& old,const std::v
 }
 bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, const std::vector<OwnedCell>& added,
                         bool prevalidated, std::string& reason, size_t ceiling, size_t caller_bytes,
-                        const std::vector<BoundaryParameterEdit>& parameter_edits) {
+                        const std::vector<BoundaryParameterEdit>& parameter_edits,const SU2NativeGeometry::BoundaryCoverage& coverage,SU2NativeGeometry::AtlasBudget* reservation) {
   Timer timer(stats.publication_seconds);
   CLocalFailure failure;
   Owned staged;
   std::set<Id> collision_added;
   std::vector<OwnedCell> old;
   if (!prevalidated) failure.Set(1, 0, "Native 3D candidate veto before publication.");
-  if(!parameters && !parameter_edits.empty())failure.Set(1,0,"Boundary parameter edits have no accepted parameter store.");
+  if(!parameters && (!parameter_edits.empty()||!coverage.faces.empty()||!coverage.traces.empty()))failure.Set(1,0,"Boundary parameter edits have no accepted parameter store.");
   if(parameters && parameter_geometry!=&parameters->Geometry())failure.Set(1,0,"Boundary geometry changed without rebuilding the directory.");
-  const auto baseline = transfer_memory::Add(caller_bytes,ParameterBytes(),transfer_memory::Bytes(parameter_edits), MapBytes<Owned>(owned.size()), transfer_memory::Bytes(removed),
+  const auto baseline = transfer_memory::Add(caller_bytes,ParameterBytes(),BoundaryCoverageBytes(coverage),transfer_memory::Bytes(parameter_edits), MapBytes<Owned>(owned.size()), transfer_memory::Bytes(removed),
       transfer_memory::Bytes(added), MapBytes<Owned>(added.size()), transfer_memory::Mul(removed.size(), sizeof(OwnedCell)),
       MapBytes<std::set<Id>>(removed.size()),collision?MapBytes<std::set<Id>>(added.size()):0);
   auto peak = transfer_memory::Add(baseline, ResidentBytes());
@@ -1215,7 +1290,7 @@ bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, co
   reason = prepared.reason;
   if (!prepared.valid) { ++stats.rejected; return false; }
   BoundaryParameterState::Publication parameter_stage;
-  if(parameters && !PrepareParameters(old,added,parameter_edits,parameter_stage,reason,ceiling,transfer_memory::Add(baseline,ResidentBytes()))) {++stats.rejected;return false;}
+  if(parameters && !PrepareParameters(old,added,parameter_edits,parameter_stage,reason,ceiling,transfer_memory::Add(baseline,ResidentBytes()),coverage,reservation)) {++stats.rejected;return false;}
   std::vector<Id> changed;
   if (track_changes && !NotifyChanges(prepared,changed,reason,ceiling,baseline)) { ++stats.rejected; return false; }
   // All stores and notifications are staged before the final common vote; publication allocates nothing.

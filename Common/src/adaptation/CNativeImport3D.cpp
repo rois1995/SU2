@@ -389,7 +389,8 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
   // review 6: the condition holds per mapped facet: 4 x its declared error below the near-coverage tolerance at that
   // facet (the point tolerance is local: 1e-12 x max(1, |x|) at each of its vertices)
   if(!exact_audit) {
-    int thin=reference.Mapped()&&reference.Affine().empty()?1:0;double worst=0;
+    // Mapping roundoff alone cannot bound the chord gap of a curved current face.
+    int thin=reference.Mapped()&&reference.Affine().empty()&&!curved?1:0;double worst=0;
     if(thin)try{for(const auto& row:reference.Parameters()->Geometry().Errors()){const auto& f=reference.Parameters()->Geometry().Reference().Get(row.first);
         long double tol=INFINITY;for(const auto& n:f.v)tol=std::min(tol,NearCoverageTolerance(n.p));
         const auto error=reference.Parameters()->Geometry().EnvelopeError(row.first);worst=std::max(worst,4*error/double(tol));if(!(4*error<=double(tol))){thin=0;break;}}}catch(const std::exception&){thin=0;}
@@ -408,16 +409,35 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
   // incident normals needs 92), not by a fixed total: the published full-M6 x32 mesh exceeded 10^6 with 49.5k faces
   maximum_work=std::max<uint64_t>(maximum_work,128*count);
   if(!world.rank)std::cout<<"DC16 joint source work bound "<<maximum_work<<" (max(10^6, 128 x "<<count<<" skin faces))"<<std::endl;
+  size_t source_pieces=curved?count:0,descriptor_scratch=0,maximum_face_pieces=1;
+  try {if(curved)for(const auto& row:mapped->Coverage().faces) {
+    const auto& cover=row.second;if(cover.pieces.empty())throw std::invalid_argument("Curved source has empty persisted face coverage.");
+    source_pieces=transfer_memory::Add(source_pieces,cover.pieces.size()); // Conservative even if a descriptor is not in this source skin.
+    maximum_face_pieces=std::max(maximum_face_pieces,cover.pieces.size());
+    size_t bytes=transfer_memory::Add(sizeof(SU2NativeGeometry::FaceCoverage),transfer_memory::Bytes(cover.pieces));
+    for(const auto& piece:cover.pieces)for(const auto* triangle:{&piece.reference,&piece.active})for(const auto& p:*triangle)
+      for(const auto* q:{&p.u,&p.v})bytes=transfer_memory::Add(bytes,transfer_memory::Bytes(q->numerator),transfer_memory::Bytes(q->denominator));
+    descriptor_scratch=std::max(descriptor_scratch,bytes);
+  }}catch(const std::exception& e){failure.Set(3,0,e.what());}
+  if(!vote())return false;
+  const auto source_storage=curved?SU2NativeGeometry::MappedFacetReference::SourcePreparationBytes(source_pieces)-
+      SU2NativeGeometry::MappedFacetReference::SourcePatch::WorkspaceBytes():0;
   // Maps, full product geometry, replicated boundary witness transport, planned checks and tree buffers.
   const auto base=transfer_memory::Add(live,transfer_memory::Mul(count,8192),
       transfer_memory::Mul(witnesses,3*sizeof(OwnedCell)),transfer_memory::Mul(2*maximum_work,3*sizeof(size_t)),
       curved?SU2NativeGeometry::MappedFacetReference::SourcePatch::WorkspaceBytes():0,
       curved?transfer_memory::Mul(3*count,sizeof(SU2NativeGeometry::MappedFacetReference::SourcePatch)+sizeof(double)):0,
+      source_storage,transfer_memory::Mul(descriptor_scratch,2),
       transfer_memory::GrowthBound(transfer_memory::Add(source.size(),3*local_faces),sizeof(DonorCell)));
   if(!count || !witnesses || witnesses>count || count>ULONG_MAX/24 ||
       transfer_memory::Add(maximum_cell,1,transfer_memory::Mul(12,transfer_memory::Add(maximum_cell,1)))==SIZE_MAX)
     failure.Set(3,0,"Joint affine source topology/identity resource limit exceeded.");
-  if(!vote() || !Admit(world,base,ceiling,stats,reason))return false;
+  const auto query_storage=curved?SU2NativeGeometry::MappedFacetReference::SourcePreparationBytes(maximum_face_pieces):0;
+  if(!vote() || !Admit(world,transfer_memory::Add(base,query_storage),ceiling,stats,reason))return false;
+  SU2NativeGeometry::AtlasBudget atlas_budget;
+  atlas_budget.maximum_work=maximum_work;atlas_budget.maximum_bytes=ceiling;atlas_budget.caller_bytes=base;
+  atlas_budget.maximum_integer_bits=transfer_memory::Mul(ceiling-base,CHAR_BIT);
+  stats.source_envelope_arithmetic_work_limit=curved?maximum_work:0;
   std::vector<OwnedCell> boundary;
   try {boundary.reserve(local_boundary);for(const auto& row:owned)
     if(std::any_of(row.second.physical.begin(),row.second.physical.end(),[](auto f){return f.present;}))boundary.push_back(row.second);
@@ -431,6 +451,7 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
   std::map<std::pair<Id,unsigned>,size_t> slots;std::map<Id,Point> original;
   std::map<Id,std::vector<size_t>> incident;
   try {
+    skin.reserve(count);parents.reserve(count);if(curved){patches.reserve(count);face_radius.reserve(count);}
     std::sort(all.begin(),all.end(),[](const auto& a,const auto& b){return a.cell.id<b.cell.id;});
     for(size_t i=0;i<all.size();++i) {
       const auto& row=all[i];if(i && all[i-1].cell.id==row.cell.id)throw std::invalid_argument("Duplicate joint-source boundary witness ownership.");
@@ -451,7 +472,13 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
             if(!record)throw std::invalid_argument("Curved source face lost its persisted binding.");
             binding[k]=record->binding;points[k]=f.v[k].p;
           }
-          patches.push_back(mapped->Geometry().PrepareSourcePatch(row.physical[slot].facet,binding,points));
+          auto face=faces[slot];std::rotate(face.begin(),std::min_element(face.begin(),face.end()),face.end());
+          if(mapped->Coverage().faces.count(face)) {
+            if(!within())throw std::length_error("Curved source preparation elapsed resource budget exhausted.");
+            SU2NativeGeometry::FaceCoverage coverage;std::string detail;
+            if(!mapped->ResolveCoverage({faces[slot],row.physical[slot].facet},coverage,atlas_budget,detail))throw std::invalid_argument(detail);
+            patches.push_back(mapped->Geometry().PrepareSourcePatch(coverage,points,atlas_budget));
+          } else patches.push_back(mapped->Geometry().PrepareSourcePatch(row.physical[slot].facet,binding,points));
           // This only proposes a shell; complete swept-patch separation below certifies its coverage.
           face_radius.push_back(std::max(minimum_radius,patches.back().OutwardDisplacement()));
         }
@@ -462,10 +489,11 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
     std::sort(order.begin(),order.end(),[&](size_t a,size_t b){return Key({skin[a].v[0].id,skin[a].v[1].id,skin[a].v[2].id})<
         Key({skin[b].v[0].id,skin[b].v[1].id,skin[b].v[2].id});});
     auto old_skin=skin;auto old_parents=parents;
-    auto old_patches=patches;auto old_radius=face_radius;
+    auto old_patches=std::move(patches);auto old_radius=std::move(face_radius);
+    if(curved){patches.reserve(order.size());face_radius.resize(order.size());}
     for(size_t i=0;i<order.size();++i) {
       skin[i]=old_skin[order[i]];skin[i].id=i;parents[i]=old_parents[order[i]];slots.emplace(parents[i],i);
-      if(curved){patches[i]=old_patches[order[i]];face_radius[i]=old_radius[order[i]];}
+      if(curved){patches.push_back(std::move(old_patches[order[i]]));face_radius[i]=old_radius[order[i]];}
       const int orientation=Parity({skin[i].v[0].id,skin[i].v[1].id,skin[i].v[2].id});
       std::sort(skin[i].v.begin(),skin[i].v.end(),[](Node a,Node b){return a.id<b.id;});
       if(orientation<0)std::swap(skin[i].v[1],skin[i].v[2]);
@@ -478,6 +506,8 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
     ValidateDomainSurfaceTopology(oriented);
   }catch(const std::bad_alloc& e){failure.Set(3,0,e.what());}
    catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(curved)stats.source_envelope_arithmetic_work+=CPassiveComm::Allreduce(uint64_t(atlas_budget.work),CPassiveComm::Op::SUM,world.comm);
+  stats.maximum_native_bytes=std::max(stats.maximum_native_bytes,atlas_budget.peak_bytes);
   if(!vote())return false;
   const auto span=OriginalSourceNodeSpan(world,source);
   if(transfer_memory::Add(span,span-1)==SIZE_MAX)failure.Set(3,0,"Joint source node identity range exhausted.");
@@ -635,7 +665,8 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
   if(!world.rank)std::cout<<"Native joint "<<(curved?"curved source: maximum_proposal_radius=":"affine source: radius=")
       <<(curved?*std::max_element(face_radius.begin(),face_radius.end()):radius)<<" nodes="<<columns.size()<<" cells="<<3*count
       <<" column_work="<<stats.source_envelope_solves<<" contacts="<<stats.source_envelope_contacts
-      <<" distances="<<stats.source_envelope_distances<<" seconds="<<world.seconds()-started<<std::endl;
+      <<" distances="<<stats.source_envelope_distances<<" arithmetic_work_sum="<<stats.source_envelope_arithmetic_work
+      <<" arithmetic_limit_per_rank="<<stats.source_envelope_arithmetic_work_limit<<" seconds="<<world.seconds()-started<<std::endl;
   return true;
 }
 

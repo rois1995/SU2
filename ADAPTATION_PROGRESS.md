@@ -18,7 +18,7 @@ transfer/reload, repeated curved restart, and distributed history/recovery.
 
 Build19/session53468 PASS729.749s/933 unchanged pins: existing-point relaxation before topology
 improvement/enrichment, with bounded shared work and accepted nested operation
-counts. M6 shard comparison found 3,215 new interior points, no removed or moved
+counts. The preceding build18 M6 shard comparison found 3,215 new interior points, no removed or moved
 entry points, and unchanged physical bindings. All 947 commits were nested
 optimizer results, hidden by the old reconnected counter. Focused quality_checks/session37382 PASS9.470s:10 cases/4539 assertions,
 unchanged pins. Initial sandbox launch89913 failed before tests at MPI initialization.
@@ -28,8 +28,16 @@ Early result is worse:682,193 cells, q6559.099/J11290.032, nearly unchanged size
 debt892329.681. Nested490 moves include seven changed physical entry points;
 this is not M6 acceptance or a convergence improvement. Broad serial/session28247 PASS59.55s:182 cases/1,121,344 assertions.
 MPI6/session24105 PASS37.58s:159 cases/rank, unchanged pins.
-No owned heavy job is live; source edits are released. Preflight:34.35GB available RAM, no predecessor heavy job.
-This does not resolve cross-chart mobility.
+Cross-chart mobility implementation is now active:
+Build20 is terminal setup failure (3.09s, pins unchanged): Meson could not locate Ninja; the runner now records NINJA explicitly.
+ exact coverage/edge traces,
+geometry certificates, atomic publication/persistence, and a transaction-local
+flattening/remapping operator. Checkpoint `7e41461874` saves the tested primitive. The exact arithmetic standalone run
+`staged57/atlas_arithmetic1` passed four cases/308 assertions with unchanged pins
+(17.90s including compilation); its process is terminal. Build21/session45516 is compiling with 944 frozen pins and one worker.
+The connected implementation now includes source reconstruction and operator/
+lifecycle wiring, but remains unqualified; compilation, second-event/restart
+and difficult M6 acceptance remain open. [Implementation contract](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
 
 Build18/session62205 PASS726.79s/933 unchanged pins. Focused serial stage_checks/
 session45262 PASS10.5101s/6 cases/4419 assertions; six-rank stage_checks6/session51405

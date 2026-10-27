@@ -7,6 +7,7 @@
 
 #include "../../include/adaptation/CNativeReferenceIO3D.hpp"
 #include <cstdio>
+#include <charconv>
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -18,7 +19,7 @@ namespace SU2Native3D {
 namespace {
 struct Header {
   uint64_t markers = 0, facets = 0, analytic = 0, affine = 0;
-  uint64_t errors=0,points=0,surface=0,geometry_version=0,revision=0,curves=0;
+  uint64_t errors=0,points=0,surface=0,geometry_version=0,revision=0,curves=0,atlas_words=0;
   unsigned version = 1;
 };
 Header ReadHeader(std::istream& in, size_t bytes) {
@@ -26,7 +27,7 @@ Header ReadHeader(std::istream& in, size_t bytes) {
   unsigned version = 0;
   Header h;
   // Each facet needs fourteen numeric tokens; file length bounds counts before allocating any facet storage.
-  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || (version < 1 || version > 7) ||
+  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || (version < 1 || version > 8) ||
       !h.facets || h.facets > bytes / 14 || !h.markers || h.markers > h.facets)
     throw std::invalid_argument("Invalid native3D reference header/counts/version.");
   h.version=version;
@@ -38,14 +39,15 @@ Header ReadHeader(std::istream& in, size_t bytes) {
       !h.errors || h.errors>h.facets || h.errors>bytes/2 || !h.points || h.points>bytes/9 ||
       !h.surface || h.surface>bytes/4 || !h.geometry_version || !h.revision || h.analytic))
     throw std::invalid_argument("Invalid/unsupported native3D mapped reference counts/version.");
-  if(version==7 && (!(in>>h.curves) || !h.curves || h.curves>h.facets || h.curves>bytes/31))
+  if(version>=7 && (!(in>>h.curves) || (!h.curves&&version==7) || h.curves>h.facets || h.curves>bytes/31))
     throw std::invalid_argument("Invalid native3D curved control count.");
+  if(version==8 && (!(in>>h.atlas_words)||h.atlas_words<11||h.atlas_words>bytes/2))throw std::invalid_argument("Invalid native3D atlas word count.");
   return h;
 }
 size_t DecodeBytes(size_t bytes, const Header& h) {
   return transfer_memory::Add(transfer_memory::Mul(bytes, 8), PlanarReference::ConstructionBytes(h.facets,h.analytic,h.affine),
       h.version>=5?transfer_memory::Add(transfer_memory::Mul(h.facets,4096),transfer_memory::Mul(h.points,2304),
-          transfer_memory::Mul(h.surface,8256)):0);
+          transfer_memory::Mul(h.surface,8256),transfer_memory::Mul(h.atlas_words,256)):0);
 }
 }  // namespace
 std::string EncodeReference(const ReferenceState& state) {
@@ -58,14 +60,16 @@ std::string EncodeReference(const ReferenceState& state) {
   const auto& affine=state.original->Affine();
   const bool axis=std::any_of(analytic.begin(),analytic.end(),[](const auto& row){return unsigned(row.second.kind)>=3;});
   const auto* parameters=state.original->Parameters();
-  const unsigned version=parameters?(!parameters->Geometry().Curves().empty()?7:parameters->Geometry().ReferenceComponents()?6:5):!affine.empty()?4:analytic.empty()?1:axis?3:2;
+  const bool atlas=parameters&&(parameters->Mobility().identity||!parameters->Coverage().faces.empty()||!parameters->Coverage().traces.empty());
+  const unsigned version=parameters?(atlas?8:!parameters->Geometry().Curves().empty()?7:parameters->Geometry().ReferenceComponents()?6:5):!affine.empty()?4:analytic.empty()?1:axis?3:2;
   out << "SU2_NATIVE_REFERENCE_3D " << version << '\n'
       << state.marker_names.size() << ' ' << state.facets.size();
   if (version>=2) out << ' ' << analytic.size();
   if (version>=4) out << ' ' << affine.size();
   if(parameters)out << ' ' << parameters->Geometry().Errors().size() << ' ' << parameters->Records().size()
       << ' ' << parameters->Surface().size() << ' ' << parameters->Geometry().Version() << ' ' << parameters->Revision();
-  if(version==7)out << ' ' << parameters->Geometry().Curves().size();
+  if(version>=7)out << ' ' << parameters->Geometry().Curves().size();
+  if(version==8)out << ' ' << BoundaryAtlasBytes(parameters->Coverage(),parameters->Mobility())/8;
   out << '\n';
   for (const auto& name : state.marker_names) out << std::quoted(name) << '\n';
   for (const auto& f : state.facets) {
@@ -106,6 +110,10 @@ std::string EncodeReference(const ReferenceState& state) {
     for(const auto& row:parameters->Surface()) {
       const auto& f=row.second;out << f.v[0] << ' ' << f.v[1] << ' ' << f.v[2] << ' ' << f.facet << '\n';
     }
+  }
+  if(version==8) {
+    const auto encoded=EncodeBoundaryAtlas(parameters->Coverage(),parameters->Mobility());RecordStream input(encoded);
+    for(size_t i=0;i<encoded.size()/8;++i){uint64_t word;input(word);out << word << '\n';}
   }
   // Optional trailing policy record (any version): readers without it see a legacy sidecar.
   if(state.first_height_tol!=0) {
@@ -187,6 +195,16 @@ ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
     SurfaceFace f;if(!(in>>f.v[0]>>f.v[1]>>f.v[2]>>f.facet))throw std::invalid_argument("Invalid native3D current-surface record.");
     surface.push_back(f);
   }
+  SU2NativeGeometry::BoundaryCoverage coverage;SU2NativeGeometry::MobilityPolicy mobility;
+  if(header.version==8) {
+    std::vector<char> encoded;encoded.reserve(transfer_memory::Mul(header.atlas_words,8));RecordStream output(encoded);
+    for(uint64_t i=0;i<header.atlas_words;++i){uint64_t word;std::string token;
+      if(!(in>>token)||token.size()>20||token.empty()||(token.size()>1&&token[0]=='0')||token.find_first_not_of("0123456789")!=std::string::npos)
+        throw std::invalid_argument("Invalid canonical native3D atlas word.");
+      const auto decoded=std::from_chars(token.data(),token.data()+token.size(),word);
+      if(decoded.ec!=std::errc{}||decoded.ptr!=token.data()+token.size())throw std::invalid_argument("Overflow in native3D atlas word.");output(word);}
+    DecodeBoundaryAtlas(encoded,coverage,mobility,requested,transfer_memory::Mul(bytes.size(),8));
+  }
   in >> std::ws;
   if (!in.eof()) {
     std::string key;double tolerance=0;
@@ -201,7 +219,8 @@ ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
     auto mapped=std::make_shared<SU2NativeGeometry::MappedFacetReference>(result.original,errors,header.geometry_version,requested,header.version==6,curves);
     const auto caller=transfer_memory::Add(construction,transfer_memory::Mul(bytes.size(),8),
         transfer_memory::Mul(header.points,256),transfer_memory::Mul(header.surface,64));
-    auto parameters=std::make_shared<BoundaryParameterState>(mapped,points,surface,header.revision,requested,caller);
+    auto reservation=BoundaryAtlasBudget(header.version==8?transfer_memory::Mul(header.atlas_words,8):0,requested,caller);
+    auto parameters=std::make_shared<BoundaryParameterState>(mapped,points,surface,header.revision,requested,caller,coverage,mobility,header.version==8?&reservation:nullptr);
     result.original=PlanarReference::WithParameters(result.original,std::move(parameters));
   }
   return result;

@@ -59,9 +59,48 @@ size_t NativeMemoryCeiling(const CConfig& config,const CGeometry& geometry,size_
   if (print) std::cout<<"DC16 FIRST_ROW memory: need "<<(need>>20)<<" MiB, ceiling "<<(ceiling>>20)<<" MiB (default "<<(base>>20)<<" MiB, cap 25 % of node memory "<<(cap>>20)<<" MiB)"<<std::endl;
   return ceiling;
 }
+// Configuration prepares mobility explicitly; loading an old sidecar never changes its semantics.
+void PrepareMobility(const CConfig& config,ReferenceState& state,size_t ceiling,size_t caller) {
+  if(!state.original || !state.original->Mapped())return;
+  const auto* accepted=state.original->Parameters();const auto& authority=accepted->Geometry();
+  if(authority.Curves().empty())return;
+  std::map<int,int> roles;
+  for(size_t m=0;m<state.marker_names.size();++m)
+    roles.emplace(int(m),config.GetMarker_CfgFile_KindBC(state.marker_names[m])==SYMMETRY_PLANE?0:2);
+  const double angle=SU2_TYPE::GetValue(config.GetAdap_Angle());
+  if(accepted->Mobility().identity) {
+    if(accepted->Mobility().angle!=angle || accepted->Mobility().roles!=roles)
+      throw std::invalid_argument("Persisted curved mobility policy differs from ADAP_ANGLE/marker roles.");
+    return;
+  }
+  const auto baseline=transfer_memory::Add(caller,state.original->ResidentBytes(),
+      transfer_memory::Mul(accepted->Records().size(),sizeof(BoundaryPoints::value_type)+4*sizeof(void*)),
+      transfer_memory::Mul(accepted->Surface().size(),sizeof(SurfaceFace)));
+  if(baseline==SIZE_MAX || baseline>=ceiling)throw std::length_error("Curved mobility setup exceeds storage admission.");
+  SU2NativeGeometry::AtlasBudget budget;
+  budget.maximum_bytes=ceiling;budget.caller_bytes=baseline;
+  budget.maximum_integer_bits=transfer_memory::Mul(ceiling-baseline,8);
+  budget.maximum_work=transfer_memory::Mul(transfer_memory::Add(authority.Reference().Facets().size(),accepted->Surface().size()),
+      SU2NativeGeometry::MappedFacetReference::ClearanceWork);
+  if(budget.maximum_work==SIZE_MAX || budget.maximum_integer_bits==SIZE_MAX)
+    throw std::length_error("Curved mobility setup reservation overflows.");
+  SU2NativeGeometry::MobilityPolicy policy;std::string reason;
+  if(!authority.BuildMobilityPolicy(angle,roles,policy,budget,reason))throw std::invalid_argument(reason);
+  BoundaryPoints points;std::vector<SurfaceFace> surface;surface.reserve(accepted->Surface().size());
+  for(const auto& row:accepted->Records())points.emplace(row.first,row.second.point);
+  for(const auto& row:accepted->Surface())surface.push_back(row.second);
+  auto prepared=std::make_shared<BoundaryParameterState>(accepted->Authority(),points,surface,accepted->Revision(),
+      ceiling,baseline,accepted->Coverage(),policy,&budget);
+  state.original=state.original->WithParameterState(std::move(prepared));
+}
 }  // namespace
 void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry& geometry) {
-  if(reference->original) return;
+  if(reference->original) {
+    CLocalFailure failure;auto pending=*reference;
+    try{PrepareMobility(config,pending,NativeMemoryCeiling(config,geometry,options.memory_ceiling,false,SU2_MPI::GetComm()),options.caller_bytes);}
+    catch(const std::exception& e){failure.Set(2,0,e.what());}
+    CollectiveFailure(failure,CURRENT_FUNCTION);*reference=std::move(pending);return;
+  }
   auto pending=*reference;
   bool loaded=false;std::string reason;size_t maximum=0;
   const auto held=transfer_memory::Add(options.caller_bytes,ReferenceStorageBytes(*reference));
@@ -80,6 +119,9 @@ void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry& 
   SU2Native3D::ImportedGeometry imported;SU2Native3D::BridgeStats importedStats;
   if(!SU2Native3D::ImportGeometry(config,geometry,nullptr,pending,imported,reason,importedStats,
                                 ceiling,held)) failure.Set(2,0,reason);
+  CollectiveFailure(failure,CURRENT_FUNCTION);
+  try{PrepareMobility(config,pending,ceiling,held);}
+  catch(const std::exception& e){failure.Set(2,0,e.what());}
   CollectiveFailure(failure,CURRENT_FUNCTION);
   *reference=std::move(pending);
 }
@@ -246,6 +288,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     auto held = [&]() {
       return transfer_memory::Add(retained, ReferenceStorageBytes(pending->state), partition_bytes());
     };
+    try{PrepareMobility(config,pending->state,control.memory_ceiling,retained);}
+    catch(const std::exception& e){failure.Set(2,0,e.what());}
+    CollectiveFailure(failure,CURRENT_FUNCTION);
     NormalizationStage3D normalizer;
     try{if(normalizationFactory)normalizer=normalizationFactory(config,geometry,sensor);}
     catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -262,6 +307,10 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, stats.imported.maximum_native_bytes);
     phase(2);
     if (!ready) break;
+    try{PrepareMobility(config,pending->state,control.memory_ceiling,
+        transfer_memory::Add(retained,OwnedStorageBytes(imported.cells),transfer_memory::Bytes(imported.original)));}
+    catch(const std::exception& e){failure.Set(2,0,e.what());}
+    CollectiveFailure(failure,CURRENT_FUNCTION);
     // A construction works on the mapped authority: a plain faceted original is promoted on EVERY rank (deterministic,
     // identical inputs), so later parameter synchronization sees one authority kind on all ranks.
     if (construction && !pending->state.original->Mapped() && pending->state.original->Analytic().empty() &&
@@ -726,6 +775,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " nested_tracked_collectives=" << b.tracked_collective_seconds
              << " nested_source_envelope=" << b.source_envelope_seconds << " source_envelope_nodes=" << b.source_envelope_nodes
              << " source_envelope_cells=" << b.source_envelope_cells << " source_envelope_solves=" << b.source_envelope_solves
+             << " source_envelope_arithmetic_work_sum=" << b.source_envelope_arithmetic_work
+             << " source_envelope_arithmetic_limit_per_rank=" << b.source_envelope_arithmetic_work_limit
              << " source_envelope_contacts=" << b.source_envelope_contacts << " source_envelope_distances=" << b.source_envelope_distances
              << " nested_envelope_payload=" << b.source_envelope_payload_seconds << " envelope_replicated_bytes=" << b.source_envelope_payload_bytes
              << " parameter_return=" << b.parameter_return_seconds << " parameter_bytes=" << b.parameter_return_bytes
@@ -787,6 +838,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " wall_joint_move_height_rejected=" << e.wall_joint_move_height_rejected << " wall_joint_move_loss_rejected=" << e.wall_joint_move_loss_rejected
              << " oversized_stars=" << e.oversized_stars
              << " optimization_trials=" << e.optimization_trials << " optimization_validated=" << e.optimization_validated
+             << " atlas_arithmetic_work=" << e.atlas_work << " atlas_peak_bytes=" << e.atlas_peak_bytes
              << " optimization_moves=" << e.optimization_moves << " optimization_insertions=" << e.optimization_insertions
              << " optimization_collapses=" << e.optimization_collapses << " optimization_swaps=" << e.optimization_swaps
              << " placement_connectivity_trials=" << e.placement_connectivity_trials << " placement_flips=" << e.placement_flips << " placement_moves=" << e.placement_moves

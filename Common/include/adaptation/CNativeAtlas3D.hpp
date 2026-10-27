@@ -27,7 +27,7 @@ struct BoundaryCoverage {
 };
 struct AtlasBudget {
   size_t maximum_work=0,maximum_bytes=0,maximum_integer_bits=0;
-  size_t work=0,caller_bytes=0,peak_bytes=0;
+  size_t work=0,caller_bytes=0,peak_bytes=0;  // Peak is historical across admitted storage windows.
 };
 // Limits cover input/output storage and temporary limbs in addition to caller_bytes.
 // Failed operations leave outputs unchanged; attempted work and peak storage remain charged.

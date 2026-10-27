@@ -8,10 +8,37 @@ from pathlib import Path
 
 
 RECORD_BYTES = 208  # RecordStream: cell Q + 4*(Qddd) + version Q + 4*(present Q, facet Q).
+ATLAS_SCHEMA = 0x4e41544956454138
 
 
 def sha(data):
     return hashlib.sha256(data).hexdigest()
+
+
+def decode_parameters(data):
+    if len(data) < 40:
+        raise ValueError("Truncated parameter header")
+    first, = struct.unpack_from("=Q", data)
+    atlas = first == ATLAS_SCHEMA
+    if atlas:
+        if len(data) < 64:
+            raise ValueError("Truncated atlas parameter header")
+        magic, schema, version, revision, points, faces, policy, appendix_bytes = struct.unpack_from("=8Q", data)
+        if schema != 8 or appendix_bytes % 8:
+            raise ValueError("Unsupported atlas schema or appendix length")
+        header_bytes, revision_offset = 64, 24
+    else:
+        version, revision, points, faces, policy = struct.unpack_from("=5Q", data)
+        appendix_bytes, header_bytes, revision_offset = 0, 40, 8
+    appendix_offset = header_bytes + points * 72 + faces * 32
+    if len(data) != appendix_offset + appendix_bytes:
+        raise ValueError("Parameter count/length mismatch")
+    appendix = data[appendix_offset:]
+    return {
+        "header": [version, revision, points, faces, policy],
+        "schema": 8 if atlas else None,
+        "descriptor_appendix": {"bytes": appendix_bytes, "sha256": sha(appendix)} if atlas else None,
+    }, data[:revision_offset] + data[revision_offset + 8:]
 
 
 def decode_owned(data, state):
@@ -80,7 +107,7 @@ def read_stage(root, label, ranks, pins):
         pins[name] = sha(raw)
         if not manifest["parameters_present"] or len(raw) != manifest["parameters_payload_bytes"] or len(raw) < 40:
             raise ValueError("Missing/truncated parameter payload")
-        parameters.append(raw)
+        parameters.append(decode_parameters(raw))
     return state, parameters
 
 
@@ -102,9 +129,11 @@ def compare(root, ranks):
             "physical_vertices_added": len(sp - ep), "physical_vertices_removed": len(ep - sp),
         },
         "parameters": [{
-            "rank": rank, "entry_header": list(struct.unpack_from("=5Q", a)),
-            "stop_header": list(struct.unpack_from("=5Q", b)),
-            "identical_except_revision": a[:8] + a[16:] == b[:8] + b[16:],
+            "rank": rank, "entry_header": a[0]["header"], "stop_header": b[0]["header"],
+            "entry_schema": a[0]["schema"], "stop_schema": b[0]["schema"],
+            "entry_descriptor_appendix": a[0]["descriptor_appendix"],
+            "stop_descriptor_appendix": b[0]["descriptor_appendix"],
+            "identical_except_revision": a[1] == b[1],
         } for rank, (a, b) in enumerate(zip(entry_parameters, stop_parameters))],
         "record_layout_source": "CNativeDistributed2D.hpp RecordStream; CNativeMesh3D.hpp Cell/Node; CNativeDistributed3D.hpp OwnedCell",
         "sha256": {"analyzer": sha(Path(__file__).read_bytes()), **pins},
@@ -112,6 +141,18 @@ def compare(root, ranks):
 
 
 def self_check():
+    legacy = struct.pack("=5Q", 1, 2, 1, 1, 0) + bytes(72 + 32)
+    atlas = struct.pack("=8Q", ATLAS_SCHEMA, 8, 1, 2, 1, 1, 0, 8) + bytes(72 + 32) + b"appendix"
+    assert decode_parameters(legacy)[0]["header"] == [1, 2, 1, 1, 0]
+    parsed, normalized = decode_parameters(atlas)
+    assert parsed["schema"] == 8 and parsed["descriptor_appendix"] == {"bytes": 8, "sha256": sha(b"appendix")}
+    assert normalized == decode_parameters(atlas[:24] + struct.pack("=Q", 3) + atlas[32:])[1]
+    for bad in (legacy[:-1], atlas[:-1], atlas[:48]):
+        try:
+            decode_parameters(bad)
+        except ValueError:
+            continue
+        raise AssertionError("Malformed parameter payload was accepted")
     def state():
         return set(), {}, {}, set()
     row = struct.pack("=Q", 7)

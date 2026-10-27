@@ -25,6 +25,13 @@ struct BoundaryPoint {
   template<class S>void Fields(S& s){s(node,binding);}
 };
 using BoundaryPoints=std::map<Id,BoundaryPoint>;
+size_t BoundaryCoverageBytes(const SU2NativeGeometry::BoundaryCoverage&);
+size_t BoundaryAtlasBytes(const SU2NativeGeometry::BoundaryCoverage&,const SU2NativeGeometry::MobilityPolicy&);
+std::vector<char> EncodeBoundaryAtlas(const SU2NativeGeometry::BoundaryCoverage&,const SU2NativeGeometry::MobilityPolicy&,
+                                    size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
+void DecodeBoundaryAtlas(const std::vector<char>&,SU2NativeGeometry::BoundaryCoverage&,SU2NativeGeometry::MobilityPolicy&,
+                         size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
+SU2NativeGeometry::AtlasBudget BoundaryAtlasBudget(size_t encoded_bytes,size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
 struct BoundaryParameterEdit {
   BoundaryPoint point;
   uint64_t revision=0;
@@ -57,14 +64,25 @@ class BoundaryParameterState {
     std::map<Id,uint64_t> final_counts;
     std::map<Face,SurfaceFace> surface_added;
     std::set<Face> surface_removed;
+    SU2NativeGeometry::BoundaryCoverage coverage_added;
+    std::set<Face> coverage_removed;
+    std::set<Edge> traces_removed;
+    std::map<Edge,uint64_t> edge_counts;
+    std::map<Edge,SurfaceFace> edge_incident;
     uint64_t before=0,after=0;
     bool valid=false;
   };
   BoundaryParameterState(std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> geometry,
       const BoundaryPoints& points,const std::vector<SurfaceFace>& surface,
-      uint64_t revision=1,size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
+      uint64_t revision=1,size_t ceiling=SIZE_MAX,size_t caller_bytes=0,
+      const SU2NativeGeometry::BoundaryCoverage& coverage={},const SU2NativeGeometry::MobilityPolicy& mobility={},SU2NativeGeometry::AtlasBudget* reservation=nullptr);
   const Entries& Records()const{return records;}
   const std::map<Face,SurfaceFace>& Surface()const{return surface;}
+  const SU2NativeGeometry::BoundaryCoverage& Coverage()const{return coverage;}
+  const SU2NativeGeometry::MobilityPolicy& Mobility()const{return mobility;}
+  bool ResolveCoverage(const SurfaceFace&,SU2NativeGeometry::FaceCoverage&,SU2NativeGeometry::AtlasBudget&,std::string&)const;
+  bool ResolveTrace(Edge,const SurfaceFace&,SU2NativeGeometry::EdgeTrace&,SU2NativeGeometry::AtlasBudget&,std::string&)const;
+  const SurfaceFace* IncidentFace(Edge edge)const;
   const BoundaryPoint* Find(Id id)const;
   const BoundaryPoint* Find(Point point)const;
   const SU2NativeGeometry::MappedFacetReference& Geometry()const{return *geometry;}
@@ -88,7 +106,8 @@ class BoundaryParameterState {
    * Old/new ideal facet boundaries must agree, including exact feature subdivisions.
    * Actual tetrahedra, embedding, metric/height and full-star reservations remain caller duties. */
   Publication Prepare(const std::vector<BoundaryParameterEdit>& edits,const std::vector<BoundaryFaceChange>& faces,
-      std::string& reason,size_t ceiling=SIZE_MAX,size_t caller_bytes=0)const;
+      std::string& reason,size_t ceiling=SIZE_MAX,size_t caller_bytes=0,
+      const SU2NativeGeometry::BoundaryCoverage& coverage_delta={},SU2NativeGeometry::AtlasBudget* reservation=nullptr)const;
   static std::vector<BoundaryParameterEdit> Changes(const Patch& old,const Patch& fresh,uint64_t revision);
  private:
   friend class Directory;
@@ -98,6 +117,10 @@ class BoundaryParameterState {
   std::map<Face,SurfaceFace> surface;
   std::map<Coordinate,Id> coordinates;
   std::map<Support,Id> supports;
+  SU2NativeGeometry::BoundaryCoverage coverage;
+  SU2NativeGeometry::MobilityPolicy mobility;
+  std::map<Edge,uint64_t> edge_counts;
+  std::map<Edge,SurfaceFace> edge_incident;
   uint64_t revision;
 };
 } // namespace SU2Native3D

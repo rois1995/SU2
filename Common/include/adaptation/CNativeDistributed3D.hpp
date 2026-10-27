@@ -114,7 +114,8 @@ class Directory {
    * Reused cell IDs must advance version. Caller reserves globally unique new IDs and validates complete geometry. */
   bool Publish(Owned& owned, const std::vector<Dependency>& removed, const std::vector<OwnedCell>& added,
                bool prevalidated, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0,
-               const std::vector<BoundaryParameterEdit>& parameter_edits = {});
+               const std::vector<BoundaryParameterEdit>& parameter_edits = {},
+               const SU2NativeGeometry::BoundaryCoverage& coverage = {},SU2NativeGeometry::AtlasBudget* reservation=nullptr);
   /*! After successful tracked publication, sorted changed vertices for every old/new star owner.
    * Staged before the final vote; rejection preserves both stores and this list. Mode must match across workers. */
   const std::vector<Id>& ChangedVertices() const { return changed_vertices; }
@@ -139,7 +140,7 @@ class Directory {
   bool AgreeParameters(std::string& reason,size_t ceiling,size_t caller_bytes);
   bool PrepareParameters(const std::vector<OwnedCell>& old,const std::vector<OwnedCell>& added,
                          const std::vector<BoundaryParameterEdit>& edits,BoundaryParameterState::Publication& staged,
-                         std::string& reason,size_t ceiling,size_t caller_bytes);
+                         std::string& reason,size_t ceiling,size_t caller_bytes,const SU2NativeGeometry::BoundaryCoverage& coverage,SU2NativeGeometry::AtlasBudget* reservation);
   struct Entry {
     Id key = 0;
     bool identity = false;

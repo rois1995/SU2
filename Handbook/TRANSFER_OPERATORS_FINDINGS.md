@@ -25,6 +25,29 @@ stage capture remains private progress and supplies no accepted transfer workflo
 
 Full M6 transfer remains unqualified because no complete accepted M6 mesh exists.
 
+## TR-003 — Source envelopes must retain cross-chart correspondence
+
+**Status:** integration requirement confirmed by caller inspection; implementation
+in progress, not validated. No accepted cross-chart mesh has yet been produced.
+
+`JointAffineCoverage` currently reconstructs each curved source face from one
+original facet and its three point bindings. A redistributed face spanning chart
+seams instead needs every persisted coverage piece and its mapping to the active
+flat face. Point bindings or a list of chart IDs alone cannot reconstruct that
+source envelope. The new `SourcePatch` representation stores restricted pieces;
+the import caller must resolve the accepted face coverage and include dynamic
+piece storage in admission before allocating it. Sorting must preserve each
+parent face's complete envelope without unaccounted deep copies.
+
+Caller review also found that the intermediate-event thin-envelope shortcut used
+only immutable mapping roundoff. That does not bound a curved face's chord gap.
+The shortcut now applies only to faceted mapped geometry; curved source shells
+must follow the complete envelope path. This correction is unbuilt/unvalidated.
+
+Acceptance requires persistence/rebinding, source reconstruction, a second
+adaptation event and independent donor coverage/conservation checks. Earlier
+build19 transfer evidence does not qualify this changed representation.
+
 ## TR-001 — Subnormal clipping distances lose valid intersections
 
 **Status:** confirmed defect; correction passes focused replay and connected

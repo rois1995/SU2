@@ -5,6 +5,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
+#include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include "../../include/adaptation/CNativeMetric3D.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
@@ -299,6 +300,15 @@ void Finish(const Patch& old, Patch& proposal, const Skin& expected, const Physi
   std::string reason;
   if (!ValidatePrescribedInterface(old.cells, proposal.cells, SkinVector(expected), reason, stats))
     throw std::invalid_argument(reason);
+  if(reference.Mobility() && !proposal.surface.empty() && proposal.coverage.faces.empty()) {
+    auto* reservation=reference.AtlasReservation();
+    if(!reservation)throw std::invalid_argument("Curved topology edit requires an admitted atlas reservation.");
+    reference.ExportPointParameters(proposal);
+    SU2NativeGeometry::CurvedAtlas atlas;
+    if(!SU2NativeGeometry::PrepareCurvedAtlas(old,reference,std::nullopt,atlas,*reservation,reason) ||
+       !SU2NativeGeometry::RemapAtlasSurface(atlas,proposal.surface,proposal.parameters,proposal.coverage,*reservation,reason))
+      throw std::invalid_argument(reason);
+  }
   reference.ExportParameters(proposal);
   CheckSurface(proposal, expected, reference, stats);
 }
@@ -1396,6 +1406,7 @@ bool SplitEdge(const Patch& old, Edge edge, Node point, Id first, const PlanarRe
     Finish(old, proposal, skin, physical, reference, stats);
     fresh.cells.swap(proposal.cells);
     fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
+    fresh.coverage.faces.swap(proposal.coverage.faces);fresh.coverage.traces.swap(proposal.coverage.traces);
     reason.clear();
     return true;
   } catch (const std::exception& e) {
@@ -1465,6 +1476,7 @@ bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first, const P
     }
     fresh.cells.swap(proposal.cells);
     fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
+    fresh.coverage.faces.swap(proposal.coverage.faces);fresh.coverage.traces.swap(proposal.coverage.traces);
     reason.clear();
     return true;
   } catch (const std::exception& e) {
@@ -1546,7 +1558,8 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
       append(left);if(a && b)append(right);
     }
     Finish(old,proposal,skin,marked,reference,stats);
-    fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);reason.clear();return true;
+    fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
+    fresh.coverage.faces.swap(proposal.coverage.faces);fresh.coverage.traces.swap(proposal.coverage.traces);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
 std::vector<Id> SplitPatchApices(const Patch& patch,Edge edge,const std::map<Id,size_t>* costs) {
@@ -2243,7 +2256,8 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
       Finish(old,proposal,skin,physical,reference,stats);
       if(!AdmitFirstHeight(proposal,heights,reference,report,reason,stats))throw std::invalid_argument(reason);
     }
-    fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);reason.clear();return true;
+    fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
+    fresh.coverage.faces.swap(proposal.coverage.faces);fresh.coverage.traces.swap(proposal.coverage.traces);reason.clear();return true;
   }catch(const std::exception& e){if(wallObstruction!=Face{})obstruction=wallObstruction;reason=e.what();return false;}
 }
 
@@ -2775,6 +2789,7 @@ bool UndoEdgeSplit(const Patch& old, Id point, Edge edge, Id first, const Planar
     Finish(old, proposal, skin, physical, reference, stats);
     fresh.cells.swap(proposal.cells);
     fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
+    fresh.coverage.faces.swap(proposal.coverage.faces);fresh.coverage.traces.swap(proposal.coverage.traces);
     reason.clear();
     return true;
   } catch (const std::exception& e) {
@@ -2858,6 +2873,7 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const Pla
     Finish(old, proposal, skin, physical, reference, stats);
     fresh.cells.swap(proposal.cells);
     fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
+    fresh.coverage.faces.swap(proposal.coverage.faces);fresh.coverage.traces.swap(proposal.coverage.traces);
     reason.clear();
     return true;
   } catch (const std::exception& e) {
@@ -2881,7 +2897,18 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
     const auto original = nodes.at(vertex);
     if (nodes.count(point.id) || (original.p.x == point.p.x && original.p.y == point.p.y && original.p.z == point.p.z))
       throw std::invalid_argument("Native 3D movement needs a new identity and a distinct position.");
-    point=ProjectMovePoint(vertex,point,before,physical,reference,stats);
+    SU2NativeGeometry::CurvedAtlas atlas;
+    BoundaryPoint moved_binding;
+    auto* reservation=reference.AtlasReservation();
+    const bool remap=reference.Mobility() && std::any_of(old.surface.begin(),old.surface.end(),
+        [&](const SurfaceFace& face){return Has(face.v,vertex);});
+    if(remap) {
+      if(!reservation)throw std::invalid_argument("Curved movement requires an admitted atlas reservation.");
+      if(!SU2NativeGeometry::PrepareCurvedAtlas(old,reference,vertex,atlas,*reservation,reason) ||
+         !SU2NativeGeometry::ProposeAtlasBinding(atlas,vertex,point,moved_binding,*reservation,reason))
+        throw std::invalid_argument(reason);
+      point=moved_binding.node;
+    } else point=ProjectMovePoint(vertex,point,before,physical,reference,stats);
     if (original.p.x==point.p.x && original.p.y==point.p.y && original.p.z==point.p.z)
       throw std::invalid_argument("Native3D movement projects back to its original position.");
     for (const auto& face : before)
@@ -2890,11 +2917,21 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
         if (marked == physical.end())
           throw std::invalid_argument("Native 3D incomplete movement dependency at interface node " +
                                       std::to_string(vertex) + ".");
-        if (!reference.Contains(marked->second.facet, point.p, stats))
+        if (!remap && !reference.Contains(marked->second.facet, point.p, stats))
           throw std::invalid_argument("Native 3D movement leaves incident reference facet " +
                                       std::to_string(marked->second.facet) + ".");
       }
     Patch proposal;
+    if(remap) {
+      proposal.parameters=old.parameters;
+      for(const auto& face:old.surface)for(Id id:face.v)if(!proposal.parameters.count(id)) {
+        const auto* binding=reference.Parameters()->Find(id);
+        if(!binding)throw std::invalid_argument("Curved movement lost an accepted endpoint binding.");
+        proposal.parameters.emplace(id,*binding);
+      }
+      proposal.parameters.erase(vertex);
+      proposal.parameters.insert_or_assign(point.id,moved_binding);
+    }
     for (const auto& cell : old.cells) {
       auto v = cell.v;
       bool found = false;
@@ -2922,11 +2959,11 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
         for (auto& id : face)
           if (id == vertex) id = point.id;
       const auto marked = physical.find(entry.first);
-      if (moving && marked!=physical.end() && reference.Declared(marked->second.facet)) {
+      if (moving && !remap && marked!=physical.end() && reference.Declared(marked->second.facet)) {
         if (!reference.ContainsFace(marked->second.facet,
               {moved_nodes.at(face[0]).p,moved_nodes.at(face[1]).p,moved_nodes.at(face[2]).p},stats))
           throw std::invalid_argument("Native3D movement folds or leaves its finite curved chart.");
-      } else if (moving)
+      } else if (moving && !remap)
         for (size_t axis = 0; axis < 3; ++axis) {
           const auto old_area = Projected(nodes.at(entry.second[0]).p, nodes.at(entry.second[1]).p,
                                           nodes.at(entry.second[2]).p, axis, stats);
@@ -2942,6 +2979,12 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
       if (!skin.emplace(Key(face), face).second) throw std::invalid_argument("Native 3D movement repeats a skin face.");
       if (marked != physical.end()) surface.emplace(Key(face), SurfaceFace{face, marked->second.facet});
     }
+    if(remap) {
+      std::vector<SurfaceFace> faces;faces.reserve(surface.size());
+      for(const auto& f:surface)faces.push_back(f.second);
+      if(!SU2NativeGeometry::RemapAtlasSurface(atlas,faces,proposal.parameters,proposal.coverage,*reservation,reason))
+        throw std::invalid_argument(reason);
+    }
     // Check both prescribed interface and complete chart-oriented physical skin before publishing the private proposal.
     if (old.cells.size() > MaximumCavityCells) {
       for (const auto& f : surface) proposal.surface.push_back(f.second);
@@ -2956,6 +2999,7 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
     }
     fresh.cells.swap(proposal.cells);
     fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
+    fresh.coverage.faces.swap(proposal.coverage.faces);fresh.coverage.traces.swap(proposal.coverage.traces);
     reason.clear();
     return true;
   } catch (const std::exception& e) {
@@ -2977,6 +3021,7 @@ bool Reconnect(const Patch& old, Id vertex, Id first, const PlanarReference& bas
     Finish(old, proposal, skin, physical, reference, stats);
     fresh.cells.swap(proposal.cells);
     fresh.surface.swap(proposal.surface);fresh.parameters.swap(proposal.parameters);
+    fresh.coverage.faces.swap(proposal.coverage.faces);fresh.coverage.traces.swap(proposal.coverage.traces);
     reason.clear();
     return true;
   } catch (const std::exception& e) {

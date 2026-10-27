@@ -21,6 +21,9 @@ CASES = {
     "quality_checks": (1, "[NativeOptimize3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeStageProgress3D]"),
     "stage_checks": (1, "[NativeStageProgress3D],[NativeStageCapture3D],[NativeCoarsenQualityReturn3D]"),
     "stage_checks6": (6, "[NativeStageProgress3D],[NativeStageCapture3D],[NativeCoarsenQualityReturn3D]"),
+    "atlas_checks": (1, "[NativeAtlas3D],[NativeCurvedAtlas3D],[NativeMappedPublication3D],"
+                        "[NativeAffineGeometry],[NativeParametricGeometry],[NativeAffineSourceGeometry],"
+                        "[NativeAtlasReferenceIO3D],[NativeJointAffineSource3D],[NativeStageCapture3D]"),
     "connected_fix": (1, "[NativeMappedRuntime3D],[NativeMesh3D],[NativeAutomaticRepair3D],[NativeOriginalSupport3D],[NativeShapeAdmission3D]"),
     'serial_full': (1, '[NativeCollision3D],[NativeMesh3D],[NativeOriginalSupport3D],[NativeMetricFootprint3D],[NativeMetricSamples3D],[NativeCurvedMapped3D],[NativeCurvedMappedGuards3D],[NativeMappedFacetGeometry],[NativeMappedPublication3D],[NativeMappedRealized3D],[NativeMappedComponent3D],[NativeParametricGeometry],[NativeAffineSourceGeometry],[NativeFirstLayer3D],[NativeCurvedBL3D],[NativeJointAffineSource3D],[NativeGeneratedCoverage3D],[NativeMappedRuntime3D],[NativeMappedReader3D],[NativeConcurrentComposed3D],[NativeCollapseFilter3D],[NativeInteriorPlacement3D],[NativeAutomaticRepair3D],[NativeShapeAdmission3D],[NativeOptimize3D],[NativeDefault3D],[NativePolicyRuntime3D],[NativeInteractingBLVolume3D],[NativeCurvedBLVolume3D],[NativeCylinderBLVolume3D],[NativeComplexityEstimate3D],[NativeParallelBL3D],[NativeVolumeBL3D],[NativeStagedConstruction3D],[NativeConstructionHandoff3D],[NativeJointGeometry3D],[NativeConcurrentRepair3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D]'),
     'mpi6': (6, '[NativeCollision3D],[NativeMesh3D],[NativeOriginalSupport3D],[NativeMetricFootprint3D],[NativeMetricSamples3D],[NativeCurvedMapped3D],[NativeCurvedMappedGuards3D],[NativeMappedFacetGeometry],[NativeMappedPublication3D],[NativeMappedRealized3D],[NativeMappedComponent3D],[NativeParametricGeometry],[NativeAffineSourceGeometry],[NativeFirstLayer3D],[NativeCurvedBL3D],[NativeJointAffineSource3D],[NativeGeneratedCoverage3D],[NativeMappedRuntime3D],[NativeMappedReader3D],[NativeConcurrentComposed3D],[NativeCollapseFilter3D],[NativeInteriorPlacement3D],[NativeAutomaticRepair3D],[NativeShapeAdmission3D],[NativeOptimize3D],[NativeDefault3D],[NativePolicyRuntime3D],[NativeStagedConstruction3D],[NativeConstructionHandoff3D],[NativeJointGeometry3D],[NativeConcurrentRepair3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D]'),
@@ -42,7 +45,8 @@ for name in ("serial", "serial_full", "mpi6", "connected_fix"):
 
 for name in ("serial_full", "mpi6"):
     ranks, filters = CASES[name]
-    CASES[name] = ranks, filters + (",Convex clipping:*,"
+    CASES[name] = ranks, filters + (",[NativeAtlas3D],[NativeCurvedAtlas3D],[NativeAffineGeometry],[NativeAtlasReferenceIO3D],"
+                                   "Convex clipping:*,"
                                    "Distributed conservative projection:*,Conservative kernels:*,"
                                    "Distributed conservative kernels:*,Transfer admissibility:*,"
                                    "Distributed conservative transfer:*,Single precision transfer contract,"

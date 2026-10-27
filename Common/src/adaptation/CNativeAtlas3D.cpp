@@ -35,7 +35,7 @@ struct Context {
   AtlasBudget& budget;
   size_t retained=0,live=0;
   Context(AtlasBudget& b,size_t inputs):budget(b),retained(AddSize(b.caller_bytes,inputs)) {
-    if(b.work>b.maximum_work || b.peak_bytes>b.maximum_bytes)throw std::length_error("Invalid atlas budget counters.");
+    if(b.work>b.maximum_work)throw std::length_error("Invalid atlas budget counters.");
     Admit(0);
   }
   void Work(size_t n) {

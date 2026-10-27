@@ -8,6 +8,7 @@
 #include "../../include/adaptation/CNativeOptimize3D.hpp"
 #include "../../include/adaptation/CNativeRegionField3D.hpp"
 #include "../../include/adaptation/CNativePointConstruction3D.hpp"
+#include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include <chrono>
 #include <cmath>
 #include <cstring>
@@ -49,6 +50,14 @@ std::array<Face, 4> Faces(const Cell& c) {
   const auto& v = c.v;
   return {{{v[1].id,v[2].id,v[3].id}, {v[0].id,v[3].id,v[2].id},
            {v[0].id,v[1].id,v[3].id}, {v[0].id,v[2].id,v[1].id}}};
+}
+constexpr size_t AtlasScratchBytes=16u<<20;
+void RetainPhysicalCoverage(Patch& patch) {
+  std::set<Face> faces;std::set<Edge> edges;
+  for(auto face:patch.surface){std::rotate(face.v.begin(),std::min_element(face.v.begin(),face.v.end()),face.v.end());faces.insert(face.v);
+    for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());edges.insert(edge);}}
+  for(auto it=patch.coverage.faces.begin();it!=patch.coverage.faces.end();)if(!faces.count(it->first))it=patch.coverage.faces.erase(it);else ++it;
+  for(auto it=patch.coverage.traces.begin();it!=patch.coverage.traces.end();)if(!edges.count(it->first))it=patch.coverage.traces.erase(it);else ++it;
 }
 Patch GeometryPatch(const Imported& imported,const PlanarReference* geometry=nullptr) {
   Patch patch;
@@ -622,10 +631,15 @@ bool OptimizedRepairPatch(const Patch& old,Id first,Id first_node,const RegionMe
   if(node-first_node>report.trials)throw std::logic_error("Native repair optimizer exceeded its node reservation.");
   work=report.trials;
   if(!changed || local.size()>MaximumReplacementCells)return false;
-  Patch proposal;proposal.parameters=old.parameters;
+  Patch proposal;proposal.parameters=old.parameters;proposal.coverage=old.coverage;
   for(const auto& p:report.parameters)proposal.parameters.insert_or_assign(p.first,p.second);
   for(const auto& row:local){auto c=row.second.cell;c.id=first+proposal.cells.size();proposal.cells.push_back(c);
     const auto faces=Faces(c);for(unsigned k=0;k<4;++k)if(row.second.physical[k].present)proposal.surface.push_back({faces[k],row.second.physical[k].facet});}
+  for(const auto& row:report.coverage.faces)proposal.coverage.faces.insert_or_assign(row.first,row.second);
+  for(const auto& row:report.coverage.traces)proposal.coverage.traces.insert_or_assign(row.first,row.second);
+  RetainPhysicalCoverage(proposal);
+  auto final_parameters=options.geometry->PrivateParameters(proposal);
+  if(final_parameters)final_parameters->ExportParameters(proposal);
   std::map<Face,Face> expected;
   for(auto face:Incidence(old.cells).Boundary())if(!physical.count(Key(face)))expected.emplace(Key(face),face);
   for(auto face:proposal.surface){std::rotate(face.v.begin(),std::min_element(face.v.begin(),face.v.end()),face.v.end());expected.emplace(Key(face.v),face.v);}
@@ -648,6 +662,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   const auto started=Clock::now();
   const auto started_cpu=options.timings ? std::clock() : std::clock_t{};
   std::shared_ptr<BoundaryParameterState> private_parameters;std::shared_ptr<const PlanarReference> private_geometry;
+  SU2NativeGeometry::AtlasBudget atlas_budget;std::unique_ptr<PlanarReference> atlas_geometry;
+  const SU2NativeGeometry::BoundaryCoverage no_coverage;
   CLocalFailure parameter_failure;size_t parameter_bound=0;
   const unsigned mapped=accepted_geometry.Mapped();
   const auto mapped_low=CPassiveComm::Allreduce(mapped,CPassiveComm::Op::MIN,world.comm),mapped_high=CPassiveComm::Allreduce(mapped,CPassiveComm::Op::MAX,world.comm);
@@ -656,17 +672,26 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const auto* parameters=accepted_geometry.Parameters();
     // Stage clones are boundary-only and admitted once, never per transaction. Private overlays are bounded.
     parameter_bound=transfer_memory::Add(options.caller_bytes,accepted_geometry.ResidentBytes(),
-        transfer_memory::Mul(parameters->ResidentBytes(),2),16u<<20,MapBytes(accepted),transfer_memory::Bytes(original));
+        transfer_memory::Mul(parameters->ResidentBytes(),2),AtlasScratchBytes,MapBytes(accepted),transfer_memory::Bytes(original));
     if(parameter_bound==SIZE_MAX || parameter_bound>options.memory_ceiling)throw std::length_error("Native boundary parameter stage exceeds storage admission.");
     private_parameters=std::make_shared<BoundaryParameterState>(*parameters);
     private_geometry=accepted_geometry.WithParameterState(private_parameters);
-    options.caller_bytes=transfer_memory::Add(options.caller_bytes,16u<<20);
+    options.caller_bytes=transfer_memory::Add(options.caller_bytes,AtlasScratchBytes);
+    if(private_parameters->Mobility().identity||!private_parameters->Coverage().faces.empty()||!private_parameters->Coverage().traces.empty()) {
+      atlas_budget.caller_bytes=parameter_bound-AtlasScratchBytes;atlas_budget.maximum_bytes=parameter_bound;
+      // Half the admitted workspace holds simultaneous rational/arithmetic arrays; half holds correspondence records.
+      size_t low=0,high=AtlasScratchBytes*8;
+      while(low<high){const size_t bits=low+(high-low+1)/2;
+        if(SU2NativeGeometry::CurvedAtlasWorkspaceBytes(bits)<=AtlasScratchBytes/2)low=bits;else high=bits-1;}
+      if(!low)throw std::length_error("Native3D atlas integer workspace has no admitted capacity.");atlas_budget.maximum_integer_bits=low;
+      atlas_geometry=private_geometry->WithAtlasReservation(atlas_budget);
+    }
   }catch(const std::exception& e){parameter_failure.Set(3,0,e.what());}
   if(mapped_high) {
     const auto failure=world.elect(parameter_failure);
     if(failure.any){EngineResult rejected;rejected.reason=failure.message;rejected.stats.stop=EngineStop::Failure;rejected.stats.maximum_work_bytes=parameter_bound;return rejected;}
   }
-  const auto& geometry=private_geometry?*private_geometry:accepted_geometry;
+  const auto& geometry=atlas_geometry?*atlas_geometry:private_geometry?*private_geometry:accepted_geometry;
   const double parameter_setup=options.timings?std::chrono::duration<double>(Clock::now()-started).count():0;
   const bool curved=!geometry.ExtensionComponents().empty();
   const bool coarsening=intent==MetricChange::Coarsen;
@@ -726,6 +751,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       coarsening ? (repairs ? 8192u : 5120u) : (repairs ? 6144u : 3072u)); };
   std::vector<Id> initial,eligible_extensions;
   auto vote=[&](const CLocalFailure& local) {
+    stats.atlas_work=atlas_budget.work;stats.atlas_peak_bytes=atlas_budget.peak_bytes;
     const auto elected=world.elect(local);
     if (elected.any) result.reason=elected.message;
     return !elected.any;
@@ -736,12 +762,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         transfer_memory::Bytes(original),transfer_memory::Bytes(initial),transfer_memory::Bytes(eligible_extensions),transfer_memory::Bytes(result.splits),transfer_memory::Bytes(result.collapses),
         selection.Bytes(),MapBytes(retired_edges),MapBytes(campaign_edges),field_identity ? 64 : 0);
   };
+  auto real_bytes=[&]() {const auto live=bytes();return atlas_geometry&&live!=SIZE_MAX?live-AtlasScratchBytes:live;};
   auto admit=[&](size_t extra) {
     const auto peak=transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),extra);
     stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
     CLocalFailure failure;
     if (peak==SIZE_MAX || peak>options.memory_ceiling) failure.Set(3,0,"Native 3D adaptation working storage exceeds budget.");
-    return vote(failure);
+    const bool admitted=vote(failure);
+    if(admitted&&atlas_geometry){atlas_budget.caller_bytes=peak-AtlasScratchBytes;atlas_budget.maximum_bytes=peak;}
+    return admitted;
   };
   auto coalesce=[&](std::vector<Choice>& choices) {
     const bool collapse=coarsening && !curved && !composition;
@@ -953,6 +982,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.donor_search_seconds = donor.search_seconds; stats.donor_filter_seconds = donor.filter_seconds;
     stats.metric_support_cells=donor.metric_sample_cells;stats.metric_support_edges=donor.metric_edge_queries;stats.metric_support_skipped=donor.metric_edge_skipped;stats.metric_support_duplicates=donor.metric_edge_duplicates;
     stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, donor.maximum_work_bytes);
+    stats.atlas_work=atlas_budget.work;stats.atlas_peak_bytes=atlas_budget.peak_bytes;
     result.parameters=private_parameters;result.reference=private_geometry;
     if(curved && !result.valid && !selection.cells.empty()) {
       size_t metric_bad=0,geometry_bad=0;
@@ -1020,6 +1050,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const auto global_cells=CPassiveComm::Allreduce(uint64_t(accepted.size()),CPassiveComm::Op::SUM,world.comm);
     stats.work_limit=options.maximum_work==SIZE_MAX ? std::max<size_t>(4096,transfer_memory::Mul(global_cells,64)) : options.maximum_work;
     if (stats.work_limit==SIZE_MAX) failure.Set(1,0,"Native 3D automatic work ceiling overflows.");
+    if(atlas_geometry){atlas_budget.maximum_work=transfer_memory::Mul(transfer_memory::Add(global_cells,stats.work_limit),SU2NativeGeometry::MappedFacetReference::ClearanceWork);
+      if(atlas_budget.maximum_work==SIZE_MAX)failure.Set(1,0,"Native3D exact atlas arithmetic work reservation overflows.");}
     const auto batch_lo=CPassiveComm::Allreduce(options.candidate_batch,CPassiveComm::Op::MIN,world.comm);
     const auto batch_hi=CPassiveComm::Allreduce(options.candidate_batch,CPassiveComm::Op::MAX,world.comm);
     if (batch_lo!=batch_hi || !batch_hi || batch_hi>MaximumCandidateBatch)
@@ -1151,7 +1183,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(!vote(failure))return finish();bool admitted=false;
     auto rows=world.exchange(buckets,&admitted,options.memory_ceiling,transfer_memory::Add(bytes(),scratch));
     if(!admitted){result.reason="Native3D region input exchange exceeds storage.";return finish();}
-    std::vector<DonorRegion> regions;Patch old,fresh;std::vector<OwnedCell> replacement;bool core_declined=false;
+    std::vector<DonorRegion> regions;Patch old,fresh;std::vector<OwnedCell> replacement;std::vector<BoundaryParameterEdit> region_parameter_edits;bool core_declined=false;
     try {if(!world.rank){
       std::sort(rows.begin(),rows.end(),[](const OwnedCell& a,const OwnedCell& b){return a.cell.id<b.cell.id;});
       old=GeometryPatch(Imported{rows,true,{}}, &geometry);Point lo=rows.front().cell.v[0].p,hi=lo;
@@ -1209,6 +1241,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         } else {
           stats.global_work=fresh.cells.size()+report.surface_trials+report.junction_trials+report.core_trials+report.front_trials;
           if(stats.global_work>stats.work_limit)throw std::runtime_error("Native3D region construction exceeds global event work.");
+          if(geometry.Mapped()){geometry.ExportParameters(old);geometry.ExportParameters(fresh);region_parameter_edits=BoundaryParameterState::Changes(old,fresh,geometry.Parameters()->Revision());}
           std::map<Face,Id> physical;for(auto f:fresh.surface)physical.emplace(Key(f.v),f.facet);
           for(const auto& c:fresh.cells){OwnedCell row;row.cell=c;const auto faces=Faces(c);for(unsigned f=0;f<4;++f){auto found=physical.find(Key(faces[f]));if(found!=physical.end())row.physical[f]={true,found->second};}replacement.push_back(row);}
         }
@@ -1245,7 +1278,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!admitted){result.reason="Native3D region result exchange exceeds storage.";return finish();}
       std::vector<Dependency> removed;try{for(const auto& row:working)removed.push_back({row.first,row.second.version,world.rank});}catch(const std::exception& e){failure.Set(2,0,e.what());}
       if(!vote(failure))return finish();
-      if(!directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),scratch)))return finish();
+      if(!directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(real_bytes(),scratch),region_parameter_edits,fresh.coverage,geometry.AtlasReservation()))return finish();
       if(!world.rank)++stats.accepted;stats.maximum_owned=std::max(stats.maximum_owned,working.size());stats.region_cells=CPassiveComm::Allreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
     }
     region_rebuilt=changed;stats.global_work=CPassiveComm::Allreduce(stats.global_work,CPassiveComm::Op::MAX,world.comm);
@@ -1502,11 +1535,20 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         Timer timer(stats.layer_publication_seconds,options.timings);
         std::vector<std::vector<Dependency>> toRemove(world.size);
         std::vector<std::vector<OwnedCell>> toAdd(world.size);size_t published=0;
+        std::vector<BoundaryParameterEdit> layer_parameter_edits;SU2NativeGeometry::BoundaryCoverage layer_coverage;
         try {for(size_t k=0;k<proposals.size();++k)if(reserved.chosen[k]) {
           const auto& old=imported.candidates[k].cells.front().cell;const auto& fresh=proposals[k];
           const auto& dep=dependencies.candidates[k].cells.front();
           if(dep.cell!=old.id || dependencies.candidates[k].cells.size()!=1 || fresh.cells.empty())
             throw std::runtime_error("Native3D first-row publication lacks its complete replacement.");
+          if(geometry.Mapped()) {
+            auto before=GeometryPatch(imported.candidates[k],&geometry);auto after=fresh;geometry.ExportParameters(after);
+            const auto changes=BoundaryParameterState::Changes(before,after,geometry.Parameters()->Revision());layer_parameter_edits.insert(layer_parameter_edits.end(),changes.begin(),changes.end());
+            for(const auto& cover:after.coverage.faces)if(!layer_coverage.faces.emplace(cover).second)throw std::invalid_argument("Repeated physical face in layer atlas publication.");
+            for(const auto& trace:after.coverage.traces){const auto previous=layer_coverage.traces.find(trace.first);std::string why;
+              if(previous==layer_coverage.traces.end())layer_coverage.traces.emplace(trace);
+              else if(!geometry.AtlasReservation()||!geometry.Parameters()->Geometry().EqualTraces(previous->second,trace.second,*geometry.AtlasReservation(),why))throw std::invalid_argument("Conflicting inherited layer atlas edge: "+why);}
+          }
           toRemove.at(dep.owner).push_back(dep);
           std::map<Face,Id> physical;for(const auto& f:fresh.surface)physical.emplace(Key(f.v),f.facet);
           for(const auto& c:fresh.cells) {
@@ -1522,7 +1564,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!admitted){result.reason="Native3D first-row removal routing exceeds budget.";return false;}
         const auto added=world.exchange(toAdd,&admitted,options.memory_ceiling,baseline);
         if(!admitted){result.reason="Native3D first-row addition routing exceeds budget.";return false;}
-        if(!directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch)))return false;
+        if(!directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(real_bytes(),source.ResidentBytes(),layerScratch),layer_parameter_edits,layer_coverage,geometry.AtlasReservation()))return false;
         try {
           for(const auto& row:removed)pending.erase(row.cell);
           for(const auto& row:added)if(needs_layer(row))pending.insert(row.cell.id);
@@ -3531,7 +3573,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     {
       Timer timer(stats.publication_seconds,options.timings);
       ready=directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,
-          transfer_memory::Add(bytes(),source.ResidentBytes(),MaximumFrozenFieldBytes),parameter_edits);
+          transfer_memory::Add(real_bytes(),source.ResidentBytes(),MaximumFrozenFieldBytes),parameter_edits,approved?fresh.coverage:no_coverage,geometry.AtlasReservation());
     }
     if (!ready) return finish();
     if(!removed.empty() || !added.empty())selection.progress_consistent=false;
@@ -3630,6 +3672,12 @@ bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,
   auto proposed=cell;bool changes=false;
   for(auto& n:proposed.cell.v)if(n.id==removed){n=retained;changes=true;}
   if(!changes)return false;
+  if(geometry.Mapped()&&(geometry.Mobility()||!geometry.Parameters()->Coverage().faces.empty()||!geometry.Parameters()->Coverage().traces.empty())) {
+    bool changed_surface=false;
+    for(unsigned k=0;k<4;++k)changed_surface=changed_surface||(cell.physical[k].present&&cell.cell.v[k].id!=removed);
+    // A single-cell filter cannot remap a complete physical star; the full operator must certify its atlas.
+    if(changed_surface||!geometry.AtlasReservation())return false;
+  }
   const auto patch=GeometryPatch(Imported{{proposed},true,{}}, &geometry);
   for(const auto& face:patch.surface) {
     std::array<Point,3> points;
@@ -3801,11 +3849,14 @@ class MeshOptimizer {
   Patch GeometryPatch(const std::vector<Cell>& cells) const {
     Patch patch;patch.cells=cells;
     for(const auto& c:cells)for(auto f:OppositeFaces(c)){const auto b=physical.find(Key(f));if(b!=physical.end())patch.surface.push_back({f,b->second});}
+    if(options.geometry){patch.parameters=report.parameters;patch.coverage=report.coverage;RetainPhysicalCoverage(patch);
+      const auto& geometry=moved_geometry?*moved_geometry:*options.geometry;geometry.ExportParameters(patch);}
     return patch;
   }
   double Height(const Patch& patch) const {
     if(!options.geometry || options.wall_heights.empty())return INFINITY;
-    return HeightScore(patch,options.wall_heights,moved_geometry?*moved_geometry:*options.geometry);
+    const auto& base=moved_geometry?*moved_geometry:*options.geometry;auto parameters=base.PrivateParameters(patch);
+    return HeightScore(patch,options.wall_heights,parameters?*parameters:base);
   }
   double RowScore(Id id,const Cell& c){
     CellQuality cached;
@@ -4054,8 +4105,10 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
   for(const auto& c:patch.cells)for(auto n:c.v)if(n.id!=p)neighbors.insert(n.id);
   if(geometry.Mapped()) {
     const auto binding=patch.parameters.at(p).binding;const auto& authority=geometry.Parameters()->Geometry();
-    if(binding.dimension==0 && authority.PhysicalSupport(binding))return false;
-    if(binding.dimension==1 && (!authority.ReferenceComponents() || authority.PhysicalSupport(binding))) {
+    const auto* mobility=geometry.Mobility();
+    if(mobility && authority.MobilityDimension(binding,*mobility)==0)return false;
+    if(!mobility && binding.dimension==0 && authority.PhysicalSupport(binding))return false;
+    if(!mobility && binding.dimension==1 && (!authority.ReferenceComponents() || authority.PhysicalSupport(binding))) {
       Edge support{};bool located=false;
       authority.ForFacets(binding,[&](Id facet) {
         if(located)return;const auto& f=geometry.Get(facet);
@@ -4071,7 +4124,7 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
         for(unsigned k=1;k<denominator;k+=2){const long double t=static_cast<long double>(k)/denominator;
           targets.push_back({double(a.x+t*(b.x-(long double)a.x)),double(a.y+t*(b.y-(long double)a.y)),double(a.z+t*(b.z-(long double)a.z))});}
       }
-    } else if(binding.dimension==2 && !authority.ReferenceComponents()) {
+    } else if(!mobility && binding.dimension==2 && !authority.ReferenceComponents()) {
       const auto& f=geometry.Get(binding.feature);
       for(double h:{.25,.125,.0625,.03125})for(const auto d:std::array<std::array<int,2>,6>{{{{1,0}},{{-1,0}},{{0,1}},{{0,-1}},{{1,-1}},{{-1,1}}}}) {
         const long double u=binding.u+h*d[0],v=binding.v+h*d[1];if(u<=0 || v<=0 || u+v>=1)continue;
@@ -4096,9 +4149,10 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
     const double score=FreshScore(candidate.cells,false,&candidate);
     if(!std::isfinite(score)){++report.rejected_validity;continue;}
     if(!(score>best_score+Gain)){++report.rejected_quality;continue;}
+    auto candidate_parameters=geometry.PrivateParameters(candidate);const auto& candidate_geometry=candidate_parameters?*candidate_parameters:geometry;
     FirstHeightReport height;
-    if(GetShapeAdmission()==ShapeAdmission::Absolute && !CheckFirstHeight(candidate,options.wall_heights,geometry,height,reason)){++report.rejected_frozen;continue;}
-    if(GetShapeAdmission()==ShapeAdmission::Absolute && GeometryExcess(candidate,geometry,options.surface_tolerance)>geometric_before){++report.rejected_interface;continue;}
+    if(GetShapeAdmission()==ShapeAdmission::Absolute && !CheckFirstHeight(candidate,options.wall_heights,candidate_geometry,height,reason)){++report.rejected_frozen;continue;}
+    if(GetShapeAdmission()==ShapeAdmission::Absolute && GeometryExcess(candidate,candidate_geometry,options.surface_tolerance)>geometric_before){++report.rejected_interface;continue;}
     bool sized=true;
     for(const auto& c:candidate.cells)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)
       if((c.v[i].id==next_node || c.v[j].id==next_node) && !Certified(c.v[i].p,c.v[j].p,MaximumMetricEdge))sized=false;
@@ -4107,11 +4161,16 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
     if(best_score>=1)break;
   }
   if(best.cells.empty())return false;
-  auto parameters=geometry.PrivateParameters(best);
   std::map<Face,FacetBinding> added;for(const auto& f:best.surface)added.emplace(Key(f.v),FacetBinding{true,f.facet});
   const Id moved=next_node++;Commit(old,best.cells,p,added);
-  for(const auto& row:best.parameters)report.parameters.insert_or_assign(row.first,row.second);
-  if(parameters)moved_geometry=std::move(parameters);
+  report.parameters.erase(p);for(const auto& row:best.parameters)report.parameters.insert_or_assign(row.first,row.second);
+  for(const auto& row:best.coverage.faces)report.coverage.faces.insert_or_assign(row.first,row.second);
+  for(const auto& row:best.coverage.traces)report.coverage.traces.insert_or_assign(row.first,row.second);
+  for(auto it=report.coverage.faces.begin();it!=report.coverage.faces.end();)if(!physical.count(Key(it->first)))it=report.coverage.faces.erase(it);else ++it;
+  for(auto it=report.coverage.traces.begin();it!=report.coverage.traces.end();)if(!Adjacent(it->first[0],it->first[1]))it=report.coverage.traces.erase(it);else ++it;
+  Patch overlay;overlay.parameters=report.parameters;overlay.coverage=report.coverage;
+  for(const auto& row:overlay.coverage.faces)overlay.surface.push_back({row.first,physical.at(Key(row.first))});
+  auto parameters=options.geometry->PrivateParameters(overlay);if(parameters)moved_geometry=std::move(parameters);
   fixed.erase(p);fixed.insert(moved);if(keep.erase(p))keep.insert(moved);
   Id first=p;for(const auto& row:report.relabel)if(row.second==p){first=row.first;break;}
   report.relabel[first]=moved;++report.moves;return true;
@@ -4410,8 +4469,12 @@ bool MeshOptimizer::Run() {
 }
 }  // namespace
 bool OptimizeMetricMesh(Owned& mesh,const RegionMetric& target,Id& next_node,Id& next_cell,const OptimizeOptions& options,OptimizeReport& report) {
-  MeshOptimizer optimizer(mesh,target,next_node,next_cell,options,report);
-  return optimizer.Run();
+  auto* reservation=options.geometry?options.geometry->AtlasReservation():nullptr;
+  if(options.geometry && options.geometry->Mapped() && (options.geometry->Mobility()||!options.geometry->Parameters()->Coverage().faces.empty()||!options.geometry->Parameters()->Coverage().traces.empty()) && !reservation) {
+    report.stop="atlas reservation missing";return false;
+  }
+  const auto before=reservation?reservation->work:0;MeshOptimizer optimizer(mesh,target,next_node,next_cell,options,report);
+  const bool changed=optimizer.Run();if(reservation){report.atlas_work=reservation->work-before;report.atlas_peak_bytes=reservation->peak_bytes;}return changed;
 }
 bool PlaceConeInsertion(const std::vector<Cell>& cavity,Point start,Id node,Id first_cell,const RegionMetric& target,
                         std::vector<Cell>& fresh,double& score,const Edge* split_edge,double split_ratio,size_t budget,

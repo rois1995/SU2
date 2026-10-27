@@ -53,6 +53,8 @@ struct OptimizeReport {
   uint64_t point_queries = 0, edge_integrations = 0, edge_surrogates = 0;
   double seconds = 0;
   std::string stop;
+  SU2NativeGeometry::BoundaryCoverage coverage;  // Current private physical faces/traces, published with parameters.
+  uint64_t atlas_work=0;size_t atlas_peak_bytes=0;
   BoundaryPoints parameters;  // Private bindings of moved physical points; caller publishes atomically with cells.
   std::map<Id, Id> relabel;  // Moved vertex: previous identity -> new identity (chains resolved).
 };

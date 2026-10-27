@@ -91,6 +91,10 @@ changing the original cubic controls or sensor field.
 
 ## Smallest connected construction
 
+The proposed data/API and certificate implementation are detailed in
+[bounded curved atlas implementation](CURVED_ATLAS_IMPLEMENTATION.md); they are
+not implemented or numerically qualified.
+
 Use a bounded local curved atlas for each complete admitted boundary star/region,
 not a global planar chart of an entire wing or closed surface. Start with existing
 original adjacency and nearest/forward parameter APIs. A common projected graph

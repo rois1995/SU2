@@ -44,6 +44,8 @@ struct BridgeStats {
   // Source declarations/joint shell: global geometry counts/work, local elapsed/requested storage (not RSS).
   uint64_t source_envelope_nodes=0,source_envelope_cells=0,source_envelope_solves=0;
   uint64_t source_envelope_contacts=0,source_envelope_distances=0;
+  uint64_t source_envelope_arithmetic_work=0; // Sum of replicated exact preparation work over ranks.
+  uint64_t source_envelope_arithmetic_work_limit=0; // Per-rank event limit; independent of column/contact limits.
   double source_envelope_seconds=0,source_envelope_payload_seconds=0;
   uint64_t source_envelope_payload_bytes=0; // Replicated logical payload per rank, not network/wire traffic.
   double parameter_return_seconds=0;

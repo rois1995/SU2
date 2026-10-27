@@ -52,7 +52,7 @@ struct NativeTransactionCapture {
     }
     if(events.size()==512){truncated=true;return;}
     const auto patch_bytes=[](const Patch& p) {return p.cells.size()*sizeof(Cell)+p.surface.size()*sizeof(SurfaceFace)+
-        p.parameters.size()*(sizeof(BoundaryPoint)+8*sizeof(void*));};
+        p.parameters.size()*(sizeof(BoundaryPoint)+8*sizeof(void*))+BoundaryCoverageBytes(p.coverage);};
     if(!Admit(sizeof(Event)+v.reason.size()+patch_bytes(v.old)+patch_bytes(v.fresh)+v.dependencies.cells.size()*sizeof(Dependency)))return;
     events.push_back({v.stage,v.reason,v.passed,v.old,v.fresh,v.dependencies.cells,v.point,v.first_cell,v.first_node,v.metric});
     ended=ended || std::string(v.stage)=="transaction_end";
@@ -62,7 +62,14 @@ struct NativeTransactionCapture {
   }
   static std::vector<char> PatchBytes(const Patch& patch) {
     std::vector<char> bytes;RecordStream out(bytes);Vector(out,patch.cells);Vector(out,patch.surface);
-    std::vector<BoundaryPoint> points;for(const auto& row:patch.parameters)points.push_back(row.second);Vector(out,points);return bytes;
+    std::vector<BoundaryPoint> points;for(const auto& row:patch.parameters)points.push_back(row.second);Vector(out,points);
+    if(!patch.coverage.faces.empty() || !patch.coverage.traces.empty()) {
+      auto atlas=EncodeBoundaryAtlas(patch.coverage,{},limit,bytes.size());
+      uint64_t schema=0x41544c4153503031ULL,length=atlas.size();out(schema,length);
+      REQUIRE(bytes.size()<=limit);REQUIRE(atlas.size()<=limit-bytes.size());
+      bytes.insert(bytes.end(),atlas.begin(),atlas.end());
+    }
+    return bytes;
   }
   static void Write(const std::string& path,const std::vector<char>& bytes) {
     std::ofstream out(path,std::ios::binary);out.write(bytes.data(),bytes.size());out.close();REQUIRE(bool(out));
@@ -352,13 +359,24 @@ template<class T> std::vector<T> TransactionVector(RecordStream& stream,size_t l
   uint64_t count=0;stream(count);REQUIRE(count<=limit);std::vector<T> result(count);
   for(auto& value:result)stream(value);return result;
 }
-Patch TransactionPatch(const std::string& path) {
-  const auto bytes=TransactionRead(path);RecordStream stream(bytes);Patch result;
+Patch TransactionPatchBytes(const std::vector<char>& bytes) {
+  RecordStream stream(bytes);Patch result;
   result.cells=TransactionVector<Cell>(stream,MaximumReplacementCells);
   result.surface=TransactionVector<SurfaceFace>(stream,4*MaximumReplacementCells);
   for(auto p:TransactionVector<BoundaryPoint>(stream,4*MaximumReplacementCells))REQUIRE(result.parameters.emplace(p.node.id,p).second);
-  REQUIRE(stream.End());return result;
+  if(!stream.End()) {
+    uint64_t schema=0,length=0;stream(schema,length);
+    REQUIRE(schema==0x41544c4153503031ULL);
+    REQUIRE(stream.Size()<=bytes.size());REQUIRE(length==bytes.size()-stream.Size());
+    const std::vector<char> atlas(bytes.begin()+stream.Size(),bytes.end());
+    SU2NativeGeometry::MobilityPolicy policy;
+    DecodeBoundaryAtlas(atlas,result.coverage,policy,NativeTransactionCapture::limit,bytes.size());
+    REQUIRE(policy.identity==0);REQUIRE(policy.roles.empty());REQUIRE(policy.features.empty());
+    REQUIRE(policy.corners.empty());REQUIRE(policy.bodies.empty());REQUIRE(policy.sheets.empty());
+  }
+  return result;
 }
+Patch TransactionPatch(const std::string& path) {return TransactionPatchBytes(TransactionRead(path));}
 std::string TransactionString(RecordStream& stream) {
   auto bytes=TransactionVector<unsigned char>(stream,8192);return {bytes.begin(),bytes.end()};
 }
@@ -377,6 +395,22 @@ long double TransactionSurfaceExcess(const Patch& p,const PlanarReference& base,
   }
   return sum;
 }
+}
+
+TEST_CASE("Native transaction capture preserves exact boundary correspondence", "[NativeStageCapture3D]") {
+  Patch patch;
+  const auto legacy=NativeTransactionCapture::PatchBytes(patch);
+  CHECK(legacy.size()==24);
+  CHECK(NativeTransactionCapture::PatchBytes(TransactionPatchBytes(legacy))==legacy);
+  SU2NativeGeometry::CoveragePiece piece;piece.facet=7;
+  piece.reference[1].u.numerator={1};piece.reference[2].v.numerator={1};piece.active=piece.reference;
+  patch.coverage.faces[{2,3,4}].pieces.push_back(piece);
+  SU2NativeGeometry::TracePiece trace;trace.facet=7;trace.last=piece.reference[1];trace.end.numerator={1};
+  patch.coverage.traces[{2,3}].pieces.push_back(trace);
+  const auto encoded=NativeTransactionCapture::PatchBytes(patch);
+  const auto decoded=TransactionPatchBytes(encoded);
+  CHECK(decoded.coverage.faces.size()==1);CHECK(decoded.coverage.traces.size()==1);
+  CHECK(NativeTransactionCapture::PatchBytes(decoded)==encoded);
 }
 
 TEST_CASE("Native stage capture streams complete owned and original donor rows", "[NativeStageCapture3D]") {

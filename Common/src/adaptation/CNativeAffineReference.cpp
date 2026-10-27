@@ -120,6 +120,198 @@ double CubicDeviation(const MappedFacetReference::CubicNet& net,const std::array
   }
   return bound;
 }
+struct AtlasOps {
+  AtlasBudget& budget;std::string reason;
+  void Check(bool ok){if(!ok)throw std::runtime_error(reason);}
+  void Work(){if(budget.work>=budget.maximum_work)throw std::length_error("Curved atlas work exhausted.");++budget.work;}
+  void Storage(size_t bytes) {
+    const auto total=transfer_memory::Add(budget.caller_bytes,bytes);budget.peak_bytes=std::max(budget.peak_bytes,total);
+    if(total==SIZE_MAX || total>budget.maximum_bytes)throw std::length_error("Curved atlas storage exhausted.");
+  }
+  ExactRatio Integer(int64_t x){ExactRatio r;Check(ExactInteger(x,r,budget,reason));return r;}
+  ExactRatio Binary(double x){ExactRatio r;Check(ExactBinary64(x,r,budget,reason));return r;}
+  ExactRatio Add(const ExactRatio& a,const ExactRatio& b){ExactRatio r;Check(ExactAdd(a,b,r,budget,reason));return r;}
+  ExactRatio Sub(const ExactRatio& a,const ExactRatio& b){ExactRatio r;Check(ExactSubtract(a,b,r,budget,reason));return r;}
+  ExactRatio Mul(const ExactRatio& a,const ExactRatio& b){ExactRatio r;Check(ExactMultiply(a,b,r,budget,reason));return r;}
+  ExactRatio Div(const ExactRatio& a,const ExactRatio& b){ExactRatio r;Check(ExactDivide(a,b,r,budget,reason));return r;}
+  int Compare(const ExactRatio& a,const ExactRatio& b){int r;Check(ExactCompare(a,b,r,budget,reason));return r;}
+  bool Equal(const ExactBary& a,const ExactBary& b){return !Compare(a.u,b.u)&&!Compare(a.v,b.v);}
+  ExactRatio Weight(const ExactBary& p,unsigned k){return k==1?p.u:k==2?p.v:Sub(Sub(Integer(1),p.u),p.v);}
+  void Bary(const ExactBary& p) {
+    Check(ExactValidate(p.u,budget,reason));Check(ExactValidate(p.v,budget,reason));
+    if(Compare(p.u,Integer(0))<0 || Compare(p.v,Integer(0))<0 || Compare(Add(p.u,p.v),Integer(1))>0)
+      throw std::invalid_argument("Curved coverage parameter leaves its simplex.");
+  }
+  ExactRatio Orient(const ExactBary& a,const ExactBary& b,const ExactBary& c) {
+    return Sub(Mul(Sub(b.u,a.u),Sub(c.v,a.v)),Mul(Sub(b.v,a.v),Sub(c.u,a.u)));
+  }
+  ExactBary Lerp(const ExactBary& a,const ExactBary& b,const ExactRatio& t) {
+    return {Add(a.u,Mul(t,Sub(b.u,a.u))),Add(a.v,Mul(t,Sub(b.v,a.v)))};
+  }
+  std::vector<uint64_t> Key(const ExactBary& p) {
+    std::vector<uint64_t> a,b;Check(ExactEncode(p.u,a,budget,reason));Check(ExactEncode(p.v,b,budget,reason));a.insert(a.end(),b.begin(),b.end());return a;
+  }
+  Box Parameter(const ExactBary& p) {
+    Box r;for(unsigned k=0;k<3;++k){std::array<double,2> b;const auto w=Weight(p,k);Check(ExactBounds(w,b,budget,reason));r[k]={b[0],b[1]};}
+    return r;
+  }
+};
+using AtlasKey=std::vector<uint64_t>;
+AtlasKey ReferenceKey(const SU2Native3D::PlanarReference& reference,Id facet,const ExactBary& p,AtlasOps& op) {
+  op.Bary(p);const auto& f=reference.Get(facet);std::array<ExactRatio,3> w;
+  std::vector<unsigned> nonzero;for(unsigned k=0;k<3;++k){w[k]=op.Weight(p,k);if(op.Compare(w[k],op.Integer(0)))nonzero.push_back(k);}
+  if(nonzero.size()==1)return {0,f.v[nonzero[0]].id};
+  if(nonzero.size()==2) {
+    auto a=nonzero[0],b=nonzero[1];if(f.v[a].id>f.v[b].id)std::swap(a,b);
+    std::vector<uint64_t> t;op.Check(ExactEncode(w[b],t,op.budget,op.reason));
+    AtlasKey key{1,f.v[a].id,f.v[b].id};key.insert(key.end(),t.begin(),t.end());return key;
+  }
+  auto key=op.Key(p);key.insert(key.begin(),{2,facet});return key;
+}
+struct AtlasEdge {
+  Id plane=0,facet=0;ExactBary a,b,ra,rb;int sign=1;size_t triangle=0;
+};
+std::vector<AtlasEdge> SplitAtlasEdges(const std::vector<AtlasEdge>& edges,AtlasOps& op) {
+  // Split exact collinear subdivisions before incidence/cancellation; no rounded intersections.
+  op.Storage(transfer_memory::Mul(edges.size(),sizeof(AtlasEdge)+128));
+  std::map<Id,std::vector<const AtlasEdge*>> planes;size_t requested=transfer_memory::Mul(edges.size(),sizeof(AtlasEdge)+128);
+  for(const auto& e:edges)planes[e.plane].push_back(&e);
+  for(const auto& row:planes) {
+    size_t limbs=1;for(const auto* e:row.second)for(const auto* p:{&e->a,&e->b,&e->ra,&e->rb})for(const auto* r:{&p->u,&p->v})
+      limbs=std::max({limbs,r->numerator.size(),r->denominator.size()});
+    // Lerp after one exact quotient needs at most eight input bit widths plus carries.
+    const auto bits=std::min(op.budget.maximum_integer_bits,transfer_memory::Add(transfer_memory::Mul(limbs,256),32));
+    const auto ratio=transfer_memory::Add(sizeof(ExactRatio),transfer_memory::Mul(transfer_memory::Add(bits,31)/32,8));
+    const auto unit=transfer_memory::Add(sizeof(AtlasEdge),transfer_memory::Mul(ratio,16),256);
+    requested=transfer_memory::Add(requested,transfer_memory::Mul(row.second.size()+1,transfer_memory::Mul(row.second.size()+1,unit)));
+  }
+  op.Storage(requested);
+  std::vector<AtlasEdge> split;
+  for(const auto& e:edges) {
+    const auto du=op.Sub(e.b.u,e.a.u),dv=op.Sub(e.b.v,e.a.v);const bool use_u=op.Compare(du,op.Integer(0));
+    if(!use_u&&!op.Compare(dv,op.Integer(0)))throw std::invalid_argument("Collapsed curved coverage edge.");
+    std::vector<ExactRatio> cuts{op.Integer(0),op.Integer(1)};
+    for(const auto* other:planes.at(e.plane))for(const auto* p:{&other->a,&other->b}) {
+      op.Work();if(op.Compare(op.Orient(e.a,e.b,*p),op.Integer(0)))continue;
+      const auto t=op.Div(op.Sub(use_u?p->u:p->v,use_u?e.a.u:e.a.v),use_u?du:dv);
+      if(op.Compare(t,op.Integer(0))>0&&op.Compare(t,op.Integer(1))<0)cuts.push_back(t);
+    }
+    std::sort(cuts.begin(),cuts.end(),[&](const auto& a,const auto& b){return op.Compare(a,b)<0;});
+    cuts.erase(std::unique(cuts.begin(),cuts.end(),[&](const auto& a,const auto& b){return !op.Compare(a,b);}),cuts.end());
+    for(size_t k=1;k<cuts.size();++k) {
+      auto q=e;q.a=op.Lerp(e.a,e.b,cuts[k-1]);q.b=op.Lerp(e.a,e.b,cuts[k]);
+      q.ra=op.Lerp(e.ra,e.rb,cuts[k-1]);q.rb=op.Lerp(e.ra,e.rb,cuts[k]);split.push_back(std::move(q));
+    }
+  }
+  return split;
+}
+using AtlasEdgeKey=std::pair<AtlasKey,AtlasKey>;
+AtlasEdgeKey EdgeKeys(AtlasKey a,AtlasKey b,int& sign){if(b<a){std::swap(a,b);sign=-sign;}return {std::move(a),std::move(b)};}
+std::array<Box,10> RestrictNet(const MappedFacetReference& geometry,Id facet,const std::array<ExactBary,3>& r,AtlasOps& op) {
+  std::array<Box,3> parameter;for(unsigned k=0;k<3;++k){op.Bary(r[k]);parameter[k]=op.Parameter(r[k]);}
+  const auto found=geometry.Curves().find(facet);const auto& f=geometry.Reference().Get(facet);
+  std::array<Box,10> out;
+  for(unsigned q=0;q<10;++q){std::array<Box,3> a;unsigned at=0;for(unsigned k=0;k<3;++k)for(unsigned n=0;n<CubicIndex[q][k];++n)a[at++]=parameter[k];
+    if(found!=geometry.Curves().end())out[q]=Blossom(found->second,a);
+    else {
+      Box p{};for(const auto& argument:a)for(unsigned d=0;d<3;++d)p[d]=Add(p[d],Multiply(argument[d],Range{std::nextafter(1.L/3,-INFINITY),std::nextafter(1.L/3,INFINITY)}));
+      out[q]=LinearPoint({f.v[0].p,f.v[1].p,f.v[2].p},p);
+    }
+  }
+  return out;
+}
+Range DividePositive(Range a,long double d){return Multiply(a,Range{std::nextafter(1/d,-INFINITY),std::nextafter(1/d,INFINITY)});}
+Range SqrtRange(Range a){if(a.hi<0)throw std::invalid_argument("Negative atlas norm enclosure.");return {std::nextafter(std::sqrt(std::max(0.L,a.lo)),-INFINITY),std::nextafter(std::sqrt(std::max(0.L,a.hi)),INFINITY)};}
+Range CosineDegrees(double angle) {
+  // Taylor remainder on [0,pi], with every coefficient/operation enclosed.
+  const long double pi=3.141592653589793238462643383279502884L;
+  const auto x=DividePositive(Multiply(Range{std::nextafter(pi,-INFINITY),std::nextafter(pi,INFINITY)},angle),180);
+  const auto square=Multiply(x,x);Range sum{1,1},term{1,1};
+  for(unsigned k=1;k<=24;++k){term=DividePositive(Multiply(term,square),(2*k-1)*(2*k));sum=k%2?Subtract(sum,term):Add(sum,term);}
+  term=DividePositive(Multiply(term,square),49*50);return Add(sum,{-term.hi,term.hi});
+}
+Box EdgeNormal(const MappedFacetReference& geometry,Id facet,SU2Native3D::Edge edge,Range t) {
+  const auto& f=geometry.Reference().Get(facet);Box r{};
+  for(unsigned k=0;k<3;++k)r[k]=f.v[k].id==edge[0]?Subtract({1,1},t):f.v[k].id==edge[1]?t:Range{0,0};
+  const auto found=geometry.Curves().find(facet);
+  if(found==geometry.Curves().end())return CrossBox(Difference(Exact(f.v[1].p),Exact(f.v[0].p)),Difference(Exact(f.v[2].p),Exact(f.v[0].p)));
+  const auto& net=found->second;const auto base=Blossom(net,{Exact({1,0,0}),r,r});
+  return CrossBox(Difference(Blossom(net,{Exact({0,1,0}),r,r}),base),Difference(Blossom(net,{Exact({0,0,1}),r,r}),base));
+}
+bool NormalAngleBound(const Box& a,const Box& b,Range cosine) {
+  const auto aa=DotBox(a,a),bb=DotBox(b,b);if(!(aa.lo>0&&bb.lo>0))return false;
+  const auto bound=Multiply(cosine,SqrtRange(Multiply(aa,bb)));return DotBox(a,b).lo>=bound.hi;
+}
+std::array<Box,10> RestrictBoxes(const std::array<Box,10>& net,const std::array<Box,3>& arguments) {
+  std::array<Box,10> result;
+  auto blossom=[&](const std::array<Box,3>& a){std::array<Box,10> level{};
+    for(unsigned q=0;q<10;++q)level[PolynomialIndex(3,CubicIndex[q][0],CubicIndex[q][1])]=net[q];
+    for(unsigned degree=3;degree;--degree){std::array<Box,10> next{};const auto& p=a[3-degree];
+      for(unsigned i=0;i<degree;++i)for(unsigned j=0;i+j<degree;++j)for(unsigned d=0;d<3;++d)
+        next[PolynomialIndex(degree-1,i,j)][d]=Add(Add(Multiply(p[0],level[PolynomialIndex(degree,i+1,j)][d]),Multiply(p[1],level[PolynomialIndex(degree,i,j+1)][d])),Multiply(p[2],level[PolynomialIndex(degree,i,j)][d]));level=next;}
+    return level[0];};
+  for(unsigned q=0;q<10;++q){std::array<Box,3> a;unsigned at=0;for(unsigned k=0;k<3;++k)for(unsigned n=0;n<CubicIndex[q][k];++n)a[at++]=arguments[k];result[q]=blossom(a);}
+  return result;
+}
+void PositiveProjectedNet(const std::array<Box,10>& net,const Box& normal,AtlasOps& op) {
+  std::vector<std::array<Box,10>> pending{net};
+  const std::array<Box,3> left{Exact({1,0,0}),Exact({.5,.5,0}),Exact({.5,0,.5})},
+      right{Exact({.5,.5,0}),Exact({0,1,0}),Exact({0,.5,.5})},
+      top{Exact({.5,0,.5}),Exact({0,.5,.5}),Exact({0,0,1})},
+      middle{Exact({.5,.5,0}),Exact({0,.5,.5}),Exact({.5,0,.5})};
+  while(!pending.empty()) {
+    op.Work();const auto part=pending.back();pending.pop_back();bool positive=true,nonpositive=true;
+    for(const auto& n:CubicNormalControls(part)){const auto r=DotBox(n,normal);positive=positive&&r.lo>0;nonpositive=nonpositive&&r.hi<=0;}
+    if(positive)continue;if(nonpositive)throw std::invalid_argument("Curved region has nonpositive projected Jacobian.");
+    op.Storage(transfer_memory::Mul(pending.size()+4,sizeof(part)));
+    pending.push_back(RestrictBoxes(part,left));pending.push_back(RestrictBoxes(part,right));pending.push_back(RestrictBoxes(part,top));pending.push_back(RestrictBoxes(part,middle));
+  }
+}
+using CurveBoxes=std::array<Box,4>;
+std::pair<CurveBoxes,CurveBoxes> BisectCurve(const CurveBoxes& curve) {
+  auto average=[](const Box& a,const Box& b){Box out;for(unsigned d=0;d<3;++d)out[d]=Multiply(Add(a[d],b[d]),.5L);return out;};
+  const auto a=average(curve[0],curve[1]),b=average(curve[1],curve[2]),c=average(curve[2],curve[3]);
+  const auto d=average(a,b),e=average(b,c),f=average(d,e);return {{curve[0],a,d,f},{f,e,c,curve[3]}};
+}
+Box MidpointDirection(const Box& box) {Box out;for(unsigned d=0;d<3;++d){const double x=double((box[d].lo+box[d].hi)/2);out[d]={x,x};}return out;}
+bool MonotoneCurve(const CurveBoxes& curve) {
+  const auto direction=MidpointDirection(Difference(curve[3],curve[0]));
+  for(unsigned k=0;k<3;++k)if(!(DotBox(Difference(curve[k+1],curve[k]),direction).lo>0))return false;
+  return true;
+}
+bool CurveHullsSeparated(const CurveBoxes& a,const CurveBoxes& b) {
+  for(unsigned axis=0;axis<2;++axis) {
+    long double alo=INFINITY,ahi=-INFINITY,blo=INFINITY,bhi=-INFINITY;
+    for(const auto& p:a){alo=std::min(alo,p[axis].lo);ahi=std::max(ahi,p[axis].hi);}
+    for(const auto& p:b){blo=std::min(blo,p[axis].lo);bhi=std::max(bhi,p[axis].hi);}
+    if(ahi<blo||bhi<alo)return true;
+  }
+  return false;
+}
+bool EndpointConesSeparated(const CurveBoxes& a,const CurveBoxes& b) {
+  auto unit=[](const Box& p){auto out=MidpointDirection(p);const double norm=std::hypot(double(out[0].lo),double(out[1].lo));
+    if(!(norm>0&&std::isfinite(norm)))return Box{};for(unsigned d=0;d<2;++d){const double x=double(out[d].lo)/norm;out[d]={x,x};}return out;};
+  const auto first=unit(Difference(a[2],a[3])),second=unit(Difference(b[1],b[0]));
+  const auto line=MidpointDirection(Difference(first,second));
+  // Factoring endpoint displacement leaves positive combinations of these three vectors.
+  for(unsigned k=0;k<3;++k)if(!(DotBox(Difference(a[k],a[3]),line).lo>0))return false;
+  for(unsigned k=1;k<4;++k)if(!(DotBox(Difference(b[k],b[0]),line).hi<0))return false;
+  return true;
+}
+void SeparateCurvePair(const CurveBoxes& a,const CurveBoxes& b,bool adjacent,AtlasOps& op) {
+  struct Pair {CurveBoxes a,b;bool adjacent;};std::vector<Pair> pending{{a,b,adjacent}};
+  while(!pending.empty()) {
+    op.Work();auto p=pending.back();pending.pop_back();
+    if(p.adjacent?EndpointConesSeparated(p.a,p.b):CurveHullsSeparated(p.a,p.b))continue;
+    auto width=[](const CurveBoxes& c){long double result=0;for(unsigned d=0;d<2;++d){long double lo=INFINITY,hi=-INFINITY;for(const auto& p:c){lo=std::min(lo,p[d].lo);hi=std::max(hi,p[d].hi);}result=std::max(result,hi-lo);}return result;};
+    op.Storage(transfer_memory::Mul(pending.size()+2,sizeof(Pair)));
+    if(width(p.a)>=width(p.b)) {
+      const auto split=BisectCurve(p.a);pending.push_back({split.first,p.b,false});pending.push_back({split.second,p.b,p.adjacent});
+    } else {
+      const auto split=BisectCurve(p.b);pending.push_back({p.a,split.first,p.adjacent});pending.push_back({p.a,split.second,false});
+    }
+  }
+}
 SU2Native2D::Point Flat(Point p){return {p.x,p.y};}
 }
 AffineChart::AffineChart(AffineAuthority value):authority(value) {
@@ -392,6 +584,10 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
   ValidateDomainSurfaceTopology(skin);
   edges.reserve(incident.size());edge_facets.reserve(incident.size());
   for(auto& row:incident){edges.push_back(row.first);edge_facets.push_back(std::move(row.second));}
+  for(const auto& row:reference->Facets())body_roots.emplace(row.first,row.first);
+  auto body_root=[&](Id id){while(body_roots.at(id)!=id){body_roots[id]=body_roots.at(body_roots.at(id));id=body_roots.at(id);}return id;};
+  for(const auto& row:edge_facets)if(row.size()==2){const Id a=body_root(row[0]),b=body_root(row[1]);body_roots[std::max(a,b)]=std::min(a,b);}
+  for(auto& row:body_roots)row.second=body_root(row.first);
   for(size_t e=0;e<edges.size();++e) {
     std::array<Point,2> expected{};bool seen=false,curved=false,flat=false;
     for(Id id:edge_facets[e]) {
@@ -519,6 +715,88 @@ std::vector<Id> MappedFacetReference::CandidateFacets(Id id,Point p)const {
 bool MappedFacetReference::PhysicalSupport(const SurfaceBinding& binding)const {
   CheckBinding(binding);if(!components)return binding.dimension<2;
   std::set<Id> roots;ForFacets(binding,[&](Id id){roots.insert(Canonical(id));});return roots.size()>1;
+}
+bool MappedFacetReference::BuildMobilityPolicy(double angle,const std::map<int,int>& roles,MobilityPolicy& result,
+    AtlasBudget& budget,std::string& reason)const {
+  try {
+    AtlasOps op{budget};op.Storage(transfer_memory::Mul(reference->Facets().size()+edges.size(),512));
+    if(!(std::isfinite(angle)&&angle>=0&&angle<=180))throw std::invalid_argument("Invalid geometry feature angle.");
+    MobilityPolicy policy;policy.angle=angle;policy.roles=roles;policy.bodies=body_roots;
+    for(const auto& f:reference->Facets()) {
+      const auto role=roles.find(f.second.marker);if(role==roles.end()||(role->second!=0&&role->second!=2))throw std::invalid_argument("Incomplete/invalid geometry marker roles.");
+      policy.sheets.emplace(f.first,f.first);
+    }
+    const auto cosine=CosineDegrees(angle);
+    auto root=[](auto& roots,Id id){while(roots.at(id)!=id){roots[id]=roots.at(roots.at(id));id=roots.at(id);}return id;};
+    std::map<Id,std::vector<size_t>> feature_vertices;
+    for(size_t e=0;e<edges.size();++e) {
+      op.Work();const auto& incident=edge_facets[e];bool protect=incident.size()!=2;
+      if(!protect)protect=reference->Get(incident[0]).marker!=reference->Get(incident[1]).marker;
+      if(!protect) {
+        std::vector<Range> pending{{0,1}};size_t edge_work=0;
+        while(!pending.empty()&&edge_work<64) {
+          op.Work();++edge_work;const auto t=pending.back();pending.pop_back();
+          if(NormalAngleBound(EdgeNormal(*this,incident[0],edges[e],t),EdgeNormal(*this,incident[1],edges[e],t),cosine))continue;
+          const auto middle=(t.lo+t.hi)/2;
+          if(!(middle>t.lo&&middle<t.hi)){protect=true;break;}
+          pending.push_back({t.lo,middle});pending.push_back({middle,t.hi});
+        }
+        protect=protect||!pending.empty();
+      }
+      if(protect) {
+        policy.features.emplace(edges[e],Id(e));for(Id v:edges[e])feature_vertices[v].push_back(e);
+      } else {
+        const auto a=root(policy.sheets,incident[0]),b=root(policy.sheets,incident[1]);policy.sheets[std::max(a,b)]=std::min(a,b);
+      }
+    }
+    auto tangent=[&](size_t index,Id vertex) {
+      const auto edge=edges[index];const Id facet=*std::min_element(edge_facets[index].begin(),edge_facets[index].end());
+      const auto curve=curves.find(facet);
+      if(curve==curves.end())return Difference(Exact(nodes.at(edge[0]==vertex?edge[1]:edge[0])),Exact(nodes.at(vertex)));
+      const auto& f=reference->Get(facet);unsigned k=0;while(k<3&&!(std::minmax(f.v[k].id,f.v[(k+1)%3].id)==std::minmax(edge[0],edge[1])))++k;
+      const unsigned controls[3][2]={{3,4},{5,6},{7,8}};const bool forward=f.v[k].id==vertex;
+      return Difference(Exact(curve->second[controls[k][forward?0:1]]),Exact(nodes.at(vertex)));
+    };
+    auto signature=[&](size_t index){std::vector<std::pair<int,int>> labels;for(Id f:edge_facets[index]){const int m=reference->Get(f).marker;labels.push_back({m,roles.at(m)});}std::sort(labels.begin(),labels.end());return labels;};
+    for(const auto& vertex:feature_vertices) {
+      op.Work();bool corner=vertex.second.size()!=2;
+      if(!corner) {
+        const auto a=vertex.second[0],b=vertex.second[1];auto incoming=tangent(a,vertex.first);for(auto& d:incoming)d={-d.hi,-d.lo};
+        corner=signature(a)!=signature(b)||!NormalAngleBound(incoming,tangent(b,vertex.first),cosine);
+      }
+      if(corner)policy.corners.insert(vertex.first);
+    }
+    std::map<Id,Id> chains;for(const auto& edge:policy.features)chains.emplace(edge.second,edge.second);
+    for(const auto& vertex:feature_vertices)if(!policy.corners.count(vertex.first)) {
+      const auto a=root(chains,Id(vertex.second[0])),b=root(chains,Id(vertex.second[1]));chains[std::max(a,b)]=std::min(a,b);
+    }
+    for(auto& row:policy.features)row.second=root(chains,row.second);
+    for(auto& row:policy.sheets)row.second=root(policy.sheets,row.first);
+    uint64_t hash=1469598103934665603ull;auto word=[&](uint64_t x){for(unsigned i=0;i<8;++i){hash^=(x>>(8*i))&255;hash*=1099511628211ull;}};
+    auto real=[&](double x){uint64_t bits;std::memcpy(&bits,&x,8);word(bits);};
+    word(policy.version);word(version);real(angle);
+    for(const auto& row:roles){word(uint64_t(row.first));word(uint64_t(row.second));}
+    for(const auto& row:reference->Facets()){word(row.first);word(uint64_t(row.second.marker));for(auto n:row.second.v){word(n.id);real(n.p.x);real(n.p.y);real(n.p.z);}}
+    for(const auto& row:curves){word(row.first);for(auto p:row.second){real(p.x);real(p.y);real(p.z);}}
+    for(const auto& row:reference->Affine()){const auto& p=row.second;word(row.first);word(p.identity);word(p.version);word(p.dimension);real(p.origin.x);real(p.origin.y);real(p.origin.z);real(p.normal.x);real(p.normal.y);real(p.normal.z);real(p.maximum_error);}
+    for(const auto& row:policy.features){word(row.first[0]);word(row.first[1]);word(row.second);}
+    for(Id v:policy.corners)word(v);for(const auto& row:policy.sheets){word(row.first);word(row.second);}
+    policy.identity=hash?hash:1;result=std::move(policy);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+unsigned MappedFacetReference::MobilityDimension(const SurfaceBinding& binding,const MobilityPolicy& policy)const {
+  CheckBinding(binding);if(!policy.identity)return binding.dimension;
+  if(policy.version!=1)throw std::invalid_argument("Unsupported geometry mobility policy.");
+  if(binding.dimension==2)return 2;
+  if(binding.dimension==1)return policy.features.count(edges.at(binding.feature))?1:2;
+  if(policy.corners.count(binding.feature))return 0;
+  for(Id id:vertex_facets.at(binding.feature)) {
+    const auto& f=reference->Get(id);for(unsigned k=0;k<3;++k) {
+      SU2Native3D::Edge edge{f.v[k].id,f.v[(k+1)%3].id};if(edge[0]!=binding.feature&&edge[1]!=binding.feature)continue;
+      std::sort(edge.begin(),edge.end());if(policy.features.count(edge))return 1;
+    }
+  }
+  return 2;
 }
 double MappedFacetReference::ComponentPointError(const SurfaceBinding& binding,Point p)const {
   const auto model=Ideal(binding);const double original=PointModelError(model,p);double maximum=original;
@@ -727,8 +1005,9 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
 MappedFacetReference::SourcePatch MappedFacetReference::PrepareSourcePatch(Id facet,
     const std::array<SurfaceBinding,3>& binding,const std::array<Point,3>& source)const {
   if(!ContainsFace(facet,binding,source))throw std::invalid_argument("Source face leaves its mapped parameter patch.");
-  SourcePatch out;out.source=source;
-  const auto error=errors.find(facet);out.margin=error==errors.end()?0:error->second;
+  SourcePatch out;out.source=source;out.pieces.resize(1);auto& piece=out.pieces.front();
+  piece.source_lower=piece.source_upper=source;
+  const auto error=errors.find(facet);piece.margin=error==errors.end()?0:error->second;
   std::array<Box,10> controls;
   const auto curve=curves.find(facet);
   if(curve!=curves.end()) {
@@ -742,17 +1021,330 @@ MappedFacetReference::SourcePatch MappedFacetReference::PrepareSourcePatch(Id fa
   }
   for(unsigned q=0;q<10;++q) {
     Vec lo,hi;for(unsigned d=0;d<3;++d){lo[d]=std::nextafter(double(controls[q][d].lo),-INFINITY);hi[d]=std::nextafter(double(controls[q][d].hi),INFINITY);}
-    out.lower[q]=ToPoint(lo);out.upper[q]=ToPoint(hi);Finite(out.lower[q]);Finite(out.upper[q]);
+    piece.lower[q]=ToPoint(lo);piece.upper[q]=ToPoint(hi);Finite(piece.lower[q]);Finite(piece.upper[q]);
   }
   return out;
 }
+bool MappedFacetReference::BindingParameters(Id facet,const SurfaceBinding& binding,ExactBary& result,
+    AtlasBudget& budget,std::string& reason)const {
+  try {
+    AtlasOps op{budget};const auto p=FacetParameters(facet,binding);
+    auto coordinate=[&](unsigned d){const auto a=Values(p.origin)[d],b=Values(p.first)[d],c=Values(p.second)[d];
+      return op.Add(op.Binary(a),op.Add(op.Mul(op.Binary(p.u),op.Sub(op.Binary(b),op.Binary(a))),op.Mul(op.Binary(p.v),op.Sub(op.Binary(c),op.Binary(a)))));};
+    ExactBary out{coordinate(1),coordinate(2)};op.Bary(out);result=std::move(out);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool MappedFacetReference::ReferencePointKey(Id facet,const ExactBary& point,std::vector<uint64_t>& result,
+    AtlasBudget& budget,std::string& reason)const {
+  try {AtlasOps op{budget};auto out=ReferenceKey(*reference,facet,point,op);result=std::move(out);reason.clear();return true;}
+  catch(const std::exception& e){reason=e.what();return false;}
+}
+bool MappedFacetReference::ResolveSingleChart(Id facet,const std::array<SurfaceBinding,3>& binding,
+    FaceCoverage& result,AtlasBudget& budget,std::string& reason)const {
+  try {
+    AtlasOps op{budget};op.Storage(sizeof(FaceCoverage)+sizeof(CoveragePiece)+4096);
+    CoveragePiece piece;piece.facet=facet;
+    for(unsigned k=0;k<3;++k) {
+      op.Check(BindingParameters(facet,binding[k],piece.reference[k],budget,op.reason));
+      piece.active[k]={op.Integer(k==1),op.Integer(k==2)};
+    }
+    if(op.Compare(op.Orient(piece.reference[0],piece.reference[1],piece.reference[2]),op.Integer(0))<=0)
+      throw std::invalid_argument("Single-chart coverage is degenerate or reversed.");
+    FaceCoverage out;out.pieces.push_back(std::move(piece));result=std::move(out);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool MappedFacetReference::CoverageTraces(const FaceCoverage& coverage,std::array<EdgeTrace,3>& result,
+    AtlasBudget& budget,std::string& reason)const {
+  try {
+    AtlasOps op{budget};op.Storage(transfer_memory::Mul(coverage.pieces.size(),3*(sizeof(TracePiece)+1024)));
+    struct Segment {ExactRatio start;TracePiece piece;};std::array<std::vector<Segment>,3> boundary;
+    if(coverage.pieces.empty())throw std::invalid_argument("Empty curved face coverage.");
+    for(const auto& piece:coverage.pieces) {
+      reference->Get(piece.facet);
+      for(unsigned k=0;k<3;++k){op.Bary(piece.reference[k]);op.Bary(piece.active[k]);}
+      if(op.Compare(op.Orient(piece.active[0],piece.active[1],piece.active[2]),op.Integer(0))<=0)
+        throw std::invalid_argument("Curved coverage reverses its active simplex.");
+      if(op.Compare(op.Orient(piece.reference[0],piece.reference[1],piece.reference[2]),op.Integer(0))<=0)
+        throw std::invalid_argument("Curved coverage reverses its reference simplex.");
+      for(unsigned k=0;k<3;++k)for(unsigned side=0;side<3;++side) {
+        const unsigned next=(k+1)%3,zero=side==0?2:side==1?0:1;
+        if(op.Compare(op.Weight(piece.active[k],zero),op.Integer(0)) || op.Compare(op.Weight(piece.active[next],zero),op.Integer(0)))continue;
+        auto t=[&](unsigned at){return side==0?piece.active[at].u:side==1?piece.active[at].v:op.Sub(op.Integer(1),piece.active[at].v);};
+        const auto first=t(k),last=t(next);
+        if(op.Compare(first,last)>=0)throw std::invalid_argument("Curved coverage boundary reverses or collapses.");
+        TracePiece trace{piece.facet,piece.reference[k],piece.reference[next],last};
+        // A trace on an original seam has one canonical chart spelling, independent of incident face.
+        for(unsigned z=0;z<3;++z)if(!op.Compare(op.Weight(trace.first,z),op.Integer(0))&&!op.Compare(op.Weight(trace.last,z),op.Integer(0))) {
+          const auto& f=reference->Get(trace.facet);SU2Native3D::Edge edge{f.v[(z+1)%3].id,f.v[(z+2)%3].id};std::sort(edge.begin(),edge.end());
+          const auto& incident=edge_facets.at(EdgeIdentity(edge));const Id canonical=*std::min_element(incident.begin(),incident.end());
+          if(canonical!=trace.facet) {
+            auto remap=[&](const ExactBary& p){std::map<Id,ExactRatio> w;for(unsigned j=0;j<3;++j)w.emplace(f.v[j].id,op.Weight(p,j));const auto& g=reference->Get(canonical);
+              return ExactBary{w.count(g.v[1].id)?w.at(g.v[1].id):op.Integer(0),w.count(g.v[2].id)?w.at(g.v[2].id):op.Integer(0)};};
+            trace.first=remap(trace.first);trace.last=remap(trace.last);trace.facet=canonical;
+          }
+          break;
+        }
+        boundary[side].push_back({first,std::move(trace)});
+      }
+    }
+    std::array<EdgeTrace,3> out;
+    for(unsigned side=0;side<3;++side) {
+      auto& segments=boundary[side];std::sort(segments.begin(),segments.end(),[&](const auto& a,const auto& b){return op.Compare(a.start,b.start)<0;});
+      auto end=op.Integer(0);AtlasKey previous;bool first=true;
+      for(auto& segment:segments) {
+        if(op.Compare(segment.start,end))throw std::invalid_argument("Curved coverage edge has a gap or overlap.");
+        const auto begin=ReferenceKey(*reference,segment.piece.facet,segment.piece.first,op);
+        if(!first&&begin!=previous)throw std::invalid_argument("Curved coverage edge jumps between reference paths.");
+        end=segment.piece.end;previous=ReferenceKey(*reference,segment.piece.facet,segment.piece.last,op);first=false;
+        out[side].pieces.push_back(std::move(segment.piece));
+      }
+      if(first||op.Compare(end,op.Integer(1)))throw std::invalid_argument("Curved coverage edge is incomplete.");
+    }
+    result=std::move(out);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool MappedFacetReference::EqualTraces(const EdgeTrace& a,const EdgeTrace& b,AtlasBudget& budget,std::string& reason)const {
+  try {
+    AtlasOps op{budget};
+    auto check=[&](const EdgeTrace& trace){auto last=op.Integer(0);AtlasKey previous;bool first=true;
+      for(const auto& p:trace.pieces){op.Bary(p.first);op.Bary(p.last);if(op.Compare(p.end,last)<=0||op.Compare(p.end,op.Integer(1))>0)throw std::invalid_argument("Invalid curved trace interval.");
+        if(ReferenceKey(*reference,p.facet,p.first,op)==ReferenceKey(*reference,p.facet,p.last,op))throw std::invalid_argument("Collapsed curved trace path.");
+        auto key=ReferenceKey(*reference,p.facet,p.first,op);if(!first&&key!=previous)throw std::invalid_argument("Discontinuous curved edge trace.");
+        previous=ReferenceKey(*reference,p.facet,p.last,op);last=p.end;first=false;}
+      if(first||op.Compare(last,op.Integer(1)))throw std::invalid_argument("Incomplete curved edge trace.");};
+    check(a);check(b);size_t i=0,j=0;auto begin=op.Integer(0),sa=begin,sb=begin;
+    while(i<a.pieces.size()&&j<b.pieces.size()) {
+      op.Work();const auto& x=a.pieces[i];const auto& y=b.pieces[j];const auto end=op.Compare(x.end,y.end)<0?x.end:y.end;
+      auto key=[&](const TracePiece& p,const ExactRatio& start,const ExactRatio& t){return ReferenceKey(*reference,p.facet,op.Lerp(p.first,p.last,op.Div(op.Sub(t,start),op.Sub(p.end,start))),op);};
+      if(key(x,sa,begin)!=key(y,sb,begin)||key(x,sa,end)!=key(y,sb,end))throw std::invalid_argument("Curved edge reference paths or active parameters differ.");
+      if(!op.Compare(x.end,end)){sa=end;++i;}if(!op.Compare(y.end,end)){sb=end;++j;}begin=end;
+    }
+    if(i!=a.pieces.size()||j!=b.pieces.size())throw std::invalid_argument("Curved edge trace lengths differ.");
+    reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool MappedFacetReference::ValidateCoverage(Id anchor,const std::array<SurfaceBinding,3>& binding,
+    const std::array<Point,3>& realized,const FaceCoverage& coverage,const std::array<EdgeTrace,3>& traces,
+    AtlasBudget& budget,std::string& reason)const {
+  try {
+    AtlasOps op{budget};const auto& anchored=reference->Get(anchor);std::vector<AtlasEdge> edges;
+    if(coverage.pieces.empty())throw std::invalid_argument("Empty curved face coverage.");
+    op.Storage(transfer_memory::Mul(coverage.pieces.size()+1,3*(sizeof(AtlasEdge)+1024)));
+    std::array<AtlasKey,3> corners;
+    for(unsigned k=0;k<3;++k) {
+      if(!Admissible(binding[k],realized[k]))throw std::invalid_argument("Curved face endpoint leaves its forward binding.");
+      Id f=UINT64_MAX;ForFacets(binding[k],[&](Id id){f=std::min(f,id);});ExactBary point;
+      op.Check(BindingParameters(f,binding[k],point,budget,op.reason));corners[k]=ReferenceKey(*reference,f,point,op);
+    }
+    const auto flat_normal=CrossBox(Difference(Exact(realized[1]),Exact(realized[0])),Difference(Exact(realized[2]),Exact(realized[0])));
+    for(size_t i=0;i<coverage.pieces.size();++i) {
+      const auto& p=coverage.pieces[i];const auto& f=reference->Get(p.facet);
+      if(f.marker!=anchored.marker||body_roots.at(p.facet)!=body_roots.at(anchor))throw std::invalid_argument("Curved face coverage crosses a marker or body.");
+      for(unsigned k=0;k<3;++k){op.Bary(p.active[k]);op.Bary(p.reference[k]);
+        for(unsigned c=0;c<3;++c)if(!op.Compare(op.Weight(p.active[k],c),op.Integer(1))&&ReferenceKey(*reference,p.facet,p.reference[k],op)!=corners[c])
+          throw std::invalid_argument("Curved coverage endpoint differs from its realized binding.");}
+      if(op.Compare(op.Orient(p.active[0],p.active[1],p.active[2]),op.Integer(0))<=0||op.Compare(op.Orient(p.reference[0],p.reference[1],p.reference[2]),op.Integer(0))<=0)
+        throw std::invalid_argument("Curved coverage piece reverses or degenerates.");
+      PositiveProjectedNet(RestrictNet(*this,p.facet,p.reference,op),flat_normal,op);
+      for(unsigned k=0;k<3;++k)edges.push_back({0,p.facet,p.active[k],p.active[(k+1)%3],p.reference[k],p.reference[(k+1)%3],1,i});
+    }
+    const std::array<ExactBary,3> unit{{{op.Integer(0),op.Integer(0)},{op.Integer(1),op.Integer(0)},{op.Integer(0),op.Integer(1)}}};
+    for(unsigned k=0;k<3;++k)edges.push_back({0,anchor,unit[k],unit[(k+1)%3],{}, {},-1,SIZE_MAX});
+    const auto split=SplitAtlasEdges(edges,op);std::map<AtlasEdgeKey,int> count;
+    std::map<AtlasEdgeKey,std::pair<AtlasKey,AtlasKey>> paths;
+    for(const auto& e:split) {
+      int sign=e.sign;auto a=op.Key(e.a),b=op.Key(e.b);const bool reverse=b<a;const auto key=EdgeKeys(std::move(a),std::move(b),sign);count[key]+=sign;
+      if(e.triangle==SIZE_MAX)continue;
+      auto ra=ReferenceKey(*reference,e.facet,e.ra,op),rb=ReferenceKey(*reference,e.facet,e.rb,op);if(reverse)std::swap(ra,rb);
+      const auto inserted=paths.emplace(key,std::make_pair(ra,rb));if(!inserted.second&&inserted.first->second!=std::make_pair(ra,rb))throw std::invalid_argument("Curved face pieces disagree on an internal reference path.");
+    }
+    for(const auto& row:count)if(row.second)throw std::invalid_argument("Curved coverage does not tile the active simplex exactly.");
+    std::array<EdgeTrace,3> derived;op.Check(CoverageTraces(coverage,derived,budget,op.reason));
+    for(unsigned k=0;k<3;++k)op.Check(EqualTraces(derived[k],traces[k],budget,op.reason));
+    reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool MappedFacetReference::ValidateCoverageReplacement(const std::vector<FaceCoverage>& old,
+    const std::vector<FaceCoverage>& fresh,AtlasBudget& budget,std::string& reason)const {
+  try {
+    AtlasOps op{budget};size_t pieces=0;for(const auto* covers:{&old,&fresh})for(const auto& cover:*covers)pieces=transfer_memory::Add(pieces,cover.pieces.size());
+    const auto index_bytes=transfer_memory::Mul(pieces,128);op.Storage(index_bytes);
+    struct Restore {AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
+    budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,index_bytes);
+    std::map<Id,std::vector<std::pair<const CoveragePiece*,int>>> groups;
+    auto append=[&](const auto& covers,int sign){for(const auto& cover:covers)for(const auto& p:cover.pieces){reference->Get(p.facet);
+      for(const auto& r:p.reference)op.Bary(r);
+      if(op.Compare(op.Orient(p.reference[0],p.reference[1],p.reference[2]),op.Integer(0))<=0)throw std::invalid_argument("Reference coverage reverses or degenerates.");
+      groups[p.facet].push_back({&p,sign});}};
+    append(old,-1);append(fresh,1);if(groups.empty())throw std::invalid_argument("Empty reference coverage replacement.");
+    // Only one original chart's exact arrangement is resident at a time, including full restart audits.
+    for(const auto& group:groups) {
+      std::vector<AtlasEdge> edges;edges.reserve(3*group.second.size());
+      for(const auto& record:group.second){const auto& p=*record.first;for(unsigned k=0;k<3;++k)edges.push_back({p.facet,p.facet,p.reference[k],p.reference[(k+1)%3],{}, {},record.second,0});}
+      std::map<AtlasEdgeKey,int> count;
+      for(const auto& e:SplitAtlasEdges(edges,op)){int sign=e.sign;auto key=EdgeKeys(op.Key(e.a),op.Key(e.b),sign);count[std::move(key)]+=sign;}
+      for(const auto& row:count)if(row.second)throw std::invalid_argument("Replacement changes exact original-chart coverage.");
+    }
+    reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool MappedFacetReference::CertifyEmbedding(const std::vector<CoveragePiece>& region,Point normal,
+    AtlasBudget& budget,std::string& reason)const {
+  try {
+    AtlasOps op{budget};Finite(normal);const auto n=Values(normal);double scale=0;for(double x:n)scale=std::max(scale,std::abs(x));
+    if(!(scale>0)||region.empty())throw std::invalid_argument("Curved embedding needs a nonempty disk and projection normal.");
+    Vec direction{};for(unsigned d=0;d<3;++d)direction[d]=n[d]/scale;
+    unsigned axis=0;for(unsigned d=1;d<3;++d)if(std::abs(direction[d])<std::abs(direction[axis]))axis=d;
+    Vec u{},v{};u[(axis+1)%3]=direction[(axis+2)%3];u[(axis+2)%3]=-direction[(axis+1)%3];
+    for(unsigned d=0;d<3;++d)v[d]=direction[(d+1)%3]*u[(d+2)%3]-direction[(d+2)%3]*u[(d+1)%3];
+    const auto first=Exact(ToPoint(u)),second=Exact(ToPoint(v)),projection_normal=CrossBox(first,second);
+    op.Storage(transfer_memory::Mul(region.size(),3*(sizeof(AtlasEdge)+4096)));
+    std::vector<AtlasEdge> edges;
+    for(size_t i=0;i<region.size();++i) {
+      const auto& p=region[i];for(const auto& r:p.reference)op.Bary(r);
+      if(op.Compare(op.Orient(p.reference[0],p.reference[1],p.reference[2]),op.Integer(0))<=0)throw std::invalid_argument("Curved embedding reference piece reverses or collapses.");
+      PositiveProjectedNet(RestrictNet(*this,p.facet,p.reference,op),projection_normal,op);
+      for(unsigned k=0;k<3;++k)edges.push_back({p.facet,p.facet,p.reference[k],p.reference[(k+1)%3],{}, {},1,i});
+    }
+    auto split=SplitAtlasEdges(edges,op);
+    std::map<AtlasEdgeKey,std::vector<AtlasEdge>> incidence;std::set<AtlasKey> vertices;
+    std::vector<std::vector<AtlasKey>> polygons(region.size());
+    std::vector<std::vector<size_t>> adjacency(region.size());
+    for(auto& e:split) {
+      auto a=ReferenceKey(*reference,e.facet,e.a,op),b=ReferenceKey(*reference,e.facet,e.b,op);vertices.insert(a);vertices.insert(b);
+      polygons[e.triangle].push_back(a);
+      int sign=1;const auto key=EdgeKeys(a,b,sign);e.sign=sign;incidence[key].push_back(std::move(e));
+    }
+    std::map<AtlasKey,AtlasKey> next;std::map<AtlasKey,AtlasEdge> boundary;
+    for(const auto& entry:incidence) {
+      const auto& uses=entry.second;
+      if(uses.size()==2&&uses[0].sign==-uses[1].sign) {
+        adjacency[uses[0].triangle].push_back(uses[1].triangle);adjacency[uses[1].triangle].push_back(uses[0].triangle);
+      } else if(uses.size()==1) {
+        const auto& e=uses[0];const auto a=ReferenceKey(*reference,e.facet,e.a,op),b=ReferenceKey(*reference,e.facet,e.b,op);
+        if(!next.emplace(a,b).second||!boundary.emplace(a,e).second)throw std::invalid_argument("Branched curved embedding perimeter.");
+      } else throw std::invalid_argument("Curved reference disk has inconsistent/nonmanifold incidence.");
+    }
+    if(boundary.size()<3||vertices.size()+region.size()!=incidence.size()+1)throw std::invalid_argument("Curved reference region is not a disk.");
+    std::set<size_t> reached;std::vector<size_t> pending{0};
+    while(!pending.empty()){op.Work();const auto i=pending.back();pending.pop_back();if(!reached.insert(i).second)continue;for(auto j:adjacency[i])pending.push_back(j);}
+    if(reached.size()!=region.size())throw std::invalid_argument("Curved reference disk is disconnected.");
+    std::set<AtlasKey> boundary_vertices;std::vector<AtlasEdge> perimeter;auto at=next.begin()->first;const auto start=at;
+    do {
+      op.Work();if(!boundary_vertices.insert(at).second||!next.count(at))throw std::invalid_argument("Open or repeated curved reference perimeter.");
+      perimeter.push_back(boundary.at(at));at=next.at(at);
+    }while(at!=start);
+    if(perimeter.size()!=boundary.size())throw std::invalid_argument("Curved reference disk has multiple boundary loops.");
+    std::map<AtlasKey,std::vector<std::pair<AtlasKey,AtlasKey>>> links;
+    for(const auto& polygon:polygons) {
+      if(polygon.size()<3)throw std::invalid_argument("Collapsed curved reference cell boundary.");
+      for(size_t k=0;k<polygon.size();++k)links[polygon[k]].push_back({polygon[(k+polygon.size()-1)%polygon.size()],polygon[(k+1)%polygon.size()]});
+    }
+    for(const auto& row:links) {
+      std::map<AtlasKey,std::vector<AtlasKey>> link;
+      for(const auto& pair:row.second){link[pair.first].push_back(pair.second);link[pair.second].push_back(pair.first);}
+      unsigned ends=0;for(const auto& vertex:link){if(vertex.second.size()==1)++ends;else if(vertex.second.size()!=2)throw std::invalid_argument("Nonmanifold curved reference vertex link.");}
+      if(ends!=(boundary_vertices.count(row.first)?2u:0u))throw std::invalid_argument("Curved reference vertex link is not a disk neighborhood.");
+      std::set<AtlasKey> visited;std::vector<AtlasKey> queue{link.begin()->first};
+      while(!queue.empty()){op.Work();auto v=queue.back();queue.pop_back();if(!visited.insert(v).second)continue;for(const auto& w:link.at(v))queue.push_back(w);}
+      if(visited.size()!=link.size())throw std::invalid_argument("Disconnected curved reference vertex link.");
+    }
+    // At C0 original vertices, positive chart Jacobians alone allow a multiple-winding fan.
+    for(const auto& vertex:vertices)if(vertex.size()==2&&vertex[0]==0&&!boundary_vertices.count(vertex)) {
+      const Id id=vertex[1];unsigned crossings=0,sectors=0;
+      for(const auto& p:region)for(unsigned k=0;k<3;++k)if(ReferenceKey(*reference,p.facet,p.reference[k],op)==vertex) {
+        const auto& f=reference->Get(p.facet);unsigned corner=0;while(corner<3&&f.v[corner].id!=id)++corner;
+        if(corner==3)throw std::invalid_argument("Missing original vertex in curved reference fan.");
+        auto tangent=[&](const ExactBary& to) {
+          const unsigned near[3][3]={{0,3,8},{4,1,5},{7,6,2}};std::array<ExactRatio,3> xyz;
+          const auto curve=curves.find(p.facet);
+          for(unsigned d=0;d<3;++d) {
+            xyz[d]=op.Integer(0);
+            for(unsigned j=0;j<3;++j)if(j!=corner) {
+              const double control=curve==curves.end()?Values(f.v[j].p)[d]:Values(curve->second[near[corner][j]])[d];
+              auto value=op.Mul(op.Weight(to,j),op.Sub(op.Binary(control),op.Binary(Values(f.v[corner].p)[d])));
+              if(curve!=curves.end())value=op.Mul(op.Integer(3),value);xyz[d]=op.Add(xyz[d],value);
+            }
+          }
+          ExactBary projected{op.Integer(0),op.Integer(0)};
+          for(unsigned d=0;d<3;++d){projected.u=op.Add(projected.u,op.Mul(xyz[d],op.Binary(u[d])));projected.v=op.Add(projected.v,op.Mul(xyz[d],op.Binary(v[d])));}return projected;
+        };
+        const auto a=tangent(p.reference[(k+1)%3]),b=tangent(p.reference[(k+2)%3]);const ExactBary zero{op.Integer(0),op.Integer(0)};
+        if(op.Compare(op.Orient(zero,a,b),op.Integer(0))<=0)throw std::invalid_argument("Curved C0 vertex has an unresolved/reversed tangent sector.");
+        if(op.Compare(a.v,op.Integer(0))<=0&&op.Compare(b.v,op.Integer(0))>0)++crossings;++sectors;
+      }
+      if(!sectors||crossings!=1)throw std::invalid_argument("Curved C0 vertex fan does not have local degree one.");
+    }
+    auto curve=[&](const AtlasEdge& e) {
+      const auto a=op.Parameter(e.a),b=op.Parameter(e.b);CurveBoxes out;const auto net=curves.find(e.facet);const auto& f=reference->Get(e.facet);
+      for(unsigned q=0;q<4;++q) {
+        std::array<Box,3> args;for(unsigned k=0;k<3;++k)args[k]=k<3-q?a:b;Box p;
+        if(net!=curves.end())p=Blossom(net->second,args);
+        else {Box parameter{};for(const auto& arg:args)for(unsigned d=0;d<3;++d)parameter[d]=Add(parameter[d],DividePositive(arg[d],3));p=LinearPoint({f.v[0].p,f.v[1].p,f.v[2].p},parameter);}
+        out[q][0]=DotBox(p,first);out[q][1]=DotBox(p,second);out[q][2]={0,0};
+      }
+      return out;
+    };
+    std::vector<CurveBoxes> arcs;
+    for(const auto& e:perimeter) {
+      std::vector<CurveBoxes> queue{curve(e)};
+      while(!queue.empty()) {
+        op.Work();const auto p=queue.back();queue.pop_back();
+        if(MonotoneCurve(p)){op.Storage(transfer_memory::Mul(arcs.size()+queue.size()+1,sizeof(CurveBoxes)));arcs.push_back(p);continue;}
+        const auto halves=BisectCurve(p);op.Storage(transfer_memory::Mul(arcs.size()+queue.size()+2,sizeof(CurveBoxes)));queue.push_back(halves.second);queue.push_back(halves.first);
+      }
+    }
+    for(size_t i=0;i<arcs.size();++i)for(size_t j=i+1;j<arcs.size();++j) {
+      if(i==0&&j+1==arcs.size())SeparateCurvePair(arcs[j],arcs[i],true,op);
+      else SeparateCurvePair(arcs[i],arcs[j],j==i+1,op);
+    }
+    // C0 seam controls agree by authority construction. Positive one-sided projected Jacobians,
+    // the degree-one vertex fans and a Jordan perimeter give a degree-one disk map.
+    reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+size_t MappedFacetReference::SourcePreparationBytes(const FaceCoverage& coverage) {
+  return SourcePreparationBytes(coverage.pieces.size());
+}
+size_t MappedFacetReference::SourcePreparationBytes(size_t pieces) {
+  return transfer_memory::Add(sizeof(SourcePatch),transfer_memory::Mul(pieces,sizeof(SourcePatch::Piece)),SourcePatch::WorkspaceBytes());
+}
+MappedFacetReference::SourcePatch MappedFacetReference::PrepareSourcePatch(const FaceCoverage& coverage,
+    const std::array<Point,3>& source,AtlasBudget& budget)const {
+  AtlasOps op{budget};op.Storage(SourcePreparationBytes(coverage));if(coverage.pieces.empty())throw std::invalid_argument("Empty curved source coverage.");
+  for(Point p:source)Finite(p);SourcePatch out;out.source=source;out.pieces.reserve(coverage.pieces.size());
+  auto bound=[](const Box& p){Vec lo,hi;for(unsigned d=0;d<3;++d){lo[d]=std::nextafter(double(p[d].lo),-INFINITY);hi[d]=std::nextafter(double(p[d].hi),INFINITY);}Finite(ToPoint(lo));Finite(ToPoint(hi));return std::array<Point,2>{ToPoint(lo),ToPoint(hi)};};
+  for(const auto& p:coverage.pieces) {
+    op.Work();if(op.Compare(op.Orient(p.reference[0],p.reference[1],p.reference[2]),op.Integer(0))<=0||op.Compare(op.Orient(p.active[0],p.active[1],p.active[2]),op.Integer(0))<=0)throw std::invalid_argument("Invalid curved source coverage orientation.");
+    SourcePatch::Piece piece;const auto controls=RestrictNet(*this,p.facet,p.reference,op);const auto error=errors.find(p.facet);piece.margin=error==errors.end()?0:error->second;
+    for(unsigned q=0;q<10;++q){const auto b=bound(controls[q]);piece.lower[q]=b[0];piece.upper[q]=b[1];}
+    for(unsigned k=0;k<3;++k){op.Bary(p.active[k]);const auto b=bound(LinearPoint(source,op.Parameter(p.active[k])));piece.source_lower[k]=b[0];piece.source_upper[k]=b[1];}
+    out.pieces.push_back(std::move(piece));
+  }
+  return out;
+}
+double MappedFacetReference::SurfaceError(const FaceCoverage& coverage,const std::array<Point,3>& realized,
+    AtlasBudget& budget)const {
+  AtlasOps op{budget};op.Storage(SourcePreparationBytes(coverage));if(coverage.pieces.empty())throw std::invalid_argument("Empty curved face error coverage.");
+  for(Point p:realized)Finite(p);double maximum=0;
+  for(const auto& p:coverage.pieces) {
+    op.Work();const auto controls=RestrictNet(*this,p.facet,p.reference,op);std::array<Box,3> flat;
+    for(unsigned k=0;k<3;++k){op.Bary(p.active[k]);flat[k]=LinearPoint(realized,op.Parameter(p.active[k]));}
+    for(unsigned q=0;q<10;++q) {
+      Box chord{};for(unsigned k=0;k<3;++k)for(unsigned d=0;d<3;++d){const long double w=(long double)CubicIndex[q][k]/3;chord[d]=Add(chord[d],Multiply(flat[k][d],Range{std::nextafter(w,-INFINITY),std::nextafter(w,INFINITY)}));}
+      maximum=std::max(maximum,NormBound(Difference(controls[q],chord)));
+    }
+  }
+  return maximum;
+}
 std::array<Point,2> MappedFacetReference::SourcePatch::Bounds()const {
   Vec lo{{INFINITY,INFINITY,INFINITY}},hi{{-INFINITY,-INFINITY,-INFINITY}};
-  for(unsigned d=0;d<3;++d) {
-    for(unsigned q=0;q<10;++q){lo[d]=std::min(lo[d],Values(lower[q])[d]);hi[d]=std::max(hi[d],Values(upper[q])[d]);}
-    for(auto p:source){lo[d]=std::min(lo[d],Values(p)[d]);hi[d]=std::max(hi[d],Values(p)[d]);}
-    lo[d]=std::nextafter(double(Subtract(lo[d],margin).lo),-INFINITY);
-    hi[d]=std::nextafter(double(Add({hi[d],hi[d]},{margin,margin}).hi),INFINITY);
+  for(const auto& piece:pieces)for(unsigned d=0;d<3;++d) {
+    long double low=INFINITY,high=-INFINITY;
+    for(unsigned q=0;q<10;++q){low=std::min(low,(long double)Values(piece.lower[q])[d]);high=std::max(high,(long double)Values(piece.upper[q])[d]);}
+    for(unsigned q=0;q<3;++q){low=std::min(low,(long double)Values(piece.source_lower[q])[d]);high=std::max(high,(long double)Values(piece.source_upper[q])[d]);}
+    lo[d]=std::min(lo[d],std::nextafter(double(Subtract({low,low},{piece.margin,piece.margin}).lo),-INFINITY));
+    hi[d]=std::max(hi[d],std::nextafter(double(Add({high,high},{piece.margin,piece.margin}).hi),INFINITY));
   }
   const auto a=ToPoint(lo),b=ToPoint(hi);Finite(a);Finite(b);return {a,b};
 }
@@ -761,22 +1353,28 @@ double MappedFacetReference::SourcePatch::OutwardDisplacement()const {
   long double length=0,projection=0;
   for(const auto& r:normal)length=std::max({length,r.lo,-r.hi});
   if(!(length>0 && std::isfinite(length)))throw std::invalid_argument("Unrepresentable source-face normal.");
-  for(unsigned q=0;q<10;++q) {
-    Box point;for(unsigned d=0;d<3;++d)point[d]={Values(lower[q])[d],Values(upper[q])[d]};
-    projection=std::max(projection,DotBox(Difference(point,origin),normal).hi);
+  long double bound=0;
+  for(const auto& piece:pieces) {
+    projection=0;
+    for(unsigned q=0;q<10;++q) {
+      Box point;for(unsigned d=0;d<3;++d)point[d]={Values(piece.lower[q])[d],Values(piece.upper[q])[d]};
+      projection=std::max(projection,DotBox(Difference(point,origin),normal).hi);
+    }
+    bound=std::max(bound,Add({0,std::nextafter(projection/length,INFINITY)},{piece.margin,piece.margin}).hi);
   }
-  const auto bound=Add({0,std::nextafter(projection/length,INFINITY)},{margin,margin}).hi;
   const double result=std::nextafter(double(bound),INFINITY);
   if(!std::isfinite(result))throw std::invalid_argument("Unrepresentable source-face displacement.");
   return result;
 }
 size_t MappedFacetReference::SourcePatch::WorkspaceBytes(){return 32768;}
+size_t MappedFacetReference::SourcePatch::ResidentBytes()const{return transfer_memory::Add(sizeof(*this),transfer_memory::Bytes(pieces));}
 bool MappedFacetReference::SourcePatch::Separated(const std::array<Point,3>& outer,uint64_t& work,uint64_t maximum_work)const {
   for(auto p:outer)Finite(p);
+  for(const auto& piece:pieces) {
   if(work>=maximum_work)throw std::length_error("Curved source separation work exhausted.");++work;
   std::array<Box,13> hull;
-  for(unsigned q=0;q<10;++q)for(unsigned d=0;d<3;++d)hull[q][d]={Values(lower[q])[d],Values(upper[q])[d]};
-  for(unsigned k=0;k<3;++k)hull[10+k]=Exact(source[k]);
+  for(unsigned q=0;q<10;++q)for(unsigned d=0;d<3;++d)hull[q][d]={Values(piece.lower[q])[d],Values(piece.upper[q])[d]};
+  for(unsigned k=0;k<3;++k)for(unsigned d=0;d<3;++d)hull[10+k][d]={Values(piece.source_lower[k])[d],Values(piece.source_upper[k])[d]};
   auto separated=[&](const Box& direction) {
     Vec n;for(unsigned d=0;d<3;++d)n[d]=double((direction[d].lo+direction[d].hi)/2);
     const auto axis=Exact(ToPoint(n));const auto length=NormBound(axis);
@@ -785,21 +1383,23 @@ bool MappedFacetReference::SourcePatch::Separated(const std::array<Point,3>& out
     for(const auto& p:hull){const auto r=DotBox(Difference(p,Exact(outer[0])),axis);lo=std::min(lo,r.lo);hi=std::max(hi,r.hi);}
     for(auto p:outer){const auto r=DotBox(Difference(Exact(p),Exact(outer[0])),axis);olo=std::min(olo,r.lo);ohi=std::max(ohi,r.hi);}
     const auto gap=std::max(Subtract({olo,olo},{hi,hi}).lo,Subtract({lo,lo},{ohi,ohi}).lo);
-    const auto required=Multiply({margin,margin},length).hi;
+    const auto required=Multiply({piece.margin,piece.margin},length).hi;
     return std::isfinite(gap)&&std::isfinite(required)&&gap>=required;
   };
   std::array<Box,3> edge,flat;
   for(unsigned k=0;k<3;++k){edge[k]=Difference(Exact(outer[(k+1)%3]),Exact(outer[k]));flat[k]=Difference(hull[10+(k+1)%3],hull[10+k]);}
-  if(separated(CrossBox(edge[0],edge[1])) || separated(CrossBox(flat[0],flat[1])))return true;
-  for(unsigned d=0;d<3;++d){Box axis{};axis[d]={1,1};if(separated(axis))return true;}
-  for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)if(separated(CrossBox(flat[i],edge[j])))return true;
+  bool proved=separated(CrossBox(edge[0],edge[1])) || separated(CrossBox(flat[0],flat[1]));
+  for(unsigned d=0;d<3&&!proved;++d){Box axis{};axis[d]={1,1};proved=separated(axis);}
+  for(unsigned i=0;i<3&&!proved;++i)for(unsigned j=0;j<3&&!proved;++j)proved=separated(CrossBox(flat[i],edge[j]));
   // Curved controls form a polytope, whose faces/edges need not follow the source triangle.
-  for(unsigned i=0;i<hull.size();++i)for(unsigned j=i+1;j<hull.size();++j) {
+  for(unsigned i=0;i<hull.size()&&!proved;++i)for(unsigned j=i+1;j<hull.size()&&!proved;++j) {
     const auto tangent=Difference(hull[j],hull[i]);
-    for(unsigned k=j+1;k<hull.size();++k)if(separated(CrossBox(tangent,Difference(hull[k],hull[i]))))return true;
-    for(const auto& e:edge)if(separated(CrossBox(tangent,e)))return true;
+    for(unsigned k=j+1;k<hull.size()&&!proved;++k)proved=separated(CrossBox(tangent,Difference(hull[k],hull[i])));
+    for(const auto& e:edge)if(!proved)proved=separated(CrossBox(tangent,e));
   }
-  return false;
+  if(!proved)return false;
+  }
+  return !pieces.empty();
 }
 double MappedFacetReference::EnvelopeError(Id facet)const {
   const auto e=errors.find(facet);const double numerical=e==errors.end()?0.:e->second;
@@ -979,7 +1579,7 @@ size_t MappedFacetReference::FaceMemoBytes() {
 }
 size_t MappedFacetReference::ResidentBytes()const {
   auto bytes=[](const auto& map){return transfer_memory::Mul(map.size(),sizeof(typename std::decay_t<decltype(map)>::value_type)+4*sizeof(void*));};
-  size_t out=transfer_memory::Add(sizeof(*this),bytes(errors),bytes(curves),bytes(nodes),bytes(vertex_facets),transfer_memory::Bytes(edges),transfer_memory::Bytes(edge_facets));
+  size_t out=transfer_memory::Add(sizeof(*this),bytes(errors),bytes(curves),bytes(nodes),bytes(vertex_facets),bytes(body_roots),transfer_memory::Bytes(edges),transfer_memory::Bytes(edge_facets));
   for(const auto& row:vertex_facets)out=transfer_memory::Add(out,transfer_memory::Bytes(row.second));
   for(const auto& row:edge_facets)out=transfer_memory::Add(out,transfer_memory::Bytes(row));
   if(components){out=transfer_memory::Add(out,sizeof(ComponentData),bytes(components->entries));

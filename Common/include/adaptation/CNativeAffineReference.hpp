@@ -6,9 +6,11 @@
 #pragma once
 #include "CNativeCavity3D.hpp"
 #include "CNativePointConstruction3D.hpp"
+#include "CNativeAtlas3D.hpp"
 #include <map>
 #include <memory>
 #include <mutex>
+#include <set>
 #include <unordered_map>
 #include <vector>
 
@@ -74,6 +76,17 @@ struct MappedSurfaceAudit {
   size_t nodes=0,faces=0,feature_segments=0,requested_bytes=0;
   double maximum_mapping_error=0;
 };
+/*! Geometry policy, independent of whether a BL metric is requested. Edge keys use original IDs.
+ * roles: 0 reflective carrier, 2 other physical boundary; marker interfaces remain protected.
+ * Unresolved whole-edge normal comparisons are protected, never classified from samples. */
+struct MobilityPolicy {
+  double angle=0;
+  uint64_t version=1,identity=0;
+  std::map<int,int> roles;
+  std::map<SU2Native3D::Edge,Id> features; // Protected edge -> canonical curve chain.
+  std::set<Id> corners;
+  std::map<Id,Id> bodies,sheets;          // Original facet -> edge-connected root.
+};
 /*! Explicit numerical mapping contract on immutable finite triangles.
  * Facet-local policy protects original edges. Reference-component policy releases only
  * the immutable reference's certified planar seams, preserving physical border chains.
@@ -120,15 +133,44 @@ class MappedFacetReference {
     double OutwardDisplacement()const;
     bool Separated(const std::array<Point,3>& outer,uint64_t& work,uint64_t maximum_work)const;
     static size_t WorkspaceBytes();
+    size_t ResidentBytes()const;
    private:
     friend class MappedFacetReference;
     SourcePatch()=default;
-    std::array<Point,10> lower{},upper{};
+    struct Piece {
+      std::array<Point,10> lower{},upper{};
+      std::array<Point,3> source_lower{},source_upper{};
+      double margin=0;
+    };
+    std::vector<Piece> pieces;
     std::array<Point,3> source{};
-    double margin=0;
   };
   SourcePatch PrepareSourcePatch(Id facet,const std::array<SurfaceBinding,3>& binding,
                                  const std::array<Point,3>& source)const;
+  /*! Additional resident/preparation storage, admitted before constructing restricted pieces. */
+  static size_t SourcePreparationBytes(const FaceCoverage& coverage);
+  static size_t SourcePreparationBytes(size_t piece_count);
+  SourcePatch PrepareSourcePatch(const FaceCoverage&,const std::array<Point,3>& source,AtlasBudget&)const;
+  double SurfaceError(const FaceCoverage&,const std::array<Point,3>& realized,AtlasBudget&)const;
+  bool ResolveSingleChart(Id facet,const std::array<SurfaceBinding,3>& binding,FaceCoverage&,
+                          AtlasBudget&,std::string& reason)const;
+  bool BindingParameters(Id facet,const SurfaceBinding&,ExactBary&,AtlasBudget&,std::string& reason)const;
+  bool ReferencePointKey(Id facet,const ExactBary&,std::vector<uint64_t>&,AtlasBudget&,std::string& reason)const;
+  bool CoverageTraces(const FaceCoverage&,std::array<EdgeTrace,3>&,AtlasBudget&,std::string& reason)const;
+  bool EqualTraces(const EdgeTrace&,const EdgeTrace&,AtlasBudget&,std::string& reason)const;
+  /*! Traces are oriented 0->1,1->2,2->0; current-ID canonicalization belongs to the parameter layer. */
+  bool ValidateCoverage(Id anchor,const std::array<SurfaceBinding,3>& binding,const std::array<Point,3>& realized,
+                        const FaceCoverage&,const std::array<EdgeTrace,3>&,AtlasBudget&,std::string& reason)const;
+  bool ValidateCoverageReplacement(const std::vector<FaceCoverage>& old,const std::vector<FaceCoverage>& fresh,
+                                   AtlasBudget&,std::string& reason)const;
+  /*! Sufficient real C0 surface embedding certificate for a complete reference disk.
+   * The supplied normal proposes a general projection basis; all actual basis arithmetic is enclosed.
+   * Boundary arcs, chart gluing and vertex fan are certified, never replaced by corner chords. */
+  bool CertifyEmbedding(const std::vector<CoveragePiece>& region,Point normal,AtlasBudget&,
+                        std::string& reason)const;
+  bool BuildMobilityPolicy(double angle,const std::map<int,int>& roles,MobilityPolicy&,
+                           AtlasBudget&,std::string& reason)const;
+  unsigned MobilityDimension(const SurfaceBinding&,const MobilityPolicy&)const;
   /*! Physical displacement from the original flat facet, including realization error. */
   double EnvelopeError(Id facet)const;
   /*! Outward bound between a flat realized child and its curved parameter patch. */
@@ -178,6 +220,7 @@ class MappedFacetReference {
   uint64_t version;
   std::map<Id,Point> nodes;
   std::map<Id,std::vector<Id>> vertex_facets;
+  std::map<Id,Id> body_roots;
   std::vector<SU2Native3D::Edge> edges;
   std::vector<std::vector<Id>> edge_facets;
   struct ComponentData;
