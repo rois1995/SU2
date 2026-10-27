@@ -4,6 +4,8 @@ Continue until DC-17/DC-18 and ensuing defects are verified closed. Keep the loc
 [TODO](ADAPTATION_TODO.md) and tracked [progress companion](ADAPTATION_PROGRESS.md)
 current. Do not mistake a local repair, checkpoint or passing fixture for full
 adaptation acceptance. Permanent architecture/cadence/resource rules: [AGENTS.md](AGENTS.md).
+Keep transfer-specific bugs, improvements and validation status current in the
+[transfer operators ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 
 ## Goal and direction
 
@@ -78,9 +80,9 @@ Normal-only contract still binds; tangential growth outside protected band unans
 
 ## Checkpoints and preserved history
 
-Latest pushed `b33ec2ccb9`: build13/connected-failure evidence. Code536025f6e4 contains
-construction generations, fair repair service and complete-star movement. Current
-coarsening/clipping integration is not yet committed/pushed. Earlier builds and local
+Latest pushed `6aee162837`: coarsening closure, clipping correction and regressions,
+with failed-workflow/replay evidence; integrated validation is pending. Code536025f6e4 contains
+construction generations, fair repair service and complete-star movement. Earlier builds and local
 repair witnesses do not validate current code. Details: [staged history](Handbook/STAGED_NATIVE_ADAPTATION.md),
 [completion](Handbook/DC17_DC18_COMPLETION_2026_10_25.md), [curved source](Handbook/DC18_CURVED_SOURCE.md),
 [validation47–54](Handbook/VALIDATION47_54_HANDOFF_HISTORY.md),
