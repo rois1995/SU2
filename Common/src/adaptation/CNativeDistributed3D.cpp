@@ -389,7 +389,8 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
     for(const auto& page:pages) {
       const size_t limit=page.coordinate_star.count==1?MaximumDirectoryScan:MaximumCavityCells;
       if(page.owner<0 || page.owner>=world.size || page.coordinate_star.count>1 ||
-          !page.pages || page.page>=page.pages || !page.total || !page.total_removed ||
+          !page.pages || page.page>=page.pages || !page.total ||
+          (page.coordinate_star.count && !page.total_removed) ||
           page.total_removed>limit || page.total>(page.coordinate_star.count?limit:MaximumReplacementCells) ||
           page.count>MaximumReplacementCells || page.removed_count>MaximumCavityCells ||
           page.pages!=std::max((page.total+MaximumReplacementCells-1)/MaximumReplacementCells,

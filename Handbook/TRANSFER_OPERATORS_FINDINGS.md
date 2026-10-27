@@ -12,13 +12,22 @@ quality-operator findings belong in the adaptation handbooks.
 The clipping correction and regressions are committed and pushed in
 `6aee162837` on `rois1995/SU2`, branch `codex/native-3d-bl`.
 The saved failing geometry passes a focused overlap replay after the arithmetic
-correction. Integrated build15/session90655 is still running; the corrected
-transfer/restart workflow and broader serial/MPI tests are **not yet validated**.
+correction. Integrated build15/session90655 passed (573.64 s; 933 unchanged source pins).
+Its connected run/session49438 passed the curved Euler/RANS transfer/reload checks
+and all three clipping regressions. The run as a whole failed one unrelated
+large-star fixture premise (82/83 cases pass). Broader serial/MPI qualification
+is pending. Build16 changes only that movement fixture and its connected run
+passes all 83 cases/19,836 assertions (22.62 s, unchanged pins). Broader serial
+validation completed with added kernel, recovery/history and repeated curved
+transfer/restart lifecycle coverage: all transfer checks pass. The overall serial
+run is 178/179 because of an unrelated collision paging regression. Build17 fixes
+that regression; broader MPI validation remains pending.
 Full M6 transfer remains unqualified because no complete accepted M6 mesh exists.
 
 ## TR-001 — Subnormal clipping distances lose valid intersections
 
-**Status:** confirmed defect; shared correction implemented; integrated validation pending.
+**Status:** confirmed defect; correction passes focused replay and connected
+transfer/reload validation; broader serial/MPI qualification pending.
 
 - Trigger: the curved RANS runtime fixture produces finite boundary coordinates
   containing `-denorm_min`. Build14 completed remeshing, but its BDF2 transfer
@@ -69,12 +78,19 @@ Evidence root:
 - `transfer_coverage/`: all-pair reproducer, literal target cells and before/after
   logs. Its original `command.json` describes the baseline build; do not treat it
   as a complete manifest for the corrected replay binary.
-- `build15_*`: integrated rebuild receipts, currently incomplete.
+- `build15_*`: successful integrated rebuild receipts.
+- `cases/connected_fix_20261027T085924_1559161`: terminal run, unchanged pins;
+  transfer/reload and clipping regressions pass, one unrelated fixture fails.
+- `cases/connected_fix_20261027T090234_1568547`: build16 connected PASS,
+  all 83 cases/19,836 assertions, unchanged pins.
+- `cases/serial_full_20261027T090323_1570933`: build16 broad serial,
+  178/179 cases pass, unchanged pins, 60.69 s; all transfer groups pass,
+  one collision paging failure outside transfer.
 
 ## TR-002 — Constant preservation alone misses coverage defects
 
-**Status:** demonstrated validation limitation; stronger regression added,
-integrated qualification pending.
+**Status:** demonstrated validation limitation; stronger regressions pass the
+connected run; broader distributed qualification pending.
 
 The Euler constant field remained constant despite TR-001's lost overlap.
 Open-boundary fill/loss compensation can conceal the coverage defect in that
@@ -89,11 +105,14 @@ obligations.
 
 ## Pending validation and improvements
 
-- Finish build15 and run the connected curved Euler/RANS transfer and reload
-  checks with unchanged expectations, including all three clipping regressions.
+- Connected curved Euler/RANS transfer/reload and all three clipping regressions
+  passed under unchanged expectations in build15. Retain this evidence when
+  qualifying the complete corrected fixture suite.
 - Run appropriate broader conservative clipping/projection/transfer regression
   in serial and MPI6 at the integration milestone; save source, binary, input,
-  configuration and helper provenance with terminal outcomes.
+  configuration and helper provenance with terminal outcomes. The named single-
+  precision contract test runs under the current binary precision; passing it in
+  a double build does not qualify a separate single-precision build.
 - Verify complete accepted M6 Euler and RANS transfer, history and restart once
   mesh construction supplies admissible meshes. Fixture success cannot close this.
 

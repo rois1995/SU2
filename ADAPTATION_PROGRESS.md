@@ -35,8 +35,17 @@ finished25.65s:77/80 cases pass,18,339/18,502 assertions. Both curved remeshing 
 now complete; RANS transfer still fails. Two new fixture setups were invalid and
 are corrected. An all-pair replay isolates non-finite clipping arithmetic: lost
 volume.02111049961 falls to3.6e-16 with normalized signed-distance interpolation.
-Shared correction and three regressions are integrated; build15/session90655 is
-active with933 frozen pins,one nice19 worker. Qualification remains incomplete.
+Shared correction and three regressions pass the build15 connected transfer/reload
+checks. Build15 passed573.64s/933 unchanged pins; connected49438 is terminal82/83
+cases (16,062/16,063 assertions), with only the large-star initial-quality premise
+failing. Build16/session41647 corrects that fixture by approaching a face from
+inside; no production code changed. Build16 passed105.17s/933 unchanged pins;
+connected4342 PASS83 cases/19,836 assertions. Broad serial_full/session2882 is
+terminal178/179 cases pass,60.69s,unchanged pins. All transfer/kernel/history/
+curved lifecycle checks pass. Collision clearance exposed a paging regression:
+ordinary proposals with no removed cells were incorrectly rejected. Build17/
+session53915 restores this API while keeping nonempty coordinate-star admission;
+all sources/helpers frozen. Broader qualification remains incomplete. Transfer findings: [ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 [Diagnosis and replay](Handbook/TRANSFER_CLIPPING_UNDERFLOW.md). Full M6 quality closure is still a separate open capability.
 Previous build12 rejected during construction on the4096 notification scan limit.
 

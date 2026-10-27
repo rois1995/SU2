@@ -37,7 +37,11 @@ for name in ("serial", "serial_full", "mpi6", "connected_fix"):
 
 for name in ("serial_full", "mpi6"):
     ranks, filters = CASES[name]
-    CASES[name] = ranks, filters + ",Convex clipping:*,Conservative projection:*,Conservative transfer:*,Distributed conservative projection:*"
+    CASES[name] = ranks, filters + (",Convex clipping:*,Conservative projection:*,Conservative transfer:*,"
+                                   "Distributed conservative projection:*,Conservative kernels:*,"
+                                   "Distributed conservative kernels:*,Transfer admissibility:*,"
+                                   "Distributed conservative transfer:*,Single precision transfer contract,"
+                                   "[NativeCurvedLifecycle3D]")
 
 
 def loaded_libraries():

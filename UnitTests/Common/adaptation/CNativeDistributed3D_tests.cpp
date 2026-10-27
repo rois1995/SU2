@@ -3550,15 +3550,19 @@ TEST_CASE("Distributed repair moves complete large stars without changing cell o
   World world;
   for(unsigned levels:{1u,2u}) {
     auto fixture=IcosphereStar(levels);
+    const auto& face=fixture.patch.cells.front().v;
+    const Point displaced{.999*(face[1].p.x+face[2].p.x+face[3].p.x)/3,
+                          .999*(face[1].p.y+face[2].p.y+face[3].p.y)/3,
+                          .999*(face[1].p.z+face[2].p.z+face[3].p.z)/3};
     for(auto& c:fixture.patch.cells)for(auto& n:c.v) {
-      if(n.id==1000){n.id=0;n.p={.9,0,0};}else ++n.id;
+      if(n.id==1000){n.id=0;n.p=displaced;}else ++n.id;
     }
     for(auto& f:fixture.patch.surface)for(auto& id:f.v)++id;
     for(auto& f:fixture.facets)for(auto& n:f.v)++n.id;
     const PlanarReference geometry(fixture.facets);const auto input=Partition(Rows(fixture.patch),world);
     const auto saved=Bytes(input);const Tensor tensor{.81,0,0,.81,0,.81};unsigned initial_bad=0;
-    // The displaced point remains inside both polyhedra. Every radius edge has metric
-    // length at most .9*(1+.9)=1.71, leaving only a genuine initial shape defect.
+    // Approach a face from the interior to guarantee a flat cell at either refinement.
+    // Both endpoints stay in the unit ball, so every metric edge remains below 1.8.
     for(const auto& row:input) {
       const auto& v=row.second.cell.v;REQUIRE(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);
       const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
@@ -3627,7 +3631,8 @@ TEST_CASE("Native current collision index follows remote publication and retains
   const Patch query{{cell(20,0,0,0,0,1).cell},{}};
   auto check=[&](bool expected,const Patch& old=Patch{}) {
     bool candidate=world.rank==0;
-    REQUIRE(directory.Clearance(owned,old,query,candidate,reason));INFO(reason);
+    const bool cleared=directory.Clearance(owned,old,query,candidate,reason);INFO(reason);
+    REQUIRE(cleared);
     CHECK(world.sum(candidate)==int(expected));
   };
   check(true);check(true);CHECK(directory.Statistics().collision_builds==1);

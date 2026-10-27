@@ -23,17 +23,29 @@ and [curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md).
 
 ## Live work and next validation
 
-ACTIVE: build15/session90655,933 frozen source pins,one nice19 worker; all main
-C++/tests/helpers are FROZEN. No other heavy job. Build14/session8407 passed594.86s.
-Connected_fix/session39461 is terminal FAIL:25.65s,77/80 cases,18,339/18,502
-assertions, unchanged pins. Curved remeshing completed; RANS transfer failed.
+ACTIVE: build17/session53915,933 pins,one nice19 worker; all main C++/tests/helpers FROZEN.
+Build16 serial_full/session2882 terminal:178/179 cases pass, unchanged pins,60.69s.
+All transfer/kernel/history/repeated-curved-restart checks pass. Only collision
+clearance fails: paged transport incorrectly required nonempty removed cells even
+for ordinary insertion/query proposals. Build17 requires nonempty removal only
+for coordinate-star mode, retaining ordinary clearance semantics and all contact
+checks. Existing collision regression exercises insertion, publication, deletion,
+rebuild, budget refusal and peer conflict.
+Build16/session41647 passed105.17s with933 unchanged pins. Connected_fix/session4342
+PASS:22.62s,83 cases/19,836 assertions, unchanged pins. Curved Euler/RANS
+transfer/reload, clipping regressions, strict coarsening rollback variants and
+large-star movement all pass. The movement fixture now approaches a face from
+inside, ensuring a real shape defect without invalid cells or oversized edges.
+Broader selectors now include conservative kernels, distributed recovery/history,
+precision contract and repeated curved transfer/restart lifecycle. The precision
+contract runs in this build's precision; this is not a separate float build.
 
 Integrated coarsening correction: strict checkpoints, net cell reduction across
 removal+quality closure, unchanged-support attempt ledger, finite-queue rollback,
 byte-accounted dormant Directory, persistent blocked directions. It restores exact
 owned cells/versions/parameters; collateral directions return. Real resource limits
 still reject. Flat and mapped height-constrained rollback variants pass; stretched
-variant and corrected large-star fixture await validation. No construction q/J floor.
+variant and corrected large-star fixture pass the connected build16 run. No construction q/J floor.
 The old isolated copy in `dc17_18_completion_v1/coarsen_closure_worktree` is stale;
 do not copy it over main.
 
@@ -42,14 +54,13 @@ ConvexClipping.hpp: raw overlap NaN, split overlap.97888950039/lost.02111049961.
 Root's normalized signed-distance interpolation restores overlap1 and lost3.6e-16.
 Polygon and Polyhedron share CutFraction; nonfinite overlap volumes now fail
 explicitly. Reproducer/receipts: `staged57/transfer_coverage`. Three clipping regressions are integrated. All agent sources were released before
-build15; no agent may edit pinned files or start another job. Full diagnosis:
+build15; no agent may edit currently pinned files or start another job. Full diagnosis:
 [transfer clipping](Handbook/TRANSFER_CLIPPING_UNDERFLOW.md).
 Two Distributed fixtures are corrected:80-cell input must actually have quality
 debt; orthogonal stretch/pullback metric replaces invalid sheared first-height setup.
 Phase-census imports no longer debit an absent update timer.
 
-Next: finish build15, connected_fix, then appropriate
-broader serial/MPI6 qualification. Existing `staged57/build_checkpoint.py` and
+Next: finish build17, rerun affected broader serial qualification, then MPI6. Existing `staged57/build_checkpoint.py` and
 `run_cases.py` save unique pinned/resource receipts. Connected selector includes
 coarsen closure and clipping regressions; broad selectors include conservative
 projection/transfer tests. Keep compiled sources/helpers frozen until owned job
