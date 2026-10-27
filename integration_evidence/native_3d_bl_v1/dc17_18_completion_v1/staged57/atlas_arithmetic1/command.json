@@ -1,0 +1,40 @@
+{
+  "commands": [
+    [
+      "nice",
+      "-n",
+      "19",
+      "/usr/bin/time",
+      "-v",
+      "-o",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/atlas_arithmetic1/compile.resources",
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "-fno-fast-math",
+      "-Iexternals/catch2",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/atlas_arithmetic1/main.cpp",
+      "Common/src/adaptation/CNativeAtlas3D.cpp",
+      "UnitTests/Common/adaptation/CNativeAtlas3D_tests.cpp",
+      "-o",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/atlas_arithmetic1/tests"
+    ],
+    [
+      "nice",
+      "-n",
+      "19",
+      "/usr/bin/time",
+      "-v",
+      "-o",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/atlas_arithmetic1/test.resources",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/atlas_arithmetic1/tests",
+      "[NativeAtlas3D]"
+    ]
+  ],
+  "environment": {
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}
