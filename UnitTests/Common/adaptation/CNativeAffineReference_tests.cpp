@@ -1009,6 +1009,10 @@ TEST_CASE("Coordinated retained-face covers reparameterize one shared trace atom
   Owned owned;OwnedCell row;row.cell={0,{nodes.at(1),nodes.at(9),nodes.at(21),nodes.at(40)}};
   for(unsigned k=0;k<4;++k)row.physical[k]={true,100+k};if(!world.rank)owned.emplace(0,row);
   Directory directory(world,true,state.get());REQUIRE(directory.Build(owned,reason));const auto initial=state->Snapshot(),directory_before=directory.Snapshot();
+  auto owner_work=GeometryAtlasBudget();
+  CHECK_FALSE(directory.Publish(owned,{}, {},true,reason,SIZE_MAX,0,{},delta,&owner_work));
+  CHECK(reason.find("every owning volume cell")!=std::string::npos);
+  CHECK(state->Snapshot()==initial);CHECK(directory.Snapshot()==directory_before);
   std::vector<Dependency> removed;std::vector<OwnedCell> added;if(!world.rank){removed.push_back({0,0,0});row.version=1;added.push_back(row);}
   auto partial=delta;partial.faces.erase(changed_face);auto partial_work=GeometryAtlasBudget();
   CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,{},partial,&partial_work));

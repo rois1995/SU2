@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "cmake",
+    "-S",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/reference_network_probe_v1",
+    "-B",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/reference_network_probe_v1/build",
+    "-G",
+    "Ninja",
+    "-DCMAKE_MAKE_PROGRAM=/home/rausa/Software/su2-develop/ninja",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+  ],
+  "environment": {
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

@@ -536,3 +536,22 @@ PL reconstruction upfront, without a failure fallback. Prepare retains whole-uni
 trace and incident-face proofs. Same-star oscillation alone does not establish
 bounded cost for moving neighbors; the overlapping-star failure demonstrates the
 remaining limitation. Existing predicate and repeated-event resource tests remain.
+
+
+## Connected reconstruction candidate after mature-design review (2026-10-27)
+
+See [architecture decision](WORKING_SURFACE_RECONSTRUCTION_DECISION.md). The
+Geometry Central fixed-input/disposable-overlay probe completes16 moves on flat
+and M6 faceted stars, but does not recover the prescribed CFD network or qualify
+movable features. It is not being added as a production dependency.
+
+The native candidate builds one constrained reference complex for all proposed
+shared paths, labels disjoint candidate face disks and certifies positive maps,
+consistent edge parameters and exact region replacement. Independent canonical
+paths are proposals only. Eigen replaces custom PCG using the existing vendored
+headers, bounded iterations/work/storage, finite and true-residual checks.
+Build37 passes78.18s/1293 unchanged pins. Build38 adds collective volume-owner
+closure for association publication and an atomic missing-owner rejection test;
+validation is in progress. Source donor geometry is frozen before private edits;
+reader/rebind and sidecar persistence use the accepted generation after transfer.
+No accepted M6 mesh or native workflow qualification is claimed.

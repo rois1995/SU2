@@ -48,9 +48,24 @@ faces. Expanded build34 serial_full/session69002 TERMINAL FAIL94.85s, pins uncha
 
 Build35 and build36 passed with 950 unchanged pins. Build36 serial_full/session68944 TERMINAL FAIL99.7804s, pins unchanged: 226/228 cases and 1129639/1129642 assertions passed; largest sampled individual RSS145432576 bytes. Evidence: `staged57/cases/serial_full_20261027T153436_2673844`. The overlapping-star test exhausted atlas work on event 5 (sixth move); curved Euler/RANS runtime again exhausted 67207168 work after 29 accepted private edits and 35 attempts. Retained path history is an architectural blockage not resolved by discarding interior cuts. Develop a connected strategy before MPI or M6 retry; accepted mesh, transfer and restart remain unqualified.
 
-The [working-surface reconstruction decision](Handbook/WORKING_SURFACE_RECONSTRUCTION_DECISION.md) calls for a mature-backend compatibility probe before implementation resumes. Geometry Central on fixed input with a disposable overlay is a candidate, not a selected production backend; vendored Eigen is the practical linear-algebra reuse candidate instead of custom CG. Independent per-edge chart work is not the selected joint-network production design. Canonical trace, trace coverage and integration changes are unbuilt, unvalidated WIP and frozen. No jobs are live. Native geometry authority and all final gates remain unchanged.
+The fixed-reference compatibility probe now completes16 neighboring moves on both
+a planar disk and a faceted M6 wing star with stable current capacities and
+settled overlay counts. This qualifies representation/API scope only. Geometry
+Central does not provide the required prescribed CFD graph recovery or movable
+feature retirement through the inspected APIs; it is not selected as a complete
+production network engine. The next connected candidate uses native shared-PSLG
+reconstruction and a collective embedding certificate; independent canonical
+edge proposals are never sufficient admission. See the
+[architecture decision](Handbook/WORKING_SURFACE_RECONSTRUCTION_DECISION.md) and
+[probe measurements](integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/reference_network_probe_v1/probe_summary.md).
+No full accepted mesh, transfer or restart has been established.
+Native build37 passed78.18s with1293 unchanged pins, including vendored Eigen.
+Build38 is validating the connected candidate plus publication owner closure:
+metadata refresh must replace its owning volume rows so existing cell versions
+and notifications invalidate dependent work. Donor-generation tracing found no
+separate freeze/persistence mismatch. No runtime pass is claimed yet.
 
-Latest pushed checkpoint: `bf3c4e94a6` (WIP; build35 validation pending). Cross-chart design, retained failures and
+Latest pushed checkpoint: `a61e28bf58` (WIP; new connected prototype unbuilt). Cross-chart design, retained failures and
 validation: [curved atlas implementation](Handbook/CURVED_ATLAS_IMPLEMENTATION.md).
 The native [geometry-backend interface](Handbook/GEOMETRY_BACKEND_PLAN.md) is
 implemented and exercised; Open CASCADE/importers remain planned. Cubic geometry
@@ -59,7 +74,8 @@ checkpoints and links: [validation history](Handbook/VALIDATION_HISTORY_THROUGH_
 The capture analyzer supports legacy/schema8 payloads; synthetic checks pass.
 
 The broad filters now include the previously omitted barycentric and connected
-runtime/history/veto cases. Compiled selection verifies all30 required cases:227 serial,204 MPI; execution pending.
+runtime/history/veto cases. Build36 compiled selection verified all56 required cases:228 serial,205 MPI.
+Serial failure is recorded above; MPI was not repeated after that failure.
 Use existing `staged57/build_checkpoint.py` and `run_cases.py` with unique source,
 binary, runtime/input/helper and resource receipts. Preserve completed evidence;
 do not repeat blind timeouts or add local fallbacks without addressing the blockage.

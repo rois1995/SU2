@@ -8,6 +8,7 @@
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <chrono>
+#include <climits>
 #include <cmath>
 #include <set>
 #include <stdexcept>
@@ -1226,6 +1227,37 @@ bool Directory::PrepareParameters(const std::vector<OwnedCell>& old,const std::v
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!Vote(failure,reason))return false;
     stats.parameter_payload_bytes+=transfer_memory::Mul(global_pages,560);
+  }
+  // Association refresh changes curved cell envelopes, so its owners must advance cell versions too.
+  if(!global_coverage.faces.empty()) {
+    const auto closure_peak=transfer_memory::Add(atlas_peak,BoundaryCoverageBytes(global_coverage),
+        transfer_memory::Mul(global_coverage.faces.size(),256));
+    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,closure_peak);
+    if(closure_peak==SIZE_MAX||closure_peak>ceiling||global_coverage.faces.size()>size_t(INT_MAX)/2)
+      failure.Set(3,0,"Atlas owner closure exceeds storage/transport admission.");
+    if(!Vote(failure,reason))return false;
+    std::map<Face,size_t> indices;std::vector<size_t> counts,total;
+    try {
+      counts.assign(2*global_coverage.faces.size(),0);total.resize(counts.size());
+      for(const auto& row:global_coverage.faces)indices.emplace(row.first,indices.size());
+      auto count=[&](const std::vector<OwnedCell>& cells,size_t side) {
+        for(const auto& row:cells){const auto& v=row.cell.v;
+          const std::array<Face,4> faces{{{v[1].id,v[2].id,v[3].id},{v[0].id,v[3].id,v[2].id},
+                                        {v[0].id,v[1].id,v[3].id},{v[0].id,v[2].id,v[1].id}}};
+          for(unsigned k=0;k<4;++k)if(row.physical[k].present){auto face=faces[k];
+            std::rotate(face.begin(),std::min_element(face.begin(),face.end()),face.end());
+            const auto found=indices.find(face);if(found!=indices.end())++counts[2*found->second+side];}
+        }
+      };
+      count(old,0);count(added,1);
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!Vote(failure,reason))return false;
+    CPassiveComm::Allreduce(counts.data(),total.data(),counts.size(),CPassiveComm::Op::SUM,world.comm);
+    for(const auto& row:indices){auto key=row.first;std::sort(key.begin(),key.end());
+      if(total[2*row.second+1]!=1 || (parameters->Surface().count(key)&&total[2*row.second]!=1))
+        failure.Set(1,0,"Atlas cover update requires replacement of every owning volume cell.");
+    }
+    if(!Vote(failure,reason))return false;
   }
   const size_t changes=CPassiveComm::Allreduce(transfer_memory::Add(local_faces.size(),edits.size()),CPassiveComm::Op::SUM,world.comm);
   if(!changes && !global_pages){staged.before=staged.after=parameters->Revision();staged.valid=true;return true;}

@@ -82,3 +82,32 @@ TEST_CASE("Trace coverage preserves a nonlinear multichart boundary and frees fl
   auto no_work=TraceBudget();no_work.maximum_work=0;CHECK_FALSE(RebuildTraceCoverage(*geometry,region,faces,bindings,traces,output,no_work,reason));CHECK(TraceWords(output)==saved);CHECK(no_work.work==0);
   auto no_storage=TraceBudget();no_storage.maximum_bytes=1;CHECK_FALSE(RebuildTraceCoverage(*geometry,region,faces,bindings,traces,output,no_storage,reason));CHECK(TraceWords(output)==saved);
 }
+
+TEST_CASE("Trace coverage admits a shared embedding and atomically rejects crossed edge proposals", "[NativeTraceCoverage3D]") {
+  auto geometry=TraceGeometry();auto construction=TraceBudget();std::string reason;
+  const std::vector<CoveragePiece> region{Identity(*geometry,0,construction)};
+  std::map<Id,SurfaceBinding> bindings{{100,geometry->Vertex(0)},{200,geometry->Vertex(2)},
+      {300,geometry->Vertex(1)},{400,geometry->FacetPoint(0,.25,.25)},
+      {500,geometry->FacetPoint(0,.5,.125)}};
+  const std::vector<SurfaceFace> faces{{{100,200,500},0},{{200,400,500},0},
+      {{400,100,500},0},{{200,300,400},0},{{300,100,400},0}};
+  auto edge_proposals=[&] {
+    std::map<Edge,EdgeTrace> result;
+    for(const auto& face:faces)for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());
+      if(result.count(edge))continue;ExactBary a,b;
+      REQUIRE(geometry->BindingParameters(0,bindings.at(edge[0]),a,construction,reason));
+      REQUIRE(geometry->BindingParameters(0,bindings.at(edge[1]),b,construction,reason));
+      result[edge].pieces.push_back({0,a,b,TraceRatio(1,construction)});
+    }
+    return result;
+  };
+  auto traces=edge_proposals();std::map<Face,FaceCoverage> output;auto work=TraceBudget();
+  const bool accepted=RebuildTraceCoverage(*geometry,region,faces,bindings,traces,output,work,reason);
+  INFO(reason);REQUIRE(accepted);ValidateFaces(*geometry,faces,bindings,traces,output,work);
+  const auto saved=TraceWords(output);
+  // Every proposed segment still lies in the original facet; collectively they cross.
+  std::swap(bindings.at(400),bindings.at(500));traces=edge_proposals();
+  const auto unchanged=TraceWords({},traces);auto invalid=TraceBudget();
+  CHECK_FALSE(RebuildTraceCoverage(*geometry,region,faces,bindings,traces,output,invalid,reason));
+  CHECK(TraceWords(output)==saved);CHECK(TraceWords({},traces)==unchanged);
+}

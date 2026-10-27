@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.14)
+project(reference_network_probe LANGUAGES CXX)
+set(GC_EIGEN_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../externals/eigen" CACHE STRING "" FORCE)
+set(SUITESPARSE OFF CACHE BOOL "" FORCE)
+add_subdirectory(geometry-central)
+add_executable(gc_probe gc_probe.cpp)
+target_link_libraries(gc_probe PRIVATE geometry-central)
+target_compile_features(gc_probe PRIVATE cxx_std_14)

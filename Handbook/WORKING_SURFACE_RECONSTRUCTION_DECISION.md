@@ -19,12 +19,13 @@ neighboring transaction imports those paths as boundary constraints. Discarding
 face-interior cuts does not remove that recurrence. The earlier same-star
 oscillation keeps its perimeter fixed and misses it.
 
-The working tree contains an **unbuilt, unvalidated prototype** separating fixed
-reference edge planning from prescribed-trace face reconstruction. It is frozen
-for this review. Its independent original-star/strip path selector is custom and
+The working tree contains an **unvalidated connected prototype** separating fixed
+reference edge planning from prescribed-trace face reconstruction. It was frozen
+unbuilt for this review; build37 subsequently passed with1293 unchanged pins.
+Its independent original-star/strip path selector is custom and
 does not establish joint network admissibility. It must not become the production
 strategy merely because its primitive tests pass. Latest pushed source checkpoint
-before this review: `bf3c4e94a6`, explicitly WIP.
+before the compatibility results: `a61e28bf58`, explicitly WIP.
 
 ## Established methods versus repository choices
 
@@ -152,13 +153,20 @@ second custom CG implementation. Eigen exposes sparse CG with explicit iteration
 and residual controls. The native exact acceptance certificate still applies.
 [Eigen CG](https://libeigen.gitlab.io/eigen/docs-nightly/classEigen_1_1ConjugateGradient.html).
 
-The surface-network implementation decision follows a bounded Geometry Central
+The surface-network implementation assessment uses a bounded Geometry Central
 fit probe: current points including moved/coarsened original CFD nodes, genuine
 features/nonseparating arcs, input-to-current association, disposable subdivision,
 and repeated neighboring edits. Disable geometry-changing mollification for that
 comparison. Demonstrate current-local-patch cost rather than rebuilding a whole
 body for every local edit. If an API is unsuitable, record the concrete missing
 capability; lack of an existing dependency alone is not a reason to rewrite it.
+
+The current candidate enforces owner closure collectively: every supplied face
+cover must have its owning volume row among the replacement rows, and a retained
+face must also have its accepted owner among the removals. Existing Directory
+version advancement and change notifications then apply; no metadata-only bypass
+or separate cache epoch is introduced. Exact reference-network certification is
+separate from physical cubic embedding/contact checks, which remain mandatory.
 
 Custom machinery remains necessary for the cubic geometry oracle and certificates,
 association adapters, resource admission, ownership/atomic publication and SU2
@@ -187,6 +195,78 @@ then IGES. No claim of exact smooth CAD from STL and no importer implementation
 in this change.
 [OCCT modeling data](https://dev.opencascade.org/doc/overview/html/occt_user_guides__modeling_data.html),
 [STEP translator](https://dev.opencascade.org/doc/overview/html/occt_user_guides__step.html).
+
+## Reuse probe provenance and open fit questions
+
+The isolated candidate source is Geometry Central commit
+`019669ddabda05e0f71fa3587cfb3c1dadf19cb8`, with happly
+`88f79725d32d78e0e637ebf42d8432d519e1c7d0`, using SU2's existing Eigen.
+Evidence lives under `staged57/reference_network_probe_v1`. Production dependencies
+and the accepted geometry model have not changed.
+
+The first library build passed314.49s with1663 unchanged pins; largest sampled
+owned process tree was1,054,257,152 bytes (not a whole-job peak). Run1 failed after
+one event. Its adapter supplied an edge point as a face insertion, allowing a
+zero-area background triangle. Preserve that failure; correct the support kind
+and documented geometry refresh before assessing the library. Background
+compression also requires slot labels that survive index changes.
+
+Source inspection confirms integer input-to-intrinsic location throws an
+unimplemented exception and removal refuses original/fixed-edge vertices.
+Reference vertices may remain virtual rather than CFD nodes, but movable feature
+samples need a clean local rebuild or a demonstrated supported operation; keeping
+retired samples indefinitely is unacceptable. No native cubic, joint-network,
+volume/BL, MPI or transfer qualification follows from this probe.
+
+Build4 explicitly invalidates the derived common subdivision after each adapter
+mutation: pinned `splitFace()` omits that invalidation, while refreshing numerical
+quantities alone leaves the cache stale. Planar3 and m63 preserved the resulting
+count/path failure; no upstream source was changed and the checks were retained.
+With the adapter correction, planar4 and m64 each complete all16 neighboring
+insert/remove events with unchanged pins. Current vertices/faces/capacities remain
+constant; overlay counts settle after the initial events. The complete measurements
+and memory-sampling limits are in
+[probe summary](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/reference_network_probe_v1/probe_summary.md).
+The probe does not count native exact arithmetic work.
+
+**Fit decision:** do not integrate Geometry Central as a complete native network
+engine. `FlipEdgeNetwork` owns a signpost triangulation and requires already
+embedded input halfedge paths; `addPath()` explicitly requires an unobstructed
+path. Its integer-coordinate triangulation cannot directly recover an arbitrary
+prescribed CFD graph from associations. Virtual reference vertices remain in its
+background topology. The missing capability is joint CFD graph recovery with
+cyclic order and movable genuine curves. The successful probe establishes the
+background/overlay separation only. Adding the dependency would leave the central
+network-recovery work custom, alongside extra association and retirement adapters.
+
+The next connected candidate therefore reuses the existing exact reference PSLG
+builder and region/publication machinery, with Eigen replacing custom linear
+algebra. Canonical edge paths are **proposals**, never admissibility evidence.
+Admission must construct one shared constrained reference mesh for the complete
+candidate network, establish disjoint face disks, strictly positive maps with
+identical shared-edge parameters, and exact replacement of the old region. This
+collective certificate, rather than independent path selection, must establish a
+common embedding. If it cannot admit the overlapping-neighbor sequence and the
+difficult runtime/M6 target, reject the candidate and reconsider joint topology
+reconstruction; do not add alternate path selectors or increase budgets. This
+candidate remains unvalidated; it is not a proven general graph-routing algorithm.
+
+A complete six-face M6 wing star is extracted using the existing mesh parser,
+with input/parser/extractor hashes and original IDs saved. Center ID4210 has a
+selected30.89-degree radial turn. This is faceted reference-patch data for the
+reuse probe, not a substitute for the cubic M6 geometry or full M6 acceptance.
+
+Any rebase of face/edge association must occur after freezing the donor geometry,
+inside the private adaptation transaction, and participate in final conservative
+transfer. Metadata changes can redistribute curved cell envelopes even when flat
+node coordinates are unchanged. Restart must reconstruct the accepted generation,
+not silently reinterpret old donor geometry with a new association rule.
+
+Archive admission must also be assessed using actual record counts and scalar
+widths. The existing archive arithmetic/storage envelope derives integer capacity
+from whole encoded byte length; it can become falsely prohibitive for a large
+otherwise compact state. Do not increase that envelope indefinitely or declare
+persistence qualified without exercising the actual accepted mesh.
 
 ## Acceptance and evidence
 

@@ -29,6 +29,8 @@ paths.update(str(ROOT.parents[3]/p) for p in (
     'UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp',
     'meson.build', 'Common/src/meson.build', 'Common/src/adaptation/meson.build',
     'SU2_CFD/src/meson.build', 'UnitTests/meson.build'))
+# The shared face correspondence now uses the existing vendored Eigen headers.
+paths.update(str(p) for p in (ROOT.parents[3]/'externals/eigen/Eigen').rglob('*') if p.is_file())
 pins={p:sha(p) for p in sorted(paths)}
 save(ROOT/(name+'_source_pins.json'),pins)
 command=json.loads((ROOT/'build4_command.json').read_text())

@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "timeout",
+    "600",
+    "cmake",
+    "--build",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/reference_network_probe_v1/build",
+    "--parallel",
+    "1",
+    "--target",
+    "gc_probe"
+  ],
+  "environment": {
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

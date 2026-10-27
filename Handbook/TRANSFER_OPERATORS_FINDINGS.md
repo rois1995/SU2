@@ -38,7 +38,16 @@ Full M6 transfer remains unqualified because no complete accepted M6 mesh exists
 
 ## TR-003 — Source envelopes must retain cross-chart correspondence
 
-Qualification is pending the [working-surface reconstruction decision](WORKING_SURFACE_RECONSTRUCTION_DECISION.md) and compatibility probe; native geometry authority and transfer/restart gates remain unchanged.
+Qualification is pending the [working-surface reconstruction decision](WORKING_SURFACE_RECONSTRUCTION_DECISION.md). The fixed-reference compatibility probe passes its narrow representation scope; it does not qualify native transfer/restart.
+
+Read-only integration tracing confirms source cells are frozen from accepted
+associations before the Engine's private clone, and post-transfer reader/rebinding
+uses the accepted current generation. A concrete publication gap remains under
+validation: cover/trace metadata could change without replacing owning volume
+rows, bypassing cell-version/cache invalidation even though curved envelopes can
+change. Build38 adds collective owner-closure enforcement and an atomic rejection
+regression. Preserve the independent donor coverage and conservation gates; no
+accepted M6 transfer or restart is claimed.
 
 **Status:** integration requirement confirmed by caller inspection; implementation
 in progress, not validated. No accepted cross-chart mesh has yet been produced.

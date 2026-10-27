@@ -6,6 +6,8 @@
 #include "../../include/adaptation/CNativeTraceCoverage3D.hpp"
 #include "../../include/adaptation/CNativeReferenceTriangulation3D.hpp"
 #include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
+#include <Eigen/Sparse>
+#include <Eigen/IterativeLinearSolvers>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -72,24 +74,42 @@ EdgeTrace Reverse(const EdgeTrace& trace,Ops& op){EdgeTrace out;out.pieces.reser
   for(size_t i=trace.pieces.size();i;--i){auto p=trace.pieces[i-1];std::swap(p.first,p.last);p.end=op.Sub(one,i==1?op.Integer(0):trace.pieces[i-2].end);out.pieces.push_back(std::move(p));}return out;}
 void Dirichlet(const std::vector<std::vector<size_t>>& graph,const std::vector<size_t>& free,
     const std::vector<std::array<double,2>>& boundary,std::vector<std::array<double,2>>& value,Ops& op) {
-  const size_t n=free.size();if(!n)return;std::vector<size_t> index(graph.size(),Missing);for(size_t i=0;i<n;++i)index[free[i]]=i;
-  std::vector<double> x(n),b(n),r(n),z(n),p(n),ap(n);const size_t iterations=Add(Mul(2,n),64);
-  auto dot=[&](const auto& a,const auto& c){long double result=0;op.Work(n);for(size_t i=0;i<n;++i)result+=(long double)a[i]*c[i];return result;};
-  auto apply=[&](const auto& input,auto& output){for(size_t i=0;i<n;++i){const size_t v=free[i];op.Work(Add(graph[v].size(),1));long double a=graph[v].size()*input[i];
-      for(size_t w:graph[v])if(index[w]!=Missing)a-=input[index[w]];output[i]=double(a);}};
-  for(unsigned axis=0;axis<2;++axis){std::fill(x.begin(),x.end(),0);std::fill(b.begin(),b.end(),0);
-    for(size_t i=0;i<n;++i){const size_t v=free[i];op.Work(graph[v].size());for(size_t w:graph[v])if(index[w]==Missing)b[i]+=boundary[w][axis];}
-    r=b;for(size_t i=0;i<n;++i){if(graph[free[i]].empty())throw std::invalid_argument("Isolated face interior vertex.");z[i]=r[i]/graph[free[i]].size();}p=z;
-    long double rz=dot(r,z);const long double tolerance=std::pow(64*std::numeric_limits<double>::epsilon(),2)*dot(b,b);bool converged=dot(r,r)<=tolerance;
-    for(size_t step=0;step<iterations&&!converged;++step){apply(p,ap);const auto pap=dot(p,ap);if(!(pap>0&&std::isfinite(pap)&&std::isfinite(rz)))throw std::invalid_argument("Singular face Dirichlet proposal.");
-      const auto alpha=rz/pap;op.Work(n);for(size_t i=0;i<n;++i){x[i]+=double(alpha*p[i]);r[i]-=double(alpha*ap[i]);}
-      if(dot(r,r)<=tolerance){converged=true;break;}for(size_t i=0;i<n;++i)z[i]=r[i]/graph[free[i]].size();const auto next=dot(r,z),beta=next/rz;
-      op.Work(n);for(size_t i=0;i<n;++i)p[i]=z[i]+double(beta*p[i]);rz=next;
-    }
-    if(!converged)throw std::length_error("Face Dirichlet proposal reached its bounded iteration limit.");
-    for(size_t i=0;i<n;++i){if(!std::isfinite(x[i]))throw std::invalid_argument("Nonfinite face Dirichlet proposal.");value[free[i]][axis]=x[i];}
+  const size_t n=free.size();if(!n)return;
+  if(n>size_t(std::numeric_limits<int>::max()))throw std::length_error("Face Dirichlet system exceeds Eigen index range.");
+  size_t adjacency=0;for(size_t v:free)adjacency=Add(adjacency,graph[v].size());
+  const size_t entries=Add(n,adjacency),iterations=Add(Mul(2,n),64);
+  if(entries>size_t(std::numeric_limits<int>::max())||iterations>size_t(std::numeric_limits<int>::max()))
+    throw std::length_error("Face Dirichlet system exceeds Eigen index range.");
+  Scratch memory(op,Add(Mul(graph.size(),sizeof(size_t)),Add(Mul(entries,64),Mul(n,256))));
+  std::vector<size_t> index(graph.size(),Missing);for(size_t i=0;i<n;++i)index[free[i]]=i;
+  using Matrix=Eigen::SparseMatrix<double>;std::vector<Eigen::Triplet<double>> triplets;triplets.reserve(entries);
+  op.Work(entries);for(size_t i=0;i<n;++i){const auto v=free[i];if(graph[v].empty())throw std::invalid_argument("Isolated face interior vertex.");
+    triplets.emplace_back(int(i),int(i),double(graph[v].size()));for(size_t w:graph[v])if(index[w]!=Missing)triplets.emplace_back(int(i),int(index[w]),-1.);}
+  Matrix matrix{int(n),int(n)};matrix.setFromTriplets(triplets.begin(),triplets.end());matrix.makeCompressed();
+  Eigen::ConjugateGradient<Matrix,Eigen::Lower|Eigen::Upper,Eigen::DiagonalPreconditioner<double>> solver;
+  solver.compute(matrix);if(solver.info()!=Eigen::Success)throw std::invalid_argument("Singular face Dirichlet proposal.");
+  const size_t per_step=Add(entries,Mul(n,8));const double tolerance=64*std::numeric_limits<double>::epsilon();
+  for(unsigned axis=0;axis<2;++axis){Eigen::VectorXd b=Eigen::VectorXd::Zero(n);op.Work(adjacency);
+    for(size_t i=0;i<n;++i)for(size_t w:graph[free[i]])if(index[w]==Missing)b[Eigen::Index(i)]+=boundary[w][axis];
+    if(!b.allFinite())throw std::invalid_argument("Nonfinite face Dirichlet proposal.");
+    const size_t remaining=op.budget.maximum_work-op.budget.work;
+    const size_t fixed_work=Add(Mul(2,entries),Mul(4,n));
+    if(remaining<fixed_work)throw std::length_error("Face Dirichlet proposal reached its bounded work limit.");
+    const size_t allowed=std::min(iterations,(remaining-fixed_work)/per_step);
+    solver.setMaxIterations(int(allowed));solver.setTolerance(tolerance);
+    const size_t reserved=Mul(allowed,per_step);op.Work(Add(reserved,fixed_work));
+    Eigen::VectorXd x=solver.solveWithGuess(b,Eigen::VectorXd::Zero(n));
+    if(solver.iterations()<0||size_t(solver.iterations())>allowed)throw std::logic_error("Eigen exceeded the admitted Dirichlet iteration limit.");
+    // Eigen reports the zero-based last iteration when convergence breaks its loop.
+    const size_t used=b.squaredNorm()==0?0:std::min(allowed,Add(size_t(solver.iterations()),1));
+    op.budget.work-=reserved-Mul(used,per_step);
+    const Eigen::VectorXd residual=matrix*x-b;
+    if(solver.info()!=Eigen::Success||!x.allFinite()||!residual.allFinite()||residual.norm()>tolerance*b.norm())
+      throw std::length_error("Face Dirichlet proposal failed its bounded residual check.");
+    for(size_t i=0;i<n;++i)value[free[i]][axis]=x[Eigen::Index(i)];
   }
 }
+
 }  // namespace
 bool RebuildTraceCoverage(const MappedFacetReference& geometry,const std::vector<CoveragePiece>& accepted_region,
     const std::vector<SurfaceFace>& candidate,const std::map<Id,SurfaceBinding>& bindings,
