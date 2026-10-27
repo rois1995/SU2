@@ -286,7 +286,10 @@ bool PrepareCurvedAtlas(const SU2Native3D::Patch& accepted,const SU2Native3D::Pl
       auto& cover=working;cover={};op.Sync();op.Check(reference.ResolveCoverage(face,cover,budget,op.reason));
       std::array<SurfaceBinding,3> bindings;std::array<Point,3> realized;auto& traces=working_traces;
       for(unsigned k=0;k<3;++k){bindings[k]=data->parameters.at(face.v[k]).binding;realized[k]=data->parameters.at(face.v[k]).node.p;}
-      op.Check(geometry.CoverageTraces(cover,traces,budget,op.reason));op.Check(geometry.ValidateCoverage(face.facet,bindings,realized,cover,traces,budget,op.reason));
+      std::array<BoundaryPoint,3> points;for(unsigned k=0;k<3;++k)points[k]=data->parameters.at(face.v[k]);
+      if(!reference.HasAcceptedFaceCertificate(face,points,accepted.coverage)) {
+        op.Check(geometry.CoverageTraces(cover,traces,budget,op.reason));op.Check(geometry.ValidateCoverage(face.facet,bindings,realized,cover,traces,budget,op.reason));
+      }
       for(const auto& p:cover.pieces)if(policy.sheets.at(p.facet)!=sheet_id->second||policy.bodies.at(p.facet)!=body->second||reference.Get(p.facet).marker!=reference.Get(face.facet).marker)
         throw std::invalid_argument("Atlas face crosses a protected sheet/body boundary.");
       Reserve(data->old,Plus(data->old.size(),1),op);data->old.push_back(std::move(cover));

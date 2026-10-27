@@ -96,7 +96,9 @@ cells and31 queued edges when work67,207,168 is exhausted. The previous zero-que
 interface defect is fixed, but generation still fails. Preserve this distinction;
 do not raise the limit or report a full-workflow milestone.
 
-Fresh six-rank M6 build46 is running without debugger attachment. Broader
+Fresh six-rank M6 build46 was intentionally interrupted908.19s without debugger
+attachment. Setup/source passed; no stage receipt. All workers remained active,
+and all owned descendants were verified gone. This is neither failure nor acceptance. Broader
 serial/MPI, independently resumable wide workflows and accepted M6/BL transfer/
 restart remain required. Pinned code and helpers stay unchanged during the run.
 
@@ -110,3 +112,54 @@ The remaining small-workflow failure therefore does not demonstrate renewed
 persisted descriptor growth. The reviewable implementation checkpoint is
 `6c067993cb`, pushed to the authorized fork/branch. No quality or resource gate
 was loosened. Detailed receipt: build46 mapped case `work_attribution.json`.
+
+## Connected ownership and scheduling change (build47 pending)
+
+Active constructors/loads and publication establish per-face validity, but
+first mobility activation currently copies legacy state without the actual-
+chord positive-projection proof. Close that trust gap before enabling reuse.
+At activation, exact cyclic original-facet faces with valid dimension-zero
+bindings and bitwise reference coordinates inherit the authority constructor
+certificate, provided no explicit face/edge override applies. Other faces must
+resolve their actual retained traces and pass policy/coverage validation once.
+Thereafter reuse active-state proofs by provenance, without a cache or epoch. A private view must
+pass its existing revision check. The oriented face IDs/anchor and all complete
+BoundaryPoints (coordinates and binding fields included) must match accepted
+records, with no applicable cover/trace override. Same IDs alone are insufficient.
+
+Affected callers: ParameterContainsFace, ExportParameters and PrepareCurvedAtlas.
+They may reuse an exactly matching accepted face's validity but must still
+materialize coverage needed for reconstruction. Publication must retain accepted
+before coverage for old/new chain equality, while avoiding re-proving its already
+validated policy/projection/traces; inserted or metadata-modified after faces
+remain fully checked. Constructor/load and donor restricted-envelope validation
+remain complete trust boundaries. This is certificate ownership, not permission
+to skip tests of new candidate geometry. It does not prove the remaining work
+reservation sufficient.
+
+Acceptance must include unrelated private edits reusing accepted faces, same-ID
+moved records and explicit overrides refusing reuse, stale revision rejection,
+coordinated edge-path changes, publication/source/archive tests, actual mapped
+runtime and fresh M6. Pending-point provenance must be explicit rather than
+assuming every UINT64_MAX identity is transient; reserve-ID enforcement is not
+currently local to BoundaryParameterState. M6 was intentionally ended and every owned descendant verified terminal before
+implementation. Build47 now pins the connected change; sources/helpers stay
+unchanged until terminal.
+
+Scheduling belongs to this same connected change: Selection::Add currently
+projects all three hypothetical splits of every demanded face and certifies
+both child faces before it can enqueue anything. The chosen complete-star
+operator later repeats projection, validity and before/after geometry progress.
+Replace the eager custom feasibility screen with a queue of current finite
+geometry excess, prioritizing physical edge span. Existing selected-operator
+GeometryRefine progress, edge retirement, collective publication and final
+gates remain authoritative. A serviced/rejected edge leaves the construction
+frontier; incident Touch does not retry it within that generation. Later frontier
+reseeding owns retry, so this design does not assume immediate reactivation. This reduces scheduling work to current demand
+enumeration plus selected cavity validation; it is not an additional operator
+fallback or a larger arithmetic limit. Convergence still requires actual workflow
+and M6 evidence. The connected draft has been applied after M6 termination. Build47 is pending;
+no validation or capability claim follows from applying it. Tests cover the
+legacy activation gap, exact accepted-face reuse, overrides and real MAX-valued
+mesh identities. Existing stale-view/publication and source/archive tests remain
+required, as do the actual mapped workflow and fresh M6.

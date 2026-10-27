@@ -69,8 +69,15 @@ fixture setup error. Runtime replay fails17.91s unchanged pins/gates. Build46 pa
 corrects canonical boundary strata and transient forward-association containment
 and error queries. Mapped replay FAIL13.98s:318/342 probes score,9 geometry-progress
 edits,22 accepted/30 attempts,31 queued edges at unchanged work67,207,168.
-Fresh six-rank M6 build46/session32081 is LIVE without debugger attach; keep
-pinned sources/helpers unchanged. Compiled filters PASS237serial/214MPI/55atlas
+Fresh M6 build46/session32081 is TERMINAL intentionally interrupted908.19s,
+pins unchanged: setup/source passed, no stage receipt, all six workers active
+in CPU observations, no debugger, all9 owned descendants gone. It establishes
+neither acceptance nor native deadlock/failure. See its INTENTIONAL_INTERRUPTION.md.
+Build47/session71724 is LIVE, single-worker build: lazy current-geometry demand
+scheduling and accepted-face certificate ownership across queries/reconstruction/
+publication. First activation certifies legacy subfaces; exact original faces
+inherit immutable-authority proof. Pending association detection uses pointer
+provenance rather than UINT64_MAX. Keep compiled/pinned sources/helpers unchanged. Compiled filters PASS237serial/214MPI/55atlas
 with all intended cases, including both new tests and separate wide workflows. See
 [verification diagnosis](Handbook/GEOMETRY_VERIFICATION_COST.md). No accepted
 mesh or full workflow has been established; broad and fresh M6 remain due.

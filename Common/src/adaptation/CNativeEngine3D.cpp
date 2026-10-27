@@ -449,7 +449,6 @@ class Selection {
       }
     }
     std::map<Edge,long double> geometry_scores;
-    static const bool trace_geometry=[](){const char* value=std::getenv("SU2_NATIVE_GEOMETRY_WORK_TRACE");return value&&std::strcmp(value,"1")==0;}();
     if (!geometry.ExtensionComponents().empty()) {
       const auto faces=Faces(cell);
       for(size_t slot=0;slot<4;++slot)if(owned.physical[slot].present) {
@@ -465,27 +464,11 @@ class Selection {
         for(size_t i=0;i<3;++i)for(size_t j=i+1;j<3;++j) {
           const auto a=triangle[i],b=triangle[j];
           const Edge key{std::min(faces[slot][i],faces[slot][j]),std::max(faces[slot][i],faces[slot][j])};
-          long double progress=-INFINITY;
-          try {
-            const Point middle{double((static_cast<long double>(a.x)+b.x)/2),double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)};
-            const Patch patch{{cell},{{faces[slot],owned.physical[slot].facet}}};
-            auto parameters=geometry.PrivateParameters(patch);const auto& proposal=parameters?*parameters:geometry;
-            const auto projected=proposal.Project(owned.physical[slot].facet,middle);
-            auto left=triangle,right=triangle;left[j]=projected;right[i]=projected;
-            const auto before=GeometryExcess(patch,proposal,tolerance);
-            const double l=std::max(0.,proposal.SurfaceError(owned.physical[slot].facet,left)-allowed);
-            const double r=std::max(0.,proposal.SurfaceError(owned.physical[slot].facet,right)-allowed);
-            auto area=[](const std::array<Point,3>& t) {
-              const long double ax=static_cast<long double>(t[1].x)-t[0].x,ay=static_cast<long double>(t[1].y)-t[0].y,az=static_cast<long double>(t[1].z)-t[0].z;
-              const long double bx=static_cast<long double>(t[2].x)-t[0].x,by=static_cast<long double>(t[2].y)-t[0].y,bz=static_cast<long double>(t[2].z)-t[0].z;
-              return std::hypot(ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx);
-            };
-            progress=before-l*l*area(left)-r*r*area(right);
-            if(trace_geometry)std::fprintf(stderr,"NATIVE_GEOMETRY_PROBE facet=%llu edge=%llu,%llu error=%.17g tolerance=%.17g progress=%.21Lg\n",
-                static_cast<unsigned long long>(owned.physical[slot].facet),static_cast<unsigned long long>(key[0]),static_cast<unsigned long long>(key[1]),error,allowed,progress);
-          }catch(const std::exception& e) {if(trace_geometry)std::fprintf(stderr,"NATIVE_GEOMETRY_PROBE facet=%llu edge=%llu,%llu error=%.17g tolerance=%.17g exception=%s\n",
-                static_cast<unsigned long long>(owned.physical[slot].facet),static_cast<unsigned long long>(key[0]),static_cast<unsigned long long>(key[1]),error,allowed,e.what());} // Complete-star reconstruction remains the authoritative feasibility check.
-          if(progress>0)geometry_scores[key]+=progress;
+          if(!std::isfinite(error))continue;
+          const long double excess=static_cast<long double>(error)-allowed;
+          const long double x=static_cast<long double>(b.x)-a.x,y=static_cast<long double>(b.y)-a.y,z=static_cast<long double>(b.z)-a.z;
+          // Queue current geometry demand; the selected complete star owns projection and progress validation.
+          geometry_scores[key]+=excess*excess*(x*x+y*y+z*z);
         }
       }
     }

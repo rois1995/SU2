@@ -209,3 +209,5 @@ implementation remains pinned for the pending full-M6 campaign.
 Current complete-workflow cost diagnosis and shared certificate design: [geometry verification cost](Handbook/GEOMETRY_VERIFICATION_COST.md).
 
 Build46 PASS90.19s, focused temporary-association/geometry-certificate checks PASS93 assertions/2 cases. Mapped replay FAIL13.98s:318/342 probes score,9 geometry-progress edits,22 accepted/30 attempts,31 queued edges at unchanged work67207168. Zero-queue defect fixed; complete generation still fails. Fresh six-rank M6/session32081 running without debugger. Compiled filters237serial/214MPI/55atlas include all required cases.
+
+M6 build46 intentionally interrupted908.19s without debugger, unchanged pins; no stage receipt, all6 workers active, all9 descendants verified terminal. Setup/source receipts retained; no native-failure/acceptance inference. Build47/session71724 now builds the connected lazy geometry-demand scheduling and accepted certificate ownership change, including first-activation proof and pending-association provenance. No gates/budgets changed.

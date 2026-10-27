@@ -100,6 +100,9 @@ class PlanarReference {
   void ExportPointParameters(Patch& patch)const;
   void ExportParameters(Patch& patch,SU2NativeGeometry::AtlasBudget* reservation=nullptr)const;
   bool HasExplicitCoverage(const Patch& patch)const;
+  /*! Reuse validity owned by the current accepted state only for an identical unoverridden face. */
+  bool HasAcceptedFaceCertificate(const SurfaceFace&,const std::array<BoundaryPoint,3>&,
+      const SU2NativeGeometry::BoundaryCoverage&)const;
   const SU2NativeGeometry::MobilityPolicy* Mobility()const;
   bool ResolveCoverage(const SurfaceFace&,SU2NativeGeometry::FaceCoverage&,SU2NativeGeometry::AtlasBudget&,std::string&)const;
   bool ResolveTrace(Edge,const SurfaceFace&,SU2NativeGeometry::EdgeTrace&,SU2NativeGeometry::AtlasBudget&,std::string&)const;

@@ -267,7 +267,30 @@ std::shared_ptr<BoundaryParameterState> BoundaryParameterState::WithMobilityPoli
     throw std::invalid_argument("Accepted boundary mobility policy differs from immutable geometry/configuration.");
   for(Id corner:policy.corners)if(!supports.count(Support{0,corner,0,0}))
     throw std::invalid_argument("Boundary mobility policy requires a missing genuine physical corner/branch.");
-  // Validated inactive covers stay inside their anchor chart, so metadata setup changes no geometric contract.
+  if(!mobility.identity)for(const auto& row:surface) {
+    const auto& face=row.second;const auto& original=geometry->Reference().Get(face.facet);
+    std::array<SurfaceBinding,3> binding;std::array<Point,3> actual;Face features,original_ids;
+    bool original_face=!coverage.faces.count(FaceOrder(face.v));
+    for(unsigned k=0;k<3;++k) {
+      const auto& point=records.at(face.v[k]).point;binding[k]=point.binding;actual[k]=point.node.p;
+      features[k]=binding[k].feature;original_ids[k]=original.v[k].id;
+      original_face=original_face&&binding[k].dimension==0&&binding[k].version==geometry->Version();
+      bool exact=false;for(const auto& n:original.v)if(n.id==binding[k].feature)
+        exact=EqualDouble(n.p.x,actual[k].x)&&EqualDouble(n.p.y,actual[k].y)&&EqualDouble(n.p.z,actual[k].z);
+      original_face=original_face&&exact;
+      Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());
+      original_face=original_face&&!coverage.traces.count(edge);
+    }
+    // Original corners inherit the authority's positive cubic Jacobian against this exact chord normal.
+    if(original_face&&FaceOrder(features)==FaceOrder(original_ids))continue;
+    FaceCoverage cover;std::array<EdgeTrace,3> traces;
+    if(!ResolveCoverage(face,cover,reservation,reason))throw std::invalid_argument(reason);
+    for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};
+      if(!ResolveTrace(edge,face,traces[k],reservation,reason))throw std::invalid_argument(reason);
+      if(edge[0]>edge[1])traces[k]=ReverseTrace(traces[k],reservation);}
+    CheckPolicyCoverage(face.facet,cover,policy,*geometry,reservation,reason);
+    if(!geometry->ValidateCoverage(face.facet,binding,actual,cover,traces,reservation,reason))throw std::invalid_argument(reason);
+  }
   const auto peak=transfer_memory::Add(live,PolicyBytes(policy),ResidentBytes());
   if(peak==SIZE_MAX||peak>ceiling)throw std::length_error("Boundary mobility policy copy exceeds storage admission.");
   reservation.peak_bytes=std::max(reservation.peak_bytes,peak);
@@ -507,31 +530,32 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
         std::array<SurfaceBinding,3> binding;std::array<Point,3> realized;
         for(unsigned k=0;k<3;++k){const auto& p=point(face.nodes[k],face.insert);binding[k]=p.binding;realized[k]=p.node.p;degree[face.nodes[k]]+=face.insert?1:-1;}
         const auto supplied=delta.faces.find(FaceOrder(face.nodes));
-        if(!face.insert) {if(!ResolveCoverage(f,cover,budget,reason))throw std::invalid_argument(reason);}
-        else if(supplied!=delta.faces.end()) {
+        if(!face.insert) {
+          if(!ResolveCoverage(f,cover,budget,reason))throw std::invalid_argument(reason);
+          // Retired faces belong to this validated state; retain their chain, not another proof.
+          before.push_back(std::move(cover));continue;
+        }
+        if(supplied!=delta.faces.end()) {
           const auto key=supplied->first;unsigned rotation=0;while(key[rotation]!=face.nodes[0])++rotation;cover=RotateCoverage(supplied->second,rotation,budget);
         } else if(!geometry->ResolveSingleChart(face.facet,binding,cover,budget,reason))throw std::invalid_argument("New cross-chart physical face has no explicit coverage: "+reason);
         std::array<EdgeTrace,3> traces;
         for(unsigned k=0;k<3;++k) {
           Edge edge{face.nodes[k],face.nodes[(k+1)%3]},key=edge;std::sort(key.begin(),key.end());
-          if(!face.insert) {if(!ResolveTrace(key,f,traces[k],budget,reason))throw std::invalid_argument(reason);}
-          else {
-            const auto supplied_trace=delta.traces.find(key);
-            if(supplied_trace!=delta.traces.end())traces[k]=supplied_trace->second;
-            else if(edge_counts.count(key)) {if(!accepted_trace(key,traces[k]))throw std::invalid_argument("Retained edge lacks its accepted atlas trace.");}
-            else {FaceCoverage single;std::array<EdgeTrace,3> direct;
-              if(!geometry->ResolveSingleChart(face.facet,binding,single,budget,reason)||!geometry->CoverageTraces(single,direct,budget,reason))
-                throw std::invalid_argument("New cross-chart edge lacks its explicit atlas trace.");
-              traces[k]=edge[0]<edge[1]?direct[k]:ReverseTrace(direct[k],budget);
-            }
+          const auto supplied_trace=delta.traces.find(key);
+          if(supplied_trace!=delta.traces.end())traces[k]=supplied_trace->second;
+          else if(edge_counts.count(key)) {if(!accepted_trace(key,traces[k]))throw std::invalid_argument("Retained edge lacks its accepted atlas trace.");}
+          else {FaceCoverage single;std::array<EdgeTrace,3> direct;
+            if(!geometry->ResolveSingleChart(face.facet,binding,single,budget,reason)||!geometry->CoverageTraces(single,direct,budget,reason))
+              throw std::invalid_argument("New cross-chart edge lacks its explicit atlas trace.");
+            traces[k]=edge[0]<edge[1]?direct[k]:ReverseTrace(direct[k],budget);
           }
-          if(face.insert && supplied!=delta.faces.end() && !coverage.traces.count(key) && !delta.traces.count(key))
+          if(supplied!=delta.faces.end() && !coverage.traces.count(key) && !delta.traces.count(key))
             staged.coverage_added.traces.emplace(key,traces[k]);
           if(edge[0]>edge[1])traces[k]=ReverseTrace(traces[k],budget);
         }
         CheckPolicyCoverage(face.facet,cover,mobility,*geometry,budget,reason);
         if(!geometry->ValidateCoverage(face.facet,binding,realized,cover,traces,budget,reason))throw std::invalid_argument(reason);
-        (face.insert?after:before).push_back(std::move(cover));
+        after.push_back(std::move(cover));
       }
       if((!before.empty()||!after.empty())&&!geometry->ValidateCoverageReplacement(before,after,budget,reason))throw std::invalid_argument(reason);
     }
@@ -679,6 +703,25 @@ bool PlanarReference::HasExplicitCoverage(const Patch& patch)const {
   }
   return false;
 }
+bool PlanarReference::HasAcceptedFaceCertificate(const SurfaceFace& face,const std::array<BoundaryPoint,3>& points,
+    const BoundaryCoverage& supplied)const {
+  if(!parameter_view)return false;parameter_view->Check();
+  const auto& state=*parameter_view->accepted;if(!AtlasActive(state))return false;const auto key=FaceOrder(face.v);
+  const auto found=state.Surface().find(FaceKey(face.v));
+  if(found==state.Surface().end()||found->second.v!=key||found->second.facet!=face.facet)return false;
+  const auto local_face=parameter_view->surface.find(FaceKey(face.v));
+  if(local_face!=parameter_view->surface.end()&&(local_face->second.v!=key||local_face->second.facet!=face.facet))return false;
+  if(parameter_view->coverage.faces.count(key)||supplied.faces.count(key))return false;
+  for(unsigned k=0;k<3;++k) {
+    const auto* accepted=state.Find(face.v[k]);
+    if(!accepted||!Equal(points[k],*accepted))return false;
+    Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());
+    if(parameter_view->coverage.traces.count(edge)||supplied.traces.count(edge))return false;
+    const auto local=parameter_view->local.find(face.v[k]);
+    if(local!=parameter_view->local.end()&&!Equal(local->second,*accepted))return false;
+  }
+  return true;
+}
 void PlanarReference::ExportParameters(Patch& patch,AtlasBudget* reservation)const {
   if(!parameter_view)return;parameter_view->Check();ExportPointParameters(patch);
   std::set<Face> faces;std::set<Edge> edges;
@@ -693,6 +736,8 @@ void PlanarReference::ExportParameters(Patch& patch,AtlasBudget* reservation)con
   if(AtlasActive(*parameter_view->accepted)||!patch.coverage.faces.empty()||!patch.coverage.traces.empty()) {
     auto overlay=PrivateParameters(patch,reservation);auto& budget=*(reservation?reservation:parameter_view->reservation);std::string reason;
     for(const auto& face:patch.surface){FaceCoverage cover;std::array<EdgeTrace,3> traces;std::array<SurfaceBinding,3> binding;std::array<Point,3> actual;
+      std::array<BoundaryPoint,3> points;for(unsigned k=0;k<3;++k)points[k]=patch.parameters.at(face.v[k]);
+      if(overlay->HasAcceptedFaceCertificate(face,points,patch.coverage))continue;
       if(!overlay->ResolveCoverage(face,cover,budget,reason))throw std::invalid_argument(reason);
       for(unsigned k=0;k<3;++k){const auto& point=patch.parameters.at(face.v[k]);binding[k]=point.binding;actual[k]=point.node.p;}
       FaceCoverage single;std::string strict_reason;
@@ -850,24 +895,26 @@ bool PlanarReference::ParameterContains(Id facet,Point p)const {
   const auto q=Parameter(p);const auto& g=parameter_view->accepted->Geometry();return q&&g.Supports(facet,q->binding)&&g.Admissible(q->binding,p);
 }
 bool PlanarReference::ParameterContainsFace(Id facet,const std::array<Point,3>& p,KernelStats* stats)const {
-  std::array<SU2NativeGeometry::SurfaceBinding,3> b;SurfaceFace face;face.facet=facet;
-  for(unsigned k=0;k<3;++k){const auto q=Parameter(p[k]);if(!q)return false;b[k]=q->binding;face.v[k]=q->node.id;}
+  std::array<SU2NativeGeometry::SurfaceBinding,3> b;std::array<bool,3> pending{};SurfaceFace face;face.facet=facet;
+  for(unsigned k=0;k<3;++k){const auto q=Parameter(p[k]);if(!q)return false;b[k]=q->binding;face.v[k]=q->node.id;
+    const auto found=parameter_view->pending.find(PointKey(p[k]));pending[k]=found!=parameter_view->pending.end()&&q==&found->second;}
   const auto& g=parameter_view->accepted->Geometry();
-  // Accepted coordinates/topology already carry a coverage certificate; read-only import needs no new arithmetic reservation.
-  if(!parameter_view->private_view&&parameter_view->local.empty()&&parameter_view->pending.empty()&&
+  std::array<BoundaryPoint,3> points;for(unsigned k=0;k<3;++k)points[k]=*Parameter(p[k]);
+  if(HasAcceptedFaceCertificate(face,points,BoundaryCoverage{}))return true;
+  if(!AtlasActive(*parameter_view->accepted)&&!parameter_view->private_view&&parameter_view->local.empty()&&parameter_view->pending.empty()&&
       parameter_view->surface.empty()&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty()) {
     const auto found=parameter_view->accepted->Surface().find(FaceKey(face.v));
     if(found!=parameter_view->accepted->Surface().end()&&found->second.v==FaceOrder(face.v)&&found->second.facet==facet)return true;
   }
   if(!AtlasActive(*parameter_view->accepted)&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty())return g.ContainsFace(facet,b,p,stats);
   if(!parameter_view->reservation)return false;auto& budget=*parameter_view->reservation;std::string reason;FaceCoverage cover;std::array<EdgeTrace,3> traces;
-  const bool transient=std::find(face.v.begin(),face.v.end(),UINT64_MAX)!=face.v.end();
+  const bool transient=std::any_of(pending.begin(),pending.end(),[](bool p){return p;});
   if(transient) {
     // A projection probe has associations but no publishable mesh face identity.
     if(!g.ResolveSingleChart(facet,b,cover,budget,reason)||!g.CoverageTraces(cover,traces,budget,reason))return false;
   } else if(!ResolveCoverage(face,cover,budget,reason))return false;
   for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};
-    if(transient&&(edge[0]==UINT64_MAX||edge[1]==UINT64_MAX))continue;
+    if(pending[k]||pending[(k+1)%3])continue;
     if(!ResolveTrace(edge,face,traces[k],budget,reason))return false;if(edge[0]>edge[1])traces[k]=ReverseTrace(traces[k],budget);}
   try{CheckPolicyCoverage(facet,cover,parameter_view->accepted->Mobility(),g,budget,reason);}catch(const std::exception&){return false;}
   return g.ValidateCoverage(facet,b,p,cover,traces,budget,reason);
@@ -900,7 +947,8 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)con
     const auto plane=Affine().find(facet);if(plane!=Affine().end())maximum=std::max(maximum,SU2NativeGeometry::AffineChart(plane->second).ErrorBound(p[k]));}
   if(!AtlasActive(*parameter_view->accepted)&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty())return std::max(maximum,g.SurfaceError(facet,binding,p));
   SurfaceFace face;face.facet=facet;bool transient=false;
-  for(unsigned k=0;k<3;++k){face.v[k]=Parameter(p[k])->node.id;transient=transient||face.v[k]==UINT64_MAX;}
+  for(unsigned k=0;k<3;++k){const auto* point=Parameter(p[k]);face.v[k]=point->node.id;
+    const auto found=parameter_view->pending.find(PointKey(p[k]));transient=transient||(found!=parameter_view->pending.end()&&point==&found->second);}
   if(!parameter_view->reservation)throw std::invalid_argument("Mapped atlas error query lacks admitted geometry work.");
   auto& budget=*parameter_view->reservation;std::string reason;FaceCoverage cover;
   // Projection probes have forward bindings, not published mesh identities or face records.

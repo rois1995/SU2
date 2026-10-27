@@ -1163,3 +1163,65 @@ TEST_CASE("Curved geometry error probes use projected associations without publi
   }
   CHECK(accepted->Snapshot()==snapshot);CHECK(accepted->Records().size()==points.size());
 }
+
+TEST_CASE("Accepted face certificates require complete unchanged contracts", "[NativeCurvedAtlas3D][NativeAcceptedFaceCertificate3D]") {
+  using namespace SU2Native3D;
+  const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;auto budget=GeometryAtlasBudget();std::string reason;
+  BoundaryPoints points;std::vector<SurfaceFace> skin;std::map<int,int> roles;
+  for(const auto& f:fixture.facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});roles.emplace(f.marker,2);
+    for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,g.Vertex(n.id)});}
+  auto state=std::make_shared<BoundaryParameterState>(fixture.geometry,points,skin);
+  state=state->WithMobilityPolicy(60,roles,budget);
+  const std::shared_ptr<const PlanarReference> definition(fixture.geometry,&g.Reference());
+  auto reference=PlanarReference::WithParameters(definition,state);const auto saved=state->Snapshot();
+  auto face=skin.front();std::array<BoundaryPoint,3> nodes;
+  for(unsigned k=0;k<3;++k)nodes[k]=points.at(face.v[k]);BoundaryCoverage empty;
+  REQUIRE(reference->HasAcceptedFaceCertificate(face,nodes,empty));
+  auto rotated=face;std::rotate(rotated.v.begin(),rotated.v.begin()+1,rotated.v.end());
+  auto rotated_nodes=nodes;std::rotate(rotated_nodes.begin(),rotated_nodes.begin()+1,rotated_nodes.end());
+  CHECK(reference->HasAcceptedFaceCertificate(rotated,rotated_nodes,empty));
+  auto reversed=face;std::swap(reversed.v[1],reversed.v[2]);auto reversed_nodes=nodes;std::swap(reversed_nodes[1],reversed_nodes[2]);
+  CHECK_FALSE(reference->HasAcceptedFaceCertificate(reversed,reversed_nodes,empty));
+  auto anchor=face;anchor.facet=fixture.facets[1].id;CHECK_FALSE(reference->HasAcceptedFaceCertificate(anchor,nodes,empty));
+  auto changed=nodes;changed[0].node.p.x=std::nextafter(changed[0].node.p.x,INFINITY);
+  CHECK_FALSE(reference->HasAcceptedFaceCertificate(face,changed,empty));
+  changed=nodes;changed[0].binding.version++;CHECK_FALSE(reference->HasAcceptedFaceCertificate(face,changed,empty));
+  BoundaryCoverage supplied;supplied.faces.emplace(face.v,fixture.Cover(face.facet,budget));
+  CHECK_FALSE(reference->HasAcceptedFaceCertificate(face,nodes,supplied));
+  supplied.faces.clear();std::array<EdgeTrace,3> traces;REQUIRE(g.CoverageTraces(fixture.Cover(face.facet,budget),traces,budget,reason));
+  Edge edge{face.v[0],face.v[1]};std::sort(edge.begin(),edge.end());supplied.traces.emplace(edge,traces[0]);
+  CHECK_FALSE(reference->HasAcceptedFaceCertificate(face,nodes,supplied));
+  Patch unrelated;const auto association=g.FacetPoint(fixture.facets.back().id,.2,.2);
+  unrelated.parameters.emplace(999,BoundaryPoint{{999,g.Realize(association)},association});
+  auto overlay=reference->PrivateParameters(unrelated,&budget);REQUIRE(overlay);
+  CHECK(overlay->HasAcceptedFaceCertificate(face,nodes,empty));CHECK(state->Snapshot()==saved);
+  auto no_work=GeometryAtlasBudget();no_work.maximum_work=0;auto certified=reference->PrivateParameters(unrelated,&no_work);
+  const std::array<Point,3> actual{{nodes[0].node.p,nodes[1].node.p,nodes[2].node.p}};
+  CHECK(certified->ContainsFace(face.facet,actual));CHECK(no_work.work==0);
+  // A current maximum-valued mesh ID is not an unpublished projected association.
+  std::map<Id,Id> numbering;for(const auto& row:state->Records())numbering.emplace(row.first,row.first);
+  numbering.at(face.v[0])=UINT64_MAX;auto rebound=state->Rebind(numbering);
+  auto renamed=face;renamed.v[0]=UINT64_MAX;const Edge max_edge{std::min(renamed.v[0],renamed.v[1]),std::max(renamed.v[0],renamed.v[1])};
+  auto renamed_reference=reference->WithParameterState(rebound);auto max_work=GeometryAtlasBudget();EdgeTrace malformed;
+  REQUIRE(rebound->ResolveTrace(max_edge,renamed,malformed,max_work,reason));REQUIRE_FALSE(malformed.pieces.empty());
+  malformed.pieces.back().end=ExactRatio{};Patch overridden;overridden.coverage.traces.emplace(max_edge,malformed);
+  auto checked=renamed_reference->PrivateParameters(overridden,&max_work);const auto rebound_snapshot=rebound->Snapshot();
+  CHECK_FALSE(checked->ContainsFace(face.facet,actual));CHECK_THROWS(checked->SurfaceError(face.facet,actual));
+  CHECK(rebound->Snapshot()==rebound_snapshot);
+}
+
+TEST_CASE("Curved mobility activation certifies legacy subfaces before certificate reuse", "[NativeCurvedAtlas3D][NativeAcceptedFaceCertificate3D]") {
+  using namespace SU2Native3D;
+  const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;const auto& f=fixture.facets[0];
+  BoundaryPoints points;std::vector<SurfaceFace> skin;std::map<int,int> roles;
+  for(const auto& face:fixture.facets){roles.emplace(face.marker,2);if(face.id!=f.id)skin.push_back({{face.v[0].id,face.v[1].id,face.v[2].id},face.id});
+    for(auto n:face.v)points.emplace(n.id,BoundaryPoint{n,g.Vertex(n.id)});}
+  const std::array<SurfaceBinding,3> inserted{{g.FacetPoint(f.id,.1,.25),g.FacetPoint(f.id,.6,.25),g.FacetPoint(f.id,.35,.25000001)}};
+  for(unsigned k=0;k<3;++k)points.emplace(100+k,BoundaryPoint{{100+k,g.Realize(inserted[k])},inserted[k]});
+  const Id a=f.v[0].id,b=f.v[1].id,c=f.v[2].id;
+  for(Face face:std::array<Face,7>{{{a,b,100},{c,a,100},{b,c,101},{100,b,101},{c,100,102},{100,101,102},{101,c,102}}})skin.push_back({face,f.id});
+  auto legacy=std::make_shared<BoundaryParameterState>(fixture.geometry,points,skin);
+  const auto saved=legacy->Snapshot();auto budget=GeometryAtlasBudget();
+  CHECK_THROWS_WITH(legacy->WithMobilityPolicy(60,roles,budget),Catch::Matchers::Contains("projected Jacobian"));
+  CHECK(legacy->Snapshot()==saved);
+}
