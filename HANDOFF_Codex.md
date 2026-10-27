@@ -21,65 +21,56 @@ Large complete vertex stars now move atomically across owners; original curved
 chart restrictions remain unresolved. See [staged scope](Handbook/STAGED_NATIVE_ADAPTATION.md)
 and [curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md).
 
-## Latest validation and next step
+## Live work and validation
 
+**No owned heavy job is live; source edits are released.** Build19 broad serial/
+session28247 PASS59.55s:182 cases/1,121,344 assertions. MPI6/session24105
+PASS37.58s:159 cases on every rank. Both preserve all pins. Receipts live under
+`staged57/cases/serial_full_20261027T103743_1836407` and
+`staged57/cases/mpi6_20261027T103917_1840976` in
+`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1`.
 
-Build19/session53468 ACTIVE: existing-point relaxation before topology
-improvement/enrichment, with bounded shared work and accepted nested operation
-counts. M6 shard comparison found 3,215 new interior points, no removed or moved
-entry points, and unchanged physical bindings. All 947 commits were nested
-optimizer results, hidden by the old reconnected counter. Source and focused regressions are implemented; the one-worker build is active.
-All compiled C++/helpers are frozen. This does not resolve cross-chart mobility.
+M6 comparison/session40354 TERMINAL PASS613.220s with unchanged pins and complete
+six-rank shards. Every entry owned/donor/parameter shard is byte-identical to
+build18. At the same four-window stop, cells682,193 versus680,869, q debt6559.099
+versus6481.093, J11290.032 versus11193.364, nearly identical size debt892329.681.
+Nested490 moves include seven replaced physical entry points. Relaxation executes,
+but the short difficult-case result is worse. Do not tune another local ordering
+variant or repeat a blind full timeout; address connected cross-chart geometry.
+This remains private diagnostic state, not M6 acceptance or an infeasibility proof.
 
-Build18 M6 stage/session11197 is TERMINAL PASS:623.327s, pins unchanged, six
-complete rank shards and four quality windows; original donors unchanged. The
-diagnostic stop is private state, not exact continuation or final acceptance.
-The diagnostic job is terminal; build19 is the only live heavy job.
-Build18/session62205 PASS726.79s/933 unchanged pins. Focused serial stage_checks/
-session45262 PASS10.5101s,6 cases/4419 assertions,unchanged pins. Six-rank
-stage_checks6/session51405 PASS11.5294s,all pins unchanged. Host preflight saved
-with34.77GB available RAM and no owned heavy predecessor. Build17/session53915 passed135.20s with933 unchanged pins.
-Broad serial/session77363 PASS61.68s:179 cases/1,121,211 assertions. MPI6/session4734
-PASS43.79s:156 cases on every rank, all pins unchanged. The first MPI launch97981
-stopped on a serial-only fixture selection error; its receipt is preserved. Serial
-geometry transfer tests stay in serial_full; MPI uses distributed counterparts.
+Latest pushed `17902da07b`: staged existing-point relaxation, topology improvement,
+then enrichment, sharing existing bounded work; nested operation counts accrue
+only to published repairs. Build19/session53468 PASS729.749s,933 unchanged pins.
+Focused quality_checks/session37382 PASS9.470s,10 cases/4539 assertions. Initial
+sandbox launch89913 stopped before tests at MPI initialization; receipt retained.
+Build19 serial/MPI integration, transfer and restart pass. Full M6 acceptance
+remains unqualified.
 
-Validated integration: strict coarsening checkpoints/rollback and support-based
-collapse retirement, complete coordinate-star movement, shared normalized clipping
-and nonfinite-volume handling, collision paging with empty ordinary removal lists.
-Curved Euler/RANS transfer/reload, repeated curved lifecycle/restart, distributed
-transfer/kernel/history/recovery checks pass. This is not full M6 acceptance.
-[Transfer-only ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
+Pushed `64953f3b69` preserves build18 diagnostic receipts. Its six-rank capture/
+session11197 completed in623.327s with unchanged pins/donors and all complete shards.
+Over248 quality rounds, cells grew664,744→680,869, q debt rose0.76%, J debt fell0.30%,
+size debt fell1.28%. All947 commits came from nested optimization, hidden by the
+old reconnected counter. Shards prove3,215 added interior points, no removed/moved
+entry points and unchanged physical bindings. This supports correcting insertion
+before smoothing; it does not establish a new aggregate gate or M6 infeasibility.
+Current comparison stops after four quality windows, preserves private snapshots,
+and is neither exact scheduler continuation nor accepted adaptation.
+[Design, receipts and interpretation](Handbook/M6_QUALITY_STAGE_PROGRESS.md).
 
-Quality-stage measurement/capture implementation passed focused serial/MPI checks,
-with admission/election and final gates unchanged. Quality-staging edits are now active.
-Incremental diagnostics reuse the one-cell census, Add/Drop cache updates,
-FirstHeightReport and SurfaceError results; no construction q/J, duplicate audit or
-per-proposal collective. Rank-local traces/shards preserve original frozen donors,
-matching private geometry and explicit unknown/partial state. Observer storage is
-admitted; a failed observer cannot run again on exit. Optional diagnostic stop
-saves observation_stop shards before electing its intentional exception.
+Build18 observer/capture focused serial and MPI6 checks pass. Build17 broad serial
+passes179 cases/1,121,211 assertions and MPI6 passes156 cases/rank, with unchanged
+pins. That integration covers coarsening rollback, complete coordinate stars,
+clipping/collision fixes, curved Euler/RANS transfer/reload, history and restart.
+It does not validate the changed build19 workflow. Detailed evidence and earlier
+failed fixtures/launches: [validation history](Handbook/VALIDATION_HISTORY_THROUGH_BUILD17.md)
+and [transfer ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 
-Focused serial stage_checks/session45262 PASS10.5101s/6 cases/4419 assertions;
-MPI6 stage_checks6/session51405 PASS11.5294s. The completed M6 stage capture shows
-mixed debt movement over only248 rounds: size debt fell, q/J debt shifted slightly,
-invalid-cell count rose. See the quantitative entry/stop table in
-[quality-stage progress](Handbook/M6_QUALITY_STAGE_PROGRESS.md). This is not a
-full convergence measurement or a reason to claim M6 acceptance.
-Serial/MPI checks passed
-constant-field/height debt, unchanged work/query/mesh, observer failure/storage
-and serialization. M6 used the
-bit-identical build13 archived sensor and unchanged configuration/geometry; it
-stopped after four quality windows and checked complete six-rank shards, lengths,
-donor hashes and synchronized trace rounds. This is diagnostic private state,
-not exact continuation, full mesh acceptance or transfer. Python receipt self-check
-passes valid cases and six malformed/truncated/provenance cases.
-Design and diagnostic acceptance: [quality-stage progress](Handbook/M6_QUALITY_STAGE_PROGRESS.md).
-
-Existing `staged57/build_checkpoint.py` and `run_cases.py` retain unique pinned
-resource receipts. Broader selectors cover conservative transfer, recovery/history
-and repeated curved restart. The named precision contract runs in the current
-binary precision; no separate float-build qualification is claimed.
+Use existing `staged57/build_checkpoint.py` and `run_cases.py`; retain unique source,
+binary, runtime/input/helper and resource receipts. The difficult-case
+comparison is complete; address the missing geometry capability and do not
+repeat blind timeouts or accumulate local fallbacks. Run broader integration at
+the connected milestone, preserving every final acceptance gate.
 
 ## Difficult target evidence and remaining capability
 
@@ -91,12 +82,11 @@ were unmeasured. Original CFD state retained. Sampled process-tree RSS maximum
 4.616GB, individual0.877GB; neither establishes a whole-job peak.
 `staged57/m6_runs/euler_build13/diagnosis.json` preserves six-rank evidence.
 
-Coarsening alone cannot close M6. Local repair admission allows size progress OR
-minimum normalized q/J progress, while whole-stage progress windows count accepted
-operations rather than aggregate deficit reduction. This permits opposing debt,
-but current counters do not prove it caused M6's timeout. Do not blame chart pins
-without evidence. Capture/assess complete quality-stage progress before the next
-connected correction; do not repeat another full timeout or add local variants.
+Coarsening alone cannot close M6. The current staging change addresses evidenced
+enrichment ordering; original-chart boundary mobility is separately missing.
+Cross-chart movement requires shared feature/coverage/edge-trace semantics through
+publication, source reconstruction and restart, not removal of one guard.
+[Geometry capability and affected callers](Handbook/CURVED_BOUNDARY_MOBILITY.md).
 
 Other open scope: changing-frame gradation21/9,393 violations (worst1.406), normal-only
 M6 budget profiles above500k (best821,265+/-53,688), whole-field normalization,
@@ -106,13 +96,10 @@ Normal-only contract still binds; tangential growth outside protected band unans
 
 ## Checkpoints and preserved history
 
-Latest pushed `b6a976235f`: quality-stage diagnostics/capture WIP; its bounded
-M6 diagnostic is now complete.
-`f27662eb31` preserves passing broad serial/MPI integration receipts and the
-quality-stage measurement design. `c659e03cf5` contains the corrected large-star
-fixture and collision paging correction. Earlier
-`6aee162837` contains coarsening closure and clipping correction/regressions. Code536025f6e4 contains
-construction generations, fair repair service and complete-star movement. Earlier builds and local
+`f27662eb31` preserves build17 integration; `c659e03cf5` fixes the large-star
+fixture/collision paging; `6aee162837` contains coarsening closure and clipping;
+`536025f6e4` contains construction generations, fair repair and complete-star moves.
+Earlier builds and local
 repair witnesses do not validate current code. Details: [staged history](Handbook/STAGED_NATIVE_ADAPTATION.md),
 [completion](Handbook/DC17_DC18_COMPLETION_2026_10_25.md), [curved source](Handbook/DC18_CURVED_SOURCE.md),
 [validation47–54](Handbook/VALIDATION47_54_HANDOFF_HISTORY.md),

@@ -5,11 +5,32 @@ integrated in build18/session62205 (PASS726.79s/933 pins); focused serial
 stage_checks/session45262 PASS10.5101s/6 cases/4419 assertions and MPI6
 stage_checks6/session51405 PASS11.5294s. M6 capture/session11197 is TERMINAL
 PASS623.327s, pins unchanged, with six complete rank shards, four quality windows
-and unchanged original donors. Build19/session53468 now compiles the connected
-quality-staging change, with one low-priority worker and pinned C++/helpers. Complete accepted M6 adaptation
+and unchanged original donors. Build19/session53468 PASS729.749s/933 unchanged pins. Focused quality_checks/
+session37382 PASS9.470s:10 cases/4539 assertions. The first sandbox launch89913
+failed before tests at MPI socket initialization. M6 comparison/session40354 is
+terminal; broader serial and MPI6 pass; no owned heavy job remains live. Complete accepted M6 adaptation
 remains the milestone.
 See [staged adaptation](STAGED_NATIVE_ADAPTATION.md) and
 [curved boundary mobility](CURVED_BOUNDARY_MOBILITY.md).
+
+**Build19 result and decision.** Session40354 completed in613.220s with unchanged
+pins and all six complete shards. Entry owned/donor/parameter files are byte-identical
+to build18. At the same round19264, cells=682,193 (baseline680,869), q debt=6559.099
+(6481.093), J debt=11290.032 (11193.364), size debt=892329.681 (892325.825).
+Nested published operations:490 moves,3594 insertions,67 collapses,1155 swaps.
+Snapshot differences:3534 added vertices,7 removed entry vertices; the seven
+replacements are physical boundary points, with changed parameter payloads.
+These endpoint snapshots cannot classify every transient internal move.
+
+Relaxation now executes, but this early result does not improve the difficult
+case. Do not tune another local ordering variant or launch a blind full timeout.
+Preserve the diagnosis, qualify shared integration, and address the separately
+missing cross-chart geometry capability. No aggregate acceptance gate is justified
+by this comparison. Full M6 remains open; four windows do not prove infeasibility.
+[Byte-identical entry and trend comparison](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_stage_20261027T102502_1804803/baseline_comparison.json).
+Broad serial/session28247 PASS59.55s:182 cases/1,121,344 assertions.
+MPI6/session24105 PASS37.58s:159 cases/rank,unchanged pins.
+No owned heavy job is live; source edits are released.
 
 **Evidence and its limits.**
 
@@ -45,7 +66,7 @@ optimizer call; the snapshots do not expose those transient operations.
 Evidence: [topology comparison](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_stage_20261027T094843_1705337/topology_comparison.json),
 produced by the checked `staged57/analyze_stage_topology.py` decoder.
 
-**Connected change implemented, build19 active; not yet validated:** separate existing-point
+**Connected change implemented; focused checks pass, M6 comparison recorded above:** separate existing-point
 relaxation, topology improvement and enrichment across the optimizer's current
 bad-cell worklist. The old first-success order puts insertions before collapses
 and smoothing, so repeatedly successful insertion can bypass those operators.
@@ -54,8 +75,7 @@ for later enabled stages within the unchanged total budget. Newly inserted point
 get relaxation opportunity on the next sweep. Publish nested operation counts
 only with accepted outer transactions. Nested counts describe committed internal
 operations, not net differences: an inserted-then-collapsed point contributes to
-both counts. Read-only review found no blocking source defect; runtime checks
-remain pending. This addresses an evidenced ordering
+both counts. Read-only review found no blocking source defect; focused runtime checks pass; the difficult-case comparison is recorded above. This addresses an evidenced ordering
 limitation; it does not establish M6 convergence or cross-chart mobility. Keep
 minimum-score admission for now: the small combined q/J increase alone does not
 justify a new aggregate gate. Validate the connected change on the captured M6

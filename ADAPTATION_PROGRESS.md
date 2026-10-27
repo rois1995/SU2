@@ -16,18 +16,26 @@ transfer/reload, repeated curved restart, and distributed history/recovery.
 [Transfer-only ledger](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 
 
-Build19/session53468 ACTIVE: existing-point relaxation before topology
+Build19/session53468 PASS729.749s/933 unchanged pins: existing-point relaxation before topology
 improvement/enrichment, with bounded shared work and accepted nested operation
 counts. M6 shard comparison found 3,215 new interior points, no removed or moved
 entry points, and unchanged physical bindings. All 947 commits were nested
-optimizer results, hidden by the old reconnected counter. Source and focused regressions are implemented; the one-worker build is active.
-All compiled C++/helpers are frozen. This does not resolve cross-chart mobility.
+optimizer results, hidden by the old reconnected counter. Focused quality_checks/session37382 PASS9.470s:10 cases/4539 assertions,
+unchanged pins. Initial sandbox launch89913 failed before tests at MPI initialization.
+M6 four-window comparison/session40354 TERMINAL PASS613.220s, unchanged pins;
+all six starting owned/donor/parameter shards are byte-identical to build18.
+Early result is worse:682,193 cells, q6559.099/J11290.032, nearly unchanged size
+debt892329.681. Nested490 moves include seven changed physical entry points;
+this is not M6 acceptance or a convergence improvement. Broad serial/session28247 PASS59.55s:182 cases/1,121,344 assertions.
+MPI6/session24105 PASS37.58s:159 cases/rank, unchanged pins.
+No owned heavy job is live; source edits are released. Preflight:34.35GB available RAM, no predecessor heavy job.
+This does not resolve cross-chart mobility.
 
 Build18/session62205 PASS726.79s/933 unchanged pins. Focused serial stage_checks/
 session45262 PASS10.5101s/6 cases/4419 assertions; six-rank stage_checks6/session51405
 PASS11.5294s. M6 stage capture/session11197 is TERMINAL PASS in623.327s: pins
 unchanged, six complete rank shards, four quality windows and original donors
-unchanged. The later build19 is active. This validates quality-stage observations and
+unchanged. Broad serial/session28247 and MPI6/session24105 pass. This validates quality-stage observations and
 complete private-state capture; it does not establish full convergence, exact
 continuation or final mesh acceptance. Focused checks compare observed/unobserved mesh,
 work and field queries, independently check shape/height debt, and exercise
@@ -45,7 +53,8 @@ CFD state was retained. Its counters alone do not prove opposing quality debt,
 boundary pins or parallel throughput caused rejection. The new capture addresses
 that evidence gap before changing quality admission or coordination.
 
-Latest pushed `64953f3b69`: completed diagnostic receipts and enrichment diagnosis. `f27662eb31` preserves the
+Latest pushed `17902da07b`: quality-staging WIP; build/focused checks pass, M6 diagnostic complete; broader serial/MPI integration passes.
+`64953f3b69` preserves completed diagnostic receipts and enrichment diagnosis. `f27662eb31` preserves the
 passing build17 integration receipts. Prior failures, fixes and limited witnesses
 remain in [archived validation history](Handbook/VALIDATION_HISTORY_THROUGH_BUILD17.md)
 and [staged implementation](Handbook/STAGED_NATIVE_ADAPTATION.md). Full M6,

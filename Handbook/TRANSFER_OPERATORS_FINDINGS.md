@@ -9,26 +9,20 @@ quality-operator findings belong in the adaptation handbooks.
 
 ## Current status
 
-The clipping correction and regressions are committed and pushed in
-`6aee162837` on `rois1995/SU2`, branch `codex/native-3d-bl`.
-The saved failing geometry passes a focused overlap replay after the arithmetic
-correction. Integrated build15/session90655 passed (573.64 s; 933 unchanged source pins).
-Its connected run/session49438 passed the curved Euler/RANS transfer/reload checks
-and all three clipping regressions. The run as a whole failed one unrelated
-large-star fixture premise (82/83 cases pass). Broader serial/MPI qualification
-is pending. Build16 changes only that movement fixture and its connected run
-passes all 83 cases/19,836 assertions (22.62 s, unchanged pins). Broader serial
-validation completed with added kernel, recovery/history and repeated curved
-transfer/restart lifecycle coverage: all transfer checks pass. The overall serial
-run is 178/179 because of an unrelated collision paging regression. Build17 fixes
-that regression. Build17 broad serial passes all 179 cases/1,121,211 assertions
-(61.68 s, unchanged pins). First MPI6 launch stopped because the selector included
-serial-only geometry transfer fixtures requiring halo-free meshes. The selector
-now retains those tests in serial and uses distributed counterparts under MPI;
-the corrected six-rank run passed all 156 cases on each rank in 43.79 s with
-unchanged pins. This was a harness error, not a transfer defect. The clipping fix
-is now qualified by connected, broad serial and six-rank regression; full M6
-transfer remains a separate open obligation.
+The clipping correction (`6aee162837`) is qualified at build17 by the focused
+saved-geometry replay, curved Euler/RANS transfer/reload, broad serial regression
+(179 cases/1,121,211 assertions, 61.68 s) and MPI6 (156 cases per rank, 43.79 s).
+Pins remained unchanged. TR-001 is closed for the reproduced arithmetic defect;
+TR-002's independent coverage checks remain required. Earlier failures and their
+provenance are retained in the evidence list below.
+
+Build19 changes quality-operator scheduling, not transfer kernels. Its broad serial
+integration/session28247 passes182 cases/1,121,344 assertions in59.55s, with
+unchanged pins, including conservative transfer/history and curved restart.
+MPI6/session24105 passes159 cases on every rank in37.58s, with unchanged pins.
+No new transfer defect was found. The difficult M6
+stage capture remains private progress and supplies no accepted transfer workflow.
+
 Full M6 transfer remains unqualified because no complete accepted M6 mesh exists.
 
 ## TR-001 — Subnormal clipping distances lose valid intersections
@@ -101,6 +95,11 @@ Evidence root:
 - `cases/mpi6_20261027T091028_1591266`: build17 MPI6 PASS,156 cases/rank,
   unchanged pins,43.79 s; distributed kernel/projection/transfer/history/recovery
   and repeated curved restart coverage.
+
+- `cases/serial_full_20261027T103743_1836407`: build19 serial PASS,
+  182 cases/1,121,344 assertions,59.55s,unchanged pins; quality staging integrated.
+- `cases/mpi6_20261027T103917_1840976`: build19 MPI6 PASS,
+  159 cases/rank,37.58s,unchanged pins; transfer/history/restart included.
 
 ## TR-002 — Constant preservation alone misses coverage defects
 
