@@ -1,7 +1,7 @@
 # Native adaptation progress
 
 Companion to [ADAPTATION_TODO.md](ADAPTATION_TODO.md), the acceptance ledger.
-Updated: 2026-10-26. Detailed failures and provenance remain linked below.
+Updated: 2026-10-27. Detailed failures and provenance remain linked below.
 
 ## Current result
 
@@ -9,8 +9,8 @@ Updated: 2026-10-26. Detailed failures and provenance remain linked below.
 
 Validity-first construction, explicit shape-unavailable records, FIRST_ROW handoff,
 measured provisional height admission and useful quality passes are implemented.
-Build8 passes with all933 source/build pins unchanged. The saved M6 offline3
-repair passes strict q/J/edge, prescribed interface and external contact: q=.2446273,
+Earlier build8 passed with all933 source/build pins unchanged. Its saved M6
+offline3 repair passed strict q/J/edge, prescribed interface and external contact: q=.2446273,
 J=.0532005,edge=1.5983623 after1 move/12 trials. It still owes surface approximation;
 this is a LOCAL repair witness, never full-mesh acceptance.
 
@@ -23,14 +23,26 @@ reconstruction:292 removal publications versus279–280 quality patches, ending
 needs a proper criterion. No construction quality floor will be reinstated.
 A separate new fixture abort is a missing cyclic index at the last ring segment.
 
-Full M6 Euler `staged57/m6_runs/euler_build13`, session70428, is actively running
-on6 ranks under unchanged500k complexity/native1800s/outer2400s and all final gates.
-Sources/helpers remain frozen. The diagnosed coarsening correction and fixture fix are being implemented in an isolated sparse checkout; they are not yet integrated or tested. Previous build12 full M6 rejected during construction
-before quality at306.7s native on the4096 changed-star notification limit, after
-19,658 edits/372,631 cells; original CFD state and pin provenance were preserved.
+Full M6 Euler `staged57/m6_runs/euler_build13`, session70428, is terminal REJECT:
+1863.87s wall,1802.45s native, solver exit0/native false, all pins unchanged.
+The six-rank run reached repair but never coarsening:774,314 private cells,
+275,115 cached invalid cells and1,240,202 remaining repair demands after112,024
+private publications. Time exhausted at1,218,977/19,414,976 work; original CFD
+state retained. Sampled process-tree RSS maximum4.616GB. This does not establish
+boundary pins as the cause. It does show the coarsening fix alone cannot close M6.
+Build14/session8407 passed594.86s with933 unchanged pins. Connected_fix/session39461
+finished25.65s:77/80 cases pass,18,339/18,502 assertions. Both curved remeshing stages
+now complete; RANS transfer still fails. Two new fixture setups were invalid and
+are corrected. An all-pair replay isolates non-finite clipping arithmetic: lost
+volume.02111049961 falls to3.6e-16 with normalized signed-distance interpolation.
+Shared correction and three regressions are integrated; build15/session90655 is
+active with933 frozen pins,one nice19 worker. Qualification remains incomplete.
+[Diagnosis and replay](Handbook/TRANSFER_CLIPPING_UNDERFLOW.md). Full M6 quality closure is still a separate open capability.
+Previous build12 rejected during construction on the4096 notification scan limit.
 
-Latest pushed: `536025f6e4` (WIP). It connects fair global repair scheduling,
-construction frontier generations and atomic complete coordinate-star movement.
+Latest pushed: `b33ec2ccb9` records build13 and connected-failure evidence. Code
+checkpoint `536025f6e4` connects fair global repair scheduling, construction frontier
+generations and atomic complete coordinate-star movement; it remains WIP.
 No milestone is closed. See [staged implementation](Handbook/STAGED_NATIVE_ADAPTATION.md).
 Curved cross-chart mobility, distributed qualification and accepted full M6 remain
 open. External-SSD references are copied locally and hash-verified:

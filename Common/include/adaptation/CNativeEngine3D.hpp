@@ -68,6 +68,9 @@ struct EngineStats {
   uint64_t global_work = 0, work_limit = 0, progress_windows = 0, stagnant_windows = 0, search_windows = 0;
   uint64_t size_progress = 0, quality_progress = 0, cell_removals = 0, geometry_progress = 0;
   uint64_t geometry_reactivated=0;
+  // Strict checkpoints certify hard mesh constraints; speculative publications are counted independently.
+  uint64_t coarsen_checkpoints=0,coarsen_committed_passes=0,coarsen_rolled_back_passes=0;
+  uint64_t coarsen_retired_directions=0,coarsen_restored_cells=0,coarsen_rolled_back_collapses=0;
   uint64_t quality_stages=0,construction_returns=0;  // Fresh strict censuses and size/geometry returns within this event.
   uint64_t region_field_points=0,region_field_sensor_hits=0,region_field_interior_hits=0;
   uint64_t region_field_edges=0,region_field_edge_hits=0,region_field_imports=0;
@@ -173,10 +176,13 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
                     const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
 /*! General directed vertex-star coarsening on the same frozen-target transaction path. A successful event
  * passes all final metric/shape gates and exhausts admitted short-edge proposals; it need not reach a minimal
- * mesh. Blocked directions are retried only after adjacent topology changes. Complete vertex dependencies
- * and immutable incident finite facets protect geometry; no inverse-split history is required. Rejected
- * removal in an invalid field can try movement/reconnection; a stalled invalid mesh admits one repair queue.
- * Already-admissible meshes retain the cheaper removal path; coarsening need not minimize cell count. */
+ * mesh. Removal and ensuing quality recovery form one speculative trial: a completed strict closure
+ * must reduce global cell count, or it restores a strict checkpoint and retires the actually attempted
+ * directions attempted on matching checkpoint support. A finite exhausted repair queue rejects its
+ * trial as well. Collateral disappearances remain obligations after rollback; budget exits still reject
+ * the event. Blocked directions survive censuses and reopen after support changes. Complete vertex
+ * dependencies and immutable incident finite facets protect geometry; no inverse-split history is required.
+ * Already-admissible meshes enter removal from a strict checkpoint; coarsening need not minimize cell count. */
 EngineResult Coarsen(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                     const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
 /*! Uses the same distributed construction/improvement lifecycle, with complete vertex/edge/face repairs

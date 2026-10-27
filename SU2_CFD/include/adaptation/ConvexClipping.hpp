@@ -27,6 +27,9 @@
 
 #pragma once
 
+#include <algorithm>
+#include <cmath>
+
 #include "../../../Common/include/basic_types/datatype_structure.hpp"
 
 /*!
@@ -42,6 +45,15 @@
  * Python reference (PolyClip3D_Fun.py).
  */
 namespace convex_clip {
+
+inline passivedouble CutFraction(passivedouble a, passivedouble b) {
+  // Normalize before division: reciprocal optimization overflows for subnormal distances.
+  int exponent = 0;
+  std::frexp(std::max(std::abs(a), std::abs(b)), &exponent);
+  a = std::ldexp(a, -exponent);
+  b = std::ldexp(b, -exponent);
+  return a / (a - b);
+}
 
 /*!
  * \brief Convex polygon, vertices counter-clockwise.
@@ -89,7 +101,7 @@ struct Polygon {
       }
       if (keepI != keepJ) {
         if (k >= MAXV) return n = -1;
-        const passivedouble f = sd[i] / (sd[i] - sd[j]);
+        const passivedouble f = CutFraction(sd[i], sd[j]);
         out[k][0] = x[i][0] + f * (x[j][0] - x[i][0]);
         out[k][1] = x[i][1] + f * (x[j][1] - x[i][1]);
         k++;
@@ -185,8 +197,8 @@ struct Polyhedron {
         const int vr = nbr[vk][k];
         if (!gone[vr]) continue;
         if (n >= MAXV) return n = -1;
-        const passivedouble wk = -sd[vr], wr = sd[vk], s = wk + wr;
-        for (int c = 0; c < 3; ++c) x[n][c] = (wk * x[vk][c] + wr * x[vr][c]) / s;
+        const passivedouble f = CutFraction(sd[vk], sd[vr]);
+        for (int c = 0; c < 3; ++c) x[n][c] = (1 - f) * x[vk][c] + f * x[vr][c];
         nbr[n][0] = vk;
         nbr[n][1] = nbr[n][2] = -1;
         nbr[vk][k] = n;

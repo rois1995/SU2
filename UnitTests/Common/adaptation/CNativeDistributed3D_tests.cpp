@@ -782,6 +782,9 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
              << " sample_feature=" << s.last_rejected_feature.count << " sample_v0=" << s.last_rejected_feature.vertices[0]
              << " sample_v1=" << s.last_rejected_feature.vertices[1] << " sample_v2=" << s.last_rejected_feature.vertices[2]
              << " sample_x=" << s.last_rejected_cavity_centroid.x << " sample_y=" << s.last_rejected_cavity_centroid.y << " sample_z=" << s.last_rejected_cavity_centroid.z
+       << " coarsen_checkpoints=" << s.coarsen_checkpoints << " coarsen_committed_passes=" << s.coarsen_committed_passes
+       << " coarsen_rolled_back_passes=" << s.coarsen_rolled_back_passes << " coarsen_retired_directions=" << s.coarsen_retired_directions
+       << " coarsen_restored_cells=" << s.coarsen_restored_cells << " coarsen_rolled_back_collapses=" << s.coarsen_rolled_back_collapses
        << " quality_stages=" << s.quality_stages << " construction_returns=" << s.construction_returns
        << " shape_measured=" << s.last_metric_rejection.shape_measured
        << " batch_reserved=" << s.batch_reserved
@@ -1237,7 +1240,7 @@ TEST_CASE("Native MPI general coarsening supports repeated planar refine coarsen
           CHECK(Bytes(owned)==worker_saved);
           CHECK(result.stats.edge_evaluations+result.stats.edge_reused==6*(result.stats.initial_cells+result.stats.updated_cells));
           CHECK(result.stats.other_seconds>=-1e-12);
-          if(coarsening) { CHECK(result.splits.empty()); CHECK(result.collapses.size()+result.stats.moved+result.stats.reconnected+result.stats.inserted==result.stats.accepted); }
+          if(coarsening) { CHECK(result.splits.empty()); CHECK(result.collapses.size()+result.stats.coarsen_rolled_back_collapses+result.stats.moved+result.stats.reconnected+result.stats.inserted==result.stats.accepted); }
           else { CHECK(result.collapses.empty()); CHECK(result.splits.size()+result.stats.moved+result.stats.reconnected+result.stats.inserted==result.stats.accepted); }
           if(!valid) std::cerr<<"CYCLE_FAILURE "<<label<<" rank="<<worker.rank<<" "<<result.reason<<'\n';
           EngineReport(result,worker,label);adapted.swap(result.cells);
@@ -1574,7 +1577,7 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
           CHECK(result.stats.field_requests==result.stats.field_hits+result.stats.field_misses+result.stats.field_invalid_queries);
           CHECK(result.stats.field_failures<=result.stats.field_requests+result.stats.field_edges);
           CHECK(result.stats.field_evictions<=result.stats.field_misses);
-          CHECK(result.splits.size()+result.collapses.size()+result.stats.moved+result.stats.reconnected+result.stats.inserted==result.stats.accepted);
+          CHECK(result.splits.size()+result.collapses.size()+result.stats.coarsen_rolled_back_collapses+result.stats.moved+result.stats.reconnected+result.stats.inserted==result.stats.accepted);
           CHECK(result.stats.quality_stages>=1);
           if(mode=="auto") {
             if(kind!="face") {
@@ -3548,13 +3551,23 @@ TEST_CASE("Distributed repair moves complete large stars without changing cell o
   for(unsigned levels:{1u,2u}) {
     auto fixture=IcosphereStar(levels);
     for(auto& c:fixture.patch.cells)for(auto& n:c.v) {
-      if(n.id==1000){n.id=0;n.p={.75,0,0};}else ++n.id;
+      if(n.id==1000){n.id=0;n.p={.9,0,0};}else ++n.id;
     }
     for(auto& f:fixture.patch.surface)for(auto& id:f.v)++id;
     for(auto& f:fixture.facets)for(auto& n:f.v)++n.id;
     const PlanarReference geometry(fixture.facets);const auto input=Partition(Rows(fixture.patch),world);
-    const auto saved=Bytes(input);EngineOptions options;options.candidate_batch=1;options.maximum_rounds=1;options.maximum_work=4096;
-    const auto result=Repair(world,input,Uniform(input,Tensor{}),geometry,{},options);INFO(result.reason);
+    const auto saved=Bytes(input);const Tensor tensor{.81,0,0,.81,0,.81};unsigned initial_bad=0;
+    // The displaced point remains inside both polyhedra. Every radius edge has metric
+    // length at most .9*(1+.9)=1.71, leaving only a genuine initial shape defect.
+    for(const auto& row:input) {
+      const auto& v=row.second.cell.v;REQUIRE(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);
+      const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
+      REQUIRE(m.maximum_edge<=MaximumMetricEdge);
+      initial_bad+=m.mean_ratio<MinimumMeanRatio || m.minimum_scaled_jacobian<MinimumScaledJacobian;
+    }
+    REQUIRE(world.sum(initial_bad)>0);
+    EngineOptions options;options.candidate_batch=1;options.maximum_rounds=1;options.maximum_work=4096;
+    const auto result=Repair(world,input,Uniform(input,tensor),geometry,{},options);INFO(result.reason);
     CHECK(result.stats.quality_stages==1);CHECK(world.sum(result.stats.moved)==1);
     CHECK(result.cells.size()==input.size());CHECK(Bytes(input)==saved);
     for(const auto& row:result.cells) {
@@ -3562,7 +3575,7 @@ TEST_CASE("Distributed repair moves complete large stars without changing cell o
       CHECK(std::none_of(row.second.cell.v.begin(),row.second.cell.v.end(),[](Node n){return n.id==0;}));
       const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);
       if(result.valid) {
-        const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},Tensor{});
+        const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
         CHECK(m.mean_ratio>=MinimumMeanRatio);CHECK(m.minimum_scaled_jacobian>=MinimumScaledJacobian);CHECK(m.maximum_edge<=MaximumMetricEdge);
       }
     }
@@ -3858,6 +3871,89 @@ TEST_CASE("Coarsening revisits short edges created by quality repair", "[NativeC
     CHECK(m.mean_ratio>=MinimumMeanRatio);CHECK(m.minimum_scaled_jacobian>=MinimumScaledJacobian);CHECK(m.maximum_edge<=MaximumMetricEdge);
   }
   EngineReport(result,world,"coarsen_after_quality_publication");
+}
+
+TEST_CASE("Unproductive coarsening closures restore strict ownership and revisit collateral directions", "[NativeCoarsenQualityReturn3D][NativeCoarsenClosure3D]") {
+  World world;
+  for(bool stretched:{false,true})for(bool mapped:{false,true}) {
+    const double height=stretched?2.:1.;
+    // Orthogonal stretch preserves the face-center normal footprints in both triangles.
+    auto fixture=Box(height);fixture.patch.cells.clear();const Node center{8,{.5,.5,height/2}};
+    for(const auto& f:fixture.facets) {
+      Cell c{fixture.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
+      if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[2],c.v[3]);
+      fixture.patch.cells.push_back(c);
+    }
+    std::shared_ptr<const PlanarReference> reference=std::make_shared<PlanarReference>(fixture.facets);
+    if(mapped) {
+      std::map<Id,double> errors;for(const auto& f:fixture.facets)errors.emplace(f.id,1e-13);
+      auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(reference,errors,7);
+      BoundaryPoints points;for(const auto& f:fixture.facets)for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});
+      reference=PlanarReference::WithParameters(reference,std::make_shared<BoundaryParameterState>(authority,points,fixture.patch.surface));
+    }
+    const auto parameters=mapped?reference->Parameters()->Snapshot():std::vector<char>{};
+    const Tensor tensor=stretched?Tensor{1,0,0,1,0,.25}:Tensor{};
+    const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+    size_t feasible=0;
+    for(Id corner=0;corner<8;++corner) {
+      Patch collapsed;std::string reason;
+      feasible+=CollapseVertex(fixture.patch,center.id,corner,10000,*reference,collapsed,reason);
+    }
+    REQUIRE(feasible>=2);
+    EngineOptions options;options.candidate_batch=1;options.maximum_work=4096*feasible;
+    options.maximum_rounds=128*(feasible+1);options.surface_tolerance=1e-12;
+    for(const auto& f:fixture.facets) {
+      const auto a=f.v[0].p,b=f.v[1].p,c=f.v[2].p;
+      const long double x=((long double)b.y-a.y)*(c.z-a.z)-((long double)b.z-a.z)*(c.y-a.y);
+      const long double y=((long double)b.z-a.z)*(c.x-a.x)-((long double)b.x-a.x)*(c.z-a.z);
+      const long double z=((long double)b.x-a.x)*(c.y-a.y)-((long double)b.y-a.y)*(c.x-a.x);
+      options.wall_heights[f.marker]=double(std::abs(Orientation(a,b,c,center.p))/std::sqrt(x*x+y*y+z*z));
+      const bool horizontal=a.z==b.z && b.z==c.z;
+      REQUIRE(options.wall_heights.at(f.marker)==Approx(horizontal?height/2:.5));
+    }
+    FirstHeightReport initial_height;std::string reason;
+    REQUIRE(CheckFirstHeight(fixture.patch,options.wall_heights,*reference,initial_height,reason));
+    FrozenField initial(Uniform(input,tensor));
+    for(const auto& row:input) {
+      PatchMetric measured;REQUIRE(ValidateMetricPatch({row.second.cell},initial,measured,reason));
+    }
+    const auto result=Coarsen(world,input,Uniform(input,tensor),*reference,{},options);INFO(result.reason);
+    REQUIRE(result.valid);CHECK(result.stats.coarsen_checkpoints>0);
+    // Every geometrically feasible center removal destroys a requested first height. The
+    // retained twelve corner triangles each need their own height-valid incident cell.
+    // Each failed trial removes center8, making the other entry directions disappear
+    // collaterally; later feasible removals must reappear rather than being silently retired.
+    CHECK(result.stats.coarsen_rolled_back_passes==feasible);
+    CHECK(world.sum(result.stats.coarsen_rolled_back_collapses)==feasible);
+    CHECK(world.sum(result.stats.coarsen_retired_directions)>=feasible);
+    CHECK(result.collapses.empty());CHECK(Bytes(result.cells)==saved);CHECK(Bytes(input)==saved);
+    CHECK(result.stats.global_work<=options.maximum_work);CHECK(result.stats.cached_invalid_cells==0);
+    CHECK(Audit(world,result.cells,fixture,fixture.patch.cells.size()));
+    if(mapped) {
+      CHECK(reference->Parameters()->Snapshot()==parameters);REQUIRE(result.reference);
+      CHECK(result.reference->Parameters()->Snapshot()==parameters);
+    }
+    for(auto ceiling:{size_t(0),size_t(1)}) {
+      auto limited=options;limited.maximum_work=ceiling;
+      const auto refused=Coarsen(world,input,Uniform(input,tensor),*reference,{},limited);INFO(refused.reason);
+      CHECK_FALSE(refused.valid);CHECK(refused.stats.stop==EngineStop::WorkBudget);
+      CHECK(refused.stats.coarsen_rolled_back_passes==0);CHECK(Bytes(input)==saved);
+      if(ceiling==1){CHECK(refused.stats.coarsen_checkpoints>0);CHECK(world.sum(refused.stats.accepted)>0);}
+      if(mapped)CHECK(reference->Parameters()->Snapshot()==parameters);
+    }
+    auto limited=options;limited.maximum_rounds=1;
+    const auto refused=Coarsen(world,input,Uniform(input,tensor),*reference,{},limited);
+    CHECK_FALSE(refused.valid);CHECK(refused.stats.stop==EngineStop::RoundBudget);CHECK(Bytes(input)==saved);
+    limited=options;limited.memory_ceiling=1;
+    const auto no_storage=Coarsen(world,input,Uniform(input,tensor),*reference,{},limited);
+    CHECK_FALSE(no_storage.valid);CHECK(no_storage.stats.coarsen_rolled_back_passes==0);CHECK(Bytes(input)==saved);
+    limited=options;limited.maximum_seconds=1e-12;
+    const auto timed=Coarsen(world,input,Uniform(input,tensor),*reference,{},limited);
+    CHECK_FALSE(timed.valid);CHECK(timed.stats.stop==EngineStop::TimeBudget);CHECK(timed.stats.coarsen_rolled_back_passes==0);
+    CHECK(Bytes(input)==saved);
+    if(mapped)CHECK(reference->Parameters()->Snapshot()==parameters);
+    EngineReport(result,world,"strict_coarsen_closure");
+  }
 }
 
 TEST_CASE("Metric optimizer moves an interior apex to satisfy requested first height", "[NativeHeightOptimization3D]") {

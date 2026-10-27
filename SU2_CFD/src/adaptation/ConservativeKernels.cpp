@@ -191,6 +191,8 @@ bool Overlap(unsigned short nDim, const Frame& frame, const passivedouble* const
   }
   passivedouble volume0 = 0.0, centroid0[3] = {};
   overlap.Moments(volume0, centroid0);
+  if (!std::isfinite(volume0))
+    SU2_MPI::Error("Non-finite simplex overlap cannot be classified as an empty intersection.", CURRENT_FUNCTION);
   if (!(volume0 > kOverlapFraction * std::min(frame.volume, donorVolume))) return false;
 
   /*--- Donor field in the frame. ---*/
@@ -237,6 +239,8 @@ bool Overlap(unsigned short nDim, const Frame& frame, const passivedouble* const
     if (part.Empty()) continue;
     passivedouble volume = 0.0, centroid[3] = {};
     part.Moments(volume, centroid);
+    if (!std::isfinite(volume))
+      SU2_MPI::Error("Non-finite dual-piece overlap cannot be classified as an empty intersection.", CURRENT_FUNCTION);
     if (volume > 0.0) call(i, volume, centroid);
   }
   return true;

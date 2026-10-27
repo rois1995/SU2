@@ -1,111 +1,101 @@
-# Codex handoff — current state, 2026-10-26
+# Codex handoff — current state, 2026-10-27
 
-User requests persistent implementation until DC-17/DC-18 and ensuing defects are
-verified closed. Do not end with WIP while independent work remains. Keep the local
+Continue until DC-17/DC-18 and ensuing defects are verified closed. Keep the local
 [TODO](ADAPTATION_TODO.md) and tracked [progress companion](ADAPTATION_PROGRESS.md)
-current. Detailed evidence/history: [curved source/construction](Handbook/DC18_CURVED_SOURCE.md)
-and [completion handbook](Handbook/DC17_DC18_COMPLETION_2026_10_25.md).
-Latest user-requested [MPI audit/paper assessment](Handbook/MPI_AUDIT_AND_LOSEILLE_ASSESSMENT.md)
-corrects the regeneration premise: separate weighted tetrahedral partitioning is
-already implemented/enabled. Paper was read previously; mismatch-based work and
-hierarchical interface recovery need evaluation, not blind adoption. No new run/code.
+current. Do not mistake a local repair, checkpoint or passing fixture for full
+adaptation acceptance. Permanent architecture/cadence/resource rules: [AGENTS.md](AGENTS.md).
 
-Target: accepted full M6 Euler then RANS adaptation, general metric/geometry-driven
-operators, q>=.20,J>=.05,edge<=1.8,h0 within10%, configured500k metric-complexity
-(not tet-count), geometry, conservative transfer and restart. Curvature uses
-ADAP_HAUSD in mesh units independently ofh0. No accepted full M6 exists.
+## Goal and direction
 
-ACTIVE: full M6 Euler `staged57/m6_runs/euler_build13`, session70428, diagnostic
-run on6 ranks with unchanged500k complexity/native1800s/outer2400s and final gates.
-Sources/helpers are FROZEN; no other heavy job.
-Implementation continues ONLY in isolated sparse checkout
-`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/coarsen_closure_worktree`
-(detached536025f6e4). Main933 pins verified unchanged after checkout creation.
-Engine agent owns combined coarsen/quality checkpoint progress there; boundary
-fixture wraparound is fixed there. No staging build; integrate only after M6 is terminal. Build13 passed1069.09s with933
-unchanged pins. Check its owned handle before editing any C++ or starting jobs.
+Accepted full ONERA M6 Euler adaptation, then RANS, through general metric/geometry
+operators: q>=.20,J>=.05,edge<=1.8,h0 within10%,500k metric complexity (not tet count),
+prescribed geometry/body/features, conservative transfer and restart. Curvature uses
+ADAP_HAUSD in mesh units independently ofh0. No full M6 has passed acceptance.
 
-Checkpoint536025f6e4 implements fair global repair service, construction frontier
-generations and complete coordinate-star movement beyond64 cells, with existing
-scan/byte bounds and atomic paged contact/publication. Connected_fix/session10316
-is terminal FAIL/abort:44/46 reached cases pass,3978/3981 assertions;246.91s,pins
-unchanged. The two curved variants now finish Refine in~1.89s,173cells,zero cached
-invalid cells,157work. Coarsen then churns between removal and quality reconstruction
-until118s:292 removal publications,279–280 quality patches,118/128 final cells.
-Phase resets discard blocked collapse directions; combined-pass net progress is
-also missing. Do not restore construction quality floors. A new Boundary fixture
-also needs cyclic indexing: middle[j+2] overruns its44-node ring atj42. Fix only
-after the current M6 handle is terminal. Campaign is incomplete, not qualified.
+Construction is validity-first: no q/J measurement/ranking/floors; exact positivity,
+topology, authority membership/contact remain hard. Quality/BL-aware improvement
+follows with unchanged final gates. Physical boundary coordinates may change.
+Large complete vertex stars now move atomically across owners; original curved
+chart restrictions remain unresolved. See [staged scope](Handbook/STAGED_NATIVE_ADAPTATION.md)
+and [curved mobility](Handbook/CURVED_BOUNDARY_MOBILITY.md).
 
-Prior full M6 build12 rejected during Construction at306.7s native, before quality:
-changed-star notification exceeded4096 after19,658 edits/372,631 private cells.
-Original CFD state retained; all pins unchanged. Seed stars already reached88,
-beyond the then64-cell movement path. Full M6 has never passed acceptance.
-See [staged implementation and receipts](Handbook/STAGED_NATIVE_ADAPTATION.md).
-Prior build12 connected68/69, broad build10 failures and older passing evidence
-remain historical. Saved M6 offline3 is only a LOCAL repair witness with surface
-debt. External-SSD inputs are archived locally; see below.
+## Live work and next validation
 
-LATEST USER STEERING: construction must not measure/rank q/J or require shape
-progress. J>=.001 is also a quality gate, not geometric validity. Construction
-retains exact positive cells, topology, geometry/body separation and metric size
-guidance. Quality/height improvement follows, with all final gates unchanged.
-Physical nodes may move on prescribed geometry, retaining genuine features.
-Use efficient models for bounded tasks; primary agent owns design/review.
+ACTIVE: build15/session90655,933 frozen source pins,one nice19 worker; all main
+C++/tests/helpers are FROZEN. No other heavy job. Build14/session8407 passed594.86s.
+Connected_fix/session39461 is terminal FAIL:25.65s,77/80 cases,18,339/18,502
+assertions, unchanged pins. Curved remeshing completed; RANS transfer failed.
 
-Current work removes centroid shape sampling from construction, makes unavailable
-shape explicit, and connects the serial FIRST_ROW constructor to general distributed
-Refine/Coarsen before publication. A stalled valid construction can enter quality
-improvement with remaining size/geometry deficits; productive repair returns those
-deficits to construction. No-progress phase bouncing must reject, not loop.
-The saved M6 midpoint test previously made0 moves in24 trials because of a monotonic
-surface-error veto, not a budget. The revision permits provisional approximation
-error debt while retaining geometry membership/contact and strict final acceptance.
-Useful quality passes now amortize censuses; shared internal height admissions
-allow measured provisional deficits while retaining geometric clearance.
-Curved cross-chart movement and full M6 acceptance
-remain open. Follow [connected scope](Handbook/STAGED_NATIVE_ADAPTATION.md).
+Integrated coarsening correction: strict checkpoints, net cell reduction across
+removal+quality closure, unchanged-support attempt ledger, finite-queue rollback,
+byte-accounted dormant Directory, persistent blocked directions. It restores exact
+owned cells/versions/parameters; collateral directions return. Real resource limits
+still reject. Flat and mapped height-constrained rollback variants pass; stretched
+variant and corrected large-star fixture await validation. No construction q/J floor.
+The old isolated copy in `dc17_18_completion_v1/coarsen_closure_worktree` is stale;
+do not copy it over main.
 
-Latest pushed checkpoint536025f6e4 saves frontier generations, fair repair service and atomic complete coordinate-star movement; build13 passed; connected qualification failed; full M6 diagnostic is active.
-Checkpointd0b5f7b70c saves the geometry/size policy and accounting fixes.
-Checkpoint519a4813a2 saves useful quality passes, provisional-height
-admission, resumed coarsening and LOCAL saved-M6 evidence; build9 focused serial passes; broad qualification remains pending.
-Checkpoint36de990633 saves the explicit construction/improvement stages;
-checkpoint6cf0dcedfd saves the earlier connected implementation
-and the diagnosed M6 quality-stage refusal; d9e840ba35 holds the earlier LOCAL witness. All26 original calls/11 shape refusals replay exactly;
-this is diagnosis, not full-mesh acceptance. Details:
-[transaction replay](Handbook/M6_TRANSACTION_REPLAY.md) and
-[staged implementation](Handbook/STAGED_NATIVE_ADAPTATION.md).
-Large303,428-cell capture stays local with hashes. Keep C++ pinned during jobs.
+Actual saved6×128-cell transfer replay isolates NaN intersections in shared
+ConvexClipping.hpp: raw overlap NaN, split overlap.97888950039/lost.02111049961.
+Root's normalized signed-distance interpolation restores overlap1 and lost3.6e-16.
+Polygon and Polyhedron share CutFraction; nonfinite overlap volumes now fail
+explicitly. Reproducer/receipts: `staged57/transfer_coverage`. Three clipping regressions are integrated. All agent sources were released before
+build15; no agent may edit pinned files or start another job. Full diagnosis:
+[transfer clipping](Handbook/TRANSFER_CLIPPING_UNDERFLOW.md).
+Two Distributed fixtures are corrected:80-cell input must actually have quality
+debt; orthogonal stretch/pullback metric replaces invalid sheared first-height setup.
+Phase-census imports no longer debit an absent update timer.
 
-Last complete baseline qualification was validation54: connected serial127 cases,
-MPI6 118 cases/rank and all-worker11 cases/rank (flat/cubic Euler/RANS BDF2 transfer
-and SU2/CGNS reload). Full M6 Euler6 still REJECTED at1805s native time:
-427,852 private cells,235,717 invalid; original CFD state retained. These receipts
-predate the active changes and do not validate them. Preserve the detailed
-[validation47–54 history](Handbook/VALIDATION47_54_HANDOFF_HISTORY.md) and
-[independent-review qualifications](Handbook/M6_REVIEW_RECONCILIATION.md).
+Next: finish build15, connected_fix, then appropriate
+broader serial/MPI6 qualification. Existing `staged57/build_checkpoint.py` and
+`run_cases.py` save unique pinned/resource receipts. Connected selector includes
+coarsen closure and clipping regressions; broad selectors include conservative
+projection/transfer tests. Keep compiled sources/helpers frozen until owned job
+handle is terminal. No unqualified success claims or relaxed conservation checks.
 
-Other open scope:21/9,393 changing-frame gradation violations (worst1.406); M6
-normal-only budget profiles exceed500k (best20 profile0 821,265+/-53,688; normal-cap21
-rejected). Tangential growth outside protected band remains an unanswered question;
-normal-only contract still binds.46 hidden-sphere integration passes positivity and
-second moments under unchanged caps; whole-field normalization remains open.
-Curved BL support/chord/quadrature consumers, FIRST_ROW surface-error demands,
-fitted-plane seams and automatic curved initialization remain. Keep separate BL
-refusal until its consumers are complete.32–34 full M6 original-source/field coverage
-passes450,221 source cells/all48,954facets/293,724directedchords, serial/MPI2 identity.
+## Difficult target evidence and remaining capability
 
-Resource rules: user authorizes up to6 MPI ranks. Check actual host RAM/load and live
-handles; one owned heavy job,nice19,single-threaded libraries,ninja-j1. Ninja is
-/home/rausa/Software/su2-develop/ninja; TMPDIR must be4TB
-integration_evidence/build-integrated-v2/compile-tmp. Preserve terminal receipts and
-source/runtime/input hashes. Build initial50 log/pins preserved separately.
+Full M6 build13/session70428 is TERMINAL REJECT:1863.87s wall,1802.45s native;
+solver0/nativefalse, all pins unchanged. It reached repair, never coarsening:
+774,314 private cells,275,115 cached invalid cells,1,240,202 repair demands after
+112,024 private publications. Work1,218,977/19,414,976; time exhausted. Three cells
+were unmeasured. Original CFD state retained. Sampled process-tree RSS maximum
+4.616GB, individual0.877GB; neither establishes a whole-job peak.
+`staged57/m6_runs/euler_build13/diagnosis.json` preserves six-rank evidence.
 
-User explicitly approved pushes to rois1995/SU2 branch codex/native-3d-bl.
-Approval persists; no destination question is needed. Latest pushed536025f6e4 (WIP);
-full M6/session43478 is terminal REJECT; connected_fix/session10316 failed/aborted; full M6 euler_build13/session70428 is active; the build and prior owned handles are terminal.
-TODO intentionally untracked; progress companion tracked. Leave unrelated dc11/dc15
-logs and untracked planning files alone. Git status needs --ignore-submodules.
-[AGENTS.md](AGENTS.md) holds permanent cadence/architecture/resource instructions.
-[Adaptation reference inputs](Handbook/ADAPTATION_REFERENCE_INPUTS.md) are archived locally; current inputs no longer require the external SSD.
+Coarsening alone cannot close M6. Local repair admission allows size progress OR
+minimum normalized q/J progress, while whole-stage progress windows count accepted
+operations rather than aggregate deficit reduction. This permits opposing debt,
+but current counters do not prove it caused M6's timeout. Do not blame chart pins
+without evidence. Capture/assess complete quality-stage progress before the next
+connected correction; do not repeat another full timeout or add local variants.
+
+Other open scope: changing-frame gradation21/9,393 violations (worst1.406), normal-only
+M6 budget profiles above500k (best821,265+/-53,688), whole-field normalization,
+curved BL support/chord/quadrature, FIRST_ROW surface-error demands, fitted seams,
+automatic curved initialization, and complete solution-transfer/restart qualification.
+Normal-only contract still binds; tangential growth outside protected band unanswered.
+
+## Checkpoints and preserved history
+
+Latest pushed `b33ec2ccb9`: build13/connected-failure evidence. Code536025f6e4 contains
+construction generations, fair repair service and complete-star movement. Current
+coarsening/clipping integration is not yet committed/pushed. Earlier builds and local
+repair witnesses do not validate current code. Details: [staged history](Handbook/STAGED_NATIVE_ADAPTATION.md),
+[completion](Handbook/DC17_DC18_COMPLETION_2026_10_25.md), [curved source](Handbook/DC18_CURVED_SOURCE.md),
+[validation47–54](Handbook/VALIDATION47_54_HANDOFF_HISTORY.md),
+[transaction replay](Handbook/M6_TRANSACTION_REPLAY.md),
+[independent review](Handbook/M6_REVIEW_RECONCILIATION.md),
+[MPI/paper assessment](Handbook/MPI_AUDIT_AND_LOSEILLE_ASSESSMENT.md).
+
+## Operations
+
+Push authorization persists: origin rois1995/SU2, branch codex/native-3d-bl; no new
+permission question. Git metadata requires escalated execution; use explicit paths.
+TODO intentionally local/untracked. Leave unrelated dc11/dc15 logs and planning
+files alone. `git status --short --ignore-submodules` avoids broken Eigen metadata.
+One owned heavy job, nice19,one compiler worker,single-thread libraries,max6MPIranks.
+Check actual host RAM/load and live handles first. Use 4TB compile-tmp:
+`integration_evidence/build-integrated-v2/compile-tmp`, never root/tmp for builds.
+External-SSD references are locally archived/hash-verified:
+[reference archive](Handbook/ADAPTATION_REFERENCE_INPUTS.md).

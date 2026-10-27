@@ -315,7 +315,7 @@ Under the unchanged validation54 configuration (6 ranks,500k,native1800s,
 outer2400s), construction failed before quality when changed-star notification
 exceeded scan budget4096. It made19,658 private edits across372,631 cells and left
 165,439 cached construction demands. Evidence is preserved in that run's
-`diagnosis.json`, `native_assessment.json`, pins and logs. That M6 job is terminal; current build13 is described below.
+`diagnosis.json`, `native_assessment.json`, pins and logs. That M6 job is terminal; build13 is described below.
 
 Diagnosis for next design review, not a fix: seed max-star88 exceeds current
 quality capacity64; changed-star notification work is uneven across ranks and scans
@@ -348,7 +348,7 @@ uses paged global contact checks with one atomic publication. General topology
 cavities remain64/128. Larger-star direct movement is being integrated; it does
 not yet provide arbitrary large-star retriangulation or cross-chart mobility.
 New local tests cover88/176-cell movement and distributed paged publication with
-resource-veto rollback. Build13/session1413 passed1069.09s with933 unchanged pins; connected_fix/session10316 failed/aborted; full M6 euler_build13/session70428 is active; these changes are not yet qualified; no acceptance
+resource-veto rollback. Build13/session1413 passed1069.09s with933 unchanged pins; connected_fix/session10316 failed/aborted; full M6 euler_build13/session70428 is terminal REJECT; these changes are not yet qualified; no acceptance
 checkbox is closed.
 
 Build13 includes both the test driver and CFD executable. Runtime qualification will
@@ -361,7 +361,8 @@ Build13 passed1069.09s,933 pins unchanged. Connected_fix/session10316 terminated
 with exit134 after246.91s, pins unchanged:44/46 reached cases pass,3978/3981
 assertions pass. Campaign is incomplete. The new LargeBoundaryCoordinateStar
 fixture accesses middle[j+2] atj42 in a44-node ring; wraparound is missing. This
-is a fixture defect, not an observed production crash. Fix awaits source release.
+is a fixture defect, not an observed production crash. Its isolated-checkout fix
+awaits integration after the running job is terminal.
 
 Both curved variants now finish Refine in~1.89s,101rounds/81edits,173cells and no
 cached invalid cells, using157/4096work. Entire workflows still reject: Coarsen
@@ -372,19 +373,56 @@ construction directions are discarded at phase census despite exact support
 change tracking. Preserve that lifecycle and assess net progress across the
 complete coarsen→quality pass; do not restore construction quality floors.
 
-Full M6 `staged57/m6_runs/euler_build13`, session70428, is now running diagnostically
-on this unchanged build:6ranks,500k complexity,native1800s,outer2400s,all gates
-unchanged. Preflight63.9% CPUidle,36.9GB available RAM,no other heavy jobs. Sources
-and helpers remain frozen. This run does not qualify the failed connected campaign.
+Full M6 `staged57/m6_runs/euler_build13`, session70428, is terminal REJECT on the
+unchanged build:6ranks,500k complexity,native1800s,outer2400s,all gates unchanged.
+Wall1863.87s/native1802.45s, solver0/nativefalse, all pins verified. It reached
+quality repair but never coarsening, ending774,314 private cells,275,115 cached
+invalid cells and1,240,202 queued repair demands after112,024 private publications
+(28,056 moves,12,987 reconnections,56,633 insertions;29,328 quality-progress receipts).
+The work ceiling was not exhausted:1,218,977/19,414,976. Original CFD mesh/solution
+was retained. Three cells remained unmeasured at the timeout. Do not equate all
+cached invalid cells with measured q/J failures or claim the chart pins caused this
+result. Coarsening correction cannot by itself close M6: the next connected quality
+change needs evidence about whole-stage progress, not more local fallback variants.
+Sampled process-tree RSS maximum4,616,417,280bytes; individual process maximum
+876,986,368bytes. Neither is a measured whole-job peak. Preflight63.9% CPUidle,
+36.9GB available RAM. Sources were released after terminal status; build14 is now active. This run
+does not qualify the failed connected campaign. See diagnosis.json and native_assessment.json.
 
 An isolated sparse checkout, `dc17_18_completion_v1/coarsen_closure_worktree`, based
-on536025f6e4, now holds implementation work while M6 runs. Main933 pins were
-reverified unchanged. The boundary fixture modulo fix is present there only.
+on536025f6e4, holds implementation work prepared while M6 ran. Main933 pins were
+reverified unchanged. The boundary fixture modulo fix and reviewed coarsening correction have now been
+integrated into main; the isolated copy is retained without further edits.
 The connected next design treats construction plus quality closure as one
 speculative coarsening trial, with a strict checkpoint and net cell reduction.
 On a completed but unproductive closure, restore the checkpoint and retire only
 actually attempted directions for its unchanged support; collateral retired but
 unattempted directions must return. Time/work exhaustion still rejects, and
-construction gains no q/J floor. Preserve blocked directions across phase
-censuses and use existing support-change notifications to reactivate them.
-This design is in implementation, not validated or integrated into the running binary.
+construction gains no q/J floor. Finite repair-queue exhaustion may abandon a
+speculative trial only when a strict checkpoint exists and actual unchanged-support
+entry directions can be retired; resource or stagnation limits cannot authorize this.
+Preserve blocked directions across phase censuses and use existing support-change
+notifications to reactivate them. Review found that edge identity alone cannot
+certify unchanged support: an edge may survive earlier changes to its star. The
+attempt ledger must retain only checkpoint-supported attempts; descendant-context
+refusals cannot suppress restored directions.
+This design is implemented and integrated into main; build14/session8407 is active
+with933 frozen pins,nice19,j1. It is not numerically validated. The new fixture
+requires exact owned-row/version/parameter restoration, retries collateral center
+removals under strict first-height constraints, and preserves real work/round/time/
+storage rejection. Support provenance was independently re-reviewed after its fix.
+The connected selector now includes these tests. M6 quality convergence remains
+separate, and no further full-M6 timeout is justified by this coarsening fix alone.
+
+
+### Build14 and connected transfer correction, 2026-10-27
+
+Build14/session8407 passed594.86s,933 pins unchanged. Connected_fix/session39461
+terminated25.65s,77/80 cases pass,18,339/18,502 assertions, unchanged pins. Both
+curved Refine and Coarsen now complete; whole RANS workflow still fails transfer.
+Two invalid new fixture setups are corrected. The shared clipper loses nonfinite
+intersections at subnormal signed distances; actual all-pair replay reproduces the
+loss and verifies the arithmetic correction. See [full diagnosis and exact receipts](TRANSFER_CLIPPING_UNDERFLOW.md).
+Build15/session90655 is active,one nice19 worker,933 frozen pins; clipping/fixture/
+timing corrections and three robustness tests are integrated, not yet qualified.
+No full-M6 rerun is justified by this result alone; quality closure remains open.

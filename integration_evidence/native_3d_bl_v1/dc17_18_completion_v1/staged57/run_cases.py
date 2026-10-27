@@ -29,10 +29,15 @@ CASES = {
 }
 
 # Connected construction/quality coordination regression, shared by focused and broad campaigns.
-COORDINATION = "[NativeCoordinateStar3D],[NativeMetricSplitRule3D],[NativeRepairFairness3D],[NativeConstructionSweep3D]"
+COORDINATION = "[NativeCoordinateStar3D],[NativeMetricSplitRule3D],[NativeRepairFairness3D],[NativeConstructionSweep3D],[NativeCoarsenQualityReturn3D],[ConservativeClipRobustness]"
 for name in ("serial", "serial_full", "mpi6", "connected_fix"):
     ranks, filters = CASES[name]
     CASES[name] = ranks, filters + "," + COORDINATION
+
+
+for name in ("serial_full", "mpi6"):
+    ranks, filters = CASES[name]
+    CASES[name] = ranks, filters + ",Convex clipping:*,Conservative projection:*,Conservative transfer:*,Distributed conservative projection:*"
 
 
 def loaded_libraries():

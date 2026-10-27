@@ -768,6 +768,10 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " stop=" << EngineStopName(e.stop) << " global_work=" << e.global_work << " work_limit=" << e.work_limit
              << " progress_windows=" << e.progress_windows << " stagnant_windows=" << e.stagnant_windows << " search_windows=" << e.search_windows
              << " geometry_progress=" << e.geometry_progress << " geometry_reactivated=" << e.geometry_reactivated << " size_progress=" << e.size_progress << " quality_progress=" << e.quality_progress << " cell_removals=" << e.cell_removals
+             << " quality_stages=" << e.quality_stages << " construction_returns=" << e.construction_returns
+             << " coarsen_checkpoints=" << e.coarsen_checkpoints << " coarsen_committed_passes=" << e.coarsen_committed_passes
+             << " coarsen_rolled_back_passes=" << e.coarsen_rolled_back_passes << " coarsen_retired_directions=" << e.coarsen_retired_directions
+             << " coarsen_restored_cells=" << e.coarsen_restored_cells << " coarsen_rolled_back_collapses=" << e.coarsen_rolled_back_collapses
              << " layer_shape_screens=" << e.layer_shape_screens << " layer_shape_pruned=" << e.layer_shape_pruned
              << " layer_batches=" << e.layer_batches << " layer_maximum_batch=" << e.layer_maximum_batch
              << " layer_donor_batches=" << e.layer_donor_batches << " layer_donor_retries=" << e.layer_donor_retries

@@ -18,6 +18,7 @@
 #include <iomanip>
 #include <tuple>
 #include <stdexcept>
+#include <type_traits>
 namespace SU2Native3D {
 namespace {
 using Clock = std::chrono::steady_clock;
@@ -460,6 +461,14 @@ class Selection {
     }
     repair_zero.clear();
   }
+  bool HasCoarseningDemand()const {
+    for(const auto& edge:edges)if(Candidate(edge.second.measure.length))for(unsigned direction=0;direction<2;++direction) {
+      const auto retained=edge.first[direction],removed=edge.first[1-direction];
+      const auto blocked=blocked_edges.find(removed);
+      if(!edge.second.forbidden[direction] && (blocked==blocked_edges.end() || !blocked->second.count(retained)))return true;
+    }
+    return false;
+  }
   void SeedFrontier(const Owned& working) {
     for(const auto& row:working)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j) {
       Edge edge{row.second.cell.v[i].id,row.second.cell.v[j].id};std::sort(edge.begin(),edge.end());
@@ -480,9 +489,9 @@ class Selection {
     }
   }
   void Reset(bool improvement) {
-    cells.clear();edges.clear();queue.clear();geometry_queue.clear();construction_frontier.clear();vertex_cells.clear();blocked_edges.clear();
+    cells.clear();edges.clear();queue.clear();geometry_queue.clear();construction_frontier.clear();vertex_cells.clear();
     cell_repairs.clear();repair_users.clear();repair_queue.clear();repair_zero.clear();
-    invalid=construction_invalid=quality_invalid=unmeasured_shape=repair_bytes=vertex_links=blocked_links=0;
+    invalid=construction_invalid=quality_invalid=unmeasured_shape=repair_bytes=vertex_links=0;
     track_repairs=repair_event=improvement;prune_collapses=false;
   }
 };
@@ -592,10 +601,44 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   selection.track_splits=bool(composition) || curved;
   // Every adaptation can enter quality improvement; rejected repair support must be invalidated
   // even for flat, uncomposed refinement/repair events.
-  Directory directory(world,true,geometry.Parameters());
+  auto directory=std::make_unique<Directory>(world,true,geometry.Parameters());
   DonorImport source(world,options.timings);
+  struct CoarseningCheckpoint {
+    Owned cells;
+    std::unique_ptr<BoundaryParameterState> parameters;
+    std::unique_ptr<Directory> directory;
+    std::map<Id,std::set<Id>> blocked;
+    std::set<Edge> edges,attempted;
+    std::set<Id> changed;
+    size_t blocked_links=0,global_cells=0,collapses=0,splits=0;
+    bool valid=false,trial=false;
+    size_t Bytes()const {
+      return transfer_memory::Add(MapBytes(cells),MapBytes(blocked),MapBytes(edges),MapBytes(attempted),MapBytes(changed),
+          transfer_memory::Mul(blocked_links,sizeof(Id)+4*sizeof(void*)),
+          parameters ? parameters->ResidentBytes() : 0,directory ? transfer_memory::Add(sizeof(Directory),directory->ResidentBytes()) : 0);
+    }
+  } checkpoint;
+  DirectoryStats retired_directory;
+  auto retire_directory=[&](const DirectoryStats& old) {
+    retired_directory.collision_seconds+=old.collision_seconds;
+    retired_directory.collision_builds+=old.collision_builds;
+    retired_directory.collision_candidates+=old.collision_candidates;
+    retired_directory.collision_checks+=old.collision_checks;
+    retired_directory.elections+=old.elections;
+    retired_directory.election_seconds+=old.election_seconds;
+    retired_directory.parameter_agreement_seconds+=old.parameter_agreement_seconds;
+    retired_directory.parameter_publication_seconds+=old.parameter_publication_seconds;
+    retired_directory.parameter_edits+=old.parameter_edits;
+    retired_directory.parameter_faces+=old.parameter_faces;
+    retired_directory.parameter_payload_bytes+=old.parameter_payload_bytes;
+    retired_directory.change_scanned+=old.change_scanned;
+    retired_directory.change_sent+=old.change_sent;
+    retired_directory.change_received+=old.change_received;
+    retired_directory.change_seconds+=old.change_seconds;
+    retired_directory.maximum_work_bytes=std::max(retired_directory.maximum_work_bytes,old.maximum_work_bytes);
+  };
   size_t accepted_bytes=MapBytes(accepted);
-  auto selection_bound=[&](bool repairs) { return coarsening ? (repairs ? 7168u : 4096u) : (repairs ? 6144u : 3072u); };
+  auto selection_bound=[&](bool repairs) { return coarsening ? (repairs ? 8192u : 5120u) : (repairs ? 6144u : 3072u); };
   std::vector<Id> initial,eligible_extensions;
   auto vote=[&](const CLocalFailure& local) {
     const auto elected=world.elect(local);
@@ -604,12 +647,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   size_t batch_bytes=0;
   auto bytes=[&]() {
-    return transfer_memory::Add(options.caller_bytes,MapBytes(options.wall_heights),MapBytes(options.region_walls),accepted_bytes,batch_bytes,MapBytes(working),
+    return transfer_memory::Add(options.caller_bytes,MapBytes(options.wall_heights),MapBytes(options.region_walls),accepted_bytes,batch_bytes,MapBytes(working),checkpoint.Bytes(),
         transfer_memory::Bytes(original),transfer_memory::Bytes(initial),transfer_memory::Bytes(eligible_extensions),transfer_memory::Bytes(result.splits),transfer_memory::Bytes(result.collapses),
         selection.Bytes(),MapBytes(retired_edges),MapBytes(campaign_edges),field_identity ? 64 : 0);
   };
   auto admit=[&](size_t extra) {
-    const auto peak=transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),extra);
+    const auto peak=transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),extra);
     stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
     CLocalFailure failure;
     if (peak==SIZE_MAX || peak>options.memory_ceiling) failure.Set(3,0,"Native 3D adaptation working storage exceeds budget.");
@@ -634,7 +677,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure))return false;bool admitted=false;
     auto all=world.exchange(to,&admitted,options.memory_ceiling,
-        transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),scratch));
+        transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),scratch));
     if(!admitted){result.reason="Native edge proposal exchange exceeds storage.";return false;}
     try {
       if(all.size()>std::numeric_limits<unsigned>::max())throw std::logic_error("Native edge proposal ordering exceeds its bound.");
@@ -668,9 +711,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto service_frontier=[&](Feature feature,bool active,bool accepted,
                             const std::array<RepairReceipt,MaximumCandidateBatch>* extra=nullptr,size_t count=0) {
     // Only the bounded elected frontier is replicated, never the resident demand queues.
+    const bool certify_support=coarsening && !repairing && checkpoint.valid;
     const auto scratch=transfer_memory::Add(transfer_memory::Mul(world.size,sizeof(std::vector<RepairReceipt>)),
         transfer_memory::Mul(transfer_memory::Mul(world.size,MaximumCandidateBatch+1),4*sizeof(RepairReceipt)));
-    if(!admit(scratch))return false;
+    if(!admit(transfer_memory::Add(scratch,
+        certify_support ? transfer_memory::Mul(transfer_memory::Mul(world.size,MaximumCandidateBatch+1),sizeof(Edge)+4*sizeof(void*)) : 0)))return false;
     CLocalFailure failure;std::vector<std::vector<RepairReceipt>> to;
     try {
       if(count>MaximumCandidateBatch || (count && !extra))throw std::logic_error("Native frontier receipt list exceeds its bound.");
@@ -683,21 +728,38 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure))return false;
     bool admitted=false;
-    const auto receipts=world.exchange(to,&admitted,options.memory_ceiling,
-        transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),scratch));
+    auto receipts=world.exchange(to,&admitted,options.memory_ceiling,
+        transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),scratch));
     if(!admitted){result.reason="Native repair service receipts exceed storage budget.";return false;}
     try {
       if(receipts.size()>transfer_memory::Mul(world.size,MaximumCandidateBatch+1))throw std::logic_error("Native repair service receipts exceed frontier bound.");
-      for(const auto& receipt:receipts) {
-        if(receipt.feature.count<1 || receipt.feature.count>3)throw std::logic_error("Invalid native repair service receipt.");
+      if(certify_support)std::sort(receipts.begin(),receipts.end(),[](const auto& a,const auto& b) {
+        return std::tie(a.feature.count,a.feature.vertices,a.accepted)<std::tie(b.feature.count,b.feature.vertices,b.accepted);
+      });
+      for(const auto& receipt:receipts)
+        if(receipt.feature.count<1 || receipt.feature.count>3 || (!repairing && receipt.feature.count!=2))
+          throw std::logic_error("Invalid native repair service receipt.");
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(certify_support && !vote(failure))return false;
+    for(const auto& receipt:receipts) {
+      if(!certify_support && failure.Failed())break;
+      const bool checkpoint_support=certify_support &&
+          !world.maximum(checkpoint.changed.count(receipt.feature.vertices[1])!=0);
+      try {
+        if(checkpoint_support) {
+          const Edge edge{receipt.feature.vertices[0],receipt.feature.vertices[1]};auto key=edge;std::sort(key.begin(),key.end());
+          if(checkpoint.edges.count(key))checkpoint.attempted.insert(edge);
+        }
         if(repairing)selection.Service(receipt.feature,receipt.accepted);
         else {
           if(receipt.feature.count!=2)throw std::logic_error("Invalid native construction service receipt.");
           selection.ServiceEdge({receipt.feature.vertices[0],receipt.feature.vertices[1]});
         }
-      }
-    }catch(const std::exception& e){failure.Set(2,0,e.what());}
-    return vote(failure);
+      }catch(const std::exception& e){failure.Set(2,0,e.what());}
+      // Every rank reaches the next receipt support vote even after a local allocation failure.
+      if(certify_support && !vote(failure))return false;
+    }
+    return certify_support || vote(failure);
   };
   std::string last_rejection;
   uint64_t progress_at_window=0, attempted_at_window=0;
@@ -760,21 +822,25 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.tracked_bytes=world.bytes_sent-tracked_bytes_begin;
     stats.tracked_calls=world.collective_calls-tracked_calls_begin;
     stats.tracked_collective_seconds=world.collective_seconds-tracked_seconds_begin;
-    stats.collision_seconds=directory.Statistics().collision_seconds;
-    stats.collision_builds=directory.Statistics().collision_builds;
-    stats.collision_candidates=directory.Statistics().collision_candidates;
-    stats.collision_checks=directory.Statistics().collision_checks;
-    stats.directory_elections=directory.Statistics().elections;
-    stats.directory_election_seconds=directory.Statistics().election_seconds;
-    stats.parameter_agreement_seconds=directory.Statistics().parameter_agreement_seconds;
-    stats.parameter_publication_seconds=directory.Statistics().parameter_publication_seconds;
-    stats.parameter_edits=directory.Statistics().parameter_edits;stats.parameter_faces=directory.Statistics().parameter_faces;
-    stats.parameter_payload_bytes=directory.Statistics().parameter_payload_bytes;
-    stats.changed_star_scans=directory.Statistics().change_scanned;
-    stats.changed_vertices_sent=directory.Statistics().change_sent;
-    stats.changed_vertices_received=directory.Statistics().change_received;
-    stats.change_notification_seconds=directory.Statistics().change_seconds;
-    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,directory.Statistics().maximum_work_bytes);
+    const auto saved_directory=retired_directory;
+    retire_directory(directory->Statistics());
+    if(checkpoint.directory)retire_directory(checkpoint.directory->Statistics());
+    const auto all_directory=retired_directory;retired_directory=saved_directory;
+    stats.collision_seconds=all_directory.collision_seconds;
+    stats.collision_builds=all_directory.collision_builds;
+    stats.collision_candidates=all_directory.collision_candidates;
+    stats.collision_checks=all_directory.collision_checks;
+    stats.directory_elections=all_directory.elections;
+    stats.directory_election_seconds=all_directory.election_seconds;
+    stats.parameter_agreement_seconds=all_directory.parameter_agreement_seconds;
+    stats.parameter_publication_seconds=all_directory.parameter_publication_seconds;
+    stats.parameter_edits=all_directory.parameter_edits;stats.parameter_faces=all_directory.parameter_faces;
+    stats.parameter_payload_bytes=all_directory.parameter_payload_bytes;
+    stats.changed_star_scans=all_directory.change_scanned;
+    stats.changed_vertices_sent=all_directory.change_sent;
+    stats.changed_vertices_received=all_directory.change_received;
+    stats.change_notification_seconds=all_directory.change_seconds;
+    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,all_directory.maximum_work_bytes);
     const auto& donor = source.Statistics();
     stats.donor_candidates = donor.index_candidates; stats.donor_filtered = donor.filtered; stats.donor_box_filtered = donor.box_filtered;
     stats.donor_payloads = donor.payloads; stats.donor_reused = donor.reused_candidates; stats.donor_maximum_patch = donor.maximum_patch;
@@ -906,11 +972,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if (ready) {
       maximum_node=CPassiveComm::Allreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
       maximum_cell=CPassiveComm::Allreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
-      ready=directory.Build(working,result.reason,options.memory_ceiling,
+      ready=directory->Build(working,result.reason,options.memory_ceiling,
           transfer_memory::Add(bytes(),source.ResidentBytes()));
     }
     if (ready) ready=source.Build(original,result.reason,options.memory_ceiling,
-        transfer_memory::Add(bytes(),directory.ResidentBytes()));
+        transfer_memory::Add(bytes(),directory->ResidentBytes()));
   }
   if (!ready) return finish();
   // A complete visible radial region is constructed as one transaction, never as a larger local cavity.
@@ -979,7 +1045,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     auto tick=[&](){if(options.maximum_seconds && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)
       throw std::runtime_error("Native3D region construction exhausts elapsed-time budget.");};
     RegionFieldService service(world,source,geometry,composition,options.edge_breakpoints,options.timings,
-        options.memory_ceiling,transfer_memory::Add(bytes(),scratch,directory.ResidentBytes()),
+        options.memory_ceiling,transfer_memory::Add(bytes(),scratch,directory->ResidentBytes()),
         [&](const FrozenField& field){FieldCounts(stats,field);},tick);
     try {service.Run([&](const RegionMetric& target){
       bool already_valid=GeometryExcess(old,geometry,options.surface_tolerance)==0;
@@ -1058,7 +1124,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!admitted){result.reason="Native3D region result exchange exceeds storage.";return finish();}
       std::vector<Dependency> removed;try{for(const auto& row:working)removed.push_back({row.first,row.second.version,world.rank});}catch(const std::exception& e){failure.Set(2,0,e.what());}
       if(!vote(failure))return finish();
-      if(!directory.Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),scratch)))return finish();
+      if(!directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),scratch)))return finish();
       if(!world.rank)++stats.accepted;stats.maximum_owned=std::max(stats.maximum_owned,working.size());stats.region_cells=CPassiveComm::Allreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
     }
     region_rebuilt=changed;stats.global_work=CPassiveComm::Allreduce(stats.global_work,CPassiveComm::Op::MAX,world.comm);
@@ -1088,7 +1154,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(requests && phase==Phase::Construction) {
       if(layer)++stats.layer_donor_batches;else ++stats.donor_batches;
       return source.ImportMetricSamples(cells,eligible_extensions,options.memory_ceiling,
-          transfer_memory::Add(bytes(),directory.ResidentBytes(),extra),*requests,false);
+          transfer_memory::Add(bytes(),directory->ResidentBytes(),extra),*requests,false);
     }
     CLocalFailure failure;std::vector<Point> points;
     try {points.reserve(cells.size());for(const auto& c:cells)points.push_back(Centroid(c));}
@@ -1097,7 +1163,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     auto count_import=[&](){if(layer)++stats.layer_donor_batches;else ++stats.donor_batches;};
     count_import();
     auto patch=source.ProbePoints(points,options.memory_ceiling,
-        transfer_memory::Add(bytes(),directory.ResidentBytes(),extra,transfer_memory::Bytes(cells)));
+        transfer_memory::Add(bytes(),directory->ResidentBytes(),extra,transfer_memory::Bytes(cells)));
     if(!patch.valid)return patch;
     bool supported=true;
     try {for(size_t i=0;i<cells.size();++i) {
@@ -1125,9 +1191,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // shortcut: shared-face inserted points retain full imports; extend only with canonical-source equivalence proof.
     patch={};std::vector<Point>().swap(points);count_import();
     if(requests)return source.ImportMetricSamples(cells,eligible_extensions,options.memory_ceiling,
-        transfer_memory::Add(bytes(),directory.ResidentBytes(),extra),*requests,true);
+        transfer_memory::Add(bytes(),directory->ResidentBytes(),extra),*requests,true);
     return source.ImportCells(cells,options.memory_ceiling,
-        transfer_memory::Add(bytes(),directory.ResidentBytes(),extra));
+        transfer_memory::Add(bytes(),directory->ResidentBytes(),extra));
   };
   if(!options.wall_heights.empty()) {
     layer_active=true;layer_started=Clock::now();
@@ -1178,9 +1244,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!vote(failure))return false;
         ++stats.layer_batches;stats.layer_maximum_batch=std::max(stats.layer_maximum_batch,features.size());
         const auto held=transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch);
-        dependencies=directory.LookupBatch(features,options.memory_ceiling,held);
+        dependencies=directory->LookupBatch(features,options.memory_ceiling,held);
         if(!dependencies.valid){result.reason=dependencies.reason;return false;}
-        imported=directory.FetchBatch(dependencies,working,options.memory_ceiling,held);
+        imported=directory->FetchBatch(dependencies,working,options.memory_ceiling,held);
         if(!imported.valid){result.reason=imported.reason;return false;}
         try {for(size_t i=0;i<imported.candidates.size();++i) {
           const auto& item=imported.candidates[i];
@@ -1189,7 +1255,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }}catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!vote(failure))return false;
         // These operators preserve every old face/vertex; only the cell interiors are written.
-        reserved=directory.ReserveInteriors(imported,options.memory_ceiling,held);
+        reserved=directory->ReserveInteriors(imported,options.memory_ceiling,held);
         if(!reserved.valid){result.reason=reserved.reason;return false;}
         if(!world.maximum(std::any_of(reserved.chosen.begin(),reserved.chosen.end(),[](bool x){return x;}))) {
           result.reason="Native3D first-row batch has no reserved cell.";return false;
@@ -1330,12 +1396,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           ++published;
         }}catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!vote(failure))return false;
-        bool admitted=false;const auto baseline=transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),layerScratch);
+        bool admitted=false;const auto baseline=transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),layerScratch);
         const auto removed=world.exchange(toRemove,&admitted,options.memory_ceiling,baseline);
         if(!admitted){result.reason="Native3D first-row removal routing exceeds budget.";return false;}
         const auto added=world.exchange(toAdd,&admitted,options.memory_ceiling,baseline);
         if(!admitted){result.reason="Native3D first-row addition routing exceeds budget.";return false;}
-        if(!directory.Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch)))return false;
+        if(!directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch)))return false;
         try {
           for(const auto& row:removed)pending.erase(row.cell);
           for(const auto& row:added)if(needs_layer(row))pending.insert(row.cell.id);
@@ -1358,7 +1424,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   }
   constexpr size_t MeasurementBatch=16;
   // Construction requests missing edges only; improvement also imports centroid support.
-  auto measure=[&](const std::vector<Id>& ids,bool seed) {
+  auto measure=[&](const std::vector<Id>& ids,bool seed,double* enclosing_seconds) {
     const auto plan_scratch=transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*));
     if(!admit(transfer_memory::Add(plan_scratch,transfer_memory::Mul(MeasurementBatch,sizeof(Cell)+sizeof(unsigned char)))))return false;
     const size_t count=CPassiveComm::Allreduce(ids.size(),CPassiveComm::Op::MAX,world.comm);
@@ -1386,7 +1452,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         try {requests=MetricEdgeRequests(regions,reuse,field_identity,&campaign_edges);}
         catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!vote(failure))return false;
-        {Timer timer(stats.donor_seconds,options.timings,seed ? &stats.seed_seconds : &stats.update_seconds);
+        {Timer timer(stats.donor_seconds,options.timings,enclosing_seconds);
           imported=import_source(regions,transfer_memory::Add(MaximumFrozenFieldBytes,plan_scratch),false,&requests);}
 
         if (imported.valid) break;
@@ -1435,7 +1501,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto seed_next=[&]() {
     Timer timer(stats.seed_seconds,options.timings);
     // Composed edges are expensive; never measure pending topology merely to let a complete cavity remove it.
-    if(!composition || phase==Phase::Improvement) {seed_slot=initial.size();return measure(initial,true);}
+    if(!composition || phase==Phase::Improvement) {seed_slot=initial.size();return measure(initial,true,&stats.seed_seconds);}
     if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
       stats.stop=EngineStop::TimeBudget;result.reason="Native3D metric seeding exhausts elapsed-time budget.";return false;
     }
@@ -1448,7 +1514,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(working.count(id) && !selection.cells.count(id))next.push_back(id);
       }
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
-    return vote(failure) && measure(next,true);
+    return vote(failure) && measure(next,true,&stats.seed_seconds);
   };
   auto enter_phase=[&](Phase next) {
     construction_handoff_progress=next==Phase::Improvement && world.maximum(construction_changed);
@@ -1470,7 +1536,82 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure))return false;
     seed_slot=initial.size();
-    const bool measured=measure(initial,false);retired_edges.clear();return measured;
+    // A phase census has no enclosing update timer to debit for donor imports.
+    const bool measured=measure(initial,false,nullptr);retired_edges.clear();return measured;
+  };
+  auto discard_checkpoint=[&]() {
+    if(checkpoint.directory)retire_directory(checkpoint.directory->Statistics());
+    checkpoint.directory.reset();checkpoint.parameters.reset();
+    Owned().swap(checkpoint.cells);decltype(checkpoint.blocked)().swap(checkpoint.blocked);
+    std::set<Edge>().swap(checkpoint.edges);std::set<Edge>().swap(checkpoint.attempted);
+    std::set<Id>().swap(checkpoint.changed);checkpoint.blocked_links=0;
+    checkpoint.valid=checkpoint.trial=false;
+  };
+  auto capture_checkpoint=[&]() {
+    // This call follows the complete fresh quality census, including measured strict height.
+    // No mutation intervenes; no initial/construction/partial state is presumed certified.
+    CLocalFailure failure;
+    const auto extra=transfer_memory::Add(MapBytes(working),directory->ResidentBytes(),
+        private_parameters ? private_parameters->ResidentBytes() : 0,MapBytes(selection.blocked_edges),
+        transfer_memory::Mul(selection.blocked_links,sizeof(Id)+4*sizeof(void*)),
+        transfer_memory::Mul(transfer_memory::Mul(6,working.size()),sizeof(Edge)+4*sizeof(void*)));
+    if(!admit(extra))return false;
+    try {
+      checkpoint.cells=working;checkpoint.blocked=selection.blocked_edges;checkpoint.blocked_links=selection.blocked_links;
+      for(const auto& row:working)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j) {
+        Edge edge{row.second.cell.v[i].id,row.second.cell.v[j].id};std::sort(edge.begin(),edge.end());checkpoint.edges.insert(edge);
+      }
+      if(private_parameters)checkpoint.parameters=std::make_unique<BoundaryParameterState>(*private_parameters);
+      checkpoint.directory=std::make_unique<Directory>(world,true,geometry.Parameters());
+    }catch(const std::exception& e){failure.Set(3,0,e.what());}
+    if(!vote(failure))return false;
+    // Prebuild while both directories see the checkpoint parameter contents. This dormant
+    // directory is never queried during the speculative trial; rollback needs no allocation.
+    if(!checkpoint.directory->Build(checkpoint.cells,result.reason,options.memory_ceiling,
+        transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes())))return false;
+    checkpoint.global_cells=CPassiveComm::Allreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
+    checkpoint.collapses=result.collapses.size();checkpoint.splits=result.splits.size();
+    checkpoint.valid=true;checkpoint.trial=false;
+    ++stats.coarsen_checkpoints;return true;
+  };
+  auto rollback_checkpoint=[&]() {
+    static_assert(std::is_nothrow_swappable<BoundaryParameterState>::value,
+        "Private checkpoint parameter contents must restore without allocation.");
+    CLocalFailure failure;size_t retired=0;
+    if(!checkpoint.valid || !checkpoint.directory || checkpoint.collapses>result.collapses.size() || checkpoint.splits>result.splits.size())
+      failure.Set(1,0,"Native coarsening rollback lacks its complete checkpoint.");
+    if(bool(private_parameters)!=bool(checkpoint.parameters) || (private_parameters &&
+        private_parameters->Authority().get()!=checkpoint.parameters->Authority().get()))
+      failure.Set(1,0,"Native coarsening rollback changes immutable geometry authority.");
+    if(!vote(failure))return false;
+    if(!admit(transfer_memory::Mul(checkpoint.attempted.size(),2*(sizeof(Edge)+8*sizeof(void*)))))return false;
+    try {
+      for(const auto& edge:checkpoint.attempted) {
+        auto key=edge;std::sort(key.begin(),key.end());
+        if(!checkpoint.edges.count(key))continue; // Descendants are absent after rollback.
+        const bool inserted=checkpoint.blocked[edge[1]].insert(edge[0]).second;
+        checkpoint.blocked_links+=inserted;retired+=inserted;
+      }
+    }catch(const std::exception& e){failure.Set(3,0,e.what());}
+    if(!vote(failure))return false;
+    if(!world.maximum(retired!=0)) {
+      result.reason="Native coarsening trial made no net reduction and retired no new checkpoint obligation.";
+      return false;
+    }
+    // All proposal/import/private-parameter scopes have ended at this phase boundary. Restore
+    // local ownership and exact identities together, leaving IDs/work/deadline/service epochs monotone.
+    if(private_parameters)std::swap(*private_parameters,*checkpoint.parameters);
+    working.swap(checkpoint.cells);directory.swap(checkpoint.directory);
+    selection.blocked_edges.swap(checkpoint.blocked);std::swap(selection.blocked_links,checkpoint.blocked_links);
+    stats.coarsen_rolled_back_collapses+=result.collapses.size()-checkpoint.collapses;
+    result.collapses.resize(checkpoint.collapses);result.splits.resize(checkpoint.splits);
+    ++stats.coarsen_rolled_back_passes;stats.coarsen_retired_directions+=retired;
+    stats.coarsen_restored_cells+=working.size();
+    discard_checkpoint();
+    selection.Reset(true);retired_edges.clear();campaign_edges.clear();
+    construction_changed=construction_handoff_progress=improvement_changed=false;
+    // A strict checkpoint is not permission to return a stale census or to forgive a budget exit.
+    return enter_phase(Phase::Improvement);
   };
   if(!admit(transfer_memory::Mul(transfer_memory::Mul(coarsening ? 12 : 6,working.size()),sizeof(Edge)+4*sizeof(void*))))return finish();
   {
@@ -1515,10 +1656,50 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
     }
     if (!ready) return finish();
+    if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
+      stats.stop=EngineStop::TimeBudget;result.reason="Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined.";
+      return finish();
+    }
+    // Before its first strict checkpoint, coarsening must finish the edge-only entry census.
+    // A size/geometry-valid input can then establish its checkpoint in the quality phase before
+    // destructive removals; invalid inputs still use construction until a strict closure exists.
+    if(coarsening && !checkpoint.valid && phase==Phase::Construction &&
+        world.maximum(selection.cells.size()!=working.size()) && world.maximum(seed_slot<initial.size()))refill=true;
     if(refill) {ready=seed_next();if(!ready)return finish();continue;}
+    if(coarsening && !checkpoint.valid && phase==Phase::Construction &&
+        !world.maximum(selection.cells.size()!=working.size() || selection.construction_invalid!=0)) {
+      if(!enter_phase(Phase::Improvement))return finish();
+      continue;
+    }
     // Amortize the strict census over a useful repair pass before retrying outstanding construction.
     const bool clean_quality=phase==Phase::Improvement &&
         !world.maximum(selection.quality_invalid!=0 || selection.unmeasured_shape!=0 || selection.cells.size()!=working.size());
+    if(coarsening && phase==Phase::Improvement && checkpoint.valid && !any && !clean_quality &&
+        !world.maximum(selection.cells.size()!=working.size()) && world.maximum(checkpoint.trial)) {
+      if(stats.global_work>=stats.work_limit) {
+        stats.stop=EngineStop::WorkBudget;result.reason="Native coarsening quality closure exhausted its work budget.";return finish();
+      }
+      if(!rollback_checkpoint())return finish();
+      continue;
+    }
+    if(coarsening && clean_quality && !world.maximum(selection.construction_invalid!=0)) {
+      if(checkpoint.valid && world.maximum(checkpoint.trial)) {
+        const size_t cells=CPassiveComm::Allreduce(working.size(),CPassiveComm::Op::SUM,world.comm);
+        if(cells>=checkpoint.global_cells) {
+          if(!rollback_checkpoint())return finish();
+          continue;
+        }
+        ++stats.coarsen_committed_passes;
+        discard_checkpoint();
+      }
+      if(!world.maximum(selection.HasCoarseningDemand())) {
+        result.valid=true;result.reason.clear();return finish();
+      }
+      if(!checkpoint.valid) {
+        if(!capture_checkpoint() || !enter_phase(Phase::Construction))return finish();
+        continue;
+      }
+    }
     if(phase==Phase::Improvement && (world.maximum(improvement_changed) || (construction_handoff_progress && clean_quality)) &&
         (coarsening || world.maximum(selection.construction_invalid!=0)) &&
         (!world.maximum(selection.quality_invalid!=0) || !any)) {
@@ -1628,7 +1809,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         try {for(const auto& candidate:choices)features.push_back({{candidate.edge[1],0,0},1});}
         catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return false;
-        dependency_batch=directory.PlanBatch(features,selected,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
+        dependency_batch=directory->PlanBatch(features,selected,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
         if(!dependency_batch.valid){result.reason=dependency_batch.reason;return false;}
         try {
           for(size_t i:dependency_batch.refused)refuse(choices.at(i),features.at(i),"Native 3D dependency star exceeds budget.");
@@ -1683,9 +1864,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         if (!(ready=vote(failure))) return finish();
         if(!planned_coarsening)
-          dependency_batch=directory.LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
+          dependency_batch=directory->LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
         if (!dependency_batch.valid) { result.reason=dependency_batch.reason; return finish(); }
-        imported_batch=directory.FetchBatch(dependency_batch,working,options.memory_ceiling,
+        imported_batch=directory->FetchBatch(dependency_batch,working,options.memory_ceiling,
             transfer_memory::Add(bytes(),source.ResidentBytes()));
         if (!imported_batch.valid) { result.reason=imported_batch.reason; return finish(); }
         try {
@@ -1705,7 +1886,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       {
         Timer timer(stats.reservation_seconds,options.timings);
-        reserved=directory.ReserveBatch(imported_batch,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
+        reserved=directory->ReserveBatch(imported_batch,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
         if (!reserved.valid) { result.reason=reserved.reason; return finish(); }
         size_t winners=0;
         for (bool chosen:reserved.chosen) winners+=chosen;
@@ -1765,7 +1946,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(!world.maximum(choice.active))continue;
           if(choice.active)dependencies=std::move(dependency_batch.candidates.at(0));else dependencies.valid=true;
         } else {
-          auto batch=directory.LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()),repairing);
+          auto batch=directory->LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()),repairing);
           if(!batch.valid) {result.reason=batch.reason;return finish();}
           if(choice.active)dependencies=std::move(batch.candidates.at(0));else dependencies.valid=true;
           const bool oversized=choice.active && !dependencies.valid && dependencies.oversized;
@@ -1782,7 +1963,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           // Concurrent peers keep their own proposals; a slot whose every proposal was refused is skipped.
           if(!world.maximum(choice.active))continue;
         }
-        if (dependencies.valid) imported=directory.Fetch(dependencies,working,options.memory_ceiling,
+        if (dependencies.valid) imported=directory->Fetch(dependencies,working,options.memory_ceiling,
             transfer_memory::Add(bytes(),source.ResidentBytes()));
       }
       if (!dependencies.valid || !imported.valid) {
@@ -1790,7 +1971,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       {
         Timer timer(stats.reservation_seconds,options.timings);
-        chosen=directory.Reserve(imported,choice.active,result.reason,options.memory_ceiling,
+        chosen=directory->Reserve(imported,choice.active,result.reason,options.memory_ceiling,
             transfer_memory::Add(bytes(),source.ResidentBytes()),choice.reservation_priority);
         stats.conflicts+=choice.active && !chosen;
         if (!world.sum(chosen)) ready=false;
@@ -1900,7 +2081,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!admit(transfer_memory::Add(MaximumFrozenFieldBytes,transfer_memory::Bytes(imported.cells))))return finish();
       DonorPatch seed;
       {Timer timer(stats.donor_seconds,options.timings);
-        seed=source.ImportMetricCells(query,options.memory_ceiling,transfer_memory::Add(bytes(),directory.ResidentBytes(),MaximumFrozenFieldBytes));}
+        seed=source.ImportMetricCells(query,options.memory_ceiling,transfer_memory::Add(bytes(),directory->ResidentBytes(),MaximumFrozenFieldBytes));}
       if(!seed.valid){result.reason=seed.reason;return finish();}
       if(chosen)try {
         Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
@@ -1969,7 +2150,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       catch (const std::exception& e) { failure.Set(2,0,e.what()); }
       ready=vote(failure);
       if (ready && !curved && !coordinate_stream && world.maximum(metric_needed)) sensors=source.ImportCells(regions,options.memory_ceiling,
-          transfer_memory::Add(bytes(),directory.ResidentBytes(),transfer_memory::Bytes(imported.cells),
+          transfer_memory::Add(bytes(),directory->ResidentBytes(),transfer_memory::Bytes(imported.cells),
               transfer_memory::Bytes(old.cells),transfer_memory::Bytes(old.surface),
               transfer_memory::Bytes(fresh.cells),transfer_memory::Bytes(fresh.surface)));
       else if (ready) sensors.valid=true;
@@ -2124,7 +2305,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               Timer timer(stats.donor_seconds,options.timings);
               ++stats.donor_batches;
               donors=source.ImportMetricSamples(query,eligible_extensions,options.memory_ceiling,
-                  transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch),requests,measure_shape);
+                  transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch),requests,measure_shape);
             }
             if (donors.valid) break;
             if (!DonorCap(donors.reason) || batch==1) { ready=false; result.reason=donors.reason; return false; }
@@ -2274,7 +2455,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }
         Dependencies joined;
         {Timer timer(stats.dependency_seconds,options.timings);
-          joined=directory.Lookup(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
+          joined=directory->Lookup(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
         if(!joined.valid) {
           if(joined.reason=="Native 3D dependency star exceeds budget." || joined.reason=="Native 3D dependency union exceeds budget.")search=false;
           else failure.Set(1,0,joined.reason);
@@ -2283,7 +2464,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!search){joined.valid=true;joined.cells.clear();}
         Imported more;
         {Timer timer(stats.dependency_seconds,options.timings);
-          more=directory.Fetch(joined,working,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
+          more=directory->Fetch(joined,working,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
         if(!more.valid){result.reason=more.reason;return false;}
         if(search)try {
           std::set<Id> required;
@@ -2300,7 +2481,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!(ready=vote(failure)))return false;
         bool reserved=false;
         {Timer timer(stats.reservation_seconds,options.timings);
-          reserved=directory.Reserve(imported,search || approved,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.reservation_priority);}
+          reserved=directory->Reserve(imported,search || approved,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.reservation_priority);}
         if((search || approved) && !reserved) {
           if(result.reason=="Native 3D conflicting dependency reservation.") {
             ++stats.conflicts;
@@ -2316,7 +2497,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!(ready=vote(failure)))return false;
         DonorPatch support;
         {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
-          support=source.ImportCells(search?old.cells:empty,options.memory_ceiling,transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
+          support=source.ImportCells(search?old.cells:empty,options.memory_ceiling,transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));}
         if(!support.valid) {
           if(DonorCap(support.reason))search=false;
           else {result.reason=support.reason;return false;}
@@ -2398,7 +2579,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }
         Dependencies joined;
         {Timer timer(stats.dependency_seconds,options.timings);
-          joined=directory.Lookup(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
+          joined=directory->Lookup(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
         if(!joined.valid) {
           if(joined.reason=="Native 3D dependency star exceeds budget." || joined.reason=="Native 3D dependency union exceeds budget.")strip=wallSplit=false;
           else failure.Set(1,0,joined.reason);
@@ -2407,7 +2588,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!strip && !wallSplit){joined.valid=true;joined.cells.clear();}
         Imported more;
         {Timer timer(stats.dependency_seconds,options.timings);
-          more=directory.Fetch(joined,working,options.memory_ceiling,
+          more=directory->Fetch(joined,working,options.memory_ceiling,
               transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
         if(!more.valid){result.reason=more.reason;return finish();}
         if(strip || wallSplit)try {
@@ -2422,7 +2603,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!(ready=vote(failure)))return finish();
         bool reserved=false;
         {Timer timer(stats.reservation_seconds,options.timings);
-          reserved=directory.Reserve(imported,strip || wallSplit,result.reason,options.memory_ceiling,
+          reserved=directory->Reserve(imported,strip || wallSplit,result.reason,options.memory_ceiling,
               transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.reservation_priority);}
         if((strip || wallSplit) && !reserved) {
           if(concurrent && result.reason=="Native 3D conflicting dependency reservation.")++stats.conflicts;
@@ -2436,7 +2617,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         DonorPatch donors;
         {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
           donors=source.ImportCells(strip?old.cells:empty,options.memory_ceiling,
-              transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
+              transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));}
         if(!donors.valid) {
           if(DonorCap(donors.reason))strip=false;
           else {result.reason=donors.reason;return finish();}
@@ -2667,9 +2848,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return finish();
         {Timer timer(stats.dependency_seconds,options.timings);
-          auto metadata=directory.LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
+          auto metadata=directory->LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
           if(!metadata.valid){result.reason=metadata.reason;return finish();}
-          auto payload=directory.FetchBatch(metadata,working,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
+          auto payload=directory->FetchBatch(metadata,working,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
           if(!payload.valid){result.reason=payload.reason;return finish();}
           if(search)try {
             std::map<Id,size_t> costs;
@@ -2712,9 +2893,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!world.maximum(expand))break;
         {Timer timer(stats.dependency_seconds,options.timings);
           const std::vector<Feature> hints=expand?std::vector<Feature>{{{{placement_obstruction,0,0}},1}}:std::vector<Feature>{};
-          auto metadata=directory.LookupBatch(hints,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
+          auto metadata=directory->LookupBatch(hints,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
           if(!metadata.valid){result.reason=metadata.reason;return finish();}
-          auto payload=directory.FetchBatch(metadata,working,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
+          auto payload=directory->FetchBatch(metadata,working,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
           if(!payload.valid){result.reason=payload.reason;return finish();}
           if(expand)try {
             const auto& star=payload.candidates.at(0);
@@ -2745,7 +2926,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         DonorSamples proxy;
         {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
           proxy=source.SamplePoints(query,eligible_extensions,options.memory_ceiling,
-              transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
+              transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));}
         if(!proxy.valid){result.reason=proxy.reason;return finish();}
         if(joint)try {
           placement=composed_sample(query[0],proxy.samples.at(0).sensor);
@@ -2820,7 +3001,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               { Timer timer(stats.donor_seconds,options.timings);
                 ++stats.donor_batches;
                 donors=source.ImportCells(active ? old.cells : std::vector<Cell>{},options.memory_ceiling,
-                    transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));
+                    transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));
               }
               CLocalFailure local;ConnectivityRepairReport report;bool repaired=false,missing_metric_star=false;
               if(!donors.valid && !DonorCap(donors.reason))local.Set(1,0,donors.reason);
@@ -2921,7 +3102,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!world.maximum(joint && !approved))break;
         if(!preferred_obstruction.count && std::adjacent_find(obstruction.begin(),obstruction.end())==obstruction.end())preferred_obstruction={obstruction,3};
         const bool grow=joint && preferred_obstruction.count;
-        const auto added_dependencies=directory.LookupBatch(grow ? std::vector<Feature>{preferred_obstruction} : std::vector<Feature>{},
+        const auto added_dependencies=directory->LookupBatch(grow ? std::vector<Feature>{preferred_obstruction} : std::vector<Feature>{},
             options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
         if(!added_dependencies.valid){result.reason=added_dependencies.reason;return finish();}
         Dependencies neighbor;neighbor.valid=true;
@@ -2936,7 +3117,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!world.maximum(joint))break;
         if(!joint)neighbor.cells.clear();
         neighbor.valid=true;
-        const auto more=directory.Fetch(neighbor,working,options.memory_ceiling,
+        const auto more=directory->Fetch(neighbor,working,options.memory_ceiling,
             transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
         if(!more.valid){result.reason=more.reason;return finish();}
         if(joint)try {
@@ -2956,7 +3137,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return finish();
         if(!world.maximum(joint))break;
-        const bool reserved=directory.Reserve(imported,joint,result.reason,options.memory_ceiling,
+        const bool reserved=directory->Reserve(imported,joint,result.reason,options.memory_ceiling,
             transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.reservation_priority);
         CLocalFailure reservation_failure;
         if(joint && !reserved) {
@@ -3006,7 +3187,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           DonorSamples answer;
           {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
             answer=source.SampleMidpoints(queries,eligible_extensions,options.memory_ceiling,
-                transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
+                transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));}
           if(!answer.valid){result.reason=answer.reason;return finish();}
           try {for(size_t i=0;i<queries.size();++i) {
             const auto a=queries[i][0],b=queries[i][1];
@@ -3072,7 +3253,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         DonorPatch donors;
         {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
           donors=source.ImportCells(!coordinate_only && repair_work<repair_budget && !approved?old.cells:empty,options.memory_ceiling,
-              transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
+              transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));}
         bool candidate=false;
         if(!donors.valid && !DonorCap(donors.reason)){result.reason=donors.reason;return finish();}
         if(!coordinate_only && repair_work<repair_budget && !approved && donors.valid)try {
@@ -3100,7 +3281,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const bool surface_edit=approved && !SameSkin(old,fresh);
     if((curved && world.maximum(surface_edit)) || world.maximum(coordinate_only && approved)) {
       const bool prior=approved;bool deferred=false;
-      if(!directory.Clearance(working,old,fresh,approved,result.reason,options.memory_ceiling,
+      if(!directory->Clearance(working,old,fresh,approved,result.reason,options.memory_ceiling,
           transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),&deferred,choice.reservation_priority,
           coordinate_only ? imported.coordinate_star : Feature{}))return finish();
       if(deferred){chosen=false;++stats.conflicts;++stats.rejected;++stats.proposal_deferred;}
@@ -3122,7 +3303,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }catch(const std::exception& e){final_failure.Set(2,0,e.what());}
       if(!vote(final_failure))return finish();
       ++stats.final_reservations;
-      const bool admitted=directory.Reserve(imported,approved,result.reason,options.memory_ceiling,
+      const bool admitted=directory->Reserve(imported,approved,result.reason,options.memory_ceiling,
           transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch),choice.reservation_priority);
       if(approved && !admitted) {
         if(result.reason=="Native 3D conflicting dependency reservation.") {
@@ -3204,7 +3385,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       ready=vote(failure);
       if (ready) {
         bool admitted=false;
-        const auto baseline=transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),
+        const auto baseline=transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),
             transfer_memory::Bytes(imported.cells),MaximumFrozenFieldBytes);
         removed=world.exchange(removals,&admitted,options.memory_ceiling,baseline);
         ready=admitted;
@@ -3216,7 +3397,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if (!ready) return finish();
     {
       Timer timer(stats.publication_seconds,options.timings);
-      ready=directory.Publish(working,removed,added,true,result.reason,options.memory_ceiling,
+      ready=directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,
           transfer_memory::Add(bytes(),source.ResidentBytes(),MaximumFrozenFieldBytes),parameter_edits);
     }
     if (!ready) return finish();
@@ -3226,11 +3407,21 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     std::vector<Id> changed;
     {
       Timer timer(stats.update_seconds,options.timings);
-      ready=admit(transfer_memory::Add(transfer_memory::Mul(working.size(),selection_bound(selection.track_repairs)),
+      ready=admit(transfer_memory::Add(
+          checkpoint.valid ? transfer_memory::Mul(transfer_memory::Mul(4,transfer_memory::Add(removed.size(),added.size())),sizeof(Id)+4*sizeof(void*)) : 0,
+          transfer_memory::Mul(working.size(),selection_bound(selection.track_repairs)),
           transfer_memory::Mul(transfer_memory::Mul(6,removed.size()),sizeof(std::pair<const Edge,EdgeMeasure>)+4*sizeof(void*)),
           selection.track_repairs ? transfer_memory::Mul(transfer_memory::Mul(14,removed.size()),sizeof(RepairFeature)+4*sizeof(void*)) : 0,
           transfer_memory::Mul(failures.size(),2*(sizeof(std::pair<const Id,std::set<Id>>)+sizeof(Id)+8*sizeof(void*)))));
       if (ready) try {
+        if(checkpoint.valid) {
+          for(const auto& row:removed) {
+            const auto found=selection.cells.find(row.cell);
+            if(found==selection.cells.end())throw std::logic_error("Checkpoint trial lost a changed owned support row.");
+            checkpoint.changed.insert(found->second.vertices.begin(),found->second.vertices.end());
+          }
+          for(const auto& row:added)for(auto node:row.cell.v)checkpoint.changed.insert(node.id);
+        }
         // Retain retired scalars until all children are measured against this event's immutable source.
         for (const auto& row : removed) {
           const auto cached=selection.cells.find(row.cell);
@@ -3241,6 +3432,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         for (const auto& row : added) changed.push_back(row.cell.id);
         for (auto row : failures) selection.Block(row.edge,row.feature,repairing);
         if (approved) {
+          if(coarsening && checkpoint.valid)checkpoint.trial=true;
           improvement_changed=improvement_changed || repairing;
           construction_changed=construction_changed || !repairing;
           ++stats.accepted;
@@ -3255,11 +3447,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         stats.maximum_owned=std::max(stats.maximum_owned,working.size());
       } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
       if (ready) ready=vote(failure);
-      if (ready) ready=measure(changed,false);
+      if (ready) ready=measure(changed,false,&stats.update_seconds);
       if (ready) {
         try {
           selection.FinishRepairs();
-          for (Id vertex:directory.ChangedVertices()) selection.Touch(vertex);
+          for (Id vertex:directory->ChangedVertices()) selection.Touch(vertex);
         }
         catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         ready=vote(failure);

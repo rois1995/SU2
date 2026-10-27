@@ -115,7 +115,7 @@ Patch LargeBoundaryCoordinateStar() {
   for(size_t i=0;i<inner_count;++i) {
     const size_t j=2*i,next=(i+1)%inner_count;
     link.push_back({middle[j].id,middle[j+1].id,inner[i].id});
-    link.push_back({middle[j+1].id,middle[j+2].id,inner[next].id});
+    link.push_back({middle[j+1].id,middle[(j+2)%outer_count].id,inner[next].id});
     link.push_back({middle[j+1].id,inner[next].id,inner[i].id});
     link.push_back({inner[i].id,inner[next].id,center.id});
   }

@@ -28,12 +28,16 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <limits>
 #include <fstream>
 #include <iomanip>
 #include <random>
 
 #include "../../../SU2_CFD/include/adaptation/CConservativeTransfer.hpp"
 #include "../../../SU2_CFD/include/adaptation/ConvexClipping.hpp"
+#include "../../../SU2_CFD/include/adaptation/ConservativeKernels.hpp"
 #include "TransferTestCase.hpp"
 
 using namespace transfer_test;
@@ -42,6 +46,19 @@ namespace {
 
 using convex_clip::Polygon;
 using convex_clip::Polyhedron;
+
+// Inspect the representation so fast-math assumptions cannot hide a NaN in the clipping regression.
+bool FiniteClipValue(passivedouble value) {
+  static_assert(sizeof(passivedouble)==sizeof(uint32_t) || sizeof(passivedouble)==sizeof(uint64_t),
+      "Clipping tests support the float/double transfer precisions.");
+  if constexpr(sizeof(passivedouble)==sizeof(uint64_t)) {
+    uint64_t bits=0;std::memcpy(&bits,&value,sizeof(bits));
+    return (bits & UINT64_C(0x7ff0000000000000))!=UINT64_C(0x7ff0000000000000);
+  } else {
+    uint32_t bits=0;std::memcpy(&bits,&value,sizeof(bits));
+    return (bits & UINT32_C(0x7f800000))!=UINT32_C(0x7f800000);
+  }
+}
 
 passivedouble TriangleArea(const passivedouble* a, const passivedouble* b, const passivedouble* c) {
   return 0.5 * fabs((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]));
@@ -289,6 +306,114 @@ TEST_CASE("Convex clipping: polyhedra", "[Adaptation]") {
   const passivedouble vT = TetVolume(T[0], T[1], T[2], T[3]);
   CHECK(fabs(sum - vT) < 1e-15);
   for (int d = 0; d < 3; ++d) CHECK(fabs(moment[d] / sum - 0.25 * (T[0][d] + T[1][d] + T[2][d] + T[3][d])) < 1e-14);
+}
+
+TEST_CASE("Convex clipping preserves subnormal endpoint cuts", "[Adaptation][ConservativeClipRobustness]") {
+  const passivedouble tiny=std::numeric_limits<passivedouble>::denorm_min();
+  const passivedouble tolerance=TransferTol(2e-14,2e-5);
+  const passivedouble a[3]={.25,.5,-tiny},b[3]={.75,.5,0},c[3]={.25,.75,0},d[3]={.25,.5,1};
+  const passivedouble* nodes[4]={a,b,c,d};
+  Polyhedron poly;poly.InitTetrahedron(nodes);
+  REQUIRE(poly.Clip(0,0,1,0)>=0);REQUIRE(poly.Clip(1,0,0,-.1)>=0);
+  for(int i=0;i<poly.n;++i) {
+    for(unsigned k=0;k<3;++k)REQUIRE(FiniteClipValue(poly.x[i][k]));
+    CHECK(poly.x[i][0]>=.25);CHECK(poly.x[i][0]<=.75);
+    CHECK(poly.x[i][1]>=.5);CHECK(poly.x[i][1]<=.75);CHECK(poly.x[i][2]>=-tiny);
+  }
+  passivedouble volume=0,centroid[3]={};poly.Moments(volume,centroid);
+  REQUIRE(FiniteClipValue(volume));CHECK(volume==Approx(1./48).margin(tolerance));
+  for(unsigned k=0;k<3;++k)REQUIRE(FiniteClipValue(centroid[k]));
+  CHECK(centroid[0]==Approx(.375).margin(tolerance));
+  CHECK(centroid[1]==Approx(.5625).margin(tolerance));CHECK(centroid[2]==Approx(.25).margin(tolerance));
+
+  const passivedouble p[2]={.25,-tiny},q[2]={.75,0},r[2]={.25,1};
+  Polygon polygon;polygon.InitTriangle(p,q,r);
+  REQUIRE(polygon.Clip(0,1,0)>=0);REQUIRE(polygon.Clip(1,0,-.1)>=0);
+  for(int i=0;i<polygon.n;++i) {
+    REQUIRE(FiniteClipValue(polygon.x[i][0]));REQUIRE(FiniteClipValue(polygon.x[i][1]));
+    CHECK(polygon.x[i][0]>=.25);CHECK(polygon.x[i][0]<=.75);CHECK(polygon.x[i][1]>=-tiny);
+  }
+  passivedouble area=0;polygon.Moments(area,centroid);
+  REQUIRE(FiniteClipValue(area));CHECK(area==Approx(.25).margin(tolerance));
+  REQUIRE(FiniteClipValue(centroid[0]));REQUIRE(FiniteClipValue(centroid[1]));
+  CHECK(centroid[0]==Approx(5./12).margin(tolerance));CHECK(centroid[1]==Approx(1./3).margin(tolerance));
+}
+
+TEST_CASE("Convex clipping is invariant to finite halfspace coefficient scaling", "[Adaptation][ConservativeClipRobustness]") {
+  const passivedouble a[3]={0,0,0},b[3]={1,0,0},c[3]={0,1,0},d[3]={0,0,1};
+  const passivedouble* nodes[4]={a,b,c,d};
+  const passivedouble tolerance=TransferTol(2e-14,2e-5);
+  for(int exponent:{std::numeric_limits<passivedouble>::min_exponent-std::numeric_limits<passivedouble>::digits+4,
+      std::numeric_limits<passivedouble>::min_exponent-1,-32,0,std::numeric_limits<passivedouble>::max_exponent-4}) {
+    INFO("halfspace scale exponent "<<exponent);
+    const passivedouble scale=std::ldexp(passivedouble(1),exponent);
+    REQUIRE(scale>0);REQUIRE(FiniteClipValue(scale));
+    Polygon polygon;polygon.InitTriangle(a,b,c);REQUIRE(polygon.Clip(scale,0,-scale/4)>=0);
+    passivedouble area=0,centroid[3]={};polygon.Moments(area,centroid);
+    REQUIRE(FiniteClipValue(area));CHECK(area==Approx(9./32).margin(tolerance));
+    REQUIRE(FiniteClipValue(centroid[0]));REQUIRE(FiniteClipValue(centroid[1]));
+    CHECK(centroid[0]==Approx(.5).margin(tolerance));CHECK(centroid[1]==Approx(.25).margin(tolerance));
+    for(int i=0;i<polygon.n;++i)for(unsigned k=0;k<2;++k)REQUIRE(FiniteClipValue(polygon.x[i][k]));
+    Polyhedron poly;poly.InitTetrahedron(nodes);REQUIRE(poly.Clip(scale,0,0,-scale/4)>=0);
+    passivedouble volume=0;poly.Moments(volume,centroid);
+    REQUIRE(FiniteClipValue(volume));CHECK(volume==Approx(9./128).margin(tolerance));
+    for(unsigned k=0;k<3;++k)REQUIRE(FiniteClipValue(centroid[k]));
+    CHECK(centroid[0]==Approx(7./16).margin(tolerance));
+    CHECK(centroid[1]==Approx(3./16).margin(tolerance));CHECK(centroid[2]==Approx(3./16).margin(tolerance));
+    for(int i=0;i<poly.n;++i)for(unsigned k=0;k<3;++k)REQUIRE(FiniteClipValue(poly.x[i][k]));
+  }
+}
+
+TEST_CASE("Actual curved remesh overlap retains finite volume and dual-piece moments", "[Adaptation][ConservativeClipRobustness]") {
+  // First nonfinite pair (target12, donor2) from the accepted cubic RANS mesh. Double precision
+  // reproduces its saved coordinates exactly; single precision uses its own subnormal endpoint.
+  const passivedouble tiny=std::numeric_limits<passivedouble>::denorm_min();
+  const passivedouble target[4][3]={{-tiny,.57083333333333308,-tiny},{0,1,0},
+      {-tiny,.80499999999999983,.49999999999999994},{.52450980392156854,.91619825708060976,.28797487745098038}};
+  const passivedouble donor[4][3]={{0,0,0},{0,1,0},{1,1.3700000000000001,0},{1,1.98,1}};
+  const passivedouble* t[4]={target[0],target[1],target[2],target[3]};
+  const passivedouble* d[4]={donor[0],donor[1],donor[2],donor[3]};
+  const passivedouble tolerance=TransferTol(2e-14,2e-5);
+  conservative::Frame frame;conservative::SetFrame(3,t,frame);
+  auto raw_overlap=[](const conservative::Frame& f,const passivedouble* const* nodes,passivedouble& volume,passivedouble* centroid) {
+    passivedouble local[4][3];const passivedouble* points[4]={local[0],local[1],local[2],local[3]};
+    for(unsigned i=0;i<4;++i)for(unsigned k=0;k<3;++k)local[i][k]=nodes[i][k]-f.origin[k];
+    Polyhedron poly;poly.InitTetrahedron(points);
+    for(unsigned i=0;i<4;++i)REQUIRE(poly.Clip(f.G[i][0],f.G[i][1],f.G[i][2],f.a[i])>=0);
+    for(int i=0;i<poly.n;++i)for(unsigned k=0;k<3;++k)REQUIRE(FiniteClipValue(poly.x[i][k]));
+    poly.Moments(volume,centroid);REQUIRE(FiniteClipValue(volume));
+    for(unsigned k=0;k<3;++k)REQUIRE(FiniteClipValue(centroid[k]));
+  };
+  passivedouble volume=0,centroid[3]={};raw_overlap(frame,d,volume,centroid);REQUIRE(volume>0);
+  struct Audit {passivedouble volume=0,moment[3]={};unsigned pieces=0;} audit;
+  auto accumulate=[](void* context,unsigned short,passivedouble v,const passivedouble* c,const passivedouble* mu) {
+    auto& out=*static_cast<Audit*>(context);REQUIRE(FiniteClipValue(v));REQUIRE(v>0);
+    passivedouble barycentric_sum=0;
+    for(unsigned k=0;k<4;++k){REQUIRE(FiniteClipValue(mu[k]));barycentric_sum+=mu[k];}
+    CHECK(barycentric_sum==Approx(1).margin(TransferTol(2e-14,2e-5)));
+    out.volume+=v;++out.pieces;
+    for(unsigned k=0;k<3;++k){REQUIRE(FiniteClipValue(c[k]));out.moment[k]+=v*c[k];}
+  };
+  bool clipped=false;
+  REQUIRE(conservative::Overlap(3,frame,d,conservative::SimplexMeasure(3,d),accumulate,&audit,&clipped));
+  CHECK(clipped);REQUIRE(audit.pieces>0);CHECK(audit.volume==Approx(volume).margin(tolerance));
+  for(unsigned k=0;k<3;++k)CHECK(audit.moment[k]==Approx(volume*centroid[k]).margin(tolerance));
+  conservative::Frame reverse;conservative::SetFrame(3,d,reverse);
+  passivedouble reverse_volume=0,reverse_centroid[3]={};raw_overlap(reverse,t,reverse_volume,reverse_centroid);
+  CHECK(reverse_volume==Approx(volume).margin(tolerance));
+  for(unsigned k=0;k<3;++k)
+    CHECK(reverse_volume*(reverse_centroid[k]+reverse.origin[k])==Approx(volume*(centroid[k]+frame.origin[k])).margin(tolerance));
+  passivedouble dual_volume=0,dual_moment[3]={};
+  for(unsigned short i=0;i<4;++i) {
+    passivedouble v=0,c[3]={};conservative::PieceMoments(3,frame,i,v,c);REQUIRE(FiniteClipValue(v));
+    CHECK(v==Approx(frame.volume/4).margin(tolerance));dual_volume+=v;
+    for(unsigned k=0;k<3;++k){REQUIRE(FiniteClipValue(c[k]));dual_moment[k]+=v*c[k];}
+  }
+  CHECK(dual_volume==Approx(frame.volume).margin(tolerance));
+  for(unsigned k=0;k<3;++k) {
+    passivedouble center=0;for(unsigned i=0;i<4;++i)center+=frame.y[i][k]/4;
+    CHECK(dual_moment[k]==Approx(frame.volume*center).margin(tolerance));
+  }
 }
 
 TEST_CASE("Convex clipping: tiny polytopes far from the origin", "[Adaptation]") {
