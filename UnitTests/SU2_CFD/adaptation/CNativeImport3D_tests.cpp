@@ -2620,6 +2620,13 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
   su2activematrix sensor(current.Fine().GetnPointDomain(),6);
   for(size_t p=0;p<sensor.rows();++p)for(unsigned k=0;k<6;++k)sensor(p,k)=(k==0||k==3||k==5)?4.:0.;
   EngineOptions limits;limits.maximum_seconds=120;limits.timings=true;
+  const char* work_trace=std::getenv("SU2_NATIVE_GEOMETRY_WORK_TRACE");
+  if(work_trace && std::string(work_trace)=="1")
+    limits.rejected_trial=[&](const Patch& old,const Patch& fresh,Feature feature,const MetricDiagnosis&,bool geometry,const std::string& reason) {
+      std::cerr<<"MAPPED_REJECTION rans="<<rans<<" curved="<<curved<<" feature_count="<<unsigned(feature.count)
+        <<" feature="<<feature.vertices[0]<<','<<feature.vertices[1]<<','<<feature.vertices[2]
+        <<" geometry="<<geometry<<" old_cells="<<old.cells.size()<<" new_cells="<<fresh.cells.size()<<" reason="<<reason<<'\n';
+    };
   limits.rejected_state=[&](const Owned& owned,const PlanarReference& geometry,const std::string& why) {
     const auto name=std::string(curved?"cubic":"affine")+"_runtime_rejected_"+std::to_string(rans);
     const char* trace=std::getenv("SU2_NATIVE_GEOMETRY_WORK_TRACE");

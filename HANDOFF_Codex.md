@@ -20,7 +20,9 @@ may move on prescribed geometry. Scenario labels must not dispatch reconstructio
 
 ## Current work and evidence
 
-Build70 is running with sources frozen; the connected scheduler change is unvalidated.
+Build72 PASS111.187s; mapped work trace72 FAIL10.834s with unchanged pins. Each curved variant has 136 rejected trials: 123 geometry-error gate, 12 degenerate/reversed single-chart and one arithmetic cap; 36 directed features. Feature (1,6496) recurs eight times with old-cell counts 4, 5 and 6, so feature identity alone cannot establish unchanged support or justify a blind cache. See the hash-backed `staged57/cases/mapped_work_trace_20261028T015054_207288/rejection_summary.json`. Audit72 PASS23 selections (252 serial, 229 MPI, 63 atlas). M6 `euler_build72_pair_lifecycle` is live, PID218376, with sources frozen.
+
+Build71 PASS99.169s, pins unchanged and all build processes gone. Bidirectional serial passes 3 cases/558 assertions in 5.804s; MPI6 passes 3 cases per rank in 5.785s (466/118/118/70/70/70 assertions). Both plain and composed tight-window variants cover input immutability and final gates. Controlled plain fixture comparison (source71 uses stagnation window 1; configurations differ): 60 accepted cells, 19 splits, 2 collapses; admitted work fell from 1556 (build67) to 21 and directory elections from 38603 to 610. Deferral counter semantics changed, so raw counts are not comparable. Mapped runtime71 `staged57/cases/mapped_runtime_20261028T014634_194809` FAIL10.944s: flat completes at work 31; curved reaches work 150, 14 accepted and 136 rejected before the same arithmetic cap, without quality. Trace72 identified rejection reasons; M6 build72 is live (PID218376).
 ServiceClaimedVertex retires measured local frontier directions using existing
 ChangedVertices notifications, without new cache, state or communication; Directory
 still guards unmeasured, remote and expanded support. Deferred-frontier progress

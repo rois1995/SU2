@@ -1,0 +1,45 @@
+{
+  "scope": "selected rejected trials; feature identity does not establish unchanged support",
+  "files_sha256": {
+    "run.log": "340ad1524bcc9e45170803bae4d2f670269144dc91b4b843f3f1213e7d5571e9",
+    "status.json": "3c356887515ea840df92fdbbef44f38e6675db1ed808375ef694a644041d5286",
+    "command.json": "6147397e5a827579ba43569e0e8842fed5bf1ac42db5f41de98df04e04db4974",
+    "pins.json": "051252c91ebf2ed59ce231e9c0782e4cfc7ae23e3d5e07dd35769224591a4a56"
+  },
+  "cases": {
+    "rans=0,curved=1": {
+      "count": 136,
+      "reasons": {
+        "Native3D candidate does not preserve/improve its frozen geometry error.": 123,
+        "Single-chart coverage is degenerate or reversed.": 12,
+        "Atlas arithmetic work budget exhausted.": 1
+      },
+      "distinct_directed_features": 36,
+      "repeated_example_1_6496": {
+        "count": 8,
+        "old_cell_counts": [
+          4,
+          5,
+          6
+        ]
+      }
+    },
+    "rans=1,curved=1": {
+      "count": 136,
+      "reasons": {
+        "Native3D candidate does not preserve/improve its frozen geometry error.": 123,
+        "Single-chart coverage is degenerate or reversed.": 12,
+        "Atlas arithmetic work budget exhausted.": 1
+      },
+      "distinct_directed_features": 36,
+      "repeated_example_1_6496": {
+        "count": 8,
+        "old_cell_counts": [
+          4,
+          5,
+          6
+        ]
+      }
+    }
+  }
+}

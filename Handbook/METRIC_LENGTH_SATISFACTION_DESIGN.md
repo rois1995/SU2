@@ -27,7 +27,7 @@ whose removed-vertex star contains that vertex (each neighboring removed R, all
 retained D). Do not retire the opposite direction merely because it is adjacent.
 Keep Directory final claims and expanded-footprint checks. The source70 change implements this approach and awaits validation; the M6 evidence does not establish it as the sole cost cause.
 
-Build70 is running with sources frozen; the connected scheduler change is unvalidated.
+Build71 PASS99.169s, pins unchanged and all build processes gone. Bidirectional serial passes 3 cases/558 assertions in 5.804s; MPI6 passes 3 cases per rank in 5.785s (466/118/118/70/70/70 assertions). Both plain and composed tight-window variants cover input immutability and final gates. Matched plain fixture: 60 accepted cells, 19 splits, 2 collapses; admitted work fell from 1556 (build67) to 21 and directory elections from 38603 to 610. Deferral counter semantics changed, so raw counts are not comparable. Mapped runtime71 `staged57/cases/mapped_runtime_20261028T014634_194809` FAIL10.944s: flat completes at work 31; curved reaches work 150, 14 accepted and 136 rejected before the same arithmetic cap, without quality. Opt-in rejection-reason instrumentation is added for build72; validation and M6 remain pending.
 ServiceClaimedVertex retires measured local frontier directions using existing
 ChangedVertices notifications, without new cache, state or communication; Directory
 still guards unmeasured, remote and expanded support. Deferred-frontier progress
