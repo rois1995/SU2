@@ -81,7 +81,7 @@ struct Ops {
     extra=CurvedAtlasWorkspaceBytes(b.maximum_integer_bits);Sync();
   }
   ~Ops(){budget.caller_bytes=saved;}
-  void Work(size_t n=1){if(budget.work>budget.maximum_work || n>budget.maximum_work-budget.work)throw std::length_error("Curved atlas work exhausted.");budget.work+=n;}
+  void Work(size_t n=1){if(!budget.ChargeWork(n))throw std::length_error("Curved atlas work exhausted.");}
   void Sync(size_t additional=0){const auto bytes=Plus(saved,Plus(resident(),Plus(extra,additional)));
     if(bytes>budget.maximum_bytes)throw std::length_error("Curved atlas storage exhausted.");
     budget.peak_bytes=std::max(budget.peak_bytes,bytes);budget.caller_bytes=bytes;}

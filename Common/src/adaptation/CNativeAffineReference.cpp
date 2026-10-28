@@ -133,7 +133,7 @@ struct AtlasOps {
     for(auto* parent=previous;parent;parent=parent->previous)if(&parent->budget==&budget){parent->children+=total;break;}
     std::fprintf(stderr,"NATIVE_GEOMETRY_WORK operation=%s total=%zu exclusive=%zu\n",name,total,total>=children?total-children:0);}
   void Check(bool ok){if(!ok)throw std::runtime_error(reason);}
-  void Work(){if(budget.work>=budget.maximum_work)throw std::length_error("Curved atlas work exhausted.");++budget.work;}
+  void Work(){if(!budget.ChargeWork())throw std::length_error("Curved atlas work exhausted.");}
   void Storage(size_t bytes) {
     const auto total=transfer_memory::Add(budget.caller_bytes,bytes);budget.peak_bytes=std::max(budget.peak_bytes,total);
     if(total==SIZE_MAX || total>budget.maximum_bytes)throw std::length_error("Curved atlas storage exhausted: requested "+std::to_string(total)+", ceiling "+std::to_string(budget.maximum_bytes)+".");
@@ -250,6 +250,60 @@ std::vector<AtlasEdge> CancelReferenceEdges(Id facet,const std::vector<std::pair
   op.Storage(residual_bytes);std::vector<AtlasEdge> edges;edges.reserve(chain.size());
   for(const auto& row:chain){const auto& e=row.second;edges.push_back({facet,facet,*e.a,*e.b,{}, {},e.count,0});}
   return edges;
+}
+// Positive pieces tile the simplex iff their oriented boundary equals its boundary.
+// Check shared original paths before canceling coincident interior edges.
+std::vector<AtlasEdge> CoverageBoundaryEdges(const std::vector<AtlasEdge>& input,
+    const SU2Native3D::PlanarReference& reference,AtlasOps& op) {
+  auto& budget=op.budget;const auto saved=budget.caller_bytes;
+  struct Restore {AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{budget,saved};
+  const auto input_bytes=ReferenceEdgeBytes(input);op.Storage(input_bytes);
+  budget.caller_bytes=transfer_memory::Add(saved,input_bytes);
+  struct Use {int count=0;const AtlasEdge* edge=nullptr;const AtlasEdge* model=nullptr;bool reversed=false;};
+  std::map<AtlasEdgeKey,Use> chain;size_t retained=0,maximum_words=32;
+  auto words=[](const AtlasEdge& e){size_t n=32;
+    for(const auto* p:{&e.a,&e.b,&e.ra,&e.rb})for(const auto* q:{&p->u,&p->v})
+      n=transfer_memory::Add(n,q->numerator.size(),q->denominator.size());return n;};
+  for(const auto& e:input)maximum_words=std::max(maximum_words,words(e));
+  const auto temporary=transfer_memory::Mul(8,transfer_memory::GrowthBound(maximum_words,sizeof(uint64_t)));
+  for(const auto& e:input) {
+    op.Work();const auto bytes=transfer_memory::Add(sizeof(decltype(chain)::value_type),4*sizeof(void*),
+        transfer_memory::Mul(2,transfer_memory::GrowthBound(words(e),sizeof(uint64_t))));
+    op.Storage(transfer_memory::Add(bytes,temporary));
+    int sign=e.sign;auto a=op.Key(e.a),b=op.Key(e.b);const bool reversed=b<a;
+    auto key=EdgeKeys(std::move(a),std::move(b),sign);const auto found=chain.find(key);
+    auto* use=found==chain.end()?nullptr:&found->second;
+    if(use && use->model && e.triangle!=SIZE_MAX) {
+      auto first=ReferenceKey(reference,e.facet,reversed?e.rb:e.ra,op);
+      auto last=ReferenceKey(reference,e.facet,reversed?e.ra:e.rb,op);
+      const auto& previous=*use->model;
+      if(first!=ReferenceKey(reference,previous.facet,use->reversed?previous.rb:previous.ra,op) ||
+         last!=ReferenceKey(reference,previous.facet,use->reversed?previous.ra:previous.rb,op))
+        throw std::invalid_argument("Curved face pieces disagree on an internal reference path.");
+    }
+    if(!use) {
+      use=&chain.emplace(std::move(key),Use{}).first->second;
+      use->edge=&e;retained=transfer_memory::Add(retained,bytes);
+      budget.caller_bytes=transfer_memory::Add(saved,input_bytes,retained);
+    }
+    if(e.triangle!=SIZE_MAX && !use->model){use->model=&e;use->reversed=reversed;}
+    AddChainMultiplicity(use->count,sign);
+  }
+  // Keep zero-count records until every use has passed the path check above.
+  size_t residual=0;for(const auto& row:chain)residual+=row.second.count!=0;
+  auto output_bytes=transfer_memory::GrowthBound(residual,sizeof(AtlasEdge));
+  for(const auto& row:chain)if(row.second.count) {
+    const auto& e=*(row.second.model?row.second.model:row.second.edge);
+    for(const auto* p:{&e.a,&e.b,&e.ra,&e.rb})for(const auto* q:{&p->u,&p->v})
+      output_bytes=transfer_memory::Add(output_bytes,transfer_memory::Bytes(q->numerator),transfer_memory::Bytes(q->denominator));
+  }
+  op.Storage(transfer_memory::Add(output_bytes,temporary));std::vector<AtlasEdge> out;out.reserve(residual);
+  for(const auto& row:chain)if(row.second.count) {
+    auto edge=*(row.second.model?row.second.model:row.second.edge);
+    if(op.Key(edge.b)<op.Key(edge.a)){std::swap(edge.a,edge.b);std::swap(edge.ra,edge.rb);}
+    edge.sign=row.second.count;out.push_back(std::move(edge));
+  }
+  return out;
 }
 std::array<Box,10> RestrictNet(const MappedFacetReference& geometry,Id facet,const std::array<ExactBary,3>& r,AtlasOps& op) {
   std::array<Box,3> parameter;for(unsigned k=0;k<3;++k){op.Bary(r[k]);parameter[k]=op.Parameter(r[k]);}
@@ -1291,7 +1345,12 @@ bool MappedFacetReference::ValidateCoverage(Id anchor,const std::array<SurfaceBi
     }
     const std::array<ExactBary,3> unit{{{op.Integer(0),op.Integer(0)},{op.Integer(1),op.Integer(0)},{op.Integer(0),op.Integer(1)}}};
     for(unsigned k=0;k<3;++k)edges.push_back({0,anchor,unit[k],unit[(k+1)%3],{}, {},-1,SIZE_MAX});
-    const auto split=SplitAtlasEdges(edges,op);std::map<AtlasEdgeKey,int> count;
+    auto boundary=CoverageBoundaryEdges(edges,*reference,op);
+    // Raw input may have hanging subdivisions; retain exact splitting on its residual chain.
+    const auto boundary_bytes=transfer_memory::Add(ReferenceEdgeBytes(edges),ReferenceEdgeBytes(boundary));
+    struct RestoreBoundary {AtlasBudget& budget;size_t caller;~RestoreBoundary(){budget.caller_bytes=caller;}} restore_boundary{budget,budget.caller_bytes};
+    op.Storage(boundary_bytes);budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,boundary_bytes);
+    const auto split=SplitAtlasEdges(boundary,op);std::map<AtlasEdgeKey,int> count;
     std::map<AtlasEdgeKey,std::pair<AtlasKey,AtlasKey>> paths;
     for(const auto& e:split) {
       int sign=e.sign;auto a=op.Key(e.a),b=op.Key(e.b);const bool reverse=b<a;const auto key=EdgeKeys(std::move(a),std::move(b),sign);count[key]+=sign;

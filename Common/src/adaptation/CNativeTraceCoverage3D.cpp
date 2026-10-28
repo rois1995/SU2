@@ -39,7 +39,7 @@ struct Ops {
   void Sync(size_t temporary=0){const auto bytes=Add(saved,Add(held,Add(extra,temporary)));if(bytes>budget.maximum_bytes)throw std::length_error("Trace coverage storage exhausted.");
     budget.peak_bytes=std::max(budget.peak_bytes,bytes);budget.caller_bytes=bytes;}
   void Charge(size_t bytes){Sync(bytes);held=Add(held,bytes);Sync();}
-  void Work(size_t n=1){if(budget.work>budget.maximum_work||n>budget.maximum_work-budget.work)throw std::length_error("Trace coverage work exhausted.");budget.work+=n;}
+  void Work(size_t n=1){if(!budget.ChargeWork(n))throw std::length_error("Trace coverage work exhausted.");}
   void Check(bool ok){if(!ok)throw std::invalid_argument(reason);}
   ExactRatio Integer(int64_t x){Sync();ExactRatio r;Check(ExactInteger(x,r,budget,reason));return r;}
   ExactRatio Binary(double x){Sync();ExactRatio r;Check(ExactBinary64(x,r,budget,reason));return r;}
@@ -94,7 +94,7 @@ void Dirichlet(const std::vector<std::vector<size_t>>& graph,const std::vector<s
     if(!b.allFinite())throw std::invalid_argument("Nonfinite face Dirichlet proposal.");
     const size_t remaining=op.budget.maximum_work-op.budget.work;
     const size_t fixed_work=Add(Mul(2,entries),Mul(4,n));
-    if(remaining<fixed_work)throw std::length_error("Face Dirichlet proposal reached its bounded work limit.");
+    if(remaining<fixed_work){op.budget.ChargeWork(fixed_work);throw std::length_error("Face Dirichlet proposal reached its bounded work limit.");}
     const size_t allowed=std::min(iterations,(remaining-fixed_work)/per_step);
     solver.setMaxIterations(int(allowed));solver.setTolerance(tolerance);
     const size_t reserved=Mul(allowed,per_step);op.Work(Add(reserved,fixed_work));
@@ -104,8 +104,12 @@ void Dirichlet(const std::vector<std::vector<size_t>>& graph,const std::vector<s
     const size_t used=b.squaredNorm()==0?0:std::min(allowed,Add(size_t(solver.iterations()),1));
     op.budget.work-=reserved-Mul(used,per_step);
     const Eigen::VectorXd residual=matrix*x-b;
-    if(solver.info()!=Eigen::Success||!x.allFinite()||!residual.allFinite()||residual.norm()>tolerance*b.norm())
+    if(solver.info()!=Eigen::Success||!x.allFinite()||!residual.allFinite()||residual.norm()>tolerance*b.norm()) {
+      // A work-limited iteration allowance failed to certify the requested residual.
+      if(allowed<iterations && solver.info()==Eigen::NoConvergence && x.allFinite() && residual.allFinite())
+        op.budget.work_exhausted=true;
       throw std::length_error("Face Dirichlet proposal failed its bounded residual check.");
+    }
     for(size_t i=0;i<n;++i)value[free[i]][axis]=x[Eigen::Index(i)];
   }
 }

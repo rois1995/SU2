@@ -322,6 +322,7 @@ TEST_CASE("Overlapping curved stars retain bounded correspondence across alterna
 }
 
 TEST_CASE("Neighboring curved moves publish and reload complete boundary state", "[NativeCurvedAtlas3D][NativeOverlappingPublication3D]") {
+  const bool legacy_initial=GENERATE(false,true);INFO(legacy_initial);
   World world;RemappingFixture fixture(false);auto setup=RemappingBudget();std::string reason;
   struct Restore {ShapeAdmission old=GetShapeAdmission();~Restore(){SetShapeAdmission(old);}} restore;
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
@@ -329,7 +330,37 @@ TEST_CASE("Neighboring curved moves publish and reload complete boundary state",
   points.emplace(60,BoundaryPoint{{60,fixture.geometry->Realize(qb)},qb});
   auto surface=fixture.surface;surface.erase(surface.begin(),surface.begin()+2);
   surface.insert(surface.begin(),{{{10,0,60},0},{{10,60,20},0},{{20,60,30},1},{{60,0,30},1}});
-  auto state=std::make_shared<BoundaryParameterState>(fixture.geometry,points,surface,1,SIZE_MAX,0,BoundaryCoverage{},fixture.policy,&setup);
+  BoundaryCoverage legacy;
+  if(legacy_initial) {
+    const Edge shared{0,60};
+    auto mix=[&](const ExactBary& a,const ExactBary& b,double t){ExactBary out;ExactRatio left,right;
+      REQUIRE(ExactBinary64(1-t,left,setup,reason));REQUIRE(ExactBinary64(t,right,setup,reason));
+      auto component=[&](const ExactRatio& x,const ExactRatio& y){ExactRatio u,v,r;REQUIRE(ExactMultiply(x,left,u,setup,reason));
+        REQUIRE(ExactMultiply(y,right,v,setup,reason));REQUIRE(ExactAdd(u,v,r,setup,reason));return r;};
+      out.u=component(a.u,b.u);out.v=component(a.v,b.v);return out;};
+    for(auto face:surface)if(std::find(face.v.begin(),face.v.end(),shared[0])!=face.v.end() &&
+                              std::find(face.v.begin(),face.v.end(),shared[1])!=face.v.end()) {
+      std::rotate(face.v.begin(),std::min_element(face.v.begin(),face.v.end()),face.v.end());
+      std::array<SurfaceBinding,3> binding;for(unsigned k=0;k<3;++k)binding[k]=points.at(face.v[k]).binding;
+      FaceCoverage identity;REQUIRE(fixture.geometry->ResolveSingleChart(face.facet,binding,identity,setup,reason));
+      const auto& original=identity.pieces.front();
+      const auto rc=mix(mix(original.reference[0],original.reference[1],.5),original.reference[2],.25);
+      const auto ac=mix(mix(original.active[0],original.active[1],.5),original.active[2],.25);
+      FaceCoverage cover;
+      for(unsigned k=0;k<3;++k){const unsigned j=(k+1)%3;Edge edge{face.v[k],face.v[j]},key=edge;std::sort(key.begin(),key.end());
+        auto append=[&](const ExactBary& a,const ExactBary& b,const ExactBary& x,const ExactBary& y){CoveragePiece piece;piece.facet=face.facet;
+          piece.reference={rc,a,b};piece.active={ac,x,y};cover.pieces.push_back(std::move(piece));};
+        if(key==shared){const auto midpoint=mix(original.reference[k],original.reference[j],.5);
+          const auto parameter=mix(original.active[k],original.active[j],edge[0]<edge[1]?.25:.75);
+          append(original.reference[k],midpoint,original.active[k],parameter);append(midpoint,original.reference[j],parameter,original.active[j]);}
+        else append(original.reference[k],original.reference[j],original.active[k],original.active[j]);}
+      std::array<EdgeTrace,3> traces;REQUIRE(fixture.geometry->CoverageTraces(cover,traces,setup,reason));
+      for(unsigned k=0;k<3;++k)if(face.v[k]==shared[0]&&face.v[(k+1)%3]==shared[1])legacy.traces.emplace(shared,traces[k]);
+      legacy.faces.emplace(face.v,std::move(cover));
+    }
+    REQUIRE(legacy.faces.size()==2);REQUIRE(legacy.traces.at(shared).pieces.size()==2);
+  }
+  auto state=std::make_shared<BoundaryParameterState>(fixture.geometry,points,surface,1,SIZE_MAX,0,legacy,fixture.policy,&setup);
   auto reference=PlanarReference::WithParameters(fixture.definition,state);
   std::vector<Cell> global;for(const auto& face:surface)if(face.facet<4){Cell cell;cell.id=global.size();
     for(unsigned k=0;k<3;++k)cell.v[k]=points.at(face.v[k]).node;cell.v[3]=points.at(50).node;
@@ -343,6 +374,34 @@ TEST_CASE("Neighboring curved moves publish and reload complete boundary state",
       for(unsigned k=0;k<4;++k)for(const auto& face:faces){auto a=boundary[k],b=face.v;std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());
         if(a==b)row.physical[k]={true,face.facet};}out.push_back(row);}return out;};
   Owned owned;for(auto row:rows(global,surface))if(row.cell.id%world.size==unsigned(world.rank))owned.emplace(row.cell.id,row);
+  std::shared_ptr<BoundaryParameterState> frozen_source;std::vector<char> frozen_snapshot;std::vector<double> frozen_bounds;
+  auto source_bounds=[&](const BoundaryParameterState& source){std::vector<double> values;auto work=RemappingBudget();
+    for(const auto& row:source.Surface()){FaceCoverage cover;REQUIRE(source.ResolveCoverage(row.second,cover,work,reason));
+      std::array<Point,3> chord;for(unsigned k=0;k<3;++k)chord[k]=source.Find(row.second.v[k])->node.p;
+      for(const auto& p:fixture.geometry->PrepareSourcePatch(cover,chord,work).Bounds()){values.push_back(p.x);values.push_back(p.y);values.push_back(p.z);}}
+    return values;};
+  if(legacy_initial) {
+    frozen_source=std::make_shared<BoundaryParameterState>(*state);frozen_snapshot=frozen_source->Snapshot();frozen_bounds=source_bounds(*frozen_source);
+    const auto frozen=state->Snapshot();BoundaryCoverage normalized;auto normalize=RemappingBudget();
+    REQUIRE(RebuildWorkingSurface(*state,normalized,normalize,reason));
+    const Edge shared{0,60};REQUIRE(normalized.traces.count(shared));CHECK(normalized.traces.at(shared).pieces.size()==1);
+    for(const auto& face:legacy.faces)CHECK(normalized.faces.count(face.first));
+    std::set<Face> affected;for(const auto& item:normalized.faces){auto key=item.first;std::sort(key.begin(),key.end());affected.insert(key);}
+    std::vector<Dependency> removed;std::vector<OwnedCell> added;
+    for(const auto& row:owned){bool touches=false;const auto faces=cell_faces(row.second.cell);
+      for(unsigned k=0;k<4;++k)if(row.second.physical[k].present){auto key=faces[k];std::sort(key.begin(),key.end());touches|=affected.count(key);}
+      if(touches){removed.push_back({row.first,row.second.version,world.rank});auto replacement=row.second;++replacement.version;added.push_back(replacement);}}
+    REQUIRE(CPassiveComm::Allreduce(uint64_t(removed.size()),CPassiveComm::Op::SUM,world.comm)>=2);
+    for(const auto& face:affected){uint64_t local=0;for(const auto& row:added){const auto faces=cell_faces(row.cell);
+      for(unsigned k=0;k<4;++k)if(row.physical[k].present){auto key=faces[k];std::sort(key.begin(),key.end());local+=key==face;}}
+      CHECK(CPassiveComm::Allreduce(local,CPassiveComm::Op::SUM,world.comm)==1);}
+    Directory directory(world,true,state.get());REQUIRE(directory.Build(owned,reason));const BoundaryCoverage empty;auto publication=RemappingBudget();
+    const bool committed=directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,{},world.rank?empty:normalized,&publication);INFO(reason);REQUIRE(committed);
+    CHECK(state->Snapshot()!=frozen);CHECK(state->Geometry().Version()==fixture.geometry->Version());
+    CHECK(state->Coverage().traces.at(shared).pieces.size()==1);
+    BoundaryCoverage again;auto repeat=RemappingBudget();REQUIRE(RebuildWorkingSurface(*state,again,repeat,reason));
+    CHECK(again.faces.empty());CHECK(again.traces.empty());
+  }
   Id moving[2]={0,60};using Measures=std::array<size_t,5>;std::map<unsigned,Measures> baseline;
   for(unsigned event=0;event<16;++event){const auto started=std::chrono::steady_clock::now();auto budget=RemappingBudget();const unsigned phase=event%4,slot=event%2;const Id old=moving[slot],next=100+event;
     auto scoped=reference->WithAtlasReservation(budget);Patch patch;
@@ -416,7 +475,7 @@ TEST_CASE("Neighboring curved moves publish and reload complete boundary state",
     const auto aggregate_peak=CPassiveComm::Allreduce(uint64_t(local_peak),CPassiveComm::Op::SUM,world.comm);
     const Measures measures{{face_pieces,trace_pieces,bits,budget.work+publication_budget.work+source_budget.work,size_t(aggregate_peak)}};
     if(!world.rank)std::cout<<std::setprecision(17)<<"NATIVE_PUBLICATION_EVENT {\"scope\":\"private_neighbor_moves_publication_source_schema8\",\"event\":"<<event
-      <<",\"operator_work\":"<<budget.work<<",\"operator_peak_bytes\":"<<budget.peak_bytes
+      <<",\"legacy_initial\":"<<(legacy_initial?"true":"false")<<",\"operator_work\":"<<budget.work<<",\"operator_peak_bytes\":"<<budget.peak_bytes
       <<",\"publication_work\":"<<publication_budget.work<<",\"publication_peak_bytes\":"<<publication_budget.peak_bytes
       <<",\"source_envelope_work\":"<<source_budget.work<<",\"source_envelope_peak_bytes\":"<<source_budget.peak_bytes
       <<",\"arithmetic_work_excludes_decode\":"<<measures[3]<<",\"face_pieces\":"<<face_pieces<<",\"trace_pieces\":"<<trace_pieces
@@ -428,6 +487,7 @@ TEST_CASE("Neighboring curved moves publish and reload complete boundary state",
       <<",\"lifetime_process_peak_rss_bytes\":"<<ProcessPeakRSS3D()<<"}\n";
     if(event>=4){auto it=baseline.find(phase);if(it==baseline.end())baseline.emplace(phase,measures);else for(unsigned k=0;k<measures.size();++k)CHECK(measures[k]<=it->second[k]);}
   }
+  if(frozen_source){CHECK(frozen_source->Snapshot()==frozen_snapshot);CHECK(source_bounds(*frozen_source)==frozen_bounds);}
 }
 
 TEST_CASE("Legacy shared trace normalization publishes both owners and is idempotent", "[NativeCurvedAtlas3D][NativeWorkingSurfaceNormalization3D]") {

@@ -296,3 +296,9 @@ Standalone coarsening semantics are retained. Curved/composed multi-slot batches
 remain separate: expansion can invalidate an unprocessed slot's imported rows;
 committed-pass claims alone do not protect future batch leases. No blind batch
 flag change is part of this candidate.
+
+## Source72 M6 and source73 candidate
+
+M6 build72 `euler_build72_pair_lifecycle` TERMINAL REJECT1862.171s, solver exit 0, pins unchanged and nine owned processes gone. It completed two split passes and one collapse pass, with 6,287 splits, 2,025 collapses, zero quality stages and 44,861 geometry rejections; atlas arithmetic summed 369,648,840,116 across ranks. First split/collapse occurred at 117.756/1447.32s. Sampled process-tree RSS maximum 3,529,699,328 bytes is not allocation peak. Hash-backed `m6_checkpoint_summary.json` preserves rank counts and inputs; no accepted mesh or transfer follows.
+
+Source73 independent mathematical review found no concrete blocker. Build73 PASS141.2348s, 1293 pins unchanged and all build processes gone; atlas_checks73 is running. The rejection-only original-point versus complete proposed boundary screen uses existing SAT. In shared ValidateCoverage, CoverageBoundaryEdges cancels conforming active interiors after original-path agreement and exactly splits residuals; positive pieces, path keys, signed unit boundary and original-adjacency embedding disk remain checked. Publication/export/load and curved RebuildTraceCoverage share this validator; source consumes validated state. Tests cover hanging fans, broken paths, holes/double cover, bounded grid work, low memory, and SAT margin/union behavior. Full curved workflow and M6 remain open; no caps or persistence format changed.

@@ -14,7 +14,7 @@
 namespace SU2NativeGeometry {
 namespace {
 void Use(AtlasBudget& budget,size_t scratch=0) {
-  if(budget.work>=budget.maximum_work)throw std::length_error("Geometry backend work exhausted.");++budget.work;
+  if(!budget.ChargeWork())throw std::length_error("Geometry backend work exhausted.");
   const auto bytes=transfer_memory::Add(budget.caller_bytes,scratch);budget.peak_bytes=std::max(budget.peak_bytes,bytes);
   if(bytes==SIZE_MAX||bytes>budget.maximum_bytes)throw std::length_error("Geometry backend storage exhausted.");
 }
@@ -105,6 +105,8 @@ bool NativeMappedGeometryBackend3D::Project(Point query,const GeometryProjection
     AtlasBudget& budget,std::string& reason)const {
   try {
     Use(budget,sizeof(GeometryProjection));
+    if(!std::isfinite(query.x)||!std::isfinite(query.y)||!std::isfinite(query.z))
+      throw std::invalid_argument("Nonfinite geometry projection query.");
     if(scope.body==UINT64_MAX||scope.hint==UINT64_MAX||authority->Body(scope.hint)!=scope.body||
        !(std::isfinite(scope.absolute_error)&&scope.absolute_error>=std::numeric_limits<double>::min()))
       throw std::invalid_argument("Projection needs a declared body, local hint and positive accuracy.");
@@ -120,11 +122,12 @@ bool NativeMappedGeometryBackend3D::Project(Point query,const GeometryProjection
     while(low<high){Use(budget);const auto middle=low+(high-low)/2+(high-low)%2;
       if(authority->CurvedQueryWorkspaceBytes(middle)<=remaining_bytes)low=middle;else high=middle-1;}
     const auto reserved=std::min(low,budget.maximum_work-budget.work);
-    if(!reserved)throw std::length_error("Projection query has no admitted work/storage reservation.");
+    if(!reserved){if(budget.work==budget.maximum_work)budget.ChargeWork();throw std::length_error("Projection query has no admitted work/storage reservation.");}
     const auto scratch=authority->CurvedQueryWorkspaceBytes(reserved);Use(budget,scratch);
     const auto before=budget.work;const auto work=std::min(reserved,budget.maximum_work-before);
-    if(!work)throw std::length_error("Projection query work exhausted before search.");
-    budget.work=before+work; // An exceptional query retains its conservative reservation as attempted work.
+    if(!work){budget.ChargeWork();throw std::length_error("Projection query work exhausted before search.");}
+    if(!budget.ChargeWork(work))throw std::length_error("Projection query work exhausted before search."); // An exceptional query retains its conservative reservation as attempted work.
+    // Delegated numerical/storage failures do not themselves establish a caller work denial.
     const auto candidate=authority->ClosestCurved(scope.hint,query,scope.absolute_error,work,remaining_bytes);
     budget.work=before+candidate.work;
     Id side=UINT64_MAX;

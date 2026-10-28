@@ -38,8 +38,17 @@ def main():
     mode = modes[0]; rows = records[mode]
     output = case / ('publication_cost_summary.json' if mode == 'publication' else 'reference_cost_summary.json')
     if output.exists(): raise RuntimeError('Receipt already exists: ' + str(output))
-    if len(rows) != 16 or [r.get('event') for r in rows] != list(range(16)):
-        raise ValueError('Expected exactly events 0–15 in order')
+    groups = {}
+    for row in rows:
+        variant = row.get('legacy_initial', False) if mode == 'publication' else False
+        if not isinstance(variant, bool): raise ValueError('Invalid legacy_initial variant')
+        groups.setdefault(variant, []).append(row)
+    if mode == 'publication' and any('legacy_initial' in row for row in rows):
+        if set(groups) != {False, True} or any('legacy_initial' not in row for row in rows):
+            raise ValueError('Expected both explicitly labelled initial-state variants')
+    for variant, events in groups.items():
+        if len(events) != 16 or [r.get('event') for r in events] != list(range(16)):
+            raise ValueError('Expected exactly events 0–15 in order per variant: ' + str(variant))
     fields = PUBLICATION_FIELDS if mode == 'publication' else FIELDS
     bounded = PUBLICATION_BOUNDED if mode == 'publication' else BOUNDED
     expected_scope = 'private_neighbor_moves_publication_source_schema8' if mode == 'publication' else 'private_overlapping_surface_moves'
@@ -58,12 +67,14 @@ def main():
     matches = [(path, digest) for path, digest in build_pins.items() if path.endswith('/UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp')]
     if len(matches) != 1: raise ValueError('Missing unique recorded test source hash')
     phases = []
-    for phase in range(4):
-        baseline = rows[4 + phase]
-        for event in range(8 + phase, 16, 4):
-            compared = {key: {'baseline': baseline[key], 'value': rows[event][key],
-                              'within_bound': rows[event][key] <= baseline[key]} for key in bounded}
-            phases.append({'phase': phase, 'baseline_event': 4 + phase, 'event': event, 'fields': compared})
+    for variant, events in groups.items():
+        for phase in range(4):
+            baseline = events[4 + phase]
+            for event in range(8 + phase, 16, 4):
+                compared = {key: {'baseline': baseline[key], 'value': events[event][key],
+                                  'within_bound': events[event][key] <= baseline[key]} for key in bounded}
+                phases.append({'legacy_initial': variant, 'phase': phase, 'baseline_event': 4 + phase,
+                               'event': event, 'fields': compared})
     if any(not field['within_bound'] for comparison in phases for field in comparison['fields'].values()):
         raise ValueError('Per-phase cost or descriptor bound failed')
     if any(sha(Path(p)) != h for p, h in pins.items()): raise RuntimeError('Inputs changed during summary')

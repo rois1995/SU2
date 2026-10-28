@@ -59,7 +59,7 @@ struct Ops {
   Ops(AtlasBudget& b,std::function<size_t()> r):budget(b),caller(b.caller_bytes),scratch(CurvedAtlasWorkspaceBytes(b.maximum_integer_bits)),resident(std::move(r)){Sync();}
   ~Ops(){budget.caller_bytes=caller;}
   void Sync(size_t more=0){const auto n=Add(caller,Add(resident(),Add(scratch,more)));budget.peak_bytes=std::max(budget.peak_bytes,n);if(n>budget.maximum_bytes)throw std::length_error("Canonical trace storage exhausted.");budget.caller_bytes=n;}
-  void Work(){if(budget.work>=budget.maximum_work)throw std::length_error("Canonical trace work exhausted.");++budget.work;}
+  void Work(){if(!budget.ChargeWork())throw std::length_error("Canonical trace work exhausted.");}
   void Check(bool ok){if(!ok)throw std::invalid_argument(reason);}
   ExactRatio Integer(int64_t x){Sync();ExactRatio r;Check(ExactInteger(x,r,budget,reason));return r;}
   ExactRatio Sum(const ExactRatio& a,const ExactRatio& b){Sync();ExactRatio r;Check(ExactAdd(a,b,r,budget,reason));return r;}

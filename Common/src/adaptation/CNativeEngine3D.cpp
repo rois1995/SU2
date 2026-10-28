@@ -9,6 +9,7 @@
 #include "../../include/adaptation/CNativeRegionField3D.hpp"
 #include "../../include/adaptation/CNativePointConstruction3D.hpp"
 #include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
+#include "../../include/adaptation/CNativeGeometryBackend3D.hpp"
 #include <chrono>
 #include <cmath>
 #include <cstring>
@@ -24,6 +25,36 @@
 #include <type_traits>
 namespace SU2Native3D {
 namespace {
+// A successful separation is only a necessary geometry-error rejection, never admission.
+bool CollapseOutsideTolerance(const Patch& old,Id removed,Id retained,const PlanarReference& geometry,double tolerance) {
+  const auto* state=geometry.Parameters();
+  if(!state || !state->Mobility().identity || !(std::isfinite(tolerance)&&tolerance>0))return false;
+  const auto local=old.parameters.find(removed);
+  const auto* point=local==old.parameters.end()?state->Find(removed):&local->second;
+  if(!point)return false;
+  auto* budget=geometry.AtlasReservation();
+  if(!budget)throw std::runtime_error("Native collapse geometry screen lacks atlas reservation.");
+  SU2NativeGeometry::NativeMappedGeometryBackend3D backend(state->Authority(),state->Mobility());
+  SU2NativeGeometry::GeometryEvaluation evaluation;std::string reason;
+  if(!backend.Evaluate(point->binding,std::nullopt,evaluation,*budget,reason))throw std::runtime_error(reason);
+  const double threshold=std::nextafter(tolerance+evaluation.realization_error,INFINITY);
+  if(!std::isfinite(threshold))return false;
+  auto position=[&](Id id,Point& value) {
+    const auto p=old.parameters.find(id);if(p!=old.parameters.end()){value=p->second.node.p;return true;}
+    for(const auto& cell:old.cells)for(const auto& node:cell.v)if(node.id==id){value=node.p;return true;}
+    return false;
+  };
+  bool any=false;const std::array<Point,3> sample{{evaluation.point,evaluation.point,evaluation.point}};
+  for(const auto& face:old.surface) {
+    const bool has_removed=std::find(face.v.begin(),face.v.end(),removed)!=face.v.end();
+    const bool has_retained=std::find(face.v.begin(),face.v.end(),retained)!=face.v.end();
+    if(has_removed && has_retained)continue;
+    std::array<Point,3> triangle;
+    for(unsigned i=0;i<3;++i)if(!position(face.v[i]==removed?retained:face.v[i],triangle[i]))return false;
+    any=true;if(!SU2NativeGeometry::SourceFacesSeparated(sample,triangle,threshold))return false;
+  }
+  return any;
+}
 using Clock = std::chrono::steady_clock;
 class Timer {
  public:
@@ -815,8 +846,19 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   std::vector<Id> initial,eligible_extensions;
   auto vote=[&](const CLocalFailure& local) {
     stats.atlas_work=atlas_budget.work;stats.atlas_peak_bytes=atlas_budget.peak_bytes;
-    const auto elected=world.elect(local);
+    // Reserve this engine-local severity to transport typed work refusal without another collective.
+    constexpr unsigned short atlas_work_refusal=4;
+    auto pending=local;
+    if(atlas_budget.work_exhausted)pending.Set(atlas_work_refusal,0,
+        "Native3D shared atlas work budget exhausted; feasibility is undetermined.");
+    const auto elected=world.elect(pending);
     if (elected.any) result.reason=elected.message;
+    if(elected.any && elected.severity==atlas_work_refusal){
+      // A quota refusal need not be the only failure; retain the ordinary elected diagnostic too.
+      const auto original=world.elect(local);
+      if(original.any)result.reason+=" Original failure: "+original.message;
+      result.valid=false;stats.stop=EngineStop::WorkBudget;
+    }
     return !elected.any;
   };
   size_t batch_bytes=0;
@@ -989,6 +1031,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   bool transaction_captured=false;
   bool layer_active=false,region_active=false;Clock::time_point layer_started,region_started;
   auto finish=[&]() {
+    // Directory stages can refuse shared work and return directly here without an engine vote.
+    const auto prior_reason=result.reason;const auto prior_stop=stats.stop;
+    if(!vote(CLocalFailure{})) {
+      result.valid=false;
+      if(prior_stop==EngineStop::WorkBudget && !prior_reason.empty())result.reason=prior_reason;
+      else if(!prior_reason.empty() && prior_reason!=result.reason)result.reason+=" Prior failure: "+prior_reason;
+    }
     if(region_active && options.timings)stats.reconstruction_seconds+=std::chrono::duration<double>(Clock::now()-region_started).count();
     region_active=false;
     if(layer_active && options.timings)stats.layer_seconds+=std::chrono::duration<double>(Clock::now()-layer_started).count();
@@ -999,7 +1048,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         std::string reason;
         if(!height_check(GeometryPatch(Imported{{row.second},true,{}}, &geometry),reason))heightFailure.Set(1,row.first,reason);
       }
-      if(!vote(heightFailure)){result.valid=false;stats.stop=EngineStop::Failure;}
+      if(!vote(heightFailure)){result.valid=false;if(stats.stop==EngineStop::None)stats.stop=EngineStop::Failure;}
     }
     result.rebuilt_domain=result.valid && region_rebuilt;
     if (stats.stop==EngineStop::None) stats.stop=result.valid ? EngineStop::Complete : EngineStop::Failure;
@@ -2497,8 +2546,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         } else try {
           old=GeometryPatch(imported, &geometry);
           const auto a=choice.measure.a,b=choice.measure.b;
-          if (!repairing && coarsening) approved=guarded_geometry(CollapseVertex(old,choice.edge[1],choice.edge[0],maximum_cell+1+offset,
+          if (!repairing && coarsening) {
+            if(CollapseOutsideTolerance(old,choice.edge[1],choice.edge[0],geometry,options.surface_tolerance)) {
+              result.reason="Native3D collapsed boundary leaves an original geometry sample outside tolerance.";
+              approved=guarded_geometry(false,"CollapseVertex");
+            } else approved=guarded_geometry(CollapseVertex(old,choice.edge[1],choice.edge[0],maximum_cell+1+offset,
               geometry,fresh,result.reason),"CollapseVertex");
+          }
           else if (!repairing) {
             point={maximum_node+1+node_offset,{double((static_cast<long double>(a.x)+b.x)/2),
                 double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)}};

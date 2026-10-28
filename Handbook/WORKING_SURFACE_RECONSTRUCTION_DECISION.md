@@ -4,29 +4,69 @@ Current decision record, 2026-10-27. DC-17/DC-18 remain open. No accepted M6
 adaptation/transfer/restart workflow exists. This review precedes further
 implementation following the user's latest instruction.
 
-## Demonstrated failure and current code state
+## Current architectural finding, 2026-10-28
+
+The historical shared-edge recurrence below was real in build36; it is not an
+identified recurrence in the current build73 implementation. A read-only audit of
+the connected construction, publication and persistence path found:
+
+- `RemapAtlasSurface` copies an unchanged perimeter contract; new internal smooth
+  paths depend on fixed original geometry and current endpoint associations.
+- `RebuildTraceCoverage` receives a **const** trace map and produces face covers
+  only. Its generated microtriangle boundary knots do not replace prescribed
+  trace records. `RebuildReferenceTriangulation` starts again from original
+  facets, current associations, prescribed paths and the simplified region border.
+- `BoundaryParameterState::Prepare/Commit` stores supplied traces, rather than
+  deriving new persistent paths from reconstructed face interiors. Schema8 reload
+  preserves those records and reconstructs derived indices.
+- Entry `RebuildWorkingSurface` replaces noncanonical or unnecessarily subdivided
+  legacy paths together with both incident faces and current original-support
+  footprint. All affected volume owners advance versions through Directory;
+  donors are frozen before this geometry normalization.
+
+The existing 16-event actual neighboring-move/publication/source-envelope/reload
+case passes in serial and six ranks, including build73 MPI (69.929s, unchanged
+pins). Its per-phase descriptor/arithmetic/storage checks are scoped evidence,
+not a general complexity theorem. Endpoint precision, current original-region
+size, genuine feature intervals and actual current intersections still govern
+cost. The next regression combines legacy shared-edge normalization with that
+same repeated operator/publication/reload sequence; it is not a new routing rule.
+
+A distinct limitation remains: independently canonicalized paths are proposals,
+not joint graph recovery. If an internal proposal crosses a retained perimeter
+whose endpoints and canonical paths are unchanged, adding neighboring metadata
+alone cannot admit it. A geometry-delta sidecar would require either a demonstrated
+noncanonical interface or a joint network rule that actually changes the network.
+It is **not being added as a remedy for an unproven remaining recurrence**.
+
+The current difficult-target failures must remain separate: source73 curved CFD
+runtime is rejected after 17 splits and no collapses; source72 M6 is terminal and
+unaccepted. The captured curved runtime state has no explicit covers/traces, so
+that capture does not demonstrate retained-descriptor growth. Many trials fail
+the geometry-error gate and repeated unsuccessful construction consumes work.
+No accepted curved CFD mesh, conservative workflow or M6 restart is established.
+The receipt audit further narrows that failure: every split pass through split17
+made progress. Work rose from56,519,137 after split17 to64,680,086 after the
+following zero-success collapse pass, then reached67,207,168 during the next split
+pass. Existing facet-interior points disprove an original-edge-only sampling
+limitation. Final fallback reasons near exhaustion cannot establish geometric
+infeasibility. A fresh-work replay of the remaining demanded edge16–6496, retaining
+the first operator reason, is the decisive next check before changing construction
+or scheduling. Approximate positive-child/error calculations are not an operator
+certificate. The next design must address demonstrated behavior without raising
+limits or treating arithmetic optimization as architecture repair.
+
+## Historical recurrence and its replacement
 
 Build36 serial campaign `staged57/cases/serial_full_20261027T153436_2673844`
 finished in99.7804s with unchanged pins:226/228 cases passed,1129639/1129642
-assertions. The overlapping-star test exhausts arithmetic work on event5 (the
-sixth move), using the existing per-event reservation. The curved Euler and RANS
-runtime variants also exhaust67,207,168 arithmetic work after29 private edits.
-The original CFD state is retained. Neither failure is a successful adaptation.
-
-The recurrence is structural: a transaction flattens a reference region using
-current vertices and retained traces; clipping produces new edge paths; a
-neighboring transaction imports those paths as boundary constraints. Discarding
-face-interior cuts does not remove that recurrence. The earlier same-star
-oscillation keeps its perimeter fixed and misses it.
-
-At the time of this review the connected prototype was frozen unbuilt; build37
-subsequently compiled it. Build39 passed 53 focused cases/8247 assertions, and
-build40's 16-event neighboring-star cost case met its phase bounds. The full mapped
-runtime still fails, so this is narrow fixture qualification. Its independent
-original-star/strip path selector is custom and
-does not establish joint network admissibility. It must not become the production
-strategy merely because its primitive tests pass. Latest pushed source checkpoint
-before the compatibility results: `a61e28bf58`, explicitly WIP.
+assertions. The overlapping-star test exhausted arithmetic on event5. At that
+point clipping-derived paths were imported by later neighboring transactions;
+discarding interior cuts alone did not remove their perimeter recurrence.
+Build37–40 introduced fresh fixed-reference paths and prescribed-network
+reconstruction; build62–64 added coordinated legacy normalization and owner
+publication. Historical sections below retain the design and failed experiments,
+not current status. DC-17/DC-18 remain open.
 
 ## Established methods versus repository choices
 
@@ -501,3 +541,31 @@ corrects the stale fixture expectation and strengthens row/version/content check
 Build64 PASS96.1853s; focused quality_cache serial and MPI6 pass in 6.8561s and
 6.8769s respectively, all owned processes gone. All 21 compiled filter selections pass in build64; no owned job remains live. These focused passes do not qualify the failed
 broad campaigns. No complete M6 or CFD transfer/restart is accepted.
+
+## Geometry sizing and source73 scope
+
+Current `CBoundaryLayerMetric.cpp:1989–2007` applies a Hausdorff-derived
+tangent metric floor only when the native wall has analytic authority: sphere
+and cylinder (disk excluded). `FromNativeReference:2095–2126` attaches that
+authority and tolerance only for a complete analytic wall component. The cubic
+backend exposes local curvature, but this wall metric path does not consume it;
+`CNativeMetricFamily3D.hpp` stores selected/frozen metric and optional layers.
+`CNativeRemesher3D.cpp:192` passes ADAP_HAUSD as engine surface tolerance for
+geometry checks. These inspected paths do not establish a generic cubic
+Hausdorff-derived Euler or BL metric floor before coarsening.
+
+[MMG anisotropic sizing](https://raw.githubusercontent.com/MmgTools/mmg/master/src/mmg3d/anisosiz_3d.c)
+contains geometry/Hausdorff sizing, while its
+[collapse implementation](https://raw.githubusercontent.com/MmgTools/mmg/master/src/mmg3d/colver_3d.c)
+checks boundary edges before committing. [Geometry Central's intrinsic interface](https://github.com/nmwsharp/geometry-central/blob/master/include/geometrycentral/surface/intrinsic_triangulation.h)
+separates input and intrinsic triangulations and exposes removal of inserted vertices;
+that API alone is not a drop-in for moving/removing original CFD vertices. These
+are design comparisons, not proof that native construction is qualified.
+
+Source73 MPI overlap publication `staged57/cases/overlap_publication6_20261028T025843_383399`
+PASS69.929s with unchanged pins; mapped trace
+`staged57/cases/mapped_work_trace_20261028T024728_354109` FAIL12.827s with
+unchanged pins. Full accepted curved workflow and M6 remain open; no new M6 run
+is planned until construction's failure is understood.
+
+The unbuilt source74 endpoint-curvature sizing proposal was removed after review: it was not a necessary Hausdorff veto. The next design is shared-edge closure, not an additional local policy. Source73 SAT and coverage changes remain; full workflow qualification is open.

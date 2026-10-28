@@ -5,6 +5,8 @@
  */
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeAtlas3D.hpp"
+#include "../../../Common/include/adaptation/CNativeAffineReference.hpp"
+#include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
 #include <cmath>
 #include <cstring>
 #include <limits>
@@ -149,4 +151,57 @@ TEST_CASE("Canonical dyadic validation avoids repeated binary GCD reduction", "[
   auto budget=Budget();budget.maximum_work=1200;
   for(unsigned i=0;i<100;++i)REQUIRE(ExactValidate(value,budget,reason));
   CHECK(budget.work<=budget.maximum_work);
+}
+
+TEST_CASE("Coverage boundary cancellation preserves internal paths and hanging subdivisions", "[NativeAtlas3D]") {
+  using namespace SU2Native3D;
+  const Node a{0,{0,0,0}},b{1,{1,0,0}},c{2,{0,1,0}},d{3,{0,0,-1}};
+  auto base=std::make_shared<PlanarReference>(std::vector<Facet>{{0,0,{a,b,c}},{1,0,{a,d,b}},{2,0,{b,d,c}},{3,0,{c,d,a}}});
+  MappedFacetReference geometry(base,{{0,1e-13},{1,1e-13},{2,1e-13},{3,1e-13}},19);
+  auto budget=Budget();std::string reason;const std::array<SurfaceBinding,3> bindings{geometry.Vertex(0),geometry.Vertex(1),geometry.Vertex(2)};
+  const std::array<Point,3> flat{a.p,b.p,c.p};FaceCoverage single;
+  REQUIRE(geometry.ResolveSingleChart(0,bindings,single,budget,reason));std::array<EdgeTrace,3> traces;
+  REQUIRE(geometry.CoverageTraces(single,traces,budget,reason));
+  auto point=[&](int u,int v,int den){return ExactBary{Fraction(u,den,budget),Fraction(v,den,budget)};};
+  const auto center=point(1,1,4),middle=point(1,1,8);
+  const auto v0=point(0,0,1),v1=point(1,0,1),v2=point(0,1,1);
+  auto piece=[](std::array<ExactBary,3> triangle){return CoveragePiece{0,triangle,triangle};};
+  FaceCoverage fan;fan.pieces={piece({v0,v1,center}),piece({v1,v2,center}),piece({v2,v0,center})};
+  INFO(reason);REQUIRE(geometry.ValidateCoverage(0,bindings,flat,fan,traces,budget,reason));
+  auto hanging=fan;hanging.pieces[0]=piece({v0,v1,middle});hanging.pieces.push_back(piece({v1,center,middle}));
+  REQUIRE(geometry.ValidateCoverage(0,bindings,flat,hanging,traces,budget,reason));
+  auto broken=fan;broken.pieces[0].reference[2]=point(3,2,10);
+  CHECK_FALSE(geometry.ValidateCoverage(0,bindings,flat,broken,traces,budget,reason));
+  CHECK(reason.find("internal reference path")!=std::string::npos);
+  auto missing=fan;missing.pieces.pop_back();CHECK_FALSE(geometry.ValidateCoverage(0,bindings,flat,missing,traces,budget,reason));
+  auto duplicate=fan;duplicate.pieces.insert(duplicate.pieces.end(),fan.pieces.begin(),fan.pieces.end());
+  CHECK_FALSE(geometry.ValidateCoverage(0,bindings,flat,duplicate,traces,budget,reason));
+  std::array<size_t,2> work{};unsigned sample=0;
+  for(int n:{8,16}) {
+    FaceCoverage grid;auto run=Budget();
+    auto coordinate=[&](int i,int j){return ExactBary{Fraction(i,n,run),Fraction(j,n,run)};};
+    for(int i=0;i<n;++i)for(int j=0;j<n-i;++j) {
+      grid.pieces.push_back(piece({coordinate(i,j),coordinate(i+1,j),coordinate(i,j+1)}));
+      if(i+j+1<n)grid.pieces.push_back(piece({coordinate(i+1,j),coordinate(i+1,j+1),coordinate(i,j+1)}));
+    }
+    REQUIRE(grid.pieces.size()==size_t(n*n));const auto before=run.work;
+    REQUIRE(geometry.ValidateCoverage(0,bindings,flat,grid,traces,run,reason));work[sample++]=run.work-before;
+    CHECK(run.peak_bytes<=run.maximum_bytes);
+  }
+  // Four times the current cells must not trigger a quadratic full-interior arrangement.
+  CHECK(work[1]<8*work[0]);
+  auto limited=Budget();limited.maximum_bytes=1;
+  CHECK_FALSE(geometry.ValidateCoverage(0,bindings,flat,fan,traces,limited,reason));
+}
+
+TEST_CASE("Atlas cumulative work denial is sticky and preserves output", "[NativeAtlas3D]") {
+  auto budget=Budget();budget.maximum_work=7;budget.work=5;
+  CHECK_FALSE(budget.ChargeWork(3));CHECK(budget.work==5);CHECK(budget.work_exhausted);
+  CHECK_FALSE(budget.ChargeWork(0));CHECK_FALSE(budget.ChargeWork(1));CHECK(budget.work==5);
+  ExactRatio output;output.numerator={77};output.denominator={1};const auto before=output;std::string reason;
+  CHECK_FALSE(ExactInteger(3,output,budget,reason));CHECK(Same(output,before));CHECK_FALSE(reason.empty());
+  auto invalid=Budget();ExactRatio numerator,zero,result;REQUIRE(ExactInteger(1,numerator,invalid,reason));
+  REQUIRE(ExactInteger(0,zero,invalid,reason));CHECK_FALSE(ExactDivide(numerator,zero,result,invalid,reason));
+  CHECK_FALSE(invalid.work_exhausted);
+  auto malformed=Budget();malformed.work=malformed.maximum_work+1;CHECK_FALSE(malformed.ChargeWork(0));CHECK(malformed.work_exhausted);
 }

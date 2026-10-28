@@ -8,6 +8,7 @@
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include <cmath>
+#include <limits>
 using namespace SU2NativeGeometry;
 namespace {
 AtlasBudget BackendBudget(){return {size_t(1)<<22,size_t(1)<<28,4096};}
@@ -58,6 +59,10 @@ TEST_CASE("Native projection requires a body and refuses sheet and feature escap
   GeometryEvaluation evaluation;REQUIRE(backend.Evaluate(scope.previous,0,evaluation,budget,reason));
   Point query{evaluation.point.x+.001*evaluation.normal.x,evaluation.point.y+.001*evaluation.normal.y,evaluation.point.z+.001*evaluation.normal.z};
   GeometryProjection result;INFO(reason);REQUIRE(backend.Project(query,scope,result,budget,reason));
+  auto invalid_query=BackendBudget();const auto saved=result;
+  CHECK_FALSE(backend.Project({std::numeric_limits<double>::quiet_NaN(),0,0},scope,result,invalid_query,reason));
+  CHECK_FALSE(invalid_query.work_exhausted);CHECK(invalid_query.work<invalid_query.maximum_work);
+  CHECK(result.binding.feature==saved.binding.feature);CHECK(result.binding.u==saved.binding.u);CHECK(result.binding.v==saved.binding.v);
   GeometrySupport support;REQUIRE(backend.Support(result.binding,result.surface,support,budget,reason));CHECK(support.body==0);CHECK(support.sheet==*scope.sheet);
   CHECK(result.distance_lower<=.001);CHECK(result.distance_upper>=.001-1e-10);
   auto other_body=scope;other_body.body=100;CHECK_FALSE(backend.Project(query,other_body,result,budget,reason));
@@ -152,4 +157,24 @@ TEST_CASE("Native contraction query distinguishes refusal from a topology veto",
     CHECK_FALSE(backend.ContractionAllowed(stale,retained,allowed,budget,reason));
     CHECK(allowed==initial);CHECK_FALSE(reason.empty());
   }
+}
+
+TEST_CASE("Certified point separation conservatively screens curved boundary samples", "[NativeGeometryBackend3D]") {
+  using namespace SU2Native3D;
+  BackendFixture fixture;NativeMappedGeometryBackend3D backend(fixture.geometry,fixture.policy);
+  auto budget=BackendBudget();std::string reason;GeometryEvaluation sample;
+  REQUIRE(backend.Evaluate(fixture.geometry->FacetPoint(0,.25,.25),std::nullopt,sample,budget,reason));
+  const auto& f=fixture.facets[0];const std::array<Point,3> flat{{f.v[0].p,f.v[1].p,f.v[2].p}};
+  const std::array<Point,3> point{{sample.point,sample.point,sample.point}};
+  const double distance=std::abs(sample.point.z);REQUIRE(distance>0);
+  const double low=std::nextafter(distance*.25+sample.realization_error,INFINITY);
+  const double high=std::nextafter(distance*2+sample.realization_error,INFINITY);
+  CHECK(SourceFacesSeparated(point,flat,low));CHECK_FALSE(SourceFacesSeparated(point,flat,high));
+  CHECK_FALSE(SourceFacesSeparated(point,point,low));
+  const double margin=std::nextafter(distance+sample.realization_error,INFINITY);
+  CHECK_FALSE(SourceFacesSeparated(point,flat,margin));
+  auto near=flat;for(auto& p:near)p.z=sample.point.z;
+  CHECK_FALSE(SourceFacesSeparated(point,near,low));
+  const bool all_far=SourceFacesSeparated(point,flat,low) && SourceFacesSeparated(point,near,low);
+  CHECK_FALSE(all_far); // A single nearby face makes the union test inconclusive.
 }

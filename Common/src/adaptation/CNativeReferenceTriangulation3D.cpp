@@ -44,7 +44,7 @@ struct Ops {
   AtlasBudget& budget;size_t saved,extra;std::function<size_t()> resident;std::string reason;
   Ops(AtlasBudget& b,std::function<size_t()> r):budget(b),saved(b.caller_bytes),extra(CurvedAtlasWorkspaceBytes(b.maximum_integer_bits)),resident(std::move(r)){Sync();}
   ~Ops(){budget.caller_bytes=saved;}
-  void Work(size_t count=1){if(budget.work>budget.maximum_work||count>budget.maximum_work-budget.work)throw std::length_error("Reference triangulation work exhausted.");budget.work+=count;}
+  void Work(size_t count=1){if(!budget.ChargeWork(count))throw std::length_error("Reference triangulation work exhausted.");}
   void Sync(size_t additional=0){const auto bytes=Add(saved,Add(resident(),Add(extra,additional)));
     if(bytes>budget.maximum_bytes)throw std::length_error("Reference triangulation storage exhausted.");budget.peak_bytes=std::max(budget.peak_bytes,bytes);budget.caller_bytes=bytes;}
   void Check(bool ok){if(!ok)throw std::invalid_argument(reason);}

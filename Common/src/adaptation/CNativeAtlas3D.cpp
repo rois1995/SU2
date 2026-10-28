@@ -36,12 +36,11 @@ struct Context {
   AtlasBudget& budget;
   size_t retained=0,live=0;
   Context(AtlasBudget& b,size_t inputs):budget(b),retained(AddSize(b.caller_bytes,inputs)) {
-    if(b.work>b.maximum_work)throw std::length_error("Invalid atlas budget counters.");
+    if(!b.ChargeWork(0))throw std::length_error("Atlas arithmetic work budget exhausted.");
     Admit(0);
   }
   void Work(size_t n) {
-    if(n>budget.maximum_work-budget.work)throw std::length_error("Atlas arithmetic work budget exhausted.");
-    budget.work+=n;
+    if(!budget.ChargeWork(n))throw std::length_error("Atlas arithmetic work budget exhausted.");
   }
   void Admit(size_t extra) {
     const auto total=AddSize(retained,AddSize(live,extra));
