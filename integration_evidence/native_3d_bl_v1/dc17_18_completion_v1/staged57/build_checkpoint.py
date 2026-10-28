@@ -31,9 +31,13 @@ paths.update(str(ROOT.parents[3]/p) for p in (
     'SU2_CFD/src/meson.build', 'UnitTests/meson.build'))
 # The shared face correspondence now uses the existing vendored Eigen headers.
 paths.update(str(p) for p in (ROOT.parents[3]/'externals/eigen/Eigen').rglob('*') if p.is_file())
+command=json.loads((ROOT/'build4_command.json').read_text())
+if not Path(command['argv'][3]).is_file():
+    command['argv'][3]=str(ROOT.parents[3]/'integration_evidence/build-integrated-v2/tools/ninja')
+assert Path(command['argv'][3]).is_file(), 'Restore the recorded Ninja or the repository build-tools copy'
+paths.add(command['argv'][3])
 pins={p:sha(p) for p in sorted(paths)}
 save(ROOT/(name+'_source_pins.json'),pins)
-command=json.loads((ROOT/'build4_command.json').read_text())
 command['argv'].extend(['-k','0','SU2_CFD/src/SU2_CFD'])
 command['environment']['NINJA']=command['argv'][3]
 env=os.environ.copy();env.update(command['environment'])

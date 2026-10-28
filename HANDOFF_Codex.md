@@ -30,13 +30,15 @@ rejection caches. Detailed architecture and history:
 
 ## Evidence and current job
 
-Checkpoint6f47de50563b (typed arithmetic refusal through backend/engine) is pushed
-to origin rois1995/SU2, branch codex/native-3d-bl. Build76 PASS216.293s;
-compiled-filter audit PASS23 selections (256 serial/233 MPI/67 atlas). Stage-stop
-MPI failed before its callback because the new fixture omitted positive geometry
-tolerance; fixture corrected, pending build79. Combined clean/legacy32-event
-runtime remains pending. Serial replay76 PASS14.127s distinguishes deliberate
-work refusal from numerical/query errors.
+Review checkpointff818fc703 and code checkpoint6f47de50563b are pushed to
+origin rois1995/SU2, branch codex/native-3d-bl. Build79 PASS495.961s (1294 pins
+unchanged). MPI6 staging PASS9 cases/rank15.850s, coupled clean/legacy32-event
+movement/publication/source/schema8 PASS177.816s and all16 per-phase cost
+comparisons pass. All23 compiled filter audits pass (256 serial/233 MPI/67 atlas).
+Replay80 PASS16.183s: useful split succeeds; valid collapse6496→1 worsens bound
+to .01; reverse collapse first fails body/feature preservation with fresh work.
+No fallbacks, no exhaustion in these three proposals. Smaller curved CFD baseline
+build79 FAIL14.180s: typed shared-work exhaustion, feasibility undetermined.
 
 Trace73 curved CFD FAIL12.827s:17 productive splits, zero collapses; one
 unsuccessful collapse pass costs8,160,949 operations, next split exhausts atlas
@@ -53,10 +55,11 @@ are not working-tet counts;500k complexity is not a tet cap. No mesh/transfer
 acceptance follows. Use M6 early at the next connected implementation milestone.
 
 User cleanup restored /home17GB free; approval/MPI/push work again. Deleted
-external Ninja restored as owned official1.13.0 with receipt. Wrong-version
-build78 interrupted and terminal; matching Ninja reports473 legitimate rebuild
-actions (mostly changed command hashes). **Build79 running**, one low-priority
-worker; C++ and validation helpers pinned until its owned handle is terminal.
+external Ninja restored as owned official1.13.0 with provenance. Mixed-version
+build78 is terminal interrupted; build79 and all subsequent owned checks are
+terminal. **No heavy job remains.** Production geometry replacement has not begun;
+next code must implement the reviewed certificate/source dependency together,
+not another unmeasured guard, fallback or blind budget increase.
 
 ## Operations
 

@@ -1,0 +1,355 @@
+{
+  "analytic_candidate": {
+    "barycentric_point_order": [
+      "16",
+      "81664",
+      "6496",
+      "108880",
+      "candidate"
+    ],
+    "certified": false,
+    "child_faces": [
+      {
+        "control_deviation": 0.00125,
+        "indices": [
+          0,
+          1,
+          4
+        ],
+        "weighted_excess": 1.953938128010375e-09
+      },
+      {
+        "control_deviation": 0.0007812499999999998,
+        "indices": [
+          4,
+          1,
+          2
+        ],
+        "weighted_excess": 0.0
+      },
+      {
+        "control_deviation": 0.00125,
+        "indices": [
+          0,
+          4,
+          3
+        ],
+        "weighted_excess": 1.953921214659932e-09
+      },
+      {
+        "control_deviation": 0.0007812499999999998,
+        "indices": [
+          4,
+          2,
+          3
+        ],
+        "weighted_excess": 0.0
+      }
+    ],
+    "claim": "Approximate diagnostic candidate only; no exact predicates, full region proof, actual proposal equivalence, transfer or publication tested.",
+    "edge": [
+      16,
+      6496
+    ],
+    "method": "Use nearby dyadic barycentrics (w,u,v); cubic z=-0.12*w*u*v from original control111.z=-0.02; affine x=u+v,y=1.37*u+0.37*v. Midpoint of endpoint barycentrics gives (0.375,0.375,0.25). Compute scalar restricted Bernstein controls by blossom=-0.02*sum_permutations(a0[i]*a1[j]*a2[k]); subtract the linear chord controls. Weight squared excess above 0.001 by physical twice-area. Compute ordinary binary64 determinant(b-a,c-a,d-a) for captured tets with this approximate realized midpoint substituted for either endpoint.",
+    "midpoint_position": [
+      0.625,
+      0.6062500000000001,
+      -0.00421875
+    ],
+    "nearby_dyadic_barycentrics": [
+      [
+        0.5,
+        0.5,
+        0
+      ],
+      [
+        0.25,
+        0.5,
+        0.25
+      ],
+      [
+        0.25,
+        0.25,
+        0.5
+      ],
+      [
+        0.5,
+        0.25,
+        0.25
+      ],
+      [
+        0.375,
+        0.375,
+        0.25
+      ]
+    ],
+    "operator_executed": false,
+    "original_facet": 0,
+    "parent_faces": [
+      {
+        "control_deviation": 0.00375,
+        "indices": [
+          0,
+          1,
+          2
+        ],
+        "weighted_excess": 4.727094208374335e-07
+      },
+      {
+        "control_deviation": 0.00375,
+        "indices": [
+          0,
+          2,
+          3
+        ],
+        "weighted_excess": 4.727166994596617e-07
+      }
+    ],
+    "star": [
+      {
+        "cell": 64590,
+        "inherited_child_determinants": [
+          0.03133789062499993,
+          0.030833984374999943
+        ],
+        "old_determinant": 0.06296874999999993,
+        "vertices": [
+          16,
+          6496,
+          81664,
+          7
+        ]
+      },
+      {
+        "cell": 86094,
+        "inherited_child_determinants": [
+          0.03152656250000003,
+          0.03102265625000003
+        ],
+        "old_determinant": 0.061459375000000004,
+        "vertices": [
+          108880,
+          6496,
+          16,
+          7
+        ]
+      }
+    ],
+    "weighted_excess_after": 3.907859342670307e-09,
+    "weighted_excess_before": 9.454261202970952e-07
+  },
+  "binary_campaign_sha256": "beb3c957f224b4fab2b8d15268ef1796736fb6bba0a20a2e00c5f58fbffafe8c",
+  "campaign": {
+    "build": "build73",
+    "case": "mapped_work_trace",
+    "receipt": {
+      "changed": [],
+      "exit_code": 2,
+      "largest_sampled_individual_process_rss_bytes": 46522368,
+      "pins_verified": true,
+      "rss_note": "sampled process RSS; not a whole-job peak",
+      "seconds": 12.827418327331543,
+      "state": "terminal"
+    },
+    "source_provenance_note": "Campaign hashes are copied from hashed pins.json; review-time source hashes may differ and do not establish execution equivalence.",
+    "sources": {
+      "Common/src/adaptation/CNativeAffineReference.cpp": {
+        "campaign_sha256": "11a8b878f4fe7da170bbd1ea52faaa90b8f6556fc0b0bceb734355c76eabe942",
+        "review_time_matches_campaign": true,
+        "review_time_sha256": "11a8b878f4fe7da170bbd1ea52faaa90b8f6556fc0b0bceb734355c76eabe942"
+      },
+      "Common/src/adaptation/CNativeBoundary3D.cpp": {
+        "campaign_sha256": "934af26375bf1d7f4c83abaa650b10f4735c6aa2d393d4808e9c7b29b52eb1ed",
+        "review_time_matches_campaign": true,
+        "review_time_sha256": "934af26375bf1d7f4c83abaa650b10f4735c6aa2d393d4808e9c7b29b52eb1ed"
+      },
+      "Common/src/adaptation/CNativeBoundaryParameters3D.cpp": {
+        "campaign_sha256": "2de6d513c7f3bdec98305ab1219fa4ed8f9303be8f9bcec15c60d4265d1ed14a",
+        "review_time_matches_campaign": true,
+        "review_time_sha256": "2de6d513c7f3bdec98305ab1219fa4ed8f9303be8f9bcec15c60d4265d1ed14a"
+      },
+      "Common/src/adaptation/CNativeCavity3D.cpp": {
+        "campaign_sha256": "8be2effcf105e1c83fc4fd8267b8b0c881fd73222d7813f84f0c9b9f979716f4",
+        "review_time_matches_campaign": true,
+        "review_time_sha256": "8be2effcf105e1c83fc4fd8267b8b0c881fd73222d7813f84f0c9b9f979716f4"
+      },
+      "Common/src/adaptation/CNativeEngine3D.cpp": {
+        "campaign_sha256": "24fb3f22580ff9e973be6ec418fdf87b895588e81a77f5aa8ac50ce226bfc664",
+        "review_time_matches_campaign": true,
+        "review_time_sha256": "24fb3f22580ff9e973be6ec418fdf87b895588e81a77f5aa8ac50ce226bfc664"
+      },
+      "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": {
+        "campaign_sha256": "c0cf64eb860e4cd2e9224ad34dbc0b137b255b6911289a60fb17914ab59d5d20",
+        "review_time_matches_campaign": true,
+        "review_time_sha256": "c0cf64eb860e4cd2e9224ad34dbc0b137b255b6911289a60fb17914ab59d5d20"
+      }
+    }
+  },
+  "capture": {
+    "faces": 46,
+    "generation": 18,
+    "interior_points": [
+      {
+        "binding": {
+          "dimension": 2,
+          "feature": 0,
+          "u": 0.24999999999999994,
+          "v": 0.5,
+          "version": 7
+        },
+        "id": 6496,
+        "position": [
+          0.7499999999999998,
+          0.5274999999999999,
+          -0.0037500000000000007
+        ]
+      },
+      {
+        "binding": {
+          "dimension": 2,
+          "feature": 2,
+          "u": 0.24999999999999997,
+          "v": 0.25,
+          "version": 7
+        },
+        "id": 12976,
+        "position": [
+          0.24999999999999992,
+          0.8424999999999998,
+          -0.0037500000000000007
+        ]
+      },
+      {
+        "binding": {
+          "dimension": 2,
+          "feature": 2,
+          "u": 0.24999999999999997,
+          "v": 0.5000000000000001,
+          "version": 7
+        },
+        "id": 59632,
+        "position": [
+          0.24999999999999994,
+          0.5924999999999998,
+          -0.00375
+        ]
+      },
+      {
+        "binding": {
+          "dimension": 2,
+          "feature": 0,
+          "u": 0.49999999999999983,
+          "v": 0.25000000000000006,
+          "version": 7
+        },
+        "id": 81664,
+        "position": [
+          0.7499999999999998,
+          0.7774999999999997,
+          -0.0037500000000000016
+        ]
+      },
+      {
+        "binding": {
+          "dimension": 2,
+          "feature": 0,
+          "u": 0.24999999999999994,
+          "v": 0.25,
+          "version": 7
+        },
+        "id": 108880,
+        "position": [
+          0.49999999999999983,
+          0.43499999999999983,
+          -0.0037500000000000007
+        ]
+      },
+      {
+        "binding": {
+          "dimension": 2,
+          "feature": 2,
+          "u": 0.49999999999999994,
+          "v": 0.2500000000000002,
+          "version": 7
+        },
+        "id": 139984,
+        "position": [
+          0.4999999999999999,
+          0.9349999999999997,
+          -0.0037500000000000007
+        ]
+      }
+    ],
+    "owned_cells": 36,
+    "points": 25,
+    "surface_binding_record_format": "native-standard-size =QdddQQQdd, 72 bytes, after 64-byte schema8 header"
+  },
+  "input_sha256": {
+    "command.json": "021f3951474c1b9888199429d659de0b3c77bc9f1eda3b49090324b60a1e485a",
+    "cubic_runtime_rejected_0_rank0.native_ref": "8a01f1a30cf6d01a89b940ec130c4e63cdd666a145a8de31a6cff7c6c265bd38",
+    "cubic_runtime_rejected_0_rank0_manifest.json": "49937c32de6efca30ad19f8877f23e293128040364c319cad529bf1dce6c1a65",
+    "cubic_runtime_rejected_0_rank0_owned.bin": "137b97c2cb8e7f280f0b476ac83ff3d6b3f3cd4f08d89d4309a5e3508685cd84",
+    "cubic_runtime_rejected_0_rank0_parameters.bin": "87b0e5aef6c11d35e6f4a0f58c12e812120a45e4aff4065dd3cd43e790f68864",
+    "pins.json": "dd8562126ef5f496f5154efc3da72b1a0e38ebaab35fe25cf2e71b39194c1bd5",
+    "run.log": "835f8bb8701d6eb33dc43d38cf05af88f7a9eb9be883ac3e3b99ed657b6db685",
+    "status.json": "e4a265af025b069135a01b5b88dc21a3753aed30e8f3a9ac1d2dbb4e081e4f34"
+  },
+  "next_decisive_check": "Replay edge16-6496 from this captured star with the unchanged standalone work allowance. Preserve separate SplitEdge/InsertEdgeCavity reasons and proposed binding, then run actual inherited positivity, full geometry/region checks and before/after excess. This distinguishes real construction refusal from shared-budget exhaustion; do not infer success from these approximate calculations.",
+  "observed": {
+    "collapse_pass_work_increment": 8160949,
+    "findings": [
+      "Split passes continued accepting operations through split17. The saved receipts do not demonstrate geometric quiescence before exhaustion.",
+      "Facet-interior nonzero-z bindings disprove an original-edge-only sampling explanation.",
+      "The last zero-success collapse pass spent 8160949 arithmetic work before the next split exhausted the shared allowance.",
+      "The final InsertEdgeCavity reason overwrites the preceding SplitEdge reason; the first finite-chart-fan failure is adjacent to exhaustion, so it does not independently prove geometric infeasibility."
+    ],
+    "first_explicit_budget_rejection": {
+      "line": 30900,
+      "text": "MAPPED_REJECTION rans=0 curved=1 feature_count=2 feature=16,6496,0 geometry=0 old_cells=2 new_cells=0 reason=Atlas arithmetic work budget exhausted."
+    },
+    "first_finite_chart_fan_rejection": {
+      "line": 30897,
+      "text": "MAPPED_REJECTION rans=0 curved=1 feature_count=2 feature=16,6496,0 geometry=0 old_cells=2 new_cells=0 reason=Native 3D surface insertion leaves or reverses its finite chart fan."
+    },
+    "last_productive_split_work": 56519137,
+    "next_zero_success_collapse_work": 64680086,
+    "receipts": [
+      {
+        "line": 26851,
+        "text": "NATIVE3D_LENGTH rank=0 pass=split cells=36 local_edges=83 short_local_edges=44 long_local_edges=35 minimum_length=0.49999999999999978 maximum_length=4.866374420448965 size_hinge_incidence=122.89006719354698 geometry_bad_cells=28 size_bad_cells=36 q_measured_cells=0 j_measured_cells=0 split_accepted=17 collapse_accepted=0 atlas_work=56519137 admitted_peak_bytes=43813128 elapsed=2.1830079439999999"
+      },
+      {
+        "line": 30896,
+        "text": "NATIVE3D_LENGTH rank=0 pass=collapse cells=36 local_edges=83 short_local_edges=44 long_local_edges=35 minimum_length=0.49999999999999978 maximum_length=4.866374420448965 size_hinge_incidence=122.89006719354698 geometry_bad_cells=28 size_bad_cells=36 q_measured_cells=0 j_measured_cells=0 split_accepted=17 collapse_accepted=0 atlas_work=64680086 admitted_peak_bytes=43815520 elapsed=2.470181051"
+      },
+      {
+        "line": 31358,
+        "text": "NATIVE3D_LENGTH rank=0 pass=split cells=36 local_edges=83 short_local_edges=44 long_local_edges=35 minimum_length=0.49999999999999978 maximum_length=4.866374420448965 size_hinge_incidence=122.89006719354698 geometry_bad_cells=28 size_bad_cells=36 q_measured_cells=0 j_measured_cells=0 split_accepted=17 collapse_accepted=0 atlas_work=67207168 admitted_peak_bytes=43819584 elapsed=2.600547025"
+      },
+      {
+        "line": 31359,
+        "text": "NATIVE3D_LENGTH rank=0 pass=collapse cells=36 local_edges=83 short_local_edges=44 long_local_edges=35 minimum_length=0.49999999999999978 maximum_length=4.866374420448965 size_hinge_incidence=122.89006719354698 geometry_bad_cells=28 size_bad_cells=36 q_measured_cells=0 j_measured_cells=0 split_accepted=17 collapse_accepted=0 atlas_work=67207168 admitted_peak_bytes=43819584 elapsed=2.6006171280000001"
+      },
+      {
+        "line": 59062,
+        "text": "NATIVE3D_LENGTH rank=0 pass=split cells=36 local_edges=83 short_local_edges=44 long_local_edges=35 minimum_length=0.49999999999999978 maximum_length=4.866374420448965 size_hinge_incidence=122.89006719354698 geometry_bad_cells=28 size_bad_cells=36 q_measured_cells=0 j_measured_cells=0 split_accepted=17 collapse_accepted=0 atlas_work=56519137 admitted_peak_bytes=43813128 elapsed=1.9876533439999999"
+      },
+      {
+        "line": 63107,
+        "text": "NATIVE3D_LENGTH rank=0 pass=collapse cells=36 local_edges=83 short_local_edges=44 long_local_edges=35 minimum_length=0.49999999999999978 maximum_length=4.866374420448965 size_hinge_incidence=122.89006719354698 geometry_bad_cells=28 size_bad_cells=36 q_measured_cells=0 j_measured_cells=0 split_accepted=17 collapse_accepted=0 atlas_work=64680086 admitted_peak_bytes=43815520 elapsed=2.2874974689999998"
+      },
+      {
+        "line": 63569,
+        "text": "NATIVE3D_LENGTH rank=0 pass=split cells=36 local_edges=83 short_local_edges=44 long_local_edges=35 minimum_length=0.49999999999999978 maximum_length=4.866374420448965 size_hinge_incidence=122.89006719354698 geometry_bad_cells=28 size_bad_cells=36 q_measured_cells=0 j_measured_cells=0 split_accepted=17 collapse_accepted=0 atlas_work=67207168 admitted_peak_bytes=43819584 elapsed=2.4183220419999998"
+      },
+      {
+        "line": 63570,
+        "text": "NATIVE3D_LENGTH rank=0 pass=collapse cells=36 local_edges=83 short_local_edges=44 long_local_edges=35 minimum_length=0.49999999999999978 maximum_length=4.866374420448965 size_hinge_incidence=122.89006719354698 geometry_bad_cells=28 size_bad_cells=36 q_measured_cells=0 j_measured_cells=0 split_accepted=17 collapse_accepted=0 atlas_work=67207168 admitted_peak_bytes=43819584 elapsed=2.4183919820000002"
+      }
+    ],
+    "subsequent_exhausted_work": 67207168
+  },
+  "schema": 1,
+  "scope": "Read-only diagnosis of private curved Euler runtime capture; no admissible mesh or operator pass established."
+}

@@ -66,6 +66,36 @@ not a complete accepted mesh, and not proof that every demanded operation exists
 Its successful first operator has no failure to preserve. Exact first-failure
 capture for an unsuccessful fresh-work transaction remains an explicit obligation.
 
+### Fresh-work replay80 and current baseline
+
+Build79 passes495.961s with all1294 pins unchanged. Replay80 passes compile/link
+and three separate fresh-work proposals in16.183s, input/library/source pins
+unchanged. Full removed-vertex stars are imported for both directed collapses;
+there are no fallbacks:
+
+| Proposal on final captured state | First operator result | Subsequent geometry evidence |
+|---|---|---|
+| Split16–6496,2→4 cells | Success;1,528,800 operator work; no exhaustion | Bound .00375→.00125; still above requested .001. |
+| Collapse6496 into1,6→4 cells | Success;632,017 operator work; no exhaustion | Bound .00375→.01; worsens squared excess9.689e-7→2.082e-5. The geometry gate appropriately refuses this proposal. |
+| Collapse1 into6496,3 cells | First failure: physical body/feature preservation;13 operator work; no exhaustion | No output cells. This one rejection does not establish that all possible contractions/reconstructions are impossible. |
+
+The smaller curved CFD baseline was rerun early on build79:
+`staged57/cases/mapped_work_trace_20261028T100753_1513891`, terminal FAIL14.180s,
+pins unchanged. Flat variants complete; curved variants still exhaust after17
+splits/zero collapses. The corrected stop explicitly reports shared atlas work
+exhaustion and undetermined feasibility; the exhausted-budget rejected-state
+diagnostic also fails, while the accepted input CFD mesh/solution is retained.
+No geometry representation replacement is being claimed from that run.
+
+The pending combined clean/legacy MPI6 regression passes177.816s:32 actual
+neighboring events with publication, source envelopes and schema8 reload.
+All16 per-phase cost comparisons pass:12–20 face pieces,13–19 trace pieces,
+56–109 integer bits,12,395,777–40,581,663 work excluding decode and
+5,989,288–33,325,592 aggregate admitted bytes. This is scoped repeated-event
+proof, not CFD transfer or a general complexity theorem. Stage-stop MPI6 passes
+9 cases per rank in15.850s. All23 compiled filter audits pass; the failed sandbox
+listing receipt is preserved separately (MPI initialization required host access).
+
 ## Connected design and affected callers
 
 Select fixed-model entity association plus coordinated current-patch replacement.
@@ -108,6 +138,39 @@ Implement and exercise this at the existing backend boundary before removing
 coverage consumers. CAD remains the existing small evaluation/projection/support
 interface: cubic now, optional OCCT STEP later, then faceted STL and IGES. Do not
 pretend STL defines an exact smooth CAD surface.
+
+## Certificate construction selected for implementation
+
+Use adaptive subdivision of the immutable cubic patches and current physical
+triangles, with the existing outward interval/Bernstein arithmetic. This is a
+sufficient Hausdorff certificate, independent of face-partition history:
+
+- Let F be a flat triangle paired barycentrically with a cubic piece S, with
+  uniform outward deviation bound e. For a physical triangle T,
+  T→S <= max_vertex(T) distance(vertex,F)+e. Distance to a finite convex triangle
+  is convex; each point of F has its paired point on S within e.
+- S→T <= max_control distance(control,T), because the cubic lies inside its
+  Bernstein control hull. Include interval widths and realization error.
+- If no single witness triangle certifies a piece, subdivide it; different
+  children may use different witnesses. Physical subdivision must cover its
+  exact original triangle through barycentric domains/outward evaluation, not
+  merely rounded midpoint triangles.
+
+Reuse Blossom, CubicDeviation, Range/Box, NormBound, ClosestCurved subdivision,
+model ADT candidate queries and SourcePatch hull/separation. An outward finite-
+triangle distance-upper-bound kernel remains necessary; ordinary ADT distances
+can propose witness points but cannot certify them. First exercise full semantic
+body/sheet support to establish completeness; local acceleration must preserve
+that completeness proof. This does not grant a patch permission to change its
+feature topology or cross another body.
+
+Model approximation must refine deterministically when e consumes the remaining
+error margin; a fixed tessellation error would conservatively reject some meshes
+that meet the requested tolerance. Zero margin/work refusal remains uncertainty.
+Artificial chart seams can require many children even with tiny physical error;
+reuse certified planar-component containment where applicable and measure the
+curved cost. This design is not yet a demonstrated M6 performance improvement.
+No new resource formula or geometry threshold is selected by this review.
 
 ## Acceptance and implementation order
 

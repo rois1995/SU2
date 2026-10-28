@@ -4253,7 +4253,7 @@ TEST_CASE("Cumulative atlas work refusal stops all workers before construction",
       SU2NativeGeometry::BoundaryCoverage{},policy,&setup);
   auto reference=PlanarReference::WithParameters(root,parameters);const auto snapshot=parameters->Snapshot();
   const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);const auto source=Uniform(input,{4,0,0,4,0,4});
-  unsigned fired=0,later=0;EngineOptions options;options.candidate_batch=1;options.capture_feature={{0,6,0},2};
+  unsigned fired=0,later=0;EngineOptions options;options.candidate_batch=1;options.surface_tolerance=1e-3;options.capture_feature={{0,6,0},2};
   options.transaction_observer=[&](const TransactionView& view){
     if(!view.selected)return;
     if(std::string(view.stage)=="begin") {
