@@ -1,0 +1,84 @@
+
+== (a) sphere R = 1: PN deviation from the sphere, projection, curvature ==
+jitter 0.00 weight area handle PN
+  level 1 faces     80 h 0.5823 facet 6.583e-02 PN 6.357e-03 (ratio 0.0966)  k max rel err 8.882e-16  fallback 0
+  level 2 faces    320 h 0.2993 facet 1.775e-02 PN 2.549e-03 (ratio 0.1436)  k max rel err 5.011e-02  fallback 0  order facet 1.89 PN 1.32 k -45.68
+  level 3 faces   1280 h 0.1507 facet 4.528e-03 PN 4.542e-04 (ratio 0.1003)  k max rel err 6.958e-02  fallback 0  order facet 1.97 PN 2.49 k -0.47
+  level 4 faces   5120 h 0.0755 facet 1.138e-03 PN 1.132e-04 (ratio 0.0995)  k max rel err 6.705e-02  fallback 0  order facet 1.99 PN 2.00 k 0.05
+  level 5 faces  20480 h 0.0378 facet 2.848e-04 PN 2.828e-05 (ratio 0.0993)  k max rel err 6.651e-02  fallback 0  order facet 2.00 PN 2.00 k 0.01
+jitter 0.00 weight area handle circle
+  level 1 faces     80 h 0.5823 facet 6.583e-02 PN 1.728e-03 (ratio 0.0263)  k max rel err 8.882e-16  fallback 0
+  level 2 faces    320 h 0.2993 facet 1.775e-02 PN 2.314e-03 (ratio 0.1304)  k max rel err 5.011e-02  fallback 0  order facet 1.89 PN -0.42 k -45.68
+  level 3 faces   1280 h 0.1507 facet 4.528e-03 PN 4.429e-04 (ratio 0.0978)  k max rel err 6.958e-02  fallback 0  order facet 1.97 PN 2.39 k -0.47
+  level 4 faces   5120 h 0.0755 facet 1.138e-03 PN 1.125e-04 (ratio 0.0989)  k max rel err 6.705e-02  fallback 0  order facet 1.99 PN 1.98 k 0.05
+  level 5 faces  20480 h 0.0378 facet 2.848e-04 PN 2.824e-05 (ratio 0.0991)  k max rel err 6.651e-02  fallback 0  order facet 2.00 PN 1.99 k 0.01
+jitter 0.00 weight angle handle PN
+  level 1 faces     80 h 0.5823 facet 6.583e-02 PN 6.357e-03 (ratio 0.0966)  k max rel err 8.882e-16  fallback 0
+  level 2 faces    320 h 0.2993 facet 1.775e-02 PN 1.380e-03 (ratio 0.0777)  k max rel err 2.186e-02  fallback 0  order facet 1.89 PN 2.20 k -44.48
+  level 3 faces   1280 h 0.1507 facet 4.528e-03 PN 2.034e-04 (ratio 0.0449)  k max rel err 3.046e-02  fallback 0  order facet 1.97 PN 2.76 k -0.48
+  level 4 faces   5120 h 0.0755 facet 1.138e-03 PN 4.847e-05 (ratio 0.0426)  k max rel err 2.857e-02  fallback 0  order facet 1.99 PN 2.07 k 0.09
+  level 5 faces  20480 h 0.0378 facet 2.848e-04 PN 1.197e-05 (ratio 0.0420)  k max rel err 2.811e-02  fallback 0  order facet 2.00 PN 2.02 k 0.02
+jitter 0.00 weight angle handle circle
+  level 1 faces     80 h 0.5823 facet 6.583e-02 PN 1.728e-03 (ratio 0.0263)  k max rel err 8.882e-16  fallback 0
+  level 2 faces    320 h 0.2993 facet 1.775e-02 PN 1.084e-03 (ratio 0.0611)  k max rel err 2.186e-02  fallback 0  order facet 1.89 PN 0.67 k -44.48
+  level 3 faces   1280 h 0.1507 facet 4.528e-03 PN 1.890e-04 (ratio 0.0417)  k max rel err 3.046e-02  fallback 0  order facet 1.97 PN 2.52 k -0.48
+  level 4 faces   5120 h 0.0755 facet 1.138e-03 PN 4.756e-05 (ratio 0.0418)  k max rel err 2.857e-02  fallback 0  order facet 1.99 PN 1.99 k 0.09
+  level 5 faces  20480 h 0.0378 facet 2.848e-04 PN 1.191e-05 (ratio 0.0418)  k max rel err 2.811e-02  fallback 0  order facet 2.00 PN 2.00 k 0.02
+jitter 0.00 weight max handle PN
+  level 1 faces     80 h 0.5823 facet 6.583e-02 PN 6.357e-03 (ratio 0.0966)  k max rel err 1.332e-15  fallback 0
+  level 2 faces    320 h 0.2993 facet 1.775e-02 PN 4.700e-04 (ratio 0.0265)  k max rel err 1.332e-15  fallback 0  order facet 1.89 PN 3.76 k 0.00
+  level 3 faces   1280 h 0.1507 facet 4.528e-03 PN 3.071e-05 (ratio 0.0068)  k max rel err 4.663e-15  fallback 0  order facet 1.97 PN 3.94 k -1.81
+  level 4 faces   5120 h 0.0755 facet 1.138e-03 PN 1.941e-06 (ratio 0.0017)  k max rel err 2.576e-14  fallback 0  order facet 1.99 PN 3.98 k -2.47
+  level 5 faces  20480 h 0.0378 facet 2.848e-04 PN 1.217e-07 (ratio 0.0004)  k max rel err 1.064e-13  fallback 0  order facet 2.00 PN 4.00 k -2.05
+pass: Max-normal PN sphere convergence remains above order 3.5
+pass: flat sphere convergence is second order
+jitter 0.00 weight max handle circle
+  level 1 faces     80 h 0.5823 facet 6.583e-02 PN 1.728e-03 (ratio 0.0263)  k max rel err 1.332e-15  fallback 0
+  level 2 faces    320 h 0.2993 facet 1.775e-02 PN 1.201e-04 (ratio 0.0068)  k max rel err 1.332e-15  fallback 0  order facet 1.89 PN 3.85 k 0.00
+  level 3 faces   1280 h 0.1507 facet 4.528e-03 PN 7.722e-06 (ratio 0.0017)  k max rel err 4.663e-15  fallback 0  order facet 1.97 PN 3.96 k -1.81
+  level 4 faces   5120 h 0.0755 facet 1.138e-03 PN 4.860e-07 (ratio 0.0004)  k max rel err 2.576e-14  fallback 0  order facet 1.99 PN 3.99 k -2.47
+  level 5 faces  20480 h 0.0378 facet 2.848e-04 PN 3.043e-08 (ratio 0.0001)  k max rel err 1.064e-13  fallback 0  order facet 2.00 PN 4.00 k -2.05
+jitter 0.25 weight area handle PN
+  level 1 faces     80 h 0.5906 facet 9.719e-02 PN 4.017e-02 (ratio 0.4133)  k max rel err 2.113e-01  fallback 0
+  level 2 faces    320 h 0.3047 facet 3.242e-02 PN 1.661e-02 (ratio 0.5123)  k max rel err 3.869e-01  fallback 0  order facet 1.58 PN 1.27 k -0.87
+  level 3 faces   1280 h 0.1534 facet 7.627e-03 PN 3.680e-03 (ratio 0.4825)  k max rel err 4.281e-01  fallback 0  order facet 2.09 PN 2.17 k -0.15
+  level 4 faces   5120 h 0.0768 facet 2.008e-03 PN 1.130e-03 (ratio 0.5627)  k max rel err 5.512e-01  fallback 0  order facet 1.93 PN 1.70 k -0.36
+  level 5 faces  20480 h 0.0384 facet 5.531e-04 PN 2.743e-04 (ratio 0.4960)  k max rel err 4.893e-01  fallback 0  order facet 1.86 PN 2.04 k 0.17
+jitter 0.25 weight area handle circle
+  level 1 faces     80 h 0.5906 facet 9.719e-02 PN 3.692e-02 (ratio 0.3799)  k max rel err 2.113e-01  fallback 0
+  level 2 faces    320 h 0.3047 facet 3.242e-02 PN 1.641e-02 (ratio 0.5063)  k max rel err 3.869e-01  fallback 0  order facet 1.58 PN 1.17 k -0.87
+  level 3 faces   1280 h 0.1534 facet 7.627e-03 PN 3.674e-03 (ratio 0.4817)  k max rel err 4.281e-01  fallback 0  order facet 2.09 PN 2.16 k -0.15
+  level 4 faces   5120 h 0.0768 facet 2.008e-03 PN 1.129e-03 (ratio 0.5624)  k max rel err 5.512e-01  fallback 0  order facet 1.93 PN 1.70 k -0.36
+  level 5 faces  20480 h 0.0384 facet 5.531e-04 PN 2.743e-04 (ratio 0.4959)  k max rel err 4.893e-01  fallback 0  order facet 1.86 PN 2.04 k 0.17
+jitter 0.25 weight angle handle PN
+  level 1 faces     80 h 0.5906 facet 9.719e-02 PN 2.156e-02 (ratio 0.2218)  k max rel err 9.501e-02  fallback 0
+  level 2 faces    320 h 0.3047 facet 3.242e-02 PN 7.164e-03 (ratio 0.2209)  k max rel err 1.685e-01  fallback 0  order facet 1.58 PN 1.59 k -0.83
+  level 3 faces   1280 h 0.1534 facet 7.627e-03 PN 1.491e-03 (ratio 0.1954)  k max rel err 1.700e-01  fallback 0  order facet 2.09 PN 2.26 k -0.01
+  level 4 faces   5120 h 0.0768 facet 2.008e-03 PN 4.799e-04 (ratio 0.2390)  k max rel err 2.258e-01  fallback 0  order facet 1.93 PN 1.64 k -0.41
+  level 5 faces  20480 h 0.0384 facet 5.531e-04 PN 1.074e-04 (ratio 0.1941)  k max rel err 2.028e-01  fallback 0  order facet 1.86 PN 2.16 k 0.15
+jitter 0.25 weight angle handle circle
+  level 1 faces     80 h 0.5906 facet 9.719e-02 PN 1.659e-02 (ratio 0.1707)  k max rel err 9.501e-02  fallback 0
+  level 2 faces    320 h 0.3047 facet 3.242e-02 PN 6.698e-03 (ratio 0.2066)  k max rel err 1.685e-01  fallback 0  order facet 1.58 PN 1.31 k -0.83
+  level 3 faces   1280 h 0.1534 facet 7.627e-03 PN 1.454e-03 (ratio 0.1906)  k max rel err 1.700e-01  fallback 0  order facet 2.09 PN 2.20 k -0.01
+  level 4 faces   5120 h 0.0768 facet 2.008e-03 PN 4.773e-04 (ratio 0.2377)  k max rel err 2.258e-01  fallback 0  order facet 1.93 PN 1.61 k -0.41
+  level 5 faces  20480 h 0.0384 facet 5.531e-04 PN 1.072e-04 (ratio 0.1939)  k max rel err 2.028e-01  fallback 0  order facet 1.86 PN 2.15 k 0.15
+jitter 0.25 weight max handle PN
+  level 1 faces     80 h 0.5906 facet 9.719e-02 PN 1.392e-02 (ratio 0.1433)  k max rel err 9.992e-16  fallback 0
+  level 2 faces    320 h 0.3047 facet 3.242e-02 PN 1.560e-03 (ratio 0.0481)  k max rel err 3.109e-15  fallback 0  order facet 1.58 PN 3.16 k -1.64
+  level 3 faces   1280 h 0.1534 facet 7.627e-03 PN 8.779e-05 (ratio 0.0115)  k max rel err 1.321e-14  fallback 0  order facet 2.09 PN 4.15 k -2.09
+  level 4 faces   5120 h 0.0768 facet 2.008e-03 PN 6.019e-06 (ratio 0.0030)  k max rel err 4.996e-14  fallback 0  order facet 1.93 PN 3.87 k -1.92
+  level 5 faces  20480 h 0.0384 facet 5.531e-04 PN 4.608e-07 (ratio 0.0008)  k max rel err 2.516e-13  fallback 0  order facet 1.86 PN 3.71 k -2.33
+pass: Max-normal PN sphere convergence remains above order 3.5
+pass: flat sphere convergence is second order
+jitter 0.25 weight max handle circle
+  level 1 faces     80 h 0.5906 facet 9.719e-02 PN 3.518e-03 (ratio 0.0362)  k max rel err 9.992e-16  fallback 0
+  level 2 faces    320 h 0.3047 facet 3.242e-02 PN 3.315e-04 (ratio 0.0102)  k max rel err 3.109e-15  fallback 0  order facet 1.58 PN 3.41 k -1.64
+  level 3 faces   1280 h 0.1534 facet 7.627e-03 PN 2.101e-05 (ratio 0.0028)  k max rel err 1.321e-14  fallback 0  order facet 2.09 PN 3.98 k -2.09
+  level 4 faces   5120 h 0.0768 facet 2.008e-03 PN 1.440e-06 (ratio 0.0007)  k max rel err 4.996e-14  fallback 0  order facet 1.93 PN 3.87 k -1.92
+  level 5 faces  20480 h 0.0384 facet 5.531e-04 PN 1.131e-07 (ratio 0.0002)  k max rel err 2.516e-13  fallback 0  order facet 1.86 PN 3.67 k -2.33
+projection (level 4 jittered, 2000 points at 0.8-1.2 R): |foot|-R max 5.204e-06 (PN deviation 6.019e-06), direction err 2.724e-05, |r x n| max 1.815e-08, fallbacks 0, hint/global mismatches 0
+pass: sphere projection feet lie on the PN surface within its deviation
+pass: sphere projection is a converged orthogonal foot
+pass: local hint window and global search agree
+pass: sphere PN surface watertight (raw patch gap 4.44e-16)
+sphere: 0 failure(s)

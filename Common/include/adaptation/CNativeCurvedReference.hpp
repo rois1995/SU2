@@ -354,6 +354,114 @@ inline void ClampSimplex(double& u, double& v) {
     v = 1 - u;  // exactly on the edge: 1 - u - v evaluates to 0
   }
 }
+inline Vec<3> TrianglePatch(const std::array<Vec<3>, 10>& b, double w, double u, double v) {
+  const double c[10] = {w * w * w, u * u * u, v * v * v, 3 * w * w * u, 3 * w * u * u, 3 * u * u * v, 3 * u * v * v, 3 * w * v * v, 3 * w * w * v, 6 * w * u * v};
+  Vec<3> p{};
+  for (int q = 0; q < 10; ++q) p = Axpy<3>(p, c[q], b[q]);
+  return p;
+}
+inline void TriangleDerivatives(const std::array<Vec<3>, 10>& b, double u, double v, Vec<3>& Su, Vec<3>& Sv) {
+  const double w = 1 - u - v;
+  Vec<3> dw{}, du{}, dv{};
+  for (int i = 0; i < 3; ++i) {
+    dw[i] = 3 * w * w * b[0][i] + 6 * w * u * b[3][i] + 3 * u * u * b[4][i] + 3 * v * v * b[7][i] + 6 * w * v * b[8][i] + 6 * u * v * b[9][i];
+    du[i] = 3 * u * u * b[1][i] + 3 * w * w * b[3][i] + 6 * w * u * b[4][i] + 6 * u * v * b[5][i] + 3 * v * v * b[6][i] + 6 * w * v * b[9][i];
+    dv[i] = 3 * v * v * b[2][i] + 3 * u * u * b[5][i] + 6 * u * v * b[6][i] + 6 * w * v * b[7][i] + 3 * w * w * b[8][i] + 6 * w * u * b[9][i];
+  }
+  Su = Sub<3>(du, dw);
+  Sv = Sub<3>(dv, dw);
+}
+template <class Evaluate, class Derivatives>
+bool MinimizeTriangle(const Vec<3>& p, double& u, double& v, Evaluate evaluate, Derivatives derivatives) {
+  auto F = [&](double a, double b) { const auto r = Sub<3>(evaluate(a, b), p); return Dot<3>(r, r); };
+  auto stationary = [&] {
+    Vec<3> Su, Sv; derivatives(u, v, Su, Sv);
+    const auto r = Sub<3>(evaluate(u, v), p);
+    const double gu = Dot<3>(Su, r), gv = Dot<3>(Sv, r), norm2 = Dot<3>(Su, Su) + Dot<3>(Sv, Sv);
+    const double tolerance = 1e-7 * std::sqrt(Dot<3>(r, r) * norm2) + 64 * std::numeric_limits<double>::epsilon() * norm2;
+    // KKT against all three feasible vertex directions, including active edges and corners.
+    const double base = -u * gu - v * gv;
+    return std::isfinite(tolerance) && std::min({base, base + gu, base + gv}) >= -tolerance;
+  };
+  for (int outer = 0; outer < 6; ++outer) {
+    for (int it = 0; it < 100; ++it) {
+      Vec<3> Su, Sv;
+      derivatives(u, v, Su, Sv);
+      const auto r = Sub<3>(evaluate(u, v), p);
+      const double a = Dot<3>(Su, Su), b = Dot<3>(Su, Sv), c = Dot<3>(Sv, Sv), gu = Dot<3>(Su, r), gv = Dot<3>(Sv, r);
+      const double det = a * c - b * b;
+      if (!(det > 0)) return false;
+      const double du = -(c * gu - b * gv) / det, dv = -(a * gv - b * gu) / det, f0 = Dot<3>(r, r);
+      double lambda = 1, nu = u, nv = v;
+      bool descent = false;
+      for (int ls = 0; ls < 40; ++ls, lambda *= .5) {
+        nu = u + lambda * du; nv = v + lambda * dv;
+        detail::ClampSimplex(nu, nv);
+        if (F(nu, nv) <= f0 * (1 + 1e-13)) { descent = true; break; }  // F resolves the foot only to sqrt(eps)
+      }
+      if (!descent) break;
+      const double step = std::abs(nu - u) + std::abs(nv - v);
+      u = nu; v = nv;
+      if (step < 1e-15) break;
+    }
+    // near-boundary iterates (backtracking stalls against a constraint) are snapped onto it for the edge phase
+    const double snap = 1e-10;
+    if (u <= snap) u = 0;
+    if (v <= snap) v = 0;
+    if (1 - u - v <= snap) {
+      u = std::max(u, 0.0); v = 1 - u + 1e-300; detail::ClampSimplex(u, v);
+    }
+    const double w = 1 - u - v;
+    if (u > 0 && v > 0 && w > 0) return stationary();
+    // edge phase on every active edge: parameter s, point (u, v) = A + s (B - A)
+    double bu = u, bv = v, best = F(u, v);
+    auto tryEdge = [&](double ua, double va, double ub, double vb, double s) {
+      for (int it = 0; it < 100; ++it) {
+        const double cu = ua + s * (ub - ua), cv = (ua + ub == 1 && va + vb == 1) ? 1 - cu : va + s * (vb - va);
+        Vec<3> Su, Sv;
+        derivatives(cu, cv, Su, Sv);
+        const auto d = Axpy<3>(Scale<3>(Su, ub - ua), vb - va, Sv);
+        const auto r = Sub<3>(evaluate(cu, cv), p);
+        const double dd = Dot<3>(d, d), f0 = Dot<3>(r, r);
+        if (!(dd > 0)) break;
+        double lambda = 1, ns = s;
+        bool descent = false;
+        for (int ls = 0; ls < 40; ++ls, lambda *= .5) {
+          ns = std::clamp(s - lambda * Dot<3>(d, r) / dd, 0.0, 1.0);
+          const double tu = ua + ns * (ub - ua), tv = (ua + ub == 1 && va + vb == 1) ? 1 - tu : va + ns * (vb - va);
+          if (F(tu, tv) <= f0 * (1 + 1e-13)) { descent = true; break; }
+        }
+        if (!descent) break;
+        const double step = std::abs(ns - s);
+        s = ns;
+        if (step < 1e-15) break;
+      }
+      const double su = ua + s * (ub - ua), sv = (ua + ub == 1 && va + vb == 1) ? 1 - su : va + s * (vb - va), val = F(su, sv);
+      if (val <= best) { best = val; bu = su; bv = sv; }
+    };
+    if (u <= 0) tryEdge(0, 0, 0, 1, std::clamp(v, 0.0, 1.0));  // corner 0 -> corner 2
+    if (v <= 0) tryEdge(0, 0, 1, 0, std::clamp(u, 0.0, 1.0));  // corner 0 -> corner 1
+    if (w <= 0) tryEdge(1, 0, 0, 1, std::clamp(v, 0.0, 1.0));  // corner 1 -> corner 2
+    u = std::max(0.0, bu); v = std::max(0.0, bv);
+    if (u + v > 1) detail::ClampSimplex(u, v);
+    // Accept the existing KKT tolerance before interpreting roundoff as inward descent.
+    if (stationary()) return true;
+    // KKT: does a step into the interior decrease the distance?
+    Vec<3> Su, Sv;
+    derivatives(u, v, Su, Sv);
+    const auto r = Sub<3>(evaluate(u, v), p);
+    const double gu = Dot<3>(Su, r), gv = Dot<3>(Sv, r);
+    const double scale = 1e-12 * std::sqrt(Dot<3>(r, r) * (Dot<3>(Su, Su) + Dot<3>(Sv, Sv))) + 1e-300;
+    const double ww = 1 - u - v;
+    // a vertex: both incident edges were minimized, so no feasible descent remains
+    if ((u <= 0) + (v <= 0) + (ww <= 0) >= 2) return stationary();
+    const bool inward = (u <= 0 && gu < -scale) || (v <= 0 && gv < -scale) || (ww <= 0 && gu + gv > scale);
+    if (!inward) return stationary();
+    u = std::max(u, 1e-9); v = std::max(v, 1e-9);
+    if (u + v > 1 - 1e-9) { const double t = (1 - 1e-9) / (u + v); u *= t; v *= t; }
+  }
+  return stationary();
+}
 }  // namespace detail
 
 /*!
@@ -425,16 +533,7 @@ class PNTriangleSurface : public CurvedReference<3> {
   }
   /*! Partial derivatives of the patch in (u, v). */
   void Derivatives(long f, double u, double v, Vec<3>& Su, Vec<3>& Sv) const {
-    const double w = 1 - u - v;
-    const auto& b = net[f];
-    Vec<3> dw{}, du{}, dv{};
-    for (int i = 0; i < 3; ++i) {
-      dw[i] = 3 * w * w * b[0][i] + 6 * w * u * b[3][i] + 3 * u * u * b[4][i] + 3 * v * v * b[7][i] + 6 * w * v * b[8][i] + 6 * u * v * b[9][i];
-      du[i] = 3 * u * u * b[1][i] + 3 * w * w * b[3][i] + 6 * w * u * b[4][i] + 6 * u * v * b[5][i] + 3 * v * v * b[6][i] + 6 * w * v * b[9][i];
-      dv[i] = 3 * v * v * b[2][i] + 3 * u * u * b[5][i] + 6 * u * v * b[6][i] + 6 * w * v * b[7][i] + 3 * w * w * b[8][i] + 6 * w * u * b[9][i];
-    }
-    Su = Sub<3>(du, dw);
-    Sv = Sub<3>(dv, dw);
+    detail::TriangleDerivatives(net[f], u, v, Su, Sv);
   }
   Vec<3> Normal(long f, double u, double v) const override {
     if (opt.fixedMarkers.count(tri[f].marker)) return facetNormal[f];
@@ -557,90 +656,9 @@ class PNTriangleSurface : public CurvedReference<3> {
    *        active edge (the edge curve), and a KKT check that re-enters the interior when that decreases the distance.
    */
   bool Minimize(const Vec<3>& p, long f, double& u, double& v) const {
-    auto F = [&](double a, double b) { const auto r = Sub<3>(Evaluate(f, a, b), p); return Dot<3>(r, r); };
-    auto stationary = [&] {
-      Vec<3> Su, Sv; Derivatives(f, u, v, Su, Sv);
-      const auto r = Sub<3>(Evaluate(f, u, v), p);
-      const double gu = Dot<3>(Su, r), gv = Dot<3>(Sv, r), norm2 = Dot<3>(Su, Su) + Dot<3>(Sv, Sv);
-      const double tolerance = 1e-7 * std::sqrt(Dot<3>(r, r) * norm2) + 64 * std::numeric_limits<double>::epsilon() * norm2;
-      // KKT against all three feasible vertex directions, including active edges and corners.
-      const double base = -u * gu - v * gv;
-      return std::isfinite(tolerance) && std::min({base, base + gu, base + gv}) >= -tolerance;
-    };
-    for (int outer = 0; outer < 6; ++outer) {
-      for (int it = 0; it < 100; ++it) {
-        Vec<3> Su, Sv;
-        Derivatives(f, u, v, Su, Sv);
-        const auto r = Sub<3>(Evaluate(f, u, v), p);
-        const double a = Dot<3>(Su, Su), b = Dot<3>(Su, Sv), c = Dot<3>(Sv, Sv), gu = Dot<3>(Su, r), gv = Dot<3>(Sv, r);
-        const double det = a * c - b * b;
-        if (!(det > 0)) return false;
-        const double du = -(c * gu - b * gv) / det, dv = -(a * gv - b * gu) / det, f0 = Dot<3>(r, r);
-        double lambda = 1, nu = u, nv = v;
-        bool descent = false;
-        for (int ls = 0; ls < 40; ++ls, lambda *= .5) {
-          nu = u + lambda * du; nv = v + lambda * dv;
-          detail::ClampSimplex(nu, nv);
-          if (F(nu, nv) <= f0 * (1 + 1e-13)) { descent = true; break; }  // F resolves the foot only to sqrt(eps)
-        }
-        if (!descent) break;
-        const double step = std::abs(nu - u) + std::abs(nv - v);
-        u = nu; v = nv;
-        if (step < 1e-15) break;
-      }
-      // near-boundary iterates (backtracking stalls against a constraint) are snapped onto it for the edge phase
-      const double snap = 1e-10;
-      if (u <= snap) u = 0;
-      if (v <= snap) v = 0;
-      if (1 - u - v <= snap) detail::ClampSimplex(u = std::max(u, 0.0), v = 1 - u + 1e-300);
-      const double w = 1 - u - v;
-      if (u > 0 && v > 0 && w > 0) return stationary();
-      // edge phase on every active edge: parameter s, point (u, v) = A + s (B - A)
-      double bu = u, bv = v, best = F(u, v);
-      auto tryEdge = [&](double ua, double va, double ub, double vb, double s) {
-        for (int it = 0; it < 100; ++it) {
-          const double cu = ua + s * (ub - ua), cv = (ua + ub == 1 && va + vb == 1) ? 1 - cu : va + s * (vb - va);
-          Vec<3> Su, Sv;
-          Derivatives(f, cu, cv, Su, Sv);
-          const auto d = Axpy<3>(Scale<3>(Su, ub - ua), vb - va, Sv);
-          const auto r = Sub<3>(Evaluate(f, cu, cv), p);
-          const double dd = Dot<3>(d, d), f0 = Dot<3>(r, r);
-          if (!(dd > 0)) break;
-          double lambda = 1, ns = s;
-          bool descent = false;
-          for (int ls = 0; ls < 40; ++ls, lambda *= .5) {
-            ns = std::clamp(s - lambda * Dot<3>(d, r) / dd, 0.0, 1.0);
-            const double tu = ua + ns * (ub - ua), tv = (ua + ub == 1 && va + vb == 1) ? 1 - tu : va + ns * (vb - va);
-            if (F(tu, tv) <= f0 * (1 + 1e-13)) { descent = true; break; }
-          }
-          if (!descent) break;
-          const double step = std::abs(ns - s);
-          s = ns;
-          if (step < 1e-15) break;
-        }
-        const double su = ua + s * (ub - ua), sv = (ua + ub == 1 && va + vb == 1) ? 1 - su : va + s * (vb - va), val = F(su, sv);
-        if (val <= best) { best = val; bu = su; bv = sv; }
-      };
-      if (u <= 0) tryEdge(0, 0, 0, 1, std::clamp(v, 0.0, 1.0));  // corner 0 -> corner 2
-      if (v <= 0) tryEdge(0, 0, 1, 0, std::clamp(u, 0.0, 1.0));  // corner 0 -> corner 1
-      if (w <= 0) tryEdge(1, 0, 0, 1, std::clamp(v, 0.0, 1.0));  // corner 1 -> corner 2
-      u = std::max(0.0, bu); v = std::max(0.0, bv);
-      if (u + v > 1) detail::ClampSimplex(u, v);
-      // KKT: does a step into the interior decrease the distance?
-      Vec<3> Su, Sv;
-      Derivatives(f, u, v, Su, Sv);
-      const auto r = Sub<3>(Evaluate(f, u, v), p);
-      const double gu = Dot<3>(Su, r), gv = Dot<3>(Sv, r);
-      const double scale = 1e-12 * std::sqrt(Dot<3>(r, r) * (Dot<3>(Su, Su) + Dot<3>(Sv, Sv))) + 1e-300;
-      const double ww = 1 - u - v;
-      // a vertex: both incident edges were minimized, so no feasible descent remains
-      if ((u <= 0) + (v <= 0) + (ww <= 0) >= 2) return stationary();
-      const bool inward = (u <= 0 && gu < -scale) || (v <= 0 && gv < -scale) || (ww <= 0 && gu + gv > scale);
-      if (!inward) return stationary();
-      u = std::max(u, 1e-9); v = std::max(v, 1e-9);
-      if (u + v > 1 - 1e-9) { const double t = (1 - 1e-9) / (u + v); u *= t; v *= t; }
-    }
-    return stationary();
+    return detail::MinimizeTriangle(p, u, v,
+      [&](double a, double b) { return Evaluate(f, a, b); },
+      [&](double a, double b, Vec<3>& su, Vec<3>& sv) { Derivatives(f, a, b, su, sv); });
   }
   /*! Faces within `rings` vertex rings of face f, same component. */
   std::vector<long> Window(long f, int rings) const {
@@ -735,11 +753,7 @@ class PNTriangleSurface : public CurvedReference<3> {
   std::vector<detail::Sym3> sectorQK;
 
   Vec<3> Patch(long f, double w, double u, double v) const {
-    const auto& b = net[f];
-    const double c[10] = {w * w * w, u * u * u, v * v * v, 3 * w * w * u, 3 * w * u * u, 3 * u * u * v, 3 * u * v * v, 3 * w * v * v, 3 * w * w * v, 6 * w * u * v};
-    Vec<3> p{};
-    for (int q = 0; q < 10; ++q) p = Axpy<3>(p, c[q], b[q]);
-    return p;
+    return detail::TrianglePatch(net[f], w, u, v);
   }
   /*! Point of local edge k of face f at local parameter t (corner k -> corner k+1) by the canonical edge curve. */
   Vec<3> EdgeEval(long f, int k, double t) const {

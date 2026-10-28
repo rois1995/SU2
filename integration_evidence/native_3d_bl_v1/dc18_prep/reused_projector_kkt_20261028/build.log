@@ -1,0 +1,20 @@
+In file included from /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc18_prep/test_curved_reference.cpp:4:
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp: In lambda function:
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:767:7: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  767 |       if (i == 3) return 0; if (j == 3) return 1; if (k == 3) return 2;
+      |       ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:767:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  767 |       if (i == 3) return 0; if (j == 3) return 1; if (k == 3) return 2;
+      |                             ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:768:7: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  768 |       if (i == 2 && j == 1) return 3; if (i == 1 && j == 2) return 4; if (j == 2 && k == 1) return 5;
+      |       ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:768:39: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  768 |       if (i == 2 && j == 1) return 3; if (i == 1 && j == 2) return 4; if (j == 2 && k == 1) return 5;
+      |                                       ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:769:7: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  769 |       if (j == 1 && k == 2) return 6; if (i == 1 && k == 2) return 7; if (i == 2 && k == 1) return 8; return 9;
+      |       ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:769:39: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  769 |       if (j == 1 && k == 2) return 6; if (i == 1 && k == 2) return 7; if (i == 2 && k == 1) return 8; return 9;
+      |                                       ^~

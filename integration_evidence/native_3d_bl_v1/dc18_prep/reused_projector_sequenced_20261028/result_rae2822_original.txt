@@ -1,0 +1,10 @@
+
+== 2D curved polyline: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/mesh_RAE2822_turb.su2 (h0 1e-06, feature angle 45) ==
+ chain 0 (marker AIRFOIL): closed, 192 nodes, x [0.0000, 1.0000] y [-0.0578, 0.0644], length 2.0325; features: (1.0000,0.0002) turn 170.9;
+ chain 0 leave-one-out (95 dropped nodes, coarse feature mismatches 0): distance med/p90  flat 4.02e-05/1.03e-04  CReferenceWall spline 4.39e-06/2.07e-05  curved(circle) 3.96e-06/1.91e-05  curved(PN) 3.82e-06/1.92e-05
+pass: chain 0 curved polyline (circle handle) leave-one-out median error < 0.2 x flat
+ chain 0 drop-in: max face deviation from the curve 4.84e-05, faces above eps 1e-06: 192 (+569 points by the chord rule), At(Parameter(node)) round trip 0.0e+00
+pass: chain 0 wall nodes are exact reference points
+ chain 0: min radius curved 0.00442 at (0.0000, 0.0000), spline 0.00473; curvature rel. diff to CReferenceWall med 0.062 p90 0.346; projection excess over dense sampling 0.0e+00, wrong-body feet 0; size rule 0.7 sqrt(2 R h0): min L* 6.69e-05, wall points needed 2035 (spline curvature 2020) vs 192 now
+pass: chain 0 projection is the exact closest curve point and stays on its body
+airfoil: 0 failure(s)

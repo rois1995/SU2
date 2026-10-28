@@ -1,0 +1,24 @@
+
+== 2D curved polyline: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/three_element_input_v1/30P30N_coarse_tri.su2 (h0 1e-06, feature angle 45) ==
+ chain 0 (marker Boundary004): closed, 266 nodes, x [-1.5255, 0.3391] y [-2.0922, 0.1181], length 6.5511; features: (0.3391,0.0915) turn 72.1; (0.3252,0.1181) turn 96.2; (-0.4807,-1.9577) turn 163.0;
+ chain 1 (marker Boundary005): closed, 254 nodes, x [0.7884, 15.7337] y [-0.9821, 1.1145], length 31.4784; features: (15.7300,0.5515) turn 60.3; (15.7337,0.5570) turn 112.5; (12.6000,-0.3100) turn 79.7; (12.6000,0.5778) turn 87.1;
+ chain 2 (marker Boundary006): closed, 90 nodes, x [15.6847, 20.3532] y [-2.6280, 0.3915], length 11.3772; features: (20.3007,-2.6280) turn 100.2; (20.3532,-2.5369) turn 74.8;
+ chain 0 leave-one-out (133 dropped nodes, coarse feature mismatches 0): distance med/p90  flat 8.94e-05/6.74e-04  CReferenceWall spline 6.03e-06/3.85e-05  curved(circle) 7.17e-06/4.16e-05  curved(PN) 6.90e-06/4.08e-05
+pass: chain 0 curved polyline (circle handle) leave-one-out median error < 0.2 x flat
+ chain 1 leave-one-out (126 dropped nodes, coarse feature mismatches 0): distance med/p90  flat 2.28e-04/2.06e-03  CReferenceWall spline 2.05e-06/7.39e-05  curved(circle) 2.46e-06/5.83e-05  curved(PN) 2.38e-06/5.83e-05
+pass: chain 1 curved polyline (circle handle) leave-one-out median error < 0.2 x flat
+ chain 2 leave-one-out (43 dropped nodes, coarse feature mismatches 0): distance med/p90  flat 1.29e-03/8.43e-03  CReferenceWall spline 2.80e-05/1.23e-03  curved(circle) 3.15e-05/1.30e-03  curved(PN) 3.16e-05/1.30e-03
+pass: chain 2 curved polyline (circle handle) leave-one-out median error < 0.2 x flat
+ chain 0 drop-in: max face deviation from the curve 6.08e-04, faces above eps 1e-06: 253 (+1603 points by the chord rule), At(Parameter(node)) round trip 0.0e+00
+pass: chain 0 wall nodes are exact reference points
+ chain 0: min radius curved 0.10878 at (-1.5206, -1.8819), spline 0.11698; curvature rel. diff to CReferenceWall med 0.047 p90 0.432; projection excess over dense sampling 0.0e+00, wrong-body feet 0; size rule 0.7 sqrt(2 R h0): min L* 3.31e-04, wall points needed 5288 (spline curvature 5231) vs 266 now
+pass: chain 0 projection is the exact closest curve point and stays on its body
+ chain 1 drop-in: max face deviation from the curve 2.18e-03, faces above eps 1e-06: 220 (+2413 points by the chord rule), At(Parameter(node)) round trip 0.0e+00
+pass: chain 1 wall nodes are exact reference points
+ chain 1: min radius curved 0.16436 at (0.9428, -0.5350), spline 0.17631; curvature rel. diff to CReferenceWall med 0.044 p90 0.264; projection excess over dense sampling 0.0e+00, wrong-body feet 0; size rule 0.7 sqrt(2 R h0): min L* 4.03e-04, wall points needed 7556 (spline curvature 7512) vs 254 now
+pass: chain 1 projection is the exact closest curve point and stays on its body
+ chain 2 drop-in: max face deviation from the curve 4.32e-03, faces above eps 1e-06: 64 (+1715 points by the chord rule), At(Parameter(node)) round trip 0.0e+00
+pass: chain 2 wall nodes are exact reference points
+ chain 2: min radius curved 0.25197 at (15.6859, 0.1365), spline 0.25635; curvature rel. diff to CReferenceWall med 0.086 p90 0.387; projection excess over dense sampling 5.5e-15, wrong-body feet 0; size rule 0.7 sqrt(2 R h0): min L* 4.87e-04, wall points needed 5454 (spline curvature 5363) vs 90 now
+pass: chain 2 projection is the exact closest curve point and stays on its body
+airfoil: 0 failure(s)

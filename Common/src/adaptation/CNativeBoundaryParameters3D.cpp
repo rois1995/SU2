@@ -1153,6 +1153,17 @@ SU2NativeGeometry::SurfaceBinding PlanarReference::ProposedBinding(Point p,const
   return geometry.FacetPoint(id,u,v);
 }
 namespace {
+template<class Points>Id CurrentEntityHint(const State& state,Id anchor,Point query,const Points& points) {
+  Id hint=UINT64_MAX;long double best=INFINITY;const auto entity=state.Entity(anchor);
+  for(const auto* point:points){const long double distance=std::hypot((long double)point->node.p.x-query.x,
+      (long double)point->node.p.y-query.y,(long double)point->node.p.z-query.z);
+    state.Geometry().ForFacets(point->binding,[&](Id side){
+      if(state.Entity(side)==entity && (distance<best || (distance==best && side<hint))){hint=side;best=distance;}
+    });
+  }
+  if(hint==UINT64_MAX)throw std::invalid_argument("Surface projection has no current association on its prescribed entity.");
+  return hint;
+}
 GeometryProjection ProjectEntitySurface(const State& state,Point point,const SurfaceBinding& previous,
     Id hint,AtlasBudget& budget) {
   NativeMappedGeometryBackend3D backend(state.Authority(),state.Mobility());GeometrySupport support;std::string reason;
@@ -1167,25 +1178,26 @@ double PlanarReference::SurfaceDeviation(Id facet,const std::array<Point,3>& tri
   const auto& state=*Parameters();const auto& g=state.Geometry();
   if(!validated && !ParameterContainsFace(facet,triangle,nullptr))
     throw std::invalid_argument("Local geometry guidance leaves its prescribed entity.");
-  std::array<SurfaceBinding,3> bindings;bool local=true;double error=0;
+  std::array<SurfaceBinding,3> bindings;std::array<const BoundaryPoint*,3> points;bool local=true;double error=0;
   for(unsigned k=0;k<3;++k){const auto* p=Parameter(triangle[k]);
     if(!p)throw std::invalid_argument("Local geometry guidance lost a vertex association.");
-    bindings[k]=p->binding;local=local&&g.Supports(facet,bindings[k]);
+    points[k]=p;bindings[k]=p->binding;local=local&&g.Supports(facet,bindings[k]);
     error=std::max(error,g.ErrorBound(bindings[k],triangle[k]));}
   if(local)return std::max(error,g.SurfaceError(facet,bindings,triangle));
   auto* reservation=AtlasReservation();
   if(!reservation)throw std::invalid_argument("Local geometry guidance requires an admitted reservation.");
   // Sample the immutable model; final publication still requires the two-sided whole-surface gate.
-  const auto previous=g.FacetPoint(facet,1./3,1./3);
+  const Point center{(triangle[0].x+triangle[1].x+triangle[2].x)/3,
+      (triangle[0].y+triangle[1].y+triangle[2].y)/3,(triangle[0].z+triangle[1].z+triangle[2].z)/3};
+  const Id hint=CurrentEntityHint(state,facet,center,points);
+  const auto previous=g.FacetPoint(hint,1./3,1./3);
   NativeMappedGeometryBackend3D backend(state.Authority(),state.Mobility());
-  GeometryProjectionScope scope;scope.hint=facet;scope.previous=previous;
-  scope.body=std::get<0>(state.Entity(facet));scope.sheet=std::get<1>(state.Entity(facet));
+  GeometryProjectionScope scope;scope.hint=hint;scope.previous=previous;
+  scope.body=std::get<0>(state.Entity(hint));scope.sheet=std::get<1>(state.Entity(hint));
   scope.absolute_error=std::max(std::numeric_limits<double>::min(),state.GeometryTolerance()/8);
   auto project=[&](Point p){GeometryProjection q;std::string reason;
     if(!backend.Project(p,scope,q,*reservation,reason))throw std::invalid_argument(reason);
     return q;};
-  const Point center{(triangle[0].x+triangle[1].x+triangle[2].x)/3,
-      (triangle[0].y+triangle[1].y+triangle[2].y)/3,(triangle[0].z+triangle[1].z+triangle[2].z)/3};
   error=std::max(error,project(center).distance_upper);
   for(unsigned k=0;k<3;++k){const auto a=triangle[k],b=triangle[(k+1)%3];
     const Point edge{b.x-a.x,b.y-a.y,b.z-a.z};const double length=std::hypot(edge.x,edge.y,edge.z);
@@ -1214,7 +1226,15 @@ Node PlanarReference::BindNewPoint(Node point,const std::set<Id>& incident,const
     if(curve) {
       if(!ProposeFeaturePoint(state.Geometry(),state.Mobility(),{*curve},find(key[0]).node.p,find(key[1]).node.p,point,projected,budget,reason))throw std::invalid_argument(reason);
     } else {
-      const Id hint=*incident.begin();const auto previous=state.Geometry().FacetPoint(hint,.25,.25);
+      std::vector<const BoundaryPoint*> associations;
+      if(edge)associations={&find((*edge)[0]),&find((*edge)[1])};
+      else {
+        associations.reserve(3*parameter_view->surface.size());
+        for(const auto& row:parameter_view->surface)if(state.Entity(row.second.facet)==state.Entity(*incident.begin()))
+          for(Id id:row.second.v)associations.push_back(&find(id));
+      }
+      const Id hint=CurrentEntityHint(state,*incident.begin(),point.p,associations);
+      const auto previous=state.Geometry().FacetPoint(hint,.25,.25);
       const auto projection=ProjectEntitySurface(state,point.p,previous,hint,budget);projected={{point.id,projection.evaluation.point},projection.binding};
     }
     parameter_view->Insert(projected);return projected.node;

@@ -1,0 +1,22 @@
+{
+  "build": "build102",
+  "case": "nodal_metric",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeMesh3D],[NativeDistributed3D],[NativeBridge3D],[NativeReassessment3D],[NativeCurrentNormalization3D],[NativeMetricFamily3D],[NativeBLTargetNormalization]"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "timeout_seconds": 600
+}

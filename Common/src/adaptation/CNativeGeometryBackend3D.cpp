@@ -5,6 +5,7 @@
  */
 #include "../../include/adaptation/CNativeGeometryBackend3D.hpp"
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
+#include "../../include/adaptation/CNativeCurvedReference.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include <algorithm>
 #include <cmath>
@@ -116,36 +117,74 @@ bool NativeMappedGeometryBackend3D::Project(Point query,const GeometryProjection
     if(previous.body!=scope.body||previous.sheet!=sheet||(scope.feature&&
        (previous.mobility!=scope.feature->first||previous.feature!=scope.feature->second)))
       throw std::invalid_argument("Projection scope conflicts with its previous geometry association.");
-    if(!authority->Curves().count(scope.hint))throw std::invalid_argument("Certified native projection is unavailable for this faceted support.");
-    // Bound the existing query's reservation by both remaining work and admitted storage.
-    size_t low=0,high=budget.maximum_work-budget.work;const auto remaining_bytes=budget.maximum_bytes-budget.caller_bytes;
-    while(low<high){Use(budget);const auto middle=low+(high-low)/2+(high-low)%2;
-      if(authority->CurvedQueryWorkspaceBytes(middle)<=remaining_bytes)low=middle;else high=middle-1;}
-    const auto reserved=std::min(low,budget.maximum_work-budget.work);
-    if(!reserved){if(budget.work==budget.maximum_work)budget.ChargeWork();throw std::length_error("Projection query has no admitted work/storage reservation.");}
-    const auto scratch=authority->CurvedQueryWorkspaceBytes(reserved);Use(budget,scratch);
-    const auto work=std::min(reserved,budget.maximum_work-budget.work);
-    if(!work){budget.ChargeWork();throw std::length_error("Projection query work exhausted before search.");}
-    size_t attempted=0;
-    MappedFacetReference::CurvedClosest candidate;
-    try {
-      candidate=authority->ClosestCurved(scope.hint,query,scope.absolute_error,work,remaining_bytes,
-        [&](Id facet){return authority->Body(facet)==scope.body&&Sheet(*authority,policy,facet)==sheet;},&attempted);
-    } catch(...) {
-      budget.ChargeWork(attempted);
-      throw;
+    if(!authority->Curves().count(scope.hint))throw std::invalid_argument("Native projection is unavailable for this faceted support.");
+    using Vector=SU2NativeCurved::Vec<3>;
+    const Vector target{query.x,query.y,query.z};
+    Use(budget,transfer_memory::Add(transfer_memory::Mul(2,authority->CurvedQueryWorkspaceBytes(0)),sizeof(std::array<Vector,10>)));
+    const auto allowed=[&](Id facet){return authority->Body(facet)==scope.body&&Sheet(*authority,policy,facet)==sheet;};
+    if(!allowed(scope.hint))throw std::invalid_argument("Projection hint leaves the prescribed sheet.");
+    SurfaceBinding binding;long double best=INFINITY;double best_upper=INFINITY;Id first_failed=UINT64_MAX;
+    auto candidate=[&](Id id) {
+      Use(budget);if(!allowed(id))return;
+      const auto& source=authority->Curves().at(id);std::array<Vector,10> net;
+      for(unsigned k=0;k<10;++k)net[k]={source[k].x,source[k].y,source[k].z};
+      double u=0,v=0;SU2NativeCurved::detail::ClosestOnTriangle(target,net[0],net[1],net[2],u,v);
+      auto evaluate=[&](double a,double b){Use(budget);return SU2NativeCurved::detail::TrianglePatch(net,1-a-b,a,b);};
+      auto derivatives=[&](double a,double b,Vector& first,Vector& second){Use(budget);
+        SU2NativeCurved::detail::TriangleDerivatives(net,a,b,first,second);};
+      if(!SU2NativeCurved::detail::MinimizeTriangle(target,u,v,evaluate,derivatives)) {
+        first_failed=std::min(first_failed,id);return;
+      }
+      const double tiny=1e-13;
+      if(u<tiny)u=0;if(v<tiny)v=0;
+      if(1-u-v<tiny){const double sum=u+v;u/=sum;v=1-u;}
+      const auto& f=authority->Reference().Get(id);SurfaceBinding foot;
+      auto edge=[&](unsigned a,unsigned b,double t){return f.v[a].id<f.v[b].id?
+        authority->EdgePoint({f.v[a].id,f.v[b].id},t):authority->EdgePoint({f.v[b].id,f.v[a].id},1-t);};
+      if(u==1)foot=authority->Vertex(f.v[1].id);
+      else if(v==1)foot=authority->Vertex(f.v[2].id);
+      else if(u==0&&v==0)foot=authority->Vertex(f.v[0].id);
+      else if(v==0)foot=edge(0,1,u);
+      else if(u==0)foot=edge(0,2,v);
+      else if(1-u-v==0)foot=edge(1,2,v);
+      else foot=authority->FacetPoint(id,u,v);
+      GeometrySupport support;
+      if(!Support(foot,id,support,budget,reason))throw std::invalid_argument(reason);
+      if((previous.mobility<2&&(support.mobility!=previous.mobility||support.feature!=previous.feature))||
+          (scope.feature&&(support.mobility!=scope.feature->first||support.feature!=scope.feature->second)))return;
+      const auto point=authority->Realize(foot);
+      const long double distance=std::hypot((long double)query.x-point.x,(long double)query.y-point.y,(long double)query.z-point.z);
+      if(!std::isfinite(distance))throw std::invalid_argument("Unrepresentable numerical projection distance.");
+      if(distance<best){best=distance;binding=foot;
+        best_upper=std::nextafter(double(distance+authority->ErrorBound(foot,point)),INFINITY);
+      }
+    };
+    candidate(scope.hint);
+    const auto anchor=authority->Realize(scope.previous);
+    const long double anchor_distance=std::hypot((long double)query.x-anchor.x,(long double)query.y-anchor.y,(long double)query.z-anchor.z);
+    const double radius=std::nextafter(double(std::min(best,anchor_distance))+scope.absolute_error,INFINITY);
+    if(!std::isfinite(radius))throw std::invalid_argument("Unrepresentable numerical projection search radius.");
+    std::array<Point,2> box;
+    box[0]={std::nextafter(double((long double)query.x-radius),-INFINITY),std::nextafter(double((long double)query.y-radius),-INFINITY),std::nextafter(double((long double)query.z-radius),-INFINITY)};
+    box[1]={std::nextafter(double((long double)query.x+radius),INFINITY),std::nextafter(double((long double)query.y+radius),INFINITY),std::nextafter(double((long double)query.z+radius),INFINITY)};
+    if(best_upper>scope.absolute_error)for(Id id:authority->NearbySurfaceFacets(scope.hint,box)) {
+      if(id!=scope.hint)candidate(id);
+      if(best_upper<=scope.absolute_error)break;
     }
-    budget.ChargeWork(attempted);
+    if(!std::isfinite(best))throw std::invalid_argument("No converged numerical projection on the prescribed body/sheet/feature; first failed facet "+std::to_string(first_failed)+".");
     Id side=UINT64_MAX;
-    authority->ForFacets(candidate.binding,[&](Id facet){Use(budget);
+    authority->ForFacets(binding,[&](Id facet){Use(budget);
       if(authority->Body(facet)==scope.body&&Sheet(*authority,policy,facet)==sheet)side=std::min(side,facet);});
     if(side==UINT64_MAX)throw std::invalid_argument("Closest native candidate leaves the prescribed sheet.");
-    GeometrySupport support;if(!Support(candidate.binding,side,support,budget,reason))return false;
+    GeometrySupport support;if(!Support(binding,side,support,budget,reason))return false;
     if((previous.mobility<2&&(support.mobility!=previous.mobility||support.feature!=previous.feature))||
        (scope.feature&&(support.mobility!=scope.feature->first||support.feature!=scope.feature->second)))
       throw std::invalid_argument("Closest native candidate leaves the prescribed physical feature.");
-    GeometryProjection out;out.binding=candidate.binding;out.surface=side;out.distance_lower=candidate.lower;out.distance_upper=candidate.upper;
+    GeometryProjection out;out.binding=binding;out.surface=side;out.distance_lower=0;
     if(!Evaluate(out.binding,side,out.evaluation,budget,reason))return false;
+    // A realized model foot bounds closest distance from above; no global minimum is certified here.
+    out.distance_upper=std::nextafter(double(best+out.evaluation.realization_error),INFINITY);
+    if(!std::isfinite(out.distance_upper))throw std::invalid_argument("Unrepresentable numerical projection bound.");
     result=out;reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }

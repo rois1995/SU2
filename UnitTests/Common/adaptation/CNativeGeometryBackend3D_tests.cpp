@@ -5,6 +5,7 @@
  */
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeGeometryBackend3D.hpp"
+#include "../../../Common/include/adaptation/CNativeCurvedReference.hpp"
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include <cmath>
@@ -17,11 +18,12 @@ struct BackendFixture {
   std::shared_ptr<const SU2Native3D::PlanarReference> reference;
   std::shared_ptr<MappedFacetReference> geometry;
   MobilityPolicy policy;
-  explicit BackendFixture(bool second_body=false,bool cubic=true) {
+  explicit BackendFixture(bool second_body=false,bool cubic=true,bool shear=false) {
     using namespace SU2Native3D;
     const std::array<Face,12> faces{{{0,2,3},{0,3,1},{4,5,7},{4,7,6},{0,4,6},{0,6,2},{1,3,7},{1,7,5},{0,1,5},{0,5,4},{2,6,7},{2,7,3}}};
     for(unsigned body=0;body<(second_body?2u:1u);++body){std::array<Node,8> nodes;
       for(unsigned i=0;i<8;++i)nodes[i]={100*body+i,{double(i&1)+10*body,double((i>>1)&1),double((i>>2)&1)}};
+      if(shear)for(auto& node:nodes)node.p.y+=.37*node.p.x+.61*node.p.z;
       for(unsigned i=0;i<faces.size();++i){const auto& f=faces[i];facets.push_back({100*body+i,0,{nodes[f[0]],nodes[f[1]],nodes[f[2]]}});}}
     reference=std::make_shared<PlanarReference>(facets);MappedFacetReference::CurvedNets nets;std::map<Id,double> errors;
     const unsigned power[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
@@ -251,6 +253,12 @@ TEST_CASE("Entity geometry preserves feature contracts through reference and pay
   for(const auto& row:entity->GeometryCertificates(budget)){CHECK(row.second.model_to_mesh<=.01);CHECK_FALSE(row.second.within_tolerance);}
   for(const auto& row:entity->GeometryCertificates(budget,true)){CHECK(row.second.within_tolerance);CHECK(row.second.mesh_to_model<=.01);}
   ReferenceState state{PlanarReference::WithParameters(fixture.reference,entity),fixture.facets,{"wall"},0};
+  Patch support;support.surface=skin;support.parameters=points;
+  auto insertion=state.original->PrivateParameters(support,&budget);
+  const auto inserted=insertion->BindNewPoint({1000,{.25,.5,0}},{0});
+  CHECK(inserted.p.z<0);REQUIRE(insertion->Parameter(inserted.p));
+  CHECK(fixture.geometry->Admissible(insertion->Parameter(inserted.p)->binding,inserted.p));
+  CHECK(state.original->Parameter(inserted.p)==nullptr);
   auto guidance=state.original->WithAtlasReservation(budget);
   const std::array<Point,3> diagonal{{points.at(0).node.p,points.at(2).node.p,points.at(1).node.p}};
   REQUIRE_FALSE(fixture.geometry->Supports(0,fixture.geometry->Vertex(1)));
@@ -301,4 +309,44 @@ TEST_CASE("Native curved projection restricts closest surface and reports attemp
   CHECK_THROWS(fixture.geometry->ClosestCurved(0, query, 1e-6, 16384, SIZE_MAX,
                                                [](Id) { return false; }, &work));
   CHECK(work == 0);
+}
+
+TEST_CASE("Numerical model projection reuses fixed cubic nets with bounded work", "[NativeGeometryBackend3D]") {
+  BackendFixture fixture;NativeMappedGeometryBackend3D backend(fixture.geometry,fixture.policy);std::string reason;
+  GeometryProjectionScope scope;scope.body=0;scope.hint=0;scope.previous=fixture.geometry->FacetPoint(0,.25,.25);
+  scope.sheet=fixture.policy.sheets.at(0);scope.absolute_error=1e-8;
+  auto initial=BackendBudget();GeometryEvaluation source;
+  REQUIRE(backend.Evaluate(scope.previous,0,source,initial,reason));
+  for(double offset:{.001,.002,.003}) {
+    const Point query{source.point.x+offset*source.normal.x,source.point.y+offset*source.normal.y,source.point.z+offset*source.normal.z};
+    auto budget=BackendBudget();budget.maximum_work=4096;GeometryProjection foot;
+    const bool projected=backend.Project(query,scope,foot,budget,reason);INFO(reason);REQUIRE(projected);
+    CHECK(budget.work<budget.maximum_work);CHECK(foot.distance_lower==0);
+    const auto certified=fixture.geometry->ClosestCurved(0,query,1e-8,16384);
+    CHECK(foot.distance_upper>=certified.lower);CHECK(foot.distance_upper<=certified.upper+1e-7);
+    REQUIRE(backend.AssociationValid(foot.binding,foot.evaluation.point,reason));
+    const auto held=foot;auto limited=BackendBudget();limited.maximum_work=8;
+    CHECK_FALSE(backend.Project(query,scope,foot,limited,reason));CHECK(limited.work_exhausted);
+    CHECK(foot.binding.feature==held.binding.feature);CHECK(foot.binding.u==held.binding.u);CHECK(foot.binding.v==held.binding.v);
+  }
+}
+
+TEST_CASE("Model projection accepts a stationary shared-edge foot under roundoff", "[NativeGeometryBackend3D]") {
+  using namespace SU2NativeCurved;
+  BackendFixture fixture(false,true,true);NativeMappedGeometryBackend3D backend(fixture.geometry,fixture.policy);
+  const Point query{0,.80499999999999994,.5};const Vec<3> target{query.x,query.y,query.z};std::string reason;
+  for(Id hint:{Id(4),Id(5)}) {
+    std::array<Vec<3>,10> net;const auto& source=fixture.geometry->Curves().at(hint);
+    for(unsigned k=0;k<10;++k)net[k]={source[k].x,source[k].y,source[k].z};
+    double u=0,v=0;SU2NativeCurved::detail::ClosestOnTriangle(target,net[0],net[1],net[2],u,v);
+    auto evaluate=[&](double a,double b){return SU2NativeCurved::detail::TrianglePatch(net,1-a-b,a,b);};
+    auto derivatives=[&](double a,double b,Vec<3>& first,Vec<3>& second){SU2NativeCurved::detail::TriangleDerivatives(net,a,b,first,second);};
+    REQUIRE(SU2NativeCurved::detail::MinimizeTriangle(target,u,v,evaluate,derivatives));
+    CHECK(Norm<3>(Sub<3>(evaluate(u,v),target))<1e-12);
+    GeometryProjectionScope scope;scope.body=0;scope.hint=hint;scope.previous=fixture.geometry->FacetPoint(hint,.25,.25);
+    scope.sheet=fixture.policy.sheets.at(hint);scope.feature=std::make_pair(2u,*scope.sheet);scope.absolute_error=.000125;
+    auto budget=BackendBudget();budget.maximum_work=4096;GeometryProjection projected;
+    const bool ok=backend.Project(query,scope,projected,budget,reason);INFO(reason);REQUIRE(ok);
+    CHECK(projected.distance_upper<1e-10);REQUIRE(backend.AssociationValid(projected.binding,projected.evaluation.point,reason));
+  }
 }

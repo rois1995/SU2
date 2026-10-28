@@ -1,0 +1,27 @@
+
+== (b) sharp creases: box (12 creases, 8 corners) and closed half cylinder (90 deg wedges) ==
+box n=4: creases 48 corners 8 crease vertices 36 fallback 0; max off-plane 0.00e+00; projection vs exact box 1.50e-15; edge/corner-region feet flagged 296/296; gap 3.33e-16
+pass: box faces stay exact planes and creases stay sharp
+pass: projections into the edge/corner regions land on flagged features
+half cylinder (planar markers: not declared)
+  n   8 faces    240 creases 40 corners 4 fallback 0: curved side dev 1.151e-02, flat faces off-plane 6.12e-17, rim arcs off-circle 1.151e-02, wedge lines off-line 0.00e+00, gap 3.33e-16; side |k1|-1 6.280e-01 |k2| 5.190e-02
+  n  16 faces    992 creases 80 corners 4 fallback 0: curved side dev 2.838e-03 (order 2.02), flat faces off-plane 6.12e-17, rim arcs off-circle 2.838e-03, wedge lines off-line 0.00e+00, gap 4.01e-16; side |k1|-1 8.078e-02 |k2| 6.911e-03
+  n  32 faces   4032 creases 160 corners 4 fallback 0: curved side dev 7.068e-04 (order 2.00), flat faces off-plane 6.12e-17, rim arcs off-circle 7.068e-04, wedge lines off-line 0.00e+00, gap 4.01e-16; side |k1|-1 1.815e-02 |k2| 1.723e-03
+  n  64 faces  16256 creases 320 corners 4 fallback 0: curved side dev 1.765e-04 (order 2.00), flat faces off-plane 6.12e-17, rim arcs off-circle 1.765e-04, wedge lines off-line 0.00e+00, gap 4.15e-16; side |k1|-1 4.428e-03 |k2| 4.304e-04
+pass: half cylinder: flat faces exact planes (mode 0)
+pass: half cylinder: 90 deg wedge creases stay straight lines
+pass: half cylinder: watertight across creases
+half cylinder (planar markers: declared, reflective)
+  n   8 faces    240 creases 40 corners 4 fallback 0: curved side dev 1.151e-02, flat faces off-plane 6.12e-17, rim arcs off-circle 1.151e-02, wedge lines off-line 0.00e+00, gap 3.33e-16; side |k1|-1 3.903e-05 |k2| 3.903e-05
+  n  16 faces    992 creases 80 corners 4 fallback 0: curved side dev 2.838e-03 (order 2.02), flat faces off-plane 6.12e-17, rim arcs off-circle 2.838e-03, wedge lines off-line 0.00e+00, gap 4.04e-16; side |k1|-1 2.497e-06 |k2| 2.497e-06
+  n  32 faces   4032 creases 160 corners 4 fallback 0: curved side dev 7.068e-04 (order 2.00), flat faces off-plane 6.12e-17, rim arcs off-circle 7.068e-04, wedge lines off-line 0.00e+00, gap 4.01e-16; side |k1|-1 1.569e-07 |k2| 1.569e-07
+  n  64 faces  16256 creases 320 corners 4 fallback 0: curved side dev 1.765e-04 (order 2.00), flat faces off-plane 6.12e-17, rim arcs off-circle 1.765e-04, wedge lines off-line 0.00e+00, gap 4.15e-16; side |k1|-1 9.821e-09 |k2| 9.821e-09
+pass: half cylinder: flat faces exact planes (mode 1)
+pass: half cylinder: 90 deg wedge creases stay straight lines
+pass: half cylinder: watertight across creases
+half cylinder (planar markers: declared, reflective, projected)
+pass: face-only projection refuses: shared affine preprocessing is required
+pass: face-only projection refuses: shared affine preprocessing is required
+pass: face-only projection refuses: shared affine preprocessing is required
+pass: face-only projection refuses: shared affine preprocessing is required
+crease: 0 failure(s)

@@ -1,0 +1,17 @@
+
+== (a) open cylinder R = 1, H = 2: PN deviation, curvature k1 = 1, k2 = 0, rim curves ==
+handle PN
+  n   12 faces     96 facet 3.407e-02 PN 2.581e-03  interior |k1|-1 1.151e-04 |k2| 2.732e-02; open-border faces |k1|-1 1.691e-01 |k2| 4.033e-02; |d1.z| 1.343e-16 rim 1.722e-03 borders 24
+  n   24 faces    384 facet 8.555e-03 PN 1.435e-04  interior |k1|-1 4.187e-06 |k2| 6.279e-03; open-border faces |k1|-1 3.814e-02 |k2| 8.823e-03; |d1.z| 1.908e-16 rim 1.095e-04 borders 48  order facet 1.99 PN 4.17 k1 4.78
+  n   48 faces   1536 facet 2.141e-03 PN 8.773e-06  interior |k1|-1 2.257e-07 |k2| 1.546e-03; open-border faces |k1|-1 9.296e-03 |k2| 2.166e-03; |d1.z| 7.833e-16 rim 6.871e-06 borders 96  order facet 2.00 PN 4.03 k1 4.21
+  n   96 faces   6144 facet 5.354e-04 PN 5.455e-07  interior |k1|-1 1.357e-08 |k2| 3.853e-04; open-border faces |k1|-1 2.309e-03 |k2| 5.393e-04; |d1.z| 4.092e-15 rim 4.299e-07 borders 192  order facet 2.00 PN 4.01 k1 4.06
+  n  192 faces  24576 facet 1.339e-04 PN 3.405e-08  interior |k1|-1 8.398e-10 |k2| 9.623e-05; open-border faces |k1|-1 5.765e-04 |k2| 1.347e-04; |d1.z| 1.626e-14 rim 2.688e-08 borders 384  order facet 2.00 PN 4.00 k1 4.01
+pass: cylinder curvature within 5% at n = 192
+pass: cylinder max-curvature direction horizontal
+handle circle
+  n   12 faces     96 facet 3.407e-02 PN 2.800e-03  interior |k1|-1 1.149e-04 |k2| 2.732e-02; open-border faces |k1|-1 1.691e-01 |k2| 4.033e-02; |d1.z| 1.338e-16 rim 3.451e-07 borders 24
+  n   24 faces    384 facet 8.555e-03 PN 1.564e-04  interior |k1|-1 4.186e-06 |k2| 6.279e-03; open-border faces |k1|-1 3.814e-02 |k2| 8.823e-03; |d1.z| 1.864e-16 rim 5.391e-09 borders 48  order facet 1.99 PN 4.16 k1 4.78
+  n   48 faces   1536 facet 2.141e-03 PN 9.579e-06  interior |k1|-1 2.257e-07 |k2| 1.546e-03; open-border faces |k1|-1 9.296e-03 |k2| 2.166e-03; |d1.z| 7.841e-16 rim 8.424e-11 borders 96  order facet 2.00 PN 4.03 k1 4.21
+  n   96 faces   6144 facet 5.354e-04 PN 5.958e-07  interior |k1|-1 1.357e-08 |k2| 3.853e-04; open-border faces |k1|-1 2.309e-03 |k2| 5.393e-04; |d1.z| 4.092e-15 rim 1.317e-12 borders 192  order facet 2.00 PN 4.01 k1 4.06
+  n  192 faces  24576 facet 1.339e-04 PN 3.719e-08  interior |k1|-1 8.398e-10 |k2| 9.623e-05; open-border faces |k1|-1 5.765e-04 |k2| 1.347e-04; |d1.z| 1.626e-14 rim 2.087e-14 borders 384  order facet 2.00 PN 4.00 k1 4.01
+cylinder: 0 failure(s)

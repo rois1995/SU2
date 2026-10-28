@@ -29,13 +29,13 @@ struct GeometryProjectionScope {
   SurfaceBinding previous;
   std::optional<Id> sheet;
   std::optional<std::pair<unsigned,Id>> feature; // Physical dimension and policy feature identity.
-  double absolute_error=0;
+  double absolute_error=0; // Model-search tolerance; final whole-surface acceptance is independent.
 };
 struct GeometryProjection {
   SurfaceBinding binding;
   GeometryEvaluation evaluation;
   Id surface=UINT64_MAX;
-  double distance_lower=0,distance_upper=0; // Distance to immutable geometry; no uniqueness claim.
+  double distance_lower=0,distance_upper=0; // Conservative closest-distance enclosure; numerical feet need not give tight bounds.
 };
 enum class GeometryErrorDirection { Both, ModelToMesh };
 struct GeometryRegionBounds {std::array<Point,2> bounds;double maximum_error=0;};
@@ -50,6 +50,7 @@ class GeometryBackend3D {
   virtual bool Support(const SurfaceBinding&,Id side,GeometrySupport&,AtlasBudget&,std::string&)const=0;
   /*! Necessary body/feature incidence only; false allowed is a valid veto, not a query failure. */
   virtual bool ContractionAllowed(const SurfaceBinding&,const SurfaceBinding&,bool& allowed,AtlasBudget&,std::string&)const=0;
+  /*! Numerical constrained model foot; no globally optimal distance or uniqueness claim. */
   virtual bool Project(Point,const GeometryProjectionScope&,GeometryProjection&,AtlasBudget&,std::string&)const=0;
   /*! Bounds the supplied piece union; finite coverage/embedding admission remains the specialized caller's duty. */
   virtual bool RegionErrorBounds(const FaceCoverage&,const std::array<Point,3>&,GeometryRegionBounds&,AtlasBudget&,std::string&)const=0;

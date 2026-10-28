@@ -10,41 +10,31 @@ DC-17/DC-18 remain open. The selected foundation is SCOREC/MeshAdapt classified
 cavities and transported nodal size fields inside SU2. Requirements, source-code
 comparison, decisions and acceptance: [connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md).
 
-Current pushed checkpoint22aa374238 is WIP. Build96 passes with unchanged1295
-pins; focused nodal tests execute122 cases:119 pass/3 fail. Fresh stage target,
-missing-ID bootstrap and normalization tests now pass. Remaining issues: a too
-specific rejection assertion, initialized output metadata comparison, and the
-round cap preventing a measurement-only final census after valid operations.
+Latest labelled WIP checkpoint contains the connected projection correction
+and complete build102 diagnostic receipts. Build102 PASS72.187s with1295 unchanged
+pins. Backend13 cases and all10 DC18 geometry groups pass; current-field122 cases
+pass. Selection audit verifies26 filters, including every intended backend case.
 
-M6 build96 fails340.302s after10 private edits/rank. The old internal memory
-refusal is gone. New precise blocker: “Surface-union parameters exhausted exact
-dyadic resolution; bounds unresolved.” This is verification failure, not proof of
-an unavailable valid operation. Native277.872s/import174.85s/refine88.74s; sampled
-tree about3.46GB, largest rank610MB (not whole-job peak). M6 build96 owned jobs terminal. Build99 PASS1276.434s, all1295 pins
-unchanged. Focused nodal122/122 and geometry backend11/11 (414 assertions)
-pass. All25 compiled filter selections match intended cases. Atlas batch was
-stopped at442.217s with legacy prism-expectation failures; not a passing suite.
-Saved repeated edit/publication event receipts remain partial evidence.
-M6 build99 deliberately stopped1369.419s, all ranks terminal and pins unchanged.
-Four split-only passes:315809→354684 cells,12673 splits/0 collapses; size-bad
-112523→116291, geometry-bad4115→5396; construction q/J remain0. Native schedule
-repeated productive splits, preventing a collapse pass. This is scheduling/cost
-evidence, not unavailable operations or geometric impossibility. Short profile
-(3s/792 samples) finds certified closest-point work and MPI waiting; full-run
-fractions cannot be inferred, DWARF warnings qualify stacks.
-Build100 PASS291.483s, unchanged1295 pins. Opposing-demand3 cases PASS5.987s:
-coarsen-first and alternating complete passes, zero construction q/J and final
-gates retained. Actual mapped curved workflow RUNNING session26378 with fresh
-failure capture. Source/tests/helpers pinned. M6 rerun follows this workflow;
-no accepted hard-target mesh or full solver restart yet.
+Actual mapped102 FAIL58.021s: curved variants enter quality improvement with
+actual movement/reconnection/insertion, then exhaust67,207,168 atlas work. Cached
+geometry debt11 and metric/height debt21 remain; no accepted mesh or curved
+transfer. Dominant traced work is exact association keys/parameters and feature
+validation. Fresh first collapse builds, error.000626<.001,63232 work, then fails
+size/progress. Flat conservative histories and SU2/CGNS reload pass only.
+M6 build102 FAIL292.221s, solver0/nativefalse, pins unchanged/all ranks terminal:
+no converged projection on prescribed body/sheet/feature, first failed facet11053.
+Native227.7s/import172.78s/refine40.3s,70 private edits, no completed length pass.
+Neither case establishes geometric impossibility; budgets/final gates were not raised.
 
-Connected change under implementation: existing fixed-geometry backend projection
-restricted before search to body/sheet; actual attempted work charged on failures;
-local immutable projection/deviation and curvature guidance for candidate faces,
-replacing per-operation whole-surface subdivision. Guidance is not a Hausdorff
-certificate. Final two-sided geometry acceptance remains unchanged, as do final
-quality/height/transfer/restart requirements. Final census allowed at round cap
-without admitting another operation. No accepted curved/M6 workflow yet.
+The backend now reuses existing cubic numerical projection and fixed control nets,
+current association hints and body/sheet/feature constraints. Distance bounds are
+conservative [0,upper]; globally certified ClosestCurved/final Both checks remain.
+Captured shared-edge KKT inconsistency is fixed with the existing tolerance, not
+a new solver, flat fallback or threshold. Coarsen/refine cycles replace productive
+split starvation. Accepted curved/M6/BL/transfer/restart capability remains open.
+Detailed current evidence: [projection findings](Handbook/ADAPTATION_PROJECTION_FINDINGS.md),
+[selected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md),
+[transfer findings](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 
 
 ## Checkpoints

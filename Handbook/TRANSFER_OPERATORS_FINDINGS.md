@@ -26,7 +26,31 @@ cases (414 assertions). The broader atlas batch was stopped after442.217s and
 contains obsolete import assertions demanding metric-envelope prisms/contact
 rejection. Those are metric representation expectations, not CFD conservation
 gates. Actual body separation and conservative transfer remain independently
-required; no new M6/small-curved transfer result is available yet.
+required.
+
+Build100's small mapped workflow completes the flat Euler and RANS cases through
+conservative transfer and SU2/CGNS write and reload. It transfers current state
+and two history levels; projection reports zero fill and lost volume, with
+maximum reported residual about 2.43e-14 for Euler and 6.14e-14 for RANS.
+Both curved cases stop on the construction time budget before transfer; their
+private meshes are not transfer or restart evidence. The M6 build100 run was
+deliberately stopped at 661.041 seconds with pins unchanged and likewise gives
+no accepted workflow. See [projection findings](ADAPTATION_PROJECTION_FINDINGS.md)
+and the [flat Euler](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261028T180234_2751451/mapped_runtime_euler_projection.json)
+and [flat RANS](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261028T180234_2751451/mapped_runtime_rans_projection.json) receipts.
+
+Build101's flat mapped Euler and RANS counterparts pass, while both curved cases
+fail before transfer because numerical cubic projection does not converge on
+facet 5. The M6 Euler run also terminates without native completion after the same
+kind of failure on facet 16607. The captured small-case query and adjacent-face
+reproducer identify a stationary-test ordering issue; build102 includes the fix
+and its 13-case geometry backend run passes. These
+failures do not establish a transfer-kernel defect or qualify curved transfer,
+history or restart. See [projection findings](ADAPTATION_PROJECTION_FINDINGS.md).
+The later build102 small mapped run reaches improvement but exhausts atlas work
+before curved transfer; flat counterparts pass. M6 build102 also terminates
+without native completion at a prescribed body/sheet/feature projection failure.
+Neither run reaches an accepted mesh, curved transfer or restart qualification.
 
 ## Current audit preparation and metric-return validation
 

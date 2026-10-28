@@ -1,0 +1,25 @@
+In file included from /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc18_prep/test_curved_reference.cpp:4:
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp: In lambda function:
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:763:7: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  763 |       if (i == 3) return 0; if (j == 3) return 1; if (k == 3) return 2;
+      |       ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:763:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  763 |       if (i == 3) return 0; if (j == 3) return 1; if (k == 3) return 2;
+      |                             ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:764:7: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  764 |       if (i == 2 && j == 1) return 3; if (i == 1 && j == 2) return 4; if (j == 2 && k == 1) return 5;
+      |       ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:764:39: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  764 |       if (i == 2 && j == 1) return 3; if (i == 1 && j == 2) return 4; if (j == 2 && k == 1) return 5;
+      |                                       ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:765:7: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  765 |       if (j == 1 && k == 2) return 6; if (i == 1 && k == 2) return 7; if (i == 2 && k == 1) return 8; return 9;
+      |       ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:765:39: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  765 |       if (j == 1 && k == 2) return 6; if (i == 1 && k == 2) return 7; if (i == 2 && k == 1) return 8; return 9;
+      |                                       ^~
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp: In instantiation of ‘bool SU2NativeCurved::detail::MinimizeTriangle(SU2NativeCurved::Vec<3>&, double&, double&, Evaluate, Derivatives) [with Evaluate = SU2NativeCurved::PNTriangleSurface::Minimize(SU2NativeCurved::Vec<3>&, long int, double&, double&) const::<lambda(double, double)>; Derivatives = SU2NativeCurved::PNTriangleSurface::Minimize(SU2NativeCurved::Vec<3>&, long int, double&, double&) const::<lambda(double, double, SU2NativeCurved::Vec<3>&, SU2NativeCurved::Vec<3>&)>; SU2NativeCurved::Vec<3> = std::array<double, 3>]’:
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:657:88:   required from here
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/Common/include/adaptation/CNativeCurvedReference.hpp:411:28: warning: operation on ‘u’ may be undefined [-Wsequence-point]
+  411 |     if (1 - u - v <= snap) detail::ClampSimplex(u = std::max(u, 0.0), v = 1 - u + 1e-300);
+      |                            ^~~~~~

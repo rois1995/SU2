@@ -1,65 +1,61 @@
-# Codex handoff — current state, 2026-10-28
+# Current handoff — 2026-10-28
 
-Continue DC-17/DC-18 under [AGENTS.md](AGENTS.md). Keep tracked progress, local
-TODO and transfer findings current. Full goal includes requested BL/RANS, movable
-boundaries on fixed geometry, genuine features/bodies, absolute tolerance independent
-of h0 and all final gates. Numeric baseline settings and agent algorithms are
-separate from user requirements; see the linked decision.
+Continue DC-17/DC-18 under [AGENTS.md](AGENTS.md). No accepted complete curved/M6
+adaptation, conservative history transfer and solver restart workflow yet. BL/RANS
+remains part of the goal; primitive or private progress does not close either item.
 
-No complete curved CFD/M6 adaptation, transfer and restart workflow is accepted.
-DC-17/DC-18 remain open. The selected foundation is SCOREC/MeshAdapt classified
-cavities and transported nodal size fields inside SU2. Requirements, source-code
-comparison, decisions and acceptance: [connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md).
+User requirements and agent decisions are separated in the
+[selected foundation](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md): implement
+SCOREC/MeshAdapt classified cavities, current nodal metric transport and
+coarsen/refine cycles in SU2. Preserve movable boundaries on fixed geometry,
+genuine features/bodies, absolute tolerance independent of h0, validity-only
+construction then metric/BL improvement and every final gate.
 
-Current pushed checkpoint22aa374238 is WIP. Build96 passes with unchanged1295
-pins; focused nodal tests execute122 cases:119 pass/3 fail. Fresh stage target,
-missing-ID bootstrap and normalization tests now pass. Remaining issues: a too
-specific rejection assertion, initialized output metadata comparison, and the
-round cap preventing a measurement-only final census after valid operations.
+Latest labelled WIP checkpoint contains build102 code/evidence on rois1995/SU2,
+`codex/native-3d-bl`. TODO stays local. Leave unrelated files alone.
 
-M6 build96 fails340.302s after10 private edits/rank. The old internal memory
-refusal is gone. New precise blocker: “Surface-union parameters exhausted exact
-dyadic resolution; bounds unresolved.” This is verification failure, not proof of
-an unavailable valid operation. Native277.872s/import174.85s/refine88.74s; sampled
-tree about3.46GB, largest rank610MB (not whole-job peak). M6 build96 owned jobs terminal. Build99 PASS1276.434s, all1295 pins
-unchanged. Focused nodal122/122 and geometry backend11/11 (414 assertions)
-pass. All25 compiled filter selections match intended cases. Atlas batch was
-stopped at442.217s with legacy prism-expectation failures; not a passing suite.
-Saved repeated edit/publication event receipts remain partial evidence.
-M6 build99 deliberately stopped1369.419s, all ranks terminal and pins unchanged.
-Four split-only passes:315809→354684 cells,12673 splits/0 collapses; size-bad
-112523→116291, geometry-bad4115→5396; construction q/J remain0. Native schedule
-repeated productive splits, preventing a collapse pass. This is scheduling/cost
-evidence, not unavailable operations or geometric impossibility. Short profile
-(3s/792 samples) finds certified closest-point work and MPI waiting; full-run
-fractions cannot be inferred, DWARF warnings qualify stacks.
-Build100 PASS291.483s, unchanged1295 pins. Opposing-demand3 cases PASS5.987s:
-coarsen-first and alternating complete passes, zero construction q/J and final
-gates retained. Actual mapped curved workflow RUNNING session26378 with fresh
-failure capture. Source/tests/helpers pinned. M6 rerun follows this workflow;
-no accepted hard-target mesh or full solver restart yet.
+Latest source is build102: PASS72.187s with1295 unchanged pins. All13 geometry
+backend cases pass62.154s; all10 DC18 geometry groups pass. Focused current-field
+122 cases pass10.036s; compiled selection audit verifies26 filters (313 serial,
+290 MPI,76 atlas,13 backend,122 nodal selected). Six-rank cycle3 cases pass5.906s. All owned jobs are terminal.
+No full broad suite pass: legacy metric-shell assertions remain obsolete/pending.
 
-Connected change under implementation: existing fixed-geometry backend projection
-restricted before search to body/sheet; actual attempted work charged on failures;
-local immutable projection/deviation and curvature guidance for candidate faces,
-replacing per-operation whole-surface subdivision. Guidance is not a Hausdorff
-certificate. Final two-sided geometry acceptance remains unchanged, as do final
-quality/height/transfer/restart requirements. Final census allowed at round cap
-without admitting another operation. No accepted curved/M6 workflow yet.
+Connected source: shared existing cubic Gauss–Newton/backtracking/simplex KKT
+minimizer and polynomial arithmetic; immutable nets, body/sheet/feature filtering,
+existing ADT and current association hints. Conservative [0,upper] distances do
+not claim global optimality. A captured shared-edge case exposed a stricter
+inward-noise test overriding the existing KKT tolerance; applying that tolerance
+first fixes convergence. Candidate search accepts only converged eligible feet,
+stops at requested accuracy and fails if none exist. No flat fallback or cap raise.
+Certified ClosestCurved and every final gate are unchanged.
 
-Next: focused checks and accepted-face checks, actual curved workflow and M6 early;
-then repeated neighboring edits/MPI, transfer/history and restart. BL regional
-projection and FIRST_ROW source handling remain unqualified. The 3D independent
-P1 history audit reuses existing readers; self-check only passes, no M6 data or
-restart claim yet. TODO stays local. Historical details/receipts:
-[runtime archive](Handbook/ADAPTATION_RUNTIME_HISTORY_20261028.md),
-[transfer findings](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
+Actual mapped102 FAIL58.021s, pins unchanged: curved cases now enter improvement
+but exhaust67,207,168 atlas work before transfer. Private edits245 include26 moves,
+11 reconnects and41 insertions. Cached geometry debt11, metric/height debt21;
+128 private cells still fail quality/size/geometry. Log-wide work is dominated by
+ReferencePointKey/BindingParameters and feature validation. Fresh first collapse
+builds with63232 work and error.000626<.001, then fails size/progress. Flat flow
+and histories transfer and SU2/CGNS reload pass. None establishes curved restart.
 
-## Operations
+M6 build102 FAIL292.221s: solver0/nativefalse, all pins unchanged/ranks terminal.
+Native227.7s/import172.78s/refine40.3s;70 private edits, no completed length pass.
+Exact blocker: no converged numerical projection on prescribed body/sheet/feature,
+first failed facet11053. Whether this is numerical nonconvergence, classification
+inadmissibility or candidate handling needs the actual query; do not infer it from
+the aggregate error. No time/work exhaustion proves geometric impossibility.
+Earlier M6 split-only growth and interrupted runs are preserved in the design record.
 
-Check owned handles before new jobs; one heavy job, nice19, build-j1, libraries
-single-threaded, at most6 local ranks. Check host load/RAM and save process-tree
-receipts; sampled RSS is not allocation peak. Compile temp on4TB. Reuse evidence
-only with source/binary/runtime/config/input/helper provenance. Push labelled
-checkpoints with explicit paths; TODO stays local. Leave unrelated files alone.
-[Archived inputs](Handbook/ADAPTATION_REFERENCE_INPUTS.md).
+Next connected capability must replace unnecessary exact association/feature proof
+machinery with fixed-model classification/parameters where justified, and distinguish
+candidate projection refusal from backend failure across callers. Preserve genuine
+features, bodies, owner/version atomicity, final geometry/quality/height gates,
+conservative transfer/history and actual restart. Do not add local fallbacks or
+raise caps to mask repeated work. Full BL/RANS remains unqualified.
+See [projection findings](Handbook/ADAPTATION_PROJECTION_FINDINGS.md),
+[transfer findings](Handbook/TRANSFER_OPERATORS_FINDINGS.md),
+[progress](ADAPTATION_PROGRESS.md) and [history](Handbook/ADAPTATION_RUNTIME_HISTORY_20261028.md).
+
+Check live owned handles and host load/RAM; one heavy job, nice19, build-j1,
+single-threaded libraries, at most6 available local ranks. Compile temp on4TB.
+Reuse only with valid source/binary/runtime/config/input/helper provenance.
+Sampled process-tree RSS is not allocation peak. Push labelled checkpoints.

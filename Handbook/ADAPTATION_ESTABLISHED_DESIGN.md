@@ -246,3 +246,28 @@ accepted hard-target capability follows from those focused cases. Future CAD
 remains one optional Open CASCADE backend: STEP first, faceted STL then IGES;
 STL is not inferred to be an exact smooth CAD surface. No format infrastructure
 is added before this existing interface is qualified in the working workflow.
+
+### Integrated projection checkpoint, build102
+
+Existing Minimize/patch/derivative arithmetic is shared, not reimplemented. The
+captured query(0,.805,.5), hint3, had a converged foot at1.24e-16 while candidate5
+failed. A two-triangle reproduction exposed inward reentry on rounding noise
+before the existing KKT stationarity tolerance was consulted; consulting it first
+fixes both orientations without changing tolerances. Search selects converged
+eligible feet, uses conservative [0,upper] bounds, stops at requested accuracy,
+and refuses if none exist. Certified ClosestCurved and final Both remain unchanged.
+
+Build102 passes72.187s/1295 unchanged pins;13 backend cases and all10 DC18 geometry
+groups pass. Current nodal122 cases pass. Compiled26 selections include313 serial,
+290 MPI,76 atlas and13 backend cases. This is supporting evidence only. Actual
+curved workflow enters improvement, then exhausts geometry work with unmet final
+gates (58.021s). M6 rejects292.221s on no admissible converged projection, facet11053,
+after70 private edits. Raw receipts and captured queries separate these blockers
+from mesh impossibility. Current [projection findings](ADAPTATION_PROJECTION_FINDINGS.md)
+record the dominant exact association/feature work and remaining admission question.
+No cap raised, no accepted hard-target transfer/restart/BL capability claimed.
+
+Focused current-field122 cases pass10.036s and six-rank coarsen/refine3 cases
+pass5.906s, with pins unchanged. These do not supersede the failed real curved/M6
+workflows or the pending obsolete metric-shell test maintenance. All owned job
+handles/ranks are terminal at this checkpoint.
