@@ -4,6 +4,16 @@ Current decision record, 2026-10-27. DC-17/DC-18 remain open. No accepted M6
 adaptation/transfer/restart workflow exists. This review precedes further
 implementation following the user's latest instruction.
 
+## Requirements review supersedes earlier attributions
+
+The [2026-10-28 requirements/design review](ADAPTATION_REQUIREMENTS_REVIEW.md)
+separates explicit requirements, inherited numerical settings and custom mechanisms.
+Its connected fixed-model/current-patch design supersedes treating exact chart
+ownership, persistent smooth paths or budget formulas as user requirements.
+The fresh-work split now succeeds; no geometric impossibility is established.
+Full replacement and accepted workflow remain pending. Historical plans below
+are not additional user constraints.
+
 ## Current architectural finding, 2026-10-28
 
 The historical shared-edge recurrence below was real in build36; it is not an

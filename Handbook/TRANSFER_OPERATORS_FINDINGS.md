@@ -64,7 +64,30 @@ curved runtime's29-edit stop) remain preserved in staged57 receipts. The current
 
 Full M6 transfer remains unqualified because no complete accepted M6 mesh exists.
 
-## TR-003 — Source envelopes must retain cross-chart correspondence
+## TR-003 — Source envelopes must conservatively cover current geometry support
+
+Current requirements review,2026-10-28: physical transfer integrates straight
+simplices/control volumes (`ConservativeKernels.cpp` frame/Overlap and
+`CConservativeTransfer.cpp` node volumes). Exact per-face rational chart ownership
+is a dependency of the current source-envelope implementation, not a transfer
+requirement. The legacy `PrepareSourcePatch(facet,bindings,source)` already bounds
+all immutable cubic facet controls; its `ContainsFace` precondition still limits
+admission. Reuse SourcePatch bounds/displacement/separation when replacing face
+partitions by a conservatively certified model-support union. A list of chart IDs
+without a proof of complete support is insufficient; deleting correspondence
+without replacing its source coverage proof would be unsafe. See the
+[connected requirements/design decision](ADAPTATION_REQUIREMENTS_REVIEW.md).
+
+Boundary motion changes physical domain volumes. Euler constant preservation
+uses explicit fill/loss accounting; the curved RANS fixture scales conserved
+states using old/new physical volume. Constant preservation and unchanged global
+totals cannot both be asserted indiscriminately for changed domains. Preserve
+per-donor coverage, raw/dual volume moments, fill/loss, BDF history and restart
+checks. No new transfer defect is established by this review, and no accepted
+curved/M6 workflow is claimed.
+
+Earlier implementation findings and scoped evidence follow. Their references to
+persisted pieces describe that representation, not a permanent user constraint.
 
 Build63 normalization passes serial and MPI6 with frozen legacy source-envelope
 checks and schema8 decode/move/publication continuation; the repeated 16-event MPI
