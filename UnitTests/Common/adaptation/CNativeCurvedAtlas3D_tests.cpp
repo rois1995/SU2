@@ -671,6 +671,9 @@ TEST_CASE("Feature trace normalization validates intervals and preserves failed 
   EdgeTrace genuine;REQUIRE(crease.state->ResolveTrace(feature,*incident[0],genuine,budget,reason));
   std::optional<Id> chain;REQUIRE(NormalizeFeatureTrace(*crease.geometry,crease.policy,genuine,chain,budget,reason));REQUIRE(chain);
   const auto canonical=genuine;const auto saved_chain=chain;
+  auto generous=RemappingBudget();generous.maximum_integer_bits=size_t(1)<<34;generous.maximum_bytes=size_t(16)<<20;
+  auto tiny=canonical;std::optional<Id> tiny_chain;REQUIRE(NormalizeFeatureTrace(*crease.geometry,crease.policy,tiny,tiny_chain,generous,reason));
+  CHECK(tiny_chain==saved_chain);CHECK(generous.maximum_integer_bits==(size_t(1)<<34));CHECK(generous.peak_bytes<=generous.maximum_bytes);
   auto encode=[&](const EdgeTrace& trace){BoundaryCoverage c;c.traces.emplace(feature,trace);return EncodeBoundaryAtlas(c,crease.policy);};
   auto no_work=RemappingBudget();no_work.maximum_work=0;
   CHECK_FALSE(NormalizeFeatureTrace(*crease.geometry,crease.policy,genuine,chain,no_work,reason));

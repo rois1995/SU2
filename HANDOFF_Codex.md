@@ -30,17 +30,8 @@ backend remains authoritative; no CAD format infrastructure was added.
 
 ## Evidence and current job
 
-Review checkpointff818fc703 and validation checkpoint2a98e46d8f are pushed to
-origin rois1995/SU2, branch codex/native-3d-bl. New connected source is awaiting
-its labelled checkpoint/build qualification. Private kernel union84 PASS9 cases/
-215 assertions141.684s overall, pins unchanged. Union81 timed out on a planar
-seam; FinitePlaneReference now handles coplanar unions. Union83 then exhausted
-work estimating a precise maximum distance. Tolerance certification with explicit
-outside witnesses removes that unnecessary objective; it does not raise caps.
-Syntax86 PASS11/11 TUs42.218s, pins unchanged. **Build86 running**,44 targets,
-one low-priority worker, handle75478/PID1728810. Do not edit pinned C++/helpers
-until terminal. Smaller curved CFD is the next runtime; then connected MPI6
-publication/restart and M6 early. No accepted full workflow is claimed.
+Build89 PASS45.156s, pins unchanged. Compiled-filter audit passes23 selections:260 serial/237 MPI/71 atlas, including new entity-v9 and feature-normalization cases. Actual workflow89 FAIL55.134s with unchanged pins: flat variants pass; each curved variant38 splits/6 collapses,1459 rejections (1312 local geometry coarsening vetoes,147 entity-orientation refusals), arithmetic67,207,168 and no quality stage. Removing refinement scoring alone did not deliver an accepted mesh. IDs repeat with evolving volume stars; unchanged physical dependencies are not established. Four captured cells share .0010990956390742213, not every bad cell; symmetry and conservative bounds prevent inferring a plateau or actual distance from that number. Build90 groups productive generations of the same operator before switching split/collapse, using existing finite frontiers/reservations and unchanged gates. The regression now requires the first collapse sweep to follow refinement quiescence; the prior collapse-before-size-completion assertion was an agent-selected scheduling expectation, not a user requirement. Build90 running; sources/helpers pinned.
+Checkpoint b35d3f626e contains the connected entity implementation and is pushed; runtime fixes and scheduling qualification are not yet checkpointed.
 
 Trace73 curved CFD FAIL12.827s:17 productive splits, zero collapses; one
 unsuccessful collapse pass costs8,160,949 operations, next split exhausts atlas
@@ -56,9 +47,9 @@ rejections, no quality stage, summed atlas work369,648,840,116. Source envelopes
 are not working-tet counts;500k complexity is not a tet cap. No mesh/transfer
 acceptance follows. Use M6 early at the next connected implementation milestone.
 
-Disk at build86 preflight: /home16GB, workspace71GB free; RAM26GiB available,
-load2.92. Matching owned Ninja1.13.0 is restored. Build86 is the sole owned heavy
-job. Remaining integration risks include new feature-route publication, restart
+Disk remains available after user cleanup; RAM27GiB available and host load2.62
+at build89 preflight. Matching owned Ninja1.13.0 is restored. Build90 is the sole
+owned heavy job. Remaining integration risks include new feature-route publication, restart
 roundtrips, source-tube shell feasibility and real M6 cost; fixtures do not close
 those. Generic curvature sizing/BL and other earlier open scope remains in TODO.
 

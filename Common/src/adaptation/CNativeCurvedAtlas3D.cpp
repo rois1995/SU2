@@ -74,6 +74,19 @@ size_t Bytes(const CurvedAtlas::Data& data) {
       for(const auto& p:e.trace.pieces)n=Plus(n,Plus(Plus(BaryBytes(p.first),BaryBytes(p.last)),RatioBytes(p.end)));}}
   return n;
 }
+// Feature runs consist of original-edge intervals. After continuity and merging,
+// only the two run ends may be partial; interior edge transitions are 0/1.
+struct FeatureArithmeticScope {
+  AtlasBudget& budget;size_t original,bits=0,pieces=0;
+  explicit FeatureArithmeticScope(AtlasBudget& b):budget(b),original(b.maximum_integer_bits) {}
+  void Add(const EdgeTrace& trace){pieces=Plus(pieces,trace.pieces.size());
+    auto ratio=[&](const ExactRatio& value){for(const auto* limbs:{&value.numerator,&value.denominator})bits=std::max(bits,Times(limbs->size(),size_t(32)));};
+    for(const auto& p:trace.pieces){for(const auto* q:{&p.first,&p.last}){ratio(q->u);ratio(q->v);}ratio(p.end);}}
+  void Activate(bool binary64){size_t logarithm=0;for(size_t n=pieces;n;n>>=1)++logarithm;
+    const auto operands=std::max(bits,binary64?size_t(1075):size_t(0));
+    budget.maximum_integer_bits=std::min(original,Times(128,Plus(Plus(operands,logarithm),64)));}
+  ~FeatureArithmeticScope(){budget.maximum_integer_bits=original;}
+};
 struct Ops {
   AtlasBudget& budget;size_t saved,extra=0;std::function<size_t()> resident;std::string reason;
   Ops(AtlasBudget& b,std::function<size_t()> r):budget(b),saved(b.caller_bytes),resident(std::move(r)) {
@@ -83,7 +96,7 @@ struct Ops {
   ~Ops(){budget.caller_bytes=saved;}
   void Work(size_t n=1){if(!budget.ChargeWork(n))throw std::length_error("Curved atlas work exhausted.");}
   void Sync(size_t additional=0){const auto bytes=Plus(saved,Plus(resident(),Plus(extra,additional)));
-    if(bytes>budget.maximum_bytes)throw std::length_error("Curved atlas storage exhausted.");
+    if(bytes>budget.maximum_bytes)throw std::length_error("Curved atlas storage exhausted: requested "+std::to_string(bytes)+" bytes, ceiling "+std::to_string(budget.maximum_bytes)+" bytes.");
     budget.peak_bytes=std::max(budget.peak_bytes,bytes);budget.caller_bytes=bytes;}
   void Check(bool ok){if(!ok)throw std::runtime_error(reason);}
   template<class F> bool Delegate(F&& call) {
@@ -560,6 +573,7 @@ bool ProposeFeaturePoint(const MappedFacetReference& geometry,const MobilityPoli
     Point first,Point last,SU2Native3D::Node node,SU2Native3D::BoundaryPoint& result,AtlasBudget& budget,std::string& reason) {
   EdgeTrace path;
   try {
+    FeatureArithmeticScope scope(budget);for(const auto& run:runs)scope.Add(run);scope.Activate(true);
     Ops op(budget,[&]{size_t bytes=TraceBytes(path);for(const auto& run:runs)bytes=Plus(bytes,TraceBytes(run));return bytes;});
     if(runs.empty() || !std::isfinite(node.p.x)||!std::isfinite(node.p.y)||!std::isfinite(node.p.z))throw std::invalid_argument("Invalid feature proposal.");
     std::optional<Id> chain;Key previous;
@@ -589,6 +603,7 @@ bool NormalizeFeatureTrace(const MappedFacetReference& geometry,const MobilityPo
                            std::optional<Id>& chain,AtlasBudget& budget,std::string& reason) {
   EdgeTrace candidate;
   try {
+    FeatureArithmeticScope scope(budget);scope.Add(trace);scope.Activate(false);
     Ops op(budget,[&]{return Plus(TraceBytes(trace),TraceBytes(candidate));});
     auto previous=op.Integer(0);const auto one=op.Integer(1);
     if(trace.pieces.empty())throw std::invalid_argument("Empty curved trace before normalization.");
@@ -596,6 +611,9 @@ bool NormalizeFeatureTrace(const MappedFacetReference& geometry,const MobilityPo
         throw std::invalid_argument("Invalid curved trace interval before normalization.");previous=piece.end;}
     if(op.Compare(previous,one))throw std::invalid_argument("Incomplete curved trace before normalization.");
     const auto found=TraceChain(trace,geometry,policy,op);
+    if(found){Key previous;for(const auto& piece:trace.pieces){const auto first=op.ReferenceKey(geometry,piece.facet,piece.first);
+      if(!previous.empty() && previous!=first)throw std::invalid_argument("Disconnected genuine feature trace.");
+      previous=op.ReferenceKey(geometry,piece.facet,piece.last);}}
     if(found){op.Sync(TraceBytes(trace));candidate=trace;CleanFeatureTrace(candidate,geometry,policy,op);trace=std::move(candidate);}
     chain=found;reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
@@ -675,6 +693,7 @@ bool RebuildFeatureTraces(const SU2Native3D::Patch& old,const std::vector<SU2Nat
     if(!reference.Parameters() || !reference.Parameters()->Mobility().identity || faces.empty())
       throw std::invalid_argument("Feature reconstruction lacks active immutable mobility or candidate surface.");
     const auto& geometry=reference.Parameters()->Geometry();const auto& policy=reference.Parameters()->Mobility();
+    FeatureArithmeticScope scope(budget);for(const auto& row:old.coverage.traces)scope.Add(row.second);scope.Activate(true);
     Ops op(budget,[&]{size_t bytes=Plus(SU2Native3D::BoundaryCoverageBytes(old.coverage),Times(old.parameters.size()+points.size(),sizeof(SU2Native3D::BoundaryPoint)+4*sizeof(void*)));
       bytes=Plus(bytes,Plus(Times(inherited.size(),sizeof(decltype(inherited)::value_type)+4*sizeof(void*)),Times(incidence.size(),sizeof(decltype(incidence)::value_type)+4*sizeof(void*))));
       bytes=Plus(bytes,Plus(Times(bindings.size(),sizeof(decltype(bindings)::value_type)+4*sizeof(void*)),Times(feature_edges.capacity(),sizeof(Edge))));

@@ -4140,7 +4140,8 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
   auto donorBytes=[](std::vector<DonorCell> rows){std::vector<char> b;RecordStream stream(b);for(auto& row:rows)stream(row);return b;};
   bool saw_split=false,saw_collapse=false,construction_unmeasured=true,quality_seen=false;
   uint64_t splits_before_quality=0,collapses_before_quality=0,parallel_before_quality=0;
-  bool first_collapse_seen=false,collapse_before_size_complete=false,quality_after_pair=true;
+  bool first_collapse_seen=false,collapse_after_refinement_quiescence=false,quality_after_pair=true;
+  uint64_t previous_splits=0;bool last_split_productive=false;
   EngineOptions options;options.maximum_work=4096;options.stagnation_window=1;
   if(composed)options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
   options.stage_observer=[&](const StageProgressView& view){
@@ -4151,10 +4152,12 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
     }
     if(view.phase!=EnginePhase::Construction || view.stats.quality_stages)return;
     construction_unmeasured &= view.progress.q_measured_cells==0 && view.progress.j_measured_cells==0 && view.progress.shape_measured_cells==0;
-    if(std::string(view.stage)=="length_split_exit")saw_split=true;
+    if(std::string(view.stage)=="length_split_exit") {
+      saw_split=true;last_split_productive=view.stats.length_splits!=previous_splits;previous_splits=view.stats.length_splits;
+    }
     if(std::string(view.stage)=="length_collapse_exit") {
       saw_collapse=true;
-      if(!first_collapse_seen){first_collapse_seen=true;collapse_before_size_complete=view.progress.size_bad_cells!=0;}
+      if(!first_collapse_seen){first_collapse_seen=true;collapse_after_refinement_quiescence=!last_split_productive;}
     }
   };
   MetricComposition composition;if(composed)composition=[](Point,Tensor sensor){return sensor;};
@@ -4164,7 +4167,7 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
   CHECK(world.sum(result.stats.length_splits)>0);CHECK(world.sum(result.stats.length_collapses)>0);
   CHECK(world.sum(result.stats.length_pass_deferred)>0);
   CHECK(world.maximum(saw_split));CHECK(world.maximum(saw_collapse));CHECK(world.maximum(!construction_unmeasured)==0);
-  CHECK(world.maximum(collapse_before_size_complete));
+  CHECK(world.maximum(!collapse_after_refinement_quiescence)==0);
   if(world.size>=3)CHECK(world.maximum(parallel_before_quality)>=2);
   CHECK(result.stats.global_work<=options.maximum_work);
   CHECK(world.sum(splits_before_quality)>0);CHECK(world.sum(collapses_before_quality)>0);

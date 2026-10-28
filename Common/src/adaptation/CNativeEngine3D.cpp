@@ -2084,7 +2084,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(coarsening && !length_pair_changed) {
         if(!enter_phase(Phase::Improvement))return finish();
       } else {
-        const bool next_collapse=!coarsening;
+        // Exhaust productive generations before switching operators; shared apexes are deferred within each generation.
+        const bool next_collapse=productive?coarsening:!coarsening;
         if(!next_collapse)length_pair_changed=false;
         if(!admit(transfer_memory::Add(transfer_memory::Mul(working.size(),selection_bound(false)),
             transfer_memory::Mul(transfer_memory::Mul(next_collapse?12:6,working.size()),sizeof(Edge)+4*sizeof(void*)))))return finish();
@@ -2461,6 +2462,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     };
     auto geometric_change=[&](bool candidate,MetricChange kind) {
       if(!candidate || !curved)return candidate;
+      // Entity refinement constructs valid cells; local surrogate descent is not a geometry permission.
+      if(geometry.EntityGeometry()&&phase==Phase::Construction&&kind!=MetricChange::Coarsen)return true;
       try {
         const auto before=CertifiedGeometryExcess(old,geometry,options.surface_tolerance);
         const auto after=CertifiedGeometryExcess(fresh,geometry,options.surface_tolerance);
@@ -2554,7 +2557,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           old=GeometryPatch(imported, &geometry);
           const auto a=choice.measure.a,b=choice.measure.b;
           if (!repairing && coarsening) {
-            if(CollapseOutsideTolerance(old,choice.edge[1],choice.edge[0],geometry,options.surface_tolerance)) {
+            if(!geometry.EntityGeometry()&&CollapseOutsideTolerance(old,choice.edge[1],choice.edge[0],geometry,options.surface_tolerance)) {
               result.reason="Native3D collapsed boundary leaves an original geometry sample outside tolerance.";
               approved=guarded_geometry(false,"CollapseVertex");
             } else approved=guarded_geometry(CollapseVertex(old,choice.edge[1],choice.edge[0],maximum_cell+1+offset,

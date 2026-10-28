@@ -203,7 +203,7 @@ projection-shift bounds. This is uncompiled after the correction; no resource ca
 increase or production activation is made. Source, publication and migration
 remain connected pending work; no full capability claim follows.
 
-## Connected implementation, awaiting build86
+## Connected implementation, runtime qualification pending
 
 The code now uses a semantic entity contract for curved production adaptation.
 `WithEntityGeometry(ADAP_HAUSD)` migrates validated legacy state, discards smooth
@@ -229,6 +229,12 @@ triangle tubes; existing shell, contact, donor-volume, fill/loss and transfer
 gates remain active. This is still unqualified on the actual curved workflow.
 
 Private union84 passes9 cases/215 assertions; syntax86 passes11 translation
-units. Full build86 is running. Earlier failed union81/82/83 receipts remain.
+units. Full build86 passed; actual curved workflow87 still fails after53 splits/16 collapses at the unchanged arithmetic ceiling. Valid split proposals were rejected by inherited geometry-progress scoring; build89 removes this veto for entity refinement while retaining final geometry acceptance. Feature scratch accounting was corrected in build87. Build88 scope errors are preserved and corrected in build89. Earlier failed union81/82/83 receipts remain.
 Actual movement, repeated-event cost, publication, CFD transfer/BDF history,
 restart and M6 remain the acceptance obligations. No caps were raised.
+
+
+### Productive operator sweeps, build90
+
+Build89 PASS45.156s, pins unchanged. Compiled-filter audit passes23 selections:260 serial/237 MPI/71 atlas, including new entity-v9 and feature-normalization cases. Actual workflow89 FAIL55.134s with unchanged pins: flat variants pass; each curved variant38 splits/6 collapses,1459 rejections (1312 local geometry coarsening vetoes,147 entity-orientation refusals), arithmetic67,207,168 and no quality stage. Removing refinement scoring alone did not deliver an accepted mesh. IDs repeat with evolving volume stars; unchanged physical dependencies are not established. Four captured cells share .0010990956390742213, not every bad cell; symmetry and conservative bounds prevent inferring a plateau or actual distance from that number. Build90 groups productive generations of the same operator before switching split/collapse, using existing finite frontiers/reservations and unchanged gates. The regression now requires the first collapse sweep to follow refinement quiescence; the prior collapse-before-size-completion assertion was an agent-selected scheduling expectation, not a user requirement. Build90 running; sources/helpers pinned.
+The operator choice is an implementation decision. Existing exact validity, body/feature, owner publication, two-sided final geometry, metric/BL quality, transfer/history and restart requirements remain. No arithmetic cap or tolerance changed.

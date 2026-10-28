@@ -293,11 +293,17 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     };
     try{PrepareMobility(config,pending->state,control.memory_ceiling,retained);}
     catch(const std::exception& e){failure.Set(2,0,e.what());}
-    CollectiveFailure(failure,CURRENT_FUNCTION);
+    {
+      const auto setup_failure=parent.elect(failure);
+      if(setup_failure.any){reason=setup_failure.message;break;}
+    }
     NormalizationStage3D normalizer;
     try{if(normalizationFactory)normalizer=normalizationFactory(config,geometry,sensor);}
     catch(const std::exception& e){failure.Set(2,0,e.what());}
-    CollectiveFailure(failure,CURRENT_FUNCTION);
+    {
+      const auto setup_failure=parent.elect(failure);
+      if(setup_failure.any){reason=setup_failure.message;break;}
+    }
     const int job_low=CPassiveComm::Allreduce(int(bool(normalizer.propose)),CPassiveComm::Op::MIN,parent.comm),
               job_high=CPassiveComm::Allreduce(int(bool(normalizer.propose)),CPassiveComm::Op::MAX,parent.comm);
     if(!vote(job_low==job_high,"Native3D normalization job differs across ranks."))break;
@@ -313,7 +319,10 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     try{PrepareMobility(config,pending->state,control.memory_ceiling,
         transfer_memory::Add(retained,OwnedStorageBytes(imported.cells),transfer_memory::Bytes(imported.original)));}
     catch(const std::exception& e){failure.Set(2,0,e.what());}
-    CollectiveFailure(failure,CURRENT_FUNCTION);
+    {
+      const auto setup_failure=parent.elect(failure);
+      if(setup_failure.any){reason=setup_failure.message;break;}
+    }
     // A construction works on the mapped authority: a plain faceted original is promoted on EVERY rank (deterministic,
     // identical inputs), so later parameter synchronization sees one authority kind on all ranks.
     if (construction && !pending->state.original->Mapped() && pending->state.original->Analytic().empty() &&
