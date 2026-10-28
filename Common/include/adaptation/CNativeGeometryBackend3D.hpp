@@ -47,6 +47,8 @@ class GeometryBackend3D {
   virtual bool Evaluate(const SurfaceBinding&,std::optional<Id> side,GeometryEvaluation&,AtlasBudget&,std::string&)const=0;
   virtual bool AssociationValid(const SurfaceBinding&,Point,std::string&)const=0;
   virtual bool Support(const SurfaceBinding&,Id side,GeometrySupport&,AtlasBudget&,std::string&)const=0;
+  /*! Necessary body/feature incidence only; false allowed is a valid veto, not a query failure. */
+  virtual bool ContractionAllowed(const SurfaceBinding&,const SurfaceBinding&,bool& allowed,AtlasBudget&,std::string&)const=0;
   virtual bool Project(Point,const GeometryProjectionScope&,GeometryProjection&,AtlasBudget&,std::string&)const=0;
   /*! Bounds the supplied piece union; finite coverage/embedding admission remains the specialized caller's duty. */
   virtual bool RegionErrorBounds(const FaceCoverage&,const std::array<Point,3>&,GeometryRegionBounds&,AtlasBudget&,std::string&)const=0;
@@ -61,6 +63,7 @@ class NativeMappedGeometryBackend3D final:public GeometryBackend3D {
   bool Evaluate(const SurfaceBinding&,std::optional<Id>,GeometryEvaluation&,AtlasBudget&,std::string&)const override;
   bool AssociationValid(const SurfaceBinding&,Point,std::string&)const override;
   bool Support(const SurfaceBinding&,Id,GeometrySupport&,AtlasBudget&,std::string&)const override;
+  bool ContractionAllowed(const SurfaceBinding&,const SurfaceBinding&,bool&,AtlasBudget&,std::string&)const override;
   bool Project(Point,const GeometryProjectionScope&,GeometryProjection&,AtlasBudget&,std::string&)const override;
   bool RegionErrorBounds(const FaceCoverage&,const std::array<Point,3>&,GeometryRegionBounds&,AtlasBudget&,std::string&)const override;
  private:

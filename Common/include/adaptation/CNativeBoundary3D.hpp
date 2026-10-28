@@ -107,6 +107,8 @@ class PlanarReference {
   bool HasAcceptedFaceCertificate(const SurfaceFace&,const std::array<BoundaryPoint,3>&,
       const SU2NativeGeometry::BoundaryCoverage&)const;
   const SU2NativeGeometry::MobilityPolicy* Mobility()const;
+  /*! Necessary contraction incidence; full-star remapping still proves geometry and topology. */
+  bool ContractionAllowed(Id removed,Id retained)const;
   bool ResolveCoverage(const SurfaceFace&,SU2NativeGeometry::FaceCoverage&,SU2NativeGeometry::AtlasBudget&,std::string&)const;
   bool ResolveTrace(Edge,const SurfaceFace&,SU2NativeGeometry::EdgeTrace&,SU2NativeGeometry::AtlasBudget&,std::string&)const;
   Node BindNewPoint(Node point,const std::set<Id>& incident)const;

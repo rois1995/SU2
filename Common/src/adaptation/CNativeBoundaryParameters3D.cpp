@@ -6,6 +6,7 @@
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CNativeDistributed2D.hpp"
 #include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
+#include "../../include/adaptation/CNativeGeometryBackend3D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include "CNativePredicates3D_internal.hpp"
 #include <algorithm>
@@ -988,6 +989,22 @@ Node PlanarReference::BindMovedPoint(Id old,Node point,const std::set<Id>& incid
   if(!previous)throw std::invalid_argument("Moved point has no accepted forward binding.");
   const auto binding=ProposedBinding(point.p,incident,&previous->binding);point.p=parameter_view->accepted->Geometry().Realize(binding);
   parameter_view->Insert({point,binding});return point;
+}
+bool PlanarReference::ContractionAllowed(Id removed,Id retained)const {
+  if(!Mobility())return true;
+  parameter_view->Check();const auto& state=*Parameters();
+  const auto find=[&](Id id){const auto it=parameter_view->local.find(id);
+    return it==parameter_view->local.end()?state.Find(id):&it->second;};
+  const auto* from=find(removed);
+  if(!from)return true;
+  const auto* to=find(retained);if(!to)return false;
+  SU2NativeGeometry::NativeMappedGeometryBackend3D backend(state.Authority(),state.Mobility());
+  auto* reservation=AtlasReservation();
+  if(!reservation)throw std::invalid_argument("Curved contraction requires an admitted atlas reservation.");
+  auto& budget=*reservation;
+  bool allowed=false;std::string reason;
+  if(!backend.ContractionAllowed(from->binding,to->binding,allowed,budget,reason))throw std::invalid_argument(reason);
+  return allowed;
 }
 bool PlanarReference::ParameterContains(Id facet,Point p)const {
   const auto q=Parameter(p);const auto& g=parameter_view->accepted->Geometry();return q&&g.Supports(facet,q->binding)&&g.Admissible(q->binding,p);

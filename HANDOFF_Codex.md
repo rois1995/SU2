@@ -20,17 +20,18 @@ may move on prescribed geometry. Scenario labels must not dispatch reconstructio
 
 ## Current work and evidence
 
-Source66 candidate is under build and unvalidated: one metric lifecycle alternates
-split/collapse passes using rendezvous claims, followed by quality and final gates.
-Build65 was owner-cancelled after 51.1455s (exit 130, pins unchanged); all 22
-recorded processes exited before edits. Review fixed four secondary reservations
-misclassifying pass deferral and added bidirectional-mode agreement. Expanded
-footprint and mismatched-entry MPI tests are added; full engine growth remains
-uncovered. Joint coarsening uses concurrent complete-star final reservations; a
-three-component fixture requires parallel work before quality. Build66/session54808
-(ninja PID4068717) is live, with 1293 source/helper pins frozen, one low-priority
-worker and 4TB temporary storage. Next: bidirectional serial/MPI6, production CFD,
-and early M6 with length diagnostics. See [design](Handbook/METRIC_LENGTH_SATISFACTION_DESIGN.md).
+Build68 was cancelled after overlay-first lookup review; owned compiler/build scan
+was empty. Build69 runs frozen with the fix and an unpublished-endpoint test;
+it is unvalidated. The approval service has recovered.
+
+Build67 PASS99.196s with unchanged pins. Focused bidirectional serial passes
+3 cases/300 assertions in 5.934s; MPI6 passes 3 cases per rank in 6.774s
+(`staged57/cases/bidirectional_20261028T001524_4140966` and
+`bidirectional6_20261028T001541_4141896`). Mapped runtime
+`staged57/cases/mapped_runtime_20261028T001819_4149269` FAIL12.774s,
+195/197 assertions: curved flows reached 13 splits, zero collapses and the
+unchanged arithmetic guard; flat workflow passes. No accepted M6 results.
+See [metric-length design](Handbook/METRIC_LENGTH_SATISFACTION_DESIGN.md).
 
 Build63 PASS66.1366s; all 17 build PIDs gone. Nineteen compiled filter audits
 pass (245 serial/222 MPI selected). Normalization passes serial 745 assertions

@@ -78,6 +78,29 @@ bool NativeMappedGeometryBackend3D::Support(const SurfaceBinding& binding,Id sid
     result=out;reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
+bool NativeMappedGeometryBackend3D::ContractionAllowed(const SurfaceBinding& removed,const SurfaceBinding& retained,
+    bool& allowed,AtlasBudget& budget,std::string& reason)const {
+  try {
+    Use(budget);Id side=UINT64_MAX;
+    authority->ForFacets(removed,[&](Id f){Use(budget);side=std::min(side,f);});
+    GeometrySupport from;if(!Support(removed,side,from,budget,reason))return false;
+    bool admissible=false;
+    authority->ForFacets(retained,[&](Id f){
+      Use(budget);GeometrySupport to;if(!Support(retained,f,to,budget,reason))throw std::invalid_argument(reason);
+      if(!from.mobility||from.body!=to.body)return;
+      if(from.mobility==2){admissible=admissible||from.sheet==to.sheet;return;}
+      if(to.mobility==1){admissible=admissible||from.feature==to.feature;return;}
+      if(to.mobility!=0)return;
+      const auto& facet=authority->Reference().Get(f);
+      for(unsigned k=0;k<3;++k){Use(budget);SU2Native3D::Edge edge{facet.v[k].id,facet.v[(k+1)%3].id};
+        if(edge[0]!=retained.feature&&edge[1]!=retained.feature)continue;
+        std::sort(edge.begin(),edge.end());const auto found=policy.features.find(edge);
+        admissible=admissible||(found!=policy.features.end()&&found->second==from.feature);
+      }
+    });
+    allowed=admissible;reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
 bool NativeMappedGeometryBackend3D::Project(Point query,const GeometryProjectionScope& scope,GeometryProjection& result,
     AtlasBudget& budget,std::string& reason)const {
   try {

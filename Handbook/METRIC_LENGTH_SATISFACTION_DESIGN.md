@@ -1,9 +1,16 @@
 # Metric-length satisfaction: proposed staging and M6 cost evidence
 
-Design record, 2026-10-27. The connected scheduling candidate is applied and build66 is live; it is unvalidated.
+Design record, 2026-10-27. The connected scheduling candidate is applied; build69 is live and unvalidated.
 The geometry-closure candidate is a separate connected change. DC-17/DC-18 remain open.
 
 Build65 was owner-cancelled (51.1455s, exit 130, unchanged pins; all 22 processes gone). Source66 fixes secondary pass-deferral handling and mode agreement; direct footprint and mismatched-entry MPI tests and a three-component joint-coarsening fixture await validation. Next are focused serial/MPI6, production CFD and early M6 length diagnostics.
+
+Build68 was cancelled before validation after overlay-first lookup review; owned compiler/build process scan was empty. Build69 is running frozen with the correction and an actual unpublished-endpoint test.
+Backend ContractionAllowed and bidirectional target-debt selection enforce body,
+feature, constraint and orientation filters. CollapseVertex bypasses original-anchor
+containment only under active mobility and still requires the existing full-star atlas
+proof in Finish; the original facet veto remains for nonmobile cases. No caps were
+raised. The approval service has recovered.
 
 ## Evidence and source identity
 

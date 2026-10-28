@@ -327,6 +327,9 @@ class Selection {
   }
   bool FilterCollapse(const Choice& choice, const Owned& working) {
     if (!coarsening || !prune_collapses || !choice.active) return false;
+    if(!geometry.ContractionAllowed(choice.edge[1],choice.edge[0])) {
+      Block(choice.edge,{},false);++stats.collapse_filtered;++stats.collapse_constraint_filtered;return true;
+    }
     const auto star=vertex_cells.find(choice.edge[1]);
     if (star==vertex_cells.end()) throw std::logic_error("Missing native 3D local collapse star.");
     const Point apex=choice.edge[0]<choice.edge[1] ? choice.measure.a : choice.measure.b;
@@ -444,6 +447,7 @@ class Selection {
     for (const auto& row:edges) Queue(row.first,row.second.measure.length,true);
   }
   bool LeavesFacet(const OwnedCell& owned, Id removed, Point retained) {
+    if(geometry.Mobility())return false; // Original chart seams are not physical constraints; full-star remapping proves replacement.
     for (size_t face=0;face<4;++face) {
       if (!owned.physical[face].present || owned.cell.v[face].id==removed) continue;
       ++stats.collapse_geometry_checks;
@@ -1902,7 +1906,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       CLocalFailure failure;
       try {
         choice=selection.Best(repairing);
-        while (!repairing && !bad_field && selection.FilterCollapse(choice,working)) choice=selection.Best(false);
+        while (!repairing && (!bad_field||bidirectional) && selection.FilterCollapse(choice,working)) choice=selection.Best(false);
       } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
       if (!(ready=vote(failure))) return false;
       any=world.maximum(choice.active); return true;
@@ -1913,8 +1917,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       int dirty=world.maximum(selection.invalid ? 2 :
           (selection.cells.size()!=working.size() || (coarsening && !selection.queue.empty()) ? 1 : 0));
       bad_field=dirty==2;
-      if (coarsening && !repairing && !bad_field && !selection.prune_collapses) {
-        // Invalid fields still need rejected-collapse repair; a local facet counterexample suffices only afterward.
+      if (coarsening && !repairing && (!bad_field||bidirectional) && !selection.prune_collapses) {
+        // Joint construction filters necessary validity constraints even while target debt remains.
         CLocalFailure failure;
         try { selection.EnableCollapseFilter(); } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         ready=vote(failure);

@@ -6,6 +6,8 @@ M6/transfer/restart qualification remains open. Open CASCADE/importers are plann
 atlas implementation and its outstanding work are described in
 [CURVED_ATLAS_IMPLEMENTATION.md](CURVED_ATLAS_IMPLEMENTATION.md).
 
+The necessary ContractionAllowed discrete-incidence query is exercised in the current unvalidated integration; it is not an admission proof.
+
 The intended backend interface is small and represents the prescribed geometry,
 its associations and its genuine features. It should provide:
 

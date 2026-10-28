@@ -578,3 +578,29 @@ TEST_CASE("Legacy shared trace normalization publishes both owners and is idempo
   const bool continued=next_directory.Publish(owned,removed_move,added_move,true,reason,SIZE_MAX,0,edits,world.rank?no_delta:fresh.coverage,&publish_move);
   INFO(reason);REQUIRE(continued);CHECK(frozen_source_state->Snapshot()==frozen_reference);CHECK(original_bounds()==frozen_bounds);
 }
+
+TEST_CASE("Curved collapse removes smooth and curve samples across original seams", "[NativeCurvedAtlasRemap3D][NativeCurvedAtlas3D]") {
+  const bool crease=GENERATE(false,true);const bool unpublished=GENERATE(false,true);RemappingFixture fixture(crease);
+  auto budget=RemappingBudget();auto reference=fixture.reference->WithAtlasReservation(budget);
+  Patch old;const Node apex=crease?Node{90,{.5,.5,.5}}:fixture.points.at(50).node;
+  for(const auto& f:fixture.facets){
+    if(!crease&&f.id>=4)continue;
+    if(crease&&std::none_of(f.v.begin(),f.v.end(),[](Node n){return n.id==0;}))continue;
+    auto v=std::array<Node,4>{f.v[0],f.v[1],f.v[2],apex};
+    if(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)<0)std::swap(v[0],v[1]);
+    old.cells.push_back({Id(old.cells.size()),v});
+  }
+  old.surface=fixture.patch.surface;
+  const Id original=crease?10:20,retained=unpublished?original+100:original;
+  if(unpublished){auto point=fixture.points.at(original);point.node.id=retained;old.parameters.emplace(retained,point);
+    for(auto& c:old.cells)for(auto& n:c.v)if(n.id==original)n.id=retained;
+    for(auto& f:old.surface)for(auto& id:f.v)if(id==original)id=retained;
+  }
+  CHECK_FALSE(fixture.geometry->Supports(crease?1:2,fixture.geometry->Vertex(original)));
+  Patch fresh;std::string reason;const bool ok=CollapseVertex(old,0,retained,100,*reference,fresh,reason);
+  INFO(reason);REQUIRE(ok);CHECK(fresh.cells.size()==(crease?4:2));
+  CHECK_FALSE(fresh.coverage.faces.empty());
+  for(const auto& c:fresh.cells){CHECK(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0);
+    for(const auto& n:c.v)CHECK(n.id!=0);}
+  CHECK(fixture.state->Find(0)!=nullptr); // Private proposal cannot mutate accepted associations.
+}

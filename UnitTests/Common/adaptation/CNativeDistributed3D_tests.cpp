@@ -769,7 +769,10 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
              << " batch_rounds=" << s.batch_rounds << " batch_candidates=" << s.batch_candidates
              << " stop=" << EngineStopName(s.stop) << " global_work=" << s.global_work << " work_limit=" << s.work_limit
              << " progress_windows=" << s.progress_windows << " stagnant_windows=" << s.stagnant_windows << " search_windows=" << s.search_windows
-             << " size_progress=" << s.size_progress << " quality_progress=" << s.quality_progress << " cell_removals=" << s.cell_removals
+             << " bidirectional=" << s.bidirectional << " length_split_passes=" << s.length_split_passes
+         << " length_collapse_passes=" << s.length_collapse_passes << " length_splits=" << s.length_splits
+         << " length_collapses=" << s.length_collapses << " length_pass_deferred=" << s.length_pass_deferred
+         << " size_progress=" << s.size_progress << " quality_progress=" << s.quality_progress << " cell_removals=" << s.cell_removals
              << " geometry_trials=" << s.geometry_trials << " geometry_rejected=" << s.geometry_rejected << " metric_trials=" << s.metric_trials
              << " metric_shape_rejected=" << s.metric_shape_rejected << " metric_progress_rejected=" << s.metric_progress_rejected
              << " metric_measurement_rejected=" << s.metric_measurement_rejected
@@ -4154,12 +4157,14 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
   const auto result=AdaptMetric(world,input,source,geometry,{},options);INFO(result.reason);
   CHECK(result.stats.bidirectional);CHECK(result.stats.length_split_passes>0);CHECK(result.stats.length_collapse_passes>0);
   CHECK(world.sum(result.stats.length_splits)>0);CHECK(world.sum(result.stats.length_collapses)>0);
+  CHECK(world.sum(result.stats.length_pass_deferred)>0);
   CHECK(world.maximum(saw_split));CHECK(world.maximum(saw_collapse));CHECK(world.maximum(!construction_unmeasured)==0);
   CHECK(world.maximum(collapse_before_size_complete));
   if(world.size>=3)CHECK(world.maximum(parallel_before_quality)>=2);
   CHECK(result.stats.global_work<=options.maximum_work);
   CHECK(world.sum(splits_before_quality)>0);CHECK(world.sum(collapses_before_quality)>0);
   CHECK(Bytes(input)==saved);CHECK(donorBytes(source)==donorBytes(source_saved));
+  EngineReport(result,world,"bidirectional_lengths");
   REQUIRE(result.valid);
   for(const auto& row:result.cells){const auto& c=row.second.cell;
     CHECK(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0);
@@ -4188,7 +4193,7 @@ TEST_CASE("Construction pass claims only committed cavity vertices", "[NativeCon
   auto deps=directory.Lookup(Query(world,feature));REQUIRE(deps.valid);
   auto imported=directory.Fetch(deps,owned);REQUIRE(imported.valid);
   const bool before=directory.Reserve(imported,world.rank==0,reason);
-  CHECK(world.rank!=0 || before);CHECK_FALSE(directory.PassDeferred());
+  CHECK((world.rank!=0 || before));CHECK_FALSE(directory.PassDeferred());
   REQUIRE(directory.Publish(owned,removed,added,true,reason));
   deps=directory.Lookup(Query(world,feature));REQUIRE(deps.valid);
   imported=directory.Fetch(deps,owned);REQUIRE(imported.valid);
@@ -4217,7 +4222,7 @@ TEST_CASE("Construction pass claims only committed cavity vertices", "[NativeCon
   CHECK(directory.Reserve(imported,world.rank==0,reason)==(world.rank==0));CHECK_FALSE(directory.PassDeferred());
   directory.EndConstructionPass();
   const bool after=directory.Reserve(imported,world.rank==0,reason);
-  CHECK(world.rank!=0 || after);CHECK_FALSE(directory.PassDeferred());
+  CHECK((world.rank!=0 || after));CHECK_FALSE(directory.PassDeferred());
 }
 
 TEST_CASE("Metric lifecycle disagreement is refused collectively", "[NativeBidirectionalLength3D]") {

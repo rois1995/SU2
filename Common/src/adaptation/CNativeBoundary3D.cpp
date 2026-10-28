@@ -2812,6 +2812,7 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const Pla
   try {
     auto parameter_context=base_reference.PrivateParameters(old);
     const auto& reference=parameter_context?*parameter_context:base_reference;
+    if(!reference.ContractionAllowed(point,neighbor))throw std::invalid_argument("Native 3D collapse leaves its physical body or feature.");
     Bounds(old);
     if (point == neighbor) throw std::invalid_argument("Native 3D collapse repeats its endpoint.");
     const Incidence index(old.cells, stats);
@@ -2826,7 +2827,7 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const Pla
         if (marked == physical.end())
           throw std::invalid_argument("Native 3D incomplete collapse dependency at interface node " +
                                       std::to_string(point) + ".");
-        if (!reference.Contains(marked->second.facet, apex.p, stats))
+        if (!reference.Mobility() && !reference.Contains(marked->second.facet, apex.p, stats))
           throw std::invalid_argument("Native 3D collapse leaves incident reference facet " +
                                       std::to_string(marked->second.facet) + ".");
       }
@@ -2864,10 +2865,10 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const Pla
         auto face = entry.second;
         for (auto& id : face)
           if (id == point) id = neighbor;
-        if (reference.Declared(facet)) {
+        if (!reference.Mobility() && reference.Declared(facet)) {
           if (!reference.ContainsFace(facet,{nodes.at(face[0]).p,nodes.at(face[1]).p,nodes.at(face[2]).p},stats))
             throw std::invalid_argument("Native3D collapse folds or leaves its finite curved chart.");
-        } else for (size_t axis = 0; axis < 3; ++axis) {
+        } else if(!reference.Mobility()) for (size_t axis = 0; axis < 3; ++axis) {
           const auto old_area = Projected(nodes.at(entry.second[0]).p, nodes.at(entry.second[1]).p,
                                           nodes.at(entry.second[2]).p, axis, stats);
           if (old_area == 0) continue;

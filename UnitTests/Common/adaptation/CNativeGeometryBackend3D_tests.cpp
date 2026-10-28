@@ -93,3 +93,63 @@ TEST_CASE("Native backend region certificates and full authority survive existin
   CHECK_FALSE(changed_backend.AssociationValid(binding,evaluation.point,reason));
   const auto saved=bounds.maximum_error;CHECK_FALSE(backend.RegionErrorBounds({},flat,bounds,budget,reason));CHECK(bounds.maximum_error==saved);
 }
+
+TEST_CASE("Native contraction policy follows physical sheets across original seams", "[NativeGeometryBackend3D][NativeGeometryContraction3D]") {
+  BackendFixture fixture(true);NativeMappedGeometryBackend3D backend(fixture.geometry,fixture.policy);const auto& g=*fixture.geometry;
+  const auto surface=g.FacetPoint(0,.25,.25),seam=g.EdgePoint({0,3},.5);
+  REQUIRE(seam.dimension==1);REQUIRE(g.MobilityDimension(seam,fixture.policy)==2);
+  REQUIRE(fixture.policy.sheets.at(0)==fixture.policy.sheets.at(1));
+  REQUIRE(fixture.policy.sheets.at(0)!=fixture.policy.sheets.at(2));
+  auto check=[&](const SurfaceBinding& removed,const SurfaceBinding& retained,bool expected) {
+    auto budget=BackendBudget();std::string reason="previous failure";bool allowed=!expected;
+    const bool queried=backend.ContractionAllowed(removed,retained,allowed,budget,reason);INFO(reason);REQUIRE(queried);
+    CHECK(allowed==expected);CHECK(reason.empty());
+  };
+  check(seam,g.FacetPoint(1,.25,.25),true);
+  check(surface,g.FacetPoint(1,.25,.25),true);
+  // These supports are incident to the same physical sheet across the original diagonal.
+  check(surface,g.EdgePoint({1,3},.5),true);
+  check(surface,g.Vertex(1),true);
+  check(seam,g.EdgePoint({0,2},.5),true);
+  check(surface,g.FacetPoint(2,.25,.25),false);
+  check(surface,g.Vertex(7),false);
+  check(surface,g.FacetPoint(100,.25,.25),false);
+  check(seam,g.Vertex(100),false);
+  check(g.Vertex(0),surface,false);
+  check(g.Vertex(0),g.Vertex(2),false);
+}
+
+TEST_CASE("Native contraction policy preserves genuine curve chains and incident corners", "[NativeGeometryBackend3D][NativeGeometryContraction3D]") {
+  BackendFixture fixture(true);NativeMappedGeometryBackend3D backend(fixture.geometry,fixture.policy);const auto& g=*fixture.geometry;
+  const auto curve=g.EdgePoint({0,2},.5);
+  REQUIRE(g.MobilityDimension(curve,fixture.policy)==1);
+  REQUIRE(g.MobilityDimension(g.Vertex(0),fixture.policy)==0);
+  REQUIRE(g.MobilityDimension(g.Vertex(2),fixture.policy)==0);
+  REQUIRE(fixture.policy.features.at(SU2Native3D::Edge{0,2})!=fixture.policy.features.at(SU2Native3D::Edge{2,3}));
+  auto check=[&](const SurfaceBinding& retained,bool expected) {
+    auto budget=BackendBudget();std::string reason="previous failure";bool allowed=!expected;
+    const bool queried=backend.ContractionAllowed(curve,retained,allowed,budget,reason);INFO(reason);REQUIRE(queried);
+    CHECK(allowed==expected);CHECK(reason.empty());
+  };
+  check(g.EdgePoint({0,2},.75),true);
+  check(g.Vertex(0),true);check(g.Vertex(2),true);
+  check(g.Vertex(7),false);
+  check(g.EdgePoint({2,3},.5),false);
+  check(g.FacetPoint(0,.25,.25),false);
+  check(g.EdgePoint({0,3},.5),false);
+  check(g.EdgePoint({100,102},.5),false);
+  check(g.Vertex(100),false);
+}
+
+TEST_CASE("Native contraction query distinguishes refusal from a topology veto", "[NativeGeometryBackend3D][NativeGeometryContraction3D]") {
+  BackendFixture fixture;NativeMappedGeometryBackend3D backend(fixture.geometry,fixture.policy);const auto& g=*fixture.geometry;
+  const auto removed=g.EdgePoint({0,3},.5),retained=g.FacetPoint(1,.25,.25);
+  for(bool initial:{false,true}) {
+    auto exhausted=BackendBudget();exhausted.maximum_work=0;std::string reason;bool allowed=initial;
+    CHECK_FALSE(backend.ContractionAllowed(removed,retained,allowed,exhausted,reason));
+    CHECK(allowed==initial);CHECK_FALSE(reason.empty());
+    auto budget=BackendBudget();auto stale=removed;++stale.version;reason.clear();
+    CHECK_FALSE(backend.ContractionAllowed(stale,retained,allowed,budget,reason));
+    CHECK(allowed==initial);CHECK_FALSE(reason.empty());
+  }
+}
