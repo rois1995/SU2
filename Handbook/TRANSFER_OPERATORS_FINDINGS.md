@@ -7,6 +7,20 @@ conservative projection, coverage and boundary accounting, transferred state and
 history, distributed consistency, and restart validation. Mesh-construction and
 quality-operator findings belong in the adaptation handbooks.
 
+## Scope correction, 2026-10-28
+
+M6 build92 fails constructing a joint original-source prism at face734 before any
+mesh operation. CNativeField3D::DonorCell stores **sensor metric tensors only**.
+Its prism/coverage extension is not the conservative CFD transfer representation.
+WorkingWeights and candidate reassessment are also metric operations. The selected
+[established design](ADAPTATION_ESTABLISHED_DESIGN.md) replaces that metric support
+with cavity-transported nodal fields. CConservativeTransfer/CDistributedProjection
+remain separate, including conservation, uncovered-volume accounting and history.
+This corrects any earlier conflation of the source-envelope blocker with solution
+transfer. No new curved/M6 transfer defect or successful workflow is established;
+those failing workflows never reached transfer. Reader metric packing changes are
+pending build94/runtime qualification and must agree with operator measurements.
+
 ## Current status
 
 The clipping correction (`6aee162837`) is qualified at build17 by the focused

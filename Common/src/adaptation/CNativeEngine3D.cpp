@@ -5,6 +5,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeEngine3D.hpp"
+#include "../../include/adaptation/CNativeMetricTransport3D.hpp"
 #include "../../include/adaptation/CNativeOptimize3D.hpp"
 #include "../../include/adaptation/CNativeRegionField3D.hpp"
 #include "../../include/adaptation/CNativePointConstruction3D.hpp"
@@ -805,7 +806,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   // Every adaptation can enter quality improvement; rejected repair support must be invalidated
   // even for flat, uncomposed refinement/repair events.
   auto directory=std::make_unique<Directory>(world,true,geometry.Parameters());
-  DonorImport source(world,options.timings);
+  CavityMetricSource source(world,working,options.timings);
   struct CoarseningCheckpoint {
     Owned cells;
     std::unique_ptr<BoundaryParameterState> parameters;
@@ -1358,7 +1359,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     RegionReport report;
     auto tick=[&](){if(options.maximum_seconds && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)
       throw std::runtime_error("Native3D region construction exhausts elapsed-time budget.");};
-    RegionFieldService service(world,source,geometry,composition,options.edge_breakpoints,options.timings,
+    RegionFieldService service(world,source.Bootstrap(),geometry,composition,options.edge_breakpoints,options.timings,
         options.memory_ceiling,transfer_memory::Add(bytes(),scratch,directory->ResidentBytes()),
         [&](const FrozenField& field){FieldCounts(stats,field);},tick);
     try {service.Run([&](const RegionMetric& target){
@@ -1405,6 +1406,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(geometry.Mapped()){geometry.ExportParameters(old);geometry.ExportParameters(fresh);region_parameter_edits=BoundaryParameterState::Changes(old,fresh,geometry.Parameters()->Revision());}
           std::map<Face,Id> physical;for(auto f:fresh.surface)physical.emplace(Key(f.v),f.facet);
           for(const auto& c:fresh.cells){OwnedCell row;row.cell=c;const auto faces=Faces(c);for(unsigned f=0;f<4;++f){auto found=physical.find(Key(faces[f]));if(found!=physical.end())row.physical[f]={true,found->second};}replacement.push_back(row);}
+          PublishMetrics(rows,replacement);
         }
       }
     },imported.cells);}catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -1464,49 +1466,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   auto import_source=[&](const std::vector<Cell>& cells,size_t extra,bool layer,
                          const std::vector<unsigned char>* requests=nullptr) {
-    auto failed=[&](){DonorPatch patch;patch.reason=result.reason;return patch;};
-    if(!admit(transfer_memory::Add(extra,transfer_memory::Bytes(cells),transfer_memory::Mul(cells.size(),sizeof(Point)))))return failed();
-    if(requests && phase==Phase::Construction) {
-      if(layer)++stats.layer_donor_batches;else ++stats.donor_batches;
-      return source.ImportMetricSamples(cells,eligible_extensions,options.memory_ceiling,
-          transfer_memory::Add(bytes(),directory->ResidentBytes(),extra),*requests,false);
-    }
-    CLocalFailure failure;std::vector<Point> points;
-    try {points.reserve(cells.size());for(const auto& c:cells)points.push_back(Centroid(c));}
-    catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(!vote(failure))return failed();
-    auto count_import=[&](){if(layer)++stats.layer_donor_batches;else ++stats.donor_batches;};
-    count_import();
-    auto patch=source.ProbePoints(points,options.memory_ceiling,
-        transfer_memory::Add(bytes(),directory->ResidentBytes(),extra,transfer_memory::Bytes(cells)));
-    if(!patch.valid)return patch;
-    bool supported=true;
-    try {for(size_t i=0;i<cells.size();++i) {
-      bool found=false;
-      for(const auto& d:patch.cells) {
-        if(d.extension_component!=UINT64_MAX)continue;
-        const auto& v=d.cell.v;const Tetrahedron parent{v[0].p,v[1].p,v[2].p,v[3].p};
-        auto interior=[&](Point p){std::array<long double,4> w;return Barycentric(parent,p,w) &&
-            std::all_of(w.begin(),w.end(),[](long double x){return x>0;});};
-        if(!interior(points[i]))continue;
-        bool contains=true;
-        for(auto n:cells[i].v) {
-          const bool vertex=std::any_of(v.begin(),v.end(),[&](Node old){return n.id==old.id &&
-              n.p.x==old.p.x && n.p.y==old.p.y && n.p.z==old.p.z;});
-          if(!vertex && !interior(n.p)){contains=false;break;}
-        }
-        if(contains){found=true;break;}
-      }
-      if(!found){supported=false;break;}
-    }}catch(const std::exception& e){failure.Set(2,0,e.what());}
-    if(!vote(failure))return failed();
-    // Original edges use their exact nodal P1; all other edges and centroids stay strictly inside a parent.
-    // First-row cones and original-cell measurement preserve this property.
-    if(!world.maximum(!supported))return patch;
-    // shortcut: shared-face inserted points retain full imports; extend only with canonical-source equivalence proof.
-    patch={};std::vector<Point>().swap(points);count_import();
-    if(requests)return source.ImportMetricSamples(cells,eligible_extensions,options.memory_ceiling,
-        transfer_memory::Add(bytes(),directory->ResidentBytes(),extra),*requests,true);
+    if(layer)++stats.layer_donor_batches;else ++stats.donor_batches;
     return source.ImportCells(cells,options.memory_ceiling,
         transfer_memory::Add(bytes(),directory->ResidentBytes(),extra));
   };
@@ -1599,12 +1559,17 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(ranked_background) {
             Timer timer(stats.layer_donor_seconds,options.timings);
             for(;;) {
-              std::vector<Cell> query;
+              std::vector<Cell> query;std::vector<OwnedCell> metric_context;
               try {for(size_t k=at;k<std::min(at+group,imported.candidates.size());++k)
-                if(reserved.chosen[k] && joint_candidate(imported.candidates[k]))query.push_back(imported.candidates[k].cells.front().cell);
+                if(reserved.chosen[k] && joint_candidate(imported.candidates[k])) {
+                  query.push_back(imported.candidates[k].cells.front().cell);
+                  metric_context.push_back(imported.candidates[k].cells.front());
+                }
               }catch(const std::exception& e){failure.Set(2,0,e.what());}
               if(!vote(failure))return false;
+              source.SetCavity(&metric_context);
               donors=import_source(query,layerScratch,true);
+              source.SetCavity(nullptr);
               if(donors.valid)break;
               if(!DonorCap(donors.reason) || group==1){result.reason=donors.reason;return false;}
               span=(group+1)/2;group=std::min(span,slots-at);++stats.layer_donor_retries;
@@ -1615,7 +1580,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             if(ranked_background) {
               Timer timer(stats.layer_metric_seconds,options.timings);
               const auto components=AssociatedExtensions(donors.cells,geometry);
-              target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
+              target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
               accounting.reset(new FieldAccounting{stats,*target});
             }
           }catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -1715,7 +1680,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           for(const auto& c:fresh.cells) {
             OwnedCell row;row.cell=c;const auto faces=Faces(row.cell);
             for(unsigned f=0;f<4;++f){const auto found=physical.find(Key(faces[f]));if(found!=physical.end())row.physical[f]={true,found->second};}
-            toAdd.at(dep.owner).push_back(row);
+            std::vector<OwnedCell> metric_rows{row};
+            PublishMetrics(imported.candidates.at(k).cells,metric_rows);
+            toAdd.at(dep.owner).push_back(metric_rows.front());
           }
           ++published;
         }}catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -1789,7 +1756,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (slot<ids.size()) try {
         CpuTimer private_cpu(stats.measurement_cpu_seconds,options.timings);
         const auto components=AssociatedExtensions(imported.cells,geometry);
-        FrozenField field(std::move(imported.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
+        FrozenField field(std::move(imported.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
         FieldAccounting accounting{stats,field};
         for (size_t i=slot;i<std::min(slot+batch,ids.size());++i) {
           PatchMetric metric;
@@ -2416,6 +2383,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       if (!ready) return finish();
     }
+    source.SetCavity(&imported.cells);
+    struct CavityScope {
+      CavityMetricSource& source;
+      ~CavityScope() { source.SetCavity(nullptr); }
+    } cavity_scope{source};
     CLocalFailure failure;
     const bool coordinate_only=repairing && imported.coordinate_star.count==1 && imported.cells.size()>MaximumCavityCells;
     const bool coordinate_stream=world.maximum(coordinate_only);
@@ -2528,7 +2500,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
         const auto components=AssociatedExtensions(seed.cells,geometry);
         observe_transaction("split_donors",seed.valid,&seed);
-        FrozenField target(std::move(seed.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
+        FrozenField target(std::move(seed.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
         FieldAccounting accounting{stats,target};
         bool conflict=false;
         if(crease_freedom==SegmentFreedom::MidpointOnly) {
@@ -2588,20 +2560,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     if (!ready) return finish();
     const bool metric_needed=chosen && (approved || repairing || !coarsening || bad_field);
-    DonorPatch sensors;
-    std::vector<Cell> regions;
-    {
-      Timer timer(stats.donor_seconds,options.timings);
-      if (metric_needed) try { for (const auto& row : imported.cells) regions.push_back(row.cell); }
-      catch (const std::exception& e) { failure.Set(2,0,e.what()); }
-      ready=vote(failure);
-      if (ready && !curved && !coordinate_stream && world.maximum(metric_needed)) sensors=source.ImportCells(regions,options.memory_ceiling,
-          transfer_memory::Add(bytes(),directory->ResidentBytes(),transfer_memory::Bytes(imported.cells),
-              transfer_memory::Bytes(old.cells),transfer_memory::Bytes(old.surface),
-              transfer_memory::Bytes(fresh.cells),transfer_memory::Bytes(fresh.surface)));
-      else if (ready) sensors.valid=true;
-    }
-    bool streamed=ready && (curved || coordinate_stream || (!sensors.valid && DonorCap(sensors.reason)));
+    DonorPatch sensors;sensors.valid=true;
+    bool streamed=ready;
     if (!ready || (!sensors.valid && !streamed)) { if (ready) result.reason=sensors.reason; return finish(); }
     if (streamed && !admit(private_scratch)) return finish();
     if (streamed) ++stats.private_query_retries;
@@ -2640,7 +2600,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         CpuTimer private_cpu(stats.metric_cpu_seconds,options.timings);
         const auto components=AssociatedExtensions(sensors.cells,geometry);
         observe_transaction("support_donors",sensors.valid,&sensors);
-        field=std::make_unique<FrozenField>(std::move(sensors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
+        field=std::make_unique<FrozenField>(std::move(sensors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
         PatchMetric metric;
         std::map<Edge,EdgeMeasure> reuse;
         for (const auto& cell : old.cells) selection.Cached(cell,reuse);
@@ -2767,7 +2727,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               observe_transaction("metric_donors",donors.valid,&donors);
               const auto components=AssociatedExtensions(donors.cells,geometry);
               observe_transaction("support_donors",donors.valid,&donors);
-              target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
+              target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
               for (size_t i=slot;i<std::min(slot+batch,cells.size());++i) {
                 const auto part=measure_shape ? MeasureMetricCells({cells[i]},*target,&counted,&reuse,shape,shape ? &certified : nullptr,&campaign_edges) :
                     MeasureMetricEdges({cells[i]},*target,&counted,&reuse,&campaign_edges);
@@ -2963,7 +2923,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
           const auto components=AssociatedExtensions(support.cells,geometry);
           observe_transaction("support_donors",support.valid,&support);
-          FrozenField target(std::move(support.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
+          FrozenField target(std::move(support.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
           FieldAccounting accounting{stats,target};std::vector<std::pair<Id,Id>> reserved_apices;
           for(size_t i=0;i<apices.size();++i)reserved_apices.emplace_back(apices[i],maximum_node+2+i+node_offset);
           if(height_apex!=UINT64_MAX) {
@@ -3082,7 +3042,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
           const auto components=AssociatedExtensions(donors.cells,geometry);
           observe_transaction("support_donors",donors.valid,&donors);
-          FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
+          FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
           FieldAccounting accounting{stats,target};std::map<Id,Node> nodes;
           for(const auto& c:old.cells)for(auto n:c.v)nodes.emplace(n.id,n);
           const std::array<double,3> fractions{{.5,.55,.565}};
@@ -3463,7 +3423,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               if(active && donors.valid)try {
                 const auto components=AssociatedExtensions(donors.cells,geometry);
                 observe_transaction("support_donors",donors.valid,&donors);
-                FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
+                FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
                 FieldAccounting accounting{stats,target};
                 Patch proposal;std::string rejected;
                 { Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
@@ -3714,7 +3674,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!coordinate_only && repair_work<repair_budget && !approved && donors.valid)try {
           const auto components=AssociatedExtensions(donors.cells,geometry);
           observe_transaction("support_donors",donors.valid,&donors);
-          FrozenField proposal_field(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity);
+          FrozenField proposal_field(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
           FieldAccounting accounting{stats,proposal_field};
           Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
           candidate=guarded_geometry(optimize_patch(old,RegionMetric(proposal_field),false));
@@ -3815,10 +3775,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           for (const auto& row : dependencies.cells) {
             owners.emplace(row.cell,row.owner);versions.emplace(row.cell,row.version);removals[row.owner].push_back(row);
           }
+          std::vector<OwnedCell> metric_rows;
+          for(const auto& cell:fresh.cells){OwnedCell row;row.cell=cell;metric_rows.push_back(row);}
+          PublishMetrics(imported.cells,metric_rows);
           std::map<Face,Id> physical;
           for (auto face : fresh.surface) physical.emplace(Key(face.v),face.facet);
           for (size_t i=0; i<fresh.cells.size(); ++i) {
-            OwnedCell row; row.cell=fresh.cells[i];
+            OwnedCell row=metric_rows.at(i);
             if(coordinate_only) {
               const auto version=versions.at(row.cell.id);
               if(version==UINT64_MAX)throw std::overflow_error("Native coordinate-star cell version overflows.");
@@ -3959,13 +3922,14 @@ bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,
   auto proposed=cell;bool changes=false;
   for(auto& n:proposed.cell.v)if(n.id==removed){n=retained;changes=true;}
   if(!changes)return false;
-  if(geometry.Mapped()&&(geometry.Mobility()||!geometry.Parameters()->Coverage().faces.empty()||!geometry.Parameters()->Coverage().traces.empty())) {
+  if(!geometry.EntityGeometry()&&geometry.Mapped()&&(geometry.Mobility()||!geometry.Parameters()->Coverage().faces.empty()||!geometry.Parameters()->Coverage().traces.empty())) {
     bool changed_surface=false;
     for(unsigned k=0;k<4;++k)changed_surface=changed_surface||(cell.physical[k].present&&cell.cell.v[k].id!=removed);
     // A single-cell filter cannot remap a complete physical star; the full operator must certify its atlas.
     if(changed_surface||!geometry.AtlasReservation())return false;
   }
-  const auto patch=GeometryPatch(Imported{{proposed},true,{}}, &geometry);
+  // Entity faces use existing point associations; test them before exporting/reconstructing a complete cavity.
+  const auto patch=GeometryPatch(Imported{{proposed},true,{}},geometry.EntityGeometry()?nullptr:&geometry);
   for(const auto& face:patch.surface) {
     std::array<Point,3> points;
     for(unsigned i=0;i<3;++i)for(auto n:proposed.cell.v)if(n.id==face.v[i])points[i]=n.p;

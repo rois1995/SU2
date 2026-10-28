@@ -17,6 +17,8 @@ from run import sha, save
 REPO = ROOT.parents[3]
 BINARY = REPO / "integration_evidence/build-integrated-v2/UnitTests/test_driver"
 CASES = {
+    "nodal_metric": (1, "[NativeMesh3D],[NativeDistributed3D],[NativeBridge3D],[NativeReassessment3D],[NativeCurrentNormalization3D],[NativeMetricFamily3D],[NativeBLTargetNormalization]"),
+    "nodal_metric6": (6, "[NativeMesh3D],[NativeDistributed3D],[NativeBridge3D],[NativeReassessment3D],[NativeCurrentNormalization3D],[NativeMetricFamily3D],[NativeBLTargetNormalization]"),
     "m6_stage": (6, "[NativeFrozenVolume3D]"),
     "cost_checks": (1, "[NativeOverlappingAtlas3D]"),
     "normalization": (1, "[NativeWorkingSurfaceNormalization3D]"),
@@ -78,7 +80,7 @@ for name in ("serial_full", "mpi6"):
     # Cover publication/history/restart and barycentric transfer as well as conservative kernels.
     CASES[name] = ranks, CASES[name][1] + (",[NativeCurvedTransaction3D],[NativeRuntime3D],"
                                          "[NativeCurvedRuntime3D],[NativePolicyVeto3D],"
-                                         "[NativeBLPolicyRuntime3D],Distributed barycentric transfer:*")
+                                         "[NativeBLPolicyRuntime3D],[NativeDistributed3D],[NativeBridge3D],[NativeReassessment3D],[NativeCurrentNormalization3D],[NativeMetricFamily3D],[NativeBLTargetNormalization],Distributed barycentric transfer:*")
 
 # Geometry-based serial transfer fixtures require a halo-free mesh. Their distributed
 # counterparts above exercise gathered geometry, partition equivalence and history.

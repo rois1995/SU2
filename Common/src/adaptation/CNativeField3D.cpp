@@ -5,6 +5,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeField3D.hpp"
+#include "../../include/adaptation/CNativeMetricTransport3D.hpp"
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CNativePointConstruction3D.hpp"
 #include "../../include/adaptation/CNativeNearContainment.hpp"
@@ -74,8 +75,8 @@ size_t FrozenField::Hash::operator()(const std::array<double, 3>& point) const {
 }
 FrozenField::FrozenField(std::vector<DonorCell> original, MetricComposition combine, bool enabled,
                          std::vector<Id> components, MetricEdgeBreakpoints breakpoints,
-                         std::shared_ptr<const FrozenMetricIdentity> authority,bool reuse,size_t limit)
-    : donors(std::move(original)), composition(std::move(combine)), edge_breakpoints(std::move(breakpoints)), timings(enabled),reuse_interior(reuse),
+                         std::shared_ptr<const FrozenMetricIdentity> authority,bool reuse,size_t limit,bool nodal)
+    : donors(std::move(original)), composition(std::move(combine)), edge_breakpoints(std::move(breakpoints)), timings(enabled),reuse_interior(reuse),current_nodal(nodal),
       identity(authority ? std::move(authority) : std::make_shared<const FrozenMetricIdentity>()) {
   Timer timer(stats.build_seconds, timings);
   Canonical(donors, limit);
@@ -108,7 +109,7 @@ FrozenField::FrozenField(std::vector<DonorCell> original, MetricComposition comb
   if (!components.empty()) std::stable_partition(donors.begin(),donors.end(),[](const DonorCell& d) {
     return d.extension_component==UINT64_MAX;
   });
-  if (donors.size() <= 1) return;  // One donor needs no tree or spatial traversal buffers.
+  if (current_nodal || donors.size() <= 1) return;  // One donor needs no tree or spatial traversal buffers.
   if constexpr (std::is_same<su2double, double>::value) {
     std::vector<su2double> coordinates;
     std::vector<unsigned long> connectivity, ids;
@@ -194,6 +195,12 @@ Point FrozenField::SegmentPoint(Point a,Point b,double parameter) {
     const Point nearest{double((1-(long double)parameter)*a.x+(long double)parameter*b.x),
         double((1-(long double)parameter)*a.y+(long double)parameter*b.y),
         double((1-(long double)parameter)*a.z+(long double)parameter*b.z)};
+    if (current_nodal) {
+      if ((nearest.x == a.x && nearest.y == a.y && nearest.z == a.z) ||
+          (nearest.x == b.x && nearest.y == b.y && nearest.z == b.z))
+        throw std::runtime_error("Native3D metric split is not representable.");
+      return nearest;
+    }
     const double lower[]={bounds[0].x,bounds[0].y,bounds[0].z},upper[]={bounds[1].x,bounds[1].y,bounds[1].z};
     const double hint[]={nearest.x,nearest.y,nearest.z};
     std::array<unsigned,3> preferred;for(unsigned k=0;k<3;++k)preferred[k]=hint[k]>=upper[k];
@@ -244,7 +251,8 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed, LengthInver
       throw std::invalid_argument("Nonfinite native 3D sensor edge.");
     if (a.x == b.x && a.y == b.y && a.z == b.z) throw std::invalid_argument("Native 3D sensor edge must be nonzero.");
     std::vector<const Cell*> cells;
-    {
+    DonorCell endpoints;
+    if (!current_nodal) {
       Timer timer(stats.edge_search_seconds, timings);
       // DC-16: the box grows by the near-coverage tolerance so donors next to a near-boundary endpoint are traced
       const double t=double(NearCoverageTolerance(a,b));
@@ -256,7 +264,12 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed, LengthInver
       for (auto i : candidates) cells.push_back(&donors.at(i).cell);
     }
     std::vector<SegmentPiece> pieces;
-    {
+    if (current_nodal) {
+      endpoints.sensor[0] = Query(a).sensor; endpoints.sensor[1] = Query(b).sensor;
+      SegmentPiece piece; piece.begin = 0; piece.end = 1; piece.width = 1;
+      piece.begin_weights = {1, 0, 0, 0}; piece.end_weights = {0, 1, 0, 0};
+      pieces.push_back(piece); ++stats.edge_direct_intervals;
+    } else {
       Timer timer(stats.edge_trace_seconds, timings);
       if(cells.size()==1)stats.edge_containment_tests+=2;
       // One canonical segment kernel keeps endpoint weights independent of imported support size.
@@ -276,6 +289,9 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed, LengthInver
       }
       if(cells.size()==1)++stats.edge_direct_intervals;
     }
+    const auto& piece_donor = [&](const SegmentPiece& piece) -> const DonorCell& {
+      return current_nodal ? endpoints : donors[candidates[piece.donor]];
+    };
     stats.edge_pieces += pieces.size();
     stats.maximum_edge_pieces = std::max(stats.maximum_edge_pieces, pieces.size());
     Timer timer(stats.edge_integral_seconds, timings);
@@ -360,7 +376,7 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed, LengthInver
               <<a.x<<','<<a.y<<','<<a.z<<")..("<<b.x<<','<<b.y<<','<<b.z<<") piece="<<index<<" parameter="<<t;
           throw std::runtime_error(why.str());
         }
-        const auto& piece=pieces[index];const auto& donor=donors[candidates[piece.donor]];
+        const auto& piece=pieces[index];const auto& donor=piece_donor(piece);
         const auto parameter=piece.begin+t*piece.width;
         Point p{double((1-parameter)*a.x+parameter*b.x),double((1-parameter)*a.y+parameter*b.y),
                 double((1-parameter)*a.z+parameter*b.z)};
@@ -403,7 +419,7 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed, LengthInver
       };
       for(size_t index=0;index<pieces.size();++index) {
         const auto& piece=pieces[index];
-        if(donors[candidates[piece.donor]].extension_component!=UINT64_MAX)++stats.extended_edge_pieces;
+        if(piece_donor(piece).extension_component!=UINT64_MAX)++stats.extended_edge_pieces;
         long double low=0;
         for(const auto cut:cuts) {
           if(cut<=piece.begin || cut>=piece.end)continue;
@@ -443,7 +459,7 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed, LengthInver
       if (inverse) try { contributions.reserve(pieces.size()); } catch (...) {}
       for (size_t index = 0; index < pieces.size(); ++index) {
         const auto& piece = pieces[index];
-        const auto& donor = donors[candidates[piece.donor]];
+        const auto& donor = piece_donor(piece);
         if (donor.extension_component!=UINT64_MAX) ++stats.extended_edge_pieces;
         const auto first = MetricNorm(a, b, InterpolateSensor(donor, piece.begin_weights), &stats.kernel);
         const auto last = MetricNorm(a, b, InterpolateSensor(donor, piece.end_weights), &stats.kernel);
@@ -461,7 +477,7 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed, LengthInver
           const auto& piece = pieces[index];
           std::array<long double, 4> weights;
           for (unsigned k = 0; k < 4; ++k) weights[k] = (1 - t) * piece.begin_weights[k] + t * piece.end_weights[k];
-          return MetricNorm(a, b, InterpolateSensor(donors[candidates[piece.donor]], weights), &stats.kernel);
+          return MetricNorm(a, b, InterpolateSensor(piece_donor(piece), weights), &stats.kernel);
         });
     }
     if (!(total > 0 && std::isfinite(total)))
@@ -473,6 +489,8 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed, LengthInver
   }
 }
 FieldSample FrozenField::QueryMidpoint(Point a,Point b) {
+  if (current_nodal) return Query({double(((long double)a.x+b.x)/2), double(((long double)a.y+b.y)/2),
+                                   double(((long double)a.z+b.z)/2)});
   Timer query_time(stats.query_seconds,timings);++stats.requests;
   try {
     for(auto p:{a,b})if(!(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z))) {
@@ -512,6 +530,17 @@ FieldSample FrozenField::Query(Point point) {
     if (!(std::isfinite(point.x) && std::isfinite(point.y) && std::isfinite(point.z))) {
       ++stats.invalid_queries;
       throw std::invalid_argument("Nonfinite native 3D sensor query.");
+    }
+    if (current_nodal) {
+      ++stats.misses; ++stats.interpolations; stats.containment_tests += donors.size();
+      DonorSample result;
+      { Timer timer(stats.search_seconds, timings); result = EvaluateCavitySample(donors, point); }
+      FieldSample sample{result.sensor, result.sensor, result.Key(), result.weights, UINT64_MAX};
+      if (composition) {
+        Timer compose(stats.composition_seconds, timings); ++stats.compositions;
+        sample.target = composition(point, sample.sensor); ValidateTensor(sample.target, &stats.kernel);
+      }
+      return sample;
     }
     const std::array<double, 3> key{point.x, point.y, point.z};
     SensorValue value;

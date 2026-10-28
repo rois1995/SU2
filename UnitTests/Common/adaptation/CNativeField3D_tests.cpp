@@ -6,6 +6,7 @@
  */
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeField3D.hpp"
+#include "../../../Common/include/adaptation/CNativeMetricTransport3D.hpp"
 #include "../../../Common/include/adaptation/CNativePointConstruction3D.hpp"
 #include "../../../Common/include/adaptation/CNativeFma.hpp"
 #include <cstring>
@@ -650,4 +651,75 @@ TEST_CASE("A coherent extension never overrides physical original priority", "[N
   CHECK(field.Statistics().donor_hint_hits==1);
   CHECK(field.Query({1.3,.1,.1}).extension_component==42);
   CHECK(field.Query({.12,.1,.1}).extension_component==UINT64_MAX);
+}
+
+TEST_CASE("Native 3D cavity nodal sensor transport handles projected nodes", "[NativeMesh3D]") {
+  const auto original = Single();
+  std::map<Id, Tensor> metrics;
+  for (size_t i = 0; i < 4; ++i) metrics.emplace(original.cell.v[i].id, original.sensor[i]);
+  const auto donors = MetricDonors({original.cell}, metrics);
+  const auto moved = TransportNodalMetrics(donors, {{0, {.2, .2, .2}}, {4, {.2, .3, .1}},
+                                                     {5, {.8, .8, -.1}}}, metrics);
+  CHECK(moved.at(0).xx == metrics.at(0).xx);
+  CHECK(moved.at(4).xx == Approx(2.2));
+  CHECK(moved.at(4).yy == Approx(3.3));
+  CHECK(moved.at(4).zz == Approx(4.1));
+  CHECK(moved.at(5).xx == Approx(2.5));
+  CHECK(moved.at(5).yy == Approx(3.5));
+  CHECK(moved.at(5).zz == Approx(4));
+  REQUIRE_NOTHROW(ValidateTensor(moved.at(5)));
+  auto inconsistent = original;
+  inconsistent.sensor[0].xx += 1;
+  CHECK_THROWS(TransportNodalMetrics({original, inconsistent}, {{7, {.1, .2, .3}}}, metrics));
+  CHECK_THROWS(MetricDonors({}, metrics));
+  auto bad = original.cell;
+  bad.v[3].p = bad.v[2].p;
+  CHECK_THROWS(MetricDonors({bad}, metrics));
+  CHECK_THROWS(TransportNodalMetrics(donors, {{6, {NAN, 0, 0}}}, metrics));
+}
+TEST_CASE("Native 3D cavity source transports replacement nodal sensors", "[NativeMesh3D]") {
+  const auto donor = Single();
+  OwnedCell old; old.cell = donor.cell; old.sensor = donor.sensor; old.sensor_present = true;
+  Owned current{{old.cell.id, old}};
+  World world;
+  CavityMetricSource source(world, current);
+  std::vector<OwnedCell> cavity{old};
+  source.SetCavity(&cavity);
+  auto replacement = old;
+  replacement.cell.v[3] = {9, {.8, .8, -.1}};
+  const auto imported = source.ImportCells({replacement.cell});
+  REQUIRE(imported.valid);
+  REQUIRE(imported.cells.size() == 1);
+  CHECK(imported.cells[0].cell.v[3].p.z == -.1);
+  CHECK(imported.cells[0].sensor[3].xx == Approx(2.5));
+  CHECK(imported.cells[0].sensor[3].yy == Approx(3.5));
+  std::vector<OwnedCell> fresh{replacement};
+  PublishMetrics(cavity, fresh);
+  REQUIRE(fresh[0].sensor_present);
+  CHECK(fresh[0].sensor[3].xx == Approx(2.5));
+  cavity[0].sensor_present = false;
+  CHECK_FALSE(source.ImportCells({replacement.cell}).valid);
+  CHECK_THROWS(PublishMetrics(cavity, fresh));
+}
+TEST_CASE("Native 3D current nodal field samples and integrates projected edges", "[NativeMesh3D]") {
+  const auto donor = Single();
+  FrozenField strict({donor});
+  CHECK_THROWS(strict.Query({-1, 0, 0}));
+  FrozenField field({donor}, {}, false, {}, {}, {}, true, MaximumDonors, true);
+  CHECK(field.Query({-1, 0, 0}).sensor.xx == Approx(2));
+  CHECK(field.Query({2, 0, 0}).sensor.xx == Approx(3));
+  const auto expected = 2 * (3 * std::sqrt(3.) - 2 * std::sqrt(2.));
+  CHECK(double(field.SensorEdgeLength({-1, 0, 0}, {2, 0, 0})) == Approx(expected));
+  auto uniform = donor;
+  for (auto& sensor : uniform.sensor) sensor = {4, 0, 0, 4, 0, 4};
+  FrozenField constant({uniform}, {}, false, {}, {}, {}, true, MaximumDonors, true);
+  CHECK(double(constant.SensorEdgeLength({-1, 0, 0}, {2, 0, 0})) == Approx(6));
+  size_t cuts_called = 0, composed = 0;
+  MetricComposition composition = [&](Point p, Tensor sensor) { ++composed; sensor.xx *= p.x < .5 ? 1 : 4; return sensor; };
+  MetricEdgeBreakpoints cuts = [&](Point, Point) { ++cuts_called; return std::vector<double>{0, .5, 1}; };
+  FrozenField target({uniform}, composition, false, {}, cuts, {}, true, MaximumDonors, true);
+  CHECK(target.Query({2, 0, 0}).target.xx == Approx(16));
+  CHECK(double(target.TargetEdgeLength({-1, 0, 0}, {2, 0, 0})) == Approx(9));
+  CHECK(cuts_called == 1);
+  CHECK(composed > 1);
 }

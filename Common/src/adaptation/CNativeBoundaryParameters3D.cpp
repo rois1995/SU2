@@ -328,7 +328,7 @@ void BoundaryParameterState::ValidateEntityFeatures(AtlasBudget& budget)const {
     if(!edge_counts.count(row.first)||row.first[0]>=row.first[1]||row.second.pieces.empty())throw std::invalid_argument("Entity curve has no physical edge.");
     auto normalized=row.second;std::optional<Id> chain;
     if(!NormalizeFeatureTrace(*geometry,mobility,normalized,chain,budget,reason)||!chain)throw std::invalid_argument("Invalid entity feature trace: "+reason);
-    bool equal=false;if(!geometry->CompareTraces(row.second,normalized,equal,budget,reason)||!equal)throw std::invalid_argument("Entity feature trace is not canonical.");
+    bool equal=false;if(row.second.pieces.size()!=normalized.pieces.size() || !geometry->CompareTraces(row.second,normalized,equal,budget,reason)||!equal)throw std::invalid_argument("Entity feature trace is not canonical.");
     for(unsigned endpoint=0;endpoint<2;++endpoint) {
       const auto& piece=endpoint?row.second.pieces.back():row.second.pieces.front();const auto& parameter=endpoint?piece.last:piece.first;
       ExactBary binding;std::vector<uint64_t> actual,expected;
@@ -360,7 +360,7 @@ std::shared_ptr<BoundaryParameterState> BoundaryParameterState::WithEntityGeomet
   for(const auto& row:surface){std::array<BoundaryPoint,3> p;for(unsigned k=0;k<3;++k)p[k]=records.at(row.second.v[k]).point;
     if(!next->ContainsEntityFace(row.second.facet,p))throw std::invalid_argument("Legacy face fails entity association/orientation migration.");
     next->facet_faces.emplace(std::get<1>(next->Entity(row.second.facet)),row.first);}
-  next->ValidateEntityFeatures(budget);next->GeometryCertificates(budget);return next;
+  next->ValidateEntityFeatures(budget);return next;
 }
 const std::map<BoundaryParameterState::EntityKey,MappedFacetReference::SurfaceUnionBounds>&
 BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete)const {
@@ -631,7 +631,7 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
           throw std::invalid_argument("Entity publication contains a nonfeature trace: "+reason);
         const auto next=staged.edge_counts.find(row.first);const auto old=edge_counts.find(row.first);
         if(next==staged.edge_counts.end()?old==edge_counts.end():!next->second)throw std::invalid_argument("Entity feature has no surviving edge.");
-        bool canonical=false;if(!geometry->CompareTraces(row.second,trace,canonical,budget,reason)||!canonical)
+        bool canonical=false;if(row.second.pieces.size()!=trace.pieces.size() || !geometry->CompareTraces(row.second,trace,canonical,budget,reason)||!canonical)
           throw std::invalid_argument("Entity feature publication is not canonical.");
         for(unsigned k=0;k<2;++k){const auto& piece=k?trace.pieces.back():trace.pieces.front();const auto& value=k?piece.last:piece.first;
           ExactBary binding;std::vector<uint64_t> a,b;

@@ -19,43 +19,41 @@ comparison baseline; direct user provenance of those numbers is unconfirmed.
 Rational chart ownership, smooth-edge contracts and budget formulas are agent
 choices. Caps can change with measured justification, not to hide repeated work.
 
-Implementation now follows fixed-model entity associations and current-patch
-replacement. Ordinary smooth paths and face covers are absent in the new curved
-production contract; only canonical genuine-curve routes persist. Two-sided
-geometry certification, source tubes, local topology/owner publication and
-explicit v9 persistence are connected in source, **not integrated-validated**.
-Legacy1–8 decodes remain separately validated before migration. The current cubic
-backend remains authoritative; no CAD format infrastructure was added.
-[Working-surface decision](Handbook/WORKING_SURFACE_RECONSTRUCTION_DECISION.md).
+No complete curved CFD/M6 adaptation, transfer and restart workflow is accepted.
+DC-17/DC-18 remain open. The selected foundation is SCOREC/MeshAdapt classified
+cavities and transported nodal size fields, implemented inside SU2's existing
+geometry, Directory/publication and separate conservative CFD transfer facilities.
+See [connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md). This replaces
+agent-selected metric-support prisms; it does not replace the native backend with
+an external executable. Features, bodies and all final acceptance gates remain.
 
-## Evidence and current job
+Build92 compiled successfully (303.443s). Curved workflow92 reached quality after
+295 splits/241 collapses with construction q/J measurements zero, but rejected;
+no curved transfer/restart. M6 build92 rejected before operators on a degenerate
+metric-support prism at face734 (386.112s total, pins unchanged). These prisms
+carry sensor metrics, not conserved flow/history. Atlas92 completed all four
+16-event publication/source/reload variants; broad result72/73, with one redundant
+feature-contract constructor assertion failing. These are supporting diagnostics,
+not an accepted workflow. All those owned jobs are terminal; receipts preserved.
 
-Checkpoints b35d3f626e/7e24ddebb0 are pushed to rois1995/SU2,
-`codex/native-3d-bl`. Build90 PASS189.258s. Curved workflow90 FAIL72.964s:
-295 splits/157 collapses, zero cached geometry/size debt, but arithmetic exhaustion
-before quality. Flat contexts pass; no curved transfer/restart acceptance.
+Build94 is compiling the connected current-nodal field change: import attributes,
+versioned owner payload, cavity transport and measurement, publication, complexity
+reassessment, bounded uniform normalization of the current field and reader packing.
+No new proof hierarchy, source hull, CAD format adapter or raised arithmetic cap.
+The old original-family trial graph is an agent choice; current-field normalization
+is deliberately replacing it rather than retaining interpolation ancestry.
+Build/runtime qualification and M6 remain pending. Known source-review gaps before
+qualification: regional projection outside the stage snapshot and FIRST_ROW stage-two sensor
+construction. Remote first-row context, core-eigenvalue scaling and collective
+preparation fixes are now implemented, awaiting build94. Do not declare BL complete from Euler results.
 
-M6 build90 was deliberately stopped after481.694s before operators; unchanged
-pins, owned host processes verified gone. Its120-sample profile places all stacks
-in full surface-union setup. Source enclosure now requests model→frozen mesh only;
-the final engine gate explicitly requests both directions. Source-only queries
-never claim final tolerance acceptance. The empty-interior feature-reconstruction
-veto is also fixed, with focused regression coverage.
+Check owned handles before editing pinned sources. Current build94 session36793. Build93 was deliberately stopped after12/32 targets;
+its zero raw exit did not establish completion. The receipt explicitly marks it
+interrupted, and the helper now checks both targets are up to date.
+One heavy job, nice19, build-j1, library threads1; at most6 ranks. Preflight load2.10,
+RAM26GiB available, workspace70GB free. Checkpoints b35d3f626e/7e24ddebb0/2cffdba6c8
+are pushed; new changes are not yet checkpointed. TODO remains local.
 
-**Build91 running**,44 targets, one low-priority worker, session96860/PID1900268.
-Do not edit pinned C++/helpers until terminal. Changes also add four16-event
-neighboring-move publication/source/schema8–9 reload variants and independently
-admitted first-failure replay. These changes are unqualified and not yet pushed.
-Next: actual curved workflow, compiled-filter audit, entity repeated MPI/source/
-reload checks, M6 early; preserve all final gates. Generic cubic/Euler curvature
-sizing remains open. See [decision/evidence](Handbook/ADAPTATION_REQUIREMENTS_REVIEW.md),
-[geometry cost](Handbook/GEOMETRY_VERIFICATION_COST.md) and
-[progress](ADAPTATION_PROGRESS.md) for preserved failures and historical receipts.
-
-RAM27GiB available, load1.22 at build91 preflight. /home16GB and workspace71GB
-free after user cleanup; matching owned Ninja1.13.0 restored. Sampled process RSS
-is not allocation peak. Remaining risks: source-tube shell feasibility, entity
-publication/reload and final real-mesh quality/geometry/transfer acceptance.
 
 ## Operations
 

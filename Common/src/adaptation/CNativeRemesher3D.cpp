@@ -618,11 +618,26 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     }
     if(!ready || stage==1 || !normalizer.propose || !prepared)break;
     now=parent.seconds();NormalizationProposal3D proposal;
+    const bool nodal_correction=prepared->current_nodal;
+    std::vector<DonorCell> correction_source;
+    const auto normalization_live=transfer_memory::Add(held(),OwnedStorageBytes(working),transfer_memory::Bytes(imported.original),
+        transfer_memory::Bytes(migrated),return_source->ResidentBytes(),prepared->ResidentBytes());
+    if(nodal_correction && !admit(transfer_memory::Add(normalization_live,
+        transfer_memory::Mul(working.size(),sizeof(DonorCell))))) {ready=false;break;}
     try {
-      const auto live=transfer_memory::Add(held(),OwnedStorageBytes(working),transfer_memory::Bytes(imported.original),
-          transfer_memory::Bytes(migrated),return_source->ResidentBytes(),prepared->ResidentBytes());
+      if(nodal_correction) {
+        correction_source.reserve(working.size());
+        for(const auto& row:working) {
+          if(!row.second.sensor_present)throw std::runtime_error("Normalization lost current nodal sensors.");
+          DonorCell d;d.cell=row.second.cell;d.sensor=row.second.sensor;correction_source.push_back(d);
+        }
+      }
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!vote(!failure.Failed(),failure.message)){ready=false;break;}
+    try {
       auto within=[&](){return !control.maximum_seconds || std::chrono::duration<double>(std::chrono::steady_clock::now()-deadline_start).count()<control.maximum_seconds;};
-      proposal=normalizer.propose(stats.complexity,*prepared,imported.original,frozen_core,within,control.memory_ceiling,live);
+      proposal=normalizer.propose(stats.complexity,*prepared,nodal_correction?correction_source:imported.original,
+          frozen_core,within,control.memory_ceiling,transfer_memory::Add(normalization_live,transfer_memory::Bytes(correction_source)));
     }catch(const std::exception& e){proposal.valid=false;proposal.reason=e.what();}
     try {stats.normalization=proposal;stats.normalization.source_value={};}
     catch(const std::exception& e){failure.Set(3,0,e.what());}
@@ -635,14 +650,18 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     if(!ready || !proposal.changed)break;
     ready=vote(stats.cumulative_work<control.maximum_work,"Native3D normalization correction exhausted shared mesh work.");
     if(!ready)break;
-    // End the old frozen source before publishing new values into the same ORIGINAL donor geometry.
+    // Retire assessment indexes before updating the current nodal field.
     return_source.reset();prepared.reset();
     if(!admit(transfer_memory::Add(held(),OwnedStorageBytes(working),transfer_memory::Bytes(imported.original),
         transfer_memory::Bytes(migrated),proposal.retained_bytes))) {ready=false;break;}
     try {
       if(!proposal.source_value || !(proposal.core>0) || !std::isfinite(proposal.core))
         throw std::runtime_error("Native3D normalization omitted its original source values/core.");
-      for(auto& d:imported.original)for(unsigned k=0;k<4;++k){d.sensor[k]=proposal.source_value(d.cell.v[k].id);ValidateTensor(d.sensor[k]);}
+      if(nodal_correction) {
+        for(auto& row:working)for(unsigned k=0;k<4;++k) {
+          row.second.sensor[k]=proposal.source_value(row.second.cell.v[k].id);ValidateTensor(row.second.sensor[k]);
+        }
+      } else for(auto& d:imported.original)for(unsigned k=0;k<4;++k){d.sensor[k]=proposal.source_value(d.cell.v[k].id);ValidateTensor(d.sensor[k]);}
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     ready=vote(!failure.Failed(),failure.message);proposal.source_value={};
     if(!ready)break;
@@ -925,7 +944,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       <<" requested_budget="<<config.GetAdap_Complexity()
       <<" relative_budget_discrepancy="<<(stats.complexity.value/SU2_TYPE::GetValue(config.GetAdap_Complexity())-1)
       <<" standard_error="<<stats.complexity.standard_error<<" block_standard_error="<<stats.complexity.block_standard_error
-      <<" samples="<<stats.complexity.samples<<" original_field=1 proven_bound=0 normalization_correction="<<stats.normalization.changed<<"\n";
+      <<" samples="<<stats.complexity.samples<<" current_nodal_field=1 proven_bound=0 normalization_correction="<<stats.normalization.changed<<"\n";
   else if(parent.rank==0 && stats.complete)std::cout<<"Native3D candidate complexity unresolved: "<<stats.complexity.reason<<"\n";
   stats.report_seconds = parent.seconds() - report;
   return result;

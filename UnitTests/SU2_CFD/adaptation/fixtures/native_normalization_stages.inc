@@ -55,7 +55,7 @@ TEST_CASE("Original family replay recovers clipped demands without Hessian recov
   }
   ComplexityReassessment3D first;BridgeStats stats;std::shared_ptr<const PreparedComplexity3D> cloud;
   const auto ok=ReassessComplexity(world,fine,source,*driver->Reference()->original,{},first,reason,stats,size_t(128)<<20,0,8192,20261017,{},&cloud);
-  INFO(reason);REQUIRE(ok);REQUIRE(cloud);REQUIRE(first.estimated);
+  INFO(reason);REQUIRE(ok);REQUIRE(cloud);REQUIRE_FALSE(cloud->current_nodal);REQUIRE(first.estimated);
   CNativeCandidateComplexity3D assess(*family,*cloud,input.original,size_t(128)<<20);
   su2double core=family->core;const auto reference=assess.Assess(family->selected,core);
   CHECK(reference.value==Approx(first.value).epsilon(2e-12));const auto searches=source.Statistics().point_queries;
@@ -127,6 +127,63 @@ TEST_CASE("Original collar aliases use the physical source span with empty publi
   CHECK_THROWS(CNativeCandidateComplexity3D(family,cloud,source,0));
 }
 
+TEST_CASE("Current nodal normalization corrects and returns a uniform Euler metric", "[NativeCurrentNormalization3D]") {
+  World world;const std::string name="current_nodal_euler";
+  auto options=normalization_test::Options(name,world.size,false);
+  for(const auto& change:std::vector<std::pair<std::string,std::string>>{{"SOLVER= RANS","SOLVER= EULER"},
+      {"KIND_TURB_MODEL= SA\n",""},{"MARKER_HEATFLUX= (wall,0)","MARKER_EULER= (wall)"}}) {
+    const auto at=options.find(change.first);REQUIRE(at!=std::string::npos);options.replace(at,change.first.size(),change.second);
+  }
+  if(!world.rank) {
+    simplex_test::WriteSU2Mesh(simplex_test::MakeSimplexMesh(3,1,[](const passivedouble* p){return p[2]==0?"wall":"far";}),name+".su2");
+    std::ofstream out(name+".cfg");out<<options;REQUIRE(bool(out));
+  }
+  SU2_MPI::Barrier(world.comm);auto cfg=name+".cfg";
+  auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
+  auto& g=driver->Geometry();auto& solver=driver->Solver();
+  std::vector<su2double> raw(6*g.GetnPointDomain());
+  for(size_t i=0;i<g.GetnPointDomain();++i)raw[6*i]=raw[6*i+3]=raw[6*i+5]=4;
+  {Mute mute;solver.ComputeMetric(&g,&driver->Config(),&raw,true,nullptr,driver->Reference().get());}
+  auto family=std::const_pointer_cast<CNativeMetricFamily3D>(solver.GetNativeMetricFamily3D());REQUIRE(family);
+  family->normalization.status=SU2Complexity::Status::IntegrationLimited;
+  const auto job=NativeNormalizationStage3D(solver,g,driver->Config(),*driver->Reference(),solver.GetNodes()->GetMetric());
+  REQUIRE(job.propose);
+  auto imported=ImportGeometry(driver->Config(),g,&solver.GetNodes()->GetMetric(),*driver->Reference());
+  for(auto& row:imported.cells)for(unsigned k=0;k<4;++k) {
+    row.second.cell.v[k].id+=100000;row.second.sensor[k]={4,0,0,4,0,4};row.second.sensor_present=true;
+  }
+  DonorImport original(world);std::string reason;REQUIRE(original.Build(imported.original,reason));
+  ComplexityReassessment3D before;BridgeStats stats;std::shared_ptr<const PreparedComplexity3D> cloud;
+  REQUIRE(ReassessComplexity(world,imported.cells,original,*driver->Reference()->original,{},before,reason,stats,
+      size_t(256)<<20,0,8192,20261017,{},&cloud));
+  REQUIRE(before.estimated);REQUIRE(cloud);REQUIRE(cloud->current_nodal);CHECK(before.value==Approx(8).margin(1e-10));
+  std::vector<DonorCell> current;
+  for(const auto& row:imported.cells){DonorCell donor;donor.cell=row.second.cell;donor.sensor=row.second.sensor;current.push_back(donor);}
+  const auto proposal=job.propose(before,*cloud,current,4,{},size_t(256)<<20,0);
+  INFO(proposal.reason);REQUIRE(proposal.valid);REQUIRE(proposal.changed);REQUIRE(proposal.source_value);
+  const double expected=std::pow(20./8.,2./3.);const double factor=std::exp(proposal.log_scale);
+  CHECK(factor==Approx(expected).epsilon(1e-5));CHECK(proposal.core==Approx(4*factor).epsilon(1e-12));
+  const double low=1/(family->controls[1]*family->controls[1]),high=1/(family->controls[0]*family->controls[0]);
+  for(auto& row:imported.cells)for(unsigned k=0;k<4;++k) {
+    const auto m=proposal.source_value(row.second.cell.v[k].id);row.second.sensor[k]=m;
+    CHECK(m.xx==Approx(4*expected).epsilon(1e-5));CHECK(m.yy==m.xx);CHECK(m.zz==m.xx);
+    CHECK(m.xx>=low);CHECK(m.xx<=high);CHECK(m.xy==0);CHECK(m.xz==0);CHECK(m.yz==0);
+  }
+  ComplexityReassessment3D after;BridgeStats reassessed;
+  REQUIRE(ReassessComplexity(world,imported.cells,original,*driver->Reference()->original,{},after,reason,reassessed,
+      size_t(256)<<20,0,8192,20261017));
+  REQUIRE(after.estimated);CHECK(after.value==Approx(20).epsilon(2e-5));
+  CHECK(std::abs(after.value-proposal.estimate.value)<=after.uncertainty+proposal.estimate.uncertainty+1e-10);
+  CReaderSlices slices;BridgeStats returned;
+  REQUIRE(ReaderSlices(world,imported.cells,imported.original,*driver->Reference(),slices,reason,returned));
+  for(size_t i=0;i<slices.metric.size();i+=6) {
+    CHECK(slices.metric[i]==Approx(4*factor));CHECK(slices.metric[i+3]==Approx(4*factor));CHECK(slices.metric[i+5]==Approx(4*factor));
+  }
+  OutputRoundTrip(world,name,slices,imported.cells,*driver->Reference(),4*factor,
+      [](const su2double*,double value){return Tensor{value,0,0,value,0,value};});
+  {Mute mute;driver->Finalize();driver.reset();}
+}
+
 TEST_CASE("Bounded frozen normalization stages preserve one original source and transfer RANS histories once", "[NativeNormalizationRuntime3D]") {
   World world;const int workers=GENERATE(1,2,4);if(workers>world.size)return;
   const auto* only=std::getenv("SU2_NATIVE_NORMALIZATION_WORKERS");if(only && workers!=std::stoi(only))return;
@@ -163,7 +220,7 @@ TEST_CASE("Bounded frozen normalization stages preserve one original source and 
   CHECK(State(driver->Geometry(),driver->Solver())==before);CHECK(State(driver->Geometry(),*driver->Turbulence())==before_turb);
   CHECK(normalization_test::Hessian(driver->Solver(),driver->Geometry())==hessian);CHECK(normalization_test::Raw(*family)==original_frames);
   CHECK(EncodeReference(*driver->Reference())==authority);
-  const double theta=std::clamp(std::exp(stats.normalization.log_scale),family->controls[1]>0?1/(family->controls[1]*family->controls[1]):0.,1/(family->controls[0]*family->controls[0]));
+  const double theta=std::clamp(alpha*std::exp(stats.normalization.log_scale),family->controls[1]>0?1/(family->controls[1]*family->controls[1]):0.,1/(family->controls[0]*family->controls[0]));
   auto beta=input.original;for(auto& d:beta)d.sensor.fill({theta,0,0,theta,0,theta});
   if(alpha==1 && stats.normalization_stage_work[1]>0 && stats.normalization_stage_work[0]>0) {
     auto options=normalization_test::Options(name,workers);const auto at=options.find("ADAP_NATIVE_MAX_WORK= 8192");REQUIRE(at!=std::string::npos);
@@ -701,8 +758,11 @@ TEST_CASE("FIRST_ROW solver and candidate normalization retain the construction 
   ComplexityReassessment3D result;BridgeStats stats;std::shared_ptr<const PreparedComplexity3D> cloud;
   REQUIRE(ReassessComplexity(world,input.cells,source,*driver->Reference()->original,family->first_row->Composition(),
       result,why,stats,size_t(256)<<20,0,8192,20261017,{},&cloud));
-  REQUIRE(cloud);CNativeCandidateComplexity3D assess(*family,*cloud,input.original,size_t(256)<<20);
-  su2double core=family->core;const auto estimate=assess.Assess(family->selected,core);
+  REQUIRE(cloud);REQUIRE(cloud->current_nodal);
+  std::vector<DonorCell> current;
+  for(const auto& row:input.cells) {DonorCell donor;donor.cell=row.second.cell;donor.sensor=row.second.sensor;current.push_back(donor);}
+  CNativeCandidateComplexity3D assess(*family,*cloud,current,size_t(256)<<20);
+  su2double core=family->core;const auto estimate=assess.AssessScale(1,core);
   CHECK(estimate.value==Approx(result.value).epsilon(2e-12));
   CHECK(std::abs(estimate.value-family->normalization.estimate.value)<=estimate.uncertainty+family->normalization.estimate.uncertainty);
   {Mute mute;driver->Finalize();}

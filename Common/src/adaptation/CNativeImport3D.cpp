@@ -1151,7 +1151,9 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
             std::swap(donor.cell.v[0], donor.cell.v[1]);
             std::swap(donor.sensor[0], donor.sensor[1]);
           }
-          result.cells.emplace(donor.cell.id, OwnedCell{donor.cell});
+          auto inserted = result.cells.emplace(donor.cell.id, OwnedCell{donor.cell});
+          inserted.first->second.sensor = donor.sensor;
+          inserted.first->second.sensor_present = true;
           result.original.push_back(donor);
         }
       } catch (const std::exception& e) {
@@ -1327,7 +1329,9 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
         failure.Set(1,0,"Actual boundary has incomplete persisted mapped topology.");
       CollectiveFailure(failure,CURRENT_FUNCTION);
     }
-    if(!Coverage(parent,result.cells,result.original,*authority.original,SU2_TYPE::GetValue(config.GetAdap_Hausd()),
+    const bool current_metrics = !parent.maximum(std::any_of(result.cells.begin(), result.cells.end(),
+        [](const Owned::value_type& row) { return !row.second.sensor_present; }));
+    if(!current_metrics && !Coverage(parent,result.cells,result.original,*authority.original,SU2_TYPE::GetValue(config.GetAdap_Hausd()),
                  transfer_memory::Add(reference_base,state.original ? 0 : ReferenceStorageBytes(pending),
                                       transfer_memory::Bytes(marker_alias)),ceiling,stats,reason,
                  SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time()),
@@ -1635,6 +1639,34 @@ bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std:
     failure.Set(2, 0, e.what());
   }
   if (!Vote(parent, failure, reason)) return false;
+  const bool current_metrics = !parent.maximum(std::any_of(cells.begin(), cells.end(),
+      [](const Owned::value_type& row) { return !row.second.sensor_present; }));
+  if (current_metrics) {
+    try {
+      size_t i = 0;
+      for (const auto& row : cells) {
+        const auto& owned = row.second;
+        DonorCell donor; donor.cell = owned.cell; donor.sensor = owned.sensor;
+        auto query = [&](Point p) {
+          ++stats.requests; ++stats.misses;
+          if (composition) ++stats.compositions;
+          std::array<long double, 4> w{{.25L, .25L, .25L, .25L}};
+          for (unsigned k = 0; k < 4; ++k) {
+            const auto v = owned.cell.v[k].p;
+            if (p.x == v.x && p.y == v.y && p.z == v.z) { w.fill(0); w[k] = 1; break; }
+          }
+          FieldSample sample; sample.sensor = InterpolateSensor(donor, w);
+          ValidateTensor(sample.sensor);
+          sample.target = composition ? composition(p, sample.sensor) : sample.sensor;
+          ValidateTensor(sample.target);
+          return sample;
+        };
+        weights[i++] = WorkWeights({owned.cell}, query).front();
+      }
+    } catch (const std::exception& e) { ++stats.failures; failure.Set(2, 0, e.what()); }
+    if (!Vote(parent, failure, reason)) return false;
+    output.swap(weights); reason.clear(); return true;
+  }
   auto make = [&](size_t i, std::vector<DonorRegion>& regions) {
     const auto& cell = *ordered[i];
     PointRegion(Centroid(cell), regions);
@@ -1648,10 +1680,10 @@ bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std:
   reason.clear();
   return true;
 }
-bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& source,
+static bool ReassessFieldComplexity(World& parent,const Owned& candidate,DonorImport& source,
     const PlanarReference& reference,MetricComposition composition,ComplexityReassessment3D& output,
     std::string& reason,BridgeStats& stats,size_t ceiling,size_t caller_bytes,uint64_t count,uint64_t seed,
-    std::function<bool()> withinBudget,std::shared_ptr<const PreparedComplexity3D>* prepared) {
+    std::function<bool()> withinBudget,std::shared_ptr<const PreparedComplexity3D>* prepared,bool current_nodal) {
   Envelope envelope(parent,stats);ComplexityReassessment3D result;CLocalFailure failure;
   const uint64_t controls[]={count,seed,uint64_t(bool(withinBudget)),uint64_t(bool(composition)),uint64_t(bool(prepared))};uint64_t lo[5],hi[5];
   SU2_MPI::Allreduce(controls,lo,5,MPI_UNSIGNED_LONG_LONG,MPI_MIN,parent.comm);
@@ -1737,7 +1769,7 @@ bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& source
       for(const auto& p:cloud->points)if(p.row>=count || p.publisher!=parent.rank)
         failure.Set(2,p.row,"Misrouted prepared original complexity point.");
       if(!Vote(parent,failure,reason))return false;
-      cloud->count=count;cloud->seed=seed;
+      cloud->count=count;cloud->seed=seed;cloud->current_nodal=current_nodal;
     }
     const auto reductionStart=parent.seconds();
     SU2_MPI::Allreduce(local.data(),global.data(),global.size(),MPI_LONG_DOUBLE,MPI_SUM,parent.comm);
@@ -1755,6 +1787,37 @@ bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& source
     result.estimated=true;output=std::move(result);if(prepared)*prepared=std::move(cloud);reason.clear();return true;
   }catch(const CellSamplingLimit3D& e){return limited(e.what());}
   catch(const std::exception& e){reason=e.what();return false;}
+}
+bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& source,
+    const PlanarReference& reference,MetricComposition composition,ComplexityReassessment3D& output,
+    std::string& reason,BridgeStats& stats,size_t ceiling,size_t caller_bytes,uint64_t count,uint64_t seed,
+    std::function<bool()> withinBudget,std::shared_ptr<const PreparedComplexity3D>* prepared) {
+  const bool current = !parent.maximum(std::any_of(candidate.begin(), candidate.end(),
+      [](const Owned::value_type& row) { return !row.second.sensor_present; }));
+  if (!current)
+    return ReassessFieldComplexity(parent,candidate,source,reference,std::move(composition),output,reason,stats,
+        ceiling,caller_bytes,count,seed,std::move(withinBudget),prepared,false);
+  std::vector<DonorCell> donors; CLocalFailure failure;
+  const auto live=transfer_memory::Add(caller_bytes,OwnedBytes(candidate),source.ResidentBytes(),
+      transfer_memory::Mul(candidate.size(),sizeof(DonorCell)));
+  if (!Admit(parent,live,ceiling,stats,reason)) {
+    ComplexityReassessment3D limited; limited.reason=reason; output=std::move(limited);
+    if(prepared)prepared->reset(); reason.clear(); return true;
+  }
+  try {
+    donors.reserve(candidate.size());
+    for (const auto& row:candidate) {
+      DonorCell d; d.cell=row.second.cell; d.sensor=row.second.sensor;
+      for (const auto& m:d.sensor) ValidateTensor(m);
+      donors.push_back(d);
+    }
+  } catch(const std::exception& e) { failure.Set(2,0,e.what()); }
+  if(!Vote(parent,failure,reason))return false;
+  DonorImport current_source(parent,true);
+  if(!current_source.Build(donors,reason,ceiling,live))return false;
+  return ReassessFieldComplexity(parent,candidate,current_source,reference,std::move(composition),output,reason,stats,
+      ceiling,transfer_memory::Add(caller_bytes,source.ResidentBytes(),transfer_memory::Bytes(donors)),
+      count,seed,std::move(withinBudget),prepared,true);
 }
 bool SynchronizeBoundaryParameters(World& parent,int workers,ReferenceState& state,std::string& reason,
     BridgeStats& stats,size_t ceiling,size_t caller_bytes) {
@@ -1866,22 +1929,25 @@ bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell
   const size_t live = Add(caller_bytes, OwnedBytes(cells), Bytes(original), output.ResidentBytes(),
                          prepared_source?prepared_source->ResidentBytes():0,
                          Mul(vertices, sizeof(std::pair<const Id, Node>) + sizeof(std::pair<const Id, unsigned long>) +
-                                           8 * sizeof(void*)),
+                                           sizeof(std::pair<const Id, Tensor>) + 12 * sizeof(void*)),
                          GrowthBound(vertices, sizeof(Node) + sizeof(uint64_t) + 3 * sizeof(passivedouble)),
                          Mul(vertices, 6 * sizeof(passivedouble)),
                          GrowthBound(cells.size(), 4 * sizeof(unsigned long) + sizeof(int)),
                          GrowthBound(physical_faces, 3 * sizeof(unsigned long)),
                          GrowthBound(state.marker_names.size(), sizeof(CSimplexMesh::Marker)), name_bytes);
   if (!Admit(parent, live, ceiling, stats, reason)) return false;
+  const bool current_metrics = !parent.maximum(std::any_of(cells.begin(), cells.end(),
+      [](const Owned::value_type& row) { return !row.second.sensor_present; }));
   DonorImport transient(parent, query_timings);
   DonorImport& source=prepared_source?*prepared_source:transient;
   const double build = parent.seconds();
-  if (!prepared_source && !source.Build(original, reason, ceiling, live)) {
+  if (!current_metrics && !prepared_source && !source.Build(original, reason, ceiling, live)) {
     stats.source_seconds = parent.seconds() - build;
     return false;
   }
   stats.source_seconds = parent.seconds() - build;
   std::map<Id, Node> nodes;
+  std::map<Id, Tensor> sensors;
   std::vector<Node> ordered;
   CSimplexMesh mesh;
   mesh.nDim = 3;
@@ -1889,11 +1955,21 @@ bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell
   std::map<Id, unsigned long> index;
   try {
     for (const auto& r : cells)
-      for (auto n : r.second.cell.v) {
+      for (unsigned k = 0; k < 4; ++k) {
+        const auto n = r.second.cell.v[k];
         const auto old = nodes.emplace(n.id, n);
         if (!old.second &&
             (old.first->second.p.x != n.p.x || old.first->second.p.y != n.p.y || old.first->second.p.z != n.p.z))
           throw std::invalid_argument("Inconsistent native3D output coordinates.");
+        if (current_metrics) {
+          const auto m = r.second.sensor[k]; ValidateTensor(m);
+          const auto prior = sensors.emplace(n.id, m);
+          if (!prior.second) {
+            const auto a = prior.first->second;
+            if (a.xx != m.xx || a.xy != m.xy || a.xz != m.xz || a.yy != m.yy || a.yz != m.yz || a.zz != m.zz)
+              throw std::invalid_argument("Inconsistent native3D output node sensors.");
+          }
+        }
       }
     for (auto r : nodes) {
       index.emplace(r.first, ordered.size());
@@ -1925,13 +2001,27 @@ bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell
     const std::array<double, 6> values{m.xx, m.xy, m.xz, m.yy, m.yz, m.zz};
     std::copy(values.begin(), values.end(), mesh.metric.begin() + 6 * i);
   };
-  if (!Samples(parent, ordered.size(), source, std::move(composition), make, use, stats, reason, ceiling,
-               transfer_memory::Add(live,prepared_source?0:source.ResidentBytes()), 16, query_timings,state.original.get()))
+  if (current_metrics) {
+    try {
+      for (size_t i = 0; i < ordered.size(); ++i) {
+        ++stats.requests; ++stats.misses;
+        if (composition) ++stats.compositions;
+        const auto sensor = sensors.at(ordered[i].id);
+        const auto m = composition ? composition(ordered[i].p, sensor) : sensor;
+        ValidateTensor(m);
+        const std::array<double, 6> values{m.xx, m.xy, m.xz, m.yy, m.yz, m.zz};
+        std::copy(values.begin(), values.end(), mesh.metric.begin() + 6 * i);
+      }
+    } catch (const std::exception& e) { ++stats.failures; failure.Set(2, 0, e.what()); }
+    if (!Vote(parent, failure, reason)) return false;
+  } else if (!Samples(parent, ordered.size(), source, std::move(composition), make, use, stats, reason, ceiling,
+                      transfer_memory::Add(live,prepared_source?0:source.ResidentBytes()), 16, query_timings,state.original.get()))
     return false;
   const double reader_start = parent.seconds();
   CReaderSliceStats reader_stats;
   const size_t reader_caller = Add(caller_bytes, OwnedBytes(cells), Bytes(original), source.ResidentBytes(),
                                   Mul(nodes.size(), sizeof(decltype(nodes)::value_type) + 4 * sizeof(void*)),
+                                  Mul(sensors.size(), sizeof(decltype(sensors)::value_type) + 4 * sizeof(void*)),
                                   Mul(index.size(), sizeof(decltype(index)::value_type) + 4 * sizeof(void*)), Bytes(ordered),
                                   output.ResidentBytes());
   CReaderSlices pending;std::vector<unsigned long> dense;

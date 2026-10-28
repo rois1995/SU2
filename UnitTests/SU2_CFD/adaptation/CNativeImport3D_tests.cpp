@@ -262,7 +262,8 @@ TEST_CASE("Native3D CFD bridge returns adapted readers and preserves affine BDF2
       CHECK(sampled.field_builds==0);CHECK(sampled.source_point_queries<=sampled.requests);
       CHECK(CPassiveComm::Allreduce(sampled.source_point_queries,CPassiveComm::Op::SUM,parent.comm)<
             CPassiveComm::Allreduce(sampled.requests,CPassiveComm::Op::SUM,parent.comm));
-      CHECK(CPassiveComm::Allreduce(sampled.hits,CPassiveComm::Op::SUM,parent.comm)>0);
+      if(CPassiveComm::Allreduce(sampled.source_point_queries,CPassiveComm::Op::SUM,parent.comm)>0)
+        CHECK(CPassiveComm::Allreduce(sampled.hits,CPassiveComm::Op::SUM,parent.comm)>0);
       CReaderSlices composed;BridgeStats returned;REQUIRE(ReaderSlices(parent,adapted,imported.original,reference,composed,reason,returned,composition));
       CHECK(composed.coord==slices.coord);CHECK(composed.elemRows==slices.elemRows);CHECK(composed.firstPoint==slices.firstPoint);
       CHECK(returned.compositions==returned.requests);CHECK(calls==sampled.requests+returned.requests);
@@ -2786,4 +2787,39 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
   REQUIRE(result.onAccepted);result.onAccepted();const auto stable=EncodeReference(*reference);result.onAccepted();CHECK(EncodeReference(*reference)==stable);
   OutputRoundTrip(world,name,result.slices,ImportGeometry(*config,accepted.Fine(),nullptr,*reference).cells,*reference,4.,
       [](const su2double*,double scale){return Tensor{scale,0,0,scale,0,scale};});
+}
+
+TEST_CASE("Native3D reader returns current nodal sensors outside donor coverage", "[NativeBridge3D]") {
+  World world;
+  auto config=MakeConfig(3,"SOLVER= EULER\n");
+  MeshSolution mesh(config.get(),BoxMesh(3,1,false),0);ReferenceState reference;
+  auto imported=ImportGeometry(*config,mesh.Fine(),nullptr,reference);
+  for(auto& row:imported.cells) {
+    row.second.sensor_present=true;
+    row.second.sensor.fill({7,0,0,7,0,7});
+  }
+  // Keep the valid physical mesh fixed while making its original donor coverage strictly interior.
+  for(auto& donor:imported.original)for(auto& node:donor.cell.v) {
+    node.p.x=.25+.5*node.p.x;node.p.y=.25+.5*node.p.y;node.p.z=.25+.5*node.p.z;
+  }
+  CReaderSlices result;BridgeStats stats;std::string reason;
+  REQUIRE(ReaderSlices(world,imported.cells,imported.original,reference,result,reason,stats,
+      [](Point,Tensor sensor){sensor.zz+=2;return sensor;}));
+  CHECK(stats.source_point_queries==0);
+  DonorImport original(world,true);REQUIRE(original.Build(imported.original,reason));
+  ComplexityReassessment3D assessed;BridgeStats assessment;
+  std::shared_ptr<const PreparedComplexity3D> prepared;
+  REQUIRE(ReassessComplexity(world,imported.cells,original,*reference.original,{},assessed,reason,assessment,
+      size_t(64)<<20,0,128,20261017,{},&prepared));
+  REQUIRE(assessed.estimated);REQUIRE(prepared);CHECK(prepared->current_nodal);
+  long double local_volume=0,volume=0;
+  for(const auto& row:imported.cells) {
+    const auto& v=row.second.cell.v;
+    local_volume+=TetrahedronVolume({v[0].p,v[1].p,v[2].p,v[3].p});
+  }
+  SU2_MPI::Allreduce(&local_volume,&volume,1,MPI_LONG_DOUBLE,MPI_SUM,world.comm);
+  CHECK(assessed.value==Approx(double(volume)*7*std::sqrt(7.)).margin(1e-10));
+  for(size_t i=0;i<result.metric.size();i+=6) {
+    CHECK(result.metric[i]==Approx(7));CHECK(result.metric[i+3]==Approx(7));CHECK(result.metric[i+5]==Approx(9));
+  }
 }

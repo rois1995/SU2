@@ -21,10 +21,7 @@ std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,const std::func
     if (!(Orientation(tet[0], tet[1], tet[2], tet[3]) > 0))
       throw std::invalid_argument("Native 3D work estimate requires positive cells.");
     const auto center = query(Centroid(cell));
-    const auto sensor = Measure(tet, center.sensor), target = Measure(tet, center.target);
-    // For a unit-edge regular tetrahedron q=1. q^(3/2)*rms_edge^3 equals metric-volume/unit volume.
-    const auto scale = std::sqrt(static_cast<long double>(sensor.mean_ratio)) * sensor.rms_edge;
-    long double work = 1 + scale * scale * scale;
+    long double work = 1 + MetricDensity(center.sensor)*TetrahedronVolume(tet)*6*std::sqrt(2.L);
     std::array<Tensor, 4> nodal;
     for (size_t i = 0; i < 4; ++i) nodal[i] = query(cell.v[i].p).target;
     for (size_t i = 0; i < 4; ++i) for (size_t j = i + 1; j < 4; ++j) {
@@ -33,11 +30,6 @@ std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,const std::func
       if (!(length > 0)) throw std::invalid_argument("Native 3D work estimate has a zero metric edge.");
       work += std::max(0.L, std::log2(length / MaximumMetricEdge));
       work += std::max(0.L, std::log2(static_cast<long double>(CoarseningMetricEdge) / length));
-    }
-    for (const auto bounds : {std::pair<double, double>{MinimumMeanRatio, target.mean_ratio},
-                              std::pair<double, double>{MinimumScaledJacobian, target.minimum_scaled_jacobian}}) {
-      if (bounds.second <= 0) { work = MaximumPartitionWeight; break; }
-      work += std::max(0.L, std::log2(static_cast<long double>(bounds.first) / bounds.second));
     }
     if (!(std::isfinite(work) && work > 0)) throw std::runtime_error("Unrepresentable native 3D work estimate.");
     // shortcut: static operation-demand proxy; calibrate only against recorded tetrahedral rank costs.

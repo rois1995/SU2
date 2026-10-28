@@ -21,7 +21,14 @@ struct OwnedCell {
   Cell cell;
   uint64_t version = 0;
   std::array<FacetBinding, 4> physical{};  // Opposite vertex slots; reference owns marker/geometry.
-  template <class S> void Fields(S& s) { s(cell, version, physical); }
+  std::array<Tensor, 4> sensor{};
+  bool sensor_present = false;
+  template <class S> void Fields(S& s) {
+    uint64_t format = 0x4e334443454c4c02ULL;
+    s(format);
+    if (format != 0x4e334443454c4c02ULL) throw std::invalid_argument("Unsupported native3D cell payload version.");
+    s(cell, version, physical, sensor_present, sensor);
+  }
 };
 using Owned = std::map<Id, OwnedCell>;
 struct Dependency {

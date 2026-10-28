@@ -9,6 +9,7 @@
 #include "../../../Common/include/adaptation/CNativeDistributed3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
+#include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
 #include <algorithm>
 #include <chrono>
 #include <iomanip>
@@ -709,4 +710,28 @@ TEST_CASE("Entity feature reconstruction accepts empty interior cavities only", 
   CHECK(result.size()==saved);REQUIRE(result.count(key));REQUIRE(result.at(key).pieces.size()==1);
   CHECK(result.at(key).pieces[0].facet==sentinel.pieces[0].facet);CHECK(result.at(key).pieces[0].end.numerator==one.numerator);
   CHECK(result.at(key).pieces[0].end.denominator==one.denominator);
+}
+
+TEST_CASE("Entity collapse precheck agrees with the complete curved cavity", "[NativeCurvedAtlas3D][NativeCollapseFilter3D]") {
+  RemappingFixture fixture(false);auto budget=RemappingBudget();std::string reason;
+  auto state=fixture.state->WithEntityGeometry(.01,budget);const auto snapshot=state->Snapshot();
+  auto reference=PlanarReference::WithParameters(fixture.definition,state);auto scoped=reference->WithAtlasReservation(budget);
+  struct Restore {ShapeAdmission old=GetShapeAdmission();~Restore(){SetShapeAdmission(old);}} restore;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);Patch old;
+  for(const auto& f:fixture.facets)if(f.id<4){std::array<Node,4> nodes{{f.v[0],f.v[1],f.v[2],fixture.points.at(50).node}};
+    if(Orientation(nodes[0].p,nodes[1].p,nodes[2].p,nodes[3].p)<0)std::swap(nodes[0],nodes[1]);
+    old.cells.push_back({Id(old.cells.size()),nodes});}
+  old.surface=fixture.surface;scoped->ExportParameters(old);
+  Patch fresh;const bool collapsed=CollapseVertex(old,0,10,100,*scoped,fresh,reason);INFO(reason);REQUIRE(collapsed);
+  REQUIRE(fresh.cells.size()==2);for(const auto& c:fresh.cells)CHECK(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0);
+  bool tight_veto=false;size_t survivors=0;
+  for(const auto& c:old.cells)if(std::none_of(c.v.begin(),c.v.end(),[](const Node& n){return n.id==10;})) {
+    ++survivors;OwnedCell row;row.cell=c;const auto& v=c.v;
+    const std::array<Face,4> faces{{{v[1].id,v[2].id,v[3].id},{v[0].id,v[3].id,v[2].id},{v[0].id,v[1].id,v[3].id},{v[0].id,v[2].id,v[1].id}}};
+    for(unsigned k=0;k<4;++k)for(const auto& physical:fixture.surface){auto a=faces[k],b=physical.v;std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());
+      if(a==b)row.physical[k]={true,physical.facet};}
+    CHECK_FALSE(CollapseConstraintViolation(row,0,fixture.points.at(10).node,*scoped,.01,{}));
+    tight_veto|=CollapseConstraintViolation(row,0,fixture.points.at(10).node,*scoped,1e-4,{});
+  }
+  CHECK(survivors==2);CHECK(tight_veto);CHECK(state->Snapshot()==snapshot);
 }

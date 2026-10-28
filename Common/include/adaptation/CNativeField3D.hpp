@@ -86,7 +86,7 @@ class FrozenField {
   explicit FrozenField(std::vector<DonorCell> original, MetricComposition composition = {}, bool timings = false,
                        std::vector<Id> extension_components = {}, MetricEdgeBreakpoints edge_breakpoints = {},
                        std::shared_ptr<const FrozenMetricIdentity> identity = {}, bool reuse_interior = true,
-                       size_t donor_limit = MaximumDonors);  // DC-14: a whole-domain caller (FIRST_ROW) admits its own bound
+                       size_t donor_limit = MaximumDonors, bool current_nodal = false);  // DC-14: a whole-domain caller (FIRST_ROW) admits its own bound
   ~FrozenField();
   FieldSample Query(Point point);
   /*! Sensor P1 at the ideal endpoint midpoint; BL at its represented coordinate. Never populates Query's point cache. */
@@ -131,7 +131,7 @@ class FrozenField {
   std::vector<DonorCell> donors;
   const MetricComposition composition;
   const MetricEdgeBreakpoints edge_breakpoints;
-  const bool timings,reuse_interior;
+  const bool timings,reuse_interior,current_nodal;
   size_t last_donor=SIZE_MAX;  // A hypothesis only; strict physical interior containment is checked at every new point.
   const std::shared_ptr<const FrozenMetricIdentity> identity;
   std::unique_ptr<CADTElemClass> search;

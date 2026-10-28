@@ -9,6 +9,7 @@ assert not (ROOT/(name+'_status.json')).exists(), 'Inspect the previous owned ha
 paths=set(json.loads((ROOT/'build4_source_pins.json').read_text()))
 paths.add(str(Path(__file__).resolve()))
 paths.update(str(ROOT.parents[3]/p) for p in (
+    'Common/include/adaptation/CNativeMetricTransport3D.hpp',
     'Common/include/adaptation/CNativeAtlas3D.hpp',
     'Common/include/adaptation/CNativeCurvedAtlas3D.hpp',
     'Common/include/adaptation/CNativeCanonicalTrace3D.hpp',
@@ -61,7 +62,11 @@ with (ROOT/(name+'.log')).open('w') as log, (ROOT/(name+'_resources.jsonl')).ope
         receipt.write(json.dumps(dict(elapsed=time.time()-start,processes=rows,summed_rss=sum(r['rss'] for r in rows)))+'\n');receipt.flush()
         time.sleep(3)
     code=p.wait()
+# A zero exit alone is insufficient after a signal: require both targets up to date.
+completion=subprocess.run(command['argv']+['-n'],env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+complete=code==0 and completion.returncode==0 and 'no work to do' in completion.stdout
+save(ROOT/(name+'_completion.json'),dict(exit_code=completion.returncode,up_to_date=complete,output=completion.stdout))
 changed=[p for p,h in pins.items() if sha(p)!=h]
-result=dict(state='terminal',exit_code=code,seconds=time.time()-start,pins_verified=not changed,changed=changed)
+result=dict(state='terminal',exit_code=code,seconds=time.time()-start,pins_verified=not changed,changed=changed,completed_build=complete)
 save(ROOT/(name+'_status.json'),result);print(json.dumps(result),flush=True)
-raise SystemExit(code or bool(changed))
+raise SystemExit(code or bool(changed) or not complete)

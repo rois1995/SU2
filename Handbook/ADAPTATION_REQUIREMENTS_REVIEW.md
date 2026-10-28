@@ -277,3 +277,20 @@ M6 build90 was deliberately stopped after481.694s (solver -15, pins unchanged), 
 
 The first mapped90 refusal also exposed that RebuildFeatureTraces rejected empty candidate physical surfaces even for empty interior cavities. The shared helper now permits genuine interior reconstruction while still refusing removal of a physical surface. New focused coverage tests that distinction. Existing neighboring-move facilities now cover four16-event variants: clean/historical legacy and clean/historical→entity, owner publication, frozen source envelopes, schema8/9 reload and descriptor/work/storage receipts. The summary requires every variant/event. Optional transaction observation now captures the first local failed operator with matching private geometry and independently admitted fresh-work replay; final rejected-state diagnostics no longer reuse the exhausted event reservation. All changes await connected build91 and actual workflow/M6 qualification.
 Affected callers: backend PatchErrorBounds; BoundaryParameterState migration/source cache; JointAffineCoverage consumes its unchanged forward bound; Engine finish explicitly requests both directions. Reference/payload9 stores the same immutable authority/associations and does not persist query subdivisions. Acceptance: actual curved workflow and M6, first-failure replay, repeated owner-publication/source/reload variants, unchanged final geometry/q/J/size/BL/transfer/history/restart gates. Generic curvature composition remains open.
+
+
+Remaining constrained-projection limitation from source review: the native backend
+currently calls ClosestCurved on its original component, then refuses a candidate
+outside the requested sheet/feature. Genuine curve movement already uses its
+explicit feature route, but smooth sheet movement has no restricted-sheet search.
+A refusal therefore does not prove that an admissible projection is unavailable.
+Retain this as an open robustness issue; use actual failed movement evidence to
+exercise a scoped search through the existing immutable ADT instead of claiming
+that the interface alone completes CAD readiness or boundary mobility.
+
+
+### Entity collapse precheck and exact first failure, build92
+
+Build91 mapped workflow terminal FAIL183.937s with unchanged pins. Flat Euler/RANS complete; each curved variant performs295 splits/169 collapses,562 rejections,535 private cells and reaches the same67,207,168 arithmetic cap before quality. Cached geometry/size debt is0. Per-event CPU32.05/32.35s versus wall75.53/95.72s; host contention prevents wall-time performance comparisons. First exact local collapse failure is saved as cubic_first_failure_0_rank0: edge49264←89440, round307,4 physical faces. Independently admitted replay builds positive cells with12,633 fresh work, no exhaustion; conservative surface-error upper bound.0010824823658913375 exceeds selected.001. This distinguishes valid construction from a geometry-policy veto, not actual Hausdorff infeasibility. Complete native_ref and old/proposed cell data are preserved. Full rejected-state diagnostics now finish with fresh work.
+
+Compiled audit91 passes23 selections:261 serial/238 MPI/72 atlas. Six-rank M6 remains pending because host load16–19 on8 logical CPUs includes unrelated builds/solver jobs; leave them untouched. Build92 connects the existing CollapseConstraintViolation precheck to entity faces: it bypasses the obsolete atlas-remapping guard and tests current point associations, orientation/error and requested height before full cavity reconstruction. This preserves the same conservative geometry permission and all final gates, rather than introducing cache machinery or declaring geometric impossibility. New regression compares the precheck with an actual admissible smooth-point collapse and an intentionally tighter geometry constraint. Build92 pending; no new runtime qualification.

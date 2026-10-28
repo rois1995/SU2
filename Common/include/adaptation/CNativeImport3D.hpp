@@ -94,6 +94,7 @@ struct OriginalComplexityPoint3D {
 struct PreparedComplexity3D {
   std::vector<OriginalComplexityPoint3D> points; // Routed to original publishers, independent of working ownership.
   uint64_t count=0,seed=0;
+  bool current_nodal=false;
   size_t ResidentBytes()const{return transfer_memory::Add(sizeof(*this),transfer_memory::Bytes(points));}
 };
 /*! A complete proposal covers every candidate cell. Uncertainty is an empirical indicator, not a bound. */
@@ -103,8 +104,8 @@ struct ComplexityReassessment3D {
   bool estimated=false;
   std::string reason;
 };
-/*! Reassess the SAME original P1/actual-query composition. Candidate-cell densities only select sample
- * probabilities; they never replace the source. Resource/time limits retain an explicit unknown indicator;
+/*! Reassess current nodal P1 when present, otherwise original P1, with actual-query composition.
+ * Candidate-cell densities select sample probabilities. Resource/time limits retain an explicit unknown indicator;
  * invalid field/source/protocol errors return false. Output is unchanged on such errors. */
 bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& original,
     const PlanarReference& reference,MetricComposition composition,ComplexityReassessment3D& output,

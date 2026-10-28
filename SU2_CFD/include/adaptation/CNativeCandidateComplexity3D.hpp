@@ -13,6 +13,7 @@
 class CNativeCandidateComplexity3D {
   struct Query {
     std::array<size_t,4> nodes;
+    std::array<SU2Native3D::Tensor,4> baseline{};
     std::array<long double,4> weights;
     SU2Native3D::Point point;
     double inverse_pdf=0;
@@ -22,6 +23,7 @@ class CNativeCandidateComplexity3D {
   };
   const CNativeMetricFamily3D& family;
   uint64_t count,profileVersion=0;
+  bool currentNodal=false;
   size_t storageCeiling=0,callerBytes=0;
   std::vector<Query> queries;
  public:
@@ -38,18 +40,19 @@ class CNativeCandidateComplexity3D {
   }
   CNativeCandidateComplexity3D(const CNativeMetricFamily3D& original,const SU2Native3D::PreparedComplexity3D& cloud,
       const std::vector<SU2Native3D::DonorCell>& source,size_t ceiling,size_t caller_bytes=0):family(original),count(cloud.count),storageCeiling(ceiling),callerBytes(caller_bytes) {
+    currentNodal=cloud.current_nodal;
     using namespace SU2Native3D;World world;CLocalFailure failure;const auto start=world.seconds();
     auto vote=[&](){const auto e=world.elect(failure);if(e.any)throw std::runtime_error(e.message);};
     const auto low=CPassiveComm::Allreduce(count,CPassiveComm::Op::MIN,world.comm),high=CPassiveComm::Allreduce(count,CPassiveComm::Op::MAX,world.comm);
     if(low!=high || count<32 || count>1048576)failure.Set(2,0,"Invalid original candidate integration count.");vote();
-    source_span=OriginalSourceNodeSpan(world,source);
+    if(!currentNodal)source_span=OriginalSourceNodeSpan(world,source);
     try {
       const auto bytes=transfer_memory::Add(caller_bytes,transfer_memory::GrowthBound(cloud.points.size(),sizeof(Query)+sizeof(std::pair<const Id,const DonorCell*>)+6*sizeof(void*)));
       if(bytes>ceiling)throw std::runtime_error("Original candidate integration preparation exceeds storage ceiling.");
       std::map<Id,const DonorCell*> needed;
       for(const auto& p:cloud.points)needed.emplace(p.cell,nullptr);
       for(const auto& d:source) {
-        for(unsigned k=0;k<4;++k) {
+        if(!currentNodal)for(unsigned k=0;k<4;++k) {
           const auto& m=family.selected.at(family.LocalNode(d.cell.v[k].id,source_span));
           if(d.sensor[k].xx!=m.m[0][0] || d.sensor[k].xy!=m.m[0][1] || d.sensor[k].xz!=m.m[0][2] ||
              d.sensor[k].yy!=m.m[1][1] || d.sensor[k].yz!=m.m[1][2] || d.sensor[k].zz!=m.m[2][2])
@@ -68,7 +71,8 @@ class CNativeCandidateComplexity3D {
         for(unsigned k=0;k<4;++k) {
           if(donor->cell.v[k].id!=p.nodes[k] || !std::isfinite(p.weights[k]) || p.weights[k]<0 || p.weights[k]>1)
             throw std::runtime_error("Original candidate integration changed its source node/weight.");
-          q.nodes[k]=family.LocalNode(p.nodes[k],source_span);
+          if(currentNodal)q.baseline[k]=donor->sensor[k];
+          else q.nodes[k]=family.LocalNode(p.nodes[k],source_span);
         }
         if(family.layers){q.geometry=family.layers->SamplePoints({p.point.x,p.point.y,p.point.z});++stats.geometry_queries;}
         if(family.first_row) {
@@ -86,11 +90,20 @@ class CNativeCandidateComplexity3D {
     stats.preparation_seconds=world.seconds()-start;
   }
   SU2Complexity::Estimate Assess(const std::vector<CBoundaryLayerMetric::Tensor>& current,su2double& core) {
+    if(currentNodal)throw std::runtime_error("Current nodal cloud requires uniform scale assessment.");
+    return AssessImpl(current,core,1);
+  }
+  SU2Complexity::Estimate AssessScale(double factor,su2double& core) {
+    if(!currentNodal || !(factor>0) || !std::isfinite(factor))throw std::runtime_error("Invalid current nodal scale.");
+    return AssessImpl({},core,factor);
+  }
+ private:
+  SU2Complexity::Estimate AssessImpl(const std::vector<CBoundaryLayerMetric::Tensor>& current,su2double& core,double factor) {
     using namespace SU2Native3D;World world;CLocalFailure failure;const auto start=world.seconds();
     auto vote=[&](){const auto e=world.elect(failure);if(e.any)throw std::runtime_error(e.message);};
     long double n=0,mean=0,m2=0,numerical=0;std::array<long double,8> blocks{};
     try {
-      if(current.size()!=family.selected.size() || !(core>0) || !std::isfinite(SU2_TYPE::GetValue(core)))
+      if((!currentNodal && current.size()!=family.selected.size()) || !(core>0) || !std::isfinite(SU2_TYPE::GetValue(core)))
         throw std::runtime_error("Invalid current original candidate integration field/core.");
       if(family.first_row)family.first_row->Update(SU2_TYPE::GetValue(core),family.controls[3]);
       if(family.layers && profileVersion!=family.layers->GetSampleVersion()) {
@@ -105,9 +118,12 @@ class CNativeCandidateComplexity3D {
       }
       for(const auto& q:queries) {
         DonorCell values;
-        for(unsigned k=0;k<4;++k){const auto& m=current.at(q.nodes[k]);values.sensor[k]={
+        for(unsigned k=0;k<4;++k) {
+          if(currentNodal) { const auto m=q.baseline[k]; values.sensor[k]={factor*m.xx,factor*m.xy,factor*m.xz,factor*m.yy,factor*m.yz,factor*m.zz}; }
+          else {const auto& m=current.at(q.nodes[k]);values.sensor[k]={
             SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
             SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};}
+        }
         const auto sensor=InterpolateSensor(values,q.weights);CBoundaryLayerMetric::Tensor target;
         target.m[0][0]=sensor.xx;target.m[0][1]=target.m[1][0]=sensor.xy;target.m[0][2]=target.m[2][0]=sensor.xz;
         target.m[1][1]=sensor.yy;target.m[1][2]=target.m[2][1]=sensor.yz;target.m[2][2]=sensor.zz;

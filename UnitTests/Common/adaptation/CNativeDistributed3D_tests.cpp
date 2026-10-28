@@ -210,6 +210,8 @@ TEST_CASE("Native tetrahedral MPI scalar records preserve physical bindings and 
   row.cell.id = UINT64_MAX;
   row.version = UINT64_MAX - 1;
   row.physical[0] = {true, 0};
+  row.sensor_present = true;
+  row.sensor[2] = {2, .1, .2, 3, .3, 4};
   const auto bytes = Bytes(row);
   RecordStream measured;
   measured(row);
@@ -221,6 +223,13 @@ TEST_CASE("Native tetrahedral MPI scalar records preserve physical bindings and 
   CHECK(Bytes(restored) == bytes);
   CHECK(restored.physical[0].present);
   CHECK(restored.physical[0].facet == 0);
+  CHECK(restored.sensor_present);
+  CHECK(restored.sensor[2].xz == .2);
+  CHECK(restored.sensor[2].zz == 4);
+  auto legacy = bytes;
+  legacy[0] ^= 1;
+  RecordStream legacy_read(static_cast<const std::vector<char>&>(legacy));
+  CHECK_THROWS_AS(legacy_read(restored), std::invalid_argument);
   auto truncated = bytes;
   truncated.pop_back();
   RecordStream short_read(static_cast<const std::vector<char>&>(truncated));
