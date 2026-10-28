@@ -1,0 +1,92 @@
+{
+  "scope": "unaccepted connected geometry implementation; source enclosure direction correction pending build91",
+  "baseline": "unchanged acceptance and arithmetic cap; all curved variants fail before final acceptance",
+  "build90": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 189.25805020332336,
+    "pins_verified": true,
+    "changed": []
+  },
+  "workflow90": {
+    "state": "terminal",
+    "exit_code": 2,
+    "seconds": 72.96381616592407,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 47947776,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "workflow_rows": [
+    {
+      "complete": "1",
+      "stop": "complete",
+      "global_work": "45",
+      "length_splits": "27",
+      "length_collapses": "4",
+      "quality_stages": "1",
+      "atlas_arithmetic_work": "0",
+      "rejected": "14",
+      "final_owned_cells": "58"
+    },
+    {
+      "complete": "0",
+      "stop": "failure",
+      "global_work": "3041",
+      "length_splits": "295",
+      "length_collapses": "157",
+      "quality_stages": "0",
+      "atlas_arithmetic_work": "67207168",
+      "rejected": "2588",
+      "final_owned_cells": "579"
+    },
+    {
+      "complete": "1",
+      "stop": "complete",
+      "global_work": "45",
+      "length_splits": "27",
+      "length_collapses": "4",
+      "quality_stages": "1",
+      "atlas_arithmetic_work": "0",
+      "rejected": "14",
+      "final_owned_cells": "58"
+    },
+    {
+      "complete": "0",
+      "stop": "failure",
+      "global_work": "3041",
+      "length_splits": "295",
+      "length_collapses": "157",
+      "quality_stages": "0",
+      "atlas_arithmetic_work": "67207168",
+      "rejected": "2588",
+      "final_owned_cells": "579"
+    }
+  ],
+  "m6_diagnostic_stop": {
+    "state": "terminal",
+    "solver_exit_code": -15,
+    "native_event_accepted": null,
+    "native_state": "solver exit failure; native acceptance not claimed",
+    "pins_verified": true,
+    "changed": [],
+    "seconds": 481.69383668899536,
+    "largest_sampled_individual_process_rss_bytes": 789495808,
+    "rss_note": "sampled process RSS; not a whole-job peak",
+    "transfer_reload_validation": "separate existing validation required"
+  },
+  "m6_sampled_process_tree_rss_max_bytes": 4703883264,
+  "rss_note": "sampled process-tree RSS, not allocation peak",
+  "profile": "120 cycles:u samples; no lost samples; 100% children in QuerySurfaceUnion\u2192GeometryCertificates\u2192WithEntityGeometry\u2192PrepareMobility",
+  "pins": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build90_status.json": "a34f59bb867071945d1e102850aed91cb179a6b1b7469e7a793a8caebca5d132",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build90_source_pins.json": "7254b29a6db583afe0a3d8e255541fae6804125baf14032c642863aaa6533672",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261028T121627_1852070/status.json": "0feebf5c7a99894897e39e52f54c6c733eff3fc099cfc6359009f569063b1b18",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261028T121627_1852070/pins.json": "e088b2f2a5e05aad8dde9503a87c92b81af2692a47bbcf378ac1eb7af34cc495",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261028T121627_1852070/run.log": "415b6ee3f2b84f325c26b58e740397506af8e20bd768f3318a1c37478636c163",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build90_entity_sweeps/status.json": "96e50010a2bf86c3671ea02bc1c64a1d96adec02a06eb0c8aa9b049d966fd08c",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build90_entity_sweeps/pins.json": "5d5450f044d26368396009a942e890fbe88a874bd2620ec85b88869bbddd21b3",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build90_entity_sweeps/setup_perf.data": "b1721e3310f4fcfef11e5ca78a07ef2c40843e738d6cc0234ea278049c3a38e6",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build90_entity_sweeps/setup_perf_report.txt": "0ddb1991ef80a4a2d1f050f37029f0078e99c01f3179f39266b028db8c833b9d"
+  }
+}

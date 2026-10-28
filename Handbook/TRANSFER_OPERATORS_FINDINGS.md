@@ -66,6 +66,8 @@ Full M6 transfer remains unqualified because no complete accepted M6 mesh exists
 
 ## TR-003 — Source envelopes must conservatively cover current geometry support
 
+Build91 pending: source geometry now requests only model→frozen physical skin enclosure; complete mesh→model verification remains an explicit final engine gate. The source union/tube coverage obligation is unchanged, and source-only results cannot claim final tolerance acceptance. M6 build90 setup profile motivated avoiding a dense cubic-model approximation that source enclosure did not need. Actual curved transfer and M6 remain unqualified.
+
 Current source change (build86/87 compiled; actual curved workflow still blocked during construction): entity geometry supplies a conservative
 model→frozen physical-skin bound. JointAffineCoverage uses SourcePatch::Tube for
 each physical face with that entity bound; their union encloses the model without

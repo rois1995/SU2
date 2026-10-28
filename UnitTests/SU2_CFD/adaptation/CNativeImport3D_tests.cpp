@@ -2627,6 +2627,48 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
         <<" feature="<<feature.vertices[0]<<','<<feature.vertices[1]<<','<<feature.vertices[2]
         <<" geometry="<<geometry<<" old_cells="<<old.cells.size()<<" new_cells="<<fresh.cells.size()<<" reason="<<reason<<'\n';
     };
+  if(curved && work_trace && std::string(work_trace)=="1")
+    limits.transaction_observer=[&](const TransactionView& view) {
+      constexpr size_t ceiling=size_t(128)<<20;
+      const auto* parameters=view.geometry.Parameters();REQUIRE(parameters);
+      const auto retained=transfer_memory::Add(view.geometry.ResidentBytes(),
+          transfer_memory::Mul(view.old.cells.size()+view.fresh.cells.size(),sizeof(Cell)),parameters->PayloadBytes());
+      if(retained>ceiling/4)throw std::length_error("First operator capture exceeds independent storage admission.");
+      const auto name="cubic_first_failure_"+std::to_string(rans)+"_rank"+std::to_string(world.rank);
+      auto captured=*reference;captured.original=view.geometry.WithParameterState(std::make_shared<BoundaryParameterState>(*parameters));
+      const auto encoded=EncodeReference(captured);
+      std::ofstream reference_file(name+".native_ref",std::ios::binary);reference_file.write(encoded.data(),encoded.size());reference_file.close();REQUIRE(bool(reference_file));
+      SaveRecords(name+"_old",PatchRecords(view.old),{},captured);
+      SaveRecords(name+"_proposal",PatchRecords(view.fresh),{},captured);
+      auto budget=BoundaryAtlasBudget(parameters->PayloadBytes(),ceiling,retained);
+      if(view.geometry.AtlasReservation())budget.maximum_work=view.geometry.AtlasReservation()->maximum_work;
+      bool supported=false,built=false,error_measured=false;double error=0;std::string why;Patch replay;
+      try {
+        auto scoped=view.geometry.PrivateParameters(view.old,&budget);const Edge edge{view.feature.vertices[0],view.feature.vertices[1]};
+        if(std::string(view.stage)=="first_collapse_failure") {
+          supported=true;built=CollapseVertex(view.old,edge[1],edge[0],view.first_cell,*scoped,replay,why);
+        } else if(std::string(view.stage)=="first_split_failure") {
+          supported=true;built=SplitEdge(view.old,edge,view.point,view.first_cell,*scoped,replay,why);
+        }
+        if(built) {
+          auto proof=scoped->PrivateParameters(replay,&budget);std::map<Id,Point> coordinates;
+          for(const auto& cell:replay.cells)for(auto n:cell.v)coordinates.emplace(n.id,n.p);
+          for(const auto& face:replay.surface){std::array<Point,3> p;for(unsigned k=0;k<3;++k)p[k]=coordinates.at(face.v[k]);
+            error=std::max(error,proof->SurfaceError(face.facet,p));}
+          error_measured=true;
+        }
+      }catch(const std::exception& e){why=e.what();}
+      std::ofstream receipt(name+".json");receipt<<std::setprecision(17)
+          <<"{\"stage\":"<<std::quoted(view.stage)<<",\"feature\":["<<view.feature.vertices[0]<<','<<view.feature.vertices[1]
+          <<"],\"round\":"<<view.round<<",\"reason\":"<<std::quoted(view.reason)<<",\"old_physical_faces\":"<<view.old.surface.size()
+          <<",\"replay_supported\":"<<(supported?"true":"false")<<",\"replay_built\":"<<(built?"true":"false")
+          <<",\"replay_reason\":"<<std::quoted(why)<<",\"maximum_surface_error_bound\":";
+      if(error_measured)receipt<<error;else receipt<<"null";
+      receipt<<",\"geometry_tolerance\":"<<config->GetAdap_Hausd()<<",\"fresh_work\":"<<budget.work
+          <<",\"work_limit\":"<<budget.maximum_work<<",\"work_exhausted\":"<<(budget.work_exhausted?"true":"false")
+          <<",\"admitted_peak_bytes\":"<<budget.peak_bytes<<",\"accepted_mesh\":false}\n";
+      receipt.close();REQUIRE(bool(receipt));
+    };
   limits.rejected_state=[&](const Owned& owned,const PlanarReference& geometry,const std::string& why) {
     const auto name=std::string(curved?"cubic":"affine")+"_runtime_rejected_"+std::to_string(rans);
     const char* trace=std::getenv("SU2_NATIVE_GEOMETRY_WORK_TRACE");
@@ -2652,6 +2694,9 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
         <<",\"owned\":\""<<owned_name<<"\",\"parameters\":\""<<parameter_name<<"\",\"authority\":\""<<reference_name<<"\"}\n";
       manifest.close();if(!manifest)throw std::runtime_error("Cannot write rejected capture manifest.");
     }
+    auto diagnostic=BoundaryAtlasBudget(geometry.Parameters()->PayloadBytes(),size_t(128)<<20,geometry.ResidentBytes());
+    if(geometry.AtlasReservation())diagnostic.maximum_work=geometry.AtlasReservation()->maximum_work;
+    auto proof=geometry.WithAtlasReservation(diagnostic);
     std::ofstream out(name+"_"+std::to_string(world.rank)+".txt");
     out<<std::setprecision(17)<<why<<'\n';
     for(const auto& row:owned) {
@@ -2660,7 +2705,7 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
       for(unsigned k=0;k<4;++k)if(row.second.physical[k].present) {
         std::array<Point,3> p{};unsigned at=0;for(unsigned i=0;i<4;++i)if(i!=k)p[at++]=c.v[i].p;
         if(k%2)std::swap(p[1],p[2]);
-        error=std::max(error,geometry.SurfaceError(row.second.physical[k].facet,p));
+        error=std::max(error,proof->SurfaceError(row.second.physical[k].facet,p));
       }
       out<<c.id<<" q="<<m.mean_ratio<<" J="<<m.minimum_scaled_jacobian<<" edge="<<m.maximum_edge<<" surface="<<error<<'\n';
       for(auto n:c.v)out<<n.id<<' '<<n.p.x<<' '<<n.p.y<<' '<<n.p.z<<'\n';

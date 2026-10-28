@@ -322,7 +322,7 @@ TEST_CASE("Overlapping curved stars retain bounded correspondence across alterna
 }
 
 TEST_CASE("Neighboring curved moves publish and reload complete boundary state", "[NativeCurvedAtlas3D][NativeOverlappingPublication3D]") {
-  const bool legacy_initial=GENERATE(false,true);INFO(legacy_initial);
+  const unsigned variant=GENERATE(0u,1u,2u,3u);const bool legacy_initial=variant==1||variant==3,entity_initial=variant>=2;INFO(variant);
   World world;RemappingFixture fixture(false);auto setup=RemappingBudget();std::string reason;
   struct Restore {ShapeAdmission old=GetShapeAdmission();~Restore(){SetShapeAdmission(old);}} restore;
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
@@ -380,8 +380,9 @@ TEST_CASE("Neighboring curved moves publish and reload complete boundary state",
       std::array<Point,3> chord;for(unsigned k=0;k<3;++k)chord[k]=source.Find(row.second.v[k])->node.p;
       for(const auto& p:fixture.geometry->PrepareSourcePatch(cover,chord,work).Bounds()){values.push_back(p.x);values.push_back(p.y);values.push_back(p.z);}}
     return values;};
-  if(legacy_initial) {
-    frozen_source=std::make_shared<BoundaryParameterState>(*state);frozen_snapshot=frozen_source->Snapshot();frozen_bounds=source_bounds(*frozen_source);
+  if(legacy_initial){frozen_source=std::make_shared<BoundaryParameterState>(*state);frozen_snapshot=frozen_source->Snapshot();frozen_bounds=source_bounds(*frozen_source);}
+  if(entity_initial){state=state->WithEntityGeometry(.01,setup);reference=PlanarReference::WithParameters(fixture.definition,state);CHECK(state->Coverage().faces.empty());}
+  if(legacy_initial && !entity_initial) {
     const auto frozen=state->Snapshot();BoundaryCoverage normalized;auto normalize=RemappingBudget();
     REQUIRE(RebuildWorkingSurface(*state,normalized,normalize,reason));
     const Edge shared{0,60};REQUIRE(normalized.traces.count(shared));CHECK(normalized.traces.at(shared).pieces.size()==1);
@@ -438,7 +439,7 @@ TEST_CASE("Neighboring curved moves publish and reload complete boundary state",
     global.insert(global.end(),fresh.cells.begin(),fresh.cells.end());CHECK(global.size()==6);
     CHECK(reference->Parameters()->Records().size()==7);CHECK(reference->Parameters()->Surface().size()==10);
     ReferenceState archive;archive.original=reference;archive.facets=fixture.facets;archive.marker_names={"body"};
-    const auto encoded=EncodeReference(archive);CHECK(encoded.find("SU2_NATIVE_REFERENCE_3D 8\n")==0);
+    const auto encoded=EncodeReference(archive);CHECK(encoded.find(entity_initial?"SU2_NATIVE_REFERENCE_3D 9\n":"SU2_NATIVE_REFERENCE_3D 8\n")==0);
     const std::string filename="neighboring_curved_working_state.native_ref";WriteReference(filename,archive);
     auto loaded=archive;const auto before_load=EncodeReference(loaded);bool found=false;size_t load_peak=0;
     const auto load_caller=ReferenceStorageBytes(loaded);
@@ -457,14 +458,22 @@ TEST_CASE("Neighboring curved moves publish and reload complete boundary state",
     reference=loaded.original;moving[slot]=next;
     auto source_budget=RemappingBudget();
     for(const auto& row:reference->Parameters()->Surface()) {
-      FaceCoverage source_cover;REQUIRE(reference->Parameters()->ResolveCoverage(row.second,source_cover,source_budget,reason));
       std::array<Point,3> chord;for(unsigned k=0;k<3;++k)chord[k]=reference->Parameters()->Find(row.second.v[k])->node.p;
-      const auto source=reference->Parameters()->Geometry().PrepareSourcePatch(source_cover,chord,source_budget);
+      auto source=[&](){if(entity_initial){const auto& certs=reference->Parameters()->GeometryCertificates(source_budget);
+          const auto& certificate=certs.at(reference->Parameters()->Entity(row.second.facet));CHECK_FALSE(certificate.within_tolerance);
+          return MappedFacetReference::SourcePatch::Tube(chord,certificate.model_to_mesh);}
+        FaceCoverage source_cover;REQUIRE(reference->Parameters()->ResolveCoverage(row.second,source_cover,source_budget,reason));
+        return reference->Parameters()->Geometry().PrepareSourcePatch(source_cover,chord,source_budget);}();
       const auto bounds=source.Bounds();
       for(const auto& point:chord){CHECK(point.x>=bounds[0].x);CHECK(point.x<=bounds[1].x);
         CHECK(point.y>=bounds[0].y);CHECK(point.y<=bounds[1].y);CHECK(point.z>=bounds[0].z);CHECK(point.z<=bounds[1].z);}
     }
-    const auto& coverage=reference->Parameters()->Coverage();size_t face_pieces=0,trace_pieces=0,bits=0;
+    if(entity_initial && event==15){auto complete_budget=RemappingBudget();
+      for(const auto& row:reference->Parameters()->GeometryCertificates(complete_budget,true))CHECK(row.second.within_tolerance);}
+    const auto& coverage=reference->Parameters()->Coverage();if(entity_initial){CHECK(coverage.faces.empty());
+      for(const auto& row:coverage.traces){auto trace=row.second;std::optional<Id> chain;
+        REQUIRE(NormalizeFeatureTrace(reference->Parameters()->Geometry(),reference->Parameters()->Mobility(),trace,chain,source_budget,reason));CHECK(chain);}}
+    size_t face_pieces=0,trace_pieces=0,bits=0;
     auto ratio=[&](const ExactRatio& r){for(const auto* limbs:{&r.numerator,&r.denominator})if(!limbs->empty()){
       size_t width=32*(limbs->size()-1);for(uint32_t top=limbs->back();top;top>>=1)++width;bits=std::max(bits,width);}};
     auto bary=[&](const ExactBary& p){ratio(p.u);ratio(p.v);};
@@ -474,8 +483,8 @@ TEST_CASE("Neighboring curved moves publish and reload complete boundary state",
     // Hash rendezvous changes rank shares as IDs change; aggregate workspace tests history growth.
     const auto aggregate_peak=CPassiveComm::Allreduce(uint64_t(local_peak),CPassiveComm::Op::SUM,world.comm);
     const Measures measures{{face_pieces,trace_pieces,bits,budget.work+publication_budget.work+source_budget.work,size_t(aggregate_peak)}};
-    if(!world.rank)std::cout<<std::setprecision(17)<<"NATIVE_PUBLICATION_EVENT {\"scope\":\"private_neighbor_moves_publication_source_schema8\",\"event\":"<<event
-      <<",\"legacy_initial\":"<<(legacy_initial?"true":"false")<<",\"operator_work\":"<<budget.work<<",\"operator_peak_bytes\":"<<budget.peak_bytes
+    if(!world.rank)std::cout<<std::setprecision(17)<<"NATIVE_PUBLICATION_EVENT {\"scope\":\"private_neighbor_moves_publication_source_schema"<<(entity_initial?9:8)<<"\",\"event\":"<<event
+      <<",\"legacy_initial\":"<<(legacy_initial?"true":"false")<<",\"entity_initial\":"<<(entity_initial?"true":"false")<<",\"operator_work\":"<<budget.work<<",\"operator_peak_bytes\":"<<budget.peak_bytes
       <<",\"publication_work\":"<<publication_budget.work<<",\"publication_peak_bytes\":"<<publication_budget.peak_bytes
       <<",\"source_envelope_work\":"<<source_budget.work<<",\"source_envelope_peak_bytes\":"<<source_budget.peak_bytes
       <<",\"arithmetic_work_excludes_decode\":"<<measures[3]<<",\"face_pieces\":"<<face_pieces<<",\"trace_pieces\":"<<trace_pieces
@@ -686,4 +695,18 @@ TEST_CASE("Feature trace normalization validates intervals and preserves failed 
   BoundaryCoverage before;before.traces.emplace(smooth_edge,plain);const auto encoded=EncodeBoundaryAtlas(before,smooth.policy);
   chain=saved_chain;REQUIRE(NormalizeFeatureTrace(*smooth.geometry,smooth.policy,plain,chain,budget,reason));CHECK_FALSE(chain);
   BoundaryCoverage after;after.traces.emplace(smooth_edge,plain);CHECK(EncodeBoundaryAtlas(after,smooth.policy)==encoded);
+}
+
+TEST_CASE("Entity feature reconstruction accepts empty interior cavities only", "[NativeCurvedAtlas3D]") {
+  RemappingFixture fixture(false);auto budget=RemappingBudget();std::string reason;
+  auto entity=fixture.state->WithEntityGeometry(.01,budget);auto reference=PlanarReference::WithParameters(fixture.definition,entity);
+  Patch interior;std::vector<SurfaceFace> no_faces;BoundaryPoints no_points;std::map<Edge,EdgeTrace> result;
+  REQUIRE(RebuildFeatureTraces(interior,no_faces,no_points,*reference,result,budget,reason));CHECK(result.empty());
+  Patch physical;physical.surface.push_back(fixture.surface.front());
+  EdgeTrace sentinel;ExactRatio one;REQUIRE(ExactInteger(1,one,budget,reason));sentinel.pieces.push_back({0,{},{},one});
+  const Edge key{10,20};result.emplace(key,sentinel);const auto saved=result.size();
+  CHECK_FALSE(RebuildFeatureTraces(physical,no_faces,no_points,*reference,result,budget,reason));
+  CHECK(result.size()==saved);REQUIRE(result.count(key));REQUIRE(result.at(key).pieces.size()==1);
+  CHECK(result.at(key).pieces[0].facet==sentinel.pieces[0].facet);CHECK(result.at(key).pieces[0].end.numerator==one.numerator);
+  CHECK(result.at(key).pieces[0].end.denominator==one.denominator);
 }

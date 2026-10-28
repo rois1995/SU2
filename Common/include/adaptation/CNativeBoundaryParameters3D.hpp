@@ -89,7 +89,7 @@ class BoundaryParameterState {
   std::shared_ptr<BoundaryParameterState> WithEntityGeometry(double tolerance,
       SU2NativeGeometry::AtlasBudget&,size_t ceiling=SIZE_MAX,size_t caller_bytes=0)const;
   const std::map<EntityKey,SU2NativeGeometry::MappedFacetReference::SurfaceUnionBounds>&
-      GeometryCertificates(SU2NativeGeometry::AtlasBudget&)const;
+      GeometryCertificates(SU2NativeGeometry::AtlasBudget&,bool complete=false)const;
   const Entries& Records()const{return records;}
   const std::map<Face,SurfaceFace>& Surface()const{return surface;}
   const SU2NativeGeometry::BoundaryCoverage& Coverage()const{return coverage;}

@@ -1369,14 +1369,17 @@ MappedFacetReference::SourcePatch MappedFacetReference::PrepareSourcePatch(Id fa
 }
 MappedFacetReference::SurfaceUnionBounds MappedFacetReference::BoundSurfaceUnion(
     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
-    double tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true);}
+    double tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,true);}
+MappedFacetReference::SurfaceUnionBounds MappedFacetReference::BoundModelSurface(
+    const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
+    double tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,false);}
 double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
     const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget& budget)const {
-  return QuerySurfaceUnion(facets,physical,tolerance,budget,false).mesh_to_model;
+  return QuerySurfaceUnion(facets,physical,tolerance,budget,false,true).mesh_to_model;
 }
 MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion(
     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
-    double tolerance,AtlasBudget& budget,bool include_model)const {
+    double tolerance,AtlasBudget& budget,bool include_model,bool include_mesh)const {
   AtlasOps op{budget,__func__};
   struct Restore {AtlasBudget& b;size_t caller;~Restore(){b.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
   if(facets.empty()||physical.empty()||!std::isfinite(tolerance)||tolerance<std::numeric_limits<double>::min())
@@ -1407,7 +1410,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     const auto& f=reference->Get(domain.facet);return LinearPoint({f.v[0].p,f.v[1].p,f.v[2].p},parameter);
   };
   std::vector<UnionTriangle> model;std::vector<UnionDomain> pending;
-  for(Id facet:facets) {
+  if(include_mesh)for(Id facet:facets) {
     pending.push_back({facet});
     while(!pending.empty()) {
       const auto domain=pending.back();pending.pop_back();const auto controls=net(domain);UnionTriangle piece;
@@ -1424,7 +1427,10 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
   }
   std::vector<UnionDomain>().swap(pending);
   budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(model.capacity(),sizeof(UnionTriangle)));
-  TriangleUnion mesh_union(flat,op,tolerance),model_union(model,op,tolerance);
+  // Source enclosure needs only the physical target; approximating the complete model serves the reverse query.
+  std::unique_ptr<TriangleUnion> mesh_union,model_union;
+  if(include_model)mesh_union=std::make_unique<TriangleUnion>(flat,op,tolerance);
+  if(include_mesh)model_union=std::make_unique<TriangleUnion>(model,op,tolerance);
   struct NodeBound {UnionDomain domain;double upper;};
   auto compare=[](const NodeBound& a,const NodeBound& b){return a.upper<b.upper;};
   auto directed=[&](bool from_model,TriangleUnion& target) {
@@ -1448,12 +1454,12 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     }
     return std::make_tuple(finished,leaves,false);
   };
-  SurfaceUnionBounds result;const auto forward=include_model?directed(true,mesh_union):std::make_tuple(0.,size_t(0),false);
-  const auto reverse=directed(false,model_union);
+  SurfaceUnionBounds result;const auto forward=include_model?directed(true,*mesh_union):std::make_tuple(0.,size_t(0),false);
+  const auto reverse=include_mesh?directed(false,*model_union):std::make_tuple(0.,size_t(0),false);
   result.model_to_mesh=std::get<0>(forward);result.mesh_to_model=std::get<0>(reverse);
   result.model_pieces=model.size();result.physical_pieces=std::get<1>(reverse);
   result.outside_tolerance=std::get<2>(forward)||std::get<2>(reverse);
-  result.within_tolerance=!result.outside_tolerance;return result;
+  result.within_tolerance=include_model&&include_mesh&&!result.outside_tolerance;return result;
 }
 bool MappedFacetReference::BindingParameters(Id facet,const SurfaceBinding& binding,ExactBary& result,
     AtlasBudget& budget,std::string& reason)const {

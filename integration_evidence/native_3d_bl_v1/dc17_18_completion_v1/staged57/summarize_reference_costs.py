@@ -39,13 +39,18 @@ def main():
     output = case / ('publication_cost_summary.json' if mode == 'publication' else 'reference_cost_summary.json')
     if output.exists(): raise RuntimeError('Receipt already exists: ' + str(output))
     groups = {}
+    entity_labelled = mode == 'publication' and any('entity_initial' in row for row in rows)
+    legacy_labelled = mode == 'publication' and any('legacy_initial' in row for row in rows)
     for row in rows:
-        variant = row.get('legacy_initial', False) if mode == 'publication' else False
-        if not isinstance(variant, bool): raise ValueError('Invalid legacy_initial variant')
-        groups.setdefault(variant, []).append(row)
-    if mode == 'publication' and any('legacy_initial' in row for row in rows):
-        if set(groups) != {False, True} or any('legacy_initial' not in row for row in rows):
-            raise ValueError('Expected both explicitly labelled initial-state variants')
+        legacy = row.get('legacy_initial', False) if mode == 'publication' else False
+        entity = row.get('entity_initial', False) if mode == 'publication' else False
+        if not isinstance(legacy, bool) or not isinstance(entity, bool): raise ValueError('Invalid initial-state variant')
+        if entity_labelled and ('legacy_initial' not in row or 'entity_initial' not in row): raise ValueError('Missing variant labels')
+        groups.setdefault((legacy, entity), []).append(row)
+    if entity_labelled and set(groups) != {(False,False),(True,False),(False,True),(True,True)}:
+        raise ValueError('Expected all four initial-state variants')
+    if legacy_labelled and not entity_labelled and (set(groups) != {(False,False),(True,False)} or any('legacy_initial' not in row for row in rows)):
+        raise ValueError('Expected both explicitly labelled initial-state variants')
     for variant, events in groups.items():
         if len(events) != 16 or [r.get('event') for r in events] != list(range(16)):
             raise ValueError('Expected exactly events 0–15 in order per variant: ' + str(variant))
@@ -53,13 +58,15 @@ def main():
     bounded = PUBLICATION_BOUNDED if mode == 'publication' else BOUNDED
     expected_scope = 'private_neighbor_moves_publication_source_schema8' if mode == 'publication' else 'private_overlapping_surface_moves'
     for row in rows:
-        if row.get('scope') != expected_scope or (mode == 'surface' and row.get('rank') != 0):
+        row_scope = expected_scope.replace('schema8','schema9') if mode == 'publication' and row.get('entity_initial', False) else expected_scope
+        if row.get('scope') != row_scope or (mode == 'surface' and row.get('rank') != 0):
             raise ValueError('Unexpected private event scope or rank')
         for key in fields:
             value = row.get(key)
-            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value <= 0:
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or (value < 0 if key == 'face_pieces' and row.get('entity_initial', False) else value <= 0):
                 raise ValueError('Invalid positive finite field: ' + key)
         if mode == 'publication':
+            if row.get('entity_initial', False) and row['face_pieces'] != 0: raise ValueError('Entity variant retains face covers')
             if row['arithmetic_work_excludes_decode'] != row['operator_work'] + row['publication_work'] + row['source_envelope_work']:
                 raise ValueError('Inconsistent summed work')
             row['combined_admitted_peak_bytes'] = row.get('aggregate_admitted_peak_bytes', max(row['operator_peak_bytes'], row['publication_peak_bytes'], row['source_envelope_peak_bytes']))
@@ -73,12 +80,12 @@ def main():
             for event in range(8 + phase, 16, 4):
                 compared = {key: {'baseline': baseline[key], 'value': events[event][key],
                                   'within_bound': events[event][key] <= baseline[key]} for key in bounded}
-                phases.append({'legacy_initial': variant, 'phase': phase, 'baseline_event': 4 + phase,
+                phases.append({'legacy_initial': variant[0], 'entity_initial': variant[1], 'phase': phase, 'baseline_event': 4 + phase,
                                'event': event, 'fields': compared})
     if any(not field['within_bound'] for comparison in phases for field in comparison['fields'].values()):
         raise ValueError('Per-phase cost or descriptor bound failed')
     if any(sha(Path(p)) != h for p, h in pins.items()): raise RuntimeError('Inputs changed during summary')
-    save(output, {'scope': expected_scope + '; excludes CFD transfer and solution restart',
+    save(output, {'scope': ('private_neighbor_moves_publication_source_schema8_or_9' if entity_labelled else expected_scope) + '; excludes CFD transfer and solution restart',
                   'arithmetic_note': 'publication arithmetic excludes archive decode work' if mode == 'publication' else 'surface move arithmetic only',
                   'test_source_pin': {'path': matches[0][0], 'sha256': matches[0][1]},
                   'rss_note': 'lifetime process peak RSS, not allocation peak', 'sha256': pins,

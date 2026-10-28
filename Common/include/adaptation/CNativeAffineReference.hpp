@@ -149,6 +149,9 @@ class MappedFacetReference {
    * Topology, feature incidence and body separation require independent admission. */
   SurfaceUnionBounds BoundSurfaceUnion(const std::vector<Id>& model_facets,
       const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&)const;
+  /*! Model enclosure for source tubes; does not certify the reverse distance or final tolerance. */
+  SurfaceUnionBounds BoundModelSurface(const std::vector<Id>& model_facets,
+      const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&)const;
   /*! One-sided bound for a physical patch against a model union; omitted supports only weaken admission. */
   double BoundPhysicalSurface(const std::vector<Id>& model_facets,
       const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&)const;
@@ -255,7 +258,7 @@ class MappedFacetReference {
   uint64_t Version()const{return version;}
  private:
   SurfaceUnionBounds QuerySurfaceUnion(const std::vector<Id>&,
-      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model)const;
+      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh)const;
 
   std::shared_ptr<const SU2Native3D::PlanarReference> reference;
   std::map<Id,double> errors;

@@ -86,7 +86,7 @@ struct EngineOptions {
   std::function<void(const Patch&,const Patch&,Feature,const MetricDiagnosis&,bool,const std::string&)> rejected_trial;
   // Optional rank-local diagnostic: cells and their matching private geometry; no collectives or retention.
   std::function<void(const Owned&,const PlanarReference&,const std::string&)> rejected_state;
-  // Diagnostic selector only: first matching reserved transaction; configure identically on all workers.
+  // Nonzero count selects the first matching transaction collectively; zero observes the first local operator failure.
   Feature capture_feature{};
   std::function<void(const TransactionView&)> transaction_observer;
   std::function<void(const StageProgressView&)> stage_observer;

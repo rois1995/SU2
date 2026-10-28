@@ -196,6 +196,13 @@ TEST_CASE("Backend bounds both directions of a complete unpartitioned surface un
   CHECK(bounds.within_tolerance);CHECK_FALSE(bounds.outside_tolerance);
   CHECK(bounds.model_to_mesh<=1e-4);CHECK(bounds.mesh_to_model<=1e-4);
   CHECK(bounds.model_pieces>0);CHECK(bounds.physical_pieces>0);
+  // A source enclosure may ignore an extra distant mesh face; final acceptance must detect it.
+  auto extra=square;auto distant=square.front();for(auto& p:distant)p.x+=5;extra.push_back(distant);
+  auto enclosure_budget=BackendBudget();
+  REQUIRE(backend.PatchErrorBounds(scope,extra,1e-4,bounds,enclosure_budget,reason,GeometryErrorDirection::ModelToMesh));
+  CHECK(bounds.model_to_mesh<=1e-4);CHECK(bounds.model_pieces==0);CHECK_FALSE(bounds.within_tolerance);
+  auto final_budget=BackendBudget();REQUIRE(backend.PatchErrorBounds(scope,extra,1e-4,bounds,final_budget,reason));
+  CHECK(bounds.outside_tolerance);CHECK_FALSE(bounds.within_tolerance);CHECK(bounds.mesh_to_model>1);
   auto missing=square;missing.erase(missing.begin());auto hole_budget=BackendBudget();
   ok=backend.PatchErrorBounds(scope,missing,1e-4,bounds,hole_budget,reason);INFO(reason);REQUIRE(ok);CHECK(bounds.outside_tolerance);CHECK_FALSE(bounds.within_tolerance);CHECK(bounds.model_to_mesh>1e-3);
   auto wrong=triangles(flat,100);auto body_budget=BackendBudget();
@@ -236,7 +243,8 @@ TEST_CASE("Entity geometry preserves feature contracts through reference and pay
   // Fixture tolerance admits this .03-control bump; it does not qualify a .001 workflow.
   auto entity=legacy->WithEntityGeometry(.01,budget);REQUIRE(entity->EntityGeometry());CHECK(entity->GeometryTolerance()==.01);
   CHECK(entity->Coverage().faces.empty());CHECK(entity->Coverage().traces.size()==fixture.policy.features.size());
-  for(const auto& row:entity->GeometryCertificates(budget)){CHECK(row.second.model_to_mesh<=.01);CHECK(row.second.mesh_to_model<=.01);}
+  for(const auto& row:entity->GeometryCertificates(budget)){CHECK(row.second.model_to_mesh<=.01);CHECK_FALSE(row.second.within_tolerance);}
+  for(const auto& row:entity->GeometryCertificates(budget,true)){CHECK(row.second.within_tolerance);CHECK(row.second.mesh_to_model<=.01);}
   ReferenceState state{PlanarReference::WithParameters(fixture.reference,entity),fixture.facets,{"wall"},0};
   const auto encoded=EncodeReference(state);REQUIRE(encoded.find("SU2_NATIVE_REFERENCE_3D 9\n")==0);
   const auto decoded=DecodeReference(encoded);REQUIRE(decoded.original->Parameters());
@@ -252,7 +260,7 @@ TEST_CASE("Entity geometry preserves feature contracts through reference and pay
     for(unsigned k=0;k<3;++k){original[k]=entity->Find(row.second.v[k])->node.p;renumbered[k]=rebound->Find(numbering.at(row.second.v[k]))->node.p;}
     const auto a=MappedFacetReference::SourcePatch::Tube(original,.01).Bounds(),b=MappedFacetReference::SourcePatch::Tube(renumbered,.01).Bounds();
     for(unsigned k=0;k<2;++k){CHECK(a[k].x==b[k].x);CHECK(a[k].y==b[k].y);CHECK(a[k].z==b[k].z);}}
-  for(const auto& row:rebound->GeometryCertificates(budget)){CHECK(row.second.model_to_mesh<=.01);CHECK(row.second.mesh_to_model<=.01);}
+  for(const auto& row:rebound->GeometryCertificates(budget,true)){CHECK(row.second.model_to_mesh<=.01);CHECK(row.second.mesh_to_model<=.01);CHECK(row.second.within_tolerance);}
   auto missing=entity->Coverage();REQUIRE_FALSE(missing.traces.empty());missing.traces.erase(missing.traces.begin());
   CHECK_THROWS(BoundaryParameterState(fixture.geometry,points,skin,1,SIZE_MAX,0,missing,fixture.policy,&budget,.01));
   auto noncanonical=entity->Coverage();auto& trace=noncanonical.traces.begin()->second;REQUIRE(trace.pieces.size()==1);

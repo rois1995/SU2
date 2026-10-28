@@ -1044,7 +1044,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     layer_active=false;
     if(result.valid && geometry.EntityGeometry()) {
       CLocalFailure geometryFailure;
-      try {for(const auto& row:geometry.Parameters()->GeometryCertificates(atlas_budget))if(!row.second.within_tolerance)
+      try {for(const auto& row:geometry.Parameters()->GeometryCertificates(atlas_budget,true))if(!row.second.within_tolerance)
         geometryFailure.Set(1,std::get<0>(row.first),"Complete working surface does not meet the prescribed two-sided geometry tolerance.");}
       catch(const std::exception& e){geometryFailure.Set(2,0,e.what());}
       if(!vote(geometryFailure)){result.valid=false;if(stats.stop==EngineStop::None)stats.stop=EngineStop::Failure;}
@@ -2440,7 +2440,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const auto node_offset=transfer_memory::Mul(token,node_stride);
     bool capture=false, capture_selected=false;
     const Feature transaction_feature=repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2};
-    if(options.transaction_observer && !transaction_captured) {
+    if(options.transaction_observer && options.capture_feature.count && !transaction_captured) {
       capture_selected=chosen && transaction_feature.count==options.capture_feature.count &&
           transaction_feature.vertices==options.capture_feature.vertices;
       capture=world.maximum(capture_selected);
@@ -2851,6 +2851,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(!old.cells.empty())stats.last_rejected_cavity_centroid=Centroid(old.cells.front());
           last_rejection="feature "+std::to_string(stats.last_rejected_feature.count)+":"+
               std::to_string(stats.last_rejected_feature.vertices[0])+": "+result.reason;
+          if(options.transaction_observer && !options.capture_feature.count && !transaction_captured)try {
+            transaction_captured=true;
+            options.transaction_observer({repairing?"first_repair_failure":coarsening?"first_collapse_failure":"first_split_failure",
+                transaction_feature,uint64_t(round),true,false,working,geometry,dependencies,imported,old,fresh,point,
+                maximum_cell+1+offset,maximum_node+1+node_offset,certified,result.reason,nullptr,composition,options.edge_breakpoints});
+          }catch(const std::exception& e){observed.Set(2,0,e.what());}
           if(options.rejected_trial)try {
             options.rejected_trial(old,fresh,stats.last_rejected_feature,certified,candidate,result.reason);
           }catch(const std::exception& e){observed.Set(2,0,e.what());}

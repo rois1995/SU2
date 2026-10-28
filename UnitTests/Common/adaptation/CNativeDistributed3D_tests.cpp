@@ -4143,6 +4143,11 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
   bool first_collapse_seen=false,collapse_after_refinement_quiescence=false,quality_after_pair=true;
   uint64_t previous_splits=0;bool last_split_productive=false;
   EngineOptions options;options.maximum_work=4096;options.stagnation_window=1;
+  unsigned failure_captures=0;
+  options.transaction_observer=[&](const TransactionView& view) {
+    ++failure_captures;CHECK(view.selected);CHECK_FALSE(view.passed);CHECK_FALSE(view.old.cells.empty());
+    CHECK(std::string(view.stage).find("first_")==0);
+  };
   if(composed)options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
   options.stage_observer=[&](const StageProgressView& view){
     if(view.phase==EnginePhase::Improvement && !quality_seen) {
@@ -4170,6 +4175,7 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
   CHECK(world.maximum(!collapse_after_refinement_quiescence)==0);
   if(world.size>=3)CHECK(world.maximum(parallel_before_quality)>=2);
   CHECK(result.stats.global_work<=options.maximum_work);
+  CHECK(failure_captures<=1);if(world.sum(result.stats.rejected)>0)CHECK(world.sum(failure_captures)>0);
   CHECK(world.sum(splits_before_quality)>0);CHECK(world.sum(collapses_before_quality)>0);
   CHECK(Bytes(input)==saved);CHECK(donorBytes(source)==donorBytes(source_saved));
   EngineReport(result,world,"bidirectional_lengths");

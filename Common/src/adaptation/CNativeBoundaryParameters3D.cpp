@@ -363,9 +363,10 @@ std::shared_ptr<BoundaryParameterState> BoundaryParameterState::WithEntityGeomet
   next->ValidateEntityFeatures(budget);next->GeometryCertificates(budget);return next;
 }
 const std::map<BoundaryParameterState::EntityKey,MappedFacetReference::SurfaceUnionBounds>&
-BoundaryParameterState::GeometryCertificates(AtlasBudget& budget)const {
+BoundaryParameterState::GeometryCertificates(AtlasBudget& budget,bool complete)const {
   if(!EntityGeometry())throw std::invalid_argument("Entity geometry certificate requested from a legacy face partition.");
-  if(certificate_revision==revision)return geometry_certificates;
+  // A source enclosure never substitutes for the final two-sided query.
+  if(!complete&&certificate_revision==revision)return geometry_certificates;
   const auto temporary=transfer_memory::Add(transfer_memory::Mul(surface.size(),160),transfer_memory::Mul(geometry->Reference().Facets().size(),256));
   const auto live=transfer_memory::Add(budget.caller_bytes,temporary);
   AtlasStorage storage(&budget,live,budget.maximum_bytes);
@@ -376,7 +377,8 @@ BoundaryParameterState::GeometryCertificates(AtlasBudget& budget)const {
   NativeMappedGeometryBackend3D backend(geometry,mobility);std::map<EntityKey,MappedFacetReference::SurfaceUnionBounds> fresh;
   for(const auto& row:physical){GeometrySupport scope;scope.body=std::get<0>(row.first);scope.sheet=std::get<1>(row.first);scope.marker=std::get<2>(row.first);
     MappedFacetReference::SurfaceUnionBounds result;std::string reason;
-    if(!backend.PatchErrorBounds(scope,row.second,geometry_tolerance,result,budget,reason))throw std::invalid_argument(reason);
+    if(!backend.PatchErrorBounds(scope,row.second,geometry_tolerance,result,budget,reason,
+        complete?GeometryErrorDirection::Both:GeometryErrorDirection::ModelToMesh))throw std::invalid_argument(reason);
     fresh.emplace(row.first,result);}
   geometry_certificates=std::move(fresh);certificate_revision=revision;return geometry_certificates;
 }

@@ -238,3 +238,42 @@ restart and M6 remain the acceptance obligations. No caps were raised.
 
 Build89 PASS45.156s, pins unchanged. Compiled-filter audit passes23 selections:260 serial/237 MPI/71 atlas, including new entity-v9 and feature-normalization cases. Actual workflow89 FAIL55.134s with unchanged pins: flat variants pass; each curved variant38 splits/6 collapses,1459 rejections (1312 local geometry coarsening vetoes,147 entity-orientation refusals), arithmetic67,207,168 and no quality stage. Removing refinement scoring alone did not deliver an accepted mesh. IDs repeat with evolving volume stars; unchanged physical dependencies are not established. Four captured cells share .0010990956390742213, not every bad cell; symmetry and conservative bounds prevent inferring a plateau or actual distance from that number. Build90 groups productive generations of the same operator before switching split/collapse, using existing finite frontiers/reservations and unchanged gates. The regression now requires the first collapse sweep to follow refinement quiescence; the prior collapse-before-size-completion assertion was an agent-selected scheduling expectation, not a user requirement. Build90 running; sources/helpers pinned.
 The operator choice is an implementation decision. Existing exact validity, body/feature, owner publication, two-sided final geometry, metric/BL quality, transfer/history and restart requirements remain. No arithmetic cap or tolerance changed.
+
+
+### Build90 runtime evidence
+
+Build90 PASS189.258s, source pins unchanged. Workflow90 FAIL72.964s, unchanged pins: each curved variant reaches295 splits/157 collapses and zero cached size/geometry debt, but coarsening verification exhausts67,207,168 arithmetic before quality; Euler recorded2588 rejections/579 final private cells. No accepted mesh/transfer/restart follows. The rejected-state diagnostic itself exhausted the event reservation while evaluating face errors; its complete binary shard is saved, but the text diagnosis is partial. Diagnostics must use fresh independently admitted work. Sweep scheduling resolves the previous early construction stall but does not resolve repeated coarsening verification. No cap or acceptance gate changed. M6 build90 euler_build90_entity_sweeps is now the sole owned heavy job (session57795); do not edit pinned C++/helpers until terminal. Prior mapped handles/processes are verified terminal/gone; the first M6 launch review rejection used stale live-job state and was resolved with process evidence.
+
+
+### Remaining DC-18 sizing integration and coarsening work
+
+Read-only production inventory at build90: `CurvatureSizeRule` and `CurvatureMetric`
+exist in CNativeCurvedReference.hpp, but the latter has no production caller.
+CBoundaryLayerMetric.cpp supplies Hausdorff tangential sizing for complete analytic
+sphere/cylinder walls; CNativeRemesher3D creates its pointwise composition only
+when BL is configured. The cubic backend already exposes principal curvature and
+directions, explicitly as local differential data rather than a certified global
+curvature bound. Generic cubic/Euler geometry sizing is therefore open, not done.
+A shared geometry target must retain ADAP_HAUSD independent of h0, geometry/BL
+composition and gradation, normalization order and exact final geometry checks;
+adding sampled curvature alone would not certify the surface or complete DC-18.
+
+A rejection cache would leave the target field unchanged but address only repeated
+verification. The smallest candidate is a transient directed-current-edge entry
+with the exact sorted physical-face identities/facet hints from its fetched star.
+BoundaryParameterState explicitly makes point identities immutable within an
+publication epoch; movement replaces identities. Such a cache must store only a
+deterministic local geometry refusal, compare its complete physical dependency
+set, overwrite older signatures, discard retired edges and admit storage. It must
+not cache clearance, reservations, metric failures or exhaustion; no persistent
+history or rational descriptor graph is needed. First establish repeated identical
+physical dependencies and preserve a fresh-work first failure. This remains an
+assessment, not implemented or validated behavior, and is not a user requirement.
+
+
+### Purpose-specific geometry bounds and interior reconstruction, build91
+
+M6 build90 was deliberately stopped after481.694s (solver -15, pins unchanged), before operators. All owned host PIDs are verified gone. A three-second userspace profile (120 samples, no lost samples) places100% of sampled stacks in PrepareMobility→WithEntityGeometry→GeometryCertificates→QuerySurfaceUnion; source inspection shows unconditional dense model approximation for the reverse direction before union queries. The profile does not distinguish that phase from later subdivision. This is a diagnostic interruption, not a native rejection or infeasibility proof. Source enclosures need model→frozen-skin bounds, while final acceptance needs both directions. The connected correction exposes direction in the geometry backend, omits the dense model approximation for source-only queries, and forces an uncached complete two-sided final query. Source-only results never claim within_tolerance. No arithmetic cap or geometric target was raised.
+
+The first mapped90 refusal also exposed that RebuildFeatureTraces rejected empty candidate physical surfaces even for empty interior cavities. The shared helper now permits genuine interior reconstruction while still refusing removal of a physical surface. New focused coverage tests that distinction. Existing neighboring-move facilities now cover four16-event variants: clean/historical legacy and clean/historical→entity, owner publication, frozen source envelopes, schema8/9 reload and descriptor/work/storage receipts. The summary requires every variant/event. Optional transaction observation now captures the first local failed operator with matching private geometry and independently admitted fresh-work replay; final rejected-state diagnostics no longer reuse the exhausted event reservation. All changes await connected build91 and actual workflow/M6 qualification.
+Affected callers: backend PatchErrorBounds; BoundaryParameterState migration/source cache; JointAffineCoverage consumes its unchanged forward bound; Engine finish explicitly requests both directions. Reference/payload9 stores the same immutable authority/associations and does not persist query subdivisions. Acceptance: actual curved workflow and M6, first-failure replay, repeated owner-publication/source/reload variants, unchanged final geometry/q/J/size/BL/transfer/history/restart gates. Generic curvature composition remains open.

@@ -690,8 +690,13 @@ bool RebuildFeatureTraces(const SU2Native3D::Patch& old,const std::vector<SU2Nat
   std::map<Edge,std::vector<size_t>> incidence;std::map<Id,SurfaceBinding> bindings;
   std::vector<Edge> feature_edges;EdgeTrace working;Key first,last;
   try {
-    if(!reference.Parameters() || !reference.Parameters()->Mobility().identity || faces.empty())
-      throw std::invalid_argument("Feature reconstruction lacks active immutable mobility or candidate surface.");
+    if(!reference.Parameters() || !reference.Parameters()->Mobility().identity)
+      throw std::invalid_argument("Feature reconstruction lacks active immutable mobility.");
+    if(faces.empty()) {
+      if(!old.surface.empty())throw std::invalid_argument("Feature reconstruction removes the physical surface.");
+      if(!budget.ChargeWork())throw std::length_error("Feature reconstruction work exhausted.");
+      result.clear();reason.clear();return true;
+    }
     const auto& geometry=reference.Parameters()->Geometry();const auto& policy=reference.Parameters()->Mobility();
     FeatureArithmeticScope scope(budget);for(const auto& row:old.coverage.traces)scope.Add(row.second);scope.Activate(true);
     Ops op(budget,[&]{size_t bytes=Plus(SU2Native3D::BoundaryCoverageBytes(old.coverage),Times(old.parameters.size()+points.size(),sizeof(SU2Native3D::BoundaryPoint)+4*sizeof(void*)));

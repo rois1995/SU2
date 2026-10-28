@@ -153,8 +153,9 @@ bool NativeMappedGeometryBackend3D::RegionErrorBounds(const FaceCoverage& covera
 }
 bool NativeMappedGeometryBackend3D::PatchErrorBounds(const GeometrySupport& scope,
     const std::vector<std::array<Point,3>>& physical,double tolerance,
-    MappedFacetReference::SurfaceUnionBounds& result,AtlasBudget& budget,std::string& reason)const {
+    MappedFacetReference::SurfaceUnionBounds& result,AtlasBudget& budget,std::string& reason,GeometryErrorDirection direction)const {
   try {
+    if(direction!=GeometryErrorDirection::Both&&direction!=GeometryErrorDirection::ModelToMesh)throw std::invalid_argument("Invalid geometry error direction.");
     if(scope.body==UINT64_MAX)throw std::invalid_argument("Surface-union query lacks a physical body.");
     const auto count=authority->Reference().Facets().size();Use(budget,transfer_memory::Mul(count,sizeof(Id)));
     std::vector<Id> facets;facets.reserve(count);
@@ -164,7 +165,8 @@ bool NativeMappedGeometryBackend3D::PatchErrorBounds(const GeometrySupport& scop
     }
     struct Restore {AtlasBudget& b;size_t caller;~Restore(){b.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
     budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(facets.capacity(),sizeof(Id)));
-    const auto bounds=authority->BoundSurfaceUnion(facets,physical,tolerance,budget);
+    const auto bounds=direction==GeometryErrorDirection::Both?authority->BoundSurfaceUnion(facets,physical,tolerance,budget):
+        authority->BoundModelSurface(facets,physical,tolerance,budget);
     result=bounds;reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
