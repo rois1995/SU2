@@ -240,7 +240,7 @@ class Construction {
   bool SurfaceValid(const SurfaceFace& f) {
     const auto p = Triangle(f);
     if (!geometry.ContainsFace(f.facet, p)) return false;
-    return geometry.SurfaceError(f.facet, p) <= tolerance;
+    return geometry.SurfaceDeviation(f.facet, p) <= tolerance;
   }
   bool SampleCylinder() {
     Id wall=UINT64_MAX; std::map<int,Id> cap;

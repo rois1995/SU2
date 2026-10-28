@@ -18,13 +18,14 @@ with cavity-transported nodal fields. CConservativeTransfer/CDistributedProjecti
 remain separate, including conservation, uncovered-volume accounting and history.
 This corrects any earlier conflation of the source-envelope blocker with solution
 transfer. No new curved/M6 transfer defect or successful workflow is established;
-those failing workflows never reached transfer. Reader metric packing changes are
-pending build94/runtime qualification and must agree with operator measurements.
+those failing workflows never reached transfer. Reader metric packing passes build95/96 focused runtime checks and agrees with
+operator measurements in that scope.
 
 ## Current audit preparation and metric-return validation
 
-Build95 focused checks execute121 cases:115 pass,6 fail in adaptation target refresh,
-bootstrap compatibility, private attribute byte comparisons and query counters.
+Build96 focused checks execute122 cases:119 pass,3 fail in an operation-specific
+reason assertion, initialized metadata comparison and final-census round handling.
+Fresh-target refresh and unmatched-cell bootstrap now pass.
 The new current-nodal normalization, reader metric packing and output/reload checks
 pass. This does not establish a new curved/M6 transfer workflow; both hard targets
 still reject generation. Input CFD/state rollback remains required and unchanged.

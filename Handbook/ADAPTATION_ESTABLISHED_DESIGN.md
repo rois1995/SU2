@@ -101,7 +101,7 @@ core is an eigenvalue and scales by the tensor factor. Preparation errors are
 elected before collective trial evaluation. Partition work estimates now use
 metric density/volume and edge demand without q/J measurements. The known atlas92
 redundant-feature assertion led to a structural canonical-piece count check rather
-than another geometric proof. All these changes await build94/runtime evidence.
+than another geometric proof. Build94 evidence below supersedes that implementation checkpoint.
 
 ### Workflow evidence must include actual M6 continuation
 
@@ -113,9 +113,9 @@ TIME_ITER=3, INNER_ITER=2, ADAP_FREQ=1; remove steady ADAP_SUBITER/ADAP_FLOW_ITE
 controls as required by CConfig. Keep ADAP_SIZES=(500000), CONSERVATIVE and the
 same reference. Require both event groups on all six ranks, current and prior-time
 conservation/positivity, written mesh/sidecar and matching saved history, then an
-actual restart continuation. Existing audit_native_unsteady.py is explicitly 2D
-and cannot establish M6 conservation. Reuse the driver/output/transfer facilities;
-qualify a 3D independent audit before claiming the full milestone. No such M6
+actual restart continuation. The independent audit now supports tetrahedral P1 histories, but has no accepted
+M6 inputs. Reuse the driver/output/transfer facilities and require its actual
+3D audit before claiming the full milestone. No such M6
 workflow is accepted at this checkpoint.
 
 Build94 actual workflows are terminal with unchanged pins. M6 Euler371.127s:
@@ -134,7 +134,7 @@ Next connected fixes reuse existing exact accepted-face associations for unchang
 entity faces (changed faces retain geometry checks), fix fixture backend setup and
 identify the exact geometry operation/scratch in storage refusals. No cap raised.
 
-### Current-stage target and memory contracts, build96 (pending)
+### Current-stage target and memory contracts, build96
 
 A new supplied stage field is authoritative even when input cells already carry
 attributes from an earlier adaptation. Exact matching source cells initialize
@@ -152,5 +152,52 @@ arrays now admit against the existing configured memory pool with their actual
 caller/scratch requests. Integer workspace and arithmetic work bounds are unchanged.
 This fixes memory-pool accounting after the representation change; it does not
 raise the configured cap or address quality stagnation by increasing arithmetic.
-All geometry byte peaks feed the native admission report. Build96 qualification
-is pending; complete curved/M6/BL workflow acceptance remains open.
+All geometry byte peaks feed the native admission report. Build96 compiles; focused tests execute122 cases with119 passing. Fresh-target
+bootstrap and current normalization pass. M6 passes the old memory refusal and
+fails the numerical surface-union calculation described below. Complete curved/
+M6/BL workflow acceptance remains open.
+
+### Geometry source paths and retained SU2 responsibilities
+
+Source inspection for the geometry decision includes SCOREC ma/maSnap.cc676–704
+(classified midpoint/parameters),749–755(model evaluation),856–873(target);
+ma/maSnapper.cc54–68(local cavity),590–629(rollback and topology operations).
+MMG mmg3d1.c363–410/490–583 checks local normals/tangents and Bézier deviation
+against hausd²; colver_3d.c527/785–886 checks the prospective boundary after
+collapse; movpt_3d.c480–506/1320–1407 evaluates prospective adjacent faces.
+These are local model/deviation operations, not per-operation whole-original-model
+certification. The new local guidance follows this division of responsibilities.
+MMG's current-mesh Bézier fit is not substituted for the immutable SU2 geometry.
+
+| Mechanism | Decision and provenance |
+| --- | --- |
+| Nodal size interpolation and classified complete cavities | Established foundation, implemented in existing SU2 operators. Convex SPD extension is an explicit SU2 policy, not a user requirement. |
+| Persistent smooth rational covers/edge paths | Agent-selected legacy mechanism; entity mode discards face covers and retains genuine feature runs only. No history-dependent smooth path is required by this design. Legacy decode remains for compatibility. |
+| Per-candidate whole-surface certificates | Removed from selection/operator guidance; retain the existing independent final geometry gate pending accepted workflow evidence. |
+| Candidate scheduling and search/work limits | SU2 implementation choices, not geometry feasibility proofs. Bound fresh work and preserve first failure; no cap raised by this change. |
+| Owner/version publication | Required SU2 integration responsibility: validate complete incident cavities, elect conflicts and publish associations/cells atomically. Existing Directory reused. |
+| CFD transfer/history/restart | Independent SU2 conservative projection and persistence responsibility; nodal metric transport does not replace or certify it. |
+
+### Local geometry guidance, build99 integration
+
+M6 build96 moved beyond the incidental memory refusal to10 private edits/rank,
+then failed because QuerySurfaceUnion exhausted exact dyadic resolution. This
+does not establish operation infeasibility. In the selected classified-cavity
+design, candidate faces use immutable geometry projection samples and existing
+curvature chord-height guidance, with no h0 dependence. Same-original-facet
+faces reuse the existing cheap cubic bound. Cross-facet faces no longer build a
+whole model tessellation per candidate. The current final two-sided global
+geometry gate is retained: local guidance never claims a whole-face certificate.
+Body/sheet restrictions filter closest-point search before updating distances;
+failed queries retain actual attempted work rather than the whole reservation.
+No new persisted representation, external executable or format infrastructure.
+Affected callers: selection, collapse constraints, local optimizer and regional
+construction; publication/source/persistence continue using existing associations.
+This is unvalidated implementation until actual curved and M6 workflows run.
+
+Build97 was stopped after a missing internal stats argument compile error;
+build98 was stopped for a source-review scope correction before validation.
+Neither is a completed build despite Ninja signal exit0. Build99 is the owned
+one-worker build; source pins remain fixed throughout it. Surface-distance
+guidance includes the boundary of the requested sheet; actual node movement
+retains its own genuine-feature restrictions.

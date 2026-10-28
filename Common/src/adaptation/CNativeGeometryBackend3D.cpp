@@ -124,12 +124,18 @@ bool NativeMappedGeometryBackend3D::Project(Point query,const GeometryProjection
     const auto reserved=std::min(low,budget.maximum_work-budget.work);
     if(!reserved){if(budget.work==budget.maximum_work)budget.ChargeWork();throw std::length_error("Projection query has no admitted work/storage reservation.");}
     const auto scratch=authority->CurvedQueryWorkspaceBytes(reserved);Use(budget,scratch);
-    const auto before=budget.work;const auto work=std::min(reserved,budget.maximum_work-before);
+    const auto work=std::min(reserved,budget.maximum_work-budget.work);
     if(!work){budget.ChargeWork();throw std::length_error("Projection query work exhausted before search.");}
-    if(!budget.ChargeWork(work))throw std::length_error("Projection query work exhausted before search."); // An exceptional query retains its conservative reservation as attempted work.
-    // Delegated numerical/storage failures do not themselves establish a caller work denial.
-    const auto candidate=authority->ClosestCurved(scope.hint,query,scope.absolute_error,work,remaining_bytes);
-    budget.work=before+candidate.work;
+    size_t attempted=0;
+    MappedFacetReference::CurvedClosest candidate;
+    try {
+      candidate=authority->ClosestCurved(scope.hint,query,scope.absolute_error,work,remaining_bytes,
+        [&](Id facet){return authority->Body(facet)==scope.body&&Sheet(*authority,policy,facet)==sheet;},&attempted);
+    } catch(...) {
+      budget.ChargeWork(attempted);
+      throw;
+    }
+    budget.ChargeWork(attempted);
     Id side=UINT64_MAX;
     authority->ForFacets(candidate.binding,[&](Id facet){Use(budget);
       if(authority->Body(facet)==scope.body&&Sheet(*authority,policy,facet)==sheet)side=std::min(side,facet);});

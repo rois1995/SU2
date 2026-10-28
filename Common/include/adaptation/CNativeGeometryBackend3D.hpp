@@ -60,7 +60,7 @@ class GeometryBackend3D {
 };
 /*! Shared immutable cubic/faceted authority; validated parameter-state policy is borrowed for the stage's lifetime.
  * Existing v5-v8 declarations/SurfaceBinding encoding remain the persistent source of truth.
- * A closest-component candidate outside the requested scope refuses; no alternate projection fallback. */
+ * Projection searches only facets on the requested body and semantic sheet. */
 class NativeMappedGeometryBackend3D final:public GeometryBackend3D {
  public:
   NativeMappedGeometryBackend3D(std::shared_ptr<const MappedFacetReference>,const MobilityPolicy&);

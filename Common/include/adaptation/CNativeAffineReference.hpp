@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #pragma once
+#include <functional>
 #include "CNativeCavity3D.hpp"
 #include "CNativePointConstruction3D.hpp"
 #include "CNativeAtlas3D.hpp"
@@ -133,7 +134,8 @@ class MappedFacetReference {
    * The returned binding/normal describe the candidate point, not a certified unique minimizer.
    * Ambiguous accuracy or resource exhaustion throws; no other body/marker is searched. */
   CurvedClosest ClosestCurved(Id hint,Point query,double absolute_error,size_t maximum_work,
-                              size_t ceiling=SIZE_MAX)const;
+                              size_t ceiling=SIZE_MAX, const std::function<bool(Id)>& allowed_facets={},
+                              size_t* attempted_work=nullptr)const;
   /*! Fixed-model broad phase within the hinted body/marker; candidates are not associations. */
   std::vector<Id> NearbySurfaceFacets(Id hint,const std::array<Point,2>& box)const;
   static constexpr size_t ClearanceWork=16384;

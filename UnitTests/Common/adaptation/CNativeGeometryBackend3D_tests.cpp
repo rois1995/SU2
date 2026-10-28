@@ -66,11 +66,16 @@ TEST_CASE("Native projection requires a body and refuses sheet and feature escap
   GeometrySupport support;REQUIRE(backend.Support(result.binding,result.surface,support,budget,reason));CHECK(support.body==0);CHECK(support.sheet==*scope.sheet);
   CHECK(result.distance_lower<=.001);CHECK(result.distance_upper>=.001-1e-10);
   auto other_body=scope;other_body.body=100;CHECK_FALSE(backend.Project(query,other_body,result,budget,reason));
-  CHECK_FALSE(backend.Project({-.001,.5,.5},scope,result,budget,reason));CHECK(reason.find("sheet")!=std::string::npos);
+  REQUIRE(backend.Project({-.001,.5,.5},scope,result,budget,reason));
+  REQUIRE(backend.Support(result.binding,result.surface,support,budget,reason));CHECK(support.sheet==*scope.sheet);
   auto feature=scope;feature.previous=fixture.geometry->EdgePoint({0,2},.5);REQUIRE(backend.Support(feature.previous,0,support,budget,reason));feature.feature=std::make_pair(support.mobility,support.feature);
   CHECK_FALSE(backend.Project(query,feature,result,budget,reason));CHECK(reason.find("feature")!=std::string::npos);
   auto far_budget=BackendBudget();REQUIRE(backend.Project({10.25,.5,-.001},scope,result,far_budget,reason));
   REQUIRE(backend.Support(result.binding,result.surface,support,far_budget,reason));CHECK(support.body==0);CHECK(result.evaluation.point.x<=1+1e-12);
+  auto failed_budget=BackendBudget();const auto before_failure=result;const auto huge=std::numeric_limits<double>::max();
+  CHECK_FALSE(backend.Project({huge,huge,huge},scope,result,failed_budget,reason));
+  CHECK(failed_budget.work>0);CHECK(failed_budget.work<failed_budget.maximum_work/2);
+  CHECK(result.binding.feature==before_failure.binding.feature);CHECK(result.binding.u==before_failure.binding.u);CHECK(result.binding.v==before_failure.binding.v);
   BackendFixture faceted(false,false);NativeMappedGeometryBackend3D flat(faceted.geometry,faceted.policy);auto flat_budget=BackendBudget();
   GeometryEvaluation plane;REQUIRE(flat.Evaluate(scope.previous,0,plane,flat_budget,reason));CHECK(plane.curvature1==0);CHECK(plane.curvature2==0);
   CHECK_FALSE(flat.Project(query,scope,result,flat_budget,reason));CHECK(reason.find("unavailable")!=std::string::npos);
@@ -246,6 +251,14 @@ TEST_CASE("Entity geometry preserves feature contracts through reference and pay
   for(const auto& row:entity->GeometryCertificates(budget)){CHECK(row.second.model_to_mesh<=.01);CHECK_FALSE(row.second.within_tolerance);}
   for(const auto& row:entity->GeometryCertificates(budget,true)){CHECK(row.second.within_tolerance);CHECK(row.second.mesh_to_model<=.01);}
   ReferenceState state{PlanarReference::WithParameters(fixture.reference,entity),fixture.facets,{"wall"},0};
+  auto guidance=state.original->WithAtlasReservation(budget);
+  const std::array<Point,3> diagonal{{points.at(0).node.p,points.at(2).node.p,points.at(1).node.p}};
+  REQUIRE_FALSE(fixture.geometry->Supports(0,fixture.geometry->Vertex(1)));
+  const auto before_guidance=budget.work;
+  const auto deviation=guidance->SurfaceDeviation(0,diagonal,true);
+  CHECK(std::isfinite(deviation));CHECK(deviation>0);CHECK(deviation<.1);
+  CHECK(budget.work>before_guidance);
+  CHECK(entity->Snapshot()==guidance->Parameters()->Snapshot());
   const auto encoded=EncodeReference(state);REQUIRE(encoded.find("SU2_NATIVE_REFERENCE_3D 9\n")==0);
   const auto decoded=DecodeReference(encoded);REQUIRE(decoded.original->Parameters());
   CHECK(decoded.original->Parameters()->Snapshot()==entity->Snapshot());CHECK(decoded.original->Parameters()->GeometryTolerance()==.01);
@@ -269,4 +282,23 @@ TEST_CASE("Entity geometry preserves feature contracts through reference and pay
   ExactBary midpoint{middle(first.first.u,first.last.u),middle(first.first.v,first.last.v)};
   first.last=midpoint;first.end=half;second.first=midpoint;trace.pieces={first,second};
   CHECK_THROWS(BoundaryParameterState(fixture.geometry,points,skin,1,SIZE_MAX,0,noncanonical,fixture.policy,&budget,.01));
+}
+TEST_CASE("Native curved projection restricts closest surface and reports attempted work", "[NativeGeometryBackend3D]") {
+  BackendFixture fixture;
+  const Point query{.25, .25, 1.1};
+  const auto unrestricted = fixture.geometry->ClosestCurved(0, query, 1e-6, 16384);
+  CHECK(unrestricted.facet != 0);
+  size_t work = 0;
+  const auto only_bottom = [](Id facet) { return facet == 0; };
+  const auto restricted = fixture.geometry->ClosestCurved(0, query, 1e-6, 16384, SIZE_MAX, only_bottom, &work);
+  CHECK(restricted.facet == 0);
+  CHECK(restricted.lower > unrestricted.upper);
+  CHECK(work == restricted.work);
+  work = 99;
+  CHECK_THROWS(fixture.geometry->ClosestCurved(0, query, 1e-6, 1, SIZE_MAX, only_bottom, &work));
+  CHECK(work == 1);
+  work = 99;
+  CHECK_THROWS(fixture.geometry->ClosestCurved(0, query, 1e-6, 16384, SIZE_MAX,
+                                               [](Id) { return false; }, &work));
+  CHECK(work == 0);
 }

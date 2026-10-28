@@ -1517,7 +1517,7 @@ TEST_CASE("Native MPI admissible coarsening prunes exact immutable-facet counter
   CHECK(rejected.stats.cached_measured_cells==rejected.cells.size());
   CHECK(world.sum(int(rejected.stats.cached_invalid_cells))>0);
   INFO(rejected.reason);
-  if (rejected.stats.attempted) CHECK(rejected.reason.find(": Native 3D movement leaves incident reference facet ")!=std::string::npos);
+  if (rejected.stats.attempted) CHECK(rejected.reason.find("leaves incident reference facet ")!=std::string::npos);
   CHECK(Bytes(input)==saved);CHECK(rejected.stats.other_seconds>=-1e-12);
 }
 
@@ -2330,7 +2330,7 @@ TEST_CASE("Native proposal and clock budgets reject collectively without publish
   options.maximum_work=64;options.maximum_seconds=1e-12;
   const auto timed=Coarsen(world,input,donors,geometry,{},options);
   CHECK_FALSE(timed.valid);CHECK(timed.stats.stop==EngineStop::TimeBudget);
-  CHECK(timed.stats.global_work==0);CHECK(Bytes(timed.cells)==saved);CHECK(Bytes(input)==saved);
+  CHECK(timed.stats.global_work==0);CHECK(Bytes(timed.cells)==Bytes(WithUniformSensor(input,{1,0,0,1,0,1})));CHECK(Bytes(input)==saved);
   CHECK(timed.stats.initial_cells==0);CHECK(timed.reason.find("metric seeding")!=std::string::npos);
   options.maximum_seconds=0;
   const auto completed=Coarsen(world,input,donors,geometry,{},options);

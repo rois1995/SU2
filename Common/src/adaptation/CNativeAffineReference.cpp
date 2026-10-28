@@ -1162,15 +1162,20 @@ size_t MappedFacetReference::CurvedQueryWorkspaceBytes(size_t maximum_work)const
       transfer_memory::Mul(maximum_work,4*sizeof(CurvedQueryRegion)));
 }
 MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
-    Id hint,Point query,double tolerance,size_t maximum_work,size_t ceiling)const {
+    Id hint,Point query,double tolerance,size_t maximum_work,size_t ceiling,
+    const std::function<bool(Id)>& allowed_facets,size_t* attempted_work)const {
+  CurvedClosest result;
+  if(attempted_work)*attempted_work=0;
+  struct WorkReceipt { size_t* out; const CurvedClosest& result; ~WorkReceipt(){if(out)*out=result.work;} } receipt{attempted_work,result};
   Finite(query);
   if(!curved_search || !curves.count(hint) || !(std::isfinite(tolerance)&&tolerance>=std::numeric_limits<double>::min()) || !maximum_work)
     throw std::invalid_argument("Invalid curved component/distance query contract.");
+  if(allowed_facets && !allowed_facets(hint))throw std::invalid_argument("Curved query hint is outside allowed surface.");
   const auto& entry=curved_search->entries.at(curved_search->root.at(hint));
   using Region=CurvedQueryRegion;
   const auto storage=CurvedQueryWorkspaceBytes(maximum_work);
   if(storage==SIZE_MAX||storage>ceiling)throw std::length_error("Curved query exceeds storage admission.");
-  CurvedClosest result;result.upper=INFINITY;
+  result.upper=INFINITY;
   auto consume=[&](){if(result.work>=maximum_work)throw std::length_error("Curved distance certification work exhausted.");++result.work;};
   auto binding=[&](Id id,Point r) {
     const auto& f=reference->Get(id);const auto v=Values(r);
@@ -1195,7 +1200,7 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     std::lock_guard<std::mutex> lock(curved_search->mutex);
     const su2double x[3]={query.x,query.y,query.z};su2double distance=0;unsigned short marker=0;unsigned long id=0;int rank=0;
     entry.index->DetermineNearestElement(x,distance,marker,id,rank);const Id seed=entry.facets.at(id);
-    if(seed!=hint){consume();candidate(seed,{1,0,0});candidate(seed,{0,1,0});candidate(seed,{0,0,1});candidate(seed,{.5,.25,.25});}
+    if(seed!=hint && (!allowed_facets || allowed_facets(seed))){consume();candidate(seed,{1,0,0});candidate(seed,{0,1,0});candidate(seed,{0,0,1});candidate(seed,{.5,.25,.25});}
   }
   if(!std::isfinite(result.upper))throw std::invalid_argument("Unrepresentable curved query distance.");
   std::vector<unsigned long> candidates;
@@ -1244,7 +1249,8 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
     const double bound=std::max(0.,std::nextafter(double(lower),-INFINITY));
     pending.push({id,parameter,bound,PositiveNormalClearance(net,query),depth});
   };
-  for(auto index:candidates)prepare(entry.facets.at(index),{{{1,0,0},{0,1,0},{0,0,1}}},0);
+  for(auto index:candidates) { const auto facet=entry.facets.at(index);
+    if(!allowed_facets || allowed_facets(facet))prepare(facet,{{{1,0,0},{0,1,0},{0,0,1}}},0); }
   if(pending.empty())throw std::logic_error("Curved component broad phase lost its seed.");
   while(!pending.empty()) {
     result.lower=std::min(result.upper,pending.top().lower);

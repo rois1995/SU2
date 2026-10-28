@@ -83,6 +83,8 @@ class PlanarReference {
   double SurfaceError(Id facet, const std::array<Point,3>& triangle, KernelStats* stats = nullptr) const;
   /*! Error-only mapped query; caller must already have validated this exact face and associations.
    * Unmapped geometry retains the checked path. Does not certify containment or publication. */
+  /*! Local immutable-geometry guidance, not a whole-face Hausdorff certificate. */
+  double SurfaceDeviation(Id facet,const std::array<Point,3>& triangle,bool validated=false)const;
   double SurfaceErrorForValidatedFace(Id facet,const std::array<Point,3>& triangle) const;
   /*! Lowest canonical same-marker patch containing the complete oriented triangle. Broad phase never admits geometry.
    * Missing/invalid geometry leaves facet unchanged; nonfinite query coordinates throw. */
