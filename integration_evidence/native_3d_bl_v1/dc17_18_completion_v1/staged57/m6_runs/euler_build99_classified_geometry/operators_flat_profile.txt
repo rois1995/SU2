@@ -1,0 +1,25 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 792  of event 'cycles:u'
+# Event count (approx.): 87951880332
+#
+# Overhead  Shared Object                   Symbol                                                                                                                                                                                                                                                                                                  IPC   [IPC Coverage]
+# ........  ..............................  ......................................................................................................................................................................................................................................................................................................  ....................
+#
+    27.74%  libm-2.31.so                    [.] __nexttowardl                                                                                                                                                                                                                                                                                       -      -            
+    21.51%  mca_btl_vader.so                [.] 0x0000000000005333                                                                                                                                                                                                                                                                                  -      -            
+     8.41%  SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::Blossom                                                                                                                                                                                                                                                   -      -            
+     7.61%  SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::Multiply                                                                                                                                                                                                                                                  -      -            
+     5.25%  mca_btl_vader.so                [.] 0x0000000000005330                                                                                                                                                                                                                                                                                  -      -            
+     3.89%  libopen-pal.so.40.20.3          [.] opal_progress                                                                                                                                                                                                                                                                                       -      -            
+     3.80%  mca_btl_vader.so                [.] 0x0000000000005336                                                                                                                                                                                                                                                                                  -      -            
+     3.28%  mca_btl_vader.so                [.] 0x0000000000005279                                                                                                                                                                                                                                                                                  -      -            
+     3.18%  mca_btl_vader.so                [.] 0x0000000000005339                                                                                                                                                                                                                                                                                  -      -            
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

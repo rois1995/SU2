@@ -201,3 +201,48 @@ Neither is a completed build despite Ninja signal exit0. Build99 is the owned
 one-worker build; source pins remain fixed throughout it. Surface-distance
 guidance includes the boundary of the requested sheet; actual node movement
 retains its own genuine-feature restrictions.
+
+Build99 passes1276.434s with1295 unchanged pins. Nodal122/122 and backend11/11
+(414 assertions) pass. Compiled selection audit covers25 cases, with311 serial,
+288 MPI,74 atlas and122 nodal tests selected. The broad atlas batch was deliberately
+stopped442.217s; its legacy prism expectations fail and its repeated-event receipts
+are partial, not a completed suite. Current import seeds nodal metrics even with
+no explicit tensor (identity); demanding a metric shell or a narrow-gap shell
+rejection is obsolete. Replacing those tests must preserve state/reference/owner
+coherence and independently test real body separation; absence of a shell refusal
+does not establish body safety. Early six-rank M6 build99 is active with unchanged
+settings. No accepted hard-target workflow yet.
+
+### Coarsen/refine cycles, build100 integration
+
+M6 build99 was deliberately stopped after1369.419s with unchanged source pins;
+all six ranks are terminal. Four complete split-only passes grew current cells
+315809→354684 and cumulative splits3166→12673, with zero collapses. Size-bad
+incidence112523→116291 and geometry-bad4115→5396 grew; max length10.815→10.631
+stalled after the second pass. These do not prove no admissible collapse exists:
+source policy repeated any productive split generation before even trying collapse.
+SCOREC ma.cc instead executes coarsen/refine/snap in each iteration.
+
+Build100 adopts coarsen-first complete passes alternating direction, entering
+improvement after an unproductive pair. Blocked support is still invalidated
+only through existing dependency/publication facilities. No new cap, fixture or
+physics dispatch, geometry representation or fallback. The opposing-demand
+regression replaces its agent-policy assertion demanding refinement quiescence
+before collapse with first-collapse/alternating-pass checks. Every original
+validity/quality/height/input-atomicity assertion remains. Actual hard workflow
+closure must qualify this policy; scheduling alone is not mesh acceptance.
+
+One3s profile sampled792 user-cycle events with no lost samples; flat leaf costs
+include interval closest-point operations and MPI progress. Detailed stacks emit
+DWARF warnings. It identifies certified projection inside operators as remaining
+cost, not a full-run percentage or reason to increase arithmetic limits. Existing
+PNTriangleSurface::Minimize provides bounded Gauss-Newton/backtracking/simplex
+edge KKT projection that may be reusable if numerical model projection must
+replace unnecessary distance certification; no new projection variant implemented.
+
+Build100 passes291.483s with unchanged1295 source pins; opposing-demand3 cases
+pass5.987s. Actual mapped workflow is running with fresh failure capture. No
+accepted hard-target capability follows from those focused cases. Future CAD
+remains one optional Open CASCADE backend: STEP first, faceted STL then IGES;
+STL is not inferred to be an exact smooth CAD surface. No format infrastructure
+is added before this existing interface is qualified in the working workflow.

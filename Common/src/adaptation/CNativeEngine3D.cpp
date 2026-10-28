@@ -787,7 +787,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   const double parameter_setup=options.timings?std::chrono::duration<double>(Clock::now()-started).count():0;
   const bool curved=!geometry.ExtensionComponents().empty();
   const bool standalone_coarsening=intent==MetricChange::Coarsen;
-  bool coarsening=standalone_coarsening;
+  bool coarsening=standalone_coarsening || bidirectional;
   bool repairing=false;
   MetricChange construction_kind=coarsening ? MetricChange::Coarsen : MetricChange::Refine;
   const auto tracked_bytes_begin=world.bytes_sent;
@@ -1830,7 +1830,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(world.maximum(improvement_changed))length_blocks_dirty={{true,true}};
         length_pair_changed=false;directory->BeginConstructionPass();
       } else directory->EndConstructionPass();
-      length_direction(false);
+      length_direction(next==Phase::Construction);
     }
     if(phase==Phase::Construction && !construction_entry_reported) {
       if(!observe_progress("construction_entry"))return false;
@@ -2051,12 +2051,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" elapsed="<<std::chrono::duration<double>(Clock::now()-started).count()<<'\n';
       }
       if(!observe_progress(coarsening?"length_collapse_exit":"length_split_exit"))return finish();
-      if(coarsening && !length_pair_changed) {
+      if(!coarsening && !length_pair_changed) {
         if(!enter_phase(Phase::Improvement))return finish();
       } else {
-        // Exhaust productive generations before switching operators; shared apexes are deferred within each generation.
-        const bool next_collapse=productive?coarsening:!coarsening;
-        if(!next_collapse)length_pair_changed=false;
+        // Coarsen/refine cycles prevent productive refinement from starving removal.
+        const bool next_collapse=!coarsening;
+        if(next_collapse)length_pair_changed=false;
         if(!admit(transfer_memory::Add(transfer_memory::Mul(working.size(),selection_bound(false)),
             transfer_memory::Mul(transfer_memory::Mul(next_collapse?12:6,working.size()),sizeof(Edge)+4*sizeof(void*)))))return finish();
         CLocalFailure failure;

@@ -21,6 +21,13 @@ transfer. No new curved/M6 transfer defect or successful workflow is established
 those failing workflows never reached transfer. Reader metric packing passes build95/96 focused runtime checks and agrees with
 operator measurements in that scope.
 
+Build99 passes all122 focused current-field cases and all11 geometry-backend
+cases (414 assertions). The broader atlas batch was stopped after442.217s and
+contains obsolete import assertions demanding metric-envelope prisms/contact
+rejection. Those are metric representation expectations, not CFD conservation
+gates. Actual body separation and conservative transfer remain independently
+required; no new M6/small-curved transfer result is available yet.
+
 ## Current audit preparation and metric-return validation
 
 Build96 focused checks execute122 cases:119 pass,3 fail in an operation-specific

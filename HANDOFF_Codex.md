@@ -11,7 +11,7 @@ DC-17/DC-18 remain open. The selected foundation is SCOREC/MeshAdapt classified
 cavities and transported nodal size fields inside SU2. Requirements, source-code
 comparison, decisions and acceptance: [connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md).
 
-Current pushed checkpoint0b26bf38c7 is WIP. Build96 passes with unchanged1295
+Current pushed checkpoint22aa374238 is WIP. Build96 passes with unchanged1295
 pins; focused nodal tests execute122 cases:119 pass/3 fail. Fresh stage target,
 missing-ID bootstrap and normalization tests now pass. Remaining issues: a too
 specific rejection assertion, initialized output metadata comparison, and the
@@ -21,7 +21,23 @@ M6 build96 fails340.302s after10 private edits/rank. The old internal memory
 refusal is gone. New precise blocker: “Surface-union parameters exhausted exact
 dyadic resolution; bounds unresolved.” This is verification failure, not proof of
 an unavailable valid operation. Native277.872s/import174.85s/refine88.74s; sampled
-tree about3.46GB, largest rank610MB (not whole-job peak). M6 owned jobs terminal; build99 now running (session10553), C++/tests pinned.
+tree about3.46GB, largest rank610MB (not whole-job peak). M6 build96 owned jobs terminal. Build99 PASS1276.434s, all1295 pins
+unchanged. Focused nodal122/122 and geometry backend11/11 (414 assertions)
+pass. All25 compiled filter selections match intended cases. Atlas batch was
+stopped at442.217s with legacy prism-expectation failures; not a passing suite.
+Saved repeated edit/publication event receipts remain partial evidence.
+M6 build99 deliberately stopped1369.419s, all ranks terminal and pins unchanged.
+Four split-only passes:315809→354684 cells,12673 splits/0 collapses; size-bad
+112523→116291, geometry-bad4115→5396; construction q/J remain0. Native schedule
+repeated productive splits, preventing a collapse pass. This is scheduling/cost
+evidence, not unavailable operations or geometric impossibility. Short profile
+(3s/792 samples) finds certified closest-point work and MPI waiting; full-run
+fractions cannot be inferred, DWARF warnings qualify stacks.
+Build100 PASS291.483s, unchanged1295 pins. Opposing-demand3 cases PASS5.987s:
+coarsen-first and alternating complete passes, zero construction q/J and final
+gates retained. Actual mapped curved workflow RUNNING session26378 with fresh
+failure capture. Source/tests/helpers pinned. M6 rerun follows this workflow;
+no accepted hard-target mesh or full solver restart yet.
 
 Connected change under implementation: existing fixed-geometry backend projection
 restricted before search to body/sheet; actual attempted work charged on failures;

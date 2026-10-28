@@ -1,0 +1,97 @@
+{
+  "disposition": "deliberately stopped; incomplete workflow, not acceptance or geometric impossibility",
+  "reason": "Repeated productive split generations starve collapse by scheduling policy; observed increasing debt and current cell count. Replace with coarsen/refine cycles, no cap raised.",
+  "log_sha256": "0199ff6dc7e5ec5d2a24ffd6d059d0b848ff25f18f453cdd9fa93253d67c0bf7",
+  "passes": [
+    {
+      "pass_index": 1,
+      "phase": "split",
+      "ranks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "cells": 315809,
+      "cumulative_splits": 3166,
+      "cumulative_collapses": 0,
+      "geometry_bad_cells": 4115,
+      "size_bad_cells": 112523,
+      "maximum_metric_length": 10.814582441078539,
+      "q_measured": 0,
+      "j_measured": 0,
+      "elapsed": 173.242561736
+    },
+    {
+      "pass_index": 2,
+      "phase": "split",
+      "ranks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "cells": 328555,
+      "cumulative_splits": 6324,
+      "cumulative_collapses": 0,
+      "geometry_bad_cells": 4574,
+      "size_bad_cells": 114088,
+      "maximum_metric_length": 10.631256840260061,
+      "q_measured": 0,
+      "j_measured": 0,
+      "elapsed": 366.796856016
+    },
+    {
+      "pass_index": 3,
+      "phase": "split",
+      "ranks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "cells": 341453,
+      "cumulative_splits": 9480,
+      "cumulative_collapses": 0,
+      "geometry_bad_cells": 5000,
+      "size_bad_cells": 115280,
+      "maximum_metric_length": 10.631256840260061,
+      "q_measured": 0,
+      "j_measured": 0,
+      "elapsed": 587.982311761
+    },
+    {
+      "pass_index": 4,
+      "phase": "split",
+      "ranks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "cells": 354684,
+      "cumulative_splits": 12673,
+      "cumulative_collapses": 0,
+      "geometry_bad_cells": 5396,
+      "size_bad_cells": 116291,
+      "maximum_metric_length": 10.631256840260061,
+      "q_measured": 0,
+      "j_measured": 0,
+      "elapsed": 800.226797364
+    }
+  ],
+  "profile": {
+    "seconds": 3,
+    "samples": 792,
+    "lost": 0,
+    "qualification": "Short sample only; detailed report emits DWARF warnings. No whole-run fraction claim."
+  }
+}
