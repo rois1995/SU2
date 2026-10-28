@@ -204,7 +204,7 @@ def main():
     start = time.time()
     try:
         build_status = json.loads(build_status_path.read_text())
-        if build_status.get("state") != "terminal" or build_status.get("exit_code") != 0 or not build_status.get("pins_verified"):
+        if build_status.get("state") != "terminal" or build_status.get("exit_code") != 0 or not build_status.get("pins_verified") or build_status.get("completed_build") is False:
             raise RuntimeError(f"{build} is not a verified successful terminal build")
         source_pins = json.loads(source_pins_path.read_text())
         changed = [path for path, digest in source_pins.items() if sha(path) != digest]

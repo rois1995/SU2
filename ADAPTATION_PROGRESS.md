@@ -7,38 +7,47 @@ Updated: 2026-10-28. Detailed failures and provenance remain linked below.
 
 No complete curved CFD/M6 adaptation, transfer and restart workflow is accepted.
 DC-17/DC-18 remain open. The selected foundation is SCOREC/MeshAdapt classified
-cavities and transported nodal size fields, implemented inside SU2's existing
-geometry, Directory/publication and separate conservative CFD transfer facilities.
-See [connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md). This replaces
-agent-selected metric-support prisms; it does not replace the native backend with
-an external executable. Features, bodies and all final acceptance gates remain.
+cavities and transported nodal size fields inside SU2. Requirements, source-code
+comparison, decisions and acceptance: [connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md).
 
-Build92 compiled successfully (303.443s). Curved workflow92 reached quality after
-295 splits/241 collapses with construction q/J measurements zero, but rejected;
-no curved transfer/restart. M6 build92 rejected before operators on a degenerate
-metric-support prism at face734 (386.112s total, pins unchanged). These prisms
-carry sensor metrics, not conserved flow/history. Atlas92 completed all four
-16-event publication/source/reload variants; broad result72/73, with one redundant
-feature-contract constructor assertion failing. These are supporting diagnostics,
-not an accepted workflow. All those owned jobs are terminal; receipts preserved.
+Current checkpoint159a5fe538 is pushed to rois1995/SU2, codex/native-3d-bl (WIP).
+Build94 PASS1297.353s; build95 PASS246.340s; unchanged1295 source pins and both
+binaries up to date. Audit95 verifies25 selections:309 serial/286 MPI/73 atlas,
+121 focused nodal cases. Focused95 executes all121:115 pass/6 fail; new normalization,
+reader and reload checks pass. Remaining failures expose stale new-target bootstrap,
+missing source-cell ID compatibility, initialized output metadata and redundant
+endpoint composition. Original input rollback and behavioral thresholds stay fixed.
 
-Build94 is compiling the connected current-nodal field change: import attributes,
-versioned owner payload, cavity transport and measurement, publication, complexity
-reassessment, bounded uniform normalization of the current field and reader packing.
-No new proof hierarchy, source hull, CAD format adapter or raised arithmetic cap.
-The old original-family trial graph is an agent choice; current-field normalization
-is deliberately replacing it rather than retaining interpolation ancestry.
-Build/runtime qualification and M6 remain pending. Known source-review gaps before
-qualification: regional projection outside the stage snapshot and FIRST_ROW stage-two sensor
-construction. Remote first-row context, core-eigenvalue scaling and collective
-preparation fixes are now implemented, awaiting build94. Do not declare BL complete from Euler results.
+M6 build94 rejects371.127s after12 global private edits, before quality/transfer.
+Build95 rejects288.467s, same actual blocker: QuerySurfaceUnion requests14,034,944
+scratch bytes with7,892,552 left in its internal reservation (721130288 total vs
+714987896), despite configured12GB/rank; no work/time exhaustion. Native total
+308.10→223.47s, import203.69→173.91s; host contention qualifies timing comparisons.
+Sampled whole process tree about3.44GB, not allocation peak. The old metric prism
+failure is gone. All M6 ranks and handles are terminal; source pins unchanged.
 
-Check owned handles before editing pinned sources. Current build94 session36793. Build93 was deliberately stopped after12/32 targets;
-its zero raw exit did not establish completion. The receipt explicitly marks it
-interrupted, and the helper now checks both targets are up to date.
-One heavy job, nice19, build-j1, library threads1; at most6 ranks. Preflight load2.10,
-RAM26GiB available, workspace70GB free. Checkpoints b35d3f626e/7e24ddebb0/2cffdba6c8
-are pushed; new changes are not yet checkpointed. TODO remains local.
+Mapped94 FAIL159.373s: flat Euler/RANS transfer/reload pass. Curved variants reach
+quality:295 splits/238 collapses,609 private edits,180 cells/33 invalid at the same
+67207168 geometry work cap. First collapse107576←103688 fresh replay builds valid
+cells with35649 work and1.88e-16 surface error; size rejects it. Neither exhaustion
+nor conservative rejection establishes geometric impossibility.
+
+**Build96 RUNNING, session91876. Do not edit pinned C++/tests/helper sources.**
+It connects fresh authoritative target bootstrap, current-source snapshots between
+construction/normalization/adaptation, sensor-only endpoint sampling, exact reused
+accepted-face associations and geometry arrays admitted against the unchanged
+configured memory pool. Integer workspace/work bounds stay fixed; diagnostic byte
+bounds now include geometry peaks. Tests retain geometry/version/facet/input
+rollback assertions and verify initialized target attributes. Runtime qualification
+pending; no fixture or private progress closes the workflow milestone.
+
+Next: focused checks and accepted-face checks, actual curved workflow and M6 early;
+then repeated neighboring edits/MPI, transfer/history and restart. BL regional
+projection and FIRST_ROW source handling remain unqualified. The 3D independent
+P1 history audit reuses existing readers; self-check only passes, no M6 data or
+restart claim yet. TODO stays local. Historical details/receipts:
+[runtime archive](Handbook/ADAPTATION_RUNTIME_HISTORY_20261028.md),
+[transfer findings](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 
 ## Checkpoints
 

@@ -1237,12 +1237,9 @@ bool PlanarReference::ParameterContainsFace(Id facet,const std::array<Point,3>& 
   for(unsigned k=0;k<3;++k){const auto q=Parameter(p[k]);if(!q)return false;b[k]=q->binding;face.v[k]=q->node.id;
     const auto found=parameter_view->pending.find(PointKey(p[k]));pending[k]=found!=parameter_view->pending.end()&&q==&found->second;}
   const auto& g=parameter_view->accepted->Geometry();
-  if(EntityGeometry()) {
-    std::array<BoundaryPoint,3> points;for(unsigned k=0;k<3;++k)points[k]=*Parameter(p[k]);
-    return parameter_view->accepted->ContainsEntityFace(facet,points);
-  }
   std::array<BoundaryPoint,3> points;for(unsigned k=0;k<3;++k)points[k]=*Parameter(p[k]);
   if(HasAcceptedFaceCertificate(face,points,BoundaryCoverage{}))return true;
+  if(EntityGeometry()) return parameter_view->accepted->ContainsEntityFace(facet,points);
   if(!AtlasActive(*parameter_view->accepted)&&!parameter_view->private_view&&parameter_view->local.empty()&&parameter_view->pending.empty()&&
       parameter_view->surface.empty()&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty()) {
     const auto found=parameter_view->accepted->Surface().find(FaceKey(face.v));

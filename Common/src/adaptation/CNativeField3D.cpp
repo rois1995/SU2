@@ -265,7 +265,9 @@ long double FrozenField::EdgeLength(Point a, Point b, bool composed, LengthInver
     }
     std::vector<SegmentPiece> pieces;
     if (current_nodal) {
-      endpoints.sensor[0] = Query(a).sensor; endpoints.sensor[1] = Query(b).sensor;
+      endpoints.sensor[0] = EvaluateCavitySensor(donors,a);
+      endpoints.sensor[1] = EvaluateCavitySensor(donors,b);
+      stats.interpolations += 2;
       SegmentPiece piece; piece.begin = 0; piece.end = 1; piece.width = 1;
       piece.begin_weights = {1, 0, 0, 0}; piece.end_weights = {0, 1, 0, 0};
       pieces.push_back(piece); ++stats.edge_direct_intervals;

@@ -723,3 +723,31 @@ TEST_CASE("Native 3D current nodal field samples and integrates projected edges"
   CHECK(cuts_called == 1);
   CHECK(composed > 1);
 }
+TEST_CASE("Native 3D stage bootstrap replaces prior metrics and samples changed cells", "[NativeMesh3D]") {
+  World world;
+  auto donor = Single();
+  Owned current;
+  std::vector<DonorCell> source;
+  if (!world.rank) {
+    OwnedCell cell; cell.cell = donor.cell; cell.sensor.fill({9, 0, 0, 9, 0, 9}); cell.sensor_present = true;
+    current.emplace(cell.cell.id, cell); source.push_back(donor);
+  }
+  CavityMetricSource field(world, current); std::string reason;
+  REQUIRE(field.Build(source, reason));
+  if (!world.rank) CHECK(current.begin()->second.sensor[0].xx == Approx(2));
+  for (auto& d : source) for (auto& m : d.sensor) m.xx += 10;
+  CavityMetricSource second(world, current);
+  REQUIRE(second.Build(source, reason));
+  if (!world.rank) CHECK(current.begin()->second.sensor[0].xx == Approx(12));
+  if (!world.rank) {
+    auto row = current.begin()->second; current.clear(); row.cell.id = 88;
+    row.cell.v[3] = {9, {.2, .3, .1}}; current.emplace(row.cell.id, row);
+  }
+  CavityMetricSource third(world, current);
+  REQUIRE(third.Build(source, reason));
+  if (!world.rank) CHECK(current.begin()->second.sensor[3].xx == Approx(12.2));
+  const auto saved = current;
+  CavityMetricSource refused(world, current);
+  CHECK_FALSE(refused.Build(source, reason, world.rank ? SIZE_MAX : 0));
+  if (!world.rank) CHECK(current.begin()->second.sensor[3].xx == saved.begin()->second.sensor[3].xx);
+}

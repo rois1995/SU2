@@ -100,6 +100,10 @@ std::vector<char> Bytes(const Owned& owned) {
   for (auto row : owned) { auto key = row.first; stream(key, row.second); }
   return result;
 }
+Owned WithUniformSensor(Owned owned, Tensor sensor) {
+  for (auto& row : owned) { row.second.sensor_present = true; row.second.sensor.fill(sensor); }
+  return owned;
+}
 std::vector<Feature> Query(const World& world, Feature feature, bool all = false) {
   return world.rank == 0 || all ? std::vector<Feature>{feature} : std::vector<Feature>{};
 }
@@ -995,7 +999,7 @@ TEST_CASE("Native MPI refinement preserves accepted input on incomplete or inval
   options.maximum_rounds=512;
   auto unchanged=Refine(world,input,Uniform(input,{}),reference,{},options);
   CHECK(unchanged.valid);
-  CHECK(Bytes(unchanged.cells)==saved);
+  CHECK(Bytes(unchanged.cells)==Bytes(WithUniformSensor(input,{})));
   CHECK(unchanged.stats.accepted==0);
   auto exhausted=input;
   if (exhausted.count(0)) {
@@ -1504,7 +1508,7 @@ TEST_CASE("Native MPI admissible coarsening prunes exact immutable-facet counter
   CHECK(world.sum(int(result.stats.collapse_filtered))>0);
   CHECK(world.sum(int(result.stats.collapse_geometry_checks))>0);
   CHECK(result.stats.collapse_geometry_seconds>=0);CHECK(result.stats.other_seconds>=-1e-12);
-  CHECK(Bytes(result.cells)==saved);CHECK(Bytes(input)==saved);
+  CHECK(Bytes(result.cells)==Bytes(WithUniformSensor(input,{.25,0,0,.25,0,.25})));CHECK(Bytes(input)==saved);
   EngineReport(result,world,"immutable_corner_filter");
   options.maximum_rounds=1;
   const auto rejected=Coarsen(world,input,Uniform(input,Tensor{16,0,0,16,0,16}),reference,{},options);
@@ -1540,7 +1544,7 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
       CHECK(rejected.stats.directory_election_seconds>=0);
       CHECK_FALSE(rejected.valid);CHECK(rejected.stats.accepted==0);CHECK(Bytes(input)==saved);
       CHECK(rejected.reason.find("Injected query composition failure.")!=std::string::npos);
-      CHECK(Bytes(rejected.cells)==saved);
+      CHECK(Bytes(rejected.cells)==Bytes(WithUniformSensor(input,{4,0,0,4,0,4})));
       CHECK(rejected.stats.field_requests==rejected.stats.field_hits+rejected.stats.field_misses+rejected.stats.field_invalid_queries);
       CHECK(rejected.stats.field_invalid_queries==0);CHECK(rejected.stats.field_failures==calls);
       CHECK(rejected.stats.field_compositions==calls);CHECK(rejected.stats.field_requests+rejected.stats.field_edges==calls);
@@ -2322,7 +2326,7 @@ TEST_CASE("Native proposal and clock budgets reject collectively without publish
   CHECK_FALSE(refused.valid);CHECK(refused.stats.stop==EngineStop::WorkBudget);
   CHECK(refused.stats.global_work==0);CHECK(refused.stats.accepted==0);
   CHECK_FALSE(world.maximum(refused.stats.cached_invalid_cells!=0));
-  CHECK(Bytes(refused.cells)==saved);CHECK(Bytes(input)==saved);
+  CHECK(Bytes(refused.cells)==Bytes(WithUniformSensor(input,{1,0,0,1,0,1})));CHECK(Bytes(input)==saved);
   options.maximum_work=64;options.maximum_seconds=1e-12;
   const auto timed=Coarsen(world,input,donors,geometry,{},options);
   CHECK_FALSE(timed.valid);CHECK(timed.stats.stop==EngineStop::TimeBudget);

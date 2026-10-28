@@ -140,6 +140,7 @@ TEST_CASE("Current nodal normalization corrects and returns a uniform Euler metr
   }
   SU2_MPI::Barrier(world.comm);auto cfg=name+".cfg";
   auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
+  auto backend=driver->Backend();
   auto& g=driver->Geometry();auto& solver=driver->Solver();
   std::vector<su2double> raw(6*g.GetnPointDomain());
   for(size_t i=0;i<g.GetnPointDomain();++i)raw[6*i]=raw[6*i+3]=raw[6*i+5]=4;

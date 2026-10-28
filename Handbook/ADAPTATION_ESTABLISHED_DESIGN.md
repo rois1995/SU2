@@ -102,3 +102,55 @@ elected before collective trial evaluation. Partition work estimates now use
 metric density/volume and edge demand without q/J measurements. The known atlas92
 redundant-feature assertion led to a structural canonical-piece count check rather
 than another geometric proof. All these changes await build94/runtime evidence.
+
+### Workflow evidence must include actual M6 continuation
+
+The unchanged run_m6.py case is a steady one-event early diagnosis; its acceptance
+parser explicitly does not certify transfer/reload. Retain that comparable run,
+then derive a separate M6 BDF2 campaign with unchanged mesh/geometry/metric gates:
+TIME_DOMAIN=YES, TIME_MARCHING=DUAL_TIME_STEPPING-2ND_ORDER, TIME_STEP=.001,
+TIME_ITER=3, INNER_ITER=2, ADAP_FREQ=1; remove steady ADAP_SUBITER/ADAP_FLOW_ITER
+controls as required by CConfig. Keep ADAP_SIZES=(500000), CONSERVATIVE and the
+same reference. Require both event groups on all six ranks, current and prior-time
+conservation/positivity, written mesh/sidecar and matching saved history, then an
+actual restart continuation. Existing audit_native_unsteady.py is explicitly 2D
+and cannot establish M6 conservation. Reuse the driver/output/transfer facilities;
+qualify a 3D independent audit before claiming the full milestone. No such M6
+workflow is accepted at this checkpoint.
+
+Build94 actual workflows are terminal with unchanged pins. M6 Euler371.127s:
+303359 input tetrahedra; two private edits per rank (12 global work), then an
+internal atlas storage refusal on rank4, requested721130288 versus714987896.
+Native configured limit remains12288MiB/rank; sampled whole process tree about
+3.44GB, largest sampled rank631MB. No work/time exhaustion or accepted mesh.
+Import203.69s; short full-stack profile finds86% of sampled cycles in
+ImportGeometry→FindFace→ContainsEntityFace→OrientedFace/Bezier Blossom.
+Small mapped94 FAIL159.373s: flat Euler/RANS transfer/reload pass; curved variants
+295 splits/238 collapses, one quality stage,20 optimizer moves/8 insertions/16 swaps,
+609 private edits total,180 cells and33 still invalid at the same67207168 geometry
+work cap. First collapse107576←103688 fresh replay builds valid cells with35649
+work and1.88e-16 surface bound; actual refusal is size, not geometric impossibility.
+Next connected fixes reuse existing exact accepted-face associations for unchanged
+entity faces (changed faces retain geometry checks), fix fixture backend setup and
+identify the exact geometry operation/scratch in storage refusals. No cap raised.
+
+### Current-stage target and memory contracts, build96 (pending)
+
+A new supplied stage field is authoritative even when input cells already carry
+attributes from an earlier adaptation. Exact matching source cells initialize
+attributes directly; unmatched cells use bounded collective point sampling once
+at stage entry, including empty-rank participation. NativeRemesher supplies current
+working snapshots between construction, normalization and AdaptMetric, so corrected
+fields are not overwritten by stale event-original data. Operators still transport
+current nodal values through complete cavities; no interpolation ancestry persists.
+The source field must cover unmatched input nodes; absent data rejects collectively.
+
+M6 build95 identifies QuerySurfaceUnion's actual allocation refusal:14.03MB scratch
+against7.89MB remaining in an incidental16MB reservation, while configured per-rank
+memory is12GB and sampled process-tree RSS is about3.44GB total. Geometry query
+arrays now admit against the existing configured memory pool with their actual
+caller/scratch requests. Integer workspace and arithmetic work bounds are unchanged.
+This fixes memory-pool accounting after the representation change; it does not
+raise the configured cap or address quality stagnation by increasing arithmetic.
+All geometry byte peaks feed the native admission report. Build96 qualification
+is pending; complete curved/M6/BL workflow acceptance remains open.

@@ -6,6 +6,7 @@
  */
 
 #include "../../include/adaptation/CNativeRemesher3D.hpp"
+#include "../../include/adaptation/CNativeMetricTransport3D.hpp"
 #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../include/CConfig.hpp"
@@ -473,15 +474,43 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
         const auto worker_start=workers.seconds();
         // The engine charges its input map/source; caller_bytes covers only other live runtime buffers.
         kernel.caller_bytes = transfer_memory::Add(
-            held(), worker_source == &imported.original ? 0 : transfer_memory::Bytes(imported.original));
+            held(), transfer_memory::Bytes(imported.original),
+            worker_source == &imported.original ? 0 : transfer_memory::Bytes(*worker_source));
         try {
           struct RestoreShape {ShapeAdmission previous=GetShapeAdmission();~RestoreShape(){SetShapeAdmission(previous);}} restore_shape;
           SetShapeAdmission(ShapeAdmission::ValidityOnly);
           const auto begin = workers.seconds();
-          if (construction) {
+          std::vector<DonorCell> stage_source;
+          auto snapshot_source=[&](const std::vector<DonorCell>& supplied) {
+            CLocalFailure local;
+            const auto live=transfer_memory::Add(kernel.caller_bytes,OwnedStorageBytes(working),
+                transfer_memory::Bytes(stage_source));
+            if(workers.maximum(std::any_of(working.begin(),working.end(),
+                [](const Owned::value_type& row){return !row.second.sensor_present;}))) {
+              CavityMetricSource initialize(workers,working,control.timings);std::string why;
+              if(!initialize.Build(supplied,why,kernel.memory_ceiling,live)) {detail=why;return false;}
+              stats.maximum_native_bytes=std::max(stats.maximum_native_bytes,initialize.Statistics().maximum_work_bytes);
+            }
+            std::vector<DonorCell> next;
+            try {
+              if(transfer_memory::Add(live,transfer_memory::Mul(working.size(),sizeof(DonorCell)))>kernel.memory_ceiling)
+                throw std::length_error("Current stage metric snapshot exceeds working-storage admission.");
+              next.reserve(working.size());
+              for(const auto& row:working) {
+                DonorCell d;d.cell=row.second.cell;d.sensor=row.second.sensor;
+                for(const auto& value:d.sensor)ValidateTensor(value);
+                next.push_back(d);
+              }
+            }catch(const std::exception& e){local.Set(2,0,e.what());}
+            const auto elected=workers.elect(local);
+            if(elected.any){detail=elected.message;return false;}
+            stage_source.swap(next);return true;
+          };
+          valid=snapshot_source(*worker_source);
+          if (valid && construction) {
             // FIRST_ROW publishes only a provisional private mesh into the shared distributed stages.
             stats.construction = true;
-            auto built = construction(workers, working, *worker_source, pending->state, composition, kernel, stats.construction_report);
+            auto built = construction(workers, working, stage_source, pending->state, composition, kernel, stats.construction_report);
             stats.construction_stats = built.stats;
             valid = built.valid;
             if (valid && built.reference) pending->state.original = std::move(built.reference);
@@ -522,9 +551,14 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
             }
             stats.phases[8] += workers.seconds() - begin;
           }
+          if(valid && construction)valid=snapshot_source(stage_source);
+          if(valid && control.maximum_seconds) {
+            kernel.maximum_seconds=CPassiveComm::Allreduce(worker_seconds-(workers.seconds()-worker_start),CPassiveComm::Op::MIN,workers.comm);
+            if(!(kernel.maximum_seconds>0)){valid=false;detail="Native3D deadline exhausted preparing current stage metrics.";}
+          }
           if(valid) {
             const auto refine_begin=workers.seconds();
-            auto refined = AdaptMetric(workers, working, *worker_source, *pending->state.original, composition, kernel);
+            auto refined = AdaptMetric(workers, working, stage_source, *pending->state.original, composition, kernel);
             stats.refine = refined.stats;
             valid = refined.valid;
             if(valid && refined.reference)pending->state.original=std::move(refined.reference);

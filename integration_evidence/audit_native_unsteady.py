@@ -1,4 +1,4 @@
-"""Audit saved 2D Euler and straight-wall RANS window meshes against their actual frozen donor fields.
+"""Audit 2D windows, or independently integrate supplied 3D tetrahedral transfer histories.
 
 VTUs remain on the donor mesh; rewritten current/history restarts belong to the
 new mesh. This audit uses both rather than assuming they share connectivity.
@@ -38,23 +38,65 @@ def read_mesh(path):
 
 
 def integral(mesh, values):
-    areas = capcheck.volumes(mesh.P, mesh.E, 2)
-    assert (areas > 0).all()
-    return np.sum(areas[:, None] * values[mesh.E].mean(axis=1), axis=0)
+    volumes = capcheck.volumes(mesh.P, mesh.E, mesh.dim)
+    if not np.isfinite(volumes).all() or not (volumes > 0).all():
+        raise ValueError("Mesh contains nonpositive or nonfinite simplex volume")
+    return np.sum(volumes[:, None] * values[mesh.E].mean(axis=1), axis=0)
+
+
+def state_values(mesh, points, fields, momenta):
+    d = mesh.dim
+    if d not in (2, 3) or points.shape != mesh.P.shape or len(points) != len(mesh.P):
+        raise ValueError('Restart coordinates do not match mesh dimension or point count')
+    if not np.isfinite(points).all() or np.max(np.abs(points - mesh.P)) >= 1e-12 * max(mesh.size, 1e-300):
+        raise ValueError('Restart coordinates differ from mesh')
+    rho, energy = fields['Density'], fields['Energy']
+    pressure = .4 * (energy - np.sum(momenta * momenta, axis=1) / (2 * rho))
+    if not np.isfinite(rho).all() or not np.isfinite(pressure).all() or np.min(rho) <= 0 or np.min(pressure) <= 0:
+        raise ValueError('Invalid density or pressure')
+    return np.column_stack([rho, momenta, energy]), dict(min_density=float(min(rho)), min_pressure=float(min(pressure)))
 
 
 def state(mesh, path):
     if path.suffix == '.dat':
         points, fields, _ = capcheck.read_restart(path)
-        momenta = np.column_stack([fields['Momentum_x'], fields['Momentum_y']])
+        momenta = np.column_stack([fields['Momentum_' + axis] for axis in ('x','y','z')[:mesh.dim]])
     else:
         points, fields, _ = capcheck.read_vtu(path)
-        momenta = np.asarray(point_fields(path)['Momentum']).reshape(-1, 3)[:, :2]
-    assert points.shape[0] == len(mesh.P) and np.max(np.abs(points[:, :2] - mesh.P)) < 1e-12 * mesh.size
-    rho, energy = fields['Density'], fields['Energy']
-    pressure = .4 * (energy - np.sum(momenta * momenta, axis=1) / (2 * rho))
-    assert np.isfinite(rho).all() and np.isfinite(pressure).all() and min(rho) > 0 and min(pressure) > 0
-    return np.column_stack([rho, momenta, energy]), dict(min_density=float(min(rho)), min_pressure=float(min(pressure)))
+        momenta = np.asarray(point_fields(path)['Momentum']).reshape(-1, 3)[:, :mesh.dim]
+    return state_values(mesh, points[:, :mesh.dim], fields, momenta)
+
+
+def audit_3d_transfer(donor_mesh, accepted_mesh, donor_current, donor_previous, accepted_current, accepted_previous):
+    paths = [donor_mesh, accepted_mesh, donor_current, donor_previous, accepted_current, accepted_previous]
+    missing = [str(p) for p in paths if not p.is_file()]
+    if missing: raise FileNotFoundError('Cannot certify: missing required mesh/state inputs: ' + ', '.join(missing))
+    donor, accepted = read_mesh(donor_mesh), read_mesh(accepted_mesh)
+    if donor.dim != 3 or accepted.dim != 3: raise ValueError('3D transfer audit requires tetrahedral meshes')
+    histories = []
+    for label, before_path, after_path in (('current',donor_current,accepted_current),('previous',donor_previous,accepted_previous)):
+        before, _ = state(donor,before_path); after, admissibility = state(accepted,after_path)
+        old, new = integral(donor,before), integral(accepted,after)
+        scale = np.maximum(integral(donor,np.abs(before)),1e-14)
+        relative = np.abs(new-old)/scale
+        histories.append(dict(history=label, donor_integrals=old.tolist(), accepted_integrals=new.tolist(),
+                              relative_defects=relative.tolist(), **admissibility))
+    return dict(scope='3D tetrahedral P1 conserved integrals for two supplied histories; no acceptance or restart equivalence claim',
+                fields=['Density','Momentum_x','Momentum_y','Momentum_z','Energy'], histories=histories,
+                inputs_sha256={str(p.resolve()):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths})
+
+
+def selfcheck_3d():
+    points=np.array([[0.,0.,0.],[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
+    mesh=capcheck.Mesh(3,points,np.array([[0,1,2,3]]),{})
+    fields={'Density':np.array([1.,2.,3.,4.]),'Energy':np.full(4,100.)}
+    momentum=np.array([[0.,0.,1.],[0.,0.,2.],[0.,0.,3.],[0.,0.,6.]])
+    values,_=state_values(mesh,points,fields,momentum)
+    assert values.shape==(4,5) and np.isclose(integral(mesh,values)[3],.5)
+    bad=capcheck.Mesh(3,points,np.array([[0,2,1,3]]),{})
+    try: integral(bad,values)
+    except ValueError: pass
+    else: raise AssertionError('Negative tetrahedron was admitted')
 
 
 def audit(case, require_native_reference=True):
@@ -168,7 +210,10 @@ def audit(case, require_native_reference=True):
 
 
 if __name__ == '__main__':
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('cases', type=Path, nargs='+');args=parser.parse_args()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('cases', type=Path, nargs='*');parser.add_argument('--3d-transfer',dest='transfer3d',type=Path,nargs=6,metavar=('DONOR_MESH','ACCEPTED_MESH','DONOR_CURRENT','DONOR_PREVIOUS','ACCEPTED_CURRENT','ACCEPTED_PREVIOUS'));parser.add_argument('--selfcheck-3d',action='store_true');args=parser.parse_args()
+    if args.selfcheck_3d: selfcheck_3d();print('3D self-check PASS')
+    if args.transfer3d: print(json.dumps(audit_3d_transfer(*args.transfer3d),indent=2))
+    if not args.cases and not args.transfer3d and not args.selfcheck_3d: parser.error('supply cases or --3d-transfer or --selfcheck-3d')
     for case in args.cases:
         output = case / 'independent_unsteady_audit.json'
         assert not output.exists(), 'Preserve existing audit evidence'

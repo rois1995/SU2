@@ -161,52 +161,104 @@ class CavityMetricSource {
   DonorImport& Bootstrap() { return bootstrap; }
   bool Build(const std::vector<DonorCell>& original, std::string& reason,
              size_t ceiling = SIZE_MAX, size_t caller_bytes = 0) {
+    struct Value { Point point; Tensor sensor; bool present = false; };
     CLocalFailure failure;
-    std::map<Id, std::array<Tensor, 4>> pending;
+    std::map<Id, Value> values;
+    std::vector<Id> missing;
+    const auto temporary = transfer_memory::Add(
+        transfer_memory::Mul(original.size(), sizeof(Id) + sizeof(void*) * 5),
+        transfer_memory::Mul(current.size(), 4 * (sizeof(Id) + sizeof(Value) + 4 * sizeof(void*) + sizeof(Id))),
+        transfer_memory::Mul(current.size(), sizeof(DonorCell)));
     try {
-      const auto temporary = transfer_memory::Add(
-          transfer_memory::Mul(original.size(), sizeof(Id) + sizeof(void*) * 5),
-          transfer_memory::Mul(current.size(), sizeof(Id) + sizeof(std::array<Tensor, 4>) + 4 * sizeof(void*)),
-          transfer_memory::Mul(current.size(), sizeof(DonorCell)));
       if (transfer_memory::Add(caller_bytes, ResidentBytes(), temporary) > ceiling || temporary == SIZE_MAX)
         throw std::invalid_argument("Cavity metric bootstrap exceeds working-storage budget.");
       std::map<Id, const DonorCell*> by_id;
-      for (const auto& d : original) by_id.emplace(d.cell.id, &d);
+      for (const auto& d : original)
+        if (!by_id.emplace(d.cell.id, &d).second) throw std::invalid_argument("Duplicate source cell identity.");
       for (const auto& entry : current) {
-        const auto& c = entry.second;
-        if (c.sensor_present) { for (const auto& m : c.sensor) ValidateTensor(m); continue; }
+        const auto& cell = entry.second.cell;
         const auto found = by_id.find(entry.first);
-        if (found == by_id.end()) throw std::invalid_argument("Missing local original sensor for current cell.");
-        std::array<Tensor, 4> sensor;
-        for (size_t i = 0; i < 4; ++i) {
-          bool matched = false;
-          for (size_t j = 0; j < 4; ++j) if (c.cell.v[i].id == found->second->cell.v[j].id) {
-            sensor[i] = found->second->sensor[j]; ValidateTensor(sensor[i]); matched = true; break;
+        std::array<int, 4> slots{{-1, -1, -1, -1}};
+        if (found != by_id.end()) {
+          for (size_t i = 0; i < 4; ++i) for (size_t j = 0; j < 4; ++j) {
+            const auto a = cell.v[i], b = found->second->cell.v[j];
+            if (a.id == b.id && a.p.x == b.p.x && a.p.y == b.p.y && a.p.z == b.p.z) slots[i] = int(j);
           }
-          if (!matched) throw std::invalid_argument("Original sensor cell connectivity mismatch.");
         }
-        pending.emplace(entry.first, sensor);
+        const bool matched = std::all_of(slots.begin(), slots.end(), [](int slot) { return slot >= 0; });
+        for (size_t i = 0; i < 4; ++i) {
+          const auto n = cell.v[i];
+          if (!std::isfinite(n.p.x) || !std::isfinite(n.p.y) || !std::isfinite(n.p.z))
+            throw std::invalid_argument("Nonfinite current metric node.");
+          const auto inserted = values.emplace(n.id, Value{n.p, {}, false});
+          auto& value = inserted.first->second;
+          if (value.point.x != n.p.x || value.point.y != n.p.y || value.point.z != n.p.z)
+            throw std::invalid_argument("Inconsistent current metric node coordinates.");
+          if (matched) {
+            const auto sensor = found->second->sensor[slots[i]]; ValidateTensor(sensor);
+            if (value.present && !SameMetric(value.sensor, sensor))
+              throw std::invalid_argument("Inconsistent source nodal sensor metrics.");
+            value.sensor = sensor; value.present = true;
+          }
+        }
       }
+      for (const auto& value : values) if (!value.second.present) missing.push_back(value.first);
     } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
-    const auto elected = world.elect(failure); reason = elected.message;
+    auto elected = world.elect(failure); reason = elected.message;
     if (elected.any) return false;
+    if (world.maximum(!missing.empty())) {
+      DonorImport source(world);
+      const auto live = transfer_memory::Add(caller_bytes, ResidentBytes(), temporary);
+      if (!source.Build(original, reason, ceiling, live)) return false;
+      const auto local_batches = transfer_memory::CeilDiv(missing.size(), MaximumCavityCells);
+      const auto batches = CPassiveComm::Allreduce(uint64_t(local_batches), CPassiveComm::Op::MAX, world.comm);
+      for (uint64_t batch = 0; batch < batches; ++batch) {
+        std::vector<Point> points; CLocalFailure pack_failure;
+        const auto begin = std::min(missing.size(), size_t(batch) * MaximumCavityCells);
+        const auto end = std::min(missing.size(), begin + MaximumCavityCells);
+        try { points.reserve(end-begin); for (size_t i = begin; i < end; ++i) points.push_back(values.at(missing[i]).point); }
+        catch (const std::exception& e) { pack_failure.Set(2, 0, e.what()); }
+        elected = world.elect(pack_failure); reason = elected.message;
+        if (elected.any) return false;
+        auto sampled = source.SamplePoints(points, {}, ceiling, transfer_memory::Add(live,
+            transfer_memory::Mul(MaximumCavityCells, sizeof(Point) + sizeof(DonorSample))));
+        if (!sampled.valid) { reason = sampled.reason; return false; }
+        CLocalFailure sample_failure;
+        try {
+          if (sampled.samples.size() != end-begin) throw std::invalid_argument("Incomplete current metric bootstrap samples.");
+          for (size_t i = begin; i < end; ++i) {
+            auto& value = values.at(missing[i]); value.sensor = sampled.samples[i-begin].sensor;
+            ValidateTensor(value.sensor); value.present = true;
+          }
+        } catch (const std::exception& e) { sample_failure.Set(2, 0, e.what()); }
+        elected = world.elect(sample_failure); reason = elected.message;
+        if (elected.any) return false;
+      }
+    }
     CLocalFailure snapshot_failure;
     try {
       stage_snapshot.clear(); stage_snapshot.reserve(current.size());
       for (const auto& entry : current) {
         DonorCell donor; donor.cell = entry.second.cell;
-        const auto found = pending.find(entry.first);
-        donor.sensor = found == pending.end() ? entry.second.sensor : found->second;
+        for (size_t i = 0; i < 4; ++i) {
+          const auto& value = values.at(donor.cell.v[i].id);
+          if (!value.present) throw std::invalid_argument("Missing current nodal sensor.");
+          donor.sensor[i] = value.sensor;
+        }
         stage_snapshot.push_back(donor);
       }
     } catch (const std::exception& e) { snapshot_failure.Set(2, 0, e.what()); }
-    const auto snapshot_elected = world.elect(snapshot_failure); reason = snapshot_elected.message;
-    if (snapshot_elected.any) return false;
+    elected = world.elect(snapshot_failure); reason = elected.message;
+    if (elected.any) return false;
     const auto retained = transfer_memory::Add(transfer_memory::Bytes(stage_snapshot),
-        transfer_memory::Mul(pending.size(), sizeof(Id) + sizeof(std::array<Tensor, 4>) + 4 * sizeof(void*)));
+        transfer_memory::Mul(values.size(), sizeof(Id) + sizeof(Value) + 4 * sizeof(void*)),
+        transfer_memory::Bytes(missing));
     if (!bootstrap.Build(stage_snapshot, reason, ceiling, transfer_memory::Add(caller_bytes, retained))) return false;
     stats = bootstrap.Statistics();
-    for (const auto& p : pending) { current.at(p.first).sensor = p.second; current.at(p.first).sensor_present = true; }
+    for (auto& entry : current) {
+      for (size_t i = 0; i < 4; ++i) entry.second.sensor[i] = values.at(entry.second.cell.v[i].id).sensor;
+      entry.second.sensor_present = true;
+    }
     return true;
   }
   DonorPatch Import(const std::vector<DonorRegion>& regions, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0) {

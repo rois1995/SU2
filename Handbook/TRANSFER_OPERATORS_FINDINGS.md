@@ -21,6 +21,23 @@ transfer. No new curved/M6 transfer defect or successful workflow is established
 those failing workflows never reached transfer. Reader metric packing changes are
 pending build94/runtime qualification and must agree with operator measurements.
 
+## Current audit preparation and metric-return validation
+
+Build95 focused checks execute121 cases:115 pass,6 fail in adaptation target refresh,
+bootstrap compatibility, private attribute byte comparisons and query counters.
+The new current-nodal normalization, reader metric packing and output/reload checks
+pass. This does not establish a new curved/M6 transfer workflow; both hard targets
+still reject generation. Input CFD/state rollback remains required and unchanged.
+
+The existing integration_evidence/audit_native_unsteady.py now supports independent
+3D tetrahedral P1 conserved integrals for supplied donor/accepted current and previous
+history files using the existing capcheck readers. Self-check covers unequal
+z-momentum and negative tetrahedra; real M6 history/restart has not been audited.
+Missing inputs fail explicitly. The audit reports defects without inventing pass
+thresholds or establishing restart equivalence; its ideal-gas pressure check uses
+the existing gamma1.4 case convention. SU2 tetrahedral inputs are supported; 3D
+CGNS support is not claimed by this independent helper.
+
 ## Current status
 
 The clipping correction (`6aee162837`) is qualified at build17 by the focused

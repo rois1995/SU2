@@ -1220,6 +1220,22 @@ TEST_CASE("Accepted face certificates require complete unchanged contracts", "[N
   copied.coverage.traces.at(edge).pieces.back().end=ExactRatio{};auto changed_budget=GeometryAtlasBudget();
   auto changed_view=explicit_reference->PrivateParameters(copied,&changed_budget);
   CHECK_FALSE(changed_view->HasAcceptedFaceCertificate(face,nodes,empty));CHECK_FALSE(changed_view->ContainsFace(face.facet,actual));
+  auto entity_state=state->WithEntityGeometry(1e-3,budget);
+  auto entity_reference=reference->WithParameterState(entity_state);
+  REQUIRE(entity_state->EntityGeometry());
+  CHECK(entity_reference->HasAcceptedFaceCertificate(face,nodes,empty));
+  CHECK(entity_reference->ContainsFace(face.facet,actual));
+  CHECK(entity_reference->HasAcceptedFaceCertificate(rotated,rotated_nodes,empty));
+  CHECK_FALSE(entity_reference->HasAcceptedFaceCertificate(reversed,reversed_nodes,empty));
+  CHECK_FALSE(entity_reference->HasAcceptedFaceCertificate(anchor,nodes,empty));
+  CHECK_FALSE(entity_reference->HasAcceptedFaceCertificate(face,changed,empty));
+  auto changed_point=nodes;changed_point[0].node.p.x=std::nextafter(changed_point[0].node.p.x,INFINITY);
+  CHECK_FALSE(entity_reference->HasAcceptedFaceCertificate(face,changed_point,empty));
+  BoundaryCoverage override_data;override_data.faces.emplace(face.v,fixture.Cover(face.facet,budget));
+  CHECK_FALSE(entity_reference->HasAcceptedFaceCertificate(face,nodes,override_data));
+  Patch entity_override;entity_override.coverage=override_data;
+  auto entity_view=entity_reference->PrivateParameters(entity_override,&budget);
+  CHECK_FALSE(entity_view->HasAcceptedFaceCertificate(face,nodes,empty));
   // A current maximum-valued mesh ID is not an unpublished projected association.
   std::map<Id,Id> numbering;for(const auto& row:state->Records())numbering.emplace(row.first,row.first);
   numbering.at(face.v[0])=UINT64_MAX;auto rebound=state->Rebind(numbering);

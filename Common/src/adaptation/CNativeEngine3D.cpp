@@ -770,7 +770,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     private_geometry=accepted_geometry.WithParameterState(private_parameters);
     options.caller_bytes=transfer_memory::Add(options.caller_bytes,AtlasScratchBytes);
     if(private_parameters->Mobility().identity||!private_parameters->Coverage().faces.empty()||!private_parameters->Coverage().traces.empty()) {
-      atlas_budget.caller_bytes=parameter_bound-AtlasScratchBytes;atlas_budget.maximum_bytes=parameter_bound;
+      atlas_budget.caller_bytes=parameter_bound-AtlasScratchBytes;atlas_budget.maximum_bytes=options.memory_ceiling;
       // Half holds the nested planner/reconstruction arithmetic arrays; half holds correspondence records.
       size_t low=0,high=AtlasScratchBytes*8;
       while(low<high){const size_t bits=low+(high-low+1)/2;
@@ -847,6 +847,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   std::vector<Id> initial,eligible_extensions;
   auto vote=[&](const CLocalFailure& local) {
     stats.atlas_work=atlas_budget.work;stats.atlas_peak_bytes=atlas_budget.peak_bytes;
+    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,atlas_budget.peak_bytes);
     // Reserve this engine-local severity to transport typed work refusal without another collective.
     constexpr unsigned short atlas_work_refusal=4;
     auto pending=local;
@@ -876,7 +877,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     CLocalFailure failure;
     if (peak==SIZE_MAX || peak>options.memory_ceiling) failure.Set(3,0,"Native 3D adaptation working storage exceeds budget.");
     const bool admitted=vote(failure);
-    if(admitted&&atlas_geometry){atlas_budget.caller_bytes=peak-AtlasScratchBytes;atlas_budget.maximum_bytes=peak;}
+    // Integer workspace stays fixed; geometric query arrays use the remaining configured memory pool.
+    if(admitted&&atlas_geometry){atlas_budget.caller_bytes=peak-AtlasScratchBytes;atlas_budget.maximum_bytes=options.memory_ceiling;}
     return admitted;
   };
   auto coalesce=[&](std::vector<Choice>& choices) {
@@ -1104,6 +1106,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.metric_support_cells=donor.metric_sample_cells;stats.metric_support_edges=donor.metric_edge_queries;stats.metric_support_skipped=donor.metric_edge_skipped;stats.metric_support_duplicates=donor.metric_edge_duplicates;
     stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, donor.maximum_work_bytes);
     stats.atlas_work=atlas_budget.work;stats.atlas_peak_bytes=atlas_budget.peak_bytes;
+    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,atlas_budget.peak_bytes);
     result.parameters=private_parameters;result.reference=private_geometry;
     if(curved && !result.valid && !selection.cells.empty()) {
       size_t metric_bad=0,geometry_bad=0;
