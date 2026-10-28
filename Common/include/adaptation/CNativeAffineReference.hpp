@@ -124,6 +124,8 @@ class MappedFacetReference {
   };
   /*! Forward sided differential geometry, shared with ClosestCurved; never performs a closest-point search. */
   SurfaceEvaluation EvaluateSurface(Id side,const SurfaceBinding&)const;
+  /*! Outward interval proof of physical-face orientation at an incident model association. */
+  bool OrientedFace(Id side,const SurfaceBinding&,const std::array<Point,3>&)const;
   SU2Native3D::Edge OriginalEdge(Id feature)const{return edges.at(feature);}
   Id Body(Id facet)const{return body_roots.at(facet);}
   /*! Closest distance to the edge-connected, same-marker curved component containing hint.
@@ -132,12 +134,29 @@ class MappedFacetReference {
    * Ambiguous accuracy or resource exhaustion throws; no other body/marker is searched. */
   CurvedClosest ClosestCurved(Id hint,Point query,double absolute_error,size_t maximum_work,
                               size_t ceiling=SIZE_MAX)const;
+  /*! Fixed-model broad phase within the hinted body/marker; candidates are not associations. */
+  std::vector<Id> NearbySurfaceFacets(Id hint,const std::array<Point,2>& box)const;
   static constexpr size_t ClearanceWork=16384;
   /*! Additional scratch bound for one active query; immutable authority storage is separate. */
   size_t CurvedQueryWorkspaceBytes(size_t maximum_work)const;
+  struct SurfaceUnionBounds {
+    double model_to_mesh=0,mesh_to_model=0;
+    size_t model_pieces=0,physical_pieces=0;
+    bool within_tolerance=false,outside_tolerance=false;
+  };
+  /*! Bounds both directed Hausdorff distances between the supplied complete unions.
+   * No face correspondence is assumed. A successful query certifies the tolerance or supplies an outside witness.
+   * Topology, feature incidence and body separation require independent admission. */
+  SurfaceUnionBounds BoundSurfaceUnion(const std::vector<Id>& model_facets,
+      const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&)const;
+  /*! One-sided bound for a physical patch against a model union; omitted supports only weaken admission. */
+  double BoundPhysicalSurface(const std::vector<Id>& model_facets,
+      const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget&)const;
   /*! Convex hull of an immutable curved patch and current source face, including realization error. */
   class SourcePatch {
    public:
+    /*! Tube of a physical triangle. Caller must certify model containment in the union of tubes. */
+    static SourcePatch Tube(const std::array<Point,3>& source,double radius);
     std::array<Point,2> Bounds()const;
     double OutwardDisplacement()const;
     bool Separated(const std::array<Point,3>& outer,uint64_t& work,uint64_t maximum_work)const;
@@ -174,6 +193,9 @@ class MappedFacetReference {
   /*! Traces are oriented 0->1,1->2,2->0; current-ID canonicalization belongs to the parameter layer. */
   bool ValidateCoverage(Id anchor,const std::array<SurfaceBinding,3>& binding,const std::array<Point,3>& realized,
                         const FaceCoverage&,const std::array<EdgeTrace,3>&,AtlasBudget&,std::string& reason)const;
+  /*! Exact one-dimensional genuine-curve coverage; directed=false compares unsigned arc multiplicity. */
+  bool ValidateFeatureReplacement(const std::vector<std::pair<const EdgeTrace*,int>>& uses,
+      const MobilityPolicy&,bool directed,AtlasBudget&,std::string&)const;
   bool ValidateCoverageReplacement(const std::vector<FaceCoverage>& old,const std::vector<FaceCoverage>& fresh,
                                    AtlasBudget&,std::string& reason)const;
   /*! Exact per-original-chart oriented region boundary, including holes/components.
@@ -232,6 +254,9 @@ class MappedFacetReference {
   size_t ResidentBytes()const;
   uint64_t Version()const{return version;}
  private:
+  SurfaceUnionBounds QuerySurfaceUnion(const std::vector<Id>&,
+      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model)const;
+
   std::shared_ptr<const SU2Native3D::PlanarReference> reference;
   std::map<Id,double> errors;
   CurvedNets curves;

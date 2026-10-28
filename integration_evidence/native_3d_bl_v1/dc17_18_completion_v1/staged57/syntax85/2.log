@@ -1,0 +1,4 @@
+[01m[K../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:[m[K In member function ‘[01m[KSU2Native3D::Node SU2Native3D::PlanarReference::BindNewPoint(SU2Native3D::Node, const std::set<long unsigned int>&, const Edge*) const[m[K’:
+[01m[K../../Common/src/adaptation/CNativeBoundaryParameters3D.cpp:1169:63:[m[K [01;31m[Kerror: [m[Kinconsistent deduction for ‘[01m[Kauto[m[K’: ‘[01m[Kconst std::_Rb_tree_iterator<std::pair<const std::array<long unsigned int, 2>, SU2NativeGeometry::EdgeTrace> >[m[K’ and then ‘[01m[Kconst std::_Rb_tree_const_iterator<std::pair<const std::array<long unsigned int, 2>, SU2NativeGeometry::EdgeTrace> >[m[K’
+ 1169 |     if(edge){key=*edge;std::sort(key.begin(),key.end());const [01;31m[Kauto[m[K local=parameter_view->coverage.traces.find(key),accepted=state.Coverage().traces.find(key);
+      |                                                               [01;31m[K^~~~[m[K

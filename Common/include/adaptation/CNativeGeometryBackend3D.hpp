@@ -52,6 +52,9 @@ class GeometryBackend3D {
   virtual bool Project(Point,const GeometryProjectionScope&,GeometryProjection&,AtlasBudget&,std::string&)const=0;
   /*! Bounds the supplied piece union; finite coverage/embedding admission remains the specialized caller's duty. */
   virtual bool RegionErrorBounds(const FaceCoverage&,const std::array<Point,3>&,GeometryRegionBounds&,AtlasBudget&,std::string&)const=0;
+  /*! Complete physical mesh of one semantic model body/sheet/marker, without face partitions. */
+  virtual bool PatchErrorBounds(const GeometrySupport&,const std::vector<std::array<Point,3>>&,double tolerance,
+      MappedFacetReference::SurfaceUnionBounds&,AtlasBudget&,std::string&)const=0;
 };
 /*! Shared immutable cubic/faceted authority; validated parameter-state policy is borrowed for the stage's lifetime.
  * Existing v5-v8 declarations/SurfaceBinding encoding remain the persistent source of truth.
@@ -66,6 +69,8 @@ class NativeMappedGeometryBackend3D final:public GeometryBackend3D {
   bool ContractionAllowed(const SurfaceBinding&,const SurfaceBinding&,bool&,AtlasBudget&,std::string&)const override;
   bool Project(Point,const GeometryProjectionScope&,GeometryProjection&,AtlasBudget&,std::string&)const override;
   bool RegionErrorBounds(const FaceCoverage&,const std::array<Point,3>&,GeometryRegionBounds&,AtlasBudget&,std::string&)const override;
+  bool PatchErrorBounds(const GeometrySupport&,const std::vector<std::array<Point,3>>&,double,
+      MappedFacetReference::SurfaceUnionBounds&,AtlasBudget&,std::string&)const override;
  private:
   std::shared_ptr<const MappedFacetReference> authority;
   const MobilityPolicy& policy;

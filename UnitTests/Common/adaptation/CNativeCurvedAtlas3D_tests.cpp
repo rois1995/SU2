@@ -664,3 +664,23 @@ TEST_CASE("Curved collapse removes smooth and curve samples across original seam
     for(const auto& n:c.v)CHECK(n.id!=0);}
   CHECK(fixture.state->Find(0)!=nullptr); // Private proposal cannot mutate accepted associations.
 }
+
+TEST_CASE("Feature trace normalization validates intervals and preserves failed outputs", "[NativeCurvedAtlas3D]") {
+  RemappingFixture crease(true);auto budget=RemappingBudget();std::string reason;const Edge feature{0,10};
+  const auto incident=crease.state->IncidentFaces(feature);REQUIRE(incident[0]);
+  EdgeTrace genuine;REQUIRE(crease.state->ResolveTrace(feature,*incident[0],genuine,budget,reason));
+  std::optional<Id> chain;REQUIRE(NormalizeFeatureTrace(*crease.geometry,crease.policy,genuine,chain,budget,reason));REQUIRE(chain);
+  const auto canonical=genuine;const auto saved_chain=chain;
+  auto encode=[&](const EdgeTrace& trace){BoundaryCoverage c;c.traces.emplace(feature,trace);return EncodeBoundaryAtlas(c,crease.policy);};
+  auto no_work=RemappingBudget();no_work.maximum_work=0;
+  CHECK_FALSE(NormalizeFeatureTrace(*crease.geometry,crease.policy,genuine,chain,no_work,reason));
+  CHECK(encode(genuine)==encode(canonical));CHECK(chain==saved_chain);
+  auto malformed=canonical;REQUIRE_FALSE(malformed.pieces.empty());REQUIRE(ExactInteger(0,malformed.pieces.back().end,budget,reason));
+  const auto broken=encode(malformed);CHECK_FALSE(NormalizeFeatureTrace(*crease.geometry,crease.policy,malformed,chain,budget,reason));
+  CHECK(encode(malformed)==broken);CHECK(chain==saved_chain);
+  RemappingFixture smooth(false);const Edge smooth_edge{0,20};const auto smooth_incident=smooth.state->IncidentFaces(smooth_edge);REQUIRE(smooth_incident[0]);
+  EdgeTrace plain;REQUIRE(smooth.state->ResolveTrace(smooth_edge,*smooth_incident[0],plain,budget,reason));
+  BoundaryCoverage before;before.traces.emplace(smooth_edge,plain);const auto encoded=EncodeBoundaryAtlas(before,smooth.policy);
+  chain=saved_chain;REQUIRE(NormalizeFeatureTrace(*smooth.geometry,smooth.policy,plain,chain,budget,reason));CHECK_FALSE(chain);
+  BoundaryCoverage after;after.traces.emplace(smooth_edge,plain);CHECK(EncodeBoundaryAtlas(after,smooth.policy)==encoded);
+}

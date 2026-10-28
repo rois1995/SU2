@@ -189,3 +189,46 @@ counts, arithmetic work, admitted memory, sampled process-tree RSS and runtime b
 event. A budget sweep may diagnose cost only if inputs/gates remain comparable;
 a larger cap alone is not acceptance evidence. Completion requires accepted
 adaptation/transfer/restart, not this design review or primitive tests.
+
+## Implementation evidence after review
+
+Independent SurfaceUnionBounds/backend query and physical SourcePatch::Tube are
+written. Private union81 compiles all3 changed translation units and links; backend
+runtime TIMES OUT300s (417.190s whole job), pins unchanged. A separate30s verbose
+run locates the stall in the first alternate-diagonal planar square query, before
+its result. This confirms the predicted one-witness seam cost, not an unavailable
+physical operation. The implementation now reuses FinitePlaneReference to bound
+coplanar unions across internal diagonals, with outward plane residual and lifted
+projection-shift bounds. This is uncompiled after the correction; no resource cap
+increase or production activation is made. Source, publication and migration
+remain connected pending work; no full capability claim follows.
+
+## Connected implementation, awaiting build86
+
+The code now uses a semantic entity contract for curved production adaptation.
+`WithEntityGeometry(ADAP_HAUSD)` migrates validated legacy state, discards smooth
+traces/face partitions, retains normalized genuine-curve routes and records the
+absolute target. New scalar/body/sheet data and current mesh associations persist
+in explicit reference/payload version9; legacy decode is unchanged. Derived
+vertex/face indices and geometry certificates rebuild from current state.
+
+The new union query is a tolerance predicate with conservative upper bounds,
+not an optimizer for an unnecessarily precise maximum distance. Success records
+inside certification or an outside witness; numerical/storage/work uncertainty
+refuses distinctly. Existing Bernstein/interval arithmetic, model ADT and finite-
+plane union containment are reused. Single-chart barycentric error bounds remain
+a cheap disposable one-sided witness, never inherited face-region ownership.
+
+Construction uses entity/normal association checks, native cavity validity and
+feature-only reconstruction. Publication retains complete owner participation,
+exact directed feature-side and unsigned curve-coverage ledgers, genuine corners,
+edge incidence and complete local vertex-link checks using a current derived
+index. The final accepted mesh additionally requires a complete two-sided model
+certificate. Source envelopes use the same model→frozen-skin bound with physical
+triangle tubes; existing shell, contact, donor-volume, fill/loss and transfer
+gates remain active. This is still unqualified on the actual curved workflow.
+
+Private union84 passes9 cases/215 assertions; syntax86 passes11 translation
+units. Full build86 is running. Earlier failed union81/82/83 receipts remain.
+Actual movement, repeated-event cost, publication, CFD transfer/BDF history,
+restart and M6 remain the acceptance obligations. No caps were raised.

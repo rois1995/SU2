@@ -178,3 +178,87 @@ TEST_CASE("Certified point separation conservatively screens curved boundary sam
   const bool all_far=SourceFacesSeparated(point,flat,low) && SourceFacesSeparated(point,near,low);
   CHECK_FALSE(all_far); // A single nearby face makes the union test inconclusive.
 }
+
+TEST_CASE("Backend bounds both directions of a complete unpartitioned surface union", "[NativeGeometryBackend3D]") {
+  using namespace SU2Native3D;
+  BackendFixture flat(true,false),curved(false,true);std::string reason;
+  auto triangles=[](const BackendFixture& fixture,Id body){std::vector<std::array<Point,3>> result;
+    for(const auto& facet:fixture.facets)if((facet.id>=100)==(body==100))
+      result.push_back({facet.v[0].p,facet.v[1].p,facet.v[2].p});return result;};
+  auto square=triangles(flat,0);REQUIRE(square.size()==12);
+  // Replace the bottom square's diagonal without changing its oriented union.
+  const auto a=flat.facets[0].v[0].p,b=flat.facets[0].v[1].p,c=flat.facets[0].v[2].p,d=flat.facets[1].v[2].p;
+  square[0]={a,b,d};square[1]={b,c,d};
+  GeometrySupport scope;scope.body=flat.geometry->Body(0);scope.marker=0;scope.sheet=UINT64_MAX;
+  NativeMappedGeometryBackend3D backend(flat.geometry,flat.policy);auto budget=BackendBudget();
+  MappedFacetReference::SurfaceUnionBounds bounds;
+  bool ok=backend.PatchErrorBounds(scope,square,1e-4,bounds,budget,reason);INFO(reason);REQUIRE(ok);
+  CHECK(bounds.within_tolerance);CHECK_FALSE(bounds.outside_tolerance);
+  CHECK(bounds.model_to_mesh<=1e-4);CHECK(bounds.mesh_to_model<=1e-4);
+  CHECK(bounds.model_pieces>0);CHECK(bounds.physical_pieces>0);
+  auto missing=square;missing.erase(missing.begin());auto hole_budget=BackendBudget();
+  ok=backend.PatchErrorBounds(scope,missing,1e-4,bounds,hole_budget,reason);INFO(reason);REQUIRE(ok);CHECK(bounds.outside_tolerance);CHECK_FALSE(bounds.within_tolerance);CHECK(bounds.model_to_mesh>1e-3);
+  auto wrong=triangles(flat,100);auto body_budget=BackendBudget();
+  ok=backend.PatchErrorBounds(scope,wrong,1e-4,bounds,body_budget,reason);INFO(reason);REQUIRE(ok);
+  CHECK(bounds.outside_tolerance);CHECK_FALSE(bounds.within_tolerance);
+  CHECK(bounds.model_to_mesh>1);CHECK(bounds.mesh_to_model>1);
+  NativeMappedGeometryBackend3D cubic(curved.geometry,curved.policy);auto bump=triangles(curved,0);auto curved_budget=BackendBudget();
+  scope.body=curved.geometry->Body(0);ok=cubic.PatchErrorBounds(scope,bump,1e-4,bounds,curved_budget,reason);INFO(reason);REQUIRE(ok);
+  CHECK(bounds.outside_tolerance);CHECK_FALSE(bounds.within_tolerance);
+  CHECK(bounds.model_to_mesh>.006);CHECK(bounds.mesh_to_model>0);
+  MappedFacetReference::SurfaceUnionBounds sentinel;sentinel.model_to_mesh=17;sentinel.mesh_to_model=19;sentinel.model_pieces=23;sentinel.physical_pieces=29;
+  auto unchanged=[&](){CHECK(sentinel.model_to_mesh==17);CHECK(sentinel.mesh_to_model==19);CHECK(sentinel.model_pieces==23);CHECK(sentinel.physical_pieces==29);};
+  auto no_work=BackendBudget();no_work.maximum_work=0;
+  CHECK_FALSE(cubic.PatchErrorBounds(scope,bump,1e-4,sentinel,no_work,reason));CHECK(no_work.work_exhausted);unchanged();
+  auto no_storage=BackendBudget();no_storage.maximum_bytes=0;
+  CHECK_FALSE(cubic.PatchErrorBounds(scope,bump,1e-4,sentinel,no_storage,reason));unchanged();
+}
+
+TEST_CASE("Physical source tubes preserve conservative shell checks without face correspondence", "[NativeGeometryBackend3D][NativeJointAffineSource3D]") {
+  using namespace SU2Native3D;
+  const std::array<Point,3> triangle{{{0,0,0},{1,0,0},{0,1,0}}};
+  const auto tube=MappedFacetReference::SourcePatch::Tube(triangle,.01);
+  const auto box=tube.Bounds();CHECK(box[0].z<=-.01);CHECK(box[1].z>=.01);
+  CHECK(tube.OutwardDisplacement()>=.01);uint64_t work=0;
+  auto outer=triangle;for(auto& p:outer)p.z=.02;
+  CHECK(tube.Separated(outer,work,10000));
+  for(auto& p:outer)p.z=.005;
+  CHECK_FALSE(tube.Separated(outer,work,10000));
+  CHECK_THROWS(MappedFacetReference::SourcePatch::Tube(triangle,-.01));
+  CHECK_THROWS(MappedFacetReference::SourcePatch::Tube({triangle[0],triangle[0],triangle[2]},.01));
+}
+
+TEST_CASE("Entity geometry preserves feature contracts through reference and payload roundtrips", "[NativeGeometryBackend3D]") {
+  using namespace SU2Native3D;BackendFixture fixture;auto budget=BackendBudget();std::string reason;
+  BoundaryPoints points;std::vector<SurfaceFace> skin;
+  for(const auto& f:fixture.facets){skin.push_back({{f.v[0].id,f.v[1].id,f.v[2].id},f.id});for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,fixture.geometry->Vertex(n.id)});}
+  auto legacy=std::make_shared<BoundaryParameterState>(fixture.geometry,points,skin,1,SIZE_MAX,0,BoundaryCoverage{},fixture.policy,&budget);
+  // Fixture tolerance admits this .03-control bump; it does not qualify a .001 workflow.
+  auto entity=legacy->WithEntityGeometry(.01,budget);REQUIRE(entity->EntityGeometry());CHECK(entity->GeometryTolerance()==.01);
+  CHECK(entity->Coverage().faces.empty());CHECK(entity->Coverage().traces.size()==fixture.policy.features.size());
+  for(const auto& row:entity->GeometryCertificates(budget)){CHECK(row.second.model_to_mesh<=.01);CHECK(row.second.mesh_to_model<=.01);}
+  ReferenceState state{PlanarReference::WithParameters(fixture.reference,entity),fixture.facets,{"wall"},0};
+  const auto encoded=EncodeReference(state);REQUIRE(encoded.find("SU2_NATIVE_REFERENCE_3D 9\n")==0);
+  const auto decoded=DecodeReference(encoded);REQUIRE(decoded.original->Parameters());
+  CHECK(decoded.original->Parameters()->Snapshot()==entity->Snapshot());CHECK(decoded.original->Parameters()->GeometryTolerance()==.01);
+  const auto payload=entity->Payload();auto restored=BoundaryParameterState::FromPayload(fixture.geometry,payload);
+  CHECK(restored->Snapshot()==entity->Snapshot());
+  std::map<Id,Id> numbering;for(const auto& row:entity->Records())numbering.emplace(row.first,1000+entity->Records().size()-1-row.first);
+  auto rebound=entity->Rebind(numbering);CHECK(rebound->EntityGeometry());CHECK(rebound->GeometryTolerance()==.01);
+  for(const auto& row:entity->Records()){const auto* after=rebound->Find(numbering.at(row.first));REQUIRE(after);
+    CHECK(after->node.p.x==row.second.point.node.p.x);CHECK(after->node.p.y==row.second.point.node.p.y);CHECK(after->node.p.z==row.second.point.node.p.z);}
+  CHECK(rebound->Coverage().traces.size()==entity->Coverage().traces.size());
+  for(const auto& row:entity->Surface()){std::array<Point,3> original{},renumbered{};
+    for(unsigned k=0;k<3;++k){original[k]=entity->Find(row.second.v[k])->node.p;renumbered[k]=rebound->Find(numbering.at(row.second.v[k]))->node.p;}
+    const auto a=MappedFacetReference::SourcePatch::Tube(original,.01).Bounds(),b=MappedFacetReference::SourcePatch::Tube(renumbered,.01).Bounds();
+    for(unsigned k=0;k<2;++k){CHECK(a[k].x==b[k].x);CHECK(a[k].y==b[k].y);CHECK(a[k].z==b[k].z);}}
+  for(const auto& row:rebound->GeometryCertificates(budget)){CHECK(row.second.model_to_mesh<=.01);CHECK(row.second.mesh_to_model<=.01);}
+  auto missing=entity->Coverage();REQUIRE_FALSE(missing.traces.empty());missing.traces.erase(missing.traces.begin());
+  CHECK_THROWS(BoundaryParameterState(fixture.geometry,points,skin,1,SIZE_MAX,0,missing,fixture.policy,&budget,.01));
+  auto noncanonical=entity->Coverage();auto& trace=noncanonical.traces.begin()->second;REQUIRE(trace.pieces.size()==1);
+  auto first=trace.pieces.front(),second=first;ExactRatio two,half;REQUIRE(ExactInteger(2,two,budget,reason));REQUIRE(ExactBinary64(.5,half,budget,reason));
+  auto middle=[&](const ExactRatio& a,const ExactRatio& b){ExactRatio sum,out;REQUIRE(ExactAdd(a,b,sum,budget,reason));REQUIRE(ExactDivide(sum,two,out,budget,reason));return out;};
+  ExactBary midpoint{middle(first.first.u,first.last.u),middle(first.first.v,first.last.v)};
+  first.last=midpoint;first.end=half;second.first=midpoint;trace.pieces={first,second};
+  CHECK_THROWS(BoundaryParameterState(fixture.geometry,points,skin,1,SIZE_MAX,0,noncanonical,fixture.policy,&budget,.01));
+}

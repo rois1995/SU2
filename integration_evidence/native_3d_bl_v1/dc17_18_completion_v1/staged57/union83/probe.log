@@ -1,0 +1,33 @@
+Breakpoint 1 at 0x10eb588: file ../../Common/src/adaptation/CNativeAffineReference.cpp, line 1420.
+Breakpoint 2 at 0x10c0a95: file ../../Common/src/adaptation/CNativeAffineReference.cpp, line 1402.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after fork from child process 1630249]
+[New Thread 0x7ffff760b700 (LWP 1630253)]
+[New Thread 0x7ffff6c56700 (LWP 1630254)]
+UNION_INPUT $1 = 85
+$2 = 12
+$3 = 6
+UNION_DIRECTION $4 = true
+$5 = 85
+UNION_DIRECTION $6 = false
+$7 = 1007
+UNION_INPUT $8 = 81
+$9 = 12
+$10 = 6
+UNION_DIRECTION $11 = true
+$12 = 81
+UNION_DIRECTION $13 = false
+$14 = 24903
+UNION_INPUT $15 = 85
+$16 = 12
+$17 = 6
+UNION_DIRECTION $18 = true
+$19 = 85
+UNION_DIRECTION $20 = false
+$21 = 1897
+Exception ignored in: <gdb._GdbOutputFile object at 0x7f1c6db485e0>
+Traceback (most recent call last):
+  File "/usr/share/gdb/python/gdb/__init__.py", line 43, in flush
+    def flush(self):
+KeyboardInterrupt: 

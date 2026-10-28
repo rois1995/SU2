@@ -29,10 +29,22 @@ bool PrepareCurvedAtlas(const SU2Native3D::Patch&,const SU2Native3D::PlanarRefer
  * into every incident sheet. new_node supplies only the new current identity. */
 bool ProposeAtlasBinding(const CurvedAtlas&,SU2Native3D::Id old_vertex,SU2Native3D::Node new_node,
                          SU2Native3D::BoundaryPoint&,AtlasBudget&,std::string&);
+/*! Propose an interior point on ordered genuine feature traces between retained endpoints. */
+bool ProposeFeaturePoint(const MappedFacetReference&,const MobilityPolicy&,const std::vector<EdgeTrace>&,
+                         SU2Native3D::Point,SU2Native3D::Point,SU2Native3D::Node,
+                         SU2Native3D::BoundaryPoint&,AtlasBudget&,std::string&);
 /*! All candidate endpoints are actual forward bindings, including unchanged endpoints.
  * Produces local explicit records; replacement, sheet membership and shared traces are certified. */
 bool RemapAtlasSurface(const CurvedAtlas&,const std::vector<SU2Native3D::SurfaceFace>&,
                        const SU2Native3D::BoundaryPoints&,BoundaryCoverage&,AtlasBudget&,std::string&);
+/*! Canonicalize genuine feature traces; smooth traces remain unchanged. Refusal preserves outputs. */
+bool NormalizeFeatureTrace(const MappedFacetReference&,const MobilityPolicy&,EdgeTrace&,
+                           std::optional<SU2Native3D::Id>&,AtlasBudget&,std::string&);
+/*! Rebuild only genuine feature paths from complete old physical-star traces and bindings.
+ * Smooth paths and face covers are not produced; refusal leaves result unchanged. */
+bool RebuildFeatureTraces(const SU2Native3D::Patch&,const std::vector<SU2Native3D::SurfaceFace>&,
+    const SU2Native3D::BoundaryPoints&,const SU2Native3D::PlanarReference&,
+    std::map<SU2Native3D::Edge,EdgeTrace>&,AtlasBudget&,std::string&);
 /*! Replace obsolete smooth-edge contracts and all affected face covers from fixed geometry.
  * Genuine feature arcs remain authoritative; refusal leaves output unchanged. */
 bool RebuildWorkingSurface(const SU2Native3D::BoundaryParameterState&,BoundaryCoverage&,AtlasBudget&,std::string&);

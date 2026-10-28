@@ -1042,6 +1042,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     region_active=false;
     if(layer_active && options.timings)stats.layer_seconds+=std::chrono::duration<double>(Clock::now()-layer_started).count();
     layer_active=false;
+    if(result.valid && geometry.EntityGeometry()) {
+      CLocalFailure geometryFailure;
+      try {for(const auto& row:geometry.Parameters()->GeometryCertificates(atlas_budget))if(!row.second.within_tolerance)
+        geometryFailure.Set(1,std::get<0>(row.first),"Complete working surface does not meet the prescribed two-sided geometry tolerance.");}
+      catch(const std::exception& e){geometryFailure.Set(2,0,e.what());}
+      if(!vote(geometryFailure)){result.valid=false;if(stats.stop==EngineStop::None)stats.stop=EngineStop::Failure;}
+    }
     if(result.valid && !options.wall_heights.empty()) {
       CLocalFailure heightFailure;
       for(const auto& row:working) {
@@ -1246,7 +1253,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   }
   if (!ready) return finish();
   // Freeze donors first; normalization changes working associations, not the source interpretation.
-  if(atlas_geometry) {
+  if(atlas_geometry && !geometry.EntityGeometry()) {
     if(!admit(0))return finish();
     SU2NativeGeometry::BoundaryCoverage refreshed;CLocalFailure failure;
     const auto before_work=atlas_budget.work;
@@ -4426,7 +4433,11 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
       {
         auto context=geometry.PrivateParameters(patch);const auto& projected_geometry=context?*context:geometry;
         auto* budget=projected_geometry.AtlasReservation();SU2NativeGeometry::CurvedAtlas atlas;BoundaryPoint projected;
-        if(!budget || !SU2NativeGeometry::PrepareCurvedAtlas(patch,projected_geometry,p,atlas,*budget,reason) ||
+        if(projected_geometry.EntityGeometry()) {
+          try {std::set<Id> incident;for(const auto& face:patch.surface)if(std::find(face.v.begin(),face.v.end(),p)!=face.v.end())incident.insert(face.facet);
+            projected.node=projected_geometry.BindMovedPoint(p,{next_node,target_point},incident);
+          }catch(const std::exception&){++report.rejected_interface;continue;}
+        } else if(!budget || !SU2NativeGeometry::PrepareCurvedAtlas(patch,projected_geometry,p,atlas,*budget,reason) ||
             !SU2NativeGeometry::ProposeAtlasBinding(atlas,p,{next_node,target_point},projected,*budget,reason)) {
           ++report.rejected_interface;continue;
         }

@@ -201,7 +201,7 @@ Node ProjectSplitPoint(Edge edge,Node point,const std::map<Id,Node>& nodes,const
     std::set<Id> incident;for(const auto& f:physical)if(Has(f.second.v,edge[0])&&Has(f.second.v,edge[1]))incident.insert(f.second.facet);
     if(!incident.empty()) {
       if(nodes.count(point.id))throw std::invalid_argument("Mapped split reuses a current point identity.");
-      point=reference.BindNewPoint(point,incident);
+      point=reference.BindNewPoint(point,incident,&edge);
       if((point.p.x==a.p.x&&point.p.y==a.p.y&&point.p.z==a.p.z)||(point.p.x==b.p.x&&point.p.y==b.p.y&&point.p.z==b.p.z))
         throw std::invalid_argument("Mapped split has no distinct realized point at the proposed parameter.");
       return point;
@@ -300,7 +300,12 @@ void Finish(const Patch& old, Patch& proposal, const Skin& expected, const Physi
   std::string reason;
   if (!ValidatePrescribedInterface(old.cells, proposal.cells, SkinVector(expected), reason, stats))
     throw std::invalid_argument(reason);
-  if(reference.Mobility() && !proposal.surface.empty() && proposal.coverage.faces.empty()) {
+  if(reference.EntityGeometry()) {
+    reference.ExportPointParameters(proposal);std::map<Edge,SU2NativeGeometry::EdgeTrace> features;
+    auto* reservation=reference.AtlasReservation();if(!reservation)throw std::invalid_argument("Entity reconstruction lacks a geometry reservation.");
+    if(!SU2NativeGeometry::RebuildFeatureTraces(old,proposal.surface,proposal.parameters,reference,features,*reservation,reason))throw std::invalid_argument(reason);
+    proposal.coverage.faces.clear();proposal.coverage.traces=std::move(features);
+  } else if(reference.Mobility() && !proposal.surface.empty() && proposal.coverage.faces.empty()) {
     auto* reservation=reference.AtlasReservation();
     if(!reservation)throw std::invalid_argument("Curved topology edit requires an admitted atlas reservation.");
     reference.ExportPointParameters(proposal);
@@ -2913,7 +2918,11 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
     auto* reservation=reference.AtlasReservation();
     const bool remap=reference.Mobility() && std::any_of(old.surface.begin(),old.surface.end(),
         [&](const SurfaceFace& face){return Has(face.v,vertex);});
-    if(remap) {
+    if(remap && reference.EntityGeometry()) {
+      std::set<Id> incident;for(const auto& face:physical)if(Has(face.second.v,vertex))incident.insert(face.second.facet);
+      point=reference.BindMovedPoint(vertex,point,incident);const auto* binding=reference.Parameter(point.p);
+      if(!binding)throw std::invalid_argument("Entity movement lost its projected association.");moved_binding=*binding;
+    } else if(remap) {
       if(!reservation)throw std::invalid_argument("Curved movement requires an admitted atlas reservation.");
       if(!SU2NativeGeometry::PrepareCurvedAtlas(old,reference,vertex,atlas,*reservation,reason) ||
          !SU2NativeGeometry::ProposeAtlasBinding(atlas,vertex,point,moved_binding,*reservation,reason))
@@ -2993,7 +3002,9 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
     if(remap) {
       std::vector<SurfaceFace> faces;faces.reserve(surface.size());
       for(const auto& f:surface)faces.push_back(f.second);
-      if(!SU2NativeGeometry::RemapAtlasSurface(atlas,faces,proposal.parameters,proposal.coverage,*reservation,reason))
+      if(reference.EntityGeometry()) {
+        if(!SU2NativeGeometry::RebuildFeatureTraces(old,faces,proposal.parameters,reference,proposal.coverage.traces,*reservation,reason))throw std::invalid_argument(reason);
+      } else if(!SU2NativeGeometry::RemapAtlasSurface(atlas,faces,proposal.parameters,proposal.coverage,*reservation,reason))
         throw std::invalid_argument(reason);
     }
     // Check both prescribed interface and complete chart-oriented physical skin before publishing the private proposal.

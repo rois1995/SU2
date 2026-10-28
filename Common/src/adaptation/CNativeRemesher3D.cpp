@@ -71,7 +71,7 @@ void PrepareMobility(const CConfig& config,ReferenceState& state,size_t ceiling,
   if(accepted->Mobility().identity) {
     if(accepted->Mobility().angle!=angle || accepted->Mobility().roles!=roles)
       throw std::invalid_argument("Persisted curved mobility policy differs from ADAP_ANGLE/marker roles.");
-    return;
+    if(accepted->EntityGeometry()&&accepted->GeometryTolerance()==SU2_TYPE::GetValue(config.GetAdap_Hausd()))return;
   }
   const auto baseline=transfer_memory::Add(caller,state.original->ResidentBytes());
   if(baseline==SIZE_MAX || baseline>=ceiling)throw std::length_error("Curved mobility setup exceeds storage admission.");
@@ -82,7 +82,11 @@ void PrepareMobility(const CConfig& config,ReferenceState& state,size_t ceiling,
       SU2NativeGeometry::MappedFacetReference::ClearanceWork);
   if(budget.maximum_work==SIZE_MAX || budget.maximum_integer_bits==SIZE_MAX)
     throw std::length_error("Curved mobility setup reservation overflows.");
-  auto prepared=accepted->WithMobilityPolicy(angle,roles,budget,ceiling,baseline);
+  auto mobility=accepted->Mobility().identity?std::shared_ptr<BoundaryParameterState>{}:
+      accepted->WithMobilityPolicy(angle,roles,budget,ceiling,baseline);
+  const auto* active=mobility?mobility.get():accepted;
+  auto prepared=active->WithEntityGeometry(SU2_TYPE::GetValue(config.GetAdap_Hausd()),budget,ceiling,
+      transfer_memory::Add(baseline,mobility?mobility->ResidentBytes():0));
   if(!SU2_MPI::GetRank()) {
     const auto& policy=prepared->Mobility();std::array<size_t,3> dimensions{};
     for(const auto& row:accepted->Records())++dimensions.at(authority.MobilityDimension(row.second.point.binding,policy));

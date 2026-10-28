@@ -146,7 +146,7 @@ struct AtlasStorage {
 void WritePayload(SU2NativeBoundary2D::RecordStream& out,const State& state) {
   auto version=state.Geometry().Version(),revision=state.Revision();
   uint64_t np=state.Records().size(),nf=state.Surface().size(),policy=state.Geometry().ReferenceComponents();
-  if(AtlasActive(state)){uint64_t magic=AtlasSchema,schema=8,atlas=BoundaryAtlasBytes(state.Coverage(),state.Mobility());out(magic,schema,version,revision,np,nf,policy,atlas);}
+  if(AtlasActive(state)){uint64_t magic=AtlasSchema,schema=state.EntityGeometry()?9:8,atlas=BoundaryAtlasBytes(state.Coverage(),state.Mobility());out(magic,schema,version,revision,np,nf,policy,atlas);if(schema==9){auto tolerance=state.GeometryTolerance();out(tolerance);}}
   else out(version,revision,np,nf,policy);
   for(auto row:state.Records())out(row.second.point);
   for(auto row:state.Surface())out(row.second);
@@ -163,6 +163,7 @@ void WriteSnapshot(SU2NativeBoundary2D::RecordStream& out,const State& state) {
   for(auto row:state.Records()){auto id=row.first;out(id,row.second);}
   for(auto row:state.Surface())out(row.second);
   if(AtlasActive(state))WriteAtlas(out,state.Coverage(),state.Mobility());
+  if(state.EntityGeometry()){uint64_t schema=9;auto tolerance=state.GeometryTolerance();out(schema,tolerance);}
 }
 }
 AtlasBudget BoundaryAtlasBudget(size_t encoded,size_t ceiling,size_t caller) {
@@ -219,14 +220,14 @@ void DecodeBoundaryAtlas(const std::vector<char>& bytes,BoundaryCoverage& covera
 }
 BoundaryParameterState::BoundaryParameterState(std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> authority,
     const BoundaryPoints& points,const std::vector<SurfaceFace>& surface,uint64_t epoch,size_t ceiling,size_t caller,
-    const BoundaryCoverage& descriptors,const MobilityPolicy& policy,AtlasBudget* reservation)
-    :geometry(std::move(authority)),revision(epoch) {
-  if(!geometry || !revision)throw std::invalid_argument("Invalid boundary parameter authority/revision.");
+    const BoundaryCoverage& descriptors,const MobilityPolicy& policy,AtlasBudget* reservation,double tolerance)
+    :geometry(std::move(authority)),geometry_tolerance(tolerance),revision(epoch) {
+  if(!geometry || !revision || !std::isfinite(tolerance) || tolerance<0 || (tolerance>0&&tolerance<std::numeric_limits<double>::min()))throw std::invalid_argument("Invalid boundary parameter authority/revision/tolerance.");
   if((policy.identity||!descriptors.faces.empty()||!descriptors.traces.empty())&&!reservation)
     throw std::invalid_argument("Active atlas initialization requires an admitted geometry reservation.");
   size_t descriptor_pieces=0;for(const auto& row:descriptors.faces)descriptor_pieces=transfer_memory::Add(descriptor_pieces,row.second.pieces.size());
   const auto index_bytes=transfer_memory::Add(transfer_memory::Mul(transfer_memory::Mul(surface.size(),3),sizeof(std::pair<Edge,Face>)+4*sizeof(void*)),
-      transfer_memory::Mul(transfer_memory::Add(surface.size(),descriptor_pieces),sizeof(std::pair<Id,Face>)+4*sizeof(void*)));
+      transfer_memory::Mul(transfer_memory::Add(transfer_memory::Mul(surface.size(),3),transfer_memory::Add(surface.size(),descriptor_pieces)),sizeof(std::pair<Id,Face>)+4*sizeof(void*)));
   const size_t bound=transfer_memory::Add(caller,geometry->ResidentBytes(),transfer_memory::Mul(points.size(),2048),transfer_memory::Mul(surface.size(),8192),transfer_memory::Mul(BoundaryCoverageBytes(descriptors),4),
       transfer_memory::Mul(BoundaryAtlasBytes(descriptors,policy),4),index_bytes);
   if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Boundary parameter initialization exceeds storage admission.");
@@ -249,7 +250,16 @@ BoundaryParameterState::BoundaryParameterState(std::shared_ptr<const SU2NativeGe
        EncodeBoundaryAtlas({},expected)!=EncodeBoundaryAtlas({},mobility))throw std::invalid_argument("Boundary mobility policy differs from immutable geometry/configuration.");
   } else if(!mobility.roles.empty()||!mobility.features.empty()||!mobility.corners.empty()||!mobility.bodies.empty()||!mobility.sheets.empty())
     throw std::invalid_argument("Inactive mobility policy retains nonlegacy declarations.");
-  if(!AtlasActive(*this)) {
+  if(EntityGeometry()) {
+    if(!mobility.identity||!coverage.faces.empty())throw std::invalid_argument("Entity geometry cannot retain face partitions.");
+    std::vector<Face> skin;std::set<Id> used;
+    for(const auto& face:surface){std::array<BoundaryPoint,3> points;for(unsigned k=0;k<3;++k){points[k]=records.at(face.v[k]).point;used.insert(face.v[k]);}
+      if(!ContainsEntityFace(face.facet,points))throw std::invalid_argument("Physical face violates its model entity/orientation.");skin.push_back(face.v);}
+    if(used.size()!=records.size())throw std::invalid_argument("Entity geometry contains unused associations.");
+    ValidateDomainSurfaceTopology(skin);
+    for(const auto& row:coverage.traces){auto trace=row.second;std::optional<Id> chain;
+      if(!NormalizeFeatureTrace(*geometry,mobility,trace,chain,*reservation,reason)||!chain)throw std::invalid_argument("Entity geometry retains a nonfeature path: "+reason);}
+  } else if(!AtlasActive(*this)) {
     if(!geometry->ValidateSurface(surface,bindings,actual,audit,reason,surface.size(),ceiling))throw std::invalid_argument(reason);
   } else {
     if(geometry->ReferenceComponents())throw std::invalid_argument("Curved atlas records cannot reinterpret planar component policy.");
@@ -273,9 +283,9 @@ BoundaryParameterState::BoundaryParameterState(std::shared_ptr<const SU2NativeGe
     if(!geometry->ValidateCoverageReplacement(original,covers,budget,reason))throw std::invalid_argument(reason);
   }
   for(const auto& face:surface) {
-    const auto key=FaceKey(face.v);for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());edge_faces.emplace(edge,key);}
+    const auto key=FaceKey(face.v);for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());edge_faces.emplace(edge,key);vertex_faces.emplace(face.v[k],key);}
     const auto found=coverage.faces.find(FaceOrder(face.v));
-    if(found==coverage.faces.end())facet_faces.emplace(geometry->Canonical(face.facet),key);
+    if(found==coverage.faces.end())facet_faces.emplace(EntityGeometry()?std::get<1>(Entity(face.facet)):geometry->Canonical(face.facet),key);
     else for(const auto& piece:found->second.pieces)facet_faces.emplace(piece.facet,key);
   }
   for(auto face:surface){face.facet=geometry->Canonical(face.facet);face.v=FaceOrder(face.v);if(!this->surface.emplace(FaceKey(face.v),face).second)throw std::invalid_argument("Duplicate accepted parameter face.");
@@ -284,6 +294,91 @@ BoundaryParameterState::BoundaryParameterState(std::shared_ptr<const SU2NativeGe
   for(const auto& row:coverage.faces)if(!this->surface.count(FaceKey(row.first)) || this->surface.at(FaceKey(row.first)).v!=row.first)
     throw std::invalid_argument("Atlas cover has no accepted oriented physical face.");
   for(const auto& row:coverage.traces)if(!edge_counts.count(row.first))throw std::invalid_argument("Atlas trace has no accepted physical edge.");
+  if(EntityGeometry())ValidateEntityFeatures(*reservation);
+}
+BoundaryParameterState::EntityKey BoundaryParameterState::Entity(Id facet)const {
+  return {geometry->Body(facet),mobility.identity?mobility.sheets.at(facet):geometry->Canonical(facet),geometry->Reference().Get(facet).marker};
+}
+bool BoundaryParameterState::ContainsEntityFace(Id facet,const std::array<BoundaryPoint,3>& points)const {
+  const auto entity=Entity(facet);std::array<Point,3> actual;for(unsigned k=0;k<3;++k)actual[k]=points[k].node.p;
+  if(SurfaceOrientationSign(actual,actual,nullptr)<=0)return false;
+  for(const auto& point:points) {
+    if(!geometry->Admissible(point.binding,point.node.p))return false;
+    bool incident=false;geometry->ForFacets(point.binding,[&](Id side){
+      if(Entity(side)==entity && geometry->OrientedFace(side,point.binding,actual))incident=true;});
+    if(!incident)return false;
+  }
+  return true;
+}
+void BoundaryParameterState::ValidateEntityFeatures(AtlasBudget& budget)const {
+  const auto scratch=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(mobility.features.size(),2048),
+      transfer_memory::Mul(coverage.traces.size(),256));AtlasStorage storage(&budget,scratch,budget.maximum_bytes);
+  std::vector<EdgeTrace> original;original.reserve(mobility.features.size());std::string reason;
+  for(const auto& row:mobility.features) {
+    const auto binding=geometry->EdgePoint(row.first,.5);Id facet=UINT64_MAX;
+    geometry->ForFacets(binding,[&](Id side){facet=std::min(facet,side);});
+    ExactBary first,last;ExactRatio one;
+    if(!geometry->BindingParameters(facet,geometry->Vertex(row.first[0]),first,budget,reason)||
+       !geometry->BindingParameters(facet,geometry->Vertex(row.first[1]),last,budget,reason)||!ExactInteger(1,one,budget,reason))throw std::invalid_argument(reason);
+    original.push_back({{{facet,std::move(first),std::move(last),std::move(one)}}});
+  }
+  std::vector<std::pair<const EdgeTrace*,int>> uses;uses.reserve(original.size()+coverage.traces.size());
+  for(const auto& trace:original)uses.push_back({&trace,-1});
+  for(const auto& row:coverage.traces) {
+    if(!edge_counts.count(row.first)||row.first[0]>=row.first[1]||row.second.pieces.empty())throw std::invalid_argument("Entity curve has no physical edge.");
+    auto normalized=row.second;std::optional<Id> chain;
+    if(!NormalizeFeatureTrace(*geometry,mobility,normalized,chain,budget,reason)||!chain)throw std::invalid_argument("Invalid entity feature trace: "+reason);
+    bool equal=false;if(!geometry->CompareTraces(row.second,normalized,equal,budget,reason)||!equal)throw std::invalid_argument("Entity feature trace is not canonical.");
+    for(unsigned endpoint=0;endpoint<2;++endpoint) {
+      const auto& piece=endpoint?row.second.pieces.back():row.second.pieces.front();const auto& parameter=endpoint?piece.last:piece.first;
+      ExactBary binding;std::vector<uint64_t> actual,expected;
+      if(!geometry->BindingParameters(piece.facet,records.at(row.first[endpoint]).point.binding,binding,budget,reason)||
+         !geometry->ReferencePointKey(piece.facet,binding,actual,budget,reason)||
+         !geometry->ReferencePointKey(piece.facet,parameter,expected,budget,reason)||actual!=expected)
+        throw std::invalid_argument("Entity feature trace endpoints differ from persistent associations.");
+    }
+    uses.push_back({&row.second,1});
+  }
+  if(!geometry->ValidateFeatureReplacement(uses,mobility,false,budget,reason))throw std::invalid_argument(reason);
+}
+std::shared_ptr<BoundaryParameterState> BoundaryParameterState::WithEntityGeometry(double tolerance,
+    AtlasBudget& budget,size_t ceiling,size_t caller)const {
+  if(!(std::isfinite(tolerance)&&tolerance>=std::numeric_limits<double>::min())||!mobility.identity)
+    throw std::invalid_argument("Entity geometry requires a physical mobility policy and absolute tolerance.");
+  const auto live=transfer_memory::Add(caller,geometry->ResidentBytes(),transfer_memory::Mul(ResidentBytes(),3));
+  if(live==SIZE_MAX||live>ceiling)throw std::length_error("Entity geometry migration exceeds storage admission.");
+  AtlasStorage storage(&budget,live,ceiling);auto next=std::make_shared<BoundaryParameterState>(*this);
+  next->geometry_tolerance=tolerance;next->certificate_revision=0;next->geometry_certificates.clear();
+  BoundaryCoverage fresh;std::string reason;
+  if(EntityGeometry())fresh=coverage;
+  else for(const auto& row:edge_incident) {
+    EdgeTrace trace;if(!ResolveTrace(row.first,row.second,trace,budget,reason))throw std::invalid_argument(reason);
+    std::optional<Id> chain;if(!NormalizeFeatureTrace(*geometry,mobility,trace,chain,budget,reason))throw std::invalid_argument(reason);
+    if(chain)fresh.traces.emplace(row.first,std::move(trace));
+  }
+  next->coverage=std::move(fresh);next->facet_faces.clear();
+  for(const auto& row:surface){std::array<BoundaryPoint,3> p;for(unsigned k=0;k<3;++k)p[k]=records.at(row.second.v[k]).point;
+    if(!next->ContainsEntityFace(row.second.facet,p))throw std::invalid_argument("Legacy face fails entity association/orientation migration.");
+    next->facet_faces.emplace(std::get<1>(next->Entity(row.second.facet)),row.first);}
+  next->ValidateEntityFeatures(budget);next->GeometryCertificates(budget);return next;
+}
+const std::map<BoundaryParameterState::EntityKey,MappedFacetReference::SurfaceUnionBounds>&
+BoundaryParameterState::GeometryCertificates(AtlasBudget& budget)const {
+  if(!EntityGeometry())throw std::invalid_argument("Entity geometry certificate requested from a legacy face partition.");
+  if(certificate_revision==revision)return geometry_certificates;
+  const auto temporary=transfer_memory::Add(transfer_memory::Mul(surface.size(),160),transfer_memory::Mul(geometry->Reference().Facets().size(),256));
+  const auto live=transfer_memory::Add(budget.caller_bytes,temporary);
+  AtlasStorage storage(&budget,live,budget.maximum_bytes);
+  std::map<EntityKey,std::vector<std::array<Point,3>>> physical;
+  for(const auto& row:geometry->Reference().Facets())physical.emplace(Entity(row.first),std::vector<std::array<Point,3>>{});
+  for(const auto& row:surface){std::array<Point,3> points;for(unsigned k=0;k<3;++k)points[k]=records.at(row.second.v[k]).point.node.p;
+    physical.at(Entity(row.second.facet)).push_back(points);}
+  NativeMappedGeometryBackend3D backend(geometry,mobility);std::map<EntityKey,MappedFacetReference::SurfaceUnionBounds> fresh;
+  for(const auto& row:physical){GeometrySupport scope;scope.body=std::get<0>(row.first);scope.sheet=std::get<1>(row.first);scope.marker=std::get<2>(row.first);
+    MappedFacetReference::SurfaceUnionBounds result;std::string reason;
+    if(!backend.PatchErrorBounds(scope,row.second,geometry_tolerance,result,budget,reason))throw std::invalid_argument(reason);
+    fresh.emplace(row.first,result);}
+  geometry_certificates=std::move(fresh);certificate_revision=revision;return geometry_certificates;
 }
 std::shared_ptr<BoundaryParameterState> BoundaryParameterState::WithMobilityPolicy(double angle,const std::map<int,int>& roles,
     AtlasBudget& reservation,size_t ceiling,size_t caller)const {
@@ -366,7 +461,7 @@ std::array<const SurfaceFace*,2> BoundaryParameterState::IncidentFaces(Edge edge
   return result;
 }
 BoundaryParameterState::FacetFaceRange BoundaryParameterState::FacesOnOriginalFacet(Id facet)const {
-  facet=geometry->Canonical(facet);geometry->Reference().Get(facet);return {facet_faces.lower_bound({facet,Face{0,0,0}}),
+  facet=EntityGeometry()?std::get<1>(Entity(facet)):geometry->Canonical(facet);geometry->Reference().Get(facet);return {facet_faces.lower_bound({facet,Face{0,0,0}}),
       facet_faces.upper_bound({facet,Face{UINT64_MAX,UINT64_MAX,UINT64_MAX}})};
 }
 const BoundaryPoint* BoundaryParameterState::Find(Id id)const {const auto p=records.find(id);return p==records.end()?nullptr:&p->second.point;}
@@ -374,14 +469,17 @@ const BoundaryPoint* BoundaryParameterState::Find(Point point)const {
   for(auto x:PointKey(point))if(!std::isfinite(x))throw std::invalid_argument("Nonfinite boundary parameter lookup.");
   const auto p=coordinates.find(PointKey(point));return p==coordinates.end()?nullptr:Find(p->second);
 }
+BoundaryParameterState::FacetFaceRange BoundaryParameterState::FacesOnVertex(Id vertex)const {
+  return {vertex_faces.lower_bound({vertex,Face{0,0,0}}),vertex_faces.upper_bound({vertex,Face{UINT64_MAX,UINT64_MAX,UINT64_MAX}})};
+}
 size_t BoundaryParameterState::Publication::ResidentBytes()const {
   return transfer_memory::Add(MapBytes(added),MapBytes(coordinates),MapBytes(supports),
       MapBytes(removed),MapBytes(final_counts),MapBytes(surface_added),MapBytes(surface_removed),
       BoundaryCoverageBytes(coverage_added),MapBytes(coverage_removed),MapBytes(traces_removed),
       MapBytes(edge_counts),MapBytes(edge_incident),MapBytes(edge_faces_added),MapBytes(edge_faces_removed),
-      MapBytes(facet_faces_added),MapBytes(facet_faces_removed));
+      MapBytes(facet_faces_added),MapBytes(facet_faces_removed),MapBytes(vertex_faces_added),MapBytes(vertex_faces_removed));
 }
-size_t BoundaryParameterState::ResidentBytes()const {return transfer_memory::Add(sizeof(*this),MapBytes(records),MapBytes(coordinates),MapBytes(supports),MapBytes(surface),MapBytes(edge_counts),MapBytes(edge_incident),MapBytes(edge_faces),MapBytes(facet_faces),BoundaryCoverageBytes(coverage),PolicyBytes(mobility));}
+size_t BoundaryParameterState::ResidentBytes()const {return transfer_memory::Add(sizeof(*this),MapBytes(records),MapBytes(coordinates),MapBytes(supports),MapBytes(surface),MapBytes(edge_counts),MapBytes(edge_incident),MapBytes(edge_faces),MapBytes(facet_faces),MapBytes(vertex_faces),BoundaryCoverageBytes(coverage),PolicyBytes(mobility),MapBytes(geometry_certificates));}
 size_t BoundaryParameterState::SnapshotBytes()const {SU2NativeBoundary2D::RecordStream measure;WriteSnapshot(measure,*this);return measure.Size();}
 std::vector<char> BoundaryParameterState::Snapshot()const {
   std::vector<char> bytes;bytes.reserve(SnapshotBytes());SU2NativeBoundary2D::RecordStream out(bytes);WriteSnapshot(out,*this);return bytes;
@@ -398,10 +496,10 @@ std::shared_ptr<BoundaryParameterState> BoundaryParameterState::FromPayload(
   using transfer_memory::Add;using transfer_memory::Mul;
   SU2NativeBoundary2D::RecordStream input(bytes);uint64_t version=0,epoch=0,np=0,nf=0,policy=0,atlas_bytes=0,schema=0;input(version);
   const bool atlas=version==AtlasSchema;
-  if(atlas){input(schema,version);if(schema!=8)throw std::invalid_argument("Unsupported boundary parameter payload schema.");}
-  input(epoch,np,nf,policy);if(atlas)input(atlas_bytes);
+  if(atlas){input(schema,version);if(schema!=8&&schema!=9)throw std::invalid_argument("Unsupported boundary parameter payload schema.");}
+  input(epoch,np,nf,policy);if(atlas)input(atlas_bytes);double tolerance=0;if(schema==9){input(tolerance);if(!std::isfinite(tolerance)||tolerance<std::numeric_limits<double>::min())throw std::invalid_argument("Invalid entity geometry tolerance in payload.");}
   if(!authority || version!=authority->Version() || policy!=authority->ReferenceComponents() || !epoch || !np || !nf ||
-      Add(atlas?64:40,Mul(np,72),Mul(nf,32),atlas_bytes)!=bytes.size())throw std::invalid_argument("Invalid boundary parameter payload/version/counts.");
+      Add(schema==9?72:atlas?64:40,Mul(np,72),Mul(nf,32),atlas_bytes)!=bytes.size())throw std::invalid_argument("Invalid boundary parameter payload/version/counts.");
   const size_t live=Add(caller,transfer_memory::Bytes(bytes),Mul(np,256),Mul(nf,sizeof(SurfaceFace)));
   const size_t bound=Add(live,authority->ResidentBytes(),Mul(np,2048),Mul(nf,8192),Mul(atlas_bytes,32));
   if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Boundary parameter payload exceeds storage admission.");
@@ -414,7 +512,7 @@ std::shared_ptr<BoundaryParameterState> BoundaryParameterState::FromPayload(
     for(uint64_t i=0;i<atlas_bytes/8;++i){uint64_t word;input(word);write(word);}DecodeBoundaryAtlas(encoded,descriptors,mobility,ceiling,live);}
   if(!input.End())throw std::invalid_argument("Trailing boundary parameter payload bytes.");
   auto reservation=BoundaryAtlasBudget(atlas?atlas_bytes:0,ceiling,bound);
-  return std::make_shared<BoundaryParameterState>(std::move(authority),points,faces,epoch,ceiling,live,descriptors,mobility,&reservation);
+  return std::make_shared<BoundaryParameterState>(std::move(authority),points,faces,epoch,ceiling,live,descriptors,mobility,&reservation,tolerance);
 }
 std::shared_ptr<BoundaryParameterState> BoundaryParameterState::Rebind(const std::map<Id,Id>& numbering,
     size_t ceiling,size_t caller)const {
@@ -433,7 +531,7 @@ std::shared_ptr<BoundaryParameterState> BoundaryParameterState::Rebind(const std
   for(const auto& row:coverage.faces){Face key=row.first;for(auto& id:key)id=numbering.at(id);
     const auto rotation=std::min_element(key.begin(),key.end())-key.begin();auto cover=RotateCoverage(row.second,unsigned(rotation),budget);
     rebound.faces.emplace(FaceOrder(key),std::move(cover));}
-  return std::make_shared<BoundaryParameterState>(geometry,points,faces,revision+1,ceiling,live,rebound,mobility,&budget);
+  return std::make_shared<BoundaryParameterState>(geometry,points,faces,revision+1,ceiling,live,rebound,mobility,&budget,geometry_tolerance);
 }
 std::vector<BoundaryParameterEdit> BoundaryParameterState::Changes(const Patch& old,const Patch& fresh,uint64_t epoch) {
   std::set<Id> before,after;BoundaryIds(old,before);BoundaryIds(fresh,after);std::vector<BoundaryParameterEdit> changes;
@@ -467,7 +565,7 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
     const auto affected=transfer_memory::Add(faces.size(),delta.faces.size());
     const auto index_bytes=transfer_memory::Add(transfer_memory::Mul(affected,sizeof(Face)+4*sizeof(void*)),
         transfer_memory::Mul(transfer_memory::Mul(6,affected),sizeof(std::pair<Edge,Face>)+4*sizeof(void*)),
-        transfer_memory::Mul(transfer_memory::Mul(2,transfer_memory::Add(affected,old_pieces,new_pieces)),sizeof(std::pair<Id,Face>)+4*sizeof(void*)));
+        transfer_memory::Mul(transfer_memory::Add(transfer_memory::Mul(6,affected),transfer_memory::Mul(2,transfer_memory::Add(affected,old_pieces,new_pieces))),sizeof(std::pair<Id,Face>)+4*sizeof(void*)));
     const size_t bound=transfer_memory::Add(caller,ResidentBytes(),transfer_memory::Mul(inherited_bytes,4),transfer_memory::Mul(edits.size(),2048),transfer_memory::Mul(faces.size(),8192),transfer_memory::Mul(BoundaryCoverageBytes(delta),8),index_bytes);
     if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Boundary parameter publication exceeds storage admission.");
     AtlasStorage reservation_storage(reservation,bound,ceiling);
@@ -502,7 +600,8 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
     }
     for(const auto& change:faces)if(change.insert) {
       const auto key=FaceKey(change.nodes);const auto retained=surface.find(key);
-      if(retained!=surface.end()&&retained->second.v==FaceOrder(change.nodes)&&retained->second.facet!=change.facet)throw std::invalid_argument("Retained physical face changes its immutable anchor.");
+      if(retained!=surface.end()&&retained->second.v==FaceOrder(change.nodes)&&retained->second.facet!=change.facet&&
+         (!EntityGeometry()||Entity(retained->second.facet)!=Entity(change.facet)))throw std::invalid_argument("Retained physical face changes its immutable anchor.");
       if((surface.count(key)&&!staged.surface_removed.count(key)) || !staged.surface_added.emplace(key,SurfaceFace{FaceOrder(change.nodes),change.facet}).second)
         throw std::invalid_argument("New parameter topology repeats an accepted face.");
     }
@@ -512,8 +611,70 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
       const auto p=Find(id);if(!p)throw std::invalid_argument("Physical face has no boundary parameter binding.");return *p;
     };
     std::map<Id,int64_t> degree;
-    const bool atlas=AtlasActive(*this)||!delta.faces.empty()||!delta.traces.empty();
-    if(!atlas) {
+    const bool atlas=!EntityGeometry()&&(AtlasActive(*this)||!delta.faces.empty()||!delta.traces.empty());
+    if(EntityGeometry()) {
+      if(!reservation||!delta.faces.empty())throw std::invalid_argument("Entity publication requires geometry resources and no face partitions.");
+      auto& budget=*reservation;std::map<Edge,int64_t> edge_degree;
+      std::map<std::pair<EntityKey,Edge>,int> boundary;
+      std::map<EntityKey,std::vector<std::pair<const EdgeTrace*,int>>> oriented;
+      for(const auto& face:faces)for(unsigned k=0;k<3;++k){Edge edge{face.nodes[k],face.nodes[(k+1)%3]};std::sort(edge.begin(),edge.end());edge_degree[edge]+=face.insert?1:-1;}
+      for(const auto& row:edge_degree){const auto old=edge_counts.find(row.first);const uint64_t count=old==edge_counts.end()?0:old->second;
+        if(row.second<0&&uint64_t(-row.second)>count)throw std::invalid_argument("Entity edge incidence underflows.");
+        const uint64_t next=row.second<0?count-uint64_t(-row.second):transfer_memory::Add(count,uint64_t(row.second));
+        if(next!=0&&next!=2)throw std::invalid_argument("Entity edge has nonmanifold physical incidence.");
+        staged.edge_counts.emplace(row.first,next);if(!next)staged.traces_removed.insert(row.first);}
+      for(const auto& row:delta.traces) {
+        auto trace=row.second;std::optional<Id> chain;
+        if(row.first[0]>=row.first[1]||!NormalizeFeatureTrace(*geometry,mobility,trace,chain,budget,reason)||!chain)
+          throw std::invalid_argument("Entity publication contains a nonfeature trace: "+reason);
+        const auto next=staged.edge_counts.find(row.first);const auto old=edge_counts.find(row.first);
+        if(next==staged.edge_counts.end()?old==edge_counts.end():!next->second)throw std::invalid_argument("Entity feature has no surviving edge.");
+        bool canonical=false;if(!geometry->CompareTraces(row.second,trace,canonical,budget,reason)||!canonical)
+          throw std::invalid_argument("Entity feature publication is not canonical.");
+        for(unsigned k=0;k<2;++k){const auto& piece=k?trace.pieces.back():trace.pieces.front();const auto& value=k?piece.last:piece.first;
+          ExactBary binding;std::vector<uint64_t> a,b;
+          if(!geometry->BindingParameters(piece.facet,point(row.first[k],true).binding,binding,budget,reason)||
+             !geometry->ReferencePointKey(piece.facet,binding,a,budget,reason)||!geometry->ReferencePointKey(piece.facet,value,b,budget,reason)||a!=b)
+            throw std::invalid_argument("Published curve endpoints differ from their associations.");}
+        const auto prior=coverage.traces.find(row.first);
+        if(prior!=coverage.traces.end()) {
+          bool equal=false;if(!geometry->CompareTraces(prior->second,trace,equal,budget,reason))throw std::invalid_argument(reason);
+          if(!equal){const auto incident=IncidentFaces(row.first);
+            for(const auto* face:incident)if(!face||!staged.surface_removed.count(FaceKey(face->v)))
+              throw std::invalid_argument("Changed feature route requires all incident faces together.");}
+        }
+        staged.coverage_added.traces.emplace(row.first,std::move(trace));
+      }
+      auto trace=[&](Edge edge,bool inserted)->const EdgeTrace* {
+        if(inserted){const auto fresh=staged.coverage_added.traces.find(edge);if(fresh!=staged.coverage_added.traces.end())return &fresh->second;}
+        const auto old=coverage.traces.find(edge);return old==coverage.traces.end()?nullptr:&old->second;
+      };
+      std::set<Id> vertices;
+      for(const auto& face:faces) {
+        std::array<BoundaryPoint,3> points;
+        for(unsigned k=0;k<3;++k){points[k]=point(face.nodes[k],face.insert);degree[face.nodes[k]]+=face.insert?1:-1;vertices.insert(face.nodes[k]);}
+        if(!ContainsEntityFace(face.facet,points))throw std::invalid_argument("Published entity face leaves/reverses its prescribed geometry.");
+        const auto entity=Entity(face.facet);
+        for(unsigned k=0;k<3;++k){Edge edge{face.nodes[k],face.nodes[(k+1)%3]};const int sign=(edge[0]<edge[1]?1:-1)*(face.insert?1:-1);std::sort(edge.begin(),edge.end());
+          boundary[{entity,edge}]+=sign;if(const auto* curve=trace(edge,face.insert))oriented[entity].push_back({curve,sign});}
+      }
+      for(const auto& row:boundary)if(row.second&&!trace(row.first.second,false)&&!trace(row.first.second,true))
+        throw std::invalid_argument("Entity replacement changes an unconstrained retained interface.");
+      for(const auto& row:oriented)if(!geometry->ValidateFeatureReplacement(row.second,mobility,true,budget,reason))throw std::invalid_argument(reason);
+      std::vector<std::pair<const EdgeTrace*,int>> curves;
+      for(const auto& row:coverage.traces)if(staged.traces_removed.count(row.first)||staged.coverage_added.traces.count(row.first))curves.push_back({&row.second,-1});
+      for(const auto& row:staged.coverage_added.traces)curves.push_back({&row.second,1});
+      if(!geometry->ValidateFeatureReplacement(curves,mobility,false,budget,reason))throw std::invalid_argument(reason);
+      size_t star_faces=0;for(Id id:vertices){const auto old=records.find(id);if(old!=records.end())star_faces=transfer_memory::Add(star_faces,old->second.faces);}
+      AtlasStorage stars(reservation,transfer_memory::Add(bound,transfer_memory::Mul(star_faces,256)),ceiling);
+      for(Id id:vertices) {
+        std::vector<Face> star;const auto range=FacesOnVertex(id);
+        for(auto it=range.first;it!=range.second;++it)if(!staged.surface_removed.count(it->second))star.push_back(surface.at(it->second).v);
+        for(const auto& row:staged.surface_added)if(std::find(row.second.v.begin(),row.second.v.end(),id)!=row.second.v.end())star.push_back(row.second.v);
+        if(staged.removed.count(id)){if(!star.empty())throw std::invalid_argument("Retired vertex retains a boundary link.");}
+        else {if(star.empty())throw std::invalid_argument("Entity vertex has an empty boundary link.");ValidateSurfaceTopology(star,false,star.size());}
+      }
+    } else if(!atlas) {
     std::map<std::tuple<Id,Id,Id>,int64_t> edges;
     std::set<std::tuple<bool,Id,Face>> unique;
     for(const auto& face:faces) {
@@ -643,21 +804,21 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
     for(const auto& face:faces)if(face.insert)for(unsigned k=0;k<3;++k){Edge edge{face.nodes[k],face.nodes[(k+1)%3]};std::sort(edge.begin(),edge.end());staged.edge_incident.emplace(edge,SurfaceFace{FaceOrder(face.nodes),face.facet});}
     std::set<Face> affected_faces=staged.surface_removed;for(const auto& row:staged.surface_added)affected_faces.insert(row.first);
     for(const auto& row:staged.coverage_added.faces)affected_faces.insert(FaceKey(row.first));
-    auto index=[&](const SurfaceFace& face,const FaceCoverage* cover,auto& edge_index,auto& facet_index) {
-      const auto key=FaceKey(face.v);for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());edge_index.emplace(edge,key);}
-      if(!cover)facet_index.emplace(geometry->Canonical(face.facet),key);
+    auto index=[&](const SurfaceFace& face,const FaceCoverage* cover,auto& edge_index,auto& facet_index,auto& vertex_index) {
+      const auto key=FaceKey(face.v);for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());edge_index.emplace(edge,key);vertex_index.emplace(face.v[k],key);}
+      if(!cover)facet_index.emplace(EntityGeometry()?std::get<1>(Entity(face.facet)):geometry->Canonical(face.facet),key);
       else for(const auto& piece:cover->pieces)facet_index.emplace(piece.facet,key);
     };
     for(const auto& key:affected_faces) {
       const auto old=surface.find(key);if(old!=surface.end()){const auto cover=coverage.faces.find(old->second.v);
-        index(old->second,cover==coverage.faces.end()?nullptr:&cover->second,staged.edge_faces_removed,staged.facet_faces_removed);}
+        index(old->second,cover==coverage.faces.end()?nullptr:&cover->second,staged.edge_faces_removed,staged.facet_faces_removed,staged.vertex_faces_removed);}
       const auto added=staged.surface_added.find(key);const auto* next=added!=staged.surface_added.end()?&added->second:
           old!=surface.end()&&!staged.surface_removed.count(key)?&old->second:nullptr;
       if(next) {
         const FaceCoverage* descriptor=nullptr;const auto fresh=staged.coverage_added.faces.find(next->v);
         if(fresh!=staged.coverage_added.faces.end())descriptor=&fresh->second;
         else if(!staged.coverage_removed.count(next->v)){const auto prior=coverage.faces.find(next->v);if(prior!=coverage.faces.end())descriptor=&prior->second;}
-        index(*next,descriptor,staged.edge_faces_added,staged.facet_faces_added);
+        index(*next,descriptor,staged.edge_faces_added,staged.facet_faces_added,staged.vertex_faces_added);
       }
     }
     staged.valid=true;reason.clear();return staged;
@@ -680,6 +841,8 @@ void BoundaryParameterState::Commit(Publication&& staged)noexcept {
   while(!staged.edge_incident.empty()){auto node=staged.edge_incident.extract(staged.edge_incident.begin());edge_incident.erase(node.key());edge_incident.insert(std::move(node));}
   for(const auto& key:staged.edge_faces_removed)edge_faces.erase(key);
   while(!staged.edge_faces_added.empty())edge_faces.insert(staged.edge_faces_added.extract(staged.edge_faces_added.begin()));
+  for(const auto& key:staged.vertex_faces_removed)vertex_faces.erase(key);
+  while(!staged.vertex_faces_added.empty())vertex_faces.insert(staged.vertex_faces_added.extract(staged.vertex_faces_added.begin()));
   for(const auto& key:staged.facet_faces_removed)facet_faces.erase(key);
   while(!staged.facet_faces_added.empty())facet_faces.insert(staged.facet_faces_added.extract(staged.facet_faces_added.begin()));
   revision=staged.after;
@@ -824,6 +987,12 @@ void PlanarReference::ExportParameters(Patch& patch,AtlasBudget* reservation)con
     for(const auto& edge:edges){const auto record=source.traces.find(edge);if(record!=source.traces.end())patch.coverage.traces.emplace(*record);}
   };
   copy(parameter_view->coverage);copy(parameter_view->accepted->Coverage());
+  if(EntityGeometry()) {
+    if(!patch.coverage.faces.empty())throw std::invalid_argument("Entity proposal retains obsolete face subdivisions.");
+    for(const auto& face:patch.surface){std::array<BoundaryPoint,3> points;for(unsigned k=0;k<3;++k)points[k]=patch.parameters.at(face.v[k]);
+      if(!parameter_view->accepted->ContainsEntityFace(face.facet,points))throw std::invalid_argument("Entity proposal leaves/reverses its physical geometry support.");}
+    return;
+  }
   if(AtlasActive(*parameter_view->accepted)||!patch.coverage.faces.empty()||!patch.coverage.traces.empty()) {
     auto overlay=PrivateParameters(patch,reservation);auto& budget=*(reservation?reservation:parameter_view->reservation);std::string reason;
     for(const auto& face:patch.surface){FaceCoverage cover;std::array<EdgeTrace,3> traces;std::array<SurfaceBinding,3> binding;std::array<Point,3> actual;
@@ -980,13 +1149,61 @@ SU2NativeGeometry::SurfaceBinding PlanarReference::ProposedBinding(Point p,const
   }
   return geometry.FacetPoint(id,u,v);
 }
-Node PlanarReference::BindNewPoint(Node point,const std::set<Id>& incident)const {
+namespace {
+GeometryProjection ProjectEntitySurface(const State& state,Point point,const SurfaceBinding& previous,
+    Id hint,AtlasBudget& budget) {
+  NativeMappedGeometryBackend3D backend(state.Authority(),state.Mobility());GeometrySupport support;std::string reason;
+  if(!backend.Support(previous,hint,support,budget,reason))throw std::invalid_argument(reason);
+  GeometryProjectionScope scope;scope.body=support.body;scope.hint=hint;scope.previous=previous;scope.sheet=support.sheet;
+  scope.feature=std::make_pair(2u,support.sheet);scope.absolute_error=std::max(std::numeric_limits<double>::min(),state.GeometryTolerance()/8);
+  GeometryProjection projection;if(!backend.Project(point,scope,projection,budget,reason))throw std::invalid_argument(reason);return projection;
+}
+}
+Node PlanarReference::BindNewPoint(Node point,const std::set<Id>& incident,const Edge* edge)const {
+  if(EntityGeometry()) {
+    if(!parameter_view||!parameter_view->private_view||incident.empty()||!parameter_view->reservation)throw std::invalid_argument("Entity point insertion lacks a private geometry scope.");
+    auto& budget=*parameter_view->reservation;const auto& state=*parameter_view->accepted;BoundaryPoint projected;std::string reason;
+    auto find=[&](Id id)->const BoundaryPoint& {const auto local=parameter_view->local.find(id);if(local!=parameter_view->local.end())return local->second;
+      const auto* old=state.Find(id);if(!old)throw std::invalid_argument("Entity edge lost an endpoint association.");return *old;};
+    const EdgeTrace* curve=nullptr;Edge key{};
+    if(edge){key=*edge;std::sort(key.begin(),key.end());const auto local=parameter_view->coverage.traces.find(key);const auto accepted=state.Coverage().traces.find(key);
+      curve=local!=parameter_view->coverage.traces.end()?&local->second:accepted!=state.Coverage().traces.end()?&accepted->second:nullptr;}
+    if(curve) {
+      if(!ProposeFeaturePoint(state.Geometry(),state.Mobility(),{*curve},find(key[0]).node.p,find(key[1]).node.p,point,projected,budget,reason))throw std::invalid_argument(reason);
+    } else {
+      const Id hint=*incident.begin();const auto previous=state.Geometry().FacetPoint(hint,.25,.25);
+      const auto projection=ProjectEntitySurface(state,point.p,previous,hint,budget);projected={{point.id,projection.evaluation.point},projection.binding};
+    }
+    parameter_view->Insert(projected);return projected.node;
+  }
   const auto binding=ProposedBinding(point.p,incident);point.p=parameter_view->accepted->Geometry().Realize(binding);
   parameter_view->Insert({point,binding});return point;
 }
 Node PlanarReference::BindMovedPoint(Id old,Node point,const std::set<Id>& incident)const {
   const auto local=parameter_view->local.find(old);const auto previous=local==parameter_view->local.end()?parameter_view->accepted->Find(old):&local->second;
   if(!previous)throw std::invalid_argument("Moved point has no accepted forward binding.");
+  if(EntityGeometry()) {
+    if(!parameter_view->private_view||!parameter_view->reservation)throw std::invalid_argument("Entity movement lacks a private geometry scope.");
+    const auto& state=*parameter_view->accepted;auto& budget=*parameter_view->reservation;
+    const auto dimension=state.Geometry().MobilityDimension(previous->binding,state.Mobility());BoundaryPoint projected;std::string reason;
+    if(!dimension)throw std::invalid_argument("Genuine geometry corners cannot move off their prescribed vertex.");
+    if(dimension==1) {
+      std::map<Edge,const EdgeTrace*> edges;for(const auto& row:parameter_view->coverage.traces)
+        if(row.first[0]==old||row.first[1]==old)edges.emplace(row.first,&row.second);
+      if(edges.size()!=2)throw std::invalid_argument("Curve movement requires its complete two-edge feature run.");
+      std::vector<EdgeTrace> runs;std::array<Point,2> endpoints;unsigned k=0;
+      for(const auto& row:edges){const Id neighbor=row.first[0]==old?row.first[1]:row.first[0];auto trace=*row.second;
+        const bool reverse=k==0?row.first[0]==old:row.first[1]==old;if(reverse)trace=ReverseTrace(trace,budget);
+        runs.push_back(std::move(trace));const auto found=parameter_view->local.find(neighbor);const auto* binding=found==parameter_view->local.end()?state.Find(neighbor):&found->second;
+        if(!binding)throw std::invalid_argument("Curve movement lost its retained endpoint.");endpoints[k++]=binding->node.p;}
+      if(!ProposeFeaturePoint(state.Geometry(),state.Mobility(),runs,endpoints[0],endpoints[1],point,projected,budget,reason))throw std::invalid_argument(reason);
+    } else {
+      Id hint=UINT64_MAX;state.Geometry().ForFacets(previous->binding,[&](Id side){for(Id face:incident)if(state.Entity(side)==state.Entity(face))hint=std::min(hint,side);});
+      if(hint==UINT64_MAX)throw std::invalid_argument("Smooth movement lost its physical geometry entity.");
+      const auto projection=ProjectEntitySurface(state,point.p,previous->binding,hint,budget);projected={{point.id,projection.evaluation.point},projection.binding};
+    }
+    parameter_view->Insert(projected);return projected.node;
+  }
   const auto binding=ProposedBinding(point.p,incident,&previous->binding);point.p=parameter_view->accepted->Geometry().Realize(binding);
   parameter_view->Insert({point,binding});return point;
 }
@@ -1007,13 +1224,21 @@ bool PlanarReference::ContractionAllowed(Id removed,Id retained)const {
   return allowed;
 }
 bool PlanarReference::ParameterContains(Id facet,Point p)const {
-  const auto q=Parameter(p);const auto& g=parameter_view->accepted->Geometry();return q&&g.Supports(facet,q->binding)&&g.Admissible(q->binding,p);
+  const auto q=Parameter(p);const auto& g=parameter_view->accepted->Geometry();
+  if(EntityGeometry()) {if(!q||!g.Admissible(q->binding,p))return false;bool incident=false;const auto& state=*parameter_view->accepted;
+    g.ForFacets(q->binding,[&](Id side){incident=incident||state.Entity(side)==state.Entity(facet);});return incident;}
+  return q&&g.Supports(facet,q->binding)&&g.Admissible(q->binding,p);
 }
+bool PlanarReference::EntityGeometry()const{return parameter_view&&parameter_view->accepted->EntityGeometry();}
 bool PlanarReference::ParameterContainsFace(Id facet,const std::array<Point,3>& p,KernelStats* stats)const {
   std::array<SU2NativeGeometry::SurfaceBinding,3> b;std::array<bool,3> pending{};SurfaceFace face;face.facet=facet;
   for(unsigned k=0;k<3;++k){const auto q=Parameter(p[k]);if(!q)return false;b[k]=q->binding;face.v[k]=q->node.id;
     const auto found=parameter_view->pending.find(PointKey(p[k]));pending[k]=found!=parameter_view->pending.end()&&q==&found->second;}
   const auto& g=parameter_view->accepted->Geometry();
+  if(EntityGeometry()) {
+    std::array<BoundaryPoint,3> points;for(unsigned k=0;k<3;++k)points[k]=*Parameter(p[k]);
+    return parameter_view->accepted->ContainsEntityFace(facet,points);
+  }
   std::array<BoundaryPoint,3> points;for(unsigned k=0;k<3;++k)points[k]=*Parameter(p[k]);
   if(HasAcceptedFaceCertificate(face,points,BoundaryCoverage{}))return true;
   if(!AtlasActive(*parameter_view->accepted)&&!parameter_view->private_view&&parameter_view->local.empty()&&parameter_view->pending.empty()&&
@@ -1062,6 +1287,22 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)con
   double maximum=0;const auto& g=parameter_view->accepted->Geometry();std::array<SU2NativeGeometry::SurfaceBinding,3> binding;
   for(unsigned k=0;k<3;++k){const auto b=Parameter(p[k]);if(!b)throw std::invalid_argument("Unbound mapped surface error query.");binding[k]=b->binding;
     const auto plane=Affine().find(facet);if(plane!=Affine().end())maximum=std::max(maximum,SU2NativeGeometry::AffineChart(plane->second).ErrorBound(p[k]));}
+  if(EntityGeometry()) {
+    const auto& state=*parameter_view->accepted;
+    bool direct=true;for(const auto& b:binding)direct=direct&&g.Supports(facet,b);
+    if(direct)return std::max(maximum,g.SurfaceError(facet,binding,p));
+    auto* budget=parameter_view->reservation;if(!budget)throw std::invalid_argument("Entity surface query lacks a geometry reservation.");
+    Point lo=p[0],hi=p[0];const auto model=g.Realize(binding[0]);double radius=0;
+    for(auto q:p){lo={std::min(lo.x,q.x),std::min(lo.y,q.y),std::min(lo.z,q.z)};hi={std::max(hi.x,q.x),std::max(hi.y,q.y),std::max(hi.z,q.z)};
+      radius=std::max(radius,std::hypot(q.x-model.x,q.y-model.y,q.z-model.z));}
+    radius=std::nextafter(radius+state.GeometryTolerance(),INFINITY);
+    lo={std::nextafter(lo.x-radius,-INFINITY),std::nextafter(lo.y-radius,-INFINITY),std::nextafter(lo.z-radius,-INFINITY)};
+    hi={std::nextafter(hi.x+radius,INFINITY),std::nextafter(hi.y+radius,INFINITY),std::nextafter(hi.z+radius,INFINITY)};
+    auto candidates=g.NearbySurfaceFacets(facet,{lo,hi});const auto entity=state.Entity(facet);
+    candidates.erase(std::remove_if(candidates.begin(),candidates.end(),[&](Id id){return state.Entity(id)!=entity;}),candidates.end());
+    if(candidates.empty())throw std::invalid_argument("Entity surface query lost its supporting geometry.");
+    return std::max(maximum,g.BoundPhysicalSurface(candidates,{p},state.GeometryTolerance(),*budget));
+  }
   if(!AtlasActive(*parameter_view->accepted)&&parameter_view->coverage.faces.empty()&&parameter_view->coverage.traces.empty())return std::max(maximum,g.SurfaceError(facet,binding,p));
   SurfaceFace face;face.facet=facet;bool transient=false;
   for(unsigned k=0;k<3;++k){const auto* point=Parameter(p[k]);face.v[k]=point->node.id;

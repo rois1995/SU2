@@ -473,7 +473,10 @@ bool JointAffineCoverage(World& world,const Owned& owned,std::vector<DonorCell>&
             binding[k]=record->binding;points[k]=f.v[k].p;
           }
           auto face=faces[slot];std::rotate(face.begin(),std::min_element(face.begin(),face.end()),face.end());
-          if(mapped->Coverage().faces.count(face)) {
+          if(mapped->EntityGeometry()) {
+            const auto& certificate=mapped->GeometryCertificates(atlas_budget).at(mapped->Entity(row.physical[slot].facet));
+            patches.push_back(SU2NativeGeometry::MappedFacetReference::SourcePatch::Tube(points,certificate.model_to_mesh));
+          } else if(mapped->Coverage().faces.count(face)) {
             if(!within())throw std::length_error("Curved source preparation elapsed resource budget exhausted.");
             SU2NativeGeometry::FaceCoverage coverage;std::string detail;
             if(!mapped->ResolveCoverage({faces[slot],row.physical[slot].facet},coverage,atlas_budget,detail))throw std::invalid_argument(detail);

@@ -151,4 +151,21 @@ bool NativeMappedGeometryBackend3D::RegionErrorBounds(const FaceCoverage& covera
     out.bounds=authority->PrepareSourcePatch(coverage,flat,budget).Bounds();result=out;reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
+bool NativeMappedGeometryBackend3D::PatchErrorBounds(const GeometrySupport& scope,
+    const std::vector<std::array<Point,3>>& physical,double tolerance,
+    MappedFacetReference::SurfaceUnionBounds& result,AtlasBudget& budget,std::string& reason)const {
+  try {
+    if(scope.body==UINT64_MAX)throw std::invalid_argument("Surface-union query lacks a physical body.");
+    const auto count=authority->Reference().Facets().size();Use(budget,transfer_memory::Mul(count,sizeof(Id)));
+    std::vector<Id> facets;facets.reserve(count);
+    for(const auto& row:authority->Reference().Facets()) {
+      Use(budget);if(authority->Body(row.first)==scope.body && row.second.marker==scope.marker &&
+          (scope.sheet==UINT64_MAX || Sheet(*authority,policy,row.first)==scope.sheet))facets.push_back(row.first);
+    }
+    struct Restore {AtlasBudget& b;size_t caller;~Restore(){b.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
+    budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(facets.capacity(),sizeof(Id)));
+    const auto bounds=authority->BoundSurfaceUnion(facets,physical,tolerance,budget);
+    result=bounds;reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
 } // namespace SU2NativeGeometry

@@ -19,26 +19,28 @@ comparison baseline; direct user provenance of those numbers is unconfirmed.
 Rational chart ownership, smooth-edge contracts and budget formulas are agent
 choices. Caps can change with measured justification, not to hide repeated work.
 
-Selected direction: fixed-model entity associations and coordinated current-patch
-replacement, disposable smooth correspondence. Missing primitive: conservative
-two-sided patch/model-support certificate supplying source bounds without
-inherited face partitions. Replace geometry, source, owner publication and
-restart dependencies together; preserve equivalent proofs until replacement is
-qualified. Do not add speculative CAD formats, local fallback variants or blind
-rejection caches. Detailed architecture and history:
-[working-surface decision](Handbook/WORKING_SURFACE_RECONSTRUCTION_DECISION.md).
+Implementation now follows fixed-model entity associations and current-patch
+replacement. Ordinary smooth paths and face covers are absent in the new curved
+production contract; only canonical genuine-curve routes persist. Two-sided
+geometry certification, source tubes, local topology/owner publication and
+explicit v9 persistence are connected in source, **not integrated-validated**.
+Legacy1–8 decodes remain separately validated before migration. The current cubic
+backend remains authoritative; no CAD format infrastructure was added.
+[Working-surface decision](Handbook/WORKING_SURFACE_RECONSTRUCTION_DECISION.md).
 
 ## Evidence and current job
 
-Review checkpointff818fc703 and code checkpoint6f47de50563b are pushed to
-origin rois1995/SU2, branch codex/native-3d-bl. Build79 PASS495.961s (1294 pins
-unchanged). MPI6 staging PASS9 cases/rank15.850s, coupled clean/legacy32-event
-movement/publication/source/schema8 PASS177.816s and all16 per-phase cost
-comparisons pass. All23 compiled filter audits pass (256 serial/233 MPI/67 atlas).
-Replay80 PASS16.183s: useful split succeeds; valid collapse6496→1 worsens bound
-to .01; reverse collapse first fails body/feature preservation with fresh work.
-No fallbacks, no exhaustion in these three proposals. Smaller curved CFD baseline
-build79 FAIL14.180s: typed shared-work exhaustion, feasibility undetermined.
+Review checkpointff818fc703 and validation checkpoint2a98e46d8f are pushed to
+origin rois1995/SU2, branch codex/native-3d-bl. New connected source is awaiting
+its labelled checkpoint/build qualification. Private kernel union84 PASS9 cases/
+215 assertions141.684s overall, pins unchanged. Union81 timed out on a planar
+seam; FinitePlaneReference now handles coplanar unions. Union83 then exhausted
+work estimating a precise maximum distance. Tolerance certification with explicit
+outside witnesses removes that unnecessary objective; it does not raise caps.
+Syntax86 PASS11/11 TUs42.218s, pins unchanged. **Build86 running**,44 targets,
+one low-priority worker, handle75478/PID1728810. Do not edit pinned C++/helpers
+until terminal. Smaller curved CFD is the next runtime; then connected MPI6
+publication/restart and M6 early. No accepted full workflow is claimed.
 
 Trace73 curved CFD FAIL12.827s:17 productive splits, zero collapses; one
 unsuccessful collapse pass costs8,160,949 operations, next split exhausts atlas
@@ -54,12 +56,11 @@ rejections, no quality stage, summed atlas work369,648,840,116. Source envelopes
 are not working-tet counts;500k complexity is not a tet cap. No mesh/transfer
 acceptance follows. Use M6 early at the next connected implementation milestone.
 
-User cleanup restored /home17GB free; approval/MPI/push work again. Deleted
-external Ninja restored as owned official1.13.0 with provenance. Mixed-version
-build78 is terminal interrupted; build79 and all subsequent owned checks are
-terminal. **No heavy job remains.** Production geometry replacement has not begun;
-next code must implement the reviewed certificate/source dependency together,
-not another unmeasured guard, fallback or blind budget increase.
+Disk at build86 preflight: /home16GB, workspace71GB free; RAM26GiB available,
+load2.92. Matching owned Ninja1.13.0 is restored. Build86 is the sole owned heavy
+job. Remaining integration risks include new feature-route publication, restart
+roundtrips, source-tube shell feasibility and real M6 cost; fixtures do not close
+those. Generic curvature sizing/BL and other earlier open scope remains in TODO.
 
 ## Operations
 

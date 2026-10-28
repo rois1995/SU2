@@ -1,0 +1,27 @@
+Filters: Backend bounds both directions of a complete unpartitioned surface union
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Backend bounds both directions of a complete unpartitioned surface union
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp:182
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp:33: PASSED:
+  REQUIRE( geometry->BuildMobilityPolicy(60,{{0,2}},policy,budget,reason) )
+with expansion:
+  true
+
+../../UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp:33: PASSED:
+  REQUIRE( geometry->BuildMobilityPolicy(60,{{0,2}},policy,budget,reason) )
+with expansion:
+  true
+
+../../UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp:188: PASSED:
+  REQUIRE( square.size()==12 )
+with expansion:
+  12 == 12
+

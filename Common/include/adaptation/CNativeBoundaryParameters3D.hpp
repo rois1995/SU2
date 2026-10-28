@@ -73,14 +73,23 @@ class BoundaryParameterState {
     std::map<Edge,uint64_t> edge_counts;
     std::map<Edge,SurfaceFace> edge_incident;
     std::set<std::pair<Edge,Face>> edge_faces_added,edge_faces_removed;
-    std::set<std::pair<Id,Face>> facet_faces_added,facet_faces_removed;
+    std::set<std::pair<Id,Face>> facet_faces_added,facet_faces_removed,vertex_faces_added,vertex_faces_removed;
     uint64_t before=0,after=0;
     bool valid=false;
   };
   BoundaryParameterState(std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> geometry,
       const BoundaryPoints& points,const std::vector<SurfaceFace>& surface,
       uint64_t revision=1,size_t ceiling=SIZE_MAX,size_t caller_bytes=0,
-      const SU2NativeGeometry::BoundaryCoverage& coverage={},const SU2NativeGeometry::MobilityPolicy& mobility={},SU2NativeGeometry::AtlasBudget* reservation=nullptr);
+      const SU2NativeGeometry::BoundaryCoverage& coverage={},const SU2NativeGeometry::MobilityPolicy& mobility={},SU2NativeGeometry::AtlasBudget* reservation=nullptr,double geometry_tolerance=0);
+  using EntityKey=std::tuple<Id,Id,int>;
+  bool EntityGeometry()const{return geometry_tolerance>0;}
+  double GeometryTolerance()const{return geometry_tolerance;}
+  EntityKey Entity(Id facet)const;
+  bool ContainsEntityFace(Id facet,const std::array<BoundaryPoint,3>&)const;
+  std::shared_ptr<BoundaryParameterState> WithEntityGeometry(double tolerance,
+      SU2NativeGeometry::AtlasBudget&,size_t ceiling=SIZE_MAX,size_t caller_bytes=0)const;
+  const std::map<EntityKey,SU2NativeGeometry::MappedFacetReference::SurfaceUnionBounds>&
+      GeometryCertificates(SU2NativeGeometry::AtlasBudget&)const;
   const Entries& Records()const{return records;}
   const std::map<Face,SurfaceFace>& Surface()const{return surface;}
   const SU2NativeGeometry::BoundaryCoverage& Coverage()const{return coverage;}
@@ -92,6 +101,8 @@ class BoundaryParameterState {
   /*! Borrowed views remain valid until Commit, assignment, replacement or destruction.
    * Component-mode facet queries conservatively return the complete canonical component. */
   FacetFaceRange FacesOnOriginalFacet(Id facet)const;
+  /*! Borrowed until Commit, assignment, replacement or destruction. */
+  FacetFaceRange FacesOnVertex(Id vertex)const;
   const BoundaryPoint* Find(Id id)const;
   const BoundaryPoint* Find(Point point)const;
   const SU2NativeGeometry::MappedFacetReference& Geometry()const{return *geometry;}
@@ -123,6 +134,7 @@ class BoundaryParameterState {
       const SU2NativeGeometry::BoundaryCoverage& coverage_delta={},SU2NativeGeometry::AtlasBudget* reservation=nullptr)const;
   static std::vector<BoundaryParameterEdit> Changes(const Patch& old,const Patch& fresh,uint64_t revision);
  private:
+  void ValidateEntityFeatures(SU2NativeGeometry::AtlasBudget&)const;
   friend class Directory;
   void Commit(Publication&& publication)noexcept;
   std::shared_ptr<const SU2NativeGeometry::MappedFacetReference> geometry;
@@ -135,7 +147,10 @@ class BoundaryParameterState {
   std::map<Edge,uint64_t> edge_counts;
   std::map<Edge,SurfaceFace> edge_incident;
   std::set<std::pair<Edge,Face>> edge_faces;
-  FacetFaceIndex facet_faces;
+  FacetFaceIndex facet_faces,vertex_faces;
+  double geometry_tolerance=0;
+  mutable uint64_t certificate_revision=0;
+  mutable std::map<EntityKey,SU2NativeGeometry::MappedFacetReference::SurfaceUnionBounds> geometry_certificates;
   uint64_t revision;
 };
 } // namespace SU2Native3D

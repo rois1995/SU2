@@ -1,0 +1,156 @@
+../../Common/src/adaptation/CNativeAffineReference.cpp: In instantiation of ‘[01m[Kdouble SU2NativeGeometry::{anonymous}::TriangleUnion::Upper(const std::array<std::array<SU2NativeGeometry::{anonymous}::Range, 3>, N>&) [with long unsigned int N = 10][m[K’:
+[01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:1405:51:[m[K   required from here
+[01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:238:69:[m[K [01;31m[Kerror: [m[Kinconsistent types ‘[01m[Kfloat[m[K’ and ‘[01m[Kdouble[m[K’ deduced for lambda return type
+  238 |       visited[group]=visit;op.Work();return planes[group].Upper(hull[01;31m[K)[m[K;};
+      |                                                                     [01;31m[K^[m[K
+[01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:241:41:[m[K [01;31m[Kerror: [m[Kno matching function for call to ‘[01m[Kmin(double&, float)[m[K’
+  241 |     for(auto i:candidates){best=[01;31m[Kstd::min(best,plane_bound(i))[m[K;if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
+      |                                 [01;31m[K~~~~~~~~^~~~~~~~~~~~~~~~~~~~~[m[K
+In file included from [01m[K/usr/include/c++/9/bits/char_traits.h:39[m[K,
+                 from [01m[K/usr/include/c++/9/string:40[m[K,
+                 from [01m[K/usr/include/c++/9/stdexcept:39[m[K,
+                 from [01m[K/usr/include/c++/9/array:39[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeMesh3D.hpp:9[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeTopology3D.hpp:8[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeCavity3D.hpp:8[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:7[m[K,
+                 from [01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:6[m[K:
+[01m[K/usr/include/c++/9/bits/stl_algobase.h:198:5:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Ktemplate<class _Tp> constexpr const _Tp& std::min(const _Tp&, const _Tp&)[m[K’
+  198 |     [01;36m[Kmin[m[K(const _Tp& __a, const _Tp& __b)
+      |     [01;36m[K^~~[m[K
+[01m[K/usr/include/c++/9/bits/stl_algobase.h:198:5:[m[K [01;36m[Knote: [m[K  template argument deduction/substitution failed:
+[01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:241:41:[m[K [01;36m[Knote: [m[K  deduced conflicting types for parameter ‘[01m[Kconst _Tp[m[K’ (‘[01m[Kdouble[m[K’ and ‘[01m[Kfloat[m[K’)
+  241 |     for(auto i:candidates){best=[01;36m[Kstd::min(best,plane_bound(i))[m[K;if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
+      |                                 [01;36m[K~~~~~~~~^~~~~~~~~~~~~~~~~~~~~[m[K
+In file included from [01m[K/usr/include/c++/9/bits/char_traits.h:39[m[K,
+                 from [01m[K/usr/include/c++/9/string:40[m[K,
+                 from [01m[K/usr/include/c++/9/stdexcept:39[m[K,
+                 from [01m[K/usr/include/c++/9/array:39[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeMesh3D.hpp:9[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeTopology3D.hpp:8[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeCavity3D.hpp:8[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:7[m[K,
+                 from [01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:6[m[K:
+[01m[K/usr/include/c++/9/bits/stl_algobase.h:246:5:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Ktemplate<class _Tp, class _Compare> constexpr const _Tp& std::min(const _Tp&, const _Tp&, _Compare)[m[K’
+  246 |     [01;36m[Kmin[m[K(const _Tp& __a, const _Tp& __b, _Compare __comp)
+      |     [01;36m[K^~~[m[K
+[01m[K/usr/include/c++/9/bits/stl_algobase.h:246:5:[m[K [01;36m[Knote: [m[K  template argument deduction/substitution failed:
+[01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:241:41:[m[K [01;36m[Knote: [m[K  deduced conflicting types for parameter ‘[01m[Kconst _Tp[m[K’ (‘[01m[Kdouble[m[K’ and ‘[01m[Kfloat[m[K’)
+  241 |     for(auto i:candidates){best=[01;36m[Kstd::min(best,plane_bound(i))[m[K;if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
+      |                                 [01;36m[K~~~~~~~~^~~~~~~~~~~~~~~~~~~~~[m[K
+In file included from [01m[K/usr/include/c++/9/algorithm:62[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeMesh2D.hpp:31[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeBoundary2D.hpp:30[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeReference2D.hpp:12[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeGeometryValidation2D.hpp:10[m[K,
+                 from [01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:9[m[K:
+[01m[K/usr/include/c++/9/bits/stl_algo.h:3450:5:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Ktemplate<class _Tp> constexpr _Tp std::min(std::initializer_list<_Tp>)[m[K’
+ 3450 |     [01;36m[Kmin[m[K(initializer_list<_Tp> __l)
+      |     [01;36m[K^~~[m[K
+[01m[K/usr/include/c++/9/bits/stl_algo.h:3450:5:[m[K [01;36m[Knote: [m[K  template argument deduction/substitution failed:
+[01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:241:41:[m[K [01;36m[Knote: [m[K  mismatched types ‘[01m[Kstd::initializer_list<_Tp>[m[K’ and ‘[01m[Kdouble[m[K’
+  241 |     for(auto i:candidates){best=[01;36m[Kstd::min(best,plane_bound(i))[m[K;if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
+      |                                 [01;36m[K~~~~~~~~^~~~~~~~~~~~~~~~~~~~~[m[K
+In file included from [01m[K/usr/include/c++/9/algorithm:62[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeMesh2D.hpp:31[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeBoundary2D.hpp:30[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeReference2D.hpp:12[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeGeometryValidation2D.hpp:10[m[K,
+                 from [01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:9[m[K:
+[01m[K/usr/include/c++/9/bits/stl_algo.h:3456:5:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Ktemplate<class _Tp, class _Compare> constexpr _Tp std::min(std::initializer_list<_Tp>, _Compare)[m[K’
+ 3456 |     [01;36m[Kmin[m[K(initializer_list<_Tp> __l, _Compare __comp)
+      |     [01;36m[K^~~[m[K
+[01m[K/usr/include/c++/9/bits/stl_algo.h:3456:5:[m[K [01;36m[Knote: [m[K  template argument deduction/substitution failed:
+[01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:241:41:[m[K [01;36m[Knote: [m[K  mismatched types ‘[01m[Kstd::initializer_list<_Tp>[m[K’ and ‘[01m[Kdouble[m[K’
+  241 |     for(auto i:candidates){best=[01;36m[Kstd::min(best,plane_bound(i))[m[K;if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
+      |                                 [01;36m[K~~~~~~~~^~~~~~~~~~~~~~~~~~~~~[m[K
+../../Common/src/adaptation/CNativeAffineReference.cpp: In instantiation of ‘[01m[Kdouble SU2NativeGeometry::{anonymous}::TriangleUnion::Upper(const std::array<std::array<SU2NativeGeometry::{anonymous}::Range, 3>, N>&) [with long unsigned int N = 3][m[K’:
+[01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:1406:164:[m[K   required from here
+[01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:238:69:[m[K [01;31m[Kerror: [m[Kinconsistent types ‘[01m[Kfloat[m[K’ and ‘[01m[Kdouble[m[K’ deduced for lambda return type
+  238 |       visited[group]=visit;op.Work();return planes[group].Upper(hull[01;31m[K)[m[K;};
+      |                                                                     [01;31m[K^[m[K
+[01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:241:41:[m[K [01;31m[Kerror: [m[Kno matching function for call to ‘[01m[Kmin(double&, float)[m[K’
+  241 |     for(auto i:candidates){best=[01;31m[Kstd::min(best,plane_bound(i))[m[K;if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
+      |                                 [01;31m[K~~~~~~~~^~~~~~~~~~~~~~~~~~~~~[m[K
+In file included from [01m[K/usr/include/c++/9/bits/char_traits.h:39[m[K,
+                 from [01m[K/usr/include/c++/9/string:40[m[K,
+                 from [01m[K/usr/include/c++/9/stdexcept:39[m[K,
+                 from [01m[K/usr/include/c++/9/array:39[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeMesh3D.hpp:9[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeTopology3D.hpp:8[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeCavity3D.hpp:8[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:7[m[K,
+                 from [01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:6[m[K:
+[01m[K/usr/include/c++/9/bits/stl_algobase.h:198:5:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Ktemplate<class _Tp> constexpr const _Tp& std::min(const _Tp&, const _Tp&)[m[K’
+  198 |     [01;36m[Kmin[m[K(const _Tp& __a, const _Tp& __b)
+      |     [01;36m[K^~~[m[K
+[01m[K/usr/include/c++/9/bits/stl_algobase.h:198:5:[m[K [01;36m[Knote: [m[K  template argument deduction/substitution failed:
+[01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:241:41:[m[K [01;36m[Knote: [m[K  deduced conflicting types for parameter ‘[01m[Kconst _Tp[m[K’ (‘[01m[Kdouble[m[K’ and ‘[01m[Kfloat[m[K’)
+  241 |     for(auto i:candidates){best=[01;36m[Kstd::min(best,plane_bound(i))[m[K;if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
+      |                                 [01;36m[K~~~~~~~~^~~~~~~~~~~~~~~~~~~~~[m[K
+In file included from [01m[K/usr/include/c++/9/bits/char_traits.h:39[m[K,
+                 from [01m[K/usr/include/c++/9/string:40[m[K,
+                 from [01m[K/usr/include/c++/9/stdexcept:39[m[K,
+                 from [01m[K/usr/include/c++/9/array:39[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeMesh3D.hpp:9[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeTopology3D.hpp:8[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeCavity3D.hpp:8[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeAffineReference.hpp:7[m[K,
+                 from [01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:6[m[K:
+[01m[K/usr/include/c++/9/bits/stl_algobase.h:246:5:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Ktemplate<class _Tp, class _Compare> constexpr const _Tp& std::min(const _Tp&, const _Tp&, _Compare)[m[K’
+  246 |     [01;36m[Kmin[m[K(const _Tp& __a, const _Tp& __b, _Compare __comp)
+      |     [01;36m[K^~~[m[K
+[01m[K/usr/include/c++/9/bits/stl_algobase.h:246:5:[m[K [01;36m[Knote: [m[K  template argument deduction/substitution failed:
+[01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:241:41:[m[K [01;36m[Knote: [m[K  deduced conflicting types for parameter ‘[01m[Kconst _Tp[m[K’ (‘[01m[Kdouble[m[K’ and ‘[01m[Kfloat[m[K’)
+  241 |     for(auto i:candidates){best=[01;36m[Kstd::min(best,plane_bound(i))[m[K;if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
+      |                                 [01;36m[K~~~~~~~~^~~~~~~~~~~~~~~~~~~~~[m[K
+In file included from [01m[K/usr/include/c++/9/algorithm:62[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeMesh2D.hpp:31[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeBoundary2D.hpp:30[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeReference2D.hpp:12[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeGeometryValidation2D.hpp:10[m[K,
+                 from [01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:9[m[K:
+[01m[K/usr/include/c++/9/bits/stl_algo.h:3450:5:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Ktemplate<class _Tp> constexpr _Tp std::min(std::initializer_list<_Tp>)[m[K’
+ 3450 |     [01;36m[Kmin[m[K(initializer_list<_Tp> __l)
+      |     [01;36m[K^~~[m[K
+[01m[K/usr/include/c++/9/bits/stl_algo.h:3450:5:[m[K [01;36m[Knote: [m[K  template argument deduction/substitution failed:
+[01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:241:41:[m[K [01;36m[Knote: [m[K  mismatched types ‘[01m[Kstd::initializer_list<_Tp>[m[K’ and ‘[01m[Kdouble[m[K’
+  241 |     for(auto i:candidates){best=[01;36m[Kstd::min(best,plane_bound(i))[m[K;if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
+      |                                 [01;36m[K~~~~~~~~^~~~~~~~~~~~~~~~~~~~~[m[K
+In file included from [01m[K/usr/include/c++/9/algorithm:62[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeMesh2D.hpp:31[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeBoundary2D.hpp:30[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeReference2D.hpp:12[m[K,
+                 from [01m[K../../Common/src/adaptation/../../include/adaptation/CNativeGeometryValidation2D.hpp:10[m[K,
+                 from [01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:9[m[K:
+[01m[K/usr/include/c++/9/bits/stl_algo.h:3456:5:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Ktemplate<class _Tp, class _Compare> constexpr _Tp std::min(std::initializer_list<_Tp>, _Compare)[m[K’
+ 3456 |     [01;36m[Kmin[m[K(initializer_list<_Tp> __l, _Compare __comp)
+      |     [01;36m[K^~~[m[K
+[01m[K/usr/include/c++/9/bits/stl_algo.h:3456:5:[m[K [01;36m[Knote: [m[K  template argument deduction/substitution failed:
+[01m[K../../Common/src/adaptation/CNativeAffineReference.cpp:241:41:[m[K [01;36m[Knote: [m[K  mismatched types ‘[01m[Kstd::initializer_list<_Tp>[m[K’ and ‘[01m[Kdouble[m[K’
+  241 |     for(auto i:candidates){best=[01;36m[Kstd::min(best,plane_bound(i))[m[K;if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
+      |                                 [01;36m[K~~~~~~~~^~~~~~~~~~~~~~~~~~~~~[m[K
+Command exited with non-zero status 1
+	Command being timed: "timeout 300 c++ -ICommon/src/libSU2AccurateSum.a.p -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -fno-fast-math -fno-unsafe-math-optimizations -ffp-contract=off -MD -MQ /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/union82/0.o -MF /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/union82/0.o.d -o /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/union82/0.o -c ../../Common/src/adaptation/CNativeAffineReference.cpp"
+	User time (seconds): 3.69
+	System time (seconds): 0.14
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:03.89
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 498156
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 124875
+	Voluntary context switches: 6
+	Involuntary context switches: 421
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 80
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

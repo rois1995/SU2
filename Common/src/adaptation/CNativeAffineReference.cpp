@@ -35,6 +35,7 @@ Range Multiply(Range a,Range b) {
   const long double p[]={a.lo*b.lo,a.lo*b.hi,a.hi*b.lo,a.hi*b.hi};
   return {std::nextafter(*std::min_element(p,p+4),-INFINITY),std::nextafter(*std::max_element(p,p+4),INFINITY)};
 }
+Range DividePositive(Range a,long double d){return Multiply(a,Range{std::nextafter(1/d,-INFINITY),std::nextafter(1/d,INFINITY)});}
 Box Exact(Point p){const auto v=Values(p);return {{{v[0],v[0]},{v[1],v[1]},{v[2],v[2]}}};}
 Box ParameterBox(const SU2Native3D::ParametricPoint& p) {
   const auto b=SU2Native3D::ParametricPointBounds(p);const auto lo=Values(b[0]),hi=Values(b[1]);
@@ -166,6 +167,179 @@ struct AtlasOps {
     return r;
   }
 };
+// Floating projections propose a point; interval evaluation certifies that convex witness.
+Point BoxMiddle(const Box& box) {
+  Vec p;for(unsigned d=0;d<3;++d)p[d]=double(.5L*box[d].lo+.5L*box[d].hi);
+  auto out=ToPoint(p);Finite(out);return out;
+}
+struct TriangleDistanceBounds {double lower=0,upper=INFINITY;};
+TriangleDistanceBounds TriangleDistance(const Box& point,const std::array<Point,3>& triangle,AtlasOps& op) {
+  op.Work();const auto p=Values(BoxMiddle(point)),a=Values(triangle[0]),b=Values(triangle[1]),c=Values(triangle[2]);
+  using Wide=std::array<long double,3>;Wide ab{},ac{},ap{};
+  for(unsigned d=0;d<3;++d){ab[d]=(long double)b[d]-a[d];ac[d]=(long double)c[d]-a[d];ap[d]=(long double)p[d]-a[d];}
+  auto dot=[](Wide x,Wide y){return x[0]*y[0]+x[1]*y[1]+x[2]*y[2];};
+  double best=INFINITY;Box witness{};
+  auto propose=[&](long double wb,long double wc) {
+    if(!(wb>=0&&wc>=0&&wb+wc<=1))return;
+    const double u=std::clamp(double(wb+wc),0.,1.),v=u?std::clamp(double(wc/(wb+wc)),0.,1.):0.;
+    Box q;for(unsigned d=0;d<3;++d)q[d]=Add(Multiply({a[d],a[d]},Subtract({1,1},{u,u})),
+        Multiply(Add(Multiply({b[d],b[d]},Subtract({1,1},{v,v})),Multiply({c[d],c[d]},v)),u));
+    const auto bound=NormBound(Difference(point,q));if(bound<best){best=bound;witness=q;}
+  };
+  propose(0,0);propose(1,0);propose(0,1);
+  const auto aa=dot(ab,ab),bb=dot(ab,ac),cc=dot(ac,ac),x=dot(ap,ab),y=dot(ap,ac),det=aa*cc-bb*bb;
+  if(det>0)propose((x*cc-y*bb)/det,(y*aa-x*bb)/det);
+  if(aa>0)propose(std::clamp(x/aa,0.L,1.L),0);
+  if(cc>0)propose(0,std::clamp(y/cc,0.L,1.L));
+  Wide bc{},bp{};for(unsigned d=0;d<3;++d){bc[d]=(long double)c[d]-b[d];bp[d]=(long double)p[d]-b[d];}
+  if(dot(bc,bc)>0){const auto t=std::clamp(dot(bp,bc)/dot(bc,bc),0.L,1.L);propose(1-t,t);}
+  const auto direction=Exact(BoxMiddle(Difference(point,witness)));const auto length=NormBound(direction);
+  long double lower=INFINITY;
+  for(auto vertex:triangle)lower=std::min(lower,DotBox(Difference(point,Exact(vertex)),direction).lo);
+  if(!(length>0&&std::isfinite(length)&&lower>0))lower=0;
+  else lower=std::nextafter(lower/length,-INFINITY);
+  return {std::max(0.,std::nextafter(double(lower),-INFINITY)),best};
+}
+struct UnionTriangle {std::array<Point,3> points;double error=0;};
+class TriangleUnion {
+ public:
+  TriangleUnion(const std::vector<UnionTriangle>& triangles,AtlasOps& op,double resolution):triangles(triangles),op(op),accuracy(resolution) {
+    if(triangles.empty())throw std::invalid_argument("Empty geometry triangle union.");
+    const auto count=triangles.size();size_t retained=0,peak=0;
+    if(count>16)CADTElemClass::PredictBytes(3,2*count,count,2*count,&retained,&peak);
+    const auto workspace=transfer_memory::Mul(2*std::max<size_t>(200,count+1),sizeof(CBBoxTargetClass)+2*sizeof(unsigned long));
+    const auto scratch=transfer_memory::Add(std::max(retained,peak),workspace,transfer_memory::Mul(count,160));
+    op.Storage(scratch);candidates.reserve(count);
+    if(count>16) {
+      std::vector<su2double> coordinates;std::vector<unsigned long> connectivity,ids;
+      coordinates.reserve(6*count);connectivity.reserve(2*count);ids.reserve(count);
+      for(const auto& t:triangles) {
+        Vec lo=Values(t.points[0]),hi=lo;
+        for(auto p:t.points)for(unsigned d=0;d<3;++d){lo[d]=std::min(lo[d],Values(p)[d]);hi[d]=std::max(hi[d],Values(p)[d]);}
+        for(unsigned d=0;d<3;++d){lo[d]=std::nextafter(double(Subtract(lo[d],t.error).lo),-INFINITY);hi[d]=std::nextafter(double(Add({hi[d],hi[d]},{t.error,t.error}).hi),INFINITY);}
+        Finite(ToPoint(lo));Finite(ToPoint(hi));coordinates.insert(coordinates.end(),{lo[0],lo[1],lo[2],hi[0],hi[1],hi[2]});
+        connectivity.push_back(connectivity.size());connectivity.push_back(connectivity.size());ids.push_back(ids.size());
+      }
+      std::vector<unsigned short> types(count,LINE),markers(count,0);
+      index=std::make_unique<CADTElemClass>(3,coordinates,connectivity,types,markers,ids,false);
+    }
+    op.budget.caller_bytes=transfer_memory::Add(op.budget.caller_bytes,scratch);BuildPlanes();
+  }
+  TriangleDistanceBounds Distance(const Box& point) {
+    const size_t seed=Seed(point);auto bound=Distance(point,seed);Candidates(point,bound.upper);
+    for(auto i:candidates){const auto b=Distance(point,i);bound.lower=std::min(bound.lower,b.lower);bound.upper=std::min(bound.upper,b.upper);}
+    return bound;
+  }
+  template<size_t N> double Upper(const std::array<Box,N>& hull) {
+    Box box;for(unsigned d=0;d<3;++d){box[d]={INFINITY,-INFINITY};for(const auto& p:hull){box[d].lo=std::min(box[d].lo,p[d].lo);box[d].hi=std::max(box[d].hi,p[d].hi);}}
+    auto witness=[&](size_t i){double b=0;for(const auto& p:hull)b=std::max(b,Distance(p,i).upper);return b;};
+    if(++visit==0){std::fill(visited.begin(),visited.end(),0);visit=1;}
+    auto plane_bound=[&](size_t i)->double{const auto group=triangle_plane[i];if(group==SIZE_MAX||visited[group]==visit)return INFINITY;
+      visited[group]=visit;op.Work();return planes[group].Upper(hull);};
+    const auto seed=Seed(box);double best=plane_bound(seed);if(best<=accuracy/4)return best;
+    best=std::min(best,witness(seed));Candidates(box,best);
+    for(auto i:candidates){best=std::min(best,plane_bound(i));if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
+  }
+ private:
+  struct PlaneUnion {
+    std::shared_ptr<FinitePlaneReference> footprint;
+    Box normal;Point origin;unsigned axis=0;double error=0;
+    std::array<double,2> lo{},hi{};bool positive=true;
+    template<size_t N> double Upper(const std::array<Box,N>& hull)const {
+      const unsigned x=(axis==0?1:0),y=(axis==2?1:2);
+      const auto denominator=std::max(normal[axis].lo,-normal[axis].hi);
+      if(!(denominator>0))return INFINITY;
+      long double vertical=0,dx=0,dy=0;std::array<long double,2> lower{{INFINITY,INFINITY}},upper{{-INFINITY,-INFINITY}};
+      for(const auto& p:hull) {
+        const auto r=DotBox(Difference(p,Exact(origin)),normal);
+        vertical=std::max(vertical,std::max(std::abs(r.lo),std::abs(r.hi)));
+        for(unsigned k=0;k<2;++k){const auto d=k?y:x;lower[k]=std::min(lower[k],p[d].lo);upper[k]=std::max(upper[k],p[d].hi);}
+      }
+      std::array<double,2> a,b;
+      for(unsigned k=0;k<2;++k){a[k]=std::clamp(std::nextafter(double(lower[k]),-INFINITY),lo[k],hi[k]);
+        b[k]=std::clamp(std::nextafter(double(upper[k]),INFINITY),lo[k],hi[k]);
+        const auto shift=std::max({0.L,Subtract({lo[k],lo[k]},{lower[k],lower[k]}).hi,Subtract({upper[k],upper[k]},{hi[k],hi[k]}).hi});
+        (k?dy:dx)=shift;}
+      const Point p{a[0],a[1],0},q{b[0],a[1],0},r{b[0],b[1],0},s{a[0],b[1],0};
+      if(a[0]==b[0]||a[1]==b[1]) {if(!footprint->ContainsSegment(p,r))return INFINITY;}
+      else if(positive ? (!footprint->ContainsFace({p,q,r})||!footprint->ContainsFace({p,r,s})) :
+          (!footprint->ContainsFace({p,r,q})||!footprint->ContainsFace({p,s,r})))return INFINITY;
+      const auto nx=std::max(std::abs(normal[x].lo),std::abs(normal[x].hi)),ny=std::max(std::abs(normal[y].lo),std::abs(normal[y].hi));
+      const auto dz=DividePositive(Add(Multiply({dx,dx},nx),Multiply({dy,dy},ny)),denominator);
+      const Box shift{{{0,dx},{0,dy},{0,std::max(std::abs(dz.lo),std::abs(dz.hi))}}};
+      return std::nextafter(double(Add(Add(DividePositive({0,vertical},denominator),{error,error}),{0,NormBound(shift)}).hi),INFINITY);
+    }
+  };
+  std::vector<PlaneUnion> planes;std::vector<size_t> triangle_plane;
+  std::vector<uint64_t> visited;uint64_t visit=0;double accuracy;
+  void BuildPlanes() {
+    using namespace SU2Native3D;
+    const size_t count=triangles.size(),none=SIZE_MAX;op.Storage(transfer_memory::Mul(count,1024));
+    std::map<Vec,Id> vertices;std::map<std::array<Id,2>,size_t> edges;std::vector<size_t> roots(count);
+    std::vector<std::array<Id,3>> ids(count);std::iota(roots.begin(),roots.end(),0);
+    auto root=[&](size_t i){while(roots[i]!=i)i=roots[i];return i;};
+    for(size_t i=0;i<count;++i) {
+      for(unsigned k=0;k<3;++k){const auto p=Values(triangles[i].points[k]);const auto result=vertices.emplace(p,vertices.size());ids[i][k]=result.first->second;}
+      for(unsigned k=0;k<3;++k){std::array<Id,2> edge{ids[i][k],ids[i][(k+1)%3]};std::sort(edge.begin(),edge.end());
+        const auto old=edges.emplace(edge,i);if(old.second)continue;const auto j=old.first->second;
+        op.Work();const auto& t=triangles[j].points;bool coplanar=SurfaceOrientationSign(t,t,nullptr)>0;
+        for(auto p:triangles[i].points)coplanar=coplanar&&Orientation(t[0],t[1],t[2],p)==0;
+        if(coplanar){const auto a=root(i),b=root(j);roots[std::max(a,b)]=std::min(a,b);}
+      }
+    }
+    std::map<size_t,std::vector<size_t>> groups;for(size_t i=0;i<count;++i)groups[root(i)].push_back(i);
+    triangle_plane.assign(count,none);size_t retained=transfer_memory::Mul(count,1024);
+    for(const auto& group:groups) {
+      if(group.second.size()<2)continue;
+      PlaneUnion plane;const auto& first=triangles[group.first].points;plane.origin=first[0];
+      plane.normal=CrossBox(Difference(Exact(first[1]),Exact(first[0])),Difference(Exact(first[2]),Exact(first[0])));
+      for(unsigned d=1;d<3;++d)if(std::abs(plane.normal[d].lo+plane.normal[d].hi)>std::abs(plane.normal[plane.axis].lo+plane.normal[plane.axis].hi))plane.axis=d;
+      if(std::max(plane.normal[plane.axis].lo,-plane.normal[plane.axis].hi)<=0)continue;
+      const unsigned x=(plane.axis==0?1:0),y=(plane.axis==2?1:2);
+      auto project=[&](Point p){const auto v=Values(p);return Point{v[x],v[y],0};};
+      plane.lo={{INFINITY,INFINITY}};plane.hi={{-INFINITY,-INFINITY}};
+      std::vector<Facet> facets;facets.reserve(group.second.size());
+      for(auto i:group.second){Facet f;f.id=i;plane.error=std::max(plane.error,triangles[i].error);
+        for(unsigned k=0;k<3;++k){f.v[k]={ids[i][k],project(triangles[i].points[k])};const auto p=Values(f.v[k].p);
+          for(unsigned d=0;d<2;++d){plane.lo[d]=std::min(plane.lo[d],p[d]);plane.hi[d]=std::max(plane.hi[d],p[d]);}}
+        facets.push_back(f);}
+      AffineAuthority authority;authority.origin={};authority.normal={0,0,1};authority.dimension=3;authority.version=1;authority.maximum_error=4*std::numeric_limits<double>::min();
+      const auto temporary=transfer_memory::Add(PlanarReference::ConstructionBytes(facets.size()),transfer_memory::Mul(facets.size(),4096));
+      op.Storage(transfer_memory::Add(retained,temporary));
+      plane.footprint=std::make_shared<FinitePlaneReference>(authority,facets,temporary);
+      const auto& t=facets.front().v;plane.positive=SurfaceNormalSign({0,0,1},{t[0].p,t[1].p,t[2].p},nullptr)>0;
+      retained=transfer_memory::Add(retained,plane.footprint->ResidentBytes());
+      for(auto i:group.second)triangle_plane[i]=planes.size();planes.push_back(std::move(plane));
+    }
+    visited.resize(planes.size());op.budget.caller_bytes=transfer_memory::Add(op.budget.caller_bytes,retained);
+  }
+  const std::vector<UnionTriangle>& triangles;AtlasOps& op;
+  std::unique_ptr<CADTElemClass> index;std::vector<unsigned long> candidates;
+  TriangleDistanceBounds Distance(const Box& p,size_t i) {
+    auto b=TriangleDistance(p,triangles[i].points,op);const double e=triangles[i].error;
+    b.lower=std::max(0.,std::nextafter(double(Subtract(b.lower,e).lo),-INFINITY));
+    b.upper=std::nextafter(double(Add({b.upper,b.upper},{e,e}).hi),INFINITY);return b;
+  }
+  size_t Seed(const Box& box) {
+    if(!index)return 0;
+    op.Work();const auto p=Values(BoxMiddle(box));const su2double x[]={p[0],p[1],p[2]};su2double distance=0;unsigned short marker=0;unsigned long id=0;int rank=0;
+    index->DetermineNearestElement(x,distance,marker,id,rank);return id;
+  }
+  void Candidates(const Box& box,double distance) {
+    candidates.clear();if(!index){for(size_t i=0;i<triangles.size();++i)candidates.push_back(i);return;}
+    op.Work();if(!std::isfinite(distance))throw std::invalid_argument("Unrepresentable surface-union distance.");
+    su2double lo[3],hi[3];for(unsigned d=0;d<3;++d){lo[d]=std::nextafter(double(Subtract(box[d],{distance,distance}).lo),-INFINITY);hi[d]=std::nextafter(double(Add(box[d],{distance,distance}).hi),INFINITY);}
+    index->DetermineIntersectingElements(lo,hi,candidates);
+  }
+};
+struct UnionDomain {Id facet=0;std::array<Point,3> parameter{{{1,0,0},{0,1,0},{0,0,1}}};unsigned depth=0;};
+std::array<UnionDomain,4> UnionChildren(const UnionDomain& parent) {
+  if(parent.depth>=48)throw std::length_error("Surface-union parameters exhausted exact dyadic resolution; bounds unresolved.");
+  std::array<Point,3> mid;
+  for(unsigned k=0;k<3;++k){Vec p;const auto a=Values(parent.parameter[k]),b=Values(parent.parameter[(k+1)%3]);for(unsigned d=0;d<3;++d)p[d]=.5*a[d]+.5*b[d];mid[k]=ToPoint(p);}
+  std::array<UnionDomain,4> out;for(unsigned k=0;k<3;++k)out[k]={parent.facet,{parent.parameter[k],mid[k],mid[(k+2)%3]},parent.depth+1};
+  out[3]={parent.facet,{mid[0],mid[1],mid[2]},parent.depth+1};return out;
+}
 using AtlasKey=std::vector<uint64_t>;
 AtlasKey ReferenceKey(const SU2Native3D::PlanarReference& reference,Id facet,const ExactBary& p,AtlasOps& op) {
   op.Bary(p);const auto& f=reference.Get(facet);std::array<ExactRatio,3> w;
@@ -318,7 +492,6 @@ std::array<Box,10> RestrictNet(const MappedFacetReference& geometry,Id facet,con
   }
   return out;
 }
-Range DividePositive(Range a,long double d){return Multiply(a,Range{std::nextafter(1/d,-INFINITY),std::nextafter(1/d,INFINITY)});}
 Range SqrtRange(Range a){if(a.hi<0)throw std::invalid_argument("Negative atlas norm enclosure.");return {std::nextafter(std::sqrt(std::max(0.L,a.lo)),-INFINITY),std::nextafter(std::sqrt(std::max(0.L,a.hi)),INFINITY)};}
 Range CosineDegrees(double angle) {
   // Taylor remainder on [0,pi], with every coefficient/operation enclosed.
@@ -1095,6 +1268,28 @@ MappedFacetReference::CurvedClosest MappedFacetReference::ClosestCurved(
   result.curvature1=evaluation.curvature1;result.curvature2=evaluation.curvature2;
   result.direction1=evaluation.direction1;result.direction2=evaluation.direction2;return result;
 }
+std::vector<Id> MappedFacetReference::NearbySurfaceFacets(Id hint,const std::array<Point,2>& box)const {
+  for(auto p:box)Finite(p);std::vector<Id> result;
+  if(!curved_search||!curved_search->root.count(hint)){result.push_back(hint);return result;}
+  const auto& entry=curved_search->entries.at(curved_search->root.at(hint));
+  if(!entry.index)return entry.facets;
+  const auto a=Values(box[0]),b=Values(box[1]);su2double lo[3],hi[3];for(unsigned d=0;d<3;++d){if(a[d]>b[d])throw std::invalid_argument("Reversed model broad-phase box.");lo[d]=a[d];hi[d]=b[d];}
+  std::vector<unsigned long> selected;{std::lock_guard<std::mutex> lock(curved_search->mutex);entry.index->DetermineIntersectingElements(lo,hi,selected);}
+  result.reserve(selected.size());for(auto i:selected)result.push_back(entry.facets.at(i));std::sort(result.begin(),result.end());result.erase(std::unique(result.begin(),result.end()),result.end());return result;
+}
+bool MappedFacetReference::OrientedFace(Id side,const SurfaceBinding& binding,
+    const std::array<Point,3>& physical)const {
+  if(!Supports(side,binding))return false;for(auto p:physical)Finite(p);
+  const auto& f=reference->Get(side);const auto curve=curves.find(side);Box normal;
+  if(curve==curves.end())normal=CrossBox(Difference(Exact(f.v[1].p),Exact(f.v[0].p)),Difference(Exact(f.v[2].p),Exact(f.v[0].p)));
+  else {
+    const auto r=ParameterBox(FacetParameters(side,binding));const auto base=Blossom(curve->second,{Exact({1,0,0}),r,r});
+    normal=CrossBox(Difference(Blossom(curve->second,{Exact({0,1,0}),r,r}),base),
+        Difference(Blossom(curve->second,{Exact({0,0,1}),r,r}),base));
+  }
+  const auto actual=CrossBox(Difference(Exact(physical[1]),Exact(physical[0])),Difference(Exact(physical[2]),Exact(physical[0])));
+  return DotBox(normal,actual).lo>0;
+}
 MappedFacetReference::SurfaceEvaluation MappedFacetReference::EvaluateSurface(Id side,const SurfaceBinding& binding)const {
   bool incident=false;ForFacets(binding,[&](Id facet){incident=incident||facet==side;});
   if(!incident)throw std::invalid_argument("Differential side does not support its forward binding.");
@@ -1171,6 +1366,94 @@ MappedFacetReference::SourcePatch MappedFacetReference::PrepareSourcePatch(Id fa
     piece.lower[q]=ToPoint(lo);piece.upper[q]=ToPoint(hi);Finite(piece.lower[q]);Finite(piece.upper[q]);
   }
   return out;
+}
+MappedFacetReference::SurfaceUnionBounds MappedFacetReference::BoundSurfaceUnion(
+    const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
+    double tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true);}
+double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
+    const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget& budget)const {
+  return QuerySurfaceUnion(facets,physical,tolerance,budget,false).mesh_to_model;
+}
+MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion(
+    const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
+    double tolerance,AtlasBudget& budget,bool include_model)const {
+  AtlasOps op{budget,__func__};
+  struct Restore {AtlasBudget& b;size_t caller;~Restore(){b.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
+  if(facets.empty()||physical.empty()||!std::isfinite(tolerance)||tolerance<std::numeric_limits<double>::min())
+    throw std::invalid_argument("Invalid surface-union geometry/tolerance.");
+  for(size_t i=0;i<facets.size();++i){reference->Get(facets[i]);if(i&&facets[i]<=facets[i-1])throw std::invalid_argument("Surface-union supports must be sorted and unique.");}
+  op.Storage(8192);budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,8192);
+  const auto physical_bytes=transfer_memory::Mul(physical.size(),sizeof(UnionTriangle));op.Storage(physical_bytes);
+  std::vector<UnionTriangle> flat;flat.reserve(physical.size());
+  for(const auto& t:physical){op.Work();for(auto p:t)Finite(p);
+    if(SU2Native3D::SurfaceOrientationSign(t,t,nullptr)<=0)throw std::invalid_argument("Degenerate physical surface-union triangle.");
+    flat.push_back({t,0});}
+  budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(flat.capacity(),sizeof(UnionTriangle)));
+  auto net=[&](const UnionDomain& domain) {
+    op.Work();std::array<Box,10> out;const auto curve=curves.find(domain.facet);const auto& f=reference->Get(domain.facet);
+    const std::array<Point,3> original{f.v[0].p,f.v[1].p,f.v[2].p};
+    for(unsigned q=0;q<10;++q){std::array<Box,3> args;unsigned at=0;
+      for(unsigned k=0;k<3;++k)for(unsigned n=0;n<CubicIndex[q][k];++n)args[at++]=Exact(domain.parameter[k]);
+      if(curve!=curves.end())out[q]=Blossom(curve->second,args);
+      else {Box parameter{};for(const auto& arg:args)for(unsigned d=0;d<3;++d)parameter[d]=Add(parameter[d],DividePositive(arg[d],3));out[q]=LinearPoint(original,parameter);}
+    }
+    return out;
+  };
+  auto sample=[&](const UnionDomain& domain,bool model) {
+    Vec p{};for(unsigned d=0;d<3;++d)p[d]=.25*Values(domain.parameter[0])[d]+.25*Values(domain.parameter[1])[d]+.5*Values(domain.parameter[2])[d];
+    const auto parameter=Exact(ToPoint(p));
+    if(!model)return LinearPoint(physical.at(domain.facet),parameter);
+    const auto curve=curves.find(domain.facet);if(curve!=curves.end())return Blossom(curve->second,{parameter,parameter,parameter});
+    const auto& f=reference->Get(domain.facet);return LinearPoint({f.v[0].p,f.v[1].p,f.v[2].p},parameter);
+  };
+  std::vector<UnionTriangle> model;std::vector<UnionDomain> pending;
+  for(Id facet:facets) {
+    pending.push_back({facet});
+    while(!pending.empty()) {
+      const auto domain=pending.back();pending.pop_back();const auto controls=net(domain);UnionTriangle piece;
+      for(unsigned k=0;k<3;++k)piece.points[k]=BoxMiddle(controls[k]);
+      for(unsigned q=0;q<10;++q){Box linear{};for(unsigned k=0;k<3;++k)for(unsigned d=0;d<3;++d)
+          linear[d]=Add(linear[d],Multiply({Values(piece.points[k])[d],Values(piece.points[k])[d]},
+              DividePositive({(long double)CubicIndex[q][k],(long double)CubicIndex[q][k]},3)));
+        piece.error=std::max(piece.error,NormBound(Difference(controls[q],linear)));}
+      op.Storage(transfer_memory::Add(transfer_memory::GrowthBound(model.size()+1,sizeof(UnionTriangle)),
+          transfer_memory::GrowthBound(pending.size()+4,sizeof(UnionDomain))));
+      if(piece.error<=tolerance/16)model.push_back(piece);
+      else {const auto children=UnionChildren(domain);pending.insert(pending.end(),children.begin(),children.end());}
+    }
+  }
+  std::vector<UnionDomain>().swap(pending);
+  budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(model.capacity(),sizeof(UnionTriangle)));
+  TriangleUnion mesh_union(flat,op,tolerance),model_union(model,op,tolerance);
+  struct NodeBound {UnionDomain domain;double upper;};
+  auto compare=[](const NodeBound& a,const NodeBound& b){return a.upper<b.upper;};
+  auto directed=[&](bool from_model,TriangleUnion& target) {
+    std::vector<NodeBound> queue;double lower=0,finished=0;size_t leaves=0;
+    auto prepare=[&](const UnionDomain& domain) {
+      op.Work();double upper=0;
+      if(from_model)upper=target.Upper(net(domain));
+      else {std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=LinearPoint(physical.at(domain.facet),Exact(domain.parameter[k]));upper=target.Upper(points);}
+      lower=std::max(lower,target.Distance(sample(domain,from_model)).lower);
+      if(!std::isfinite(upper))throw std::invalid_argument("Unrepresentable surface-union upper bound.");
+      op.Storage(transfer_memory::GrowthBound(queue.size()+1,sizeof(NodeBound)));
+      queue.push_back({domain,upper});std::push_heap(queue.begin(),queue.end(),compare);
+    };
+    if(from_model)for(Id facet:facets)prepare({facet});else for(size_t i=0;i<physical.size();++i)prepare({i});
+    const double initial_upper=queue.front().upper;
+    while(!queue.empty()) {
+      if(lower>tolerance)return std::make_tuple(initial_upper,leaves,true);
+      std::pop_heap(queue.begin(),queue.end(),compare);const auto node=queue.back();queue.pop_back();
+      if(node.upper<=tolerance){finished=std::max(finished,node.upper);++leaves;continue;}
+      const auto children=UnionChildren(node.domain);for(const auto& child:children)prepare(child);
+    }
+    return std::make_tuple(finished,leaves,false);
+  };
+  SurfaceUnionBounds result;const auto forward=include_model?directed(true,mesh_union):std::make_tuple(0.,size_t(0),false);
+  const auto reverse=directed(false,model_union);
+  result.model_to_mesh=std::get<0>(forward);result.mesh_to_model=std::get<0>(reverse);
+  result.model_pieces=model.size();result.physical_pieces=std::get<1>(reverse);
+  result.outside_tolerance=std::get<2>(forward)||std::get<2>(reverse);
+  result.within_tolerance=!result.outside_tolerance;return result;
 }
 bool MappedFacetReference::BindingParameters(Id facet,const SurfaceBinding& binding,ExactBary& result,
     AtlasBudget& budget,std::string& reason)const {
@@ -1361,6 +1644,40 @@ bool MappedFacetReference::ValidateCoverage(Id anchor,const std::array<SurfaceBi
     for(const auto& row:count)if(row.second)throw std::invalid_argument("Curved coverage does not tile the active simplex exactly.");
     std::array<EdgeTrace,3> derived;op.Check(CoverageTraces(coverage,derived,budget,op.reason));
     for(unsigned k=0;k<3;++k)op.Check(EqualTraces(derived[k],traces[k],budget,op.reason));
+    reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool MappedFacetReference::ValidateFeatureReplacement(
+    const std::vector<std::pair<const EdgeTrace*,int>>& uses,const MobilityPolicy& policy,
+    bool directed,AtlasBudget& budget,std::string& reason)const {
+  try {
+    AtlasOps op{budget,__func__};struct Restore {AtlasBudget& b;size_t n;~Restore(){b.caller_bytes=n;}} restore{budget,budget.caller_bytes};
+    std::map<std::pair<SU2Native3D::Edge,AtlasKey>,int> events;size_t storage=0;
+    for(const auto& use:uses) {
+      if(!use.first||!use.second)throw std::invalid_argument("Invalid curve coverage use.");
+      std::optional<Id> chain;
+      for(const auto& piece:use.first->pieces) {
+        op.Work();op.Bary(piece.first);op.Bary(piece.last);const auto& facet=reference->Get(piece.facet);bool found=false;
+        for(unsigned k=0;k<3;++k)if(!op.Compare(op.Weight(piece.first,k),op.Integer(0))&&!op.Compare(op.Weight(piece.last,k),op.Integer(0))) {
+          SU2Native3D::Edge edge{facet.v[(k+1)%3].id,facet.v[(k+2)%3].id};std::sort(edge.begin(),edge.end());
+          const auto feature=policy.features.find(edge);if(feature==policy.features.end()||(chain&&*chain!=feature->second))
+            throw std::invalid_argument("Curve coverage leaves its genuine feature identity.");
+          chain=feature->second;unsigned axis=0;while(facet.v[axis].id!=edge[1])++axis;
+          auto first=op.Weight(piece.first,axis),last=op.Weight(piece.last,axis);const auto sign=op.Compare(first,last);
+          if(!sign)throw std::invalid_argument("Degenerate feature coverage interval.");
+          if(!directed&&sign>0)std::swap(first,last);
+          for(unsigned endpoint=0;endpoint<2;++endpoint){AtlasKey key;op.Check(ExactEncode(endpoint?last:first,key,budget,op.reason));
+            const auto bytes=transfer_memory::Add(sizeof(decltype(events)::value_type),4*sizeof(void*),transfer_memory::Bytes(key));
+            op.Storage(bytes);const auto item=events.emplace(std::make_pair(edge,std::move(key)),0);
+            if(item.second){storage=transfer_memory::Add(storage,bytes);budget.caller_bytes=transfer_memory::Add(restore.n,storage);}
+            AddChainMultiplicity(item.first->second,endpoint?-use.second:use.second);}
+          found=true;break;
+        }
+        if(!found)throw std::invalid_argument("Feature coverage has no original curve segment.");
+      }
+      if(!chain)throw std::invalid_argument("Empty feature coverage trace.");
+    }
+    for(const auto& event:events)if(event.second)throw std::invalid_argument("Replacement changes genuine feature coverage.");
     reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
@@ -1618,6 +1935,16 @@ double MappedFacetReference::SurfaceError(const FaceCoverage& coverage,const std
     }
   }
   return maximum;
+}
+MappedFacetReference::SourcePatch MappedFacetReference::SourcePatch::Tube(
+    const std::array<Point,3>& triangle,double radius) {
+  for(auto p:triangle)Finite(p);
+  if(!std::isfinite(radius)||radius<0||SU2Native3D::SurfaceOrientationSign(triangle,triangle,nullptr)<=0)
+    throw std::invalid_argument("Invalid physical source tube.");
+  SourcePatch out;out.source=triangle;out.pieces.resize(1);auto& piece=out.pieces.front();
+  piece.margin=radius;piece.source_lower=piece.source_upper=triangle;
+  for(unsigned q=0;q<10;++q)piece.lower[q]=piece.upper[q]=triangle[q%3];
+  return out;
 }
 std::array<Point,2> MappedFacetReference::SourcePatch::Bounds()const {
   Vec lo{{INFINITY,INFINITY,INFINITY}},hi{{-INFINITY,-INFINITY,-INFINITY}};

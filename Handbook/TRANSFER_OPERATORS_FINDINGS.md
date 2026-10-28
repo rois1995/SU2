@@ -1,6 +1,6 @@
 # Transfer operators — findings and validation ledger
 
-Last updated: 2026-10-27. Maintained alongside implementation work.
+Last updated: 2026-10-28. Maintained alongside implementation work.
 
 This file covers solution-transfer operators only: geometric intersections,
 conservative projection, coverage and boundary accounting, transferred state and
@@ -65,6 +65,15 @@ curved runtime's29-edit stop) remain preserved in staged57 receipts. The current
 Full M6 transfer remains unqualified because no complete accepted M6 mesh exists.
 
 ## TR-003 — Source envelopes must conservatively cover current geometry support
+
+Current source change (build86 pending): entity geometry supplies a conservative
+model→frozen physical-skin bound. JointAffineCoverage uses SourcePatch::Tube for
+each physical face with that entity bound; their union encloses the model without
+assigning an exact original-chart region to every donor face. SourceColumn and
+all shell separation, topology, physical volume, per-donor coverage and fill/loss
+checks remain. Transfer kernels and BDF/history equations are unchanged. This
+branch is unvalidated on actual CFD transfer/restart; earlier build17 results
+qualify the earlier source representation only.
 
 Current requirements review,2026-10-28: physical transfer integrates straight
 simplices/control volumes (`ConservativeKernels.cpp` frame/Overlap and

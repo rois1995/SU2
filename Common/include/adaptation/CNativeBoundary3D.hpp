@@ -55,6 +55,7 @@ class PlanarReference {
                            std::map<Id,SU2NativeGeometry::AffineAuthority> affine = {});
   const std::map<Id, AnalyticSurface>& Analytic() const { return definition?definition->Analytic():analytic; }
   const std::map<Id,SU2NativeGeometry::AffineAuthority>& Affine()const{return definition?definition->Affine():affine;}
+  bool EntityGeometry()const;
   bool Declared(Id facet)const{return parameter_view?Facets().count(facet):analytic.count(facet)||affine.count(facet);}
   const std::vector<Id>& ExtensionComponents()const;
   bool CompleteAnalytic(Id facet) const { return complete_analytic.count(Canonical(facet)); }
@@ -111,13 +112,13 @@ class PlanarReference {
   bool ContractionAllowed(Id removed,Id retained)const;
   bool ResolveCoverage(const SurfaceFace&,SU2NativeGeometry::FaceCoverage&,SU2NativeGeometry::AtlasBudget&,std::string&)const;
   bool ResolveTrace(Edge,const SurfaceFace&,SU2NativeGeometry::EdgeTrace&,SU2NativeGeometry::AtlasBudget&,std::string&)const;
-  Node BindNewPoint(Node point,const std::set<Id>& incident)const;
+  const BoundaryPoint* Parameter(Point point)const;
+  Node BindNewPoint(Node point,const std::set<Id>& incident,const Edge* edge=nullptr)const;
   Node BindMovedPoint(Id old,Node point,const std::set<Id>& incident)const;
 
  private:
   struct ParameterView;
   PlanarReference(std::shared_ptr<const PlanarReference> definition,std::shared_ptr<ParameterView> view);
-  const BoundaryPoint* Parameter(Point point)const;
   SU2NativeGeometry::SurfaceBinding ProposedBinding(Point point,const std::set<Id>& incident,
                                                     const SU2NativeGeometry::SurfaceBinding* previous=nullptr)const;
   bool ParameterContains(Id facet,Point point)const;

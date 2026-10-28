@@ -457,8 +457,8 @@ EdgeTrace FeatureRun(const Sheet& sheet,const CurvedAtlas::Data& d,Ops& op) {
   }
   CleanFeatureTrace(result,d.reference->Parameters()->Geometry(),d.reference->Parameters()->Mobility(),op);return result;
 }
-bool SliceFeature(const EdgeTrace& input,const Key& first,const Key& last,const CurvedAtlas::Data& d,EdgeTrace& result,Ops& op) {
-  ExactRatio a,b;if(!TracePosition(input,first,*d.reference,a,op)||!TracePosition(input,last,*d.reference,b,op))return false;
+bool SliceFeature(const EdgeTrace& input,const Key& first,const Key& last,const SU2Native3D::PlanarReference& reference,EdgeTrace& result,Ops& op) {
+  ExactRatio a,b;if(!TracePosition(input,first,reference,a,op)||!TracePosition(input,last,reference,b,op))return false;
   if(!op.Compare(a,b))throw std::invalid_argument("Canonical feature edge has coincident endpoints.");
   const bool reverse=op.Compare(a,b)>0;auto trace=reverse?Reverse(input,op):input;
   if(reverse){a=op.Sub(op.Integer(1),a);b=op.Sub(op.Integer(1),b);}
@@ -470,7 +470,47 @@ bool SliceFeature(const EdgeTrace& input,const Key& first,const Key& last,const 
       output.pieces.push_back({piece.facet,op.Lerp(piece.first,piece.last,u),op.Lerp(piece.first,piece.last,v),op.Div(op.Sub(right,a),op.Sub(b,a))});}
     begin=piece.end;
   }
-  CleanFeatureTrace(output,d.reference->Parameters()->Geometry(),d.reference->Parameters()->Mobility(),op);result=std::move(output);return true;
+  CleanFeatureTrace(output,reference.Parameters()->Geometry(),reference.Parameters()->Mobility(),op);result=std::move(output);return true;
+}
+bool FeaturePath(const Key& a,const Key& b,EdgeTrace& path,
+    const std::map<Edge,std::pair<size_t,EdgeTrace>>& inherited,const std::vector<Edge>& feature_edges,
+    const SU2Native3D::BoundaryPoints& old_points,const std::map<Id,SurfaceBinding>& bindings,
+    const SU2Native3D::PlanarReference& reference,const MappedFacetReference& geometry,
+    const MobilityPolicy& policy,AtlasBudget& budget,Ops& op) {
+      std::optional<EdgeTrace> chosen;
+      auto accept=[&](EdgeTrace candidate){CleanFeatureTrace(candidate,geometry,policy,op);
+        if(chosen)op.Check(geometry.EqualTraces(*chosen,candidate,budget,op.reason));else chosen=std::move(candidate);};
+      size_t route_bytes=0;for(const auto& edge:feature_edges)route_bytes=Plus(route_bytes,TraceBytes(inherited.at(edge).second));
+      Scratch route_storage(op,Plus(Times(8,route_bytes),Times(Plus(feature_edges.size(),1),16*sizeof(Id))));
+      for(const auto& seed:feature_edges){const auto& source=inherited.at(seed).second;ExactRatio at;
+        if(!TracePosition(source,a,reference,at,op))continue;
+        EdgeTrace direct;if(SliceFeature(source,a,b,reference,direct,op)){accept(std::move(direct));continue;}
+        for(Id endpoint:seed){const auto end_key=op.BindingKey(geometry,old_points.at(endpoint).binding);if(end_key==a)continue;
+          EdgeTrace route;if(!SliceFeature(source,a,end_key,reference,route,op))continue;
+          Edge previous=seed;Id current=endpoint;std::set<Id> visited;
+          while(!bindings.count(current)&&visited.insert(current).second){
+            std::optional<Edge> next;
+            for(const auto& edge:feature_edges)if(edge!=previous&&(edge[0]==current||edge[1]==current)){
+              if(next)throw std::invalid_argument("Feature reconstruction reaches a retired branch.");next=edge;}
+            if(!next)break;
+            const auto& tail=inherited.at(*next).second;const auto current_key=op.BindingKey(geometry,old_points.at(current).binding);
+            EdgeTrace part;const bool done=SliceFeature(tail,current_key,b,reference,part,op);
+            const Id other=(*next)[0]==current?(*next)[1]:(*next)[0];
+            if(!done){const auto other_key=op.BindingKey(geometry,old_points.at(other).binding);
+              if(!SliceFeature(tail,current_key,other_key,reference,part,op))throw std::invalid_argument("Feature route lacks its endpoint.");}
+            Reserve(route.pieces,Plus(route.pieces.size(),part.pieces.size()),op);op.Sync(Plus(TraceBytes(route),TraceBytes(part)));
+            route.pieces.insert(route.pieces.end(),part.pieces.begin(),part.pieces.end());
+            if(done){accept(std::move(route));break;}previous=*next;current=other;
+          }
+        }
+      }
+      if(!chosen)return false;path=std::move(*chosen);return true;
+}
+template<class F> void LocateFeatureProposal(const EdgeTrace& path,double parameter,Ops& op,F&& consider) {
+  const auto target=op.Binary(parameter);auto begin=op.Integer(0);
+  for(const auto& piece:path.pieces){if(op.Compare(target,piece.end)<=0){
+    const auto t=op.Div(op.Sub(target,begin),op.Sub(piece.end,begin));consider(piece.facet,op.Lerp(piece.first,piece.last,t));return;}begin=piece.end;}
+  throw std::invalid_argument("Curve proposal leaves its immutable feature interval.");
 }
 size_t CoverageBytes(const BoundaryCoverage& out){return SU2Native3D::BoundaryCoverageBytes(out);}
 }
@@ -496,10 +536,7 @@ bool ProposeAtlasBinding(const CurvedAtlas& atlas,SU2Native3D::Id old,SU2Native3
       if(!(den>0))throw std::invalid_argument("Collapsed physical curve proposal chord.");
       const double parameter=double(((node.p.x-(long double)a.x)*dx+(node.p.y-(long double)a.y)*dy+(node.p.z-(long double)a.z)*dz)/den);
       if(!(parameter>0&&parameter<1))throw std::invalid_argument("Curve proposal leaves retained macroedge endpoints.");
-      auto path=FeatureRun(*found,d,op);const auto target=op.Binary(parameter);auto begin=op.Integer(0);bool located=false;
-      for(const auto& piece:path.pieces){if(op.Compare(target,piece.end)<=0){
-          const auto t=op.Div(op.Sub(target,begin),op.Sub(piece.end,begin));consider(piece.facet,op.Lerp(piece.first,piece.last,t));located=true;break;}begin=piece.end;}
-      if(!located)throw std::invalid_argument("Curve proposal leaves its immutable feature interval.");
+      auto path=FeatureRun(*found,d,op);LocateFeatureProposal(path,parameter,op,consider);
     } else {
       for(const auto& sheet:d.sheets)if(sheet.current.count(old))for(const auto& triangle:sheet.triangles){op.Work();const auto a=triangle.flat[0],b=triangle.flat[1],c=triangle.flat[2];
         const long double u[3]{b.x-(long double)a.x,b.y-(long double)a.y,b.z-(long double)a.z},v[3]{c.x-(long double)a.x,c.y-(long double)a.y,c.z-(long double)a.z},p[3]{node.p.x-(long double)a.x,node.p.y-(long double)a.y,node.p.z-(long double)a.z};
@@ -519,6 +556,50 @@ bool ProposeAtlasBinding(const CurvedAtlas& atlas,SU2Native3D::Id old,SU2Native3
   }catch(const std::exception& e){reason=e.what();return false;}
 }
 
+bool ProposeFeaturePoint(const MappedFacetReference& geometry,const MobilityPolicy& policy,const std::vector<EdgeTrace>& runs,
+    Point first,Point last,SU2Native3D::Node node,SU2Native3D::BoundaryPoint& result,AtlasBudget& budget,std::string& reason) {
+  EdgeTrace path;
+  try {
+    Ops op(budget,[&]{size_t bytes=TraceBytes(path);for(const auto& run:runs)bytes=Plus(bytes,TraceBytes(run));return bytes;});
+    if(runs.empty() || !std::isfinite(node.p.x)||!std::isfinite(node.p.y)||!std::isfinite(node.p.z))throw std::invalid_argument("Invalid feature proposal.");
+    std::optional<Id> chain;Key previous;
+    for(const auto& run:runs) {
+      auto end=op.Integer(0);const auto one=op.Integer(1);if(run.pieces.empty())throw std::invalid_argument("Empty feature run.");
+      for(const auto& piece:run.pieces){if(op.Compare(end,piece.end)>=0 || op.Compare(piece.end,one)>0)throw std::invalid_argument("Invalid feature run interval.");end=piece.end;}
+      if(op.Compare(end,one))throw std::invalid_argument("Incomplete feature run interval.");
+      const auto this_chain=TraceChain(run,geometry,policy,op);if(!this_chain || (chain && *chain!=*this_chain))throw std::invalid_argument("Feature run changes immutable curve.");chain=this_chain;
+      for(const auto& piece:run.pieces){const auto start=op.ReferenceKey(geometry,piece.facet,piece.first);
+        if(!previous.empty() && previous!=start)throw std::invalid_argument("Feature run is disconnected.");
+        previous=op.ReferenceKey(geometry,piece.facet,piece.last);}
+      Reserve(path.pieces,Plus(path.pieces.size(),run.pieces.size()),op);op.Sync(TraceBytes(run));
+      path.pieces.insert(path.pieces.end(),run.pieces.begin(),run.pieces.end());
+    }
+    CleanFeatureTrace(path,geometry,policy,op);
+    const long double dx=last.x-(long double)first.x,dy=last.y-(long double)first.y,dz=last.z-(long double)first.z,den=dx*dx+dy*dy+dz*dz;
+    if(!(den>0))throw std::invalid_argument("Collapsed physical curve proposal chord.");
+    const double parameter=double(((node.p.x-(long double)first.x)*dx+(node.p.y-(long double)first.y)*dy+(node.p.z-(long double)first.z)*dz)/den);
+    if(!(parameter>0 && parameter<1))throw std::invalid_argument("Curve proposal leaves retained macroedge endpoints.");
+    SU2Native3D::BoundaryPoint candidate;LocateFeatureProposal(path,parameter,op,[&](Id facet,const ExactBary& bary){
+      const auto binding=Quantize(geometry,facet,bary,op);if(geometry.MobilityDimension(binding,policy)!=1)throw std::invalid_argument("Feature proposal changes physical dimension.");
+      candidate={SU2Native3D::Node{node.id,geometry.Realize(binding)},binding};});
+    result=std::move(candidate);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool NormalizeFeatureTrace(const MappedFacetReference& geometry,const MobilityPolicy& policy,EdgeTrace& trace,
+                           std::optional<Id>& chain,AtlasBudget& budget,std::string& reason) {
+  EdgeTrace candidate;
+  try {
+    Ops op(budget,[&]{return Plus(TraceBytes(trace),TraceBytes(candidate));});
+    auto previous=op.Integer(0);const auto one=op.Integer(1);
+    if(trace.pieces.empty())throw std::invalid_argument("Empty curved trace before normalization.");
+    for(const auto& piece:trace.pieces){if(op.Compare(previous,piece.end)>=0 || op.Compare(piece.end,one)>0)
+        throw std::invalid_argument("Invalid curved trace interval before normalization.");previous=piece.end;}
+    if(op.Compare(previous,one))throw std::invalid_argument("Incomplete curved trace before normalization.");
+    const auto found=TraceChain(trace,geometry,policy,op);
+    if(found){op.Sync(TraceBytes(trace));candidate=trace;CleanFeatureTrace(candidate,geometry,policy,op);trace=std::move(candidate);}
+    chain=found;reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
 bool RemapAtlasSurface(const CurvedAtlas& atlas,const std::vector<SU2Native3D::SurfaceFace>& faces,
     const SU2Native3D::BoundaryPoints& points,BoundaryCoverage& result,AtlasBudget& budget,std::string& reason) {
   BoundaryCoverage output;FaceCoverage region;EdgeTrace working;
@@ -563,42 +644,12 @@ bool RemapAtlasSurface(const CurvedAtlas& atlas,const std::vector<SU2Native3D::S
     Scratch feature_storage(op,Times(inherited.size(),sizeof(Edge)));feature_edges.reserve(inherited.size());
     for(auto& row:inherited)if(TraceChain(row.second.second,geometry,policy,op)){
       CleanFeatureTrace(row.second.second,geometry,policy,op);feature_edges.push_back(row.first);}
-    auto feature_path=[&](const Key& a,const Key& b,EdgeTrace& path)->bool {
-      std::optional<EdgeTrace> chosen;
-      auto accept=[&](EdgeTrace candidate){CleanFeatureTrace(candidate,geometry,policy,op);
-        if(chosen)op.Check(geometry.EqualTraces(*chosen,candidate,budget,op.reason));else chosen=std::move(candidate);};
-      size_t route_bytes=0;for(const auto& edge:feature_edges)route_bytes=Plus(route_bytes,TraceBytes(inherited.at(edge).second));
-      Scratch route_storage(op,Plus(Times(8,route_bytes),Times(Plus(feature_edges.size(),1),16*sizeof(Id))));
-      for(const auto& seed:feature_edges){const auto& source=inherited.at(seed).second;ExactRatio at;
-        if(!TracePosition(source,a,*d.reference,at,op))continue;
-        EdgeTrace direct;if(SliceFeature(source,a,b,d,direct,op)){accept(std::move(direct));continue;}
-        for(Id endpoint:seed){const auto end_key=op.BindingKey(geometry,d.parameters.at(endpoint).binding);if(end_key==a)continue;
-          EdgeTrace route;if(!SliceFeature(source,a,end_key,d,route,op))continue;
-          Edge previous=seed;Id current=endpoint;std::set<Id> visited;
-          while(!bindings.count(current)&&visited.insert(current).second){
-            std::optional<Edge> next;
-            for(const auto& edge:feature_edges)if(edge!=previous&&(edge[0]==current||edge[1]==current)){
-              if(next)throw std::invalid_argument("Feature reconstruction reaches a retired branch.");next=edge;}
-            if(!next)break;
-            const auto& tail=inherited.at(*next).second;const auto current_key=op.BindingKey(geometry,d.parameters.at(current).binding);
-            EdgeTrace part;const bool done=SliceFeature(tail,current_key,b,d,part,op);
-            const Id other=(*next)[0]==current?(*next)[1]:(*next)[0];
-            if(!done){const auto other_key=op.BindingKey(geometry,d.parameters.at(other).binding);
-              if(!SliceFeature(tail,current_key,other_key,d,part,op))throw std::invalid_argument("Feature route lacks its endpoint.");}
-            Reserve(route.pieces,Plus(route.pieces.size(),part.pieces.size()),op);op.Sync(Plus(TraceBytes(route),TraceBytes(part)));
-            route.pieces.insert(route.pieces.end(),part.pieces.begin(),part.pieces.end());
-            if(done){accept(std::move(route));break;}previous=*next;current=other;
-          }
-        }
-      }
-      if(!chosen)return false;path=std::move(*chosen);return true;
-    };
     for(const auto& row:incidence){const auto& edge=row.first;working={};const auto old=inherited.find(edge);
       if(old!=inherited.end()&&old->second.first==1)working=old->second.second;
       else {
         if(row.second.size()!=2)throw std::invalid_argument("Replacement changes an uncoordinated physical interface edge.");
         first=op.BindingKey(geometry,bindings.at(edge[0]));last=op.BindingKey(geometry,bindings.at(edge[1]));
-        if(!feature_path(first,last,working)){
+        if(!FeaturePath(first,last,working,inherited,feature_edges,d.parameters,bindings,*d.reference,geometry,policy,budget,op)){
           const auto& face=faces.at(row.second.front());const auto sheet=policy.sheets.at(face.facet);
           for(size_t side:row.second)if(policy.sheets.at(faces.at(side).facet)!=sheet)
             throw std::invalid_argument("A shared edge crosses physical sheets without a genuine feature path.");
@@ -611,6 +662,52 @@ bool RemapAtlasSurface(const CurvedAtlas& atlas,const std::vector<SU2Native3D::S
     for(const auto& cover:d.old)for(const auto& piece:cover.pieces){Reserve(region.pieces,Plus(region.pieces.size(),1),op);op.Sync(PieceBound(op));
       region.pieces.push_back({piece.facet,piece.reference,{}});}
     op.Check(op.Delegate([&]{return RebuildTraceCoverage(geometry,region.pieces,faces,bindings,output.traces,output.faces,budget,op.reason);}));
+    result=std::move(output);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool RebuildFeatureTraces(const SU2Native3D::Patch& old,const std::vector<SU2Native3D::SurfaceFace>& faces,
+    const SU2Native3D::BoundaryPoints& points,const SU2Native3D::PlanarReference& reference,
+    std::map<Edge,EdgeTrace>& result,AtlasBudget& budget,std::string& reason) {
+  std::map<Edge,EdgeTrace> output;std::map<Edge,std::pair<size_t,EdgeTrace>> inherited;
+  std::map<Edge,std::vector<size_t>> incidence;std::map<Id,SurfaceBinding> bindings;
+  std::vector<Edge> feature_edges;EdgeTrace working;Key first,last;
+  try {
+    if(!reference.Parameters() || !reference.Parameters()->Mobility().identity || faces.empty())
+      throw std::invalid_argument("Feature reconstruction lacks active immutable mobility or candidate surface.");
+    const auto& geometry=reference.Parameters()->Geometry();const auto& policy=reference.Parameters()->Mobility();
+    Ops op(budget,[&]{size_t bytes=Plus(SU2Native3D::BoundaryCoverageBytes(old.coverage),Times(old.parameters.size()+points.size(),sizeof(SU2Native3D::BoundaryPoint)+4*sizeof(void*)));
+      bytes=Plus(bytes,Plus(Times(inherited.size(),sizeof(decltype(inherited)::value_type)+4*sizeof(void*)),Times(incidence.size(),sizeof(decltype(incidence)::value_type)+4*sizeof(void*))));
+      bytes=Plus(bytes,Plus(Times(bindings.size(),sizeof(decltype(bindings)::value_type)+4*sizeof(void*)),Times(feature_edges.capacity(),sizeof(Edge))));
+      for(const auto& row:inherited)bytes=Plus(bytes,TraceBytes(row.second.second));for(const auto& row:incidence)bytes=Plus(bytes,Times(row.second.capacity(),sizeof(size_t)));
+      for(const auto& row:output)bytes=Plus(bytes,Plus(sizeof(row)+4*sizeof(void*),TraceBytes(row.second)));
+      for(const auto& row:result)bytes=Plus(bytes,Plus(sizeof(row)+4*sizeof(void*),TraceBytes(row.second)));
+      return Plus(bytes,Plus(TraceBytes(working),Times(first.capacity()+last.capacity(),sizeof(uint64_t))));});
+    for(const auto& face:old.surface)for(unsigned k=0;k<3;++k) {
+      const auto edge=Sorted(face.v[k],face.v[(k+1)%3]);auto found=inherited.find(edge);
+      if(found!=inherited.end()){if(++found->second.first>2)throw std::invalid_argument("Source edge has nonmanifold incidence.");continue;}
+      const auto trace=old.coverage.traces.find(edge);
+      op.Sync(Plus(sizeof(decltype(inherited)::value_type)+4*sizeof(void*),trace==old.coverage.traces.end()?0:TraceBytes(trace->second)));
+      inherited.emplace(edge,std::make_pair(size_t(1),trace==old.coverage.traces.end()?EdgeTrace{}:trace->second));
+    }
+    for(auto& row:inherited)if(!row.second.second.pieces.empty() && TraceChain(row.second.second,geometry,policy,op)) {
+      CleanFeatureTrace(row.second.second,geometry,policy,op);Reserve(feature_edges,feature_edges.size()+1,op);feature_edges.push_back(row.first);
+    }
+    for(size_t i=0;i<faces.size();++i){const auto& face=faces[i];if(!policy.sheets.count(face.facet))throw std::invalid_argument("Candidate face has no immutable physical sheet.");
+      for(unsigned k=0;k<3;++k){const auto point=points.find(face.v[k]);if(point==points.end())throw std::invalid_argument("Candidate feature endpoint lacks binding.");
+        op.Sync(sizeof(decltype(bindings)::value_type)+sizeof(decltype(incidence)::value_type)+8*sizeof(void*));
+        bindings.emplace(point->first,point->second.binding);const auto edge=Sorted(face.v[k],face.v[(k+1)%3]);auto& sides=incidence[edge];
+        Reserve(sides,sides.size()+1,op);sides.push_back(i);if(sides.size()>2)throw std::invalid_argument("Candidate edge has nonmanifold incidence.");}}
+    for(const auto& row:incidence){const auto& edge=row.first;working={};const auto old_edge=inherited.find(edge);
+      if(old_edge!=inherited.end() && old_edge->second.first==1 && !old_edge->second.second.pieces.empty() && TraceChain(old_edge->second.second,geometry,policy,op))working=old_edge->second.second;
+      else {first=op.BindingKey(geometry,bindings.at(edge[0]));last=op.BindingKey(geometry,bindings.at(edge[1]));
+        if(!FeaturePath(first,last,working,inherited,feature_edges,old.parameters,bindings,reference,geometry,policy,budget,op)) {
+          if(row.second.size()!=2 && (old_edge==inherited.end() || old_edge->second.first!=1))throw std::invalid_argument("Replacement changes an uncoordinated physical interface edge.");
+          const auto sheet=policy.sheets.at(faces.at(row.second.front()).facet);
+          for(size_t side:row.second)if(policy.sheets.at(faces.at(side).facet)!=sheet)throw std::invalid_argument("A shared edge crosses physical sheets without a genuine feature path.");
+          continue;
+        }}
+      op.Sync(Plus(sizeof(decltype(output)::value_type)+4*sizeof(void*),TraceBytes(working)));output.emplace(edge,std::move(working));
+    }
     result=std::move(output);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
