@@ -20,9 +20,16 @@ may move on prescribed geometry. Scenario labels must not dispatch reconstructio
 
 ## Current work and evidence
 
-Build68 was cancelled after overlay-first lookup review; owned compiler/build scan
-was empty. Build69 runs frozen with the fix and an unpublished-endpoint test;
-it is unvalidated. The approval service has recovered.
+Build69 PASS1198.313s, 1293 pins unchanged; all owned build processes exited.
+Audit passes 23 selections (atlas 63, serial 252, MPI 229). Atlas checks pass
+63 cases/12,847 assertions in 132.018s, including actual smooth/curve/unpublished
+endpoint collapses. Mapped runtime FAIL10.806s: curved flows reached 14 splits,
+zero collapses, 136 rejections/274 geometry trials and the unchanged 67,207,168
+arithmetic cap (global work 744); 153 early constraint filters and 19 orientation
+vetoes in 420 checks. Flat workflow passes with 31 edits (27 splits, 4 collapses;
+work 282). The connected construction blocker and accepted M6 remain open.
+Trace69 terminal FAIL10.815s, pins unchanged; full M6 source69 `euler_build69_incident_collapse` is live (PID 80708).
+
 
 Build67 PASS99.196s with unchanged pins. Focused bidirectional serial passes
 3 cases/300 assertions in 5.934s; MPI6 passes 3 cases per rank in 6.774s
@@ -33,14 +40,7 @@ Build67 PASS99.196s with unchanged pins. Focused bidirectional serial passes
 unchanged arithmetic guard; flat workflow passes. No accepted M6 results.
 See [metric-length design](Handbook/METRIC_LENGTH_SATISFACTION_DESIGN.md).
 
-Build63 PASS66.1366s; all 17 build PIDs gone. Nineteen compiled filter audits
-pass (245 serial/222 MPI selected). Normalization passes serial 745 assertions
-in 15.9078s and MPI6 in 16.796s (727/721/721/721/715/715 assertions); all nine
-MPI PIDs gone. Repeated 16-event MPI publication/source-bound/schema8 test passes
-75.9713s; all nine PIDs gone. Its cost receipt records 12–20 face pieces, 13–19
-traces, 56–109 bits, 30,540,601–67,213,767 work excluding decode and 10,058,008–
-46,571,848 bytes aggregate admitted workspace. Sampled process-tree RSS ~214 MB
-is not peak allocation. Source-envelope checks are not CFD solution transfer.
+Build63 normalization and repeated MPI publication checks passed; see [progress](ADAPTATION_PROGRESS.md) for their scoped evidence.
 
 Broad serial `staged57/cases/serial_full_20261027T230545_3953311` FAIL176.0948s:
 243/245 cases and 1,134,704/1,134,707 assertions pass. Two failures are the known

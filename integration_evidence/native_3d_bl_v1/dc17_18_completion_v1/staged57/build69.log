@@ -1,0 +1,73 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/38] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o
+[2/38] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o
+[3/38] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o
+[4/38] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o
+[5/38] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeRegion3D.cpp.o
+[6/38] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeRegionField3D.cpp.o
+[7/38] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDistributed3D.cpp.o
+[8/38] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o
+[9/38] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o
+[10/38] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativePartition3D.cpp.o
+[11/38] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeImport3D.cpp.o
+In file included from /usr/include/c++/9/tuple:39,
+                 from /usr/include/c++/9/functional:54,
+                 from /usr/include/c++/9/pstl/glue_algorithm_defs.h:13,
+                 from /usr/include/c++/9/algorithm:71,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeNearContainment.hpp:12,
+                 from ../../Common/src/adaptation/CNativeImport3D.cpp:7:
+../../Common/src/adaptation/CNativeImport3D.cpp: In instantiation of ‘SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(auto:16)> [with auto:16 = SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(size_t, size_t)>]’:
+../../Common/src/adaptation/CNativeImport3D.cpp:310:165:   required from here
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+../../Common/src/adaptation/CNativeImport3D.cpp: In instantiation of ‘SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(auto:16)> [with auto:16 = SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(size_t, size_t)>]’:
+../../Common/src/adaptation/CNativeImport3D.cpp:323:4:   required from here
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+[12/38] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeReferenceIO3D.cpp.o
+[13/38] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o
+[14/38] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o
+[15/38] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CDriver.cpp.o
+[16/38] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o
+[17/38] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o
+[18/38] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CNativeComplexity3D.cpp.o
+[19/38] Linking static target Common/src/libSU2AccurateSum.a
+[20/38] Linking static target Common/src/libSU2Common.a
+[21/38] Linking static target SU2_CFD/src/libSU2core.a
+[22/38] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o
+[23/38] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o
+[24/38] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o
+[25/38] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeMesh3D_tests.cpp.o
+[26/38] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeBoundary3D_tests.cpp.o
+[27/38] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeAffineReference_tests.cpp.o
+[28/38] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeCurvedAtlas3D_tests.cpp.o
+[29/38] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeCanonicalTrace3D_tests.cpp.o
+[30/38] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeTraceCoverage3D_tests.cpp.o
+[31/38] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeReferenceTriangulation3D_tests.cpp.o
+[32/38] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeGeometryBackend3D_tests.cpp.o
+[33/38] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeMetric3D_tests.cpp.o
+[34/38] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeDistributed3D_tests.cpp.o
+[35/38] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativePartition3D_tests.cpp.o
+[36/38] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeReferenceIO_tests.cpp.o
+[37/38] Linking target SU2_CFD/src/SU2_CFD
+[38/38] Linking target UnitTests/test_driver

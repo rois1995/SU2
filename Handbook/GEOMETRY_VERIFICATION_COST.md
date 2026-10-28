@@ -407,3 +407,19 @@ and MPI both fail on curved runtime and a stale quality-query fixture expectatio
 Source64 corrects the fixture with row/version/content assertions; build64 and the
 focused serial/MPI6 quality-cache checks pass. The broad failures remain; no full
 M6 or curved CFD transfer is accepted. The bidirectional metric-length candidate is under build66 and unvalidated; see [design](METRIC_LENGTH_SATISFACTION_DESIGN.md). Details and receipts are in [handoff](../HANDOFF_Codex.md).
+
+## Source69 mapped work trace
+
+`staged57/cases/mapped_work_trace_20261028T010235_79656` terminated with the
+curved-runtime failure (10.815s, unchanged pins). The two curved Euler/RANS
+segments have identical counts/work; flat segments emit no geometry-work records.
+Per curved segment, 31,222 records total 63,675,209 exclusive work. Dominant
+operations are CoverageTraces 3,456 calls/16,005,528 exclusive; BindingParameters
+17,977/15,197,296; CompareTraces 2,592/11,938,488; ValidateCoverage
+864/8,555,428 exclusive (25,882,075 inclusive); ResolveSingleChart
+5,129/7,772,505 exclusive (21,135,051 inclusive); SurfaceError 1,189/3,860,090.
+Inclusive counts nest, so do not sum inclusive work. The trace sum covers emitted
+scopes and is not the arithmetic limit itself. Both raw private manifests report
+generation 15, 31 owned cells and 3,888 parameter bytes; descriptor counts were
+not decoded here. These captures are not accepted meshes. Source69 full M6 is
+now running in `staged57/m6_runs/euler_build69_incident_collapse`.

@@ -1,16 +1,20 @@
 # Metric-length satisfaction: proposed staging and M6 cost evidence
 
-Design record, 2026-10-27. The connected scheduling candidate is applied; build69 is live and unvalidated.
+Design record, 2026-10-27. The connected scheduling candidate is applied; build69 focused checks pass, but curved runtime and full construction remain unqualified.
 The geometry-closure candidate is a separate connected change. DC-17/DC-18 remain open.
 
 Build65 was owner-cancelled (51.1455s, exit 130, unchanged pins; all 22 processes gone). Source66 fixes secondary pass-deferral handling and mode agreement; direct footprint and mismatched-entry MPI tests and a three-component joint-coarsening fixture await validation. Next are focused serial/MPI6, production CFD and early M6 length diagnostics.
 
-Build68 was cancelled before validation after overlay-first lookup review; owned compiler/build process scan was empty. Build69 is running frozen with the correction and an actual unpublished-endpoint test.
-Backend ContractionAllowed and bidirectional target-debt selection enforce body,
-feature, constraint and orientation filters. CollapseVertex bypasses original-anchor
-containment only under active mobility and still requires the existing full-star atlas
-proof in Finish; the original facet veto remains for nonmobile cases. No caps were
-raised. The approval service has recovered.
+Build69 PASS1198.313s, 1293 pins unchanged; all owned build processes exited.
+Audit passes 23 selections (atlas 63, serial 252, MPI 229). Atlas checks pass
+63 cases/12,847 assertions in 132.018s, including actual smooth/curve/unpublished
+endpoint collapses. Mapped runtime FAIL10.806s: curved flows reached 14 splits,
+zero collapses, 136 rejections/274 geometry trials and the unchanged 67,207,168
+arithmetic cap (global work 744); 153 early constraint filters and 19 orientation
+vetoes in 420 checks. Flat workflow passes with 31 edits (27 splits, 4 collapses;
+work 282). The connected construction blocker and accepted M6 remain open.
+Mapped work trace69 is running; early M6 is planned next.
+
 
 ## Evidence and source identity
 

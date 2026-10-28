@@ -5,10 +5,16 @@ Updated: 2026-10-27. Detailed failures and provenance remain linked below.
 
 ## Current result
 
-Build68 was cancelled before validation after review found an overlay-first lookup
-issue; the owned compiler/build process scan was empty. Build69 is running with
-sources frozen, correcting the lookup and adding an actual unpublished-endpoint
-test. This change remains unvalidated. The approval service has recovered.
+Build69 PASS1198.313s, 1293 pins unchanged; all owned build processes exited.
+Audit passes 23 selections (atlas 63, serial 252, MPI 229). Atlas checks pass
+63 cases/12,847 assertions in 132.018s, including actual smooth/curve/unpublished
+endpoint collapses. Mapped runtime FAIL10.806s: curved flows reached 14 splits,
+zero collapses, 136 rejections/274 geometry trials and the unchanged 67,207,168
+arithmetic cap (global work 744); 153 early constraint filters and 19 orientation
+vetoes in 420 checks. Flat workflow passes with 31 edits (27 splits, 4 collapses;
+work 282). The connected construction blocker and accepted M6 remain open.
+Mapped work trace69 is running; early M6 is planned next.
+
 
 Build67 PASS99.196s with unchanged pins. Focused bidirectional serial passes
 3 cases/300 assertions in 5.934s; MPI6 passes 3 cases per rank in 6.774s
