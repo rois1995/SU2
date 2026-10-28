@@ -601,8 +601,8 @@ class Selection {
       if(coarsening){std::swap(edge[0],edge[1]);construction_frontier.insert(edge);}
     }
   }
-  void ServiceEdge(Edge edge) {
-    construction_frontier.erase(edge);
+  bool ServiceEdge(Edge edge) {
+    const bool serviced=construction_frontier.erase(edge);
     const auto direction=edge;std::sort(edge.begin(),edge.end());
     const auto measured=edges.find(edge);
     if(measured!=edges.end())queue.erase({Priority(measured->second.measure.length),direction});
@@ -612,6 +612,25 @@ class Selection {
       for(size_t slot=0;slot<row.edges.size();++slot)if(row.edges[slot]==edge)
         geometry_queue.erase({-row.geometry_scores[slot],id,edge});
     }
+    return serviced;
+  }
+  size_t ServiceClaimedVertex(Id vertex) {
+    const auto star=vertex_cells.find(vertex);if(star==vertex_cells.end())return 0;
+    size_t serviced=0;
+    for(Id id:star->second) {
+      const auto& row=cells.at(id);
+      if(!coarsening) {
+        for(const auto& edge:row.edges)if(construction_frontier.count(edge))serviced+=ServiceEdge(edge);
+      } else {
+        // Every collapse of this neighboring point imports a star containing the committed vertex.
+        for(Id removed:row.vertices) {
+          const auto& neighbors=vertex_cells.at(removed);
+          for(Id neighbor:neighbors)for(Id retained:cells.at(neighbor).vertices)
+            if(retained!=removed && construction_frontier.count({retained,removed}))serviced+=ServiceEdge({retained,removed});
+        }
+      }
+    }
+    return serviced;
   }
   void Reset(bool improvement) {
     cells.clear();edges.clear();queue.clear();geometry_queue.clear();construction_frontier.clear();vertex_cells.clear();
@@ -921,7 +940,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     return certify_support || vote(failure);
   };
   std::string last_rejection;
-  uint64_t progress_at_window=0, attempted_at_window=0;
+  uint64_t progress_at_window=0, attempted_at_window=0, deferred_at_window=0;
   auto height_check=[&](const Patch& patch,std::string& reason,bool provisional=false,FirstHeightReport* measured=nullptr) {
     if(options.wall_heights.empty())return true;
     ++stats.height_checks;FirstHeightReport report;
@@ -1795,7 +1814,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(next==Phase::Construction){construction_changed=false;construction_generation_changed=false;}
     phase=next;repairing=next==Phase::Improvement;improvement_changed=false;phase_start_round=stats.rounds;
     progress_at_window=stats.size_progress+stats.quality_progress+stats.cell_removals+stats.geometry_progress;
-    attempted_at_window=stats.attempted;
+    attempted_at_window=stats.attempted;deferred_at_window=stats.length_pass_deferred;
     if(repairing)++stats.quality_stages;else ++stats.construction_returns;
     if(!admit(transfer_memory::Add(transfer_memory::Mul(working.size(),sizeof(Id)),
         transfer_memory::Mul(working.size(),selection_bound(repairing)))))return false;
@@ -2020,7 +2039,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!vote(failure))return finish();
         construction_generation_changed=false;phase_start_round=stats.rounds;
         progress_at_window=stats.size_progress+stats.quality_progress+stats.cell_removals+stats.geometry_progress;
-        attempted_at_window=stats.attempted;
+        attempted_at_window=stats.attempted;deferred_at_window=stats.length_pass_deferred;
       }
       continue;
     }
@@ -2040,7 +2059,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         continue;
       }
     }
-    if(phase==Phase::Construction && (complete || (!any && !world.maximum(selection.cells.size()!=working.size())))) {
+    if(!bidirectional && phase==Phase::Construction && (complete || (!any && !world.maximum(selection.cells.size()!=working.size())))) {
       if(!enter_phase(Phase::Improvement))return finish();
       continue;
     }
@@ -2060,15 +2079,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         ++stats.progress_windows;
         const uint64_t progress=stats.size_progress+stats.quality_progress+stats.cell_removals+stats.geometry_progress;
         const bool mesh_progress=world.maximum(progress!=progress_at_window);
-        const bool search_progress=world.maximum(stats.attempted!=attempted_at_window);
-        progress_at_window=progress; attempted_at_window=stats.attempted;
+        const bool search_progress=world.maximum(stats.attempted!=attempted_at_window ||
+            (bidirectional && stats.length_pass_deferred!=deferred_at_window));
+        progress_at_window=progress; attempted_at_window=stats.attempted;deferred_at_window=stats.length_pass_deferred;
         // Valid coarsening may exhaust rejected directions without changing an already admissible mesh.
         if (!mesh_progress) ++stats.stagnant_windows;
         if (!mesh_progress && search_progress) ++stats.search_windows;
         if(!observe_progress("window"))return finish();
         // Fresh rejected directions are finite search work even on invalid meshes; do not declare infeasibility early.
         if (!mesh_progress && !search_progress) {
-          if(phase==Phase::Construction && !world.maximum(selection.cells.size()!=working.size())) {
+          if(!bidirectional && phase==Phase::Construction && !world.maximum(selection.cells.size()!=working.size())) {
             if(!enter_phase(Phase::Improvement))return finish();
             continue;
           }
@@ -3828,6 +3848,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         try {
           selection.FinishRepairs();
           for (Id vertex:directory->ChangedVertices()) selection.Touch(vertex);
+          // Retire known conflicts in this pass without another global reservation per edge.
+          // Unmeasured/remote support and expanded cavities remain guarded by Directory claims.
+          if(bidirectional && phase==Phase::Construction)
+            for(Id vertex:directory->ChangedVertices())stats.length_pass_deferred+=selection.ServiceClaimedVertex(vertex);
         }
         catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         ready=vote(failure);

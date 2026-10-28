@@ -420,6 +420,9 @@ operations are CoverageTraces 3,456 calls/16,005,528 exclusive; BindingParameter
 5,129/7,772,505 exclusive (21,135,051 inclusive); SurfaceError 1,189/3,860,090.
 Inclusive counts nest, so do not sum inclusive work. The trace sum covers emitted
 scopes and is not the arithmetic limit itself. Both raw private manifests report
-generation 15, 31 owned cells and 3,888 parameter bytes; descriptor counts were
-not decoded here. These captures are not accepted meshes. Source69 full M6 is
-now running in `staged57/m6_runs/euler_build69_incident_collapse`.
+generation 15, 31 owned cells and 3,888 parameter bytes. Existing parameter
+decoder verifies schema8, 22 points, 40 faces and a 960-byte appendix; the
+WriteAtlas header reports zero explicit faces and zero explicit traces in each.
+Thus these captures show repeated proof/retry work without retained explicit
+descriptor history; they do not prove a universal history bound. The case-local
+`parameter_descriptor_summary.json` records hashes and policy counts. These captures are not accepted meshes. M6 source69 `euler_build69_incident_collapse` terminated rejected after 1876.115s (solver exit 0, pins unchanged; all nine owned processes gone). Each rank reports zero completed length split/collapse passes yet one quality stage: a stagnation-window branch entered quality while pass-deferral scans changed neither attempts nor mesh progress. There were 289,853 directory elections per rank and 66,365 deferred candidates summed across ranks. Sampled process-tree maximum RSS was 3,757,772,800 bytes, not an allocation peak. The initial working mesh had 303,359 cells; 146,862 is source-envelope metadata. The next connected MIS bulk-retirement and lifecycle-gate design addresses this without weakening quality gates or caps. No M6 acceptance or transfer follows.

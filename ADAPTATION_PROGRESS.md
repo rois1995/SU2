@@ -5,6 +5,17 @@ Updated: 2026-10-27. Detailed failures and provenance remain linked below.
 
 ## Current result
 
+Build70 is running with sources frozen; the connected scheduler change is unvalidated.
+ServiceClaimedVertex retires measured local frontier directions using existing
+ChangedVertices notifications, without new cache, state or communication; Directory
+still guards unmeasured, remote and expanded support. Deferred-frontier progress
+prevents stagnation fallthrough; both legacy generic/stagnation quality handoffs
+are disabled for bidirectional mode, leaving pair quiescence as the construction-to-
+quality handoff. A tight-window (1) plain/composed fixture requires both pass counts
+before quality. Review found no blocker. `length_pass_deferred` now counts selected
+deferrals plus bulk-retired potential directions, including balanced edges; raw
+counts cannot be compared as equivalent work to earlier runs.
+
 Build69 PASS1198.313s, 1293 pins unchanged; all owned build processes exited.
 Audit passes 23 selections (atlas 63, serial 252, MPI 229). Atlas checks pass
 63 cases/12,847 assertions in 132.018s, including actual smooth/curve/unpublished
@@ -13,7 +24,7 @@ zero collapses, 136 rejections/274 geometry trials and the unchanged 67,207,168
 arithmetic cap (global work 744); 153 early constraint filters and 19 orientation
 vetoes in 420 checks. Flat workflow passes with 31 edits (27 splits, 4 collapses;
 work 282). The connected construction blocker and accepted M6 remain open.
-Mapped work trace69 is running; early M6 is planned next.
+M6 source69 `euler_build69_incident_collapse` terminated rejected after 1876.115s (solver exit 0, pins unchanged; all nine owned processes gone). Each rank reports zero completed length split/collapse passes yet one quality stage: a stagnation-window branch entered quality while pass-deferral scans changed neither attempts nor mesh progress. There were 289,853 directory elections per rank and 66,365 deferred candidates summed across ranks. Sampled process-tree maximum RSS was 3,757,772,800 bytes, not an allocation peak. The initial working mesh had 303,359 cells; 146,862 is source-envelope metadata. The next connected MIS bulk-retirement and lifecycle-gate design addresses this without weakening quality gates or caps. No M6 acceptance or transfer follows.
 
 
 Build67 PASS99.196s with unchanged pins. Focused bidirectional serial passes

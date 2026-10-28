@@ -13,8 +13,30 @@ zero collapses, 136 rejections/274 geometry trials and the unchanged 67,207,168
 arithmetic cap (global work 744); 153 early constraint filters and 19 orientation
 vetoes in 420 checks. Flat workflow passes with 31 edits (27 splits, 4 collapses;
 work 282). The connected construction blocker and accepted M6 remain open.
-Mapped work trace69 is running; early M6 is planned next.
+M6 source69 `euler_build69_incident_collapse` terminated rejected after 1876.115s (solver exit 0, pins unchanged; all nine owned processes gone). Each rank reports zero completed length split/collapse passes yet one quality stage: a stagnation-window branch entered quality while pass-deferral scans changed neither attempts nor mesh progress. There were 289,853 directory elections per rank and 66,365 deferred candidates summed across ranks. Sampled process-tree maximum RSS was 3,757,772,800 bytes, not an allocation peak. The initial working mesh had 303,359 cells; 146,862 is source-envelope metadata. The next connected MIS bulk-retirement and lifecycle-gate design addresses this without weakening quality gates or caps. No M6 acceptance or transfer follows.
 
+
+Committed pass claims currently retire selected deferred edges lazily, one at a time:
+`CNativeEngine3D.cpp` ServiceEdge:605, service_frontier:870 and deferral paths
+:2151/:2234/:2333. Directory NotifyChanges:1104 sends actual changed vertices to
+prior/new row owners; Engine Touch:3830 uses the notifications, and Selection
+vertex_cells and per-cell edges provide local incidence. Pending M6 final deferral
+counters, assess standard MIS active-frontier retirement: for splits retire all
+edges of local cells containing a claimed vertex; for collapses retire directions
+whose removed-vertex star contains that vertex (each neighboring removed R, all
+retained D). Do not retire the opposite direction merely because it is adjacent.
+Keep Directory final claims and expanded-footprint checks. The source70 change implements this approach and awaits validation; the M6 evidence does not establish it as the sole cost cause.
+
+Build70 is running with sources frozen; the connected scheduler change is unvalidated.
+ServiceClaimedVertex retires measured local frontier directions using existing
+ChangedVertices notifications, without new cache, state or communication; Directory
+still guards unmeasured, remote and expanded support. Deferred-frontier progress
+prevents stagnation fallthrough; both legacy generic/stagnation quality handoffs
+are disabled for bidirectional mode, leaving pair quiescence as the construction-to-
+quality handoff. A tight-window (1) plain/composed fixture requires both pass counts
+before quality. Review found no blocker. `length_pass_deferred` now counts selected
+deferrals plus bulk-retired potential directions, including balanced edges; raw
+counts cannot be compared as equivalent work to earlier runs.
 
 ## Evidence and source identity
 

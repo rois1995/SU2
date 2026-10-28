@@ -1,0 +1,603 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 142  of event 'cpu-clock'
+# Event count (approx.): 15777777762
+#
+# Children      Self      Pid:Command  Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     IPC   [IPC Coverage]
+# ........  ........  ...............  .........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................  ....................
+#
+    17.61%     0.00%    80715:SU2_CFD  [.] SU2Native3D::(anonymous namespace)::Adapt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               mca_pml_ob1_recv
+               opal_progress
+               |          
+                --9.15%--0x7f232adeb333
+
+    17.61%     0.00%    80715:SU2_CFD  [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()                                                                                                                                                                                                                                  -      -            
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               mca_pml_ob1_recv
+               opal_progress
+               |          
+                --9.15%--0x7f232adeb333
+
+    17.61%     0.00%    80715:SU2_CFD  [.] ElectFailure                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |
+            ---ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               mca_pml_ob1_recv
+               opal_progress
+               |          
+                --9.15%--0x7f232adeb333
+
+    17.61%     0.00%    80715:SU2_CFD  [.] CPassiveComm::AllreduceMax                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             -      -            
+            |
+            ---CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               mca_pml_ob1_recv
+               opal_progress
+               |          
+                --9.15%--0x7f232adeb333
+
+    17.61%     0.00%    80715:SU2_CFD  [.] PMPI_Allreduce                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         -      -            
+            |
+            ---PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               mca_pml_ob1_recv
+               opal_progress
+               |          
+                --9.15%--0x7f232adeb333
+
+    17.61%     1.41%    80715:SU2_CFD  [.] opal_progress                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          -      -            
+            |          
+             --16.20%--opal_progress
+                       |          
+                        --9.15%--0x7f232adeb333
+
+    17.61%     0.00%    80715:SU2_CFD  [.] ompi_coll_base_allreduce_intra_recursivedoubling                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -      -            
+            |
+            ---ompi_coll_base_allreduce_intra_recursivedoubling
+               mca_pml_ob1_recv
+               opal_progress
+               |          
+                --9.15%--0x7f232adeb333
+
+    17.61%     0.00%    80715:SU2_CFD  [.] mca_pml_ob1_recv                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -      -            
+            |
+            ---mca_pml_ob1_recv
+               opal_progress
+               |          
+                --9.15%--0x7f232adeb333
+
+    16.90%     1.41%    80717:SU2_CFD  [.] opal_progress                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          -      -            
+            |          
+             --15.49%--opal_progress
+                       |          
+                        --8.45%--0x7fc8b1cac333
+
+    16.90%     0.70%    80718:SU2_CFD  [.] opal_progress                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          -      -            
+            |          
+             --16.20%--opal_progress
+                       |          
+                        --9.86%--0x7f1575f78333
+
+    16.90%     0.00%    80716:SU2_CFD  [.] SU2Native3D::(anonymous namespace)::Adapt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               mca_pml_ob1_recv
+               opal_progress
+               |          
+                --5.63%--0x7ff1c948e333
+
+    16.90%     1.41%    80716:SU2_CFD  [.] opal_progress                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          -      -            
+            |          
+             --15.49%--opal_progress
+                       |          
+                        --5.63%--0x7ff1c948e333
+
+    16.90%     0.00%    80716:SU2_CFD  [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()                                                                                                                                                                                                                                  -      -            
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               mca_pml_ob1_recv
+               opal_progress
+               |          
+                --5.63%--0x7ff1c948e333
+
+    16.90%     0.00%    80716:SU2_CFD  [.] ElectFailure                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |
+            ---ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               mca_pml_ob1_recv
+               opal_progress
+               |          
+                --5.63%--0x7ff1c948e333
+
+    16.90%     0.00%    80716:SU2_CFD  [.] CPassiveComm::AllreduceMax                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             -      -            
+            |
+            ---CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               mca_pml_ob1_recv
+               opal_progress
+               |          
+                --5.63%--0x7ff1c948e333
+
+    16.90%     0.00%    80716:SU2_CFD  [.] PMPI_Allreduce                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         -      -            
+            |
+            ---PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               mca_pml_ob1_recv
+               opal_progress
+               |          
+                --5.63%--0x7ff1c948e333
+
+    16.90%     0.00%    80716:SU2_CFD  [.] ompi_coll_base_allreduce_intra_recursivedoubling                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -      -            
+            |
+            ---ompi_coll_base_allreduce_intra_recursivedoubling
+               mca_pml_ob1_recv
+               opal_progress
+               |          
+                --5.63%--0x7ff1c948e333
+
+    16.90%     0.00%    80716:SU2_CFD  [.] mca_pml_ob1_recv                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -      -            
+            |
+            ---mca_pml_ob1_recv
+               opal_progress
+               |          
+                --5.63%--0x7ff1c948e333
+
+    16.90%     0.00%    80717:SU2_CFD  [.] SU2Native3D::(anonymous namespace)::Adapt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --8.45%--0x7fc8b1cac333
+
+    16.90%     0.00%    80717:SU2_CFD  [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()                                                                                                                                                                                                                                  -      -            
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --8.45%--0x7fc8b1cac333
+
+    16.90%     0.00%    80717:SU2_CFD  [.] ElectFailure                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |
+            ---ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --8.45%--0x7fc8b1cac333
+
+    16.90%     0.00%    80717:SU2_CFD  [.] CPassiveComm::AllreduceMax                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             -      -            
+            |
+            ---CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --8.45%--0x7fc8b1cac333
+
+    16.90%     0.00%    80717:SU2_CFD  [.] PMPI_Allreduce                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         -      -            
+            |
+            ---PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --8.45%--0x7fc8b1cac333
+
+    16.90%     0.00%    80717:SU2_CFD  [.] ompi_coll_base_allreduce_intra_recursivedoubling                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -      -            
+            |
+            ---ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --8.45%--0x7fc8b1cac333
+
+    16.90%     0.00%    80717:SU2_CFD  [.] ompi_coll_base_sendrecv_actual                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         -      -            
+            |
+            ---ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --8.45%--0x7fc8b1cac333
+
+    16.90%     0.00%    80717:SU2_CFD  [.] ompi_request_default_wait                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---ompi_request_default_wait
+               opal_progress
+               |          
+                --8.45%--0x7fc8b1cac333
+
+    16.90%     0.00%    80718:SU2_CFD  [.] SU2Native3D::(anonymous namespace)::Adapt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --9.86%--0x7f1575f78333
+
+    16.90%     0.00%    80718:SU2_CFD  [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()                                                                                                                                                                                                                                  -      -            
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --9.86%--0x7f1575f78333
+
+    16.90%     0.00%    80718:SU2_CFD  [.] ElectFailure                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |
+            ---ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --9.86%--0x7f1575f78333
+
+    16.90%     0.00%    80718:SU2_CFD  [.] CPassiveComm::AllreduceMax                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             -      -            
+            |
+            ---CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --9.86%--0x7f1575f78333
+
+    16.90%     0.00%    80718:SU2_CFD  [.] PMPI_Allreduce                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         -      -            
+            |
+            ---PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --9.86%--0x7f1575f78333
+
+    16.90%     0.00%    80718:SU2_CFD  [.] ompi_coll_base_allreduce_intra_recursivedoubling                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -      -            
+            |
+            ---ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --9.86%--0x7f1575f78333
+
+    16.90%     0.00%    80718:SU2_CFD  [.] ompi_coll_base_sendrecv_actual                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         -      -            
+            |
+            ---ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --9.86%--0x7f1575f78333
+
+    16.90%     0.00%    80718:SU2_CFD  [.] ompi_request_default_wait                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---ompi_request_default_wait
+               opal_progress
+               |          
+                --9.86%--0x7f1575f78333
+
+    16.20%     0.00%    80714:SU2_CFD  [.] 0xffffffffffffffff                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     -      -            
+            |
+            ---0xffffffffffffffff
+               |          
+                --12.68%--SU2NativeGeometry::PrepareCurvedAtlas
+                          |          
+                           --7.75%--SU2NativeGeometry::MappedFacetReference::ValidateCoverage
+                                     |          
+                                      --6.34%--SU2NativeGeometry::(anonymous namespace)::SplitAtlasEdges
+                                                |          
+                                                 --4.23%--SU2NativeGeometry::ExactMultiply
+                                                           SU2NativeGeometry::(anonymous namespace)::Attempt<SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}>
+                                                           SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}::operator()
+
+    16.20%     0.00%    80714:SU2_CFD  [.] SU2NativeGeometry::PrepareCurvedAtlas                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  -      -            
+            |
+            ---SU2NativeGeometry::PrepareCurvedAtlas
+               |          
+               |--8.45%--SU2NativeGeometry::MappedFacetReference::ValidateCoverage
+               |          |          
+               |           --7.04%--SU2NativeGeometry::(anonymous namespace)::SplitAtlasEdges
+               |                     |          
+               |                      --4.23%--SU2NativeGeometry::ExactMultiply
+               |                                SU2NativeGeometry::(anonymous namespace)::Attempt<SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}>
+               |                                SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}::operator()
+               |          
+                --4.23%--SU2NativeGeometry::RebuildReferenceTriangulation
+
+    15.49%     0.00%    80719:SU2_CFD  [.] SU2Native3D::(anonymous namespace)::Adapt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --3.52%--0x7fbce5822336
+
+    15.49%     2.11%    80719:SU2_CFD  [.] opal_progress                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          -      -            
+            |          
+             --13.38%--opal_progress
+                       |          
+                        --3.52%--0x7fbce5822336
+
+    15.49%     0.00%    80719:SU2_CFD  [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()                                                                                                                                                                                                                                  -      -            
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --3.52%--0x7fbce5822336
+
+    15.49%     0.00%    80719:SU2_CFD  [.] ElectFailure                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |
+            ---ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --3.52%--0x7fbce5822336
+
+    15.49%     0.00%    80719:SU2_CFD  [.] CPassiveComm::AllreduceMax                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             -      -            
+            |
+            ---CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --3.52%--0x7fbce5822336
+
+    15.49%     0.00%    80719:SU2_CFD  [.] PMPI_Allreduce                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         -      -            
+            |
+            ---PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --3.52%--0x7fbce5822336
+
+    15.49%     0.00%    80719:SU2_CFD  [.] ompi_coll_base_allreduce_intra_recursivedoubling                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -      -            
+            |
+            ---ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --3.52%--0x7fbce5822336
+
+    15.49%     0.00%    80719:SU2_CFD  [.] ompi_coll_base_sendrecv_actual                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         -      -            
+            |
+            ---ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               |          
+                --3.52%--0x7fbce5822336
+
+    15.49%     0.00%    80719:SU2_CFD  [.] ompi_request_default_wait                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---ompi_request_default_wait
+               opal_progress
+               |          
+                --3.52%--0x7fbce5822336
+
+    14.08%     0.00%    80714:SU2_CFD  [.] SU2NativeGeometry::(anonymous namespace)::Attempt<SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}>                                                                                                                                                                                                                                                                                                                                                                                                                             -      -            
+            |
+            ---SU2NativeGeometry::(anonymous namespace)::Attempt<SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}>
+               SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}::operator()
+               |          
+               |--8.45%--SU2NativeGeometry::(anonymous namespace)::Reduced
+               |          |          
+               |          |--4.23%--SU2NativeGeometry::(anonymous namespace)::Gcd
+               |          |          
+               |           --4.23%--SU2NativeGeometry::(anonymous namespace)::Quotient
+               |          
+                --4.93%--SU2NativeGeometry::(anonymous namespace)::Load
+                          SU2NativeGeometry::(anonymous namespace)::Gcd
+
+    14.08%     0.00%    80714:SU2_CFD  [.] SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}::operator()                                                                                                                                                                                                                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}::operator()
+               |          
+               |--8.45%--SU2NativeGeometry::(anonymous namespace)::Reduced
+               |          |          
+               |          |--4.23%--SU2NativeGeometry::(anonymous namespace)::Gcd
+               |          |          
+               |           --4.23%--SU2NativeGeometry::(anonymous namespace)::Quotient
+               |          
+                --4.93%--SU2NativeGeometry::(anonymous namespace)::Load
+                          SU2NativeGeometry::(anonymous namespace)::Gcd
+
+    11.97%     0.00%    80714:SU2_CFD  [.] SU2NativeGeometry::(anonymous namespace)::SplitAtlasEdges                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---SU2NativeGeometry::(anonymous namespace)::SplitAtlasEdges
+               |          
+               |--5.63%--SU2NativeGeometry::ExactSubtract
+               |          SU2NativeGeometry::(anonymous namespace)::Attempt<SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}>
+               |          SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}::operator()
+               |          |          
+               |           --3.52%--SU2NativeGeometry::(anonymous namespace)::Reduced
+               |          
+                --4.93%--SU2NativeGeometry::ExactMultiply
+                          SU2NativeGeometry::(anonymous namespace)::Attempt<SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}>
+                          SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}::operator()
+
+     9.86%     9.86%    80718:SU2_CFD  [.] 0x0000000000005333                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     -      -            
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               0x7f1575f78333
+
+     9.86%     0.00%    80718:SU2_CFD  [.] 0x00007f1575f78333                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     -      -            
+            |
+            ---0x7f1575f78333
+
+     9.15%     9.15%    80715:SU2_CFD  [.] 0x0000000000005333                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     -      -            
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               mca_pml_ob1_recv
+               opal_progress
+               0x7f232adeb333
+
+     9.15%     2.11%    80714:SU2_CFD  [.] SU2NativeGeometry::(anonymous namespace)::Gcd                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          -      -            
+            |          
+             --7.04%--SU2NativeGeometry::(anonymous namespace)::Gcd
+
+     9.15%     0.00%    80715:SU2_CFD  [.] 0x00007f232adeb333                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     -      -            
+            |
+            ---0x7f232adeb333
+
+     8.45%     0.00%    80714:SU2_CFD  [.] SU2NativeGeometry::MappedFacetReference::ValidateCoverage                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---SU2NativeGeometry::MappedFacetReference::ValidateCoverage
+               |          
+                --7.04%--SU2NativeGeometry::(anonymous namespace)::SplitAtlasEdges
+                          |          
+                           --4.23%--SU2NativeGeometry::ExactMultiply
+                                     SU2NativeGeometry::(anonymous namespace)::Attempt<SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}>
+                                     SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}::operator()
+
+     8.45%     0.00%    80714:SU2_CFD  [.] SU2NativeGeometry::(anonymous namespace)::Reduced                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      -      -            
+            |
+            ---SU2NativeGeometry::(anonymous namespace)::Reduced
+               |          
+               |--4.23%--SU2NativeGeometry::(anonymous namespace)::Gcd
+               |          
+                --4.23%--SU2NativeGeometry::(anonymous namespace)::Quotient
+
+     8.45%     0.00%    80717:SU2_CFD  [.] 0x00007fc8b1cac333                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     -      -            
+            |
+            ---0x7fc8b1cac333
+
+     7.75%     7.75%    80717:SU2_CFD  [.] 0x0000000000005333                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     -      -            
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               opal_progress
+               0x7fc8b1cac333
+
+     7.04%     0.00%    80714:SU2_CFD  [.] SU2NativeGeometry::ExactSubtract                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -      -            
+            |
+            ---SU2NativeGeometry::ExactSubtract
+               SU2NativeGeometry::(anonymous namespace)::Attempt<SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}>
+               SU2NativeGeometry::(anonymous namespace)::Arithmetic(SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio const&, SU2NativeGeometry::ExactRatio&, SU2NativeGeometry::AtlasBudget&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)::{lambda()#1}::operator()
+               |          
+                --4.23%--SU2NativeGeometry::(anonymous namespace)::Reduced
+
+     5.63%     5.63%    80716:SU2_CFD  [.] 0x0000000000005333                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     -      -            
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               mca_pml_ob1_recv
+               opal_progress
+               0x7ff1c948e333
+
+     5.63%     0.00%    80716:SU2_CFD  [.] 0x00007ff1c948e333                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     -      -            
+            |
+            ---0x7ff1c948e333
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

@@ -20,6 +20,17 @@ may move on prescribed geometry. Scenario labels must not dispatch reconstructio
 
 ## Current work and evidence
 
+Build70 is running with sources frozen; the connected scheduler change is unvalidated.
+ServiceClaimedVertex retires measured local frontier directions using existing
+ChangedVertices notifications, without new cache, state or communication; Directory
+still guards unmeasured, remote and expanded support. Deferred-frontier progress
+prevents stagnation fallthrough; both legacy generic/stagnation quality handoffs
+are disabled for bidirectional mode, leaving pair quiescence as the construction-to-
+quality handoff. A tight-window (1) plain/composed fixture requires both pass counts
+before quality. Review found no blocker. `length_pass_deferred` now counts selected
+deferrals plus bulk-retired potential directions, including balanced edges; raw
+counts cannot be compared as equivalent work to earlier runs.
+
 Build69 PASS1198.313s, 1293 pins unchanged; all owned build processes exited.
 Audit passes 23 selections (atlas 63, serial 252, MPI 229). Atlas checks pass
 63 cases/12,847 assertions in 132.018s, including actual smooth/curve/unpublished
@@ -28,30 +39,15 @@ zero collapses, 136 rejections/274 geometry trials and the unchanged 67,207,168
 arithmetic cap (global work 744); 153 early constraint filters and 19 orientation
 vetoes in 420 checks. Flat workflow passes with 31 edits (27 splits, 4 collapses;
 work 282). The connected construction blocker and accepted M6 remain open.
-Trace69 terminal FAIL10.815s, pins unchanged; full M6 source69 `euler_build69_incident_collapse` is live (PID 80708).
+M6 source69 `euler_build69_incident_collapse` terminated rejected after 1876.115s (solver exit 0, pins unchanged; all nine owned processes gone). Each rank reports zero completed length split/collapse passes yet one quality stage: a stagnation-window branch entered quality while pass-deferral scans changed neither attempts nor mesh progress. There were 289,853 directory elections per rank and 66,365 deferred candidates summed across ranks. Sampled process-tree maximum RSS was 3,757,772,800 bytes, not an allocation peak. The initial working mesh had 303,359 cells; 146,862 is source-envelope metadata. The next connected MIS bulk-retirement and lifecycle-gate design addresses this without weakening quality gates or caps. No M6 acceptance or transfer follows.
 
 
-Build67 PASS99.196s with unchanged pins. Focused bidirectional serial passes
-3 cases/300 assertions in 5.934s; MPI6 passes 3 cases per rank in 6.774s
-(`staged57/cases/bidirectional_20261028T001524_4140966` and
-`bidirectional6_20261028T001541_4141896`). Mapped runtime
-`staged57/cases/mapped_runtime_20261028T001819_4149269` FAIL12.774s,
-195/197 assertions: curved flows reached 13 splits, zero collapses and the
-unchanged arithmetic guard; flat workflow passes. No accepted M6 results.
-See [metric-length design](Handbook/METRIC_LENGTH_SATISFACTION_DESIGN.md).
+Build67 focused bidirectional serial/MPI checks passed; mapped curved runtime failed at the arithmetic guard. See [progress](ADAPTATION_PROGRESS.md).
 
 Build63 normalization and repeated MPI publication checks passed; see [progress](ADAPTATION_PROGRESS.md) for their scoped evidence.
 
-Broad serial `staged57/cases/serial_full_20261027T230545_3953311` FAIL176.0948s:
-243/245 cases and 1,134,704/1,134,707 assertions pass. Two failures are the known
-curved runtime; the third is a stale quality-stage query expectation (6 vs 12).
-Broad MPI63 `staged57/cases/mpi6_20261027T231001_3964969` FAIL177.1677s
-with unchanged pins: each rank passed 220/222 cases, with the same three failed
-assertions; the empty-rank fixture passed and all nine processes exited. Source64
-corrects the stale fixture expectation and strengthens row/version/content checks.
-Build64 PASS96.1853s; focused quality_cache serial and MPI6 pass in 6.8561s and
-6.8769s respectively, all owned processes gone. All 21 compiled filter selections pass in build64. These focused passes do not qualify the failed
-broad campaigns. No complete M6 or CFD transfer/restart is accepted.
+Build63 broad serial/MPI failed curved runtime and a stale fixture expectation;
+source64 focused correction passed. Details are in [progress](ADAPTATION_PROGRESS.md).
 
 Geometry-validation checkpoint `9ae6b94886` on authorized origin rois1995/SU2, branch
 codex/native-3d-bl; it is incomplete. Source63 broad MPI confirms the nonempty-rank

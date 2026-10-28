@@ -4115,6 +4115,7 @@ TEST_CASE("Independent quality stars commit concurrently with final strict accep
 }
 
 TEST_CASE("Metric adaptation resolves opposing length demands before shape census", "[NativeBidirectionalLength3D]") {
+  const bool composed=GENERATE(false,true);
   World world; Fixture fixture; Owned input;
   auto append=[&](Fixture piece,Id offset,double shift,int owner) {
     for(auto& c:piece.patch.cells){c.id+=offset;for(auto& n:c.v){n.id+=offset;n.p.x+=shift;}}
@@ -4139,10 +4140,11 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
   auto donorBytes=[](std::vector<DonorCell> rows){std::vector<char> b;RecordStream stream(b);for(auto& row:rows)stream(row);return b;};
   bool saw_split=false,saw_collapse=false,construction_unmeasured=true,quality_seen=false;
   uint64_t splits_before_quality=0,collapses_before_quality=0,parallel_before_quality=0;
-  bool first_collapse_seen=false,collapse_before_size_complete=false;
-  EngineOptions options;options.maximum_work=4096;
+  bool first_collapse_seen=false,collapse_before_size_complete=false,quality_after_pair=true;
+  EngineOptions options;options.maximum_work=4096;options.stagnation_window=1;
   options.stage_observer=[&](const StageProgressView& view){
     if(view.phase==EnginePhase::Improvement && !quality_seen) {
+      quality_after_pair=view.stats.length_split_passes>0 && view.stats.length_collapse_passes>0;
       quality_seen=true;splits_before_quality=view.stats.length_splits;collapses_before_quality=view.stats.length_collapses;
       parallel_before_quality=view.stats.maximum_parallel_commits;
     }
@@ -4154,7 +4156,9 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
       if(!first_collapse_seen){first_collapse_seen=true;collapse_before_size_complete=view.progress.size_bad_cells!=0;}
     }
   };
-  const auto result=AdaptMetric(world,input,source,geometry,{},options);INFO(result.reason);
+  MetricComposition composition;if(composed)composition=[](Point,Tensor sensor){return sensor;};
+  const auto result=AdaptMetric(world,input,source,geometry,composition,options);INFO(result.reason);
+  CHECK(world.maximum(!quality_after_pair)==0);
   CHECK(result.stats.bidirectional);CHECK(result.stats.length_split_passes>0);CHECK(result.stats.length_collapse_passes>0);
   CHECK(world.sum(result.stats.length_splits)>0);CHECK(world.sum(result.stats.length_collapses)>0);
   CHECK(world.sum(result.stats.length_pass_deferred)>0);
