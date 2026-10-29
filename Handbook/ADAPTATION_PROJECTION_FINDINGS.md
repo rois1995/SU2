@@ -2,6 +2,10 @@
 
 Last updated: 2026-10-29.
 
+Current build114 is compiling explicit stage admission independent of geometric-builder mode. No accepted complete curved/M6 workflow exists. Latest supporting
+checks and failed whole workflows are recorded below; prior build labels are
+historical evidence, not current whole-workflow qualification.
+
 Build106 PASS114.227s,1295 pins unchanged, compiles the connected failure-path changes; no complete
 workflow is accepted. Build103 capture of the actual M6 fatal query records the
 current binding, body/sheet/feature scope,9 candidates, raw nets, seed/final
@@ -73,6 +77,89 @@ that requirement and uses the existing improvement stage after each complete pai
 consistent with SCOREC ma.cc adaptVerbose. No local fallback or cap increase.
 The opposing-length distributed workflow now checks improvement after the first
 pair while retaining complete final acceptance. Build108 validation is pending.
+
+Build108 PASS790.893s/1295 pins unchanged; host I/O contention dominates linking.
+Opposing-length serial workflow passes8.364s and now reaches improvement after
+one pair. MPI6 focused8 cases/rank pass11.451s; current-field122 cases pass10.413s;
+28 filter selections pass; all10 DC18 geometry groups pass with current header.
+These supporting checks do not establish robust curved construction.
+
+Actual mapped108 FAIL43.323s (pins unchanged), versus101.957s build107. Both curved
+variants enter8 quality stages/7 construction returns, make75 edits/44 moves/19
+reconnections, leave41 private cells and exhaust unchanged67,207,168 work;8 geometry
+and25 metric/height debts remain. Last refusal is a cone/interface obstruction,
+which does not prove no admissible operation exists. The first stored repair
+failure has empty reason and no replay because it is actually an initial streaming
+probe before any repair was proposed. Build109 excludes that probe from failure
+capture and adds fresh MoveVertex replay using the existing captured arguments.
+No new operator, representation or acceptance rule for this diagnostic correction.
+[Mapped108 summary](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build108_mapped_summary.json).
+
+Build109 passes373.183s/1295 pins unchanged. Actual mapped workflow still fails
+34.902s at unchanged work; this diagnostic change does not claim mesh progress.
+First real repair is MoveVertex at genuine corner0, round3. Independent fresh
+replay refuses the same physical corner, with zero exact-atlas work and no
+exhaustion. Thus this is an unavailable move, not invalid backend state, proof of
+an impossible mesh, or the explanation for arithmetic exhaustion. Other proposals
+continue. Full final quality/geometry closure remains absent.
+
+Build110 adds rank-local phase receipts to existing timing output: cached q/J/
+size/geometry debt, association/working-face/piece counts, maximum ratio storage
+limbs and cumulative atlas work. No geometry/quality measurements are added, and
+window callbacks are excluded from this scan. The counts are rank-local state
+views, not unique global counts. They will distinguish retained representation
+growth from repeated verification and actual progress before any cap revision.
+No algorithm or limit changes in this diagnostic step.
+
+Build112 receipts validate descriptor bounds in the smaller event: at most19
+associations,34 working faces,21 trace pieces; maximum ratio storage2 limbs.
+Last improvement starts at atlas work9,834,895 and exits67,207,168 while q/J bad
+cells grow2/2→6/5, q debt .07617→1.24217, J debt .32706→1.51453; size debt falls
+15.5194→9.7759, geometry debt .0004811→.0004023. About85% of work is spent there.
+This identifies mixed improvement goals/repeated verification, not history growth
+in this event; it does not qualify repeated accepted adaptations.
+
+Build113 reuses quality_valid for staged improvement demand and synchronizes
+membership on phase entry, publication and quality refresh. Combined validity
+still controls final acceptance. Public standalone Repair remains broader. Staged
+shape repair no longer gets geometry-only progress promotion, and absolute Repair
+cannot exchange unacceptable shape for size progress. The direct regression keeps
+validity-only construction permissive and verifies shape-gate closure. Mixed-body
+serial/MPI regression checks a shape-good/size-bad rank is not selected for shape
+repair while another has actual bad cells. Validation pending, no limit change.
+
+Build113 supporting opposing-length/mixed-debt4 cases pass7.290s;28 compiled
+selections include all intended cases. Actual curved workflow FAIL16.663s at4096
+proposals, atlas work27,386,472 (below cap). It reaches7 quality phases; last
+quality q/J bad cells rise1/2→7/5,47→142 cells. This demonstrates the remaining
+admission loophole, not arithmetic history growth. Adapt retains ValidityOnly for
+geometric builders throughout; its helper's Absolute rule is not native admission.
+Build114 uses existing metric_trial for both local and streamed stage acceptance:
+ordinary staged repair must improve measured worst shape or pass final shape,
+without increasing metric excess. Requested-height repair route is unchanged.
+No new construction measurements or gate/cap changes. Captured serial no-height
+quality phases assert their actual clipped worst shape score does not regress.
+[112 phase evidence](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build112_mapped_summary.json),
+[113 phase evidence](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build113_mapped_summary.json).
+
+Build114 passes261.364s with1295 pins unchanged. Actual mapped workflow still
+FAIL30.048s: operator stagnation, not exhausted resources (35,630,824 atlas work,
+2062 proposals; limits67,207,168/4096). Within-stage clipped shape-score assertions
+pass; only two final COMPLETE requirements fail. Final139 cells include one q/J
+sliver and32 geometry/16 size debts. Independent exact-rational determinant decode
+finds cell122900, q4.995e-12/J6.844e-18; all4 vertices have boundary associations
+on facet1, with2 physical faces. Opposite interior edge1–134792 has complete ring6
+(within optimizer max8). This identifies a precise boundary-sliver repair target,
+not proof of no admissible operation. [114 workflow](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build114_mapped_summary.json),
+[exact saved-cell diagnosis](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build114_worst_cell.json).
+
+MPI114 focused has9/10 cases per rank passing; the new Absolute repair test has
+incorrect expectations that progress is measured before its existing shape gate.
+It correctly rejects the poor cell as Shape, not Progress. Correct those assertions
+without changing acceptance. Diagnostic115 uses existing CollapseVertex on saved
+final state, fresh work per proposal and unchanged original geometry, no pre-op
+surface-error certificate. It is not an exact earlier transaction replay or accepted
+mesh; data inputs are pinned at diagnostic launch. No new operator/cap change.
 
 The connected projection implementation shares the point, patch and derivative
 arithmetic used by `PNTriangleSurface::Minimize` through detail helpers. The

@@ -11,20 +11,23 @@ coarsen/refine cycles in SU2. Preserve movable boundaries on fixed geometry,
 genuine features/bodies, absolute tolerance independent of h0, validity-only
 construction then metric/BL improvement and every final gate.
 
-Latest labelled WIP checkpoint7594b41362 contains build106 code/captures on rois1995/SU2,
+Latest pushed WIP checkpointa8135c6e63 contains captured fixes and per-pair staging on rois1995/SU2,
 `codex/native-3d-bl`. TODO stays local. Leave unrelated files alone.
 
-**Build108 RUNNING session49166;1295 pins fixed. Do not edit pinned sources/helpers.**
-Build107 projection paths PASS20 cases/597 assertions72.763s; MPI6 PASS5 cases/rank
-6.916s.28 compiled-filter selections pass. Actual small workflow FAIL101.957s:
-323 edits/87 moves/23 reconnects, then same67,207,168 work before curved transfer.
-106 length-pass pairs precede its only quality stage; M6 build106 never reaches
-quality at1800s. Build108 removes the agent-selected unproductive-pair precondition:
-existing improvement stage follows each complete collapse/split pair, matching
-SCOREC ma.cc adaptVerbose iteration staging. Regression now asserts one pair before
-first quality census. No construction q/J, budget or final gate changes.
-ma/LICENSE is non-commercial (root LICENSE is BSD); earlier combined claim corrected.
-No MeshAdapt source copied. Captured projection/debt admission fixes remain.
+**Build114 PASS261.364s; diagnostic115 RUNNING session53266;1295 source/test/helper pins fixed. Do not edit.**
+Build109 fresh MoveVertex replay reproduces genuine corner0 refusal, work0/no
+exhaustion. The earlier empty first-repair capture was a probe before any operator;
+now excluded.112 labels the actual operator and logs cached debt/descriptor counts
+with consistency flags at phase boundaries; no new q/J/geometry measurements.
+Build110 logging gate was inactive; fixed before112. No accepted curved mesh.
+
+Supporting build108 checks: opposing-length serial and MPI6 focused8 cases/rank,
+current-field122 cases,28 compiled selections and all10 DC18 groups pass. Actual
+mapped108/109 reaches8 improvement stages after one pair (75 edits/44 moves/19
+reconnects), but exhausts unchanged67,207,168 atlas work before curved transfer.
+Detailed evidence/previous terminal M6 outcome follow below; actual111/112 M6
+staging qualification and repeated accepted transfer/restart still required.
+ma/LICENSE is non-commercial; root LICENSE BSD. No MeshAdapt source copied.
 Build106 projection paths PASS16 cases/547 assertions64.187s; filter audit28
 selections passes. Small curved workflow FAIL89.521s at same67,207,168 atlas work
 after331 edits/83 moves/39 reconnects. First fresh collapse builds within tolerance

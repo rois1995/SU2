@@ -1,0 +1,122 @@
+{
+  "build": "build114",
+  "scope": "independent saved private-state diagnosis; not accepted mesh",
+  "owned_format": "0x4e334443454c4c02",
+  "rows": 139,
+  "record_bytes": 416,
+  "exact_rational_determinant": true,
+  "target": "uniform diag(4); q/J invariant under isotropic scaling",
+  "worst": {
+    "cell": 122900,
+    "nodes": [
+      {
+        "id": 1,
+        "position": [
+          1.0,
+          0.37,
+          0.0
+        ]
+      },
+      {
+        "id": 5,
+        "position": [
+          1.0,
+          0.98,
+          1.0
+        ]
+      },
+      {
+        "id": 134792,
+        "position": [
+          0.49999999999999994,
+          0.48999999999999994,
+          0.49999999999999994
+        ]
+      },
+      {
+        "id": 114056,
+        "position": [
+          0.368546856787589,
+          0.1363623370114079,
+          -5e-324
+        ]
+      }
+    ],
+    "q": 4.9950004641988136e-12,
+    "J": 6.844132592157848e-18,
+    "score": 1.3688265184315695e-16,
+    "volume6": 7.084836210160995e-18,
+    "physical_faces": [
+      {
+        "opposite": 0,
+        "facet": 1,
+        "nodes": [
+          5,
+          134792,
+          114056
+        ]
+      },
+      {
+        "opposite": 2,
+        "facet": 1,
+        "nodes": [
+          1,
+          5,
+          114056
+        ]
+      }
+    ],
+    "all_vertices_on_physical_boundary": true,
+    "associations": {
+      "1": {
+        "position": [
+          1.0,
+          0.37,
+          0.0
+        ],
+        "feature": 1,
+        "version": 7,
+        "support_dimension": 0,
+        "u": 0.0,
+        "v": 0.0
+      },
+      "5": {
+        "position": [
+          1.0,
+          0.98,
+          1.0
+        ],
+        "feature": 5,
+        "version": 7,
+        "support_dimension": 0,
+        "u": 0.0,
+        "v": 0.0
+      },
+      "134792": {
+        "position": [
+          0.49999999999999994,
+          0.48999999999999994,
+          0.49999999999999994
+        ],
+        "feature": 4,
+        "version": 7,
+        "support_dimension": 1,
+        "u": 0.5,
+        "v": 0.0
+      },
+      "114056": {
+        "position": [
+          0.368546856787589,
+          0.1363623370114079,
+          -5e-324
+        ],
+        "feature": 0,
+        "version": 7,
+        "support_dimension": 1,
+        "u": 0.36854685678758903,
+        "v": 0.0
+      }
+    }
+  },
+  "binding_layout_source": "CNativeAffineReference.hpp SurfaceBinding::Fields(feature,version,dimension,u,v)"
+}

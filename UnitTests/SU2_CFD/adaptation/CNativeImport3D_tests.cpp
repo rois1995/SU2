@@ -2628,6 +2628,21 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
         <<" feature="<<feature.vertices[0]<<','<<feature.vertices[1]<<','<<feature.vertices[2]
         <<" geometry="<<geometry<<" old_cells="<<old.cells.size()<<" new_cells="<<fresh.cells.size()<<" reason="<<reason<<'\n';
     };
+  double quality_floor=0;bool quality_active=false;
+  if(curved && work_trace && std::string(work_trace)=="1")
+    limits.stage_observer=[&](const StageProgressView& view) {
+      if(world.size!=1 || !view.wall_heights.empty())return;
+      const std::string stage=view.stage;
+      const bool entry=stage=="quality_entry";
+      if(!entry && (!quality_active || (view.phase!=EnginePhase::Improvement && stage!="construction_entry")))return;
+      double score=1;
+      for(const auto& row:view.working){const auto& v=row.second.cell.v;
+        const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},Tensor{4,0,0,4,0,4});
+        score=std::min({score,m.mean_ratio/MinimumMeanRatio,m.minimum_scaled_jacobian/MinimumScaledJacobian});}
+      INFO("Measured shape score within quality stage: "<<score<<" previous "<<quality_floor);
+      CHECK(std::isfinite(score));if(!entry)CHECK(score>=quality_floor-1e-12);
+      quality_floor=score;quality_active=stage!="construction_entry";
+    };
   if(curved && work_trace && std::string(work_trace)=="1")
     limits.transaction_observer=[&](const TransactionView& view) {
       constexpr size_t ceiling=size_t(128)<<20;
@@ -2643,13 +2658,18 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
       SaveRecords(name+"_proposal",PatchRecords(view.fresh),{},captured);
       auto budget=BoundaryAtlasBudget(parameters->PayloadBytes(),ceiling,retained);
       if(view.geometry.AtlasReservation())budget.maximum_work=view.geometry.AtlasReservation()->maximum_work;
-      bool supported=false,built=false,error_measured=false;double error=0;std::string why;Patch replay;
+      bool supported=false,built=false,error_measured=false;double error=0;std::string why,operation;Patch replay;
       try {
         auto scoped=view.geometry.PrivateParameters(view.old,&budget);const Edge edge{view.feature.vertices[0],view.feature.vertices[1]};
         if(std::string(view.stage)=="first_collapse_failure") {
-          supported=true;built=CollapseVertex(view.old,edge[1],edge[0],view.first_cell,*scoped,replay,why);
+          supported=true;operation="CollapseVertex";built=CollapseVertex(view.old,edge[1],edge[0],view.first_cell,*scoped,replay,why);
         } else if(std::string(view.stage)=="first_split_failure") {
-          supported=true;built=SplitEdge(view.old,edge,view.point,view.first_cell,*scoped,replay,why);
+          supported=true;operation="SplitEdge";built=SplitEdge(view.old,edge,view.point,view.first_cell,*scoped,replay,why);
+        }
+        if(std::string(view.stage)=="first_MoveVertex_failure" && view.feature.count==1 && view.point.id) {
+          REQUIRE_FALSE(std::string(view.reason).empty());
+          supported=true;operation="MoveVertex";
+          built=MoveVertex(view.old,view.feature.vertices[0],view.point,view.first_cell,*scoped,replay,why);
         }
         if(built) {
           auto proof=scoped->PrivateParameters(replay,&budget);std::map<Id,Point> coordinates;
@@ -2662,7 +2682,7 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
       std::ofstream receipt(name+".json");receipt<<std::setprecision(17)
           <<"{\"stage\":"<<std::quoted(view.stage)<<",\"feature\":["<<view.feature.vertices[0]<<','<<view.feature.vertices[1]
           <<"],\"round\":"<<view.round<<",\"reason\":"<<std::quoted(view.reason)<<",\"old_physical_faces\":"<<view.old.surface.size()
-          <<",\"replay_supported\":"<<(supported?"true":"false")<<",\"replay_built\":"<<(built?"true":"false")
+          <<",\"replay_operation\":"<<std::quoted(operation)<<",\"replay_supported\":"<<(supported?"true":"false")<<",\"replay_built\":"<<(built?"true":"false")
           <<",\"replay_reason\":"<<std::quoted(why)<<",\"maximum_surface_error_bound\":";
       if(error_measured)receipt<<error;else receipt<<"null";
       receipt<<",\"geometry_tolerance\":"<<config->GetAdap_Hausd()<<",\"fresh_work\":"<<budget.work

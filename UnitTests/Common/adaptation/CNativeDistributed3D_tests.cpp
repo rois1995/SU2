@@ -4201,6 +4201,42 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
   }
 }
 
+TEST_CASE("Metric improvement queues shape debt independently of construction debt", "[NativeBidirectionalLength3D]") {
+  World world;Fixture fixture;Owned input;
+  auto append=[&](Fixture piece,Id offset,double shift,int owner) {
+    for(auto& c:piece.patch.cells){c.id+=offset;for(auto& n:c.v){n.id+=offset;n.p.x+=shift;}}
+    for(auto& f:piece.patch.surface){f.facet+=offset;for(auto& id:f.v)id+=offset;}
+    for(auto& f:piece.facets){f.id+=offset;for(auto& n:f.v){n.id+=offset;n.p.x+=shift;}}
+    if(owner==world.rank)for(const auto& row:Rows(piece.patch))input.emplace(row.cell.id,row);
+    fixture.facets.insert(fixture.facets.end(),piece.facets.begin(),piece.facets.end());
+  };
+  append(Box(),0,0,0);append(Box(.02),1000,3,world.size>1?1:0);
+  const PlanarReference geometry(fixture.facets);const auto saved=Bytes(input);
+  auto source=Uniform(input,Tensor{});
+  for(auto& donor:source)for(auto& metric:donor.sensor)
+    metric=donor.cell.id<1000?Tensor{4,0,0,4,0,4}:Tensor{.25,0,0,.25,0,.25};
+  bool seen_quality=false,good_size_bad=false,bad_shape=false;unsigned good_root_selected=0;
+  EngineOptions options;options.maximum_work=256;options.maximum_rounds=64;options.capture_feature={{0,0,0},1};
+  options.transaction_observer=[&](const TransactionView& view){if(view.selected)++good_root_selected;};
+  options.stage_observer=[&](const StageProgressView& view){
+    if(seen_quality || std::string(view.stage)!="quality_entry")return;seen_quality=true;
+    for(const auto& row:view.working){const auto& v=row.second.cell.v;
+      const bool good=v[0].p.x<2;const Tensor tensor=good?Tensor{4,0,0,4,0,4}:Tensor{.25,0,0,.25,0,.25};
+      const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
+      const bool shape=m.mean_ratio>=MinimumMeanRatio && m.minimum_scaled_jacobian>=MinimumScaledJacobian;
+      good_size_bad|=good && shape && m.maximum_edge>MaximumMetricEdge;bad_shape|=!good && !shape;
+    }
+  };
+  const auto result=AdaptMetric(world,input,source,geometry,{},options);INFO(result.reason);
+  CHECK(world.maximum(seen_quality));CHECK(world.maximum(good_size_bad));CHECK(world.maximum(bad_shape));
+  CHECK(world.sum(good_root_selected)==0);CHECK(Bytes(input)==saved);
+  if(result.valid)for(const auto& row:result.cells){const auto& v=row.second.cell.v;
+    const Tensor tensor=v[0].p.x<2?Tensor{4,0,0,4,0,4}:Tensor{.25,0,0,.25,0,.25};
+    const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
+    CHECK(m.mean_ratio>=MinimumMeanRatio);CHECK(m.minimum_scaled_jacobian>=MinimumScaledJacobian);CHECK(m.maximum_edge<=MaximumMetricEdge);
+  }
+}
+
 TEST_CASE("Construction pass claims only committed cavity vertices", "[NativeConstructionPassClaims3D]") {
   World world;auto rows=Rows(Box().patch),other=rows;
   for(auto& row:other){row.cell.id+=100;for(auto& node:row.cell.v){node.id+=100;node.p.x+=3;}

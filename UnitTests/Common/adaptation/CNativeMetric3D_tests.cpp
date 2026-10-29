@@ -870,3 +870,21 @@ TEST_CASE("Captured curved collapse reduces size debt during construction", "[Na
   CHECK_FALSE(ValidateMetricChange(6,after,10,unmeasured,MetricChange::Coarsen,reason));
   CHECK_FALSE(ValidateMetricChange(10,after,6,unmeasured,MetricChange::Coarsen,reason));
 }
+
+TEST_CASE("Quality repair cannot exchange unacceptable shape for size progress", "[NativeShapeAdmission3D][NativeMetricSplitRule3D]") {
+  struct Restore {ShapeAdmission value=GetShapeAdmission();~Restore(){SetShapeAdmission(value);}} restore;
+  auto metric=[](Edge key,long double length,double q,double j){
+    PatchMetric m;m.shape_measured=true;m.minimum_mean_ratio=q;m.minimum_scaled_jacobian=j;
+    EdgeMeasure edge;edge.a={0,0,0};edge.b={1,0,0};edge.length=length;m.edges.emplace(key,edge);return m;
+  };
+  const auto before=metric({1,2},3,.5,.5),poor=metric({1,3},2.5,.1,.02),good=metric({1,3},2.5,.4,.4);
+  std::string reason;MetricDiagnosis diagnosis;
+  SetShapeAdmission(ShapeAdmission::Absolute);
+  CHECK_FALSE(ValidateMetricChange(4,before,4,poor,MetricChange::Repair,reason,&diagnosis));
+  CHECK(diagnosis.failure==MetricFailure::Progress);CHECK(diagnosis.size_progress);
+  CHECK(ValidateMetricChange(4,before,4,good,MetricChange::Repair,reason));
+  const auto weak=metric({1,2},1,.19,.1),closed=metric({1,3},1,.21,.08);
+  CHECK(ValidateMetricChange(4,weak,4,closed,MetricChange::Repair,reason,&diagnosis));CHECK(diagnosis.quality_progress);
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  CHECK(ValidateMetricChange(4,before,4,poor,MetricChange::Repair,reason));
+}

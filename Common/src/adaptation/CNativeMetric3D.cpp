@@ -473,8 +473,13 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
           (GetShapeAdmission()!=ShapeAdmission::ValidityOnly || !aggregate_size_progress)))
         throw std::invalid_argument("Native 3D coarsening removes no cells or fails changed-edge size admission.");
     } else {
-      const bool repair_progress=size_progress || (quality_progress &&
-          (GetShapeAdmission()==ShapeAdmission::ValidityOnly || added<=removed));
+      const auto final_shape=[](const PatchMetric& m){return m.shape_measured &&
+          m.minimum_mean_ratio>=MinimumMeanRatio && m.minimum_scaled_jacobian>=MinimumScaledJacobian;};
+      const bool closes_shape=final_shape(measured)&&!final_shape(before);
+      const bool shape_progress=(quality_progress||closes_shape)&&added<=removed;
+      const bool repair_progress=GetShapeAdmission()==ShapeAdmission::ValidityOnly ? size_progress||quality_progress :
+          shape_progress||(size_progress&&final_shape(measured));
+      if(diagnosis&&shape_progress)diagnosis->quality_progress=true;
       if (!repair_progress)
         throw std::invalid_argument("Native 3D repair improves neither frozen size excess nor quality/sliver bounds.");
     }

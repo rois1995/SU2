@@ -41,6 +41,48 @@ of conservative CFD transfer. Its evaluable-model parameter interface would requ
 a nontrivial adapter for SU2 facet/u/v cubic associations. Implementing its design
 in existing SU2 facilities avoids that adapter and preserves native integration.
 
+## Explicit stage admission independent of builder mode, build114
+
+Build113 mixed-debt regression passes, but actual curved workflow still hits4096
+proposals (atlas work27.39m, not its67.21m limit). Last improvement q/J bad cells
+rise1/2→7/5. Geometry builders intentionally stay ValidityOnly during the event,
+including when constructing quality proposals; changing that global mode would
+reintroduce premature generation floors. The helper's Absolute repair policy is
+therefore not production stage admission.
+
+Apply the staged improvement decision at the existing shared metric_trial boundary
+for local and streamed ordinary Repair proposals. Use already measured diagnosis:
+existing worst normalized q/J improvement or passing final shape, and nonincreasing
+changed-edge metric excess. Real requested-height progress retains its existing
+explicit GeometryRepair route; do not dispatch on solver/fixture identity. No new
+shape/geometry measurements in construction. The serial captured workflow observes
+its actual clipped worst shape score through each no-height quality phase and
+asserts non-regression, while still requiring complete final mesh and transfer.
+This merit rule is an implementation choice responding to captured churn, not a
+new user-imposed final threshold. Full BL/RANS qualification remains required.
+
+## Captured improvement/constraint coupling, build113
+
+Mapped112 phase receipts show bounded descriptors in this event (<=19 associations,
+34 working faces,21 trace pieces,2 ratio limbs). Last improvement consumes~85% of
+67,207,168 work while q debt rises .07617→1.24217 and J debt .32706→1.51453.
+This is not evidence of retained representation growth in this run. Selection
+queues combined invalidity, so size/geometry-only cells compete with shape debt;
+GeometryRepair promotion can admit worse shape for geometric progress.
+
+Use existing quality_valid (measured q/J and requested height) for production
+AdaptMetric improvement demands, synchronized at phase entry, published insertion
+and quality refresh even when combined validity does not change. Keep combined
+validity and all final counters strict. Public standalone Repair retains its full
+repair-demand semantics. During staged improvement, ordinary Repair admission
+requires shape progress or shape-gate closure when shape is unacceptable; size
+progress alone may not degrade shape. Use existing measured values, preserve
+metric excess bounds and height checks, and keep construction validity-only.
+Do not promote staged shape repair into geometry-only progress. No new representation,
+case/physics dispatch, work cap or fallback. A mixed-body serial/MPI test guards
+quality demand on one rank while another has only size debt. Full smaller/M6 mesh,
+transfer and restart remain the acceptance conditions, not this test.
+
 ## Captured stage starvation and established iteration staging
 
 Build106 M6 performs two length-pass pairs and11567 private edits, yet reaches no
