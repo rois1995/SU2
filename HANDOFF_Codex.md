@@ -102,44 +102,26 @@ population from operator cost. Validate any SU2-specific modifications separatel
   no complete curved/M6 workflow is accepted yet. Connected implementation and
   target-driven evidence:
   [current diagnosis/design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
-  Per explicit user direction, M6/build136 was deliberately stopped after3202s
-  to fix repeated fixed-surface preparation. Owned handles are terminal and pins
-  unchanged; no completed native result or mesh/transfer. Receipt:
-  staged57/build136_m6_summary.json. Stack samples locate complete-cavity geometry
-  certification rebuilding projected references while other ranks wait in MPI.
-  Current change retains certified per-original-facet model data, projected
-  footprints and local indices beneath the existing immutable control-hull index.
-  Different physical triangles/scopes reuse that data with current query budgets;
-  exact facet/body restrictions and final two-sided gates remain. No format change.
-  Build139 passes1018.648s, reuse2 cases/34 assertions confirms retained curved
-  indices and equal bounds with less work. Serial49/51:20 assertions assumed
-  a fixed optional-cache peak; one prior sheared-graph work exhaustion. Test-only
-  build140 passes84.250s; mandatory-memory refusal test excludes optional cache.
-  MPI2 passes8 cases/rank,14937/14741 assertions,211.602s, pins unchanged, including
-  repeated publication/reload. Checkpoint8c3ca6d797 pushed; validation follows.
-  M6/build140 deliberately stopped1028.663s after demonstrating the next hot path:
-  repeated interval witness certification during physical-triangle distance bounds.
-  No accepted event/mesh/transfer; pins verified and all owned handles gone.
-  Build141 selects one floating-proposed convex witness and certifies it once;
-  upper-only callers omit unused lower bounds. Gates unchanged. Build passes
-  135.456s/pins verified; focused11 cases/267 assertions pass30.368s. Source-extracted
-  probe passes5103 exact enclosure checks, sampled primitive6.4x/9.1x faster;
-  no full-M6 speedup claim. Receipt staged57/distance141_checkpoint.json.
-  M6/build141 deliberately stopped605.896s for the next profiled hot path:
-  outward long-double stepping. No accepted event/mesh/transfer; pins verified,
-  all owned processes terminal. Build142 adds an exact-value ordinary-normal
-  x87 neighbor; exceptional ranges/other platforms retain std::nextafter.
-  Build passes75.205s; focused11 cases/267 assertions pass24.016s/pins unchanged;
-  855342 neighbor comparisons,648 rational interval checks and5103 distance
-  checks per helper version pass. Sampled primitive20–30% faster, no full-M6 claim.
-  Receipt staged57/rounding142_checkpoint.json; complete M6 retry next, native
-  5400s/event, outer14400s, one heavy workload. Keep pinned sources fixed.
-  User now authorizes stopping demonstrated bottlenecks, fixing/validating them
-  and retrying until Euler CFD→mesh→CFD→mesh succeeds. Then verify BL generation
-  before the same RANS workflow. Overnight autonomous continuation is permanent
-  in AGENTS.md: debug other errors too, validate/retry until the accepted loop;
-  the user is unavailable for routine questions. One heavy workload;2–4 build workers.
-  No complete M6 workflow yet; BL/RANS/history/restart remain open.
+  Current frozen build142 (checkpointc8cbf39559): retained certified curved-facet
+  data/indices, one certified distance witness, and exact-value ordinary-normal
+  x87 stepping with standard exceptional/platform fallback. Gates unchanged.
+  Build75.205s and focused11 cases/267 assertions24.016s pass/pins verified.
+  Neighbor855342, interval648 and distance5103/version checks pass. Earlier MPI2
+  publication/reload8cases/rank14937/14741 assertions pass. Complete sheared-graph
+  work exhaustion remains unqualified; no accepted M6 event/mesh/transfer yet.
+  Full M6 running: staged57/m6_runs/euler_build142_outward_bounds; detached Python
+  harness2396222/time2396317. Read status.json/command.json/resources.jsonl and
+  actual handles before restarting. Native5400s/event, outer14400s,6 ranks,nice19,
+  single-threaded libraries. Keep pinned C++/tests/helpers unchanged while active.
+  At~8min, rank0 snapshot:341 globalwork,56 private collapses, no completed length
+  pass/quality stage. This is private progress, not an admissible output mesh.
+  Detailed stops/profiles/builds/proofs: staged57/prepared_surface_checkpoint139.json,
+  distance141_checkpoint.json, rounding142_checkpoint.json and linked design/progress.
+  User's permanent overnight workflow is saved in AGENTS.md: stop demonstrated
+  computational bottlenecks or errors, preserve evidence, fix/validate and retry M6
+  autonomously until the Euler loop succeeds. Then verify BL generation before
+  the RANS workflow. User unavailable for routine questions. Push every reviewable
+  checkpoint; one heavy workload,2–4 build workers. BL/RANS/history/restart open.
 - Available papers: [local collection](/media/rausa/4TB/SU2_Versions/Prove/Papers),
   including Loseille–Alauzet–Menier, *Unique cavity-based operator and hierarchical
   domain partitioning for fast parallel generation of anisotropic meshes* (2017,
