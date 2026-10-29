@@ -713,3 +713,24 @@ x87 fused-arithmetic representation precedent, preserves exceptional behavior,
 and passes855342 neighbor comparisons,648 exact interval checks and5103 distance
 checks per version. Build75.205s/focused11cases267assertions24.016s pass. Primitive
 batch20–30% faster; full M6 retry required, no acceptance or whole-run speed claim.
+
+Prepared-view bound-strength limitation (read-only audit, not established M6
+bottleneck): the minimum of per-original-facet hull bounds loses combined graph
+coverage at seams. For the unit square split along x=y, the physical triangle
+(.25,.4,0),(.4,.25,0),(.4,.4,0) lies on the union but each original triangle excludes
+a corner by .15/sqrt(2). The old combined projected footprint can cover its box;
+the per-facet view needs subdivision at smaller tolerance. Bounds remain
+conservative. Existing TriangleUnion/BuildPlanes can consume retained certified
+pieces without re-tessellation; any scoped combined cache would need exact ordered
+facet/tolerance identity, owned immutable triangle lifetime, synchronization and
+full work/storage admission. Do not treat this feasible design as proven useful
+for M6; compare against an actual target failure before changing construction.
+
+A public-API replay is prepared at staged57/surface_scope_probe/probe.cpp with
+command/provenance manifests. It uses the fully captured38-facet M6 triangle from
+build140/live_query.txt, then changes one coordinate by one ULP to exercise fixed
+geometry reuse without an exact-result-cache hit. Decode/query ceilings12GiB;
+caller storage includes retained reference/input text. This isolated replay does
+not carry the full solver's other state. It is uncompiled/unrun while build142's
+full M6 attempt remains active. Use only after verifying its source/build/input
+provenance and terminal owned handles; do not count preparation as validation.
