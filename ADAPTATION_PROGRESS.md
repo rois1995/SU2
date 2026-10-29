@@ -10,31 +10,33 @@ DC-17/DC-18 remain open. The selected foundation is SCOREC/MeshAdapt classified
 cavities and transported nodal size fields inside SU2. Requirements, source-code
 comparison, decisions and acceptance: [connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md).
 
-Stopped at the user's request on2026-10-29. Their updated HANDOFF_Codex.md is
-preserved unchanged. No owned job remains active. Latest build124 passes with1295
-pins verified; serial45 cases/9611 assertions pass. MPI6 passes11/12 cases per rank;
-only the two curved workflow COMPLETE assertions fail. Full curved/M6 adaptation,
-conservative transfer/history and actual restart remain unaccepted; DC-17/DC-18 open.
+Work resumed at the user's request on2026-10-29, prioritizing accepted curved
+3D Euler adaptation before BL/RANS qualification. The shared engine now performs
+residual oversized-edge repair after globally closing shape/height debt, reusing
+complete distributed cavities, metric admission and atomic publication. No limits,
+geometry tolerance, final gates or restart formats changed.
 
-Saved changes: classified boundary reconstruction and optimizer overlay refresh;
-original-surface error replaces custom curvature guidance for geometry decisions;
-geometry-aware quality selection remains separate from validity-only construction.
-No budget or final gate changed. Latest smaller workflow has256 private cells,
-q/J2/2,size22,geometry0 at4096 work, below its arithmetic limit. Fresh-work
-continuations do not prove feasibility: changed-source diagnostic times out;
-original-metric-source diagnostic refuses bootstrap before any operation.
+The first all-feature size queue (build125) exhausted geometry arithmetic early;
+it is replaced by an edge-only queue and existing length operators. Corrected
+build126 reaches208 private cells with no q/J/geometry failures and3 size failures
+at2468/4096 proposals, then times out at the unchanged600s outer harness limit
+inside subsequent construction geometry work. This is not accepted adaptation.
+The prior build124 ended with256 cells,q/J2/2,size22,geometry0 at4096 proposals.
 
-Current results, replay limitations and exact evidence paths:
-[stop checkpoint](Handbook/ADAPTATION_CHECKPOINT_20261029_STOP.md).
+Build127 adds explicit ordinary Repair admission for this size pass even with
+wall constraints; extra height improvement must not bypass its size/shape merit.
+Build128 passes with1295 pins unchanged; connected serial45 cases/9611 assertions
+and focused MPI6 five cases per rank pass, including the new regression and
+first-refusal capture. No owned job remains active. M6 has not been rerun;
+curved transfer/history and actual solver restart remain unvalidated. DC-17/DC-18
+and BL/RANS remain open.
 
-Supporting checks: projection20 cases/597 assertions; MPI6 focused8 cases/rank;
-current-field122 cases; all10 DC18 geometry groups;28 filter selections. These do
-not establish accepted curved/M6 adaptation, transfer/history or solver restart.
-DC-17/DC-18 and the full BL/RANS goal remain open. No cap or final gate raised.
-Detailed evidence: [projection findings](Handbook/ADAPTATION_PROJECTION_FINDINGS.md),
-[selected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md),
-[transfer findings](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
-
+Current receipt: staged57/checkpoint128_euler_size_summary.json under
+integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/.
+Current mechanism, failed strategy and exact evidence paths:
+[connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#residual-length-repair-after-shape-closure--2026-10-29-continuation).
+The [stop checkpoint](Handbook/ADAPTATION_CHECKPOINT_20261029_STOP.md) remains the
+historical build124 baseline, including the metric-source replay limitations.
 
 ## Checkpoints
 

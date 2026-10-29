@@ -1,0 +1,427 @@
+{
+  "scope": "WIP residual size repair after global shape/height closure; no accepted difficult curved/M6 workflow",
+  "builds": {
+    "125": {
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 168.29614424705505,
+        "pins_verified": true,
+        "changed": [],
+        "completed_build": true
+      },
+      "files": {
+        "_status.json": "9a6ab9fc4c34de5430551faa4eb6240e4b49a4bb1a80542d6afbe7f073257517",
+        "_command.json": "c7d0fcb4a00508e83345794f97843210bfc574b605df64a55038dfd385550eec",
+        "_source_pins.json": "cc5b5e3bd7b5571ad5346197f10cc89328e620707aa5d8fe94831436bcff7b8d",
+        "_resources.jsonl": "11f59c144fcb51772bf8d0f906ad1cbf09d26d0e51920ea575730bd6cdba7092",
+        ".log": "aa6e25d6474cf02def64470327fb738b51b224a3125c8c51d8c703a05fd1e68c"
+      }
+    },
+    "126": {
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 93.22331213951111,
+        "pins_verified": true,
+        "changed": [],
+        "completed_build": true
+      },
+      "files": {
+        "_status.json": "a02adaada95902407558153c647964219ad17c6c13d57aa9bba7de229706aab3",
+        "_command.json": "c7d0fcb4a00508e83345794f97843210bfc574b605df64a55038dfd385550eec",
+        "_source_pins.json": "b9902e1b584eb28ab46ab883a65722f813a351f0a65ec15a5f786754d057fdc2",
+        "_resources.jsonl": "47447004534235da626843aaf65911ee8ca1f0313cc01987db8a23f0498c362f",
+        ".log": "0cb8eac1e994386c61fb3fb0f6215e9d53dd0215c0fed40be4a5095c8671040f"
+      }
+    },
+    "127": {
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 93.22347664833069,
+        "pins_verified": true,
+        "changed": [],
+        "completed_build": true
+      },
+      "files": {
+        "_status.json": "a64f2afdd9bb39471c0120b6c0080208adcaf4de2e83d295e806bb09b35a3a14",
+        "_command.json": "c7d0fcb4a00508e83345794f97843210bfc574b605df64a55038dfd385550eec",
+        "_source_pins.json": "de7a2f4876e451b560ba17d40fd11c0edc0e252c1145156cc7c776f11931030f",
+        "_resources.jsonl": "eda6516c54e33e42ea162d1cfec9f2dcdb5130cc01c88241ae56f92ca9cd161b",
+        ".log": "0cb8eac1e994386c61fb3fb0f6215e9d53dd0215c0fed40be4a5095c8671040f"
+      }
+    },
+    "128": {
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 94.89686298370361,
+        "pins_verified": true,
+        "changed": [],
+        "completed_build": true
+      },
+      "files": {
+        "_status.json": "39d33bc04ed70c41628a7a25841d2783945ab5fc0ebed11ef5aeef6a7ce670be",
+        "_command.json": "c7d0fcb4a00508e83345794f97843210bfc574b605df64a55038dfd385550eec",
+        "_source_pins.json": "f290e237cf98787a059ffb3d119168a8339b0771af33422936c322704f86120f",
+        "_resources.jsonl": "875b002f5b2d3289c9a20b9167724bd1f1bc8fa209dd826e3135b6366a24d51f",
+        ".log": "0cb8eac1e994386c61fb3fb0f6215e9d53dd0215c0fed40be4a5095c8671040f"
+      }
+    }
+  },
+  "cases": {
+    "bidirectional_20261029T140333_1284168": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/bidirectional_20261029T140333_1284168",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 15.618387460708618,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 31178752,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "command": {
+        "build": "build125",
+        "case": "bidirectional",
+        "ranks": 1,
+        "argv": [
+          "nice",
+          "-n",
+          "19",
+          "/usr/bin/time",
+          "-v",
+          "timeout",
+          "600",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "[NativeBidirectionalLength3D],[NativeConstructionPassClaims3D]"
+        ],
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1"
+        },
+        "timeout_seconds": 600
+      },
+      "summary": [
+        "All tests passed (883 assertions in 5 test cases)"
+      ],
+      "last_complete_census_line": null,
+      "files": {
+        "status.json": "30dee7d9714ab906bf624fae76ca4413776979d275f119957fad045b15a6b3d1",
+        "command.json": "9d99af5d3a0c862f211f025cc8783033ff7a8e482e32ba2c5712964f72f69483",
+        "pins.json": "92bd1be0c9fe760c8919850498b3c58f08d0bdabe3897999e3225295f927ccf5",
+        "run.log": "d55e95a603410753c54d005c4faf36b364e17e77b0aae95d3820a0ccb2672a46",
+        "resources.jsonl": "d2c3a2eaf47b6844f1ca377cc7fcd46063c8dfc127bae1172c4ab6fbacc7d377"
+      }
+    },
+    "mapped_work_trace_20261029T140408_1285674": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261029T140408_1285674",
+      "status": {
+        "state": "terminal",
+        "exit_code": 2,
+        "seconds": 38.63770651817322,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 46673920,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "command": {
+        "build": "build125",
+        "case": "mapped_work_trace",
+        "ranks": 1,
+        "argv": [
+          "nice",
+          "-n",
+          "19",
+          "/usr/bin/time",
+          "-v",
+          "timeout",
+          "600",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "[NativeMappedRuntime3D]"
+        ],
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "SU2_NATIVE_GEOMETRY_WORK_TRACE": "1"
+        },
+        "timeout_seconds": 600
+      },
+      "summary": [
+        "test cases:   1 |   0 passed | 1 failed",
+        "assertions: 334 | 332 passed | 2 failed"
+      ],
+      "last_complete_census_line": "NATIVE3D_STAGE rank=0 stage=exit phase=improvement cells=24 measured=24 cache_consistent=1 census_complete=1 shape_complete=1 geometry_complete=1 q_measured=24 j_measured=24 q_bad=0 j_bad=0 size_bad=17 geometry_bad=11 q_debt=0 j_debt=0 size_debt=14.514259860707583 geometry_debt=0.00013864754654454726 associations=14 working_faces=24 face_pieces=0 trace_pieces=17 maximum_ratio_limbs=2 atlas_work=67207168 atlas_bytes=30666156 global_work=876 elapsed=11.329854168000001",
+      "files": {
+        "status.json": "408413d19aad5bc0172b4afe0cbe5fe290bd424b010f45da3b5af54ba711974c",
+        "command.json": "7335d17b706cd278b5c54de47dc07d7ec32e5c2c51c93c8876634f1ed5901c15",
+        "pins.json": "92bd1be0c9fe760c8919850498b3c58f08d0bdabe3897999e3225295f927ccf5",
+        "run.log": "19d880d54f42fd9a3014e044ebb2dd7734f438a411b62c6552543bd05457b218",
+        "resources.jsonl": "f5ee3e1683a5e3a3b55e339032ceaad6184189a3d27400988f1d5d4983844f3b"
+      }
+    },
+    "mapped_work_trace_20261029T140728_1294084": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261029T140728_1294084",
+      "status": {
+        "state": "terminal",
+        "exit_code": 124,
+        "seconds": 605.4760973453522,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 70258688,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "command": {
+        "build": "build126",
+        "case": "mapped_work_trace",
+        "ranks": 1,
+        "argv": [
+          "nice",
+          "-n",
+          "19",
+          "/usr/bin/time",
+          "-v",
+          "timeout",
+          "600",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "[NativeMappedRuntime3D]"
+        ],
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "SU2_NATIVE_GEOMETRY_WORK_TRACE": "1"
+        },
+        "timeout_seconds": 600
+      },
+      "summary": [],
+      "last_complete_census_line": "NATIVE3D_STAGE rank=0 stage=quality_entry phase=improvement cells=195 measured=195 cache_consistent=1 census_complete=1 shape_complete=1 geometry_complete=1 q_measured=195 j_measured=195 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=4.7730306577779824e-19 geometry_debt=0 associations=55 working_faces=106 face_pieces=0 trace_pieces=34 maximum_ratio_limbs=2 atlas_work=46562837 atlas_bytes=31498368 global_work=2474 elapsed=22.963042599000001",
+      "files": {
+        "status.json": "e3b8c3d69e8de4b2eb2d6a56be23249e583929427de554655fb4b3a9deae3302",
+        "command.json": "a1c5bb98544bd9664d5c3e35c4051849e64a721d7ddce4013e38c03192de9f46",
+        "pins.json": "35502aa9b0e873575e8d7025dbab0806ba018e31df9a60854dfdb71cb5e0ec86",
+        "run.log": "68d241581a7baa89a178e1ad9d97ea19a81c8eb756f6a1519010b65483d37eb6",
+        "resources.jsonl": "35244a1f72f370becb5c85fd44fc137442633a886dadc3aa6f23975789c3c822"
+      }
+    },
+    "serial_20261029T141937_1324847": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/serial_20261029T141937_1324847",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 9.716459512710571,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 41758720,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "command": {
+        "build": "build127",
+        "case": "serial",
+        "ranks": 1,
+        "argv": [
+          "nice",
+          "-n",
+          "19",
+          "/usr/bin/time",
+          "-v",
+          "timeout",
+          "600",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "[NativeStagedConstruction3D],[NativeConstructionHandoff3D],[NativeShapeAdmission3D],[NativeFirstLayer3D],[NativeOptimize3D],[NativeJointGeometry3D],[NativeInteriorPlacement3D],[NativeConcurrentRepair3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeCoordinateStar3D],[NativeMetricSplitRule3D],[NativeRepairFairness3D],[NativeConstructionSweep3D],[NativeCoarsenQualityReturn3D],[ConservativeClipRobustness],[NativeStageProgress3D],[NativeStageCapture3D]"
+        ],
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1"
+        },
+        "timeout_seconds": 600
+      },
+      "summary": [
+        "All tests passed (9611 assertions in 45 test cases)"
+      ],
+      "last_complete_census_line": "NATIVE3D_STAGE rank=0 stage=exit phase=improvement cells=18 measured=18 cache_consistent=1 census_complete=1 shape_complete=1 geometry_complete=1 q_measured=18 j_measured=18 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=0 geometry_debt=0 associations=8 working_faces=12 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=2 elapsed=0.002714143",
+      "files": {
+        "status.json": "70820faed77dfa024ec0b7ef7c9c8497368615c4cbbbfc205399625ebc3bfb99",
+        "command.json": "a7d4e8b1658f14fe8ccdb701abf2c774f9cfcc3997ad3904bd794ea935dd025e",
+        "pins.json": "a341f6c920dcaccbec81d5375c23ebb1cc5cf616c4deb8cad465e90892460ecd",
+        "run.log": "b97a5c898a6a3e7d31b2a9fe0cb7dafdc03ad70be7a1dd4f70591bf6149ba0e3",
+        "resources.jsonl": "04ef42516bd7257258e594c0392a1f650f08c801347849dd3ff33e382d573af7"
+      }
+    },
+    "bidirectional6_20261029T141954_1325618": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/bidirectional6_20261029T141954_1325618",
+      "status": {
+        "state": "terminal",
+        "exit_code": 2,
+        "seconds": 5.609732389450073,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 610304,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "command": {
+        "build": "build127",
+        "case": "bidirectional6",
+        "ranks": 6,
+        "argv": [
+          "nice",
+          "-n",
+          "19",
+          "/usr/bin/time",
+          "-v",
+          "timeout",
+          "600",
+          "mpirun",
+          "--bind-to",
+          "none",
+          "-n",
+          "6",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "[NativeBidirectionalLength3D],[NativeConstructionPassClaims3D]"
+        ],
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1"
+        },
+        "timeout_seconds": 600
+      },
+      "summary": [
+        "test cases:   5 |   4 passed | 1 failed",
+        "assertions: 275 | 273 passed | 2 failed",
+        "test cases:   5 |   4 passed | 1 failed",
+        "assertions: 623 | 621 passed | 2 failed",
+        "test cases:   5 |   4 passed | 1 failed",
+        "assertions: 227 | 225 passed | 2 failed",
+        "test cases:   5 |   4 passed | 1 failed",
+        "assertions: 275 | 273 passed | 2 failed",
+        "test cases:   5 |   4 passed | 1 failed",
+        "assertions: 227 | 225 passed | 2 failed",
+        "test cases:   5 |   4 passed | 1 failed",
+        "assertions: 227 | 225 passed | 2 failed"
+      ],
+      "last_complete_census_line": null,
+      "files": {
+        "status.json": "e3025161fb276488bc0258ca2f582ffc77a86d4c4858552ecb880e6512b89ab3",
+        "command.json": "d7f5e5e01e6667752f8b163b8dacc01fcc889112a4b47fd4cba2fe7cd0558b23",
+        "pins.json": "8d939b3a0e77955209a1f580a67e522b0a4a0c58c4579c4fc34cc07e2c0f2924",
+        "run.log": "ed2dffb2994b3a67bbdbeb406bb27cf786c55c2975f539c476ced7d02f23a98a",
+        "resources.jsonl": "778ba9c1d013753b88b8a5c41efbd2ff80085588644a73cced355c37bbcb4c05"
+      }
+    },
+    "serial_20261029T142319_1334346": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/serial_20261029T142319_1334346",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 9.666867971420288,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 42409984,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "command": {
+        "build": "build128",
+        "case": "serial",
+        "ranks": 1,
+        "argv": [
+          "nice",
+          "-n",
+          "19",
+          "/usr/bin/time",
+          "-v",
+          "timeout",
+          "600",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "[NativeStagedConstruction3D],[NativeConstructionHandoff3D],[NativeShapeAdmission3D],[NativeFirstLayer3D],[NativeOptimize3D],[NativeJointGeometry3D],[NativeInteriorPlacement3D],[NativeConcurrentRepair3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeCoordinateStar3D],[NativeMetricSplitRule3D],[NativeRepairFairness3D],[NativeConstructionSweep3D],[NativeCoarsenQualityReturn3D],[ConservativeClipRobustness],[NativeStageProgress3D],[NativeStageCapture3D]"
+        ],
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1"
+        },
+        "timeout_seconds": 600
+      },
+      "summary": [
+        "All tests passed (9611 assertions in 45 test cases)"
+      ],
+      "last_complete_census_line": "NATIVE3D_STAGE rank=0 stage=exit phase=improvement cells=18 measured=18 cache_consistent=1 census_complete=1 shape_complete=1 geometry_complete=1 q_measured=18 j_measured=18 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=0 geometry_debt=0 associations=8 working_faces=12 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=2 elapsed=0.0025738779999999999",
+      "files": {
+        "status.json": "c9637a45fa0ca26ace93c1438f1fb6fb739aecc9ed0f4c7c4054daf91c6c6860",
+        "command.json": "8c04b7a2c7cc05a6bd111378a317bd638ca1fee35790834c9adfddb798a4c1da",
+        "pins.json": "a4a1fffb02e2f8ca55be8738bc7389ff817ae03c87fd91b8eded32e4349a3964",
+        "run.log": "047a110690ecd737be6f3c4376d3eb440ac5a590c78b9396513b4c98544648fe",
+        "resources.jsonl": "eac925e43ff61ac5444ea4a0e3bc04fdd7cbba9d441611d97bdd1334f21cf90a"
+      }
+    },
+    "bidirectional6_20261029T142334_1334992": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/bidirectional6_20261029T142334_1334992",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 5.583994626998901,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 610304,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "command": {
+        "build": "build128",
+        "case": "bidirectional6",
+        "ranks": 6,
+        "argv": [
+          "nice",
+          "-n",
+          "19",
+          "/usr/bin/time",
+          "-v",
+          "timeout",
+          "600",
+          "mpirun",
+          "--bind-to",
+          "none",
+          "-n",
+          "6",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "[NativeBidirectionalLength3D],[NativeConstructionPassClaims3D]"
+        ],
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1"
+        },
+        "timeout_seconds": 600
+      },
+      "summary": [
+        "All tests passed (227 assertions in 5 test cases)",
+        "All tests passed (275 assertions in 5 test cases)",
+        "All tests passed (227 assertions in 5 test cases)",
+        "All tests passed (275 assertions in 5 test cases)",
+        "All tests passed (227 assertions in 5 test cases)",
+        "All tests passed (631 assertions in 5 test cases)"
+      ],
+      "last_complete_census_line": null,
+      "files": {
+        "status.json": "55ad4fd1d94efbc2e21d6203410dd9764a4030cde3e6f028d34dc279e03d05ea",
+        "command.json": "e2171f2d46a3d4973c12d9a50848d238eef5074a7fe6ec71d379b44d5d8ec687",
+        "pins.json": "cd7520e6cb257eebe7cbe767527b3c1e71a696f8f1136e83b0f014cad7e25232",
+        "run.log": "f11bb8b197b028f6c1dd22b5069ac9ec3c08969bb5c4a05fdccb6a5eb1c8c56a",
+        "resources.jsonl": "89ae90b910524dfb634cffbf75e184160a82dda503058d93afea62fc68273c2b"
+      }
+    }
+  },
+  "limitations": [
+    "Build125 all-feature residual queue was discarded after arithmetic exhaustion.",
+    "Build126 smaller Euler workflow times out at outer600s after last complete census:208 cells,q/J0/0,size3,geometry0,work2468; not a final accepted mesh or exact in-event continuation capture.",
+    "Build127 MPI meshes accepted; diagnostic capture assertion failed; corrected without weakening assertion in build128.",
+    "Build128 serial45/9611 and MPI6 five cases/rank pass; no build128 difficult curved or M6 acceptance/transfer/restart claimed.",
+    "Build127 height admission and build128 diagnostics follow the build126 difficult run; failure evidence is retained with its own provenance.",
+    "Resource records are sampled process trees/individual RSS, not whole-job peak memory."
+  ],
+  "limits_or_final_gates_changed": false,
+  "owned_heavy_jobs_active": false
+}

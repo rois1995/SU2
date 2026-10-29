@@ -4238,6 +4238,30 @@ TEST_CASE("Metric improvement queues shape debt independently of construction de
   }
 }
 
+TEST_CASE("Metric improvement services residual size after shape closure", "[NativeBidirectionalLength3D]") {
+  World world;const auto fixture=Box();const PlanarReference geometry(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+  const Tensor tensor{4,0,0,4,0,4};const auto source=Uniform(input,tensor);
+  bool size_seen=false;
+  EngineOptions options;options.maximum_work=4096;
+  options.stage_observer=[&](const StageProgressView& view) {
+    if(std::string(view.stage)!="size_repair_entry")return;
+    size_seen=true;CHECK(view.phase==EnginePhase::Improvement);
+    CHECK(view.progress.shape_complete);CHECK(view.progress.q_bad_cells==0);CHECK(view.progress.j_bad_cells==0);
+    CHECK(world.maximum(view.progress.size_bad_cells!=0));
+    CHECK(world.maximum(view.progress.remaining_repairs!=0));
+  };
+  const auto result=AdaptMetric(world,input,source,geometry,{},options);INFO(result.reason);
+  CHECK(world.maximum(size_seen));CHECK(Bytes(input)==saved);
+  REQUIRE(result.valid);CHECK(result.stats.global_work<=options.maximum_work);
+  for(const auto& row:result.cells) {
+    const auto& v=row.second.cell.v;const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
+    CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);
+    CHECK(m.mean_ratio>=MinimumMeanRatio);CHECK(m.minimum_scaled_jacobian>=MinimumScaledJacobian);
+    CHECK(m.maximum_edge<=MaximumMetricEdge);
+  }
+}
+
 TEST_CASE("Construction pass claims only committed cavity vertices", "[NativeConstructionPassClaims3D]") {
   World world;auto rows=Rows(Box().patch),other=rows;
   for(auto& row:other){row.cell.id+=100;for(auto& node:row.cell.v){node.id+=100;node.p.x+=3;}

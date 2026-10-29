@@ -10,6 +10,64 @@ smooth paths, source prisms, certificates, schedules or numerical budget formula
 Current numeric acceptance settings remain comparison baselines, not newly attributed
 user requirements. DC-17/DC-18 and the complete curved/M6 workflow remain open.
 
+## Residual length repair after shape closure — 2026-10-29 continuation
+
+The stopped mapped workflow repeatedly closes shape debt, returns to construction,
+and recreates it while retaining size debt. Bidirectional improvement queued only
+shape/height users; its existing optimizer's length-removal/insertion operations
+could not see size-only cavities. Add a globally synchronized residual length pass
+after the shape/height census closes. Queue only oversized-edge features, import
+their complete distributed cavities, and use the existing optimizer and atomic
+publication. Preserve geometry, final shape and changed-edge excess admission.
+Reenter construction after exhausted repair demands; no work limit or final gate
+changes. The separate public Repair and standalone coarsening semantics stay.
+
+Build125 establishes the ordering in serial (5 cases/883 assertions), but its
+initial all-feature size queue is rejected by the difficult mapped workflow:
+geometry arithmetic exhausts at 67,207,168 with only876 proposals,24 private cells,
+17 size failures and11 geometry failures. That strategy is not retained. Build126
+restricts size demand to oversized edges and skips the shape-only primitive trials;
+it also admits queue storage before allocation. Its difficult Euler run reaches208
+private cells with no shape/geometry failures and3 size failures at2468 proposals,
+then remains inside construction geometry work beyond the120s event limit. This
+is private progress, not acceptance. Preserve
+the first failure under staged57/cases/mapped_work_trace_20261029T140408_1285674.
+
+The new run is staged57/cases/mapped_work_trace_20261029T140728_1294084. Two
+completed QuerySurfaceUnion calls consume5,615,551 and1,974,496 arithmetic work
+units. The active query is not identified by those completed-call receipts; a
+debugger attachment was denied by host ptrace policy. QuerySurfaceUnion performs
+model tessellation and directed subdivision until upper/lower bounds decide the
+tolerance. Event time is checked outside that synchronous operation. In addition,
+TriangleUnion charges a plane visit but its finite-plane footprint containment
+traverses components/boundaries without the atlas budget. That is an accounting
+gap, not proof of the observed bottleneck. Capture query direction, subdivisions,
+bounds and footprint work before changing this mechanism; do not raise budgets
+or infer geometric impossibility from the observation timeout.
+
+That run terminates at the unchanged600s outer timeout (605.476s harness receipt,
+exit124); source/runtime pins remain unchanged and all owned handles are terminal.
+Build127 adds ordinary Repair admission during residual size work even with wall
+constraints: already-satisfied height improvement cannot bypass its size/shape
+merit. Serial45/9611 passes. MPI6 accepts all tested meshes and passes the new
+case, but the existing first-rejection assertion fails: optimizer-only refusals
+were counted without invoking the capture hook. Build128 supplies an explicit
+optimizer refusal reason and routes residual-size refusals through that hook;
+the assertion is retained. Build128 passes (94.897s,1295 unchanged pins), connected
+serial45 cases/9611 assertions passes (9.667s), and focused MPI6 passes five cases
+per rank (227–631 assertions/rank,5.584s). All owned handles are terminal. These
+checks include the residual size stage and first-refusal capture, not full curved
+acceptance. The difficult workflow is not rerun after the height/diagnostic-only
+corrections; build126 failure provenance remains separate. Compact receipt:
+staged57/checkpoint128_euler_size_summary.json under
+integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/.
+
+Scope is the shared engine selection/stage dispatch, its distributed regressions
+and existing pinned harness. No new config, geometry backend, persistence format
+or solver-specific reconstruction is needed. Acceptance remains a complete curved
+Euler mesh, conservative transfer/history and actual solver continuation, then
+early M6 qualification; this stage change alone cannot close DC-17/DC-18.
+
 ## Selected foundation and actual source inspection
 
 Use SCOREC/MeshAdapt's classified-cavity and nodal size-field design **inside SU2**.

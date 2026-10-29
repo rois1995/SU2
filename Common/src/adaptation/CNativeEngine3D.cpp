@@ -161,6 +161,7 @@ class Selection {
       : coarsening(coarsening), track_repairs(repairing), repair_event(repairing), quality_only(quality_only), geometry(geometry), stats(stats), timings(timings), tolerance(tolerance), heights(heights) {}
   bool coarsening, track_repairs, repair_event, prune_collapses = false, track_splits = false;
   const bool quality_only;
+  bool size_repairs=false;
   const PlanarReference& geometry;
   EngineStats& stats;
   bool timings;
@@ -430,11 +431,12 @@ class Selection {
   }
   void UpdateRepairs(const Cell& cell,const CellState& row) {
     if(!track_repairs)return;
-    const bool needed=quality_only?!row.quality_valid:!row.valid;
-    if(needed&&!cell_repairs.count(cell.id))AddRepairs(cell);
+    const bool needed=quality_only?(!row.quality_valid || (size_repairs && row.debt.size_bad)):!row.valid;
+    if(needed&&!cell_repairs.count(cell.id))AddRepairs(cell,quality_only && size_repairs && row.quality_valid);
     else if(!needed&&cell_repairs.count(cell.id))RemoveRepairs(cell.id);
   }
   void ChangePhase(bool improvement,const Owned& working,const std::shared_ptr<const FrozenMetricIdentity>& identity) {
+    size_repairs=false;
     track_repairs=repair_event=improvement;prune_collapses=false;queue.clear();geometry_queue.clear();construction_frontier.clear();
     for(auto& item:cells) {
       auto& row=item.second;const auto found=working.find(item.first);
@@ -457,6 +459,11 @@ class Selection {
         if(item.second.geometry_scores[i]>0 && construction_frontier.count(edge) && (blocked==blocked_edges.end()||!blocked->second.count(edge[0])))
           geometry_queue.insert({-item.second.geometry_scores[i],item.first,edge});}
     }
+  }
+  void EnableSizeRepairs(const Owned& working) {
+    size_repairs=true;
+    for(const auto& row:working)UpdateRepairs(row.second.cell,cells.at(row.first));
+    FinishRepairs();
   }
   void RefreshQuality(const OwnedCell& owned,const PatchMetric& metric,bool valid,bool quality_valid,
                       const FirstHeightReport* height,bool height_valid,const std::shared_ptr<const FrozenMetricIdentity>& identity) {
@@ -595,12 +602,13 @@ class Selection {
     unmeasured_shape += !inserted.first->second.shape_measured;
     UpdateRepairs(cell,inserted.first->second);
   }
-  void AddRepairs(const Cell& cell) {
+  void AddRepairs(const Cell& cell,bool length_only=false) {
     auto& repairs=cell_repairs[cell.id];
     if (!repairs.empty()) throw std::logic_error("Duplicate native 3D repair queue seed.");
-    for (auto node:cell.v) repairs.push_back({1,{node.id,0,0}});
-    for (auto edge:cells.at(cell.id).edges) repairs.push_back({2,{edge[0],edge[1],0}});
-    for (auto face:Faces(cell)) repairs.push_back({3,Key(face)});
+    if(!length_only)for (auto node:cell.v) repairs.push_back({1,{node.id,0,0}});
+    for (auto edge:cells.at(cell.id).edges)
+      if(!length_only || edges.at(edge).measure.length>MaximumMetricEdge)repairs.push_back({2,{edge[0],edge[1],0}});
+    if(!length_only)for (auto face:Faces(cell)) repairs.push_back({3,Key(face)});
     for (auto key:repairs) {
       const auto inserted=repair_users.emplace(key,RepairDemand{0,repair_epoch,false});
       auto& demand=inserted.first->second;
@@ -727,7 +735,8 @@ bool OptimizedRepairPatch(const Patch& old,Id first,Id first_node,const RegionMe
   if(report.trials>work)throw std::logic_error("Native repair optimizer exceeded its work reservation.");
   if(node-first_node>report.trials)throw std::logic_error("Native repair optimizer exceeded its node reservation.");
   work=report.trials;
-  if(!changed || local.size()>MaximumReplacementCells)return false;
+  if(!changed){reason="Native3D cavity optimizer found no admissible quality/length change ("+report.stop+").";return false;}
+  if(local.size()>MaximumReplacementCells){reason="Native3D cavity optimizer exceeds replacement admission.";return false;}
   Patch proposal;proposal.parameters=old.parameters;proposal.coverage=old.coverage;
   for(const auto& p:report.parameters)proposal.parameters.insert_or_assign(p.first,p.second);
   for(const auto& row:local){auto c=row.second.cell;c.id=first+proposal.cells.size();proposal.cells.push_back(c);
@@ -2037,6 +2046,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // Amortize the strict census over a useful repair pass before retrying outstanding construction.
     const bool clean_quality=phase==Phase::Improvement &&
         !world.maximum(selection.quality_invalid!=0 || selection.unmeasured_shape!=0 || selection.cells.size()!=working.size());
+    // Close shape/height first, then give existing topology repair the residual length debt.
+    if(bidirectional && clean_quality && !selection.size_repairs && world.maximum(selection.debt.size_bad_cells!=0)) {
+      if(!admit(transfer_memory::Mul(working.size(),selection_bound(true))))return finish();
+      CLocalFailure failure;
+      try{selection.EnableSizeRepairs(working);}catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!vote(failure) || !observe_progress("size_repair_entry"))return finish();
+      continue;
+    }
     if(standalone_coarsening && phase==Phase::Improvement && checkpoint.valid && !any && !clean_quality &&
         !world.maximum(selection.cells.size()!=working.size()) && world.maximum(checkpoint.trial)) {
       if(stats.global_work>=stats.work_limit) {
@@ -2065,7 +2082,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     if(phase==Phase::Improvement && (world.maximum(improvement_changed) || (construction_handoff_progress && clean_quality)) &&
         (standalone_coarsening || world.maximum(selection.construction_invalid!=0)) &&
-        (!world.maximum(selection.quality_invalid!=0) || !any)) {
+        ((!world.maximum(selection.quality_invalid!=0) && !selection.size_repairs) || !any)) {
       if(!enter_phase(Phase::Construction))return finish();
       continue;
     }
@@ -2473,7 +2490,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       observe_transaction(operation,passed);return passed;
     };
     auto repair_kind=[&]() {
-      if(GetShapeAdmission()!=ShapeAdmission::ValidityOnly || options.wall_heights.empty())return MetricChange::Repair;
+      if(selection.size_repairs || GetShapeAdmission()!=ShapeAdmission::ValidityOnly || options.wall_heights.empty())return MetricChange::Repair;
       const auto before=HeightScore(old,options.wall_heights,geometry),after=HeightScore(fresh,options.wall_heights,geometry);
       return std::isfinite(before) && after>before+1e-6 ? MetricChange::GeometryRepair : MetricChange::Repair;
     };
@@ -3619,7 +3636,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         CLocalFailure old_invalid;if(joint && !measured)old_invalid.Set(1,0,result.reason);
         if(!(ready=vote(old_invalid)))return finish();
       }
-      const bool fallback=metric_needed && old_measured && repairing;
+      const bool fallback=metric_needed && old_measured && repairing && !selection.size_repairs;
       if (fallback && !repairing) ++stats.repair_fallbacks;
       const bool move=repairing ? choice.feature.count==1 : coarsening;
       const Id vertex=repairing ? choice.feature.vertices[0] : choice.edge[1];
@@ -3728,11 +3745,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           FrozenField proposal_field(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
           FieldAccounting accounting{stats,proposal_field};
           Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
-          candidate=guarded_geometry(optimize_patch(old,RegionMetric(proposal_field),false));
+          candidate=guarded_geometry(optimize_patch(old,RegionMetric(proposal_field),false),"OptimizeMetricMesh");
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return finish();
         release_optimization();
-        if(world.maximum(candidate)) {
+        if(world.maximum(candidate || (selection.size_repairs && chosen))) {
           const bool placed=validate_private(candidate,MetricChange::Repair);
           if(!ready)return finish();
           if(placed){approved=repair_approved=true;moved=false;optimization_approved=true;++stats.optimization_validated;}

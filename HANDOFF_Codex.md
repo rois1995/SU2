@@ -96,6 +96,11 @@ population from operator cost. Validate any SU2-specific modifications separatel
 
 ## References, status and working discipline
 
+- Active continuation: residual oversized-edge repair after global shape/height
+  closure is implemented in the shared distributed engine. The corrected smaller
+  Euler run reaches zero shape/geometry failures and3 size failures, then times
+  out in geometry work; no complete curved mesh is accepted. Current design and
+  diagnosis: [residual length repair](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#residual-length-repair-after-shape-closure--2026-10-29-continuation).
 - Available papers: [local collection](/media/rausa/4TB/SU2_Versions/Prove/Papers),
   including Loseille–Alauzet–Menier, *Unique cavity-based operator and hierarchical
   domain partitioning for fast parallel generation of anisotropic meshes* (2017,
