@@ -733,7 +733,7 @@ TEST_CASE("Entity feature reconstruction handles ordinary and genuine routes", "
   const auto saved=output.size();CHECK_FALSE(RebuildFeatureTraces(old,faces,invalid,*reference,output,budget,reason));CHECK(output.size()==saved);
 }
 
-TEST_CASE("Entity collapse precheck agrees with the complete curved cavity", "[NativeCurvedAtlas3D][NativeCollapseFilter3D]") {
+TEST_CASE("Entity collapse precheck defers remapped faces to the complete curved cavity", "[NativeCurvedAtlas3D][NativeCollapseFilter3D]") {
   RemappingFixture fixture(false);auto budget=RemappingBudget();std::string reason;
   auto state=fixture.state->WithEntityGeometry(.01,budget);const auto snapshot=state->Snapshot();
   auto reference=PlanarReference::WithParameters(fixture.definition,state);auto scoped=reference->WithAtlasReservation(budget);
@@ -750,14 +750,14 @@ TEST_CASE("Entity collapse precheck agrees with the complete curved cavity", "[N
     for(unsigned k=0;k<3;++k)p[k]=fixture.points.at(face.v[k]).node.p;
     error=std::max(error,current->SurfaceErrorForValidatedFace(face.facet,p));}
   CHECK(error<.01);CHECK(error>1e-4);
-  bool tight_veto=false;size_t survivors=0;
+  const auto measured_work=budget.work;budget.maximum_work=measured_work;size_t survivors=0;
   for(const auto& c:old.cells)if(std::none_of(c.v.begin(),c.v.end(),[](const Node& n){return n.id==10;})) {
     ++survivors;OwnedCell row;row.cell=c;const auto& v=c.v;
     const std::array<Face,4> faces{{{v[1].id,v[2].id,v[3].id},{v[0].id,v[3].id,v[2].id},{v[0].id,v[1].id,v[3].id},{v[0].id,v[2].id,v[1].id}}};
     for(unsigned k=0;k<4;++k)for(const auto& physical:fixture.surface){auto a=faces[k],b=physical.v;std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());
       if(a==b)row.physical[k]={true,physical.facet};}
     CHECK_FALSE(CollapseConstraintViolation(row,0,fixture.points.at(10).node,*scoped,.01,{}));
-    tight_veto|=CollapseConstraintViolation(row,0,fixture.points.at(10).node,*scoped,1e-4,{});
+    CHECK_FALSE(CollapseConstraintViolation(row,0,fixture.points.at(10).node,*scoped,1e-4,{}));
   }
-  CHECK(survivors==2);CHECK(tight_veto);CHECK(state->Snapshot()==snapshot);
+  CHECK(survivors==2);CHECK(budget.work==measured_work);CHECK_FALSE(budget.work_exhausted);CHECK(state->Snapshot()==snapshot);
 }

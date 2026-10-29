@@ -15,22 +15,27 @@ CFD → mesh. The user explicitly authorized pushing every checkpoint; previous
 checkpoints through77e5cd579d are pushed. Broader BL/RANS, history and restart
 obligations remain; no complete curved/M6 workflow is accepted yet.
 
-The implementation is frozen at build132 for the complete two-event M6 attempt.
-Checkpoint2801d2ad51 is pushed. Active run:
-staged57/m6_runs/euler_build132_two_events_frozen (exec session10976, harness
-PID1502539),1800s native budget/event and5400s outer limit for both events plus
-certification/transfer. The initial CFD solve completes; adaptation is running.
-Do not edit pinned code/helpers or start another heavy job. Inspect the owned
-handle before restarting. The result must drive the next construction,
-certification or transfer/CFD change.
+Full M6/build132 is terminal: first native event rejected at~1356s with exact
+surface-union dyadic resolution exhausted, after158 private accepted collapses.
+No adapted mesh or conservative transfer was accepted. The remaining attempt
+was stopped after that known failure; source/runtime pins stayed unchanged.
+Selection took731s and rank4 spent682s in nested collapse geometry. All cache
+rows were complete; the selection-filter origin is inferred, not a captured stack.
+Receipt: staged57/build132_m6_summary.json.
 
-Build132 passes; focused geometry checks pass15/16 cases, with work-exhaustion
-failures in the new sheared graph fixture. Those unresolved diagnostics are
-preserved and do not substitute for target-workflow evidence. No final geometry,
-metric or quality gate changed. The harness checks per-event native acceptance,
-conservative transfer/replacement, published meshes and subsequent CFD solve rows,
-and preserves complete event receipts. No M6 acceptance is claimed yet.
-[current connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
+Build133 (93.226s,1295 pins unchanged) changes the shared collapse shortcut to
+check surface deviation directly only when associations support that original
+facet. Remapped faces go through existing complete-cavity admission and unchanged
+final two-sided geometry gates. The new contract passes with no remaining atlas
+work. Focused filter selection:4/5 cases,98/99 assertions; an unchanged analytic
+path rejects correctly but its expected rejection-message substring differs.
+This failure remains recorded, not waived as a full regression pass.
+
+The next complete target is running at
+staged57/m6_runs/euler_build133_cavity_filter (exec session93039), two events,
+1800s native/event and5400s outer bound. No source/helper edits or second heavy
+job until its handle is terminal. Geometry-backend sheared-fixture work exhaustion
+from build132 remains unresolved; it is not the next development objective.
 
 Historical build128 passes serial45/9611 and focused MPI6 five cases/rank. Its
 residual size repair reaches a later complete-surface geometry blockage in the

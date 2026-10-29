@@ -1,4 +1,4 @@
-"""One-worker checkpoint build with frozen inputs and process-tree resource receipts."""
+"""Two-worker checkpoint build with frozen inputs and process-tree resource receipts."""
 import json, os, subprocess, sys, time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent
@@ -33,6 +33,7 @@ paths.update(str(ROOT.parents[3]/p) for p in (
 # The shared face correspondence now uses the existing vendored Eigen headers.
 paths.update(str(p) for p in (ROOT.parents[3]/'externals/eigen/Eigen').rglob('*') if p.is_file())
 command=json.loads((ROOT/'build4_command.json').read_text())
+command['argv']=['-j2' if argument=='-j1' else argument for argument in command['argv']]
 if not Path(command['argv'][3]).is_file():
     command['argv'][3]=str(ROOT.parents[3]/'integration_evidence/build-integrated-v2/tools/ninja')
 assert Path(command['argv'][3]).is_file(), 'Restore the recorded Ninja or the repository build-tools copy'

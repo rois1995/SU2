@@ -4002,7 +4002,13 @@ bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,
     std::array<Point,3> points;
     for(unsigned i=0;i<3;++i)for(auto n:proposed.cell.v)if(n.id==face.v[i])points[i]=n.p;
     if(!geometry.ContainsFace(face.facet,points))return true;
-    if(geometry.Declared(geometry.Canonical(face.facet)) &&
+    bool direct=true;
+    if(geometry.EntityGeometry())for(Id id:face.v) {
+      const auto* point=geometry.Parameters()->Find(id);
+      direct=direct && point && geometry.Parameters()->Geometry().Supports(face.facet,point->binding);
+    }
+    // Remapped faces need complete-cavity admission, not a global enclosure inside a selection shortcut.
+    if(direct && geometry.Declared(geometry.Canonical(face.facet)) &&
         geometry.SurfaceDeviation(face.facet,points)>tolerance)return true;
   }
   FirstHeightReport report;std::string reason;

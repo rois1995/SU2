@@ -61,13 +61,37 @@ all planned events. Native summaries alone cannot establish the CFD workflow.
 The helper self-checks pass, including historical M6 rejection. Actual restart and
 unsteady history qualification remain separate obligations.
 
-Latest user direction freezes this implementation and makes the complete M6 run
-determine the next code change. Checkpoint2801d2ad51 is pushed. The active attempt
-is staged57/m6_runs/euler_build132_two_events_frozen (exec session10976, owned
-harness PID1502539, started2026-10-29T15:27 UTC). It requests two events, unchanged
-metric/geometry/quality gates,1800s native budget per event, and a generous bounded
-5400s outer limit including certification/transfer. No source/helper edits or
-second heavy job during this run. Inspect its live handle/status before any restart.
+### Full M6 result and collapse admission — build133
+
+Build132's first event failed at~1356s: `Surface-union parameters exhausted exact
+ dyadic resolution; bounds unresolved`. It made158 private accepted collapses at
+ global work167 but completed no length pass or quality stage. No mesh publication
+or conservative transfer occurred. Selection consumed731s, including682s nested
+collapse geometry on rank4; every owned/cache count matched at failure. These
+measurements implicate the single-cell selection shortcut; no throwing stack or
+exact edge was captured. The remainder was stopped after this known failure,
+all owned handles are terminal and pins unchanged. Detailed evidence is in
+staged57/build132_m6_summary.json.
+
+CollapseConstraintViolation previously ran general surface-union enclosure for a
+hypothetical single-cell remap. Defer that deviation query when current bindings
+do not support its original facet. Keep direct facet deviation, ContainsFace and
+height checks. Complete CollapseVertex still checks the complete classified star,
+exact positivity, interface/features and surface; private admission and final
+two-sided certificates remain mandatory. This is a selection shortcut, not mesh
+admission. A later cavity query may still reject/stall; M6 must establish viability.
+Affected callers are shared Selection::FilterCollapse and existing filter tests.
+No limits, tolerance, final gates or geometry authority changed.
+
+Build133 passes93.226s with1295 pins unchanged. The existing remapped-face fixture
+now tests deferral with no remaining atlas budget, retaining its measured full
+cavity error. It passes. Filter selection passes4/5 cases98/99 assertions: the
+unchanged analytic-facet path expects a specific older rejection substring but
+receives no-admissible quality/length change; rejection/cache/input checks pass.
+This remains an unresolved regression diagnostic. The full M6 two-event attempt
+staged57/m6_runs/euler_build133_cavity_filter is active (session93039),1800s native
+per event,5400s outer, unchanged requested fields/gates. Freeze sources/helpers
+until terminal; its construction/certification/transfer failure drives next work.
 
 ## Residual length repair after shape closure — 2026-10-29 continuation
 

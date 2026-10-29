@@ -102,11 +102,16 @@ population from operator cost. Validate any SU2-specific modifications separatel
   are pushed. No complete curved/M6 workflow is accepted yet. The current change
   improves conservative complete-surface bounds across noncoplanar triangulations;
   [current diagnosis/design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
-  Latest user direction: freeze a coherent implementation and let the complete M6
-  run determine the next change. Build132 is frozen for two events,1800s native
-  budget per event and5400s outer bound including certification/transfer. Keep
-  code pinned during that run; unresolved focused work-exhaustion diagnostics do
-  not justify another checker iteration before the target attempt.
+  Latest full M6/build132 failed its first event after private construction edits:
+  exact dyadic resolution exhausted, no accepted mesh or transfer. Selection took
+  731s; one rank spent682s in the single-cell collapse geometry shortcut. See
+  staged57/build132_m6_summary.json. Build133 defers remapped-face deviation from
+  that shortcut to existing complete-cavity admission; final gates are unchanged.
+  The new contract passes; filter selection is4/5 cases (one unchanged analytic
+  rejection-message assertion fails). Full two-event M6/build133 is now running:
+  staged57/m6_runs/euler_build133_cavity_filter, exec session93039,1800s native/event,
+  5400s outer bound. Keep sources/helpers pinned; let this target determine the
+  next change. No complete M6 workflow is accepted.
 - Available papers: [local collection](/media/rausa/4TB/SU2_Versions/Prove/Papers),
   including Loseille–Alauzet–Menier, *Unique cavity-based operator and hierarchical
   domain partitioning for fast parallel generation of anisotropic meshes* (2017,
