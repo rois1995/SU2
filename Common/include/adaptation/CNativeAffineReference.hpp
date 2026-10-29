@@ -104,7 +104,9 @@ class MappedFacetReference {
   using CurvedNets=std::map<Id,CubicNet>;
   MappedFacetReference(std::shared_ptr<const SU2Native3D::PlanarReference> reference,
                        const std::map<Id,double>& mapping_errors,uint64_t version,size_t ceiling=SIZE_MAX,
-                       bool reference_components=false,const CurvedNets& curved_nets={});
+                       bool reference_components=false,const CurvedNets& curved_nets={},size_t query_cache_bytes=SIZE_MAX);
+  /*! Fixed-geometry cache quota from separately available storage; no allocation or working-mesh history. */
+  static size_t SurfaceQueryStorageBytes(size_t curved_facets,size_t available);
   const CurvedNets& Curves()const{return curves;}
   struct CurvedClosest {
     Id facet=0;

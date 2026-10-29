@@ -171,16 +171,45 @@ exhaustion remains recorded. No new numerical acceptance gate, tolerance or targ
 metric field. One-event diagnostic config stays1800s/2400s.
 
 The previous1800s attempts admitted158→319→414→760 private collapses without
-completing a length pass. Per user direction, freeze this coherent implementation
-and give the complete two-event M6 a generous bounded attempt:5400s native/event,
-14400s outer including certification/transfer/CFD. The config changes only subiter
-count and the native resource time bound; all final gates remain. Active path:
-staged57/m6_runs/euler_build136_frozen_90min, exec35014. Sources/helpers pinned,
-one owned heavy job,6 nice19 ranks and single-threaded libraries. Host receipt and
-process-tree samples are preserved. Do not add another checker variant before the
-whole target result identifies its actual construction/certification/transfer
-blocker. Receipt: staged57/checkpoint136_frozen_m6_summary.json. No accepted mesh
-or complete M6 workflow yet.
+completing a pass. Build136 was frozen with5400s native/event,14400s outer; after
+3202.123s the user explicitly requested stopping and fixing repeated preparation.
+The owned attempt is terminal, pins unchanged, all handles gone. No native result
+or geometric rejection inferred from the stop. Receipt: staged57/build136_m6_summary.json.
+
+### Retained fixed-surface query hierarchy — builds137/138
+
+The authority already stores exact cubic control nets and a control-hull ADT;
+QuerySurfaceUnion rebuilt the tessellation, projected footprints and triangle ADTs
+for every changing candidate. Cache of identical answers did not address this.
+Retain certified per-original-facet approximations/footprints/ADTs by facet and
+requested tolerance under CurvedSearch. The existing root index selects leaves;
+exact requested-facet filtering preserves body/marker/sheet scope. A query view
+combines conservative per-facet lower/upper distance bounds, so no target outside
+that scope can certify a candidate. Working-surface target indices still rebuild
+when the working mesh changes. No new archive schema or solver/scenario dispatch.
+
+TriangleUnion now receives current AtlasOps in its query methods instead of
+retaining a reference to a construction-time stack object. A preparation mutex
+protects retained traversal scratch; the existing root ADT mutex protects shared
+root traversal. A pre-admitted pool, counted in ResidentBytes, retains fixed data;
+if an entry cannot be retained, its current-query storage is explicitly admitted.
+Full geometry gates stay unchanged; no failed certificate is promoted to success.
+Per-facet upper bounds can be looser at original seams than a combined footprint;
+existing seam/hole tests and M6 determine viability, never a relaxed tolerance.
+
+Build137 passes306.746s/1295 pins unchanged. New different-triangle and overlapping
+support reuse checks pass2 cases/32 assertions, comparing against fresh authorities.
+The broader51-case campaign passes49 cases/17559 assertions;14 assertions identify
+reservation bounds growing2 bytes when decoded revision text gains a digit. The
+reservation had depended on decoder ceiling, which includes archive text length.
+Use a fixed curve-count bound when it can be admitted, preserving strict repeated-
+publication assertions. One prior sheared-graph work-exhaustion failure remains.
+Build138 passes but its undersized pool failed reuse. Build139 separately admits
+a geometry-sized cache quota at load, passes1018.648s/pins unchanged (3 workers),
+and passes2 reuse cases/34 assertions with retained curved indices. Connected
+geometry/publication and MPI remain pending. Tests also add a tighter-tolerance fresh-
+authority comparison. After resource/geometry and bounded MPI validation, retry
+full M6 with5400s native/event and14400s outer. No accepted M6 workflow yet.
 
 ## Residual length repair after shape closure — 2026-10-29 continuation
 

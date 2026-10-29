@@ -254,6 +254,35 @@ TEST_CASE("Physical surface bounds reuse only identical immutable queries", "[Na
   auto fresh=BackendBudget();CHECK(fixture.geometry->BoundPhysicalSurface({100,101},physical,.01,fresh)>9);
 }
 
+TEST_CASE("Prepared surface geometry is reused across distinct physical queries", "[NativeGeometryBackend3D][NativeSurfaceMemo3D]") {
+  BackendFixture warm, fresh, overlapping, different_tolerance, tighter_tolerance;
+  const auto& f=warm.facets.front();
+  const std::vector<std::array<Point,3>> physical{{{f.v[0].p,f.v[1].p,f.v[2].p}}};
+  auto shifted=physical;for(auto& point:shifted[0])point.z+=.001;
+  auto warmup=BackendBudget();warm.geometry->BoundPhysicalSurface({0,1},physical,.01,warmup);
+  auto reused=BackendBudget(), cold=BackendBudget();
+  const auto actual=warm.geometry->BoundPhysicalSurface({0,1},shifted,.01,reused);
+  const auto expected=fresh.geometry->BoundPhysicalSurface({0,1},shifted,.01,cold);
+  CHECK(actual==expected);CHECK(reused.work<cold.work);
+
+  auto other=physical;for(auto& point:other[0])point.z+=.002;
+  auto reused_overlap=BackendBudget(), cold_overlap=BackendBudget();
+  const auto actual_overlap=warm.geometry->BoundPhysicalSurface({0,1,2},other,.01,reused_overlap);
+  const auto expected_overlap=overlapping.geometry->BoundPhysicalSurface({0,1,2},other,.01,cold_overlap);
+  CHECK(actual_overlap==expected_overlap);CHECK(reused_overlap.work<cold_overlap.work);
+
+  auto reused_tolerance=BackendBudget(), cold_tolerance=BackendBudget();
+  const auto actual_tolerance=warm.geometry->BoundPhysicalSurface({0,1},shifted,.02,reused_tolerance);
+  const auto expected_tolerance=different_tolerance.geometry->BoundPhysicalSurface({0,1},shifted,.02,cold_tolerance);
+  CHECK(actual_tolerance==expected_tolerance);
+
+  auto tight=physical;for(auto& point:tight[0])point.z-=.001;
+  auto reused_tight=BackendBudget(), cold_tight=BackendBudget();
+  const auto actual_tight=warm.geometry->BoundPhysicalSurface({0,1},tight,.005,reused_tight);
+  const auto expected_tight=tighter_tolerance.geometry->BoundPhysicalSurface({0,1},tight,.005,cold_tight);
+  CHECK(actual_tight==expected_tight);
+}
+
 TEST_CASE("Surface union bounds span a noncoplanar triangulated graph without filling holes", "[NativeGeometryBackend3D]") {
   const bool shear=GENERATE(false,true);BackendFixture fixture(false,true,shear);
   std::vector<std::array<Point,3>> physical;

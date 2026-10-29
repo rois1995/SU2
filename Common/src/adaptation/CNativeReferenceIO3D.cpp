@@ -146,6 +146,8 @@ static ReferenceState DecodeReferenceImpl(const std::string& bytes,size_t ceilin
   maximum_bytes=std::max(maximum_bytes,requested);
   if (requested == SIZE_MAX || requested > ceiling)
     throw std::length_error("Native3D reference decoding exceeds storage budget.");
+  const auto query_cache=SU2NativeGeometry::MappedFacetReference::SurfaceQueryStorageBytes(header.curves,ceiling-requested);
+  maximum_bytes=std::max(maximum_bytes,transfer_memory::Add(requested,query_cache));
   ReferenceState result;
   std::set<std::string> names;
   std::set<int> used;
@@ -227,7 +229,7 @@ static ReferenceState DecodeReferenceImpl(const std::string& bytes,size_t ceilin
   ValidateDomainSurfaceTopology(skin);
   result.original = std::make_shared<PlanarReference>(result.facets, construction, std::move(analytic),std::move(affine));
   if(header.version>=5) {
-    auto mapped=std::make_shared<SU2NativeGeometry::MappedFacetReference>(result.original,errors,header.geometry_version,requested,header.version==6,curves);
+    auto mapped=std::make_shared<SU2NativeGeometry::MappedFacetReference>(result.original,errors,header.geometry_version,requested,header.version==6,curves,query_cache);
     const auto caller=transfer_memory::Add(construction,transfer_memory::Mul(bytes.size(),8),
         transfer_memory::Mul(header.points,256),transfer_memory::Mul(header.surface,64));
     auto reservation=BoundaryAtlasBudget(header.version>=8?transfer_memory::Mul(header.atlas_words,8):0,ceiling,caller);

@@ -1,0 +1,94 @@
+{
+  "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build136_frozen_90min",
+  "status": {
+    "state": "terminal",
+    "solver_exit_code": 1,
+    "native_event_accepted": false,
+    "native_state": "solver exit failure; native acceptance not claimed",
+    "workflow_accepted": false,
+    "pins_verified": true,
+    "changed": [],
+    "seconds": 3202.1225764751434,
+    "largest_sampled_individual_process_rss_bytes": 673726464,
+    "rss_note": "sampled process RSS; not a whole-job peak",
+    "transfer_reload_validation": "separate existing validation required"
+  },
+  "command": {
+    "build": "build136",
+    "case": "M6 Euler full adaptation",
+    "ranks": 6,
+    "expected_events": 2,
+    "native_budget_seconds": 5400,
+    "outer_timeout_seconds": 14400,
+    "argv": [
+      "nice",
+      "-n",
+      "19",
+      "/usr/bin/time",
+      "-v",
+      "timeout",
+      "14400",
+      "mpirun",
+      "--output-filename",
+      "rank_output",
+      "-n",
+      "6",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "run.cfg"
+    ],
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "config_sha256": "bc58411bb4f5f54a8f248f467273ae1f7ed9a3c86480aea623b7eb5b3b181afd",
+    "input_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/input_pins.json",
+    "runtime_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/loaded_runtime_pins.json"
+  },
+  "stop": {
+    "reason": "User explicitly requested stopping the run to implement persistent prepared curved-surface query representation; repeated projected reference preparation demonstrated in target stack samples",
+    "owned_launcher_pid": 1851471,
+    "verified_cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build136_frozen_90min",
+    "verified_command": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+    "signal": "SIGTERM",
+    "whole_campaign_success": false,
+    "native_event_result": "not completed; do not infer acceptance or geometric rejection from deliberate stop"
+  },
+  "initial_cfd_history": [
+    {
+      "Time_Iter": "0",
+      "Outer_Iter": "0",
+      "Inner_Iter": "0",
+      "Adap_Cycle": "0",
+      "Adap_Iter": "0",
+      "rms[Rho]": "-2.454591466",
+      "rms[RhoU]": "-0.07918739343",
+      "rms[RhoV]": "-0.6961800779",
+      "rms[RhoW]": "-0.6465239942",
+      "rms[RhoE]": "3.06433225"
+    }
+  ],
+  "native_event_result": "No complete native event summary; deliberately stopped. Neither accepted mesh nor geometric rejection inferred.",
+  "accepted_mesh": false,
+  "conservative_transfer": false,
+  "restart_validation": false,
+  "sampled_tree_rss_max_bytes": 3932876800,
+  "resource_note": "Sampled process-tree RSS, not a whole-job peak.",
+  "perf_note": "native_2100s is a short DWARF stack sample; may contain incomplete call chains and does not establish whole-event attribution.",
+  "sha256": {
+    "status.json": "fa0f93b21b8b18e6bd1934f4b4088eec8e297715806fbc9aed6a3a2ca150de7a",
+    "command.json": "c3f8033cdb6ee8862fa0c05690c5015a76fb4fd3de2ce09deeca01cfe3268cc9",
+    "pins.json": "dd3fb871c884f996911e13d6cb56ebbae1001cd78aea661edbdb89790e69fe38",
+    "run.cfg": "bc58411bb4f5f54a8f248f467273ae1f7ed9a3c86480aea623b7eb5b3b181afd",
+    "run.log": "d915700628ddb77a5d3d6b75f6d10a2e50b1a0ad116bcc376c964c0e87f97854",
+    "native_assessment.json": "40eeec0084adc1423cd37146b9d0e815c37dc3b691943fbfcffab88cf1379429",
+    "workflow_assessment.json": "a8102fe0e046ebcb9db2a780ecdd63541bd3159b8835cc6a25760b397d9d6871",
+    "observation_stop.json": "b5a742fa4788e6343b6345981f2fa3ea8e7c9b396d8ae97416fdd146ee3b7b25",
+    "history.csv": "dd6f9cd1b9e7f5a267e6ece9ea2335af3c3737c7815c24ba54c90425310e6209",
+    "host_start.json": "3c9dde4d2eb296869b30305e6c4b2076eb231e85065dce915688206ba0cb8788",
+    "resources.jsonl": "5ab3b5931f975b7344d4274a3577c62f6f3c4db943862e961b5b36cc2a422e65",
+    "restart_flow_adap_00000.dat": "c91d06b38e840aaada5a8ac417d1f937cdda4b5f5de7d587f7d17bbfc08e236b",
+    "native_2100s.perf.data": "422540465591328ed830ecc28982eb017a8268bec554fea967344120ec9aa84d",
+    "native_2100s.perf_symbols.txt": "19707649ea6d13a3bef81c5c9444fc772ba30471003ecf9d5a64b69650f413aa"
+  }
+}

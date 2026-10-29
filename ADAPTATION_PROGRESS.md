@@ -81,15 +81,34 @@ support/body/tolerance/coordinate isolation and collapse contracts. Build passes
 checks; those proofs are reused. Existing sheared-graph complete-section work
 exhaustion remains unqualified; no numerical final gate or target field changed.
 
-The next full two-event attempt freezes this coherent implementation for a generous
-bounded budget:5400s native/event and14400s outer, at
-staged57/m6_runs/euler_build136_frozen_90min (exec35014). Prior1800s attempts admitted
-158→319→414→760 private collapses but never completed a length pass. This longer
-whole-target result must drive further work; do not add another checker variant
-before it. Sources/helpers pinned; one owned heavy job,6 nice19 ranks, single-thread
-libraries. Host launch receipt:8 CPUs,~33GiB available; observe sampled process tree
-and host contention. Receipt: staged57/checkpoint136_frozen_m6_summary.json.
-No complete curved/M6 capability is accepted. BL/RANS/history/restart remain open.
+User explicitly requested stopping build136 to implement reusable fixed-surface
+representation. The owned run is terminal3202.123s, pins unchanged; no native event
+result, geometric rejection or accepted mesh inferred. All handles are gone.
+Receipt: staged57/build136_m6_summary.json. The latest perf sample catches
+FinitePlaneReference preparation inside complete-cavity surface checks, while
+other ranks wait in collectives.
+
+The new path reuses the existing original control-hull index. Certified facet
+approximations, finite projected footprints and local ADTs persist by immutable
+facet/tolerance, independent of the candidate mesh. Queries filter exact requested
+facets and pass their current AtlasOps explicitly; retained indices hold no expired
+budget reference. Memory uses a pre-admitted geometry-size pool; query-local
+storage handles an unretained entry under the same configured ceiling. Final
+two-sided checks and requested geometry/q/J/size/height gates stay mandatory.
+
+Build137 passes306.746s/pins unchanged. Different-triangle/overlapping-scope reuse
+checks pass2 cases/32 assertions. Broader geometry/curved-publication campaign:
+49/51 cases,17559/17574 assertions pass. Fourteen failures catch a two-byte cache
+reservation increase after revision-text growth; one is the prior sheared-graph
+work exhaustion. Reservation is now fixed from original curve count, with optional
+admission against the configured storage ceiling. No assertion or acceptance gate relaxed.
+Build138 passes123.302s; its focused check catches two absent-reuse assertions:
+the 4096-byte/facet pool retains no curved facet. Build139 admits a separate
+geometry-sized quota during decode, preserving the old construction reservation;
+3-worker build passes1018.648s/pins unchanged. Reuse test passes2 cases/34 assertions
+with actual curved retention. Geometry/publication active (session42472). Recheck
+geometry contracts plus bounded MPI, then full M6 at5400s native/event and14400s
+outer. Source/helpers pinned during active build/tests. No M6 capability accepted.
 
 Historical build128 passes serial45/9611 and focused MPI6 five cases/rank. Its
 residual size repair reaches a later complete-surface geometry blockage in the

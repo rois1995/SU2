@@ -102,20 +102,26 @@ population from operator cost. Validate any SU2-specific modifications separatel
   no complete curved/M6 workflow is accepted yet. Connected implementation and
   target-driven evidence:
   [current diagnosis/design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
-  Full M6/build135 rejected on metric-update elapsed time:760 private collapses,
-  work965, no completed length pass or quality stage, mesh or transfer. Previous
-  attempts admitted158/319/414 collapses; repeated1800s bounds stop before a pass.
-  See staged57/build135_m6_summary.json. Build136 corrects memo key-work charging
-  and sticky denial; its focused checks pass6 cases/123 assertions. Interval code
-  is unchanged from135's648 exact-rational checks. Build passes84.212s/pins unchanged.
-  Checkpoint: staged57/checkpoint136_frozen_m6_summary.json. No numerical gate or
-  geometry/metric field changed. Previous sheared-graph work exhaustion remains.
-  A coherent full two-event attempt is now frozen at staged57/m6_runs/
-  euler_build136_frozen_90min (exec35014):5400s native/event and14400s outer.
-  This generous bounded run must determine the next change; do not add another
-  checker variant or edit pinned source/helpers during it. One heavy workload,
-  six nice19 ranks and single-threaded libraries; host launch receipt saved.
-  No complete M6 workflow is accepted. BL/RANS, history and restart remain open.
+  Per explicit user direction, M6/build136 was deliberately stopped after3202s
+  to fix repeated fixed-surface preparation. Owned handles are terminal and pins
+  unchanged; no completed native result or mesh/transfer. Receipt:
+  staged57/build136_m6_summary.json. Stack samples locate complete-cavity geometry
+  certification rebuilding projected references while other ranks wait in MPI.
+  Current change retains certified per-original-facet model data, projected
+  footprints and local indices beneath the existing immutable control-hull index.
+  Different physical triangles/scopes reuse that data with current query budgets;
+  exact facet/body restrictions and final two-sided gates remain. No format change.
+  Build137 passes; reuse test passes2 cases/32 assertions. Broader51-case check
+  passes49 cases; catches14 two-byte reservation-growth assertions plus the prior
+  sheared-graph work exhaustion. Reservation now depends on fixed curve count,
+  not decoded archive text/revision length. Build138 exposed an insufficient cache
+  quota (correct bounds, no curved reuse). The decoder now admits a separate
+  geometry-size cache quota from remaining storage. Build139 passes1018.648s/pins unchanged with3 workers. Reuse test passes2 cases/
+  34 assertions and confirms curved indices retained. Geometry/publication check
+  active (session42472); pinned sources/helpers must stay unchanged.
+  Validate resource/publication, seams/holes/bodies and bounded MPI, then rerun full
+  M6 immediately with5400s native/event,14400s outer. One heavy workload;2–4 build
+  workers. No complete M6 workflow yet; BL/RANS/history/restart remain open.
 - Available papers: [local collection](/media/rausa/4TB/SU2_Versions/Prove/Papers),
   including Loseille–Alauzet–Menier, *Unique cavity-based operator and hierarchical
   domain partitioning for fast parallel generation of anisotropic meshes* (2017,

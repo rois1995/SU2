@@ -215,7 +215,7 @@ TriangleDistanceBounds TriangleDistance(const Box& point,const std::array<Point,
 struct UnionTriangle {std::array<Point,3> points;double error=0;};
 class TriangleUnion {
  public:
-  TriangleUnion(const std::vector<UnionTriangle>& triangles,AtlasOps& op,double resolution):triangles(triangles),op(op),accuracy(resolution) {
+  TriangleUnion(const std::vector<UnionTriangle>& triangles,AtlasOps& op,double resolution):triangles(triangles),accuracy(resolution) {
     if(triangles.empty())throw std::invalid_argument("Empty geometry triangle union.");
     const auto count=triangles.size();size_t retained=0,peak=0;
     if(count>16)CADTElemClass::PredictBytes(3,2*count,count,2*count,&retained,&peak);
@@ -235,22 +235,30 @@ class TriangleUnion {
       std::vector<unsigned short> types(count,LINE),markers(count,0);
       index=std::make_unique<CADTElemClass>(3,coordinates,connectivity,types,markers,ids,false);
     }
-    op.budget.caller_bytes=transfer_memory::Add(op.budget.caller_bytes,scratch);BuildPlanes();
+    op.budget.caller_bytes=transfer_memory::Add(op.budget.caller_bytes,scratch);BuildPlanes(op);
   }
-  TriangleDistanceBounds Distance(const Box& point) {
-    const size_t seed=Seed(point);auto bound=Distance(point,seed);Candidates(point,bound.upper);
-    for(auto i:candidates){const auto b=Distance(point,i);bound.lower=std::min(bound.lower,b.lower);bound.upper=std::min(bound.upper,b.upper);}
+  TriangleDistanceBounds Distance(const Box& point,AtlasOps& op) {
+    const size_t seed=Seed(point,op);auto bound=Distance(point,seed,op);Candidates(point,bound.upper,op);
+    for(auto i:candidates){const auto b=Distance(point,i,op);bound.lower=std::min(bound.lower,b.lower);bound.upper=std::min(bound.upper,b.upper);}
     return bound;
   }
-  template<size_t N> double Upper(const std::array<Box,N>& hull) {
+  template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op) {
     Box box;for(unsigned d=0;d<3;++d){box[d]={INFINITY,-INFINITY};for(const auto& p:hull){box[d].lo=std::min(box[d].lo,p[d].lo);box[d].hi=std::max(box[d].hi,p[d].hi);}}
-    auto witness=[&](size_t i){double b=0;for(const auto& p:hull)b=std::max(b,Distance(p,i).upper);return b;};
+    auto witness=[&](size_t i){double b=0;for(const auto& p:hull)b=std::max(b,Distance(p,i,op).upper);return b;};
     if(++visit==0){std::fill(visited.begin(),visited.end(),0);visit=1;}
     auto plane_bound=[&](size_t i)->double{const auto group=triangle_plane[i];if(group==SIZE_MAX||visited[group]==visit)return INFINITY;
       visited[group]=visit;op.Work();return planes[group].Upper(hull,op);};
-    const auto seed=Seed(box);double best=plane_bound(seed);if(best<=accuracy/4)return best;
-    best=std::min(best,witness(seed));Candidates(box,best);
+    const auto seed=Seed(box,op);double best=plane_bound(seed);if(best<=accuracy/4)return best;
+    best=std::min(best,witness(seed));Candidates(box,best,op);
     for(auto i:candidates){best=std::min(best,plane_bound(i));if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
+  }
+  size_t ResidentBytes()const {
+    auto bytes=[](const auto& v){return transfer_memory::Mul(v.capacity(),sizeof(typename std::decay_t<decltype(v)>::value_type));};
+    size_t out=transfer_memory::Add(sizeof(*this),bytes(candidates),bytes(graph_candidates),bytes(planes),
+        bytes(triangle_plane),bytes(triangle_slot),bytes(visited),index?index->GetAllocatedBytes():0,
+        index?index->RetainedWorkspaceBound(1):0);
+    for(const auto& plane:planes)out=transfer_memory::Add(out,bytes(plane.faces),plane.footprint->ResidentBytes());
+    return out;
   }
  private:
   struct PlaneUnion {
@@ -301,7 +309,7 @@ class TriangleUnion {
   };
   std::vector<PlaneUnion> planes;std::vector<size_t> triangle_plane,triangle_slot;
   std::vector<uint64_t> visited;uint64_t visit=0;double accuracy;
-  void BuildPlanes() {
+  void BuildPlanes(AtlasOps& op) {
     using namespace SU2Native3D;
     const size_t count=triangles.size(),none=SIZE_MAX;op.Storage(transfer_memory::Mul(count,1024));
     std::map<Vec,Id> vertices;std::map<std::array<Id,2>,size_t> edges;std::vector<size_t> roots(count);
@@ -348,23 +356,66 @@ class TriangleUnion {
     }
     visited.resize(planes.size());op.budget.caller_bytes=transfer_memory::Add(op.budget.caller_bytes,retained);
   }
-  const std::vector<UnionTriangle>& triangles;AtlasOps& op;
+  const std::vector<UnionTriangle>& triangles;
   std::unique_ptr<CADTElemClass> index;std::vector<unsigned long> candidates,graph_candidates;
-  TriangleDistanceBounds Distance(const Box& p,size_t i) {
+  TriangleDistanceBounds Distance(const Box& p,size_t i,AtlasOps& op) {
     auto b=TriangleDistance(p,triangles[i].points,op);const double e=triangles[i].error;
     b.lower=std::max(0.,std::nextafter(double(Subtract(b.lower,e).lo),-INFINITY));
     b.upper=std::nextafter(double(Add({b.upper,b.upper},{e,e}).hi),INFINITY);return b;
   }
-  size_t Seed(const Box& box) {
+  size_t Seed(const Box& box,AtlasOps& op) {
     if(!index)return 0;
     op.Work();const auto p=Values(BoxMiddle(box));const su2double x[]={p[0],p[1],p[2]};su2double distance=0;unsigned short marker=0;unsigned long id=0;int rank=0;
     index->DetermineNearestElement(x,distance,marker,id,rank);return id;
   }
-  void Candidates(const Box& box,double distance) {
+  void Candidates(const Box& box,double distance,AtlasOps& op) {
     candidates.clear();if(!index){for(size_t i=0;i<triangles.size();++i)candidates.push_back(i);return;}
     op.Work();if(!std::isfinite(distance))throw std::invalid_argument("Unrepresentable surface-union distance.");
     su2double lo[3],hi[3];for(unsigned d=0;d<3;++d){lo[d]=std::nextafter(double(Subtract(box[d],{distance,distance}).lo),-INFINITY);hi[d]=std::nextafter(double(Add(box[d],{distance,distance}).hi),INFINITY);}
     index->DetermineIntersectingElements(lo,hi,candidates);
+  }
+};
+// The original control-hull index selects fixed facets; each selected facet retains its certified leaf index.
+class PreparedSurfaceView {
+ public:
+  struct Root {const std::vector<Id>* facets;CADTElemClass* index;};
+  PreparedSurfaceView(const std::vector<Id>& facets,const std::vector<TriangleUnion*>& targets,
+      std::vector<Root> roots,std::mutex& mutex,AtlasOps& op):facets(facets),targets(targets),roots(std::move(roots)),mutex(mutex) {
+    size_t count=0;for(const auto& root:this->roots)count=std::max(count,root.facets->size());
+    op.Storage(transfer_memory::GrowthBound(count,sizeof(unsigned long)));candidates.reserve(count);
+    op.budget.caller_bytes=transfer_memory::Add(op.budget.caller_bytes,transfer_memory::Mul(candidates.capacity(),sizeof(unsigned long)));
+  }
+  TriangleDistanceBounds Distance(const Box& point,AtlasOps& op) {
+    const auto seed=Seed(point,op);auto bound=targets[seed]->Distance(point,op);
+    Nearby(point,bound.upper,op,[&](size_t i){if(i==seed)return;const auto b=targets[i]->Distance(point,op);
+      bound.lower=std::min(bound.lower,b.lower);bound.upper=std::min(bound.upper,b.upper);});return bound;
+  }
+  template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op) {
+    Box box;for(unsigned d=0;d<3;++d){box[d]={INFINITY,-INFINITY};for(const auto& p:hull){box[d].lo=std::min(box[d].lo,p[d].lo);box[d].hi=std::max(box[d].hi,p[d].hi);}}
+    const auto seed=Seed(box,op);double bound=targets[seed]->Upper(hull,op);
+    Nearby(box,bound,op,[&](size_t i){if(i!=seed)bound=std::min(bound,targets[i]->Upper(hull,op));});return bound;
+  }
+ private:
+  const std::vector<Id>& facets;const std::vector<TriangleUnion*>& targets;
+  std::vector<Root> roots;std::mutex& mutex;std::vector<unsigned long> candidates;
+  size_t Position(Id facet)const {const auto it=std::lower_bound(facets.begin(),facets.end(),facet);
+    return it!=facets.end()&&*it==facet?size_t(it-facets.begin()):SIZE_MAX;}
+  size_t Seed(const Box& box,AtlasOps& op) {
+    const auto p=Values(BoxMiddle(box));const su2double x[]={p[0],p[1],p[2]};double nearest=INFINITY;size_t seed=0;
+    for(const auto& root:roots)if(root.index) {op.Work();su2double distance=0;unsigned short marker=0;unsigned long id=0;int rank=0;
+      {std::lock_guard<std::mutex> lock(mutex);root.index->DetermineNearestElement(x,distance,marker,id,rank);}
+      const auto position=Position(root.facets->at(id));if(position!=SIZE_MAX && distance<nearest){nearest=distance;seed=position;}}
+    return seed;
+  }
+  template<class Visit> void Nearby(const Box& box,double distance,AtlasOps& op,Visit visit) {
+    if(!std::isfinite(distance))throw std::invalid_argument("Unrepresentable prepared surface distance.");
+    su2double lo[3],hi[3];for(unsigned d=0;d<3;++d){lo[d]=std::nextafter(double(Subtract(box[d],{distance,distance}).lo),-INFINITY);
+      hi[d]=std::nextafter(double(Add(box[d],{distance,distance}).hi),INFINITY);}
+    for(const auto& root:roots) {
+      if(root.index) {op.Work();candidates.clear();{std::lock_guard<std::mutex> lock(mutex);root.index->DetermineIntersectingElements(lo,hi,candidates);}
+        for(auto i:candidates){op.Work();const auto position=Position(root.facets->at(i));if(position!=SIZE_MAX)visit(position);}}
+      else for(Id facet:*root.facets){op.Work();const auto position=Position(facet);if(position!=SIZE_MAX)visit(position);}
+    }
   }
 };
 struct UnionDomain {Id facet=0;std::array<Point,3> parameter{{{1,0,0},{0,1,0},{0,0,1}}};unsigned depth=0;};
@@ -844,9 +895,17 @@ struct MappedFacetReference::ComponentData {
 };
 struct MappedFacetReference::CurvedSearch {
   struct Entry {std::vector<Id> facets;std::shared_ptr<CADTElemClass> index;};
+  struct PreparedFacet {
+    std::vector<UnionTriangle> triangles;std::unique_ptr<TriangleUnion> target;
+    size_t Bytes()const{return transfer_memory::Add(sizeof(*this),transfer_memory::Mul(triangles.capacity(),sizeof(UnionTriangle)),
+        target?target->ResidentBytes():0,12*sizeof(void*));}
+  };
   std::map<Id,Id> root;
   std::map<Id,Entry> entries;
   std::mutex mutex; // House ADT traversal buffers are shared by concurrent non-OpenMP callers.
+  std::mutex prepared_mutex;
+  std::map<std::pair<Id,uint64_t>,std::shared_ptr<PreparedFacet>> prepared;
+  size_t prepared_limit=0,prepared_bytes=0;
 };
 namespace {
 struct CurvedQueryRegion {Id facet;std::array<Point,3> parameter;double lower,clearance;unsigned depth;};
@@ -891,7 +950,8 @@ struct MappedFacetReference::FaceMemo {
     if(union_values.emplace(std::move(key),value).second)union_bytes=transfer_memory::Add(union_bytes,bytes);}
 };
 MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::PlanarReference> input,
-    const std::map<Id,double>& mapping_errors,uint64_t definition_version,size_t ceiling,bool reference_components,const CurvedNets& curved_nets)
+    const std::map<Id,double>& mapping_errors,uint64_t definition_version,size_t ceiling,bool reference_components,const CurvedNets& curved_nets,
+    size_t query_cache_bytes)
     :reference(std::move(input)),version(definition_version) {
   using namespace SU2Native3D;
   if(!reference || !version || mapping_errors.empty())throw std::invalid_argument("Invalid mapped-facet reference/version/declaration.");
@@ -1041,6 +1101,21 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
   }
   if(!curves.empty() && transfer_memory::Add(ResidentBytes(),FaceMemoBytes())<=ceiling)
     face_memo=std::make_shared<FaceMemo>();
+  if(curved_search) {
+    const auto resident=ResidentBytes();
+    // Reserve once with the authority; populate fixed facet indices when their requested tolerance is known.
+    if(query_cache_bytes==SIZE_MAX) {
+      const auto available=resident<ceiling?ceiling-resident:0;
+      curved_search->prepared_limit=SurfaceQueryStorageBytes(curves.size(),
+          ceiling==SIZE_MAX?std::min(available,size_t(1)<<24):available);
+    } else curved_search->prepared_limit=SurfaceQueryStorageBytes(curves.size(),query_cache_bytes);
+  }
+}
+size_t MappedFacetReference::SurfaceQueryStorageBytes(size_t facets,size_t available) {
+  for(size_t per_facet=size_t(1)<<16;per_facet;per_facet/=2) {
+    const auto bytes=transfer_memory::Mul(facets,per_facet);if(bytes!=SIZE_MAX&&bytes<=available)return bytes;
+  }
+  return 0;
 }
 Id MappedFacetReference::Canonical(Id id)const {reference->Get(id);return components?reference->Canonical(id):id;}
 const std::vector<Id>& MappedFacetReference::ComponentFacets(Id id)const {
@@ -1487,9 +1562,8 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     const auto curve=curves.find(domain.facet);if(curve!=curves.end())return Blossom(curve->second,{parameter,parameter,parameter});
     const auto& f=reference->Get(domain.facet);return LinearPoint({f.v[0].p,f.v[1].p,f.v[2].p},parameter);
   };
-  std::vector<UnionTriangle> model;std::vector<UnionDomain> pending;
-  if(include_mesh)for(Id facet:facets) {
-    pending.push_back({facet});
+  auto prepare_facet=[&](Id facet,std::vector<UnionTriangle>& model) {
+    std::vector<UnionDomain> pending;op.Storage(sizeof(UnionDomain));pending.push_back({facet});
     while(!pending.empty()) {
       const auto domain=pending.back();pending.pop_back();const auto controls=net(domain);UnionTriangle piece;
       for(unsigned k=0;k<3;++k)piece.points[k]=BoxMiddle(controls[k]);
@@ -1502,24 +1576,62 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       if(piece.error<=tolerance/16)model.push_back(piece);
       else {const auto children=UnionChildren(domain);pending.insert(pending.end(),children.begin(),children.end());}
     }
+  };
+  std::unique_lock<std::mutex> preparation;
+  std::vector<std::shared_ptr<CurvedSearch::PreparedFacet>> retained_models;
+  std::vector<TriangleUnion*> targets;std::vector<Id> flat_facets;
+  std::unique_ptr<PreparedSurfaceView> prepared_view;
+  std::vector<UnionTriangle> model;size_t model_pieces=0;
+  if(include_mesh && curved_search) {
+    preparation=std::unique_lock<std::mutex>(curved_search->prepared_mutex);
+    const auto scope_bytes=transfer_memory::Mul(facets.size(),256);op.Storage(scope_bytes);
+    budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,scope_bytes);
+    retained_models.reserve(facets.size());targets.reserve(facets.size());flat_facets.reserve(facets.size());
+    std::set<Id> roots;uint64_t resolution;std::memcpy(&resolution,&tolerance,sizeof resolution);
+    for(Id facet:facets) {
+      op.Work();const auto key=std::make_pair(facet,resolution);const auto found=curved_search->prepared.find(key);
+      std::shared_ptr<CurvedSearch::PreparedFacet> data;
+      if(found!=curved_search->prepared.end())data=found->second;
+      else {
+        const auto caller=budget.caller_bytes;op.Storage(sizeof(CurvedSearch::PreparedFacet)+2*sizeof(void*));
+        data=std::make_shared<CurvedSearch::PreparedFacet>();prepare_facet(facet,data->triangles);
+        budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(data->triangles.capacity(),sizeof(UnionTriangle)));
+        data->target=std::make_unique<TriangleUnion>(data->triangles,op,tolerance);
+        const auto bytes=data->Bytes();budget.caller_bytes=caller;op.Storage(bytes);
+        if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_PREPARED facet=%llu bytes=%zu limit=%zu retained=%d\n",
+            static_cast<unsigned long long>(facet),bytes,curved_search->prepared_limit,
+            int(transfer_memory::Add(curved_search->prepared_bytes,bytes)<=curved_search->prepared_limit));
+        if(transfer_memory::Add(curved_search->prepared_bytes,bytes)<=curved_search->prepared_limit) {
+          curved_search->prepared.emplace(key,data);curved_search->prepared_bytes=transfer_memory::Add(curved_search->prepared_bytes,bytes);
+        } else budget.caller_bytes=transfer_memory::Add(caller,bytes);
+      }
+      model_pieces=transfer_memory::Add(model_pieces,data->triangles.size());targets.push_back(data->target.get());retained_models.push_back(std::move(data));
+      const auto root=curved_search->root.find(facet);if(root==curved_search->root.end())flat_facets.push_back(facet);else roots.insert(root->second);
+    }
+    std::vector<PreparedSurfaceView::Root> views;views.reserve(roots.size()+1);
+    for(Id root:roots){const auto& entry=curved_search->entries.at(root);views.push_back({&entry.facets,entry.index.get()});}
+    if(!flat_facets.empty())views.push_back({&flat_facets,nullptr});
+    prepared_view=std::make_unique<PreparedSurfaceView>(facets,targets,std::move(views),curved_search->mutex,op);
+  } else if(include_mesh) {
+    for(Id facet:facets)prepare_facet(facet,model);model_pieces=model.size();
+    budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(model.capacity(),sizeof(UnionTriangle)));
   }
-  std::vector<UnionDomain>().swap(pending);
-  if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_MODEL pieces=%zu work=%zu\n",model.size(),budget.work);
-  budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(model.capacity(),sizeof(UnionTriangle)));
-  // Source enclosure needs only the physical target; approximating the complete model serves the reverse query.
+  if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_MODEL pieces=%zu prepared=%zu work=%zu\n",model_pieces,
+      prepared_view?curved_search->prepared_bytes:0,budget.work);
+  // Only the changing working surface builds a fresh target index; fixed curved facets keep theirs.
   std::unique_ptr<TriangleUnion> mesh_union,model_union;
   if(include_model)mesh_union=std::make_unique<TriangleUnion>(flat,op,tolerance);
-  if(include_mesh)model_union=std::make_unique<TriangleUnion>(model,op,tolerance);
+  if(include_mesh && !prepared_view)model_union=std::make_unique<TriangleUnion>(model,op,tolerance);
   struct NodeBound {UnionDomain domain;double upper;};
   auto compare=[](const NodeBound& a,const NodeBound& b){return a.upper<b.upper;};
-  auto directed=[&](bool from_model,TriangleUnion& target) {
+  auto directed=[&](bool from_model,auto& target) {
     std::vector<NodeBound> queue;double lower=0,finished=0;size_t leaves=0;
     size_t traced_work=budget.work;
     auto prepare=[&](const UnionDomain& domain) {
       op.Work();double upper=0;
-      if(from_model)upper=target.Upper(net(domain));
-      else {std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=LinearPoint(physical.at(domain.facet),Exact(domain.parameter[k]));upper=target.Upper(points);}
-      lower=std::max(lower,target.Distance(sample(domain,from_model)).lower);
+      if(from_model)upper=target.Upper(net(domain),op);
+      else {std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=LinearPoint(physical.at(domain.facet),Exact(domain.parameter[k]));upper=target.Upper(points,op);}
+      lower=std::max(lower,target.Distance(sample(domain,from_model),op).lower);
       if(!std::isfinite(upper))throw std::invalid_argument("Unrepresentable surface-union upper bound.");
       op.Storage(transfer_memory::GrowthBound(queue.size()+1,sizeof(NodeBound)));
       queue.push_back({domain,upper});std::push_heap(queue.begin(),queue.end(),compare);
@@ -1540,9 +1652,9 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     return std::make_tuple(finished,leaves,false);
   };
   SurfaceUnionBounds result;const auto forward=include_model?directed(true,*mesh_union):std::make_tuple(0.,size_t(0),false);
-  const auto reverse=include_mesh?directed(false,*model_union):std::make_tuple(0.,size_t(0),false);
+  const auto reverse=include_mesh?(prepared_view?directed(false,*prepared_view):directed(false,*model_union)):std::make_tuple(0.,size_t(0),false);
   result.model_to_mesh=std::get<0>(forward);result.mesh_to_model=std::get<0>(reverse);
-  result.model_pieces=model.size();result.physical_pieces=std::get<1>(reverse);
+  result.model_pieces=model_pieces;result.physical_pieces=std::get<1>(reverse);
   result.outside_tolerance=std::get<2>(forward)||std::get<2>(reverse);
   result.within_tolerance=include_model&&include_mesh&&!result.outside_tolerance;return result;
 }
@@ -2285,7 +2397,7 @@ size_t MappedFacetReference::ResidentBytes()const {
         transfer_memory::Bytes(c.corners),bytes(c.features),c.search?c.search->GetAllocatedBytes():0,c.search?c.search->RetainedWorkspaceBound(1):0,transfer_memory::Mul(c.facets.size(),3*sizeof(Id)));}}
   if(face_memo)out=transfer_memory::Add(out,FaceMemoBytes());
   if(curved_search) {
-    out=transfer_memory::Add(out,sizeof(CurvedSearch),bytes(curved_search->root),bytes(curved_search->entries));
+    out=transfer_memory::Add(out,sizeof(CurvedSearch),bytes(curved_search->root),bytes(curved_search->entries),curved_search->prepared_limit);
     for(const auto& row:curved_search->entries){const auto& c=row.second;out=transfer_memory::Add(out,transfer_memory::Bytes(c.facets),
         c.index?c.index->GetAllocatedBytes():0,c.index?c.index->RetainedWorkspaceBound(1):0);}
   }
