@@ -96,14 +96,12 @@ population from operator cost. Validate any SU2-specific modifications separatel
 
 ## References, status and working discipline
 
-- Active continuation: residual oversized-edge repair after global shape/height
-  closure is implemented in the shared distributed engine. The corrected smaller
-  Euler run reaches zero shape/geometry failures and3 size failures, then times
-  out in geometry work; no complete curved mesh is accepted. Current design and
-  diagnosis: [residual length repair](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#residual-length-repair-after-shape-closure--2026-10-29-continuation).
-  Implementation checkpoint `4e108812ae` is local. Automatic review refused its
-  push as sensitive code/docs/receipt egress; obtain explicit payload/destination
-  approval before retrying. No remote publication occurred.
+- Active target: accepted ONERA M6 Euler adaptation and actual CFD → mesh → CFD →
+  mesh, with conservative transfer and usable published meshes. The user explicitly
+  authorized pushing every checkpoint; `77e5cd579d` and its implementation parent
+  are pushed. No complete curved/M6 workflow is accepted yet. The current change
+  improves conservative complete-surface bounds across noncoplanar triangulations;
+  [current diagnosis/design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
 - Available papers: [local collection](/media/rausa/4TB/SU2_Versions/Prove/Papers),
   including Loseille–Alauzet–Menier, *Unique cavity-based operator and hierarchical
   domain partitioning for fast parallel generation of anisotropic meshes* (2017,

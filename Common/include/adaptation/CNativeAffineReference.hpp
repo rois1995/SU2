@@ -319,9 +319,9 @@ class FinitePlaneReference {
   bool Contains(Id facet,Point p,SU2Native3D::KernelStats* stats=nullptr)const;
   bool ContainsSegment(Id facet,Point a,Point b,SU2Native3D::KernelStats* stats=nullptr)const;
   bool ContainsFace(Id facet,const std::array<Point,3>& face,SU2Native3D::KernelStats* stats=nullptr)const;
-  bool Contains(Point p)const;
-  bool ContainsSegment(Point a,Point b)const;
-  bool ContainsFace(const std::array<Point,3>& face)const;
+  bool Contains(Point p,SU2Native3D::KernelStats* stats=nullptr)const;
+  bool ContainsSegment(Point a,Point b,SU2Native3D::KernelStats* stats=nullptr)const;
+  bool ContainsFace(const std::array<Point,3>& face,SU2Native3D::KernelStats* stats=nullptr)const;
   Point Project(Point p)const;
   std::vector<SU2Native3D::Edge> FeaturesIntersecting(Point a,Point b)const;
   size_t Components()const{return components.size();}

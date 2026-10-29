@@ -134,7 +134,7 @@ struct AtlasOps {
     for(auto* parent=previous;parent;parent=parent->previous)if(&parent->budget==&budget){parent->children+=total;break;}
     std::fprintf(stderr,"NATIVE_GEOMETRY_WORK operation=%s total=%zu exclusive=%zu\n",name,total,total>=children?total-children:0);}
   void Check(bool ok){if(!ok)throw std::runtime_error(reason);}
-  void Work(){if(!budget.ChargeWork())throw std::length_error("Curved atlas work exhausted.");}
+  void Work(size_t count=1){if(!budget.ChargeWork(count))throw std::length_error("Curved atlas work exhausted.");}
   void Storage(size_t bytes) {
     const auto total=transfer_memory::Add(budget.caller_bytes,bytes);budget.peak_bytes=std::max(budget.peak_bytes,total);
     if(total==SIZE_MAX || total>budget.maximum_bytes)throw std::length_error("Curved atlas storage exhausted: requested "+std::to_string(total)+", ceiling "+std::to_string(budget.maximum_bytes)+", operation="+name+", caller="+std::to_string(budget.caller_bytes)+", scratch="+std::to_string(bytes)+".");
@@ -235,7 +235,7 @@ class TriangleUnion {
     auto witness=[&](size_t i){double b=0;for(const auto& p:hull)b=std::max(b,Distance(p,i).upper);return b;};
     if(++visit==0){std::fill(visited.begin(),visited.end(),0);visit=1;}
     auto plane_bound=[&](size_t i)->double{const auto group=triangle_plane[i];if(group==SIZE_MAX||visited[group]==visit)return INFINITY;
-      visited[group]=visit;op.Work();return planes[group].Upper(hull);};
+      visited[group]=visit;op.Work();return planes[group].Upper(hull,op);};
     const auto seed=Seed(box);double best=plane_bound(seed);if(best<=accuracy/4)return best;
     best=std::min(best,witness(seed));Candidates(box,best);
     for(auto i:candidates){best=std::min(best,plane_bound(i));if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
@@ -243,16 +243,13 @@ class TriangleUnion {
  private:
   struct PlaneUnion {
     std::shared_ptr<FinitePlaneReference> footprint;
-    Box normal;Point origin;unsigned axis=0;double error=0;
+    struct Plane {Box normal;Point origin;double error=0;std::array<double,2> lo{},hi{};};
+    std::vector<Plane> faces;unsigned axis=0;
     std::array<double,2> lo{},hi{};bool positive=true;
-    template<size_t N> double Upper(const std::array<Box,N>& hull)const {
+    template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op)const {
       const unsigned x=(axis==0?1:0),y=(axis==2?1:2);
-      const auto denominator=std::max(normal[axis].lo,-normal[axis].hi);
-      if(!(denominator>0))return INFINITY;
-      long double vertical=0,dx=0,dy=0;std::array<long double,2> lower{{INFINITY,INFINITY}},upper{{-INFINITY,-INFINITY}};
+      long double dx=0,dy=0;std::array<long double,2> lower{{INFINITY,INFINITY}},upper{{-INFINITY,-INFINITY}};
       for(const auto& p:hull) {
-        const auto r=DotBox(Difference(p,Exact(origin)),normal);
-        vertical=std::max(vertical,std::max(std::abs(r.lo),std::abs(r.hi)));
         for(unsigned k=0;k<2;++k){const auto d=k?y:x;lower[k]=std::min(lower[k],p[d].lo);upper[k]=std::max(upper[k],p[d].hi);}
       }
       std::array<double,2> a,b;
@@ -261,13 +258,26 @@ class TriangleUnion {
         const auto shift=std::max({0.L,Subtract({lo[k],lo[k]},{lower[k],lower[k]}).hi,Subtract({upper[k],upper[k]},{hi[k],hi[k]}).hi});
         (k?dy:dx)=shift;}
       const Point p{a[0],a[1],0},q{b[0],a[1],0},r{b[0],b[1],0},s{a[0],b[1],0};
-      if(a[0]==b[0]||a[1]==b[1]) {if(!footprint->ContainsSegment(p,r))return INFINITY;}
-      else if(positive ? (!footprint->ContainsFace({p,q,r})||!footprint->ContainsFace({p,r,s})) :
-          (!footprint->ContainsFace({p,r,q})||!footprint->ContainsFace({p,s,r})))return INFINITY;
-      const auto nx=std::max(std::abs(normal[x].lo),std::abs(normal[x].hi)),ny=std::max(std::abs(normal[y].lo),std::abs(normal[y].hi));
-      const auto dz=DividePositive(Add(Multiply({dx,dx},nx),Multiply({dy,dy},ny)),denominator);
-      const Box shift{{{0,dx},{0,dy},{0,std::max(std::abs(dz.lo),std::abs(dz.hi))}}};
-      return std::nextafter(double(Add(Add(DividePositive({0,vertical},denominator),{error,error}),{0,NormBound(shift)}).hi),INFINITY);
+      SU2Native3D::KernelStats predicates;bool covered=false;
+      if(a[0]==b[0]||a[1]==b[1])covered=footprint->ContainsSegment(p,r,&predicates);
+      else covered=positive ? (footprint->ContainsFace({p,q,r},&predicates)&&footprint->ContainsFace({p,r,s},&predicates)) :
+          (footprint->ContainsFace({p,r,q},&predicates)&&footprint->ContainsFace({p,s,r},&predicates));
+      op.Work(transfer_memory::Add(predicates.filtered_orientations,predicates.exact_orientations));
+      if(!covered)return INFINITY;
+      // Coverage supplies a target point on some overlapping face; bound every possible lift.
+      double bound=0;bool found=false;
+      for(const auto& face:faces) {
+        op.Work();if(face.hi[0]<a[0]||face.lo[0]>b[0]||face.hi[1]<a[1]||face.lo[1]>b[1])continue;
+        found=true;const auto& normal=face.normal;const auto denominator=std::max(normal[axis].lo,-normal[axis].hi);
+        if(!(denominator>0))return INFINITY;
+        long double vertical=0;for(const auto& point:hull){const auto value=DotBox(Difference(point,Exact(face.origin)),normal);
+          vertical=std::max(vertical,std::max(std::abs(value.lo),std::abs(value.hi)));}
+        const auto nx=std::max(std::abs(normal[x].lo),std::abs(normal[x].hi)),ny=std::max(std::abs(normal[y].lo),std::abs(normal[y].hi));
+        const auto dz=DividePositive(Add(Multiply({dx,dx},nx),Multiply({dy,dy},ny)),denominator);
+        const Box shift{{{0,dx},{0,dy},{0,std::max(std::abs(dz.lo),std::abs(dz.hi))}}};
+        bound=std::max(bound,std::nextafter(double(Add(Add(DividePositive({0,vertical},denominator),{face.error,face.error}),{0,NormBound(shift)}).hi),INFINITY));
+      }
+      return found?bound:INFINITY;
     }
   };
   std::vector<PlaneUnion> planes;std::vector<size_t> triangle_plane;
@@ -277,36 +287,39 @@ class TriangleUnion {
     const size_t count=triangles.size(),none=SIZE_MAX;op.Storage(transfer_memory::Mul(count,1024));
     std::map<Vec,Id> vertices;std::map<std::array<Id,2>,size_t> edges;std::vector<size_t> roots(count);
     std::vector<std::array<Id,3>> ids(count);std::iota(roots.begin(),roots.end(),0);
+    std::vector<std::pair<unsigned,int>> projection(count);
     auto root=[&](size_t i){while(roots[i]!=i)i=roots[i];return i;};
     for(size_t i=0;i<count;++i) {
+      const auto& triangle=triangles[i].points;const auto normal=CrossBox(Difference(Exact(triangle[1]),Exact(triangle[0])),Difference(Exact(triangle[2]),Exact(triangle[0])));
+      unsigned axis=0;for(unsigned d=1;d<3;++d)if(std::abs(normal[d].lo+normal[d].hi)>std::abs(normal[axis].lo+normal[axis].hi))axis=d;
+      projection[i]={axis,normal[axis].lo>0?1:normal[axis].hi<0?-1:0};
       for(unsigned k=0;k<3;++k){const auto p=Values(triangles[i].points[k]);const auto result=vertices.emplace(p,vertices.size());ids[i][k]=result.first->second;}
       for(unsigned k=0;k<3;++k){std::array<Id,2> edge{ids[i][k],ids[i][(k+1)%3]};std::sort(edge.begin(),edge.end());
         const auto old=edges.emplace(edge,i);if(old.second)continue;const auto j=old.first->second;
-        op.Work();const auto& t=triangles[j].points;bool coplanar=SurfaceOrientationSign(t,t,nullptr)>0;
-        for(auto p:triangles[i].points)coplanar=coplanar&&Orientation(t[0],t[1],t[2],p)==0;
-        if(coplanar){const auto a=root(i),b=root(j);roots[std::max(a,b)]=std::min(a,b);}
+        op.Work();if(projection[i].second && projection[i]==projection[j]){const auto a=root(i),b=root(j);roots[std::max(a,b)]=std::min(a,b);}
       }
     }
     std::map<size_t,std::vector<size_t>> groups;for(size_t i=0;i<count;++i)groups[root(i)].push_back(i);
     triangle_plane.assign(count,none);size_t retained=transfer_memory::Mul(count,1024);
     for(const auto& group:groups) {
       if(group.second.size()<2)continue;
-      PlaneUnion plane;const auto& first=triangles[group.first].points;plane.origin=first[0];
-      plane.normal=CrossBox(Difference(Exact(first[1]),Exact(first[0])),Difference(Exact(first[2]),Exact(first[0])));
-      for(unsigned d=1;d<3;++d)if(std::abs(plane.normal[d].lo+plane.normal[d].hi)>std::abs(plane.normal[plane.axis].lo+plane.normal[plane.axis].hi))plane.axis=d;
-      if(std::max(plane.normal[plane.axis].lo,-plane.normal[plane.axis].hi)<=0)continue;
+      PlaneUnion plane;plane.axis=projection[group.first].first;if(!projection[group.first].second)continue;
       const unsigned x=(plane.axis==0?1:0),y=(plane.axis==2?1:2);
       auto project=[&](Point p){const auto v=Values(p);return Point{v[x],v[y],0};};
       plane.lo={{INFINITY,INFINITY}};plane.hi={{-INFINITY,-INFINITY}};
       std::vector<Facet> facets;facets.reserve(group.second.size());
-      for(auto i:group.second){Facet f;f.id=i;plane.error=std::max(plane.error,triangles[i].error);
+      for(auto i:group.second){Facet f;f.id=i;PlaneUnion::Plane face;const auto& t=triangles[i];face.origin=t.points[0];face.error=t.error;
+        face.normal=CrossBox(Difference(Exact(t.points[1]),Exact(t.points[0])),Difference(Exact(t.points[2]),Exact(t.points[0])));
+        face.lo={{INFINITY,INFINITY}};face.hi={{-INFINITY,-INFINITY}};
         for(unsigned k=0;k<3;++k){f.v[k]={ids[i][k],project(triangles[i].points[k])};const auto p=Values(f.v[k].p);
-          for(unsigned d=0;d<2;++d){plane.lo[d]=std::min(plane.lo[d],p[d]);plane.hi[d]=std::max(plane.hi[d],p[d]);}}
-        facets.push_back(f);}
+          for(unsigned d=0;d<2;++d){face.lo[d]=std::min(face.lo[d],p[d]);face.hi[d]=std::max(face.hi[d],p[d]);
+            plane.lo[d]=std::min(plane.lo[d],p[d]);plane.hi[d]=std::max(plane.hi[d],p[d]);}}
+        plane.faces.push_back(face);facets.push_back(f);}
       AffineAuthority authority;authority.origin={};authority.normal={0,0,1};authority.dimension=3;authority.version=1;authority.maximum_error=4*std::numeric_limits<double>::min();
       const auto temporary=transfer_memory::Add(PlanarReference::ConstructionBytes(facets.size()),transfer_memory::Mul(facets.size(),4096));
       op.Storage(transfer_memory::Add(retained,temporary));
-      plane.footprint=std::make_shared<FinitePlaneReference>(authority,facets,temporary);
+      try{plane.footprint=std::make_shared<FinitePlaneReference>(authority,facets,temporary);}
+      catch(const std::invalid_argument&){continue;}
       const auto& t=facets.front().v;plane.positive=SurfaceNormalSign({0,0,1},{t[0].p,t[1].p,t[2].p},nullptr)>0;
       retained=transfer_memory::Add(retained,plane.footprint->ResidentBytes());
       for(auto i:group.second)triangle_plane[i]=planes.size();planes.push_back(std::move(plane));
@@ -1390,6 +1403,12 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
   struct Restore {AtlasBudget& b;size_t caller;~Restore(){b.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
   if(facets.empty()||physical.empty()||!std::isfinite(tolerance)||tolerance<std::numeric_limits<double>::min())
     throw std::invalid_argument("Invalid surface-union geometry/tolerance.");
+  if(AtlasOps::Trace() && physical.size()==1 && facets.size()<=64) {
+    std::fprintf(stderr,"NATIVE_SURFACE_QUERY tolerance=%.17g model=%d mesh=%d facets=",tolerance,int(include_model),int(include_mesh));
+    for(Id id:facets)std::fprintf(stderr,"%llu,",static_cast<unsigned long long>(id));
+    std::fprintf(stderr," points=");for(auto p:physical.front())std::fprintf(stderr,"%.17g,%.17g,%.17g;",p.x,p.y,p.z);
+    std::fprintf(stderr,"\n");
+  }
   for(size_t i=0;i<facets.size();++i){reference->Get(facets[i]);if(i&&facets[i]<=facets[i-1])throw std::invalid_argument("Surface-union supports must be sorted and unique.");}
   op.Storage(8192);budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,8192);
   const auto physical_bytes=transfer_memory::Mul(physical.size(),sizeof(UnionTriangle));op.Storage(physical_bytes);
@@ -1432,6 +1451,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     }
   }
   std::vector<UnionDomain>().swap(pending);
+  if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_MODEL pieces=%zu work=%zu\n",model.size(),budget.work);
   budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(model.capacity(),sizeof(UnionTriangle)));
   // Source enclosure needs only the physical target; approximating the complete model serves the reverse query.
   std::unique_ptr<TriangleUnion> mesh_union,model_union;
@@ -1441,6 +1461,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
   auto compare=[](const NodeBound& a,const NodeBound& b){return a.upper<b.upper;};
   auto directed=[&](bool from_model,TriangleUnion& target) {
     std::vector<NodeBound> queue;double lower=0,finished=0;size_t leaves=0;
+    size_t traced_work=budget.work;
     auto prepare=[&](const UnionDomain& domain) {
       op.Work();double upper=0;
       if(from_model)upper=target.Upper(net(domain));
@@ -1453,6 +1474,11 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     if(from_model)for(Id facet:facets)prepare({facet});else for(size_t i=0;i<physical.size();++i)prepare({i});
     const double initial_upper=queue.front().upper;
     while(!queue.empty()) {
+      if(AtlasOps::Trace() && budget.work-traced_work>=65536) {
+        std::fprintf(stderr,"NATIVE_SURFACE_BOUND model=%d queue=%zu depth=%u upper=%.17g lower=%.17g tolerance=%.17g work=%zu\n",
+            int(from_model),queue.size(),queue.front().domain.depth,queue.front().upper,lower,tolerance,budget.work);
+        traced_work=budget.work;
+      }
       if(lower>tolerance)return std::make_tuple(initial_upper,leaves,true);
       std::pop_heap(queue.begin(),queue.end(),compare);const auto node=queue.back();queue.pop_back();
       if(node.upper<=tolerance){finished=std::max(finished,node.upper);++leaves;continue;}
@@ -2361,17 +2387,17 @@ bool FinitePlaneReference::ContainsFace(Id facet,const std::array<Point,3>& face
   auto flat=face;for(auto& p:flat){if(chart.ErrorBound(p)>chart.Authority().maximum_error)return false;p=chart.Coordinates(p);}
   return reference->ContainsFace(facet,flat,stats);
 }
-bool FinitePlaneReference::Contains(Point p)const {
+bool FinitePlaneReference::Contains(Point p,SU2Native3D::KernelStats* stats)const {
   if(chart.ErrorBound(p)>chart.Authority().maximum_error)return false;const auto flat=chart.Coordinates(p);
-  for(Id root:components)if(reference->Contains(root,flat))return true;return false;
+  for(Id root:components)if(reference->Contains(root,flat,stats))return true;return false;
 }
-bool FinitePlaneReference::ContainsSegment(Point a,Point b)const {
-  if(!Contains(a)||!Contains(b))return false;a=chart.Coordinates(a);b=chart.Coordinates(b);
-  for(Id root:components)if(reference->ContainsSegment(root,a,b))return true;return false;
+bool FinitePlaneReference::ContainsSegment(Point a,Point b,SU2Native3D::KernelStats* stats)const {
+  if(!Contains(a,stats)||!Contains(b,stats))return false;a=chart.Coordinates(a);b=chart.Coordinates(b);
+  for(Id root:components)if(reference->ContainsSegment(root,a,b,stats))return true;return false;
 }
-bool FinitePlaneReference::ContainsFace(const std::array<Point,3>& face)const {
+bool FinitePlaneReference::ContainsFace(const std::array<Point,3>& face,SU2Native3D::KernelStats* stats)const {
   auto flat=face;for(auto& p:flat){if(chart.ErrorBound(p)>chart.Authority().maximum_error)return false;p=chart.Coordinates(p);}
-  for(Id root:components)if(reference->ContainsFace(root,flat))return true;return false;
+  for(Id root:components)if(reference->ContainsFace(root,flat,stats))return true;return false;
 }
 Point FinitePlaneReference::Project(Point p)const {p=chart.Project(p);if(!Contains(p))throw std::invalid_argument("Projection leaves finite plane regions.");return p;}
 std::vector<SU2Native3D::Edge> FinitePlaneReference::FeaturesIntersecting(Point a,Point b)const {

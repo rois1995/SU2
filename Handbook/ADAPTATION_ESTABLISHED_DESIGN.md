@@ -10,6 +10,48 @@ smooth paths, source prisms, certificates, schedules or numerical budget formula
 Current numeric acceptance settings remain comparison baselines, not newly attributed
 user requirements. DC-17/DC-18 and the complete curved/M6 workflow remain open.
 
+## Complete surface bounds and two-event M6 — 2026-10-29
+
+Immediate user target: an accepted M6 Euler mesh and CFD → mesh → CFD → mesh.
+Every checkpoint is authorized for pushing. The previous local commits are now
+pushed; the former automatic push denial is historical, not a current blocker.
+
+Build129 adds bounded tracing to the existing surface-union query. Its diagnostic
+case mapped_work_trace_20261029T143141_1355812 identifies the expensive direction:
+the complete two-sided geometry check is subdividing the original model against
+the working surface (model pieces1024). At more than17,000 queued regions, the
+lower bound is~.000715 below tolerance.001, while the conservative upper bound
+remains above it. The owned diagnostic is stopped after collecting this evidence
+(exit143,267.747s,pins unchanged); this is not a completed acceptance run. The
+build126 outer-timeout failure remains separate evidence. Last stage censuses do
+not identify the state inside the final geometry check.
+
+The existing upper witness covers a control hull by one target triangle or an
+exactly coplanar connected union. Slightly noncoplanar target triangles therefore
+lose the union witness at seams. Reuse the exact finite projected footprint for
+connected triangles sharing a dominant projection axis and orientation, and bound
+all overlapping target-face lifts with outward interval arithmetic. A covered
+projected rectangle supplies a target point; the maximum vertical-plane distance,
+target approximation error and clamping displacement bound its distance. Holes and
+failed projected footprints cannot supply this witness; the existing individual
+triangle bound remains. This changes the enclosure, not the prescribed surface,
+tolerance, topology or final two-sided acceptance. Footprint predicates are now
+metered as well (after each finite footprint query; it is not a wall-clock deadline).
+
+Scope: TriangleUnion and its finite-plane containment overloads, existing geometry
+backend regressions, and the pinned M6 harness. New curved/sheared graph and missing
+coverage regressions accompany the existing wrong-body/hole/curvature checks.
+Build130 is in progress with immutable pins; no new mesh acceptance is claimed.
+
+The existing M6 driver loop supports two events with ADAP_SUBITER=(2), preserving
+the same metric target and per-event gates/budgets. Its harness now optionally
+checks both six-rank native summaries, ordered conservative transfer/replacement,
+both meshes and geometry sidecars, and actual next-cycle solve history. Completed
+events save independent output hashes and provenance; whole-run success requires
+all planned events. Native summaries alone cannot establish the CFD workflow.
+The helper self-checks pass, including historical M6 rejection. Actual restart and
+unsteady history qualification remain separate obligations.
+
 ## Residual length repair after shape closure — 2026-10-29 continuation
 
 The stopped mapped workflow repeatedly closes shape debt, returns to construction,

@@ -10,33 +10,29 @@ DC-17/DC-18 remain open. The selected foundation is SCOREC/MeshAdapt classified
 cavities and transported nodal size fields inside SU2. Requirements, source-code
 comparison, decisions and acceptance: [connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md).
 
-Work resumed at the user's request on2026-10-29, prioritizing accepted curved
-3D Euler adaptation before BL/RANS qualification. The shared engine now performs
-residual oversized-edge repair after globally closing shape/height debt, reusing
-complete distributed cavities, metric admission and atomic publication. No limits,
-geometry tolerance, final gates or restart formats changed.
+Active target: accepted ONERA M6 Euler mesh adaptation and actual CFD → mesh →
+CFD → mesh. The user explicitly authorized pushing every checkpoint; previous
+checkpoints through77e5cd579d are pushed. Broader BL/RANS, history and restart
+obligations remain; no complete curved/M6 workflow is accepted yet.
 
-The first all-feature size queue (build125) exhausted geometry arithmetic early;
-it is replaced by an edge-only queue and existing length operators. Corrected
-build126 reaches208 private cells with no q/J/geometry failures and3 size failures
-at2468/4096 proposals, then times out at the unchanged600s outer harness limit
-inside subsequent construction geometry work. This is not accepted adaptation.
-The prior build124 ended with256 cells,q/J2/2,size22,geometry0 at4096 proposals.
+Build129 tracing identifies complete-surface model-to-mesh upper-bound subdivision
+as the expensive geometry check. A controlled diagnostic stop preserves the query
+bounds and resource receipt; it is not an acceptance result. Build130 is rebuilding
+with a conservative projected-union bound for neighboring noncoplanar triangles,
+exact footprint coverage and metered predicates. Curved/sheared/hole regressions
+are included; validation is pending. No final tolerance or mesh gate changed.
 
-Build127 adds explicit ordinary Repair admission for this size pass even with
-wall constraints; extra height improvement must not bypass its size/shape merit.
-Build128 passes with1295 pins unchanged; connected serial45 cases/9611 assertions
-and focused MPI6 five cases per rank pass, including the new regression and
-first-refusal capture. No owned job remains active. M6 has not been rerun;
-curved transfer/history and actual solver restart remain unvalidated. DC-17/DC-18
-and BL/RANS remain open.
+The existing M6 harness now supports two events at the same target and per-event
+budgets, with separate native and CFD/transfer/publication assessments and saved
+completed-event receipts. Helper self-checks pass; no actual two-event M6 success
+is claimed. Details and evidence paths:
+[current connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
 
-Current receipt: staged57/checkpoint128_euler_size_summary.json under
-integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/.
-Current mechanism, failed strategy and exact evidence paths:
-[connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#residual-length-repair-after-shape-closure--2026-10-29-continuation).
-The [stop checkpoint](Handbook/ADAPTATION_CHECKPOINT_20261029_STOP.md) remains the
-historical build124 baseline, including the metric-source replay limitations.
+Historical build128 passes serial45/9611 and focused MPI6 five cases/rank. Its
+residual size repair reaches a later complete-surface geometry blockage in the
+smaller workflow; these old regression results are not build130 validation. The
+[stop checkpoint](Handbook/ADAPTATION_CHECKPOINT_20261029_STOP.md) and
+staged57/checkpoint128_euler_size_summary.json preserve earlier provenance.
 
 ## Checkpoints
 

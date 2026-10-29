@@ -229,6 +229,30 @@ TEST_CASE("Backend bounds both directions of a complete unpartitioned surface un
   CHECK_FALSE(cubic.PatchErrorBounds(scope,bump,1e-4,sentinel,no_storage,reason));unchanged();
 }
 
+TEST_CASE("Surface union bounds span a noncoplanar triangulated graph without filling holes", "[NativeGeometryBackend3D]") {
+  const bool shear=GENERATE(false,true);BackendFixture fixture(false,true,shear);
+  std::vector<std::array<Point,3>> physical;
+  constexpr unsigned n=8;
+  for(Id facet:{Id(0),Id(1)}) {
+    auto point=[&](unsigned u,unsigned v){return fixture.geometry->Realize(fixture.geometry->FacetPoint(facet,double(u)/n,double(v)/n));};
+    for(unsigned u=0;u<n;++u)for(unsigned v=0;v<n-u;++v) {
+      physical.push_back({point(u,v),point(u+1,v),point(u,v+1)});
+      if(u+v+2<=n)physical.push_back({point(u+1,v),point(u+1,v+1),point(u,v+1)});
+    }
+  }
+  SECTION("complete graph") {
+    auto budget=BackendBudget();budget.maximum_work=size_t(1)<<20;
+    const auto bounds=fixture.geometry->BoundSurfaceUnion({0,1},physical,.001,budget);
+    CHECK(bounds.within_tolerance);CHECK_FALSE(bounds.outside_tolerance);
+    CHECK(bounds.model_to_mesh<=.001);CHECK(bounds.mesh_to_model<=.001);
+  }
+  SECTION("missing physical coverage") {
+    physical.erase(physical.begin()+23);auto budget=BackendBudget();
+    const auto bounds=fixture.geometry->BoundSurfaceUnion({0,1},physical,.001,budget);
+    CHECK(bounds.outside_tolerance);CHECK_FALSE(bounds.within_tolerance);CHECK(bounds.model_to_mesh>.001);
+  }
+}
+
 TEST_CASE("Physical source tubes preserve conservative shell checks without face correspondence", "[NativeGeometryBackend3D][NativeJointAffineSource3D]") {
   using namespace SU2Native3D;
   const std::array<Point,3> triangle{{{0,0,0},{1,0,0},{0,1,0}}};
