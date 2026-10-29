@@ -1,4 +1,4 @@
-# Established adaptation foundation — 2026-10-28
+# Established adaptation foundation — 2026-10-29
 
 ## Requirements versus decisions
 
@@ -24,7 +24,8 @@ Reference checkouts (reference-only; no new dependency):
   the old cavity parent by maximum barycentric insideness and interpolates fields.
   apf/apfCavityOp.cc 96–136 obtains cavity locality and resolves ownership;
   ma/maCollapse.cc 27–39 requests endpoint cavities. Classification constrains
-  geometry. Root/ma licenses are BSD-3-Clause; no source copied at this checkpoint.
+  geometry. Root LICENSE is BSD-3-Clause; ma/LICENSE and ma.cc specify a non-commercial
+  license. No MeshAdapt source is copied into SU2.
 - MMG 8ed2259164fa4c90be6301d247ecb1db7bd61228: libmmg3d.c 975;
   mmg3d1.c split/collapse drivers; movpt_3d.c 483/1263 boundary movement;
   delaunay_3d.c 581 anisotropic cavity; bezier_3d.c 326 derives geometry from
@@ -39,6 +40,22 @@ policy is deliberately not adopted. Its default field transfer is not evidence
 of conservative CFD transfer. Its evaluable-model parameter interface would require
 a nontrivial adapter for SU2 facet/u/v cubic associations. Implementing its design
 in existing SU2 facilities avoids that adapter and preserves native integration.
+
+## Captured stage starvation and established iteration staging
+
+Build106 M6 performs two length-pass pairs and11567 private edits, yet reaches no
+quality stage within1800s. Small build107 makes106 length-pass pairs before its
+only quality stage, then exhausts work. The driver requiring an unproductive pair
+before improvement is an agent-selected rule, not a user requirement or a condition
+of classified cavities. ma/ma.cc adaptVerbose lines75–94 instead calls
+fixElementShapes after each coarsen/refine/snap iteration. Its ordinary adapt
+routine has a bounded maximumIterations loop before shape improvement; neither
+requires unproductive length passes. Use the existing SU2 improvement stage after
+each complete collapse/split pair, then its existing return to construction where
+needed. Remove the redundant pair-productivity flag. Construction remains free of
+q/J measurements and ranking; final acceptance and every transfer/restart gate stay.
+The existing distributed opposing-length workflow must enter improvement after
+one pair and still finish an accepted mesh. Curved/M6 qualification remains open.
 
 ## 2026-10-29: close the captured projection and association paths
 
@@ -231,8 +248,8 @@ are partial, not a completed suite. Current import seeds nodal metrics even with
 no explicit tensor (identity); demanding a metric shell or a narrow-gap shell
 rejection is obsolete. Replacing those tests must preserve state/reference/owner
 coherence and independently test real body separation; absence of a shell refusal
-does not establish body safety. Early six-rank M6 build99 is active with unchanged
-settings. No accepted hard-target workflow yet.
+does not establish body safety. At that historical checkpoint, six-rank M6 build99 was active; its terminal
+result follows below. No accepted hard-target workflow was established.
 
 ### Coarsen/refine cycles, build100 integration
 
@@ -245,7 +262,7 @@ source policy repeated any productive split generation before even trying collap
 SCOREC ma.cc instead executes coarsen/refine/snap in each iteration.
 
 Build100 adopts coarsen-first complete passes alternating direction, entering
-improvement after an unproductive pair. Blocked support is still invalidated
+improvement after an unproductive pair (superseded by build108 staging above). Blocked support is still invalidated
 only through existing dependency/publication facilities. No new cap, fixture or
 physics dispatch, geometry representation or fallback. The opposing-demand
 regression replaces its agent-policy assertion demanding refinement quiescence

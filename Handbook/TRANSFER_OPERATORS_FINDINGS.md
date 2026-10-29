@@ -1,11 +1,22 @@
 # Transfer operators — findings and validation ledger
 
-Last updated: 2026-10-28. Maintained alongside implementation work.
+Last updated: 2026-10-29. Maintained alongside implementation work.
 
 This file covers solution-transfer operators only: geometric intersections,
 conservative projection, coverage and boundary accounting, transferred state and
 history, distributed consistency, and restart validation. Mesh-construction and
 quality-operator findings belong in the adaptation handbooks.
+
+## Current workflow evidence, 2026-10-29
+
+Build106 mapped workflow reruns the full flat/curved Euler/RANS matrix. Flat cases
+complete conservative current/BDF history transfer and SU2/CGNS write/reload:
+zero fill/lost volume; maximum reported residual2.43e-14 Euler,6.14e-14 RANS.
+Both curved cases exhaust atlas work before transfer, preserving accepted CFD
+state. Their private mesh improvements establish no curved transfer/restart result.
+M6 build106 remains in progress; actual accepted repeated adaptation and solver
+restart are still required. No solution-transfer implementation changed in this
+checkpoint. [Construction/cost evidence](ADAPTATION_PROJECTION_FINDINGS.md).
 
 ## Scope correction, 2026-10-28
 

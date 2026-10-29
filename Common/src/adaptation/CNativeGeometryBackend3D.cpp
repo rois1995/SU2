@@ -153,7 +153,7 @@ bool NativeMappedGeometryBackend3D::Project(Point query,const GeometryProjection
         SU2NativeCurved::detail::TriangleDerivatives(net,a,b,first,second);};
       const bool converged=SU2NativeCurved::detail::MinimizeTriangle(local_target,u,v,evaluate,derivatives);
       if(record){record->converged=converged;record->u=u;record->v=v;}
-      if(!converged){first_failed=std::min(first_failed,id);return;}
+      if(!converged)first_failed=std::min(first_failed,id);
       const double tiny=1e-13;
       if(u<tiny)u=0;if(v<tiny)v=0;
       if(1-u-v<tiny){const double sum=u+v;u/=sum;v=1-u;}
@@ -172,13 +172,15 @@ bool NativeMappedGeometryBackend3D::Project(Point query,const GeometryProjection
       if(record){record->foot=foot;record->support=support;}
       if((previous.mobility<2&&(support.mobility!=previous.mobility||support.feature!=previous.feature))||
           (scope.feature&&(support.mobility!=scope.feature->first||support.feature!=scope.feature->second)))return;
-      if(record)record->eligible=true;
       const auto point=authority->Realize(foot);
       const long double distance=std::hypot((long double)query.x-point.x,(long double)query.y-point.y,(long double)query.z-point.z);
       if(!std::isfinite(distance))throw std::invalid_argument("Unrepresentable numerical projection distance.");
-      if(distance<best){best=distance;binding=foot;
-        best_upper=std::nextafter(double(distance+authority->ErrorBound(foot,point)),INFINITY);
-      }
+      const double upper=std::nextafter(double(distance+authority->ErrorBound(foot,point)),INFINITY);
+      // A valid model foot within the requested spatial accuracy needs no further optimality proof.
+      if(!converged&&upper>scope.absolute_error)return;
+      if(record)record->eligible=true;
+      if(distance<best){best=distance;binding=foot;best_upper=upper;}
+
     };
     candidate(scope.hint);
     const auto anchor=authority->Realize(scope.previous);

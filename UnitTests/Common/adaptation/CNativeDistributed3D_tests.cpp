@@ -4163,7 +4163,7 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
   if(composed)options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
   options.stage_observer=[&](const StageProgressView& view){
     if(view.phase==EnginePhase::Improvement && !quality_seen) {
-      quality_after_pair=view.stats.length_split_passes>0 && view.stats.length_collapse_passes>0;
+      quality_after_pair=view.stats.length_split_passes==1 && view.stats.length_collapse_passes==1;
       quality_seen=true;splits_before_quality=view.stats.length_splits;collapses_before_quality=view.stats.length_collapses;
       parallel_before_quality=view.stats.maximum_parallel_commits;
     }

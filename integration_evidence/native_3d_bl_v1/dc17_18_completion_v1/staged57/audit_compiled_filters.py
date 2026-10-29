@@ -14,7 +14,7 @@ CFD = REPO / 'UnitTests/SU2_CFD/adaptation'
 NEW = [COMMON / ('CNative' + name + '_tests.cpp') for name in
        ('Atlas3D', 'CurvedAtlas3D', 'CanonicalTrace3D', 'TraceCoverage3D',
         'ReferenceTriangulation3D', 'GeometryBackend3D')]
-OTHER = [COMMON / 'CNativeField3D_tests.cpp', CFD / 'fixtures/native_normalization_stages.inc', COMMON / 'CNativeAffineReference_tests.cpp', COMMON / 'CNativeDistributed3D_tests.cpp',
+OTHER = [COMMON / 'CNativeMetric3D_tests.cpp', COMMON / 'CNativeField3D_tests.cpp', CFD / 'fixtures/native_normalization_stages.inc', COMMON / 'CNativeAffineReference_tests.cpp', COMMON / 'CNativeDistributed3D_tests.cpp',
          CFD / 'CNativeImport3D_tests.cpp', CFD / 'CNativeRemesher3D_tests.cpp', CFD / 'DistributedTransfer_tests.cpp',
          CFD / 'CConservativeTransfer_tests.cpp']
 BROAD_TAGS = {'NativeMesh3D', 'NativeDistributed3D', 'NativeBridge3D', 'NativeReassessment3D', 'NativeCurrentNormalization3D', 'NativeMetricFamily3D', 'NativeBLTargetNormalization', 'NativeCurvedTransaction3D', 'NativeRuntime3D', 'NativeCurvedRuntime3D',
@@ -65,6 +65,8 @@ def main():
         required[case]={
             'Entity feature reconstruction handles ordinary and genuine routes',
             'Cumulative atlas and backend failure stop all workers before construction'}
+        required[case]|={name for p in NEW+OTHER
+                         for name,tags in CASE.findall(p.read_text()) if any('['+tag+']' in tags for tag in ('NativeMetricSplitRule3D','NativeBidirectionalLength3D','NativeConstructionPassClaims3D'))}
         if case=='projection_paths':
             required[case]|={name for p in NEW+OTHER for name,tags in tests[p]
                              if '[NativeGeometryBackend3D]' in tags}

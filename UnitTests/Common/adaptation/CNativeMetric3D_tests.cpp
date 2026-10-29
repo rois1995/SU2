@@ -849,3 +849,24 @@ TEST_CASE("Native 3D optimizer: sliver removal by vertex insertion (O7/O8) and l
    REQUIRE(PlaceConeInsertion(cells,{0,0,0},50,500,target,fresh,score,&e,.6));CHECK(fresh.size()==6);CHECK(score>0);
    for(const auto& x:fresh){CHECK(Orientation(x.v[0].p,x.v[1].p,x.v[2].p,x.v[3].p)>0);CHECK(x.v[0].id==50);}}
 }
+
+TEST_CASE("Captured curved collapse reduces size debt during construction", "[NativeShapeAdmission3D][NativeMetricSplitRule3D]") {
+  struct Restore {ShapeAdmission value=GetShapeAdmission();~Restore(){SetShapeAdmission(value);}} restore;
+  auto metric=[](const std::vector<std::pair<Edge,long double>>& edges) {
+    PatchMetric m;m.shape_measured=true;m.minimum_mean_ratio=.5;m.minimum_scaled_jacobian=.5;
+    for(const auto& row:edges){EdgeMeasure e;e.a={double(row.first[0]),0,0};e.b={double(row.first[1]),1,0};e.length=row.second;m.edges.emplace(row.first,e);}return m;
+  };
+  const auto before=metric({{{5192,115352},2.055327113L},{{27224,115352},2.049412153L},
+      {{7,115352},2.049412153L},{{7,5192},4.094093306L}});
+  auto after=metric({{{5192,104984},1.972715426L},{{51848,104984},1.626658203L},{{7,5192},4.094093306L}});
+  std::string reason;MetricDiagnosis diagnosis;
+  SetShapeAdmission(ShapeAdmission::Absolute);
+  CHECK_FALSE(ValidateMetricChange(10,before,6,after,MetricChange::Coarsen,reason,&diagnosis));
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);auto unmeasured=before;
+  unmeasured.shape_measured=after.shape_measured=false;
+  CHECK(ValidateMetricChange(10,unmeasured,6,after,MetricChange::Coarsen,reason,&diagnosis));
+  CHECK(diagnosis.cell_removal);CHECK(diagnosis.size_progress);CHECK_FALSE(diagnosis.shape_measured);
+  CHECK(diagnosis.added_excess>0);CHECK(diagnosis.added_excess<diagnosis.removed_excess);
+  CHECK_FALSE(ValidateMetricChange(6,after,10,unmeasured,MetricChange::Coarsen,reason));
+  CHECK_FALSE(ValidateMetricChange(10,after,6,unmeasured,MetricChange::Coarsen,reason));
+}

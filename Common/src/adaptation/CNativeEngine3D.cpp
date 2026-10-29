@@ -799,7 +799,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   Selection selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance,options.wall_heights);
   std::map<Edge,EdgeMeasure> retired_edges,campaign_edges;
   std::map<Id,std::set<Id>> inactive_blocked_edges;size_t inactive_blocked_links=0;
-  std::array<bool,2> length_blocks_dirty{{false,false}};bool length_pair_changed=false;
+  std::array<bool,2> length_blocks_dirty{{false,false}};
   std::shared_ptr<const FrozenMetricIdentity> field_identity;
   // Joint split feasibility depends on neighboring vertex stars, even when the edge itself is unchanged.
   selection.track_splits=bool(composition) || curved;
@@ -1831,7 +1831,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(bidirectional) {
       if(next==Phase::Construction) {
         if(world.maximum(improvement_changed))length_blocks_dirty={{true,true}};
-        length_pair_changed=false;directory->BeginConstructionPass();
+        directory->BeginConstructionPass();
       } else directory->EndConstructionPass();
       length_direction(next==Phase::Construction);
     }
@@ -2034,7 +2034,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(bidirectional && phase==Phase::Construction && !any &&
         !world.maximum(!selection.Progress(working.size()).census_complete)) {
       const bool productive=world.maximum(construction_generation_changed);
-      length_pair_changed=length_pair_changed||productive;
       if(productive)length_blocks_dirty={{true,true}};
       if(coarsening)++stats.length_collapse_passes;else ++stats.length_split_passes;
       if(options.timings) {
@@ -2054,12 +2053,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" elapsed="<<std::chrono::duration<double>(Clock::now()-started).count()<<'\n';
       }
       if(!observe_progress(coarsening?"length_collapse_exit":"length_split_exit"))return finish();
-      if(!coarsening && !length_pair_changed) {
+      if(!coarsening) {
         if(!enter_phase(Phase::Improvement))return finish();
       } else {
-        // Coarsen/refine cycles prevent productive refinement from starving removal.
+        // Complete both length directions before the metric/BL-aware improvement stage.
         const bool next_collapse=!coarsening;
-        if(next_collapse)length_pair_changed=false;
         if(!admit(transfer_memory::Add(transfer_memory::Mul(working.size(),selection_bound(false)),
             transfer_memory::Mul(transfer_memory::Mul(next_collapse?12:6,working.size()),sizeof(Edge)+4*sizeof(void*)))))return finish();
         CLocalFailure failure;

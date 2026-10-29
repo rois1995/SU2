@@ -469,8 +469,9 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
       if (added>removed && GetShapeAdmission()!=ShapeAdmission::ValidityOnly)
         throw std::invalid_argument("Native3D geometric repair adds frozen metric excess.");
     } else if (kind == MetricChange::Coarsen) {
-      if (fresh_count >= old_count || added > 0)
-        throw std::invalid_argument("Native 3D coarsening does not remove cells or introduces an oversized edge.");
+      if (fresh_count >= old_count || (added > 0 &&
+          (GetShapeAdmission()!=ShapeAdmission::ValidityOnly || !aggregate_size_progress)))
+        throw std::invalid_argument("Native 3D coarsening removes no cells or fails changed-edge size admission.");
     } else {
       const bool repair_progress=size_progress || (quality_progress &&
           (GetShapeAdmission()==ShapeAdmission::ValidityOnly || added<=removed));

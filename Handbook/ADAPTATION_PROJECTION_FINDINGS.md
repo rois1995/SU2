@@ -41,6 +41,39 @@ recorded rejection is oversized edge/removal policy, not unavailable geometry.
 M6 build106 is running with exact query capture. No complete curved transfer or
 restart accepted. [Mapped summary](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build106_mapped_summary.json).
 
+M6 build106 terminates1870.389s, solver0/nativefalse, all pins unchanged and ranks
+terminal. Native1802.97s/import171.32s/construction1617.64s:11567 private edits,
+307011 private cells, two full collapse/split pairs, no improvement stage/transfer.
+The second collapse pass costs~716s versus602s first.154 refusal records contain
+46 distinct query/scopes, maximum12 repetitions. Every record has an evaluated
+original-model foot within1.25e-5 (largest best distance1.80e-8), but stationarity
+fails. This is a captured overly strict numerical success criterion. Sampled tree
+RSSmax3.43GiB; admitted bytes are not RSS. [M6 cost/capture summary](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build106_m6_summary.json).
+
+Build107 is compiling the connected correction: use the existing conservative
+bound to recognize requested spatial accuracy after body/feature validation;
+otherwise still require convergence. No second solver or fallback is added.
+Captured curved collapse removes4 cells and lowers changed-edge debt .189605 to
+.029831, although it adds edge1.973>1.8. Validity-only coarsening may now take that
+strict debt decrease; absolute admission and final size gates stay unchanged.
+Focused regression and actual workflows are pending; no complete mesh accepted.
+
+Build107 projection paths pass20 cases/597 assertions72.763s; MPI6 passes5
+cases/rank6.916s, all pins unchanged.28 compiled selections include all required
+cases. The complete smaller workflow still FAIL101.957s: both curved cases make
+323 edits/87 moves/23 reconnects/44 insertions and109 private cells, then exhaust
+same67,207,168 work before transfer.17 geometry and19 metric/height debts remain.
+Its first failure has moved to round109: fresh collapse still builds, error.0003124
+<.001, work6159/no exhaustion; no conclusion of geometric impossibility follows.
+[Mapped107 evidence](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build107_mapped_summary.json).
+
+The staged driver makes106 collapse/split pairs before its only quality stage;
+M6 reaches none. Its unproductive-pair handoff is a custom rule. Build108 removes
+that requirement and uses the existing improvement stage after each complete pair,
+consistent with SCOREC ma.cc adaptVerbose. No local fallback or cap increase.
+The opposing-length distributed workflow now checks improvement after the first
+pair while retaining complete final acceptance. Build108 validation is pending.
+
 The connected projection implementation shares the point, patch and derivative
 arithmetic used by `PNTriangleSurface::Minimize` through detail helpers. The
 backend numerically projects onto fixed surface nets and uses the existing

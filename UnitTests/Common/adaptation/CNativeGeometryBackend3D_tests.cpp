@@ -375,3 +375,56 @@ TEST_CASE("Captured M6 projection is stable in local model coordinates", "[Nativ
   const auto foot=SU2NativeCurved::detail::TrianglePatch(original,1-u-v,u,v);
   CHECK(Norm<3>(Sub<3>(foot,query))<1e-8);
 }
+
+
+TEST_CASE("Captured M6 surface foot within projection accuracy is available", "[NativeGeometryBackend3D]") {
+  using namespace SU2Native3D;
+  const std::array<Point,10> captured{{{0.79605229720550796,0.01789019128901161,-0.0024093783025947819},
+      {0.79711543123895912,0.01594789472874154,-0.0022102837192061989},
+      {0.79755222208546239,0.017466265292026831,-0.002209017201393812},
+      {0.79640667538443455,0.017242759055121466,-0.0023430147972096902},
+      {0.79676105346660331,0.016595326848413357,-0.0022766505098608669},
+      {0.79726102819182265,0.016454018248704738,-0.0022098615791582353},
+      {0.79740662513663074,0.016960141770930939,-0.0022094393740207845},
+      {0.79705224735474389,0.017607573893280451,-0.0022758060876628973},
+      {0.79655227233329329,0.017748882576209733,-0.0023425926248020301},
+      {0.79690665037856045,0.017101450379868509,-0.0022762280393128272}}};
+  const Point a=captured[0], b=captured[1], c=captured[2];
+  const Point u{b.x-a.x,b.y-a.y,b.z-a.z},v{c.x-a.x,c.y-a.y,c.z-a.z};
+  const Point d{a.x-(u.y*v.z-u.z*v.y)*1000,a.y-(u.z*v.x-u.x*v.z)*1000,a.z-(u.x*v.y-u.y*v.x)*1000};
+  const std::array<Node,4> nodes{{{0,a},{1,b},{2,c},{3,d}}};
+  const std::array<Face,4> faces{{{0,1,2},{1,0,3},{2,1,3},{0,2,3}}};
+  const unsigned power[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  std::vector<Facet> facets;MappedFacetReference::CurvedNets nets;std::map<Id,double> errors;
+  for(Id i=0;i<4;++i) {
+    const auto f=faces[i];facets.push_back({i,0,{nodes[f[0]],nodes[f[1]],nodes[f[2]]}});errors[i]=1e-13;
+    auto& net=nets[i];
+    for(unsigned k=0;k<10;++k) {
+      Point p{};for(unsigned j=0;j<3;++j){p.x+=power[k][j]*nodes[f[j]].p.x/3;p.y+=power[k][j]*nodes[f[j]].p.y/3;p.z+=power[k][j]*nodes[f[j]].p.z/3;}
+      net[k]=p;
+      for(unsigned t=0;t<10;++t) {
+        bool same=true;for(unsigned j=0;j<3;++j) {
+          unsigned weight=0;for(unsigned h=0;h<3;++h)if(f[j]==h)weight=power[t][h];
+          same=same && power[k][j]==weight;
+        }
+        if(same)net[k]=captured[t];
+      }
+    }
+  }
+  nets[0]=captured;
+  auto reference=std::make_shared<PlanarReference>(facets);
+  auto geometry=std::make_shared<MappedFacetReference>(reference,errors,18,SIZE_MAX,false,nets);
+  auto budget=BackendBudget();MobilityPolicy policy;std::string reason;
+  REQUIRE(geometry->BuildMobilityPolicy(45,{{0,2}},policy,budget,reason));
+  for(Id i=1;i<4;++i)REQUIRE(policy.sheets.at(i)!=policy.sheets.at(0));
+  NativeMappedGeometryBackend3D backend(geometry,policy);
+  GeometryProjectionScope scope;scope.body=geometry->Body(0);scope.hint=0;scope.sheet=policy.sheets.at(0);
+  scope.previous=geometry->FacetPoint(0,1./3,1./3);scope.absolute_error=1.25e-5;
+  GeometryProjection result;GeometryProjectionFailure failure;
+  const bool projected=backend.Project({0.7965838642222336,0.016919043008876575,-0.0023098310109004906},scope,result,budget,reason,&failure);
+  INFO(reason);REQUIRE(projected);CHECK(failure==GeometryProjectionFailure::None);
+  CHECK(result.distance_upper<=scope.absolute_error);
+  REQUIRE(backend.AssociationValid(result.binding,result.evaluation.point,reason));
+  GeometrySupport support;REQUIRE(backend.Support(result.binding,result.surface,support,budget,reason));
+  CHECK(support.body==scope.body);CHECK(support.sheet==*scope.sheet);
+}

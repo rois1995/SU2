@@ -11,7 +11,10 @@ cavities and transported nodal size fields inside SU2. Requirements, source-code
 comparison, decisions and acceptance: [connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md).
 
 Current work2026-10-29: build106 PASS114.227s,1295 pins unchanged.
-Projection_paths PASS16 cases/547 assertions64.187s. M6 RUNNING session52685; sources/helpers pinned.
+Projection_paths PASS16 cases/547 assertions64.187s. M6 build106 FAIL1870.389s; pins unchanged, all ranks terminal.
+Build107 PASS120.292s;1295 pins unchanged. Projection_paths PASS20 cases/597
+assertions72.763s. Small mapped107 FAIL101.957s; pins unchanged. MPI projection_paths6 PASS5
+cases/rank6.916s. Build108 RUNNING session49166; keep1295 pins fixed.
 Exact M6 failure captured at build103, first fatal replay projection_failure.2.0.txt:
 7 allowed wing-sheet candidates fail in world coordinates;2 foreign-sheet candidates
 correctly exclude. Identical existing minimizer on normalized local nets converges
@@ -22,8 +25,21 @@ Connected change: shared local projection coordinates, ordinary canonical entity
 parameter identity instead of exact keys, feature-path lookup skipped for surface
 endpoints, explicit unavailable proposal vs fatal backend status. Real feature
 continuity, body/incident-face/owner/restart consistency and all final gates remain.
-No limit raised. Runtime qualification pending; no accepted complete curved/M6
-adaptation/transfer/history/restart workflow yet. DC-17/DC-18 remain open.
+No limit raised. Actual smaller workflow FAIL89.521s before curved transfer:
+331 private edits,83 moves,39 reconnections; same67,207,168 atlas-work limit.
+First fresh collapse builds within geometry tolerance but adds metric edge1.973>1.8;
+changed-edge excess nevertheless decreases (.189605 to.029831). This is policy
+rejection, not geometric impossibility. M6 has completed one collapse/split pair:
+2137 collapses,3138 splits;306927 private cells, no construction q/J measurement.
+M6 ultimately stops on unchanged1800s native limit after11567 private edits,
+307011 private cells, two length-pass pairs, no quality stage or transfer.
+154 refused queries/46 distinct scopes repeat up to12 times; every capture has
+a raw model foot within requested spatial accuracy. Sampled tree RSSmax3.43GiB
+(not a whole-job high-water mark). Build107 uses the existing conservative foot
+bound as spatial-success criterion and permits construction collapses that remove
+cells and strictly reduce changed-edge debt. Tests/workflow pending; no cap change.
+Final acceptance/transfer/history/restart remain unproven.
+DC-17/DC-18 remain open.
 Detailed evidence: [projection findings](Handbook/ADAPTATION_PROJECTION_FINDINGS.md),
 [selected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md),
 [transfer findings](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
