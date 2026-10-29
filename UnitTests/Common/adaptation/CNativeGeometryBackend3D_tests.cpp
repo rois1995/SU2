@@ -229,6 +229,25 @@ TEST_CASE("Backend bounds both directions of a complete unpartitioned surface un
   CHECK_FALSE(cubic.PatchErrorBounds(scope,bump,1e-4,sentinel,no_storage,reason));unchanged();
 }
 
+TEST_CASE("Physical surface bounds reuse only identical immutable queries", "[NativeGeometryBackend3D][NativeSurfaceMemo3D]") {
+  BackendFixture fixture(true,true);const auto& f=fixture.facets.front();
+  const std::vector<SU2Native3D::Id> facets{0,1};
+  const std::vector<std::array<Point,3>> physical{{{f.v[0].p,f.v[1].p,f.v[2].p}}};
+  auto budget=BackendBudget();const auto bound=fixture.geometry->BoundPhysicalSurface(facets,physical,.01,budget);
+  REQUIRE(std::isfinite(bound));REQUIRE(bound<=.01);REQUIRE(budget.work>0);
+  const auto work=budget.work;budget.maximum_work=work;
+  CHECK(fixture.geometry->BoundPhysicalSurface(facets,physical,.01,budget)==bound);
+  CHECK(budget.work==work);CHECK_FALSE(budget.work_exhausted);
+  auto changed=physical;changed[0][0].x=std::nextafter(changed[0][0].x,-INFINITY);
+  auto coordinates=budget;CHECK_THROWS(fixture.geometry->BoundPhysicalSurface(facets,changed,.01,coordinates));CHECK(coordinates.work_exhausted);
+  auto tolerance=budget;CHECK_THROWS(fixture.geometry->BoundPhysicalSurface(facets,physical,.02,tolerance));CHECK(tolerance.work_exhausted);
+  auto support=budget;CHECK_THROWS(fixture.geometry->BoundPhysicalSurface({0},physical,.01,support));CHECK(support.work_exhausted);
+  auto body=budget;CHECK_THROWS(fixture.geometry->BoundPhysicalSurface({100,101},physical,.01,body));CHECK(body.work_exhausted);
+  auto storage=budget;storage.maximum_bytes=0;
+  CHECK_THROWS(fixture.geometry->BoundPhysicalSurface(facets,physical,.01,storage));
+  auto fresh=BackendBudget();CHECK(fixture.geometry->BoundPhysicalSurface({100,101},physical,.01,fresh)>9);
+}
+
 TEST_CASE("Surface union bounds span a noncoplanar triangulated graph without filling holes", "[NativeGeometryBackend3D]") {
   const bool shear=GENERATE(false,true);BackendFixture fixture(false,true,shear);
   std::vector<std::array<Point,3>> physical;

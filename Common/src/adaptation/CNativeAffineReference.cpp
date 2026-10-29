@@ -24,14 +24,26 @@ Point ToPoint(Vec p){return {p[0],p[1],p[2]};}
 void Finite(Point p){for(auto x:Values(p))if(!std::isfinite(x))throw std::invalid_argument("Nonfinite affine geometry coordinate.");}
 // Each operation encloses the exact real result, including underflow. Compile without fast math/contraction.
 struct Range {long double lo=0,hi=0;};
-Range Add(Range a,Range b){return {std::nextafter(a.lo+b.lo,-INFINITY),std::nextafter(a.hi+b.hi,INFINITY)};}
-Range Multiply(Range a,long double b){return b>=0?Range{std::nextafter(a.lo*b,-INFINITY),std::nextafter(a.hi*b,INFINITY)}:
-    Range{std::nextafter(a.hi*b,-INFINITY),std::nextafter(a.lo*b,INFINITY)};}
-Range Subtract(double a,double b){const auto x=static_cast<long double>(a)-b;return {std::nextafter(x,-INFINITY),std::nextafter(x,INFINITY)};}
+Range Add(Range a,Range b){
+  if(a.lo==0 && a.hi==0)return b;
+  if(b.lo==0 && b.hi==0)return a;
+  return {std::nextafter(a.lo+b.lo,-INFINITY),std::nextafter(a.hi+b.hi,INFINITY)};
+}
+Range Multiply(Range a,long double b){
+  if(b==1)return a;
+  if(b==-1)return {-a.hi,-a.lo};
+  if((b==0 || (a.lo==0 && a.hi==0)) && std::isfinite(a.lo) && std::isfinite(a.hi) && std::isfinite(b))return {};
+  return b>=0?Range{std::nextafter(a.lo*b,-INFINITY),std::nextafter(a.hi*b,INFINITY)}:
+      Range{std::nextafter(a.hi*b,-INFINITY),std::nextafter(a.lo*b,INFINITY)};
+}
+Range Subtract(double a,double b){if(a==b && std::isfinite(a))return {};
+  const auto x=static_cast<long double>(a)-b;return {std::nextafter(x,-INFINITY),std::nextafter(x,INFINITY)};}
 using Box=std::array<Range,3>;
 constexpr unsigned CubicIndex[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
 Range Subtract(Range a,Range b){return Add(a,{-b.hi,-b.lo});}
 Range Multiply(Range a,Range b) {
+  if(a.lo==a.hi && std::isfinite(a.lo))return Multiply(b,a.lo);
+  if(b.lo==b.hi && std::isfinite(b.lo))return Multiply(a,b.lo);
   const long double p[]={a.lo*b.lo,a.lo*b.hi,a.hi*b.lo,a.hi*b.hi};
   return {std::nextafter(*std::min_element(p,p+4),-INFINITY),std::nextafter(*std::max_element(p,p+4),INFINITY)};
 }
@@ -854,7 +866,8 @@ double PlaneModelOffset(const SU2Native3D::ParametricPoint& model,const AffineAu
 struct MappedFacetReference::FaceMemo {
   static constexpr size_t Entries=size_t(1)<<14;
   using Key=std::array<uint64_t,25>;
-  struct Hash{size_t operator()(const Key& k)const{uint64_t h=1469598103934665603ULL;for(auto x:k){h^=x+0x9e3779b97f4a7c15ULL+(h<<6)+(h>>2);}return size_t(h);}};
+  using UnionKey=std::vector<uint64_t>;
+  struct Hash{template<class K>size_t operator()(const K& k)const{uint64_t h=1469598103934665603ULL;for(auto x:k){h^=x+0x9e3779b97f4a7c15ULL+(h<<6)+(h>>2);}return size_t(h);}};
   static Key Query(Id facet,const std::array<SurfaceBinding,3>& binding,const std::array<Point,3>& realized) {
     auto bits=[](double x){uint64_t b;std::memcpy(&b,&x,sizeof b);return b;};
     Key key{};size_t at=0;key[at++]=facet;
@@ -864,6 +877,18 @@ struct MappedFacetReference::FaceMemo {
   }
   // Components and curved nets are mutually exclusive: store containment or surface error respectively.
   std::mutex lock;std::unordered_map<Key,double,Hash> values;
+  std::unordered_map<UnionKey,double,Hash> union_values;size_t union_bytes=0;
+  static size_t EntryBytes(){return sizeof(Key)+sizeof(double)+4*sizeof(void*)+2*sizeof(size_t);}
+  static size_t Capacity(){return transfer_memory::Mul(Entries,EntryBytes());}
+  static size_t UnionBytes(size_t words){return transfer_memory::Add(transfer_memory::Mul(words,sizeof(uint64_t)),
+      sizeof(UnionKey)+sizeof(double)+12*sizeof(void*)+4*sizeof(size_t));}
+  void Reserve(size_t bytes) {
+    if(transfer_memory::Add(transfer_memory::Mul(values.size(),EntryBytes()),union_bytes,bytes)<=Capacity())return;
+    decltype(values)().swap(values);decltype(union_values)().swap(union_values);union_bytes=0;
+  }
+  void Store(const Key& key,double value){Reserve(EntryBytes());values.emplace(key,value);}
+  void Store(UnionKey&& key,double value){const auto bytes=UnionBytes(key.capacity());if(bytes>Capacity())return;Reserve(bytes);
+    if(union_values.emplace(std::move(key),value).second)union_bytes=transfer_memory::Add(union_bytes,bytes);}
 };
 MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::PlanarReference> input,
     const std::map<Id,double>& mapping_errors,uint64_t definition_version,size_t ceiling,bool reference_components,const CurvedNets& curved_nets)
@@ -1404,7 +1429,24 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::BoundModelSurface
     double tolerance,AtlasBudget& budget)const {return QuerySurfaceUnion(facets,physical,tolerance,budget,true,false);}
 double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
     const std::vector<std::array<Point,3>>& physical,double tolerance,AtlasBudget& budget)const {
-  return QuerySurfaceUnion(facets,physical,tolerance,budget,false,true).mesh_to_model;
+  const auto words=transfer_memory::Add(3,facets.size(),transfer_memory::Mul(physical.size(),9));
+  const auto temporary=transfer_memory::GrowthBound(words,sizeof(uint64_t));
+  if(!face_memo || FaceMemo::UnionBytes(words)>FaceMemo::Capacity() ||
+      transfer_memory::Add(budget.caller_bytes,temporary)>budget.maximum_bytes)
+    return QuerySurfaceUnion(facets,physical,tolerance,budget,false,true).mesh_to_model;
+  FaceMemo::UnionKey key;key.reserve(words);
+  auto bits=[](double x){uint64_t value;std::memcpy(&value,&x,sizeof value);return value;};
+  key.push_back(facets.size());key.insert(key.end(),facets.begin(),facets.end());
+  key.push_back(physical.size());key.push_back(bits(tolerance));
+  for(const auto& triangle:physical)for(auto p:triangle)for(auto x:Values(p))key.push_back(bits(x));
+  {std::lock_guard<std::mutex> guard(face_memo->lock);const auto cached=face_memo->union_values.find(key);
+    if(cached!=face_memo->union_values.end())return cached->second;}
+  // The immutable authority, complete support set, tolerance and coordinates identify the certified query.
+  struct Restore{AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
+  budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(key.capacity(),sizeof(uint64_t)));
+  const auto result=QuerySurfaceUnion(facets,physical,tolerance,budget,false,true).mesh_to_model;
+  {std::lock_guard<std::mutex> guard(face_memo->lock);face_memo->Store(std::move(key),result);}
+  return result;
 }
 MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion(
     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
@@ -2080,8 +2122,7 @@ double MappedFacetReference::SurfaceError(Id facet,const std::array<SurfaceBindi
   const double result=CubicDeviation(found->second,parameters,realized);
   if(face_memo) {
     std::lock_guard<std::mutex> guard(face_memo->lock);
-    if(face_memo->values.size()>=FaceMemo::Entries)std::unordered_map<FaceMemo::Key,double,FaceMemo::Hash>().swap(face_memo->values);
-    face_memo->values.emplace(key,result);
+    face_memo->Store(key,result);
   }
   return result;
 }
@@ -2149,8 +2190,7 @@ bool MappedFacetReference::ContainsFace(Id facet,const std::array<SurfaceBinding
     {std::lock_guard<std::mutex> guard(face_memo->lock);const auto found=face_memo->values.find(key);if(found!=face_memo->values.end())return found->second;}
     const bool verdict=ComponentContainsFace(facet,binding,realized,nullptr);
     std::lock_guard<std::mutex> guard(face_memo->lock);
-    if(face_memo->values.size()>=FaceMemo::Entries)std::unordered_map<FaceMemo::Key,double,FaceMemo::Hash>().swap(face_memo->values);
-    face_memo->values.emplace(key,verdict);return verdict;
+    face_memo->Store(key,verdict);return verdict;
   }
   std::array<ParametricPoint,3> ideal;
   for(unsigned i=0;i<3;++i) {
@@ -2232,7 +2272,7 @@ bool MappedFacetReference::ComponentContainsFace(Id facet,const std::array<Surfa
 }
 size_t MappedFacetReference::FaceMemoBytes() {
   // Per entry: key + value + hash-node links/hash + one bucket pointer (generous), plus the container itself.
-  return transfer_memory::Add(sizeof(FaceMemo),transfer_memory::Mul(FaceMemo::Entries,sizeof(FaceMemo::Key)+sizeof(double)+4*sizeof(void*)+2*sizeof(size_t)));
+  return transfer_memory::Add(sizeof(FaceMemo),FaceMemo::Capacity());
 }
 size_t MappedFacetReference::ResidentBytes()const {
   auto bytes=[](const auto& map){return transfer_memory::Mul(map.size(),sizeof(typename std::decay_t<decltype(map)>::value_type)+4*sizeof(void*));};

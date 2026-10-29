@@ -115,10 +115,44 @@ Strict coordinate inequalities retain all touching/overlapping boxes. Existing
 hole/concavity/orientation tests and one-ULP hole-boundary segments check the risk.
 Build134 passes162.397s with1295 pins unchanged. Focused planar-contact/filter
 checks pass8 cases/190 assertions, including one-ULP hole-boundary segments.
-Full two-event M6/build134 is active at staged57/m6_runs/euler_build134_exact_boxes
-(exec28422), unchanged native1800s/event and outer5400s bounds. Sources/helpers
-stay pinned. Receipt: staged57/checkpoint134_m6_pruning_summary.json. This is a
-WIP cost correction, not an accepted mesh or complete workflow.
+Full M6/build134 rejects at its metric-update elapsed-time limit with414 private
+collapses/work503, no completed pass/quality stage/mesh/transfer. Selection1.66s,
+update474s,other1129s. Source/runtime pins unchanged; remaining retained-mesh
+event stopped and handles terminal. The pruning helped but does not establish
+viability. Perf and read-only GDB snapshots identify current-cell surface queries,
+projected reference setup and model approximation in complete-cavity guidance.
+GDB catches nextafterl at negative long-double denorm_min; query inputs/bounds are
+optimized out. Its brief pause perturbs timing and the fixed-target uncertainty
+floor remains unproved. Receipt: staged57/build134_m6_summary.json.
+
+### Reuse immutable physical certificates and exact interval identities — build135
+
+BoundPhysicalSurface was recomputing identical geometry across cavity guidance and
+current-cell census. Reuse its successful conservative double bound on the same
+immutable authority, keyed by the entire ordered facet list, complete physical
+triangles and tolerance bits. A separate map shares the existing FaceMemo byte
+pool with direct-facet queries; bounded eviction clears both maps. Variable key,
+node/bucket and temporary storage are included. Cache misses use the same query;
+exceptions are not cached. Final two-sided QuerySurfaceUnion is unchanged and
+mandatory. No new API, scenario dispatch, tolerance or work/time limit.
+
+Exact zero/unit arithmetic identities avoid manufacturing denormal intervals in
+zero-heavy cubic evaluations. Scalar zero multiplication requires finite operands;
+non-identity sums/products retain nextafter enclosure, including genuine underflow.
+Singleton range products use the existing scalar path. Equal finite binary64
+subtraction is exactly zero. New tests check query-key isolation across coordinates,
+support/body and tolerance, reused work and storage admission. Existing two-sided
+hole/wrong-body/curvature tests exercise publication obligations. A source-extracted
+probe checks648 enclosures against exact Boost rationals, underflow and nonfinite
+cases; compile flag was corrected from C++11 to repo C++17 without source changes.
+
+Build135 passes84.211s/1295 pins unchanged. Focused24/25 cases703/704 assertions;
+only prior sheared-graph complete-section work exhaustion remains, not a claimed
+full-suite pass. Full two-event M6/build135 now runs at
+staged57/m6_runs/euler_build135_certificate_reuse (exec35322),1800s native/event,
+5400s outer. Sources/helpers pinned. Receipt:
+staged57/checkpoint135_m6_reuse_summary.json. This target decides the next change;
+no accepted M6 workflow yet.
 
 ## Residual length repair after shape closure — 2026-10-29 continuation
 

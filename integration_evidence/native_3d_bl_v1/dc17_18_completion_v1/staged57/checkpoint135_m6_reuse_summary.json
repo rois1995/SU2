@@ -1,0 +1,62 @@
+{
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 84.2108063697815,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "focused": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_certificate_reuse_20261029T171857_1758374",
+    "status": {
+      "state": "terminal",
+      "exit_code": 1,
+      "seconds": 67.37994027137756,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 55652352,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "cases_passed": 24,
+    "cases_total": 25,
+    "assertions_passed": 703,
+    "assertions_total": 704,
+    "remaining_failure": "previously recorded sheared graph complete-section work exhaustion; new memo contract and all other checks pass"
+  },
+  "interval_enclosure_probe": {
+    "exit_code": 0,
+    "checks": 648,
+    "output": "exact rational enclosure checks 648; zero/unit identities, genuine underflow and nonfinite paths pass",
+    "compile_argv": [
+      "g++",
+      "-std=c++17",
+      "-O2",
+      "-fno-fast-math",
+      "-ffp-contract=off",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/interval135/probe.cpp",
+      "-o",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/interval135/probe"
+    ],
+    "compiler": "/usr/bin/x86_64-linux-gnu-g++-9",
+    "compiler_sha256": "0c0b987719385f8e242819dfef6a3e97b4b2540ce4035dbc11565df2966bd69e",
+    "initial_attempt": "C++11 compilation failed because Range uses aggregate default-member initialization; corrected to repository C++17. Production build135 passed unchanged."
+  },
+  "active_target": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build135_certificate_reuse",
+  "exec_session": 35322,
+  "accepted_m6_workflow": false,
+  "sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build135_status.json": "58e64038a992a9f2e498babddf685d2c4319569eef9a0e111dcfffea286424c7",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build135_source_pins.json": "f2b56cfbb5187edb8dfaed58f9e1d0e5f91f6e7104f78616caa89fba93b15f8a",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build135_command.json": "c9d51f6366e26b901b40127ae5dd5dd6901a4c174688c2e5421cf5fbf94e92b4",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build135.log": "2271ff4c50eed9dfabc8ed8be43dedc0e1747cfc93e27dc8bad9baf2c0e4bf5d",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_certificate_reuse_20261029T171857_1758374/status.json": "a317242dba9ecccb0dde326509a3c741ac434529a1a21aed2fadfa9bb8cf2094",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_certificate_reuse_20261029T171857_1758374/pins.json": "66d6f81b8a3c8e7529283a32b4d8132ea966386129fa045269ae2a1e07021b76",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_certificate_reuse_20261029T171857_1758374/command.json": "a00d774a8387bdde7bc5241fd3202c1c72ba635fd1405600ba6c84fb4488f51e",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_certificate_reuse_20261029T171857_1758374/run.log": "b8edfa5c4b54f65c33848ea6c4410a325e341339a4572bdb43196b9dfa7b6394",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/interval135/provenance.json": "9b8ba802dcb8dd73c158eb6d05821816dd681b4cf1bcf4ac6dfccf0608430da1",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/interval135/probe.cpp": "a5dfd50243517d0d2eded9c3b4617b8672fb2c089577c2a5f943ea6e486ae5f4",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/interval135/probe": "010e5b79c7196e37e33f5d72009ef88c0d1b4d9e58c4be68f2b6602e1dc51b54",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/interval135/result.json": "fc9658b1a3daf927e45e56af5c3be34f69eed7e785724a216f11e8290bb00d63"
+  }
+}

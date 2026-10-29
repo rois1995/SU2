@@ -45,11 +45,32 @@ including boundary-pair validation during projected reference setup. Touching bo
 retain exact checks; no tolerance, final gate, work/time limit or geometry changed.
 Build134 passes162.397s with1295 pins unchanged. Focused hole/contact/filter
 checks pass8 cases/190 assertions, including one-ULP outside/on/inside segments.
-Full two-event M6/build134 is active at staged57/m6_runs/euler_build134_exact_boxes
-(exec28422), unchanged1800s native/event and5400s outer bound. Code/helpers pinned.
-Receipt: staged57/checkpoint134_m6_pruning_summary.json.
-Geometry-backend sheared-fixture work exhaustion remains unresolved, not the next
-independent checker objective. No complete curved/M6 capability is accepted.
+Full M6/build134 is terminal with unchanged pins: first event rejects metric-update
+elapsed time after414 private collapses/work503, no length pass/quality stage or
+published mesh/transfer. Selection1.66s,update474s,other1129s. The remaining event
+on retained input was stopped; all owned handles are gone. Stack samples identify
+current-cell measurement and planar setup; successful read-only debugger snapshot
+identifies model preparation in complete-cavity GeometryGuidanceExcess and
+nextafterl on the smallest long-double interval. Inputs are optimized out and the
+brief debugger pause perturbs timing. Receipt: staged57/build134_m6_summary.json.
+
+Build135 addresses repeated certification in that path: identical BoundPhysicalSurface
+queries reuse certified bounds keyed by all supports, coordinates and tolerance on
+one immutable authority. Variable keys share the existing admitted FaceMemo pool;
+query workspace is admitted and failures are never cached. Final two-sided queries
+remain mandatory. Exact zero/unit interval identities avoid artificial subnormal
+rounding; all non-identity arithmetic retains outward enclosure and true underflow.
+Build passes84.211s/pins unchanged. Focused24/25 cases703/704 assertions, with only
+the old sheared-graph complete-section work exhaustion. New memo isolation/storage
+checks pass. An unchanged-source extraction passes648 exact rational enclosure
+checks, true underflow and nonfinite paths (probe corrected from C++11 to repo C++17).
+No final gate, tolerance or work/time limit changed.
+
+Full two-event M6/build135 is active at
+staged57/m6_runs/euler_build135_certificate_reuse (exec35322),1800s native/event,
+5400s outer, one heavy job. Sources/helpers pinned. Receipt:
+staged57/checkpoint135_m6_reuse_summary.json. No complete curved/M6 capability is
+accepted; broader BL/RANS, history and actual restart remain open.
 
 Historical build128 passes serial45/9611 and focused MPI6 five cases/rank. Its
 residual size repair reaches a later complete-surface geometry blockage in the

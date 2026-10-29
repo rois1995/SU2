@@ -1,0 +1,18 @@
+{
+  "exit_code": 0,
+  "checks": 648,
+  "output": "exact rational enclosure checks 648; zero/unit identities, genuine underflow and nonfinite paths pass",
+  "compile_argv": [
+    "g++",
+    "-std=c++17",
+    "-O2",
+    "-fno-fast-math",
+    "-ffp-contract=off",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/interval135/probe.cpp",
+    "-o",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/interval135/probe"
+  ],
+  "compiler": "/usr/bin/x86_64-linux-gnu-g++-9",
+  "compiler_sha256": "0c0b987719385f8e242819dfef6a3e97b4b2540ce4035dbc11565df2966bd69e",
+  "initial_attempt": "C++11 compilation failed because Range uses aggregate default-member initialization; corrected to repository C++17. Production build135 passed unchanged."
+}

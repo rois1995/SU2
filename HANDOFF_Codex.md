@@ -102,19 +102,21 @@ population from operator cost. Validate any SU2-specific modifications separatel
   are pushed. No complete curved/M6 workflow is accepted yet. The current change
   improves conservative complete-surface bounds across noncoplanar triangulations;
   [current diagnosis/design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
-  Full M6/build133 rejected at1801.84s: metric update elapsed-time budget,
-  319 private collapses, no accepted mesh/transfer. Selection improved from731s
-  to1.1s; update465s and other1117s dominate. Two bounded stack samples identify
-  surface queries/current-cell measurement and projected-plane setup. See
-  staged57/build133_m6_summary.json; build132's dyadic failure is preserved too.
-  Build133 handles are terminal/pins unchanged. Build134 passes162.397s;
-  focused hole/contact/filter checks pass8 cases/190 assertions. Coordinate-box
-  pruning retains the existing exact predicates for overlapping/touching boxes.
-  Complete two-event M6/build134 is now active: staged57/m6_runs/
-  euler_build134_exact_boxes, exec28422,1800s native/event,5400s outer bound.
-  Sources/helpers stay pinned; this target result drives the next change.
-  Receipts: staged57/checkpoint134_m6_pruning_summary.json. No complete M6
-  workflow is accepted. No tolerance, final gate or work/time limit changed.
+  Full M6/build134 rejected on metric-update elapsed time:414 private collapses,
+  no completed length pass, mesh or transfer. Build133's319 collapses/timeout and
+  build132's dyadic failure remain preserved. See staged57/build134_m6_summary.json.
+  Captured stacks identify repeated model preparation in complete-cavity guidance
+  and current-cell measurement, plus artificial subnormal outward rounding.
+  Build135 (84.211s,pins unchanged) reuses identical physical-surface bounds in the
+  existing bounded memo pool and uses exact zero/unit interval identities. Final
+  two-sided certification remains uncached/mandatory; no tolerance or limit changed.
+  Focused24/25 cases703/704 assertions; only prior sheared-graph work exhaustion
+  remains. New memo contract passes; extracted interval operations pass648 exact
+  rational enclosure checks. Receipt: staged57/checkpoint135_m6_reuse_summary.json.
+  Full two-event M6/build135 is active at staged57/m6_runs/
+  euler_build135_certificate_reuse (exec35322),1800s native/event,5400s outer.
+  Keep sources/helpers pinned. Let this target determine the next change.
+  No complete M6 workflow is accepted.
 - Available papers: [local collection](/media/rausa/4TB/SU2_Versions/Prove/Papers),
   including Loseille–Alauzet–Menier, *Unique cavity-based operator and hierarchical
   domain partitioning for fast parallel generation of anisotropic meshes* (2017,
