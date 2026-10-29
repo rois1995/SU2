@@ -6,6 +6,18 @@ and attempt the requested CFD → mesh → CFD → mesh workflow. Address constr
 certification or transfer/CFD according to that run's failure; focused checker
 changes and tests are diagnostics, not the immediate capability objective.
 
+Permanent user instruction, 2026-10-29 (overnight continuation): if the M6 run
+reveals a clear computational bottleneck whose fix will improve efficiency, or a
+construction/certification/transfer/CFD error, preserve its evidence, stop only the
+verified owned run, implement a connected fix, validate the affected behavior and
+rerun ONERA M6. Continue autonomously until a valid accepted Euler
+CFD → mesh → CFD → mesh loop succeeds; passing diagnostics are not completion.
+Then verify that BL generation still works before proceeding with the RANS grid
+and the same target-driven workflow. Keep strict acceptance gates, one owned heavy
+workload, resumable evidence and regularly pushed reviewable checkpoints. The user
+is unavailable overnight; resolve routine choices within the authorized scope
+without waiting for answers. This instruction persists across sessions/compaction.
+
 User instruction, 2026-10-12: prioritize substantial, connected implementation
 steps over repeated small checkpoints.
 
