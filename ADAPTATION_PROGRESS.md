@@ -120,6 +120,16 @@ Build passes135.456s; focused11 cases/267 assertions pass30.368s/pins unchanged.
 Source-extracted probe passes5103 exact enclosure checks; sampled primitive old
 .792318s/newfull.124065s/newupper.086641s. No end-to-end speedup claim. Full M6
 retry next at5400s native/event,14400s outer. Receipt distance141_checkpoint.json.
+M6/build141 stopped605.896s by authorization for outward-step library cost:
+profile QuerySurfaceUnion25.52%total,TriangleDistance22.16%,nexttowardl10.72%,
+mostly MPI waits elsewhere. Pins verified/all owned handles terminal, no accepted
+mesh/transfer. Build142 preserves exact normal-case adjacent values with guarded
+x87 stepping; standard exceptional-range/platform fallback. Build75.205s passes;
+focused11 cases/267 assertions pass24.016s;855342 neighbor comparisons,648 interval
+rational checks,5103 distance checks per version pass. Sampled primitive20–30%
+faster, no M6 performance/capability claim. Receipt rounding142_checkpoint.json.
+Full two-event M6 retry next at unchanged5400s/event,14400s outer.
+
 User authorizes repeat proven-bottleneck fix/validation/M6 attempts until Euler
 loop succeeds, then verify BL generation before RANS. Prior sheared-graph work
 exhaustion remains recorded, no acceptance gate relaxed.

@@ -22,22 +22,42 @@ using Vec=std::array<double,3>;
 Vec Values(Point p){return {p.x,p.y,p.z};}
 Point ToPoint(Vec p){return {p[0],p[1],p[2]};}
 void Finite(Point p){for(auto x:Values(p))if(!std::isfinite(x))throw std::invalid_argument("Nonfinite affine geometry coordinate.");}
+long double Adjacent(long double value,bool upward) {
+#if defined(__x86_64__) && defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__==64
+  static_assert(std::numeric_limits<long double>::radix==2 && std::numeric_limits<long double>::max_exponent==16384,
+                "Native outward stepping assumes the x87 extended format.");
+  struct Bits {uint64_t mantissa;uint16_t sign_exponent;};
+  Bits bits{};std::memcpy(&bits,&value,10);const unsigned exponent=bits.sign_exponent&0x7fff;
+  // Only ordinary normals: preserve the standard library's exceptional-range behavior below.
+  if(exponent>1 && exponent<0x7ffe && (bits.mantissa>>63)) {
+    if(upward==!(bits.sign_exponent&0x8000)) {
+      if(bits.mantissa==UINT64_MAX){bits.mantissa=uint64_t(1)<<63;++bits.sign_exponent;}
+      else ++bits.mantissa;
+    } else {
+      if(bits.mantissa==(uint64_t(1)<<63)){bits.mantissa=UINT64_MAX;--bits.sign_exponent;}
+      else --bits.mantissa;
+    }
+    std::memcpy(&value,&bits,10);return value;
+  }
+#endif
+  return std::nextafter(value,upward?INFINITY:-INFINITY);
+}
 // Each operation encloses the exact real result, including underflow. Compile without fast math/contraction.
 struct Range {long double lo=0,hi=0;};
 Range Add(Range a,Range b){
   if(a.lo==0 && a.hi==0)return b;
   if(b.lo==0 && b.hi==0)return a;
-  return {std::nextafter(a.lo+b.lo,-INFINITY),std::nextafter(a.hi+b.hi,INFINITY)};
+  return {Adjacent(a.lo+b.lo,false),Adjacent(a.hi+b.hi,true)};
 }
 Range Multiply(Range a,long double b){
   if(b==1)return a;
   if(b==-1)return {-a.hi,-a.lo};
   if((b==0 || (a.lo==0 && a.hi==0)) && std::isfinite(a.lo) && std::isfinite(a.hi) && std::isfinite(b))return {};
-  return b>=0?Range{std::nextafter(a.lo*b,-INFINITY),std::nextafter(a.hi*b,INFINITY)}:
-      Range{std::nextafter(a.hi*b,-INFINITY),std::nextafter(a.lo*b,INFINITY)};
+  return b>=0?Range{Adjacent(a.lo*b,false),Adjacent(a.hi*b,true)}:
+      Range{Adjacent(a.hi*b,false),Adjacent(a.lo*b,true)};
 }
 Range Subtract(double a,double b){if(a==b && std::isfinite(a))return {};
-  const auto x=static_cast<long double>(a)-b;return {std::nextafter(x,-INFINITY),std::nextafter(x,INFINITY)};}
+  const auto x=static_cast<long double>(a)-b;return {Adjacent(x,false),Adjacent(x,true)};}
 using Box=std::array<Range,3>;
 constexpr unsigned CubicIndex[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
 Range Subtract(Range a,Range b){return Add(a,{-b.hi,-b.lo});}
@@ -45,9 +65,9 @@ Range Multiply(Range a,Range b) {
   if(a.lo==a.hi && std::isfinite(a.lo))return Multiply(b,a.lo);
   if(b.lo==b.hi && std::isfinite(b.lo))return Multiply(a,b.lo);
   const long double p[]={a.lo*b.lo,a.lo*b.hi,a.hi*b.lo,a.hi*b.hi};
-  return {std::nextafter(*std::min_element(p,p+4),-INFINITY),std::nextafter(*std::max_element(p,p+4),INFINITY)};
+  return {Adjacent(*std::min_element(p,p+4),false),Adjacent(*std::max_element(p,p+4),true)};
 }
-Range DividePositive(Range a,long double d){return Multiply(a,Range{std::nextafter(1/d,-INFINITY),std::nextafter(1/d,INFINITY)});}
+Range DividePositive(Range a,long double d){return Multiply(a,Range{Adjacent(1/d,false),Adjacent(1/d,true)});}
 Box Exact(Point p){const auto v=Values(p);return {{{v[0],v[0]},{v[1],v[1]},{v[2],v[2]}}};}
 Box ParameterBox(const SU2Native3D::ParametricPoint& p) {
   const auto b=SU2Native3D::ParametricPointBounds(p);const auto lo=Values(b[0]),hi=Values(b[1]);

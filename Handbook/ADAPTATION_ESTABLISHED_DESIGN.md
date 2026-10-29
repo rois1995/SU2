@@ -703,3 +703,13 @@ cases/267 assertions pass30.368s. Extracted production probe passes5103 exact
 enclosure checks and measures6.4x full/9.1x upper-only primitive speedup on one
 M6-derived batch, not whole-workflow speedup. Full M6 retry follows; old sheared-
 graph complete-query work exhaustion remains unqualified.
+
+Build141's240s sample still locates substantial time in outward stepping
+(nexttowardl10.72%total versus QuerySurfaceUnion25.52%). Deliberately stopped
+605.896s, pins verified/all handles terminal; no accepted event/transfer. Build142
+uses an exact-value x87 ordinary-normal adjacent neighbor with standard fallback
+for zero/subnormal/extreme/nonfinite and other platforms. It follows the existing
+x87 fused-arithmetic representation precedent, preserves exceptional behavior,
+and passes855342 neighbor comparisons,648 exact interval checks and5103 distance
+checks per version. Build75.205s/focused11cases267assertions24.016s pass. Primitive
+batch20–30% faster; full M6 retry required, no acceptance or whole-run speed claim.

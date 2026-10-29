@@ -125,10 +125,15 @@ population from operator cost. Validate any SU2-specific modifications separatel
   135.456s/pins verified; focused11 cases/267 assertions pass30.368s. Source-extracted
   probe passes5103 exact enclosure checks, sampled primitive6.4x/9.1x faster;
   no full-M6 speedup claim. Receipt staged57/distance141_checkpoint.json.
-  M6/build141 running: euler_build141_selected_witness, detached Python harness
-  2363169, time2363316, timeout2363318, mpirun2363319. Receipt updates active;
-  keep pinned sources fixed. Budgets5400s native/event,14400s outer. The240s
-  profile still shows distance-bound evaluation, not fixed-model preparation.
+  M6/build141 deliberately stopped605.896s for the next profiled hot path:
+  outward long-double stepping. No accepted event/mesh/transfer; pins verified,
+  all owned processes terminal. Build142 adds an exact-value ordinary-normal
+  x87 neighbor; exceptional ranges/other platforms retain std::nextafter.
+  Build passes75.205s; focused11 cases/267 assertions pass24.016s/pins unchanged;
+  855342 neighbor comparisons,648 rational interval checks and5103 distance
+  checks per helper version pass. Sampled primitive20–30% faster, no full-M6 claim.
+  Receipt staged57/rounding142_checkpoint.json; complete M6 retry next, native
+  5400s/event, outer14400s, one heavy workload. Keep pinned sources fixed.
   User now authorizes stopping demonstrated bottlenecks, fixing/validating them
   and retrying until Euler CFD→mesh→CFD→mesh succeeds. Then verify BL generation
   before the same RANS workflow. Overnight autonomous continuation is permanent

@@ -1,0 +1,18 @@
+{
+  "utc": "2026-10-29T21:16:52.399061+00:00",
+  "command": "nice -n 19 timeout 90s bash -c 'g++ -std=c++17 -O3 -ffp-contract=off \"$1/probe.cpp\" -o \"$1/probe\" && \"$1/probe\"' _ \"$PWD/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/rounding142\"",
+  "environment": {
+    "TMPDIR": "integration_evidence/build-integrated-v2/compile-tmp",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "exit_status": 0,
+  "result": "adjacent_comparisons=855342\nexact rational enclosure interval_checks 648; zero/unit identities, genuine underflow and nonfinite paths pass\nchecks=5103 old_seconds=0.120125 new_full_seconds=0.12136 new_upper_seconds=0.0822645 sink=211.207\nchecks=5103 old_seconds=0.0903781 new_full_seconds=0.0902655 new_upper_seconds=0.0668244 sink=211.207\nexit_status=0",
+  "source_sha256_before": "b90f5e1da1cbc08b47899c15dad410866a3269099ef1e3673320bae36117c79c",
+  "source_sha256_after": "b90f5e1da1cbc08b47899c15dad410866a3269099ef1e3673320bae36117c79c",
+  "source_unchanged": true,
+  "generated_sha256": "a0ca93f1397ccb128441b9f8a6170d037519b54545c96fa75866d29513c8fed8",
+  "binary_sha256": "cd3daa7b2a115d4ca087dae35a5dd87d63f3648cba5d214182a8c508015b00a8",
+  "timing_scope": "primitive with live_bound_state triangle and derived queries; single batch"
+}
