@@ -15,17 +15,21 @@ CFD → mesh. The user explicitly authorized pushing every checkpoint; previous
 checkpoints through77e5cd579d are pushed. Broader BL/RANS, history and restart
 obligations remain; no complete curved/M6 workflow is accepted yet.
 
-Build129 tracing identifies complete-surface model-to-mesh upper-bound subdivision
-as the expensive geometry check. A controlled diagnostic stop preserves the query
-bounds and resource receipt; it is not an acceptance result. Build130 is rebuilding
-with a conservative projected-union bound for neighboring noncoplanar triangles,
-exact footprint coverage and metered predicates. Curved/sheared/hole regressions
-are included; validation is pending. No final tolerance or mesh gate changed.
+The implementation is frozen at build132 for the complete two-event M6 attempt.
+Checkpoint2801d2ad51 is pushed. Active run:
+staged57/m6_runs/euler_build132_two_events_frozen (exec session10976, harness
+PID1502539),1800s native budget/event and5400s outer limit for both events plus
+certification/transfer. The initial CFD solve completes; adaptation is running.
+Do not edit pinned code/helpers or start another heavy job. Inspect the owned
+handle before restarting. The result must drive the next construction,
+certification or transfer/CFD change.
 
-The existing M6 harness now supports two events at the same target and per-event
-budgets, with separate native and CFD/transfer/publication assessments and saved
-completed-event receipts. Helper self-checks pass; no actual two-event M6 success
-is claimed. Details and evidence paths:
+Build132 passes; focused geometry checks pass15/16 cases, with work-exhaustion
+failures in the new sheared graph fixture. Those unresolved diagnostics are
+preserved and do not substitute for target-workflow evidence. No final geometry,
+metric or quality gate changed. The harness checks per-event native acceptance,
+conservative transfer/replacement, published meshes and subsequent CFD solve rows,
+and preserves complete event receipts. No M6 acceptance is claimed yet.
 [current connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
 
 Historical build128 passes serial45/9611 and focused MPI6 five cases/rank. Its

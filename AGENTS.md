@@ -1,5 +1,11 @@
 # Implementation and validation cadence
 
+User instruction, 2026-10-29: let the complete M6 attempt drive development.
+Freeze a coherent implementation, allow generous but bounded certification work,
+and attempt the requested CFD → mesh → CFD → mesh workflow. Address construction,
+certification or transfer/CFD according to that run's failure; focused checker
+changes and tests are diagnostics, not the immediate capability objective.
+
 User instruction, 2026-10-12: prioritize substantial, connected implementation
 steps over repeated small checkpoints.
 
@@ -95,7 +101,8 @@ than prepending repeated copies of prior updates.
 User instruction, 2026-10-17: account for machine contention and RAM usage.
 
 - Check actual host load and available RAM before sustained computation. Run one
-  owned heavy job at a time; use low priority, one build worker and single-threaded
+  owned heavy job at a time; use low priority,2–4 build workers when resources permit
+  (user update2026-10-29) and single-threaded
   libraries. Keep local MPI correctness checks bounded to available ranks/resources.
 - Check live job handles before starting another job. Observe process memory during
   longer runs, preserve resource receipts, and leave unrelated processes untouched.

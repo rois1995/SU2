@@ -41,7 +41,16 @@ metered as well (after each finite footprint query; it is not a wall-clock deadl
 Scope: TriangleUnion and its finite-plane containment overloads, existing geometry
 backend regressions, and the pinned M6 harness. New curved/sheared graph and missing
 coverage regressions accompany the existing wrong-body/hole/curvature checks.
-Build130 is in progress with immutable pins; no new mesh acceptance is claimed.
+Build130 completed with immutable pins (1546.670s). Its existing curved query
+exposed an oversized optional projected-reference reservation, and the new fixture
+used interior bindings at edge/vertex points. Build131 fixes those without raising
+limits; build132 reuses the existing triangle tree for relevant projected faces.
+Build132 passes (63.160s,1295 pins unchanged). Geometry checks pass15/16 cases;
+the new sheared graph's complete/missing-coverage sections exhaust their work
+reservations (1,048,576/4,194,304), preserved under
+cases/geometry_backend_20261029T151455_1472920 and
+cases/geometry_graph_trace_20261029T152116_1488543. These remain unresolved
+diagnostics, not justification for another checker cycle before M6.
 
 The existing M6 driver loop supports two events with ADAP_SUBITER=(2), preserving
 the same metric target and per-event gates/budgets. Its harness now optionally
@@ -51,6 +60,14 @@ events save independent output hashes and provenance; whole-run success requires
 all planned events. Native summaries alone cannot establish the CFD workflow.
 The helper self-checks pass, including historical M6 rejection. Actual restart and
 unsteady history qualification remain separate obligations.
+
+Latest user direction freezes this implementation and makes the complete M6 run
+determine the next code change. Checkpoint2801d2ad51 is pushed. The active attempt
+is staged57/m6_runs/euler_build132_two_events_frozen (exec session10976, owned
+harness PID1502539, started2026-10-29T15:27 UTC). It requests two events, unchanged
+metric/geometry/quality gates,1800s native budget per event, and a generous bounded
+5400s outer limit including certification/transfer. No source/helper edits or
+second heavy job during this run. Inspect its live handle/status before any restart.
 
 ## Residual length repair after shape closure — 2026-10-29 continuation
 
