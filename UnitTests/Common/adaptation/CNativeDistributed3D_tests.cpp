@@ -1517,7 +1517,8 @@ TEST_CASE("Native MPI admissible coarsening prunes exact immutable-facet counter
   CHECK(rejected.stats.cached_measured_cells==rejected.cells.size());
   CHECK(world.sum(int(rejected.stats.cached_invalid_cells))>0);
   INFO(rejected.reason);
-  if (rejected.stats.attempted) CHECK(rejected.reason.find("leaves incident reference facet ")!=std::string::npos);
+  CHECK(rejected.stats.stop==EngineStop::RoundBudget);
+  CHECK(rejected.reason.find("round limit")!=std::string::npos);
   CHECK(Bytes(input)==saved);CHECK(rejected.stats.other_seconds>=-1e-12);
 }
 

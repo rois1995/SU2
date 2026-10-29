@@ -1775,6 +1775,9 @@ TEST_CASE("Native exact planar annuli retain holes across complete face containm
   CHECK(reference.ContainsFace(0,{{{0,0,0},{4,0,0},{2,.5,0}}}));
   CHECK_FALSE(reference.ContainsFace(0,{{{0,0,0},{2,.5,0},{4,0,0}}}));
   CHECK_FALSE(reference.Contains(0,{2,.5,std::numeric_limits<double>::denorm_min()}));
+  for(double x:{std::nextafter(1.,0.),1.})
+    CHECK(reference.ContainsSegment(0,{x,0,0},{x,4,0}));
+  CHECK_FALSE(reference.ContainsSegment(0,{std::nextafter(1.,2.),0,0},{std::nextafter(1.,2.),4,0}));
   // Valid vertices do not admit a collapsed face that bridges the finite hole.
   OwnedCell row;row.cell={0,{Node{99,{2,.25,-.1}},v[0],v[1],v[5]}};row.physical[0]={true,0};
   const auto retained=v[6];const WallHeights heights{{7,.1}};

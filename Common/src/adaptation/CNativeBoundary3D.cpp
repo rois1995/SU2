@@ -111,15 +111,21 @@ long double Projected(Point a, Point b, Point c, size_t axis, KernelStats* stats
   return Orientation(project(a), project(b), project(c), {0, 0, 1}, stats);
 }
 bool OnEdge(Point a, Point b, Point p, KernelStats* stats) {
+  if (!(p.x >= std::min(a.x, b.x) && p.x <= std::max(a.x, b.x) &&
+        p.y >= std::min(a.y, b.y) && p.y <= std::max(a.y, b.y) &&
+        p.z >= std::min(a.z, b.z) && p.z <= std::max(a.z, b.z))) return false;
   for (size_t axis = 0; axis < 3; ++axis)
     if (Projected(a, b, p, axis, stats) != 0) return false;
-  return p.x >= std::min(a.x, b.x) && p.x <= std::max(a.x, b.x) && p.y >= std::min(a.y, b.y) &&
-         p.y <= std::max(a.y, b.y) && p.z >= std::min(a.z, b.z) && p.z <= std::max(a.z, b.z);
+  return true;
 }
 Point PlaneCoordinates(Point p,size_t axis) {
   return axis==0?Point{p.y,p.z,0}:axis==1?Point{p.x,p.z,0}:Point{p.x,p.y,0};
 }
 bool BorderCrossesTriangleInterior(Point a,Point b,std::array<Point,3> t,KernelStats* stats) {
+  if(std::max(a.x,b.x)<std::min({t[0].x,t[1].x,t[2].x}) ||
+     std::min(a.x,b.x)>std::max({t[0].x,t[1].x,t[2].x}) ||
+     std::max(a.y,b.y)<std::min({t[0].y,t[1].y,t[2].y}) ||
+     std::min(a.y,b.y)>std::max({t[0].y,t[1].y,t[2].y}))return false;
   const auto sign=Orientation(t[0],t[1],t[2],{0,0,1},stats);
   for(size_t i=0;i<3;++i) {
     const auto x=Orientation(t[i],t[(i+1)%3],a,{0,0,1},stats),y=Orientation(t[i],t[(i+1)%3],b,{0,0,1},stats);
@@ -817,6 +823,8 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::
       const auto a=border[i],b=border[j];
       const auto p=PlaneCoordinates(nodes.at(a[0]).p,axis),q=PlaneCoordinates(nodes.at(a[1]).p,axis);
       const auto r=PlaneCoordinates(nodes.at(b[0]).p,axis),t=PlaneCoordinates(nodes.at(b[1]).p,axis);
+      if(std::max(p.x,q.x)<std::min(r.x,t.x) || std::max(r.x,t.x)<std::min(p.x,q.x) ||
+         std::max(p.y,q.y)<std::min(r.y,t.y) || std::max(r.y,t.y)<std::min(p.y,q.y))continue;
       auto opposite=[](long double x,long double y){return (x<0 && y>0)||(x>0 && y<0);};
       if(opposite(Projected(p,q,r,2,nullptr),Projected(p,q,t,2,nullptr)) &&
          opposite(Projected(r,t,p,2,nullptr),Projected(r,t,q,2,nullptr)))valid=false;
@@ -1186,6 +1194,8 @@ bool PlanarReference::ContainsSegment(Id id,Point a,Point b,KernelStats* stats)c
   auto opposite=[](long double x,long double y){return (x<0&&y>0)||(x>0&&y<0);};
   for(auto edge:boundaries.at(id)) {
     const auto p=PlaneCoordinates(nodes.at(edge[0]).p,axis),q=PlaneCoordinates(nodes.at(edge[1]).p,axis);
+    if(std::max(a.x,b.x)<std::min(p.x,q.x) || std::max(p.x,q.x)<std::min(a.x,b.x) ||
+       std::max(a.y,b.y)<std::min(p.y,q.y) || std::max(p.y,q.y)<std::min(a.y,b.y))continue;
     if(opposite(side(a,b,p),side(a,b,q))&&opposite(side(p,q,a),side(p,q,b)))return false;
     auto same=[](Point x,Point y){return x.x==y.x && x.y==y.y;};
     if(!same(a,p)&&!same(a,q)&&OnEdge(p,q,a,stats)&&sign*side(p,q,b)<0)return false;

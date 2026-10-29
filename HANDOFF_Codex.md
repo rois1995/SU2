@@ -102,16 +102,19 @@ population from operator cost. Validate any SU2-specific modifications separatel
   are pushed. No complete curved/M6 workflow is accepted yet. The current change
   improves conservative complete-surface bounds across noncoplanar triangulations;
   [current diagnosis/design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
-  Latest full M6/build132 failed its first event after private construction edits:
-  exact dyadic resolution exhausted, no accepted mesh or transfer. Selection took
-  731s; one rank spent682s in the single-cell collapse geometry shortcut. See
-  staged57/build132_m6_summary.json. Build133 defers remapped-face deviation from
-  that shortcut to existing complete-cavity admission; final gates are unchanged.
-  The new contract passes; filter selection is4/5 cases (one unchanged analytic
-  rejection-message assertion fails). Full two-event M6/build133 is now running:
-  staged57/m6_runs/euler_build133_cavity_filter, exec session93039,1800s native/event,
-  5400s outer bound. Keep sources/helpers pinned; let this target determine the
-  next change. No complete M6 workflow is accepted.
+  Full M6/build133 rejected at1801.84s: metric update elapsed-time budget,
+  319 private collapses, no accepted mesh/transfer. Selection improved from731s
+  to1.1s; update465s and other1117s dominate. Two bounded stack samples identify
+  surface queries/current-cell measurement and projected-plane setup. See
+  staged57/build133_m6_summary.json; build132's dyadic failure is preserved too.
+  Build133 handles are terminal/pins unchanged. Build134 passes162.397s;
+  focused hole/contact/filter checks pass8 cases/190 assertions. Coordinate-box
+  pruning retains the existing exact predicates for overlapping/touching boxes.
+  Complete two-event M6/build134 is now active: staged57/m6_runs/
+  euler_build134_exact_boxes, exec28422,1800s native/event,5400s outer bound.
+  Sources/helpers stay pinned; this target result drives the next change.
+  Receipts: staged57/checkpoint134_m6_pruning_summary.json. No complete M6
+  workflow is accepted. No tolerance, final gate or work/time limit changed.
 - Available papers: [local collection](/media/rausa/4TB/SU2_Versions/Prove/Papers),
   including Loseille–Alauzet–Menier, *Unique cavity-based operator and hierarchical
   domain partitioning for fast parallel generation of anisotropic meshes* (2017,

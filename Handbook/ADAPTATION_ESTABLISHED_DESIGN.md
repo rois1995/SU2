@@ -88,10 +88,37 @@ now tests deferral with no remaining atlas budget, retaining its measured full
 cavity error. It passes. Filter selection passes4/5 cases98/99 assertions: the
 unchanged analytic-facet path expects a specific older rejection substring but
 receives no-admissible quality/length change; rejection/cache/input checks pass.
-This remains an unresolved regression diagnostic. The full M6 two-event attempt
-staged57/m6_runs/euler_build133_cavity_filter is active (session93039),1800s native
-per event,5400s outer, unchanged requested fields/gates. Freeze sources/helpers
-until terminal; its construction/certification/transfer failure drives next work.
+The test's stale message assumption is corrected in build134 to the actual
+round-budget stop/reason, retaining rejected-result/cache/input checks.
+
+### Full M6 timeout and shared exact-predicate pruning — build134
+
+Full build133 M6 rejected at1801.84s with metric-update elapsed-time exhaustion,
+319 private accepted collapses/work377 and no completed length pass or quality
+stage. Selection1.1s/nested filter<.7s confirms the previous filter cost is removed.
+Update465s and other1117s dominate; current cache is partial at the timeout.
+Five-second low-frequency samples show `Selection::Add → ParameterError →
+BoundPhysicalSurface → QuerySurfaceUnion` and `QuerySurfaceUnion → TriangleUnion
+→ FinitePlaneReference → PlanarReference → OnEdge`. These are sampled paths, not
+whole-event cost attribution; DWARF decoding is partial. Fixed target approximation
+could leave a bound uncertainty floor, but this run does not prove that hypothesis.
+No accepted mesh/transfer; remaining event on original mesh stopped after failure,
+all owned handles terminal, source/runtime pins unchanged. Receipt:
+staged57/build133_m6_summary.json.
+
+The next connected change prunes coordinate-separated queries before the same
+exact predicates in shared planar construction/containment: point-on-edge boxes,
+nonconvex boundary-pair boxes, boundary/chord boxes and boundary/triangle boxes.
+This addresses the sampled constructor as well as repeated distance-witness
+containment, without replacing either algorithm or weakening contact checks.
+Strict coordinate inequalities retain all touching/overlapping boxes. Existing
+hole/concavity/orientation tests and one-ULP hole-boundary segments check the risk.
+Build134 passes162.397s with1295 pins unchanged. Focused planar-contact/filter
+checks pass8 cases/190 assertions, including one-ULP hole-boundary segments.
+Full two-event M6/build134 is active at staged57/m6_runs/euler_build134_exact_boxes
+(exec28422), unchanged native1800s/event and outer5400s bounds. Sources/helpers
+stay pinned. Receipt: staged57/checkpoint134_m6_pruning_summary.json. This is a
+WIP cost correction, not an accepted mesh or complete workflow.
 
 ## Residual length repair after shape closure — 2026-10-29 continuation
 

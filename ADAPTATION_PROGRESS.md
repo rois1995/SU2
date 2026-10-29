@@ -23,19 +23,33 @@ Selection took731s and rank4 spent682s in nested collapse geometry. All cache
 rows were complete; the selection-filter origin is inferred, not a captured stack.
 Receipt: staged57/build132_m6_summary.json.
 
-Build133 (93.226s,1295 pins unchanged) changes the shared collapse shortcut to
-check surface deviation directly only when associations support that original
-facet. Remapped faces go through existing complete-cavity admission and unchanged
-final two-sided geometry gates. The new contract passes with no remaining atlas
-work. Focused filter selection:4/5 cases,98/99 assertions; an unchanged analytic
-path rejects correctly but its expected rejection-message substring differs.
-This failure remains recorded, not waived as a full regression pass.
+Build133 (93.226s,1295 pins unchanged) defers single-cell remapped-face deviation
+to existing complete-cavity admission and strict final certificates. Its focused
+new contract passes; one unchanged analytic test's stale last-rejection substring
+failed (4/5 cases98/99). Build134 replaces that diagnostic assumption with the
+actual round-budget stop/reason contract, retaining rejection/cache/input checks.
 
-The next complete target is running at
-staged57/m6_runs/euler_build133_cavity_filter (exec session93039), two events,
-1800s native/event and5400s outer bound. No source/helper edits or second heavy
-job until its handle is terminal. Geometry-backend sheared-fixture work exhaustion
-from build132 remains unresolved; it is not the next development objective.
+Full M6/build133 is terminal, unchanged pins: first event rejected at1801.84s,
+`Native3D metric update exhausts elapsed-time budget`. It admitted319 private
+collapses at work377, completed no length pass/quality stage, and accepted no mesh
+or transfer. Selection fell to1.1s; update465s and other1117s dominate. Cache rows
+are incomplete at the metric-update timeout. Two five-second low-frequency stack
+samples show surface-union current-cell measurement and projected-plane setup;
+DWARF decoding is partial, and the fixed-target-error-floor hypothesis is unproven.
+The remaining old-mesh event was stopped after known failure; all handles are gone.
+Receipt: staged57/build133_m6_summary.json.
+
+The target evidence motivates conservative box pruning in shared planar geometry:
+reject coordinate-separated point/edge/triangle queries before exact predicates,
+including boundary-pair validation during projected reference setup. Touching boxes
+retain exact checks; no tolerance, final gate, work/time limit or geometry changed.
+Build134 passes162.397s with1295 pins unchanged. Focused hole/contact/filter
+checks pass8 cases/190 assertions, including one-ULP outside/on/inside segments.
+Full two-event M6/build134 is active at staged57/m6_runs/euler_build134_exact_boxes
+(exec28422), unchanged1800s native/event and5400s outer bound. Code/helpers pinned.
+Receipt: staged57/checkpoint134_m6_pruning_summary.json.
+Geometry-backend sheared-fixture work exhaustion remains unresolved, not the next
+independent checker objective. No complete curved/M6 capability is accepted.
 
 Historical build128 passes serial45/9611 and focused MPI6 five cases/rank. Its
 residual size repair reaches a later complete-surface geometry blockage in the
