@@ -101,6 +101,9 @@ population from operator cost. Validate any SU2-specific modifications separatel
   Euler run reaches zero shape/geometry failures and3 size failures, then times
   out in geometry work; no complete curved mesh is accepted. Current design and
   diagnosis: [residual length repair](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#residual-length-repair-after-shape-closure--2026-10-29-continuation).
+  Implementation checkpoint `4e108812ae` is local. Automatic review refused its
+  push as sensitive code/docs/receipt egress; obtain explicit payload/destination
+  approval before retrying. No remote publication occurred.
 - Available papers: [local collection](/media/rausa/4TB/SU2_Versions/Prove/Papers),
   including Loseille–Alauzet–Menier, *Unique cavity-based operator and hierarchical
   domain partitioning for fast parallel generation of anisotropic meshes* (2017,
