@@ -1,0 +1,1 @@
+nice -n 19 timeout 90s g++ -std=c++17 -O3 -ffp-contract=off probe.cpp -o probe && nice -n 19 timeout 90s ./probe

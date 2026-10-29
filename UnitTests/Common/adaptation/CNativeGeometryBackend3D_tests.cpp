@@ -229,6 +229,20 @@ TEST_CASE("Backend bounds both directions of a complete unpartitioned surface un
   CHECK_FALSE(cubic.PatchErrorBounds(scope,bump,1e-4,sentinel,no_storage,reason));unchanged();
 }
 
+TEST_CASE("Prepared curved footprints jointly cover original facet seams", "[NativeGeometryBackend3D][NativeSurfaceMemo3D]") {
+  BackendFixture fixture;
+  // The top charts are planar cubic maps; the working diagonal crosses their original seam.
+  std::vector<std::array<Point,3>> physical{{{{0,0,1},{1,0,1},{0,1,1}}},{{{1,0,1},{1,1,1},{0,1,1}}}};
+  auto budget=BackendBudget();budget.maximum_work=16384;
+  const auto bounds=fixture.geometry->BoundSurfaceUnion({2,3},physical,1e-4,budget);
+  CHECK(bounds.within_tolerance);CHECK_FALSE(bounds.outside_tolerance);
+  CHECK(bounds.model_to_mesh<=1e-4);CHECK(bounds.mesh_to_model<=1e-4);
+  for(auto& triangle:physical)for(auto& p:triangle)p.z+=2e-4;
+  auto outside=BackendBudget();outside.maximum_work=16384;
+  const auto separated=fixture.geometry->BoundSurfaceUnion({2,3},physical,1e-4,outside);
+  CHECK(separated.outside_tolerance);CHECK_FALSE(separated.within_tolerance);
+}
+
 TEST_CASE("Physical surface bounds reuse only identical immutable queries", "[NativeGeometryBackend3D][NativeSurfaceMemo3D]") {
   BackendFixture fixture(true,true);const auto& f=fixture.facets.front();
   const std::vector<SU2Native3D::Id> facets{0,1};

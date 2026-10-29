@@ -734,3 +734,24 @@ caller storage includes retained reference/input text. This isolated replay does
 not carry the full solver's other state. It is uncompiled/unrun while build142's
 full M6 attempt remains active. Use only after verifying its source/build/input
 provenance and terminal owned handles; do not count preparation as validation.
+
+### Joint retained footprints and early coarsening refusal — 2026-10-30
+
+The full build142 attempt exhausted5403.9s before a complete length pass or quality
+stage,2376private collapses/5503globalwork. Four ranks empty their queues; ranks4/5
+retain2908/2852 demands and dominate geometry work/rejections. No accepted output.
+The captured38-facet query proves fixed-data reuse alone insufficient: even warm
+it consumed693280work/2.253s. Build143 retains the combined TriangleUnion footprint
+for exact ordered facet scope and tolerance, using already certified per-facet
+pieces. It restores joint seam coverage, owns model/indices together, keeps current
+query budgets explicit, serializes mutable traversal scratch and charges all scope
+keys/models against the preadmitted bounded geometry pool. No archive change.
+
+Strict coarsening now checks new geometry first and rejects at its first positive
+excess before querying old geometry. Passing candidates still evaluate old full
+score for progress; other kinds preserve their order. The score-zero predicate and
+accepted progress match419904 baseline comparisons including exception/nonfinite
+checks. Captured M6 cold query falls2.314s→.07355s and changed-coordinate warm query
+2.253s→.003861s, with valid bounds below1e-4. Build and serial19cases5199assertions
+plus MPI2 publication/reload/construction pass. Full M6 remains the capability
+acceptance target; query speedups and source proofs do not establish its success.

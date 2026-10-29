@@ -118,7 +118,8 @@ double HeightScore(const Patch& patch,const WallHeights& heights,const PlanarRef
 }
 using RepairFeature = std::pair<unsigned,std::array<Id,3>>;
 // Call only for accepted surfaces or successful operators that have completed surface validation.
-long double GeometryGuidanceExcess(const Patch& patch,const PlanarReference& base_geometry,double tolerance) {
+long double GeometryGuidanceExcess(const Patch& patch,const PlanarReference& base_geometry,double tolerance,
+                                  bool stop_on_violation=false) {
   auto parameters=base_geometry.PrivateParameters(patch);const auto& geometry=parameters?*parameters:base_geometry;
   std::map<Id,Point> nodes;
   for(const auto& c:patch.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
@@ -130,6 +131,7 @@ long double GeometryGuidanceExcess(const Patch& patch,const PlanarReference& bas
     const long double ax=static_cast<long double>(p[1].x)-p[0].x,ay=static_cast<long double>(p[1].y)-p[0].y,az=static_cast<long double>(p[1].z)-p[0].z;
     const long double bx=static_cast<long double>(p[2].x)-p[0].x,by=static_cast<long double>(p[2].y)-p[0].y,bz=static_cast<long double>(p[2].z)-p[0].z;
     excess+=error*error*std::hypot(ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx);
+    if(stop_on_violation && (excess>0 || !std::isfinite(excess)))return excess;
   }
   return excess;
 }
@@ -2499,8 +2501,19 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       // Entity refinement constructs valid cells; local surrogate descent is not a geometry permission.
       if(geometry.EntityGeometry()&&phase==Phase::Construction&&kind!=MetricChange::Coarsen)return true;
       try {
-        const auto before=GeometryGuidanceExcess(old,geometry,options.surface_tolerance);
-        const auto after=GeometryGuidanceExcess(fresh,geometry,options.surface_tolerance);
+        long double before,after;
+        if(kind==MetricChange::Coarsen) {
+          // A coarsening trial needs zero new excess; rejected trials need no old-surface score.
+          after=GeometryGuidanceExcess(fresh,geometry,options.surface_tolerance,true);
+          if(!std::isfinite(after) || after>0) {
+            geometric_progress=false;
+            result.reason="Native3D candidate does not preserve/improve its frozen geometry error.";return guarded_geometry(false);
+          }
+          before=GeometryGuidanceExcess(old,geometry,options.surface_tolerance);
+        } else {
+          before=GeometryGuidanceExcess(old,geometry,options.surface_tolerance);
+          after=GeometryGuidanceExcess(fresh,geometry,options.surface_tolerance);
+        }
         geometric_progress=before>0 && after<before*(1-1e-12L);
         if(!std::isfinite(after) || (kind==MetricChange::GeometryRefine && !geometric_progress) ||
            (kind==MetricChange::Coarsen && after>0) ||

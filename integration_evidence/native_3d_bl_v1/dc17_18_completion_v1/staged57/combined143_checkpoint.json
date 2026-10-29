@@ -1,0 +1,119 @@
+{
+  "implementation": "Retain certified facet pieces and exact-scope/tolerance joint projected footprints; reject invalid coarsening fresh surfaces before scoring old/remaining surfaces. All accepted candidates keep required gates.",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 105.25892305374146,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "m6_previous_failure_receipt": "build142_m6_summary.json",
+  "target_query": {
+    "baseline": [
+      {
+        "pass": "0",
+        "bound": "9.9456989659627067e-05",
+        "work": "694585",
+        "caller_bytes": "3410123480",
+        "peak_bytes": "3411073080",
+        "seconds": "2.3143722329999998"
+      },
+      {
+        "pass": "1",
+        "bound": "9.9456989659633084e-05",
+        "work": "693280",
+        "caller_bytes": "3410123480",
+        "peak_bytes": "3411073080",
+        "seconds": "2.253200648"
+      }
+    ],
+    "combined": [
+      {
+        "pass": "0",
+        "bound": "9.3892654343177896e-05",
+        "work": "7182",
+        "caller_bytes": "3410123528",
+        "peak_bytes": "3416515064",
+        "seconds": "0.073551160000000004"
+      },
+      {
+        "pass": "1",
+        "bound": "9.3892654343176148e-05",
+        "work": "5481",
+        "caller_bytes": "3410123528",
+        "peak_bytes": "3410143080",
+        "seconds": "0.0038607110000000002"
+      }
+    ],
+    "cold_speed_ratio": 31.46615543520999,
+    "warm_speed_ratio": 583.6232362380919,
+    "baseline_status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 14.579200983047485,
+      "pins_verified": true,
+      "changed": []
+    },
+    "combined_status": {
+      "state": "terminal",
+      "phase_exit_codes": {
+        "compile": 0,
+        "link": 0,
+        "run": 0
+      },
+      "seconds": 16.25210069899913,
+      "pins_verified": true,
+      "changed": [],
+      "binary_sha256": "a3df9acbad8a4bb604fe0fbfaba7e777ff449d43e9a95999f2bd605675e96d14",
+      "rss_note": "sampled process tree, not peak"
+    },
+    "scope": "Captured38-facet M6 triangle, then one-ULP change; query timings only."
+  },
+  "serial": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 16.91573691368103,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 55832576,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "serial_counts": "19 cases/5199 assertions",
+  "mpi2": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 162.15212488174438,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 32604160,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "mpi2_counts": [
+    [
+      "15075",
+      "10"
+    ],
+    [
+      "15579",
+      "10"
+    ]
+  ],
+  "gate_probe": {
+    "comparisons": 419904,
+    "field_cases": 6561,
+    "configurations_per_field": 64,
+    "status": "0\n",
+    "source_provenance": "gate143/provenance.json"
+  },
+  "unchanged_numeric_blocks_sha256": {
+    "long double Adjacent(": "c81716327803fc3e829fb20ac2fbb742ab33fa347c85b04c0741c1e28f1de4bf",
+    "double NormBound(": "87ba3b379c0a2a79d59af9c4be5183aacb0dbf95e10aa252fb7110f546cba42d",
+    "struct TriangleDistanceBounds": "6ce67f20beac131f82cb6817e4c601164ae47a69eba40f1e67c9f20d079e9a8a"
+  },
+  "limitations": [
+    "Full M6 loop still unproven; next retry is the acceptance target.",
+    "Historical complete sheared-graph work exhaustion not requalified.",
+    "No whole-M6 speedup claim from isolated query timings."
+  ]
+}

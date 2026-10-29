@@ -1,6 +1,6 @@
 # Native adaptation — current work path
 
-Updated 2026-10-29. This is the active work-path entry point. Follow current user
+Updated 2026-10-30. This is the active work-path entry point. Follow current user
 instructions and [AGENTS.md](AGENTS.md). Earlier designs and archived handoffs are
 historical evidence, not additional requirements. Keep numerical defaults,
 implementation choices and uncertain provenance separate from user requirements.
@@ -102,21 +102,19 @@ population from operator cost. Validate any SU2-specific modifications separatel
   no complete curved/M6 workflow is accepted yet. Connected implementation and
   target-driven evidence:
   [current diagnosis/design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
-  Current frozen build142 (checkpointc8cbf39559): retained certified curved-facet
-  data/indices, one certified distance witness, and exact-value ordinary-normal
-  x87 stepping with standard exceptional/platform fallback. Gates unchanged.
-  Build75.205s and focused11 cases/267 assertions24.016s pass/pins verified.
-  Neighbor855342, interval648 and distance5103/version checks pass. Earlier MPI2
-  publication/reload8cases/rank14937/14741 assertions pass. Complete sheared-graph
-  work exhaustion remains unqualified; no accepted M6 event/mesh/transfer yet.
-  Full M6 running: staged57/m6_runs/euler_build142_outward_bounds; detached Python
-  harness2396222/time2396317. Read status.json/command.json/resources.jsonl and
-  actual handles before restarting. Native5400s/event, outer14400s,6 ranks,nice19,
-  single-threaded libraries. Keep pinned C++/tests/helpers unchanged while active.
-  At~8min, rank0 snapshot:341 globalwork,56 private collapses, no completed length
-  pass/quality stage. This is private progress, not an admissible output mesh.
-  Detailed stops/profiles/builds/proofs: staged57/prepared_surface_checkpoint139.json,
-  distance141_checkpoint.json, rounding142_checkpoint.json and linked design/progress.
+  Current coherent build143: exact-scope/tolerance joint footprints over retained
+  certified facet pieces, plus after-first/first-violation coarsening admission.
+  Gates unchanged; no q/J construction measurements introduced. Build105.259s
+  passes; serial19cases5199assertions16.916s and MPI2 publication/reload/construction
+  pass162.152s/pins unchanged. Gate diagnostic419904 comparisons passes. Captured
+  M6 query cold2.314s→.07355s/warm2.253s→.003861s at unchanged1e-4 tolerance;
+  this is query evidence, not an accepted mesh or whole-run speedup claim.
+  Prior full M6/build142 terminal after5403.9s,2376private collapses/5503globalwork,
+  no length/quality pass or accepted mesh/transfer. Four rank queues empty;
+  ranks4/5 remain2908/2852 with heavy geometry rejection. All10owned handles terminal.
+  Receipts staged57/build142_m6_summary.json and combined143_checkpoint.json.
+  Full two-event M6 retry next with5400s native/event,14400s outer. Keep pinned
+  C++/tests/helpers unchanged while active; verify actual handles before restart.
   User's permanent overnight workflow is saved in AGENTS.md: stop demonstrated
   computational bottlenecks or errors, preserve evidence, fix/validate and retry M6
   autonomously until the Euler loop succeeds. Then verify BL generation before

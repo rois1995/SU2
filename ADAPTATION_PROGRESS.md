@@ -243,3 +243,24 @@ Build47 PASS1210.22s. Lazy current-demand queue reaches49 accepted edits/17 geom
 M6 build48 terminal1853.13s/nativeelapsedstopduringmetricupdate, unchangedpins; diagnosticdriverexit0butwrapperFAILmissing4qualitywindows. Retainedqualityentry667,993privatecells shows198,390sizebad/7,090geometrybad/64,554qualityinvalid and1.17mrepairfeatures. Noacceptedmesh/transfer; allownedprocessesgone. Non-stoppingDWARFsample identifiesgenericValidateCoverage/SplitAtlasEdges and repeatedboundarymovepreparation. Nextconnectedphase/generationdraftstillunapplied; no budget/gate changes.
 
 Phase/generation change applied: build49PASS99.18s/1293pins; mappedruntimeFAIL13.85s atunchangedlimits with82accepted/26geometryprogress/1qualitystage and136optimizationtrials. Arithmetic67m exhaustedbeforelogical4096; both recorded, noacceptedreturn. Build50/session94342 updatesobsolete construction-handofftest toproductive descendantgenerations/qJ-free construction. No gate/budgetchanges. M6entry archives hashverified7files<95MiB each, private/notexactcheckpoint.
+
+2026-10-30 build142 full M6 result:5403.9s native time refusal in first construction
+pass,2376private collapses/5503globalwork, no completed length pass or quality stage,
+no accepted mesh or transfer. Four ranks finish queues; ranks4/5 remain2908/2852
+with geometry rejects1035/838 and arithmetic494m/1056m. Sourceother3664s/update1644s
+are per-rank residual timings, not precise whole-job attribution. All10owned handles
+terminal and pins unchanged; redundant second event stopped. Full receipt
+staged57/build142_m6_summary.json. Captured-query baseline142_host active; all
+compiled C++ stays frozen. Prepared gate143 diagnostic uncompiled. Next change
+will address demonstrated admission/certification cost without changing gates.
+
+2026-10-30 build143 connected fix: retain combined exact-scope/tolerance footprints
+over cached certified facet pieces (delete weaker per-facet prepared view); strict
+coarsening evaluates new surface first, stops at first violation, and scores old
+geometry only for passing candidates. Accepted checks unchanged. Build105.259s,
+serial19cases5199assertions16.916s, MPI2 construction/publication/reload162.152s
+pass/pins unchanged. Gate source-extracted419904 comparisons pass. Same captured
+M6 query: cold2.31437s→.073551s/694585→7182work; warm2.25320s→.003861s/693280→5481
+work, both conservative bounds below unchanged1e-4. Numeric interval/distance
+blocks byte-identical to142; prior rational/neighbor proofs reused for those blocks.
+Receipt combined143_checkpoint.json. Full M6 retry next; no accepted mesh yet.
