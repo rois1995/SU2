@@ -24,13 +24,25 @@
       "pins_verified": true,
       "changed": [],
       "completed_build": true
+    },
+    "140": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 84.25038576126099,
+      "pins_verified": true,
+      "changed": [],
+      "completed_build": true
     }
   },
   "checks": {
     "prepared_geometry_contracts139_20261029T202920_2270368": {
-      "state": "running",
-      "pid": 2270547,
-      "started_at": 1793305760.78956,
+      "state": "terminal",
+      "exit_code": 21,
+      "seconds": 427.6948745250702,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 92884992,
+      "rss_note": "sampled process RSS; not a whole-job peak",
       "pins_sha256": "90261dddae527aa3ea3f2d4cfc272ad7779208dd8d0a172fe68a295146843bf5"
     },
     "prepared_geometry_contracts_20261029T193714_2131929": {
@@ -72,11 +84,21 @@
       "largest_sampled_individual_process_rss_bytes": 29499392,
       "rss_note": "sampled process RSS; not a whole-job peak",
       "pins_sha256": "fc0e2d04edfb2994f2cab525f383eba8ce6af7f44c20b28a636b60c8822d4f0b"
+    },
+    "prepared_publication_mpi2_20261029T203807_2294364": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 211.60176634788513,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 41025536,
+      "rss_note": "sampled process RSS; not a whole-job peak",
+      "pins_sha256": "7610f76a3c56ed5fa93c8652a44e47655cffc05c618a9e61c7f83e32dc357c94"
     }
   },
   "limitations": [
-    "Full M6 remains unproven.",
-    "Prior complete sheared-graph query exhausted its unchanged work budget.",
-    "Geometry/publication139 and MPI qualification pending."
-  ]
+    "Full M6 remains unproven; two-event retry next.",
+    "Prior complete sheared-graph query exhausted its unchanged work budget."
+  ],
+  "validation": "Build140 production code unchanged from139. MPI2 passes8 cases/rank,14937/14741 assertions,211.602s,pins unchanged. Serial13949/51:20 optional-cache peak assumption assertions corrected in140; one pre-existing complete sheared-graph budget exhaustion remains."
 }

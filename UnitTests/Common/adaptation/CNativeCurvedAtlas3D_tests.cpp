@@ -450,7 +450,11 @@ TEST_CASE("Neighboring curved moves publish and reload complete boundary state",
     if(event==1) {
       const auto saved=loaded.original;const auto saved_parameters=saved->Parameters()->Snapshot();
       const auto deep_caller=ReferenceStorageBytes(loaded);
-      const auto deep_ceiling=transfer_memory::Add(load_peak-load_caller,deep_caller)-1;
+      // Optional fixed-surface indices may shrink at a lower ceiling; refuse below mandatory storage.
+      const auto optional_cache=MappedFacetReference::SurfaceQueryStorageBytes(
+          loaded.original->Parameters()->Geometry().Curves().size(),ReferenceStorageLimit3D);
+      REQUIRE(load_peak>transfer_memory::Add(load_caller,optional_cache));
+      const auto deep_ceiling=transfer_memory::Add(load_peak-load_caller-optional_cache,deep_caller)-1;
       size_t refused_peak=0;
       CHECK_FALSE(LoadReference(filename,loaded,found,reason,world.rank?ReferenceStorageLimit3D:deep_ceiling,deep_caller,refused_peak));
       CHECK_FALSE(found);CHECK_FALSE(reason.empty());CHECK(loaded.original==saved);CHECK(saved->Parameters()->Snapshot()==saved_parameters);

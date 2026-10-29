@@ -111,17 +111,14 @@ population from operator cost. Validate any SU2-specific modifications separatel
   footprints and local indices beneath the existing immutable control-hull index.
   Different physical triangles/scopes reuse that data with current query budgets;
   exact facet/body restrictions and final two-sided gates remain. No format change.
-  Build137 passes; reuse test passes2 cases/32 assertions. Broader51-case check
-  passes49 cases; catches14 two-byte reservation-growth assertions plus the prior
-  sheared-graph work exhaustion. Reservation now depends on fixed curve count,
-  not decoded archive text/revision length. Build138 exposed an insufficient cache
-  quota (correct bounds, no curved reuse). The decoder now admits a separate
-  geometry-size cache quota from remaining storage. Build139 passes1018.648s/pins unchanged with3 workers. Reuse test passes2 cases/
-  34 assertions and confirms curved indices retained. Geometry/publication check
-  active (session42472); pinned sources/helpers must stay unchanged.
-  Validate resource/publication, seams/holes/bodies and bounded MPI, then rerun full
-  M6 immediately with5400s native/event,14400s outer. One heavy workload;2–4 build
-  workers. No complete M6 workflow yet; BL/RANS/history/restart remain open.
+  Build139 passes1018.648s, reuse2 cases/34 assertions confirms retained curved
+  indices and equal bounds with less work. Serial49/51:20 assertions assumed
+  a fixed optional-cache peak; one prior sheared-graph work exhaustion. Test-only
+  build140 passes84.250s; mandatory-memory refusal test excludes optional cache.
+  MPI2 passes8 cases/rank,14937/14741 assertions,211.602s, pins unchanged, including
+  repeated publication/reload. Checkpoint8c3ca6d797 pushed; validation follows.
+  Full M6 retry next with5400s native/event,14400s outer. One heavy workload;
+  2–4 build workers. No complete M6 workflow yet; BL/RANS/history/restart remain open.
 - Available papers: [local collection](/media/rausa/4TB/SU2_Versions/Prove/Papers),
   including Loseille–Alauzet–Menier, *Unique cavity-based operator and hierarchical
   domain partitioning for fast parallel generation of anisotropic meshes* (2017,

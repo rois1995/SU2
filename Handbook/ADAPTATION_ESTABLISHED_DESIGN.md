@@ -207,7 +207,10 @@ publication assertions. One prior sheared-graph work-exhaustion failure remains.
 Build138 passes but its undersized pool failed reuse. Build139 separately admits
 a geometry-sized cache quota at load, passes1018.648s/pins unchanged (3 workers),
 and passes2 reuse cases/34 assertions with retained curved indices. Connected
-geometry/publication and MPI remain pending. Tests also add a tighter-tolerance fresh-
+serial check retains the prior sheared-graph exhaustion. The optional-cache
+fixed-peak assumption is corrected by excluding optional storage before refusal.
+Build140 passes; MPI2 passes8 cases/rank,14937/14741 assertions in211.602s, pins
+unchanged. Full M6 remains unproven; two-event retry follows. Tests also add a tighter-tolerance fresh-
 authority comparison. After resource/geometry and bounded MPI validation, retry
 full M6 with5400s native/event and14400s outer. No accepted M6 workflow yet.
 

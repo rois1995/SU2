@@ -102,13 +102,15 @@ checks pass2 cases/32 assertions. Broader geometry/curved-publication campaign:
 reservation increase after revision-text growth; one is the prior sheared-graph
 work exhaustion. Reservation is now fixed from original curve count, with optional
 admission against the configured storage ceiling. No assertion or acceptance gate relaxed.
-Build138 passes123.302s; its focused check catches two absent-reuse assertions:
-the 4096-byte/facet pool retains no curved facet. Build139 admits a separate
-geometry-sized quota during decode, preserving the old construction reservation;
-3-worker build passes1018.648s/pins unchanged. Reuse test passes2 cases/34 assertions
-with actual curved retention. Geometry/publication active (session42472). Recheck
-geometry contracts plus bounded MPI, then full M6 at5400s native/event and14400s
-outer. Source/helpers pinned during active build/tests. No M6 capability accepted.
+Build138 passes123.302s; its undersized pool fails two reuse assertions. Build139
+separately admits a geometry-sized quota at decode, preserving base construction
+reservation; build passes1018.648s and reuse2 cases/34 assertions. Serial49/51:
+20 stale fixed-peak assertions plus one prior sheared-graph exhaustion. The optional
+cache can shrink with ceiling; test140 subtracts optional quota before mandatory
+refusal, preserving failure and unchanged-state checks. Build140 passes84.250s.
+MPI2 passes8 cases/rank,14937/14741 assertions,211.602s/pins unchanged. No production
+change after139. Full two-event M6 retry next with5400s native/event,14400s outer.
+No M6 capability accepted; known sheared-graph work exhaustion remains recorded.
 
 Historical build128 passes serial45/9611 and focused MPI6 five cases/rank. Its
 residual size repair reaches a later complete-surface geometry blockage in the
