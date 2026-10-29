@@ -1287,5 +1287,9 @@
   "within_stage_quality_assertion_failures": 0,
   "failed_assertion_scope": "two final COMPLETE requirements; within-stage score assertions pass",
   "accepted_mesh": false,
-  "transfer_history_restart": "not reached"
+  "transfer_history_restart": "not reached",
+  "failed_assertion_statements": [
+    "REQUIRE( result.status==CRemeshResult::Status::COMPLETE )",
+    "REQUIRE( result.status==CRemeshResult::Status::COMPLETE )"
+  ]
 }

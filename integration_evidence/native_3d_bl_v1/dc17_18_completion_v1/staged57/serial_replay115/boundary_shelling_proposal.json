@@ -1,0 +1,135 @@
+{
+  "scope": "independent private shelling proposal analysis only; no geometry/feature authority/transfer validation",
+  "input_sha256": "c7dfa38dfa301d829407874bc537f0bd5ba1614d35525edd8fb0de747aa0a0e2",
+  "retired_cell": 122900,
+  "old_closure_cells": [
+    122900,
+    136212,
+    136221,
+    174086,
+    190470,
+    190471
+  ],
+  "fresh_closure_cells": [
+    136212,
+    136221,
+    174086,
+    190470,
+    190471
+  ],
+  "all_fresh_exact_positive": true,
+  "before_global_cells": 139,
+  "after_global_cells": 138,
+  "removed_boundary_faces": [
+    {
+      "nodes": [
+        1,
+        5,
+        114056
+      ],
+      "oriented": [
+        1,
+        5,
+        114056
+      ]
+    },
+    {
+      "nodes": [
+        5,
+        114056,
+        134792
+      ],
+      "oriented": [
+        5,
+        134792,
+        114056
+      ]
+    }
+  ],
+  "new_boundary_faces": [
+    {
+      "nodes": [
+        1,
+        5,
+        134792
+      ],
+      "oriented": [
+        1,
+        5,
+        134792
+      ]
+    },
+    {
+      "nodes": [
+        1,
+        114056,
+        134792
+      ],
+      "oriented": [
+        134792,
+        114056,
+        1
+      ]
+    }
+  ],
+  "unchanged_global_boundary_orientation_mismatches": [],
+  "boundary_edge_incidence_or_orientation_failures": {},
+  "global_nonmanifold_volume_faces": {},
+  "local_skin_removed": [
+    [
+      1,
+      5,
+      114056
+    ],
+    [
+      5,
+      114056,
+      134792
+    ]
+  ],
+  "local_skin_added": [
+    [
+      1,
+      5,
+      134792
+    ],
+    [
+      1,
+      114056,
+      134792
+    ]
+  ],
+  "old_closure_metrics": {
+    "min_q": 4.9950004641988136e-12,
+    "min_j": 6.844132592157848e-18,
+    "min_score": 1.3688265184315695e-16,
+    "max_edge": 2.9054828022108046
+  },
+  "fresh_closure_metrics": {
+    "min_q": 0.24484317078230558,
+    "min_j": 0.11255422246389811,
+    "min_score": 1.2242158539115278,
+    "max_edge": 2.3427334462119247
+  },
+  "changed_edges_removed": [
+    [
+      [
+        5,
+        114056
+      ],
+      2.9054828022108046
+    ]
+  ],
+  "changed_edges_added": [],
+  "removed_edge_excess": 1.2220922259838527,
+  "added_edge_excess": 0,
+  "old_boundary_diagonal": [
+    5,
+    114056
+  ],
+  "new_boundary_diagonal": [
+    1,
+    134792
+  ],
+  "assumed_facet": 1
+}

@@ -1,0 +1,506 @@
+{
+  "scope": "independent exact-orientation topology enumeration of midpoint split then midpoint collapse to an opposite worst-cell vertex; not native execution or geometry certification",
+  "input_sha256": "c7dfa38dfa301d829407874bc537f0bd5ba1614d35525edd8fb0de747aa0a0e2",
+  "worst_cell": 122900,
+  "candidates": [
+    {
+      "split_edge": [
+        1,
+        5
+      ],
+      "collapse_midpoint_to": 134792,
+      "old_cells": 3,
+      "old_cell_ids": [
+        122900,
+        136199,
+        136212
+      ],
+      "fresh_cells": 2,
+      "exact_nonpositive": [
+        {
+          "nodes": [
+            134792,
+            5,
+            7,
+            89434
+          ],
+          "det": -0.13971402208511108
+        }
+      ],
+      "unique_cells": true,
+      "manifold_faces": true,
+      "same_complete_cavity_skin": false,
+      "old_min_score": 1.3688265184315695e-16,
+      "new_min_score": null,
+      "new_min_q": null,
+      "new_min_j": null,
+      "new_max_metric_edge": null,
+      "fresh_metric_excess_max": null,
+      "full_owned_after_skin_same": false
+    },
+    {
+      "split_edge": [
+        1,
+        5
+      ],
+      "collapse_midpoint_to": 114056,
+      "old_cells": 3,
+      "old_cell_ids": [
+        122900,
+        136199,
+        136212
+      ],
+      "fresh_cells": 4,
+      "exact_nonpositive": [
+        {
+          "nodes": [
+            114056,
+            5,
+            7,
+            89434
+          ],
+          "det": -0.06925347229678407
+        },
+        {
+          "nodes": [
+            1,
+            114056,
+            89434,
+            134792
+          ],
+          "det": -0.2245830831284114
+        }
+      ],
+      "unique_cells": true,
+      "manifold_faces": true,
+      "same_complete_cavity_skin": false,
+      "old_min_score": 1.3688265184315695e-16,
+      "new_min_score": null,
+      "new_min_q": null,
+      "new_min_j": null,
+      "new_max_metric_edge": null,
+      "fresh_metric_excess_max": null,
+      "full_owned_after_skin_same": false
+    },
+    {
+      "split_edge": [
+        1,
+        134792
+      ],
+      "collapse_midpoint_to": 5,
+      "old_cells": 6,
+      "old_cell_ids": [
+        122900,
+        136212,
+        136221,
+        174086,
+        190470,
+        190471
+      ],
+      "fresh_cells": 8,
+      "exact_nonpositive": [
+        {
+          "nodes": [
+            165896,
+            1,
+            89434,
+            5
+          ],
+          "det": -0.159307247389502
+        }
+      ],
+      "unique_cells": true,
+      "manifold_faces": true,
+      "same_complete_cavity_skin": true,
+      "old_min_score": 1.3688265184315695e-16,
+      "new_min_score": null,
+      "new_min_q": null,
+      "new_min_j": null,
+      "new_max_metric_edge": null,
+      "fresh_metric_excess_max": null,
+      "full_owned_after_skin_same": true
+    },
+    {
+      "split_edge": [
+        1,
+        134792
+      ],
+      "collapse_midpoint_to": 114056,
+      "old_cells": 6,
+      "old_cell_ids": [
+        122900,
+        136212,
+        136221,
+        174086,
+        190470,
+        190471
+      ],
+      "fresh_cells": 8,
+      "exact_nonpositive": [
+        {
+          "nodes": [
+            165896,
+            114056,
+            89434,
+            134792
+          ],
+          "det": -0.16224459167922456
+        },
+        {
+          "nodes": [
+            134792,
+            219032,
+            165896,
+            114056
+          ],
+          "det": -0.06149761092633218
+        }
+      ],
+      "unique_cells": true,
+      "manifold_faces": true,
+      "same_complete_cavity_skin": true,
+      "old_min_score": 1.3688265184315695e-16,
+      "new_min_score": null,
+      "new_min_q": null,
+      "new_min_j": null,
+      "new_max_metric_edge": null,
+      "fresh_metric_excess_max": null,
+      "full_owned_after_skin_same": true
+    },
+    {
+      "split_edge": [
+        1,
+        114056
+      ],
+      "collapse_midpoint_to": 5,
+      "old_cells": 2,
+      "old_cell_ids": [
+        122900,
+        174086
+      ],
+      "fresh_cells": 2,
+      "exact_nonpositive": [
+        {
+          "nodes": [
+            134792,
+            5,
+            143864,
+            1
+          ],
+          "det": -0.06336812961885671
+        }
+      ],
+      "unique_cells": true,
+      "manifold_faces": true,
+      "same_complete_cavity_skin": false,
+      "old_min_score": 1.3688265184315695e-16,
+      "new_min_score": null,
+      "new_min_q": null,
+      "new_min_j": null,
+      "new_max_metric_edge": null,
+      "fresh_metric_excess_max": null,
+      "full_owned_after_skin_same": false
+    },
+    {
+      "split_edge": [
+        1,
+        114056
+      ],
+      "collapse_midpoint_to": 134792,
+      "old_cells": 2,
+      "old_cell_ids": [
+        122900,
+        174086
+      ],
+      "fresh_cells": 0,
+      "exact_nonpositive": [],
+      "unique_cells": true,
+      "manifold_faces": true,
+      "same_complete_cavity_skin": false,
+      "old_min_score": 1.3688265184315695e-16,
+      "new_min_score": null,
+      "new_min_q": null,
+      "new_min_j": null,
+      "new_max_metric_edge": null,
+      "fresh_metric_excess_max": null,
+      "full_owned_after_skin_same": false
+    },
+    {
+      "split_edge": [
+        5,
+        134792
+      ],
+      "collapse_midpoint_to": 1,
+      "old_cells": 4,
+      "old_cell_ids": [
+        116745,
+        122900,
+        136212,
+        136213
+      ],
+      "fresh_cells": 4,
+      "exact_nonpositive": [
+        {
+          "nodes": [
+            92028,
+            1,
+            134792,
+            89434
+          ],
+          "det": -0.04300090856092509
+        }
+      ],
+      "unique_cells": true,
+      "manifold_faces": true,
+      "same_complete_cavity_skin": false,
+      "old_min_score": 1.3688265184315695e-16,
+      "new_min_score": null,
+      "new_min_q": null,
+      "new_min_j": null,
+      "new_max_metric_edge": null,
+      "fresh_metric_excess_max": null,
+      "full_owned_after_skin_same": false
+    },
+    {
+      "split_edge": [
+        5,
+        134792
+      ],
+      "collapse_midpoint_to": 114056,
+      "old_cells": 4,
+      "old_cell_ids": [
+        116745,
+        122900,
+        136212,
+        136213
+      ],
+      "fresh_cells": 6,
+      "exact_nonpositive": [
+        {
+          "nodes": [
+            134792,
+            92028,
+            147752,
+            114056
+          ],
+          "det": -0.02756658463216325
+        },
+        {
+          "nodes": [
+            1,
+            114056,
+            89434,
+            134792
+          ],
+          "det": -0.2245830831284114
+        },
+        {
+          "nodes": [
+            92028,
+            114056,
+            134792,
+            89434
+          ],
+          "det": -0.1375230171077005
+        }
+      ],
+      "unique_cells": true,
+      "manifold_faces": true,
+      "same_complete_cavity_skin": false,
+      "old_min_score": 1.3688265184315695e-16,
+      "new_min_score": null,
+      "new_min_q": null,
+      "new_min_j": null,
+      "new_max_metric_edge": null,
+      "fresh_metric_excess_max": null,
+      "full_owned_after_skin_same": false
+    },
+    {
+      "split_edge": [
+        5,
+        114056
+      ],
+      "collapse_midpoint_to": 1,
+      "old_cells": 1,
+      "old_cell_ids": [
+        122900
+      ],
+      "fresh_cells": 0,
+      "exact_nonpositive": [],
+      "unique_cells": true,
+      "manifold_faces": true,
+      "same_complete_cavity_skin": false,
+      "old_min_score": 1.3688265184315695e-16,
+      "new_min_score": null,
+      "new_min_q": null,
+      "new_min_j": null,
+      "new_max_metric_edge": null,
+      "fresh_metric_excess_max": null,
+      "full_owned_after_skin_same": false
+    },
+    {
+      "split_edge": [
+        5,
+        114056
+      ],
+      "collapse_midpoint_to": 134792,
+      "old_cells": 1,
+      "old_cell_ids": [
+        122900
+      ],
+      "fresh_cells": 0,
+      "exact_nonpositive": [],
+      "unique_cells": true,
+      "manifold_faces": true,
+      "same_complete_cavity_skin": false,
+      "old_min_score": 1.3688265184315695e-16,
+      "new_min_score": null,
+      "new_min_q": null,
+      "new_min_j": null,
+      "new_max_metric_edge": null,
+      "fresh_metric_excess_max": null,
+      "full_owned_after_skin_same": false
+    },
+    {
+      "split_edge": [
+        134792,
+        114056
+      ],
+      "collapse_midpoint_to": 1,
+      "old_cells": 7,
+      "old_cell_ids": [
+        122900,
+        135178,
+        174086,
+        174089,
+        175127,
+        176141,
+        176149
+      ],
+      "fresh_cells": 10,
+      "exact_nonpositive": [
+        {
+          "nodes": [
+            171080,
+            1,
+            0,
+            114056
+          ],
+          "det": -1.220661853510281e-18
+        },
+        {
+          "nodes": [
+            134792,
+            169786,
+            143864,
+            1
+          ],
+          "det": -0.0570890458527441
+        },
+        {
+          "nodes": [
+            169786,
+            114056,
+            1,
+            221624
+          ],
+          "det": -0.021636079384002985
+        },
+        {
+          "nodes": [
+            171080,
+            1,
+            114056,
+            222920
+          ],
+          "det": -0.003416071145460276
+        }
+      ],
+      "unique_cells": true,
+      "manifold_faces": true,
+      "same_complete_cavity_skin": false,
+      "old_min_score": 1.3688265184315695e-16,
+      "new_min_score": null,
+      "new_min_q": null,
+      "new_min_j": null,
+      "new_max_metric_edge": null,
+      "fresh_metric_excess_max": null,
+      "full_owned_after_skin_same": false
+    },
+    {
+      "split_edge": [
+        134792,
+        114056
+      ],
+      "collapse_midpoint_to": 5,
+      "old_cells": 7,
+      "old_cell_ids": [
+        122900,
+        135178,
+        174086,
+        174089,
+        175127,
+        176141,
+        176149
+      ],
+      "fresh_cells": 12,
+      "exact_nonpositive": [
+        {
+          "nodes": [
+            171080,
+            134792,
+            0,
+            5
+          ],
+          "det": -8.372211838394165e-20
+        },
+        {
+          "nodes": [
+            134792,
+            5,
+            143864,
+            1
+          ],
+          "det": -0.06336812961885671
+        },
+        {
+          "nodes": [
+            134792,
+            169786,
+            143864,
+            5
+          ],
+          "det": -0.047521711258772234
+        },
+        {
+          "nodes": [
+            169786,
+            5,
+            134792,
+            221624
+          ],
+          "det": -0.029912170092360055
+        },
+        {
+          "nodes": [
+            5,
+            221624,
+            222920,
+            134792
+          ],
+          "det": -0.025830069343428953
+        }
+      ],
+      "unique_cells": true,
+      "manifold_faces": true,
+      "same_complete_cavity_skin": false,
+      "old_min_score": 1.3688265184315695e-16,
+      "new_min_score": null,
+      "new_min_q": null,
+      "new_min_j": null,
+      "new_max_metric_edge": null,
+      "fresh_metric_excess_max": null,
+      "full_owned_after_skin_same": false
+    }
+  ]
+}

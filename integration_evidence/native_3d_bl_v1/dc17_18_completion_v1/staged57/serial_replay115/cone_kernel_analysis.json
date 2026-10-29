@@ -1,0 +1,301 @@
+{
+  "scope": "numerical Chebyshev LP proposal and exact binary-float cone orientation checks on saved private capture; not native operator or final mesh acceptance",
+  "sha256": "c7dfa38dfa301d829407874bc537f0bd5ba1614d35525edd8fb0de747aa0a0e2",
+  "metric": "uniform diag(4)",
+  "cavities": {
+    "neighborhood": {
+      "cell_ids": [
+        122900,
+        136212,
+        174086
+      ],
+      "cells": 3,
+      "skin_faces": 8,
+      "interior_vertices_lost": [],
+      "nonmanifold_faces": {},
+      "lp_success": true,
+      "lp_status": 0,
+      "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "center": [
+        1.0,
+        0.36999999999999994,
+        -0.0
+      ],
+      "radius": -0.0,
+      "exact_positive_cones": 5,
+      "exact_nonpositive_cones": [
+        {
+          "face": [
+            1,
+            5,
+            114056
+          ],
+          "opposite": 134792,
+          "center_det": 3.505269092831726e-17,
+          "inside_det": -7.084836210160995e-18
+        },
+        {
+          "face": [
+            5,
+            114056,
+            134792
+          ],
+          "opposite": 1,
+          "center_det": -3.1443939413092916e-18,
+          "inside_det": 7.084836210160995e-18
+        },
+        {
+          "face": [
+            1,
+            114056,
+            143864
+          ],
+          "opposite": 134792,
+          "center_det": 1.0050949553404086e-19,
+          "inside_det": -0.04001400462731855
+        }
+      ],
+      "min_q": 5.061474362260062e-12,
+      "min_J": 6.8781060527343275e-18,
+      "min_score": 1.3756212105468654e-16,
+      "max_metric_edge": 2.3427334462119247,
+      "skin_unchanged_by_coning": true,
+      "retains_all_old_vertices": true,
+      "quality_scope": "positive cone subset only",
+      "lp_zero_radius_is_not_exact_emptiness_proof": true
+    },
+    "edge_shell": {
+      "cell_ids": [
+        122900,
+        136212,
+        136221,
+        174086,
+        190470,
+        190471
+      ],
+      "cells": 6,
+      "skin_faces": 12,
+      "interior_vertices_lost": [],
+      "nonmanifold_faces": {},
+      "lp_success": true,
+      "lp_status": 0,
+      "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "center": [
+        1.0,
+        0.37000000000000033,
+        -0.0
+      ],
+      "radius": -0.0,
+      "exact_positive_cones": 9,
+      "exact_nonpositive_cones": [
+        {
+          "face": [
+            1,
+            5,
+            89434
+          ],
+          "opposite": 134792,
+          "center_det": -9.687286355247821e-17,
+          "inside_det": 0.3556607256492272
+        },
+        {
+          "face": [
+            1,
+            89434,
+            165896
+          ],
+          "opposite": 134792,
+          "center_det": -1.5890156893177077e-32,
+          "inside_det": 0.03803144247323085
+        },
+        {
+          "face": [
+            1,
+            165896,
+            219032
+          ],
+          "opposite": 134792,
+          "center_det": -9.238271620874388e-35,
+          "inside_det": 0.04132965851342886
+        }
+      ],
+      "min_q": 3.88546898431454e-12,
+      "min_J": 4.3398609449232316e-18,
+      "min_score": 8.679721889846463e-17,
+      "max_metric_edge": 2.9054828022108046,
+      "skin_unchanged_by_coning": true,
+      "retains_all_old_vertices": true,
+      "quality_scope": "positive cone subset only",
+      "lp_zero_radius_is_not_exact_emptiness_proof": true
+    },
+    "star_1": {
+      "cell_ids": [
+        122900,
+        136199,
+        136212,
+        136217,
+        136221,
+        174086,
+        190470,
+        190471
+      ],
+      "cells": 8,
+      "skin_faces": 14,
+      "interior_vertices_lost": [],
+      "nonmanifold_faces": {},
+      "lp_success": true,
+      "lp_status": 0,
+      "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "center": [
+        0.8800901266481906,
+        0.3256333468598308,
+        -0.0
+      ],
+      "radius": -0.0,
+      "exact_positive_cones": 14,
+      "exact_nonpositive_cones": [],
+      "min_q": 4.1453824504858184e-12,
+      "min_J": 7.402559535157717e-18,
+      "min_score": 1.4805119070315434e-16,
+      "max_metric_edge": 3.873658426216463,
+      "skin_unchanged_by_coning": true,
+      "retains_all_old_vertices": true,
+      "quality_scope": "all cone cells",
+      "lp_zero_radius_is_not_exact_emptiness_proof": true
+    },
+    "star_134792": {
+      "cell_ids": [
+        110600,
+        116744,
+        116745,
+        122900,
+        135178,
+        135180,
+        136212,
+        136213,
+        136221,
+        136224,
+        136228,
+        173067,
+        174086,
+        174089,
+        174092,
+        175126,
+        175127,
+        176138,
+        176141,
+        176142,
+        176148,
+        176149,
+        190470,
+        190471,
+        198662,
+        198663
+      ],
+      "cells": 26,
+      "skin_faces": 32,
+      "interior_vertices_lost": [],
+      "nonmanifold_faces": {},
+      "lp_success": true,
+      "lp_status": 0,
+      "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "center": [
+        0.6538274012355425,
+        0.3062562932297775,
+        0.1054756635616833
+      ],
+      "radius": -0.0,
+      "exact_positive_cones": 24,
+      "exact_nonpositive_cones": [
+        {
+          "face": [
+            4,
+            134792,
+            147752
+          ],
+          "opposite": 92028,
+          "center_det": 2.0023760878016308e-17,
+          "inside_det": -0.1048532730313617
+        },
+        {
+          "face": [
+            5,
+            134792,
+            147752
+          ],
+          "opposite": 92028,
+          "center_det": -3.20639428262479e-17,
+          "inside_det": 0.10485327303136174
+        },
+        {
+          "face": [
+            1,
+            5,
+            114056
+          ],
+          "opposite": 134792,
+          "center_det": 2.2647410533973956e-17,
+          "inside_det": -7.084836210160995e-18
+        },
+        {
+          "face": [
+            5,
+            114056,
+            134792
+          ],
+          "opposite": 1,
+          "center_det": -4.1555276051085e-18,
+          "inside_det": 7.084836210160995e-18
+        },
+        {
+          "face": [
+            0,
+            114056,
+            134792
+          ],
+          "opposite": 171080,
+          "center_det": 3.869589299372457e-18,
+          "inside_det": -0.028760130648784427
+        },
+        {
+          "face": [
+            165896,
+            169786,
+            219032
+          ],
+          "opposite": 134792,
+          "center_det": -5.750842865103266e-18,
+          "inside_det": 0.013724773210437831
+        },
+        {
+          "face": [
+            0,
+            134792,
+            251432
+          ],
+          "opposite": 86842,
+          "center_det": 1.6673341984609635e-17,
+          "inside_det": -0.10849459720216413
+        },
+        {
+          "face": [
+            4,
+            134792,
+            251432
+          ],
+          "opposite": 86842,
+          "center_det": -8.132146943878414e-18,
+          "inside_det": 0.10849459720216416
+        }
+      ],
+      "min_q": 1.993376384874947e-11,
+      "min_J": 7.02403121664514e-17,
+      "min_score": 1.404806243329028e-15,
+      "max_metric_edge": 2.3443035972571713,
+      "skin_unchanged_by_coning": true,
+      "retains_all_old_vertices": true,
+      "quality_scope": "positive cone subset only",
+      "lp_zero_radius_is_not_exact_emptiness_proof": true
+    }
+  }
+}

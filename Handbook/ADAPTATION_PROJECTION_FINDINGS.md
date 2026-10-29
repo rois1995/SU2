@@ -2,9 +2,22 @@
 
 Last updated: 2026-10-29.
 
-Current build114 is compiling explicit stage admission independent of geometric-builder mode. No accepted complete curved/M6 workflow exists. Latest supporting
-checks and failed whole workflows are recorded below; prior build labels are
-historical evidence, not current whole-workflow qualification.
+Current build114 passes compilation; full M6 with connected staging is running
+(session84714, euler_build114_classified_stages). Sources/tests/helpers pinned.
+The smaller workflow rejects by operator stagnation, not exhaustion. Its within-
+quality non-regression assertions pass;139 private cells retain q/J1/1, size16 and
+geometry32 failures. Curved transfer/restart remain unqualified.
+
+Fresh diagnostic115 is terminal with verified pins: collapse134792→1 obstructs
+cell135178,134792→5 cell116744,114056→1 cell174089. Exact validity rejects these
+proposals with30/42 work and no exhaustion. Captured worst cell122900 has four
+vertices on the same wall facet and tiny positive determinant. Existing interior
+edge-removal on edge1–134792 has a complete6-cell ring; investigate it before
+claiming unavailable geometry or adding an operator. Raw logs and provenance:
+[serial replay115](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/serial_replay115/).
+The current MPI focused run has9/10 passing cases per rank; its only failure is a
+new scalar fixture expecting Progress where Absolute correctly rejects Shape.
+Correct that assertion after pinned M6; production gates remain unchanged.
 
 Build106 PASS114.227s,1295 pins unchanged, compiles the connected failure-path changes; no complete
 workflow is accepted. Build103 capture of the actual M6 fatal query records the

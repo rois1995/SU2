@@ -10,21 +10,30 @@ DC-17/DC-18 remain open. The selected foundation is SCOREC/MeshAdapt classified
 cavities and transported nodal size fields inside SU2. Requirements, source-code
 comparison, decisions and acceptance: [connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md).
 
-Current work2026-10-29: build114 PASS261.364s; diagnostic115 RUNNING session53266;1295 source/test/helper
-pins fixed. Latest pushed checkpointa8135c6e63 is labelled WIP. Exact M6 query
-capture/replay fixes conditioning and rejects neither a valid classified model foot
-within requested spatial accuracy nor other useful proposals after an unavailable
-one. Ordinary associations use validated entity/parameters; genuine feature/body/
-owner/restart checks and all final gates remain.
+Current work2026-10-29: build114 PASS261.364s; full six-rank M6 is running
+(session84714, euler_build114_classified_stages). Sources/tests/helpers pinned.
+All six M6 ranks entered quality improvement at497s native time after the first
+length-pass pair; construction q/J measurements were zero. This is stage movement,
+not acceptance. Sampled whole process-tree RSS is about4GiB, not allocation peak.
+Latest pushed WIP a083fdafd7 verified on approved fork/branch. The smaller workflow
+stops by operator stagnation after30.048s,35,630,824/67,207,168 work and2062/4096
+proposals. Within-quality score checks pass; final acceptance still fails (139
+private cells, q/J1/1, size16, geometry32). No curved transfer or restart yet.
 
-M6 build106 completes two collapse/split pairs/11567 private edits but stops at
-unchanged1800s native time before improvement or transfer. The driver now enters
-improvement after each pair, following the inspected SCOREC iteration staging.
-Mapped108/109 enters8 improvement stages but still exhausts unchanged67,207,168
-atlas work before curved transfer; no accepted mesh. Its actual first move is a
-correct corner0 refusal, reproduced with fresh work0/no exhaustion; the former
-placeholder capture is corrected. Build112 adds precise operation names and cached
-phase debt/descriptor receipts to locate remaining repeated work or growth.
+Diagnostic115 is terminal17.178s, pins verified: three classified collapse proposals
+for the worst-cell vertices fail exact orientation at cells135178,116744,174089
+using30/42 work without exhaustion. These are unavailable individual operations,
+not evidence of geometric impossibility. Investigate existing interior edge-removal
+on closed6-ring edge1–134792 before adding machinery. Worst cell122900 consists of
+four points on one wall facet, with roundoff-scale positive determinant.
+
+Shared projection and entity association fixes remain integrated. Ordinary entity/
+parameter handling preserves genuine feature/body/owner/archive checks. Candidate
+unavailability remains distinct from backend failure. Quality improvement follows
+each collapse/split pair, with explicit staged admission separate from validity-only
+builders. All final gates and limits remain unchanged. Known new scalar test expects
+Progress where Absolute correctly refuses Shape; correct the fixture after pinned
+M6 completes. MPI build114 supporting selection passes9/10 cases per rank.
 
 Supporting checks: projection20 cases/597 assertions; MPI6 focused8 cases/rank;
 current-field122 cases; all10 DC18 geometry groups;28 filter selections. These do

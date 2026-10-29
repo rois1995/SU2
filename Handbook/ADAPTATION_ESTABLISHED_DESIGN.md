@@ -351,3 +351,48 @@ Focused current-field122 cases pass10.036s and six-rank coarsen/refine3 cases
 pass5.906s, with pins unchanged. These do not supersede the failed real curved/M6
 workflows or the pending obsolete metric-shell test maintenance. All owned job
 handles/ranks are terminal at this checkpoint.
+
+## Captured boundary reconstruction decision — 2026-10-29
+
+The captured139-cell smaller workflow stalls with cell122900: four vertices on
+one almost planar prescribed wall sheet, roundoff-scale positive volume and
+unacceptable q/J. Boundary mobility is a user requirement; keeping its two wall
+triangles fixed is not. Fresh native collapses reject exact negative cells without
+work exhaustion. Independent complete-ring enumeration rejects all14 interior
+edge-removal triangulations. Additional midpoint-collapse and numerical cone-kernel
+analyses supply no acceptable fixed-skin repair; neither search failure nor an LP
+zero radius proves general impossibility. Receipts are in staged57/serial_replay115.
+
+A concrete alternative changes the working boundary diagonal over the complete
+six-cell incident ring. Retire cell122900, promote its two previously internal
+faces on the same original wall entity, and retain the other five cells. Exact
+positive cells and an oriented two-manifold global skin survive in the captured
+mesh. Minimum q/J become .24484/.11255, no volume edge is added, and size debt falls.
+This is a proposal, not accepted native reconstruction: genuine feature chains,
+body identity, original cubic geometry tolerance, nonlocal contact and owner closure
+still require existing native checks. No declared feature may be retired.
+
+The selected SCOREC implementation's boundary EdgeSwap3D delegates to
+EdgeSwap2D::checkTopo, which rejects an already existing opposite diagonal.
+MMG5_chkswpbdy likewise rejects a one-tet boundary component. Thus this elementary
+boundary shelling is a proposed native extension to classified cavities, not a
+facility falsely attributed to those implementations or a user-prescribed operator.
+Do not silently relax their topology tests. MMG's preprocessing of multi-boundary-
+face tetrahedra is another established design choice, not an imposed requirement.
+
+Before implementation, replay the proposed replacement through existing
+ValidatePrescribedInterface, RebuildFeatureTraces, forward associations,
+ContainsFace and complete SurfaceError checks with fresh work. If admitted, the
+small connected change belongs in the shared boundary kernel and the optimizer's
+quality phase: infer complete current incident-edge closure, use Finish for original
+entity/feature associations, and publish fresh neighbor cell identities and physical
+faces through the existing atomic owner protocol. Source reconstruction and restart
+use those same published cells and current associations; no new archive schema,
+persistent path, projector, case dispatch or work formula is justified.
+
+Construction remains validity-only. Quality-phase proposals use existing measured
+shape/height and metric admission; every final mesh, geometry, quality, wall-height,
+conservative transfer/history and solver restart gate remains. Acceptance requires
+the captured smaller whole workflow, neighboring/overlapping publication and
+repeated events, then early M6 under comparable gates. A passing proposal alone
+cannot close DC-17 or DC-18.
