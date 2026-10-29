@@ -712,6 +712,27 @@ TEST_CASE("Entity feature reconstruction accepts empty interior cavities only", 
   CHECK(result.at(key).pieces[0].end.denominator==one.denominator);
 }
 
+TEST_CASE("Entity feature reconstruction handles ordinary and genuine routes", "[NativeCurvedAtlas3D]") {
+  const bool crease=GENERATE(false,true);RemappingFixture fixture(crease);auto budget=RemappingBudget();std::string reason;
+  auto entity=fixture.state->WithEntityGeometry(.01,budget);auto reference=PlanarReference::WithParameters(fixture.definition,entity);
+  Patch old=fixture.patch;old.parameters=fixture.points;
+  if(crease)for(const Edge edge:{Edge{0,10},Edge{0,20}}) {
+    const auto incident=fixture.state->IncidentFaces(edge);REQUIRE(incident[0]);EdgeTrace trace;
+    REQUIRE(fixture.state->ResolveTrace(edge,*incident[0],trace,budget,reason));old.coverage.traces.emplace(edge,std::move(trace));
+  }
+  auto faces=old.surface;auto points=fixture.points;
+  if(crease){faces=fixture.Moved(0,100,faces);points.erase(0);
+    points.emplace(100,BoundaryPoint{{100,{.65,0,0}},fixture.geometry->EdgePoint({0,20},.3)});}
+  std::map<Edge,EdgeTrace> output;INFO(reason);
+  REQUIRE(RebuildFeatureTraces(old,faces,points,*reference,output,budget,reason));
+  CHECK(output.size()==(crease?2:0));
+  if(crease)for(const Edge edge:{Edge{10,100},Edge{20,100}}){REQUIRE(output.count(edge));
+    auto trace=output.at(edge);std::optional<Id> chain;
+    REQUIRE(NormalizeFeatureTrace(*fixture.geometry,fixture.policy,trace,chain,budget,reason));CHECK(chain);}
+  auto invalid=points;invalid.at(crease?100:0).binding.version++;
+  const auto saved=output.size();CHECK_FALSE(RebuildFeatureTraces(old,faces,invalid,*reference,output,budget,reason));CHECK(output.size()==saved);
+}
+
 TEST_CASE("Entity collapse precheck agrees with the complete curved cavity", "[NativeCurvedAtlas3D][NativeCollapseFilter3D]") {
   RemappingFixture fixture(false);auto budget=RemappingBudget();std::string reason;
   auto state=fixture.state->WithEntityGeometry(.01,budget);const auto snapshot=state->Snapshot();

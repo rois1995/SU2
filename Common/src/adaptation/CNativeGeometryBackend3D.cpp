@@ -11,6 +11,10 @@
 #include <cmath>
 #include <limits>
 #include <stdexcept>
+#include <cstdlib>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
 
 namespace SU2NativeGeometry {
 namespace {
@@ -103,7 +107,8 @@ bool NativeMappedGeometryBackend3D::ContractionAllowed(const SurfaceBinding& rem
   }catch(const std::exception& e){reason=e.what();return false;}
 }
 bool NativeMappedGeometryBackend3D::Project(Point query,const GeometryProjectionScope& scope,GeometryProjection& result,
-    AtlasBudget& budget,std::string& reason)const {
+    AtlasBudget& budget,std::string& reason,GeometryProjectionFailure* failure)const {
+  if(failure)*failure=GeometryProjectionFailure::Failure;
   try {
     Use(budget,sizeof(GeometryProjection));
     if(!std::isfinite(query.x)||!std::isfinite(query.y)||!std::isfinite(query.z))
@@ -117,24 +122,38 @@ bool NativeMappedGeometryBackend3D::Project(Point query,const GeometryProjection
     if(previous.body!=scope.body||previous.sheet!=sheet||(scope.feature&&
        (previous.mobility!=scope.feature->first||previous.feature!=scope.feature->second)))
       throw std::invalid_argument("Projection scope conflicts with its previous geometry association.");
-    if(!authority->Curves().count(scope.hint))throw std::invalid_argument("Native projection is unavailable for this faceted support.");
+    if(!authority->Curves().count(scope.hint)) {
+      if(failure)*failure=GeometryProjectionFailure::Unavailable;
+      reason="Native projection is unavailable for this faceted support.";return false;
+    }
     using Vector=SU2NativeCurved::Vec<3>;
     const Vector target{query.x,query.y,query.z};
     Use(budget,transfer_memory::Add(transfer_memory::Mul(2,authority->CurvedQueryWorkspaceBytes(0)),sizeof(std::array<Vector,10>)));
     const auto allowed=[&](Id facet){return authority->Body(facet)==scope.body&&Sheet(*authority,policy,facet)==sheet;};
     if(!allowed(scope.hint))throw std::invalid_argument("Projection hint leaves the prescribed sheet.");
     SurfaceBinding binding;long double best=INFINITY;double best_upper=INFINITY;Id first_failed=UINT64_MAX;
+    const char* capture=std::getenv("SU2_NATIVE_PROJECTION_CAPTURE");
+    struct CandidateRecord {
+      Id id,body,sheet;bool allowed=false,converged=false,eligible=false;
+      double initial_u=0,initial_v=0,u=0,v=0;SurfaceBinding foot;GeometrySupport support;
+    };
+    std::vector<CandidateRecord> attempts;
+
     auto candidate=[&](Id id) {
-      Use(budget);if(!allowed(id))return;
+      Use(budget);const bool permitted=allowed(id);CandidateRecord* record=nullptr;
+      if(capture&&*capture){attempts.push_back({id,authority->Body(id),Sheet(*authority,policy,id)});record=&attempts.back();record->allowed=permitted;}
+      if(!permitted)return;
       const auto& source=authority->Curves().at(id);std::array<Vector,10> net;
       for(unsigned k=0;k<10;++k)net[k]={source[k].x,source[k].y,source[k].z};
-      double u=0,v=0;SU2NativeCurved::detail::ClosestOnTriangle(target,net[0],net[1],net[2],u,v);
+      const auto local_target=SU2NativeCurved::detail::NormalizeTriangleProjection(net,target);
+      double u=0,v=0;SU2NativeCurved::detail::ClosestOnTriangle(local_target,net[0],net[1],net[2],u,v);
+      if(record){record->initial_u=u;record->initial_v=v;}
       auto evaluate=[&](double a,double b){Use(budget);return SU2NativeCurved::detail::TrianglePatch(net,1-a-b,a,b);};
       auto derivatives=[&](double a,double b,Vector& first,Vector& second){Use(budget);
         SU2NativeCurved::detail::TriangleDerivatives(net,a,b,first,second);};
-      if(!SU2NativeCurved::detail::MinimizeTriangle(target,u,v,evaluate,derivatives)) {
-        first_failed=std::min(first_failed,id);return;
-      }
+      const bool converged=SU2NativeCurved::detail::MinimizeTriangle(local_target,u,v,evaluate,derivatives);
+      if(record){record->converged=converged;record->u=u;record->v=v;}
+      if(!converged){first_failed=std::min(first_failed,id);return;}
       const double tiny=1e-13;
       if(u<tiny)u=0;if(v<tiny)v=0;
       if(1-u-v<tiny){const double sum=u+v;u/=sum;v=1-u;}
@@ -150,8 +169,10 @@ bool NativeMappedGeometryBackend3D::Project(Point query,const GeometryProjection
       else foot=authority->FacetPoint(id,u,v);
       GeometrySupport support;
       if(!Support(foot,id,support,budget,reason))throw std::invalid_argument(reason);
+      if(record){record->foot=foot;record->support=support;}
       if((previous.mobility<2&&(support.mobility!=previous.mobility||support.feature!=previous.feature))||
           (scope.feature&&(support.mobility!=scope.feature->first||support.feature!=scope.feature->second)))return;
+      if(record)record->eligible=true;
       const auto point=authority->Realize(foot);
       const long double distance=std::hypot((long double)query.x-point.x,(long double)query.y-point.y,(long double)query.z-point.z);
       if(!std::isfinite(distance))throw std::invalid_argument("Unrepresentable numerical projection distance.");
@@ -171,7 +192,32 @@ bool NativeMappedGeometryBackend3D::Project(Point query,const GeometryProjection
       if(id!=scope.hint)candidate(id);
       if(best_upper<=scope.absolute_error)break;
     }
-    if(!std::isfinite(best))throw std::invalid_argument("No converged numerical projection on the prescribed body/sheet/feature; first failed facet "+std::to_string(first_failed)+".");
+    if(!std::isfinite(best)) {
+      std::string replay;
+      if(capture&&*capture) {
+        static thread_local size_t sequence=0;const char* rank=std::getenv("OMPI_COMM_WORLD_RANK");
+        replay=std::string(capture)+"."+(rank?rank:"serial")+"."+std::to_string(sequence++)+".txt";
+        std::ofstream out(replay);if(!out)throw std::runtime_error("Cannot save requested projection replay: "+replay);
+        out<<std::setprecision(17)<<"SU2_PROJECTION_REPLAY 1\nquery "<<query.x<<' '<<query.y<<' '<<query.z
+           <<"\nscope "<<scope.body<<' '<<scope.hint<<' '<<sheet<<' '<<(scope.feature?int(scope.feature->first):-1)
+           <<' '<<(scope.feature?scope.feature->second:UINT64_MAX)<<' '<<scope.absolute_error
+           <<"\nprevious "<<scope.previous.version<<' '<<scope.previous.dimension<<' '<<scope.previous.feature<<' '<<scope.previous.u<<' '<<scope.previous.v
+           <<"\nprevious_support "<<previous.body<<' '<<previous.sheet<<' '<<previous.mobility<<' '<<previous.feature
+           <<"\nwork "<<budget.work<<"\ncandidates "<<attempts.size()<<'\n';
+        for(const auto& a:attempts) {
+          out<<"candidate "<<a.id<<' '<<a.body<<' '<<a.sheet<<' '<<a.allowed<<' '<<a.converged<<' '<<a.eligible
+             <<' '<<a.initial_u<<' '<<a.initial_v<<' '<<a.u<<' '<<a.v<<'\n';
+          if(!a.allowed)continue;
+          out<<"support "<<a.support.body<<' '<<a.support.sheet<<' '<<a.support.mobility<<' '<<a.support.feature
+             <<"\nfoot "<<a.foot.version<<' '<<a.foot.dimension<<' '<<a.foot.feature<<' '<<a.foot.u<<' '<<a.foot.v<<'\n';
+          const auto& facet=authority->Reference().Get(a.id);out<<"vertices";for(auto n:facet.v)out<<' '<<n.id;out<<"\nnet";
+          for(auto p:authority->Curves().at(a.id))out<<' '<<p.x<<' '<<p.y<<' '<<p.z;out<<'\n';
+        }
+        out.close();if(!out)throw std::runtime_error("Cannot finish requested projection replay: "+replay);
+      }
+      if(failure)*failure=GeometryProjectionFailure::Unavailable;
+      reason="No converged numerical projection on the prescribed body/sheet/feature; first failed facet "+std::to_string(first_failed)+"."+(replay.empty()?"":" Replay: "+replay);return false;
+    }
     Id side=UINT64_MAX;
     authority->ForFacets(binding,[&](Id facet){Use(budget);
       if(authority->Body(facet)==scope.body&&Sheet(*authority,policy,facet)==sheet)side=std::min(side,facet);});
@@ -185,8 +231,9 @@ bool NativeMappedGeometryBackend3D::Project(Point query,const GeometryProjection
     // A realized model foot bounds closest distance from above; no global minimum is certified here.
     out.distance_upper=std::nextafter(double(best+out.evaluation.realization_error),INFINITY);
     if(!std::isfinite(out.distance_upper))throw std::invalid_argument("Unrepresentable numerical projection bound.");
+    if(failure)*failure=GeometryProjectionFailure::None;
     result=out;reason.clear();return true;
-  }catch(const std::exception& e){reason=e.what();return false;}
+  }catch(const std::exception& e){if(failure)*failure=GeometryProjectionFailure::Failure;reason=e.what();return false;}
 }
 bool NativeMappedGeometryBackend3D::RegionErrorBounds(const FaceCoverage& coverage,const std::array<Point,3>& flat,
     GeometryRegionBounds& result,AtlasBudget& budget,std::string& reason)const {

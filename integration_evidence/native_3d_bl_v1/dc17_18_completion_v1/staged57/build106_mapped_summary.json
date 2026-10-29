@@ -1,0 +1,139 @@
+{
+  "build": "build106",
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261029T084132_468272",
+  "status": {
+    "state": "terminal",
+    "exit_code": 2,
+    "seconds": 89.52125191688538,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 45740032,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "stages": [
+    {
+      "total": "0.13894003199999999",
+      "stop": "complete",
+      "accepted": "31",
+      "moved": "0",
+      "reconnected": "0",
+      "inserted": "3",
+      "atlas_arithmetic_work": "0",
+      "atlas_peak_bytes": "0",
+      "final_owned_cells": "58",
+      "quality_stages": "1",
+      "sample_shape_measured": "0",
+      "sample_q": "unavailable",
+      "sample_j": "unavailable"
+    },
+    {
+      "total": "41.317297662000001",
+      "stop": "work_budget",
+      "accepted": "331",
+      "moved": "83",
+      "reconnected": "39",
+      "inserted": "41",
+      "atlas_arithmetic_work": "67207168",
+      "atlas_peak_bytes": "31244512",
+      "final_owned_cells": "117",
+      "quality_stages": "1",
+      "sample_shape_measured": "0",
+      "sample_q": "unavailable",
+      "sample_j": "unavailable"
+    },
+    {
+      "total": "0.116094802",
+      "stop": "complete",
+      "accepted": "31",
+      "moved": "0",
+      "reconnected": "0",
+      "inserted": "3",
+      "atlas_arithmetic_work": "0",
+      "atlas_peak_bytes": "0",
+      "final_owned_cells": "58",
+      "quality_stages": "1",
+      "sample_shape_measured": "0",
+      "sample_q": "unavailable",
+      "sample_j": "unavailable"
+    },
+    {
+      "total": "40.315074723000002",
+      "stop": "work_budget",
+      "accepted": "331",
+      "moved": "83",
+      "reconnected": "39",
+      "inserted": "41",
+      "atlas_arithmetic_work": "67207168",
+      "atlas_peak_bytes": "31244512",
+      "final_owned_cells": "117",
+      "quality_stages": "1",
+      "sample_shape_measured": "0",
+      "sample_q": "unavailable",
+      "sample_j": "unavailable"
+    }
+  ],
+  "first_failures": [
+    {
+      "stage": "first_collapse_failure",
+      "feature": [
+        104984,
+        115352
+      ],
+      "round": 90,
+      "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+      "old_physical_faces": 2,
+      "replay_supported": true,
+      "replay_built": true,
+      "replay_reason": "",
+      "maximum_surface_error_bound": 0.0006255300014564384,
+      "geometry_tolerance": 0.001,
+      "fresh_work": 0,
+      "work_limit": 67207168,
+      "work_exhausted": false,
+      "admitted_peak_bytes": 14051668,
+      "accepted_mesh": false
+    },
+    {
+      "stage": "first_collapse_failure",
+      "feature": [
+        104984,
+        115352
+      ],
+      "round": 90,
+      "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+      "old_physical_faces": 2,
+      "replay_supported": true,
+      "replay_built": true,
+      "replay_reason": "",
+      "maximum_surface_error_bound": 0.0006255300014564384,
+      "geometry_tolerance": 0.001,
+      "fresh_work": 0,
+      "work_limit": 67207168,
+      "work_exhausted": false,
+      "admitted_peak_bytes": 14051668,
+      "accepted_mesh": false
+    }
+  ],
+  "log_wide_exclusive_work_not_per_event": {
+    "BuildMobilityPolicy": 124,
+    "BindingParameters": 15242598,
+    "ResolveSingleChart": 3896,
+    "CoverageTraces": 29962,
+    "ReferencePointKey": 13767812,
+    "CompareTraces": 4034608,
+    "ValidateFeatureReplacement": 2491590,
+    "QuerySurfaceUnion": 8182
+  },
+  "log_wide_calls": {
+    "BuildMobilityPolicy": 4,
+    "BindingParameters": 24900,
+    "ResolveSingleChart": 36,
+    "CoverageTraces": 36,
+    "ReferencePointKey": 38394,
+    "CompareTraces": 2034,
+    "ValidateFeatureReplacement": 1022,
+    "QuerySurfaceUnion": 36
+  },
+  "accepted_curved_workflow": false,
+  "transfer_history_restart_curved": "not reached"
+}

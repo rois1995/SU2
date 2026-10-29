@@ -40,6 +40,27 @@ of conservative CFD transfer. Its evaluable-model parameter interface would requ
 a nontrivial adapter for SU2 facet/u/v cubic associations. Implementing its design
 in existing SU2 facilities avoids that adapter and preserves native integration.
 
+## 2026-10-29: close the captured projection and association paths
+
+The exact M6 failure is numerical: seven permitted wing-sheet patches fail in
+world coordinates; the identical existing minimizer converges on six after local
+translation and uniform scaling, including the current surface at distance4.78e-11.
+Keep the original nets authoritative and realize the returned parameters there.
+This is conditioning of the selected projector, not another projection fallback.
+
+Ordinary associations use validated version/entity/parameters. Avoid reconstructing
+rational endpoint keys to compare those same values, and search feature routes only
+when both endpoints are classified on genuine lower-dimensional entities. Keep
+feature continuity, body/sheet incidence, owner publication and restart checks.
+Unavailable proposals may refuse; invalid state and resource errors remain fatal
+at existing collective votes. Unknown geometry cannot count as a measured candidate.
+
+Acceptance remains the complete smaller curved and M6 workflows: actual movement,
+neighboring edits, accepted mesh, conservative current/history transfer, repeated
+events and solver restart. Primitive tests support this assessment only. No limits,
+quality gates or scheduling rules change for this failure. Cost measurements must
+show whether the removed ordinary key work materially reduces repeated-event cost.
+
 ## Demonstrated limitation and connected implementation
 
 M6 build92 rejects before operators: folded/degenerate joint original-source prism,

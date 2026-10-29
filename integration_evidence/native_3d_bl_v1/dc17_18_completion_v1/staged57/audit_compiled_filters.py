@@ -60,6 +60,14 @@ def main():
                      'NativeCurrentNormalization3D','NativeMetricFamily3D','NativeBLTargetNormalization')
         required[case]={name for p in NEW+OTHER for name,tags in tests[p]
                         if any('['+tag+']' in tags for tag in tags_needed)}
+    for case in ('projection_paths','projection_paths6'):
+        specific[case]='projection_paths'
+        required[case]={
+            'Entity feature reconstruction handles ordinary and genuine routes',
+            'Cumulative atlas and backend failure stop all workers before construction'}
+        if case=='projection_paths':
+            required[case]|={name for p in NEW+OTHER for name,tags in tests[p]
+                             if '[NativeGeometryBackend3D]' in tags}
     if any(not names for names in required.values()): raise RuntimeError('A specific case has no matching source test')
     env = os.environ.copy(); env.update(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
     for case in ('serial_full', 'mpi6', 'atlas_checks', *specific):

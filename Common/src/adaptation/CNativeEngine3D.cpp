@@ -848,18 +848,21 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto vote=[&](const CLocalFailure& local) {
     stats.atlas_work=atlas_budget.work;stats.atlas_peak_bytes=atlas_budget.peak_bytes;
     stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,atlas_budget.peak_bytes);
-    // Reserve this engine-local severity to transport typed work refusal without another collective.
+    // Elect sticky geometry failures at the existing stage votes, even if a trial caught the exception.
     constexpr unsigned short atlas_work_refusal=4;
     auto pending=local;
     if(atlas_budget.work_exhausted)pending.Set(atlas_work_refusal,0,
         "Native3D shared atlas work budget exhausted; feasibility is undetermined.");
+    constexpr unsigned short geometry_backend_failure=5;
+    if(!atlas_budget.geometry_failure.empty())pending.Set(geometry_backend_failure,0,
+        "Native3D geometry backend failure: "+atlas_budget.geometry_failure);
     const auto elected=world.elect(pending);
     if (elected.any) result.reason=elected.message;
-    if(elected.any && elected.severity==atlas_work_refusal){
+    if(elected.any && (elected.severity==atlas_work_refusal||elected.severity==geometry_backend_failure)){
       // A quota refusal need not be the only failure; retain the ordinary elected diagnostic too.
       const auto original=world.elect(local);
       if(original.any)result.reason+=" Original failure: "+original.message;
-      result.valid=false;stats.stop=EngineStop::WorkBudget;
+      result.valid=false;stats.stop=elected.severity==atlas_work_refusal?EngineStop::WorkBudget:EngineStop::Failure;
     }
     return !elected.any;
   };
@@ -2445,7 +2448,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         const auto before=GeometryGuidanceExcess(old,geometry,options.surface_tolerance);
         const auto after=GeometryGuidanceExcess(fresh,geometry,options.surface_tolerance);
         geometric_progress=before>0 && after<before*(1-1e-12L);
-        if((kind==MetricChange::GeometryRefine && !geometric_progress) ||
+        if(!std::isfinite(after) || (kind==MetricChange::GeometryRefine && !geometric_progress) ||
            (kind==MetricChange::Coarsen && after>0) ||
            (kind!=MetricChange::GeometryRefine && after>before &&
             !((kind==MetricChange::Repair || kind==MetricChange::GeometryRepair) && phase==Phase::Improvement))) {
@@ -4437,7 +4440,10 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
     auto candidate_parameters=geometry.PrivateParameters(candidate);const auto& candidate_geometry=candidate_parameters?*candidate_parameters:geometry;
     FirstHeightReport height;
     if(GetShapeAdmission()==ShapeAdmission::Absolute && !CheckFirstHeight(candidate,options.wall_heights,candidate_geometry,height,reason)){++report.rejected_frozen;continue;}
-    if(GetShapeAdmission()==ShapeAdmission::Absolute && GeometryGuidanceExcess(candidate,candidate_geometry,options.surface_tolerance)>geometric_before){++report.rejected_interface;continue;}
+    if(GetShapeAdmission()==ShapeAdmission::Absolute) {
+      const auto after=GeometryGuidanceExcess(candidate,candidate_geometry,options.surface_tolerance);
+      if(!std::isfinite(after)||after>geometric_before){++report.rejected_interface;continue;}
+    }
     bool sized=true;
     for(const auto& c:candidate.cells)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)
       if((c.v[i].id==next_node || c.v[j].id==next_node) && !Certified(c.v[i].p,c.v[j].p,MaximumMetricEdge))sized=false;

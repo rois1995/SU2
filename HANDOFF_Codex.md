@@ -1,4 +1,4 @@
-# Current handoff — 2026-10-28
+# Current handoff — 2026-10-29
 
 Continue DC-17/DC-18 under [AGENTS.md](AGENTS.md). No accepted complete curved/M6
 adaptation, conservative history transfer and solver restart workflow yet. BL/RANS
@@ -14,11 +14,23 @@ construction then metric/BL improvement and every final gate.
 Latest labelled WIP checkpoint contains build102 code/evidence on rois1995/SU2,
 `codex/native-3d-bl`. TODO stays local. Leave unrelated files alone.
 
-Latest source is build102: PASS72.187s with1295 unchanged pins. All13 geometry
-backend cases pass62.154s; all10 DC18 geometry groups pass. Focused current-field
-122 cases pass10.036s; compiled selection audit verifies26 filters (313 serial,
-290 MPI,76 atlas,13 backend,122 nodal selected). Six-rank cycle3 cases pass5.906s. All owned jobs are terminal.
-No full broad suite pass: legacy metric-shell assertions remain obsolete/pending.
+**Build106 PASS114.227s;1295 pins unchanged. Projection_paths PASS16 cases/547 assertions64.187s; M6 RUNNING session52685, sources/helpers pinned.**
+The exact M6 failure is captured/replayed at build103: rank2, query
+(1.1401517230489573,1.1837996888661504,.00035981657722808017), hint11540,
+body0/sheet10154/no feature restriction. All7 permitted candidates fail in world
+coordinates;2 foreign-sheet candidates correctly exclude. With the same minimizer
+and original nets in normalized local coordinates,6 converge including the hint
+(model distance4.78e-11). This establishes conditioning, not classification failure.
+Capture/replay: staged57/m6_runs/euler_build103_exact_projection_capture and
+staged57/m6_projection_replay103. M6 ended427.805s, all pins unchanged/ranks terminal.
+
+Build104 connects local-frame projection; canonical retained binding comparison;
+no feature-route exact keys for ordinary surface endpoints; typed unavailable vs
+backend failure. Real feature continuity, body/sheet/interface checks and restart
+proofs remain. Unavailable guidance stays infinite/unmeasured, never zero; unexpected
+backend errors persist in the shared geometry context and are elected before
+publication. No cap or final gate changed. Focused tests and actual workflows pending.
+Previous build102 supporting checks and workflow blockers remain below/history.
 
 Connected source: shared existing cubic Gauss–Newton/backtracking/simplex KKT
 minimizer and polynomial arithmetic; immutable nets, body/sheet/feature filtering,

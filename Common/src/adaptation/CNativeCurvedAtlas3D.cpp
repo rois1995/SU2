@@ -642,8 +642,9 @@ bool RemapAtlasSurface(const CurvedAtlas& atlas,const std::vector<SU2Native3D::S
         const BoundaryPoint* point=supplied==points.end()?(old==d.parameters.end()?nullptr:&old->second):&supplied->second;
         if(!point||point->node.id!=id)throw std::invalid_argument("Candidate face lacks its actual forward binding.");
         op.Check(d.backend->AssociationValid(point->binding,point->node.p,op.reason));
-        if(old!=d.parameters.end()&&op.BindingKey(geometry,old->second.binding)!=op.BindingKey(geometry,point->binding))
-          throw std::invalid_argument("Retained atlas point changed its binding without a new identity.");
+        if(old!=d.parameters.end()) {const auto& a=old->second.binding;const auto& b=point->binding;
+          if(a.version!=b.version||a.dimension!=b.dimension||a.feature!=b.feature||a.u!=b.u||a.v!=b.v)
+            throw std::invalid_argument("Retained atlas point changed its binding without a new identity.");}
         op.Sync(sizeof(decltype(bindings)::value_type)+4*sizeof(void*));bindings.emplace(id,point->binding);
         const auto edge=Sorted(id,face.v[(k+1)%3]);op.Sync(sizeof(decltype(incidence)::value_type)+4*sizeof(void*)+2*sizeof(size_t));
         auto& sides=incidence[edge];if(sides.size()==2)throw std::invalid_argument("Candidate edge has nonmanifold incidence.");sides.push_back(i);
@@ -666,8 +667,11 @@ bool RemapAtlasSurface(const CurvedAtlas& atlas,const std::vector<SU2Native3D::S
       if(old!=inherited.end()&&old->second.first==1)working=old->second.second;
       else {
         if(row.second.size()!=2)throw std::invalid_argument("Replacement changes an uncoordinated physical interface edge.");
-        first=op.BindingKey(geometry,bindings.at(edge[0]));last=op.BindingKey(geometry,bindings.at(edge[1]));
-        if(!FeaturePath(first,last,working,inherited,feature_edges,d.parameters,bindings,*d.reference,geometry,policy,budget,op)){
+        bool found=false;
+        if(!feature_edges.empty()&&geometry.MobilityDimension(bindings.at(edge[0]),policy)<2&&geometry.MobilityDimension(bindings.at(edge[1]),policy)<2){
+          first=op.BindingKey(geometry,bindings.at(edge[0]));last=op.BindingKey(geometry,bindings.at(edge[1]));
+          found=FeaturePath(first,last,working,inherited,feature_edges,d.parameters,bindings,*d.reference,geometry,policy,budget,op);}
+        if(!found){
           const auto& face=faces.at(row.second.front());const auto sheet=policy.sheets.at(face.facet);
           for(size_t side:row.second)if(policy.sheets.at(faces.at(side).facet)!=sheet)
             throw std::invalid_argument("A shared edge crosses physical sheets without a genuine feature path.");
@@ -718,13 +722,17 @@ bool RebuildFeatureTraces(const SU2Native3D::Patch& old,const std::vector<SU2Nat
     }
     for(size_t i=0;i<faces.size();++i){const auto& face=faces[i];if(!policy.sheets.count(face.facet))throw std::invalid_argument("Candidate face has no immutable physical sheet.");
       for(unsigned k=0;k<3;++k){const auto point=points.find(face.v[k]);if(point==points.end())throw std::invalid_argument("Candidate feature endpoint lacks binding.");
+        geometry.MobilityDimension(point->second.binding,policy);
         op.Sync(sizeof(decltype(bindings)::value_type)+sizeof(decltype(incidence)::value_type)+8*sizeof(void*));
         bindings.emplace(point->first,point->second.binding);const auto edge=Sorted(face.v[k],face.v[(k+1)%3]);auto& sides=incidence[edge];
         Reserve(sides,sides.size()+1,op);sides.push_back(i);if(sides.size()>2)throw std::invalid_argument("Candidate edge has nonmanifold incidence.");}}
     for(const auto& row:incidence){const auto& edge=row.first;working={};const auto old_edge=inherited.find(edge);
       if(old_edge!=inherited.end() && old_edge->second.first==1 && !old_edge->second.second.pieces.empty() && TraceChain(old_edge->second.second,geometry,policy,op))working=old_edge->second.second;
-      else {first=op.BindingKey(geometry,bindings.at(edge[0]));last=op.BindingKey(geometry,bindings.at(edge[1]));
-        if(!FeaturePath(first,last,working,inherited,feature_edges,old.parameters,bindings,reference,geometry,policy,budget,op)) {
+      else {bool found=false;
+        if(!feature_edges.empty()&&geometry.MobilityDimension(bindings.at(edge[0]),policy)<2&&geometry.MobilityDimension(bindings.at(edge[1]),policy)<2){
+          first=op.BindingKey(geometry,bindings.at(edge[0]));last=op.BindingKey(geometry,bindings.at(edge[1]));
+          found=FeaturePath(first,last,working,inherited,feature_edges,old.parameters,bindings,reference,geometry,policy,budget,op);}
+        if(!found) {
           if(row.second.size()!=2 && (old_edge==inherited.end() || old_edge->second.first!=1))throw std::invalid_argument("Replacement changes an uncoordinated physical interface edge.");
           const auto sheet=policy.sheets.at(faces.at(row.second.front()).facet);
           for(size_t side:row.second)if(policy.sheets.at(faces.at(side).facet)!=sheet)throw std::invalid_argument("A shared edge crosses physical sheets without a genuine feature path.");

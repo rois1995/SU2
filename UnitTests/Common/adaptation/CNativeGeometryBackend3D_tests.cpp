@@ -61,8 +61,8 @@ TEST_CASE("Native projection requires a body and refuses sheet and feature escap
   GeometryEvaluation evaluation;REQUIRE(backend.Evaluate(scope.previous,0,evaluation,budget,reason));
   Point query{evaluation.point.x+.001*evaluation.normal.x,evaluation.point.y+.001*evaluation.normal.y,evaluation.point.z+.001*evaluation.normal.z};
   GeometryProjection result;INFO(reason);REQUIRE(backend.Project(query,scope,result,budget,reason));
-  auto invalid_query=BackendBudget();const auto saved=result;
-  CHECK_FALSE(backend.Project({std::numeric_limits<double>::quiet_NaN(),0,0},scope,result,invalid_query,reason));
+  auto invalid_query=BackendBudget();const auto saved=result;GeometryProjectionFailure failure;
+  CHECK_FALSE(backend.Project({std::numeric_limits<double>::quiet_NaN(),0,0},scope,result,invalid_query,reason,&failure));CHECK(failure==GeometryProjectionFailure::Failure);
   CHECK_FALSE(invalid_query.work_exhausted);CHECK(invalid_query.work<invalid_query.maximum_work);
   CHECK(result.binding.feature==saved.binding.feature);CHECK(result.binding.u==saved.binding.u);CHECK(result.binding.v==saved.binding.v);
   GeometrySupport support;REQUIRE(backend.Support(result.binding,result.surface,support,budget,reason));CHECK(support.body==0);CHECK(support.sheet==*scope.sheet);
@@ -71,7 +71,8 @@ TEST_CASE("Native projection requires a body and refuses sheet and feature escap
   REQUIRE(backend.Project({-.001,.5,.5},scope,result,budget,reason));
   REQUIRE(backend.Support(result.binding,result.surface,support,budget,reason));CHECK(support.sheet==*scope.sheet);
   auto feature=scope;feature.previous=fixture.geometry->EdgePoint({0,2},.5);REQUIRE(backend.Support(feature.previous,0,support,budget,reason));feature.feature=std::make_pair(support.mobility,support.feature);
-  CHECK_FALSE(backend.Project(query,feature,result,budget,reason));CHECK(reason.find("feature")!=std::string::npos);
+  CHECK_FALSE(backend.Project(query,feature,result,budget,reason,&failure));CHECK(failure==GeometryProjectionFailure::Unavailable);CHECK(reason.find("feature")!=std::string::npos);
+  REQUIRE(backend.Project(query,scope,result,budget,reason,&failure));CHECK(failure==GeometryProjectionFailure::None);CHECK(budget.geometry_failure.empty());
   auto far_budget=BackendBudget();REQUIRE(backend.Project({10.25,.5,-.001},scope,result,far_budget,reason));
   REQUIRE(backend.Support(result.binding,result.surface,support,far_budget,reason));CHECK(support.body==0);CHECK(result.evaluation.point.x<=1+1e-12);
   auto failed_budget=BackendBudget();const auto before_failure=result;const auto huge=std::numeric_limits<double>::max();
@@ -349,4 +350,28 @@ TEST_CASE("Model projection accepts a stationary shared-edge foot under roundoff
     const bool ok=backend.Project(query,scope,projected,budget,reason);INFO(reason);REQUIRE(ok);
     CHECK(projected.distance_upper<1e-10);REQUIRE(backend.AssociationValid(projected.binding,projected.evaluation.point,reason));
   }
+}
+
+TEST_CASE("Captured M6 projection is stable in local model coordinates", "[NativeGeometryBackend3D]") {
+  const std::array<Point,10> net{{{1.1399865803007889,1.1827308358735329,0.00034308959017548718},
+      {1.1402067706316801,1.184155973197023,0.00036539223957894449},
+      {1.1403759768693289,1.1841081489400951,0.00034278444612927833},
+      {1.1400599770663551,1.1832058816512316,0.00035052371456477052},
+      {1.1401333738445938,1.1836809274253701,0.00035795794133556039},
+      {1.1402631727007879,1.1841400317808868,0.00035785622676684427},
+      {1.1403195747787203,1.1841240903622716,0.00035032028524237301},
+      {1.140246178013149,1.1836490445845744,0.00034288616081168605},
+      {1.1401163791569688,1.1831899402290535,0.00034298787549307696},
+      {1.1401897759231776,1.1836649860065718,0.0003504220050729595}}};
+  using namespace SU2NativeCurved;
+  const Vec<3> query{1.1401517230489573,1.1837996888661504,.00035981657722808017};
+  std::array<Vec<3>,10> local;for(unsigned k=0;k<10;++k)local[k]={net[k].x,net[k].y,net[k].z};
+  const auto target=SU2NativeCurved::detail::NormalizeTriangleProjection(local,query);
+  double u=0,v=0;SU2NativeCurved::detail::ClosestOnTriangle(target,local[0],local[1],local[2],u,v);
+  auto value=[&](double a,double b){return SU2NativeCurved::detail::TrianglePatch(local,1-a-b,a,b);};
+  auto derivative=[&](double a,double b,Vec<3>& first,Vec<3>& second){SU2NativeCurved::detail::TriangleDerivatives(local,a,b,first,second);};
+  REQUIRE(SU2NativeCurved::detail::MinimizeTriangle(target,u,v,value,derivative));
+  std::array<Vec<3>,10> original;for(unsigned k=0;k<10;++k)original[k]={net[k].x,net[k].y,net[k].z};
+  const auto foot=SU2NativeCurved::detail::TrianglePatch(original,1-u-v,u,v);
+  CHECK(Norm<3>(Sub<3>(foot,query))<1e-8);
 }

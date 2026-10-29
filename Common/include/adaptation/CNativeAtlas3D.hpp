@@ -29,6 +29,7 @@ struct AtlasBudget {
   size_t maximum_work=0,maximum_bytes=0,maximum_integer_bits=0;
   size_t work=0,caller_bytes=0,peak_bytes=0;  // Peak is historical across admitted storage windows.
   bool work_exhausted=false; // Sticky cumulative-work denial, including a request larger than remaining work.
+  std::string geometry_failure; // Sticky stage failure; candidate refusals do not set it.
   bool ChargeWork(size_t count=1) {
     if(work_exhausted || work>maximum_work || count>maximum_work-work){work_exhausted=true;return false;}
     work+=count;return true;

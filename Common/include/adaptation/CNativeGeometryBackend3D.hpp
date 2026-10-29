@@ -37,6 +37,7 @@ struct GeometryProjection {
   Id surface=UINT64_MAX;
   double distance_lower=0,distance_upper=0; // Conservative closest-distance enclosure; numerical feet need not give tight bounds.
 };
+enum class GeometryProjectionFailure {None, Unavailable, Failure};
 enum class GeometryErrorDirection { Both, ModelToMesh };
 struct GeometryRegionBounds {std::array<Point,2> bounds;double maximum_error=0;};
 class GeometryBackend3D {
@@ -50,8 +51,9 @@ class GeometryBackend3D {
   virtual bool Support(const SurfaceBinding&,Id side,GeometrySupport&,AtlasBudget&,std::string&)const=0;
   /*! Necessary body/feature incidence only; false allowed is a valid veto, not a query failure. */
   virtual bool ContractionAllowed(const SurfaceBinding&,const SurfaceBinding&,bool& allowed,AtlasBudget&,std::string&)const=0;
-  /*! Numerical constrained model foot; no globally optimal distance or uniqueness claim. */
-  virtual bool Project(Point,const GeometryProjectionScope&,GeometryProjection&,AtlasBudget&,std::string&)const=0;
+  /*! Numerical constrained model foot; no globally optimal distance or uniqueness claim.
+   * Unavailable is a proposal refusal; Failure denotes invalid state or resource failure. */
+  virtual bool Project(Point,const GeometryProjectionScope&,GeometryProjection&,AtlasBudget&,std::string&,GeometryProjectionFailure* =nullptr)const=0;
   /*! Bounds the supplied piece union; finite coverage/embedding admission remains the specialized caller's duty. */
   virtual bool RegionErrorBounds(const FaceCoverage&,const std::array<Point,3>&,GeometryRegionBounds&,AtlasBudget&,std::string&)const=0;
   /*! Complete physical mesh of one semantic model body/sheet/marker, without face partitions.
@@ -70,7 +72,7 @@ class NativeMappedGeometryBackend3D final:public GeometryBackend3D {
   bool AssociationValid(const SurfaceBinding&,Point,std::string&)const override;
   bool Support(const SurfaceBinding&,Id,GeometrySupport&,AtlasBudget&,std::string&)const override;
   bool ContractionAllowed(const SurfaceBinding&,const SurfaceBinding&,bool&,AtlasBudget&,std::string&)const override;
-  bool Project(Point,const GeometryProjectionScope&,GeometryProjection&,AtlasBudget&,std::string&)const override;
+  bool Project(Point,const GeometryProjectionScope&,GeometryProjection&,AtlasBudget&,std::string&,GeometryProjectionFailure* =nullptr)const override;
   bool RegionErrorBounds(const FaceCoverage&,const std::array<Point,3>&,GeometryRegionBounds&,AtlasBudget&,std::string&)const override;
   bool PatchErrorBounds(const GeometrySupport&,const std::vector<std::array<Point,3>>&,double,
       MappedFacetReference::SurfaceUnionBounds&,AtlasBudget&,std::string&,GeometryErrorDirection=GeometryErrorDirection::Both)const override;

@@ -4260,8 +4260,9 @@ TEST_CASE("Metric lifecycle disagreement is refused collectively", "[NativeBidir
   CHECK(Bytes(owned)==saved);
 }
 
-TEST_CASE("Cumulative atlas work refusal stops all workers before construction", "[NativeStageCapture3D][NativeConstructionSweep3D][NativeAtlasWorkStop3D]") {
+TEST_CASE("Cumulative atlas and backend failure stop all workers before construction", "[NativeStageCapture3D][NativeConstructionSweep3D][NativeAtlasWorkStop3D]") {
   const bool diagnostic_error=GENERATE(false,true);
+  const bool geometry_error=GENERATE(false,true);
   World world;const auto fixture=Box();auto root=std::make_shared<PlanarReference>(fixture.facets);
   std::map<Id,double> errors;std::map<int,int> roles;
   for(const auto& f:fixture.facets){errors.emplace(f.id,1e-13);roles[f.marker]=2;}
@@ -4279,13 +4280,15 @@ TEST_CASE("Cumulative atlas work refusal stops all workers before construction",
     if(!view.selected)return;
     if(std::string(view.stage)=="begin") {
       ++fired;auto* budget=view.geometry.AtlasReservation();REQUIRE(budget);REQUIRE(budget->work<budget->maximum_work);
-      CHECK_FALSE(budget->ChargeWork(budget->maximum_work-budget->work+1));CHECK(budget->work<budget->maximum_work);
+      if(geometry_error)budget->geometry_failure="deliberate geometry backend failure";
+      else {CHECK_FALSE(budget->ChargeWork(budget->maximum_work-budget->work+1));CHECK(budget->work<budget->maximum_work);}
       if(diagnostic_error)throw std::runtime_error("deliberate concurrent diagnostic failure");
     } else if(std::string(view.stage)=="SplitEdge" || std::string(view.stage)=="construction_end" || std::string(view.stage)=="transaction_end")++later;
   };
   const auto result=Refine(world,input,source,*reference,{},options);INFO(result.reason);
-  CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::WorkBudget);
+  CHECK_FALSE(result.valid);CHECK(result.stats.stop==(geometry_error?EngineStop::Failure:EngineStop::WorkBudget));
+  if(geometry_error)CHECK(result.reason.find("deliberate geometry backend failure")!=std::string::npos);
   if(diagnostic_error)CHECK(result.reason.find("deliberate concurrent diagnostic failure")!=std::string::npos);
   CHECK(world.sum(fired)==1);CHECK(world.sum(later)==0);CHECK(world.sum(result.stats.accepted)==0);
-  CHECK(result.stats.quality_stages==0);CHECK(Bytes(input)==saved);CHECK(Bytes(result.cells)==saved);CHECK(parameters->Snapshot()==snapshot);
+  CHECK(result.stats.quality_stages==0);CHECK(Bytes(input)==saved);CHECK(Bytes(result.cells)==Bytes(WithUniformSensor(input,{4,0,0,4,0,4})));CHECK(parameters->Snapshot()==snapshot);
 }

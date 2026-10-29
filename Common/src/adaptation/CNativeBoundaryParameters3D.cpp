@@ -1167,10 +1167,18 @@ template<class Points>Id CurrentEntityHint(const State& state,Id anchor,Point qu
 GeometryProjection ProjectEntitySurface(const State& state,Point point,const SurfaceBinding& previous,
     Id hint,AtlasBudget& budget) {
   NativeMappedGeometryBackend3D backend(state.Authority(),state.Mobility());GeometrySupport support;std::string reason;
-  if(!backend.Support(previous,hint,support,budget,reason))throw std::invalid_argument(reason);
+  if(!backend.Support(previous,hint,support,budget,reason)) {
+    if(!budget.work_exhausted&&budget.geometry_failure.empty())budget.geometry_failure=reason;
+    throw std::invalid_argument(reason);
+  }
   GeometryProjectionScope scope;scope.body=support.body;scope.hint=hint;scope.previous=previous;scope.sheet=support.sheet;
   scope.feature=std::make_pair(2u,support.sheet);scope.absolute_error=std::max(std::numeric_limits<double>::min(),state.GeometryTolerance()/8);
-  GeometryProjection projection;if(!backend.Project(point,scope,projection,budget,reason))throw std::invalid_argument(reason);return projection;
+  GeometryProjection projection;GeometryProjectionFailure failure;
+  if(!backend.Project(point,scope,projection,budget,reason,&failure)) {
+    if(failure!=GeometryProjectionFailure::Unavailable&&!budget.work_exhausted&&budget.geometry_failure.empty())budget.geometry_failure=reason;
+    throw std::invalid_argument(reason);
+  }
+  return projection;
 }
 }
 double PlanarReference::SurfaceDeviation(Id facet,const std::array<Point,3>& triangle,bool validated)const {
@@ -1196,13 +1204,18 @@ double PlanarReference::SurfaceDeviation(Id facet,const std::array<Point,3>& tri
   scope.body=std::get<0>(state.Entity(hint));scope.sheet=std::get<1>(state.Entity(hint));
   scope.absolute_error=std::max(std::numeric_limits<double>::min(),state.GeometryTolerance()/8);
   auto project=[&](Point p){GeometryProjection q;std::string reason;
-    if(!backend.Project(p,scope,q,*reservation,reason))throw std::invalid_argument(reason);
+    GeometryProjectionFailure failure;
+    if(!backend.Project(p,scope,q,*reservation,reason,&failure)) {
+      if(failure==GeometryProjectionFailure::Unavailable){q.distance_upper=INFINITY;return q;}
+      if(!reservation->work_exhausted&&reservation->geometry_failure.empty())reservation->geometry_failure=reason;
+      throw std::invalid_argument(reason);
+    }
     return q;};
-  error=std::max(error,project(center).distance_upper);
+  error=std::max(error,project(center).distance_upper);if(!std::isfinite(error))return error;
   for(unsigned k=0;k<3;++k){const auto a=triangle[k],b=triangle[(k+1)%3];
     const Point edge{b.x-a.x,b.y-a.y,b.z-a.z};const double length=std::hypot(edge.x,edge.y,edge.z);
     for(double t:{.25,.5,.75}){const auto q=project({a.x+t*edge.x,a.y+t*edge.y,a.z+t*edge.z});
-      error=std::max(error,q.distance_upper);const auto& e=q.evaluation;
+      error=std::max(error,q.distance_upper);if(!std::isfinite(error))return error;const auto& e=q.evaluation;
       if(e.differential_available && length>0){
         const auto dot=[&](Point d){return (edge.x*d.x+edge.y*d.y+edge.z*d.z)/length;};
         const double u=dot(e.direction1),v=dot(e.direction2);

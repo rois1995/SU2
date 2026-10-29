@@ -1,7 +1,7 @@
 # Native adaptation progress
 
 Companion to [ADAPTATION_TODO.md](ADAPTATION_TODO.md), the acceptance ledger.
-Updated: 2026-10-28. Detailed failures and provenance remain linked below.
+Updated: 2026-10-29. Detailed failures and provenance remain linked below.
 
 ## Current result
 
@@ -10,29 +10,21 @@ DC-17/DC-18 remain open. The selected foundation is SCOREC/MeshAdapt classified
 cavities and transported nodal size fields inside SU2. Requirements, source-code
 comparison, decisions and acceptance: [connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md).
 
-Latest labelled WIP checkpoint contains the connected projection correction
-and complete build102 diagnostic receipts. Build102 PASS72.187s with1295 unchanged
-pins. Backend13 cases and all10 DC18 geometry groups pass; current-field122 cases
-pass. Selection audit verifies26 filters, including every intended backend case.
+Current work2026-10-29: build106 PASS114.227s,1295 pins unchanged.
+Projection_paths PASS16 cases/547 assertions64.187s. M6 RUNNING session52685; sources/helpers pinned.
+Exact M6 failure captured at build103, first fatal replay projection_failure.2.0.txt:
+7 allowed wing-sheet candidates fail in world coordinates;2 foreign-sheet candidates
+correctly exclude. Identical existing minimizer on normalized local nets converges
+for6, including hint11540 at4.78e-11 model distance. Input geometry is unchanged.
+This diagnoses numerical conditioning, not wrong classification or impossibility.
 
-Actual mapped102 FAIL58.021s: curved variants enter quality improvement with
-actual movement/reconnection/insertion, then exhaust67,207,168 atlas work. Cached
-geometry debt11 and metric/height debt21 remain; no accepted mesh or curved
-transfer. Dominant traced work is exact association keys/parameters and feature
-validation. Fresh first collapse builds, error.000626<.001,63232 work, then fails
-size/progress. Flat conservative histories and SU2/CGNS reload pass only.
-M6 build102 FAIL292.221s, solver0/nativefalse, pins unchanged/all ranks terminal:
-no converged projection on prescribed body/sheet/feature, first failed facet11053.
-Native227.7s/import172.78s/refine40.3s,70 private edits, no completed length pass.
-Neither case establishes geometric impossibility; budgets/final gates were not raised.
-
-The backend now reuses existing cubic numerical projection and fixed control nets,
-current association hints and body/sheet/feature constraints. Distance bounds are
-conservative [0,upper]; globally certified ClosestCurved/final Both checks remain.
-Captured shared-edge KKT inconsistency is fixed with the existing tolerance, not
-a new solver, flat fallback or threshold. Coarsen/refine cycles replace productive
-split starvation. Accepted curved/M6/BL/transfer/restart capability remains open.
-Detailed current evidence: [projection findings](Handbook/ADAPTATION_PROJECTION_FINDINGS.md),
+Connected change: shared local projection coordinates, ordinary canonical entity/
+parameter identity instead of exact keys, feature-path lookup skipped for surface
+endpoints, explicit unavailable proposal vs fatal backend status. Real feature
+continuity, body/incident-face/owner/restart consistency and all final gates remain.
+No limit raised. Runtime qualification pending; no accepted complete curved/M6
+adaptation/transfer/history/restart workflow yet. DC-17/DC-18 remain open.
+Detailed evidence: [projection findings](Handbook/ADAPTATION_PROJECTION_FINDINGS.md),
 [selected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md),
 [transfer findings](Handbook/TRANSFER_OPERATORS_FINDINGS.md).
 

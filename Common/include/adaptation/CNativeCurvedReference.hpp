@@ -371,6 +371,17 @@ inline void TriangleDerivatives(const std::array<Vec<3>, 10>& b, double u, doubl
   Su = Sub<3>(du, dw);
   Sv = Sub<3>(dv, dw);
 }
+inline Vec<3> NormalizeTriangleProjection(std::array<Vec<3>,10>& points,const Vec<3>& target) {
+  const auto origin=points[0];long double scale=0;
+  for(const auto& point:points)scale=std::max(scale,std::hypot((long double)point[0]-origin[0],
+      (long double)point[1]-origin[1],(long double)point[2]-origin[2]));
+  if(!(scale>0&&std::isfinite(scale)))throw std::invalid_argument("Invalid cubic projection frame.");
+  auto local=[&](const Vec<3>& point){Vec<3> out;for(unsigned d=0;d<3;++d){
+    out[d]=double(((long double)point[d]-origin[d])/scale);
+    if(!std::isfinite(out[d]))throw std::invalid_argument("Unrepresentable cubic projection frame.");}return out;};
+  for(auto& point:points)point=local(point);
+  return local(target);
+}
 template <class Evaluate, class Derivatives>
 bool MinimizeTriangle(const Vec<3>& p, double& u, double& v, Evaluate evaluate, Derivatives derivatives) {
   auto F = [&](double a, double b) { const auto r = Sub<3>(evaluate(a, b), p); return Dot<3>(r, r); };
@@ -656,9 +667,10 @@ class PNTriangleSurface : public CurvedReference<3> {
    *        active edge (the edge curve), and a KKT check that re-enters the interior when that decreases the distance.
    */
   bool Minimize(const Vec<3>& p, long f, double& u, double& v) const {
-    return detail::MinimizeTriangle(p, u, v,
-      [&](double a, double b) { return Evaluate(f, a, b); },
-      [&](double a, double b, Vec<3>& su, Vec<3>& sv) { Derivatives(f, a, b, su, sv); });
+    auto points=net[f];const auto target=detail::NormalizeTriangleProjection(points,p);
+    return detail::MinimizeTriangle(target, u, v,
+      [&](double a, double b) { return detail::TrianglePatch(points,1-a-b,a,b); },
+      [&](double a, double b, Vec<3>& su, Vec<3>& sv) { detail::TriangleDerivatives(points,a,b,su,sv); });
   }
   /*! Faces within `rings` vertex rings of face f, same component. */
   std::vector<long> Window(long f, int rings) const {

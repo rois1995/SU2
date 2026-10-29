@@ -1,6 +1,45 @@
 # Adaptation projection findings
 
-Last updated: 2026-10-28.
+Last updated: 2026-10-29.
+
+Build106 PASS114.227s,1295 pins unchanged, compiles the connected failure-path changes; no complete
+workflow is accepted. Build103 capture of the actual M6 fatal query records the
+current binding, body/sheet/feature scope,9 candidates, raw nets, seed/final
+parameters and dispositions. The fatal file is
+[m6 replay](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build103_exact_projection_capture/projection_failure.2.0.txt).
+All7 permitted wing candidates failed convergence;2 candidates on another sheet
+were excluded correctly. On identical fixed nets, normalized local coordinates
+make6 converge with the existing minimizer; the hint foot is4.78e-11 from the query.
+[Replay source/results](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_projection_replay103/)
+retain all candidate results. No fitted geometry, solver fallback or limit increase.
+
+Build104 uses that local frame in the shared cubic projector, canonical bindings
+for retained ordinary identity, and physical feature classification before costly
+feature-route lookup. Actual route continuity and publication/decode/restart checks
+remain. Typed unavailable projection is a conservative candidate refusal; invalid
+backend/state/resource errors remain explicit through the existing distributed vote.
+An unavailable sample remains unknown/infinite geometry debt and cannot establish
+final acceptance. Source review confirms vote precedes publication; runtime tests
+remain pending. Build105 compiled successfully in180.272s with1295 pins unchanged;
+build104 focused run exposed three incorrect new fixtures (open surface, feature
+segment identity, initialized sensor attributes), corrected without changing
+production acceptance. Review also rejects nonfinite candidate geometry debt and
+keeps exceptions classified as backend failure. Earlier build102 evidence below is historical, not current validation.
+
+Build106 focused projection paths pass16 cases/547 assertions64.187s. All28
+compiled-filter selections include the required cases, including16 serial projection
+paths and2 distributed paths (selection audit is not execution). Actual smaller
+workflow FAIL89.521s: both curved variants reach331 private edits,83 moves,
+39 reconnections,41 insertions and117 private cells, then exhaust unchanged
+67,207,168 work before transfer; geometry debt19 and metric/height debt25 remain.
+Construction samples still report no q/J measurement. Log-wide exact-key work
+(including both curved variants and fresh replays) is BindingParameters15.24m and
+ReferencePointKey13.77m, versus31.5m/37.5m at build102; trajectories differ, so
+this is not a controlled per-event speedup claim. First collapse replay round90
+builds, needs zero exact atlas work for unchanged surface, and error.00062553<.001;
+recorded rejection is oversized edge/removal policy, not unavailable geometry.
+M6 build106 is running with exact query capture. No complete curved transfer or
+restart accepted. [Mapped summary](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build106_mapped_summary.json).
 
 The connected projection implementation shares the point, patch and derivative
 arithmetic used by `PNTriangleSurface::Minimize` through detail helpers. The
