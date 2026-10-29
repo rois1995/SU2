@@ -205,6 +205,7 @@ def main():
         raise SystemExit("usage: run_m6.py buildN unique_attempt [2]")
     build, unique_attempt = sys.argv[1:3]
     expected_events = int(sys.argv[3]) if len(sys.argv) == 4 else 1
+    outer_timeout = 5400 if expected_events == 2 else 2400
     acceptance_self_check()
     attempt = ROOT / "m6_runs" / unique_attempt
     attempt.mkdir(parents=True, exist_ok=False)
@@ -273,11 +274,11 @@ def main():
 
         env = os.environ.copy()
         env.update(OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1")
-        argv = ["nice", "-n", "19", "/usr/bin/time", "-v", "timeout", "2400", "mpirun",
+        argv = ["nice", "-n", "19", "/usr/bin/time", "-v", "timeout", str(outer_timeout), "mpirun",
                 "--output-filename", "rank_output", "-n", "6", str(CFD), "run.cfg"]
         save(attempt / "command.json", {
             "build": build, "case": "M6 Euler full adaptation", "ranks": 6, "expected_events": expected_events,
-            "native_budget_seconds": 1800, "outer_timeout_seconds": 2400,
+            "native_budget_seconds": 1800, "outer_timeout_seconds": outer_timeout,
             "argv": argv,
             "environment": {key: value for key, value in env.items()
                             if key.startswith(("SU2_NATIVE_", "OMPI_")) or

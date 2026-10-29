@@ -208,8 +208,8 @@ class TriangleUnion {
     const auto count=triangles.size();size_t retained=0,peak=0;
     if(count>16)CADTElemClass::PredictBytes(3,2*count,count,2*count,&retained,&peak);
     const auto workspace=transfer_memory::Mul(2*std::max<size_t>(200,count+1),sizeof(CBBoxTargetClass)+2*sizeof(unsigned long));
-    const auto scratch=transfer_memory::Add(std::max(retained,peak),workspace,transfer_memory::Mul(count,160));
-    op.Storage(scratch);candidates.reserve(count);
+    const auto scratch=transfer_memory::Add(std::max(retained,peak),workspace,transfer_memory::Mul(count,160+sizeof(unsigned long)+sizeof(size_t)));
+    op.Storage(scratch);candidates.reserve(count);graph_candidates.reserve(count);
     if(count>16) {
       std::vector<su2double> coordinates;std::vector<unsigned long> connectivity,ids;
       coordinates.reserve(6*count);connectivity.reserve(2*count);ids.reserve(count);
@@ -245,6 +245,7 @@ class TriangleUnion {
     std::shared_ptr<FinitePlaneReference> footprint;
     struct Plane {Box normal;Point origin;double error=0;std::array<double,2> lo{},hi{};};
     std::vector<Plane> faces;unsigned axis=0;
+    TriangleUnion* owner=nullptr;size_t group=0;double axis_lo=INFINITY,axis_hi=-INFINITY;
     std::array<double,2> lo{},hi{};bool positive=true;
     template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op)const {
       const unsigned x=(axis==0?1:0),y=(axis==2?1:2);
@@ -266,21 +267,27 @@ class TriangleUnion {
       if(!covered)return INFINITY;
       // Coverage supplies a target point on some overlapping face; bound every possible lift.
       double bound=0;bool found=false;
-      for(const auto& face:faces) {
-        op.Work();if(face.hi[0]<a[0]||face.lo[0]>b[0]||face.hi[1]<a[1]||face.lo[1]>b[1])continue;
+      auto lift=[&](const Plane& face) {
+        op.Work();if(face.hi[0]<a[0]||face.lo[0]>b[0]||face.hi[1]<a[1]||face.lo[1]>b[1])return;
         found=true;const auto& normal=face.normal;const auto denominator=std::max(normal[axis].lo,-normal[axis].hi);
-        if(!(denominator>0))return INFINITY;
+        if(!(denominator>0)){bound=INFINITY;return;}
         long double vertical=0;for(const auto& point:hull){const auto value=DotBox(Difference(point,Exact(face.origin)),normal);
           vertical=std::max(vertical,std::max(std::abs(value.lo),std::abs(value.hi)));}
         const auto nx=std::max(std::abs(normal[x].lo),std::abs(normal[x].hi)),ny=std::max(std::abs(normal[y].lo),std::abs(normal[y].hi));
         const auto dz=DividePositive(Add(Multiply({dx,dx},nx),Multiply({dy,dy},ny)),denominator);
         const Box shift{{{0,dx},{0,dy},{0,std::max(std::abs(dz.lo),std::abs(dz.hi))}}};
         bound=std::max(bound,std::nextafter(double(Add(Add(DividePositive({0,vertical},denominator),{face.error,face.error}),{0,NormBound(shift)}).hi),INFINITY));
-      }
+      };
+      if(owner->index && faces.size()>16) {
+        su2double low[3],high[3];low[x]=a[0];high[x]=b[0];low[y]=a[1];high[y]=b[1];
+        low[axis]=std::nextafter(axis_lo,-INFINITY);high[axis]=std::nextafter(axis_hi,INFINITY);
+        auto& nearby=owner->graph_candidates;nearby.clear();op.Work();owner->index->DetermineIntersectingElements(low,high,nearby);
+        for(auto i:nearby)if(owner->triangle_plane[i]==group)lift(faces[owner->triangle_slot[i]]);
+      } else for(const auto& face:faces)lift(face);
       return found?bound:INFINITY;
     }
   };
-  std::vector<PlaneUnion> planes;std::vector<size_t> triangle_plane;
+  std::vector<PlaneUnion> planes;std::vector<size_t> triangle_plane,triangle_slot;
   std::vector<uint64_t> visited;uint64_t visit=0;double accuracy;
   void BuildPlanes() {
     using namespace SU2Native3D;
@@ -300,10 +307,10 @@ class TriangleUnion {
       }
     }
     std::map<size_t,std::vector<size_t>> groups;for(size_t i=0;i<count;++i)groups[root(i)].push_back(i);
-    triangle_plane.assign(count,none);size_t retained=transfer_memory::Mul(count,1024);
+    triangle_plane.assign(count,none);triangle_slot.resize(count);size_t retained=transfer_memory::Mul(count,1024);
     for(const auto& group:groups) {
       if(group.second.size()<2)continue;
-      PlaneUnion plane;plane.axis=projection[group.first].first;if(!projection[group.first].second)continue;
+      PlaneUnion plane;plane.owner=this;plane.group=planes.size();plane.axis=projection[group.first].first;if(!projection[group.first].second)continue;
       const unsigned x=(plane.axis==0?1:0),y=(plane.axis==2?1:2);
       auto project=[&](Point p){const auto v=Values(p);return Point{v[x],v[y],0};};
       plane.lo={{INFINITY,INFINITY}};plane.hi={{-INFINITY,-INFINITY}};
@@ -312,22 +319,25 @@ class TriangleUnion {
         face.normal=CrossBox(Difference(Exact(t.points[1]),Exact(t.points[0])),Difference(Exact(t.points[2]),Exact(t.points[0])));
         face.lo={{INFINITY,INFINITY}};face.hi={{-INFINITY,-INFINITY}};
         for(unsigned k=0;k<3;++k){f.v[k]={ids[i][k],project(triangles[i].points[k])};const auto p=Values(f.v[k].p);
+          plane.axis_lo=std::min(plane.axis_lo,Values(triangles[i].points[k])[plane.axis]);plane.axis_hi=std::max(plane.axis_hi,Values(triangles[i].points[k])[plane.axis]);
           for(unsigned d=0;d<2;++d){face.lo[d]=std::min(face.lo[d],p[d]);face.hi[d]=std::max(face.hi[d],p[d]);
             plane.lo[d]=std::min(plane.lo[d],p[d]);plane.hi[d]=std::max(plane.hi[d],p[d]);}}
         plane.faces.push_back(face);facets.push_back(f);}
       AffineAuthority authority;authority.origin={};authority.normal={0,0,1};authority.dimension=3;authority.version=1;authority.maximum_error=4*std::numeric_limits<double>::min();
       const auto temporary=transfer_memory::Add(PlanarReference::ConstructionBytes(facets.size()),transfer_memory::Mul(facets.size(),4096));
+      if(transfer_memory::Add(op.budget.caller_bytes,retained,temporary)>op.budget.maximum_bytes)continue;
       op.Storage(transfer_memory::Add(retained,temporary));
       try{plane.footprint=std::make_shared<FinitePlaneReference>(authority,facets,temporary);}
       catch(const std::invalid_argument&){continue;}
       const auto& t=facets.front().v;plane.positive=SurfaceNormalSign({0,0,1},{t[0].p,t[1].p,t[2].p},nullptr)>0;
       retained=transfer_memory::Add(retained,plane.footprint->ResidentBytes());
-      for(auto i:group.second)triangle_plane[i]=planes.size();planes.push_back(std::move(plane));
+      for(size_t slot=0;slot<group.second.size();++slot){const auto i=group.second[slot];triangle_plane[i]=planes.size();triangle_slot[i]=slot;}
+      planes.push_back(std::move(plane));
     }
     visited.resize(planes.size());op.budget.caller_bytes=transfer_memory::Add(op.budget.caller_bytes,retained);
   }
   const std::vector<UnionTriangle>& triangles;AtlasOps& op;
-  std::unique_ptr<CADTElemClass> index;std::vector<unsigned long> candidates;
+  std::unique_ptr<CADTElemClass> index;std::vector<unsigned long> candidates,graph_candidates;
   TriangleDistanceBounds Distance(const Box& p,size_t i) {
     auto b=TriangleDistance(p,triangles[i].points,op);const double e=triangles[i].error;
     b.lower=std::max(0.,std::nextafter(double(Subtract(b.lower,e).lo),-INFINITY));

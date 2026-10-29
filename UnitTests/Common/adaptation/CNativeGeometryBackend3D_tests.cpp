@@ -234,7 +234,13 @@ TEST_CASE("Surface union bounds span a noncoplanar triangulated graph without fi
   std::vector<std::array<Point,3>> physical;
   constexpr unsigned n=8;
   for(Id facet:{Id(0),Id(1)}) {
-    auto point=[&](unsigned u,unsigned v){return fixture.geometry->Realize(fixture.geometry->FacetPoint(facet,double(u)/n,double(v)/n));};
+    auto point=[&](unsigned u,unsigned v){
+      const auto& f=fixture.reference->Get(facet);const std::array<unsigned,3> weights{n-u-v,u,v};
+      std::vector<unsigned> nonzero;for(unsigned k=0;k<3;++k)if(weights[k])nonzero.push_back(k);
+      if(nonzero.size()==1)return fixture.geometry->Realize(fixture.geometry->Vertex(f.v[nonzero[0]].id));
+      if(nonzero.size()==2){unsigned a=nonzero[0],b=nonzero[1];if(f.v[a].id>f.v[b].id)std::swap(a,b);
+        return fixture.geometry->Realize(fixture.geometry->EdgePoint({f.v[a].id,f.v[b].id},double(weights[b])/n));}
+      return fixture.geometry->Realize(fixture.geometry->FacetPoint(facet,double(u)/n,double(v)/n));};
     for(unsigned u=0;u<n;++u)for(unsigned v=0;v<n-u;++v) {
       physical.push_back({point(u,v),point(u+1,v),point(u,v+1)});
       if(u+v+2<=n)physical.push_back({point(u+1,v),point(u+1,v+1),point(u,v+1)});

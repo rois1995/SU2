@@ -102,6 +102,11 @@ population from operator cost. Validate any SU2-specific modifications separatel
   are pushed. No complete curved/M6 workflow is accepted yet. The current change
   improves conservative complete-surface bounds across noncoplanar triangulations;
   [current diagnosis/design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
+  Latest user direction: freeze a coherent implementation and let the complete M6
+  run determine the next change. Build132 is frozen for two events,1800s native
+  budget per event and5400s outer bound including certification/transfer. Keep
+  code pinned during that run; unresolved focused work-exhaustion diagnostics do
+  not justify another checker iteration before the target attempt.
 - Available papers: [local collection](/media/rausa/4TB/SU2_Versions/Prove/Papers),
   including Loseille–Alauzet–Menier, *Unique cavity-based operator and hierarchical
   domain partitioning for fast parallel generation of anisotropic meshes* (2017,
@@ -122,7 +127,7 @@ population from operator cost. Validate any SU2-specific modifications separatel
   and acceptance. Group connected changes; run focused checks for concrete risks
   and broader regressions at integration milestones. Keep validation resumable.
 - Respect repository resources: check host load/RAM and owned handles; one heavy job,
-  nice19, one build worker, single-threaded libraries and at most six available local
+  nice19,2–4 build workers (user update2026-10-29), single-threaded libraries and at most six available local
   MPI ranks. Use the 4TB compile-tmp. Do not edit pinned sources/helpers during jobs;
   leave unrelated processes/files alone. Use 6.1 Terra for bounded routine tasks;
   retain integrated design and acceptance assessment with the primary agent.
