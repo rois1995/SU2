@@ -117,7 +117,13 @@ population from operator cost. Validate any SU2-specific modifications separatel
   build140 passes84.250s; mandatory-memory refusal test excludes optional cache.
   MPI2 passes8 cases/rank,14937/14741 assertions,211.602s, pins unchanged, including
   repeated publication/reload. Checkpoint8c3ca6d797 pushed; validation follows.
-  Full M6 retry next with5400s native/event,14400s outer. One heavy workload;
+  Full M6/build140 running: euler_build140_prepared_surface, owned time PID2305296,
+  timeout2305297, mpirun2305298. Server restart lost exec9413/original Python
+  harness; solver processes survived. Detached receipt monitor2331422 verified
+  all pins, identity and CWD, writes recovered_resources.jsonl and terminal
+  assessments using existing checks and /usr/bin/time exit trailer. Do not restart
+  this workload or edit pinned sources/helpers while alive. Original budgets:
+  5400s native/event,14400s outer. One heavy workload;
   2–4 build workers. No complete M6 workflow yet; BL/RANS/history/restart remain open.
 - Available papers: [local collection](/media/rausa/4TB/SU2_Versions/Prove/Papers),
   including Loseille–Alauzet–Menier, *Unique cavity-based operator and hierarchical

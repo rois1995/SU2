@@ -109,7 +109,13 @@ reservation; build passes1018.648s and reuse2 cases/34 assertions. Serial49/51:
 cache can shrink with ceiling; test140 subtracts optional quota before mandatory
 refusal, preserving failure and unchanged-state checks. Build140 passes84.250s.
 MPI2 passes8 cases/rank,14937/14741 assertions,211.602s/pins unchanged. No production
-change after139. Full two-event M6 retry next with5400s native/event,14400s outer.
+change after139. Full two-event M6 build140 now running with5400s native/event,
+14400s outer. Attempt euler_build140_prepared_surface/time2305296/mpirun2305298.
+Server restart killed the Python harness, not solvers; recovery monitor2331422
+verified pins/identity/CWD and resumes receipts without repeating work. Original
+exec9413 no longer exists; use process identities and saved status/receipts.
+The300s short profile shows PreparedSurfaceView distance-bound evaluation rather
+than projected-reference preparation; no accepted mesh yet.
 No M6 capability accepted; known sheared-graph work exhaustion remains recorded.
 
 Historical build128 passes serial45/9611 and focused MPI6 five cases/rank. Its
