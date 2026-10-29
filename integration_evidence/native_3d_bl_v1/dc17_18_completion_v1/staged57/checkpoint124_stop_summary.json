@@ -1,0 +1,118 @@
+{
+  "scope": "WIP checkpoint at explicit user stop; no accepted complete curved/M6 adaptation/transfer/restart workflow",
+  "handoff_sha256": "675e3c14bf1cc7b8b0ebf7640cf55e618ef2c7421078946dbd09e99ba805e84e",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 186.28029108047485,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "cases": {
+    "serial": {
+      "directory": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/serial_20261029T134217_1231105",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 9.905814170837402,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 41582592,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "failed_locations": [],
+      "test_summary": [
+        "All tests passed (9611 assertions in 45 test cases)"
+      ],
+      "run_log_sha256": "1f27faa636a4df9dc8c7066ee7f1b4338a9f9904e36553c8fa8b0cb59e83d01b"
+    },
+    "mpi6": {
+      "directory": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/allworker6_20261029T134356_1235074",
+      "status": {
+        "state": "terminal",
+        "exit_code": 2,
+        "seconds": 79.30505061149597,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 46972928,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "failed_locations": [
+        "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2779"
+      ],
+      "test_summary": [
+        "assertions: 424 | 422 passed | 2 failed",
+        "assertions: 433 | 431 passed | 2 failed",
+        "assertions: 435 | 433 passed | 2 failed",
+        "assertions: 442 | 440 passed | 2 failed",
+        "assertions: 452 | 450 passed | 2 failed",
+        "test cases:  12 |  11 passed | 1 failed"
+      ],
+      "run_log_sha256": "a7f1d100a3da627a4401760f3997fdfab21344b2c3e0d6aeb3c114090198d876"
+    },
+    "smaller_workflow": {
+      "directory": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261029T132820_1197260",
+      "status": {
+        "state": "terminal",
+        "exit_code": 2,
+        "seconds": 43.98458242416382,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 47026176,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "failed_locations": [
+        "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2779"
+      ],
+      "test_summary": [
+        "assertions: 414 | 412 passed | 2 failed",
+        "test cases:   1 |   0 passed | 1 failed"
+      ],
+      "run_log_sha256": "3bb812a9b26b126037b9c3e98cfb6274433a289ac7c99030ed88f7b0347a9fbf",
+      "curved_exit": {
+        "rank": "0",
+        "stage": "exit",
+        "phase": "improvement",
+        "cells": "256",
+        "measured": "256",
+        "cache_consistent": "1",
+        "census_complete": "1",
+        "shape_complete": "1",
+        "geometry_complete": "1",
+        "q_measured": "256",
+        "j_measured": "256",
+        "q_bad": "2",
+        "j_bad": "2",
+        "size_bad": "22",
+        "geometry_bad": "0",
+        "q_debt": "0.0317898520134664",
+        "j_debt": "0.20477810731277332",
+        "size_debt": "0.86326904070422878",
+        "geometry_debt": "0",
+        "associations": "61",
+        "working_faces": "118",
+        "face_pieces": "0",
+        "trace_pieces": "29",
+        "maximum_ratio_limbs": "2",
+        "atlas_work": "38382505",
+        "atlas_bytes": "31476992",
+        "global_work": "4096",
+        "elapsed": "19.533892695999999"
+      },
+      "inputs": {
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261029T132820_1197260/cubic_original_metric_source_0_rank0.bin": "17337fbe4b868594f6e7b573089129b1c45f4b22b044daa457e5b4041bc079b5",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261029T132820_1197260/cubic_runtime_rejected_0_rank0.native_ref": "8a01f1a30cf6d01a89b940ec130c4e63cdd666a145a8de31a6cff7c6c265bd38",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261029T132820_1197260/cubic_runtime_rejected_0_rank0_parameters.bin": "bb72d926f47e54b57a9895c57f347e88d260d724dd54a252ca8632f76cc2abb5",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/mapped_work_trace_20261029T132820_1197260/cubic_runtime_rejected_0_rank0_owned.bin": "086fd9a17d695eb04a940fab4f0c32ec54c17d298d3a6118c48478bd71dc2d53"
+      }
+    }
+  },
+  "continuations": {
+    "reconstructed_metric_source": "Timeout180s inside repair after last complete census: one q/J invalid cell, no size/geometry invalid cells. Changed source support; not original workflow.",
+    "captured_original_metric_source": "Engine failure before any proposal: No original donor contains a requested point. Zero work. Reentering AdaptMetric starts a new metric bootstrap, not an exact in-event continuation.",
+    "budgets_changed": false,
+    "new_m6_validated": false,
+    "live_owned_jobs": false
+  }
+}

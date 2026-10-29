@@ -2,36 +2,23 @@
 
 Last updated: 2026-10-29.
 
-Current build118 compiles the shared classified boundary reconstruction and optimizer
-integration; source/test/helper pins remain fixed. No accepted complete curved/M6
-workflow exists. M6 build114 is terminal1860.786s with verified pins/all ranks gone:
-quality entry497s after the first length pair, then unchanged1800s native limit.
-No projection-failure files were captured. Cached q/J bad counts decrease, but
-exit census is incomplete; no conservative transfer/history or solver restart.
-[Stage/cost summary](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build114_m6_summary.json)
-retains per-rank aggregates, descriptor counts and sampled process-tree RSSmax3.968GB.
-One event cannot establish bounded repeated cost.
+Current state at user-requested stop: build124 and45-case serial regression pass;
+MPI6 has only the curved complete-workflow failures. Shared geometry and quality
+corrections are implemented, but no accepted complete curved/M6 workflow exists.
+No budgets or final gates changed. Exact saved state, source-bootstrap caveats,
+checks and evidence: [stop checkpoint](ADAPTATION_CHECKPOINT_20261029_STOP.md).
 
-Fresh diagnostic116 passes19.311s/pins verified. Existing boundary movement targets
-on the captured sliver preserve only roundoff-scale shape: this is not a missing
-projector fallback or evidence for relaxing metric guards. A different working
-boundary diagonal passes existing native topology, feature traces, forward
-associations and complete surface-error checks (.00097698<.001),58459 work/no
-exhaustion. This proposal is not accepted adaptation or distributed publication.
+The captured false veto is finite curvature guidance (.0604383), not a failed
+projection: validated original-surface face error is.00726343<.01. The sampler is
+removed; existing original-surface error methods are reused. Quality smoothing's
+geometry constraint now applies independently of the global validity-only builder
+mode, preventing ordinary shape repair from undoing geometry satisfaction.
 
-The connected implementation adds ShellBoundaryCell using existing Finish and
-classified original geometry; the optimizer admits it only over a complete current
-incident-edge ring and measured shape/height improvement. New physical faces use
-the existing absolute geometry tolerance. Publication, nodal metric transport,
-source reconstruction and restart retain their existing cell/association formats.
-Current geometry overlays are refreshed after shelling and smoothing. Construction
-adds no q/J measurements or ranking, and all final gates/limits remain unchanged.
-
-Supporting fresh diagnostic115 proves three individual collapses invert cells;
-complete six-ring enumeration rejects all14 interior edge-removal triangulations.
-Neither these refusals nor zero-radius numerical cone searches prove general
-geometric impossibility. The source-level decision and native extension provenance
-are in [the design record](ADAPTATION_ESTABLISHED_DESIGN.md).
+The latest smaller failure leaves geometry satisfied but q/J and size incomplete
+at4096 logical work. A source-faithful fresh AdaptMetric entry fails metric
+bootstrap before any proposal; a changed-source diagnostic times out inside
+repair. These are not proofs of unavailable geometry or grounds for increasing
+production limits. Follow the user's updated HANDOFF before further work.
 
 Build106 PASS114.227s,1295 pins unchanged, compiles the connected failure-path changes; no complete
 workflow is accepted. Build103 capture of the actual M6 fatal query records the

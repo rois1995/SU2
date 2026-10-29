@@ -346,3 +346,20 @@ face publication path. No vertex moves, transfer format, original donor definiti
 or restart schema is added. The fresh local topology/geometry witness is supporting
 operator evidence only; actual conservative transfer/current+BDF2 histories and
 solver restart on the resulting accepted mesh remain required.
+
+
+## 2026-10-29 — saved state at requested stop
+
+Latest build124 serial regression passes45 cases/9611 assertions. The complete
+smaller curved workflow still fails mesh acceptance before conservative transfer;
+flat current+BDF2 histories and SU2/CGNS reload pass. Actual solver restart remains
+unvalidated. See [the saved checkpoint](ADAPTATION_CHECKPOINT_20261029_STOP.md).
+
+The diagnostic now saves the exact original metric-donor records (six rows),
+separately from current transported nodal metrics. These are metric support, not
+CFD solution/history donor records. Reentering AdaptMetric with that old support
+and curved private nodes refuses bootstrap before any proposal. Reconstructed
+current-mesh metric donors permit progress but change support and later time out.
+Neither diagnostic establishes transfer or restart correctness. Stage bootstrap
+intentionally replaces prior metrics; sensor_present alone cannot identify a
+current metric epoch. Do not bypass refresh merely to make this replay run.

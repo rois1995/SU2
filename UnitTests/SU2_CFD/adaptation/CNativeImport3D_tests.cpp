@@ -2628,11 +2628,21 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
         <<" feature="<<feature.vertices[0]<<','<<feature.vertices[1]<<','<<feature.vertices[2]
         <<" geometry="<<geometry<<" old_cells="<<old.cells.size()<<" new_cells="<<fresh.cells.size()<<" reason="<<reason<<'\n';
     };
-  double quality_floor=0;bool quality_active=false;
+  double quality_floor=0;bool quality_active=false,geometry_satisfied=false,source_captured=false;
   if(curved && work_trace && std::string(work_trace)=="1")
     limits.stage_observer=[&](const StageProgressView& view) {
       if(world.size!=1 || !view.wall_heights.empty())return;
       const std::string stage=view.stage;
+      if(!source_captured) {
+        const auto path="cubic_original_metric_source_"+std::to_string(rans)+"_rank"+std::to_string(world.rank)+".bin";
+        std::ofstream out(path,std::ios::binary|std::ios::trunc);REQUIRE(bool(out));
+        std::vector<char> bytes;constexpr size_t ceiling=size_t(128)<<20;size_t written=0;
+        auto write=[&](auto value){bytes.clear();RecordStream stream(bytes);stream(value);
+          if(bytes.size()>ceiling-written)throw std::length_error("Original metric source capture exceeds admission");
+          out.write(bytes.data(),bytes.size());written+=bytes.size();REQUIRE(bool(out));};
+        write(uint64_t(view.original.size()));for(const auto& donor:view.original)write(donor);
+        out.close();REQUIRE(bool(out));source_captured=true;
+      }
       const bool entry=stage=="quality_entry";
       if(!entry && (!quality_active || (view.phase!=EnginePhase::Improvement && stage!="construction_entry")))return;
       double score=1;
@@ -2641,6 +2651,12 @@ TEST_CASE("Mapped native runtime completes a uniform target before conservative 
         score=std::min({score,m.mean_ratio/MinimumMeanRatio,m.minimum_scaled_jacobian/MinimumScaledJacobian});}
       INFO("Measured shape score within quality stage: "<<score<<" previous "<<quality_floor);
       CHECK(std::isfinite(score));if(!entry)CHECK(score>=quality_floor-1e-12);
+      if(entry)geometry_satisfied=view.progress.geometry_complete && view.progress.geometry_bad_cells==0;
+      else if(view.progress.census_complete && view.progress.geometry_complete) {
+        INFO("Geometry failures within quality stage: "<<view.progress.geometry_bad_cells);
+        if(geometry_satisfied)CHECK(view.progress.geometry_bad_cells==0);
+        geometry_satisfied=geometry_satisfied||view.progress.geometry_bad_cells==0;
+      }
       quality_floor=score;quality_active=stage!="construction_entry";
     };
   if(curved && work_trace && std::string(work_trace)=="1")

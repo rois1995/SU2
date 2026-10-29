@@ -10,28 +10,22 @@ DC-17/DC-18 remain open. The selected foundation is SCOREC/MeshAdapt classified
 cavities and transported nodal size fields inside SU2. Requirements, source-code
 comparison, decisions and acceptance: [connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md).
 
-Current work2026-10-29: M6 build114 terminal1860.786s, solver0/nativefalse,
-pins verified/all owned ranks terminal. It enters quality at497s after the first
-length pair (construction q/J measurements zero), then reaches unchanged1800s
-native limit. Quality bad counts fall31047→28600 and27549→25086, but final census
-is incomplete; no accepted mesh/transfer/restart. No projection-failure captures.
-Sampled owned process-tree RSSmax3.968GB, not allocation peak. Detailed receipts:
-staged57/build114_m6_summary.json. This one event does not establish repeated cost.
+Stopped at the user's request on2026-10-29. Their updated HANDOFF_Codex.md is
+preserved unchanged. No owned job remains active. Latest build124 passes with1295
+pins verified; serial45 cases/9611 assertions pass. MPI6 passes11/12 cases per rank;
+only the two curved workflow COMPLETE assertions fail. Full curved/M6 adaptation,
+conservative transfer/history and actual restart remain unaccepted; DC-17/DC-18 open.
 
-Fresh diagnostic116 PASS19.311s/pins verified. Ordinary boundary moves remain at
-roundoff-scale shape; the reconstructed boundary diagonal passes existing native
-topology, feature traces, forward associations and complete surface-error checks
-(.00097698<.001),58459 work/no exhaustion. No final mesh is claimed. Independent
-ring analysis is preserved in staged57/serial_replay115. Latest pushed WIPc53241f246.
+Saved changes: classified boundary reconstruction and optimizer overlay refresh;
+original-surface error replaces custom curvature guidance for geometry decisions;
+geometry-aware quality selection remains separate from validity-only construction.
+No budget or final gate changed. Latest smaller workflow has256 private cells,
+q/J2/2,size22,geometry0 at4096 work, below its arithmetic limit. Fresh-work
+continuations do not prove feasibility: changed-source diagnostic times out;
+original-metric-source diagnostic refuses bootstrap before any operation.
 
-Implementing the shared elementary boundary shelling plus classified optimizer
-caller over complete incident-edge closure, reusing Finish and atomic publication.
-No vertex movement, new format, projector, budget or construction shape threshold.
-Refresh optimizer geometry overlays after topology/movement; retain metric/height,
-nonlocal contact and all final gates. Correct the new scalar fixture to expect the
-existing Absolute Shape refusal. Next build118 groups these connected changes;
-full smaller workflow, MPI publication, transfer/history/restart and new M6 remain
-required. DC-17/DC-18 and full BL/RANS remain open.
+Current results, replay limitations and exact evidence paths:
+[stop checkpoint](Handbook/ADAPTATION_CHECKPOINT_20261029_STOP.md).
 
 Supporting checks: projection20 cases/597 assertions; MPI6 focused8 cases/rank;
 current-field122 cases; all10 DC18 geometry groups;28 filter selections. These do

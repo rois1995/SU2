@@ -745,6 +745,11 @@ TEST_CASE("Entity collapse precheck agrees with the complete curved cavity", "[N
   old.surface=fixture.surface;scoped->ExportParameters(old);
   Patch fresh;const bool collapsed=CollapseVertex(old,0,10,100,*scoped,fresh,reason);INFO(reason);REQUIRE(collapsed);
   REQUIRE(fresh.cells.size()==2);for(const auto& c:fresh.cells)CHECK(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0);
+  auto current=scoped->PrivateParameters(fresh);double error=0;
+  for(const auto& face:fresh.surface){std::array<Point,3> p;
+    for(unsigned k=0;k<3;++k)p[k]=fixture.points.at(face.v[k]).node.p;
+    error=std::max(error,current->SurfaceErrorForValidatedFace(face.facet,p));}
+  CHECK(error<.01);CHECK(error>1e-4);
   bool tight_veto=false;size_t survivors=0;
   for(const auto& c:old.cells)if(std::none_of(c.v.begin(),c.v.end(),[](const Node& n){return n.id==10;})) {
     ++survivors;OwnedCell row;row.cell=c;const auto& v=c.v;

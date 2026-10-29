@@ -1886,10 +1886,10 @@ TEST_CASE("Native MPI publication notifies complete changed stars beyond unchang
   CHECK(directory.Snapshot()==directory_saved); CHECK(Bytes(owned)==cells_saved); CHECK(directory.ChangedVertices()==changes);
   CHECK(world.sum(int(directory.Statistics().change_sent))>0);
   CHECK(directory.Statistics().change_seconds>=0);
-  Directory mismatched(world,world.rank==0);
+  Directory mismatched(world,world.rank==0);const auto uninitialized=mismatched.Snapshot();
   if (world.size>1) {
     CHECK_FALSE(mismatched.Build(owned,reason));
-    CHECK(reason.find("mode differs")!=std::string::npos); CHECK(mismatched.Snapshot().empty());
+    CHECK(reason.find("mode differs")!=std::string::npos); CHECK(mismatched.Snapshot()==uninitialized);
   }
 }
 
@@ -3884,6 +3884,7 @@ TEST_CASE("Quality repair completes a useful pass before revisiting construction
   std::set<std::array<double,3>> unchanged_centroids;
   for(const auto& c:good.patch.cells){const auto p=Centroid(c);unchanged_centroids.insert({p.x+good_shift,p.y,p.z});}
   append(std::move(good),100*(copies+1),16*(copies+1),12*(copies+1),good_shift,0);
+  input=WithUniformSensor(std::move(input),Tensor{});
   const auto saved=Bytes(input);const PlanarReference reference(fixture.facets);
   unsigned unchanged_queries=0;
   auto compose=[&](Point p,Tensor tensor){unchanged_queries+=unchanged_centroids.count({p.x,p.y,p.z});return tensor;};
@@ -3978,7 +3979,7 @@ TEST_CASE("Unproductive coarsening closures restore strict ownership and revisit
     }
     const auto parameters=mapped?reference->Parameters()->Snapshot():std::vector<char>{};
     const Tensor tensor=stretched?Tensor{1,0,0,1,0,.25}:Tensor{};
-    const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+    const auto input=WithUniformSensor(Partition(Rows(fixture.patch),world),tensor);const auto saved=Bytes(input);
     size_t feasible=0;
     for(Id corner=0;corner<8;++corner) {
       Patch collapsed;std::string reason;

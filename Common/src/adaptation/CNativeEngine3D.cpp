@@ -2488,7 +2488,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!std::isfinite(after) || (kind==MetricChange::GeometryRefine && !geometric_progress) ||
            (kind==MetricChange::Coarsen && after>0) ||
            (kind!=MetricChange::GeometryRefine && after>before &&
-            !((kind==MetricChange::Repair || kind==MetricChange::GeometryRepair) && phase==Phase::Improvement))) {
+            !(kind==MetricChange::GeometryRepair && phase==Phase::Improvement))) {
           result.reason="Native3D candidate does not preserve/improve its frozen geometry error.";return guarded_geometry(false);
         }
         return true;
@@ -4407,7 +4407,7 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
   const auto& geometry=moved_geometry?*moved_geometry:*options.geometry;
   try{geometry.ExportParameters(patch);}catch(const std::exception&){return false;}
   const double before=MinScore(old);const auto origin=points.at(p);
-  const long double geometric_before=GetShapeAdmission()==ShapeAdmission::Absolute?GeometryGuidanceExcess(patch,geometry,options.surface_tolerance):0;
+  const long double geometric_before=GeometryGuidanceExcess(patch,geometry,options.surface_tolerance);
   std::vector<Point> targets;std::set<Id> neighbors;
   for(const auto& c:patch.cells)for(auto n:c.v)if(n.id!=p)neighbors.insert(n.id);
   if(geometry.Mapped()) {
@@ -4484,10 +4484,8 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
     auto candidate_parameters=geometry.PrivateParameters(candidate);const auto& candidate_geometry=candidate_parameters?*candidate_parameters:geometry;
     FirstHeightReport height;
     if(GetShapeAdmission()==ShapeAdmission::Absolute && !CheckFirstHeight(candidate,options.wall_heights,candidate_geometry,height,reason)){++report.rejected_frozen;continue;}
-    if(GetShapeAdmission()==ShapeAdmission::Absolute) {
-      const auto after=GeometryGuidanceExcess(candidate,candidate_geometry,options.surface_tolerance);
-      if(!std::isfinite(after)||after>geometric_before){++report.rejected_interface;continue;}
-    }
+    const auto after=GeometryGuidanceExcess(candidate,candidate_geometry,options.surface_tolerance);
+    if(!std::isfinite(after)||after>geometric_before){++report.rejected_interface;continue;}
     bool sized=true;
     for(const auto& c:candidate.cells)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)
       if((c.v[i].id==next_node || c.v[j].id==next_node) && !Certified(c.v[i].p,c.v[j].p,MaximumMetricEdge))sized=false;

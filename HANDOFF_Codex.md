@@ -1,65 +1,126 @@
-# Current handoff — 2026-10-29
+# Native adaptation — current work path
 
-Continue DC-17/DC-18 under [AGENTS.md](AGENTS.md). No accepted complete curved/M6
-adaptation, conservative history transfer and solver restart workflow yet. BL/RANS
-remains part of the goal. Private edits and primitive tests do not close either item.
+Updated 2026-10-29. This is the active work-path entry point. Follow current user
+instructions and [AGENTS.md](AGENTS.md). Earlier designs and archived handoffs are
+historical evidence, not additional requirements. Keep numerical defaults,
+implementation choices and uncertain provenance separate from user requirements.
 
-Requirements and implementation decisions are separated in the
-[selected foundation](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md): native classified
-complete cavities, transported nodal metric, coarsen/refine then quality improvement.
-Boundary points move on fixed original geometry; genuine features, bodies, absolute
-geometry tolerance independent of h0 and every final gate remain mandatory.
-SCOREC ma/LICENSE is non-commercial; no MeshAdapt source copied.
+## Complete objective
 
-Latest pushed WIP: `c53241f246`, verified on rois1995/SU2 branch `codex/native-3d-bl`.
-TODO remains local. Leave unrelated files alone.
+Deliver robust native distributed SU2 adaptation in **2D and 3D**, for **Euler and
+RANS**, in **steady and unsteady** simulations, including requested boundary-layer
+constraints, conservative solution/history transfer and actual solver restart.
+Construction follows geometry, target metric and current wall constraints. Solver
+labels, case names and inferred input-mesh classes must not select reconstruction
+modes. Euler-to-BL and BL-to-Euler are validation scenarios only.
 
-**M6 build114 terminal1860.786s; native rejected at unchanged1800s limit**,
-pins verified and all ranks gone. Quality entry497s; q/J bad31047/27549→28600/25086,
-exit census incomplete. No projection-failure captures; no transfer/restart.
-Whole sampled process-tree RSSmax3.968GB, not allocation peak. Receipts in
-staged57/build114_m6_summary.json. Source114 primitive evidence remains historical.
+## Connected adaptation workflow
 
-Diagnostic116 terminal19.311s/pins verified: proposed working-boundary diagonal
-passes existing native topology/features/associations/error(.00097698<.001),58459
-work. Ordinary moves leave roundoff-scale q/J. Shared ShellBoundaryCell and quality
-optimizer integration now implemented, including current geometry overlay refresh;
-build118 is next. Sources/tests/helpers pinned during that build/runtime. One heavy
-job, nice19/j1/single-thread libraries, compile scratch4TB, at most6 MPI ranks.
+1. **Reuse an established foundation.** The current implementation choice is
+   classified complete cavities, current nodal metric transport and coordinated
+   coarsening/refinement followed by improvement, informed by mature implementations.
+   Reuse existing SU2 facilities and suitable licensed implementations before adding
+   machinery. Native integration does not require inventing every algorithm.
+   SCOREC MeshAdapt's module license is non-commercial; no source has been copied.
+   Algorithm choices remain replaceable when evidence supports a simpler solution.
 
-Current connected fixes: shared cubic projection uses local coordinates and accepts
-an existing classified foot whose conservative distance bound meets requested
-accuracy. Ordinary associations use validated fixed entity/current parameters;
-genuine feature routes and owner/archive consistency remain. Unavailable candidates
-refuse locally; invalid backend/state/resource failures remain explicit. Improvement
-runs after each collapse/split pair. Stage quality admission is separate from
-validity-only geometric builders; final gates are unchanged.
+2. **Keep fixed geometry authoritative.** Working boundary nodes may move on the
+   prescribed geometry. Preserve genuine corners/curves, bodies, boundary identities
+   and separation. Geometric tolerance is configured independently of h0. Rebuild
+   affected working patches and all incident shared-edge/face owners together;
+   discard obsolete subdivisions. Persist current semantic associations and genuine
+   features, with validated legacy/restart migration. Derived data must not accumulate
+   adaptation history. Use curves in 2D and surfaces/feature curves in 3D; share useful
+   semantics/utilities without importing unnecessary 3D machinery into 2D.
 
-Smaller build114 workflow FAIL30.048s by operator stagnation, not resource exhaustion:
-2062/4096 proposals,35,630,824/67,207,168 atlas work. Within-quality non-regression
-assertions pass, but139 private cells still have q/J1/1, size16, geometry32 failures;
-curved transfer is not reached. Flat Euler/RANS current+BDF2 conservative history
-transfer and SU2/CGNS reload pass. Actual solver restart is not qualified.
+3. **Construct valid cells first.** Use general split, collapse and cavity operators
+   against the requested target. Intermediate cells remain positive/nondegenerate,
+   with valid topology, geometry associations and body/feature preservation. Omit
+   q/J measurements, shape ranking and quality-progress vetoes unnecessary for
+   validity. Freeze the donor state and retain the accepted mesh/state on failure.
 
-Fresh diagnostic115 is terminal17.178s, all pins verified. Three existing classified
-collapses of worst-cell vertices refuse exact orientation at cells135178,116744,
-174089 using30/42 work, without exhaustion. This proves only those proposals fail.
-Investigate existing interior edge-removal on closed6-ring edge1–134792, not a new
-fallback. Worst cell122900 has four points on one original wall facet and positive
-roundoff-scale determinant. Preserve diagnosis before changing operators.
+4. **Improve metric/BL quality explicitly afterward.** Use smoothing, constrained
+   boundary redistribution and topology changes to resolve quality and target debt.
+   Stage admission is independent of the validity-only geometric builders: that
+   builder mode must not disable geometry constraints during quality improvement.
+   Iterate construction and improvement as needed. Enforce all final geometry,
+   quality, metric-size and requested-height gates before acceptance.
 
-The new scalar Absolute fixture now expects the existing early Shape refusal,
-not Progress. New negative boundary tests preserve junctions/rejected outputs.
-Build118 groups these with the connected kernel/optimizer change; no gates weakened.
+5. **Drive BL adaptation through actual constraints.** Support requested first
+   height, wall-normal resolution, growth and transition to the outer metric in both
+   dimensions. General operators construct, redistribute or remove resolution from
+   those requests. Preserve requested wall constraints and genuine trailing-edge/
+   junction features. Retain the full BL/RANS goal while first closing the curved
+   Euler foundation. Existing 2D staging also needs alignment and qualification.
 
-Detailed evidence: [projection findings](Handbook/ADAPTATION_PROJECTION_FINDINGS.md),
-[transfer findings](Handbook/TRANSFER_OPERATORS_FINDINGS.md),
-[progress](ADAPTATION_PROGRESS.md). staged57 contains build114_mapped_summary.json,
-build114_worst_cell.json, serial_replay115/status.json and raw captures.
-Prior terminal M6 build106 stopped at1800s before quality/transfer after11567 edits;
-its receipts remain valid historical evidence, not qualification of current staging.
+6. **Implement MPI-aware methods from the outset.** Obtain complete distributed
+   cavities and incident-owner closure; enforce ownership/version checks and atomic
+   publication of mesh, geometry associations and metric attributes. Validate serial
+   and MPI correctness throughout development. Avoid serial-only methods requiring
+   a later redesign. Keep solver compatibility separate from remeshing decisions.
 
-Next: assess current M6, replay the existing ring operator, then make the smallest
-connected correction supported by failures. Verify test filters. Qualify accepted
-smaller/M6 mesh, repeated events, publication, conservative transfer/history and
-actual restart before claiming completion. Do not raise caps or weaken gates.
+7. **Complete transfer, unsteady history and restart.** Transfer flow/turbulence
+   variables and all required time-history levels and metadata consistently. Check
+   conservation, admissibility and boundary-domain accounting. Validate physical-time
+   adaptation, repeated events, mesh reload and actual solver continuation/restart.
+   Requested h0 progression must support unsteady adaptation without relying only
+   on steady adaptation-loop counters. History correctness is part of development
+   throughout, not an optional final extension.
+
+8. **Qualify complete workflows.** First close the smaller curved workflow and use
+   M6 early under comparable final acceptance conditions; then qualify BL and steady/
+   unsteady workflows in 2D and 3D. Exercise different fields/geometries, neighboring
+   edits, repeated events, MPI publication, conservative history transfer and restart.
+   Reuse valid evidence with complete provenance and verify test selection. Primitive
+   fixtures and private edits support diagnosis; they do not establish completion.
+
+## Performance comes after mesh validation
+
+First obtain validated, accepted meshes and complete adaptation/transfer/restart
+workflows. Then assess and improve performance in **both serial and MPI paths**,
+including scaling, repeated-event cost, memory and communication. During correctness
+work, retain failure diagnostics and machine resource safeguards; defer performance
+campaigns and tuning. Resource limits are implementation controls, revisable with
+measured justification; exhaustion does not prove geometric impossibility. Preserve
+first failures with fresh work and resolve demonstrated design defects rather than
+masking repeated unsuccessful work with larger caps or additional local fallbacks.
+
+After correctness, consider a **temporary adaptation-specific partition** distinct
+from the CFD solver partition. Weight nodes by expected adaptation workload,
+redistribute for adaptation, then return/repartition the accepted mesh and solution/
+history for the solver. Preserve global identities, associations and state through
+both redistributions. This is an option to evaluate, not a prerequisite delaying
+accepted meshes. Derive workload-formula examples from Alauzet–Loseille papers,
+citing the exact equation and assumptions; distinguish predicted adapted-mesh
+population from operator cost. Validate any SU2-specific modifications separately.
+
+## References, status and working discipline
+
+- Available papers: [local collection](/media/rausa/4TB/SU2_Versions/Prove/Papers),
+  including Loseille–Alauzet–Menier, *Unique cavity-based operator and hierarchical
+  domain partitioning for fast parallel generation of anisotropic meshes* (2017,
+  DOI: 10.1016/j.cad.2016.09.008). Inspect the full paper before adopting formulas.
+  Use Consensus or accessible author copies for additional literature; ask the user
+  in the conversation for specific papers that remain unavailable.
+- Keep the geometry backend small: current native geometry first; optional Open
+  CASCADE support later, STEP then faceted STL and IGES. STL does not define an exact
+  smooth CAD surface. Avoid speculative format infrastructure before qualification.
+- Current status/evidence: [progress](ADAPTATION_PROGRESS.md), local
+  [TODO](ADAPTATION_TODO.md), [design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md),
+  [projection findings](Handbook/ADAPTATION_PROJECTION_FINDINGS.md),
+  [transfer findings](Handbook/TRANSFER_OPERATORS_FINDINGS.md) and
+  [runtime history](Handbook/ADAPTATION_RUNTIME_HISTORY_20261028.md).
+  These records carry detailed results, blockers and provenance. Verify live handles
+  and receipts before resuming; do not treat stale status text as a running job.
+- Before substantial coding, state the missing capability, evidence, affected callers
+  and acceptance. Group connected changes; run focused checks for concrete risks
+  and broader regressions at integration milestones. Keep validation resumable.
+- Respect repository resources: check host load/RAM and owned handles; one heavy job,
+  nice19, one build worker, single-threaded libraries and at most six available local
+  MPI ranks. Use the 4TB compile-tmp. Do not edit pinned sources/helpers during jobs;
+  leave unrelated processes/files alone. Use 6.1 Terra for bounded routine tasks;
+  retain integrated design and acceptance assessment with the primary agent.
+- Keep this handoff focused on the current path; place changing job/build details
+  and historical results in the linked records. Keep TODO/findings current. Save
+  clearly labelled checkpoints, distinguishing WIP from validated capability.
+  Existing approved push destination: rois1995/SU2, branch codex/native-3d-bl.

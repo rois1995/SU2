@@ -396,3 +396,31 @@ conservative transfer/history and solver restart gate remains. Acceptance requir
 the captured smaller whole workflow, neighboring/overlapping publication and
 repeated events, then early M6 under comparable gates. A passing proposal alone
 cannot close DC-17 or DC-18.
+
+
+## Geometry permissions and quality-stage coupling — builds121/122
+
+An inherited sampled-curvature sizing calculation was used as a hard geometry
+permission/current-mesh demand. Probe120 measures.0604383 through that surrogate,
+but.00726343 through existing original-surface validated-face error, below requested
+.01. Full collapse and ContainsFace pass. Build121 deletes the custom sampler and
+reuses SurfaceError/SurfaceErrorForValidatedFace for the shared entry point. Original
+whole-surface coverage remains separate and mandatory. No projector fallback, new
+proof representation or tolerance change is justified.
+
+Actual build121 workflow still reaches4096 work after33 phase pairs: existing
+quality smoothing suppresses geometry constraints whenever global shape admission
+is ValidityOnly. That global mode must remain for validity-first geometric builders;
+it is not the quality-stage geometry policy. Ten complete quality phases increase
+actual geometry debt, one14.76-fold, undoing previous construction work.
+
+Activate the existing geometry-excess constraint while selecting boundary smoothing
+candidates, independent of global shape mode. At shared ordinary Repair admission,
+retain the existing rule against increasing geometry excess. Real requested-height
+GeometryRepair remains explicit. Geometry excess is zero for faces within the
+requested tolerance, so boundaries remain free to redistribute inside it. Nonincrease
+of this area-weighted excess is an agent-selected quality merit responding to the
+capture, not a new user requirement. Construction remains validity-only, every
+final acceptance gate stays unchanged, and no work cap is raised. A subsequent
+failure must distinguish absent admissible candidates from scheduling/cost before
+further algorithm changes.

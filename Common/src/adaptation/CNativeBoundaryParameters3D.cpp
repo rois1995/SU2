@@ -1182,50 +1182,8 @@ GeometryProjection ProjectEntitySurface(const State& state,Point point,const Sur
 }
 }
 double PlanarReference::SurfaceDeviation(Id facet,const std::array<Point,3>& triangle,bool validated)const {
-  if(!EntityGeometry())return validated?SurfaceErrorForValidatedFace(facet,triangle):SurfaceError(facet,triangle);
-  const auto& state=*Parameters();const auto& g=state.Geometry();
-  if(!validated && !ParameterContainsFace(facet,triangle,nullptr))
-    throw std::invalid_argument("Local geometry guidance leaves its prescribed entity.");
-  std::array<SurfaceBinding,3> bindings;std::array<const BoundaryPoint*,3> points;bool local=true;double error=0;
-  for(unsigned k=0;k<3;++k){const auto* p=Parameter(triangle[k]);
-    if(!p)throw std::invalid_argument("Local geometry guidance lost a vertex association.");
-    points[k]=p;bindings[k]=p->binding;local=local&&g.Supports(facet,bindings[k]);
-    error=std::max(error,g.ErrorBound(bindings[k],triangle[k]));}
-  if(local)return std::max(error,g.SurfaceError(facet,bindings,triangle));
-  auto* reservation=AtlasReservation();
-  if(!reservation)throw std::invalid_argument("Local geometry guidance requires an admitted reservation.");
-  // Sample the immutable model; final publication still requires the two-sided whole-surface gate.
-  const Point center{(triangle[0].x+triangle[1].x+triangle[2].x)/3,
-      (triangle[0].y+triangle[1].y+triangle[2].y)/3,(triangle[0].z+triangle[1].z+triangle[2].z)/3};
-  const Id hint=CurrentEntityHint(state,facet,center,points);
-  const auto previous=g.FacetPoint(hint,1./3,1./3);
-  NativeMappedGeometryBackend3D backend(state.Authority(),state.Mobility());
-  GeometryProjectionScope scope;scope.hint=hint;scope.previous=previous;
-  scope.body=std::get<0>(state.Entity(hint));scope.sheet=std::get<1>(state.Entity(hint));
-  scope.absolute_error=std::max(std::numeric_limits<double>::min(),state.GeometryTolerance()/8);
-  auto project=[&](Point p){GeometryProjection q;std::string reason;
-    GeometryProjectionFailure failure;
-    if(!backend.Project(p,scope,q,*reservation,reason,&failure)) {
-      if(failure==GeometryProjectionFailure::Unavailable){q.distance_upper=INFINITY;return q;}
-      if(!reservation->work_exhausted&&reservation->geometry_failure.empty())reservation->geometry_failure=reason;
-      throw std::invalid_argument(reason);
-    }
-    return q;};
-  error=std::max(error,project(center).distance_upper);if(!std::isfinite(error))return error;
-  for(unsigned k=0;k<3;++k){const auto a=triangle[k],b=triangle[(k+1)%3];
-    const Point edge{b.x-a.x,b.y-a.y,b.z-a.z};const double length=std::hypot(edge.x,edge.y,edge.z);
-    for(double t:{.25,.5,.75}){const auto q=project({a.x+t*edge.x,a.y+t*edge.y,a.z+t*edge.z});
-      error=std::max(error,q.distance_upper);if(!std::isfinite(error))return error;const auto& e=q.evaluation;
-      if(e.differential_available && length>0){
-        const auto dot=[&](Point d){return (edge.x*d.x+edge.y*d.y+edge.z*d.z)/length;};
-        const double u=dot(e.direction1),v=dot(e.direction2);
-        const double curvature=std::abs(e.curvature1)*u*u+std::abs(e.curvature2)*v*v;
-        if(curvature>0 && std::isfinite(curvature) && std::isfinite(1/curvature))
-          error=std::max(error,SU2NativeCurved::CurvatureSizeRule::ChordHeight(length,1/curvature));
-      }
-    }
-  }
-  return error;
+  // Geometry permissions use the original surface error, not a constant-curvature sizing surrogate.
+  return validated?SurfaceErrorForValidatedFace(facet,triangle):SurfaceError(facet,triangle);
 }
 Node PlanarReference::BindNewPoint(Node point,const std::set<Id>& incident,const Edge* edge)const {
   if(EntityGeometry()) {
