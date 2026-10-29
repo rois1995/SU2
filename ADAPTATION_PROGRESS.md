@@ -66,11 +66,30 @@ checks pass. An unchanged-source extraction passes648 exact rational enclosure
 checks, true underflow and nonfinite paths (probe corrected from C++11 to repo C++17).
 No final gate, tolerance or work/time limit changed.
 
-Full two-event M6/build135 is active at
-staged57/m6_runs/euler_build135_certificate_reuse (exec35322),1800s native/event,
-5400s outer, one heavy job. Sources/helpers pinned. Receipt:
-staged57/checkpoint135_m6_reuse_summary.json. No complete curved/M6 capability is
-accepted; broader BL/RANS, history and actual restart remain open.
+Full M6/build135 is terminal with unchanged pins, first event elapsed-time refusal:
+760 private collapses/work965, no completed length pass or quality stage. Rank0
+pending edges43024, update394s,other1330s, selection<1s. The remaining retained-mesh
+event was stopped and all owned handles are gone. No mesh/transfer accepted.
+Receipt: staged57/build135_m6_summary.json. A review found cached hits did not
+respect sticky atlas denial or charge key work; engine collective checks and final
+certification still prevented mesh acceptance after exhaustion.
+
+Build136 fixes that API contract before lookup, charging the admitted key words.
+Regression6 cases/123 assertions passes, including empty/sticky/overrun budgets,
+support/body/tolerance/coordinate isolation and collapse contracts. Build passes
+84.212s/pins unchanged. The interval block is byte-identical to135's648 exact-rational
+checks; those proofs are reused. Existing sheared-graph complete-section work
+exhaustion remains unqualified; no numerical final gate or target field changed.
+
+The next full two-event attempt freezes this coherent implementation for a generous
+bounded budget:5400s native/event and14400s outer, at
+staged57/m6_runs/euler_build136_frozen_90min (exec35014). Prior1800s attempts admitted
+158→319→414→760 private collapses but never completed a length pass. This longer
+whole-target result must drive further work; do not add another checker variant
+before it. Sources/helpers pinned; one owned heavy job,6 nice19 ranks, single-thread
+libraries. Host launch receipt:8 CPUs,~33GiB available; observe sampled process tree
+and host contention. Receipt: staged57/checkpoint136_frozen_m6_summary.json.
+No complete curved/M6 capability is accepted. BL/RANS/history/restart remain open.
 
 Historical build128 passes serial45/9611 and focused MPI6 five cases/rank. Its
 residual size repair reaches a later complete-surface geometry blockage in the

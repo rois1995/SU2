@@ -235,9 +235,15 @@ TEST_CASE("Physical surface bounds reuse only identical immutable queries", "[Na
   const std::vector<std::array<Point,3>> physical{{{f.v[0].p,f.v[1].p,f.v[2].p}}};
   auto budget=BackendBudget();const auto bound=fixture.geometry->BoundPhysicalSurface(facets,physical,.01,budget);
   REQUIRE(std::isfinite(bound));REQUIRE(bound<=.01);REQUIRE(budget.work>0);
-  const auto work=budget.work;budget.maximum_work=work;
+  const auto work=budget.work;const auto key_work=3+facets.size()+9*physical.size();budget.maximum_work=work+key_work;
   CHECK(fixture.geometry->BoundPhysicalSurface(facets,physical,.01,budget)==bound);
-  CHECK(budget.work==work);CHECK_FALSE(budget.work_exhausted);
+  CHECK(budget.work==work+key_work);CHECK_FALSE(budget.work_exhausted);
+  auto none=budget;CHECK_THROWS(fixture.geometry->BoundPhysicalSurface(facets,physical,.01,none));CHECK(none.work_exhausted);
+  budget.maximum_work+=key_work;
+  auto sticky=budget;sticky.work_exhausted=true;
+  CHECK_THROWS(fixture.geometry->BoundPhysicalSurface(facets,physical,.01,sticky));CHECK(sticky.work==budget.work);
+  auto exceeded=budget;exceeded.work=exceeded.maximum_work+1;
+  CHECK_THROWS(fixture.geometry->BoundPhysicalSurface(facets,physical,.01,exceeded));CHECK(exceeded.work_exhausted);
   auto changed=physical;changed[0][0].x=std::nextafter(changed[0][0].x,-INFINITY);
   auto coordinates=budget;CHECK_THROWS(fixture.geometry->BoundPhysicalSurface(facets,changed,.01,coordinates));CHECK(coordinates.work_exhausted);
   auto tolerance=budget;CHECK_THROWS(fixture.geometry->BoundPhysicalSurface(facets,physical,.02,tolerance));CHECK(tolerance.work_exhausted);

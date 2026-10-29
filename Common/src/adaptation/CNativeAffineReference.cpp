@@ -1434,6 +1434,7 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
   if(!face_memo || FaceMemo::UnionBytes(words)>FaceMemo::Capacity() ||
       transfer_memory::Add(budget.caller_bytes,temporary)>budget.maximum_bytes)
     return QuerySurfaceUnion(facets,physical,tolerance,budget,false,true).mesh_to_model;
+  AtlasOps op{budget,__func__};op.Work(words);
   FaceMemo::UnionKey key;key.reserve(words);
   auto bits=[](double x){uint64_t value;std::memcpy(&value,&x,sizeof value);return value;};
   key.push_back(facets.size());key.insert(key.end(),facets.begin(),facets.end());

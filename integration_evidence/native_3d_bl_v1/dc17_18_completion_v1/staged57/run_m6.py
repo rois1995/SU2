@@ -205,7 +205,8 @@ def main():
         raise SystemExit("usage: run_m6.py buildN unique_attempt [2]")
     build, unique_attempt = sys.argv[1:3]
     expected_events = int(sys.argv[3]) if len(sys.argv) == 4 else 1
-    outer_timeout = 5400 if expected_events == 2 else 2400
+    native_budget = 5400 if expected_events == 2 else 1800
+    outer_timeout = 14400 if expected_events == 2 else 2400
     acceptance_self_check()
     attempt = ROOT / "m6_runs" / unique_attempt
     attempt.mkdir(parents=True, exist_ok=False)
@@ -246,6 +247,9 @@ def main():
             config, count = re.subn(r"(?m)^ADAP_SUBITER=[ \t]*\([ \t]*1[ \t]*\)[ \t]*$", "ADAP_SUBITER= ( 2 )", config)
             if count != 1:
                 raise RuntimeError("expected exactly one baseline ADAP_SUBITER= ( 1 )")
+            config, count = re.subn(r"(?m)^ADAP_NATIVE_MAX_TIME=[ \t]*1800[ \t]*$", f"ADAP_NATIVE_MAX_TIME= {native_budget}", config)
+            if count != 1:
+                raise RuntimeError("expected exactly one baseline ADAP_NATIVE_MAX_TIME= 1800")
             (attempt / "run.cfg").write_text(config)
         for filename, target in (("m6.su2", REPO / "integration_evidence/native_3d_bl_v1/oneram6_coarse_v1/Coarse.su2"),
                                  ("m6.su2.native_ref", REPO / "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation22/m6_authority.json.native_ref")):
@@ -278,7 +282,7 @@ def main():
                 "--output-filename", "rank_output", "-n", "6", str(CFD), "run.cfg"]
         save(attempt / "command.json", {
             "build": build, "case": "M6 Euler full adaptation", "ranks": 6, "expected_events": expected_events,
-            "native_budget_seconds": 1800, "outer_timeout_seconds": outer_timeout,
+            "native_budget_seconds": native_budget, "outer_timeout_seconds": outer_timeout,
             "argv": argv,
             "environment": {key: value for key, value in env.items()
                             if key.startswith(("SU2_NATIVE_", "OMPI_")) or

@@ -148,11 +148,39 @@ cases; compile flag was corrected from C++11 to repo C++17 without source change
 
 Build135 passes84.211s/1295 pins unchanged. Focused24/25 cases703/704 assertions;
 only prior sheared-graph complete-section work exhaustion remains, not a claimed
-full-suite pass. Full two-event M6/build135 now runs at
-staged57/m6_runs/euler_build135_certificate_reuse (exec35322),1800s native/event,
-5400s outer. Sources/helpers pinned. Receipt:
-staged57/checkpoint135_m6_reuse_summary.json. This target decides the next change;
-no accepted M6 workflow yet.
+full-suite pass. Full M6/build135 rejects metric-update elapsed time with760 private accepted
+collapses/work965 and no completed length pass/quality stage/mesh/transfer. Update
+394s and other1330s dominate; selection<1s. The perf sample still shows complete-
+cavity surface queries and projected-reference setup. Remaining retained-mesh event
+stopped; all owned handles terminal, pins unchanged. Receipt:
+staged57/build135_m6_summary.json.
+
+### Budget contract and coherent generous M6 freeze — build136
+
+Review identifies an API budget gap: memo hits returned before checking sticky
+atlas denial or charging key construction/lookup. The engine collective budget
+vote and final certificates still prohibit mesh acceptance after exhaustion. Charge
+all admitted key words before allocation/lookup; cache hits consume only that work,
+while misses use the original query. Test empty, sticky and already-overrun budgets
+as well as full key isolation/storage checks. No certificate or geometry change.
+
+Build136 passes84.212s/1295 pins unchanged. Focused6 cases/123 assertions pass.
+The interval arithmetic block is unchanged; reuse135's648 exact-rational enclosure
+checks with matched extracted hash. Prior sheared-graph complete-section work
+exhaustion remains recorded. No new numerical acceptance gate, tolerance or target
+metric field. One-event diagnostic config stays1800s/2400s.
+
+The previous1800s attempts admitted158→319→414→760 private collapses without
+completing a length pass. Per user direction, freeze this coherent implementation
+and give the complete two-event M6 a generous bounded attempt:5400s native/event,
+14400s outer including certification/transfer/CFD. The config changes only subiter
+count and the native resource time bound; all final gates remain. Active path:
+staged57/m6_runs/euler_build136_frozen_90min, exec35014. Sources/helpers pinned,
+one owned heavy job,6 nice19 ranks and single-threaded libraries. Host receipt and
+process-tree samples are preserved. Do not add another checker variant before the
+whole target result identifies its actual construction/certification/transfer
+blocker. Receipt: staged57/checkpoint136_frozen_m6_summary.json. No accepted mesh
+or complete M6 workflow yet.
 
 ## Residual length repair after shape closure — 2026-10-29 continuation
 

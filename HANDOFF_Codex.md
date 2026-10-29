@@ -98,25 +98,24 @@ population from operator cost. Validate any SU2-specific modifications separatel
 
 - Active target: accepted ONERA M6 Euler adaptation and actual CFD → mesh → CFD →
   mesh, with conservative transfer and usable published meshes. The user explicitly
-  authorized pushing every checkpoint; `77e5cd579d` and its implementation parent
-  are pushed. No complete curved/M6 workflow is accepted yet. The current change
-  improves conservative complete-surface bounds across noncoplanar triangulations;
+  authorized pushing every checkpoint. Code checkpoints are pushed regularly;
+  no complete curved/M6 workflow is accepted yet. Connected implementation and
+  target-driven evidence:
   [current diagnosis/design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
-  Full M6/build134 rejected on metric-update elapsed time:414 private collapses,
-  no completed length pass, mesh or transfer. Build133's319 collapses/timeout and
-  build132's dyadic failure remain preserved. See staged57/build134_m6_summary.json.
-  Captured stacks identify repeated model preparation in complete-cavity guidance
-  and current-cell measurement, plus artificial subnormal outward rounding.
-  Build135 (84.211s,pins unchanged) reuses identical physical-surface bounds in the
-  existing bounded memo pool and uses exact zero/unit interval identities. Final
-  two-sided certification remains uncached/mandatory; no tolerance or limit changed.
-  Focused24/25 cases703/704 assertions; only prior sheared-graph work exhaustion
-  remains. New memo contract passes; extracted interval operations pass648 exact
-  rational enclosure checks. Receipt: staged57/checkpoint135_m6_reuse_summary.json.
-  Full two-event M6/build135 is active at staged57/m6_runs/
-  euler_build135_certificate_reuse (exec35322),1800s native/event,5400s outer.
-  Keep sources/helpers pinned. Let this target determine the next change.
-  No complete M6 workflow is accepted.
+  Full M6/build135 rejected on metric-update elapsed time:760 private collapses,
+  work965, no completed length pass or quality stage, mesh or transfer. Previous
+  attempts admitted158/319/414 collapses; repeated1800s bounds stop before a pass.
+  See staged57/build135_m6_summary.json. Build136 corrects memo key-work charging
+  and sticky denial; its focused checks pass6 cases/123 assertions. Interval code
+  is unchanged from135's648 exact-rational checks. Build passes84.212s/pins unchanged.
+  Checkpoint: staged57/checkpoint136_frozen_m6_summary.json. No numerical gate or
+  geometry/metric field changed. Previous sheared-graph work exhaustion remains.
+  A coherent full two-event attempt is now frozen at staged57/m6_runs/
+  euler_build136_frozen_90min (exec35014):5400s native/event and14400s outer.
+  This generous bounded run must determine the next change; do not add another
+  checker variant or edit pinned source/helpers during it. One heavy workload,
+  six nice19 ranks and single-threaded libraries; host launch receipt saved.
+  No complete M6 workflow is accepted. BL/RANS, history and restart remain open.
 - Available papers: [local collection](/media/rausa/4TB/SU2_Versions/Prove/Papers),
   including Loseille–Alauzet–Menier, *Unique cavity-based operator and hierarchical
   domain partitioning for fast parallel generation of anisotropic meshes* (2017,

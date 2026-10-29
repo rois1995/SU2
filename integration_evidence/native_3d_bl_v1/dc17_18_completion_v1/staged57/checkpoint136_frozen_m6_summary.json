@@ -1,0 +1,49 @@
+{
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 84.21184086799622,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "focused": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_memo_budget_20261029T175642_1849165",
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 8.994466781616211,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 30232576,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "cases": 6,
+    "assertions": 123,
+    "result": "passed"
+  },
+  "interval_evidence_reused": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/interval135",
+    "checks": 648,
+    "unchanged_extracted_operations_sha256": "b0eacace0c3a21ed9c430fec233908e48a3f7ca8315af5ad99a3351179a125b3"
+  },
+  "active_target": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build136_frozen_90min",
+  "exec_session": 35014,
+  "native_seconds_per_event": 5400,
+  "outer_timeout_seconds": 14400,
+  "budget_rationale": "Previous1800s runs made positive private progress158\u2192319\u2192414\u2192760 accepted collapses but completed no length pass; freeze coherent implementation under a generous bounded whole-workflow budget before further checker changes. Final numerical gates unchanged.",
+  "accepted_m6_workflow": false,
+  "sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build136_status.json": "e09589b843d80883c7909a58c60fcf6d93877fc45897610ba0fd419d4a95b982",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build136_source_pins.json": "1081f57ddf50bf60057d344d742aa5f8d49dcc0dcc06feecd574f996ad40a944",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build136_command.json": "c9d51f6366e26b901b40127ae5dd5dd6901a4c174688c2e5421cf5fbf94e92b4",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build136.log": "2271ff4c50eed9dfabc8ed8be43dedc0e1747cfc93e27dc8bad9baf2c0e4bf5d",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_memo_budget_20261029T175642_1849165/status.json": "e792f0c80ed7d079f51a2bb988e16ca2a347b6efa2cdca53d56ebb6c8044f9dd",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_memo_budget_20261029T175642_1849165/pins.json": "1989f3c17b00f1ad436ed4a7546255b6383e2247a7a9ce368317d680f8e3d1af",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_memo_budget_20261029T175642_1849165/command.json": "ac376efb4ecfd696aca23ad23258fcf1709265619dce84ccf411d2ef47b9a4ba",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_memo_budget_20261029T175642_1849165/run.log": "1f0740913734c758cb69bca77f145edbd2f15a303c0788d7322a2ce516119018",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/interval135/provenance.json": "9b8ba802dcb8dd73c158eb6d05821816dd681b4cf1bcf4ac6dfccf0608430da1",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/interval135/result.json": "fc9658b1a3daf927e45e56af5c3be34f69eed7e785724a216f11e8290bb00d63",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build136_frozen_90min/host_start.json": "3c9dde4d2eb296869b30305e6c4b2076eb231e85065dce915688206ba0cb8788"
+  }
+}
