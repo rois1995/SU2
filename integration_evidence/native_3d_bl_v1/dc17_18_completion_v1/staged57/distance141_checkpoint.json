@@ -1,0 +1,74 @@
+{
+  "run140": {
+    "state": "terminal",
+    "solver_exit_code": 1,
+    "native_event_accepted": false,
+    "native_state": "solver exit failure; native acceptance not claimed",
+    "workflow_accepted": false,
+    "pins_verified": true,
+    "changed": [],
+    "seconds": 1028.6630902290344,
+    "recovered_monitor": true,
+    "largest_recovery_sampled_individual_process_rss_bytes": 669560832,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "stop": {
+    "time": 1793307554.9056766,
+    "pid": 2305298,
+    "command": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+    "reason": "User authorized interrupting demonstrated computational bottlenecks. Profile and live stacks show repeated interval witness certification in TriangleDistance. Preserve frozen pins before changing shared primitive.",
+    "native_acceptance_claimed": false
+  },
+  "diagnosis": "Active reverse bound over local curved supports; live queues depth7/1368 pending/lower4.52e-5/upper1.31e-4 at tolerance1e-4. Different later query confirms progress, not a deadlock. Interval witness certification dominates profile.",
+  "change": "Floating proposals select one convex witness; outward interval evaluation certifies it once. Upper-only callers omit unused lower bound. No geometry/quality/size/height acceptance gate change.",
+  "build141": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 135.4556839466095,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "focused": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 30.368163347244263,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 89083904,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "focused_selection": "11 cases/267 assertions pass",
+  "probe": {
+    "utc": "2026-10-29T21:03:11.659144+00:00",
+    "command": "nice -n 19 timeout 90s bash -c 'g++ -std=c++17 -O3 -ffp-contract=off \"$1/probe.cpp\" -o \"$1/probe\" && \"$1/probe\"' _ \"$PWD/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/distance141\"",
+    "environment": {
+      "TMPDIR": "integration_evidence/build-integrated-v2/compile-tmp",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "exit_status": 0,
+    "result": "checks=5103 old_seconds=0.792318 new_full_seconds=0.124065 new_upper_seconds=0.0866407 sink=211.207\nexit_status=0",
+    "source_sha256_before": "e8e8145c9618b94613cf80b059841a94a06234c67142e0f9ab4b359d6d839a59",
+    "source_sha256_after": "e8e8145c9618b94613cf80b059841a94a06234c67142e0f9ab4b359d6d839a59",
+    "source_unchanged": true,
+    "generated_sha256": "ee6357ebb72043896b8dd894b40f16c9da47fa304b0ea1926a05b4d41cae34e5",
+    "binary_sha256": "07750f63588e1461279bb1333d40f8f05a39cce7e1b1db96b3267a3e982e4c6f",
+    "timing_scope": "primitive with live_bound_state triangle and derived queries",
+    "host_load": "13.53 11.60 11.27",
+    "available_memory": "32 GiB"
+  },
+  "limits": [
+    "No accepted M6 mesh or transfer yet.",
+    "Primitive timing is not an end-to-end M6 speedup.",
+    "Prior full sheared-graph work-budget exhaustion remains unqualified."
+  ],
+  "evidence_sha256": {
+    "m6_runs/euler_build140_prepared_surface/native_300s.symbols.txt": "1d5536051afa0d4a4fff9dec647c6c4e616bed3fa8dd7ea9f3bf3c70a4972b7b",
+    "m6_runs/euler_build140_prepared_surface/live_bound_stack.txt": "2e6362c8509f3acf650d3fbcd38a611a6f67e4cd6951f8710adbfc97b01b5b75",
+    "m6_runs/euler_build140_prepared_surface/live_bound_state.txt": "8c1123fb729ab4bf73fac752a3abae88672da8feaa607078dec8cca18cd67ebf",
+    "m6_runs/euler_build140_prepared_surface/live_query.txt": "deb72df01f356f5989f4baf6e905806593ab128eaab83a7f0c08e08eb7f38625",
+    "cases/distance_bounds141_20261029T210317_2358833/pins.json": "e7f0b3c00f5d605ea2afff248a2b188165e4dc0bb41c3ce544d3eda1da40537e"
+  }
+}

@@ -686,3 +686,20 @@ capture, not a new user requirement. Construction remains validity-only, every
 final acceptance gate stays unchanged, and no work cap is raised. A subsequent
 failure must distinguish absent admissible candidates from scheduling/cost before
 further algorithm changes.
+
+### Target-driven witness certification — 2026-10-29
+
+Build140 used retained PreparedSurfaceView data, but profiles/live stacks locate
+remaining cost in conservative point-to-triangle distance bounds. A 64-support
+physical triangle had1368pending nodes atdepth7, lower4.52e-5/upper1.31e-4 versus
+1e-4 tolerance. A later different query confirms progress rather than deadlock.
+User authorized stopping demonstrated bottlenecks; run stopped1028.663s, pins
+verified/all handles terminal, no accepted event/transfer.
+
+Build141 floats only the ranking of candidate convex witnesses, then outwardly
+certifies the selected witness once. Upper-only callers skip the unused lower
+bound. Acceptance remains interval-certified. Build passes135.456s; focused11
+cases/267 assertions pass30.368s. Extracted production probe passes5103 exact
+enclosure checks and measures6.4x full/9.1x upper-only primitive speedup on one
+M6-derived batch, not whole-workflow speedup. Full M6 retry follows; old sheared-
+graph complete-query work exhaustion remains unqualified.

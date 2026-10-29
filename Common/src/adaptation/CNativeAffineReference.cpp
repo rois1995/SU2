@@ -185,18 +185,18 @@ Point BoxMiddle(const Box& box) {
   auto out=ToPoint(p);Finite(out);return out;
 }
 struct TriangleDistanceBounds {double lower=0,upper=INFINITY;};
-TriangleDistanceBounds TriangleDistance(const Box& point,const std::array<Point,3>& triangle,AtlasOps& op) {
+TriangleDistanceBounds TriangleDistance(const Box& point,const std::array<Point,3>& triangle,AtlasOps& op,bool lower_bound=true) {
   op.Work();const auto p=Values(BoxMiddle(point)),a=Values(triangle[0]),b=Values(triangle[1]),c=Values(triangle[2]);
   using Wide=std::array<long double,3>;Wide ab{},ac{},ap{};
   for(unsigned d=0;d<3;++d){ab[d]=(long double)b[d]-a[d];ac[d]=(long double)c[d]-a[d];ap[d]=(long double)p[d]-a[d];}
   auto dot=[](Wide x,Wide y){return x[0]*y[0]+x[1]*y[1]+x[2]*y[2];};
-  double best=INFINITY;Box witness{};
+  long double best_score=INFINITY;double selected_u=0,selected_v=0;
   auto propose=[&](long double wb,long double wc) {
     if(!(wb>=0&&wc>=0&&wb+wc<=1))return;
     const double u=std::clamp(double(wb+wc),0.,1.),v=u?std::clamp(double(wc/(wb+wc)),0.,1.):0.;
-    Box q;for(unsigned d=0;d<3;++d)q[d]=Add(Multiply({a[d],a[d]},Subtract({1,1},{u,u})),
-        Multiply(Add(Multiply({b[d],b[d]},Subtract({1,1},{v,v})),Multiply({c[d],c[d]},v)),u));
-    const auto bound=NormBound(Difference(point,q));if(bound<best){best=bound;witness=q;}
+    Wide delta;for(unsigned d=0;d<3;++d)delta[d]=ap[d]-u*((1-(long double)v)*ab[d]+v*ac[d]);
+    const auto score=dot(delta,delta);
+    if(score<best_score){best_score=score;selected_u=u;selected_v=v;}
   };
   propose(0,0);propose(1,0);propose(0,1);
   const auto aa=dot(ab,ab),bb=dot(ab,ac),cc=dot(ac,ac),x=dot(ap,ab),y=dot(ap,ac),det=aa*cc-bb*bb;
@@ -205,6 +205,11 @@ TriangleDistanceBounds TriangleDistance(const Box& point,const std::array<Point,
   if(cc>0)propose(0,std::clamp(y/cc,0.L,1.L));
   Wide bc{},bp{};for(unsigned d=0;d<3;++d){bc[d]=(long double)c[d]-b[d];bp[d]=(long double)p[d]-b[d];}
   if(dot(bc,bc)>0){const auto t=std::clamp(dot(bp,bc)/dot(bc,bc),0.L,1.L);propose(1-t,t);}
+  // Floating ranking only chooses a convex witness; certify that witness once before using its bound.
+  Box witness;for(unsigned d=0;d<3;++d)witness[d]=Add(Multiply({a[d],a[d]},Subtract({1,1},{selected_u,selected_u})),
+      Multiply(Add(Multiply({b[d],b[d]},Subtract({1,1},{selected_v,selected_v})),Multiply({c[d],c[d]},selected_v)),selected_u));
+  const auto best=NormBound(Difference(point,witness));
+  if(!lower_bound)return {0,best};
   const auto direction=Exact(BoxMiddle(Difference(point,witness)));const auto length=NormBound(direction);
   long double lower=INFINITY;
   for(auto vertex:triangle)lower=std::min(lower,DotBox(Difference(point,Exact(vertex)),direction).lo);
@@ -244,7 +249,7 @@ class TriangleUnion {
   }
   template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op) {
     Box box;for(unsigned d=0;d<3;++d){box[d]={INFINITY,-INFINITY};for(const auto& p:hull){box[d].lo=std::min(box[d].lo,p[d].lo);box[d].hi=std::max(box[d].hi,p[d].hi);}}
-    auto witness=[&](size_t i){double b=0;for(const auto& p:hull)b=std::max(b,Distance(p,i,op).upper);return b;};
+    auto witness=[&](size_t i){double b=0;for(const auto& p:hull)b=std::max(b,Distance(p,i,op,false).upper);return b;};
     if(++visit==0){std::fill(visited.begin(),visited.end(),0);visit=1;}
     auto plane_bound=[&](size_t i)->double{const auto group=triangle_plane[i];if(group==SIZE_MAX||visited[group]==visit)return INFINITY;
       visited[group]=visit;op.Work();return planes[group].Upper(hull,op);};
@@ -358,8 +363,8 @@ class TriangleUnion {
   }
   const std::vector<UnionTriangle>& triangles;
   std::unique_ptr<CADTElemClass> index;std::vector<unsigned long> candidates,graph_candidates;
-  TriangleDistanceBounds Distance(const Box& p,size_t i,AtlasOps& op) {
-    auto b=TriangleDistance(p,triangles[i].points,op);const double e=triangles[i].error;
+  TriangleDistanceBounds Distance(const Box& p,size_t i,AtlasOps& op,bool lower_bound=true) {
+    auto b=TriangleDistance(p,triangles[i].points,op,lower_bound);const double e=triangles[i].error;
     b.lower=std::max(0.,std::nextafter(double(Subtract(b.lower,e).lo),-INFINITY));
     b.upper=std::nextafter(double(Add({b.upper,b.upper},{e,e}).hi),INFINITY);return b;
   }

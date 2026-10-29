@@ -117,14 +117,19 @@ population from operator cost. Validate any SU2-specific modifications separatel
   build140 passes84.250s; mandatory-memory refusal test excludes optional cache.
   MPI2 passes8 cases/rank,14937/14741 assertions,211.602s, pins unchanged, including
   repeated publication/reload. Checkpoint8c3ca6d797 pushed; validation follows.
-  Full M6/build140 running: euler_build140_prepared_surface, owned time PID2305296,
-  timeout2305297, mpirun2305298. Server restart lost exec9413/original Python
-  harness; solver processes survived. Detached receipt monitor2331422 verified
-  all pins, identity and CWD, writes recovered_resources.jsonl and terminal
-  assessments using existing checks and /usr/bin/time exit trailer. Do not restart
-  this workload or edit pinned sources/helpers while alive. Original budgets:
-  5400s native/event,14400s outer. One heavy workload;
-  2–4 build workers. No complete M6 workflow yet; BL/RANS/history/restart remain open.
+  M6/build140 deliberately stopped1028.663s after demonstrating the next hot path:
+  repeated interval witness certification during physical-triangle distance bounds.
+  No accepted event/mesh/transfer; pins verified and all owned handles gone.
+  Build141 selects one floating-proposed convex witness and certifies it once;
+  upper-only callers omit unused lower bounds. Gates unchanged. Build passes
+  135.456s/pins verified; focused11 cases/267 assertions pass30.368s. Source-extracted
+  probe passes5103 exact enclosure checks, sampled primitive6.4x/9.1x faster;
+  no full-M6 speedup claim. Receipt staged57/distance141_checkpoint.json.
+  Retry full M6 next,5400s native/event,14400s outer; keep pinned sources fixed.
+  User now authorizes stopping demonstrated bottlenecks, fixing/validating them
+  and retrying until Euler CFD→mesh→CFD→mesh succeeds. Then verify BL generation
+  before the same RANS workflow. One heavy workload;2–4 build workers.
+  No complete M6 workflow yet; BL/RANS/history/restart remain open.
 - Available papers: [local collection](/media/rausa/4TB/SU2_Versions/Prove/Papers),
   including Loseille–Alauzet–Menier, *Unique cavity-based operator and hierarchical
   domain partitioning for fast parallel generation of anisotropic meshes* (2017,

@@ -109,14 +109,20 @@ reservation; build passes1018.648s and reuse2 cases/34 assertions. Serial49/51:
 cache can shrink with ceiling; test140 subtracts optional quota before mandatory
 refusal, preserving failure and unchanged-state checks. Build140 passes84.250s.
 MPI2 passes8 cases/rank,14937/14741 assertions,211.602s/pins unchanged. No production
-change after139. Full two-event M6 build140 now running with5400s native/event,
-14400s outer. Attempt euler_build140_prepared_surface/time2305296/mpirun2305298.
-Server restart killed the Python harness, not solvers; recovery monitor2331422
-verified pins/identity/CWD and resumes receipts without repeating work. Original
-exec9413 no longer exists; use process identities and saved status/receipts.
-The300s short profile shows PreparedSurfaceView distance-bound evaluation rather
-than projected-reference preparation; no accepted mesh yet.
-No M6 capability accepted; known sheared-graph work exhaustion remains recorded.
+change after139 until user authorized further bottleneck-driven interruptions.
+M6/build140 stopped1028.663s by explicit authorization after live profile showed
+reverse-bound TriangleUnion::Upper arithmetic; one query had64 supports,1368pending
+nodes/depth7/lower4.52e-5/upper1.31e-4 at1e-4 tolerance. Later query differed:
+progress, not deadlock. No accepted event/mesh/transfer; pins verified/all handles gone.
+Build141 moves witness selection before interval certification and omits unused
+lower bounds for upper-only callers. Outward certification remains mandatory.
+Build passes135.456s; focused11 cases/267 assertions pass30.368s/pins unchanged.
+Source-extracted probe passes5103 exact enclosure checks; sampled primitive old
+.792318s/newfull.124065s/newupper.086641s. No end-to-end speedup claim. Full M6
+retry next at5400s native/event,14400s outer. Receipt distance141_checkpoint.json.
+User authorizes repeat proven-bottleneck fix/validation/M6 attempts until Euler
+loop succeeds, then verify BL generation before RANS. Prior sheared-graph work
+exhaustion remains recorded, no acceptance gate relaxed.
 
 Historical build128 passes serial45/9611 and focused MPI6 five cases/rank. Its
 residual size repair reaches a later complete-surface geometry blockage in the
