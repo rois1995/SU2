@@ -332,3 +332,17 @@ bug or improvement a stable `TR-` identifier, its trigger, affected operator and
 callers, correction, evidence and remaining validation. Separate demonstrated
 defects from hypotheses. Record failures as well as passes; a build or focused
 reproducer alone does not close an integrated transfer finding.
+
+
+## 2026-10-29 — current reconstruction validation boundary
+
+M6 build114 rejects at its unchanged native time limit, with verified pins and no
+accepted adapted mesh. Its initial restart_flow_adap_00000.dat is written before
+adaptation; its existence does not establish adapted restart, conservative transfer
+or history publication. Those stages remain unreached.
+
+Build118 adds classified boundary reconstruction through the existing cell/physical-
+face publication path. No vertex moves, transfer format, original donor definition
+or restart schema is added. The fresh local topology/geometry witness is supporting
+operator evidence only; actual conservative transfer/current+BDF2 histories and
+solver restart on the resulting accepted mesh remain required.

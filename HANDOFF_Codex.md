@@ -11,14 +11,21 @@ Boundary points move on fixed original geometry; genuine features, bodies, absol
 geometry tolerance independent of h0 and every final gate remain mandatory.
 SCOREC ma/LICENSE is non-commercial; no MeshAdapt source copied.
 
-Latest pushed WIP: `a083fdafd7`, verified on rois1995/SU2 branch `codex/native-3d-bl`.
+Latest pushed WIP: `c53241f246`, verified on rois1995/SU2 branch `codex/native-3d-bl`.
 TODO remains local. Leave unrelated files alone.
 
-**M6 build114 RUNNING session84714** in staged57/m6_runs/
-`euler_build114_classified_stages`; owned wrapper PID903240. Sources, tests and
-helpers remain pinned until the complete process tree is terminal. Build114 passed
-261.364s. One owned heavy job, nice19, six ranks, single-thread libraries, compile
-scratch on4TB. Check load/RAM and saved handles before starting anything else.
+**M6 build114 terminal1860.786s; native rejected at unchanged1800s limit**,
+pins verified and all ranks gone. Quality entry497s; q/J bad31047/27549→28600/25086,
+exit census incomplete. No projection-failure captures; no transfer/restart.
+Whole sampled process-tree RSSmax3.968GB, not allocation peak. Receipts in
+staged57/build114_m6_summary.json. Source114 primitive evidence remains historical.
+
+Diagnostic116 terminal19.311s/pins verified: proposed working-boundary diagonal
+passes existing native topology/features/associations/error(.00097698<.001),58459
+work. Ordinary moves leave roundoff-scale q/J. Shared ShellBoundaryCell and quality
+optimizer integration now implemented, including current geometry overlay refresh;
+build118 is next. Sources/tests/helpers pinned during that build/runtime. One heavy
+job, nice19/j1/single-thread libraries, compile scratch4TB, at most6 MPI ranks.
 
 Current connected fixes: shared cubic projection uses local coordinates and accepts
 an existing classified foot whose conservative distance bound meets requested
@@ -41,9 +48,9 @@ Investigate existing interior edge-removal on closed6-ring edge1–134792, not a
 fallback. Worst cell122900 has four points on one original wall facet and positive
 roundoff-scale determinant. Preserve diagnosis before changing operators.
 
-Known test-only correction pending after M6: Metric3D_tests.cpp new Absolute poor
-shape fixture expects Progress but correctly fails earlier with Shape. MPI focused
-build114 passes9/10 cases per rank; fix the assertion, not production gates.
+The new scalar Absolute fixture now expects the existing early Shape refusal,
+not Progress. New negative boundary tests preserve junctions/rejected outputs.
+Build118 groups these with the connected kernel/optimizer change; no gates weakened.
 
 Detailed evidence: [projection findings](Handbook/ADAPTATION_PROJECTION_FINDINGS.md),
 [transfer findings](Handbook/TRANSFER_OPERATORS_FINDINGS.md),

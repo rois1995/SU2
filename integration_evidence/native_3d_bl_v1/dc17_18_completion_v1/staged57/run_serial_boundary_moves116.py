@@ -11,7 +11,9 @@ from run_cases import sample_tree
 
 ROOT = Path(__file__).resolve().parent
 BUILD = ROOT.parents[2] / 'build-integrated-v2'
-OUT = ROOT / 'serial_boundary_moves116'
+BUILD_NAME = sys.argv[1] if len(sys.argv) == 2 else 'build114'
+if not re.fullmatch(r'build[1-9][0-9]*', BUILD_NAME): raise RuntimeError('Expected buildN')
+OUT = ROOT / ('serial_boundary_moves116_' + BUILD_NAME)
 SOURCE = ROOT / 'serial_boundary_moves116.cpp'
 
 def sha(path):
@@ -22,7 +24,7 @@ def sha(path):
 
 def main():
     if OUT.exists(): raise RuntimeError('Receipt directory already exists')
-    build_status = json.loads((ROOT / 'build114_status.json').read_text())
+    build_status = json.loads((ROOT / (BUILD_NAME + '_status.json')).read_text())
     if build_status.get('state') != 'terminal' or build_status.get('exit_code') != 0 or not build_status.get('pins_verified'):
         raise RuntimeError('Build114 must be terminal, successful and pin-verified')
     prior = json.loads((ROOT / 'serial_replay76/command.json').read_text())
@@ -39,12 +41,13 @@ def main():
         raise RuntimeError('Capture must be terminal and pin-verified')
     previous_pins = json.loads((ROOT / 'serial_replay76/pins.json').read_text())
     pins = [Path(p) for p in previous_pins if p.endswith('.a')]
-    pins += inputs + [SOURCE, Path(__file__).resolve(), ROOT / 'run_cases.py', ROOT / 'serial_replay76/command.json', ROOT / 'serial_replay76/pins.json', ROOT / 'build114_source_pins.json', ROOT / 'build114_status.json', capture / 'status.json', capture / 'pins.json', capture / 'command.json', Path('/usr/bin/c++').resolve(), Path('/usr/bin/time').resolve(), Path('/usr/bin/timeout').resolve(), Path('/usr/bin/nice').resolve()]
-    before = json.loads((ROOT / 'build114_source_pins.json').read_text())
+    pins += inputs + [SOURCE, Path(__file__).resolve(), ROOT / 'run_cases.py', ROOT / 'serial_replay76/command.json', ROOT / 'serial_replay76/pins.json', ROOT / (BUILD_NAME + '_source_pins.json'), ROOT / (BUILD_NAME + '_status.json'), capture / 'status.json', capture / 'pins.json', capture / 'command.json', Path('/usr/bin/c++').resolve(), Path('/usr/bin/time').resolve(), Path('/usr/bin/timeout').resolve(), Path('/usr/bin/nice').resolve()]
+    before = json.loads((ROOT / (BUILD_NAME + '_source_pins.json')).read_text())
     if any(sha(Path(path)) != digest for path, digest in before.items()): raise RuntimeError('Build114 source pins changed')
     capture_pins = json.loads((capture / 'pins.json').read_text())
     driver = str(BUILD / 'UnitTests/test_driver')
-    if driver not in capture_pins or sha(Path(driver)) != capture_pins[driver]: raise RuntimeError('Build114 test driver differs from captured binary')
+    replay_pins = json.loads((ROOT/'serial_replay115/pins.json').read_text())
+    if any(sha(p) != replay_pins[str(p)] for p in inputs): raise RuntimeError('Saved capture inputs changed')
     before.update({str(p): sha(p) for p in pins})
     before[driver] = sha(Path(driver))
     OUT.mkdir()
@@ -76,6 +79,6 @@ def main():
             (OUT/'pins.json').write_text(json.dumps(before, indent=2)+'\n')
     unchanged = all(sha(Path(p)) == digest for p,digest in before.items())
     (OUT/'status.json').write_text(json.dumps({'state':'terminal','phase_exit_codes':status,'pins_verified':unchanged,'seconds':time.monotonic()-start,'binary_sha256':sha(OUT/'replay') if (OUT/'replay').exists() else None,'scope':'private final-state operator diagnostics; not acceptance','rss_note':'sampled process tree; not allocation peak'},indent=2)+'\n')
-    if not unchanged or status.get('compile') != 0 or status.get('link') != 0: sys.exit(1)
+    if not unchanged or not status or any(status.values()): sys.exit(1)
 
 if __name__ == '__main__': main()

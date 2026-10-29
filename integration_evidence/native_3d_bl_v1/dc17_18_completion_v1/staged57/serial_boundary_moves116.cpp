@@ -4,6 +4,7 @@
 #include "../../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include "../../../../Common/include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../../../Common/include/adaptation/CNativeGeometryBackend3D.hpp"
+#include "../../../../Common/include/adaptation/CNativeOptimize3D.hpp"
 #include <cmath>
 #include <algorithm>
 #include <fstream>
@@ -26,8 +27,8 @@ int main(int argc,char** argv) try {
   if(!archive.original||!archive.original->Parameters())throw std::runtime_error("Authority lacks parameters");
   const auto payload=Read(argv[2]);auto state=BoundaryParameterState::FromPayload(archive.original->Parameters()->Authority(),payload,ReferenceStorageLimit3D,0);
   auto reference=PlanarReference::WithParameters(archive.original,state);const auto bytes=Read(argv[3]);RecordStream input(bytes);uint64_t count=0;input(count);
-  if(count>4096)throw std::length_error("Capture exceeds bound");Patch old;std::map<Id,Point> points;Id maxcell=0,maxnode=0;
-  for(uint64_t i=0;i<count;++i){OwnedCell row;input(row);maxcell=std::max(maxcell,row.cell.id);bool contains=false;
+  if(count>4096)throw std::length_error("Capture exceeds bound");Patch old;Owned all;std::map<Id,Point> points;Id maxcell=0,maxnode=0;
+  for(uint64_t i=0;i<count;++i){OwnedCell row;input(row);if(!all.emplace(row.cell.id,row).second)throw std::runtime_error("Duplicate captured cell");maxcell=std::max(maxcell,row.cell.id);bool contains=false;
     for(const auto& n:row.cell.v){maxnode=std::max(maxnode,n.id);points[n.id]=n.p;contains|=n.id==vertex;}if(!contains)continue;
     old.cells.push_back(row.cell);const auto& v=row.cell.v;
     const std::array<Face,4> faces{{{v[1].id,v[2].id,v[3].id},{v[0].id,v[3].id,v[2].id},{v[0].id,v[1].id,v[3].id},{v[0].id,v[2].id,v[1].id}}};
@@ -81,7 +82,23 @@ int main(int argc,char** argv) try {
       error=std::max(error,geometry.SurfaceErrorForValidatedFace(f.facet,xyz));}
     const auto m=metric(proposal);
     std::cout<<"shelling_native_checks=pass cells="<<proposal.cells.size()<<" positive="<<std::get<0>(m)<<" score="<<std::get<3>(m)<<" surface_error="<<error<<" tolerance=.001 geometry_pass="<<(error<=.001)<<" feature_traces="<<proposal.coverage.traces.size()<<" work="<<budget.work<<" exhausted="<<budget.work_exhausted<<std::endl;
-  }catch(const std::exception& e){std::cout<<"shelling_native_checks=fail reason="<<e.what()<<std::endl;}
+    AtlasBudget kernel_budget{67207168,size_t(128)<<20,low,0,caller,0};auto kernel_geometry=reference->WithAtlasReservation(kernel_budget);
+    Patch kernel;std::string failure;
+    if(!ShellBoundaryCell(source,122900,maxcell+1,*kernel_geometry,kernel,failure))throw std::runtime_error("Shared boundary kernel: "+failure);
+    const auto km=metric(kernel);
+    if(kernel.cells.size()+1!=source.cells.size()||!std::get<0>(km)||std::get<3>(km)<1)throw std::runtime_error("Shared boundary kernel quality/validity regression");
+    Patch incomplete=source;incomplete.cells.erase(std::remove_if(incomplete.cells.begin(),incomplete.cells.end(),[](const Cell& c){return c.id!=122900;}),incomplete.cells.end());
+    incomplete.surface.clear();for(const auto& f:source.surface)if(retired.count(key(f.v)))incomplete.surface.push_back(f);
+    Patch unchanged=kernel;
+    if(ShellBoundaryCell(incomplete,122900,maxcell+1,*kernel_geometry,unchanged,failure)||unchanged.cells.size()!=kernel.cells.size())throw std::runtime_error("Incomplete closure/output atomicity regression");
+    std::cout<<"shared_shelling_kernel=pass cells="<<kernel.cells.size()<<" score="<<std::get<3>(km)<<" incomplete_closure=refused work="<<kernel_budget.work<<std::endl;
+    AtlasBudget optimizer_budget{67207168,size_t(128)<<20,low,0,caller,0};auto optimizer_geometry=reference->WithAtlasReservation(optimizer_budget);
+    RegionMetric target([](Point){return Tensor{4,0,0,4,0,4};},[](Point a,Point b){return MetricNorm(a,b,Tensor{4,0,0,4,0,4});});
+    OptimizeOptions options;options.maximum_work=1;options.maximum_sweeps=1;options.smoothing=false;options.collapses=false;options.insertions=false;options.boundary=false;options.geometry=optimizer_geometry.get();options.surface_tolerance=.001;
+    OptimizeReport report;Id node=maxnode+1,cell=maxcell+1;
+    if(!OptimizeMetricMesh(all,target,node,cell,options,report)||report.boundary_flips!=1||all.size()!=count-1||report.minimum_after<1)throw std::runtime_error("Actual classified optimizer did not repair captured sliver");
+    std::cout<<"classified_optimizer=pass cells="<<all.size()<<" shellings="<<report.boundary_flips<<" minscore="<<report.minimum_after<<" work="<<optimizer_budget.work<<std::endl;
+  }catch(const std::exception& e){std::cout<<"shelling_native_checks=fail reason="<<e.what()<<std::endl;throw;}
   for(size_t i=0;i<targets.size();++i){AtlasBudget budget{67207168,size_t(128)<<20,low,0,caller,0};auto scoped=reference->WithAtlasReservation(budget);Patch source=old;scoped->ExportParameters(source);
     Patch fresh;std::string reason;const bool ok=MoveVertex(source,vertex,{maxnode+1,targets[i]},maxcell+1,*scoped,fresh,reason);
     const auto opwork=budget.work;std::cout<<"target="<<i<<" xyz="<<targets[i].x<<','<<targets[i].y<<','<<targets[i].z<<" valid="<<ok<<" reason="<<reason<<" op_work="<<opwork<<" exhausted="<<budget.work_exhausted<<" peak="<<budget.peak_bytes;

@@ -10,30 +10,28 @@ DC-17/DC-18 remain open. The selected foundation is SCOREC/MeshAdapt classified
 cavities and transported nodal size fields inside SU2. Requirements, source-code
 comparison, decisions and acceptance: [connected design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md).
 
-Current work2026-10-29: build114 PASS261.364s; full six-rank M6 is running
-(session84714, euler_build114_classified_stages). Sources/tests/helpers pinned.
-All six M6 ranks entered quality improvement at497s native time after the first
-length-pass pair; construction q/J measurements were zero. This is stage movement,
-not acceptance. Sampled whole process-tree RSS is about4GiB, not allocation peak.
-Latest pushed WIP a083fdafd7 verified on approved fork/branch. The smaller workflow
-stops by operator stagnation after30.048s,35,630,824/67,207,168 work and2062/4096
-proposals. Within-quality score checks pass; final acceptance still fails (139
-private cells, q/J1/1, size16, geometry32). No curved transfer or restart yet.
+Current work2026-10-29: M6 build114 terminal1860.786s, solver0/nativefalse,
+pins verified/all owned ranks terminal. It enters quality at497s after the first
+length pair (construction q/J measurements zero), then reaches unchanged1800s
+native limit. Quality bad counts fall31047→28600 and27549→25086, but final census
+is incomplete; no accepted mesh/transfer/restart. No projection-failure captures.
+Sampled owned process-tree RSSmax3.968GB, not allocation peak. Detailed receipts:
+staged57/build114_m6_summary.json. This one event does not establish repeated cost.
 
-Diagnostic115 is terminal17.178s, pins verified: three classified collapse proposals
-for the worst-cell vertices fail exact orientation at cells135178,116744,174089
-using30/42 work without exhaustion. These are unavailable individual operations,
-not evidence of geometric impossibility. Investigate existing interior edge-removal
-on closed6-ring edge1–134792 before adding machinery. Worst cell122900 consists of
-four points on one wall facet, with roundoff-scale positive determinant.
+Fresh diagnostic116 PASS19.311s/pins verified. Ordinary boundary moves remain at
+roundoff-scale shape; the reconstructed boundary diagonal passes existing native
+topology, feature traces, forward associations and complete surface-error checks
+(.00097698<.001),58459 work/no exhaustion. No final mesh is claimed. Independent
+ring analysis is preserved in staged57/serial_replay115. Latest pushed WIPc53241f246.
 
-Shared projection and entity association fixes remain integrated. Ordinary entity/
-parameter handling preserves genuine feature/body/owner/archive checks. Candidate
-unavailability remains distinct from backend failure. Quality improvement follows
-each collapse/split pair, with explicit staged admission separate from validity-only
-builders. All final gates and limits remain unchanged. Known new scalar test expects
-Progress where Absolute correctly refuses Shape; correct the fixture after pinned
-M6 completes. MPI build114 supporting selection passes9/10 cases per rank.
+Implementing the shared elementary boundary shelling plus classified optimizer
+caller over complete incident-edge closure, reusing Finish and atomic publication.
+No vertex movement, new format, projector, budget or construction shape threshold.
+Refresh optimizer geometry overlays after topology/movement; retain metric/height,
+nonlocal contact and all final gates. Correct the new scalar fixture to expect the
+existing Absolute Shape refusal. Next build118 groups these connected changes;
+full smaller workflow, MPI publication, transfer/history/restart and new M6 remain
+required. DC-17/DC-18 and full BL/RANS remain open.
 
 Supporting checks: projection20 cases/597 assertions; MPI6 focused8 cases/rank;
 current-field122 cases; all10 DC18 geometry groups;28 filter selections. These do

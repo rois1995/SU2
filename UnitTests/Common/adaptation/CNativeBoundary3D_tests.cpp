@@ -960,6 +960,18 @@ TEST_CASE("Declared frozen sensor coverage evaluates actual curved replacement v
   SaveCurved(fresh,reference,"layered_sphere_split");
 }
 
+TEST_CASE("Boundary shelling preserves model junctions and rejected outputs", "[NativeShapeAdmission3D]") {
+  const auto old=Cube();const PlanarReference geometry(Facets(old));Patch fresh=old;std::string reason;
+  for(const auto& cell:old.cells) {
+    CHECK_FALSE(ShellBoundaryCell(old,cell.id,100,geometry,fresh,reason));
+    CHECK_FALSE(reason.empty());REQUIRE(fresh.cells.size()==old.cells.size());
+    for(size_t k=0;k<old.cells.size();++k)CHECK(fresh.cells[k].id==old.cells[k].id);
+    CHECK(fresh.surface.size()==old.surface.size());
+  }
+  CHECK_FALSE(ShellBoundaryCell(old,UINT64_MAX,100,geometry,fresh,reason));
+  CHECK(fresh.cells.front().id==old.cells.front().id);
+}
+
 TEST_CASE("Native3D analytic surface bounds cover complete face interiors", "[NativeSurfaceError3D]") {
   const std::array<Point,3> sphere{{{1,0,0},{0,1,0},{0,0,1}}};
   const std::array<Point,3> bump{{{0,0,0},{1,0,0},{0,1,0}}};

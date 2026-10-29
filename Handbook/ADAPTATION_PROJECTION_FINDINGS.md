@@ -2,22 +2,36 @@
 
 Last updated: 2026-10-29.
 
-Current build114 passes compilation; full M6 with connected staging is running
-(session84714, euler_build114_classified_stages). Sources/tests/helpers pinned.
-The smaller workflow rejects by operator stagnation, not exhaustion. Its within-
-quality non-regression assertions pass;139 private cells retain q/J1/1, size16 and
-geometry32 failures. Curved transfer/restart remain unqualified.
+Current build118 compiles the shared classified boundary reconstruction and optimizer
+integration; source/test/helper pins remain fixed. No accepted complete curved/M6
+workflow exists. M6 build114 is terminal1860.786s with verified pins/all ranks gone:
+quality entry497s after the first length pair, then unchanged1800s native limit.
+No projection-failure files were captured. Cached q/J bad counts decrease, but
+exit census is incomplete; no conservative transfer/history or solver restart.
+[Stage/cost summary](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build114_m6_summary.json)
+retains per-rank aggregates, descriptor counts and sampled process-tree RSSmax3.968GB.
+One event cannot establish bounded repeated cost.
 
-Fresh diagnostic115 is terminal with verified pins: collapse134792→1 obstructs
-cell135178,134792→5 cell116744,114056→1 cell174089. Exact validity rejects these
-proposals with30/42 work and no exhaustion. Captured worst cell122900 has four
-vertices on the same wall facet and tiny positive determinant. Existing interior
-edge-removal on edge1–134792 has a complete6-cell ring; investigate it before
-claiming unavailable geometry or adding an operator. Raw logs and provenance:
-[serial replay115](../integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/serial_replay115/).
-The current MPI focused run has9/10 passing cases per rank; its only failure is a
-new scalar fixture expecting Progress where Absolute correctly rejects Shape.
-Correct that assertion after pinned M6; production gates remain unchanged.
+Fresh diagnostic116 passes19.311s/pins verified. Existing boundary movement targets
+on the captured sliver preserve only roundoff-scale shape: this is not a missing
+projector fallback or evidence for relaxing metric guards. A different working
+boundary diagonal passes existing native topology, feature traces, forward
+associations and complete surface-error checks (.00097698<.001),58459 work/no
+exhaustion. This proposal is not accepted adaptation or distributed publication.
+
+The connected implementation adds ShellBoundaryCell using existing Finish and
+classified original geometry; the optimizer admits it only over a complete current
+incident-edge ring and measured shape/height improvement. New physical faces use
+the existing absolute geometry tolerance. Publication, nodal metric transport,
+source reconstruction and restart retain their existing cell/association formats.
+Current geometry overlays are refreshed after shelling and smoothing. Construction
+adds no q/J measurements or ranking, and all final gates/limits remain unchanged.
+
+Supporting fresh diagnostic115 proves three individual collapses invert cells;
+complete six-ring enumeration rejects all14 interior edge-removal triangulations.
+Neither these refusals nor zero-radius numerical cone searches prove general
+geometric impossibility. The source-level decision and native extension provenance
+are in [the design record](ADAPTATION_ESTABLISHED_DESIGN.md).
 
 Build106 PASS114.227s,1295 pins unchanged, compiles the connected failure-path changes; no complete
 workflow is accepted. Build103 capture of the actual M6 fatal query records the

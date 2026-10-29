@@ -881,7 +881,7 @@ TEST_CASE("Quality repair cannot exchange unacceptable shape for size progress",
   std::string reason;MetricDiagnosis diagnosis;
   SetShapeAdmission(ShapeAdmission::Absolute);
   CHECK_FALSE(ValidateMetricChange(4,before,4,poor,MetricChange::Repair,reason,&diagnosis));
-  CHECK(diagnosis.failure==MetricFailure::Progress);CHECK(diagnosis.size_progress);
+  CHECK(diagnosis.failure==MetricFailure::Shape);CHECK(diagnosis.shape_measured);
   CHECK(ValidateMetricChange(4,before,4,good,MetricChange::Repair,reason));
   const auto weak=metric({1,2},1,.19,.1),closed=metric({1,3},1,.21,.08);
   CHECK(ValidateMetricChange(4,weak,4,closed,MetricChange::Repair,reason,&diagnosis));CHECK(diagnosis.quality_progress);

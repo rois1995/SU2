@@ -3029,6 +3029,45 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
     return false;
   }
 }
+bool ShellBoundaryCell(const Patch& old, Id cell, Id first, const PlanarReference& base_reference, Patch& fresh,
+                       std::string& reason, KernelStats* stats) {
+  try {
+    auto context=base_reference.PrivateParameters(old);const auto& reference=context?*context:base_reference;
+    Bounds(old);const Incidence index(old.cells,stats);const auto before=SkinMap(index.Boundary());
+    auto physical=CheckSurface(old,before,reference,stats);
+    const auto found=std::find_if(old.cells.begin(),old.cells.end(),[&](const Cell& c){return c.id==cell;});
+    if(found==old.cells.end())throw std::invalid_argument("Boundary shelling cell is absent.");
+    std::vector<SurfaceFace> retired;
+    for(const auto& row:physical)if(std::all_of(row.second.v.begin(),row.second.v.end(),[&](Id id){
+      return std::any_of(found->v.begin(),found->v.end(),[&](Node n){return n.id==id;});}))retired.push_back(row.second);
+    if(retired.size()!=2 || retired[0].facet!=retired[1].facet)
+      throw std::invalid_argument("Boundary shelling requires two faces on one original surface entity.");
+    Edge removed{},diagonal{};size_t nr=0,nd=0;
+    for(const auto& n:found->v) {
+      const bool shared=Has(retired[0].v,n.id)&&Has(retired[1].v,n.id);
+      (shared?removed.at(nr++):diagonal.at(nd++))=n.id;
+    }
+    if(nr!=2 || nd!=2 || index.EdgeCells(removed).size()!=1 || index.EdgeCells(diagonal).size()<3)
+      throw std::invalid_argument("Boundary shelling has an invalid edge link.");
+    for(const auto& face:before)if(Has(face.second,diagonal[0])&&Has(face.second,diagonal[1]))
+      throw std::invalid_argument("Boundary shelling requires the complete closed incident edge star.");
+    Patch proposal;for(const auto& c:old.cells)if(c.id!=cell)Append(proposal.cells,c.v,first,stats);
+    auto expected=SkinMap(Incidence(proposal.cells,stats).Boundary());
+    for(const auto& f:retired)physical.erase(Key(f.v));
+    for(const auto& face:before)if(!std::any_of(retired.begin(),retired.end(),[&](const SurfaceFace& f){return Key(f.v)==face.first;})) {
+      const auto kept=expected.find(face.first);
+      if(kept==expected.end() || kept->second!=face.second)
+        throw std::invalid_argument("Boundary shelling changes retained interface orientation.");
+    }
+    size_t added=0;
+    for(const auto& face:expected)if(!before.count(face.first)) {
+      physical.emplace(face.first,SurfaceFace{face.second,retired[0].facet});++added;
+    }
+    if(added!=2)throw std::invalid_argument("Boundary shelling does not replace exactly two physical faces.");
+    Finish(old,proposal,expected,physical,reference,stats);
+    fresh=std::move(proposal);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
 bool Reconnect(const Patch& old, Id vertex, Id first, const PlanarReference& base_reference, Patch& fresh,
                std::string& reason, KernelStats* stats) {
   try {

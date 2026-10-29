@@ -217,6 +217,12 @@ bool SplitEdge(const Patch& old, Edge edge, Node point, Id first_cell, const Pla
  * Fresh output is unchanged on rejection; callers reserve identities and admit complete dependencies. */
 bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first_cell, const PlanarReference& reference,
                       Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
+/*! Elementary boundary shelling: replace two physical faces of one cell by its two internal faces.
+ * Requires the complete closed star of the new boundary diagonal, a single original surface entity,
+ * unchanged artificial skin and preserved genuine feature paths. No vertex moves or quality gates.
+ * Geometry error, metric/height admission, nonlocal contact and atomic publication remain caller duties. */
+bool ShellBoundaryCell(const Patch& old, Id cell, Id first_cell, const PlanarReference& reference,
+                       Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
 /*! Inverse edge bisection: all removed-vertex incident cells must form paired children of the supplied endpoints.
  * Preserves original facets/markers and feature edges; this is not general boundary-vertex collapse. */
 /*! Simultaneous bounded (at most eight) complete-star vertex moves and a physical surface split.

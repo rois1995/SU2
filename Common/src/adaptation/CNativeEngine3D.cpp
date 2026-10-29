@@ -4248,6 +4248,7 @@ class MeshOptimizer {
   bool Collapse(Id p,Id q);
   bool Smooth(Id p);
   bool SmoothBoundary(Id p);
+  bool ShellBoundary(Id cell);
   bool TryCell(Id id,bool enrichment);
   // DC-13 (DC13_PLAN sect. 1): cone re-meshing of a star-shaped cavity from one new placed vertex
   enum class Insert { Shell, Neighbourhood, Length };
@@ -4503,8 +4504,8 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
   for(auto it=report.coverage.faces.begin();it!=report.coverage.faces.end();)if(!physical.count(Key(it->first)))it=report.coverage.faces.erase(it);else ++it;
   for(auto it=report.coverage.traces.begin();it!=report.coverage.traces.end();)if(!Adjacent(it->first[0],it->first[1]))it=report.coverage.traces.erase(it);else ++it;
   Patch overlay;overlay.parameters=report.parameters;overlay.coverage=report.coverage;
-  for(const auto& row:overlay.coverage.faces)overlay.surface.push_back({row.first,physical.at(Key(row.first))});
-  auto parameters=options.geometry->PrivateParameters(overlay);if(parameters)moved_geometry=std::move(parameters);
+  overlay.surface=best.surface;
+  auto parameters=geometry.PrivateParameters(overlay);if(parameters)moved_geometry=std::move(parameters);
   fixed.erase(p);fixed.insert(moved);if(keep.erase(p))keep.insert(moved);
   Id first=p;for(const auto& row:report.relabel)if(row.second==p){first=row.first;break;}
   report.relabel[first]=moved;++report.moves;return true;
@@ -4729,9 +4730,49 @@ bool MeshOptimizer::NeighbourhoodInsert(Id cell) {
   if(Frozen(cell))return false;
   return ConeReplace(old,Centroid(c),Insert::Neighbourhood);
 }
+bool MeshOptimizer::ShellBoundary(Id id) {
+  if(Limited() || !options.geometry || Frozen(id))return false;
+  const auto& row=mesh.at(id);std::vector<unsigned> faces;
+  for(unsigned k=0;k<4;++k)if(row.physical[k].present)faces.push_back(k);
+  if(faces.size()!=2)return false;
+  // Opposite vertices form the new physical diagonal; its entire current ring is the dependency closure.
+  const Id a=row.cell.v[faces[0]].id,b=row.cell.v[faces[1]].id;
+  const auto shell=Common(star.at(a),star.at(b));
+  if(shell.size()<3 || shell.size()>options.maximum_shell)return false;
+  for(Id c:shell)if(Frozen(c)){++report.rejected_frozen;return false;}
+  ++report.trials;std::vector<Cell> cells;for(Id c:shell)cells.push_back(mesh.at(c).cell);
+  const auto old=GeometryPatch(cells);const auto& geometry=moved_geometry?*moved_geometry:*options.geometry;
+  Patch fresh;std::string reason;
+  if(!ShellBoundaryCell(old,id,next_cell,geometry,fresh,reason)){++report.rejected_interface;return false;}
+  const double score=FreshScore(fresh.cells,false,&fresh);
+  if(!std::isfinite(score)){++report.rejected_validity;return false;}
+  if(!(score>MinScore(shell)+Gain)){++report.rejected_quality;return false;}
+  auto context=geometry.PrivateParameters(fresh);const auto& proposed=context?*context:geometry;
+  std::map<Face,FacetBinding> bindings;
+  for(const auto& face:fresh.surface) {
+    const auto key=Key(face.v);
+    if(!physical.count(key) && options.surface_tolerance>0) {
+      const std::array<Point,3> p{points.at(face.v[0]),points.at(face.v[1]),points.at(face.v[2])};
+      if(!(proposed.SurfaceErrorForValidatedFace(face.facet,p)<=options.surface_tolerance)) {
+        ++report.rejected_interface;return false;
+      }
+    }
+    bindings.emplace(key,FacetBinding{true,face.facet});
+  }
+  Commit(shell,fresh.cells,UINT64_MAX,bindings);
+  for(const auto& p:fresh.parameters)report.parameters.insert_or_assign(p.first,p.second);
+  for(const auto& trace:fresh.coverage.traces)report.coverage.traces.insert_or_assign(trace.first,trace.second);
+  for(const auto& face:fresh.coverage.faces)report.coverage.faces.insert_or_assign(face.first,face.second);
+  for(auto i=report.coverage.faces.begin();i!=report.coverage.faces.end();)if(!physical.count(Key(i->first)))i=report.coverage.faces.erase(i);else ++i;
+  for(auto i=report.coverage.traces.begin();i!=report.coverage.traces.end();)if(!Adjacent(i->first[0],i->first[1]))i=report.coverage.traces.erase(i);else ++i;
+  Patch overlay;overlay.parameters=report.parameters;overlay.coverage=report.coverage;overlay.surface=fresh.surface;
+  auto parameters=geometry.PrivateParameters(overlay);if(parameters)moved_geometry=std::move(parameters);
+  ++report.boundary_flips;return true;
+}
 bool MeshOptimizer::TryCell(Id id,bool enrichment) {
   const Cell c=mesh.at(id).cell;
   if(!enrichment && options.swaps) {
+    if(ShellBoundary(id))return true;
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){if(!mesh.count(id))return true;if(EdgeRemoval(std::min(c.v[i].id,c.v[j].id),std::max(c.v[i].id,c.v[j].id)))return true;}
     for(auto f:OppositeFaces(c)){if(!mesh.count(id))return true;std::sort(f.begin(),f.end());if(FaceSwap(f))return true;}
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){if(!mesh.count(id))return true;
