@@ -12,10 +12,12 @@ CFD SHA7b1d8c083b3de76893065474fecbf82792602397a468491c2eec2ac2f014de6e.
 Source688e13d29a, qualification00f25cc49e pushed. Six ranks, nice19/libs1,
 5400s native/event,14400s outer. Source/binary/helpers/config frozen. One owned
 heavy job; ~32.5GiB available at launch, no pressure. No accepted event yet.
-Latest observation~822wall seconds: all10exact handles live, each rank~.94CPU/wall,
-aggregate RSS~5.05GiB, ~28GiBavailable. Initial restart and all6discrete startup
-partition assignments match164exactly. All1396live pins verified unchanged.
-Still coarsening; stage boundary not yet emitted. No accepted event.
+Latest observation~1940wall seconds: all10exact handles live, each rank~.95CPU/wall,
+aggregate RSS~6.0GiB, sampled tree peak6.662GiB, ~27GiBavailable. Initial restart and
+all6startup partitions match164. Coarsen/ownership and complete split generations1–4
+match164counts/debts/edge/census fields; q/J remain unmeasured. Coarsen1200.506native
+seconds vs1190.751previous; gen4 1778.967vs1774.790. CPU/cache quotas differ, no
+isolated timing claim. Splitting continues; no accepted event.
 
 **TERMINAL, unsuccessful:** `euler_build164_quality_debt50k`, full two-event Euler50k attempt.
 All10owned handles independently absent; main exec23733 terminalexit1 after the
