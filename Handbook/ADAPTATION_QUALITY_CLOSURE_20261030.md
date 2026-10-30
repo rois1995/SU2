@@ -140,15 +140,28 @@ time is not isolated source speedup. Coarsening→splitting migration moved11588
 in5.597s. All1396run pins reverified after the transition. The actual quality phase
 and full mesh acceptance remain ahead; continue one owned workload.
 
-Construction through generation7 remains live. Completed coarsening and generations
-1–7 match162's selected counts and all measured debt sums exactly; six-rank raw
-stage records and comparison are saved. Latest694805private cells,6593size-bad,
-4615geometry-bad,max edge2.55247190,size debt163.933,elapsed2330.976native seconds.
-All censuses complete/consistent; q/J remain unmeasured.1396pins reverified.
+Construction closed size at generation21/3715.153native seconds,720963private
+cells,max edge1.7999928685. Quality entered3751.378s with52476q-bad/53533J-bad,
+3126geometry-bad,size0, qDebt8115.4185323/JDebt14256.1420969. Complete entry counts
+and all measured debt sums match162 exactly. All six censuses are complete and
+consistent with allshape measured. Quality migration moved368217cells in13.992s.
+Quality repair is LIVE; the changed repair behavior is now under actual validation.
+
+Production observe_progress explicitly suppresses window output. No interim
+quality-debt census is available; assess full debt/closure at the next emitted
+phase/event census. Do not invent current progress from absent output.
+
+Two-second49Hz perf sample:539samples,zero lost. Inclusive shares77.60%Allreduce,
+18.96%GeometryGuidanceExcess/surface-union query,14.38%SmoothBoundary, wrapper self0.
+Shares overlap and are neither phase totals nor speedup/debt-closure proof. Active
+fitting plus collective waiting was observed, not an all-rank stall. Raw4,998,372byte
+profile stays local, SHA256022f1736ccc58e7c6ebdcc5b0b5d0f87bfb833701e3ef9eb8f43877df9ba3cd3.
+Reports/context/assessment are saved; no debugger attachment or source change.
 
 Host contention rose during splitting: over446wall seconds every owned rank
 received~.77CPU seconds per wall second, compared with nearly full CPU service
-earlier. Load11.67, available~26.5GiB, no active paging; aggregate process-tree
-RSS~6.05GiB. This confounds timing comparisons independently of the larger startup
-cache allowance. Keep the healthy low-priority run intact and unrelated jobs
-untouched; do not infer implementation cost from elapsed time alone.
+earlier. Load11.67, available~26.5GiB, no active paging at that observation.
+In quality aggregate RSS~8.21GiB, transient sampled peak12.606GiB; all1396pins and
+10owned identities reverified and host headroom remains adequate. This is not
+an isolated memory/timing comparison: startup cache quota differs too. Continue
+one healthy low-priority workload and leave unrelated jobs untouched.

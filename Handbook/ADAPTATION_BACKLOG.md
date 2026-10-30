@@ -55,3 +55,17 @@ its relevance or the user explicitly reprioritizes it.
   score within SmoothBoundary plus whole-star debt and moved-edge rejection before
   fresh fitting guidance. Serial/MPI qualification passes; actual164M6 is live and
   frozen. Whole-transaction old-side memoization in Adapt remains deferred.
+
+- Next source-safe quality-admission review: the new strict debt-decrease guard
+  uses1e-12*max(1,old_debt). A whole patch just below a final q/J threshold can
+  have positive squared hinge debt below1e-12; exact closure to zero then fails
+  that progress floor even though final gates close. Inspect actual late-stage
+  rejections before reprioritizing; retain complete measurements and reject
+  above-gate cosmetic changes. Current build164 M6 sources remain frozen.
+
+- Build164 quality's bounded sample still shows fitting guidance/surface-union
+  queries on the active path after cheap debt/edge rejection. If the actual target
+  fails, assess the coordination between mandatory geometry authority/body
+  validity and optional per-proposal fitting nonincrease during shape repair.
+  Preserve every final geometry gate and finite construction/quality feedback;
+  do not remove checks or change strategy during the frozen live attempt.

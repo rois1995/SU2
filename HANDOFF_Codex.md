@@ -16,16 +16,22 @@ Coarsening completed1190.751native seconds:292744cells/2582collapses,68372size-b
 3541geometry-bad; counts/debts exactly match162, q/J remain unmeasured as required.
 All6censuses complete/consistent. Prepared live1285311176bytes vs646684568at162,
 from the larger startup cache quota; no isolated timing claim. First ownership
-migration moved115883cells in5.597s. Split generation7 complete2330.976native seconds,
-694805private cells,size_bad6593,geometry_bad4615,maxedge2.55247190,sizeDebt163.933.
-All6censuses complete/consistent,q/J unmeasured. Coarsening and every generation1–7
-match162selected counts/debt sums exactly (`construction_comparison.json`). Full
-six-rank records are in active `stage_assessment.json`. Splitting continues; sampled
-tree6.047GiB/peak6.047GiB. All1396pins reverified aftergen7; source remains frozen.
-Host contention is measured: owned rank CPU/wall~.77 over446s, load11.67, available
-~26.5GiB, no active paging. Earlier ranks received nearly full CPU service. No
-isolated timing attribution; keep the low-priority attempt intact and unrelated
-jobs untouched. Exact observations: active `owned_observations.jsonl`.
+migration moved115883cells in5.597s. Size closed atgeneration21/3715.153native seconds,
+720963private cells,maxedge1.7999928685. Quality entered3751.378s with52476q-bad,
+53533J-bad,3126geometry-bad,size0; qDebt8115.4185/JDebt14256.1421. Counts/debts
+match162entry exactly, all6censuses complete/consistent and allshape measured.
+Quality migration moved368217cells in13.992s. Quality repair is LIVE; no interim
+quality debt is available because production explicitly suppresses window logging.
+Source/CFD/helpers/config remain frozen. All1396pins and10identities reverified
+in quality. Sampled aggregate tree currently~8.21GiB, transient peak12.606GiB;
+adequate host headroom, see latest `owned_observations.jsonl`. Startup cache quota
+is larger than162, so this is not an isolated memory/timing comparison.
+A bounded2s/49Hz perf sample has539samples,zero lost:77.60%inclusive Allreduce,
+18.96%surface-union/GeometryGuidanceExcess,14.38%SmoothBoundary (overlapping shares,
+wrapper self0). Active fitting plus waiting, not proof of mesh-debt closure or a
+stall. Raw `.data` stays local; reports/context/assessment saved. No debugger.
+Earlier host contention gave~.77CPU seconds/wall second per rank, load11.67;
+keep unrelated jobs untouched and do not infer source timing from wall time alone.
 See `coarsen_stage_assessment.json`, `first_ownership_assessment.json`, startup and
 initial-restart receipts. No accepted mesh, transfer or adapted restart yet.
 Native event budget5400s, outer14400s, MPI6/libs1/nice19. Check actual handles
