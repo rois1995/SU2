@@ -16,7 +16,16 @@ Coarsening completed1190.751native seconds:292744cells/2582collapses,68372size-b
 3541geometry-bad; counts/debts exactly match162, q/J remain unmeasured as required.
 All6censuses complete/consistent. Prepared live1285311176bytes vs646684568at162,
 from the larger startup cache quota; no isolated timing claim. First ownership
-migration moved115883cells in5.597s; splitting is live. All1396pins reverified.
+migration moved115883cells in5.597s. Split generation7 complete2330.976native seconds,
+694805private cells,size_bad6593,geometry_bad4615,maxedge2.55247190,sizeDebt163.933.
+All6censuses complete/consistent,q/J unmeasured. Coarsening and every generation1–7
+match162selected counts/debt sums exactly (`construction_comparison.json`). Full
+six-rank records are in active `stage_assessment.json`. Splitting continues; sampled
+tree6.047GiB/peak6.047GiB. All1396pins reverified aftergen7; source remains frozen.
+Host contention is measured: owned rank CPU/wall~.77 over446s, load11.67, available
+~26.5GiB, no active paging. Earlier ranks received nearly full CPU service. No
+isolated timing attribution; keep the low-priority attempt intact and unrelated
+jobs untouched. Exact observations: active `owned_observations.jsonl`.
 See `coarsen_stage_assessment.json`, `first_ownership_assessment.json`, startup and
 initial-restart receipts. No accepted mesh, transfer or adapted restart yet.
 Native event budget5400s, outer14400s, MPI6/libs1/nice19. Check actual handles
@@ -27,18 +36,10 @@ Read [active quality-closure diagnosis](Handbook/ADAPTATION_QUALITY_CLOSURE_2026
 [current quality coordination](Handbook/ADAPTATION_QUALITY_HANDOFF_20261030.md)
 and [cache/ownership integration](Handbook/ADAPTATION_CACHE_PHASE_20261030.md).
 
-Connected candidate `9e9ad2ee41` preserves migrated census flags, skips self-collapse,
-hands measured size closure to quality at a complete finite-generation boundary,
-and tries the bounded optimizer before topology guesses. Strict final gates,
-validity-only construction, geometry returns, caches, frozen donors and budgets stay.
-Build161 passed315.521s. Its serial checks passed; MPI found an old local-ownership
-assertion in the quality-pass fixture. Corrected that fixture to gather unchanged
-rows and compare global count/versions/bytes, retaining automatic migration.
-Build162 passed108.240s,1296pins unchanged; only that fixture differs from161.
-Connected serial53cases/12462assertions35.085s and MPI6 59cases/rank41.049s PASS,
-pins unchanged. All observed build/test handles are terminal. CFD SHA256:
-`6bb6568831e8900e448f48da98e3c9bb714284a94cb21e3507936c61f3d0ad44`.
-Summary: `staged57/quality_handoff162_integration_summary.json`.
+Historical build162 (`9e9ad2ee41` plus fixture correction) qualified the earlier
+cache/ownership/construction handoff. Serial53cases and MPI6 59cases/rank passed;
+full source/build/evidence history is in the linked quality-coordination record.
+Those checks did not establish M6 acceptance.
 
 The full `euler_build162_quality_handoff50k` attempt is TERMINAL, unsuccessful.
 All10owned handles are verified absent and all1396run pins unchanged. Event-level
@@ -57,10 +58,11 @@ bound61.65s); detachment/rank resumption verified. Both perf samples and context
 are preserved, raw data stays local. No further GDB attempt.
 
 Next active connected diagnosis/fix: [whole-field quality closure](Handbook/ADAPTATION_QUALITY_CLOSURE_20261030.md).
-Sources are safe to edit. One connected, UNVALIDATED quality-debt correction is
-being implemented: whole-patch measured q/J debt, shape/size/geometry demand
+The connected quality-debt correction is implemented and serial/MPI-qualified;
+actual M6 acceptance remains unvalidated and its sources are frozen: whole-patch measured q/J debt, shape/size/geometry demand
 ownership, cheap merit/edge rejection before fitting guidance, and reuse of the
-optimizer time bound. Build163 passed510.785s;164test-only correction passed39.168s. All1296pins unchanged
+optimizer time bound. Build163 passed510.785s;164test-only correction passed39.168s.
+All1296pins unchanged
 within each build; all observed build/test handles terminal. Focused163found an
 old synthetic metric fixture missing new debt totals; both one-cell and large-star
 fixtures now supply complete totals. Connected164serial140cases/20260assertions
@@ -68,10 +70,9 @@ fixtures now supply complete totals. Connected164serial140cases/20260assertions
 `22c6d45a2f2f95205737745d0fbc8628e0f7199ee87fc0e8243dd8190ab8f9e8`.
 Evidence: `staged57/quality_debt164_integration_summary.json`.
 Actual full attempt `euler_build164_quality_debt50k` is LIVE; see top handles.
-Preserve cache/ownership/
-construction improvements and strict gates; see the active closure record.
+Preserve cache/ownership/construction improvements and strict gates; see the active closure record.
 Use existing observers for bounded failure diagnosis; no private replay exists.
-Terminal evidence: active run's `terminal_assessment.json` and
+Historical build162 terminal evidence: that run's `terminal_assessment.json` and
 `event1_time_budget_stop_20261030/`. Next unused build must be checked, not assumed.
 
 Build160 M6 is TERMINAL: first native event exhausted5400s at5408.5s, then only its

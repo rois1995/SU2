@@ -139,3 +139,16 @@ Scope builds1609.780rank-seconds versus1665.658; evictions9003versus9204. Observ
 time is not isolated source speedup. Coarsening→splitting migration moved115883cells
 in5.597s. All1396run pins reverified after the transition. The actual quality phase
 and full mesh acceptance remain ahead; continue one owned workload.
+
+Construction through generation7 remains live. Completed coarsening and generations
+1–7 match162's selected counts and all measured debt sums exactly; six-rank raw
+stage records and comparison are saved. Latest694805private cells,6593size-bad,
+4615geometry-bad,max edge2.55247190,size debt163.933,elapsed2330.976native seconds.
+All censuses complete/consistent; q/J remain unmeasured.1396pins reverified.
+
+Host contention rose during splitting: over446wall seconds every owned rank
+received~.77CPU seconds per wall second, compared with nearly full CPU service
+earlier. Load11.67, available~26.5GiB, no active paging; aggregate process-tree
+RSS~6.05GiB. This confounds timing comparisons independently of the larger startup
+cache allowance. Keep the healthy low-priority run intact and unrelated jobs
+untouched; do not infer implementation cost from elapsed time alone.
