@@ -1,0 +1,125 @@
+{
+  "workflow_accepted": false,
+  "events": [
+    {
+      "event": 1,
+      "complete": false,
+      "native": {
+        "native_event_accepted": false,
+        "native_summary_complete": false,
+        "solver_exit_code": 0,
+        "native_state": "rejected or incomplete",
+        "expected_events": 1,
+        "event_summaries": [
+          {
+            "0": {
+              "ranks": 6,
+              "complete": false,
+              "final_cells": 0
+            },
+            "1": {
+              "ranks": 6,
+              "complete": false,
+              "final_cells": 0
+            },
+            "2": {
+              "ranks": 6,
+              "complete": false,
+              "final_cells": 0
+            },
+            "3": {
+              "ranks": 6,
+              "complete": false,
+              "final_cells": 0
+            },
+            "4": {
+              "ranks": 6,
+              "complete": false,
+              "final_cells": 0
+            },
+            "5": {
+              "ranks": 6,
+              "complete": false,
+              "final_cells": 0
+            }
+          }
+        ],
+        "rank_summaries": {
+          "0": {
+            "ranks": 6,
+            "complete": false,
+            "final_cells": 0
+          },
+          "1": {
+            "ranks": 6,
+            "complete": false,
+            "final_cells": 0
+          },
+          "2": {
+            "ranks": 6,
+            "complete": false,
+            "final_cells": 0
+          },
+          "3": {
+            "ranks": 6,
+            "complete": false,
+            "final_cells": 0
+          },
+          "4": {
+            "ranks": 6,
+            "complete": false,
+            "final_cells": 0
+          },
+          "5": {
+            "ranks": 6,
+            "complete": false,
+            "final_cells": 0
+          }
+        },
+        "rejected_event_message": true,
+        "transfer_reload_validation": "separate existing validation required"
+      },
+      "ordered_transfer_replacement_publication": false,
+      "conservation_report": "",
+      "reported_integral_changes": {},
+      "output_sha256": {},
+      "next_cycle_solve_observed": true,
+      "next_cycle_history_rows": [
+        {
+          "Time_Iter": "0",
+          "Outer_Iter": "0",
+          "Inner_Iter": "0",
+          "Adap_Cycle": "1",
+          "Adap_Iter": "1",
+          "rms[Rho]": "-2.557699215",
+          "rms[RhoU]": "-0.173283768",
+          "rms[RhoV]": "-0.5989787527",
+          "rms[RhoW]": "-0.2235155625",
+          "rms[RhoE]": "2.961101712"
+        }
+      ]
+    },
+    {
+      "event": 2,
+      "complete": false,
+      "native": {
+        "native_event_accepted": null,
+        "native_summary_complete": null,
+        "solver_exit_code": 0,
+        "native_state": "unknown: missing, duplicate, or unexpected Native3D event summaries",
+        "expected_events": 1,
+        "event_summaries": [],
+        "rank_summaries": {},
+        "rejected_event_message": false,
+        "transfer_reload_validation": "separate existing validation required"
+      },
+      "ordered_transfer_replacement_publication": false,
+      "conservation_report": "",
+      "reported_integral_changes": {},
+      "output_sha256": {},
+      "next_cycle_solve_observed": false,
+      "next_cycle_history_rows": []
+    }
+  ],
+  "restart_and_unsteady_history": "not validated"
+}

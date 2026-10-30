@@ -1,17 +1,19 @@
 # Active diagnosis: globally useful M6 quality closure
 
-**Current full attempt LIVE:** `euler_build164_quality_debt50k`, exec23733,
-driver1457158/time1457247/timeout1457248/mpirun1457249/ranks1457268–1457273.
-Run `launch_receipt.json` pins exact identities;1396pins verified, config identical
-to162. Source/build/helpers/config remain frozen. Initial CFD0 advanced into metric
-recovery; no adaptation accepted. Native5400s/outer14400s. Qualified evidence/source
-checkpoint475e5c4570 is pushed. All162 notes below are terminal historical evidence.
+**Current full attempt TERMINAL, unsuccessful:** `euler_build164_quality_debt50k`.
+All ten exact owned handles independently absent; main exec23733 terminal.1396pins
+unchanged. First native event rejected time_budget on all6ranks before verified
+launcher1457249 was stopped to prevent unchanged retry. Sources now safe to edit;
+no owned heavy job, no new C++ change/build. Active cycle is terminal-evidence-led
+reassessment of consistent whole-field quality search and geometry fitting cost.
+Bounded read-only optimizer survey delegated; primary owns design/acceptance.
+All162notes below remain historical evidence. Full Euler→BL/MPI→RANS goal persists.
 
 Build162 full M6 Euler50k attempt is TERMINAL, unsuccessful. All ten owned handles
 were independently verified absent and all1396run pins unchanged before the
 connected source correction. Builds163/164 and the serial/MPI integration campaign
-are now terminal and qualified. The actual build164 M6 attempt above remains live;
-its pinned sources must not be edited. Euler→BL/MPI→RANS500k, strict final gates,
+are now terminal and qualified. The actual build164 M6 attempt above is terminal and its failure is preserved;
+all exact handles are absent, permitting the next connected source change. Euler→BL/MPI→RANS500k, strict final gates,
 conservative admissible transfer and actual disk restart remain mandatory.
 
 Evidence root: `staged57/m6_runs/euler_build162_quality_handoff50k/`.
@@ -145,7 +147,7 @@ cells,max edge1.7999928685. Quality entered3751.378s with52476q-bad/53533J-bad,
 3126geometry-bad,size0, qDebt8115.4185323/JDebt14256.1420969. Complete entry counts
 and all measured debt sums match162 exactly. All six censuses are complete and
 consistent with allshape measured. Quality migration moved368217cells in13.992s.
-Quality repair is LIVE; the changed repair behavior is now under actual validation.
+Quality repair reached native time-budget failure; terminal details follow.
 
 Production observe_progress explicitly suppresses window output. No interim
 quality-debt census is available; assess full debt/closure at the next emitted

@@ -69,3 +69,18 @@ its relevance or the user explicitly reprioritizes it.
   validity and optional per-proposal fitting nonincrease during shape repair.
   Preserve every final geometry gate and finite construction/quality feedback;
   do not remove checks or change strategy during the frozen live attempt.
+
+- Quality telemetry: production currently suppresses existing window rows, leaving
+  no interim whole-mesh q/J debt during long quality passes. At the next connected
+  source-safe change, consider retaining existing window output in Improvement
+  only while keeping construction windows quiet. Reuse observe_progress rather
+  than adding a snapshot/monitoring framework. Current run stays frozen.
+
+- If build164's actual whole-field quality closure still fails, inspect consistency
+  of the optimizer's search objective across all operators: outer Repair now uses
+  whole-patch hinge debt and SmoothBoundary rejects increasing whole-star debt,
+  but interior smoothing/topology/insertion still rank max-min shape. A costly
+  compound optimizer proposal can therefore be discarded by the outer debt gate.
+  Reconsider one consistent patch merit/search strategy across existing operators
+  before adding fallbacks or raising limits. Await actual terminal evidence; do
+  not change the frozen run or weaken geometry, size, height or final q/J gates.

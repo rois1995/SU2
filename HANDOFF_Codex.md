@@ -3,40 +3,38 @@
 Updated2026-10-30. User has freed the machine and authorized continuing computation.
 The full Euler50k→BL/MPI→RANS500k goal remains active; zero accepted M6 events.
 
-**LIVE:** `euler_build164_quality_debt50k`, full two-event Euler50k attempt.
-Owned exec session23733; driver1457158,time1457247,timeout1457248,mpirun1457249,
-ranks1457268–1457273. Exact cwd/executable/start ticks: run `launch_receipt.json`.
-All1396run pins verified; config byte-identical to162, SHA256
-5b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1.
-Source/CFD/helpers/config frozen while live; documentation/Git snapshots allowed.
-Qualified source `d1ad372091`, evidence/fixture checkpoint `475e5c4570`, pushed.
-Build164 CFD SHA25622c6d45a2f2f95205737745d0fbc8628e0f7199ee87fc0e8243dd8190ab8f9e8.
-Initial CFD0 completed; its restart is byte-identical to162 (initial state only).
-Coarsening completed1190.751native seconds:292744cells/2582collapses,68372size-bad,
-3541geometry-bad; counts/debts exactly match162, q/J remain unmeasured as required.
-All6censuses complete/consistent. Prepared live1285311176bytes vs646684568at162,
-from the larger startup cache quota; no isolated timing claim. First ownership
-migration moved115883cells in5.597s. Size closed atgeneration21/3715.153native seconds,
-720963private cells,maxedge1.7999928685. Quality entered3751.378s with52476q-bad,
-53533J-bad,3126geometry-bad,size0; qDebt8115.4185/JDebt14256.1421. Counts/debts
-match162entry exactly, all6censuses complete/consistent and allshape measured.
-Quality migration moved368217cells in13.992s. Quality repair is LIVE; no interim
-quality debt is available because production explicitly suppresses window logging.
-Source/CFD/helpers/config remain frozen. All1396pins and10identities reverified
-in quality. Sampled aggregate tree currently~8.21GiB, transient peak12.606GiB;
-adequate host headroom, see latest `owned_observations.jsonl`. Startup cache quota
-is larger than162, so this is not an isolated memory/timing comparison.
-A bounded2s/49Hz perf sample has539samples,zero lost:77.60%inclusive Allreduce,
-18.96%surface-union/GeometryGuidanceExcess,14.38%SmoothBoundary (overlapping shares,
-wrapper self0). Active fitting plus waiting, not proof of mesh-debt closure or a
-stall. Raw `.data` stays local; reports/context/assessment saved. No debugger.
-Earlier host contention gave~.77CPU seconds/wall second per rank, load11.67;
-keep unrelated jobs untouched and do not infer source timing from wall time alone.
-See `coarsen_stage_assessment.json`, `first_ownership_assessment.json`, startup and
-initial-restart receipts. No accepted mesh, transfer or adapted restart yet.
-Native event budget5400s, outer14400s, MPI6/libs1/nice19. Check actual handles
-before any edit/restart; preserve stop/fix/retry authorization. Prelaunch~32GiB
-available, no active paging, root2.6GiB/repo63GiB free. One owned heavy workload.
+**TERMINAL, unsuccessful:** `euler_build164_quality_debt50k`, full two-event Euler50k attempt.
+All10owned handles independently absent; main exec23733 terminalexit1 after the
+verified launcher was stopped only after six-rank native time-budget failure.
+All1396run pins unchanged. See `event1_time_budget_stop_20261030/stop_receipt.json`
+and its `terminal_handles.json`. No owned heavy job is live; sources safe to edit.
+First stop guard selected nonexistent section=refine instead of actual stage=refine;
+it aborted before any signal. Corrected guard, exact handles reverified, then only
+mpirun1457249 received SIGTERM. Original failure snapshots preserved.
+
+Qualified source `d1ad372091`, fixtures/evidence `475e5c4570`; latest pushed live
+quality-entry checkpoint `c1a62b260a`. Build164 CFD SHA256
+22c6d45a2f2f95205737745d0fbc8628e0f7199ee87fc0e8243dd8190ab8f9e8.
+Config SHA2565b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1,
+byte-identical162. Initial CFD restart also byte-identical162 (initial state only).
+
+Size closed atgeneration21/3715.153native seconds,720963private cells; quality
+entered3751.378s with52476q-bad/53533J-bad,3126geometry-bad,size0; all censuses
+complete/consistent. Both migrations execute; quality368217cells/13.992s.
+Exit5339.170engine seconds:725159private cells,725056measured (103unmeasured),
+52359q-bad/53072J-bad,2989geometry-bad,size0; qDebt7968.1229/JDebt13929.2221
+versus8115.4185/14256.1421atentry. Modest debt reduction, no accepted mesh,
+transfer or adapted disk restart. Counts/debts at exit are partial, not acceptance.
+Sampled summed process-tree peak12.606GiB; steady quality~8.21GiB. Startup cache
+allowance exceeded162 and host CPU service fell to~.77during splitting; no isolated
+timing/memory comparison. Bounded2s perf sample preserves active fitting + waiting,
+not an all-rank stall; raw profile stays local. No debugger in164.
+
+Next active cycle: reassess whole-field quality strategy across optimizer search,
+whole-patch merit, geometry fitting cost and distributed coordination. Bounded
+read-only optimizer survey delegated; primary retains design/acceptance. No new
+C++ change/build has started. Preserve construction/cache/ownership improvements,
+strict gates and full Euler→BL/MPI→RANS500k goal. Check next build ID, not assumed.
 
 Read [active quality-closure diagnosis](Handbook/ADAPTATION_QUALITY_CLOSURE_20261030.md),
 [current quality coordination](Handbook/ADAPTATION_QUALITY_HANDOFF_20261030.md)
@@ -65,7 +63,7 @@ are preserved, raw data stays local. No further GDB attempt.
 
 Next active connected diagnosis/fix: [whole-field quality closure](Handbook/ADAPTATION_QUALITY_CLOSURE_20261030.md).
 The connected quality-debt correction is implemented and serial/MPI-qualified;
-actual M6 acceptance remains unvalidated and its sources are frozen: whole-patch measured q/J debt, shape/size/geometry demand
+actual M6 acceptance failed; all owned handles are terminal, and sources are safe to edit: whole-patch measured q/J debt, shape/size/geometry demand
 ownership, cheap merit/edge rejection before fitting guidance, and reuse of the
 optimizer time bound. Build163 passed510.785s;164test-only correction passed39.168s.
 All1296pins unchanged
@@ -75,7 +73,7 @@ fixtures now supply complete totals. Connected164serial140cases/20260assertions
 36.002s and MPI6 146cases/rank41.082s PASS. Production CFD SHA256:
 `22c6d45a2f2f95205737745d0fbc8628e0f7199ee87fc0e8243dd8190ab8f9e8`.
 Evidence: `staged57/quality_debt164_integration_summary.json`.
-Actual full attempt `euler_build164_quality_debt50k` is LIVE; see top handles.
+Actual full attempt `euler_build164_quality_debt50k` is terminal, unsuccessful; see top.
 Preserve cache/ownership/construction improvements and strict gates; see the active closure record.
 Use existing observers for bounded failure diagnosis; no private replay exists.
 Historical build162 terminal evidence: that run's `terminal_assessment.json` and
