@@ -1,0 +1,93 @@
+{
+  "scope": "connected quality-debt/cache/ownership/geometry/wall regression; NOT full M6 acceptance",
+  "production_binary_sha256": "22c6d45a2f2f95205737745d0fbc8628e0f7199ee87fc0e8243dd8190ab8f9e8",
+  "builds": {
+    "163": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 510.7850043773651,
+      "pins_verified": true,
+      "changed": [],
+      "completed_build": true
+    },
+    "164": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 39.168275356292725,
+      "pins_verified": true,
+      "changed": [],
+      "completed_build": true
+    }
+  },
+  "cases": [
+    {
+      "case": "quality_debt163_serial_probe_20261030T204343_1446992",
+      "status": {
+        "state": "terminal",
+        "exit_code": 1,
+        "seconds": 5.980492353439331,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 544768,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "pass_lines": [],
+      "terminal_handles_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_debt163_serial_probe_20261030T204343_1446992/terminal_handles.json"
+    },
+    {
+      "case": "quality_debt164_mpi6_20261030T204638_1454059",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 41.08210325241089,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 105086976,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "pass_lines": [
+        "\u001b[1;32mAll tests passed\u001b[0m (15104 assertions in 146 test cases)",
+        "\u001b[1;32mAll tests passed\u001b[0m (13285 assertions in 146 test cases)",
+        "\u001b[1;32mAll tests passed\u001b[0m (12584 assertions in 146 test cases)",
+        "\u001b[1;32mAll tests passed\u001b[0m (12816 assertions in 146 test cases)",
+        "\u001b[1;32mAll tests passed\u001b[0m (13332 assertions in 146 test cases)",
+        "\u001b[1;32mAll tests passed\u001b[0m (12807 assertions in 146 test cases)"
+      ],
+      "terminal_handles_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_debt164_mpi6_20261030T204638_1454059/terminal_handles.json"
+    },
+    {
+      "case": "quality_debt164_serial_20261030T204549_1452058",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 36.002065658569336,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 101896192,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "pass_lines": [
+        "All tests passed (20260 assertions in 140 test cases)"
+      ],
+      "terminal_handles_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_debt164_serial_20261030T204549_1452058/terminal_handles.json"
+    },
+    {
+      "case": "quality_debt164_serial_probe_20261030T204527_1451140",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 7.081559658050537,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 32268288,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "pass_lines": [
+        "All tests passed (6363 assertions in 82 test cases)"
+      ],
+      "terminal_handles_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_debt164_serial_probe_20261030T204527_1451140/terminal_handles.json"
+    }
+  ],
+  "accepted_m6_events": 0,
+  "next_m6_attempt": "euler_build164_quality_debt50k"
+}

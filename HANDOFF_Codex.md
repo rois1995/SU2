@@ -39,8 +39,15 @@ Next active connected diagnosis/fix: [whole-field quality closure](Handbook/ADAP
 Sources are safe to edit. One connected, UNVALIDATED quality-debt correction is
 being implemented: whole-patch measured q/J debt, shape/size/geometry demand
 ownership, cheap merit/edge rejection before fitting guidance, and reuse of the
-optimizer time bound. Build163 is running (owned session90746, Ninja1427130),1296frozen pins.
-Do not edit compiled sources until its handle is terminal. Preserve cache/ownership/
+optimizer time bound. Build163 passed510.785s;164test-only correction passed39.168s. All1296pins unchanged
+within each build; all observed build/test handles terminal. Focused163found an
+old synthetic metric fixture missing new debt totals; both one-cell and large-star
+fixtures now supply complete totals. Connected164serial140cases/20260assertions
+36.002s and MPI6 146cases/rank41.082s PASS. Production CFD SHA256:
+`22c6d45a2f2f95205737745d0fbc8628e0f7199ee87fc0e8243dd8190ab8f9e8`.
+Evidence: `staged57/quality_debt164_integration_summary.json`.
+Next actual full attempt: `euler_build164_quality_debt50k` (not launched yet).
+Preserve cache/ownership/
 construction improvements and strict gates; see the active closure record.
 Use existing observers for bounded failure diagnosis; no private replay exists.
 Terminal evidence: active run's `terminal_assessment.json` and

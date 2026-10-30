@@ -2,8 +2,15 @@
 
 Build162 full M6 Euler50k attempt is TERMINAL, unsuccessful. All ten owned handles
 are independently verified absent; all1396run pins unchanged. Sources are now safe
-to edit. The connected quality-debt correction is frozen for build163
-(session90746, Ninja1427130,1296pins). Do not edit compiled sources while active. Preserve one connected cycle and
+to edit. Build163 passed510.785s,1296pins unchanged,82observed handles absent. Focused
+serial13cases passed the new measured-debt and geometry-only ordering checks but
+found an old synthetic metric fixture missing new totals. Its handle is terminal;
+one-cell and large-star synthetic fixtures now supply complete debt fields.
+Production sources are unchanged from163; test-only rebuild164 passed39.168s. All build/test handles verified terminal.
+Connected164serial140cases/20260assertions36.002s and MPI6 146cases/rank41.082s
+PASS; pins unchanged. Evidence: `staged57/quality_debt164_integration_summary.json`.
+Production CFD SHA25622c6d45a2f2f95205737745d0fbc8628e0f7199ee87fc0e8243dd8190ab8f9e8.
+Next full attempt: `euler_build164_quality_debt50k`; no accepted M6 event yet. Preserve one connected cycle and
 return to the complete target after the next coherent fix. Euler→BL/MPI→RANS500k,
 strict final gates, conservative admissible transfer and actual disk restart remain.
 
@@ -114,4 +121,4 @@ before expensive candidate fitting guidance. The unchanged old geometry score is
 computed lazily within the transaction. Streamed shape proposals receive measured
 merit admission before fitting guidance; geometry/height intents retain their
 separate checks. The existing optimizer time bound receives the event's remaining
-time, without resetting cumulative work or IDs. These changes are UNVALIDATED.
+time, without resetting cumulative work or IDs. The connected serial/MPI checks pass; actual M6 acceptance is still unvalidated.

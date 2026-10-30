@@ -362,6 +362,9 @@ TEST_CASE("Coordinate-only metric repair can measure a large unchanged star", "[
   before.shape_measured=after.shape_measured=true;
   before.minimum_mean_ratio=.10;before.minimum_scaled_jacobian=.10;
   after.minimum_mean_ratio=.12;after.minimum_scaled_jacobian=.11;
+  for(auto* m:{&before,&after}) {
+    m->shape_cells=cells;m->shape_debt=cells*NormalizedShapeHingeDebt(m->minimum_mean_ratio,m->minimum_scaled_jacobian);
+  }
   // 40 vertices provide 780 distinct edges, beyond the ordinary 128-cell edge allowance (768).
   for(Id a=0;a<40;++a)for(Id b=a+1;b<40;++b) {
     EdgeMeasure measure;measure.length=1;
@@ -640,8 +643,11 @@ TEST_CASE("Native 3D shape admission: validity-only generation keeps the final g
   CHECK(ValidateMetricChange(1,before,2,flat,MetricChange::Refine,reason,&d));
   // progress rules are unchanged: a coarsening that adds cells is still refused
   CHECK_FALSE(ValidateMetricChange(1,before,2,poor,MetricChange::Coarsen,reason,&d));CHECK(d.failure==MetricFailure::Progress);
-  // Construction repair uses the optimizer's worst normalized quality; spare Jacobian margin may repair q.
-  const auto weak_q=metric(.19,.1),repaired_q=metric(.21,.08),weaker_J=metric(.22,.051);
+  // One-cell repair closes its measured q deficit; above-gate margin is not new progress.
+  auto weak_q=metric(.19,.1),repaired_q=metric(.21,.08),weaker_J=metric(.22,.051);
+  for(auto* m:{&weak_q,&repaired_q,&weaker_J}) {
+    m->shape_cells=1;m->shape_debt=NormalizedShapeHingeDebt(m->minimum_mean_ratio,m->minimum_scaled_jacobian);
+  }
   CHECK(ValidateMetricChange(1,weak_q,1,repaired_q,MetricChange::Repair,reason,&d));CHECK(d.quality_progress);
   CHECK_FALSE(ValidateMetricChange(1,repaired_q,1,weak_q,MetricChange::Repair,reason,&d));
   CHECK_FALSE(ValidateMetricChange(1,repaired_q,1,weaker_J,MetricChange::Repair,reason,&d));
