@@ -128,6 +128,10 @@ struct GeometryWorkEstimate {
  * Nodal targets are the same actual-point samples used by WorkWeights; no geometry query/tessellation. */
 GeometryWorkEstimate EstimateGeometryWork(const OwnedCell&,const std::array<Tensor,4>& targets,
     const PlanarReference&,double tolerance);
+/*! Same structural predictor using six frozen actual metric edge lengths in local edge order
+ * (01,02,03,12,13,23). Lengths must be finite and positive; no field or geometry query is made. */
+GeometryWorkEstimate EstimateGeometryWork(const OwnedCell&,const PlanarReference&,double tolerance,
+    const std::array<long double,6>& frozen_lengths);
 bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std::vector<uint32_t>& weights,
                     std::string& reason, BridgeStats& stats, MetricComposition composition = {},
                     size_t ceiling = size_t(2) << 30, size_t caller_bytes = 0, bool query_timings = true,

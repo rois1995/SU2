@@ -38,6 +38,8 @@ struct PatchMetric {
 };
 /*! Sum of normalized squared q/J deficits for one measured cell. */
 long double NormalizedShapeHingeDebt(double mean_ratio,double scaled_jacobian);
+/*! Strict relative progress, including closure of a small positive measured deficit. */
+bool ShapeDebtDecreases(long double before,long double after);
 /*! Proposal only: minimise midpoint-metric spring energy around an original vertex. The default bound preserves
  * legacy behavior; callers admitting larger stars must supply a bound justified by their storage admission. */
 Point MetricMeanPoint(Point origin,const std::vector<std::pair<Point,Tensor>>& neighbors,

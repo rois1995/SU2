@@ -23,6 +23,9 @@ long double NormalizedShapeHingeDebt(double q,double J) {
   const long double jdef=std::max(0.L,1.L-static_cast<long double>(J)/MinimumScaledJacobian);
   return qdef*qdef+jdef*jdef;
 }
+bool ShapeDebtDecreases(long double before,long double after) {
+  return std::isfinite(before)&&std::isfinite(after)&&before>0&&after>=0&&after<before*(1-1e-12L);
+}
 long double FusedMultiplyAdd(long double x,long double y,long double z) noexcept {
 #if (defined(__x86_64__) || defined(__i386__)) && defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__==64
   // x87 extended format only (other long-double formats, e.g. AArch64 binary128, use std::fma below).
@@ -488,8 +491,7 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
       const bool complete_shape_debt=before.shape_measured&&measured.shape_measured&&
           before.shape_cells==old_count&&measured.shape_cells==fresh_count&&
           std::isfinite(before.shape_debt)&&std::isfinite(measured.shape_debt);
-      const long double debt_tolerance=1e-12L*std::max(1.L,std::abs(before.shape_debt));
-      const bool debt_progress=complete_shape_debt&&measured.shape_debt<before.shape_debt-debt_tolerance;
+      const bool debt_progress=complete_shape_debt&&ShapeDebtDecreases(before.shape_debt,measured.shape_debt);
       const bool quality_progress=GetShapeAdmission()==ShapeAdmission::ValidityOnly?debt_progress:legacy_quality_progress;
       if(diagnosis)diagnosis->quality_progress=quality_progress && (GetShapeAdmission()==ShapeAdmission::ValidityOnly || added<=removed);
       const auto final_shape=[](const PatchMetric& m){return m.shape_measured &&
@@ -500,7 +502,9 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
           shape_progress||(size_progress&&final_shape(measured));
       if(diagnosis&&shape_progress)diagnosis->quality_progress=true;
       if (!repair_progress)
-        throw std::invalid_argument("Native 3D repair improves neither frozen size excess nor quality/sliver bounds.");
+        throw std::invalid_argument(GetShapeAdmission()==ShapeAdmission::ValidityOnly ?
+            "Native 3D repair reduces neither frozen size excess nor complete measured shape debt." :
+            "Native 3D repair improves neither frozen size excess nor quality/sliver bounds.");
     }
     if (diagnosis) diagnosis->failure=MetricFailure::None;
     reason.clear();

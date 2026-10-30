@@ -125,7 +125,7 @@ merit admission before fitting guidance; geometry/height intents retain their
 separate checks. The existing optimizer time bound receives the event's remaining
 time, without resetting cumulative work or IDs. The connected serial/MPI checks pass; actual M6 acceptance is still unvalidated.
 
-## Actual build164 progress (live, sources frozen)
+## Actual build164 result (terminal)
 
 Initial CFD restart is byte-identical to162, allowing reuse of its initial-state
 finite/positive inspection; this is not adapted restart evidence. Startup partition
@@ -165,5 +165,54 @@ received~.77CPU seconds per wall second, compared with nearly full CPU service
 earlier. Load11.67, available~26.5GiB, no active paging at that observation.
 In quality aggregate RSS~8.21GiB, transient sampled peak12.606GiB; all1396pins and
 10owned identities reverified and host headroom remains adequate. This is not
-an isolated memory/timing comparison: startup cache quota differs too. Continue
-one healthy low-priority workload and leave unrelated jobs untouched.
+an isolated memory/timing comparison: startup cache quota differs too. These are preserved live observations; the164run is now terminal and all ten
+handles are absent, permitting source edits. Leave unrelated jobs untouched.
+
+## Active connected implementation: consistent quality search and support cost
+
+Missing capability remains whole-field strict quality/geometry closure.164completed
+164quality rounds and901local commits in1587.792entry-to-exit seconds, but partial
+q/J debt fell only474.216(2.12%) and over53000J-bad cells remain. The optimizer
+still searches max-min shape, unlike outer whole-patch debt admission;124of447
+optimizer calls fail outer validation. Existing hinge-Gauss-Newton proposals can
+therefore be discarded or poorly ranked. Boundary-query cost remains strongly
+imbalanced: upper-query seconds by rank388.8/74.1/99.6/63.5/373.4/840.5.
+
+Implement one consistent exact-cell debt merit across all existing optimizer
+operator rankings/admissions, additive triangulation DP, approximate cone placement
+and trial ordering. Keep physical minimum scores for reports/final gates. Absolute
+diagnostic admission retains its previous policy. In ValidityOnly, patches with
+closed requested heights use debt search and preserve those heights; patches with
+unmet actual heights retain the existing height-aware repair path. No solver-label
+dispatch, new operator ladder or arbitrary limit increases. Share a robust relative
+debt decrease rule so tiny positive deficits can close to zero without inventing
+progress above gates; complete measurement counts remain mandatory.
+
+At quality ownership only, reuse the existing detailed support/incidence geometry
+work estimator with certified cached frozen edge lengths and measured demand. Its
+pure structural predictor avoids rank-local prepared-cache warmth in weights;
+initial coarsening/splitting behavior remains unchanged. Admit predictor scratch.
+Retain existing exact geometry/body/frame checks and fitting guidance. Reuse
+existing quality window telemetry to expose whole-field progress during the next
+attempt. No new monitoring framework or mesh-wide distributed optimizer bypass.
+
+One active implementation cycle. Bounded geometry-estimator API/tests delegated;
+primary owns optimizer, shared merit, integration and acceptance. Optional authorized
+Opus5.5 high read-only review timed out240s without a report; no correctness claim.
+No build started. Qualify measured fixed-worst/decreasing-total cases, actual
+triangulation/placement, near-threshold closure, length and requested-height/frame
+preservation, then one connected serial/MPI campaign and immediately full M6.
+Complete accepted Euler two-event workflow plus conservative admissible transfer
+and isolated usable disk restart remain required; then BL/MPI and RANS500k.
+
+Candidate implementation complete, not built: all optimizer operations use the
+shared patch-debt policy after actual heights close; DP and placement are additive.
+Physical RowScore remains for census/reports. Shape proposals reuse ConstrainMovePoint
+to preserve admitted wall altitudes; fresh height checks enforce closure. Legacy
+unmet-height scores, including old -infinity progressing to finite, retain their
+comparison. Estimator lengths are explicitly routed by local cell vertex pairs,
+not cached map order. Predictor scratch is admitted. Focused measured tests cover
+the max-min tradeoff, alternative triangulations, tiny deficit closure and admitted
+first height; existing height-repair regressions remain. Local Opus review timed
+out without output; bounded source review caught and corrected the edge-order and
+legacy-height issues before any build. Freeze for build165 next; unvalidated.

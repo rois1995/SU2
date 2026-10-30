@@ -932,7 +932,11 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     detail << " sample_j=";
     if(e.last_metric_rejection.shape_measured) detail << e.last_metric_rejection.minimum_scaled_jacobian;
     else detail << "unavailable";
-    detail << " sample_cell=" << e.last_metric_rejection.weakest_cell << " sample_sliver=" << e.last_metric_rejection.sliver_cell
+    detail << " sample_old_shape_cells=" << e.last_metric_rejection.old_shape_cells
+             << " sample_new_shape_cells=" << e.last_metric_rejection.new_shape_cells
+             << " sample_old_shape_debt=" << e.last_metric_rejection.old_shape_debt
+             << " sample_new_shape_debt=" << e.last_metric_rejection.new_shape_debt
+             << " sample_cell=" << e.last_metric_rejection.weakest_cell << " sample_sliver=" << e.last_metric_rejection.sliver_cell
              << " sample_feature=" << e.last_rejected_feature.count << " sample_v0=" << e.last_rejected_feature.vertices[0]
              << " sample_v1=" << e.last_rejected_feature.vertices[1] << " sample_v2=" << e.last_rejected_feature.vertices[2]
              << " sample_x=" << e.last_rejected_cavity_centroid.x << " sample_y=" << e.last_rejected_cavity_centroid.y << " sample_z=" << e.last_rejected_cavity_centroid.z

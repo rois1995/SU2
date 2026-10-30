@@ -4152,6 +4152,33 @@ TEST_CASE("Metric optimizer moves an interior apex to satisfy requested first he
   PatchMetric metric;CHECK(ValidateMetricPatch(final.cells,field,metric,reason));
 }
 
+TEST_CASE("Debt optimization preserves admitted first height during shape movement", "[NativeHeightOptimization3D]") {
+  auto fixture=Box();fixture.patch.cells.clear();const Node center{8,{.98,.98,.35}};
+  for(const auto& f:fixture.facets) {
+    Cell c{fixture.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
+    if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[2],c.v[3]);
+    fixture.patch.cells.push_back(c);
+  }
+  const PlanarReference reference(fixture.facets);Owned mesh;
+  for(const auto& row:Rows(fixture.patch))mesh.emplace(row.cell.id,row);
+  WallHeights heights;for(const auto& f:fixture.facets)
+    if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights.emplace(f.marker,.35);
+  FirstHeightReport height;std::string reason;
+  REQUIRE(CheckFirstHeight(fixture.patch,heights,reference,height,reason));
+  FrozenField field(Uniform(mesh,Tensor{}));RegionMetric target(field);
+  const auto before=MeasureMetricCells(fixture.patch.cells,field);REQUIRE(before.shape_debt>0);
+  struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);Id node=9,cell=12;OptimizeReport report;
+  OptimizeOptions options;options.geometry=&reference;options.wall_heights=heights;options.maximum_work=1024;
+  options.swaps=options.collapses=options.boundary=options.insertions=false;
+  REQUIRE(OptimizeMetricMesh(mesh,target,node,cell,options,report));CHECK(report.moves>0);
+  std::vector<OwnedCell> rows;for(const auto& row:mesh)rows.push_back(row.second);
+  const auto final=PatchOf(rows);const auto after=MeasureMetricCells(final.cells,field);
+  CHECK(after.shape_debt<before.shape_debt);CHECK(CheckFirstHeight(final,heights,reference,height,reason));
+  CHECK(mesh.size()==fixture.patch.cells.size());
+  for(const auto& c:final.cells)CHECK(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0);
+}
+
 TEST_CASE("Independent quality stars commit concurrently with final strict acceptance", "[NativeConcurrentRepair3D]") {
   World world;
   struct Restore {ShapeAdmission previous=GetShapeAdmission();~Restore(){SetShapeAdmission(previous);}} restore;

@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "timeout",
+    "240",
+    "nice",
+    "-n",
+    "19",
+    "claude",
+    "-p",
+    "--model",
+    "claude-opus-5-5",
+    "--effort",
+    "high",
+    "--safe-mode",
+    "--permission-mode",
+    "plan",
+    "--no-session-persistence",
+    "--strict-mcp-config",
+    "--mcp-config",
+    "{\"mcpServers\":{}}",
+    "--tools",
+    "Read,Grep,Glob",
+    "--allowedTools",
+    "Read,Grep,Glob",
+    "--output-format",
+    "json"
+  ],
+  "scope": "authorized bounded read-only local model review; not validation",
+  "started_at": 1793399716.365141
+}

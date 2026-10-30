@@ -933,3 +933,73 @@ TEST_CASE("Validity-only repair requires complete decreasing measured q/J hinge 
   auto edge_only=MeasureMetricEdges(one_old,field);
   CHECK_FALSE(edge_only.shape_measured);CHECK(edge_only.shape_cells==0);CHECK(edge_only.shape_debt==0);
 }
+
+TEST_CASE("Small measured shape deficits can close without cosmetic above-gate progress", "[NativeShapeAdmission3D]") {
+  struct Restore {ShapeAdmission value=GetShapeAdmission();~Restore(){SetShapeAdmission(value);}} restore;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  FrozenField field({CoveringDonor({1,0,0,1,0,1})});
+  const double h=.05/std::sqrt(1-.05*.05);
+  auto cell=[](double z){return Cell{1,Tet({1,{0,0,0}},{2,{1,0,0}},{3,{0,1,0}},{4,{0,0,z}})};};
+  const auto old=MeasureMetricCells({cell(h*(1-1e-8))},field);
+  const auto fresh=MeasureMetricCells({cell(h*(1+1e-8))},field);
+  REQUIRE(old.shape_debt>0);REQUIRE(old.shape_debt<1e-12L);REQUIRE(fresh.shape_debt==0);
+  std::string reason;MetricDiagnosis diagnosis;
+  CHECK(ValidateMetricChange(1,old,1,fresh,MetricChange::Repair,reason,&diagnosis));
+  CHECK(diagnosis.quality_progress);
+  CHECK_FALSE(ValidateMetricChange(1,fresh,1,fresh,MetricChange::Repair,reason));
+  CHECK_FALSE(ShapeDebtDecreases(0,0));CHECK_FALSE(ShapeDebtDecreases(-1,-2));
+  CHECK_FALSE(ShapeDebtDecreases(INFINITY,0));
+}
+
+TEST_CASE("Optimizer smoothing reduces whole-star debt beyond a max-min stationary point", "[NativeOptimize3D][NativeShapeAdmission3D]") {
+  struct Restore {ShapeAdmission value=GetShapeAdmission();~Restore(){SetShapeAdmission(value);}} restore;
+  FrozenField field({CoveringDonor({1.5,0,0,.15,0,.05})});const RegionMetric target(field);
+  const std::array<Node,4> skin{{{1,{0,0,0}},{2,{1,0,0}},{3,{0,1,0}},{4,{0,0,1}}}};
+  const Node center{5,{.4,.2,.2}};std::vector<std::array<Node,4>> cells;
+  for(unsigned omit=0;omit<4;++omit){std::array<Node,3> face;unsigned k=0;for(unsigned j=0;j<4;++j)if(j!=omit)face[k++]=skin[j];cells.push_back(Tet(center,face[0],face[1],face[2]));}
+  Owned mesh=MeshOf(cells);OptimizeOptions options;options.swaps=options.collapses=options.insertions=false;
+  options.maximum_work=64;Id nn=100,nc=1000;OptimizeReport legacy;
+  SetShapeAdmission(ShapeAdmission::Absolute);OptimizeMetricMesh(mesh,target,nn,nc,options,legacy);
+  auto measured=[&](const Owned& rows){std::vector<Cell> c;for(const auto& row:rows)c.push_back(row.second.cell);return MeasureMetricCells(c,field);};
+  const auto before=measured(mesh);const auto facts=Facts(mesh,field);REQUIRE(before.shape_debt>0);
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);OptimizeReport debt;
+  REQUIRE(OptimizeMetricMesh(mesh,target,nn,nc,options,debt));
+  const auto after=measured(mesh);const auto final=Facts(mesh,field);
+  CHECK(after.shape_debt<before.shape_debt-.02L);CHECK(final.min<facts.min);
+  CHECK(debt.moves>0);CHECK(final.positive);CHECK(final.skin==facts.skin);CHECK(final.cells==facts.cells);
+  CHECK(std::abs(double(final.volume-facts.volume))<1e-12);
+  CHECK(after.maximum_length<=MaximumMetricEdge);
+  std::string reason;MetricDiagnosis diagnosis;
+  CHECK(ValidateMetricChange(facts.cells,before,final.cells,after,MetricChange::Repair,reason,&diagnosis));
+  CHECK(diagnosis.quality_progress);
+}
+
+TEST_CASE("Edge triangulation minimizes summed shape debt instead of its worst score", "[NativeOptimize3D][NativeShapeAdmission3D]") {
+  struct Restore {ShapeAdmission value=GetShapeAdmission();~Restore(){SetShapeAdmission(value);}} restore;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  FrozenField field({CoveringDonor({1,0,0,1,0,1})});const RegionMetric target(field);
+  const Node a{1,{-.18,.06,.032}},b{2,{-.39,.36,-.032}};
+  const std::array<Node,4> ring{{{3,{1.1,0,0}},{4,{0,.64,0}},{5,{-.43,0,0}},{6,{0,-.93,0}}}};
+  std::vector<std::array<Node,4>> old;for(unsigned i=0;i<4;++i)old.push_back(Tet(a,b,ring[i],ring[(i+1)%4]));
+  auto candidate=[&](bool diagonal02){std::vector<Cell> cells;
+    const std::array<std::array<unsigned,3>,2> triangles=diagonal02?
+        std::array<std::array<unsigned,3>,2>{{{{0,1,2}},{{0,2,3}}}}:
+        std::array<std::array<unsigned,3>,2>{{{{0,1,3}},{{1,2,3}}}};
+    for(const auto& t:triangles)for(Node apex:{a,b}) {
+      Cell cell{Id(cells.size()),Tet(apex,ring[t[0]],ring[t[1]],ring[t[2]])};
+      if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[0],cell.v[1]);
+      cells.push_back(cell);
+    }
+    return MeasureMetricCells(cells,field);};
+  const auto d02=candidate(true),d13=candidate(false);
+  const auto score=[](const PatchMetric& m){return std::min(m.minimum_mean_ratio/MinimumMeanRatio,m.minimum_scaled_jacobian/MinimumScaledJacobian);};
+  REQUIRE(d13.shape_debt<d02.shape_debt-.1L);REQUIRE(score(d13)<score(d02));
+  Owned mesh=MeshOf(old);const auto before=Facts(mesh,field);OptimizeOptions options;
+  options.smoothing=options.collapses=options.insertions=false;options.maximum_work=1;
+  OptimizeReport report;Id nn=100,nc=1000;
+  REQUIRE(OptimizeMetricMesh(mesh,target,nn,nc,options,report));CHECK(report.edge_removals==1);
+  std::vector<Cell> cells;for(const auto& row:mesh)cells.push_back(row.second.cell);
+  const auto measured=MeasureMetricCells(cells,field);CHECK(double(measured.shape_debt)==Approx(double(d13.shape_debt)));
+  const auto after=Facts(mesh,field);CHECK(after.positive);CHECK(after.skin==before.skin);
+  CHECK(std::abs(double(after.volume-before.volume))<1e-12);CHECK(measured.maximum_length<=MaximumMetricEdge);
+}

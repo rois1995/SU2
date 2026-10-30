@@ -1,6 +1,6 @@
 # Native adaptation — handoff entry point
 
-Updated2026-10-30. User has freed the machine and authorized continuing computation.
+Updated2026-10-31. User has freed the machine and authorized continuing computation.
 The full Euler50k→BL/MPI→RANS500k goal remains active; zero accepted M6 events.
 
 **TERMINAL, unsuccessful:** `euler_build164_quality_debt50k`, full two-event Euler50k attempt.
@@ -30,10 +30,16 @@ allowance exceeded162 and host CPU service fell to~.77during splitting; no isola
 timing/memory comparison. Bounded2s perf sample preserves active fitting + waiting,
 not an all-rank stall; raw profile stays local. No debugger in164.
 
-Next active cycle: reassess whole-field quality strategy across optimizer search,
-whole-patch merit, geometry fitting cost and distributed coordination. Bounded
-read-only optimizer survey delegated; primary retains design/acceptance. No new
-C++ change/build has started. Preserve construction/cache/ownership improvements,
+Active connected implementation: consistent whole-patch debt search across optimizer
+operators/triangulation/placement, near-threshold closure, detailed boundary-support
+cost at quality ownership, and existing quality-window telemetry. Source review
+complete; bounded geometry-estimator API/tests delegated. Primary retains design/
+acceptance. Optional Opus5.5 high read-only review timed out240s without report.
+Candidate is implemented and about to be frozen for build165; no heavy job live.
+Source includes all-operator exact debt merit, additive DP/placement, height-constrained
+shape proposals, cached-length support-cost estimate and quality-window/last-debt
+telemetry. Focused tests added; all changed behavior remains UNVALIDATED until build
+and campaign complete. Preserve the source freeze once build165 starts. Preserve construction/cache/ownership improvements,
 strict gates and full Euler→BL/MPI→RANS500k goal. Check next build ID, not assumed.
 
 Read [active quality-closure diagnosis](Handbook/ADAPTATION_QUALITY_CLOSURE_20261030.md),

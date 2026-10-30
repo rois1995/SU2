@@ -11,6 +11,7 @@
 #include "../../../Common/include/adaptation/CNativeGenerationProgress3D.hpp"
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <numeric>
 #include <sstream>
 using namespace SU2Native3D;
@@ -141,8 +142,20 @@ TEST_CASE("Geometry work attributes closed flat surface faces and edge shares on
   for(const auto& item:cells) {
     const auto a=EstimateGeometryWork(item.second,metric,reference,1e-4);
     const auto b=EstimateGeometryWork(item.second,metric,reference,1e-4);
+    std::array<long double,6> lengths{};unsigned slot=0;
+    for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)
+      lengths[slot++]=std::max(MetricNorm(item.second.cell.v[i].p,item.second.cell.v[j].p,metric[i]),
+                              MetricNorm(item.second.cell.v[i].p,item.second.cell.v[j].p,metric[j]));
+    const auto frozen=EstimateGeometryWork(item.second,reference,1e-4,lengths);
     CHECK(a.operations==b.operations);CHECK(a.work==b.work);CHECK(a.faces==b.faces);
+    CHECK(frozen.operations==a.operations);CHECK(frozen.work==a.work);CHECK(frozen.faces==a.faces);
     CHECK(a.cross_chart_faces==0);operations+=a.operations;work+=a.work;faces+=a.faces;
+    auto changed=lengths;changed.fill(2.0L);
+    CHECK(EstimateGeometryWork(item.second,reference,1e-4,changed).work!=frozen.work);
+    changed[0]=0;CHECK_THROWS(EstimateGeometryWork(item.second,reference,1e-4,changed));
+    changed[0]=std::numeric_limits<long double>::quiet_NaN();
+    CHECK_THROWS(EstimateGeometryWork(item.second,reference,1e-4,changed));
+    std::array<long double,6> missing{};CHECK_THROWS(EstimateGeometryWork(item.second,reference,1e-4,missing));
   }
   CHECK(faces==12);CHECK(operations==Approx(30));CHECK(work>0);CHECK(Bytes(cells)==saved);
   auto definition=std::make_shared<PlanarReference>(facets);std::map<Id,double> errors;
@@ -154,9 +167,21 @@ TEST_CASE("Geometry work attributes closed flat surface faces and edge shares on
     surface.push_back(face);}
   auto state=std::make_shared<BoundaryParameterState>(authority,points,surface);
   auto mapped=PlanarReference::WithParameters(definition,state);double mapped_operations=0;
-  for(const auto& item:cells)mapped_operations+=EstimateGeometryWork(item.second,metric,*mapped,1e-4).operations;
+  const auto before_query=authority->GeometryStatsSnapshot();
+  for(const auto& item:cells) {
+    mapped_operations+=EstimateGeometryWork(item.second,metric,*mapped,1e-4).operations;
+    std::array<long double,6> lengths{};unsigned slot=0;
+    for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)
+      lengths[slot++]=std::max(MetricNorm(item.second.cell.v[i].p,item.second.cell.v[j].p,metric[i]),
+                              MetricNorm(item.second.cell.v[i].p,item.second.cell.v[j].p,metric[j]));
+    CHECK(EstimateGeometryWork(item.second,*mapped,1e-4,lengths).operations==
+          EstimateGeometryWork(item.second,metric,*mapped,1e-4).operations);
+  }
+  const auto after_query=authority->GeometryStatsSnapshot();
   CHECK(mapped_operations==Approx(38)); // 12 faces, 18 edges, 8 vertices, each attributed once.
   CHECK(authority->GeometryStatsSnapshot().upper_calls==0);
+  CHECK(after_query.upper_calls==before_query.upper_calls);CHECK(after_query.full_calls==before_query.full_calls);
+  CHECK(after_query.scope_builds==before_query.scope_builds);CHECK(after_query.facet_misses==before_query.facet_misses);
   World world;auto local=Layout(cells,world,0);
   for(auto& row:local){row.second.sensor_present=true;row.second.sensor.fill(Tensor{});}
   DonorImport source(world);BridgeStats prediction;std::string reason;std::vector<uint32_t> weights,geometry_weights;

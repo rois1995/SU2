@@ -13,6 +13,7 @@
 #include "../../include/adaptation/CNativeGeometryBackend3D.hpp"
 #include "../../include/adaptation/CNativeGenerationProgress3D.hpp"
 #include "../../include/adaptation/CNativePartition3D.hpp"
+#include "../../include/adaptation/CNativeImport3D.hpp"
 #include <chrono>
 #include <cmath>
 #include <cstring>
@@ -1177,7 +1178,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     d.geometry_complete=!world.maximum(!p.geometry_complete);return d;
   };
   auto observe_progress=[&](const char* stage) {
-    if(options.timings && std::string(stage)!="window") {
+    if(options.timings && (std::string(stage)!="window" || phase==Phase::Improvement)) {
       const auto p=selection.Progress(working.size());const auto* state=geometry.Parameters();
       const auto cache=geometry_authority?geometry_authority->GeometryStatsSnapshot():SU2NativeGeometry::MappedFacetReference::GeometryStats{};
       const auto authority=geometry_authority?geometry_authority->ResidentBytes():0;
@@ -2077,7 +2078,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const auto scratch=transfer_memory::Add(MapBytes(working),transfer_memory::Mul(working.size(),
         sizeof(uint32_t)*2+sizeof(double)*2+sizeof(Selection::CachedRow)*3+sizeof(Id)),
         transfer_memory::Mul(working.size(),4*(sizeof(std::pair<const Id,uint64_t>)+4*sizeof(void*))),
-        transfer_memory::Mul(world.size,256));
+        transfer_memory::Mul(world.size,256),
+        quality&&geometry_authority?transfer_memory::Mul(geometry_authority->Reference().Facets().size(),256):0);
     if(!admit(scratch))return false;
     std::map<Id,uint64_t> complete_stars;
     if(!VertexStarSizes(world,working,complete_stars,result.reason,options.memory_ceiling,
@@ -2101,7 +2103,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           demand+=insertions*(1+std::log2(1.+star));
         }
         double geometry_cost=0;
-        for(unsigned face=0;face<4;++face)if(owned.second.physical[face].present) {
+        if(quality && geometry_authority && options.surface_tolerance>0) {
+          std::array<long double,6> lengths;
+          // Cached rows use global key order; the predictor requires local vertex-pair order.
+          unsigned slot=0;
+          for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j) {
+            Edge edge{owned.second.cell.v[i].id,owned.second.cell.v[j].id};std::sort(edge.begin(),edge.end());
+            lengths[slot++]=selection.edges.at(edge).measure.length;
+          }
+          geometry_cost=EstimateGeometryWork(owned.second,geometry,options.surface_tolerance,lengths).work*demand;
+        } else for(unsigned face=0;face<4;++face)if(owned.second.physical[face].present) {
           double preparation=1;
           if(geometry_authority) {
             const auto structure=geometry_authority->StructuralEstimate(owned.second.physical[face].facet);
@@ -4511,9 +4522,9 @@ Factor3 FactorOf(const Tensor& m) {
   const double p11=m.yy-c.r01*c.r01;if(!(p11>0))return c;c.r11=std::sqrt(p11);c.r12=(m.yz-c.r01*c.r02)/c.r11;
   const double p22=m.zz-c.r02*c.r02-c.r12*c.r12;if(!(p22>0))return c;c.r22=std::sqrt(p22);c.ok=true;return c;
 }
-// Approximate score min(q/.20, J/.05) of (p0..p3) in a constant tensor (same definitions as Measure, double precision);
+// Approximate minimum score or negative summed hinge debt in a constant tensor (same q/J as Measure);
 // -INFINITY for a non-positive (determinant <= 0) or degenerate cell.
-double FastScore(const std::array<Point,4>& p,const Factor3& f) {
+double FastScore(const std::array<Point,4>& p,const Factor3& f,bool debt=false) {
   double y[4][3];
   for(unsigned k=0;k<4;++k){const double d0=p[k].x-p[0].x,d1=p[k].y-p[0].y,d2=p[k].z-p[0].z;
     y[k][0]=f.r00*d0+f.r01*d1+f.r02*d2;y[k][1]=f.r11*d1+f.r12*d2;y[k][2]=f.r22*d2;}
@@ -4525,7 +4536,7 @@ double FastScore(const std::array<Point,4>& p,const Factor3& f) {
   for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){double s=0;for(unsigned c=0;c<3;++c){const double d=e(i,j,c);s+=d*d;}l2[i][j]=l2[j][i]=s;sum+=s;}
   const double root=std::cbrt(det/2),q=12*root*root/sum;double J=1;
   for(unsigned k=0;k<4;++k){double den=1;for(unsigned j=0;j<4;++j)if(j!=k)den*=std::sqrt(l2[k][j]);J=std::min(J,den>0?std::sqrt(2.)*det/den:0.);}
-  return std::min(q/MinimumMeanRatio,J/MinimumScaledJacobian);
+  return debt ? -double(NormalizedShapeHingeDebt(q,J)) : std::min(q/MinimumMeanRatio,J/MinimumScaledJacobian);
 }
 // Boundary faces of a cell set (faces used once inside the set), oriented as in their cell (opposite vertex inside).
 std::vector<Face> CavityBoundary(const std::vector<Cell>& cells) {
@@ -4534,13 +4545,13 @@ std::vector<Face> CavityBoundary(const std::vector<Cell>& cells) {
   std::vector<Face> out;for(const auto& u:uses)if(u.second.first==1)out.push_back(u.second.second);
   return out;
 }
-// Min-max placement of one new point x in a star-shaped cavity bounded by `faces` (cone cells {x, f}). The tensor of a
+// Placement of one new point in a star-shaped cavity, using minimum score or summed deficit. The tensor of a
 // cone cell is the arithmetic mean of the point tensors at its three face vertices and at the start point (an SPD
 // proposal metric); deterministic best-improvement compass search in the metric frame of the start point (6 axes and
 // 8 diagonals, step .25 halving to 1e-3). `admissible` restricts the search region (e.g. the size-split region).
 struct Placement { bool ok=false;Point x;double score=-INFINITY;size_t evaluations=0; };
 Placement PlaceCone(const std::vector<Face>& faces,const std::function<Point(Id)>& point,const std::function<Tensor(Point)>& at,
-                    Point start,const std::function<bool(Point)>& admissible,size_t budget=160) {
+                    Point start,const std::function<bool(Point)>& admissible,size_t budget=160,bool debt=false) {
   Placement out;if(faces.empty())return out;
   // a start outside the target's coverage (e.g. a smoothing proposal beyond the domain) is no proposal, not an error
   Tensor t0;std::map<Id,Tensor> vt;
@@ -4549,8 +4560,12 @@ Placement PlaceCone(const std::vector<Face>& faces,const std::function<Point(Id)
   for(const auto& f:faces){Tensor m=t0;for(Id v:f){const auto& t=vt.at(v);m.xx+=t.xx;m.xy+=t.xy;m.xz+=t.xz;m.yy+=t.yy;m.yz+=t.yz;m.zz+=t.zz;}
     m.xx/=4;m.xy/=4;m.xz/=4;m.yy/=4;m.yz/=4;m.zz/=4;const auto c=FactorOf(m);if(!c.ok)return out;factor.push_back(c);
     base.push_back({point(f[0]),point(f[1]),point(f[2])});}
-  auto F=[&](Point x)->double{++out.evaluations;if(admissible&&!admissible(x))return -INFINITY;double s=INFINITY;
-    for(size_t k=0;k<base.size()&&s>-INFINITY;++k)s=std::min(s,FastScore({x,base[k][0],base[k][1],base[k][2]},factor[k]));return s;};
+  auto F=[&](Point x)->double{++out.evaluations;if(admissible&&!admissible(x))return -INFINITY;double s=debt?0:INFINITY;
+    for(size_t k=0;k<base.size()&&s>-INFINITY;++k) {
+      const auto part=FastScore({x,base[k][0],base[k][1],base[k][2]},factor[k],debt);
+      s=debt?s+part:std::min(s,part);
+    }
+    return s;};
   // metric frame of the start: d = R0^{-1} e (unit metric length)
   const auto R=FactorOf(t0);if(!R.ok)return out;
   auto frame=[&](double e0,double e1,double e2)->Point{const double z=e2/R.r22,y=(e1-R.r12*z)/R.r11,x=(e0-R.r01*y-R.r02*z)/R.r00;return {x,y,z};};
@@ -4643,21 +4658,61 @@ class MeshOptimizer {
     const auto& base=moved_geometry?*moved_geometry:*options.geometry;auto parameters=base.PrivateParameters(patch);
     return HeightScore(patch,options.wall_heights,parameters?*parameters:base);
   }
-  double RowScore(Id id,const Cell& c){
-    CellQuality cached;
-    const double score=options.mesh_quality && options.mesh_quality(id,cached.q,cached.J)?cached.Score():Score(c);
-    if(options.wall_heights.empty())return score;
+  CellQuality RowQuality(Id id,const Cell& c) {
+    CellQuality q;
+    if(!options.mesh_quality || !options.mesh_quality(id,q.q,q.J))q=Quality(c);
+    return q;
+  }
+  double RowHeight(Id id,const Cell& c) {
+    if(options.wall_heights.empty())return INFINITY;
     auto found=height_scores.find(id);
     if(found==height_scores.end()) {
       if(height_scores.size()>=options.cache_entries)height_scores.clear();
       found=height_scores.emplace(id,Height(GeometryPatch({c}))).first;
     }
-    return std::min(score,found->second);}
+    return found->second;
+  }
+  double RowScore(Id id,const Cell& c){return std::min(RowQuality(id,c).Score(),RowHeight(id,c));}
+  long double RowPriority(Id id,const Cell& c) {
+    if(GetShapeAdmission()!=ShapeAdmission::ValidityOnly)return RowScore(id,c);
+    const auto q=RowQuality(id,c);long double debt=NormalizedShapeHingeDebt(q.q,q.J);
+    const auto h=RowHeight(id,c);
+    if(h<1){const auto deficit=1-static_cast<long double>(h);debt+=deficit*deficit;}
+    return -debt;
+  }
   double MinScore(const std::vector<Id>& ids){double m=INFINITY;for(Id id:ids)m=std::min(m,RowScore(id,mesh.at(id).cell));return m;}
   // Minimum score of finite, exact-positive fresh cells.
   double FreshScore(const std::vector<Cell>& cells,bool memo=true,const Patch* patch=nullptr) {
     double m=INFINITY;for(const auto& c:cells){const auto r=Quality(c,memo);if(!r.Valid())return -INFINITY;m=std::min(m,r.Score());}
     return options.wall_heights.empty()?m:std::min(m,Height(patch?*patch:GeometryPatch(cells)));}
+  // Height repair retains its existing merit until the actual requested constraints close.
+  bool DebtMode(const std::vector<Id>& ids,const Patch* patch=nullptr) const {
+    if(GetShapeAdmission()!=ShapeAdmission::ValidityOnly)return false;
+    if(options.wall_heights.empty())return true;
+    if(patch)return Height(*patch)>=1;
+    std::vector<Cell> cells;for(Id id:ids)cells.push_back(mesh.at(id).cell);
+    return Height(GeometryPatch(cells))>=1;
+  }
+  long double OldMerit(const std::vector<Id>& ids,bool debt) {
+    if(!debt)return MinScore(ids);
+    long double sum=0;
+    for(Id id:ids){const auto q=RowQuality(id,mesh.at(id).cell);if(!q.Valid())return -INFINITY;sum+=NormalizedShapeHingeDebt(q.q,q.J);}
+    return -sum;
+  }
+  long double FreshMerit(const std::vector<Cell>& cells,bool debt,bool memo=true,const Patch* patch=nullptr) {
+    if(!debt)return FreshScore(cells,memo,patch);
+    if(cells.empty())return -INFINITY;
+    long double sum=0;
+    for(const auto& c:cells){const auto q=Quality(c,memo);if(!q.Valid())return -INFINITY;sum+=NormalizedShapeHingeDebt(q.q,q.J);}
+    if(!options.wall_heights.empty() && !(Height(patch?*patch:GeometryPatch(cells))>=1))return -INFINITY;
+    return -sum;
+  }
+  bool Progress(long double after,long double before,bool debt,bool length=false) const {
+    if(!std::isfinite(after))return false;
+    if(debt)return std::isfinite(before)&&(length?after>=before:ShapeDebtDecreases(-before,-after));
+    const double floor=length?std::min(double(before),1.)-1e-12:double(before)+Gain;
+    return double(after)>floor;
+  }
   long double Estimate(Point a,Point b) {
     const Point mid{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)};
     ++report.edge_surrogates;
@@ -4775,7 +4830,7 @@ class MeshOptimizer {
   bool BoundaryCollapse(Id p,Id q);
 };
 // O1: interior edge with a closed shell of n cells (3 <= n <= maximum_shell) replaced by the 2(n-2) cells of the best
-// triangulation of its ring polygon (dynamic programming maximizing the minimum score; ring order with (a,b,r_i,r_i+1)
+// triangulation of its ring polygon (additive debt or legacy max-min dynamic programming; ring order with (a,b,r_i,r_i+1)
 // positive, so (a,r_i,r_k,r_j) and (b,r_i,r_j,r_k) for i < k < j are the positive orientations).
 // lengthDriven (O1L): the edge is longer than 1.8; accepted when no new edge exceeds 1.8 and the replaced cells' minimum
 // score does not fall below min(old minimum, 1) (the long edge leaves the mesh without creating a final-gate failure).
@@ -4796,28 +4851,27 @@ bool MeshOptimizer::EdgeRemoval(Id a,Id b,bool lengthDriven) {
    Id prev=r0;Id cur=next;while(cur!=r0){if(order.size()>n)return false;order.push_back(cur);const auto& nb=ring.at(cur);const Id nx=nb[0]==prev?nb[1]:nb[0];prev=cur;cur=nx;}}
   if(order.size()!=n)return false;
   for(size_t i=0;i<n;++i)if(!(Orientation(pa,pb,points.at(order[i]),points.at(order[(i+1)%n]))>0))return false;
-  const double oldMin=MinScore(shell);
+  const bool debt=DebtMode(shell);const auto oldMin=OldMerit(shell,debt);
   long double limit=MaximumMetricEdge;
   if(!lengthDriven){try{const auto e=Estimate(pa,pb);limit=std::max<long double>(limit,e>EstimatePass?Exact(pa,pb):e);}catch(const std::exception&){}}
-  const double floor=lengthDriven?std::min(oldMin,1.)-1e-12:oldMin+Gain;
   const Node A{a,pa},B{b,pb};std::vector<Node> r(n);for(size_t i=0;i<n;++i)r[i]={order[i],points.at(order[i])};
-  std::map<std::array<size_t,3>,double> tri;
+  std::map<std::array<size_t,3>,long double> tri;
   auto triangle=[&](size_t i,size_t k,size_t j){const std::array<size_t,3> key{i,k,j};const auto f=tri.find(key);if(f!=tri.end())return f->second;
-    const double s=FreshScore({Cell{0,{A,r[i],r[k],r[j]}},Cell{0,{B,r[i],r[j],r[k]}}});tri.emplace(key,s);return s;};
+    const auto s=FreshMerit({Cell{0,{A,r[i],r[k],r[j]}},Cell{0,{B,r[i],r[j],r[k]}}},debt);tri.emplace(key,s);return s;};
   std::set<std::pair<size_t,size_t>> forbidden;
   auto ringEdge=[&](size_t i,size_t j){return j==i+1 || (i==0&&j==n-1);};
   for(unsigned attempt=0;attempt<4;++attempt) {
-    std::vector<std::vector<double>> best(n,std::vector<double>(n,-INFINITY));std::vector<std::vector<size_t>> arg(n,std::vector<size_t>(n,SIZE_MAX));
-    for(size_t i=0;i+1<n;++i)best[i][i+1]=INFINITY;
+    std::vector<std::vector<long double>> best(n,std::vector<long double>(n,-INFINITY));std::vector<std::vector<size_t>> arg(n,std::vector<size_t>(n,SIZE_MAX));
+    for(size_t i=0;i+1<n;++i)best[i][i+1]=debt?0:INFINITY;
     for(size_t len=2;len<n;++len)for(size_t i=0;i+len<n;++i) {
       const size_t j=i+len;
       for(size_t k=i+1;k<j;++k) {
         if((!ringEdge(i,k)&&forbidden.count({i,k})) || (!ringEdge(k,j)&&forbidden.count({k,j})))continue;
-        const double v=std::min({best[i][k],best[k][j],triangle(i,k,j)});
+        const auto v=debt?best[i][k]+best[k][j]+triangle(i,k,j):std::min({best[i][k],best[k][j],triangle(i,k,j)});
         if(v>best[i][j]){best[i][j]=v;arg[i][j]=k;}
       }
     }
-    if(!(best[0][n-1]>floor)){if(best[0][n-1]==-INFINITY)++report.rejected_validity;else ++report.rejected_quality;return false;}
+    if(!(Progress(best[0][n-1],oldMin,debt,lengthDriven))){if(best[0][n-1]==-INFINITY)++report.rejected_validity;else ++report.rejected_quality;return false;}
     std::vector<std::array<size_t,3>> used;std::vector<std::pair<size_t,size_t>> stack{{0,n-1}};
     while(!stack.empty()){const auto e=stack.back();stack.pop_back();if(e.second<=e.first+1)continue;const size_t k=arg[e.first][e.second];
       used.push_back({e.first,k,e.second});stack.push_back({e.first,k});stack.push_back({k,e.second});}
@@ -4828,6 +4882,7 @@ bool MeshOptimizer::EdgeRemoval(Id a,Id b,bool lengthDriven) {
     }
     if(!ok){++report.rejected_edge;if(Limited())return false;continue;}
     std::vector<Cell> fresh;for(const auto& t:used){fresh.push_back(Cell{0,{A,r[t[0]],r[t[1]],r[t[2]]}});fresh.push_back(Cell{0,{B,r[t[0]],r[t[2]],r[t[1]]}});}
+    if(!Progress(FreshMerit(fresh,debt),oldMin,debt,lengthDriven)){++report.rejected_quality;return false;}
     if(!Interface(shell,fresh))return false;
     Commit(shell,fresh);++(lengthDriven?report.length_removals:report.edge_removals);return true;
   }
@@ -4846,9 +4901,9 @@ bool MeshOptimizer::FaceSwap(const Face& f) {
   const Node D{d,points.at(d)},E{e,points.at(e)};std::array<Node,3> r{Node{f[0],points.at(f[0])},Node{f[1],points.at(f[1])},Node{f[2],points.at(f[2])}};
   if(!(Orientation(D.p,E.p,r[0].p,r[1].p)>0))std::swap(r[1],r[2]);
   std::vector<Cell> fresh{Cell{0,{D,E,r[0],r[1]}},Cell{0,{D,E,r[1],r[2]}},Cell{0,{D,E,r[2],r[0]}}};
-  const double oldMin=MinScore(both),newMin=FreshScore(fresh);
+  const bool debt=DebtMode(both);const auto oldMin=OldMerit(both,debt),newMin=FreshMerit(fresh,debt);
   if(newMin==-INFINITY){++report.rejected_validity;return false;}
-  if(!(newMin>oldMin+Gain)){++report.rejected_quality;return false;}
+  if(!(Progress(newMin,oldMin,debt))){++report.rejected_quality;return false;}
   if(!Certified(D.p,E.p,MaximumMetricEdge)){++report.rejected_edge;return false;}
   if(!Interface(both,fresh))return false;
   Commit(both,fresh);++report.face_swaps;return true;
@@ -4861,9 +4916,9 @@ bool MeshOptimizer::Collapse(Id p,Id q) {
   const Node Q{q,points.at(q)};std::vector<Cell> fresh;std::set<Id> link;
   for(Id id:old){const auto& c=mesh.at(id).cell;for(const auto& v:c.v)if(v.id!=p)link.insert(v.id);if(CellHas(c,q))continue;Cell x=c;for(auto& v:x.v)if(v.id==p)v=Q;fresh.push_back(x);}
   if(fresh.empty())return false;
-  const double oldMin=MinScore(old),newMin=FreshScore(fresh);
+  const bool debt=DebtMode(old);const auto oldMin=OldMerit(old,debt),newMin=FreshMerit(fresh,debt);
   if(newMin==-INFINITY){++report.rejected_validity;return false;}
-  if(!(newMin>oldMin+Gain)){++report.rejected_quality;return false;}
+  if(!(Progress(newMin,oldMin,debt))){++report.rejected_quality;return false;}
   for(Id x:link){if(x==q||Adjacent(q,x))continue;if(!Certified(Q.p,points.at(x),MaximumMetricEdge)){++report.rejected_edge;return false;}}
   if(!Interface(old,fresh))return false;
   Commit(old,fresh,p);++report.collapses;return true;
@@ -4885,10 +4940,8 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
     if(std::find(f.begin(),f.end(),p)!=f.end() && !old_physical.count(Key(f)))return false;
   const auto& geometry=moved_geometry?*moved_geometry:*options.geometry;
   try{geometry.ExportParameters(patch);}catch(const std::exception&){return false;}
-  const double before=MinScore(old);const auto origin=points.at(p);
+  const bool debt=DebtMode(old,&patch);const auto before=OldMerit(old,debt);const auto origin=points.at(p);
   long double geometric_before=0;bool geometry_measured=false;
-  long double old_debt=0;
-  for(const auto& cell:patch.cells){const auto q=Quality(cell);old_debt+=NormalizedShapeHingeDebt(q.q,q.J);}
   std::vector<Point> targets;std::set<Id> neighbors;
   for(const auto& c:patch.cells)for(auto n:c.v)if(n.id!=p)neighbors.insert(n.id);
   if(geometry.Mapped()) {
@@ -4930,12 +4983,12 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
       Point q=origin;if(axis==0)q.x+=sign*step*radius;else if(axis==1)q.y+=sign*step*radius;else q.z+=sign*step*radius;targets.push_back(q);
     }
   }catch(const std::exception&){return false;}
-  Patch best;double best_score=before;
+  Patch best;long double best_score=before;
   for(Point target_point:targets) {
     if(Limited())break;++report.trials;Patch candidate;std::string reason;
     if(geometry.Mobility()) {
       // Projection and volume quality precede expensive surface reconstruction; height can only lower this score.
-      double upper=INFINITY;
+      long double upper=debt?0:INFINITY;
       {
         auto context=geometry.PrivateParameters(patch);const auto& projected_geometry=context?*context:geometry;
         auto* budget=projected_geometry.AtlasReservation();SU2NativeGeometry::CurvedAtlas atlas;BoundaryPoint projected;
@@ -4951,21 +5004,17 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
           for(auto& node:cell.v)if(node.id==p)node=projected.node;
           const auto measured=Quality(cell,false);
           if(!measured.Valid()){upper=-INFINITY;break;}
-          upper=std::min(upper,measured.Score());
+          upper=debt?upper-NormalizedShapeHingeDebt(measured.q,measured.J):std::min(upper,static_cast<long double>(measured.Score()));
         }
       }
       if(!std::isfinite(upper)){++report.rejected_validity;continue;}
-      if(!(upper>best_score+Gain)){++report.rejected_quality;continue;}
+      if(!(Progress(upper,best_score,debt))){++report.rejected_quality;continue;}
     }
     // Use the raw proposal again: projecting the realized surface point need not be idempotent.
     if(!MoveVertex(patch,p,{next_node,target_point},next_cell,geometry,candidate,reason)){++report.rejected_interface;continue;}
-    const double score=FreshScore(candidate.cells,false,&candidate);
+    const auto score=FreshMerit(candidate.cells,debt,false,&candidate);
     if(!std::isfinite(score)){++report.rejected_validity;continue;}
-    if(!(score>best_score+Gain)){++report.rejected_quality;continue;}
-    if(GetShapeAdmission()==ShapeAdmission::ValidityOnly && options.wall_heights.empty() && old_debt>0) {
-      long double debt=0;for(const auto& cell:candidate.cells){const auto q=Quality(cell,false);debt+=NormalizedShapeHingeDebt(q.q,q.J);}
-      if(!(debt<old_debt-1e-12L*std::max(1.L,old_debt))){++report.rejected_quality;continue;}
-    }
+    if(!(Progress(score,best_score,debt))){++report.rejected_quality;continue;}
     auto candidate_parameters=geometry.PrivateParameters(candidate);const auto& candidate_geometry=candidate_parameters?*candidate_parameters:geometry;
     FirstHeightReport height;
     if(GetShapeAdmission()==ShapeAdmission::Absolute && !CheckFirstHeight(candidate,options.wall_heights,candidate_geometry,height,reason)){++report.rejected_frozen;continue;}
@@ -4977,7 +5026,7 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
     const auto after=GeometryGuidanceExcess(candidate,candidate_geometry,options.surface_tolerance);
     if(!std::isfinite(after)||after>geometric_before){++report.rejected_interface;continue;}
     best_score=score;best=std::move(candidate);
-    if(best_score>=1)break;
+    if(debt?best_score>=0:best_score>=1)break;
   }
   if(best.cells.empty())return false;
   std::map<Face,FacetBinding> added;for(const auto& f:best.surface)added.emplace(Key(f.v),FacetBinding{true,f.facet});
@@ -5000,7 +5049,7 @@ bool MeshOptimizer::Smooth(Id p) {
   const auto old=star.at(p);const Point x0=points.at(p);
   std::set<Id> nbr;for(Id id:old)for(const auto& v:mesh.at(id).cell.v)if(v.id!=p)nbr.insert(v.id);
   ++report.trials;
-  const double oldMin=MinScore(old);
+  const bool debt=DebtMode(old);const auto oldMin=OldMerit(old,debt);
   long double oldMax=0,shortest=INFINITY;
   for(Id x:nbr){const Point px=points.at(x);try{oldMax=std::max(oldMax,Estimate(x0,px));}catch(const std::exception&){oldMax=INFINITY;}
     const long double dx=(long double)px.x-x0.x,dy=(long double)px.y-x0.y,dz=(long double)px.z-x0.z;shortest=std::min(shortest,std::sqrt(dx*dx+dy*dy+dz*dz));}
@@ -5042,7 +5091,7 @@ bool MeshOptimizer::Smooth(Id p) {
       if(std::isfinite(norm)&&norm>0)targets.push_back({double(x0.x+d[0]),double(x0.y+d[1]),double(x0.z+d[2])});
     }
   }catch(const std::exception&){}
-  // DC-13 O4m: min-max placement over the star (approximate proposal, exact trial below), from p and each proposal
+  // DC-13 O4m: bounded placement over the star (approximate proposal, exact merit below), from p and each proposal
   bool placed=false;
   const auto slideIt=sliding.find(p);const bool slides=slideIt!=sliding.end();const std::array<double,3> plane=slides?slideIt->second:std::array<double,3>{0,0,0};
   auto inPlane=[&](Point t)->Point{if(!slides)return t;const auto& n=plane;const double d=(t.x-x0.x)*n[0]+(t.y-x0.y)*n[1]+(t.z-x0.z)*n[2];return {t.x-d*n[0],t.y-d*n[1],t.z-d*n[2]};};
@@ -5050,17 +5099,26 @@ bool MeshOptimizer::Smooth(Id p) {
   {std::vector<Cell> cells;for(Id id:old)cells.push_back(mesh.at(id).cell);auto faces=CavityBoundary(cells);
    faces.erase(std::remove_if(faces.begin(),faces.end(),[&](const Face& f){return f[0]==p||f[1]==p||f[2]==p;}),faces.end());  // the link of p
    std::vector<Point> starts{x0};for(const auto& t:targets)starts.push_back(t);Placement best;
-   for(const auto& st:starts){const auto pl=PlaceCone(faces,[&](Id v){return points.at(v);},[&](Point q){return At(q);},st,nullptr,std::max<size_t>(16,options.placement_budget/starts.size()));
+   for(const auto& st:starts){const auto pl=PlaceCone(faces,[&](Id v){return points.at(v);},[&](Point q){return At(q);},st,nullptr,std::max<size_t>(16,options.placement_budget/starts.size()),debt);
      report.placement_evaluations+=pl.evaluations;if(pl.ok&&pl.score>best.score)best=pl;}
    if(best.ok)best.x=inPlane(best.x);
    ++report.placements;if(best.ok&&!(best.x.x==x0.x&&best.x.y==x0.y&&best.x.z==x0.z)){targets.insert(targets.begin(),best.x);placed=true;}}
-  struct Trial{double score;Point x;};std::vector<Trial> trials;
+  Patch constraints;
+  if(debt && options.geometry && !options.wall_heights.empty()) {
+    std::vector<Cell> cells;for(Id id:old)cells.push_back(mesh.at(id).cell);
+    constraints=GeometryPatch(cells);
+  }
+  struct Trial{long double score;Point x;};std::vector<Trial> trials;
   for(size_t ti=0;ti<targets.size();++ti)for(long double w:{1.L,.5L,.25L}) {const Point t=targets[ti];if(ti==0&&placed&&w!=1.L)continue;  // the placed point is tried as is
-    const Point x{double(x0.x+w*((long double)t.x-x0.x)),double(x0.y+w*((long double)t.y-x0.y)),double(x0.z+w*((long double)t.z-x0.z))};
+    Point x{double(x0.x+w*((long double)t.x-x0.x)),double(x0.y+w*((long double)t.y-x0.y)),double(x0.z+w*((long double)t.z-x0.z))};
+    if(!constraints.cells.empty()) {
+      const auto& geometry=moved_geometry?*moved_geometry:*options.geometry;
+      x=ConstrainMovePoint(constraints,p,{next_node,x},options.wall_heights,geometry).p;
+    }
     if(x.x==x0.x&&x.y==x0.y&&x.z==x0.z)continue;
     const Node P{next_node,x};std::vector<Cell> fresh;for(Id id:old){Cell c=mesh.at(id).cell;for(auto& v:c.v)if(v.id==p)v=P;fresh.push_back(c);}
-    const double s=FreshScore(fresh,false);  // the trial identity next_node is reused: never memoized
-    if(s==-INFINITY)++report.rejected_validity;else if(s>oldMin+Gain)trials.push_back({s,x});
+    const auto s=FreshMerit(fresh,debt,false);  // the trial identity next_node is reused: never memoized
+    if(s==-INFINITY)++report.rejected_validity;else if(Progress(s,oldMin,debt))trials.push_back({s,x});
   }
   if(trials.empty()){++report.rejected_quality;return false;}
   std::stable_sort(trials.begin(),trials.end(),[](const Trial& u,const Trial& v){return u.score>v.score;});
@@ -5104,20 +5162,20 @@ bool MeshOptimizer::BoundaryFlip(Id a,Id b) {
      scale=std::max(scale,std::sqrt(((long double)p.x-q.x)*((long double)p.x-q.x)+((long double)p.y-q.y)*((long double)p.y-q.y)+((long double)p.z-q.z)*((long double)p.z-q.z)));
    if(!(std::abs(Orientation(pa,pb,points.at(r0),points.at(rm)))<=1e-12L*scale*scale*scale))return false;}
   ++report.trials;
-  const double oldMin=MinScore(shell);const size_t m=order.size();
+  const bool debt=DebtMode(shell);const auto oldMin=OldMerit(shell,debt);const size_t m=order.size();
   const Node A{a,pa},B{b,pb};std::vector<Node> r(m);for(size_t i=0;i<m;++i)r[i]={order[i],points.at(order[i])};
-  std::map<std::array<size_t,3>,double> tri;
+  std::map<std::array<size_t,3>,long double> tri;
   auto triangle=[&](size_t i,size_t k,size_t j){const std::array<size_t,3> key{i,k,j};const auto f=tri.find(key);if(f!=tri.end())return f->second;
-    const double s=FreshScore({Cell{0,{A,r[i],r[k],r[j]}},Cell{0,{B,r[i],r[j],r[k]}}});tri.emplace(key,s);return s;};
+    const auto s=FreshMerit({Cell{0,{A,r[i],r[k],r[j]}},Cell{0,{B,r[i],r[j],r[k]}}},debt);tri.emplace(key,s);return s;};
   std::set<std::pair<size_t,size_t>> forbidden;auto ringEdge=[&](size_t i,size_t j){return j==i+1||(i==0&&j==m-1);};
   if(!Certified(r[0].p,r[m-1].p,MaximumMetricEdge)){++report.rejected_edge;return false;}
   for(unsigned attempt=0;attempt<4;++attempt) {
-    std::vector<std::vector<double>> best(m,std::vector<double>(m,-INFINITY));std::vector<std::vector<size_t>> arg(m,std::vector<size_t>(m,SIZE_MAX));
-    for(size_t i=0;i+1<m;++i)best[i][i+1]=INFINITY;
+    std::vector<std::vector<long double>> best(m,std::vector<long double>(m,-INFINITY));std::vector<std::vector<size_t>> arg(m,std::vector<size_t>(m,SIZE_MAX));
+    for(size_t i=0;i+1<m;++i)best[i][i+1]=debt?0:INFINITY;
     for(size_t len=2;len<m;++len)for(size_t i=0;i+len<m;++i){const size_t j=i+len;
       for(size_t k=i+1;k<j;++k){if((!ringEdge(i,k)&&forbidden.count({i,k}))||(!ringEdge(k,j)&&forbidden.count({k,j})))continue;
-        const double v=std::min({best[i][k],best[k][j],triangle(i,k,j)});if(v>best[i][j]){best[i][j]=v;arg[i][j]=k;}}}
-    if(!(best[0][m-1]>oldMin+Gain)){if(best[0][m-1]==-INFINITY)++report.rejected_validity;else ++report.rejected_quality;return false;}
+        const auto v=debt?best[i][k]+best[k][j]+triangle(i,k,j):std::min({best[i][k],best[k][j],triangle(i,k,j)});if(v>best[i][j]){best[i][j]=v;arg[i][j]=k;}}}
+    if(!(Progress(best[0][m-1],oldMin,debt))){if(best[0][m-1]==-INFINITY)++report.rejected_validity;else ++report.rejected_quality;return false;}
     std::vector<std::array<size_t,3>> used;std::vector<std::pair<size_t,size_t>> stack{{0,m-1}};
     while(!stack.empty()){const auto e=stack.back();stack.pop_back();if(e.second<=e.first+1)continue;const size_t k=arg[e.first][e.second];
       used.push_back({e.first,k,e.second});stack.push_back({e.first,k});stack.push_back({k,e.second});}
@@ -5126,6 +5184,7 @@ bool MeshOptimizer::BoundaryFlip(Id a,Id b) {
       if(ringEdge(d.first,d.second)||forbidden.count(d))continue;if(!Certified(r[d.first].p,r[d.second].p,MaximumMetricEdge)){forbidden.insert(d);ok=false;break;}}
     if(!ok){++report.rejected_edge;if(Limited())return false;continue;}
     std::vector<Cell> fresh;for(const auto& t:used){fresh.push_back(Cell{0,{A,r[t[0]],r[t[1]],r[t[2]]}});fresh.push_back(Cell{0,{B,r[t[0]],r[t[2]],r[t[1]]}});}
+    if(!Progress(FreshMerit(fresh,debt),oldMin,debt)){++report.rejected_quality;return false;}
     std::map<Face,FacetBinding> added;if(!BoundaryReplacement(shell,fresh,faces,faces[0].binding,added))return false;
     Commit(shell,fresh,UINT64_MAX,added);++report.boundary_flips;return true;
   }
@@ -5150,16 +5209,16 @@ bool MeshOptimizer::BoundaryCollapse(Id p,Id q) {
   const Node Q{q,points.at(q)};std::vector<Cell> fresh;std::set<Id> link;
   for(Id id:old){const auto& c=mesh.at(id).cell;for(const auto& v:c.v)if(v.id!=p)link.insert(v.id);if(CellHas(c,q))continue;Cell x=c;for(auto& v:x.v)if(v.id==p)v=Q;fresh.push_back(x);}
   if(fresh.empty())return false;
-  const double oldMin=MinScore(old),newMin=FreshScore(fresh);
+  const bool debt=DebtMode(old);const auto oldMin=OldMerit(old,debt),newMin=FreshMerit(fresh,debt);
   if(newMin==-INFINITY){++report.rejected_validity;return false;}
-  if(!(newMin>oldMin+Gain)){++report.rejected_quality;return false;}
+  if(!(Progress(newMin,oldMin,debt))){++report.rejected_quality;return false;}
   for(Id x:link){if(x==q||Adjacent(q,x))continue;if(!Certified(Q.p,points.at(x),MaximumMetricEdge)){++report.rejected_edge;return false;}}
   std::map<Face,FacetBinding> added;if(!BoundaryReplacement(old,fresh,faces,faces.front().binding,added))return false;
   Commit(old,fresh,p,added);++report.boundary_collapses;return true;
 }
-// DC-13: replace the unfrozen cavity `old` by the cone from one new vertex placed by the min-max search (proposal with
+// DC-13: replace the unfrozen cavity `old` by the cone from one new vertex placed by the merit search (proposal with
 // vertex-mean tensors), accepted on the exact checks: every cavity vertex kept, exact positivity and validity of every
-// fresh cell, strict max-min progress (Shell/Neighbourhood) or min >= min(old, 1) (Length), ValidateFixedInterface and
+// fresh cell, patch-merit progress (or nonregression for Length), ValidateFixedInterface and
 // the edge guard on every new edge (limit max(1.8, removed) or, for Length, max(1.8, .75 removed)).
 bool MeshOptimizer::ConeReplace(const std::vector<Id>& old,Point start,Insert kind,const std::pair<Id,Id>* split,long double removed) {
   if(Limited()||old.empty()||old.size()>MaximumCavityCells)return false;
@@ -5167,21 +5226,21 @@ bool MeshOptimizer::ConeReplace(const std::vector<Id>& old,Point start,Insert ki
   ++report.trials;
   std::vector<Cell> cells;std::set<Id> vertices;for(Id id:old){cells.push_back(mesh.at(id).cell);for(const auto& v:cells.back().v)vertices.insert(v.id);}
   const auto faces=CavityBoundary(cells);
+  const bool debt=DebtMode(old);const auto oldMin=OldMerit(old,debt);
   std::function<bool(Point)> admissible;
   if(split){const Point pa=points.at(split->first),pb=points.at(split->second);Tensor m=At(pa);const Tensor mb=At(pb);
     m.xx=(m.xx+mb.xx)/2;m.xy=(m.xy+mb.xy)/2;m.xz=(m.xz+mb.xz)/2;m.yy=(m.yy+mb.yy)/2;m.yz=(m.yz+mb.yz)/2;m.zz=(m.zz+mb.zz)/2;
     long double whole=0;try{whole=MetricNorm(pa,pb,m);}catch(const std::exception&){return false;}
     admissible=[pa,pb,m,whole](Point x){try{return MetricNorm(x,pa,m)<=.6L*whole&&MetricNorm(x,pb,m)<=.6L*whole;}catch(const std::exception&){return false;}};}
-  const auto pl=PlaceCone(faces,[&](Id v){return points.at(v);},[&](Point q){return At(q);},start,admissible,options.placement_budget);
+  const auto pl=PlaceCone(faces,[&](Id v){return points.at(v);},[&](Point q){return At(q);},start,admissible,options.placement_budget,debt);
   ++report.placements;report.placement_evaluations+=pl.evaluations;
   if(!pl.ok){++report.rejected_validity;return false;}
   const Node X{next_node,pl.x};std::vector<Cell> fresh;std::set<Id> kept;
   for(const auto& f:faces){fresh.push_back(Cell{0,{X,Node{f[0],points.at(f[0])},Node{f[1],points.at(f[1])},Node{f[2],points.at(f[2])}}});for(Id v:f)kept.insert(v);}
   if(kept.size()!=vertices.size()){++report.placement_refusals;return false;}  // a cavity vertex would vanish
-  const double oldMin=MinScore(old),newMin=FreshScore(fresh,false);  // trial identity next_node: never memoized
+  const auto newMin=FreshMerit(fresh,debt,false);  // trial identity next_node: never memoized
   if(newMin==-INFINITY){++report.rejected_validity;++report.placement_refusals;return false;}
-  const double floor=kind==Insert::Length?std::min(oldMin,1.)-1e-12:oldMin+Gain;
-  if(!(newMin>floor)){++report.rejected_quality;++report.placement_refusals;return false;}
+  if(!(Progress(newMin,oldMin,debt,kind==Insert::Length))){++report.rejected_quality;++report.placement_refusals;return false;}
   const long double limit=kind==Insert::Length?std::max<long double>(MaximumMetricEdge,.75L*removed):std::max<long double>(MaximumMetricEdge,removed);
   for(Id v:vertices)if(!Certified(X.p,points.at(v),limit)){++report.rejected_edge;++report.placement_refusals;return false;}
   if(split) {  // O7L: both halves of the removed edge are integrated exactly and strictly shorter than it
@@ -5228,9 +5287,9 @@ bool MeshOptimizer::ShellBoundary(Id id) {
   const auto old=GeometryPatch(cells);const auto& geometry=moved_geometry?*moved_geometry:*options.geometry;
   Patch fresh;std::string reason;
   if(!ShellBoundaryCell(old,id,next_cell,geometry,fresh,reason)){++report.rejected_interface;return false;}
-  const double score=FreshScore(fresh.cells,false,&fresh);
+  const bool debt=DebtMode(shell,&old);const auto score=FreshMerit(fresh.cells,debt,false,&fresh);
   if(!std::isfinite(score)){++report.rejected_validity;return false;}
-  if(!(score>MinScore(shell)+Gain)){++report.rejected_quality;return false;}
+  if(!(Progress(score,OldMerit(shell,debt),debt))){++report.rejected_quality;return false;}
   auto context=geometry.PrivateParameters(fresh);const auto& proposed=context?*context:geometry;
   std::map<Face,FacetBinding> bindings;
   for(const auto& face:fresh.surface) {
@@ -5292,9 +5351,9 @@ bool MeshOptimizer::Run() {
       const size_t remaining=std::count(enabled.begin()+stage,enabled.end(),true);
       // A phase refusal is temporary: reserve work for every later enabled phase, including enrichment.
       stage_work_end=report.trials+(options.maximum_work-report.trials)/remaining;
-      std::vector<std::pair<double,Id>> bad;
+      std::vector<std::pair<long double,Id>> bad;
       for(const auto& row:mesh){if(Limited())break;if(options.frozen_cells.count(row.first))continue;
-        const double s=RowScore(row.first,row.second.cell);if(s<1)bad.emplace_back(s,row.first);}
+        const double s=RowScore(row.first,row.second.cell);if(s<1)bad.emplace_back(RowPriority(row.first,row.second.cell),row.first);}
       std::sort(bad.begin(),bad.end());
       if(stage==0) {
         std::set<Id> seen;std::vector<Id> vertices;

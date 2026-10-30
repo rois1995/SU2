@@ -1624,7 +1624,7 @@ void PointRegion(Point p, std::vector<DonorRegion>& regions) { regions.push_back
 }  // namespace
 static GeometryWorkEstimate EstimateGeometryWorkImpl(const OwnedCell& owned,const std::array<Tensor,4>& targets,
     const PlanarReference& reference,double tolerance,const std::map<Id,size_t>& observed_pieces,
-    PartitionWorkPhase phase=PartitionWorkPhase::Mixed) {
+    PartitionWorkPhase phase=PartitionWorkPhase::Mixed,const std::array<long double,6>* frozen_lengths=nullptr) {
   if(!(std::isfinite(tolerance)&&tolerance>0))throw std::invalid_argument("Invalid geometry work tolerance.");
   GeometryWorkEstimate result;const auto* state=reference.Parameters();
   for(unsigned opposite=0;opposite<4;++opposite)if(owned.physical[opposite].present) {
@@ -1674,7 +1674,10 @@ static GeometryWorkEstimate EstimateGeometryWorkImpl(const OwnedCell& owned,cons
     result.operations+=1;result.work+=1+current_cross*preparation;
     for(unsigned k=0;k<3;++k) {
       const auto a=slots[k],b=slots[(k+1)%3];const auto p=owned.cell.v[a].p,q=owned.cell.v[b].p;
-      const auto length=std::max(MetricNorm(p,q,targets[a]),MetricNorm(p,q,targets[b]));
+      const size_t lo=std::min(a,b),hi=std::max(a,b);
+      const size_t edge_slot=lo==0?hi-1:lo==1?(hi==2?3:4):5;
+      const long double length=frozen_lengths?(*frozen_lengths)[edge_slot]:
+          std::max(MetricNorm(p,q,targets[a]),MetricNorm(p,q,targets[b]));
       if(!(length>0&&std::isfinite(length)))throw std::invalid_argument("Invalid boundary metric work sample.");
       const double demand=1+(phase==PartitionWorkPhase::Coarsening?0:double(std::max(0.L,std::log2(length/MaximumMetricEdge))))+
           (phase==PartitionWorkPhase::Splitting?0:double(std::max(0.L,std::log2(static_cast<long double>(CoarseningMetricEdge)/length))));
@@ -1698,6 +1701,13 @@ static GeometryWorkEstimate EstimateGeometryWorkImpl(const OwnedCell& owned,cons
 GeometryWorkEstimate EstimateGeometryWork(const OwnedCell& owned,const std::array<Tensor,4>& targets,
     const PlanarReference& reference,double tolerance) {
   return EstimateGeometryWorkImpl(owned,targets,reference,tolerance,{});
+}
+GeometryWorkEstimate EstimateGeometryWork(const OwnedCell& owned,const PlanarReference& reference,double tolerance,
+    const std::array<long double,6>& frozen_lengths) {
+  for(const auto length:frozen_lengths)if(!(std::isfinite(length)&&length>0))
+    throw std::invalid_argument("Invalid frozen metric length for geometry work estimate.");
+  const std::array<Tensor,4> unused{};
+  return EstimateGeometryWorkImpl(owned,unused,reference,tolerance,{},PartitionWorkPhase::Mixed,&frozen_lengths);
 }
 bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std::vector<uint32_t>& output,
                     std::string& reason, BridgeStats& stats, MetricComposition composition, size_t ceiling,
