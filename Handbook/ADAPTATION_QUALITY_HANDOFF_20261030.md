@@ -26,6 +26,13 @@ accounting match160, which took1462.894s; host availability differs. Receipts:
 edits/restarts. All strict
 Euler/transfer/restart requirements remain, then BL/MPI and RANS500k.
 
+Latest live observation: complete generation10 at2559.425native seconds,
+704219private cells,2714size-bad/4526geometry-bad, maximum edge2.324273,
+q/J still unmeasured; tree RSS~5.52GiB at2705wall seconds. No accepted adaptation
+or adapted artifact. The compact `stage_assessment.json` keeps completed six-rank
+stage aggregates; cache byte categories are sums, not per-rank maxima. Raw per-rank
+stdout avoids merged `run.log` line interleaving. Sources remain frozen.
+
 ## Demonstrated limitation
 
 Authoritative failure evidence is under

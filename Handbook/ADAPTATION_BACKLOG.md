@@ -28,3 +28,10 @@ its relevance or the user explicitly reprioritizes it.
   CPU savings. Use actual surface/interior/quality receipts to qualify the rate
   conversion at the next source-safe integration point; the full target is now terminal on time budget; keep rate calibration within the
   demonstrated coordination fix rather than starting a separate forecasting project.
+
+- If the actual early quality pass makes no accepted repair while residual geometry
+  still needs construction, inspect the existing return condition: it currently
+  requires quality progress or a clean shape census after productive construction.
+  A geometry-dependent shape blockage may stop before another productive geometry
+  generation. Preserve the actual failure before changing this policy; avoid
+  empty phase cycling, budget resets or another local fallback ladder.

@@ -24,11 +24,11 @@ Actual commands/cwds/start identities and config equality to build160 are verifi
 in `launch_receipt.json`. Initial CFD solved and wrote input-mesh restart00000;
 coarsening completed1217.769native seconds:292744private cells,2582collapses,
 3541geometry-bad/68372size-bad, q/J unmeasured. Split ownership moved115883cells
-in5.4s; splitting is active. Generation1 completed1380.654native seconds with
-516198private cells,106930size-bad/3878geometry-bad, max edge4.540239 and q/J
-unmeasured. Coarsen/gen1 counts and debts match160, which took1462.894/1714.272s;
-host availability differs. No accepted event. Compact current stage receipts are
-in `coarsen_assessment.json`, `coarsen_comparison_to160.json`, `stage_assessment.json`.
+in5.4s; splitting is active. Latest complete generation10 at2559.425native seconds:
+704219private cells,2714size-bad/4526geometry-bad, max edge2.324273, q/J unmeasured.
+Sampled tree RSS5.52GiB at~2705wall seconds. No accepted event or adapted artifact.
+Matched coarsen/gen1 counts/debts equal160 at shorter elapsed times; host differs.
+Compact stage/provenance receipts live under the active run directory.
 Source/binary/config/helpers are frozen. Inspect
 actual status/owned handles before edits/restarts; retain authorized stop/fix/retry.
 Input61330points/303359cells;50k is metric complexity, not a mesh-count limit.
