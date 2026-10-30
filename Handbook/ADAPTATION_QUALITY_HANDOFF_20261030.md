@@ -1,12 +1,18 @@
 # Construction / quality coordination after build160 M6
 
 Active connected continuation of [cache/ownership integration](ADAPTATION_CACHE_PHASE_20261030.md).
-Status: UNVALIDATED SOURCE CANDIDATE. The user has now freed the machine and
-authorized computation. Build161 is ACTIVE: exec10539, Ninja1136732,1296pins.
-Existing helper uses nice19/-j3, libs1 and4TB compile-tmp; last resource sample
-has~1.87GiB summed compiler-tree RSS. Inspect actual status/owned handles before
-further source edits. Goal remains both accepted Euler50k events,
-conservative admissible transfer and actual disk restart, then BL/MPI and RANS500k.
+Status: connected regression PASSED; full M6 workflow unvalidated. User freed the
+machine and authorized computation. Build161 passed315.521s and serial checks;
+MPI6 exposed an old fixture's local-ownership assumption. Corrected that assertion
+to gather unchanged cells and compare global identity/versions/bytes, keeping
+migration enabled. All nine observed failed-campaign handles are terminal.
+Build162 passed108.240s,1296pins unchanged. Only the fixture differs from161.
+Connected serial PASS53cases/12462assertions35.085s; MPI6 PASS59cases/rank41.049s,
+all pins unchanged and observed handles terminal. Summary:
+`staged57/quality_handoff162_integration_summary.json`. CFD SHA256:
+`6bb6568831e8900e448f48da98e3c9bb714284a94cb21e3507936c61f3d0ad44`.
+Next full attempt `euler_build162_quality_handoff50k` is pending launch. All strict
+Euler/transfer/restart requirements remain, then BL/MPI and RANS500k.
 
 ## Demonstrated limitation
 
@@ -63,7 +69,7 @@ existing valid certificates may survive a subsequent construction return.
 
 - Build the coherent candidate with the established build helper and2–4workers,
   source/binary/helper/config pins,4TB compile-tmp, nice19 and single-threaded libs.
-  Verify host resources and actual owned handles first; build161 is not reserved.
+  Verify host resources and actual owned handles first; use the actual next identifier after checking existing receipts.
 - Connected serial/MPI6 checks include the existing cache/reference/partition/
   phase-ownership/finite-split/first-height/joint-wall coverage plus
   `NativeBidirectionalLength3D`, `NativeConstructionHandoff3D`,

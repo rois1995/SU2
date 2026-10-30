@@ -74,8 +74,8 @@ coverage independently of collapse commits.
 ## Source review while the host is occupied
 
 The connected implementation now continues in
-[the quality handoff record](ADAPTATION_QUALITY_HANDOFF_20261030.md). Source candidate
-only: build161, connected tests and full M6 are pending while the host is occupied.
+[the quality handoff record](ADAPTATION_QUALITY_HANDOFF_20261030.md). Build162 and connected serial/MPI6 checks now pass; the user has freed the host
+and the next complete M6 attempt is pending launch.
 The discussion below records the review that led to that candidate.
 
 The user attributes timing uncertainty to other local jobs and asks to use this

@@ -3946,9 +3946,14 @@ TEST_CASE("Quality repair completes a useful pass before revisiting construction
   CHECK(result.stats.construction_returns<=1);CHECK(result.stats.quality_stages>=1);CHECK(result.stats.quality_stages<=2);
   // The frozen-field census retains unchanged versioned rows across quality stages.
   CHECK(world.sum(unchanged_queries)==unchanged_centroids.size());
+  Owned retained;
+  for(const auto& row:result.cells)if(row.first>=Id(100*(copies+1)) && row.first<Id(100*(copies+1)+100))retained.emplace(row);
+  CHECK(world.sum(int(retained.size()))==int(unchanged_centroids.size()));
+  const auto gathered=Gather(world,retained);retained.clear();
+  for(const auto& row:gathered)CHECK(retained.emplace(row.cell.id,row).second);
   for(const auto& row:input)if(row.first>=Id(100*(copies+1)) && row.first<Id(100*(copies+1)+100)) {
-    const auto found=result.cells.find(row.first);CHECK(found!=result.cells.end());
-    if(found==result.cells.end())continue;
+    const auto found=retained.find(row.first);CHECK(found!=retained.end());
+    if(found==retained.end())continue;
     CHECK(found->second.version==row.second.version);
     Owned before{{row.first,row.second}},after{{found->first,found->second}};CHECK(Bytes(before)==Bytes(after));
   }

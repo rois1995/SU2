@@ -1,37 +1,40 @@
 # Native adaptation — handoff entry point
 
-Updated 2026-10-30. **Resumed by the user's explicit instruction.**
-One active integration cycle: bounded geometry caching plus phase-aware ownership.
-Read [current integration state](Handbook/ADAPTATION_CACHE_PHASE_20261030.md).
-Build160 passed; connected serial36cases and MPI6 43cases/rank pass, pins unchanged.
-The full `euler_build160_cache_phase50k` attempt is TERMINAL, not accepted.
-First native event exhausted its5400s budget at5408.5s; the verified owned launcher
-was then stopped to prevent an unchanged retry. All10handles are absent and all
-1396run pins unchanged; see `event1_time_budget_stop_20261030/` under the attempt.
-Size closed atgeneration21/4158.2s, but quality only began at5014.1s after44split
-generations. Exit has732439private cells,62235q-bad/63848J-bad (161unmeasured),
-273geometry-bad, no oversized edges. Zero accepted events/transfer/restart.
-Sampled summed tree peak11.884GiB; host contention prevents isolated timing claims.
-User now reports the machine is free and authorizes resuming computation.
-Old owned handles are verified absent; resource check has~33.4GiB available.
-Build161 is ACTIVE: exec10539, owned Ninja1136732,1296pins. nice19/-j3,
-libs1 and4TB compile-tmp; inspect its actual status/handle before any source edit.
-Next connected fix: construction/quality coordination and migrated census state,
-driven by this failure. Sources are terminal; unvalidated census-preservation/self-collapse corrections
-and a no-edit migration regression are frozen in active build161.
-A connected source candidate now hands measured size closure to quality and moves
-the bounded optimizer before topology guesses; see
-[quality coordination](Handbook/ADAPTATION_QUALITY_HANDOFF_20261030.md). It remains
-unvalidated until build161 and its affected checks finish. Keep all strict gates and the full Euler→BL→RANS objective. More ideas remain in the linked backlog.
-Build159's MPI failure was an ownership-specific fixture assumption, now corrected
-and preserved. Build158's assertion-compilation failure is also preserved.
-The terminal build157 baseline below remains historical evidence, not a live job.
+Updated2026-10-30. User has freed the machine and authorized continuing computation.
+The full Euler50k→BL/MPI→RANS500k goal remains active; zero accepted M6 events.
+Read [current quality coordination](Handbook/ADAPTATION_QUALITY_HANDOFF_20261030.md)
+and [cache/ownership integration](Handbook/ADAPTATION_CACHE_PHASE_20261030.md).
 
-Review/failure checkpoint `0e576ea198` is PUSHED to the user's fork,
-`https://github.com/rois1995/SU2.git`, branch `codex/native-3d-bl`.
-The user explicitly approved pushing to their fork after automatic review had
-rejected the earlier attempts. Push completed successfully; no approval is pending.
-User has freed the machine; heavy validation may resume under the existing limits.
+Connected candidate `9e9ad2ee41` preserves migrated census flags, skips self-collapse,
+hands measured size closure to quality at a complete finite-generation boundary,
+and tries the bounded optimizer before topology guesses. Strict final gates,
+validity-only construction, geometry returns, caches, frozen donors and budgets stay.
+Build161 passed315.521s. Its serial checks passed; MPI found an old local-ownership
+assertion in the quality-pass fixture. Corrected that fixture to gather unchanged
+rows and compare global count/versions/bytes, retaining automatic migration.
+Build162 passed108.240s,1296pins unchanged; only that fixture differs from161.
+Connected serial53cases/12462assertions35.085s and MPI6 59cases/rank41.049s PASS,
+pins unchanged. All observed build/test handles are terminal. CFD SHA256:
+`6bb6568831e8900e448f48da98e3c9bb714284a94cb21e3507936c61f3d0ad44`.
+Summary: `staged57/quality_handoff162_integration_summary.json`.
+
+Next full two-event attempt: `euler_build162_quality_handoff50k`, not launched yet.
+Prelaunch host check:~33.65GiB available, load4.07/3.75/5.97, no active paging in
+bounded vmstat sample. Use the established nice19/MPI6/libs1/4TB-temp harness.
+Sources/binary/config/helpers must remain frozen throughout the complete attempt.
+Inspect its actual status/owned handles before edits/restarts; retain stop/fix/retry.
+
+Build160 M6 is TERMINAL: first native event exhausted5400s at5408.5s, then only its
+verified launcher was stopped to prevent an unchanged retry. All10handles absent,
+1396pins unchanged. Size closed atgeneration21/4158s; quality began5014s after44
+split generations. Exit732439private cells still failed geometry/q/J; no adapted
+artifact/transfer/restart. Peak sampled tree11.884GiB. Full terminal evidence lives
+in its run directory, including `event1_time_budget_stop_20261030/`.
+
+User explicitly authorizes pushes to their fork `https://github.com/rois1995/SU2.git`,
+branch `codex/native-3d-bl`. The previous automatic-review rejection was resolved
+by that explicit authorization; no permission is pending. Pushed failure/review
+checkpoint `0e576ea198`, handoff `036661baa2`, candidate `9e9ad2ee41`.
 
 Branch: `codex/native-3d-bl`. Integration implementation: `8cf566e229`; qualified checkpoint: `e5240df1e0`, pushed.
 Connected cache/phase checks pass; full M6/transfer/restart remains unvalidated. The

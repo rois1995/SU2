@@ -1,0 +1,118 @@
+{
+  "scope": "connected construction/quality/cache/ownership regression; NOT M6 workflow acceptance",
+  "production_binary_sha256": "6bb6568831e8900e448f48da98e3c9bb714284a94cb21e3507936c61f3d0ad44",
+  "build161_to162_changed_pins": [
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp"
+  ],
+  "builds": {
+    "161": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 315.52100920677185,
+      "pins_verified": true,
+      "changed": [],
+      "completed_build": true
+    },
+    "162": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 108.2399070262909,
+      "pins_verified": true,
+      "changed": [],
+      "completed_build": true
+    }
+  },
+  "cases": [
+    {
+      "case": "quality_handoff161_mpi6_20261030T182831_1154517",
+      "status": {
+        "state": "terminal",
+        "exit_code": 3,
+        "seconds": 45.073668241500854,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 103088128,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "pass_lines": [
+        "All tests passed (6056 assertions in 55 test cases)",
+        "All tests passed (5592 assertions in 55 test cases)",
+        "All tests passed (6120 assertions in 55 test cases)",
+        "All tests passed (5359 assertions in 55 test cases)",
+        "All tests passed (5604 assertions in 55 test cases)"
+      ],
+      "terminal_handles_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_handoff161_mpi6_20261030T182831_1154517/terminal_handles.json"
+    },
+    {
+      "case": "quality_handoff161_serial_20261030T182734_1152203",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 37.05282640457153,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 85295104,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "pass_lines": [
+        "All tests passed (12163 assertions in 49 test cases)"
+      ],
+      "terminal_handles_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_handoff161_serial_20261030T182734_1152203/terminal_handles.json"
+    },
+    {
+      "case": "quality_handoff161_serial_probe_20261030T182710_1151292",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 6.095934152603149,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 12288,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "pass_lines": [
+        "All tests passed (1514 assertions in 5 test cases)"
+      ],
+      "terminal_handles_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_handoff161_serial_probe_20261030T182710_1151292/terminal_handles.json"
+    },
+    {
+      "case": "quality_handoff162_mpi6_20261030T183411_1167864",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 41.049322843551636,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 103776256,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "pass_lines": [
+        "All tests passed (7982 assertions in 59 test cases)",
+        "All tests passed (5717 assertions in 59 test cases)",
+        "All tests passed (6233 assertions in 59 test cases)",
+        "All tests passed (6177 assertions in 59 test cases)",
+        "All tests passed (5480 assertions in 59 test cases)",
+        "All tests passed (5709 assertions in 59 test cases)"
+      ],
+      "terminal_handles_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_handoff162_mpi6_20261030T183411_1167864/terminal_handles.json"
+    },
+    {
+      "case": "quality_handoff162_serial_20261030T183245_1164436",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 35.084980964660645,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 85241856,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "pass_lines": [
+        "All tests passed (12462 assertions in 53 test cases)"
+      ],
+      "terminal_handles_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_handoff162_serial_20261030T183245_1164436/terminal_handles.json"
+    }
+  ],
+  "next_m6_attempt": "euler_build162_quality_handoff50k",
+  "accepted_m6_events": 0
+}
