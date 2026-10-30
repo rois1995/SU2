@@ -1,0 +1,121 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 1K of event 'cycles'
+# Event count (approx.): 152523004884
+#
+#   Children        Self  Command     Shared Object                   Symbol                                                                                                                            
+# ..........  ..........  ..........  ..............................  ..................................................................................................................................
+#
+      92.01%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::le
+      89.23%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Adapt
+      79.01%       0.00%  SU2_CFD     SU2_CFD                         [.] CPassiveComm::AllreduceMax
+      79.01%       0.00%  SU2_CFD     SU2_CFD                         [.] ElectFailure
+      79.01%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::le
+      79.01%       0.00%  SU2_CFD     libmpi.so.40.20.3               [.] PMPI_Allreduce
+      79.01%       0.00%  SU2_CFD     libmpi.so.40.20.3               [.] ompi_coll_base_allreduce_intra_recursivedoubling
+      78.90%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::le
+      77.67%       2.86%  SU2_CFD     libopen-pal.so.40.20.3          [.] opal_progress
+      49.76%       0.24%  SU2_CFD     libmpi.so.40.20.3               [.] ompi_request_default_wait
+      49.65%       0.00%  SU2_CFD     libmpi.so.40.20.3               [.] ompi_coll_base_sendrecv_actual
+      47.42%      47.42%  SU2_CFD     mca_btl_vader.so                [.] 0x0000000000005330
+      29.35%       0.05%  SU2_CFD     mca_pml_ob1.so                  [.] mca_pml_ob1_recv
+      13.47%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f2a0d208330
+      13.11%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::GeometryGuidanceExcess
+      13.11%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2Native3D::PlanarReference::ParameterError
+      13.11%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::BoundPhysicalSurface
+      13.11%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnion
+      13.11%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution
+      10.31%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007fd5068ce330
+      10.05%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion
+       9.94%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+       8.90%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f77ec6ee330
+       8.24%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f4978cf6330
+       8.17%       2.67%  SU2_CFD     SU2_CFD                         [.] SU2Native3D::PlanarReference::PlanarReference
+       6.51%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007fd0a6fab330
+       5.38%       5.38%  SU2_CFD     mca_btl_vader.so                [.] 0x0000000000005333
+       4.01%       3.15%  SU2_CFD     SU2_CFD                         [.] SU2Native3D::Orientation
+       3.76%       3.76%  SU2_CFD     mca_btl_vader.so                [.] 0x0000000000005279
+       3.15%       0.00%  SU2_CFD     [stack]                         [.] 0x00007ffcd066f44f
+       3.04%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f4978cf6333
+       3.02%       0.00%  SU2_CFD     [unknown]                       [.] 0xffffffffffffffff
+       2.81%       2.81%  SU2_CFD     mca_btl_vader.so                [.] 0x000000000000532d
+       2.52%       2.52%  SU2_CFD     mca_btl_vader.so                [.] 0x0000000000005336
+       2.23%       2.23%  SU2_CFD     mca_btl_vader.so                [.] 0x00000000000053c8
+       2.19%       0.16%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::Multiply
+       2.15%       2.15%  SU2_CFD     mca_btl_vader.so                [.] 0x0000000000005275
+       2.13%       0.59%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::Adjacent
+       2.07%       0.81%  SU2_CFD     SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Determinant
+       2.03%       0.32%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::Multiply
+       1.92%       1.92%  SU2_CFD     libopen-pal.so.40.20.3          [.] 0x0000000000028719
+       1.92%       0.00%  SU2_CFD     libopen-pal.so.40.20.3          [.] 0x00007f2a0ed85719
+       1.69%       0.00%  SU2_CFD     SU2_CFD                         [.] std::_Rb_tree<unsigned long, unsigned long, std::_Identity<unsigned long>, std::less<unsigned long>, std::allocator<unsigned l
+       1.66%       1.66%  SU2_CFD     libmpi.so.40.20.3               [.] 0x0000000000028ee4
+       1.64%       0.06%  SU2_CFD     SU2_CFD                         [.] std::_Rb_tree<unsigned long, unsigned long, std::_Identity<unsigned long>, std::less<unsigned long>, std::allocator<unsigned l
+       1.60%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007fd0a6fab3c8
+       1.60%       1.60%  SU2_CFD     libm-2.31.so                    [.] __nexttowardl
+       1.60%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long
+       1.60%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long
+       1.58%       1.58%  SU2_CFD     libstdc++.so.6.0.28             [.] std::_Rb_tree_decrement
+       1.55%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::TriangleDistance
+       1.55%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007fd5068ce279
+       1.50%       0.00%  SU2_CFD     libmpi.so.40.20.3               [.] 0x00007fd0ad212ee4
+       1.42%       1.36%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::AffineChart::ErrorBound
+       1.41%       0.10%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long
+       1.26%       0.05%  SU2_CFD     SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::ExactDeterminant
+       1.17%       1.17%  SU2_CFD     libopen-pal.so.40.20.3          [.] 0x00000000000286ed
+       1.16%       1.16%  SU2_CFD     mca_btl_vader.so                [.] 0x000000000000533e
+       1.12%       0.00%  SU2_CFD     libopen-pal.so.40.20.3          [.] 0x00007fd0acb296ed
+       1.12%       0.00%  SU2_CFD     libopen-pal.so.40.20.3          [.] 0x00007fd0acba79a0
+       1.11%       1.11%  SU2_CFD     libstdc++.so.6.0.28             [.] std::_Rb_tree_increment
+       1.08%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f4978cf6279
+       1.04%       0.28%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::Blossom
+       0.99%       0.05%  SU2_CFD     libc-2.31.so                    [.] malloc
+       0.99%       0.00%  SU2_CFD     libstdc++.so.6.0.28             [.] operator new
+       0.95%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007fd5068ce333
+       0.93%       0.83%  SU2_CFD     libc-2.31.so                    [.] _int_malloc
+       0.85%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f2a0d208275
+       0.76%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Projected
+       0.74%       0.74%  SU2_CFD     mca_btl_vader.so                [.] 0x000000000000532a
+       0.73%       0.00%  SU2_CFD     SU2_CFD                         [.] std::vector<std::array<unsigned long, 2ul>, std::allocator<std::array<unsigned long, 2ul> > >::_M_realloc_insert<std::array<un
+       0.72%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007fd0a6fab336
+       0.71%       0.71%  SU2_CFD     mca_btl_vader.so                [.] 0x0000000000005280
+       0.70%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f77ec6ee33e
+       0.70%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007fd0a6fab333
+       0.67%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f4978cf632d
+       0.65%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007fd0a6fab32d
+       0.64%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f4978cf6336
+       0.64%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f2a0d20832d
+       0.63%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007fd5068ce336
+       0.56%       0.56%  SU2_CFD     libopen-pal.so.40.20.3          [.] 0x000000000007e847
+       0.56%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007fd0a6fab275
+       0.55%       0.55%  SU2_CFD     mca_coll_libnbc.so              [.] ompi_coll_libnbc_progress
+       0.54%       0.05%  SU2_CFD     SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Surface
+       0.50%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f77ec6ee32d
+       0.50%       0.50%  SU2_CFD     mca_btl_vader.so                [.] 0x0000000000005151
+       0.45%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f2a0d208333
+       0.45%       0.45%  SU2_CFD     mca_btl_vader.so                [.] 0x000000000000528f
+       0.44%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007fd0a6fab279
+       0.41%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f77ec6ee280
+       0.41%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f77ec6ee333
+       0.40%       0.11%  SU2_CFD     libc-2.31.so                    [.] _int_free
+       0.40%       0.40%  SU2_CFD     libc-2.31.so                    [.] malloc_consolidate
+       0.39%       0.39%  SU2_CFD     mca_btl_vader.so                [.] 0x00000000000053b6
+       0.38%       0.00%  SU2_CFD     SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::Add
+       0.35%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f77ec6ee336
+       0.35%       0.00%  SU2_CFD     libopen-pal.so.40.20.3          [.] 0x00007f77ee2e99a0
+       0.34%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007fd0a6fab32a
+       0.34%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f77ec6ee275
+       0.34%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f2a0d208279
+       0.34%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007f77ec6ee279
+       0.34%       0.34%  SU2_CFD     mca_btl_vader.so                [.] 0x0000000000005283
+       0.34%       0.00%  SU2_CFD     mca_btl_vader.so                [.] 0x00007fd5068ce32d
+       0.34%       0.34%  SU2_CFD     mca_btl_vader.so                [.] 0x00000000000051f6
+       0.33%       0.33%  SU2_CFD     libc-2.31.so                    [.] cfree@GLIBC_2.2.5
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

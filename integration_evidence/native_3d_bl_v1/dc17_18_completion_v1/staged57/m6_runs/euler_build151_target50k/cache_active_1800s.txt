@@ -1,0 +1,22 @@
+[New LWP 8010]
+[New LWP 8012]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x000055a931999101 in SU2Native3D::(anonymous namespace)::Difference<66> (a=..., b=...) at ../../Common/src/adaptation/CNativePredicates3D.cpp:39
+39	  while (last && !a.limb[last - 1] && !b.limb[last - 1]) --last;
+query_frame SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution
+value has been optimized out
+query_frame SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnion
+prepared_bytes 3208249152
+prepared_limit 3208249344
+prepared_entries 8029
+scopes_entries 1190
+include_model false
+include_mesh true
+Variable 'model_pieces' not found.
+#0  0x000055a931999101 in SU2Native3D::(anonymous namespace)::Difference<66> (a=..., b=...) at ../../Common/src/adaptation/CNativePredicates3D.cpp:39
+#1  0x000055a93199ba78 in SU2Native3D::(anonymous namespace)::<lambda(SU2Native3D::Point)>::operator() (__closure=<synthetic pointer>, p=...) at ../../Common/src/adaptation/CNativePredicates3D.cpp:130
+#2  SU2Native3D::(anonymous namespace)::ExactDeterminant (a=..., b=..., c=..., d=...) at ../../Common/src/adaptation/CNativePredicates3D.cpp:133
+#3  0x000055a93199bf66 in SU2Native3D::(anonymous namespace)::Determinant (a=..., b=..., c=..., d=..., stats=<optimized out>, relative_error=1, exact=<optimized out>) at ../../Common/src/adaptation/CNativePredicates3D.cpp:160
+#4  0x000055a93199cd12 in SU2Native3D::Orientation (a=..., b=..., c=..., d=..., stats=stats@entry=0x0) at ../../Common/src/adaptation/CNativePredicates3D.cpp:306
+[Inferior 1 (process 8002) detached]

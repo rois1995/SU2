@@ -43,8 +43,8 @@ std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,FrozenField& fi
 namespace {
 struct RankWork {
   int rank = 0;
-  uint64_t cells = 0, work = 0;
-  template <class S> void Fields(S& s) { s(rank, cells, work); }
+  uint64_t cells = 0, work = 0, geometry = 0;
+  template <class S> void Fields(S& s) { s(rank, cells, work, geometry); }
 };
 struct DualFace {
   Face face{};
@@ -59,8 +59,8 @@ struct Neighbor {
 };
 struct WeightedCell {
   OwnedCell cell;
-  uint32_t weight = 0;
-  template <class S> void Fields(S& s) { s(cell, weight); }
+  uint32_t weight = 0, geometry = 0;
+  template <class S> void Fields(S& s) { s(cell, weight, geometry); }
 };
 #if defined(HAVE_MPI) && defined(HAVE_PARMETIS)
 using GraphIndex = idx_t;
@@ -84,7 +84,7 @@ int Parity(Face f) {
 size_t MapBytes(size_t n) { return transfer_memory::Mul(n, sizeof(Owned::value_type) + 4 * sizeof(void*)); }
 }  // namespace
 bool Repartition(World& world, Owned& input, const std::vector<uint32_t>& weights, int parts, PartitionStats& stats,
-                 std::string& reason, size_t ceiling, size_t caller_bytes) {
+                 std::string& reason, size_t ceiling, size_t caller_bytes, const std::vector<uint32_t>& geometry_weights) {
   const double started = world.seconds();
   stats = {};
   struct Envelope {
@@ -110,33 +110,40 @@ bool Repartition(World& world, Owned& input, const std::vector<uint32_t>& weight
   const int common_parts = world.maximum(parts);
   if (parts != common_parts || parts < 1 || parts > world.size || weights.size() != input.size())
     failure.Set(1, 0, "Invalid or inconsistent native 3D partition controls.");
+  if (!geometry_weights.empty() && geometry_weights.size()!=input.size())
+    failure.Set(1,0,"Invalid native 3D geometry weight count.");
+  for(auto weight:geometry_weights)if(weight>MaximumPartitionWeight)
+    failure.Set(1,0,"Invalid native 3D geometry weight.");
   for (auto weight : weights) if (!weight || weight > MaximumPartitionWeight)
     failure.Set(1, 0, "Native 3D partition weights must be between 1 and 1024.");
   for (const auto& row : input) if (row.first != row.second.cell.id)
     failure.Set(1, row.first, "Native 3D working cell map identity mismatch.");
   if (!vote()) return graph_failure();
-  const size_t baseline = transfer_memory::Add(caller_bytes, MapBytes(input.size()), transfer_memory::Bytes(weights),
-      transfer_memory::Mul(input.size(), sizeof(int)), transfer_memory::Mul(world.size, 8 * sizeof(uint64_t)));
+  const size_t baseline = transfer_memory::Add(caller_bytes, MapBytes(input.size()), transfer_memory::Bytes(weights), transfer_memory::Bytes(geometry_weights),
+      transfer_memory::Mul(input.size(), sizeof(int)), transfer_memory::Mul(world.size, 20 * sizeof(uint64_t) + sizeof(std::vector<RankWork>)));
   if (!admit(baseline)) return graph_failure();
-  auto loads = [&](size_t cells, uint64_t work, std::vector<uint64_t>& counts, std::vector<uint64_t>& costs, size_t live) {
+  auto loads = [&](size_t cells, uint64_t work, uint64_t geometry, std::vector<uint64_t>& counts, std::vector<uint64_t>& costs, std::vector<uint64_t>& geometries, size_t live) {
     std::vector<std::vector<RankWork>> to;
     try {
-      counts.assign(world.size, 0); costs.assign(world.size, 0);
-      to.assign(world.size, {{world.rank, cells, work}});
+      counts.assign(world.size, 0); costs.assign(world.size, 0); geometries.assign(world.size, 0);
+      to.assign(world.size, {{world.rank, cells, work, geometry}});
     } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
     if (!vote()) return false;
     bool admitted = true;
     const auto rows = world.exchange(to, &admitted, ceiling, live);
     if (!admitted) { failure.Set(3, 0, "Native 3D partition load exchange exceeds storage budget."); return vote(); }
-    for (auto row : rows) { counts.at(row.rank) = row.cells; costs.at(row.rank) = row.work; }
+    for (auto row : rows) { counts.at(row.rank) = row.cells; costs.at(row.rank) = row.work; geometries.at(row.rank) = row.geometry; }
     return true;
   };
   const uint64_t local_work = std::accumulate(weights.begin(), weights.end(), uint64_t(0));
-  if (!loads(input.size(), local_work, stats.cells_before, stats.work_before, baseline)) return graph_failure();
+  const uint64_t local_geometry=std::accumulate(geometry_weights.begin(),geometry_weights.end(),uint64_t(0));
+  if (!loads(input.size(), local_work, local_geometry, stats.cells_before, stats.work_before, stats.geometry_before, baseline)) return graph_failure();
   const uint64_t total_cells = std::accumulate(stats.cells_before.begin(), stats.cells_before.end(), uint64_t(0));
   const uint64_t total_work = std::accumulate(stats.work_before.begin(), stats.work_before.end(), uint64_t(0));
+  const uint64_t total_geometry=std::accumulate(stats.geometry_before.begin(),stats.geometry_before.end(),uint64_t(0));
+  const size_t constraints=total_geometry ? 3 : 2;
   const auto index_max = uint64_t(std::numeric_limits<GraphIndex>::max());
-  if (total_cells < uint64_t(parts) || total_cells > index_max / 4 || total_work > index_max)
+  if (total_cells < uint64_t(parts) || total_cells > index_max / 4 || total_work > index_max || total_geometry > index_max)
     failure.Set(1, 0, "Native 3D working graph cell/weight range is not representable.");
   if (!vote()) return graph_failure();
   Directory directory(world);
@@ -198,15 +205,16 @@ bool Repartition(World& world, Owned& input, const std::vector<uint32_t>& weight
   if (!admitted) { failure.Set(3,0,"Native 3D dual-neighbor exchange exceeds storage budget."); vote(); return graph_failure(); }
   std::sort(neighbors.begin(), neighbors.end(), [](const auto& a, const auto& b) { return std::tie(a.local,a.global)<std::tie(b.local,b.global); });
   const size_t graph_bytes = transfer_memory::Add(face_bytes, transfer_memory::Bytes(replies), transfer_memory::Bytes(neighbors),
-      transfer_memory::Mul(transfer_memory::Add(transfer_memory::Mul(9, input.size()), 1), sizeof(GraphIndex)));
+      transfer_memory::Mul(transfer_memory::Add(transfer_memory::Mul(7+constraints, input.size()), 1), sizeof(GraphIndex)));
   if (!admit(graph_bytes)) return graph_failure();
   std::vector<GraphIndex> xadj, adjacency, vwgt, part;
   try {
-    xadj.resize(input.size()+1); part.resize(input.size()); adjacency.reserve(neighbors.size()); vwgt.reserve(2*input.size());
+    xadj.resize(input.size()+1); part.resize(input.size()); adjacency.reserve(neighbors.size()); vwgt.reserve(transfer_memory::Mul(constraints,input.size()));
     size_t next = 0;
     for (size_t i=0;i<input.size();++i) {
       while (next<neighbors.size() && neighbors[next].local==i) { adjacency.push_back(GraphIndex(neighbors[next].global)); ++next; }
       xadj[i+1]=GraphIndex(adjacency.size()); vwgt.push_back(GraphIndex(weights[i])); vwgt.push_back(1);
+      if(constraints==3)vwgt.push_back(GraphIndex(geometry_weights.empty()?0:geometry_weights[i]));
     }
     if (next!=neighbors.size()) failure.Set(1,0,"Invalid native 3D dual local ordinal.");
   } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
@@ -220,19 +228,19 @@ bool Repartition(World& world, Owned& input, const std::vector<uint32_t>& weight
     std::vector<real_t> tpwgts;
     const size_t active = std::count_if(stats.cells_before.begin(), stats.cells_before.end(), [](uint64_t n) { return n != 0; });
     if (!admit(transfer_memory::Add(graph_bytes, transfer_memory::Mul(active + 1, sizeof(idx_t)),
-        transfer_memory::Mul(transfer_memory::Mul(2, size_t(parts)), sizeof(real_t))))) {
+        transfer_memory::Mul(transfer_memory::Mul(constraints, size_t(parts)), sizeof(real_t))))) {
       stats.partition_seconds = world.seconds() - partition_started;
       return finish(false);
     }
     try {
       vtxdist.reserve(active + 1); vtxdist.push_back(0);
       for (auto n:stats.cells_before) if (n) vtxdist.push_back(vtxdist.back()+idx_t(n));
-      tpwgts.assign(2*size_t(parts),real_t(1./parts));
+      tpwgts.assign(transfer_memory::Mul(constraints,size_t(parts)),real_t(1./parts));
     } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
     if (!vote()) { stats.partition_seconds=world.seconds()-partition_started; return finish(false); }
     MPI_Comm graph_comm=MPI_COMM_NULL;
     MPI_Comm_split(world.comm,input.empty() ? MPI_UNDEFINED : 0,world.rank,&graph_comm);
-    idx_t ncon=2,nparts=parts,edgecut=0; real_t tolerance[2]{1.15,1.15}; int error=METIS_OK;
+    idx_t ncon=idx_t(constraints),nparts=parts,edgecut=0; real_t tolerance[3]{1.15,1.15,1.15}; int error=METIS_OK;
     if (!input.empty()) {
       if (vtxdist.size()==2) {
         idx_t nvertices=input.size(),options[METIS_NOPTIONS]; METIS_SetDefaultOptions(options); options[METIS_OPTION_SEED]=0;
@@ -265,24 +273,25 @@ bool Repartition(World& world, Owned& input, const std::vector<uint32_t>& weight
   uint64_t moved=0;
   try {
     send.resize(world.size);size_t i=0;
-    for (const auto& row:input) { send[colors[i]].push_back({row.second,weights[i]});moved+=colors[i++]!=world.rank; }
+    for (const auto& row:input) { send[colors[i]].push_back({row.second,weights[i],geometry_weights.empty()?0:geometry_weights[i]});moved+=colors[i++]!=world.rank; }
   } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
   if (!vote()) return migration_failure();
   auto received=world.exchange(send,&admitted,ceiling,graph_bytes);
   if (!admitted) { failure.Set(3,0,"Native 3D partition migration exceeds storage budget."); vote(); return migration_failure(); }
   const size_t staging=transfer_memory::Add(graph_bytes,transfer_memory::Bytes(send),transfer_memory::Bytes(received),MapBytes(received.size()));
   if (!admit(staging)) return migration_failure();
-  Owned replacement;uint64_t received_work=0;
+  Owned replacement;uint64_t received_work=0,received_geometry=0;
   try {
     for (auto& row:received) {
       if (!replacement.emplace(row.cell.cell.id,std::move(row.cell)).second) failure.Set(1,0,"Duplicate native 3D migrated cell identity.");
-      received_work+=row.weight;
+      received_work+=row.weight;received_geometry+=row.geometry;
     }
   } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
   if (!vote()) return migration_failure();
-  if (!loads(replacement.size(),received_work,stats.cells_after,stats.work_after,staging)) return migration_failure();
+  if (!loads(replacement.size(),received_work,received_geometry,stats.cells_after,stats.work_after,stats.geometry_after,staging)) return migration_failure();
   if (std::accumulate(stats.cells_after.begin(),stats.cells_after.end(),uint64_t(0))!=total_cells ||
-      std::accumulate(stats.work_after.begin(),stats.work_after.end(),uint64_t(0))!=total_work)
+      std::accumulate(stats.work_after.begin(),stats.work_after.end(),uint64_t(0))!=total_work ||
+      std::accumulate(stats.geometry_after.begin(),stats.geometry_after.end(),uint64_t(0))!=total_geometry)
     failure.Set(1,0,"Native 3D partition changed total cells/work.");
   if (!vote()) return migration_failure();
   stats.moved_cells=CPassiveComm::Allreduce(moved,CPassiveComm::Op::SUM,world.comm);

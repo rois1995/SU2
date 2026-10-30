@@ -810,6 +810,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   const auto tracked_bytes_begin=world.bytes_sent;
   const auto tracked_calls_begin=world.collective_calls;
   const double tracked_seconds_begin=world.collective_seconds;
+  const auto election_calls_begin=world.election_collective_calls;
+  const double election_seconds_begin=world.election_collective_seconds;
+  const auto* geometry_authority=geometry.Parameters()?&geometry.Parameters()->Geometry():nullptr;
+  const auto geometry_begin=geometry_authority?geometry_authority->GeometryStatsSnapshot():SU2NativeGeometry::MappedFacetReference::GeometryStats{};
   EngineResult result;
   auto& stats=result.stats;stats.bidirectional=bidirectional;stats.parameter_setup_seconds=parameter_setup;stats.initialization_seconds=parameter_setup;stats.maximum_work_bytes=parameter_bound;
   Owned working;
@@ -1053,6 +1057,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         for(const auto& row:state->Coverage().traces)for(const auto& piece:row.second.pieces){
           ++trace_pieces;bary(piece.first);bary(piece.last);ratio(piece.end);}
       }
+      const auto g=geometry_authority?geometry_authority->GeometryStatsSnapshot():SU2NativeGeometry::MappedFacetReference::GeometryStats{};
       std::cout<<std::setprecision(17)<<"NATIVE3D_STAGE rank="<<world.rank<<" stage="<<stage
           <<" phase="<<(phase==Phase::Construction?"construction":"improvement")<<" cells="<<p.owned_cells
           <<" measured="<<p.measured_cells<<" cache_consistent="<<p.cache_consistent
@@ -1064,7 +1069,26 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" associations="<<(state?state->Records().size():0)<<" working_faces="<<(state?state->Surface().size():0)
           <<" face_pieces="<<face_pieces<<" trace_pieces="<<trace_pieces<<" maximum_ratio_limbs="<<limbs
           <<" atlas_work="<<atlas_budget.work<<" atlas_bytes="<<atlas_budget.peak_bytes<<" global_work="<<stats.global_work
-          <<" elapsed="<<std::chrono::duration<double>(Clock::now()-started).count()<<'\n';
+          <<" geometry_trials="<<stats.geometry_trials<<" geometry_rejected="<<stats.geometry_rejected
+          <<" guidance_trials="<<stats.geometry_guidance_trials<<" guidance_rejected="<<stats.geometry_guidance_rejected
+          <<" guidance_seconds="<<stats.geometry_guidance_seconds
+          <<" collective_calls="<<world.collective_calls-tracked_calls_begin<<" collective_seconds="<<world.collective_seconds-tracked_seconds_begin
+          <<" election_calls="<<world.election_collective_calls-election_calls_begin<<" election_seconds="<<world.election_collective_seconds-election_seconds_begin
+          <<" direct_calls="<<g.direct_calls-geometry_begin.direct_calls<<" direct_exceptions="<<g.direct_exceptions-geometry_begin.direct_exceptions
+          <<" direct_work="<<g.direct_work-geometry_begin.direct_work<<" direct_seconds="<<g.direct_seconds-geometry_begin.direct_seconds
+          <<" upper_calls="<<g.upper_calls-geometry_begin.upper_calls<<" union_exceptions="<<g.union_exceptions-geometry_begin.union_exceptions
+          <<" upper_refusals="<<g.upper_refusals-geometry_begin.upper_refusals<<" upper_work="<<g.upper_work-geometry_begin.upper_work
+          <<" upper_seconds="<<g.upper_seconds-geometry_begin.upper_seconds<<" full_calls="<<g.full_calls-geometry_begin.full_calls
+          <<" full_work="<<g.full_work-geometry_begin.full_work<<" full_seconds="<<g.full_seconds-geometry_begin.full_seconds
+          <<" facet_hits="<<g.facet_hits-geometry_begin.facet_hits<<" facet_misses="<<g.facet_misses-geometry_begin.facet_misses
+          <<" scope_hits="<<g.scope_hits-geometry_begin.scope_hits<<" scope_misses="<<g.scope_misses-geometry_begin.scope_misses
+          <<" scope_attempts="<<g.scope_attempts-geometry_begin.scope_attempts
+          <<" scope_builds="<<g.scope_builds-geometry_begin.scope_builds<<" scope_build_work="<<g.scope_build_work-geometry_begin.scope_build_work
+          <<" scope_build_seconds="<<g.scope_build_seconds-geometry_begin.scope_build_seconds
+          <<" retention_refusals="<<g.retention_refusals-geometry_begin.retention_refusals<<" prepared_bytes="<<g.prepared_bytes<<" prepared_limit="<<g.prepared_limit
+          <<" length_splits="<<stats.length_splits<<" length_collapses="<<stats.length_collapses
+          <<" split_passes="<<stats.length_split_passes<<" collapse_passes="<<stats.length_collapse_passes<<" quality_stages="<<stats.quality_stages
+          <<" elapsed="<<std::chrono::duration<double>(Clock::now()-started).count()<<std::endl;
     }
     if(!observe_stage || !stage_storage_admitted || stage_observer_failed)return !stage_observer_failed;
     CLocalFailure failure;
@@ -2510,12 +2534,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!candidate || !curved)return candidate;
       // Entity refinement constructs valid cells; local surrogate descent is not a geometry permission.
       if(geometry.EntityGeometry()&&phase==Phase::Construction&&kind!=MetricChange::Coarsen)return true;
+      ++stats.geometry_guidance_trials;
+      Timer guidance_timer(stats.geometry_guidance_seconds,options.timings);
       try {
         long double before,after;
         if(kind==MetricChange::Coarsen) {
           // A coarsening trial needs zero new excess; rejected trials need no old-surface score.
           after=GeometryGuidanceExcess(fresh,geometry,options.surface_tolerance,true);
           if(!std::isfinite(after) || after>0) {
+            ++stats.geometry_guidance_rejected;
             geometric_progress=false;
             result.reason="Native3D candidate does not preserve/improve its frozen geometry error.";return guarded_geometry(false);
           }
@@ -2529,10 +2556,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
            (kind==MetricChange::Coarsen && after>0) ||
            (kind!=MetricChange::GeometryRefine && after>before &&
             !(kind==MetricChange::GeometryRepair && phase==Phase::Improvement))) {
+          ++stats.geometry_guidance_rejected;
           result.reason="Native3D candidate does not preserve/improve its frozen geometry error.";return guarded_geometry(false);
         }
         return true;
-      }catch(const std::exception& e){result.reason=e.what();return guarded_geometry(false);}
+      }catch(const std::exception& e){++stats.geometry_guidance_rejected;result.reason=e.what();return guarded_geometry(false);}
     };
     try {observe_transaction("begin",chosen);}catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(options.transaction_observer && !vote(failure))return finish();

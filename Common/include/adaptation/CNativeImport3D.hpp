@@ -35,6 +35,8 @@ struct BridgeStats {
   double source_seconds = 0, query_seconds = 0, reader_seconds = 0, reduction_seconds=0, other_seconds = 0;
   uint64_t batches = 0, batch_retries = 0, requests = 0, hits = 0, misses = 0, compositions = 0;
   uint64_t invalid_queries = 0, failures = 0, evictions = 0;
+  double geometry_estimate_seconds=0,geometry_operations=0,geometry_work=0,geometry_max_work=0,geometry_weight_scale=0;
+  uint64_t geometry_faces=0,geometry_cross_chart_faces=0;
   uint64_t field_builds = 0, source_point_queries = 0, source_point_payloads = 0;
   double source_point_seconds = 0, source_point_search_seconds = 0, source_point_interpolation_seconds = 0;
   double field_build_seconds = 0, field_search_seconds = 0, interpolation_seconds = 0, composition_seconds = 0;
@@ -117,9 +119,20 @@ bool ReassessComplexity(World& parent,const Owned& candidate,DonorImport& origin
  * at the actual query. No nodal geometric BL tensor is spread into the original source.
  * Native byte models exclude CFD allocations, allocator/RSS and reader/partitioner internal workspaces.
  * ReaderSlices must run on the actual CFD communicator, since the house reader uses that communicator. */
+struct GeometryWorkEstimate {
+  double operations=0,work=0;
+  uint64_t faces=0,cross_chart_faces=0;
+};
+/*! Structural prediction, not certification or seconds. Physical faces belong to exactly one owned cell.
+ * Edge/vertex operation shares use the replicated accepted boundary incidence, not local ghost counts.
+ * Nodal targets are the same actual-point samples used by WorkWeights; no geometry query/tessellation. */
+GeometryWorkEstimate EstimateGeometryWork(const OwnedCell&,const std::array<Tensor,4>& targets,
+    const PlanarReference&,double tolerance);
 bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std::vector<uint32_t>& weights,
                     std::string& reason, BridgeStats& stats, MetricComposition composition = {},
-                    size_t ceiling = size_t(2) << 30, size_t caller_bytes = 0, bool query_timings = true);
+                    size_t ceiling = size_t(2) << 30, size_t caller_bytes = 0, bool query_timings = true,
+                    const PlanarReference* geometry=nullptr,double geometry_tolerance=0,
+                    std::vector<uint32_t>* geometry_weights=nullptr);
 /*! Copy accepted worker boundary records to inactive CFD ranks at a stage boundary.
  * Immutable authority/indexes are shared locally, not reconstructed or volume-gathered. */
 bool SynchronizeBoundaryParameters(World& parent,int workers,ReferenceState& reference,std::string& reason,

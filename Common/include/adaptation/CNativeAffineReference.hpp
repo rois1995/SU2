@@ -108,6 +108,17 @@ class MappedFacetReference {
   /*! Fixed-geometry cache quota from separately available storage; no allocation or working-mesh history. */
   static size_t SurfaceQueryStorageBytes(size_t curved_facets,size_t available);
   const CurvedNets& Curves()const{return curves;}
+  struct GeometryStats {
+    size_t direct_calls=0,direct_exceptions=0,upper_calls=0,full_calls=0,union_exceptions=0,upper_refusals=0;
+    size_t direct_work=0,upper_work=0,full_work=0,facet_hits=0,facet_misses=0,scope_hits=0,scope_misses=0;
+    size_t scope_attempts=0,scope_builds=0,scope_build_work=0,retention_refusals=0,prepared_bytes=0,prepared_limit=0;
+    double direct_seconds=0,upper_seconds=0,full_seconds=0,scope_build_seconds=0;
+  };
+  struct FacetStructure {bool curved=false;double chord_size=0,control_deviation=0;size_t prepared_pieces=0;};
+  GeometryStats GeometryStatsSnapshot(bool reset=false)const;
+  FacetStructure StructuralEstimate(Id facet)const;
+  void RecordDirectQuery(double seconds,size_t work,bool failed)const;
+
   struct CurvedClosest {
     Id facet=0;
     SurfaceBinding binding;
@@ -277,6 +288,8 @@ class MappedFacetReference {
   std::vector<std::vector<Id>> edge_facets;
   struct ComponentData;
   std::shared_ptr<const ComponentData> components;
+  struct GeometryStatsState;
+  std::shared_ptr<GeometryStatsState> geometry_stats;
   struct CurvedSearch;
   std::shared_ptr<CurvedSearch> curved_search;
   /*! Memo of component containment or curved surface error, keyed by immutable geometry, bitwise bindings and

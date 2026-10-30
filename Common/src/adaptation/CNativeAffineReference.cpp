@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <numeric>
+#include <chrono>
 #include <queue>
 #include <type_traits>
 namespace SU2NativeGeometry {
@@ -879,6 +880,7 @@ struct MappedFacetReference::ComponentData {
   };
   std::map<Id,Entry> entries;
 };
+struct MappedFacetReference::GeometryStatsState {std::mutex mutex;GeometryStats value;};
 struct MappedFacetReference::CurvedSearch {
   struct Entry {std::vector<Id> facets;std::shared_ptr<CADTElemClass> index;};
   struct PreparedFacet {
@@ -939,10 +941,10 @@ struct MappedFacetReference::FaceMemo {
 MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::PlanarReference> input,
     const std::map<Id,double>& mapping_errors,uint64_t definition_version,size_t ceiling,bool reference_components,const CurvedNets& curved_nets,
     size_t query_cache_bytes)
-    :reference(std::move(input)),version(definition_version) {
+    :reference(std::move(input)),version(definition_version),geometry_stats(std::make_shared<GeometryStatsState>()) {
   using namespace SU2Native3D;
   if(!reference || !version || mapping_errors.empty())throw std::invalid_argument("Invalid mapped-facet reference/version/declaration.");
-  const auto bound=transfer_memory::Mul(reference->Facets().size(),4096);
+  const auto bound=transfer_memory::Add(transfer_memory::Mul(reference->Facets().size(),4096),sizeof(GeometryStatsState)+2*sizeof(void*));
   if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Mapped-facet preparation exceeds storage admission.");
   for(const auto& row:mapping_errors)
     if(!reference->Facets().count(row.first) || !(std::isfinite(row.second)&&row.second>=std::numeric_limits<double>::min()))
@@ -1096,6 +1098,7 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
       curved_search->prepared_limit=SurfaceQueryStorageBytes(curves.size(),
           ceiling==SIZE_MAX?std::min(available,size_t(1)<<24):available);
     } else curved_search->prepared_limit=SurfaceQueryStorageBytes(curves.size(),query_cache_bytes);
+    geometry_stats->value.prepared_limit=curved_search->prepared_limit;
   }
 }
 size_t MappedFacetReference::SurfaceQueryStorageBytes(size_t facets,size_t available) {
@@ -1503,7 +1506,8 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
   key.push_back(physical.size());key.push_back(bits(tolerance));
   for(const auto& triangle:physical)for(auto p:triangle)for(auto x:Values(p))key.push_back(bits(x));
   {std::lock_guard<std::mutex> guard(face_memo->lock);const auto cached=face_memo->union_values.find(key);
-    if(cached!=face_memo->union_values.end())return cached->second;}
+    if(cached!=face_memo->union_values.end()){std::lock_guard<std::mutex> stats_lock(geometry_stats->mutex);
+      ++geometry_stats->value.upper_calls;geometry_stats->value.upper_refusals+=cached->second>tolerance;return cached->second;}}
   // The immutable authority, complete support set, tolerance and coordinates identify the certified query.
   struct Restore{AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
   budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(key.capacity(),sizeof(uint64_t)));
@@ -1511,19 +1515,44 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
   {std::lock_guard<std::mutex> guard(face_memo->lock);face_memo->Store(std::move(key),result);}
   return result;
 }
+MappedFacetReference::GeometryStats MappedFacetReference::GeometryStatsSnapshot(bool reset)const {
+  std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto value=geometry_stats->value;
+  if(reset){geometry_stats->value={};geometry_stats->value.prepared_bytes=value.prepared_bytes;geometry_stats->value.prepared_limit=value.prepared_limit;}
+  return value;
+}
+void MappedFacetReference::RecordDirectQuery(double seconds,size_t work,bool failed)const {
+  std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& x=geometry_stats->value;
+  ++x.direct_calls;x.direct_seconds+=seconds;x.direct_work+=work;x.direct_exceptions+=failed;
+}
+MappedFacetReference::FacetStructure MappedFacetReference::StructuralEstimate(Id facet)const {
+  FacetStructure out;const auto& f=reference->Get(facet);const auto a=Values(f.v[0].p),b=Values(f.v[1].p),c=Values(f.v[2].p);
+  auto distance=[](Vec x,Vec y){return std::hypot(std::hypot(x[0]-y[0],x[1]-y[1]),x[2]-y[2]);};
+  out.chord_size=std::max({distance(a,b),distance(b,c),distance(c,a)});const auto net=curves.find(facet);out.curved=net!=curves.end();
+  if(out.curved)for(unsigned q=0;q<10;++q){Vec linear{};for(unsigned d=0;d<3;++d)linear[d]=(CubicIndex[q][0]*a[d]+CubicIndex[q][1]*b[d]+CubicIndex[q][2]*c[d])/3.;
+    out.control_deviation=std::max(out.control_deviation,distance(Values(net->second[q]),linear));}
+  if(curved_search){std::lock_guard<std::mutex> lock(curved_search->prepared_mutex);for(auto it=curved_search->prepared.lower_bound({facet,0});it!=curved_search->prepared.end()&&it->first.first==facet;++it)out.prepared_pieces=std::max(out.prepared_pieces,it->second->triangles.size());}
+  return out;
+}
 MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion(
     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
     double tolerance,AtlasBudget& budget,bool include_model,bool include_mesh)const {
-  double resolution=tolerance;
-  for(;;) {
-    try{return QuerySurfaceUnionAtResolution(facets,physical,tolerance,budget,include_model,include_mesh,resolution);}
-    catch(const RefineSurfaceTarget&) {
-      const double finer=resolution/4;
-      if(!std::isfinite(finer)||finer<std::numeric_limits<double>::min()||!(finer<resolution))
-        throw std::length_error("Surface-union target exhausted representable refinement; bounds unresolved.");
-      resolution=finer;
+  const auto start=std::chrono::steady_clock::now();const auto initial_work=budget.work;const bool upper=!include_model&&include_mesh;
+  auto record=[&](bool failed,bool refusal){const double seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+    std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& x=geometry_stats->value;
+    if(upper){++x.upper_calls;x.upper_seconds+=seconds;x.upper_work+=budget.work-initial_work;x.upper_refusals+=refusal;}
+    else {++x.full_calls;x.full_seconds+=seconds;x.full_work+=budget.work-initial_work;}x.union_exceptions+=failed;};
+  try {double resolution=tolerance;
+    for(;;) {
+      try{auto result=QuerySurfaceUnionAtResolution(facets,physical,tolerance,budget,include_model,include_mesh,resolution);
+        record(false,upper&&result.mesh_to_model>tolerance);return result;}
+      catch(const RefineSurfaceTarget&) {
+        const double finer=resolution/4;
+        if(!std::isfinite(finer)||finer<std::numeric_limits<double>::min()||!(finer<resolution))
+          throw std::length_error("Surface-union target exhausted representable refinement; bounds unresolved.");
+        resolution=finer;
+      }
     }
-  }
+  }catch(...){record(true,false);throw;}
 }
 MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnionAtResolution(
     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
@@ -1601,13 +1630,22 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     const auto words=transfer_memory::Add(facets.size(),2);op.Work(words);
     std::vector<uint64_t> scope;scope.reserve(words);scope.push_back(tolerance_bits);scope.push_back(resolution_bits);scope.insert(scope.end(),facets.begin(),facets.end());
     const auto cached=curved_search->scopes.find(scope);
+    {std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
+      stats.prepared_limit=curved_search->prepared_limit;stats.prepared_bytes=curved_search->prepared_bytes;
+      if(cached!=curved_search->scopes.end())++stats.scope_hits;else ++stats.scope_misses;}
     if(cached!=curved_search->scopes.end())prepared_model=cached->second;
     else {
+      struct BuildReceipt {
+        GeometryStatsState& stats;AtlasBudget& budget;size_t work;std::chrono::steady_clock::time_point start;bool success=false;
+        ~BuildReceipt(){std::lock_guard<std::mutex> lock(stats.mutex);auto& x=stats.value;++x.scope_attempts;x.scope_builds+=success;
+          x.scope_build_work+=budget.work-work;x.scope_build_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();}
+      } receipt{*geometry_stats,budget,budget.work,std::chrono::steady_clock::now()};
       const auto caller=budget.caller_bytes;
       std::vector<std::shared_ptr<CurvedSearch::PreparedFacet>> retained_models;retained_models.reserve(facets.size());
       for(Id facet:facets) {
         op.Work();const auto key=std::make_pair(facet,resolution_bits);const auto found=curved_search->prepared.find(key);
         std::shared_ptr<CurvedSearch::PreparedFacet> data;
+        {std::lock_guard<std::mutex> lock(geometry_stats->mutex);if(found!=curved_search->prepared.end())++geometry_stats->value.facet_hits;else ++geometry_stats->value.facet_misses;}
         if(found!=curved_search->prepared.end())data=found->second;
         else {
           const auto leaf_caller=budget.caller_bytes;op.Storage(sizeof(CurvedSearch::PreparedFacet)+2*sizeof(void*));
@@ -1633,6 +1671,8 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       if(retain) {
         curved_search->scopes.emplace(std::move(scope),prepared_model);curved_search->prepared_bytes=transfer_memory::Add(curved_search->prepared_bytes,bytes);
       } else budget.caller_bytes=transfer_memory::Add(caller,bytes);
+      {std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
+        stats.retention_refusals+=!retain;stats.prepared_bytes=curved_search->prepared_bytes;}receipt.success=true;
     }
     model_pieces=prepared_model->triangles.size();
   } else if(include_mesh) {
@@ -2423,7 +2463,7 @@ size_t MappedFacetReference::FaceMemoBytes() {
 }
 size_t MappedFacetReference::ResidentBytes()const {
   auto bytes=[](const auto& map){return transfer_memory::Mul(map.size(),sizeof(typename std::decay_t<decltype(map)>::value_type)+4*sizeof(void*));};
-  size_t out=transfer_memory::Add(sizeof(*this),bytes(errors),bytes(curves),bytes(nodes),bytes(vertex_facets),bytes(body_roots),transfer_memory::Bytes(edges),transfer_memory::Bytes(edge_facets));
+  size_t out=transfer_memory::Add(sizeof(*this),sizeof(GeometryStatsState)+2*sizeof(void*),bytes(errors),bytes(curves),bytes(nodes),bytes(vertex_facets),bytes(body_roots),transfer_memory::Bytes(edges),transfer_memory::Bytes(edge_facets));
   for(const auto& row:vertex_facets)out=transfer_memory::Add(out,transfer_memory::Bytes(row.second));
   for(const auto& row:edge_facets)out=transfer_memory::Add(out,transfer_memory::Bytes(row));
   if(components){out=transfer_memory::Add(out,sizeof(ComponentData),bytes(components->entries));

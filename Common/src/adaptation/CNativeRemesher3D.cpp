@@ -230,7 +230,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     return transfer_memory::Add(
         transfer_memory::Bytes(stats.partition.destinations), transfer_memory::Bytes(stats.partition.cells_before),
         transfer_memory::Bytes(stats.partition.cells_after), transfer_memory::Bytes(stats.partition.work_before),
-        transfer_memory::Bytes(stats.partition.work_after));
+        transfer_memory::Bytes(stats.partition.work_after),transfer_memory::Bytes(stats.partition.geometry_before),
+        transfer_memory::Bytes(stats.partition.geometry_after));
   };
   struct Publication {
     ReferenceState state;
@@ -425,21 +426,38 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
         ready = source.Build(imported.original, reason, control.memory_ceiling,
                              transfer_memory::Add(held(), OwnedStorageBytes(working)));
       phase(3);
-      std::vector<uint32_t> weights;
+      std::vector<uint32_t> weights,geometry_weights;
       if (ready && repartition)
         ready =
             WorkingWeights(parent, working, source, weights, reason, stats.weights, composition, control.memory_ceiling,
-                           transfer_memory::Add(held(), transfer_memory::Bytes(imported.original)), control.timings);
+                           transfer_memory::Add(held(), transfer_memory::Bytes(imported.original)), control.timings,
+                           pending->state.original.get(),control.surface_tolerance,&geometry_weights);
       phase(4);
       if (ready && repartition)
         ready = Repartition(
             parent, working, weights, stats.workers, stats.partition, reason, control.memory_ceiling,
-            transfer_memory::Add(held(), transfer_memory::Bytes(imported.original), source.ResidentBytes()));
+            transfer_memory::Add(held(), transfer_memory::Bytes(imported.original), source.ResidentBytes()),geometry_weights);
+      if(ready&&repartition) {
+        const auto& p=stats.partition;const auto r=parent.rank;const auto& w=stats.weights;
+        std::cout<<std::setprecision(17)<<"NATIVE3D_PARTITION rank="<<r<<" parts="<<stats.workers
+            <<" cells_before="<<p.cells_before.at(r)<<" cells_after="<<p.cells_after.at(r)
+            <<" metric_before="<<p.work_before.at(r)<<" metric_after="<<p.work_after.at(r)
+            <<" geometry_before="<<p.geometry_before.at(r)<<" geometry_after="<<p.geometry_after.at(r)
+            <<" geometry_positive_cells="<<std::count_if(geometry_weights.begin(),geometry_weights.end(),[](uint32_t x){return x!=0;})
+            <<" geometry_unit_cells="<<std::count(geometry_weights.begin(),geometry_weights.end(),uint32_t(1))
+            <<" geometry_maximum_cells="<<std::count(geometry_weights.begin(),geometry_weights.end(),MaximumPartitionWeight)
+            <<" geometry_weight_scale="<<w.geometry_weight_scale<<" estimate_seconds="<<w.geometry_estimate_seconds
+            <<" original_operations="<<w.geometry_operations<<" original_geometry_work="<<w.geometry_work
+            <<" original_boundary_faces="<<w.geometry_faces<<" original_cross_chart_faces="<<w.geometry_cross_chart_faces
+            <<" migration_seconds="<<p.migration_seconds<<" partition_seconds="<<p.partition_seconds
+            <<" moved_cells="<<p.moved_cells<<" edgecut="<<p.edgecut<<" arcs="<<p.graph_arcs
+            <<" native_bytes="<<p.maximum_native_bytes<<std::endl;
+      }
       phase(5);
       if (ready && repartition) {
         const size_t baseline =
             transfer_memory::Add(held(), transfer_memory::Bytes(imported.original), OwnedStorageBytes(working),
-                                 source.ResidentBytes(), transfer_memory::Bytes(weights));
+                                 source.ResidentBytes(), transfer_memory::Bytes(weights),transfer_memory::Bytes(geometry_weights));
         migrate_source(baseline);
       }
       phase(6);
@@ -819,6 +837,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " source_point_queries=" << b.source_point_queries << " source_point_payloads=" << b.source_point_payloads
              << " source_point_seconds=" << b.source_point_seconds << " source_point_search=" << b.source_point_search_seconds
              << " source_point_interpolation=" << b.source_point_interpolation_seconds
+             << " geometry_estimate="<<b.geometry_estimate_seconds<<" predicted_geometry_operations="<<b.geometry_operations
+             << " predicted_geometry_work="<<b.geometry_work<<" geometry_weight_scale="<<b.geometry_weight_scale
+             << " boundary_faces="<<b.geometry_faces<<" cross_chart_faces="<<b.geometry_cross_chart_faces
              << " field_builds=" << b.field_builds << " nested_field_build=" << b.field_build_seconds << " nested_search=" << b.field_search_seconds
              << " nested_interpolation=" << b.interpolation_seconds << " nested_composition=" << b.composition_seconds
              << " tracked_bytes=" << b.tracked_bytes << " tracked_calls=" << b.tracked_calls
@@ -846,7 +867,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
            << " migration=" << p.migration_seconds << " other=" << p.other_seconds
            << " nested_directory=" << p.directory_seconds << " moved=" << p.moved_cells << " arcs=" << p.graph_arcs
            << " cells_before=" << at_rank(p.cells_before) << " cells_after=" << at_rank(p.cells_after)
-           << " work_before=" << at_rank(p.work_before) << " work_after=" << at_rank(p.work_after) << '\n';
+           << " work_before=" << at_rank(p.work_before) << " work_after=" << at_rank(p.work_after)
+           << " geometry_before=" << at_rank(p.geometry_before) << " geometry_after=" << at_rank(p.geometry_after)
+           << " edgecut=" << p.edgecut << " native_bound=" << p.maximum_native_bytes << '\n';
     auto engine = [&](const char* stage, const EngineStats& e) {
       prefix(stage);
       detail << " total=" << e.total_seconds << " initialization=" << e.initialization_seconds << " seed=" << e.seed_seconds << " first_layer=" << e.layer_seconds

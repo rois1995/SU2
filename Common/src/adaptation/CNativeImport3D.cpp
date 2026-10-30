@@ -7,6 +7,7 @@
 #include "../../include/adaptation/CNativeNearContainment.hpp"
 #include <iostream>
 #include "../../include/adaptation/CNativeImport3D.hpp"
+#include "../../include/adaptation/CNativeEngine3D.hpp"
 #include "../../include/adaptation/CNativeCellSampling3D.hpp"
 #include "../../include/adaptation/CDistributedSearch.hpp"
 #include "../../include/adaptation/CMeshGather.hpp"
@@ -1621,24 +1622,172 @@ bool Samples(World& parent, size_t count, DonorImport& source, MetricComposition
 }
 void PointRegion(Point p, std::vector<DonorRegion>& regions) { regions.push_back({p.x, p.y, p.z, p.x, p.y, p.z}); }
 }  // namespace
+static GeometryWorkEstimate EstimateGeometryWorkImpl(const OwnedCell& owned,const std::array<Tensor,4>& targets,
+    const PlanarReference& reference,double tolerance,const std::map<Id,size_t>& observed_pieces) {
+  if(!(std::isfinite(tolerance)&&tolerance>0))throw std::invalid_argument("Invalid geometry work tolerance.");
+  GeometryWorkEstimate result;const auto* state=reference.Parameters();
+  for(unsigned opposite=0;opposite<4;++opposite)if(owned.physical[opposite].present) {
+    ++result.faces;const auto facet=owned.physical[opposite].facet;reference.Get(facet);
+    std::array<unsigned,3> slots{};unsigned next=0;
+    for(unsigned k=0;k<4;++k)if(k!=opposite)slots[next++]=k;
+    double cross=0,current_cross=0,pieces=1;size_t features=0;std::array<size_t,3> valence{{0,0,0}};
+    if(state) {
+      const auto& geometry=state->Geometry();std::set<Id> support{facet};unsigned seam_vertices=0;bool direct=true;
+      for(unsigned k=0;k<3;++k) {
+        const auto* point=state->Find(owned.cell.v[slots[k]].id);
+        if(!point)throw std::invalid_argument("Geometry work estimate lost a boundary association.");
+        size_t sides=0;geometry.ForFacets(point->binding,[&](Id id){support.insert(id);++sides;});
+        seam_vertices+=sides>1;direct=direct&&geometry.Supports(facet,point->binding);
+        const auto incident=state->FacesOnVertex(point->node.id);
+        valence[k]=std::distance(incident.first,incident.second);
+        if(!valence[k])throw std::invalid_argument("Geometry work estimate lost boundary incidence.");
+      }
+      bool curved=false;double total_pieces=0,chart_size=0;std::set<Edge> protected_edges;
+      for(Id id:support) {
+        const auto structure=geometry.StructuralEstimate(id);curved=curved||structure.curved;
+        chart_size=std::max(chart_size,structure.chord_size);
+        // Quadratic flatness decay under four-way subdivision: this predicts preparation demand only.
+        // Cap the predictor's dynamic range, never the actual tessellation or its acceptance work.
+        const double ratio=std::clamp(16*structure.control_deviation/tolerance,1.,1048576.);
+        const double predicted=std::pow(4.,std::ceil(std::log(ratio)/std::log(4.)));
+        const auto observed=observed_pieces.find(id);
+        total_pieces+=std::max(predicted,observed==observed_pieces.end()?0.:double(observed->second));
+        const auto& f=geometry.Reference().Get(id);
+        for(unsigned k=0;k<3;++k){Edge e{f.v[k].id,f.v[(k+1)%3].id};std::sort(e.begin(),e.end());
+          if(state->Mobility().features.count(e))protected_edges.insert(e);}
+      }
+      features=protected_edges.size();
+      double local_size=0;for(unsigned k=0;k<3;++k){const auto p=owned.cell.v[slots[k]].p,q=owned.cell.v[slots[(k+1)%3]].p;
+        local_size=std::max(local_size,std::hypot(p.x-q.x,p.y-q.y,p.z-q.z));}
+      const double chart_span=chart_size>0 ? local_size/chart_size : 1;
+      if(state->EntityGeometry())cross=direct ? (curved ? std::max(seam_vertices/3.,std::clamp(chart_span-1.,0.,1.)) : 0.) : 1.;
+      current_cross=state->EntityGeometry()&&!direct;
+      total_pieces*=std::clamp(chart_span*chart_span,1.,1048576.);
+      pieces=std::max(1.,total_pieces);
+      result.cross_chart_faces+=cross>0;
+    }
+    // One current face check, plus attributed edge/vertex operations and their surface-star checks.
+    // n log(n) is a structural preparation proxy; coefficients are unit work, not fitted CPU seconds.
+    const double preparation=pieces*(1+std::log2(pieces));
+    const double query_cost=1+cross*preparation;
+    result.operations+=1;result.work+=1+current_cross*preparation;
+    for(unsigned k=0;k<3;++k) {
+      const auto a=slots[k],b=slots[(k+1)%3];const auto p=owned.cell.v[a].p,q=owned.cell.v[b].p;
+      const auto length=std::max(MetricNorm(p,q,targets[a]),MetricNorm(p,q,targets[b]));
+      if(!(length>0&&std::isfinite(length)))throw std::invalid_argument("Invalid boundary metric work sample.");
+      const double demand=1+double(std::max(0.L,std::log2(length/MaximumMetricEdge)))+
+          double(std::max(0.L,std::log2(static_cast<long double>(CoarseningMetricEdge)/length)));
+      // A valid closed physical surface has two incident faces per edge. This also counts each edge
+      // once when its faces have different volume owners. Interfaces/body boundaries remain physical.
+      double incidence=2;
+      if(state){Edge edge{owned.cell.v[a].id,owned.cell.v[b].id};const auto pair=state->IncidentFaces(edge);
+        incidence=unsigned(pair[0]!=nullptr)+unsigned(pair[1]!=nullptr);
+        if(!incidence)throw std::invalid_argument("Geometry work estimate lost edge incidence.");}
+      const double edge_ops=demand/incidence;result.operations+=edge_ops;
+      result.work+=edge_ops*(incidence*query_cost+1+features);
+      if(valence[k]) {
+        const double vertex_ops=1./valence[k];result.operations+=vertex_ops;
+        result.work+=vertex_ops*(valence[k]*query_cost+1+features);
+      }
+    }
+  }
+  if(!std::isfinite(result.work))throw std::invalid_argument("Unrepresentable geometry work estimate.");
+  return result;
+}
+GeometryWorkEstimate EstimateGeometryWork(const OwnedCell& owned,const std::array<Tensor,4>& targets,
+    const PlanarReference& reference,double tolerance) {
+  return EstimateGeometryWorkImpl(owned,targets,reference,tolerance,{});
+}
 bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std::vector<uint32_t>& output,
                     std::string& reason, BridgeStats& stats, MetricComposition composition, size_t ceiling,
-                    size_t caller_bytes, bool query_timings) {
+                    size_t caller_bytes, bool query_timings,const PlanarReference* geometry,double geometry_tolerance,
+                    std::vector<uint32_t>* geometry_output) {
   Envelope envelope(parent, stats);
+  CLocalFailure failure;const bool geometry_enabled=geometry!=nullptr;
+  const auto common_geometry=parent.maximum(int(geometry_enabled));
+  const auto tolerance_low=CPassiveComm::Allreduce(geometry_tolerance,CPassiveComm::Op::MIN,parent.comm);
+  const auto tolerance_high=CPassiveComm::Allreduce(geometry_tolerance,CPassiveComm::Op::MAX,parent.comm);
+  if(bool(geometry_output)!=geometry_enabled || geometry_output==&output || common_geometry!=int(geometry_enabled) ||
+      tolerance_low!=tolerance_high || (geometry_enabled&&!(std::isfinite(geometry_tolerance)&&geometry_tolerance>0)))
+    failure.Set(1,0,"Inconsistent geometry partition estimate controls.");
+  if(!Vote(parent,failure,reason))return false;
   const size_t live = transfer_memory::Add(caller_bytes, OwnedBytes(cells), source.ResidentBytes(),
-                                           transfer_memory::Mul(cells.size(), sizeof(const Cell*) + sizeof(uint32_t)));
+      transfer_memory::Mul(cells.size(),sizeof(const Cell*)+sizeof(uint32_t)+
+          (geometry_enabled ? sizeof(double)+sizeof(uint32_t) : 0)),
+      geometry_enabled ? transfer_memory::Mul(geometry->Facets().size(),384) : 0);
   if (!Admit(parent, live, ceiling, stats, reason)) return false;
   std::vector<const Cell*> ordered;
   std::vector<uint32_t> weights;
-  CLocalFailure failure;
+  std::vector<double> geometry_costs;std::vector<uint32_t> geometry_weights;
   try {
     weights.resize(cells.size());
+    if(geometry_enabled){geometry_costs.resize(cells.size());geometry_weights.resize(cells.size());}
     ordered.reserve(cells.size());
     for (auto& r : cells) ordered.push_back(&r.second.cell);
   } catch (const std::exception& e) {
     failure.Set(2, 0, e.what());
   }
   if (!Vote(parent, failure, reason)) return false;
+  // Cache contents remain rank-local. Only globally common observed piece counts enter the predictor,
+  // so a cell's weight does not change merely because it was owned by a different rank before migration.
+  std::map<Id,size_t> observed_pieces;
+  const bool parameters=geometry_enabled&&geometry->Parameters();
+  const auto common_parameters=parent.maximum(int(parameters));
+  if(common_parameters!=int(parameters))failure.Set(1,0,"Inconsistent geometry weight authority kind.");
+  if(!Vote(parent,failure,reason))return false;
+  if(parameters) {
+    const auto& authority=geometry->Parameters()->Geometry();const auto& facets=authority.Reference().Facets();
+    const uint64_t count=facets.size();uint64_t hash=authority.Version();
+    for(const auto& f:facets)hash^=f.first+0x9e3779b97f4a7c15ULL+(hash<<6)+(hash>>2);
+    const auto count_low=CPassiveComm::Allreduce(count,CPassiveComm::Op::MIN,parent.comm);
+    const auto count_high=CPassiveComm::Allreduce(count,CPassiveComm::Op::MAX,parent.comm);
+    const auto hash_low=CPassiveComm::Allreduce(hash,CPassiveComm::Op::MIN,parent.comm);
+    const auto hash_high=CPassiveComm::Allreduce(hash,CPassiveComm::Op::MAX,parent.comm);
+    if(count_low!=count_high || hash_low!=hash_high || count>uint64_t(INT_MAX))
+      failure.Set(1,0,"Inconsistent/unrepresentable geometry observation inventory.");
+    if(!Vote(parent,failure,reason))return false;
+    std::vector<uint64_t> local,common;const auto start=parent.seconds();
+    try{local.reserve(count);common.resize(count);
+      for(const auto& f:facets)local.push_back(authority.StructuralEstimate(f.first).prepared_pieces);}
+    catch(const std::exception& e){failure.Set(2,0,e.what());}
+    stats.geometry_estimate_seconds+=parent.seconds()-start;
+    if(!Vote(parent,failure,reason))return false;
+    const auto reduction=parent.seconds();
+    CPassiveComm::Allreduce(local.data(),common.data(),common.size(),CPassiveComm::Op::MAX,parent.comm);
+    const auto reduction_seconds=parent.seconds()-reduction;stats.reduction_seconds+=reduction_seconds;
+    const auto mapping_start=parent.seconds();
+    try{size_t i=0;for(const auto& f:facets){if(common[i])observed_pieces.emplace(f.first,size_t(common[i]));++i;}}
+    catch(const std::exception& e){failure.Set(2,0,e.what());}
+    stats.geometry_estimate_seconds+=parent.seconds()-mapping_start;
+    if(!Vote(parent,failure,reason))return false;
+  }
+  auto weigh=[&](size_t i,const OwnedCell& owned,const std::function<FieldSample(Point)>& query) {
+    std::array<Tensor,4> targets{};
+    auto sample=[&](Point p){auto value=query(p);
+      if(geometry_enabled)for(unsigned k=0;k<4;++k){const auto q=owned.cell.v[k].p;
+        if(p.x==q.x&&p.y==q.y&&p.z==q.z)targets[k]=value.target;}
+      return value;};
+    weights[i]=WorkWeights({owned.cell},sample).front();
+    if(geometry_enabled){const auto start=parent.seconds();
+      const auto estimate=EstimateGeometryWorkImpl(owned,targets,*geometry,geometry_tolerance,observed_pieces);
+      geometry_costs[i]=estimate.work;stats.geometry_operations+=estimate.operations;stats.geometry_work+=estimate.work;
+      stats.geometry_max_work=std::max(stats.geometry_max_work,estimate.work);
+      stats.geometry_faces+=estimate.faces;stats.geometry_cross_chart_faces+=estimate.cross_chart_faces;
+      stats.geometry_estimate_seconds+=parent.seconds()-start;}
+  };
+  auto finish_weights=[&]() {
+    if(geometry_enabled) {
+      const double local=geometry_costs.empty() ? 0 : *std::max_element(geometry_costs.begin(),geometry_costs.end());
+      const auto maximum=CPassiveComm::Allreduce(local,CPassiveComm::Op::MAX,parent.comm);
+      stats.geometry_weight_scale=maximum/MaximumPartitionWeight;
+      // Common linear scaling preserves relative work; zero-cost interiors stay zero. Positive costs
+      // round upward to [1,1024]; clipping occurs only after a globally common representable scale.
+      for(size_t i=0;i<geometry_costs.size();++i)if(geometry_costs[i]>0)
+        geometry_weights[i]=uint32_t(std::clamp(std::ceil((geometry_costs[i]/maximum)*MaximumPartitionWeight),1.,double(MaximumPartitionWeight)));
+      geometry_output->swap(geometry_weights);
+    }
+    output.swap(weights);reason.clear();return true;
+  };
   const bool current_metrics = !parent.maximum(std::any_of(cells.begin(), cells.end(),
       [](const Owned::value_type& row) { return !row.second.sensor_present; }));
   if (current_metrics) {
@@ -1661,24 +1810,22 @@ bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std:
           ValidateTensor(sample.target);
           return sample;
         };
-        weights[i++] = WorkWeights({owned.cell}, query).front();
+        weigh(i++,owned,query);
       }
     } catch (const std::exception& e) { ++stats.failures; failure.Set(2, 0, e.what()); }
     if (!Vote(parent, failure, reason)) return false;
-    output.swap(weights); reason.clear(); return true;
+    return finish_weights();
   }
   auto make = [&](size_t i, std::vector<DonorRegion>& regions) {
     const auto& cell = *ordered[i];
     PointRegion(Centroid(cell), regions);
     for (auto n : cell.v) PointRegion(n.p, regions);
   };
-  auto use = [&](size_t i,const std::function<FieldSample(Point)>& query) { weights[i] = WorkWeights({*ordered[i]},query).front(); };
+  auto use = [&](size_t i,const std::function<FieldSample(Point)>& query) { weigh(i,cells.at(ordered[i]->id),query); };
   if (!Samples(parent, cells.size(), source, std::move(composition), make, use, stats, reason, ceiling, live, 8,
                query_timings))
     return false;
-  output.swap(weights);
-  reason.clear();
-  return true;
+  return finish_weights();
 }
 static bool ReassessFieldComplexity(World& parent,const Owned& candidate,DonorImport& source,
     const PlanarReference& reference,MetricComposition composition,ComplexityReassessment3D& output,

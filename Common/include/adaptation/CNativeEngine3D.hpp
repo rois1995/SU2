@@ -136,6 +136,8 @@ struct EngineStats {
   double layer_metadata_seconds=0,layer_donor_seconds=0,layer_geometry_seconds=0,layer_metric_seconds=0,layer_publication_seconds=0;
   double layer_seconds = 0;  // Exclusive first-row initialization before metric seeding.
   uint64_t geometry_trials = 0, geometry_rejected = 0, metric_trials = 0;
+  uint64_t geometry_guidance_trials = 0, geometry_guidance_rejected = 0;
+  double geometry_guidance_seconds = 0;
   uint64_t metric_shape_rejected = 0, metric_progress_rejected = 0, metric_measurement_rejected = 0;
   MetricDiagnosis last_metric_rejection;  // Most recent private failure, including work/time exits; not an infeasibility proof.
   Feature last_rejected_feature;

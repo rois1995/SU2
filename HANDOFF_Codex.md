@@ -103,8 +103,24 @@ population from operator cost. Validate any SU2-specific modifications separatel
   target-driven evidence:
   [current diagnosis/design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
   User clarified500k complexity is RANS-only; current Euler target50k is endorsed.
-  Full two-event M6 build151 is running at staged57/m6_runs/euler_build151_target50k
-  (driver7818; live handles in status/resources). The prior149 500k Euler attempt
+  Build15150k was stopped on the user's geometry-aware MPI balancing request;
+  all nine recorded handles are terminal and pins verified. Its baseline shows
+  coarsening exit2272.87s and three productive split generations by2945.83s;
+  global size hinge debt fell while bad-cell counts rose. No quality/acceptance.
+  The5s profile has79%aggregate collective cycles and rank5's3.208GB prepared
+  pool full. Source review/implementation now adds independent geometry weights
+  to initial partitioning, cache/query telemetry and failure-election timing.
+  Production build153 and test-only builds154/155 pass; prepared-piece observations
+  are globally agreed before weighting. Corrected estimator155 passes42assertions;
+  connected MPI6 passes13cases/rank. The clustered fixture's geometry max/mean
+  improves2.0->1.028 with balanced metric/count and preserved records. Earlier
+  fixture setup failures remain recorded. Full M6 build155 is running at
+  staged57/m6_runs/euler_build155_geometry_balance50k (driver244296; status/resources
+  own live handles), same50k target and5400s/event. Actual balance/throughput and
+  accepted Euler workflow remain unproven. Initial balancing only; no
+  in-event migration or cache eviction. Current design/evidence and limitations:
+  [geometry balancing](Handbook/ADAPTATION_GEOMETRY_BALANCING_20261030.md).
+  The prior149 500k Euler attempt
   was stopped on that steering, pins verified/all recorded handles terminal.
   Build151 passes108.262s and retains build149's validated repeat-split staging.
   Upper-only geometry uses two conservative search shortcuts; captured queries

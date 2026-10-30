@@ -87,7 +87,13 @@ class World {
   const int rank, size;
   explicit World(CPassiveComm::Communicator c = SU2_MPI::GetComm())
       : comm(c), rank(CPassiveComm::Rank(c)), size(CPassiveComm::Size(c)) {}
-  CElectedFailure elect(const CLocalFailure& local) const { return ElectFailure(local, comm); }
+  CElectedFailure elect(const CLocalFailure& local) const {
+    const auto started = seconds();
+    const auto result = ElectFailure(local, comm);
+    election_collective_seconds += seconds() - started;
+    ++election_collective_calls;
+    return result;
+  }
   void Fail(const CLocalFailure& local, const std::string& function) const {
     const auto elected = elect(local);
     if (!elected.any) return;
@@ -100,6 +106,8 @@ class World {
   size_t max_exchange_work_bytes = 0;
   double collective_seconds = 0;
   uint64_t collective_calls = 0;
+  mutable double election_collective_seconds = 0;
+  mutable uint64_t election_collective_calls = 0;
   int sum(int value) { return Reduce(value, CPassiveComm::Op::SUM); }
   int maximum(int value) { return Reduce(value, CPassiveComm::Op::MAX); }
   double seconds() const { return SU2_MPI::Wtime(); }

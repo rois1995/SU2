@@ -11,6 +11,7 @@
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include "CNativePredicates3D_internal.hpp"
 #include <algorithm>
+#include <chrono>
 #include <functional>
 #include <cmath>
 #include <cstring>
@@ -1321,7 +1322,11 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)con
   if(EntityGeometry()) {
     const auto& state=*parameter_view->accepted;
     bool direct=true;for(const auto& b:binding)direct=direct&&g.Supports(facet,b);
-    if(direct)return std::max(maximum,g.SurfaceError(facet,binding,p));
+    if(direct){const auto start=std::chrono::steady_clock::now();
+      try{const auto result=std::max(maximum,g.SurfaceError(facet,binding,p));
+        g.RecordDirectQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count(),0,false);return result;}
+      catch(...){g.RecordDirectQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count(),0,true);throw;}}
+
     auto* budget=parameter_view->reservation;if(!budget)throw std::invalid_argument("Entity surface query lacks a geometry reservation.");
     Point lo=p[0],hi=p[0];const auto model=g.Realize(binding[0]);double radius=0;
     for(auto q:p){lo={std::min(lo.x,q.x),std::min(lo.y,q.y),std::min(lo.z,q.z)};hi={std::max(hi.x,q.x),std::max(hi.y,q.y),std::max(hi.z,q.z)};

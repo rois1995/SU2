@@ -8,6 +8,7 @@
 #include "../../../Common/include/adaptation/CNativeAffineReference.hpp"
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
+#include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include <fstream>
 #include <iomanip>
 using namespace SU2NativeGeometry;
@@ -817,6 +818,70 @@ struct CurvedAtlasFixture {
   }
 };
 }
+TEST_CASE("Geometry work prediction distinguishes cross-chart surface incidence", "[NativeGeometryWorkEstimate3D]") {
+  using namespace SU2Native3D;CurvedAtlasFixture fixture;auto& geometry=*fixture.geometry;
+  auto state=ComponentState(fixture.geometry,fixture.facets);auto budget=GeometryAtlasBudget();
+  state=state->WithMobilityPolicy(35,{{0,2}},budget);
+  auto entity=state->WithEntityGeometry(.1,budget);
+  auto reference=PlanarReference::WithParameters(
+      std::shared_ptr<const PlanarReference>(fixture.geometry,&geometry.Reference()),entity);
+  REQUIRE(entity->EntityGeometry());const auto& face=fixture.facets[0];
+  OwnedCell direct;direct.cell={73,{Node{999,{.25,.25,1}},face.v[0],face.v[1],face.v[2]}};direct.physical[0]={true,face.id};
+  auto cross=direct;cross.physical[0].facet=fixture.facets[1].id;
+  std::array<Tensor,4> targets{};const auto before=geometry.GeometryStatsSnapshot();
+  const auto d=EstimateGeometryWork(direct,targets,*reference,.1);
+  const auto x=EstimateGeometryWork(cross,targets,*reference,.1);
+  const auto again=EstimateGeometryWork(cross,targets,*reference,.1);
+  CHECK(d.faces==1);CHECK(x.faces==1);CHECK(x.cross_chart_faces==1);CHECK(x.work>d.work);
+  CHECK(again.work==x.work);CHECK(again.operations==x.operations);
+  CHECK(direct.cell.id==73);CHECK(direct.physical[0].facet==face.id);CHECK(cross.physical[0].facet==fixture.facets[1].id);
+  for(unsigned k=0;k<4;++k){CHECK(direct.cell.v[k].id==cross.cell.v[k].id);CHECK(direct.cell.v[k].p.x==cross.cell.v[k].p.x);
+    CHECK(direct.cell.v[k].p.y==cross.cell.v[k].p.y);CHECK(direct.cell.v[k].p.z==cross.cell.v[k].p.z);}
+  const auto after=geometry.GeometryStatsSnapshot();CHECK(after.direct_calls==before.direct_calls);CHECK(after.upper_calls==before.upper_calls);
+  CHECK(after.full_calls==before.full_calls);CHECK(after.upper_work==before.upper_work);CHECK(after.full_work==before.full_work);
+  CHECK(after.facet_misses==before.facet_misses);CHECK(after.scope_misses==before.scope_misses);
+  World world;bool prepared=true;
+  if(!world.rank)try {auto preparation=GeometryAtlasBudget();
+    geometry.BoundPhysicalSurface({face.id},{{{face.v[0].p,face.v[1].p,face.v[2].p}}},1e-3,preparation);
+  }catch(const std::exception&){prepared=false;}
+  REQUIRE_FALSE(world.maximum(!prepared));
+  CHECK(EstimateGeometryWork(direct,targets,*reference,.1).work==d.work);
+  direct.sensor_present=true;direct.sensor.fill(Tensor{});
+  if(Orientation(direct.cell.v[0].p,direct.cell.v[1].p,direct.cell.v[2].p,direct.cell.v[3].p)<0)
+    std::swap(direct.cell.v[2],direct.cell.v[3]);
+  double common_work=0;
+  for(int owner:std::array<int,2>{{0,world.size-1}}) {
+    Owned local;if(world.rank==owner)local.emplace(direct.cell.id,direct);
+    DonorImport source(world);BridgeStats stats;std::string reason;std::vector<uint32_t> metric,geometric;
+    REQUIRE(WorkingWeights(world,local,source,metric,reason,stats,{},SIZE_MAX,0,true,reference.get(),.1,&geometric));
+    const auto work=CPassiveComm::Allreduce(stats.geometry_work,CPassiveComm::Op::SUM,world.comm);
+    if(!common_work)common_work=work;else CHECK(work==common_work);
+    CHECK(work>d.work);for(auto weight:geometric)CHECK(weight==MaximumPartitionWeight);
+  }
+}
+
+TEST_CASE("Geometry workload snapshots and cheap facet estimates", "[NativeSurfaceMemo3D][NativeGeometryStats3D]") {
+  using namespace SU2Native3D;CurvedAtlasFixture fixture;auto& g=*fixture.geometry;
+  const auto curved=g.StructuralEstimate(0);CHECK(curved.curved);CHECK(curved.chord_size>0);CHECK(curved.control_deviation>0);CHECK(curved.prepared_pieces==0);
+  std::map<Id,double> errors;for(const auto& f:fixture.facets)errors[f.id]=1e-12;
+  auto reference=std::make_shared<PlanarReference>(fixture.facets);
+  MappedFacetReference flat(reference,errors,29);const auto f=flat.StructuralEstimate(0);
+  CHECK_FALSE(f.curved);CHECK(f.chord_size>0);CHECK(f.control_deviation==0);CHECK(f.prepared_pieces==0);
+  const auto& face=fixture.facets[0];std::vector<std::array<Point,3>> physical{{{face.v[0].p,face.v[1].p,face.v[2].p}}};
+  auto budget=GeometryAtlasBudget();const auto bound=g.BoundPhysicalSurface({0},physical,.1,budget);CHECK(std::isfinite(bound));
+  auto after=g.GeometryStatsSnapshot();CHECK(after.upper_calls==1);CHECK(after.scope_misses>=1);CHECK(after.facet_misses>=1);CHECK(after.scope_builds>=1);
+  CHECK(after.scope_attempts>=after.scope_builds);CHECK(g.StructuralEstimate(0).prepared_pieces>0);
+  physical[0][0].x=std::nextafter(physical[0][0].x,INFINITY);auto next=GeometryAtlasBudget();g.BoundPhysicalSurface({0},physical,.1,next);
+  CHECK(g.GeometryStatsSnapshot().scope_hits>=1);
+  auto denied=GeometryAtlasBudget();denied.maximum_work=0;CHECK_THROWS(g.BoundSurfaceUnion({0},physical,.1,denied));
+  CHECK(g.GeometryStatsSnapshot().union_exceptions>=1);
+  auto snapshot=g.GeometryStatsSnapshot(true);CHECK(snapshot.upper_calls>=2);auto reset=g.GeometryStatsSnapshot();CHECK(reset.upper_calls==0);CHECK(reset.scope_builds==0);
+  CHECK(reset.prepared_bytes==snapshot.prepared_bytes);CHECK(reset.prepared_limit==snapshot.prepared_limit);
+  MappedFacetReference uncached(reference,errors,29,SIZE_MAX,false,g.Curves(),0);
+  auto uncached_budget=GeometryAtlasBudget();uncached.BoundPhysicalSurface({0},physical,.1,uncached_budget);
+  CHECK(uncached.GeometryStatsSnapshot().retention_refusals>=1);
+}
+
 TEST_CASE("Curved coverage retains exact non-dyadic pieces and complete cubic error", "[NativeCurvedAtlas3D]") {
   const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;auto budget=GeometryAtlasBudget();std::string reason;
   const auto whole=fixture.Cover(0,budget);FaceCoverage refined;

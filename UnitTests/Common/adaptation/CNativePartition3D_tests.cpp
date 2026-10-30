@@ -7,6 +7,7 @@
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativePartition3D.hpp"
 #include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
+#include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include <iomanip>
 #include <iostream>
 #include <numeric>
@@ -109,6 +110,103 @@ TEST_CASE("Native tetrahedral partition migrates two constraints with atomic rec
         <<" moved="<<stats.moved_cells<<" cells_after="<<stats.cells_after[world.rank]<<" work_after="<<stats.work_after[world.rank]<<'\n';
     Log(world,log.str());
   }
+}
+TEST_CASE("Geometry work attributes closed flat surface faces and edge shares once", "[NativePartition3D][NativeGeometryWeight3D]") {
+  auto cells=Grid(1);std::vector<Facet> facets;
+  for(auto& item:cells) {
+    auto& row=item.second;const auto faces=Faces(row.cell);
+    for(unsigned k=0;k<4;++k)if(row.physical[k].present) {
+      Facet facet;facet.id=facets.size();row.physical[k].facet=facet.id;
+      for(unsigned j=0;j<3;++j)for(const auto& node:row.cell.v)if(node.id==faces[k][j])facet.v[j]=node;
+      facets.push_back(facet);
+    }
+  }
+  const PlanarReference reference(facets);const std::array<Tensor,4> metric{{Tensor{},Tensor{},Tensor{},Tensor{}}};
+  const auto saved=Bytes(cells);double operations=0,work=0;uint64_t faces=0;
+  for(const auto& item:cells) {
+    const auto a=EstimateGeometryWork(item.second,metric,reference,1e-4);
+    const auto b=EstimateGeometryWork(item.second,metric,reference,1e-4);
+    CHECK(a.operations==b.operations);CHECK(a.work==b.work);CHECK(a.faces==b.faces);
+    CHECK(a.cross_chart_faces==0);operations+=a.operations;work+=a.work;faces+=a.faces;
+  }
+  CHECK(faces==12);CHECK(operations==Approx(30));CHECK(work>0);CHECK(Bytes(cells)==saved);
+  auto definition=std::make_shared<PlanarReference>(facets);std::map<Id,double> errors;
+  for(const auto& f:facets)errors.emplace(f.id,1e-12);
+  auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(definition,errors,1);
+  BoundaryPoints points;std::vector<SurfaceFace> surface;
+  for(const auto& f:facets){SurfaceFace face;face.facet=f.id;
+    for(unsigned k=0;k<3;++k){face.v[k]=f.v[k].id;points.emplace(f.v[k].id,BoundaryPoint{f.v[k],authority->Vertex(f.v[k].id)});}
+    surface.push_back(face);}
+  auto state=std::make_shared<BoundaryParameterState>(authority,points,surface);
+  auto mapped=PlanarReference::WithParameters(definition,state);double mapped_operations=0;
+  for(const auto& item:cells)mapped_operations+=EstimateGeometryWork(item.second,metric,*mapped,1e-4).operations;
+  CHECK(mapped_operations==Approx(38)); // 12 faces, 18 edges, 8 vertices, each attributed once.
+  CHECK(authority->GeometryStatsSnapshot().upper_calls==0);
+  World world;auto local=Layout(cells,world,0);
+  for(auto& row:local){row.second.sensor_present=true;row.second.sensor.fill(Tensor{});}
+  DonorImport source(world);BridgeStats prediction;std::string reason;std::vector<uint32_t> weights,geometry_weights;
+  REQUIRE(WorkingWeights(world,local,source,weights,reason,prediction,{},SIZE_MAX,0,true,mapped.get(),1e-4,&geometry_weights));
+  CHECK(weights.size()==local.size());CHECK(geometry_weights.size()==local.size());
+  CHECK(prediction.requests==5*local.size());CHECK(prediction.geometry_weight_scale>0);
+  for(auto w:geometry_weights){CHECK(w>0);CHECK(w<=MaximumPartitionWeight);}
+  for(auto w:weights)CHECK(w==WorkWeights({cells.begin()->second.cell},[](Point){return FieldSample{};}).front());
+  auto interior=cells.begin()->second;for(auto& face:interior.physical)face.present=false;
+  const auto empty=EstimateGeometryWork(interior,metric,reference,1e-4);
+  CHECK(empty.faces==0);CHECK(empty.operations==0);CHECK(empty.work==0);
+  CHECK_THROWS(EstimateGeometryWork(interior,metric,reference,0));
+}
+
+TEST_CASE("Geometry partition weight failures preserve outputs collectively", "[NativePartition3D][NativeGeometryWeight3D]") {
+  World world;const auto cells=Layout(Grid(1),world,0);DonorImport source(world);BridgeStats stats;std::string reason;
+  const PlanarReference geometry(std::vector<Facet>{{0,0,{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}}}}}});
+  std::vector<uint32_t> work{11},geometric{17};
+  CHECK_FALSE(WorkingWeights(world,cells,source,work,reason,stats,{},1,0,true,&geometry,1e-4,&geometric));
+  CHECK(work==std::vector<uint32_t>{11});CHECK(geometric==std::vector<uint32_t>{17});
+  CHECK_FALSE(WorkingWeights(world,cells,source,work,reason,stats,{},SIZE_MAX,0,true,&geometry,1e-4,nullptr));
+  CHECK(work==std::vector<uint32_t>{11});CHECK(geometric==std::vector<uint32_t>{17});
+}
+
+TEST_CASE("Native partition balances geometry independently of metric and cell count", "[NativeDistributed3D][NativePartition3D]") {
+  World world;const auto all=Grid(6);Owned input;
+  for(const auto& row:all)if(std::min(world.size-1,int(Centroid(row.second.cell).y*world.size))==world.rank)input.emplace(row);
+  std::vector<uint32_t> work,geometry;
+  for(const auto& row:input) {
+    work.push_back(Prescribed(row.second));
+    const auto& c=row.second.cell;double y=0;for(auto n:c.v)y+=n.p.y;
+    geometry.push_back(y<2 ? 16 : 0);
+  }
+  PartitionStats stats;std::string reason;
+  REQUIRE(Repartition(world,input,work,world.size,stats,reason,SIZE_MAX,0,geometry));
+  const auto total=std::accumulate(stats.geometry_before.begin(),stats.geometry_before.end(),uint64_t(0));
+  REQUIRE(total>0);CHECK(std::accumulate(stats.geometry_after.begin(),stats.geometry_after.end(),uint64_t(0))==total);
+  CHECK(std::accumulate(stats.cells_after.begin(),stats.cells_after.end(),uint64_t(0))==all.size());
+  CHECK(std::accumulate(stats.work_before.begin(),stats.work_before.end(),uint64_t(0))==
+        std::accumulate(stats.work_after.begin(),stats.work_after.end(),uint64_t(0)));
+  for(const auto& row:input)CHECK(Bytes(row.second)==Bytes(all.at(row.first)));
+  const auto maximum_geometry=*std::max_element(stats.geometry_after.begin(),stats.geometry_after.end());
+  const auto maximum_before=*std::max_element(stats.geometry_before.begin(),stats.geometry_before.end());
+  CHECK(maximum_geometry<=1.3*total/world.size);
+  const auto total_work=std::accumulate(stats.work_after.begin(),stats.work_after.end(),uint64_t(0));
+  CHECK(*std::max_element(stats.work_after.begin(),stats.work_after.end())<=1.3*total_work/world.size);
+  CHECK(*std::max_element(stats.cells_after.begin(),stats.cells_after.end())<=1.3*all.size()/world.size);
+  if(world.size>1){CHECK(maximum_geometry<maximum_before);CHECK(stats.edgecut<stats.graph_arcs/4);}
+  if(world.size<=6&&6%world.size==0) {
+    CHECK(*std::min_element(stats.cells_before.begin(),stats.cells_before.end())==*std::max_element(stats.cells_before.begin(),stats.cells_before.end()));
+    CHECK(*std::min_element(stats.work_before.begin(),stats.work_before.end())==*std::max_element(stats.work_before.begin(),stats.work_before.end()));
+  }
+  std::ostringstream balance;balance<<"PART_GEOMETRY_BALANCE rank="<<world.rank<<" cells="<<stats.cells_after[world.rank]
+      <<" metric="<<stats.work_after[world.rank]<<" geometry_before="<<stats.geometry_before[world.rank]
+      <<" geometry_after="<<stats.geometry_after[world.rank]<<" edgecut="<<stats.edgecut<<" arcs="<<stats.graph_arcs<<'\n';
+  Log(world,balance.str());
+  auto zero=Layout(all,world,2);std::vector<uint32_t> ones(zero.size(),1),empty_geometry(zero.size(),0);
+  PartitionStats zero_stats;REQUIRE(Repartition(world,zero,ones,world.size,zero_stats,reason,SIZE_MAX,0,empty_geometry));
+  CHECK(std::accumulate(zero_stats.geometry_after.begin(),zero_stats.geometry_after.end(),uint64_t(0))==0);
+  auto invalid=Layout(all,world,2);const auto saved=Bytes(invalid);
+  std::vector<uint32_t> iw(invalid.size(),1),ig(invalid.size(),0);
+  if(!world.rank && !ig.empty())ig[0]=MaximumPartitionWeight+1;
+  CHECK_FALSE(Repartition(world,invalid,iw,world.size,stats,reason,SIZE_MAX,0,ig));CHECK(Bytes(invalid)==saved);
+  if(!world.rank && !ig.empty()){ig[0]=0;ig.pop_back();}
+  CHECK_FALSE(Repartition(world,invalid,iw,world.size,stats,reason,SIZE_MAX,0,ig));CHECK(Bytes(invalid)==saved);
 }
 TEST_CASE("Native tetrahedral partition rejects invalid input without ownership changes", "[NativeDistributed3D][NativePartition3D]") {
   World world;const auto initial=Layout(Grid(1),world,0);

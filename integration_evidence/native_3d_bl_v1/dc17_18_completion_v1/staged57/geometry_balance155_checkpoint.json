@@ -1,0 +1,106 @@
+{
+  "goal": "Strict accepted Euler M6 CFD-mesh-CFD-mesh, then BL verification/RANS",
+  "status": "Full M6 running, no accepted mesh claimed",
+  "production_source_changes_153_to_155": [
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativePartition3D_tests.cpp"
+  ],
+  "baseline": "build151_50k_baseline.json",
+  "builds": {
+    "152": {
+      "state": "terminal",
+      "exit_code": 1,
+      "seconds": 625.9026885032654,
+      "pins_verified": true,
+      "changed": [],
+      "completed_build": false
+    },
+    "153": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 132.29503083229065,
+      "pins_verified": true,
+      "changed": [],
+      "completed_build": true
+    },
+    "154": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 69.20198607444763,
+      "pins_verified": true,
+      "changed": [],
+      "completed_build": true
+    },
+    "155": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 66.19887399673462,
+      "pins_verified": true,
+      "changed": [],
+      "completed_build": true
+    }
+  },
+  "focused_estimator": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 6.969646692276001,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 30846976,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "mpi6": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 7.039382457733154,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 32174080,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "m6_command": {
+    "build": "build155",
+    "case": "M6 Euler full adaptation",
+    "ranks": 6,
+    "expected_events": 2,
+    "target_complexity": 50000,
+    "native_budget_seconds": 5400,
+    "outer_timeout_seconds": 14400,
+    "argv": [
+      "nice",
+      "-n",
+      "19",
+      "/usr/bin/time",
+      "-v",
+      "timeout",
+      "14400",
+      "mpirun",
+      "--output-filename",
+      "rank_output",
+      "-n",
+      "6",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "run.cfg"
+    ],
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "config_sha256": "5b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1",
+    "input_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/input_pins.json",
+    "runtime_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/loaded_runtime_pins.json"
+  },
+  "m6_status": {
+    "state": "running",
+    "pid": 244448,
+    "started_at": 1793362399.5347219,
+    "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build155_geometry_balance50k"
+  },
+  "limitations": [
+    "Initial adaptation ownership balancing only; no in-event migration",
+    "Geometry predictor uses structural unit work, not calibrated CPU seconds",
+    "No cache eviction; actual cache reuse/memory must be measured",
+    "Focused checks and predicted balance are not an accepted mesh or workflow"
+  ]
+}

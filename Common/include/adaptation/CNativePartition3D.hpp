@@ -14,7 +14,7 @@ struct PartitionStats {
   double directory_seconds = 0;  // Nested in graph preparation, including identity/coordinate admission.
   uint64_t moved_cells = 0, edgecut = 0, graph_arcs = 0;
   size_t maximum_native_bytes = 0;
-  std::vector<uint64_t> cells_before, cells_after, work_before, work_after;
+  std::vector<uint64_t> cells_before, cells_after, work_before, work_after, geometry_before, geometry_after;
   std::vector<int> destinations;  // Original local map order; permits co-location of an initial matching donor copy.
 };
 /*! Bounded existing-cell sample batch (<=128), preserving order. Sensor-only centroid metric-volume predicts
@@ -25,10 +25,13 @@ std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells, FrozenField& f
 std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,const std::function<FieldSample(Point)>& query);
 /*! Collective on the explicit world (possibly a subset). Builds triangular-face dual adjacency, excludes empty
  * graph ranks, balances predicted work and cell storage, then stages all migrated records before publication.
+ * Optional geometry weights are nonnegative, bounded by MaximumPartitionWeight and aligned to input map order.
+ * A nonzero global geometry total adds a third constraint; individual weights may be zero.
  * IDs/version/geometry/physical bindings remain byte-identical. Original sensor/CFD solution/history stores
  * are caller-owned and untouched; original donors must separately be made available to M workers.
  * False returns the elected reason and leaves input unchanged on every rank, including storage failures.
  * ceiling/caller_bytes bound requested native storage, not allocator/RSS or internal (Par)METIS workspace. */
 bool Repartition(World& world, Owned& input, const std::vector<uint32_t>& weights, int parts, PartitionStats& stats,
-                 std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+                 std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0,
+                 const std::vector<uint32_t>& geometry_weights = {});
 }  // namespace SU2Native3D
