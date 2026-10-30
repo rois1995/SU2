@@ -1,11 +1,15 @@
 # Native adaptation — handoff entry point
 
-Updated 2026-10-30. **Paused at the user's explicit request for a context reset.**
-Do not launch work until the user resumes. The one-time handoff stop overrides the
-next specification's instruction to preserve a healthy run; that specification's
-normal run-preservation rule applies again after this transition.
+Updated 2026-10-30. **Resumed by the user's explicit instruction.**
+One active integration cycle: bounded geometry caching plus phase-aware ownership.
+Read [current integration state](Handbook/ADAPTATION_CACHE_PHASE_20261030.md).
+Build159 is active and frozen (owned Ninja PID805786; exec session60312).
+Check its terminal status and pins before any source/test/helper edits. Build158
+is terminal (test assertion syntax error; pins unchanged).
+The terminal build157 baseline below remains historical evidence, not a live job.
 
-Branch: `codex/native-3d-bl`. Current implementation commit: `f104557fa6` (build157).
+Branch: `codex/native-3d-bl`. Last pushed implementation base: `f104557fa6` (build157).
+The active cache/phase candidate is build159; see the linked current state.
 Prior evidence checkpoint: `7417458c53`. The final handoff commit is the repository
 HEAD titled `Save paused M6 handoff and integrated cache ownership task`.
 No implementation, test, configuration or helper changes were made during this
@@ -52,7 +56,7 @@ coverage. Stall handoff is unprinted/untested and admits slow positive progress;
 quality-only scheduling omits geometry-only debt. More gaps and provenance are in
 the stop handbook. No new test campaign was run for this documentation handoff.
 
-## Integrated resumption task
+## Active integrated task
 
 Implement **bounded geometry caching and phase-aware adaptation ownership** as
 one connected change under the linked user specification. Preserve finite

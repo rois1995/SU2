@@ -882,6 +882,59 @@ TEST_CASE("Geometry workload snapshots and cheap facet estimates", "[NativeSurfa
   CHECK(uncached.GeometryStatsSnapshot().retention_refusals>=1);
 }
 
+TEST_CASE("Curved surface caches stay within split quota and rebuild exact answers after clock eviction", "[NativeSurfaceCache3D]") {
+  using namespace SU2Native3D;
+  CurvedAtlasFixture fixture;
+  std::map<Id,double> errors;for(const auto& face:fixture.facets)errors.emplace(face.id,1e-12);
+  auto definition=std::make_shared<PlanarReference>(fixture.facets);
+  // Keep every curved chart in the connected component and constrain the two pools to
+  // the smallest representable per-facet quota.
+  const auto& curves=fixture.geometry->Curves();
+  const size_t quota=curves.size()*(size_t(1)<<16);
+  MappedFacetReference bounded(definition,errors,29,SIZE_MAX,false,curves,quota);
+  MappedFacetReference uncached(definition,errors,29,SIZE_MAX,false,curves,0);
+  std::vector<Id> support;std::vector<std::array<Point,3>> physical;
+  for(const auto& face:fixture.facets){support.push_back(face.id);physical.push_back({face.v[0].p,face.v[1].p,face.v[2].p});}
+  auto query=[&](const MappedFacetReference& geometry,double tolerance,auto& budget) {
+    return geometry.BoundSurfaceUnion(support,physical,tolerance,budget);
+  };
+  auto first_budget=GeometryAtlasBudget();const auto first=query(bounded,.1,first_budget);
+  auto hit_budget=GeometryAtlasBudget();const auto hit=query(bounded,.1,hit_budget);
+  CHECK(hit.mesh_to_model==first.mesh_to_model);CHECK(hit.model_to_mesh==first.model_to_mesh);
+  auto initial=bounded.GeometryStatsSnapshot();
+  REQUIRE(initial.prepared_limit==quota);
+  CHECK(initial.facet_bytes<=initial.prepared_limit/2);
+  CHECK(initial.scope_bytes<=initial.prepared_limit-initial.prepared_limit/2);
+  CHECK(initial.scope_hits>=1);
+
+  for(auto& point:physical.front())point.z+=.001;
+  auto changed_budget=GeometryAtlasBudget();const auto changed=query(bounded,.1,changed_budget);
+  CHECK((changed.mesh_to_model!=first.mesh_to_model || changed.model_to_mesh!=first.model_to_mesh));
+  CHECK(bounded.GeometryStatsSnapshot().scope_hits>initial.scope_hits);
+  for(size_t i=0;i<fixture.facets.size();++i)physical[i]={fixture.facets[i].v[0].p,fixture.facets[i].v[1].p,fixture.facets[i].v[2].p};
+
+  // Distinct exact tolerances create distinct scopes. Refresh the useful scope periodically
+  // while cold entries turn over, then compare the rebuilt answer with a no-cache oracle.
+  for(unsigned i=0;i<32;++i) {
+    auto budget=GeometryAtlasBudget();query(bounded,.085+double(i)*1e-5,budget);
+    if(i%4==3) {auto useful=GeometryAtlasBudget();const auto again=query(bounded,.1,useful);
+      CHECK(again.mesh_to_model==first.mesh_to_model);CHECK(again.model_to_mesh==first.model_to_mesh);}
+  }
+  const auto after=bounded.GeometryStatsSnapshot();
+  CHECK(after.prepared_bytes<=after.prepared_limit);
+  CHECK(after.facet_bytes<=after.prepared_limit/2);
+  CHECK(after.scope_bytes<=after.prepared_limit-after.prepared_limit/2);
+  CHECK(after.scope_misses>initial.scope_misses);CHECK(after.evictions>0);
+  auto rebuilt_budget=GeometryAtlasBudget();const auto rebuilt=query(bounded,.1,rebuilt_budget);
+  auto oracle_budget=GeometryAtlasBudget();const auto oracle=query(uncached,.1,oracle_budget);
+  CHECK(rebuilt.mesh_to_model==oracle.mesh_to_model);CHECK(rebuilt.model_to_mesh==oracle.model_to_mesh);
+
+  auto exhausted=GeometryAtlasBudget();exhausted.maximum_work=1;
+  CHECK_THROWS(query(bounded,.1,exhausted));CHECK(exhausted.work_exhausted);
+  const auto spent=exhausted.work;CHECK_THROWS(query(bounded,.1,exhausted));
+  CHECK(exhausted.work_exhausted);CHECK(exhausted.work==spent);
+}
+
 TEST_CASE("Curved coverage retains exact non-dyadic pieces and complete cubic error", "[NativeCurvedAtlas3D]") {
   const CurvedAtlasFixture fixture;const auto& g=*fixture.geometry;auto budget=GeometryAtlasBudget();std::string reason;
   const auto whole=fixture.Cover(0,budget);FaceCoverage refined;

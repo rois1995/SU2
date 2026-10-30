@@ -132,7 +132,8 @@ bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std:
                     std::string& reason, BridgeStats& stats, MetricComposition composition = {},
                     size_t ceiling = size_t(2) << 30, size_t caller_bytes = 0, bool query_timings = true,
                     const PlanarReference* geometry=nullptr,double geometry_tolerance=0,
-                    std::vector<uint32_t>* geometry_weights=nullptr);
+                    std::vector<uint32_t>* geometry_weights=nullptr,
+                    PartitionWorkPhase phase=PartitionWorkPhase::Mixed);
 /*! Copy accepted worker boundary records to inactive CFD ranks at a stage boundary.
  * Immutable authority/indexes are shared locally, not reconstructed or volume-gathered. */
 bool SynchronizeBoundaryParameters(World& parent,int workers,ReferenceState& reference,std::string& reason,

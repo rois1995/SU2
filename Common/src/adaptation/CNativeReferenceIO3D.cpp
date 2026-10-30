@@ -17,7 +17,18 @@
 #include <locale>
 #include <set>
 #include <sstream>
+#include <iostream>
+#if defined(HAVE_MPI)
+#include <mpi.h>
+#endif
+#if defined(__linux__)
+#include <unistd.h>
+#endif
 namespace SU2Native3D {
+size_t ReferenceCacheRankQuota3D(size_t host_bytes, int ranks_on_host) {
+  if (ranks_on_host < 1) throw std::invalid_argument("Reference cache quota needs at least one host rank.");
+  return host_bytes / static_cast<size_t>(ranks_on_host);
+}
 namespace {
 struct Header {
   uint64_t markers = 0, facets = 0, analytic = 0, affine = 0;
@@ -135,7 +146,8 @@ std::string EncodeReference(const ReferenceState& state) {
   DecodeReference(bytes);
   return bytes;
 }
-static ReferenceState DecodeReferenceImpl(const std::string& bytes,size_t ceiling,size_t& maximum_bytes) {
+static ReferenceState DecodeReferenceImpl(const std::string& bytes,size_t ceiling,size_t& maximum_bytes,
+                                          size_t cache_cap=SIZE_MAX) {
   if (transfer_memory::Mul(bytes.size(), 8) > ceiling)
     throw std::length_error("Native3D reference parsing exceeds storage budget.");
   std::istringstream in(bytes);
@@ -146,7 +158,8 @@ static ReferenceState DecodeReferenceImpl(const std::string& bytes,size_t ceilin
   maximum_bytes=std::max(maximum_bytes,requested);
   if (requested == SIZE_MAX || requested > ceiling)
     throw std::length_error("Native3D reference decoding exceeds storage budget.");
-  const auto query_cache=SU2NativeGeometry::MappedFacetReference::SurfaceQueryStorageBytes(header.curves,ceiling-requested);
+  const auto query_cache=SU2NativeGeometry::MappedFacetReference::SurfaceQueryStorageBytes(
+      header.curves,std::min(ceiling-requested,cache_cap));
   maximum_bytes=std::max(maximum_bytes,transfer_memory::Add(requested,query_cache));
   ReferenceState result;
   std::set<std::string> names;
@@ -256,6 +269,29 @@ bool LoadReference(const std::string& filename, ReferenceState& state, bool& loa
   World world;
   loaded = false;
   reason.clear();
+  size_t host_quota=ReferenceCacheHostLimit3D;
+#if defined(__linux__)
+  const long pages=sysconf(_SC_AVPHYS_PAGES),page=sysconf(_SC_PAGESIZE);
+  if(pages>0 && page>0) {
+    const auto available=transfer_memory::Mul(static_cast<size_t>(pages),static_cast<size_t>(page));
+    if(available!=SIZE_MAX)host_quota=std::min(host_quota,available/4);
+  }
+#endif
+  int shared_rank=0, shared_size=1;
+#if defined(HAVE_MPI)
+  struct SharedComm {
+    MPI_Comm value=MPI_COMM_NULL;
+    ~SharedComm(){if(value!=MPI_COMM_NULL)MPI_Comm_free(&value);}
+  } shared;
+  MPI_Comm_split_type(world.comm,MPI_COMM_TYPE_SHARED,world.rank,MPI_INFO_NULL,&shared.value);
+  MPI_Comm_rank(shared.value,&shared_rank);MPI_Comm_size(shared.value,&shared_size);
+  uint64_t local_host_quota=host_quota, agreed_host_quota=0;
+  MPI_Allreduce(&local_host_quota,&agreed_host_quota,1,MPI_UINT64_T,MPI_MIN,shared.value);
+  host_quota=static_cast<size_t>(agreed_host_quota);
+#endif
+  const size_t cache_quota=ReferenceCacheRankQuota3D(host_quota,shared_size);
+  if(!shared_rank)std::clog<<"NATIVE3D_REFERENCE_CACHE host_ranks="<<shared_size
+      <<" host_quota_bytes="<<host_quota<<" rank_quota_bytes="<<cache_quota<<'\n';
   auto admit = [&](size_t requested) {
     const auto total = transfer_memory::Add(caller_bytes, requested);
     maximum_bytes = std::max(maximum_bytes, total);
@@ -305,7 +341,7 @@ bool LoadReference(const std::string& filename, ReferenceState& state, bool& loa
   ReferenceState pending;CLocalFailure memory_failure;size_t decode_peak=0;
   const auto retained=transfer_memory::Add(caller_bytes,transport);
   try {
-    pending=DecodeReferenceImpl(text,ceiling-retained,decode_peak);
+    pending=DecodeReferenceImpl(text,ceiling-retained,decode_peak,cache_quota);
   } catch(const std::length_error& e) {
     memory_failure.Set(3,0,filename+": "+e.what());
   } catch (const std::exception& e) {

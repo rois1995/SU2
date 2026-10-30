@@ -15,6 +15,18 @@
 
 using namespace SU2NativeBoundary2D;
 
+TEST_CASE("Native3D reference cache quota is shared equally within each host", "[NativeReferenceIO3D]") {
+  namespace N=SU2Native3D;
+  CHECK(N::ReferenceCacheRankQuota3D(size_t(120),1)==120);
+  CHECK(N::ReferenceCacheRankQuota3D(size_t(120),3)==40);
+  CHECK(N::ReferenceCacheRankQuota3D(size_t(120),5)==24);
+  // Different shared-memory domains divide independently, even with unequal rank counts.
+  const std::array<int,2> ranks{{2,5}};
+  CHECK(N::ReferenceCacheRankQuota3D(1000,ranks[0])==500);
+  CHECK(N::ReferenceCacheRankQuota3D(1000,ranks[1])==200);
+  CHECK_THROWS(N::ReferenceCacheRankQuota3D(1000,0));
+}
+
 TEST_CASE("Native reference sidecar: immutable graph, exact coordinates and accepted bindings round trip",
           "[NativeReferenceIO]") {
   std::vector<PolylineReference::Face> faces;

@@ -1,0 +1,88 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeCanonicalTrace3D.cpp.o
+[2/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeReferenceTriangulation3D.cpp.o
+[3/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeCurvedAtlas3D.cpp.o
+[4/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeTraceCoverage3D.cpp.o
+[5/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeGeometryBackend3D.cpp.o
+[6/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o
+[7/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o
+[8/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o
+[9/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeRegionField3D.cpp.o
+[10/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o
+[11/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o
+[12/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDistributed3D.cpp.o
+[13/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativePartition3D.cpp.o
+[14/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeRegion3D.cpp.o
+[15/45] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeReferenceIO3D.cpp.o
+[16/45] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeImport3D.cpp.o
+In file included from /usr/include/c++/9/tuple:39,
+                 from /usr/include/c++/9/functional:54,
+                 from /usr/include/c++/9/pstl/glue_algorithm_defs.h:13,
+                 from /usr/include/c++/9/algorithm:71,
+                 from ../../Common/src/adaptation/../../include/adaptation/CNativeNearContainment.hpp:12,
+                 from ../../Common/src/adaptation/CNativeImport3D.cpp:7:
+../../Common/src/adaptation/CNativeImport3D.cpp: In instantiation of ‘SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(auto:16)> [with auto:16 = SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(size_t, size_t)>]’:
+../../Common/src/adaptation/CNativeImport3D.cpp:311:165:   required from here
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+../../Common/src/adaptation/CNativeImport3D.cpp: In instantiation of ‘SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(auto:16)> [with auto:16 = SU2Native3D::{anonymous}::CheckProjectedBoundary(SU2Native3D::World&, const CConfig&, const CGeometry&, const std::vector<std::array<double, 3> >&, SU2Native3D::SymmetryReferenceAudit3D&, size_t, size_t, std::string&)::<lambda(size_t, size_t)>]’:
+../../Common/src/adaptation/CNativeImport3D.cpp:324:4:   required from here
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+/usr/include/c++/9/array:94:12: note: ‘struct std::array<double, 3>’ has no user-provided default constructor
+   94 |     struct array
+      |            ^~~~~
+/usr/include/c++/9/array:110:56: note: and the implicitly-defined constructor does not initialize ‘double std::array<double, 3>::_M_elems [3]’
+  110 |       typename _AT_Type::_Type                         _M_elems;
+      |                                                        ^~~~~~~~
+[17/45] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o
+[18/45] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CDriver.cpp.o
+[19/45] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o
+[20/45] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o
+[21/45] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CNativeComplexity3D.cpp.o
+[22/45] Linking static target Common/src/libSU2AccurateSum.a
+[23/45] Compiling C++ object SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o
+[24/45] Linking static target Common/src/libSU2Common.a
+[25/45] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o
+[26/45] Linking static target SU2_CFD/src/libSU2core.a
+[27/45] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o
+[28/45] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeMesh3D_tests.cpp.o
+[29/45] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeField3D_tests.cpp.o
+[30/45] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o
+[31/45] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeAffineReference_tests.cpp.o
+FAILED: [code=1] UnitTests/test_driver.p/Common_adaptation_CNativeAffineReference_tests.cpp.o 
+c++ -IUnitTests/test_driver.p -IUnitTests -I../../UnitTests -ISU2_CFD/src -I../../SU2_CFD/src -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I../../externals/catch2 -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -pthread -fPIC -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ UnitTests/test_driver.p/Common_adaptation_CNativeAffineReference_tests.cpp.o -MF UnitTests/test_driver.p/Common_adaptation_CNativeAffineReference_tests.cpp.o.d -o UnitTests/test_driver.p/Common_adaptation_CNativeAffineReference_tests.cpp.o -c ../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
+In file included from ../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:6:
+../../externals/catch2/catch.hpp: In instantiation of ‘const Catch::BinaryExpr<LhsT, const RhsT&> Catch::BinaryExpr<LhsT, RhsT>::operator||(T) const [with T = bool; LhsT = const double&; RhsT = const double&]’:
+../../UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp:912:3:   required from here
+../../externals/catch2/catch.hpp:2251:44: error: static assertion failed: chained comparisons are not supported inside assertions, wrap the expression inside parentheses, or decompose it
+ 2251 |             static_assert(always_false<T>::value,
+      |                                            ^~~~~
+[32/45] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeAtlas3D_tests.cpp.o
+[33/45] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeBoundary3D_tests.cpp.o
+[34/45] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeCanonicalTrace3D_tests.cpp.o
+[35/45] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeTraceCoverage3D_tests.cpp.o
+[36/45] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeReferenceTriangulation3D_tests.cpp.o
+[37/45] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeCurvedAtlas3D_tests.cpp.o
+[38/45] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeGeometryBackend3D_tests.cpp.o
+[39/45] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeMetric3D_tests.cpp.o
+[40/45] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativePartition3D_tests.cpp.o
+[41/45] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeReferenceIO_tests.cpp.o
+[42/45] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeDistributed3D_tests.cpp.o
+[43/45] Linking target SU2_CFD/src/SU2_CFD
+[44/45] Compiling C++ object UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o
+ninja: build stopped: cannot make progress due to previous errors.

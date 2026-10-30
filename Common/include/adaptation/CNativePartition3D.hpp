@@ -9,6 +9,7 @@
 #include "CNativeField3D.hpp"
 namespace SU2Native3D {
 constexpr uint32_t MaximumPartitionWeight = 1024;
+enum class PartitionWorkPhase { Mixed, Coarsening, Splitting };
 struct PartitionStats {
   double total_seconds = 0, graph_seconds = 0, partition_seconds = 0, migration_seconds = 0, other_seconds = 0;
   double directory_seconds = 0;  // Nested in graph preparation, including identity/coordinate admission.
@@ -21,8 +22,8 @@ struct PartitionStats {
  * unit tetrahedra; actual composed centroid/vertex demands predict refinement/coarsening/shape/sliver work.
  * The caller imports the original sensor support. No composed nodal tensor is spread over cell volume.
  * These static weights neither alter the target nor certify a metric edge integral or predict measured CPU. */
-std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells, FrozenField& field);
-std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,const std::function<FieldSample(Point)>& query);
+std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells, FrozenField& field, PartitionWorkPhase phase=PartitionWorkPhase::Mixed);
+std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,const std::function<FieldSample(Point)>& query, PartitionWorkPhase phase=PartitionWorkPhase::Mixed);
 /*! Collective on the explicit world (possibly a subset). Builds triangular-face dual adjacency, excludes empty
  * graph ranks, balances predicted work and cell storage, then stages all migrated records before publication.
  * Optional geometry weights are nonnegative, bounded by MaximumPartitionWeight and aligned to input map order.
@@ -34,4 +35,7 @@ std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,const std::func
 bool Repartition(World& world, Owned& input, const std::vector<uint32_t>& weights, int parts, PartitionStats& stats,
                  std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0,
                  const std::vector<uint32_t>& geometry_weights = {});
+/*! Collective exact complete vertex-star cell counts for every locally owned vertex. On failure, output is unchanged. */
+bool VertexStarSizes(World& world,const Owned& input,std::map<Id,uint64_t>& output,std::string& reason,
+                     size_t ceiling=SIZE_MAX,size_t caller_bytes=0,size_t* maximum_bytes=nullptr);
 }  // namespace SU2Native3D

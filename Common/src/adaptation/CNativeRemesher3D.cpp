@@ -431,7 +431,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
         ready =
             WorkingWeights(parent, working, source, weights, reason, stats.weights, composition, control.memory_ceiling,
                            transfer_memory::Add(held(), transfer_memory::Bytes(imported.original)), control.timings,
-                           pending->state.original.get(),control.surface_tolerance,&geometry_weights);
+                           pending->state.original.get(),control.surface_tolerance,&geometry_weights,PartitionWorkPhase::Coarsening);
       phase(4);
       if (ready && repartition)
         ready = Repartition(

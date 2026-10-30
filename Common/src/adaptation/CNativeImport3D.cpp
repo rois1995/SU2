@@ -1623,7 +1623,8 @@ bool Samples(World& parent, size_t count, DonorImport& source, MetricComposition
 void PointRegion(Point p, std::vector<DonorRegion>& regions) { regions.push_back({p.x, p.y, p.z, p.x, p.y, p.z}); }
 }  // namespace
 static GeometryWorkEstimate EstimateGeometryWorkImpl(const OwnedCell& owned,const std::array<Tensor,4>& targets,
-    const PlanarReference& reference,double tolerance,const std::map<Id,size_t>& observed_pieces) {
+    const PlanarReference& reference,double tolerance,const std::map<Id,size_t>& observed_pieces,
+    PartitionWorkPhase phase=PartitionWorkPhase::Mixed) {
   if(!(std::isfinite(tolerance)&&tolerance>0))throw std::invalid_argument("Invalid geometry work tolerance.");
   GeometryWorkEstimate result;const auto* state=reference.Parameters();
   for(unsigned opposite=0;opposite<4;++opposite)if(owned.physical[opposite].present) {
@@ -1675,8 +1676,8 @@ static GeometryWorkEstimate EstimateGeometryWorkImpl(const OwnedCell& owned,cons
       const auto a=slots[k],b=slots[(k+1)%3];const auto p=owned.cell.v[a].p,q=owned.cell.v[b].p;
       const auto length=std::max(MetricNorm(p,q,targets[a]),MetricNorm(p,q,targets[b]));
       if(!(length>0&&std::isfinite(length)))throw std::invalid_argument("Invalid boundary metric work sample.");
-      const double demand=1+double(std::max(0.L,std::log2(length/MaximumMetricEdge)))+
-          double(std::max(0.L,std::log2(static_cast<long double>(CoarseningMetricEdge)/length)));
+      const double demand=1+(phase==PartitionWorkPhase::Coarsening?0:double(std::max(0.L,std::log2(length/MaximumMetricEdge))))+
+          (phase==PartitionWorkPhase::Splitting?0:double(std::max(0.L,std::log2(static_cast<long double>(CoarseningMetricEdge)/length))));
       // A valid closed physical surface has two incident faces per edge. This also counts each edge
       // once when its faces have different volume owners. Interfaces/body boundaries remain physical.
       double incidence=2;
@@ -1701,9 +1702,13 @@ GeometryWorkEstimate EstimateGeometryWork(const OwnedCell& owned,const std::arra
 bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std::vector<uint32_t>& output,
                     std::string& reason, BridgeStats& stats, MetricComposition composition, size_t ceiling,
                     size_t caller_bytes, bool query_timings,const PlanarReference* geometry,double geometry_tolerance,
-                    std::vector<uint32_t>* geometry_output) {
+                    std::vector<uint32_t>* geometry_output,PartitionWorkPhase phase) {
   Envelope envelope(parent, stats);
   CLocalFailure failure;const bool geometry_enabled=geometry!=nullptr;
+  const auto phase_low=CPassiveComm::Allreduce(int(phase),CPassiveComm::Op::MIN,parent.comm);
+  const auto phase_high=CPassiveComm::Allreduce(int(phase),CPassiveComm::Op::MAX,parent.comm);
+  if(phase_low!=phase_high || phase_low<0 || phase_high>int(PartitionWorkPhase::Splitting))
+    failure.Set(1,0,"Inconsistent phase-specific partition work estimates.");
   const auto common_geometry=parent.maximum(int(geometry_enabled));
   const auto tolerance_low=CPassiveComm::Allreduce(geometry_tolerance,CPassiveComm::Op::MIN,parent.comm);
   const auto tolerance_high=CPassiveComm::Allreduce(geometry_tolerance,CPassiveComm::Op::MAX,parent.comm);
@@ -1711,11 +1716,15 @@ bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std:
       tolerance_low!=tolerance_high || (geometry_enabled&&!(std::isfinite(geometry_tolerance)&&geometry_tolerance>0)))
     failure.Set(1,0,"Inconsistent geometry partition estimate controls.");
   if(!Vote(parent,failure,reason))return false;
-  const size_t live = transfer_memory::Add(caller_bytes, OwnedBytes(cells), source.ResidentBytes(),
+  const auto star_bytes=phase==PartitionWorkPhase::Mixed?0:transfer_memory::Mul(cells.size(),
+      4*(sizeof(std::pair<const Id,uint64_t>)+4*sizeof(void*)));
+  const size_t live = transfer_memory::Add(caller_bytes, OwnedBytes(cells), source.ResidentBytes(),star_bytes,
       transfer_memory::Mul(cells.size(),sizeof(const Cell*)+sizeof(uint32_t)+
           (geometry_enabled ? sizeof(double)+sizeof(uint32_t) : 0)),
       geometry_enabled ? transfer_memory::Mul(geometry->Facets().size(),384) : 0);
   if (!Admit(parent, live, ceiling, stats, reason)) return false;
+  std::map<Id,uint64_t> complete_stars;
+  if(phase!=PartitionWorkPhase::Mixed && !VertexStarSizes(parent,cells,complete_stars,reason,ceiling,live,&stats.maximum_native_bytes))return false;
   std::vector<const Cell*> ordered;
   std::vector<uint32_t> weights;
   std::vector<double> geometry_costs;std::vector<uint32_t> geometry_weights;
@@ -1767,9 +1776,13 @@ bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std:
       if(geometry_enabled)for(unsigned k=0;k<4;++k){const auto q=owned.cell.v[k].p;
         if(p.x==q.x&&p.y==q.y&&p.z==q.z)targets[k]=value.target;}
       return value;};
-    weights[i]=WorkWeights({owned.cell},sample).front();
+    weights[i]=WorkWeights({owned.cell},sample,phase).front();
+    if(phase!=PartitionWorkPhase::Mixed) {
+      double star=0;for(const auto& node:owned.cell.v)star+=complete_stars.at(node.id)/4.;
+      weights[i]=uint32_t(std::ceil(std::min(double(MaximumPartitionWeight),1+(weights[i]-1)*(1+star))));
+    }
     if(geometry_enabled){const auto start=parent.seconds();
-      const auto estimate=EstimateGeometryWorkImpl(owned,targets,*geometry,geometry_tolerance,observed_pieces);
+      const auto estimate=EstimateGeometryWorkImpl(owned,targets,*geometry,geometry_tolerance,observed_pieces,phase);
       geometry_costs[i]=estimate.work;stats.geometry_operations+=estimate.operations;stats.geometry_work+=estimate.work;
       stats.geometry_max_work=std::max(stats.geometry_max_work,estimate.work);
       stats.geometry_faces+=estimate.faces;stats.geometry_cross_chart_faces+=estimate.cross_chart_faces;

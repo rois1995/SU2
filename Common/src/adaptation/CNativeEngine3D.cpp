@@ -12,6 +12,7 @@
 #include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../include/adaptation/CNativeGeometryBackend3D.hpp"
 #include "../../include/adaptation/CNativeGenerationProgress3D.hpp"
+#include "../../include/adaptation/CNativePartition3D.hpp"
 #include <chrono>
 #include <cmath>
 #include <cstring>
@@ -158,6 +159,12 @@ struct RepairReceipt {
   Feature feature;bool accepted=false;unsigned disposition=4;
   template<class S> void Fields(S& s){s(feature,accepted,disposition);}
 };
+template<class S>void CachedScalar(S& s,long double& value) {
+  if(!std::isfinite(value))throw std::logic_error("Nonfinite migrated cache scalar.");
+  int exponent=0;bool negative=std::signbit(value);
+  std::array<long double,4> words{{std::frexp(std::abs(value),&exponent),0,0,0}};
+  s(exponent,negative);OriginalWeights3D(s,words);value=std::ldexp(words[0],exponent);if(negative)value=-value;
+}
 class Selection {
  public:
   enum class Lane {Surface,Interior};
@@ -221,10 +228,24 @@ class Selection {
     long double q=0,j=0,size=0,height=0,geometry=0;
     bool q_measured=false,j_measured=false,height_measured=false,geometry_measured=true,height_unresolved=false;
     bool q_bad=false,j_bad=false,size_bad=false,height_bad=false;
+    template<class S>void Fields(S& s) {
+      CachedScalar(s,q);CachedScalar(s,j);CachedScalar(s,size);CachedScalar(s,height);CachedScalar(s,geometry);
+      s(q_measured,j_measured,height_measured,geometry_measured,height_unresolved,q_bad,j_bad,size_bad,height_bad);
+    }
   };
   StageProgress debt;
   bool progress_consistent=true,census_started=false;
-  struct CellState { uint64_t version=0; CellDebt debt;std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{};std::array<bool,6> physical{}; std::array<Id,4> vertices{}; std::array<long double,6> geometry_scores{}; bool valid = false,target_valid=false,geometry_invalid=false,construction_valid=false,quality_valid=false,shape_measured=false; };
+  struct CellState { uint64_t version=0; CellDebt debt;std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{};std::array<bool,6> physical{}; std::array<Id,4> vertices{}; std::array<long double,6> geometry_scores{}; bool valid = false,target_valid=false,geometry_invalid=false,construction_valid=false,quality_valid=false,shape_measured=false;
+    template<class S>void Fields(S& s) {
+      s(version,debt,edges,forbidden,physical,vertices);
+      for(auto& x:geometry_scores)CachedScalar(s,x);
+      s(valid,target_valid,geometry_invalid,construction_valid,quality_valid,shape_measured);
+    }
+  };
+  struct CachedRow {
+    Id id=0;CellState state;std::array<long double,6> lengths{};
+    template<class S>void Fields(S& s){s(id,state);for(auto& x:lengths)CachedScalar(s,x);}
+  };
   std::map<Id,CellState> cells;
   std::map<Edge,EdgeState> edges;
   std::set<std::pair<long double,Edge>> queue;
@@ -462,8 +483,8 @@ class Selection {
   }
   void UpdateRepairs(const Cell& cell,const CellState& row) {
     if(!track_repairs)return;
-    const bool needed=quality_only?(!row.quality_valid || (size_repairs && row.debt.size_bad)):!row.valid;
-    if(needed&&!cell_repairs.count(cell.id))AddRepairs(cell,quality_only && size_repairs && row.quality_valid);
+    const bool needed=quality_only?(!row.quality_valid || row.geometry_invalid || (size_repairs && row.debt.size_bad)):!row.valid;
+    if(needed&&!cell_repairs.count(cell.id))AddRepairs(cell,quality_only && size_repairs && row.quality_valid && !row.geometry_invalid);
     else if(!needed&&cell_repairs.count(cell.id))RemoveRepairs(cell.id);
   }
   void ChangePhase(bool improvement,const Owned& working,const std::shared_ptr<const FrozenMetricIdentity>& identity) {
@@ -713,6 +734,36 @@ class Selection {
       }
     }
     return serviced;
+  }
+  void Restore(const OwnedCell& owned,const CachedRow& record,const std::shared_ptr<const FrozenMetricIdentity>& identity) {
+    const auto& row=record.state;const auto& cell=owned.cell;
+    if(record.id!=cell.id || row.version!=owned.version)throw std::logic_error("Migrated selection version mismatch.");
+    for(unsigned i=0;i<4;++i) {
+      if(row.vertices[i]!=cell.v[i].id)throw std::logic_error("Migrated selection vertex mismatch.");
+      vertex_links+=vertex_cells[row.vertices[i]].insert(cell.id).second;
+    }
+    if(!cells.emplace(cell.id,row).second)throw std::logic_error("Duplicate migrated selection row.");
+    for(unsigned i=0;i<6;++i) {
+      const auto edge=row.edges[i];Point a{},b{};bool has_a=false,has_b=false;
+      for(auto node:cell.v){if(node.id==edge[0]){a=node.p;has_a=true;}if(node.id==edge[1]){b=node.p;has_b=true;}}
+      if(!has_a||!has_b||!(record.lengths[i]>0))throw std::logic_error("Invalid migrated edge certificate.");
+      auto inserted=edges.emplace(edge,EdgeState{EdgeMeasure{a,b,record.lengths[i],identity},0});auto& e=inserted.first->second;
+      if(!e.measure.Reusable(a,b,identity)||e.measure.length!=record.lengths[i])throw std::logic_error("Migrated edge certificates disagree.");
+      e.physical_users+=row.physical[i];++e.users;
+      for(unsigned d=0;d<2;++d)e.forbidden[d]+=bool(row.forbidden[i]&(1u<<d));
+    }
+    Account(row,true);invalid+=!row.valid;construction_invalid+=!row.construction_valid;
+    quality_invalid+=!row.quality_valid;unmeasured_shape+=!row.shape_measured;
+  }
+  void SwapState(Selection& other) noexcept {
+    cells.swap(other.cells);edges.swap(other.edges);queue.swap(other.queue);surface_queue.swap(other.surface_queue);
+    geometry_queue.swap(other.geometry_queue);construction_frontier.swap(other.construction_frontier);edge_history.swap(other.edge_history);
+    vertex_cells.swap(other.vertex_cells);blocked_edges.swap(other.blocked_edges);cell_repairs.swap(other.cell_repairs);
+    repair_users.swap(other.repair_users);repair_queue.swap(other.repair_queue);repair_zero.swap(other.repair_zero);
+    std::swap(vertex_links,other.vertex_links);std::swap(blocked_links,other.blocked_links);std::swap(repair_bytes,other.repair_bytes);
+    std::swap(invalid,other.invalid);std::swap(construction_invalid,other.construction_invalid);
+    std::swap(quality_invalid,other.quality_invalid);std::swap(unmeasured_shape,other.unmeasured_shape);
+    std::swap(debt,other.debt);std::swap(progress_consistent,other.progress_consistent);std::swap(census_started,other.census_started);
   }
   void Reset(bool improvement) {
     cells.clear();edges.clear();queue.clear();surface_queue.clear();geometry_queue.clear();construction_frontier.clear();edge_history.clear();vertex_cells.clear();
@@ -1116,6 +1167,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto observe_progress=[&](const char* stage) {
     if(options.timings && std::string(stage)!="window") {
       const auto p=selection.Progress(working.size());const auto* state=geometry.Parameters();
+      const auto cache=geometry_authority?geometry_authority->GeometryStatsSnapshot():SU2NativeGeometry::MappedFacetReference::GeometryStats{};
+      const auto authority=geometry_authority?geometry_authority->ResidentBytes():0;
+      std::cout<<"NATIVE3D_STORAGE rank="<<world.rank<<" stage="<<stage
+          <<" authority_plus_memo_bytes="<<(authority>=cache.prepared_limit?authority-cache.prepared_limit:authority)
+          <<" prepared_reserved_bytes="<<cache.prepared_limit<<" facet_live_bytes="<<cache.facet_bytes<<" scope_live_bytes="<<cache.scope_bytes
+          <<" private_cells_bytes="<<MapBytes(working)<<" selection_bytes="<<selection.Bytes()<<" directory_bytes="<<directory->ResidentBytes()
+          <<" metric_source_bytes="<<source.ResidentBytes()<<" parameter_bytes="<<(private_parameters?private_parameters->ResidentBytes():0)
+          <<" caller_reservation_bytes="<<options.caller_bytes<<" native_peak_bytes="<<stats.maximum_work_bytes<<'\n';
       size_t face_pieces=0,trace_pieces=0,limbs=0;
       auto ratio=[&](const SU2NativeGeometry::ExactRatio& r){limbs=std::max({limbs,r.numerator.size(),r.denominator.size()});};
       auto bary=[&](const SU2NativeGeometry::ExactBary& b){ratio(b.u);ratio(b.v);};
@@ -1153,7 +1212,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" scope_attempts="<<g.scope_attempts-geometry_begin.scope_attempts
           <<" scope_builds="<<g.scope_builds-geometry_begin.scope_builds<<" scope_build_work="<<g.scope_build_work-geometry_begin.scope_build_work
           <<" scope_build_seconds="<<g.scope_build_seconds-geometry_begin.scope_build_seconds
-          <<" retention_refusals="<<g.retention_refusals-geometry_begin.retention_refusals<<" prepared_bytes="<<g.prepared_bytes<<" prepared_limit="<<g.prepared_limit
+          <<" retention_refusals="<<g.retention_refusals-geometry_begin.retention_refusals<<" prepared_bytes="<<g.prepared_bytes<<" prepared_limit="<<g.prepared_limit<<" facet_bytes="<<g.facet_bytes<<" scope_bytes="<<g.scope_bytes
+          <<" facet_entries="<<g.facet_entries<<" scope_entries="<<g.scope_entries<<" cache_evictions="<<g.evictions<<" cache_evicted_bytes="<<g.evicted_bytes
           <<" length_splits="<<stats.length_splits<<" length_collapses="<<stats.length_collapses
           <<" split_passes="<<stats.length_split_passes<<" collapse_passes="<<stats.length_collapse_passes<<" quality_stages="<<stats.quality_stages
           <<" split_generation="<<stats.split_generation<<" split_lane="<<stats.split_lane
@@ -1312,6 +1372,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(curved_lo!=curved_hi || surface_lo!=surface_hi || !std::isfinite(surface_lo) ||
        (curved && !(surface_lo>0)))
       failure.Set(1,0,"Native3D analytic runtime requires a consistent positive frozen surface tolerance.");
+    const auto ownership_lo=CPassiveComm::Allreduce(int(options.phase_ownership),CPassiveComm::Op::MIN,world.comm);
+    const auto ownership_hi=CPassiveComm::Allreduce(int(options.phase_ownership),CPassiveComm::Op::MAX,world.comm);
+    if(ownership_lo!=ownership_hi || ownership_lo<0 || ownership_hi>int(PhaseOwnership::DiagnosticAlways))
+      failure.Set(1,0,"Native3D phase ownership controls differ or are invalid.");
     const auto composition_lo=CPassiveComm::Allreduce(int(bool(composition)),CPassiveComm::Op::MIN,world.comm);
     const auto composition_hi=CPassiveComm::Allreduce(int(bool(composition)),CPassiveComm::Op::MAX,world.comm);
     const auto bands_lo=CPassiveComm::Allreduce(int(bool(options.edge_breakpoints)),CPassiveComm::Op::MIN,world.comm);
@@ -1983,6 +2047,157 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       selection.blocked_edges.clear();selection.blocked_links=0;length_blocks_dirty[collapse]=false;
     }
   };
+  std::array<bool,2> ownership_evaluated{{false,false}};
+  auto phase_ownership=[&](bool quality) {
+    auto within_time=[&]() {
+      if(!options.maximum_seconds)return true;
+      if(!world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds))return true;
+      stats.stop=EngineStop::TimeBudget;result.reason="Native3D phase ownership exceeds the event deadline; prior ownership retained.";return false;
+    };
+    if(!within_time())return false;
+    const unsigned boundary=quality?1:0;
+    if(ownership_evaluated[boundary] || world.size==1 || options.phase_ownership==PhaseOwnership::Disabled)return true;
+    ownership_evaluated[boundary]=true;++stats.ownership_evaluations;
+    // The checkpoint's ownership is part of its rollback contract. Its enclosing speculative
+    // coarsening cycle retains that ownership until it is explicitly retired.
+    if(world.maximum(checkpoint.valid || selection.cells.size()!=working.size()))return true;
+    const double transition_started=world.seconds();
+    const auto scratch=transfer_memory::Add(MapBytes(working),transfer_memory::Mul(working.size(),
+        sizeof(uint32_t)*2+sizeof(double)*2+sizeof(Selection::CachedRow)*3+sizeof(Id)),
+        transfer_memory::Mul(working.size(),4*(sizeof(std::pair<const Id,uint64_t>)+4*sizeof(void*))),
+        transfer_memory::Mul(world.size,256));
+    if(!admit(scratch))return false;
+    std::map<Id,uint64_t> complete_stars;
+    if(!VertexStarSizes(world,working,complete_stars,result.reason,options.memory_ceiling,
+        transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),scratch),&stats.maximum_work_bytes))return false;
+    if(!within_time())return false;
+    CLocalFailure failure;std::vector<uint32_t> weights,geometric;std::vector<double> costs,geometry_costs;
+    double local_demand=0,local_geometry=0;
+    try {
+      costs.reserve(working.size());geometry_costs.reserve(working.size());weights.reserve(working.size());geometric.reserve(working.size());
+      for(const auto& owned:working) {
+        const auto& row=selection.cells.at(owned.first);double demand=1;
+        if(quality) {
+          if(!row.shape_measured)throw std::logic_error("Quality ownership requires the permitted complete shape census.");
+          double star=0;for(Id vertex:row.vertices)star+=complete_stars.at(vertex)/4.;
+          demand+=(double(row.debt.q+row.debt.j+row.debt.height)+double(row.geometry_invalid))*(1+star);
+        }
+        for(unsigned i=0;i<6;++i) {
+          const auto edge=row.edges[i];const auto length=selection.edges.at(edge).measure.length;
+          const double insertions=double(std::max(0.L,length/MaximumMetricEdge-1));
+          const auto star=complete_stars.at(edge[0])+complete_stars.at(edge[1]);
+          demand+=insertions*(1+std::log2(1.+star));
+        }
+        double geometry_cost=0;
+        for(unsigned face=0;face<4;++face)if(owned.second.physical[face].present) {
+          double preparation=1;
+          if(geometry_authority) {
+            const auto structure=geometry_authority->StructuralEstimate(owned.second.physical[face].facet);
+            const double pieces=std::max(double(structure.prepared_pieces),
+                std::clamp(options.surface_tolerance>0?16*structure.control_deviation/options.surface_tolerance:1.,1.,1048576.));
+            preparation+=pieces*(1+std::log2(pieces));
+          }
+          geometry_cost+=preparation*demand;
+        }
+        if(!(std::isfinite(demand)&&std::isfinite(geometry_cost)))throw std::logic_error("Nonfinite phase workload estimate.");
+        costs.push_back(demand);geometry_costs.push_back(geometry_cost);local_demand+=demand;local_geometry+=geometry_cost;
+      }
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!vote(failure)||!within_time())return false;
+    const auto max_cost=CPassiveComm::Allreduce(costs.empty()?0:*std::max_element(costs.begin(),costs.end()),CPassiveComm::Op::MAX,world.comm);
+    const auto max_geometry=CPassiveComm::Allreduce(geometry_costs.empty()?0:*std::max_element(geometry_costs.begin(),geometry_costs.end()),CPassiveComm::Op::MAX,world.comm);
+    for(size_t i=0;i<costs.size();++i) {
+      weights.push_back(uint32_t(std::clamp(std::ceil(costs[i]/std::max(1.,max_cost)*MaximumPartitionWeight),1.,double(MaximumPartitionWeight))));
+      geometric.push_back(geometry_costs[i]>0?uint32_t(std::clamp(std::ceil(geometry_costs[i]/max_geometry*MaximumPartitionWeight),1.,double(MaximumPartitionWeight))):0);
+    }
+    const double demand_sum=CPassiveComm::Allreduce(local_demand,CPassiveComm::Op::SUM,world.comm);
+    const double demand_max=CPassiveComm::Allreduce(local_demand,CPassiveComm::Op::MAX,world.comm);
+    const double geometry_sum=CPassiveComm::Allreduce(local_geometry,CPassiveComm::Op::SUM,world.comm);
+    const double geometry_max=CPassiveComm::Allreduce(local_geometry,CPassiveComm::Op::MAX,world.comm);
+    const double imbalance=std::max(demand_sum?world.size*demand_max/demand_sum:1.,geometry_sum?world.size*geometry_max/geometry_sum:1.);
+    const double wall=std::chrono::duration<double>(Clock::now()-started).count();
+    // Conservative benefit proxy: remaining demand relative to observed attempted edits. The
+    // twofold hurdle acknowledges unknown placement, operator mix and destination cache locality.
+    const double attempts=CPassiveComm::Allreduce(double(stats.attempted),CPassiveComm::Op::SUM,world.comm);
+    const double remaining=wall*std::max(0.,demand_sum-CPassiveComm::Allreduce(double(working.size()),CPassiveComm::Op::SUM,world.comm))/std::max(1.,attempts);
+    const double estimate_seconds=CPassiveComm::Allreduce(world.seconds()-transition_started,CPassiveComm::Op::MAX,world.comm);
+    const double rebuild=CPassiveComm::Allreduce(stats.initialization_seconds+stats.seed_seconds,CPassiveComm::Op::MAX,world.comm);
+    double warming=0;
+    if(geometry_authority) {const auto cache=geometry_authority->GeometryStatsSnapshot();
+      warming=CPassiveComm::Allreduce(cache.scope_build_seconds/std::max<size_t>(1,cache.scope_builds)*cache.scope_entries,CPassiveComm::Op::MAX,world.comm);}
+    const double predicted_cost=estimate_seconds+rebuild+warming+stats.ownership_seconds;
+    const double predicted_gain=remaining*(1-1/std::max(1.,imbalance));
+    stats.ownership_predicted_gain+=predicted_gain;stats.ownership_predicted_cost+=predicted_cost;
+    const bool proceed=options.phase_ownership==PhaseOwnership::DiagnosticAlways || (imbalance>1.25 && predicted_gain>2*predicted_cost &&
+        (!options.maximum_seconds || 2*predicted_cost<options.maximum_seconds-wall));
+    if(options.timings)std::cout<<"NATIVE3D_PHASE_OWNERSHIP rank="<<world.rank<<" quality="<<quality<<" evaluate=1 migrate="<<proceed
+        <<" predicted_imbalance="<<imbalance<<" predicted_gain_seconds="<<predicted_gain<<" predicted_cost_seconds="<<predicted_cost
+        <<" estimate_seconds="<<estimate_seconds<<" rebuild_allowance="<<rebuild<<" warming_allowance="<<warming<<" uncertainty_factor=2"<<'\n';
+    if(!proceed){stats.ownership_seconds+=world.seconds()-transition_started;return true;}
+    Owned pending;std::vector<Id> pending_initial;std::unique_ptr<Directory> pending_directory;
+    Selection pending_selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance,options.wall_heights,bidirectional);
+    pending_selection.split_lanes=selection.split_lanes;pending_selection.lane=selection.lane;
+    pending_selection.track_splits=selection.track_splits;pending_selection.repair_epoch=selection.repair_epoch;
+    try {pending=working;pending_directory=std::make_unique<Directory>(world,true,geometry.Parameters());}
+    catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!vote(failure))return false;
+    PartitionStats partition;
+    const auto baseline=transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),scratch);
+    if(!within_time())return false;
+    const bool partitioned=Repartition(world,pending,weights,world.size,partition,result.reason,options.memory_ceiling,baseline,geometric);
+    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,partition.maximum_native_bytes);
+    if(!partitioned || !within_time())return false;
+    // Stage exact per-cell census certificates with their cells. Mathematical cache identity is
+    // retained; no geometry query, target recomposition or CFD projection occurs during migration.
+    std::vector<std::vector<Selection::CachedRow>> outgoing;
+    try {
+      outgoing.resize(world.size);size_t slot=0;
+      for(const auto& row:working) {
+        Selection::CachedRow record;record.id=row.first;record.state=selection.cells.at(row.first);
+        for(unsigned i=0;i<6;++i)record.lengths[i]=selection.edges.at(record.state.edges[i]).measure.length;
+        outgoing.at(partition.destinations.at(slot++)).push_back(std::move(record));
+      }
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!vote(failure))return false;
+    bool admitted=false;
+    const auto records=world.exchange(outgoing,&admitted,options.memory_ceiling,transfer_memory::Add(baseline,MapBytes(pending)));
+    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,world.max_exchange_work_bytes);
+    if(!admitted){result.reason="Native3D phase certificate migration exceeds memory admission.";return false;}
+    const auto pending_bytes=transfer_memory::Add(MapBytes(pending),transfer_memory::Bytes(records),transfer_memory::Bytes(outgoing),
+        transfer_memory::Mul(pending.size(),transfer_memory::Add(selection_bound(quality),sizeof(Id))));
+    if(!admit(transfer_memory::Add(scratch,pending_bytes)))return false;
+    if(!within_time())return false;
+    const bool built=pending_directory->Build(pending,result.reason,options.memory_ceiling,transfer_memory::Add(baseline,pending_bytes));
+    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,pending_directory->Statistics().maximum_work_bytes);
+    if(!built)return false;
+    try {
+      pending_initial.reserve(pending.size());
+      for(const auto& row:pending)pending_initial.push_back(row.first);
+      for(const auto& record:records)pending_selection.Restore(pending.at(record.id),record,field_identity);
+      if(records.size()!=pending.size())throw std::logic_error("Incomplete migrated phase census.");
+      pending_selection.ChangePhase(quality,pending,field_identity);
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!vote(failure))return false;
+    if(!within_time() || !observe_progress("ownership_staged"))return false;
+    // Every transaction scope ended before this call. Retire old phase claims and rejection
+    // queues together; new phase frontiers are rebuilt exactly once on the migrated ownership.
+    retire_directory(directory->Statistics());working.swap(pending);directory.swap(pending_directory);selection.SwapState(pending_selection);
+    inactive_blocked_edges.clear();inactive_blocked_links=0;length_blocks_dirty={{false,false}};
+    retired_edges.clear();campaign_edges.clear();
+    initial.swap(pending_initial);seed_slot=initial.size();
+    construction_claims=bidirectional&&!quality;
+    if(construction_claims)directory->BeginConstructionPass();
+    ++stats.ownership_changes;stats.ownership_moved_cells+=partition.moved_cells;
+    stats.maximum_owned=std::max(stats.maximum_owned,working.size());
+    const auto seconds=world.seconds()-transition_started;stats.ownership_seconds+=seconds;
+    if(options.timings)std::cout<<"NATIVE3D_PHASE_OWNERSHIP rank="<<world.rank<<" quality="<<quality<<" committed=1 moved_cells="<<partition.moved_cells
+        <<" total_seconds="<<seconds<<" partition_seconds="<<partition.total_seconds<<" directory_build_seconds="<<directory->Statistics().build_seconds
+        <<" work_before="<<partition.work_before.at(world.rank)<<" work_after="<<partition.work_after.at(world.rank)
+        <<" geometry_before="<<partition.geometry_before.at(world.rank)<<" geometry_after="<<partition.geometry_after.at(world.rank)
+        <<" directory_peak_bytes="<<directory->Statistics().maximum_work_bytes
+        <<" cells="<<working.size()<<" transition_peak_bytes="<<stats.maximum_work_bytes<<'\n';
+    return true;
+  };
   auto enter_phase=[&](Phase next) {
     if(bidirectional) {
       construction_claims=next==Phase::Construction;stats.split_lane=0;
@@ -2019,6 +2234,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const bool measured=measure(initial,false,nullptr);retired_edges.clear();
     if(!measured)return false;seed_slot=initial.size();
     if(!repairing)construction_entry_reported=true;
+    if(repairing && !phase_ownership(true))return false;
     return observe_progress(repairing?"quality_entry":"construction_entry");
   };
   auto discard_checkpoint=[&]() {
@@ -2265,6 +2481,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" maximum_length="<<maximum<<" size_hinge_incidence="<<progress.size_hinge_squared
           <<" geometry_bad_cells="<<progress.geometry_bad_cells<<" size_bad_cells="<<progress.size_bad_cells
           <<" q_measured_cells="<<progress.q_measured_cells<<" j_measured_cells="<<progress.j_measured_cells
+          <<" construction_stall_handoffs="<<stats.construction_stall_handoffs<<" maximum_parallel_split_commits="<<stats.maximum_parallel_split_commits
           <<" split_accepted="<<stats.length_splits<<" collapse_accepted="<<stats.length_collapses
           <<" atlas_work="<<atlas_budget.work<<" admitted_peak_bytes="<<stats.maximum_work_bytes
           <<" elapsed="<<std::chrono::duration<double>(Clock::now()-started).count()<<'\n';
@@ -2281,8 +2498,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(productive&&!progressing)++stats.construction_stall_handoffs;
         if(!enter_phase(Phase::Improvement))return finish();
       } else {
-        // Complete both length directions before the metric/BL-aware improvement stage.
-        if(!begin_length_generation(false))return finish();
+        // The major direction boundary is quiescent; no repartition is evaluated at lane/generation switches.
+        length_direction(false);directory->EndConstructionPass();
+        if(!phase_ownership(false) || !begin_length_generation(false))return finish();
       }
       continue;
     }
@@ -3977,6 +4195,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!vote(final_failure))return finish();
       const auto commits=CPassiveComm::Allreduce(uint64_t(approved),CPassiveComm::Op::SUM,world.comm);
       stats.maximum_parallel_commits=std::max(stats.maximum_parallel_commits,commits);
+
     }
     if(chosen && !approved && !pending_rejection.empty())result.reason=pending_rejection;
     std::vector<BoundaryParameterEdit> parameter_edits;
@@ -4068,6 +4287,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           transfer_memory::Add(real_bytes(),source.ResidentBytes(),MaximumFrozenFieldBytes),parameter_edits,approved?fresh.coverage:no_coverage,geometry.AtlasReservation());
     }
     if (!ready) return finish();
+    if(bidirectional&&phase==Phase::Construction&&!coarsening) {
+      const auto split_commits=CPassiveComm::Allreduce(uint64_t(approved),CPassiveComm::Op::SUM,world.comm);
+      stats.maximum_parallel_split_commits=std::max(stats.maximum_parallel_split_commits,split_commits);
+    }
     if(!removed.empty() || !added.empty())selection.progress_consistent=false;
     // A completed attempt is served once on every replica. Conflict/deferred candidates never
     // enter this receipt stream and retain their waiting age.

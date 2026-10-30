@@ -986,6 +986,7 @@ TEST_CASE("Productive construction services descendant generations before qualit
 }
 
 TEST_CASE("Interior split lane services neighboring entry edges without construction claims", "[NativeConstructionSweep3D][NativeSplitLanes3D]") {
+  const auto batch=GENERATE(size_t(1),MaximumCandidateBatch);
   World world;const auto seed=Box();const PlanarReference geometry(seed.facets);Fixture fixture;fixture.facets=seed.facets;
   constexpr unsigned n=3,side=n+1;Id next=0;
   for(unsigned z=0;z<n;++z)for(unsigned y=0;y<n;++y)for(unsigned x=0;x<n;++x)for(const auto& base:seed.patch.cells) {
@@ -1007,7 +1008,8 @@ TEST_CASE("Interior split lane services neighboring entry edges without construc
   bool entry_seen=false,exit_seen=false,unmeasured=true;
   auto collect=[](const Owned& cells){std::set<Edge> edges;for(const auto& row:cells){const auto& v=row.second.cell.v;
     for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){Edge e{v[i].id,v[j].id};std::sort(e.begin(),e.end());edges.insert(e);}}return edges;};
-  EngineOptions options;options.maximum_work=4096;options.maximum_rounds=512;options.candidate_batch=1;
+  EngineOptions options;options.maximum_work=4096;options.maximum_rounds=512;options.candidate_batch=batch;
+  options.phase_ownership=PhaseOwnership::Disabled;
   options.stage_observer_bytes=size_t(1)<<20;
   options.stage_observer=[&](const StageProgressView& view){
     if(view.phase==EnginePhase::Construction)unmeasured &= view.progress.q_measured_cells==0 && view.progress.j_measured_cells==0;
@@ -1021,6 +1023,7 @@ TEST_CASE("Interior split lane services neighboring entry edges without construc
   bool neighboring=false;for(size_t i=0;i<serviced.size();++i)for(size_t j=0;j<i;++j)
     neighboring=neighboring||serviced[i][0]==serviced[j][0]||serviced[i][0]==serviced[j][1]||serviced[i][1]==serviced[j][0]||serviced[i][1]==serviced[j][1];
   CHECK(neighboring);CHECK(result.stats.interior_rounds>0);
+  if(batch>1 && world.size>=3)CHECK(result.stats.maximum_parallel_split_commits>=2);
 }
 
 TEST_CASE("Native MPI refinement preserves accepted input on incomplete or invalid events", "[NativeDistributed3D]") {
@@ -4176,9 +4179,12 @@ TEST_CASE("Independent quality stars commit concurrently with final strict accep
   }
 }
 
-TEST_CASE("Metric adaptation resolves opposing length demands before shape census", "[NativeBidirectionalLength3D]") {
+TEST_CASE("Metric adaptation resolves opposing length demands before shape census", "[NativeBidirectionalLength3D][NativePhaseOwnership3D]") {
   const bool composed=GENERATE(false,true);
+  const bool migrate=GENERATE(false,true);
   World world; Fixture fixture; Owned input;
+  const bool reject_transition=migrate&&world.size>1?GENERATE(false,true):false;
+  std::vector<char> staged_cells;bool staged_rejection=false;
   auto append=[&](Fixture piece,Id offset,double shift,int owner) {
     for(auto& c:piece.patch.cells){c.id+=offset;for(auto& n:c.v){n.id+=offset;n.p.x+=shift;}}
     for(auto& f:piece.patch.surface){f.facet+=offset;for(auto& id:f.v)id+=offset;}
@@ -4204,13 +4210,18 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
   uint64_t splits_before_quality=0,collapses_before_quality=0,parallel_before_quality=0;
   bool quality_after_pair=true;std::vector<std::string> length_passes;
   EngineOptions options;options.maximum_work=4096;options.stagnation_window=1;
+  options.phase_ownership=migrate?PhaseOwnership::DiagnosticAlways:PhaseOwnership::Disabled;
   unsigned failure_captures=0;
   options.transaction_observer=[&](const TransactionView& view) {
     ++failure_captures;CHECK(view.selected);CHECK_FALSE(view.passed);CHECK_FALSE(view.old.cells.empty());
     CHECK(std::string(view.stage).find("first_")==0);
   };
   if(composed)options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
+  options.stage_observer_bytes=size_t(1)<<20;
   options.stage_observer=[&](const StageProgressView& view){
+    if(reject_transition && std::string(view.stage)=="ownership_staged") {
+      staged_cells=Bytes(view.working);staged_rejection=true;throw std::runtime_error("injected staged ownership refusal");
+    }
     if(view.phase==EnginePhase::Improvement && !quality_seen) {
       quality_after_pair=view.stats.length_split_passes>=1 && view.stats.length_collapse_passes==1;
       quality_seen=true;splits_before_quality=view.stats.length_splits;collapses_before_quality=view.stats.length_collapses;
@@ -4227,6 +4238,11 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
   };
   MetricComposition composition;if(composed)composition=[](Point,Tensor sensor){return sensor;};
   const auto result=AdaptMetric(world,input,source,geometry,composition,options);INFO(result.reason);
+  if(reject_transition) {
+    CHECK_FALSE(result.valid);CHECK(staged_rejection);CHECK(result.stats.ownership_changes==0);
+    CHECK(result.reason.find("injected staged ownership refusal")!=std::string::npos);
+    CHECK(Bytes(result.cells)==staged_cells);CHECK(Bytes(input)==saved);CHECK(donorBytes(source)==donorBytes(source_saved));return;
+  }
   CHECK(world.maximum(!quality_after_pair)==0);
   CHECK(result.stats.bidirectional);CHECK(result.stats.length_split_passes>0);CHECK(result.stats.length_collapse_passes>0);
   CHECK(world.sum(result.stats.length_splits)>0);CHECK(world.sum(result.stats.length_collapses)>0);
@@ -4241,6 +4257,10 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
   CHECK(Bytes(input)==saved);CHECK(donorBytes(source)==donorBytes(source_saved));
   EngineReport(result,world,"bidirectional_lengths");
   REQUIRE(result.valid);
+  if(migrate && world.size>1) {
+    CHECK(result.stats.ownership_evaluations==2);CHECK(result.stats.ownership_changes==2);
+    CHECK(world.sum(result.stats.ownership_moved_cells)>0);
+  } else CHECK(result.stats.ownership_changes==0);
   for(const auto& row:result.cells){const auto& c=row.second.cell;
     CHECK(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0);
     const Tensor m=c.v[0].p.x<2?Tensor{4,0,0,4,0,4}:Tensor{.25,0,0,.25,0,.25};

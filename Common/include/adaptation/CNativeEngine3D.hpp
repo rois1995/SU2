@@ -12,6 +12,7 @@ namespace SU2Native3D {
 constexpr double CoarseningMetricEdge = .9;  // Frozen candidate hysteresis; final upper/shape gates remain strict.
 constexpr size_t MaximumCandidateBatch = 8;
 enum class EnginePhase { Construction, Improvement };
+enum class PhaseOwnership { Automatic, Disabled, DiagnosticAlways };
 struct EngineStats;
 /*! Rank-local owned-cell diagnostics. Sums cover measured cells only; completeness/counts must
  * accompany them. Edge debt counts all six cell incidences, not unique global edges. */
@@ -36,7 +37,7 @@ struct StageProgress {
  * `valid` is final acceptance only; `complete` means all diagnostic channels are measured.
  * Function objects are borrowed rebuilding context, not a serializable field specification. */
 struct StageProgressView {
-  const char* stage;  // construction_entry, length_split_exit, length_collapse_exit, quality_entry, window, exit
+  const char* stage;  // construction_entry, length_split_exit, length_collapse_exit, quality_entry, ownership_staged, window, exit
   EnginePhase phase;
   uint64_t round;
   bool valid,complete;
@@ -91,6 +92,7 @@ struct EngineOptions {
   std::function<void(const TransactionView&)> transaction_observer;
   std::function<void(const StageProgressView&)> stage_observer;
   size_t stage_observer_bytes=0;  // Additional observer storage reserved in every runtime admission while installed.
+  PhaseOwnership phase_ownership=PhaseOwnership::Automatic;  // DiagnosticAlways exercises migration without a profitability veto.
   bool timings = false;
   size_t candidate_batch = MaximumCandidateBatch;  // Internal control for paired correctness/work comparisons.
 };
@@ -119,13 +121,15 @@ struct EngineStats {
   // 0: legacy/mixed, 1: surface split lane, 2: interior split lane.
   unsigned split_lane=0;
   uint64_t split_generation=0,surface_rounds=0,interior_rounds=0,interior_boundary_discoveries=0;
-  uint64_t surface_conflicts=0,interior_conflicts=0,construction_stall_handoffs=0;
+  uint64_t surface_conflicts=0,interior_conflicts=0,construction_stall_handoffs=0,maximum_parallel_split_commits=0;
   uint64_t child_ratio_measured=0;
   double surface_seconds=0,interior_seconds=0,maximum_child_parent_ratio=0;
   uint64_t unique_long_surface=0,unique_long_interior=0;
   double unique_edge_debt=0,maximum_edge=0;
   std::array<uint64_t,3> edge_histogram{};
   uint64_t length_split_passes=0,length_collapse_passes=0,length_splits=0,length_collapses=0,length_pass_deferred=0,length_expansion_deferrals=0;
+  uint64_t ownership_evaluations=0,ownership_changes=0,ownership_moved_cells=0;
+  double ownership_seconds=0,ownership_predicted_gain=0,ownership_predicted_cost=0;
   uint64_t quality_stages=0,construction_returns=0;  // Fresh strict censuses and size/geometry returns within this event.
   uint64_t region_field_points=0,region_field_sensor_hits=0,region_field_interior_hits=0;
   uint64_t region_field_edges=0,region_field_edge_hits=0,region_field_imports=0;

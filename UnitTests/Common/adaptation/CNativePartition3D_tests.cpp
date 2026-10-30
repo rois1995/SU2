@@ -83,6 +83,20 @@ TEST_CASE("Native tetrahedral weights preserve sensor volume and compose every a
   for(auto& d:source)d.sensor.fill({1,0,0,1,0,1e12});FrozenField fine(source);
   for(auto weight:WorkWeights(cells,fine))CHECK(weight==MaximumPartitionWeight);
 }
+TEST_CASE("Native vertex-star census returns exact global incidence atomically", "[NativeDistributed3D][NativePartition3D]") {
+  World world;const auto all=Grid(1);std::map<Id,uint64_t> expected;
+  for(const auto& row:all)for(const auto& node:row.second.cell.v)++expected[node.id];
+  for(int layout:{0,1,2}) {
+    const auto input=Layout(all,world,layout);std::set<Id> local_vertices;
+    for(const auto& row:input)for(const auto& node:row.second.cell.v)local_vertices.insert(node.id);
+    std::map<Id,uint64_t> output{{UINT64_MAX,77}};std::string reason;
+    REQUIRE(VertexStarSizes(world,input,output,reason));CHECK(reason.empty());CHECK(output.size()==local_vertices.size());
+    for(Id vertex:local_vertices)CHECK(output.at(vertex)==expected.at(vertex));
+  }
+  const auto input=Layout(all,world,0);std::map<Id,uint64_t> unchanged{{123456,789}};const auto saved=unchanged;
+  std::string reason;CHECK_FALSE(VertexStarSizes(world,input,unchanged,reason,1));
+  CHECK(unchanged==saved);CHECK_FALSE(reason.empty());
+}
 TEST_CASE("Native tetrahedral partition migrates two constraints with atomic records and explicit worlds", "[NativeDistributed3D][NativePartition3D]") {
   World world;const auto all=Grid(4);
   for(int layout:{0,1,2}) for(int parts:std::set<int>{1,world.size,std::max(1,world.size-1),std::max(1,world.size/2)}) {

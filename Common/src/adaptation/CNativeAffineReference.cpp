@@ -16,6 +16,7 @@
 #include <numeric>
 #include <chrono>
 #include <queue>
+#include <list>
 #include <type_traits>
 namespace SU2NativeGeometry {
 namespace {
@@ -892,9 +893,44 @@ struct MappedFacetReference::CurvedSearch {
   std::map<Id,Entry> entries;
   std::mutex mutex; // House ADT traversal buffers are shared by concurrent non-OpenMP callers.
   std::mutex prepared_mutex;
-  std::map<std::pair<Id,uint64_t>,std::shared_ptr<PreparedFacet>> prepared;
-  std::map<std::vector<uint64_t>,std::shared_ptr<PreparedFacet>> scopes;
-  size_t prepared_limit=0,prepared_bytes=0;
+  template<class Key> struct Pool {
+    struct Entry {std::shared_ptr<PreparedFacet> data;size_t bytes=0,work=0;unsigned credit=0;};
+    std::map<Key,Entry> values;
+    std::list<Key> clock;
+    size_t bytes=0,evictions=0,evicted_bytes=0;
+    std::shared_ptr<PreparedFacet> Find(const Key& key) {
+      auto it=values.find(key);if(it==values.end())return {};
+      auto& e=it->second;
+      // Reuse earns bounded protection proportional to reconstruction work per retained byte.
+      e.credit=1+std::min<size_t>(3,e.work/(1+e.bytes/64));return e.data;
+    }
+    bool Retain(const Key& key,const std::shared_ptr<PreparedFacet>& data,size_t size,size_t work,size_t limit,AtlasOps& op) {
+      if(size>limit)return false;
+      // Bounded clock work: cold scopes cannot permanently occupy a full pool. An active
+      // shared reference pins its allocation and accounting until a later query can evict it.
+      size_t scans=std::min<size_t>(64,clock.size()*5);
+      while(transfer_memory::Add(bytes,size)>limit && scans-- && !clock.empty()) {
+        op.Work();auto first=clock.begin();auto found=values.find(*first);auto& e=found->second;
+        if(e.data.use_count()!=1 || e.credit) {if(e.credit)--e.credit;clock.splice(clock.end(),clock,first);continue;}
+        bytes-=e.bytes;evicted_bytes+=e.bytes;++evictions;values.erase(found);clock.erase(first);
+      }
+      if(transfer_memory::Add(bytes,size)>limit)return false;
+      // Allocate metadata before publication; failure leaves existing entries/accounting coherent.
+      op.Work();clock.push_back(key);
+      try {values.emplace(key,Entry{data,size,work,0});}catch(...){clock.pop_back();throw;}
+      bytes+=size;return true;
+    }
+  };
+  Pool<std::pair<Id,uint64_t>> prepared;
+  Pool<std::vector<uint64_t>> scopes;
+  size_t prepared_limit=0;
+  size_t Bytes()const{return transfer_memory::Add(prepared.bytes,scopes.bytes);}
+  void Snapshot(GeometryStats& stats)const {
+    stats.prepared_limit=prepared_limit;stats.prepared_bytes=Bytes();
+    stats.facet_bytes=prepared.bytes;stats.scope_bytes=scopes.bytes;
+    stats.facet_entries=prepared.values.size();stats.scope_entries=scopes.values.size();
+    stats.evictions=prepared.evictions+scopes.evictions;stats.evicted_bytes=prepared.evicted_bytes+scopes.evicted_bytes;
+  }
 };
 namespace {
 struct CurvedQueryRegion {Id facet;std::array<Point,3> parameter;double lower,clearance;unsigned depth;};
@@ -1097,7 +1133,13 @@ MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::Pl
       const auto available=resident<ceiling?ceiling-resident:0;
       curved_search->prepared_limit=SurfaceQueryStorageBytes(curves.size(),
           ceiling==SIZE_MAX?std::min(available,size_t(1)<<24):available);
-    } else curved_search->prepared_limit=SurfaceQueryStorageBytes(curves.size(),query_cache_bytes);
+    } else {
+      // The host quota includes the separately reserved answer memo as well as prepared pools.
+      const auto memo=face_memo?FaceMemoBytes():0;
+      curved_search->prepared_limit=query_cache_bytes>memo?query_cache_bytes-memo:0;
+      if(query_cache_bytes<memo)face_memo.reset();
+      if(!face_memo)curved_search->prepared_limit=query_cache_bytes;
+    }
     geometry_stats->value.prepared_limit=curved_search->prepared_limit;
   }
 }
@@ -1516,8 +1558,15 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
   return result;
 }
 MappedFacetReference::GeometryStats MappedFacetReference::GeometryStatsSnapshot(bool reset)const {
-  std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto value=geometry_stats->value;
-  if(reset){geometry_stats->value={};geometry_stats->value.prepared_bytes=value.prepared_bytes;geometry_stats->value.prepared_limit=value.prepared_limit;}
+  std::unique_lock<std::mutex> prepared;
+  if(curved_search)prepared=std::unique_lock<std::mutex>(curved_search->prepared_mutex);
+  std::lock_guard<std::mutex> lock(geometry_stats->mutex);
+  if(curved_search)curved_search->Snapshot(geometry_stats->value);
+  auto value=geometry_stats->value;
+  if(reset){geometry_stats->value={};geometry_stats->value.prepared_bytes=value.prepared_bytes;geometry_stats->value.prepared_limit=value.prepared_limit;
+    geometry_stats->value.facet_bytes=value.facet_bytes;geometry_stats->value.scope_bytes=value.scope_bytes;
+    geometry_stats->value.facet_entries=value.facet_entries;geometry_stats->value.scope_entries=value.scope_entries;
+    geometry_stats->value.evictions=value.evictions;geometry_stats->value.evicted_bytes=value.evicted_bytes;}
   return value;
 }
 void MappedFacetReference::RecordDirectQuery(double seconds,size_t work,bool failed)const {
@@ -1530,7 +1579,7 @@ MappedFacetReference::FacetStructure MappedFacetReference::StructuralEstimate(Id
   out.chord_size=std::max({distance(a,b),distance(b,c),distance(c,a)});const auto net=curves.find(facet);out.curved=net!=curves.end();
   if(out.curved)for(unsigned q=0;q<10;++q){Vec linear{};for(unsigned d=0;d<3;++d)linear[d]=(CubicIndex[q][0]*a[d]+CubicIndex[q][1]*b[d]+CubicIndex[q][2]*c[d])/3.;
     out.control_deviation=std::max(out.control_deviation,distance(Values(net->second[q]),linear));}
-  if(curved_search){std::lock_guard<std::mutex> lock(curved_search->prepared_mutex);for(auto it=curved_search->prepared.lower_bound({facet,0});it!=curved_search->prepared.end()&&it->first.first==facet;++it)out.prepared_pieces=std::max(out.prepared_pieces,it->second->triangles.size());}
+  if(curved_search){std::lock_guard<std::mutex> lock(curved_search->prepared_mutex);for(auto it=curved_search->prepared.values.lower_bound({facet,0});it!=curved_search->prepared.values.end()&&it->first.first==facet;++it)out.prepared_pieces=std::max(out.prepared_pieces,it->second.data->triangles.size());}
   return out;
 }
 MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion(
@@ -1629,11 +1678,11 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     std::memcpy(&tolerance_bits,&tolerance,sizeof tolerance_bits);
     const auto words=transfer_memory::Add(facets.size(),2);op.Work(words);
     std::vector<uint64_t> scope;scope.reserve(words);scope.push_back(tolerance_bits);scope.push_back(resolution_bits);scope.insert(scope.end(),facets.begin(),facets.end());
-    const auto cached=curved_search->scopes.find(scope);
+    const auto cached=curved_search->scopes.Find(scope);
     {std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
-      stats.prepared_limit=curved_search->prepared_limit;stats.prepared_bytes=curved_search->prepared_bytes;
-      if(cached!=curved_search->scopes.end())++stats.scope_hits;else ++stats.scope_misses;}
-    if(cached!=curved_search->scopes.end())prepared_model=cached->second;
+      curved_search->Snapshot(stats);
+      if(bool(cached))++stats.scope_hits;else ++stats.scope_misses;}
+    if(bool(cached))prepared_model=cached;
     else {
       struct BuildReceipt {
         GeometryStatsState& stats;AtlasBudget& budget;size_t work;std::chrono::steady_clock::time_point start;bool success=false;
@@ -1643,17 +1692,16 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       const auto caller=budget.caller_bytes;
       std::vector<std::shared_ptr<CurvedSearch::PreparedFacet>> retained_models;retained_models.reserve(facets.size());
       for(Id facet:facets) {
-        op.Work();const auto key=std::make_pair(facet,resolution_bits);const auto found=curved_search->prepared.find(key);
+        op.Work();const auto key=std::make_pair(facet,resolution_bits);const auto found=curved_search->prepared.Find(key);
         std::shared_ptr<CurvedSearch::PreparedFacet> data;
-        {std::lock_guard<std::mutex> lock(geometry_stats->mutex);if(found!=curved_search->prepared.end())++geometry_stats->value.facet_hits;else ++geometry_stats->value.facet_misses;}
-        if(found!=curved_search->prepared.end())data=found->second;
+        {std::lock_guard<std::mutex> lock(geometry_stats->mutex);if(bool(found))++geometry_stats->value.facet_hits;else ++geometry_stats->value.facet_misses;}
+        if(bool(found))data=found;
         else {
-          const auto leaf_caller=budget.caller_bytes;op.Storage(sizeof(CurvedSearch::PreparedFacet)+2*sizeof(void*));
+          const auto leaf_work=budget.work;const auto leaf_caller=budget.caller_bytes;op.Storage(sizeof(CurvedSearch::PreparedFacet)+2*sizeof(void*));
           data=std::make_shared<CurvedSearch::PreparedFacet>();prepare_facet(facet,data->triangles);
-          const auto bytes=data->Bytes();budget.caller_bytes=leaf_caller;op.Storage(bytes);
-          if(transfer_memory::Add(curved_search->prepared_bytes,bytes)<=curved_search->prepared_limit) {
-            curved_search->prepared.emplace(key,data);curved_search->prepared_bytes=transfer_memory::Add(curved_search->prepared_bytes,bytes);
-          } else budget.caller_bytes=transfer_memory::Add(leaf_caller,bytes);
+          const auto bytes=transfer_memory::Add(data->Bytes(),256);budget.caller_bytes=leaf_caller;op.Storage(bytes);
+          const bool retain=curved_search->prepared.Retain(key,data,bytes,budget.work-leaf_work,curved_search->prepared_limit/2,op);
+          if(!retain)budget.caller_bytes=transfer_memory::Add(leaf_caller,bytes);
         }
         model_pieces=transfer_memory::Add(model_pieces,data->triangles.size());retained_models.push_back(std::move(data));
       }
@@ -1664,15 +1712,14 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       // Joint footprints retain coverage across original seams; the exact scope/tolerance fixes their identity.
       prepared_model->target=std::make_unique<TriangleUnion>(prepared_model->triangles,op,tolerance);
       retained_models.clear();budget.caller_bytes=caller;
-      const auto bytes=transfer_memory::Add(prepared_model->Bytes(),transfer_memory::Mul(scope.capacity(),sizeof(uint64_t)));op.Storage(bytes);
-      const bool retain=transfer_memory::Add(curved_search->prepared_bytes,bytes)<=curved_search->prepared_limit;
+      const auto bytes=transfer_memory::Add(prepared_model->Bytes(),transfer_memory::Mul(scope.capacity(),2*sizeof(uint64_t)),256);op.Storage(bytes);
+      const bool retain=curved_search->scopes.Retain(scope,prepared_model,bytes,budget.work-receipt.work,
+          curved_search->prepared_limit-curved_search->prepared_limit/2,op);
       if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_SCOPE facets=%zu pieces=%zu bytes=%zu retained=%d work=%zu\n",
           facets.size(),model_pieces,bytes,int(retain),budget.work);
-      if(retain) {
-        curved_search->scopes.emplace(std::move(scope),prepared_model);curved_search->prepared_bytes=transfer_memory::Add(curved_search->prepared_bytes,bytes);
-      } else budget.caller_bytes=transfer_memory::Add(caller,bytes);
+      if(!retain)budget.caller_bytes=transfer_memory::Add(caller,bytes);
       {std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
-        stats.retention_refusals+=!retain;stats.prepared_bytes=curved_search->prepared_bytes;}receipt.success=true;
+        stats.retention_refusals+=!retain;curved_search->Snapshot(stats);}receipt.success=true;
     }
     model_pieces=prepared_model->triangles.size();
   } else if(include_mesh) {
@@ -1680,7 +1727,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(model.capacity(),sizeof(UnionTriangle)));
   }
   if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_MODEL pieces=%zu prepared=%zu work=%zu\n",model_pieces,
-      prepared_model?curved_search->prepared_bytes:0,budget.work);
+      prepared_model?curved_search->Bytes():0,budget.work);
   std::unique_ptr<TriangleUnion> mesh_union,model_union;
   if(include_model)mesh_union=std::make_unique<TriangleUnion>(flat,op,tolerance);
   if(include_mesh && !prepared_model)model_union=std::make_unique<TriangleUnion>(model,op,tolerance);

@@ -12,7 +12,7 @@
 #include <cmath>
 #include <numeric>
 namespace SU2Native3D {
-std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,const std::function<FieldSample(Point)>& query) {
+std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,const std::function<FieldSample(Point)>& query,PartitionWorkPhase phase) {
   if (cells.size() > MaximumReplacementCells) throw std::invalid_argument("Native 3D weight sample batch exceeds budget.");
   std::vector<uint32_t> result;
   result.reserve(cells.size());
@@ -21,15 +21,15 @@ std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,const std::func
     if (!(Orientation(tet[0], tet[1], tet[2], tet[3]) > 0))
       throw std::invalid_argument("Native 3D work estimate requires positive cells.");
     const auto center = query(Centroid(cell));
-    long double work = 1 + MetricDensity(center.sensor)*TetrahedronVolume(tet)*6*std::sqrt(2.L);
+    long double work = 1 + (phase==PartitionWorkPhase::Coarsening ? 0 : MetricDensity(center.sensor)*TetrahedronVolume(tet)*6*std::sqrt(2.L));
     std::array<Tensor, 4> nodal;
     for (size_t i = 0; i < 4; ++i) nodal[i] = query(cell.v[i].p).target;
     for (size_t i = 0; i < 4; ++i) for (size_t j = i + 1; j < 4; ++j) {
       const auto a = cell.v[i].p, b = cell.v[j].p;
       const auto length = std::max({MetricNorm(a, b, center.target), MetricNorm(a, b, nodal[i]), MetricNorm(a, b, nodal[j])});
       if (!(length > 0)) throw std::invalid_argument("Native 3D work estimate has a zero metric edge.");
-      work += std::max(0.L, std::log2(length / MaximumMetricEdge));
-      work += std::max(0.L, std::log2(static_cast<long double>(CoarseningMetricEdge) / length));
+      if(phase!=PartitionWorkPhase::Coarsening)work += std::max(0.L, std::log2(length / MaximumMetricEdge));
+      if(phase!=PartitionWorkPhase::Splitting)work += std::max(0.L, std::log2(static_cast<long double>(CoarseningMetricEdge) / length));
     }
     if (!(std::isfinite(work) && work > 0)) throw std::runtime_error("Unrepresentable native 3D work estimate.");
     // shortcut: static operation-demand proxy; calibrate only against recorded tetrahedral rank costs.
@@ -37,8 +37,8 @@ std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,const std::func
   }
   return result;
 }
-std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,FrozenField& field) {
-  return WorkWeights(cells,[&](Point p){return field.Query(p);});
+std::vector<uint32_t> WorkWeights(const std::vector<Cell>& cells,FrozenField& field,PartitionWorkPhase phase) {
+  return WorkWeights(cells,[&](Point p){return field.Query(p);},phase);
 }
 namespace {
 struct RankWork {
@@ -62,6 +62,10 @@ struct WeightedCell {
   uint32_t weight = 0, geometry = 0;
   template <class S> void Fields(S& s) { s(cell, weight, geometry); }
 };
+struct VertexCount {
+  Id vertex=0;uint64_t cells=0;int rank=0;
+  template<class S>void Fields(S& s){s(vertex,cells,rank);}
+};
 #if defined(HAVE_MPI) && defined(HAVE_PARMETIS)
 using GraphIndex = idx_t;
 #else
@@ -83,6 +87,70 @@ int Parity(Face f) {
 }
 size_t MapBytes(size_t n) { return transfer_memory::Mul(n, sizeof(Owned::value_type) + 4 * sizeof(void*)); }
 }  // namespace
+bool VertexStarSizes(World& world,const Owned& input,std::map<Id,uint64_t>& output,std::string& reason,
+                     size_t ceiling,size_t caller_bytes,size_t* maximum_bytes) {
+  auto map_bytes=[](const std::map<Id,uint64_t>& rows){return transfer_memory::Mul(rows.size(),sizeof(std::pair<const Id,uint64_t>)+4*sizeof(void*));};
+  auto peak=[&](size_t bytes){if(maximum_bytes)*maximum_bytes=std::max(*maximum_bytes,bytes);};
+  CLocalFailure failure;auto vote=[&](){const auto elected=world.elect(failure);reason=elected.message;return !elected.any;};
+  auto admit=[&](size_t bytes){peak(bytes);if(bytes==SIZE_MAX||bytes>ceiling)failure.Set(3,0,"Native 3D vertex-star census exceeds storage budget.");return vote();};
+  const size_t fixed=transfer_memory::Add(caller_bytes,MapBytes(input.size()),map_bytes(output),
+      transfer_memory::Mul(world.size,2*sizeof(std::vector<VertexCount>)));
+  const size_t maximum_local=transfer_memory::Mul(input.size(),4);
+  if(!admit(transfer_memory::Add(fixed,transfer_memory::GrowthBound(maximum_local,
+      sizeof(std::pair<const Id,uint64_t>)+4*sizeof(void*)))))return false;
+  std::map<Id,uint64_t> local;
+  try {for(const auto& row:input)for(const auto& node:row.second.cell.v) {
+      auto& count=local[node.id];if(count==UINT64_MAX)throw std::overflow_error("Native 3D vertex-star count overflow.");++count;
+    }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!vote())return false;
+  const uint64_t total_rows=CPassiveComm::Allreduce(uint64_t(local.size()),CPassiveComm::Op::SUM,world.comm);
+  const auto local_bytes=map_bytes(local);
+  if(!admit(transfer_memory::Add(fixed,local_bytes,transfer_memory::GrowthBound(local.size(),sizeof(VertexCount)),
+      transfer_memory::Mul(world.size,3*sizeof(std::vector<VertexCount>)),transfer_memory::GrowthBound(total_rows,3*sizeof(VertexCount)))))return false;
+  std::vector<std::vector<VertexCount>> outgoing;
+  try {outgoing.resize(world.size);for(const auto& row:local)outgoing[row.first%world.size].push_back({row.first,row.second,world.rank});}
+  catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!vote())return false;
+  bool admitted=false;auto received=world.exchange(outgoing,&admitted,ceiling,transfer_memory::Add(fixed,local_bytes));
+  peak(world.max_exchange_work_bytes);
+  if(!admitted)failure.Set(3,0,"Native 3D vertex-star rendezvous exchange exceeds storage budget.");
+  if(!vote())return false;
+  std::sort(received.begin(),received.end(),[](const auto& a,const auto& b){return std::tie(a.vertex,a.rank)<std::tie(b.vertex,b.rank);});
+  std::vector<std::vector<VertexCount>> replies;
+  if(!admit(transfer_memory::Add(fixed,local_bytes,transfer_memory::Bytes(outgoing),transfer_memory::Bytes(received),
+      transfer_memory::GrowthBound(received.size(),sizeof(VertexCount)),transfer_memory::Mul(world.size,sizeof(std::vector<VertexCount>)),
+      transfer_memory::GrowthBound(received.size(),sizeof(VertexCount)))))return false;
+  try {
+    replies.resize(world.size);
+    for(size_t first=0;first<received.size();) {
+      size_t last=first+1;uint64_t total=received[first].cells;
+      while(last<received.size()&&received[last].vertex==received[first].vertex){
+        if(received[last].rank==received[last-1].rank)throw std::invalid_argument("Duplicate publisher in native vertex-star census.");
+        if(UINT64_MAX-total<received[last].cells)throw std::overflow_error("Native 3D global vertex-star count overflow.");
+        total+=received[last].cells;++last;
+      }
+      for(size_t i=first;i<last;++i)replies.at(received[i].rank).push_back({received[i].vertex,total,world.rank});
+      first=last;
+    }
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!vote())return false;
+  auto returned=world.exchange(replies,&admitted,ceiling,transfer_memory::Add(fixed,local_bytes,
+      transfer_memory::Bytes(outgoing),transfer_memory::Bytes(received),transfer_memory::Bytes(replies)));
+  peak(world.max_exchange_work_bytes);
+  if(!admitted)failure.Set(3,0,"Native 3D vertex-star return exchange exceeds storage budget.");
+  if(!vote())return false;
+  std::map<Id,uint64_t> pending;
+  if(!admit(transfer_memory::Add(fixed,local_bytes,transfer_memory::Bytes(outgoing),transfer_memory::Bytes(received),
+      transfer_memory::Bytes(replies),transfer_memory::Bytes(returned),map_bytes(local))))return false;
+  try {for(const auto& row:returned) {
+      if(!local.count(row.vertex)||!row.cells)throw std::invalid_argument("Unexpected returned native 3D vertex-star key/count.");
+      if(!pending.emplace(row.vertex,row.cells).second)throw std::invalid_argument("Duplicate returned native 3D vertex-star count.");
+    }
+    if(pending.size()!=local.size())throw std::invalid_argument("Incomplete returned native 3D vertex-star census.");
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!vote())return false;
+  output.swap(pending);reason.clear();return true;
+}
 bool Repartition(World& world, Owned& input, const std::vector<uint32_t>& weights, int parts, PartitionStats& stats,
                  std::string& reason, size_t ceiling, size_t caller_bytes, const std::vector<uint32_t>& geometry_weights) {
   const double started = world.seconds();
