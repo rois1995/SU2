@@ -795,3 +795,28 @@ checks. Captured M6 cold query falls2.314s→.07355s and changed-coordinate warm
 2.253s→.003861s, with valid bounds below1e-4. Build and serial19cases5199assertions
 plus MPI2 publication/reload/construction pass. Full M6 remains the capability
 acceptance target; query speedups and source proofs do not establish its success.
+
+### Steady M6 metric output provenance — 2026-10-30
+
+In `SU2_CFD/src/drivers/CSinglezoneDriver.cpp`, `RunAdaptationLoop` runs a solve
+on cycle k, consumes that solve's metric directly for remesh event k+1, transfers
+the solution, and writes the accepted mesh and native reference. Within
+`RunTimeLoop`, `Postprocess` computes the metric before `Output`. The metric
+components written by `SU2_CFD/src/output/CFlowOutput.cpp` come from the current
+flow nodes; `COutput::SetAdaptationCycle` assigns cycle-specific output names.
+Accordingly, the final cycle-0 output supplies the donor metric for event 1;
+`restart_flow_adap_00001.dat` contains the cycle-1 solve's metric for event 2,
+not the frozen target used to accept mesh 1. The cycle-2 output metric follows
+the solve on mesh 2 and is not the event-2 acceptance target. Verify the actual
+output timing and file provenance before using any particular artifact.
+
+`Common/src/adaptation/CNativeRemesher3D.cpp` returns the original P1 sensor in
+`CReaderSlices` on the new mesh, but `WriteAdaptedMesh` publishes the mesh and
+native reference, not an independently persisted frozen event metric. Engine
+metric queries and any geometric composition also matter: a generic nodal
+interpolation is not automatically an equivalent independent size check. Do not
+apply a final size cap to mesh 1 or 2 using the same-numbered restart metric as
+if it were that mesh's acceptance target. Use the native final q/J/size gates
+and their provenance, or independently capture or reconstruct the exact target
+and its evaluation. Build146 is running; no accepted M6 event or independent
+metric gate is established by this audit.

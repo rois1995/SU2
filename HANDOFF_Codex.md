@@ -111,7 +111,12 @@ population from operator cost. Validate any SU2-specific modifications separatel
   this is local query evidence, not an accepted mesh. Prior145 MPI2 publication/
   reload evidence covers unchanged parallel/cache machinery; actual MPI6 is required.
   Full two-event M6 is active at staged57/m6_runs/euler_build146_upper_guidance
-  (driver3719860, time3720009; current handles in status/resources).
+  (driver3719860, time3720009; current handles in status/resources). At3145s a
+  rank0 snapshot showed16051 global work,494 private collapses,328 private splits,
+  one collapse/split pass and one quality stage. This remains private progress,
+  not an accepted mesh or transfer; strict final acceptance and CFD → mesh → CFD →
+  mesh still required. Evidence: staged57/146_progress_quality.json. Root/tmp
+  pressure was relieved using a preserved archive on4TB; the run was uninterrupted.
   Prior145 was deliberately stopped3701s for upper-only over-certification cost;
   pins verified/all handles terminal. At3333s:4161globalwork,494rank0 collapses,
   no complete pass/quality/accepted mesh/transfer. Earlier143 failed on dyadic

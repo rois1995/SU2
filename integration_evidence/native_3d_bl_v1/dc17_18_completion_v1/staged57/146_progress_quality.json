@@ -1,0 +1,100 @@
+{
+  "observed_at": 1793349142.4775672,
+  "status_at_observation": {
+    "state": "running",
+    "pid": 3720009,
+    "started_at": 1793345859.2657602,
+    "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance"
+  },
+  "snapshots": [
+    {
+      "label_seconds": 600,
+      "rank": 0,
+      "values": {
+        "global_work": "1181",
+        "accepted": "190",
+        "length_collapses": "190",
+        "length_splits": "0",
+        "length_collapse_passes": "0",
+        "length_split_passes": "0",
+        "quality_stages": "0",
+        "construction_returns": "0",
+        "stop": "SU2Native3D::EngineStop::None"
+      },
+      "sha256": "f56ecfdabe5ff11d27c7ae1a1e85b675c31afd15ec98a3c0b87ebfae845c4915",
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/progress_600s.txt"
+    },
+    {
+      "label_seconds": 1200,
+      "rank": 0,
+      "values": {
+        "global_work": "3515",
+        "accepted": "493",
+        "length_collapses": "493",
+        "length_splits": "0",
+        "length_collapse_passes": "0",
+        "length_split_passes": "0",
+        "quality_stages": "0",
+        "construction_returns": "0",
+        "stop": "SU2Native3D::EngineStop::None"
+      },
+      "sha256": "3727f99577054991852c24fe191985ccefc3833affc6d3fe628fc39ba9c3c8bb",
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/progress_1200s.txt"
+    },
+    {
+      "label_seconds": 1800,
+      "rank": 0,
+      "values": {
+        "global_work": "4743",
+        "accepted": "494",
+        "length_collapses": "494",
+        "length_splits": "0",
+        "length_collapse_passes": "0",
+        "length_split_passes": "0",
+        "quality_stages": "0",
+        "construction_returns": "0",
+        "stop": "SU2Native3D::EngineStop::None"
+      },
+      "sha256": "27d5de615c523b3d5b0df6f9c0e60991596b83e6f325a02b75a97075dafcd314",
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/progress_1800s.txt"
+    },
+    {
+      "label_seconds": 2400,
+      "rank": 0,
+      "values": {
+        "global_work": "5555",
+        "accepted": "494",
+        "length_collapses": "494",
+        "length_splits": "0",
+        "length_collapse_passes": "0",
+        "length_split_passes": "0",
+        "quality_stages": "0",
+        "construction_returns": "0",
+        "stop": "SU2Native3D::EngineStop::None"
+      },
+      "sha256": "cbed7a85d361b67267bd0d38afbe060913e52f4477bdec3cc382aff70588af26",
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/progress_2400s.txt"
+    },
+    {
+      "label_seconds": 3100,
+      "rank": 0,
+      "values": {
+        "global_work": "16051",
+        "accepted": "842",
+        "length_collapses": "494",
+        "length_splits": "328",
+        "length_collapse_passes": "1",
+        "length_split_passes": "1",
+        "quality_stages": "1",
+        "construction_returns": "0",
+        "stop": "SU2Native3D::EngineStop::None"
+      },
+      "sha256": "fa25f8a2a2f0e51d2596b35654fdf7517eb040352b1c6686464a5f2608487a99",
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/progress_3100s.txt"
+    }
+  ],
+  "pins_sha256": "402ca6ba1427a14c149bf783bd3c98e8d06b8929e4cc07ed3567264b3060b17f",
+  "command_sha256": "4553024c64730aa8c3fdc995e24c43fc8c1ed44f8d43b13cc76fcdb0f59e3a93",
+  "interpretation": "private intermediate progress only: no accepted mesh, transfer or workflow",
+  "resource_note": "Read-only debugger snapshots pause the process; elapsed snapshots are not benchmark timings. Root/tmp pressure was relieved by moving an inactive archive to 4TB with a preserved link; M6 was not interrupted."
+}
