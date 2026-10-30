@@ -24,11 +24,16 @@ Actual commands/cwds/start identities and config equality to build160 are verifi
 in `launch_receipt.json`. Initial CFD solved and wrote input-mesh restart00000;
 coarsening completed1217.769native seconds:292744private cells,2582collapses,
 3541geometry-bad/68372size-bad, q/J unmeasured. Split ownership moved115883cells
-in5.4s; splitting is active. Latest complete generation10 at2559.425native seconds:
-704219private cells,2714size-bad/4526geometry-bad, max edge2.324273, q/J unmeasured.
-Sampled tree RSS5.52GiB at~2705wall seconds. No accepted event or adapted artifact.
-Matched coarsen/gen1 counts/debts equal160 at shorter elapsed times; host differs.
-Compact stage/provenance receipts live under the active run directory.
+in5.4s. Size closed atgeneration21/3378.186native seconds:720963private cells,
+zero size-bad, max edge1.7999928685,3126geometry-bad. Quality entered3415.096s,
+after21generations rather than160's44. The second migration moved368217cells
+in15.09s. All6ranks now have complete/consistent q/J/geometry censuses after
+migration, confirming the census-state fix at M6 scale. Initial quality debt:
+52476q-bad/53533J-bad,3126geometry-bad; no accepted event or adapted artifact.
+First-quality entry receipt: `first_quality_entry_assessment.json`. A bounded5s
+quality profile has2563samples, lost0,71.19%inclusive Allreduce and19.73%surface
+union queries; shares overlap, not wall-time totals. Raw22MBprofile stays local,
+SHA/context and no-inline reports are preserved. No solver stop was requested.
 Source/binary/config/helpers are frozen. Inspect
 actual status/owned handles before edits/restarts; retain authorized stop/fix/retry.
 Input61330points/303359cells;50k is metric complexity, not a mesh-count limit.

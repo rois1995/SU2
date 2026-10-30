@@ -26,12 +26,31 @@ accounting match160, which took1462.894s; host availability differs. Receipts:
 edits/restarts. All strict
 Euler/transfer/restart requirements remain, then BL/MPI and RANS500k.
 
-Latest live observation: complete generation10 at2559.425native seconds,
-704219private cells,2714size-bad/4526geometry-bad, maximum edge2.324273,
-q/J still unmeasured; tree RSS~5.52GiB at2705wall seconds. No accepted adaptation
-or adapted artifact. The compact `stage_assessment.json` keeps completed six-rank
-stage aggregates; cache byte categories are sums, not per-rank maxima. Raw per-rank
-stdout avoids merged `run.log` line interleaving. Sources remain frozen.
+Latest live state: size closed atgeneration21/3378.186native seconds,720963private
+cells, maximum edge1.7999928685, zero size-bad and3126geometry-bad. Quality entered
+3415.096s, after21generations versus160's44. Migration moved368217cells in15.09s;
+all6ranks report complete/consistent q/J/geometry censuses after migration.
+Measured initial quality debt:52476q-bad/53533J-bad, qDebt8115.4185/JDebt14256.1421,
+3126geometry-bad. About1985native seconds remained on entry, versus~386before;
+wall-time differences also reflect changed host availability. No accepted event
+or adapted artifact. `first_quality_entry_assessment.json` preserves all6rank rows
+and transition details. Sources remain frozen during the full attempt.
+
+The5s early-quality profile (`profile_quality_early_context.json`, no-inline
+reports; raw data stays local) has2563samples, lost0. Inclusive71.19%Allreduce,
+19.73%QuerySurfaceUnionAtResolution,16.89%GeometryGuidanceExcess (0.00%self).
+These overlap and are not phase wall timings or a quantified speedup. Exact
+command/start/cwd/executable-inode checks selected the six owned ranks. An initial
+wrapper substring precheck failed before any profiler launch; exact executable
+matching corrected it. No solver stop occurred. Record avoided root build-id-cache
+writes; both bounded no-inline reports completed normally. The read-only review's
+transaction-local old-guidance idea remains in the linked backlog pending the
+actual target result; existing exact subquery memoization may already save work.
+
+The compact `stage_assessment.json` records completed six-rank stage aggregates;
+cache-byte categories are sums, not per-rank maxima. Individual rank stdout avoids
+merged `run.log` interleaving. Complete diagnostic channels mean measured, not
+strictly accepted; q/J/geometry debts still must close before transfer/publication.
 
 ## Demonstrated limitation
 

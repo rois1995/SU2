@@ -1,0 +1,140 @@
+{
+  "saved_at": 1793389048.394991,
+  "scope": "five-second early quality sample only; not phase totals or acceptance",
+  "wall_at_record": 3675.278383255005,
+  "verified_ranks": [
+    {
+      "pid": 1172503,
+      "startticks": 80037883,
+      "executable_inode": 88608046
+    },
+    {
+      "pid": 1172502,
+      "startticks": 80037883,
+      "executable_inode": 88608046
+    },
+    {
+      "pid": 1172501,
+      "startticks": 80037882,
+      "executable_inode": 88608046
+    },
+    {
+      "pid": 1172500,
+      "startticks": 80037882,
+      "executable_inode": 88608046
+    },
+    {
+      "pid": 1172499,
+      "startticks": 80037882,
+      "executable_inode": 88608046
+    },
+    {
+      "pid": 1172498,
+      "startticks": 80037882,
+      "executable_inode": 88608046
+    }
+  ],
+  "last_phase_receipts": {
+    "rank.0": {
+      "stage": "quality_entry",
+      "phase": "improvement"
+    },
+    "rank.1": {
+      "stage": "quality_entry",
+      "phase": "improvement"
+    },
+    "rank.2": {
+      "stage": "quality_entry",
+      "phase": "improvement"
+    },
+    "rank.3": {
+      "stage": "quality_entry",
+      "phase": "improvement"
+    },
+    "rank.4": {
+      "stage": "quality_entry",
+      "phase": "improvement"
+    },
+    "rank.5": {
+      "stage": "quality_entry",
+      "phase": "improvement"
+    }
+  },
+  "argv": [
+    "timeout",
+    "15",
+    "nice",
+    "-n",
+    "19",
+    "perf",
+    "record",
+    "--no-buildid-cache",
+    "-F",
+    "99",
+    "--call-graph",
+    "dwarf,8192",
+    "-p",
+    "1172503,1172502,1172501,1172500,1172499,1172498",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build162_quality_handoff50k/profile_quality_early.data",
+    "--",
+    "sleep",
+    "5"
+  ],
+  "exit_code": 0,
+  "seconds": 6.3788487911224365,
+  "data_bytes": 22087584,
+  "data_sha256": "42d6a321c64b8374587afc44ef2feabadf1bd1f9f75efef57fa08da68170755b",
+  "preflight_note": "initial wrapper substring match failed before any profiler launch; corrected to exact command executable",
+  "solver_stop_requested": false,
+  "reports": [
+    {
+      "argv": [
+        "timeout",
+        "45",
+        "nice",
+        "-n",
+        "19",
+        "perf",
+        "report",
+        "-i",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build162_quality_handoff50k/profile_quality_early.data",
+        "--stdio",
+        "--no-inline",
+        "--call-graph",
+        "none",
+        "--sort",
+        "comm,dso,symbol",
+        "--percent-limit",
+        "1"
+      ],
+      "exit_code": 0,
+      "output": "profile_quality_early_noinline.txt"
+    },
+    {
+      "argv": [
+        "timeout",
+        "45",
+        "nice",
+        "-n",
+        "19",
+        "perf",
+        "report",
+        "-i",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build162_quality_handoff50k/profile_quality_early.data",
+        "--stdio",
+        "--no-inline",
+        "--call-graph",
+        "none",
+        "--sort",
+        "comm,dso,symbol",
+        "--percent-limit",
+        "1",
+        "--no-children"
+      ],
+      "exit_code": 0,
+      "output": "profile_quality_early_noinline_flat.txt"
+    }
+  ],
+  "percentage_note": "inclusive sample shares overlap; five-second sample only, not phase wall time"
+}

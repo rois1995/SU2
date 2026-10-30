@@ -35,3 +35,11 @@ its relevance or the user explicitly reprioritizes it.
   A geometry-dependent shape blockage may stop before another productive geometry
   generation. Preserve the actual failure before changing this policy; avoid
   empty phase cycling, budget resets or another local fallback ladder.
+
+- Early-quality profile at build162: GeometryGuidanceExcess has16.89%inclusive
+  sampled cycles (0.00%self); surface-union querying has19.73%inclusive. Consider
+  caching the finite old-side guidance scalar within one immutable quality
+  transaction, where old patch/authority/tolerance are fixed. Existing face/union
+  memoization already covers exact subqueries, so savings are unquantified; never
+  cache fresh candidate/final certificates or carry the scalar through changed
+  construction support. Keep deferred pending the actual target outcome.
