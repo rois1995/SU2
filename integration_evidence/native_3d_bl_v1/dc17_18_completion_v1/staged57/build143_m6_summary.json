@@ -1,0 +1,212 @@
+{
+  "status": {
+    "state": "terminal",
+    "solver_exit_code": 0,
+    "native_event_accepted": false,
+    "native_state": "rejected or incomplete",
+    "workflow_accepted": false,
+    "pins_verified": true,
+    "changed": [],
+    "seconds": 3625.1122374534607,
+    "largest_sampled_individual_process_rss_bytes": 3970080768,
+    "rss_note": "sampled process RSS; not a whole-job peak",
+    "transfer_reload_validation": "separate existing validation required"
+  },
+  "events": [
+    {
+      "event": 1,
+      "rejection": "Native3D rejected event: Surface-union parameters exhausted exact dyadic resolution; bounds unresolved. Local cached demands: geometry_cells=0, metric_or_height_cells=11181, geometry_edges=0, metric_edges=6225. Last local rejection: edge 53616,26063: Native 3D coarsening removes no cells or fails changed-edge size admission.; accepted CFD mesh/solution retained.",
+      "global_work": 6368,
+      "private_collapses_sum": 2505,
+      "per_rank": [
+        {
+          "rank": "0",
+          "total": "1788.44871893",
+          "stop": "failure",
+          "global_work": "6368",
+          "length_collapse_passes": "1",
+          "length_split_passes": "0",
+          "length_collapses": "494",
+          "quality_stages": "0",
+          "accepted": "504",
+          "rejected": "102",
+          "remaining_edges": "6225",
+          "geometry_rejected": "13"
+        },
+        {
+          "rank": "1",
+          "total": "1788.4482898159999",
+          "stop": "failure",
+          "global_work": "6368",
+          "length_collapse_passes": "1",
+          "length_split_passes": "0",
+          "length_collapses": "416",
+          "quality_stages": "0",
+          "accepted": "426",
+          "rejected": "256",
+          "remaining_edges": "7688",
+          "geometry_rejected": "21"
+        },
+        {
+          "rank": "2",
+          "total": "1788.4497929019999",
+          "stop": "failure",
+          "global_work": "6368",
+          "length_collapse_passes": "1",
+          "length_split_passes": "0",
+          "length_collapses": "381",
+          "quality_stages": "0",
+          "accepted": "391",
+          "rejected": "372",
+          "remaining_edges": "20233",
+          "geometry_rejected": "221"
+        },
+        {
+          "rank": "3",
+          "total": "1788.4486480349999",
+          "stop": "failure",
+          "global_work": "6368",
+          "length_collapse_passes": "1",
+          "length_split_passes": "0",
+          "length_collapses": "448",
+          "quality_stages": "0",
+          "accepted": "458",
+          "rejected": "278",
+          "remaining_edges": "9904",
+          "geometry_rejected": "19"
+        },
+        {
+          "rank": "4",
+          "total": "1788.449590121",
+          "stop": "failure",
+          "global_work": "6368",
+          "length_collapse_passes": "1",
+          "length_split_passes": "0",
+          "length_collapses": "304",
+          "quality_stages": "0",
+          "accepted": "314",
+          "rejected": "1469",
+          "remaining_edges": "19151",
+          "geometry_rejected": "1181"
+        },
+        {
+          "rank": "5",
+          "total": "1788.449882269",
+          "stop": "failure",
+          "global_work": "6368",
+          "length_collapse_passes": "1",
+          "length_split_passes": "0",
+          "length_collapses": "462",
+          "quality_stages": "0",
+          "accepted": "472",
+          "rejected": "1114",
+          "remaining_edges": "12997",
+          "geometry_rejected": "917"
+        }
+      ]
+    },
+    {
+      "event": 2,
+      "rejection": "Native3D rejected event: Surface-union parameters exhausted exact dyadic resolution; bounds unresolved. Local cached demands: geometry_cells=0, metric_or_height_cells=11075, geometry_edges=0, metric_edges=6057. Last local rejection: edge 52092,25725: Native 3D coarsening removes no cells or fails changed-edge size admission.; accepted CFD mesh/solution retained.",
+      "global_work": 6024,
+      "private_collapses_sum": 2515,
+      "per_rank": [
+        {
+          "rank": "0",
+          "total": "1636.6776520020001",
+          "stop": "failure",
+          "global_work": "6024",
+          "length_collapse_passes": "1",
+          "length_split_passes": "0",
+          "length_collapses": "492",
+          "quality_stages": "0",
+          "accepted": "500",
+          "rejected": "100",
+          "remaining_edges": "6057",
+          "geometry_rejected": "10"
+        },
+        {
+          "rank": "1",
+          "total": "1636.6767729610001",
+          "stop": "failure",
+          "global_work": "6024",
+          "length_collapse_passes": "1",
+          "length_split_passes": "0",
+          "length_collapses": "440",
+          "quality_stages": "0",
+          "accepted": "448",
+          "rejected": "233",
+          "remaining_edges": "8030",
+          "geometry_rejected": "10"
+        },
+        {
+          "rank": "2",
+          "total": "1636.677571829",
+          "stop": "failure",
+          "global_work": "6024",
+          "length_collapse_passes": "1",
+          "length_split_passes": "0",
+          "length_collapses": "426",
+          "quality_stages": "0",
+          "accepted": "434",
+          "rejected": "381",
+          "remaining_edges": "20470",
+          "geometry_rejected": "185"
+        },
+        {
+          "rank": "3",
+          "total": "1636.677667742",
+          "stop": "failure",
+          "global_work": "6024",
+          "length_collapse_passes": "1",
+          "length_split_passes": "0",
+          "length_collapses": "410",
+          "quality_stages": "0",
+          "accepted": "417",
+          "rejected": "346",
+          "remaining_edges": "13567",
+          "geometry_rejected": "21"
+        },
+        {
+          "rank": "4",
+          "total": "1636.676564118",
+          "stop": "failure",
+          "global_work": "6024",
+          "length_collapse_passes": "1",
+          "length_split_passes": "0",
+          "length_collapses": "310",
+          "quality_stages": "0",
+          "accepted": "318",
+          "rejected": "1537",
+          "remaining_edges": "14077",
+          "geometry_rejected": "1416"
+        },
+        {
+          "rank": "5",
+          "total": "1636.67727874",
+          "stop": "failure",
+          "global_work": "6024",
+          "length_collapse_passes": "1",
+          "length_split_passes": "0",
+          "length_collapses": "437",
+          "quality_stages": "0",
+          "accepted": "445",
+          "rejected": "685",
+          "remaining_edges": "11988",
+          "geometry_rejected": "543"
+        }
+      ]
+    }
+  ],
+  "sampled_tree_peak_bytes": 12775096320,
+  "sampled_tree_peak_elapsed_seconds": 3596.394199848175,
+  "rss_note": "peak of sampled tree sums, not measured whole-job peak",
+  "workflow_accepted": false,
+  "source_evidence_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build143_joint_footprints/run.log": "b0624d6ffa3976fe5a4c1dc0500d4df8f2b36e5db058d1fbe18668793d99a415",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build143_joint_footprints/status.json": "66ec77a1639d3f569b612b2a30d8d0dc22435d268c2f2becc8c82db3c416bebf",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build143_joint_footprints/resources.jsonl": "02a3ceb1e6fe18a3bec982a50165f8ae1ca9541f4823ddd063a21a4123b3024d",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build143_joint_footprints/pins.json": "33ac8f8e42ab9338b86156207e21f99f0d51a654f518b3a4cbed57c1fd197238",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build143_joint_footprints/command.json": "e4568bc5c852bd5d606bdcb8ccefa8e5f0b95ce512659d2cc6679a29c78fc35e"
+  }
+}

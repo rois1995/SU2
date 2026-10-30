@@ -109,12 +109,16 @@ population from operator cost. Validate any SU2-specific modifications separatel
   pass162.152s/pins unchanged. Gate diagnostic419904 comparisons passes. Captured
   M6 query cold2.314s→.07355s/warm2.253s→.003861s at unchanged1e-4 tolerance;
   this is query evidence, not an accepted mesh or whole-run speedup claim.
-  Prior full M6/build142 terminal after5403.9s,2376private collapses/5503globalwork,
-  no length/quality pass or accepted mesh/transfer. Four rank queues empty;
-  ranks4/5 remain2908/2852 with heavy geometry rejection. All10owned handles terminal.
-  Receipts staged57/build142_m6_summary.json and combined143_checkpoint.json.
-  Full two-event M6 retry next with5400s native/event,14400s outer. Keep pinned
-  C++/tests/helpers unchanged while active; verify actual handles before restart.
+  Full M6/build143 terminal after3625.1s with pins verified and all owned handles
+  terminal. Both events reject on unresolved surface-union exact dyadic resolution;
+  they reach6368/6024 global work and2505/2515 private collapses, respectively,
+  without an accepted mesh or transfer. Both retain the original CFD mesh/solution.
+  Sampled process-tree RSS peaked12.78GB (sampled, not whole-job peak).
+  Evidence: staged57/build143_m6_summary.json and combined143_checkpoint.json;
+  build142's prior time-budget failure remains in staged57/build142_m6_summary.json.
+  Next capture the exact failing geometry query, diagnose the resolution failure,
+  then address it under unchanged gates and retry the complete two-event workflow.
+  Keep pinned C++/tests/helpers unchanged while active; verify handles before restart.
   User's permanent overnight workflow is saved in AGENTS.md: stop demonstrated
   computational bottlenecks or errors, preserve evidence, fix/validate and retry M6
   autonomously until the Euler loop succeeds. Then verify BL generation before
