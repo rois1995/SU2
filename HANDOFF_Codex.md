@@ -116,9 +116,14 @@ population from operator cost. Validate any SU2-specific modifications separatel
   Sampled process-tree RSS peaked12.78GB (sampled, not whole-job peak).
   Evidence: staged57/build143_m6_summary.json and combined143_checkpoint.json;
   build142's prior time-budget failure remains in staged57/build142_m6_summary.json.
-  Next capture the exact failing geometry query, diagnose the resolution failure,
-  then address it under unchanged gates and retry the complete two-event workflow.
-  Keep pinned C++/tests/helpers unchanged while active; verify handles before restart.
+  Diagnostic replay143 was interrupted by debugger signal handling (exit133,
+  pins verified); it produced no geometry verdict. All its known handles terminal.
+  Build144 passes117.323s/pins unchanged; affected geometry checks pass15.985s.
+  It adds failure-only surface-query logging, not a resolution fix. Full two-event
+  replay is active at staged57/m6_runs/euler_build144_resolution_capture
+  (detached driver3460979; see status/resources for owned handles). Capture the
+  exact failing query, address its cause under unchanged gates, and retry the loop. Keep pinned C++/tests/helpers
+  unchanged while active; verify handles before restart.
   User's permanent overnight workflow is saved in AGENTS.md: stop demonstrated
   computational bottlenecks or errors, preserve evidence, fix/validate and retry M6
   autonomously until the Euler loop succeeds. Then verify BL generation before

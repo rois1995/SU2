@@ -1,0 +1,12 @@
+[New LWP 3440665]
+[New LWP 3440666]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007f38652013b8 in ?? () from /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_btl_vader.so
+Breakpoint 1 at 0x56278d82d030: file ../../Common/src/adaptation/CNativeAffineReference.cpp, line 404.
+[Inferior 1 (process 3440652) detached]
+Exception ignored in: <gdb._GdbOutputFile object at 0x7f8c649d05b0>
+Traceback (most recent call last):
+  File "/usr/share/gdb/python/gdb/__init__.py", line 43, in flush
+    def flush(self):
+KeyboardInterrupt: 

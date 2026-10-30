@@ -1,0 +1,13 @@
+[New LWP 3440657]
+[New LWP 3440659]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x0000564c420fe866 in CBlasStructure::tql2<double [3][3], double [3], double [3]> (n=<optimized out>, e=..., d=..., V=...) at ../../SU2_CFD/src/drivers/../../include/adaptation/../../../Common/include/linear_algebra/blas_structure.hpp:384
+384	          for (i = m - 1; i >= l; i--) {
+Breakpoint 1 at 0x564c43112030: file ../../Common/src/adaptation/CNativeAffineReference.cpp, line 404.
+[Inferior 1 (process 3440653) detached]
+Exception ignored in: <gdb._GdbOutputFile object at 0x7ff0ec4ab5b0>
+Traceback (most recent call last):
+  File "/usr/share/gdb/python/gdb/__init__.py", line 43, in flush
+    def flush(self):
+KeyboardInterrupt: 

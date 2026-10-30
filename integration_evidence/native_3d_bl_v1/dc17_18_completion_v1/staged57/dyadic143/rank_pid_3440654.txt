@@ -1,0 +1,13 @@
+[New LWP 3440658]
+[New LWP 3440660]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x000055a476e9018e in CSolver::<lambda(const su2double (&)[3][3], const su2double (&)[3][3], su2double (&)[3][3])>::operator() (__closure=<optimized out>, Z=..., Y=..., X=...) at ../../SU2_CFD/src/solvers/../../include/solvers/../numerics/../../../Common/include/linear_algebra/blas_structure.hpp:472
+472	        for (int k = 0; k < n; k++) A_ij[i][j] += Eig_Vec[i][k] * Eig_Val[k] * Eig_Vec[j][k];
+Breakpoint 1 at 0x55a4779f5030: file ../../Common/src/adaptation/CNativeAffineReference.cpp, line 404.
+[Inferior 1 (process 3440654) detached]
+Exception ignored in: <gdb._GdbOutputFile object at 0x7f2a205ca5b0>
+Traceback (most recent call last):
+  File "/usr/share/gdb/python/gdb/__init__.py", line 43, in flush
+    def flush(self):
+KeyboardInterrupt: 

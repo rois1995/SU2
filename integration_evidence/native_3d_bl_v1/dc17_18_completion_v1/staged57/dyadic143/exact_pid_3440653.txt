@@ -1,0 +1,11 @@
+[New LWP 3440657]
+[New LWP 3440659]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007f47a659213f in ?? () from /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_btl_vader.so
+Breakpoint 1 at 0x564c42003bcc: file ../../Common/src/adaptation/CNativeAffineReference.cpp, line 405.
+
+Thread 1 "SU2_CFD" received signal SIGTRAP, Trace/breakpoint trap.
+0x0000564c43112031 in SU2NativeGeometry::(anonymous namespace)::UnionChildren (parent=...) at ../../Common/src/adaptation/CNativeAffineReference.cpp:404
+404	std::array<UnionDomain,4> UnionChildren(const UnionDomain& parent) {
+[Inferior 1 (process 3440653) detached]

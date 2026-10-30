@@ -1521,6 +1521,17 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     std::fprintf(stderr,"\n");
   }
   for(size_t i=0;i<facets.size();++i){reference->Get(facets[i]);if(i&&facets[i]<=facets[i-1])throw std::invalid_argument("Surface-union supports must be sorted and unique.");}
+  auto unresolved=[&](const char* stage,const UnionDomain& domain,double upper,double lower) {
+    if(domain.depth<48)return;
+    // Preserve a replayable query when refinement cannot resolve the prescribed tolerance.
+    std::fprintf(stderr,"NATIVE_SURFACE_UNRESOLVED stage=%s facet=%llu depth=%u upper=%.17g lower=%.17g tolerance=%.17g model=%d mesh=%d work=%zu\n",
+        stage,static_cast<unsigned long long>(domain.facet),domain.depth,upper,lower,tolerance,int(include_model),int(include_mesh),budget.work);
+    std::fprintf(stderr,"NATIVE_SURFACE_UNRESOLVED facets=");
+    for(Id id:facets)std::fprintf(stderr,"%llu,",static_cast<unsigned long long>(id));
+    std::fprintf(stderr,"\n");
+    for(const auto& triangle:physical){std::fprintf(stderr,"NATIVE_SURFACE_UNRESOLVED triangle=");
+      for(auto p:triangle)std::fprintf(stderr,"%.17g,%.17g,%.17g;",p.x,p.y,p.z);std::fprintf(stderr,"\n");}
+  };
   op.Storage(8192);budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,8192);
   const auto physical_bytes=transfer_memory::Mul(physical.size(),sizeof(UnionTriangle));op.Storage(physical_bytes);
   std::vector<UnionTriangle> flat;flat.reserve(physical.size());
@@ -1557,7 +1568,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       op.Storage(transfer_memory::Add(transfer_memory::GrowthBound(model.size()+1,sizeof(UnionTriangle)),
           transfer_memory::GrowthBound(pending.size()+4,sizeof(UnionDomain))));
       if(piece.error<=tolerance/16)model.push_back(piece);
-      else {const auto children=UnionChildren(domain);pending.insert(pending.end(),children.begin(),children.end());}
+      else {unresolved("target",domain,piece.error,0);const auto children=UnionChildren(domain);pending.insert(pending.end(),children.begin(),children.end());}
     }
   };
   std::unique_lock<std::mutex> preparation;
@@ -1639,6 +1650,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       if(lower>tolerance)return std::make_tuple(initial_upper,leaves,true);
       std::pop_heap(queue.begin(),queue.end(),compare);const auto node=queue.back();queue.pop_back();
       if(node.upper<=tolerance){finished=std::max(finished,node.upper);++leaves;continue;}
+      unresolved(from_model?"model_to_mesh":"mesh_to_model",node.domain,node.upper,lower);
       const auto children=UnionChildren(node.domain);for(const auto& child:children)prepare(child);
     }
     return std::make_tuple(finished,leaves,false);
