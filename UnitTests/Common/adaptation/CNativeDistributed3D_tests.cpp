@@ -4169,7 +4169,24 @@ TEST_CASE("Independent quality stars commit concurrently with final strict accep
   }
   const auto saved=Bytes(input);const PlanarReference geometry(fixture.facets);
   const Tensor tensor{1,0,0,1,0,1};EngineOptions options;options.maximum_rounds=128;
+  Id first_bad_vertex=UINT64_MAX;
+  for(const auto& cell:fixture.patch.cells) {
+    const auto& v=cell.v;const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
+    if(m.mean_ratio<MinimumMeanRatio || m.minimum_scaled_jacobian<MinimumScaledJacobian)
+      for(const auto& node:v)first_bad_vertex=std::min(first_bad_vertex,node.id);
+  }
+  REQUIRE(first_bad_vertex!=UINT64_MAX);
+  options.capture_feature={{first_bad_vertex,0,0},1};
+  bool optimizer_seen=false,topology_before_optimizer=false;
+  options.transaction_observer=[&](const TransactionView& view) {
+    if(!view.selected)return;
+    const std::string stage=view.stage;
+    if(stage=="OptimizeMetricMesh")optimizer_seen=true;
+    if(stage=="CollapseVertex" || stage=="Reconnect")topology_before_optimizer|=!optimizer_seen;
+    CHECK(view.reason.find("collapse repeats its endpoint")==std::string::npos);
+  };
   const auto result=Repair(world,input,Uniform(input,tensor),geometry,{},options);INFO(result.reason);
+  CHECK(world.sum(optimizer_seen)==1);CHECK_FALSE(world.maximum(topology_before_optimizer));
   REQUIRE(result.valid);CHECK(result.stats.cached_invalid_cells==0);CHECK(Bytes(input)==saved);
   CHECK(Audit(world,result.cells,fixture,world.sum(int(result.cells.size()))));
   if(world.size>1){CHECK(result.stats.maximum_parallel_commits==unsigned(world.size));CHECK(result.stats.final_reservations>0);}
@@ -4295,6 +4312,63 @@ TEST_CASE("Phase ownership preserves a complete census without a subsequent edit
   CHECK(result.stats.ownership_evaluations==(world.size>1?2:0));
   CHECK(result.stats.ownership_changes==(world.size>1?2:0));
   CHECK(Bytes(input)==saved);REQUIRE(result.valid);
+}
+
+TEST_CASE("Completed metric size hands residual curved geometry to a quality census", "[NativeConstructionHandoff3D]") {
+  World world;auto fixture=Box();fixture.patch.cells.clear();const Node center{8,{.5,.5,.5}};
+  for(const auto& f:fixture.facets) {
+    Cell cell{fixture.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
+    if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[2],cell.v[3]);
+    fixture.patch.cells.push_back(cell);
+  }
+  auto root=std::make_shared<PlanarReference>(fixture.facets);
+  SU2NativeGeometry::MappedFacetReference::CurvedNets controls;std::map<Id,double> errors;
+  const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  for(const auto& f:fixture.facets) {
+    errors.emplace(f.id,1e-12);auto& net=controls[f.id];
+    for(unsigned q=0;q<10;++q) {
+      long double x=0,y=0,z=0;
+      for(unsigned k=0;k<3;++k){x+=powers[q][k]*(long double)f.v[k].p.x;y+=powers[q][k]*(long double)f.v[k].p.y;z+=powers[q][k]*(long double)f.v[k].p.z;}
+      net[q]={double(x/3),double(y/3),double(z/3)};
+    }
+    if(f.id==0) {
+      net[9].x+=.04*(net[9].x-center.p.x);
+      net[9].y+=.04*(net[9].y-center.p.y);
+      net[9].z+=.04*(net[9].z-center.p.z);
+    }
+  }
+  auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(root,errors,29,SIZE_MAX,false,controls);
+  BoundaryPoints points;for(const auto& f:fixture.facets)for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});
+  auto parameters=std::make_shared<BoundaryParameterState>(authority,points,fixture.patch.surface);
+  auto geometry=PlanarReference::WithParameters(root,parameters);const auto snapshot=parameters->Snapshot();
+  const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+  bool split_exit=false,quality_seen=false;size_t geometry_at_exit=0;
+  EngineOptions options;options.maximum_work=4096;options.maximum_rounds=256;options.surface_tolerance=1e-4;
+  options.phase_ownership=PhaseOwnership::DiagnosticAlways;
+  options.stage_observer=[&](const StageProgressView& view) {
+    if(view.phase==EnginePhase::Construction && !view.stats.quality_stages) {
+      CHECK(view.progress.q_measured_cells==0);CHECK(view.progress.j_measured_cells==0);
+    }
+    if(std::string(view.stage)=="length_split_exit") {
+      split_exit=true;geometry_at_exit=view.progress.geometry_bad_cells;
+      CHECK(view.stats.length_split_passes==1);CHECK(view.progress.census_complete);
+      CHECK(view.progress.cache_consistent);CHECK(view.progress.geometry_complete);
+      CHECK(view.progress.size_bad_cells==0);
+    }
+    if(std::string(view.stage)!="quality_entry")return;
+    quality_seen=true;CHECK(view.stats.length_split_passes==1);
+    CHECK(view.stats.ownership_changes==(world.size>1?2:0));
+    CHECK(view.progress.census_complete);CHECK(view.progress.shape_complete);
+    CHECK(view.progress.geometry_complete);CHECK_FALSE(view.valid);
+    throw std::runtime_error("bounded residual geometry handoff witness");
+  };
+  const auto result=AdaptMetric(world,input,Uniform(input,Tensor{}),*geometry,{},options);INFO(result.reason);
+  CHECK(world.maximum(split_exit));CHECK(world.sum(geometry_at_exit)>0);CHECK(world.maximum(quality_seen));
+  CHECK(world.sum(result.stats.length_splits)>0);CHECK_FALSE(result.valid);
+  CHECK(result.reason.find("bounded residual geometry handoff witness")!=std::string::npos);
+  CHECK(Bytes(input)==saved);CHECK(parameters->Snapshot()==snapshot);
+  CHECK(result.stats.global_work<=options.maximum_work);
+  for(const auto& row:result.cells){const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);}
 }
 
 TEST_CASE("Metric improvement isolates remaining shape debt after construction", "[NativeBidirectionalLength3D]") {

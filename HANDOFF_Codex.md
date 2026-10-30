@@ -12,13 +12,17 @@ Size closed atgeneration21/4158.2s, but quality only began at5014.1s after44spli
 generations. Exit has732439private cells,62235q-bad/63848J-bad (161unmeasured),
 273geometry-bad, no oversized edges. Zero accepted events/transfer/restart.
 Sampled summed tree peak11.884GiB; host contention prevents isolated timing claims.
-User steering: review/improve code while their other local jobs finish; hold the
-next heavy build/M6 run during that window. No owned heavy workload is live.
+User now reports the machine is free and authorizes resuming computation.
+Old owned handles are verified absent; resource check has~33.4GiB available.
+Build161 is ACTIVE: exec10539, owned Ninja1136732,1296pins. nice19/-j3,
+libs1 and4TB compile-tmp; inspect its actual status/handle before any source edit.
 Next connected fix: construction/quality coordination and migrated census state,
 driven by this failure. Sources are terminal; unvalidated census-preservation/self-collapse corrections
-and a no-edit migration regression are now prepared. No build161 has started.
-Earlier quality handoff remains a connected design review, not an implemented fix. Keep all strict
-gates and full Euler→BL→RANS objective. More ideas remain in the linked backlog.
+and a no-edit migration regression are frozen in active build161.
+A connected source candidate now hands measured size closure to quality and moves
+the bounded optimizer before topology guesses; see
+[quality coordination](Handbook/ADAPTATION_QUALITY_HANDOFF_20261030.md). It remains
+unvalidated until build161 and its affected checks finish. Keep all strict gates and the full Euler→BL→RANS objective. More ideas remain in the linked backlog.
 Build159's MPI failure was an ownership-specific fixture assumption, now corrected
 and preserved. Build158's assertion-compilation failure is also preserved.
 The terminal build157 baseline below remains historical evidence, not a live job.
@@ -27,7 +31,7 @@ Review/failure checkpoint `0e576ea198` is PUSHED to the user's fork,
 `https://github.com/rois1995/SU2.git`, branch `codex/native-3d-bl`.
 The user explicitly approved pushing to their fork after automatic review had
 rejected the earlier attempts. Push completed successfully; no approval is pending.
-No heavy build/test has started; user is finishing other local jobs.
+User has freed the machine; heavy validation may resume under the existing limits.
 
 Branch: `codex/native-3d-bl`. Integration implementation: `8cf566e229`; qualified checkpoint: `e5240df1e0`, pushed.
 Connected cache/phase checks pass; full M6/transfer/restart remains unvalidated. The
@@ -38,7 +42,8 @@ failure receipts are preserved. No accepted M6 result exists.
 ## Read next
 
 1. [AGENTS.md](AGENTS.md).
-2. [Current cache/phase integration](Handbook/ADAPTATION_CACHE_PHASE_20261030.md).
+2. [Current cache/phase integration](Handbook/ADAPTATION_CACHE_PHASE_20261030.md) and
+   [active construction/quality candidate](Handbook/ADAPTATION_QUALITY_HANDOFF_20261030.md).
 3. [User's complete integrated next-task specification](Handbook/ADAPTATION_INTEGRATED_NEXT_TASK.md), saved verbatim between the supplied markers.
 4. [Stopped build157 state, evidence and exact reproduction](Handbook/ADAPTATION_CHECKPOINT_20261030_STOP.md).
 5. [Split coordination](Handbook/ADAPTATION_SPLIT_LANES_20261030.md) and

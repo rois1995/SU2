@@ -2490,8 +2490,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       if(!observe_progress(coarsening?"length_collapse_exit":"length_split_exit"))return finish();
       if(!coarsening) {
-        // Claims retire neighbouring edges too; productive finite generations must service their descendants.
-        if(productive && progressing && world.maximum(selection.construction_invalid!=0)) {
+        // Descendant size demand stays in construction. Once size closes, give shape/height
+        // improvement a turn before more geometry-only splitting; residual geometry can return here.
+        const bool size_demand=world.maximum(selection.debt.size_bad_cells!=0);
+        if(productive && progressing && size_demand) {
           if(stats.global_work>=stats.work_limit){stats.stop=EngineStop::WorkBudget;
             result.reason="Native3D construction generation exhausted global work; feasibility is undetermined.";return finish();}
           if(!begin_length_generation(false))return finish();
@@ -4085,7 +4087,35 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         }}catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return finish();
       }
+      auto optimize_repair=[&]() {
+        if(!repairing || !world.maximum(!coordinate_only && repair_work<160 && chosen && !approved))return true;
+        reserve_optimization(!coordinate_only && repair_work<160 && chosen && !approved);
+        DonorPatch donors;
+        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+          donors=source.ImportCells(!coordinate_only && repair_work<repair_budget && !approved?old.cells:empty,options.memory_ceiling,
+              transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));}
+        bool candidate=false;
+        if(!donors.valid && !DonorCap(donors.reason)){result.reason=donors.reason;return false;}
+        if(!coordinate_only && repair_work<repair_budget && !approved && donors.valid)try {
+          const auto components=AssociatedExtensions(donors.cells,geometry);
+          observe_transaction("support_donors",donors.valid,&donors);
+          FrozenField proposal_field(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
+          FieldAccounting accounting{stats,proposal_field};
+          Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+          candidate=guarded_geometry(optimize_patch(old,RegionMetric(proposal_field),false),"OptimizeMetricMesh");
+        }catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!(ready=vote(failure)))return false;
+        release_optimization();
+        if(world.maximum(candidate || (selection.size_repairs && chosen))) {
+          const bool placed=validate_private(candidate,MetricChange::Repair);
+          if(!ready)return false;
+          if(placed){approved=repair_approved=true;moved=false;optimization_approved=true;++stats.optimization_validated;}
+        }
+        return true;
+      };
       for (unsigned trial=0;trial<19;++trial) {
+        // Keep cheap coordinate trials first; one bounded coupled solve precedes serial topology guesses.
+        if(trial==3 && !optimize_repair())return finish();
         if (!world.maximum(fallback && !approved)) break;
         const bool move_trial=trial<3;
         const bool participating=fallback && !approved && (!coordinate_only || move_trial) &&
@@ -4133,30 +4163,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if (!ready) return finish();
         if (valid) { approved=true; repair_approved=true; moved=move_trial; }
       }
-      if(repairing && world.maximum(!coordinate_only && repair_work<160 && chosen && !approved)) {
-        reserve_optimization(!coordinate_only && repair_work<160 && chosen && !approved);
-        DonorPatch donors;
-        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
-          donors=source.ImportCells(!coordinate_only && repair_work<repair_budget && !approved?old.cells:empty,options.memory_ceiling,
-              transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));}
-        bool candidate=false;
-        if(!donors.valid && !DonorCap(donors.reason)){result.reason=donors.reason;return finish();}
-        if(!coordinate_only && repair_work<repair_budget && !approved && donors.valid)try {
-          const auto components=AssociatedExtensions(donors.cells,geometry);
-          observe_transaction("support_donors",donors.valid,&donors);
-          FrozenField proposal_field(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
-          FieldAccounting accounting{stats,proposal_field};
-          Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
-          candidate=guarded_geometry(optimize_patch(old,RegionMetric(proposal_field),false),"OptimizeMetricMesh");
-        }catch(const std::exception& e){failure.Set(2,0,e.what());}
-        if(!(ready=vote(failure)))return finish();
-        release_optimization();
-        if(world.maximum(candidate || (selection.size_repairs && chosen))) {
-          const bool placed=validate_private(candidate,MetricChange::Repair);
-          if(!ready)return finish();
-          if(placed){approved=repair_approved=true;moved=false;optimization_approved=true;++stats.optimization_validated;}
-        }
-      }
+      if(selection.size_repairs && !optimize_repair())return finish();
       if (repair_approved && !repairing) ++stats.fallback_accepted;
     }
     try {observe_transaction("construction_end",approved);}catch(const std::exception& e){failure.Set(2,0,e.what());}
