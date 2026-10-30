@@ -19,8 +19,8 @@ its relevance or the user explicitly reprioritizes it.
 - More elaborate cache admission, multipoint placement, curved batching, worker
   membership changes and dynamic quotas are deferred pending target evidence.
 - Migrated census flags were observed incomplete at actual build160 M6 quality
-  entry. Preservation fix and a forced no-edit regression are now prepared in the
-  active cycle, UNVALIDATED while the host is occupied. See the current handbook.
+  entry. Preservation fix and forced no-edit/curved MPI regressions now pass at build162.
+  Observe the complete flags at actual M6 quality entry; see the current handbook.
 - Phase forecast qualification: build160's first automatic transition predicted
   100009 seconds saved against 63 seconds of cost; actual transition was 10.2s.
   The saving forecast exceeds the remaining event budget and uses coarsening

@@ -1,0 +1,40 @@
+{
+  "scope": "initial CFD donor state only; this is a binary-file/state inspection, NOT an executed disk restart or transferred mesh acceptance",
+  "reader_source": "CSolver::Read_SU2_Restart_Binary",
+  "writer_source": "CSU2BinaryFileWriter::WriteData",
+  "sha256": "ee7ae4690ee4c890104ac1876e4eed85354e6014233e10733862dbc6c2f1d45f",
+  "points": 61330,
+  "fields": [
+    "x",
+    "y",
+    "z",
+    "Density",
+    "Momentum_x",
+    "Momentum_y",
+    "Momentum_z",
+    "Energy",
+    "Pressure",
+    "Temperature",
+    "Mach",
+    "Pressure_Coefficient",
+    "Velocity_x",
+    "Velocity_y",
+    "Velocity_z",
+    "SENSOR_MACH",
+    "SENSOR_PRESSURE",
+    "Metric_XX",
+    "Metric_XY",
+    "Metric_XZ",
+    "Metric_YY",
+    "Metric_YZ",
+    "Metric_ZZ"
+  ],
+  "scalar_bytes": 8,
+  "exact_payload_size": 11285499,
+  "nonfinite_values": 0,
+  "minima": {
+    "density": 1.061290513984511,
+    "pressure": 91856.2107188637,
+    "internal_energy_density": 229640.52679715928
+  }
+}

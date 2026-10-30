@@ -71,6 +71,36 @@ CFD donors or transfer/restart semantics change. Construction keeps exact positi
 cells, topology and mandatory geometry/body/features. q/J remain unmeasured there;
 existing valid certificates may survive a subsequent construction return.
 
+## Disk-restart preparation (read-only during the live M6 attempt)
+
+Do not start another CFD workload while the owned M6 run is live. The initial
+`restart_flow_adap_00000.dat` is only an input-mesh artifact. Its binary/state
+inspection (`initial_restart_state_inspection.json`) verifies61330points,23fields,
+8byte scalars, exact payload size, all finite fields, positive density/pressure/
+internal-energy density. This is NOT execution of a disk restart or transfer proof.
+
+Reuse the publish→destroy driver→fresh reload pattern in
+`UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp` (`envelope_restart`,~688),
+plus `SaveStates`/`CheckPositiveFlow`/`SaveProjection` in that file. Existing disk
+reload fixtures are unsteady Euler or RANS/BDF, not an actual accepted steady M6.
+`integration_evidence/audit_native_unsteady.py::audit_3d_transfer` provides existing
+independent tetrahedral P1 integral/positivity logic; do not claim its unsteady or
+same-mesh restart evidence as coverage of this steady adapted case.
+
+After accepted artifacts exist and the owned workflow is terminal, isolate a new
+restart directory with the actual published adapted mesh, its `.native_ref` and
+matching saved solution. Pin all three, the actual binary/libraries and config.
+Use `RESTART_SOL=YES`, `ADAP_LOOP=NO`, actual `MESH_FILENAME`/format,
+`SOLUTION_FILENAME` for the copied input base, and a separate `RESTART_FILENAME`
+for continuation output. Steady restart uses `<base>.dat`; unsteady `_NNNNN`
+suffix/`RESTART_ITER` semantics must not be copied blindly. Inspect actual final
+artifact names rather than infer which state matches which mesh. Require an
+actual successful finite/admissible CFD continuation from that isolated directory.
+Compare reload states by coordinates when available, and inspect actual transfer
+conservation diagnostics against backend tolerances. A post-CFD-step restart is
+not the raw just-transferred state; do not compare their integrals as if no solve
+intervened. Preserve the difference between transfer proof and restart usability.
+
 ## Required validation when computation resumes
 
 - Build the coherent candidate with the established build helper and2–4workers,

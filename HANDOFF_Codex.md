@@ -22,7 +22,8 @@ The full two-event `euler_build162_quality_handoff50k` attempt is ACTIVE: exec57
 driver1172403, time1172492, timeout1172493, mpirun1172494, ranks1172498–1172503.
 Actual commands/cwds/start identities and config equality to build160 are verified
 in `launch_receipt.json`. Initial CFD solved and wrote input-mesh restart00000;
-metric construction is underway. Source/binary/config/helpers are frozen. Inspect
+coarsening is underway. At978wall seconds the sampled tree RSS is4.30GiB; no rejection or accepted event.
+Source/binary/config/helpers are frozen. Inspect
 actual status/owned handles before edits/restarts; retain authorized stop/fix/retry.
 Input61330points/303359cells;50k is metric complexity, not a mesh-count limit.
 Prelaunch~33.65GiB available, load4.07/3.75/5.97; no active paging in bounded sample.
