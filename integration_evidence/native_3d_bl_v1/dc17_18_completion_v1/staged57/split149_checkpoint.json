@@ -1,0 +1,100 @@
+{
+  "observed_at": 1793351786.6309571,
+  "build147": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 282.5190968513489,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "initial147_tests": {
+    "status": {
+      "state": "terminal",
+      "exit_code": 2,
+      "seconds": 11.527433633804321,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 39329792,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "reason": "two prior stage expectations failed after intended staging change"
+  },
+  "build148": {
+    "status": {
+      "state": "terminal",
+      "exit_code": 1,
+      "seconds": 12.1780264377594,
+      "pins_verified": true,
+      "changed": [],
+      "completed_build": false
+    },
+    "reason": "test compile error in Catch assertion syntax"
+  },
+  "build149": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 177.39359617233276,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "serial149": {
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 11.726045608520508,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 39718912,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "cases": 12,
+    "assertions": 5380
+  },
+  "mpi2_149": {
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 15.0219247341156,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 39153664,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "cases_per_rank": 13,
+    "assertions_per_rank": [
+      3041,
+      3359
+    ]
+  },
+  "m6_status_at_observation": {
+    "state": "running",
+    "pid": 3985364,
+    "started_at": 1793351716.8437912,
+    "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build149_split_generations"
+  },
+  "m6_driver_pid": 3984946,
+  "limits": "no cap increase; construction validity-first without q/J measurements; final gates unchanged",
+  "acceptance": "focused evidence only; M6 must demonstrate productive generation size-debt reduction and accepted CFD-mesh-CFD-mesh workflow",
+  "evidence_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build147_status.json": "379239dcd169cb8fd576265ca60883b0d5699be08209e4c4ebce050c3a67eff6",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build148_status.json": "578785ec7a364905459e6e922b9749d26418edbaad055dee7a5b3c5f4c8bab29",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build149_status.json": "b997a356d78ac84e12d7c8d266e41e594cf88eb3c81d664f51b1b2e8e361c410",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build149_source_pins.json": "93b25116826225633f92af80279c4b3ce4970494059468e854ad568c3cf80e90",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build149_split_generations/command.json": "8b8811e32b9a317e075b96b69230c3c89dcae11478f783097c24c7b1214db71a",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build149_split_generations/pins.json": "826207eb62e817189471ce1205120c4cba33d249daa94029bec6a687a5ce92b3",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/split_generations147_20261030T090311_3943317/status.json": "ddb302a72796d9f8db7dcb6a5ba634f1b172fcfd2cd20285a6e7a4ade5fe24dc",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/split_generations147_20261030T090311_3943317/command.json": "4e0c245cec36bd0ab7eb25f8f113f96f8ce13fa1e6b59df1244945e7c260f2cc",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/split_generations147_20261030T090311_3943317/pins.json": "f98544b9e485fd9c12b5cb864e2ca8d11e8e172e8ef19c6145c472cdb5c50445",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/split_generations147_20261030T090311_3943317/run.log": "bfbe863e62f9b7ae9de0ab389602caed355ff188388ef417d93e8f136b632e87",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/split_generations149_20261030T091357_3980580/status.json": "7017d5b676cbc514e303282e561dfbcb00186321cc428712fc21685f7bdb41f7",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/split_generations149_20261030T091357_3980580/command.json": "aee0d56827aee4448389ba266ccd85c3cba30a72f1d4ea203dd49e09b98a2a61",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/split_generations149_20261030T091357_3980580/pins.json": "dda591cef7e1dc3d31b3387a08435bc3da7bc91b116bcb968c2200f3e1f6f038",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/split_generations149_20261030T091357_3980580/run.log": "53be1bb0417452198db10f56d97eeca1dcaf3aafd1174869cf65a945ce661633",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/split_generations149_mpi2_20261030T091428_3982438/status.json": "565982e6050f47cae620e3d3116d5655018d512d0c53493ac1b85d83a7e4d4ee",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/split_generations149_mpi2_20261030T091428_3982438/command.json": "528005b561056b833cbaaf74d48f1a37ea4aa0589f2f708ec0480854373611e5",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/split_generations149_mpi2_20261030T091428_3982438/pins.json": "12492b3872857e6414b1a1c893bffa90d995fe03c6dc6a6a886ca2eabbdad96f",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/split_generations149_mpi2_20261030T091428_3982438/run.log": "ae11be4308744c705f6e474310c65e90ce14b451ef736acd82d60edc0b99bda3"
+  }
+}

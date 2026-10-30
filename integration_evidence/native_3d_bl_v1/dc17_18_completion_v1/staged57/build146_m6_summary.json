@@ -1,0 +1,66 @@
+{
+  "classification": "deliberately stopped after construction coordination defect; not a geometry failure verdict",
+  "status": {
+    "state": "terminal",
+    "solver_exit_code": 1,
+    "native_event_accepted": false,
+    "native_state": "solver exit failure; native acceptance not claimed",
+    "workflow_accepted": false,
+    "pins_verified": true,
+    "changed": [],
+    "seconds": 4665.421916246414,
+    "largest_sampled_individual_process_rss_bytes": 3653459968,
+    "rss_note": "sampled process RSS; not a whole-job peak",
+    "transfer_reload_validation": "separate existing validation required"
+  },
+  "stop": {
+    "time": 1793350512.5292466,
+    "elapsed_seconds": 4652.018786907196,
+    "pid": 3720016,
+    "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance",
+    "cmdline": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+    "reason": "Construction coordination limitation exposed by full M6 stage census; preserve evidence and repeat productive split generations before premature shape closure. No geometry infeasibility or accepted mesh claimed."
+  },
+  "terminal_handles": {
+    "observed_at": 1793350529.8247614,
+    "recorded_pids": [
+      3720009,
+      3720010,
+      3720016,
+      3720024,
+      3720025,
+      3720026,
+      3720027,
+      3720028,
+      3720030
+    ],
+    "still_existing": []
+  },
+  "first_quality_entry": {
+    "seconds_range": [
+      2812,
+      2821
+    ],
+    "size_bad_cells": 110543,
+    "total_cells": 305349,
+    "q_bad_cells": 31001,
+    "maximum_metric_edge_approx": 10,
+    "edge_threshold": 1.8
+  },
+  "interpretation": "first quality stage entered after a single split generation with substantial residual size violations; private progress only, no accepted mesh or transfer",
+  "sampled_tree_peak_bytes": 14701436928,
+  "sampled_tree_peak_elapsed_seconds": 4654.02788901329,
+  "rss_note": "sampled process-tree sum, not whole-job peak",
+  "evidence_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/status.json": "22a9a8c1678f963f8bd88ba381fe767828384694c3a633dbbf28d7b040b8ca1c",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/observation_stop.json": "524c2529a25c2ce6d44f9f0729288c079cecb1a6bf4b9b55597ffa2268755a09",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/terminal_handles.json": "cce884d1dc72749c139c47fbe55c759a824cc3c47e5bd95ec4b8252cfa52a312",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/construction_stage_evidence.json": "7486101664a67fbeef2ef99720d31863ba0bdea93ec1789fd91d6aa3e33d0653",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/command.json": "4553024c64730aa8c3fdc995e24c43fc8c1ed44f8d43b13cc76fcdb0f59e3a93",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/pins.json": "402ca6ba1427a14c149bf783bd3c98e8d06b8929e4cc07ed3567264b3060b17f",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/resources.jsonl": "607566288df6fcfe01825d63d6bde6b682a68c97db3af9108915ac399b8fade9",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/progress_3100s.txt": "fa25f8a2a2f0e51d2596b35654fdf7517eb040352b1c6686464a5f2608487a99",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/progress_3600s.txt": "60d97602f982bc157857ae48d21e52b989877c817fd2f528966a64cfa8124bda",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build146_upper_guidance/progress_4200s.txt": "2642d93031d306b0b4719f38d867d53a303f3e7b3e23ddff511723fc2a3a1711"
+  }
+}

@@ -101,6 +101,25 @@ bounds below1e-4 in5.475/4.240/22.484s. Input/probe/authority hashes match and
 conservative local guidance, not outside proof or an accepted mesh. Serial policy
 checks are active; actual six-rank M6 and the full workflow remain required.
 
+### Repeat productive construction split generations — build147
+
+The complete build146 M6 attempt reached private quality improvement but was
+stopped after4652s to address a construction coordination defect; pins were verified
+and all recorded handles terminal. At the first quality entry (2812–2821s), the
+census still had110543 size-bad of305349 cells,31001 q-bad cells, and maximum metric
+edge approximately10 against1.8. No mesh or transfer was accepted. The complete
+stage/length lines and progress snapshots are linked from
+`staged57/build146_m6_summary.json`; snapshot timings are not benchmarks.
+
+Claimed vertices retire neighboring frontier edges, while bidirectional staging
+forced shape closure after one split generation. Build147, currently unvalidated,
+reuses the existing non-bidirectional pattern to repeat productive split generations,
+resetting Directory claims and the frozen-field/frontier blocks and window. A
+nonproductive generation still proceeds to quality. Construction remains validity
+first without q/J measurement, caps are unchanged, and final quality, geometry,
+size, transfer and workflow gates remain mandatory. Complete M6 remains the test
+of the connected change, followed by BL and RANS obligations.
+
 ### Full M6 result and collapse admission — build133
 
 Build132's first event failed at~1356s: `Surface-union parameters exhausted exact

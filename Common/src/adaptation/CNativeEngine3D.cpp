@@ -1920,6 +1920,19 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     std::set<Id>().swap(checkpoint.changed);checkpoint.blocked_links=0;
     checkpoint.valid=checkpoint.trial=false;
   };
+  auto begin_length_generation=[&](bool collapse) {
+    if(!admit(transfer_memory::Add(transfer_memory::Mul(working.size(),selection_bound(false)),
+        transfer_memory::Mul(transfer_memory::Mul(collapse?12:6,working.size()),sizeof(Edge)+4*sizeof(void*)))))return false;
+    CLocalFailure failure;
+    try {
+      directory->BeginConstructionPass();length_direction(collapse);selection.ChangePhase(false,working,field_identity);
+    }catch(const std::exception& error){failure.Set(2,0,error.what());}
+    if(!vote(failure))return false;
+    construction_generation_changed=false;phase_start_round=stats.rounds;
+    progress_at_window=stats.size_progress+stats.quality_progress+stats.cell_removals+stats.geometry_progress;
+    attempted_at_window=stats.attempted;deferred_at_window=stats.length_pass_deferred;
+    return true;
+  };
   auto capture_checkpoint=[&]() {
     // This call follows the complete fresh quality census, including measured strict height.
     // No mutation intervenes; no initial/construction/partial state is presumed certified.
@@ -2111,20 +2124,17 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       if(!observe_progress(coarsening?"length_collapse_exit":"length_split_exit"))return finish();
       if(!coarsening) {
+        // Claims retire neighbouring edges too; productive finite generations must service their descendants.
+        if(productive && world.maximum(selection.construction_invalid!=0)) {
+          if(stats.global_work>=stats.work_limit){stats.stop=EngineStop::WorkBudget;
+            result.reason="Native3D construction generation exhausted global work; feasibility is undetermined.";return finish();}
+          if(!begin_length_generation(false))return finish();
+          continue;
+        }
         if(!enter_phase(Phase::Improvement))return finish();
       } else {
         // Complete both length directions before the metric/BL-aware improvement stage.
-        const bool next_collapse=!coarsening;
-        if(!admit(transfer_memory::Add(transfer_memory::Mul(working.size(),selection_bound(false)),
-            transfer_memory::Mul(transfer_memory::Mul(next_collapse?12:6,working.size()),sizeof(Edge)+4*sizeof(void*)))))return finish();
-        CLocalFailure failure;
-        try {
-          directory->BeginConstructionPass();length_direction(next_collapse);selection.ChangePhase(false,working,field_identity);
-        }catch(const std::exception& error){failure.Set(2,0,error.what());}
-        if(!vote(failure))return finish();
-        construction_generation_changed=false;phase_start_round=stats.rounds;
-        progress_at_window=stats.size_progress+stats.quality_progress+stats.cell_removals+stats.geometry_progress;
-        attempted_at_window=stats.attempted;deferred_at_window=stats.length_pass_deferred;
+        if(!begin_length_generation(false))return finish();
       }
       continue;
     }

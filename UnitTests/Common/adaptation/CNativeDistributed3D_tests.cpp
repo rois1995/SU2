@@ -949,6 +949,7 @@ TEST_CASE("Native composed measurements interleave complete cavities and certify
 }
 
 TEST_CASE("Productive construction services descendant generations before quality", "[NativeConstructionSweep3D]") {
+  const bool bidirectional=GENERATE(false,true);
   World world;const auto fixture=Box();const PlanarReference geometry(fixture.facets);
   const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
   std::set<Edge> entry;
@@ -961,7 +962,8 @@ TEST_CASE("Productive construction services descendant generations before qualit
     if(view.phase==EnginePhase::Construction)construction_unmeasured &=
         view.progress.shape_measured_cells==0 && view.progress.q_measured_cells==0 && view.progress.j_measured_cells==0;
   };
-  const auto result=Refine(world,input,Uniform(input,tensor),geometry,{},options);INFO(result.reason);
+  const auto result=bidirectional?AdaptMetric(world,input,Uniform(input,tensor),geometry,{},options):
+      Refine(world,input,Uniform(input,tensor),geometry,{},options);INFO(result.reason);
   CHECK_FALSE(result.valid);CHECK(result.stats.quality_stages==0);CHECK(world.sum(result.stats.accepted)>0);
   CHECK(world.sum(result.stats.attempted)>entry.size());CHECK(construction_unmeasured);
   bool descendant_debt=false;
@@ -974,6 +976,13 @@ TEST_CASE("Productive construction services descendant generations before qualit
   }
   CHECK(world.maximum(descendant_debt));CHECK(Bytes(input)==saved);
   CHECK(result.stats.global_work<=options.maximum_work);
+  if(bidirectional) {
+    CHECK(result.stats.length_collapse_passes==1);CHECK(result.stats.length_split_passes>=2);
+    EngineOptions complete;complete.maximum_work=4096;
+    const auto admissible=AdaptMetric(world,input,Uniform(input,Tensor{}),geometry,{},complete);INFO(admissible.reason);
+    CHECK(admissible.valid);CHECK(admissible.stats.quality_stages>0);
+    CHECK(admissible.stats.length_collapse_passes==1);CHECK(admissible.stats.length_split_passes==1);
+  }
 }
 
 TEST_CASE("Native MPI refinement preserves accepted input on incomplete or invalid events", "[NativeDistributed3D]") {
@@ -4165,7 +4174,7 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
   if(composed)options.edge_breakpoints=[](Point,Point){return std::vector<double>{0,1};};
   options.stage_observer=[&](const StageProgressView& view){
     if(view.phase==EnginePhase::Improvement && !quality_seen) {
-      quality_after_pair=view.stats.length_split_passes==1 && view.stats.length_collapse_passes==1;
+      quality_after_pair=view.stats.length_split_passes>=1 && view.stats.length_collapse_passes==1;
       quality_seen=true;splits_before_quality=view.stats.length_splits;collapses_before_quality=view.stats.length_collapses;
       parallel_before_quality=view.stats.maximum_parallel_commits;
     }
@@ -4186,7 +4195,7 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
   CHECK(world.sum(result.stats.length_pass_deferred)>0);
   CHECK(world.maximum(saw_split));CHECK(world.maximum(saw_collapse));CHECK(world.maximum(!construction_unmeasured)==0);
   REQUIRE_FALSE(length_passes.empty());CHECK(length_passes.front()=="collapse");
-  for(size_t k=1;k<length_passes.size();++k)CHECK(length_passes[k]!=length_passes[k-1]);
+  for(size_t k=1;k<length_passes.size();++k)CHECK(length_passes[k]=="split");
   if(world.size>=3)CHECK(world.maximum(parallel_before_quality)>=2);
   CHECK(result.stats.global_work<=options.maximum_work);
   CHECK(failure_captures<=1);if(world.sum(result.stats.rejected)>0)CHECK(world.sum(failure_captures)>0);
@@ -4203,7 +4212,7 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
   }
 }
 
-TEST_CASE("Metric improvement queues shape debt independently of construction debt", "[NativeBidirectionalLength3D]") {
+TEST_CASE("Metric improvement isolates remaining shape debt after construction", "[NativeBidirectionalLength3D]") {
   World world;Fixture fixture;Owned input;
   auto append=[&](Fixture piece,Id offset,double shift,int owner) {
     for(auto& c:piece.patch.cells){c.id+=offset;for(auto& n:c.v){n.id+=offset;n.p.x+=shift;}}
@@ -4217,7 +4226,7 @@ TEST_CASE("Metric improvement queues shape debt independently of construction de
   auto source=Uniform(input,Tensor{});
   for(auto& donor:source)for(auto& metric:donor.sensor)
     metric=donor.cell.id<1000?Tensor{4,0,0,4,0,4}:Tensor{.25,0,0,.25,0,.25};
-  bool seen_quality=false,good_size_bad=false,bad_shape=false;unsigned good_root_selected=0;
+  bool seen_quality=false,good_shape=false,good_size_bad=false,bad_shape=false;unsigned good_root_selected=0;
   EngineOptions options;options.maximum_work=256;options.maximum_rounds=64;options.capture_feature={{0,0,0},1};
   options.transaction_observer=[&](const TransactionView& view){if(view.selected)++good_root_selected;};
   options.stage_observer=[&](const StageProgressView& view){
@@ -4226,11 +4235,11 @@ TEST_CASE("Metric improvement queues shape debt independently of construction de
       const bool good=v[0].p.x<2;const Tensor tensor=good?Tensor{4,0,0,4,0,4}:Tensor{.25,0,0,.25,0,.25};
       const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
       const bool shape=m.mean_ratio>=MinimumMeanRatio && m.minimum_scaled_jacobian>=MinimumScaledJacobian;
-      good_size_bad|=good && shape && m.maximum_edge>MaximumMetricEdge;bad_shape|=!good && !shape;
+      good_shape|=good && shape;good_size_bad|=good && m.maximum_edge>MaximumMetricEdge;bad_shape|=!good && !shape;
     }
   };
   const auto result=AdaptMetric(world,input,source,geometry,{},options);INFO(result.reason);
-  CHECK(world.maximum(seen_quality));CHECK(world.maximum(good_size_bad));CHECK(world.maximum(bad_shape));
+  CHECK(world.maximum(seen_quality));CHECK(world.maximum(good_shape));CHECK_FALSE(world.maximum(good_size_bad));CHECK(world.maximum(bad_shape));
   CHECK(world.sum(good_root_selected)==0);CHECK(Bytes(input)==saved);
   if(result.valid)for(const auto& row:result.cells){const auto& v=row.second.cell.v;
     const Tensor tensor=v[0].p.x<2?Tensor{4,0,0,4,0,4}:Tensor{.25,0,0,.25,0,.25};
@@ -4239,13 +4248,16 @@ TEST_CASE("Metric improvement queues shape debt independently of construction de
   }
 }
 
-TEST_CASE("Metric improvement services residual size after shape closure", "[NativeBidirectionalLength3D]") {
+TEST_CASE("Metric size closes in construction or residual repair", "[NativeBidirectionalLength3D]") {
   World world;const auto fixture=Box();const PlanarReference geometry(fixture.facets);
   const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
   const Tensor tensor{4,0,0,4,0,4};const auto source=Uniform(input,tensor);
-  bool size_seen=false;
+  bool quality_seen=false,residual_size=false,size_seen=false;
   EngineOptions options;options.maximum_work=4096;
   options.stage_observer=[&](const StageProgressView& view) {
+    if(std::string(view.stage)=="quality_entry") {
+      quality_seen=true;residual_size|=world.maximum(view.progress.size_bad_cells!=0);
+    }
     if(std::string(view.stage)!="size_repair_entry")return;
     size_seen=true;CHECK(view.phase==EnginePhase::Improvement);
     CHECK(view.progress.shape_complete);CHECK(view.progress.q_bad_cells==0);CHECK(view.progress.j_bad_cells==0);
@@ -4253,7 +4265,7 @@ TEST_CASE("Metric improvement services residual size after shape closure", "[Nat
     CHECK(world.maximum(view.progress.remaining_repairs!=0));
   };
   const auto result=AdaptMetric(world,input,source,geometry,{},options);INFO(result.reason);
-  CHECK(world.maximum(size_seen));CHECK(Bytes(input)==saved);
+  CHECK(world.maximum(quality_seen));CHECK_FALSE((world.maximum(residual_size)&&!world.maximum(size_seen)));CHECK(Bytes(input)==saved);
   REQUIRE(result.valid);CHECK(result.stats.global_work<=options.maximum_work);
   for(const auto& row:result.cells) {
     const auto& v=row.second.cell.v;const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);

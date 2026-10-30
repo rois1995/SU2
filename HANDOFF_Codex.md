@@ -110,13 +110,19 @@ population from operator cost. Validate any SU2-specific modifications separatel
   Three captured M6 query costs fall5.475/4.240/22.484s→1.390/1.033/.902s;
   this is local query evidence, not an accepted mesh. Prior145 MPI2 publication/
   reload evidence covers unchanged parallel/cache machinery; actual MPI6 is required.
-  Full two-event M6 is active at staged57/m6_runs/euler_build146_upper_guidance
-  (driver3719860, time3720009; current handles in status/resources). At3145s a
-  rank0 snapshot showed16051 global work,494 private collapses,328 private splits,
-  one collapse/split pass and one quality stage. This remains private progress,
-  not an accepted mesh or transfer; strict final acceptance and CFD → mesh → CFD →
-  mesh still required. Evidence: staged57/146_progress_quality.json. Root/tmp
-  pressure was relieved using a preserved archive on4TB; the run was uninterrupted.
+  Full M6/build146 was deliberately stopped after4652s to address construction
+  coordination; pins verified and recorded handles terminal. Its first quality entry
+  still had110543/305349 size-bad cells and31001 q-bad cells, with max metric edge
+  about10 against1.8. Private progress did not produce an accepted mesh or transfer.
+  Evidence: staged57/build146_m6_summary.json. Build149 repeats productive split
+  generations before quality, with no cap or final gate change. Build passed177.394s;
+  serial12cases/5380assertions and MPI2 13cases/rank pass with pins verified.
+  Earlier build147 tests exposed stale stage expectations; build148 had a test
+  assertion syntax compile error, both corrected in149. Full two-event M6 is active
+  at staged57/m6_runs/euler_build149_split_generations (driver3984946; live handles
+  in status/resources). Observe generation size-debt reduction and require strict
+  accepted CFD → mesh → CFD → mesh. Evidence: staged57/split149_checkpoint.json.
+  Root/tmp pressure was relieved on4TB.
   Prior145 was deliberately stopped3701s for upper-only over-certification cost;
   pins verified/all handles terminal. At3333s:4161globalwork,494rank0 collapses,
   no complete pass/quality/accepted mesh/transfer. Earlier143 failed on dyadic
