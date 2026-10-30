@@ -118,9 +118,44 @@ This is focused qualification, not a completed adapted mesh.
 The complete six-rank M6 attempt is running at
 `staged57/m6_runs/euler_build155_geometry_balance50k`, driver244296; current
 owned handles/resources are in its status/receipt files. Targets, budgets and
-final gates remain unchanged. Initial predicted balance, actual geometry-work
-balance, collective waiting, cache/memory costs and end-to-end success remain
-to be assessed from this run. No second old-code campaign is needed.
+final gates remain unchanged. Initial and construction comparisons are below;
+quality, accepted meshes and end-to-end success remain to be assessed from this
+run. No second old-code campaign is needed.
+
+### Observed target progress, still private construction
+
+The initial M6 partition reduces predicted geometry max/mean2.591->1.143;
+metric max/mean1.095 and cell max/mean1.079. Estimation max0.367s,
+partition0.193s, migration0.261s,113113moved cells, cut7470/arcs1164482.
+Global quantization rounding adds4.39% relative to the rounded total;34529/48684
+positive cells have weight1. This does not prove actual cost prediction accuracy.
+
+| Same completed stage | Baseline engine seconds | New engine seconds | Old/new time |
+|---|---:|---:|---:|
+| Coarsening pass | 2272.87 | 1180.13 | 1.926 |
+| Split generation1 | 2504.79 | 1304.17 | 1.921 |
+| Split generation2 | 2703.84 | 1420.47 | 1.903 |
+| Split generation3 | 2945.83 | 1562.03 | 1.886 |
+
+Coarsening leaves292694cells versus292712baseline; size hinge55524.19 versus
+55550.19. At generation3 the counts are318372 versus318389, hinge48758.19
+versus48696.57. These are comparable private states, with changed operator order;
+host contention and observation overhead prevent a controlled speedup claim.
+Actual local geometry elapsed max/mean is1.281 at coarsening and1.241 at gen3;
+coarsening atlas-work max/min falls18.70->3.34. The separate5s profile has66.05%
+Allreduce cycles versus79.01%baseline, with geometry active on several ranks.
+
+Memory cost is material: sampled summed process-tree RSS reaches20.3GiB versus
+11.4GiB in the stopped baseline. Caches are nearly full on all ranks. Scope
+construction accounts for80.3%of measured upper-query time at coarsening;
+2290scope hits,10099misses/builds,2182scope retention refusals. Balancing has
+not eliminated preparation cost or proved that eviction would help.
+
+Evidence: `staged57/geometry_balance155_m6_comparison.json`, and the attempt's
+`initial_partition_assessment.json`, `coarsening_stage_assessment.json`,
+`stage_assessment.json`, profile/progress receipts and per-rank logs. The run
+continues under unchanged gates/budgets. **No mesh accepted, no quality stage
+completed, no transfer/CFD/restart loop validated.**
 
 ## Literature baseline
 

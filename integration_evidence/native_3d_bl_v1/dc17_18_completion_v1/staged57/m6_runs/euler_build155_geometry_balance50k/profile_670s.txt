@@ -1,0 +1,59 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 1K of event 'cycles'
+# Event count (approx.): 154184210484
+#
+# Children      Self  Command  Shared Object                   Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+# ........  ........  .......  ..............................  .....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    80.23%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Adapt
+    66.90%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#52}::operator()
+    66.05%     0.00%  SU2_CFD  libmpi.so.40.20.3               [.] PMPI_Allreduce
+    66.05%     0.00%  SU2_CFD  libmpi.so.40.20.3               [.] ompi_coll_base_allreduce_intra_recursivedoubling
+    65.71%     5.73%  SU2_CFD  libopen-pal.so.40.20.3          [.] opal_progress
+    65.37%     0.00%  SU2_CFD  SU2_CFD                         [.] CPassiveComm::AllreduceMax
+    65.37%     0.00%  SU2_CFD  SU2_CFD                         [.] ElectFailure
+    65.05%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+    48.03%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#50}::operator()
+    36.27%     0.06%  SU2_CFD  libmpi.so.40.20.3               [.] ompi_request_default_wait
+    36.27%     0.00%  SU2_CFD  libmpi.so.40.20.3               [.] ompi_coll_base_sendrecv_actual
+    29.79%     0.12%  SU2_CFD  mca_pml_ob1.so                  [.] mca_pml_ob1_recv
+    25.51%    25.51%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005330
+    21.84%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution
+    20.80%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::PlanarReference::ParameterError
+    20.80%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::BoundPhysicalSurface
+    20.80%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnion
+    18.92%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::GeometryGuidanceExcess
+    16.53%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<unsigned long, std::allocator<unsigned long> > const&, bool, double*)#27}::operator()
+    15.04%     0.05%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion
+    13.50%     0.00%  SU2_CFD  [unknown]                       [.] 0xffffffffffffffff
+    11.86%     0.12%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+    10.49%     0.88%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Determinant
+    10.44%    10.44%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005333
+     9.70%     3.62%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::PlanarReference::PlanarReference
+     9.44%     0.12%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::ExactDeterminant
+     6.64%     0.05%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()
+     6.58%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&) const::{lambda(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&)#1}::operator()
+     6.14%     0.27%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::TriangleDistance
+     6.06%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f98a8a90330
+     4.46%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007fccbcccc330
+     4.34%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f98a8a90333
+     4.17%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007ff50418f330
+     4.12%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007fd5201d4330
+     3.89%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007fcae8352330
+     3.82%     3.82%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005336
+     3.40%     1.06%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::Adjacent
+     3.36%     1.53%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::Add
+     3.33%     0.22%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::Multiply
+     3.32%     1.76%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::Multiply
+     3.15%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::TriangleUnion::Distance
+     3.08%     3.08%  SU2_CFD  mca_btl_vader.so                [.] 0x000000000000532d
+     3.04%     3.04%  SU2_CFD  mca_btl_vader.so                [.] 0x000000000000533e
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

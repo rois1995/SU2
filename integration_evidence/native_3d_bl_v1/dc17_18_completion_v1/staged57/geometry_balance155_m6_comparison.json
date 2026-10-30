@@ -1,0 +1,72 @@
+{
+  "status": "Running; no strict accepted mesh or complete loop",
+  "comparison": [
+    {
+      "stage": "length_collapse_exit",
+      "old_seconds": 2272.866071331,
+      "new_seconds": 1180.125755904,
+      "time_ratio_old_new": 1.9259524334251472,
+      "old_cells": 292712,
+      "new_cells": 292694,
+      "old_size_bad": 68366,
+      "new_size_bad": 68356,
+      "old_size_hinge": 55550.18847515041,
+      "new_size_hinge": 55524.192575442474,
+      "new_geometry_time_max_mean": 1.2813921647923256
+    },
+    {
+      "stage": "length_split_exit",
+      "old_seconds": 2504.789598267,
+      "new_seconds": 1304.168799512,
+      "time_ratio_old_new": 1.92060230179119,
+      "old_cells": 301143,
+      "new_cells": 301245,
+      "old_size_bad": 69092,
+      "new_size_bad": 69063,
+      "old_size_hinge": 53090.36849118975,
+      "new_size_hinge": 53050.55134290588,
+      "new_geometry_time_max_mean": 1.275867184481327
+    },
+    {
+      "stage": "length_split_exit",
+      "old_seconds": 2703.838760235,
+      "new_seconds": 1420.469929977,
+      "time_ratio_old_new": 1.9034818711570896,
+      "old_cells": 309750,
+      "new_cells": 309789,
+      "old_size_bad": 69815,
+      "new_size_bad": 69857,
+      "old_size_hinge": 50821.95029935082,
+      "new_size_hinge": 50837.463964167546,
+      "new_geometry_time_max_mean": 1.2582411076191782
+    },
+    {
+      "stage": "length_split_exit",
+      "old_seconds": 2945.825152751,
+      "new_seconds": 1562.032857346,
+      "time_ratio_old_new": 1.8858919253184965,
+      "old_cells": 318389,
+      "new_cells": 318372,
+      "old_size_bad": 70544,
+      "new_size_bad": 70535,
+      "old_size_hinge": 48696.56794799631,
+      "new_size_hinge": 48758.186687251175,
+      "new_geometry_time_max_mean": 1.2406273966973251
+    }
+  ],
+  "baseline_sampled_tree_peak_bytes": 12285911040,
+  "current_sampled_tree_peak_bytes": 21805510656,
+  "memory_note": "Baseline partial attempt vs current partial attempt; sampled summed RSS, not exclusive or final peak",
+  "coarsening_scope_build_fraction_of_upper_time": 0.8027826182923282,
+  "coarsening_scope_hits": 2290,
+  "coarsening_scope_misses": 10099,
+  "coarsening_scope_retention_refusals": 2182,
+  "profile_window": {
+    "old_allreduce_cycles_percent": 79.01,
+    "new_allreduce_cycles_percent": 66.05,
+    "note": "Separate short windows; not whole-run timing or controlled benchmark"
+  },
+  "profile_local_raw_sha256": "f53196b31c532aeefb431d9f02990f70c3fab2a0f0260e3a5fd337a6ba85bdd4",
+  "profile_local_raw_path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build155_geometry_balance50k/profile_670s.data",
+  "note": "Raw perf data retained locally; readable profile reports checkpointed. Still no accepted Euler mesh."
+}

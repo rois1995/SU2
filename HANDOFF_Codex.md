@@ -117,7 +117,11 @@ population from operator cost. Validate any SU2-specific modifications separatel
   fixture setup failures remain recorded. Full M6 build155 is running at
   staged57/m6_runs/euler_build155_geometry_balance50k (driver244296; status/resources
   own live handles), same50k target and5400s/event. Actual balance/throughput and
-  accepted Euler workflow remain unproven. Initial balancing only; no
+  accepted Euler workflow remain unproven. Coarsening1180s versus2273baseline;
+  gen3exit1562s versus2946 with comparable global cells/debt. Actual geometry
+  time max/mean1.24 at gen3; sampled tree RSS20.3GiB versus11.4baseline. Caches
+  nearly full and preparation remains80%of upper-query time. Full case continues
+  in construction; no strict accepted mesh yet. Initial balancing only; no
   in-event migration or cache eviction. Current design/evidence and limitations:
   [geometry balancing](Handbook/ADAPTATION_GEOMETRY_BALANCING_20261030.md).
   The prior149 500k Euler attempt
