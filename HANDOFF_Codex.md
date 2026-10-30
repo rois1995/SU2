@@ -22,7 +22,13 @@ The full two-event `euler_build162_quality_handoff50k` attempt is ACTIVE: exec57
 driver1172403, time1172492, timeout1172493, mpirun1172494, ranks1172498–1172503.
 Actual commands/cwds/start identities and config equality to build160 are verified
 in `launch_receipt.json`. Initial CFD solved and wrote input-mesh restart00000;
-coarsening is underway. At978wall seconds the sampled tree RSS is4.30GiB; no rejection or accepted event.
+coarsening completed1217.769native seconds:292744private cells,2582collapses,
+3541geometry-bad/68372size-bad, q/J unmeasured. Split ownership moved115883cells
+in5.4s; splitting is active. Generation1 completed1380.654native seconds with
+516198private cells,106930size-bad/3878geometry-bad, max edge4.540239 and q/J
+unmeasured. Coarsen/gen1 counts and debts match160, which took1462.894/1714.272s;
+host availability differs. No accepted event. Compact current stage receipts are
+in `coarsen_assessment.json`, `coarsen_comparison_to160.json`, `stage_assessment.json`.
 Source/binary/config/helpers are frozen. Inspect
 actual status/owned handles before edits/restarts; retain authorized stop/fix/retry.
 Input61330points/303359cells;50k is metric complexity, not a mesh-count limit.

@@ -15,8 +15,14 @@ Qualification checkpoint `d0c1dbc3f7` is pushed. Full two-event attempt
 `euler_build162_quality_handoff50k` is ACTIVE: exec57326, driver1172403,
 mpirun1172494, ranks1172498–1172503 (time1172492/timeout1172493). Actual
 commands/cwds/start identities and unchanged config verified in `launch_receipt.json`.
-Initial CFD completed and wrote input-mesh restart00000; metric construction is
-underway. Sources/binary/config/helpers are frozen. Inspect actual handles before
+Initial CFD completed and wrote input-mesh restart00000. Coarsening completed
+1217.769native seconds:292744private cells,2582collapses, q/J unmeasured,
+3541geometry-bad/68372size-bad. Split ownership moved115883cells in5.4s.
+Splitting is active; generation1 completed1380.654s,516198private cells,
+106930size-bad/3878geometry-bad, max edge4.540239, q/J unmeasured. Its counts/debts
+match160 generation1 at1714.272s; no accepted event. Completed coarsen counts/debts/cache
+accounting match160, which took1462.894s; host availability differs. Receipts:
+`coarsen_assessment.json`, `coarsen_comparison_to160.json`. Sources/binary/config/helpers are frozen. Inspect actual handles before
 edits/restarts. All strict
 Euler/transfer/restart requirements remain, then BL/MPI and RANS500k.
 
