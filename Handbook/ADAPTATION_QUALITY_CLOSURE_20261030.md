@@ -8,18 +8,11 @@ recovery; no adaptation accepted. Native5400s/outer14400s. Qualified evidence/so
 checkpoint475e5c4570 is pushed. All162 notes below are terminal historical evidence.
 
 Build162 full M6 Euler50k attempt is TERMINAL, unsuccessful. All ten owned handles
-are independently verified absent; all1396run pins unchanged. Sources are now safe
-to edit. Build163 passed510.785s,1296pins unchanged,82observed handles absent. Focused
-serial13cases passed the new measured-debt and geometry-only ordering checks but
-found an old synthetic metric fixture missing new totals. Its handle is terminal;
-one-cell and large-star synthetic fixtures now supply complete debt fields.
-Production sources are unchanged from163; test-only rebuild164 passed39.168s. All build/test handles verified terminal.
-Connected164serial140cases/20260assertions36.002s and MPI6 146cases/rank41.082s
-PASS; pins unchanged. Evidence: `staged57/quality_debt164_integration_summary.json`.
-Production CFD SHA25622c6d45a2f2f95205737745d0fbc8628e0f7199ee87fc0e8243dd8190ab8f9e8.
-Current full attempt: `euler_build164_quality_debt50k` is LIVE; no accepted M6 event yet. Preserve one connected cycle and
-return to the complete target after the next coherent fix. Euler→BL/MPI→RANS500k,
-strict final gates, conservative admissible transfer and actual disk restart remain.
+were independently verified absent and all1396run pins unchanged before the
+connected source correction. Builds163/164 and the serial/MPI integration campaign
+are now terminal and qualified. The actual build164 M6 attempt above remains live;
+its pinned sources must not be edited. Euler→BL/MPI→RANS500k, strict final gates,
+conservative admissible transfer and actual disk restart remain mandatory.
 
 Evidence root: `staged57/m6_runs/euler_build162_quality_handoff50k/`.
 Pushed source/qualification history and design:
@@ -108,7 +101,7 @@ Then dedicated curved/junction/interface/subsequent-operation/redistribution BL/
 qualification before the RANS500k workflow. Actual mesh counts remain separate
 from metric complexity. No fixture, memory, local-edit or partial-debt substitute.
 
-## Connected correction in progress
+## Connected correction qualified for the actual target
 
 Normal validity-only shape repair now measures the whole changed patch's sum of
 normalized squared q/J hinge deficits, rather than accepting a minimum-score gain
@@ -129,3 +122,20 @@ computed lazily within the transaction. Streamed shape proposals receive measure
 merit admission before fitting guidance; geometry/height intents retain their
 separate checks. The existing optimizer time bound receives the event's remaining
 time, without resetting cumulative work or IDs. The connected serial/MPI checks pass; actual M6 acceptance is still unvalidated.
+
+## Actual build164 progress (live, sources frozen)
+
+Initial CFD restart is byte-identical to162, allowing reuse of its initial-state
+finite/positive inspection; this is not adapted restart evidence. Startup partition
+discrete fields match162. Coarsening completed at1190.751native seconds versus
+1217.769at162,292744cells/2582collapses,68372size-bad/3541geometry-bad. Selected
+counts and all q/J/size/geometry debt sums match exactly; q/J are correctly
+unmeasured in construction. All six censuses are complete/consistent.
+
+Startup cache host quota3266762752bytes (rank544460458before rounding) exceeds162's
+quota because more physical RAM was free. Actual prepared live1285311176bytes
+versus646684568, facet live unchanged114505520; scope live1170805656versus532179048.
+Scope builds1609.780rank-seconds versus1665.658; evictions9003versus9204. Observed
+time is not isolated source speedup. Coarsening→splitting migration moved115883cells
+in5.597s. All1396run pins reverified after the transition. The actual quality phase
+and full mesh acceptance remain ahead; continue one owned workload.

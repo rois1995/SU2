@@ -11,7 +11,14 @@ All1396run pins verified; config byte-identical to162, SHA256
 Source/CFD/helpers/config frozen while live; documentation/Git snapshots allowed.
 Qualified source `d1ad372091`, evidence/fixture checkpoint `475e5c4570`, pushed.
 Build164 CFD SHA25622c6d45a2f2f95205737745d0fbc8628e0f7199ee87fc0e8243dd8190ab8f9e8.
-Initial CFD0 has advanced to metric recovery; no accepted adaptation yet.
+Initial CFD0 completed; its restart is byte-identical to162 (initial state only).
+Coarsening completed1190.751native seconds:292744cells/2582collapses,68372size-bad,
+3541geometry-bad; counts/debts exactly match162, q/J remain unmeasured as required.
+All6censuses complete/consistent. Prepared live1285311176bytes vs646684568at162,
+from the larger startup cache quota; no isolated timing claim. First ownership
+migration moved115883cells in5.597s; splitting is live. All1396pins reverified.
+See `coarsen_stage_assessment.json`, `first_ownership_assessment.json`, startup and
+initial-restart receipts. No accepted mesh, transfer or adapted restart yet.
 Native event budget5400s, outer14400s, MPI6/libs1/nice19. Check actual handles
 before any edit/restart; preserve stop/fix/retry authorization. Prelaunch~32GiB
 available, no active paging, root2.6GiB/repo63GiB free. One owned heavy workload.

@@ -1,0 +1,158 @@
+{
+  "scope": "completed coarsening-to-splitting ownership migration; not accepted mesh/CFD event",
+  "utc": "2026-10-30T21:11:03Z",
+  "raw_rows": [
+    {
+      "rank": "0",
+      "quality": "0",
+      "committed": "1",
+      "moved_cells": "115883",
+      "total_seconds": "5.5954757549998249",
+      "partition_seconds": "1.6975898569999117",
+      "directory_build_seconds": "0.86571652799999999",
+      "work_before": "1247572",
+      "work_after": "2477657",
+      "geometry_before": "87527",
+      "geometry_after": "109047",
+      "directory_peak_bytes": "2236741780",
+      "cells": "46964",
+      "transition_peak_bytes": "2236741780"
+    },
+    {
+      "rank": "1",
+      "quality": "0",
+      "committed": "1",
+      "moved_cells": "115883",
+      "total_seconds": "5.5957579729999907",
+      "partition_seconds": "1.6936806479998268",
+      "directory_build_seconds": "0.87251895199999996",
+      "work_before": "1116632",
+      "work_after": "2833955",
+      "geometry_before": "126920",
+      "geometry_after": "87190",
+      "directory_peak_bytes": "2229304932",
+      "cells": "49586",
+      "transition_peak_bytes": "2229304932"
+    },
+    {
+      "rank": "2",
+      "quality": "0",
+      "committed": "1",
+      "moved_cells": "115883",
+      "total_seconds": "5.5962117149999813",
+      "partition_seconds": "1.6912788650001858",
+      "directory_build_seconds": "0.85720096999999995",
+      "work_before": "2450981",
+      "work_after": "2585047",
+      "geometry_before": "90009",
+      "geometry_after": "102503",
+      "directory_peak_bytes": "2244704564",
+      "cells": "50666",
+      "transition_peak_bytes": "2244704564"
+    },
+    {
+      "rank": "3",
+      "quality": "0",
+      "committed": "1",
+      "moved_cells": "115883",
+      "total_seconds": "5.5955040379999446",
+      "partition_seconds": "1.6725604799999019",
+      "directory_build_seconds": "0.85893062200000003",
+      "work_before": "7624922",
+      "work_after": "2527772",
+      "geometry_before": "81281",
+      "geometry_after": "59181",
+      "directory_peak_bytes": "2220477452",
+      "cells": "48068",
+      "transition_peak_bytes": "2220477452"
+    },
+    {
+      "rank": "4",
+      "quality": "0",
+      "committed": "1",
+      "moved_cells": "115883",
+      "total_seconds": "5.5957279389999712",
+      "partition_seconds": "1.6832756730000256",
+      "directory_build_seconds": "0.87337049600000005",
+      "work_before": "1128811",
+      "work_after": "2221212",
+      "geometry_before": "93552",
+      "geometry_after": "110975",
+      "directory_peak_bytes": "2216034432",
+      "cells": "49434",
+      "transition_peak_bytes": "2216034432"
+    },
+    {
+      "rank": "5",
+      "quality": "0",
+      "committed": "1",
+      "moved_cells": "115883",
+      "total_seconds": "5.5959292160000587",
+      "partition_seconds": "1.6984672240000691",
+      "directory_build_seconds": "0.87459301499999997",
+      "work_before": "1530898",
+      "work_after": "2454173",
+      "geometry_before": "100020",
+      "geometry_after": "110413",
+      "directory_peak_bytes": "2251501836",
+      "cells": "48026",
+      "transition_peak_bytes": "2251501836"
+    }
+  ],
+  "moved_cells": 115883,
+  "maximum_total_seconds": 5.596211714999981,
+  "run_pins_verified": 1396,
+  "changed": [],
+  "sampled_tree_peak_GiB_so_far": 6.0114593505859375,
+  "latest_resource_sample": {
+    "elapsed_seconds": 1384.2273037433624,
+    "processes": [
+      {
+        "pid": 1457247,
+        "rss_bytes": 741376,
+        "name": "time"
+      },
+      {
+        "pid": 1457248,
+        "rss_bytes": 659456,
+        "name": "timeout"
+      },
+      {
+        "pid": 1457249,
+        "rss_bytes": 21921792,
+        "name": "mpirun"
+      },
+      {
+        "pid": 1457273,
+        "rss_bytes": 926400512,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 1457272,
+        "rss_bytes": 935063552,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 1457271,
+        "rss_bytes": 919146496,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 1457270,
+        "rss_bytes": 899780608,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 1457269,
+        "rss_bytes": 925515776,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 1457268,
+        "rss_bytes": 970801152,
+        "name": "SU2_CFD"
+      }
+    ],
+    "sampled_process_tree_rss_bytes": 5600030720
+  }
+}

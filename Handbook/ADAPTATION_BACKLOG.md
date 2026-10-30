@@ -51,4 +51,7 @@ its relevance or the user explicitly reprioritizes it.
   Consider lazy computation of this immutable old score only when a candidate
   reaches geometry comparison; retain every candidate/final geometry, frame,
   height and quality check. Distinguish this caller from Adapt's old-score cache.
-  Current run remains frozen; decide from the actual target outcome.
+  Implemented in the connected build164 candidate after162 failed: lazy old-side
+  score within SmoothBoundary plus whole-star debt and moved-edge rejection before
+  fresh fitting guidance. Serial/MPI qualification passes; actual164M6 is live and
+  frozen. Whole-transaction old-side memoization in Adapt remains deferred.
