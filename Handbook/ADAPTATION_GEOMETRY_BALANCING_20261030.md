@@ -115,12 +115,11 @@ maximum geometry/mean improves2.0->1.02778. Final cells206..222 (mean216),
 metric509..555 (mean540), geometry1648..1776 (mean1728), cut278/arcs4752.
 This is focused qualification, not a completed adapted mesh.
 
-The complete six-rank M6 attempt is running at
-`staged57/m6_runs/euler_build155_geometry_balance50k`, driver244296; current
-owned handles/resources are in its status/receipt files. Targets, budgets and
-final gates remain unchanged. Initial and construction comparisons are below;
-quality, accepted meshes and end-to-end success remain to be assessed from this
-run. No second old-code campaign is needed.
+The six-rank build155 M6 attempt is terminal after the user requested the new
+coordination work immediately. Only the verified owned launcher was signaled;
+all nine recorded handles are gone and pins verified. It ended at3798.03s with
+no accepted mesh or transfer. See `staged57/build155_m6_summary.json` and the
+attempt's stop, terminal and resource receipts.
 
 ### Observed target progress, still private construction
 
@@ -153,9 +152,60 @@ not eliminated preparation cost or proved that eviction would help.
 
 Evidence: `staged57/geometry_balance155_m6_comparison.json`, and the attempt's
 `initial_partition_assessment.json`, `coarsening_stage_assessment.json`,
-`stage_assessment.json`, profile/progress receipts and per-rank logs. The run
-continues under unchanged gates/budgets. **No mesh accepted, no quality stage
+`stage_assessment.json`, profile/progress receipts and per-rank logs. The run was stopped at the user's request. **No mesh accepted, no quality stage
 completed, no transfer/CFD/restart loop validated.**
+
+### Two-lane coordination: implementation underway
+
+The user explicitly superseded the prior instruction to wait for build155's
+result and requested immediate implementation using its preserved baseline.
+The primary agent is implementing split lanes and bounded-progress coordination;
+this work is not yet implemented or validated. Final generation22 at3654.96s
+had484886 private cells,46763 accepted splits,86916 size-bad cells and size hinge
+16466.18;2905 geometry-bad cells and geometry debt0.00038483. Maximum reported
+metric edge was3.8544. No quality stage was reached. Sampled process-tree RSS
+peaked at about20.8GiB; it is not a whole-job peak.
+
+The source supports pass-long neighboring-edge retirement as a major attempt
+coverage limit (`Selection::ServiceClaimedVertex`, called after publication),
+and curved proposals remain one/rank/round. Current generation-local long-edge
+sums count shared replicas; quoted attempt percentages need a unique-owned-edge
+census before being treated as exact. High accepted/proposed ratios make broad
+operator refusal a less plausible primary cause. There is no50k q/J baseline.
+
+Standalone Refine already omits bidirectional pass claims and retains fresh
+lookup/full reservation/versioned publication. This is relevant reuse evidence
+for relaxing split claims, not a reason to weaken any transaction check. Keep
+collapse policy unchanged. Full expanded footprints and geometry/BL effects
+still need existing certification/reservation; cell-only ReserveInteriors has a
+different, narrower contract and must not be substituted blindly.
+
+Local physical incidence is a scheduling hint. Late imported/expanded boundary
+or BL effects need an explicit routing policy if the lane is intended to isolate
+cheap interior work. Count late discoveries. Global lane transitions must cover
+unmeasured surface work under progressive BL seeding, pending conflict losers,
+reactivated edges and collective call order. Freeze the entry frontier and put
+descendants in the next finite generation. A global least-priority eligible
+proposal can make progress; lowest rank alone is not the complete priority rule.
+
+A bounded window using unique-edge debt/maximum length and geometry debt is a
+sounder handoff criterion than any accepted edit. Complete consistent censuses,
+noise tolerance, strict final gates and unchanged cumulative budgets remain
+necessary. It is not a guarantee of adequate quality time. Surface lanes still
+execute collective rounds; lane separation does not remove surface lockstep or
+preparation costs. Preserve the endorsed surface-first scheduling policy. The
+review cites an older feedback_surface_first memory; its absence from this
+workspace is not evidence that the user never gave that instruction.
+
+Defer general balanced placement, multipoint insertion and curved multi-slot
+batching pending target evidence. At generation15, build155's stalled maximum
+finally changes5.9563->5.4412;32901splits accepted, still no quality stage.
+An age/last-disposition receipt should distinguish unattempted bulk retirement,
+ordinary conflicts, pass deferral and actual rejection rather than infer why it
+stalled. Proposed future tests are neighboring interior edges across owners,
+late boundary/BL expansion, finite frontier/descendant servicing, frozen-metric
+measurements after projection, serial/MPI6 topology/publication/provenance and
+the same full M6 workflow. Diagnostics are not completion.
 
 ## Literature baseline
 

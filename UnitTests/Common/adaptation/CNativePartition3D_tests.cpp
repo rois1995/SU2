@@ -8,6 +8,7 @@
 #include "../../../Common/include/adaptation/CNativePartition3D.hpp"
 #include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
+#include "../../../Common/include/adaptation/CNativeGenerationProgress3D.hpp"
 #include <iomanip>
 #include <iostream>
 #include <numeric>
@@ -278,3 +279,19 @@ TEST_CASE("Native weighted tetrahedral worker migration preserves original senso
   }
 }
 #endif
+
+TEST_CASE("Generation edge progress deduplicates replicas without publication", "[NativeGenerationProgress3D]") {
+  World world;std::vector<EdgeProgressSample> samples{{{2,1},2.,false,2,9,1},{{1,2},3.,true,4,2,3},
+      {{3,4},4.,false,1,0},{{5,6},1.,false,0,0}};
+  GenerationProgress3D result;std::string reason;
+  REQUIRE(MeasureGenerationProgress(world,samples,result,reason));CHECK(result.unique_edges==3);
+  CHECK(result.long_surface==1);CHECK(result.long_interior==1);CHECK((result.histogram==std::array<uint64_t,3>{1,1,1}));
+  CHECK(result.hinge_squared==Approx(std::pow(3./MaximumMetricEdge-1,2)+std::pow(4./MaximumMetricEdge-1,2)));
+  REQUIRE(result.top.size()==3);CHECK((result.top[0].edge==Edge{3,4}));CHECK((result.top[1].edge==Edge{1,2}));
+  CHECK(result.top[1].surface);CHECK(result.top[1].age==4);CHECK(result.top[1].disposition==2);CHECK(result.top[1].disposition_round==3);
+  GenerationProgress3D unchanged;unchanged.unique_edges=77;unchanged.top.push_back({{9,10},1,false,0,0});
+  CHECK_FALSE(MeasureGenerationProgress(world,samples,unchanged,reason,1));
+  CHECK(unchanged.unique_edges==77);REQUIRE(unchanged.top.size()==1);CHECK((unchanged.top[0].edge==Edge{9,10}));
+  samples[0].length=std::numeric_limits<double>::infinity();
+  CHECK_FALSE(MeasureGenerationProgress(world,samples,unchanged,reason));CHECK(unchanged.unique_edges==77);
+}

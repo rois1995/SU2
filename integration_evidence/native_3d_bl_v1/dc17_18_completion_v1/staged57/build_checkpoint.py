@@ -16,6 +16,7 @@ paths.update(str(ROOT.parents[3]/p) for p in (
     'Common/include/adaptation/CNativeTraceCoverage3D.hpp',
     'Common/include/adaptation/CNativeReferenceTriangulation3D.hpp',
     'Common/include/adaptation/CNativeGeometryBackend3D.hpp',
+    'Common/include/adaptation/CNativeGenerationProgress3D.hpp',
     'Common/src/adaptation/CNativeAtlas3D.cpp',
     'Common/src/adaptation/CNativeCurvedAtlas3D.cpp',
     'Common/src/adaptation/CNativeCanonicalTrace3D.cpp',

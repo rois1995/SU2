@@ -116,6 +116,15 @@ struct EngineStats {
   uint64_t coarsen_checkpoints=0,coarsen_committed_passes=0,coarsen_rolled_back_passes=0;
   uint64_t coarsen_retired_directions=0,coarsen_restored_cells=0,coarsen_rolled_back_collapses=0;
   bool bidirectional=false;
+  // 0: legacy/mixed, 1: surface split lane, 2: interior split lane.
+  unsigned split_lane=0;
+  uint64_t split_generation=0,surface_rounds=0,interior_rounds=0,interior_boundary_discoveries=0;
+  uint64_t surface_conflicts=0,interior_conflicts=0,construction_stall_handoffs=0;
+  uint64_t child_ratio_measured=0;
+  double surface_seconds=0,interior_seconds=0,maximum_child_parent_ratio=0;
+  uint64_t unique_long_surface=0,unique_long_interior=0;
+  double unique_edge_debt=0,maximum_edge=0;
+  std::array<uint64_t,3> edge_histogram{};
   uint64_t length_split_passes=0,length_collapse_passes=0,length_splits=0,length_collapses=0,length_pass_deferred=0,length_expansion_deferrals=0;
   uint64_t quality_stages=0,construction_returns=0;  // Fresh strict censuses and size/geometry returns within this event.
   uint64_t region_field_points=0,region_field_sensor_hits=0,region_field_interior_hits=0;

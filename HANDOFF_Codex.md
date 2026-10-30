@@ -114,16 +114,21 @@ population from operator cost. Validate any SU2-specific modifications separatel
   are globally agreed before weighting. Corrected estimator155 passes42assertions;
   connected MPI6 passes13cases/rank. The clustered fixture's geometry max/mean
   improves2.0->1.028 with balanced metric/count and preserved records. Earlier
-  fixture setup failures remain recorded. Full M6 build155 is running at
-  staged57/m6_runs/euler_build155_geometry_balance50k (driver244296; status/resources
-  own live handles), same50k target and5400s/event. Actual balance/throughput and
-  accepted Euler workflow remain unproven. Coarsening1180s versus2273baseline;
-  gen3exit1562s versus2946 with comparable global cells/debt. Actual geometry
-  time max/mean1.24 at gen3; sampled tree RSS20.3GiB versus11.4baseline. Caches
-  nearly full and preparation remains80%of upper-query time. Full case continues
-  in construction; no strict accepted mesh yet. Initial balancing only; no
-  in-event migration or cache eviction. Current design/evidence and limitations:
-  [geometry balancing](Handbook/ADAPTATION_GEOMETRY_BALANCING_20261030.md).
+  fixture setup failures remain recorded. Build155 M6 was stopped at the user's
+  request after3798.03s; pins verified and all nine handles gone. Last complete
+  private split generation22 had484886 cells,46763 accepted splits, size debt
+  16466.18, geometry debt0.00038483 and maximum metric edge3.8544; quality stages0.
+  Initial balancing improved comparable stage times but sampled tree RSS rose to
+  about20.8GiB. The user superseded waiting for the run result and requested
+  two-lane split scheduling and bounded-progress handoff now. That connected
+  implementation is built as157. Focused serial11cases/5306assertions and MPI6
+  18cases/rank pass. The complete two-event M6 Euler50k attempt
+  `euler_build157_split_lanes50k` is running; consult its status/resources and verify
+  owned handles before acting. No accepted mesh, transfer or restart yet. The
+  neighboring-edge lane fixture still needs the concurrent candidate-batch variant,
+  and the stall-handoff counter needs printed/tested coverage at the next safe edit
+  point. Existing bidirectional MPI checks already cover concurrent commits. Details: [geometry balancing](Handbook/ADAPTATION_GEOMETRY_BALANCING_20261030.md)
+  and `staged57/build155_m6_summary.json`.
   The prior149 500k Euler attempt
   was stopped on that steering, pins verified/all recorded handles terminal.
   Build151 passes108.262s and retains build149's validated repeat-split staging.

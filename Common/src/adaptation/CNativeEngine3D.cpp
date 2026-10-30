@@ -11,6 +11,7 @@
 #include "../../include/adaptation/CNativePointConstruction3D.hpp"
 #include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../include/adaptation/CNativeGeometryBackend3D.hpp"
+#include "../../include/adaptation/CNativeGenerationProgress3D.hpp"
 #include <chrono>
 #include <cmath>
 #include <cstring>
@@ -154,11 +155,14 @@ struct ProposalKey {
   template<class S> void Fields(S& s){s(feature,rank,slot,geometric,score,cell,epoch);}
 };
 struct RepairReceipt {
-  Feature feature;bool accepted=false;
-  template<class S> void Fields(S& s){s(feature,accepted);}
+  Feature feature;bool accepted=false;unsigned disposition=4;
+  template<class S> void Fields(S& s){s(feature,accepted,disposition);}
 };
 class Selection {
  public:
+  enum class Lane {Surface,Interior};
+  bool split_lanes=false;
+  Lane lane=Lane::Surface;
   Selection(bool coarsening, bool repairing, const PlanarReference& geometry, EngineStats& stats, bool timings, double tolerance,const WallHeights& heights,bool quality_only)
       : coarsening(coarsening), track_repairs(repairing), repair_event(repairing), quality_only(quality_only), geometry(geometry), stats(stats), timings(timings), tolerance(tolerance), heights(heights) {}
   bool coarsening, track_repairs, repair_event, prune_collapses = false, track_splits = false;
@@ -170,9 +174,25 @@ class Selection {
   double tolerance;
   const WallHeights& heights;
   std::set<std::tuple<long double,Id,Edge>> geometry_queue;
+  std::set<std::pair<long double,Edge>> surface_queue;
   // One construction generation contains the edges present at its entry, including edges of
   // cells whose metric has not been progressively seeded yet. Publications cannot extend it.
   std::set<Edge> construction_frontier;
+  struct History {uint64_t age=0,round=0;unsigned disposition=0;};
+  std::map<Edge,History> edge_history;
+  void Note(Edge edge,unsigned disposition) {
+    std::sort(edge.begin(),edge.end());const auto found=edge_history.find(edge);
+    if(found!=edge_history.end()){found->second.round=stats.rounds;found->second.disposition=disposition;}
+  }
+  void RefreshHistory(bool generation) {
+    for(auto it=edge_history.begin();it!=edge_history.end();) {
+      const auto edge=edges.find(it->first);
+      if(edge==edges.end()||edge->second.measure.length<=MaximumMetricEdge)it=edge_history.erase(it);else ++it;
+    }
+    for(const auto& edge:edges)if(edge.second.measure.length>MaximumMetricEdge) {
+      auto& history=edge_history[edge.first];if(generation)++history.age;
+    }
+  }
   long double Priority(long double length) const { return coarsening ? length : -length; }
   bool Candidate(long double length) const {
     return coarsening ? length < CoarseningMetricEdge : length > MaximumMetricEdge;
@@ -181,19 +201,22 @@ class Selection {
     if (repair_event || !Candidate(length)) return;
     for (unsigned i=0; i<(coarsening ? 2u : 1u); ++i) {
       Edge key=edge; std::sort(key.begin(),key.end());
+      const auto value=std::make_pair(Priority(length),edge);
+      auto& destination=split_lanes&&!coarsening&&edges.at(key).physical_users ? surface_queue : queue;
+      const auto erased=queue.erase(value)+surface_queue.erase(value);
       const auto blocked=blocked_edges.find(edge[1]);
       if(insert && blocked!=blocked_edges.end() && blocked->second.count(edge[0])) {
         // Measuring another unchanged cell cannot reopen a rejected direction; Touch owns reactivation.
         queue.erase({Priority(length),edge});++stats.blocked_queue_skips;
       } else if(insert && !construction_frontier.count(edge))queue.erase({Priority(length),edge});
       else if (insert && prune_collapses && edges.at(key).forbidden[i])
-        stats.collapse_filtered += queue.erase({Priority(length),edge});
-      else if (insert) queue.insert({Priority(length),edge}); else queue.erase({Priority(length),edge});
+        stats.collapse_filtered += erased;
+      else if (insert) destination.insert(value);
       std::swap(edge[0],edge[1]);
     }
   }
   size_t invalid = 0, construction_invalid = 0, quality_invalid = 0, unmeasured_shape = 0, repair_bytes = 0;
-  struct EdgeState { EdgeMeasure measure; size_t users = 0; std::array<size_t,2> forbidden{}; };
+  struct EdgeState { EdgeMeasure measure; size_t users = 0,physical_users=0; std::array<size_t,2> forbidden{}; };
   struct CellDebt {
     long double q=0,j=0,size=0,height=0,geometry=0;
     bool q_measured=false,j_measured=false,height_measured=false,geometry_measured=true,height_unresolved=false;
@@ -201,7 +224,7 @@ class Selection {
   };
   StageProgress debt;
   bool progress_consistent=true,census_started=false;
-  struct CellState { uint64_t version=0; CellDebt debt;std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{}; std::array<Id,4> vertices{}; std::array<long double,6> geometry_scores{}; bool valid = false,target_valid=false,geometry_invalid=false,construction_valid=false,quality_valid=false,shape_measured=false; };
+  struct CellState { uint64_t version=0; CellDebt debt;std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{};std::array<bool,6> physical{}; std::array<Id,4> vertices{}; std::array<long double,6> geometry_scores{}; bool valid = false,target_valid=false,geometry_invalid=false,construction_valid=false,quality_valid=false,shape_measured=false; };
   std::map<Id,CellState> cells;
   std::map<Edge,EdgeState> edges;
   std::set<std::pair<long double,Edge>> queue;
@@ -214,7 +237,7 @@ class Selection {
   std::set<std::pair<uint64_t,RepairFeature>> repair_queue;
   std::set<RepairFeature> repair_zero;
   size_t Bytes() const {
-    return transfer_memory::Add(MapBytes(cells),MapBytes(edges),MapBytes(queue),MapBytes(construction_frontier),MapBytes(cell_repairs),MapBytes(repair_users),MapBytes(repair_queue),MapBytes(repair_zero),repair_bytes,
+    return transfer_memory::Add(MapBytes(cells),MapBytes(edges),MapBytes(queue),MapBytes(surface_queue),MapBytes(edge_history),MapBytes(construction_frontier),MapBytes(cell_repairs),MapBytes(repair_users),MapBytes(repair_queue),MapBytes(repair_zero),repair_bytes,
         MapBytes(geometry_queue),MapBytes(vertex_cells),MapBytes(blocked_edges),transfer_memory::Mul(transfer_memory::Add(vertex_links,blocked_links),sizeof(Id)+4*sizeof(void*)));
   }
   void Account(const CellState& row,bool add) {
@@ -237,7 +260,7 @@ class Selection {
     result.invalid_cells=progress_consistent?invalid:0;
     result.construction_invalid_cells=progress_consistent?construction_invalid:0;
     result.quality_invalid_cells=progress_consistent?quality_invalid:0;
-    result.remaining_edges=queue.size()+geometry_queue.size();result.remaining_repairs=repair_queue.size();
+    result.remaining_edges=queue.size()+surface_queue.size()+geometry_queue.size();result.remaining_repairs=repair_queue.size();
     result.unmeasured_cells=owned-result.measured_cells;
     result.shape_unmeasured_cells=owned-result.shape_measured_cells;
     result.height_requested=!heights.empty();result.surface_error_requested=!geometry.ExtensionComponents().empty();
@@ -260,12 +283,13 @@ class Selection {
       const auto& oldest=*repair_queue.begin();const auto& key=oldest.second;
       Choice choice; choice.active=true; choice.feature={key.second,key.first};choice.repair_epoch=oldest.first;return choice;
     }
-    if (!geometry_queue.empty()) {
+    if ((!split_lanes||coarsening||lane==Lane::Surface) && !geometry_queue.empty()) {
       const auto key=std::get<2>(*geometry_queue.begin());
       return {key,edges.at(key).measure,true,{},true,std::get<0>(*geometry_queue.begin()),std::get<1>(*geometry_queue.begin())};
     }
-    if (queue.empty()) return {};
-    const auto key = queue.begin()->second;
+    const auto& active=split_lanes&&!coarsening&&lane==Lane::Surface ? surface_queue : queue;
+    if (active.empty()) return {};
+    const auto key = active.begin()->second;
     Edge canonical=key; std::sort(canonical.begin(),canonical.end());
     return {key,edges.at(canonical).measure,true,{},false,Priority(edges.at(canonical).measure.length)};
   }
@@ -273,7 +297,8 @@ class Selection {
     std::vector<Choice> result;
     std::set<Id> used;
     size_t scanned=0;
-    for (auto it=queue.begin();it!=queue.end() && result.size()<limit && scanned++<MaximumDirectoryScan;) {
+    const auto& active=split_lanes&&!coarsening&&lane==Lane::Surface ? surface_queue : queue;
+    for (auto it=active.begin();it!=active.end() && result.size()<limit && scanned++<MaximumDirectoryScan;) {
       const auto edge=(it++)->second;
       Edge canonical=edge; std::sort(canonical.begin(),canonical.end());
       const Choice choice{edge,edges.at(canonical).measure,true,{}};
@@ -307,10 +332,11 @@ class Selection {
   }
   void Block(Edge edge, Feature feature, bool repairing) {
     if (repairing) { Service(feature,false);return; }
+    Note(edge,4);
     ServiceEdge(edge);
     Edge canonical=edge;std::sort(canonical.begin(),canonical.end());
     const auto it = edges.find(canonical);
-    if(it!=edges.end())queue.erase({Priority(it->second.measure.length),edge});
+    if(it!=edges.end()){queue.erase({Priority(it->second.measure.length),edge});surface_queue.erase({Priority(it->second.measure.length),edge});}
     // Rejection can reach an owner before progressive measurement discovers its edge.
     if (coarsening || track_splits) {
       const bool inserted=blocked_edges[edge[1]].insert(edge[0]).second;
@@ -339,7 +365,9 @@ class Selection {
     }
     const auto found=blocked_edges.find(vertex);
     if (found==blocked_edges.end()) return;
-    for (Id retained:found->second) {
+    auto reactivated=std::move(found->second);
+    blocked_links-=reactivated.size();blocked_edges.erase(found);
+    for (Id retained:reactivated) {
       Edge edge{retained,vertex}, key=edge; std::sort(key.begin(),key.end());
       const auto measured=edges.find(key);
       if (measured==edges.end())continue;
@@ -356,10 +384,10 @@ class Selection {
       if (prune_collapses && measured->second.forbidden[direction]) continue;
       if (!coarsening) edge=key;
       if(!construction_frontier.count(edge))continue;
-      const bool inserted=queue.insert({Priority(measured->second.measure.length),edge}).second;
+      const auto count=queue.size()+surface_queue.size();Queue(key,measured->second.measure.length,true);
+      const bool inserted=queue.size()+surface_queue.size()>count;
       if (coarsening) stats.collapse_reactivated+=inserted;
     }
-    blocked_links-=found->second.size(); blocked_edges.erase(found);
   }
   bool FilterCollapse(const Choice& choice, const Owned& working) {
     if (!coarsening || !prune_collapses || !choice.active) return false;
@@ -417,6 +445,7 @@ class Selection {
       const auto key=found->second.edges[slot];
       auto& state = edges.at(key);
       Queue(key,state.measure.length,false);
+      state.physical_users-=found->second.physical[slot];
       for (unsigned direction=0;direction<2;++direction)
         state.forbidden[direction]-=bool(found->second.forbidden[slot] & (1u<<direction));
       if (--state.users==0) { Forget(key); Forget({key[1],key[0]}); edges.erase(key); }
@@ -439,7 +468,7 @@ class Selection {
   }
   void ChangePhase(bool improvement,const Owned& working,const std::shared_ptr<const FrozenMetricIdentity>& identity) {
     size_repairs=false;
-    track_repairs=repair_event=improvement;prune_collapses=false;queue.clear();geometry_queue.clear();construction_frontier.clear();
+    track_repairs=repair_event=improvement;prune_collapses=false;queue.clear();surface_queue.clear();geometry_queue.clear();construction_frontier.clear();
     for(auto& item:cells) {
       auto& row=item.second;const auto found=working.find(item.first);
       if(found==working.end()||found->second.version!=row.version)throw std::logic_error("Phase census lost a versioned owned row.");
@@ -585,12 +614,16 @@ class Selection {
         geometry_queue.insert({-row.geometry_scores[slot],cell.id,key});
       auto inserted=edges.emplace(key,EdgeState{measured.second,0});
       auto& state=inserted.first->second;
+      Queue(key,state.measure.length,false);
       if (!Same(state.measure.a,measured.second.a) || !Same(state.measure.b,measured.second.b) ||
           state.measure.length!=measured.second.length)
         throw std::logic_error("Inconsistent native 3D frozen edge measurement.");
       row.forbidden[slot]=Candidate(measured.second.length) ? Forbidden(owned,key) : 0;
       for (unsigned direction=0;direction<2;++direction)
         state.forbidden[direction]+=bool(row.forbidden[slot] & (1u<<direction));
+      bool physical=false;for(unsigned face=0;face<4;++face)if(owned.physical[face].present &&
+          cell.v[face].id!=key[0] && cell.v[face].id!=key[1])physical=true;
+      state.physical_users+=physical;row.physical[slot]=physical;
       ++state.users; row.edges[slot++]=key;
       Queue(key,state.measure.length,true);
     }
@@ -653,7 +686,7 @@ class Selection {
     const bool serviced=construction_frontier.erase(edge);
     const auto direction=edge;std::sort(edge.begin(),edge.end());
     const auto measured=edges.find(edge);
-    if(measured!=edges.end())queue.erase({Priority(measured->second.measure.length),direction});
+    if(measured!=edges.end()){queue.erase({Priority(measured->second.measure.length),direction});surface_queue.erase({Priority(measured->second.measure.length),direction});}
     const auto star=vertex_cells.find(edge[0]);
     if(star!=vertex_cells.end())for(Id id:star->second) {
       const auto& row=cells.at(id);
@@ -668,7 +701,8 @@ class Selection {
     for(Id id:star->second) {
       const auto& row=cells.at(id);
       if(!coarsening) {
-        for(const auto& edge:row.edges)if(construction_frontier.count(edge))serviced+=ServiceEdge(edge);
+        for(const auto& edge:row.edges)if(construction_frontier.count(edge)&&
+            (!split_lanes||edges.at(edge).physical_users)){Note(edge,3);serviced+=ServiceEdge(edge);}
       } else {
         // Every collapse of this neighboring point imports a star containing the committed vertex.
         for(Id removed:row.vertices) {
@@ -681,7 +715,7 @@ class Selection {
     return serviced;
   }
   void Reset(bool improvement) {
-    cells.clear();edges.clear();queue.clear();geometry_queue.clear();construction_frontier.clear();vertex_cells.clear();
+    cells.clear();edges.clear();queue.clear();surface_queue.clear();geometry_queue.clear();construction_frontier.clear();edge_history.clear();vertex_cells.clear();
     cell_repairs.clear();repair_users.clear();repair_queue.clear();repair_zero.clear();
     invalid=construction_invalid=quality_invalid=unmeasured_shape=repair_bytes=vertex_links=0;
     debt={};progress_consistent=true;census_started=false;
@@ -818,6 +852,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto& stats=result.stats;stats.bidirectional=bidirectional;stats.parameter_setup_seconds=parameter_setup;stats.initialization_seconds=parameter_setup;stats.maximum_work_bytes=parameter_bound;
   Owned working;
   Selection selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance,options.wall_heights,bidirectional);
+  selection.split_lanes=bidirectional;
+  bool construction_claims=bidirectional;
+  GenerationProgress3D edge_progress;
+  uint64_t edge_census_round=UINT64_MAX;
+  struct GenerationDebt {double edges=0,geometry=0,maximum=0;bool geometry_complete=false;};
+  std::array<GenerationDebt,4> generation_window{};size_t generation_window_count=0;
   std::map<Edge,EdgeMeasure> retired_edges,campaign_edges;
   std::map<Id,std::set<Id>> inactive_blocked_edges;size_t inactive_blocked_links=0;
   std::array<bool,2> length_blocks_dirty{{false,false}};
@@ -907,7 +947,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   auto coalesce=[&](std::vector<Choice>& choices) {
     const bool collapse=coarsening && !curved && !composition;
-    const bool concurrent_refine=(repairing || (!coarsening && (curved || composition)) || (bidirectional && coarsening)) && options.candidate_batch>1;
+    const bool concurrent_refine=(repairing || (!coarsening && (curved || composition || selection.split_lanes)) || (bidirectional && coarsening)) && options.candidate_batch>1;
     if(world.size==1 || (!repairing && !collapse && !concurrent_refine))return true;
     const auto feature=[&](const Choice& c){return repairing?c.feature:Feature{{c.edge[0],c.edge[1],0},2};};
     // Replicated vertex/edge/face demands are one proposal; directed collapses retain distinct endpoints.
@@ -956,7 +996,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     return vote(failure);
   };
   auto service_frontier=[&](Feature feature,bool active,bool accepted,
-                            const std::array<RepairReceipt,MaximumCandidateBatch>* extra=nullptr,size_t count=0) {
+                            const std::array<RepairReceipt,MaximumCandidateBatch>* extra=nullptr,size_t count=0,unsigned disposition=4) {
     // Only the bounded elected frontier is replicated, never the resident demand queues.
     const bool certify_support=coarsening && !repairing && checkpoint.valid;
     const auto scratch=transfer_memory::Add(transfer_memory::Mul(world.size,sizeof(std::vector<RepairReceipt>)),
@@ -968,7 +1008,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(count>MaximumCandidateBatch || (count && !extra))throw std::logic_error("Native frontier receipt list exceeds its bound.");
       to.resize(world.size);
       for(auto& bucket:to) {
-        if(active)bucket.push_back({feature,accepted});
+        if(active)bucket.push_back({feature,accepted,disposition});
         for(size_t i=0;i<count;++i)bucket.push_back(extra->at(i));
       }
     }
@@ -1000,6 +1040,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(repairing)selection.Service(receipt.feature,receipt.accepted);
         else {
           if(receipt.feature.count!=2)throw std::logic_error("Invalid native construction service receipt.");
+          selection.Note({receipt.feature.vertices[0],receipt.feature.vertices[1]},receipt.accepted?5:receipt.disposition);
           selection.ServiceEdge({receipt.feature.vertices[0],receipt.feature.vertices[1]});
         }
       }catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -1045,6 +1086,33 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   const bool observe_state=world.maximum(bool(options.rejected_state));
   const bool observe_stage=world.maximum(bool(options.stage_observer));
   bool stage_storage_admitted=false,stage_observer_failed=false,construction_entry_reported=false;
+  auto generation_census=[&]() {
+    const auto extra=transfer_memory::Mul(selection.edges.size(),sizeof(EdgeProgressSample)+sizeof(Selection::History)+sizeof(Edge)+4*sizeof(void*));
+    if(!admit(extra))return false;
+    CLocalFailure failure;std::vector<EdgeProgressSample> samples;
+    try {
+      selection.RefreshHistory(false);samples.reserve(selection.edges.size());
+      for(const auto& row:selection.edges) {
+        const auto h=selection.edge_history.find(row.first);const auto length=row.second.measure.length;
+        double value=double(length);if(value<length)value=std::nextafter(value,INFINITY);
+        samples.push_back({row.first,value,row.second.physical_users!=0,h==selection.edge_history.end()?0:h->second.age,
+            h==selection.edge_history.end()?0:h->second.disposition,h==selection.edge_history.end()?0:h->second.round});
+      }
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!vote(failure))return false;
+    if(!MeasureGenerationProgress(world,samples,edge_progress,result.reason,options.memory_ceiling,
+        transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),transfer_memory::Bytes(edge_progress.top))))return false;
+    stats.unique_long_surface=edge_progress.long_surface;stats.unique_long_interior=edge_progress.long_interior;
+    stats.unique_edge_debt=edge_progress.hinge_squared;stats.maximum_edge=edge_progress.max_length;stats.edge_histogram=edge_progress.histogram;
+    edge_census_round=stats.rounds;
+    return true;
+  };
+  auto generation_debt=[&]() {
+    GenerationDebt d;d.edges=edge_progress.hinge_squared;d.maximum=edge_progress.max_length;
+    const auto p=selection.Progress(working.size());
+    d.geometry=CPassiveComm::Allreduce(double(p.geometry_excess_squared),CPassiveComm::Op::SUM,world.comm);
+    d.geometry_complete=!world.maximum(!p.geometry_complete);return d;
+  };
   auto observe_progress=[&](const char* stage) {
     if(options.timings && std::string(stage)!="window") {
       const auto p=selection.Progress(working.size());const auto* state=geometry.Parameters();
@@ -1088,7 +1156,22 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" retention_refusals="<<g.retention_refusals-geometry_begin.retention_refusals<<" prepared_bytes="<<g.prepared_bytes<<" prepared_limit="<<g.prepared_limit
           <<" length_splits="<<stats.length_splits<<" length_collapses="<<stats.length_collapses
           <<" split_passes="<<stats.length_split_passes<<" collapse_passes="<<stats.length_collapse_passes<<" quality_stages="<<stats.quality_stages
+          <<" split_generation="<<stats.split_generation<<" split_lane="<<stats.split_lane
+          <<" surface_rounds="<<stats.surface_rounds<<" interior_rounds="<<stats.interior_rounds
+          <<" surface_seconds="<<stats.surface_seconds<<" interior_seconds="<<stats.interior_seconds
+          <<" surface_conflicts="<<stats.surface_conflicts<<" interior_conflicts="<<stats.interior_conflicts
+          <<" interior_boundary_discoveries="<<stats.interior_boundary_discoveries
+          <<" unique_long_surface="<<stats.unique_long_surface<<" unique_long_interior="<<stats.unique_long_interior
+          <<" unique_edge_debt="<<stats.unique_edge_debt<<" maximum_edge="<<stats.maximum_edge
+          <<" edge_census_round="<<edge_census_round<<" edge_census_current="<<(edge_census_round==stats.rounds)
+          <<" edge_histogram="<<stats.edge_histogram[0]<<','<<stats.edge_histogram[1]<<','<<stats.edge_histogram[2]
+          <<" child_parent_max="<<stats.maximum_child_parent_ratio
+          <<" child_ratio_measured="<<stats.child_ratio_measured
           <<" elapsed="<<std::chrono::duration<double>(Clock::now()-started).count()<<std::endl;
+      if(std::string(stage)=="length_split_exit")for(const auto& edge:edge_progress.top)
+        std::cout<<"NATIVE3D_EDGE rank="<<world.rank<<" generation="<<stats.split_generation
+            <<" a="<<edge.edge[0]<<" b="<<edge.edge[1]<<" length="<<edge.length<<" surface="<<edge.surface
+            <<" age="<<edge.age<<" disposition="<<edge.disposition<<" disposition_round="<<edge.disposition_round<<'\n';
     }
     if(!observe_stage || !stage_storage_admitted || stage_observer_failed)return !stage_observer_failed;
     CLocalFailure failure;
@@ -1151,7 +1234,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.final_owned_cells=working.size();
     stats.cached_measured_cells=selection.cells.size();
     stats.cached_invalid_cells=selection.invalid;
-    stats.remaining_edges=selection.queue.size()+selection.geometry_queue.size();
+    stats.remaining_edges=selection.queue.size()+selection.surface_queue.size()+selection.geometry_queue.size();
     stats.remaining_repairs=selection.repair_queue.size();
     stats.tracked_bytes=world.bytes_sent-tracked_bytes_begin;
     stats.tracked_calls=world.collective_calls-tracked_calls_begin;
@@ -1902,7 +1985,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   auto enter_phase=[&](Phase next) {
     if(bidirectional) {
+      construction_claims=next==Phase::Construction;stats.split_lane=0;
       if(next==Phase::Construction) {
+        generation_window_count=0;selection.edge_history.clear();
         if(world.maximum(improvement_changed))length_blocks_dirty={{true,true}};
         directory->BeginConstructionPass();
       } else directory->EndConstructionPass();
@@ -1949,6 +2034,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         transfer_memory::Mul(transfer_memory::Mul(collapse?12:6,working.size()),sizeof(Edge)+4*sizeof(void*)))))return false;
     CLocalFailure failure;
     try {
+      selection.lane=Selection::Lane::Surface;construction_claims=true;
+      stats.split_lane=collapse?0:1;
+      if(!collapse){stats.split_generation=stats.length_split_passes+1;selection.RefreshHistory(true);}
       directory->BeginConstructionPass();length_direction(collapse);selection.ChangePhase(false,working,field_identity);
     }catch(const std::exception& error){failure.Set(2,0,error.what());}
     if(!vote(failure))return false;
@@ -2033,6 +2121,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   ready=seed_next();
   if (!ready) return finish();
   for (size_t round=0;;) {
+    const unsigned timed_lane=bidirectional&&phase==Phase::Construction&&!coarsening?stats.split_lane:0;
+    double untimed_lane=0;
+    Timer lane_timer(timed_lane==1?stats.surface_seconds:timed_lane==2?stats.interior_seconds:untimed_lane,
+        options.timings&&timed_lane!=0);
     Choice choice;
     bool complete=false,any=false,bad_field=false,refill=false;
     auto pick=[&]() {
@@ -2125,9 +2217,40 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!enter_phase(Phase::Construction))return finish();
       continue;
     }
+    if(bidirectional&&phase==Phase::Construction&&!coarsening&&!any&&selection.lane==Selection::Lane::Surface&&
+        !world.maximum(!selection.Progress(working.size()).census_complete)) {
+      if(!generation_census()||!observe_progress("split_surface_exit"))return finish();
+      directory->EndConstructionPass();construction_claims=false;selection.lane=Selection::Lane::Interior;stats.split_lane=2;
+      if(!observe_progress("split_interior_entry"))return finish();
+      continue;
+    }
+    if(bidirectional&&phase==Phase::Construction&&!coarsening&&!any&&selection.lane==Selection::Lane::Interior&&
+        world.maximum(!selection.surface_queue.empty()||!selection.geometry_queue.empty())) {
+      // Interior publications may reveal/reopen entry-edge surface demand. Drain it before ending
+      // the finite generation; newly created edges still cannot enter its immutable frontier.
+      if(!generation_census()||!observe_progress("split_interior_exit"))return finish();
+      directory->BeginConstructionPass();construction_claims=true;selection.lane=Selection::Lane::Surface;stats.split_lane=1;
+      if(!observe_progress("split_surface_resume"))return finish();
+      continue;
+    }
     if(bidirectional && phase==Phase::Construction && !any &&
         !world.maximum(!selection.Progress(working.size()).census_complete)) {
       const bool productive=world.maximum(construction_generation_changed);
+      if(!generation_census())return finish();
+      const auto current_debt=generation_debt();bool progressing=true;
+      if(coarsening){generation_window_count=1;generation_window[0]=current_debt;}
+      else {
+        if(generation_window_count==generation_window.size()) {
+          std::move(generation_window.begin()+1,generation_window.end(),generation_window.begin());--generation_window_count;
+        }
+        generation_window[generation_window_count++]=current_debt;
+        if(generation_window_count==generation_window.size()) {
+          const auto& before=generation_window.front();
+          auto fell=[](double old,double now){return now<old-std::max(1e-12,std::abs(old)*1e-6);};
+          progressing=fell(before.edges,current_debt.edges)||fell(before.maximum,current_debt.maximum)||
+              (before.geometry_complete&&current_debt.geometry_complete&&fell(before.geometry,current_debt.geometry));
+        }
+      }
       if(productive)length_blocks_dirty={{true,true}};
       if(coarsening)++stats.length_collapse_passes;else ++stats.length_split_passes;
       if(options.timings) {
@@ -2149,12 +2272,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if(!observe_progress(coarsening?"length_collapse_exit":"length_split_exit"))return finish();
       if(!coarsening) {
         // Claims retire neighbouring edges too; productive finite generations must service their descendants.
-        if(productive && world.maximum(selection.construction_invalid!=0)) {
+        if(productive && progressing && world.maximum(selection.construction_invalid!=0)) {
           if(stats.global_work>=stats.work_limit){stats.stop=EngineStop::WorkBudget;
             result.reason="Native3D construction generation exhausted global work; feasibility is undetermined.";return finish();}
           if(!begin_length_generation(false))return finish();
           continue;
         }
+        if(productive&&!progressing)++stats.construction_stall_handoffs;
         if(!enter_phase(Phase::Improvement))return finish();
       } else {
         // Complete both length directions before the metric/BL-aware improvement stage.
@@ -2249,9 +2373,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       ++selection.repair_epoch;
     }
     ++stats.rounds;
-    const bool concurrent=(repairing || ((composition || curved) && !coarsening) || (bidirectional && coarsening)) && options.candidate_batch>1 && world.size>1;
+    if(timed_lane==1)++stats.surface_rounds;else if(timed_lane==2)++stats.interior_rounds;
+    const bool concurrent=(repairing || ((composition || curved || selection.split_lanes) && !coarsening) || (bidirectional && coarsening)) && options.candidate_batch>1 && world.size>1;
     stats.concurrent_rounds+=concurrent;
-    const bool batched=!curved && !composition && !repairing && (!coarsening || !bad_field) && options.candidate_batch>1;
+    // The lane sweep reuses the fresh one-candidate transaction path, not multi-slot leases.
+    const bool batched=!(selection.split_lanes&&!coarsening) && !curved && !composition && !repairing && (!coarsening || !bad_field) && options.candidate_batch>1;
     std::vector<Choice> choices;
     DependencyBatch dependency_batch;
     ImportedBatch imported_batch;
@@ -2471,10 +2597,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         chosen=reserve_dependencies(imported,choice.active,result.reason,options.memory_ceiling,
             transfer_memory::Add(bytes(),source.ResidentBytes()),choice.reservation_priority);
         stats.conflicts+=choice.active && !chosen;
+        if(choice.active&&!chosen){selection.Note(choice.edge,pass_deferred?2:1);
+          if(timed_lane==1)++stats.surface_conflicts;else if(timed_lane==2)++stats.interior_conflicts;}
         const int admitted=world.maximum(chosen?2:pass_deferred?1:0);
         if(!admitted)ready=false;
         else if(admitted==1) {
-          if(!service_frontier(Feature{{choice.edge[0],choice.edge[1],0},2},choice.active&&pass_deferred,false))return finish();
+          if(!service_frontier(Feature{{choice.edge[0],choice.edge[1],0},2},choice.active&&pass_deferred,false,nullptr,0,2))return finish();
           stats.length_pass_deferred+=pass_deferred;continue;
         }
       }
@@ -2572,6 +2700,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           std::find(faces[i].begin(),faces[i].end(),choice.edge[1])!=faces[i].end())return true;
       return false;
     });
+    if(timed_lane==2&&physical_edge)++stats.interior_boundary_discoveries;
     SegmentFreedom crease_freedom=SegmentFreedom::Unresolved;Point crease_midpoint{};
     const long double diagnostic_limit=MaximumMetricEdge*(1+1e-8L); // Conservative diagnostic margin, never an acceptance tolerance.
     if(!repairing && !coarsening && composition && physical_edge && choice.measure.length>diagnostic_limit)try {
@@ -3813,6 +3942,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // Successful peer contact/reservation votes must not erase this worker's construction refusal.
     const std::string pending_rejection=chosen && !approved ? result.reason : std::string{};
     const bool surface_edit=approved && !SameSkin(old,fresh);
+    if(timed_lane==2&&surface_edit&&!physical_edge)++stats.interior_boundary_discoveries;
     if((curved && world.maximum(surface_edit)) || world.maximum(coordinate_only && approved)) {
       const bool prior=approved;bool deferred=false;
       if(!directory->Clearance(working,old,fresh,approved,result.reason,options.memory_ceiling,
@@ -3942,7 +4072,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // A completed attempt is served once on every replica. Conflict/deferred candidates never
     // enter this receipt stream and retain their waiting age.
     stats.length_pass_deferred+=pass_deferred&&!approved;
-    if(!service_frontier(repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2},chosen||pass_deferred,approved))return finish();
+    const unsigned disposition=pass_deferred&&!chosen?2:certified.failure==MetricFailure::None?4:10+unsigned(certified.failure);
+    if(!service_frontier(repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2},chosen||pass_deferred,approved,nullptr,0,disposition))return finish();
     std::vector<Id> changed;
     {
       Timer timer(stats.update_seconds,options.timings);
@@ -3993,6 +4124,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           else if (coarsening) result.collapses.push_back(choice.edge); else result.splits.push_back({choice.edge,point});
         }
         stats.maximum_owned=std::max(stats.maximum_owned,working.size());
+        if(chosen&&approved&&!repairing&&!coarsening&&!repair_approved&&choice.measure.length>0) {
+          Edge a{choice.edge[0],point.id},b{choice.edge[1],point.id};std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());
+          const auto first=campaign_edges.find(a),second=campaign_edges.find(b);
+          if(first!=campaign_edges.end()&&second!=campaign_edges.end()) {
+            ++stats.child_ratio_measured;
+            stats.maximum_child_parent_ratio=std::max(stats.maximum_child_parent_ratio,
+                double(std::max(first->second.length,second->second.length)/choice.measure.length));
+          }
+        }
       } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
       if (ready) ready=vote(failure);
       if (ready) ready=measure(changed,false,&stats.update_seconds);
@@ -4002,7 +4142,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           for (Id vertex:directory->ChangedVertices()) selection.Touch(vertex);
           // Retire known conflicts in this pass without another global reservation per edge.
           // Unmeasured/remote support and expanded cavities remain guarded by Directory claims.
-          if(bidirectional && phase==Phase::Construction)
+          if(bidirectional && phase==Phase::Construction&&construction_claims)
             for(Id vertex:directory->ChangedVertices())stats.length_pass_deferred+=selection.ServiceClaimedVertex(vertex);
         }
         catch (const std::exception& e) { failure.Set(2,0,e.what()); }

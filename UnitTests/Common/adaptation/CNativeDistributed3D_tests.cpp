@@ -985,6 +985,44 @@ TEST_CASE("Productive construction services descendant generations before qualit
   }
 }
 
+TEST_CASE("Interior split lane services neighboring entry edges without construction claims", "[NativeConstructionSweep3D][NativeSplitLanes3D]") {
+  World world;const auto seed=Box();const PlanarReference geometry(seed.facets);Fixture fixture;fixture.facets=seed.facets;
+  constexpr unsigned n=3,side=n+1;Id next=0;
+  for(unsigned z=0;z<n;++z)for(unsigned y=0;y<n;++y)for(unsigned x=0;x<n;++x)for(const auto& base:seed.patch.cells) {
+    Cell cell;cell.id=next++;
+    for(unsigned k=0;k<4;++k){const auto p=base.v[k].p;const unsigned i=x+unsigned(p.x),j=y+unsigned(p.y),l=z+unsigned(p.z);
+      cell.v[k]={i+side*(j+side*l),{double(i)/n,double(j)/n,double(l)/n}};}
+    fixture.patch.cells.push_back(cell);
+  }
+  const Incidence incidence(fixture.patch.cells);std::map<Id,Point> points;
+  for(const auto& cell:fixture.patch.cells)for(const auto& node:cell.v)points.emplace(node.id,node.p);
+  std::set<Edge> boundary_edges;
+  for(const auto& face:incidence.Boundary()) {
+    Id facet=UINT64_MAX;for(const auto& f:fixture.facets)if(geometry.Contains(f.id,points.at(face[0]))&&geometry.Contains(f.id,points.at(face[1]))&&geometry.Contains(f.id,points.at(face[2]))){facet=f.id;break;}
+    REQUIRE(facet!=UINT64_MAX);fixture.patch.surface.push_back({face,facet});
+    for(unsigned k=0;k<3;++k){Edge edge{face[k],face[(k+1)%3]};std::sort(edge.begin(),edge.end());boundary_edges.insert(edge);}
+  }
+  std::set<Edge> interior;for(const auto& cell:fixture.patch.cells)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){Edge e{cell.v[i].id,cell.v[j].id};std::sort(e.begin(),e.end());if(!boundary_edges.count(e))interior.insert(e);}
+  const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);std::set<Edge> before,after;
+  bool entry_seen=false,exit_seen=false,unmeasured=true;
+  auto collect=[](const Owned& cells){std::set<Edge> edges;for(const auto& row:cells){const auto& v=row.second.cell.v;
+    for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j){Edge e{v[i].id,v[j].id};std::sort(e.begin(),e.end());edges.insert(e);}}return edges;};
+  EngineOptions options;options.maximum_work=4096;options.maximum_rounds=512;options.candidate_batch=1;
+  options.stage_observer_bytes=size_t(1)<<20;
+  options.stage_observer=[&](const StageProgressView& view){
+    if(view.phase==EnginePhase::Construction)unmeasured &= view.progress.q_measured_cells==0 && view.progress.j_measured_cells==0;
+    if(!entry_seen&&view.stats.split_generation==1 && std::string(view.stage)=="split_interior_entry"){before=collect(view.working);entry_seen=true;}
+    if(view.stats.split_generation==1 && std::string(view.stage)=="length_split_exit"){after=collect(view.working);exit_seen=true;}
+  };
+  const auto result=AdaptMetric(world,input,Uniform(input,{100,0,0,100,0,100}),geometry,{},options);
+  INFO(result.reason);CHECK(world.maximum(entry_seen));CHECK(world.maximum(exit_seen));CHECK(unmeasured);CHECK(Bytes(input)==saved);
+  std::vector<Edge> serviced;
+  for(const auto& edge:interior)if(world.maximum(before.count(edge)!=0) && !world.maximum(after.count(edge)!=0))serviced.push_back(edge);
+  bool neighboring=false;for(size_t i=0;i<serviced.size();++i)for(size_t j=0;j<i;++j)
+    neighboring=neighboring||serviced[i][0]==serviced[j][0]||serviced[i][0]==serviced[j][1]||serviced[i][1]==serviced[j][0]||serviced[i][1]==serviced[j][1];
+  CHECK(neighboring);CHECK(result.stats.interior_rounds>0);
+}
+
 TEST_CASE("Native MPI refinement preserves accepted input on incomplete or invalid events", "[NativeDistributed3D]") {
   World world;
   const auto fixture=Box();const PlanarReference reference(fixture.facets);
@@ -4321,6 +4359,14 @@ TEST_CASE("Construction pass claims only committed cavity vertices", "[NativeCon
   CHECK_FALSE(directory.Publish(owned,{}, {},world.rank!=0,reason));CHECK(directory.Snapshot()==fresh);
   CHECK(directory.Reserve(imported,world.rank==0,reason)==(world.rank==0));CHECK_FALSE(directory.PassDeferred());
   directory.EndConstructionPass();
+  // A fresh full-star reservation after the claim lane releases previous pass claims,
+  // but overlapping owners must still elect exactly one winner.
+  const auto released=directory.Snapshot();
+  const auto shared_dependencies=directory.Lookup(Query(world,feature,true));REQUIRE(shared_dependencies.valid);
+  const auto shared_star=directory.Fetch(shared_dependencies,owned);REQUIRE(shared_star.valid);
+  const bool shared=directory.Reserve(shared_star,true,reason);
+  CHECK(world.sum(shared)==1);CHECK(shared==(world.rank==0));CHECK_FALSE(directory.PassDeferred());
+  CHECK(directory.Snapshot()==released);
   const bool after=directory.Reserve(imported,world.rank==0,reason);
   CHECK((world.rank!=0 || after));CHECK_FALSE(directory.PassDeferred());
 }
