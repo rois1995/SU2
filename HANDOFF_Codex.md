@@ -23,6 +23,12 @@ Build159's MPI failure was an ownership-specific fixture assumption, now correct
 and preserved. Build158's assertion-compilation failure is also preserved.
 The terminal build157 baseline below remains historical evidence, not a live job.
 
+Review/failure checkpoint `0e576ea198` is PUSHED to the user's fork,
+`https://github.com/rois1995/SU2.git`, branch `codex/native-3d-bl`.
+The user explicitly approved pushing to their fork after automatic review had
+rejected the earlier attempts. Push completed successfully; no approval is pending.
+No heavy build/test has started; user is finishing other local jobs.
+
 Branch: `codex/native-3d-bl`. Integration implementation: `8cf566e229`; qualified checkpoint: `e5240df1e0`, pushed.
 Connected cache/phase checks pass; full M6/transfer/restart remains unvalidated. The
 construction base is `f104557fa6`/build157; the paused handoff was `adc31b971b`.
