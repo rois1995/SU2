@@ -2,6 +2,11 @@
 
 Current implementation work, 2026-10-30. **No accepted M6 loop yet.**
 
+Build157is now stopped and execution paused for a user-requested context reset.
+The historical155observations below are baseline evidence, not a live run. Read
+the [current stop handoff](ADAPTATION_CHECKPOINT_20261030_STOP.md) and
+[verbatim integrated next task](ADAPTATION_INTEGRATED_NEXT_TASK.md).
+
 ## Baseline and objective
 
 The endorsed Euler target is 50,000 metric complexity; 500,000 is reserved for

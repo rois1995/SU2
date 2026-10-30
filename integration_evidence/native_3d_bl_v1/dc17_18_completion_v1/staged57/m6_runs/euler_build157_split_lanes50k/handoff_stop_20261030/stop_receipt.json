@@ -1,0 +1,173 @@
+{
+  "recorded_at": 1793373716.4253783,
+  "reason": "Explicit user-authorized handoff/context reset; intentional stop, not a solver failure",
+  "resource": {
+    "elapsed_seconds": 4232.397958993912,
+    "processes": [
+      {
+        "pid": 546743,
+        "rss_bytes": 737280,
+        "name": "time"
+      },
+      {
+        "pid": 546744,
+        "rss_bytes": 262144,
+        "name": "timeout"
+      },
+      {
+        "pid": 546745,
+        "rss_bytes": 9207808,
+        "name": "mpirun"
+      },
+      {
+        "pid": 546781,
+        "rss_bytes": 3717038080,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 546779,
+        "rss_bytes": 3883880448,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 546776,
+        "rss_bytes": 4066525184,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 546774,
+        "rss_bytes": 3958267904,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 546772,
+        "rss_bytes": 3872370688,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 546769,
+        "rss_bytes": 3753426944,
+        "name": "SU2_CFD"
+      }
+    ],
+    "sampled_process_tree_rss_bytes": 23261716480
+  },
+  "verified_handles": [
+    {
+      "pid": 546743,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build157_split_lanes50k",
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "timeout",
+        "14400",
+        "mpirun",
+        "--output-filename",
+        "rank_output",
+        "-n",
+        "6",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "state": "S"
+    },
+    {
+      "pid": 546744,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build157_split_lanes50k",
+      "argv": [
+        "timeout",
+        "14400",
+        "mpirun",
+        "--output-filename",
+        "rank_output",
+        "-n",
+        "6",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "state": "S"
+    },
+    {
+      "pid": 546745,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build157_split_lanes50k",
+      "argv": [
+        "mpirun",
+        "--output-filename",
+        "rank_output",
+        "-n",
+        "6",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "state": "S"
+    },
+    {
+      "pid": 546781,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build157_split_lanes50k",
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "state": "R"
+    },
+    {
+      "pid": 546779,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build157_split_lanes50k",
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "state": "R"
+    },
+    {
+      "pid": 546776,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build157_split_lanes50k",
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "state": "R"
+    },
+    {
+      "pid": 546774,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build157_split_lanes50k",
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "state": "R"
+    },
+    {
+      "pid": 546772,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build157_split_lanes50k",
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "state": "R"
+    },
+    {
+      "pid": 546769,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build157_split_lanes50k",
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "state": "R"
+    },
+    {
+      "pid": 546640,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "argv": [
+        "python3",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py",
+        "build157",
+        "euler_build157_split_lanes50k",
+        "2"
+      ],
+      "state": "S"
+    }
+  ],
+  "signal_target_pid": 546745,
+  "signal": "SIGTERM"
+}

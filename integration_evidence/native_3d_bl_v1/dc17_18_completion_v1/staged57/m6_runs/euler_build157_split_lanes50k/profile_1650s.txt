@@ -1,0 +1,1198 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 1K of event 'cycles'
+# Event count (approx.): 133634192526
+#
+# Children      Self  Command  Shared Object                   Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+# ........  ........  .......  ..............................  ....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    94.51%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+               |          
+               |--78.18%--SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+               |          SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               |          ElectFailure
+               |          CPassiveComm::AllreduceMax
+               |          PMPI_Allreduce
+               |          ompi_coll_base_allreduce_intra_recursivedoubling
+               |          |          
+               |          |--42.53%--ompi_coll_base_sendrecv_actual
+               |          |          ompi_request_default_wait
+               |          |          |          
+               |          |           --42.28%--opal_progress
+               |          |                     |          
+               |          |                     |--9.40%--0x7f6fae804333
+               |          |                     |          
+               |          |                     |--5.30%--0x7f660c952333
+               |          |                     |          
+               |          |                     |--3.24%--0x7f660c952330
+               |          |                     |          
+               |          |                     |--2.84%--0x7f8ec630d333
+               |          |                     |          
+               |          |                     |--1.89%--0x7f8ec630d330
+               |          |                     |          
+               |          |                     |--1.48%--0x7f6fae804336
+               |          |                     |          
+               |          |                     |--1.32%--0x7f660c952336
+               |          |                     |          
+               |          |                     |--1.14%--0x7f6fae804330
+               |          |                     |          
+               |          |                      --1.12%--0x7f660c95227d
+               |          |          
+               |           --35.65%--mca_pml_ob1_recv
+               |                     |          
+               |                      --35.53%--opal_progress
+               |                                |          
+               |                                |--6.26%--0x7f83d941f333
+               |                                |          
+               |                                |--5.63%--0x7faffc04b333
+               |                                |          
+               |                                |--5.31%--0x7f83d941f3ce
+               |                                |          
+               |                                |--1.57%--0x7f83d941f330
+               |                                |          
+               |                                |--1.27%--0x7f83d941f336
+               |                                |          
+               |                                |--1.20%--0x7faffc04b268
+               |                                |          
+               |                                |--1.19%--0x7faffc04b336
+               |                                |          
+               |                                 --1.06%--0x7faffc04b27d
+               |          
+                --16.33%--SU2Native3D::(anonymous namespace)::GeometryGuidanceExcess
+                          SU2Native3D::PlanarReference::ParameterError
+                          SU2NativeGeometry::MappedFacetReference::BoundPhysicalSurface
+                          SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnion
+                          SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution
+                          |          
+                          |--12.92%--SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion
+                          |          |          
+                          |           --12.13%--SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+                          |                     |          
+                          |                      --11.55%--SU2Native3D::PlanarReference::PlanarReference
+                          |                                |          
+                          |                                |--2.80%--std::_Rb_tree_increment
+                          |                                |          
+                          |                                 --1.39%--SU2Native3D::(anonymous namespace)::Projected
+                          |                                           |          
+                          |                                            --1.26%--SU2Native3D::Orientation
+                          |                                                      |          
+                          |                                                       --1.20%--SU2Native3D::(anonymous namespace)::Determinant
+                          |          
+                          |--2.11%--SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()
+                          |          SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&) const::{lambda(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&)#1}::operator()
+                          |          
+                           --1.17%--SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(unsigned long, std::vector<SU2NativeGeometry::(anonymous namespace)::UnionTriangle, std::allocator<SU2NativeGeometry::(anonymous namespace)::UnionTriangle> >&)#4}::operator()
+
+    91.37%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Adapt
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               |          
+                --90.93%--SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+                          |          
+                          |--78.18%--SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+                          |          SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+                          |          ElectFailure
+                          |          CPassiveComm::AllreduceMax
+                          |          PMPI_Allreduce
+                          |          ompi_coll_base_allreduce_intra_recursivedoubling
+                          |          |          
+                          |          |--42.53%--ompi_coll_base_sendrecv_actual
+                          |          |          ompi_request_default_wait
+                          |          |          |          
+                          |          |           --42.28%--opal_progress
+                          |          |                     |          
+                          |          |                     |--9.40%--0x7f6fae804333
+                          |          |                     |          
+                          |          |                     |--5.30%--0x7f660c952333
+                          |          |                     |          
+                          |          |                     |--3.24%--0x7f660c952330
+                          |          |                     |          
+                          |          |                     |--2.84%--0x7f8ec630d333
+                          |          |                     |          
+                          |          |                     |--1.89%--0x7f8ec630d330
+                          |          |                     |          
+                          |          |                     |--1.48%--0x7f6fae804336
+                          |          |                     |          
+                          |          |                     |--1.32%--0x7f660c952336
+                          |          |                     |          
+                          |          |                     |--1.14%--0x7f6fae804330
+                          |          |                     |          
+                          |          |                      --1.12%--0x7f660c95227d
+                          |          |          
+                          |           --35.65%--mca_pml_ob1_recv
+                          |                     |          
+                          |                      --35.53%--opal_progress
+                          |                                |          
+                          |                                |--6.26%--0x7f83d941f333
+                          |                                |          
+                          |                                |--5.63%--0x7faffc04b333
+                          |                                |          
+                          |                                |--5.31%--0x7f83d941f3ce
+                          |                                |          
+                          |                                |--1.57%--0x7f83d941f330
+                          |                                |          
+                          |                                |--1.27%--0x7f83d941f336
+                          |                                |          
+                          |                                |--1.20%--0x7faffc04b268
+                          |                                |          
+                          |                                |--1.19%--0x7faffc04b336
+                          |                                |          
+                          |                                 --1.06%--0x7faffc04b27d
+                          |          
+                           --12.75%--SU2Native3D::(anonymous namespace)::GeometryGuidanceExcess
+                                     SU2Native3D::PlanarReference::ParameterError
+                                     SU2NativeGeometry::MappedFacetReference::BoundPhysicalSurface
+                                     SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnion
+                                     SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution
+                                     |          
+                                      --11.41%--SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion
+                                                |          
+                                                 --10.62%--SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+                                                           |          
+                                                            --10.03%--SU2Native3D::PlanarReference::PlanarReference
+                                                                      |          
+                                                                       --2.80%--std::_Rb_tree_increment
+
+    78.49%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               |          
+               |--42.72%--ompi_coll_base_sendrecv_actual
+               |          ompi_request_default_wait
+               |          |          
+               |           --42.47%--opal_progress
+               |                     |          
+               |                     |--9.40%--0x7f6fae804333
+               |                     |          
+               |                     |--5.30%--0x7f660c952333
+               |                     |          
+               |                     |--3.24%--0x7f660c952330
+               |                     |          
+               |                     |--2.84%--0x7f8ec630d333
+               |                     |          
+               |                     |--1.89%--0x7f8ec630d330
+               |                     |          
+               |                     |--1.48%--0x7f6fae804336
+               |                     |          
+               |                     |--1.32%--0x7f660c952336
+               |                     |          
+               |                     |--1.18%--0x7f660c95227d
+               |                     |          
+               |                      --1.14%--0x7f6fae804330
+               |          
+                --35.78%--mca_pml_ob1_recv
+                          |          
+                           --35.65%--opal_progress
+                                     |          
+                                     |--6.26%--0x7f83d941f333
+                                     |          
+                                     |--5.63%--0x7faffc04b333
+                                     |          
+                                     |--5.31%--0x7f83d941f3ce
+                                     |          
+                                     |--1.57%--0x7f83d941f330
+                                     |          
+                                     |--1.27%--0x7f83d941f336
+                                     |          
+                                     |--1.20%--0x7faffc04b268
+                                     |          
+                                     |--1.19%--0x7faffc04b336
+                                     |          
+                                      --1.06%--0x7faffc04b27d
+
+    78.49%     0.00%  SU2_CFD  SU2_CFD                         [.] ElectFailure
+            |
+            ---ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               |          
+               |--42.72%--ompi_coll_base_sendrecv_actual
+               |          ompi_request_default_wait
+               |          |          
+               |           --42.47%--opal_progress
+               |                     |          
+               |                     |--9.40%--0x7f6fae804333
+               |                     |          
+               |                     |--5.30%--0x7f660c952333
+               |                     |          
+               |                     |--3.24%--0x7f660c952330
+               |                     |          
+               |                     |--2.84%--0x7f8ec630d333
+               |                     |          
+               |                     |--1.89%--0x7f8ec630d330
+               |                     |          
+               |                     |--1.48%--0x7f6fae804336
+               |                     |          
+               |                     |--1.32%--0x7f660c952336
+               |                     |          
+               |                     |--1.18%--0x7f660c95227d
+               |                     |          
+               |                      --1.14%--0x7f6fae804330
+               |          
+                --35.78%--mca_pml_ob1_recv
+                          |          
+                           --35.65%--opal_progress
+                                     |          
+                                     |--6.26%--0x7f83d941f333
+                                     |          
+                                     |--5.63%--0x7faffc04b333
+                                     |          
+                                     |--5.31%--0x7f83d941f3ce
+                                     |          
+                                     |--1.57%--0x7f83d941f330
+                                     |          
+                                     |--1.27%--0x7f83d941f336
+                                     |          
+                                     |--1.20%--0x7faffc04b268
+                                     |          
+                                     |--1.19%--0x7faffc04b336
+                                     |          
+                                      --1.06%--0x7faffc04b27d
+
+    78.49%     0.00%  SU2_CFD  SU2_CFD                         [.] CPassiveComm::AllreduceMax
+            |
+            ---CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               |          
+               |--42.72%--ompi_coll_base_sendrecv_actual
+               |          ompi_request_default_wait
+               |          |          
+               |           --42.47%--opal_progress
+               |                     |          
+               |                     |--9.40%--0x7f6fae804333
+               |                     |          
+               |                     |--5.30%--0x7f660c952333
+               |                     |          
+               |                     |--3.24%--0x7f660c952330
+               |                     |          
+               |                     |--2.84%--0x7f8ec630d333
+               |                     |          
+               |                     |--1.89%--0x7f8ec630d330
+               |                     |          
+               |                     |--1.48%--0x7f6fae804336
+               |                     |          
+               |                     |--1.32%--0x7f660c952336
+               |                     |          
+               |                     |--1.18%--0x7f660c95227d
+               |                     |          
+               |                      --1.14%--0x7f6fae804330
+               |          
+                --35.78%--mca_pml_ob1_recv
+                          |          
+                           --35.65%--opal_progress
+                                     |          
+                                     |--6.26%--0x7f83d941f333
+                                     |          
+                                     |--5.63%--0x7faffc04b333
+                                     |          
+                                     |--5.31%--0x7f83d941f3ce
+                                     |          
+                                     |--1.57%--0x7f83d941f330
+                                     |          
+                                     |--1.27%--0x7f83d941f336
+                                     |          
+                                     |--1.20%--0x7faffc04b268
+                                     |          
+                                     |--1.19%--0x7faffc04b336
+                                     |          
+                                      --1.06%--0x7faffc04b27d
+
+    78.49%     0.00%  SU2_CFD  libmpi.so.40.20.3               [.] PMPI_Allreduce
+            |
+            ---PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               |          
+               |--42.72%--ompi_coll_base_sendrecv_actual
+               |          ompi_request_default_wait
+               |          |          
+               |           --42.47%--opal_progress
+               |                     |          
+               |                     |--9.40%--0x7f6fae804333
+               |                     |          
+               |                     |--5.30%--0x7f660c952333
+               |                     |          
+               |                     |--3.24%--0x7f660c952330
+               |                     |          
+               |                     |--2.84%--0x7f8ec630d333
+               |                     |          
+               |                     |--1.89%--0x7f8ec630d330
+               |                     |          
+               |                     |--1.48%--0x7f6fae804336
+               |                     |          
+               |                     |--1.32%--0x7f660c952336
+               |                     |          
+               |                     |--1.18%--0x7f660c95227d
+               |                     |          
+               |                      --1.14%--0x7f6fae804330
+               |          
+                --35.78%--mca_pml_ob1_recv
+                          |          
+                           --35.65%--opal_progress
+                                     |          
+                                     |--6.26%--0x7f83d941f333
+                                     |          
+                                     |--5.63%--0x7faffc04b333
+                                     |          
+                                     |--5.31%--0x7f83d941f3ce
+                                     |          
+                                     |--1.57%--0x7f83d941f330
+                                     |          
+                                     |--1.27%--0x7f83d941f336
+                                     |          
+                                     |--1.20%--0x7faffc04b268
+                                     |          
+                                     |--1.19%--0x7faffc04b336
+                                     |          
+                                      --1.06%--0x7faffc04b27d
+
+    78.49%     0.00%  SU2_CFD  libmpi.so.40.20.3               [.] ompi_coll_base_allreduce_intra_recursivedoubling
+            |
+            ---ompi_coll_base_allreduce_intra_recursivedoubling
+               |          
+               |--42.72%--ompi_coll_base_sendrecv_actual
+               |          ompi_request_default_wait
+               |          |          
+               |           --42.47%--opal_progress
+               |                     |          
+               |                     |--9.40%--0x7f6fae804333
+               |                     |          
+               |                     |--5.30%--0x7f660c952333
+               |                     |          
+               |                     |--3.24%--0x7f660c952330
+               |                     |          
+               |                     |--2.84%--0x7f8ec630d333
+               |                     |          
+               |                     |--1.89%--0x7f8ec630d330
+               |                     |          
+               |                     |--1.48%--0x7f6fae804336
+               |                     |          
+               |                     |--1.32%--0x7f660c952336
+               |                     |          
+               |                     |--1.18%--0x7f660c95227d
+               |                     |          
+               |                      --1.14%--0x7f6fae804330
+               |          
+                --35.78%--mca_pml_ob1_recv
+                          |          
+                           --35.65%--opal_progress
+                                     |          
+                                     |--6.26%--0x7f83d941f333
+                                     |          
+                                     |--5.63%--0x7faffc04b333
+                                     |          
+                                     |--5.31%--0x7f83d941f3ce
+                                     |          
+                                     |--1.57%--0x7f83d941f330
+                                     |          
+                                     |--1.27%--0x7f83d941f336
+                                     |          
+                                     |--1.20%--0x7faffc04b268
+                                     |          
+                                     |--1.19%--0x7faffc04b336
+                                     |          
+                                      --1.06%--0x7faffc04b27d
+
+    78.18%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               |          
+               |--42.53%--ompi_coll_base_sendrecv_actual
+               |          ompi_request_default_wait
+               |          |          
+               |           --42.28%--opal_progress
+               |                     |          
+               |                     |--9.40%--0x7f6fae804333
+               |                     |          
+               |                     |--5.30%--0x7f660c952333
+               |                     |          
+               |                     |--3.24%--0x7f660c952330
+               |                     |          
+               |                     |--2.84%--0x7f8ec630d333
+               |                     |          
+               |                     |--1.89%--0x7f8ec630d330
+               |                     |          
+               |                     |--1.48%--0x7f6fae804336
+               |                     |          
+               |                     |--1.32%--0x7f660c952336
+               |                     |          
+               |                     |--1.14%--0x7f6fae804330
+               |                     |          
+               |                      --1.12%--0x7f660c95227d
+               |          
+                --35.65%--mca_pml_ob1_recv
+                          |          
+                           --35.53%--opal_progress
+                                     |          
+                                     |--6.26%--0x7f83d941f333
+                                     |          
+                                     |--5.63%--0x7faffc04b333
+                                     |          
+                                     |--5.31%--0x7f83d941f3ce
+                                     |          
+                                     |--1.57%--0x7f83d941f330
+                                     |          
+                                     |--1.27%--0x7f83d941f336
+                                     |          
+                                     |--1.20%--0x7faffc04b268
+                                     |          
+                                     |--1.19%--0x7faffc04b336
+                                     |          
+                                      --1.06%--0x7faffc04b27d
+
+    78.12%     3.81%  SU2_CFD  libopen-pal.so.40.20.3          [.] opal_progress
+            |          
+            |--74.31%--opal_progress
+            |          |          
+            |          |--9.40%--0x7f6fae804333
+            |          |          
+            |          |--6.26%--0x7f83d941f333
+            |          |          
+            |          |--5.63%--0x7faffc04b333
+            |          |          
+            |          |--5.31%--0x7f83d941f3ce
+            |          |          
+            |          |--5.30%--0x7f660c952333
+            |          |          
+            |          |--3.24%--0x7f660c952330
+            |          |          
+            |          |--2.84%--0x7f8ec630d333
+            |          |          
+            |          |--1.89%--0x7f8ec630d330
+            |          |          
+            |          |--1.57%--0x7f83d941f330
+            |          |          
+            |          |--1.48%--0x7f6fae804336
+            |          |          
+            |          |--1.32%--0x7f660c952336
+            |          |          
+            |          |--1.27%--0x7f83d941f336
+            |          |          
+            |          |--1.20%--0x7faffc04b268
+            |          |          
+            |          |--1.19%--0x7faffc04b336
+            |          |          
+            |          |--1.18%--0x7f660c95227d
+            |          |          
+            |          |--1.14%--0x7f6fae804330
+            |          |          
+            |           --1.06%--0x7faffc04b27d
+            |          
+             --3.81%--SU2Native3D::(anonymous namespace)::Adapt
+                       SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+                       SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+                       SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+                       ElectFailure
+                       CPassiveComm::AllreduceMax
+                       PMPI_Allreduce
+                       ompi_coll_base_allreduce_intra_recursivedoubling
+                       |          
+                       |--2.25%--ompi_coll_base_sendrecv_actual
+                       |          ompi_request_default_wait
+                       |          opal_progress
+                       |          
+                        --1.56%--mca_pml_ob1_recv
+                                  opal_progress
+
+    42.72%     0.00%  SU2_CFD  libmpi.so.40.20.3               [.] ompi_coll_base_sendrecv_actual
+            |
+            ---ompi_coll_base_sendrecv_actual
+               ompi_request_default_wait
+               |          
+                --42.47%--opal_progress
+                          |          
+                          |--9.40%--0x7f6fae804333
+                          |          
+                          |--5.30%--0x7f660c952333
+                          |          
+                          |--3.24%--0x7f660c952330
+                          |          
+                          |--2.84%--0x7f8ec630d333
+                          |          
+                          |--1.89%--0x7f8ec630d330
+                          |          
+                          |--1.48%--0x7f6fae804336
+                          |          
+                          |--1.32%--0x7f660c952336
+                          |          
+                          |--1.18%--0x7f660c95227d
+                          |          
+                           --1.14%--0x7f6fae804330
+
+    42.72%     0.18%  SU2_CFD  libmpi.so.40.20.3               [.] ompi_request_default_wait
+            |          
+             --42.54%--ompi_request_default_wait
+                       |          
+                        --42.47%--opal_progress
+                                  |          
+                                  |--9.40%--0x7f6fae804333
+                                  |          
+                                  |--5.30%--0x7f660c952333
+                                  |          
+                                  |--3.24%--0x7f660c952330
+                                  |          
+                                  |--2.84%--0x7f8ec630d333
+                                  |          
+                                  |--1.89%--0x7f8ec630d330
+                                  |          
+                                  |--1.48%--0x7f6fae804336
+                                  |          
+                                  |--1.32%--0x7f660c952336
+                                  |          
+                                  |--1.18%--0x7f660c95227d
+                                  |          
+                                   --1.14%--0x7f6fae804330
+
+    35.78%     0.06%  SU2_CFD  mca_pml_ob1.so                  [.] mca_pml_ob1_recv
+            |          
+             --35.71%--mca_pml_ob1_recv
+                       |          
+                        --35.65%--opal_progress
+                                  |          
+                                  |--6.26%--0x7f83d941f333
+                                  |          
+                                  |--5.63%--0x7faffc04b333
+                                  |          
+                                  |--5.31%--0x7f83d941f3ce
+                                  |          
+                                  |--1.57%--0x7f83d941f330
+                                  |          
+                                  |--1.27%--0x7f83d941f336
+                                  |          
+                                  |--1.20%--0x7faffc04b268
+                                  |          
+                                  |--1.19%--0x7faffc04b336
+                                  |          
+                                   --1.06%--0x7faffc04b27d
+
+    29.48%    29.48%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005333
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               |          
+                --29.42%--SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+                          SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+                          SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+                          ElectFailure
+                          CPassiveComm::AllreduceMax
+                          PMPI_Allreduce
+                          ompi_coll_base_allreduce_intra_recursivedoubling
+                          |          
+                          |--17.53%--ompi_coll_base_sendrecv_actual
+                          |          ompi_request_default_wait
+                          |          opal_progress
+                          |          |          
+                          |          |--9.40%--0x7f6fae804333
+                          |          |          
+                          |          |--5.30%--0x7f660c952333
+                          |          |          
+                          |           --2.84%--0x7f8ec630d333
+                          |          
+                           --11.88%--mca_pml_ob1_recv
+                                     opal_progress
+                                     |          
+                                     |--6.26%--0x7f83d941f333
+                                     |          
+                                      --5.63%--0x7faffc04b333
+
+    17.10%     0.06%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution
+            |          
+             --17.04%--SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution
+                       |          
+                       |--12.92%--SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion
+                       |          |          
+                       |           --12.13%--SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+                       |                     |          
+                       |                      --11.55%--SU2Native3D::PlanarReference::PlanarReference
+                       |                                |          
+                       |                                |--2.80%--std::_Rb_tree_increment
+                       |                                |          
+                       |                                 --1.39%--SU2Native3D::(anonymous namespace)::Projected
+                       |                                           |          
+                       |                                            --1.26%--SU2Native3D::Orientation
+                       |                                                      |          
+                       |                                                       --1.20%--SU2Native3D::(anonymous namespace)::Determinant
+                       |          
+                       |--2.88%--SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()
+                       |          SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&) const::{lambda(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&)#1}::operator()
+                       |          |          
+                       |           --1.74%--SU2NativeGeometry::(anonymous namespace)::TriangleUnion::PlaneUnion::Upper<3ul>
+                       |                     |          
+                       |                      --1.67%--SU2NativeGeometry::FinitePlaneReference::ContainsFace
+                       |                                |          
+                       |                                 --1.61%--SU2Native3D::PlanarReference::ContainsFace
+                       |                                           |          
+                       |                                            --1.14%--SU2Native3D::PlanarReference::Contains
+                       |          
+                        --1.17%--SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(unsigned long, std::vector<SU2NativeGeometry::(anonymous namespace)::UnionTriangle, std::allocator<SU2NativeGeometry::(anonymous namespace)::UnionTriangle> >&)#4}::operator()
+
+    16.70%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnion
+            |
+            ---SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnion
+               SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution
+               |          
+               |--12.92%--SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion
+               |          |          
+               |           --12.13%--SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+               |                     |          
+               |                      --11.55%--SU2Native3D::PlanarReference::PlanarReference
+               |                                |          
+               |                                |--2.80%--std::_Rb_tree_increment
+               |                                |          
+               |                                 --1.39%--SU2Native3D::(anonymous namespace)::Projected
+               |                                           |          
+               |                                            --1.26%--SU2Native3D::Orientation
+               |                                                      |          
+               |                                                       --1.20%--SU2Native3D::(anonymous namespace)::Determinant
+               |          
+               |--2.48%--SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()
+               |          SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&) const::{lambda(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&)#1}::operator()
+               |          |          
+               |           --1.34%--SU2NativeGeometry::(anonymous namespace)::TriangleUnion::PlaneUnion::Upper<3ul>
+               |                     |          
+               |                      --1.28%--SU2NativeGeometry::FinitePlaneReference::ContainsFace
+               |                                |          
+               |                                 --1.21%--SU2Native3D::PlanarReference::ContainsFace
+               |                                           |          
+               |                                            --1.14%--SU2Native3D::PlanarReference::Contains
+               |          
+                --1.17%--SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(unsigned long, std::vector<SU2NativeGeometry::(anonymous namespace)::UnionTriangle, std::allocator<SU2NativeGeometry::(anonymous namespace)::UnionTriangle> >&)#4}::operator()
+
+    16.58%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::BoundPhysicalSurface
+            |
+            ---SU2NativeGeometry::MappedFacetReference::BoundPhysicalSurface
+               SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnion
+               SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution
+               |          
+               |--12.92%--SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion
+               |          |          
+               |           --12.13%--SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+               |                     |          
+               |                      --11.55%--SU2Native3D::PlanarReference::PlanarReference
+               |                                |          
+               |                                |--2.80%--std::_Rb_tree_increment
+               |                                |          
+               |                                 --1.39%--SU2Native3D::(anonymous namespace)::Projected
+               |                                           |          
+               |                                            --1.26%--SU2Native3D::Orientation
+               |                                                      |          
+               |                                                       --1.20%--SU2Native3D::(anonymous namespace)::Determinant
+               |          
+               |--2.35%--SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()
+               |          SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&) const::{lambda(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&)#1}::operator()
+               |          |          
+               |           --1.22%--SU2NativeGeometry::(anonymous namespace)::TriangleUnion::PlaneUnion::Upper<3ul>
+               |                     |          
+               |                      --1.15%--SU2NativeGeometry::FinitePlaneReference::ContainsFace
+               |                                |          
+               |                                 --1.09%--SU2Native3D::PlanarReference::ContainsFace
+               |                                           |          
+               |                                            --1.01%--SU2Native3D::PlanarReference::Contains
+               |          
+                --1.17%--SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(unsigned long, std::vector<SU2NativeGeometry::(anonymous namespace)::UnionTriangle, std::allocator<SU2NativeGeometry::(anonymous namespace)::UnionTriangle> >&)#4}::operator()
+
+    16.33%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::GeometryGuidanceExcess
+            |
+            ---SU2Native3D::(anonymous namespace)::GeometryGuidanceExcess
+               SU2Native3D::PlanarReference::ParameterError
+               SU2NativeGeometry::MappedFacetReference::BoundPhysicalSurface
+               SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnion
+               SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution
+               |          
+               |--12.92%--SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion
+               |          |          
+               |           --12.13%--SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+               |                     |          
+               |                      --11.55%--SU2Native3D::PlanarReference::PlanarReference
+               |                                |          
+               |                                |--2.80%--std::_Rb_tree_increment
+               |                                |          
+               |                                 --1.39%--SU2Native3D::(anonymous namespace)::Projected
+               |                                           |          
+               |                                            --1.26%--SU2Native3D::Orientation
+               |                                                      |          
+               |                                                       --1.20%--SU2Native3D::(anonymous namespace)::Determinant
+               |          
+               |--2.11%--SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()
+               |          SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&) const::{lambda(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&)#1}::operator()
+               |          
+                --1.17%--SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(unsigned long, std::vector<SU2NativeGeometry::(anonymous namespace)::UnionTriangle, std::allocator<SU2NativeGeometry::(anonymous namespace)::UnionTriangle> >&)#4}::operator()
+
+    16.33%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::PlanarReference::ParameterError
+            |
+            ---SU2Native3D::PlanarReference::ParameterError
+               SU2NativeGeometry::MappedFacetReference::BoundPhysicalSurface
+               SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnion
+               SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution
+               |          
+               |--12.92%--SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion
+               |          |          
+               |           --12.13%--SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+               |                     |          
+               |                      --11.55%--SU2Native3D::PlanarReference::PlanarReference
+               |                                |          
+               |                                |--2.80%--std::_Rb_tree_increment
+               |                                |          
+               |                                 --1.39%--SU2Native3D::(anonymous namespace)::Projected
+               |                                           |          
+               |                                            --1.26%--SU2Native3D::Orientation
+               |                                                      |          
+               |                                                       --1.20%--SU2Native3D::(anonymous namespace)::Determinant
+               |          
+               |--2.11%--SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()
+               |          SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&) const::{lambda(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&)#1}::operator()
+               |          
+                --1.17%--SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(unsigned long, std::vector<SU2NativeGeometry::(anonymous namespace)::UnionTriangle, std::allocator<SU2NativeGeometry::(anonymous namespace)::UnionTriangle> >&)#4}::operator()
+
+    12.92%     0.06%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion
+            |          
+             --12.86%--SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion
+                       |          
+                        --12.13%--SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+                                  |          
+                                   --11.55%--SU2Native3D::PlanarReference::PlanarReference
+                                             |          
+                                             |--2.80%--std::_Rb_tree_increment
+                                             |          
+                                              --1.39%--SU2Native3D::(anonymous namespace)::Projected
+                                                        |          
+                                                         --1.26%--SU2Native3D::Orientation
+                                                                   |          
+                                                                    --1.20%--SU2Native3D::(anonymous namespace)::Determinant
+
+    12.13%     0.06%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+            |          
+             --12.08%--SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+                       |          
+                        --11.55%--SU2Native3D::PlanarReference::PlanarReference
+                                  |          
+                                  |--2.80%--std::_Rb_tree_increment
+                                  |          
+                                   --1.39%--SU2Native3D::(anonymous namespace)::Projected
+                                             |          
+                                              --1.26%--SU2Native3D::Orientation
+                                                        |          
+                                                         --1.20%--SU2Native3D::(anonymous namespace)::Determinant
+
+    11.55%     5.63%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::PlanarReference::PlanarReference
+            |          
+            |--5.92%--SU2Native3D::PlanarReference::PlanarReference
+            |          |          
+            |          |--2.80%--std::_Rb_tree_increment
+            |          |          
+            |           --1.39%--SU2Native3D::(anonymous namespace)::Projected
+            |                     |          
+            |                      --1.26%--SU2Native3D::Orientation
+            |                                |          
+            |                                 --1.20%--SU2Native3D::(anonymous namespace)::Determinant
+            |          
+             --5.63%--SU2Native3D::(anonymous namespace)::Adapt
+                       SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+                       SU2Native3D::(anonymous namespace)::GeometryGuidanceExcess
+                       SU2Native3D::PlanarReference::ParameterError
+                       SU2NativeGeometry::MappedFacetReference::BoundPhysicalSurface
+                       SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnion
+                       SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution
+                       SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion
+                       SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+                       SU2Native3D::PlanarReference::PlanarReference
+
+     9.40%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f6fae804333
+            |
+            ---0x7f6fae804333
+
+     8.69%     8.69%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005330
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               |          
+               |--6.27%--ompi_coll_base_sendrecv_actual
+               |          ompi_request_default_wait
+               |          opal_progress
+               |          |          
+               |          |--3.24%--0x7f660c952330
+               |          |          
+               |          |--1.89%--0x7f8ec630d330
+               |          |          
+               |           --1.14%--0x7f6fae804330
+               |          
+                --2.42%--mca_pml_ob1_recv
+                          opal_progress
+                          |          
+                           --1.50%--0x7f83d941f330
+
+     6.26%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f83d941f333
+            |
+            ---0x7f83d941f333
+
+     5.86%     5.86%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005336
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               |          
+               |--3.40%--ompi_coll_base_sendrecv_actual
+               |          ompi_request_default_wait
+               |          opal_progress
+               |          |          
+               |          |--1.48%--0x7f6fae804336
+               |          |          
+               |           --1.32%--0x7f660c952336
+               |          
+                --2.46%--mca_pml_ob1_recv
+                          opal_progress
+                          |          
+                          |--1.27%--0x7f83d941f336
+                          |          
+                           --1.19%--0x7faffc04b336
+
+     5.78%     1.32%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Determinant
+            |          
+            |--4.46%--SU2Native3D::(anonymous namespace)::Determinant
+            |          |          
+            |           --4.14%--SU2Native3D::(anonymous namespace)::ExactDeterminant
+            |                     |          
+            |                      --1.40%--SU2Native3D::(anonymous namespace)::Coordinate
+            |          
+             --1.08%--SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+                       SU2Native3D::(anonymous namespace)::GeometryGuidanceExcess
+                       SU2Native3D::PlanarReference::ParameterError
+                       SU2NativeGeometry::MappedFacetReference::BoundPhysicalSurface
+                       SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnion
+                       SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution
+                       SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion
+                       SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+                       SU2Native3D::PlanarReference::PlanarReference
+                       SU2Native3D::(anonymous namespace)::Projected
+                       SU2Native3D::Orientation
+                       SU2Native3D::(anonymous namespace)::Determinant
+
+     5.63%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007faffc04b333
+            |
+            ---0x7faffc04b333
+
+     5.50%     5.50%  SU2_CFD  mca_btl_vader.so                [.] 0x00000000000053ce
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               |          
+                --5.44%--mca_pml_ob1_recv
+                          opal_progress
+                          |          
+                           --5.31%--0x7f83d941f3ce
+
+     5.40%     0.00%  SU2_CFD  [unknown]                       [.] 0xffffffffffffffff
+            |
+            ---0xffffffffffffffff
+               |          
+                --4.14%--SU2Native3D::(anonymous namespace)::Determinant
+                          SU2Native3D::(anonymous namespace)::ExactDeterminant
+                          |          
+                           --1.40%--SU2Native3D::(anonymous namespace)::Coordinate
+
+     5.31%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f83d941f3ce
+            |
+            ---0x7f83d941f3ce
+
+     5.30%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f660c952333
+            |
+            ---0x7f660c952333
+
+     4.35%     4.35%  SU2_CFD  mca_btl_vader.so                [.] 0x000000000000527d
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               |          
+                --4.29%--SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+                          SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+                          SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+                          ElectFailure
+                          CPassiveComm::AllreduceMax
+                          PMPI_Allreduce
+                          ompi_coll_base_allreduce_intra_recursivedoubling
+                          |          
+                          |--2.41%--ompi_coll_base_sendrecv_actual
+                          |          ompi_request_default_wait
+                          |          opal_progress
+                          |          |          
+                          |           --1.12%--0x7f660c95227d
+                          |          
+                           --1.88%--mca_pml_ob1_recv
+                                     opal_progress
+                                     |          
+                                      --1.06%--0x7faffc04b27d
+
+     4.21%     0.13%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::ExactDeterminant
+            |          
+             --4.08%--SU2Native3D::(anonymous namespace)::ExactDeterminant
+                       |          
+                        --1.40%--SU2Native3D::(anonymous namespace)::Coordinate
+
+     3.92%     3.92%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005339
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               |          
+                --3.86%--SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+                          SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+                          SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+                          ElectFailure
+                          CPassiveComm::AllreduceMax
+                          PMPI_Allreduce
+                          ompi_coll_base_allreduce_intra_recursivedoubling
+                          |          
+                          |--2.30%--ompi_coll_base_sendrecv_actual
+                          |          ompi_request_default_wait
+                          |          opal_progress
+                          |          
+                           --1.56%--mca_pml_ob1_recv
+                                     opal_progress
+
+     3.24%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f660c952330
+            |
+            ---0x7f660c952330
+
+     2.88%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()
+            |
+            ---SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()
+               SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&) const::{lambda(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&)#1}::operator()
+               |          
+                --1.74%--SU2NativeGeometry::(anonymous namespace)::TriangleUnion::PlaneUnion::Upper<3ul>
+                          |          
+                           --1.67%--SU2NativeGeometry::FinitePlaneReference::ContainsFace
+                                     |          
+                                      --1.61%--SU2Native3D::PlanarReference::ContainsFace
+                                                |          
+                                                 --1.14%--SU2Native3D::PlanarReference::Contains
+
+     2.88%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&) const::{lambda(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&)#1}::operator()
+            |
+            ---SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&)#6}::operator()(bool, SU2NativeGeometry::(anonymous namespace)::TriangleUnion&) const::{lambda(SU2NativeGeometry::(anonymous namespace)::UnionDomain const&)#1}::operator()
+               |          
+                --1.74%--SU2NativeGeometry::(anonymous namespace)::TriangleUnion::PlaneUnion::Upper<3ul>
+                          |          
+                           --1.67%--SU2NativeGeometry::FinitePlaneReference::ContainsFace
+                                     |          
+                                      --1.61%--SU2Native3D::PlanarReference::ContainsFace
+                                                |          
+                                                 --1.14%--SU2Native3D::PlanarReference::Contains
+
+     2.84%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f8ec630d333
+            |
+            ---0x7f8ec630d333
+
+     2.80%     2.80%  SU2_CFD  libstdc++.so.6.0.28             [.] std::_Rb_tree_increment
+            |          
+             --2.80%--SU2Native3D::(anonymous namespace)::Adapt
+                       SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+                       SU2Native3D::(anonymous namespace)::GeometryGuidanceExcess
+                       SU2Native3D::PlanarReference::ParameterError
+                       SU2NativeGeometry::MappedFacetReference::BoundPhysicalSurface
+                       SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnion
+                       SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution
+                       SU2NativeGeometry::(anonymous namespace)::TriangleUnion::TriangleUnion
+                       SU2NativeGeometry::FinitePlaneReference::FinitePlaneReference
+                       SU2Native3D::PlanarReference::PlanarReference
+                       std::_Rb_tree_increment
+
+     2.50%     2.50%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005279
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               |          
+               |--1.47%--ompi_coll_base_sendrecv_actual
+               |          ompi_request_default_wait
+               |          opal_progress
+               |          
+                --1.03%--mca_pml_ob1_recv
+                          opal_progress
+
+     2.41%     2.41%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005343
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               |          
+               |--1.21%--ompi_coll_base_sendrecv_actual
+               |          ompi_request_default_wait
+               |          opal_progress
+               |          
+                --1.20%--mca_pml_ob1_recv
+                          opal_progress
+
+     2.25%     2.25%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005268
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+               |          
+                --1.45%--mca_pml_ob1_recv
+                          opal_progress
+                          |          
+                           --1.20%--0x7faffc04b268
+
+     1.89%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f8ec630d330
+            |
+            ---0x7f8ec630d330
+
+     1.76%     0.13%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Projected
+            |          
+             --1.64%--SU2Native3D::(anonymous namespace)::Projected
+                       |          
+                        --1.64%--SU2Native3D::Orientation
+                                  |          
+                                   --1.57%--SU2Native3D::(anonymous namespace)::Determinant
+
+     1.74%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::TriangleUnion::PlaneUnion::Upper<3ul>
+            |
+            ---SU2NativeGeometry::(anonymous namespace)::TriangleUnion::PlaneUnion::Upper<3ul>
+               |          
+                --1.67%--SU2NativeGeometry::FinitePlaneReference::ContainsFace
+                          |          
+                           --1.61%--SU2Native3D::PlanarReference::ContainsFace
+                                     |          
+                                      --1.14%--SU2Native3D::PlanarReference::Contains
+
+     1.70%     0.06%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::Orientation
+            |          
+             --1.63%--SU2Native3D::Orientation
+                       SU2Native3D::(anonymous namespace)::Determinant
+
+     1.67%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::FinitePlaneReference::ContainsFace
+            |
+            ---SU2NativeGeometry::FinitePlaneReference::ContainsFace
+               |          
+                --1.61%--SU2Native3D::PlanarReference::ContainsFace
+                          |          
+                           --1.14%--SU2Native3D::PlanarReference::Contains
+
+     1.61%     0.07%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::PlanarReference::ContainsFace
+            |          
+             --1.54%--SU2Native3D::PlanarReference::ContainsFace
+                       |          
+                        --1.14%--SU2Native3D::PlanarReference::Contains
+
+     1.57%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f83d941f330
+            |
+            ---0x7f83d941f330
+
+     1.48%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f6fae804336
+            |
+            ---0x7f6fae804336
+
+     1.40%     1.40%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Coordinate
+            |
+            ---0xffffffffffffffff
+               SU2Native3D::(anonymous namespace)::Determinant
+               SU2Native3D::(anonymous namespace)::ExactDeterminant
+               SU2Native3D::(anonymous namespace)::Coordinate
+
+     1.37%     0.50%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::Multiply
+     1.32%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f660c952336
+            |
+            ---0x7f660c952336
+
+     1.27%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f83d941f336
+            |
+            ---0x7f83d941f336
+
+     1.20%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007faffc04b268
+            |
+            ---0x7faffc04b268
+
+     1.19%     0.00%  SU2_CFD  libstdc++.so.6.0.28             [.] operator new
+            |
+            ---operator new
+               malloc
+               |          
+                --1.13%--_int_malloc
+
+     1.19%     0.06%  SU2_CFD  libc-2.31.so                    [.] malloc
+            |          
+             --1.13%--malloc
+                       |          
+                        --1.13%--_int_malloc
+
+     1.19%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007faffc04b336
+            |
+            ---0x7faffc04b336
+
+     1.18%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f660c95227d
+            |
+            ---0x7f660c95227d
+
+     1.17%     0.00%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(unsigned long, std::vector<SU2NativeGeometry::(anonymous namespace)::UnionTriangle, std::allocator<SU2NativeGeometry::(anonymous namespace)::UnionTriangle> >&)#4}::operator()
+            |
+            ---SU2NativeGeometry::MappedFacetReference::QuerySurfaceUnionAtResolution(std::vector<unsigned long, std::allocator<unsigned long> > const&, std::vector<std::array<SU2Native3D::Point, 3ul>, std::allocator<std::array<SU2Native3D::Point, 3ul> > > const&, double, SU2NativeGeometry::AtlasBudget&, bool, bool, double) const::{lambda(unsigned long, std::vector<SU2NativeGeometry::(anonymous namespace)::UnionTriangle, std::allocator<SU2NativeGeometry::(anonymous namespace)::UnionTriangle> >&)#4}::operator()
+
+     1.14%     0.77%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::PlanarReference::Contains
+     1.14%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007f6fae804330
+            |
+            ---0x7f6fae804330
+
+     1.13%     1.00%  SU2_CFD  libc-2.31.so                    [.] _int_malloc
+     1.08%     1.08%  SU2_CFD  mca_btl_vader.so                [.] 0x000000000000532d
+            |
+            ---SU2Native3D::(anonymous namespace)::Adapt
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(bool, SU2Native3D::MetricChange, bool, bool, unsigned long)#55}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > const&, SU2Native3D::PatchMetric&, bool, std::map<std::array<unsigned long, 2ul>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2ul> >, std::allocator<std::pair<std::array<unsigned long, 2ul> const, SU2Native3D::EdgeMeasure> > > const&)#53}::operator()
+               SU2Native3D::(anonymous namespace)::Adapt(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions, SU2Native3D::MetricChange, bool)::{lambda(CLocalFailure const&)#3}::operator()
+               ElectFailure
+               CPassiveComm::AllreduceMax
+               PMPI_Allreduce
+               ompi_coll_base_allreduce_intra_recursivedoubling
+
+     1.06%     0.00%  SU2_CFD  mca_btl_vader.so                [.] 0x00007faffc04b27d
+            |
+            ---0x7faffc04b27d
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

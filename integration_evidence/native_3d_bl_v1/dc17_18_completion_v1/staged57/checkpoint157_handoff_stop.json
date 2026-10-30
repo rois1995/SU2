@@ -1,0 +1,199 @@
+{
+  "recorded_at": 1793373968.6005013,
+  "branch": "codex/native-3d-bl",
+  "implementation_commit": "f104557fa639462ffa8fff869f7eb9fad2f28a08",
+  "prior_checkpoint_commit": "7417458c532abce740e21414b38c4030b828337a",
+  "stop": "Explicit user-requested context-reset stop; no implementation changes during handoff",
+  "terminal_status": {
+    "state": "terminal",
+    "solver_exit_code": 1,
+    "native_event_accepted": false,
+    "native_state": "solver exit failure; native acceptance not claimed",
+    "workflow_accepted": false,
+    "pins_verified": true,
+    "changed": [],
+    "seconds": 4248.932841539383,
+    "largest_sampled_individual_process_rss_bytes": 4066525184,
+    "rss_note": "sampled process RSS; not a whole-job peak",
+    "transfer_reload_validation": "separate existing validation required"
+  },
+  "terminal_handles": {
+    "checked_at": 1793373734.6222167,
+    "all_terminal": true,
+    "handles": [
+      {
+        "pid": 546743,
+        "state": "missing",
+        "terminal": true
+      },
+      {
+        "pid": 546744,
+        "state": "missing",
+        "terminal": true
+      },
+      {
+        "pid": 546745,
+        "state": "missing",
+        "terminal": true
+      },
+      {
+        "pid": 546781,
+        "state": "missing",
+        "terminal": true
+      },
+      {
+        "pid": 546779,
+        "state": "missing",
+        "terminal": true
+      },
+      {
+        "pid": 546776,
+        "state": "missing",
+        "terminal": true
+      },
+      {
+        "pid": 546774,
+        "state": "missing",
+        "terminal": true
+      },
+      {
+        "pid": 546772,
+        "state": "missing",
+        "terminal": true
+      },
+      {
+        "pid": 546769,
+        "state": "missing",
+        "terminal": true
+      },
+      {
+        "pid": 546640,
+        "state": "missing",
+        "terminal": true
+      }
+    ]
+  },
+  "pins": {
+    "checked_at": 1793373803.8189092,
+    "seconds": 15.043034076690674,
+    "distinct_files_hashed": 1397,
+    "all_pins_verified": true,
+    "manifests": [
+      {
+        "manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build157_split_lanes50k/pins.json",
+        "pins_checked": 1396,
+        "pins_verified": true,
+        "changed": []
+      },
+      {
+        "manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build157_source_pins.json",
+        "pins_checked": 1296,
+        "pins_verified": true,
+        "changed": []
+      },
+      {
+        "manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/split_lanes157_serial_20261030T140736_535078/pins.json",
+        "pins_checked": 1386,
+        "pins_verified": true,
+        "changed": []
+      },
+      {
+        "manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/split_lanes157_mpi6_20261030T140832_538548/pins.json",
+        "pins_checked": 1387,
+        "pins_verified": true,
+        "changed": []
+      }
+    ]
+  },
+  "accepted_adaptation_events": 0,
+  "adapted_mesh_outputs": [],
+  "input_points": 61330,
+  "input_cells": 303359,
+  "target_complexity_euler": 50000,
+  "target_complexity_rans": 500000,
+  "last_complete_stage": {
+    "stage": "length_split_exit",
+    "split_generation": 21,
+    "adaptation_seconds": 4079.165878892,
+    "private_cells": 721311,
+    "private_point_count": "not exported or independently counted",
+    "accepted_private_splits": 91811,
+    "accepted_private_collapses": 2602,
+    "unique_long_surface": 0,
+    "unique_long_interior": 0,
+    "unique_edge_debt": 0.0,
+    "maximum_metric_edge": 1.7999916802780385,
+    "size_bad_cells": 0,
+    "geometry_bad_cells": 3131,
+    "geometry_debt": 0.00041821313719506365,
+    "quality_stages": 0,
+    "q_j_measured_cells": 0
+  },
+  "sampled_aggregate_peak": {
+    "elapsed_seconds": 4218.198351383209,
+    "processes": [
+      {
+        "pid": 546743,
+        "rss_bytes": 737280,
+        "name": "time"
+      },
+      {
+        "pid": 546744,
+        "rss_bytes": 262144,
+        "name": "timeout"
+      },
+      {
+        "pid": 546745,
+        "rss_bytes": 9207808,
+        "name": "mpirun"
+      },
+      {
+        "pid": 546781,
+        "rss_bytes": 3717038080,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 546779,
+        "rss_bytes": 3883880448,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 546776,
+        "rss_bytes": 4066525184,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 546774,
+        "rss_bytes": 3958267904,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 546772,
+        "rss_bytes": 3872370688,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 546769,
+        "rss_bytes": 3753426944,
+        "name": "SU2_CFD"
+      }
+    ],
+    "sampled_process_tree_rss_bytes": 23261716480
+  },
+  "scope_counters": {
+    "scope_hits": 2412.0,
+    "scope_misses": 29994.0,
+    "retention_refusals": 22031.0,
+    "upper_seconds": 7326.830844642009,
+    "scope_build_seconds": 5584.487006648998,
+    "interior_boundary_discoveries": 213.0
+  },
+  "specification_sha256": "b97c59f39a2d2591dbd26f68e30612f19a5b6d90e1f9dd7689e1dc89d05774c0",
+  "specification_bytes": 13468,
+  "caveats": [
+    "Intentional interruption, not completed feasibility trial or budget exhaustion.",
+    "Private construction progress is not an accepted mesh or restart state.",
+    "Summed sampled RSS is not exclusive physical memory or an exact peak.",
+    "No full private mesh/frozen-field checkpoint was configured in production; restart from accepted baseline only."
+  ]
+}

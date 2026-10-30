@@ -1,10 +1,15 @@
 # Finite split lanes and progress handoff
 
-Current implementation: build157. Focused serial11cases/5306assertions and
-MPI6 18cases/rank pass; this is diagnostic evidence, not M6 acceptance. The complete
-two-event `euler_build157_split_lanes50k` attempt is running with unchanged gates,
-50k complexity and5400s/event budget. Read its live receipts rather than assuming
-this historical status is current. Build155 was stopped on the user's explicit instruction to
+Current implementation: build157, preserved at f104557fa6. Focused serial11cases/
+5306assertions and MPI6 18cases/rank pass; this is diagnostic evidence, not M6
+acceptance. The two-event `euler_build157_split_lanes50k` attempt was intentionally
+stopped for context reset at4248.933wall seconds. All10owned handles are terminal,
+all frozen pins verified. Last complete generation21has721311private cells,
+no oversized edges,3131geometry-invalid cells and no quality stage or accepted
+adaptation. Execution is paused. Read the [current stop handoff](ADAPTATION_CHECKPOINT_20261030_STOP.md)
+and [verbatim integrated next task](ADAPTATION_INTEGRATED_NEXT_TASK.md) before resuming.
+
+Build155 was stopped on the user's explicit instruction to
 start this work immediately: terminal3798.033s, all1395runtime/input pins unchanged,
 all9owned handles gone. Its22completed split generations left484886private cells,
 46763accepted splits, maximum metric edge3.8544 and unique-edge counts not measured.
@@ -122,5 +127,18 @@ Split generation1 accepts41131private splits:679during169s surface sweep and
 construction q/J remain unmeasured. Interior boundary discoveries0. This supports
 the attempt-coverage design and does not establish final mesh quality or closure.
 Generation2 surface exit has4145geometry-bad cells; boundary closure remains open.
-Preserve50k complexity separately from actual cell counts. M6 remains running on
-frozen sources. Scope preparation/cache saturation remain distinct open costs.
+Preserve50k complexity separately from actual cell counts. This was a live observation; the run is now stopped for the handoff recorded above. Scope preparation/cache saturation remain distinct open costs.
+
+## Handoff limitation from connected source review
+
+Selection::UpdateRepairs in bidirectional quality_only mode schedules quality/height
+debt and enabled size debt, not geometry-only invalid cells. Merely forcing an
+earlier quality handoff therefore cannot promise geometry closure. The existing
+transition retains versioned working cells, semantic geometry state, frozen-field
+identity and cumulative budgets, ends pass claims and measures q/J/height only in
+quality. Its improvement-to-construction branch can return with residual geometry
+demand, reset the generation window/history and repeat censuses. Any future wave
+policy must account for that queue/return behavior as a connected change. Current
+M6 generations still reduce metric debt; choose no new threshold before the target
+run identifies the actual closure failure. Geometry-bad counts alone are not a
+monotone merit: splitting changes the number of cells.
