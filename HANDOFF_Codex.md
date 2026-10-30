@@ -102,33 +102,20 @@ population from operator cost. Validate any SU2-specific modifications separatel
   no complete curved/M6 workflow is accepted yet. Connected implementation and
   target-driven evidence:
   [current diagnosis/design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
-  Current build146: cached joint footprints with adaptive target refinement for
-  final two-sided certification; upper-only local guidance stops with a rigorous
-  conservative bound when target uncertainty dominates. It may decline feasible
-  candidates; no outside proof or relaxed acceptance is claimed. Gates unchanged.
-  Build219.456s and serial20cases5210assertions39.116s pass, pins unchanged.
-  Three captured M6 query costs fall5.475/4.240/22.484s→1.390/1.033/.902s;
-  this is local query evidence, not an accepted mesh. Prior145 MPI2 publication/
-  reload evidence covers unchanged parallel/cache machinery; actual MPI6 is required.
-  Full M6/build146 was deliberately stopped after4652s to address construction
-  coordination; pins verified and recorded handles terminal. Its first quality entry
-  still had110543/305349 size-bad cells and31001 q-bad cells, with max metric edge
-  about10 against1.8. Private progress did not produce an accepted mesh or transfer.
-  Evidence: staged57/build146_m6_summary.json. Build149 repeats productive split
-  generations before quality, with no cap or final gate change. Build passed177.394s;
-  serial12cases/5380assertions and MPI2 13cases/rank pass with pins verified.
-  Earlier build147 tests exposed stale stage expectations; build148 had a test
-  assertion syntax compile error, both corrected in149. Full two-event M6 is active
-  at staged57/m6_runs/euler_build149_split_generations (driver3984946; live handles
-  in status/resources). Observe generation size-debt reduction and require strict
-  accepted CFD → mesh → CFD → mesh. Evidence: staged57/split149_checkpoint.json.
-  Root/tmp pressure was relieved on4TB.
-  Prior145 was deliberately stopped3701s for upper-only over-certification cost;
-  pins verified/all handles terminal. At3333s:4161globalwork,494rank0 collapses,
-  no complete pass/quality/accepted mesh/transfer. Earlier143 failed on dyadic
-  resolution;144 captured/replayed queries. Evidence: staged57/build145_m6_summary.json,
-  dyadic144/comparison145.json, comparison146.json and upper146_checkpoint.json;
-  detailed history/design remains in the linked handbook. Complete M6 is unproven.
+  User clarified500k complexity is RANS-only; current Euler target50k is endorsed.
+  Full two-event M6 build151 is running at staged57/m6_runs/euler_build151_target50k
+  (driver7818; live handles in status/resources). The prior149 500k Euler attempt
+  was stopped on that steering, pins verified/all recorded handles terminal.
+  Build151 passes108.262s and retains build149's validated repeat-split staging.
+  Upper-only geometry uses two conservative search shortcuts; captured queries
+  retain identical bounds and reduce total work803053→630312 versus146. This is
+  diagnostic query evidence, not an accepted mesh. Geometry upper-search passes
+  8cases/185assertions; the sheared-graph section still exhausts its work budget,
+  although its other14 assertions pass. It remains unqualified, not a whole pass.
+  Evidence: staged57/euler50k151_checkpoint.json and dyadic144/comparison151.json.
+  Require strict accepted Euler CFD → mesh → CFD → mesh, then BL/RANS/history and
+  restart qualification; final gates remain unchanged. Earlier failure evidence
+  and construction decisions are preserved in the linked handbook and receipts.
   Keep pinned C++/tests/helpers unchanged while active; verify handles before restart.
   User's permanent overnight workflow is saved in AGENTS.md: stop demonstrated
   computational bottlenecks or errors, preserve evidence, fix/validate and retry M6

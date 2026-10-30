@@ -276,7 +276,8 @@ class TriangleUnion {
     auto plane_bound=[&](size_t i)->double{const auto group=triangle_plane[i];if(group==SIZE_MAX||visited[group]==visit)return INFINITY;
       visited[group]=visit;op.Work();return planes[group].Upper(hull,op);};
     const auto seed=Seed(box,op);double best=plane_bound(seed);if(best<=accuracy/4)return best;
-    best=std::min(best,witness(seed));Candidates(box,best,op);
+    // A passing witness must intersect the hull's tolerance neighbourhood; retain the seed's valid upper bound.
+    best=std::min(best,witness(seed));Candidates(box,std::min(best,accuracy),op);
     for(auto i:candidates){best=std::min(best,plane_bound(i));if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
   }
   size_t ResidentBytes()const {
@@ -1654,7 +1655,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       else {std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=LinearPoint(physical.at(domain.facet),Exact(domain.parameter[k]));upper=target.Upper(points,op);
         if(upper>tolerance&&target.ApproximationError()>0)for(unsigned k=0;k<3;++k)
           diameter=std::max(diameter,NormBound(Difference(points[k],points[(k+1)%3])));}
-      lower=std::max(lower,target.Distance(sample(domain,from_model),op).lower);
+      if(upper>tolerance)lower=std::max(lower,target.Distance(sample(domain,from_model),op).lower);
       if(!std::isfinite(upper))throw std::invalid_argument("Unrepresentable surface-union upper bound.");
       op.Storage(transfer_memory::GrowthBound(queue.size()+1,sizeof(NodeBound)));
       queue.push_back({domain,upper,diameter});std::push_heap(queue.begin(),queue.end(),compare);

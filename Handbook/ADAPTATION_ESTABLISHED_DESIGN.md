@@ -839,3 +839,31 @@ if it were that mesh's acceptance target. Use the native final q/J/size gates
 and their provenance, or independently capture or reconstruct the exact target
 and its evaluation. Build146 is running; no accepted M6 event or independent
 metric gate is established by this audit.
+
+For the steady loop, `SU2_CFD/src/drivers/CSinglezoneDriver.cpp` default-constructs
+`CConservativeTransfer`; `SU2_CFD/include/adaptation/CConservativeTransfer.hpp`
+sets its projection's default sliver rule to `CLOSED`. This retains wall and
+symmetry content while accounting for open-boundary domain changes separately;
+verify the actual transfer report when an M6 event is accepted.
+
+### Partition and stagnation audit — 2026-10-30
+
+`Common/src/adaptation/CNativeImport3D.cpp` computes `WorkingWeights` from
+sampled sensor and target metrics. `CNativePartition3D.cpp` uses metric density,
+cell volume, and long/short metric-edge demand as a bounded work proxy, alongside
+a separate cell-count constraint; it does not explicitly estimate curved-boundary
+query difficulty or cache cost. Build146's recorded atlas-work snapshot has about
+34 times as much work on rank 5 as rank 0; a 1000-times imbalance and cache-miss
+dominance have not been established. Geometry-aware initial weights need measured
+candidate and cache costs across representative geometries before calibration.
+In-event repartition would require a coordinated quiescent boundary and safe
+migration or rebuilding of directory, selection, frozen field, boundary authority,
+checkpoint and budget state; it is not just another initial partition call.
+
+A read-only audit of the post-build147 selection and phase transitions found no
+reproduced early-stagnation case with admitted work still pending. If one occurs,
+preserve stage, remaining queues, attempts, deferrals and window state before
+changing the stop logic. `TriangleUnion::BuildPlanes` catches an invalid plane
+footprint by skipping that acceleration group; the original triangles remain in
+the distance and upper-bound searches. Build151's 50k Euler M6 run is active;
+these observations do not establish workflow acceptance.

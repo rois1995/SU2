@@ -1,0 +1,10 @@
+{
+  "time": 1793354533.7592988,
+  "elapsed_seconds": 2815.2708933353424,
+  "pid": 3985366,
+  "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build149_split_generations",
+  "cmdline": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+  "reason": "User clarified 500000 target belongs to RANS and requested much smaller Euler mesh. Stop superseded Euler500k attempt; retry Euler50000, preserve RANS500000 and all strict gates.",
+  "new_euler_target": 50000,
+  "rans_target": 500000
+}

@@ -1,4 +1,4 @@
-"""Run the unchanged six-rank M6 Euler case in a fresh, pinned directory."""
+"""Run the pinned six-rank M6 Euler case with its smaller adaptation target."""
 import csv
 import io
 import json
@@ -22,6 +22,24 @@ BASE = ROOT.parent / "validation54/m6_euler"
 CFD = REPO / "integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD"
 RUNTIME = BASE / "loaded_runtime_pins.json"
 INPUTS = BASE / "input_pins.json"
+EULER_TARGET = 50000
+
+
+def euler_config(text, expected_events, native_budget):
+    changes = [
+        (r"(?m)^ADAP_COMPLEXITY=[ \t]*500000[ \t]*$", f"ADAP_COMPLEXITY= {EULER_TARGET}"),
+        (r"(?m)^ADAP_SIZES=[ \t]*\([ \t]*500000[ \t]*\)[ \t]*$", f"ADAP_SIZES= ( {EULER_TARGET} )"),
+    ]
+    if expected_events == 2:
+        changes += [
+            (r"(?m)^ADAP_SUBITER=[ \t]*\([ \t]*1[ \t]*\)[ \t]*$", "ADAP_SUBITER= ( 2 )"),
+            (r"(?m)^ADAP_NATIVE_MAX_TIME=[ \t]*1800[ \t]*$", f"ADAP_NATIVE_MAX_TIME= {native_budget}"),
+        ]
+    for pattern, replacement in changes:
+        text, count = re.subn(pattern, replacement, text)
+        if count != 1:
+            raise RuntimeError("expected exactly one baseline directive for " + replacement.split("=", 1)[0])
+    return text
 
 
 def ldd_paths(binary):
@@ -169,6 +187,14 @@ def save_completed_workflow(attempt, expected_events, reuse=False):
 
 
 def acceptance_self_check():
+    baseline = (BASE / "run.cfg").read_text()
+    for events, budget in ((1, 1800), (2, 5400)):
+        expected = baseline.replace("ADAP_COMPLEXITY= 500000", "ADAP_COMPLEXITY= 50000").replace(
+            "ADAP_SIZES= ( 500000 )", "ADAP_SIZES= ( 50000 )")
+        if events == 2:
+            expected = expected.replace("ADAP_SUBITER= ( 1 )", "ADAP_SUBITER= ( 2 )").replace(
+                "ADAP_NATIVE_MAX_TIME= 1800", "ADAP_NATIVE_MAX_TIME= 5400")
+        assert euler_config(baseline, events, budget) == expected
     old = native_assessment([BASE / "run.log"], 0)
     assert old["native_event_accepted"] is False
     complete = [f"NATIVE3D rank={rank} ranks=6 workers=6 complete=1 detailed=1 initial=10 final=12" for rank in range(6)]
@@ -242,23 +268,14 @@ def main():
 
         config_source = BASE / "run.cfg"
         shutil.copyfile(config_source, attempt / "run.cfg")
-        if expected_events == 2:
-            config = (attempt / "run.cfg").read_text()
-            config, count = re.subn(r"(?m)^ADAP_SUBITER=[ \t]*\([ \t]*1[ \t]*\)[ \t]*$", "ADAP_SUBITER= ( 2 )", config)
-            if count != 1:
-                raise RuntimeError("expected exactly one baseline ADAP_SUBITER= ( 1 )")
-            config, count = re.subn(r"(?m)^ADAP_NATIVE_MAX_TIME=[ \t]*1800[ \t]*$", f"ADAP_NATIVE_MAX_TIME= {native_budget}", config)
-            if count != 1:
-                raise RuntimeError("expected exactly one baseline ADAP_NATIVE_MAX_TIME= 1800")
-            (attempt / "run.cfg").write_text(config)
+        if sha(attempt / "run.cfg") != sha(config_source):
+            raise RuntimeError("fresh M6 config copy differs from the pinned config")
+        (attempt / "run.cfg").write_text(euler_config((attempt / "run.cfg").read_text(), expected_events, native_budget))
         for filename, target in (("m6.su2", REPO / "integration_evidence/native_3d_bl_v1/oneram6_coarse_v1/Coarse.su2"),
                                  ("m6.su2.native_ref", REPO / "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation22/m6_authority.json.native_ref")):
             if not target.is_file():
                 raise RuntimeError(f"missing local M6 input: {target}")
             (attempt / filename).symlink_to(target)
-        if expected_events == 1 and sha(attempt / "run.cfg") != sha(config_source):
-            raise RuntimeError("fresh M6 config copy differs from the pinned config")
-
         libraries = ldd_paths(CFD)
         utilities = [Path(shutil.which(name) or "/nonexistent").resolve()
                      for name in ("nice", "timeout", "mpirun")]
@@ -282,6 +299,7 @@ def main():
                 "--output-filename", "rank_output", "-n", "6", str(CFD), "run.cfg"]
         save(attempt / "command.json", {
             "build": build, "case": "M6 Euler full adaptation", "ranks": 6, "expected_events": expected_events,
+            "target_complexity": EULER_TARGET,
             "native_budget_seconds": native_budget, "outer_timeout_seconds": outer_timeout,
             "argv": argv,
             "environment": {key: value for key, value in env.items()

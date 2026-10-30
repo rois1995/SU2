@@ -1,0 +1,103 @@
+{
+  "observed_at": 1793356979.2581558,
+  "user_target": "Euler complexity 50000; 500000 target applies to RANS",
+  "build150": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 273.64037013053894,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "build151": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 108.26205539703369,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "upper_search": {
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 37.59758377075195,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 85078016,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "cases": 8,
+    "assertions": 185
+  },
+  "upper_graph": {
+    "status": {
+      "state": "terminal",
+      "exit_code": 1,
+      "seconds": 15.468430757522583,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 35536896,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "failure": "complete sheared graph section exhausted Curved atlas work; remaining 14 assertions passed including missing physical coverage; case not qualified"
+  },
+  "old149": {
+    "status": {
+      "state": "terminal",
+      "solver_exit_code": 1,
+      "native_event_accepted": false,
+      "native_state": "solver exit failure; native acceptance not claimed",
+      "workflow_accepted": false,
+      "pins_verified": true,
+      "changed": [],
+      "seconds": 2827.3843853473663,
+      "largest_sampled_individual_process_rss_bytes": 3627388928,
+      "rss_note": "sampled process RSS; not a whole-job peak",
+      "transfer_reload_validation": "separate existing validation required"
+    },
+    "reason": "stopped on user steering to Euler 50k target",
+    "handles": {
+      "observed_at": 1793354594.896951,
+      "recorded_pids": [
+        3985364,
+        3985365,
+        3985366,
+        3985370,
+        3985371,
+        3985372,
+        3985373,
+        3985374,
+        3985375
+      ],
+      "still_existing": []
+    }
+  },
+  "current151_status_snapshot": {
+    "state": "running",
+    "pid": 7952,
+    "started_at": 1793356495.0120559,
+    "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build151_target50k"
+  },
+  "driver_pid": 7818,
+  "scope": "full M6 Euler two-event workflow active, not accepted",
+  "evidence_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build150_status.json": "5307759fe03dd5c01b90cbf2bc3fa6f8112ba17cea95c84cba229fb84d8d8989",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build151_status.json": "10d89ddcf0045db67a7f8d39c779f54e260429e02e80cd9ac196c36a9e44e855",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build151_source_pins.json": "ea869a82683342ee9e1582af305d73c45c9c05f8dc512803ac594bb3a1a306a8",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build149_split_generations/status.json": "94dfcc0889c9e265e099871b7b21916043a3f76995618586ec5248251d1a91c2",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build149_split_generations/terminal_handles.json": "463205906ed430e8c988e283c5131aea3f2e7913a9e71429fd3ee59b4d1075ad",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build149_split_generations/observation_stop.json": "907b51e2eefb17e5d30db086d9bd9ddfba9f6ce8e83cb3912cfca5821a1b21f4",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build151_target50k/command.json": "94f7e8f744171f18fae86942048ab9204b4a65ec8a0e1bc197293e0f263985ad",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build151_target50k/pins.json": "be982d5597e65f60f01a8a5eb01bd2473d7d220c4bafdbec518066c01dab2aa0",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/dyadic144/comparison151.json": "0d8385c37591c8b29ae8142dc2472490045aef37de1500b33d3c7e43da5b60a4",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/upper_search151_20261030T102955_4188036/status.json": "678a7772a928f5fea1ee9b895b3e40fa732084f97744e44b5f8e5b561b972aab",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/upper_search151_20261030T102955_4188036/command.json": "504d34c9b8606e668111a4f390d927dc5e02fc0029ff815874ac759d4f785af6",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/upper_search151_20261030T102955_4188036/pins.json": "4203cbc6b0032485ac7e2f96e962334e4e7cfeb88585c9b69c3dee74023dc4c8",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/upper_search151_20261030T102955_4188036/run.log": "80ea801e3af53230fbbfae30923427f0daed307badea4cc590fe5e987627b129",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/upper_graph151_20261030T103153_4193139/status.json": "5440ed942d3e548c08caf028636584796530159a852c8129b1f7738c773c31c7",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/upper_graph151_20261030T103153_4193139/command.json": "97314361747d527accb729ce7ae53081bc59224abcb9835f6aebbdebd45b5a0e",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/upper_graph151_20261030T103153_4193139/pins.json": "4203cbc6b0032485ac7e2f96e962334e4e7cfeb88585c9b69c3dee74023dc4c8",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/upper_graph151_20261030T103153_4193139/run.log": "d5e51660a18642a8133dcdf29631e26bbb4192fa77caf3ed42c966f1f0f738b4"
+  }
+}

@@ -1,5 +1,11 @@
 # Implementation and validation cadence
 
+User clarification, 2026-10-30: the 500k adaptation target was intended for RANS,
+not Euler. Use a much smaller Euler target; the current functional-loop attempt
+uses 50k (an implementation choice), with 500k reserved for RANS. Keep all geometry,
+quality, transfer and requested-height gates strict. Report actual mesh point/cell
+counts separately from the metric-complexity target.
+
 User instruction, 2026-10-29: let the complete M6 attempt drive development.
 Freeze a coherent implementation, allow generous but bounded certification work,
 and attempt the requested CFD → mesh → CFD → mesh workflow. Address construction,
