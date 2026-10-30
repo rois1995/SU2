@@ -1,10 +1,15 @@
 # Active diagnosis: globally useful M6 quality closure
 
-**Current full attempt TERMINAL, unsuccessful:** `euler_build164_quality_debt50k`.
+**Current LIVE:** `euler_build166_consistent_merit50k`, exec62090, driver1804058,
+mpirun1804149, ranks1804153–1804158. All1396pins frozen; launch provenance saved.
+Source688e13d29a, serial/MPI qualification00f25cc49e pushed. Strict two-event50k
+Euler attempt; no accepted event yet.
+
+**Previous full attempt TERMINAL, unsuccessful:** `euler_build164_quality_debt50k`.
 All ten exact owned handles independently absent; main exec23733 terminal.1396pins
 unchanged. First native event rejected time_budget on all6ranks before verified
 launcher1457249 was stopped to prevent unchanged retry. Sources now safe to edit;
-Builds165/166 and connected serial/MPI are terminal/passed. Actual M6 is next.
+Builds165/166 and connected serial/MPI are terminal/passed. Actual build166M6 is live; source freeze active.
 Active cycle implements consistent whole-field quality search and geometry fitting cost.
 Bounded read-only optimizer survey delegated; primary owns design/acceptance.
 All162notes below remain historical evidence. Full Euler→BL/MPI→RANS goal persists.
@@ -233,4 +238,4 @@ handles absent. Connected serial running exec83354/time1797262. CFD SHA256
 Connected serial145cases/20403assertions PASS38.002s; MPI6 151cases/rank PASS44.090s
 (assertions13418/12948/12959/13475/12722/15254in log output order). All source/runtime
 pins reverified and all sampled test handles independently absent. Summary:
-`staged57/quality_merit166_integration_summary.json`. Actual M6 is next; no capability claim.
+`staged57/quality_merit166_integration_summary.json`. Actual build166M6 is live; no capability claim.

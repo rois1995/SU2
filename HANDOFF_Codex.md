@@ -3,11 +3,21 @@
 Updated2026-10-31. User has freed the machine and authorized continuing computation.
 The full Euler50k→BL/MPI→RANS500k goal remains active; zero accepted M6 events.
 
+**LIVE, authoritative:** `euler_build166_consistent_merit50k`, complete two-event
+Euler50k attempt, exec62090, driver1804058, time1804147, timeout1804148,
+mpirun1804149, ranks1804153–1804158. Exact start ticks/cwd/exe identities:
+`staged57/m6_runs/euler_build166_consistent_merit50k/launch_provenance.json`.
+1396run pins; config byte-identical164 SHA5b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1.
+CFD SHA7b1d8c083b3de76893065474fecbf82792602397a468491c2eec2ac2f014de6e.
+Source688e13d29a, qualification00f25cc49e pushed. Six ranks, nice19/libs1,
+5400s native/event,14400s outer. Source/binary/helpers/config frozen. One owned
+heavy job; ~32.5GiB available at launch, no pressure. No accepted event yet.
+
 **TERMINAL, unsuccessful:** `euler_build164_quality_debt50k`, full two-event Euler50k attempt.
 All10owned handles independently absent; main exec23733 terminalexit1 after the
 verified launcher was stopped only after six-rank native time-budget failure.
 All1396run pins unchanged. See `event1_time_budget_stop_20261030/stop_receipt.json`
-and its `terminal_handles.json`. No owned heavy job is live; sources safe to edit.
+and its `terminal_handles.json`. Those164sources were safe to edit before165/166; CURRENT166freeze above takes precedence.
 First stop guard selected nonexistent section=refine instead of actual stage=refine;
 it aborted before any signal. Corrected guard, exact handles reverified, then only
 mpirun1457249 received SIGTERM. Original failure snapshots preserved.
@@ -46,7 +56,7 @@ CFD SHA2567b1d8c083b3de76893065474fecbf82792602397a468491c2eec2ac2f014de6e.
 All-operator whole-patch debt merit, additive DP/placement, height-constrained shape
 proposals, cached-length boundary-support estimate and quality-window/last-debt
 telemetry are integrated. No accepted M6 event/mesh/transfer/restart yet.
-Next: full two-event M6 `euler_build166_consistent_merit50k`; sources/binary/helpers
+Full two-event M6 `euler_build166_consistent_merit50k` is LIVE (top); sources/binary/helpers
 remain frozen through the actual run. Preserve construction/cache/ownership,
 strict gates and full Euler→BL/MPI→RANS500k goal.
 
