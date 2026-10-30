@@ -11,7 +11,13 @@ Connected serial PASS53cases/12462assertions35.085s; MPI6 PASS59cases/rank41.049
 all pins unchanged and observed handles terminal. Summary:
 `staged57/quality_handoff162_integration_summary.json`. CFD SHA256:
 `6bb6568831e8900e448f48da98e3c9bb714284a94cb21e3507936c61f3d0ad44`.
-Next full attempt `euler_build162_quality_handoff50k` is pending launch. All strict
+Qualification checkpoint `d0c1dbc3f7` is pushed. Full two-event attempt
+`euler_build162_quality_handoff50k` is ACTIVE: exec57326, driver1172403,
+mpirun1172494, ranks1172498–1172503 (time1172492/timeout1172493). Actual
+commands/cwds/start identities and unchanged config verified in `launch_receipt.json`.
+Initial CFD completed and wrote input-mesh restart00000; metric construction is
+underway. Sources/binary/config/helpers are frozen. Inspect actual handles before
+edits/restarts. All strict
 Euler/transfer/restart requirements remain, then BL/MPI and RANS500k.
 
 ## Demonstrated limitation

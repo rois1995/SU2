@@ -18,11 +18,15 @@ pins unchanged. All observed build/test handles are terminal. CFD SHA256:
 `6bb6568831e8900e448f48da98e3c9bb714284a94cb21e3507936c61f3d0ad44`.
 Summary: `staged57/quality_handoff162_integration_summary.json`.
 
-Next full two-event attempt: `euler_build162_quality_handoff50k`, not launched yet.
-Prelaunch host check:~33.65GiB available, load4.07/3.75/5.97, no active paging in
-bounded vmstat sample. Use the established nice19/MPI6/libs1/4TB-temp harness.
-Sources/binary/config/helpers must remain frozen throughout the complete attempt.
-Inspect its actual status/owned handles before edits/restarts; retain stop/fix/retry.
+The full two-event `euler_build162_quality_handoff50k` attempt is ACTIVE: exec57326,
+driver1172403, time1172492, timeout1172493, mpirun1172494, ranks1172498–1172503.
+Actual commands/cwds/start identities and config equality to build160 are verified
+in `launch_receipt.json`. Initial CFD solved and wrote input-mesh restart00000;
+metric construction is underway. Source/binary/config/helpers are frozen. Inspect
+actual status/owned handles before edits/restarts; retain authorized stop/fix/retry.
+Input61330points/303359cells;50k is metric complexity, not a mesh-count limit.
+Prelaunch~33.65GiB available, load4.07/3.75/5.97; no active paging in bounded sample.
+Qualification checkpoint `d0c1dbc3f7` is pushed; fixtures are not workflow completion.
 
 Build160 M6 is TERMINAL: first native event exhausted5400s at5408.5s, then only its
 verified launcher was stopped to prevent an unchanged retry. All10handles absent,
