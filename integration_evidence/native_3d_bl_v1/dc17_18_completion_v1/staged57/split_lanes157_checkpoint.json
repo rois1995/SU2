@@ -1,0 +1,337 @@
+{
+  "recorded_at": 1793371845.7400243,
+  "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build157_split_lanes50k",
+  "implementation_commit": "f104557fa639462ffa8fff869f7eb9fad2f28a08",
+  "status": "running; private progress only; no accepted mesh or transfer",
+  "scope": "Coarsening and first completed split generation; subsequent run evidence may supersede this snapshot",
+  "coarsening_baseline": {
+    "same_coarsening_counters": true,
+    "build155_seconds": 1180.125755904,
+    "build157_seconds": 1726.61446971,
+    "build157_over_155_time": 1.463076677271041,
+    "note": "Identical milestone work/caches; execution speed differs. Not an isolated benchmark or accepted mesh."
+  },
+  "milestones": [
+    {
+      "stage": "length_collapse_exit",
+      "global_work": 6078,
+      "elapsed_max": 1726.61446971,
+      "cells": 292694,
+      "size_hinge_squared": 55524.192575442474,
+      "geometry_bad": 3543,
+      "unique_long_surface": {
+        "min": 4160.0,
+        "max": 4160.0
+      },
+      "unique_long_interior": {
+        "min": 41088.0,
+        "max": 41088.0
+      },
+      "unique_edge_debt": {
+        "min": 11956.707338391416,
+        "max": 11956.707338391416
+      },
+      "maximum_edge": {
+        "min": 7.083878220896894,
+        "max": 7.083878220896894
+      },
+      "split_generation": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "split_lane": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "surface_rounds": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "interior_rounds": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "surface_seconds": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "interior_seconds": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "length_splits": 0,
+      "interior_boundary_discoveries": 0,
+      "surface_conflicts": 0,
+      "interior_conflicts": 0
+    },
+    {
+      "stage": "split_surface_exit",
+      "global_work": 7003,
+      "elapsed_max": 1896.417374187,
+      "cells": 294206,
+      "size_hinge_squared": 55591.276225085596,
+      "geometry_bad": 3890,
+      "unique_long_surface": {
+        "min": 4152.0,
+        "max": 4152.0
+      },
+      "unique_long_interior": {
+        "min": 41266.0,
+        "max": 41266.0
+      },
+      "unique_edge_debt": {
+        "min": 11925.331095293153,
+        "max": 11925.331095293153
+      },
+      "maximum_edge": {
+        "min": 7.083878220896894,
+        "max": 7.083878220896894
+      },
+      "split_generation": {
+        "min": 1.0,
+        "max": 1.0
+      },
+      "split_lane": {
+        "min": 1.0,
+        "max": 1.0
+      },
+      "surface_rounds": {
+        "min": 264.0,
+        "max": 264.0
+      },
+      "interior_rounds": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "surface_seconds": {
+        "min": 169.03845167700007,
+        "max": 169.03873636900013
+      },
+      "interior_seconds": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "length_splits": 679,
+      "interior_boundary_discoveries": 0,
+      "surface_conflicts": 20,
+      "interior_conflicts": 0
+    },
+    {
+      "stage": "split_interior_entry",
+      "global_work": 7003,
+      "elapsed_max": 1896.417748153,
+      "cells": 294206,
+      "size_hinge_squared": 55591.276225085596,
+      "geometry_bad": 3890,
+      "unique_long_surface": {
+        "min": 4152.0,
+        "max": 4152.0
+      },
+      "unique_long_interior": {
+        "min": 41266.0,
+        "max": 41266.0
+      },
+      "unique_edge_debt": {
+        "min": 11925.331095293153,
+        "max": 11925.331095293153
+      },
+      "maximum_edge": {
+        "min": 7.083878220896894,
+        "max": 7.083878220896894
+      },
+      "split_generation": {
+        "min": 1.0,
+        "max": 1.0
+      },
+      "split_lane": {
+        "min": 2.0,
+        "max": 2.0
+      },
+      "surface_rounds": {
+        "min": 264.0,
+        "max": 264.0
+      },
+      "interior_rounds": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "surface_seconds": {
+        "min": 169.03845167700007,
+        "max": 169.03873636900013
+      },
+      "interior_seconds": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "length_splits": 679,
+      "interior_boundary_discoveries": 0,
+      "surface_conflicts": 20,
+      "interior_conflicts": 0
+    },
+    {
+      "stage": "length_split_exit",
+      "global_work": 48102,
+      "elapsed_max": 1946.974034114,
+      "cells": 515287,
+      "size_hinge_squared": 7410.8370518744105,
+      "geometry_bad": 3890,
+      "unique_long_surface": {
+        "min": 4152.0,
+        "max": 4152.0
+      },
+      "unique_long_interior": {
+        "min": 33120.0,
+        "max": 33120.0
+      },
+      "unique_edge_debt": {
+        "min": 1706.4290088787848,
+        "max": 1706.4290088787848
+      },
+      "maximum_edge": {
+        "min": 4.540238670276443,
+        "max": 4.540238670276443
+      },
+      "split_generation": {
+        "min": 1.0,
+        "max": 1.0
+      },
+      "split_lane": {
+        "min": 2.0,
+        "max": 2.0
+      },
+      "surface_rounds": {
+        "min": 264.0,
+        "max": 264.0
+      },
+      "interior_rounds": {
+        "min": 15684.0,
+        "max": 15684.0
+      },
+      "surface_seconds": {
+        "min": 169.16640405300006,
+        "max": 169.16675789199994
+      },
+      "interior_seconds": {
+        "min": 50.0795129720003,
+        "max": 50.08156376000008
+      },
+      "length_splits": 41131,
+      "interior_boundary_discoveries": 0,
+      "surface_conflicts": 20,
+      "interior_conflicts": 12
+    },
+    {
+      "stage": "split_surface_exit",
+      "global_work": 48900,
+      "elapsed_max": 2082.307587475,
+      "cells": 517339,
+      "size_hinge_squared": 7272.367118454045,
+      "geometry_bad": 4145,
+      "unique_long_surface": {
+        "min": 4090.0,
+        "max": 4090.0
+      },
+      "unique_long_interior": {
+        "min": 33126.0,
+        "max": 33126.0
+      },
+      "unique_edge_debt": {
+        "min": 1661.2404864780542,
+        "max": 1661.2404864780542
+      },
+      "maximum_edge": {
+        "min": 4.540238670276443,
+        "max": 4.540238670276443
+      },
+      "split_generation": {
+        "min": 2.0,
+        "max": 2.0
+      },
+      "split_lane": {
+        "min": 1.0,
+        "max": 1.0
+      },
+      "surface_rounds": {
+        "min": 504.0,
+        "max": 504.0
+      },
+      "interior_rounds": {
+        "min": 15684.0,
+        "max": 15684.0
+      },
+      "surface_seconds": {
+        "min": 302.95134262100026,
+        "max": 302.9518074819999
+      },
+      "interior_seconds": {
+        "min": 51.554017996000304,
+        "max": 51.55606777100008
+      },
+      "length_splits": 41914,
+      "interior_boundary_discoveries": 0,
+      "surface_conflicts": 29,
+      "interior_conflicts": 12
+    },
+    {
+      "stage": "split_interior_entry",
+      "global_work": 48900,
+      "elapsed_max": 2082.308213852,
+      "cells": 517339,
+      "size_hinge_squared": 7272.367118454045,
+      "geometry_bad": 4145,
+      "unique_long_surface": {
+        "min": 4090.0,
+        "max": 4090.0
+      },
+      "unique_long_interior": {
+        "min": 33126.0,
+        "max": 33126.0
+      },
+      "unique_edge_debt": {
+        "min": 1661.2404864780542,
+        "max": 1661.2404864780542
+      },
+      "maximum_edge": {
+        "min": 4.540238670276443,
+        "max": 4.540238670276443
+      },
+      "split_generation": {
+        "min": 2.0,
+        "max": 2.0
+      },
+      "split_lane": {
+        "min": 2.0,
+        "max": 2.0
+      },
+      "surface_rounds": {
+        "min": 504.0,
+        "max": 504.0
+      },
+      "interior_rounds": {
+        "min": 15684.0,
+        "max": 15684.0
+      },
+      "surface_seconds": {
+        "min": 302.95134262100026,
+        "max": 302.9518074819999
+      },
+      "interior_seconds": {
+        "min": 51.554017996000304,
+        "max": 51.55606777100008
+      },
+      "length_splits": 41914,
+      "interior_boundary_discoveries": 0,
+      "surface_conflicts": 29,
+      "interior_conflicts": 12
+    }
+  ],
+  "raw_profile_sha256": "53d1066578f70a7209051ad52d46430d8021f9f53a3877a9ecec0eff7ea3dd7b",
+  "pins": {
+    "checked_at": 1793370325.0937502,
+    "elapsed_seconds": 3.0259571075439453,
+    "pins_checked": 1396,
+    "changed": [],
+    "pins_verified": true,
+    "scope": "mid-run source, binary, runtime and input pins; not an acceptance receipt"
+  }
+}

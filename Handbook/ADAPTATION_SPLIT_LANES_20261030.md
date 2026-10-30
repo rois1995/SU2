@@ -88,8 +88,10 @@ the capability objective. Respect source/test/helper pins throughout each campai
 
 The dedicated neighboring-edge lane fixture uses candidate_batch=1 and therefore
 misses concurrent proposal selection. Existing bidirectional MPI tests use the
-default MaximumCandidateBatch and require concurrent commits, but do not replace
-that exact fixture variant. Add it at the next safe source-edit boundary, together
+default MaximumCandidateBatch, but their parallel-commit assertion is cumulative
+and may be satisfied by the preceding collapse pass. They exercise concurrent
+adaptation without proving concurrent split commits; add a split-specific
+assertion rather than treating that statistic as complete split-lane coverage. Add it at the next safe source-edit boundary, together
 with printed construction_stall_handoffs and explicit handoff coverage. Do not edit
 pinned tests or engine while the current M6 attempt runs. Build156's sole serial
 failure compared Directory snapshots before and after intentionally clearing the
@@ -103,3 +105,22 @@ deferred. The census is bounded but lacks separate timing; its histogram and chi
 ratio are compact diagnostics, not a full length distribution or spoke certificate.
 Surface-first remains the endorsed scheduling policy; do not remove it based on
 incomplete provenance of older memory records. No complete Euler loop is proven.
+
+## Live M6 evidence after first split generation
+
+Checkpoint split_lanes157_checkpoint.json records private progress, not acceptance.
+Coarsening gives exactly build155's292694cells,6078proposals, geometry trial/cache
+counts, prepared bytes and size debt. Time1726.614s versus1180.126s:46.3% slower
+execution despite identical work. A late five-second sample has78.49% inclusive
+Allreduce cycles,17.10% surface union and12.92% TriangleUnion construction.
+Percentages overlap; this is not a whole-run or isolated speed benchmark.
+
+The unique census has4160long surface/41088long interior edges at collapse exit.
+Split generation1 accepts41131private splits:679during169s surface sweep and
+40452during50.08s interior sweep. Unique hinge11956.707->1706.429, maximum
+7.083878->4.540239.515287private cells,3890geometry-bad cells, no quality stage;
+construction q/J remain unmeasured. Interior boundary discoveries0. This supports
+the attempt-coverage design and does not establish final mesh quality or closure.
+Generation2 surface exit has4145geometry-bad cells; boundary closure remains open.
+Preserve50k complexity separately from actual cell counts. M6 remains running on
+frozen sources. Scope preparation/cache saturation remain distinct open costs.

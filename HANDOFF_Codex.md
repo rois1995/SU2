@@ -124,10 +124,15 @@ population from operator cost. Validate any SU2-specific modifications separatel
   implementation is built as157. Focused serial11cases/5306assertions and MPI6
   18cases/rank pass. The complete two-event M6 Euler50k attempt
   `euler_build157_split_lanes50k` is running; consult its status/resources and verify
-  owned handles before acting. No accepted mesh, transfer or restart yet. The
+  owned handles before acting. Coarsening is identical to155but46.3%slower in time.
+  First split generation accepts41131private splits,40452in50s interior lane;
+  unique debt11956.7->1706.4,max edge7.08->4.54,515287private cells. Geometry
+  closure and quality remain open; no accepted mesh, transfer or restart yet. The
   neighboring-edge lane fixture still needs the concurrent candidate-batch variant,
   and the stall-handoff counter needs printed/tested coverage at the next safe edit
-  point. Existing bidirectional MPI checks already cover concurrent commits. Details: [geometry balancing](Handbook/ADAPTATION_GEOMETRY_BALANCING_20261030.md)
+  point. Existing bidirectional MPI uses concurrent adaptation, but its cumulative
+  parallel-commit assertion may be satisfied by collapse; split-specific concurrency
+  still needs an assertion. Details: [geometry balancing](Handbook/ADAPTATION_GEOMETRY_BALANCING_20261030.md)
   and `staged57/build155_m6_summary.json`.
   The prior149 500k Euler attempt
   was stopped on that steering, pins verified/all recorded handles terminal.
