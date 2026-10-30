@@ -35,12 +35,20 @@ operators/triangulation/placement, near-threshold closure, detailed boundary-sup
 cost at quality ownership, and existing quality-window telemetry. Source review
 complete; bounded geometry-estimator API/tests delegated. Primary retains design/
 acceptance. Optional Opus5.5 high read-only review timed out240s without report.
-Candidate is implemented and about to be frozen for build165; no heavy job live.
-Source includes all-operator exact debt merit, additive DP/placement, height-constrained
-shape proposals, cached-length support-cost estimate and quality-window/last-debt
-telemetry. Focused tests added; all changed behavior remains UNVALIDATED until build
-and campaign complete. Preserve the source freeze once build165 starts. Preserve construction/cache/ownership improvements,
-strict gates and full Euler→BL/MPI→RANS500k goal. Check next build ID, not assumed.
+Candidate688e13d29a production source is qualified by build165/166 and connected
+serial/MPI checks. Build165 passed540.908s;166test-only correction passed39.154s;
+1296pins unchanged within each, all sampled build/test handles independently absent.
+Focused165found two new fixture assumptions wrong (preserved); corrected focused166
+29cases/3154assertions PASS7.046s. Connected serial145cases/20403assertions PASS38.002s;
+MPI6 151cases/rank PASS44.090s. Full source/runtime pins verified, summary:
+`staged57/quality_merit166_integration_summary.json`.
+CFD SHA2567b1d8c083b3de76893065474fecbf82792602397a468491c2eec2ac2f014de6e.
+All-operator whole-patch debt merit, additive DP/placement, height-constrained shape
+proposals, cached-length boundary-support estimate and quality-window/last-debt
+telemetry are integrated. No accepted M6 event/mesh/transfer/restart yet.
+Next: full two-event M6 `euler_build166_consistent_merit50k`; sources/binary/helpers
+remain frozen through the actual run. Preserve construction/cache/ownership,
+strict gates and full Euler→BL/MPI→RANS500k goal.
 
 Read [active quality-closure diagnosis](Handbook/ADAPTATION_QUALITY_CLOSURE_20261030.md),
 [current quality coordination](Handbook/ADAPTATION_QUALITY_HANDOFF_20261030.md)

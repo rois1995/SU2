@@ -1,0 +1,127 @@
+{
+  "candidate_source": "688e13d29a",
+  "build165": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 540.908180475235,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "build166": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 39.15416407585144,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "only_165_to_166_source_change": "UnitTests/Common/adaptation/CNativeMetric3D_tests.cpp",
+  "CFD_sha256": "7b1d8c083b3de76893065474fecbf82792602397a468491c2eec2ac2f014de6e",
+  "cases": [
+    {
+      "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_merit165_serial_probe_20261030T232037_1791969",
+      "status": {
+        "state": "terminal",
+        "exit_code": 2,
+        "seconds": 6.991368055343628,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 29356032,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "ranks": 1,
+      "passing_rank_summaries": [],
+      "current_pin_changes": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeMetric3D_tests.cpp",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver"
+      ],
+      "terminal_handles_verified": true
+    },
+    {
+      "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_merit166_serial_probe_20261030T232225_1796509",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 7.045898914337158,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 28499968,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "ranks": 1,
+      "passing_rank_summaries": [
+        [
+          "3154",
+          "29"
+        ]
+      ],
+      "current_pin_changes": [],
+      "terminal_handles_verified": true
+    },
+    {
+      "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_merit166_serial_20261030T232240_1797134",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 38.00179314613342,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 86740992,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "ranks": 1,
+      "passing_rank_summaries": [
+        [
+          "20403",
+          "145"
+        ]
+      ],
+      "current_pin_changes": [],
+      "terminal_handles_verified": true
+    },
+    {
+      "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_merit166_mpi6_20261030T232333_1799265",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 44.09048581123352,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 103448576,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "ranks": 6,
+      "passing_rank_summaries": [
+        [
+          "13418",
+          "151"
+        ],
+        [
+          "12948",
+          "151"
+        ],
+        [
+          "12959",
+          "151"
+        ],
+        [
+          "13475",
+          "151"
+        ],
+        [
+          "12722",
+          "151"
+        ],
+        [
+          "15254",
+          "151"
+        ]
+      ],
+      "current_pin_changes": [],
+      "terminal_handles_verified": true
+    }
+  ],
+  "qualification": "Focused and connected serial/MPI checks pass. No accepted M6 mesh, transfer or adapted restart; full M6 next.",
+  "created_utc": "2026-10-30T23:25:02Z"
+}

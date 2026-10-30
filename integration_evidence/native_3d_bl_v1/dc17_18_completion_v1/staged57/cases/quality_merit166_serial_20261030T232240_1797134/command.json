@@ -1,0 +1,22 @@
+{
+  "build": "build166",
+  "case": "quality_merit166_serial",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeSurfaceCache3D],[NativeSurfaceMemo3D],[NativeGeometryStats3D],[NativeReferenceIO3D],[NativeReference3D],[NativeAtlasReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D]"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "timeout_seconds": 600
+}

@@ -4,8 +4,8 @@
 All ten exact owned handles independently absent; main exec23733 terminal.1396pins
 unchanged. First native event rejected time_budget on all6ranks before verified
 launcher1457249 was stopped to prevent unchanged retry. Sources now safe to edit;
-no owned heavy job, no new C++ change/build. Active cycle is terminal-evidence-led
-reassessment of consistent whole-field quality search and geometry fitting cost.
+Builds165/166 and connected serial/MPI are terminal/passed. Actual M6 is next.
+Active cycle implements consistent whole-field quality search and geometry fitting cost.
 Bounded read-only optimizer survey delegated; primary owns design/acceptance.
 All162notes below remain historical evidence. Full Euler→BL/MPI→RANS goal persists.
 
@@ -199,13 +199,13 @@ attempt. No new monitoring framework or mesh-wide distributed optimizer bypass.
 One active implementation cycle. Bounded geometry-estimator API/tests delegated;
 primary owns optimizer, shared merit, integration and acceptance. Optional authorized
 Opus5.5 high read-only review timed out240s without a report; no correctness claim.
-No build started. Qualify measured fixed-worst/decreasing-total cases, actual
+Qualify measured fixed-worst/decreasing-total cases, actual
 triangulation/placement, near-threshold closure, length and requested-height/frame
 preservation, then one connected serial/MPI campaign and immediately full M6.
 Complete accepted Euler two-event workflow plus conservative admissible transfer
 and isolated usable disk restart remain required; then BL/MPI and RANS500k.
 
-Candidate implementation complete, not built: all optimizer operations use the
+Candidate implementation complete: all optimizer operations use the
 shared patch-debt policy after actual heights close; DP and placement are additive.
 Physical RowScore remains for census/reports. Shape proposals reuse ConstrainMovePoint
 to preserve admitted wall altitudes; fresh height checks enforce closure. Legacy
@@ -215,4 +215,22 @@ not cached map order. Predictor scratch is admitted. Focused measured tests cove
 the max-min tradeoff, alternative triangulations, tiny deficit closure and admitted
 first height; existing height-repair regressions remain. Local Opus review timed
 out without output; bounded source review caught and corrected the edge-order and
-legacy-height issues before any build. Freeze for build165 next; unvalidated.
+legacy-height issues before any build. Candidate688e13d29a pushed. Build165 passed
+540.908s with1296unchanged pins; all observed build handles absent. Focused serial
+29cases/3147assertions:27passed,2new fixture assumptions failed. The right tetrahedron
+was placed at its J gate while q remained below.2; the corrected fixture locates the
+actual joint gate by bounded bisection. Smoothing reduced debt.007226 while worsening
+the worst score, proving the objective tradeoff; the unsupported.02absolute decrease
+assertion is replaced by the shared strict relative progress rule. All other checks,
+including triangulation and admitted-height movement, passed. Focused pins unchanged
+and all sampled handles absent. Production source is unchanged; build166RUNNING
+(exec99530,Ninja1794137) for test-only correction. C++ frozen until terminal checks.
+Build166 passed39.154s with1296unchanged pins; all sampled handles absent. Its only
+source-pin difference from165is the corrected Metric3Dtest file. Corrected focused
+serial29cases/3154assertions PASS7.046s; runtime/source pins unchanged and all sampled
+handles absent. Connected serial running exec83354/time1797262. CFD SHA256
+7b1d8c083b3de76893065474fecbf82792602397a468491c2eec2ac2f014de6e.
+Connected serial145cases/20403assertions PASS38.002s; MPI6 151cases/rank PASS44.090s
+(assertions13418/12948/12959/13475/12722/15254in log output order). All source/runtime
+pins reverified and all sampled test handles independently absent. Summary:
+`staged57/quality_merit166_integration_summary.json`. Actual M6 is next; no capability claim.

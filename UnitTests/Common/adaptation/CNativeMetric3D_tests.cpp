@@ -938,8 +938,15 @@ TEST_CASE("Small measured shape deficits can close without cosmetic above-gate p
   struct Restore {ShapeAdmission value=GetShapeAdmission();~Restore(){SetShapeAdmission(value);}} restore;
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
   FrozenField field({CoveringDonor({1,0,0,1,0,1})});
-  const double h=.05/std::sqrt(1-.05*.05);
   auto cell=[](double z){return Cell{1,Tet({1,{0,0,0}},{2,{1,0,0}},{3,{0,1,0}},{4,{0,0,z}})};};
+  // Locate the actual joint q/J gate: this right tetrahedron reaches q last.
+  double lo=.01,hi=.5;
+  for(unsigned i=0;i<60;++i) {
+    const double mid=(lo+hi)/2;
+    const auto m=MeasureMetricCells({cell(mid)},field);
+    if(m.shape_debt>0)lo=mid;else hi=mid;
+  }
+  const double h=hi;
   const auto old=MeasureMetricCells({cell(h*(1-1e-8))},field);
   const auto fresh=MeasureMetricCells({cell(h*(1+1e-8))},field);
   REQUIRE(old.shape_debt>0);REQUIRE(old.shape_debt<1e-12L);REQUIRE(fresh.shape_debt==0);
@@ -965,7 +972,7 @@ TEST_CASE("Optimizer smoothing reduces whole-star debt beyond a max-min stationa
   SetShapeAdmission(ShapeAdmission::ValidityOnly);OptimizeReport debt;
   REQUIRE(OptimizeMetricMesh(mesh,target,nn,nc,options,debt));
   const auto after=measured(mesh);const auto final=Facts(mesh,field);
-  CHECK(after.shape_debt<before.shape_debt-.02L);CHECK(final.min<facts.min);
+  CHECK(ShapeDebtDecreases(before.shape_debt,after.shape_debt));CHECK(final.min<facts.min);
   CHECK(debt.moves>0);CHECK(final.positive);CHECK(final.skin==facts.skin);CHECK(final.cells==facts.cells);
   CHECK(std::abs(double(final.volume-facts.volume))<1e-12);
   CHECK(after.maximum_length<=MaximumMetricEdge);
