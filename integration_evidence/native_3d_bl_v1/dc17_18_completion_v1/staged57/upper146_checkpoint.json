@@ -1,0 +1,184 @@
+{
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 219.45626831054688,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "queries": {
+    "matched_input_sha256": {
+      "/dyadic144/queries.json": "53650739c325ea83e84cdc1d594219a2174201b506409ba082dff58a6191de7a",
+      "/dyadic144/probe.cpp": "39b20a3313a1470e62d07fcf226f569b53bc9eee742ff008ab0e650f2fa98d6d",
+      "/dyadic144/generate_probe.py": "458132df5f4a4f79261f7565a10011a4424b583dbd708564339ed1d957c88e1f",
+      "/validation22/m6_authority.json.native_ref": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+    },
+    "tolerance": 0.0001,
+    "limits": {
+      "work_per_query": 1000000000,
+      "bytes": 12884901888,
+      "integer_bits": 209504
+    },
+    "interpretation": "145 upper-only returns sufficient bounds within tolerance; 146 upper-only returns conservative bounds above tolerance, implying no proof of outside; local candidate can be declined. Final two-sided certification remains strict. These query results do not establish an accepted mesh.",
+    "replays": [
+      {
+        "receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/dyadic144/replay_build145",
+        "status": {
+          "state": "terminal",
+          "phase_exit_codes": {
+            "compile": 0,
+            "link": 0,
+            "run": 0
+          },
+          "seconds": 58.45231306692585,
+          "pins_verified": true,
+          "changed": [],
+          "binary_sha256": "e3221194b4659d3b0b94a746b9c0cee7f7502a2882364937d254bad9b6577f1e",
+          "rss_note": "sampled process tree, not peak"
+        },
+        "queries": [
+          {
+            "query": 0,
+            "bound": 9.999706984103447e-05,
+            "work": 1014699,
+            "seconds": 5.47500494
+          },
+          {
+            "query": 1,
+            "bound": 9.999613859491821e-05,
+            "work": 796404,
+            "seconds": 4.239689301
+          },
+          {
+            "query": 2,
+            "bound": 9.999608196824558e-05,
+            "work": 2290947,
+            "seconds": 22.483622252
+          }
+        ]
+      },
+      {
+        "receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/dyadic144/replay_build146",
+        "status": {
+          "state": "terminal",
+          "phase_exit_codes": {
+            "compile": 0,
+            "link": 0,
+            "run": 0
+          },
+          "seconds": 24.346619322896004,
+          "pins_verified": true,
+          "changed": [],
+          "binary_sha256": "8b8476e68870949fb89b2653b3059a0279a9b09f1226b7897c04d75ba504b40f",
+          "rss_note": "sampled process tree, not peak"
+        },
+        "queries": [
+          {
+            "query": 0,
+            "bound": 0.00010204897957713114,
+            "work": 297860,
+            "seconds": 1.389971751
+          },
+          {
+            "query": 1,
+            "bound": 0.00010021264439871189,
+            "work": 288021,
+            "seconds": 1.032796731
+          },
+          {
+            "query": 2,
+            "bound": 0.00010341132913270025,
+            "work": 217172,
+            "seconds": 0.901928612
+          }
+        ]
+      }
+    ]
+  },
+  "serial": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 39.1161847114563,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 86216704,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "prior_target": {
+    "classification": "deliberately stopped for demonstrated upper-only query cost; solver exit is not a geometry verdict",
+    "status": {
+      "state": "terminal",
+      "solver_exit_code": 1,
+      "native_event_accepted": false,
+      "native_state": "solver exit failure; native acceptance not claimed",
+      "workflow_accepted": false,
+      "pins_verified": true,
+      "changed": [],
+      "seconds": 3708.6192004680634,
+      "largest_sampled_individual_process_rss_bytes": 5895671808,
+      "rss_note": "sampled process RSS; not a whole-job peak",
+      "transfer_reload_validation": "separate existing validation required"
+    },
+    "stop": {
+      "time": 1793345507.7598913,
+      "elapsed_seconds": 3701.4626433849335,
+      "pid": 3561614,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target",
+      "cmdline": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "reason": "Upper-only local queries unnecessarily adapt target to prove near-threshold inclusion. Captured M6 requests cost4.2\u201322.5s; conservative current maxheap upper bounds suffice for local refusal, while full two-sided final certificates retain adaptive refinement. Preserve diagnostic profile/progress and validate bounded upper-only policy before retry.",
+      "accepted_mesh_claim": false
+    },
+    "terminal_handles": {
+      "observed_at": 1793345516.9505916,
+      "recorded_pids": [
+        3561612,
+        3561613,
+        3561614,
+        3561618,
+        3561619,
+        3561620,
+        3561621,
+        3561622,
+        3561623
+      ],
+      "still_existing": []
+    },
+    "progress_at_3300s": {
+      "elapsed_observation_seconds": 3333,
+      "global_work": 4161,
+      "rank0_accepted": 494,
+      "rank0_length_collapses": 494,
+      "quality_stages": 0,
+      "completed_pass": false
+    },
+    "accepted_mesh": false,
+    "accepted_transfer": false,
+    "sampled_tree_peak_bytes": 15546056704,
+    "sampled_tree_peak_elapsed_seconds": 3158.4456906318665,
+    "rss_note": "maximum sampled process-tree sum, not measured whole-job peak",
+    "evidence_sha256": {
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target/status.json": "065b41d00292a04f24ac1e278f58a1a24bc2e49da53f8e7618b4a1e2db0206a1",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target/observation_stop.json": "29a9f1d8c905351d35c94bffca850ffa875ba7a42fc9752299422db1486035e0",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target/terminal_handles.json": "fcab55ea0d51f88a9d086f296baed89606e64a90d1c40c5011988d5f6458532a",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target/command.json": "ecf3ed227f9776d7c135d23aeb7dc727623fb6f3afe2a7f4f6f8409e6d77e8a0",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target/pins.json": "3cdd7c5144b9abefd31ade6dc3a178ae0a22dc10c3a169d2ec4eac1a426dc3a8",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target/resources.jsonl": "624674d17f2590d661180f1448d6dec19706b0564273d6dd73b523f7ad389785",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target/host_resources.jsonl": "c4867e77f3015b9a8de515d94d5619506bc4c8d7558e6c5c8a791e17a6bb62d0",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target/progress_600s.txt": "974a03c9189a055cb250e6c5cfbfe106372e69fb633b17943edf8ebed612fd36",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target/progress_1200s.txt": "4008a0c11729baecf6ca3617c42ef16857245021bec3a7f1187b2ba605851f02",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target/progress_1800s.txt": "3ad123ee428057d5ebb905fd59e0474aa0e3cd1a8744ebeb9eb01e6948a3a6e0",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target/progress_3300s.txt": "b7f6a0331498e4b3fc60ec6602816de5c03d23a98baeb5ac7693e371b698c2c7",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target/profile_750s_receipt.json": "a7d29c0e93ac0c7de7b37a3b4516269e12cdd3e0a2e2818109babe207ea4f8c7",
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target/profile_750s_report.txt": "aa2b47362eda75a83e7c23cdeb2d3c998c9a407ce748fb496d3013bc36c526b1"
+    }
+  },
+  "current_target": "m6_runs/euler_build146_upper_guidance",
+  "goal_complete": false,
+  "unchanged_final_gates": true,
+  "limits": [
+    "Upper-only conservative bounds may refuse feasible local candidates; no outside proof claimed.",
+    "No accepted M6 mesh/transfer/workflow yet.",
+    "BL generation/RANS/restart still open."
+  ]
+}

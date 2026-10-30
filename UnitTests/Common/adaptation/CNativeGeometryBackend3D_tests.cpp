@@ -251,12 +251,20 @@ TEST_CASE("Curved target uncertainty refines without relaxing surface tolerance"
       {center.x+1e-6,center.y,center.z-gap},{center.x,center.y+1e-6,center.z-gap}}}};};
   // The known center witnesses the whole small triangle; it is also the cubic's minimum z.
   auto inside=BackendBudget();
-  CHECK(fixture.geometry->BoundPhysicalSurface({0},physical(.99*tolerance),tolerance,inside)<=tolerance);
+  CHECK(fixture.geometry->BoundSurfaceUnion({0},physical(.99*tolerance),tolerance,inside).mesh_to_model<=tolerance);
   auto outside=BackendBudget();
-  CHECK(fixture.geometry->BoundPhysicalSurface({0},physical(1.01*tolerance),tolerance,outside)>tolerance);
+  CHECK(fixture.geometry->BoundSurfaceUnion({0},physical(1.01*tolerance),tolerance,outside).mesh_to_model>tolerance);
   BackendFixture limited;auto budget=BackendBudget();budget.maximum_work=inside.work-1;
-  CHECK_THROWS(limited.geometry->BoundPhysicalSurface({0},physical(.99*tolerance),tolerance,budget));
+  CHECK_THROWS(limited.geometry->BoundSurfaceUnion({0},physical(.99*tolerance),tolerance,budget));
   CHECK(budget.work_exhausted);
+
+  BackendFixture guidance;auto upper_budget=BackendBudget();
+  auto triangles=physical(.99*tolerance);auto easy=physical(.9*tolerance);triangles.push_back(easy.front());
+  const auto upper=guidance.geometry->BoundPhysicalSurface({0},triangles,tolerance,upper_budget);
+  // This safe bound may reject a feasible edit; it never claims an outside-distance lower bound.
+  CHECK(upper>tolerance);CHECK(upper>=.99*tolerance);CHECK(upper_budget.work<inside.work);
+  std::reverse(triangles.begin(),triangles.end());auto reordered=BackendBudget();
+  CHECK(guidance.geometry->BoundPhysicalSurface({0},triangles,tolerance,reordered)>=.99*tolerance);
 }
 
 TEST_CASE("Physical surface bounds reuse only identical immutable queries", "[NativeGeometryBackend3D][NativeSurfaceMemo3D]") {

@@ -1672,6 +1672,9 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       if(node.upper<=tolerance){finished=std::max(finished,node.upper);++leaves;continue;}
       if(!from_model&&target.ApproximationError()>0&&
           (node.diameter<=target.ApproximationError()||node.domain.depth>=48)) {
+        // Upper-only guidance may conservatively refuse this candidate without proving it outside.
+        // The popped maximum and finished leaves bound every source domain; final certificates still refine.
+        if(!include_model)return std::make_tuple(std::max(finished,node.upper),leaves,false);
         if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_REFINE resolution=%.17g error=%.17g diameter=%.17g upper=%.17g lower=%.17g work=%zu\n",
             resolution,target.ApproximationError(),node.diameter,node.upper,lower,budget.work);
         throw RefineSurfaceTarget{};

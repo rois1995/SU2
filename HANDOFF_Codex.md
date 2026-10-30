@@ -102,31 +102,22 @@ population from operator cost. Validate any SU2-specific modifications separatel
   no complete curved/M6 workflow is accepted yet. Connected implementation and
   target-driven evidence:
   [current diagnosis/design](Handbook/ADAPTATION_ESTABLISHED_DESIGN.md#complete-surface-bounds-and-two-event-m6--2026-10-29).
-  Current coherent build143: exact-scope/tolerance joint footprints over retained
-  certified facet pieces, plus after-first/first-violation coarsening admission.
-  Gates unchanged; no q/J construction measurements introduced. Build105.259s
-  passes; serial19cases5199assertions16.916s and MPI2 publication/reload/construction
-  pass162.152s/pins unchanged. Gate diagnostic419904 comparisons passes. Captured
-  M6 query cold2.314s→.07355s/warm2.253s→.003861s at unchanged1e-4 tolerance;
-  this is query evidence, not an accepted mesh or whole-run speedup claim.
-  Full M6/build143 terminal after3625.1s with pins verified and all owned handles
-  terminal. Both events reject on unresolved surface-union exact dyadic resolution;
-  they reach6368/6024 global work and2505/2515 private collapses, respectively,
-  without an accepted mesh or transfer. Both retain the original CFD mesh/solution.
-  Sampled process-tree RSS peaked12.78GB (sampled, not whole-job peak).
-  Evidence: staged57/build143_m6_summary.json and combined143_checkpoint.json;
-  build142's prior time-budget failure remains in staged57/build142_m6_summary.json.
-  Diagnostic replay143 was interrupted by debugger signal handling (exit133,
-  pins verified); it produced no geometry verdict. All its known handles terminal.
-  Build144's failure-logging M6 capture was stopped after recording three exact
-  unresolved queries; pins verified and recorded handles terminal. All three replays
-  independently reproduce dyadic-resolution failure: staged57/dyadic144/replay_build144.
-  Build145 passed1241.021s with pins unchanged. All three captured queries now
-  resolve below1e-4 (staged57/dyadic144/comparison145.json); this is query evidence,
-  not an accepted mesh. Serial20cases5205assertions pass38.101s; MPI2
-  publication/reload11cases/rank pass195.850s, all pins unchanged. Full two-event
-  M6 is active at staged57/m6_runs/euler_build145_adaptive_target
-  (driver3561453, time3561612; actual ranks in resources.jsonl), unchanged gates.
+  Current build146: cached joint footprints with adaptive target refinement for
+  final two-sided certification; upper-only local guidance stops with a rigorous
+  conservative bound when target uncertainty dominates. It may decline feasible
+  candidates; no outside proof or relaxed acceptance is claimed. Gates unchanged.
+  Build219.456s and serial20cases5210assertions39.116s pass, pins unchanged.
+  Three captured M6 query costs fall5.475/4.240/22.484s→1.390/1.033/.902s;
+  this is local query evidence, not an accepted mesh. Prior145 MPI2 publication/
+  reload evidence covers unchanged parallel/cache machinery; actual MPI6 is required.
+  Full two-event M6 is active at staged57/m6_runs/euler_build146_upper_guidance
+  (driver3719860, time3720009; current handles in status/resources).
+  Prior145 was deliberately stopped3701s for upper-only over-certification cost;
+  pins verified/all handles terminal. At3333s:4161globalwork,494rank0 collapses,
+  no complete pass/quality/accepted mesh/transfer. Earlier143 failed on dyadic
+  resolution;144 captured/replayed queries. Evidence: staged57/build145_m6_summary.json,
+  dyadic144/comparison145.json, comparison146.json and upper146_checkpoint.json;
+  detailed history/design remains in the linked handbook. Complete M6 is unproven.
   Keep pinned C++/tests/helpers unchanged while active; verify handles before restart.
   User's permanent overnight workflow is saved in AGENTS.md: stop demonstrated
   computational bottlenecks or errors, preserve evidence, fix/validate and retry M6

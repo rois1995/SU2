@@ -1,0 +1,89 @@
+{
+  "matched_input_sha256": {
+    "/dyadic144/queries.json": "53650739c325ea83e84cdc1d594219a2174201b506409ba082dff58a6191de7a",
+    "/dyadic144/probe.cpp": "39b20a3313a1470e62d07fcf226f569b53bc9eee742ff008ab0e650f2fa98d6d",
+    "/dyadic144/generate_probe.py": "458132df5f4a4f79261f7565a10011a4424b583dbd708564339ed1d957c88e1f",
+    "/validation22/m6_authority.json.native_ref": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+  },
+  "tolerance": 0.0001,
+  "limits": {
+    "work_per_query": 1000000000,
+    "bytes": 12884901888,
+    "integer_bits": 209504
+  },
+  "interpretation": "145 upper-only returns sufficient bounds within tolerance; 146 upper-only returns conservative bounds above tolerance, implying no proof of outside; local candidate can be declined. Final two-sided certification remains strict. These query results do not establish an accepted mesh.",
+  "replays": [
+    {
+      "receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/dyadic144/replay_build145",
+      "status": {
+        "state": "terminal",
+        "phase_exit_codes": {
+          "compile": 0,
+          "link": 0,
+          "run": 0
+        },
+        "seconds": 58.45231306692585,
+        "pins_verified": true,
+        "changed": [],
+        "binary_sha256": "e3221194b4659d3b0b94a746b9c0cee7f7502a2882364937d254bad9b6577f1e",
+        "rss_note": "sampled process tree, not peak"
+      },
+      "queries": [
+        {
+          "query": 0,
+          "bound": 9.999706984103447e-05,
+          "work": 1014699,
+          "seconds": 5.47500494
+        },
+        {
+          "query": 1,
+          "bound": 9.999613859491821e-05,
+          "work": 796404,
+          "seconds": 4.239689301
+        },
+        {
+          "query": 2,
+          "bound": 9.999608196824558e-05,
+          "work": 2290947,
+          "seconds": 22.483622252
+        }
+      ]
+    },
+    {
+      "receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/dyadic144/replay_build146",
+      "status": {
+        "state": "terminal",
+        "phase_exit_codes": {
+          "compile": 0,
+          "link": 0,
+          "run": 0
+        },
+        "seconds": 24.346619322896004,
+        "pins_verified": true,
+        "changed": [],
+        "binary_sha256": "8b8476e68870949fb89b2653b3059a0279a9b09f1226b7897c04d75ba504b40f",
+        "rss_note": "sampled process tree, not peak"
+      },
+      "queries": [
+        {
+          "query": 0,
+          "bound": 0.00010204897957713114,
+          "work": 297860,
+          "seconds": 1.389971751
+        },
+        {
+          "query": 1,
+          "bound": 0.00010021264439871189,
+          "work": 288021,
+          "seconds": 1.032796731
+        },
+        {
+          "query": 2,
+          "bound": 0.00010341132913270025,
+          "work": 217172,
+          "seconds": 0.901928612
+        }
+      ]
+    }
+  ]
+}

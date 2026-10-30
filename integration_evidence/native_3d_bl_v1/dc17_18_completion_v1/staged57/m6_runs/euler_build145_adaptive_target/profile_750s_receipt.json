@@ -1,0 +1,31 @@
+{
+  "time": 1793342566.9698102,
+  "pids": [
+    3561618,
+    3561619,
+    3561620,
+    3561621,
+    3561622,
+    3561623
+  ],
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "perf",
+    "record",
+    "-F",
+    "49",
+    "-g",
+    "--call-graph",
+    "dwarf,8192",
+    "-p",
+    "3561618,3561619,3561620,3561621,3561622,3561623",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build145_adaptive_target/profile_750s.data",
+    "--",
+    "sleep",
+    "5"
+  ],
+  "scope": "five-second sampled profile, not whole-run cost attribution"
+}

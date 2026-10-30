@@ -83,6 +83,24 @@ accepted mesh. Serial adaptive-target checks are active; MPI2 and the actual M6
 CFD → mesh → CFD → mesh run remain required. BL generation, RANS, history transfer
 and restart remain subsequent obligations.
 
+### Upper-only bounded guidance — build146
+
+The build145 M6 attempt was deliberately stopped after3701s because near-threshold
+upper-only guidance incurred target refinement cost; it yielded no accepted mesh or
+transfer (`staged57/build145_m6_summary.json`). Build146 returns the current rigorous
+upper bound when an upper-only query reaches the target-approximation uncertainty
+floor, without claiming outside. Local candidates may therefore be declined
+conservatively. Full two-sided certification retains adaptive refinement and all
+final geometry, quality and transfer gates.
+
+Build146 completed219.456s with pins unchanged. The three captured upper-only
+queries returned bounds.00010204897957713114/.00010021264439871189/
+.00010341132913270025 in1.390/1.033/.902s; the same build145 queries returned
+bounds below1e-4 in5.475/4.240/22.484s. Input/probe/authority hashes match and
+`staged57/dyadic144/comparison146.json` preserves both receipts. This shows
+conservative local guidance, not outside proof or an accepted mesh. Serial policy
+checks are active; actual six-rank M6 and the full workflow remain required.
+
 ### Full M6 result and collapse admission — build133
 
 Build132's first event failed at~1356s: `Surface-union parameters exhausted exact
