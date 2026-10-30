@@ -3642,7 +3642,7 @@ TEST_CASE("Distributed repair moves complete large stars without changing cell o
       initial_bad+=m.mean_ratio<MinimumMeanRatio || m.minimum_scaled_jacobian<MinimumScaledJacobian;
     }
     REQUIRE(world.sum(initial_bad)>0);
-    EngineOptions options;options.candidate_batch=1;options.maximum_rounds=1;options.maximum_work=4096;
+    EngineOptions options;options.phase_ownership=PhaseOwnership::Disabled;options.candidate_batch=1;options.maximum_rounds=1;options.maximum_work=4096;
     const auto source=Uniform(input,tensor);
     const auto baseline=Repair(world,input,source,geometry,{},options);
     size_t quality_records=0,exit_records=0;bool diagnostics_match=true,construction_unmeasured=true;

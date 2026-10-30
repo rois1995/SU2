@@ -78,10 +78,29 @@ production targets compiled, all1296pins unchanged and owned PID765540 absent.
 The assertion is corrected. Review also identified phase deadline checks, now
 added at safe staging/publication points, and cache replacement now charges its
 bounded maintenance against cumulative query work. No target result exists yet.
-Build159 is now ACTIVE and frozen: owned Ninja PID805786, exec session60312.
-Inspect `staged57/build159_status.json`, pins and the actual host handle before
-editing sources/tests/helpers or launching validation. Three low-priority workers,
-single-threaded libraries and 4TB compile-tmp remain in force.
+Build159 passed522.746s, all1296pins unchanged. Serial connected regression
+PASS36cases/10215assertions,32.077s, pins unchanged:
+`cases/cache_phase159_serial_20261030T160844_827121`.
+Six-rank connected regression FAILED35.079s, pins unchanged:
+`cases/cache_phase159_mpi6_20261030T160940_829443`.
+The old coordinate-only repair fixture required unchanged per-rank ownership but
+left the new automatic ownership option enabled. Its local REQUIRE then caused
+rank test-flow divergence and MPI_ERR_TRUNCATE in the next test. This fixture now
+explicitly disables ownership migration; the dedicated phase fixture still
+forces and checks both transitions. All nine observed owned handles are absent
+(terminal_handles.json). Production source/binary is unchanged by this correction.
+Build160 PASSED108.234s, all1296pins unchanged. Connected serial PASS36cases/
+10215assertions32.002s; MPI6 PASS43cases/rank34.983s, all pins unchanged.
+Cases: `cache_phase160_serial_20261030T161443_842216` and
+`cache_phase160_mpi6_20261030T161737_849261` under staged57/cases.
+The positive MPI fixture requires both ownership changes and actual moved cells;
+its negative variant rejects staged ownership before publication. Both pass.
+All observed test handles are terminal. Production binary SHA256:
+`67249dbe3f2d331cd67bafe768dd605feb86d7280edfc26a0679d55e591eb03b`.
+Compact receipts: `staged57/cache_phase160_integration_summary.json`.
+No M6 adaptation, transfer or disk restart is accepted yet. The next action is
+fresh full two-event `euler_build160_cache_phase50k`, after checkpointing this
+qualification; source/binary/config/helpers stay frozen throughout that attempt.
 Focused checks cover cached/recomputed geometry and eviction, host share math,
 phase migration through opposing metric demands, field/donor identity, finite
 split scheduling/concurrency, existing first-height and joint-wall behavior.
@@ -101,3 +120,35 @@ redistribution before the corresponding RANS500k workflow.
 
 Any additional ideas belong in the [backlog](ADAPTATION_BACKLOG.md) unless a demonstrated blocker
 requires them. Preserve stop/fix/retry evidence and push reviewable checkpoints.
+
+Reproduction of the connected focused checks after a successful terminal build
+(use its actual identifier; never run against a failed/stale binary):
+
+```bash
+for mode in serial mpi6; do
+  python3 - build160 "$mode" <<'CHECKS'
+import sys
+from pathlib import Path
+build, mode = sys.argv[1:]
+root = Path('integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57').resolve()
+sys.path.insert(0, str(root))
+import run_cases
+filters = ('[NativeSurfaceCache3D],[NativeSurfaceMemo3D],[NativeGeometryStats3D],'
+           '[NativeReferenceIO3D],[NativeReference3D],[NativeAtlasReferenceIO3D],'
+           '[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],'
+           '[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],'
+           '[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D]')
+if mode == 'mpi6':
+    filters += ',[NativeConcurrentComposed3D],[NativeConstructionHandoff3D],[NativeMappedPublication3D]'
+name = 'cache_phase160_' + mode
+run_cases.CASES[name] = (1 if mode == 'serial' else 6, filters)
+sys.argv = [str(root / 'run_cases.py'), build, name]
+run_cases.main()
+CHECKS
+done
+```
+
+After passing checks, full target command (a fresh attempt directory is mandatory):
+`python3 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py build160 euler_build160_cache_phase50k 2`.
+Do not launch until build/test handles are terminal and pins/resource headroom are
+verified. The helper's workflow result does not itself validate isolated restart.

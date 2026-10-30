@@ -1,0 +1,90 @@
+{
+  "time": 1793377246.819396,
+  "source_checkpoint": "8cf566e229 plus explicit operator-fixture control",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 108.23394393920898,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "cases": [
+    {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/cache_phase160_serial_20261030T161443_842216",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 32.00211524963379,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 83128320,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passing_summaries": [
+        [
+          "10215",
+          "36"
+        ]
+      ]
+    },
+    {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/cache_phase160_mpi6_20261030T161737_849261",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 34.98311734199524,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 87404544,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "passing_summaries": [
+        [
+          "5252",
+          "43"
+        ],
+        [
+          "4561",
+          "43"
+        ],
+        [
+          "5179",
+          "43"
+        ],
+        [
+          "4787",
+          "43"
+        ],
+        [
+          "6901",
+          "43"
+        ],
+        [
+          "4773",
+          "43"
+        ]
+      ]
+    }
+  ],
+  "terminal_handles": {
+    "842321": false,
+    "842322": false,
+    "842323": false,
+    "842324": false,
+    "849376": false,
+    "849377": false,
+    "849378": false,
+    "849393": false,
+    "849394": false,
+    "849395": false,
+    "849396": false,
+    "849397": false,
+    "849398": false
+  },
+  "cfd_sha256": "67249dbe3f2d331cd67bafe768dd605feb86d7280edfc26a0679d55e591eb03b",
+  "scope": "Connected cache/phase/selected wall qualification only; no accepted M6 mesh, CFD transfer or disk restart",
+  "meminfo": "MemTotal:       65614832 kB\nMemFree:         9752148 kB\nMemAvailable:   36349952 kB\nBuffers:         8599524 kB\nCached:         18071880 kB\nSwapCached:       503136 kB\nActive:         21022884 kB\nInactive:       31258108 kB\nActive(anon):   13262124 kB\nInactive(anon): 13792712 kB\nActive(file):    7760760 kB\nInactive(file): 17465396 kB\nUnevictable:      397780 kB\nMlocked:             768 kB\nSwapTotal:      15625212 kB\nSwapFree:          40256 kB\nDirty:              1052 kB\nWriteback:             0 kB\nAnonPages:      25503872 kB\nMapped:          1308800 kB\nShmem:           1445248 kB\nKReclaimable:    2095820 kB\nSlab:            2573472 kB\nSReclaimable:    2095820 kB\nSUnreclaim:       477652 kB\nKernelStack:       48528 kB\nPageTables:       305324 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    48432628 kB\nCommitted_AS:   73745432 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       85812 kB\nVmallocChunk:          0 kB\nPercpu:            13760 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:     9138864 kB\nDirectMap2M:    56690688 kB\nDirectMap1G:     1048576 kB\n",
+  "loadavg": "2.56 5.72 7.15 2/3044 856977\n",
+  "vmstat": "procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----\n r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st\n 2  0 15584956 9752148 8599524 20167700    1    4    66   281    6    3 37  3 58  2  0\n 3  0 15584956 9735308 8599556 20175384    0    0     0   384 5105 20574 18  4 78  0  0\n"
+}

@@ -3,28 +3,29 @@
 Updated 2026-10-30. **Resumed by the user's explicit instruction.**
 One active integration cycle: bounded geometry caching plus phase-aware ownership.
 Read [current integration state](Handbook/ADAPTATION_CACHE_PHASE_20261030.md).
-Build159 is active and frozen (owned Ninja PID805786; exec session60312).
-Check its terminal status and pins before any source/test/helper edits. Build158
-is terminal (test assertion syntax error; pins unchanged).
+Build160 passed; connected serial36cases and MPI6 43cases/rank pass, pins unchanged.
+All test handles are terminal. Next is the fresh full two-event M6 attempt
+`euler_build160_cache_phase50k`; inspect its actual handle/status before editing.
+Build159's MPI failure was an ownership-specific fixture assumption, now corrected
+and preserved. Build158's assertion-compilation failure is also preserved.
 The terminal build157 baseline below remains historical evidence, not a live job.
 
-Branch: `codex/native-3d-bl`. Last pushed implementation base: `f104557fa6` (build157).
-The active cache/phase candidate is build159; see the linked current state.
-Prior evidence checkpoint: `7417458c53`. The final handoff commit is the repository
-HEAD titled `Save paused M6 handoff and integrated cache ownership task`.
-No implementation, test, configuration or helper changes were made during this
-handoff. Preserve the latest construction improvements; do not roll back to an
-older implementation to simplify resumption.
+Branch: `codex/native-3d-bl`. Active integration checkpoint: `8cf566e229`, pushed.
+Connected cache/phase checks pass; full M6/transfer/restart remains unvalidated. The
+construction base is `f104557fa6`/build157; the paused handoff was `adc31b971b`.
+Build158 failed only to compile a new Catch2 assertion; its terminal pins and
+failure receipts are preserved. No accepted M6 result exists.
 
 ## Read next
 
 1. [AGENTS.md](AGENTS.md).
-2. [User's complete integrated next-task specification](Handbook/ADAPTATION_INTEGRATED_NEXT_TASK.md), saved verbatim between the supplied markers.
-3. [Stopped build157 state, evidence and exact reproduction](Handbook/ADAPTATION_CHECKPOINT_20261030_STOP.md).
-4. [Split coordination](Handbook/ADAPTATION_SPLIT_LANES_20261030.md) and
+2. [Current cache/phase integration](Handbook/ADAPTATION_CACHE_PHASE_20261030.md).
+3. [User's complete integrated next-task specification](Handbook/ADAPTATION_INTEGRATED_NEXT_TASK.md), saved verbatim between the supplied markers.
+4. [Stopped build157 state, evidence and exact reproduction](Handbook/ADAPTATION_CHECKPOINT_20261030_STOP.md).
+5. [Split coordination](Handbook/ADAPTATION_SPLIT_LANES_20261030.md) and
    [geometry-aware initial balancing](Handbook/ADAPTATION_GEOMETRY_BALANCING_20261030.md).
 
-## Current evidence and limits
+## Terminal build157 baseline and remaining acceptance
 
 The owned `euler_build157_split_lanes50k` attempt is **terminal**, intentionally
 stopped at4248.933wall seconds. All10owned handles, including the driver, were
