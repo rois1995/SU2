@@ -239,3 +239,21 @@ Connected serial145cases/20403assertions PASS38.002s; MPI6 151cases/rank PASS44.
 (assertions13418/12948/12959/13475/12722/15254in log output order). All source/runtime
 pins reverified and all sampled test handles independently absent. Summary:
 `staged57/quality_merit166_integration_summary.json`. Actual build166M6 is live; no capability claim.
+
+## Actual accepted-state restart validation (pending acceptance)
+
+Read-only source check during frozen166run confirms steady loading in
+`CFVMFlowSolverBase.inl::LoadRestart_impl`: GetSolution_FileName→GetFilename(.dat,iter),
+then binary read; state starts after3coordinate columns, first5conservative fields.
+`CConfig::GetFilename` adds an iteration suffix only when TIME_DOMAIN=YES. Therefore
+isolated steady restart must explicitly name the final actual checkpoint basename
+(e.g. restart_flow_adap_00002.dat), use ADAP_LOOP=NO/RESTART_SOL=YES, actual accepted
+mesh+native_ref, and a distinct RESTART_FILENAME output. Do not infer unsteady
+RESTART_ITER suffix semantics or substitute the unchanged initial-state restart.
+After the original workflow is terminal, independently pin/copy actual final mesh,
+reference and matching restart, verify point/header/coordinate order, finite state,
+positive density/internal energy, then run actual finite/admissible CFD continuation
+in the isolated directory with the same verified binary/runtime. Preserve actual
+transfer residual/admissibility receipts at each accepted event; post-CFD integrals
+include solver evolution and are not raw transfer conservation comparisons.
+No adapted-state files exist yet; this is validation preparation only.
