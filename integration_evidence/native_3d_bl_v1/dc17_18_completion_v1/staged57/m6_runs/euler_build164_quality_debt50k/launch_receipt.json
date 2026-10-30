@@ -1,0 +1,114 @@
+{
+  "utc": "2026-10-30T20:48:27Z",
+  "unified_exec_session": 23733,
+  "owned_handles": [
+    {
+      "pid": 1457247,
+      "state": "S",
+      "ppid": 1457158,
+      "start_ticks": 80829049,
+      "cmdline": "/usr/bin/time -v timeout 14400 mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build164_quality_debt50k",
+      "exe": "/usr/bin/time",
+      "rss_bytes": 741376
+    },
+    {
+      "pid": 1457248,
+      "state": "S",
+      "ppid": 1457247,
+      "start_ticks": 80829050,
+      "cmdline": "timeout 14400 mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build164_quality_debt50k",
+      "exe": "/usr/bin/timeout",
+      "rss_bytes": 659456
+    },
+    {
+      "pid": 1457249,
+      "state": "S",
+      "ppid": 1457248,
+      "start_ticks": 80829050,
+      "cmdline": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build164_quality_debt50k",
+      "exe": "/usr/bin/orterun",
+      "rss_bytes": 21921792
+    },
+    {
+      "pid": 1457273,
+      "state": "R",
+      "ppid": 1457249,
+      "start_ticks": 80829057,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build164_quality_debt50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "rss_bytes": 134664192
+    },
+    {
+      "pid": 1457272,
+      "state": "R",
+      "ppid": 1457249,
+      "start_ticks": 80829057,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build164_quality_debt50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "rss_bytes": 136503296
+    },
+    {
+      "pid": 1457271,
+      "state": "R",
+      "ppid": 1457249,
+      "start_ticks": 80829057,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build164_quality_debt50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "rss_bytes": 136368128
+    },
+    {
+      "pid": 1457270,
+      "state": "R",
+      "ppid": 1457249,
+      "start_ticks": 80829057,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build164_quality_debt50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "rss_bytes": 118206464
+    },
+    {
+      "pid": 1457269,
+      "state": "R",
+      "ppid": 1457249,
+      "start_ticks": 80829057,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build164_quality_debt50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "rss_bytes": 111964160
+    },
+    {
+      "pid": 1457268,
+      "state": "R",
+      "ppid": 1457249,
+      "start_ticks": 80829057,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build164_quality_debt50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "rss_bytes": 112795648
+    },
+    {
+      "pid": 1457158,
+      "state": "S",
+      "ppid": 2327682,
+      "start_ticks": 80828850,
+      "cmdline": "python3 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py build164 euler_build164_quality_debt50k 2 ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "exe": "/usr/bin/python3.8"
+    }
+  ],
+  "run_pins_count": 1396,
+  "all_pins_verified": true,
+  "production_binary_sha256": "22c6d45a2f2f95205737745d0fbc8628e0f7199ee87fc0e8243dd8190ab8f9e8",
+  "config_sha256": "5b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1",
+  "config_byte_identical_build162": true,
+  "metric_complexity_target": 50000,
+  "initial_mesh_points": 61330,
+  "initial_mesh_tetrahedra": 303359,
+  "accepted_m6_events": 0
+}

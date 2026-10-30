@@ -2,6 +2,20 @@
 
 Updated2026-10-30. User has freed the machine and authorized continuing computation.
 The full Euler50k→BL/MPI→RANS500k goal remains active; zero accepted M6 events.
+
+**LIVE:** `euler_build164_quality_debt50k`, full two-event Euler50k attempt.
+Owned exec session23733; driver1457158,time1457247,timeout1457248,mpirun1457249,
+ranks1457268–1457273. Exact cwd/executable/start ticks: run `launch_receipt.json`.
+All1396run pins verified; config byte-identical to162, SHA256
+5b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1.
+Source/CFD/helpers/config frozen while live; documentation/Git snapshots allowed.
+Qualified source `d1ad372091`, evidence/fixture checkpoint `475e5c4570`, pushed.
+Build164 CFD SHA25622c6d45a2f2f95205737745d0fbc8628e0f7199ee87fc0e8243dd8190ab8f9e8.
+Initial CFD0 has advanced to metric recovery; no accepted adaptation yet.
+Native event budget5400s, outer14400s, MPI6/libs1/nice19. Check actual handles
+before any edit/restart; preserve stop/fix/retry authorization. Prelaunch~32GiB
+available, no active paging, root2.6GiB/repo63GiB free. One owned heavy workload.
+
 Read [active quality-closure diagnosis](Handbook/ADAPTATION_QUALITY_CLOSURE_20261030.md),
 [current quality coordination](Handbook/ADAPTATION_QUALITY_HANDOFF_20261030.md)
 and [cache/ownership integration](Handbook/ADAPTATION_CACHE_PHASE_20261030.md).
@@ -46,7 +60,7 @@ fixtures now supply complete totals. Connected164serial140cases/20260assertions
 36.002s and MPI6 146cases/rank41.082s PASS. Production CFD SHA256:
 `22c6d45a2f2f95205737745d0fbc8628e0f7199ee87fc0e8243dd8190ab8f9e8`.
 Evidence: `staged57/quality_debt164_integration_summary.json`.
-Next actual full attempt: `euler_build164_quality_debt50k` (not launched yet).
+Actual full attempt `euler_build164_quality_debt50k` is LIVE; see top handles.
 Preserve cache/ownership/
 construction improvements and strict gates; see the active closure record.
 Use existing observers for bounded failure diagnosis; no private replay exists.

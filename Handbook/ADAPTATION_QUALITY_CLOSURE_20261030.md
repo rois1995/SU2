@@ -1,5 +1,12 @@
 # Active diagnosis: globally useful M6 quality closure
 
+**Current full attempt LIVE:** `euler_build164_quality_debt50k`, exec23733,
+driver1457158/time1457247/timeout1457248/mpirun1457249/ranks1457268–1457273.
+Run `launch_receipt.json` pins exact identities;1396pins verified, config identical
+to162. Source/build/helpers/config remain frozen. Initial CFD0 advanced into metric
+recovery; no adaptation accepted. Native5400s/outer14400s. Qualified evidence/source
+checkpoint475e5c4570 is pushed. All162 notes below are terminal historical evidence.
+
 Build162 full M6 Euler50k attempt is TERMINAL, unsuccessful. All ten owned handles
 are independently verified absent; all1396run pins unchanged. Sources are now safe
 to edit. Build163 passed510.785s,1296pins unchanged,82observed handles absent. Focused
@@ -10,7 +17,7 @@ Production sources are unchanged from163; test-only rebuild164 passed39.168s. Al
 Connected164serial140cases/20260assertions36.002s and MPI6 146cases/rank41.082s
 PASS; pins unchanged. Evidence: `staged57/quality_debt164_integration_summary.json`.
 Production CFD SHA25622c6d45a2f2f95205737745d0fbc8628e0f7199ee87fc0e8243dd8190ab8f9e8.
-Next full attempt: `euler_build164_quality_debt50k`; no accepted M6 event yet. Preserve one connected cycle and
+Current full attempt: `euler_build164_quality_debt50k` is LIVE; no accepted M6 event yet. Preserve one connected cycle and
 return to the complete target after the next coherent fix. Euler→BL/MPI→RANS500k,
 strict final gates, conservative admissible transfer and actual disk restart remain.
 
