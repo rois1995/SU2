@@ -61,6 +61,28 @@ all planned events. Native summaries alone cannot establish the CFD workflow.
 The helper self-checks pass, including historical M6 rejection. Actual restart and
 unsteady history qualification remain separate obligations.
 
+### Captured dyadic-resolution failure and pending build145 — 2026-10-30
+
+The build143 full M6 run rejected both events with unresolved surface-union exact
+dyadic resolution; no accepted mesh or transfer. Build144 added failure-only query
+logging. Its diagnostic M6 run was stopped after capturing three failures, with pins
+verified and recorded handles terminal (`staged57/dyadic144/terminal_handles.json`).
+The independent `dyadic144/replay_build144` replay reproduced all three failures
+at depth48, with315943/305180/238949 charged work. These are diagnostic queries,
+not accepted M6 events. The earlier debugger-interrupted replay143 gave no geometry
+verdict.
+
+Build145 adds target-resolution refinement when approximation uncertainty prevents
+a conclusive bound; the requested tolerance and final gates remain unchanged. Build
+completed in1241.021s with pins unchanged. All three captured queries replay with
+matching input/reference/probe hashes and return bounds9.999706984103447e-5,
+9.9996138594918212e-5 and9.9996081968245582e-5, at1014699/796404/2290947 work
+and5.475/4.240/22.484s respectively. `staged57/dyadic144/comparison145.json` records
+baseline and patched receipts and limits. These query results do not establish an
+accepted mesh. Serial adaptive-target checks are active; MPI2 and the actual M6
+CFD → mesh → CFD → mesh run remain required. BL generation, RANS, history transfer
+and restart remain subsequent obligations.
+
 ### Full M6 result and collapse admission — build133
 
 Build132's first event failed at~1356s: `Surface-union parameters exhausted exact

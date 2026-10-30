@@ -263,6 +263,8 @@ class MappedFacetReference {
  private:
   SurfaceUnionBounds QuerySurfaceUnion(const std::vector<Id>&,
       const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh)const;
+  SurfaceUnionBounds QuerySurfaceUnionAtResolution(const std::vector<Id>&,
+      const std::vector<std::array<Point,3>>&,double,AtlasBudget&,bool include_model,bool include_mesh,double resolution)const;
 
   std::shared_ptr<const SU2Native3D::PlanarReference> reference;
   std::map<Id,double> errors;

@@ -238,10 +238,12 @@ TriangleDistanceBounds TriangleDistance(const Box& point,const std::array<Point,
   return {std::max(0.,std::nextafter(double(lower),-INFINITY)),best};
 }
 struct UnionTriangle {std::array<Point,3> points;double error=0;};
+struct RefineSurfaceTarget {};
 class TriangleUnion {
  public:
   TriangleUnion(const std::vector<UnionTriangle>& triangles,AtlasOps& op,double resolution):triangles(triangles),accuracy(resolution) {
     if(triangles.empty())throw std::invalid_argument("Empty geometry triangle union.");
+    for(const auto& triangle:triangles)maximum_error=std::max(maximum_error,triangle.error);
     const auto count=triangles.size();size_t retained=0,peak=0;
     if(count>16)CADTElemClass::PredictBytes(3,2*count,count,2*count,&retained,&peak);
     const auto workspace=transfer_memory::Mul(2*std::max<size_t>(200,count+1),sizeof(CBBoxTargetClass)+2*sizeof(unsigned long));
@@ -285,6 +287,7 @@ class TriangleUnion {
     for(const auto& plane:planes)out=transfer_memory::Add(out,bytes(plane.faces),plane.footprint->ResidentBytes());
     return out;
   }
+  double ApproximationError()const{return maximum_error;}
  private:
   struct PlaneUnion {
     std::shared_ptr<FinitePlaneReference> footprint;
@@ -333,7 +336,7 @@ class TriangleUnion {
     }
   };
   std::vector<PlaneUnion> planes;std::vector<size_t> triangle_plane,triangle_slot;
-  std::vector<uint64_t> visited;uint64_t visit=0;double accuracy;
+  std::vector<uint64_t> visited;uint64_t visit=0;double accuracy,maximum_error=0;
   void BuildPlanes(AtlasOps& op) {
     using namespace SU2Native3D;
     const size_t count=triangles.size(),none=SIZE_MAX;op.Storage(transfer_memory::Mul(count,1024));
@@ -1510,6 +1513,20 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
 MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion(
     const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
     double tolerance,AtlasBudget& budget,bool include_model,bool include_mesh)const {
+  double resolution=tolerance;
+  for(;;) {
+    try{return QuerySurfaceUnionAtResolution(facets,physical,tolerance,budget,include_model,include_mesh,resolution);}
+    catch(const RefineSurfaceTarget&) {
+      const double finer=resolution/4;
+      if(!std::isfinite(finer)||finer<std::numeric_limits<double>::min()||!(finer<resolution))
+        throw std::length_error("Surface-union target exhausted representable refinement; bounds unresolved.");
+      resolution=finer;
+    }
+  }
+}
+MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnionAtResolution(
+    const std::vector<Id>& facets,const std::vector<std::array<Point,3>>& physical,
+    double tolerance,AtlasBudget& budget,bool include_model,bool include_mesh,double resolution)const {
   AtlasOps op{budget,__func__};
   struct Restore {AtlasBudget& b;size_t caller;~Restore(){b.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
   if(facets.empty()||physical.empty()||!std::isfinite(tolerance)||tolerance<std::numeric_limits<double>::min())
@@ -1567,7 +1584,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
         piece.error=std::max(piece.error,NormBound(Difference(controls[q],linear)));}
       op.Storage(transfer_memory::Add(transfer_memory::GrowthBound(model.size()+1,sizeof(UnionTriangle)),
           transfer_memory::GrowthBound(pending.size()+4,sizeof(UnionDomain))));
-      if(piece.error<=tolerance/16)model.push_back(piece);
+      if(piece.error<=resolution/16)model.push_back(piece);
       else {unresolved("target",domain,piece.error,0);const auto children=UnionChildren(domain);pending.insert(pending.end(),children.begin(),children.end());}
     }
   };
@@ -1578,16 +1595,17 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     preparation=std::unique_lock<std::mutex>(curved_search->prepared_mutex);
     const auto scope_bytes=transfer_memory::Mul(facets.size(),256);op.Storage(scope_bytes);
     budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,scope_bytes);
-    uint64_t resolution;std::memcpy(&resolution,&tolerance,sizeof resolution);
-    const auto words=transfer_memory::Add(facets.size(),1);op.Work(words);
-    std::vector<uint64_t> scope;scope.reserve(words);scope.push_back(resolution);scope.insert(scope.end(),facets.begin(),facets.end());
+    uint64_t resolution_bits,tolerance_bits;std::memcpy(&resolution_bits,&resolution,sizeof resolution_bits);
+    std::memcpy(&tolerance_bits,&tolerance,sizeof tolerance_bits);
+    const auto words=transfer_memory::Add(facets.size(),2);op.Work(words);
+    std::vector<uint64_t> scope;scope.reserve(words);scope.push_back(tolerance_bits);scope.push_back(resolution_bits);scope.insert(scope.end(),facets.begin(),facets.end());
     const auto cached=curved_search->scopes.find(scope);
     if(cached!=curved_search->scopes.end())prepared_model=cached->second;
     else {
       const auto caller=budget.caller_bytes;
       std::vector<std::shared_ptr<CurvedSearch::PreparedFacet>> retained_models;retained_models.reserve(facets.size());
       for(Id facet:facets) {
-        op.Work();const auto key=std::make_pair(facet,resolution);const auto found=curved_search->prepared.find(key);
+        op.Work();const auto key=std::make_pair(facet,resolution_bits);const auto found=curved_search->prepared.find(key);
         std::shared_ptr<CurvedSearch::PreparedFacet> data;
         if(found!=curved_search->prepared.end())data=found->second;
         else {
@@ -1625,19 +1643,21 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
   std::unique_ptr<TriangleUnion> mesh_union,model_union;
   if(include_model)mesh_union=std::make_unique<TriangleUnion>(flat,op,tolerance);
   if(include_mesh && !prepared_model)model_union=std::make_unique<TriangleUnion>(model,op,tolerance);
-  struct NodeBound {UnionDomain domain;double upper;};
+  struct NodeBound {UnionDomain domain;double upper,diameter;};
   auto compare=[](const NodeBound& a,const NodeBound& b){return a.upper<b.upper;};
   auto directed=[&](bool from_model,TriangleUnion& target) {
     std::vector<NodeBound> queue;double lower=0,finished=0;size_t leaves=0;
     size_t traced_work=budget.work;
     auto prepare=[&](const UnionDomain& domain) {
-      op.Work();double upper=0;
+      op.Work();double upper=0,diameter=0;
       if(from_model)upper=target.Upper(net(domain),op);
-      else {std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=LinearPoint(physical.at(domain.facet),Exact(domain.parameter[k]));upper=target.Upper(points,op);}
+      else {std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=LinearPoint(physical.at(domain.facet),Exact(domain.parameter[k]));upper=target.Upper(points,op);
+        if(upper>tolerance&&target.ApproximationError()>0)for(unsigned k=0;k<3;++k)
+          diameter=std::max(diameter,NormBound(Difference(points[k],points[(k+1)%3])));}
       lower=std::max(lower,target.Distance(sample(domain,from_model),op).lower);
       if(!std::isfinite(upper))throw std::invalid_argument("Unrepresentable surface-union upper bound.");
       op.Storage(transfer_memory::GrowthBound(queue.size()+1,sizeof(NodeBound)));
-      queue.push_back({domain,upper});std::push_heap(queue.begin(),queue.end(),compare);
+      queue.push_back({domain,upper,diameter});std::push_heap(queue.begin(),queue.end(),compare);
     };
     if(from_model)for(Id facet:facets)prepare({facet});else for(size_t i=0;i<physical.size();++i)prepare({i});
     const double initial_upper=queue.front().upper;
@@ -1650,6 +1670,12 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
       if(lower>tolerance)return std::make_tuple(initial_upper,leaves,true);
       std::pop_heap(queue.begin(),queue.end(),compare);const auto node=queue.back();queue.pop_back();
       if(node.upper<=tolerance){finished=std::max(finished,node.upper);++leaves;continue;}
+      if(!from_model&&target.ApproximationError()>0&&
+          (node.diameter<=target.ApproximationError()||node.domain.depth>=48)) {
+        if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_REFINE resolution=%.17g error=%.17g diameter=%.17g upper=%.17g lower=%.17g work=%zu\n",
+            resolution,target.ApproximationError(),node.diameter,node.upper,lower,budget.work);
+        throw RefineSurfaceTarget{};
+      }
       unresolved(from_model?"model_to_mesh":"mesh_to_model",node.domain,node.upper,lower);
       const auto children=UnionChildren(node.domain);for(const auto& child:children)prepare(child);
     }

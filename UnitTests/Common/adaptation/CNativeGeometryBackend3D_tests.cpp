@@ -243,6 +243,22 @@ TEST_CASE("Prepared curved footprints jointly cover original facet seams", "[Nat
   CHECK(separated.outside_tolerance);CHECK_FALSE(separated.within_tolerance);
 }
 
+TEST_CASE("Curved target uncertainty refines without relaxing surface tolerance", "[NativeGeometryBackend3D][NativeSurfaceMemo3D]") {
+  BackendFixture fixture;
+  const auto center=fixture.geometry->Realize(fixture.geometry->FacetPoint(0,1./3,1./3));
+  constexpr double tolerance=1e-4;
+  auto physical=[&](double gap){return std::vector<std::array<Point,3>>{{{{center.x,center.y,center.z-gap},
+      {center.x+1e-6,center.y,center.z-gap},{center.x,center.y+1e-6,center.z-gap}}}};};
+  // The known center witnesses the whole small triangle; it is also the cubic's minimum z.
+  auto inside=BackendBudget();
+  CHECK(fixture.geometry->BoundPhysicalSurface({0},physical(.99*tolerance),tolerance,inside)<=tolerance);
+  auto outside=BackendBudget();
+  CHECK(fixture.geometry->BoundPhysicalSurface({0},physical(1.01*tolerance),tolerance,outside)>tolerance);
+  BackendFixture limited;auto budget=BackendBudget();budget.maximum_work=inside.work-1;
+  CHECK_THROWS(limited.geometry->BoundPhysicalSurface({0},physical(.99*tolerance),tolerance,budget));
+  CHECK(budget.work_exhausted);
+}
+
 TEST_CASE("Physical surface bounds reuse only identical immutable queries", "[NativeGeometryBackend3D][NativeSurfaceMemo3D]") {
   BackendFixture fixture(true,true);const auto& f=fixture.facets.front();
   const std::vector<SU2Native3D::Id> facets{0,1};

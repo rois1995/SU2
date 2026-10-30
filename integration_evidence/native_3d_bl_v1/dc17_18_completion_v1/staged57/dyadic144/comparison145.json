@@ -1,0 +1,107 @@
+{
+  "matched_input_sha256": {
+    "/dyadic144/queries.json": "53650739c325ea83e84cdc1d594219a2174201b506409ba082dff58a6191de7a",
+    "/dyadic144/probe.cpp": "39b20a3313a1470e62d07fcf226f569b53bc9eee742ff008ab0e650f2fa98d6d",
+    "/dyadic144/generate_probe.py": "458132df5f4a4f79261f7565a10011a4424b583dbd708564339ed1d957c88e1f",
+    "/validation22/m6_authority.json.native_ref": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+  },
+  "limits": {
+    "tolerance": 0.0001,
+    "maximum_work_per_query": 1000000000,
+    "maximum_bytes": 12884901888,
+    "maximum_integer_bits": 209504
+  },
+  "replays": [
+    {
+      "receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/dyadic144/replay_build144",
+      "status": {
+        "state": "terminal",
+        "phase_exit_codes": {
+          "compile": 0,
+          "link": 0,
+          "run": 0
+        },
+        "seconds": 24.307378864032216,
+        "pins_verified": true,
+        "changed": [],
+        "binary_sha256": "8311b10097661fbc95fc5d981c56e87d03017a802d252373a21938ddced36ac2",
+        "rss_note": "sampled process tree, not peak"
+      },
+      "queries": [
+        {
+          "query": 0,
+          "result": "exception",
+          "bound": null,
+          "work": 315943,
+          "seconds": 1.44591,
+          "caller_bytes": 3410123528,
+          "peak_bytes": 3441083344
+        },
+        {
+          "query": 1,
+          "result": "exception",
+          "bound": null,
+          "work": 305180,
+          "seconds": 1.1672,
+          "caller_bytes": 3410123528,
+          "peak_bytes": 3439445128
+        },
+        {
+          "query": 2,
+          "result": "exception",
+          "bound": null,
+          "work": 238949,
+          "seconds": 1.09881,
+          "caller_bytes": 3410123528,
+          "peak_bytes": 3437691160
+        }
+      ]
+    },
+    {
+      "receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/dyadic144/replay_build145",
+      "status": {
+        "state": "terminal",
+        "phase_exit_codes": {
+          "compile": 0,
+          "link": 0,
+          "run": 0
+        },
+        "seconds": 58.45231306692585,
+        "pins_verified": true,
+        "changed": [],
+        "binary_sha256": "e3221194b4659d3b0b94a746b9c0cee7f7502a2882364937d254bad9b6577f1e",
+        "rss_note": "sampled process tree, not peak"
+      },
+      "queries": [
+        {
+          "query": 0,
+          "result": "bound",
+          "bound": 9.999706984103447e-05,
+          "work": 1014699,
+          "seconds": 5.47500494,
+          "caller_bytes": 3410123528,
+          "peak_bytes": 3532987520
+        },
+        {
+          "query": 1,
+          "result": "bound",
+          "bound": 9.999613859491821e-05,
+          "work": 796404,
+          "seconds": 4.239689301,
+          "caller_bytes": 3410123528,
+          "peak_bytes": 3526578392
+        },
+        {
+          "query": 2,
+          "result": "bound",
+          "bound": 9.999608196824558e-05,
+          "work": 2290947,
+          "seconds": 22.483622252,
+          "caller_bytes": 3410123528,
+          "peak_bytes": 3846477352
+        }
+      ]
+    }
+  ],
+  "scope": "three captured physical-to-model queries; does not establish an accepted mesh or workflow"
+}

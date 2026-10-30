@@ -118,12 +118,16 @@ population from operator cost. Validate any SU2-specific modifications separatel
   build142's prior time-budget failure remains in staged57/build142_m6_summary.json.
   Diagnostic replay143 was interrupted by debugger signal handling (exit133,
   pins verified); it produced no geometry verdict. All its known handles terminal.
-  Build144 passes117.323s/pins unchanged; affected geometry checks pass15.985s.
-  It adds failure-only surface-query logging, not a resolution fix. Full two-event
-  replay is active at staged57/m6_runs/euler_build144_resolution_capture
-  (detached driver3460979; see status/resources for owned handles). Capture the
-  exact failing query, address its cause under unchanged gates, and retry the loop. Keep pinned C++/tests/helpers
-  unchanged while active; verify handles before restart.
+  Build144's failure-logging M6 capture was stopped after recording three exact
+  unresolved queries; pins verified and recorded handles terminal. All three replays
+  independently reproduce dyadic-resolution failure: staged57/dyadic144/replay_build144.
+  Build145 passed1241.021s with pins unchanged. All three captured queries now
+  resolve below1e-4 (staged57/dyadic144/comparison145.json); this is query evidence,
+  not an accepted mesh. Serial20cases5205assertions pass38.101s; MPI2
+  publication/reload11cases/rank pass195.850s, all pins unchanged. Full two-event
+  M6 is active at staged57/m6_runs/euler_build145_adaptive_target
+  (driver3561453, time3561612; actual ranks in resources.jsonl), unchanged gates.
+  Keep pinned C++/tests/helpers unchanged while active; verify handles before restart.
   User's permanent overnight workflow is saved in AGENTS.md: stop demonstrated
   computational bottlenecks or errors, preserve evidence, fix/validate and retry M6
   autonomously until the Euler loop succeeds. Then verify BL generation before
