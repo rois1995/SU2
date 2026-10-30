@@ -1,0 +1,12 @@
+{
+  "time": 1793379040.255062,
+  "report_pid": 910783,
+  "cmdline": "/usr/lib/linux-tools/5.15.0-139-generic/perf report -i /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build160_cache_phase50k/profile_1450s.data --stdio --percent-limit 1 ",
+  "children": [
+    {
+      "pid": 921097,
+      "cmdline": "sh -c addr2line -e /home/rausa/.debug/.build-id/52/ea81fbcef95a75ec8fba8b0130fc616177e03b/elf -i -f 000000000130a225 "
+    }
+  ],
+  "reason": "Offline addr2line DWARF errors and prolonged report; raw five-second record complete. M6 ranks untouched."
+}

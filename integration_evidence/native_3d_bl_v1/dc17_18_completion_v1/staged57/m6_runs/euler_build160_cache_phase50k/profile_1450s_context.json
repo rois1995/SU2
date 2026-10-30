@@ -1,0 +1,64 @@
+{
+  "saved_at": 1793379152.016256,
+  "data_sha256": "08fbcabe62c3df268bcc4984252015207e58a9c14b6d866d948af9b6ea94b050",
+  "data_bytes": 20606328,
+  "verified_rank_pids": [
+    859406,
+    859407,
+    859408,
+    859409,
+    859410,
+    859413
+  ],
+  "record": "perf record -F99 --call-graph dwarf,8192 -p verified-six-ranks -- sleep5",
+  "reports": [
+    {
+      "argv": [
+        "timeout",
+        "45",
+        "nice",
+        "-n",
+        "19",
+        "perf",
+        "report",
+        "-i",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build160_cache_phase50k/profile_1450s.data",
+        "--stdio",
+        "--no-inline",
+        "--call-graph",
+        "none",
+        "--sort",
+        "comm,dso,symbol",
+        "--percent-limit",
+        "1"
+      ],
+      "exit_code": 0,
+      "output": "profile_1450s_noinline.txt"
+    },
+    {
+      "argv": [
+        "timeout",
+        "45",
+        "nice",
+        "-n",
+        "19",
+        "perf",
+        "report",
+        "-i",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build160_cache_phase50k/profile_1450s.data",
+        "--stdio",
+        "--no-inline",
+        "--call-graph",
+        "none",
+        "--sort",
+        "comm,dso,symbol",
+        "--percent-limit",
+        "1",
+        "--no-children"
+      ],
+      "exit_code": 0,
+      "output": "profile_1450s_noinline_flat.txt"
+    }
+  ],
+  "scope": "Five-second late-coarsening sample only; percentages inclusive and overlapping. Original inline-symbol report stopped after DWARF errors; solver untouched."
+}

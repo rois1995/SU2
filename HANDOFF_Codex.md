@@ -4,11 +4,21 @@ Updated 2026-10-30. **Resumed by the user's explicit instruction.**
 One active integration cycle: bounded geometry caching plus phase-aware ownership.
 Read [current integration state](Handbook/ADAPTATION_CACHE_PHASE_20261030.md).
 Build160 passed; connected serial36cases and MPI6 43cases/rank pass, pins unchanged.
-The full two-event `euler_build160_cache_phase50k` attempt is ACTIVE: exec22082,
-driver859288, mpirun859394 (time859392/timeout859393); verified rank handles and
-commands are in its launch receipt. Initial CFD completed; no adapted event is
-accepted. Source/binary/config/helpers stay frozen. Inspect actual handles and
-pins before edits/restarts; keep the authorized stop/fix/retry workflow.
+The full `euler_build160_cache_phase50k` attempt is TERMINAL, not accepted.
+First native event exhausted its5400s budget at5408.5s; the verified owned launcher
+was then stopped to prevent an unchanged retry. All10handles are absent and all
+1396run pins unchanged; see `event1_time_budget_stop_20261030/` under the attempt.
+Size closed atgeneration21/4158.2s, but quality only began at5014.1s after44split
+generations. Exit has732439private cells,62235q-bad/63848J-bad (161unmeasured),
+273geometry-bad, no oversized edges. Zero accepted events/transfer/restart.
+Sampled summed tree peak11.884GiB; host contention prevents isolated timing claims.
+User steering: review/improve code while their other local jobs finish; hold the
+next heavy build/M6 run during that window. No owned heavy workload is live.
+Next connected fix: construction/quality coordination and migrated census state,
+driven by this failure. Sources are terminal; unvalidated census-preservation/self-collapse corrections
+and a no-edit migration regression are now prepared. No build161 has started.
+Earlier quality handoff remains a connected design review, not an implemented fix. Keep all strict
+gates and full Euler→BL→RANS objective. More ideas remain in the linked backlog.
 Build159's MPI failure was an ownership-specific fixture assumption, now corrected
 and preserved. Build158's assertion-compilation failure is also preserved.
 The terminal build157 baseline below remains historical evidence, not a live job.

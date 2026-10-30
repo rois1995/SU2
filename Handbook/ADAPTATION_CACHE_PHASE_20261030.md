@@ -71,6 +71,51 @@ Geometry-only invalid rows now join quality repair queues, closing the handoff's
 known omission. A split-specific concurrent-commit counter qualifies split lane
 coverage independently of collapse commits.
 
+## Source review while the host is occupied
+
+The user attributes timing uncertainty to other local jobs and asks to use this
+window for code improvements. No heavy build, MPI campaign or M6 relaunch is
+started during this window. Light read-only review and source edits are allowed;
+all prior owned handles are independently rechecked absent in
+`code_review_host_receipt.json` (host load10.92/12.45/13.48,~33.2GiB available).
+
+Unvalidated source corrections now prepared:
+- Preserve `census_started` and `progress_consistent` when staging migrated
+  Selection state. Restored exact rows alone do not set those flags, so an
+  otherwise complete migrated census can report incomplete until another edit.
+  Existing forced-migration fixture now checks the immediate quality-entry census;
+  a new already-admissible no-edit case requires complete flags after both forced
+  transitions and zero attempted edits. This covers the masked no-work case too.
+- Skip the selected vertex as its own collapse destination in the existing repair
+  fallback. This removes a known invalid direction and misleading last rejection;
+  the endpoint check was intentional, not the cause of M6 failure or a major
+  performance gain. All geometry/metric admission remains in place.
+
+These edits are NOT compiled or validated yet. Next identifier is build161 unless
+another terminal receipt reserves it. Do not treat build160 checks as covering
+these changed sources or run a stale binary as their validation.
+
+The remaining connected design question is construction/quality coordination.
+Evidence: size closes at generation21 yet geometry-only construction continues23
+more generations; after the quality-entry census/migration, only~16operator rounds
+fit before timeout. Quality tries three vertex moves and up to16collapse/reconnect
+directions before the bounded optimizer, with repeated private geometry and metric
+certification and collective synchronization. On some ranks most optimizer trials
+validate, but cumulative counters are insufficient to claim changing order will
+reduce wall time. Review this expensive ordering together with phase ownership of
+residual geometry, rather than only moving a timer threshold.
+
+A naive handoff-at-size-closure patch is incomplete: streamed metric validation
+currently promotes certified geometry progress to `GeometryRepair` only outside
+bidirectional mode (or for height-progress repairs). Thus putting geometry-only
+debt in a quality queue does not guarantee an admissible geometry-only direction;
+normal `Repair` still requires size or q/J progress. Any earlier handoff needs a
+coherent residual-geometry policy and strict tests: no q/J construction screening,
+mandatory exact validity/body/features throughout, no falsely accepted census,
+strict final geometry/q/J/size/height, monotone budgets/IDs, meaningful repair work
+before returning to construction, and both actual M6 events plus transfer/restart.
+This review does not justify a new fallback ladder or merely increasing limits.
+
 ## Validation and next acceptance
 
 Build158 is terminal FAILED561.841s on a Catch2 assertion-expression syntax error;
@@ -98,25 +143,85 @@ its negative variant rejects staged ownership before publication. Both pass.
 All observed test handles are terminal. Production binary SHA256:
 `67249dbe3f2d331cd67bafe768dd605feb86d7280edfc26a0679d55e591eb03b`.
 Compact receipts: `staged57/cache_phase160_integration_summary.json`.
-Qualification checkpoint `e5240df1e0` is pushed. The full two-event attempt
-`euler_build160_cache_phase50k` is ACTIVE (exec session22082). Driver859288;
-time859392; timeout859393; mpirun859394; ranks859406,859407,859408,859409,
-859410,859413. All commands/cwds verified in its `launch_receipt.json`.
-Source/binary/config/helpers are frozen. Check actual handles before restarting
-or editing. Stop only the verified owned launcher under the authorized workflow.
+Qualification checkpoint `e5240df1e0` and live launch checkpoint `3928fbebe8`
+were pushed. The full attempt `euler_build160_cache_phase50k` is now TERMINAL.
+First event failed its native time budget at5408.35–5408.54engine seconds.
+After preserving that failure and rehashing all1396run pins unchanged, stopped only
+verified mpirun859394 to prevent the unchanged second event. All ten owned handles
+are absent; driver terminal exit1 follows that authorized stop. The primary
+failure was native time exhaustion, not the subsequent SIGTERM. Receipts and
+pre-stop diagnostics: `event1_time_budget_stop_20261030/`. Full sampled tree peak
+11.883728GiB (not the largest individual-process RSS); `terminal_assessment.json`
+records terminal status, peak sample and stage rows. No accepted adaptation or
+adapted artifact exists. Source edits are now safe; no owned heavy job is live.
+User asks for code improvements while other local jobs finish; hold the next heavy
+build/M6 run during that window. Host contention makes timing comparisons provisional.
 
 Initial CFD solved one iteration and wrote input-mesh restart00000. Config is
 byte-identical to build155's endorsed50k config. Input61330points/303359cells;
-50k remains metric complexity, not a point/cell count. The initial partition moved
-121105cells in.239s (partition.230s). No accepted adaptation exists; private engine
-census has not yet been printed at the ~260s observation. Sampled summed tree RSS
-is about4GiB, host headroom adequate and the bounded paging sample had no active
-swap-in/out. This is early setup, not a comparable completed-stage memory result.
-The initial per-host allowance is2335452160bytes, divided across6ranks before
-per-facet preparation rounding and answer-memo reservation. Use stage telemetry
-for actual reservation/category occupancy; do not equate this allowance with RSS.
+50k remains metric complexity, not a point/cell count. Private point counts are
+not independently exported and must not be inferred from that target.
 
-Continue observing the actual target. Require both accepted events, conservative
+Size closed at generation21,4158.2138engine seconds,720963private cells,
+maximum edge1.7999928685,3126geometry-bad. Construction continued through44split
+generations. Quality began only at5014.1426s with731135cells,61754q-bad,
+63459J-bad and278geometry-bad. Quality-entry migration actually moved349270cells
+in13.24s, including4.06s partitioning and1.82s directory rebuild. Its complete
+q/J census incorrectly printed incomplete flags after migration, confirming the
+source-reviewed `census_started` preservation defect; the next measurement restores
+it. This must be fixed without resetting budgets, identity or cached certificates.
+
+Final private exit:732439cells,96245splits,2582collapses,62235q-bad,63848J-bad,
+273geometry-bad, zero oversized edges;161cells had not yet received their shape
+census. Bad counts are partial, not an accepted assessment. No private mesh was
+published or paired with the input CFD restart. Geometry debt2.13374646e-6 remains.
+The endpoint-collapse diagnostic is a rejected fallback direction, not the stop
+cause. Read-only source review found that vertex fallback fails to skip its own ID.
+The demonstrated coordination limitation is spending~93%of the budget before the
+first quality opportunity, including~856s after metric size already closed.
+Review construction→quality ownership of residual geometry and repair scheduling
+as one connected fix; do not raise limits or add a local fallback ladder.
+
+Coarsening completed1462.894engine seconds:292744cells,2582collapses,
+68372size-bad and3541geometry-bad cells. Cache-accounted bytes646684568,
+including114505520facet bytes and532179048scope bytes;9204evictions.
+First in-event migration then actually moved115883cells in10.2s, including
+~2.8s partitioning and~2.05s new-directory build. Predicted split-work max/mean
+improved3.03->1.13. Existing CFD donors/frozen field were preserved; there was
+no ownership-only CFD projection. Both major-phase migration paths executed in M6; neither establishes acceptance.
+
+Matched comparison to157: coarsening1726.614->1462.894s; generation3
+2310.332->2073.359s,681829->681500cells, max edge3.26786->2.89690.
+Geometry-invalid4238->4241, geometry debt.00752017->.00808828 (~7.6%higher).
+Prepared cache17.9GiB->.66GiB at generation3. Previous sampled tree peak21.664GiB
+came from a longer run; full current sampled tree peak11.884GiB is not whole-job
+physical memory. Matched generation21 was4158.21s versus4079.17s before (~2%later);
+the early advantage did not persist. See `comparison_to157.json`, `stage_assessment.json`, initial
+partition assessment and resource receipts under the attempt.
+
+The user correctly emphasized host contention: treat wall-time differences as
+provisional observed comparisons, not isolated implementation speedups. Scope
+hits/misses at generation3 are2390/12851->2432/12899; scope preparation
+2993.14->2839.28rank-seconds. The first interior sweep was~62s versus50s before.
+The main RAM improvement is the aggregate cache cap plus eviction of cold scopes;
+reusable facet data fit comfortably. Fundamental certification work remains.
+
+A bounded5s late-coarsening profile has2388samples and zero lost samples,
+~78.5%inclusive sampled cycles in Allreduce,~13.2%surface union and~12.4%
+TriangleUnion construction. Inclusive shares overlap. Raw20MBprofile stays local
+with SHA/context. Original inline-symbol rendering hit addr2line DWARF errors;
+only verified profiler report910783 and its symbolizer were stopped, never M6.
+Bounded no-inline reports completed normally. See `profile_1450s_context.json`,
+`profile_1450s_noinline{,_flat}.txt` and report-stop receipt.
+
+The initial per-host allowance is2335452160bytes, divided across6ranks before
+per-facet preparation rounding and answer-memo reservation. Current retention
+is bounded below that allowance; it is not a process-memory limit. Forecast
+calibration and a source-reviewed census diagnostic edge case are recorded in
+[the backlog](ADAPTATION_BACKLOG.md); the census flag defect was observed at actual M6 quality entry. The terminal
+time-budget failure now drives the next connected fix.
+
+After the connected fix and validation, return to the actual target. Require both accepted events, conservative
 admissible transfer, published mesh/reference artifacts and isolated disk restart,
 then dedicated BL/MPI qualification and RANS500k. No lower-memory/fixture result
 establishes that capability.

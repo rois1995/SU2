@@ -2138,6 +2138,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     Selection pending_selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance,options.wall_heights,bidirectional);
     pending_selection.split_lanes=selection.split_lanes;pending_selection.lane=selection.lane;
     pending_selection.track_splits=selection.track_splits;pending_selection.repair_epoch=selection.repair_epoch;
+    pending_selection.census_started=selection.census_started;
+    pending_selection.progress_consistent=selection.progress_consistent;
     try {pending=working;pending_directory=std::make_unique<Directory>(world,true,geometry.Parameters());}
     catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure))return false;
@@ -4117,8 +4119,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               }
             } else if (!move_trial) {
               auto apex=nodes.begin(); std::advance(apex,trial-3);
-              if(move && repairing && choice.feature.count==1)
-                candidate=guarded_geometry(CollapseVertex(old,vertex,apex->first,first,geometry,fresh,result.reason),"CollapseVertex");
+              if(move && repairing && choice.feature.count==1) {
+                if(apex->first!=vertex)
+                  candidate=guarded_geometry(CollapseVertex(old,vertex,apex->first,first,geometry,fresh,result.reason),"CollapseVertex");
+              }
               else candidate=guarded_geometry(Reconnect(old,apex->first,first,geometry,fresh,result.reason),"Reconnect");
             }
           } catch (const std::exception& e) { failure.Set(2,0,e.what()); }

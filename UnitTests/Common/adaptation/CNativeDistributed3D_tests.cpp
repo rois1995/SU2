@@ -4222,6 +4222,11 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
     if(reject_transition && std::string(view.stage)=="ownership_staged") {
       staged_cells=Bytes(view.working);staged_rejection=true;throw std::runtime_error("injected staged ownership refusal");
     }
+    if(std::string(view.stage)=="quality_entry") {
+      CHECK(view.progress.census_complete);CHECK(view.progress.shape_complete);
+      CHECK(view.progress.measured_cells==view.working.size());
+      CHECK(view.progress.shape_unmeasured_cells==0);
+    }
     if(view.phase==EnginePhase::Improvement && !quality_seen) {
       quality_after_pair=view.stats.length_split_passes>=1 && view.stats.length_collapse_passes==1;
       quality_seen=true;splits_before_quality=view.stats.length_splits;collapses_before_quality=view.stats.length_collapses;
@@ -4268,6 +4273,28 @@ TEST_CASE("Metric adaptation resolves opposing length demands before shape censu
     CHECK(quality.mean_ratio>=MinimumMeanRatio);CHECK(quality.minimum_scaled_jacobian>=MinimumScaledJacobian);
     CHECK(quality.maximum_edge<=MaximumMetricEdge);
   }
+}
+
+TEST_CASE("Phase ownership preserves a complete census without a subsequent edit", "[NativePhaseOwnership3D]") {
+  World world;const auto fixture=Box();const PlanarReference geometry(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+  const auto source=Uniform(input,Tensor{});
+  bool quality_seen=false;
+  EngineOptions options;options.phase_ownership=PhaseOwnership::DiagnosticAlways;
+  options.maximum_work=64;options.maximum_rounds=1;
+  options.stage_observer=[&](const StageProgressView& view) {
+    if(std::string(view.stage)!="quality_entry")return;
+    quality_seen=true;
+    CHECK(view.progress.census_complete);CHECK(view.progress.shape_complete);
+    CHECK(view.progress.geometry_complete);CHECK(view.progress.unmeasured_cells==0);
+    CHECK(view.progress.shape_unmeasured_cells==0);
+    CHECK(view.stats.ownership_changes==(world.size>1?2:0));
+  };
+  const auto result=AdaptMetric(world,input,source,geometry,{},options);INFO(result.reason);
+  CHECK(world.maximum(quality_seen));CHECK(result.stats.attempted==0);
+  CHECK(result.stats.ownership_evaluations==(world.size>1?2:0));
+  CHECK(result.stats.ownership_changes==(world.size>1?2:0));
+  CHECK(Bytes(input)==saved);REQUIRE(result.valid);
 }
 
 TEST_CASE("Metric improvement isolates remaining shape debt after construction", "[NativeBidirectionalLength3D]") {

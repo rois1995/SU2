@@ -18,3 +18,13 @@ its relevance or the user explicitly reprioritizes it.
   completed stages and failure evidence without claiming exact private replay.
 - More elaborate cache admission, multipoint placement, curved batching, worker
   membership changes and dynamic quotas are deferred pending target evidence.
+- Migrated census flags were observed incomplete at actual build160 M6 quality
+  entry. Preservation fix and a forced no-edit regression are now prepared in the
+  active cycle, UNVALIDATED while the host is occupied. See the current handbook.
+- Phase forecast qualification: build160's first automatic transition predicted
+  100009 seconds saved against 63 seconds of cost; actual transition was 10.2s.
+  The saving forecast exceeds the remaining event budget and uses coarsening
+  cost for later split demand. Treat it as an uncalibrated proxy, not measured
+  CPU savings. Use actual surface/interior/quality receipts to qualify the rate
+  conversion at the next source-safe integration point; the full target is now terminal on time budget; keep rate calibration within the
+  demonstrated coordination fix rather than starting a separate forecasting project.
