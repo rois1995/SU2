@@ -4347,7 +4347,10 @@ TEST_CASE("Completed metric size hands residual curved geometry to a quality cen
   auto parameters=std::make_shared<BoundaryParameterState>(authority,points,fixture.patch.surface);
   auto geometry=PlanarReference::WithParameters(root,parameters);const auto snapshot=parameters->Snapshot();
   const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
-  bool split_exit=false,quality_seen=false;size_t geometry_at_exit=0;
+  bool geometry_only=false;
+  SECTION("Complete quality-entry census"){ }
+  SECTION("Geometry demand waits for closed shape and size"){geometry_only=true;}
+  bool split_exit=false,quality_seen=false,geometry_seen=false;size_t geometry_at_exit=0;
   EngineOptions options;options.maximum_work=4096;options.maximum_rounds=256;options.surface_tolerance=1e-4;
   options.phase_ownership=PhaseOwnership::DiagnosticAlways;
   options.stage_observer=[&](const StageProgressView& view) {
@@ -4360,17 +4363,27 @@ TEST_CASE("Completed metric size hands residual curved geometry to a quality cen
       CHECK(view.progress.cache_consistent);CHECK(view.progress.geometry_complete);
       CHECK(view.progress.size_bad_cells==0);
     }
+    if(std::string(view.stage)=="geometry_repair_entry") {
+      geometry_seen=true;
+      CHECK(view.phase==EnginePhase::Improvement);CHECK(view.progress.shape_complete);
+      CHECK(view.progress.q_bad_cells==0);CHECK(view.progress.j_bad_cells==0);
+      CHECK(view.progress.size_bad_cells==0);CHECK(view.progress.geometry_complete);
+      CHECK(world.maximum(view.progress.geometry_bad_cells!=0));
+      CHECK(world.maximum(view.progress.remaining_repairs!=0));
+      throw std::runtime_error("bounded geometry-only repair witness");
+    }
     if(std::string(view.stage)!="quality_entry")return;
     quality_seen=true;CHECK(view.stats.length_split_passes==1);
     CHECK(view.stats.ownership_changes==(world.size>1?2:0));
     CHECK(view.progress.census_complete);CHECK(view.progress.shape_complete);
     CHECK(view.progress.geometry_complete);CHECK_FALSE(view.valid);
-    throw std::runtime_error("bounded residual geometry handoff witness");
+    if(!geometry_only)throw std::runtime_error("bounded residual geometry handoff witness");
   };
   const auto result=AdaptMetric(world,input,Uniform(input,Tensor{}),*geometry,{},options);INFO(result.reason);
   CHECK(world.maximum(split_exit));CHECK(world.sum(geometry_at_exit)>0);CHECK(world.maximum(quality_seen));
   CHECK(world.sum(result.stats.length_splits)>0);CHECK_FALSE(result.valid);
-  CHECK(result.reason.find("bounded residual geometry handoff witness")!=std::string::npos);
+  CHECK(world.maximum(geometry_seen)==geometry_only);
+  CHECK(result.reason.find(geometry_only?"bounded geometry-only repair witness":"bounded residual geometry handoff witness")!=std::string::npos);
   CHECK(Bytes(input)==saved);CHECK(parameters->Snapshot()==snapshot);
   CHECK(result.stats.global_work<=options.maximum_work);
   for(const auto& row:result.cells){const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);}

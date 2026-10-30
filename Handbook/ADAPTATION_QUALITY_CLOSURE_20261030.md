@@ -2,7 +2,8 @@
 
 Build162 full M6 Euler50k attempt is TERMINAL, unsuccessful. All ten owned handles
 are independently verified absent; all1396run pins unchanged. Sources are now safe
-to edit. No new C++ change/build has started. Preserve one connected cycle and
+to edit. The connected quality-debt correction is frozen for build163
+(session90746, Ninja1427130,1296pins). Do not edit compiled sources while active. Preserve one connected cycle and
 return to the complete target after the next coherent fix. Euler→BL/MPI→RANS500k,
 strict final gates, conservative admissible transfer and actual disk restart remain.
 
@@ -92,3 +93,25 @@ admissible transfer, continued CFD and isolated usable disk restart complete Eul
 Then dedicated curved/junction/interface/subsequent-operation/redistribution BL/MPI
 qualification before the RANS500k workflow. Actual mesh counts remain separate
 from metric complexity. No fixture, memory, local-edit or partial-debt substitute.
+
+## Connected correction in progress
+
+Normal validity-only shape repair now measures the whole changed patch's sum of
+normalized squared q/J hinge deficits, rather than accepting a minimum-score gain
+that can increase total debt. Streamed per-cell measurement carries both the sum
+and measured cell count; incomplete measurements cannot authorize shape progress.
+Construction remains edge-only and never queries q/J. Absolute diagnostic admission
+retains its existing policy. Size progress remains separately classified.
+
+Bidirectional quality demand services shape/height first, residual size next, then
+explicit geometry-only repair. Geometry repair must strictly reduce certified
+geometry excess while preserving closed q/J, changed-edge size and requested-height
+gates. Geometry remains mandatory in final acceptance and can return to general
+construction after a finite useful pass. No scenario switches or relaxed gates.
+
+Boundary smoothing rejects useless whole-star shape debt and oversized moved edges
+before expensive candidate fitting guidance. The unchanged old geometry score is
+computed lazily within the transaction. Streamed shape proposals receive measured
+merit admission before fitting guidance; geometry/height intents retain their
+separate checks. The existing optimizer time bound receives the event's remaining
+time, without resetting cumulative work or IDs. These changes are UNVALIDATED.

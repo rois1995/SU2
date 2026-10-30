@@ -36,9 +36,12 @@ bound61.65s); detachment/rank resumption verified. Both perf samples and context
 are preserved, raw data stays local. No further GDB attempt.
 
 Next active connected diagnosis/fix: [whole-field quality closure](Handbook/ADAPTATION_QUALITY_CLOSURE_20261030.md).
-Sources are now safe to edit, but no new C++ change/build has started. Preserve
-cache/ownership/construction improvements and strict gates. Read actual failure,
-merit/feature coverage and geometry-query call sites before selecting the fix.
+Sources are safe to edit. One connected, UNVALIDATED quality-debt correction is
+being implemented: whole-patch measured q/J debt, shape/size/geometry demand
+ownership, cheap merit/edge rejection before fitting guidance, and reuse of the
+optimizer time bound. Build163 is running (owned session90746, Ninja1427130),1296frozen pins.
+Do not edit compiled sources until its handle is terminal. Preserve cache/ownership/
+construction improvements and strict gates; see the active closure record.
 Use existing observers for bounded failure diagnosis; no private replay exists.
 Terminal evidence: active run's `terminal_assessment.json` and
 `event1_time_budget_stop_20261030/`. Next unused build must be checked, not assumed.

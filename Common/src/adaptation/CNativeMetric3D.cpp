@@ -17,6 +17,12 @@
 #include <sstream>
 #include <stdexcept>
 namespace SU2Native3D {
+long double NormalizedShapeHingeDebt(double q,double J) {
+  if(!std::isfinite(q)||!std::isfinite(J)||q<0||J<0)return INFINITY;
+  const long double qdef=std::max(0.L,1.L-static_cast<long double>(q)/MinimumMeanRatio);
+  const long double jdef=std::max(0.L,1.L-static_cast<long double>(J)/MinimumScaledJacobian);
+  return qdef*qdef+jdef*jdef;
+}
 long double FusedMultiplyAdd(long double x,long double y,long double z) noexcept {
 #if (defined(__x86_64__) || defined(__i386__)) && defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__==64
   // x87 extended format only (other long-double formats, e.g. AArch64 binary128, use std::fma below).
@@ -240,6 +246,8 @@ static PatchMetric MeasureMetricCellsImpl(const std::vector<Cell>& cells, Frozen
         result.minimum_scaled_jacobian = m.minimum_scaled_jacobian;
         result.sliver_cell = cell.id;
       }
+      result.shape_debt+=NormalizedShapeHingeDebt(m.mean_ratio,m.minimum_scaled_jacobian);
+      ++result.shape_cells;
       result.shape_measured=true;
     }
     if(!shapes_only)for (size_t i = 0; i < 4; ++i)
@@ -249,6 +257,8 @@ static PatchMetric MeasureMetricCellsImpl(const std::vector<Cell>& cells, Frozen
   // Optional diagnostic shape gate; edge-only measurements never query centroids.
   if (diagnosis && result.shape_measured) {
     diagnosis->shape_measured=true;
+    diagnosis->new_shape_cells=result.shape_cells;
+    diagnosis->new_shape_debt=result.shape_debt;
     diagnosis->minimum_mean_ratio=result.minimum_mean_ratio;
     diagnosis->minimum_scaled_jacobian=result.minimum_scaled_jacobian;
     diagnosis->weakest_cell=result.weakest_cell; diagnosis->sliver_cell=result.sliver_cell;
@@ -431,7 +441,7 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
          size_insertion && frontier_progress);
     const auto score=[](const PatchMetric& m){return std::min(m.minimum_mean_ratio/MinimumMeanRatio,
                                                            m.minimum_scaled_jacobian/MinimumScaledJacobian);};
-    const bool quality_progress = before.shape_measured && measured.shape_measured &&
+    const bool legacy_quality_progress = before.shape_measured && measured.shape_measured &&
         (GetShapeAdmission()==ShapeAdmission::ValidityOnly ? score(measured)>score(before)+1e-7 :
         ((measured.minimum_mean_ratio > before.minimum_mean_ratio + 1e-7 &&
          measured.minimum_scaled_jacobian >= before.minimum_scaled_jacobian * (1 - 1e-12)) ||
@@ -439,9 +449,11 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
          measured.minimum_mean_ratio >= before.minimum_mean_ratio * (1 - 1e-12))));
     if (diagnosis) {
       diagnosis->failure=MetricFailure::Progress;
+      diagnosis->old_shape_cells=before.shape_cells;diagnosis->new_shape_cells=measured.shape_cells;
+      diagnosis->old_shape_debt=before.shape_debt;diagnosis->new_shape_debt=measured.shape_debt;
       diagnosis->removed_excess=removed; diagnosis->added_excess=added;
       diagnosis->size_progress=size_progress;
-      diagnosis->quality_progress=quality_progress && (GetShapeAdmission()==ShapeAdmission::ValidityOnly || added<=removed);
+      diagnosis->quality_progress=legacy_quality_progress && (GetShapeAdmission()==ShapeAdmission::ValidityOnly || added<=removed);
       diagnosis->cell_removal=fresh_count<old_count;
       diagnosis->size_insertion=size_insertion; diagnosis->vertex_removal=vertex_removal;
       diagnosis->longest_removed=longest_removed;
@@ -473,11 +485,18 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
           (GetShapeAdmission()!=ShapeAdmission::ValidityOnly || !aggregate_size_progress)))
         throw std::invalid_argument("Native 3D coarsening removes no cells or fails changed-edge size admission.");
     } else {
+      const bool complete_shape_debt=before.shape_measured&&measured.shape_measured&&
+          before.shape_cells==old_count&&measured.shape_cells==fresh_count&&
+          std::isfinite(before.shape_debt)&&std::isfinite(measured.shape_debt);
+      const long double debt_tolerance=1e-12L*std::max(1.L,std::abs(before.shape_debt));
+      const bool debt_progress=complete_shape_debt&&measured.shape_debt<before.shape_debt-debt_tolerance;
+      const bool quality_progress=GetShapeAdmission()==ShapeAdmission::ValidityOnly?debt_progress:legacy_quality_progress;
+      if(diagnosis)diagnosis->quality_progress=quality_progress && (GetShapeAdmission()==ShapeAdmission::ValidityOnly || added<=removed);
       const auto final_shape=[](const PatchMetric& m){return m.shape_measured &&
           m.minimum_mean_ratio>=MinimumMeanRatio && m.minimum_scaled_jacobian>=MinimumScaledJacobian;};
       const bool closes_shape=final_shape(measured)&&!final_shape(before);
       const bool shape_progress=(quality_progress||closes_shape)&&added<=removed;
-      const bool repair_progress=GetShapeAdmission()==ShapeAdmission::ValidityOnly ? size_progress||quality_progress :
+      const bool repair_progress=GetShapeAdmission()==ShapeAdmission::ValidityOnly ? size_progress||debt_progress :
           shape_progress||(size_progress&&final_shape(measured));
       if(diagnosis&&shape_progress)diagnosis->quality_progress=true;
       if (!repair_progress)

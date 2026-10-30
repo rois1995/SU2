@@ -27,6 +27,8 @@ std::vector<unsigned char> MetricEdgeRequests(const std::vector<Cell>& cells,std
 
 struct PatchMetric {
   bool shape_measured = false;
+  size_t shape_cells = 0;
+  long double shape_debt = 0;
   double minimum_mean_ratio = std::numeric_limits<double>::quiet_NaN();
   double minimum_scaled_jacobian = std::numeric_limits<double>::quiet_NaN();
   Id weakest_cell = 0, sliver_cell = 0;
@@ -34,6 +36,8 @@ struct PatchMetric {
   long double maximum_length = 0;
   std::map<Edge, EdgeMeasure> edges;
 };
+/*! Sum of normalized squared q/J deficits for one measured cell. */
+long double NormalizedShapeHingeDebt(double mean_ratio,double scaled_jacobian);
 /*! Proposal only: minimise midpoint-metric spring energy around an original vertex. The default bound preserves
  * legacy behavior; callers admitting larger stars must supply a bound justified by their storage admission. */
 Point MetricMeanPoint(Point origin,const std::vector<std::pair<Point,Tensor>>& neighbors,
@@ -82,6 +86,8 @@ struct MetricDiagnosis {
   bool shape_measured = false;
   bool size_progress = false, quality_progress = false, cell_removal = false;
   bool size_insertion = false, vertex_removal = false;  // Refine classification (SplitInsertion rule)
+  size_t old_shape_cells = 0, new_shape_cells = 0;
+  long double old_shape_debt = 0, new_shape_debt = 0;
   long double removed_excess = 0, added_excess = 0, longest_removed = 0;
   double minimum_mean_ratio = std::numeric_limits<double>::quiet_NaN();
   double minimum_scaled_jacobian = std::numeric_limits<double>::quiet_NaN();

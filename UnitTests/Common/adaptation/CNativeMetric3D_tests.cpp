@@ -886,5 +886,44 @@ TEST_CASE("Quality repair cannot exchange unacceptable shape for size progress",
   const auto weak=metric({1,2},1,.19,.1),closed=metric({1,3},1,.21,.08);
   CHECK(ValidateMetricChange(4,weak,4,closed,MetricChange::Repair,reason,&diagnosis));CHECK(diagnosis.quality_progress);
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
-  CHECK(ValidateMetricChange(4,before,4,poor,MetricChange::Repair,reason));
+  CHECK(ValidateMetricChange(4,before,4,poor,MetricChange::Repair,reason)); // size progress remains an independent alternative
+}
+
+TEST_CASE("Validity-only repair requires complete decreasing measured q/J hinge debt", "[NativeShapeAdmission3D][NativeMetricSplitRule3D]") {
+  struct Restore {ShapeAdmission value=GetShapeAdmission();~Restore(){SetShapeAdmission(value);}} restore;
+  auto tet=[](Id first,double x,double h) {
+    return Cell{first,{{{first,{x,0,0}},{first+1,{x+1,0,0}},{first+2,{x,1,0}},{first+3,{x,0,h}}}}};
+  };
+  DonorCell donor;donor.cell={0,{{{0,{-10,-10,-10}},{1,{40,-10,-10}},{2,{-10,40,-10}},{3,{-10,-10,40}}}}};
+  donor.sensor.fill({1,0,0,1,0,1});FrozenField field({donor});
+  const std::vector<Cell> old{tet(10,0,.02),tet(20,2,.05)};
+  const std::vector<Cell> worse_total{tet(30,0,.021),tet(40,2,.04)};
+  PatchMetric before,after;std::string reason;MetricDiagnosis diagnosis;
+  SetShapeAdmission(ShapeAdmission::ValidityOnly);
+  REQUIRE_NOTHROW(before=MeasureMetricCells(old,field));
+  REQUIRE_NOTHROW(after=MeasureMetricCells(worse_total,field,nullptr,&before.edges));
+  const auto score=[](const PatchMetric& m){return std::min(m.minimum_mean_ratio/MinimumMeanRatio,m.minimum_scaled_jacobian/MinimumScaledJacobian);};
+  REQUIRE(score(after)>score(before));REQUIRE(after.shape_debt>before.shape_debt);
+  CHECK_FALSE(ValidateMetricChange(old.size(),before,worse_total.size(),after,MetricChange::Repair,reason,&diagnosis));
+  CHECK(diagnosis.old_shape_cells==old.size());CHECK(diagnosis.new_shape_cells==worse_total.size());
+  CHECK(diagnosis.new_shape_debt>diagnosis.old_shape_debt);
+
+  const std::vector<Cell> one_old{tet(50,0,.02)},improved{tet(60,0,.03)};
+  auto one_before=MeasureMetricCells(one_old,field);
+  auto one_after=MeasureMetricCells(improved,field,nullptr,&one_before.edges);
+  REQUIRE(one_after.shape_debt<one_before.shape_debt);
+  CHECK(ValidateMetricChange(1,one_before,1,one_after,MetricChange::Repair,reason,&diagnosis));
+  CHECK(diagnosis.quality_progress);
+
+  const std::vector<Cell> regular{tet(70,0,1)},regular_changed{tet(80,0,1.1)};
+  auto above=MeasureMetricCells(regular,field),still_above=MeasureMetricCells(regular_changed,field,nullptr,&above.edges);
+  REQUIRE(above.shape_debt==0);REQUIRE(still_above.shape_debt==0);
+  CHECK_FALSE(ValidateMetricChange(1,above,1,still_above,MetricChange::Repair,reason,&diagnosis));
+
+  auto missing=one_before;missing.shape_cells=0;
+  CHECK_FALSE(ValidateMetricChange(1,missing,1,one_after,MetricChange::Repair,reason,&diagnosis));
+  auto incomplete=one_before;incomplete.shape_cells=2;
+  CHECK_FALSE(ValidateMetricChange(1,incomplete,1,one_after,MetricChange::Repair,reason,&diagnosis));
+  auto edge_only=MeasureMetricEdges(one_old,field);
+  CHECK_FALSE(edge_only.shape_measured);CHECK(edge_only.shape_cells==0);CHECK(edge_only.shape_debt==0);
 }
