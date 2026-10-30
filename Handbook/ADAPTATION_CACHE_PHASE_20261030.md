@@ -98,9 +98,28 @@ its negative variant rejects staged ownership before publication. Both pass.
 All observed test handles are terminal. Production binary SHA256:
 `67249dbe3f2d331cd67bafe768dd605feb86d7280edfc26a0679d55e591eb03b`.
 Compact receipts: `staged57/cache_phase160_integration_summary.json`.
-No M6 adaptation, transfer or disk restart is accepted yet. The next action is
-fresh full two-event `euler_build160_cache_phase50k`, after checkpointing this
-qualification; source/binary/config/helpers stay frozen throughout that attempt.
+Qualification checkpoint `e5240df1e0` is pushed. The full two-event attempt
+`euler_build160_cache_phase50k` is ACTIVE (exec session22082). Driver859288;
+time859392; timeout859393; mpirun859394; ranks859406,859407,859408,859409,
+859410,859413. All commands/cwds verified in its `launch_receipt.json`.
+Source/binary/config/helpers are frozen. Check actual handles before restarting
+or editing. Stop only the verified owned launcher under the authorized workflow.
+
+Initial CFD solved one iteration and wrote input-mesh restart00000. Config is
+byte-identical to build155's endorsed50k config. Input61330points/303359cells;
+50k remains metric complexity, not a point/cell count. The initial partition moved
+121105cells in.239s (partition.230s). No accepted adaptation exists; private engine
+census has not yet been printed at the ~260s observation. Sampled summed tree RSS
+is about4GiB, host headroom adequate and the bounded paging sample had no active
+swap-in/out. This is early setup, not a comparable completed-stage memory result.
+The initial per-host allowance is2335452160bytes, divided across6ranks before
+per-facet preparation rounding and answer-memo reservation. Use stage telemetry
+for actual reservation/category occupancy; do not equate this allowance with RSS.
+
+Continue observing the actual target. Require both accepted events, conservative
+admissible transfer, published mesh/reference artifacts and isolated disk restart,
+then dedicated BL/MPI qualification and RANS500k. No lower-memory/fixture result
+establishes that capability.
 Focused checks cover cached/recomputed geometry and eviction, host share math,
 phase migration through opposing metric demands, field/donor identity, finite
 split scheduling/concurrency, existing first-height and joint-wall behavior.

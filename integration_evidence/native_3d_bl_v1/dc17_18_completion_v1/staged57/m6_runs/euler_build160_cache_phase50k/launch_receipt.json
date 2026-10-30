@@ -1,0 +1,128 @@
+{
+  "time": 1793377429.4463727,
+  "exec_session": 22082,
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build160_cache_phase50k",
+  "processes": [
+    {
+      "pid": 859392,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build160_cache_phase50k",
+      "cmdline": "/usr/bin/time -v timeout 14400 mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "parent": 859288
+    },
+    {
+      "pid": 859393,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build160_cache_phase50k",
+      "cmdline": "timeout 14400 mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "parent": 859392
+    },
+    {
+      "pid": 859394,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build160_cache_phase50k",
+      "cmdline": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "parent": 859393
+    },
+    {
+      "pid": 859406,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build160_cache_phase50k",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "parent": 859394
+    },
+    {
+      "pid": 859407,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build160_cache_phase50k",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "parent": 859394
+    },
+    {
+      "pid": 859408,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build160_cache_phase50k",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "parent": 859394
+    },
+    {
+      "pid": 859409,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build160_cache_phase50k",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "parent": 859394
+    },
+    {
+      "pid": 859410,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build160_cache_phase50k",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "parent": 859394
+    },
+    {
+      "pid": 859413,
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build160_cache_phase50k",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "parent": 859394
+    },
+    {
+      "pid": 859288,
+      "role": "driver",
+      "cmdline": "python3 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py build160 euler_build160_cache_phase50k 2 ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated"
+    }
+  ],
+  "input_counts": {
+    "NELEM": 303359,
+    "NPOIN": 61330
+  },
+  "target_complexity": 50000,
+  "config_sha256": "5b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1",
+  "baseline_config_sha256": "5b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1",
+  "same_config_as155": true,
+  "latest_resource": {
+    "elapsed_seconds": 128.10623383522034,
+    "processes": [
+      {
+        "pid": 859392,
+        "rss_bytes": 745472,
+        "name": "time"
+      },
+      {
+        "pid": 859393,
+        "rss_bytes": 659456,
+        "name": "timeout"
+      },
+      {
+        "pid": 859394,
+        "rss_bytes": 22237184,
+        "name": "mpirun"
+      },
+      {
+        "pid": 859413,
+        "rss_bytes": 640626688,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 859410,
+        "rss_bytes": 626262016,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 859409,
+        "rss_bytes": 611745792,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 859408,
+        "rss_bytes": 633868288,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 859407,
+        "rss_bytes": 635248640,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 859406,
+        "rss_bytes": 648159232,
+        "name": "SU2_CFD"
+      }
+    ],
+    "sampled_process_tree_rss_bytes": 3819552768
+  },
+  "meminfo": "MemTotal:       65614832 kB\nMemFree:         6034652 kB\nMemAvailable:   32689676 kB\nBuffers:         8602748 kB\nCached:         18131688 kB\nSwapCached:       504936 kB\nActive:         21139748 kB\nInactive:       34856468 kB\nActive(anon):   13311008 kB\nInactive(anon): 17402688 kB\nActive(file):    7828740 kB\nInactive(file): 17453780 kB\nUnevictable:      403676 kB\nMlocked:             768 kB\nSwapTotal:      15625212 kB\nSwapFree:          44772 kB\nDirty:               736 kB\nWriteback:             0 kB\nAnonPages:      29161384 kB\nMapped:          1363368 kB\nShmem:           1451912 kB\nKReclaimable:    2096676 kB\nSlab:            2574336 kB\nSReclaimable:    2096676 kB\nSUnreclaim:       477660 kB\nKernelStack:       49424 kB\nPageTables:       313716 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    48432628 kB\nCommitted_AS:   79326100 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       86980 kB\nVmallocChunk:          0 kB\nPercpu:            13760 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:     9138864 kB\nDirectMap2M:    56690688 kB\nDirectMap1G:     1048576 kB\n",
+  "loadavg": "11.62 7.61 7.55 11/3105 863927\n"
+}

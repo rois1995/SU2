@@ -4,13 +4,16 @@ Updated 2026-10-30. **Resumed by the user's explicit instruction.**
 One active integration cycle: bounded geometry caching plus phase-aware ownership.
 Read [current integration state](Handbook/ADAPTATION_CACHE_PHASE_20261030.md).
 Build160 passed; connected serial36cases and MPI6 43cases/rank pass, pins unchanged.
-All test handles are terminal. Next is the fresh full two-event M6 attempt
-`euler_build160_cache_phase50k`; inspect its actual handle/status before editing.
+The full two-event `euler_build160_cache_phase50k` attempt is ACTIVE: exec22082,
+driver859288, mpirun859394 (time859392/timeout859393); verified rank handles and
+commands are in its launch receipt. Initial CFD completed; no adapted event is
+accepted. Source/binary/config/helpers stay frozen. Inspect actual handles and
+pins before edits/restarts; keep the authorized stop/fix/retry workflow.
 Build159's MPI failure was an ownership-specific fixture assumption, now corrected
 and preserved. Build158's assertion-compilation failure is also preserved.
 The terminal build157 baseline below remains historical evidence, not a live job.
 
-Branch: `codex/native-3d-bl`. Active integration checkpoint: `8cf566e229`, pushed.
+Branch: `codex/native-3d-bl`. Integration implementation: `8cf566e229`; qualified checkpoint: `e5240df1e0`, pushed.
 Connected cache/phase checks pass; full M6/transfer/restart remains unvalidated. The
 construction base is `f104557fa6`/build157; the paused handoff was `adc31b971b`.
 Build158 failed only to compile a new Catch2 assertion; its terminal pins and
