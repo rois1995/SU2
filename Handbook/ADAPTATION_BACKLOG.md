@@ -43,3 +43,12 @@ its relevance or the user explicitly reprioritizes it.
   memoization already covers exact subqueries, so savings are unquantified; never
   cache fresh candidate/final certificates or carry the scalar through changed
   construction support. Keep deferred pending the actual target outcome.
+
+- Late build162 quality sample shows rank0 active in MeshOptimizer::SmoothBoundary
+  →GeometryGuidanceExcess→surface-union queries, with peers in Allreduce. Source
+  computes geometric_before before mobility-dimension rejection and before any
+  target passes cheap projected q/J tests (CNativeEngine3D.cpp SmoothBoundary).
+  Consider lazy computation of this immutable old score only when a candidate
+  reaches geometry comparison; retain every candidate/final geometry, frame,
+  height and quality check. Distinguish this caller from Adapt's old-score cache.
+  Current run remains frozen; decide from the actual target outcome.

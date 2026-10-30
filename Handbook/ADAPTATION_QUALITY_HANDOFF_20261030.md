@@ -1,7 +1,11 @@
 # Construction / quality coordination after build160 M6
 
 Active connected continuation of [cache/ownership integration](ADAPTATION_CACHE_PHASE_20261030.md).
-Status: connected regression PASSED; full M6 workflow unvalidated. User freed the
+Status: connected regression PASSED; full M6 workflow FAILED on event1 time budget.
+The attempt is terminal, all10handles absent and all1396pins unchanged. Read the
+[active closure diagnosis](ADAPTATION_QUALITY_CLOSURE_20261030.md) for final results
+and the next connected work. Phase observations below are historical evidence,
+not live job state. User freed the
 machine and authorized computation. Build161 passed315.521s and serial checks;
 MPI6 exposed an old fixture's local-ownership assumption. Corrected that assertion
 to gather unchanged cells and compare global identity/versions/bytes, keeping
@@ -12,7 +16,7 @@ all pins unchanged and observed handles terminal. Summary:
 `staged57/quality_handoff162_integration_summary.json`. CFD SHA256:
 `6bb6568831e8900e448f48da98e3c9bb714284a94cb21e3507936c61f3d0ad44`.
 Qualification checkpoint `d0c1dbc3f7` is pushed. Full two-event attempt
-`euler_build162_quality_handoff50k` is ACTIVE: exec57326, driver1172403,
+`euler_build162_quality_handoff50k` was launched with historical handles: exec57326, driver1172403,
 mpirun1172494, ranks1172498–1172503 (time1172492/timeout1172493). Actual
 commands/cwds/start identities and unchanged config verified in `launch_receipt.json`.
 Initial CFD completed and wrote input-mesh restart00000. Coarsening completed
@@ -46,6 +50,27 @@ matching corrected it. No solver stop occurred. Record avoided root build-id-cac
 writes; both bounded no-inline reports completed normally. The read-only review's
 transaction-local old-guidance idea remains in the linked backlog pending the
 actual target result; existing exact subquery memoization may already save work.
+
+A second bounded2s/49Hz sample at4638wall seconds verifies ongoing boundary
+smoothing geometry work on rank0, while peers sample Allreduce; lost samples0.
+`profile_quality_late_context.json` and the per-PID no-inline report preserve it;
+raw4.77MBdata remains local. It is a liveness diagnosis, not a phase benchmark or
+proof that the outstanding debts are closing. Source review confirms boundary=false
+controls O5/O6 topology, not physical-coordinate pinning; SmoothBoundary can move
+eligible physical stars and rejects artificial-frame motion. Its eagerly computed
+old geometry score precedes mobility and candidate q/J rejection, an efficiency
+idea now in the backlog pending the actual target result. No source changes or
+solver stop occurred.
+
+A read-only GDB snapshot attempted to inspect optimizer counters after the long
+quiet phase. Symbol loading exceeded the10s wrapper/2s kill grace; no useful
+counters were obtained. The first post-wrapper check still saw a tracer. Cleanup
+independently verified the exact owned rank running with TracerPid0; no extra
+signal was needed. `quality_debug_snapshot{,_context,_cleanup}` receipts preserve
+this failure. Actual pause duration is unknown; conservative upper bound~62s
+includes the observation delay. Timings from this attempt therefore include this
+diagnostic limitation. No further GDB attempt; no source/config change or claim
+of solver termination. The same owned run continues.
 
 The compact `stage_assessment.json` records completed six-rank stage aggregates;
 cache-byte categories are sums, not per-rank maxima. Individual rank stdout avoids

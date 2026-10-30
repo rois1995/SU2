@@ -1,0 +1,10 @@
+ 13e0556:	c5 fb 11 8d 90 f9 ff 	vmovsd %xmm1,-0x670(%rbp)
+ 13e055d:	ff 
+ 13e055e:	e8 3d 6b fe ff       	callq  13c70a0 <SU2Native3D::(anonymous namespace)::GeometryGuidanceExcess(SU2Native3D::Patch const&, SU2Native3D::PlanarReference const&, double, bool)>
+ 13e0563:	48 8d 85 b8 fb ff ff 	lea    -0x448(%rbp),%rax
+ 13e056a:	48 89 85 80 f9 ff ff 	mov    %rax,-0x680(%rbp)
+ 13e1173:	31 d2                	xor    %edx,%edx
+ 13e1175:	4c 89 ee             	mov    %r13,%rsi
+ 13e1178:	e8 23 5f fe ff       	callq  13c70a0 <SU2Native3D::(anonymous namespace)::GeometryGuidanceExcess(SU2Native3D::Patch const&, SU2Native3D::PlanarReference const&, double, bool)>
+ 13e117d:	d9 c0                	fld    %st(0)
+ 13e117f:	d9 e1                	fabs   

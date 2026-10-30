@@ -2,7 +2,8 @@
 
 Updated2026-10-30. User has freed the machine and authorized continuing computation.
 The full Euler50k→BL/MPI→RANS500k goal remains active; zero accepted M6 events.
-Read [current quality coordination](Handbook/ADAPTATION_QUALITY_HANDOFF_20261030.md)
+Read [active quality-closure diagnosis](Handbook/ADAPTATION_QUALITY_CLOSURE_20261030.md),
+[current quality coordination](Handbook/ADAPTATION_QUALITY_HANDOFF_20261030.md)
 and [cache/ownership integration](Handbook/ADAPTATION_CACHE_PHASE_20261030.md).
 
 Connected candidate `9e9ad2ee41` preserves migrated census flags, skips self-collapse,
@@ -18,27 +19,29 @@ pins unchanged. All observed build/test handles are terminal. CFD SHA256:
 `6bb6568831e8900e448f48da98e3c9bb714284a94cb21e3507936c61f3d0ad44`.
 Summary: `staged57/quality_handoff162_integration_summary.json`.
 
-The full two-event `euler_build162_quality_handoff50k` attempt is ACTIVE: exec57326,
-driver1172403, time1172492, timeout1172493, mpirun1172494, ranks1172498–1172503.
-Actual commands/cwds/start identities and config equality to build160 are verified
-in `launch_receipt.json`. Initial CFD solved and wrote input-mesh restart00000;
-coarsening completed1217.769native seconds:292744private cells,2582collapses,
-3541geometry-bad/68372size-bad, q/J unmeasured. Split ownership moved115883cells
-in5.4s. Size closed atgeneration21/3378.186native seconds:720963private cells,
-zero size-bad, max edge1.7999928685,3126geometry-bad. Quality entered3415.096s,
-after21generations rather than160's44. The second migration moved368217cells
-in15.09s. All6ranks now have complete/consistent q/J/geometry censuses after
-migration, confirming the census-state fix at M6 scale. Initial quality debt:
-52476q-bad/53533J-bad,3126geometry-bad; no accepted event or adapted artifact.
-First-quality entry receipt: `first_quality_entry_assessment.json`. A bounded5s
-quality profile has2563samples, lost0,71.19%inclusive Allreduce and19.73%surface
-union queries; shares overlap, not wall-time totals. Raw22MBprofile stays local,
-SHA/context and no-inline reports are preserved. No solver stop was requested.
-Source/binary/config/helpers are frozen. Inspect
-actual status/owned handles before edits/restarts; retain authorized stop/fix/retry.
-Input61330points/303359cells;50k is metric complexity, not a mesh-count limit.
-Prelaunch~33.65GiB available, load4.07/3.75/5.97; no active paging in bounded sample.
-Qualification checkpoint `d0c1dbc3f7` is pushed; fixtures are not workflow completion.
+The full `euler_build162_quality_handoff50k` attempt is TERMINAL, unsuccessful.
+All10owned handles are verified absent and all1396run pins unchanged. Event-level
+native max5407.566s exhausts configured5400s; refine detail max5345.260s. Only
+then was verified mpirun1172494 stopped to prevent another unsuccessful workflow
+event. No accepted mesh, transfer or adapted disk restart exists.
+
+Size closed atgeneration21/3378.186s with720963cells; quality entered3415.096s,
+after21instead of44generations. Migration moved368217cells in15.09s and all6
+censuses stayed complete/consistent. But107quality rounds/607accepted local
+quality-progress operations left726732private cells,53443q-bad/54009J-bad,
+2969geometry-bad, zero size-bad;114cells are unmeasured. q/J debt is nearly flat.
+Sampled summed process-tree peak10.998GiB. This is not workflow completion.
+A failed read-only GDB symbol-load snapshot adds unknown timing overhead (upper
+bound61.65s); detachment/rank resumption verified. Both perf samples and context
+are preserved, raw data stays local. No further GDB attempt.
+
+Next active connected diagnosis/fix: [whole-field quality closure](Handbook/ADAPTATION_QUALITY_CLOSURE_20261030.md).
+Sources are now safe to edit, but no new C++ change/build has started. Preserve
+cache/ownership/construction improvements and strict gates. Read actual failure,
+merit/feature coverage and geometry-query call sites before selecting the fix.
+Use existing observers for bounded failure diagnosis; no private replay exists.
+Terminal evidence: active run's `terminal_assessment.json` and
+`event1_time_budget_stop_20261030/`. Next unused build must be checked, not assumed.
 
 Build160 M6 is TERMINAL: first native event exhausted5400s at5408.5s, then only its
 verified launcher was stopped to prevent an unchanged retry. All10handles absent,

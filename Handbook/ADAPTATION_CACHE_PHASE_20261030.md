@@ -73,6 +73,11 @@ coverage independently of collapse commits.
 
 ## Source review while the host is occupied
 
+Current override: build162 full M6 is terminal on its first event time budget.
+All owned handles are absent; next connected work is
+[whole-field quality closure](ADAPTATION_QUALITY_CLOSURE_20261030.md). Older live
+observations below are historical. No accepted workflow exists.
+
 The connected implementation now continues in
 [the quality handoff record](ADAPTATION_QUALITY_HANDOFF_20261030.md). Build162 and connected serial/MPI6 checks now pass; the user has freed the host
 and the next complete M6 attempt is pending launch.

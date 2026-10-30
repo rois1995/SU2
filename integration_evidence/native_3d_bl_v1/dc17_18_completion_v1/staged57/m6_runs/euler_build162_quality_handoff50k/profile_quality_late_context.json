@@ -1,0 +1,79 @@
+{
+  "saved_at": 1793390008.3916497,
+  "scope": "two-second late-quality liveness diagnosis only; not phase totals or acceptance",
+  "wall_at_record": 4638.265192270279,
+  "verified_ranks": [
+    {
+      "pid": 1172503,
+      "startticks": 80037883
+    },
+    {
+      "pid": 1172502,
+      "startticks": 80037883
+    },
+    {
+      "pid": 1172501,
+      "startticks": 80037882
+    },
+    {
+      "pid": 1172500,
+      "startticks": 80037882
+    },
+    {
+      "pid": 1172499,
+      "startticks": 80037882
+    },
+    {
+      "pid": 1172498,
+      "startticks": 80037882
+    }
+  ],
+  "argv": [
+    "timeout",
+    "12",
+    "nice",
+    "-n",
+    "19",
+    "perf",
+    "record",
+    "--no-buildid-cache",
+    "-F",
+    "49",
+    "--call-graph",
+    "dwarf,8192",
+    "-p",
+    "1172503,1172502,1172501,1172500,1172499,1172498",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build162_quality_handoff50k/profile_quality_late.data",
+    "--",
+    "sleep",
+    "2"
+  ],
+  "exit_code": 0,
+  "data_bytes": 4770032,
+  "data_sha256": "ecdd7e8ee7e06d53ff9fe4f6a9cbe9ba0f73b7c4a9176ab9b3b36ef944759d02",
+  "solver_stop_requested": false,
+  "report": {
+    "argv": [
+      "timeout",
+      "45",
+      "nice",
+      "-n",
+      "19",
+      "perf",
+      "report",
+      "-i",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build162_quality_handoff50k/profile_quality_late.data",
+      "--stdio",
+      "--no-inline",
+      "--call-graph",
+      "none",
+      "--sort",
+      "pid,comm,dso,symbol",
+      "--percent-limit",
+      "1"
+    ],
+    "exit_code": 0,
+    "output": "profile_quality_late_noinline.txt"
+  }
+}
