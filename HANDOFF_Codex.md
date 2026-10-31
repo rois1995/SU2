@@ -29,9 +29,18 @@ LinuxMemAvailable cache estimate correction (same4GiBhardcap/shares/admission) i
 written. Exact old/new changed-tetrahedron support notifications plus
 Selection::TouchRepairSupport replace overly broad/incomplete repair wakeups;
 construction Touch/notifications remain on their existing path. Focused test
-extensions are written, UNVALIDATED. Parallel-private evaluation, batch clearance/
-publication, debt-directed local ceilings and passive census counters remain
-REQUIRED, not implemented yet. Do not qualify/run this partial source. Finish and
+extensions are written, UNVALIDATED. Further local work: ClearanceBatch now keys
+pages/vetoes/peer arbitration by(owner,ticket), preserving current-mesh and peer
+contacts, same-owner tickets, coordinate bounds and fail-closed contract failures.
+Local-only complete-cavity metric import/sample APIs plus focused rank0-only/empty-
+peer/resource tests are written. Engine trial reductions/imports/votes are factored
+behind private_repair (STILL FALSE; private mode not activated), and the existing
+operator body is extracted as evaluate_candidate with common outer result state.
+Per-rank debt-directed RepairBatch ceilings are written, retaining oldest demand.
+NEXT: activate private evaluation only together with bounded round retention,
+one common work reservation/refund, round-wide final reservation/clearance and
+combined complete publication; then add requested passive census counters. Do not
+qualify/run this partial source. Finish and
 review ONE complete integration, focused serial +ONE MPI6 milestone, then full
 TWO-event AFTER from the exact saved seed. Keep geometry closure path and all gates.
 
@@ -224,5 +233,7 @@ run_m6_seed.py and a bounded read-only counter/API survey. Current source-review
 decisions (batch clearance and genuine current-field sampling) are in the parallel
 repair plan; baseline terminal prerequisites satisfied. Agents implemented only assigned
 partition/cache files after terminal audit; both DONE, no independent heavy jobs.
-Primary owns Engine/distributed integration and source review; no build/tests yet. Primary owns
+Primary owns Engine/distributed integration and source review; no build/tests yet.
+Both agents also completed bounded local-metric API/test work and read-only review;
+no independent heavy jobs. Full private round/publication is the immediate task. Primary owns
 integrated acceptance. No permission pending.

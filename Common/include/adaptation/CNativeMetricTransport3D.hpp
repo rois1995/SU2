@@ -267,29 +267,16 @@ class CavityMetricSource {
     return result;
   }
   DonorPatch ImportCells(const std::vector<Cell>& cells, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0) {
-    DonorPatch result; CLocalFailure failure; ++stats.imports;
-    try {
-      Admit(cells.size(), cavity ? cavity->size() : 0, 0, ceiling, caller_bytes);
-      if (!cells.empty()) {
-        std::map<Id, Tensor> metrics;
-        std::vector<DonorCell> donors;
-        if (cavity) for (const auto& c : *cavity) Add(c, metrics, donors);
-        for (const auto& cell : cells) {
-          const auto found = current.find(cell.id);
-          if (found != current.end() && std::none_of(donors.begin(), donors.end(),
-              [&](const DonorCell& donor) { return donor.cell.id == cell.id; })) Add(found->second, metrics, donors);
-        }
-        if (donors.empty()) throw std::invalid_argument("Missing current metric cavity.");
-        std::vector<Node> nodes;
-        for (const auto& cell : cells) for (const auto& node : cell.v) nodes.push_back(node);
-        metrics = TransportNodalMetrics(donors, nodes, metrics);
-        result.cells = MetricDonors(cells, metrics);
-      }
-    } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
-    const auto elected = world.elect(failure); result.reason = elected.message; result.valid = !elected.any;
-    if (!result.valid) { ++stats.rejected; result.cells.clear(); }
-    else { stats.payloads += result.cells.size(); stats.maximum_patch = std::max(stats.maximum_patch, result.cells.size()); }
-    return result;
+    ++stats.imports;
+    auto result=ImportCellsFrom(cells,cavity,true,ceiling,caller_bytes);
+    CLocalFailure failure;if(!result.valid)failure.Set(2,0,result.reason);
+    const auto elected=world.elect(failure);result.reason=elected.message;result.valid=!elected.any;
+    AccountImport(result);return result;
+  }
+  /*! Local-only import from the caller's complete current cavity; never falls back to current or bootstrap rows. */
+  DonorPatch ImportCellsLocal(const std::vector<Cell>& cells,const std::vector<OwnedCell>& complete_cavity,
+                              size_t ceiling=SIZE_MAX,size_t caller_bytes=0) {
+    ++stats.imports;auto result=ImportCellsFrom(cells,&complete_cavity,false,ceiling,caller_bytes);AccountImport(result);return result;
   }
   DonorPatch ImportMetricCells(const std::vector<Cell>& cells, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0) {
     return ImportCells(cells, ceiling, caller_bytes);
@@ -299,24 +286,28 @@ class CavityMetricSource {
                                  const std::vector<unsigned char>& = {}, bool = true) {
     return ImportCells(cells, ceiling, caller_bytes);
   }
+  DonorPatch ImportMetricCellsLocal(const std::vector<Cell>& cells,const std::vector<OwnedCell>& complete_cavity,
+                                    size_t ceiling=SIZE_MAX,size_t caller_bytes=0) {
+    return ImportCellsLocal(cells,complete_cavity,ceiling,caller_bytes);
+  }
+  DonorPatch ImportMetricSamplesLocal(const std::vector<Cell>& cells,const std::vector<OwnedCell>& complete_cavity,
+                                      const std::vector<Id>& = {},size_t ceiling=SIZE_MAX,size_t caller_bytes=0,
+                                      const std::vector<unsigned char>& = {},bool = true) {
+    return ImportCellsLocal(cells,complete_cavity,ceiling,caller_bytes);
+  }
   DonorSamples SamplePoints(const std::vector<Point>& points, const std::vector<Id>& = {},
                             size_t ceiling = SIZE_MAX, size_t caller_bytes = 0) {
-    DonorSamples result; CLocalFailure failure; ++stats.point_batches; stats.point_queries += points.size();
-    try {
-      Admit(0, cavity ? cavity->size() : 0, points.size(), ceiling, caller_bytes);
-      if (!points.empty()) {
-        if (!cavity || cavity->empty()) throw std::invalid_argument("Missing current metric cavity.");
-        std::map<Id, Tensor> metrics; std::vector<DonorCell> donors;
-        for (const auto& c : *cavity) Add(c, metrics, donors);
-        for (const auto& p : points) {
-          result.samples.push_back(EvaluateCavitySample(donors, p));
-        }
-      }
-    } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
-    const auto elected = world.elect(failure); result.reason = elected.message; result.valid = !elected.any;
-    if (!result.valid) { ++stats.rejected; result.samples.clear(); }
-    else stats.point_payloads += result.samples.size();
-    return result;
+    ++stats.point_batches;stats.point_queries+=points.size();
+    const std::vector<OwnedCell> empty;auto result=SamplePointsFrom(points,cavity?*cavity:empty,ceiling,caller_bytes);
+    CLocalFailure failure;if(!result.valid)failure.Set(2,0,result.reason);
+    const auto elected=world.elect(failure);result.reason=elected.message;result.valid=!elected.any;
+    AccountSamples(result);return result;
+  }
+  /*! Local-only samples from an explicitly supplied complete current cavity. */
+  DonorSamples SamplePointsLocal(const std::vector<Point>& points,const std::vector<OwnedCell>& complete_cavity,
+                                 const std::vector<Id>& = {},size_t ceiling=SIZE_MAX,size_t caller_bytes=0) {
+    ++stats.point_batches;stats.point_queries+=points.size();
+    auto result=SamplePointsFrom(points,complete_cavity,ceiling,caller_bytes);AccountSamples(result);return result;
   }
   DonorSamples SampleMidpoints(const std::vector<std::array<Point, 2>>& endpoints, const std::vector<Id>& extensions = {},
                                size_t ceiling = SIZE_MAX, size_t caller_bytes = 0) {
@@ -334,9 +325,67 @@ class CavityMetricSource {
     if (elected.any) { ++stats.rejected; DonorSamples result; result.reason = elected.message; return result; }
     return SamplePoints(points, extensions, ceiling, transfer_memory::Add(caller_bytes, point_bytes));
   }
+  DonorSamples SampleMidpointsLocal(const std::vector<std::array<Point,2>>& endpoints,const std::vector<OwnedCell>& complete_cavity,
+                                    const std::vector<Id>& extensions={},size_t ceiling=SIZE_MAX,size_t caller_bytes=0) {
+    std::vector<Point> points;const auto point_bytes=transfer_memory::Mul(endpoints.size(),sizeof(Point));
+    try {
+      Admit(0,complete_cavity.size(),endpoints.size(),ceiling,transfer_memory::Add(caller_bytes,point_bytes));
+      points.reserve(endpoints.size());
+      for(const auto& e:endpoints)points.push_back({double(((long double)e[0].x+e[1].x)/2),
+        double(((long double)e[0].y+e[1].y)/2),double(((long double)e[0].z+e[1].z)/2)});
+    } catch(const std::exception& e) {
+      ++stats.rejected;DonorSamples result;result.reason=e.what();return result;
+    }
+    return SamplePointsLocal(points,complete_cavity,extensions,ceiling,transfer_memory::Add(caller_bytes,point_bytes));
+  }
   size_t ResidentBytes() const { return transfer_memory::Add(bootstrap.ResidentBytes(), transfer_memory::Bytes(stage_snapshot)); }
   const DonorImportStats& Statistics() const { return stats; }
  private:
+  DonorPatch ImportCellsFrom(const std::vector<Cell>& cells,const std::vector<OwnedCell>* rows,bool use_current,
+                             size_t ceiling,size_t caller_bytes) {
+    DonorPatch result;
+    try {
+      Admit(cells.size(),rows?rows->size():0,0,ceiling,caller_bytes);
+      if(!cells.empty()) {
+        if((!rows||rows->empty())&&!use_current)throw std::invalid_argument("Missing explicit complete current metric cavity.");
+        std::map<Id,Tensor> metrics;std::vector<DonorCell> donors;
+        if(rows)for(const auto& row:*rows)Add(row,metrics,donors);
+        if(use_current)for(const auto& cell:cells) {
+          const auto found=current.find(cell.id);
+          if(found!=current.end()&&std::none_of(donors.begin(),donors.end(),[&](const DonorCell& donor){return donor.cell.id==cell.id;}))
+            Add(found->second,metrics,donors);
+        }
+        if(donors.empty())throw std::invalid_argument("Missing current metric cavity.");
+        std::vector<Node> nodes;for(const auto& cell:cells)for(const auto& node:cell.v)nodes.push_back(node);
+        metrics=TransportNodalMetrics(donors,nodes,metrics);result.cells=MetricDonors(cells,metrics);
+      }
+      result.valid=true;
+    } catch(const std::exception& e){result.reason=e.what();}
+    return result;
+  }
+  DonorSamples SamplePointsFrom(const std::vector<Point>& points,const std::vector<OwnedCell>& rows,
+                                size_t ceiling,size_t caller_bytes) {
+    DonorSamples result;
+    try {
+      Admit(0,rows.size(),points.size(),ceiling,caller_bytes);
+      if(!points.empty()) {
+        if(rows.empty())throw std::invalid_argument("Missing explicit complete current metric cavity.");
+        std::map<Id,Tensor> metrics;std::vector<DonorCell> donors;
+        for(const auto& row:rows)Add(row,metrics,donors);
+        for(const auto& point:points)result.samples.push_back(EvaluateCavitySample(donors,point));
+      }
+      result.valid=true;
+    }catch(const std::exception& e){result.reason=e.what();}
+    return result;
+  }
+  void AccountImport(DonorPatch& result) {
+    if(!result.valid){++stats.rejected;result.cells.clear();}
+    else {stats.payloads+=result.cells.size();stats.maximum_patch=std::max(stats.maximum_patch,result.cells.size());}
+  }
+  void AccountSamples(DonorSamples& result) {
+    if(!result.valid){++stats.rejected;result.samples.clear();}
+    else stats.point_payloads+=result.samples.size();
+  }
   void Admit(size_t query_cells, size_t cavity_cells, size_t points, size_t ceiling, size_t caller_bytes) {
     const auto count = transfer_memory::Add(query_cells, cavity_cells);
     // Include transport's donor/cell copies and simultaneous node maps, with map-node overhead.

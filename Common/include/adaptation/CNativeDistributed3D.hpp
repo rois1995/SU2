@@ -67,6 +67,14 @@ struct ReservationBatch {
   bool valid = false;
   std::string reason;
 };
+struct ClearanceCandidate {
+  const Patch* old=nullptr;
+  const Patch* fresh=nullptr;
+  bool candidate=false,deferred=false;
+  unsigned priority=0;
+  Feature coordinate_star{};
+  std::string reason;
+};
 struct DirectoryStats {
   uint64_t builds = 0, lookups = 0, fetches = 0, reservations = 0, publications = 0, rejected = 0;
   uint64_t metadata_scanned = 0, payloads = 0, elections = 0;
@@ -145,6 +153,10 @@ class Directory {
   bool Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,std::string& reason,
                  size_t ceiling=SIZE_MAX,size_t caller_bytes=0,bool* deferred=nullptr,unsigned priority=0,
                  Feature coordinate_star = {});
+  /*! Same contact gates for variable local proposal lists. Owner plus list index identifies each
+   * proposal; all ranks participate once, including empty lists. Patches are borrowed for this call. */
+  bool ClearanceBatch(const Owned& owned,std::vector<ClearanceCandidate>& candidates,std::string& reason,
+                      size_t ceiling=SIZE_MAX,size_t caller_bytes=0);
   size_t ResidentBytes() const;
   const DirectoryStats& Statistics() const { return stats; }
   std::vector<char> Snapshot() const;

@@ -302,3 +302,61 @@ demand-directed local ceilings; all requested passive diagnostics. Review and
 exercise the exact rejected-star reopening behavior end to end as well as routing.
 No claim of parallel speedup or full invalidation qualification from this source
 checkpoint. Keep this one implementation cycle active.
+
+## Current trial extraction and immediate next implementation
+
+The existing operator ladder is now evaluate_candidate inside the existing slot
+loop, sharing the original outer Patch/diagnosis/ID/observer state. Its early exits
+return false to the caller. trial_maximum/trial_reduce and import/sample helpers
+retain collective behavior while private_repair is false; local mode uses the
+explicit complete imported cavity and a local failure result. The mode is STILL
+FALSE everywhere: no claim that lock-step waiting has been removed. Keep the
+CavityScope outside the evaluator so construction's post-publication measurement
+context and its original lifetime remain unchanged. Physical-edge classification
+and observation result state also remain visible to the ordinary publication path.
+
+Immediate work (do not start a new survey/baseline): finish round retention and
+common publication, then activate the local mode. Force the repair batch metadata/
+reservation path even for candidate_batch=1 so all repair inputs have one uniform
+complete-star contract; construction keeps its existing path. Admit retained old/
+fresh patches, metrics/parameters/coverage/receipts for all selected candidates plus
+one active scratch context. Reserve a common bounded optimizer allowance once for
+all selected ordinary stars, run local slots (skip unchosen slots locally), then
+refund unused work once. Existing per-star trial/node ranges stay unchanged. Keep
+world rank/round/slot ID allocation, sticky atlas failure election, time checks and
+empty-rank alignment. A private fatal exit must reach the common failure vote,
+never call finish or publish while peers are still evaluating. Restore the local
+mode after each evaluator even if an exception occurs.
+
+Retain each proposal's old/fresh/imported/dependencies, choice/priority, coordinate
+flag, metric diagnosis, movement/optimizer counters, work used, saved rejection,
+observer capture and reserved IDs. Release transient private geometry/fields before
+the next slot. There is no accepted-state publication between private evaluations;
+curved-local independence and final combined parameter preparation remain required.
+After the common failure/work reconciliation, validate complete dependency versions,
+run ClearanceBatch once when any approved surface/coordinate proposal requires it,
+and ReserveBatch once for the retained approved old footprints. Contact vetoes are
+per ticket; malformed admitted connectivity and sticky resource failures abort the
+round. Reconcile deferral versus served rejection so waiting ages are preserved.
+
+Route all removals/additions/blocked features together, transport replacement
+metrics with PublishMetrics from that proposal's exact old imported rows, combine
+noncolliding parameter edits and coverage, then one Directory::Publish. Coordinate
+stars retain cell IDs and increment versions; other repairs use unique fresh IDs
+and existing parent-owner mapping. Emit one common service receipt list using the
+existing service_frontier extra-array facility. Drop/refresh all changed owned
+rows, FinishRepairs and TouchRepairSupport once after publication, restore cache
+consistency and update per-proposal commit counters only for actually published
+proposals. Preserve transaction observer semantics and fail closed on observer
+errors. Old per-slot publication code then serves construction only. No broad
+regression until this and the requested passive diagnostics are connected.
+
+ClearanceBatch currently retains legacy single-proposal wrapper behavior, validates
+each candidate's old/fresh coordinate/topology bounds, uses(owner,ticket) throughout
+paging/veto/eligibility and orders peers by(priority,owner,ticket). Same-owner
+contacts and empty local lists are covered by added unexecuted fixtures; malformed
+admitted coordinate proposals refuse the whole round atomically, intentionally
+preserving the existing contract rather than becoming ordinary contact vetoes.
+Local metric tests call only rank0 while peers wait at a subsequent common barrier,
+assert no World collectives/elections, and exercise explicit missing/malformed
+cavities and storage refusal. These are written tests, not passing evidence.

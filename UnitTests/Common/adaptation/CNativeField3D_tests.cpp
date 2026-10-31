@@ -701,6 +701,37 @@ TEST_CASE("Native 3D cavity source transports replacement nodal sensors", "[Nati
   CHECK_FALSE(source.ImportCells({replacement.cell}).valid);
   CHECK_THROWS(PublishMetrics(cavity, fresh));
 }
+TEST_CASE("Native 3D local metric transport requires its explicit complete cavity", "[NativeMesh3D]") {
+  const auto donor=Single();OwnedCell old;old.cell=donor.cell;old.sensor=donor.sensor;old.sensor_present=true;
+  Owned current{{old.cell.id,old}};World world;CavityMetricSource source(world,current);
+  auto replacement=old;replacement.cell.v[3]={9,{.8,.8,-.1}};
+  const std::vector<OwnedCell> cavity{old};
+  const auto collective_before=world.collective_calls,election_before=world.election_collective_calls;
+  if(world.rank==0) {
+    const auto imported=source.ImportMetricCellsLocal({replacement.cell},cavity);
+    CHECK(imported.valid);if(imported.valid&&!imported.cells.empty())CHECK(imported.cells[0].sensor[3].xx==Approx(2.5));
+    const auto alias=source.ImportMetricSamplesLocal({replacement.cell},cavity);
+    CHECK(alias.valid);if(alias.valid&&!alias.cells.empty())CHECK(alias.cells[0].sensor[3].yy==Approx(3.5));
+    const Point sample{.2,.3,.1};
+    const auto sampled=source.SamplePointsLocal({sample},cavity);
+    CHECK(sampled.valid);if(sampled.valid&&!sampled.samples.empty())CHECK(sampled.samples[0].sensor.xx==Approx(2.2));
+    const auto midpoint=source.SampleMidpointsLocal({{{0,0,0},{1,0,0}}},cavity);
+    CHECK(midpoint.valid);if(midpoint.valid&&!midpoint.samples.empty())CHECK(midpoint.samples[0].sensor.xx==Approx(2.5));
+    CHECK_FALSE(source.ImportMetricCellsLocal({old.cell},std::vector<OwnedCell>{}).valid);
+    CHECK_FALSE(source.SamplePointsLocal({sample},std::vector<OwnedCell>{}).valid);
+    CHECK_FALSE(source.SampleMidpointsLocal({{{0,0,0},{1,0,0}}},std::vector<OwnedCell>{}).valid);
+    CHECK_FALSE(source.ImportMetricCellsLocal({old.cell},cavity,0).valid);
+    CHECK_FALSE(source.SamplePointsLocal({sample},cavity,{},0).valid);
+    auto malformed=cavity;malformed[0].cell.v[3].p=malformed[0].cell.v[2].p;
+    CHECK_FALSE(source.ImportMetricCellsLocal({replacement.cell},malformed).valid);
+    auto inconsistent=cavity;auto duplicate=old;++duplicate.cell.id;duplicate.sensor[0].xx+=1;inconsistent.push_back(duplicate);
+    CHECK_FALSE(source.SamplePointsLocal({sample},inconsistent).valid);
+    CHECK(source.ImportMetricCellsLocal({},std::vector<OwnedCell>{}).valid);
+    CHECK(source.SamplePointsLocal({},std::vector<OwnedCell>{}).valid);
+  }
+  CHECK(world.collective_calls==collective_before);CHECK(world.election_collective_calls==election_before);
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+}
 TEST_CASE("Native 3D current nodal field samples and integrates projected edges", "[NativeMesh3D]") {
   const auto donor = Single();
   FrozenField strict({donor});

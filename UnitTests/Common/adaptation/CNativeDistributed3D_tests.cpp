@@ -3840,6 +3840,31 @@ TEST_CASE("Native current collision index follows remote publication and retains
   CHECK(Bytes(owned)==saved);CHECK(directory.Snapshot()==savedMetadata);check(true);
   auto duplicate=query;duplicate.cells.push_back(query.cells[0]);duplicate.cells.back().id=21;
   candidate=world.rank==0;REQUIRE(directory.Clearance(owned,{},duplicate,candidate,reason));CHECK(world.sum(candidate)==0);
+  {
+    const Patch empty,overlap{{cell(21,200,.2,.2,.2,.5).cell},{}},disjoint{{cell(22,300,2,0,0,.5).cell},{}};
+    auto batch=[&](bool conflicting,bool remote,bool reverse_priority=false) {
+      std::vector<ClearanceCandidate> proposals;
+      if(!world.rank) {
+        proposals.push_back({&empty,&query,true,false,reverse_priority?1u:0u,{},{}});
+        proposals.push_back({&empty,conflicting?&overlap:&disjoint,true,false,0,{},{}});
+      } else if(remote&&world.rank==1)proposals.push_back({&empty,&overlap,true,false,0,{},{}});
+      REQUIRE(directory.ClearanceBatch(owned,proposals,reason));
+      CHECK(Bytes(owned)==saved);CHECK(directory.Snapshot()==savedMetadata);
+      int accepted=0,deferred=0;for(const auto& proposal:proposals){accepted+=proposal.candidate;deferred+=proposal.deferred;}
+      CHECK(world.sum(accepted)==(conflicting?1:2));
+      CHECK(world.sum(deferred)==int(conflicting)+int(remote&&world.size>1));
+      if(!world.rank&&conflicting){CHECK(proposals[0].candidate==!reverse_priority);CHECK(proposals[1].candidate==reverse_priority);}
+    };
+    batch(false,false);batch(true,false);batch(true,false,true);batch(false,true);
+    std::vector<ClearanceCandidate> refused;
+    if(!world.rank)refused.push_back({&empty,&query,true,false,0,{},{}});
+    CHECK_FALSE(directory.ClearanceBatch(owned,refused,reason,world.rank?SIZE_MAX:1));
+    CHECK(Bytes(owned)==saved);CHECK(directory.Snapshot()==savedMetadata);
+    // Violating an admitted coordinate-star contract is a round failure, not a peer contact veto.
+    if(!world.rank)refused.push_back({&empty,&query,true,false,0,{{0,0,0},1},{}});
+    CHECK_FALSE(directory.ClearanceBatch(owned,refused,reason));
+    CHECK(Bytes(owned)==saved);CHECK(directory.Snapshot()==savedMetadata);
+  }
   if(world.size>1) {
     auto peers=[&](const Patch& first,const Patch& second,int accepted,bool expectDeferred,bool prefer_second=false) {
       bool active=world.rank<2,deferred=false;

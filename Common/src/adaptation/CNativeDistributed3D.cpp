@@ -273,19 +273,29 @@ void Directory::Commit(Prepared&& prepared) noexcept {
 namespace {
 struct CollisionPage {
   int owner=0;
-  unsigned priority=0;
+  unsigned ticket=0,priority=0;
   size_t page=0,pages=0,total=0,total_removed=0,count=0,removed_count=0;
   Feature coordinate_star{};
   std::array<Cell,MaximumReplacementCells> cells{};
   std::array<Id,MaximumCavityCells> removed{};
-  template<class S>void Fields(S& s){s(owner,priority,page,pages,total,total_removed,count,removed_count,coordinate_star,cells,removed);}
+  template<class S>void Fields(S& s){s(owner,ticket,priority,page,pages,total,total_removed,count,removed_count,coordinate_star,cells,removed);}
 };
 struct CollisionProposal {
   int owner=0;
-  unsigned priority=0;
+  unsigned ticket=0,priority=0;
   size_t count=0,removed_count=0;
   std::vector<Cell> cells;
   std::vector<Id> removed;
+};
+struct CollisionVeto {
+  unsigned ticket=0;Id obstruction=0;
+  template<class S>void Fields(S& s){s(ticket,obstruction);}
+};
+struct CollisionKey {
+  int owner=0;unsigned ticket=0;
+  template<class S>void Fields(S& s){s(owner,ticket);}
+  bool operator<(const CollisionKey& other)const{return std::tie(owner,ticket)<std::tie(other.owner,other.ticket);}
+  bool operator==(const CollisionKey& other)const{return owner==other.owner&&ticket==other.ticket;}
 };
 bool CoordinateReplacement(const Patch& old,const Patch& fresh,Feature feature) {
   if(feature.count!=1 || old.cells.empty() || old.cells.size()!=fresh.cells.size() ||
@@ -330,8 +340,22 @@ std::array<su2double,6> CollisionBounds(const Cell& cell) {
 }
 bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh,bool& candidate,
                           std::string& reason,size_t ceiling,size_t caller_bytes,bool* deferred,unsigned priority,Feature coordinate_star) {
-  Timer timer(stats.collision_seconds);CLocalFailure failure;
   if(deferred)*deferred=false;
+  std::vector<ClearanceCandidate> batch;CLocalFailure failure;
+  try {batch.push_back({&old,&fresh,candidate,false,priority,coordinate_star,{}});}
+  catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,reason))return false;
+  const bool valid=ClearanceBatch(owned,batch,reason,ceiling,caller_bytes);
+  candidate=batch.front().candidate;if(deferred)*deferred=batch.front().deferred;
+  if(valid&&!batch.front().reason.empty())reason=batch.front().reason;
+  return valid;
+}
+bool Directory::ClearanceBatch(const Owned& owned,std::vector<ClearanceCandidate>& candidates,
+                              std::string& reason,size_t ceiling,size_t caller_bytes) {
+  Timer timer(stats.collision_seconds);CLocalFailure failure;
+  for(auto& candidate:candidates){candidate.deferred=false;candidate.reason.clear();}
+  caller_bytes=transfer_memory::Add(caller_bytes,transfer_memory::Bytes(candidates),
+      transfer_memory::Mul(candidates.size(),256)); // Bounded per-proposal refusal text and identity metadata.
   auto admit=[&](size_t extra) {
     const size_t peak=transfer_memory::Add(caller_bytes,ParameterBytes(),ResidentBytes(),MapBytes<Owned>(owned.size()),extra);
     stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
@@ -339,13 +363,19 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
     return Vote(failure,reason);
   };
   if(!initialized)failure.Set(1,0,"Native3D collision search needs a published directory.");
-  if(candidate && (coordinate_star.count ? (coordinate_star.count!=1 || old.cells.empty() ||
-      old.cells.size()!=fresh.cells.size() || old.cells.size()>MaximumDirectoryScan) :
-      (old.cells.size()>MaximumCavityCells || fresh.cells.size()>MaximumReplacementCells)))
-    failure.Set(1,0,"Native3D collision proposal exceeds its topology/coordinate admission.");
-  if(!admit(transfer_memory::Add(sizeof(CollisionIndex),
-      coordinate_star.count?transfer_memory::Mul(old.cells.size(),1024):0)))return false;
-  try {if(candidate && coordinate_star.count && !CoordinateReplacement(old,fresh,coordinate_star))
+  if(candidates.size()>MaximumDirectoryFeatures)failure.Set(1,0,"Native3D collision batch exceeds proposal limit.");
+  size_t coordinate_scratch=0;
+  for(const auto& request:candidates)if(request.candidate) {
+    if(!request.old||!request.fresh){failure.Set(1,0,"Native3D collision proposal lacks patches.");continue;}
+    const auto& old=*request.old;const auto& fresh=*request.fresh;const auto feature=request.coordinate_star;
+    if(feature.count ? (feature.count!=1||old.cells.empty()||old.cells.size()!=fresh.cells.size()||old.cells.size()>MaximumDirectoryScan) :
+        (old.cells.size()>MaximumCavityCells||fresh.cells.empty()||fresh.cells.size()>MaximumReplacementCells))
+      failure.Set(1,0,"Native3D collision proposal exceeds its topology/coordinate admission.");
+    if(feature.count)coordinate_scratch=transfer_memory::Add(coordinate_scratch,transfer_memory::Mul(old.cells.size(),1024));
+  }
+  if(!admit(transfer_memory::Add(sizeof(CollisionIndex),coordinate_scratch,transfer_memory::Bytes(candidates))))return false;
+  try {for(const auto& request:candidates)if(request.candidate&&request.coordinate_star.count &&
+      !CoordinateReplacement(*request.old,*request.fresh,request.coordinate_star))
     failure.Set(1,0,"Native3D coordinate collision proposal changes its admitted connectivity.");}
   catch(const std::exception& e){failure.Set(2,0,e.what());}
   if(!Vote(failure,reason))return false;
@@ -376,33 +406,39 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
     next->initialized=true;collision.swap(next);++stats.collision_builds;
   }}catch(const std::exception& e){failure.Set(2,0,e.what());}
   if(!Vote(failure,reason))return false;
-  const size_t local_pages=candidate?std::max((fresh.cells.size()+MaximumReplacementCells-1)/MaximumReplacementCells,
-      (old.cells.size()+MaximumCavityCells-1)/MaximumCavityCells):0;
+  size_t local_pages=0;
+  for(const auto& request:candidates)if(request.candidate)local_pages=transfer_memory::Add(local_pages,
+      std::max((request.fresh->cells.size()+MaximumReplacementCells-1)/MaximumReplacementCells,
+          (request.old->cells.size()+MaximumCavityCells-1)/MaximumCavityCells));
   const size_t all_pages=CPassiveComm::Allreduce(local_pages,CPassiveComm::Op::SUM,world.comm);
   const size_t query_scratch=transfer_memory::Add(
       transfer_memory::Mul(transfer_memory::Add(transfer_memory::Mul(local_pages,world.size),all_pages),
           4*sizeof(CollisionPage)),transfer_memory::Mul(collision->rows.size(),sizeof(unsigned long)),
       transfer_memory::Mul(world.size,256));
   if(!admit(query_scratch))return false;
-  std::vector<CollisionPage> local;std::string rejected_reason;
-  try {if(candidate) {
+  std::vector<CollisionPage> local;
+  try {for(size_t ticket=0;ticket<candidates.size();++ticket) {
+    auto& request=candidates[ticket];if(!request.candidate)continue;
+    const auto& old=*request.old;const auto& fresh=*request.fresh;
+    const auto proposal_pages=std::max((fresh.cells.size()+MaximumReplacementCells-1)/MaximumReplacementCells,
+        (old.cells.size()+MaximumCavityCells-1)/MaximumCavityCells);
     for(size_t i=0;i<fresh.cells.size();++i) {
       const auto& v=fresh.cells[i].v;
       if(!(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0))throw std::invalid_argument("Nonpositive collision candidate.");
-      for(size_t j=0;j<i;++j)if(!ConformingDisjoint(fresh.cells[i],fresh.cells[j]))candidate=false;
+      for(size_t j=0;j<i;++j)if(!ConformingDisjoint(fresh.cells[i],fresh.cells[j]))request.candidate=false;
     }
-    if(candidate)for(size_t page=0;page<local_pages;++page) {
-      CollisionPage p;p.owner=world.rank;p.priority=priority;p.page=page;p.pages=local_pages;
-      p.total=fresh.cells.size();p.total_removed=old.cells.size();p.coordinate_star=coordinate_star;
+    if(request.candidate)for(size_t page=0;page<proposal_pages;++page) {
+      CollisionPage p;p.owner=world.rank;p.ticket=unsigned(ticket);p.priority=request.priority;p.page=page;p.pages=proposal_pages;
+      p.total=fresh.cells.size();p.total_removed=old.cells.size();p.coordinate_star=request.coordinate_star;
       const size_t first_cell=page*MaximumReplacementCells,first_removed=page*MaximumCavityCells;
       for(size_t k=first_cell;k<std::min(first_cell+MaximumReplacementCells,fresh.cells.size());++k)p.cells[p.count++]=fresh.cells[k];
       for(size_t k=first_removed;k<std::min(first_removed+MaximumCavityCells,old.cells.size());++k)p.removed[p.removed_count++]=old.cells[k].id;
       local.push_back(std::move(p));
-    }else rejected_reason="Native3D curved replacement overlaps or has nonconforming contact.";
+    }else request.reason="Native3D curved replacement overlaps or has nonconforming contact.";
   }}catch(const std::exception& e){failure.Set(2,0,e.what());}
   if(!Vote(failure,reason))return false;
   const size_t held=transfer_memory::Add(caller_bytes,ParameterBytes(),ResidentBytes(),MapBytes<Owned>(owned.size()),query_scratch);
-  std::vector<std::vector<CollisionPage>> outgoing;std::vector<std::vector<Id>> veto;
+  std::vector<std::vector<CollisionPage>> outgoing;std::vector<std::vector<CollisionVeto>> veto;
   try {outgoing.assign(world.size,local);veto.resize(world.size);}
   catch(const std::exception& e){failure.Set(2,0,e.what());}
   if(!Vote(failure,reason))return false;
@@ -411,10 +447,10 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
   if(!transported){reason="Native3D collision proposal exchange exceeds storage budget.";return false;}
   std::vector<CollisionProposal> proposals;
   try {
-    std::map<int,std::vector<const CollisionPage*>> grouped;
+    std::map<CollisionKey,std::vector<const CollisionPage*>> grouped;
     for(const auto& page:pages) {
       const size_t limit=page.coordinate_star.count==1?MaximumDirectoryScan:MaximumCavityCells;
-      if(page.owner<0 || page.owner>=world.size || page.coordinate_star.count>1 ||
+      if(page.owner<0 || page.owner>=world.size || page.ticket>=MaximumDirectoryFeatures || page.coordinate_star.count>1 ||
           !page.pages || page.page>=page.pages || !page.total ||
           (page.coordinate_star.count && !page.total_removed) ||
           page.total_removed>limit || page.total>(page.coordinate_star.count?limit:MaximumReplacementCells) ||
@@ -422,20 +458,20 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
           page.pages!=std::max((page.total+MaximumReplacementCells-1)/MaximumReplacementCells,
               (page.total_removed+MaximumCavityCells-1)/MaximumCavityCells))
         throw std::runtime_error("Invalid current collision page.");
-      grouped[page.owner].push_back(&page);
+      grouped[{page.owner,page.ticket}].push_back(&page);
     }
     for(auto& owner:grouped) {
       auto& rows=owner.second;
       std::sort(rows.begin(),rows.end(),[](const auto* a,const auto* b){return a->page<b->page;});
       const auto& first=*rows.front();
       if(rows.size()!=first.pages)throw std::runtime_error("Incomplete current collision pages.");
-      CollisionProposal proposal;proposal.owner=first.owner;proposal.priority=first.priority;
+      CollisionProposal proposal;proposal.owner=first.owner;proposal.ticket=first.ticket;proposal.priority=first.priority;
       proposal.count=first.total;proposal.removed_count=first.total_removed;
       for(size_t k=0;k<rows.size();++k) {
         const auto& page=*rows[k];
         const size_t cells_at=k*MaximumReplacementCells,removed_at=k*MaximumCavityCells;
         if(page.page!=k || page.pages!=first.pages || page.total!=first.total || page.total_removed!=first.total_removed ||
-            page.priority!=first.priority || page.coordinate_star.count!=first.coordinate_star.count ||
+            page.owner!=first.owner || page.ticket!=first.ticket || page.priority!=first.priority || page.coordinate_star.count!=first.coordinate_star.count ||
             page.coordinate_star.vertices!=first.coordinate_star.vertices ||
             page.count!=(cells_at<first.total?std::min(MaximumReplacementCells,first.total-cells_at):0) ||
             page.removed_count!=(removed_at<first.total_removed?std::min(MaximumCavityCells,first.total_removed-removed_at):0))
@@ -469,21 +505,26 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
         }
         for(Id id:collision->added)check(id);
       }
-      if(blocked)veto.at(proposal.owner).push_back(obstruction);
+      if(blocked)veto.at(proposal.owner).push_back({proposal.ticket,obstruction});
     }
   }catch(const std::exception& e){failure.Set(2,0,e.what());}
   if(!Vote(failure,reason))return false;
   const auto rejected=world.exchange(veto,&transported,ceiling,held);
   if(!transported){reason="Native3D collision veto exchange exceeds storage budget.";return false;}
-  if(!rejected_reason.empty())reason=rejected_reason;
-  if(!rejected.empty()) {
-    candidate=false;reason="Native3D projected candidate collides with current cell "+
-        std::to_string(*std::min_element(rejected.begin(),rejected.end()))+".";
-  }
+  try {for(const auto& rejected_proposal:rejected) {
+    auto& request=candidates.at(rejected_proposal.ticket);
+    request.candidate=false;
+    if(request.reason.empty())request.reason="Native3D projected candidate collides with current cell "+std::to_string(rejected_proposal.obstruction)+".";
+  }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,reason))return false;
   if(proposals.size()>1) {
     // A physically vetoed proposal must not exclude an otherwise admissible peer.
-    std::vector<std::vector<int>> outgoing_eligible;
-    try {outgoing_eligible.assign(world.size,candidate?std::vector<int>{world.rank}:std::vector<int>{});}
+    std::vector<std::vector<CollisionKey>> outgoing_eligible;
+    try {
+      std::vector<CollisionKey> eligible;
+      for(size_t ticket=0;ticket<candidates.size();++ticket)if(candidates[ticket].candidate)eligible.push_back({world.rank,unsigned(ticket)});
+      outgoing_eligible.assign(world.size,eligible);
+    }
     catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!Vote(failure,reason))return false;
     auto eligible=world.exchange(outgoing_eligible,&transported,ceiling,held);
@@ -493,13 +534,13 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
       if(std::adjacent_find(eligible.begin(),eligible.end())!=eligible.end())
         throw std::runtime_error("Repeated current collision owner.");
       std::vector<const CollisionProposal*> ordered,selected;ordered.reserve(eligible.size());selected.reserve(eligible.size());
-      for(int owner:eligible) {
-        const auto proposal=std::find_if(proposals.begin(),proposals.end(),[&](const auto& p){return p.owner==owner;});
+      for(const auto key:eligible) {
+        const auto proposal=std::find_if(proposals.begin(),proposals.end(),[&](const auto& p){return p.owner==key.owner&&p.ticket==key.ticket;});
         if(proposal==proposals.end())throw std::runtime_error("Missing eligible collision proposal.");
         ordered.push_back(&*proposal);
       }
       std::sort(ordered.begin(),ordered.end(),[](const auto* a,const auto* b) {
-        return std::tie(a->priority,a->owner)<std::tie(b->priority,b->owner);
+        return std::tie(a->priority,a->owner,a->ticket)<std::tie(b->priority,b->owner,b->ticket);
       });
       for(const auto* proposal:ordered) {
         bool compatible=true;
@@ -515,8 +556,8 @@ bool Directory::Clearance(const Owned& owned,const Patch& old,const Patch& fresh
         }
         if(compatible)selected.push_back(proposal);
         else if(proposal->owner==world.rank) {
-          candidate=false;if(deferred)*deferred=true;
-          reason="Native3D projected candidate deferred by a conflicting peer.";
+          auto& request=candidates.at(proposal->ticket);request.candidate=false;request.deferred=true;
+          request.reason="Native3D projected candidate deferred by a conflicting peer.";
         }
       }
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
