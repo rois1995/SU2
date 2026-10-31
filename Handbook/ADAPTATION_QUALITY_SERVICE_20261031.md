@@ -200,3 +200,11 @@ records one124.471s interval at0.752–0.763CPUcore/rank, no new major faults;
 CPU service includes MPI spinning, not useful-work CPU. No RAM pressure/native
 rejection. Continue179frozen, no stop from slope projection. Full acceptance,
 actual transfer and adapted disk restart remain unproven.
+
+Fifth complete quality window:63.512252%fall in3027.384quality seconds,
+8140.805436697327q/Jdebt, average4.680695debt/s, latest interval2.024446debt/s.
+747267private cells,37522q-bad/37426J-bad/2945geometry-bad/size0, all measured
+and complete.14305candidates/13360reserved/10225actual commits over302batch rounds.
+No accepted event/transfer/restart. Continue179frozen. Read-only source review
+confirms the separate full-support rejected-state invalidation gap documented in
+the backlog; runtime M6 contribution not yet established. Fix only source-safe.

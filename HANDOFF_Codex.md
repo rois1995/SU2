@@ -10,7 +10,8 @@ feature/height validity and intentionally omits q/J. CAD remains optional.
 
 ## Authoritative current live state
 
-**Full M6 Euler50k two-event retry RUNNING**, exec16090:
+**Build179 first event naturally FAILED its time budget; overall two-event job
+still RUNNING and must finish untouched under the latest user instruction**, exec16090:
 `staged57/m6_runs/euler_build179_quality_service50k`.
 Driver2685167, time2685263, timeout2685264, mpirun2685265, ranks2685269–2685274.
 Exact ten identities/startticks in startup_verification.json. All ten verified live
@@ -42,16 +43,25 @@ Size closure982.301native seconds vs175986.182,720958cells/size0. Quality entry
 1031.098vs1751021.402: all720958measured/allcompleteflags1,52432q-bad/
 53564J-bad/3293geometry-bad/size0; q/Jdebt22311.06548689389. ALL entry counts,
 debts and geometry/cache work match175. Ownership moved360022cells once in13.998s.
-Current phase: quality. Latest COMPLETE window4:2493.757quality seconds,
-9221.103785109430q/Jdebt,58.670267%fall,5.249092debt/s.744163cells,
-39227q-bad/39300J-bad/2976geometry-bad/size0, all measured/allflags1.
-11264candidates/10516reserved/8181commits over238batch rounds. Latest interval
-1.594420debt/s; slower progress is not a stop criterion or feasibility proof.
-1396pins unchanged and all ten exact identities live at this window. Continue
-frozen generously. Host contention is recorded separately; no RAM pressure or
-native rejection. See quality_window4_assessment.json and quality_trend_assessment.json.
-Window2at1083.918s had44.174959%fall vs1755.138672%at1084.562s (near matching
-elapsed, not isolated benchmark). No accepted mesh/actual transfer/adapted restart.
+First event naturally rejected at max5403.717native seconds: metric update exhausted
+elapsed-time budget. All six complete=0/final=0. Last COMPLETE census7:
+3960.659quality seconds,70.302200%q/Jdebt fall;752202cells,34386q-bad/
+33995J-bad/2854geometry-bad/size0;13883commits. Partial exit census is invalid:
+zero printed bad/debt counts mean UNKNOWN, not closure. First-event receipt:
+179run/event1_natural_failure.json. The overall driver proceeded to its next
+attempt; all ten original owned identities verified live at helper6211.6s,
+latest phase construction/split_interior_entry. Do NOT stop179 for the next
+implementation. Source/helper/binary freeze persists until all handles terminal.
+No accepted mesh/actual transfer/adapted restart. Latest treeRSS8.296GiB,
+MemAvailable~24GiB, hostload7.44/8.52/8.84; no observed RAM pressure.
+
+Latest user additions: next milestone MUST combine parallel private repair slots
+(one round publication) with debt-directed work, full-support invalidation and
+passive per-census diagnostics; no new config/scheduler/time-budget increase,
+no further perf/GDB. See the linked parallel-repair plan. Before the next full M6,
+obtain a reasonably converged original-grid Euler solution, save/pin it and reuse
+it for EVERY future first remesh. Initial ITER1 field is now superseded as the
+production input requirement. Build179 keeps its original input untouched.
 
 Earlier first window:30.545410%fall in516.883quality seconds. Upper-query
 work/debt95001vs1751215625(~12.8xlower); different window workloads, not isolated
@@ -89,8 +99,7 @@ changed. Source design/review and detailed history are linked below.
 
 ## Next actions and acceptance
 
-1. Let179continue frozen generously to its outcome unless preserved evidence
-   establishes an actual error/resource/clear computational stop. Verify exact
+1. Let179finish untouched under the latest explicit user instruction. Verify exact
    owned handles on escalated host /proc; sandbox namespaces can hide live PIDs.
    Stale logs or an observation timeout do not establish termination.
 2. Preserve complete split generations, quality-entry census and complete quality
@@ -99,8 +108,8 @@ changed. Source design/review and detailed history are linked below.
    Judge whole-field debt reduction per second; nested geometry/smoothing/MPI
    timings overlap. No new baseline campaign or unrelated implementation cycle.
 3. On failure, preserve primary outcome and raw six-rank rows before any authorized
-   owned-only stop. If necessary stop only verified launcher2685265 to prevent an
-   unchanged retry after first-event failure. Verify ALL ten terminal and all pins
+   owned-only stop. Latest179instruction explicitly requires natural termination;
+   do not stop179 to start implementation. Verify ALL ten terminal and all pins
    before any pinned C++/helper edits. Then one connected fix, qualify, retry M6.
 4. Require TWO actual accepted events, published mesh/native_ref pairs, conservative
    admissible transfer and finite continued CFD. Inspect raw per-field residuals
@@ -129,11 +138,19 @@ cost (first three windows691vs1741144s) but did not deliver an accepted mesh.
 Older174supervised bottleneck stop and166natural time-budget rejection remain
 archived; do not confuse their handles with179.
 
+Blocked repair invalidation gap CONFIRMED by read-only source review: a healthy
+cell in a rejected feature's complete imported star can change while its bad-user
+cell stays unchanged; Touch skips feature vertices and ignores healthy-cell repair
+users, so the feature may remain blocked. No false final acceptance follows, but
+search coverage is incomplete. Runtime M6 contribution not quantified. Preserve179
+frozen to outcome, then fix and regress this full-support invalidation contract
+before qualifying a next source. Details in backlog; no C++ edits/tests while live.
+
 Numerical frozen-field risk OPEN: current-nodal transport changes the spatial P1
 representation after topology edits; identity alone does not prove an immutable
 numerical target. Quantify/resolve before claiming that semantics. Original CFD
-conservative donors are separate. ITER1 is endorsed functional startup, not a
-flow-converged aerodynamic qualification. Resumed adaptation can collide with
+conservative donors are separate. ITER1 was functional startup only. Latest user now requires a reasonably
+converged saved original-grid solution reused for first remeshing. Resumed adaptation can collide with
 numbered restart paths; rejected events consume cycles. Isolated disk restart
 does not claim general adaptation-resume numbering fixed.
 
@@ -146,7 +163,8 @@ are preserved in179.
 ## Design and operating links
 
 Read [AGENTS](AGENTS.md), [complete integration task](Handbook/ADAPTATION_INTEGRATED_NEXT_TASK.md),
-[active quality-service design/evidence](Handbook/ADAPTATION_QUALITY_SERVICE_20261031.md),
+[parallel repair and saved CFD input plan](Handbook/ADAPTATION_PARALLEL_REPAIR_20261031.md),
+[build179 quality-service design/evidence](Handbook/ADAPTATION_QUALITY_SERVICE_20261031.md),
 [geometry/smoothing design and evidence](Handbook/ADAPTATION_GEOMETRY_QUERY_REUSE_20261031.md),
 [findings assessment](Handbook/ADAPTATION_FINDINGS_ASSESSMENT_20261031.md),
 [quality history](Handbook/ADAPTATION_QUALITY_CLOSURE_20261030.md),
@@ -161,5 +179,6 @@ provenance. Fork pushes authorized: https://github.com/rois1995/SU2.git,
 branch codex/native-3d-bl. Use git -c gc.auto=0 -c submodule.recurse=false and
 --ignore-submodules=all due unrelated broken Eigen worktree. Whitelist adds;
 leave unrelated155logs/binaries/meshes/restarts/rawperf untouched. Efficient
-ownership_survey/quality_queue_survey agents are DONE, no jobs/edits; primary owns
+ownership_survey/quality_queue_survey agents have bounded READ-ONLY surveys,
+no heavy jobs/edits; primary owns
 integrated acceptance. No permission pending.
