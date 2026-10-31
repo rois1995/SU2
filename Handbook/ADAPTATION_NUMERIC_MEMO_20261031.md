@@ -68,3 +68,25 @@ alone are not completion. Shape/height closure → residual geometry/size closur
 shape reclosure under unchanged geometry1e-4,q>=.2,J>=.05,maxedge1.8/heights.
 Require TWOaccepted meshes,actual conservative admissible transfer,finite continued
 CFD and isolated matching adapted disk restart,then BL/MPI and RANS500k.
+
+## User steering — analysis after the frozen run, no second implementation
+
+After the frozen validation and corresponding full M6 attempt, use exact memo
+hits/misses and traversal/service/net whole-field q/J/geometry progress to assess
+cheaper certification within this cycle. A miss does not itself identify a nearby
+trial; distinguish exact repeats from changed positions using existing diagnostic
+inputs and caller semantics, without another profiling/baseline campaign.
+
+First review existing unchanged-face/certificate reuse, changed-face-only checks,
+conservative early bounds and inexpensive candidate screening. Investigate whether
+a genuine numeric upper certificate plus remaining tolerance can conservatively
+cover small movement against the identical immutable reference and support. This
+is analysis first, not an established speedup or authorization for competing code.
+Check certificate meaning, direction, support identity, rounding, changed face and
+association state, dependency invalidation and work/resource admission. Uncertainty
+requires full certification; sampling cannot prove a bound. Envelope alternatives
+are conditional on existing facilities being insufficient. Preserve every feature,
+body/association/height/final geometry gate, no configuration options. Choose any
+further implementation from measured traversal savings and net bad-cell removal/s;
+record unproven alternatives in the backlog. Keep one active cycle and the full
+strict two-event/transfer/CFD/restart then BL/MPI/RANS goal.

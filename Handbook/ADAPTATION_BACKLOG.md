@@ -239,3 +239,17 @@ build188/geometry_guidance_source_review.md and quality_service_geometry_assessm
 in staged57/m6_runs/euler_build188_real_cfd50k_feature_safe. Keep source frozen and
 let actual terminal outcome choose the next connected change; do not add a duplicate
 cache or weaken private-context freshness.
+
+
+## Cheaper changed-position certification — user-requested analysis after191
+
+Unproven alternatives, not a concurrent implementation: remaining numeric tolerance
+as a conservative small-motion bound against unchanged reference/support; only if
+existing unchanged-face reuse, changed-face checks, early bounds and screening are
+insufficient, consider conservative envelopes. Audit certificate direction/meaning,
+association/support/dependency invalidation, outward rounding and resource accounting.
+Unknown/insufficient bounds fall back to full certification; sampling is insufficient.
+Use191exact memo hit/miss/traversal counters plus existing representative diagnostics
+and net q/J/geometry progress; misses alone cannot label nearby positions. No speedup
+established. Full instructions are in ADAPTATION_NUMERIC_MEMO_20261031.md. Source is
+frozen through the current validation/full M6 attempt; one active cycle/no new options.

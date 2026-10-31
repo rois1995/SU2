@@ -1,0 +1,98 @@
+{
+  "time": 1793476558.3484783,
+  "build": "build191",
+  "source_checkpoint": "410d82c087",
+  "scope": "Focused serial plus one connected MPI6 milestone; no full-repository-suite or M6 acceptance claim",
+  "build_status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 754.1008081436157,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "CFD_sha256": "ab2192a723715eb5ca84ae67666aa1d83996e143928844fff75922e5cc22258e",
+  "test_binary_sha256": "63105d20ae653091ea4c9e3e60332f72bf619ceeec26152751311640d50df20c",
+  "cases": {
+    "serial": {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_serial_20261031T194602_381314",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 264.68138432502747,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 352661504,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal_audit": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_serial_20261031T194602_381314/terminal_verification.json",
+      "summaries": [
+        {
+          "assertions": 20499,
+          "cases": 67
+        }
+      ],
+      "hot_retention_completions": 1,
+      "saved_m6_replay_completions": 1,
+      "receipts": {
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_serial_20261031T194602_381314/status.json": "b35533f731a906264dc7b34e4946a1669b7aaee27a6604ac0e6dec9657e7bef7",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_serial_20261031T194602_381314/command.json": "a566acd035895bdd00d46ba047405ccadd6e44f727256e4f91e95050c60cc31f",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_serial_20261031T194602_381314/pins.json": "d9da8476d070ed95e9d3490e70cdfde3081d927346f75b157002126fd0e72720",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_serial_20261031T194602_381314/run.log": "88b76d11428491983b931247e341f44a9a705990a637d58dc1303fe6ba03eb50",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_serial_20261031T194602_381314/terminal_verification.json": "fd24ec27d5f25c894cd6c2b26811f971c5ed0837cf4b70304199d811a2b8676a",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_serial_20261031T194602_381314/owned_startup.json": "e348c6b2e8cc90b906eda1ea097f248b75587914674afcd69286795bf9e0ead9"
+      }
+    },
+    "mpi": {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_mpi6_20261031T195040_391161",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 302.0251696109772,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 63336448,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal_audit": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_mpi6_20261031T195040_391161/terminal_verification.json",
+      "summaries": [
+        {
+          "assertions": 31402,
+          "cases": 215
+        },
+        {
+          "assertions": 31690,
+          "cases": 215
+        },
+        {
+          "assertions": 31717,
+          "cases": 215
+        },
+        {
+          "assertions": 34836,
+          "cases": 215
+        },
+        {
+          "assertions": 32147,
+          "cases": 215
+        },
+        {
+          "assertions": 32256,
+          "cases": 215
+        }
+      ],
+      "hot_retention_completions": 6,
+      "saved_m6_replay_completions": 0,
+      "receipts": {
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_mpi6_20261031T195040_391161/status.json": "62a979836a92b9dffa38b8e1b293e56fc32bb5e87939169ee08cd14baf8b7fba",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_mpi6_20261031T195040_391161/command.json": "c51301df9d5b74b505ea6b6018215a0a6ec226d0dcd0e0c2c6e7abb04d9cc88d",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_mpi6_20261031T195040_391161/pins.json": "03c9e346ed0ed7193e77468322eedf93994a147e2834c66aa1d68da061d46d61",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_mpi6_20261031T195040_391161/run.log": "ced3ff33ea1bef0415c79f939a7c97343b9be92ce2fcd1b01a98b2fb9d5dafe4",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_mpi6_20261031T195040_391161/terminal_verification.json": "167d9dc03ce77111bffedb4af2a3fe40e27cb43813593e735b939e25dd8f34cf",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/numeric_memo191_mpi6_20261031T195040_391161/owned_startup.json": "ef2638ac23001f12564eb73b432919724d2ac2dace00d8a7774cf7b6d83180e6"
+      }
+    }
+  },
+  "full_M6_accepted": false,
+  "next": "Immediately full two-event M6, same immutable real CFD seed, Euler50k and native5400 unchanged. Then analysis-first motion/slack certification review from actual counters if warranted; no competing implementation."
+}
