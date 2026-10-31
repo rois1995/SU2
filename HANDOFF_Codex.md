@@ -16,7 +16,8 @@ First native event naturally rejected for elapsed-time budget on all six ranks,
 complete=0/final=0, before the authorized launcher stop prevented an unchanged
 retry. No accepted mesh, actual transfer or adapted restart. All ten exact owned
 handles independently verified absent on host /proc; all1396 pins unchanged.
-No owned heavy job. C++ source edits are now permitted; build176 not started.
+No owned heavy job. Connected quality-service candidate is implemented but
+UNVALIDATED; build176 not started. See active design for changed interfaces.
 Terminal receipts: `terminal_assessment.json`, `terminal_handles.json`,
 `event1_time_budget_stop_receipt.json` under the175run directory.
 

@@ -12,6 +12,7 @@
 #include <cmath>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 namespace SU2Native3D {
 namespace {
 class Timer {
@@ -101,7 +102,8 @@ struct BatchClaim {
   Id vertex = 0;
   int caller = 0;
   unsigned ticket = 0;
-  template <class S> void Fields(S& s) { s(vertex, caller, ticket); }
+  unsigned priority = 0;
+  template <class S> void Fields(S& s) { s(vertex, caller, ticket, priority); }
 };
 struct BatchVeto {
   unsigned ticket = 0;bool pass_deferred=false;
@@ -796,16 +798,19 @@ ImportedBatch Directory::FetchBatch(const DependencyBatch& dependencies, const O
   ++stats.fetches;
   ImportedBatch result;
   CLocalFailure failure;
-  size_t count=0, dependency_bytes=transfer_memory::Bytes(dependencies.candidates);
+  size_t count=0,max_candidate_cells=0, dependency_bytes=transfer_memory::Bytes(dependencies.candidates);
   for (const auto& candidate:dependencies.candidates) {
     count=transfer_memory::Add(count,candidate.cells.size());
     dependency_bytes=transfer_memory::Add(dependency_bytes,transfer_memory::Bytes(candidate.cells),
         transfer_memory::Mul(2,transfer_memory::Bytes(candidate.reason)));
+    if(candidate.valid)max_candidate_cells=std::max(max_candidate_cells,candidate.cells.size());
   }
+  for(const auto& candidate:dependencies.candidates)if(candidate.coordinate_star.count>1)
+    failure.Set(2,0,"Native 3D invalid batch coordinate-star identity.");
   const auto baseline=transfer_memory::Add(caller_bytes,ResidentBytes(),MapBytes<Owned>(owned.size()),
       dependency_bytes,transfer_memory::Mul(dependencies.candidates.size(),sizeof(Imported)+128));
   auto peak=transfer_memory::Add(baseline,MapBytes<std::map<Id,Dependency>>(count),
-      MapBytes<std::set<Id>>(MaximumCavityCells),transfer_memory::Mul(world.size,sizeof(std::vector<FetchQuery>)),
+      MapBytes<std::set<Id>>(max_candidate_cells),transfer_memory::Mul(world.size,sizeof(std::vector<FetchQuery>)),
       transfer_memory::GrowthBound(count,sizeof(FetchQuery)));
   stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
   if (peak==SIZE_MAX || peak>ceiling) failure.Set(3,0,"Native 3D batch payload packing exceeds budget.");
@@ -821,7 +826,8 @@ ImportedBatch Directory::FetchBatch(const DependencyBatch& dependencies, const O
       const auto& candidate=dependencies.candidates[i];
       result.candidates[i].reason=candidate.reason;
       if (!candidate.valid) continue;
-      if (candidate.cells.empty() || candidate.cells.size()>MaximumCavityCells)
+      const size_t limit=candidate.coordinate_star.count?MaximumDirectoryScan:MaximumCavityCells;
+      if (candidate.cells.empty() || candidate.cells.size()>limit)
         throw std::runtime_error("Native 3D batch candidate lacks a bounded complete star.");
       std::set<Id> unique;
       for (const auto& row:candidate.cells) {
@@ -885,13 +891,19 @@ ImportedBatch Directory::FetchBatch(const DependencyBatch& dependencies, const O
       auto& imported=result.candidates[i];
       if (!candidate.valid) continue;
       imported.valid=true;
+      imported.coordinate_star=candidate.coordinate_star;
       for (const auto& dependency:candidate.cells) {
         const auto& row=received[positions.at(dependency.cell)];
         if (!row.present) { imported.valid=false; imported.reason="Native 3D stale batch dependency payload."; break; }
         imported.cells.push_back(row.cell);
       }
       if (!imported.valid) imported.cells.clear();
-      else std::sort(imported.cells.begin(),imported.cells.end(),[](const auto& a,const auto& b){return a.cell.id<b.cell.id;});
+      else {
+        std::sort(imported.cells.begin(),imported.cells.end(),[](const auto& a,const auto& b){return a.cell.id<b.cell.id;});
+        if(imported.coordinate_star.count && std::any_of(imported.cells.begin(),imported.cells.end(),[&](const OwnedCell& row){
+            return std::none_of(row.cell.v.begin(),row.cell.v.end(),[&](Node node){return node.id==imported.coordinate_star.vertices[0];});}))
+          throw std::runtime_error("Native 3D batch coordinate payload is not incident to its vertex.");
+      }
     }
   } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
   result.valid=Vote(failure,result.reason);
@@ -931,19 +943,27 @@ DependencyBatch Directory::PlanBatch(const std::vector<Feature>& features, std::
   if(!result.valid){slots.clear();result.candidates.clear();result.refused.clear();result.pass_deferred.clear();++stats.rejected;}
   return result;
 }
-ReservationBatch Directory::ReserveBatch(const ImportedBatch& imported, size_t ceiling, size_t caller_bytes) {
-  return ReserveBatchImpl(imported,ceiling,caller_bytes,false);
+ReservationBatch Directory::ReserveBatch(const ImportedBatch& imported, size_t ceiling, size_t caller_bytes,
+                                          const std::vector<unsigned>& priorities) {
+  return ReserveBatchImpl(imported,ceiling,caller_bytes,false,priorities);
 }
 ReservationBatch Directory::ReserveInteriors(const ImportedBatch& imported,size_t ceiling,size_t caller_bytes) {
   return ReserveBatchImpl(imported,ceiling,caller_bytes,true);
 }
-ReservationBatch Directory::ReserveBatchImpl(const ImportedBatch& imported,size_t ceiling,size_t caller_bytes,bool interiors) {
+ReservationBatch Directory::ReserveBatchImpl(const ImportedBatch& imported,size_t ceiling,size_t caller_bytes,bool interiors,
+                                               const std::vector<unsigned>& priorities) {
   Timer timer(stats.reservation_seconds);++stats.reservations;
-  CLocalFailure failure;size_t cells=0,imported_bytes=transfer_memory::Bytes(imported.candidates);
+  CLocalFailure failure;size_t cells=0,imported_bytes=transfer_memory::Add(transfer_memory::Bytes(imported.candidates),
+      transfer_memory::Bytes(priorities));bool coordinate_stars=false;
   for(const auto& candidate:imported.candidates) {
     cells=transfer_memory::Add(cells,candidate.cells.size());
     imported_bytes=transfer_memory::Add(imported_bytes,transfer_memory::Bytes(candidate.cells),transfer_memory::Bytes(candidate.reason));
+    if(candidate.coordinate_star.count>1 || (interiors && candidate.coordinate_star.count))
+      failure.Set(2,0,"Native 3D batch reservation has an invalid coordinate-star scope.");
+    coordinate_stars=coordinate_stars||candidate.coordinate_star.count==1;
   }
+  if(!priorities.empty()&&priorities.size()!=imported.candidates.size())
+    failure.Set(2,0,"Native 3D batch reservation priorities do not match the candidate table.");
   const auto scratch=transfer_memory::Add(transfer_memory::Mul(imported.candidates.size(),sizeof(std::vector<Id>)),
       transfer_memory::GrowthBound(transfer_memory::Mul(4,cells),sizeof(Id)));
   const auto baseline=transfer_memory::Add(caller_bytes,imported_bytes);
@@ -958,21 +978,29 @@ ReservationBatch Directory::ReserveBatchImpl(const ImportedBatch& imported,size_
     footprints.resize(imported.candidates.size());
     for(size_t i=0;i<imported.candidates.size();++i) {
       const auto& candidate=imported.candidates[i];if(!candidate.valid)continue;
-      if(candidate.cells.empty() || candidate.cells.size()>MaximumCavityCells)
+      const size_t limit=candidate.coordinate_star.count?MaximumDirectoryScan:MaximumCavityCells;
+      if(candidate.cells.empty() || candidate.cells.size()>limit)
         throw std::runtime_error("Native 3D batch reservation lacks a bounded complete star.");
       auto& vertices=footprints[i];vertices.reserve(4*candidate.cells.size());
       if(interiors) {
         if(candidate.cells.size()!=1)throw std::runtime_error("Native 3D interior reservation requires one complete cell.");
         vertices.push_back(candidate.cells.front().cell.id);
-      } else for(const auto& row:candidate.cells)for(auto node:row.cell.v)vertices.push_back(node.id);
+      } else for(const auto& row:candidate.cells) {
+        if(candidate.coordinate_star.count && std::none_of(row.cell.v.begin(),row.cell.v.end(),[&](Node node){
+            return node.id==candidate.coordinate_star.vertices[0];}))
+          throw std::runtime_error("Native 3D coordinate reservation contains a foreign cell.");
+        for(auto node:row.cell.v)vertices.push_back(node.id);
+      }
       std::sort(vertices.begin(),vertices.end());vertices.erase(std::unique(vertices.begin(),vertices.end()),vertices.end());
     }
   }catch(const std::exception& e){failure.Set(2,0,e.what());}
   if(!Vote(failure,result.reason)){++stats.rejected;return result;}
-  return ChooseBatch(footprints,ceiling,baseline,!interiors);
+  return ChooseBatch(footprints,ceiling,baseline,!interiors,priorities,coordinate_stars);
 }
-ReservationBatch Directory::ChooseBatch(const std::vector<std::vector<Id>>& footprints, size_t ceiling, size_t caller_bytes, bool vertex_keys) {
+ReservationBatch Directory::ChooseBatch(const std::vector<std::vector<Id>>& footprints, size_t ceiling, size_t caller_bytes,
+                                          bool vertex_keys,const std::vector<unsigned>& priorities,bool coordinate_stars) {
   ReservationBatch result;CLocalFailure failure;size_t vertices=0,footprint_bytes=transfer_memory::Bytes(footprints);
+  if(!priorities.empty()&&priorities.size()!=footprints.size())failure.Set(2,0,"Native 3D batch priority table does not match candidate footprints.");
   for(const auto& row:footprints){vertices=transfer_memory::Add(vertices,row.size());footprint_bytes=transfer_memory::Add(footprint_bytes,transfer_memory::Bytes(row));}
   const auto baseline=transfer_memory::Add(caller_bytes,ResidentBytes(),footprint_bytes,transfer_memory::Mul(transfer_memory::Add(footprints.size(),64),2*sizeof(bool)));
   auto peak=transfer_memory::Add(baseline,transfer_memory::Mul(world.size,sizeof(std::vector<BatchClaim>)),
@@ -985,9 +1013,11 @@ ReservationBatch Directory::ChooseBatch(const std::vector<std::vector<Id>>& foot
     to.resize(world.size);result.chosen.resize(footprints.size(),false);result.pass_deferred.resize(footprints.size(),false);
     for(size_t i=0;i<footprints.size();++i) {
       const auto& row=footprints[i];if(row.empty())continue;
-      if(row.size()>4*MaximumCavityCells || !std::is_sorted(row.begin(),row.end()) || std::adjacent_find(row.begin(),row.end())!=row.end())
+      const auto limit=coordinate_stars?4*MaximumDirectoryScan:4*MaximumCavityCells;
+      if(row.size()>limit || !std::is_sorted(row.begin(),row.end()) || std::adjacent_find(row.begin(),row.end())!=row.end())
         throw std::runtime_error("Native 3D candidate footprint is not bounded and unique.");
-      for(Id vertex:row)to[Rendezvous({false,vertex})].push_back({vertex,world.rank,unsigned(i)});
+      const unsigned priority=priorities.empty()?0:priorities[i];
+      for(Id vertex:row)to[Rendezvous({false,vertex})].push_back({vertex,world.rank,unsigned(i),priority});
       result.chosen[i]=true;
     }
   }catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -995,7 +1025,8 @@ ReservationBatch Directory::ChooseBatch(const std::vector<std::vector<Id>>& foot
   bool admitted=false;
   const auto claims=world.exchange(to,&admitted,ceiling,baseline);
   if (!admitted) failure.Set(3,0,"Native 3D batch reservation transport exceeds budget.");
-  using Winners=std::map<Id,std::pair<int,unsigned>>;
+  using Winner=std::tuple<unsigned,int,unsigned>;
+  using Winners=std::map<Id,Winner>;
   peak=transfer_memory::Add(baseline,transfer_memory::Bytes(to),transfer_memory::Bytes(claims),
       MapBytes<Winners>(claims.size()),transfer_memory::Mul(world.size,sizeof(std::vector<BatchVeto>)),
       transfer_memory::GrowthBound(claims.size(),sizeof(BatchVeto)));
@@ -1009,13 +1040,13 @@ ReservationBatch Directory::ChooseBatch(const std::vector<std::vector<Id>>& foot
     for (const auto& row:claims) {
       if (row.caller<0 || row.caller>=world.size || row.ticket>=MaximumDirectoryFeatures)
         throw std::runtime_error("Native 3D invalid batch reservation claim.");
-      const auto priority=std::make_pair(row.caller,row.ticket);
+      const auto priority=std::make_tuple(row.priority,row.caller,row.ticket);
       const auto inserted=winner.emplace(row.vertex,priority);
       if (!inserted.second) inserted.first->second=std::min(inserted.first->second,priority);
     }
     for (const auto& row:claims) {
       const bool held=construction_pass && vertex_keys && pass_vertices.count(row.vertex);
-      if(held || winner.at(row.vertex)!=std::make_pair(row.caller,row.ticket))reply[row.caller].push_back({row.ticket,held});
+      if(held || winner.at(row.vertex)!=std::make_tuple(row.priority,row.caller,row.ticket))reply[row.caller].push_back({row.ticket,held});
     }
   } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
   if (!Vote(failure,result.reason)) { result.chosen.clear();result.pass_deferred.clear(); ++stats.rejected; return result; }

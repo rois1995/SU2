@@ -41,8 +41,21 @@ unique allocation epochs, active references, cumulative work/time budgets,
 requested heights and complete wall dependencies. Construction remains validity-
 first with no q/J scoring. Geometry authority remains sufficient without CAD.
 
-The exact bounded batch and reservation ordering will be finalized against the
-existing interfaces before implementation; no new general scheduling framework.
+Implemented candidate (unvalidated): existing maximum batch8. One oldest local
+slot precedes cached severity slots; coalescing/reservation uses fair epoch first,
+then negative local required-debt score. Replica sums are search estimates, not
+complete global feature debt. Directory batch import/reservation preserves bounded
+coordinate-only stars up to the existing4096-cell scan cap; ordinary topology
+cavities retain64. Explicit priorities precede rank/ticket tie breaking.
+
+Slots publish geometry, parameters and transported metrics immediately; private
+contexts are constructed per slot. Only globally full-vertex-disjoint repair slots
+share deferred measurement. Their changed IDs/vertex notifications and retired
+edge certificates remain admitted until one combined refresh, FinishRepairs and
+Touch. No next selection or acceptance sees an incomplete refresh; a failure
+leaves the census explicitly inconsistent. Imported/star/scratch bounds and new
+queue metadata are charged. Construction retains its original transaction path.
+There is no new scheduling framework or configuration control.
 
 ## Acceptance
 

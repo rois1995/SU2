@@ -109,7 +109,8 @@ class Directory {
    * Common protocol/storage failures refuse the batch. Neither method mutates the accepted stores. */
   ImportedBatch FetchBatch(const DependencyBatch& dependencies, const Owned& owned,
                           size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
-  ReservationBatch ReserveBatch(const ImportedBatch& imported, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+  ReservationBatch ReserveBatch(const ImportedBatch& imported, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0,
+                                const std::vector<unsigned>& priorities = {});
   /*! Collective cell-only reservations for one-cell interior replacements. All callers must use this
    * phase together, and certify an unchanged complete oriented skin/old vertices before publication.
    * Adjacent cells may share read-only vertices; general surface/movement edits must use ReserveBatch. */
@@ -187,8 +188,10 @@ class Directory {
   bool LookupImpl(const std::vector<Feature>& features, Dependencies* merged,
                   DependencyBatch* batch, size_t ceiling, size_t caller_bytes, std::string& reason,
                   std::vector<std::vector<Id>>* footprints = nullptr, bool coordinate_stars = false);
-  ReservationBatch ReserveBatchImpl(const ImportedBatch& imported, size_t ceiling, size_t caller_bytes, bool interiors);
-  ReservationBatch ChooseBatch(const std::vector<std::vector<Id>>& footprints, size_t ceiling, size_t caller_bytes, bool vertices=true);
+  ReservationBatch ReserveBatchImpl(const ImportedBatch& imported, size_t ceiling, size_t caller_bytes, bool interiors,
+                                    const std::vector<unsigned>& priorities = {});
+  ReservationBatch ChooseBatch(const std::vector<std::vector<Id>>& footprints, size_t ceiling, size_t caller_bytes,
+                               bool vertices=true, const std::vector<unsigned>& priorities = {}, bool coordinate_stars=false);
   Prepared Prepare(const std::vector<OwnedCell>& removed, const std::vector<OwnedCell>& added,
                    size_t ceiling, size_t baseline);
   bool NotifyChanges(const Prepared& prepared, std::vector<Id>& changed, std::string& reason,

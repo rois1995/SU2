@@ -2110,6 +2110,25 @@ TEST_CASE("Native MPI owner publication admits aggregated independent cavities",
   CHECK(directory.Statistics().publications==1);
 }
 
+TEST_CASE("Batch cavity reservation honors explicit priority before ownership", "[NativeRepairBatch3D][NativeDistributed3D]") {
+  World world;const auto fixture=Box();auto owned=Partition(Rows(fixture.patch),world);
+  Directory directory(world);std::string reason;REQUIRE(directory.Build(owned,reason));
+  const auto mesh=Bytes(owned),snapshot=directory.Snapshot();
+  const std::vector<Feature> features{{{0,0,0},1},{{6,0,0},1}};
+  const auto dependencies=directory.LookupBatch(features);REQUIRE(dependencies.valid);
+  const auto imported=directory.FetchBatch(dependencies,owned);REQUIRE(imported.valid);
+  const auto ordinary=directory.ReserveBatch(imported);REQUIRE(ordinary.valid);
+  REQUIRE(ordinary.chosen.size()==2);
+  CHECK(ordinary.chosen[0]==(world.rank==0));CHECK_FALSE(ordinary.chosen[1]);
+  const std::vector<unsigned> priorities{unsigned(100+world.rank),unsigned(world.size-1-world.rank)};
+  const auto prioritized=directory.ReserveBatch(imported,SIZE_MAX,0,priorities);REQUIRE(prioritized.valid);
+  REQUIRE(prioritized.chosen.size()==2);
+  CHECK_FALSE(prioritized.chosen[0]);CHECK(prioritized.chosen[1]==(world.rank==world.size-1));
+  CHECK_FALSE(directory.ReserveBatch(imported,world.rank?SIZE_MAX:1,0,priorities).valid);
+  CHECK_FALSE(directory.ReserveBatch(imported,SIZE_MAX,0,{0}).valid);
+  CHECK(Bytes(owned)==mesh);CHECK(directory.Snapshot()==snapshot);
+}
+
 TEST_CASE("Native MPI batch lookup preserves per-candidate complete stars and refusals", "[NativeDistributed3D][NativeBatchLookup3D]") {
   World world;
   Owned owned;
@@ -3594,6 +3613,19 @@ TEST_CASE("Complete coordinate stars cross payload pages and publish atomically"
   if(!world.rank){CHECK_FALSE(bounded.candidates.front().valid);CHECK(bounded.candidates.front().oversized);}
   CHECK_FALSE(directory.LookupBatch(Query(world,center),world.rank?SIZE_MAX:1,0,true).valid);
   auto batch=directory.LookupBatch(Query(world,center),SIZE_MAX,0,true);REQUIRE(batch.valid);
+  auto payload_batch=directory.FetchBatch(batch,owned);REQUIRE(payload_batch.valid);
+  if(!world.rank) {
+    REQUIRE(payload_batch.candidates.size()==1);
+    CHECK(payload_batch.candidates.front().cells.size()==count);
+    CHECK(payload_batch.candidates.front().coordinate_star.count==1);
+  }
+  const auto batch_reservation=directory.ReserveBatch(payload_batch);REQUIRE(batch_reservation.valid);
+  CHECK(world.sum(std::count(batch_reservation.chosen.begin(),batch_reservation.chosen.end(),true))==1);
+  CHECK_FALSE(directory.FetchBatch(batch,owned,world.rank?SIZE_MAX:1).valid);
+  CHECK_FALSE(directory.ReserveBatch(payload_batch,world.rank?SIZE_MAX:1).valid);
+  auto malformed=payload_batch;
+  if(!world.rank)malformed.candidates.front().coordinate_star.vertices[0]=UINT64_MAX;
+  CHECK_FALSE(directory.ReserveBatch(malformed).valid);
   Dependencies dependencies;dependencies.valid=true;
   if(!world.rank){dependencies=batch.candidates.front();REQUIRE(dependencies.valid);CHECK(dependencies.cells.size()==count);}
   auto imported=directory.Fetch(dependencies,owned);REQUIRE(imported.valid);
@@ -3906,6 +3938,53 @@ TEST_CASE("Global repair age precedes ownership and reactivated low IDs", "[Nati
       const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);
     }
   }
+}
+
+TEST_CASE("Quality batch serves old demand and severe independent stars in one round", "[NativeRepairBatch3D]") {
+  World world;Fixture fixture;Owned input;const int copies=2*world.size;
+  for(int copy=0;copy<copies;++copy) {
+    auto box=Box();box.patch.cells.clear();const double x=.9+.099*copy/(copies-1);
+    const Node center{8,{x,x,x}};
+    for(const auto& f:box.facets) {
+      Cell c{box.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
+      if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[2],c.v[3]);
+      box.patch.cells.push_back(c);
+    }
+    for(auto& c:box.patch.cells){c.id+=100*copy;for(auto& n:c.v){n.id+=16*copy;n.p.x+=3*copy;}}
+    for(auto& f:box.patch.surface){f.facet+=12*copy;for(auto& id:f.v)id+=16*copy;}
+    for(auto& f:box.facets){f.id+=12*copy;for(auto& n:f.v){n.id+=16*copy;n.p.x+=3*copy;}}
+    if(copy%world.size==world.rank)for(const auto& row:Rows(box.patch))input.emplace(row.cell.id,row);
+    fixture.facets.insert(fixture.facets.end(),box.facets.begin(),box.facets.end());
+  }
+  const auto saved=Bytes(input);const PlanarReference geometry(fixture.facets);
+  EngineOptions options;options.maximum_rounds=1;options.maximum_work=4096*copies;
+  options.capture_feature={{Id(16*(copies-1)+8),0,0},1};
+  unsigned serviced=0;uint64_t round=UINT64_MAX;
+  options.transaction_observer=[&](const TransactionView& view) {
+    if(view.selected&&std::string(view.stage)=="transaction_end"){++serviced;round=view.round;}
+  };
+  bool refreshed=false,consistent=true;
+  options.stage_observer=[&](const StageProgressView& view) {
+    if(std::string(view.stage)!="exit")return;
+    refreshed=true;long double q=0,j=0;size_t qb=0,jb=0;
+    for(const auto& row:view.working) {
+      const auto& v=row.second.cell.v;const auto m=Measure({v[0].p,v[1].p,v[2].p,v[3].p},Tensor{});
+      const auto dq=std::max(0.L,1.L-static_cast<long double>(m.mean_ratio)/MinimumMeanRatio);
+      const auto dj=std::max(0.L,1.L-static_cast<long double>(m.minimum_scaled_jacobian)/MinimumScaledJacobian);
+      q+=dq*dq;j+=dj*dj;qb+=m.mean_ratio<MinimumMeanRatio;jb+=m.minimum_scaled_jacobian<MinimumScaledJacobian;
+    }
+    const auto& p=view.progress;
+    consistent=consistent&&p.cache_consistent&&p.census_complete&&p.shape_complete&&p.geometry_complete&&
+        p.q_bad_cells==qb&&p.j_bad_cells==jb&&std::abs(p.q_hinge_squared-q)<1e-10L&&std::abs(p.j_hinge_squared-j)<1e-10L;
+  };
+  const auto result=Repair(world,input,Uniform(input,Tensor{}),geometry,{},options);INFO(result.reason);
+  CHECK(world.sum(serviced)==1);CHECK(world.maximum(round==0));
+  CHECK(world.sum(result.stats.batch_candidates)>unsigned(world.size));
+  CHECK(world.sum(result.stats.batch_reserved)>unsigned(world.size));
+  CHECK(world.sum(result.stats.quality_progress)>0);
+  CHECK(refreshed);CHECK(consistent);
+  CHECK(result.stats.global_work<=options.maximum_work);CHECK(Bytes(input)==saved);
+  for(const auto& row:result.cells){const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);}
 }
 
 TEST_CASE("Quality repair completes a useful pass before revisiting construction debt", "[NativeQualityPass3D]") {
