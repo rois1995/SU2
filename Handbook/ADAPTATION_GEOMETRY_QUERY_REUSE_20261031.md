@@ -311,3 +311,19 @@ initial61330points/303359cells and initialrestart byte-identical166. Hostcachequ
 then verified/cancelled only group2243698(threeGitPIDs), terminalreceipts preserved.
 Do not infer isolated startup speedup; future gitcommands gc.auto=0. HealthyM6
 remains frozen until outcome/authorized evidence; no more fixturecampaign or edits.
+
+##174actual matched coarsening milestone (private, not acceptance)
+
+Coarsen exit312.71829658native seconds vs1661200.506267936. All counts and all q/J/
+size/geometry debt totals match exactly:292744cells/2582collapses,68372size-bad/
+3541geometry-bad; q/Jcorrectly unmeasured. Uppercalls14578same; upper time363.153vs
+1986.525rankseconds, new facets57.796+joined50.078+selection1.428vsoldscope1624.070
+(includesfacets). Traversal252.370s. Facetbytes462941936vs114505520(indextradeoff);
+scopebytes1136909520vs1170805656, cacheevictions1370vs9003. Cache hit semantics changed
+(leaves accessed for full-support forest even on witness hit), so do not equate raw
+hit ratios. New/old scope keys describe different retained accelerators. All1396
+pins and10exactowned handles reverified, memory adequate. Native timing is observed,
+not isolated CPU speedup; startup GC72.389s overlap is recorded. Source remains
+frozen; split ownership staged and construction live. Receipts coarsen_comparison_to166.json
+andcoarsen_live_verification.jsonin174run. Private intermediates never substitute
+for complete accepted meshes/transfer/restart.

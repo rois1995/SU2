@@ -15,13 +15,21 @@ All10exactidentities recorded in startup_verification.json(9children+driver_hand
 1396pins independently rehashed unchanged. C++/binary/helpers/config/inputs FROZEN
 until terminal or preserved evidence justifies an authorized stop of verified owned
 handles. Nice19/libs1/MPI6,native5400s/event,outer14400s. One owned heavy workload.
-Initial61330points/303359cells; no accepted event yet. At100s sampled tree2.048GiB.
+Initial61330points/303359cells; no accepted event yet. Coarsening completed at
+312.718native seconds vs1661200.506s:292744cells/2582collapses,68372size-bad/
+3541geometry-bad; all discrete/metric/geometry debts EXACTLYmatch166(all q/Junmeasured).
+Geometry upper363.153vs1986.525rank-seconds; new facet57.796+scope50.078+selection
+1.428s versus old scope1624.070(includesfacet). Facet live462.942MBvs114.506MB;
+scope1136.910MBvs1170.806MB, both bounded. Observation is not isolated speedup or
+accepted mesh. Comparison/coarsen_live_verification receipts saved;1396pins/all10
+handles reverified. Run has staged split ownership and is constructing. Lastsample
+~5.67GiBtree duringtransition; actual headroom remains ample.
 Actual host quota2673639424/rank445606570before per-facet rounding. Config byte-
 identical166, SHA5b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1.
 Initial CFD restart byte-identical166, SHAee7ae4690ee4c890104ac1876e4eed85354e6014233e10733862dbc6c2f1d45f;
 this is initial-state provenance ONLY, never adapted restart evidence.
 
-Qualification checkpointbeee72c100pushed before launch. Its commit spawned automatic
+Qualification checkpointbeee72c100pushed before launch; live checkpoint776f08432cpushed. Its commit spawned automatic
 Git GC2243698/2243704/2243705; initial guard assumed common-git-dir cwd and aborted
 before signals, corrected guard verified this worktree/group and sent SIGTERM only
 to that housekeeping group. AllGC handles terminal(Z/absent), receipts in live run.
