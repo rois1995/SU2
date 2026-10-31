@@ -42,7 +42,15 @@ Size closure982.301native seconds vs175986.182,720958cells/size0. Quality entry
 1031.098vs1751021.402: all720958measured/allcompleteflags1,52432q-bad/
 53564J-bad/3293geometry-bad/size0; q/Jdebt22311.06548689389. ALL entry counts,
 debts and geometry/cache work match175. Ownership moved360022cells once in13.998s.
-Current phase: quality. First COMPLETE window:516.883quality seconds,
+Current phase: quality. Latest COMPLETE window2:1083.918quality seconds,
+12455.161503403138q/Jdebt,44.174959%fall,9.092849debt/s.735068cells,
+43816q-bad/44429J-bad/3171geometry-bad/size0, all measured/allflags1.
+5252candidates/4865reserved/3998commits over110batch rounds. Baseline175window4
+at1084.562s has5.138672%fall/1.057102debt/s. Near-matching elapsed time,
+not an isolated benchmark; strict closure/actual transfer/restart still pending.
+See quality_window2_assessment.json and quality_trend_assessment.json.
+
+First COMPLETE window:516.883quality seconds,
 15496.059051234q/Jdebt,30.545410%fall,13.184824debt/s.729578cells,
 46969q-bad/47848J-bad/3206geometry-bad/size0, all measured/allflags1.
 Actual2201candidates/2045reserved/1800commits over46batch rounds. Baseline175

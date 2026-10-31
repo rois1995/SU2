@@ -176,3 +176,9 @@ workloads differ (2201current proposals vs a one-choice/rank old service), so th
 are useful-progress efficiency ratios, not same-operation or isolated timings.
 First-window private boundary293.334sumseconds/1374moves/168.991debt and interior
 8.886sumseconds/1159moves/1424.865debt remain separate from whole-field commits.
+
+Second complete quality window:44.174959%fall in1083.918quality seconds,
+versus175window4at1084.562s/5.138672%fall. Current9.092849debt/s vs1.057102.
+735068private cells,43816q-bad/44429J-bad/3171geometry-bad/size0, all measured
+and complete.5252candidates/4865reserved/3998actual commits over110batch rounds.
+No accepted mesh/transfer/restart; continue the frozen full workflow generously.
