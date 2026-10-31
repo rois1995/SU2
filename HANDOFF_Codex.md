@@ -66,8 +66,21 @@ lost0,maxcurrentnodaldrift.084754961 (replicated views,not96samples). Existing
 original continuous-target caveat remains below. Current receipts:
 matched_construction183_assessment.json,quality_entry_ownership_assessment.json,
 quality_entry_assessment.json,quality_trend_assessment.json,quality_window1_counters_assessment.json.
-Latest passive1793459813:all10identities match,~31GiB available,treeRSS~6.60GiB
-(sampled sum,not physical/job peak),no rejection. No accepted mesh/transfer/restart.
+Latest complete quality window2 at318.093quality seconds:734404cells,
+49084q-bad/47891J-bad/3994geometry-bad,size0,debt17828.615202,2173commits
+(6.831/s),4987netq-bad removed(15.678/s). Counts/debt/commits EXACT183window2,
+which took371.387s; host contention differs, no isolated speed attribution.
+Uppercalls66334/upperwork1818818184 and trial/guidance work EXACT183; newlocal
+preflight adds36974283atlaswork cumulatively. No candidate decisions changed at
+this census. Window2commits2095,qchurn47539removed/42765created,J44775/39530;
+privatecollectives0/unmeasuredchurn0/stuckshape0. Rankjoin-callshares
+[.640,.442,.492,.612,.337,.440] include protocol+wait,notpureidle. Global16drift
+samples supported/lost0,max.084197787. Full diagnostics in window2counter receipt;
+matched_quality183_assessment.json preserves actual timestamps/work comparisons.
+No full-case feature-fix confirmation yet:183failed later at1261.498quality seconds.
+Latest passive1793460313:all10identities match,~28GiB available,treeRSS~8.64GiB
+(sampled sum,not physical/job peak),load12.16,no rejection. No acceptedmesh/transfer/
+restart. Last pushed construction/entry checkpoint5283d74441; push window2next.
 
 183 is HISTORICAL TERMINAL: first event naturally failed genuine-feature coverage
 at2763.908refine seconds before5400s; original CFD retained. Saved raw6rank outcome
