@@ -49,7 +49,10 @@ Affected-contract continuation exec6606TERMINAL206.339s:161cases/rank,
 Failure only existing NativeCollapseFilter3D single-cell/6rank optional phase
 partition. Guard now skips impossible migration when global_cells<world.size,
 retaining coherent ownership; global count reused in existing benefit estimate.
-No construction operator/gate changes. Source current fix needs build183.
+No construction operator/gate changes. Build183 LIVE exec76629, source0cf923c59f
+pushed; host Python3699721(start86454925)/Ninja3699744(start86454966), helper
+namespace2/9,1296pins. C++/headers/tests/helpers FROZEN until terminal.
+Startup MemAvailable~31GiB/load11.27; three nice19workers/libs1/TMPDIR4TB.
 parallel_quality182_assessment.json / parallel_quality183_validation_plan.json.
 run_cases.py now records --durations yes for resumable completed case evidence;
 helper change occurred only after broad182terminal; no production decisions changed.
@@ -78,7 +81,7 @@ No perf/GDB campaign. Serial117cases passed; MPI6 qualification remains pending.
 multiple commits/rank, one final round reservation, zero private tracked
 collectives, q/J churn conservation and cached-vs-recomputed field counts.
 
-Next: build/verify183, focused serial plus affected MPI6 continuation
+Next: finish/verify frozen183, focused serial plus affected MPI6 continuation
 (parallel_quality183_validation_plan.json), then immediately full TWO-event AFTER
 from the exact saved CFD seed. Do not edit C++/helpers/tests while a build/check
 handle is live. Both agents DONE/read-only reviews; no independent heavy jobs.
