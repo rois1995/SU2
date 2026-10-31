@@ -4775,7 +4775,24 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         private_deadline=true;private_failure.Set(1,0,"Native3D private repair round exhausts elapsed-time budget.");break;
       }
       bool evaluated=false;private_repair=true;
-      try {evaluated=evaluate_candidate();}catch(const std::exception& e){result.reason=e.what();}
+      try {
+        evaluated=evaluate_candidate();
+        if(evaluated) {
+          // Coverage has variable piece/limb storage; the per-cell reserve cannot bound retained overlays.
+          size_t retained_coverage=0;
+          auto admit_coverage=[&]() {
+            const auto live=transfer_memory::Add(BoundaryCoverageBytes(old.coverage),BoundaryCoverageBytes(fresh.coverage));
+            if(live==SIZE_MAX||live<retained_coverage)throw std::length_error("Native3D retained repair coverage exceeds storage admission.");
+            batch_bytes=transfer_memory::Add(batch_bytes,live-retained_coverage);retained_coverage=live;
+            return admit(private_scratch);
+          };
+          evaluated=admit_coverage();
+          if(evaluated&&approved&&geometry.Mapped()) {
+            geometry.ExportParameters(old);evaluated=admit_coverage();
+            if(evaluated){geometry.ExportParameters(fresh);evaluated=admit_coverage();}
+          }
+        }
+      }catch(const std::exception& e){result.reason=e.what();evaluated=false;}
       private_repair=false;private_work_used+=repair_work;
       if(!evaluated){private_failure.Set(2,0,result.reason);break;}
       try {
@@ -5118,7 +5135,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           for(auto& proposal:repair_proposals) {
             if(proposal.approved) {
               if(geometry.Mapped()) {
-                geometry.ExportParameters(proposal.old);geometry.ExportParameters(proposal.fresh);
                 auto edits=BoundaryParameterState::Changes(proposal.old,proposal.fresh,geometry.Parameters()->Revision());
                 parameter_edits.insert(parameter_edits.end(),edits.begin(),edits.end());
               }

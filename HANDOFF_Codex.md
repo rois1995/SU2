@@ -23,7 +23,15 @@ target SPEED: per-slot synchronization, widening required-debt spread, and cache
 preparation. Rank4low netq-bad yield also requires requested repair-power counters;
 baseline lacks the new counters, so do not retrospectively invent them.
 
-ONE connected milestone IMPLEMENTED, preparing build180/focused validation.
+ONE connected milestone IMPLEMENTED; build180 TERMINAL PASS, exec9648exit0,
+2046.261s/all1296pins unchanged/up-to-date. Host Python3521908/Ninja3521921
+independently ABSENT before edit; build180_terminal_verification.json. It has not
+been qualified. Pre-validation source review confirmed variable coverage pieces/
+limbs are not bounded by static16KiB/cell; exact cumulative coverage is now
+admitted locally before retention and between approved parameter exports. This
+is a required memory-contract correction within the SAME connected cycle.
+Build181 next, same planned focused serial/ONE MPI6 milestone, then full TWO-event
+M6 AFTER. All original constructors/operators/gates remain unchanged.
 No new qualified binary yet; zero accepted meshes. Separate zero-clean quality
 partition constraint, debt-directed local ceilings, MemAvailable correction with
 same4GiB cap, and exact changed-support invalidation are connected. Private repair
@@ -47,8 +55,8 @@ No perf/GDB campaign. All new code/tests UNVALIDATED. Focused fixture now checks
 multiple commits/rank, one final round reservation, zero private tracked
 collectives, q/J churn conservation and cached-vs-recomputed field counts.
 
-Next: freeze this source for build180, focused serial plus ONE MPI6 milestone
-(parallel_quality180_validation_plan.json), then immediately full TWO-event AFTER
+Next: build/verify181, focused serial plus ONE MPI6 milestone
+(parallel_quality181_validation_plan.json), then immediately full TWO-event AFTER
 from the exact saved CFD seed. Do not edit C++/helpers/tests while a build/check
 handle is live. Both agents DONE/read-only reviews; no independent heavy jobs.
 
@@ -241,7 +249,7 @@ run_m6_seed.py and a bounded read-only counter/API survey. Current source-review
 decisions (batch clearance and genuine current-field sampling) are in the parallel
 repair plan; baseline terminal prerequisites satisfied. Agents implemented only assigned
 partition/cache files after terminal audit; both DONE, no independent heavy jobs.
-Primary owns Engine/distributed integration and source review; build180 next.
+Primary owns Engine/distributed integration and source review; build181 next.
 Both agents also completed bounded local-metric API/test work and read-only review;
 no independent heavy jobs. Full private round/publication and passive counters are written; validation next. Primary owns
 integrated acceptance. No permission pending.

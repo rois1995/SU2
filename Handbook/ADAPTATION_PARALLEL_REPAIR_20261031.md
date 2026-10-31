@@ -6,7 +6,12 @@ stop; all10handles independently ABSENT/1401pins unchanged before C++ edits.
 See BEFORE/terminal_assessment.json and HANDOFF for last complete counts. No mesh
 accepted. Next target speed; repair-power uncertainty is explicit.
 
-Status: connected implementation is written, preparing build180 validation.
+Status: build180 compiled with all1296pins verified; a pre-validation source review
+found unbounded retained coverage beyond the fixed per-cell allowance. Exact
+cumulative coverage is now admitted locally between exports and before retaining
+each proposal; approved parameter exports occur before retention against the
+unchanged round state. Build181 will qualify this correction with the same planned
+serial/ONE MPI6 milestone. No new M6 run has started.
 All strict gates/targets and completion obligations remain unchanged. No passing
 new build/check or M6 acceptance yet. Current entrypoint/HANDOFF is authoritative;
 the incremental source checkpoints below describe now-completed intermediate work.
