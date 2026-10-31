@@ -1,0 +1,67 @@
+{
+  "time": 1793490380.9399266,
+  "scope": "Passive frozen-run resource observation after completewindow17; sampled summedRSS is not physical memory or true job peak.",
+  "latest": {
+    "elapsed_seconds": 5027.235575199127,
+    "processes": [
+      {
+        "pid": 627534,
+        "rss_bytes": 745472,
+        "name": "time"
+      },
+      {
+        "pid": 627535,
+        "rss_bytes": 663552,
+        "name": "timeout"
+      },
+      {
+        "pid": 627536,
+        "rss_bytes": 22130688,
+        "name": "mpirun"
+      },
+      {
+        "pid": 627552,
+        "rss_bytes": 1540218880,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 627551,
+        "rss_bytes": 1600983040,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 627550,
+        "rss_bytes": 1554141184,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 627549,
+        "rss_bytes": 1596784640,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 627548,
+        "rss_bytes": 1579036672,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 627547,
+        "rss_bytes": 1562267648,
+        "name": "SU2_CFD"
+      }
+    ],
+    "sampled_process_tree_rss_bytes": 9456971776
+  },
+  "largest_sampled_tree_rss_bytes": 14913757184,
+  "load": [
+    8.87,
+    8.33,
+    8.18
+  ],
+  "mem_available": "MemAvailable:   31013448 kB",
+  "pressure": {
+    "cpu": "some avg10=7.31 avg60=7.55 avg300=7.29 total=42582739007\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+    "memory": "some avg10=0.00 avg60=0.00 avg300=0.00 total=768417106\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=474922914\n",
+    "io": "some avg10=0.69 avg60=1.00 avg300=0.92 total=32861185997\nfull avg10=0.12 avg60=0.03 avg300=0.01 total=19283976681\n"
+  }
+}
