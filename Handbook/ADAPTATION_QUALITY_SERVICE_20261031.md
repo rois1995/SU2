@@ -93,3 +93,9 @@ checks. Actual mapped-library audit adds17late-loaded hwloc dependencies absent
 from helper preflight; mapped device/inode and file metadata predating campaign
 start are checked, hashes recorded, terminal recheck required. No M6 accepted mesh
 or actual transfer/restart has yet been established.
+
+Connected MPI179PASS212cases/rank in280.579s. Assertion counts in log order
+30816/31348/33848/31291/30821/30584; all1387helper pins unchanged, all10observed
+job/driver handles absent. All17supplemental mapped runtime hashes and file
+metadata unchanged terminal. Source remains frozen/coherent for the immediate full
+M6 retry. Summary: staged57/quality_service179_integration_summary.json.

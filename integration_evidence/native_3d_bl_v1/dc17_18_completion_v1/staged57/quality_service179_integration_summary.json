@@ -1,0 +1,182 @@
+{
+  "scope": "Connected quality-service qualification; not accepted M6 capability",
+  "production_checkpoint": "c132020654",
+  "test_contract_checkpoint": "a0e5e3bec7",
+  "build": {
+    "time": 1793425749.9549172,
+    "handles": [
+      {
+        "pid": 2664825,
+        "absent": true
+      },
+      {
+        "pid": 2664826,
+        "absent": true
+      },
+      {
+        "pid": 2664827,
+        "absent": true
+      },
+      {
+        "pid": 2664828,
+        "absent": true
+      },
+      {
+        "pid": 2668009,
+        "absent": true
+      },
+      {
+        "pid": 2668539,
+        "absent": true
+      },
+      {
+        "pid": 2668540,
+        "absent": true
+      },
+      {
+        "pid": 2668541,
+        "absent": true
+      },
+      {
+        "pid": 2668542,
+        "absent": true
+      }
+    ],
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 111.22721815109253,
+      "pins_verified": true,
+      "changed": [],
+      "completed_build": true
+    },
+    "binaries": {
+      "integration_evidence/build-integrated-v2/UnitTests/test_driver": "23a85b9b4a9f8689b3f168a8278f60a245c393541e8a095bb87aad1531012c19",
+      "integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD": "e8f81c5a941f6d03fea81c6437e9f4f6d4305044e55e6de4d6a2113bd0116072"
+    },
+    "CFD_identical178": true
+  },
+  "serial": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_service179_serial_20261031T054913_2670062",
+    "receipt": {
+      "time": 1793425808.8290627,
+      "handles": [
+        {
+          "pid": 2670221,
+          "absent": true
+        },
+        {
+          "pid": 2670222,
+          "absent": true
+        },
+        {
+          "pid": 2670223,
+          "absent": true
+        },
+        {
+          "pid": 2670224,
+          "absent": true
+        }
+      ],
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 8.052470922470093,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 38506496,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "pins": 1386,
+      "cases": 29,
+      "assertions": 8169
+    }
+  },
+  "mpi": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/quality_service179_mpi6_20261031T055011_2672441",
+    "receipt": {
+      "time": 1793426145.5866213,
+      "handles": [
+        {
+          "pid": 2672441,
+          "absent": true
+        },
+        {
+          "pid": 2672570,
+          "absent": true
+        },
+        {
+          "pid": 2672572,
+          "absent": true
+        },
+        {
+          "pid": 2672573,
+          "absent": true
+        },
+        {
+          "pid": 2672577,
+          "absent": true
+        },
+        {
+          "pid": 2672578,
+          "absent": true
+        },
+        {
+          "pid": 2672579,
+          "absent": true
+        },
+        {
+          "pid": 2672580,
+          "absent": true
+        },
+        {
+          "pid": 2672581,
+          "absent": true
+        },
+        {
+          "pid": 2672582,
+          "absent": true
+        }
+      ],
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 280.5790579319,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 74444800,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "pins": 1387,
+      "supplemental_files": 17,
+      "supplemental_changed": [],
+      "rank_success_counts_in_log_order": [
+        {
+          "assertions": 30816,
+          "cases": 212
+        },
+        {
+          "assertions": 31348,
+          "cases": 212
+        },
+        {
+          "assertions": 33848,
+          "cases": 212
+        },
+        {
+          "assertions": 31291,
+          "cases": 212
+        },
+        {
+          "assertions": 30821,
+          "cases": 212
+        },
+        {
+          "assertions": 30584,
+          "cases": 212
+        }
+      ]
+    }
+  },
+  "next": "Immediate full M6 Euler50k two-event workflow, actual conservative admissible transfer, isolated adapted disk restart, then BL/MPI and RANS500k"
+}
