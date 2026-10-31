@@ -1,173 +1,140 @@
 # Native adaptation — current handoff
 
-Updated2026-10-31. Full explicit goal ACTIVE: strictly accepted ONERA M6 Euler
-CFD→mesh→CFD→mesh at50k metric complexity, conservative admissible actual transfer
-and usable isolated adapted disk restart; then dedicated BL/constraint/MPI
-qualification and corresponding RANS500k workflow. Actual point/cell counts are
-separate from complexity. Strict geometry1e-4,q>=.2,J>=.05,maxedge1.8and requested
-heights. Construction keeps exact positive/nondegenerate/topology/body/features/
-height validity and intentionally omits q/J; CAD remains optional.
+Updated 2026-10-31. Full goal ACTIVE: strictly accepted ONERA M6 Euler
+CFD → mesh → CFD → mesh at 50k metric complexity, conservative admissible actual
+transfer and usable adapted disk restart; then dedicated BL/constraint/MPI
+qualification and the corresponding RANS500k workflow. Report actual points/cells
+separately from complexity. Strict geometry1e-4, q>=.2, J>=.05, maxedge1.8 and
+requested heights. Construction keeps exact positive/nondegenerate/topology/body/
+feature/height validity and intentionally omits q/J. CAD remains optional.
 
 ## Authoritative current live state
 
-**Build175 M6 Euler50k TERMINAL, unsuccessful**:
-`staged57/m6_runs/euler_build175_bounded_guidance50k`.
-First native event naturally rejected for elapsed-time budget on all six ranks,
-complete=0/final=0, before the authorized launcher stop prevented an unchanged
-retry. No accepted mesh, actual transfer or adapted restart. All ten exact owned
-handles independently verified absent on host /proc; all1396 pins unchanged.
 **Full M6 Euler50k two-event retry RUNNING**, exec16090:
 `staged57/m6_runs/euler_build179_quality_service50k`.
-Driver2685167,time2685263,timeout2685264,mpirun2685265,ranks2685269–2685274.
-Exact10identities/startticks in startup_verification.json;1396pins independently
-verified and all81actually mapped libraries covered. Config/geometry authority
-byte-identical175. Initial restart SHAee7ae469... is byte-identical175,61330points;
-all6initial partition counts/metric/geometry workload fields identical175.
-See initial_field_partition_assessment.json; this is NOT adapted transfer/restart.
-Latest observed coarsening in progress; no native rejection, treeRSS~4.7GiB.
-C++/binary/helpers/config/inputs FROZEN until terminal or
-preserved authorized stop. One heavy job,nice19,libs1,MPI6,native5400s/event,
-outer14400s,two actual accepted events required.
+Driver2685167, time2685263, timeout2685264, mpirun2685265, ranks2685269–2685274.
+Exact ten identities/startticks in startup_verification.json. All ten verified live
+on host /proc at the latest observation. All1396source/build/runtime/input pins
+independently verified at startup and completed coarsening; all81actually mapped
+libraries covered. C++/binary/helpers/config/inputs FROZEN until terminal or a
+preserved authorized stop. One heavy job, nice19, libs1, MPI6, native5400s/event,
+outer14400s. Two ACTUALLY accepted events are required.
+
+Qualified checkpoint6ea65d9141; productionc132020654, test contractsa0e5e3bec7.
 CFD SHAe8f81c5a941f6d03fea81c6437e9f4f6d4305044e55e6de4d6a2113bd0116072.
+Config SHA5b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1,
+authority18/SHA2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de;
+both byte-identical175. Initial61330points/303359cells; initial restart SHA
+ee7ae4690ee4c890104ac1876e4eed85354e6014233e10733862dbc6c2f1d45f is identical175.
+All six initial partition cell/metric/geometry workload fields match175.
+`initial_field_partition_assessment.json` is initial-field provenance, NOT adapted
+transfer/restart evidence.
 
-Quality-service milestone QUALIFIED in6ea65d9141 (supporting evidence only).
-Productionc132020654/testsa0e5e3bec7. Build179PASS111.227s/1296pins/all9handles
-absent; CFD identical178. Serial29cases/8169assertions PASS8.052s/1386pins/
-all4handles absent. MPI6PASS212cases/rank,280.579s/1387pins/all10handles absent;
-assertions in log order30816/31348/33848/31291/30821/30584.17late-loaded MPI-test
-hwloc dependencies additionally verified and pinned through terminal; M6startup
-has no missing mapped libraries. Summary staged57/quality_service179_integration_summary.json.
-Failed178serial27/29and corrected contracts preserved; no gates changed.
+## Current progress and qualification
 
-Terminal receipts: `terminal_assessment.json`, `terminal_handles.json`,
-`event1_time_budget_stop_receipt.json` under the175run directory.
+Coarsening complete:312.050native seconds vs175315.301. All six ranks match175
+counts, size/geometry debts, query/cache work and prepared limits exactly:
+292744private cells,2582collapses,68372size-bad/3541geometry-bad cells;
+uppercalls14578/work273877600. q/J remain intentionally unmeasured.
+Prepared limit396836704bytes/rank matches175. No accepted mesh yet.
+Current phase: splitting, first surface lane completed and interior lane entered.
+Latest observation: treeRSS~5.6GiB, ~26.9GiB host available; sampled summed RSS is
+not physical memory or a whole-job peak. Resources/owned_observations retained.
+See179run/coarsen_assessment.json. Timings are observations, not isolated benchmarks.
 
-Previous qualified baseline checkpoint924f531ac3; bounded-guidance candidate3747bdd26f.
-Build175PASS588.881s/1296pins/all sampled build handles absent; serial51cases/
-3885assertions PASS46.257s/1388pins/all4handles absent; MPI6 204cases/rank PASS
-278.518s/1387pins/all9handles absent. Supporting qualification, not capability.
-Summary `staged57/bounded_guidance175_integration_summary.json`.
-CFD SHA45f176a7b09c60ff8497d7a5ea976fc504df13947f4fb3ae489f0c5468ff06f4.
-ConfigSHA5b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1,
-byte-identical174; authority18/SHA2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de.
-Initial61330points/303359cells and restart00000byte-identical174:
-ee7ae4690ee4c890104ac1876e4eed85354e6014233e10733862dbc6c2f1d45f.
-That initial restart is NOT adapted transfer/restart evidence.
+Quality-service179 qualification: build PASS111.227s/1296pins/all9handles absent;
+CFD identical178. Serial29cases/8169assertions PASS8.052s/1386pins/all4handles
+absent. MPI6PASS212cases/rank,280.579s/1387pins/all10handles absent; assertion
+counts in log order30816/31348/33848/31291/30821/30584.17late-loaded MPI-test
+hwloc libraries additionally verified by mapped device/inode, pre-campaign file
+metadata and terminal hashes. Actual M6 startup has no missing mapped libraries.
+`staged57/quality_service179_integration_summary.json` links complete receipts.
+These checks support the full target; they do not establish M6 or BL capability.
 
-## Actual progress and comparison
+Connected change: one oldest-demand slot then cached required-debt priority;
+bounded independent full-star repair batches; explicit distributed reservation
+priority; per-slot current geometry/metric publication and private context; one
+combined changed-frontier measurement and blocked-star invalidation before next
+selection. Large coordinate stars, all gates and transient admission preserved.
+Failed serial17827/29 is preserved. Two stale first-layer assertions were corrected:
+zero construction shape screens; private metric bootstrap may fill sensor tensors
+while preserving exact mesh attributes. New tensor/mesh/height/input checks pass.
+Build176compile failure and177/178build evidence are preserved. No production gate
+changed. Source design/review and detailed history are linked below.
 
-Coarsen315.301native seconds vs174312.718:292744cells/2582collapses; ALL counts,
-size/geometry debts, uppercalls14578/work273877600 and cache live/miss/eviction
-counts identical. Initial reported hostquota4GiB/rank715827882before rounding
-vs1742673639424/rank445606570; effective preparedpool396836704bytes/rank is
-IDENTICAL after whole-facet rounding. Do not infer a retention difference from
-initial quota labels. CPUservice~.94/core, observed timings not isolated benchmark.
+## Next actions and acceptance
 
-ALL21split generations match174counts and size/geometry debts exactly. Size closes
-986.182s(vs982.303),720958cells,maxedge1.7999928684783673. Quality entry1021.402s
-(vs1020.205): all720958measured/allcompleteflags1,52432q-bad/53564J-bad/
-3293geometry-bad/size0; qDebt8090.270020728689,JDebt14220.795466165202,
-total22311.06548689389. ALL global entry totals match174. Quality ownership
-actually moved360022cells once/13.950s, all staged flags preserved; no CFD projection.
+1. Let179continue frozen generously to its outcome unless preserved evidence
+   establishes an actual error/resource/clear computational stop. Verify exact
+   owned handles on escalated host /proc; sandbox namespaces can hide live PIDs.
+   Stale logs or an observation timeout do not establish termination.
+2. Preserve complete split generations, quality-entry census and complete quality
+   windows. Compare counts/debt and geometry work at matching stages. Batch rounds
+   now serve multiple stars, so window number alone is not equivalent work.
+   Judge whole-field debt reduction per second; nested geometry/smoothing/MPI
+   timings overlap. No new baseline campaign or unrelated implementation cycle.
+3. On failure, preserve primary outcome and raw six-rank rows before any authorized
+   owned-only stop. If necessary stop only verified launcher2685265 to prevent an
+   unchanged retry after first-event failure. Verify ALL ten terminal and all pins
+   before any pinned C++/helper edits. Then one connected fix, qualify, retry M6.
+4. Require TWO actual accepted events, published mesh/native_ref pairs, conservative
+   admissible transfer and finite continued CFD. Inspect raw per-field residuals
+   (double gate1e-10), final admissibility and integral changes. Review175run/
+   transfer_restart_acceptance_source_review.md: source preparation is not actual
+   transfer evidence. Post-CFD integrals include flow evolution.
+5. After full workflow terminal, isolated COPY final accepted mesh/native_ref and
+   matching solution, pin everything. Check header, point count/order/coordinates,
+   finite rho/momentum/energy and positive internal energy, then ACTUAL CFD
+   continuation with RESTART_SOL=YES, ADAP_LOOP=NO, correct SOLUTION_FILENAME and
+   distinct RESTART_FILENAME/output. Initial restart00000 does not qualify.
+6. Then dedicated curved/junction/interface/subsequent-operation/redistribution/
+   requested-height BL qualification under MPI, implement demonstrated BL needs,
+   and complete RANS500k. No Euler/RANS reconstruction switches.
 
-First3complete quality windows reproduce174counts/debts in691.041quality seconds
-versus1144.000. Firstwindow alone208.555vs356.392s, same1.246664%whole q/J debt
-fall. PRIVATE boundary3515stars/6248candidates/1597guidance/229moves/14.248debt
-identical; unioncalls6957vs13708,882earlyrejections/10054evaluatedfaces,
-202.517sumseconds vs365.896. Interior331stars/2186candidates/282moves/9.221debt/
-.503s. Negative-star reuse0: no measured benefit from that cache. Private work can
-be rejected by the outer transaction; don't equate it to whole-field progress.
+## Preserved failure and open correctness obligations
 
-Latest preserved complete window32: native5312.346361s,
-quality4290.944404s; q/Jdebt16512.529724794,
-25.989506%fall/1.351343debt/s.
-751803private cells,46537q-bad/45853J-bad/
-2521geometry-bad/size0, allmeasured/all4completeflags1.
-Last interval debt/s1.546179. Native event maximum5403.267s; quality4316.156s,
-2048quality rounds and11986local progress commits. Exit census is PARTIAL:
-95unmeasured cells. These are not accepted final counts.
-No accepted event/mesh/actual transfer/adapted restart.
-Sampled treeRSS8.51GiB, peak summed tree12.922GiB,~24GiBavailable; not physical
-memory or an individual peak. Resource/CPU/paging receipts retained in175run.
+175TERMINAL: first event naturally time_budget on all six before authorized
+launcher stop; all ten absent and1396pins unchanged. No accepted mesh/transfer/
+adapted restart. Last COMPLETE window32:751803cells,46537q-bad/45853J-bad/
+2521geometry-bad/size0; q/Jdebt16512.529724794,25.9895%fall in4290.944quality
+seconds. Exit had95unmeasured cells and is PARTIAL. Primary failure is quality/
+geometry closure within budget. Receipts:175run/terminal_assessment.json,
+terminal_handles.json,event1_time_budget_stop_receipt.json.175reduced geometry
+cost (first three windows691vs1741144s) but did not deliver an accepted mesh.
+Older174supervised bottleneck stop and166natural time-budget rejection remain
+archived; do not confuse their handles with179.
 
-One bounded2s49Hz profile526samples/0lost: inclusiveAllreduce74.37%,surfaceunion
-11.82%,guidance7.35%,boundarysmooth5.85%. Shares overlap; NOT phase totals or pure
-protocol costs. Active fitting/exact geometry plus waiting, not all-rank deadlock.
-Initial inline report timed out45s with DWARF errors; no-inline self/inclusive
-reports passed<.3s. This is a diagnostic failure, not CFD failure. Capture/report
-CPU overhead is a timing limitation; raw perf stays LOCALONLY. Corrected default
-no-inline script extraction classifies33smoothing-guidance samples:13old complete
-score,20fresh candidate;13other/unresolved guidance samples. Small instant only,
-not phase-wide proportions. Both paths remain active; no next fix inferred. Profile context,
-assessment and text reports saved; do not repeat a baseline campaign.
+Numerical frozen-field risk OPEN: current-nodal transport changes the spatial P1
+representation after topology edits; identity alone does not prove an immutable
+numerical target. Quantify/resolve before claiming that semantics. Original CFD
+conservative donors are separate. ITER1 is endorsed functional startup, not a
+flow-converged aerodynamic qualification. Resumed adaptation can collide with
+numbered restart paths; rejected events consume cycles. Isolated disk restart
+does not claim general adaptation-resume numbering fixed.
 
-Checkpointf136c64f1f contains four-window trend, bounded profile and compact handoff;
-c730d9f8ed contains the pinned-source transfer/restart acceptance review.
-All detailed current design, failures and previous qualification are linked below.
-
-## Immediate actions and acceptance
-
-1. Let full179M6 attempt continue frozen to its outcome unless preserved evidence
-   establishes an authorized error/resource/clear computational stop. Verify exact
-   host /proc identities; stale logs/observation timeout are not termination.
-2. Preserve complete source/binary/runtime/input and resource receipts. Compare
-   complete matching entry
-   census, actual geometry work and whole-debt reduction per second, not window
-   number alone (a batch round now serves multiple independent stars).
-3. Preserve any demonstrated failure before authorized owned-only stop/fix/retry.
-   One connected implementation/validation cycle; no unrelated changes or fresh
-   baseline campaign. See [active quality-service design](Handbook/ADAPTATION_QUALITY_SERVICE_20261031.md).
-4. TWO actually accepted events, published mesh/native_ref pairs, conservative
-   admissible transfer and finite continued CFD are required. Inspect actual raw
-   per-field residuals (double gate1e-10), final admissibility and integral changes.
-   Review175run/transfer_restart_acceptance_source_review.md; it is preparation,
-   not transfer evidence. Post-CFD integral changes include flow evolution.
-5. After full workflow terminal: isolated COPY of accepted final mesh/native_ref/
-   matching solution; pin all. Verify header, point count/order/coordinates, finite
-   rho/momentum/energy and positive internal energy, then ACTUAL CFD continuation
-   RESTART_SOL=YES,ADAP_LOOP=NO,correct steady SOLUTION_FILENAME and distinct
-   RESTART_FILENAME/output basename. Initialrestart00000does not qualify.
-6. Then dedicated curved/junction/interface/subsequent-op/redistribution/requested-
-   height BL qualification under MPI, implement demonstrated BL needs, and RANS500k.
-
-## Preserved outcomes and correctness risks
-
-Previous174TERMINAL supervised computational-bottleneck stop after3completequality
-windows: only3.565949%debt fall in1144quality seconds, rank3upper789/1144s. All10
-handles absent/1396pins unchanged; primary outcome NOT native timeout. Its full
-receipts remain under euler_build174_geometry_reuse50k. Earlier166TERMINAL first-
-event time_budget onall6ranks before authorized launcher stop; no accepted mesh.
-175must not be confused with those historical handles or build numbers.
-
-Numerical frozen-field risk OPEN: current-nodal tensor transport changes spatial
-P1 representation after topology edits; identity preservation alone does not prove
-an immutable numerical target. Quantify/resolve required semantics before such a
-claim. Original conservative CFD donors are separate. InitialCFDITER1is endorsed
-functional startup field, not flow-converged M6 accuracy. Resumed loop can collide
-with numbered restart paths; rejected events consume cycles. Isolated restart
-avoids collisions but does not claim general adaptation-resume numbering fixed.
-
-Overbroad serial_full170was NOT passing; out-of-contract source-envelope/count/
-timer expectations remain backlog. Removed convex-only172fallback and173diagnostic
-sources/failures are archived.174overlap-conditioned plane lift passed fixed1Mcap;
-175preserves it and all latest validity-first construction/whole-patch merit work.
+Overbroad serial_full170 was NOT passing; out-of-contract source-envelope/count/
+timer assertions remain backlog. Qualified filters are not the whole repository
+suite. Removed172convex fallback and173fragmentation hypothesis remain historical.
+174prepared-subtree/overlap-lift and175bounded-guidance construction improvements
+are preserved in179.
 
 ## Design and operating links
 
-ReadAGENTS.md and [complete integration task](Handbook/ADAPTATION_INTEGRATED_NEXT_TASK.md).
-[Active geometry/smoothing design and evidence](Handbook/ADAPTATION_GEOMETRY_QUERY_REUSE_20261031.md)
-contains latest user instructions verbatim, full174/175changes, proofs and failures.
-[Findings assessment](Handbook/ADAPTATION_FINDINGS_ASSESSMENT_20261031.md),
+Read [AGENTS](AGENTS.md), [complete integration task](Handbook/ADAPTATION_INTEGRATED_NEXT_TASK.md),
+[active quality-service design/evidence](Handbook/ADAPTATION_QUALITY_SERVICE_20261031.md),
+[geometry/smoothing design and evidence](Handbook/ADAPTATION_GEOMETRY_QUERY_REUSE_20261031.md),
+[findings assessment](Handbook/ADAPTATION_FINDINGS_ASSESSMENT_20261031.md),
 [quality history](Handbook/ADAPTATION_QUALITY_CLOSURE_20261030.md),
 [cache/phase ownership design](Handbook/ADAPTATION_CACHE_PHASE_20261030.md),
 [backlog](Handbook/ADAPTATION_BACKLOG.md). Historical live notes do not override here.
+All staged57 paths above are under integration_evidence/native_3d_bl_v1/
+dc17_18_completion_v1/. Previous175qualification is linked in the geometry handbook.
 
-One heavy job,nice19,build2–4workers(helper3),MPI6bounded,libs1,TMPDIR4TBcompile-tmp.
-Reuse evidence only with relevant source/build/binary/runtime/config/input/helper
-provenance. Forkpushes authorized:https://github.com/rois1995/SU2.git,
-branchcodex/native-3d-bl. Use git -c gc.auto=0 -c submodule.recurse=false and
---ignore-submodules=all due unrelated broken Eigen worktree. AutoGC once competed
-with174startup and was verified/stopped; do not trigger it again. Whitelist adds;
-never sweep unrelated dirty155logs, binaries, meshes, restarts or rawperf. Escalated
-host/git tools authorized; no permission pending. Efficient bounded ownership_survey
-agent is DONE, no jobs/edits; primary owns integrated design and acceptance.
+One owned heavy job, nice19, build2–4workers(helper3), MPI6 bounded, libs1,
+TMPDIR4TBcompile-tmp. Preserve actual source/build/binary/runtime/config/input/helper
+provenance. Fork pushes authorized: https://github.com/rois1995/SU2.git,
+branch codex/native-3d-bl. Use git -c gc.auto=0 -c submodule.recurse=false and
+--ignore-submodules=all due unrelated broken Eigen worktree. Whitelist adds;
+leave unrelated155logs/binaries/meshes/restarts/rawperf untouched. Efficient
+ownership_survey/quality_queue_survey agents are DONE, no jobs/edits; primary owns
+integrated acceptance. No permission pending.

@@ -99,3 +99,58 @@ Connected MPI179PASS212cases/rank in280.579s. Assertion counts in log order
 job/driver handles absent. All17supplemental mapped runtime hashes and file
 metadata unchanged terminal. Source remains frozen/coherent for the immediate full
 M6 retry. Summary: staged57/quality_service179_integration_summary.json.
+
+## Historical build175 comparison details
+
+These are preserved baseline175 measurements, not current179 live state.
+
+
+Coarsen315.301native seconds vs174312.718:292744cells/2582collapses; ALL counts,
+size/geometry debts, uppercalls14578/work273877600 and cache live/miss/eviction
+counts identical. Initial reported hostquota4GiB/rank715827882before rounding
+vs1742673639424/rank445606570; effective preparedpool396836704bytes/rank is
+IDENTICAL after whole-facet rounding. Do not infer a retention difference from
+initial quota labels. CPUservice~.94/core, observed timings not isolated benchmark.
+
+ALL21split generations match174counts and size/geometry debts exactly. Size closes
+986.182s(vs982.303),720958cells,maxedge1.7999928684783673. Quality entry1021.402s
+(vs1020.205): all720958measured/allcompleteflags1,52432q-bad/53564J-bad/
+3293geometry-bad/size0; qDebt8090.270020728689,JDebt14220.795466165202,
+total22311.06548689389. ALL global entry totals match174. Quality ownership
+actually moved360022cells once/13.950s, all staged flags preserved; no CFD projection.
+
+First3complete quality windows reproduce174counts/debts in691.041quality seconds
+versus1144.000. Firstwindow alone208.555vs356.392s, same1.246664%whole q/J debt
+fall. PRIVATE boundary3515stars/6248candidates/1597guidance/229moves/14.248debt
+identical; unioncalls6957vs13708,882earlyrejections/10054evaluatedfaces,
+202.517sumseconds vs365.896. Interior331stars/2186candidates/282moves/9.221debt/
+.503s. Negative-star reuse0: no measured benefit from that cache. Private work can
+be rejected by the outer transaction; don't equate it to whole-field progress.
+
+Latest preserved complete window32: native5312.346361s,
+quality4290.944404s; q/Jdebt16512.529724794,
+25.989506%fall/1.351343debt/s.
+751803private cells,46537q-bad/45853J-bad/
+2521geometry-bad/size0, allmeasured/all4completeflags1.
+Last interval debt/s1.546179. Native event maximum5403.267s; quality4316.156s,
+2048quality rounds and11986local progress commits. Exit census is PARTIAL:
+95unmeasured cells. These are not accepted final counts.
+No accepted event/mesh/actual transfer/adapted restart.
+Sampled treeRSS8.51GiB, peak summed tree12.922GiB,~24GiBavailable; not physical
+memory or an individual peak. Resource/CPU/paging receipts retained in175run.
+
+One bounded2s49Hz profile526samples/0lost: inclusiveAllreduce74.37%,surfaceunion
+11.82%,guidance7.35%,boundarysmooth5.85%. Shares overlap; NOT phase totals or pure
+protocol costs. Active fitting/exact geometry plus waiting, not all-rank deadlock.
+Initial inline report timed out45s with DWARF errors; no-inline self/inclusive
+reports passed<.3s. This is a diagnostic failure, not CFD failure. Capture/report
+CPU overhead is a timing limitation; raw perf stays LOCALONLY. Corrected default
+no-inline script extraction classifies33smoothing-guidance samples:13old complete
+score,20fresh candidate;13other/unresolved guidance samples. Small instant only,
+not phase-wide proportions. Both paths remain active; no next fix inferred. Profile context,
+assessment and text reports saved; do not repeat a baseline campaign.
+
+Checkpointf136c64f1f contains four-window trend, bounded profile and compact handoff;
+c730d9f8ed contains the pinned-source transfer/restart acceptance review.
+All detailed current design, failures and previous qualification are linked below.
+
