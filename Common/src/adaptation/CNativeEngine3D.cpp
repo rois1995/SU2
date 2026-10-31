@@ -809,7 +809,13 @@ struct HeightPolicyRow {
   int marker=0;double height=0,growth=0,thickness=0;
   template<class S>void Fields(S& s){s(marker,height,growth,thickness);}
 };
-struct OptimizationOperations {uint64_t moves=0,insertions=0,collapses=0,swaps=0;};
+struct OptimizationOperations {
+  uint64_t moves=0,insertions=0,collapses=0,swaps=0;
+  uint64_t boundary_stars=0,boundary_reused=0,boundary_candidates=0,boundary_validity=0,boundary_shape=0,boundary_edge=0,boundary_geometry=0;
+  uint64_t boundary_guidance=0,boundary_upper=0,boundary_moves=0;long double boundary_debt=0;double boundary_seconds=0;
+  uint64_t interior_stars=0,interior_reused=0,interior_candidates=0,interior_validity=0,interior_shape=0,interior_edge=0,interior_geometry=0;
+  uint64_t interior_guidance=0,interior_upper=0,interior_moves=0;long double interior_debt=0;double interior_seconds=0;
+};
 bool OptimizedRepairPatch(const Patch& old,Id first,Id first_node,const RegionMetric& target,
                           Patch& fresh,std::string& reason,size_t& work,bool preserve_vertices,
                           const PlanarReference& geometry,const WallHeights& heights,double surface_tolerance,
@@ -825,6 +831,16 @@ bool OptimizedRepairPatch(const Patch& old,Id first,Id first_node,const RegionMe
   options.geometry=parameters?parameters.get():&geometry;options.wall_heights=heights;options.surface_tolerance=surface_tolerance;
   OptimizeReport report;Id node=first_node,cell=local.size();
   const bool changed=OptimizeMetricMesh(local,target,node,cell,options,report);
+  operations.moves=report.moves;operations.insertions=report.shell_insertions+report.neighbourhood_insertions+report.length_insertions;
+  operations.collapses=report.collapses+report.boundary_collapses;operations.swaps=report.edge_removals+report.face_swaps+report.boundary_flips;
+  operations.boundary_stars=report.boundary_stars_searched;operations.boundary_reused=report.boundary_stars_reused;operations.boundary_candidates=report.boundary_candidates;
+  operations.boundary_validity=report.boundary_rejected_validity;operations.boundary_shape=report.boundary_rejected_shape;operations.boundary_edge=report.boundary_rejected_edge;operations.boundary_geometry=report.boundary_rejected_geometry;
+  operations.boundary_guidance=report.boundary_guidance_calls;operations.boundary_upper=report.boundary_upper_queries;operations.boundary_moves=report.boundary_moves;
+  operations.boundary_debt=report.boundary_debt_reduction;operations.boundary_seconds=report.boundary_seconds;
+  operations.interior_stars=report.interior_stars_searched;operations.interior_reused=report.interior_stars_reused;operations.interior_candidates=report.interior_candidates;
+  operations.interior_validity=report.interior_rejected_validity;operations.interior_shape=report.interior_rejected_shape;operations.interior_edge=report.interior_rejected_edge;operations.interior_geometry=report.interior_rejected_geometry;
+  operations.interior_guidance=report.interior_guidance_calls;operations.interior_upper=report.interior_upper_queries;operations.interior_moves=report.interior_moves;
+  operations.interior_debt=report.interior_debt_reduction;operations.interior_seconds=report.interior_seconds;
   if(report.trials>work)throw std::logic_error("Native repair optimizer exceeded its work reservation.");
   if(node-first_node>report.trials)throw std::logic_error("Native repair optimizer exceeded its node reservation.");
   work=report.trials;
@@ -1225,6 +1241,22 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" scope_attempts="<<g.scope_attempts-geometry_begin.scope_attempts
           <<" scope_builds="<<g.scope_builds-geometry_begin.scope_builds<<" scope_build_work="<<g.scope_build_work-geometry_begin.scope_build_work
           <<" scope_build_seconds="<<g.scope_build_seconds-geometry_begin.scope_build_seconds
+          <<" support_calls="<<g.support_calls-geometry_begin.support_calls<<" support_facets="<<g.support_facets-geometry_begin.support_facets
+          <<" support_seconds="<<g.support_seconds-geometry_begin.support_seconds
+          <<" facet_build_work="<<g.facet_build_work-geometry_begin.facet_build_work<<" facet_build_seconds="<<g.facet_build_seconds-geometry_begin.facet_build_seconds
+          <<" piece_selection_work="<<g.piece_selection_work-geometry_begin.piece_selection_work<<" piece_selection_seconds="<<g.piece_selection_seconds-geometry_begin.piece_selection_seconds
+          <<" traversal_work="<<g.traversal_work-geometry_begin.traversal_work<<" traversal_seconds="<<g.traversal_seconds-geometry_begin.traversal_seconds
+          <<" selected_pieces="<<g.selected_pieces-geometry_begin.selected_pieces<<" support_pieces="<<g.support_pieces-geometry_begin.support_pieces
+          <<" smooth_boundary_stars="<<stats.boundary_smoothing_stars<<" smooth_boundary_reused="<<stats.boundary_smoothing_reused
+          <<" smooth_boundary_candidates="<<stats.boundary_smoothing_candidates<<" smooth_boundary_rejects="<<stats.boundary_smoothing_validity_rejects<<','<<stats.boundary_smoothing_shape_rejects<<','<<stats.boundary_smoothing_edge_rejects<<','<<stats.boundary_smoothing_geometry_rejects
+          <<" smooth_boundary_guidance="<<stats.boundary_smoothing_guidance_calls<<" smooth_boundary_upper_queries="<<stats.boundary_smoothing_upper_queries
+          <<" smooth_boundary_moves="<<stats.boundary_smoothing_moves<<" smooth_boundary_debt_reduction="<<double(stats.boundary_smoothing_debt_reduction)
+          <<" smooth_boundary_seconds="<<stats.boundary_smoothing_seconds
+          <<" smooth_interior_stars="<<stats.interior_smoothing_stars<<" smooth_interior_reused="<<stats.interior_smoothing_reused
+          <<" smooth_interior_candidates="<<stats.interior_smoothing_candidates<<" smooth_interior_rejects="<<stats.interior_smoothing_validity_rejects<<','<<stats.interior_smoothing_shape_rejects<<','<<stats.interior_smoothing_edge_rejects<<','<<stats.interior_smoothing_geometry_rejects
+          <<" smooth_interior_guidance="<<stats.interior_smoothing_guidance_calls<<" smooth_interior_upper_queries="<<stats.interior_smoothing_upper_queries
+          <<" smooth_interior_moves="<<stats.interior_smoothing_moves<<" smooth_interior_debt_reduction="<<double(stats.interior_smoothing_debt_reduction)
+          <<" smooth_interior_seconds="<<stats.interior_smoothing_seconds
           <<" retention_refusals="<<g.retention_refusals-geometry_begin.retention_refusals<<" prepared_bytes="<<g.prepared_bytes<<" prepared_limit="<<g.prepared_limit<<" facet_bytes="<<g.facet_bytes<<" scope_bytes="<<g.scope_bytes
           <<" facet_entries="<<g.facet_entries<<" scope_entries="<<g.scope_entries<<" cache_evictions="<<g.evictions<<" cache_evicted_bytes="<<g.evicted_bytes
           <<" length_splits="<<stats.length_splits<<" length_collapses="<<stats.length_collapses
@@ -2873,7 +2905,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const bool coordinate_stream=world.maximum(coordinate_only);
     const size_t private_scratch=transfer_memory::Add(transfer_memory::Bytes(imported.cells),
         transfer_memory::Mul(std::max(MaximumReplacementCells,imported.cells.size()),8192),MaximumFrozenFieldBytes,MetricPatchSolveScratchBytes,
-        transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)));
+        transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)),
+        transfer_memory::Mul(8*MaximumReplacementCells,64)); // Bounded optimizer rejected-star set.
     // Admit large coordinate-star copies, surfaces, query regions and measurements before GeometryPatch
     // or source-region packing allocates them; the ordinary topology path keeps its existing bound.
     if(coordinate_stream && !admit(private_scratch))return finish();
@@ -3092,6 +3125,18 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       const bool changed=OptimizedRepairPatch(candidate,maximum_cell+1+offset,first_node,target,
                                               fresh,result.reason,used,preserve_vertices,geometry,options.wall_heights,options.surface_tolerance,repair_optimization,remaining);
       repair_work-=reserved-used;
+      stats.boundary_smoothing_stars+=repair_optimization.boundary_stars;stats.boundary_smoothing_reused+=repair_optimization.boundary_reused;
+      stats.boundary_smoothing_candidates+=repair_optimization.boundary_candidates;stats.boundary_smoothing_validity_rejects+=repair_optimization.boundary_validity;
+      stats.boundary_smoothing_shape_rejects+=repair_optimization.boundary_shape;stats.boundary_smoothing_edge_rejects+=repair_optimization.boundary_edge;
+      stats.boundary_smoothing_geometry_rejects+=repair_optimization.boundary_geometry;stats.boundary_smoothing_guidance_calls+=repair_optimization.boundary_guidance;
+      stats.boundary_smoothing_upper_queries+=repair_optimization.boundary_upper;stats.boundary_smoothing_moves+=repair_optimization.boundary_moves;
+      stats.boundary_smoothing_debt_reduction+=repair_optimization.boundary_debt;stats.boundary_smoothing_seconds+=repair_optimization.boundary_seconds;
+      stats.interior_smoothing_stars+=repair_optimization.interior_stars;stats.interior_smoothing_reused+=repair_optimization.interior_reused;
+      stats.interior_smoothing_candidates+=repair_optimization.interior_candidates;stats.interior_smoothing_validity_rejects+=repair_optimization.interior_validity;
+      stats.interior_smoothing_shape_rejects+=repair_optimization.interior_shape;stats.interior_smoothing_edge_rejects+=repair_optimization.interior_edge;
+      stats.interior_smoothing_geometry_rejects+=repair_optimization.interior_geometry;stats.interior_smoothing_guidance_calls+=repair_optimization.interior_guidance;
+      stats.interior_smoothing_upper_queries+=repair_optimization.interior_upper;stats.interior_smoothing_moves+=repair_optimization.interior_moves;
+      stats.interior_smoothing_debt_reduction+=repair_optimization.interior_debt;stats.interior_smoothing_seconds+=repair_optimization.interior_seconds;
       return changed;
     };
     {
@@ -4607,6 +4652,8 @@ class MeshOptimizer {
   std::unordered_map<std::array<double,3>,Tensor,CoordinateHash> tensors;
   std::map<std::array<Id,4>,CellQuality> qualities;  // ordered cell vertex ids (an identity keeps its coordinates)
   std::map<std::array<double,6>,long double> exact;
+  // Target/options are fixed during this optimizer; every commit invalidates all geometry/star context.
+  std::set<Id> rejected_smoothing;
   bool Limited() {
     if(limited)return true;
     if(report.trials>=options.maximum_work)limited=true;
@@ -4775,7 +4822,12 @@ class MeshOptimizer {
     for(const auto& a:added)if(!used.count(a.first))throw std::logic_error("Native3D optimizer lost a created boundary face.");
     if(added.empty())for(const auto& f:oldPhysical)if(!used.count(f))throw std::logic_error("Native3D optimizer lost a physical face binding.");
     if(removed!=UINT64_MAX){const auto s=star.find(removed);if(s!=star.end()&&!s->second.empty())throw std::logic_error("Native3D optimizer removed a used vertex.");star.erase(removed);points.erase(removed);}
-    changed=true;Bound();
+    changed=true;rejected_smoothing.clear();Bound();
+  }
+  void RememberRejectedSmooth(Id p) {
+    if(!options.cache_entries)return;
+    if(rejected_smoothing.size()>=options.cache_entries)rejected_smoothing.clear();
+    rejected_smoothing.insert(p);
   }
   bool EdgeRemoval(Id a,Id b,bool lengthDriven=false);
   bool FaceSwap(const Face& f);
@@ -4925,6 +4977,18 @@ bool MeshOptimizer::Collapse(Id p,Id q) {
 }
 // Physical stars move through their forward geometry bindings; artificial interfaces remain fixed.
 bool MeshOptimizer::SmoothBoundary(Id p) {
+  ++report.boundary_stars_searched;
+  const auto* state=options.geometry?options.geometry->Parameters():nullptr;
+  const auto* query_geometry=state?&state->Geometry():nullptr;
+  const auto query_before=query_geometry?query_geometry->GeometryStatsSnapshot():SU2NativeGeometry::MappedFacetReference::GeometryStats{};
+  struct MeasureScope {
+    OptimizeReport& report;const SU2NativeGeometry::MappedFacetReference* geometry;
+    SU2NativeGeometry::MappedFacetReference::GeometryStats before;Clock::time_point start=Clock::now();
+    ~MeasureScope(){report.boundary_seconds+=std::chrono::duration<double>(Clock::now()-start).count();
+      if(geometry){const auto after=geometry->GeometryStatsSnapshot();report.boundary_upper_queries+=after.upper_calls-before.upper_calls;}}
+  } measure{report,query_geometry,query_before};
+  const auto validity_start=report.boundary_rejected_validity,shape_start=report.boundary_rejected_shape;
+  const auto edge_start=report.boundary_rejected_edge,geometry_start=report.boundary_rejected_geometry;
   if(Limited() || !options.geometry || options.frozen_vertices.count(p))return false;
   const auto found=star.find(p);
   if(found==star.end() || found->second.empty() || found->second.size()>MaximumCavityCells)return false;
@@ -4941,6 +5005,8 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
   const auto& geometry=moved_geometry?*moved_geometry:*options.geometry;
   try{geometry.ExportParameters(patch);}catch(const std::exception&){return false;}
   const bool debt=DebtMode(old,&patch);const auto before=OldMerit(old,debt);const auto origin=points.at(p);
+  auto shape_debt=[&](const std::vector<Cell>& cells){long double sum=0;for(const auto& c:cells){const auto q=Quality(c);if(!q.Valid())return std::numeric_limits<long double>::infinity();sum+=NormalizedShapeHingeDebt(q.q,q.J);}return sum;};
+  const long double old_shape_debt=debt?-before:shape_debt(patch.cells);
   long double geometric_before=0;bool geometry_measured=false;
   std::vector<Point> targets;std::set<Id> neighbors;
   for(const auto& c:patch.cells)for(auto n:c.v)if(n.id!=p)neighbors.insert(n.id);
@@ -4983,22 +5049,51 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
       Point q=origin;if(axis==0)q.x+=sign*step*radius;else if(axis==1)q.y+=sign*step*radius;else q.z+=sign*step*radius;targets.push_back(q);
     }
   }catch(const std::exception&){return false;}
+  auto* atlas_budget=geometry.AtlasReservation();
+  struct CallerByteRestore {SU2NativeGeometry::AtlasBudget* budget;size_t original;~CallerByteRestore(){if(budget)budget->caller_bytes=original;}}
+      caller_restore{atlas_budget,atlas_budget?atlas_budget->caller_bytes:0};
+  std::unique_ptr<PlanarReference> projected_context;
+  const PlanarReference* projected_geometry=&geometry;
+  SU2NativeGeometry::CurvedAtlas prepared_atlas;bool prepared_atlas_ok=false;
+  auto charge_retained_geometry=[&]() {
+    if(!atlas_budget)return false;
+    size_t bytes=caller_restore.original;
+    // One new binding and coordinate-map row can be allocated before the next refresh.
+    if(projected_context)bytes=transfer_memory::Add(bytes,projected_context->ParameterOverlayBytes(),512);
+    if(prepared_atlas_ok)bytes=transfer_memory::Add(bytes,prepared_atlas.ResidentBytes());
+    atlas_budget->caller_bytes=bytes;atlas_budget->peak_bytes=std::max(atlas_budget->peak_bytes,bytes);
+    return bytes<=atlas_budget->maximum_bytes;
+  };
+  if(geometry.Mobility()) {
+    projected_context=geometry.PrivateParameters(patch);
+    if(projected_context)projected_geometry=projected_context.get();
+    if(!charge_retained_geometry()){++report.boundary_rejected_geometry;return false;}
+    if(!projected_geometry->EntityGeometry()) {
+      std::string prepare_reason;
+      if(!atlas_budget || !SU2NativeGeometry::PrepareCurvedAtlas(patch,*projected_geometry,p,prepared_atlas,*atlas_budget,prepare_reason)) {
+        ++report.boundary_rejected_geometry;
+        return false;
+      }
+      prepared_atlas_ok=true;
+      if(!charge_retained_geometry()){++report.boundary_rejected_geometry;return false;}
+    }
+  }
   Patch best;long double best_score=before;
   for(Point target_point:targets) {
-    if(Limited())break;++report.trials;Patch candidate;std::string reason;
+    if(Limited())break;++report.trials;++report.boundary_candidates;Patch candidate;std::string reason;
     if(geometry.Mobility()) {
       // Projection and volume quality precede expensive surface reconstruction; height can only lower this score.
       long double upper=debt?0:INFINITY;
       {
-        auto context=geometry.PrivateParameters(patch);const auto& projected_geometry=context?*context:geometry;
-        auto* budget=projected_geometry.AtlasReservation();SU2NativeGeometry::CurvedAtlas atlas;BoundaryPoint projected;
-        if(projected_geometry.EntityGeometry()) {
+        auto* budget=projected_geometry->AtlasReservation();BoundaryPoint projected;
+        if(projected_geometry->EntityGeometry()) {
           try {std::set<Id> incident;for(const auto& face:patch.surface)if(std::find(face.v.begin(),face.v.end(),p)!=face.v.end())incident.insert(face.facet);
-            projected.node=projected_geometry.BindMovedPoint(p,{next_node,target_point},incident);
-          }catch(const std::exception&){++report.rejected_interface;continue;}
-        } else if(!budget || !SU2NativeGeometry::PrepareCurvedAtlas(patch,projected_geometry,p,atlas,*budget,reason) ||
-            !SU2NativeGeometry::ProposeAtlasBinding(atlas,p,{next_node,target_point},projected,*budget,reason)) {
-          ++report.rejected_interface;continue;
+            projected.node=projected_geometry->BindMovedPoint(p,{next_node,target_point},incident);
+          }catch(const std::exception&){++report.rejected_interface;++report.boundary_rejected_geometry;continue;}
+          if(!charge_retained_geometry()){++report.boundary_rejected_geometry;continue;}
+        } else if(!budget || !prepared_atlas_ok ||
+            !SU2NativeGeometry::ProposeAtlasBinding(prepared_atlas,p,{next_node,target_point},projected,*budget,reason)) {
+          ++report.rejected_interface;++report.boundary_rejected_geometry;continue;
         }
         for(auto cell:patch.cells) {
           for(auto& node:cell.v)if(node.id==p)node=projected.node;
@@ -5007,28 +5102,40 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
           upper=debt?upper-NormalizedShapeHingeDebt(measured.q,measured.J):std::min(upper,static_cast<long double>(measured.Score()));
         }
       }
-      if(!std::isfinite(upper)){++report.rejected_validity;continue;}
-      if(!(Progress(upper,best_score,debt))){++report.rejected_quality;continue;}
+      if(!std::isfinite(upper)){++report.rejected_validity;++report.boundary_rejected_validity;continue;}
+      if(!(Progress(upper,best_score,debt))){++report.rejected_quality;++report.boundary_rejected_shape;continue;}
     }
     // Use the raw proposal again: projecting the realized surface point need not be idempotent.
-    if(!MoveVertex(patch,p,{next_node,target_point},next_cell,geometry,candidate,reason)){++report.rejected_interface;continue;}
+    if(!MoveVertex(patch,p,{next_node,target_point},next_cell,geometry,candidate,reason)){++report.rejected_interface;++report.boundary_rejected_geometry;continue;}
     const auto score=FreshMerit(candidate.cells,debt,false,&candidate);
-    if(!std::isfinite(score)){++report.rejected_validity;continue;}
-    if(!(Progress(score,best_score,debt))){++report.rejected_quality;continue;}
+    if(!std::isfinite(score)){++report.rejected_validity;++report.boundary_rejected_validity;continue;}
+    if(!(Progress(score,best_score,debt))){++report.rejected_quality;++report.boundary_rejected_shape;continue;}
     auto candidate_parameters=geometry.PrivateParameters(candidate);const auto& candidate_geometry=candidate_parameters?*candidate_parameters:geometry;
     FirstHeightReport height;
-    if(GetShapeAdmission()==ShapeAdmission::Absolute && !CheckFirstHeight(candidate,options.wall_heights,candidate_geometry,height,reason)){++report.rejected_frozen;continue;}
+    if(GetShapeAdmission()==ShapeAdmission::Absolute && !CheckFirstHeight(candidate,options.wall_heights,candidate_geometry,height,reason)){++report.rejected_frozen;++report.boundary_rejected_geometry;continue;}
     bool sized=true;
     for(const auto& c:candidate.cells)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)
       if((c.v[i].id==next_node || c.v[j].id==next_node) && !Certified(c.v[i].p,c.v[j].p,MaximumMetricEdge))sized=false;
-    if(!sized){++report.rejected_edge;continue;}
-    if(!geometry_measured){geometric_before=GeometryGuidanceExcess(patch,geometry,options.surface_tolerance);geometry_measured=true;}
+    if(!sized){++report.rejected_edge;++report.boundary_rejected_edge;continue;}
+    if(!geometry_measured){++report.boundary_guidance_calls;geometric_before=GeometryGuidanceExcess(patch,geometry,options.surface_tolerance);geometry_measured=true;}
+    ++report.boundary_guidance_calls;
     const auto after=GeometryGuidanceExcess(candidate,candidate_geometry,options.surface_tolerance);
-    if(!std::isfinite(after)||after>geometric_before){++report.rejected_interface;continue;}
+    if(!std::isfinite(after)||after>geometric_before){++report.rejected_interface;++report.boundary_rejected_geometry;continue;}
     best_score=score;best=std::move(candidate);
     if(debt?best_score>=0:best_score>=1)break;
   }
-  if(best.cells.empty())return false;
+  if(best.cells.empty()) {
+    auto* reservation=geometry.AtlasReservation();
+    if(!Limited() && report.boundary_candidates && report.boundary_rejected_shape>shape_start &&
+        report.boundary_rejected_validity==validity_start && report.boundary_rejected_edge==edge_start &&
+        report.boundary_rejected_geometry==geometry_start &&
+        (!reservation || (!reservation->work_exhausted && reservation->geometry_failure.empty())))RememberRejectedSmooth(p);
+    return false;
+  }
+  prepared_atlas={};projected_context.reset();if(atlas_budget)atlas_budget->caller_bytes=caller_restore.original;
+  const auto debt_reduction=old_shape_debt-(debt?-best_score:shape_debt(best.cells));
+  if(std::isfinite(old_shape_debt)&&std::isfinite(debt_reduction))report.boundary_debt_reduction+=debt_reduction;
+  ++report.boundary_moves;
   std::map<Face,FacetBinding> added;for(const auto& f:best.surface)added.emplace(Key(f.v),FacetBinding{true,f.facet});
   const Id moved=next_node++;Commit(old,best.cells,p,added);
   report.parameters.erase(p);for(const auto& row:best.parameters)report.parameters.insert_or_assign(row.first,row.second);
@@ -5044,12 +5151,32 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
   report.relabel[first]=moved;++report.moves;return true;
 }
 bool MeshOptimizer::Smooth(Id p) {
-  if(fixed.count(p) && !sliding.count(p) && options.geometry)return SmoothBoundary(p);
+  if(fixed.count(p) && !sliding.count(p) && options.geometry) {
+    if(Limited())return false;
+    if(rejected_smoothing.count(p)){++report.trials;++report.boundary_stars_reused;return false;}
+    return SmoothBoundary(p);
+  }
   if(Limited()||!Movable(p))return false;
+  if(rejected_smoothing.count(p)){++report.trials;++report.interior_stars_reused;return false;}
+  ++report.interior_stars_searched;
+  const auto* state=options.geometry?options.geometry->Parameters():nullptr;
+  const auto* query_geometry=state?&state->Geometry():nullptr;
+  const auto query_before=query_geometry?query_geometry->GeometryStatsSnapshot():SU2NativeGeometry::MappedFacetReference::GeometryStats{};
+  struct MeasureScope {
+    OptimizeReport& report;const SU2NativeGeometry::MappedFacetReference* geometry;
+    SU2NativeGeometry::MappedFacetReference::GeometryStats before;Clock::time_point start=Clock::now();
+    ~MeasureScope(){report.interior_seconds+=std::chrono::duration<double>(Clock::now()-start).count();
+      if(geometry){const auto after=geometry->GeometryStatsSnapshot();report.interior_upper_queries+=after.upper_calls-before.upper_calls;}}
+  } measure{report,query_geometry,query_before};
+  const auto validity_start=report.interior_rejected_validity,shape_start=report.interior_rejected_shape;
+  const auto edge_start=report.interior_rejected_edge,geometry_start=report.interior_rejected_geometry;
   const auto old=star.at(p);const Point x0=points.at(p);
+  auto shape_debt=[&](const std::vector<Cell>& cells){long double sum=0;for(const auto& c:cells){const auto q=Quality(c);if(!q.Valid())return std::numeric_limits<long double>::infinity();sum+=NormalizedShapeHingeDebt(q.q,q.J);}return sum;};
   std::set<Id> nbr;for(Id id:old)for(const auto& v:mesh.at(id).cell.v)if(v.id!=p)nbr.insert(v.id);
   ++report.trials;
   const bool debt=DebtMode(old);const auto oldMin=OldMerit(old,debt);
+  std::vector<Cell> old_cells;for(Id id:old)old_cells.push_back(mesh.at(id).cell);
+  const long double old_shape_debt=debt?-oldMin:shape_debt(old_cells);
   long double oldMax=0,shortest=INFINITY;
   for(Id x:nbr){const Point px=points.at(x);try{oldMax=std::max(oldMax,Estimate(x0,px));}catch(const std::exception&){oldMax=INFINITY;}
     const long double dx=(long double)px.x-x0.x,dy=(long double)px.y-x0.y,dz=(long double)px.z-x0.z;shortest=std::min(shortest,std::sqrt(dx*dx+dy*dy+dz*dz));}
@@ -5116,26 +5243,44 @@ bool MeshOptimizer::Smooth(Id p) {
       x=ConstrainMovePoint(constraints,p,{next_node,x},options.wall_heights,geometry).p;
     }
     if(x.x==x0.x&&x.y==x0.y&&x.z==x0.z)continue;
+    ++report.interior_candidates;
     const Node P{next_node,x};std::vector<Cell> fresh;for(Id id:old){Cell c=mesh.at(id).cell;for(auto& v:c.v)if(v.id==p)v=P;fresh.push_back(c);}
     const auto s=FreshMerit(fresh,debt,false);  // the trial identity next_node is reused: never memoized
-    if(s==-INFINITY)++report.rejected_validity;else if(Progress(s,oldMin,debt))trials.push_back({s,x});
+    if(s==-INFINITY){++report.rejected_validity;++report.interior_rejected_validity;}
+    else if(Progress(s,oldMin,debt))trials.push_back({s,x});
+    else {++report.rejected_quality;++report.interior_rejected_shape;}
   }
-  if(trials.empty()){++report.rejected_quality;return false;}
+  if(trials.empty()) {
+    auto* reservation=options.geometry?options.geometry->AtlasReservation():nullptr;
+    if(!Limited() && report.interior_candidates && report.interior_rejected_shape>shape_start &&
+        report.interior_rejected_validity==validity_start && report.interior_rejected_edge==edge_start &&
+        report.interior_rejected_geometry==geometry_start &&
+        (!reservation || (!reservation->work_exhausted && reservation->geometry_failure.empty())))RememberRejectedSmooth(p);
+    return false;
+  }
   std::stable_sort(trials.begin(),trials.end(),[](const Trial& u,const Trial& v){return u.score>v.score;});
   for(const auto& t:trials) {
     bool ok=true;for(Id x:nbr)if(!Certified(t.x,points.at(x),limit)){ok=false;break;}
-    if(!ok){++report.rejected_edge;continue;}
+    if(!ok){++report.rejected_edge;++report.interior_rejected_edge;continue;}
     const Node P{next_node,t.x};std::vector<Cell> fresh;for(Id id:old){Cell c=mesh.at(id).cell;for(auto& v:c.v)if(v.id==p)v=P;fresh.push_back(c);}
     std::map<Face,FacetBinding> added;
     if(slides){for(Id id:old){const auto& row=mesh.at(id);const auto faces=OppositeFaces(row.cell);  // diagnostic: bindings follow the moved skin vertex
         for(unsigned k=0;k<4;++k)if(row.physical[k].present){auto f=faces[k];if(f[0]!=p&&f[1]!=p&&f[2]!=p)continue;for(auto& x:f)if(x==p)x=P.id;std::sort(f.begin(),f.end());added.emplace(f,row.physical[k]);}}}
-    else if(!Interface(old,fresh))continue;
+    else if(!Interface(old,fresh)){++report.interior_rejected_geometry;continue;}
+    const auto debt_reduction=old_shape_debt-(debt?-t.score:shape_debt(fresh));
+    if(std::isfinite(old_shape_debt)&&std::isfinite(debt_reduction))report.interior_debt_reduction+=debt_reduction;
+    ++report.interior_moves;
     const Id moved=next_node++;Commit(old,fresh,p,added);
     if(slides){sliding.erase(p);sliding[moved]=plane;fixed.insert(moved);}
     if(keep.erase(p))keep.insert(moved);
     Id origin=p;for(const auto& r:report.relabel)if(r.second==p){origin=r.first;break;}
     report.relabel[origin]=moved;++report.moves;return true;
   }
+  auto* reservation=options.geometry?options.geometry->AtlasReservation():nullptr;
+  if(!Limited() && report.interior_candidates && report.interior_rejected_shape>shape_start &&
+      report.interior_rejected_validity==validity_start && report.interior_rejected_edge==edge_start &&
+      report.interior_rejected_geometry==geometry_start &&
+      (!reservation || (!reservation->work_exhausted && reservation->geometry_failure.empty())))RememberRejectedSmooth(p);
   return false;
 }
 // O5: boundary edge (a,b) between two boundary faces bound to the same facet (coplanar within 1e-12 relative); its open

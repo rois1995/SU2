@@ -3,7 +3,7 @@
 User steering2026-10-31. Build166M6 is TERMINAL, unsuccessful. All10owned handles
 are absent and1396pins unchanged. Its outcome confirms the geometry cost/quality
 closure blocker. The connected implementation/capture cycle is now active; no C++
-change or new job has started yet. The full accepted Euler50k two-event
+production optimization has started yet; current narrow diagnostic is below. The full accepted Euler50k two-event
 workflow, conservative admissible transfer and actual disk restart, then BL/MPI and
 RANS500k goal remains unchanged. Quality-motion/frontier ideas are in the backlog;
 they are not the next implementation priority under this steering.
@@ -95,7 +95,7 @@ observation-stop campaign. Reuse for representative geometry inputs only after
 verifying hashes/authority/ABI/schema; no exact166continuation or restart claim.
 Detailed inventory:166run/geometry_query_capture_inventory.md.
 Reuse existing diagnostics/readers before any narrow payload bridge; no independent
-capture/replay framework or baseline campaign. 166is now terminal/pins verified; no source edits yet.
+capture/replay framework or baseline campaign. 166is terminal/pins verified; the test-only bridge below is now compiled.
 
 ## Confirmed terminal blocker and acceptance
 
@@ -123,3 +123,77 @@ usable disk restart complete Euler; then dedicated BL/MPI and RANS500k. Current-
 field semantics and other correctness findings are separately recorded in the
 [findings assessment](ADAPTATION_FINDINGS_ASSESSMENT_20261031.md); do not claim an
 immutable numerical target from identity/cache preservation alone.
+
+## Active narrow diagnostic bridge
+
+Build167test-only CNativeAffineReference_tests.cpp case[NativeM6GeometryQueries3D]
+compiled72.178s,1296pins unchanged/all9observed handles absent. It reuses native_ref
+DecodeReference, saved BoundaryParameterState::FromPayload and public query APIs;
+no production geometry change. Existing run_cases adds referenced diagnostic files
+to its pins. Live capture exec21402/case m6_geometry_capture167_20261031T011440_2055900
+uses verifiedbuild48parameter data/current byte-identical authority. Selects12large
+cross-patch support queries from captured surface faces, persists exact facet IDs,
+physical coordinates/bindings, tolerance/initial resolution/direction via versioned
+RecordStream payload, then compares cached/repeated/recomputed work and answers.
+Input hashes/schema verification receipt staged57/geometry_query_capture_input_verification.json.
+Serial600s cap/8GiB query admission, nice19/libs1; sources/helpers frozen until terminal.
+No backend implementation or capability claim yet. Query-capture test is diagnostic,
+not exact166state/engine continuation/CFD restart or another full baseline campaign.
+
+Capture167terminal failure is preserved:209148checks pass (including native_ref/
+parameter decode), then no cross-patch faces were found in the old chart-local
+snapshot. All pins unchanged and sampled handles gone. This is a data limitation,
+not a new geometry acceptance failure. Exact test/helper source archive hashes match
+that run's pins. Build168is active, test-only: existing boundary projection API on
+32curved movable boundary one-rings and3center steps, with complete captured volume
+star positivity and entity face checks, produces representative trial query inputs.
+Legacy208-byte rows decoded explicitly; current416-byte wire never used for olddata.
+All derived owned/manifests are pinned. No backend change or standalone framework.
+
+Build168PASS75.210s/pins unchanged/all9sampled build handles absent. Initial
+sandbox diagnostic failed before entry at MPI_Init(socket errno1); host retry
+exec85904/time2091650/test2091652/orted2091653is active with600s cap. C++/helpers
+frozen through terminal handle verification; no production optimization yet.
+
+## Connected implementation decision after capture168
+
+Capture168host PASS648449assertions/95.873s; all4sampled host handles absent,
+source/runtime/input pins unchanged. Twelve projected M6 trial faces (76–78facets)
+retain bit-exact cached/recomputed bounds. Query total1.03543s contains.15777s
+scope construction; repeated exact answers cost88–90work units. This is representative
+query evidence, not a full166state or mesh acceptance. Sandbox attempt failed only
+at MPI_Init; preserve its environmental failure separately.
+
+Chosen shared backend change: reuse prepared per-facet distance searches; spatially
+select a smaller joined witness from the exact support's prepared pieces, retaining
+joint finite projected footprints across seams/holes. A subset witness gives only
+a conservative upper bound. All lower distance bounds must still use the COMPLETE
+exact support forest, with outward box pruning; never infer outside from a subset.
+Keep exact answer keys; witness keys identify exact immutable selected pieces plus
+tolerance/resolution, and query-local membership is checked from the exact support.
+Cached witness owns its small piece copy (no unaccounted retained parent lifetimes).
+Leaf references pin their existing pool entries during active traversal; unretained
+leaves and scratch remain admitted until released. No cache quota changes.
+
+Boundary/interior smoothing telemetry, unchanged context reuse and exhaustive
+rejected-star reuse are part of this same milestone. Rejected-star cache clears
+on EVERY commit, including unrelated geometry-context changes; no reuse after
+limited/resource-interrupted searches. Fresh position-dependent evaluation stays.
+Acceptance remains seams/holes/bodies/features/heights, cached/recomputed bounds,
+work/storage fail-closed, serial/MPI integration, then immediate full M6 comparison
+and accepted two-event workflow/transfer/actual restart. No lowered gates.
+
+Build169RUNNING exec39366/Ninja2116321,1296pins, three workers. C++/helpers frozen.
+Candidate adds owned-overlay admission API, reserves retained private context +
+atlas during candidate overlap and releases before commit; rejected-star set is
+explicitly included in engine scratch admission. Cache only exhaustive shape-only
+failures, with no validity/geometry/edge refusal or sticky atlas failure. All
+commits invalidate it. Smoothing counters include PRIVATE optimizer searches and
+internal moves even if outer proposal later rejects; published operations and
+whole-mesh debt remain separate. Boundary/interior counters are distinct.
+Geometry scope_build now times joined-witness construction only; facet preparation,
+piece selection and traversal have separate nested-query counters. Compared with
+old scope_build (which included facet preparation), use their sum when appropriate.
+Support discovery is separately timed at actual ParameterError calls. The capture
+bridge separates support search from projected-trial generation in new outputs.
+No changed-code validation yet; next same-payload replay and affected strict checks.

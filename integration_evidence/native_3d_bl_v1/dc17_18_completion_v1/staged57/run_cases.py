@@ -224,6 +224,16 @@ def main():
         for path in [BINARY, *libraries, *helper_paths, build_status_path, source_pins_path, runtime_manifest]:
             pins[str(path)] = sha(path)
         pins.update(runtime_pins)
+        for variable in ("SU2_NATIVE_TRANSACTION_REFERENCE", "SU2_NATIVE_STAGE_PARAMETERS", "SU2_NATIVE_GEOMETRY_QUERY_INPUT"):
+            if os.environ.get(variable):
+                path = Path(os.environ[variable]).resolve()
+                pins[str(path)] = sha(path)
+        if os.environ.get("SU2_NATIVE_STAGE_PARAMETERS"):
+            folder = Path(os.environ["SU2_NATIVE_STAGE_PARAMETERS"]).resolve().parent
+            for rank in range(6):
+                for suffix in ("owned.bin", "manifest.json"):
+                    path = folder / f"stage_quality_entry_rank{rank}_{suffix}"
+                    pins[str(path)] = sha(path)
         stage_environment = {}
         if case == "mapped_work_trace":
             stage_environment["SU2_NATIVE_GEOMETRY_WORK_TRACE"] = "1"

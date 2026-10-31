@@ -240,12 +240,29 @@ TriangleDistanceBounds TriangleDistance(const Box& point,const std::array<Point,
   return {std::max(0.,std::nextafter(double(lower),-INFINITY)),best};
 }
 struct UnionTriangle {std::array<Point,3> points;double error=0;};
+Box TriangleBox(const UnionTriangle& triangle) {
+  Box box=Exact(triangle.points[0]);
+  for(auto p:triangle.points)for(unsigned d=0;d<3;++d) {
+    box[d].lo=std::min(box[d].lo,Values(p)[d]);box[d].hi=std::max(box[d].hi,Values(p)[d]);
+  }
+  for(auto& d:box){d.lo=Subtract(d,{triangle.error,triangle.error}).lo;d.hi=Add({d.hi,d.hi},{triangle.error,triangle.error}).hi;}
+  return box;
+}
+// The infinity-norm gap is a conservative Euclidean lower bound, without a square root.
+long double BoxGap(const Box& a,const Box& b) {
+  long double gap=0;for(unsigned d=0;d<3;++d)
+    gap=std::max({gap,Subtract({a[d].lo,a[d].lo},{b[d].hi,b[d].hi}).lo,
+        Subtract({b[d].lo,b[d].lo},{a[d].hi,a[d].hi}).lo});
+  return gap;
+}
 struct RefineSurfaceTarget {};
 class TriangleUnion {
  public:
-  TriangleUnion(const std::vector<UnionTriangle>& triangles,AtlasOps& op,double resolution):triangles(triangles),accuracy(resolution) {
+  TriangleUnion(const std::vector<UnionTriangle>& triangles,AtlasOps& op,double resolution,bool footprints=true):triangles(triangles),accuracy(resolution) {
     if(triangles.empty())throw std::invalid_argument("Empty geometry triangle union.");
-    for(const auto& triangle:triangles)maximum_error=std::max(maximum_error,triangle.error);
+    bounds=TriangleBox(triangles.front());
+    for(const auto& triangle:triangles){maximum_error=std::max(maximum_error,triangle.error);const auto box=TriangleBox(triangle);
+      for(unsigned d=0;d<3;++d){bounds[d].lo=std::min(bounds[d].lo,box[d].lo);bounds[d].hi=std::max(bounds[d].hi,box[d].hi);}}
     const auto count=triangles.size();size_t retained=0,peak=0;
     if(count>16)CADTElemClass::PredictBytes(3,2*count,count,2*count,&retained,&peak);
     const auto workspace=transfer_memory::Mul(2*std::max<size_t>(200,count+1),sizeof(CBBoxTargetClass)+2*sizeof(unsigned long));
@@ -264,7 +281,14 @@ class TriangleUnion {
       std::vector<unsigned short> types(count,LINE),markers(count,0);
       index=std::make_unique<CADTElemClass>(3,coordinates,connectivity,types,markers,ids,false);
     }
-    op.budget.caller_bytes=transfer_memory::Add(op.budget.caller_bytes,scratch);BuildPlanes(op);
+    op.budget.caller_bytes=transfer_memory::Add(op.budget.caller_bytes,scratch);if(footprints)BuildPlanes(op);
+  }
+  const Box& Bounds()const{return bounds;}
+  std::vector<size_t> Nearby(const Box& box,double distance,AtlasOps& op) {
+    Candidates(box,distance,op);std::vector<size_t> out;
+    op.Storage(transfer_memory::Mul(candidates.size(),sizeof(size_t)));out.reserve(candidates.size());
+    for(auto i:candidates){op.Work();if(BoxGap(box,TriangleBox(triangles[i]))<=distance)out.push_back(i);}
+    std::sort(out.begin(),out.end());return out;
   }
   TriangleDistanceBounds Distance(const Box& point,AtlasOps& op) {
     const size_t seed=Seed(point,op);auto bound=Distance(point,seed,op);Candidates(point,bound.upper,op);
@@ -387,7 +411,7 @@ class TriangleUnion {
     }
     visited.resize(planes.size());op.budget.caller_bytes=transfer_memory::Add(op.budget.caller_bytes,retained);
   }
-  const std::vector<UnionTriangle>& triangles;
+  const std::vector<UnionTriangle>& triangles;Box bounds;
   std::unique_ptr<CADTElemClass> index;std::vector<unsigned long> candidates,graph_candidates;
   TriangleDistanceBounds Distance(const Box& p,size_t i,AtlasOps& op,bool lower_bound=true) {
     auto b=TriangleDistance(p,triangles[i].points,op,lower_bound);const double e=triangles[i].error;
@@ -404,6 +428,21 @@ class TriangleUnion {
     op.Work();if(!std::isfinite(distance))throw std::invalid_argument("Unrepresentable surface-union distance.");
     su2double lo[3],hi[3];for(unsigned d=0;d<3;++d){lo[d]=std::nextafter(double(Subtract(box[d],{distance,distance}).lo),-INFINITY);hi[d]=std::nextafter(double(Add(box[d],{distance,distance}).hi),INFINITY);}
     index->DetermineIntersectingElements(lo,hi,candidates);
+  }
+};
+// A local joined witness bounds from above; only the complete exact support can bound from below.
+class SurfaceForest {
+ public:
+  std::vector<TriangleUnion*> leaves;TriangleUnion* witness=nullptr;double maximum_error=0;bool complete_witness=false;
+  template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op){return witness->Upper(hull,op);}
+  double ApproximationError()const{return maximum_error;}
+  TriangleDistanceBounds Distance(const Box& point,AtlasOps& op) {
+    if(complete_witness)return witness->Distance(point,op);
+    TriangleDistanceBounds bound{INFINITY,witness->Distance(point,op).upper};
+    for(auto* leaf:leaves){op.Work();if(BoxGap(point,leaf->Bounds())>bound.upper)continue;
+      const auto next=leaf->Distance(point,op);bound.lower=std::min(bound.lower,next.lower);bound.upper=std::min(bound.upper,next.upper);}
+    if(!std::isfinite(bound.lower))throw std::logic_error("Surface witness lost its exact support.");
+    return bound;
   }
 };
 struct UnionDomain {Id facet=0;std::array<Point,3> parameter{{{1,0,0},{0,1,0},{0,0,1}}};unsigned depth=0;};
@@ -1569,6 +1608,10 @@ MappedFacetReference::GeometryStats MappedFacetReference::GeometryStatsSnapshot(
     geometry_stats->value.evictions=value.evictions;geometry_stats->value.evicted_bytes=value.evicted_bytes;}
   return value;
 }
+void MappedFacetReference::RecordSupportQuery(double seconds,size_t facets)const {
+  std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& x=geometry_stats->value;
+  ++x.support_calls;x.support_facets+=facets;x.support_seconds+=seconds;
+}
 void MappedFacetReference::RecordDirectQuery(double seconds,size_t work,bool failed)const {
   std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& x=geometry_stats->value;
   ++x.direct_calls;x.direct_seconds+=seconds;x.direct_work+=work;x.direct_exceptions+=failed;
@@ -1669,18 +1712,76 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
   };
   std::unique_lock<std::mutex> preparation;
   std::shared_ptr<CurvedSearch::PreparedFacet> prepared_model;
+  std::vector<std::shared_ptr<CurvedSearch::PreparedFacet>> retained_models;
+  SurfaceForest forest;
   std::vector<UnionTriangle> model;size_t model_pieces=0;
   if(include_mesh && curved_search) {
     preparation=std::unique_lock<std::mutex>(curved_search->prepared_mutex);
     const auto scope_bytes=transfer_memory::Mul(facets.size(),256);op.Storage(scope_bytes);
     budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,scope_bytes);
+    retained_models.reserve(facets.size());forest.leaves.reserve(facets.size());
     uint64_t resolution_bits,tolerance_bits;std::memcpy(&resolution_bits,&resolution,sizeof resolution_bits);
     std::memcpy(&tolerance_bits,&tolerance,sizeof tolerance_bits);
-    const auto words=transfer_memory::Add(facets.size(),2);op.Work(words);
-    std::vector<uint64_t> scope;scope.reserve(words);scope.push_back(tolerance_bits);scope.push_back(resolution_bits);scope.insert(scope.end(),facets.begin(),facets.end());
+    // Pin complete-support leaves throughout certification. Unretained leaves remain transiently charged.
+    for(Id facet:facets) {
+      op.Work();const auto key=std::make_pair(facet,resolution_bits);const auto found=curved_search->prepared.Find(key);
+      std::shared_ptr<CurvedSearch::PreparedFacet> data;
+      {std::lock_guard<std::mutex> lock(geometry_stats->mutex);if(bool(found))++geometry_stats->value.facet_hits;else ++geometry_stats->value.facet_misses;}
+      if(bool(found))data=found;
+      else {
+        const auto leaf_work=budget.work,leaf_caller=budget.caller_bytes;const auto leaf_start=std::chrono::steady_clock::now();
+        op.Storage(sizeof(CurvedSearch::PreparedFacet)+2*sizeof(void*));
+        data=std::make_shared<CurvedSearch::PreparedFacet>();prepare_facet(facet,data->triangles);
+        budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(data->triangles.capacity(),sizeof(UnionTriangle)));
+        data->target=std::make_unique<TriangleUnion>(data->triangles,op,resolution,false);
+        const auto bytes=transfer_memory::Add(data->Bytes(),256);budget.caller_bytes=leaf_caller;op.Storage(bytes);
+        const bool retain=curved_search->prepared.Retain(key,data,bytes,budget.work-leaf_work,curved_search->prepared_limit/2,op);
+        if(!retain)budget.caller_bytes=transfer_memory::Add(leaf_caller,bytes);
+        std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
+        stats.facet_build_work+=budget.work-leaf_work;
+        stats.facet_build_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-leaf_start).count();
+        stats.retention_refusals+=!retain;
+      }
+      model_pieces=transfer_memory::Add(model_pieces,data->triangles.size());forest.leaves.push_back(data->target.get());
+      forest.maximum_error=std::max(forest.maximum_error,data->target->ApproximationError());retained_models.push_back(std::move(data));
+    }
+    const auto selection_work=budget.work;const auto selection_start=std::chrono::steady_clock::now();
+    Box physical_box=Exact(physical.front().front());
+    for(const auto& triangle:physical)for(auto p:triangle)for(unsigned d=0;d<3;++d) {
+      physical_box[d].lo=std::min(physical_box[d].lo,Values(p)[d]);physical_box[d].hi=std::max(physical_box[d].hi,Values(p)[d]);}
+    // Only this upper witness is cropped. Its immutable piece identities establish reuse across overlapping supports.
+    const auto selection_caller=budget.caller_bytes;
+    std::vector<uint64_t> scope{tolerance_bits,resolution_bits};
+    std::vector<std::pair<size_t,size_t>> selected;
+    auto selection_bytes=[&](){return transfer_memory::Add(transfer_memory::Mul(selected.capacity(),sizeof(selected.front())),
+        transfer_memory::Mul(scope.capacity(),sizeof(uint64_t)));};
+    budget.caller_bytes=transfer_memory::Add(selection_caller,selection_bytes());
+    for(size_t i=0;i<retained_models.size();++i) {
+      auto* leaf=forest.leaves[i];op.Work();if(BoxGap(physical_box,leaf->Bounds())>tolerance)continue;
+      const auto nearby=leaf->Nearby(physical_box,tolerance,op);
+      const auto nearby_bytes=transfer_memory::Mul(nearby.capacity(),sizeof(size_t));
+      budget.caller_bytes=transfer_memory::Add(selection_caller,selection_bytes(),nearby_bytes);
+      for(auto piece:nearby) {
+        op.Storage(transfer_memory::Add(transfer_memory::GrowthBound(selected.size()+1,sizeof(selected.front())),
+            transfer_memory::GrowthBound(scope.size()+2,sizeof(uint64_t))));
+        selected.emplace_back(i,piece);scope.push_back(facets[i]);scope.push_back(piece);
+        budget.caller_bytes=transfer_memory::Add(selection_caller,selection_bytes(),nearby_bytes);
+      }
+      budget.caller_bytes=transfer_memory::Add(selection_caller,selection_bytes());
+    }
+    // A distant query still needs a finite conservative upper witness; lower bounds use every support leaf.
+    if(selected.empty()) {
+      op.Storage(transfer_memory::Add(transfer_memory::GrowthBound(1,sizeof(selected.front())),transfer_memory::GrowthBound(4,sizeof(uint64_t))));
+      selected.emplace_back(0,0);scope.push_back(facets.front());scope.push_back(0);
+    }
+    budget.caller_bytes=selection_caller;op.Storage(selection_bytes());
+    budget.caller_bytes=transfer_memory::Add(selection_caller,selection_bytes());
+    {std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
+      stats.piece_selection_work+=budget.work-selection_work;
+      stats.piece_selection_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-selection_start).count();
+      stats.selected_pieces+=selected.size();stats.support_pieces+=model_pieces;}
     const auto cached=curved_search->scopes.Find(scope);
     {std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
-      curved_search->Snapshot(stats);
       if(bool(cached))++stats.scope_hits;else ++stats.scope_misses;}
     if(bool(cached))prepared_model=cached;
     else {
@@ -1690,38 +1791,22 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
           x.scope_build_work+=budget.work-work;x.scope_build_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();}
       } receipt{*geometry_stats,budget,budget.work,std::chrono::steady_clock::now()};
       const auto caller=budget.caller_bytes;
-      std::vector<std::shared_ptr<CurvedSearch::PreparedFacet>> retained_models;retained_models.reserve(facets.size());
-      for(Id facet:facets) {
-        op.Work();const auto key=std::make_pair(facet,resolution_bits);const auto found=curved_search->prepared.Find(key);
-        std::shared_ptr<CurvedSearch::PreparedFacet> data;
-        {std::lock_guard<std::mutex> lock(geometry_stats->mutex);if(bool(found))++geometry_stats->value.facet_hits;else ++geometry_stats->value.facet_misses;}
-        if(bool(found))data=found;
-        else {
-          const auto leaf_work=budget.work;const auto leaf_caller=budget.caller_bytes;op.Storage(sizeof(CurvedSearch::PreparedFacet)+2*sizeof(void*));
-          data=std::make_shared<CurvedSearch::PreparedFacet>();prepare_facet(facet,data->triangles);
-          const auto bytes=transfer_memory::Add(data->Bytes(),256);budget.caller_bytes=leaf_caller;op.Storage(bytes);
-          const bool retain=curved_search->prepared.Retain(key,data,bytes,budget.work-leaf_work,curved_search->prepared_limit/2,op);
-          if(!retain)budget.caller_bytes=transfer_memory::Add(leaf_caller,bytes);
-        }
-        model_pieces=transfer_memory::Add(model_pieces,data->triangles.size());retained_models.push_back(std::move(data));
-      }
-      op.Storage(transfer_memory::Add(sizeof(CurvedSearch::PreparedFacet),transfer_memory::GrowthBound(model_pieces,sizeof(UnionTriangle))));
-      prepared_model=std::make_shared<CurvedSearch::PreparedFacet>();prepared_model->triangles.reserve(model_pieces);
-      for(const auto& data:retained_models)prepared_model->triangles.insert(prepared_model->triangles.end(),data->triangles.begin(),data->triangles.end());
+      op.Storage(transfer_memory::Add(sizeof(CurvedSearch::PreparedFacet),transfer_memory::Mul(selected.size(),sizeof(UnionTriangle))));
+      prepared_model=std::make_shared<CurvedSearch::PreparedFacet>();prepared_model->triangles.reserve(selected.size());
+      for(const auto& piece:selected)prepared_model->triangles.push_back(retained_models[piece.first]->triangles[piece.second]);
       budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(prepared_model->triangles.capacity(),sizeof(UnionTriangle)));
-      // Joint footprints retain coverage across original seams; the exact scope/tolerance fixes their identity.
       prepared_model->target=std::make_unique<TriangleUnion>(prepared_model->triangles,op,tolerance);
-      retained_models.clear();budget.caller_bytes=caller;
+      budget.caller_bytes=caller;
       const auto bytes=transfer_memory::Add(prepared_model->Bytes(),transfer_memory::Mul(scope.capacity(),2*sizeof(uint64_t)),256);op.Storage(bytes);
       const bool retain=curved_search->scopes.Retain(scope,prepared_model,bytes,budget.work-receipt.work,
           curved_search->prepared_limit-curved_search->prepared_limit/2,op);
-      if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_SCOPE facets=%zu pieces=%zu bytes=%zu retained=%d work=%zu\n",
-          facets.size(),model_pieces,bytes,int(retain),budget.work);
       if(!retain)budget.caller_bytes=transfer_memory::Add(caller,bytes);
-      {std::lock_guard<std::mutex> lock(geometry_stats->mutex);auto& stats=geometry_stats->value;
-        stats.retention_refusals+=!retain;curved_search->Snapshot(stats);}receipt.success=true;
+      {std::lock_guard<std::mutex> lock(geometry_stats->mutex);geometry_stats->value.retention_refusals+=!retain;}
+      receipt.success=true;
     }
-    model_pieces=prepared_model->triangles.size();
+    forest.witness=prepared_model->target.get();
+    forest.complete_witness=selected.size()==model_pieces;
+    {std::lock_guard<std::mutex> lock(geometry_stats->mutex);curved_search->Snapshot(geometry_stats->value);}
   } else if(include_mesh) {
     for(Id facet:facets)prepare_facet(facet,model);model_pieces=model.size();
     budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(model.capacity(),sizeof(UnionTriangle)));
@@ -1733,7 +1818,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
   if(include_mesh && !prepared_model)model_union=std::make_unique<TriangleUnion>(model,op,tolerance);
   struct NodeBound {UnionDomain domain;double upper,diameter;};
   auto compare=[](const NodeBound& a,const NodeBound& b){return a.upper<b.upper;};
-  auto directed=[&](bool from_model,TriangleUnion& target) {
+  auto directed=[&](bool from_model,auto& target) {
     std::vector<NodeBound> queue;double lower=0,finished=0;size_t leaves=0;
     size_t traced_work=budget.work;
     auto prepare=[&](const UnionDomain& domain) {
@@ -1772,8 +1857,13 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     }
     return std::make_tuple(finished,leaves,false);
   };
+  struct TraversalReceipt {
+    GeometryStatsState& stats;AtlasBudget& budget;size_t work;std::chrono::steady_clock::time_point start;
+    ~TraversalReceipt(){std::lock_guard<std::mutex> lock(stats.mutex);stats.value.traversal_work+=budget.work-work;
+      stats.value.traversal_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();}
+  } traversal{*geometry_stats,budget,budget.work,std::chrono::steady_clock::now()};
   SurfaceUnionBounds result;const auto forward=include_model?directed(true,*mesh_union):std::make_tuple(0.,size_t(0),false);
-  const auto reverse=include_mesh?(prepared_model?directed(false,*prepared_model->target):directed(false,*model_union)):std::make_tuple(0.,size_t(0),false);
+  const auto reverse=include_mesh?(prepared_model?directed(false,forest):directed(false,*model_union)):std::make_tuple(0.,size_t(0),false);
   result.model_to_mesh=std::get<0>(forward);result.mesh_to_model=std::get<0>(reverse);
   result.model_pieces=model_pieces;result.physical_pieces=std::get<1>(reverse);
   result.outside_tolerance=std::get<2>(forward)||std::get<2>(reverse);

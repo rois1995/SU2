@@ -11,8 +11,7 @@ requested heights. Actual counts are separate from metric complexity.
 **TERMINAL, unsuccessful:** `euler_build166_consistent_merit50k`.
 Exec62090terminal1after six-rank native time-budget failure. Only then verified
 mpirun1804149received SIGTERM to prevent unchanged retry. All10owned handles
-independently absent; all1396pins unchanged. No owned heavy job is live; C++ safe
-to edit. Driver1804058,time1804147,timeout1804148,ranks1804153–1804158are gone.
+independently absent; all1396pins unchanged. That M6 job is gone; current diagnostic job is listed below. Driver1804058,time1804147,timeout1804148,ranks1804153–1804158are gone.
 Two initial read-only stop selectors assumed wrong DETAIL ordering/per-rank final
 summary emission; both aborted before snapshots/signals. Corrected selector used
 six master-gathered native records plus each rank's own exit row, reverified all
@@ -42,7 +41,7 @@ Evidence root:`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged
 Run:`m6_runs/euler_build166_consistent_merit50k/terminal_assessment.json`,
 `event1_time_budget_stop_20261031/{stop_receipt,terminal_handles}.json`, full logs,
 rank stdout/resources, stage/cost/profile/provenance receipts. Raw perf stays local.
-Latest pushed checkpointa36047c968(steering/live evidence); terminal checkpoint pending.
+Terminal checkpoint2c95225b1a pushed; latest user steering/findings and full166failure preserved.
 
 ## Active connected milestone — latest user steering
 
@@ -68,6 +67,32 @@ build48entry/rejected-exit). Verify their hashes/authority/ABI/schema before usi
 as representative query input; they are NOT exact166continuation or CFD restart.
 See166run/geometry_query_capture_inventory.mdand linked active handbook. No exact
 166query payload was captured; counters/profiles alone are not replay inputs.
+Input verification receipt staged57/geometry_query_capture_input_verification.json
+checks18payloads each in19/48and authority equality. Current owned wire416bytes
+vs captured208; do not decode old as current OwnedCell. Parameter payload48schema8
+has genuine-feature mobility policy and current FromPayload supports it.
+
+Capture168host PASS648449assertions/95.873s; all4sampled handles absent, pins
+unchanged. Its sandbox predecessor failed only at MPI_Init(socket restriction).
+Build168PASS75.210s,1296pins/all9handles verified terminal. Test167failed because
+old faces were chart-local; preserved sources/receipts explain the new projected
+trial capture. Twelve exact trial inputs from verifiedbuild48M6 data (76–78facets)
+are in cases/m6_geometry_capture168_host_20261031T012917_2091486/m6_surface_queries.bin.
+They are representative trials, NOT166state/continuation/restart or accepted moves.
+Measured query1.03543s contains.15777s preparation; identical repeats88–90work.
+
+Connected candidate is source-only, UNBUILT/UNVALIDATED: per-facet prepared distance
+searches + spatially cropped joined witnesses, full exact-support lower distances,
+exact immutable piece witness keys and existing bounded pool/accounting. Separate
+support/facet/witness/selection/traversal counters. Boundary/interior smoothing
+candidates/rejects/guidance/debt/time telemetry; unchanged private context/atlas reuse
+with explicit retained overlap charge, conservative shape-only rejected-star cache
+invalidated on EVERY commit. Private optimizer debt/moves are not published whole-
+mesh progress. Added holes/notch/body/support/refusal and smoothing debt checks.
+Primary source review complete; build169RUNNING exec39366/Ninja2116321,1296pins;
+C++/build helpers frozen until terminal handle verification. Then affected checks and same-payload
+query replay. One serial/MPI milestone, then immediately full M6. No optimization
+or acceptance result claimed yet. Build169is the sole owned heavy workload.
 
 [Assessment of supplied findings](Handbook/ADAPTATION_FINDINGS_ASSESSMENT_20261031.md)
 records confirmed queue/slot/cost limits, short-edge hypothesis, startup-field scope,

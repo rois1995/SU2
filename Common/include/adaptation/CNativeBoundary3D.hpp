@@ -70,6 +70,8 @@ class PlanarReference {
   const std::map<Id,Facet>& Facets() const { return definition?definition->Facets():facets; }
   /*! Requested resident map/vector storage; allocator metadata and constructor scratch are separate. */
   size_t ResidentBytes() const;
+  /*! Owned parameter overlay only, for admission while a reusable private context stays alive. */
+  size_t ParameterOverlayBytes() const;
   /*! Conservative reference construction peak, including the house local box index. */
   static size_t ConstructionBytes(size_t facets, size_t analytic = 0, size_t affine = 0);
   bool Contains(Id facet, Point p, KernelStats* stats = nullptr) const;

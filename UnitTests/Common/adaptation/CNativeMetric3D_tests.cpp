@@ -974,6 +974,9 @@ TEST_CASE("Optimizer smoothing reduces whole-star debt beyond a max-min stationa
   const auto after=measured(mesh);const auto final=Facts(mesh,field);
   CHECK(ShapeDebtDecreases(before.shape_debt,after.shape_debt));CHECK(final.min<facts.min);
   CHECK(debt.moves>0);CHECK(final.positive);CHECK(final.skin==facts.skin);CHECK(final.cells==facts.cells);
+  CHECK(debt.interior_stars_searched>0);CHECK(debt.interior_candidates>0);CHECK(debt.interior_moves==debt.moves);
+  CHECK(debt.boundary_moves==0);CHECK(std::isfinite(debt.interior_seconds));CHECK(debt.interior_seconds>=0);
+  CHECK(std::abs(debt.interior_debt_reduction-(before.shape_debt-after.shape_debt))<1e-10L);
   CHECK(std::abs(double(final.volume-facts.volume))<1e-12);
   CHECK(after.maximum_length<=MaximumMetricEdge);
   std::string reason;MetricDiagnosis diagnosis;

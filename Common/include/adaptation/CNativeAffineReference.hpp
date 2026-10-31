@@ -113,10 +113,14 @@ class MappedFacetReference {
     size_t direct_work=0,upper_work=0,full_work=0,facet_hits=0,facet_misses=0,scope_hits=0,scope_misses=0;
     size_t scope_attempts=0,scope_builds=0,scope_build_work=0,retention_refusals=0,prepared_bytes=0,prepared_limit=0;
     size_t facet_bytes=0,scope_bytes=0,facet_entries=0,scope_entries=0,evictions=0,evicted_bytes=0;
+    size_t support_calls=0,support_facets=0,facet_build_work=0,piece_selection_work=0,traversal_work=0;
+    size_t selected_pieces=0,support_pieces=0;
     double direct_seconds=0,upper_seconds=0,full_seconds=0,scope_build_seconds=0;
+    double support_seconds=0,facet_build_seconds=0,piece_selection_seconds=0,traversal_seconds=0;
   };
   struct FacetStructure {bool curved=false;double chord_size=0,control_deviation=0;size_t prepared_pieces=0;};
   GeometryStats GeometryStatsSnapshot(bool reset=false)const;
+  void RecordSupportQuery(double seconds,size_t facets)const;
   FacetStructure StructuralEstimate(Id facet)const;
   void RecordDirectQuery(double seconds,size_t work,bool failed)const;
 

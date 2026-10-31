@@ -183,6 +183,14 @@ struct EngineStats {
   uint64_t optimization_trials = 0, optimization_validated = 0;
   uint64_t atlas_work = 0;size_t atlas_peak_bytes = 0;  // Shared exact geometry work/storage receipts.
   uint64_t optimization_moves = 0, optimization_insertions = 0, optimization_collapses = 0, optimization_swaps = 0;  // Nested operations in published repairs only.
+  uint64_t boundary_smoothing_stars=0,boundary_smoothing_reused=0,boundary_smoothing_candidates=0;
+  uint64_t boundary_smoothing_validity_rejects=0,boundary_smoothing_shape_rejects=0,boundary_smoothing_edge_rejects=0,boundary_smoothing_geometry_rejects=0;
+  uint64_t boundary_smoothing_guidance_calls=0,boundary_smoothing_upper_queries=0,boundary_smoothing_moves=0;
+  long double boundary_smoothing_debt_reduction=0;double boundary_smoothing_seconds=0;
+  uint64_t interior_smoothing_stars=0,interior_smoothing_reused=0,interior_smoothing_candidates=0;
+  uint64_t interior_smoothing_validity_rejects=0,interior_smoothing_shape_rejects=0,interior_smoothing_edge_rejects=0,interior_smoothing_geometry_rejects=0;
+  uint64_t interior_smoothing_guidance_calls=0,interior_smoothing_upper_queries=0,interior_smoothing_moves=0;
+  long double interior_smoothing_debt_reduction=0;double interior_smoothing_seconds=0;
   uint64_t placement_connectivity_trials = 0, placement_flips = 0, placement_moves = 0;
   uint64_t metric_linearizations = 0, metric_probes = 0, metric_linear_iterations = 0, metric_solve_trials = 0;
   uint64_t placement_trials = 0, placement_validated = 0;  // Bounded joint placement; validation precedes publication/clearance.

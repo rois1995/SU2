@@ -1,0 +1,719 @@
+{
+  "scope": "Read-only hashes and serializer-layout comparison; not Build166 mesh state or exact continuation.",
+  "datasets": [
+    {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_stage_20261027T102502_1804803",
+      "build": "build19",
+      "terminal": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 613.2197546958923,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 809762816,
+        "rss_note": "sampled process RSS; not a whole-job peak",
+        "stage_capture": {
+          "complete_rank_shards": 6,
+          "quality_windows": 4,
+          "original_donors_unchanged": true,
+          "exact_continuation": false,
+          "full_mesh_acceptance": false
+        }
+      },
+      "six_quality_entry_shards": [
+        {
+          "rank": 0,
+          "stage": "quality_entry",
+          "round": 19016,
+          "working_rows": 96317,
+          "donor_rows": 82900,
+          "record_bytes": {
+            "owned": 208,
+            "donor": 344
+          },
+          "parameters_payload_bytes": 4530072,
+          "parameters_header": {
+            "kind": "legacy",
+            "authority_version": 18,
+            "revision": 5801,
+            "points": 33310,
+            "faces": 66616,
+            "policy": 0,
+            "header_words": 5
+          },
+          "files": {
+            "owned": {
+              "file": "stage_quality_entry_rank0_owned.bin",
+              "sha256": "023169530ea33cb0f967e08c8ee9b4339cacb7aad90f929f5be3e5a8f9c3f409",
+              "matches_receipt": true,
+              "bytes": 20033944
+            },
+            "donors": {
+              "file": "stage_quality_entry_rank0_donors.bin",
+              "sha256": "9908aa49099c9bec0c75cd781b2c2ee4ac185eb8367b5657f7923a478259cb6b",
+              "matches_receipt": true,
+              "bytes": 28517608
+            },
+            "parameters": {
+              "file": "stage_quality_entry_rank0_parameters.bin",
+              "sha256": "d3f4d0f49600fed776987626c0cb448e59fa3b5d76e4e05e5faf02caf0384bf6",
+              "matches_receipt": true,
+              "bytes": 4530072
+            }
+          }
+        },
+        {
+          "rank": 1,
+          "stage": "quality_entry",
+          "round": 19016,
+          "working_rows": 92052,
+          "donor_rows": 69241,
+          "record_bytes": {
+            "owned": 208,
+            "donor": 344
+          },
+          "parameters_payload_bytes": 4530072,
+          "parameters_header": {
+            "kind": "legacy",
+            "authority_version": 18,
+            "revision": 5801,
+            "points": 33310,
+            "faces": 66616,
+            "policy": 0,
+            "header_words": 5
+          },
+          "files": {
+            "owned": {
+              "file": "stage_quality_entry_rank1_owned.bin",
+              "sha256": "41f236bc6d024c5e7b823424d4f043ac2e9dd2fd1315636ecbc091f5887ef1fb",
+              "matches_receipt": true,
+              "bytes": 19146824
+            },
+            "donors": {
+              "file": "stage_quality_entry_rank1_donors.bin",
+              "sha256": "289956aaf6774b4b584f0ef52b5a5c6ed724d243e8d3ea6ada24adcace1596c5",
+              "matches_receipt": true,
+              "bytes": 23818912
+            },
+            "parameters": {
+              "file": "stage_quality_entry_rank1_parameters.bin",
+              "sha256": "d3f4d0f49600fed776987626c0cb448e59fa3b5d76e4e05e5faf02caf0384bf6",
+              "matches_receipt": true,
+              "bytes": 4530072
+            }
+          }
+        },
+        {
+          "rank": 2,
+          "stage": "quality_entry",
+          "round": 19016,
+          "working_rows": 147787,
+          "donor_rows": 72651,
+          "record_bytes": {
+            "owned": 208,
+            "donor": 344
+          },
+          "parameters_payload_bytes": 4530072,
+          "parameters_header": {
+            "kind": "legacy",
+            "authority_version": 18,
+            "revision": 5801,
+            "points": 33310,
+            "faces": 66616,
+            "policy": 0,
+            "header_words": 5
+          },
+          "files": {
+            "owned": {
+              "file": "stage_quality_entry_rank2_owned.bin",
+              "sha256": "63ae1ae2a6851af2c0bfb30dd489f4dcfd038b5886d3c3c73dea63923596d658",
+              "matches_receipt": true,
+              "bytes": 30739704
+            },
+            "donors": {
+              "file": "stage_quality_entry_rank2_donors.bin",
+              "sha256": "a75e78469ae802a941ed210d48b25fce1397f6a651e16f1b0b34f8a80a4efd61",
+              "matches_receipt": true,
+              "bytes": 24991952
+            },
+            "parameters": {
+              "file": "stage_quality_entry_rank2_parameters.bin",
+              "sha256": "d3f4d0f49600fed776987626c0cb448e59fa3b5d76e4e05e5faf02caf0384bf6",
+              "matches_receipt": true,
+              "bytes": 4530072
+            }
+          }
+        },
+        {
+          "rank": 3,
+          "stage": "quality_entry",
+          "round": 19016,
+          "working_rows": 95208,
+          "donor_rows": 77937,
+          "record_bytes": {
+            "owned": 208,
+            "donor": 344
+          },
+          "parameters_payload_bytes": 4530072,
+          "parameters_header": {
+            "kind": "legacy",
+            "authority_version": 18,
+            "revision": 5801,
+            "points": 33310,
+            "faces": 66616,
+            "policy": 0,
+            "header_words": 5
+          },
+          "files": {
+            "owned": {
+              "file": "stage_quality_entry_rank3_owned.bin",
+              "sha256": "d9c037cda7b1fd1c59de8cde204b9ffd19f0f6db413da41f30b17c351f8e3aef",
+              "matches_receipt": true,
+              "bytes": 19803272
+            },
+            "donors": {
+              "file": "stage_quality_entry_rank3_donors.bin",
+              "sha256": "bd381e510648a3ac860b670eae95c04ec74d957b0f0d4e7ed0c7137178927326",
+              "matches_receipt": true,
+              "bytes": 26810336
+            },
+            "parameters": {
+              "file": "stage_quality_entry_rank3_parameters.bin",
+              "sha256": "d3f4d0f49600fed776987626c0cb448e59fa3b5d76e4e05e5faf02caf0384bf6",
+              "matches_receipt": true,
+              "bytes": 4530072
+            }
+          }
+        },
+        {
+          "rank": 4,
+          "stage": "quality_entry",
+          "round": 19016,
+          "working_rows": 113752,
+          "donor_rows": 72808,
+          "record_bytes": {
+            "owned": 208,
+            "donor": 344
+          },
+          "parameters_payload_bytes": 4530072,
+          "parameters_header": {
+            "kind": "legacy",
+            "authority_version": 18,
+            "revision": 5801,
+            "points": 33310,
+            "faces": 66616,
+            "policy": 0,
+            "header_words": 5
+          },
+          "files": {
+            "owned": {
+              "file": "stage_quality_entry_rank4_owned.bin",
+              "sha256": "8424f8d245a9b3b38f68736857e9d2fddab1612a071e2480c4ac526350f692f2",
+              "matches_receipt": true,
+              "bytes": 23660424
+            },
+            "donors": {
+              "file": "stage_quality_entry_rank4_donors.bin",
+              "sha256": "179ae27f85dc094d775b43389f385e694ae81a408fc5fb045caad7d0c7c77e1b",
+              "matches_receipt": true,
+              "bytes": 25045960
+            },
+            "parameters": {
+              "file": "stage_quality_entry_rank4_parameters.bin",
+              "sha256": "d3f4d0f49600fed776987626c0cb448e59fa3b5d76e4e05e5faf02caf0384bf6",
+              "matches_receipt": true,
+              "bytes": 4530072
+            }
+          }
+        },
+        {
+          "rank": 5,
+          "stage": "quality_entry",
+          "round": 19016,
+          "working_rows": 119628,
+          "donor_rows": 74684,
+          "record_bytes": {
+            "owned": 208,
+            "donor": 344
+          },
+          "parameters_payload_bytes": 4530072,
+          "parameters_header": {
+            "kind": "legacy",
+            "authority_version": 18,
+            "revision": 5801,
+            "points": 33310,
+            "faces": 66616,
+            "policy": 0,
+            "header_words": 5
+          },
+          "files": {
+            "owned": {
+              "file": "stage_quality_entry_rank5_owned.bin",
+              "sha256": "224e7cad138c7856a812dd5dc25964cb70817653d109a18f967134ae3baed533",
+              "matches_receipt": true,
+              "bytes": 24882632
+            },
+            "donors": {
+              "file": "stage_quality_entry_rank5_donors.bin",
+              "sha256": "235e8761f70e8884a2613ec38ae9ce017ceea3809f93c5e495d01d8397e7360b",
+              "matches_receipt": true,
+              "bytes": 25691304
+            },
+            "parameters": {
+              "file": "stage_quality_entry_rank5_parameters.bin",
+              "sha256": "d3f4d0f49600fed776987626c0cb448e59fa3b5d76e4e05e5faf02caf0384bf6",
+              "matches_receipt": true,
+              "bytes": 4530072
+            }
+          }
+        }
+      ],
+      "current_reference_path_from_build_pins": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build13/m6.su2.native_ref",
+      "reference_sha256_pinned": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+      "input_mesh_path_from_build_pins": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build13/m6.su2",
+      "input_mesh_sha256_pinned": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+      "run_config_sha256": "5644bd292c9d6a9034ec60c755a68df14563946a4996fe397f12ffed5b6ff1fb",
+      "shard_hash_summary": {
+        "quality_entry_owned_donor_parameter_files_verified": 18,
+        "expected": 18,
+        "receipt": "stage_output_pins.json"
+      }
+    },
+    {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_stage_20261027T193554_3391623",
+      "build": "build48",
+      "terminal": {
+        "state": "terminal",
+        "exit_code": 1,
+        "seconds": 1853.1270713806152,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 849281024,
+        "rss_note": "sampled process RSS; not a whole-job peak",
+        "diagnostic_error": "[Errno 2] No such file or directory: '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_stage_20261027T193554_3391623/stage_observation_stop_rank0_manifest.json'"
+      },
+      "six_quality_entry_shards": [
+        {
+          "rank": 0,
+          "stage": "quality_entry",
+          "round": 19178,
+          "working_rows": 96274,
+          "donor_rows": 82900,
+          "record_bytes": {
+            "owned": 208,
+            "donor": 344
+          },
+          "parameters_payload_bytes": 6323344,
+          "parameters_header": {
+            "kind": "atlas",
+            "magic": 5638880882401296696,
+            "schema": 8,
+            "authority_version": 18,
+            "revision": 6441,
+            "points": 34857,
+            "faces": 69710,
+            "policy": 0,
+            "atlas_bytes": 1582856,
+            "header_words": 8
+          },
+          "files": {
+            "owned": {
+              "file": "stage_quality_entry_rank0_owned.bin",
+              "sha256": "369e3617b580baf8b93958246b3c493c2530a53e33a3f7df06666403668428cc",
+              "matches_receipt": true,
+              "bytes": 20025000,
+              "receipt_sha256": "369e3617b580baf8b93958246b3c493c2530a53e33a3f7df06666403668428cc"
+            },
+            "donors": {
+              "file": "stage_quality_entry_rank0_donors.bin",
+              "sha256": "9908aa49099c9bec0c75cd781b2c2ee4ac185eb8367b5657f7923a478259cb6b",
+              "matches_receipt": true,
+              "bytes": 28517608,
+              "receipt_sha256": "9908aa49099c9bec0c75cd781b2c2ee4ac185eb8367b5657f7923a478259cb6b"
+            },
+            "parameters": {
+              "file": "stage_quality_entry_rank0_parameters.bin",
+              "sha256": "05ef2baef0bd193ecbe263deb3a7627485dda2d960ac37b3a13982c445e0ec68",
+              "matches_receipt": true,
+              "bytes": 6323344,
+              "receipt_sha256": "05ef2baef0bd193ecbe263deb3a7627485dda2d960ac37b3a13982c445e0ec68"
+            }
+          }
+        },
+        {
+          "rank": 1,
+          "stage": "quality_entry",
+          "round": 19178,
+          "working_rows": 92011,
+          "donor_rows": 69241,
+          "record_bytes": {
+            "owned": 208,
+            "donor": 344
+          },
+          "parameters_payload_bytes": 6323344,
+          "parameters_header": {
+            "kind": "atlas",
+            "magic": 5638880882401296696,
+            "schema": 8,
+            "authority_version": 18,
+            "revision": 6441,
+            "points": 34857,
+            "faces": 69710,
+            "policy": 0,
+            "atlas_bytes": 1582856,
+            "header_words": 8
+          },
+          "files": {
+            "owned": {
+              "file": "stage_quality_entry_rank1_owned.bin",
+              "sha256": "1254481eac69358d00cbddd4342ef43fab22c76eff5ca7445a8351647259d2c5",
+              "matches_receipt": true,
+              "bytes": 19138296,
+              "receipt_sha256": "1254481eac69358d00cbddd4342ef43fab22c76eff5ca7445a8351647259d2c5"
+            },
+            "donors": {
+              "file": "stage_quality_entry_rank1_donors.bin",
+              "sha256": "289956aaf6774b4b584f0ef52b5a5c6ed724d243e8d3ea6ada24adcace1596c5",
+              "matches_receipt": true,
+              "bytes": 23818912,
+              "receipt_sha256": "289956aaf6774b4b584f0ef52b5a5c6ed724d243e8d3ea6ada24adcace1596c5"
+            },
+            "parameters": {
+              "file": "stage_quality_entry_rank1_parameters.bin",
+              "sha256": "05ef2baef0bd193ecbe263deb3a7627485dda2d960ac37b3a13982c445e0ec68",
+              "matches_receipt": true,
+              "bytes": 6323344,
+              "receipt_sha256": "05ef2baef0bd193ecbe263deb3a7627485dda2d960ac37b3a13982c445e0ec68"
+            }
+          }
+        },
+        {
+          "rank": 2,
+          "stage": "quality_entry",
+          "round": 19178,
+          "working_rows": 148008,
+          "donor_rows": 72651,
+          "record_bytes": {
+            "owned": 208,
+            "donor": 344
+          },
+          "parameters_payload_bytes": 6323344,
+          "parameters_header": {
+            "kind": "atlas",
+            "magic": 5638880882401296696,
+            "schema": 8,
+            "authority_version": 18,
+            "revision": 6441,
+            "points": 34857,
+            "faces": 69710,
+            "policy": 0,
+            "atlas_bytes": 1582856,
+            "header_words": 8
+          },
+          "files": {
+            "owned": {
+              "file": "stage_quality_entry_rank2_owned.bin",
+              "sha256": "b1e949888ee690c1257e5212b23e9bdf0695c2e1f4bf81dd0c8930ffb02a101c",
+              "matches_receipt": true,
+              "bytes": 30785672,
+              "receipt_sha256": "b1e949888ee690c1257e5212b23e9bdf0695c2e1f4bf81dd0c8930ffb02a101c"
+            },
+            "donors": {
+              "file": "stage_quality_entry_rank2_donors.bin",
+              "sha256": "a75e78469ae802a941ed210d48b25fce1397f6a651e16f1b0b34f8a80a4efd61",
+              "matches_receipt": true,
+              "bytes": 24991952,
+              "receipt_sha256": "a75e78469ae802a941ed210d48b25fce1397f6a651e16f1b0b34f8a80a4efd61"
+            },
+            "parameters": {
+              "file": "stage_quality_entry_rank2_parameters.bin",
+              "sha256": "05ef2baef0bd193ecbe263deb3a7627485dda2d960ac37b3a13982c445e0ec68",
+              "matches_receipt": true,
+              "bytes": 6323344,
+              "receipt_sha256": "05ef2baef0bd193ecbe263deb3a7627485dda2d960ac37b3a13982c445e0ec68"
+            }
+          }
+        },
+        {
+          "rank": 3,
+          "stage": "quality_entry",
+          "round": 19178,
+          "working_rows": 95264,
+          "donor_rows": 77937,
+          "record_bytes": {
+            "owned": 208,
+            "donor": 344
+          },
+          "parameters_payload_bytes": 6323344,
+          "parameters_header": {
+            "kind": "atlas",
+            "magic": 5638880882401296696,
+            "schema": 8,
+            "authority_version": 18,
+            "revision": 6441,
+            "points": 34857,
+            "faces": 69710,
+            "policy": 0,
+            "atlas_bytes": 1582856,
+            "header_words": 8
+          },
+          "files": {
+            "owned": {
+              "file": "stage_quality_entry_rank3_owned.bin",
+              "sha256": "194fe98b0874f5411432414972955415efa61d0330cc746f2a2be0d411a4ba4e",
+              "matches_receipt": true,
+              "bytes": 19814920,
+              "receipt_sha256": "194fe98b0874f5411432414972955415efa61d0330cc746f2a2be0d411a4ba4e"
+            },
+            "donors": {
+              "file": "stage_quality_entry_rank3_donors.bin",
+              "sha256": "bd381e510648a3ac860b670eae95c04ec74d957b0f0d4e7ed0c7137178927326",
+              "matches_receipt": true,
+              "bytes": 26810336,
+              "receipt_sha256": "bd381e510648a3ac860b670eae95c04ec74d957b0f0d4e7ed0c7137178927326"
+            },
+            "parameters": {
+              "file": "stage_quality_entry_rank3_parameters.bin",
+              "sha256": "05ef2baef0bd193ecbe263deb3a7627485dda2d960ac37b3a13982c445e0ec68",
+              "matches_receipt": true,
+              "bytes": 6323344,
+              "receipt_sha256": "05ef2baef0bd193ecbe263deb3a7627485dda2d960ac37b3a13982c445e0ec68"
+            }
+          }
+        },
+        {
+          "rank": 4,
+          "stage": "quality_entry",
+          "round": 19178,
+          "working_rows": 115762,
+          "donor_rows": 72808,
+          "record_bytes": {
+            "owned": 208,
+            "donor": 344
+          },
+          "parameters_payload_bytes": 6323344,
+          "parameters_header": {
+            "kind": "atlas",
+            "magic": 5638880882401296696,
+            "schema": 8,
+            "authority_version": 18,
+            "revision": 6441,
+            "points": 34857,
+            "faces": 69710,
+            "policy": 0,
+            "atlas_bytes": 1582856,
+            "header_words": 8
+          },
+          "files": {
+            "owned": {
+              "file": "stage_quality_entry_rank4_owned.bin",
+              "sha256": "769d4f4635e3073ede60b5f0ed918fca4adca521adc808d2150c8f4cbfd7c15f",
+              "matches_receipt": true,
+              "bytes": 24078504,
+              "receipt_sha256": "769d4f4635e3073ede60b5f0ed918fca4adca521adc808d2150c8f4cbfd7c15f"
+            },
+            "donors": {
+              "file": "stage_quality_entry_rank4_donors.bin",
+              "sha256": "179ae27f85dc094d775b43389f385e694ae81a408fc5fb045caad7d0c7c77e1b",
+              "matches_receipt": true,
+              "bytes": 25045960,
+              "receipt_sha256": "179ae27f85dc094d775b43389f385e694ae81a408fc5fb045caad7d0c7c77e1b"
+            },
+            "parameters": {
+              "file": "stage_quality_entry_rank4_parameters.bin",
+              "sha256": "05ef2baef0bd193ecbe263deb3a7627485dda2d960ac37b3a13982c445e0ec68",
+              "matches_receipt": true,
+              "bytes": 6323344,
+              "receipt_sha256": "05ef2baef0bd193ecbe263deb3a7627485dda2d960ac37b3a13982c445e0ec68"
+            }
+          }
+        },
+        {
+          "rank": 5,
+          "stage": "quality_entry",
+          "round": 19178,
+          "working_rows": 120674,
+          "donor_rows": 74684,
+          "record_bytes": {
+            "owned": 208,
+            "donor": 344
+          },
+          "parameters_payload_bytes": 6323344,
+          "parameters_header": {
+            "kind": "atlas",
+            "magic": 5638880882401296696,
+            "schema": 8,
+            "authority_version": 18,
+            "revision": 6441,
+            "points": 34857,
+            "faces": 69710,
+            "policy": 0,
+            "atlas_bytes": 1582856,
+            "header_words": 8
+          },
+          "files": {
+            "owned": {
+              "file": "stage_quality_entry_rank5_owned.bin",
+              "sha256": "ba45a910712289e1f53434d16e4c89bd4c8d5ce37f3d1a698b0d62ceb7a81d18",
+              "matches_receipt": true,
+              "bytes": 25100200,
+              "receipt_sha256": "ba45a910712289e1f53434d16e4c89bd4c8d5ce37f3d1a698b0d62ceb7a81d18"
+            },
+            "donors": {
+              "file": "stage_quality_entry_rank5_donors.bin",
+              "sha256": "235e8761f70e8884a2613ec38ae9ce017ceea3809f93c5e495d01d8397e7360b",
+              "matches_receipt": true,
+              "bytes": 25691304,
+              "receipt_sha256": "235e8761f70e8884a2613ec38ae9ce017ceea3809f93c5e495d01d8397e7360b"
+            },
+            "parameters": {
+              "file": "stage_quality_entry_rank5_parameters.bin",
+              "sha256": "05ef2baef0bd193ecbe263deb3a7627485dda2d960ac37b3a13982c445e0ec68",
+              "matches_receipt": true,
+              "bytes": 6323344,
+              "receipt_sha256": "05ef2baef0bd193ecbe263deb3a7627485dda2d960ac37b3a13982c445e0ec68"
+            }
+          }
+        }
+      ],
+      "archive_receipt_exact_continuation": false,
+      "archive_receipt_source_valid": false,
+      "common_archive": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_stage_20261027T193554_3391623/private_quality_entry_common.tar.gz",
+      "archive_native_ref_sha256_receipt": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+      "archive_native_ref_sha256_actual": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+      "archive_native_ref_matches_current_input": true,
+      "shard_hash_summary": {
+        "quality_entry_owned_donor_parameter_files_verified": 18,
+        "expected": 18,
+        "receipt": "private_quality_entry_archive_receipt.json nested archive members_sha256"
+      },
+      "archive_manifest_checks": {
+        "0": {
+          "sha256": "804257030da1f6850311e302ad05604e94f58772b8bed0f07f801e7bbc1ec143",
+          "receipt_sha256": "804257030da1f6850311e302ad05604e94f58772b8bed0f07f801e7bbc1ec143",
+          "matches": true
+        },
+        "1": {
+          "sha256": "5f8a116091c981cb27729c2cc99d255d73ae9cd973d039ae3f6f1c2a6e2f1fef",
+          "receipt_sha256": "5f8a116091c981cb27729c2cc99d255d73ae9cd973d039ae3f6f1c2a6e2f1fef",
+          "matches": true
+        },
+        "2": {
+          "sha256": "81239fd39aed1bbe934fc6d2213b9ce6d6c736544c3491114d771bf58ed6053a",
+          "receipt_sha256": "81239fd39aed1bbe934fc6d2213b9ce6d6c736544c3491114d771bf58ed6053a",
+          "matches": true
+        },
+        "3": {
+          "sha256": "40af1252e98a09997d701ff33bbbae558faaf1a90302947f7bd33d826c9aa375",
+          "receipt_sha256": "40af1252e98a09997d701ff33bbbae558faaf1a90302947f7bd33d826c9aa375",
+          "matches": true
+        },
+        "4": {
+          "sha256": "f7f72caa85e0982fc0d48addf86ecf655ab1ae5da49320b13a4edfef92325b43",
+          "receipt_sha256": "f7f72caa85e0982fc0d48addf86ecf655ab1ae5da49320b13a4edfef92325b43",
+          "matches": true
+        },
+        "5": {
+          "sha256": "9fd7fdb1c7813757da7b596d7fc58b5e08646f9f3398eae37991f25c9be233f4",
+          "receipt_sha256": "9fd7fdb1c7813757da7b596d7fc58b5e08646f9f3398eae37991f25c9be233f4",
+          "matches": true
+        }
+      }
+    }
+  ],
+  "build166_current_inputs": [
+    {
+      "file": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/run.cfg",
+      "sha256": "5644bd292c9d6a9034ec60c755a68df14563946a4996fe397f12ffed5b6ff1fb",
+      "matches_current_pin": true
+    },
+    {
+      "file": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/m6.su2",
+      "sha256": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+      "matches_current_pin": true
+    },
+    {
+      "file": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/m6.su2.native_ref",
+      "sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+      "matches_current_pin": true
+    },
+    {
+      "file": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/m6.su2.native_ref",
+      "sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+      "equals_validation54_pin": true
+    },
+    {
+      "file": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/m6.su2",
+      "sha256": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+      "equals_validation54_pin": true
+    }
+  ],
+  "serializer_comparison": {
+    "current_recordstream_field_walk_bytes": {
+      "OwnedCell": 416,
+      "DonorCell": 344
+    },
+    "build19_manifest_bytes": {
+      "OwnedCell": 208,
+      "DonorCell": 344
+    },
+    "build48_manifest_bytes": {
+      "OwnedCell": 208,
+      "DonorCell": 344
+    },
+    "owned_compatibility": "RecordStream scalar encoding is explicit, but old 208-byte OwnedCell layout omits current format tag, sensor_present, and sensor[4]; current field walk is 416 bytes. Do not decode as current OwnedCell without explicit old-layout parser.",
+    "donor_compatibility": "Both layouts are 344 bytes; current DonorCell field walk is cell + 4 sensor tensors + extension_component + parent_cell. Match is field-layout size, not verified byte-for-byte semantic compatibility across old source.",
+    "parameter_payloads": {
+      "build19_header": "legacy 5-word header: authority version 18, revision 5801, 33310 points, 66616 faces, policy 0; size formula 40+72*npoints+32*nfaces matches payload bytes 4530072. Current FromPayload has legacy path.",
+      "build48_header": "atlas schema 8, authority version 18, revision 6441, 34857 points, 69710 faces, atlas appendix 1582856; size formula 64+72*np+32*nf+appendix matches 6323344. Current FromPayload accepts schemas 8/9."
+    }
+  },
+  "source_hashes": [
+    {
+      "file": "Common/include/adaptation/CNativeDistributed2D.hpp",
+      "build19_pinned_sha256": "419aaf7b27e34f1c0bdb19f819de2cc1c430d451b6a94cc8b34d42a79de2e4b2",
+      "build48_pinned_sha256": "419aaf7b27e34f1c0bdb19f819de2cc1c430d451b6a94cc8b34d42a79de2e4b2",
+      "current_sha256": "d2788f16a6563d52327dcfe8a2d816137f0b1b59f13274fe6ebeebb93a664d34",
+      "build19_matches_current": false,
+      "build48_matches_current": false
+    },
+    {
+      "file": "Common/include/adaptation/CNativeDistributed3D.hpp",
+      "build19_pinned_sha256": "d42c592d0146b16cb8af1c237c82c7d5e5ef62e10f91e8975c6c9d43f85563bc",
+      "build48_pinned_sha256": "d3da16c478215f28b03da2e35b5130699f81be1b614965af015aa4dce190a550",
+      "current_sha256": "e653afada9ed6e18f46a160658d4839e93a59a89c1ffac14439e1a92628c0143",
+      "build19_matches_current": false,
+      "build48_matches_current": false
+    },
+    {
+      "file": "Common/include/adaptation/CNativeField3D.hpp",
+      "build19_pinned_sha256": "fe2085f520a79c91cdaecc7f78ab9fe062ddd90d21dc1ef3f0e4c951515e2b46",
+      "build48_pinned_sha256": "fe2085f520a79c91cdaecc7f78ab9fe062ddd90d21dc1ef3f0e4c951515e2b46",
+      "current_sha256": "b170c64b2588f61d722058ff211dbbb9edf335f85ac37aee214aed24f6fbbd77",
+      "build19_matches_current": false,
+      "build48_matches_current": false
+    },
+    {
+      "file": "Common/src/adaptation/CNativeBoundaryParameters3D.cpp",
+      "build19_pinned_sha256": "f4be2615607233ed206f1e2dc6d1a2e3287b4818b46bb2734a7ea8d0ae41c485",
+      "build48_pinned_sha256": "891e1271d9f8f3fd199b61e799a1f0e65aeb9b920c857d5b776780b2c8376292",
+      "current_sha256": "b3ff97bd8d2c2330cb1a78a7d9c2d51ac2b7caa11ee92f668505fe417c13fe37",
+      "build19_matches_current": false,
+      "build48_matches_current": false
+    }
+  ],
+  "reference_comparison": {
+    "build19_pinned_native_ref_sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+    "build48_archive_native_ref_sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+    "build166_validation54_native_ref_sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+    "build19_equals_build166": true,
+    "build48_equals_build166": true,
+    "authority_version": 18
+  },
+  "limits": [
+    "Build19/build48 captures are older private stage snapshots; none is the frozen Build166 quality-entry state.",
+    "Build19/build48 manifests mark exact_continuation=false; composition and edge breakpoints are not serialized.",
+    "Matching native_ref proves authority bytes match, not mesh state, parameter-state revision, cache state, or exact M6 query replay.",
+    "No cell records were decoded; hash and header checks only."
+  ]
+}

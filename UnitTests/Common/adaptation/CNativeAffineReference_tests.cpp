@@ -9,8 +9,11 @@
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
+#include "../../../Common/include/adaptation/CNativeGeometryBackend3D.hpp"
 #include <fstream>
 #include <iomanip>
+#include <chrono>
+#include <cstdlib>
 using namespace SU2NativeGeometry;
 namespace {
 AffineAuthority Authority(unsigned dimension) {
@@ -476,6 +479,27 @@ TEST_CASE("Mapped finite components retain two holes a notch and a disconnected 
   auto face=[&](std::array<Id,3> ids){std::array<SurfaceBinding,3> bind;std::array<Point,3> p;
     for(unsigned k=0;k<3;++k){bind[k]=g->Vertex(ids[k]);p[k]=nodes.at(ids[k]).p;}return g->ContainsFace(root,bind,p);};
   CHECK(face({0,103,6}));CHECK_FALSE(face({101,202,102}));CHECK_FALSE(face({0,303,6}));CHECK_FALSE(face({5,108,8}));
+  // Exercise the prepared-forest path on actual finite holes and a separate closed body.
+  MappedFacetReference::CurvedNets linear;const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  for(const auto& f:facets)for(unsigned q=0;q<10;++q) {
+    long double x=0,y=0,z=0;for(unsigned k=0;k<3;++k){x+=powers[q][k]*(long double)f.v[k].p.x;y+=powers[q][k]*(long double)f.v[k].p.y;z+=powers[q][k]*(long double)f.v[k].p.z;}
+    linear[f.id][q]={double(x/3),double(y/3),double(z/3)};
+  }
+  MappedFacetReference forest(base,errors,7,SIZE_MAX,false,linear),oracle(base,errors,7,SIZE_MAX,false,linear,0);
+  std::vector<Id> bottom,first_body;for(const auto& f:facets)if(f.marker==0){bottom.push_back(f.id);if(forest.Body(f.id)==forest.Body(0))first_body.push_back(f.id);}
+  auto probe=[&](double x,double y,const std::vector<Id>& support,bool accepted) {
+    const std::vector<std::array<Point,3>> physical{{{chart.Lift({x,y,0}),chart.Lift({x+.1,y,0}),chart.Lift({x,y+.1,0})}}};
+    AtlasBudget a{size_t(1)<<24,size_t(1)<<28,4096},b=a,c=a;
+    const auto answer=forest.BoundPhysicalSurface(support,physical,1e-4,a);
+    CHECK((answer<=1e-4)==accepted);CHECK(forest.BoundPhysicalSurface(support,physical,1e-4,b)==answer);
+    CHECK(oracle.BoundPhysicalSurface(support,physical,1e-4,c)==answer);
+    auto denied=a;denied.maximum_bytes=1;denied.work=0;
+    CHECK_THROWS(forest.BoundSurfaceUnion(support,physical,1e-4,denied));
+  };
+  probe(.2,.2,bottom,true);probe(2.8,.2,bottom,true);probe(1.2,1.2,bottom,false);
+  probe(4.2,1.2,bottom,false);probe(2.2,3.2,bottom,false);probe(6.5,.2,bottom,false);
+  probe(8.2,.2,bottom,true);probe(8.2,.2,first_body,false);
+  const auto forest_stats=forest.GeometryStatsSnapshot();CHECK(forest_stats.selected_pieces<forest_stats.support_pieces);
   const auto saved=state->Snapshot();ReferenceState reference;reference.original=PlanarReference::WithParameters(base,state);reference.facets=facets;reference.marker_names={"bottom","top","side"};
   const auto text=EncodeReference(reference);CHECK(EncodeReference(DecodeReference(text))==text);CHECK(state->Snapshot()==saved);
   const auto recovered=DecodeReference(text);CHECK(recovered.original->Mapped());CHECK(recovered.original->Parameters()->Geometry().ReferenceComponents());
@@ -1380,4 +1404,180 @@ TEST_CASE("Curved mobility activation certifies legacy subfaces before certifica
   const auto saved=legacy->Snapshot();auto budget=GeometryAtlasBudget();
   CHECK_THROWS_WITH(legacy->WithMobilityPolicy(60,roles,budget),Catch::Matchers::Contains("projected Jacobian"));
   CHECK(legacy->Snapshot()==saved);
+}
+
+TEST_CASE("Representative saved M6 geometry queries preserve exact inputs and expose repeated work",
+          "[.][NativeM6GeometryQueries3D]") {
+  using namespace SU2Native3D;
+  World world;REQUIRE(world.size==1);
+  const auto* reference_path=std::getenv("SU2_NATIVE_TRANSACTION_REFERENCE");REQUIRE(reference_path);
+  const auto* tolerance_text=std::getenv("SU2_NATIVE_TRANSACTION_HAUSD");REQUIRE(tolerance_text);
+  const double tolerance=std::stod(tolerance_text);REQUIRE(std::isfinite(tolerance));REQUIRE(tolerance>0);
+  constexpr size_t memory_limit=size_t(8)<<30,query_limit=12;
+  auto read=[](const std::string& path) {
+    std::ifstream input(path,std::ios::binary|std::ios::ate);REQUIRE(bool(input));
+    const auto length=input.tellg();REQUIRE(length>0);REQUIRE(size_t(length)<(size_t(128)<<20));
+    std::vector<char> bytes(static_cast<size_t>(length));input.seekg(0);input.read(bytes.data(),bytes.size());REQUIRE(bool(input));return bytes;
+  };
+  const auto reference_bytes=read(reference_path);
+  const auto reference=DecodeReference({reference_bytes.begin(),reference_bytes.end()});
+  REQUIRE(reference.original);REQUIRE(reference.original->Parameters());
+  const auto authority=reference.original->Parameters()->Authority();REQUIRE(authority);
+  struct Query {SurfaceFace face;std::array<BoundaryPoint,3> points;std::vector<Id> facets;};
+  std::vector<Query> queries;
+  double discovery_seconds=0,trial_generation_seconds=0;
+  size_t inspected=0,cross_patch=0,projected_trials=0;
+  // Use the same rounded host-share allowance as166; this is not a process-memory cap.
+  uint64_t quota=MappedFacetReference::SurfaceQueryStorageBytes(authority->Curves().size(),559070549);
+  const auto* replay=std::getenv("SU2_NATIVE_GEOMETRY_QUERY_INPUT");
+  if(replay) {
+    const auto bytes=read(replay);RecordStream input(bytes);uint64_t magic=0,version=0,count=0,geometry_version=0;double saved_tolerance=0;
+    input(magic,version,geometry_version,count,saved_tolerance,quota);
+    REQUIRE(magic==0x4d36515545525931ULL);REQUIRE(version==1);REQUIRE(geometry_version==authority->Version());
+    REQUIRE(count>0);REQUIRE(count<=query_limit);REQUIRE(saved_tolerance==tolerance);
+    for(uint64_t i=0;i<count;++i) {
+      Query q;uint64_t facets=0;input(q.face,q.points,facets);REQUIRE(facets>0);REQUIRE(facets<=authority->Reference().Facets().size());
+      q.facets.resize(facets);for(auto& facet:q.facets)input(facet);
+      REQUIRE(std::is_sorted(q.facets.begin(),q.facets.end()));REQUIRE(std::adjacent_find(q.facets.begin(),q.facets.end())==q.facets.end());
+      for(unsigned k=0;k<3;++k)REQUIRE(q.points[k].node.id==q.face.v[k]);
+      queries.push_back(std::move(q));
+    }
+    REQUIRE(input.End());
+  } else {
+    const auto* parameter_path=std::getenv("SU2_NATIVE_STAGE_PARAMETERS");REQUIRE(parameter_path);
+    const auto parameters=BoundaryParameterState::FromPayload(authority,read(parameter_path),memory_limit,reference.original->ResidentBytes());
+    REQUIRE(parameters->Mobility().identity);
+    auto retain_query=[&](Query q) {
+      ++inspected;bool direct=true;
+      for(const auto& point:q.points)direct=direct&&authority->Supports(q.face.facet,point.binding);
+      if(direct || !parameters->ContainsEntityFace(q.face.facet,q.points))return;
+      ++cross_patch;
+      const auto support_start=std::chrono::steady_clock::now();
+      auto lo=q.points[0].node.p,hi=lo;const auto model=authority->Realize(q.points[0].binding);double radius=0;
+      for(const auto& point:q.points) {const auto p=point.node.p;
+        lo={std::min(lo.x,p.x),std::min(lo.y,p.y),std::min(lo.z,p.z)};
+        hi={std::max(hi.x,p.x),std::max(hi.y,p.y),std::max(hi.z,p.z)};
+        radius=std::max(radius,std::hypot(p.x-model.x,p.y-model.y,p.z-model.z));
+      }
+      radius=std::nextafter(radius+tolerance,INFINITY);
+      lo={std::nextafter(lo.x-radius,-INFINITY),std::nextafter(lo.y-radius,-INFINITY),std::nextafter(lo.z-radius,-INFINITY)};
+      hi={std::nextafter(hi.x+radius,INFINITY),std::nextafter(hi.y+radius,INFINITY),std::nextafter(hi.z+radius,INFINITY)};
+      q.facets=authority->NearbySurfaceFacets(q.face.facet,{lo,hi});const auto entity=parameters->Entity(q.face.facet);
+      q.facets.erase(std::remove_if(q.facets.begin(),q.facets.end(),[&](Id facet){return parameters->Entity(facet)!=entity;}),q.facets.end());
+      discovery_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-support_start).count();
+      REQUIRE_FALSE(q.facets.empty());
+      // Retain distinct overlapping scopes, with two physical faces per scope for repeated-trial work.
+      if(std::count_if(queries.begin(),queries.end(),[&](const Query& old){return old.facets==q.facets;})>=2)return;
+      queries.push_back(std::move(q));
+      std::stable_sort(queries.begin(),queries.end(),[](const Query& a,const Query& b){
+        return a.facets.size()!=b.facets.size()?a.facets.size()>b.facets.size():a.face.v<b.face.v;
+      });
+      if(queries.size()>query_limit)queries.pop_back();
+    };
+    const auto start=std::chrono::steady_clock::now();
+    // The old capture has chart-local faces. Use real projected boundary-star trials
+    // to exercise today's cross-chart query path without rerunning an M6 adaptation.
+    std::vector<std::pair<long double,Id>> seeds;
+    for(const auto& row:parameters->Records()) {
+      const auto* point=parameters->Find(row.first);REQUIRE(point);
+      if(authority->MobilityDimension(point->binding,parameters->Mobility())!=2)continue;
+      const auto fan=parameters->FacesOnVertex(row.first);long double radius=0;bool curved=false;
+      for(auto it=fan.first;it!=fan.second;++it) {
+        const auto& face=parameters->Surface().at(it->second);
+        const auto shape=authority->StructuralEstimate(face.facet);
+        curved=curved||shape.control_deviation>64*std::numeric_limits<double>::epsilon()*shape.chord_size;
+        for(Id id:face.v){const auto* other=parameters->Find(id);REQUIRE(other);
+          radius=std::max(radius,static_cast<long double>(std::hypot(other->node.p.x-point->node.p.x,
+              other->node.p.y-point->node.p.y,other->node.p.z-point->node.p.z)));}
+      }
+      if(!curved)continue;
+      seeds.emplace_back(radius,row.first);std::sort(seeds.rbegin(),seeds.rend());if(seeds.size()>32)seeds.pop_back();
+    }
+    REQUIRE_FALSE(seeds.empty());
+    std::map<Id,std::vector<Cell>> stars;for(const auto& seed:seeds)stars.emplace(seed.second,std::vector<Cell>{});
+    const std::string parameter_file=parameter_path,root=parameter_file.substr(0,parameter_file.find_last_of('/'));
+    // Version1 capture records precede the current wire tag/nodal-sensor attributes.
+    RecordStream layout;Cell legacy_cell;uint64_t legacy_version=0;std::array<FacetBinding,4> legacy_physical;
+    layout(legacy_cell,legacy_version,legacy_physical);REQUIRE(layout.Size()==208);
+    for(unsigned rank=0;rank<6;++rank) {
+      const auto bytes=read(root+"/stage_quality_entry_rank"+std::to_string(rank)+"_owned.bin");RecordStream input(bytes);uint64_t rows=0;input(rows);REQUIRE(rows<=1000000);
+      REQUIRE(bytes.size()==8+208*rows);
+      for(uint64_t i=0;i<rows;++i){Cell cell;uint64_t version;std::array<FacetBinding,4> physical;input(cell,version,physical);
+        for(const auto& node:cell.v){const auto found=stars.find(node.id);if(found!=stars.end())found->second.push_back(cell);}}
+      REQUIRE(input.End());
+    }
+    NativeMappedGeometryBackend3D backend(authority,parameters->Mobility());
+    for(const auto& seed:seeds) {
+      const Id id=seed.second;const auto* point=parameters->Find(id);REQUIRE(point);REQUIRE_FALSE(stars.at(id).empty());
+      const auto fan=parameters->FacesOnVertex(id);std::set<Id> neighbors;std::vector<SurfaceFace> faces;
+      for(auto it=fan.first;it!=fan.second;++it){const auto& face=parameters->Surface().at(it->second);faces.push_back(face);neighbors.insert(face.v.begin(),face.v.end());}
+      neighbors.erase(id);REQUIRE_FALSE(neighbors.empty());
+      long double x=0,y=0,z=0;for(Id neighbor:neighbors){const auto p=parameters->Find(neighbor)->node.p;x+=p.x;y+=p.y;z+=p.z;}
+      const Point center{double(x/neighbors.size()),double(y/neighbors.size()),double(z/neighbors.size())};
+      for(double step:{1.,.5,.25}) {
+        ++projected_trials;AtlasBudget budget;budget.maximum_work=200000000;budget.maximum_bytes=memory_limit;
+        budget.maximum_integer_bits=size_t(1)<<26;budget.caller_bytes=reference.original->ResidentBytes()+parameters->ResidentBytes();
+        GeometrySupport support;std::string reason;REQUIRE(backend.Support(point->binding,faces.front().facet,support,budget,reason));
+        GeometryProjectionScope scope;scope.body=support.body;scope.hint=faces.front().facet;scope.previous=point->binding;
+        scope.sheet=support.sheet;scope.feature=std::make_pair(2u,support.sheet);scope.absolute_error=tolerance/8;
+        const auto p=point->node.p;const Point target{p.x+step*(center.x-p.x),p.y+step*(center.y-p.y),p.z+step*(center.z-p.z)};
+        GeometryProjection projection;GeometryProjectionFailure failure;
+        if(!backend.Project(target,scope,projection,budget,reason,&failure)){REQUIRE(failure==GeometryProjectionFailure::Unavailable);continue;}
+        const auto fresh=projection.evaluation.point;bool positive=true;
+        for(const auto& cell:stars.at(id)){std::array<Point,4> q;for(unsigned k=0;k<4;++k)q[k]=cell.v[k].id==id?fresh:cell.v[k].p;
+          positive=positive&&Orientation(q[0],q[1],q[2],q[3])>0;}
+        if(!positive)continue;
+        for(const auto& face:faces){Query q;q.face=face;
+          for(unsigned k=0;k<3;++k){q.points[k]=*parameters->Find(face.v[k]);
+            if(face.v[k]==id){q.points[k].node.p=fresh;q.points[k].binding=projection.binding;}}
+          retain_query(std::move(q));}
+      }
+    }
+    trial_generation_seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()-discovery_seconds;
+  }
+  REQUIRE_FALSE(queries.empty());
+  std::vector<char> payload;RecordStream encoded(payload);uint64_t magic=0x4d36515545525931ULL,version=1;
+  uint64_t geometry_version=authority->Version(),count=queries.size();double saved_tolerance=tolerance;
+  encoded(magic,version,geometry_version,count,saved_tolerance,quota);
+  for(auto& q:queries){uint64_t facets=q.facets.size();encoded(q.face,q.points,facets);for(auto& facet:q.facets)encoded(facet);}
+  std::ofstream binary("m6_surface_queries.bin",std::ios::binary);binary.write(payload.data(),payload.size());binary.close();REQUIRE(bool(binary));
+  if(replay)CHECK(payload==read(replay));
+  const auto definition=std::make_shared<PlanarReference>(authority->Reference());
+  MappedFacetReference cached(definition,authority->Errors(),authority->Version(),memory_limit,false,authority->Curves(),quota);
+  MappedFacetReference uncached(definition,authority->Errors(),authority->Version(),memory_limit,false,authority->Curves(),0);
+  const auto caller=reference.original->ResidentBytes()+cached.ResidentBytes()+uncached.ResidentBytes()+payload.capacity();
+  auto budget=[&](){AtlasBudget b;b.maximum_work=200000000;b.maximum_bytes=memory_limit;b.maximum_integer_bits=size_t(1)<<26;b.caller_bytes=caller;return b;};
+  std::ofstream out("m6_surface_queries.json");out<<std::setprecision(17)
+      <<"{\"scope\":\"representative captured M6 geometry inputs, not exact166state or mesh acceptance\",\"geometry_version\":"<<geometry_version
+      <<",\"tolerance\":"<<tolerance<<",\"initial_resolution\":"<<tolerance<<",\"include_model\":false,\"include_mesh\":true"
+      <<",\"prepared_quota\":"<<quota<<",\"faces_inspected\":"<<inspected<<",\"cross_patch_faces\":"<<cross_patch
+      <<",\"projected_star_trials\":"<<projected_trials
+      <<",\"support_discovery_seconds\":"<<discovery_seconds<<",\"trial_generation_seconds\":"<<trial_generation_seconds<<",\"queries\":[";
+  for(size_t i=0;i<queries.size();++i) {
+    const auto& q=queries[i];std::vector<std::array<Point,3>> physical{{{q.points[0].node.p,q.points[1].node.p,q.points[2].node.p}}};
+    const auto before=cached.GeometryStatsSnapshot();auto cold=budget();const auto start=std::chrono::steady_clock::now();
+    const double answer=cached.BoundPhysicalSurface(q.facets,physical,tolerance,cold);
+    const auto first=cached.GeometryStatsSnapshot();const auto seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+    auto repeated=budget();const auto repeated_answer=cached.BoundPhysicalSurface(q.facets,physical,tolerance,repeated);
+    auto recomputed=budget();const auto oracle=uncached.BoundPhysicalSurface(q.facets,physical,tolerance,recomputed);
+    REQUIRE(std::isfinite(answer));CHECK(answer==repeated_answer);CHECK(answer==oracle);
+    if(i)out<<',';
+    out<<"{\"id\":"<<i<<",\"anchor\":"<<q.face.facet<<",\"facets\":"<<q.facets.size()<<",\"bound\":"<<answer
+       <<",\"within_tolerance\":"<<(answer<=tolerance?"true":"false")<<",\"seconds\":"<<seconds
+       <<",\"work\":"<<cold.work<<",\"repeat_work\":"<<repeated.work<<",\"recomputed_work\":"<<recomputed.work
+       <<",\"scope_build_work\":"<<first.scope_build_work-before.scope_build_work
+       <<",\"scope_build_seconds\":"<<first.scope_build_seconds-before.scope_build_seconds
+       <<",\"facet_build_work\":"<<first.facet_build_work-before.facet_build_work
+       <<",\"facet_build_seconds\":"<<first.facet_build_seconds-before.facet_build_seconds
+       <<",\"piece_selection_work\":"<<first.piece_selection_work-before.piece_selection_work
+       <<",\"piece_selection_seconds\":"<<first.piece_selection_seconds-before.piece_selection_seconds
+       <<",\"traversal_work\":"<<first.traversal_work-before.traversal_work
+       <<",\"traversal_seconds\":"<<first.traversal_seconds-before.traversal_seconds
+       <<",\"selected_pieces\":"<<first.selected_pieces-before.selected_pieces
+       <<",\"support_pieces\":"<<first.support_pieces-before.support_pieces
+       <<",\"scope_hits\":"<<first.scope_hits-before.scope_hits<<",\"facet_hits\":"<<first.facet_hits-before.facet_hits
+       <<",\"peak_query_bytes\":"<<cold.peak_bytes<<"}";
+    out.flush();REQUIRE(bool(out));
+  }
+  out<<"]}\n";out.close();REQUIRE(bool(out));
 }

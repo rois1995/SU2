@@ -1,0 +1,25 @@
+{
+  "build": "build168",
+  "case": "m6_geometry_capture168",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeM6GeometryQueries3D]"
+  ],
+  "environment": {
+    "SU2_NATIVE_TRANSACTION_REFERENCE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/m6.su2.native_ref",
+    "SU2_NATIVE_STAGE_PARAMETERS": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_stage_20261027T193554_3391623/stage_quality_entry_rank0_parameters.bin",
+    "SU2_NATIVE_TRANSACTION_HAUSD": "0.0001",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "timeout_seconds": 600
+}

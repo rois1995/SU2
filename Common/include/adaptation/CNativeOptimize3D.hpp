@@ -51,6 +51,14 @@ struct OptimizeReport {
   size_t bad_before = 0, bad_after = 0;
   double minimum_before = 0, minimum_after = 0;  // Minimum metric/first-height score over unfrozen cells.
   uint64_t point_queries = 0, edge_integrations = 0, edge_surrogates = 0;
+  size_t boundary_stars_searched=0,boundary_stars_reused=0,boundary_candidates=0;
+  size_t boundary_rejected_validity=0,boundary_rejected_shape=0,boundary_rejected_edge=0,boundary_rejected_geometry=0;
+  size_t boundary_guidance_calls=0,boundary_upper_queries=0,boundary_moves=0;
+  long double boundary_debt_reduction=0;double boundary_seconds=0;
+  size_t interior_stars_searched=0,interior_stars_reused=0,interior_candidates=0;
+  size_t interior_rejected_validity=0,interior_rejected_shape=0,interior_rejected_edge=0,interior_rejected_geometry=0;
+  size_t interior_guidance_calls=0,interior_upper_queries=0,interior_moves=0;
+  long double interior_debt_reduction=0;double interior_seconds=0;
   double seconds = 0;
   std::string stop;
   SU2NativeGeometry::BoundaryCoverage coverage;  // Current private physical faces/traces, published with parameters.

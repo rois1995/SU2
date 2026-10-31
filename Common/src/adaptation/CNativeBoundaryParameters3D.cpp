@@ -1328,6 +1328,7 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)con
       catch(...){g.RecordDirectQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count(),0,true);throw;}}
 
     auto* budget=parameter_view->reservation;if(!budget)throw std::invalid_argument("Entity surface query lacks a geometry reservation.");
+    const auto support_start=std::chrono::steady_clock::now();
     Point lo=p[0],hi=p[0];const auto model=g.Realize(binding[0]);double radius=0;
     for(auto q:p){lo={std::min(lo.x,q.x),std::min(lo.y,q.y),std::min(lo.z,q.z)};hi={std::max(hi.x,q.x),std::max(hi.y,q.y),std::max(hi.z,q.z)};
       radius=std::max(radius,std::hypot(q.x-model.x,q.y-model.y,q.z-model.z));}
@@ -1336,6 +1337,7 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)con
     hi={std::nextafter(hi.x+radius,INFINITY),std::nextafter(hi.y+radius,INFINITY),std::nextafter(hi.z+radius,INFINITY)};
     auto candidates=g.NearbySurfaceFacets(facet,{lo,hi});const auto entity=state.Entity(facet);
     candidates.erase(std::remove_if(candidates.begin(),candidates.end(),[&](Id id){return state.Entity(id)!=entity;}),candidates.end());
+    g.RecordSupportQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-support_start).count(),candidates.size());
     if(candidates.empty())throw std::invalid_argument("Entity surface query lost its supporting geometry.");
     return std::max(maximum,g.BoundPhysicalSurface(candidates,{p},state.GeometryTolerance(),*budget));
   }
@@ -1350,6 +1352,9 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)con
   if(!resolved)throw std::invalid_argument(reason);
   CheckPolicyCoverage(facet,cover,parameter_view->accepted->Mobility(),g,budget,reason);
   return std::max(maximum,g.SurfaceError(cover,p,budget));
+}
+size_t PlanarReference::ParameterOverlayBytes()const {
+  return parameter_view?transfer_memory::Add(sizeof(*this),parameter_view->OverlayBytes()):0;
 }
 size_t PlanarReference::ParameterWorkspaceBytes()const {
   if(!parameter_view)return 0;
