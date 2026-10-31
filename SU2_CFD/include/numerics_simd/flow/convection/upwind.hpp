@@ -153,17 +153,28 @@ public:
     const auto derived = static_cast<const Derived*>(this);
     VectorDbl<nVar> flux;
     MatrixDbl<nVar> jac_i, jac_j;
-    const auto centralNormal = edgeForm ? gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal()) : normal;
-
-    derived->finalizeFlux(flux, jac_i, jac_j, implicit, dissArea, dissUnitNormal, centralNormal,
+    derived->finalizeFlux(flux, jac_i, jac_j, implicit, dissArea, dissUnitNormal, normal,
                           V, U, iPoint, jPoint, nonPhysical, solution, geometry, dissNormal);
 
     if (edgeForm) {
-      /*--- The second term of the P1 edge form, (F_k-F_i).E_ik. ---*/
+      /*--- The median MUSCL flux stays, the form is added as a nodal difference: the terms of the form
+       * can be much larger than the median normal, and cancel between edges only with nodal fluxes. ---*/
+      const auto formNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal());
       const auto formE = gatherVariables<nDim>(iEdge, geometry.edges->GetFormE());
-      const auto fluxE_i = inviscidProjFlux(V.i, U.i, formE);
-      const auto fluxE_j = inviscidProjFlux(V.j, U.j, formE);
-      for (size_t iVar = 0; iVar < nVar; ++iVar) flux(iVar) += fluxE_j(iVar) - fluxE_i(iVar);
+      VectorDbl<nDim> diffNormal;
+      for (size_t iDim = 0; iDim < nDim; ++iDim) diffNormal(iDim) = formNormal(iDim) - normal(iDim);
+
+      CPair<CCompressibleConservatives<nDim> > U1st;
+      U1st.i = compressibleConservatives(V1st.i);
+      U1st.j = compressibleConservatives(V1st.j);
+
+      const auto flux_i = inviscidProjFlux(V1st.i, U1st.i, diffNormal);
+      const auto flux_j = inviscidProjFlux(V1st.j, U1st.j, diffNormal);
+      const auto fluxE_i = inviscidProjFlux(V1st.i, U1st.i, formE);
+      const auto fluxE_j = inviscidProjFlux(V1st.j, U1st.j, formE);
+      for (size_t iVar = 0; iVar < nVar; ++iVar) {
+        flux(iVar) += 0.5 * (flux_i(iVar) + flux_j(iVar)) + fluxE_j(iVar) - fluxE_i(iVar);
+      }
     }
 
     /*--- Correct for second order on arbitrary grids ---*/
