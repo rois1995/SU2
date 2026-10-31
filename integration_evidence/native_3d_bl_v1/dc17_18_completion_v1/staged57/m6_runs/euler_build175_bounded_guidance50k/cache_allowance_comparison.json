@@ -5,5 +5,8 @@
   "current_rank_cache_allowance_bytes_before_rounding": 715827882,
   "previous174_host_cache_allowance_bytes": 2673639424,
   "previous174_rank_cache_allowance_bytes_before_rounding": 445606570,
-  "scope": "Same cache policy/config; runtime host headroom changes effective allowance. Not an isolated timing comparison or process memory cap."
+  "scope": "Reported initial host/rank allowance differs, but whole-facet rounding gives identical effective prepared-pool limits, live bytes, misses and evictions at coarsen. Same policy/config; not a process-memory cap or isolated wall benchmark.",
+  "effective_prepared_pool_limit_bytes_at_coarsen_per_rank": 396836704,
+  "previous174_effective_prepared_pool_limit_bytes_at_coarsen_per_rank": 396836704,
+  "coarsen_cache_accounting_identical174": true
 }

@@ -22,7 +22,15 @@ nice19/libs1/MPI6, one owned heavy job. Config/authority byte-identical174;
 initial61330points/303359cells and restart00000byte-identical174 (initial state
 ONLY, never adapted restart proof). Hostcachequota4294967296/rank715827882before
 rounding vs1742673639424/445606570: same policy, more available host RAM. Preserve
-this comparison limit; startup/cache allowance receipts saved. No new cycle.
+this distinction: coarsen confirms effective prepared limits396836704bytes/rank
+IDENTICAL after whole-facet rounding, with identical cache live/miss/eviction/work
+counters. Coarsen315.301s vs174312.718s:292744cells/2582collapses,
+68372size-bad/3541geometry-bad; ALL discrete and q/J/size/geometry debt totals match,
+q/Jcorrectly unmeasured. Upperwork273877600/14578calls identical; upperseconds
+366.587vs363.153sum. New counters2185early rejections/20695faces(coarsening already
+stopped at first violation before175; no new coarsen speedup expected). All1396pins/
+10exactlivehandles verified at milestone; run frozen in splitting. Comparison and
+coarsen_live_verification receipts saved. No accepted mesh/transfer/restart.
 CFD SHA45f176a7b09c60ff8497d7a5ea976fc504df13947f4fb3ae489f0c5468ff06f4.
 No accepted Euler mesh/event/actual transfer/adapted disk restart yet.
 

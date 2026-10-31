@@ -437,3 +437,17 @@ until terminal or evidenced authorizedstop. One heavy job,nice19/libs1/MPI6,
 native5400s/event/outer14400s/twoevents. No accepted event/mesh/transfer/restart yet.
 Receipts startup_verification.json,initial_restart_comparison.json,
 cache_allowance_comparison.jsonin175run. Immediate task remains this full attempt.
+
+175matchingcoarsen315.301404782native seconds vs174312.71829658: ALL discrete and
+q/J/size/geometry debt totals match exactly,292744cells/2582collapses,
+68372size-bad/3541geometry-bad,q/Jintentionallyunmeasured. Uppercalls14578 and
+work273877600, facet/scope livebytes/misses/evictions/preparedlimits IDENTICAL.
+Reported initialhostallowance4GiB vs2.49GiB rounds down to the SAME396836704byte/
+rank effective preparedpool at this stage; do not imply a retention difference.
+Upper366.587vs363.153rankseconds; nested timings/hostservice limit wall inference.
+New guidance2185earlyrejections/20695faces; coarsening already early-stopped at
+zero in174, so this is preserved behavior rather than a coarsening speedup.
+All1396pins independently rehashed/all10exactownedhandles live;175is frozen and
+splitting. Receipts coarsen_comparison_to174.json/coarsen_live_verification.json.
+Private construction is not accepted mesh/transfer/disk restart. Quality is the
+remaining measurement target for the new finite positive-score boundary bounds.

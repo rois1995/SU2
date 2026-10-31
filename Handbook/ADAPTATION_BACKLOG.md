@@ -127,5 +127,8 @@ early-stop is currently used by coarsening. Reuse unchanged face terms only with
 exact facet/support/coordinates/bindings, and order remaining changed-face checks
 using valid cheap bounds. Never suppress required final certificates or compare
 partial positive progress as complete score. Candidate projected-merit ordering
-needs explicit prepaid-work/time semantics; no blind trial-count cuts. Current
-M6 remains frozen; these are review notes, not an active second implementation.
+needs explicit prepaid-work/time semantics; no blind trial-count cuts. Implemented/qualified175 after174terminal evidence: strict finite partial-sum
+rejection preserves face order/arithmetic and explicit completeness; shared engine
+and boundary-smoothing paths, with counters. Reused exact backend memo rather than
+adding another face cache. Current175M6 is frozen/live. Candidate reordering and
+additional caching remain deferred unless its outcome demonstrates their need.
