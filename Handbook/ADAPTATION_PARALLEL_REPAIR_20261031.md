@@ -1,11 +1,20 @@
 # Parallel quality closure and reusable CFD input — 2026-10-31
 
-Latest state: qualified183 full M6 AFTER naturally failed genuine-feature
-coverage atrefine2763.908s (not time budget);accepted CFDretained. All10owned
-handles absent/all1401pins unchanged before source edits. One connected local
-parameter-preflight correction is now in progress. See
+Latest state: build188 full TWO-event real-CFD M6 is LIVE and source-frozen.
+Connected local parameter preflight is qualified(serial+MPI6), preserving cache,
+parallel slots and separate zero-clean quality ownership debt. Actual current M6
+passes complete round21760/5837commits beyond183fatalround21746/5421commits:
+43013q-bad/41452J-bad/3936geometry-bad,size0 at957.208quality seconds. No rejection.
+ALL18construction-generation totals and quality-entry counts EXACT183, first3quality
+windows EXACT183; current localpreflight adds4.2%atlaswork bywindow3. Closest matching
+179quality-time region673vs699s shows netq-bad removal12.259vs6.920/s, with host/
+entry/ownership differences and actual timestamps retained. See
 [active feature-publication design](ADAPTATION_FEATURE_PUBLICATION_20261031.md)
-and HANDOFF for current source/handles/evidence. No acceptedmesh/transfer/restart.
+and HANDOFF for exact current handles/provenance. No acceptedmesh/transfer/restart.
+
+183 is historical terminal: natural genuine-feature coverage failure at2763.908refine
+seconds, accepted original CFDretained; all10handles absent/all1401pins unchanged
+before the connected fix. Preserved183 evidence follows.
 
 Cache/parallel/debt improvements are preserved. Actualcoarsening result matches
 BEFORE at586.967vs1142.910s and92%less facet preparation work. Construction size

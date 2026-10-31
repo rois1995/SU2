@@ -1,6 +1,6 @@
 {
-  "time": 1793460238.911429,
-  "scope": "Corresponding complete quality windows from identical entry; different actual elapsed quality times shown, no interpolation/exact-time-match claim. Host contention differs, not an isolated algorithm speed benchmark. Nested timers not additive.",
+  "time": 1793460640.9327464,
+  "scope": "Corresponding complete quality windows from identical entry; different actual elapsed quality times shown, no interpolation/exact-time-match claim. Host contention differs, not an isolated algorithm speed benchmark. Geometry timers overlap; never add support/preparation to enclosing upper cost.",
   "windows": [
     {
       "window": 1,
@@ -27,38 +27,156 @@
       "previous_commits_per_second": 8.586573165325584,
       "current_net_q_bad_removed_per_second": 24.05014457582928,
       "previous_net_q_bad_removed_per_second": 23.447949797619863,
-      "cumulative_rank_work": {
+      "rank_work": {
         "upper_calls": {
-          "current": 34706.0,
-          "previous": 34706.0
+          "current_cumulative": 34706.0,
+          "previous_cumulative": 34706.0,
+          "current_since_quality_entry": 1548.0,
+          "previous_since_quality_entry": 1548.0
         },
         "upper_work": {
-          "current": 1340990174.0,
-          "previous": 1340990174.0
+          "current_cumulative": 1340990174.0,
+          "previous_cumulative": 1340990174.0,
+          "current_since_quality_entry": 20124874.0,
+          "previous_since_quality_entry": 20124874.0
         },
         "atlas_work": {
-          "current": 1569378923.0,
-          "previous": 1566753237.0
+          "current_cumulative": 1569378923.0,
+          "previous_cumulative": 1566753237.0,
+          "current_since_quality_entry": 53434844.0,
+          "previous_since_quality_entry": 50809158.0
+        },
+        "facet_hits": {
+          "current_cumulative": 2447604.0,
+          "previous_cumulative": 2447604.0,
+          "current_since_quality_entry": 24193.0,
+          "previous_since_quality_entry": 24193.0
+        },
+        "facet_misses": {
+          "current_cumulative": 67102.0,
+          "previous_cumulative": 67102.0,
+          "current_since_quality_entry": 1844.0,
+          "previous_since_quality_entry": 1844.0
+        },
+        "facet_build_work": {
+          "current_cumulative": 1815712.0,
+          "previous_cumulative": 1815712.0,
+          "current_since_quality_entry": 68852.0,
+          "previous_since_quality_entry": 68852.0
+        },
+        "scope_hits": {
+          "current_cumulative": 4921.0,
+          "previous_cumulative": 4921.0,
+          "current_since_quality_entry": 441.0,
+          "previous_since_quality_entry": 441.0
+        },
+        "scope_misses": {
+          "current_cumulative": 26641.0,
+          "previous_cumulative": 26641.0,
+          "current_since_quality_entry": 322.0,
+          "previous_since_quality_entry": 322.0
+        },
+        "scope_attempts": {
+          "current_cumulative": 26641.0,
+          "previous_cumulative": 26641.0,
+          "current_since_quality_entry": 322.0,
+          "previous_since_quality_entry": 322.0
+        },
+        "scope_builds": {
+          "current_cumulative": 26641.0,
+          "previous_cumulative": 26641.0,
+          "current_since_quality_entry": 322.0,
+          "previous_since_quality_entry": 322.0
+        },
+        "scope_build_work": {
+          "current_cumulative": 4304603.0,
+          "previous_cumulative": 4304603.0,
+          "current_since_quality_entry": 32374.0,
+          "previous_since_quality_entry": 32374.0
+        },
+        "support_calls": {
+          "current_cumulative": 34706.0,
+          "previous_cumulative": 34706.0,
+          "current_since_quality_entry": 1548.0,
+          "previous_since_quality_entry": 1548.0
+        },
+        "support_facets": {
+          "current_cumulative": 2938561.0,
+          "previous_cumulative": 2938561.0,
+          "current_since_quality_entry": 52495.0,
+          "previous_since_quality_entry": 52495.0
+        },
+        "support_pieces": {
+          "current_cumulative": 86098663.0,
+          "previous_cumulative": 86098663.0,
+          "current_since_quality_entry": 1366266.0,
+          "previous_since_quality_entry": 1366266.0
         },
         "geometry_trials": {
-          "current": 172569.0,
-          "previous": 172569.0
+          "current_cumulative": 172569.0,
+          "previous_cumulative": 172569.0,
+          "current_since_quality_entry": 295.0,
+          "previous_since_quality_entry": 295.0
         },
         "geometry_rejected": {
-          "current": 72648.0,
-          "previous": 72648.0
+          "current_cumulative": 72648.0,
+          "previous_cumulative": 72648.0,
+          "current_since_quality_entry": 108.0,
+          "previous_since_quality_entry": 108.0
         },
         "guidance_trials": {
-          "current": 5490.0,
-          "previous": 5490.0
+          "current_cumulative": 5490.0,
+          "previous_cumulative": 5490.0,
+          "current_since_quality_entry": 110.0,
+          "previous_since_quality_entry": 110.0
         },
         "guidance_faces": {
-          "current": 23527.0,
-          "previous": 23527.0
+          "current_cumulative": 23527.0,
+          "previous_cumulative": 23527.0,
+          "current_since_quality_entry": 2960.0,
+          "previous_since_quality_entry": 2960.0
+        },
+        "smooth_boundary_upper_queries": {
+          "current_cumulative": 390.0,
+          "previous_cumulative": 390.0,
+          "current_since_quality_entry": 390.0,
+          "previous_since_quality_entry": 390.0
+        },
+        "smooth_interior_upper_queries": {
+          "current_cumulative": 0.0,
+          "previous_cumulative": 0.0,
+          "current_since_quality_entry": 0.0,
+          "previous_since_quality_entry": 0.0
         },
         "quality_progress": {
-          "current": 78.0,
-          "previous": 78.0
+          "current_cumulative": 78.0,
+          "previous_cumulative": 78.0,
+          "current_since_quality_entry": 78.0,
+          "previous_since_quality_entry": 78.0
+        },
+        "upper_seconds": {
+          "current_cumulative": 1117.4184530050002,
+          "previous_cumulative": 1435.0723377319985,
+          "current_since_quality_entry": 20.10800763100042,
+          "previous_since_quality_entry": 20.596006338999814
+        },
+        "support_seconds": {
+          "current_cumulative": 2.911615559999998,
+          "previous_cumulative": 7.276597441999979,
+          "current_since_quality_entry": 0.06405685399999994,
+          "previous_since_quality_entry": 0.0890360379999997
+        },
+        "facet_build_seconds": {
+          "current_cumulative": 75.13604378699983,
+          "previous_cumulative": 105.64430106199993,
+          "current_since_quality_entry": 3.0210094669999847,
+          "previous_since_quality_entry": 3.122762279
+        },
+        "scope_build_seconds": {
+          "current_cumulative": 126.19019528000027,
+          "previous_cumulative": 178.58346808799982,
+          "current_since_quality_entry": 1.1836589550000127,
+          "previous_since_quality_entry": 1.2224695519999784
         }
       }
     },
@@ -87,38 +205,334 @@
       "previous_commits_per_second": 5.851046587877651,
       "current_net_q_bad_removed_per_second": 15.677791439777904,
       "previous_net_q_bad_removed_per_second": 13.428057677747741,
-      "cumulative_rank_work": {
+      "rank_work": {
         "upper_calls": {
-          "current": 66334.0,
-          "previous": 66334.0
+          "current_cumulative": 66334.0,
+          "previous_cumulative": 66334.0,
+          "current_since_quality_entry": 33176.0,
+          "previous_since_quality_entry": 33176.0
         },
         "upper_work": {
-          "current": 1818818184.0,
-          "previous": 1818818184.0
+          "current_cumulative": 1818818184.0,
+          "previous_cumulative": 1818818184.0,
+          "current_since_quality_entry": 497952884.0,
+          "previous_since_quality_entry": 497952884.0
         },
         "atlas_work": {
-          "current": 2340509053.0,
-          "previous": 2303534770.0
+          "current_cumulative": 2340509053.0,
+          "previous_cumulative": 2303534770.0,
+          "current_since_quality_entry": 824564974.0,
+          "previous_since_quality_entry": 787590691.0
+        },
+        "facet_hits": {
+          "current_cumulative": 3499869.0,
+          "previous_cumulative": 3499869.0,
+          "current_since_quality_entry": 1076458.0,
+          "previous_since_quality_entry": 1076458.0
+        },
+        "facet_misses": {
+          "current_cumulative": 78042.0,
+          "previous_cumulative": 78042.0,
+          "current_since_quality_entry": 12784.0,
+          "previous_since_quality_entry": 12784.0
+        },
+        "facet_build_work": {
+          "current_cumulative": 2177384.0,
+          "previous_cumulative": 2177384.0,
+          "current_since_quality_entry": 430524.0,
+          "previous_since_quality_entry": 430524.0
+        },
+        "scope_hits": {
+          "current_cumulative": 12534.0,
+          "previous_cumulative": 12534.0,
+          "current_since_quality_entry": 8054.0,
+          "previous_since_quality_entry": 8054.0
+        },
+        "scope_misses": {
+          "current_cumulative": 33537.0,
+          "previous_cumulative": 33537.0,
+          "current_since_quality_entry": 7218.0,
+          "previous_since_quality_entry": 7218.0
+        },
+        "scope_attempts": {
+          "current_cumulative": 33537.0,
+          "previous_cumulative": 33537.0,
+          "current_since_quality_entry": 7218.0,
+          "previous_since_quality_entry": 7218.0
+        },
+        "scope_builds": {
+          "current_cumulative": 33537.0,
+          "previous_cumulative": 33537.0,
+          "current_since_quality_entry": 7218.0,
+          "previous_since_quality_entry": 7218.0
+        },
+        "scope_build_work": {
+          "current_cumulative": 5017522.0,
+          "previous_cumulative": 5017522.0,
+          "current_since_quality_entry": 745293.0,
+          "previous_since_quality_entry": 745293.0
+        },
+        "support_calls": {
+          "current_cumulative": 66334.0,
+          "previous_cumulative": 66334.0,
+          "current_since_quality_entry": 33176.0,
+          "previous_since_quality_entry": 33176.0
+        },
+        "support_facets": {
+          "current_cumulative": 5439768.0,
+          "previous_cumulative": 5439768.0,
+          "current_since_quality_entry": 2553702.0,
+          "previous_since_quality_entry": 2553702.0
+        },
+        "support_pieces": {
+          "current_cumulative": 112843515.0,
+          "previous_cumulative": 112843515.0,
+          "current_since_quality_entry": 28111118.0,
+          "previous_since_quality_entry": 28111118.0
         },
         "geometry_trials": {
-          "current": 182143.0,
-          "previous": 182143.0
+          "current_cumulative": 182143.0,
+          "previous_cumulative": 182143.0,
+          "current_since_quality_entry": 9869.0,
+          "previous_since_quality_entry": 9869.0
         },
         "geometry_rejected": {
-          "current": 76555.0,
-          "previous": 76555.0
+          "current_cumulative": 76555.0,
+          "previous_cumulative": 76555.0,
+          "current_since_quality_entry": 4015.0,
+          "previous_since_quality_entry": 4015.0
         },
         "guidance_trials": {
-          "current": 7974.0,
-          "previous": 7974.0
+          "current_cumulative": 7974.0,
+          "previous_cumulative": 7974.0,
+          "current_since_quality_entry": 2594.0,
+          "previous_since_quality_entry": 2594.0
         },
         "guidance_faces": {
-          "current": 67531.0,
-          "previous": 67531.0
+          "current_cumulative": 67531.0,
+          "previous_cumulative": 67531.0,
+          "current_since_quality_entry": 46964.0,
+          "previous_since_quality_entry": 46964.0
+        },
+        "smooth_boundary_upper_queries": {
+          "current_cumulative": 9704.0,
+          "previous_cumulative": 9704.0,
+          "current_since_quality_entry": 9704.0,
+          "previous_since_quality_entry": 9704.0
+        },
+        "smooth_interior_upper_queries": {
+          "current_cumulative": 0.0,
+          "previous_cumulative": 0.0,
+          "current_since_quality_entry": 0.0,
+          "previous_since_quality_entry": 0.0
         },
         "quality_progress": {
-          "current": 2173.0,
-          "previous": 2173.0
+          "current_cumulative": 2173.0,
+          "previous_cumulative": 2173.0,
+          "current_since_quality_entry": 2173.0,
+          "previous_since_quality_entry": 2173.0
+        },
+        "upper_seconds": {
+          "current_cumulative": 1562.888736760998,
+          "previous_cumulative": 1944.5353517599972,
+          "current_since_quality_entry": 465.5782913869982,
+          "previous_since_quality_entry": 530.0590203669985
+        },
+        "support_seconds": {
+          "current_cumulative": 6.204793823,
+          "previous_cumulative": 11.519224961999985,
+          "current_since_quality_entry": 3.357235117000002,
+          "previous_since_quality_entry": 4.331663558000006
+        },
+        "facet_build_seconds": {
+          "current_cumulative": 91.40138753499991,
+          "previous_cumulative": 123.94873919999992,
+          "current_since_quality_entry": 19.286353215000062,
+          "previous_since_quality_entry": 21.427200416999995
+        },
+        "scope_build_seconds": {
+          "current_cumulative": 154.89599580000026,
+          "previous_cumulative": 214.20869960299956,
+          "current_since_quality_entry": 29.88945947500001,
+          "previous_since_quality_entry": 36.84770106699972
+        }
+      }
+    },
+    {
+      "window": 3,
+      "whole_field_counts_identical": true,
+      "current_totals": {
+        "cells": 739479,
+        "q_bad": 45817,
+        "j_bad": 44474,
+        "size_bad": 0,
+        "geometry_bad": 3954,
+        "qj_debt": 14479.797316304543
+      },
+      "previous_totals": {
+        "cells": 739479,
+        "q_bad": 45817,
+        "j_bad": 44474,
+        "size_bad": 0,
+        "geometry_bad": 3954,
+        "qj_debt": 14479.797316304543
+      },
+      "current_quality_seconds": 673.2833639100002,
+      "previous_quality_seconds": 808.0296864040001,
+      "current_commits_per_second": 5.982622200269358,
+      "previous_commits_per_second": 4.984965364237959,
+      "current_net_q_bad_removed_per_second": 12.25932563083994,
+      "previous_net_q_bad_removed_per_second": 10.214971230491587,
+      "rank_work": {
+        "upper_calls": {
+          "current_cumulative": 99778.0,
+          "previous_cumulative": 99778.0,
+          "current_since_quality_entry": 66620.0,
+          "previous_since_quality_entry": 66620.0
+        },
+        "upper_work": {
+          "current_cumulative": 2309769885.0,
+          "previous_cumulative": 2309769885.0,
+          "current_since_quality_entry": 988904585.0,
+          "previous_since_quality_entry": 988904585.0
+        },
+        "atlas_work": {
+          "current_cumulative": 3133171373.0,
+          "previous_cumulative": 3068057569.0,
+          "current_since_quality_entry": 1617227294.0,
+          "previous_since_quality_entry": 1552113490.0
+        },
+        "facet_hits": {
+          "current_cumulative": 6012142.0,
+          "previous_cumulative": 6012142.0,
+          "current_since_quality_entry": 3588731.0,
+          "previous_since_quality_entry": 3588731.0
+        },
+        "facet_misses": {
+          "current_cumulative": 82878.0,
+          "previous_cumulative": 82878.0,
+          "current_since_quality_entry": 17620.0,
+          "previous_since_quality_entry": 17620.0
+        },
+        "facet_build_work": {
+          "current_cumulative": 2266152.0,
+          "previous_cumulative": 2266152.0,
+          "current_since_quality_entry": 519292.0,
+          "previous_since_quality_entry": 519292.0
+        },
+        "scope_hits": {
+          "current_cumulative": 23474.0,
+          "previous_cumulative": 23474.0,
+          "current_since_quality_entry": 18994.0,
+          "previous_since_quality_entry": 18994.0
+        },
+        "scope_misses": {
+          "current_cumulative": 38638.0,
+          "previous_cumulative": 38638.0,
+          "current_since_quality_entry": 12319.0,
+          "previous_since_quality_entry": 12319.0
+        },
+        "scope_attempts": {
+          "current_cumulative": 38638.0,
+          "previous_cumulative": 38638.0,
+          "current_since_quality_entry": 12319.0,
+          "previous_since_quality_entry": 12319.0
+        },
+        "scope_builds": {
+          "current_cumulative": 38638.0,
+          "previous_cumulative": 38638.0,
+          "current_since_quality_entry": 12319.0,
+          "previous_since_quality_entry": 12319.0
+        },
+        "scope_build_work": {
+          "current_cumulative": 5456822.0,
+          "previous_cumulative": 5456822.0,
+          "current_since_quality_entry": 1184593.0,
+          "previous_since_quality_entry": 1184593.0
+        },
+        "support_calls": {
+          "current_cumulative": 99778.0,
+          "previous_cumulative": 99778.0,
+          "current_since_quality_entry": 66620.0,
+          "previous_since_quality_entry": 66620.0
+        },
+        "support_facets": {
+          "current_cumulative": 10785586.0,
+          "previous_cumulative": 10785586.0,
+          "current_since_quality_entry": 7899520.0,
+          "previous_since_quality_entry": 7899520.0
+        },
+        "support_pieces": {
+          "current_cumulative": 135083149.0,
+          "previous_cumulative": 135083149.0,
+          "current_since_quality_entry": 50350752.0,
+          "previous_since_quality_entry": 50350752.0
+        },
+        "geometry_trials": {
+          "current_cumulative": 193221.0,
+          "previous_cumulative": 193221.0,
+          "current_since_quality_entry": 20947.0,
+          "previous_since_quality_entry": 20947.0
+        },
+        "geometry_rejected": {
+          "current_cumulative": 81899.0,
+          "previous_cumulative": 81899.0,
+          "current_since_quality_entry": 9359.0,
+          "previous_since_quality_entry": 9359.0
+        },
+        "guidance_trials": {
+          "current_cumulative": 10098.0,
+          "previous_cumulative": 10098.0,
+          "current_since_quality_entry": 4718.0,
+          "previous_since_quality_entry": 4718.0
+        },
+        "guidance_faces": {
+          "current_cumulative": 101242.0,
+          "previous_cumulative": 101242.0,
+          "current_since_quality_entry": 80675.0,
+          "previous_since_quality_entry": 80675.0
+        },
+        "smooth_boundary_upper_queries": {
+          "current_cumulative": 20520.0,
+          "previous_cumulative": 20520.0,
+          "current_since_quality_entry": 20520.0,
+          "previous_since_quality_entry": 20520.0
+        },
+        "smooth_interior_upper_queries": {
+          "current_cumulative": 0.0,
+          "previous_cumulative": 0.0,
+          "current_since_quality_entry": 0.0,
+          "previous_since_quality_entry": 0.0
+        },
+        "quality_progress": {
+          "current_cumulative": 4028.0,
+          "previous_cumulative": 4028.0,
+          "current_since_quality_entry": 4028.0,
+          "previous_since_quality_entry": 4028.0
+        },
+        "upper_seconds": {
+          "current_cumulative": 1965.920505162996,
+          "previous_cumulative": 2434.4275104729986,
+          "current_since_quality_entry": 868.6100597889963,
+          "previous_since_quality_entry": 1019.95117908
+        },
+        "support_seconds": {
+          "current_cumulative": 12.564294594999996,
+          "previous_cumulative": 20.118783211,
+          "current_since_quality_entry": 9.716735888999999,
+          "previous_since_quality_entry": 12.931221807000021
+        },
+        "facet_build_seconds": {
+          "current_cumulative": 95.63267874099978,
+          "previous_cumulative": 128.45037209499986,
+          "current_since_quality_entry": 23.51764442099993,
+          "previous_since_quality_entry": 25.928833311999938
+        },
+        "scope_build_seconds": {
+          "current_cumulative": 175.55150792300017,
+          "previous_cumulative": 240.4241040859995,
+          "current_since_quality_entry": 50.54497159799992,
+          "previous_since_quality_entry": 63.06310554999965
         }
       }
     }

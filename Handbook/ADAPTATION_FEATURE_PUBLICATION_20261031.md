@@ -89,3 +89,16 @@ serial2cases/71assertions and MPI6bothcases/all6ranks passed; pins unchanged and
 owned handles terminal. Existing complete cases reused, no broad repeat.
 See staged57/feature_publication188_qualification.json. This is affected integration
 qualification, not an accepted M6 mesh, transfer or restart. Full two-event retry next.
+
+
+## Actual M6 validation188 — live, beyond prior barrier
+
+Current full two-event retry uses SAMEsavedCFD and byte-identical initial continued
+state. All18construction-generation measured totals and quality-entry counts EXACT183.
+First3quality-window whole-field counts/debt/commits EXACT183. Full complete window4
+reaches round21760/5837commits, beyond183fatalround21746/5421commits, with no rejection.
+Wholefield743645cells,43013q-bad/41452J-bad/3936geometry-bad,size0 at957.208quality seconds.
+All complete flags intact; passive counters report privatecollectives0/unmeasuredchurn0.
+This demonstrates continued publication through the previous failure barrier, not an
+accepted mesh, final quality closure, transfer or adapted restart. Source remains frozen.
+Current188/feature_publication_barrier_assessment.json and matched_quality183_assessment.json.

@@ -66,21 +66,36 @@ lost0,maxcurrentnodaldrift.084754961 (replicated views,not96samples). Existing
 original continuous-target caveat remains below. Current receipts:
 matched_construction183_assessment.json,quality_entry_ownership_assessment.json,
 quality_entry_assessment.json,quality_trend_assessment.json,quality_window1_counters_assessment.json.
-Latest complete quality window2 at318.093quality seconds:734404cells,
-49084q-bad/47891J-bad/3994geometry-bad,size0,debt17828.615202,2173commits
-(6.831/s),4987netq-bad removed(15.678/s). Counts/debt/commits EXACT183window2,
-which took371.387s; host contention differs, no isolated speed attribution.
-Uppercalls66334/upperwork1818818184 and trial/guidance work EXACT183; newlocal
-preflight adds36974283atlaswork cumulatively. No candidate decisions changed at
-this census. Window2commits2095,qchurn47539removed/42765created,J44775/39530;
+Latest COMPLETE quality window3 at673.283quality seconds:739479cells,
+45817q-bad/44474J-bad/3954geometry-bad,size0,debt14479.797316,4028commits
+(5.983/s),8254netq-bad removed(12.259/s). ALLfirst3windows counts/debt/commits
+EXACT183; itswindow3took808.030s. Host contention differs; no isolated speed claim.
+Sincequalityentry upperwork988904585 EXACT183; addedpreflight atlaswork65113804
+(~4.2%of prior quality atlaswork). Scope/support/facet/trial/guidance counters and
+nested timers are separated in matched_quality183_assessment.json, never added.
+Window3commits1855,qchurn33917removed/30650created,J31497/28080;
 privatecollectives0/unmeasuredchurn0/stuckshape0. Rankjoin-callshares
-[.640,.442,.492,.612,.337,.440] include protocol+wait,notpureidle. Global16drift
-samples supported/lost0,max.084197787. Full diagnostics in window2counter receipt;
-matched_quality183_assessment.json preserves actual timestamps/work comparisons.
-No full-case feature-fix confirmation yet:183failed later at1261.498quality seconds.
-Latest passive1793460313:all10identities match,~28GiB available,treeRSS~8.64GiB
-(sampled sum,not physical/job peak),load12.16,no rejection. No acceptedmesh/transfer/
-restart. Last pushed construction/entry checkpoint5283d74441; push window2next.
+[.414,.469,.597,.749,.626,.580] include protocol+wait,notpureidle. Global16drift
+samples supported/lost0,max.084197787. Full diagnostics in window3counter receipt.
+Actual full-case publication barrier PASSED: complete window4/round21760,
+5837commits, beyond183fatalround21746/5421commits, no rejection. Wholefield743645cells,
+43013q/41452J/3936geometry,size0,debt11960.093779 at957.208quality seconds;
+commits6.098/s,netqremoval11.552/s. ALLcensus/cache/shape/geometry flags complete.
+feature_publication_barrier_assessment.json records exact evidence, not mesh acceptance.
+Window4commits1809,qchurn28559removed/25755created,J26555/23533; privatecollectives0,
+unmeasuredchurn0,stuckshape0. Join-callshares[.558,.595,.564,.482,.486,.337] include
+protocol+wait. All16driftpoints supported/lost0,max.084197787.
+Closest actual179BEFOREquality-time comparison:188window3/673.283s vs179window1/
+698.727s(-25.444s,3.64%). 18845817q/44474J/3954geometry vs17948483/47386/4112,
+commits/s5.983vs2.715,netqbadremoved/s12.259vs6.920,debtspread2.053vs4.863.
+Hostload/cache/ownership/entrycounts differ; never claim exact clock/isolatedspeed.
+No interpolatedcounts. BEFORE1479scomparison pending current matchingregion.
+matched_before_quality_comparison.json preserves scope and raw comparisons.
+Live provenance1793460502:ALL1401pins unchanged/all82mapped runtime files pinned.
+Latest passive1793460756:ALL10identities match,~29GiBavailable,treeRSS~8.64GiB
+(sampled sum,not jobpeak),load10.85,no rejection. Source freeze ACTIVE; exec16914.
+No accepted mesh/transfer/restart. Last pushed window2checkpointa17a554060;
+window3/4receipts and publication-barrier/currenthandoff ready for checkpoint.
 
 183 is HISTORICAL TERMINAL: first event naturally failed genuine-feature coverage
 at2763.908refine seconds before5400s; original CFD retained. Saved raw6rank outcome
