@@ -44,46 +44,46 @@ censuses audited,private trackedcollectives0/commits0atentry,no repair progress 
 CURRENT/quality_entry_assessment.json,quality_entry_comparison.json,
 quality_initial_ownership_assessment.json and all_quality_census_assessment.json.
 All10handles/all1401pins/82ELF reverified1793486628:quality_entry_provenance.json.
-Preserved quality WINDOW14 at3240.600157s sinceentry:785587workingcells,
-16046q/12812J/3253geometry,size0,qJdebt741.344594144133.
-Cumulative28257publications,net38035q/40580J/517geometry removed:
-11.7370netq/s,1.34604netq/publication. Latest interval:
-1651q/1678J/21geometry in173.878960s,
-9.4951netq/s (includes preceding migration cost). Migration AFTER
-this window is charged to the next complete interval. All37complete censuses
-are audited; latest stageownership_committed at round22464,queue191770,
-blocked198,stuckshape2/required2,
+Preserved quality WINDOW15 at3409.116374s sinceentry:787641workingcells,
+14518q/11285J/3235geometry,size0,qJdebt556.736861507279.
+Cumulative30169publications,net39563q/42107J/535geometry removed:
+11.6051netq/s,1.31138netq/publication. Latest interval:
+1528q/1527J/18geometry in168.516217s,
+9.0674netq/s (includes preceding migration cost). Migration AFTER
+this window is charged to the next complete interval. All40complete censuses
+are audited; latest stageownership_committed at round22528,queue179409,
+blocked195,stuckshape4/required4,
 missing0,private trackedcollectives0.
 Coordinate-key churn includes moved cells despite unchanged connectivity. Judge net
 counts,not raw retirements/debt percent. Records:CURRENT/quality_trend_assessment.json,
 quality_service_assessment.json and all_quality_census_assessment.json.
 
-Actual nearest-q comparison:19316046q/12812J/3253geometry vs191
-16191q/12965J/3509geometry,qualitytimes3240.600vs4277.123s;
-publications28257vs28245,traversal4138882453vs6146400481
-(32.66%less),work/netq108817.7vs162259.8.
+Actual nearest-q comparison:19314518q/11285J/3235geometry vs191
+16191q/12965J/3509geometry,qualitytimes3409.116vs4277.123s;
+publications30169vs28245,traversal4321374222vs6146400481
+(29.69%less),work/netq109227.7vs162259.8.
 Different meshes/paths/metrics and host contention: no interpolation,identical-work
 or isolated timing claim. Actual time brackets and earlier snapshots are preserved:
 CURRENT/quality_window*_comparison.json (actual snapshot times recorded). Source freeze intact:CURRENT/
-quality_window14_live_provenance.json verifiesall10handles/1401pins/82mappedELF.
+quality_window15_live_provenance.json verifiesall10handles/1401pins/82mappedELF.
 
-10actual late complete-census migrations conserve counts/debt/flags and selected
-prepared/numeric memo counters/entries/bytes/drift availability. Latest round22464:
-debtmax/min2.24232→1.53135,
-full observed cost14.505241s. CURRENT/
+11actual late complete-census migrations conserve counts/debt/flags and selected
+prepared/numeric memo counters/entries/bytes/drift availability. Latest round22528:
+debtmax/min1.96328→1.39739,
+full observed cost14.687033s. CURRENT/
 quality_migration_assessment.json; initial excluded by stage identity,not old round.
 The unchanged14epoch/mask serialization and qualifiedMPI6 support history preservation;
 actual counters do NOT independently prove every per-feature history or cache key.
 Bounded primary-reviewed source/receipt limits:quality_migration_review.json (first2
 late migrations,canonical10censusprefix hash retained).
 
-Current badpopulation:13589q/8999Jinterior,2457q/3813Jsurface.
+Current badpopulation:12351q/7961Jinterior,2167q/3324Jsurface.
 Interior means no physical face,not unconstrained vertices. Private boundary/interior
 smoothing work/debt is separate in quality_service_assessment.json; it is NOT published
 cavity gain. Timers nest; join calls include protocol/wait. Sixreports replicate
 16GLOBALfixed metricsamples,supported16/lost0,maxdrift
 3.01737%sincequalityentry; no original continuous-CFD-target fidelity proof.
-Resource receipts:quality_window14_resources.json; sampled summedRSS is not physical
+Resource receipts:quality_window15_resources.json; sampled summedRSS is not physical
 or true peak. Keep193frozen; choose further implementation from terminal outcome.
 
 
