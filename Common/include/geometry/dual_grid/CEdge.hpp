@@ -46,6 +46,7 @@ class CEdge {
   su2activematrix Normal; /*!< \brief Normal (area) of the edge. */
   su2activematrix a,b,c; /*!< \brief Normal (area) of the edge. */
   su2activematrix ModNormal; /*!< \brief Normal of the modified dual, allocated only for DISSIPATION_MOD_NORMALS. */
+  su2activematrix FormNormal, FormE; /*!< \brief Coefficients n_ik and E_ik, allocated only for EDGE_FORM_P1. */
   const Index nEdge, nEdgeSIMD;
 
   friend class CPhysicalGeometry;
@@ -201,6 +202,16 @@ class CEdge {
    * \brief Normals of the modified dual, one row per edge, same orientation as GetNormal.
    */
   inline const su2activematrix& GetModNormal() const { return ModNormal; }
+
+  /*!
+   * \brief Coefficient n_ik of the P1 edge form, one row per edge, i is the LEFT node.
+   */
+  inline const su2activematrix& GetFormNormal() const { return FormNormal; }
+
+  /*!
+   * \brief Coefficient E_ik of the P1 edge form, one row per edge, i is the LEFT node.
+   */
+  inline const su2activematrix& GetFormE() const { return FormE; }
 
   inline const su2activematrix& GetCorrection_X() const { return a; }
   inline const su2activematrix& GetCorrection_Y() const { return b; }

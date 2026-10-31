@@ -142,6 +142,7 @@ private:
   BC_Flux_Closure,          /*!< \brief Boundary flux weights that are exact for a P1 flux (walls and symmetries).*/
   Central_Group_Flux,       /*!< \brief Central flux as the average of nodal fluxes, not the flux of the average.*/
   Dissipation_Mod_Normals,  /*!< \brief Median normal in the central flux, modified normal in dissipation and Jacobian.*/
+  Edge_Form_P1,             /*!< \brief Central flux with the edge coefficients n_ik and E_ik of the modified dual.*/
   Pressure_Based;           /*!< \brief Flag to check if we are using a pressure-based system.*/
   su2double Buffet_k;       /*!< \brief Sharpness coefficient for buffet sensor.*/
   su2double Buffet_lambda;  /*!< \brief Offset parameter for buffet sensor.*/
@@ -9953,6 +9954,12 @@ public:
    * \return EDGE_GRADIENT or P1_CELL.
    */
   VISCOUS_SCHEME GetKind_Viscous_Scheme() const { return Kind_Viscous_Scheme; }
+
+  /*!
+   * \brief Get if the central flux uses the P1 edge form on the modified dual (variant C).
+   * \return YES if the edge form is used.
+   */
+  bool GetEdge_Form_P1() const { return Edge_Form_P1; }
 
   /*!
    * \brief Get Compute Average.

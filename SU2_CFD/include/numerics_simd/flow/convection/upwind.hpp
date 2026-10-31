@@ -63,6 +63,7 @@ protected:
   const LIMITER typeLimiter;
   const bool correction;
   const bool modNormals;
+  const bool edgeForm;
 
   /*!
    * \brief Constructor, store some constants and forward args to base.
@@ -77,7 +78,8 @@ protected:
     umusclKappa(config.GetMUSCL_Kappa_Flow()),
     typeLimiter(config.GetKind_SlopeLimit_Flow()),
     correction(muscl && config.GetFluxCorrection()),
-    modNormals(finestGrid && config.GetDissipation_Mod_Normals()) {
+    modNormals(finestGrid && config.GetDissipation_Mod_Normals()),
+    edgeForm(finestGrid && config.GetEdge_Form_P1()) {
   }
 
 public:
@@ -151,8 +153,18 @@ public:
     const auto derived = static_cast<const Derived*>(this);
     VectorDbl<nVar> flux;
     MatrixDbl<nVar> jac_i, jac_j;
-    derived->finalizeFlux(flux, jac_i, jac_j, implicit, dissArea, dissUnitNormal, normal,
+    const auto centralNormal = edgeForm ? gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal()) : normal;
+
+    derived->finalizeFlux(flux, jac_i, jac_j, implicit, dissArea, dissUnitNormal, centralNormal,
                           V, U, iPoint, jPoint, nonPhysical, solution, geometry, dissNormal);
+
+    if (edgeForm) {
+      /*--- The second term of the P1 edge form, (F_k-F_i).E_ik. ---*/
+      const auto formE = gatherVariables<nDim>(iEdge, geometry.edges->GetFormE());
+      const auto fluxE_i = inviscidProjFlux(V.i, U.i, formE);
+      const auto fluxE_j = inviscidProjFlux(V.j, U.j, formE);
+      for (size_t iVar = 0; iVar < nVar; ++iVar) flux(iVar) += fluxE_j(iVar) - fluxE_i(iVar);
+    }
 
     /*--- Correct for second order on arbitrary grids ---*/
     if (correction) {

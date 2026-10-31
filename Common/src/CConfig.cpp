@@ -1833,6 +1833,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("DISSIPATION_MOD_NORMALS", Dissipation_Mod_Normals, false);
   /*!\brief VISCOUS_SCHEME \n DESCRIPTION: Viscous term of the flow equations, EDGE_GRADIENT or P1_CELL (the edge Jacobian is kept) \ingroup Config \default EDGE_GRADIENT */
   addEnumOption("VISCOUS_SCHEME", Kind_Viscous_Scheme, Viscous_Scheme_Map, VISCOUS_SCHEME::EDGE_GRADIENT);
+  /*!\brief EDGE_FORM_P1 \n DESCRIPTION: Variant C, central flux 0.5(F_i+F_k).n_ik + (F_k-F_i).E_ik on the modified dual, requires MOD_CENTROIDS \ingroup Config \default false */
+  addBoolOption("EDGE_FORM_P1", Edge_Form_P1, false);
 
   /*!\brief MARKER_HEATTRANSFER DESCRIPTION: Heat flux with specified heat transfer coefficient boundary marker(s)\n
    * Format: ( Heat transfer marker, heat transfer coefficient, wall temperature (static), ... ) \ingroup Config  */
@@ -6212,6 +6214,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Central_Group_Flux) active.push_back("CENTRAL_GROUP_FLUX");
   if (Dissipation_Mod_Normals) active.push_back("DISSIPATION_MOD_NORMALS");
   if (Kind_Viscous_Scheme == VISCOUS_SCHEME::P1_CELL) active.push_back("VISCOUS_SCHEME= P1_CELL");
+  if (Edge_Form_P1) active.push_back("EDGE_FORM_P1");
 
   if (active.empty()) return;
 
@@ -6258,6 +6261,17 @@ void CConfig::CheckP1FluxOptions() const {
     if (Kind_ConvNumScheme_Flow != SPACE_CENTERED && !(Kind_Upwind_Flow == UPWIND::ROE && ideal_gas)) {
       SU2_MPI::Error(name + "only with the centered schemes, or ROE with an ideal gas: the other schemes add "
                      "the viscous edge flux outside the vectorized numerics.", CURRENT_FUNCTION);
+    }
+  }
+  if (Edge_Form_P1) {
+    const string name = "EDGE_FORM_P1: ";
+    if (!ModCentroids) SU2_MPI::Error(name + "needs MOD_CENTROIDS= YES.", CURRENT_FUNCTION);
+    if (FluxCorrection) SU2_MPI::Error(name + "not available with FLUX_CORRECTION.", CURRENT_FUNCTION);
+    if (BC_Flux_Closure) SU2_MPI::Error(name + "BC_FLUX_CLOSURE is derived for the median dual.", CURRENT_FUNCTION);
+    if (Central_Group_Flux) SU2_MPI::Error(name + "it is already in group form, remove CENTRAL_GROUP_FLUX.", CURRENT_FUNCTION);
+    if (Dissipation_Mod_Normals) SU2_MPI::Error(name + "not available with DISSIPATION_MOD_NORMALS.", CURRENT_FUNCTION);
+    if (Kind_ConvNumScheme_Flow == SPACE_UPWIND && Kind_Upwind_Flow != UPWIND::ROE) {
+      SU2_MPI::Error(name + "among the upwind schemes only ROE is supported.", CURRENT_FUNCTION);
     }
   }
 }

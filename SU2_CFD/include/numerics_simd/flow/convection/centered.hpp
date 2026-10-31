@@ -53,6 +53,7 @@ protected:
   const bool dynamicGrid;
   const bool groupFlux;
   const bool modNormals;
+  const bool edgeForm;
   const su2double stretchParam = 0.3;
 
   /*!
@@ -64,7 +65,8 @@ protected:
     fixFactor(config.GetCent_Jac_Fix_Factor()),
     dynamicGrid(config.GetDynamic_Grid()),
     groupFlux(iMesh == MESH_0 && config.GetCentral_Group_Flux()),
-    modNormals(iMesh == MESH_0 && config.GetDissipation_Mod_Normals()) {
+    modNormals(iMesh == MESH_0 && config.GetDissipation_Mod_Normals()),
+    edgeForm(iMesh == MESH_0 && config.GetEdge_Form_P1()) {
   }
 
   /*!
@@ -153,7 +155,18 @@ public:
     /*--- Inviscid fluxes and Jacobians. ---*/
 
     VectorDbl<nVar> flux;
-    if (groupFlux) {
+    if (edgeForm) {
+      /*--- 0.5(F_i+F_k).n_ik + (F_k-F_i).E_ik, the dissipation and Jacobians keep the normal of the dual. ---*/
+      const auto formNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal());
+      const auto formE = gatherVariables<nDim>(iEdge, geometry.edges->GetFormE());
+      const auto flux_i = inviscidProjFlux(V.i, U.i, formNormal);
+      const auto flux_j = inviscidProjFlux(V.j, U.j, formNormal);
+      const auto fluxE_i = inviscidProjFlux(V.i, U.i, formE);
+      const auto fluxE_j = inviscidProjFlux(V.j, U.j, formE);
+      for (size_t iVar = 0; iVar < nVar; ++iVar) {
+        flux(iVar) = 0.5 * (flux_i(iVar) + flux_j(iVar)) + fluxE_j(iVar) - fluxE_i(iVar);
+      }
+    } else if (groupFlux) {
       /*--- Average of the nodal fluxes, the Jacobians below are already the exact ones for this form. ---*/
       const auto flux_i = inviscidProjFlux(V.i, U.i, normal);
       const auto flux_j = inviscidProjFlux(V.j, U.j, normal);

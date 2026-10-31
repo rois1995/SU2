@@ -448,6 +448,13 @@ class CPhysicalGeometry final : public CGeometry {
   void SetDissipationNormals() override;
 
   /*!
+   * \brief With W_i = |C_i cap T|, for each simplex T and edge (i,k):
+   *        n_ik += W_i grad(phi_k) - W_k grad(phi_i) and
+   *        E_ik += 0.5 [(W_i - |T|/(d+1)) grad(phi_k) + (W_k - |T|/(d+1)) grad(phi_i)].
+   */
+  void SetEdgeFormP1() override;
+
+  /*!
    * \brief Coefficients of the boundary closure of the flux correction.
    */
   void SetBoundCVCoeffs(const CConfig* config, unsigned short action) override;

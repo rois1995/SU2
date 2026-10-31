@@ -949,6 +949,11 @@ class CGeometry {
    */
   inline virtual void SetDissipationNormals() {}
 
+  /*!
+   * \brief Set the coefficients of the P1 edge form on the current (modified) dual.
+   */
+  inline virtual void SetEdgeFormP1() {}
+
   inline virtual void SetBoundCVCoeffs(const CConfig* config, unsigned short action) {}
 
   /*!

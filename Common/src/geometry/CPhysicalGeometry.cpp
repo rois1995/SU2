@@ -31,6 +31,7 @@
 #include "../../include/toolboxes/CLinearPartitioner.hpp"
 #include "../../include/toolboxes/C1DInterpolation.hpp"
 #include "../../include/toolboxes/geometry_toolbox.hpp"
+#include "../../include/toolboxes/p1_simplex.hpp"
 #include "../../include/geometry/meshreader/CSU2ASCIIMeshReaderFEM.hpp"
 #include "../../include/geometry/meshreader/CSU2ASCIIMeshReaderFVM.hpp"
 #include "../../include/geometry/meshreader/CSU2BinaryMeshReaderFEM.hpp"
@@ -7088,6 +7089,72 @@ void CPhysicalGeometry::SetDissipationNormals() {
 
     edges->ModNormal = edges->Normal;
     edges->Normal = medianNormal;
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+}
+
+void CPhysicalGeometry::SetEdgeFormP1() {
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    edges->FormNormal.resize(edges->nEdgeSIMD, nDim) = su2double(0.0);
+    edges->FormE.resize(edges->nEdgeSIMD, nDim) = su2double(0.0);
+
+    for (auto iElem = 0ul; iElem < nElem; iElem++) {
+      auto* element = elem[iElem];
+      const auto nNodes = element->GetnNodes();
+
+      if (nNodes != nDim + 1) {
+        SU2_MPI::Error("EDGE_FORM_P1 needs a mesh of triangles or tetrahedra.", CURRENT_FUNCTION);
+      }
+
+      array<const su2double*, N_POINTS_MAXIMUM> Coord;
+      for (unsigned short iNode = 0; iNode < nNodes; iNode++) Coord[iNode] = nodes->GetCoord(element->GetNode(iNode));
+
+      /*--- W = |C_i cap T|, built with the sub-volumes of SetControlVolume, so that sum_T W = V_i. ---*/
+
+      su2double Coord_Elem_CG[MAXNDIM] = {0.0}, W[MAXNDIM + 1] = {0.0};
+      element->getElemCG(nDim, Coord, Coord_Elem_CG);
+
+      for (unsigned short iFace = 0; iFace < element->GetnFaces(); iFace++) {
+        const unsigned short nEdgesFace = (nDim == 3) ? element->GetnNodesFace(iFace) : 1;
+
+        su2double Coord_FaceElem_CG[MAXNDIM] = {0.0};
+        if (nDim == 3) element->getFaceCG(iFace, nDim, Coord, Coord_FaceElem_CG);
+
+        for (unsigned short iEdgesFace = 0; iEdgesFace < nEdgesFace; iEdgesFace++) {
+          const auto face_iNode = element->GetFaces(iFace, iEdgesFace);
+          const auto face_jNode = element->GetFaces(iFace, (nDim == 2) ? 1 : (iEdgesFace + 1) % nEdgesFace);
+
+          su2double Coord_Edge_CG[MAXNDIM] = {0.0};
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+            Coord_Edge_CG[iDim] = 0.5 * (Coord[face_iNode][iDim] + Coord[face_jNode][iDim]);
+          }
+          if (nDim == 2) {
+            W[face_iNode] += CEdge::GetVolume(Coord[face_iNode], Coord_Edge_CG, Coord_Elem_CG);
+            W[face_jNode] += CEdge::GetVolume(Coord[face_jNode], Coord_Edge_CG, Coord_Elem_CG);
+          } else {
+            W[face_iNode] += CEdge::GetVolume(Coord[face_iNode], Coord_Edge_CG, Coord_FaceElem_CG, Coord_Elem_CG);
+            W[face_jNode] += CEdge::GetVolume(Coord[face_jNode], Coord_Edge_CG, Coord_FaceElem_CG, Coord_Elem_CG);
+          }
+        }
+      }
+
+      su2double grad[MAXNDIM + 1][3];
+      const su2double median = fabs(P1Simplex::ShapeGradients(nDim, Coord, grad)) / nNodes;
+
+      for (unsigned short a = 0; a < nNodes; a++) {
+        for (unsigned short b = a + 1; b < nNodes; b++) {
+          const auto iEdge = FindEdge(element->GetNode(a), element->GetNode(b));
+          const bool sameOrder = (edges->GetNode(iEdge, CEdge::LEFT) == element->GetNode(a));
+          const auto i = sameOrder ? a : b;
+          const auto k = sameOrder ? b : a;
+
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+            edges->FormNormal(iEdge, iDim) += W[i] * grad[k][iDim] - W[k] * grad[i][iDim];
+            edges->FormE(iEdge, iDim) += 0.5 * ((W[i] - median) * grad[k][iDim] + (W[k] - median) * grad[i][iDim]);
+          }
+        }
+      }
+    }
   }
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
