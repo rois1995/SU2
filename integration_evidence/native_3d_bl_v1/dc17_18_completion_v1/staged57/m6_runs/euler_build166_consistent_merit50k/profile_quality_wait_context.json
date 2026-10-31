@@ -1,0 +1,85 @@
+{
+  "scope": "Bounded two-second quality activity sample; not whole-stage timing or acceptance",
+  "utc": "2026-10-31T00:32:25Z",
+  "argv": [
+    "timeout",
+    "12",
+    "nice",
+    "-n",
+    "19",
+    "perf",
+    "record",
+    "--no-buildid-cache",
+    "-F",
+    "49",
+    "--call-graph",
+    "dwarf,8192",
+    "-p",
+    "1804158,1804157,1804156,1804155,1804154,1804153",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build166_consistent_merit50k/profile_quality_wait.data",
+    "--",
+    "sleep",
+    "2"
+  ],
+  "verified_ranks": [
+    {
+      "pid": 1804158,
+      "ppid": 1804149,
+      "start_ticks": "81774510",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build166_consistent_merit50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD"
+    },
+    {
+      "pid": 1804157,
+      "ppid": 1804149,
+      "start_ticks": "81774510",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build166_consistent_merit50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD"
+    },
+    {
+      "pid": 1804156,
+      "ppid": 1804149,
+      "start_ticks": "81774510",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build166_consistent_merit50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD"
+    },
+    {
+      "pid": 1804155,
+      "ppid": 1804149,
+      "start_ticks": "81774509",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build166_consistent_merit50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD"
+    },
+    {
+      "pid": 1804154,
+      "ppid": 1804149,
+      "start_ticks": "81774509",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build166_consistent_merit50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD"
+    },
+    {
+      "pid": 1804153,
+      "ppid": 1804149,
+      "start_ticks": "81774509",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build166_consistent_merit50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD"
+    }
+  ],
+  "environment": {
+    "DEBUGINFOD_URLS": "",
+    "PERF_BUILDID_DIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build166_consistent_merit50k/perf_buildid_cache",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp"
+  },
+  "exit_code": 0,
+  "data_bytes": 5109260,
+  "data_sha256": "09421e69b42038df8be18515b29b284bd798aa9a605910a530075dbf26b3b8cc",
+  "inclusive_report_exit": 0,
+  "self_report_exit": 0
+}

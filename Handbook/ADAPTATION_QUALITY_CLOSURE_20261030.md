@@ -274,3 +274,22 @@ all10launch identities exact/live. Initial CFD restart byte-identical164; all139
 unchanged at~2667wall seconds. No adapted mesh/transfer/usable restart exists yet.
 Existing quality-window cadence is64absolute rounds (entry21208→first21248), not
 per operation; no immediate window is expected. Sources/runtime/config stay frozen.
+
+Build166bounded two-second49Hz early-quality perf sample:552samples,0lost.75.50%
+inclusive Allreduce,12.26%GeometryGuidanceExcess/SmoothBoundary,9.00%Determinant.
+Shares overlap and wrapper self0; active boundary fitting/exact predicates plus
+collective waiting, not an all-rank stall or phase-timing/progress proof. No debugger.
+Raw5,109,260bytes local only, SHA09421e69b42038df8be18515b29b284bd798aa9a605910a530075dbf26b3b8cc.
+Both flat reports with --no-inline completed within bounded time; run stays intact.
+
+First complete166quality window at4136.318990098native seconds,760.286s afterentry:
+722782private cells,52471q-bad/53403J-bad,3036geometry-bad,size0. All measured
+counts equal cells (all cache/census/shape/geometry flags1). qDebt8063.703925633,
+JDebt14132.652717101; total22196.356642733, reduction175.203986464(.783155%).
+The consistent-merit correction has not established whole-field closure. Geometry
+upper-query ranksecond deltas487.667/9.266/396.966/41.378/91.491/65.342; scope build
+190.997/.809/239.507/2.390/44.482/6.423. Nested timers must not be added as disjoint.
+Cost remains strongly imbalanced despite new structural quality weights. Read-only
+bounded followup survey distinguishes mandatory geometry from fitting progress
+vetoes/repeated certification and maps existing full-star traversal. No source
+changes, tests or independent implementation cycle while166run remains live.

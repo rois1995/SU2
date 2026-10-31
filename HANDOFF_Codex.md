@@ -22,6 +22,14 @@ active. At3511wall seconds all10exact handles live, steady RSS8.103GiB, sampled 
 peak12.632GiB, ~25GiBavailable; no pressure. Existing quality windows emit every64
 absolute rounds (entry round21208, next21248), so first window is not immediate.
 All1396pins unchanged at2667wall seconds. Full acceptance/transfer/restart pending.
+First complete quality window4136.319native s (760.286afterentry):722782cells,
+qbad52471/Jbad53403,geometry3036,size0; q/J debt22196.35664, only.783%reduction.
+All census/shape/geometry flags1. No accepted event. Upper-query deltas by rank
+487.7/9.3/397.0/41.4/91.5/65.3seconds: geometry workload remains highly imbalanced.
+Bounded2s perf:552samples,0lost, active fitting/exact predicates plus MPI waiting;
+not all-rank stall, no debugger. Read-only ownership_survey followup examines
+mandatory geometry vs fitting veto/repeated certification and existing full-star
+quality traversal; no source edits/tests permitted. Run remains active/frozen.
 
 **TERMINAL, unsuccessful:** `euler_build164_quality_debt50k`, full two-event Euler50k attempt.
 All10owned handles independently absent; main exec23733 terminalexit1 after the

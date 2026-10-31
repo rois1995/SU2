@@ -1,0 +1,37 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 552  of event 'cycles'
+# Event count (approx.): 66153768824
+#
+# Overhead  Command  Shared Object                   Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+# ........  .......  ..............................  ...........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    29.88%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005330
+     6.28%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005333
+     5.78%  SU2_CFD  libopen-pal.so.40.20.3          [.] opal_progress
+     5.06%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005275
+     5.04%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005279
+     4.64%  SU2_CFD  mca_btl_vader.so                [.] 0x000000000000532d
+     4.16%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Product<66ul, 66ul>
+     3.54%  SU2_CFD  [kernel.kallsyms]               [k] _raw_spin_lock
+     3.44%  SU2_CFD  libopen-pal.so.40.20.3          [.] 0x00000000000286c7
+     3.25%  SU2_CFD  mca_btl_vader.so                [.] 0x000000000000528f
+     2.50%  SU2_CFD  mca_btl_vader.so                [.] 0x0000000000005336
+     2.42%  SU2_CFD  mca_coll_libnbc.so              [.] ompi_coll_libnbc_progress
+     2.01%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Difference<198ul>
+     1.80%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::PlanarReference::PlanarReference
+     1.45%  SU2_CFD  mca_btl_vader.so                [.] 0x000000000000533e
+     1.40%  SU2_CFD  mca_btl_vader.so                [.] 0x00000000000053b6
+     1.30%  SU2_CFD  mca_btl_vader.so                [.] 0x00000000000053c8
+     1.14%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Coordinate
+     1.04%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::(anonymous namespace)::Determinant
+     1.04%  SU2_CFD  SU2_CFD                         [.] SU2Native3D::PlanarReference::Contains
+     1.02%  SU2_CFD  SU2_CFD                         [.] SU2NativeGeometry::(anonymous namespace)::Multiply
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

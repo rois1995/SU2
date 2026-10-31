@@ -1,0 +1,15 @@
+{
+  "scope": "Two-second activity sample; NOT phase totals, speedup, mesh progress or acceptance",
+  "samples": 552,
+  "lost_samples": 0,
+  "data_bytes": 5109260,
+  "data_sha256": "09421e69b42038df8be18515b29b284bd798aa9a605910a530075dbf26b3b8cc",
+  "inclusive_percent": {
+    "PMPI_Allreduce": 75.5,
+    "GeometryGuidanceExcess": 12.26,
+    "MeshOptimizer_SmoothBoundary": 12.26,
+    "Determinant": 9.0
+  },
+  "interpretation": "Active boundary surface fitting and exact geometric predicates plus collective waiting; not an all-rank stall. Inclusive shares overlap and wrappers have zero self share.",
+  "raw_data": "Local only, not committed; no debugger attachment."
+}
