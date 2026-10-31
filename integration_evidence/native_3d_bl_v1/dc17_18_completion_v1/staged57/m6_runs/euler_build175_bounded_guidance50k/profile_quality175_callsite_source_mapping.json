@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "timeout",
+    "10",
+    "nice",
+    "-n",
+    "19",
+    "addr2line",
+    "-f",
+    "-C",
+    "-e",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+    "0x13eb49a",
+    "0x13eb5f3"
+  ],
+  "exit_code": 0,
+  "output": "SU2Native3D::(anonymous namespace)::MeshOptimizer::SmoothBoundary(unsigned long)\n/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/../../Common/src/adaptation/CNativeEngine3D.cpp:5116\nSU2Native3D::(anonymous namespace)::MeshOptimizer::SmoothBoundary(unsigned long)\n/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/../../Common/src/adaptation/CNativeEngine3D.cpp:5113\n",
+  "scope": "Static mapping of existing sampled caller PCs; source/binary frozen, no new capture"
+}

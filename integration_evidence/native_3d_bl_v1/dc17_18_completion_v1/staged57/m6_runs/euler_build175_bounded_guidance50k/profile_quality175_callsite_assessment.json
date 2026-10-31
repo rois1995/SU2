@@ -1,0 +1,55 @@
+{
+  "time": 1793421735.6917596,
+  "scope": "Caller classification of ONE existing2s capture only, not whole-phase cost or optimization proof",
+  "samples": 526,
+  "total_period": 58478066129,
+  "binary_sha256": "45f176a7b09c60ff8497d7a5ea976fc504df13947f4fb3ae489f0c5468ff06f4",
+  "smooth_boundary_symbol_start": "0x13e8990",
+  "callsite_ranges_relative_to_symbol": {
+    "old_complete": [
+      "0x2c5e",
+      "0x2c63"
+    ],
+    "fresh_candidate": [
+      "0x2b05",
+      "0x2b0a"
+    ]
+  },
+  "static_source_lines": {
+    "old_complete_call": 5112,
+    "old_complete_return_pc": 5113,
+    "fresh_candidate_call_and_return_pc": 5116
+  },
+  "classified_guidance_samples": {
+    "old_complete": {
+      "samples": 13,
+      "period": 1178462336,
+      "weighted_percent_of_capture": 2.0152211145292744
+    },
+    "fresh_candidate": {
+      "samples": 20,
+      "period": 1602967818,
+      "weighted_percent_of_capture": 2.7411436870431465
+    },
+    "guidance_other_or_unresolved": {
+      "samples": 13,
+      "period": 1518066898,
+      "weighted_percent_of_capture": 2.5959594741919343
+    }
+  },
+  "observed_smoothing_caller_offsets": {
+    "0x2c62": 13,
+    "0x2b09": 20
+  },
+  "minimal_examples": {
+    "guidance_other_or_unresolved": "\t    5637884e6ed2 SU2Native3D::GeometryGuidanceExcess+0x2f2 (/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD)",
+    "old_complete": "\t    555eed930ed2 SU2Native3D::GeometryGuidanceExcess+0x2f2 (/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD)\n\t    555eed9d15f2 SU2Native3D::(anonymous namespace)::MeshOptimizer::SmoothBoundary+0x2c62 (/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD)",
+    "fresh_candidate": "\t    555eed930ed2 SU2Native3D::GeometryGuidanceExcess+0x2f2 (/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD)\n\t    555eed9d1499 SU2Native3D::(anonymous namespace)::MeshOptimizer::SmoothBoundary+0x2b09 (/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD)"
+  },
+  "limits": [
+    "Small momentary sample; cannot establish phase-wide old/fresh proportions.",
+    "Other/unresolved samples are not assigned to smoothing.",
+    "Return-address minus-one symbolization allowed within exact call instruction/return range.",
+    "No new capture, source change, job restart or gate change."
+  ]
+}

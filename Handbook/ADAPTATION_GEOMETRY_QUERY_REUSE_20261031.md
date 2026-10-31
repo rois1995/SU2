@@ -540,3 +540,26 @@ A bounded read-only monitor correctly observed window12 but reported sandbox
 live, exec19304live and resource sampler advancing; no stop/relaunch. Treat default
 sandbox PID invisibility as unknown, not terminal. Main retains all lifecycle and
 acceptance decisions. No extra jobs/source edits/campaigns were started.
+
+Read-only existing-profile caller analysis: bounded helper statically mapped
+SmoothBoundary symbol0x13e8990, fresh guidance returnPC0x13eb49a(line5116), old
+complete-score call atline5112/returnPC0x13eb5f3mappedline5113. First custom perf-script field selection
+omitted caller frames and gave no split; corrected DEFAULT no-inline display
+of the SAME capture succeeded.526blocks/period58478066129match report total.
+Guidance withinSmoothBoundary:13old complete-score samples(period1178462336,
+2.015221%capture),20freshcandidate(period1602967818,2.741144%);13other/unresolved
+guidance(period1518066898,2.595959%). Offsets2c62and2b09are returnPCminus1,
+within exact call instruction/return ranges. All guidance totals~7.35%agree.
+Small momentary sample, NOT whole-phase old/fresh proportions or next-fix proof;
+both old and fresh paths remain active. No new capture/C++change/campaign/restart.
+Compact callsite assessment/source mapping receipts in175run; full script text
+and rawperf remain LOCALONLY. Current full175attempt stillfrozen.
+
+175aligned window20 native3964.390568/quality2942.988611seconds:743234cells,
+48415q-bad/48119J-bad/2765geometry-bad/size0, q/Jdebt18207.207795651,
+18.393822%fall; allmeasured/all4completeflags1. No accepted mesh/transfer/restart.
+Primary static addr2line confirmation preserves fresh returnPC5116and old-call
+line5112/returnPC5113; the one-line return mapping convention does not alter the
+old/fresh callsite classification. Existing sample shows both scoring paths; no
+phase-wide optimization decision or next source change follows from33smoothing
+samples. Main keeps175frozen to full outcome under the original limits.

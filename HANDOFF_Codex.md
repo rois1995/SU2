@@ -55,12 +55,12 @@ identical; unioncalls6957vs13708,882earlyrejections/10054evaluatedfaces,
 .503s. Negative-star reuse0: no measured benefit from that cache. Private work can
 be rejected by the outer transaction; don't equate it to whole-field progress.
 
-Latest preserved complete window13: native3294.526367s,
-quality2273.124410s; q/Jdebt19497.613547003,
-12.610119%fall/1.237703debt/s.
-736954private cells,50180q-bad/50313J-bad/
-2821geometry-bad/size0, allmeasured/all4completeflags1.
-Lastintervaldebt/s2.114127; continue generously.
+Latest preserved complete window20: native3964.390568s,
+quality2942.988611s; q/Jdebt18207.207795651,
+18.393822%fall/1.394452debt/s.
+743234private cells,48415q-bad/48119J-bad/
+2765geometry-bad/size0, allmeasured/all4completeflags1.
+Lastintervaldebt/s1.949931; continue generously.
 No accepted event/mesh/actual transfer/adapted restart yet. Run remains healthy.
 Sampled treeRSS8.51GiB, peak summed tree12.922GiB,~24GiBavailable; not physical
 memory or an individual peak. Resource/CPU/paging receipts retained in175run.
@@ -70,7 +70,10 @@ One bounded2s49Hz profile526samples/0lost: inclusiveAllreduce74.37%,surfaceunion
 protocol costs. Active fitting/exact geometry plus waiting, not all-rank deadlock.
 Initial inline report timed out45s with DWARF errors; no-inline self/inclusive
 reports passed<.3s. This is a diagnostic failure, not CFD failure. Capture/report
-CPU overhead is a timing limitation; raw perf stays LOCALONLY. Profile context,
+CPU overhead is a timing limitation; raw perf stays LOCALONLY. Corrected default
+no-inline script extraction classifies33smoothing-guidance samples:13old complete
+score,20fresh candidate;13other/unresolved guidance samples. Small instant only,
+not phase-wide proportions. Both paths remain active; no next fix inferred. Profile context,
 assessment and text reports saved; do not repeat a baseline campaign.
 
 Checkpointf136c64f1f contains four-window trend, bounded profile and compact handoff;
