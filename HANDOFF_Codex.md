@@ -14,50 +14,67 @@ All staged57 paths below are under
 AFTER = `staged57/m6_runs/euler_build183_real_cfd50k_after`.
 BEFORE = `staged57/m6_runs/euler_build179_real_cfd50k_before`.
 
-## Authoritative state —188full M6 LIVE, feature-publication fix qualified
+## Authoritative state —188full M6 LIVE, source freeze ACTIVE
 
-Full TWO-event M6 AFTER TERMINAL, exec94456exit1. First event naturally failed
-`Replacement changes genuine feature coverage.` on all6,refine max2763.908s,
-native total2971.892s, before5400s. Accepted original CFD retained. Raw6summaries/
-details/rejection saved before verified launcher3733372SIGTERM during event2setup.
-ALL10exact owned handles independently ABSENT/all1401pins unchanged BEFORE edits:
-AFTER/terminal_handles.json,event1_natural_failure.json,event1_failure_owned_stop.json.
-183 is historical terminal evidence. Current188 is LIVE below; all its pins are frozen.
+ONE owned heavy job: full TWO-event `build188`, attempt
+`staged57/m6_runs/euler_build188_real_cfd50k_feature_safe`, exec16914.
+Helper4103308/start87384875; time4103462/timeout4103463/launcher4103464
+start87385499; ranks4103468–73/start87385504. ALL10identities match;
+ALL1401source/header/test/helper/binary/config/input pins unchanged; all82loaded
+runtime files pinned/matching. Keep frozen until verified terminal or preserved
+failure/bottleneck/actual resource pressure justifies the authorized owned stop.
+No extra perf/GDB, baseline campaign, gate relaxation or native budget increase.
+Nice19,libs1,MPI6,unchanged50k/5400s per event. CFD SHA
+191ccb8869b3320de35a56ed91f608790897ebe7626741841e3edaf077eb4ca1.
 
-ONE connected correction is written/reviewed, not yet built/validated:
-BoundaryParameterState::CheckReplacement reuses Prepare locally against the
-replicated accepted base and complete candidate old/fresh boundary delta. Engine
-quality guards and final private backstop reject bad candidates before publication,
-keeping valid peers. No per-slot MPI; final combined atomic check remains. Exact
-unchanged face contracts skip unchanged delta work. Constructor paths/gates and
-5400s budget unchanged. Primary owns Engine; ownership_survey completed BoundaryParameters
-header/source and focused curved feature tests, no jobs. Source checkpoint b64674701a pushed. Build184 PASS522.810s, build185 PASS45.176s; exact handles absent and1296pins unchanged before edits. Focused184/185 terminal failures preserved/allhandles absent: retained-ID assertion corrected to required refusal; nonlinear legacy MoveVertex refuses before new preflight with Reference PSLG constraints cross. Entity branch passes all checks. Original legacy fixture restored with old parameter export and local preflight; nonlinear entity peer-publication case retained. Build186 PASS45.173s, exact handles absent/allpins unchanged. Build187 PASS45.179s/all1296pins unchanged/both handles absent. Serial187 PASS21cases/6148assertions/9.699s/allpins unchanged/all5handles absent. Affected187 MPI6 TERMINAL19.634s/allpins unchanged/all10handles absent. All163cases passed5ranks; rank3 had only newtest local-directory-change assertion (empty unaffected rank legitimately unchanged). Production/publication passed; all other assertions passed. Corrected to world.maximum(local_snapshot_changed)==1. Build188 PASS54.151s/all1296pins unchanged/both exact handles absent. Focused188serial PASS2cases/71assertions/6.195s and MPI6PASS2cases/all6/5.954s, allpins unchanged/all sampled handles absent. Qualified via187affected campaign plus188assertion-only continuation:staged57/feature_publication188_qualification.json. Production unchanged since184; only testpin changed187→188. Full TWO-event build188 M6 RUNNING exec16914, attempt staged57/m6_runs/euler_build188_real_cfd50k_feature_safe. Helper4103308/start87384875; time4103462/timeout4103463/launcher4103464 start87385499; ranks4103468–73/start87385504. All10identities match/all1401pins unchanged/all82loaded runtime files pinned+matching. Initial continued original-grid CFD is BYTEIDENTICAL179/183 (6bbed8da...), positive finite61330pointstate. Source freeze ACTIVE until verified terminal/authorized evidence stop. One owned heavy job, nice19/libs1/MPI6, unchanged50k/5400s/event. Qualified checkpoint34f458f5ed pushed. No mesh accepted yet.
-Validation plan:staged57/feature_publication188_validation_plan.json. [Active design](Handbook/ADAPTATION_FEATURE_PUBLICATION_20261031.md).
+Connected genuine-feature fix source checkpointb64674701a; qualified34f458f5ed;
+live provenance5434e8b835, all pushed to fork. CheckReplacement locally reuses
+existing noncommitting Prepare on complete old/fresh boundary deltas against the
+replicated accepted state. Quality candidate guards/final private backstop refuse
+invalid proposals before one atomic publication, preserving valid peers. Exact
+unchanged accepted-face contracts skip delta rebuilding. No per-slot collective;
+final combined clearance/reservation/version/parameter checks remain. Construction
+unchanged. [Design/evidence](Handbook/ADAPTATION_FEATURE_PUBLICATION_20261031.md).
 
-Preserved handles (allABSENT):Python3733069/start86521654;time3733370,timeout3733371,
-launcher3733372/start86522259;ranks3733376/start86522264,3733377–81/start86522265.
-Never treat these as live merely from old status. New build/validation freezes
-its exact source/header/test/helper/binary/config/input pins until terminal.
+Build188PASS54.151s/all1296pins unchanged/exact handles absent before validation.
+Affected serial187PASS21cases/6148assertions. Affected MPI187completed163cases/rank:
+all passed5ranks; rank3only newfixture's erroneous local-directory-change assertion
+failed on an unaffected rank. All other assertions passed. Only testpin187→188
+changed: assert global directory change. Focused188serialPASS2cases/71assertions,
+MPI6PASSbothcases/all6ranks; allpins unchanged/owned handles terminal before M6.
+`staged57/feature_publication188_qualification.json` defines reused scope. No full
+repository-suite claim. Legacy nonlinear PSLG extension refused before preflight;
+original legacy case retained, nonlinear entity case validates actual M6 path.
+Earlier wrong retained-ID test expectation corrected to existing new-ID movement
+contract. Failed fixtures are preserved in qualification/backlog, not passing evidence.
 
-Production source0cf923c59f; qualified checkpointbebb5e9014. CFD SHA
-074dc38824aea5a1e07f828a8d854ed7fe99355d0d4658ff9f36e0e180cd0f7e.
-Build183PASS357.697s/all1296pins/up-to-date; exact build handles absent before checks.
-Focused183serialPASS13cases/6850assertions; MPI6PASS161cases/rank, all6,
-104.904s/allpins unchanged/all10handles absent before M6. Earlier182serial117cases/
-17611assertions covers the connected source before the tiny optional-migration guard.
-`staged57/parallel_quality183_qualification.json` records scope and provenance.
-Broad182MPI timed out600s and is NOT a passing broad suite. Affected continuation
-found only one-cell/6rank optional partition failure; guard now skips impossible
-migration when global_cells<world.size, preserving coherent prior ownership.
-Construction operators/gates unchanged. run_cases.py adds only per-case durations.
+Current188seed AND initial continued original-grid CFD are BYTEIDENTICAL179/183;
+positive finite61330pointstate. Initial ownership matches183 across ALL17compared
+fields,303359cells. Coarsening EXACT183:292709cells,2627collapses,size55180,
+geometry3512,same14870uppercalls/work303014856; elapsed303.106vs586.967s.
+Freer host affects timing; quality-only publication fix cannot explain construction
+speed. Construction SIZECLOSURE COMPLETE after18gens at855.998native seconds:
+727722cells,size0,geometry4059. ALL18generation measured totals EXACT183,
+including query work/calls; current quality entry892.080vs1831500.747s. This
+construction timing difference is host-dependent, not caused by quality-only fix.
+Quality entry counts EXACT183:54071q/53377J/4059geometry,size0,debt25236.787403.
+Ownership410245cells/11.124s, allflags/counts/debtweights preserved; rawdebtspread
+15.800→1.456. First SHORT quality window8.856s:78commits,53858q/53136J/4054geometry,
+size0,debt24685.285922—EXACT183counts. Not a throughput comparison window.
+Private tracked collectives0/unmeasured churn0; all16globaldriftpoints supported,
+lost0,maxcurrentnodaldrift.084754961 (replicated views,not96samples). Existing
+original continuous-target caveat remains below. Current receipts:
+matched_construction183_assessment.json,quality_entry_ownership_assessment.json,
+quality_entry_assessment.json,quality_trend_assessment.json,quality_window1_counters_assessment.json.
+Latest passive1793459813:all10identities match,~31GiB available,treeRSS~6.60GiB
+(sampled sum,not physical/job peak),no rejection. No accepted mesh/transfer/restart.
 
-Startup audit:all1401pins unchanged, all10live identities match, all82mapped runtime
-files pinned/matching (AFTER/startup_verification.json). Future map audits must hash
-each DISTINCT mapped path once. Actual host load varies; preserve resource receipts.
-Latest host observation:all10live,~25GiB available,load14.18; treeRSS~6.4GiB during
-splitting, later~7.4GiB near quality. Summed sampled RSS is not physical/job peak.
-Cache host cap remains4GiB; quota715827882bytes/rank, actual preparedpool396836704/
-rank vs BEFORE20869984. MemAvailable correction restores reclaimable-cache headroom.
+183 is HISTORICAL TERMINAL: first event naturally failed genuine-feature coverage
+at2763.908refine seconds before5400s; original CFD retained. Saved raw6rank outcome
+before verified launcher stop during event2setup. All10handles independently absent
+and all1401pins unchanged BEFORE ANY edits. AFTER/event1_natural_failure.json,
+event1_failure_owned_stop.json,terminal_handles.json. Never treat historical PIDs
+or build183statistics as the current live attempt. Both agents finished/no jobs.
 
 ## Preserved actual AFTER183 progress
 
