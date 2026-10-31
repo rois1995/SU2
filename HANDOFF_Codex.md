@@ -12,18 +12,26 @@ Connected bounded-guidance175 QUALIFIED: buildPASS588.881s/1296pins/all sampled
 build handles absent; focused serial51cases/3885assertions PASS46.257s/all4handles
 absent/1388pins unchanged; MPI6 204cases/rank PASS278.518s/all9handles absent/
 1387pins independently rehashed. Summary staged57/bounded_guidance175_integration_summary.json.
-No owned heavy job. Immediate next action: complete Euler50k two-event attempt
-`euler_build175_bounded_guidance50k`, unchanged config/inputs/native5400s/event.
-Source/helper/runtime unchanged since qualification; do not start another cycle.
+Full M6 Euler50k two-event attempt **RUNNING**, exec19304:
+`staged57/m6_runs/euler_build175_bounded_guidance50k`.
+Driver2378026,time2378128,timeout2378129,mpirun2378130,ranks2378134–2378139.
+All10exactidentities live,1396pins rehashed unchanged,81actual mapped libraries
+covered by pins. Source/helper/runtime/config/input FROZEN until terminal or
+preserved evidence justifies authorized stop. Native5400s/event,outer14400s,
+nice19/libs1/MPI6, one owned heavy job. Config/authority byte-identical174;
+initial61330points/303359cells and restart00000byte-identical174 (initial state
+ONLY, never adapted restart proof). Hostcachequota4294967296/rank715827882before
+rounding vs1742673639424/445606570: same policy, more available host RAM. Preserve
+this comparison limit; startup/cache allowance receipts saved. No new cycle.
 CFD SHA45f176a7b09c60ff8497d7a5ea976fc504df13947f4fb3ae489f0c5468ff06f4.
 No accepted Euler mesh/event/actual transfer/adapted disk restart yet.
 
-Build174 M6 is TERMINAL after an authorized computational-bottleneck stop.
+Previous build174 M6 is TERMINAL after an authorized computational-bottleneck stop.
 Exec2461 terminal1, all10 exact owned handles ABSENT, all1396 pins unchanged.
 Run `staged57/m6_runs/euler_build174_geometry_reuse50k`; receipts
 geometry_bottleneck_stop_receipt.json and terminal_handles.json. This was a
 supervised performance stop, NOT native time_budget failure. No accepted mesh,
-event, transfer or adapted restart. One owned heavy workload: none now.
+event, transfer or adapted restart. The current owned workload is175above.
 
 174 preserved construction: coarsening312.718native seconds vs1661200.506 with
 identical counts/debts; size closesgen21/982.303s,720958cells/maxedge1.7999928684783673.
@@ -105,8 +113,9 @@ Serial171192/193cases passed (graph failed);174focused resolves that shared fail
 
 ## Next actions
 
-1. Implement and qualify the connected bounded-guidance fix above, then immediately
-   full M6 retry.174is terminal/pins verified; no current heavy job or source freeze.
+1. Let current175full M6 run frozen until terminal or preserved evidence justifies
+   an authorized computational/construction/certification/transfer/resource stop.
+   Verify exact handles; no second heavy job or pinned-source edits.
 2. On failure, preserve full evidence and pins, stop only verified owned launcher
    if needed to prevent unchanged retries, verify ALL handles terminal, then fix
    the demonstrated blocker as one connected cycle and return to complete M6.

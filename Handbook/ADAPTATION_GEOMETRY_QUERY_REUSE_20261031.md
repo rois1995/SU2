@@ -7,7 +7,7 @@ Summary staged57/geometry_reuse174_integration_summary.json. Fixed1M graph cap
 passes with overlap-conditioned plane lift; failed convex-only fallback removed.
 Full Euler50k attempt euler_build174_geometry_reuse50k nowTERMINAL after authorized
 computational-bottleneck stop; exec2461terminal1, all10handles absent/1396pins unchanged.
-No owned heavy job; bounded-guidance175now qualified, immediate fullM6next.
+Bounded-guidance175qualified; full M6 nowLIVE as detailed below, source freeze.
 No accepted M6 event/mesh/transfer/restart yet. Full Euler→BL/MPI→RANS500k goal and
 all gates unchanged; actual numerical frozen-field semantics risk remains open.
 
@@ -424,3 +424,16 @@ Summary staged57/bounded_guidance175_integration_summary.json. CFD SHA
 This is supporting qualification only, no accepted M6 capability. Immediate attempt
 euler_build175_bounded_guidance50k, same50k/config/input/native5400s/event/twoevents.
 Full Euler transfer/restart, numerical frozen-field risk, BL/MPI and RANS500k remain.
+
+175full M6 launched from pushed924f531ac3, exec19304/driver2378026/time2378128/
+timeout2378129/mpirun2378130/ranks2378134–2378139. All10exactidentities live,
+1396pins independently rehashed;81actualmapped libraries all covered by pins.
+Config/authoritybyte-identical174; initialrestart00000byte-identical174 and initial
+61330points/303359cells. This initial state is NOT adapted transfer/restart proof.
+Hostcachequota4294967296/rank715827882before rounding vs1742673639424/445606570;
+samepolicy now sees more host RAM. Preserve allowance/host differences in geometry
+work/memory/timing comparison. Source/helpers/binary/config/inputs remain FROZEN
+until terminal or evidenced authorizedstop. One heavy job,nice19/libs1/MPI6,
+native5400s/event/outer14400s/twoevents. No accepted event/mesh/transfer/restart yet.
+Receipts startup_verification.json,initial_restart_comparison.json,
+cache_allowance_comparison.jsonin175run. Immediate task remains this full attempt.
