@@ -78,6 +78,31 @@ PrepareParameters once against current complete state.
 Exact interfaces and the minimum debt redistribution method remain under source
 review; this is not a claim that private publication is already proven safe.
 
+## Debt-directed work without resetting live queues
+
+The real-CFD BEFORE quality migration moves411173cells but post-migration q/J
+debts still range1909.352–5770.169 (3.022x). Window1widens this to1023.785–4978.736
+while every rank still receives the same slot ceiling. Add the separate zero-clean
+q/J partition constraint at the existing quality-entry migration. For subsequent
+work, use the existing candidate_batch as a maximum, with each rank's local star
+count proportional to its cached current required debt relative to the global
+mean at complete quiescent cached censuses. A rank with active demand always gets
+at least its oldest-demand slot; high-debt ranks retain the configured maximum,
+and worst-first selection fills the remaining local slots. Per-star operator
+trial limits and boundary movement stay unchanged. This is a small extension of
+existing batch selection, not a new scheduler/config.
+
+Keep live feature queues in place; do not add mid-quality migration that would
+silently reset rejected-state or service epochs. The current CachedRow does not
+carry that metadata. Entry migration occurs before rejected-feature histories;
+local effort scaling thereafter avoids that correctness problem. Use required
+height demand where applicable and the actual geometry-repair demand in its
+phase; unavailable/incomplete census data retain the existing full ceiling.
+All ranks, including empty ranks, join the round's shared reservation/publication;
+there is no per-slot synchronization. Validate fairness and unchanged-star blocks
+alongside the other oneMPI6 milestone cases. Counter collection itself never
+chooses this policy: selection must behave identically with profiling disabled.
+
 ## Demonstrated cache allowance blocker in the real-CFD baseline
 
 Coarsening complete:292709cells,55180size-bad/3512geometry-bad,2627collapses;

@@ -44,10 +44,23 @@ pages,missing reclaimable cache despite~28GiB MemAvailable; prepared pool~20MiB
 vs historical396MiB, repeated facet builds measured. Preserve this baseline;
 include conservative MemAvailable correction (same4GiB host hardcap/shares/admission)
 in the same connected parallel/debt milestone. cache_availability_assessment.json.
-Different input fields prohibit isolated old-v-new timing attribution. Four split
-generations COMPLETE:693014cells,10728size-bad/4411geometry-bad at max1810.707
-engine seconds. q/J deliberately unmeasured. split_generation_assessment.json
-contains exact complete six-rank rows. No accepted mesh yet; splitting continues. Strict geometry/q/J/size/heights/transfer gates unchanged.
+Different input fields prohibit isolated old-v-new timing attribution. Seventeen split generations COMPLETE:726930cells,size-bad0/geometry-bad4197 at
+max3105.412engine seconds. Full quality entry COMPLETE at3225.021:53318q-bad/
+52464J-bad/4197geometry-bad/size0;q/Jdebt24844.47974341604. All726930measured,
+all four complete/cache flags1. Quality ownership moved411173cells in33.543s;
+before/after integer counts and census flags preserved, reported debt sum roundoff
+<1e-8. Post-migration q/Jdebts/rank3756.805/3988.121/5770.169/1909.352/5746.601/
+3673.432(max/min3.022). Confirms need for separate zero-clean debt constraint.
+Receipts:split_generation_assessment.json,quality_entry_assessment.json,
+quality_entry_ownership_assessment.json. Current phase QUALITY; completewindow1at698.727seconds sincequality entry:
+733816cells,48483q-bad/47386J-bad/4112geometry-bad/size0,q/Jdebt17422.07108015.
+1897shape-progress commits(2.71494/s),netq-bad removal6.91973/s. Debts now
+1023.785–4978.736/rank. quality_window1_assessment.json separates nested timers:
+election-call wall270.2–342.0s/rank (not pure idle); upper query54.7–170.6s/rank.
+No new profiler. All quantities are real-CFD baseline only, not matched startup179
+timing. Plan uses separate entry debt constraint plus existing local batch ceilings
+scaled to cached required demand, retaining oldest slot and unchanged per-star
+trial limits; no mid-quality queue-age reset/new scheduler/config. No accepted mesh/transfer/restart.
 
 See [saved CFD input and preparation evidence](Handbook/ADAPTATION_M6_CFD_SEED_20261031.md)
 for exact hashes, current policy, source snapshots, former criterion failure,
