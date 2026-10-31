@@ -38,6 +38,18 @@ Quality ownership committed360022cells/13.949710106s; full own-rank rows saved.
 Run frozen in quality;1396pins and10exactlivehandles reverified atentry,~23.9GiB
 available. Construction/entry/ownership/live receipts saved. No accepted mesh,
 actual conservative transfer or adapted disk restart.
+First COMPLETE quality window1229.956504567native/208.554547651quality seconds,
+vs174356.391717597quality seconds: EXACT same counts and q/Jdebt22032.921369789,
+278.144117fall/1.246664% (1.333676debt/s vs.780445).723488cells,52330q-bad/
+53326J-bad/3195geometry-bad/size0, allmeasured/allflags1. PRIVATE boundary
+3515stars/6248candidates/1597guidance/229moves/14.248debt IDENTICAL174; upperqueries
+6957vs13708,882earlyrejections/10054evaluatedfaces,202.517sumseconds vs365.896.
+Interior331stars/2186candidates/282moves/9.221debt/.503s; negative-star reuse0.
+Rankqualityupper58.073/25.599/35.747/64.193/26.736/72.109s (oldrank3alone232.961).
+Actual counts/debt/private work agree; no bitwise mesh identity or isolatedwall
+benchmark claim. Firstwindow assessment/livepin receipts saved; run remains frozen
+and healthy, no accepted mesh/actual transfer/adapted restart. Let full175attempt
+continue generously; do not start a second optimization from this partial window.
 CFD SHA45f176a7b09c60ff8497d7a5ea976fc504df13947f4fb3ae489f0c5468ff06f4.
 No accepted Euler mesh/event/actual transfer/adapted disk restart yet.
 

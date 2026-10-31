@@ -467,3 +467,23 @@ first_quality_assessment.json,quality_ownership_assessment.json,
 quality_entry_live_verification.jsonin175run. Next compare complete quality windows
 from own exact entry, including early rejections/face counts, private boundary vs
 interior costs, and WHOLE-field debt reduction per second. Nested timers overlap.
+
+##175 first complete quality window — same useful result, less certification
+
+Window1229.956504567native/208.554547651quality seconds vs174356.391717597quality
+seconds. EXACT same counts and whole q/J debt as174firstwindow:723488cells,
+52330q-bad/53326J-bad/3195geometry-bad/size0, allmeasured/all4completeflags1;
+debt22032.921369788713,fall278.14411710517743/1.246664428772201%,
+1.333675627debt/s vs174.780444952. PRIVATE boundary3515stars/6248candidates/
+1597guidance/229moves/14.248227272debt are IDENTICAL174; unionqueries6957vs13708,
+882earlyrejections/10054evaluatedfaces,202.517305033sumseconds vs365.896293382.
+Interior331stars/2186candidates/282moves/9.220832673debt/.502550025s vs.503938906;
+negative-star reuse0. Private moves/debt can still be rejected by outer transaction.
+Rankqualityupperseconds58.073/25.599/35.747/64.193/26.736/72.109 (oldrank3alone
+232.961). Same candidates/useful result with fewer union calls validates intended
+work removal; no trial-count cut, gate relaxation or measured negative-cache gain.
+No bitwise mesh identity proof or isolatedhostbenchmark claim; nested timers overlap.
+Receipts quality_window1_assessment.json/quality_window1_live_verification.json.
+175continues FROZEN toward complete acceptance; over52kshape failures remain.
+Do not launch another implementation from this partial result. Full accepted Euler
+meshes/transfer/actual adapted restart, BL/MPI and RANS500k goal remain unfinished.
