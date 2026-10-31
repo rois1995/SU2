@@ -1,6 +1,7 @@
 # Existing projected-envelope tightening —191terminal analysis and next design
 
-Status: build193 refinement compiling, sources frozen; NOT production validated.
+Status:193proof/serial/MPI6 PASS; full two-event real-CFD M6 ACTIVE, sources frozen.
+No accepted adapted mesh or production speedup claim.
 Analysis/proof completed before implementation. One active connected
 geometry/quality optimization cycle. Preserve191bounded memo retention,190ownership/
 history and all latest validity-first construction improvements. No new options,
@@ -134,3 +135,10 @@ Build193 refines only when coupled proposals are attempted: skip if existing
 objective upper already certifies tolerance. Repeat replay, then connected
 serial/MPI6 qualification and immediate full two-event M6. Plans and primary review
 are R/geometry_envelope193_validation_plan.json and geometry_envelope193_source_review.json.
+
+193qualification: proof307assertions/2cases; serial20643assertions/68cases; MPI6
+216cases on EACH6ranks. All exact host handles terminal/pins unchanged before
+full193M6. Saved-query traversal401486→379146 (-5.56%);4hardqueries still regress,
+so net whole-field closure benefit remains unproven. Same saved CFD/actual original
+continued restart/config/geometry/mesh verified against191. See current HANDOFF
+for actual active handles and source freeze; never use historical IDs from this file.

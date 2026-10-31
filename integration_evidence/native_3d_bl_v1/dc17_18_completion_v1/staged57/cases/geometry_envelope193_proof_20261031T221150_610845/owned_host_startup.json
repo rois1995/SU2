@@ -1,0 +1,48 @@
+{
+  "time": 1793484721.5904932,
+  "scope": "Host identity audit, host-launched case only; no namespace-local PID interpretation.",
+  "handles": [
+    {
+      "pid": 610845,
+      "state": "S",
+      "startticks": 89972093,
+      "exe": "/usr/bin/python3.8",
+      "cmd": "python3 -u - "
+    },
+    {
+      "pid": 610938,
+      "state": "S",
+      "startticks": 89972360,
+      "exe": "/usr/bin/time",
+      "cmd": "/usr/bin/time -v timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeSurfaceEnvelope3D],[NativeM6GeometryQueries3D] --durations yes "
+    },
+    {
+      "pid": 610939,
+      "state": "S",
+      "startticks": 89972361,
+      "exe": "/usr/bin/timeout",
+      "cmd": "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeSurfaceEnvelope3D],[NativeM6GeometryQueries3D] --durations yes "
+    },
+    {
+      "pid": 610940,
+      "state": "R",
+      "startticks": 89972361,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeSurfaceEnvelope3D],[NativeM6GeometryQueries3D] --durations yes "
+    },
+    {
+      "pid": 610941,
+      "state": "S",
+      "startticks": 89972363,
+      "exe": "/usr/bin/orted",
+      "cmd": "orted --hnp --set-sid --report-uri 8 --singleton-died-pipe 9 -mca state_novm_select 1 -mca ess hnp -mca pmix ^s1,s2,cray,isolated "
+    }
+  ],
+  "changed": [],
+  "pins_verified": true,
+  "status": {
+    "state": "running",
+    "pid": 610938,
+    "started_at": 1793484710.8173409
+  }
+}

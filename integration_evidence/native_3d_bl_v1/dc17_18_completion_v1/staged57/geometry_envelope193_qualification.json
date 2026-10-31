@@ -1,0 +1,65 @@
+{
+  "state": "focused_connected_serial_and_mpi6_pass_full_M6_pending",
+  "time": 1793485348.6990464,
+  "build": "build193",
+  "source_checkpoint": "51c8323724",
+  "full_workflow_accepted": false,
+  "strict_gates_unchanged": true,
+  "build_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build193_terminal_verification.json",
+  "proof": {
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_envelope193_proof_20261031T221150_610845",
+    "tests": 2,
+    "assertions": 307,
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 18.26055073738098,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 348422144,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "terminal_receipt_sha256": "1750f188be2f60d1250545f497b2a5d395654e301f38e25b20413f64d11b8ada"
+  },
+  "serial": {
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_envelope193_serial_20261031T221226_611836",
+    "tests": 68,
+    "assertions": 20643,
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 255.63285565376282,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 353169408,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "terminal_receipt_sha256": "bf575d2c74632996cd346ea4759680fe4117a67883fb13f06d2bd680666f9b7f"
+  },
+  "saved_query_comparison": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/geometry_envelope193_saved_query_comparison.json",
+  "mpi": {
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_envelope193_mpi6_20261031T221712_619464",
+    "ranks": 6,
+    "tests_per_rank": 216,
+    "summaries": [
+      "\u001b[1;32mAll tests passed\u001b[0m (32309 assertions in 216 test cases)",
+      "\u001b[1;32mAll tests passed\u001b[0m (31834 assertions in 216 test cases)",
+      "\u001b[1;32mAll tests passed\u001b[0m (34992 assertions in 216 test cases)",
+      "\u001b[1;32mAll tests passed\u001b[0m (31849 assertions in 216 test cases)",
+      "\u001b[1;32mAll tests passed\u001b[0m (32370 assertions in 216 test cases)",
+      "\u001b[1;32mAll tests passed\u001b[0m (31558 assertions in 216 test cases)"
+    ],
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 283.5897023677826,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 74186752,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "terminal_receipt_sha256": "2191d7dadd1f9ab0a9b90faaf0e85533efed7bd95b2e21bd517a2b717803edc3"
+  },
+  "followup": "Immediately full two-event M6 same saved CFD/50k/5400; actual transfer, continued CFD and adapted isolated disk restart, then BL/MPI and RANS500k.",
+  "cfd_sha256": "8a1a2cb30f8300ac7ba281d94e6ca5e8af96638f29dad126a287e63aed308e58"
+}

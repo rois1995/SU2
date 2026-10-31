@@ -262,3 +262,11 @@ Do not implement a motion index/cache absent new evidence. Existing PlaneUnion
 already has hole-aware projected envelopes and simplex-box residual bounds; the
 active next design is their connected tightening,not a duplicate envelope/cache.
 Detailed proof and acceptance remain in ADAPTATION_GEOMETRY_ENVELOPE_20261031.md.
+
+193focused replay:8of12queries much cheaper,4hard queries have unchanged bounds and
+more counted work; total traversal -5.56%. No production closure/rate evidence yet.
+Conditional follow-up ONLY if full M6 confirms cost: inspect failed nominal-footprint
+attempts using existing counters/queries. A necessary nominal-vertex projected-AABB
+screen may avoid provably impossible footprint attempts; tighter prepared graph
+connectivity or residual alternatives remain unproven. Do not change frozen193or
+start another implementation/benchmark cycle before its complete M6 outcome.
