@@ -5,7 +5,8 @@ qualified: focused serial45cases/3674assertions PASS46.510s; MPI6 198cases/rank 
 278.590s, pins unchanged/all9handles independently absent and pins rehashed.
 Summary staged57/geometry_reuse174_integration_summary.json. Fixed1M graph cap
 passes with overlap-conditioned plane lift; failed convex-only fallback removed.
-Next immediate step full Euler50k M6two-event attempt, not another fixture campaign.
+Full Euler50k two-event attempt euler_build174_geometry_reuse50k nowRUNNING
+exec2461; source/helper/runtime/input frozen, no other heavy job.
 No accepted M6 event/mesh/transfer/restart yet. Full Euler→BL/MPI→RANS500k goal and
 all gates unchanged; actual numerical frozen-field semantics risk remains open.
 
@@ -302,3 +303,11 @@ classes preserved, payload identical, cached/recomputed equality; observedquery
 .401954s versus1.03543sbaseline, work409280versus334868(new cheap work counted),
 repeat1060unchanged. CFD SHA60ffadf8e8c68b6771b940e72b510b62088da6f560679cb825e8ff31477d3a13.
 Actual accepted meshes/transfer/disk restart still pending; immediate fullM6next.
+
+174M6launched from pushedbeee72c100, exec2461/driver2244727/time2244815/timeout
+2244816/mpirun2244817/ranks2244826–2244831;1396pins unchanged. Config byte-identical166;
+initial61330points/303359cells and initialrestart byte-identical166. Hostcachequota
+2673639424/rank445606570before rounding. AutoGitGCfromcheckpoint overlappedstartup,
+then verified/cancelled only group2243698(threeGitPIDs), terminalreceipts preserved.
+Do not infer isolated startup speedup; future gitcommands gc.auto=0. HealthyM6
+remains frozen until outcome/authorized evidence; no more fixturecampaign or edits.

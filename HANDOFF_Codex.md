@@ -8,13 +8,29 @@ complexity. Strict geometry1e-4,q>=.2,J>=.05,maxedge1.8and requested heights.
 
 ## Authoritative current live state
 
-**No owned heavy job live.** Connected MPI6 exec28854TERMINAL0/278.590s;
-198cases/rank PASS (assertions30176/32916/30935/30408/30878/30413 in log order).
-All9sampled host handles absent, all runtime/source pins independently rehashed.
-Case:staged57/cases/geometry_reuse174_mpi6_20261031T022606_2230896.
-Qualification summary:staged57/geometry_reuse174_integration_summary.json.
-Next immediate action is full M6 launch below after checkpoint/push and host check.
-No further C++ changes planned; keep build174source/binary coherent.
+**M6 Euler50k two-event workflow RUNNING:** exec2461,
+`staged57/m6_runs/euler_build174_geometry_reuse50k`.
+Driver2244727,time2244815,timeout2244816,mpirun2244817,ranks2244826–2244831.
+All10exactidentities recorded in startup_verification.json(9children+driver_handle);
+1396pins independently rehashed unchanged. C++/binary/helpers/config/inputs FROZEN
+until terminal or preserved evidence justifies an authorized stop of verified owned
+handles. Nice19/libs1/MPI6,native5400s/event,outer14400s. One owned heavy workload.
+Initial61330points/303359cells; no accepted event yet. At100s sampled tree2.048GiB.
+Actual host quota2673639424/rank445606570before per-facet rounding. Config byte-
+identical166, SHA5b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1.
+Initial CFD restart byte-identical166, SHAee7ae4690ee4c890104ac1876e4eed85354e6014233e10733862dbc6c2f1d45f;
+this is initial-state provenance ONLY, never adapted restart evidence.
+
+Qualification checkpointbeee72c100pushed before launch. Its commit spawned automatic
+Git GC2243698/2243704/2243705; initial guard assumed common-git-dir cwd and aborted
+before signals, corrected guard verified this worktree/group and sent SIGTERM only
+to that housekeeping group. AllGC handles terminal(Z/absent), receipts in live run.
+GC overlapped startup; preserve as timing limitation, no isolated startup speedup.
+Use git -c gc.auto=0 for subsequent checkpoint commits/pushes to avoid automatic
+competing repack. Do not stop healthy M6 merely for this recorded startup overlap.
+
+Connected MPI6exec28854TERMINAL0/278.590s,198cases/rank PASS; all9handles absent,
+1387pins independently rehashed. Summary staged57/geometry_reuse174_integration_summary.json.
 
 Build174PASS54.150s,1296pins unchanged/all13sampled handles absent. Focused serial
 `geometry_reuse174_serial_20261031T022425_2226738`PASS45cases/3674assertions,
@@ -25,9 +41,8 @@ NativeMappedComponent3D/NativeCurvedAtlas3D/NativeGeometryBackend3D; hidden M6 q
 replay is serial only. Build174CFD SHA256:
 60ffadf8e8c68b6771b940e72b510b62088da6f560679cb825e8ff31477d3a13.
 
-Latest pushed498277b1a4contains source through171. Next checkpoint includes current
-qualified174source: narrow existing-trace diagnostics plus overlap-conditioned plane
-lift bound. Full M6 is still pending; no accepted M6 event/artifact/transfer/restart.
+Latest pushedbeee72c100contains qualified174source, diagnostics and preserved failures.
+Full M6 is now live; no accepted event/artifact/transfer/adapted restart yet.
 
 ## Connected candidate and evidence
 
@@ -61,8 +76,7 @@ repeatwork1060. No capture/replay RSS comparison. Receipts:
 One unsuccessful convex-hull-only fallback172was preserved then removed: same graph
 failure, slower M6sample.173trace proves all2048model/128physical pieces form one
 accepted graph/full witness, no footprint/storage refusal; fragmentation hypotheses
-disproved for that case.174addresses loose plane extrapolation. Exact172/173source
-archives and trace receipts preserved locally, must include in next checkpoint.
+disproved for that case.174addresses loose plane extrapolation. Exact172/173source archives and trace receipts are preserved inbeee72c100.
 
 An overbroad generic serial_full170was stopped after preserved assertion failures:
 1388pins/4exactidentities verified, only timeout2146037signalled, terminal143/270.596s,
@@ -75,14 +89,12 @@ Serial171192/193cases passed (graph failed);174focused resolves that shared fail
 
 ## Next actions
 
-1. Let MPI174finish frozen. Inspect actual result, rehash pins and independently
-   verify ALL sampled host PIDs terminal before any new job/source edit. If failure,
-   preserve/fix only demonstrated connected blocker; do not claim validation passed.
-2. On pass, save combined qualification/provenance, checkpoint/push reviewable source
-   and receipts, then IMMEDIATELY full M6 (fresh attempt directory):
-   `python3 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py build174 euler_build174_geometry_reuse50k 2`
-   Check actual host load/RAM and no owned handles before launch; source/runtime/input
-   pins authoritative. Existing config/inputs endorsed50k,2events,native5400s bound.
+1. Let current M6 finish frozen unless preserved evidence establishes an authorized
+   computational/construction/certification/transfer/CFD/resource stop. Observe exact
+   owned handles, resources and matching stages; no second heavy job or C++ edits.
+2. On failure, preserve full evidence and pins, stop only verified owned launcher
+   if needed to prevent unchanged retries, verify ALL handles terminal, then fix
+   the demonstrated blocker as one connected cycle and return to complete M6.
 3. Compare matching coarsen/split/quality geometry work, useful debt/time progress,
    transition/cache costs and aggregate sampled memory with terminal166. Nested timers
    overlap; old scope timer included facets. Do not infer speedup from changed CPU

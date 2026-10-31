@@ -1,0 +1,37 @@
+{
+  "reason": "Automatically spawned by this owned qualification checkpoint; cancel housekeeping for one owned heavy workload",
+  "time": 1793414020.6684625,
+  "gitdir": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/.git",
+  "signal_group": 2243698,
+  "signal": "SIGTERM",
+  "handles": [
+    {
+      "pid": 2243698,
+      "cmdline": "/usr/lib/git-core/git gc --auto ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "pgid": 2243698,
+      "start_ticks": "82893455",
+      "cpu_ticks": 0,
+      "rss_pages": "669"
+    },
+    {
+      "pid": 2243704,
+      "cmdline": "/usr/lib/git-core/git repack -d -l --no-write-bitmap-index ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "pgid": 2243698,
+      "start_ticks": "82893455",
+      "cpu_ticks": 0,
+      "rss_pages": "912"
+    },
+    {
+      "pid": 2243705,
+      "cmdline": "/usr/lib/git-core/git pack-objects --local --delta-base-offset /media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/.git/objects/pack/.tmp-2243704-pack --keep-true-parents --honor-pack-keep --non-empty --all --reflog --indexed-objects --unpacked --incremental ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "pgid": 2243698,
+      "start_ticks": "82893455",
+      "cpu_ticks": 5469,
+      "rss_pages": "155333"
+    }
+  ],
+  "guard_note": "Initial read-only guard required common git directory, but actual autoGC cwd is this worktree; it aborted before any signal"
+}
