@@ -293,3 +293,12 @@ Cost remains strongly imbalanced despite new structural quality weights. Read-on
 bounded followup survey distinguishes mandatory geometry from fitting progress
 vetoes/repeated certification and maps existing full-star traversal. No source
 changes, tests or independent implementation cycle while166run remains live.
+
+Latest user steering: [geometry query reuse and boundary smoothing](ADAPTATION_GEOMETRY_QUERY_REUSE_20261031.md)
+is the next connected milestone if terminal166confirms dominant geometry cost.
+Coarsen/split/quality must share prepared geometry/subtrees and safe unchanged
+query/certificate context. Boundary smoothing belongs in that optimization; measure
+its candidate/rejection/certificate/accepted-move/debt/time costs, exact state-based
+reuse/invalidation, and remaining valid cheap bounds/order. Interior smoothing
+measured separately. No blind trial-count reduction, boundary freeze, mandatory CAD,
+new baseline campaign or unrelated quality-motion reprioritization.166stays frozen.

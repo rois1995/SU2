@@ -290,3 +290,10 @@ After it succeeds, perform a dedicated BL qualification covering curved walls,
 junctions, MPI interfaces, subsequent mesh operations and redistribution.
 Use its evidence to implement BL-specific work estimates, coordination and
 memory policies before starting the full RANS workflow.
+
+
+2026-10-31user extension: [geometry query reuse milestone](ADAPTATION_GEOMETRY_QUERY_REUSE_20261031.md)
+contains the latest specification verbatim. Keep live166frozen until terminal or
+preserved evidence justifies authorized stop; use its outcome, then if geometry
+query cost remains dominant implement one connected reuse improvement across all
+three phases and return immediately to full M6. Full original goal/gates persist.

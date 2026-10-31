@@ -61,7 +61,8 @@ its relevance or the user explicitly reprioritizes it.
   have positive squared hinge debt below1e-12; exact closure to zero then fails
   that progress floor even though final gates close. Inspect actual late-stage
   rejections before reprioritizing; retain complete measurements and reject
-  above-gate cosmetic changes. Current build164 M6 sources remain frozen.
+  above-gate cosmetic changes. Implemented165 with a shared relative debt rule and actual near-gate fixture;
+  serial/MPI-qualified166. Actual166M6 remains live/frozen.
 
 - Build164 quality's bounded sample still shows fitting guidance/surface-union
   queries on the active path after cheap debt/edge rejection. If the actual target
@@ -69,12 +70,19 @@ its relevance or the user explicitly reprioritizes it.
   validity and optional per-proposal fitting nonincrease during shape repair.
   Preserve every final geometry gate and finite construction/quality feedback;
   do not remove checks or change strategy during the frozen live attempt.
+  First166window confirms the blocker: q/J debt only-.783% in760.286s, >52k bad
+  cells remain; two ranks spend487.7/397.0s in upper queries. Read-only survey
+  distinguishes optional per-face fitting nonincrease from mandatory authority/
+  topology/body/height and final two-sided certification. Reassess coordinated
+  whole-field quality coverage and fitting work after terminal166evidence; no
+  repeated full-event union certificates occur in each trial. Survey receipt:
+  staged57/m6_runs/euler_build166_consistent_merit50k/quality_window1_source_survey.md.
 
 - Quality telemetry: production currently suppresses existing window rows, leaving
   no interim whole-mesh q/J debt during long quality passes. At the next connected
   source-safe change, consider retaining existing window output in Improvement
-  only while keeping construction windows quiet. Reuse observe_progress rather
-  than adding a snapshot/monitoring framework. Current run stays frozen.
+  only while keeping construction windows quiet. Implemented165/reused observer,
+  qualified166; first actual complete window now saved. Current166run stays frozen.
 
 - If build164's actual whole-field quality closure still fails, inspect consistency
   of the optimizer's search objective across all operators: outer Repair now uses
@@ -84,3 +92,15 @@ its relevance or the user explicitly reprioritizes it.
   Reconsider one consistent patch merit/search strategy across existing operators
   before adding fallbacks or raising limits. Await actual terminal evidence; do
   not change the frozen run or weaken geometry, size, height or final q/J gates.
+  Implemented165 across all operators/DP/placement, qualified166; actual first
+  window remains slow despite consistent merit. Do not add another local variant.
+
+- Build166first-window blocker reassessment must reuse the existing direct complete
+  distributed vertex-star move, directory identity/version checking, concurrent
+  dependency claims and finite repair epochs. The optimizer wrapper sees only its
+  supplied cavity/artificial frame; this must not be confused with the direct route,
+  which already has full stars. Current direct motion is three nodal/metric-center
+  steps; service is oldest(epoch,feature), with coalesced demand users. Inspect the
+  resulting field coverage and fitting-vs-shape coordination before choosing a
+  connected fix. No duplicate full-star framework or local fallback ladder; current
+  166sources stay frozen. Full factual map in quality_window1_source_survey.md.

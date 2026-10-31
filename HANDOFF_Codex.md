@@ -3,6 +3,19 @@
 Updated2026-10-31. User has freed the machine and authorized continuing computation.
 The full Euler50k→BL/MPI→RANS500k goal remains active; zero accepted M6 events.
 
+**Latest user steering:** keep166frozen until terminal/authorized evidence-led stop.
+If its outcome confirms dominant geometry-query cost, implement one connected
+prepared-geometry/subtree and safe certificate/query reuse improvement across
+coarsening/splitting/quality, then immediately full M6. No new baseline campaign;
+CAD stays optional. Exact instruction/evidence:
+[geometry query reuse](Handbook/ADAPTATION_GEOMETRY_QUERY_REUSE_20261031.md).
+Boundary smoothing is part of the SAME connected geometry optimization: measure
+work/candidates/rejections/certificate calls/debt reduction per second; reuse exact
+unchanged star/certificates with full neighbor/state invalidation, improve remaining
+cheap screening/order; measure interior separately. No blanket trial cuts/boundary
+freeze. User extension is saved verbatim in the linked geometry-query handbook.
+Unrelated quality-motion/frontier ideas remain backlog; do not reprioritize them.
+
 **LIVE, authoritative:** `euler_build166_consistent_merit50k`, complete two-event
 Euler50k attempt, exec62090, driver1804058, time1804147, timeout1804148,
 mpirun1804149, ranks1804153–1804158. Exact start ticks/cwd/exe identities:
@@ -24,7 +37,10 @@ absolute rounds (entry round21208, next21248), so first window is not immediate.
 All1396pins unchanged at2667wall seconds. Full acceptance/transfer/restart pending.
 First complete quality window4136.319native s (760.286afterentry):722782cells,
 qbad52471/Jbad53403,geometry3036,size0; q/J debt22196.35664, only.783%reduction.
-All census/shape/geometry flags1. No accepted event. Upper-query deltas by rank
+All census/shape/geometry flags1. No accepted event.
+Second complete window4685.822native s:723880cells, qbad52311/Jbad53180,
+geometry2975,size0; total q/J debt21988.17415, cumulative1.714%reduction.
+Latest~5171wall seconds:10exact handles live,8.13GiB RSS, host CPU service~.87–.90. Upper-query deltas by rank
 487.7/9.3/397.0/41.4/91.5/65.3seconds: geometry workload remains highly imbalanced.
 Bounded2s perf:552samples,0lost, active fitting/exact predicates plus MPI waiting;
 not all-rank stall, no debugger. Read-only ownership_survey followup examines
