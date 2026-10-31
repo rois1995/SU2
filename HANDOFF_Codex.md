@@ -44,21 +44,32 @@ censuses audited,private trackedcollectives0/commits0atentry,no repair progress 
 CURRENT/quality_entry_assessment.json,quality_entry_comparison.json,
 quality_initial_ownership_assessment.json and all_quality_census_assessment.json.
 All10handles/all1401pins/82ELF reverified1793486628:quality_entry_provenance.json.
-Preserved quality WINDOW4 at1036.560039s sinceentry:749172cells,39886q/38086J/
-3518geometry,size0,debt9265.267591853688. Cumulative7831publications,net14195q/15306J/
-252geometry removed (13.6943netq/s),1.81267netq/publication. Interval4:2796q/2973J/
-45geometry in306.739629s,9.1152netq/s (includes second late migration cost). Queue
-323635,blocked127,stuck/missing0;privatecollectives0. ALL11complete censuses audited.
+Preserved quality WINDOW5 at1246.055455s sinceentry:753591cells,37310q/35416J/
+3462geometry,size0,debt7685.934318914528. Cumulative9621publications,net16771q/17976J/
+308geometry removed (13.4593netq/s),1.74317netq/publication. Interval5:2576q/2670J/
+56geometry in209.495416s,12.2962netq/s. Third late migration AFTER window5takes
+13.4715s and is charged to next complete interval. Queue313153aftermigration,
+blocked123,stuck/missing0;privatecollectives0. ALL14complete censuses audited.
 Coordinate-key churn counts moves as retirements/introductions even with unchanged
 connectivity; judge net counts,not raw retirements or debt percent. CURRENT/
 quality_service_assessment.json,quality_trend_assessment.json and
 all_quality_census_assessment.json. Firstwindow rawslotfill95.04%,reservation/candidate
 88.08%,publication/reservation86.56%,join-callshare41.35% (protocol+wait,not pure idle).
-Current window4 near-state:39886q/38086J/3518geometry vs19140488q/38625J/3826geometry;
-1036.560vs1437.661qualityseconds,traversal1.645086627Bvs2.285274456B(-28.01%),
-work/netq115892vs168245(-31.12%). Mismatches and actual time brackets recorded in
-CURRENT/quality_window4_comparison.json. Not identical meshes or isolated code timing.
-Last10handle/1401pin/82ELF audit forwindow4:quality_window4_live_provenance.json.
+Window5 near-state:37310q/35416J/3462geometry vs19137277q/34999J/3776geometry;
+1246.055vs1851.151qualityseconds,traversal1.922470355Bvs2.953492534B(-34.91%),
+work/netq114631vs175866(-34.82%). Mismatches/actual time brackets preserved in
+CURRENT/quality_window5_comparison.json. Not identical meshes or isolated code timing.
+Last10handle/1401pin/82ELF audit1793487832:quality_window5_live_provenance.json.
+Third actual late migration at21888:debtspread1.78570→1.27751,all counts/debt/flags
+conserved,selected prepared/numericmemo counters/entries/bytes unchanged. CURRENT/
+quality_migration_assessment.json includes all3late migrations,initial excluded by
+stage identity. Independently reviewed first2 source/history limits remain in
+quality_migration_review.json; those do not independently prove actual per-feature
+history identities/cache keys. Window5badpopulation28717q/23100Jinterior,8593q/12316J
+surface; no-physical-face classification is not unconstrained-vertex classification.
+16GLOBALfixed samples,supported16/lost0,maxmetricdrift3.22540%sinceentry atwindow5;
+not independent original continuous-CFD-target fidelity. Current5window stats replace
+older snapshots as live state; old JSON remain valid for their own recorded stages.
 
 Earlier Near-state comparison CURRENT/quality_window3_comparison.json:19342682q/41059J/
 3563geometry vs19142862q/41167J/3875geometry,729.820vs1103.940qualityseconds;
