@@ -55,11 +55,12 @@ identical; unioncalls6957vs13708,882earlyrejections/10054evaluatedfaces,
 .503s. Negative-star reuse0: no measured benefit from that cache. Private work can
 be rejected by the outer transaction; don't equate it to whole-field progress.
 
-Latest preserved complete window4: native2105.963906s,
-quality1084.561949s; q/Jdebt21164.572986776,
-5.138672%fall/1.057102debt/s.
-729439private cells,51798q-bad/52368J-bad/
-3031geometry-bad/size0, allmeasured/all4completeflags1.
+Latest preserved complete window8: native2624.105225s,
+quality1602.703268s; q/Jdebt20394.869596569,
+8.588545%fall/1.195602debt/s.
+732478private cells,51041q-bad/51461J-bad/
+2948geometry-bad/size0, allmeasured/all4completeflags1.
+Lastintervaldebt/s0.743693; continue generously.
 No accepted event/mesh/actual transfer/adapted restart yet. Run remains healthy.
 Sampled treeRSS8.51GiB, peak summed tree12.922GiB,~24GiBavailable; not physical
 memory or an individual peak. Resource/CPU/paging receipts retained in175run.
@@ -72,8 +73,8 @@ reports passed<.3s. This is a diagnostic failure, not CFD failure. Capture/repor
 CPU overhead is a timing limitation; raw perf stays LOCALONLY. Profile context,
 assessment and text reports saved; do not repeat a baseline campaign.
 
-Latest pushedc730d9f8ed contains three-window trend and pinned-source transfer/
-restart acceptance review; newer fourth-window/profile receipts pending checkpoint.
+Checkpointf136c64f1f contains four-window trend, bounded profile and compact handoff;
+c730d9f8ed contains the pinned-source transfer/restart acceptance review.
 All detailed current design, failures and previous qualification are linked below.
 
 ## Immediate actions and acceptance

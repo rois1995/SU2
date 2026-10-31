@@ -512,3 +512,22 @@ Initial inline report timed out45s with DWARF errors, no-inline reports passed
 <.3s; diagnostic failure only. Preserve capture/report CPU contention as timing
 limitation; rawperf localonly. Text/context/assessment receipts saved in175run.
 Handoff compacted in place; detailed history retained here and in run receipts.
+
+175fifth COMPLETE window2234.723386native/1213.321429quality seconds,
+730410cells/allmeasured/allflags1,51423q-bad/51984J-bad/
+3017geometry-bad/size0; q/Jdebt20851.275780612,
+6.542896%fall/1.203135debt/s. Lastinterval
+2.433197debt/s is faster than prior average; do not
+stop from a linear extrapolation. Source check Engine.cpp2434–2453confirms the
+geometry-only pass starts after clean_quality/size; it is not active or consuming
+geometry-only slots during this still-shape-invalid phase. No source edits.
+Run remains frozen/live, no accepted mesh/actual transfer/adapted restart.
+
+175latest aligned complete window8 at2624.105225native/
+1602.703268quality seconds: 732478cells/allmeasured/allflags1,
+51041q-bad/51461J-bad/2948geometry-bad/size0,
+q/Jdebt20394.869596569,8.588545%fall. Window numbering now
+comes directly from aligned six-rank record sequences. Earlier commentary labels
+for the2417.406s snapshot were incorrect (actualrecord7); counts were correct.
+The receipt/native timestamp sequence is authoritative.
+No source edits, accepted mesh, actual transfer or adapted restart.175stillfrozen.
