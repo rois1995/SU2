@@ -132,6 +132,10 @@ class BoundaryParameterState {
   Publication Prepare(const std::vector<BoundaryParameterEdit>& edits,const std::vector<BoundaryFaceChange>& faces,
       std::string& reason,size_t ceiling=SIZE_MAX,size_t caller_bytes=0,
       const SU2NativeGeometry::BoundaryCoverage& coverage_delta={},SU2NativeGeometry::AtlasBudget* reservation=nullptr)const;
+  /*! Local noncommitting preflight for complete old/fresh stars with exported boundary data;
+   * publication still requires the collective atomic check. */
+  bool CheckReplacement(const Patch& old,const Patch& fresh,std::string& reason,size_t ceiling=SIZE_MAX,
+      size_t caller_bytes=0,SU2NativeGeometry::AtlasBudget* reservation=nullptr)const;
   static std::vector<BoundaryParameterEdit> Changes(const Patch& old,const Patch& fresh,uint64_t revision);
  private:
   void ValidateEntityFeatures(SU2NativeGeometry::AtlasBudget&)const;

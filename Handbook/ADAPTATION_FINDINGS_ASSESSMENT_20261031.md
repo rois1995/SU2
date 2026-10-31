@@ -1,10 +1,24 @@
 # Assessment of supplied M6 findings (frozen build166)
 
 Scope: the detailed source assessment below was recorded against frozen164/166.
-Current disposition is based on the preserved full175 outcome. The full accepted
+The preserved disposition section records the full175 outcome; the183note below
+records the latest numerical measurement. The full accepted
 Euler50k→BL/MPI→RANS500k goal persists. This note claims no accepted M6 mesh.
 
-## Current disposition after the full build175 outcome
+
+Latest build183 actual measurement: the first9.084s quality window has16global
+fixed samples (replicated per-rank), all supported, max relative tensor drift
+.084754961; at371.387s it is.084197787. Read-only primary/agent source review
+confirms final metric gates use transported current nodal values, with no
+independent original-target q/J/edge recertification. The empty field identity
+tag is a cache identity, not numerical immutability. This is an existing open
+numerical risk, not proof the performance change caused drift; BEFORE had no
+new drift diagnostic. Current183attempt stays frozen/live. Raw passive evidence
+and exact source trace:staged57/m6_runs/euler_build183_real_cfd50k_after/
+metric_authority_source_review.md and quality_window*_counters_assessment.json.
+No frozen continuous-original-target claim is established.
+
+## Preserved disposition after the full build175 outcome
 
 - Findings1/2 (one repair/rank/round and oldest-ID service without whole-queue
   debt priority) now drive the connected quality-service milestone.175naturally

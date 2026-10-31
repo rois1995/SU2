@@ -195,3 +195,23 @@ above have now been explicitly promoted by the user into the active connected
 parallel-repair design (ADAPTATION_PARALLEL_REPAIR_20261031.md). Wider artificial
 frame/repair-freedom changes remain deferred unless the target outcome proves them
 necessary. There is still only one implementation/validation cycle.
+
+## Numeric metric authority — measured183, existing nonblocking risk
+
+Fixed quality-entry spatial samples now show~8.5%max relative current-nodal
+tensor drift after9.084quality seconds (16global samples, all supported). Final
+Engine q/J/edge gates use that transported field; field identity is an empty
+certificate token, not a numerical snapshot. Ownership preserves attributes,
+while topology/coordinate transport can change the P1 field. Resolve required
+physical target fidelity before claiming an immutable continuous-original-target
+certificate. This is not a new immediate implementation cycle;183fullM6 stays
+frozen to outcome. Source/evidence in AFTER/metric_authority_source_review.md.
+
+##183terminal short-edge/repair-yield correlation
+
+Complete internal EXIT:53420q-or-Jbad owned cells,53417haveedge<.9,52802<.5
+(98.84%). Topology rung56published/9740trials,8932geometry/topology rejects;
+optimizer3009/3735,moves2356/16287. This strengthens the short-edge/repair-power
+question but does not prove extra coarsening cures it. Actual primary failure is
+genuine-feature coverage publication before time limit; fix that certificate gap
+and retry M6 first. No separate construction campaign/immediate reprioritization.

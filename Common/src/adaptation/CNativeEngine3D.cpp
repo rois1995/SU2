@@ -3429,6 +3429,30 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           std::find(faces[i].begin(),faces[i].end(),choice.edge[1])!=faces[i].end())return true;
       return false;
     });
+    auto boundary_replacement_ready=[&]() {
+      if(phase!=Phase::Improvement || !geometry.Mapped() || (old.surface.empty()&&fresh.surface.empty()))return true;
+      try {
+        geometry.ExportParameters(fresh);
+        // Exact unchanged-face contracts avoid rebuilding a parameter delta for interior repairs.
+        bool unchanged=old.surface.size()==fresh.surface.size();std::map<Face,Id> physical;
+        if(unchanged)for(const auto& face:old.surface)
+          if(!physical.emplace(Key(face.v),face.facet).second){unchanged=false;break;}
+        if(unchanged)for(const auto& face:fresh.surface) {
+          const auto found=physical.find(Key(face.v));
+          if(found==physical.end()||found->second!=face.facet){unchanged=false;break;}
+          std::array<BoundaryPoint,3> points;
+          for(unsigned k=0;k<3;++k)points[k]=fresh.parameters.at(face.v[k]);
+          if(!geometry.HasAcceptedFaceCertificate(face,points,fresh.coverage)){unchanged=false;break;}
+          physical.erase(found);
+        }
+        if(unchanged&&physical.empty())return true;
+        // The accepted parameter tables are replicated; this is one complete proposal, not an owner fragment.
+        return geometry.Parameters()->CheckReplacement(old,fresh,result.reason,options.memory_ceiling,
+            transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),private_scratch,
+                BoundaryCoverageBytes(old.coverage),BoundaryCoverageBytes(fresh.coverage)),geometry.AtlasReservation());
+      }catch(const std::bad_alloc&){throw;}
+      catch(const std::exception& e){result.reason=e.what();return false;}
+    };
     auto evaluate_candidate=[&]() -> bool {
     const bool coordinate_stream=trial_maximum(coordinate_only);
     // Admit large coordinate-star copies, surfaces, query regions and measurements before GeometryPatch
@@ -3442,7 +3466,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     auto guarded_geometry=[&](bool valid,const char* operation="geometry") {
       last_geometry_operation=operation;
-      const bool passed=geometry_trial(valid && height_check(fresh,result.reason,!selection.geometry_repairs));
+      const bool passed=geometry_trial(valid && height_check(fresh,result.reason,!selection.geometry_repairs) &&
+          boundary_replacement_ready());
       observe_transaction(operation,passed);return passed;
     };
     auto repair_kind=[&]() {
@@ -4793,6 +4818,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(evaluated&&approved&&geometry.Mapped()) {
             geometry.ExportParameters(old);evaluated=admit_coverage();
             if(evaluated){geometry.ExportParameters(fresh);evaluated=admit_coverage();}
+          }
+          if(evaluated&&approved&&!boundary_replacement_ready()) {
+            geometry_trial(false);
+            approved=repair_approved=optimization_approved=geometric_progress=false;
+            if(accepted_ladder<3)++stats.quality.ladder[accepted_ladder].rejected[0];
           }
         }
       }catch(const std::exception& e){result.reason=e.what();evaluated=false;}

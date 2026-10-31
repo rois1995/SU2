@@ -828,6 +828,48 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
     staged.valid=true;reason.clear();return staged;
   }catch(const std::exception& e){reason=e.what();return {};}
 }
+bool BoundaryParameterState::CheckReplacement(const Patch& old,const Patch& fresh,std::string& reason,
+    size_t ceiling,size_t caller_bytes,AtlasBudget* reservation)const {
+  using transfer_memory::Add;using transfer_memory::Mul;
+  const size_t cell_count=Add(old.cells.size(),fresh.cells.size());
+  const size_t surface_count=Add(old.surface.size(),fresh.surface.size());
+  const size_t parameter_count=Add(old.parameters.size(),fresh.parameters.size());
+  const size_t scratch=Add(Mul(cell_count,1024),Mul(surface_count,512),Mul(parameter_count,512),
+      BoundaryCoverageBytes(old.coverage),BoundaryCoverageBytes(fresh.coverage));
+  const size_t base=reservation?std::max(caller_bytes,reservation->caller_bytes):caller_bytes;
+  const size_t limit=reservation?std::min(ceiling,reservation->maximum_bytes):ceiling;
+  const size_t live=Add(base,ResidentBytes(),scratch);
+  if(reservation)reservation->peak_bytes=std::max(reservation->peak_bytes,live);
+  if(scratch==SIZE_MAX||live==SIZE_MAX||live>limit) {
+    reason="Boundary replacement preflight exceeds storage admission.";return false;
+  }
+  try {
+    AtlasStorage reserved(reservation,Add(base,scratch),limit);
+    auto physical=[&](const Patch& patch) {
+      std::map<Face,Id> declared;
+      for(const auto& face:patch.surface)
+        if(!declared.emplace(FaceKey(face.v),face.facet).second)
+          throw std::invalid_argument("Boundary replacement repeats a physical face.");
+      const auto boundary=Incidence(patch.cells).Boundary();
+      std::map<Face,SurfaceFace> result;
+      for(auto face:boundary) {
+        const auto key=FaceKey(face);const auto found=declared.find(key);
+        if(found==declared.end())continue;
+        result.emplace(key,SurfaceFace{FaceOrder(face),found->second});declared.erase(found);
+      }
+      if(!declared.empty())throw std::invalid_argument("Boundary replacement surface is not the complete tetrahedron boundary subset.");
+      return result;
+    };
+    const auto before=physical(old),after=physical(fresh);
+    std::vector<BoundaryFaceChange> faces;faces.reserve(Add(before.size(),after.size()));
+    // Preserve retained faces on both sides for feature interval and directed-star validation.
+    for(const auto& row:before)faces.push_back({row.second.v,row.second.facet,false});
+    for(const auto& row:after)faces.push_back({row.second.v,row.second.facet,true});
+    const auto edits=Changes(old,fresh,revision);
+    const auto prepared=Prepare(edits,faces,reason,limit,Add(base,scratch),fresh.coverage,reservation);
+    return prepared.valid;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
 void BoundaryParameterState::Commit(Publication&& staged)noexcept {
   if(!staged.valid || staged.before!=revision)std::terminate();
   for(Id id:staged.removed){const auto p=records.find(id);coordinates.erase(PointKey(p->second.point.node.p));supports.erase(BindingKey(p->second.point));records.erase(p);}

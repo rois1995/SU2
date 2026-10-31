@@ -1,22 +1,22 @@
 # Parallel quality closure and reusable CFD input — 2026-10-31
 
-Latest update: real-CFD BEFORE baseline TERMINAL. All6naturally time-budget
-rejected,max5409.754671s native. Raw failure preserved before exact owned launcher
-stop; all10handles independently ABSENT/1401pins unchanged before C++ edits.
-See BEFORE/terminal_assessment.json and HANDOFF for last complete counts. No mesh
-accepted. Next target speed; repair-power uncertainty is explicit.
+Latest state: qualified183 full M6 AFTER naturally failed genuine-feature
+coverage atrefine2763.908s (not time budget);accepted CFDretained. All10owned
+handles absent/all1401pins unchanged before source edits. One connected local
+parameter-preflight correction is now in progress. See
+[active feature-publication design](ADAPTATION_FEATURE_PUBLICATION_20261031.md)
+and HANDOFF for current source/handles/evidence. No acceptedmesh/transfer/restart.
 
-Status: build180 compiled with all1296pins verified; a pre-validation source review
-found unbounded retained coverage beyond the fixed per-cell allowance. Exact
-cumulative coverage is now admitted locally between exports and before retaining
-each proposal; approved parameter exports occur before retention against the
-unchanged round state. Build181 will qualify this correction with the same planned
-serial/ONE MPI6 milestone. No new M6 run has started.
-All strict gates/targets and completion obligations remain unchanged. No passing
-new build/check or M6 acceptance yet. Current entrypoint/HANDOFF is authoritative;
-the incremental source checkpoints below describe now-completed intermediate work.
-Finish source review, freeze, focused serial/ONE MPI6 milestone, then full TWO-event
-AFTER immediately from the identical saved real-CFD field.
+Cache/parallel/debt improvements are preserved. Actualcoarsening result matches
+BEFORE at586.967vs1142.910s and92%less facet preparation work. Construction size
+closure727722cells/size0/geometry4059 at1453.454s. Quality ownership debtspread
+15.80to1.46 with all counts/flags preserved. Complete terminal EXIT at1261.498
+quality seconds:43620q-bad/42099J-bad/3938geometry,size0,5421commits.
+Private tracked collectives0/unmeasured churn0; current-nodal sampled drift~8.4%.
+Do not claim immutable original-target certification or whole-repo-suite success.
+
+Earlier source checkpoints below are incremental history, not current live state.
+Strict goals/gates persist; passing fixtures/memory/debt balance are not completion.
 
 ## Missing capability and evidence
 

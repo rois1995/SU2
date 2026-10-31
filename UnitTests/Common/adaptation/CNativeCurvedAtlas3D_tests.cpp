@@ -237,38 +237,140 @@ TEST_CASE("Fresh curved working patches forget interior history over repeated ac
   }
 }
 
-TEST_CASE("A nonseparating crease retains two local sheets during a vertex move", "[NativeCurvedAtlas3D]") {
-  const Node a{10,{0,0,-1}},b{20,{0,0,1}},c{30,{1,.1,0}},d{40,{1,-.1,0}},p{0,{0,0,0}};
-  std::vector<Facet> facets{{0,0,{a,p,c}},{1,0,{p,b,c}},{2,0,{a,d,p}},
-                            {3,0,{p,d,b}},{4,0,{a,c,d}},{5,0,{b,d,c}}};
+TEST_CASE("A nonseparating crease retains two local sheets during a vertex move", "[NativeCurvedAtlas3D][NativeFeaturePublication3D]") {
+  const bool entity_mode=GENERATE(false,true);
+  const Node a{10,{0,0,-1}},b{20,{0,0,1}},c{30,{1,.1,0}},d{40,{1,-.1,0}},p{90,{0,0,0}};
+  const std::vector<Facet> source{{0,0,{a,p,c}},{1,0,{p,b,c}},{2,0,{a,d,p}},
+                                  {3,0,{p,d,b}},{4,0,{a,c,d}},{5,0,{b,d,c}}};
+  constexpr double warp=.08;
+  std::vector<Facet> facets;std::map<Id,Point> base_points;
+  for(unsigned copy:{0u,1u})for(auto face:source) {
+    const Id node_offset=copy*1000,facet_offset=copy*100;const double x_offset=3.*copy;
+    face.id+=facet_offset;
+    for(auto& node:face.v) {
+      const auto original=node.p;const Point base{(original.z+1)/2,original.y,-original.x};
+      node.id+=node_offset;node.p={base.x+x_offset,base.y,base.z+warp*base.x*(1-base.x)};
+      base_points.emplace(node.id,base);
+    }
+    facets.push_back(face);
+  }
   auto definition=std::make_shared<PlanarReference>(facets);std::map<Id,double> errors;
-  for(const auto& face:facets)errors.emplace(face.id,1e-12);
-  auto geometry=std::make_shared<MappedFacetReference>(definition,errors,91);
+  MappedFacetReference::CurvedNets nets;
+  const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  auto quadratic=[&](std::array<unsigned,3> degree2,const std::array<long double,3>& x) {
+    std::array<unsigned,2> index{};unsigned count=0;
+    for(unsigned i=0;i<3;++i)for(unsigned n=0;n<degree2[i];++n)index[count++]=i;
+    return count==2&&index[0]==index[1]?x[index[0]]*(1-x[index[0]]):
+        (x[index[0]]+x[index[1]])/2-x[index[0]]*x[index[1]];
+  };
+  for(const auto& face:facets) {
+    errors.emplace(face.id,1e-12);std::array<long double,3> x{};
+    for(unsigned i=0;i<3;++i)x[i]=base_points.at(face.v[i].id).x;
+    auto& net=nets[face.id];const double x_offset=face.id>=100?3.:0.;
+    for(unsigned q=0;q<10;++q) {
+      long double px=0,py=0,pz=0,curve=0;
+      for(unsigned i=0;i<3;++i) {
+        const auto base=base_points.at(face.v[i].id);px+=powers[q][i]*base.x/3;py+=powers[q][i]*base.y/3;pz+=powers[q][i]*base.z/3;
+        if(powers[q][i]){auto lower=std::array<unsigned,3>{powers[q][0],powers[q][1],powers[q][2]};--lower[i];curve+=powers[q][i]*quadratic(lower,x)/3;}
+      }
+      net[q]={double(px+x_offset),double(py),double(pz+warp*curve)};
+    }
+  }
+  auto geometry=std::make_shared<MappedFacetReference>(definition,errors,91,SIZE_MAX,false,nets);
   auto budget=RemappingBudget();MobilityPolicy policy;std::string reason;
   const bool policy_ok=geometry->BuildMobilityPolicy(120,{{0,2}},policy,budget,reason);INFO(reason);REQUIRE(policy_ok);
   REQUIRE(policy.sheets.at(0)==policy.sheets.at(2));
-  BoundaryPoints points;for(const Node node:{a,b,c,d,p})points.emplace(node.id,BoundaryPoint{node,geometry->Vertex(node.id)});
-  for(const auto edge:std::array<Edge,2>{{{0,10},{0,20}}}) {
-    const auto binding=geometry->EdgePoint(edge,.5);const Id id=edge[1]==10?50:60;
+  BoundaryPoints points;
+  for(const auto& face:facets){
+    for(auto node:face.v)points.emplace(node.id,BoundaryPoint{node,geometry->Vertex(node.id)});}
+  for(const unsigned copy:{0u,1u})for(const auto edge:std::array<Edge,2>{{{Id(copy*1000+10),Id(copy*1000+90)},{Id(copy*1000+20),Id(copy*1000+90)}}}) {
+    const auto binding=geometry->EdgePoint(edge,.5);const Id id=edge[0]==copy*1000+10?Id(copy*1000+50):Id(copy*1000+60);
     points.emplace(id,BoundaryPoint{{id,geometry->Realize(binding)},binding});
   }
-  std::vector<SurfaceFace> surface{{{10,50,30},0},{{50,0,30},0},{{0,60,30},1},{{60,20,30},1},
-                                   {{10,40,50},2},{{50,40,0},2},{{0,40,60},3},{{60,40,20},3},
-                                   {{10,30,40},4},{{20,40,30},5}};
-  auto state=std::make_shared<BoundaryParameterState>(geometry,points,surface,1,SIZE_MAX,0,BoundaryCoverage{},policy,&budget);
-  auto reference=PlanarReference::WithParameters(definition,state)->WithAtlasReservation(budget);
-  Patch old;old.surface={surface[1],surface[2],surface[5],surface[6]};
-  for(const auto ids:std::array<std::array<Id,4>,2>{{{{50,30,0,40}},{{0,30,60,40}}}}) {
-    Cell cell;cell.id=old.cells.size();for(unsigned k=0;k<4;++k)cell.v[k]=points.at(ids[k]).node;
-    if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[0],cell.v[1]);
-    REQUIRE(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);old.cells.push_back(cell);
+  std::vector<SurfaceFace> split_surface;
+  for(unsigned copy:{0u,1u}) {
+    const Id n=copy*1000,f=copy*100;
+    const std::array<SurfaceFace,10> rows{{{{n+10,n+50,n+30},f},{{n+50,n+90,n+30},f},{{n+90,n+60,n+30},f+1},{{n+60,n+20,n+30},f+1},
+        {{n+10,n+40,n+50},f+2},{{n+50,n+40,n+90},f+2},{{n+90,n+40,n+60},f+3},{{n+60,n+40,n+20},f+3},
+        {{n+10,n+30,n+40},f+4},{{n+20,n+40,n+30},f+5}}};
+    split_surface.insert(split_surface.end(),rows.begin(),rows.end());
   }
-  const auto snapshot=state->Snapshot();Patch fresh;
-  const bool moved=MoveVertex(old,0,{100,{0,0,.2}},1000,*reference,fresh,reason);INFO(reason);REQUIRE(moved);
-  REQUIRE(fresh.cells.size()==2);CHECK(fresh.coverage.faces.size()==4);
+  auto state=std::make_shared<BoundaryParameterState>(geometry,points,split_surface,1,SIZE_MAX,0,BoundaryCoverage{},policy,&budget);
+  if(entity_mode)state=state->WithEntityGeometry(1e-4,budget);
+  CHECK(state->EntityGeometry()==entity_mode);
+  auto reference=PlanarReference::WithParameters(definition,state)->WithAtlasReservation(budget);
+  auto make_old=[&](Id offset,Id cell_offset){Patch old;const size_t surface_offset=offset?10:0;
+    old.surface={split_surface[surface_offset+1],split_surface[surface_offset+2],split_surface[surface_offset+5],split_surface[surface_offset+6]};
+    const std::array<std::array<Id,4>,2> ids{{{{offset+50,offset+30,offset+90,offset+40}},{{offset+90,offset+30,offset+60,offset+40}}}};
+    for(size_t i=0;i<ids.size();++i){Cell cell;cell.id=cell_offset+i;for(unsigned k=0;k<4;++k)cell.v[k]=points.at(ids[i][k]).node;
+      if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[0],cell.v[1]);
+      REQUIRE(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);old.cells.push_back(cell);}
+    reference->ExportParameters(old);return old;};
+  Patch old=make_old(0,0),peer_old=make_old(1000,100);
+  const auto snapshot=state->Snapshot();REQUIRE(state->Find(1090));const Point peer_point=state->Find(1090)->node.p;Patch fresh,peer_fresh;
+  REQUIRE(MoveVertex(old,90,{100,{.6,0,warp*.6*.4}},1000,*reference,fresh,reason));
+  REQUIRE(MoveVertex(peer_old,1090,{1100,{3.6,0,warp*.6*.4}},2000,*reference,peer_fresh,reason));
+  REQUIRE(fresh.cells.size()==2);CHECK(fresh.coverage.faces.size()==(entity_mode?0:4));
   REQUIRE(fresh.parameters.count(100));CHECK(geometry->MobilityDimension(fresh.parameters.at(100).binding,policy)==1);
   for(const auto& cell:fresh.cells)CHECK(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
   CHECK(state->Snapshot()==snapshot);
+
+  auto preflight=RemappingBudget();CHECK(state->CheckReplacement(old,fresh,reason,SIZE_MAX,0,&preflight));INFO(reason);
+  // A changed coordinate can retain the original node identity in the published patch.
+  auto retained=fresh;
+  for(auto& cell:retained.cells)for(auto& node:cell.v)if(node.id==100)node.id=90;
+  for(auto& face:retained.surface)for(auto& id:face.v)if(id==100)id=90;
+  auto moved_parameter=retained.parameters.at(100);retained.parameters.erase(100);moved_parameter.node.id=90;
+  retained.parameters.emplace(90,moved_parameter);
+  auto remap_edge=[](Edge edge){for(auto& id:edge)if(id==100)id=90;std::sort(edge.begin(),edge.end());return edge;};
+  auto remap_face=[](Face face){for(auto& id:face)if(id==100)id=90;return face;};
+  std::map<Edge,EdgeTrace> traces;for(const auto& row:retained.coverage.traces)traces.emplace(remap_edge(row.first),row.second);
+  retained.coverage.traces=std::move(traces);
+  std::map<Face,FaceCoverage> face_coverage;for(const auto& row:retained.coverage.faces)face_coverage.emplace(remap_face(row.first),row.second);
+  retained.coverage.faces=std::move(face_coverage);
+  REQUIRE(retained.parameters.count(90));CHECK(state->CheckReplacement(old,retained,reason,SIZE_MAX,0,&preflight));INFO(reason);
+  CHECK(state->Snapshot()==snapshot);
+  CHECK(preflight.caller_bytes==0);CHECK(preflight.maximum_bytes==(size_t(1)<<28));
+  CHECK(state->CheckReplacement(peer_old,peer_fresh,reason,SIZE_MAX,0,&preflight));CHECK(state->Snapshot()==snapshot);
+  auto differently_wound=fresh;for(auto& face:differently_wound.surface)std::swap(face.v[1],face.v[2]);
+  CHECK(state->CheckReplacement(old,differently_wound,reason,SIZE_MAX,0,&preflight));CHECK(state->Snapshot()==snapshot);
+  auto limited=RemappingBudget();CHECK_FALSE(state->CheckReplacement(old,fresh,reason,1,0,&limited));
+  CHECK(limited.peak_bytes>1);CHECK(state->Snapshot()==snapshot);
+  auto default_limited=RemappingBudget();default_limited.maximum_bytes=1;
+  CHECK_FALSE(state->CheckReplacement(old,fresh,reason,SIZE_MAX,0,&default_limited));
+  CHECK(default_limited.maximum_bytes==1);CHECK(default_limited.caller_bytes==0);CHECK(state->Snapshot()==snapshot);
+  auto no_work=RemappingBudget();no_work.maximum_work=0;
+  CHECK_FALSE(state->CheckReplacement(old,fresh,reason,SIZE_MAX,0,&no_work));
+  CHECK(no_work.work_exhausted);CHECK(no_work.work==0);CHECK(state->Snapshot()==snapshot);
+  auto invalid=peer_fresh;const Edge changed_feature{1050,1100};REQUIRE(invalid.coverage.traces.count(changed_feature));
+  ExactRatio wrong_interval;REQUIRE(ExactBinary64(.731,wrong_interval,preflight,reason));
+  invalid.coverage.traces.at(changed_feature).pieces.back().end=wrong_interval;
+  CHECK_FALSE(state->CheckReplacement(peer_old,invalid,reason,SIZE_MAX,0,&preflight));CHECK(state->Snapshot()==snapshot);
+
+  World world;auto cell_faces=[](const Cell& cell){return std::array<Face,4>{{
+      {cell.v[1].id,cell.v[2].id,cell.v[3].id},{cell.v[0].id,cell.v[3].id,cell.v[2].id},
+      {cell.v[0].id,cell.v[1].id,cell.v[3].id},{cell.v[0].id,cell.v[2].id,cell.v[1].id}}};};
+  auto owned_row=[&](const Cell& cell,const std::vector<SurfaceFace>& skin,uint64_t version){OwnedCell row;row.cell=cell;row.version=version;
+    const auto faces=cell_faces(cell);for(unsigned i=0;i<4;++i)for(const auto& face:skin){auto a=faces[i],b=face.v;std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());
+      if(a==b)row.physical[i]={true,face.facet};}return row;};
+  Owned owned;for(const auto* patch:{&old,&peer_old})for(const auto& cell:patch->cells)
+    if(cell.id%world.size==unsigned(world.rank))owned.emplace(cell.id,owned_row(cell,patch->surface,0));
+  Directory directory(world,true,state.get());REQUIRE(directory.Build(owned,reason));const auto directory_before=directory.Snapshot();
+  std::vector<Dependency> removed;std::vector<OwnedCell> added;
+  for(size_t i=0;i<old.cells.size();++i)if(old.cells[i].id%world.size==unsigned(world.rank)) {
+    removed.push_back({old.cells[i].id,0,world.rank});added.push_back(owned_row(fresh.cells[i],fresh.surface,1));
+  }
+  const auto edits=world.rank?std::vector<BoundaryParameterEdit>{}:BoundaryParameterState::Changes(old,fresh,state->Revision());
+  const BoundaryCoverage no_coverage;auto publish_budget=RemappingBudget();
+  const bool published=directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,edits,
+      world.rank?no_coverage:fresh.coverage,&publish_budget);
+  INFO(reason);CHECK(published);CHECK(state->Snapshot()!=snapshot);CHECK(directory.Snapshot()!=directory_before);
+  REQUIRE(state->Find(1090));CHECK(state->Find(1090)->node.p.x==peer_point.x);
+  CHECK(state->Find(1090)->node.p.y==peer_point.y);CHECK(state->Find(1090)->node.p.z==peer_point.z);
+  for(const auto& cell:peer_old.cells)if(cell.id%world.size==unsigned(world.rank)) {
+    REQUIRE(owned.count(cell.id));CHECK(owned.at(cell.id).version==0);
+    CHECK(owned.at(cell.id).cell.v[0].p.x==cell.v[0].p.x);
+  }
 }
 
 TEST_CASE("Overlapping curved stars retain bounded correspondence across alternating moves", "[NativeCurvedAtlas3D][NativeOverlappingAtlas3D]") {
