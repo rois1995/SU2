@@ -39,7 +39,8 @@ TEST_CASE("Native3D reference cache quota uses bounded MemAvailable with sysconf
   CHECK(N::ReferenceCacheHostQuota3D("MemTotal: 1000 kB\n",fallback)==fallback);
   CHECK(N::ReferenceCacheHostQuota3D("MemAvailable: 1000 MB\n",fallback)==fallback);
   CHECK(N::ReferenceCacheHostQuota3D("MemAvailable: 1000 kB\nMemAvailable: 2000 kB\n",fallback)==fallback);
-  CHECK(N::ReferenceCacheHostQuota3D("MemAvailable: 1000 kB\n",N::ReferenceCacheHostLimit3D+1)==N::ReferenceCacheHostLimit3D);
+  CHECK(N::ReferenceCacheHostQuota3D("MemAvailable: 1000 kB\n",N::ReferenceCacheHostLimit3D+1)==256000);
+  CHECK(N::ReferenceCacheHostQuota3D("MemAvailable: invalid kB\n",N::ReferenceCacheHostLimit3D+1)==N::ReferenceCacheHostLimit3D);
 }
 
 TEST_CASE("Native reference sidecar: immutable graph, exact coordinates and accepted bindings round trip",

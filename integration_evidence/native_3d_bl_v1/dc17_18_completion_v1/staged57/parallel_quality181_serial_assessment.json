@@ -1,0 +1,15 @@
+{
+  "time": 1793448295.4313276,
+  "build181": "terminal pass/all1296pins",
+  "serial_case": "cases/parallel_quality181_serial_20261031T120329_3637977",
+  "cases": 117,
+  "passed": 114,
+  "failed": 3,
+  "production_change": false,
+  "findings": [
+    "Implicit aggregate braces create unintended midpoint endpoints; use explicit Point objects and require one sample.",
+    "Valid MemAvailable must override fallback even if fallback exceeds hard cap; test malformed fallback cap separately.",
+    "Strict vector metric wrapper exits during fresh-side shape measurement before old-side data is available; test full-count diagnosis through already-measured overload, as streamed engine does."
+  ],
+  "next": "Build182 and same focused serial then ONE MPI6 milestone, then full M6 two-event AFTER."
+}

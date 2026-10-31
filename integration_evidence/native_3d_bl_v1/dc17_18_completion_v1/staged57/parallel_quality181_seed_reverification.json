@@ -1,0 +1,40 @@
+{
+  "time": 1793447896.91121,
+  "all_output_pins_verified": true,
+  "checks": {
+    "m6.su2": true,
+    "m6.su2.native_ref": true,
+    "baseline_euler_seed.dat": true,
+    "baseline_euler_seed_001126.dat": true,
+    "run.cfg": true,
+    "history.csv": true,
+    "qualification_history.csv": true,
+    "rank_output/1/rank.0/stdout": true,
+    "terminal_handles.json": true,
+    "startup_verification.json": true,
+    "user_force_stop_receipt.json": true,
+    "force_stop_assessment.json": true,
+    "generator_outcome.json": true,
+    "source_snapshots/run_m6_seed.py": true,
+    "resume_source.json": true
+  },
+  "qualified": true,
+  "policy": "Latest user: As long as CL and CD values are reasonable stop and proceed with mesh adaptation",
+  "CL": {
+    "mean": 0.26953535374150017,
+    "range": 1.1140000000242622e-07,
+    "stable": true
+  },
+  "CD": {
+    "mean": 0.013535856536400007,
+    "range": 3.120999999932372e-08,
+    "stable": true
+  },
+  "state": {
+    "points": 61330,
+    "mesh_points": 61330,
+    "min_density": 0.6276658890165475,
+    "min_internal_energy": 103999.14049396254
+  },
+  "purpose": "Immutable identical first-remesh input for build179 BEFORE and forthcoming qualified AFTER; not adapted restart evidence."
+}

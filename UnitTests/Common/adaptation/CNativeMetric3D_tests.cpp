@@ -53,9 +53,8 @@ TEST_CASE("Native 3D measurements report passive per-cell q/J failures", "[Nativ
   const auto measured=MeasureMetricCells({good,bad},target,nullptr,nullptr,false,&measured_diagnosis);
   CHECK(measured.shape_cells==2);CHECK(measured.q_bad_cells==1);CHECK(measured.j_bad_cells==1);
   CHECK(measured_diagnosis.new_q_bad_cells==1);CHECK(measured_diagnosis.new_j_bad_cells==1);
-  PatchMetric changed;MetricDiagnosis change_diagnosis;std::string reason;
-  CHECK_FALSE(ValidateMetricChange({good,bad},{good,bad},MetricChange::Repair,target,changed,reason,
-                                   nullptr,nullptr,&change_diagnosis));
+  MetricDiagnosis change_diagnosis;std::string reason;
+  CHECK_FALSE(ValidateMetricChange(2,measured,2,measured,MetricChange::Repair,reason,&change_diagnosis));
   CHECK(change_diagnosis.old_q_bad_cells==1);CHECK(change_diagnosis.new_q_bad_cells==1);
   CHECK(change_diagnosis.old_j_bad_cells==1);CHECK(change_diagnosis.new_j_bad_cells==1);
   const auto edge_only=MeasureMetricEdges({good},target);

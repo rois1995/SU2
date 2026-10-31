@@ -1,0 +1,18 @@
+{
+  "state": "planned_not_run",
+  "build": "build182",
+  "serial": {
+    "case": "parallel_quality182_serial",
+    "ranks": 1,
+    "filter": "[NativeRepairBatch3D],[NativeRepairFairness3D],[NativeCoordinateStar3D],[NativeQualityPass3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeConcurrentRepair3D],[NativeStageProgress3D],[NativeHeightOptimization3D],[NativeShapeAdmission3D],[NativePhaseOwnership3D],[NativeFirstLayerEngine3D],[NativeMesh3D],[NativeCollision3D],[NativeCollapseFilter3D],[NativeReferenceIO3D],[NativePartition3D]",
+    "timeout": 600
+  },
+  "mpi": {
+    "case": "parallel_quality182_mpi6",
+    "ranks": 6,
+    "filter": "[NativeSurfaceCache3D],[NativeSurfaceMemo3D],[NativeGeometryStats3D],[NativeReferenceIO3D],[NativeReference3D],[NativeAtlasReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeMappedPublication3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeGeometryBackend3D],[NativeCurvedGeometry3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeFirstLayerEngine3D],[NativeCollision3D],[NativeCollapseFilter3D]",
+    "timeout": 600
+  },
+  "followup": "immediate full endorsed M6 two-event attempt, actual accepted transfer/restart required",
+  "scope": "One connected private-round/debt/cache/invalidation/passive-counter milestone; focused serial then ONE MPI6 campaign, then full two-event M6 from exact saved real CFD. Build181 includes exact retained dynamic coverage admission; build180 compiled but was not qualified. Build182 corrects only three new test contracts after 114/117 serial cases passed; production remains fbba658e16."
+}

@@ -435,3 +435,11 @@ final common reservation, zero tracked private collectives, complete cached-vers
 recomputed q/J counts/debts and global churn conservation. Existing collision cases
 also cover same-owner tickets, peer ordering, empty local lists and atomic resource/
 malformed-contract refusal. Build180 and planned filters are not yet run.
+
+Build181 compiled successfully (336.807s,1296pins verified). Serial117cases:
+114passed;3new test-contract failures corrected without production change.
+Explicit Point objects prevent aggregate endpoint brace elision; valid
+MemAvailable overrides any fallback; old q/J counts are checked through the
+already-measured diagnosis overload because strict fresh-side rejection can
+precede old measurement. Build182 qualifies these test corrections with the
+same focused serial/ONE MPI6 plan. MPI has not yet run.

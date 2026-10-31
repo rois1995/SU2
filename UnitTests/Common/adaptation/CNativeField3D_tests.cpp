@@ -715,11 +715,13 @@ TEST_CASE("Native 3D local metric transport requires its explicit complete cavit
     const Point sample{.2,.3,.1};
     const auto sampled=source.SamplePointsLocal({sample},cavity);
     CHECK(sampled.valid);if(sampled.valid&&!sampled.samples.empty())CHECK(sampled.samples[0].sensor.xx==Approx(2.2));
-    const auto midpoint=source.SampleMidpointsLocal({{{0,0,0},{1,0,0}}},cavity);
-    CHECK(midpoint.valid);if(midpoint.valid&&!midpoint.samples.empty())CHECK(midpoint.samples[0].sensor.xx==Approx(2.5));
+    const std::vector<std::array<Point,2>> endpoints{{Point{0,0,0},Point{1,0,0}}};
+    const auto midpoint=source.SampleMidpointsLocal(endpoints,cavity);
+    CHECK(midpoint.valid);CHECK(midpoint.samples.size()==1);
+    if(midpoint.valid&&!midpoint.samples.empty())CHECK(midpoint.samples[0].sensor.xx==Approx(2.5));
     CHECK_FALSE(source.ImportMetricCellsLocal({old.cell},std::vector<OwnedCell>{}).valid);
     CHECK_FALSE(source.SamplePointsLocal({sample},std::vector<OwnedCell>{}).valid);
-    CHECK_FALSE(source.SampleMidpointsLocal({{{0,0,0},{1,0,0}}},std::vector<OwnedCell>{}).valid);
+    CHECK_FALSE(source.SampleMidpointsLocal(endpoints,std::vector<OwnedCell>{}).valid);
     CHECK_FALSE(source.ImportMetricCellsLocal({old.cell},cavity,0).valid);
     CHECK_FALSE(source.SamplePointsLocal({sample},cavity,{},0).valid);
     auto malformed=cavity;malformed[0].cell.v[3].p=malformed[0].cell.v[2].p;
