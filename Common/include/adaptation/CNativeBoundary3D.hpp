@@ -150,6 +150,16 @@ class PlanarReference {
   std::shared_ptr<const PlanarReference> definition;
   std::shared_ptr<ParameterView> parameter_view;
 };
+struct GeometryGuidance {
+  long double excess=0;
+  size_t evaluated_faces=0;
+  bool complete=true;
+};
+/*! Fitting guidance for accepted or independently validated surfaces, never a publication certificate.
+ * Retains face order and arithmetic. An incomplete result proves only excess > reject_above;
+ * it must not be used as a complete score or as evidence of geometric progress. */
+GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference& geometry,double tolerance,
+                                      long double reject_above=std::numeric_limits<long double>::infinity());
 /*! DC-13: promote a plain faceted reference to the v6 mapped-component authority (MappedFacetReference with released
  * certified planar seams, declared mapping error `relative_error` x max(1, coordinate scale) per facet, every original
  * facet vertex bound to itself, skin = the facets). Crease and junction points then bind to their original feature

@@ -1,0 +1,106 @@
+{
+  "time": 1793416353.9233067,
+  "primary_outcome": "supervised computational-bottleneck stop, NOT native time-budget failure",
+  "reason": "Three complete quality windows: geometry remains critical-path dominant after prepared-query reuse; boundary guidance evaluates complete losing scores despite nonnegative partial rejection bound. One connected bounded-guidance fix then full M6 retry.",
+  "pins_verified": 1396,
+  "identities": [
+    {
+      "pid": 2244815,
+      "state": "S",
+      "start_ticks": "82896060",
+      "exe": "/usr/bin/time",
+      "cmdline": "/usr/bin/time -v timeout 14400 mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 2244816,
+      "state": "S",
+      "start_ticks": "82896060",
+      "exe": "/usr/bin/timeout",
+      "cmdline": "timeout 14400 mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 2244817,
+      "state": "S",
+      "start_ticks": "82896061",
+      "exe": "/usr/bin/orterun",
+      "cmdline": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 2244831,
+      "state": "R",
+      "start_ticks": "82896072",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 2244830,
+      "state": "R",
+      "start_ticks": "82896072",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 2244829,
+      "state": "R",
+      "start_ticks": "82896072",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 2244828,
+      "state": "R",
+      "start_ticks": "82896071",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 2244827,
+      "state": "R",
+      "start_ticks": "82896071",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 2244826,
+      "state": "R",
+      "start_ticks": "82896071",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 2244727,
+      "state": "S",
+      "start_ticks": "82895818",
+      "exe": "/usr/bin/python3.8",
+      "cmdline": "python3 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py build174 euler_build174_geometry_reuse50k 2 "
+    }
+  ],
+  "last_complete_window": {
+    "window": 3,
+    "native_elapsed": 2164.20490051,
+    "quality_elapsed": 1143.999631109,
+    "qj_debt": 21515.464345743258,
+    "debt_reduction": 795.6011411506333,
+    "percent_reduction": 3.5659486617436107,
+    "debt_reduction_per_second": 0.6954557672185374,
+    "counts": {
+      "cells": 727191,
+      "q_bad": 52182,
+      "j_bad": 52880,
+      "size_bad": 0,
+      "geometry_bad": 3121
+    },
+    "upper_seconds_since_entry": [
+      134.19820265200065,
+      37.061547618000105,
+      63.72317913999997,
+      788.9139164960006,
+      93.58031015500003,
+      295.3103357469987
+    ]
+  },
+  "signal_target": 2244817,
+  "signal": "SIGTERM",
+  "accepted_events": 0,
+  "mesh_transfer_restart_proven": false
+}

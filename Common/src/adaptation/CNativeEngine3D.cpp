@@ -120,24 +120,6 @@ double HeightScore(const Patch& patch,const WallHeights& heights,const PlanarRef
   return 1/(1+std::max(deficit,2e-6));
 }
 using RepairFeature = std::pair<unsigned,std::array<Id,3>>;
-// Call only for accepted surfaces or successful operators that have completed surface validation.
-long double GeometryGuidanceExcess(const Patch& patch,const PlanarReference& base_geometry,double tolerance,
-                                  bool stop_on_violation=false) {
-  auto parameters=base_geometry.PrivateParameters(patch);const auto& geometry=parameters?*parameters:base_geometry;
-  std::map<Id,Point> nodes;
-  for(const auto& c:patch.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
-  long double excess=0;
-  for(const auto& f:patch.surface) {
-    const std::array<Point,3> p{nodes.at(f.v[0]),nodes.at(f.v[1]),nodes.at(f.v[2])};
-    const double bound=geometry.SurfaceDeviation(f.facet,p,true);
-    const long double error=std::max(0.,bound-tolerance);
-    const long double ax=static_cast<long double>(p[1].x)-p[0].x,ay=static_cast<long double>(p[1].y)-p[0].y,az=static_cast<long double>(p[1].z)-p[0].z;
-    const long double bx=static_cast<long double>(p[2].x)-p[0].x,by=static_cast<long double>(p[2].y)-p[0].y,bz=static_cast<long double>(p[2].z)-p[0].z;
-    excess+=error*error*std::hypot(ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx);
-    if(stop_on_violation && (excess>0 || !std::isfinite(excess)))return excess;
-  }
-  return excess;
-}
 bool SameSkin(const Patch& old,const Patch& fresh) {
   const auto before=Incidence(old.cells).Boundary();
   if(before!=Incidence(fresh.cells).Boundary())return false;
@@ -812,7 +794,7 @@ struct HeightPolicyRow {
 struct OptimizationOperations {
   uint64_t moves=0,insertions=0,collapses=0,swaps=0;
   uint64_t boundary_stars=0,boundary_reused=0,boundary_candidates=0,boundary_validity=0,boundary_shape=0,boundary_edge=0,boundary_geometry=0;
-  uint64_t boundary_guidance=0,boundary_upper=0,boundary_moves=0;long double boundary_debt=0;double boundary_seconds=0;
+  uint64_t boundary_guidance=0,boundary_guidance_faces=0,boundary_guidance_early=0,boundary_upper=0,boundary_moves=0;long double boundary_debt=0;double boundary_seconds=0;
   uint64_t interior_stars=0,interior_reused=0,interior_candidates=0,interior_validity=0,interior_shape=0,interior_edge=0,interior_geometry=0;
   uint64_t interior_guidance=0,interior_upper=0,interior_moves=0;long double interior_debt=0;double interior_seconds=0;
 };
@@ -836,6 +818,7 @@ bool OptimizedRepairPatch(const Patch& old,Id first,Id first_node,const RegionMe
   operations.boundary_stars=report.boundary_stars_searched;operations.boundary_reused=report.boundary_stars_reused;operations.boundary_candidates=report.boundary_candidates;
   operations.boundary_validity=report.boundary_rejected_validity;operations.boundary_shape=report.boundary_rejected_shape;operations.boundary_edge=report.boundary_rejected_edge;operations.boundary_geometry=report.boundary_rejected_geometry;
   operations.boundary_guidance=report.boundary_guidance_calls;operations.boundary_upper=report.boundary_upper_queries;operations.boundary_moves=report.boundary_moves;
+  operations.boundary_guidance_faces=report.boundary_guidance_faces;operations.boundary_guidance_early=report.boundary_guidance_early_rejections;
   operations.boundary_debt=report.boundary_debt_reduction;operations.boundary_seconds=report.boundary_seconds;
   operations.interior_stars=report.interior_stars_searched;operations.interior_reused=report.interior_stars_reused;operations.interior_candidates=report.interior_candidates;
   operations.interior_validity=report.interior_rejected_validity;operations.interior_shape=report.interior_rejected_shape;operations.interior_edge=report.interior_rejected_edge;operations.interior_geometry=report.interior_rejected_geometry;
@@ -1225,6 +1208,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" atlas_work="<<atlas_budget.work<<" atlas_bytes="<<atlas_budget.peak_bytes<<" global_work="<<stats.global_work
           <<" geometry_trials="<<stats.geometry_trials<<" geometry_rejected="<<stats.geometry_rejected
           <<" guidance_trials="<<stats.geometry_guidance_trials<<" guidance_rejected="<<stats.geometry_guidance_rejected
+          <<" guidance_faces="<<stats.geometry_guidance_faces<<" guidance_early_rejected="<<stats.geometry_guidance_early_rejections
           <<" guidance_seconds="<<stats.geometry_guidance_seconds
           <<" collective_calls="<<world.collective_calls-tracked_calls_begin<<" collective_seconds="<<world.collective_seconds-tracked_seconds_begin
           <<" election_calls="<<world.election_collective_calls-election_calls_begin<<" election_seconds="<<world.election_collective_seconds-election_seconds_begin
@@ -1248,6 +1232,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" smooth_boundary_stars="<<stats.boundary_smoothing_stars<<" smooth_boundary_reused="<<stats.boundary_smoothing_reused
           <<" smooth_boundary_candidates="<<stats.boundary_smoothing_candidates<<" smooth_boundary_rejects="<<stats.boundary_smoothing_validity_rejects<<','<<stats.boundary_smoothing_shape_rejects<<','<<stats.boundary_smoothing_edge_rejects<<','<<stats.boundary_smoothing_geometry_rejects
           <<" smooth_boundary_guidance="<<stats.boundary_smoothing_guidance_calls<<" smooth_boundary_upper_queries="<<stats.boundary_smoothing_upper_queries
+          <<" smooth_boundary_guidance_faces="<<stats.boundary_smoothing_guidance_faces<<" smooth_boundary_guidance_early_rejected="<<stats.boundary_smoothing_guidance_early_rejections
           <<" smooth_boundary_moves="<<stats.boundary_smoothing_moves<<" smooth_boundary_debt_reduction="<<double(stats.boundary_smoothing_debt_reduction)
           <<" smooth_boundary_seconds="<<stats.boundary_smoothing_seconds
           <<" smooth_interior_stars="<<stats.interior_smoothing_stars<<" smooth_interior_reused="<<stats.interior_smoothing_reused
@@ -1632,7 +1617,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         options.memory_ceiling,transfer_memory::Add(bytes(),scratch,directory->ResidentBytes()),
         [&](const FrozenField& field){FieldCounts(stats,field);},tick);
     try {service.Run([&](const RegionMetric& target){
-      bool already_valid=GeometryGuidanceExcess(old,geometry,options.surface_tolerance)==0;
+      bool already_valid=GeometryGuidanceExcess(old,geometry,options.surface_tolerance).excess==0;
       bool short_edges=false;
       if(already_valid)for(const auto& c:old.cells) {
         for(unsigned a=0;a<4 && already_valid;++a)for(unsigned b=a+1;b<4;++b) {
@@ -2952,22 +2937,28 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       ++stats.geometry_guidance_trials;
       Timer guidance_timer(stats.geometry_guidance_seconds,options.timings);
       try {
-        long double before,after;
+        long double before,after;bool complete_guidance=true;
         if(kind==MetricChange::Coarsen) {
           // A coarsening trial needs zero new excess; rejected trials need no old-surface score.
-          after=GeometryGuidanceExcess(fresh,geometry,options.surface_tolerance,true);
-          if(!std::isfinite(after) || after>0) {
+          const auto guidance=GeometryGuidanceExcess(fresh,geometry,options.surface_tolerance,0);
+          stats.geometry_guidance_faces+=guidance.evaluated_faces;stats.geometry_guidance_early_rejections+=!guidance.complete;after=guidance.excess;
+          if(!guidance.complete || !std::isfinite(after) || after>0) {
             ++stats.geometry_guidance_rejected;
             geometric_progress=false;
             result.reason="Native3D candidate does not preserve/improve its frozen geometry error.";return guarded_geometry(false);
           }
-          before=GeometryGuidanceExcess(old,geometry,options.surface_tolerance);
+          const auto old_guidance=GeometryGuidanceExcess(old,geometry,options.surface_tolerance);
+          stats.geometry_guidance_faces+=old_guidance.evaluated_faces;before=old_guidance.excess;
         } else {
-          before=GeometryGuidanceExcess(old,geometry,options.surface_tolerance);
-          after=GeometryGuidanceExcess(fresh,geometry,options.surface_tolerance);
+          const auto old_guidance=GeometryGuidanceExcess(old,geometry,options.surface_tolerance);
+          stats.geometry_guidance_faces+=old_guidance.evaluated_faces;before=old_guidance.excess;
+          const bool allow_increase=kind==MetricChange::GeometryRepair && phase==Phase::Improvement && !selection.geometry_repairs;
+          const auto guidance=GeometryGuidanceExcess(fresh,geometry,options.surface_tolerance,
+              allow_increase?std::numeric_limits<long double>::infinity():before);
+          stats.geometry_guidance_faces+=guidance.evaluated_faces;stats.geometry_guidance_early_rejections+=!guidance.complete;after=guidance.excess;complete_guidance=guidance.complete;
         }
-        geometric_progress=before>0 && after<before*(1-1e-12L);
-        if(!std::isfinite(after) || (selection.geometry_repairs && !geometric_progress) ||
+        geometric_progress=complete_guidance && before>0 && after<before*(1-1e-12L);
+        if(!complete_guidance || !std::isfinite(after) || (selection.geometry_repairs && !geometric_progress) ||
            (kind==MetricChange::GeometryRefine && !geometric_progress) ||
            (kind==MetricChange::Coarsen && after>0) ||
            (kind!=MetricChange::GeometryRefine && after>before &&
@@ -3127,6 +3118,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       stats.boundary_smoothing_candidates+=repair_optimization.boundary_candidates;stats.boundary_smoothing_validity_rejects+=repair_optimization.boundary_validity;
       stats.boundary_smoothing_shape_rejects+=repair_optimization.boundary_shape;stats.boundary_smoothing_edge_rejects+=repair_optimization.boundary_edge;
       stats.boundary_smoothing_geometry_rejects+=repair_optimization.boundary_geometry;stats.boundary_smoothing_guidance_calls+=repair_optimization.boundary_guidance;
+      stats.boundary_smoothing_guidance_faces+=repair_optimization.boundary_guidance_faces;stats.boundary_smoothing_guidance_early_rejections+=repair_optimization.boundary_guidance_early;
       stats.boundary_smoothing_upper_queries+=repair_optimization.boundary_upper;stats.boundary_smoothing_moves+=repair_optimization.boundary_moves;
       stats.boundary_smoothing_debt_reduction+=repair_optimization.boundary_debt;stats.boundary_smoothing_seconds+=repair_optimization.boundary_seconds;
       stats.interior_smoothing_stars+=repair_optimization.interior_stars;stats.interior_smoothing_reused+=repair_optimization.interior_reused;
@@ -5115,10 +5107,16 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
     for(const auto& c:candidate.cells)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)
       if((c.v[i].id==next_node || c.v[j].id==next_node) && !Certified(c.v[i].p,c.v[j].p,MaximumMetricEdge))sized=false;
     if(!sized){++report.rejected_edge;++report.boundary_rejected_edge;continue;}
-    if(!geometry_measured){++report.boundary_guidance_calls;geometric_before=GeometryGuidanceExcess(patch,geometry,options.surface_tolerance);geometry_measured=true;}
+    if(!geometry_measured){
+      ++report.boundary_guidance_calls;
+      const auto guidance=GeometryGuidanceExcess(patch,geometry,options.surface_tolerance);
+      report.boundary_guidance_faces+=guidance.evaluated_faces;geometric_before=guidance.excess;geometry_measured=true;
+    }
     ++report.boundary_guidance_calls;
-    const auto after=GeometryGuidanceExcess(candidate,candidate_geometry,options.surface_tolerance);
-    if(!std::isfinite(after)||after>geometric_before){++report.rejected_interface;++report.boundary_rejected_geometry;continue;}
+    const auto guidance=GeometryGuidanceExcess(candidate,candidate_geometry,options.surface_tolerance,geometric_before);
+    report.boundary_guidance_faces+=guidance.evaluated_faces;report.boundary_guidance_early_rejections+=!guidance.complete;
+    const auto after=guidance.excess;
+    if(!guidance.complete||!std::isfinite(after)||after>geometric_before){++report.rejected_interface;++report.boundary_rejected_geometry;continue;}
     best_score=score;best=std::move(candidate);
     if(debt?best_score>=0:best_score>=1)break;
   }

@@ -5,8 +5,9 @@ qualified: focused serial45cases/3674assertions PASS46.510s; MPI6 198cases/rank 
 278.590s, pins unchanged/all9handles independently absent and pins rehashed.
 Summary staged57/geometry_reuse174_integration_summary.json. Fixed1M graph cap
 passes with overlap-conditioned plane lift; failed convex-only fallback removed.
-Full Euler50k two-event attempt euler_build174_geometry_reuse50k nowRUNNING
-exec2461; source/helper/runtime/input frozen, no other heavy job.
+Full Euler50k attempt euler_build174_geometry_reuse50k nowTERMINAL after authorized
+computational-bottleneck stop; exec2461terminal1, all10handles absent/1396pins unchanged.
+No owned heavy job; active bounded-guidance follow-up below.
 No accepted M6 event/mesh/transfer/restart yet. Full Euler→BL/MPI→RANS500k goal and
 all gates unchanged; actual numerical frozen-field semantics risk remains open.
 
@@ -354,3 +355,49 @@ Privateboundarysmooth3515star dispatches/6248candidates/1597guidance/13708upperc
 9.221debt/.504s. Rejectedstar reuse0, so no measured gain from negative cache yet.
 Private counters include unpublished proposals, not global accepted debt. All1396
 pins and10owned handles reverified; run frozen/healthy, no acceptedmesh.
+
+##174 terminal bottleneck and connected bounded-guidance follow-up
+
+Three complete measured quality windows: at2164.205native/1144.000quality seconds,
+q/J debt21515.464345743 (3.565949%fall/.695456persecond),727191cells,
+52182q-bad/52880J-bad/3121geometry-bad/size0. Rank3upper789of1144seconds.
+Private boundary smoothing1130.549sumseconds/35032upper queries/757moves vs
+interior1.223seconds/747moves; those counters are not published whole-field debt.
+This confirms remaining traversal/trial cost after shared preparation improved.
+Authorized stop only verified mpirun2244817, preserving all1396pins/10identities
+before signal; all10absent afterwards. Exec2461terminal1/2410.236wall seconds.
+Primary outcome is supervised computational-bottleneck stop, NOT native timeout.
+Peak sampled summed tree12.915GiB. No accepted mesh/transfer/restart.
+Receipts174run/geometry_bottleneck_stop_receipt.json,terminal_handles.json,
+quality_trend_assessment.json; full rank logs/resources preserved.
+
+Missing capability remains complete strict quality/geometry closure at useful cost.
+Connected fix: move existing shared nonnegative face score into a directly tested
+geometry helper, preserve exact original face order/arithmetic, and explicitly
+return completeness/evaluated-face count. Bound candidate guidance by complete old
+score; a finite partial sum strictly greater than that score proves rejection.
+No sum reordering, near-tie margin change, positive-progress inference from partial
+scores, trial-count cuts, boundary disabling, cap increase or gate relaxation.
+Reuse existing exact immutable-authority/support/coordinate memo; unchanged-face
+backend queries already hit that memo, so do not add another unmeasured cache.
+Coarsening's existing zero-threshold early stop uses the same helper; full scoring
+callers retain complete traversal. Sticky resource failures propagate unchanged.
+Boundary early-rejection/evaluated-face telemetry must survive private proposals.
+
+Acceptance: bounded/full rejection equivalence for zero, positive, equal and near-
+tie thresholds with strict fewer evaluated faces on losing multi-face trials;
+finite malformed/resource failures fail closed. Existing curved seams/holes/body/
+feature/requested-height/cache-recompute tests plus connected MPI qualification.
+Then immediately actual complete Euler50k workflow. No fixture or debt-rate result
+substitutes for accepted meshes, conservative transfer and actual isolated restart.
+Queue severity/multiple slots remain backlog; no second implementation cycle.
+
+Bounded-guidance candidate implemented (UNVALIDATED): shared explicit result, same
+face order/arithmetic, strict finite partial rejection bound, unchanged full-score
+permitted-increase path. Counters forwarded through private optimizer outcomes.
+Primary source review plus bounded read-only second review found no concrete
+correctness issue; reviews do not establish validation. New sphere/bump test checks
+full original arithmetic, bounded/full decision equality, strict saved face work,
+zero/equal/adjacent thresholds and malformed authority/threshold failure. Existing
+cumulative atlas/backend exhaustion cases remain necessary in qualification.
+Build175exec49750/ninja2338044LIVE/1296pins; C++/helpers frozen through terminal.

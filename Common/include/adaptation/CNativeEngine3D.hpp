@@ -150,6 +150,7 @@ struct EngineStats {
   double layer_seconds = 0;  // Exclusive first-row initialization before metric seeding.
   uint64_t geometry_trials = 0, geometry_rejected = 0, metric_trials = 0;
   uint64_t geometry_guidance_trials = 0, geometry_guidance_rejected = 0;
+  uint64_t geometry_guidance_faces=0,geometry_guidance_early_rejections=0;
   double geometry_guidance_seconds = 0;
   uint64_t metric_shape_rejected = 0, metric_progress_rejected = 0, metric_measurement_rejected = 0;
   MetricDiagnosis last_metric_rejection;  // Most recent private failure, including work/time exits; not an infeasibility proof.
@@ -186,6 +187,7 @@ struct EngineStats {
   uint64_t boundary_smoothing_stars=0,boundary_smoothing_reused=0,boundary_smoothing_candidates=0;
   uint64_t boundary_smoothing_validity_rejects=0,boundary_smoothing_shape_rejects=0,boundary_smoothing_edge_rejects=0,boundary_smoothing_geometry_rejects=0;
   uint64_t boundary_smoothing_guidance_calls=0,boundary_smoothing_upper_queries=0,boundary_smoothing_moves=0;
+  uint64_t boundary_smoothing_guidance_faces=0,boundary_smoothing_guidance_early_rejections=0;
   long double boundary_smoothing_debt_reduction=0;double boundary_smoothing_seconds=0;
   uint64_t interior_smoothing_stars=0,interior_smoothing_reused=0,interior_smoothing_candidates=0;
   uint64_t interior_smoothing_validity_rejects=0,interior_smoothing_shape_rejects=0,interior_smoothing_edge_rejects=0,interior_smoothing_geometry_rejects=0;
