@@ -1,9 +1,12 @@
 # Active diagnosis: globally useful M6 quality closure
 
-**Current LIVE:** `euler_build166_consistent_merit50k`, exec62090, driver1804058,
-mpirun1804149, ranks1804153–1804158. All1396pins frozen; launch provenance saved.
-Source688e13d29a, serial/MPI qualification00f25cc49e pushed. Strict two-event50k
-Euler attempt; no accepted event yet.
+**Current166 TERMINAL, unsuccessful:** `euler_build166_consistent_merit50k`.
+All10owned handles independently absent; all1396pins unchanged. First native event
+rejected time_budget on all6ranks before only verified launcher1804149was stopped.
+Exec62090terminal1; stop/terminal receipts preserved. No accepted event/artifact/
+transfer/adapted restart. Source edits safe; no owned heavy job.
+Next active milestone is [geometry query reuse + boundary smoothing](ADAPTATION_GEOMETRY_QUERY_REUSE_20261031.md),
+latest user instructions verbatim there. Other quality-motion/frontier ideas backlog.
 
 **Previous full attempt TERMINAL, unsuccessful:** `euler_build164_quality_debt50k`.
 All ten exact owned handles independently absent; main exec23733 terminal.1396pins
@@ -302,3 +305,15 @@ its candidate/rejection/certificate/accepted-move/debt/time costs, exact state-b
 reuse/invalidation, and remaining valid cheap bounds/order. Interior smoothing
 measured separately. No blind trial-count reduction, boundary freeze, mandatory CAD,
 new baseline campaign or unrelated quality-motion reprioritization.166stays frozen.
+
+##166terminal outcome
+
+Event max5412.469s/refine5344.128s.158quality rounds over1968.095s accept928local
+quality commits but leave725096private cells,724975measured (121unmeasured),
+52048q-bad/52903J-bad,geometry2940,size0. qDebt7927.752943378/JDebt13877.061744358;
+partial reduction2.533% from entry is not admissibility. Peak sampled tree12.632GiB,
+steady8.13GiB, no RAM pressure. Geometry upper-query rankseconds quality deltas:
+1427.877/214.621/490.505/78.286/120.061/118.757; scope-build493.183/172.763/289.293/
+17.367/58.064/16.926. Nested timers overlap. CPU contention varies and no isolated
+speedup is claimed. Complete terminal assessment/raw rank records/stop receipts in
+166run. Source/qualification gains preserved; actual strict workflow still fails.

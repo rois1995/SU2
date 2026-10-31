@@ -1,7 +1,9 @@
 # Geometry query reuse — next connected milestone
 
-User steering2026-10-31. Current build166M6 remains live/frozen. Use its outcome
-to confirm the blocker before implementation. The full accepted Euler50k two-event
+User steering2026-10-31. Build166M6 is TERMINAL, unsuccessful. All10owned handles
+are absent and1396pins unchanged. Its outcome confirms the geometry cost/quality
+closure blocker. The connected implementation/capture cycle is now active; no C++
+change or new job has started yet. The full accepted Euler50k two-event
 workflow, conservative admissible transfer and actual disk restart, then BL/MPI and
 RANS500k goal remains unchanged. Quality-motion/frontier ideas are in the backlog;
 they are not the next implementation priority under this steering.
@@ -51,7 +53,7 @@ profile_quality_wait_{context,assessment}.json and inclusive/self text reports,
 quality_window1_source_survey.md, first_quality_assessment.json and all6rank stdout.
 Raw perf remains local. No new diagnostic framework or baseline campaign.
 
-No C++ edits/builds/tests until exact live166handles are terminal and pins verified.
+Exact166handles are now terminal and pins verified, so source edits may proceed.
 Reuse existing capture observers and query-cache diagnostics; assess whether they
 can preserve exact expensive support/coordinate/association/tolerance/resolution
 inputs before adding any narrow capture wiring. Retain per-host aggregate cache
@@ -86,8 +88,38 @@ payloads. Existing SU2_NATIVE_GEOMETRY_WORK_TRACE prints exact single-triangle/
 <=64facet query geometry/tolerance/direction, but not a standalone authority/binding/
 resolution replay artifact. Existing TransactionView/StageView observers expose
 borrowed exact patches and geometry in memory; fixture helpers do not serialize a
-complete M6 query. Inventory of saved stage shards remains relevant: non-resumable
-engine shards may still support representative query reconstruction if their exact
-geometry/association/input provenance is sufficient. Verify rather than assume.
+complete M6 query. Complete older6-rank M6 quality-entry/observation-stop shards were found in
+staged57/cases/m6_stage_20261027T094843_1705337 and...102502_1804803; build48
+...193554_3391623has complete entry/rejected-exit shards but failed the planned
+observation-stop campaign. Reuse for representative geometry inputs only after
+verifying hashes/authority/ABI/schema; no exact166continuation or restart claim.
+Detailed inventory:166run/geometry_query_capture_inventory.md.
 Reuse existing diagnostics/readers before any narrow payload bridge; no independent
-capture/replay framework or baseline campaign. All current source remains frozen.
+capture/replay framework or baseline campaign. 166is now terminal/pins verified; no source edits yet.
+
+## Confirmed terminal blocker and acceptance
+
+First166native event fails time_budget on all6ranks before the authorized launcher
+stop. Event max5412.468706813s, refine max5344.127813372s. Quality1968.095s/158rounds/
+928local quality commits leaves725096private cells,121unmeasured,52048q-bad/52903J-bad,
+2940geometry-bad,size0. Partial q/J debt reduction2.533% is not acceptance. Rank0
+quality upper-query1427.877s/scope-build493.183s; peers have substantial wait. Profile
+confirms active fitting/predicates and wait. Source/field/host timing limits retained.
+
+Missing capability is complete strict quality/geometry closure at useful bounded
+cost across the full workflow. Current preparation limitation is concrete: per-facet
+cached triangles are concatenated into each exact-scope PreparedFacet and a whole
+TriangleUnion rebuilt. Scope identity is exact but overlapping supports do not
+reuse complete prepared subtrees. First map representative query work and smoothing
+trial reuse before deciding the connected implementation. Retain exact cross-seam
+coverage/holes/body/features and conservative bounds, not just point-distance minima.
+
+Acceptance: representative query cached/recomputed equality and safe invalidation/
+resource exhaustion; curved seams/holes/separate bodies/features/heights preserved;
+shared coarsen/split/quality and boundary smoothing behavior qualified serial/MPI;
+then immediately actual complete M6 with matched geometry work/useful progress and
+unchanged gates. Only accepted meshes, conservative admissible transfer and isolated
+usable disk restart complete Euler; then dedicated BL/MPI and RANS500k. Current-nodal
+field semantics and other correctness findings are separately recorded in the
+[findings assessment](ADAPTATION_FINDINGS_ASSESSMENT_20261031.md); do not claim an
+immutable numerical target from identity/cache preservation alone.
