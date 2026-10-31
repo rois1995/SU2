@@ -172,3 +172,26 @@ choosing a strategy. Reuse existing multi-feature lookup, full-star imports,
 versioned reservations and height/geometry dependencies if wider coordination is
 required. Do not add another local fallback or change limits without target-run
 evidence. No reprioritization while179is healthy/frozen.
+
+
+### 2026-10-31 quality update packet synchronization (deferred)
+
+Existing179first-event counters from quality_entry to completewindow7 give
+324.96–325.45s/rank in update_seconds over3960.659quality seconds (~8.2%).
+Sources:179run/quality_entry_assessment.json rows and quality_trend_assessment.json
+window7rows. This is measured outer update time, including its nested MPI waits,
+not pure measurement CPU. Do not add it to overlapping geometry/election timers.
+After the active parallel-private-slot/debt-constraint milestone, reassess actual
+remaining cost before changing this path. measure currently uses16-cell batches
+and collective ImportCells/elections although current nodal support is local;
+sharing the local import primitive could eventually permit a complete local
+quality refresh followed by one vote. Preserve exact same batch/math/reuse,
+complete census flags, empty-rank alignment and fail-closed work/time/storage.
+No construction measurement changes or immediate extra campaign. The current
+saved-real-CFD BEFORE baseline stays frozen.
+
+Status clarification: the older conditional publication/quality-service entries
+above have now been explicitly promoted by the user into the active connected
+parallel-repair design (ADAPTATION_PARALLEL_REPAIR_20261031.md). Wider artificial
+frame/repair-freedom changes remain deferred unless the target outcome proves them
+necessary. There is still only one implementation/validation cycle.

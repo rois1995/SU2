@@ -32,8 +32,11 @@ Selected v3local1126/global3004; restart SHA
 Qualified under user force policy,NOT residual-converged aerodynamic reference.
 Every first remesh reuses this saved field via independent copy+same ITER1
 continuation. Initial baseline cycle0actually prints restart solution and
-CL.269535/CD.013536; QLS recovery complete, native construction pending/outcome
-not yet known. Strict geometry/q/J/size/heights/transfer gates unchanged.
+CL.269535/CD.013536. Initial ownership partition complete:303359cells preserved,
+rank counts49602/42336/56390/49597/48833/56601. Receipt:
+initial_partition_assessment.json. Geometry-cache host quota295417856bytes,
+rank quota49236309bytes; compare actual quotas when judging AFTER timing.
+Native construction outcome not yet known. Strict geometry/q/J/size/heights/transfer gates unchanged.
 
 See [saved CFD input and preparation evidence](Handbook/ADAPTATION_M6_CFD_SEED_20261031.md)
 for exact hashes, current policy, source snapshots, former criterion failure,
