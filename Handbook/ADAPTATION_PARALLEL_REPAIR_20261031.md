@@ -443,3 +443,13 @@ MemAvailable overrides any fallback; old q/J counts are checked through the
 already-measured diagnosis overload because strict fresh-side rejection can
 precede old measurement. Build182 qualifies these test corrections with the
 same focused serial/ONE MPI6 plan. MPI has not yet run.
+
+MPI182 broad timed out600s without assertion failure; NOT a passing broad suite.
+Affected continuation finished206.339s:161cases/rank,160pass/1failure, only the
+existing single-cell/six-rank collapse filter. Phase ownership attempted6parts
+for1cell; optional migration now skips when global_cells<world.size and retains
+current coherent ownership. No gate/operator changes. Global count is reused in
+the benefit estimate, replacing its later count reduction. Exact10handles absent
+and all pins unchanged before edit. Build183 qualifies the demonstrated fix using
+focused serial and affected MPI continuation, then full M6 immediately. Catch2
+per-case durations improve resumption; no complete broad pass is claimed.

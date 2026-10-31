@@ -37,7 +37,22 @@ terminal:117cases,114pass/3new test-contract failures, all pins unchanged and
 no owned processes before edits. parallel_quality181_serial_assessment.json.
 Production remainsfbba658e16; tests now use explicit midpoint endpoints, distinguish
 valid MemAvailable from fallback, and test q/J diagnosis after both sides measured.
-Build182 next; no MPI campaign has run yet.
+Build182 TERMINAL PASS171.503s/all1296pins unchanged, exec21307exit0;
+host Python3643026/Ninja3643033 independently ABSENT before serial checks.
+Sourceeea054f251 pushed (production unchanged sincefbba658e16). Serial182PASS:
+117cases/17611assertions, exec61300exit0/allpinsunchanged, owned Python3652953/
+time3653190 independently ABSENT. cases/parallel_quality182_serial_20261031T120846_3652953.
+Broad MPI6 exec59359TERMINAL timeout609.696s/noassertion failure; all10owned
+handles independently ABSENT/allpinsunchanged. It is NOT a passing qualification.
+Affected-contract continuation exec6606TERMINAL206.339s:161cases/rank,
+160pass/1failure perrank, exact10handles independently ABSENT/allpinsunchanged.
+Failure only existing NativeCollapseFilter3D single-cell/6rank optional phase
+partition. Guard now skips impossible migration when global_cells<world.size,
+retaining coherent ownership; global count reused in existing benefit estimate.
+No construction operator/gate changes. Source current fix needs build183.
+parallel_quality182_assessment.json / parallel_quality183_validation_plan.json.
+run_cases.py now records --durations yes for resumable completed case evidence;
+helper change occurred only after broad182terminal; no production decisions changed.
 Same planned focused serial/ONE MPI6 milestone, then full TWO-event
 M6 AFTER. All original constructors/operators/gates remain unchanged.
 No new qualified binary yet; zero accepted meshes. Separate zero-clean quality
@@ -59,12 +74,12 @@ actual removed/added rows and ownership resets, sampling current nodal tensors
 only with exact containment. Lost means unavailable tracked support, not proof
 outside mesh. Drift is full target for current Euler (no composition); composed
 fields explicitly report sensor-only/full_target=0, without extra geometry queries.
-No perf/GDB campaign. All new code/tests UNVALIDATED. Focused fixture now checks
+No perf/GDB campaign. Serial117cases passed; MPI6 qualification remains pending. Focused fixture now checks
 multiple commits/rank, one final round reservation, zero private tracked
 collectives, q/J churn conservation and cached-vs-recomputed field counts.
 
-Next: build/verify182, focused serial plus ONE MPI6 milestone
-(parallel_quality182_validation_plan.json), then immediately full TWO-event AFTER
+Next: build/verify183, focused serial plus affected MPI6 continuation
+(parallel_quality183_validation_plan.json), then immediately full TWO-event AFTER
 from the exact saved CFD seed. Do not edit C++/helpers/tests while a build/check
 handle is live. Both agents DONE/read-only reviews; no independent heavy jobs.
 

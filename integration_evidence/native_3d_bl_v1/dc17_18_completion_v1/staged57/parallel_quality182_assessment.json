@@ -1,0 +1,29 @@
+{
+  "time": 1793449513.2890437,
+  "scope": "Connected integration milestone incomplete, no M6 acceptance.",
+  "build182": "PASS171.503s/all1296pins",
+  "serial": {
+    "cases": 117,
+    "assertions": 17611,
+    "passed": true,
+    "path": "cases/parallel_quality182_serial_20261031T120846_3652953"
+  },
+  "broad_mpi": {
+    "passed": false,
+    "timeout": true,
+    "seconds": 609.6962928771973,
+    "path": "cases/parallel_quality182_mpi6_20261031T120917_3654393"
+  },
+  "affected_mpi": {
+    "passed": false,
+    "cases_per_rank": 161,
+    "passed_per_rank": 160,
+    "failed_per_rank": 1,
+    "seconds": 206.33903884887695,
+    "path": "cases/parallel_quality182_affected_mpi6_20261031T122039_3685704",
+    "failure": "NativeCollapseFilter3D single cell on six ranks: optional phase partition rejects total_cells<parts before expected bounded engine outcome."
+  },
+  "fix": "Skip impossible optional migration, retaining existing ownership. Reuse global cell count in existing benefit estimate.",
+  "helper_change": "Catch2 --durations yes only; production decisions unchanged.",
+  "next": "Build183, focused serial and affected MPI continuation, then immediate two-event M6 from saved original-grid CFD."
+}

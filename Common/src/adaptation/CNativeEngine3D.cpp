@@ -2484,6 +2484,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // The checkpoint's ownership is part of its rollback contract. Its enclosing speculative
     // coarsening cycle retains that ownership until it is explicitly retired.
     if(world.maximum(checkpoint.valid || selection.cells.size()!=working.size()))return true;
+    const auto global_cells=CPassiveComm::Allreduce(uint64_t(working.size()),CPassiveComm::Op::SUM,world.comm);
+    // Optional migration cannot populate one graph part per rank with fewer cells than ranks.
+    if(global_cells<uint64_t(world.size))return true;
     const double transition_started=world.seconds();
     const auto scratch=transfer_memory::Add(MapBytes(working),transfer_memory::Mul(working.size(),
         sizeof(uint32_t)*(quality?3:2)+sizeof(double)*(quality?3:2)+sizeof(Selection::CachedRow)*3+sizeof(Id)),
@@ -2561,7 +2564,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // Conservative benefit proxy: remaining demand relative to observed attempted edits. The
     // twofold hurdle acknowledges unknown placement, operator mix and destination cache locality.
     const double attempts=CPassiveComm::Allreduce(double(stats.attempted),CPassiveComm::Op::SUM,world.comm);
-    const double remaining=wall*std::max(0.,demand_sum-CPassiveComm::Allreduce(double(working.size()),CPassiveComm::Op::SUM,world.comm))/std::max(1.,attempts);
+    const double remaining=wall*std::max(0.,demand_sum-double(global_cells))/std::max(1.,attempts);
     const double estimate_seconds=CPassiveComm::Allreduce(world.seconds()-transition_started,CPassiveComm::Op::MAX,world.comm);
     const double rebuild=CPassiveComm::Allreduce(stats.initialization_seconds+stats.seed_seconds,CPassiveComm::Op::MAX,world.comm);
     double warming=0;

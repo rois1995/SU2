@@ -1,0 +1,31 @@
+{
+  "state": "planned_not_run",
+  "build": "build183",
+  "serial": {
+    "case": "parallel_quality183_serial",
+    "ranks": 1,
+    "filter": "[NativeCollapseFilter3D],[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeCoordinateStar3D],[NativeHeightOptimization3D]",
+    "timeout": 600
+  },
+  "mpi": {
+    "case": "parallel_quality183_affected_mpi6",
+    "ranks": 6,
+    "filter": "[NativeReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeFirstLayerEngine3D],[NativeCollision3D],[NativeCollapseFilter3D],[NativeAcceptedFaceCertificate3D],[NativeCurvedTransaction3D]",
+    "timeout": 600
+  },
+  "followup": "immediate full endorsed M6 two-event attempt, actual accepted transfer/restart required",
+  "scope": "Broad MPI6 timeout preserved with no assertion failure; no complete pass claimed. Continue same integration milestone using all engine/directory/metric/partition/cache-quota affected contracts plus focused curved certificate and curved partition-interface publication checks. Expensive unchanged geometry/archive/mapped repeated-sequence filters are excluded from this continuation; reuse their source-valid prior evidence only within unchanged arithmetic/geometry implementation scope. Per-case Catch2 duration lines record completion for resumption; no decision changes. Build183 addresses sole MPI failure by skipping impossible optional phase migration when global cell count<world.size; no gate or operator changes.",
+  "excluded_from_continuation": [
+    "[NativeSurfaceCache3D]",
+    "[NativeSurfaceMemo3D]",
+    "[NativeGeometryStats3D]",
+    "[NativeReference3D]",
+    "[NativeAtlasReferenceIO3D]",
+    "[NativeMappedPublication3D]",
+    "[NativeMappedComponent3D]",
+    "[NativeCurvedAtlas3D]",
+    "[NativeGeometryBackend3D]",
+    "[NativeCurvedGeometry3D]"
+  ],
+  "reuse_limits": "Engine and geometry-with-new-engine interactions require continuation tests; historical unchanged geometry evidence cannot establish parallel publication or full M6 acceptance."
+}

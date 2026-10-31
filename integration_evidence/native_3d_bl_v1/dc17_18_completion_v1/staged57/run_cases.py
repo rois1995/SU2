@@ -261,7 +261,7 @@ def main():
         argv = ["nice", "-n", "19", "/usr/bin/time", "-v", "timeout", str(timeout_seconds)]
         if ranks > 1:
             argv += ["mpirun", "--bind-to", "none", "-n", str(ranks)]
-        argv += [str(BINARY), filter_expr]
+        argv += [str(BINARY), filter_expr, "--durations", "yes"]
         save(attempt / "command.json", {
             "build": build, "case": case, "ranks": ranks, "argv": argv,
             "environment": {key: value for key, value in env.items()
