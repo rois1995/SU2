@@ -74,6 +74,12 @@ Startup audit1401pins unchanged, all10identities match, all82mapped runtime file
 pinned/matching; AFTER/startup_verification.json. Cache host quota4GiB,rankequal
 715827882bytes vs baseline295417856host/49236309rank. Host load ranged7.5–20.76,
 MemAvailable~27–31GiB; actual sampled treeRSS~1.6GiB at190s. Not job peak.
+Latest verified wait:exec94456 still LIVE; resource receipt at821.6s
+shows treeRSS4933988352bytes, not physical/job peak.
+No next complete adaptation census yet; coarsening runs to its phase census
+(BEFORE first complete coarsening1142.910native seconds). No evidence justifies
+stopping/editing. Last host observation all10identities matched, MemAvailable
+28583620KiB/load17.51; owned_observations.jsonl.
 Native curved mobility setup181938600work,674protectededges/2corners/2fixedpoints/
 671curvepoints/23806surfacepoints. Initial ownership partition COMPLETE:303359cells preserved; all17compared per-rank
 cell/metric/geometry workload and graph fields EXACTLY match BEFORE, including
