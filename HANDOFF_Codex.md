@@ -20,7 +20,7 @@ ONE owned heavy job: full TWO-event build188, exec16914. Helper4103308/start8738
 time4103462/timeout4103463/launcher4103464/start87385499;
 ranks4103468–73/start87385504. ALL10identities match. ALL1401source/header/test/
 helper/binary/config/input pins unchanged; all82mapped runtime files pinned/matching
-(latest independent provenance audit1793461513). Keep frozen until verified terminal
+(latest independent provenance audit1793462469). Keep frozen until verified terminal
 or preserved actual failure/bottleneck/resource pressure justifies authorized stop.
 An observation timeout is not termination. No extra perf/GDB/baseline campaign,
 gate relaxation or native budget increase. Nice19,libs1,MPI6,50k/5400s per event.
@@ -59,26 +59,28 @@ quality atlaswork; upper/support/facet/certification work unchanged. Timers over
 
 Actual prior failure barrier PASSED: window4/round21760/5837commits beyond183fatal
 round21746/5421commits, no rejection. CURRENT/feature_publication_barrier_assessment.json.
-Latest COMPLETE window8/round22016 at1932.789quality seconds:757326cells,
-34759q-bad/32465J-bad/3786geometry-bad,size0,debt6558.646277;12317commits(6.373/s),
-19312netq-bad removed(9.992/s). No acceptance. All complete census/cache/shape/geometry
-flags intact. Window8commits1593,qchurn17603removed/15438created,J16165/13871;
-privatecollectives0/unmeasuredchurn0/stuckshape0,queue309101/blockedfeatures158.
-Join-callshares[.425,.713,.434,.544,.537,.575] include protocol+wait,notpureidle.
-All16GLOBALdriftpoints supported/lost0,max.084197787 (replicated views,not96samples).
-Passive reporting audit checks location/features/histograms against wholefield;
-ladder totals agree with actual net q/J/debt removals through ALL8windows (roundoff).
-CURRENT/quality_window*_counters_assessment.json,passive_census_integrity_assessment.json.
+Latest COMPLETE window10/round22144 at2532.324quality seconds:764119cells,
+30961q-bad/28318J-bad/3668geometry-bad,size0,debt4907.200553;15157commits(5.985/s),
+23110netq-bad removed(9.126/s). No acceptance. All complete measurement census/cache/
+shape/geometry flags intact. Window10commits1385,qchurn14529removed/12784created,
+J13523/11522;privatecollectives0/unmeasuredchurn0/stuckshape0,queue291700/
+blockedfeatures222. Join-callshares[.699,.705,.099,.721,.485,.602] include protocol+
+wait,notpureidle. All16GLOBALdriftpoints supported/lost0,max.084197787 (replicated
+views,not96samples). Passive reporting audit checks location/features/histograms
+against wholefield; ladder totals agree with actual net q/J/debt through ALL10windows
+(roundoff). CURRENT/quality_window*_counters_assessment.json,
+passive_census_integrity_assessment.json. No new profiling or repair decisions.
 
 Closest actual179comparison:1881473.820s vs1791479.020s(-5.2s,0.35%):
 38969q/36891J/3861geometry vs43764/42274/4067,size0both. Commits/s6.156vs2.771;
 netqbadremoved/s10.247vs6.460;debtspread3.330vs7.481. Earlier673vs699s pair retained.
 Hostload/cache/ownership/entrycounts differ; no isolated speed/exact clock claim,
 no interpolated counts. CURRENT/matched_before_quality_comparison.json.
-Latest passive1793461889:ALL10identities match,~29GiBavailable,treeRSS~8.65GiB
-(sampled sum,not physical/job peak),load8.77,no rejection. Source freeze ACTIVE.
-Latest pushed7de0640d0a includes quality6/matched1479s comparison. Quality7/8 and
-integrity audit are local completed evidence, next checkpoint. Both agents done/no jobs.
+Latest live audit1793462469:ALL1401pins unchanged/ALL82runtime files pinned/ALL10
+identities match,~28GiBavailable,treeRSS~8.65GiB(sampled sum,not physical/jobpeak),
+load9.57,no rejection. Source freeze ACTIVE.
+Latest pushed283bbbcf3c includes quality7/8 and concise handoff/history archive.
+Quality9/10 and integrityaudit are local completed evidence, next checkpoint. Both agents done/no jobs.
 
 ## Continue the complete workflow
 
