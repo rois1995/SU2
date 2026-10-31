@@ -34,6 +34,19 @@ in owned_startup_all_mappings_initial.json; not a source/library provenance fail
 Compiled sources/headers/tests/helpers/binaries/config/input remain FROZEN. nice19,
 libs1,MPI6,one job,5400native/50k unchanged. Same saved CFD:CL.269535/CD.013536 at
 initial continued iteration. Pre-M6 host38GiBavailable,memorypressure0,load6.27.
+Early runtime audit1793476745:all10identities live/all1401pins unchanged; continued
+original-grid restart SHA6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a
+BYTEIDENTICAL179/183/188/190. euler_build191_real_cfd50k_numeric_memo/early_runtime_provenance.json. Initial ownership
+and all18selected estimated-demand fields EXACT188/190:initial_partition_comparison.json.
+First complete coarsening:292709cells,2627collapses,all selected per-rank counts,
+flags and geometrybad counts EXACT188/190. q/J intentionally UNMEASURED, no acceptance.
+Traversal293483522vs294071794 (-.20004%); uppercalls14870 same,unionhits2303/misses12567,
+15.4876%exacthitshare. Old exactmemo already existed/no historicalhitcounts, so this
+hit share is not incremental benefit. Memo25157800/25165824B aggregate across6fixed
+pools,35904evictions,0retentionrefusals; maintenance1308630counted operations,not
+interchangeable with traversal operations. coarsening_comparison.json preserves
+all6rank rows/threebuilds; no isolated wall-speed claim. Serial/MPIqualification
+alone does not prove M6 benefit. Splitting underway; quality entry still pending.
 No accepted adapted mesh/transfer/continued adapted CFD/restart yet. Let attempt finish
 unless preserved evidence justifies authorized stop. Next:complete censuses, net whole-
 field q/J/geometry progress, memo hits/misses/maintenance and traversal work; then
