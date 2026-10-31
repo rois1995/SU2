@@ -1,17 +1,13 @@
 # Geometry query reuse — next connected milestone
 
-User steering2026-10-31.166is terminal unsuccessful; active blocker geometry cost/
-quality closure. Candidate68b396c562pushed unvalidated. Build170PASS105.230s; its
-broader serial run was stopped after preserved failures (terminal143/270.596s,
-1388pins unchanged/all4handles absent). Representative M6 replay passed with smaller
-joined witnesses; see current handoff/comparison receipts below. Test-only cache-
-warming correction build171PASS75.209s,1296pins unchanged/all9handles absent.
-Connected serial171RUNNING exec37705; C++/helpers/binary frozen until terminal
-verification. Exact166connected qualification plus
-new geometry hazards/M6 replay, MPI6, then immediately fullM6. Generic serial_full
-was overbroad for this milestone; its older failures are preserved/deferred. Full
-accepted Euler50k two-event/conservative admissible transfer/actual disk restart,
-then BL/MPI and RANS500k goal remains; all gates strict.
+User steering2026-10-31.166M6terminal unsuccessful. Connected174candidate now
+qualified: focused serial45cases/3674assertions PASS46.510s; MPI6 198cases/rank PASS
+278.590s, pins unchanged/all9handles independently absent and pins rehashed.
+Summary staged57/geometry_reuse174_integration_summary.json. Fixed1M graph cap
+passes with overlap-conditioned plane lift; failed convex-only fallback removed.
+Next immediate step full Euler50k M6two-event attempt, not another fixture campaign.
+No accepted M6 event/mesh/transfer/restart yet. Full Euler→BL/MPI→RANS500k goal and
+all gates unchanged; actual numerical frozen-field semantics risk remains open.
 
 ## User specification (verbatim)
 
@@ -240,3 +236,69 @@ Authorized stop verified all1388pins and4exactidentities before signalling only
 timeout2146037; terminal143/270.596s, all4handles absent. Full failure logs preserved.
 Next exact166connected filter + new holes/body/curved/backend checks and same-payload
 replay; matchingMPI6once; immediate fullM6. Do not repeat generic serial_full.
+
+171connected serial:193cases/38243assertions,192cases/38242assertions pass;
+sole exception Surface union bounds span a noncoplanar triangulated graph without
+filling holes, complete graph section, fixed1<<20work. Source/binary pins unchanged;
+all4handles independently absent. Existing SU2_NATIVE_GEOMETRY_WORK_TRACE diagnostic
+exec57594is active on only this test; keep exact work cap. No production changes
+until terminal and failure costs mapped. Latest checkpoint498277b1a4pushed.
+
+## Fixed-budget graph traversal correction (same connected milestone)
+
+Trace171terminal1/12.973s, pins unchanged/all4handles absent. Unsheared query
+~404531work; sheared reverse exceeds1M and a4M-cap missing-coverage query spends
+1576944. Historical build139alsofailed same named complete-graph work check, but
+its test hash differs; no clean exact-source/same-cap baseline pass is claimed.
+Rectangle projected-footprint containment is needlessly stronger than actual
+convex source hull containment on sheared graphs, causing repeated subdivision.
+New source-only correction: keep cheap rectangle proof, then when it fails inside
+the footprint bbox, construct exact-predicate convex hull of outward-rounded
+projected interval-box corners. Prove its fan triangulation/segment against the
+SAME finite footprint (holes intact); only then use zero horizontal shift. Full
+interval plane-lift and exact-support distance bounds remain. Stack scratch admitted,
+sort/orientation/coverage work charged; no work-cap/tolerance/gate change.
+Focused graph+hole/cache checks before one connected serial/MPI result and M6.
+
+172focused serialTERMINAL1/49.357s,44of45cases pass; same graph1Mfailure, pins
+unchanged/all4handles absent. M6sample .493851s/work549328 versus171 .388405/399250;
+all12classes and cached/recomputed equality pass. Exact convex-fallback source and
+patch archived; removed because it did not resolve blocker and slowed this sample.
+No additional fallback or cap increase.173math restored171 + existing trace output
+for BuildPlanes group counts, footprint refusals/reasons and full-witness detection.
+173PASS54.159s/all13handles absent; focusedtrace exec58638active, source frozen.
+Canonicalization mismatch is a hypothesis: prepared target uses interval midpoints
+where actual geometry Realize chooses outward lower bounds/canonical edge bindings.
+Observe graph group/refusal diagnostics before changing sampling/coordination.
+
+173traceTERMINAL1/13.073s, pins unchanged/all4handles absent. Both sheared/unsheared
+model preparations have2048pieces/one accepted finite graph, physical128pieces/one
+graph; full witness true, no graph/storage refusal. Fragmentation/canonicalization
+hypotheses are disproved for this case; do NOT implement those speculative changes.
+The actual remaining loose bound extrapolates every candidate target plane over
+the whole source hull, even weights that cannot meet that target piece. Source-only
+correction conditions N=3(flat source triangle) plane residual bounds on necessary
+projected-triangle halfplanes. Interval upper coefficients include source-coordinate
+uncertainty and |edgeX|dy+|edgeY|dx, giving safe per-barycentric L/U bounds. A simplex
+box dual bound with sum(weights)=1bounds positive/negative normal residuals; minimum
+with old bound stays conservative. Finite rectangle coverage, displacement/plane
+error, complete support and all caps remain unchanged. New scratch/work admitted;
+triangle indices reference owned prepared data. Nonfinite inputs drop restrictions.
+Primary proof reviewed; bounded agent read-only review found no underbound. Test
+fixed graph/holes/cached equivalents/M6payload before integration/MPI/M6.
+
+174PASS54.150s,1296pins unchanged/all13handles absent. Focused serial174
+exec54385running, same graph1Mcap/holes/body/cache/smoothing/height checks/M6payload.
+C++/helpers/binary frozen until terminal verification. No MPI/M6 until assessed.
+
+##174connected qualification complete (supporting work only)
+
+Build174PASS54.150s,1296pins unchanged/all13build handles absent. Focused serial
+45cases/3674assertions PASS46.510s/all4handles absent. MPI6 198cases/rank PASS
+278.590s, assertions30176/32916/30935/30408/30878/30413in log order; all9handles
+absent, source/runtime/input pins independently rehashed. Combined receipt
+staged57/geometry_reuse174_integration_summary.json. Exact representative12M6
+classes preserved, payload identical, cached/recomputed equality; observedquery
+.401954s versus1.03543sbaseline, work409280versus334868(new cheap work counted),
+repeat1060unchanged. CFD SHA60ffadf8e8c68b6771b940e72b510b62088da6f560679cb825e8ff31477d3a13.
+Actual accepted meshes/transfer/disk restart still pending; immediate fullM6next.

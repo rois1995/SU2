@@ -1,147 +1,132 @@
 # Native adaptation — current handoff
 
-Updated2026-10-31. Full explicit goal remains active: strictly accepted ONERA M6
-Euler CFD→mesh→CFD→mesh at50k metric complexity, conservative admissible transfer
-and usable disk restart; then dedicated BL/constraint/MPI qualification and the
-corresponding RANS500k workflow. Strict geometry1e-4,q>=.2,J>=.05,maxedge1.8and
-requested heights. Actual counts are separate from metric complexity.
+Updated2026-10-31. Full explicit goal ACTIVE: strictly accepted ONERA M6 Euler
+CFD→mesh→CFD→mesh at50k metric complexity, conservative admissible transfer and
+usable isolated disk restart; then dedicated BL/constraint/MPI qualification and
+corresponding RANS500k workflow. Actual point/cell counts are separate from metric
+complexity. Strict geometry1e-4,q>=.2,J>=.05,maxedge1.8and requested heights.
 
-## Authoritative current state
+## Authoritative current live state
 
-**TERMINAL, unsuccessful:** `euler_build166_consistent_merit50k`.
-Exec62090terminal1after six-rank native time-budget failure. Only then verified
-mpirun1804149received SIGTERM to prevent unchanged retry. All10owned handles
-independently absent; all1396pins unchanged. That M6 job is gone; current diagnostic job is listed below. Driver1804058,time1804147,timeout1804148,ranks1804153–1804158are gone.
-Two initial read-only stop selectors assumed wrong DETAIL ordering/per-rank final
-summary emission; both aborted before snapshots/signals. Corrected selector used
-six master-gathered native records plus each rank's own exit row, reverified all
-pins/identities, preserved evidence, then signalled only the launcher.
+**No owned heavy job live.** Connected MPI6 exec28854TERMINAL0/278.590s;
+198cases/rank PASS (assertions30176/32916/30935/30408/30878/30413 in log order).
+All9sampled host handles absent, all runtime/source pins independently rehashed.
+Case:staged57/cases/geometry_reuse174_mpi6_20261031T022606_2230896.
+Qualification summary:staged57/geometry_reuse174_integration_summary.json.
+Next immediate action is full M6 launch below after checkpoint/push and host check.
+No further C++ changes planned; keep build174source/binary coherent.
 
-Source688e13d29a; build165/166qualification00f25cc49e.166only corrected two new
-fixture assumptions; production unchanged. Build165PASS540.908s;166PASS39.154s.
-Focused29cases/3154assertions PASS; connected serial145/20403PASS38.002s;
-MPI6 151cases/rank PASS44.090s. CFD SHA256:
-7b1d8c083b3de76893065474fecbf82792602397a468491c2eec2ac2f014de6e.
-ConfigSHA5b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1,
-byte-identical164; initial CFD restart also identical. Qualification is not M6 acceptance.
+Build174PASS54.150s,1296pins unchanged/all13sampled handles absent. Focused serial
+`geometry_reuse174_serial_20261031T022425_2226738`PASS45cases/3674assertions,
+46.510s, all1388pins unchanged/all4handles absent. Includes fixed1M-work noncoplanar
+graph, holes/notch/separate bodies, cache/recomputed/refusal, smoothing/heights and
+exact saved M6 queries. MPI uses previous166qualified connected filters plus
+NativeMappedComponent3D/NativeCurvedAtlas3D/NativeGeometryBackend3D; hidden M6 query
+replay is serial only. Build174CFD SHA256:
+60ffadf8e8c68b6771b940e72b510b62088da6f560679cb825e8ff31477d3a13.
 
-166construction coarsen and generations1–21match164counts/debts/edge/census fields.
-Size closesgen21/3339.282native seconds,720963private cells,maxedge1.7999928685,
-size0,geometry3126. Quality entry3376.033s has52476q-bad/53533J-bad, complete.
-New ownership moves382827cells/14.947s. Native event max5412.469s; refine max5344.128s.
-Quality1968.095s/158replicated rounds/928local quality commits does not close:
-exit725096private cells,724975measured (121unmeasured),52048q-bad/52903J-bad,
-geometry2940,size0; qDebt7927.75294/JDebt13877.06174. Partial debt reduction2.533%
-is not acceptance. Sampled tree peak12.632GiB; steady quality8.13GiB, ample RAM.
-Rank0quality upper-query1427.877s, scope-build493.183s (overlap). Peers wait.
-CPU contention varies~.77–.97/rank/wall; no isolated timing comparison.
-**Zero accepted M6 events/artifacts/transfers/adapted disk restarts.**
+Latest pushed498277b1a4contains source through171. Next checkpoint includes current
+qualified174source: narrow existing-trace diagnostics plus overlap-conditioned plane
+lift bound. Full M6 is still pending; no accepted M6 event/artifact/transfer/restart.
 
-Evidence root:`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-Run:`m6_runs/euler_build166_consistent_merit50k/terminal_assessment.json`,
-`event1_time_budget_stop_20261031/{stop_receipt,terminal_handles}.json`, full logs,
-rank stdout/resources, stage/cost/profile/provenance receipts. Raw perf stays local.
-Terminal checkpoint2c95225b1a pushed; latest user steering/findings and full166failure preserved.
+## Connected candidate and evidence
 
-## Active connected milestone — latest user steering
+Read [latest user specification + design/evidence](Handbook/ADAPTATION_GEOMETRY_QUERY_REUSE_20261031.md).
+Shared coarsen/split/quality backend reuses per-facet distance searches and smaller
+joined witnesses. Full exact support remains in lower-distance forest; witness
+keys use exact immutable selected pieces/resolution/tolerance, answer keys retain
+full support/coordinates. Active refs/accounting and transient admission preserved.
+Boundary smoothing reuses unchanged private context/atlas with retained overlap
+charge; exhaustive shape-only rejected-star cache invalidates on EVERY commit,
+never after resource/validity/geometry/edge failures. Boundary/interior trial/reject/
+guidance/move/debt/time counters are separate. These count PRIVATE optimizer work;
+published operations and whole-field debt remain separate. No blind trial cuts,
+boundary freezing, mandatory CAD, new scenario switch or gate relaxation.
 
-Read [geometry query reuse + boundary smoothing](Handbook/ADAPTATION_GEOMETRY_QUERY_REUSE_20261031.md)
-for both latest instructions verbatim. Terminal166confirms expensive geometry/query
-work as the active computational blocker behind slow whole-field quality closure.
-Implement ONE connected change across coarsening/splitting/quality:
-representative expensive M6 query capture using existing facilities/evidence;
-separate support discovery/preparation/traversal/repeated-trial costs; query reusable
-prepared geometry/subtrees instead of copying/rebuilding whole scoped unions;
-safe unchanged-face/star/certificate/query reuse with exact identity, coordinate/
-association/neighbor invalidation, active-reference accounting and transient admission.
-Boundary smoothing belongs in the SAME change: candidates/rejections/certificates/
-accepted moves/whole-patch debt per second, unchanged context reuse, measured cheap
-bounds/order, rejected-star invalidation. Measure interior separately. No blind trial
-cuts, boundary freezing, mandatory CAD, independent framework or new baseline campaign.
-Preserve all strict gates, construction/cache/ownership improvements and whole-patch
-merit. Validate seams/holes/separate bodies/features/heights/cached-vs-recomputed/
-exhaustion, one serial/MPI milestone, then immediately complete M6. Fixtures not completion.
+Prepared plane lift bounds now restrict flat-source barycentric weights using
+outward projected half-plane coefficients + admitted XY shift, then a simplex-box
+dual bound on ±normal residual. Keeps finite footprint/holes, displacement, model
+error, full-support distances and all caps. Primary proof + bounded read-only review.
+This resolves graph certificate's fixed1Mwork failure; no cap increase.
 
-Older complete M6 private stage shards are available (build18/19entry+observation,
-build48entry/rejected-exit). Verify their hashes/authority/ABI/schema before using
-as representative query input; they are NOT exact166continuation or CFD restart.
-See166run/geometry_query_capture_inventory.mdand linked active handbook. No exact
-166query payload was captured; counters/profiles alone are not replay inputs.
-Input verification receipt staged57/geometry_query_capture_input_verification.json
-checks18payloads each in19/48and authority equality. Current owned wire416bytes
-vs captured208; do not decode old as current OwnedCell. Parameter payload48schema8
-has genuine-feature mobility policy and current FromPayload supports it.
+Representative12M6 projected-star queries (older verifiedbuild48authority/data,
+NOT exact166state/continuation/restart): payload bit-identical, all12passing classes
+preserved and cached/recomputed equality. Query1.03543→.401954s OBSERVED, not isolated
+speedup. New facet.0832373/witness.00954483/selection.00128230/traversal.306159s;
+witness724of10756support pieces. Work334868→409280 (more cheap box checks), identical
+repeatwork1060. No capture/replay RSS comparison. Receipts:
+`staged57/geometry_capture168_baseline_receipt.json`,
+`geometry_reuse174_query_comparison.json`, pinned serial174output.
 
-Capture168host PASS648449assertions/95.873s; all4sampled handles absent, pins
-unchanged. Its sandbox predecessor failed only at MPI_Init(socket restriction).
-Build168PASS75.210s,1296pins/all9handles verified terminal. Test167failed because
-old faces were chart-local; preserved sources/receipts explain the new projected
-trial capture. Twelve exact trial inputs from verifiedbuild48M6 data (76–78facets)
-are in cases/m6_geometry_capture168_host_20261031T012917_2091486/m6_surface_queries.bin.
-They are representative trials, NOT166state/continuation/restart or accepted moves.
-Measured query1.03543s contains.15777s preparation; identical repeats88–90work.
+One unsuccessful convex-hull-only fallback172was preserved then removed: same graph
+failure, slower M6sample.173trace proves all2048model/128physical pieces form one
+accepted graph/full witness, no footprint/storage refusal; fragmentation hypotheses
+disproved for that case.174addresses loose plane extrapolation. Exact172/173source
+archives and trace receipts preserved locally, must include in next checkpoint.
 
-Connected candidate is source-only, UNBUILT/UNVALIDATED: per-facet prepared distance
-searches + spatially cropped joined witnesses, full exact-support lower distances,
-exact immutable piece witness keys and existing bounded pool/accounting. Separate
-support/facet/witness/selection/traversal counters. Boundary/interior smoothing
-candidates/rejects/guidance/debt/time telemetry; unchanged private context/atlas reuse
-with explicit retained overlap charge, conservative shape-only rejected-star cache
-invalidated on EVERY commit. Private optimizer debt/moves are not published whole-
-mesh progress. Added holes/notch/body/support/refusal and smoothing debt checks.
-Build169FAILED555.849s (interval min/max type errors),1296pins unchanged/all146
-sampled handles absent. Corrections preserve smoothing counters and finite-old-merit
-memo guards. Build170PASS105.230s/all17sampled handles absent. Broader-than-required
-serial exec31939case geometry_reuse170_serial_20261031T015102_2145920failed legacy
-count/counter assertions and one relevant cache-warming assertion. After1388pins and
-all4owned identities were verified, only timeout2146037received SIGTERM; terminal143,
-270.596s/all4handles gone. This is NOT a passing broad campaign. Full logs/stop
-receipt preserved. Source-envelope checks conflict with unchanged current_metrics
-import bypass; scenario counts/operator counters/timer scopes are separately assessed.
-They were outside166qualified filters; deferred broader-fixture work is backlog.
+An overbroad generic serial_full170was stopped after preserved assertion failures:
+1388pins/4exactidentities verified, only timeout2146037signalled, terminal143/270.596s,
+all4handles gone. NOT a passing campaign. Older source-envelope/count/timer-scope
+expectations outside166qualified filters are assessed in active handbook/backlog;
+do not fix unrelated fixtures or rerun generic serial_full in this cycle.
+Relevant work-estimator fixture171nowexplicit16MiB + actual retained-piece assertion,
+keeping strict work>dand rank-independent ownership checks; production quotas unchanged.
+Serial171192/193cases passed (graph failed);174focused resolves that shared failure.
 
-Same-payload M6 replay within that run PASS:12classes match, cached/recomputed bounds
-identical, payload bit-identical. Query1.03543→.388405s observed; old whole-scope
-preparation.157774s versus new facet.0762235+joined.0100672+selection.00129513s;
-traversal.299522s. Witness724/10756pieces. Work334868→399250 (more cheap box checks),
-repeats1060unchanged; no isolated speedup or M6 acceptance claim. Comparison receipt:
-staged57/geometry_reuse170_query_comparison.json, baseline verification receipt
-geometry_capture168_baseline_receipt.json. No RSS comparison across capture/replay.
+## Next actions
 
-Relevant failed work-estimator fixture assumed the fine leaf stayed cached under
-its old tiny default quota; indexed leaves are larger. Test-only171explicit16MiB
-allowance + required actual retained pieces preserves strict work>dand owner equality.
-Production remains170. Build171PASS75.209s,1296pins unchanged/all9sampled handles
-absent. Connected serial geometry_reuse171_serial RUNNING exec37705; C++/helpers/
-binary frozen until terminal verification. Uses exact166qualified connected
-filter from cases/quality_merit166_serial_20261030T232240_1797134/command.json,
-plus NativeMappedComponent3D/NativeCurvedAtlas3D/NativeGeometryBackend3Dand serial-only
-NativeM6GeometryQueries3Dreplay. Then matching connected MPI6and immediately fullM6.
-Do not rerun generic serial_full or fix unrelated fixture expectations in this cycle.
-Serial171exec37705is the sole owned heavy job. Candidate remains UNVALIDATED.
+1. Let MPI174finish frozen. Inspect actual result, rehash pins and independently
+   verify ALL sampled host PIDs terminal before any new job/source edit. If failure,
+   preserve/fix only demonstrated connected blocker; do not claim validation passed.
+2. On pass, save combined qualification/provenance, checkpoint/push reviewable source
+   and receipts, then IMMEDIATELY full M6 (fresh attempt directory):
+   `python3 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py build174 euler_build174_geometry_reuse50k 2`
+   Check actual host load/RAM and no owned handles before launch; source/runtime/input
+   pins authoritative. Existing config/inputs endorsed50k,2events,native5400s bound.
+3. Compare matching coarsen/split/quality geometry work, useful debt/time progress,
+   transition/cache costs and aggregate sampled memory with terminal166. Nested timers
+   overlap; old scope timer included facets. Do not infer speedup from changed CPU
+   service/quotas or equate target complexity to actual counts.
+4. Require TWO actually accepted events, strict final meshes/reference publication,
+   conservative/admissible transfer and finite continued CFD. After workflow terminal,
+   isolated COPY of actual accepted final mesh/native_ref/matching solution, verify
+   headers/coordinates/positive state, then actual RESTART_SOL=YES/ADAP_LOOP=NO run
+   with distinct output basename. Initial61330point restart is not adapted evidence.
+5. Then dedicated curved/junction/interface/subsequent-op/redistribution/height BL
+   qualification under MPI, implement its demonstrated needs, and RANS500k workflow.
 
-[Assessment of supplied findings](Handbook/ADAPTATION_FINDINGS_ASSESSMENT_20261031.md)
-records confirmed queue/slot/cost limits, short-edge hypothesis, startup-field scope,
-restart-name/cycle risks, interpolation/midpoint policies and guidance-vs-validity.
-**Frozen target acceptance risk:** current-nodal PublishMetrics/field evaluation can
-change the spatial P1target after topology changes; identity preservation alone
-proves no immutable numerical field. Quantify/resolve required semantics before
-any strict frozen-field claim. Original conservative CFD donor state is distinct.
-Unrelated scheduling/coarsen/interpolation changes stay [backlog](Handbook/ADAPTATION_BACKLOG.md).
+## Last actual M6 outcome / persistent risks
 
-## Required reading / operating rules
+`euler_build166_consistent_merit50k` TERMINAL unsuccessful. All10owned handles absent,
+1396pins unchanged. First event native time_budget before authorized stop of only
+verified mpirun1804149. No accepted mesh/transfer/adapted restart. Full failure and
+stop evidence under staged57/m6_runs/euler_build166_consistent_merit50k.
+Construction matched164through21: size closes3339.282s/720963private cells. Quality
+entry3376.033s:52476q-bad/53533J-bad/3126geometry-bad. Eventmax5412.469s; quality
+1968.095s/158rounds/928commits only2.533%partial debt reduction;121unmeasured cells.
+Rank0quality geometry upper1427.877s includes493.183scope-build; peers wait. Peak
+sampled tree12.632GiB, steady8.13GiB, ample RAM; CPU contention .77–.97service limits
+wall comparisons. Initial CFD one iteration is functional workflow, not converged flow.
+
+[Supplied findings assessment](Handbook/ADAPTATION_FINDINGS_ASSESSMENT_20261031.md)
+records queue/slots/short-edge hypotheses, startup-field scope and restart risks.
+**Acceptance risk still open:** current-nodal tensor transport can change spatial P1
+field after topology changes; identity preservation alone does not prove immutable
+numerical target. Quantify/resolve required semantics before strict frozen-field
+claim. Original conservative CFD donors are distinct. Loop resume can collide with
+restart basenames and rejected events consume cycles; isolated restart must avoid
+collision, two requested events never imply two accepted events.
+
+## Operating rules / links
 
 ReadAGENTS.md, [complete task](Handbook/ADAPTATION_INTEGRATED_NEXT_TASK.md),
 [quality evidence](Handbook/ADAPTATION_QUALITY_CLOSURE_20261030.md),
-[cache/ownership design](Handbook/ADAPTATION_CACHE_PHASE_20261030.md).
-One owned heavy workload, nice19, build2–4workers(helper3), boundedMPI6, libs1,
-TMPDIRon4TBcompile-tmp; check actual host load/RAM before sustained work.
-Verify exact handles terminal before pinned C++ edits; freeze code/binary/helpers/
-config during campaigns. Reuse proven evidence only with runtime/input provenance.
-Regular reviewable pushes authorized tohttps://github.com/rois1995/SU2.git,
-branchcodex/native-3d-bl; no approval pending. Preserve unrelated dirty files/logs.
-Bounded routine read-only tasks may use efficient agents; primary owns integrated
-design/source review/acceptance. Current ownership_survey agent is done, no edits/jobs.
-
-Prior history is preserved in [previous handoff](Handbook/History/HANDOFF_Codex_before_geometry_reuse_20261031.md)
-and linked handbooks; historical builds/live notes never override current state.
+[cache/ownership design](Handbook/ADAPTATION_CACHE_PHASE_20261030.md), active handbook.
+One owned heavy workload,nice19,build2–4workers(helper3),MPI6bounded,libs1,TMPDIR4TB
+compile-tmp. Verify terminal handles before pinned C++ edits. Reuse evidence with
+source/build/binary/runtime/config/input provenance. Preserve unrelated dirty logs.
+Regular pushes authorized tohttps://github.com/rois1995/SU2.git,
+branchcodex/native-3d-bl; no approval pending. Use git -c submodule.recurse=false and
+--ignore-submodules=all due unrelated broken Eigen worktree. Force-add ONLY whitelisted
+evidence, never binaries/meshes/restarts/raw perf. Escalated host/git tools authorized.
+Bounded efficient agentownership_surveyis done, no edits/jobs. Primary owns acceptance.

@@ -1,0 +1,56 @@
+diff --git a/Common/src/adaptation/CNativeAffineReference.cpp b/Common/src/adaptation/CNativeAffineReference.cpp
+index 4e4424602f..793dbb5987 100644
+--- a/Common/src/adaptation/CNativeAffineReference.cpp
++++ b/Common/src/adaptation/CNativeAffineReference.cpp
+@@ -339,6 +339,51 @@ class TriangleUnion {
+       else covered=positive ? (footprint->ContainsFace({p,q,r},&predicates)&&footprint->ContainsFace({p,r,s},&predicates)) :
+           (footprint->ContainsFace({p,r,q},&predicates)&&footprint->ContainsFace({p,s,r},&predicates));
+       op.Work(transfer_memory::Add(predicates.filtered_orientations,predicates.exact_orientations));
++      // A sheared triangle can fit a finite graph while its enclosing rectangle leaves it.
++      // Prove the full interval hull instead; never replace finite coverage by a bounding box.
++      if(!covered && lower[0]>=lo[0] && lower[1]>=lo[1] && upper[0]<=hi[0] && upper[1]<=hi[1]) {
++        const auto scratch=transfer_memory::Add(transfer_memory::Mul(12*N,sizeof(Point)),1024);op.Storage(scratch);
++        struct RestoreCaller {AtlasBudget& budget;size_t caller;~RestoreCaller(){budget.caller_bytes=caller;}}
++            restore{op.budget,op.budget.caller_bytes};
++        op.budget.caller_bytes=transfer_memory::Add(op.budget.caller_bytes,scratch);
++        std::array<Point,4*N> corners;std::array<Point,8*N> polygon;size_t count=0,vertices=0;
++        auto outward=[](long double value,bool upward) {
++          double out=double(value);
++          if(upward?static_cast<long double>(out)<value:static_cast<long double>(out)>value)
++            out=std::nextafter(out,upward?INFINITY:-INFINITY);
++          return out;
++        };
++        for(const auto& point:hull)for(unsigned i=0;i<2;++i)for(unsigned j=0;j<2;++j)
++          corners[count++]={outward(i?point[x].hi:point[x].lo,i),outward(j?point[y].hi:point[y].lo,j),0};
++        std::sort(corners.begin(),corners.begin()+count,[&](Point a,Point b){op.Work();return std::tie(a.x,a.y)<std::tie(b.x,b.y);});
++        count=std::unique(corners.begin(),corners.begin()+count,[](Point a,Point b){return a.x==b.x&&a.y==b.y;})-corners.begin();
++        auto turn=[&](Point a,Point b,Point c) {
++          SU2Native3D::KernelStats stats;const int sign=SU2Native3D::SurfaceNormalSign({0,0,1},{a,b,c},&stats);
++          op.Work(transfer_memory::Add(stats.filtered_orientations,stats.exact_orientations));return sign;
++        };
++        for(size_t i=0;i<count;++i) {
++          while(vertices>=2 && turn(polygon[vertices-2],polygon[vertices-1],corners[i])<=0)--vertices;
++          polygon[vertices++]=corners[i];
++        }
++        const auto threshold=vertices+1;
++        for(size_t i=count;i>1;--i) {
++          const auto point=corners[i-2];
++          while(vertices>=threshold && turn(polygon[vertices-2],polygon[vertices-1],point)<=0)--vertices;
++          polygon[vertices++]=point;
++        }
++        if(vertices>1)--vertices;
++        auto contains=[&](const std::array<Point,3>& triangle) {
++          SU2Native3D::KernelStats stats;const bool yes=footprint->ContainsFace(triangle,&stats);
++          op.Work(transfer_memory::Add(stats.filtered_orientations,stats.exact_orientations));return yes;
++        };
++        covered=true;
++        if(vertices<3) {
++          SU2Native3D::KernelStats stats;covered=footprint->ContainsSegment(polygon[0],polygon[vertices-1],&stats);
++          op.Work(transfer_memory::Add(stats.filtered_orientations,stats.exact_orientations));
++        } else for(size_t i=1;i+1<vertices && covered;++i)
++          covered=positive?contains({polygon[0],polygon[i],polygon[i+1]}):contains({polygon[0],polygon[i+1],polygon[i]});
++        if(covered)dx=dy=0;
++      }
+       if(!covered)return INFINITY;
+       // Coverage supplies a target point on some overlapping face; bound every possible lift.
+       double bound=0;bool found=false;

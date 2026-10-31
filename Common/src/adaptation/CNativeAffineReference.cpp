@@ -318,7 +318,7 @@ class TriangleUnion {
  private:
   struct PlaneUnion {
     std::shared_ptr<FinitePlaneReference> footprint;
-    struct Plane {Box normal;Point origin;double error=0;std::array<double,2> lo{},hi{};};
+    struct Plane {Box normal;Point origin;double error=0;std::array<double,2> lo{},hi{};size_t triangle=0;};
     std::vector<Plane> faces;unsigned axis=0;
     TriangleUnion* owner=nullptr;size_t group=0;double axis_lo=INFINITY,axis_hi=-INFINITY;
     std::array<double,2> lo{},hi{};bool positive=true;
@@ -344,10 +344,58 @@ class TriangleUnion {
       double bound=0;bool found=false;
       auto lift=[&](const Plane& face) {
         op.Work();if(face.hi[0]<a[0]||face.lo[0]>b[0]||face.hi[1]<a[1]||face.lo[1]>b[1])return;
-        found=true;const auto& normal=face.normal;const auto denominator=std::max(normal[axis].lo,-normal[axis].hi);
-        if(!(denominator>0)){bound=INFINITY;return;}
-        long double vertical=0;for(const auto& point:hull){const auto value=DotBox(Difference(point,Exact(face.origin)),normal);
-          vertical=std::max(vertical,std::max(std::abs(value.lo),std::abs(value.hi)));}
+        const auto& normal=face.normal;const auto denominator=std::max(normal[axis].lo,-normal[axis].hi);
+        if(!(denominator>0)){found=true;bound=INFINITY;return;}
+        std::array<Range,N> residual;
+        long double vertical=0;for(size_t i=0;i<N;++i){residual[i]=DotBox(Difference(hull[i],Exact(face.origin)),normal);
+          vertical=std::max(vertical,std::max(std::abs(residual[i].lo),std::abs(residual[i].hi)));}
+        if constexpr(N==3) {
+          if(std::all_of(residual.begin(),residual.end(),[](Range value){return std::isfinite(value.lo)&&std::isfinite(value.hi);})) {
+            // Restrict the source simplex to weights that can meet this target piece.
+            // Upper half-plane coefficients relax interval uncertainty and the admitted XY shift.
+            op.Storage(512);op.Work(3);std::array<long double,3> lower{{0,0,0}},upper{{1,1,1}};
+            const auto& triangle=owner->triangles[face.triangle].points;
+            for(unsigned edge=0;edge<3;++edge) {
+              const auto u=Values(triangle[edge]),v=Values(triangle[(edge+1)%3]);
+              const auto ex=Subtract(v[x],u[x]),ey=Subtract(v[y],u[y]);
+              const auto shift=Add(Multiply({dx,dx},std::max(std::abs(ey.lo),std::abs(ey.hi))),
+                  Multiply({dy,dy},std::max(std::abs(ex.lo),std::abs(ex.hi))));
+              std::array<long double,3> coefficient;
+              for(unsigned i=0;i<3;++i) {
+                auto value=Subtract(Multiply(ex,Subtract(hull[i][y],{u[y],u[y]})),Multiply(ey,Subtract(hull[i][x],{u[x],u[x]})));
+                if(!positive)value=Multiply(value,-1);coefficient[i]=Add(value,{shift.hi,shift.hi}).hi;
+              }
+              if(!std::isfinite(coefficient[0])||!std::isfinite(coefficient[1])||!std::isfinite(coefficient[2]))continue;
+              if(*std::max_element(coefficient.begin(),coefficient.end())<0)return;
+              for(unsigned i=0;i<3;++i) {
+                const auto other=std::max(coefficient[(i+1)%3],coefficient[(i+2)%3]),value=coefficient[i];
+                if(value<0 && other>=0) {
+                  const auto denominator=Subtract({other,other},{value,value});
+                  if(denominator.lo>0)upper[i]=std::min(upper[i],DividePositive({other,other},denominator.lo).hi);
+                } else if(other<0 && value>=0) {
+                  const auto denominator=Subtract({value,value},{other,other});
+                  if(denominator.hi>0)lower[i]=std::max(lower[i],DividePositive({-other,-other},denominator.hi).lo);
+                }
+                if(lower[i]>upper[i])return;
+              }
+            }
+            // A simplex-box dual bound: for any pivot t, sum(lambda*c) <=
+            // t + sum max_[L,U](lambda*(c-t)), since sum(lambda)=1.
+            auto maximum=[&](bool negate) {
+              op.Work(3);std::array<long double,3> c;
+              for(unsigned i=0;i<3;++i)c[i]=negate?-residual[i].lo:residual[i].hi;
+              long double best=INFINITY;
+              for(auto pivot:c) {
+                Range value{pivot,pivot};for(unsigned i=0;i<3;++i)
+                  value=Add(value,Multiply({lower[i],upper[i]},Subtract({c[i],c[i]},{pivot,pivot})));
+                best=std::min(best,value.hi);
+              }
+              return best;
+            };
+            vertical=std::min(vertical,std::max({0.L,maximum(false),maximum(true)}));
+          }
+        }
+        found=true;
         const auto nx=std::max(std::abs(normal[x].lo),std::abs(normal[x].hi)),ny=std::max(std::abs(normal[y].lo),std::abs(normal[y].hi));
         const auto dz=DividePositive(Add(Multiply({dx,dx},nx),Multiply({dy,dy},ny)),denominator);
         const Box shift{{{0,dx},{0,dy},{0,std::max(std::abs(dz.lo),std::abs(dz.hi))}}};
@@ -382,7 +430,7 @@ class TriangleUnion {
       }
     }
     std::map<size_t,std::vector<size_t>> groups;for(size_t i=0;i<count;++i)groups[root(i)].push_back(i);
-    triangle_plane.assign(count,none);triangle_slot.resize(count);size_t retained=transfer_memory::Mul(count,1024);
+    triangle_plane.assign(count,none);triangle_slot.resize(count);size_t retained=transfer_memory::Mul(count,1024),invalid=0,refused=0;
     for(const auto& group:groups) {
       if(group.second.size()<2)continue;
       PlaneUnion plane;plane.owner=this;plane.group=planes.size();plane.axis=projection[group.first].first;if(!projection[group.first].second)continue;
@@ -390,7 +438,7 @@ class TriangleUnion {
       auto project=[&](Point p){const auto v=Values(p);return Point{v[x],v[y],0};};
       plane.lo={{INFINITY,INFINITY}};plane.hi={{-INFINITY,-INFINITY}};
       std::vector<Facet> facets;facets.reserve(group.second.size());
-      for(auto i:group.second){Facet f;f.id=i;PlaneUnion::Plane face;const auto& t=triangles[i];face.origin=t.points[0];face.error=t.error;
+      for(auto i:group.second){Facet f;f.id=i;PlaneUnion::Plane face;const auto& t=triangles[i];face.origin=t.points[0];face.error=t.error;face.triangle=i;
         face.normal=CrossBox(Difference(Exact(t.points[1]),Exact(t.points[0])),Difference(Exact(t.points[2]),Exact(t.points[0])));
         face.lo={{INFINITY,INFINITY}};face.hi={{-INFINITY,-INFINITY}};
         for(unsigned k=0;k<3;++k){f.v[k]={ids[i][k],project(triangles[i].points[k])};const auto p=Values(f.v[k].p);
@@ -400,15 +448,18 @@ class TriangleUnion {
         plane.faces.push_back(face);facets.push_back(f);}
       AffineAuthority authority;authority.origin={};authority.normal={0,0,1};authority.dimension=3;authority.version=1;authority.maximum_error=4*std::numeric_limits<double>::min();
       const auto temporary=transfer_memory::Add(PlanarReference::ConstructionBytes(facets.size()),transfer_memory::Mul(facets.size(),4096));
-      if(transfer_memory::Add(op.budget.caller_bytes,retained,temporary)>op.budget.maximum_bytes)continue;
+      if(transfer_memory::Add(op.budget.caller_bytes,retained,temporary)>op.budget.maximum_bytes){++refused;continue;}
       op.Storage(transfer_memory::Add(retained,temporary));
       try{plane.footprint=std::make_shared<FinitePlaneReference>(authority,facets,temporary);}
-      catch(const std::invalid_argument&){continue;}
+      catch(const std::invalid_argument& error){
+        if(AtlasOps::Trace() && invalid<2)std::fprintf(stderr,"NATIVE_SURFACE_PLANE_REJECT pieces=%zu reason=%s\n",facets.size(),error.what());
+        ++invalid;continue;}
       const auto& t=facets.front().v;plane.positive=SurfaceNormalSign({0,0,1},{t[0].p,t[1].p,t[2].p},nullptr)>0;
       retained=transfer_memory::Add(retained,plane.footprint->ResidentBytes());
       for(size_t slot=0;slot<group.second.size();++slot){const auto i=group.second[slot];triangle_plane[i]=planes.size();triangle_slot[i]=slot;}
       planes.push_back(std::move(plane));
     }
+    if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_PLANES triangles=%zu groups=%zu accepted=%zu invalid=%zu storage_refused=%zu\n",count,groups.size(),planes.size(),invalid,refused);
     visited.resize(planes.size());op.budget.caller_bytes=transfer_memory::Add(op.budget.caller_bytes,retained);
   }
   const std::vector<UnionTriangle>& triangles;Box bounds;
@@ -1811,8 +1862,8 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     for(Id facet:facets)prepare_facet(facet,model);model_pieces=model.size();
     budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(model.capacity(),sizeof(UnionTriangle)));
   }
-  if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_MODEL pieces=%zu prepared=%zu work=%zu\n",model_pieces,
-      prepared_model?curved_search->Bytes():0,budget.work);
+  if(AtlasOps::Trace())std::fprintf(stderr,"NATIVE_SURFACE_MODEL pieces=%zu witness=%zu full=%d prepared=%zu work=%zu\n",model_pieces,
+      prepared_model?prepared_model->triangles.size():model.size(),int(forest.complete_witness),prepared_model?curved_search->Bytes():0,budget.work);
   std::unique_ptr<TriangleUnion> mesh_union,model_union;
   if(include_model)mesh_union=std::make_unique<TriangleUnion>(flat,op,tolerance);
   if(include_mesh && !prepared_model)model_union=std::make_unique<TriangleUnion>(model,op,tolerance);

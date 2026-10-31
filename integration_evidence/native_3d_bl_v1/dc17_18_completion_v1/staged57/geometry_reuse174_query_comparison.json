@@ -1,0 +1,38 @@
+{
+  "scope": "fixed representative M6 payload; not actual accepted mesh or isolated timing benchmark",
+  "baseline": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_geometry_capture168_host_20261031T012917_2091486",
+  "current": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_reuse174_serial_20261031T022425_2226738",
+  "payload_sha256": "37ea9781db1699c3b523bdeb94887a9f097931aa9c5378ba034fbab9657fdb0b",
+  "all_12_classifications_preserved": true,
+  "cached_recomputed_equal": true,
+  "payload_identical": true,
+  "baseline_totals": {
+    "seconds": 1.0354298650000002,
+    "work": 334868,
+    "repeat_work": 1060,
+    "scope_build_seconds": 0.15777439,
+    "facet_build_seconds": 0,
+    "piece_selection_seconds": 0,
+    "traversal_seconds": 0,
+    "selected_pieces": 0,
+    "support_pieces": 0
+  },
+  "current_totals": {
+    "seconds": 0.401953536,
+    "work": 409280,
+    "repeat_work": 1060,
+    "scope_build_seconds": 0.00954483,
+    "facet_build_seconds": 0.08323725700000001,
+    "piece_selection_seconds": 0.001282303,
+    "traversal_seconds": 0.30615851000000005,
+    "selected_pieces": 724,
+    "support_pieces": 10756
+  },
+  "CFD_sha256": "60ffadf8e8c68b6771b940e72b510b62088da6f560679cb825e8ff31477d3a13",
+  "limits": [
+    "Source is an older valid M6 projected-star sample, not exact166or current accepted state",
+    "Old scope timer includes facets; compare new facet+scope+selection separately",
+    "Work composition changed; observed time alone is not an isolated speedup",
+    "No M6 mesh/transfer/restart established"
+  ]
+}

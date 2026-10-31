@@ -1,0 +1,106 @@
+NATIVE_GEOMETRY_WORK operation=BuildMobilityPolicy total=800 exclusive=800
+NATIVE_SURFACE_MODEL pieces=2048 prepared=0 work=7920
+NATIVE_SURFACE_BOUND model=0 queue=230 depth=1 upper=0.0081683349609375025 lower=0.00033300516970027579 tolerance=0.001 work=132442
+NATIVE_SURFACE_BOUND model=0 queue=545 depth=1 upper=0.0029168701171875004 lower=0.0003606968723427785 tolerance=0.001 work=198333
+NATIVE_SURFACE_BOUND model=0 queue=881 depth=0 upper=0.0022338867187500001 lower=0.0003606968723427785 tolerance=0.001 work=264040
+NATIVE_SURFACE_BOUND model=0 queue=1253 depth=1 upper=0.0015563964843750011 lower=0.0003606968723427785 tolerance=0.001 work=329721
+NATIVE_SURFACE_BOUND model=0 queue=1640 depth=1 upper=0.0010510253906249988 lower=0.0003606968723427785 tolerance=0.001 work=395699
+NATIVE_GEOMETRY_WORK operation=QuerySurfaceUnionAtResolution total=404531 exclusive=404531
+NATIVE_GEOMETRY_WORK operation=BuildMobilityPolicy total=800 exclusive=800
+NATIVE_SURFACE_MODEL pieces=2048 prepared=0 work=7919
+NATIVE_SURFACE_BOUND model=0 queue=232 depth=1 upper=0.0081683349609375008 lower=0.00033300516970027579 tolerance=0.001 work=99040
+NATIVE_SURFACE_BOUND model=0 queue=547 depth=1 upper=0.0029168701171874995 lower=0.0003606968723427785 tolerance=0.001 work=165045
+NATIVE_SURFACE_BOUND model=0 queue=883 depth=1 upper=0.002199096679687497 lower=0.0003606968723427785 tolerance=0.001 work=231078
+NATIVE_SURFACE_BOUND model=0 queue=1258 depth=1 upper=0.0014739990234375034 lower=0.0003606968723427785 tolerance=0.001 work=296728
+NATIVE_SURFACE_BOUND model=0 queue=1642 depth=1 upper=0.0010290527343749995 lower=0.0003606968723427785 tolerance=0.001 work=362360
+NATIVE_GEOMETRY_WORK operation=QuerySurfaceUnionAtResolution total=368144 exclusive=368144
+NATIVE_GEOMETRY_WORK operation=BuildMobilityPolicy total=800 exclusive=800
+NATIVE_SURFACE_MODEL pieces=2048 prepared=0 work=7920
+NATIVE_SURFACE_BOUND model=1 queue=125 depth=2 upper=0.012656250000000006 lower=0.00043927942089919586 tolerance=0.001 work=74778
+NATIVE_SURFACE_BOUND model=0 queue=128 depth=0 upper=0.082896278538018703 lower=0.00033296969050877718 tolerance=0.001 work=174374
+NATIVE_SURFACE_BOUND model=0 queue=227 depth=1 upper=0.033381792354598087 lower=0.00036068371599575031 tolerance=0.001 work=240359
+NATIVE_SURFACE_BOUND model=0 queue=347 depth=1 upper=0.033360448103814513 lower=0.00036068371599575031 tolerance=0.001 work=307042
+NATIVE_SURFACE_BOUND model=0 queue=446 depth=1 upper=0.012667236328125006 lower=0.00036068371599575031 tolerance=0.001 work=374451
+NATIVE_SURFACE_BOUND model=0 queue=521 depth=0 upper=0.0095214843750000017 lower=0.00036068371599575031 tolerance=0.001 work=440048
+NATIVE_SURFACE_BOUND model=0 queue=599 depth=1 upper=0.0085198974609375019 lower=0.00036068371599575031 tolerance=0.001 work=507829
+NATIVE_SURFACE_BOUND model=0 queue=674 depth=1 upper=0.006897583007812502 lower=0.00036068371599575031 tolerance=0.001 work=574620
+NATIVE_SURFACE_BOUND model=0 queue=749 depth=0 upper=0.005306396484374999 lower=0.00036068371599575031 tolerance=0.001 work=641534
+NATIVE_SURFACE_BOUND model=0 queue=827 depth=1 upper=0.0046490478515625036 lower=0.00036068371599575031 tolerance=0.001 work=708606
+NATIVE_SURFACE_BOUND model=0 queue=902 depth=1 upper=0.0041052246093749986 lower=0.00036070128746582204 tolerance=0.001 work=774433
+NATIVE_SURFACE_BOUND model=0 queue=980 depth=0 upper=0.0033288574218750052 lower=0.00036070128746582204 tolerance=0.001 work=842310
+NATIVE_SURFACE_BOUND model=0 queue=1058 depth=1 upper=0.0029754638671875004 lower=0.00036070128746582204 tolerance=0.001 work=909182
+NATIVE_SURFACE_BOUND model=0 queue=1136 depth=1 upper=0.0027502441406250014 lower=0.00036070128746582204 tolerance=0.001 work=976645
+NATIVE_SURFACE_BOUND model=0 queue=1214 depth=1 upper=0.0024719238281250017 lower=0.00036070128746582204 tolerance=0.001 work=1042865
+NATIVE_GEOMETRY_WORK operation=QuerySurfaceUnionAtResolution total=1048576 exclusive=1048576
+Filters: Surface union bounds span a noncoplanar triangulated graph without filling holes
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Surface union bounds span a noncoplanar triangulated graph without filling
+holes
+  complete graph
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp:341
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp:341: FAILED:
+  {Unknown expression after the reported line}
+due to unexpected exception with message:
+  Curved atlas work exhausted.
+
+NATIVE_GEOMETRY_WORK operation=BuildMobilityPolicy total=800 exclusive=800
+NATIVE_SURFACE_MODEL pieces=2048 prepared=0 work=7919
+NATIVE_SURFACE_BOUND model=0 queue=127 depth=0 upper=0.082896278538018703 lower=0.00033296969050877718 tolerance=0.001 work=132946
+NATIVE_SURFACE_BOUND model=0 queue=226 depth=1 upper=0.033381792354598087 lower=0.00036068371599575031 tolerance=0.001 work=198931
+NATIVE_SURFACE_BOUND model=0 queue=346 depth=1 upper=0.033360448103814513 lower=0.00036068371599575031 tolerance=0.001 work=265614
+NATIVE_SURFACE_BOUND model=0 queue=445 depth=1 upper=0.012471313476562502 lower=0.00036068371599575031 tolerance=0.001 work=332715
+NATIVE_SURFACE_BOUND model=0 queue=520 depth=1 upper=0.0094793701171875019 lower=0.00036068371599575031 tolerance=0.001 work=398604
+NATIVE_SURFACE_BOUND model=0 queue=598 depth=1 upper=0.0081683349609375042 lower=0.00036068371599575031 tolerance=0.001 work=466063
+NATIVE_SURFACE_BOUND model=0 queue=673 depth=1 upper=0.0068975830078124908 lower=0.00036068371599575031 tolerance=0.001 work=533013
+NATIVE_SURFACE_BOUND model=0 queue=748 depth=0 upper=0.005093994140625004 lower=0.00036068371599575031 tolerance=0.001 work=600440
+NATIVE_SURFACE_BOUND model=0 queue=826 depth=0 upper=0.0046435546875000042 lower=0.00036068371599575031 tolerance=0.001 work=666927
+NATIVE_SURFACE_BOUND model=0 queue=901 depth=1 upper=0.0038214111328125017 lower=0.00036070128746582204 tolerance=0.001 work=732685
+NATIVE_SURFACE_BOUND model=0 queue=976 depth=0 upper=0.0033270263671874955 lower=0.00036070128746582204 tolerance=0.001 work=798314
+NATIVE_SURFACE_BOUND model=0 queue=1054 depth=1 upper=0.0029370117187499942 lower=0.00036070128746582204 tolerance=0.001 work=865003
+NATIVE_SURFACE_BOUND model=0 queue=1132 depth=1 upper=0.0027502441406249984 lower=0.00036070128746582204 tolerance=0.001 work=932103
+NATIVE_SURFACE_BOUND model=0 queue=1210 depth=0 upper=0.0024499511718750009 lower=0.00036070128746582204 tolerance=0.001 work=998964
+NATIVE_SURFACE_BOUND model=0 queue=1288 depth=1 upper=0.0022924804687500006 lower=0.00036070128746582204 tolerance=0.001 work=1064957
+NATIVE_SURFACE_BOUND model=0 queue=1366 depth=1 upper=0.0021606445312500025 lower=0.00036070128746582204 tolerance=0.001 work=1132473
+NATIVE_SURFACE_BOUND model=0 queue=1444 depth=1 upper=0.0020288085937500001 lower=0.00036070128746582204 tolerance=0.001 work=1199055
+NATIVE_SURFACE_BOUND model=0 queue=1522 depth=1 upper=0.0017211914062500028 lower=0.00036070128746582204 tolerance=0.001 work=1264628
+NATIVE_SURFACE_BOUND model=0 queue=1600 depth=1 upper=0.0014794921875000003 lower=0.00036070128746582204 tolerance=0.001 work=1330171
+NATIVE_SURFACE_BOUND model=0 queue=1678 depth=1 upper=0.0013623046874999998 lower=0.00036070128746582204 tolerance=0.001 work=1395735
+NATIVE_SURFACE_BOUND model=0 queue=1759 depth=1 upper=0.0012359619140625 lower=0.00036070128746582204 tolerance=0.001 work=1463467
+NATIVE_SURFACE_BOUND model=0 queue=1837 depth=1 upper=0.001135253906249999 lower=0.00036070128746582204 tolerance=0.001 work=1529474
+NATIVE_GEOMETRY_WORK operation=QuerySurfaceUnionAtResolution total=1576944 exclusive=1576944
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 15 | 14 passed | 1 failed
+
+Command exited with non-zero status 1
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver Surface union bounds span a noncoplanar triangulated graph without filling holes"
+	User time (seconds): 7.15
+	System time (seconds): 0.02
+	Percent of CPU this job got: 95%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:07.53
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 35376
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 4632
+	Voluntary context switches: 898
+	Involuntary context switches: 57
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

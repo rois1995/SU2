@@ -1,0 +1,139 @@
+{
+  "scope": "Connected supporting qualification; full M6 workflow is still pending",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 54.15046572685242,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "serial": {
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_reuse174_serial_20261031T022425_2226738",
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 46.510138273239136,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 352927744,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "tests": 45,
+    "assertions": 3674
+  },
+  "mpi": {
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_reuse174_mpi6_20261031T022606_2230896",
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 278.58958411216736,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 59633664,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "rank_summaries_in_log_order": [
+      [
+        "30176",
+        "198"
+      ],
+      [
+        "32916",
+        "198"
+      ],
+      [
+        "30935",
+        "198"
+      ],
+      [
+        "30408",
+        "198"
+      ],
+      [
+        "30878",
+        "198"
+      ],
+      [
+        "30413",
+        "198"
+      ]
+    ],
+    "terminal": {
+      "pids": [
+        2230981,
+        2230982,
+        2230983,
+        2230997,
+        2230998,
+        2230999,
+        2231000,
+        2231001,
+        2231002
+      ],
+      "live": [],
+      "pins_reverified": 1387,
+      "load": [
+        3.88,
+        4.64,
+        3.46
+      ],
+      "available": [
+        "MemAvailable:   34270656 kB"
+      ],
+      "time": 1793413910.1532476
+    }
+  },
+  "query_comparison": {
+    "scope": "fixed representative M6 payload; not actual accepted mesh or isolated timing benchmark",
+    "baseline": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_geometry_capture168_host_20261031T012917_2091486",
+    "current": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_reuse174_serial_20261031T022425_2226738",
+    "payload_sha256": "37ea9781db1699c3b523bdeb94887a9f097931aa9c5378ba034fbab9657fdb0b",
+    "all_12_classifications_preserved": true,
+    "cached_recomputed_equal": true,
+    "payload_identical": true,
+    "baseline_totals": {
+      "seconds": 1.0354298650000002,
+      "work": 334868,
+      "repeat_work": 1060,
+      "scope_build_seconds": 0.15777439,
+      "facet_build_seconds": 0,
+      "piece_selection_seconds": 0,
+      "traversal_seconds": 0,
+      "selected_pieces": 0,
+      "support_pieces": 0
+    },
+    "current_totals": {
+      "seconds": 0.401953536,
+      "work": 409280,
+      "repeat_work": 1060,
+      "scope_build_seconds": 0.00954483,
+      "facet_build_seconds": 0.08323725700000001,
+      "piece_selection_seconds": 0.001282303,
+      "traversal_seconds": 0.30615851000000005,
+      "selected_pieces": 724,
+      "support_pieces": 10756
+    },
+    "CFD_sha256": "60ffadf8e8c68b6771b940e72b510b62088da6f560679cb825e8ff31477d3a13",
+    "limits": [
+      "Source is an older valid M6 projected-star sample, not exact166or current accepted state",
+      "Old scope timer includes facets; compare new facet+scope+selection separately",
+      "Work composition changed; observed time alone is not an isolated speedup",
+      "No M6 mesh/transfer/restart established"
+    ]
+  },
+  "CFD_sha256": "60ffadf8e8c68b6771b940e72b510b62088da6f560679cb825e8ff31477d3a13",
+  "preserved_failures": [
+    "overbroad serial170 older count/timer contracts; not a passed campaign",
+    "serial171graph fixed-budget failure preserved",
+    "convex-only fallback172failed and was removed",
+    "trace173proved complete graph preparation; overlap-conditioned lift174passes fixed cap"
+  ],
+  "remaining": [
+    "Complete accepted Euler50k two events",
+    "Conservative admissible actual transfer",
+    "Actual isolated adapted disk restart",
+    "Resolve frozen numerical target semantics risk before claiming immutable field",
+    "Dedicated BL MPI qualification and RANS500k"
+  ]
+}
