@@ -74,18 +74,26 @@ Startup audit1401pins unchanged, all10identities match, all82mapped runtime file
 pinned/matching; AFTER/startup_verification.json. Cache host quota4GiB,rankequal
 715827882bytes vs baseline295417856host/49236309rank. Host load ranged7.5–20.76,
 MemAvailable~27–31GiB; actual sampled treeRSS~1.6GiB at190s. Not job peak.
-Latest verified wait:exec94456 still LIVE; resource receipt at821.6s
-shows treeRSS4933988352bytes, not physical/job peak.
-No next complete adaptation census yet; coarsening runs to its phase census
-(BEFORE first complete coarsening1142.910native seconds). No evidence justifies
-stopping/editing. Last host observation all10identities matched, MemAvailable
-28583620KiB/load17.51; owned_observations.jsonl.
+Coarsening COMPLETE on all6:292709cells/2627collapses/55180size-bad/
+3512geometry-bad EXACTLY match BEFORE; all292709measured and complete geometry/
+cache/census flags1, q/J deliberately unmeasured/shape flag0. Native elapsed
+586.967s vs1142.910s BEFORE (ratio.5136). Same14870upper calls,2456747support
+facets,3748716piece-selection work,294071794traversal work. Facet misses
+63144vs296744;facet build work1491264vs18681774 (~92%less); summed build time
+88.803vs1056.738s, nested within upper time500.257vs1507.165s, not additive.
+Actual prepared pools396836704bytes/rank vs20869984BEFORE; hostcap4GiB unchanged.
+Source pool/timing/host differences explicit in AFTER/coarsen_assessment.json.
+Splitting ownership moved118115cells, all292709conserved, transition max9.449s;
+new placement differs with geometry/cache cost model. Stage ownership_staged
+census is old ownership, not independent new-partition flag audit. Next splitting
+censuses must remain complete. Latest sampled treeRSS~6.0GB at967.9wall seconds,
+not physical/job peak. All10owned identities match; load varied and no pressure.
+Fullrun exec94456 LIVE/source frozen; zero acceptedmesh/actual transfer/restart.
 Native curved mobility setup181938600work,674protectededges/2corners/2fixedpoints/
 671curvepoints/23806surfacepoints. Initial ownership partition COMPLETE:303359cells preserved; all17compared per-rank
 cell/metric/geometry workload and graph fields EXACTLY match BEFORE, including
 after counts49602/42336/56390/49597/48833/56601. Receipt:
-AFTER/initial_partition_assessment.json. No acceptedmesh/complete adaptation
-census yet at last observation. Preserve run until terminal or demonstrated
+AFTER/initial_partition_assessment.json. No acceptedmesh yet; complete coarsening census is preserved above. Preserve run until terminal or demonstrated
 failure/bottleneck/resource pressure. Diagnostic provenance hash audit terminal;
 future maps audits should hash each distinct mapped file only once.
 parallel_quality182_assessment.json / parallel_quality183_validation_plan.json.

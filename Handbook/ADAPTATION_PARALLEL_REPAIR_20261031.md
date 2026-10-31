@@ -461,3 +461,14 @@ before followup. parallel_quality183_qualification.json preserves provenance.
 Broad182timeout is incomplete and does not become a broad-suite pass. This
 qualifies affected contracts only; return immediately to full two-event M6 from
 the identical saved real CFD. No M6 acceptance/transfer/restart yet.
+
+Actual M6 AFTER183 coarsening COMPLETE:292709cells,2627collapses,55180size-bad,
+3512geometry-bad exactly match real-CFD BEFORE179. Native586.967s vs1142.910s;
+upper-call/support/piece-selection/traversal counts match, facet build work falls
+from18681774to1491264 (92%less), misses296744to63144. Preparedpool396836704/rank
+vs20869984, same4GiBhosthardcap. Timers overlap; current host contention differs.
+This supports cache-reuse benefit while construction result is preserved. It
+does not establish private-slot quality throughput or mesh acceptance. Splitting
+ownership moved118115cells in9.449s max,292709conserved; placement changed with
+cache/geometry cost model. Fullrun94456 remains frozen/live. Receipt:AFTER/
+coarsen_assessment.json. Continue full2-event workflow; no additional campaign.
