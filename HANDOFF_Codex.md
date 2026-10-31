@@ -30,15 +30,26 @@ staged57/census_ownership190_qualification.json records actual binary hash/resul
 Construction CLOSED:727722cells,size0,geometry4059; ALL18generations EXACT188
 counts/query work. Complete quality entry1241.413606native seconds:54071q/53377J/
 4059geometry,size0,debt25236.78740274; all15selected per-rank fields EXACT188.
-Latest complete window3 at839.471665quality seconds:740570cells,45378q/44046J/
-3955geometry,size0,debt13717.629018. Postmigration interval387.468994s INCLUDES
-migration:3706netq/3845netJ/39geometry removed,2013commits,q9.56464/s,J9.92337/s,
-q1.84103/commit. Same-round188q9.19789/s,1.76119/commit; geometry3954 vs1903955.
-Candidates2949vs2826,reserved2489vs2322. Closest actual time pair differs117.736s
-(14.0%); NOT close matched-time or isolated speed evidence. Next full window pending.
+Latest complete window4 at1478.857912quality seconds:745514cells,42862q/41167J/
+3875geometry,size0,debt11352.677031. Interval639.386248s INCLUDES prior migration:
+2516netq/2879netJ/80geometry removed,1934commits,q3.93502/s,J4.50276/s,
+q1.30093/commit; cumulativeq7.57950/s,commits4.13833/s. Net yield and speed fell.
+CLOSE actual188time1473.820276(delta5.038s):38969q/36891J/3861geometry,
+netq10.24684/s,commits6.15611/s.190isBEHIND188whole-field closure despite better
+rankdebtspread1.66354vs3.33022. CLOSE179time1479.020155(delta-.162s):43764q/
+42274J/4067geometry,netq6.45968/s;190stillahead179. Host contention means these
+are observed progress rates,not isolated causal timing comparisons. Actual pairs:
+LIVE/matched_quality_time_comparison.json (no interpolated counts).
+Window4capacity2856candidates/raw3072ceiling,2527reserved,1934commits. Upper46860
+calls/843889774work,835880283traversalwork; nested877.232upper/797.698traversal
+summed ranksec,not additive. Rank1private342.406s/326.811Mupperwork but only268netq
+published;rank2private179.019s/93.479Mupperwork,813netq. Shape-stuck0,missing0;
+74.95%q-bad interior. BoundaryPRIVATEsmooth587.282ranksec/debt88.806 vsinterior
+12.686/debt432.191,not published cavity attribution. LIVE/quality_census10_diagnosis.json.
 TWOlate migrations committed rounds21632/21696; counts/debt conserved, all flags
 complete,missing features0,privatecollectives0,unmeasuredchurn0. Costs incl census
-21.553/21.706s;debtspread1.8966→1.47445 and1.6007→1.4846. Both preserve prepared
+21.553/21.706s;debtspread1.8966→1.47445 and1.6007→1.4846. Third eligible
+evaluation at21760skipped existing benefit guard:predictedimbalance1.20847<1.25. Both preserve prepared
 cache entries/bytes and add0geometryquery work;16GLOBALsamples supported/lost0,
 max drift.08419778656 unchanged through migration (currentnodal,not immutabletarget).
 LIVE/quality_service_assessment.json includes ALL ownership stage costs in windows;
