@@ -8,6 +8,16 @@ complexity. Strict geometry1e-4,q>=.2,J>=.05,maxedge1.8and requested heights.
 
 ## Authoritative current state
 
+Connected bounded-guidance175 QUALIFIED: buildPASS588.881s/1296pins/all sampled
+build handles absent; focused serial51cases/3885assertions PASS46.257s/all4handles
+absent/1388pins unchanged; MPI6 204cases/rank PASS278.518s/all9handles absent/
+1387pins independently rehashed. Summary staged57/bounded_guidance175_integration_summary.json.
+No owned heavy job. Immediate next action: complete Euler50k two-event attempt
+`euler_build175_bounded_guidance50k`, unchanged config/inputs/native5400s/event.
+Source/helper/runtime unchanged since qualification; do not start another cycle.
+CFD SHA45f176a7b09c60ff8497d7a5ea976fc504df13947f4fb3ae489f0c5468ff06f4.
+No accepted Euler mesh/event/actual transfer/adapted disk restart yet.
+
 Build174 M6 is TERMINAL after an authorized computational-bottleneck stop.
 Exec2461 terminal1, all10 exact owned handles ABSENT, all1396 pins unchanged.
 Run `staged57/m6_runs/euler_build174_geometry_reuse50k`; receipts
@@ -29,7 +39,7 @@ Current code/input provenance and prior matched receipts remain in the run.
 Startup automatic Git GC overlapped72.389s; verified own group was stopped and
 allGC handles terminal. Use git -c gc.auto=0. No isolated speedup claim.
 
-Active connected follow-up: bounded whole-patch fitting guidance. Existing
+Qualified connected follow-up: bounded whole-patch fitting guidance. Existing
 GeometryGuidanceExcess sums nonnegative face terms but SmoothBoundary computes
 complete losing candidate scores. Preserve exact face order/arithmetic and old
 complete score; stop only when finite partial sum already exceeds it. Partial
@@ -38,10 +48,13 @@ Retain all mandatory geometry/topology/body/features/heights and final certifica
 Reuse existing exact backend memo; no speculative second face cache or scheduling
 framework. Qualify threshold equivalence/near ties/resources and existing curved/
 seam/hole/body/height behavior serial/MPI, then immediately complete M6 retry.
-Build175exec49750/ninja2338044nowLIVE,1296pins; C++/helpers FROZEN until
-terminal pin/identity verification. Focused serial/MPI then immediateM6next.
+Build175PASS588.881s/all1296pins unchanged/all sampled handles absent; CFD SHA
+45f176a7b09c60ff8497d7a5ea976fc504df13947f4fb3ae489f0c5468ff06f4.
+Serial/MPI175qualification is terminal/passed as above. Preserve qualified source
+for immediate completeM6; no further implementation before its outcome.
 
-Latest pushed checkpoint88bbbf89c7 contains complete early quality evidence.
+Checkpoint3747bdd26f contains terminal174evidence and the initial candidate.
+This qualification checkpoint records passing175serial/MPI and immediateM6next.
 Qualification checkpointbeee72c100 contains174source and serial/MPI qualification.
 CFD SHA60ffadf8e8c68b6771b940e72b510b62088da6f560679cb825e8ff31477d3a13;
 configSHA5b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1.

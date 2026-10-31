@@ -1,0 +1,25 @@
+{
+  "build": "build175",
+  "case": "bounded_guidance175_serial",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeSurfaceCache3D],[NativeSurfaceMemo3D],[NativeGeometryStats3D],[NativeMappedComponent3D],[NativeSurfaceError3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeOptimize3D],[NativeHeightOptimization3D],[NativeShapeAdmission3D],[NativeGeometryWorkEstimate3D],[NativeM6GeometryQueries3D],Surface union bounds span a noncoplanar triangulated graph without filling holes,[NativeCurvedGeometry3D]"
+  ],
+  "environment": {
+    "SU2_NATIVE_TRANSACTION_REFERENCE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/m6.su2.native_ref",
+    "SU2_NATIVE_GEOMETRY_QUERY_INPUT": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_geometry_capture168_host_20261031T012917_2091486/m6_surface_queries.bin",
+    "SU2_NATIVE_TRANSACTION_HAUSD": "0.0001",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "timeout_seconds": 600
+}

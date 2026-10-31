@@ -7,7 +7,7 @@ Summary staged57/geometry_reuse174_integration_summary.json. Fixed1M graph cap
 passes with overlap-conditioned plane lift; failed convex-only fallback removed.
 Full Euler50k attempt euler_build174_geometry_reuse50k nowTERMINAL after authorized
 computational-bottleneck stop; exec2461terminal1, all10handles absent/1396pins unchanged.
-No owned heavy job; active bounded-guidance follow-up below.
+No owned heavy job; bounded-guidance175now qualified, immediate fullM6next.
 No accepted M6 event/mesh/transfer/restart yet. Full Euler→BL/MPI→RANS500k goal and
 all gates unchanged; actual numerical frozen-field semantics risk remains open.
 
@@ -401,3 +401,26 @@ full original arithmetic, bounded/full decision equality, strict saved face work
 zero/equal/adjacent thresholds and malformed authority/threshold failure. Existing
 cumulative atlas/backend exhaustion cases remain necessary in qualification.
 Build175exec49750/ninja2338044LIVE/1296pins; C++/helpers frozen through terminal.
+
+Build175PASS588.881s,1296pins unchanged; every sampled build handle absent.
+Focused serial175PASS51cases/3885assertions/46.257s, all1388pins independently
+rehashed/all4handles absent. Includes full/bounded decision and strict face-saving
+checks plus curved sphere/bump and saved12M6query replay. This is supporting
+qualification only. Connected MPI6exec87538nowLIVE, source/helper/binary frozen.
+Latest pushed3747bdd26f preserves terminal174and explicitly unvalidated candidate;
+qualification receipts are newer and will be pushed at the connected milestone.
+
+##175 connected qualification terminal — immediate full M6 retry
+
+Build175PASS588.881s/1296pins/all sampled handles absent. Focused serial51cases/
+3885assertions PASS46.257s/all4handles absent/1388pins unchanged. MPI6 204cases/rank
+PASS278.518s/all9handles absent/1387pins independently rehashed. Rank assertion
+summaries in log order30619/31146/31089/30624/30387/33127. Includes the new strict
+bounded/full decision checks and existing geometry/cache/height/ownership/repair/
+resource tests. Primary reviewed all helper callers; partial scores only reject,
+permitted-increase repair fully scored. No source or cap changes after qualification.
+Summary staged57/bounded_guidance175_integration_summary.json. CFD SHA
+45f176a7b09c60ff8497d7a5ea976fc504df13947f4fb3ae489f0c5468ff06f4.
+This is supporting qualification only, no accepted M6 capability. Immediate attempt
+euler_build175_bounded_guidance50k, same50k/config/input/native5400s/event/twoevents.
+Full Euler transfer/restart, numerical frozen-field risk, BL/MPI and RANS500k remain.
