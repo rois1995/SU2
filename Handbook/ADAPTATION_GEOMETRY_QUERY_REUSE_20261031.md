@@ -1,18 +1,20 @@
 # Geometry query reuse — current evidence and historical implementation
 
-Current authority: full TWO-event real-CFD build188 is LIVE/source-frozen; exact handles
-and latest census in HANDOFF_Codex.md. Complete window15:23737q-bad/20873J-bad/
-3627geometry-bad,size0,21419commits at3349.801quality seconds. Earlier183publication
-failure barrier passed. No accepted mesh/transfer/restart yet; full goal/gates unchanged.
-Existing counter-only profile separates support,scope/facet preparation,piece selection,
-traversal and boundary/interior smoothing. Upper cost remains traversal-dominated,
-with negligible facet rebuild time in measured windows; timers overlap,never add.
-Build188 geometry_guidance_source_review.md,quality_service_geometry_assessment.json
-and reusable_geometry_query_inventory.json under staged57/m6_runs/
-euler_build188_real_cfd50k_feature_safe record primary-reviewed semantics/provenance.
-Numerical FaceMemo already caches exact query errors; its flushall retention effect
-is unmeasured and recorded in backlog. No new campaign or implementation while LIVE.
-Saved12-query replay shares authority but is not exact188mesh/context/cache warmth.
+Current authority: build188 full two-event real-CFD attempt is TERMINAL, natural
+private-repair time-budget rejection. Complete EXIT17190q/14369J/3526geometry bad,
+size0,28742commits. All10handles absent/all1401pins unchanged BEFORE next edits.
+No accepted mesh/transfer/restart; full goal/gates unchanged. See HANDOFF and
+[active late-census ownership design](ADAPTATION_CENSUS_OWNERSHIP_20261031.md).
+Next target:SPEED, current complete-census work balance; entry-only migration leaves
+debtspread22.314. Existing geometry query improvements remain. Counter-only profile
+separates discovery/preparation/traversal/smoothing; traversal dominates measured
+upper time, not facet rebuilding. Timers overlap,never add or infer pure idle.
+Current188 terminal_assessment.json,geometry_guidance_source_review.md,
+quality_service_geometry_assessment.json and reusable_geometry_query_inventory.json
+under staged57/m6_runs/euler_build188_real_cfd50k_feature_safe preserve source/provenance.
+Numerical FaceMemo ALREADY caches exact query errors; its flushall retention effect
+is unmeasured/backlog, not a second implementation cycle. Saved12queries share the
+same authority but older mesh/bindings/cache warmth; no new baseline/perf/GDB run.
 
 ## Historical174/175 integration evidence
 

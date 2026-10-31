@@ -1,6 +1,6 @@
 # Build188 geometry guidance — read-only source review
 
-Current attempt remains LIVE/source-frozen. This review and the linked counter
+188 attempt is now TERMINAL; this source review was performed while LIVE/source-frozen. This review and the linked counter
 postprocessing change no repair decisions and establish no mesh acceptance.
 Primary checked the cited source; both bounded read-only agents completed/no jobs.
 
@@ -57,3 +57,9 @@ Pinned source hashes checked during review:
 - Common/src/adaptation/CNativeBoundaryParameters3D.cpp: ef68913e69dea200e6078316a922e18117bf8e6f9a5cb27413c3ca45e62fa468
 - Common/src/adaptation/CNativeAffineReference.cpp: 7cec90d82c774f5a170fc5a42386c9718782c386bc9ba4aa702e5b1ce6cde000
 - Common/src/adaptation/CNativeEngine3D.cpp: 8bc370a97bc0205e043f56c61c6deb4f3b1a50a13e4cfec3a29480da515ec8e6
+
+Terminal timing qualification: upper time can include work outside private busy.
+For example window21rank2 reports upper96.50s vsbusy78.02s; never divide them into
+disjoint CPU fractions. Terminal quality full_calls0, so recorded traversal cost in
+this quality interval belongs to upper queries. Next target is repeated census
+ownership with preserved queue state, not an unmeasured numerical memo change.

@@ -1,5 +1,12 @@
 # Genuine-feature publication — connected183 failure fix
 
+Current188 is TERMINAL: genuine-feature preflight survived full attempt; natural
+private-repair time-budget rejection with17190q/14369J/3526geometry bad,size0.
+All10handles absent/all1401pins intact BEFORE edits. No acceptedmesh/transfer/restart.
+Next connected cycle is [late census ownership](ADAPTATION_CENSUS_OWNERSHIP_20261031.md),
+not a new feature-publication change. Live188 notes below are historical stages.
+
+
 ## Missing capability and evidence
 
 The real-CFD two-event AFTER183 first event naturally rejected with
@@ -91,7 +98,7 @@ See staged57/feature_publication188_qualification.json. This is affected integra
 qualification, not an accepted M6 mesh, transfer or restart. Full two-event retry next.
 
 
-## Actual M6 validation188 — live, beyond prior barrier
+## Historical live M6 validation188 — beyond prior barrier
 
 Current full two-event retry uses SAMEsavedCFD and byte-identical initial continued
 state. All18construction-generation measured totals and quality-entry counts EXACT183.

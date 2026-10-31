@@ -1,16 +1,16 @@
 # Parallel quality closure and reusable CFD input — 2026-10-31
 
-Latest state: build188 full TWO-event real-CFD M6 is LIVE and source-frozen.
-Connected local parameter preflight is qualified(serial+MPI6), preserving cache,
-parallel slots and separate zero-clean quality ownership debt. Actual current M6
-passes complete round21760/5837commits beyond183fatalround21746/5421commits:
-43013q-bad/41452J-bad/3936geometry-bad,size0 at957.208quality seconds. No rejection.
-ALL18construction-generation totals and quality-entry counts EXACT183, first3quality
-windows EXACT183; current localpreflight adds4.2%atlaswork bywindow3. Closest matching
-179quality-time region673vs699s shows netq-bad removal12.259vs6.920/s, with host/
-entry/ownership differences and actual timestamps retained. See
-[active feature-publication design](ADAPTATION_FEATURE_PUBLICATION_20261031.md)
-and HANDOFF for exact current handles/provenance. No acceptedmesh/transfer/restart.
+Latest state: build188 real-CFD M6 is TERMINAL after natural time-budget rejection;
+complete EXIT786068cells,17190q-bad/14369J-bad/3526geometry-bad,size0,28742commits.
+All10owned handles independently absent/all1401pins unchanged BEFORE next edits.
+Genuine-feature publication fix held through the entire attempt; no acceptedmesh/
+transfer/restart. Next target:SPEED, late complete-census quality ownership.
+Entry debtspread1.456 grows22.314 at exit; rank4holds71.56%of remainingq/Jdebt.
+Source ownership is entry-only; repeated migration needs inherited demand ages/
+blocked state and phase modes. See
+[active census ownership design](ADAPTATION_CENSUS_OWNERSHIP_20261031.md)
+and HANDOFF for current implementation state. No new framework/options/gate change.
+Geometry traversal remains expensive; numerical memo flush effect unmeasured/backlog.
 
 183 is historical terminal: natural genuine-feature coverage failure at2763.908refine
 seconds, accepted original CFDretained; all10handles absent/all1401pins unchanged

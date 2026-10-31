@@ -14,104 +14,80 @@ CURRENT=`staged57/m6_runs/euler_build188_real_cfd50k_feature_safe`.
 BEFORE=`staged57/m6_runs/euler_build179_real_cfd50k_before`.
 PREVIOUS=`staged57/m6_runs/euler_build183_real_cfd50k_after`.
 
-## Live authority —188full M6, source freeze ACTIVE
+## Authoritative state —188terminal; next connected cycle SPEED
 
-ONE owned heavy job: full TWO-event build188, exec16914. Helper4103308/start87384875;
-time4103462/timeout4103463/launcher4103464/start87385499;
-ranks4103468–73/start87385504. ALL10identities match. ALL1401source/header/test/
-helper/binary/config/input pins unchanged; all82mapped runtime files pinned/matching
-(latest independent provenance audit1793463377). Keep frozen until verified terminal
-or preserved actual failure/bottleneck/resource pressure justifies authorized stop.
-An observation timeout is not termination. No extra perf/GDB/baseline campaign,
-gate relaxation or native budget increase. Nice19,libs1,MPI6,50k/5400s per event.
-CFD SHA191ccb8869b3320de35a56ed91f608790897ebe7626741841e3edaf077eb4ca1.
+Full TWO-event build188 TERMINAL, exec16914exit1. First event naturally rejected
+`Native3D private repair round exhausts elapsed-time budget.` All6stop=time_budget;
+native total max5403.529847s,refine5345.821634s. Accepted original CFD retained.
+Preserved raw6summaries/details/EXIT/root rejection BEFORE verified launcher4103464
+SIGTERM during second-event setup. Independent audit1793464454:ALL10owned handles
+ABSENT and ALL1401pins unchanged BEFORE ANY next compiled source edit. No heavy job.
+CURRENT/event1_natural_failure.json,event1_failure_owned_stop.json,terminal_handles.json.
+Old handles are historical,never infer live work from old status. Source freeze lifted
+for this demonstrated fix; next build/run freezes its own exact pins until terminal.
 
-Connected source checkpointb64674701a; qualified34f458f5ed. Current188 qualified
-CheckReplacement locally reuses noncommitting Prepare on complete old/fresh boundary
-deltas against replicated accepted state. Quality guards/final private backstop
-refuse invalid proposals before one atomic publication, retaining valid peers.
-Exact unchanged accepted-face contracts skip delta rebuilding. No per-slot MPI;
-final combined clearance/reservation/version/parameter checks remain. Construction
-unchanged. [Feature design/evidence](Handbook/ADAPTATION_FEATURE_PUBLICATION_20261031.md).
+188production sourceb64674701a,qualification34f458f5ed; CFD SHA
+191ccb8869b3320de35a56ed91f608790897ebe7626741841e3edaf077eb4ca1. Qualified serial+
+MPI6 scope in staged57/feature_publication188_qualification.json; no whole-suite claim.
+Genuine-feature preflight held through this complete attempt: no publication failure.
+Private-slot collectives0/unmeasuredchurn0. Existing cache/parallel/debt improvements
+preserved. Same real-CFD seed AND initial continued field BYTEIDENTICAL179/183/188;
+ALL18construction-generation totals/query work and quality entry EXACT183.
+Construction727722cells,size0,geometry4059 at855.998s; quality entry892.080s:
+54071q/53377J/4059geometry,size0,debt25236.787403. Timing depends on host load.
 
-Qualification: build188PASS54.151s/all1296pins unchanged/exact handles absent.
-Affected187serialPASS21cases/6148assertions. Affected187MPI163cases/rank completed;
-only newfixture's local-directory-change assertion failed on unaffected rank3.
-All other assertions passed. ONLYtestpin187→188 changed to global-change assertion;
-focused188serialPASS2cases/71assertions and MPI6bothcases/all6ranks PASS, pins intact,
-all owned handles terminal before M6. Source/runtime scope and reuse are explicit in
-staged57/feature_publication188_qualification.json. No full-repository-suite claim.
-Legacy nonlinear PSLG extension refused before preflight; original legacy case
-retained, nonlinear entity case validates M6 path. Failed fixtures preserved.
+Complete terminal EXIT at4452.518quality seconds:786068cells,
+17190q-bad/14369J-bad/3526geometry-bad,size0,debt1344.661704;28742commits
+(6.455/s),36881netq-bad removed(8.283/s). ALLmeasurement/census/cache/shape/geometry
+flags complete,not an accepted mesh. Rankdebt43.122/63.967/136.232/63.839/962.227/
+75.274;spread22.314 vsentry1.456,rank4holds71.56%. Only6stuck badcells;
+queue199145/blockedfeatures324. All16GLOBALdriftpoints supported/lost0,max.0836193713,
+currentnodal full_target1 (not immutable original field). Sampled maxTREE RSS
+11597664256bytes(~10.8GiB),not physical/job peak. No actual memory-pressure stop;
+globalwork3188943 below19414976budget. CURRENT/terminal_assessment.json has ALL7
+passive diagnostic categories, actual raw per-rank outcome, ladder/reasons/location/
+shortedges/geometrytypes/histograms/metric drift and timing/budget receipts.
 
-## Actual current attempt
+Closest179matchingtime comparison:1881473.820s vs1791479.020s(-5.2s):
+38969q/36891J/3861geometry vs43764/42274/4067,size0both;commits/s6.156vs2.771,
+netqbadremoved/s10.247vs6.460,debtspread3.330vs7.481. No interpolatedcounts or
+isolated-speed claim. BEFORE terminal census was incomplete; do not compare its
+last-window counts as if terminal. CURRENT/matched_before_quality_comparison.json.
 
-Seed AND initial continued original-grid CFD BYTEIDENTICAL179/183. Input61330points/
-303359cells; initial ownership matches183 across all17compared fields. Coarsening
-EXACT183:292709cells,2627collapses,size55180,geometry3512,14870uppercalls/work303014856.
-ALL18construction-generation measured totals EXACT183, including query work/calls.
-Construction size closure at855.998native seconds:727722cells,size0,geometry4059.
-Quality entry892.080s (1831500.747s):54071q/53377J/4059geometry,size0,debt25236.787403.
-Construction speed differs with host contention, not quality-only publication fix.
-Ownership410245cells/11.124s, allcounts/flags/debtweights preserved; spread15.800→1.456.
-First3quality windows EXACT183counts/debt/commits. Bywindow3 newpreflight adds4.2%
-quality atlaswork; upper/support/facet/certification work unchanged. Timers overlap.
+## Active next implementation/validation cycle
 
-Actual prior failure barrier PASSED: window4/round21760/5837commits beyond183fatal
-round21746/5421commits, no rejection. CURRENT/feature_publication_barrier_assessment.json.
-Latest COMPLETE window15/round22464 at3349.801quality seconds:776042cells,
-23737q-bad/20873J-bad/3627geometry-bad,size0,debt2689.495902;21419commits(6.394/s),
-30334netq-bad removed(9.055/s). No acceptance. All complete measurement census/cache/
-shape/geometry flags intact. Window15commits1158,qchurn8436removed/7131created,
-J7305/5936;privatecollectives0/unmeasuredchurn0/stuckshape2,stuckrequired2,
-queue248884/blockedfeatures234. Join-callshares[.695,.603,.408,.641,.206,.252] include
-protocol+wait,notpureidle. All16GLOBALdriftpoints supported/lost0,max.0836193713
-(replicated views,not96samples). Reporting audit agrees with wholefield location/
-histograms and actual net q/J/debt through ALL15windows (roundoff).
-CURRENT/quality_window*_counters_assessment.json,passive_census_integrity_assessment.json.
+Next target:SPEED, repeat complete-census quality ownership with preserved search
+state. Source confirms quality ownership is entry-only despite late debt skew.
+Cached cell/edge certificates already migrate, but feature ages/blocked state and
+specialized phase modes must survive; blindly repeating migration would reset them.
+[Connected design/acceptance](Handbook/ADAPTATION_CENSUS_OWNERSHIP_20261031.md).
+Implementation cycle starting: primary owns Engine integration; quality_queue_survey
+owns ONLY focused NativeMesh3D_tests regressions (no jobs/builds). ownership_survey
+completed read-only state audit. No new source built/validated yet. Keep ONEcycle, no
+new scheduler/options or construction changes. Reuse existing gain/deadline/admission,
+directory/partition/reservation/publication and zero-clean debt constraint. Preserve
+oldest fairness,worst-first,actual support invalidation,curved view freshness/heights.
 
-Existing counters separated in CURRENT/quality_service_geometry_assessment.json;
-window10rank2upper152s/traversal144s/busy164s, peersjoin~160s. Acrossrankwindow10
-facetbuild.082s,scopebuild14.296s,support6.108s,traversal242.419s,upper260.460s.
-These overlap,never add them. Window15traversal76.975s withinupper85.195s,facetbuild.026s.
-Boundary/interior smoothing private wholepatch debt/ranktime separated too, not final
-published removals. Primary source review:geometry_guidance_source_review.md.
-Exact FaceMemo numerical reuse ALREADYexists, distinct from accepted coverage
-certificates; fixed shared4MiB flushallpolicy has no dedicated hit/miss counters,
-so its material effect is UNMEASURED/backlog. Private revision freshness must remain.
-Existing12-query kernel replay payload/authority hashes verified in
-reusable_geometry_query_inventory.json; older projected inputs,NOTexact188state.
-No new profiling/replay/baseline or repair decisions. Both agents done/no jobs.
+Existing counters show upper queries dominated by traversal, not facet rebuilding;
+CURRENT/quality_service_geometry_assessment.json,geometry_guidance_source_review.md.
+Numeric FaceMemo exact-key reuse ALREADYexists; its flushall effect is UNMEASURED/
+backlog,not this implementation. Upper/traversal/smoothing/optimizer/busy/join scopes
+overlap; never add or infer pure idle. Saved12-query payload and authority hashes
+verified in reusable_geometry_query_inventory.json; older inputs,NOTexact188state.
 
-Closest actual179comparison:1881473.820s vs1791479.020s(-5.2s,0.35%):
-38969q/36891J/3861geometry vs43764/42274/4067,size0both. Commits/s6.156vs2.771;
-netqbadremoved/s10.247vs6.460;debtspread3.330vs7.481. Earlier673vs699s pair retained.
-Hostload/cache/ownership/entrycounts differ; no isolated speed/exact clock claim,
-no interpolated counts. CURRENT/matched_before_quality_comparison.json.
-Latest live audit1793463377:ALL1401pins unchanged/ALL82runtime files pinned/ALL10
-identities match,~28GiBavailable,treeRSS~8.65GiB(sampled sum,not physical/jobpeak),
-load7.93,no rejection. Source freeze ACTIVE.
-Latest pushed7d1f634725 includes quality9/10. Quality11–15/countergeometry profile/
-query inventory/source review are local complete evidence, next checkpoint.
+After coherent fix: focused serial then ONE affected MPI6 milestone (age/blocked/
+mode/census/weights/empty ranks/curved/heights/resource/cache invariants), immediately
+full TWO-event M6 from SAMEsavedCFD,50k/5400s unchanged. Shape/height then residual
+geometry/size repair with shape reclosure under same cumulative limits. Require TWO
+strict accepted mesh/native_ref pairs, conservative admissible actual transfer
+(double residual1e-10,targetintegral1e-12),finite CFD,rho/internalenergy>0; then
+isolated actual adapted disk CFD restart (copy mesh/native_ref+matchingflow,
+RESTART_SOLYES/ADAP_LOOPNO/correct SOLUTION_FILENAME/distinct outputs). Seed00000
+never proves adapted restart. Then dedicated BL/constraint/MPI and RANS500k.
 
-## Continue the complete workflow
-
-1. Observe the LIVE attempt; pinned sources/helpers/binaries/config/inputs unchanged.
-   No restart from elapsed time/stale logs. Preserve complete all-rank censuses.
-2. On actual failure, preserve first event's raw6rank summaries/refine details/EXIT
-   and root rejection BEFORE stopping only verified owned launcher. Audit ALLhandles
-   terminal and ALLpins unchanged BEFORE any compiled source edit. One connected
-   fix/validation/retry; no unrelated additions. Actual outcome drives next target.
-3. Shape/height close first, then residual geometry-directed repair and size handoff,
-   with shape remeasurement/reclosure after geometry changes under same cumulative
-   budgets. This phase has not yet been reached on accepted M6. Do not relax gates.
-4. Require TWO strict accepted mesh/native_ref pairs, actual conservative admissible
-   transfer(double residual1e-10,targetintegral1e-12),finite continued CFD and all
-   point/history rho>0/internalenergy>0. Passing fixtures/private progress are not this.
-5. After workflow terminal, isolated COPY final accepted mesh/native_ref+matchingflow;
-   audit header/order/coords/finite-positive state; ACTUALdisk CFD continuation,
-   RESTART_SOLYES/ADAP_LOOPNO/correctSOLUTION_FILENAME/distinctoutputs. Original seed/
-   restart00000 never proves adapted restart. Then dedicated BL/MPI and RANS500k.
+Latest pushedfd2ac35f7d includes quality11–15 and source/counter review. Later
+windows/terminal failure/stop/audit/assessment plus this next-cycle design are saved
+locally and must be pushed as reviewable checkpoint. No acceptedmesh/transfer/restart.
 
 ## Reusable input, history and open limits
 
@@ -143,6 +119,7 @@ Dedicated BL/RANS qualification not started. Full goal remains incomplete.
 ## Operating links
 
 [AGENTS](AGENTS.md) · [complete task](Handbook/ADAPTATION_INTEGRATED_NEXT_TASK.md) ·
+[census ownership](Handbook/ADAPTATION_CENSUS_OWNERSHIP_20261031.md) ·
 [feature fix](Handbook/ADAPTATION_FEATURE_PUBLICATION_20261031.md) ·
 [parallel design](Handbook/ADAPTATION_PARALLEL_REPAIR_20261031.md) ·
 [saved CFD](Handbook/ADAPTATION_M6_CFD_SEED_20261031.md) ·
