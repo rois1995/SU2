@@ -647,7 +647,7 @@ TEST_CASE("Split edges on general cells", "[P1Flux]") {
         local[1] = std::max(local[1], fabs(R[iPoint] / geometry.edges->GetSplitVolume()[iPoint] - div) / fabs(div));
       }
 
-      /*--- A constant flux closes at every node with the vertex normals: free stream is kept. ---*/
+      /*--- A constant flux closes at every node with the vertex normals, which point into the domain. ---*/
 
       R = SplitSum(geometry, flux, true);
       for (auto iMarker = 0u; iMarker < geometry.GetnMarker(); ++iMarker) {
@@ -655,7 +655,7 @@ TEST_CASE("Split edges on general cells", "[P1Flux]") {
         for (auto iVertex = 0ul; iVertex < geometry.GetnVertex(iMarker); ++iVertex) {
           const auto iPoint = geometry.vertex[iMarker][iVertex]->GetNode();
           const auto* normal = geometry.vertex[iMarker][iVertex]->GetNormal();
-          for (auto iDim = 0u; iDim < geometry.GetnDim(); ++iDim) R[iPoint] += flux.b[iDim] * normal[iDim];
+          for (auto iDim = 0u; iDim < geometry.GetnDim(); ++iDim) R[iPoint] -= flux.b[iDim] * normal[iDim];
         }
       }
       for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
