@@ -1,6 +1,6 @@
 # Native adaptation — current handoff
 
-Updated2026-10-31. Goal ACTIVE: TWO strictly accepted ONERA M6 Euler CFD → mesh →
+Updated2026-11-01(Europe/Rome). Goal ACTIVE: TWO strictly accepted ONERA M6 Euler CFD → mesh →
 CFD → mesh events at50k metric complexity; actual conservative admissible transfer,
 finite continued CFD and isolated usable adapted disk restart. Then dedicated BL/
 constraint/MPI qualification and corresponding RANS500k workflow. Actual point/cell
@@ -44,19 +44,23 @@ censuses audited,private trackedcollectives0/commits0atentry,no repair progress 
 CURRENT/quality_entry_assessment.json,quality_entry_comparison.json,
 quality_initial_ownership_assessment.json and all_quality_census_assessment.json.
 All10handles/all1401pins/82ELF reverified1793486628:quality_entry_provenance.json.
-Preserved quality WINDOW3 at729.820410s sinceentry:744779cells,42682q/41059J/
-3563geometry,size0,debt11329.94920904949. Cumulative5926publications,net11399q/12333J/
-207geometry removed (15.6189netq/s),1.9236netq/publication. Interval3:3494q/3558J/
-45geometry in270.640788s (includes first late migration cost). Latest second late
-migration AFTER window3takes~13.9s and is charged to next complete interval. Queue
-332261aftersecondmigration,blocked119,stuck/missing0;privatecollectives0. ALL10complete
-censuses audited. Coordinate-key churn counts moves as retirement/introduction even
-with unchanged connectivity; judge net counts,not raw retirements or debt percent.
-CURRENT/quality_service_assessment.json,quality_trend_assessment.json and
+Preserved quality WINDOW4 at1036.560039s sinceentry:749172cells,39886q/38086J/
+3518geometry,size0,debt9265.267591853688. Cumulative7831publications,net14195q/15306J/
+252geometry removed (13.6943netq/s),1.81267netq/publication. Interval4:2796q/2973J/
+45geometry in306.739629s,9.1152netq/s (includes second late migration cost). Queue
+323635,blocked127,stuck/missing0;privatecollectives0. ALL11complete censuses audited.
+Coordinate-key churn counts moves as retirements/introductions even with unchanged
+connectivity; judge net counts,not raw retirements or debt percent. CURRENT/
+quality_service_assessment.json,quality_trend_assessment.json and
 all_quality_census_assessment.json. Firstwindow rawslotfill95.04%,reservation/candidate
 88.08%,publication/reservation86.56%,join-callshare41.35% (protocol+wait,not pure idle).
+Current window4 near-state:39886q/38086J/3518geometry vs19140488q/38625J/3826geometry;
+1036.560vs1437.661qualityseconds,traversal1.645086627Bvs2.285274456B(-28.01%),
+work/netq115892vs168245(-31.12%). Mismatches and actual time brackets recorded in
+CURRENT/quality_window4_comparison.json. Not identical meshes or isolated code timing.
+Last10handle/1401pin/82ELF audit forwindow4:quality_window4_live_provenance.json.
 
-Near-state comparison CURRENT/quality_window3_comparison.json:19342682q/41059J/
+Earlier Near-state comparison CURRENT/quality_window3_comparison.json:19342682q/41059J/
 3563geometry vs19142862q/41167J/3875geometry,729.820vs1103.940qualityseconds;
 5926vs6120publications,traversal1.137323346Bvs1.798944960B(-36.78%),work/netq
 99774vs160491(-37.83%). Both actual snapshots; NO interpolation/identical mesh or
@@ -69,11 +73,11 @@ sample availability; source14epoch/mask SaveRepairState/RestoreRepairState and
 qualifiedMPI6 support history preservation. Actual receipts do NOT independently
 prove every per-feature age/rejection identity or every cache key. Bounded routine
 review,primarychecked:CURRENT/quality_migration_review.json (canonical10censusprefix
-hash retained). Last1401pin/10handle/82ELF audit1793487152:quality_window3_live_provenance.json.
+hash retained). Window3pin/handle/ELF audit1793487152:quality_window3_live_provenance.json.
 Window3privateboundary226.703ranksec/16453upperqueries vsinterior11.375ranksec/0;
-private debt gains are NOT published cavity gains. Current badpopulation31660q/
+private debt gains are NOT published cavity gains. Window3badpopulation31660q/
 25984Jinterior and11022q/15075Jsurface; interior means no physical face,not unconstrained
-vertices. Sixreports replicate16GLOBALfixed samples,supported16/lost0,maxcurrent
+vertices. Sixreports replicate16GLOBALfixed samples,supported16/lost0,maxwindow3
 metricdrift2.54735%sincequalityentry; not immutable original CFD-target fidelity.
 Resource firstwindow observation:9.626GB latest summedRSS,14.572GB sampledmax(not
 physical/true peak),~31GB available,memoryPSI0. No source changes or other heavy jobs.
@@ -186,7 +190,7 @@ not a residual-converged aero reference. SeedSHA1eaee788bd62bd92a92ec539577dcbcf
 Reuse per first remesh; distinct SOLUTION_FILENAMEbaseline_euler_seed/RESTART_FILENAMErestart_flow.
 
 Open limits:191transported nodal tensors drifted~8.3%at16fixed samples;193sampled
-drift above is current. Neither proves immutable original continuous-CFD-target
+drift above is from its recordedwindow. Neither proves immutable original continuous-CFD-target
 fidelity. General
 adaptation resume cycle0/path collision and rejected-cycle consumption remain open;
 isolated solver restart does not prove general adaptation resume fixed. Broad182MPI
