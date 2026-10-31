@@ -36,7 +36,16 @@ CL.269535/CD.013536. Initial ownership partition complete:303359cells preserved,
 rank counts49602/42336/56390/49597/48833/56601. Receipt:
 initial_partition_assessment.json. Geometry-cache host quota295417856bytes,
 rank quota49236309bytes; compare actual quotas when judging AFTER timing.
-Native construction outcome not yet known. Strict geometry/q/J/size/heights/transfer gates unchanged.
+First coarsening COMPLETE(all6caches/censuses/geometry flags consistent,q/J
+intentionally unmeasured):292709cells,55180size-bad/3512geometry-bad,
+2627collapses,1142.910engine seconds. coarsen_assessment.json uses per-rank stdout;
+long rows interleave in combinedrun.log. Source cache estimate uses AVPHYS/free
+pages,missing reclaimable cache despite~28GiB MemAvailable; prepared pool~20MiB
+vs historical396MiB, repeated facet builds measured. Preserve this baseline;
+include conservative MemAvailable correction (same4GiB host hardcap/shares/admission)
+in the same connected parallel/debt milestone. cache_availability_assessment.json.
+Different input fields prohibit isolated old-v-new timing attribution. Splitting
+has not yet established closure. Strict geometry/q/J/size/heights/transfer gates unchanged.
 
 See [saved CFD input and preparation evidence](Handbook/ADAPTATION_M6_CFD_SEED_20261031.md)
 for exact hashes, current policy, source snapshots, former criterion failure,

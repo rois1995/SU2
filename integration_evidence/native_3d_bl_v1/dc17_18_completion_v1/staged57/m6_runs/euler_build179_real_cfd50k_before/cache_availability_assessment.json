@@ -1,0 +1,180 @@
+{
+  "time": 1793437522.138606,
+  "scope": "Demonstrated cache availability-estimate limitation; different CFD fields and host contention prevent isolated walltime attribution",
+  "source": "Common/src/adaptation/CNativeReferenceIO3D.cpp LoadReference uses sysconf(_SC_AVPHYS_PAGES), then /4, host-hard-cap4GiB and shared-domain MIN; this corresponds to free physical pages, not MemAvailable",
+  "current_host_memory_bytes": {
+    "MemTotal": 67189587968,
+    "MemFree": 4467990528,
+    "MemAvailable": 29666480128,
+    "Buffers": 2805813248,
+    "Cached": 20835966976,
+    "Dirty": 5500928,
+    "Writeback": 0
+  },
+  "sysconf_free_physical_bytes": 4467990528,
+  "before_host_cache_quota_bytes": 295417856,
+  "before_rank_cache_quota_bytes": 49236309,
+  "before_prepared_pool_bytes": 20869984,
+  "historical_prepared_pool_bytes": 396836704,
+  "comparison_rows": {
+    "0": {
+      "new_real_CFD": {
+        "upper_seconds": "270.88381125300003",
+        "facet_build_seconds": "172.99436571900085",
+        "facet_misses": "55168",
+        "facet_hits": "300392",
+        "scope_build_seconds": "12.631911918999988",
+        "traversal_seconds": "84.394099856999958",
+        "prepared_limit": "20869984",
+        "update_seconds": "130.65591437799995",
+        "upper_work": "72010224",
+        "upper_calls": "2811"
+      },
+      "historical_startup179": {
+        "upper_seconds": "74.225475477000131",
+        "facet_build_seconds": "9.4888895980000107",
+        "facet_misses": "13235",
+        "facet_hits": "505381",
+        "scope_build_seconds": "5.989276900000001",
+        "traversal_seconds": "58.138302105000037",
+        "prepared_limit": "396836704",
+        "update_seconds": "85.157865797999918",
+        "upper_work": "62107427",
+        "upper_calls": "2919"
+      }
+    },
+    "1": {
+      "new_real_CFD": {
+        "upper_seconds": "384.07949116299994",
+        "facet_build_seconds": "278.88082902299868",
+        "facet_misses": "57349",
+        "facet_hits": "364849",
+        "scope_build_seconds": "25.513171925000009",
+        "traversal_seconds": "78.526872998999934",
+        "prepared_limit": "20869984",
+        "update_seconds": "130.27207637000001",
+        "upper_work": "64490457",
+        "upper_calls": "2615"
+      },
+      "historical_startup179": {
+        "upper_seconds": "76.625875956999934",
+        "facet_build_seconds": "10.243545401000052",
+        "facet_misses": "11552",
+        "facet_hits": "518182",
+        "scope_build_seconds": "11.801834819000002",
+        "traversal_seconds": "53.882725476000047",
+        "prepared_limit": "396836704",
+        "update_seconds": "85.112799462999703",
+        "upper_work": "56793211",
+        "upper_calls": "2903"
+      }
+    },
+    "2": {
+      "new_real_CFD": {
+        "upper_seconds": "210.73964440500023",
+        "facet_build_seconds": "154.18382092200008",
+        "facet_misses": "57017",
+        "facet_hits": "239465",
+        "scope_build_seconds": "16.387634464000001",
+        "traversal_seconds": "39.359541072999988",
+        "prepared_limit": "20869984",
+        "update_seconds": "130.77062651700007",
+        "upper_work": "39080309",
+        "upper_calls": "2665"
+      },
+      "historical_startup179": {
+        "upper_seconds": "43.588962013999854",
+        "facet_build_seconds": "8.1554654349999858",
+        "facet_misses": "7655",
+        "facet_hits": "244707",
+        "scope_build_seconds": "8.1935209859999887",
+        "traversal_seconds": "26.850463938000026",
+        "prepared_limit": "396836704",
+        "update_seconds": "85.160471989000257",
+        "upper_work": "31454906",
+        "upper_calls": "2266"
+      }
+    },
+    "3": {
+      "new_real_CFD": {
+        "upper_seconds": "158.39938337599997",
+        "facet_build_seconds": "120.47084962299952",
+        "facet_misses": "22311",
+        "facet_hits": "129787",
+        "scope_build_seconds": "10.234762261000004",
+        "traversal_seconds": "27.080654042999964",
+        "prepared_limit": "20869984",
+        "update_seconds": "130.35610039100027",
+        "upper_work": "33603618",
+        "upper_calls": "1689"
+      },
+      "historical_startup179": {
+        "upper_seconds": "28.754461839000015",
+        "facet_build_seconds": "7.4581445939999895",
+        "facet_misses": "7319",
+        "facet_hits": "110327",
+        "scope_build_seconds": "5.8214073159999993",
+        "traversal_seconds": "15.258407455000015",
+        "prepared_limit": "396836704",
+        "update_seconds": "85.126928331000116",
+        "upper_work": "18521185",
+        "upper_calls": "1486"
+      }
+    },
+    "4": {
+      "new_real_CFD": {
+        "upper_seconds": "272.39801551999977",
+        "facet_build_seconds": "195.41102520699769",
+        "facet_misses": "57001",
+        "facet_hits": "404088",
+        "scope_build_seconds": "15.216334170999996",
+        "traversal_seconds": "60.602251937000005",
+        "prepared_limit": "20869984",
+        "update_seconds": "130.22778497100009",
+        "upper_work": "55320936",
+        "upper_calls": "2745"
+      },
+      "historical_startup179": {
+        "upper_seconds": "55.514437311999949",
+        "facet_build_seconds": "9.148789414999996",
+        "facet_misses": "11319",
+        "facet_hits": "489288",
+        "scope_build_seconds": "10.852142416999978",
+        "traversal_seconds": "34.861169261000036",
+        "prepared_limit": "396836704",
+        "update_seconds": "85.104868681000013",
+        "upper_work": "36465160",
+        "upper_calls": "2891"
+      }
+    },
+    "5": {
+      "new_real_CFD": {
+        "upper_seconds": "210.664435809",
+        "facet_build_seconds": "134.79751910700034",
+        "facet_misses": "47898",
+        "facet_hits": "336488",
+        "scope_build_seconds": "11.635572311000004",
+        "traversal_seconds": "63.279103538000008",
+        "prepared_limit": "20869984",
+        "update_seconds": "130.30756331199987",
+        "upper_work": "55728035",
+        "upper_calls": "2345"
+      },
+      "historical_startup179": {
+        "upper_seconds": "83.105849535000118",
+        "facet_build_seconds": "13.358102419999998",
+        "facet_misses": "11170",
+        "facet_hits": "167823",
+        "scope_build_seconds": "7.1161944150000007",
+        "traversal_seconds": "62.28150267200003",
+        "prepared_limit": "396836704",
+        "update_seconds": "85.117574865000051",
+        "upper_work": "68535711",
+        "upper_calls": "2113"
+      }
+    }
+  },
+  "decision": "Keep baseline frozen to outcome; correct available-RAM estimate in same connected cache/parallel-private/debt integration milestone, retaining hard4GiB host cap, stable rank shares, active-reference accounting and all admission gates",
+  "construction_policy": "Only cache allowance initialization; no construction operator/gate changes",
+  "comparison_requirement": "Report actual quotas/work/host conditions; do not attribute entire timing difference to this policy or compare different CFD fields as same-input speedup"
+}

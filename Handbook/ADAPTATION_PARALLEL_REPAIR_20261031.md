@@ -78,6 +78,29 @@ PrepareParameters once against current complete state.
 Exact interfaces and the minimum debt redistribution method remain under source
 review; this is not a claim that private publication is already proven safe.
 
+## Demonstrated cache allowance blocker in the real-CFD baseline
+
+Coarsening complete:292709cells,55180size-bad/3512geometry-bad,2627collapses;
+engine1142.91s. Current prepared pool20869984bytes/rank vs historical179396836704;
+rank0facet misses55168vs13235 and facet-build seconds172.994vs9.489. These are
+DIFFERENT CFD fields and host conditions: not an isolated timing comparison.
+However the source limitation is established: LoadReference uses
+sysconf(_SC_AVPHYS_PAGES), i.e. free physical pages, as available memory. It misses
+reclaimable file cache even while /proc/meminfo reports~28GiB MemAvailable. At
+startup the resulting host quota was295417856bytes and rank share49236309,
+then memo storage left only~20MiB for prepared geometry. The hard host cap is
+already4GiB and must not increase.
+
+This addresses a demonstrated geometry-preparation blocker, so include the small
+availability-estimate correction in the SAME connected milestone: use a bounded
+Linux MemAvailable estimate (existing conservative fallback if unavailable), retain
+per-host shared-domain agreement, static rank shares and all working/transient/
+active-reference admissions. No new config/dynamic quota scheduler, no construction
+operator/shape/gate changes. Test parsing/fallback/tight-budget behavior with the
+focused checks and same oneMPI6 milestone. Keep BEFORE baseline unchanged to its
+outcome and report actual cache quotas in AFTER; do not manufacture a separate
+baseline campaign. Receipt:real-CFD BEFORE/cache_availability_assessment.json.
+
 ## How geometry closes
 
 Existing engine closes q/J/height first, enables residual size repair, then
