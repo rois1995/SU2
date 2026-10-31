@@ -1,0 +1,57 @@
+{
+  "time": 1793478574.3726218,
+  "scope": "Actual same complete round21696/whole-field and publication counts. Includes first redistribution in elapsed interval; second migration follows this window and belongs in the next interval. No isolated timing claim.",
+  "builds": {
+    "euler_build190_real_cfd50k_census_ownership": {
+      "whole_field": {
+        "cells": 740570,
+        "q_bad": 45378,
+        "j_bad": 44046,
+        "geometry_bad": 3955,
+        "size_bad": 0,
+        "qj_debt": 13717.629018178473
+      },
+      "quality_seconds": 839.4716647989999,
+      "work": {
+        "upper_calls": 69591,
+        "upper_work": 1021022109,
+        "traversal_work": 1009867504,
+        "scope_build_work": 1423691,
+        "facet_build_work": 748396,
+        "piece_selection_work": 5601946,
+        "support_facets": 7748890
+      },
+      "publications": 4186
+    },
+    "euler_build191_real_cfd50k_numeric_memo": {
+      "whole_field": {
+        "cells": 740570,
+        "q_bad": 45378,
+        "j_bad": 44046,
+        "geometry_bad": 3955,
+        "size_bad": 0,
+        "qj_debt": 13717.629018178473
+      },
+      "quality_seconds": 646.3990920049998,
+      "work": {
+        "upper_calls": 69591,
+        "upper_work": 997229276,
+        "traversal_work": 986445824,
+        "scope_build_work": 1419522,
+        "facet_build_work": 748396,
+        "piece_selection_work": 5387885,
+        "support_facets": 7748890
+      },
+      "publications": 4186
+    }
+  },
+  "same_whole_field": true,
+  "same_publications": true,
+  "traversal_reduction_fraction": 0.023192824709408612,
+  "limits": [
+    "Build188 has a different third-window state after redistribution; do not treat its third window as identical work.",
+    "Window2 three-build comparison remains separately preserved.",
+    "Timing is confounded by measured host contention.",
+    "No accepted mesh/transfer/adapted CFD/restart yet."
+  ]
+}

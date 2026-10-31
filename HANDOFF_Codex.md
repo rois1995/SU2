@@ -47,7 +47,7 @@ Quality ENTRY1059.456117native seconds:727722cells,54071q/53377J/4059geometry,si
 qJdebt25236.787402739737. All14selected per-rank counts/debts/flags EXACT188/190.
 LIVE/quality_entry_assessment.json,quality_entry_comparison.json. ALL1401pins/
 10exacthandles/82mappedELFcoverage reverified at quality entry; quality_entry_provenance.json.
-Latest complete window2 at330.445887quality seconds:734404cells,49084q/47891J/
+Preserved matched window2 at330.445887quality seconds:734404cells,49084q/47891J/
 3994geometry,size0;2173publications,4987netq/5486netJ/65geometryremoved since entry.
 Whole-field outcome/publications EXACT188/190 at same round21632. New traversal
 488082888vs493424356 (-1.08253%),uppercalls33176same. Netq15.0917/s vs18815.6778/s,
@@ -67,6 +67,13 @@ counter/entry/byte deltas0,drift samples unchanged. No cache clearing or recerti
 LIVE/quality_window2_comparison.json,quality_service_assessment.json,
 quality_migration_assessment.json,all_quality_census_assessment.json preserve detail.
 Migration occurs AFTER window2 and belongs in next window's complete interval cost.
+Latest complete window3 at646.399092quality seconds:740570cells,45378q/44046J/
+3955geometry,size0;4186publications,8693netq/9331netJ/104geometryremoved since entry.
+Outcome and publications EXACT190 same round21696; quality_window3_comparison.json.
+Latest interval315.953205s INCLUDES first migration:3706netq/3845netJ/39geometry,
+2013commits,q11.7296/s. Second migration round21696 committed,cost15.893643s incl
+observations,spread1.60067→1.48458,globalcounts/debt/cache/drift preserved; belongs in
+NEXTinterval. ALL10complete censuses audited; zero missing/stuck/privatecollectives.
 Current outcome pending; no actual transfer/adapted restart. Source remains FROZEN.
 Monitor complete aligned censuses, net whole-field q/J/geometry removal and distinct
 geometry/preparation/maintenance/trial work counters. Timers overlap; do not add
