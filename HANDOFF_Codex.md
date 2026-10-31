@@ -14,20 +14,23 @@ CURRENT=`staged57/m6_runs/euler_build188_real_cfd50k_feature_safe`.
 BEFORE=`staged57/m6_runs/euler_build179_real_cfd50k_before`.
 PREVIOUS=`staged57/m6_runs/euler_build183_real_cfd50k_after`.
 
-## Authoritative state —190 building;189 terminal
+## Authoritative state —190 full M6 LIVE; source freeze ACTIVE
 
-ONE owned heavy job: build190 exec9954, helper134511/start88241416, ninja134519/start88241447(nice19,j3). All1296compiled/header/test/helper pins FROZEN.
-Build189 PASS126.277s; serial28cases/8100assertions PASS.
-MPI189 TERMINAL FAILED:2 modified fixtures failed,161other cases/rank passed.
-All10MPI handles independently ABSENT/all pins unchanged before source edits;
-staged57/cases/census_ownership189_mpi6_20261031T171248_115554/terminal_verification.json.
-Failure caught the new hook requiring mesh admissibility instead of measurement
-completeness, preventing debt migration while bad cells remained. Corrected hook
-uses the existing global complete-census guard inside phase_ownership. Repair history
-now restores exact inherited feature subsets directly, preserving specialized modes
-without an artificial phase change. Geometry-mode fixture scoped to current phase;
-empty ranks checked without requiring local geometry debt. Corrections UNVALIDATED.
-Build190 running; freeze ACTIVE. Both agents done; no independent jobs.
+ONE owned heavy job: full TWO-event Euler50k build190 M6, exec3143.
+LIVE=`staged57/m6_runs/euler_build190_real_cfd50k_census_ownership`.
+helper145534/start88285053,time145711/start88285813,timeout145712 and launcher145713/
+start88285814,ranks145728–145733/start88285824. MPI ranks nice19, libraries1.
+All source/header/test/helper/binary/runtime/config/input pins FROZEN until exact
+owned handles terminal and independently audited. Same saved real-CFD seed; native
+budget5400s unchanged. Do not launch another heavy job or modify compiled sources.
+Build190 PASS307.081s,1296pins unchanged/all2handles absent; substantial host I/O
+contention while linking. Focused serial PASS28cases/8100assertions; MPI6 PASS163cases
+on EACH rank, all10handles absent/pins unchanged before M6. Source dcf6f01623 pushed;
+staged57/census_ownership190_qualification.json records actual binary hash/results.
+Build189 historical MPI failed two modified fixtures;161others/rank passed. Preserved
+terminal receipts before corrections. Corrected mesh-valid vs measurement-complete
+hook and restored exact inherited repair subsets without a phase change; corrected
+geometry-mode fixture scope. Both agents done/no independent jobs.
 
 HISTORICAL full TWO-event build188 TERMINAL, exec16914exit1. First event naturally rejected
 `Native3D private repair round exhausts elapsed-time budget.` All6stop=time_budget;
@@ -37,7 +40,7 @@ SIGTERM during second-event setup. Independent audit1793464454:ALL10owned handle
 ABSENT and ALL1401pins unchanged BEFORE ANY next compiled source edit.
 CURRENT/event1_natural_failure.json,event1_failure_owned_stop.json,terminal_handles.json.
 Those188handles are historical,never infer live work from old status. Freeze was lifted
-for the demonstrated fix;189 is terminal and its freeze is lifted.
+for the demonstrated fix; current190 M6 freeze above is ACTIVE.
 
 188production sourceb64674701a,qualification34f458f5ed; CFD SHA
 191ccb8869b3320de35a56ed91f608790897ebe7626741841e3edaf077eb4ca1. Qualified serial+
@@ -74,15 +77,16 @@ state. Source confirms quality ownership is entry-only despite late debt skew.
 Cached cell/edge certificates already migrate, but feature ages/blocked state and
 specialized phase modes must survive; blindly repeating migration would reset them.
 [Connected design/acceptance](Handbook/ADAPTATION_CENSUS_OWNERSHIP_20261031.md).
-Connected checkpoint3f791fe715 preceded189; subsequent fixes described above
-remain UNVALIDATED. Primary owns Engine.cpp; agent completed focused fixture
-corrections. Fixed14feature age/active/blocked masks migrate with CachedRow; exact
-required membership/range checked, oldest=min,blocked=all prior contributors.
-Existing user/severity/oldest queues reconstructed from inherited subsets.
-Validation plan:staged57/census_ownership190_validation_plan.json. Keep ONE cycle,
-no new scheduler/options or construction changes. Reuse gain/deadline/admission,
-directory/partition/reservation/publication and zero-clean debt constraint. Preserve
-oldest fairness,worst-first,actual support invalidation,curved view freshness/heights.
+Connected correction dcf6f01623 qualified in190 serial/MPI6; full M6 now LIVE.
+Fixed14feature age/active/blocked masks migrate with CachedRow; exact required
+membership/range checked, oldest=min,blocked=all prior contributors. Existing
+user/severity/oldest queues reconstructed from inherited subsets; specialized modes
+retained. Periodic hook permits bad meshes only after complete measurement census.
+No new scheduler/options or construction changes. Preserve current freeze; assess
+actual full-run balance/progress, not fixture success. New ownership_committed stage
+is a complete census and splits diagnostic windows: interval totals must include
+all complete quality stages, not only window rows. Migration count changes are not
+repair churn. Qualification:staged57/census_ownership190_qualification.json.
 
 Existing counters show upper queries dominated by traversal, not facet rebuilding;
 CURRENT/quality_service_geometry_assessment.json,geometry_guidance_source_review.md.
@@ -91,9 +95,9 @@ backlog,not this implementation. Upper/traversal/smoothing/optimizer/busy/join s
 overlap; never add or infer pure idle. Saved12-query payload and authority hashes
 verified in reusable_geometry_query_inventory.json; older inputs,NOTexact188state.
 
-After coherent fix: focused serial then ONE affected MPI6 milestone (age/blocked/
-mode/census/weights/empty ranks/curved/heights/resource/cache invariants), immediately
-full TWO-event M6 from SAMEsavedCFD,50k/5400s unchanged. Shape/height then residual
+Qualified focused serial and MPI6 (age/blocked/mode/census/weights/empty ranks/curved/
+heights/resource/cache invariants); now full TWO-event M6 from SAMEsavedCFD,
+50k/5400s unchanged. Shape/height then residual
 geometry/size repair with shape reclosure under same cumulative limits. Require TWO
 strict accepted mesh/native_ref pairs, conservative admissible actual transfer
 (double residual1e-10,targetintegral1e-12),finite CFD,rho/internalenergy>0; then
@@ -102,7 +106,8 @@ RESTART_SOLYES/ADAP_LOOPNO/correct SOLUTION_FILENAME/distinct outputs). Seed0000
 never proves adapted restart. Then dedicated BL/constraint/MPI and RANS500k.
 
 Terminal evidence/design pushed5dbfea1bfe; connected source/test checkpoint3f791fe715
-pushed explicitly unvalidated before build189. No acceptedmesh/
+pushed explicitly unvalidated before build189; dcf6f01623 corrections qualified190
+serial/MPI6 and full M6 now LIVE. No acceptedmesh/
 transfer/restart.
 
 ## Reusable input, history and open limits

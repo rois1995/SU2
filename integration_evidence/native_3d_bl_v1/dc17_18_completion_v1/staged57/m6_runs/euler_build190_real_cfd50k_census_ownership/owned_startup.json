@@ -1,0 +1,91 @@
+{
+  "time": 1793467862.996171,
+  "handles": [
+    {
+      "pid": 145534,
+      "startticks": 88285053,
+      "state": "S",
+      "exe": "/usr/bin/python3.8",
+      "cmd": "python3 -u integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py build190 euler_build190_real_cfd50k_census_ownership 2 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_original_force_seed_v1 ",
+      "nice": 0
+    },
+    {
+      "pid": 145711,
+      "startticks": 88285813,
+      "state": "S",
+      "exe": "/usr/bin/time",
+      "cmd": "/usr/bin/time -v timeout 14400 mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "nice": 19
+    },
+    {
+      "pid": 145712,
+      "startticks": 88285814,
+      "state": "S",
+      "exe": "/usr/bin/timeout",
+      "cmd": "timeout 14400 mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "nice": 19
+    },
+    {
+      "pid": 145713,
+      "startticks": 88285814,
+      "state": "S",
+      "exe": "/usr/bin/orterun",
+      "cmd": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "nice": 19
+    },
+    {
+      "pid": 145733,
+      "startticks": 88285824,
+      "state": "R",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "nice": 19
+    },
+    {
+      "pid": 145732,
+      "startticks": 88285824,
+      "state": "R",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "nice": 19
+    },
+    {
+      "pid": 145731,
+      "startticks": 88285824,
+      "state": "R",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "nice": 19
+    },
+    {
+      "pid": 145730,
+      "startticks": 88285824,
+      "state": "R",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "nice": 19
+    },
+    {
+      "pid": 145729,
+      "startticks": 88285824,
+      "state": "R",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "nice": 19
+    },
+    {
+      "pid": 145728,
+      "startticks": 88285824,
+      "state": "R",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "nice": 19
+    }
+  ],
+  "load": [
+    8.07,
+    6.38,
+    5.04
+  ],
+  "mem_available": "MemAvailable:   39071028 kB"
+}
