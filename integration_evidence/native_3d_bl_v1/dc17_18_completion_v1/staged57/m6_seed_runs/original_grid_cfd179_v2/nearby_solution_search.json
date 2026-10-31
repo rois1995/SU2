@@ -1,0 +1,70 @@
+{
+  "original_mesh_directory": "/media/rausa/4TB/Verification/OneraM6/Meshes",
+  "original_case_directory": "/media/rausa/4TB/Verification/OneraM6",
+  "original_case_subdirectories": [
+    "NewMeshes",
+    "Meshes"
+  ],
+  "nearby_cfg_restart_history_found": false,
+  "cgns_metadata": [
+    {
+      "path": "/media/rausa/4TB/Verification/OneraM6/Meshes/Coarse.cgns",
+      "bytes": 12408782,
+      "flow_solution_nodes": [],
+      "HDF5_readable": true
+    },
+    {
+      "path": "/media/rausa/4TB/Verification/OneraM6/Meshes/Coarse_NS.cgns",
+      "bytes": 114107556,
+      "flow_solution_nodes": [],
+      "HDF5_readable": true
+    },
+    {
+      "path": "/media/rausa/4TB/Verification/OneraM6/Meshes/Fine.cgns",
+      "bytes": 84198062,
+      "flow_solution_nodes": [],
+      "HDF5_readable": true
+    },
+    {
+      "path": "/media/rausa/4TB/Verification/OneraM6/Meshes/Fine_NS.cgns",
+      "bytes": 1097484508,
+      "flow_solution_nodes": [],
+      "HDF5_readable": true
+    },
+    {
+      "path": "/media/rausa/4TB/Verification/OneraM6/Meshes/Medium.cgns",
+      "bytes": 25968254,
+      "flow_solution_nodes": [],
+      "HDF5_readable": true
+    },
+    {
+      "path": "/media/rausa/4TB/Verification/OneraM6/Meshes/Medium_NS.cgns",
+      "bytes": 297603756,
+      "flow_solution_nodes": [],
+      "HDF5_readable": true
+    },
+    {
+      "path": "/media/rausa/4TB/Verification/OneraM6/Meshes/VeryFine.cgns",
+      "bytes": 383850246,
+      "flow_solution_nodes": [],
+      "HDF5_readable": true
+    },
+    {
+      "path": "/media/rausa/4TB/Verification/OneraM6/Meshes/VeryFine_NS.cgns",
+      "bytes": 4422419724,
+      "flow_solution_nodes": [],
+      "HDF5_readable": true
+    }
+  ],
+  "preserved_checkpoint": {
+    "path": "integration_evidence/native_3d_bl_v1/oneram6_coarse_v1/flow_checkpoint/restart_flow.dat",
+    "solver": "RANS",
+    "turbulence": "SA",
+    "wall": "no-slip",
+    "iterations": 120,
+    "converged": false,
+    "Euler_seed_compatible": false,
+    "evidence": "oneram6_coarse_v1/README.md and flow_checkpoint/run.cfg"
+  },
+  "decision": "Continue existing matching Euler solve; save qualified checkpoint and use identical copies for before/after adaptation; no restart of current CFD from freestream"
+}

@@ -21,8 +21,10 @@ outer3600s. Numbered restarts every100iterations preserve earlier files. History
 contains all five residuals and CL/CD every iteration. Qualification requires
 rho log<=-6,all5residuals down>=4orders,stable final200CL/CD,exact mesh-coordinate
 order and finite positive density/internal energy. No convergence acceptance yet.
-Latest observation82history rows,iteration81,rho log-1.9807,CL.27136,CD.00740066;
-68.6s,treeRSS.712GiB. Hostload22.00/19.58/15.93 with~31.6GiB available: timing
+Latest observation237history rows,iteration236,rho log-2.87504,CL.26991,CD.0140922.
+First numbered checkpoint100independently coordinate/admissibility validated;
+checkpoint100_assessment.json is NOT convergence qualification. Earlier resource
+sample68.6s,treeRSS.712GiB. Hostload22.00/19.58/15.93 with~31.6GiB available: timing
 contended; no whole-job peak inference. Sole owned heavy workload.
 
 New run_m6.py REQUIRES a qualified seed directory, copies baseline_euler_seed.dat
@@ -34,6 +36,14 @@ convergence, seed resume, accepted adaptation or adapted disk restart. First see
 launch v1 terminated during manifest setup (str.resolve bug), before any CFD
 launch; v2 corrected Path normalization and verified live manifest/runtime pins.
 No C++ changes/builds before the requested unchanged-code saved-CFD baseline.
+Latest user requests reuse of saved CFD near original mesh if available. Search
+original /media/rausa/4TB/Verification/OneraM6 found only Meshes/NewMeshes, no
+CFD configs/restarts/histories. Nearby CGNS metadata check is recorded in
+179seed-v2/nearby_solution_search.json. Preserved local flow_checkpoint is
+unconverged120iteration RANS/SA/no-slip, incompatible with current Euler slip-wall
+seed; leave it intact for possible later RANS work. Continue current Euler solve
+without discarding progress. Its qualified saved field is reused for all first
+remeshes. Latest iteration478,rho log-4.8191,CL.269635,CD.013495; not qualified yet.
 
 **Build179 TERMINAL after latest explicit user-authorized stop because it uses
 ITER1 startup CFD, not a reasonably converged solution**, exec16090 exit1.
