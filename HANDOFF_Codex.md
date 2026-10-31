@@ -10,56 +10,37 @@ feature/height validity and intentionally omits q/J. CAD remains optional.
 
 ## Authoritative current live state
 
-**Original-grid M6 Euler CFD continuation RUNNING**, exec80366:
-`staged57/m6_seed_runs/original_grid_cfd179_v3`.
-Python3013761,time3014065,timeout3014066,mpirun3014067;
-ranks3014072,3014075,3014078,3014081–3014083. Exact ten identities/startticks in
-startup_verification.json, all verified live;1405pins unchanged,81actually mapped
-libraries all covered. C++/binary/helpers/config/inputs FROZEN. Same179CFD and
-original61330points/303359cells, nice19,MPI6,libs1,ADAP_LOOP=NO,COMPUTE_METRIC=NO.
-Reads copied baseline_euler_resume_input.dat from validated v2checkpoint1877
-(exact hash in resume_source.json and v2resume_checkpoint.json). FixedCFL5,no adaptation,linearFGMRES cap20/error1e-6,
-MG0. Local3122update allowance plus original1878updates = total5000; outer3600s.
-Qualification unchanged:rho log<=-6,all5residuals down>=4orders from ORIGINAL
-freestream history,stable final200CL/CD,exact coordinate order,finite positive
-rho/internal energy. No qualified seed or accepted mesh yet. Live history must
-combine prior_history.csv + history.csv using command.resume_offset1878; using
-only current history would incorrectly reset the residual reference.
-At local59(global1937),rho log-5.59018,CL.269536,CD.0135358;linear7iterations,
-logresidual-6.6603,AVG_CFL5. Latest hostload9.71/11.14/14.33,MemAvailable~31.6GiB.
-One owned heavy job. Numbered restarts every100plus final; no earlier file overwrite.
+**Full two-event M6 Euler50k BEFORE baseline RUNNING**, exec88683:
+`staged57/m6_runs/euler_build179_real_cfd50k_before`.
+Python3063005,time3063391,timeout3063392,mpirun3063393;
+ranks3063424–3063428,3063432. Exact ten identities/startticks in
+startup_verification.json. All ten LIVE,1401pins unchanged,all81actually mapped
+libraries covered. C++/binary/helpers/config/inputs FROZEN to baseline outcome.
+One nice19/MPI6/libs1 heavy job; unchanged qualified179CFD/source,50kcomplexity,
+native5400s/event,outer14400s,TWO actual accepted events required. No C++ changes
+before this saved-CFD BEFORE baseline has terminal evidence.
 
-v2TERMINAL after authorized convergence-stagnation stop. Five complete200-step
-windows600–1599:mean rho log-5.60to-5.38(no improvement),CD ranges3.42e-5to5.99e-5
-above~1.35e-5 allowance. Evidence:convergence_stability_assessment.json and
-convergence_stop_receipt.json. Only verified launcher2953589 SIGTERM. All ten
-identities ABSENT and1395pins unchanged BEFORE helper edit;terminal_handles.json.
-Latest complete numberedcheckpoint1877independently coordinate/admissibility
-validated(61330points,minrho.627664,mininternal103998.683),same original grid.
-Saved qualification_history.csv,resume_checkpoint.json,and exact historical helper
-source_snapshots/run_m6_seed.py. v2failure/exit1 is preserved; no convergence claim.
-No restart from freestream. Continuation code fixes zero-based history joining so
-the first resumed update is retained and the original residual reference survives.
-m6_seed_continuation_checks.json supports config/history/provenance/state checks;
-actual continued convergence remains pending. No production C++ changes/builds.
+Latest user explicitly accepts reasonable stable CL/CD and directs stopping CFD
+and proceeding with adaptation; do NOT reimpose the assistant's old residual
+threshold. CFDv3is TERMINAL after verified owned stop; all ten ABSENT/1405pins
+unchanged BEFORE helper edit. Dedicated read-only saved seed:
+`staged57/m6_inputs/euler_original_force_seed_v1`.
+CL.26953535374/CD.01353585654,ranges1.114e-7/3.121e-8 over200iterations;
+61330points/303359cells,exact restart coordinate/order match,all finite,rho/IE>0.
+Selected v3local1126/global3004; restart SHA
+1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880.
+Qualified under user force policy,NOT residual-converged aerodynamic reference.
+Every first remesh reuses this saved field via independent copy+same ITER1
+continuation. Initial baseline cycle0actually prints restart solution and
+CL.269535/CD.013536; QLS recovery complete, native construction pending/outcome
+not yet known. Strict geometry/q/J/size/heights/transfer gates unchanged.
 
-New run_m6.py REQUIRES a qualified seed directory, copies baseline_euler_seed.dat
-and sets RESTART_SOL=YES with separate restart_flow output. Before/after first
-remeshing uses the same deterministic ITER1 continuation from that saved seed.
-Checks: m6_seed_input_checks.json; config/history gates and real61330point
-coordinate/admissibility positive/negative checks PASS. These checks do not prove
-convergence, seed resume, accepted adaptation or adapted disk restart. First seed
-launch v1 terminated during manifest setup (str.resolve bug), before any CFD
-launch; v2 corrected Path normalization and verified live manifest/runtime pins.
-No C++ changes/builds before the requested unchanged-code saved-CFD baseline.
-Latest user requests reuse of saved CFD near original mesh if available. Search
-original /media/rausa/4TB/Verification/OneraM6 found only Meshes/NewMeshes, no
-CFD configs/restarts/histories. Nearby CGNS metadata check is recorded in
-179seed-v2/nearby_solution_search.json. Preserved local flow_checkpoint is
-unconverged120iteration RANS/SA/no-slip, incompatible with current Euler slip-wall
-seed; leave it intact for possible later RANS work. Continue current Euler solve
-without discarding progress. Its qualified saved field is reused for all first
-remeshes. Current convergence state is reported above; no qualified seed yet.
+See [saved CFD input and preparation evidence](Handbook/ADAPTATION_M6_CFD_SEED_20261031.md)
+for exact hashes, current policy, source snapshots, former criterion failure,
+actual checkpoint/state audits and reuse protocol. No repeated freestream solve.
+No accepted mesh/actual transfer/adapted restart yet. After this baseline terminal,
+implement the ONE connected quality change then validate and run AFTER from the
+same immutable seed. The complete Euler→BL/MPI→RANS500k goal remains unchanged.
 
 **Build179 TERMINAL after latest explicit user-authorized stop because it uses
 ITER1 startup CFD, not a reasonably converged solution**, exec16090 exit1.
@@ -71,13 +52,13 @@ failed native time budget before the user-authorized stop during the next event.
 No accepted mesh/transfer/adapted restart. Production CFD179 remains unchanged.
 
 Latest user supersedes prior no-stop/no-new-baseline restrictions: stop the
-startup-field run; obtain and save a reasonably converged original-grid Euler
-solution; then compare BEFORE and AFTER implementation using that exact same
-saved seed, and base subsequent results on this new baseline. Current heavy job is saved-checkpoint CFD continuation with current179binary;
-next is the unchanged-code full M6 baseline. Do not implement the repair/ownership change before preserving that
+startup-field run; obtain and save a real original-grid Euler solution
+(accepted by reasonable stable CL/CD under latest clarification); then compare BEFORE and AFTER implementation using that exact same
+saved seed, and base subsequent results on this new baseline. Current heavy job is the unchanged-code full M6 BEFORE baseline from the saved
+force-qualified real CFD input. Do not implement the repair/ownership change before preserving that
 baseline's terminal evidence. One owned heavy job, nice19, libs1, MPI6; native
-budget5400/event remains unchanged. See linked connected plan for convergence
-criteria, baseline order and complete goal.
+budget5400/event remains unchanged. See linked connected plan for
+latest user force-qualification policy, baseline order and complete goal.
 
 Qualified checkpoint6ea65d9141; productionc132020654, test contractsa0e5e3bec7.
 CFD SHAe8f81c5a941f6d03fea81c6437e9f4f6d4305044e55e6de4d6a2113bd0116072.
@@ -89,76 +70,27 @@ All six initial partition cell/metric/geometry workload fields match175.
 `initial_field_partition_assessment.json` is initial-field provenance, NOT adapted
 transfer/restart evidence.
 
-## Current progress and qualification
+## Preserved build179 evidence
 
-Coarsening complete:312.050native seconds vs175315.301. All six ranks match175
-counts, size/geometry debts, query/cache work and prepared limits exactly:
-292744private cells,2582collapses,68372size-bad/3541geometry-bad cells;
-uppercalls14578/work273877600. q/J remain intentionally unmeasured.
-Prepared limit396836704bytes/rank matches175. No accepted mesh yet.
-ALL21split generations match175counts/debts/geometry work on all six ranks.
-Size closure982.301native seconds vs175986.182,720958cells/size0. Quality entry
-1031.098vs1751021.402: all720958measured/allcompleteflags1,52432q-bad/
-53564J-bad/3293geometry-bad/size0; q/Jdebt22311.06548689389. ALL entry counts,
-debts and geometry/cache work match175. Ownership moved360022cells once in13.998s.
-First event naturally rejected at max5403.717native seconds: metric update exhausted
-elapsed-time budget. All six complete=0/final=0. Last COMPLETE census7:
-3960.659quality seconds,70.302200%q/Jdebt fall;752202cells,34386q-bad/
-33995J-bad/2854geometry-bad/size0;13883commits. Partial exit census is invalid:
-zero printed bad/debt counts mean UNKNOWN, not closure. First-event receipt:
-179run/event1_natural_failure.json. The driver proceeded to its next event; the user then explicitly authorized
-stopping because the initial CFD field was not reasonably converged. Verified
-launcher2685265 received SIGTERM; all ten identities are now absent.
-No accepted mesh/actual transfer/adapted restart. Latest treeRSS8.296GiB,
-MemAvailable~24GiB, hostload7.44/8.52/8.84; no observed RAM pressure.
+Productionc132020654/testsa0e5e3bec7/qualified6ea65d9141. Same CFD binary is used
+for the current BEFORE baseline. Build179PASS111.227s/1296pins; serial29cases/
+8169assertions; MPI6PASS212cases/rank, all owned handles terminal at qualification.
+Receipts:staged57/quality_service179_integration_summary.json.
 
-Latest user additions: next milestone MUST combine parallel private repair slots
-(one round publication) with debt-directed work, full-support invalidation and
-passive per-census diagnostics; no new config/scheduler/time-budget increase,
-no further perf/GDB. See the linked parallel-repair plan. Before the next full M6,
-obtain a reasonably converged original-grid Euler solution, save/pin it and reuse
-it for EVERY future first remesh. Initial ITER1 field is now superseded as the
-production input requirement. Build179 keeps its original input untouched.
-
-Earlier first window:30.545410%fall in516.883quality seconds. Upper-query
-work/debt95001vs1751215625(~12.8xlower); different window workloads, not isolated
-timing. First-window assessment verifies1396pins/ten live handles/81mapped libs.
-One bounded2s49Hz profile520samples/0lost showed active fitting/exact predicates
-and parameter publication plus waits; inclusive Allreduce76.27%overlaps other
-shares. Not phase totals. Profile raw data stays LOCALONLY; diagnostic overhead
-is not subtracted. Latest treeRSS~8.48GiB, ~24GiB host available; sampled sum peak
-11.685GiB is not physical memory or an unsampled whole-job peak. Resource and
-owned-handle receipts retained in179run. Later host-load observation rose to12.21
-on8logical CPUs. One124.471s interval delivered0.752–0.763CPUcore/rank with no
-new major faults. CPU service includes MPI spinning; it is not useful-work CPU.
-At that earlier CPU observation there was no RAM pressure/rejection; first-event
-natural time-budget rejection is now preserved. Leave unrelated processes untouched. See
-cpu_service_observations.jsonl. Preserve this contention limit in timing assessment.
-
-Quality-service179 qualification: build PASS111.227s/1296pins/all9handles absent;
-CFD identical178. Serial29cases/8169assertions PASS8.052s/1386pins/all4handles
-absent. MPI6PASS212cases/rank,280.579s/1387pins/all10handles absent; assertion
-counts in log order30816/31348/33848/31291/30821/30584.17late-loaded MPI-test
-hwloc libraries additionally verified by mapped device/inode, pre-campaign file
-metadata and terminal hashes. Actual M6 startup has no missing mapped libraries.
-`staged57/quality_service179_integration_summary.json` links complete receipts.
-These checks support the full target; they do not establish M6 or BL capability.
-
-Connected change: one oldest-demand slot then cached required-debt priority;
-bounded independent full-star repair batches; explicit distributed reservation
-priority; per-slot current geometry/metric publication and private context; one
-combined changed-frontier measurement and blocked-star invalidation before next
-selection. Large coordinate stars, all gates and transient admission preserved.
-Failed serial17827/29 is preserved. Two stale first-layer assertions were corrected:
-zero construction shape screens; private metric bootstrap may fill sensor tensors
-while preserving exact mesh attributes. New tensor/mesh/height/input checks pass.
-Build176compile failure and177/178build evidence are preserved. No production gate
-changed. Source design/review and detailed history are linked below.
+Historical startup-field179 first event naturally time-budget failed at5403.717s;
+last COMPLETE census7:752202cells,34386q-bad/33995J-bad/2854geometry-bad/size0,
+70.3022%q/Jdebt fall in3960.659quality seconds,13883commits. Final partial zero
+counts mean UNKNOWN, not closure. Next target from that native outcome was speed:
+per-slot synchronization and concentrated debt; new real-CFD baseline may change
+that assessment. Detailed construction/windows/cache/profile history is preserved
+in the linked quality-service handbook and179run receipts. No further perf/GDB.
+Do not compare the old startup-field timing as same-input evidence against the
+new saved-field baseline. No accepted mesh/transfer/adapted restart was delivered.
 
 ## Next actions and acceptance
 
-1. Qualify/save the original-grid CFD solution, then run the unchanged-code M6
-   baseline with it. Reuse the same seed for the connected-change retry. Keep
+1. Saved real-CFD seed is force-qualified under latest user instruction. Complete
+   the unchanged-code M6 BEFORE baseline. Reuse this exact seed for AFTER. Keep
    C++ unchanged throughout both CFD/baseline campaigns; check exact owned handles
    before each heavy job. Build179 is already terminal with all pins verified.
 2. Preserve complete split generations, quality-entry census and complete quality
@@ -210,7 +142,8 @@ Numerical frozen-field risk OPEN: current-nodal transport changes the spatial P1
 representation after topology edits; identity alone does not prove an immutable
 numerical target. Quantify/resolve before claiming that semantics. Original CFD
 conservative donors are separate. ITER1 was functional startup only. Latest user now requires a reasonably
-converged saved original-grid solution reused for first remeshing. Resumed adaptation can collide with
+real saved original-grid solution reused for first remeshing; latest user accepts
+reasonable stable CL/CD without further residual convergence. Resumed adaptation can collide with
 numbered restart paths; rejected events consume cycles. Isolated disk restart
 does not claim general adaptation-resume numbering fixed.
 

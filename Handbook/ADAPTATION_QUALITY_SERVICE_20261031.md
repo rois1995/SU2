@@ -208,3 +208,71 @@ and complete.14305candidates/13360reserved/10225actual commits over302batch roun
 No accepted event/transfer/restart. Continue179frozen. Read-only source review
 confirms the separate full-support rejected-state invalidation gap documented in
 the backlog; runtime M6 contribution not yet established. Fix only source-safe.
+
+## Retained build179 startup-field history (not current live state)
+
+### Construction, quality and qualification evidence
+
+Coarsening complete:312.050native seconds vs175315.301. All six ranks match175
+counts, size/geometry debts, query/cache work and prepared limits exactly:
+292744private cells,2582collapses,68372size-bad/3541geometry-bad cells;
+uppercalls14578/work273877600. q/J remain intentionally unmeasured.
+Prepared limit396836704bytes/rank matches175. No accepted mesh yet.
+ALL21split generations match175counts/debts/geometry work on all six ranks.
+Size closure982.301native seconds vs175986.182,720958cells/size0. Quality entry
+1031.098vs1751021.402: all720958measured/allcompleteflags1,52432q-bad/
+53564J-bad/3293geometry-bad/size0; q/Jdebt22311.06548689389. ALL entry counts,
+debts and geometry/cache work match175. Ownership moved360022cells once in13.998s.
+First event naturally rejected at max5403.717native seconds: metric update exhausted
+elapsed-time budget. All six complete=0/final=0. Last COMPLETE census7:
+3960.659quality seconds,70.302200%q/Jdebt fall;752202cells,34386q-bad/
+33995J-bad/2854geometry-bad/size0;13883commits. Partial exit census is invalid:
+zero printed bad/debt counts mean UNKNOWN, not closure. First-event receipt:
+179run/event1_natural_failure.json. The driver proceeded to its next event; the user then explicitly authorized
+stopping because the initial CFD field was not reasonably converged. Verified
+launcher2685265 received SIGTERM; all ten identities are now absent.
+No accepted mesh/actual transfer/adapted restart. Latest treeRSS8.296GiB,
+MemAvailable~24GiB, hostload7.44/8.52/8.84; no observed RAM pressure.
+
+Latest user additions: next milestone MUST combine parallel private repair slots
+(one round publication) with debt-directed work, full-support invalidation and
+passive per-census diagnostics; no new config/scheduler/time-budget increase,
+no further perf/GDB. See the linked parallel-repair plan. Before the next full M6,
+obtain a reasonably converged original-grid Euler solution, save/pin it and reuse
+it for EVERY future first remesh. Initial ITER1 field is now superseded as the
+production input requirement. Build179 keeps its original input untouched.
+
+Earlier first window:30.545410%fall in516.883quality seconds. Upper-query
+work/debt95001vs1751215625(~12.8xlower); different window workloads, not isolated
+timing. First-window assessment verifies1396pins/ten live handles/81mapped libs.
+One bounded2s49Hz profile520samples/0lost showed active fitting/exact predicates
+and parameter publication plus waits; inclusive Allreduce76.27%overlaps other
+shares. Not phase totals. Profile raw data stays LOCALONLY; diagnostic overhead
+is not subtracted. Latest treeRSS~8.48GiB, ~24GiB host available; sampled sum peak
+11.685GiB is not physical memory or an unsampled whole-job peak. Resource and
+owned-handle receipts retained in179run. Later host-load observation rose to12.21
+on8logical CPUs. One124.471s interval delivered0.752–0.763CPUcore/rank with no
+new major faults. CPU service includes MPI spinning; it is not useful-work CPU.
+At that earlier CPU observation there was no RAM pressure/rejection; first-event
+natural time-budget rejection is now preserved. Leave unrelated processes untouched. See
+cpu_service_observations.jsonl. Preserve this contention limit in timing assessment.
+
+Quality-service179 qualification: build PASS111.227s/1296pins/all9handles absent;
+CFD identical178. Serial29cases/8169assertions PASS8.052s/1386pins/all4handles
+absent. MPI6PASS212cases/rank,280.579s/1387pins/all10handles absent; assertion
+counts in log order30816/31348/33848/31291/30821/30584.17late-loaded MPI-test
+hwloc libraries additionally verified by mapped device/inode, pre-campaign file
+metadata and terminal hashes. Actual M6 startup has no missing mapped libraries.
+`staged57/quality_service179_integration_summary.json` links complete receipts.
+These checks support the full target; they do not establish M6 or BL capability.
+
+Connected change: one oldest-demand slot then cached required-debt priority;
+bounded independent full-star repair batches; explicit distributed reservation
+priority; per-slot current geometry/metric publication and private context; one
+combined changed-frontier measurement and blocked-star invalidation before next
+selection. Large coordinate stars, all gates and transient admission preserved.
+Failed serial17827/29 is preserved. Two stale first-layer assertions were corrected:
+zero construction shape screens; private metric bootstrap may fill sensor tensors
+while preserving exact mesh attributes. New tensor/mesh/height/input checks pass.
+Build176compile failure and177/178build evidence are preserved. No production gate
+changed. Source design/review and detailed history are linked below.

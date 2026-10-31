@@ -110,9 +110,13 @@ def assess_history(history_text):
                           all(recent[i][0] + 1 == recent[i + 1][0] for i in range(199)))
     history_consecutive = (ordered[0][0] == 0 and
                            all(ordered[i][0] + 1 == ordered[i + 1][0] for i in range(len(ordered) - 1)))
-    qualified = (final[0] <= -6.0 and all(drop >= 4.0 for drop in drops) and
-                 max(row[0] for row in history) <= MAX_ITER and cl_ok and cd_ok and consecutive_window and history_consecutive)
-    return {"qualified": qualified, "initial_residual_logs": dict(zip(RESIDUALS, initial)),
+    residual_criterion_met = final[0] <= -6.0 and all(drop >= 4.0 for drop in drops)
+    # User accepts a reasonable stable-force seed; residual reduction remains evidence.
+    qualified = (max(row[0] for row in history) <= MAX_ITER and cl_ok and cd_ok and
+                 consecutive_window and history_consecutive)
+    return {"qualified": qualified, "residual_criterion_met": residual_criterion_met,
+            "qualification_policy": "user: reasonable stable CL/CD; finite admissible matching-grid state checked separately",
+            "initial_residual_logs": dict(zip(RESIDUALS, initial)),
             "final_residual_logs": dict(zip(RESIDUALS, final)),
             "residual_drop_orders": dict(zip(RESIDUALS, drops)),
             "last_history_iteration": max(row[0] for row in history),
@@ -244,7 +248,8 @@ def acceptance_self_check():
     assert not assess_history("\n".join(stale) + "\n")["qualified"]
     bad_residual = lines.copy()
     cells = bad_residual[-1].split(",");cells[1] = "-4";bad_residual[-1] = ",".join(cells)
-    assert not assess_history("\n".join(bad_residual) + "\n")["qualified"]
+    residual_only = assess_history("\n".join(bad_residual) + "\n")
+    assert residual_only["qualified"] and not residual_only["residual_criterion_met"]
     continued = seed_config(original, 3000, True)
     assert "CFL_ADAPT= NO" in continued and "CFL_NUMBER= 5.0" in continued
     assert "LINEAR_SOLVER_ITER= 20" in continued and "READ_BINARY_RESTART= YES" in continued

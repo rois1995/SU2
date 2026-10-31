@@ -1,6 +1,13 @@
 # Parallel quality closure and reusable CFD input — 2026-10-31
 
-Status: design/source review, saved-CFD helper preparation. Latest user authorized
+Latest update: user explicitly directs stopping CFD when CL/CD are reasonable
+and proceeding with mesh adaptation. Residual thresholds below are historical
+initial plans, superseded as seed acceptance gates. A validated read-only real
+Euler field is now saved (CL.269535/CD.0135359); full unchanged-code TWO-event
+BEFORE baseline euler_build179_real_cfd50k_before is LIVE. All strict mesh gates
+remain unchanged. See ADAPTATION_M6_CFD_SEED_20261031.md and current HANDOFF.
+
+Status: design/source review; saved real-CFD input is ready, BEFORE baseline LIVE. Latest user authorized
 stopping179because it uses ITER1 startup CFD. Verified owned launcher received
 SIGTERM; all ten handles absent and all1396pins unchanged. Before implementing
 repair/ownership, first qualify/save original-grid CFD and run the current179
@@ -113,6 +120,18 @@ multiple candidates under the single-star admission or remove collision checks.
 Existing single-candidate callers retain their behavior; construction stays intact.
 Combined Publish/PrepareParameters can then stage accepted replacements once.
 
+The entity-geometry local error path is now traced: GeometryGuidanceExcess uses
+candidate faces; ParameterError uses their three coordinates/bindings plus the
+immutable authority, entity identity and tolerance. Cross-patch candidate discovery
+queries immutable NearbySurfaceFacets, not a mutable peer's current physical faces.
+Thus two full-vertex-disjoint private candidates do not stale each other's local
+entity error query. Legacy coverage still needs disjoint face/trace-key checks and
+combined PrepareParameters validation. Global GeometryCertificates is different:
+it uses the complete current physical union and is revision-scoped; never carry
+its old revision through combined publication as a final certificate. Large
+coordinate-only stars preserve old cell IDs and increment versions; ordinary
+replacement allocation and their routing must remain distinct in batched commit.
+
 CavityMetricSource::ImportCells is locally computable when the complete current
 cavity is supplied, but still performs a world election. Its current nodal donor
 path, TransportNodalMetrics and FrozenField construction are the reuse point for
@@ -150,68 +169,28 @@ original-frozen-field false-zero drift. Track diagnostic seconds/memory separate
 apply the existing target composition when applicable. This tracking design still
 needs implementation and focused migration/topology tests after the baseline.
 
-## Saved original-grid CFD solution — latest user requirement
+## Saved original-grid CFD input and matched comparison
 
-After179terminal and before the next full two-event M6, solve the ORIGINAL M6
-mesh at unchanged Euler physical conditions. Reuse the current CFD solver and
-existing restart/config facilities, ADAP_LOOP=NO; one owned nice19 MPI6 heavy
-job, single-threaded libraries and resource receipts. Select a bounded iteration
-cap and qualify with residual reduction plus sustained CL/CD stability, finite
-fields and positive density/internal energy. Initial bounded qualification plan:
-5000 iterations/3600s outer allowance (not an adaptation time-budget change),
-retain Mach.8395/AOA3.06, Euler/ROE/MUSCL/current limiter and original geometry.
-Use existing CFL adaptation capped20 rather than fixedCFL1; preserve MGLEVEL0
-initially. Independently require density log residual<=-6, all five Euler residuals
-at least four decades below their initial finite levels, and final200-iteration
-CL/CD ranges<=max(0.001*abs(mean),1e-5 for CL/1e-6 for CD). Record history at every
-iteration including forces. These are practical initial-solution criteria, not
-experimental agreement or grid convergence. Do not publish a seed merely because
-the cap or a solver convergence flag was reached. If the solver stops before a
-full stability window, continue from its checkpoint. Preserve failed attempts. Record the precise criteria and
-actual history; reaching an iteration cap alone is not convergence. Preserve numbered checkpoint files and history so a timeout cannot destroy the
-last complete state. Resume only a coordinate/admissibility-validated checkpoint
-with known iteration/history provenance, rather than restarting from freestream.
+Latest user accepts reasonable stable CL/CD and explicitly directs stopping CFD
+and proceeding with adaptation. The assistant's former residual thresholds are
+reported diagnostics, not prerequisites. Force-qualified real Euler seed is saved
+read-only at staged57/m6_inputs/euler_original_force_seed_v1; CL.26953535374,
+CD.01353585654,stable200steps,all finite/exact ordered mesh coordinates/rho+IE>0.
+No claim of a residual-converged aerodynamic reference. Full policy, original and
+continued histories, source/runtime pins, user-owned-stop receipts and original
+checkpoint audits: ADAPTATION_M6_CFD_SEED_20261031.md. No new freestream solve.
 
-Actual CFD preparation outcome: adaptive-CFL/cap20 with five linear iterations
-stalled across five200-step windows after600iterations; mean density residual
-stopped decreasing and drag range stayed above its qualification threshold.
-Preserved v2evidence, verified owned-only stop, all ten handles absent and1395pins
-unchanged. Continue from complete checkpoint1877with fixedCFL5,linear cap20/error
-1e-6 (same Euler physics/flux/limiter/grid), keeping every qualification criterion.
-A corrected zero-based history join retains the first resumed update, preserves
-the original residual reference and caps both segments at5000updates total.
-Historical helper source is archived/hash-verified; legitimate helper/control
-changes do not invalidate an independently preserved evolved solution. No fresh
-freestream solve, no native budget increase, no adaptation C++ changes yet.
-
-Restart source review: CFVMFlowSolverBase loads SOLUTION_FILENAME; output uses
-RESTART_FILENAME. Steady binary input is basename.dat, whereas adaptation output
-has numbered cycle names. Set READ_BINARY_RESTART=YES and use separate seed-input
-and output basenames. The reader does not certify restart coordinate/order equality;
-check every coordinate row against the exact original grid explicitly. Existing
-ITER1 history and initial_cfd_receipt(flow_converged=false) cannot qualify this seed.
-
-Save original mesh/native reference, restart, configuration, history, solver/runtime
-and hashes in a dedicated immutable input directory. Check restart point count,
-ordering/coordinates and state admissibility. Future attempts COPY the checkpoint
-into isolated run directories, use RESTART_SOL=YES with verified filename mapping,
-and distinct output names. Prove first remeshing consumes this saved field (or a
-recorded deterministic restart continuation), not freestream. Subsequent events
-continue from conservatively transferred solutions. No source/metric fixture or
-case-name reconstruction dispatch. Do not overwrite the saved restart.
-
-The new solution changes the first target metric. Latest user explicitly requests
-BEFORE/AFTER runs from this new saved CFD input, superseding the previous restriction
-on a new old-code baseline campaign. Run current179 unchanged CFD first, with the
-new seed and identical target/gates/native5400/time/work/memory settings. Preserve
-terminal evidence before implementing the connected change. Then run the changed
-implementation with the same copied/pinned seed and runtime/config (except source/
-binary provenance). Existing counters define common comparison; newly added
-passive counters must not be pretended to exist in the before run. Future results
-use this saved-input baseline. Compare matching quality time, actual q/J/geometry
-counts, commits/s,q-bad removed/s, wait share and rank debt spread, with actual
-initial/quality-entry workloads explicit. Build179startup data remains historical;
-never mix its field with the new baseline for a same-input speedup claim.
+BEFORE baseline euler_build179_real_cfd50k_before is LIVE with unchanged179CFD,
+50k/native5400/event/outer14400,TWO events,all strict gates. It reuses that exact
+saved solution via copy and the same deterministic ITER1 continuation as AFTER.
+Do not implement the connected C++ change until this baseline's terminal evidence
+is preserved. Then serial/ONE MPI6 milestone and full TWO-event AFTER immediately.
+All future results use this saved input; historical startup179is a different field.
+Compare matching quality time, whole-field q/J/geometry bad counts, commits/s,
+q-bad removed/s, wait share, rank debt spread, geometry work and actual mesh sizes.
+Existing before counters define the common comparison; new passive counters must
+not be pretended to exist in the unchanged before run. Cache quotas/host contention
+must be reported when assessing timing differences. Completion remains unchanged.
 
 ## Validation and actual acceptance
 
