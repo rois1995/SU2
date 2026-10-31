@@ -1,0 +1,133 @@
+{
+  "time": 1793477878.1222255,
+  "scope": "Exact quality-entry and first short complete window; no sustained closure or isolated timing claim.",
+  "entry_count_fields": [
+    "cells",
+    "q_bad",
+    "j_bad",
+    "size_bad",
+    "geometry_bad",
+    "q_debt",
+    "j_debt",
+    "measured",
+    "q_measured",
+    "j_measured",
+    "shape_complete",
+    "geometry_complete",
+    "cache_consistent",
+    "census_complete"
+  ],
+  "entry_count_differences": {
+    "euler_build188_real_cfd50k_feature_safe": [],
+    "euler_build190_real_cfd50k_census_ownership": [],
+    "euler_build191_real_cfd50k_numeric_memo": []
+  },
+  "all_selected_entry_counts_equal": true,
+  "entry_totals": {
+    "euler_build188_real_cfd50k_feature_safe": {
+      "cells": 727722,
+      "q_bad": 54071,
+      "j_bad": 53377,
+      "size_bad": 0,
+      "geometry_bad": 4059,
+      "qj_debt": 25236.787402739737
+    },
+    "euler_build190_real_cfd50k_census_ownership": {
+      "cells": 727722,
+      "q_bad": 54071,
+      "j_bad": 53377,
+      "size_bad": 0,
+      "geometry_bad": 4059,
+      "qj_debt": 25236.787402739737
+    },
+    "euler_build191_real_cfd50k_numeric_memo": {
+      "cells": 727722,
+      "q_bad": 54071,
+      "j_bad": 53377,
+      "size_bad": 0,
+      "geometry_bad": 4059,
+      "qj_debt": 25236.787402739737
+    }
+  },
+  "first_window": {
+    "euler_build188_real_cfd50k_feature_safe": {
+      "interval_work": {
+        "upper_calls": 1548,
+        "upper_work": 20124874,
+        "traversal_work": 19913058,
+        "scope_build_work": 32374,
+        "facet_build_work": 68852,
+        "piece_selection_work": 83790,
+        "support_facets": 52495
+      },
+      "quality_seconds": 8.856495616000075,
+      "quality_commits": 78,
+      "counts": {
+        "cells": 728099,
+        "q_bad": 53858,
+        "j_bad": 53136,
+        "size_bad": 0,
+        "geometry_bad": 4054,
+        "qj_debt": 24685.2859217582
+      }
+    },
+    "euler_build190_real_cfd50k_census_ownership": {
+      "interval_work": {
+        "upper_calls": 1548,
+        "upper_work": 20124874,
+        "traversal_work": 19913058,
+        "scope_build_work": 32374,
+        "facet_build_work": 68852,
+        "piece_selection_work": 83790,
+        "support_facets": 52495
+      },
+      "quality_seconds": 13.381353044999969,
+      "quality_commits": 78,
+      "counts": {
+        "cells": 728099,
+        "q_bad": 53858,
+        "j_bad": 53136,
+        "size_bad": 0,
+        "geometry_bad": 4054,
+        "qj_debt": 24685.2859217582
+      }
+    },
+    "euler_build191_real_cfd50k_numeric_memo": {
+      "interval_work": {
+        "upper_calls": 1548,
+        "upper_work": 19415499,
+        "traversal_work": 19209209,
+        "scope_build_work": 31998,
+        "facet_build_work": 68852,
+        "piece_selection_work": 80664,
+        "support_facets": 52495
+      },
+      "quality_seconds": 10.747744343000022,
+      "quality_commits": 78,
+      "counts": {
+        "cells": 728099,
+        "q_bad": 53858,
+        "j_bad": 53136,
+        "size_bad": 0,
+        "geometry_bad": 4054,
+        "qj_debt": 24685.2859217582
+      }
+    }
+  },
+  "new_first_window_memo_deltas": {
+    "memo_direct_hits": 2156,
+    "memo_direct_misses": 1250,
+    "memo_union_hits": 807,
+    "memo_union_misses": 741,
+    "memo_stores": 1991,
+    "memo_evictions": 2208,
+    "memo_evicted_bytes": 850280,
+    "memo_retention_refusals": 0,
+    "memo_maintenance_work": 81734
+  },
+  "limits": [
+    "Identical per-rank entry counts/debts and short-window whole-field counts/commits do not establish sustained progress or byte-identical meshes.",
+    "Host contention differs, and old memo hit/miss counters are absent.",
+    "Not a completed first event or accepted mesh; strict acceptance/transfer/restart remain."
+  ]
+}

@@ -4,219 +4,149 @@ Updated 2026-10-31. Full goal ACTIVE: TWO strictly accepted ONERA M6 Euler
 CFD → mesh → CFD → mesh events at50k metric complexity, conservative admissible
 actual transfer, finite continued CFD and isolated usable adapted disk restart.
 Then dedicated BL/constraint/MPI qualification and corresponding RANS500k workflow.
-Report actual points/cells separately from metric complexity. Geometry1e-4,q>=.2,
-J>=.05,maxedge1.8,requested heights remain strict. Construction retains exact
-positive/nondegenerate/topology/body/feature/height validity and omits q/J.
-CAD remains optional. No accepted M6 mesh/transfer/adapted restart yet.
+Actual points/cells are separate from metric complexity. Geometry1e-4,q>=.2,J>=.05,
+maxedge1.8,requested heights stay strict. Construction preserves exact positive/
+nondegenerate/topology/body/feature/height validity and deliberately omits q/J.
+CAD optional; no-CAD geometry authority sufficient. No accepted adapted M6 mesh yet.
 
-All staged57 paths are under `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/`.
-BASELINE=`staged57/m6_runs/euler_build188_real_cfd50k_feature_safe`.
-BEFORE=`staged57/m6_runs/euler_build179_real_cfd50k_before`.
-PREVIOUS=`staged57/m6_runs/euler_build183_real_cfd50k_after`.
+## Authoritative live state —191 FULL TWO-EVENT M6; sources FROZEN
 
-## Authoritative state —191 FULL TWO-EVENT M6 LIVE; source freeze active
+R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+LIVE=`R/m6_runs/euler_build191_real_cfd50k_numeric_memo`.
+BASELINE=`R/m6_runs/euler_build188_real_cfd50k_feature_safe`.
+PREVIOUS=`R/m6_runs/euler_build190_real_cfd50k_census_ownership`.
+One owned heavy job:exec36816. Helper401117/start89158697,time401313/start89159335,
+timeout401314 and launcher401315/start89159336; ranks401320..401324/start89159345,
+rank401325/start89159346. LIVE/owned_startup.json records exact host identities.
+All10handles matched1793477253; source/runtime/input all1401pins unchanged at
+1793476745; all82mappedELFfiles pinned at startup. MPI non-ELF shared-memory files
+are transient state, separately recorded. Initial all-mapping false-positive audit
+is preserved locally, corrected by executable/library classification; no pin failure.
+Build/header/test/helper/binary/config/input remain FROZEN until verified terminal.
+Let run finish unless preserved failure/bottleneck/resource evidence justifies the
+authorized exact-owned stop/fix/retry workflow. Forecasts or stale logs do not justify
+stopping. Current process/session identities, not historical IDs/status, control.
 
-Build191 PASS754.100808s,all1296pins unchanged,all2host handles absent;
-staged57/build191_terminal_verification.json. Source410d82c087 pushed.
-Serial PASS67cases/20499assertions,including hot/cold retention and12savedM6queries;
-all5handles absent/allpins unchanged. Case numeric_memo191_serial_20261031T194602_381314.
-MPI6 PASS215cases on EACH6ranks in302.025170s; all10handles absent/allpins
-unchanged. Qualification:staged57/numeric_memo191_qualification.json. No broad-suite
-or accepted-M6 claim. CFD SHAab2192a723715eb5ca84ae67666aa1d83996e143928844fff75922e5cc22258e.
-One owned heavy job:full TWO-event M6 exec36816,case
-staged57/m6_runs/euler_build191_real_cfd50k_numeric_memo (LIVE).
-Helper401117/start89158697,time401313/start89159335,timeout401314 and
-launcher401315/start89159336,ranks401320..401325/start89159345 except401325/start89159346.
-All10handles verified live/all1401pins unchanged/all82mappedELFfiles pinned at
-1793476625. owned_startup.json records exact identities, transient MPI non-ELF
-shared-memory mappings separately. Earlier all-mapping audit false-positive retained
-in owned_startup_all_mappings_initial.json; not a source/library provenance failure.
-Compiled sources/headers/tests/helpers/binaries/config/input remain FROZEN. nice19,
-libs1,MPI6,one job,5400native/50k unchanged. Same saved CFD:CL.269535/CD.013536 at
-initial continued iteration. Pre-M6 host38GiBavailable,memorypressure0,load6.27.
-Early runtime audit1793476745:all10identities live/all1401pins unchanged; continued
-original-grid restart SHA6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a
-BYTEIDENTICAL179/183/188/190. euler_build191_real_cfd50k_numeric_memo/early_runtime_provenance.json. Initial ownership
-and all18selected estimated-demand fields EXACT188/190:initial_partition_comparison.json.
-First complete coarsening:292709cells,2627collapses,all selected per-rank counts,
-flags and geometrybad counts EXACT188/190. q/J intentionally UNMEASURED, no acceptance.
-Traversal293483522vs294071794 (-.20004%); uppercalls14870 same,unionhits2303/misses12567,
-15.4876%exacthitshare. Old exactmemo already existed/no historicalhitcounts, so this
-hit share is not incremental benefit. Memo25157800/25165824B aggregate across6fixed
-pools,35904evictions,0retentionrefusals; maintenance1308630counted operations,not
-interchangeable with traversal operations. coarsening_comparison.json preserves
-all6rank rows/threebuilds; no isolated wall-speed claim. Serial/MPIqualification
-alone does not prove M6 benefit. Splitting underway; quality entry still pending.
-No accepted adapted mesh/transfer/continued adapted CFD/restart yet. Let attempt finish
-unless preserved evidence justifies authorized stop. Next:complete censuses, net whole-
-field q/J/geometry progress, memo hits/misses/maintenance and traversal work; then
-user-requested analysis-first cheaper-certification review, no competing cycle.
-Last full M6 CURRENT=`staged57/m6_runs/euler_build190_real_cfd50k_census_ownership`.
-Exec3143TERMINAL exit1 after authorized stop of remaining attempt. FIRSTevent
-NATURALLY rejected on ALL6ranks:time_budget,root`Native3D private repair round
-exhausts elapsed-time budget.` Native total max5407.486471s,refine5341.348765s.
-Raw summaries/details/EXIT/root rejection saved BEFORE exact verified launcher145713
-SIGTERM. Independent1793473407audit:ALL10handles ABSENT and ALL1401pins unchanged
-BEFORE ANY next compiled source edit. CURRENT/event1_natural_failure.json,
-event1_failure_owned_stop.json,terminal_handles.json. Those handles are historical;
-never resignal/restart from old status. Freeze LIFTED for demonstrated next fix.
-Complete terminal EXIT:765728cells,30754q/28157J/3702geometry,size0,debt4418.429452;
-shape/cache/census/geometry flags complete. Queue286188,blockedfeatures153,
-stuck_shape0/stuck_required0/missing0. No accepted mesh/actual transfer/adaptedrestart.
-Original accepted CFD retained. Next target:SPEED; active search and positive net
-repair yield remain, time budget exhausted. Geometry-query/smoothing cost path is
-next review, preserving190ownership/history and all18construction improvements.
-Terminal ALL7counter assessment is complete and primary reviewed. The one active
-follow-up is numeric certificate retention; no new scheduler/options/limits or
-construction changes.
-Build190 PASS307.081s,1296pins unchanged/all2handles absent; substantial host I/O
-contention while linking. Focused serial PASS28cases/8100assertions; MPI6 PASS163cases
-on EACH rank, all10handles absent/pins unchanged before M6. Source dcf6f01623 pushed;
-staged57/census_ownership190_qualification.json records actual binary hash/results.
-Construction CLOSED:727722cells,size0,geometry4059; ALL18generations EXACT188
-counts/query work. Complete quality entry1241.413606native seconds:54071q/53377J/
-4059geometry,size0,debt25236.78740274; all15selected per-rank fields EXACT188.
-Complete quality EXIT at4097.689184quality seconds:30754q/28157J/3702geometry,
-15194published cavities,23317netq/25220netJ removed (5.69028q/s,6.15469J/s).
-Five late ownership migrations preserved counts,debt,flags,caches and repair history.
-Terminal ALL7groups:CURRENT/terminal_assessment.json; geometry/service breakdown:
-CURRENT/terminal_geometry_service_assessment.json. Traversal3.999Bwork dominates
-upper4.059B; nested timers overlap. No exhausted repair power or RAM-pressure stop.
-Fair comparison under contention:CURRENT/work_comparison_terminal.json,.csv,.svg
-contains complete actual snapshots through EXIT for188and190. Same saved CFD,
-quality entry and starting prepared-cache state verified. At nearest actual q/J state,
-19030754/28157/3702geometry vs18830961/28318/3668geometry; published cavities
-15194vs15157, traversal3.999Bvs3.567B (+12.1%), elapsed4097.689vs2532.324s.
-Timing is confounded by measured host contention; extra counted work is real.
-No interpolation/arbitrary combined work score; CPUtime includes MPIspin.
-Earlier window6/window7 work comparisons retained as immutable historical snapshots.
-CURRENT/quality_service_assessment.json includes ALL ownership stage costs in windows;
-all_quality_census_assessment.json has full location/feature/miss histograms,ladder,
-churn,drift. quality_migration_assessment.json and first_postmigration_comparison.json
-preserve comparisons. Early detailed evidence moved to linked connected design.
-At midrun1793471309all1401pins unchanged/all10handles match/all82mapped files
-pinned:CURRENT/midrun_provenance.json (earlier quality_entry_provenance.json retained). Passive host receipt1793470400:8CPUs,
-load18.26,CPUpressure avg60~39.9%,~29GiBavailable RAM; clear CPU contention, no
-memory-pressure stop. CURRENT/quality_resource_receipt.json. Source freeze lifted after terminal audit.
-Build189 historical MPI failed two modified fixtures;161others/rank passed. Preserved
-terminal receipts before corrections. Corrected mesh-valid vs measurement-complete
-hook and restored exact inherited repair subsets without a phase change; corrected
-geometry-mode fixture scope. Both agents done/no independent jobs.
+Build191 PASS754.100808s,all1296pins unchanged/all2handles absent before validation.
+Serial PASS67cases/20499assertions,including hot/cold memo churn and12savedM6queries.
+MPI6 PASS215cases on EACH6ranks in302.025170s,all10handles absent/allpins unchanged
+before M6. R/numeric_memo191_qualification.json records exact cases/hashes/results.
+CFD SHAab2192a723715eb5ca84ae67666aa1d83996e143928844fff75922e5cc22258e.
+Source410d82c087; qualification/live provenance53cc669c4b; first-stage checkpoint
+e175d78c3c pushed. These are focused checks, not a full-suite or M6 acceptance claim.
 
-HISTORICAL full TWO-event build188 TERMINAL, exec16914exit1. First event naturally rejected
-`Native3D private repair round exhausts elapsed-time budget.` All6stop=time_budget;
-native total max5403.529847s,refine5345.821634s. Accepted original CFD retained.
-Preserved raw6summaries/details/EXIT/root rejection BEFORE verified launcher4103464
-SIGTERM during second-event setup. Independent audit1793464454:ALL10owned handles
-ABSENT and ALL1401pins unchanged BEFORE ANY next compiled source edit.
-BASELINE/event1_natural_failure.json,event1_failure_owned_stop.json,terminal_handles.json.
-Those188handles are historical,never infer live work from old status. Freeze was lifted
-for the demonstrated fix; 190 is terminal and its freeze is lifted after the independent audit.
+Construction CLOSED:ALL18generations,727722cells,sizebad0,geometrybad4059.
+All17selected per-rank count/flag fields EXACT188 for ALL18generations. q/J were
+intentionally UNMEASURED in construction; zeros were not shape success. Cumulative
+traversal1305219707vs1881305964243 (-.05701%); uppercalls33158same. Memo retention
+refusals0,activebytes<=fixed limits; prepared allowance396836624/rank vs188396836704
+accounts80B extra fixed metadata. LIVE/construction_comparison.json and
+split_generation_assessment.json retain completed snapshots. No wall-speed claim.
 
-188production sourceb64674701a,qualification34f458f5ed; CFD SHA
-191ccb8869b3320de35a56ed91f608790897ebe7626741841e3edaf077eb4ca1. Qualified serial+
-MPI6 scope in staged57/feature_publication188_qualification.json; no whole-suite claim.
-Genuine-feature preflight held through this complete attempt: no publication failure.
-Private-slot collectives0/unmeasuredchurn0. Existing cache/parallel/debt improvements
-preserved. Same real-CFD seed AND initial continued field BYTEIDENTICAL179/183/188;
-ALL18construction-generation totals/query work and quality entry EXACT183.
-Construction727722cells,size0,geometry4059 at855.998s; quality entry892.080s:
-54071q/53377J/4059geometry,size0,debt25236.787403. Timing depends on host load.
+Quality ENTRY1059.456117native seconds:727722cells,54071q/53377J/4059geometry,size0,
+qJdebt25236.787402739737. All14selected per-rank counts/debts/flags EXACT188/190.
+LIVE/quality_entry_assessment.json,quality_entry_comparison.json. ALL1401pins/
+10exacthandles/82mappedELFcoverage reverified at quality entry; quality_entry_provenance.json.
+First short quality window10.747744s:728099cells,53858q/53136J/4054geometry,size0,
+78publications,213netq/241netJ/5geometryremoved; same outcome as188/190. New traversal
+19209209vs19913058 (-3.5346%),uppercalls1548same,unionmemo807hits/741misses,
+retentionrefusals0. Only a short initial window,not sustained closure or isolated timing.
+Old exact memo existed without hit/miss counters; hitshare alone is not incremental
+benefit,misses cannot label nearby trials vs evicted repeats. ALL4initial complete
+censuses (including ownership stages) audited in all_quality_census_assessment.json:
+churn identities,flags,globalmigrationconservation,privatecollectives0,missing0,stuck0.
+Current outcome remains pending; no actual transfer/adapted restart. First coarsening
+and identical CFD/partition provenance retained in linked LIVE JSON receipts.
+Monitor complete aligned censuses, net whole-field q/J/geometry removal and distinct
+geometry/preparation/maintenance/trial work counters. Timers overlap; do not add
+nested scopes or call collective-call time pure idle. CPUtime includes MPIspin.
 
-Complete terminal EXIT at4452.518quality seconds:786068cells,
-17190q-bad/14369J-bad/3526geometry-bad,size0,debt1344.661704;28742commits
-(6.455/s),36881netq-bad removed(8.283/s). ALLmeasurement/census/cache/shape/geometry
-flags complete,not an accepted mesh. Rankdebt43.122/63.967/136.232/63.839/962.227/
-75.274;spread22.314 vsentry1.456,rank4holds71.56%. Only6stuck badcells;
-queue199145/blockedfeatures324. All16GLOBALdriftpoints supported/lost0,max.0836193713,
-currentnodal full_target1 (not immutable original field). Sampled maxTREE RSS
-11597664256bytes(~10.8GiB),not physical/job peak. No actual memory-pressure stop;
-globalwork3188943 below19414976budget. BASELINE/terminal_assessment.json has ALL7
-passive diagnostic categories, actual raw per-rank outcome, ladder/reasons/location/
-shortedges/geometrytypes/histograms/metric drift and timing/budget receipts.
+## One active implementation/validation cycle
 
-Closest179matchingtime comparison:1881473.820s vs1791479.020s(-5.2s):
-38969q/36891J/3861geometry vs43764/42274/4067,size0both;commits/s6.156vs2.771,
-netqbadremoved/s10.247vs6.460,debtspread3.330vs7.481. No interpolatedcounts or
-isolated-speed claim. BEFORE terminal census was incomplete; do not compare its
-last-window counts as if terminal. BASELINE/matched_before_quality_comparison.json.
+[Numeric certificate retention](Handbook/ADAPTATION_NUMERIC_MEMO_20261031.md) follows
+190terminal time-budget failure. Existing exact FaceMemo now uses bounded cost-aware
+incremental clock eviction, same fixed4MiB/rank capacity, stable keys/value returns,
+explicit metadata and maintenance accounting. No duplicate cache/options/scheduler/
+construction changes. Preserve190ownership/history, oldest fairness/worst-first,
+rejected-star invalidation, full-vertex-disjoint reservations, fresh curved contexts,
+versioned dependencies and complete publication. Union maintenance remains mandatory
+cumulative work and fails closed; direct API has no AtlasBudget, counts maintenance.
+R/numeric_memo191_source_review.json documents primary/read-only routine review.
 
-## Active next implementation/validation cycle
+Latest user steering: AFTER frozen attempt, analyze cheaper geometry certification
+within this SAME cycle. Distinguish exact repeats from changed trial positions;
+review existing unchanged-face reuse, changed-face-only checks, early bounds and
+inexpensive screening BEFORE adding code. Investigate tolerance-slack motion bounds
+only with proven certificate meaning/direction, unchanged authority/support, exact
+association/dependency invalidation, outward rounding and resource accounting.
+Unknown/insufficient bounds fall back to full certification; sampling is insufficient.
+Conservative envelopes only if existing facilities are insufficient. No speedup
+established, no new options/competing implementation; unproven alternatives in backlog.
+Choose further work from measured traversal savings and net bad-cell removal/s.
 
-190complete-census redistribution cycle is terminal, not the next implementation.
-Preserve qualified dcf6f01623: fixed14feature ages/active/blocked state, exact inherited
-feature subsets, specialized modes, oldest fairness/worst-first and dependency
-invalidation. Repeated ownership executed5times at complete censuses; geometry caches
-and numeric data survived. Qualification:staged57/census_ownership190_qualification.json.
-[190design/history](Handbook/ADAPTATION_CENSUS_OWNERSHIP_20261031.md).
-Next target:SPEED of useful quality closure; do not revert construction or relax gates.
-Terminal ALL7diagnostics:CURRENT/terminal_assessment.json,primary reviewed counts,
-histogram quantities,rejection labels and all7groups.
-One next connected design:[numeric certificate retention](Handbook/ADAPTATION_NUMERIC_MEMO_20261031.md).
-Replace flushall by existing bounded cost-aware clock,exact keys/fixed capacity;
-add memo counters and mixed-retention validation. Live flush impact remains unmeasured.
-No new scheduler/options/batches/passes/limits or construction changes.
-All190handles were terminal before source edits; current191full M6 is FROZEN.
-C++ and mixed-retention tests are serial/MPI6 qualified; full M6 is LIVE; staged57/numeric_memo191_validation_plan.json records scope. All
-previous build/M6 handles independently rechecked absent; host receipts preserved.
-Primary/read-only routine review completed; staged57/numeric_memo191_source_review.json.
-Union maintenance work remains mandatory and fail-closed. One primary full M6 attempt only;
-all routine agents done/no independent build/run.
-Keep all complete quality stages in counter intervals, including ownership stages;
-local count migration is not repair progress. CPU contention remains a qualification
-on timing comparisons; separate counted work/near-quality-state evidence is preserved.
+## Preserved previous outcome and fair comparison
 
-Existing counters show upper queries dominated by traversal, not facet rebuilding;
-BASELINE/quality_service_geometry_assessment.json,geometry_guidance_source_review.md.
-Numeric FaceMemo exact-key reuse ALREADYexists; its flushall effect remains
-UNMEASURED. This cycle changes its retention and adds counters to measure benefit. Upper/traversal/smoothing/optimizer/busy/join scopes
-overlap; never add or infer pure idle. Saved12-query payload and authority hashes
-verified in reusable_geometry_query_inventory.json; older inputs,NOTexact188state.
+190firstevent naturally time-budget rejected ALL6ranks:Native total max5407.486471s,
+quality4097.689184s. Complete EXIT765728cells,30754q/28157J/3702geometry,size0;
+15194publications,23317netq/25220netJ removed. Queue286188,blocked153,stuck0,missing0.
+Next target SPEED; active repairs and positive net yield remained. Upper4.059Bwork,
+traversal3.999B; support/preparation much smaller. Private boundary112528upperqueries/
+3095.541ranksec vsinterior0queries/107.085s. Nested times not additive. Source
+dcf6f01623 qualified serial/MPI6; all18construction generations EXACT188 counts/work.
+Five complete-census ownership migrations preserved counts/debt/cache/flags/history.
+ALL7terminal diagnostic groups primary reviewed in PREVIOUS/terminal_assessment.json;
+service details terminal_geometry_service_assessment.json. Churn uses sorted exact-
+coordinate tet keys: moved cells retire/introduce even with unchanged connectivity.
 
-Qualified focused serial and MPI6 (age/blocked/mode/census/weights/empty ranks/curved/
-heights/resource/cache invariants);190full TWO-event M6 rejected firstevent.
-191connected qualification passed; full TWO-event SAMEsavedCFD is now LIVE,
-50k/5400s unchanged. Shape/height then residual
-geometry/size repair with shape reclosure under same cumulative limits. Require TWO
-strict accepted mesh/native_ref pairs, conservative admissible actual transfer
-(double residual1e-10,targetintegral1e-12),finite CFD,rho/internalenergy>0; then
-isolated actual adapted disk CFD restart (copy mesh/native_ref+matchingflow,
-RESTART_SOLYES/ADAP_LOOPNO/correct SOLUTION_FILENAME/distinct outputs). Seed00000
-never proves adapted restart. Then dedicated BL/constraint/MPI and RANS500k.
-
-Terminal evidence/design pushed5dbfea1bfe; connected source/test checkpoint3f791fe715
-pushed explicitly unvalidated before build189; dcf6f01623 corrections qualified190
-serial/MPI6 and full M6 now terminal; no accepted mesh. No acceptedmesh/
-transfer/restart.
-
-## Reusable input, history and open limits
-
-Readonly real-CFD seed:staged57/m6_inputs/euler_original_force_seed_v1. User accepts
-reasonable stable CL/CD:CL.26953535374,CD.01353585654;200iteration ranges1.114e-7/
-3.121e-8,allfinite/rho/IEpositive/exact original-grid order+coordinates. Reuse every
-first remesh; never reimpose assistant residual threshold or repeat freestream solve.
-Not a residual-converged aerodynamic reference or adapted restart. Seed SHA
-1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880; continued00000SHA
-6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a matches179/183/188.
-
-183 historical terminal:genuine-feature publication failure before5400s, original
-CFD retained. Raw6rank failure/stop/all10absent/all1401pins intact BEFORE edits in
+Natural failure preserved BEFORE SIGTERM only verified remaining launcher145713;
+independent1793473407audit ALL10ABSENT/all1401pins unchanged BEFORE191source edits.
 PREVIOUS/event1_natural_failure.json,event1_failure_owned_stop.json,terminal_handles.json.
-179real-CFD historical terminal:natural time-budget rejection5409.755s; rawfailure
-preserved before owned stop, allhandles absent/allpins intact before edits. Its last
-complete1479.020quality-second window43764q/42274J/4067geometry,size0,4098commits.
-Old startup175/179 use different fields, not matched real-CFD baselines.
+Those IDs are HISTORICAL,never resignal. 188and183terminal audits/failures likewise
+preserved in their case folders. 183genuine-feature preflight fixed before188 and
+held through complete188/190. Preserve that construction/publication improvement.
 
-Existing numerical risk: current-nodal P1 transport drifts despite same cache field
-identity. Final production q/J/edge gates use transported tensors, without independent
-original continuous-target recertification. Empty identity is a cache tag. PREVIOUS/
-metric_authority_source_review.md has primary-reviewed source paths. Do not claim
-immutable original-target certification. General adaptation resume cycle0path collision
-and rejected-cycle consumption remain open; isolated restart does not prove general
-adaptation resume fixed. Broad182MPI timed out; serial_full170 was NOT passing.
-Dedicated BL/RANS qualification not started. Full goal remains incomplete.
+PREVIOUS/work_comparison_terminal.json,.csv,.svg compares actual complete snapshots:
+near q/Jstate19030754/28157/3702geometry vs18830961/28318/3668geometry; cavities
+15194vs15157,traversal3.999Bvs3.567B(+12.1%),wall4097.689vs2532.324s. Same quality
+entry/cache/input; trajectories differ and measured host contention confounds timing.
+No interpolation/arbitrary combined work score. Earlier window snapshots historical.
+188terminal:17190q/14369J/3526geometry,size0,quality4452.518s,28742commits;
+rank4held71.56%debt,spread22.314. 190repeat census redistribution addresses that.
+179real-CFD last complete1479.020quality-second census43764q/42274J/4067geometry;
+its terminal census was INCOMPLETE, not zero badcells. Old startup runs use different
+fields and are not fair saved-CFD baselines. Detailed history in linked designs.
 
-## Operating links
+## Saved input, acceptance still required and open limits
+
+Readonly saved real CFD: R/m6_inputs/euler_original_force_seed_v1. Original61330points/
+303359cells; Mach.8395,AOA3.06. User accepts reasonable stable forces:CL.26953535374,
+CD.01353585654,last200ranges1.114e-7/3.121e-8,finite/rho/IEpositive/exact grid order.
+Not a residual-converged aerodynamic reference or adapted restart; no assistant
+residual threshold. SeedSHA1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880.
+Continued original-grid restart SHA6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a
+BYTEIDENTICAL179/183/188/190/191; LIVE/early_runtime_provenance.json. Initial partition
+and all18selected estimated-demand fields EXACT188/190; initial_partition_comparison.json.
+Reuse seed each first remesh, distinct SOLUTION_FILENAME/RESTART_FILENAME. No new
+freestream solve. Saved12query payload10448B/SHA37ea9781db1699c3b523bdeb94887a9f097931aa9c5378ba034fbab9657fdb0b
+is older168projected-star input, not current M6 mesh;191cached/recomputed replay passed.
+
+Still require actual shape/height closure → residual geometry/size closure → shape
+reclosure under SAME cumulative5400s/work/memory limits. TWOstrict accepted mesh/
+native_ref pairs,actual conservative admissible transfer(double residual1e-10,
+targetintegral1e-12),finite continued CFD,rho/internalenergy>0. Then isolatedCOPYfinal
+adaptedmesh/native_ref+matchingflow; actual RESTART_SOLYES/ADAP_LOOPNO/correct
+SOLUTION_FILENAME/distinct outputs, coordinate/order/state audit. Seed00000 never
+proves adapted restart. Then dedicated BL curved/junction/interface/subsequent-
+operation/redistribution/requested-height MPI qualification and RANS500k.
+
+Open numeric risk: final q/J/edge gates use current transported nodal tensors;
+16GLOBALfixed samples show~8.4%max drift, not independently immutable original
+continuous-CFD-target certification. Empty metric identity is a cache tag. General
+adaptation resume cycle0/path collision and rejected-cycle consumption remain open;
+isolated solver restart does not prove general adaptation resume fixed. Broad182MPI
+timed out; serial_full170 was NOT passing. BL/RANS qualification not started.
+
+## Operating links and discipline
 
 [AGENTS](AGENTS.md) · [complete task](Handbook/ADAPTATION_INTEGRATED_NEXT_TASK.md) ·
 [census ownership](Handbook/ADAPTATION_CENSUS_OWNERSHIP_20261031.md) ·
@@ -226,21 +156,13 @@ Dedicated BL/RANS qualification not started. Full goal remains incomplete.
 [geometry/smoothing](Handbook/ADAPTATION_GEOMETRY_QUERY_REUSE_20261031.md) ·
 [cache/ownership](Handbook/ADAPTATION_CACHE_PHASE_20261030.md) ·
 [findings](Handbook/ADAPTATION_FINDINGS_ASSESSMENT_20261031.md) ·
-[backlog](Handbook/ADAPTATION_BACKLOG.md) ·
-[preserved detailed prior handoff](Handbook/History/HANDOFF_Codex_before_build188_quality8_20261031.md).
+[backlog](Handbook/ADAPTATION_BACKLOG.md).
 
 One owned heavy job,nice19,libs1,build2–4workers(helper3),MPI6bounded; TMPDIR4TB
-compile-tmp,not nearly-full root/tmp. Check actual RAM/load, leave others untouched.
+compile-tmp,not root/tmp. Check actual host RAM/load; sampled summedRSS is not physical
+memory/job peak. Preserve resource/pin/handle receipts; leave unrelated processes alone.
 Fork pushes authorized:https://github.com/rois1995/SU2.git branch codex/native-3d-bl.
 Git metadata outside writable root:escalated git -c gc.auto=0 -c submodule.recurse=false;
-diff/status --ignore-submodules=all (broken unrelated Eigen worktree). Whitelist adds;
-no binaries/meshes/restarts/rawperf; preserve unrelated155logs/.orig/submodules/
-untracked steering/history files. Primary retains integrated acceptance.
-
-Latest user steering: after this frozen run/attempt, analyze cheaper geometry
-certification within the SAME cycle. Exact repeats vs changed trial positions,
-existing unchanged/changed-face reuse, early bounds/screening first; investigate
-proven tolerance-slack motion bounds only with unchanged authority/support and
-safe invalidation/rounding. Uncertain bounds fall back to full certification.
-No speedup established, no new options/competing implementation. Full analysis
-requirements in numeric-memo design; unproven alternatives recorded in backlog.
+diff/status --ignore-submodules=all. Whitelist adds; no binaries/meshes/restarts/rawperf;
+leave unrelated155logs/.orig/submodules/untracked steering/history files untouched.
+Primary owns integrated design/source/acceptance; bounded routine agents done/no jobs.
