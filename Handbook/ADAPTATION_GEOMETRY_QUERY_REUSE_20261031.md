@@ -1,12 +1,17 @@
 # Geometry query reuse — next connected milestone
 
-User steering2026-10-31. Build166M6 is TERMINAL, unsuccessful. All10owned handles
-are absent and1396pins unchanged. Its outcome confirms the geometry cost/quality
-closure blocker. The connected implementation/capture cycle is now active; no C++
-production optimization has started yet; current narrow diagnostic is below. The full accepted Euler50k two-event
-workflow, conservative admissible transfer and actual disk restart, then BL/MPI and
-RANS500k goal remains unchanged. Quality-motion/frontier ideas are in the backlog;
-they are not the next implementation priority under this steering.
+User steering2026-10-31.166is terminal unsuccessful; active blocker geometry cost/
+quality closure. Candidate68b396c562pushed unvalidated. Build170PASS105.230s; its
+broader serial run was stopped after preserved failures (terminal143/270.596s,
+1388pins unchanged/all4handles absent). Representative M6 replay passed with smaller
+joined witnesses; see current handoff/comparison receipts below. Test-only cache-
+warming correction build171PASS75.209s,1296pins unchanged/all9handles absent.
+Connected serial171RUNNING exec37705; C++/helpers/binary frozen until terminal
+verification. Exact166connected qualification plus
+new geometry hazards/M6 replay, MPI6, then immediately fullM6. Generic serial_full
+was overbroad for this milestone; its older failures are preserved/deferred. Full
+accepted Euler50k two-event/conservative admissible transfer/actual disk restart,
+then BL/MPI and RANS500k goal remains; all gates strict.
 
 ## User specification (verbatim)
 
@@ -197,3 +202,41 @@ old scope_build (which included facet preparation), use their sum when appropria
 Support discovery is separately timed at actual ParameterError calls. The capture
 bridge separates support search from projected-trial generation in new outputs.
 No changed-code validation yet; next same-payload replay and affected strict checks.
+
+Frozen169source review: build caught four min/max template mismatches between
+long-double interval endpoints and double coordinates (two statements). Fix with
+explicit common long-double type after all build handles terminate; keep independent
+compilation results. Primary review also caught the legacy successful-return
+OptimizationOperations aggregate assignment zeroing newly added counters; preserve
+new counters and original published swap-count semantics when correcting it.
+Require finite old merit before negative memo admission. These are queued fixes
+in the same cycle, not validated behavior. Bounded read-only agent review of forest
+interval/support/key/lifetime logic found no additional actionable defect; this
+is source review only. Candidate checkpoint68b396c562was pushed unvalidated.
+
+##170validation assessment and171correction
+
+Same12saved M6 queries: all passing classifications preserved and exact cached/
+recomputed equality; payload bit-identical. Observed query seconds1.03543→.388405;
+old scope.157774includes facets versus new facets.0762235/witness.0100672/selection
+.00129513/traversal.299522. Only724of10756support pieces enter joined witnesses.
+Work334868→399250charges more cheap box traversals; exact repeats1060unchanged.
+Do not claim lower total work/isolated speedup or M6 acceptance. Source/baseline/
+query provenance in staged57/geometry_capture168_baseline_receipt.jsonand
+geometry_reuse170_query_comparison.json. Broader serial is NOT a passing campaign.
+
+Overbroad serial_full exposed assertions outside166qualified filter: import donor/
+source-envelope counts and gap expectation are bypassed by unchanged current_metrics
+ImportGeometry semantics (sensor_presenttrue even identity sensors, Coverage skipped
+1333–35); runtime 4→1→4 counts and nonzero geometry guidance/reactivation are scenario
+expectations, not general acceptance gates; exact transport times/calls compare
+different scopes. No claim they passed unchanged baseline. Preserve/defer them; no
+unrelated source or expectation fixes. Relevant GeometryWorkEstimate warm fixture
+DID pass166: its finely prepared triangle-only leaf previously fit the default cache,
+but indexed leaf can be refused.171test-only explicitly reserves16MiB and requires
+actual globally observed retained pieces, keeping strict work>dand owner-layout
+equality. Tight/refused-cache cases remain unchanged. Production170unchanged.
+Authorized stop verified all1388pins and4exactidentities before signalling only
+timeout2146037; terminal143/270.596s, all4handles absent. Full failure logs preserved.
+Next exact166connected filter + new holes/body/curved/backend checks and same-payload
+replay; matchingMPI6once; immediate fullM6. Do not repeat generic serial_full.

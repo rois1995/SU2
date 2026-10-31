@@ -89,10 +89,36 @@ candidates/rejects/guidance/debt/time telemetry; unchanged private context/atlas
 with explicit retained overlap charge, conservative shape-only rejected-star cache
 invalidated on EVERY commit. Private optimizer debt/moves are not published whole-
 mesh progress. Added holes/notch/body/support/refusal and smoothing debt checks.
-Primary source review complete; build169RUNNING exec39366/Ninja2116321,1296pins;
-C++/build helpers frozen until terminal handle verification. Then affected checks and same-payload
-query replay. One serial/MPI milestone, then immediately full M6. No optimization
-or acceptance result claimed yet. Build169is the sole owned heavy workload.
+Build169FAILED555.849s (interval min/max type errors),1296pins unchanged/all146
+sampled handles absent. Corrections preserve smoothing counters and finite-old-merit
+memo guards. Build170PASS105.230s/all17sampled handles absent. Broader-than-required
+serial exec31939case geometry_reuse170_serial_20261031T015102_2145920failed legacy
+count/counter assertions and one relevant cache-warming assertion. After1388pins and
+all4owned identities were verified, only timeout2146037received SIGTERM; terminal143,
+270.596s/all4handles gone. This is NOT a passing broad campaign. Full logs/stop
+receipt preserved. Source-envelope checks conflict with unchanged current_metrics
+import bypass; scenario counts/operator counters/timer scopes are separately assessed.
+They were outside166qualified filters; deferred broader-fixture work is backlog.
+
+Same-payload M6 replay within that run PASS:12classes match, cached/recomputed bounds
+identical, payload bit-identical. Query1.03543→.388405s observed; old whole-scope
+preparation.157774s versus new facet.0762235+joined.0100672+selection.00129513s;
+traversal.299522s. Witness724/10756pieces. Work334868→399250 (more cheap box checks),
+repeats1060unchanged; no isolated speedup or M6 acceptance claim. Comparison receipt:
+staged57/geometry_reuse170_query_comparison.json, baseline verification receipt
+geometry_capture168_baseline_receipt.json. No RSS comparison across capture/replay.
+
+Relevant failed work-estimator fixture assumed the fine leaf stayed cached under
+its old tiny default quota; indexed leaves are larger. Test-only171explicit16MiB
+allowance + required actual retained pieces preserves strict work>dand owner equality.
+Production remains170. Build171PASS75.209s,1296pins unchanged/all9sampled handles
+absent. Connected serial geometry_reuse171_serial RUNNING exec37705; C++/helpers/
+binary frozen until terminal verification. Uses exact166qualified connected
+filter from cases/quality_merit166_serial_20261030T232240_1797134/command.json,
+plus NativeMappedComponent3D/NativeCurvedAtlas3D/NativeGeometryBackend3Dand serial-only
+NativeM6GeometryQueries3Dreplay. Then matching connected MPI6and immediately fullM6.
+Do not rerun generic serial_full or fix unrelated fixture expectations in this cycle.
+Serial171exec37705is the sole owned heavy job. Candidate remains UNVALIDATED.
 
 [Assessment of supplied findings](Handbook/ADAPTATION_FINDINGS_ASSESSMENT_20261031.md)
 records confirmed queue/slot/cost limits, short-edge hypothesis, startup-field scope,

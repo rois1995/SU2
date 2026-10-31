@@ -104,3 +104,15 @@ its relevance or the user explicitly reprioritizes it.
   resulting field coverage and fitting-vs-shape coordination before choosing a
   connected fix. No duplicate full-star framework or local fallback ladder; current
   166sources stay frozen. Full factual map in quality_window1_source_survey.md.
+
+###2026-10-31 broader fixture contracts (deferred; active geometry/smoothing first)
+
+Broader geometry_reuse170_serial exposed old source-envelope/donor/gap expectations
+that conflict with current_metrics import bypass (identity/supplied sensors);
+scenario 4→1→4 count monotonicity, nonzero guidance/reactivation, and exact timer
+scope equivalence also failed. These were outside166connected qualification. See
+ADAPTATION_GEOMETRY_QUERY_REUSE_20261031.mdand preserved case logs/stop receipt.
+No blanket gate relaxation or claim of baseline runtime failure proven. Reconcile
+test intent with actual current-field/coverage APIs in a future relevant milestone,
+especially dedicated BL qualification. The relevant cache-warm predictor failure
+is handled test-only in171with explicit admitted retention and strict checks.

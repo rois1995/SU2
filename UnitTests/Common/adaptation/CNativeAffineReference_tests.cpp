@@ -820,7 +820,7 @@ ExactRatio GeometryRatio(double x,AtlasBudget& budget) {
 struct CurvedAtlasFixture {
   std::vector<SU2Native3D::Facet> facets;
   std::shared_ptr<MappedFacetReference> geometry;
-  explicit CurvedAtlasFixture(double height=0,double bulge=.03) {
+  explicit CurvedAtlasFixture(double height=0,double bulge=.03,size_t cache_bytes=SIZE_MAX) {
     using namespace SU2Native3D;auto cube=ComponentCube(false);const Node middle{8,{.5,.5,height}};
     facets={{0,0,{cube[0].v[0],cube[0].v[1],middle}},
             {1,0,{cube[0].v[1],cube[0].v[2],middle}},
@@ -834,7 +834,7 @@ struct CurvedAtlasFixture {
       for(unsigned q=0;q<10;++q){long double x=0,y=0,z=0;for(unsigned k=0;k<3;++k){x+=powers[q][k]*(long double)f.v[k].p.x;y+=powers[q][k]*(long double)f.v[k].p.y;z+=powers[q][k]*(long double)f.v[k].p.z;}net[q]={double(x/3),double(y/3),double(z/3)};}
       if(f.id<4)net[9].z-=bulge;
     }
-    geometry=std::make_shared<MappedFacetReference>(std::make_shared<PlanarReference>(facets),errors,29,SIZE_MAX,false,controls);
+    geometry=std::make_shared<MappedFacetReference>(std::make_shared<PlanarReference>(facets),errors,29,SIZE_MAX,false,controls,cache_bytes);
   }
   FaceCoverage Cover(Id facet,AtlasBudget& budget)const {
     std::array<SurfaceBinding,3> binding;for(unsigned k=0;k<3;++k)binding[k]=geometry->Vertex(facets.at(facet).v[k].id);
@@ -843,7 +843,8 @@ struct CurvedAtlasFixture {
 };
 }
 TEST_CASE("Geometry work prediction distinguishes cross-chart surface incidence", "[NativeGeometryWorkEstimate3D]") {
-  using namespace SU2Native3D;CurvedAtlasFixture fixture;auto& geometry=*fixture.geometry;
+  // This positive observed-work check needs a retained fine leaf, including its reusable distance index.
+  using namespace SU2Native3D;CurvedAtlasFixture fixture(0,.03,size_t(1)<<24);auto& geometry=*fixture.geometry;
   auto state=ComponentState(fixture.geometry,fixture.facets);auto budget=GeometryAtlasBudget();
   state=state->WithMobilityPolicy(35,{{0,2}},budget);
   auto entity=state->WithEntityGeometry(.1,budget);
@@ -869,6 +870,7 @@ TEST_CASE("Geometry work prediction distinguishes cross-chart surface incidence"
     geometry.BoundPhysicalSurface({face.id},{{{face.v[0].p,face.v[1].p,face.v[2].p}}},1e-3,preparation);
   }catch(const std::exception&){prepared=false;}
   REQUIRE_FALSE(world.maximum(!prepared));
+  REQUIRE(CPassiveComm::Allreduce(uint64_t(geometry.StructuralEstimate(face.id).prepared_pieces),CPassiveComm::Op::MAX,world.comm)>0);
   CHECK(EstimateGeometryWork(direct,targets,*reference,.1).work==d.work);
   direct.sensor_present=true;direct.sensor.fill(Tensor{});
   if(Orientation(direct.cell.v[0].p,direct.cell.v[1].p,direct.cell.v[2].p,direct.cell.v[3].p)<0)

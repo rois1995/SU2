@@ -243,7 +243,7 @@ struct UnionTriangle {std::array<Point,3> points;double error=0;};
 Box TriangleBox(const UnionTriangle& triangle) {
   Box box=Exact(triangle.points[0]);
   for(auto p:triangle.points)for(unsigned d=0;d<3;++d) {
-    box[d].lo=std::min(box[d].lo,Values(p)[d]);box[d].hi=std::max(box[d].hi,Values(p)[d]);
+    box[d].lo=std::min<long double>(box[d].lo,Values(p)[d]);box[d].hi=std::max<long double>(box[d].hi,Values(p)[d]);
   }
   for(auto& d:box){d.lo=Subtract(d,{triangle.error,triangle.error}).lo;d.hi=Add({d.hi,d.hi},{triangle.error,triangle.error}).hi;}
   return box;
@@ -1748,7 +1748,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     const auto selection_work=budget.work;const auto selection_start=std::chrono::steady_clock::now();
     Box physical_box=Exact(physical.front().front());
     for(const auto& triangle:physical)for(auto p:triangle)for(unsigned d=0;d<3;++d) {
-      physical_box[d].lo=std::min(physical_box[d].lo,Values(p)[d]);physical_box[d].hi=std::max(physical_box[d].hi,Values(p)[d]);}
+      physical_box[d].lo=std::min<long double>(physical_box[d].lo,Values(p)[d]);physical_box[d].hi=std::max<long double>(physical_box[d].hi,Values(p)[d]);}
     // Only this upper witness is cropped. Its immutable piece identities establish reuse across overlapping supports.
     const auto selection_caller=budget.caller_bytes;
     std::vector<uint64_t> scope{tolerance_bits,resolution_bits};

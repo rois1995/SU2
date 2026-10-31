@@ -1,0 +1,25 @@
+{
+  "baseline_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_geometry_capture168_host_20261031T012917_2091486",
+  "baseline_archives": {
+    "Common/src/adaptation/CNativeAffineReference.cpp": {
+      "archived_source": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/geometry_capture168_CNativeAffineReference.cpp.txt",
+      "sha256": "ba64a06575242b4d22e88f055f1678516f725e6511114053dd878429a1125a8c"
+    },
+    "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp": {
+      "archived_source": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/geometry_capture168_CNativeAffineReference_tests.cpp.txt",
+      "sha256": "38c595a2a827ea3b526ed8337bae6ecf421ab612fa7efb62198c10b515938740"
+    }
+  },
+  "authority_sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+  "query_payload_sha256": "37ea9781db1699c3b523bdeb94887a9f097931aa9c5378ba034fbab9657fdb0b",
+  "query_count": 12,
+  "cold_query_seconds": 1.0354298650000002,
+  "scope_build_seconds": 0.15777439,
+  "work": 334868,
+  "repeat_work": 1060,
+  "limitations": [
+    "Projected valid stars from older M6 data; not exact166state or accepted moves",
+    "Old support_discovery_seconds includes trial generation; new diagnostic separates these",
+    "No actual adapted mesh or transfer/restart qualification"
+  ]
+}

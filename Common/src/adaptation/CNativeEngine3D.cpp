@@ -832,7 +832,7 @@ bool OptimizedRepairPatch(const Patch& old,Id first,Id first_node,const RegionMe
   OptimizeReport report;Id node=first_node,cell=local.size();
   const bool changed=OptimizeMetricMesh(local,target,node,cell,options,report);
   operations.moves=report.moves;operations.insertions=report.shell_insertions+report.neighbourhood_insertions+report.length_insertions;
-  operations.collapses=report.collapses+report.boundary_collapses;operations.swaps=report.edge_removals+report.face_swaps+report.boundary_flips;
+  operations.collapses=report.collapses+report.boundary_collapses;operations.swaps=report.edge_removals+report.length_removals+report.face_swaps+report.boundary_flips;
   operations.boundary_stars=report.boundary_stars_searched;operations.boundary_reused=report.boundary_stars_reused;operations.boundary_candidates=report.boundary_candidates;
   operations.boundary_validity=report.boundary_rejected_validity;operations.boundary_shape=report.boundary_rejected_shape;operations.boundary_edge=report.boundary_rejected_edge;operations.boundary_geometry=report.boundary_rejected_geometry;
   operations.boundary_guidance=report.boundary_guidance_calls;operations.boundary_upper=report.boundary_upper_queries;operations.boundary_moves=report.boundary_moves;
@@ -861,8 +861,6 @@ bool OptimizedRepairPatch(const Patch& old,Id first,Id first_node,const RegionMe
   std::vector<Face> skin;for(const auto& f:expected)skin.push_back(f.second);
   if(!ValidatePrescribedInterface(old.cells,proposal.cells,skin,reason))return false;
   fresh=std::move(proposal);
-  operations={report.moves,report.shell_insertions+report.neighbourhood_insertions+report.length_insertions,
-              report.collapses+report.boundary_collapses,report.edge_removals+report.length_removals+report.face_swaps+report.boundary_flips};
   return true;
 }
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
@@ -5126,7 +5124,7 @@ bool MeshOptimizer::SmoothBoundary(Id p) {
   }
   if(best.cells.empty()) {
     auto* reservation=geometry.AtlasReservation();
-    if(!Limited() && report.boundary_candidates && report.boundary_rejected_shape>shape_start &&
+    if(!Limited() && std::isfinite(before) && report.boundary_candidates && report.boundary_rejected_shape>shape_start &&
         report.boundary_rejected_validity==validity_start && report.boundary_rejected_edge==edge_start &&
         report.boundary_rejected_geometry==geometry_start &&
         (!reservation || (!reservation->work_exhausted && reservation->geometry_failure.empty())))RememberRejectedSmooth(p);
@@ -5252,7 +5250,7 @@ bool MeshOptimizer::Smooth(Id p) {
   }
   if(trials.empty()) {
     auto* reservation=options.geometry?options.geometry->AtlasReservation():nullptr;
-    if(!Limited() && report.interior_candidates && report.interior_rejected_shape>shape_start &&
+    if(!Limited() && std::isfinite(oldMin) && report.interior_candidates && report.interior_rejected_shape>shape_start &&
         report.interior_rejected_validity==validity_start && report.interior_rejected_edge==edge_start &&
         report.interior_rejected_geometry==geometry_start &&
         (!reservation || (!reservation->work_exhausted && reservation->geometry_failure.empty())))RememberRejectedSmooth(p);
@@ -5277,7 +5275,7 @@ bool MeshOptimizer::Smooth(Id p) {
     report.relabel[origin]=moved;++report.moves;return true;
   }
   auto* reservation=options.geometry?options.geometry->AtlasReservation():nullptr;
-  if(!Limited() && report.interior_candidates && report.interior_rejected_shape>shape_start &&
+  if(!Limited() && std::isfinite(oldMin) && report.interior_candidates && report.interior_rejected_shape>shape_start &&
       report.interior_rejected_validity==validity_start && report.interior_rejected_edge==edge_start &&
       report.interior_rejected_geometry==geometry_start &&
       (!reservation || (!reservation->work_exhausted && reservation->geometry_failure.empty())))RememberRejectedSmooth(p);
