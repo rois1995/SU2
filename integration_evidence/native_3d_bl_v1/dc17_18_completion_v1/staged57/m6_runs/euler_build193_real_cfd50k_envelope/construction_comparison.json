@@ -1,0 +1,436 @@
+{
+  "time": 1793486006.6757295,
+  "scope": "Completed splitting generations versus191; selected-count identity explicitly checked per generation, not assumed. Trajectories diverge in generation2; later work differences include changed queries/mesh. q/J unmeasured in construction; no shape or mesh acceptance.",
+  "base": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build191_real_cfd50k_numeric_memo",
+  "current": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build193_real_cfd50k_envelope",
+  "count_fields": [
+    "cells",
+    "length_splits",
+    "length_collapses",
+    "rounds",
+    "associations",
+    "working_faces",
+    "face_pieces",
+    "trace_pieces",
+    "geometry_bad",
+    "size_bad",
+    "measured",
+    "q_measured",
+    "j_measured",
+    "shape_complete",
+    "geometry_complete",
+    "cache_consistent",
+    "census_complete"
+  ],
+  "complete_generation_count": 2,
+  "all_selected_counts_equal": false,
+  "generations": [
+    {
+      "generation": "1",
+      "current_counts": {
+        "cells": 495390,
+        "size_bad": 117030,
+        "geometry_bad": 3861,
+        "length_splits": 36823,
+        "upper_calls": 15800,
+        "upper_work": 367067797
+      },
+      "all_selected_per_rank_counts_equal": true,
+      "count_differences": [],
+      "base_work": {
+        "upper_calls": 15800,
+        "upper_work": 398819869,
+        "traversal_work": 389311081,
+        "support_facets": 2528021,
+        "scope_build_work": 1808663,
+        "facet_build_work": 1675960,
+        "piece_selection_work": 3914264
+      },
+      "current_work": {
+        "upper_calls": 15800,
+        "upper_work": 367067797,
+        "traversal_work": 357559009,
+        "support_facets": 2528021,
+        "scope_build_work": 1808663,
+        "facet_build_work": 1675960,
+        "piece_selection_work": 3914264
+      },
+      "traversal_work_reduction": 31752072,
+      "traversal_reduction_fraction": 0.08155964099054247,
+      "new_memo_totals": {
+        "memo_direct_hits": 10036,
+        "memo_direct_misses": 59895,
+        "memo_union_hits": 2519,
+        "memo_union_misses": 13281,
+        "memo_stores": 73176,
+        "memo_evictions": 38719,
+        "memo_evicted_bytes": 16895264,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 1640594,
+        "memo_bytes": 25158576,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 22563,
+        "memo_union_entries": 11894
+      },
+      "base_elapsed": 427.996946591,
+      "current_elapsed": 431.185156572,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "2",
+      "current_counts": {
+        "cells": 680820,
+        "size_bad": 13483,
+        "geometry_bad": 4153,
+        "length_splits": 75525,
+        "upper_calls": 16706,
+        "upper_work": 427020954
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "113309",
+          "current": "113308"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "17667",
+          "current": "17663"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "24361",
+          "current": "24354"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "48718",
+          "current": "48704"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "647",
+          "current": "642"
+        },
+        {
+          "rank": 0,
+          "field": "size_bad",
+          "base": "3720",
+          "current": "3719"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "113309",
+          "current": "113308"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "116981",
+          "current": "116982"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "17667",
+          "current": "17663"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "24361",
+          "current": "24354"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "48718",
+          "current": "48704"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "875",
+          "current": "884"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "116981",
+          "current": "116982"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "105955",
+          "current": "105944"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "10979",
+          "current": "10973"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "17667",
+          "current": "17663"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "24361",
+          "current": "24354"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "48718",
+          "current": "48704"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "1045",
+          "current": "1055"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "105955",
+          "current": "105944"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "114140",
+          "current": "114141"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "17667",
+          "current": "17663"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "24361",
+          "current": "24354"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "48718",
+          "current": "48704"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "449",
+          "current": "460"
+        },
+        {
+          "rank": 3,
+          "field": "size_bad",
+          "base": "2514",
+          "current": "2515"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "114140",
+          "current": "114141"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "108718",
+          "current": "108714"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "12233",
+          "current": "12234"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "17667",
+          "current": "17663"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "24361",
+          "current": "24354"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "48718",
+          "current": "48704"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "525",
+          "current": "528"
+        },
+        {
+          "rank": 4,
+          "field": "size_bad",
+          "base": "2714",
+          "current": "2715"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "108718",
+          "current": "108714"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "121720",
+          "current": "121731"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "17667",
+          "current": "17663"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "24361",
+          "current": "24354"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "48718",
+          "current": "48704"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "581",
+          "current": "584"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "121720",
+          "current": "121731"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 16706,
+        "upper_work": 469981908,
+        "traversal_work": 460049133,
+        "support_facets": 2555519,
+        "scope_build_work": 1992520,
+        "facet_build_work": 1715164,
+        "piece_selection_work": 4087957
+      },
+      "current_work": {
+        "upper_calls": 16706,
+        "upper_work": 427020954,
+        "traversal_work": 417067741,
+        "support_facets": 2556548,
+        "scope_build_work": 2006451,
+        "facet_build_work": 1709932,
+        "piece_selection_work": 4098667
+      },
+      "traversal_work_reduction": 42981392,
+      "traversal_reduction_fraction": 0.09342782958793229,
+      "new_memo_totals": {
+        "memo_direct_hits": 11905,
+        "memo_direct_misses": 62792,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 14181,
+        "memo_stores": 76973,
+        "memo_evictions": 40090,
+        "memo_evicted_bytes": 18405600,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 1843758,
+        "memo_bytes": 25162056,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 24592,
+        "memo_union_entries": 12291
+      },
+      "base_elapsed": 502.040033981,
+      "current_elapsed": 501.883413079,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    }
+  ],
+  "limits": [
+    "Both191and193have the same bounded numeric memo implementation/counters. Upper certificates and work can affect existing retention.",
+    "Misses do not distinguish unique positions from evicted repeats.",
+    "Per-generation count identity is reported; later divergent counts prevent an identical-work timing claim.",
+    "Cumulative maintenance, traversal and preparation are distinct; nested times cannot be added.",
+    "q/J deliberately unmeasured in construction, not zero bad cells.",
+    "No geometry,feature,body,height,q/J/size acceptance gate changed. Stronger conservative bounds can change valid construction proposals."
+  ]
+}

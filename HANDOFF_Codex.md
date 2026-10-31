@@ -26,7 +26,18 @@ Config/mesh/native_ref/savedCFD and actual continued original-grid restart00000
 BYTEIDENTICAL191. CURRENT/early_runtime_provenance.json.
 Initial CFD CL.269535/CD.013536; first remesh uses the same ITER1 continuation from
 saved force-stable seed, never a fresh freestream field. Native5400s,strict50k and
-all gates unchanged. No complete native census yet at last observation.
+all gates unchanged. Completed construction evidence now preserved: coarsening
+292709cells/2627collapses,all17selected per-rank count/flag fields EXACT191,upper
+calls14870same,traversal293483522→277428465 (-5.4705%); native elapsed349.040946
+vs358.820959s,not a wall speedup claim. First splitting generation495390cells,
+3861geometry/117030size-bad,all17selected per-rank fields EXACT191,traversal -8.1560%.
+Generation2 has680820cells and diverges slightly from191 (counts/rounds/geometry):
+later work differences include changed queries/mesh. q/J intentionally UNMEASURED,
+not zero bad cells. CURRENT/coarsening_comparison.json,construction_comparison.json,
+split_generation_assessment.json and initial_partition_comparison.json. Initial
+partition all18selected fields EXACT191;188differs only104B/rank reported native
+accounting,not demand/partition. First2generations saved; later progress not yet
+assessed. No complete quality-entry census yet.
 
 One owned heavy job. Do not edit ANY pinned C++/test/helper/binary/config/input.
 Before restart/edit/stop, reverify exact actual host handles; sandbox process
