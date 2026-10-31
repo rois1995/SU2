@@ -270,3 +270,10 @@ attempts using existing counters/queries. A necessary nominal-vertex projected-A
 screen may avoid provably impossible footprint attempts; tighter prepared graph
 connectivity or residual alternatives remain unproven. Do not change frozen193or
 start another implementation/benchmark cycle before its complete M6 outcome.
+
+193window10 first reports1stuck-shape/required cell (all repair features blocked),
+missing0,while net2458q/2610J retirement continues. Preserve this as terminal
+repair-power evidence if it persists; neighbor changes can invalidate blocked stars.
+Do not infer a cause from the aggregate. The previously reported OldMerit/invalid-
+quality concern is one unproven alternative,not a diagnosed193failure. No competing
+implementation or interruption of the frozen run; use its terminal data first.
