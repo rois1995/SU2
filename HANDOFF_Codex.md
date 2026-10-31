@@ -12,14 +12,16 @@ CFD SHA7b1d8c083b3de76893065474fecbf82792602397a468491c2eec2ac2f014de6e.
 Source688e13d29a, qualification00f25cc49e pushed. Six ranks, nice19/libs1,
 5400s native/event,14400s outer. Source/binary/helpers/config frozen. One owned
 heavy job; ~32.5GiB available at launch, no pressure. No accepted event yet.
-Latest observation~2667wall seconds: all10exact handles live, each rank~.94CPU/wall,
-aggregate RSS~6.15GiB, sampled tree peak6.662GiB, ~27GiBavailable. All1396pins
-reverified unchanged. Initial restart/all6startup partitions and coarsen/ownership/
-complete split generations1–10match164counts/debts/edge/census fields (use common
-math.fsum for rank-total comparison). q/J remain unmeasured. Gen10 704219private
-cells,2714size-bad,maxedge2.32427 at2531.967native seconds vs2897.669previous.
-CPU/cache quotas differ; old run was contended in5–9, no isolated timing claim.
-Splitting continues; no accepted event.
+Latest: quality entered3376.033native seconds (3751.378in164). Size closed atgen21/
+3339.282native seconds,720963private cells,size0,maxedge1.7999928685; every matched
+construction milestone1–21and coarsen match164counts/debts/edge/census fields.
+Quality census complete/consistent:52476q-bad,53533J-bad,3126geometry-bad,size0;
+qDebt8115.418532309/JDebt14256.142096888, matching prior totals within one ULP after
+changed rank grouping. New ownership moved382827cells in14.947s; new debt search
+active. At3511wall seconds all10exact handles live, steady RSS8.103GiB, sampled tree
+peak12.632GiB, ~25GiBavailable; no pressure. Existing quality windows emit every64
+absolute rounds (entry round21208, next21248), so first window is not immediate.
+All1396pins unchanged at2667wall seconds. Full acceptance/transfer/restart pending.
 
 **TERMINAL, unsuccessful:** `euler_build164_quality_debt50k`, full two-event Euler50k attempt.
 All10owned handles independently absent; main exec23733 terminalexit1 after the

@@ -257,3 +257,20 @@ in the isolated directory with the same verified binary/runtime. Preserve actual
 transfer residual/admissibility receipts at each accepted event; post-CFD integrals
 include solver evolution and are not raw transfer conservation comparisons.
 No adapted-state files exist yet; this is validation preparation only.
+
+## Build166actual construction and quality entry
+
+All matched construction generations1–21and coarsening/first migration reproduce
+164counts, debt and edge/census fields. Rank-total evidence uses common math.fsum;
+an earlier naive-sum discrepancy atgen3was only aggregation order. Size closes
+3339.282native seconds with720963cells,0size-bad,max1.7999928684783673; geometry3126.
+Quality enters3376.033s versus3751.378in164. Counts match exactly, q/J total debt
+matches within one double ULP after changed rank grouping. All six complete/cache/
+shape/geometry consistency flags1. Quality ownership moved382827cells in14.946804s;
+its cost/support estimator is now active. First_quality_assessment.json preserves
+six raw entry rows, both debt totals and comparison limits; no acceptance claim.
+Sampled summed tree peak12.632GiB during transition, steady8.103GiB, ~25GiBavailable;
+all10launch identities exact/live. Initial CFD restart byte-identical164; all1396pins
+unchanged at~2667wall seconds. No adapted mesh/transfer/usable restart exists yet.
+Existing quality-window cadence is64absolute rounds (entry21208→first21248), not
+per operation; no immediate window is expected. Sources/runtime/config stay frozen.
