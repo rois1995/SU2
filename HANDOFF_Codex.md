@@ -75,7 +75,10 @@ pinned/matching; AFTER/startup_verification.json. Cache host quota4GiB,rankequal
 715827882bytes vs baseline295417856host/49236309rank. Host load ranged7.5–20.76,
 MemAvailable~27–31GiB; actual sampled treeRSS~1.6GiB at190s. Not job peak.
 Native curved mobility setup181938600work,674protectededges/2corners/2fixedpoints/
-671curvepoints/23806surfacepoints. No acceptedmesh yet; no complete adaptation
+671curvepoints/23806surfacepoints. Initial ownership partition COMPLETE:303359cells preserved; all17compared per-rank
+cell/metric/geometry workload and graph fields EXACTLY match BEFORE, including
+after counts49602/42336/56390/49597/48833/56601. Receipt:
+AFTER/initial_partition_assessment.json. No acceptedmesh/complete adaptation
 census yet at last observation. Preserve run until terminal or demonstrated
 failure/bottleneck/resource pressure. Diagnostic provenance hash audit terminal;
 future maps audits should hash each distinct mapped file only once.
