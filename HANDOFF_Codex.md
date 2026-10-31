@@ -59,8 +59,26 @@ ABSENT before M6. Case:parallel_quality183_affected_mpi6_20261031T123301_3720499
 parallel_quality183_qualification.json records binaries/source/helper provenance,
 serial13cases/6850assertions and MPI6 result. Broad182timeout remains incomplete,
 not a passing broad suite. No accepted M6 mesh/transfer/adapted restart yet.
-NEXT IMMEDIATE:full TWO-event AFTER build183/euler_build183_real_cfd50k_after,
-using exact saved force-qualified CFD seed,5400s native/event unchanged.
+FULL TWO-event AFTER LIVE, exec94456:
+staged57/m6_runs/euler_build183_real_cfd50k_after. Source0cf923c59f,
+qualifiedbebb5e9014 pushed. Python3733069(start86521654),time3733370,
+timeout3733371,launcher3733372(allstart86522259),ranks3733376(start86522264),
+3733377–3733381(start86522265). Exact10hosthandles/cwd/exe/commands in
+AFTER/owned_startup.json. Native5400s/event, outer14400s, nice19/libs1/MPI6.
+SOURCE/C++/HEADERS/TESTS/HELPERS/BINARIES/CONFIG/INPUTS FROZEN until terminal.
+Initial flow confirms CL.269535/CD.013536; exact original seed SHA1eaee... and
+actual continued restart SHA6bbed8... BYTE-IDENTICAL to BEFORE. Finite states,
+rho>=.6276658890161216,IE>=103999.14049387217;61330points/303359cells.
+AFTER/initial_real_field_assessment.json. Not adapted transfer/restart evidence.
+Startup audit1401pins unchanged, all10identities match, all82mapped runtime files
+pinned/matching; AFTER/startup_verification.json. Cache host quota4GiB,rankequal
+715827882bytes vs baseline295417856host/49236309rank. Host load ranged7.5–20.76,
+MemAvailable~27–31GiB; actual sampled treeRSS~1.6GiB at190s. Not job peak.
+Native curved mobility setup181938600work,674protectededges/2corners/2fixedpoints/
+671curvepoints/23806surfacepoints. No acceptedmesh yet; no complete adaptation
+census yet at last observation. Preserve run until terminal or demonstrated
+failure/bottleneck/resource pressure. Diagnostic provenance hash audit terminal;
+future maps audits should hash each distinct mapped file only once.
 parallel_quality182_assessment.json / parallel_quality183_validation_plan.json.
 run_cases.py now records --durations yes for resumable completed case evidence;
 helper change occurred only after broad182terminal; no production decisions changed.
@@ -89,9 +107,14 @@ No perf/GDB campaign. Focused serial and affected MPI6 qualification passed; com
 multiple commits/rank, one final round reservation, zero private tracked
 collectives, q/J churn conservation and cached-vs-recomputed field counts.
 
-Next: run full TWO-event AFTER immediately from qualified build183
-from the exact saved CFD seed. Do not edit C++/helpers/tests while a build/check
-handle is live. Both agents DONE/read-only reviews; no independent heavy jobs.
+Next: observe frozen M6 AFTER owned handle94456 and preserve complete all-rank
+phase/windows. Compare against actual real-CFD BEFORE at matching quality times
+and stages; use whole q/J/geometry counts, commits/s,q-bad removal/s, geometry work,
+tracked call-wall and debt spread. Cache quota/host contention differ and must be
+reported. Require2accepted meshes, actual conservative/admissible transfer and
+finite continuedCFD; then isolated adapted disk restart. Do not edit pinned
+sources/helpers or start another heavy job while ownedrun is live.
+Both agents DONE/read-only reviews; no independent heavy jobs.
 
 Latest user explicitly accepts reasonable stable CL/CD and directs stopping CFD
 and proceeding with adaptation; do NOT reimpose the assistant's old residual
