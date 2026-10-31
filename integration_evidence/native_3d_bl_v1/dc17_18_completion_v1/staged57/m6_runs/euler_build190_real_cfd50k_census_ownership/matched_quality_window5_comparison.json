@@ -1,0 +1,85 @@
+{
+  "time": 1793472064.246478,
+  "scope": "Nearest actual complete saved quality censuses; whole-field gates unchanged, no mesh acceptance.",
+  "current_window": 5,
+  "comparisons": {
+    "euler_build188_real_cfd50k_feature_safe": {
+      "current": {
+        "quality_seconds": 2473.951532536,
+        "counts": {
+          "cells": 750209,
+          "q_bad": 40488,
+          "j_bad": 38625,
+          "size_bad": 0,
+          "geometry_bad": 3826,
+          "qj_debt": 9565.588439822746
+        },
+        "quality_commits": 8018,
+        "commits_per_second": 3.240968909274024,
+        "net_q_removed_per_second": 5.490406671822035,
+        "debt_max_min": 2.01594894382921,
+        "debt_largest_share": 0.2134100082517263
+      },
+      "baseline": {
+        "quality_seconds": 2532.3240767160005,
+        "counts": {
+          "cells": 764119,
+          "q_bad": 30961,
+          "j_bad": 28318,
+          "size_bad": 0,
+          "geometry_bad": 3668,
+          "qj_debt": 4907.200553266195
+        },
+        "quality_commits": 15157,
+        "commits_per_second": 5.9854108482260635,
+        "net_q_removed_per_second": 9.12600413686774,
+        "debt_max_min": 7.4100490850512175,
+        "debt_largest_share": 0.38597352491470643
+      },
+      "actual_time_delta_seconds": -58.37254418000066,
+      "relative_delta": 0.02359486166657602,
+      "close_time_match_reporting_threshold": 0.05,
+      "close_time_match": true,
+      "note": "Actual complete censuses only; no interpolation. Host load, construction/quality entry and prior source differ. Similar times do not isolate implementation effects."
+    },
+    "euler_build179_real_cfd50k_before": {
+      "current": {
+        "quality_seconds": 2473.951532536,
+        "counts": {
+          "cells": 750209,
+          "q_bad": 40488,
+          "j_bad": 38625,
+          "size_bad": 0,
+          "geometry_bad": 3826,
+          "qj_debt": 9565.588439822746
+        },
+        "quality_commits": 8018,
+        "commits_per_second": 3.240968909274024,
+        "net_q_removed_per_second": 5.490406671822035,
+        "debt_max_min": 2.01594894382921,
+        "debt_largest_share": 0.2134100082517263
+      },
+      "baseline": {
+        "quality_seconds": 1479.0201550270003,
+        "counts": {
+          "cells": 740798,
+          "q_bad": 43764,
+          "j_bad": 42274,
+          "size_bad": 0,
+          "geometry_bad": 4067,
+          "qj_debt": 13087.097023086382
+        },
+        "quality_commits": 4098,
+        "commits_per_second": 2.7707533166951257,
+        "net_q_removed_per_second": 6.459682085823629,
+        "debt_max_min": 7.480551141282025,
+        "debt_largest_share": 0.34857173409450376
+      },
+      "actual_time_delta_seconds": 994.9313775089995,
+      "relative_delta": 0.4021628412781048,
+      "close_time_match_reporting_threshold": 0.05,
+      "close_time_match": false,
+      "note": "Actual complete censuses only; no interpolation. Host load, construction/quality entry and prior source differ. Similar times do not isolate implementation effects."
+    }
+  }
+}

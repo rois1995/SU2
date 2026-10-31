@@ -1,0 +1,305 @@
+{
+  "time": 1793471840.9966455,
+  "scope": "Observed complete-window diagnosis only. Active redistribution cycle and frozen run unchanged; next implementation target is deferred to terminal evidence.",
+  "census": 11,
+  "round": 21824,
+  "interval_seconds": 995.093620186,
+  "whole_field": {
+    "cells": 750209,
+    "q_bad": 40488,
+    "j_bad": 38625,
+    "geometry_bad": 3826,
+    "size_bad": 0,
+    "qj_debt": 9565.588439822746
+  },
+  "net_closure": {
+    "net_q_removed": 2374,
+    "net_j_removed": 2542,
+    "net_geometry_removed": 49,
+    "net_q_per_second": 2.3857051757162897,
+    "net_j_per_second": 2.5545335116557744,
+    "net_q_per_commit": 1.2507903055848262,
+    "net_j_per_commit": 1.339304531085353
+  },
+  "capacity": {
+    "raw_slot_ceiling": 3072,
+    "batch_candidates": 2826,
+    "batch_reserved": 2501,
+    "quality_progress": 1898,
+    "unreserved_candidates": 325
+  },
+  "capacity_limits": "Raw ceiling includes deliberately debt-capped slots; unreserved candidates include refusals and cannot all be labeled conflicts.",
+  "per_rank_service": {
+    "0": {
+      "window_seconds": 995.1199241250001,
+      "busy_seconds": 52.78704095200004,
+      "join_call_seconds": 479.1798006170003,
+      "tracked_collective_call_seconds": 413.83740558500995,
+      "diagnostic_seconds": 0.11240724199999996,
+      "join_call_wall_share": 0.481529702099311,
+      "published_net_q_removed": 629,
+      "published_net_j_removed": 628
+    },
+    "1": {
+      "window_seconds": 995.1199216239997,
+      "busy_seconds": 246.7965844759998,
+      "join_call_seconds": 284.48981532700026,
+      "tracked_collective_call_seconds": 391.56738672001666,
+      "diagnostic_seconds": 0.07060153699999994,
+      "join_call_wall_share": 0.28588495632036304,
+      "published_net_q_removed": 260,
+      "published_net_j_removed": 266
+    },
+    "2": {
+      "window_seconds": 995.119905688,
+      "busy_seconds": 174.05874521099992,
+      "join_call_seconds": 358.7018623970001,
+      "tracked_collective_call_seconds": 404.7903147360821,
+      "diagnostic_seconds": 0.14540123100000013,
+      "join_call_wall_share": 0.36046094580833754,
+      "published_net_q_removed": 536,
+      "published_net_j_removed": 635
+    },
+    "3": {
+      "window_seconds": 995.1199220119997,
+      "busy_seconds": 87.51908278100012,
+      "join_call_seconds": 444.64629670600027,
+      "tracked_collective_call_seconds": 419.9304668919549,
+      "diagnostic_seconds": 0.06005197600000001,
+      "join_call_wall_share": 0.4468268465643666,
+      "published_net_q_removed": 424,
+      "published_net_j_removed": 436
+    },
+    "4": {
+      "window_seconds": 995.119923057,
+      "busy_seconds": 354.80085393600007,
+      "join_call_seconds": 176.44054046300005,
+      "tracked_collective_call_seconds": 398.5011629410451,
+      "diagnostic_seconds": 0.167913926,
+      "join_call_wall_share": 0.17730580644087215,
+      "published_net_q_removed": 165,
+      "published_net_j_removed": 208
+    },
+    "5": {
+      "window_seconds": 995.1199399359998,
+      "busy_seconds": 132.2433845710002,
+      "join_call_seconds": 399.66873720500007,
+      "tracked_collective_call_seconds": 405.70453225403253,
+      "diagnostic_seconds": 0.18782409499999986,
+      "join_call_wall_share": 0.40162870943044754,
+      "published_net_q_removed": 360,
+      "published_net_j_removed": 369
+    }
+  },
+  "geometry_per_rank": {
+    "0": {
+      "upper_calls": 4318.0,
+      "upper_work": 12713802.0,
+      "upper_seconds": 19.926304136000567,
+      "traversal_work": 12042143.0,
+      "traversal_seconds": 17.213682422000943,
+      "scope_builds": 520.0,
+      "scope_build_seconds": 1.6785284520000374,
+      "support_seconds": 1.4892273759999997,
+      "facet_build_seconds": 0.0375840949999926,
+      "piece_selection_seconds": 0.2236147459999973
+    },
+    "1": {
+      "upper_calls": 8898.0,
+      "upper_work": 108120399.0,
+      "upper_seconds": 169.10074693599893,
+      "traversal_work": 106469776.0,
+      "traversal_seconds": 154.54368404300044,
+      "scope_builds": 906.0,
+      "scope_build_seconds": 10.469555608999798,
+      "support_seconds": 4.94349611200003,
+      "facet_build_seconds": 1.1152897060000129,
+      "piece_selection_seconds": 0.5783935409999907
+    },
+    "2": {
+      "upper_calls": 6537.0,
+      "upper_work": 66946242.0,
+      "upper_seconds": 145.1223700469991,
+      "traversal_work": 66262836.0,
+      "traversal_seconds": 123.1247370240012,
+      "scope_builds": 1740.0,
+      "scope_build_seconds": 18.585392259999963,
+      "support_seconds": 1.194150377999954,
+      "facet_build_seconds": 2.0042181420000134,
+      "piece_selection_seconds": 1.0614558140000119
+    },
+    "3": {
+      "upper_calls": 5530.0,
+      "upper_work": 45340612.0,
+      "upper_seconds": 47.54081470800139,
+      "traversal_work": 44818087.0,
+      "traversal_seconds": 40.456528623000054,
+      "scope_builds": 705.0,
+      "scope_build_seconds": 6.234223410999988,
+      "support_seconds": 1.1304844710000035,
+      "facet_build_seconds": 0.20599012299999764,
+      "piece_selection_seconds": 0.24814611099999984
+    },
+    "4": {
+      "upper_calls": 13217.0,
+      "upper_work": 218697011.0,
+      "upper_seconds": 292.8489440009988,
+      "traversal_work": 215240964.0,
+      "traversal_seconds": 274.3822144869963,
+      "scope_builds": 1931.0,
+      "scope_build_seconds": 13.705643960999915,
+      "support_seconds": 7.622777628999967,
+      "facet_build_seconds": 0.07247363000000462,
+      "piece_selection_seconds": 1.705514134000007
+    },
+    "5": {
+      "upper_calls": 5995.0,
+      "upper_work": 58133217.0,
+      "upper_seconds": 103.1780045070002,
+      "traversal_work": 56807016.0,
+      "traversal_seconds": 94.72161177600015,
+      "scope_builds": 889.0,
+      "scope_build_seconds": 5.587261029000075,
+      "support_seconds": 2.6054861960000117,
+      "facet_build_seconds": 1.116654539999967,
+      "piece_selection_seconds": 0.6149679520000011
+    }
+  },
+  "geometry_totals": {
+    "upper_calls": 44495.0,
+    "upper_work": 509951283.0,
+    "upper_seconds": 777.717184334999,
+    "traversal_work": 501640822.0,
+    "traversal_seconds": 704.4424583749991,
+    "scope_builds": 6691.0,
+    "scope_build_seconds": 56.260604721999776,
+    "support_seconds": 18.985622161999967,
+    "facet_build_seconds": 4.552210235999988,
+    "piece_selection_seconds": 4.432092298000008
+  },
+  "geometry_upper_work_per_call": 11460.86713113833,
+  "upper_queries_per_published_cavity": 23.44309799789252,
+  "q_bad_interior_share": 0.7613119936771389,
+  "location": {
+    "q_surface": 9664,
+    "q_interior": 30824,
+    "j_surface": 13535,
+    "j_interior": 25090,
+    "bad_union": 50291,
+    "short09": 50288,
+    "short05": 49701
+  },
+  "net_population_changes": {
+    "q_surface": 1074,
+    "q_interior": 1300,
+    "j_surface": 1304,
+    "j_interior": 1238
+  },
+  "private_smoothing": {
+    "boundary": {
+      "stars": 31351.0,
+      "reused": 1.0,
+      "candidates": 22748.0,
+      "guidance": 3829.0,
+      "upper_queries": 16521.0,
+      "moves": 996.0,
+      "debt_reduction": 71.78609363828909,
+      "seconds": 573.1920592330001,
+      "private_debt_per_rank_second": 0.12523916282850728
+    },
+    "interior": {
+      "stars": 1503.0,
+      "reused": 1.0,
+      "candidates": 10064.0,
+      "guidance": 0.0,
+      "upper_queries": 0.0,
+      "moves": 1189.0,
+      "debt_reduction": 273.7331516350569,
+      "seconds": 16.12371883699999,
+      "private_debt_per_rank_second": 16.97704818611115
+    }
+  },
+  "ladder": {
+    "0": {
+      "trials": 6270.0,
+      "certified": 716.0,
+      "commits": 716.0,
+      "seconds": 263.22160896800034,
+      "debt_removed": 310.44951974199614,
+      "q_removed": 372.0,
+      "j_removed": 355.0,
+      "rejected": [
+        1480,
+        0,
+        0,
+        4074,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "1": {
+      "trials": 1599.0,
+      "certified": 1142.0,
+      "commits": 1142.0,
+      "seconds": 737.1727399479993,
+      "debt_removed": 1343.7003321239733,
+      "q_removed": 1876.0,
+      "j_removed": 2062.0,
+      "rejected": [
+        430,
+        0,
+        0,
+        318,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "2": {
+      "trials": 6084.0,
+      "certified": 40.0,
+      "commits": 40.0,
+      "seconds": 12.565956629999985,
+      "debt_removed": 132.93873926646475,
+      "q_removed": 126.0,
+      "j_removed": 125.0,
+      "rejected": [
+        5717,
+        0,
+        0,
+        268,
+        0,
+        0,
+        0,
+        59
+      ]
+    }
+  },
+  "churn": {
+    "commits": 1898,
+    "q_removed": 26919,
+    "q_created": 24545,
+    "j_removed": 25268,
+    "j_created": 22726,
+    "q_retired": 26919,
+    "q_introduced": 24545,
+    "j_retired": 25268,
+    "j_introduced": 22726,
+    "unmeasured_churn": 0,
+    "private_tracked_collectives": 0
+  },
+  "timing_limits": "Upper/traversal/guidance/smoothing/optimizer timers overlap; join-call includes protocol and waiting. Rank seconds are not global wall seconds. Host CPU contention is independently recorded. Counter ratios do not isolate the cause of a runtime change.",
+  "changes_from_previous_interval": {
+    "interval_wall_seconds_ratio": 1.5563262800810043,
+    "net_q_per_commit_ratio": 0.9614580488875413,
+    "upper_calls_ratio": 0.9495305164319249,
+    "upper_work_ratio": 0.6042866008232967,
+    "summed_upper_seconds_ratio": 0.8865579894507638
+  },
+  "largest_private_busy_rank": "4",
+  "largest_geometry_work_rank": "4",
+  "assessment": "Counter changes are reported explicitly. Geometry work, repair yield, rank service and collective-call waiting require separate assessment; lower net closure cannot be attributed to one cause from wall timing alone. No interruption or competing implementation follows from this partial result."
+}

@@ -30,34 +30,35 @@ staged57/census_ownership190_qualification.json records actual binary hash/resul
 Construction CLOSED:727722cells,size0,geometry4059; ALL18generations EXACT188
 counts/query work. Complete quality entry1241.413606native seconds:54071q/53377J/
 4059geometry,size0,debt25236.78740274; all15selected per-rank fields EXACT188.
-Latest complete window4 at1478.857912quality seconds:745514cells,42862q/41167J/
-3875geometry,size0,debt11352.677031. Interval639.386248s INCLUDES prior migration:
-2516netq/2879netJ/80geometry removed,1934commits,q3.93502/s,J4.50276/s,
-q1.30093/commit; cumulativeq7.57950/s,commits4.13833/s. Net yield and speed fell.
-CLOSE actual188time1473.820276(delta5.038s):38969q/36891J/3861geometry,
-netq10.24684/s,commits6.15611/s.190isBEHIND188whole-field closure despite better
-rankdebtspread1.66354vs3.33022. CLOSE179time1479.020155(delta-.162s):43764q/
-42274J/4067geometry,netq6.45968/s;190stillahead179. Host contention means these
-are observed progress rates,not isolated causal timing comparisons. Actual pairs:
-LIVE/matched_quality_time_comparison.json (no interpolated counts).
-Window4capacity2856candidates/raw3072ceiling,2527reserved,1934commits. Upper46860
-calls/843889774work,835880283traversalwork; nested877.232upper/797.698traversal
-summed ranksec,not additive. Rank1private342.406s/326.811Mupperwork but only268netq
-published;rank2private179.019s/93.479Mupperwork,813netq. Shape-stuck0,missing0;
-74.95%q-bad interior. BoundaryPRIVATEsmooth587.282ranksec/debt88.806 vsinterior
-12.686/debt432.191,not published cavity attribution. LIVE/quality_census10_diagnosis.json.
-TWOlate migrations committed rounds21632/21696; counts/debt conserved, all flags
-complete,missing features0,privatecollectives0,unmeasuredchurn0. Costs incl census
-21.553/21.706s;debtspread1.8966→1.47445 and1.6007→1.4846. Third eligible
-evaluation at21760skipped existing benefit guard:predictedimbalance1.20847<1.25. Both preserve prepared
-cache entries/bytes and add0geometryquery work;16GLOBALsamples supported/lost0,
-max drift.08419778656 unchanged through migration (currentnodal,not immutabletarget).
+Latest complete window5 at2473.951533quality seconds:750209cells,40488q/38625J/
+3826geometry,size0,debt9565.588440. Interval995.093620s:2374netq/2542netJ/
+49geometry removed,1898commits,q2.38571/s,J2.55453/s,q1.25079/commit.
+Cumulativeq5.49041/s,commits3.24097/s. Actual188nearby2532.324077s(delta-58.373s,
+2.36%):30961q/28318J/3668geometry,netq9.12600/s. Observed190wall progress BEHIND;
+NO isolated code-regression claim: host contention is directly measured.
+Latest user asks whether machine contention explains slowdown: YES plausible major
+contributor. Fresh1793472025receipt:8CPUs,load17.13,CPU PSI some avg60=39.06%,
+I/O some15.53%,memorypressure0,~29GiBavailable. PSI is not own-rank CPU loss share.
+LIVE/host_contention_receipts.jsonl. Window5geometrywork FELL40% vswindow4 while
+wall ROSE56%; collective-call seconds392–420/rank include wait,not protocol proof.
+Outer update126.56–130.59s (~13%window), not the entire slow interval. Maxprivate
+rank4 354.801s,165netq published;rank1 246.797s,260netq. Shape-stuck0,missing0;
+76.13%q-bad interior. LIVE/quality_census11_diagnosis.json records actual directional
+changes (not hardcoded previous-window cause). Geometry510Mwork/44495uppercalls.
+THREElate migrations committed rounds21632/21696/21824; global counts exact,
+debt conserved within1.82e-12,all flags complete,missing/privatecollectives/churn0.
+Latestcost34.448s incl observations,spread2.01595→1.25108; prepared cache entries/
+bytes/querywork and16GLOBALmetric samples preserved. No acceptedmesh or closure.
+Evaluation21760skipped existingimbalance1.20847<1.25 guard. Next full window pending.
+LIVE/matched_quality_time_comparison.json is latest; independent window4/window5
+comparison files preserve past measured pairs.179has no close complete census for
+latesttime; earlier window4 had actual1479.020155s match. Never extrapolate179.
 LIVE/quality_service_assessment.json includes ALL ownership stage costs in windows;
 all_quality_census_assessment.json has full location/feature/miss histograms,ladder,
 churn,drift. quality_migration_assessment.json and first_postmigration_comparison.json
 preserve comparisons. Early detailed evidence moved to linked connected design.
-At construction closure all1401pins unchanged/all10handles match/all82mapped files
-pinned:LIVE/quality_entry_provenance.json. Passive host receipt1793470400:8CPUs,
+At midrun1793471309all1401pins unchanged/all10handles match/all82mapped files
+pinned:LIVE/midrun_provenance.json (earlier quality_entry_provenance.json retained). Passive host receipt1793470400:8CPUs,
 load18.26,CPUpressure avg60~39.9%,~29GiBavailable RAM; clear CPU contention, no
 memory-pressure stop. LIVE/quality_resource_receipt.json. Source freeze ACTIVE.
 Build189 historical MPI failed two modified fixtures;161others/rank passed. Preserved

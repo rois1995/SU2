@@ -189,6 +189,11 @@ quality refresh followed by one vote. Preserve exact same batch/math/reuse,
 complete census flags, empty-rank alignment and fail-closed work/time/storage.
 No construction measurement changes or immediate extra campaign. The current
 saved-real-CFD BEFORE baseline stays frozen.
+190window5 update counter126.56–130.59s over995.094s (~13%); fewer recorded
+collective calls thanwindow4 but much greater call time. These timers include
+scheduling/waiting; do not attribute the whole slowdown to16-cell updates. Host
+CPU contention is independently confirmed. Keep this deferred until190terminal;
+no competing implementation or new profiling campaign.
 
 Status clarification: the older conditional publication/quality-service entries
 above have now been explicitly promoted by the user into the active connected
