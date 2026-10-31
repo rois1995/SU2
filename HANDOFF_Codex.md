@@ -44,31 +44,28 @@ censuses audited,private trackedcollectives0/commits0atentry,no repair progress 
 CURRENT/quality_entry_assessment.json,quality_entry_comparison.json,
 quality_initial_ownership_assessment.json and all_quality_census_assessment.json.
 All10handles/all1401pins/82ELF reverified1793486628:quality_entry_provenance.json.
-Preserved quality WINDOW12 at2879.186242s sinceentry:779631workingcells,
-19876q/16783J/3312geometry,size0,qJdebt1336.162051803809.
-Cumulative24048publications,net34205q/36609J/458geometry removed:
-11.8801netq/s,1.42236netq/publication. Latest interval:
-2118q/2240J/28geometry in212.920924s,
-9.9474netq/s (includes preceding migration cost). Migration AFTER
-this window is charged to the next complete interval. All33complete censuses
-are audited; latest stagewindow at round22336,queue220595,
-blocked136,stuckshape0/required0,
+Preserved quality WINDOW13 at3066.721197s sinceentry:782995workingcells,
+17697q/14490J/3274geometry,size0,qJdebt966.945555842859.
+Cumulative26201publications,net36384q/38902J/496geometry removed:
+11.8641netq/s,1.38865netq/publication. Latest interval:
+2179q/2293J/38geometry in187.534955s,
+11.6192netq/s (includes preceding migration cost). Migration AFTER
+this window is charged to the next complete interval. All34complete censuses
+are audited; latest stagewindow at round22400,queue205018,
+blocked145,stuckshape2/required2,
 missing0,private trackedcollectives0.
 Coordinate-key churn includes moved cells despite unchanged connectivity. Judge net
 counts,not raw retirements/debt percent. Records:CURRENT/quality_trend_assessment.json,
 quality_service_assessment.json and all_quality_census_assessment.json.
 
-Actual nearest-q comparison:19319876q/16783J/3312geometry vs191
-18617q/15352J/3550geometry,qualitytimes2879.186vs4015.080s;
-publications24048vs25799,traversal3696030835vs5762347873
-(35.86%less),work/netq108055.3vs162530.3.
-Also near-time actual snapshots:193at2879.186qualityseconds vs191at2867.224s:
-19876q/16783J/3312geometry vs28093q/25325J/3673geometry,traversal3.696Bvs4.235B.
-Current retires34205qvsbaseline25978q; actual time difference11.962s,not interpolation.
+Actual nearest-q comparison:19317697q/14490J/3274geometry vs191
+18617q/15352J/3550geometry,qualitytimes3066.721vs4015.080s;
+publications26201vs25799,traversal3914023107vs5762347873
+(32.08%less),work/netq107575.4vs162530.3.
 Different meshes/paths/metrics and host contention: no interpolation,identical-work
 or isolated timing claim. Actual time brackets and earlier snapshots are preserved:
-CURRENT/quality_window1..12_comparison.json. Source freeze intact:CURRENT/
-quality_window12_live_provenance.json verifiesall10handles/1401pins/82mappedELF.
+CURRENT/quality_window*_comparison.json (actual snapshot times recorded). Source freeze intact:CURRENT/
+quality_window13_live_provenance.json verifiesall10handles/1401pins/82mappedELF.
 
 9actual late complete-census migrations conserve counts/debt/flags and selected
 prepared/numeric memo counters/entries/bytes/drift availability. Latest round22272:
@@ -80,13 +77,13 @@ actual counters do NOT independently prove every per-feature history or cache ke
 Bounded primary-reviewed source/receipt limits:quality_migration_review.json (first2
 late migrations,canonical10censusprefix hash retained).
 
-Current badpopulation:16519q/11565Jinterior,3357q/5218Jsurface.
+Current badpopulation:14890q/10118Jinterior,2807q/4372Jsurface.
 Interior means no physical face,not unconstrained vertices. Private boundary/interior
 smoothing work/debt is separate in quality_service_assessment.json; it is NOT published
 cavity gain. Timers nest; join calls include protocol/wait. Sixreports replicate
 16GLOBALfixed metricsamples,supported16/lost0,maxdrift
 3.22540%sincequalityentry; no original continuous-CFD-target fidelity proof.
-Resource receipts:quality_window12_resources.json; sampled summedRSS is not physical
+Resource receipts:quality_window13_resources.json; sampled summedRSS is not physical
 or true peak. Keep193frozen; choose further implementation from terminal outcome.
 
 
