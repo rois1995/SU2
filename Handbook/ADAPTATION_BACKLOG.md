@@ -132,3 +132,19 @@ rejection preserves face order/arithmetic and explicit completeness; shared engi
 and boundary-smoothing paths, with counters. Reused exact backend memo rather than
 adding another face cache. Current175M6 is frozen/live. Candidate reordering and
 additional caching remain deferred unless its outcome demonstrates their need.
+
+### Conditional after full175outcome: quality service and revisits
+
+If full175fails strict quality closure after the certified-query work reduction,
+reassess quality servicing as one connected coverage/coordination problem. Reuse
+cached per-cell required debt and existing disjoint-cavity reservation/batch paths;
+do not add a scheduler framework or merely raise limits. Source Touch resets age
+when relevant non-key neighbours change, so epoch-first plus a secondary debt key
+may still delay necessary revisits. A debt-led policy must retain bounded oldest
+service, blocked-until-state-change invalidation, exact versions/IDs, complete
+wall/height dependencies and transition/scratch admission. A blind slots increase
+is not a safe batch implementation. No q/J measurement/ranking in construction.
+This is deferred source-review guidance, not an active second cycle; current175
+stays frozen to full outcome. Raw short-edge counts alone do not prove that more
+coarsening fixes the shape failures. Preserve accepted-mesh/transfer/restart/BL/
+RANS obligations, and assess the actual terminal bottleneck before choosing.

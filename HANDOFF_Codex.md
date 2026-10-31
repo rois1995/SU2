@@ -10,14 +10,15 @@ height validity and intentionally omits q/J; CAD remains optional.
 
 ## Authoritative current live state
 
-**Full M6 Euler50k two-event workflow RUNNING**, exec19304:
+**Build175 M6 Euler50k TERMINAL, unsuccessful**:
 `staged57/m6_runs/euler_build175_bounded_guidance50k`.
-Driver2378026,time2378128,timeout2378129,mpirun2378130,ranks2378134–2378139.
-Exact10identities/startticks in startup_verification.json;1396source/runtime/input
-pins independently verified at startup, coarsen, entry and first/third windows.
-81actually mapped libraries all covered by pins. C++/binary/helpers/config/inputs
-FROZEN until terminal or preserved evidence justifies authorized stop. One owned
-heavy workload,nice19,libs1,MPI6,native5400s/event,outer14400s,two actual events.
+First native event naturally rejected for elapsed-time budget on all six ranks,
+complete=0/final=0, before the authorized launcher stop prevented an unchanged
+retry. No accepted mesh, actual transfer or adapted restart. All ten exact owned
+handles independently verified absent on host /proc; all1396 pins unchanged.
+No owned heavy job. C++ source edits are now permitted; build176 not started.
+Terminal receipts: `terminal_assessment.json`, `terminal_handles.json`,
+`event1_time_budget_stop_receipt.json` under the175run directory.
 
 Qualified source checkpoint924f531ac3; bounded-guidance candidate3747bdd26f.
 Build175PASS588.881s/1296pins/all sampled build handles absent; serial51cases/
@@ -55,13 +56,15 @@ identical; unioncalls6957vs13708,882earlyrejections/10054evaluatedfaces,
 .503s. Negative-star reuse0: no measured benefit from that cache. Private work can
 be rejected by the outer transaction; don't equate it to whole-field progress.
 
-Latest preserved complete window20: native3964.390568s,
-quality2942.988611s; q/Jdebt18207.207795651,
-18.393822%fall/1.394452debt/s.
-743234private cells,48415q-bad/48119J-bad/
-2765geometry-bad/size0, allmeasured/all4completeflags1.
-Lastintervaldebt/s1.949931; continue generously.
-No accepted event/mesh/actual transfer/adapted restart yet. Run remains healthy.
+Latest preserved complete window32: native5312.346361s,
+quality4290.944404s; q/Jdebt16512.529724794,
+25.989506%fall/1.351343debt/s.
+751803private cells,46537q-bad/45853J-bad/
+2521geometry-bad/size0, allmeasured/all4completeflags1.
+Last interval debt/s1.546179. Native event maximum5403.267s; quality4316.156s,
+2048quality rounds and11986local progress commits. Exit census is PARTIAL:
+95unmeasured cells. These are not accepted final counts.
+No accepted event/mesh/actual transfer/adapted restart.
 Sampled treeRSS8.51GiB, peak summed tree12.922GiB,~24GiBavailable; not physical
 memory or an individual peak. Resource/CPU/paging receipts retained in175run.
 
@@ -82,18 +85,16 @@ All detailed current design, failures and previous qualification are linked belo
 
 ## Immediate actions and acceptance
 
-1. Let current175full attempt continue frozen generously to its outcome unless
-   preserved evidence establishes an actual error/resource/clear computational stop
-   with a concrete connected fix. Do not stop merely from linear debt projection.
-   Verify exact owned handles on escalated HOST /proc; sandbox namespaces may hide
-   live host PIDs. Stale logs/observation timeout are not termination.
-2. Preserve complete quality windows, source/binary/runtime/input provenance and
-   resources. Nested guidance/union/smoothing/MPI timers overlap. No new C++ cycle
-   or heavy workload while this attempt is live. Additional ideas remain backlog.
-3. On a demonstrated failure, preserve the primary event outcome before stopping
-   only verified owned launcher2378130 if necessary to prevent unchanged retry;
-   verify ALL10terminal and pins before any pinned-source edits. Then one connected
-   fix/qualification and immediate complete M6 retry. Diagnostics are not completion.
+1. Preserve and push the terminal175 evidence. The demonstrated blocker is strict
+   quality/geometry closure within the event budget despite faster certification.
+2. Implement one connected quality-service improvement: cached required-debt
+   priorities with bounded oldest-demand service and safely batched independent
+   full cavities. Reuse existing lookup/import/reservation/publication paths.
+   Preserve large coordinate-only stars, all constraints, versions and admission.
+   See [active quality-service design](Handbook/ADAPTATION_QUALITY_SERVICE_20261031.md).
+3. Qualify affected behavior in focused serial checks and one integrated MPI
+   milestone, then immediately retry the complete M6 workflow. No new baseline
+   campaign; unchanged strict acceptance gates. Fixtures do not establish closure.
 4. TWO actually accepted events, published mesh/native_ref pairs, conservative
    admissible transfer and finite continued CFD are required. Inspect actual raw
    per-field residuals (double gate1e-10), final admissibility and integral changes.
