@@ -4020,8 +4020,12 @@ TEST_CASE("Quality batch serves old demand and severe independent stars in one r
   options.transaction_observer=[&](const TransactionView& view) {
     if(view.selected&&std::string(view.stage)=="transaction_end"){++serviced;round=view.round;}
   };
-  bool refreshed=false,consistent=true;
+  bool refreshed=false,consistent=true,entered=false;
+  size_t entry_q=0,entry_j=0,exit_q=0,exit_j=0;
   options.stage_observer=[&](const StageProgressView& view) {
+    if(std::string(view.stage)=="quality_entry"&&!entered) {
+      entered=true;entry_q=view.progress.q_bad_cells;entry_j=view.progress.j_bad_cells;
+    }
     if(std::string(view.stage)!="exit")return;
     refreshed=true;long double q=0,j=0;size_t qb=0,jb=0;
     for(const auto& row:view.working) {
@@ -4031,6 +4035,7 @@ TEST_CASE("Quality batch serves old demand and severe independent stars in one r
       q+=dq*dq;j+=dj*dj;qb+=m.mean_ratio<MinimumMeanRatio;jb+=m.minimum_scaled_jacobian<MinimumScaledJacobian;
     }
     const auto& p=view.progress;
+    exit_q=p.q_bad_cells;exit_j=p.j_bad_cells;
     consistent=consistent&&p.cache_consistent&&p.census_complete&&p.shape_complete&&p.geometry_complete&&
         p.q_bad_cells==qb&&p.j_bad_cells==jb&&std::abs(p.q_hinge_squared-q)<1e-10L&&std::abs(p.j_hinge_squared-j)<1e-10L;
   };
@@ -4039,6 +4044,13 @@ TEST_CASE("Quality batch serves old demand and severe independent stars in one r
   CHECK(world.sum(result.stats.batch_candidates)>unsigned(world.size));
   CHECK(world.sum(result.stats.batch_reserved)>unsigned(world.size));
   CHECK(world.sum(result.stats.quality_progress)>0);
+  CHECK(entered);CHECK(result.stats.quality.unmeasured_churn==0);
+  CHECK(result.stats.quality.private_tracked_collectives==0);CHECK(result.stats.final_reservations==1);
+  CHECK(result.stats.maximum_parallel_commits>unsigned(world.size));
+  const auto q_removed=CPassiveComm::Allreduce(int64_t(result.stats.quality.q_removed)-int64_t(result.stats.quality.q_created),CPassiveComm::Op::SUM,world.comm);
+  const auto j_removed=CPassiveComm::Allreduce(int64_t(result.stats.quality.j_removed)-int64_t(result.stats.quality.j_created),CPassiveComm::Op::SUM,world.comm);
+  CHECK(q_removed==CPassiveComm::Allreduce(int64_t(entry_q)-int64_t(exit_q),CPassiveComm::Op::SUM,world.comm));
+  CHECK(j_removed==CPassiveComm::Allreduce(int64_t(entry_j)-int64_t(exit_j),CPassiveComm::Op::SUM,world.comm));
   CHECK(refreshed);CHECK(consistent);
   CHECK(result.stats.global_work<=options.maximum_work);CHECK(Bytes(input)==saved);
   for(const auto& row:result.cells){const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);}

@@ -338,6 +338,22 @@ class CavityMetricSource {
     }
     return SamplePointsLocal(points,complete_cavity,extensions,ceiling,transfer_memory::Add(caller_bytes,point_bytes));
   }
+  /*! Sample one current sensor row only when exact positive-tet barycentrics prove closed containment. */
+  bool SampleContainedCurrentMetric(const OwnedCell& row,Point point,Tensor& sensor) const {
+    if(!row.sensor_present||!std::isfinite(point.x)||!std::isfinite(point.y)||!std::isfinite(point.z))
+      throw std::invalid_argument("Missing current metric row or nonfinite sample coordinate.");
+    DonorCell donor;donor.cell=row.cell;donor.sensor=row.sensor;
+    for(size_t i=0;i<4;++i) {
+      const auto p=row.cell.v[i].p;
+      if(!std::isfinite(p.x)||!std::isfinite(p.y)||!std::isfinite(p.z))
+        throw std::invalid_argument("Nonfinite current metric row coordinate.");
+      ValidateTensor(row.sensor[i]);
+    }
+    std::array<long double,4> weights;
+    const Tetrahedron tet{row.cell.v[0].p,row.cell.v[1].p,row.cell.v[2].p,row.cell.v[3].p};
+    if(!Barycentric(tet,point,weights))return false;
+    const Tensor sampled=InterpolateSensor(donor,weights);ValidateTensor(sampled);sensor=sampled;return true;
+  }
   size_t ResidentBytes() const { return transfer_memory::Add(bootstrap.ResidentBytes(), transfer_memory::Bytes(stage_snapshot)); }
   const DonorImportStats& Statistics() const { return stats; }
  private:

@@ -23,26 +23,34 @@ target SPEED: per-slot synchronization, widening required-debt spread, and cache
 preparation. Rank4low netq-bad yield also requires requested repair-power counters;
 baseline lacks the new counters, so do not retrospectively invent them.
 
-ONE connected milestone underway, no build/tests yet. Optional separate zero-clean
-quality-debt Repartition constraint and quality-entry Engine wiring are written;
-LinuxMemAvailable cache estimate correction (same4GiBhardcap/shares/admission) is
-written. Exact old/new changed-tetrahedron support notifications plus
-Selection::TouchRepairSupport replace overly broad/incomplete repair wakeups;
-construction Touch/notifications remain on their existing path. Focused test
-extensions are written, UNVALIDATED. Further local work: ClearanceBatch now keys
-pages/vetoes/peer arbitration by(owner,ticket), preserving current-mesh and peer
-contacts, same-owner tickets, coordinate bounds and fail-closed contract failures.
-Local-only complete-cavity metric import/sample APIs plus focused rank0-only/empty-
-peer/resource tests are written. Engine trial reductions/imports/votes are factored
-behind private_repair (STILL FALSE; private mode not activated), and the existing
-operator body is extracted as evaluate_candidate with common outer result state.
-Per-rank debt-directed RepairBatch ceilings are written, retaining oldest demand.
-NEXT: activate private evaluation only together with bounded round retention,
-one common work reservation/refund, round-wide final reservation/clearance and
-combined complete publication; then add requested passive census counters. Do not
-qualify/run this partial source. Finish and
-review ONE complete integration, focused serial +ONE MPI6 milestone, then full
-TWO-event AFTER from the exact saved seed. Keep geometry closure path and all gates.
+ONE connected milestone IMPLEMENTED, preparing build180/focused validation.
+No new qualified binary yet; zero accepted meshes. Separate zero-clean quality
+partition constraint, debt-directed local ceilings, MemAvailable correction with
+same4GiB cap, and exact changed-support invalidation are connected. Private repair
+runs all local admitted slots without per-slot collectives (including batch=1),
+reserves/refunds optimizer work once, then checks every approved candidate with
+ClearanceBatch, final full-vertex reservation, one routing/parameter preparation/
+Publish and full changed-row refresh. Local result/scratch/transport memory and
+sticky time/work/geometry failures remain admitted/elected; construction operators
+and q/J-free construction semantics are preserved.
+
+Passive counters are written: private busy/join-call wall and commits; q/J churn
+matching exact coordinate tetrahedra across ID-only rewrites; ladder trials,
+certified/published yield, time, debt/bad-cell removal/rejections; blocked/star
+queues; surface/interior/genuine-feature/miss bins; short-edge shares; geometry
+anchor-authority/excess bins. At most16fixed quality-entry spatial samples follow
+actual removed/added rows and ownership resets, sampling current nodal tensors
+only with exact containment. Lost means unavailable tracked support, not proof
+outside mesh. Drift is full target for current Euler (no composition); composed
+fields explicitly report sensor-only/full_target=0, without extra geometry queries.
+No perf/GDB campaign. All new code/tests UNVALIDATED. Focused fixture now checks
+multiple commits/rank, one final round reservation, zero private tracked
+collectives, q/J churn conservation and cached-vs-recomputed field counts.
+
+Next: freeze this source for build180, focused serial plus ONE MPI6 milestone
+(parallel_quality180_validation_plan.json), then immediately full TWO-event AFTER
+from the exact saved CFD seed. Do not edit C++/helpers/tests while a build/check
+handle is live. Both agents DONE/read-only reviews; no independent heavy jobs.
 
 Latest user explicitly accepts reasonable stable CL/CD and directs stopping CFD
 and proceeding with adaptation; do NOT reimpose the assistant's old residual
@@ -233,7 +241,7 @@ run_m6_seed.py and a bounded read-only counter/API survey. Current source-review
 decisions (batch clearance and genuine current-field sampling) are in the parallel
 repair plan; baseline terminal prerequisites satisfied. Agents implemented only assigned
 partition/cache files after terminal audit; both DONE, no independent heavy jobs.
-Primary owns Engine/distributed integration and source review; no build/tests yet.
+Primary owns Engine/distributed integration and source review; build180 next.
 Both agents also completed bounded local-metric API/test work and read-only review;
-no independent heavy jobs. Full private round/publication is the immediate task. Primary owns
+no independent heavy jobs. Full private round/publication and passive counters are written; validation next. Primary owns
 integrated acceptance. No permission pending.

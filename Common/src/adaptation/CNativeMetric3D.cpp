@@ -250,6 +250,8 @@ static PatchMetric MeasureMetricCellsImpl(const std::vector<Cell>& cells, Frozen
         result.sliver_cell = cell.id;
       }
       result.shape_debt+=NormalizedShapeHingeDebt(m.mean_ratio,m.minimum_scaled_jacobian);
+      result.q_bad_cells+=m.mean_ratio<MinimumMeanRatio;
+      result.j_bad_cells+=m.minimum_scaled_jacobian<MinimumScaledJacobian;
       ++result.shape_cells;
       result.shape_measured=true;
     }
@@ -261,6 +263,7 @@ static PatchMetric MeasureMetricCellsImpl(const std::vector<Cell>& cells, Frozen
   if (diagnosis && result.shape_measured) {
     diagnosis->shape_measured=true;
     diagnosis->new_shape_cells=result.shape_cells;
+    diagnosis->new_q_bad_cells=result.q_bad_cells;diagnosis->new_j_bad_cells=result.j_bad_cells;
     diagnosis->new_shape_debt=result.shape_debt;
     diagnosis->minimum_mean_ratio=result.minimum_mean_ratio;
     diagnosis->minimum_scaled_jacobian=result.minimum_scaled_jacobian;
@@ -380,7 +383,11 @@ RefineAcceptance GetRefineAcceptance() { return RefineAcceptance(refine_acceptan
 bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fresh_count,
                           const PatchMetric& measured, MetricChange kind, std::string& reason, MetricDiagnosis* diagnosis,
                           size_t relocated, bool coordinate_move) {
-  if (diagnosis) { *diagnosis={}; diagnosis->failure=MetricFailure::Measurement; }
+  if (diagnosis) {
+    *diagnosis={};diagnosis->failure=MetricFailure::Measurement;
+    diagnosis->old_q_bad_cells=before.q_bad_cells;diagnosis->new_q_bad_cells=measured.q_bad_cells;
+    diagnosis->old_j_bad_cells=before.j_bad_cells;diagnosis->new_j_bad_cells=measured.j_bad_cells;
+  }
   try {
     if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair && kind != MetricChange::GeometryRefine && kind != MetricChange::GeometryRepair)
       throw std::invalid_argument("Unknown native 3D metric-change intent.");

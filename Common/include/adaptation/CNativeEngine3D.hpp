@@ -109,7 +109,24 @@ inline const char* EngineStopName(EngineStop stop) {
  * Cells containing both endpoints disappear and provide no witness; false is not admission. */
 bool CollapseConstraintViolation(const OwnedCell& cell,Id removed,Node retained,const PlanarReference& geometry,
                                 double tolerance,const WallHeights& heights);
+struct QualityLadderStats {
+  uint64_t trials=0,certified=0,published=0,work=0;
+  double seconds=0;
+  long double debt_removed=0;
+  int64_t q_removed=0,j_removed=0;
+  // Geometry/topology, height, shape, progress, measurement, contact, dependency, no candidate; flags may overlap.
+  std::array<uint64_t,8> rejected{};
+};
+struct QualityRepairStats {
+  double busy_seconds=0,join_wait_seconds=0,diagnostic_seconds=0;
+  uint64_t commits=0,q_removed=0,q_created=0,j_removed=0,j_created=0;
+  uint64_t private_tracked_collectives=0;
+  uint64_t q_retired=0,q_introduced=0,j_retired=0,j_introduced=0,unmeasured_churn=0;
+  // Coordinate moves, bounded optimizer, collapse/reconnect.
+  std::array<QualityLadderStats,3> ladder{};
+};
 struct EngineStats {
+  QualityRepairStats quality;
   EngineStop stop = EngineStop::None;
   uint64_t global_work = 0, work_limit = 0, progress_windows = 0, stagnant_windows = 0, search_windows = 0;
   uint64_t size_progress = 0, quality_progress = 0, cell_removals = 0, geometry_progress = 0;

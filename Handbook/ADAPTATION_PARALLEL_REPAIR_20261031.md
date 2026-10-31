@@ -6,13 +6,12 @@ stop; all10handles independently ABSENT/1401pins unchanged before C++ edits.
 See BEFORE/terminal_assessment.json and HANDOFF for last complete counts. No mesh
 accepted. Next target speed; repair-power uncertainty is explicit.
 
-Status: ONE connected implementation IN PROGRESS, no build/tests yet. Separate
-zero-clean quality partition constraint and entry wiring, MemAvailable estimate
-(same4GiBcap), and exact changed-support invalidation are written but UNVALIDATED.
-Parallel private slots/combined clearance/publication, local effort ceilings and
-requested passive counters remain to implement. This partial code is not a new
-qualified build. Finish integrated source, focused serial/ONE MPI6 milestone,
-then full TWO-event AFTER immediately from identical read-only saved CFD field.
+Status: connected implementation is written, preparing build180 validation.
+All strict gates/targets and completion obligations remain unchanged. No passing
+new build/check or M6 acceptance yet. Current entrypoint/HANDOFF is authoritative;
+the incremental source checkpoints below describe now-completed intermediate work.
+Finish source review, freeze, focused serial/ONE MPI6 milestone, then full TWO-event
+AFTER immediately from the identical saved real-CFD field.
 
 ## Missing capability and evidence
 
@@ -360,3 +359,74 @@ preserving the existing contract rather than becoming ordinary contact vetoes.
 Local metric tests call only rank0 while peers wait at a subsequent common barrier,
 assert no World collectives/elections, and exercise explicit missing/malformed
 cavities and storage refusal. These are written tests, not passing evidence.
+
+## Integrated source ready for frozen qualification
+
+Private mode is now active around evaluate_candidate. Chosen local slots no longer
+perform global votes/reductions/imports. An admitted round holds all old/fresh/
+parameter/metric/dependency state and one active scratch context; optimizer work is
+reserved once and unused work refunded at the common join. Fatal/atlas/backend/
+deadline failures are elected before publication. Every approved repair, including
+flat/interior edits, enters the common contact check; vertex disjointness alone is
+not used as a physical nonintersection proof. All final dependency versions and
+full-vertex footprints are rechecked, then one owner-routed complete publication
+combines replacement rows/metrics/parameter edits/coverage and service receipts.
+Large coordinate stars keep IDs and increment versions. All changed rows are
+measured before queues/certificates reopen. Empty ranks join every common phase.
+
+Curved-local use proof: all private queries use the same unchanged accepted base
+revision. Full old-star vertex reservations and fresh ID ranges make mutable node,
+face and trace keys disjoint; explicit coverage merging rejects duplicate keys.
+Local entity error queries use candidate coordinates/bindings and immutable model
+support, not a peer's current physical replacement. Private geometry overlays are
+released after each trial. Combined PrepareParameters validates current complete
+coverage once; final global geometry certificates remain revision-scoped and are
+recomputed by the unchanged strict completion path. Source proof supports tests;
+it is not a claim of passed qualification.
+
+Telemetry is passive and unconditional; timings only control printing. Complete
+all-rank improvement censuses emit NATIVE3D_QUALITY/LOCATION/LADDER/DRIFT records.
+Busy is local trial-loop wall; join_call_seconds includes join protocol and wait,
+not pure idle. Existing tracked World transport/election times are reported as
+call wall. Ladder time overlaps busy/geometry time; never add nested costs.
+Ladder kinds0/1/2 are coordinate/optimizer/collapse-reconnect, with private certified
+and actually published counts distinct. Rejection flags: geometry/topology,height,
+shape,progress,measurement,contact,dependency,no-candidate (flags may overlap).
+Optimizer work records actual optimizer trials, not another global budget.
+
+Churn matches geometrically identical tetrahedra by sorted exact coordinates,
+regardless of cell/node ID rewrites. Matched bad-state flips and retired/introduced
+bad tetrahedra are separated; removed-created equals the cohort net change.
+Coordinates that actually change define a new geometric tetrahedron. Counts are
+attributed to the publishing worker; owned-field net counts/debt may move between
+ranks and are reported separately, with ownership/construction changes explicit.
+Unmeasured churn is reported rather than fabricated. The old-side bool passed to
+MeasureMetricCells is require_shape, not whether to measure shape: quality old
+patches still get full q/J counts; construction uses MeasureMetricEdges only.
+
+Location uses cached physical-face presence and real mobility policy dimension,
+not chart binding dimension; unavailable legacy feature classification is explicit.
+Near-feature means a cell incident to a genuine feature vertex. q/J normalized
+miss bins:<.01,<.1,<.25,<.5,>=.5,unknown. Geometry per-cell maximum relative excess
+bins:<.01,<.1,<1,<10,>=10,unresolved. Geometry anchor-authority masks are planar,
+sphere,bump,cylinder,disk,affine,cubic-net,unknown; cells can have multiple types.
+Short-edge shares use any of six cached lengths below.9/.5 in the q-or-J bad set.
+No added geometry certification or centroid query is used for these counters.
+
+Fixed drift points (<=16) are selected once at first quality_entry across ranks,
+prioritizing bad surface/bad interior/other current cells. Their coordinates and
+baseline current nodal tensors stay fixed. Actual publications update containing
+cell references; migration resets/rebinds against received current rows. Samples
+require exact closed containment and never use best-parent extrapolation. Boundary
+support changes can temporarily make a tracked point unavailable; lost is a
+tracking/support diagnostic, not proof outside the mesh. Relative Frobenius drift
+of current sensor tensors equals full target drift for M6's uncomposed metric.
+Composed fields are explicitly labeled full_target=0; no extra wall-geometry query
+is charged to production work for diagnostics. Diagnostic memory/exchanges are
+bounded/admitted, and unavailable samples are not silently rebased.
+
+Focused tests now require >one commit per rank in an independent-star round, one
+final common reservation, zero tracked private collectives, complete cached-versus-
+recomputed q/J counts/debts and global churn conservation. Existing collision cases
+also cover same-owner tickets, peer ordering, empty local lists and atomic resource/
+malformed-contract refusal. Build180 and planned filters are not yet run.

@@ -732,6 +732,27 @@ TEST_CASE("Native 3D local metric transport requires its explicit complete cavit
   CHECK(world.collective_calls==collective_before);CHECK(world.election_collective_calls==election_before);
   SU2_MPI::Barrier(SU2_MPI::GetComm());
 }
+TEST_CASE("Current metric point sampling requires exact containment in the supplied tetrahedron", "[NativeMesh3D]") {
+  auto donor=Single();OwnedCell row;row.cell=donor.cell;row.sensor=donor.sensor;row.sensor_present=true;
+  row.sensor[1].xx=10;Owned current{{row.cell.id,row}};World world;CavityMetricSource source(world,current);
+  Tensor sampled;
+  CHECK(source.SampleContainedCurrentMetric(row,{.2,.3,.1},sampled));
+  CHECK(sampled.xx==Approx(3.6));
+  CHECK(source.SampleContainedCurrentMetric(row,{.25,.25,0},sampled));
+  CHECK(sampled.xx==Approx(4));  // Exact boundary face is included.
+  const Point outside{-.2,.1,.1};
+  CHECK(EvaluateCavitySample({donor},outside).sensor.xx==Approx(2));  // Legacy sampler clamps and extrapolates.
+  sampled={99,0,0,99,0,99};
+  CHECK_FALSE(source.SampleContainedCurrentMetric(row,outside,sampled));
+  CHECK(sampled.xx==99);
+  auto degenerate=row;degenerate.cell.v[3].p=degenerate.cell.v[2].p;
+  CHECK_THROWS(source.SampleContainedCurrentMetric(degenerate,{.1,.1,.1},sampled));
+  auto missing=row;missing.sensor_present=false;
+  CHECK_THROWS(source.SampleContainedCurrentMetric(missing,{.1,.1,.1},sampled));
+  auto invalid_tensor=row;invalid_tensor.sensor[0].xx=-1;
+  CHECK_THROWS(source.SampleContainedCurrentMetric(invalid_tensor,{.1,.1,.1},sampled));
+  CHECK_THROWS(source.SampleContainedCurrentMetric(row,{NAN,0,0},sampled));
+}
 TEST_CASE("Native 3D current nodal field samples and integrates projected edges", "[NativeMesh3D]") {
   const auto donor = Single();
   FrozenField strict({donor});

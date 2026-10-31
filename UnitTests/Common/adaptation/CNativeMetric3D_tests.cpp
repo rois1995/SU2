@@ -43,6 +43,26 @@ TEST_CASE("Native 3D final metric gate requires length, shape and sliver criteri
   CHECK_FALSE(ValidateMetricPatch({}, unit, measured, reason));
 }
 
+TEST_CASE("Native 3D measurements report passive per-cell q/J failures", "[NativeMesh3D]") {
+  const auto good=Single();Cell bad=Single();bad.id=10;
+  for(auto& node:bad.v){node.id+=10;node.p.x+=3;}
+  DonorCell good_donor;good_donor.cell=good;good_donor.sensor.fill({});
+  DonorCell bad_donor;bad_donor.cell=bad;bad_donor.sensor.fill({1,0,0,1,0,1e-16});
+  FrozenField target({good_donor,bad_donor});
+  MetricDiagnosis measured_diagnosis;
+  const auto measured=MeasureMetricCells({good,bad},target,nullptr,nullptr,false,&measured_diagnosis);
+  CHECK(measured.shape_cells==2);CHECK(measured.q_bad_cells==1);CHECK(measured.j_bad_cells==1);
+  CHECK(measured_diagnosis.new_q_bad_cells==1);CHECK(measured_diagnosis.new_j_bad_cells==1);
+  PatchMetric changed;MetricDiagnosis change_diagnosis;std::string reason;
+  CHECK_FALSE(ValidateMetricChange({good,bad},{good,bad},MetricChange::Repair,target,changed,reason,
+                                   nullptr,nullptr,&change_diagnosis));
+  CHECK(change_diagnosis.old_q_bad_cells==1);CHECK(change_diagnosis.new_q_bad_cells==1);
+  CHECK(change_diagnosis.old_j_bad_cells==1);CHECK(change_diagnosis.new_j_bad_cells==1);
+  const auto edge_only=MeasureMetricEdges({good},target);
+  CHECK_FALSE(edge_only.shape_measured);CHECK(edge_only.shape_cells==0);
+  CHECK(edge_only.q_bad_cells==0);CHECK(edge_only.j_bad_cells==0);
+}
+
 TEST_CASE("Native3D edge-only construction ignores metric q/J and rejects invalid orientation", "[NativeMesh3D][NativeShapeAdmission3D]") {
   DonorCell donor=Donor({1,0,0,1,0,1e-12});
   size_t centroid_queries=0;

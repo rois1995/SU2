@@ -251,7 +251,7 @@ TEST_CASE("Native partition balances geometry independently of metric and cell c
 TEST_CASE("Native partition balances quality debt independently and keeps clean cells at zero", "[NativeDistributed3D][NativePartition3D]") {
   World world;const auto all=Grid(6);Owned input;
   for(const auto& row:all)if(std::min(world.size-1,int(Centroid(row.second.cell).y*world.size))==world.rank)input.emplace(row);
-  const auto saved=Bytes(input);std::vector<uint32_t> work,debt;
+  std::vector<uint32_t> work,debt;
   for(const auto& row:input) {
     work.push_back(1);
     debt.push_back(Centroid(row.second.cell).y<.5?16:0);
@@ -264,7 +264,7 @@ TEST_CASE("Native partition balances quality debt independently and keeps clean 
   CHECK(std::accumulate(stats.cells_after.begin(),stats.cells_after.end(),uint64_t(0))==all.size());
   CHECK(std::accumulate(stats.work_before.begin(),stats.work_before.end(),uint64_t(0))==
         std::accumulate(stats.work_after.begin(),stats.work_after.end(),uint64_t(0)));
-  CHECK(Bytes(input)==saved);
+  for(const auto& row:input)CHECK(Bytes(row.second)==Bytes(all.at(row.first)));
   const auto maximum_debt=*std::max_element(stats.quality_debt_after.begin(),stats.quality_debt_after.end());
   CHECK(maximum_debt<=1.3*total/world.size);
   if(world.size>1)CHECK(maximum_debt<*std::max_element(stats.quality_debt_before.begin(),stats.quality_debt_before.end()));

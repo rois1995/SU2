@@ -28,6 +28,7 @@ std::vector<unsigned char> MetricEdgeRequests(const std::vector<Cell>& cells,std
 struct PatchMetric {
   bool shape_measured = false;
   size_t shape_cells = 0;
+  size_t q_bad_cells = 0, j_bad_cells = 0;
   long double shape_debt = 0;
   double minimum_mean_ratio = std::numeric_limits<double>::quiet_NaN();
   double minimum_scaled_jacobian = std::numeric_limits<double>::quiet_NaN();
@@ -89,6 +90,7 @@ struct MetricDiagnosis {
   bool size_progress = false, quality_progress = false, cell_removal = false;
   bool size_insertion = false, vertex_removal = false;  // Refine classification (SplitInsertion rule)
   size_t old_shape_cells = 0, new_shape_cells = 0;
+  size_t old_q_bad_cells = 0, new_q_bad_cells = 0, old_j_bad_cells = 0, new_j_bad_cells = 0;
   long double old_shape_debt = 0, new_shape_debt = 0;
   long double removed_excess = 0, added_excess = 0, longest_removed = 0;
   double minimum_mean_ratio = std::numeric_limits<double>::quiet_NaN();
