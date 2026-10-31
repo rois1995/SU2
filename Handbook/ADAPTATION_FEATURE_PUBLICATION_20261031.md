@@ -65,8 +65,10 @@ Focused serial then ONE MPI6 affected milestone must demonstrate nonlinear genui
 curve relocation on two local sheets, fresh and retained moving IDs, directed and
 undirected coverage, valid peer preservation after bad disjoint candidate refusal,
 unchanged state on preflight/resource denial, sticky work, same limits restored,
-empty-rank alignment, heights and cached/recomputed behavior. Exercise both legacy
-atlas and entity geometry (M6 uses entity mode). Do not infer feature coverage from
+empty-rank alignment, heights and cached/recomputed behavior. Retain the original legacy-atlas crease case and exercise nonlinear geometry in
+entity mode (the actual M6 path). The attempted nonlinear legacy extension refused
+before preflight with `Reference PSLG constraints cross.`; preserved focused185
+evidence is linked in the backlog, not treated as a passing legacy curved case. Do not infer feature coverage from
 face containment alone or manually sort oriented coverage keys.
 
 Then immediately FULLtwo-event M6 from the SAME immutable saved realCFD seed.
@@ -74,3 +76,16 @@ Require two actual strict acceptances, conservative admissible transfer, finite
 continued CFD and isolated adapted disk restart; then BL/MPI and RANS500k.
 Passing preflight fixtures are not completion. Build184next after coherent source
 review; never overwrite earlier build/attempt receipts.
+
+
+## Qualification188
+
+Production unchanged since184. Build188 terminal PASS/all1296pins unchanged/exact
+handles absent. Affected serial187 passed21cases/6148assertions. Affected MPI187
+completed163cases/rank with only one newfixture assertion on unaffected rank3:
+local directory snapshot need not change. All other assertions/cases passed.
+Only the test pin changed187→188: assert a global directory change. Focused188
+serial2cases/71assertions and MPI6bothcases/all6ranks passed; pins unchanged and
+owned handles terminal. Existing complete cases reused, no broad repeat.
+See staged57/feature_publication188_qualification.json. This is affected integration
+qualification, not an accepted M6 mesh, transfer or restart. Full two-event retry next.

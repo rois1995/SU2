@@ -1,0 +1,31 @@
+{
+  "state": "planned_not_run",
+  "build": "build187",
+  "serial": {
+    "case": "parallel_quality187_serial",
+    "ranks": 1,
+    "filter": "[NativeFeaturePublication3D],[NativeRepairBatch3D],[NativeAcceptedFaceCertificate3D],[NativeCurvedTransaction3D],[NativeCoordinateStar3D],[NativeHeightOptimization3D],[NativeFirstLayerEngine3D],[NativeConcurrentRepair3D],[NativeConcurrentComposed3D],[NativeQualityPass3D],[NativeBatchEngine3D]",
+    "timeout": 600
+  },
+  "mpi": {
+    "case": "parallel_quality187_affected_mpi6",
+    "ranks": 6,
+    "filter": "[NativeReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeFirstLayerEngine3D],[NativeCollision3D],[NativeCollapseFilter3D],[NativeAcceptedFaceCertificate3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D]",
+    "timeout": 600
+  },
+  "followup": "Full two-event euler_build187_real_cfd50k_feature_safe atunchanged50k/5400s/event, then actual transfer/restart obligations.",
+  "scope": "Connected genuine-feature candidate preflight after actual183failure; full old/new face deltas against replicated accepted state; no per-slot MPI, good peer preservation, final atomic publication retained. Focused serial then ONE affected MPI6 milestone, then full two-event M6 immediately from same immutable real CFD.",
+  "excluded_from_continuation": [
+    "[NativeSurfaceCache3D]",
+    "[NativeSurfaceMemo3D]",
+    "[NativeGeometryStats3D]",
+    "[NativeReference3D]",
+    "[NativeAtlasReferenceIO3D]",
+    "[NativeMappedPublication3D]",
+    "[NativeMappedComponent3D]",
+    "[NativeCurvedAtlas3D]",
+    "[NativeGeometryBackend3D]",
+    "[NativeCurvedGeometry3D]"
+  ],
+  "reuse_limits": "Engine and geometry-with-new-engine interactions require continuation tests; historical unchanged geometry evidence cannot establish parallel publication or full M6 acceptance."
+}

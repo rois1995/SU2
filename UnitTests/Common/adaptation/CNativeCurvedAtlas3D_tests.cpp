@@ -238,7 +238,44 @@ TEST_CASE("Fresh curved working patches forget interior history over repeated ac
 }
 
 TEST_CASE("A nonseparating crease retains two local sheets during a vertex move", "[NativeCurvedAtlas3D][NativeFeaturePublication3D]") {
-  const bool entity_mode=GENERATE(false,true);
+  const Node a{10,{0,0,-1}},b{20,{0,0,1}},c{30,{1,.1,0}},d{40,{1,-.1,0}},p{0,{0,0,0}};
+  std::vector<Facet> facets{{0,0,{a,p,c}},{1,0,{p,b,c}},{2,0,{a,d,p}},
+                            {3,0,{p,d,b}},{4,0,{a,c,d}},{5,0,{b,d,c}}};
+  auto definition=std::make_shared<PlanarReference>(facets);std::map<Id,double> errors;
+  for(const auto& face:facets)errors.emplace(face.id,1e-12);
+  auto geometry=std::make_shared<MappedFacetReference>(definition,errors,91);
+  auto budget=RemappingBudget();MobilityPolicy policy;std::string reason;
+  const bool policy_ok=geometry->BuildMobilityPolicy(120,{{0,2}},policy,budget,reason);INFO(reason);REQUIRE(policy_ok);
+  REQUIRE(policy.sheets.at(0)==policy.sheets.at(2));
+  BoundaryPoints points;for(const Node node:{a,b,c,d,p})points.emplace(node.id,BoundaryPoint{node,geometry->Vertex(node.id)});
+  for(const auto edge:std::array<Edge,2>{{{0,10},{0,20}}}) {
+    const auto binding=geometry->EdgePoint(edge,.5);const Id id=edge[1]==10?50:60;
+    points.emplace(id,BoundaryPoint{{id,geometry->Realize(binding)},binding});
+  }
+  std::vector<SurfaceFace> surface{{{10,50,30},0},{{50,0,30},0},{{0,60,30},1},{{60,20,30},1},
+                                   {{10,40,50},2},{{50,40,0},2},{{0,40,60},3},{{60,40,20},3},
+                                   {{10,30,40},4},{{20,40,30},5}};
+  auto state=std::make_shared<BoundaryParameterState>(geometry,points,surface,1,SIZE_MAX,0,BoundaryCoverage{},policy,&budget);
+  auto reference=PlanarReference::WithParameters(definition,state)->WithAtlasReservation(budget);
+  Patch old;old.surface={surface[1],surface[2],surface[5],surface[6]};
+  for(const auto ids:std::array<std::array<Id,4>,2>{{{{50,30,0,40}},{{0,30,60,40}}}}) {
+    Cell cell;cell.id=old.cells.size();for(unsigned k=0;k<4;++k)cell.v[k]=points.at(ids[k]).node;
+    if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0)std::swap(cell.v[0],cell.v[1]);
+    REQUIRE(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);old.cells.push_back(cell);
+  }
+  const auto snapshot=state->Snapshot();Patch fresh;
+  const bool moved=MoveVertex(old,0,{100,{0,0,.2}},1000,*reference,fresh,reason);INFO(reason);REQUIRE(moved);
+  REQUIRE(fresh.cells.size()==2);CHECK(fresh.coverage.faces.size()==4);
+  REQUIRE(fresh.parameters.count(100));CHECK(geometry->MobilityDimension(fresh.parameters.at(100).binding,policy)==1);
+  for(const auto& cell:fresh.cells)CHECK(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
+  CHECK(state->Snapshot()==snapshot);
+  reference->ExportParameters(old);
+  auto preflight=RemappingBudget();CHECK(state->CheckReplacement(old,fresh,reason,SIZE_MAX,0,&preflight));INFO(reason);
+  CHECK(state->Snapshot()==snapshot);
+}
+
+
+TEST_CASE("Entity feature preflight preserves a valid curved peer during publication", "[NativeCurvedAtlas3D][NativeFeaturePublication3D]") {
   const Node a{10,{0,0,-1}},b{20,{0,0,1}},c{30,{1,.1,0}},d{40,{1,-.1,0}},p{90,{0,0,0}};
   const std::vector<Facet> source{{0,0,{a,p,c}},{1,0,{p,b,c}},{2,0,{a,d,p}},
                                   {3,0,{p,d,b}},{4,0,{a,c,d}},{5,0,{b,d,c}}};
@@ -296,8 +333,8 @@ TEST_CASE("A nonseparating crease retains two local sheets during a vertex move"
     split_surface.insert(split_surface.end(),rows.begin(),rows.end());
   }
   auto state=std::make_shared<BoundaryParameterState>(geometry,points,split_surface,1,SIZE_MAX,0,BoundaryCoverage{},policy,&budget);
-  if(entity_mode)state=state->WithEntityGeometry(1e-4,budget);
-  CHECK(state->EntityGeometry()==entity_mode);
+  state=state->WithEntityGeometry(1e-4,budget);
+  CHECK(state->EntityGeometry());
   auto reference=PlanarReference::WithParameters(definition,state)->WithAtlasReservation(budget);
   auto make_old=[&](Id offset,Id cell_offset){Patch old;const size_t surface_offset=offset?10:0;
     old.surface={split_surface[surface_offset+1],split_surface[surface_offset+2],split_surface[surface_offset+5],split_surface[surface_offset+6]};
@@ -308,15 +345,15 @@ TEST_CASE("A nonseparating crease retains two local sheets during a vertex move"
     reference->ExportParameters(old);return old;};
   Patch old=make_old(0,0),peer_old=make_old(1000,100);
   const auto snapshot=state->Snapshot();REQUIRE(state->Find(1090));const Point peer_point=state->Find(1090)->node.p;Patch fresh,peer_fresh;
-  REQUIRE(MoveVertex(old,90,{100,{.6,0,warp*.6*.4}},1000,*reference,fresh,reason));
-  REQUIRE(MoveVertex(peer_old,1090,{1100,{3.6,0,warp*.6*.4}},2000,*reference,peer_fresh,reason));
-  REQUIRE(fresh.cells.size()==2);CHECK(fresh.coverage.faces.size()==(entity_mode?0:4));
+  const bool moved=MoveVertex(old,90,{100,{.6,0,warp*.6*.4}},1000,*reference,fresh,reason);INFO(reason);REQUIRE(moved);
+  const bool peer_moved=MoveVertex(peer_old,1090,{1100,{3.6,0,warp*.6*.4}},2000,*reference,peer_fresh,reason);INFO(reason);REQUIRE(peer_moved);
+  REQUIRE(fresh.cells.size()==2);CHECK(fresh.coverage.faces.empty());
   REQUIRE(fresh.parameters.count(100));CHECK(geometry->MobilityDimension(fresh.parameters.at(100).binding,policy)==1);
   for(const auto& cell:fresh.cells)CHECK(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
   CHECK(state->Snapshot()==snapshot);
 
   auto preflight=RemappingBudget();CHECK(state->CheckReplacement(old,fresh,reason,SIZE_MAX,0,&preflight));INFO(reason);
-  // A changed coordinate can retain the original node identity in the published patch.
+  // Boundary movement must replace its identity so accepted parameter versions cannot become stale.
   auto retained=fresh;
   for(auto& cell:retained.cells)for(auto& node:cell.v)if(node.id==100)node.id=90;
   for(auto& face:retained.surface)for(auto& id:face.v)if(id==100)id=90;
@@ -328,7 +365,8 @@ TEST_CASE("A nonseparating crease retains two local sheets during a vertex move"
   retained.coverage.traces=std::move(traces);
   std::map<Face,FaceCoverage> face_coverage;for(const auto& row:retained.coverage.faces)face_coverage.emplace(remap_face(row.first),row.second);
   retained.coverage.faces=std::move(face_coverage);
-  REQUIRE(retained.parameters.count(90));CHECK(state->CheckReplacement(old,retained,reason,SIZE_MAX,0,&preflight));INFO(reason);
+  REQUIRE(retained.parameters.count(90));CHECK_FALSE(state->CheckReplacement(old,retained,reason,SIZE_MAX,0,&preflight));
+  CHECK(reason=="Boundary coordinate/parameter movement requires a new point identity.");
   CHECK(state->Snapshot()==snapshot);
   CHECK(preflight.caller_bytes==0);CHECK(preflight.maximum_bytes==(size_t(1)<<28));
   CHECK(state->CheckReplacement(peer_old,peer_fresh,reason,SIZE_MAX,0,&preflight));CHECK(state->Snapshot()==snapshot);
@@ -364,7 +402,7 @@ TEST_CASE("A nonseparating crease retains two local sheets during a vertex move"
   const BoundaryCoverage no_coverage;auto publish_budget=RemappingBudget();
   const bool published=directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,edits,
       world.rank?no_coverage:fresh.coverage,&publish_budget);
-  INFO(reason);CHECK(published);CHECK(state->Snapshot()!=snapshot);CHECK(directory.Snapshot()!=directory_before);
+  INFO(reason);CHECK(published);CHECK(state->Snapshot()!=snapshot);CHECK(world.maximum(directory.Snapshot()!=directory_before)==1);
   REQUIRE(state->Find(1090));CHECK(state->Find(1090)->node.p.x==peer_point.x);
   CHECK(state->Find(1090)->node.p.y==peer_point.y);CHECK(state->Find(1090)->node.p.z==peer_point.z);
   for(const auto& cell:peer_old.cells)if(cell.id%world.size==unsigned(world.rank)) {

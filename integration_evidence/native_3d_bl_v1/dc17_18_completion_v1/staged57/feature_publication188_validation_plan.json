@@ -1,0 +1,31 @@
+{
+  "state": "planned_not_run",
+  "build": "build188",
+  "serial": {
+    "case": "feature_publication188_serial",
+    "ranks": 1,
+    "filter": "[NativeFeaturePublication3D]",
+    "timeout": 600
+  },
+  "mpi": {
+    "case": "feature_publication188_mpi6",
+    "ranks": 6,
+    "filter": "[NativeFeaturePublication3D]",
+    "timeout": 600
+  },
+  "followup": "Full two-event euler_build188_real_cfd50k_feature_safe atunchanged50k/5400s/event, then actual transfer/restart obligations.",
+  "scope": "Connected genuine-feature candidate preflight after actual183failure; full old/new face deltas against replicated accepted state; no per-slot MPI, good peer preservation, final atomic publication retained. Focused serial then ONE affected MPI6 milestone, then full two-event M6 immediately from same immutable real CFD.",
+  "excluded_from_continuation": [
+    "[NativeSurfaceCache3D]",
+    "[NativeSurfaceMemo3D]",
+    "[NativeGeometryStats3D]",
+    "[NativeReference3D]",
+    "[NativeAtlasReferenceIO3D]",
+    "[NativeMappedPublication3D]",
+    "[NativeMappedComponent3D]",
+    "[NativeCurvedAtlas3D]",
+    "[NativeGeometryBackend3D]",
+    "[NativeCurvedGeometry3D]"
+  ],
+  "reuse_limits": "Production unchanged since184. Affected187 serial passed21cases. MPI187 passed all163cases on5ranks; rank3 had only directory-local-change assertion in newfixture; all other assertions passed. Correct the assertion globally and continue only affected feature cases, preserving previous complete-case evidence."
+}

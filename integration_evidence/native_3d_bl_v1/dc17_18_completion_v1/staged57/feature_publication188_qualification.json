@@ -1,0 +1,64 @@
+{
+  "state": "affected_integration_qualified_not_M6_accepted",
+  "time": 1793458805.5935068,
+  "build": "build188",
+  "production_checkpoint": "b64674701a",
+  "production_unchanged_since_build184": true,
+  "build187_to188_changed_pin": [
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/UnitTests/Common/adaptation/CNativeCurvedAtlas3D_tests.cpp"
+  ],
+  "cfd_sha256": "191ccb8869b3320de35a56ed91f608790897ebe7626741841e3edaf077eb4ca1",
+  "test_sha256": "ce5e447b48d2f0ccb931de00dfd6acbc5fe159037b6a1887d9250bac85397162",
+  "cases": {
+    "parallel_quality187_serial_20261031T145612_4096109": {
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 9.698874235153198,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 39727104,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal_verification": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/parallel_quality187_serial_20261031T145612_4096109/terminal_verification.json"
+    },
+    "parallel_quality187_affected_mpi6_20261031T145636_4096715": {
+      "status": {
+        "state": "terminal",
+        "exit_code": 1,
+        "seconds": 19.633918046951294,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 44646400,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal_verification": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/parallel_quality187_affected_mpi6_20261031T145636_4096715/terminal_verification.json"
+    },
+    "feature_publication188_serial_20261031T145857_4100565": {
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 6.195497751235962,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 552960,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal_verification": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/feature_publication188_serial_20261031T145857_4100565/terminal_verification.json"
+    },
+    "feature_publication188_mpi6_20261031T145922_4101325": {
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 5.953623294830322,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 540672,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "terminal_verification": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/feature_publication188_mpi6_20261031T145922_4101325/terminal_verification.json"
+    }
+  },
+  "reuse": "187serial21cases/6148assertions passed; broad187MPI163cases/rank completed with only rank3 erroneous local-directory-change assertion in newfixture. All other cases/assertions passed. 188corrects only that assertion to global maximum; focused serial2cases71assertions and MPI6bothcases/all6ranks passed. No whole-repository-suite claim.",
+  "remaining": "Full two-event M6, strict accepted meshes, actual conservative transfer, continued CFD, isolated adapted restart; then dedicated BL/MPI/RANS500k. Legacy nonlinear PSLG refusal preserved in backlog."
+}

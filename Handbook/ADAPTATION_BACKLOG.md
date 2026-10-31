@@ -215,3 +215,11 @@ optimizer3009/3735,moves2356/16287. This strengthens the short-edge/repair-power
 question but does not prove extra coarsening cures it. Actual primary failure is
 genuine-feature coverage publication before time limit; fix that certificate gap
 and retry M6 first. No separate construction campaign/immediate reprioritization.
+
+
+2026-10-31 focused185 fixture: extending the legacy nonseparating-crease atlas
+case with nonlinear degree3 nets/renumbered endpoints refuses MoveVertex before
+new preflight with `Reference PSLG constraints cross.` Entity mode passes nonlinear
+preflight/publication. Preserved cases/feature_publication185_contract_20261031T145236_4090607.
+Original legacy case retained and now checks local preflight; nonlinear entity case
+exercises the actual M6 path. Do not widen this cycle into legacy PSLG construction.
