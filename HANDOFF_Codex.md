@@ -27,15 +27,19 @@ Build190 PASS307.081s,1296pins unchanged/all2handles absent; substantial host I/
 contention while linking. Focused serial PASS28cases/8100assertions; MPI6 PASS163cases
 on EACH rank, all10handles absent/pins unchanged before M6. Source dcf6f01623 pushed;
 staged57/census_ownership190_qualification.json records actual binary hash/results.
-Latest complete190coarsening:292709cells,2627collapses,size55180,geometry3512;
-ALL18measured/decision/edge/query fields match188 on ALL6ranks. Upper14870calls/
-303014856work unchanged. Native389.490s vs188303.106s; host load around14, RAM
-~32GiBavailable, sampled owned tree~5.7GiB (not physical/job peak). No native
-rejection; splitting underway. LIVE/coarsening_comparison.json preserves rows.
-First6complete splitting generations also EXACT188 counts/query work. Generation6:
-700048cells,size8788,geometry4589,81243splits,upper21269calls/759075377work,
-native733.859s vs188559.555s. LIVE/construction_generation_comparison.json.
-No complete quality census yet; no closure/rate claim.
+Construction CLOSED:727722cells,size0,geometry4059 at1138.426native seconds
+(vs188855.998). ALL18generations EXACT188 totals/query work. Complete quality
+entry1241.413606s (vs188892.079978):54071q/53377J/4059geometry,size0,
+qJdebt25236.78740274. ALL15selected per-rank count/work fields EXACT188; same
+entry ownership. Initial quality migration21.031s vs18811.124s; host contention
+and history transport differ, no isolated cost claim. Entrydebt4662.403/4246.852/
+4764.376/3528.335/4761.761/3273.061. No repair-rate result yet.
+LIVE/construction_generation_comparison.json,quality_entry_comparison.json,
+all_quality_census_assessment.json include additive ownership stages. Complete
+ownership_staged→committed global counts/debt conserved;0privatecollectives/churn.
+At construction closure all1401pins unchanged/all10handles matching/all82mapped
+runtime files pinned; LIVE/quality_entry_provenance.json. ~31GiBavailable RAM,
+sampled owned tree~7.5GiB,not physical/job peak. Current source freeze ACTIVE.
 Build189 historical MPI failed two modified fixtures;161others/rank passed. Preserved
 terminal receipts before corrections. Corrected mesh-valid vs measurement-complete
 hook and restored exact inherited repair subsets without a phase change; corrected
