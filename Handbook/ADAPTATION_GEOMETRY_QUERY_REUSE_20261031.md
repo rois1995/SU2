@@ -337,7 +337,7 @@ flags1,52432q-bad/53564J-bad/3293geometry-bad/0size-bad; qDebt8090.270020728689,
 JDebt14220.795466165202,total22311.06548689389. New measured geometry bounds/mesh
 trajectories differ; future useful progress uses this entry as own baseline.
 Run stays frozen in quality; no accepted mesh/transfer. Receipts construction_comparison_to166.json
-andfirst_quality_assessment.json. Lastsample6.49GiB,~26GiBavailable, CPUservice.94
+andfirst_quality_assessment.json. Lastsample6.49GiB,~23.9GiBavailable, CPUservice.94
 over648s; paging values saved, no isolated speedup claim.
 
 174quality ownership committed on6ranks,360022cells moved once/15.703633629s;
@@ -451,3 +451,19 @@ All1396pins independently rehashed/all10exactownedhandles live;175is frozen and
 splitting. Receipts coarsen_comparison_to174.json/coarsen_live_verification.json.
 Private construction is not accepted mesh/transfer/disk restart. Quality is the
 remaining measurement target for the new finite positive-score boundary bounds.
+
+175ALL21split generations match174counts and size/geometry debts exactly, with q/J
+unmeasured throughout construction. Sizeclosesgen21/986.182447738s vs982.303271702,
+720958cells/maxedge1.7999928684783673. Quality entry1021.401956916s vs1020.205269401:
+ALL global totals match exactly,52432q-bad/53564J-bad/3293geometry-bad/size0,
+all720958cells measured/all4complete flags1; qDebt8090.270020728689,
+JDebt14220.795466165202,total22311.06548689389. This is a strong same-entry comparison
+for finite-positive-score bounded guidance, not final admissibility or isolated
+wall speedup. Quality ownership actually commits on6ranks:360022cells moved once/
+13.949710106s vs17415.703633629, no CFD projection. All1396pins independently rehashed
+and10exactownedhandles live;~23.9GiBavailable.175remains frozen in quality; no accepted
+mesh/transfer/restart. Receipts construction_comparison_to174.json,
+first_quality_assessment.json,quality_ownership_assessment.json,
+quality_entry_live_verification.jsonin175run. Next compare complete quality windows
+from own exact entry, including early rejections/face counts, private boundary vs
+interior costs, and WHOLE-field debt reduction per second. Nested timers overlap.

@@ -29,8 +29,15 @@ counters. Coarsen315.301s vs174312.718s:292744cells/2582collapses,
 q/Jcorrectly unmeasured. Upperwork273877600/14578calls identical; upperseconds
 366.587vs363.153sum. New counters2185early rejections/20695faces(coarsening already
 stopped at first violation before175; no new coarsen speedup expected). All1396pins/
-10exactlivehandles verified at milestone; run frozen in splitting. Comparison and
-coarsen_live_verification receipts saved. No accepted mesh/transfer/restart.
+10exactlivehandles verified at milestone. ALL21split generations match174counts/
+size/geometry debts; sizeclosesgen21/986.182s(vs982.303),720958cells,maxedge
+1.7999928684783673. Quality entry1021.401956916s(vs1020.205), ALL global totals
+EXACTLYmatch174:52432q-bad/53564J-bad/3293geometry-bad/size0, all720958measured/
+allcompleteflags1; qDebt8090.270020728689,JDebt14220.795466165202,total22311.065486894.
+Quality ownership committed360022cells/13.949710106s; full own-rank rows saved.
+Run frozen in quality;1396pins and10exactlivehandles reverified atentry,~23.9GiB
+available. Construction/entry/ownership/live receipts saved. No accepted mesh,
+actual conservative transfer or adapted disk restart.
 CFD SHA45f176a7b09c60ff8497d7a5ea976fc504df13947f4fb3ae489f0c5468ff06f4.
 No accepted Euler mesh/event/actual transfer/adapted disk restart yet.
 
