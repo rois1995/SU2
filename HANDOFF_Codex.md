@@ -16,17 +16,24 @@ First native event naturally rejected for elapsed-time budget on all six ranks,
 complete=0/final=0, before the authorized launcher stop prevented an unchanged
 retry. No accepted mesh, actual transfer or adapted restart. All ten exact owned
 handles independently verified absent on host /proc; all1396 pins unchanged.
-Connected quality-service milestone QUALIFIED (supporting evidence, not M6 success).
+**Full M6 Euler50k two-event retry RUNNING**, exec16090:
+`staged57/m6_runs/euler_build179_quality_service50k`.
+Driver2685167,time2685263,timeout2685264,mpirun2685265,ranks2685269–2685274.
+Exact10identities/startticks in startup_verification.json;1396pins independently
+verified and all81actually mapped libraries covered. Config/geometry authority
+byte-identical175. C++/binary/helpers/config/inputs FROZEN until terminal or
+preserved authorized stop. One heavy job,nice19,libs1,MPI6,native5400s/event,
+outer14400s,two actual accepted events required.
+CFD SHAe8f81c5a941f6d03fea81c6437e9f4f6d4305044e55e6de4d6a2113bd0116072.
+
+Quality-service milestone QUALIFIED in6ea65d9141 (supporting evidence only).
 Productionc132020654/testsa0e5e3bec7. Build179PASS111.227s/1296pins/all9handles
 absent; CFD identical178. Serial29cases/8169assertions PASS8.052s/1386pins/
-all4handles absent. MPI6PASS212cases/rank,280.579s/1387pins/all10driver/job
-handles absent; assertions in log order30816/31348/33848/31291/30821/30584.
-17late-loaded hwloc dependencies additionally pinned, mapped device/inode and
-pre-campaign metadata verified live, hashes/metadata unchanged terminal.
-Summary `staged57/quality_service179_integration_summary.json` contains binary
-hashes and receipts. No heavy job. Next IMMEDIATE full M6 Euler50k two-event retry.
-C++/helpers/binaries remain coherent; no unrelated changes. Failed178serial27/29
-and corrected contracts preserved. Source freezing resumes with M6 launch.
+all4handles absent. MPI6PASS212cases/rank,280.579s/1387pins/all10handles absent;
+assertions in log order30816/31348/33848/31291/30821/30584.17late-loaded MPI-test
+hwloc dependencies additionally verified and pinned through terminal; M6startup
+has no missing mapped libraries. Summary staged57/quality_service179_integration_summary.json.
+Failed178serial27/29and corrected contracts preserved; no gates changed.
 
 Terminal receipts: `terminal_assessment.json`, `terminal_handles.json`,
 `event1_time_budget_stop_receipt.json` under the175run directory.
@@ -96,11 +103,11 @@ All detailed current design, failures and previous qualification are linked belo
 
 ## Immediate actions and acceptance
 
-1. Connected MPI179and serial179qualification PASS; terminal handles and helper/
-   supplemental runtime pins verified. Preserve/push this milestone and launch M6.
-2. On PASS immediately launch the complete endorsed M6 two-event Euler50k retry,
-   same inputs/config/native5400s and outer14400s. Verify startup handles and
-   source/build/binary/runtime/input provenance. Compare complete matching entry
+1. Let full179M6 attempt continue frozen to its outcome unless preserved evidence
+   establishes an authorized error/resource/clear computational stop. Verify exact
+   host /proc identities; stale logs/observation timeout are not termination.
+2. Preserve complete source/binary/runtime/input and resource receipts. Compare
+   complete matching entry
    census, actual geometry work and whole-debt reduction per second, not window
    number alone (a batch round now serves multiple independent stars).
 3. Preserve any demonstrated failure before authorized owned-only stop/fix/retry.
