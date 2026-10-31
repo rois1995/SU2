@@ -1,0 +1,68 @@
+{
+  "time": 1793462961.6073031,
+  "scope": "Verified existing representative M6 kernel capture inventory only, not current188 query state or current-build qualification. No new campaign/run.",
+  "payload": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_geometry_capture168_host_20261031T012917_2091486/m6_surface_queries.bin",
+  "payload_bytes": 10448,
+  "payload_sha256": "37ea9781db1699c3b523bdeb94887a9f097931aa9c5378ba034fbab9657fdb0b",
+  "query_count": 12,
+  "current_reference_sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+  "original_reference_sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+  "reference_matches": true,
+  "producer_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_geometry_capture168_host_20261031T012917_2091486",
+  "replay_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_reuse174_serial_20261031T022425_2226738",
+  "replay_test": "[.][NativeM6GeometryQueries3D] with SU2_NATIVE_GEOMETRY_QUERY_INPUT",
+  "source_path": "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp",
+  "backend_path": "GeometryGuidanceExcess -> validated SurfaceDeviation -> ParameterError -> BoundPhysicalSurface -> QuerySurfaceUnion -> traversal",
+  "record_receipts": {
+    "geometry_capture168_baseline_receipt.json": {
+      "sha256": "401388b83a597138b9f12cc1b3bb82fc0eac1e465325651663b99a8435a3e93b",
+      "keys": [
+        "baseline_case",
+        "baseline_archives",
+        "authority_sha256",
+        "query_payload_sha256",
+        "query_count",
+        "cold_query_seconds",
+        "scope_build_seconds",
+        "work",
+        "repeat_work",
+        "limitations"
+      ]
+    },
+    "geometry_query_capture_input_verification.json": {
+      "sha256": "64ac9da1e76f656309f59e6521c2954c7b2bcbf768f20c922eb39ea22c494b15",
+      "keys": [
+        "scope",
+        "datasets",
+        "build166_current_inputs",
+        "serializer_comparison",
+        "source_hashes",
+        "reference_comparison",
+        "limits"
+      ]
+    },
+    "geometry_reuse174_query_comparison.json": {
+      "sha256": "fa25f0e101435f9ef0937fa7e55b4e346590c5c7c7f9f6976fd21d110916c9c4",
+      "keys": [
+        "scope",
+        "baseline",
+        "current",
+        "payload_sha256",
+        "all_12_classifications_preserved",
+        "cached_recomputed_equal",
+        "payload_identical",
+        "baseline_totals",
+        "current_totals",
+        "CFD_sha256",
+        "limits"
+      ]
+    }
+  },
+  "limitations": [
+    "Older projected-star query geometry/bindings, not exact build188 mesh/parameter revision/metric field/cache warmth.",
+    "Payload replays saved support union/backend certificate; live support discovery and smoothing trial generation are outside its coverage.",
+    "Old build19/build48 shard owned rows require explicit legacy208-byte decoder; current OwnedCell is416bytes.",
+    "Cached/repeated/uncached174 equality is historical kernel evidence, not new current188 validation.",
+    "Upper/traversal/smoothing timings overlap; never add them."
+  ]
+}

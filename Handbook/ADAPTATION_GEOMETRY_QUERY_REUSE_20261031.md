@@ -1,4 +1,20 @@
-# Geometry query reuse — next connected milestone
+# Geometry query reuse — current evidence and historical implementation
+
+Current authority: full TWO-event real-CFD build188 is LIVE/source-frozen; exact handles
+and latest census in HANDOFF_Codex.md. Complete window15:23737q-bad/20873J-bad/
+3627geometry-bad,size0,21419commits at3349.801quality seconds. Earlier183publication
+failure barrier passed. No accepted mesh/transfer/restart yet; full goal/gates unchanged.
+Existing counter-only profile separates support,scope/facet preparation,piece selection,
+traversal and boundary/interior smoothing. Upper cost remains traversal-dominated,
+with negligible facet rebuild time in measured windows; timers overlap,never add.
+Build188 geometry_guidance_source_review.md,quality_service_geometry_assessment.json
+and reusable_geometry_query_inventory.json under staged57/m6_runs/
+euler_build188_real_cfd50k_feature_safe record primary-reviewed semantics/provenance.
+Numerical FaceMemo already caches exact query errors; its flushall retention effect
+is unmeasured and recorded in backlog. No new campaign or implementation while LIVE.
+Saved12-query replay shares authority but is not exact188mesh/context/cache warmth.
+
+## Historical174/175 integration evidence
 
 User steering2026-10-31.166M6terminal unsuccessful. Connected174candidate now
 qualified: focused serial45cases/3674assertions PASS46.510s; MPI6 198cases/rank PASS
@@ -7,7 +23,7 @@ Summary staged57/geometry_reuse174_integration_summary.json. Fixed1M graph cap
 passes with overlap-conditioned plane lift; failed convex-only fallback removed.
 Full Euler50k attempt euler_build174_geometry_reuse50k nowTERMINAL after authorized
 computational-bottleneck stop; exec2461terminal1, all10handles absent/1396pins unchanged.
-Bounded-guidance175qualified; full M6 nowLIVE as detailed below, source freeze.
+Bounded-guidance175qualified; its run notes below are historical.
 No accepted M6 event/mesh/transfer/restart yet. Full Euler→BL/MPI→RANS500k goal and
 all gates unchanged; actual numerical frozen-field semantics risk remains open.
 

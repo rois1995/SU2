@@ -223,3 +223,14 @@ new preflight with `Reference PSLG constraints cross.` Entity mode passes nonlin
 preflight/publication. Preserved cases/feature_publication185_contract_20261031T145236_4090607.
 Original legacy case retained and now checks local preflight; nonlinear entity case
 exercises the actual M6 path. Do not widen this cycle into legacy PSLG construction.
+
+
+2026-10-31 build188 read-only geometry audit: FaceMemo already retains exact numerical
+errors (distinct from accepted coverage certificates); its fixed shared4MiB maps clear
+wholesale at admission. No dedicated hit/miss counters exist, so hot-query loss is
+UNMEASURED, not an established cause or immediate implementation authorization.
+Current measured upper time is dominated by traversal, not facet rebuilding. See
+build188/geometry_guidance_source_review.md and quality_service_geometry_assessment.json
+in staged57/m6_runs/euler_build188_real_cfd50k_feature_safe. Keep source frozen and
+let actual terminal outcome choose the next connected change; do not add a duplicate
+cache or weaken private-context freshness.
