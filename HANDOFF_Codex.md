@@ -83,7 +83,11 @@ membership/range checked, oldest=min,blocked=all prior contributors. Existing
 user/severity/oldest queues reconstructed from inherited subsets; specialized modes
 retained. Periodic hook permits bad meshes only after complete measurement census.
 No new scheduler/options or construction changes. Preserve current freeze; assess
-actual full-run balance/progress, not fixture success. New ownership_committed stage
+actual NET whole-field q/J-bad removal/s and geometry counts, not commits/debt
+alone. Latest user assessment requirements are in the connected design. Compare
+churn/net yield per commit, capacity/reservations, imbalance/synchronization, geometry
+cost/trial and surface/interior population/private smoothing efficiency separately.
+No competing implementation or extra profiling. New ownership_committed stage
 is a complete census and splits diagnostic windows: interval totals must include
 all complete quality stages, not only window rows. Migration count changes are not
 repair churn. Qualification:staged57/census_ownership190_qualification.json.

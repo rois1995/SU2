@@ -80,3 +80,27 @@ Compare actual matching quality times/stages, per-rank busy/join/commits/debt/q 
 whole-field q/J/geometry counts and geometry work. Passing fixtures/migration/balance
 is not completion: TWOaccepted meshes, actual conservative admissible transfer,
 finite continued CFD, isolated adapted disk restart; then BL/MPI and RANS500k.
+
+## Latest user assessment instruction (active190 run)
+
+Keep this complete-census ownership cycle;190full M6 is frozen/live, qualified
+serial28cases and MPI6 163cases/rank. Primary outcome is NET whole-field q/J-bad
+removed per elapsed quality second alongside geometry-bad counts; commits and debt
+alone do not establish closure. Assess net bad-cell removal per committed cavity,
+fixed/created/retired/introduced churn, batch candidates/reservations, per-rank
+busy/join timing and debt spread, upper-query work/time per trial and ladder yields.
+All complete quality stages, including ownership_staged/committed, must contribute
+to interval accounting. Global migration conserves counts/debt; local owned-count
+changes during migration are not repair progress. Join-call timing includes protocol
+and wait, not pure idle. Missing/refused candidates must not all be called conflicts.
+
+Use surface/interior bad-cell populations and boundary/interior smoothing counters
+separately. Existing smoothing moves/debt/seconds are private trial work, not all
+published commits. Existing aggregate ladder publication counters do not identify
+every committed cavity as boundary/interior, so do not invent that attribution.
+Assess available outcome counts and private useful work with this explicit limit.
+Boundary analysis includes unchanged-star reuse, prepared geometry/certificates,
+constrained candidates and valid cheap screening. No new cache/scheduler, larger
+batches/passes or profiling campaign while190runs. Existing exact invalidation,
+fresh position-dependent evaluation, seams/features/body/height and no-CAD authority
+remain required. Literature is design context, not authorization for another cycle.

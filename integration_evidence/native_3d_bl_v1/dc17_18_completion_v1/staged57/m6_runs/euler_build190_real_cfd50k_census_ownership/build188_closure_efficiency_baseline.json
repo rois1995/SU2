@@ -1,0 +1,69 @@
+{
+  "time": 1793468213.8861542,
+  "scope": "Existing build188 actual complete entry-to-exit baseline for build190. Population changes are not causal attribution to boundary/interior published cavities. Private smoothing improvements are not published commit gains.",
+  "quality_seconds": 4452.518087234,
+  "published_quality_commits": 28742,
+  "net_q_bad_removed": 36881,
+  "net_j_bad_removed": 39008,
+  "net_q_bad_removed_per_committed_cavity": 1.283174448542203,
+  "net_j_bad_removed_per_committed_cavity": 1.3571776494328858,
+  "populations": {
+    "surface": {
+      "q": {
+        "entry": 17815,
+        "exit": 3273,
+        "net_removed": 14542,
+        "net_removed_per_quality_second": 3.266017052618826
+      },
+      "j": {
+        "entry": 22360,
+        "exit": 4613,
+        "net_removed": 17747,
+        "net_removed_per_quality_second": 3.9858344541896784
+      }
+    },
+    "interior": {
+      "q": {
+        "entry": 36256,
+        "exit": 13917,
+        "net_removed": 22339,
+        "net_removed_per_quality_second": 5.0171609777507875
+      },
+      "j": {
+        "entry": 31017,
+        "exit": 9756,
+        "net_removed": 21261,
+        "net_removed_per_quality_second": 4.775050787768454
+      }
+    }
+  },
+  "private_smoothing": {
+    "boundary": {
+      "stars": 425740.0,
+      "reused": 5.0,
+      "candidates": 346975.0,
+      "guidance": 55649.0,
+      "upper_queries": 221182.0,
+      "moves": 14286.0,
+      "debt_reduction": 767.3466669528564,
+      "seconds": 3613.7750883359995,
+      "private_debt_reduction_per_summed_rank_second": 0.2123393537770468,
+      "private_moves_per_star": 0.03355569126697045,
+      "private_moves_per_candidate": 0.041172995172562864
+    },
+    "interior": {
+      "stars": 22066.0,
+      "reused": 6.0,
+      "candidates": 147650.0,
+      "guidance": 0.0,
+      "upper_queries": 0.0,
+      "moves": 17800.0,
+      "debt_reduction": 4209.513435772871,
+      "seconds": 136.45669398200016,
+      "private_debt_reduction_per_summed_rank_second": 30.848713338520007,
+      "private_moves_per_star": 0.806670896401704,
+      "private_moves_per_candidate": 0.1205553674229597
+    }
+  },
+  "interpretation": "Retirement/introduction churn is assessed with net whole-field count change. Do not add overlapping geometry, smoothing, ladder and wait timers or classify every absent reservation as a conflict."
+}

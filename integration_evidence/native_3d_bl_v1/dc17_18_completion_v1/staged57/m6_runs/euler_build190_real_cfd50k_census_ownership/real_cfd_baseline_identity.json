@@ -1,0 +1,38 @@
+{
+  "time": 1793467995.785372,
+  "scope": "Exact saved CFD and first continued donor identity; not adapted transfer or disk restart.",
+  "sha256": {
+    "baseline_euler_seed.dat": "1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880",
+    "restart_flow_adap_00000.dat": "6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a"
+  },
+  "directives": {
+    "RESTART_SOL": [
+      "YES"
+    ],
+    "ITER": [
+      "1"
+    ],
+    "ADAP_FLOW_ITER": [
+      "( 1 )"
+    ],
+    "ADAP_COMPLEXITY": [
+      "50000"
+    ],
+    "ADAP_SIZES": [
+      "( 50000 )"
+    ],
+    "ADAP_SUBITER": [
+      "( 2 )"
+    ],
+    "ADAP_NATIVE_MAX_TIME": [
+      "5400"
+    ],
+    "ADAP_NATIVE_SURFACE_TOL": [],
+    "SOLUTION_FILENAME": [
+      "baseline_euler_seed"
+    ],
+    "RESTART_FILENAME": [
+      "restart_flow"
+    ]
+  }
+}
