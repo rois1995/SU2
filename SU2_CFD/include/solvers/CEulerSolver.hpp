@@ -468,6 +468,12 @@ public:
                        unsigned short iMesh) final;
 
   /*!
+   * \brief Add the central flux of the split edges that are not true edges.
+   * \param[in] geometry - Geometrical definition of the problem.
+   */
+  void SplitEdgeResidual(const CGeometry *geometry);
+
+  /*!
    * \brief Recompute the extrapolated quantities, after MUSCL reconstruction,
    *        in a more thermodynamically consistent way.
    * \note This method is static to improve the chances of it being used in a

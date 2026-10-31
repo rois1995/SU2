@@ -66,7 +66,7 @@ protected:
     dynamicGrid(config.GetDynamic_Grid()),
     groupFlux(iMesh == MESH_0 && config.GetCentral_Group_Flux()),
     modNormals(iMesh == MESH_0 && config.GetDissipation_Mod_Normals()),
-    edgeForm(iMesh == MESH_0 && config.GetEdge_Form_P1()) {
+    edgeForm(iMesh == MESH_0 && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())) {
   }
 
   /*!

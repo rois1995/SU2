@@ -1835,6 +1835,8 @@ void CConfig::SetConfig_Options() {
   addEnumOption("VISCOUS_SCHEME", Kind_Viscous_Scheme, Viscous_Scheme_Map, VISCOUS_SCHEME::EDGE_GRADIENT);
   /*!\brief EDGE_FORM_P1 \n DESCRIPTION: Variant C, central flux 0.5(F_i+F_k).n_ik + (F_k-F_i).E_ik on the modified dual, requires MOD_CENTROIDS \ingroup Config \default false */
   addBoolOption("EDGE_FORM_P1", Edge_Form_P1, false);
+  /*!\brief SPLIT_EDGE_FLUX \n DESCRIPTION: Central flux 0.5(F_i+F_k).n_ik on the split edges of the cells, dissipation and Jacobians stay on the true edges. \ingroup Config*/
+  addBoolOption("SPLIT_EDGE_FLUX", Split_Edge_Flux, false);
 
   /*!\brief MARKER_HEATTRANSFER DESCRIPTION: Heat flux with specified heat transfer coefficient boundary marker(s)\n
    * Format: ( Heat transfer marker, heat transfer coefficient, wall temperature (static), ... ) \ingroup Config  */
@@ -6215,6 +6217,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Dissipation_Mod_Normals) active.push_back("DISSIPATION_MOD_NORMALS");
   if (Kind_Viscous_Scheme == VISCOUS_SCHEME::P1_CELL) active.push_back("VISCOUS_SCHEME= P1_CELL");
   if (Edge_Form_P1) active.push_back("EDGE_FORM_P1");
+  if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
 
   if (active.empty()) return;
 
@@ -6270,6 +6273,21 @@ void CConfig::CheckP1FluxOptions() const {
     if (BC_Flux_Closure) SU2_MPI::Error(name + "BC_FLUX_CLOSURE is derived for the median dual.", CURRENT_FUNCTION);
     if (Central_Group_Flux) SU2_MPI::Error(name + "it is already in group form, remove CENTRAL_GROUP_FLUX.", CURRENT_FUNCTION);
     if (Dissipation_Mod_Normals) SU2_MPI::Error(name + "not available with DISSIPATION_MOD_NORMALS.", CURRENT_FUNCTION);
+    if (Kind_ConvNumScheme_Flow == SPACE_UPWIND && Kind_Upwind_Flow != UPWIND::ROE) {
+      SU2_MPI::Error(name + "among the upwind schemes only ROE is supported.", CURRENT_FUNCTION);
+    }
+  }
+  if (Split_Edge_Flux) {
+    const string name = "SPLIT_EDGE_FLUX: ";
+    if (ModCentroids) SU2_MPI::Error(name + "built on the median volumes, not available with MOD_CENTROIDS.", CURRENT_FUNCTION);
+    if (FluxCorrection) SU2_MPI::Error(name + "not available with FLUX_CORRECTION.", CURRENT_FUNCTION);
+    if (Edge_Form_P1) SU2_MPI::Error(name + "not available with EDGE_FORM_P1.", CURRENT_FUNCTION);
+    if (BC_Flux_Closure) SU2_MPI::Error(name + "not available with BC_FLUX_CLOSURE.", CURRENT_FUNCTION);
+    if (Central_Group_Flux) SU2_MPI::Error(name + "it is already in group form, remove CENTRAL_GROUP_FLUX.", CURRENT_FUNCTION);
+    if (Dissipation_Mod_Normals) SU2_MPI::Error(name + "not available with DISSIPATION_MOD_NORMALS.", CURRENT_FUNCTION);
+    if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries.", CURRENT_FUNCTION);
+    if (nMGLevels > 0) SU2_MPI::Error(name + "not available with multigrid, set MGLEVEL= 0.", CURRENT_FUNCTION);
+    if (Time_Domain) SU2_MPI::Error(name + "steady problems only, the volumes stay median.", CURRENT_FUNCTION);
     if (Kind_ConvNumScheme_Flow == SPACE_UPWIND && Kind_Upwind_Flow != UPWIND::ROE) {
       SU2_MPI::Error(name + "among the upwind schemes only ROE is supported.", CURRENT_FUNCTION);
     }

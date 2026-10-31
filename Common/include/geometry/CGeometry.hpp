@@ -954,6 +954,11 @@ class CGeometry {
    */
   inline virtual void SetEdgeFormP1() {}
 
+  /*!
+   * \brief Split all cells into simplices and set the central flux coefficients of the split edges.
+   */
+  inline virtual void SetSplitEdges() {}
+
   inline virtual void SetBoundCVCoeffs(const CConfig* config, unsigned short action) {}
 
   /*!

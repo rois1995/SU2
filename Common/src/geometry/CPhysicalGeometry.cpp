@@ -32,6 +32,7 @@
 #include "../../include/toolboxes/C1DInterpolation.hpp"
 #include "../../include/toolboxes/geometry_toolbox.hpp"
 #include "../../include/toolboxes/p1_simplex.hpp"
+#include <map>
 #include "../../include/geometry/meshreader/CSU2ASCIIMeshReaderFEM.hpp"
 #include "../../include/geometry/meshreader/CSU2ASCIIMeshReaderFVM.hpp"
 #include "../../include/geometry/meshreader/CSU2BinaryMeshReaderFEM.hpp"
@@ -7154,6 +7155,168 @@ void CPhysicalGeometry::SetEdgeFormP1() {
           }
         }
       }
+    }
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+}
+
+void CPhysicalGeometry::SetSplitEdges() {
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    edges->FormNormal.resize(edges->nEdgeSIMD, nDim) = su2double(0.0);
+    edges->FormE.resize(edges->nEdgeSIMD, nDim) = su2double(0.0);
+    edges->SplitVolume.resize(nPoint) = su2double(0.0);
+
+    const auto nNodes = nDim + 1u;
+    std::map<std::pair<unsigned long, unsigned long>, std::array<su2double, MAXNDIM>> pairs;
+
+    auto signedSize = [&](const std::array<unsigned long, MAXNDIM + 1>& simplex, su2double grad[][3]) {
+      array<const su2double*, MAXNDIM + 1> Coord;
+      for (auto iNode = 0u; iNode < nNodes; iNode++) Coord[iNode] = nodes->GetCoord(simplex[iNode]);
+      return P1Simplex::ShapeGradients(nDim, Coord, grad);
+    };
+
+    for (auto iElem = 0ul; iElem < nElem; iElem++) {
+      const auto* element = elem[iElem];
+      const auto nElemNodes = element->GetnNodes();
+
+      /*--- Pulling split: cone the faces without v from v, each face is fanned from its smallest global ID. ---*/
+
+      unsigned short v = 0;
+      for (unsigned short iNode = 1; iNode < nElemNodes; iNode++) {
+        if (nodes->GetGlobalIndex(element->GetNode(iNode)) < nodes->GetGlobalIndex(element->GetNode(v))) v = iNode;
+      }
+
+      vector<std::array<unsigned long, MAXNDIM + 1>> simplices;
+
+      if (nDim == 2) {
+        for (unsigned short iNode = 1; iNode + 1 < nElemNodes; iNode++) {
+          simplices.push_back({element->GetNode(v), element->GetNode((v + iNode) % nElemNodes),
+                               element->GetNode((v + iNode + 1) % nElemNodes), 0});
+        }
+      } else {
+        for (unsigned short iFace = 0; iFace < element->GetnFaces(); iFace++) {
+          const auto nFaceNodes = element->GetnNodesFace(iFace);
+          bool hasV = false;
+          unsigned short w = 0;
+          for (unsigned short iNode = 0; iNode < nFaceNodes; iNode++) {
+            const auto node = element->GetFaces(iFace, iNode);
+            hasV = hasV || (node == v);
+            const auto best = element->GetNode(element->GetFaces(iFace, w));
+            if (nodes->GetGlobalIndex(element->GetNode(node)) < nodes->GetGlobalIndex(best)) w = iNode;
+          }
+          if (hasV) continue;
+          for (unsigned short iNode = 1; iNode + 1 < nFaceNodes; iNode++) {
+            simplices.push_back({element->GetNode(v), element->GetNode(element->GetFaces(iFace, w)),
+                                 element->GetNode(element->GetFaces(iFace, (w + iNode) % nFaceNodes)),
+                                 element->GetNode(element->GetFaces(iFace, (w + iNode + 1) % nFaceNodes))});
+          }
+        }
+      }
+
+      /*--- The sub-simplices of a cell share one orientation, the sign of the cell makes the sizes signed. ---*/
+
+      su2double grad[MAXNDIM + 1][3], total = 0.0;
+      for (const auto& simplex : simplices) total += signedSize(simplex, grad);
+      const su2double sign = (total < 0.0) ? -1.0 : 1.0;
+
+      for (const auto& simplex : simplices) {
+        const auto weight = sign * signedSize(simplex, grad) / nNodes;
+
+        for (auto a = 0u; a < nNodes; a++) {
+          edges->SplitVolume[simplex[a]] += weight;
+
+          for (auto b = a + 1; b < nNodes; b++) {
+            const auto iPoint = simplex[a], kPoint = simplex[b];
+            if (FindEdge(iPoint, kPoint, false) >= 0) {
+              const auto iEdge = FindEdge(iPoint, kPoint);
+              const su2double dir = (edges->GetNode(iEdge, CEdge::LEFT) == iPoint) ? 1.0 : -1.0;
+              for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+                edges->FormNormal(iEdge, iDim) += dir * weight * (grad[b][iDim] - grad[a][iDim]);
+              }
+            } else {
+              const su2double dir = (iPoint < kPoint) ? 1.0 : -1.0;
+              auto& normal = pairs[{std::min(iPoint, kPoint), std::max(iPoint, kPoint)}];
+              for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+                normal[iDim] += dir * weight * (grad[b][iDim] - grad[a][iDim]);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    /*--- Only pairs that touch an owned node add to the residual of this rank. ---*/
+
+    edges->SplitNodes.clear();
+    for (const auto& entry : pairs) {
+      if (nodes->GetDomain(entry.first.first) || nodes->GetDomain(entry.first.second)) {
+        edges->SplitNodes.push_back({entry.first.first, entry.first.second});
+      }
+    }
+    edges->SplitNormal.resize(edges->SplitNodes.size(), nDim) = su2double(0.0);
+    for (auto iSplit = 0ul; iSplit < edges->SplitNodes.size(); iSplit++) {
+      const auto& nodePair = edges->SplitNodes[iSplit];
+      const auto& normal = pairs.at({nodePair[0], nodePair[1]});
+      for (unsigned short iDim = 0; iDim < nDim; iDim++) edges->SplitNormal(iSplit, iDim) = normal[iDim];
+    }
+
+    /*--- Boundary faces use the same fan, a quadrilateral gives two triangles. Triangles are already A/3. ---*/
+
+    for (unsigned short iMarker = 0; (nDim == 3) && (iMarker < nMarker); iMarker++) {
+      bool hasQuad = false;
+      for (auto iElem = 0ul; iElem < nElem_Bound[iMarker]; iElem++) {
+        hasQuad = hasQuad || (bound[iMarker][iElem]->GetnNodes() == 4);
+      }
+      if (!hasQuad) continue;
+
+      su2activematrix normals(nVertex[iMarker], nDim);
+      normals = su2double(0.0);
+
+      auto addTriangle = [&](unsigned long a, unsigned long b, unsigned long c) {
+        const auto* xa = nodes->GetCoord(a);
+        const auto* xb = nodes->GetCoord(b);
+        const auto* xc = nodes->GetCoord(c);
+        su2double u[3], w[3], area[3];
+        for (unsigned short iDim = 0; iDim < 3; iDim++) {
+          u[iDim] = xb[iDim] - xa[iDim];
+          w[iDim] = xc[iDim] - xa[iDim];
+        }
+        GeometryToolbox::CrossProduct(u, w, area);
+        for (const auto iPoint : {a, b, c}) {
+          const auto iVertex = nodes->GetVertex(iPoint, iMarker);
+          if (iVertex < 0) continue;
+          for (unsigned short iDim = 0; iDim < 3; iDim++) normals(iVertex, iDim) += area[iDim] / 6.0;
+        }
+      };
+
+      for (auto iElem = 0ul; iElem < nElem_Bound[iMarker]; iElem++) {
+        const auto* face = bound[iMarker][iElem];
+        const auto nFaceNodes = face->GetnNodes();
+        unsigned short w = 0;
+        for (unsigned short iNode = 1; iNode < nFaceNodes; iNode++) {
+          if (nodes->GetGlobalIndex(face->GetNode(iNode)) < nodes->GetGlobalIndex(face->GetNode(w))) w = iNode;
+        }
+        for (unsigned short iNode = 1; iNode + 1 < nFaceNodes; iNode++) {
+          addTriangle(face->GetNode(w), face->GetNode((w + iNode) % nFaceNodes),
+                      face->GetNode((w + iNode + 1) % nFaceNodes));
+        }
+      }
+
+      for (auto iVertex = 0ul; iVertex < nVertex[iMarker]; iVertex++) {
+        const auto* oldNormal = vertex[iMarker][iVertex]->GetNormal();
+        const su2double dir = (GeometryToolbox::DotProduct(3, oldNormal, normals[iVertex]) < 0.0) ? -1.0 : 1.0;
+        for (unsigned short iDim = 0; iDim < 3; iDim++) normals(iVertex, iDim) *= dir;
+        vertex[iMarker][iVertex]->SetNormal(normals[iVertex]);
+      }
+    }
+
+    /*--- A warped cell can give a negative split volume: report it, do not change it. ---*/
+
+    unsigned long nBad = 0, nBadGlobal = 0;
+    for (auto iPoint = 0ul; iPoint < nPointDomain; iPoint++) nBad += (edges->SplitVolume[iPoint] <= 0.0);
+    SU2_MPI::Allreduce(&nBad, &nBadGlobal, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+    if ((nBadGlobal != 0) && (rank == MASTER_NODE)) {
+      cout << "WARNING: SPLIT_EDGE_FLUX found " << nBadGlobal << " nodes with split volume <= 0." << endl;
     }
   }
   END_SU2_OMP_SAFE_GLOBAL_ACCESS

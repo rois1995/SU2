@@ -1824,6 +1824,40 @@ void CEulerSolver::Centered_Residual(CGeometry *geometry, CSolver **solver_conta
   SU2_ZONE_SCOPED
 
   EdgeFluxResidual(geometry, solver_container, config);
+  if ((iMesh == MESH_0) && config->GetSplit_Edge_Flux()) SplitEdgeResidual(geometry);
+}
+
+void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry) {
+  SU2_ZONE_SCOPED
+
+  const auto& splitNodes = geometry->edges->GetSplitNodes();
+  const auto& splitNormal = geometry->edges->GetSplitNormal();
+
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    for (auto iSplit = 0ul; iSplit < splitNodes.size(); ++iSplit) {
+      su2double flux[MAXNVAR] = {};
+
+      /*--- Group form 0.5(F_i+F_k).n_ik, these pairs have no dissipation and no Jacobian. ---*/
+
+      for (const auto iPoint : splitNodes[iSplit]) {
+        const su2double density = nodes->GetDensity(iPoint);
+        const su2double pressure = nodes->GetPressure(iPoint);
+        su2double projVel = 0.0;
+        for (auto iDim = 0u; iDim < nDim; ++iDim) projVel += nodes->GetVelocity(iPoint, iDim) * splitNormal(iSplit, iDim);
+
+        flux[0] += 0.5 * density * projVel;
+        for (auto iDim = 0u; iDim < nDim; ++iDim) {
+          flux[iDim + 1] += 0.5 * (density * projVel * nodes->GetVelocity(iPoint, iDim) +
+                                   pressure * splitNormal(iSplit, iDim));
+        }
+        flux[nDim + 1] += 0.5 * density * projVel * nodes->GetEnthalpy(iPoint);
+      }
+
+      if (geometry->nodes->GetDomain(splitNodes[iSplit][0])) LinSysRes.AddBlock(splitNodes[iSplit][0], flux);
+      if (geometry->nodes->GetDomain(splitNodes[iSplit][1])) LinSysRes.SubtractBlock(splitNodes[iSplit][1], flux);
+    }
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
 void CEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_container,
@@ -1840,6 +1874,7 @@ void CEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_contain
     if (config->GetKind_Upwind_Flow() == UPWIND::ROE || config->GetKind_Upwind_Flow() == UPWIND::MSW ||
         config->GetKind_Upwind_Flow() == UPWIND::ROENEW) {
       EdgeFluxResidual(geometry, solver_container, config);
+      if ((iMesh == MESH_0) && config->GetSplit_Edge_Flux()) SplitEdgeResidual(geometry);
       return;
     }
   }

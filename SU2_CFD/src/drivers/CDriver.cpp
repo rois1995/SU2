@@ -759,6 +759,7 @@ void CDriver::InitializeGeometryFVM(CConfig *config, CGeometry **&geometry) {
     geometry[MESH_0]->SetBoundCVCoeffs(config, ALLOCATE);
     if (config->GetDissipation_Mod_Normals()) geometry[MESH_0]->SetDissipationNormals();
     if (config->GetEdge_Form_P1()) geometry[MESH_0]->SetEdgeFormP1();
+    if (config->GetSplit_Edge_Flux()) geometry[MESH_0]->SetSplitEdges();
   }
   END_SU2_OMP_PARALLEL
 

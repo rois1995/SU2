@@ -455,6 +455,14 @@ class CPhysicalGeometry final : public CGeometry {
   void SetEdgeFormP1() override;
 
   /*!
+   * \brief Split the cells with the pulling rule on global IDs, no new points. For each simplex t and
+   *        each of its edges (i,k): n_ik += |t|/(d+1) (grad(phi_k) - grad(phi_i)), signed |t|. True edges
+   *        store n_ik in the form normal with E_ik = 0, the other pairs are stored apart. On 3D markers
+   *        with quadrilaterals the vertex normals become the sum of the split triangles, for free stream.
+   */
+  void SetSplitEdges() override;
+
+  /*!
    * \brief Coefficients of the boundary closure of the flux correction.
    */
   void SetBoundCVCoeffs(const CConfig* config, unsigned short action) override;

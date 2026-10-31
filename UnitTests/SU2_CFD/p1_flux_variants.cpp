@@ -25,6 +25,7 @@
  */
 
 #include "catch.hpp"
+#include <array>
 #include <fstream>
 #include <memory>
 #include <random>
@@ -135,6 +136,118 @@ void WriteSimplexMesh(const std::string& name, int nDim, unsigned long n, double
   }
   f << "NMARK= 2\nMARKER_TAG= bottom\nMARKER_ELEMS= " << 2 * n * n << "\n" << bottom.str();
   f << "MARKER_TAG= rest\nMARKER_ELEMS= " << 10 * n * n << "\n" << rest.str();
+}
+
+/*!
+ * \brief Write a jittered quadrilateral (2D) mesh, or a 3D mesh of hexahedra (kind 0), prisms (1) or pyramids (2).
+ *        The pyramids of a lattice cell share a new center point. Markers: bottom, rest.
+ */
+void WriteGeneralMesh(const std::string& name, int nDim, int kind, unsigned long n, double jitter, double stretch) {
+  if (SU2_MPI::GetRank() != MASTER_NODE) return;
+
+  std::mt19937 gen(4321);
+  std::uniform_real_distribution<double> rnd(-0.5, 0.5);
+  std::ofstream f(name);
+  f.precision(17);
+  std::ostringstream elems, points, bottom, rest;
+  unsigned long nElem = 0, nPoint = 0, nBottom = 0, nRest = 0;
+
+  if (nDim == 2) {
+    auto id = [&](unsigned long i, unsigned long j) { return i * (n + 1) + j; };
+    for (auto i = 0ul; i < n; ++i) {
+      for (auto j = 0ul; j < n; ++j) {
+        elems << "9 " << id(i, j) << " " << id(i + 1, j) << " " << id(i + 1, j + 1) << " " << id(i, j + 1) << "\n";
+        ++nElem;
+      }
+    }
+    for (auto i = 0ul; i <= n; ++i) {
+      for (auto j = 0ul; j <= n; ++j) {
+        const bool inner = (i > 0) && (j > 0) && (i < n) && (j < n);
+        points << (i + (inner ? jitter * rnd(gen) : 0.0)) / n << " "
+               << (j + (inner ? jitter * rnd(gen) : 0.0)) / n * stretch << "\n";
+        ++nPoint;
+      }
+    }
+    f << "NDIME= 2\nNELEM= " << nElem << "\n" << elems.str() << "NPOIN= " << nPoint << "\n" << points.str();
+    f << "NMARK= 2\nMARKER_TAG= bottom\nMARKER_ELEMS= " << n << "\n";
+    for (auto i = 0ul; i < n; ++i) f << "3 " << id(i, 0) << " " << id(i + 1, 0) << "\n";
+    f << "MARKER_TAG= rest\nMARKER_ELEMS= " << 3 * n << "\n";
+    for (auto i = 0ul; i < n; ++i) f << "3 " << id(i + 1, n) << " " << id(i, n) << "\n";
+    for (auto j = 0ul; j < n; ++j) f << "3 " << id(0, j + 1) << " " << id(0, j) << "\n";
+    for (auto j = 0ul; j < n; ++j) f << "3 " << id(n, j) << " " << id(n, j + 1) << "\n";
+    return;
+  }
+
+  std::vector<std::array<double, 3>> coord;
+  for (auto i = 0ul; i <= n; ++i) {
+    for (auto j = 0ul; j <= n; ++j) {
+      for (auto k = 0ul; k <= n; ++k) {
+        const bool inner = (i > 0) && (j > 0) && (k > 0) && (i < n) && (j < n) && (k < n);
+        coord.push_back({(i + (inner ? jitter * rnd(gen) : 0.0)) / n, (j + (inner ? jitter * rnd(gen) : 0.0)) / n,
+                         (k + (inner ? jitter * rnd(gen) : 0.0)) / n * stretch});
+      }
+    }
+  }
+
+  static const int pyramids[6][4] = {{0, 1, 2, 3}, {4, 7, 6, 5}, {0, 4, 5, 1}, {1, 5, 6, 2}, {2, 6, 7, 3}, {3, 7, 4, 0}};
+  for (auto i = 0ul; i < n; ++i) {
+    for (auto j = 0ul; j < n; ++j) {
+      for (auto k = 0ul; k < n; ++k) {
+        const unsigned long h[] = {Lattice(i, j, k, n),             Lattice(i + 1, j, k, n),
+                                   Lattice(i + 1, j + 1, k, n),     Lattice(i, j + 1, k, n),
+                                   Lattice(i, j, k + 1, n),         Lattice(i + 1, j, k + 1, n),
+                                   Lattice(i + 1, j + 1, k + 1, n), Lattice(i, j + 1, k + 1, n)};
+        if (kind == 0) {
+          elems << "12";
+          for (const auto node : h) elems << " " << node;
+          elems << "\n";
+          ++nElem;
+        } else if (kind == 1) {
+          elems << "13 " << h[0] << " " << h[1] << " " << h[2] << " " << h[4] << " " << h[5] << " " << h[6] << "\n";
+          elems << "13 " << h[0] << " " << h[2] << " " << h[3] << " " << h[4] << " " << h[6] << " " << h[7] << "\n";
+          nElem += 2;
+        } else {
+          std::array<double, 3> center = {0.0, 0.0, 0.0};
+          for (const auto node : h) {
+            for (int iDim = 0; iDim < 3; ++iDim) center[iDim] += coord[node][iDim] / 8;
+          }
+          const auto apex = coord.size();
+          coord.push_back(center);
+          for (const auto& p : pyramids) {
+            elems << "14 " << h[p[0]] << " " << h[p[1]] << " " << h[p[2]] << " " << h[p[3]] << " " << apex << "\n";
+            ++nElem;
+          }
+        }
+      }
+    }
+  }
+  for (const auto& x : coord) points << x[0] << " " << x[1] << " " << x[2] << "\n";
+  nPoint = coord.size();
+
+  auto quad = [&](std::ostringstream& os, unsigned long& count, bool tris, unsigned long a, unsigned long b,
+                  unsigned long c, unsigned long d) {
+    if (tris) {
+      os << "5 " << a << " " << b << " " << c << "\n5 " << a << " " << c << " " << d << "\n";
+      count += 2;
+    } else {
+      os << "9 " << a << " " << b << " " << c << " " << d << "\n";
+      ++count;
+    }
+  };
+  const bool prism = (kind == 1);
+  for (auto u = 0ul; u < n; ++u) {
+    for (auto v = 0ul; v < n; ++v) {
+      quad(bottom, nBottom, prism, Lattice(u, v, 0, n), Lattice(u, v + 1, 0, n), Lattice(u + 1, v + 1, 0, n), Lattice(u + 1, v, 0, n));
+      quad(rest, nRest, prism, Lattice(u, v, n, n), Lattice(u + 1, v, n, n), Lattice(u + 1, v + 1, n, n), Lattice(u, v + 1, n, n));
+      quad(rest, nRest, false, Lattice(u, 0, v, n), Lattice(u + 1, 0, v, n), Lattice(u + 1, 0, v + 1, n), Lattice(u, 0, v + 1, n));
+      quad(rest, nRest, false, Lattice(u, n, v, n), Lattice(u, n, v + 1, n), Lattice(u + 1, n, v + 1, n), Lattice(u + 1, n, v, n));
+      quad(rest, nRest, false, Lattice(0, u, v, n), Lattice(0, u, v + 1, n), Lattice(0, u + 1, v + 1, n), Lattice(0, u + 1, v, n));
+      quad(rest, nRest, false, Lattice(n, u, v, n), Lattice(n, u + 1, v, n), Lattice(n, u + 1, v + 1, n), Lattice(n, u, v + 1, n));
+    }
+  }
+  f << "NDIME= 3\nNELEM= " << nElem << "\n" << elems.str() << "NPOIN= " << nPoint << "\n" << points.str();
+  f << "NMARK= 2\nMARKER_TAG= bottom\nMARKER_ELEMS= " << nBottom << "\n" << bottom.str();
+  f << "MARKER_TAG= rest\nMARKER_ELEMS= " << nRest << "\n" << rest.str();
 }
 
 /*!
@@ -476,6 +589,107 @@ TEST_CASE("P1 edge form reduces to the median normal on the median dual", "[P1Fl
     }
     INFO("nDim " << nDim);
     CHECK(maxE < 1e-13);
+    CHECK(maxDiff < 1e-13);
+  }
+}
+
+/*--- Sum of the split flux of one equation at each node, with the true edges and the extra pairs. ---*/
+std::vector<su2double> SplitSum(const CGeometry& geometry, const LinearFlux& flux, bool constant) {
+  const auto nDim = geometry.GetnDim();
+  std::vector<su2double> R(geometry.GetnPoint(), 0.0);
+  auto add = [&](unsigned long iPoint, unsigned long jPoint, const su2double* normal) {
+    su2double phi = 0.0;
+    for (auto iDim = 0u; iDim < nDim; ++iDim) {
+      phi += (constant ? flux.b[iDim] : 0.5 * (flux.Eval(geometry, iPoint, iDim) + flux.Eval(geometry, jPoint, iDim))) *
+             normal[iDim];
+    }
+    R[iPoint] += phi;
+    R[jPoint] -= phi;
+  };
+  for (auto iEdge = 0ul; iEdge < geometry.GetnEdge(); ++iEdge) {
+    add(geometry.edges->GetNode(iEdge, 0), geometry.edges->GetNode(iEdge, 1), geometry.edges->GetFormNormal()[iEdge]);
+  }
+  const auto& pairs = geometry.edges->GetSplitNodes();
+  for (auto iSplit = 0ul; iSplit < pairs.size(); ++iSplit) {
+    add(pairs[iSplit][0], pairs[iSplit][1], geometry.edges->GetSplitNormal()[iSplit]);
+  }
+  return R;
+}
+
+TEST_CASE("Split edges on general cells", "[P1Flux]") {
+  struct Kind {
+    int nDim, kind;
+    unsigned long n;
+  };
+  for (const auto& mesh : {Kind{2, 0, 10}, Kind{3, 0, 5}, Kind{3, 1, 5}, Kind{3, 2, 4}}) {
+    for (double stretch : {1.0, 1e-3}) {
+      const std::string name = "p1_split_" + std::to_string(mesh.nDim) + "_" + std::to_string(mesh.kind) + ".su2";
+      WriteGeneralMesh(name, mesh.nDim, mesh.kind, mesh.n, 0.2, stretch);
+      MeshCase test(name, "CONV_NUM_METHOD_FLOW= JST\nSPLIT_EDGE_FLUX= YES\n");
+      auto& geometry = *test.geometry;
+      geometry.SetSplitEdges();
+      INFO("nDim " << mesh.nDim << " kind " << mesh.kind << " stretch " << stretch);
+
+      /*--- The split volumes fill the box. ---*/
+
+      su2double local[3] = {}, global[3] = {};
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+        local[0] += geometry.edges->GetSplitVolume()[iPoint];
+      }
+
+      /*--- A linear flux is exact at interior nodes. ---*/
+
+      LinearFlux flux;
+      const auto div = flux.Div(mesh.nDim);
+      auto R = SplitSum(geometry, flux, false);
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+        if (geometry.nodes->GetPhysicalBoundary(iPoint)) continue;
+        local[1] = std::max(local[1], fabs(R[iPoint] / geometry.edges->GetSplitVolume()[iPoint] - div) / fabs(div));
+      }
+
+      /*--- A constant flux closes at every node with the vertex normals: free stream is kept. ---*/
+
+      R = SplitSum(geometry, flux, true);
+      for (auto iMarker = 0u; iMarker < geometry.GetnMarker(); ++iMarker) {
+        if (test.config->GetMarker_All_KindBC(iMarker) == SEND_RECEIVE) continue;
+        for (auto iVertex = 0ul; iVertex < geometry.GetnVertex(iMarker); ++iVertex) {
+          const auto iPoint = geometry.vertex[iMarker][iVertex]->GetNode();
+          const auto* normal = geometry.vertex[iMarker][iVertex]->GetNormal();
+          for (auto iDim = 0u; iDim < geometry.GetnDim(); ++iDim) R[iPoint] += flux.b[iDim] * normal[iDim];
+        }
+      }
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+        local[2] = std::max(local[2], fabs(R[iPoint]) / geometry.nodes->GetVolume(iPoint));
+      }
+
+      SU2_MPI::Allreduce(local, global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+      SU2_MPI::Allreduce(local + 1, global + 1, 2, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      CHECK(fabs(global[0] - stretch) < 1e-10 * stretch);
+      CHECK(global[1] < 1e-8);
+      CHECK(global[2] < 1e-8 / stretch);
+    }
+  }
+}
+
+TEST_CASE("Split edges on simplices reduce to the median normal", "[P1Flux]") {
+  for (int nDim : {2, 3}) {
+    const std::string mesh = "p1_split_simplex_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 12 : 5, 0.4, 1.0);
+    MeshCase test(mesh, "CONV_NUM_METHOD_FLOW= JST\nSPLIT_EDGE_FLUX= YES\n");
+    auto& geometry = *test.geometry;
+    geometry.SetSplitEdges();
+
+    su2double maxDiff = 0.0;
+    for (auto iEdge = 0ul; iEdge < geometry.GetnEdge(); ++iEdge) {
+      if (geometry.nodes->GetDomain(geometry.edges->GetNode(iEdge, 0)) ||
+          geometry.nodes->GetDomain(geometry.edges->GetNode(iEdge, 1))) {
+        for (auto iDim = 0; iDim < nDim; ++iDim) {
+          maxDiff = std::max(maxDiff, fabs(geometry.edges->GetFormNormal()(iEdge, iDim) - geometry.edges->GetNormal(iEdge)[iDim]));
+        }
+      }
+    }
+    INFO("nDim " << nDim);
+    CHECK(geometry.edges->GetSplitNodes().empty());
     CHECK(maxDiff < 1e-13);
   }
 }

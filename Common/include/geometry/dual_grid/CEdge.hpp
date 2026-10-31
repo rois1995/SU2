@@ -29,6 +29,9 @@
 
 #include "../../containers/C2DContainer.hpp"
 
+#include <array>
+#include <vector>
+
 class CPhysicalGeometry;
 
 /*!
@@ -47,6 +50,9 @@ class CEdge {
   su2activematrix a,b,c; /*!< \brief Normal (area) of the edge. */
   su2activematrix ModNormal; /*!< \brief Normal of the modified dual, allocated only for DISSIPATION_MOD_NORMALS. */
   su2activematrix FormNormal, FormE; /*!< \brief Coefficients n_ik and E_ik, allocated only for EDGE_FORM_P1. */
+  std::vector<std::array<Index, 2>> SplitNodes; /*!< \brief Node pairs of the split edges that are not true edges. */
+  su2activematrix SplitNormal; /*!< \brief Coefficient n_ik of those pairs, allocated only for SPLIT_EDGE_FLUX. */
+  su2activevector SplitVolume; /*!< \brief Nodal volume of the split, sum_t |t|/(d+1), allocated only for SPLIT_EDGE_FLUX. */
   const Index nEdge, nEdgeSIMD;
 
   friend class CPhysicalGeometry;
@@ -212,6 +218,21 @@ class CEdge {
    * \brief Coefficient E_ik of the P1 edge form, one row per edge, i is the LEFT node.
    */
   inline const su2activematrix& GetFormE() const { return FormE; }
+
+  /*!
+   * \brief Node pairs of the split edges that are not true edges, n_ik goes from the first to the second.
+   */
+  inline const std::vector<std::array<Index, 2>>& GetSplitNodes() const { return SplitNodes; }
+
+  /*!
+   * \brief Coefficient n_ik of the split edges that are not true edges, one row per pair.
+   */
+  inline const su2activematrix& GetSplitNormal() const { return SplitNormal; }
+
+  /*!
+   * \brief Nodal volume of the split, not used by the solver (the volumes stay median).
+   */
+  inline const su2activevector& GetSplitVolume() const { return SplitVolume; }
 
   inline const su2activematrix& GetCorrection_X() const { return a; }
   inline const su2activematrix& GetCorrection_Y() const { return b; }

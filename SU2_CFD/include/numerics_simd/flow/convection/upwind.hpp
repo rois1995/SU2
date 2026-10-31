@@ -79,7 +79,7 @@ protected:
     typeLimiter(config.GetKind_SlopeLimit_Flow()),
     correction(muscl && config.GetFluxCorrection()),
     modNormals(finestGrid && config.GetDissipation_Mod_Normals()),
-    edgeForm(finestGrid && config.GetEdge_Form_P1()) {
+    edgeForm(finestGrid && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())) {
   }
 
 public:
