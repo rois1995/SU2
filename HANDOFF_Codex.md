@@ -88,7 +88,12 @@ new placement differs with geometry/cache cost model. Stage ownership_staged
 census is old ownership, not independent new-partition flag audit. Next splitting
 censuses must remain complete. Latest sampled treeRSS~6.0GB at967.9wall seconds,
 not physical/job peak. All10owned identities match; load varied and no pressure.
-Fullrun exec94456 LIVE/source frozen; zero acceptedmesh/actual transfer/restart.
+First split generation COMPLETE, native732.290s:495390cells,117030size-bad,
+3861geometry-bad,36823cumulative splits, allconstructionflags intact/qJ0unmeasured.
+BEFORE gen1native1340.254s/495388cells/117022size-bad/3860geometry-bad/36820splits.
+Counts nearly match but changed phaseownership means no exact-generation identity.
+AFTER/split_generation_assessment.json. Fullrun exec94456 LIVE/source frozen;
+zero acceptedmesh/actual transfer/restart.
 Native curved mobility setup181938600work,674protectededges/2corners/2fixedpoints/
 671curvepoints/23806surfacepoints. Initial ownership partition COMPLETE:303359cells preserved; all17compared per-rank
 cell/metric/geometry workload and graph fields EXACTLY match BEFORE, including
