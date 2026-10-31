@@ -148,3 +148,15 @@ This is deferred source-review guidance, not an active second cycle; current175
 stays frozen to full outcome. Raw short-edge counts alone do not prove that more
 coarsening fixes the shape failures. Preserve accepted-mesh/transfer/restart/BL/
 RANS obligations, and assess the actual terminal bottleneck before choosing.
+
+### 2026-10-31 conditional publication-cost review after179outcome
+
+One bounded179quality sample includes Directory::Publish6.78% and
+PrepareParameters5.76%, versus surface union4.98%. These are overlapping
+instantaneous inclusive shares, NOT phase costs or a proven dominant blocker.
+Keep179frozen and judge complete debt reduction first. If its terminal outcome
+makes publication a demonstrated throughput blocker, inspect existing compound
+publication facilities before creating new infrastructure. Any grouping must
+prove complete geometry/parameter dependencies and simultaneous clearance, retain
+versions/IDs/height/body gates and transient admission, and avoid stale prebuilt
+curved contexts. No immediate reprioritization or batch-limit increase.

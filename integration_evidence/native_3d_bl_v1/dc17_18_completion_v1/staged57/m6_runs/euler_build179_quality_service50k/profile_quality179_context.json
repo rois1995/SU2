@@ -1,0 +1,81 @@
+{
+  "time": 1793428008.450024,
+  "scope": "One bounded two-second activity check of actual frozen179quality; not phase-wide timing or acceptance",
+  "argv": [
+    "timeout",
+    "12",
+    "nice",
+    "-n",
+    "19",
+    "perf",
+    "record",
+    "--no-buildid-cache",
+    "-F",
+    "49",
+    "--call-graph",
+    "dwarf,8192",
+    "-p",
+    "2685274,2685273,2685272,2685271,2685270,2685269",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build179_quality_service50k/profile_quality179.data",
+    "--",
+    "sleep",
+    "2"
+  ],
+  "ranks": [
+    {
+      "pid": 2685274,
+      "startticks": 84117010,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build179_quality_service50k",
+      "ppid": 2685265,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 2685273,
+      "startticks": 84117010,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build179_quality_service50k",
+      "ppid": 2685265,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 2685272,
+      "startticks": 84117010,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build179_quality_service50k",
+      "ppid": 2685265,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 2685271,
+      "startticks": 84117010,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build179_quality_service50k",
+      "ppid": 2685265,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 2685270,
+      "startticks": 84117010,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build179_quality_service50k",
+      "ppid": 2685265,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 2685269,
+      "startticks": 84117009,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build179_quality_service50k",
+      "ppid": 2685265,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    }
+  ],
+  "exit_code": 0,
+  "seconds": 3.2968220710754395,
+  "output": "[ perf record: Woken up 13 times to write data ]\n[ perf record: Captured and wrote 4.598 MB /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build179_quality_service50k/profile_quality179.data (520 samples) ]\n",
+  "raw_data_local_only": true,
+  "data_bytes": 4834000,
+  "data_sha256": "919be8f3db51dc1d59bf623131cc231c7a411589564c8c09c73aff2b750dbc36"
+}

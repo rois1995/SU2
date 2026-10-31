@@ -1,0 +1,19 @@
+{
+  "time": 1793428099.0285356,
+  "scope": "Single two-second activity sample of frozen179 quality; not phase totals, progress, isolation or acceptance",
+  "samples": 520,
+  "lost_samples": 0,
+  "data_bytes": 4834000,
+  "data_sha256": "919be8f3db51dc1d59bf623131cc231c7a411589564c8c09c73aff2b750dbc36",
+  "inclusive_percent": {
+    "PMPI_Allreduce": 76.27,
+    "QuerySurfaceUnion": 4.98,
+    "GeometryGuidanceExcess": 4.58,
+    "SmoothBoundary": 3.13,
+    "DirectoryPublish": 6.78,
+    "PrepareParameters": 5.76
+  },
+  "interpretation": "Active geometry fitting, exact predicates and parameter publication alongside collective waits; no all-rank deadlock during this sample. Inclusive shares overlap and cannot be summed; no new blocker inferred without complete useful-progress evidence.",
+  "timing_limitation": "Capture3.297s plus low-priority no-inline reports0.724s may contend with the run; no guessed subtraction or isolated speedup claim.",
+  "raw_data": "Local only; never committed"
+}

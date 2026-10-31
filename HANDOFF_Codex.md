@@ -43,6 +43,11 @@ Size closure982.301native seconds vs175986.182,720958cells/size0. Quality entry
 53564J-bad/3293geometry-bad/size0; q/Jdebt22311.06548689389. ALL entry counts,
 debts and geometry/cache work match175. Ownership moved360022cells once in13.998s.
 Current phase: quality; no complete quality window yet at the saved assessment.
+One2s49Hz profile520samples/0lost confirms active fitting/exact predicates and
+parameter publication plus waits; Allreduce76.27%inclusive overlaps other shares.
+No all-rank deadlock during sample; not phase-wide cost/progress evidence.
+Profile context/assessment/text reports in179run; raw perf remains LOCALONLY.
+Capture/report overhead is a timing limitation, not subtracted.
 Latest observation treeRSS~8.44GiB, ~23.9GiB host available; sampled sum peak
 11.685GiB. Summed RSS is not physical memory or an unsampled whole-job peak.
 Resources/owned_observations retained. See split_generation_assessment.json and
