@@ -304,3 +304,49 @@ TEST_CASE("Median edge sum is the P1 integral of the group flux at interior node
     }
   }
 }
+
+TEST_CASE("Modified normals close the dual and leave the median data alone", "[P1Flux]") {
+  for (int nDim : {2, 3}) {
+    const std::string mesh = "p1_modnormal_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 12 : 5, 0.4, 1.0);
+    MeshCase test(mesh, "DISSIPATION_MOD_NORMALS= YES\nCONV_NUM_METHOD_FLOW= JST\n");
+    auto& geometry = *test.geometry;
+
+    const auto nEdge = geometry.GetnEdge();
+    su2activematrix median(nEdge, nDim);
+    for (auto iEdge = 0ul; iEdge < nEdge; ++iEdge) {
+      for (auto iDim = 0; iDim < nDim; ++iDim) median(iEdge, iDim) = geometry.edges->GetNormal(iEdge)[iDim];
+    }
+    std::vector<su2double> volume(geometry.GetnPoint());
+    for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) volume[iPoint] = geometry.nodes->GetVolume(iPoint);
+
+    geometry.SetDissipationNormals();
+
+    const auto& modNormal = geometry.edges->GetModNormal();
+    std::vector<su2double> closure(geometry.GetnPoint() * nDim, 0.0);
+    su2double maxMedianChange = 0.0, maxDifference = 0.0, maxVolumeChange = 0.0, maxOpen = 0.0;
+
+    for (auto iEdge = 0ul; iEdge < nEdge; ++iEdge) {
+      const auto iPoint = geometry.edges->GetNode(iEdge, 0);
+      const auto jPoint = geometry.edges->GetNode(iEdge, 1);
+      for (auto iDim = 0; iDim < nDim; ++iDim) {
+        maxMedianChange = std::max(maxMedianChange, fabs(median(iEdge, iDim) - geometry.edges->GetNormal(iEdge)[iDim]));
+        maxDifference = std::max(maxDifference, fabs(median(iEdge, iDim) - modNormal(iEdge, iDim)));
+        closure[iPoint * nDim + iDim] += modNormal(iEdge, iDim);
+        closure[jPoint * nDim + iDim] -= modNormal(iEdge, iDim);
+      }
+    }
+    for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+      maxVolumeChange = std::max(maxVolumeChange, fabs(volume[iPoint] - geometry.nodes->GetVolume(iPoint)));
+    }
+    for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+      if (geometry.nodes->GetPhysicalBoundary(iPoint)) continue;
+      for (auto iDim = 0; iDim < nDim; ++iDim) maxOpen = std::max(maxOpen, fabs(closure[iPoint * nDim + iDim]));
+    }
+    INFO("nDim " << nDim);
+    CHECK(maxMedianChange == 0.0);
+    CHECK(maxVolumeChange == 0.0);
+    CHECK(maxOpen < 1e-13);
+    if (SU2_MPI::GetSize() == 1) CHECK(maxDifference > 1e-4);
+  }
+}

@@ -45,6 +45,7 @@ class CEdge {
   NodeArray Nodes;        /*!< \brief Vector to store the node indices of the edge. */
   su2activematrix Normal; /*!< \brief Normal (area) of the edge. */
   su2activematrix a,b,c; /*!< \brief Normal (area) of the edge. */
+  su2activematrix ModNormal; /*!< \brief Normal of the modified dual, allocated only for DISSIPATION_MOD_NORMALS. */
   const Index nEdge, nEdgeSIMD;
 
   friend class CPhysicalGeometry;
@@ -196,6 +197,11 @@ class CEdge {
    * \brief Get the entire matrix of edge normals.
    */
   inline const su2activematrix& GetNormal() const { return Normal; }
+  /*!
+   * \brief Normals of the modified dual, one row per edge, same orientation as GetNormal.
+   */
+  inline const su2activematrix& GetModNormal() const { return ModNormal; }
+
   inline const su2activematrix& GetCorrection_X() const { return a; }
   inline const su2activematrix& GetCorrection_Y() const { return b; }
   inline const su2activematrix& GetCorrection_Z() const { return c; }

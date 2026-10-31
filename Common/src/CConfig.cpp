@@ -1829,6 +1829,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("BC_FLUX_CLOSURE", BC_Flux_Closure, false);
   /*!\brief CENTRAL_GROUP_FLUX \n DESCRIPTION: Centered schemes use 0.5(F_i+F_j).n, the exact P1 integral on the median dual of simplices \ingroup Config \default false */
   addBoolOption("CENTRAL_GROUP_FLUX", Central_Group_Flux, false);
+  /*!\brief DISSIPATION_MOD_NORMALS \n DESCRIPTION: Median normal in the central flux, normal of the modified dual in dissipation and Jacobian, median volumes \ingroup Config \default false */
+  addBoolOption("DISSIPATION_MOD_NORMALS", Dissipation_Mod_Normals, false);
 
   /*!\brief MARKER_HEATTRANSFER DESCRIPTION: Heat flux with specified heat transfer coefficient boundary marker(s)\n
    * Format: ( Heat transfer marker, heat transfer coefficient, wall temperature (static), ... ) \ingroup Config  */
@@ -6206,6 +6208,7 @@ void CConfig::CheckP1FluxOptions() const {
   vector<string> active;
   if (BC_Flux_Closure) active.push_back("BC_FLUX_CLOSURE");
   if (Central_Group_Flux) active.push_back("CENTRAL_GROUP_FLUX");
+  if (Dissipation_Mod_Normals) active.push_back("DISSIPATION_MOD_NORMALS");
 
   if (active.empty()) return;
 
@@ -6231,6 +6234,14 @@ void CConfig::CheckP1FluxOptions() const {
   if (Central_Group_Flux && Kind_ConvNumScheme_Flow != SPACE_CENTERED) {
     SU2_MPI::Error("CENTRAL_GROUP_FLUX: only for centered schemes, the central part of Roe is already in group form.",
                    CURRENT_FUNCTION);
+  }
+  if (Dissipation_Mod_Normals) {
+    const string name = "DISSIPATION_MOD_NORMALS: ";
+    if (ModCentroids) SU2_MPI::Error(name + "the volumes stay median, do not combine it with MOD_CENTROIDS.", CURRENT_FUNCTION);
+    if (FluxCorrection) SU2_MPI::Error(name + "not available with FLUX_CORRECTION.", CURRENT_FUNCTION);
+    if (Kind_ConvNumScheme_Flow == SPACE_UPWIND && Kind_Upwind_Flow != UPWIND::ROE) {
+      SU2_MPI::Error(name + "among the upwind schemes only ROE is supported.", CURRENT_FUNCTION);
+    }
   }
 }
 

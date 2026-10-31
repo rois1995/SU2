@@ -445,6 +445,11 @@ class CPhysicalGeometry final : public CGeometry {
    * \param[in] action - Allocate or not the new elements.
    */
   void SetBoundControlVolume(const CConfig* config, unsigned short action) override;
+  void SetDissipationNormals() override;
+
+  /*!
+   * \brief Coefficients of the boundary closure of the flux correction.
+   */
   void SetBoundCVCoeffs(const CConfig* config, unsigned short action) override;
 
   /*!

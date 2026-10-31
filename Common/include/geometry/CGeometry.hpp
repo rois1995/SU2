@@ -944,6 +944,11 @@ class CGeometry {
    * \param[in] action - Allocate or not the new elements.
    */
   inline virtual void SetBoundControlVolume(const CConfig* config, unsigned short action) {}
+  /*!
+   * \brief Set the edge normals of the modified dual, leaving the median normals and volumes as they are.
+   */
+  inline virtual void SetDissipationNormals() {}
+
   inline virtual void SetBoundCVCoeffs(const CConfig* config, unsigned short action) {}
 
   /*!

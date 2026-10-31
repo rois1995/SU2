@@ -62,6 +62,7 @@ protected:
   const su2double umusclKappa;
   const LIMITER typeLimiter;
   const bool correction;
+  const bool modNormals;
 
   /*!
    * \brief Constructor, store some constants and forward args to base.
@@ -75,7 +76,8 @@ protected:
     muscl(finestGrid && config.GetMUSCL_Flow()),
     umusclKappa(config.GetMUSCL_Kappa_Flow()),
     typeLimiter(config.GetKind_SlopeLimit_Flow()),
-    correction(muscl && config.GetFluxCorrection()) {
+    correction(muscl && config.GetFluxCorrection()),
+    modNormals(finestGrid && config.GetDissipation_Mod_Normals()) {
   }
 
 public:
@@ -114,6 +116,18 @@ public:
       unitNormal(iDim) = normal(iDim) / area;
     }
 
+    /*--- The central flux and the viscous terms use the median normal. Dissipation and
+     * Jacobians use the modified one if requested (the same one otherwise). ---*/
+
+    auto dissNormal = normal;
+    auto dissArea = area;
+    auto dissUnitNormal = unitNormal;
+    if (modNormals) {
+      dissNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetModNormal());
+      dissArea = norm(dissNormal);
+      for (size_t iDim = 0; iDim < nDim; ++iDim) dissUnitNormal(iDim) = dissNormal(iDim) / dissArea;
+    }
+
     /*--- Reconstructed primitives. ---*/
 
     CPair<CCompressiblePrimitives<nDim,nPrimVar> > V1st;
@@ -137,8 +151,8 @@ public:
     const auto derived = static_cast<const Derived*>(this);
     VectorDbl<nVar> flux;
     MatrixDbl<nVar> jac_i, jac_j;
-    derived->finalizeFlux(flux, jac_i, jac_j, implicit, area, unitNormal, normal,
-                          V, U, iPoint, jPoint, nonPhysical, solution, geometry);
+    derived->finalizeFlux(flux, jac_i, jac_j, implicit, dissArea, dissUnitNormal, normal,
+                          V, U, iPoint, jPoint, nonPhysical, solution, geometry, dissNormal);
 
     /*--- Correct for second order on arbitrary grids ---*/
     if (correction) {
@@ -219,6 +233,7 @@ public:
                                 const Double& nonPhysical,
                                 const CEulerVariable& solution,
                                 const CGeometry& geometry,
+                                const VectorDbl<nDim>& dissNormal,
                                 Ts&...) const {
     /*--- Roe averaged variables. ---*/
 
@@ -259,8 +274,8 @@ public:
       flux(iVar) = 0.5 * (flux_i(iVar) + flux_j(iVar));
     }
     if (implicit) {
-      jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), normal, kappa);
-      jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), normal, kappa);
+      jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), dissNormal, kappa);
+      jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), dissNormal, kappa);
     }
 
     /*--- Correct for grid motion. ---*/

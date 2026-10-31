@@ -757,6 +757,7 @@ void CDriver::InitializeGeometryFVM(CConfig *config, CGeometry **&geometry) {
     geometry[MESH_0]->SetControlVolume(config, ALLOCATE);
     geometry[MESH_0]->SetBoundControlVolume(config, ALLOCATE);
     geometry[MESH_0]->SetBoundCVCoeffs(config, ALLOCATE);
+    if (config->GetDissipation_Mod_Normals()) geometry[MESH_0]->SetDissipationNormals();
   }
   END_SU2_OMP_PARALLEL
 

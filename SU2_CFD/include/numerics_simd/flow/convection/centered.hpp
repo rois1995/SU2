@@ -52,6 +52,7 @@ protected:
   const su2double fixFactor;
   const bool dynamicGrid;
   const bool groupFlux;
+  const bool modNormals;
   const su2double stretchParam = 0.3;
 
   /*!
@@ -62,7 +63,8 @@ protected:
     gamma(config.GetGamma()),
     fixFactor(config.GetCent_Jac_Fix_Factor()),
     dynamicGrid(config.GetDynamic_Grid()),
-    groupFlux(iMesh == MESH_0 && config.GetCentral_Group_Flux()) {
+    groupFlux(iMesh == MESH_0 && config.GetCentral_Group_Flux()),
+    modNormals(iMesh == MESH_0 && config.GetDissipation_Mod_Normals()) {
   }
 
   /*!
@@ -111,6 +113,18 @@ public:
       unitNormal(iDim) = normal(iDim) / area;
     }
 
+    /*--- The central flux and the viscous terms use the median normal. Dissipation and
+     * Jacobians use the modified one if requested (the same one otherwise). ---*/
+
+    auto dissNormal = normal;
+    auto dissArea = area;
+    auto dissUnitNormal = unitNormal;
+    if (modNormals) {
+      dissNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetModNormal());
+      dissArea = norm(dissNormal);
+      for (size_t iDim = 0; iDim < nDim; ++iDim) dissUnitNormal(iDim) = dissNormal(iDim) / dissArea;
+    }
+
     /*--- Primitive variables. ---*/
 
     CPair<CCompressiblePrimitives<nDim,nPrimVar> > V;
@@ -150,8 +164,8 @@ public:
 
     MatrixDbl<nVar> jac_i, jac_j;
     if (implicit) {
-      jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), normal, 0.5);
-      jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), normal, 0.5);
+      jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), dissNormal, 0.5);
+      jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), dissNormal, 0.5);
     }
 
     /*--- Grid motion. ---*/
@@ -171,14 +185,14 @@ public:
       }
     }
 
-    const Double projVel = dot(avgV.velocity(), normal) - projGridVel;
+    const Double projVel = dot(avgV.velocity(), dissNormal) - projGridVel;
 
     /*--- Finalize in derived class (static polymorphism). ---*/
 
     const auto derived = static_cast<const Derived*>(this);
 
-    derived->finalizeFlux(flux, jac_i, jac_j, implicit, area, projVel, avgV, V,
-                          diffU, iPoint, jPoint, geometry, solution, unitNormal);
+    derived->finalizeFlux(flux, jac_i, jac_j, implicit, dissArea, projVel, avgV, V,
+                          diffU, iPoint, jPoint, geometry, solution, dissUnitNormal);
 
     /*--- Add the contributions from the base class (static decorator). ---*/
 
