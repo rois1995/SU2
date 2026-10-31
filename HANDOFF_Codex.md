@@ -67,13 +67,27 @@ counter/entry/byte deltas0,drift samples unchanged. No cache clearing or recerti
 LIVE/quality_window2_comparison.json,quality_service_assessment.json,
 quality_migration_assessment.json,all_quality_census_assessment.json preserve detail.
 Migration occurs AFTER window2 and belongs in next window's complete interval cost.
-Latest complete window3 at646.399092quality seconds:740570cells,45378q/44046J/
-3955geometry,size0;4186publications,8693netq/9331netJ/104geometryremoved since entry.
-Outcome and publications EXACT190 same round21696; quality_window3_comparison.json.
-Latest interval315.953205s INCLUDES first migration:3706netq/3845netJ/39geometry,
-2013commits,q11.7296/s. Second migration round21696 committed,cost15.893643s incl
-observations,spread1.60067→1.48458,globalcounts/debt/cache/drift preserved; belongs in
-NEXTinterval. ALL10complete censuses audited; zero missing/stuck/privatecollectives.
+Last audited window5 at1437.660574quality seconds:750209cells,40488q/38625J/
+3826geometry,size0;8018publications,13583netq/14752netJ/233geometryremoved since entry.
+Outcome and publications EXACT190 same round21824; traversal2285274456vs2347388609
+(-2.64610%). quality_window5_comparison.json. Latest interval333.720535s:
+2374netq/2542netJ/49geometry,1898commits,q7.11374/s,J7.61715/s;
+join-callshare.57760 includes protocol/wait,not pure idle. Cumulativeq9.44799/s vs
+1905.49041/s,not isolated timing. Before third migration debtspread2.01595,after1.25108;
+queue323635,blocked134,stuck0/missing0/privatecollectives0. Geometry gates unmet.
+Prior window4 (quality1103.940039s)42862q/41167J/3875geometry,6120publications matched
+190 with2.53571%less traversal. Window4 vs3 actual traversal+63.0% despite publications
+-3.9%; traversal/publication+69.7%,upperqueries/publication+33.9%,work/query+26.7%,
+netq/publication-29.3%. Contention alone cannot explain those counted work/yield
+changes; no next code selected before terminal. quality_window4_work_diagnosis.json
+retains private boundary/interior/rung/rejection/location detail and provenance.
+Three late redistributions committed21632/21696/21824,globalcounts/debt preserved
+within1.82e-12,ALLpreparedcache and numericmemo counters/entries/bytes unchanged,
+drift samples unchanged. Latest cost14.386965s incl observations belongs in NEXT
+window interval. Evaluation21760skipped. ALL14complete censuses audited;84rankcache
+snapshots within fixed numeric/prepared allowances. At1793479251ALL1401pins unchanged/
+10exacthandles live/82mappedELFfiles pinned:midrun_quality4_provenance.json.
+No source edits,source freeze active. Historical window2/3 comparisons retained.
 Current outcome pending; no actual transfer/adapted restart. Source remains FROZEN.
 Monitor complete aligned censuses, net whole-field q/J/geometry removal and distinct
 geometry/preparation/maintenance/trial work counters. Timers overlap; do not add
