@@ -44,28 +44,28 @@ censuses audited,private trackedcollectives0/commits0atentry,no repair progress 
 CURRENT/quality_entry_assessment.json,quality_entry_comparison.json,
 quality_initial_ownership_assessment.json and all_quality_census_assessment.json.
 All10handles/all1401pins/82ELF reverified1793486628:quality_entry_provenance.json.
-Preserved quality WINDOW17 at3858.608375s sinceentry:791971workingcells,
-11595q/8568J/3193geometry,size0,qJdebt308.705525503857.
-Cumulative33263publications,net42486q/44824J/577geometry removed:
-11.0107netq/s,1.27728netq/publication. Latest interval:
-1526q/1460J/20geometry in273.406614s,
-5.5814netq/s (includes preceding migration cost). Migration AFTER
-this window is charged to the next complete interval. All46complete censuses
-are audited; latest stageownership_committed at round22656,queue152629,
-blocked294,stuckshape8/required8,
+Preserved quality WINDOW18 at4160.423044s sinceentry:794720workingcells,
+10007q/7071J/3169geometry,size0,qJdebt199.404717080274.
+Cumulative35271publications,net44074q/46321J/601geometry removed:
+10.5936netq/s,1.24958netq/publication. Latest interval:
+1588q/1497J/24geometry in301.814669s,
+5.2615netq/s (includes preceding migration cost). Migration AFTER
+this window is charged to the next complete interval. All47complete censuses
+are audited; latest stagewindow at round22720,queue136394,
+blocked296,stuckshape9/required9,
 missing0,private trackedcollectives0.
 Coordinate-key churn includes moved cells despite unchanged connectivity. Judge net
 counts,not raw retirements/debt percent. Records:CURRENT/quality_trend_assessment.json,
 quality_service_assessment.json and all_quality_census_assessment.json.
 
-Actual nearest-q comparison:19311595q/8568J/3193geometry vs191
-16191q/12965J/3509geometry,qualitytimes3858.608vs4277.123s;
-publications33263vs28245,traversal4965300725vs6146400481
-(19.22%less),work/netq116869.1vs162259.8.
+Actual nearest-q comparison:19310007q/7071J/3169geometry vs191
+16191q/12965J/3509geometry,qualitytimes4160.423vs4277.123s;
+publications35271vs28245,traversal5425675543vs6146400481
+(11.73%less),work/netq123103.8vs162259.8.
 Different meshes/paths/metrics and host contention: no interpolation,identical-work
 or isolated timing claim. Actual time brackets and earlier snapshots are preserved:
 CURRENT/quality_window*_comparison.json (actual snapshot times recorded). Source freeze intact:CURRENT/
-quality_window17_live_provenance.json verifiesall10handles/1401pins/82mappedELF.
+quality_window18_live_provenance.json verifiesall10handles/1401pins/82mappedELF.
 
 13actual late complete-census migrations conserve counts/debt/flags and selected
 prepared/numeric memo counters/entries/bytes/drift availability. Latest round22656:
@@ -77,13 +77,13 @@ actual counters do NOT independently prove every per-feature history or cache ke
 Bounded primary-reviewed source/receipt limits:quality_migration_review.json (first2
 late migrations,canonical10censusprefix hash retained).
 
-Current badpopulation:9953q/6186Jinterior,1642q/2382Jsurface.
+Current badpopulation:8598q/5114Jinterior,1409q/1957Jsurface.
 Interior means no physical face,not unconstrained vertices. Private boundary/interior
 smoothing work/debt is separate in quality_service_assessment.json; it is NOT published
 cavity gain. Timers nest; join calls include protocol/wait. Sixreports replicate
 16GLOBALfixed metricsamples,supported16/lost0,maxdrift
 3.01737%sincequalityentry; no original continuous-CFD-target fidelity proof.
-Resource receipts:quality_window17_resources.json; sampled summedRSS is not physical
+Resource receipts:quality_window18_resources.json; sampled summedRSS is not physical
 or true peak. Keep193frozen; choose further implementation from terminal outcome.
 
 
