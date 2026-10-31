@@ -10,16 +10,48 @@ feature/height validity and intentionally omits q/J. CAD remains optional.
 
 ## Authoritative current live state
 
-**Build179 first event naturally FAILED its time budget; overall two-event job
-still RUNNING and must finish untouched under the latest user instruction**, exec16090:
-`staged57/m6_runs/euler_build179_quality_service50k`.
-Driver2685167, time2685263, timeout2685264, mpirun2685265, ranks2685269–2685274.
-Exact ten identities/startticks in startup_verification.json. All ten verified live
-on host /proc at the latest observation. All1396source/build/runtime/input pins
-independently verified at startup and completed coarsening; all81actually mapped
-libraries covered. C++/binary/helpers/config/inputs FROZEN until terminal or a
-preserved authorized stop. One heavy job, nice19, libs1, MPI6, native5400s/event,
-outer14400s. Two ACTUALLY accepted events are required.
+**Original-grid M6 Euler CFD solve RUNNING**, exec46140:
+`staged57/m6_seed_runs/original_grid_cfd179_v2`.
+Python2953461,time2953587,timeout2953588,mpirun2953589,ranks2953601–2953606.
+Exact ten identities/startticks in startup_verification.json; all verified live,
+1395pins unchanged, all68actually mapped libraries covered. Source/helper/binary/
+config/inputs FROZEN. Uses unchanged179CFD, nice19,MPI6,libs1,original61330points/
+303359cells,ADAP_LOOP=NO,COMPUTE_METRIC=NO,MG0,adaptiveCFLcap20,max5000iterations,
+outer3600s. Numbered restarts every100iterations preserve earlier files. History
+contains all five residuals and CL/CD every iteration. Qualification requires
+rho log<=-6,all5residuals down>=4orders,stable final200CL/CD,exact mesh-coordinate
+order and finite positive density/internal energy. No convergence acceptance yet.
+Latest observation82history rows,iteration81,rho log-1.9807,CL.27136,CD.00740066;
+68.6s,treeRSS.712GiB. Hostload22.00/19.58/15.93 with~31.6GiB available: timing
+contended; no whole-job peak inference. Sole owned heavy workload.
+
+New run_m6.py REQUIRES a qualified seed directory, copies baseline_euler_seed.dat
+and sets RESTART_SOL=YES with separate restart_flow output. Before/after first
+remeshing uses the same deterministic ITER1 continuation from that saved seed.
+Checks: m6_seed_input_checks.json; config/history gates and real61330point
+coordinate/admissibility positive/negative checks PASS. These checks do not prove
+convergence, seed resume, accepted adaptation or adapted disk restart. First seed
+launch v1 terminated during manifest setup (str.resolve bug), before any CFD
+launch; v2 corrected Path normalization and verified live manifest/runtime pins.
+No C++ changes/builds before the requested unchanged-code saved-CFD baseline.
+
+**Build179 TERMINAL after latest explicit user-authorized stop because it uses
+ITER1 startup CFD, not a reasonably converged solution**, exec16090 exit1.
+Run: `staged57/m6_runs/euler_build179_quality_service50k`.
+All ten exact owned identities independently verified ABSENT on host /proc;
+all1396source/build/runtime/input/helper pins unchanged. Receipts:
+terminal_handles.json,user_authorized_stop.json,status.json. First event naturally
+failed native time budget before the user-authorized stop during the next event.
+No accepted mesh/transfer/adapted restart. Production CFD179 remains unchanged.
+
+Latest user supersedes prior no-stop/no-new-baseline restrictions: stop the
+startup-field run; obtain and save a reasonably converged original-grid Euler
+solution; then compare BEFORE and AFTER implementation using that exact same
+saved seed, and base subsequent results on this new baseline. Current heavy job is original-grid CFD qualification with current179binary;
+next is the unchanged-code full M6 baseline. Do not implement the repair/ownership change before preserving that
+baseline's terminal evidence. One owned heavy job, nice19, libs1, MPI6; native
+budget5400/event remains unchanged. See linked connected plan for convergence
+criteria, baseline order and complete goal.
 
 Qualified checkpoint6ea65d9141; productionc132020654, test contractsa0e5e3bec7.
 CFD SHAe8f81c5a941f6d03fea81c6437e9f4f6d4305044e55e6de4d6a2113bd0116072.
@@ -48,10 +80,9 @@ elapsed-time budget. All six complete=0/final=0. Last COMPLETE census7:
 3960.659quality seconds,70.302200%q/Jdebt fall;752202cells,34386q-bad/
 33995J-bad/2854geometry-bad/size0;13883commits. Partial exit census is invalid:
 zero printed bad/debt counts mean UNKNOWN, not closure. First-event receipt:
-179run/event1_natural_failure.json. The overall driver proceeded to its next
-attempt; all ten original owned identities verified live at helper6211.6s,
-latest phase construction/split_interior_entry. Do NOT stop179 for the next
-implementation. Source/helper/binary freeze persists until all handles terminal.
+179run/event1_natural_failure.json. The driver proceeded to its next event; the user then explicitly authorized
+stopping because the initial CFD field was not reasonably converged. Verified
+launcher2685265 received SIGTERM; all ten identities are now absent.
 No accepted mesh/actual transfer/adapted restart. Latest treeRSS8.296GiB,
 MemAvailable~24GiB, hostload7.44/8.52/8.84; no observed RAM pressure.
 
@@ -74,7 +105,8 @@ is not subtracted. Latest treeRSS~8.48GiB, ~24GiB host available; sampled sum pe
 owned-handle receipts retained in179run. Later host-load observation rose to12.21
 on8logical CPUs. One124.471s interval delivered0.752–0.763CPUcore/rank with no
 new major faults. CPU service includes MPI spinning; it is not useful-work CPU.
-No RAM pressure/native rejection; leave unrelated processes untouched. See
+At that earlier CPU observation there was no RAM pressure/rejection; first-event
+natural time-budget rejection is now preserved. Leave unrelated processes untouched. See
 cpu_service_observations.jsonl. Preserve this contention limit in timing assessment.
 
 Quality-service179 qualification: build PASS111.227s/1296pins/all9handles absent;
@@ -99,17 +131,20 @@ changed. Source design/review and detailed history are linked below.
 
 ## Next actions and acceptance
 
-1. Let179finish untouched under the latest explicit user instruction. Verify exact
-   owned handles on escalated host /proc; sandbox namespaces can hide live PIDs.
-   Stale logs or an observation timeout do not establish termination.
+1. Qualify/save the original-grid CFD solution, then run the unchanged-code M6
+   baseline with it. Reuse the same seed for the connected-change retry. Keep
+   C++ unchanged throughout both CFD/baseline campaigns; check exact owned handles
+   before each heavy job. Build179 is already terminal with all pins verified.
 2. Preserve complete split generations, quality-entry census and complete quality
    windows. Compare counts/debt and geometry work at matching stages. Batch rounds
    now serve multiple stars, so window number alone is not equivalent work.
    Judge whole-field debt reduction per second; nested geometry/smoothing/MPI
-   timings overlap. No new baseline campaign or unrelated implementation cycle.
+   timings overlap. Latest user explicitly requests a new saved-CFD BEFORE/AFTER
+   baseline; do not add unrelated campaigns.
 3. On failure, preserve primary outcome and raw six-rank rows before any authorized
-   owned-only stop. Latest179instruction explicitly requires natural termination;
-   do not stop179 to start implementation. Verify ALL ten terminal and all pins
+   owned-only stop. Latest user authorized stopping the startup-field run;179is
+   terminal. For subsequent failures follow the authorized stop/fix/retry workflow.
+   Verify ALL owned handles terminal and all pins
    before any pinned C++/helper edits. Then one connected fix, qualify, retry M6.
 4. Require TWO actual accepted events, published mesh/native_ref pairs, conservative
    admissible transfer and finite continued CFD. Inspect raw per-field residuals
@@ -142,9 +177,8 @@ Blocked repair invalidation gap CONFIRMED by read-only source review: a healthy
 cell in a rejected feature's complete imported star can change while its bad-user
 cell stays unchanged; Touch skips feature vertices and ignores healthy-cell repair
 users, so the feature may remain blocked. No false final acceptance follows, but
-search coverage is incomplete. Runtime M6 contribution not quantified. Preserve179
-frozen to outcome, then fix and regress this full-support invalidation contract
-before qualifying a next source. Details in backlog; no C++ edits/tests while live.
+search coverage is incomplete. Runtime M6 contribution not quantified. Preserve the unchanged-code saved-CFD baseline, then fix and regress this
+full-support invalidation contract before qualifying a next source. Details in backlog; no C++ edits/tests while live.
 
 Numerical frozen-field risk OPEN: current-nodal transport changes the spatial P1
 representation after topology edits; identity alone does not prove an immutable
@@ -179,6 +213,6 @@ provenance. Fork pushes authorized: https://github.com/rois1995/SU2.git,
 branch codex/native-3d-bl. Use git -c gc.auto=0 -c submodule.recurse=false and
 --ignore-submodules=all due unrelated broken Eigen worktree. Whitelist adds;
 leave unrelated155logs/binaries/meshes/restarts/rawperf untouched. Efficient
-ownership_survey/quality_queue_survey agents have bounded READ-ONLY surveys,
-no heavy jobs/edits; primary owns
+ownership_survey completed read-only surveys; quality_queue_survey finished ONLY
+new run_m6_seed.py. Both DONE, no independent heavy jobs/edits. Primary owns
 integrated acceptance. No permission pending.

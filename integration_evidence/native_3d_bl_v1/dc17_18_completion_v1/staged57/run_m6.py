@@ -195,6 +195,12 @@ def acceptance_self_check():
             expected = expected.replace("ADAP_SUBITER= ( 1 )", "ADAP_SUBITER= ( 2 )").replace(
                 "ADAP_NATIVE_MAX_TIME= 1800", "ADAP_NATIVE_MAX_TIME= 5400")
         assert euler_config(baseline, events, budget) == expected
+    seeded = seed_config(euler_config(baseline, 2, 5400))
+    assert "RESTART_SOL= YES" in seeded
+    assert "SOLUTION_FILENAME= baseline_euler_seed\n" in seeded
+    assert "RESTART_FILENAME= restart_flow\n" in seeded
+    assert "READ_BINARY_RESTART= YES" in seeded
+    assert "ITER= 1\n" in seeded
     old = native_assessment([BASE / "run.log"], 0)
     assert old["native_event_accepted"] is False
     complete = [f"NATIVE3D rank={rank} ranks=6 workers=6 complete=1 detailed=1 initial=10 final=12" for rank in range(6)]
@@ -226,11 +232,49 @@ def acceptance_self_check():
     assert not assess_workflow(lines, history, {})[0]["complete"]
 
 
+
+def seed_config(text):
+    """Load a copied original-grid seed; numbered adaptation output stays separate."""
+    for name, old, new in (("RESTART_SOL", "NO", "YES"),
+                           ("SOLUTION_FILENAME", "restart_flow", "baseline_euler_seed")):
+        text, count = re.subn(r"(?m)^" + name + r"=[ \t]*" + old + r"[ \t]*$",
+                              name + "= " + new, text)
+        if count != 1:
+            raise RuntimeError("expected exactly one baseline directive for " + name)
+    if re.search(r"(?m)^READ_BINARY_RESTART=", text):
+        raise RuntimeError("baseline unexpectedly specifies restart read format")
+    return text + "\nREAD_BINARY_RESTART= YES\n"
+
+
+def copy_qualified_seed(seed, attempt):
+    from run_m6_seed import validate_seed
+    receipt = validate_seed(seed)
+    if receipt.get("qualified") is not True:
+        raise RuntimeError("original-grid CFD seed is not independently qualified")
+    for name in ("m6.su2", "m6.su2.native_ref"):
+        if sha(seed / name) != sha(attempt / name):
+            raise RuntimeError("CFD seed and adaptation input differ: " + name)
+    target = attempt / "baseline_euler_seed.dat"
+    shutil.copyfile(seed / target.name, target)
+    if sha(target) != receipt["output_sha256"][target.name]:
+        raise RuntimeError("copied CFD seed checksum differs")
+    save(attempt / "seed_input.json", {
+        "seed_directory": str(seed), "qualification": receipt,
+        "qualification_sha256": sha(seed / "qualification.json"),
+        "pre_remesh_continuation": "same pinned ITER=1 restart continuation in every attempt",
+        "input_restart": target.name, "output_restart_base": "restart_flow"})
+    return [seed / "qualification.json", seed / "pins.json", target,
+            attempt / "seed_input.json", ROOT / "run_m6_seed.py"]
+
+
 def main():
-    if len(sys.argv) not in (3, 4) or (len(sys.argv) == 4 and sys.argv[3] != "2") or not re.fullmatch(r"build[1-9][0-9]*", sys.argv[1]) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,60}", sys.argv[2]):
-        raise SystemExit("usage: run_m6.py buildN unique_attempt [2]")
+    if (len(sys.argv) != 5 or sys.argv[3] != "2" or
+        not re.fullmatch(r"build[1-9][0-9]*", sys.argv[1]) or
+        not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,60}", sys.argv[2])):
+        raise SystemExit("usage: run_m6.py buildN unique_attempt 2 qualified_seed_directory")
     build, unique_attempt = sys.argv[1:3]
-    expected_events = int(sys.argv[3]) if len(sys.argv) == 4 else 1
+    seed = Path(sys.argv[4]).resolve(strict=True)
+    expected_events = 2
     native_budget = 5400 if expected_events == 2 else 1800
     outer_timeout = 14400 if expected_events == 2 else 2400
     acceptance_self_check()
@@ -276,6 +320,8 @@ def main():
             if not target.is_file():
                 raise RuntimeError(f"missing local M6 input: {target}")
             (attempt / filename).symlink_to(target)
+        seed_paths = copy_qualified_seed(seed, attempt)
+        (attempt / "run.cfg").write_text(seed_config((attempt / "run.cfg").read_text()))
         libraries = ldd_paths(CFD)
         utilities = [Path(shutil.which(name) or "/nonexistent").resolve()
                      for name in ("nice", "timeout", "mpirun")]
@@ -287,7 +333,7 @@ def main():
         pins = dict(source_pins)
         pins.update(input_paths)
         pins.update(runtime_pins)
-        for path in [CFD, *libraries, *utilities, *helpers, config_source, INPUTS, RUNTIME,
+        for path in [CFD, *libraries, *utilities, *helpers, *seed_paths, config_source, INPUTS, RUNTIME,
                      build_status_path, source_pins_path, build_command_path, attempt / "run.cfg",
                      attempt / "m6.su2", attempt / "m6.su2.native_ref"]:
             pins[str(path)] = sha(path)
@@ -299,7 +345,7 @@ def main():
                 "--output-filename", "rank_output", "-n", "6", str(CFD), "run.cfg"]
         save(attempt / "command.json", {
             "build": build, "case": "M6 Euler full adaptation", "ranks": 6, "expected_events": expected_events,
-            "target_complexity": EULER_TARGET,
+            "target_complexity": EULER_TARGET, "qualified_seed_directory": str(seed),
             "native_budget_seconds": native_budget, "outer_timeout_seconds": outer_timeout,
             "argv": argv,
             "environment": {key: value for key, value in env.items()

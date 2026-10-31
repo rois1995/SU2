@@ -1,9 +1,12 @@
 # Parallel quality closure and reusable CFD input — 2026-10-31
 
-Status: design/source review only. Build179 remains pinned and LIVE after its
-first event naturally exhausted native time; user explicitly prohibits stopping
-it to implement this change. No production or pinned helper edits until every
-owned handle is terminal. Primary owns integration and acceptance.
+Status: design/source review, saved-CFD helper preparation. Latest user authorized
+stopping179because it uses ITER1 startup CFD. Verified owned launcher received
+SIGTERM; all ten handles absent and all1396pins unchanged. Before implementing
+repair/ownership, first qualify/save original-grid CFD and run the current179
+binary from that seed as the BEFORE baseline. Then one connected implementation,
+serial/oneMPI6 milestone and full two-event AFTER retry from the identical seed.
+Primary owns integration and acceptance.
 
 ## Missing capability and evidence
 
@@ -33,7 +36,13 @@ confirm whether repair power or construction becomes the next limiting factor.
    rebuild/revalidate against combined current state before publication. Never
    treat geometric footprint disjointness alone as this proof. Verify local
    metric context contains the same complete query support as the streamed path.
-3. Direct repair effort toward required q/J debt. Prefer existing ownership
+3. Add the user-requested separate quality q/J debt constraint to existing
+   ownership weights, EXACTLY zero for clean cells, separate from geometry cost
+   and base cell/work weight. Build179 entry debt989–5322/rank was masked inside
+   1+debt. Extend existing Repartition optional aligned weights, rank load receipt,
+   dimension checks/serialization/METIS constraint array and migration conservation;
+   omit this dimension collectively when global debt is zero. Direct repair
+   effort toward required q/J debt. Prefer existing ownership
    migration at complete, quiescent census points with measured transition cost;
    preserve cached measurements and census flags, versions, attributes, epochs,
    field identity and cumulative budgets. Do not add another scheduling framework
@@ -111,8 +120,9 @@ iteration including forces. These are practical initial-solution criteria, not
 experimental agreement or grid convergence. Do not publish a seed merely because
 the cap or a solver convergence flag was reached. If the solver stops before a
 full stability window, continue from its checkpoint. Preserve failed attempts. Record the precise criteria and
-actual history; reaching an iteration cap alone is not convergence. Checkpoint
-and resume this solve if needed rather than restarting from freestream.
+actual history; reaching an iteration cap alone is not convergence. Preserve numbered checkpoint files and history so a timeout cannot destroy the
+last complete state. Resume only a coordinate/admissibility-validated checkpoint
+with known iteration/history provenance, rather than restarting from freestream.
 
 Restart source review: CFVMFlowSolverBase loads SOLUTION_FILENAME; output uses
 RESTART_FILENAME. Steady binary input is basename.dat, whereas adaptation output
@@ -130,12 +140,18 @@ recorded deterministic restart continuation), not freestream. Subsequent events
 continue from conservatively transferred solutions. No source/metric fixture or
 case-name reconstruction dispatch. Do not overwrite the saved restart.
 
-The new solution changes the first target metric. Build179 evidence is reusable
-for the demonstrated scheduling limitation, but no same-input speedup claim may
-mix the startup field and this converged field. Compare matching quality time,
-actual counts, commits/s,q-bad removed/s, wait share and rank debt spread, and
-explicitly report changed initial/quality-entry workload. No new old-code baseline
-campaign solely to manufacture a timing comparison.
+The new solution changes the first target metric. Latest user explicitly requests
+BEFORE/AFTER runs from this new saved CFD input, superseding the previous restriction
+on a new old-code baseline campaign. Run current179 unchanged CFD first, with the
+new seed and identical target/gates/native5400/time/work/memory settings. Preserve
+terminal evidence before implementing the connected change. Then run the changed
+implementation with the same copied/pinned seed and runtime/config (except source/
+binary provenance). Existing counters define common comparison; newly added
+passive counters must not be pretended to exist in the before run. Future results
+use this saved-input baseline. Compare matching quality time, actual q/J/geometry
+counts, commits/s,q-bad removed/s, wait share and rank debt spread, with actual
+initial/quality-entry workloads explicit. Build179startup data remains historical;
+never mix its field with the new baseline for a same-input speedup claim.
 
 ## Validation and actual acceptance
 

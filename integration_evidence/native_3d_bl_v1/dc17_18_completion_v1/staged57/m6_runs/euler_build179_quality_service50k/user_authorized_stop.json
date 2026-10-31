@@ -1,0 +1,17 @@
+{
+  "time": 1793432604.6279461,
+  "authorization": "Latest user: I would stop current run if not based on the real CFD",
+  "reason": "This run uses ITER=1 startup field, not the newly requested qualified original-grid CFD checkpoint; first event already naturally rejected time_budget",
+  "launcher_verified": {
+    "pid": 2685265,
+    "startticks": 84117004,
+    "exe": "/usr/bin/orterun",
+    "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build179_quality_service50k",
+    "ppid": 2685264,
+    "cmdline": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+  },
+  "signal": "SIGTERM",
+  "preserved_first_event": "event1_natural_failure.json",
+  "pre_stop_observation": "owned_observations.jsonl latest row",
+  "outcome": "SIGTERM delivered only to verified owned MPI launcher"
+}

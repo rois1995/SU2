@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "checks": [
+    "seed config/history positive and failed residual/force gates",
+    "M6 seeded-config and workflow acceptance selfchecks",
+    "original61330-point real startup restart coordinate/admissibility audit (not convergence qualification)",
+    "negative reordered coordinate/density/internal energy checks"
+  ],
+  "source_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6_seed.py": "c75a39abe14e1b42eb6e9d9459058f8ad18e70c8061d876c624019633e2e955f",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py": "9dc259d033dd1ae28c3bbf98f663819b766fa9cf34a1606abaed5f9a7662f368"
+  },
+  "not_validated": [
+    "fresh CFD convergence",
+    "automatic seed resume under actual timeout",
+    "accepted remeshing/transfer/adapted disk restart"
+  ],
+  "manifest_fix": "Path normalization fixed after v1 terminated before solver launch; pure selfchecks rerun, coordinate/admissibility logic unchanged; v2 actual startup verifies generator manifests"
+}
