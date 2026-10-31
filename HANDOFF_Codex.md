@@ -55,12 +55,12 @@ identical; unioncalls6957vs13708,882earlyrejections/10054evaluatedfaces,
 .503s. Negative-star reuse0: no measured benefit from that cache. Private work can
 be rejected by the outer transaction; don't equate it to whole-field progress.
 
-Latest preserved complete window8: native2624.105225s,
-quality1602.703268s; q/Jdebt20394.869596569,
-8.588545%fall/1.195602debt/s.
-732478private cells,51041q-bad/51461J-bad/
-2948geometry-bad/size0, allmeasured/all4completeflags1.
-Lastintervaldebt/s0.743693; continue generously.
+Latest preserved complete window13: native3294.526367s,
+quality2273.124410s; q/Jdebt19497.613547003,
+12.610119%fall/1.237703debt/s.
+736954private cells,50180q-bad/50313J-bad/
+2821geometry-bad/size0, allmeasured/all4completeflags1.
+Lastintervaldebt/s2.114127; continue generously.
 No accepted event/mesh/actual transfer/adapted restart yet. Run remains healthy.
 Sampled treeRSS8.51GiB, peak summed tree12.922GiB,~24GiBavailable; not physical
 memory or an individual peak. Resource/CPU/paging receipts retained in175run.
@@ -82,7 +82,8 @@ All detailed current design, failures and previous qualification are linked belo
 1. Let current175full attempt continue frozen generously to its outcome unless
    preserved evidence establishes an actual error/resource/clear computational stop
    with a concrete connected fix. Do not stop merely from linear debt projection.
-   Verify exact owned handles; stale logs/observation timeout are not termination.
+   Verify exact owned handles on escalated HOST /proc; sandbox namespaces may hide
+   live host PIDs. Stale logs/observation timeout are not termination.
 2. Preserve complete quality windows, source/binary/runtime/input provenance and
    resources. Nested guidance/union/smoothing/MPI timers overlap. No new C++ cycle
    or heavy workload while this attempt is live. Additional ideas remain backlog.

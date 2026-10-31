@@ -531,3 +531,12 @@ comes directly from aligned six-rank record sequences. Earlier commentary labels
 for the2417.406s snapshot were incorrect (actualrecord7); counts were correct.
 The receipt/native timestamp sequence is authoritative.
 No source edits, accepted mesh, actual transfer or adapted restart.175stillfrozen.
+
+175aligned window13 native3294.526367/quality2273.124410seconds:736954cells,
+50180q-bad/50313J-bad/2821geometry-bad/size0, q/Jdebt19497.613547003,
+12.610119%fall; allmeasured/all4completeflags1. Frozen/fulloutcome still pending.
+A bounded read-only monitor correctly observed window12 but reported sandbox
+/proc PIDs absent. Main escalated HOST /proc verified ALL10same startticks/exes
+live, exec19304live and resource sampler advancing; no stop/relaunch. Treat default
+sandbox PID invisibility as unknown, not terminal. Main retains all lifecycle and
+acceptance decisions. No extra jobs/source edits/campaigns were started.
