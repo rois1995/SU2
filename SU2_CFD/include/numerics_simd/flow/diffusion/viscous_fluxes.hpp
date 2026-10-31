@@ -83,6 +83,7 @@ protected:
   const bool correct_EN;
   const bool correct_FT;
   const bool correct_AD;
+  const bool p1Cell;
   const bool useSA_QCR;
   const bool wallFun;
   const bool uq;
@@ -107,6 +108,7 @@ protected:
     correct_EN(iMesh == MESH_0 && config.GetKind_ViscousGradCorr() == VISCOUS_GRAD_CORR::EDGE_NORMAL),
     correct_FT(iMesh == MESH_0 && config.GetKind_ViscousGradCorr() == VISCOUS_GRAD_CORR::FACE_TANGENT),
     correct_AD(iMesh == MESH_0 && config.GetKind_ViscousGradCorr() == VISCOUS_GRAD_CORR::ALPHA_DAMPING),
+    p1Cell(iMesh == MESH_0 && config.GetKind_Viscous_Scheme() == VISCOUS_SCHEME::P1_CELL),
     useSA_QCR(config.GetSAParsedOptions().qcr2000),
     wallFun(config.GetWall_Functions()),
     uq(config.GetSSTParsedOptions().uq),
@@ -196,7 +198,8 @@ protected:
     auto viscFlux = viscousFlux<nVar>(avgV, tau, heatFlux, unitNormal);
     for (size_t iVar = 0; iVar < nVar; ++iVar) {
       viscFlux(iVar) *= area;
-      flux(iVar) -= viscFlux(iVar);
+      /*--- With P1_CELL the residual comes from a cell loop, only the Jacobians below are used. ---*/
+      if (!p1Cell) flux(iVar) -= viscFlux(iVar);
     }
 
     if (!implicit) return;

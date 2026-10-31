@@ -1831,6 +1831,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("CENTRAL_GROUP_FLUX", Central_Group_Flux, false);
   /*!\brief DISSIPATION_MOD_NORMALS \n DESCRIPTION: Median normal in the central flux, normal of the modified dual in dissipation and Jacobian, median volumes \ingroup Config \default false */
   addBoolOption("DISSIPATION_MOD_NORMALS", Dissipation_Mod_Normals, false);
+  /*!\brief VISCOUS_SCHEME \n DESCRIPTION: Viscous term of the flow equations, EDGE_GRADIENT or P1_CELL (the edge Jacobian is kept) \ingroup Config \default EDGE_GRADIENT */
+  addEnumOption("VISCOUS_SCHEME", Kind_Viscous_Scheme, Viscous_Scheme_Map, VISCOUS_SCHEME::EDGE_GRADIENT);
 
   /*!\brief MARKER_HEATTRANSFER DESCRIPTION: Heat flux with specified heat transfer coefficient boundary marker(s)\n
    * Format: ( Heat transfer marker, heat transfer coefficient, wall temperature (static), ... ) \ingroup Config  */
@@ -6209,6 +6211,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (BC_Flux_Closure) active.push_back("BC_FLUX_CLOSURE");
   if (Central_Group_Flux) active.push_back("CENTRAL_GROUP_FLUX");
   if (Dissipation_Mod_Normals) active.push_back("DISSIPATION_MOD_NORMALS");
+  if (Kind_Viscous_Scheme == VISCOUS_SCHEME::P1_CELL) active.push_back("VISCOUS_SCHEME= P1_CELL");
 
   if (active.empty()) return;
 
@@ -6241,6 +6244,20 @@ void CConfig::CheckP1FluxOptions() const {
     if (FluxCorrection) SU2_MPI::Error(name + "not available with FLUX_CORRECTION.", CURRENT_FUNCTION);
     if (Kind_ConvNumScheme_Flow == SPACE_UPWIND && Kind_Upwind_Flow != UPWIND::ROE) {
       SU2_MPI::Error(name + "among the upwind schemes only ROE is supported.", CURRENT_FUNCTION);
+    }
+  }
+  if (Kind_Viscous_Scheme == VISCOUS_SCHEME::P1_CELL) {
+    const string name = "VISCOUS_SCHEME= P1_CELL: ";
+    const bool ideal_gas = (Kind_FluidModel == STANDARD_AIR) || (Kind_FluidModel == IDEAL_GAS);
+    if (!GetViscous()) SU2_MPI::Error(name + "the problem is not viscous.", CURRENT_FUNCTION);
+    if (saParsedOptions.qcr2000) SU2_MPI::Error(name + "not available with QCR.", CURRENT_FUNCTION);
+    if (sstParsedOptions.uq) SU2_MPI::Error(name + "not available with uncertainty quantification.", CURRENT_FUNCTION);
+    if (Wall_Functions) SU2_MPI::Error(name + "not available with wall functions.", CURRENT_FUNCTION);
+    if (FluxCorrection) SU2_MPI::Error(name + "not available with FLUX_CORRECTION.", CURRENT_FUNCTION);
+    if (ModCentroids) SU2_MPI::Error(name + "the P1 form uses the median dual, not available with MOD_CENTROIDS.", CURRENT_FUNCTION);
+    if (Kind_ConvNumScheme_Flow != SPACE_CENTERED && !(Kind_Upwind_Flow == UPWIND::ROE && ideal_gas)) {
+      SU2_MPI::Error(name + "only with the centered schemes, or ROE with an ideal gas: the other schemes add "
+                     "the viscous edge flux outside the vectorized numerics.", CURRENT_FUNCTION);
     }
   }
 }

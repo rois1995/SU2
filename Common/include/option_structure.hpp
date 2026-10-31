@@ -1024,6 +1024,18 @@ enum class VISCOUS_GRAD_CORR {
   FACE_TANGENT,            /*!< \brief Lax-Friedrich centered numerical method. */
   ALPHA_DAMPING
 };
+/*!
+ * \brief Types of viscous term discretization for the flow equations.
+ */
+enum class VISCOUS_SCHEME {
+  EDGE_GRADIENT,   /*!< \brief Edge flux with averaged nodal gradients. */
+  P1_CELL          /*!< \brief Cell loop with P1 shape functions. */
+};
+static const MapType<std::string, VISCOUS_SCHEME> Viscous_Scheme_Map = {
+  MakePair("EDGE_GRADIENT", VISCOUS_SCHEME::EDGE_GRADIENT)
+  MakePair("P1_CELL", VISCOUS_SCHEME::P1_CELL)
+};
+
 static const MapType<std::string, VISCOUS_GRAD_CORR> Viscous_Grad_Corr_Map = {
     MakePair("EDGE_NORMAL", VISCOUS_GRAD_CORR::EDGE_NORMAL)
     MakePair("FACE_TANGENT", VISCOUS_GRAD_CORR::FACE_TANGENT)

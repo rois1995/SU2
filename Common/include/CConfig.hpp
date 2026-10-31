@@ -581,6 +581,7 @@ private:
   Kind_Centered_Template;       /*!< \brief Centered scheme for the template model. */
 
   VISCOUS_GRAD_CORR Kind_Visc_Corr;
+  VISCOUS_SCHEME Kind_Viscous_Scheme;  /*!< \brief Discretization of the viscous term of the flow equations. */
 
   bool computeTruncationError;
 
@@ -9946,6 +9947,12 @@ public:
    * \return YES if the modified normals are used.
    */
   bool GetDissipation_Mod_Normals() const { return Dissipation_Mod_Normals; }
+
+  /*!
+   * \brief Get the discretization of the viscous term of the flow equations.
+   * \return EDGE_GRADIENT or P1_CELL.
+   */
+  VISCOUS_SCHEME GetKind_Viscous_Scheme() const { return Kind_Viscous_Scheme; }
 
   /*!
    * \brief Get Compute Average.
