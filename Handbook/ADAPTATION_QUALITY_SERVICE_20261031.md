@@ -84,4 +84,12 @@ sensor attributes before an impossible-height refusal. No new repair batch runs
 on either failing construction path. Corrected tests require zero screens and
 check every bootstrapped identity tensor plus exact remaining serialized row
 attributes, input immutability, no published layer and geometry-height refusal.
-No production gate changed. Rebuild179 then rerun serial and connected MPI.
+No production gate changed. Build179PASS111.227s/1296pins/all9sampled handles
+absent; CFD binary is byte-identical178. Focused serial179PASS29cases/
+8169assertions,8.052s/1386pins/all4sampled handles absent. Connected MPI6
+qualification is now running. It reuses the qualified175geometry/input filters,
+adding batch lookup/planning/engine, new repair-batch checks and first-layer engine
+checks. Actual mapped-library audit adds17late-loaded hwloc dependencies absent
+from helper preflight; mapped device/inode and file metadata predating campaign
+start are checked, hashes recorded, terminal recheck required. No M6 accepted mesh
+or actual transfer/restart has yet been established.

@@ -16,19 +16,18 @@ First native event naturally rejected for elapsed-time budget on all six ranks,
 complete=0/final=0, before the authorized launcher stop prevented an unchanged
 retry. No accepted mesh, actual transfer or adapted restart. All ten exact owned
 handles independently verified absent on host /proc; all1396 pins unchanged.
-Production quality-service candidatec132020654 remains UNVALIDATED and FROZEN.
-Build178 PASS123.267s/all1296pins unchanged/all17sampled handles absent.
-Focused serial178TERMINAL:27/29cases,8011/8013assertions, all pins unchanged,
-all4observed handles absent. New batch/census checks pass; campaign NOT passing.
-Two first-layer test contracts corrected: zero construction shape screens; private
-rows retain exact mesh while metric bootstrap fills sensor attributes. Every
-populated tensor, remaining row bytes, height checks and input immutability checked.
-Only validation C++ changed since178. Build179 RUNNING exec34790,Ninja2664825,
-1296pins, one owned heavy job,nice19,j3,libs1,TMPDIR4TBcompile-tmp.
-Exact handles: `staged57/build179_owned_startup.json`. No C++/helper/binary edits
-until terminal verification. Then serial29cases, one connected MPI milestone,
-and immediate full M6 retry. Build176compile failure and177build success preserved.
-No acceptance gates changed.
+Production candidatec132020654, test contractsa0e5e3bec7 remain FROZEN.
+Build179 PASS111.227s/all1296pins unchanged/all9sampled handles absent;
+CFD binary identical178. Hashes in staged57/build179_terminal_handles.json.
+Focused serial179PASS29cases/8169assertions,8.052s/1386pins/all4handles absent:
+`staged57/cases/quality_service179_serial_20261031T054913_2670062`.
+Connected MPI6 qualification RUNNING exec91705:
+`staged57/cases/quality_service179_mpi6_20261031T055011_2672441`.
+Owned start identities in its owned_startup.json. One heavy job,nice19,libs1.
+No C++/helper/binary edits until terminal verification. On PASS return immediately
+full M6 two-event workflow. Failed178serial27/29is preserved, not overwritten;
+its two assertion contracts were corrected with exact mesh/tensor/height checks.
+176compile failure/177and178build successes preserved. No gates changed.
 
 Terminal receipts: `terminal_assessment.json`, `terminal_handles.json`,
 `event1_time_budget_stop_receipt.json` under the175run directory.
@@ -98,16 +97,17 @@ All detailed current design, failures and previous qualification are linked belo
 
 ## Immediate actions and acceptance
 
-1. Preserve and push the terminal175 evidence. The demonstrated blocker is strict
-   quality/geometry closure within the event budget despite faster certification.
-2. Implement one connected quality-service improvement: cached required-debt
-   priorities with bounded oldest-demand service and safely batched independent
-   full cavities. Reuse existing lookup/import/reservation/publication paths.
-   Preserve large coordinate-only stars, all constraints, versions and admission.
-   See [active quality-service design](Handbook/ADAPTATION_QUALITY_SERVICE_20261031.md).
-3. Qualify affected behavior in focused serial checks and one integrated MPI
-   milestone, then immediately retry the complete M6 workflow. No new baseline
-   campaign; unchanged strict acceptance gates. Fixtures do not establish closure.
+1. Finish connected MPI179qualification frozen; verify its exact owned handles,
+   helper pins and supplemental actually mapped library pins terminal. Serial179
+   is passing; failed178and both corrected contracts remain preserved.
+2. On PASS immediately launch the complete endorsed M6 two-event Euler50k retry,
+   same inputs/config/native5400s and outer14400s. Verify startup handles and
+   source/build/binary/runtime/input provenance. Compare complete matching entry
+   census, actual geometry work and whole-debt reduction per second, not window
+   number alone (a batch round now serves multiple independent stars).
+3. Preserve any demonstrated failure before authorized owned-only stop/fix/retry.
+   One connected implementation/validation cycle; no unrelated changes or fresh
+   baseline campaign. See [active quality-service design](Handbook/ADAPTATION_QUALITY_SERVICE_20261031.md).
 4. TWO actually accepted events, published mesh/native_ref pairs, conservative
    admissible transfer and finite continued CFD are required. Inspect actual raw
    per-field residuals (double gate1e-10), final admissibility and integral changes.

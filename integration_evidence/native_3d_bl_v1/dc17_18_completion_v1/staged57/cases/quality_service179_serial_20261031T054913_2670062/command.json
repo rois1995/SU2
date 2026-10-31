@@ -1,0 +1,22 @@
+{
+  "build": "build179",
+  "case": "quality_service179_serial",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeRepairBatch3D],[NativeRepairFairness3D],[NativeCoordinateStar3D],[NativeQualityPass3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeConcurrentRepair3D],[NativeStageProgress3D],[NativeHeightOptimization3D],[NativeShapeAdmission3D],[NativePhaseOwnership3D],[NativeFirstLayerEngine3D]"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "timeout_seconds": 600
+}
