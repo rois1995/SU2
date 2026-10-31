@@ -50,6 +50,12 @@ Actual counts/debt/private work agree; no bitwise mesh identity or isolatedwall
 benchmark claim. Firstwindow assessment/livepin receipts saved; run remains frozen
 and healthy, no accepted mesh/actual transfer/adapted restart. Let full175attempt
 continue generously; do not start a second optimization from this partial window.
+Thirdcompletewindow1712.443314native/691.041357quality seconds, q/Jdebt
+21515.464345743 (3.565949%fall/1.151308debt/s),727191cells,52182q-bad/52880J-bad/
+3121geometry-bad/size0; counts/debt EXACTLYmatch174thirdwindow(1144.000quality seconds).
+Trendreceipt saved; latest pushed8a04c97b25containsfirstwindow evidence.
+Pinned-source transfer/restart acceptance preparation:175run/transfer_restart_acceptance_source_review.md.
+Actual transfer/restart artifacts are still absent; this is read-only preparation.
 CFD SHA45f176a7b09c60ff8497d7a5ea976fc504df13947f4fb3ae489f0c5468ff06f4.
 No accepted Euler mesh/event/actual transfer/adapted disk restart yet.
 
