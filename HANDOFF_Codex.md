@@ -42,14 +42,16 @@ Size closure982.301native seconds vs175986.182,720958cells/size0. Quality entry
 1031.098vs1751021.402: all720958measured/allcompleteflags1,52432q-bad/
 53564J-bad/3293geometry-bad/size0; q/Jdebt22311.06548689389. ALL entry counts,
 debts and geometry/cache work match175. Ownership moved360022cells once in13.998s.
-Current phase: quality. Latest COMPLETE window3:1638.605quality seconds,
-10584.575830015372q/Jdebt,52.559075%fall,7.156386debt/s.739297cells,
-41321q-bad/41744J-bad/3096geometry-bad/size0, all measured/allflags1.
-8219candidates/7650reserved/6127commits over174batch rounds. Latest interval
-3.372328debt/s. Continue frozen generously; strict closure still pending.
+Current phase: quality. Latest COMPLETE window4:2493.757quality seconds,
+9221.103785109430q/Jdebt,58.670267%fall,5.249092debt/s.744163cells,
+39227q-bad/39300J-bad/2976geometry-bad/size0, all measured/allflags1.
+11264candidates/10516reserved/8181commits over238batch rounds. Latest interval
+1.594420debt/s; slower progress is not a stop criterion or feasibility proof.
+1396pins unchanged and all ten exact identities live at this window. Continue
+frozen generously. Host contention is recorded separately; no RAM pressure or
+native rejection. See quality_window4_assessment.json and quality_trend_assessment.json.
 Window2at1083.918s had44.174959%fall vs1755.138672%at1084.562s (near matching
-elapsed, not isolated benchmark). See quality_window3_assessment.json and
-quality_trend_assessment.json. No accepted mesh/actual transfer/adapted restart.
+elapsed, not isolated benchmark). No accepted mesh/actual transfer/adapted restart.
 
 Earlier first window:30.545410%fall in516.883quality seconds. Upper-query
 work/debt95001vs1751215625(~12.8xlower); different window workloads, not isolated
@@ -59,7 +61,11 @@ and parameter publication plus waits; inclusive Allreduce76.27%overlaps other
 shares. Not phase totals. Profile raw data stays LOCALONLY; diagnostic overhead
 is not subtracted. Latest treeRSS~8.48GiB, ~24GiB host available; sampled sum peak
 11.685GiB is not physical memory or an unsampled whole-job peak. Resource and
-owned-handle receipts retained in179run.
+owned-handle receipts retained in179run. Later host-load observation rose to12.21
+on8logical CPUs. One124.471s interval delivered0.752–0.763CPUcore/rank with no
+new major faults. CPU service includes MPI spinning; it is not useful-work CPU.
+No RAM pressure/native rejection; leave unrelated processes untouched. See
+cpu_service_observations.jsonl. Preserve this contention limit in timing assessment.
 
 Quality-service179 qualification: build PASS111.227s/1296pins/all9handles absent;
 CFD identical178. Serial29cases/8169assertions PASS8.052s/1386pins/all4handles

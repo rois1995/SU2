@@ -190,3 +190,13 @@ and complete.8219candidates/7650reserved/6127actual commits over174batch rounds.
 Rank-local debt and separate nested geometry/boundary/interior diagnostics are in
 quality_window3_assessment.json. These do not change the requirement for complete
 strict acceptance, actual transfer and adapted restart.179continues frozen.
+
+Fourth complete quality window:58.670267%fall in2493.757quality seconds,
+9221.103785109430q/Jdebt, average5.249092debt/s, latest interval1.594420debt/s.
+744163private cells,39227q-bad/39300J-bad/2976geometry-bad/size0, all measured
+and complete.11264candidates/10516reserved/8181actual commits over238batch rounds.
+All1396pins unchanged and ten exact owned handles live. Host contention receipt
+records one124.471s interval at0.752–0.763CPUcore/rank, no new major faults;
+CPU service includes MPI spinning, not useful-work CPU. No RAM pressure/native
+rejection. Continue179frozen, no stop from slope projection. Full acceptance,
+actual transfer and adapted disk restart remain unproven.

@@ -1,0 +1,106 @@
+{
+  "time": 1793430124.1187637,
+  "scope": "Fourth COMPLETE private first-event quality window, not accepted mesh/transfer",
+  "summary": {
+    "window": 4,
+    "native_elapsed": 3524.854977952,
+    "quality_elapsed": 2493.757164892,
+    "qj_debt": 9221.10378510943,
+    "debt_reduction": 13089.961701784461,
+    "percent_reduction": 58.67026704517474,
+    "debt_reduction_per_second": 5.2490923679617225,
+    "counts": {
+      "cells": 744163,
+      "q_bad": 39227,
+      "j_bad": 39300,
+      "geometry_bad": 2976,
+      "size_bad": 0
+    },
+    "upper_calls": 221372,
+    "upper_work": 2917723690,
+    "upper_seconds_per_rank": [
+      343.9960002519994,
+      407.9308019530014,
+      233.41333611200133,
+      465.67152742099734,
+      261.05461912400114,
+      722.0582609349981
+    ],
+    "rounds_per_rank": [
+      238,
+      238,
+      238,
+      238,
+      238,
+      238
+    ],
+    "batch_rounds_per_rank": [
+      238,
+      238,
+      238,
+      238,
+      238,
+      238
+    ],
+    "batch_candidates_per_rank": [
+      1901,
+      1904,
+      1835,
+      1820,
+      1903,
+      1901
+    ],
+    "batch_reserved_per_rank": [
+      1867,
+      1893,
+      1530,
+      1466,
+      1869,
+      1891
+    ],
+    "accepted_per_rank": [
+      1553,
+      1561,
+      1362,
+      760,
+      1525,
+      1420
+    ],
+    "quality_progress_per_rank": [
+      1553,
+      1561,
+      1362,
+      760,
+      1525,
+      1420
+    ],
+    "updated_cells_per_rank": [
+      55045,
+      45346,
+      51599,
+      16613,
+      46250,
+      44086
+    ]
+  },
+  "interval_debt_reduction_per_second": 1.5944204111984877,
+  "pins_verified": 1396,
+  "changed": [],
+  "verified_live_handles": [
+    2685263,
+    2685264,
+    2685265,
+    2685274,
+    2685273,
+    2685272,
+    2685271,
+    2685270,
+    2685269,
+    2685167
+  ],
+  "cpu_contention_receipts": "cpu_service_observations.jsonl",
+  "notes": [
+    "Do not extrapolate debt slope to infer termination or feasibility. Continue frozen under the existing budget.",
+    "Host CPU contention is a timing limitation; no RAM pressure or native rejection observed."
+  ]
+}
