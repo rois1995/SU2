@@ -27,28 +27,28 @@ Build190 PASS307.081s,1296pins unchanged/all2handles absent; substantial host I/
 contention while linking. Focused serial PASS28cases/8100assertions; MPI6 PASS163cases
 on EACH rank, all10handles absent/pins unchanged before M6. Source dcf6f01623 pushed;
 staged57/census_ownership190_qualification.json records actual binary hash/results.
-Construction CLOSED:727722cells,size0,geometry4059 at1138.426native seconds
-(vs188855.998). ALL18generations EXACT188 totals/query work. Complete quality
-entry1241.413606s (vs188892.079978):54071q/53377J/4059geometry,size0,
-qJdebt25236.78740274. ALL15selected per-rank count/work fields EXACT188; same
-entry ownership. Initial quality migration21.031s vs18811.124s; host contention
-and history transport differ, no isolated cost claim. Entrydebt4662.403/4246.852/
-4764.376/3528.335/4761.761/3273.061. First short window exact188; first FULL window at452.002671quality seconds
-(vs188318.093273) also EXACT counts/2173commits:49084q/47891J/3994geometry,
-size0,734404cells,debt17828.615202. Netq4987=11.0331/s; netJ5486=12.1371/s,
-netq2.29498/commit. Same-round comparison, NOT matched-time speed evidence.
-First LATE quality migration COMMITTED round21632:120518cells moved,21.205s
-native transition (21.553s including census observations). Global counts/debt EXACT
-before/after; all census flags complete,missing features0,privatecollectives0,
-unmeasuredchurn0. Debtspread1.8966→1.47445; largest share.21404→.19078.
-LIVE/quality_migration_assessment.json and all_quality_census_assessment.json.
-Postmigration repair window pending; balance alone is not closure.
-LIVE/construction_generation_comparison.json,quality_entry_comparison.json,
-all_quality_census_assessment.json include additive ownership stages. Complete
-ownership_staged→committed global counts/debt conserved;0privatecollectives/churn.
-At construction closure all1401pins unchanged/all10handles matching/all82mapped
-runtime files pinned; LIVE/quality_entry_provenance.json. ~31GiBavailable RAM,
-sampled owned tree~7.5GiB,not physical/job peak. Current source freeze ACTIVE.
+Construction CLOSED:727722cells,size0,geometry4059; ALL18generations EXACT188
+counts/query work. Complete quality entry1241.413606native seconds:54071q/53377J/
+4059geometry,size0,debt25236.78740274; all15selected per-rank fields EXACT188.
+Latest complete window3 at839.471665quality seconds:740570cells,45378q/44046J/
+3955geometry,size0,debt13717.629018. Postmigration interval387.468994s INCLUDES
+migration:3706netq/3845netJ/39geometry removed,2013commits,q9.56464/s,J9.92337/s,
+q1.84103/commit. Same-round188q9.19789/s,1.76119/commit; geometry3954 vs1903955.
+Candidates2949vs2826,reserved2489vs2322. Closest actual time pair differs117.736s
+(14.0%); NOT close matched-time or isolated speed evidence. Next full window pending.
+TWOlate migrations committed rounds21632/21696; counts/debt conserved, all flags
+complete,missing features0,privatecollectives0,unmeasuredchurn0. Costs incl census
+21.553/21.706s;debtspread1.8966→1.47445 and1.6007→1.4846. Both preserve prepared
+cache entries/bytes and add0geometryquery work;16GLOBALsamples supported/lost0,
+max drift.08419778656 unchanged through migration (currentnodal,not immutabletarget).
+LIVE/quality_service_assessment.json includes ALL ownership stage costs in windows;
+all_quality_census_assessment.json has full location/feature/miss histograms,ladder,
+churn,drift. quality_migration_assessment.json and first_postmigration_comparison.json
+preserve comparisons. Early detailed evidence moved to linked connected design.
+At construction closure all1401pins unchanged/all10handles match/all82mapped files
+pinned:LIVE/quality_entry_provenance.json. Passive host receipt1793470400:8CPUs,
+load18.26,CPUpressure avg60~39.9%,~29GiBavailable RAM; clear CPU contention, no
+memory-pressure stop. LIVE/quality_resource_receipt.json. Source freeze ACTIVE.
 Build189 historical MPI failed two modified fixtures;161others/rank passed. Preserved
 terminal receipts before corrections. Corrected mesh-valid vs measurement-complete
 hook and restored exact inherited repair subsets without a phase change; corrected

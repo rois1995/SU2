@@ -120,3 +120,48 @@ fewer slots. Stage counters give candidates and reservations; their difference c
 include refused stars, so it is not an exact per-window conflict count. Existing
 terminal summary has aggregate conflict/oversized counters. Do not add telemetry
 or change decisions in frozen190; retain these attribution limits in assessment.
+
+## Measured early build190 evidence (historical snapshot through window3)
+
+Latest live state stays in HANDOFF_Codex.md. This snapshot preserves complete early
+stages and comparisons; it must not be mistaken for later/current run status.
+
+Construction CLOSED:727722cells,size0,geometry4059 at1138.426native seconds
+(vs188855.998). ALL18generations EXACT188 totals/query work. Complete quality
+entry1241.413606s (vs188892.079978):54071q/53377J/4059geometry,size0,
+qJdebt25236.78740274. ALL15selected per-rank count/work fields EXACT188; same
+entry ownership. Initial quality migration21.031s vs18811.124s; host contention
+and history transport differ, no isolated cost claim. Entrydebt4662.403/4246.852/
+4764.376/3528.335/4761.761/3273.061. First short window exact188; first FULL window at452.002671quality seconds
+(vs188318.093273) also EXACT counts/2173commits:49084q/47891J/3994geometry,
+size0,734404cells,debt17828.615202. Netq4987=11.0331/s; netJ5486=12.1371/s,
+netq2.29498/commit. Same-round comparison, NOT matched-time speed evidence.
+First LATE quality migration COMMITTED round21632:120518cells moved,21.205s
+native transition (21.553s including census observations). Global counts/debt EXACT
+before/after; all census flags complete,missing features0,privatecollectives0,
+unmeasuredchurn0. Debtspread1.8966→1.47445; largest share.21404→.19078.
+LIVE/quality_migration_assessment.json and all_quality_census_assessment.json.
+First POSTmigration window3 complete at839.471665quality seconds:740570cells,
+45378q/44046J/3955geometry,size0,debt13717.629018. Interval387.468994s INCLUDES
+first late migration:3706netq/3845netJ/39netgeometry removed,2013commits,
+netq9.56464/s,J9.92337/s,q1.84103/commit. Same-round188:1855commits,
+netq3267/355.19009=9.19789/s,q1.76119/commit,45817q/44474J/3954geometry.
+Candidates2949vs2826,reserved2489vs2322;raw ceiling3072,not allowed-slot demand.
+Closest actual time pair188957.207526 vs190839.471665 differs117.736s(14.0%):
+NOT close matched-time evidence. LIVE/first_postmigration_comparison.json.
+Second late migration COMMITTED round21696:176135cells,21.706s incl observations,
+counts/debt conserved,spread1.6007→1.4846. Both late global flags complete;
+no missing features/privatecollectives/unmeasured churn. Next full window pending.
+LIVE/quality_service_assessment.json aggregates ALL complete stages in intervals,
+including migration costs; published churn, capacity, busy/join timing, ladder,
+locations, separate PRIVATE boundary/interior smoothing,16GLOBALdrift. Full
+location/feature/miss histograms are in all_quality_census_assessment.json.
+First late migration changed no per-rank prepared bytes/entries/evictions or upper
+query work/calls;16fixed points supported/lost0,max drift.08419778656 unchanged
+through migration (current nodal target,not immutable original field).
+LIVE/construction_generation_comparison.json,quality_entry_comparison.json,
+all_quality_census_assessment.json include additive ownership stages. Complete
+ownership_staged→committed global counts/debt conserved;0privatecollectives/churn.
+At construction closure all1401pins unchanged/all10handles matching/all82mapped
+runtime files pinned; LIVE/quality_entry_provenance.json. ~31GiBavailable RAM,
+sampled owned tree~7.5GiB,not physical/job peak. Current source freeze ACTIVE.

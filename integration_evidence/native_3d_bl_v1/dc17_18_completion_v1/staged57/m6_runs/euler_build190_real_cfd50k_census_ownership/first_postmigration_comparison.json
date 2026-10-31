@@ -1,0 +1,77 @@
+{
+  "time": 1793470216.3529603,
+  "scope": "First postmigration same-round interval, includes migration overhead. Actual host/geometry locality differ; not an isolated benchmark. Nearest actual time pair retained with delta; no interpolated counts.",
+  "same_round_intervals": {
+    "build190": {
+      "interval_seconds": 387.46899404400006,
+      "commits": 2013,
+      "net_q_removed": 3706,
+      "net_j_removed": 3845,
+      "net_q_per_second": 9.564636285656333,
+      "net_j_per_second": 9.923374667660172,
+      "net_q_per_commit": 1.8410332836562344,
+      "net_j_per_commit": 1.9100844510680577,
+      "geometry_bad": 3955,
+      "capacity": {
+        "batch_rounds": 384,
+        "batch_candidates": 2949,
+        "batch_reserved": 2489
+      }
+    },
+    "build188": {
+      "interval_seconds": 355.19009043100004,
+      "commits": 1855,
+      "net_q_removed": 3267,
+      "net_j_removed": 3417,
+      "net_q_per_second": 9.197891743082439,
+      "net_j_per_second": 9.620200822195498,
+      "net_q_per_commit": 1.7611859838274933,
+      "net_j_per_commit": 1.8420485175202157,
+      "geometry_bad": 3954,
+      "capacity": {
+        "batch_rounds": 384,
+        "batch_candidates": 2826,
+        "batch_reserved": 2322
+      }
+    }
+  },
+  "current_census": {
+    "cells": 740570,
+    "q_bad": 45378,
+    "j_bad": 44046,
+    "size_bad": 0,
+    "geometry_bad": 3955,
+    "qj_debt": 13717.629018178473
+  },
+  "baseline_same_round_census": {
+    "cells": 739479,
+    "q_bad": 45817,
+    "j_bad": 44474,
+    "size_bad": 0,
+    "geometry_bad": 3954,
+    "qj_debt": 14479.797316304543
+  },
+  "actual_nearest_time_pair": {
+    "current_quality_seconds": 839.4716647989999,
+    "baseline_quality_seconds": 957.207525775,
+    "delta_seconds": -117.73586097600014,
+    "relative_delta": 0.14024995233661686,
+    "current_counts": {
+      "cells": 740570,
+      "q_bad": 45378,
+      "j_bad": 44046,
+      "size_bad": 0,
+      "geometry_bad": 3955,
+      "qj_debt": 13717.629018178473
+    },
+    "baseline_counts": {
+      "cells": 743645,
+      "q_bad": 43013,
+      "j_bad": 41452,
+      "size_bad": 0,
+      "geometry_bad": 3936,
+      "qj_debt": 11960.093779323532
+    },
+    "close_time_match": false
+  }
+}
