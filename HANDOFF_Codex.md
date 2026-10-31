@@ -37,9 +37,16 @@ counts, size/geometry debts, query/cache work and prepared limits exactly:
 292744private cells,2582collapses,68372size-bad/3541geometry-bad cells;
 uppercalls14578/work273877600. q/J remain intentionally unmeasured.
 Prepared limit396836704bytes/rank matches175. No accepted mesh yet.
-Current phase: splitting, first surface lane completed and interior lane entered.
-Latest observation: treeRSS~5.6GiB, ~26.9GiB host available; sampled summed RSS is
-not physical memory or a whole-job peak. Resources/owned_observations retained.
+ALL21split generations match175counts/debts/geometry work on all six ranks.
+Size closure982.301native seconds vs175986.182,720958cells/size0. Quality entry
+1031.098vs1751021.402: all720958measured/allcompleteflags1,52432q-bad/
+53564J-bad/3293geometry-bad/size0; q/Jdebt22311.06548689389. ALL entry counts,
+debts and geometry/cache work match175. Ownership moved360022cells once in13.998s.
+Current phase: quality; no complete quality window yet at the saved assessment.
+Latest observation treeRSS~8.44GiB, ~23.9GiB host available; sampled sum peak
+11.685GiB. Summed RSS is not physical memory or an unsampled whole-job peak.
+Resources/owned_observations retained. See split_generation_assessment.json and
+quality_entry_assessment.json. The new batching affects this quality phase.
 See179run/coarsen_assessment.json. Timings are observations, not isolated benchmarks.
 
 Quality-service179 qualification: build PASS111.227s/1296pins/all9handles absent;
