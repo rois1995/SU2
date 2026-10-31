@@ -116,3 +116,16 @@ No blanket gate relaxation or claim of baseline runtime failure proven. Reconcil
 test intent with actual current-field/coverage APIs in a future relevant milestone,
 especially dedicated BL qualification. The relevant cache-warm predictor failure
 is handled test-only in171with explicit admitted retention and strict checks.
+
+###2026-10-31 remaining boundary guidance repetition (conditional on174outcome)
+
+174firstqualitywindow stillhas rank3upper-query233of356wallseconds and private
+boundarysmooth366sumseconds vsinterior.504. If terminal M6 confirms this remains
+the blocker, inspect using nonnegative partial GeometryGuidanceExcess as early
+rejection bound against the lazily cached old whole-patch score; existing boolean
+early-stop is currently used by coarsening. Reuse unchanged face terms only with
+exact facet/support/coordinates/bindings, and order remaining changed-face checks
+using valid cheap bounds. Never suppress required final certificates or compare
+partial positive progress as complete score. Candidate projected-merit ordering
+needs explicit prepaid-work/time semantics; no blind trial-count cuts. Current
+M6 remains frozen; these are review notes, not an active second implementation.

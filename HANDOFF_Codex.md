@@ -22,8 +22,27 @@ Geometry upper363.153vs1986.525rank-seconds; new facet57.796+scope50.078+selecti
 1.428s versus old scope1624.070(includesfacet). Facet live462.942MBvs114.506MB;
 scope1136.910MBvs1170.806MB, both bounded. Observation is not isolated speedup or
 accepted mesh. Comparison/coarsen_live_verification receipts saved;1396pins/all10
-handles reverified. Run has staged split ownership and is constructing. Lastsample
-~5.67GiBtree duringtransition; actual headroom remains ample.
+handles reverified. Construction size closesgen21/982.303s(maxedge1.7999928684783673),720958cells,
+0size-bad/3293geometry-bad (old720963/3126); splitcounts differaftergen1, preserved
+in construction_comparison_to166.json. Quality entry1020.205s(old3376.033):52432q-bad,
+53564J-bad,3293geometry-bad, all720958cells measured/allflags1; qDebt8090.270020729,
+JDebt14220.795466165(total22311.065486894). first_quality_assessment.jsonsaved.
+Quality ownership actually moved360022cells/15.704s(allflags preserved), saved in
+quality_ownership_assessment.json. First COMPLETE quality window1376.596987s,356.392safterentry:723488cells/allflags1,
+52330q-bad/53326J-bad/3195geometry-bad/size0, q/Jdebt22032.921369789;
+reduction1.246664%(.780445debt/s) vsoldfirst.783155%over760.286s(.230445/s).
+Observed progress, different trajectory/ownership, not isolatedspeedup or acceptance.
+Rank upper deltas57.472/25.215/38.417/232.961/29.846/89.160s; nested timers overlap.
+PRIVATE boundary smoothing3515star dispatches/6248candidates/1597guidance/13708upper
+queries/229moves/14.248debt/365.896sumseconds; interior331stars/2186candidates/
+282moves/9.221debt/.504s. Negative-star reuse0; do not claim cachehit benefit there.
+Private optimizer moves/debt may be rejected by outer transaction, separate from
+whole-field progress. Second complete window1707.945s (687.740squality):724817cells,
+52273q-bad/53170J-bad/3182geometry-bad/size0; q/Jdebt21809.127317422,
+2.249727%fall/.729837debt/s. Rank3upper486.029of687.740s remains dominant.
+quality_trend_assessment.jsonsaved; private progress only. Firstwindow livepin verification saved;1396pins/
+10handles remainexactlive. Run continues frozen, no accepted mesh. Sampletree~6.49GiB before migration,
+~26.2GiBavailable; ranks received~.94CPU/wall over648s, no isolatedtimingclaim.
 Actual host quota2673639424/rank445606570before per-facet rounding. Config byte-
 identical166, SHA5b6be56224fa8964532f92085659d63e2586ae1936d585fc30939c1ed69225a1.
 Initial CFD restart byte-identical166, SHAee7ae4690ee4c890104ac1876e4eed85354e6014233e10733862dbc6c2f1d45f;

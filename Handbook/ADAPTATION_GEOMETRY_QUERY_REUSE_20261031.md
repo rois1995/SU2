@@ -327,3 +327,30 @@ not isolated CPU speedup; startup GC72.389s overlap is recorded. Source remains
 frozen; split ownership staged and construction live. Receipts coarsen_comparison_to166.json
 andcoarsen_live_verification.jsonin174run. Private intermediates never substitute
 for complete accepted meshes/transfer/restart.
+
+174construction size closesgen21/982.303271702s,maxedge1.7999928684783673,
+720958cells/0size-bad/3293geometry-bad (old720963/3126). Gen1counts match166;
+fromgen2small topology/count differences are preserved, not identical-mesh claim.
+Quality entry1020.205269401s(old3376.032741816): all720958cells measured/all4complete
+flags1,52432q-bad/53564J-bad/3293geometry-bad/0size-bad; qDebt8090.270020728689,
+JDebt14220.795466165202,total22311.06548689389. New measured geometry bounds/mesh
+trajectories differ; future useful progress uses this entry as own baseline.
+Run stays frozen in quality; no accepted mesh/transfer. Receipts construction_comparison_to166.json
+andfirst_quality_assessment.json. Lastsample6.49GiB,~26GiBavailable, CPUservice.94
+over648s; paging values saved, no isolated speedup claim.
+
+174quality ownership committed on6ranks,360022cells moved once/15.703633629s;
+allstaged census/cache/shape/geometry flags preserved. No CFD ownership projection.
+Receipt quality_ownership_assessment.jsonfrom each rank committed own stdout.
+Evaluate rows are separate; do not count both as duplicate commits. Frozen/live.
+
+174firstcompletequalitywindow1376.596986998s/356.391717597safterentry:723488cells
+allmeasured/allflags1,52330q-bad/53326J-bad/3195geometry-bad/size0,q/Jdebt
+22032.921369788713,1.246664%fall/.780445debt/s (oldfirst.783155%over760.286s/.230445/s).
+Different construction/ownership and hostservice, no isolatedspeedup. Rankquality
+upperseconds57.472/25.215/38.417/232.961/29.846/89.160; rank3straggler remainsfitting-heavy.
+Privateboundarysmooth3515star dispatches/6248candidates/1597guidance/13708uppercalls/
+229moves/14.248debt/365.896sumseconds; interior331stars/2186candidates/282moves/
+9.221debt/.504s. Rejectedstar reuse0, so no measured gain from negative cache yet.
+Private counters include unpublished proposals, not global accepted debt. All1396
+pins and10owned handles reverified; run frozen/healthy, no acceptedmesh.
