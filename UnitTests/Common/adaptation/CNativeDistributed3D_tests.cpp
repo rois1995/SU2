@@ -1905,8 +1905,15 @@ TEST_CASE("Native MPI publication notifies complete changed stars beyond unchang
   }
   const auto removed=world.exchange(removes);
   const auto added=world.exchange(adds);
-  REQUIRE(directory.Publish(owned,removed,added,true,reason));
+  REQUIRE(directory.Publish(owned,removed,added,true,reason,SIZE_MAX,0,{}, {},nullptr,true));
   const auto changes=directory.ChangedVertices();
+  const auto supports=directory.ChangedRepairSupports();
+  CHECK(std::is_sorted(supports.begin(),supports.end()));
+  CHECK(std::adjacent_find(supports.begin(),supports.end())==supports.end());
+  // Cell10 is unchanged, but face {1,2,4}'s healthy support cell11 changed.
+  // Its owner must reopen that face; the unchanged edge {0,4} must stay blocked.
+  if(world.rank==10%world.size)CHECK(std::binary_search(supports.begin(),supports.end(),std::array<Id,4>{{1,2,3,4}}));
+  for(const auto& support:supports)CHECK(std::find(support.begin(),support.end(),0)==support.end());
   CHECK(std::is_sorted(changes.begin(),changes.end()));
   CHECK(std::adjacent_find(changes.begin(),changes.end())==changes.end());
   std::vector<Id> expected;
@@ -1933,9 +1940,17 @@ TEST_CASE("Native MPI publication notifies complete changed stars beyond unchang
   const auto directory_saved=directory.Snapshot(), cells_saved=Bytes(owned);
   CHECK_FALSE(directory.Publish(owned,{}, {},world.rank!=0,reason));
   CHECK(directory.Snapshot()==directory_saved); CHECK(Bytes(owned)==cells_saved); CHECK(directory.ChangedVertices()==changes);
+  CHECK(directory.ChangedRepairSupports()==supports);
   CHECK_FALSE(directory.Publish(owned,{}, {},true,reason,1));
   CHECK(directory.Snapshot()==directory_saved); CHECK(Bytes(owned)==cells_saved); CHECK(directory.ChangedVertices()==changes);
+  CHECK(directory.ChangedRepairSupports()==supports);
   CHECK(world.sum(int(directory.Statistics().change_sent))>0);
+  if(world.size>1) {
+    CHECK_FALSE(directory.Publish(owned,{}, {},true,reason,SIZE_MAX,0,{}, {},nullptr,world.rank==0));
+    CHECK(reason.find("mode differs")!=std::string::npos);
+    CHECK(directory.Snapshot()==directory_saved);CHECK(Bytes(owned)==cells_saved);
+    CHECK(directory.ChangedRepairSupports()==supports);
+  }
   CHECK(directory.Statistics().change_seconds>=0);
   Directory mismatched(world,world.rank==0);const auto uninitialized=mismatched.Snapshot();
   if (world.size>1) {

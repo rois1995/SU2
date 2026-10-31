@@ -27,6 +27,21 @@ TEST_CASE("Native3D reference cache quota is shared equally within each host", "
   CHECK_THROWS(N::ReferenceCacheRankQuota3D(1000,0));
 }
 
+TEST_CASE("Native3D reference cache quota uses bounded MemAvailable with sysconf fallback", "[NativeReferenceIO3D]") {
+  namespace N=SU2Native3D;
+  const size_t fallback=123456;
+  CHECK(N::ReferenceCacheHostQuota3D("MemTotal: 1000 kB\nMemAvailable: 4000000 kB\n",fallback)==1024000000);
+  CHECK(N::ReferenceCacheHostQuota3D("MemAvailable: 20000000 kB\n",fallback)==N::ReferenceCacheHostLimit3D);
+  CHECK(N::ReferenceCacheHostQuota3D("MemAvailable: 1024 kB\n",fallback)==256*1024);
+  CHECK(N::ReferenceCacheHostQuota3D("MemAvailable: 0 kB\n",fallback)==0);
+  CHECK(N::ReferenceCacheHostQuota3D("MemAvailable: invalid kB\n",fallback)==fallback);
+  CHECK(N::ReferenceCacheHostQuota3D("MemAvailable: 18446744073709551615 kB\n",fallback)==fallback);
+  CHECK(N::ReferenceCacheHostQuota3D("MemTotal: 1000 kB\n",fallback)==fallback);
+  CHECK(N::ReferenceCacheHostQuota3D("MemAvailable: 1000 MB\n",fallback)==fallback);
+  CHECK(N::ReferenceCacheHostQuota3D("MemAvailable: 1000 kB\nMemAvailable: 2000 kB\n",fallback)==fallback);
+  CHECK(N::ReferenceCacheHostQuota3D("MemAvailable: 1000 kB\n",N::ReferenceCacheHostLimit3D+1)==N::ReferenceCacheHostLimit3D);
+}
+
 TEST_CASE("Native reference sidecar: immutable graph, exact coordinates and accepted bindings round trip",
           "[NativeReferenceIO]") {
   std::vector<PolylineReference::Face> faces;

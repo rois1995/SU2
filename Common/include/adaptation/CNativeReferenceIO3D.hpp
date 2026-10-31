@@ -12,6 +12,8 @@ constexpr size_t ReferenceStorageLimit3D = size_t(2) << 30;
 constexpr size_t ReferenceCacheHostLimit3D = size_t(4) << 30;
 /*! Deterministic equal per-rank share of a shared-memory host cache budget. */
 size_t ReferenceCacheRankQuota3D(size_t host_bytes, int ranks_on_host);
+/*! Quarter of valid Linux MemAvailable, capped at the shared-host limit; fallback is the precomputed sysconf quota. */
+size_t ReferenceCacheHostQuota3D(const std::string& meminfo, size_t fallback_quota);
 std::string EncodeReference(const ReferenceState& state);
 ReferenceState DecodeReference(const std::string& bytes, size_t ceiling = ReferenceStorageLimit3D);
 /*! Collective root I/O and elected decoding. Missing file returns false; malformed files never rebase geometry. */

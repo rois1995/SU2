@@ -1,0 +1,15 @@
+{
+  "time": 1793441380.7003481,
+  "authorization": "Standing authorized stop/fix/retry for demonstrated CFD/adaptation failure; preserve baseline to terminal first-event outcome.",
+  "reason": "First event has naturally rejected on all six ranks; unchanged remaining event cannot produce two accepted meshes.",
+  "launcher_verified": {
+    "pid": 3063393,
+    "startticks": 85084804,
+    "exe": "/usr/bin/orterun",
+    "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build179_real_cfd50k_before",
+    "cmdline": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+  },
+  "preserved_first_event": "event1_natural_failure.json",
+  "signal": "SIGTERM",
+  "outcome": "SIGTERM delivered only to exact verified owned launcher"
+}

@@ -1,19 +1,18 @@
 # Parallel quality closure and reusable CFD input — 2026-10-31
 
-Latest update: user explicitly directs stopping CFD when CL/CD are reasonable
-and proceeding with mesh adaptation. Residual thresholds below are historical
-initial plans, superseded as seed acceptance gates. A validated read-only real
-Euler field is now saved (CL.269535/CD.0135359); full unchanged-code TWO-event
-BEFORE baseline euler_build179_real_cfd50k_before is LIVE. All strict mesh gates
-remain unchanged. See ADAPTATION_M6_CFD_SEED_20261031.md and current HANDOFF.
+Latest update: real-CFD BEFORE baseline TERMINAL. All6naturally time-budget
+rejected,max5409.754671s native. Raw failure preserved before exact owned launcher
+stop; all10handles independently ABSENT/1401pins unchanged before C++ edits.
+See BEFORE/terminal_assessment.json and HANDOFF for last complete counts. No mesh
+accepted. Next target speed; repair-power uncertainty is explicit.
 
-Status: design/source review; saved real-CFD input is ready, BEFORE baseline LIVE. Latest user authorized
-stopping179because it uses ITER1 startup CFD. Verified owned launcher received
-SIGTERM; all ten handles absent and all1396pins unchanged. Before implementing
-repair/ownership, first qualify/save original-grid CFD and run the current179
-binary from that seed as the BEFORE baseline. Then one connected implementation,
-serial/oneMPI6 milestone and full two-event AFTER retry from the identical seed.
-Primary owns integration and acceptance.
+Status: ONE connected implementation IN PROGRESS, no build/tests yet. Separate
+zero-clean quality partition constraint and entry wiring, MemAvailable estimate
+(same4GiBcap), and exact changed-support invalidation are written but UNVALIDATED.
+Parallel private slots/combined clearance/publication, local effort ceilings and
+requested passive counters remain to implement. This partial code is not a new
+qualified build. Finish integrated source, focused serial/ONE MPI6 milestone,
+then full TWO-event AFTER immediately from identical read-only saved CFD field.
 
 ## Missing capability and evidence
 
@@ -255,11 +254,11 @@ No claim of a residual-converged aerodynamic reference. Full policy, original an
 continued histories, source/runtime pins, user-owned-stop receipts and original
 checkpoint audits: ADAPTATION_M6_CFD_SEED_20261031.md. No new freestream solve.
 
-BEFORE baseline euler_build179_real_cfd50k_before is LIVE with unchanged179CFD,
+BEFORE baseline euler_build179_real_cfd50k_before is TERMINAL with unchanged179CFD,
 50k/native5400/event/outer14400,TWO events,all strict gates. It reuses that exact
 saved solution via copy and the same deterministic ITER1 continuation as AFTER.
-Do not implement the connected C++ change until this baseline's terminal evidence
-is preserved. Then serial/ONE MPI6 milestone and full TWO-event AFTER immediately.
+Its terminal failure and unchanged pins were preserved before source edits. Finish
+the connected C++ change, then serial/ONE MPI6 milestone and full TWO-event AFTER immediately.
 All future results use this saved input; historical startup179is a different field.
 Compare matching quality time, whole-field q/J/geometry bad counts, commits/s,
 q-bad removed/s, wait share, rank debt spread, geometry work and actual mesh sizes.
@@ -281,3 +280,25 @@ BL/MPI qualification and corresponding RANS500k. Passing checks, lower memory,
 balanced weights and debt percentages alone do not complete it. At each terminal
 outcome select speed, repair power or construction as the next target using
 whole-field q/J/geometry counts, churn, blocked set and ladder evidence.
+
+## In-progress source checkpoint after terminal audit
+
+Written, not built/tested: optional zero-clean Repartition quality-debt dimension,
+quality-entry scaling/imbalance decision/receipt wiring; validated-MemAvailable
+estimate retaining quarter-available/4GiB cap and existing fallback; exact
+ChangedRepairSupports notification routing and TouchRepairSupport subset wakeup.
+The notification extension is requested only by repair publication; construction
+operators and vertex-change behavior stay intact. A common publication-mode vote
+rejects inconsistent flags before any rank enters the additional repair exchange.
+Old/new support tuples are sorted, version/coordinate aware, byte admitted and
+staged before the atomic publication vote. New regression checks that changed
+healthy support reaches an unchanged bad-user owner, an unrelated edge stays
+outside all changed supports, and failed publication preserves notifications.
+
+Still required before any qualification: private evaluation without slot
+collectives; one round-wide candidate-ticket clearance/full publication; bounded
+aggregate retained results and optimizer allocation; valid curved contexts;
+demand-directed local ceilings; all requested passive diagnostics. Review and
+exercise the exact rejected-star reopening behavior end to end as well as routing.
+No claim of parallel speedup or full invalidation qualification from this source
+checkpoint. Keep this one implementation cycle active.

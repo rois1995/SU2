@@ -436,20 +436,18 @@ class Selection {
     blocked_links-=found->second.erase(edge[0]);
     if (found->second.empty()) blocked_edges.erase(found);
   }
-  void Touch(Id vertex) {
-    // A healthy member of a rejected cavity may change without removing any bad-cell user.
-    const auto star=vertex_cells.find(vertex);
-    if(star!=vertex_cells.end())for(Id id:star->second) {
-      const auto repairs=cell_repairs.find(id);if(repairs==cell_repairs.end())continue;
-      for(const auto& key:repairs->second) {
-        if(std::find(key.second.begin(),key.second.begin()+key.first,vertex)==key.second.begin()+key.first)continue;
-        auto& demand=repair_users.at(key);
-        if(!demand.blocked)continue;
-        demand.blocked=false;demand.epoch=repair_epoch;
-        repair_queue.insert({demand.epoch,key});
-        repair_severity_queue.insert({-repair_severity.at(key),key});
-      }
+  void TouchRepairSupport(const std::array<Id,4>& vertices) {
+    // Only a tetrahedron containing the whole feature changes its complete imported star.
+    for(unsigned mask=1;mask<15;++mask) {
+      RepairFeature key{};
+      for(unsigned i=0;i<4;++i)if(mask&(1u<<i))key.second[key.first++]=vertices[i];
+      const auto found=repair_users.find(key);
+      if(found==repair_users.end() || !found->second.users || !found->second.blocked)continue;
+      auto& demand=found->second;demand.blocked=false;demand.epoch=repair_epoch;
+      repair_queue.insert({demand.epoch,key});repair_severity_queue.insert({-repair_severity.at(key),key});
     }
+  }
+  void Touch(Id vertex) {
     const auto found=blocked_edges.find(vertex);
     if (found==blocked_edges.end()) return;
     auto reactivated=std::move(found->second);
@@ -1081,9 +1079,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   size_t batch_bytes=0;
   std::vector<Id> batch_changed;
   std::set<Id> batch_touched;
+  std::set<std::array<Id,4>> batch_supports;
   auto bytes=[&]() {
     return transfer_memory::Add(options.caller_bytes,MapBytes(options.wall_heights),MapBytes(options.region_walls),accepted_bytes,batch_bytes,MapBytes(working),checkpoint.Bytes(),
-        transfer_memory::Bytes(batch_changed),MapBytes(batch_touched),
+        transfer_memory::Bytes(batch_changed),MapBytes(batch_touched),MapBytes(batch_supports),
         transfer_memory::Bytes(original),transfer_memory::Bytes(initial),transfer_memory::Bytes(eligible_extensions),transfer_memory::Bytes(result.splits),transfer_memory::Bytes(result.collapses),
         selection.Bytes(),MapBytes(retired_edges),MapBytes(campaign_edges),MapBytes(inactive_blocked_edges),
         transfer_memory::Mul(inactive_blocked_links,sizeof(Id)+4*sizeof(void*)),field_identity ? 64 : 0);
@@ -2200,7 +2199,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(world.maximum(checkpoint.valid || selection.cells.size()!=working.size()))return true;
     const double transition_started=world.seconds();
     const auto scratch=transfer_memory::Add(MapBytes(working),transfer_memory::Mul(working.size(),
-        sizeof(uint32_t)*2+sizeof(double)*2+sizeof(Selection::CachedRow)*3+sizeof(Id)),
+        sizeof(uint32_t)*(quality?3:2)+sizeof(double)*(quality?3:2)+sizeof(Selection::CachedRow)*3+sizeof(Id)),
         transfer_memory::Mul(working.size(),4*(sizeof(std::pair<const Id,uint64_t>)+4*sizeof(void*))),
         transfer_memory::Mul(world.size,256),
         quality&&geometry_authority?transfer_memory::Mul(geometry_authority->Reference().Facets().size(),256):0);
@@ -2209,14 +2208,18 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(!VertexStarSizes(world,working,complete_stars,result.reason,options.memory_ceiling,
         transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),scratch),&stats.maximum_work_bytes))return false;
     if(!within_time())return false;
-    CLocalFailure failure;std::vector<uint32_t> weights,geometric;std::vector<double> costs,geometry_costs;
-    double local_demand=0,local_geometry=0;
+    CLocalFailure failure;std::vector<uint32_t> weights,geometric,quality_weights;std::vector<double> costs,geometry_costs,quality_debts;
+    double local_demand=0,local_geometry=0,local_quality_debt=0;
     try {
       costs.reserve(working.size());geometry_costs.reserve(working.size());weights.reserve(working.size());geometric.reserve(working.size());
+      if(quality){quality_debts.reserve(working.size());quality_weights.reserve(working.size());}
       for(const auto& owned:working) {
         const auto& row=selection.cells.at(owned.first);double demand=1;
         if(quality) {
           if(!row.shape_measured)throw std::logic_error("Quality ownership requires the permitted complete shape census.");
+          const double debt=double(row.debt.q+row.debt.j);
+          if(!std::isfinite(debt)||debt<0)throw std::logic_error("Invalid quality ownership debt.");
+          quality_debts.push_back(debt);local_quality_debt+=debt;
           double star=0;for(Id vertex:row.vertices)star+=complete_stars.at(vertex)/4.;
           demand+=(double(row.debt.q+row.debt.j+row.debt.height)+double(row.geometry_invalid))*(1+star);
         }
@@ -2253,15 +2256,20 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(!vote(failure)||!within_time())return false;
     const auto max_cost=CPassiveComm::Allreduce(costs.empty()?0:*std::max_element(costs.begin(),costs.end()),CPassiveComm::Op::MAX,world.comm);
     const auto max_geometry=CPassiveComm::Allreduce(geometry_costs.empty()?0:*std::max_element(geometry_costs.begin(),geometry_costs.end()),CPassiveComm::Op::MAX,world.comm);
+    const double max_quality_debt=quality?CPassiveComm::Allreduce(quality_debts.empty()?0:*std::max_element(quality_debts.begin(),quality_debts.end()),CPassiveComm::Op::MAX,world.comm):0;
     for(size_t i=0;i<costs.size();++i) {
       weights.push_back(uint32_t(std::clamp(std::ceil(costs[i]/std::max(1.,max_cost)*MaximumPartitionWeight),1.,double(MaximumPartitionWeight))));
       geometric.push_back(geometry_costs[i]>0?uint32_t(std::clamp(std::ceil(geometry_costs[i]/max_geometry*MaximumPartitionWeight),1.,double(MaximumPartitionWeight))):0);
+      if(quality)quality_weights.push_back(quality_debts[i]>0?uint32_t(std::clamp(std::ceil(quality_debts[i]/max_quality_debt*MaximumPartitionWeight),1.,double(MaximumPartitionWeight))):0);
     }
     const double demand_sum=CPassiveComm::Allreduce(local_demand,CPassiveComm::Op::SUM,world.comm);
     const double demand_max=CPassiveComm::Allreduce(local_demand,CPassiveComm::Op::MAX,world.comm);
     const double geometry_sum=CPassiveComm::Allreduce(local_geometry,CPassiveComm::Op::SUM,world.comm);
     const double geometry_max=CPassiveComm::Allreduce(local_geometry,CPassiveComm::Op::MAX,world.comm);
-    const double imbalance=std::max(demand_sum?world.size*demand_max/demand_sum:1.,geometry_sum?world.size*geometry_max/geometry_sum:1.);
+    const double quality_debt_sum=quality?CPassiveComm::Allreduce(local_quality_debt,CPassiveComm::Op::SUM,world.comm):0;
+    const double quality_debt_max=quality?CPassiveComm::Allreduce(local_quality_debt,CPassiveComm::Op::MAX,world.comm):0;
+    const double imbalance=std::max({demand_sum?world.size*demand_max/demand_sum:1.,geometry_sum?world.size*geometry_max/geometry_sum:1.,
+        quality_debt_sum?world.size*quality_debt_max/quality_debt_sum:1.});
     const double wall=std::chrono::duration<double>(Clock::now()-started).count();
     // Conservative benefit proxy: remaining demand relative to observed attempted edits. The
     // twofold hurdle acknowledges unknown placement, operator mix and destination cache locality.
@@ -2294,7 +2302,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     PartitionStats partition;
     const auto baseline=transfer_memory::Add(bytes(),source.ResidentBytes(),directory->ResidentBytes(),scratch);
     if(!within_time())return false;
-    const bool partitioned=Repartition(world,pending,weights,world.size,partition,result.reason,options.memory_ceiling,baseline,geometric);
+    const bool partitioned=Repartition(world,pending,weights,world.size,partition,result.reason,options.memory_ceiling,baseline,geometric,quality_weights);
     stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,partition.maximum_native_bytes);
     if(!partitioned || !within_time())return false;
     // Stage exact per-cell census certificates with their cells. Mathematical cache identity is
@@ -2344,6 +2352,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         <<" total_seconds="<<seconds<<" partition_seconds="<<partition.total_seconds<<" directory_build_seconds="<<directory->Statistics().build_seconds
         <<" work_before="<<partition.work_before.at(world.rank)<<" work_after="<<partition.work_after.at(world.rank)
         <<" geometry_before="<<partition.geometry_before.at(world.rank)<<" geometry_after="<<partition.geometry_after.at(world.rank)
+        <<" quality_debt_weight_before="<<partition.quality_debt_before.at(world.rank)<<" quality_debt_weight_after="<<partition.quality_debt_after.at(world.rank)
         <<" directory_peak_bytes="<<directory->Statistics().maximum_work_bytes
         <<" cells="<<working.size()<<" transition_peak_bytes="<<stats.maximum_work_bytes<<'\n';
     return true;
@@ -4500,7 +4509,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     {
       Timer timer(stats.publication_seconds,options.timings);
       ready=directory->Publish(working,removed,added,true,result.reason,options.memory_ceiling,
-          transfer_memory::Add(real_bytes(),source.ResidentBytes(),MaximumFrozenFieldBytes),parameter_edits,approved?fresh.coverage:no_coverage,geometry.AtlasReservation());
+          transfer_memory::Add(real_bytes(),source.ResidentBytes(),MaximumFrozenFieldBytes),parameter_edits,approved?fresh.coverage:no_coverage,geometry.AtlasReservation(),repairing);
     }
     if (!ready) return finish();
     if(bidirectional&&phase==Phase::Construction&&!coarsening) {
@@ -4519,7 +4528,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       ready=admit(transfer_memory::Add(
           batched&&repairing ? transfer_memory::Add(
               transfer_memory::GrowthBound(transfer_memory::Add(batch_changed.size(),added.size()),sizeof(Id)),
-              transfer_memory::Mul(transfer_memory::Add(batch_touched.size(),directory->ChangedVertices().size()),sizeof(Id)+4*sizeof(void*))) : 0,
+              transfer_memory::Mul(transfer_memory::Add(batch_touched.size(),directory->ChangedVertices().size()),sizeof(Id)+4*sizeof(void*)),
+              transfer_memory::Mul(transfer_memory::Add(batch_supports.size(),directory->ChangedRepairSupports().size()),sizeof(std::array<Id,4>)+4*sizeof(void*))) : 0,
           checkpoint.valid ? transfer_memory::Mul(transfer_memory::Mul(4,transfer_memory::Add(removed.size(),added.size())),sizeof(Id)+4*sizeof(void*)) : 0,
           transfer_memory::Mul(working.size(),selection_bound(selection.track_repairs)),
           transfer_memory::Mul(transfer_memory::Mul(6,removed.size()),sizeof(std::pair<const Edge,EdgeMeasure>)+4*sizeof(void*)),
@@ -4581,12 +4591,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         try {
           batch_changed.insert(batch_changed.end(),changed.begin(),changed.end());
           batch_touched.insert(directory->ChangedVertices().begin(),directory->ChangedVertices().end());
+          batch_supports.insert(directory->ChangedRepairSupports().begin(),directory->ChangedRepairSupports().end());
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         ready=vote(failure);
       } else if (ready) ready=measure(changed,false,&stats.update_seconds);
       if (ready && !(batched&&repairing)) {
         try {
           selection.FinishRepairs();
+          for(const auto& support:directory->ChangedRepairSupports())selection.TouchRepairSupport(support);
           for (Id vertex:directory->ChangedVertices()) selection.Touch(vertex);
           // Retire known conflicts in this pass without another global reservation per edge.
           // Unmeasured/remote support and expanded cavities remain guarded by Directory claims.
@@ -4608,11 +4620,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       CLocalFailure failure;
       try {
         selection.FinishRepairs();
+        for(const auto& support:batch_supports)selection.TouchRepairSupport(support);
         for(Id vertex:batch_touched)selection.Touch(vertex);
         selection.progress_consistent=true;
       }catch(const std::exception& e){failure.Set(2,0,e.what());}
       if(!vote(failure))return finish();
-      batch_changed.clear();batch_touched.clear();retired_edges.clear();
+      batch_changed.clear();batch_touched.clear();batch_supports.clear();retired_edges.clear();
     }
     batch_bytes=0;++round;
   }

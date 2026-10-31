@@ -151,6 +151,7 @@ Directory::Directory(World& world,bool track_changes,BoundaryParameterState* par
 Directory::~Directory()=default;
 size_t Directory::ResidentBytes() const {
   return transfer_memory::Add(MapBytes<Stars>(stars.size()), resident_payload_bytes, transfer_memory::Bytes(changed_vertices),MapBytes<std::set<Id>>(pass_vertices.size()),
+      transfer_memory::Bytes(changed_repair_supports),
       collision?transfer_memory::Add(sizeof(CollisionIndex),collision->Bytes()):0);
 }
 std::vector<char> Directory::Snapshot() const {
@@ -1179,6 +1180,66 @@ bool Directory::NotifyChanges(const Prepared& prepared, std::vector<Id>& changed
   std::sort(changed.begin(),changed.end()); changed.erase(std::unique(changed.begin(),changed.end()),changed.end());
   return true;
 }
+bool Directory::NotifyRepairChanges(const Prepared& prepared,std::vector<std::array<Id,4>>& changed,
+                                    std::string& reason,size_t ceiling,size_t baseline) {
+  Timer timer(stats.change_seconds);CLocalFailure failure;
+  using Support=std::array<Id,4>;
+  size_t records=0,largest=0;
+  for(const auto& star:prepared.changed)if(!star.first.first) {
+    const auto prior=stars.find(star.first);
+    const size_t old_size=prior==stars.end()?0:prior->second.size(),next_size=star.second.size();
+    if(old_size>MaximumDirectoryScan || next_size>MaximumDirectoryScan)
+      failure.Set(3,star.first.second,"Native3D repair-support notification exceeds scan budget.");
+    const auto count=transfer_memory::Add(old_size,next_size);
+    largest=std::max(largest,count);
+    records=transfer_memory::Add(records,transfer_memory::Mul(count,std::min(size_t(world.size),count)));
+  }
+  const auto retained=transfer_memory::Add(baseline,ResidentBytes(),PreparedBytes(prepared));
+  const auto peak=transfer_memory::Add(retained,transfer_memory::Mul(world.size,sizeof(std::vector<Support>)),
+      transfer_memory::GrowthBound(records,sizeof(Support)),transfer_memory::GrowthBound(largest,sizeof(Support)),
+      MapBytes<std::set<int>>(world.size));
+  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
+  if(peak==SIZE_MAX || peak>ceiling)failure.Set(3,0,"Native3D repair-support notification exceeds storage budget.");
+  if(!Vote(failure,reason))return false;
+  std::vector<std::vector<Support>> to;
+  try {
+    to.resize(world.size);
+    auto same=[](const Entry& a,const Entry& b) {
+      return a.dependency.cell==b.dependency.cell && a.dependency.version==b.dependency.version &&
+          a.dependency.owner==b.dependency.owner && a.nodes==b.nodes && Same(a.point,b.point);
+    };
+    for(const auto& star:prepared.changed)if(!star.first.first) {
+      const auto prior=stars.find(star.first);
+      std::set<int> owners;std::vector<Support> supports;
+      if(prior!=stars.end())for(const auto& row:prior->second) {
+        owners.insert(row.second.dependency.owner);
+        const auto next=star.second.find(row.first);
+        if(next==star.second.end() || !same(row.second,next->second))supports.push_back(row.second.nodes);
+      }
+      for(const auto& row:star.second) {
+        owners.insert(row.second.dependency.owner);
+        const Entry* old=nullptr;
+        if(prior!=stars.end()) {
+          const auto found=prior->second.find(row.first);
+          if(found!=prior->second.end())old=&found->second;
+        }
+        if(!old || !same(*old,row.second))supports.push_back(row.second.nodes);
+      }
+      std::sort(supports.begin(),supports.end());supports.erase(std::unique(supports.begin(),supports.end()),supports.end());
+      for(int owner:owners)to.at(owner).insert(to.at(owner).end(),supports.begin(),supports.end());
+    }
+    for(auto& bucket:to) {
+      std::sort(bucket.begin(),bucket.end());bucket.erase(std::unique(bucket.begin(),bucket.end()),bucket.end());
+    }
+  }catch(const std::exception& e){failure.Set(2,0,e.what());}
+  if(!Vote(failure,reason))return false;
+  bool admitted=false;changed=world.exchange(to,&admitted,ceiling,retained);
+  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,world.max_exchange_work_bytes);
+  if(!admitted)failure.Set(3,0,"Native3D repair-support notification transport exceeds storage budget.");
+  if(!Vote(failure,reason))return false;
+  std::sort(changed.begin(),changed.end());changed.erase(std::unique(changed.begin(),changed.end()),changed.end());
+  return true;
+}
 bool Directory::AgreeParameters(std::string& reason,size_t ceiling,size_t caller) {
   Timer timer(stats.parameter_agreement_seconds);CLocalFailure failure;
   const size_t count=parameters->SnapshotBytes();
@@ -1330,12 +1391,15 @@ bool Directory::PrepareParameters(const std::vector<OwnedCell>& old,const std::v
 }
 bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, const std::vector<OwnedCell>& added,
                         bool prevalidated, std::string& reason, size_t ceiling, size_t caller_bytes,
-                        const std::vector<BoundaryParameterEdit>& parameter_edits,const SU2NativeGeometry::BoundaryCoverage& coverage,SU2NativeGeometry::AtlasBudget* reservation) {
+                        const std::vector<BoundaryParameterEdit>& parameter_edits,const SU2NativeGeometry::BoundaryCoverage& coverage,SU2NativeGeometry::AtlasBudget* reservation,
+                        bool repair_support_changes) {
   Timer timer(stats.publication_seconds);
   CLocalFailure failure;
   Owned staged;
   std::set<Id> collision_added;
   std::vector<OwnedCell> old;
+  if(world.maximum(int(repair_support_changes))!=int(repair_support_changes))
+    failure.Set(1,0,"Native3D repair-support notification mode differs across workers.");
   if (!prevalidated) failure.Set(1, 0, "Native 3D candidate veto before publication.");
   if(!parameters && (!parameter_edits.empty()||!coverage.faces.empty()||!coverage.traces.empty()))failure.Set(1,0,"Boundary parameter edits have no accepted parameter store.");
   if(parameters && parameter_geometry!=&parameters->Geometry())failure.Set(1,0,"Boundary geometry changed without rebuilding the directory.");
@@ -1371,7 +1435,10 @@ bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, co
   BoundaryParameterState::Publication parameter_stage;
   if(parameters && !PrepareParameters(old,added,parameter_edits,parameter_stage,reason,ceiling,transfer_memory::Add(baseline,ResidentBytes(),PreparedBytes(prepared)),coverage,reservation)) {++stats.rejected;return false;}
   std::vector<Id> changed;
+  std::vector<std::array<Id,4>> changed_supports;
   if (track_changes && !NotifyChanges(prepared,changed,reason,ceiling,transfer_memory::Add(baseline,parameter_stage.ResidentBytes()))) { ++stats.rejected; return false; }
+  if(repair_support_changes && !NotifyRepairChanges(prepared,changed_supports,reason,ceiling,
+      transfer_memory::Add(baseline,parameter_stage.ResidentBytes(),transfer_memory::Bytes(changed)))) {++stats.rejected;return false;}
   // All stores and notifications are staged before the final common vote; publication allocates nothing.
   for (const auto& row : old) {
     owned.erase(row.cell.id);if(collision)collision->added.erase(row.cell.id);
@@ -1381,6 +1448,7 @@ bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, co
   Commit(std::move(prepared));
   if(parameters)parameters->Commit(std::move(parameter_stage));
   changed_vertices.swap(changed);
+  changed_repair_supports.swap(changed_supports);
   ++stats.publications;
   reason.clear();
   return true;

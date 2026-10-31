@@ -248,6 +248,37 @@ TEST_CASE("Native partition balances geometry independently of metric and cell c
   if(!world.rank && !ig.empty()){ig[0]=0;ig.pop_back();}
   CHECK_FALSE(Repartition(world,invalid,iw,world.size,stats,reason,SIZE_MAX,0,ig));CHECK(Bytes(invalid)==saved);
 }
+TEST_CASE("Native partition balances quality debt independently and keeps clean cells at zero", "[NativeDistributed3D][NativePartition3D]") {
+  World world;const auto all=Grid(6);Owned input;
+  for(const auto& row:all)if(std::min(world.size-1,int(Centroid(row.second.cell).y*world.size))==world.rank)input.emplace(row);
+  const auto saved=Bytes(input);std::vector<uint32_t> work,debt;
+  for(const auto& row:input) {
+    work.push_back(1);
+    debt.push_back(Centroid(row.second.cell).y<.5?16:0);
+  }
+  PartitionStats stats;std::string reason;
+  REQUIRE(Repartition(world,input,work,world.size,stats,reason,SIZE_MAX,0,{},debt));
+  const auto total=std::accumulate(stats.quality_debt_before.begin(),stats.quality_debt_before.end(),uint64_t(0));
+  REQUIRE(total>0);
+  CHECK(std::accumulate(stats.quality_debt_after.begin(),stats.quality_debt_after.end(),uint64_t(0))==total);
+  CHECK(std::accumulate(stats.cells_after.begin(),stats.cells_after.end(),uint64_t(0))==all.size());
+  CHECK(std::accumulate(stats.work_before.begin(),stats.work_before.end(),uint64_t(0))==
+        std::accumulate(stats.work_after.begin(),stats.work_after.end(),uint64_t(0)));
+  CHECK(Bytes(input)==saved);
+  const auto maximum_debt=*std::max_element(stats.quality_debt_after.begin(),stats.quality_debt_after.end());
+  CHECK(maximum_debt<=1.3*total/world.size);
+  if(world.size>1)CHECK(maximum_debt<*std::max_element(stats.quality_debt_before.begin(),stats.quality_debt_before.end()));
+
+  auto zero=Layout(all,world,2);std::vector<uint32_t> ones(zero.size(),1),clean(zero.size(),0);
+  PartitionStats zero_stats;REQUIRE(Repartition(world,zero,ones,world.size,zero_stats,reason,SIZE_MAX,0,{},clean));
+  CHECK(std::accumulate(zero_stats.quality_debt_after.begin(),zero_stats.quality_debt_after.end(),uint64_t(0))==0);
+  auto invalid=Layout(all,world,2);const auto invalid_saved=Bytes(invalid);
+  std::vector<uint32_t> iw(invalid.size(),1),bad_debt(invalid.size(),0);
+  if(!world.rank&&!bad_debt.empty())bad_debt[0]=MaximumPartitionWeight+1;
+  CHECK_FALSE(Repartition(world,invalid,iw,world.size,stats,reason,SIZE_MAX,0,{},bad_debt));CHECK(Bytes(invalid)==invalid_saved);
+  if(!world.rank&&!bad_debt.empty()){bad_debt[0]=0;bad_debt.pop_back();}
+  CHECK_FALSE(Repartition(world,invalid,iw,world.size,stats,reason,SIZE_MAX,0,{},bad_debt));CHECK(Bytes(invalid)==invalid_saved);
+}
 TEST_CASE("Native tetrahedral partition rejects invalid input without ownership changes", "[NativeDistributed3D][NativePartition3D]") {
   World world;const auto initial=Layout(Grid(1),world,0);
   for(int problem=0;problem<7;++problem) {

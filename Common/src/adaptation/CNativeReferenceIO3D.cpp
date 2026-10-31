@@ -18,6 +18,8 @@
 #include <set>
 #include <sstream>
 #include <iostream>
+#include <iterator>
+#include <limits>
 #if defined(HAVE_MPI)
 #include <mpi.h>
 #endif
@@ -28,6 +30,22 @@ namespace SU2Native3D {
 size_t ReferenceCacheRankQuota3D(size_t host_bytes, int ranks_on_host) {
   if (ranks_on_host < 1) throw std::invalid_argument("Reference cache quota needs at least one host rank.");
   return host_bytes / static_cast<size_t>(ranks_on_host);
+}
+size_t ReferenceCacheHostQuota3D(const std::string& meminfo, size_t fallback_quota) {
+  fallback_quota=std::min(ReferenceCacheHostLimit3D,fallback_quota);
+  std::istringstream input(meminfo);std::string line;bool found=false;size_t available=0;
+  while(std::getline(input,line)) {
+    std::istringstream fields(line);std::string key,amount,unit,extra;
+    if(!(fields>>key)||key!="MemAvailable:")continue;
+    if(found)return fallback_quota;
+    found=true;
+    if(!(fields>>amount>>unit)||unit!="kB"||(fields>>extra))return fallback_quota;
+    size_t kib=0;const auto parsed=std::from_chars(amount.data(),amount.data()+amount.size(),kib);
+    if(parsed.ec!=std::errc{}||parsed.ptr!=amount.data()+amount.size()||kib>std::numeric_limits<size_t>::max()/1024)
+      return fallback_quota;
+    available=kib*1024;
+  }
+  return found?std::min(ReferenceCacheHostLimit3D,available/4):fallback_quota;
 }
 namespace {
 struct Header {
@@ -269,13 +287,18 @@ bool LoadReference(const std::string& filename, ReferenceState& state, bool& loa
   World world;
   loaded = false;
   reason.clear();
-  size_t host_quota=ReferenceCacheHostLimit3D;
+  size_t fallback_quota=ReferenceCacheHostLimit3D;
 #if defined(__linux__)
   const long pages=sysconf(_SC_AVPHYS_PAGES),page=sysconf(_SC_PAGESIZE);
   if(pages>0 && page>0) {
     const auto available=transfer_memory::Mul(static_cast<size_t>(pages),static_cast<size_t>(page));
-    if(available!=SIZE_MAX)host_quota=std::min(host_quota,available/4);
+    if(available!=SIZE_MAX)fallback_quota=std::min(fallback_quota,available/4);
   }
+  std::ifstream meminfo_file("/proc/meminfo");
+  const std::string meminfo=meminfo_file?std::string(std::istreambuf_iterator<char>(meminfo_file),{}):std::string{};
+  size_t host_quota=ReferenceCacheHostQuota3D(meminfo,fallback_quota);
+#else
+  size_t host_quota=fallback_quota;
 #endif
   int shared_rank=0, shared_size=1;
 #if defined(HAVE_MPI)

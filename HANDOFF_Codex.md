@@ -10,15 +10,30 @@ feature/height validity and intentionally omits q/J. CAD remains optional.
 
 ## Authoritative current live state
 
-**Full two-event M6 Euler50k BEFORE baseline RUNNING**, exec88683:
-`staged57/m6_runs/euler_build179_real_cfd50k_before`.
-Python3063005,time3063391,timeout3063392,mpirun3063393;
-ranks3063424–3063428,3063432. Exact ten identities/startticks in
-startup_verification.json. All ten LIVE,1401pins unchanged,all81actually mapped
-libraries covered. C++/binary/helpers/config/inputs FROZEN to baseline outcome.
-One nice19/MPI6/libs1 heavy job; unchanged qualified179CFD/source,50kcomplexity,
-native5400s/event,outer14400s,TWO actual accepted events required. No C++ changes
-before this saved-CFD BEFORE baseline has terminal evidence.
+**Real-CFD M6 BEFORE baseline TERMINAL; connected implementation IN PROGRESS.**
+`staged57/m6_runs/euler_build179_real_cfd50k_before`,exec88683exit1.
+First event naturally time-budget rejected on all6ranks,max5409.754671s native.
+Preserved six raw summaries/refine details and rejection in event1_natural_failure.json,
+then stopped exact verified launcher3063393 under standing failure authorization
+after the driver began the next event's setup; no second mesh was accepted.
+ALL10ownedhandles ABSENT;1401source/build/runtime/config/input/helper SHA256 pins
+independently unchanged before ANY C++ edit:terminal_handles.json. No heavy job now.
+No accepted mesh/transfer/adapted restart. terminal_assessment.json identifies next
+target SPEED: per-slot synchronization, widening required-debt spread, and cache
+preparation. Rank4low netq-bad yield also requires requested repair-power counters;
+baseline lacks the new counters, so do not retrospectively invent them.
+
+ONE connected milestone underway, no build/tests yet. Optional separate zero-clean
+quality-debt Repartition constraint and quality-entry Engine wiring are written;
+LinuxMemAvailable cache estimate correction (same4GiBhardcap/shares/admission) is
+written. Exact old/new changed-tetrahedron support notifications plus
+Selection::TouchRepairSupport replace overly broad/incomplete repair wakeups;
+construction Touch/notifications remain on their existing path. Focused test
+extensions are written, UNVALIDATED. Parallel-private evaluation, batch clearance/
+publication, debt-directed local ceilings and passive census counters remain
+REQUIRED, not implemented yet. Do not qualify/run this partial source. Finish and
+review ONE complete integration, focused serial +ONE MPI6 milestone, then full
+TWO-event AFTER from the exact saved seed. Keep geometry closure path and all gates.
 
 Latest user explicitly accepts reasonable stable CL/CD and directs stopping CFD
 and proceeding with adaptation; do NOT reimpose the assistant's old residual
@@ -52,7 +67,7 @@ before/after integer counts and census flags preserved, reported debt sum roundo
 <1e-8. Post-migration q/Jdebts/rank3756.805/3988.121/5770.169/1909.352/5746.601/
 3673.432(max/min3.022). Confirms need for separate zero-clean debt constraint.
 Receipts:split_generation_assessment.json,quality_entry_assessment.json,
-quality_entry_ownership_assessment.json. Current phase QUALITY; completewindow2at
+quality_entry_ownership_assessment.json. Last COMPLETE quality census was window2at
 1479.020seconds sincequality entry:740798cells,43764q-bad/42274J-bad/
 4067geometry-bad/size0,q/Jdebt13087.09702308638. Cumulative4098shape-progress
 commits(2.77075/s),netq-bad removal6.45968/s. Window2alone2201commits/
@@ -71,8 +86,8 @@ reset/new scheduler/config. No accepted mesh/transfer/adapted restart.
 See [saved CFD input and preparation evidence](Handbook/ADAPTATION_M6_CFD_SEED_20261031.md)
 for exact hashes, current policy, source snapshots, former criterion failure,
 actual checkpoint/state audits and reuse protocol. No repeated freestream solve.
-No accepted mesh/actual transfer/adapted restart yet. After this baseline terminal,
-implement the ONE connected quality change then validate and run AFTER from the
+No accepted mesh/actual transfer/adapted restart yet. Baseline is now terminal;
+finish the ONE connected quality change, then validate and run AFTER from the
 same immutable seed. The complete Euler→BL/MPI→RANS500k goal remains unchanged.
 
 **Build179 TERMINAL after latest explicit user-authorized stop because it uses
@@ -87,9 +102,9 @@ No accepted mesh/transfer/adapted restart. Production CFD179 remains unchanged.
 Latest user supersedes prior no-stop/no-new-baseline restrictions: stop the
 startup-field run; obtain and save a real original-grid Euler solution
 (accepted by reasonable stable CL/CD under latest clarification); then compare BEFORE and AFTER implementation using that exact same
-saved seed, and base subsequent results on this new baseline. Current heavy job is the unchanged-code full M6 BEFORE baseline from the saved
-force-qualified real CFD input. Do not implement the repair/ownership change before preserving that
-baseline's terminal evidence. One owned heavy job, nice19, libs1, MPI6; native
+saved seed, and base subsequent results on this new baseline. The unchanged-code full M6 BEFORE baseline from the saved
+force-qualified real CFD input is now terminal; its failure and pins are preserved.
+Source edits began only after independently verifying all owned handles absent. One owned heavy job, nice19, libs1, MPI6; native
 budget5400/event remains unchanged. See linked connected plan for
 latest user force-qualification policy, baseline order and complete goal.
 
@@ -122,10 +137,9 @@ new saved-field baseline. No accepted mesh/transfer/adapted restart was delivere
 
 ## Next actions and acceptance
 
-1. Saved real-CFD seed is force-qualified under latest user instruction. Complete
-   the unchanged-code M6 BEFORE baseline. Reuse this exact seed for AFTER. Keep
-   C++ unchanged throughout both CFD/baseline campaigns; check exact owned handles
-   before each heavy job. Build179 is already terminal with all pins verified.
+1. Saved real-CFD seed is force-qualified under latest user instruction. The unchanged-code BEFORE baseline is terminal with preserved failure. Reuse
+   this exact seed for AFTER. Complete the connected implementation before any
+   build/test campaign; check owned handles and freeze all inputs for each job.
 2. Preserve complete split generations, quality-entry census and complete quality
    windows. Compare counts/debt and geometry work at matching stages. Batch rounds
    now serve multiple stars, so window number alone is not equivalent work.
@@ -168,8 +182,8 @@ Blocked repair invalidation gap CONFIRMED by read-only source review: a healthy
 cell in a rejected feature's complete imported star can change while its bad-user
 cell stays unchanged; Touch skips feature vertices and ignores healthy-cell repair
 users, so the feature may remain blocked. No false final acceptance follows, but
-search coverage is incomplete. Runtime M6 contribution not quantified. Preserve the unchanged-code saved-CFD baseline, then fix and regress this
-full-support invalidation contract before qualifying a next source. Details in backlog; no C++ edits/tests while live.
+search coverage is incomplete. Runtime M6 contribution not quantified. Baseline is terminal. The exact-support fix is written but unvalidated; regress
+this contract before qualifying the next source. Details in the connected plan.
 
 Numerical frozen-field risk OPEN: current-nodal transport changes the spatial P1
 representation after topology edits; identity alone does not prove an immutable
@@ -208,5 +222,7 @@ leave unrelated155logs/binaries/meshes/restarts/rawperf untouched. Efficient
 ownership_survey completed read-only surveys; quality_queue_survey finished
 run_m6_seed.py and a bounded read-only counter/API survey. Current source-review
 decisions (batch clearance and genuine current-field sampling) are in the parallel
-repair plan; no C++ implementation before saved-field baseline. Both DONE, no independent heavy jobs/edits. Primary owns
+repair plan; baseline terminal prerequisites satisfied. Agents implemented only assigned
+partition/cache files after terminal audit; both DONE, no independent heavy jobs.
+Primary owns Engine/distributed integration and source review; no build/tests yet. Primary owns
 integrated acceptance. No permission pending.

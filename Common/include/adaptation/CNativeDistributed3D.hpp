@@ -130,10 +130,14 @@ class Directory {
   bool Publish(Owned& owned, const std::vector<Dependency>& removed, const std::vector<OwnedCell>& added,
                bool prevalidated, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0,
                const std::vector<BoundaryParameterEdit>& parameter_edits = {},
-               const SU2NativeGeometry::BoundaryCoverage& coverage = {},SU2NativeGeometry::AtlasBudget* reservation=nullptr);
+               const SU2NativeGeometry::BoundaryCoverage& coverage = {},SU2NativeGeometry::AtlasBudget* reservation=nullptr,
+               bool repair_support_changes=false);
   /*! After successful tracked publication, sorted changed vertices for every old/new star owner.
    * Staged before the final vote; rejection preserves both stores and this list. Mode must match across workers. */
   const std::vector<Id>& ChangedVertices() const { return changed_vertices; }
+  /*! Actual changed old/new tetrahedral supports, routed to all incident star owners.
+   * Requested collectively by repair publication; unrelated vertex touches do not reopen rejected features. */
+  const std::vector<std::array<Id,4>>& ChangedRepairSupports() const { return changed_repair_supports; }
   /*! Collective exact contact veto against the current published mesh. Private replacement cells are broadcast;
    * local cached boxes plus published additions cover every current cell. False return is a protocol/resource
    * failure; candidate=false is a geometric veto or a deferred peer conflict. Eligible peers are selected
@@ -177,6 +181,7 @@ class Directory {
   World& world;
   const bool track_changes;
   std::vector<Id> changed_vertices;
+  std::vector<std::array<Id,4>> changed_repair_supports;
   Stars stars;
   bool construction_pass=false,last_pass_deferred=false;
   std::set<Id> pass_vertices;
@@ -196,6 +201,8 @@ class Directory {
                    size_t ceiling, size_t baseline);
   bool NotifyChanges(const Prepared& prepared, std::vector<Id>& changed, std::string& reason,
                      size_t ceiling, size_t baseline);
+  bool NotifyRepairChanges(const Prepared& prepared,std::vector<std::array<Id,4>>& changed,
+                           std::string& reason,size_t ceiling,size_t baseline);
   size_t PreparedBytes(const Prepared& prepared) const;
   void Commit(Prepared&& prepared) noexcept;
 };
