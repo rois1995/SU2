@@ -154,3 +154,25 @@ Checkpointf136c64f1f contains four-window trend, bounded profile and compact han
 c730d9f8ed contains the pinned-source transfer/restart acceptance review.
 All detailed current design, failures and previous qualification are linked below.
 
+
+## Actual179M6 first quality window
+
+All21construction split generations and the complete quality-entry census match175
+counts/debts/geometry work. Entry1031.098native seconds vs1751021.402, including
+new queue cost; ownership moved360022cells in13.998s. First complete quality window
+falls30.545410% in516.883quality seconds (13.184824debt/s), versus175complete
+windows2.249727%at420.146s and3.565949%at691.041s.2201proposals/2045reserved/
+1800actual quality commits over46batch rounds demonstrates real multi-slot use.
+All729578cells measured;46969q-bad/47848J-bad/3206geometry-bad/size0 remain.
+This is useful whole-field progress, not an accepted mesh. Frozen1396pins and
+all ten live handles plus81mapped libraries verified at this window. Detailed
+private smoothing counters and geometry work/debt ratios are in179run/
+quality_window1_assessment.json and quality_window1_work_comparison.json. Nested
+private timers are not additive and private smoothing may be outer-rejected.
+
+First-window upper-query work/debt is95001vs1751215625 (12.796xlower).
+Total upper-query work647433068vs338118955; queries47642vs12228. Window
+workloads differ (2201current proposals vs a one-choice/rank old service), so these
+are useful-progress efficiency ratios, not same-operation or isolated timings.
+First-window private boundary293.334sumseconds/1374moves/168.991debt and interior
+8.886sumseconds/1159moves/1424.865debt remain separate from whole-field commits.

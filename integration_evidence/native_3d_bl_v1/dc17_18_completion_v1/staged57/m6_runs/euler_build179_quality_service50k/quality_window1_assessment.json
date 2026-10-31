@@ -1,0 +1,121 @@
+{
+  "time": 1793428210.933842,
+  "scope": "First COMPLETE private quality window of actual M6; not accepted mesh/transfer",
+  "summary": {
+    "window": 1,
+    "native_elapsed": 1547.980445415,
+    "quality_elapsed": 516.8826323550002,
+    "qj_debt": 15496.059051234164,
+    "debt_reduction": 6815.006435659727,
+    "percent_reduction": 30.545410032806554,
+    "debt_reduction_per_second": 13.184823805376212,
+    "counts": {
+      "cells": 729578,
+      "q_bad": 46969,
+      "j_bad": 47848,
+      "geometry_bad": 3206,
+      "size_bad": 0
+    },
+    "upper_calls": 47642,
+    "upper_work": 647433068,
+    "upper_seconds_per_rank": [
+      108.68183969000017,
+      81.21369991600179,
+      70.4002015740001,
+      113.5885955729997,
+      39.2945025370004,
+      122.90789355799967
+    ],
+    "rounds_per_rank": [
+      46,
+      46,
+      46,
+      46,
+      46,
+      46
+    ],
+    "batch_rounds_per_rank": [
+      46,
+      46,
+      46,
+      46,
+      46,
+      46
+    ],
+    "batch_candidates_per_rank": [
+      368,
+      368,
+      365,
+      368,
+      367,
+      365
+    ],
+    "batch_reserved_per_rank": [
+      347,
+      360,
+      341,
+      272,
+      365,
+      360
+    ],
+    "accepted_per_rank": [
+      312,
+      341,
+      331,
+      171,
+      336,
+      309
+    ],
+    "quality_progress_per_rank": [
+      312,
+      341,
+      331,
+      171,
+      336,
+      309
+    ],
+    "updated_cells_per_rank": [
+      15813,
+      12239,
+      16078,
+      5903,
+      11766,
+      14680
+    ]
+  },
+  "private_optimizer_deltas": {
+    "smooth_boundary_stars": 21291.0,
+    "smooth_boundary_candidates": 28110.0,
+    "smooth_boundary_guidance": 5432.0,
+    "smooth_boundary_upper_queries": 14086.0,
+    "smooth_boundary_moves": 1374.0,
+    "smooth_boundary_debt_reduction": 168.9909673054141,
+    "smooth_boundary_seconds": 293.33387791099995,
+    "smooth_interior_stars": 1331.0,
+    "smooth_interior_candidates": 9033.0,
+    "smooth_interior_moves": 1159.0,
+    "smooth_interior_debt_reduction": 1424.8654050072307,
+    "smooth_interior_seconds": 8.885807152000003,
+    "update_seconds": 202.63777729599553
+  },
+  "notes": [
+    "Private smoothing counters can be outer-rejected; only complete whole-field q/J debt is the useful-progress measure.",
+    "Inclusive geometry/smoothing/MPI timings overlap; do not sum them.",
+    "Window number is not equivalent work after batching; baseline complete censuses bracket elapsed time."
+  ],
+  "pins_verified": 1396,
+  "changed": [],
+  "verified_live_handles": [
+    2685263,
+    2685264,
+    2685265,
+    2685274,
+    2685273,
+    2685272,
+    2685271,
+    2685270,
+    2685269,
+    2685167
+  ],
+  "mapped_libraries_covered": 81
+}

@@ -42,13 +42,22 @@ Size closure982.301native seconds vs175986.182,720958cells/size0. Quality entry
 1031.098vs1751021.402: all720958measured/allcompleteflags1,52432q-bad/
 53564J-bad/3293geometry-bad/size0; q/Jdebt22311.06548689389. ALL entry counts,
 debts and geometry/cache work match175. Ownership moved360022cells once in13.998s.
-Current phase: quality; no complete quality window yet at the saved assessment.
+Current phase: quality. First COMPLETE window:516.883quality seconds,
+15496.059051234q/Jdebt,30.545410%fall,13.184824debt/s.729578cells,
+46969q-bad/47848J-bad/3206geometry-bad/size0, all measured/allflags1.
+Actual2201candidates/2045reserved/1800commits over46batch rounds. Baseline175
+complete windows bracket this time:2.2497%fall at420.146s and3.5659%at691.041s.
+Upper-query work per whole-debt reduction95001vs1751215625(~12.8xlower),
+while total query work647.4Mvs338.1M over different window workloads.
+This is improved useful progress, NOT strict closure. First-window assessment
+verifies1396pins/ten live identities/81mapped libraries. See quality_window1_*
+and quality_trend_assessment.json. Continue frozen generously.
 One2s49Hz profile520samples/0lost confirms active fitting/exact predicates and
 parameter publication plus waits; Allreduce76.27%inclusive overlaps other shares.
 No all-rank deadlock during sample; not phase-wide cost/progress evidence.
 Profile context/assessment/text reports in179run; raw perf remains LOCALONLY.
 Capture/report overhead is a timing limitation, not subtracted.
-Latest observation treeRSS~8.44GiB, ~23.9GiB host available; sampled sum peak
+Latest observation treeRSS~8.47GiB, ~23.9GiB host available; sampled sum peak
 11.685GiB. Summed RSS is not physical memory or an unsampled whole-job peak.
 Resources/owned_observations retained. See split_generation_assessment.json and
 quality_entry_assessment.json. The new batching affects this quality phase.
