@@ -44,8 +44,10 @@ pages,missing reclaimable cache despite~28GiB MemAvailable; prepared pool~20MiB
 vs historical396MiB, repeated facet builds measured. Preserve this baseline;
 include conservative MemAvailable correction (same4GiB host hardcap/shares/admission)
 in the same connected parallel/debt milestone. cache_availability_assessment.json.
-Different input fields prohibit isolated old-v-new timing attribution. Splitting
-has not yet established closure. Strict geometry/q/J/size/heights/transfer gates unchanged.
+Different input fields prohibit isolated old-v-new timing attribution. Four split
+generations COMPLETE:693014cells,10728size-bad/4411geometry-bad at max1810.707
+engine seconds. q/J deliberately unmeasured. split_generation_assessment.json
+contains exact complete six-rank rows. No accepted mesh yet; splitting continues. Strict geometry/q/J/size/heights/transfer gates unchanged.
 
 See [saved CFD input and preparation evidence](Handbook/ADAPTATION_M6_CFD_SEED_20261031.md)
 for exact hashes, current policy, source snapshots, former criterion failure,
