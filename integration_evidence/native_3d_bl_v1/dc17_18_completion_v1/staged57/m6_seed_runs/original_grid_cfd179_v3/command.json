@@ -1,0 +1,28 @@
+{
+  "case": "original-grid M6 Euler seed",
+  "build": "build179",
+  "ranks": 6,
+  "iterations_cap": 3122,
+  "total_iterations_cap": 5000,
+  "resume_offset": 1878,
+  "timeout_seconds": 3600,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "3600",
+    "mpirun",
+    "--output-filename",
+    "rank_output",
+    "-n",
+    "6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+    "run.cfg"
+  ],
+  "config_sha256": "78822e1bcc67ecee45523e661919a19758a5781a033a4ada9a35be7c22ad125c",
+  "input_pins": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/input_pins.json",
+  "runtime_pins": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/loaded_runtime_pins.json"
+}

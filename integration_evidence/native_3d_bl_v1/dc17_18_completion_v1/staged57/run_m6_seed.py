@@ -61,6 +61,12 @@ def seed_config(text, iterations=MAX_ITER, resume=False):
     if resume:
         text = set_directive(text, "RESTART_SOL", "YES")
         text = set_directive(text, "SOLUTION_FILENAME", "baseline_euler_resume_input")
+        text = set_or_append(text, "READ_BINARY_RESTART", "YES")
+        # The original adaptive-CFL continuation oscillated over five200-step windows.
+        for key, value in (("CFL_NUMBER", "5.0"), ("CFL_ADAPT", "NO"),
+                           ("LINEAR_SOLVER_ITER", "20"), ("LINEAR_SOLVER_ERROR", "1E-6")):
+            text = set_directive(text, key, value)
+        text = set_directive(text, "HISTORY_OUTPUT", "( INNER_ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )")
     return text
 
 
@@ -126,9 +132,10 @@ def merged_history(history_text):
 
 
 def combine_history(prior_text, current_text, offset):
-    prior = [row for row in _history_rows(prior_text) if row[0] <= offset]
-    current = [row for row in _history_rows(current_text) if row[0] > 0]
-    if not prior or max(row[0] for row in prior) != offset or not current:
+    # offset is the number of completed updates; both solver histories start at zero.
+    prior = _history_rows(prior_text)
+    current = _history_rows(current_text)
+    if not prior or prior[-1][0] != offset - 1 or not current or current[0][0] != 0:
         raise ValueError("resume histories do not meet at the validated checkpoint iteration")
     rows = prior + [(iteration + offset, residual, cl, cd) for iteration, residual, cl, cd in current]
     if any(rows[i][0] + 1 != rows[i + 1][0] for i in range(len(rows) - 1)):
@@ -238,6 +245,14 @@ def acceptance_self_check():
     bad_residual = lines.copy()
     cells = bad_residual[-1].split(",");cells[1] = "-4";bad_residual[-1] = ",".join(cells)
     assert not assess_history("\n".join(bad_residual) + "\n")["qualified"]
+    continued = seed_config(original, 3000, True)
+    assert "CFL_ADAPT= NO" in continued and "CFL_NUMBER= 5.0" in continued
+    assert "LINEAR_SOLVER_ITER= 20" in continued and "READ_BINARY_RESTART= YES" in continued
+    old = _history_rows(history)[:100]
+    new = _history_rows(history)[:3]
+    joined = _history_rows(combine_history(merged_history_rows(old), merged_history_rows(new), 100))
+    assert [row[0] for row in joined] == list(range(103))
+    assert joined[100][1:] == new[0][1:] and joined[0][1:] == old[0][1:]
 
 
 def ldd_paths(binary):
@@ -290,19 +305,38 @@ def main():
             checkpoint = json.loads(checkpoint_path.read_text())
             previous_receipt = json.loads((previous / "qualification.json").read_text())
             previous_pins = json.loads((previous / "pins.json").read_text())
-            if previous_status.get("state") != "terminal" or previous_status.get("solver_exit_code") not in (0, 124) or \
+            terminal_path = previous / "terminal_handles.json"
+            terminal = json.loads(terminal_path.read_text()) if terminal_path.is_file() else {}
+            stopped = previous / "convergence_stop_receipt.json"
+            authorized_stop = (stopped.is_file() and terminal.get("all_terminal") is True and
+                               terminal.get("pins_verified") is True)
+            if previous_status.get("state") != "terminal" or \
+                    (previous_status.get("solver_exit_code") not in (0, 124) and not authorized_stop) or \
                     previous_receipt.get("qualified") is not False:
                 raise RuntimeError("resume source must be a terminal, unqualified solver attempt")
+            identities = previous / "startup_verification.json"
+            if identities.is_file():
+                for handle in json.loads(identities.read_text())["owned_handles"]:
+                    proc = Path("/proc") / str(handle["pid"])
+                    if proc.exists():
+                        fields = (proc / "stat").read_text().rsplit(")", 1)[1].split()
+                        if int(fields[19]) == handle["startticks"] and fields[0] != "Z":
+                            raise RuntimeError("resume source still has a live owned process")
             if sha(previous / "pins.json") != checkpoint["pins_manifest_sha256"] or \
                     sha(previous / checkpoint["checkpoint_filename"]) != checkpoint["checkpoint_sha256"] or \
                     sha(previous / "qualification_history.csv") != checkpoint["history_sha256"] or \
-                    previous_receipt.get("pins_manifest_sha256") != checkpoint["pins_manifest_sha256"]:
+                    previous_receipt.get("pins_manifest_sha256", terminal.get("pins_manifest_sha256")) != checkpoint["pins_manifest_sha256"]:
                 raise RuntimeError("resume checkpoint or its provenance changed")
             if any(previous_pins.get(path) != digest for path, digest in source_pins.items()):
                 raise RuntimeError("resume source was produced by different C++ source pins")
-            if previous_pins.get(str(Path(__file__).resolve())) != sha(__file__):
-                raise RuntimeError("resume helper differs from the checkpoint producer")
-            offset = int(checkpoint["checkpoint_iteration"])
+            producer_hash = previous_pins.get(str(Path(__file__).resolve()))
+            if producer_hash != sha(__file__):
+                archived = previous / "source_snapshots/run_m6_seed.py"
+                if not terminal.get("pins_verified") or not archived.is_file() or sha(archived) != producer_hash:
+                    raise RuntimeError("historical checkpoint producer is not independently preserved")
+            if previous_pins.get(str((BASE / "run.cfg").resolve())) != sha(BASE / "run.cfg"):
+                raise RuntimeError("resume baseline physical configuration changed")
+            offset = int(checkpoint["checkpoint_iteration"]) + 1
             if not 0 < offset < MAX_ITER or sha(CFD) != previous_pins.get(str(CFD.resolve())):
                 raise RuntimeError("resume checkpoint is incompatible with this bounded original-grid run")
             for candidate in (MESH, AUTHORITY):
@@ -311,10 +345,10 @@ def main():
             shutil.copyfile(previous / checkpoint["checkpoint_filename"], attempt / "baseline_euler_resume_input.dat")
             shutil.copyfile(previous / "qualification_history.csv", attempt / "prior_history.csv")
             prior_history = (attempt / "prior_history.csv").read_text()
-            if max(row[0] for row in _history_rows(prior_history)) != offset:
+            if max(row[0] for row in _history_rows(prior_history)) != offset - 1:
                 raise RuntimeError("resume history does not end at its saved checkpoint")
             (attempt / "resume_source.json").write_text(json.dumps({"attempt": str(previous),
-                "checkpoint_iteration": offset, "checkpoint_filename": checkpoint["checkpoint_filename"],
+                "checkpoint_iteration": offset - 1, "completed_updates": offset, "checkpoint_filename": checkpoint["checkpoint_filename"],
                 "checkpoint_sha256": checkpoint["checkpoint_sha256"],
                 "history_sha256": checkpoint["history_sha256"], "pins_manifest_sha256": checkpoint["pins_manifest_sha256"]}, indent=2) + "\n")
             if validate_state(attempt, attempt / "baseline_euler_resume_input.dat")["points"] == 0:
@@ -336,7 +370,12 @@ def main():
         if previous:
             for path in (attempt / "baseline_euler_resume_input.dat", attempt / "prior_history.csv", attempt / "resume_source.json",
                          previous / "pins.json", previous / "resume_checkpoint.json",
-                         previous / checkpoint["checkpoint_filename"]):
+                         previous / checkpoint["checkpoint_filename"], previous / "qualification.json"):
+                pins[str(Path(path).resolve())] = sha(path)
+            for path in (previous / "terminal_handles.json", previous / "convergence_stop_receipt.json",
+                         previous / "source_snapshots/run_m6_seed.py"):
+                if not path.is_file():
+                    continue
                 pins[str(Path(path).resolve())] = sha(path)
         save(attempt / "pins.json", pins)
         argv = ["nice", "-n", "19", "/usr/bin/time", "-v", "timeout", str(TIMEOUT), "mpirun",

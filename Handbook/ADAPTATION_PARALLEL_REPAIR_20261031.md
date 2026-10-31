@@ -172,6 +172,18 @@ actual history; reaching an iteration cap alone is not convergence. Preserve num
 last complete state. Resume only a coordinate/admissibility-validated checkpoint
 with known iteration/history provenance, rather than restarting from freestream.
 
+Actual CFD preparation outcome: adaptive-CFL/cap20 with five linear iterations
+stalled across five200-step windows after600iterations; mean density residual
+stopped decreasing and drag range stayed above its qualification threshold.
+Preserved v2evidence, verified owned-only stop, all ten handles absent and1395pins
+unchanged. Continue from complete checkpoint1877with fixedCFL5,linear cap20/error
+1e-6 (same Euler physics/flux/limiter/grid), keeping every qualification criterion.
+A corrected zero-based history join retains the first resumed update, preserves
+the original residual reference and caps both segments at5000updates total.
+Historical helper source is archived/hash-verified; legitimate helper/control
+changes do not invalidate an independently preserved evolved solution. No fresh
+freestream solve, no native budget increase, no adaptation C++ changes yet.
+
 Restart source review: CFVMFlowSolverBase loads SOLUTION_FILENAME; output uses
 RESTART_FILENAME. Steady binary input is basename.dat, whereas adaptation output
 has numbered cycle names. Set READ_BINARY_RESTART=YES and use separate seed-input

@@ -1,0 +1,18 @@
+{
+  "time": 1793434510.3747976,
+  "reason": "Demonstrated CFD nonlinear residual/drag oscillation across five complete200-iteration windows; preserve evolved checkpoint and adjust solver controls without relaxing qualification",
+  "authority": "AGENTS.md standing authorized stop/fix/retry for demonstrated CFD failure or clear computational limitation",
+  "evidence": "convergence_stability_assessment.json",
+  "launcher_verified": {
+    "pid": 2953589,
+    "startticks": 84828499,
+    "state": "S",
+    "ppid": 2953588,
+    "exe": "/usr/bin/orterun",
+    "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_seed_runs/original_grid_cfd179_v2",
+    "cmdline": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+    "rss_bytes": 22351872
+  },
+  "signal": "SIGTERM",
+  "outcome": "SIGTERM sent only to verified owned MPI launcher"
+}

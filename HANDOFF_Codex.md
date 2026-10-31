@@ -10,28 +10,38 @@ feature/height validity and intentionally omits q/J. CAD remains optional.
 
 ## Authoritative current live state
 
-**Original-grid M6 Euler CFD solve RUNNING**, exec46140:
-`staged57/m6_seed_runs/original_grid_cfd179_v2`.
-Python2953461,time2953587,timeout2953588,mpirun2953589,ranks2953601–2953606.
-Exact ten identities/startticks in startup_verification.json; all verified live,
-1395pins unchanged, all68actually mapped libraries covered. Source/helper/binary/
-config/inputs FROZEN. Uses unchanged179CFD, nice19,MPI6,libs1,original61330points/
-303359cells,ADAP_LOOP=NO,COMPUTE_METRIC=NO,MG0,adaptiveCFLcap20,max5000iterations,
-outer3600s. Numbered restarts every100iterations preserve earlier files. History
-contains all five residuals and CL/CD every iteration. Qualification requires
-rho log<=-6,all5residuals down>=4orders,stable final200CL/CD,exact mesh-coordinate
-order and finite positive density/internal energy. No convergence acceptance yet.
-Latest independent handle observation: all ten original identities LIVE at
-1793434194UTCepoch. CFD iteration1371; complete100-step checkpoint histories through
-1300 saved in convergence_windows.json. None yet meets all qualification gates.
-At1300rho log-5.688785,smallest residual reduction2.582orders; final200CLstable,
-CDnotstable(range4.2749e-5 vs~1.3549e-5 allowance). Do not claim convergence or
-launch baseline yet. Preserve frozen run to its bounded outcome; current force/
-residual variability needs terminal assessment, not a lowered criterion now.
-First numbered checkpoint100independently coordinate/admissibility validated;
-checkpoint100_assessment.json is NOT convergence qualification. Latest hostload
-13.42/15.71/16.86,MemAvailable~31.6GiB. Earlier treeRSS.712GiB; no whole-job peak
-inference. Sole owned heavy workload.
+**Original-grid M6 Euler CFD continuation RUNNING**, exec80366:
+`staged57/m6_seed_runs/original_grid_cfd179_v3`.
+Python3013761,time3014065,timeout3014066,mpirun3014067;
+ranks3014072,3014075,3014078,3014081–3014083. Exact ten identities/startticks in
+startup_verification.json, all verified live;1405pins unchanged,81actually mapped
+libraries all covered. C++/binary/helpers/config/inputs FROZEN. Same179CFD and
+original61330points/303359cells, nice19,MPI6,libs1,ADAP_LOOP=NO,COMPUTE_METRIC=NO.
+Reads copied baseline_euler_resume_input.dat from validated v2checkpoint1877
+(exact hash in resume_source.json and v2resume_checkpoint.json). FixedCFL5,no adaptation,linearFGMRES cap20/error1e-6,
+MG0. Local3122update allowance plus original1878updates = total5000; outer3600s.
+Qualification unchanged:rho log<=-6,all5residuals down>=4orders from ORIGINAL
+freestream history,stable final200CL/CD,exact coordinate order,finite positive
+rho/internal energy. No qualified seed or accepted mesh yet. Live history must
+combine prior_history.csv + history.csv using command.resume_offset1878; using
+only current history would incorrectly reset the residual reference.
+At local59(global1937),rho log-5.59018,CL.269536,CD.0135358;linear7iterations,
+logresidual-6.6603,AVG_CFL5. Latest hostload9.71/11.14/14.33,MemAvailable~31.6GiB.
+One owned heavy job. Numbered restarts every100plus final; no earlier file overwrite.
+
+v2TERMINAL after authorized convergence-stagnation stop. Five complete200-step
+windows600–1599:mean rho log-5.60to-5.38(no improvement),CD ranges3.42e-5to5.99e-5
+above~1.35e-5 allowance. Evidence:convergence_stability_assessment.json and
+convergence_stop_receipt.json. Only verified launcher2953589 SIGTERM. All ten
+identities ABSENT and1395pins unchanged BEFORE helper edit;terminal_handles.json.
+Latest complete numberedcheckpoint1877independently coordinate/admissibility
+validated(61330points,minrho.627664,mininternal103998.683),same original grid.
+Saved qualification_history.csv,resume_checkpoint.json,and exact historical helper
+source_snapshots/run_m6_seed.py. v2failure/exit1 is preserved; no convergence claim.
+No restart from freestream. Continuation code fixes zero-based history joining so
+the first resumed update is retained and the original residual reference survives.
+m6_seed_continuation_checks.json supports config/history/provenance/state checks;
+actual continued convergence remains pending. No production C++ changes/builds.
 
 New run_m6.py REQUIRES a qualified seed directory, copies baseline_euler_seed.dat
 and sets RESTART_SOL=YES with separate restart_flow output. Before/after first
@@ -63,7 +73,7 @@ No accepted mesh/transfer/adapted restart. Production CFD179 remains unchanged.
 Latest user supersedes prior no-stop/no-new-baseline restrictions: stop the
 startup-field run; obtain and save a reasonably converged original-grid Euler
 solution; then compare BEFORE and AFTER implementation using that exact same
-saved seed, and base subsequent results on this new baseline. Current heavy job is original-grid CFD qualification with current179binary;
+saved seed, and base subsequent results on this new baseline. Current heavy job is saved-checkpoint CFD continuation with current179binary;
 next is the unchanged-code full M6 baseline. Do not implement the repair/ownership change before preserving that
 baseline's terminal evidence. One owned heavy job, nice19, libs1, MPI6; native
 budget5400/event remains unchanged. See linked connected plan for convergence
