@@ -144,6 +144,7 @@ private:
   Central_Group_Flux,       /*!< \brief Central flux as the average of nodal fluxes, not the flux of the average.*/
   Dissipation_Mod_Normals,  /*!< \brief Median normal in the central flux, modified normal in dissipation and Jacobian.*/
   Edge_Form_P1,             /*!< \brief Central flux with the edge coefficients n_ik and E_ik of the modified dual.*/
+  Edge_Form_Exact_Jacobian, /*!< \brief Central Jacobian of the edge form with n_ik and E_ik.*/
   Split_Edge_Flux,          /*!< \brief Central flux on the split edges of the cells, with no new points.*/
   Pressure_Based;           /*!< \brief Flag to check if we are using a pressure-based system.*/
   su2double Buffet_k;       /*!< \brief Sharpness coefficient for buffet sensor.*/
@@ -9968,6 +9969,12 @@ public:
    * \return YES if the edge form is used.
    */
   bool GetEdge_Form_P1() const { return Edge_Form_P1; }
+
+  /*!
+   * \brief Get if the central Jacobian is the exact one of the edge form, n_ik and E_ik included.
+   * \return YES if the exact Jacobian is used.
+   */
+  bool GetEdge_Form_Exact_Jacobian() const { return Edge_Form_Exact_Jacobian; }
 
   /*!
    * \brief Get if the central flux uses the split edges of all cells (section 4.2 of the P1 flux variants).

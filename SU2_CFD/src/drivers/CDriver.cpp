@@ -758,7 +758,14 @@ void CDriver::InitializeGeometryFVM(CConfig *config, CGeometry **&geometry) {
     geometry[MESH_0]->SetBoundControlVolume(config, ALLOCATE);
     geometry[MESH_0]->SetBoundCVCoeffs(config, ALLOCATE);
     if (config->GetDissipation_Mod_Normals()) geometry[MESH_0]->SetDissipationNormals();
-    if (config->GetEdge_Form_P1()) geometry[MESH_0]->SetEdgeFormP1();
+    if (config->GetEdge_Form_P1()) {
+      /*--- The sum of n_ik at a boundary node is the median normal, the vertex normal of the modified dual
+       * differs from it in 3D, so free stream needs the face normals of the weak boundary path. ---*/
+      if ((geometry[MESH_0]->GetnDim() == 3) && !config->GetBC_Weak_P1()) {
+        SU2_MPI::Error("EDGE_FORM_P1 needs BC_WEAK_P1= YES in 3D, to keep free stream.", CURRENT_FUNCTION);
+      }
+      geometry[MESH_0]->SetEdgeFormP1();
+    }
     if (config->GetSplit_Edge_Flux()) geometry[MESH_0]->SetSplitEdges();
   }
   END_SU2_OMP_PARALLEL

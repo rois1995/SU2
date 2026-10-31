@@ -64,6 +64,7 @@ protected:
   const bool correction;
   const bool modNormals;
   const bool edgeForm;
+  const bool exactFormJac;
 
   /*!
    * \brief Constructor, store some constants and forward args to base.
@@ -79,7 +80,8 @@ protected:
     typeLimiter(config.GetKind_SlopeLimit_Flow()),
     correction(muscl && config.GetFluxCorrection()),
     modNormals(finestGrid && config.GetDissipation_Mod_Normals()),
-    edgeForm(finestGrid && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())) {
+    edgeForm(finestGrid && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())),
+    exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()) {
   }
 
 public:
@@ -174,6 +176,22 @@ public:
       const auto fluxE_j = inviscidProjFlux(V1st.j, U1st.j, formE);
       for (size_t iVar = 0; iVar < nVar; ++iVar) {
         flux(iVar) += 0.5 * (flux_i(iVar) + flux_j(iVar)) + fluxE_j(iVar) - fluxE_i(iVar);
+      }
+
+      if (implicit && exactFormJac) {
+        VectorDbl<nDim> normal_i, normal_j;
+        for (size_t iDim = 0; iDim < nDim; ++iDim) {
+          normal_i(iDim) = diffNormal(iDim) - 2.0 * formE(iDim);
+          normal_j(iDim) = diffNormal(iDim) + 2.0 * formE(iDim);
+        }
+        const auto addJac_i = inviscidProjJac(gamma, V1st.i.velocity(), U1st.i.energy(), normal_i, 0.5);
+        const auto addJac_j = inviscidProjJac(gamma, V1st.j.velocity(), U1st.j.energy(), normal_j, 0.5);
+        for (size_t iVar = 0; iVar < nVar; ++iVar) {
+          for (size_t jVar = 0; jVar < nVar; ++jVar) {
+            jac_i(iVar, jVar) += addJac_i(iVar, jVar);
+            jac_j(iVar, jVar) += addJac_j(iVar, jVar);
+          }
+        }
       }
     }
 

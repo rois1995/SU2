@@ -1837,6 +1837,8 @@ void CConfig::SetConfig_Options() {
   addEnumOption("VISCOUS_SCHEME", Kind_Viscous_Scheme, Viscous_Scheme_Map, VISCOUS_SCHEME::EDGE_GRADIENT);
   /*!\brief EDGE_FORM_P1 \n DESCRIPTION: Variant C, central flux 0.5(F_i+F_k).n_ik + (F_k-F_i).E_ik on the modified dual, requires MOD_CENTROIDS \ingroup Config \default false */
   addBoolOption("EDGE_FORM_P1", Edge_Form_P1, false);
+  /*!\brief EDGE_FORM_EXACT_JACOBIAN \n DESCRIPTION: Central Jacobian of EDGE_FORM_P1 or SPLIT_EDGE_FLUX with the coefficients of the form, not the normal of the dual. \ingroup Config*/
+  addBoolOption("EDGE_FORM_EXACT_JACOBIAN", Edge_Form_Exact_Jacobian, false);
   /*!\brief SPLIT_EDGE_FLUX \n DESCRIPTION: Central flux 0.5(F_i+F_k).n_ik on the split edges of the cells, dissipation and Jacobians stay on the true edges. \ingroup Config*/
   addBoolOption("SPLIT_EDGE_FLUX", Split_Edge_Flux, false);
 
@@ -6220,6 +6222,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Dissipation_Mod_Normals) active.push_back("DISSIPATION_MOD_NORMALS");
   if (Kind_Viscous_Scheme == VISCOUS_SCHEME::P1_CELL) active.push_back("VISCOUS_SCHEME= P1_CELL");
   if (Edge_Form_P1) active.push_back("EDGE_FORM_P1");
+  if (Edge_Form_Exact_Jacobian) active.push_back("EDGE_FORM_EXACT_JACOBIAN");
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
 
   if (active.empty()) return;
@@ -6277,6 +6280,9 @@ void CConfig::CheckP1FluxOptions() const {
       SU2_MPI::Error(name + "only with the centered schemes, or ROE with an ideal gas: the other schemes add "
                      "the viscous edge flux outside the vectorized numerics.", CURRENT_FUNCTION);
     }
+  }
+  if (Edge_Form_Exact_Jacobian && !Edge_Form_P1 && !Split_Edge_Flux) {
+    SU2_MPI::Error("EDGE_FORM_EXACT_JACOBIAN: needs EDGE_FORM_P1 or SPLIT_EDGE_FLUX.", CURRENT_FUNCTION);
   }
   if (Edge_Form_P1) {
     const string name = "EDGE_FORM_P1: ";

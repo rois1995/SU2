@@ -54,6 +54,7 @@ protected:
   const bool groupFlux;
   const bool modNormals;
   const bool edgeForm;
+  const bool exactFormJac;
   const su2double stretchParam = 0.3;
 
   /*!
@@ -66,7 +67,8 @@ protected:
     dynamicGrid(config.GetDynamic_Grid()),
     groupFlux(iMesh == MESH_0 && config.GetCentral_Group_Flux()),
     modNormals(iMesh == MESH_0 && config.GetDissipation_Mod_Normals()),
-    edgeForm(iMesh == MESH_0 && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())) {
+    edgeForm(iMesh == MESH_0 && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())),
+    exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()) {
   }
 
   /*!
@@ -177,8 +179,20 @@ public:
 
     MatrixDbl<nVar> jac_i, jac_j;
     if (implicit) {
-      jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), dissNormal, 0.5);
-      jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), dissNormal, 0.5);
+      if (exactFormJac) {
+        const auto formNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal());
+        const auto formE = gatherVariables<nDim>(iEdge, geometry.edges->GetFormE());
+        VectorDbl<nDim> normal_i, normal_j;
+        for (size_t iDim = 0; iDim < nDim; ++iDim) {
+          normal_i(iDim) = formNormal(iDim) - 2.0 * formE(iDim);
+          normal_j(iDim) = formNormal(iDim) + 2.0 * formE(iDim);
+        }
+        jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), normal_i, 0.5);
+        jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), normal_j, 0.5);
+      } else {
+        jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), dissNormal, 0.5);
+        jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), dissNormal, 0.5);
+      }
     }
 
     /*--- Grid motion. ---*/
