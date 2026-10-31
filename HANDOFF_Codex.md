@@ -38,12 +38,32 @@ Complete quality ENTRY at990.484282689engine seconds:727818cells,54081q/53392J/
 3770geometry,size0,qJdebt25413.45557726506; ALL cells measured/completeflags1.
 Compared191entry:+96cells/+10q/+15J/-289geometry/+176.6681745253debt. Use each
 run own entry and actual quality times,not shifted window labels/rounds. Initial
-quality ownership migration conserved counts/debt/completeflags,cache/memo counters
+quality ownership migration conserved counts/debt/completeflags,selected cache/memo counters
 AND live bytes/entries unchanged; debtmax/min15.7760→1.53880. First3complete
 censuses audited,private trackedcollectives0/commits0atentry,no repair progress yet.
 CURRENT/quality_entry_assessment.json,quality_entry_comparison.json,
 quality_initial_ownership_assessment.json and all_quality_census_assessment.json.
-All10handles/all1401pins/82ELF reverified1793486628:quality_entry_provenance.json. Receipts CURRENT/
+All10handles/all1401pins/82ELF reverified1793486628:quality_entry_provenance.json.
+Preserved quality WINDOW2 at459.179622s sinceentry:739233cells,46176q/44617J/
+3608geometry,size0,debt14595.909676722005. Cumulative3762publications,net7905q/8775J/
+162geometry removed (17.2155netq/s),2.1013netq/publication. Interval2:3982q/4413J/
+52geometry in225.981695s. Queue344382,blocked79,stuck/missing0;privatecollectives0.
+ALL5complete censuses audited. Raw coordinate-key qchurn79898retired/71993introduced;
+J74620/65845; not all are connectivity changes. Firstwindow slotfill95.04%ofraw8slot
+ceiling (not allowed demand),reservation/candidate88.08%,publication/reservation86.56%;
+join-callshare41.35% (protocol+wait,not pure idle). Timers nested; private gains are
+not published cavity gains. CURRENT/quality_service_assessment.json,
+quality_window1_service_summary.json and all_quality_census_assessment.json.
+CURRENT/quality_window1_comparison.json and quality_window2_comparison.json use
+actual191bracketing-time and nearest-q snapshots,NO interpolation/matching-time
+claim. Window1had more work/netq than191nextsnapshot; window2cumulative99428.7work/
+netq vs191113475.9atnearqstate(45378vs46176q,44046vs44617J,3955vs3608geometry;
+646.399vs459.180qualityseconds). Different meshes/paths/times; no isolated timing or
+full closure gain claim. Last1401pin/10handle/82ELF audit1793486735:
+quality_live_provenance.json. Resources atfirstwindow observation:9.626GB latest
+summedRSS,14.572GB sampledmax (not true/physical peak),~31GB available, memory PSI0.
+Keep193frozen; assess next complete windows and terminal outcome,not forecasts.
+ Receipts CURRENT/
 construction_comparison.json,split_generation_assessment.json,
 construction_complete_provenance.json (all10handles/1401pins/82ELF at1793486484).
 Coarsening selected17per-rank fields EXACT191:292709cells/2627collapses,uppercalls
