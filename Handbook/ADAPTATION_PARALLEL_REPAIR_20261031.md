@@ -103,6 +103,33 @@ there is no per-slot synchronization. Validate fairness and unchanged-star block
 alongside the other oneMPI6 milestone cases. Counter collection itself never
 chooses this policy: selection must behave identically with profiling disabled.
 
+## Confirmed integration points (read-only source review)
+
+Keep WorkWeights unchanged: quality-entry phase_ownership already builds aligned
+cost vectors from measured Selection cells. Append an optional quality_debt_weights
+vector to Repartition; activate its constraint collectively only for globally
+positive q/J debt. Exact zero stays zero; scale positive finite debt to bounded
+integer weights against the global maximum. Extend WeightedCell transport,
+PartitionStats before/after loads, conservation checks, byte admission and the
+METIS tolerance/constraint layout (up to four constraints). Empty ranks provide
+empty aligned vectors and participate in the same collective layout. Extend the
+existing distinct-geometry partition fixture with a separate clustered-debt case,
+all-zero omission and malformed-vector atomicity; no new test framework.
+
+For local effort, use Selection::repair_cell_severity, which counts each distinct
+required bad cell once and already follows shape/height/size/geometry phase demand.
+Do not sum overlapping repair_severity feature users. Recompute only after phase
+activation/migration or a complete batch's measure, FinishRepairs, Touch and cache
+consistency restoration; freeze the limit during private trials. Use mean total
+debt per rank, not mean debt per cell. Blocked cells may retain debt while their
+feature queue is empty; an empty queue submits no candidates regardless of quota.
+Keep configured candidate_batch equal across ranks and preserve its existing
+conservative memory admission. RepairBatch already accepts a local limit and
+selects the oldest active demand before severe independent stars. Existing
+variable-list coalescing/import/reservation supports empty and unequal lists.
+Scaling is an effort heuristic, not a proof of balance; judge actual critical-path
+progress and debt spread in the full AFTER run.
+
 ## Demonstrated cache allowance blocker in the real-CFD baseline
 
 Coarsening complete:292709cells,55180size-bad/3512geometry-bad,2627collapses;

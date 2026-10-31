@@ -52,15 +52,21 @@ before/after integer counts and census flags preserved, reported debt sum roundo
 <1e-8. Post-migration q/Jdebts/rank3756.805/3988.121/5770.169/1909.352/5746.601/
 3673.432(max/min3.022). Confirms need for separate zero-clean debt constraint.
 Receipts:split_generation_assessment.json,quality_entry_assessment.json,
-quality_entry_ownership_assessment.json. Current phase QUALITY; completewindow1at698.727seconds sincequality entry:
-733816cells,48483q-bad/47386J-bad/4112geometry-bad/size0,q/Jdebt17422.07108015.
-1897shape-progress commits(2.71494/s),netq-bad removal6.91973/s. Debts now
-1023.785–4978.736/rank. quality_window1_assessment.json separates nested timers:
-election-call wall270.2–342.0s/rank (not pure idle); upper query54.7–170.6s/rank.
-No new profiler. All quantities are real-CFD baseline only, not matched startup179
-timing. Plan uses separate entry debt constraint plus existing local batch ceilings
-scaled to cached required demand, retaining oldest slot and unchanged per-star
-trial limits; no mid-quality queue-age reset/new scheduler/config. No accepted mesh/transfer/restart.
+quality_entry_ownership_assessment.json. Current phase QUALITY; completewindow2at
+1479.020seconds sincequality entry:740798cells,43764q-bad/42274J-bad/
+4067geometry-bad/size0,q/Jdebt13087.09702308638. Cumulative4098shape-progress
+commits(2.77075/s),netq-bad removal6.45968/s. Window2alone2201commits/
+4719netq-bad removed in780.293s. Debts now609.820–4561.792/rank(max/min7.481).
+Rank3upperqueries208.339s inwindow2for380netq-bad removed;rank4upper10.713s
+for155removed,remainingq-bad11307/debt4561.792. Shows unequal remaining burden
+and unequal useful yield; final target assessment still pending. Nested timers
+must not be summed; election-call wall325.6–452.8s/rank includes protocol/wait.
+Receipts:quality_trend_assessment.json,quality_window1_assessment.json,
+quality_window2_assessment.json. No new profiler. All quantities are real-CFD
+baseline only, not matched startup179timing. Plan uses separate entry debt
+constraint plus existing local batch ceilings scaled to cached required demand,
+retaining oldest slot and unchanged per-star trial limits; no mid-quality queue-age
+reset/new scheduler/config. No accepted mesh/transfer/adapted restart.
 
 See [saved CFD input and preparation evidence](Handbook/ADAPTATION_M6_CFD_SEED_20261031.md)
 for exact hashes, current policy, source snapshots, former criterion failure,
