@@ -277,3 +277,16 @@ repair-power evidence if it persists; neighbor changes can invalidate blocked st
 Do not infer a cause from the aggregate. The previously reported OldMerit/invalid-
 quality concern is one unproven alternative,not a diagnosed193failure. No competing
 implementation or interruption of the frozen run; use its terminal data first.
+
+Conditional geometry-cost follow-up AFTER frozen193terminal,not a new active cycle:
+TriangleUnion::Upper keeps searching until an upper bound is <=preparation
+resolution/4. Saved queries often return valid bounds between that and the actual
+query tolerance. Check the true caller tolerance,source/target approximation margins
+and all quantitative users before considering earlier success exit. Existing work
+counters/replay must establish benefit; no speedup or equivalence is proved yet.
+Do not change a gate,add an option/cache,or interrupt193for this unproven idea.
+
+193window12 reportsstuckshape/required0again,missing0,with2118q/2240J net retirement
+in the latest interval. The window10single stuck cell was transient in these
+aggregate counters. Do not treat it as a diagnosed persistent OldMerit failure or
+reprioritize a separate fix without terminal evidence.
