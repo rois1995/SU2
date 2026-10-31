@@ -140,6 +140,7 @@ private:
   FluxCorrection,
   ModCentroids,
   BC_Flux_Closure,          /*!< \brief Boundary flux weights that are exact for a P1 flux (walls and symmetries).*/
+  Central_Group_Flux,       /*!< \brief Central flux as the average of nodal fluxes, not the flux of the average.*/
   Pressure_Based;           /*!< \brief Flag to check if we are using a pressure-based system.*/
   su2double Buffet_k;       /*!< \brief Sharpness coefficient for buffet sensor.*/
   su2double Buffet_lambda;  /*!< \brief Offset parameter for buffet sensor.*/
@@ -9932,6 +9933,12 @@ public:
    * \return YES if the closure is used.
    */
   bool GetBC_Flux_Closure() const { return BC_Flux_Closure; }
+
+  /*!
+   * \brief Get if the centered schemes average nodal fluxes instead of evaluating the flux of the average.
+   * \return YES if the group form is used.
+   */
+  bool GetCentral_Group_Flux() const { return Central_Group_Flux; }
 
   /*!
    * \brief Get Compute Average.

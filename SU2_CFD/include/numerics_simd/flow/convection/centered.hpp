@@ -51,16 +51,18 @@ protected:
   const su2double gamma;
   const su2double fixFactor;
   const bool dynamicGrid;
+  const bool groupFlux;
   const su2double stretchParam = 0.3;
 
   /*!
    * \brief Constructor, store some constants and forward args to base.
    */
   template<class... Ts>
-  CCenteredBase(const CConfig& config, Ts&... args) : Base(config, args...),
+  CCenteredBase(const CConfig& config, unsigned iMesh, Ts&... args) : Base(config, iMesh, args...),
     gamma(config.GetGamma()),
     fixFactor(config.GetCent_Jac_Fix_Factor()),
-    dynamicGrid(config.GetDynamic_Grid()) {
+    dynamicGrid(config.GetDynamic_Grid()),
+    groupFlux(iMesh == MESH_0 && config.GetCentral_Group_Flux()) {
   }
 
   /*!
@@ -136,7 +138,15 @@ public:
 
     /*--- Inviscid fluxes and Jacobians. ---*/
 
-    auto flux = inviscidProjFlux(avgV, avgU, normal);
+    VectorDbl<nVar> flux;
+    if (groupFlux) {
+      /*--- Average of the nodal fluxes, the Jacobians below are already the exact ones for this form. ---*/
+      const auto flux_i = inviscidProjFlux(V.i, U.i, normal);
+      const auto flux_j = inviscidProjFlux(V.j, U.j, normal);
+      for (size_t iVar = 0; iVar < nVar; ++iVar) flux(iVar) = 0.5 * (flux_i(iVar) + flux_j(iVar));
+    } else {
+      flux = inviscidProjFlux(avgV, avgU, normal);
+    }
 
     MatrixDbl<nVar> jac_i, jac_j;
     if (implicit) {

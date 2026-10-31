@@ -1827,6 +1827,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("MOD_CENTROIDS", ModCentroids, false);
   /*!\brief BC_FLUX_CLOSURE \n DESCRIPTION: Euler wall and symmetry momentum flux with weights 5:1 (2D), 6:1:1 (3D), exact for a P1 flux on simplices \ingroup Config \default false */
   addBoolOption("BC_FLUX_CLOSURE", BC_Flux_Closure, false);
+  /*!\brief CENTRAL_GROUP_FLUX \n DESCRIPTION: Centered schemes use 0.5(F_i+F_j).n, the exact P1 integral on the median dual of simplices \ingroup Config \default false */
+  addBoolOption("CENTRAL_GROUP_FLUX", Central_Group_Flux, false);
 
   /*!\brief MARKER_HEATTRANSFER DESCRIPTION: Heat flux with specified heat transfer coefficient boundary marker(s)\n
    * Format: ( Heat transfer marker, heat transfer coefficient, wall temperature (static), ... ) \ingroup Config  */
@@ -6203,6 +6205,7 @@ void CConfig::CheckP1FluxOptions() const {
 
   vector<string> active;
   if (BC_Flux_Closure) active.push_back("BC_FLUX_CLOSURE");
+  if (Central_Group_Flux) active.push_back("CENTRAL_GROUP_FLUX");
 
   if (active.empty()) return;
 
@@ -6224,6 +6227,10 @@ void CConfig::CheckP1FluxOptions() const {
   if (BC_Flux_Closure) {
     if (FluxCorrection) refuse("FLUX_CORRECTION has its own boundary closure.");
     if (nMarker_PerBound > 0) refuse("not available with periodic boundaries.");
+  }
+  if (Central_Group_Flux && Kind_ConvNumScheme_Flow != SPACE_CENTERED) {
+    SU2_MPI::Error("CENTRAL_GROUP_FLUX: only for centered schemes, the central part of Roe is already in group form.",
+                   CURRENT_FUNCTION);
   }
 }
 

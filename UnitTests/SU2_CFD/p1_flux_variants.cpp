@@ -33,6 +33,7 @@
 #include "../../Common/include/CConfig.hpp"
 #include "../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../Common/include/toolboxes/boundary_closure.hpp"
+#include "../../Common/include/toolboxes/p1_simplex.hpp"
 
 namespace {
 
@@ -250,5 +251,56 @@ TEST_CASE("Boundary closure makes the edge sum exact for a linear flux", "[P1Flu
     INFO("nDim " << nDim);
     CHECK(MaxDivError(geometry, closure, div) < 1e-10);
     CHECK(MaxDivError(geometry, plain, div) > 1e-2);
+  }
+}
+
+TEST_CASE("Median edge sum is the P1 integral of the group flux at interior nodes", "[P1Flux]") {
+  for (int nDim : {2, 3}) {
+    for (double stretch : {1.0, 1e-3}) {
+      const std::string mesh = "p1_group_" + std::to_string(nDim) + "d.su2";
+      WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 12 : 5, 0.4, stretch);
+      MeshCase test(mesh);
+      const auto& geometry = *test.geometry;
+
+      /*--- A nonlinear nodal flux, the identity holds for any nodal values. ---*/
+      auto F = [&](unsigned long iPoint, unsigned short iDim) {
+        const auto* x = geometry.nodes->GetCoord(iPoint);
+        return sin(3.0 * x[0] + iDim) * cos(2.0 * x[1]) + x[nDim - 1] * x[nDim - 1] * (iDim + 1);
+      };
+
+      std::vector<su2double> edgeSum(geometry.GetnPoint(), 0.0), cellSum(geometry.GetnPoint(), 0.0);
+
+      for (auto iEdge = 0ul; iEdge < geometry.GetnEdge(); ++iEdge) {
+        const auto iPoint = geometry.edges->GetNode(iEdge, 0);
+        const auto jPoint = geometry.edges->GetNode(iEdge, 1);
+        const auto* normal = geometry.edges->GetNormal(iEdge);
+        su2double phi = 0.0;
+        for (auto iDim = 0; iDim < nDim; ++iDim) phi += 0.5 * (F(iPoint, iDim) + F(jPoint, iDim)) * normal[iDim];
+        edgeSum[iPoint] += phi;
+        edgeSum[jPoint] -= phi;
+      }
+
+      for (auto iElem = 0ul; iElem < geometry.GetnElem(); ++iElem) {
+        auto* elem = geometry.elem[iElem];
+        const su2double* x[4];
+        for (auto iNode = 0u; iNode <= unsigned(nDim); ++iNode) x[iNode] = geometry.nodes->GetCoord(elem->GetNode(iNode));
+        su2double grad[4][3];
+        const auto size = fabs(P1Simplex::ShapeGradients(nDim, x, grad));
+        su2double div = 0.0;
+        for (auto iNode = 0u; iNode <= unsigned(nDim); ++iNode) {
+          for (auto iDim = 0; iDim < nDim; ++iDim) div += F(elem->GetNode(iNode), iDim) * grad[iNode][iDim];
+        }
+        for (auto iNode = 0u; iNode <= unsigned(nDim); ++iNode) cellSum[elem->GetNode(iNode)] += size / (nDim + 1) * div;
+      }
+
+      su2double local = 0.0, global = 0.0;
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+        if (geometry.nodes->GetPhysicalBoundary(iPoint)) continue;
+        local = std::max(local, fabs(edgeSum[iPoint] - cellSum[iPoint]) / (fabs(cellSum[iPoint]) + geometry.nodes->GetVolume(iPoint)));
+      }
+      SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      INFO("nDim " << nDim << " stretch " << stretch);
+      CHECK(global < 1e-10);
+    }
   }
 }
