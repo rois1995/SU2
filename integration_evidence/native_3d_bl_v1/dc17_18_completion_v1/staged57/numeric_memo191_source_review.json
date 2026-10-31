@@ -1,0 +1,26 @@
+{
+  "time": 1793475165.198751,
+  "scope": "Primary review of connected numeric FaceMemo retention before build191",
+  "state": "source_reviewed_unbuilt_unvalidated",
+  "callers": [
+    "BoundPhysicalSurface",
+    "SurfaceError(Id,bindings,coordinates)",
+    "ContainsFace component path",
+    "GeometryStatsSnapshot",
+    "Engine complete-census output"
+  ],
+  "findings": {
+    "keys": "Exact keys unchanged; immutable authority owns maps. No phase/partition identity introduced.",
+    "lifetime": "Map keys have stable addresses. Clock erases only after copying kind/pointer; numeric answers returned by value. No retained active alias.",
+    "accounting": "Same fixed 4194304-byte capacity on 64-bit host. Entry charges include map/list nodes plus vector capacity; fixed reserve remains in ResidentBytes.",
+    "locks": "Snapshot memo->prepared->statistics; query hits memo->statistics; prepared query paths prepared->statistics without acquiring memo. No reverse acquisition found.",
+    "work_exhaustion": "Intentional fail-closed: union retention maintenance charges cumulative AtlasOps work. Exhaustion may withhold a computed bound, retains sticky failure, and never bypasses the budget. Direct-query API has no AtlasBudget; its bounded maintenance is reported separately.",
+    "review": "Routine read-only review found no correctness/lock-order blocker; raised maintenance-budget semantics, resolved by preserving mandatory cumulative work accounting.",
+    "test": "Mixed hot/cold direct/union pressure asserts no hot union recomputation throughout churn, eviction/live-byte accounting, reset retains entries and cached-vs-recomputed oracle. Existing selected regressions cover support/tolerance/association/resource/curved/height/publication behavior."
+  },
+  "limits": [
+    "M6 impact unmeasured; no memo hit/flush baseline counters in build190",
+    "Not yet compiled or validated",
+    "No accepted mesh or transfer/restart evidence"
+  ]
+}

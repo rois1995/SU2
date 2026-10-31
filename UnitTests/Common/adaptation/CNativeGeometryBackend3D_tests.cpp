@@ -321,6 +321,76 @@ TEST_CASE("Prepared surface geometry is reused across distinct physical queries"
   CHECK(actual_tight==expected_tight);
 }
 
+TEST_CASE("Hot surface-union memo entries survive direct-query churn", "[NativeGeometryBackend3D][NativeSurfaceMemo3D][NativeFaceMemo3D]") {
+  BackendFixture fixture;const auto& geometry=*fixture.geometry;
+  std::vector<Id> facets;std::vector<std::array<Point,3>> physical;
+  for(const auto& face:fixture.facets) {
+    facets.push_back(face.id);physical.push_back({face.v[0].p,face.v[1].p,face.v[2].p});
+  }
+  const double tolerance=1e-4;
+  auto hot_budget=BackendBudget();const auto hot=geometry.BoundPhysicalSurface(facets,physical,tolerance,hot_budget);
+  for(unsigned refresh=0;refresh<8;++refresh) {
+    auto budget=BackendBudget();CHECK(geometry.BoundPhysicalSurface(facets,physical,tolerance,budget)==hot);
+  }
+  const auto warm=geometry.GeometryStatsSnapshot();REQUIRE(warm.memo_union_misses==1);
+
+  // Distinct exact direct keys compete for the same fixed memo. Keep refreshing the costly
+  // union answer while cold, single-facet cubic errors enter; no wall-clock claim is needed.
+  const Id facet=fixture.facets[10].id;
+  bool direct_finite=true;
+  for(unsigned i=0;i<20000;++i) {
+    const double u=.05+double(i)*1e-5;
+    const std::array<SurfaceBinding,3> bindings{{geometry.FacetPoint(facet,u,.15),
+        geometry.FacetPoint(facet,.3,.2),geometry.FacetPoint(facet,.2,.35)}};
+    const std::array<Point,3> realized{{geometry.Realize(bindings[0]),geometry.Realize(bindings[1]),geometry.Realize(bindings[2])}};
+    direct_finite &= std::isfinite(geometry.SurfaceError(facet,bindings,realized));
+    if(i%1024==1023) {
+      auto refresh=BackendBudget();CHECK(geometry.BoundPhysicalSurface(facets,physical,tolerance,refresh)==hot);
+    }
+  }
+  CHECK(direct_finite);
+  const auto churn=geometry.GeometryStatsSnapshot();
+  CHECK(churn.memo_direct_misses>=20000);CHECK(churn.memo_union_hits>=8);
+  CHECK(churn.memo_union_misses==1);CHECK(churn.upper_work==warm.upper_work);
+  CHECK(churn.memo_evictions>0);CHECK(churn.memo_evicted_bytes>0);
+  CHECK(churn.memo_maintenance_work>0);
+  CHECK(churn.memo_direct_entries>0);CHECK(churn.memo_union_entries>0);
+  CHECK(churn.memo_bytes<=churn.memo_limit);CHECK(churn.memo_limit>0);
+
+  MappedFacetReference uncached(fixture.reference,geometry.Errors(),57,SIZE_MAX,false,geometry.Curves(),0);
+  auto oracle_budget=BackendBudget();const auto oracle=uncached.BoundPhysicalSurface(facets,physical,tolerance,oracle_budget);
+  CHECK(hot==oracle);
+  const auto retained=geometry.GeometryStatsSnapshot(true);
+  CHECK(retained.memo_union_entries>0);CHECK(retained.memo_bytes<=retained.memo_limit);
+  const auto reset=geometry.GeometryStatsSnapshot();
+  CHECK(reset.memo_direct_hits==0);CHECK(reset.memo_direct_misses==0);CHECK(reset.memo_union_hits==0);
+  CHECK(reset.memo_union_misses==0);CHECK(reset.memo_evictions==0);CHECK(reset.memo_bytes==retained.memo_bytes);
+  CHECK(reset.memo_direct_entries==retained.memo_direct_entries);CHECK(reset.memo_union_entries==retained.memo_union_entries);
+  const auto upper_work=reset.upper_work;auto retained_budget=BackendBudget();
+  CHECK(geometry.BoundPhysicalSurface(facets,physical,tolerance,retained_budget)==oracle);
+  const auto after_hit=geometry.GeometryStatsSnapshot();
+  CHECK(after_hit.memo_union_hits==1);CHECK(after_hit.upper_work==upper_work);
+
+  // Direct SurfaceError hits require exact associations and coordinates. The altered
+  // association and perturbed realized coordinate are both finite valid query inputs.
+  const std::array<SurfaceBinding,3> face_bindings{{geometry.FacetPoint(facet,.2,.2),
+      geometry.FacetPoint(facet,.25,.2),geometry.FacetPoint(facet,.2,.25)}};
+  const std::array<Point,3> face_points{{geometry.Realize(face_bindings[0]),geometry.Realize(face_bindings[1]),geometry.Realize(face_bindings[2])}};
+  const auto first_error=geometry.SurfaceError(facet,face_bindings,face_points);
+  CHECK(first_error==uncached.SurfaceError(facet,face_bindings,face_points));
+  CHECK(geometry.SurfaceError(facet,face_bindings,face_points)==first_error);
+  auto changed_association=face_bindings;changed_association[0]=geometry.FacetPoint(facet,.22,.2);
+  auto changed_association_points=face_points;changed_association_points[0]=geometry.Realize(changed_association[0]);
+  const auto associated_error=geometry.SurfaceError(facet,changed_association,changed_association_points);
+  CHECK(std::isfinite(associated_error));CHECK(associated_error==uncached.SurfaceError(facet,changed_association,changed_association_points));
+  auto changed_points=face_points;changed_points[0].x=std::nextafter(changed_points[0].x,INFINITY);
+  const auto perturbed_error=geometry.SurfaceError(facet,face_bindings,changed_points);
+  CHECK(std::isfinite(perturbed_error));CHECK(perturbed_error==uncached.SurfaceError(facet,face_bindings,changed_points));
+  CHECK(geometry.SurfaceError(facet,face_bindings,changed_points)==perturbed_error);
+  const auto direct=geometry.GeometryStatsSnapshot();
+  CHECK(direct.memo_direct_hits>=2);CHECK(direct.memo_direct_misses>=3);
+}
+
 TEST_CASE("Surface union bounds span a noncoplanar triangulated graph without filling holes", "[NativeGeometryBackend3D]") {
   const bool shear=GENERATE(false,true);BackendFixture fixture(false,true,shear);
   std::vector<std::array<Point,3>> physical;

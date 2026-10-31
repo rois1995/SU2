@@ -1695,6 +1695,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           <<" smooth_interior_seconds="<<stats.interior_smoothing_seconds
           <<" retention_refusals="<<g.retention_refusals-geometry_begin.retention_refusals<<" prepared_bytes="<<g.prepared_bytes<<" prepared_limit="<<g.prepared_limit<<" facet_bytes="<<g.facet_bytes<<" scope_bytes="<<g.scope_bytes
           <<" facet_entries="<<g.facet_entries<<" scope_entries="<<g.scope_entries<<" cache_evictions="<<g.evictions<<" cache_evicted_bytes="<<g.evicted_bytes
+          <<" memo_direct_hits="<<g.memo_direct_hits-geometry_begin.memo_direct_hits<<" memo_direct_misses="<<g.memo_direct_misses-geometry_begin.memo_direct_misses
+          <<" memo_union_hits="<<g.memo_union_hits-geometry_begin.memo_union_hits<<" memo_union_misses="<<g.memo_union_misses-geometry_begin.memo_union_misses
+          <<" memo_stores="<<g.memo_stores-geometry_begin.memo_stores<<" memo_evictions="<<g.memo_evictions-geometry_begin.memo_evictions
+          <<" memo_evicted_bytes="<<g.memo_evicted_bytes-geometry_begin.memo_evicted_bytes<<" memo_retention_refusals="<<g.memo_retention_refusals-geometry_begin.memo_retention_refusals
+          <<" memo_maintenance_work="<<g.memo_maintenance_work-geometry_begin.memo_maintenance_work
+          <<" memo_bytes="<<g.memo_bytes<<" memo_limit="<<g.memo_limit<<" memo_direct_entries="<<g.memo_direct_entries<<" memo_union_entries="<<g.memo_union_entries
           <<" length_splits="<<stats.length_splits<<" length_collapses="<<stats.length_collapses
           <<" split_passes="<<stats.length_split_passes<<" collapse_passes="<<stats.length_collapse_passes<<" quality_stages="<<stats.quality_stages
           <<" split_generation="<<stats.split_generation<<" split_lane="<<stats.split_lane

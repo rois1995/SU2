@@ -18,6 +18,7 @@
 #include <queue>
 #include <list>
 #include <type_traits>
+#include <utility>
 namespace SU2NativeGeometry {
 namespace {
 using Vec=std::array<double,3>;
@@ -1041,7 +1042,6 @@ struct MappedFacetReference::FaceMemo {
   static constexpr size_t Entries=size_t(1)<<14;
   using Key=std::array<uint64_t,25>;
   using UnionKey=std::vector<uint64_t>;
-  struct Hash{template<class K>size_t operator()(const K& k)const{uint64_t h=1469598103934665603ULL;for(auto x:k){h^=x+0x9e3779b97f4a7c15ULL+(h<<6)+(h>>2);}return size_t(h);}};
   static Key Query(Id facet,const std::array<SurfaceBinding,3>& binding,const std::array<Point,3>& realized) {
     auto bits=[](double x){uint64_t b;std::memcpy(&b,&x,sizeof b);return b;};
     Key key{};size_t at=0;key[at++]=facet;
@@ -1049,20 +1049,63 @@ struct MappedFacetReference::FaceMemo {
     for(unsigned k=0;k<3;++k){key[at++]=bits(realized[k].x);key[at++]=bits(realized[k].y);key[at++]=bits(realized[k].z);}
     return key;
   }
-  // Components and curved nets are mutually exclusive: store containment or surface error respectively.
-  std::mutex lock;std::unordered_map<Key,double,Hash> values;
-  std::unordered_map<UnionKey,double,Hash> union_values;size_t union_bytes=0;
-  static size_t EntryBytes(){return sizeof(Key)+sizeof(double)+4*sizeof(void*)+2*sizeof(size_t);}
-  static size_t Capacity(){return transfer_memory::Mul(Entries,EntryBytes());}
+  struct Entry {double value=0;size_t bytes=0,work=0;unsigned credit=0;};
+  struct ClockKey {bool scoped=false;const void* key=nullptr;};
+  // Stable tree nodes avoid retained hash buckets after incremental eviction.
+  std::mutex lock;std::map<Key,Entry> values;
+  std::map<UnionKey,Entry> union_values;std::list<ClockKey> clock;
+  size_t bytes=0,hits[2]{},misses[2]{},stores=0,evictions=0,evicted_bytes=0,refusals=0,maintenance_work=0;
+  static size_t Capacity(){return transfer_memory::Mul(Entries,sizeof(Key)+sizeof(double)+4*sizeof(void*)+2*sizeof(size_t));}
+  static size_t EntryBytes(){return sizeof(Key)+sizeof(Entry)+12*sizeof(void*)+4*sizeof(size_t);}
   static size_t UnionBytes(size_t words){return transfer_memory::Add(transfer_memory::Mul(words,sizeof(uint64_t)),
-      sizeof(UnionKey)+sizeof(double)+12*sizeof(void*)+4*sizeof(size_t));}
-  void Reserve(size_t bytes) {
-    if(transfer_memory::Add(transfer_memory::Mul(values.size(),EntryBytes()),union_bytes,bytes)<=Capacity())return;
-    decltype(values)().swap(values);decltype(union_values)().swap(union_values);union_bytes=0;
+      sizeof(UnionKey)+sizeof(Entry)+12*sizeof(void*)+4*sizeof(size_t));}
+  template<class Map,class K> bool Find(Map& map,const K& key,unsigned kind,double& result) {
+    auto found=map.find(key);if(found==map.end()){++misses[kind];return false;}
+    auto& entry=found->second;
+    entry.credit=1+std::min<size_t>(3,entry.work/(1+entry.bytes/64));
+    result=entry.value;++hits[kind];return true;
   }
-  void Store(const Key& key,double value){Reserve(EntryBytes());values.emplace(key,value);}
-  void Store(UnionKey&& key,double value){const auto bytes=UnionBytes(key.capacity());if(bytes>Capacity())return;Reserve(bytes);
-    if(union_values.emplace(std::move(key),value).second)union_bytes=transfer_memory::Add(union_bytes,bytes);}
+  bool Find(const Key& key,double& result){return Find(values,key,0,result);}
+  bool Find(const UnionKey& key,double& result){return Find(union_values,key,1,result);}
+  bool Reserve(size_t requested,AtlasOps* op) {
+    if(requested>Capacity()){++refusals;return false;}
+    size_t scans=std::min<size_t>(64,clock.size()*5);
+    while(transfer_memory::Add(bytes,requested)>Capacity() && scans-- && !clock.empty()) {
+      const auto first=clock.begin();const auto ref=*first;
+      const size_t work=1+(ref.scoped?static_cast<const UnionKey*>(ref.key)->size():Key{}.size());
+      if(op)op->Work(work);maintenance_work=transfer_memory::Add(maintenance_work,work);
+      auto retire=[&](auto& map,const auto& key) {
+        const auto found=map.find(key);if(found==map.end())throw std::logic_error("Numeric geometry memo lost its clock key.");
+        auto& entry=found->second;
+        if(entry.credit){--entry.credit;clock.splice(clock.end(),clock,first);return;}
+        bytes-=entry.bytes;evicted_bytes=transfer_memory::Add(evicted_bytes,entry.bytes);++evictions;
+        map.erase(found);clock.erase(first);
+      };
+      if(ref.scoped)retire(union_values,*static_cast<const UnionKey*>(ref.key));
+      else retire(values,*static_cast<const Key*>(ref.key));
+    }
+    if(transfer_memory::Add(bytes,requested)>Capacity()){++refusals;return false;}
+    return true;
+  }
+  template<class Map,class K> void Retain(Map& map,K&& key,double value,size_t size,size_t work,bool scoped,AtlasOps* op) {
+    const auto previous=map.find(key);if(previous!=map.end())return;
+    if(!Reserve(size,op))return;
+    const auto inserted=map.emplace(std::forward<K>(key),Entry{value,size,work,0});
+    if(!inserted.second)throw std::logic_error("Numeric geometry memo repeated an admitted key.");
+    try{clock.push_back({scoped,&inserted.first->first});}catch(...){map.erase(inserted.first);throw;}
+    bytes+=size;++stores;
+  }
+  void Store(const Key& key,double value){Retain(values,key,value,EntryBytes(),0,false,nullptr);}
+  void Store(UnionKey&& key,double value,size_t work,AtlasOps& op){
+    const auto size=UnionBytes(key.capacity());Retain(union_values,std::move(key),value,size,work,true,&op);
+  }
+  void Snapshot(GeometryStats& out,bool reset) {
+    out.memo_direct_hits=hits[0];out.memo_direct_misses=misses[0];out.memo_union_hits=hits[1];out.memo_union_misses=misses[1];
+    out.memo_stores=stores;out.memo_evictions=evictions;out.memo_evicted_bytes=evicted_bytes;out.memo_retention_refusals=refusals;
+    out.memo_maintenance_work=maintenance_work;out.memo_bytes=bytes;out.memo_limit=Capacity();
+    out.memo_direct_entries=values.size();out.memo_union_entries=union_values.size();
+    if(reset){hits[0]=hits[1]=misses[0]=misses[1]=stores=evictions=evicted_bytes=refusals=maintenance_work=0;}
+  }
 };
 MappedFacetReference::MappedFacetReference(std::shared_ptr<const SU2Native3D::PlanarReference> input,
     const std::map<Id,double>& mapping_errors,uint64_t definition_version,size_t ceiling,bool reference_components,const CurvedNets& curved_nets,
@@ -1637,22 +1680,26 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
   key.push_back(facets.size());key.insert(key.end(),facets.begin(),facets.end());
   key.push_back(physical.size());key.push_back(bits(tolerance));
   for(const auto& triangle:physical)for(auto p:triangle)for(auto x:Values(p))key.push_back(bits(x));
-  {std::lock_guard<std::mutex> guard(face_memo->lock);const auto cached=face_memo->union_values.find(key);
-    if(cached!=face_memo->union_values.end()){std::lock_guard<std::mutex> stats_lock(geometry_stats->mutex);
-      ++geometry_stats->value.upper_calls;geometry_stats->value.upper_refusals+=cached->second>tolerance;return cached->second;}}
+  {std::lock_guard<std::mutex> guard(face_memo->lock);double cached=0;
+    if(face_memo->Find(key,cached)){std::lock_guard<std::mutex> stats_lock(geometry_stats->mutex);
+      ++geometry_stats->value.upper_calls;geometry_stats->value.upper_refusals+=cached>tolerance;return cached;}}
   // The immutable authority, complete support set, tolerance and coordinates identify the certified query.
   struct Restore{AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
   budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(key.capacity(),sizeof(uint64_t)));
-  const auto result=QuerySurfaceUnion(facets,physical,tolerance,budget,false,true).mesh_to_model;
-  {std::lock_guard<std::mutex> guard(face_memo->lock);face_memo->Store(std::move(key),result);}
+  const auto before=budget.work;const auto result=QuerySurfaceUnion(facets,physical,tolerance,budget,false,true).mesh_to_model;
+  {std::lock_guard<std::mutex> guard(face_memo->lock);face_memo->Store(std::move(key),result,budget.work-before,op);}
   return result;
 }
 MappedFacetReference::GeometryStats MappedFacetReference::GeometryStatsSnapshot(bool reset)const {
+  // Query hits take memo then statistics; keep that order when also snapshotting prepared pools.
+  std::unique_lock<std::mutex> memo;
+  if(face_memo)memo=std::unique_lock<std::mutex>(face_memo->lock);
   std::unique_lock<std::mutex> prepared;
   if(curved_search)prepared=std::unique_lock<std::mutex>(curved_search->prepared_mutex);
   std::lock_guard<std::mutex> lock(geometry_stats->mutex);
   if(curved_search)curved_search->Snapshot(geometry_stats->value);
   auto value=geometry_stats->value;
+  if(face_memo)face_memo->Snapshot(value,reset);
   if(reset){geometry_stats->value={};geometry_stats->value.prepared_bytes=value.prepared_bytes;geometry_stats->value.prepared_limit=value.prepared_limit;
     geometry_stats->value.facet_bytes=value.facet_bytes;geometry_stats->value.scope_bytes=value.scope_bytes;
     geometry_stats->value.facet_entries=value.facet_entries;geometry_stats->value.scope_entries=value.scope_entries;
@@ -2489,8 +2536,8 @@ double MappedFacetReference::SurfaceError(Id facet,const std::array<SurfaceBindi
   if(found==curves.end()){double result=0;for(unsigned k=0;k<3;++k)result=std::max(result,ErrorBound(binding[k],realized[k]));return result;}
   const auto key=FaceMemo::Query(facet,binding,realized);
   if(face_memo) {
-    std::lock_guard<std::mutex> guard(face_memo->lock);const auto cached=face_memo->values.find(key);
-    if(cached!=face_memo->values.end())return cached->second;
+    std::lock_guard<std::mutex> guard(face_memo->lock);double cached=0;
+    if(face_memo->Find(key,cached))return cached;
   }
   std::array<Box,3> parameters;
   for(unsigned k=0;k<3;++k){Finite(realized[k]);parameters[k]=ParameterBox(FacetParameters(facet,binding[k]));}
@@ -2562,7 +2609,7 @@ bool MappedFacetReference::ContainsFace(Id facet,const std::array<SurfaceBinding
     // physical faces re-checked by every kernel and admission) reuse their verdict. Statistics callers recompute.
     if(stats || !face_memo)return ComponentContainsFace(facet,binding,realized,stats);
     const auto key=FaceMemo::Query(facet,binding,realized);
-    {std::lock_guard<std::mutex> guard(face_memo->lock);const auto found=face_memo->values.find(key);if(found!=face_memo->values.end())return found->second;}
+    {std::lock_guard<std::mutex> guard(face_memo->lock);double cached=0;if(face_memo->Find(key,cached))return cached;}
     const bool verdict=ComponentContainsFace(facet,binding,realized,nullptr);
     std::lock_guard<std::mutex> guard(face_memo->lock);
     face_memo->Store(key,verdict);return verdict;
@@ -2646,7 +2693,7 @@ bool MappedFacetReference::ComponentContainsFace(Id facet,const std::array<Surfa
   return winding==c.orientation;
 }
 size_t MappedFacetReference::FaceMemoBytes() {
-  // Per entry: key + value + hash-node links/hash + one bucket pointer (generous), plus the container itself.
+  // The fixed reserve covers live tree/clock nodes and key capacity; no retained bucket arrays.
   return transfer_memory::Add(sizeof(FaceMemo),FaceMemo::Capacity());
 }
 size_t MappedFacetReference::ResidentBytes()const {

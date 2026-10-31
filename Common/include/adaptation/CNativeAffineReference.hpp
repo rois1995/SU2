@@ -115,6 +115,9 @@ class MappedFacetReference {
     size_t facet_bytes=0,scope_bytes=0,facet_entries=0,scope_entries=0,evictions=0,evicted_bytes=0;
     size_t support_calls=0,support_facets=0,facet_build_work=0,piece_selection_work=0,traversal_work=0;
     size_t selected_pieces=0,support_pieces=0;
+    size_t memo_direct_hits=0,memo_direct_misses=0,memo_union_hits=0,memo_union_misses=0;
+    size_t memo_stores=0,memo_evictions=0,memo_evicted_bytes=0,memo_retention_refusals=0,memo_maintenance_work=0;
+    size_t memo_bytes=0,memo_limit=0,memo_direct_entries=0,memo_union_entries=0;
     double direct_seconds=0,upper_seconds=0,full_seconds=0,scope_build_seconds=0;
     double support_seconds=0,facet_build_seconds=0,piece_selection_seconds=0,traversal_seconds=0;
   };
