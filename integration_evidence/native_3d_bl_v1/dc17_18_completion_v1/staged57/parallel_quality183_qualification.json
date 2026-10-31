@@ -1,0 +1,98 @@
+{
+  "time": 1793450187.2660966,
+  "scope": "Affected connected integration qualification, not whole repository/broad geometry suite or accepted M6 capability.",
+  "production_source": "0cf923c59f",
+  "source_checkpoint_with_live_handoff": "9ffa90fa2b",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 357.69737672805786,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "build_terminal": {
+    "time": 1793449938.336651,
+    "handles": [
+      {
+        "pid": 3699721,
+        "expected_startticks": 86454925,
+        "state": "absent"
+      },
+      {
+        "pid": 3699744,
+        "expected_startticks": 86454966,
+        "state": "absent"
+      }
+    ],
+    "pin_count": 1296,
+    "changed": [],
+    "pins_verified": true,
+    "load": [
+      10.46,
+      11.78,
+      12.28
+    ],
+    "mem_available": "MemAvailable:   31820680 kB",
+    "build": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 357.69737672805786,
+      "pins_verified": true,
+      "changed": [],
+      "completed_build": true
+    }
+  },
+  "binaries": {
+    "integration_evidence/build-integrated-v2/UnitTests/test_driver": "fbb5769e23344146213ffa9f6ffdec1f6a8bf85c33f421e213cd084ba0169385",
+    "integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD": "074dc38824aea5a1e07f828a8d854ed7fe99355d0d4658ff9f36e0e180cd0f7e"
+  },
+  "serial": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/parallel_quality183_serial_20261031T123221_3718464",
+    "cases": 13,
+    "assertions": 6850,
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 11.563453435897827,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 37949440,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    }
+  },
+  "mpi": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/parallel_quality183_affected_mpi6_20261031T123301_3720499",
+    "ranks": 6,
+    "cases_each": 161,
+    "assertions_per_summary": [
+      13294,
+      13770,
+      13010,
+      16211,
+      13818,
+      13281
+    ],
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 104.90414690971375,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 45244416,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    },
+    "all_owned_handles_absent": true
+  },
+  "earlier_serial": {
+    "build": 182,
+    "cases": 117,
+    "assertions": 17611,
+    "production_delta_since": "Only optional phase ownership skip when global_cells<world.size; focused serial/affected MPI183 rechecked."
+  },
+  "broad182_timeout": "Preserved, incomplete, not a pass; targeted affected MPI qualification completed instead.",
+  "plan_sha256": "d8bec3172889f2456be112890198899106fa1de695ed19fe18ca31cc92e6e73c",
+  "build_source_pins_sha256": "3b939061bf860c64c19fa7c61d5235613d91d649924dbe363db98f167d8b5325",
+  "seed_qualification_sha256": "e5782d139bc9d398780f04e77800757c01012dabd05c2a3b51b3065000b40fc9",
+  "next": "Immediate full M6 two-event AFTER from same immutable real CFD seed; strict gates,5400s/event unchanged. No accepted mesh/actual conservative transfer/adapted restart yet."
+}

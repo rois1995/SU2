@@ -453,3 +453,11 @@ the benefit estimate, replacing its later count reduction. Exact10handles absent
 and all pins unchanged before edit. Build183 qualifies the demonstrated fix using
 focused serial and affected MPI continuation, then full M6 immediately. Catch2
 per-case durations improve resumption; no complete broad pass is claimed.
+
+Build183 qualified after the demonstrated optional-migration guard: buildPASS
+357.697s/1296pins; focused serial13cases/6850assertions; affected MPI6PASS
+161cases/rank on all6in104.904s. Exact owned handles absent and all pins unchanged
+before followup. parallel_quality183_qualification.json preserves provenance.
+Broad182timeout is incomplete and does not become a broad-suite pass. This
+qualifies affected contracts only; return immediately to full two-event M6 from
+the identical saved real CFD. No M6 acceptance/transfer/restart yet.

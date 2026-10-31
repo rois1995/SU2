@@ -49,16 +49,24 @@ Affected-contract continuation exec6606TERMINAL206.339s:161cases/rank,
 Failure only existing NativeCollapseFilter3D single-cell/6rank optional phase
 partition. Guard now skips impossible migration when global_cells<world.size,
 retaining coherent ownership; global count reused in existing benefit estimate.
-No construction operator/gate changes. Build183 LIVE exec76629, source0cf923c59f
-pushed; host Python3699721(start86454925)/Ninja3699744(start86454966), helper
-namespace2/9,1296pins. C++/headers/tests/helpers FROZEN until terminal.
-Startup MemAvailable~31GiB/load11.27; three nice19workers/libs1/TMPDIR4TB.
+No construction operator/gate changes. Build183 TERMINAL PASS357.697s, exec76629
+exit0/all1296pins unchanged/up-to-date; exacthost3699721/3699744 ABSENT.
+Source0cf923c59f,pushedhandoff9ffa90fa2b. Serial183PASS13cases/6850assertions,
+exec16316exit0/allpinsunchanged; owned3718464/3718680 ABSENT before MPI.
+Affected MPI6 milestone COMPLETE PASS:161cases/rank, all6passed,
+104.904s, exec81892exit0/allpinsunchanged. Exact10ownedhandles independently
+ABSENT before M6. Case:parallel_quality183_affected_mpi6_20261031T123301_3720499.
+parallel_quality183_qualification.json records binaries/source/helper provenance,
+serial13cases/6850assertions and MPI6 result. Broad182timeout remains incomplete,
+not a passing broad suite. No accepted M6 mesh/transfer/adapted restart yet.
+NEXT IMMEDIATE:full TWO-event AFTER build183/euler_build183_real_cfd50k_after,
+using exact saved force-qualified CFD seed,5400s native/event unchanged.
 parallel_quality182_assessment.json / parallel_quality183_validation_plan.json.
 run_cases.py now records --durations yes for resumable completed case evidence;
 helper change occurred only after broad182terminal; no production decisions changed.
 Same planned focused serial/ONE MPI6 milestone, then full TWO-event
 M6 AFTER. All original constructors/operators/gates remain unchanged.
-No new qualified binary yet; zero accepted meshes. Separate zero-clean quality
+Build183 affected integration qualified; zero accepted M6 meshes. Separate zero-clean quality
 partition constraint, debt-directed local ceilings, MemAvailable correction with
 same4GiB cap, and exact changed-support invalidation are connected. Private repair
 runs all local admitted slots without per-slot collectives (including batch=1),
@@ -77,12 +85,11 @@ actual removed/added rows and ownership resets, sampling current nodal tensors
 only with exact containment. Lost means unavailable tracked support, not proof
 outside mesh. Drift is full target for current Euler (no composition); composed
 fields explicitly report sensor-only/full_target=0, without extra geometry queries.
-No perf/GDB campaign. Serial117cases passed; MPI6 qualification remains pending. Focused fixture now checks
+No perf/GDB campaign. Focused serial and affected MPI6 qualification passed; complete M6 remains pending. Focused fixture now checks
 multiple commits/rank, one final round reservation, zero private tracked
 collectives, q/J churn conservation and cached-vs-recomputed field counts.
 
-Next: finish/verify frozen183, focused serial plus affected MPI6 continuation
-(parallel_quality183_validation_plan.json), then immediately full TWO-event AFTER
+Next: run full TWO-event AFTER immediately from qualified build183
 from the exact saved CFD seed. Do not edit C++/helpers/tests while a build/check
 handle is live. Both agents DONE/read-only reviews; no independent heavy jobs.
 
