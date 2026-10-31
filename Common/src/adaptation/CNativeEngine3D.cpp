@@ -2770,9 +2770,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     std::array<RepairReceipt,MaximumCandidateBatch> refused_receipts{};size_t refused_receipt_count=0;
     auto refuse=[&](const Choice& candidate,const Feature& feature,const std::string& why) {
       selection.Block(candidate.edge,candidate.feature,repairing);++stats.attempted;++stats.rejected;++stats.oversized_stars;
-      if(!repairing && (batched || planned_coarsening)) {
+      if(batched || (!repairing && planned_coarsening)) {
         if(refused_receipt_count==MaximumCandidateBatch)throw std::logic_error("Native refused frontier exceeds batch bound.");
-        refused_receipts[refused_receipt_count++]={Feature{{candidate.edge[0],candidate.edge[1],0},2},false};
+        refused_receipts[refused_receipt_count++]={repairing ? feature : Feature{{candidate.edge[0],candidate.edge[1],0},2},false};
       }
       stats.last_rejected_feature=feature;++refused_candidates;
       last_rejection="feature "+std::to_string(feature.count)+":"+std::to_string(feature.vertices[0])+": "+why;

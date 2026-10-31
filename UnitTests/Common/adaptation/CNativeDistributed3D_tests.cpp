@@ -3943,13 +3943,18 @@ TEST_CASE("Global repair age precedes ownership and reactivated low IDs", "[Nati
 TEST_CASE("Quality batch serves old demand and severe independent stars in one round", "[NativeRepairBatch3D]") {
   World world;Fixture fixture;Owned input;const int copies=2*world.size;
   for(int copy=0;copy<copies;++copy) {
-    auto box=Box();box.patch.cells.clear();const double x=.9+.099*copy/(copies-1);
+    auto box=Box();box.patch.cells.clear();const double x=.95+.049*copy/(copies-1);
     const Node center{8,{x,x,x}};
     for(const auto& f:box.facets) {
       Cell c{box.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
       if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0)std::swap(c.v[2],c.v[3]);
       box.patch.cells.push_back(c);
     }
+    // Give the movable interior star the lowest ID; both independent boxes have real debt.
+    auto rename=[](Id id){return id==0?Id(8):id==8?Id(0):id;};
+    for(auto& c:box.patch.cells)for(auto& n:c.v)n.id=rename(n.id);
+    for(auto& f:box.patch.surface)for(auto& id:f.v)id=rename(id);
+    for(auto& f:box.facets)for(auto& n:f.v)n.id=rename(n.id);
     for(auto& c:box.patch.cells){c.id+=100*copy;for(auto& n:c.v){n.id+=16*copy;n.p.x+=3*copy;}}
     for(auto& f:box.patch.surface){f.facet+=12*copy;for(auto& id:f.v)id+=16*copy;}
     for(auto& f:box.facets){f.id+=12*copy;for(auto& n:f.v){n.id+=16*copy;n.p.x+=3*copy;}}
@@ -3958,7 +3963,7 @@ TEST_CASE("Quality batch serves old demand and severe independent stars in one r
   }
   const auto saved=Bytes(input);const PlanarReference geometry(fixture.facets);
   EngineOptions options;options.maximum_rounds=1;options.maximum_work=4096*copies;
-  options.capture_feature={{Id(16*(copies-1)+8),0,0},1};
+  options.capture_feature={{Id(16*(copies-1)),0,0},1};
   unsigned serviced=0;uint64_t round=UINT64_MAX;
   options.transaction_observer=[&](const TransactionView& view) {
     if(view.selected&&std::string(view.stage)=="transaction_end"){++serviced;round=view.round;}

@@ -1,10 +1,38 @@
 # Assessment of supplied M6 findings (frozen build166)
 
-Scope: source inspection and preserved164/166receipts. No source edits/tests for
-this assessment. Full accepted Euler50k→BL/MPI→RANS500k goal persists. The active
-next milestone is shared geometry-query reuse plus boundary smoothing; unrelated
-algorithm/policy changes stay backlog. Confirmed correctness risks remain acceptance
-obligations, not performance claims. This note does not claim current M6 acceptance.
+Scope: the detailed source assessment below was recorded against frozen164/166.
+Current disposition is based on the preserved full175 outcome. The full accepted
+Euler50k→BL/MPI→RANS500k goal persists. This note claims no accepted M6 mesh.
+
+## Current disposition after the full build175 outcome
+
+- Findings1/2 (one repair/rank/round and oldest-ID service without whole-queue
+  debt priority) now drive the connected quality-service milestone.175naturally
+  exhausted its native time budget on all six ranks; its last complete census
+  still has46537q-bad/45853J-bad/2521geometry-bad cells. See
+  [active quality-service design](ADAPTATION_QUALITY_SERVICE_20261031.md).
+  A fair debt-directed batch candidate is implemented, NOT yet validated.
+- The old908of1300seconds in scope preparation is historical. Reusable prepared
+  geometry/subtrees and bounded guidance175 have already changed that path.
+  For example175rank0exit upper1131.443s includes50.401scope-build seconds and
+  1058.448traversal seconds. These nested quantities must not be added. First
+  three complete quality windows reproduce174counts/debts in691.041vs1144.000s.
+  Faster certificates have not produced strict closure; repeating the original
+  scope-copy diagnosis would miss the remaining service/coverage limitation.
+- The update-cost finding motivates grouping the changed frontier of globally
+  vertex-disjoint repair slots. The current importer cap is min(16,64/6)=10cells;
+  grouping can improve fill and rank imbalance, not remove per-cell measurement.
+- Short-edge overpopulation remains a causal hypothesis. No lower-edge gate was
+  promised; legal collapsibility requires more than length. No extra collapse
+  campaign or gate change is justified by that count alone.
+- Startup flow, arithmetic tensor interpolation and physical midpoints are
+  numerical/configuration choices with the qualifications below. Immutable
+  frozen-field semantics and resumed output-name collisions remain correctness
+  obligations. A functional accepted loop cannot establish converged M6 accuracy.
+-175sampled Allreduce74.37%is inclusive and instantaneous, like the earlier75%
+  sample. Geometry/smoothing shares overlap. It does not prove a phase-wide pure
+  MPI overhead or make915seconds of update time wholly communication cost.
+
 
 ## Directly useful to the active geometry/smoothing milestone
 

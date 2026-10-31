@@ -17,15 +17,13 @@ complete=0/final=0, before the authorized launcher stop prevented an unchanged
 retry. No accepted mesh, actual transfer or adapted restart. All ten exact owned
 handles independently verified absent on host /proc; all1396 pins unchanged.
 Connected quality-service candidate1d5e24a7c9 is UNVALIDATED and FROZEN.
-Build176 TERMINAL compilation failure (memory-estimate helper type mismatch),
-all19observed handles absent/1296pins unchanged; correction applied. Build177
-RUNNING, exec34384,Ninja2634921,1296pins. One owned heavy job,
-nice19,j3,libs1,TMPDIR4TB compile-tmp. Exact observed process identities in
-`staged57/build176_terminal_handles.json` (failure) and
-`staged57/build177_owned_startup.json` (active); helper status/resources authoritative.
-No C++/helper edits until terminal and pins verified. See active quality-service
-design for changed interfaces. Next: focused serial, one connected MPI milestone,
-then immediate full M6 retry.
+Build176 TERMINAL compile failure preserved. Build177 TERMINAL successful
+474.968s/all1296pins unchanged/all81sampled handles absent. This is build evidence
+only: review found the batched oversized-refusal receipt gap, now corrected.
+The connected candidate remains UNVALIDATED. Build178 not started; no heavy job.
+Serial/MPI validation follows the final rebuild, then full M6 immediately.
+No acceptance gates changed. Exact terminal receipts under staged57.
+
 Terminal receipts: `terminal_assessment.json`, `terminal_handles.json`,
 `event1_time_budget_stop_receipt.json` under the175run directory.
 
