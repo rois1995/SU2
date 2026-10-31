@@ -1,0 +1,72 @@
+{
+  "scope": "One bounded two-second activity sample of current frozen quality phase; not phase totals or acceptance",
+  "time": 1793419900.6577008,
+  "argv": [
+    "timeout",
+    "12",
+    "nice",
+    "-n",
+    "19",
+    "perf",
+    "record",
+    "--no-buildid-cache",
+    "-F",
+    "49",
+    "--call-graph",
+    "dwarf,8192",
+    "-p",
+    "2378134,2378135,2378136,2378137,2378138,2378139",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build175_bounded_guidance50k/profile_quality175.data",
+    "--",
+    "sleep",
+    "2"
+  ],
+  "verified_ranks": [
+    {
+      "pid": 2378134,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build175_bounded_guidance50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "start_ticks": "83269737"
+    },
+    {
+      "pid": 2378135,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build175_bounded_guidance50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "start_ticks": "83269737"
+    },
+    {
+      "pid": 2378136,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build175_bounded_guidance50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "start_ticks": "83269737"
+    },
+    {
+      "pid": 2378137,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build175_bounded_guidance50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "start_ticks": "83269737"
+    },
+    {
+      "pid": 2378138,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build175_bounded_guidance50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "start_ticks": "83269737"
+    },
+    {
+      "pid": 2378139,
+      "cmdline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build175_bounded_guidance50k",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "start_ticks": "83269737"
+    }
+  ],
+  "timing_limit": "Sampling overhead retained; no debugger or process stop.",
+  "exit_code": 0,
+  "elapsed_seconds": 3.251736879348755
+}

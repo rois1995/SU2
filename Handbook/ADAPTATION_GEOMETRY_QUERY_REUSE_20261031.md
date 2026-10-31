@@ -498,3 +498,17 @@ cycle unless preserved evidence establishes an actual error/resource/clear
 computational stop with a concrete connected fix. Trendreceipt in175run.
 Read-only pinned-source transfer/restart acceptance review is also saved there;
 no transfer/restart campaign or accepted-state claim was made.
+
+175fourth COMPLETE window2105.963906native/1084.561949quality seconds,
+729439cells/allmeasured/allflags1,51798q-bad/52368J-bad/
+3031geometry-bad/size0; q/Jdebt21164.572986776,5.138672%fall,
+1.057102debt/s. No174fourth-window baseline (that run was stopped after3); no new
+baseline campaign. 175continues frozen toward full outcome, not a linear-projection
+stop. CurrentRSS8.51GiB/sampledsummedpeak12.922GiB/ampleavailableRAM.
+One bounded2s49Hz owned-rank profile526samples/0lost: inclusiveAllreduce74.37%,
+surfaceunion11.82%,guidance7.35%,boundarysmooth5.85%; overlapping momentary shares,
+not phase costs or pure protocol overhead. Active fitting/exact geometry plus wait.
+Initial inline report timed out45s with DWARF errors, no-inline reports passed
+<.3s; diagnostic failure only. Preserve capture/report CPU contention as timing
+limitation; rawperf localonly. Text/context/assessment receipts saved in175run.
+Handoff compacted in place; detailed history retained here and in run receipts.

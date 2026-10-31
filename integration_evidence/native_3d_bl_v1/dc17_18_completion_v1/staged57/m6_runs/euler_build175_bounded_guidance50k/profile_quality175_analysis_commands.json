@@ -1,0 +1,59 @@
+{
+  "prior_inclusive_exit": 124,
+  "prior_inclusive_seconds": 45.005939245224,
+  "prior_failure": "addr2line DWARF section errors; not a CFD error",
+  "retry_without_inline_source_expansion": [
+    {
+      "name": "self_noinline",
+      "argv": [
+        "timeout",
+        "20",
+        "nice",
+        "-n",
+        "19",
+        "perf",
+        "report",
+        "--stdio",
+        "--no-inline",
+        "--show-nr-samples",
+        "--percent-limit",
+        "0.5",
+        "--sort",
+        "dso,symbol",
+        "-g",
+        "none",
+        "-i",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build175_bounded_guidance50k/profile_quality175.data",
+        "--no-children"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2599639892578125
+    },
+    {
+      "name": "inclusive_noinline",
+      "argv": [
+        "timeout",
+        "20",
+        "nice",
+        "-n",
+        "19",
+        "perf",
+        "report",
+        "--stdio",
+        "--no-inline",
+        "--show-nr-samples",
+        "--percent-limit",
+        "0.5",
+        "--sort",
+        "dso,symbol",
+        "-g",
+        "none",
+        "-i",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build175_bounded_guidance50k/profile_quality175.data",
+        "--children"
+      ],
+      "exit_code": 0,
+      "seconds": 0.32610201835632324
+    }
+  ]
+}

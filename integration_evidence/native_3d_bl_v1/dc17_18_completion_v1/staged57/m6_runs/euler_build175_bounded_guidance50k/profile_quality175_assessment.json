@@ -1,0 +1,18 @@
+{
+  "time": 1793420127.6447403,
+  "scope": "One two-second activity sample of frozen175quality; NOT phase totals, progress, isolation or acceptance",
+  "samples": 526,
+  "lost_samples": 0,
+  "data_bytes": 4883508,
+  "data_sha256": "108801f44a18b1a85a0d724d40dfc53cbe548700ce5e0168bc9dcba86adc8278",
+  "inclusive_percent": {
+    "PMPI_Allreduce": 74.37,
+    "QuerySurfaceUnion": 11.82,
+    "GeometryGuidanceExcess": 7.35,
+    "SmoothBoundary": 5.85
+  },
+  "interpretation": "Active surface fitting/exact geometry and collective waiting, not all-rank deadlock. Inclusive shares overlap and cannot be added; waiting includes stragglers, not only protocol overhead.",
+  "report_failure": "Initial inline/source expansion timed out after45.006s with addr2line DWARF errors. No-inline self/inclusive retries both passed in<.3s. Diagnostic failure, not CFD failure.",
+  "timing_limitation": "Capture3.252wallseconds plus low-priority report processing including45s timeout may contend for CPU. Do not subtract guessed overhead or claim isolated stage timing.",
+  "raw_data": "Local only, never committed."
+}
