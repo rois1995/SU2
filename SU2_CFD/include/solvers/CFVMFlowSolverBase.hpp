@@ -223,6 +223,7 @@ class CFVMFlowSolverBase : public CSolver {
    * coloring does not allow "enough" parallelism. ---*/
 
   CSysVector<su2double> EdgeFluxes; /*!< \brief Flux across each edge. */
+  vector<su2activematrix> PressureClosure; /*!< \brief Per marker, closure momentum flux of each vertex (BC_FLUX_CLOSURE). */
 
   CNumericsSIMD* edgeNumerics = nullptr; /*!< \brief Object for edge flux computation. */
 

@@ -1825,6 +1825,8 @@ void CConfig::SetConfig_Options() {
   addEnumOption("VISC_GRAD_CORR", Kind_Visc_Corr, Viscous_Grad_Corr_Map, VISCOUS_GRAD_CORR::EDGE_NORMAL);
   addBoolOption("FLUX_CORRECTION", FluxCorrection, false);
   addBoolOption("MOD_CENTROIDS", ModCentroids, false);
+  /*!\brief BC_FLUX_CLOSURE \n DESCRIPTION: Euler wall and symmetry momentum flux with weights 5:1 (2D), 6:1:1 (3D), exact for a P1 flux on simplices \ingroup Config \default false */
+  addBoolOption("BC_FLUX_CLOSURE", BC_Flux_Closure, false);
 
   /*!\brief MARKER_HEATTRANSFER DESCRIPTION: Heat flux with specified heat transfer coefficient boundary marker(s)\n
    * Format: ( Heat transfer marker, heat transfer coefficient, wall temperature (static), ... ) \ingroup Config  */
@@ -6193,6 +6195,36 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     }
   }
 
+
+  CheckP1FluxOptions();
+}
+
+void CConfig::CheckP1FluxOptions() const {
+
+  vector<string> active;
+  if (BC_Flux_Closure) active.push_back("BC_FLUX_CLOSURE");
+
+  if (active.empty()) return;
+
+  auto refuse = [&](const string& reason) { SU2_MPI::Error(active[0] + ": " + reason, CURRENT_FUNCTION); };
+
+  /*--- Common to all the options. ---*/
+
+  if (Kind_Solver != MAIN_SOLVER::EULER && Kind_Solver != MAIN_SOLVER::NAVIER_STOKES &&
+      Kind_Solver != MAIN_SOLVER::RANS) {
+    refuse("only for the compressible FVM solvers (EULER, NAVIER_STOKES, RANS).");
+  }
+  if (ContinuousAdjoint || DiscreteAdjoint) refuse("not available for adjoint problems.");
+  if (Multizone_Problem) refuse("not available for multizone problems.");
+  if (GetDynamic_Grid()) refuse("not available with grid motion.");
+  if (Axisymmetric) refuse("not available for axisymmetric problems.");
+
+  /*--- Specific to each option. ---*/
+
+  if (BC_Flux_Closure) {
+    if (FluxCorrection) refuse("FLUX_CORRECTION has its own boundary closure.");
+    if (nMarker_PerBound > 0) refuse("not available with periodic boundaries.");
+  }
 }
 
 void CConfig::SetMarkers(SU2_COMPONENT val_software) {

@@ -139,6 +139,7 @@ private:
   Integrated_HeatFlux,      /*!< \brief Flag for heat flux BC whether it deals with integrated values.*/
   FluxCorrection,
   ModCentroids,
+  BC_Flux_Closure,          /*!< \brief Boundary flux weights that are exact for a P1 flux (walls and symmetries).*/
   Pressure_Based;           /*!< \brief Flag to check if we are using a pressure-based system.*/
   su2double Buffet_k;       /*!< \brief Sharpness coefficient for buffet sensor.*/
   su2double Buffet_lambda;  /*!< \brief Offset parameter for buffet sensor.*/
@@ -1360,6 +1361,11 @@ private:
             Adap_Hmin,                 /*!< \brief Minimum cell size */
             Adap_ARmax;                /*!< \brief Maximum cell aspect ratio */
   unsigned long  Adap_Complexity;      /*!< \brief Constraint mesh complexity */
+
+  /*!
+   * \brief Refuse the combinations that the P1 flux options do not support.
+   */
+  void CheckP1FluxOptions() const;
 
   /*!
    * \brief Set the default values of config options not set in the config file using another config object.
@@ -9920,6 +9926,12 @@ public:
   bool GetFluxCorrection() const { return FluxCorrection; }
 
   bool GetModifiedCentroids() const { return ModCentroids; }
+
+  /*!
+   * \brief Get if the Euler wall and symmetry fluxes use the P1 boundary closure weights.
+   * \return YES if the closure is used.
+   */
+  bool GetBC_Flux_Closure() const { return BC_Flux_Closure; }
 
   /*!
    * \brief Get Compute Average.
