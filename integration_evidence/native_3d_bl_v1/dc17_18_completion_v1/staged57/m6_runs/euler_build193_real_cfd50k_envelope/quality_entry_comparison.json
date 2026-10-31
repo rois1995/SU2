@@ -1,0 +1,135 @@
+{
+  "time": 1793486588.270761,
+  "scope": "Actual complete quality-entry comparison on same saved CFD/config/initial partition. Construction diverged fromgeneration2; counts and target transport can differ. No quality progress or accepted mesh claim.",
+  "baseline": "euler_build191_real_cfd50k_numeric_memo",
+  "current": "euler_build193_real_cfd50k_envelope",
+  "entries": {
+    "euler_build191_real_cfd50k_numeric_memo": {
+      "elapsed": 1059.456116924,
+      "totals": {
+        "cells": 727722,
+        "q_bad": 54071,
+        "j_bad": 53377,
+        "size_bad": 0,
+        "geometry_bad": 4059,
+        "qj_debt": 25236.787402739737
+      },
+      "work": {
+        "upper_calls": 33158,
+        "upper_work": 1320033382,
+        "traversal_work": 1305219707,
+        "facet_build_work": 1746860,
+        "scope_build_work": 4271002,
+        "piece_selection_work": 6311680,
+        "support_facets": 2886066
+      },
+      "rank_debts": {
+        "0": 4662.403291957524,
+        "1": 4246.851911325773,
+        "2": 4764.376119778164,
+        "3": 3528.3347073355253,
+        "4": 4761.7605640454785,
+        "5": 3273.060808297271
+      }
+    },
+    "euler_build193_real_cfd50k_envelope": {
+      "elapsed": 990.484282689,
+      "totals": {
+        "cells": 727818,
+        "q_bad": 54081,
+        "j_bad": 53392,
+        "size_bad": 0,
+        "geometry_bad": 3770,
+        "qj_debt": 25413.45557726506
+      },
+      "work": {
+        "upper_calls": 33088,
+        "upper_work": 1146716427,
+        "traversal_work": 1131850186,
+        "facet_build_work": 1746870,
+        "scope_build_work": 4297922,
+        "piece_selection_work": 6332198,
+        "support_facets": 2891254
+      },
+      "rank_debts": {
+        "0": 4169.720405772552,
+        "1": 3099.831971662573,
+        "2": 4770.0230531932575,
+        "3": 4477.4062970699115,
+        "4": 4665.818460604748,
+        "5": 4230.655388962019
+      }
+    }
+  },
+  "current_minus_baseline": {
+    "cells": 96,
+    "q_bad": 10,
+    "j_bad": 15,
+    "geometry_bad": -289,
+    "size_bad": 0,
+    "qj_debt": 176.66817452532268
+  },
+  "comparison_policy": "Use each run own complete entry and actual quality elapsed time. Construction round21582vs21566 shifts windows; matching label/round alone is not matching quality effort. No interpolated states.",
+  "flags": {
+    "0": {
+      "cells": "129127",
+      "measured": "129127",
+      "q_measured": "129127",
+      "j_measured": "129127",
+      "cache_consistent": "1",
+      "census_complete": "1",
+      "shape_complete": "1",
+      "geometry_complete": "1"
+    },
+    "1": {
+      "cells": "125053",
+      "measured": "125053",
+      "q_measured": "125053",
+      "j_measured": "125053",
+      "cache_consistent": "1",
+      "census_complete": "1",
+      "shape_complete": "1",
+      "geometry_complete": "1"
+    },
+    "2": {
+      "cells": "102770",
+      "measured": "102770",
+      "q_measured": "102770",
+      "j_measured": "102770",
+      "cache_consistent": "1",
+      "census_complete": "1",
+      "shape_complete": "1",
+      "geometry_complete": "1"
+    },
+    "3": {
+      "cells": "128219",
+      "measured": "128219",
+      "q_measured": "128219",
+      "j_measured": "128219",
+      "cache_consistent": "1",
+      "census_complete": "1",
+      "shape_complete": "1",
+      "geometry_complete": "1"
+    },
+    "4": {
+      "cells": "119599",
+      "measured": "119599",
+      "q_measured": "119599",
+      "j_measured": "119599",
+      "cache_consistent": "1",
+      "census_complete": "1",
+      "shape_complete": "1",
+      "geometry_complete": "1"
+    },
+    "5": {
+      "cells": "123050",
+      "measured": "123050",
+      "q_measured": "123050",
+      "j_measured": "123050",
+      "cache_consistent": "1",
+      "census_complete": "1",
+      "shape_complete": "1",
+      "geometry_complete": "1"
+    }
+  }
+}

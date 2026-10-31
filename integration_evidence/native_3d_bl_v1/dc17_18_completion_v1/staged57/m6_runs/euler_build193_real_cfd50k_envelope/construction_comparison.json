@@ -1,6 +1,6 @@
 {
-  "time": 1793486006.6757295,
-  "scope": "Completed splitting generations versus191; selected-count identity explicitly checked per generation, not assumed. Trajectories diverge in generation2; later work differences include changed queries/mesh. q/J unmeasured in construction; no shape or mesh acceptance.",
+  "time": 1793486443.6979814,
+  "scope": "Completed first-event splitting generations versus191. Selected-count identity explicitly checked; trajectories diverge from generation2. Cumulative work includes changed queries/mesh, not isolated causal timing. q/J deliberately unmeasured; no acceptance.",
   "base": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build191_real_cfd50k_numeric_memo",
   "current": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build193_real_cfd50k_envelope",
   "count_fields": [
@@ -22,7 +22,7 @@
     "cache_consistent",
     "census_complete"
   ],
-  "complete_generation_count": 2,
+  "complete_generation_count": 18,
   "all_selected_counts_equal": false,
   "generations": [
     {
@@ -423,14 +423,6112 @@
           "current": "396836624"
         }
       }
+    },
+    {
+      "generation": "3",
+      "current_counts": {
+        "cells": 689054,
+        "size_bad": 11298,
+        "geometry_bad": 4299,
+        "length_splits": 77712,
+        "upper_calls": 17835,
+        "upper_work": 504010277
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "115409",
+          "current": "115403"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "18307",
+          "current": "18304"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "25291",
+          "current": "25284"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "50578",
+          "current": "50564"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "677",
+          "current": "681"
+        },
+        {
+          "rank": 0,
+          "field": "size_bad",
+          "base": "3183",
+          "current": "3177"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "115409",
+          "current": "115403"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "118000",
+          "current": "117995"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "14946",
+          "current": "14945"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "18307",
+          "current": "18304"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "25291",
+          "current": "25284"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "50578",
+          "current": "50564"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "859",
+          "current": "862"
+        },
+        {
+          "rank": 1,
+          "field": "size_bad",
+          "base": "886",
+          "current": "883"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "118000",
+          "current": "117995"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "106366",
+          "current": "106348"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "11133",
+          "current": "11125"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "18307",
+          "current": "18304"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "25291",
+          "current": "25284"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "50578",
+          "current": "50564"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "1040",
+          "current": "1069"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "106366",
+          "current": "106348"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "115468",
+          "current": "115461"
+        },
+        {
+          "rank": 3,
+          "field": "length_splits",
+          "base": "12650",
+          "current": "12653"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "18307",
+          "current": "18304"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "25291",
+          "current": "25284"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "50578",
+          "current": "50564"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "492",
+          "current": "501"
+        },
+        {
+          "rank": 3,
+          "field": "size_bad",
+          "base": "2190",
+          "current": "2197"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "115468",
+          "current": "115461"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "110239",
+          "current": "110246"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "12601",
+          "current": "12603"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "18307",
+          "current": "18304"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "25291",
+          "current": "25284"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "50578",
+          "current": "50564"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "555",
+          "current": "571"
+        },
+        {
+          "rank": 4,
+          "field": "size_bad",
+          "base": "2317",
+          "current": "2316"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "110239",
+          "current": "110246"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "123587",
+          "current": "123601"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "18307",
+          "current": "18304"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "25291",
+          "current": "25284"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "50578",
+          "current": "50564"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "607",
+          "current": "615"
+        },
+        {
+          "rank": 5,
+          "field": "size_bad",
+          "base": "2726",
+          "current": "2725"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "123587",
+          "current": "123601"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 17861,
+        "upper_work": 554762787,
+        "traversal_work": 544351054,
+        "support_facets": 2588055,
+        "scope_build_work": 2209577,
+        "facet_build_work": 1732668,
+        "piece_selection_work": 4298663
+      },
+      "current_work": {
+        "upper_calls": 17835,
+        "upper_work": 504010277,
+        "traversal_work": 493580411,
+        "support_facets": 2588612,
+        "scope_build_work": 2221894,
+        "facet_build_work": 1728472,
+        "piece_selection_work": 4308144
+      },
+      "traversal_work_reduction": 50770643,
+      "traversal_reduction_fraction": 0.09326820004650896,
+      "new_memo_totals": {
+        "memo_direct_hits": 12506,
+        "memo_direct_misses": 65559,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 15310,
+        "memo_stores": 80869,
+        "memo_evictions": 41685,
+        "memo_evicted_bytes": 19978680,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 2054822,
+        "memo_bytes": 25157728,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 26373,
+        "memo_union_entries": 12811
+      },
+      "base_elapsed": 549.298549644,
+      "current_elapsed": 545.692122488,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "4",
+      "current_counts": {
+        "cells": 692878,
+        "size_bad": 10629,
+        "geometry_bad": 4487,
+        "length_splits": 78910,
+        "upper_calls": 18935,
+        "upper_work": 562658484
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "116342",
+          "current": "116334"
+        },
+        {
+          "rank": 0,
+          "field": "length_splits",
+          "base": "13499",
+          "current": "13497"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "18650",
+          "current": "18645"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "26244",
+          "current": "26230"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "52484",
+          "current": "52456"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "725",
+          "current": "726"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "699",
+          "current": "725"
+        },
+        {
+          "rank": 0,
+          "field": "size_bad",
+          "base": "2993",
+          "current": "2984"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "116342",
+          "current": "116334"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "118525",
+          "current": "118513"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "15133",
+          "current": "15130"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "18650",
+          "current": "18645"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "26244",
+          "current": "26230"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "52484",
+          "current": "52456"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "725",
+          "current": "726"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "890",
+          "current": "895"
+        },
+        {
+          "rank": 1,
+          "field": "size_bad",
+          "base": "815",
+          "current": "817"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "118525",
+          "current": "118513"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "106716",
+          "current": "106677"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "11275",
+          "current": "11264"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "18650",
+          "current": "18645"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "26244",
+          "current": "26230"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "52484",
+          "current": "52456"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "725",
+          "current": "726"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "1031",
+          "current": "1062"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "106716",
+          "current": "106677"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "116042",
+          "current": "116029"
+        },
+        {
+          "rank": 3,
+          "field": "length_splits",
+          "base": "12832",
+          "current": "12835"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "18650",
+          "current": "18645"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "26244",
+          "current": "26230"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "52484",
+          "current": "52456"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "725",
+          "current": "726"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "537",
+          "current": "536"
+        },
+        {
+          "rank": 3,
+          "field": "size_bad",
+          "base": "2071",
+          "current": "2082"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "116042",
+          "current": "116029"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "110903",
+          "current": "110910"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "12799",
+          "current": "12801"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "18650",
+          "current": "18645"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "26244",
+          "current": "26230"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "52484",
+          "current": "52456"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "725",
+          "current": "726"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "599",
+          "current": "607"
+        },
+        {
+          "rank": 4,
+          "field": "size_bad",
+          "base": "2181",
+          "current": "2179"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "110903",
+          "current": "110910"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "124418",
+          "current": "124415"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "13387",
+          "current": "13383"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "18650",
+          "current": "18645"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "26244",
+          "current": "26230"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "52484",
+          "current": "52456"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "725",
+          "current": "726"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "628",
+          "current": "662"
+        },
+        {
+          "rank": 5,
+          "field": "size_bad",
+          "base": "2564",
+          "current": "2567"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "124418",
+          "current": "124415"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 18971,
+        "upper_work": 618880512,
+        "traversal_work": 608068089,
+        "support_facets": 2615802,
+        "scope_build_work": 2396496,
+        "facet_build_work": 1737594,
+        "piece_selection_work": 4478651
+      },
+      "current_work": {
+        "upper_calls": 18935,
+        "upper_work": 562658484,
+        "traversal_work": 551812756,
+        "support_facets": 2616863,
+        "scope_build_work": 2413788,
+        "facet_build_work": 1737766,
+        "piece_selection_work": 4493467
+      },
+      "traversal_work_reduction": 56255333,
+      "traversal_reduction_fraction": 0.09251485815102525,
+      "new_memo_totals": {
+        "memo_direct_hits": 12654,
+        "memo_direct_misses": 68345,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 16410,
+        "memo_stores": 84755,
+        "memo_evictions": 43530,
+        "memo_evicted_bytes": 21514224,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 2250151,
+        "memo_bytes": 25159152,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 27963,
+        "memo_union_entries": 13262
+      },
+      "base_elapsed": 584.533432986,
+      "current_elapsed": 578.636073845,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "5",
+      "current_counts": {
+        "cells": 696411,
+        "size_bad": 9816,
+        "geometry_bad": 4573,
+        "length_splits": 80057,
+        "upper_calls": 20086,
+        "upper_work": 640578193
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "18943",
+          "current": "18938"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "27247",
+          "current": "27234"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "54490",
+          "current": "54464"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "740",
+          "current": "738"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "726",
+          "current": "755"
+        },
+        {
+          "rank": 0,
+          "field": "size_bad",
+          "base": "2767",
+          "current": "2753"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "118971",
+          "current": "118965"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "15306",
+          "current": "15303"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "18943",
+          "current": "18938"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "27247",
+          "current": "27234"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "54490",
+          "current": "54464"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "740",
+          "current": "738"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "880",
+          "current": "897"
+        },
+        {
+          "rank": 1,
+          "field": "size_bad",
+          "base": "739",
+          "current": "743"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "118971",
+          "current": "118965"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "107078",
+          "current": "107056"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "11426",
+          "current": "11419"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "18943",
+          "current": "18938"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "27247",
+          "current": "27234"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "54490",
+          "current": "54464"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "740",
+          "current": "738"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "987",
+          "current": "1007"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "107078",
+          "current": "107056"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "116631",
+          "current": "116617"
+        },
+        {
+          "rank": 3,
+          "field": "length_splits",
+          "base": "13018",
+          "current": "13022"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "18943",
+          "current": "18938"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "27247",
+          "current": "27234"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "54490",
+          "current": "54464"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "740",
+          "current": "738"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "566",
+          "current": "569"
+        },
+        {
+          "rank": 3,
+          "field": "size_bad",
+          "base": "1909",
+          "current": "1918"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "116631",
+          "current": "116617"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "111499",
+          "current": "111496"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "12984",
+          "current": "12985"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "18943",
+          "current": "18938"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "27247",
+          "current": "27234"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "54490",
+          "current": "54464"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "740",
+          "current": "738"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "636",
+          "current": "646"
+        },
+        {
+          "rank": 4,
+          "field": "size_bad",
+          "base": "2034",
+          "current": "2030"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "111499",
+          "current": "111496"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "125115",
+          "current": "125123"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "13596",
+          "current": "13591"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "18943",
+          "current": "18938"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "27247",
+          "current": "27234"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "54490",
+          "current": "54464"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "740",
+          "current": "738"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "672",
+          "current": "699"
+        },
+        {
+          "rank": 5,
+          "field": "size_bad",
+          "base": "2378",
+          "current": "2372"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "125115",
+          "current": "125123"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 20107,
+        "upper_work": 696429243,
+        "traversal_work": 685207865,
+        "support_facets": 2643527,
+        "scope_build_work": 2588754,
+        "facet_build_work": 1738794,
+        "piece_selection_work": 4665287
+      },
+      "current_work": {
+        "upper_calls": 20086,
+        "upper_work": 640578193,
+        "traversal_work": 629310761,
+        "support_facets": 2646062,
+        "scope_build_work": 2612082,
+        "facet_build_work": 1738454,
+        "piece_selection_work": 4685839
+      },
+      "traversal_work_reduction": 55897104,
+      "traversal_reduction_fraction": 0.08157685697317557,
+      "new_memo_totals": {
+        "memo_direct_hits": 12753,
+        "memo_direct_misses": 71276,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 17561,
+        "memo_stores": 88837,
+        "memo_evictions": 45440,
+        "memo_evicted_bytes": 23121480,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 2448080,
+        "memo_bytes": 25162928,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 29661,
+        "memo_union_entries": 13736
+      },
+      "base_elapsed": 622.622915783,
+      "current_elapsed": 616.038915156,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "6",
+      "current_counts": {
+        "cells": 699951,
+        "size_bad": 8789,
+        "geometry_bad": 4691,
+        "length_splits": 81214,
+        "upper_calls": 21209,
+        "upper_work": 700471546
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "117983",
+          "current": "117964"
+        },
+        {
+          "rank": 0,
+          "field": "length_splits",
+          "base": "13984",
+          "current": "13974"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "19220",
+          "current": "19201"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "28316",
+          "current": "28283"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "56628",
+          "current": "56562"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "750",
+          "current": "747"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "755",
+          "current": "790"
+        },
+        {
+          "rank": 0,
+          "field": "size_bad",
+          "base": "2482",
+          "current": "2471"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "117983",
+          "current": "117964"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "119474",
+          "current": "119452"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "15490",
+          "current": "15489"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "19220",
+          "current": "19201"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "28316",
+          "current": "28283"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "56628",
+          "current": "56562"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "750",
+          "current": "747"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "901",
+          "current": "906"
+        },
+        {
+          "rank": 1,
+          "field": "size_bad",
+          "base": "654",
+          "current": "655"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "119474",
+          "current": "119452"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "107449",
+          "current": "107428"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "11577",
+          "current": "11575"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "19220",
+          "current": "19201"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "28316",
+          "current": "28283"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "56628",
+          "current": "56562"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "750",
+          "current": "747"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "933",
+          "current": "946"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "107449",
+          "current": "107428"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "117211",
+          "current": "117194"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "19220",
+          "current": "19201"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "28316",
+          "current": "28283"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "56628",
+          "current": "56562"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "750",
+          "current": "747"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "607",
+          "current": "617"
+        },
+        {
+          "rank": 3,
+          "field": "size_bad",
+          "base": "1696",
+          "current": "1704"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "117211",
+          "current": "117194"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "112110",
+          "current": "112103"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "13175",
+          "current": "13171"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "19220",
+          "current": "19201"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "28316",
+          "current": "28283"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "56628",
+          "current": "56562"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "750",
+          "current": "747"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "671",
+          "current": "682"
+        },
+        {
+          "rank": 4,
+          "field": "size_bad",
+          "base": "1813",
+          "current": "1814"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "112110",
+          "current": "112103"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "125821",
+          "current": "125810"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "13811",
+          "current": "13799"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "19220",
+          "current": "19201"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "28316",
+          "current": "28283"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "56628",
+          "current": "56562"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "750",
+          "current": "747"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "722",
+          "current": "750"
+        },
+        {
+          "rank": 5,
+          "field": "size_bad",
+          "base": "2143",
+          "current": "2145"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "125821",
+          "current": "125810"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 21269,
+        "upper_work": 758243496,
+        "traversal_work": 746632049,
+        "support_facets": 2670357,
+        "scope_build_work": 2771803,
+        "facet_build_work": 1740184,
+        "piece_selection_work": 4842925
+      },
+      "current_work": {
+        "upper_calls": 21209,
+        "upper_work": 700471546,
+        "traversal_work": 688803485,
+        "support_facets": 2673523,
+        "scope_build_work": 2800743,
+        "facet_build_work": 1740842,
+        "piece_selection_work": 4866835
+      },
+      "traversal_work_reduction": 57828564,
+      "traversal_reduction_fraction": 0.07745256057177369,
+      "new_memo_totals": {
+        "memo_direct_hits": 12827,
+        "memo_direct_misses": 74409,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 18684,
+        "memo_stores": 93093,
+        "memo_evictions": 47733,
+        "memo_evicted_bytes": 24781856,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 2654158,
+        "memo_bytes": 25164560,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 31220,
+        "memo_union_entries": 14140
+      },
+      "base_elapsed": 657.982755249,
+      "current_elapsed": 650.885319724,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "7",
+      "current_counts": {
+        "cells": 703597,
+        "size_bad": 7529,
+        "geometry_bad": 4672,
+        "length_splits": 82435,
+        "upper_calls": 22463,
+        "upper_work": 766450347
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "118782",
+          "current": "118778"
+        },
+        {
+          "rank": 0,
+          "field": "length_splits",
+          "base": "14238",
+          "current": "14231"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "19497",
+          "current": "19479"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "29443",
+          "current": "29433"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "58882",
+          "current": "58862"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "753",
+          "current": "750"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "782",
+          "current": "825"
+        },
+        {
+          "rank": 0,
+          "field": "size_bad",
+          "base": "2120",
+          "current": "2101"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "118782",
+          "current": "118778"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "119964",
+          "current": "119957"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "15678",
+          "current": "15681"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "19497",
+          "current": "19479"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "29443",
+          "current": "29433"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "58882",
+          "current": "58862"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "753",
+          "current": "750"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "859",
+          "current": "877"
+        },
+        {
+          "rank": 1,
+          "field": "size_bad",
+          "base": "561",
+          "current": "551"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "119964",
+          "current": "119957"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "107816",
+          "current": "107799"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "11726",
+          "current": "11728"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "19497",
+          "current": "19479"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "29443",
+          "current": "29433"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "58882",
+          "current": "58862"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "753",
+          "current": "750"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "869",
+          "current": "850"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "107816",
+          "current": "107799"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "117762",
+          "current": "117757"
+        },
+        {
+          "rank": 3,
+          "field": "length_splits",
+          "base": "13390",
+          "current": "13393"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "19497",
+          "current": "19479"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "29443",
+          "current": "29433"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "58882",
+          "current": "58862"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "753",
+          "current": "750"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "631",
+          "current": "654"
+        },
+        {
+          "rank": 3,
+          "field": "size_bad",
+          "base": "1464",
+          "current": "1478"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "117762",
+          "current": "117757"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "112737",
+          "current": "112745"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "13366",
+          "current": "13368"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "19497",
+          "current": "19479"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "29443",
+          "current": "29433"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "58882",
+          "current": "58862"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "753",
+          "current": "750"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "695",
+          "current": "683"
+        },
+        {
+          "rank": 4,
+          "field": "size_bad",
+          "base": "1551",
+          "current": "1553"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "112737",
+          "current": "112745"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "126555",
+          "current": "126561"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "14039",
+          "current": "14034"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "19497",
+          "current": "19479"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "29443",
+          "current": "29433"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "58882",
+          "current": "58862"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "753",
+          "current": "750"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "751",
+          "current": "783"
+        },
+        {
+          "rank": 5,
+          "field": "size_bad",
+          "base": "1862",
+          "current": "1846"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "126555",
+          "current": "126561"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 22515,
+        "upper_work": 832414522,
+        "traversal_work": 820420292,
+        "support_facets": 2698137,
+        "scope_build_work": 2947263,
+        "facet_build_work": 1741664,
+        "piece_selection_work": 5019742
+      },
+      "current_work": {
+        "upper_calls": 22463,
+        "upper_work": 766450347,
+        "traversal_work": 754375333,
+        "support_facets": 2701691,
+        "scope_build_work": 2991076,
+        "facet_build_work": 1742560,
+        "piece_selection_work": 5052315
+      },
+      "traversal_work_reduction": 66044959,
+      "traversal_reduction_fraction": 0.08050137185051488,
+      "new_memo_totals": {
+        "memo_direct_hits": 12878,
+        "memo_direct_misses": 77792,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 19938,
+        "memo_stores": 97730,
+        "memo_evictions": 50391,
+        "memo_evicted_bytes": 26583136,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 2861156,
+        "memo_bytes": 25157624,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 32694,
+        "memo_union_entries": 14645
+      },
+      "base_elapsed": 696.577503234,
+      "current_elapsed": 688.143673156,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "8",
+      "current_counts": {
+        "cells": 707007,
+        "size_bad": 6233,
+        "geometry_bad": 4652,
+        "length_splits": 83628,
+        "upper_calls": 23676,
+        "upper_work": 826207969
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "119566",
+          "current": "119561"
+        },
+        {
+          "rank": 0,
+          "field": "length_splits",
+          "base": "14491",
+          "current": "14479"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "19762",
+          "current": "19737"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "30626",
+          "current": "30597"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "61248",
+          "current": "61190"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "757",
+          "current": "753"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "814",
+          "current": "842"
+        },
+        {
+          "rank": 0,
+          "field": "size_bad",
+          "base": "1749",
+          "current": "1731"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "119566",
+          "current": "119561"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "120420",
+          "current": "120401"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "15861",
+          "current": "15857"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "19762",
+          "current": "19737"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "30626",
+          "current": "30597"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "61248",
+          "current": "61190"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "757",
+          "current": "753"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "855",
+          "current": "887"
+        },
+        {
+          "rank": 1,
+          "field": "size_bad",
+          "base": "460",
+          "current": "451"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "120420",
+          "current": "120401"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "108182",
+          "current": "108166"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "11881",
+          "current": "11884"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "19762",
+          "current": "19737"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "30626",
+          "current": "30597"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "61248",
+          "current": "61190"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "757",
+          "current": "753"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "780",
+          "current": "740"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "108182",
+          "current": "108166"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "118331",
+          "current": "118324"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "19762",
+          "current": "19737"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "30626",
+          "current": "30597"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "61248",
+          "current": "61190"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "757",
+          "current": "753"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "662",
+          "current": "680"
+        },
+        {
+          "rank": 3,
+          "field": "size_bad",
+          "base": "1207",
+          "current": "1211"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "118331",
+          "current": "118324"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "113333",
+          "current": "113338"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "13566",
+          "current": "13563"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "19762",
+          "current": "19737"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "30626",
+          "current": "30597"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "61248",
+          "current": "61190"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "757",
+          "current": "753"
+        },
+        {
+          "rank": 4,
+          "field": "size_bad",
+          "base": "1273",
+          "current": "1274"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "113333",
+          "current": "113338"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "127231",
+          "current": "127217"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "14267",
+          "current": "14258"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "19762",
+          "current": "19737"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "30626",
+          "current": "30597"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "61248",
+          "current": "61190"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "757",
+          "current": "753"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "798",
+          "current": "808"
+        },
+        {
+          "rank": 5,
+          "field": "size_bad",
+          "base": "1576",
+          "current": "1566"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "127231",
+          "current": "127217"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 23731,
+        "upper_work": 895126911,
+        "traversal_work": 882752034,
+        "support_facets": 2723752,
+        "scope_build_work": 3125905,
+        "facet_build_work": 1742946,
+        "piece_selection_work": 5193634
+      },
+      "current_work": {
+        "upper_calls": 23676,
+        "upper_work": 826207969,
+        "traversal_work": 813752167,
+        "support_facets": 2727739,
+        "scope_build_work": 3169665,
+        "facet_build_work": 1744068,
+        "piece_selection_work": 5225745
+      },
+      "traversal_work_reduction": 68999867,
+      "traversal_reduction_fraction": 0.07816449505909606,
+      "new_memo_totals": {
+        "memo_direct_hits": 12904,
+        "memo_direct_misses": 81248,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 21151,
+        "memo_stores": 102399,
+        "memo_evictions": 52954,
+        "memo_evicted_bytes": 28371424,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 3066657,
+        "memo_bytes": 25161520,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 34505,
+        "memo_union_entries": 14940
+      },
+      "base_elapsed": 733.770234614,
+      "current_elapsed": 723.991507435,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "9",
+      "current_counts": {
+        "cells": 710336,
+        "size_bad": 4897,
+        "geometry_bad": 4649,
+        "length_splits": 84808,
+        "upper_calls": 24846,
+        "upper_work": 874682629
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "120325",
+          "current": "120304"
+        },
+        {
+          "rank": 0,
+          "field": "length_splits",
+          "base": "14747",
+          "current": "14734"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "20023",
+          "current": "20004"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "31790",
+          "current": "31763"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "63576",
+          "current": "63522"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "758",
+          "current": "754"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "846",
+          "current": "863"
+        },
+        {
+          "rank": 0,
+          "field": "size_bad",
+          "base": "1348",
+          "current": "1350"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "120325",
+          "current": "120304"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "120856",
+          "current": "120843"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "16032",
+          "current": "16031"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "20023",
+          "current": "20004"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "31790",
+          "current": "31763"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "63576",
+          "current": "63522"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "758",
+          "current": "754"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "853",
+          "current": "894"
+        },
+        {
+          "rank": 1,
+          "field": "size_bad",
+          "base": "370",
+          "current": "363"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "120856",
+          "current": "120843"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "108540",
+          "current": "108504"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "12033",
+          "current": "12021"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "20023",
+          "current": "20004"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "31790",
+          "current": "31763"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "63576",
+          "current": "63522"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "758",
+          "current": "754"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "675",
+          "current": "655"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "108540",
+          "current": "108504"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "118859",
+          "current": "118865"
+        },
+        {
+          "rank": 3,
+          "field": "length_splits",
+          "base": "13765",
+          "current": "13772"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "20023",
+          "current": "20004"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "31790",
+          "current": "31763"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "63576",
+          "current": "63522"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "758",
+          "current": "754"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "699",
+          "current": "698"
+        },
+        {
+          "rank": 3,
+          "field": "size_bad",
+          "base": "951",
+          "current": "956"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "118859",
+          "current": "118865"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "113903",
+          "current": "113914"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "20023",
+          "current": "20004"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "31790",
+          "current": "31763"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "63576",
+          "current": "63522"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "758",
+          "current": "754"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "696",
+          "current": "707"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "113903",
+          "current": "113914"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "127905",
+          "current": "127906"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "14500",
+          "current": "14493"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "20023",
+          "current": "20004"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "31790",
+          "current": "31763"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "63576",
+          "current": "63522"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "758",
+          "current": "754"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "827",
+          "current": "832"
+        },
+        {
+          "rank": 5,
+          "field": "size_bad",
+          "base": "1237",
+          "current": "1234"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "127905",
+          "current": "127906"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 24950,
+        "upper_work": 964293870,
+        "traversal_work": 951539580,
+        "support_facets": 2748719,
+        "scope_build_work": 3305186,
+        "facet_build_work": 1745406,
+        "piece_selection_work": 5365120
+      },
+      "current_work": {
+        "upper_calls": 24846,
+        "upper_work": 874682629,
+        "traversal_work": 861876612,
+        "support_facets": 2751254,
+        "scope_build_work": 3334776,
+        "facet_build_work": 1745224,
+        "piece_selection_work": 5385008
+      },
+      "traversal_work_reduction": 89662968,
+      "traversal_reduction_fraction": 0.09422936248222065,
+      "new_memo_totals": {
+        "memo_direct_hits": 12917,
+        "memo_direct_misses": 84752,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 22321,
+        "memo_stores": 107073,
+        "memo_evictions": 55359,
+        "memo_evicted_bytes": 30148448,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 3267269,
+        "memo_bytes": 25161656,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 36592,
+        "memo_union_entries": 15122
+      },
+      "base_elapsed": 771.732356555,
+      "current_elapsed": 753.703723749,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "10",
+      "current_counts": {
+        "cells": 713535,
+        "size_bad": 3453,
+        "geometry_bad": 4660,
+        "length_splits": 85977,
+        "upper_calls": 25983,
+        "upper_work": 932200715
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "121017",
+          "current": "121015"
+        },
+        {
+          "rank": 0,
+          "field": "length_splits",
+          "base": "14988",
+          "current": "14982"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "20267",
+          "current": "20255"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "32944",
+          "current": "32925"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "65884",
+          "current": "65846"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "759",
+          "current": "757"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "880",
+          "current": "885"
+        },
+        {
+          "rank": 0,
+          "field": "size_bad",
+          "base": "961",
+          "current": "960"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "121017",
+          "current": "121015"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "121272",
+          "current": "121257"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "16203",
+          "current": "16200"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "20267",
+          "current": "20255"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "32944",
+          "current": "32925"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "65884",
+          "current": "65846"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "759",
+          "current": "757"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "859",
+          "current": "880"
+        },
+        {
+          "rank": 1,
+          "field": "size_bad",
+          "base": "267",
+          "current": "264"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "121272",
+          "current": "121257"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "108860",
+          "current": "108813"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "12167",
+          "current": "12148"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "20267",
+          "current": "20255"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "32944",
+          "current": "32925"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "65884",
+          "current": "65846"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "759",
+          "current": "757"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "573",
+          "current": "579"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "108860",
+          "current": "108813"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "119373",
+          "current": "119394"
+        },
+        {
+          "rank": 3,
+          "field": "length_splits",
+          "base": "13951",
+          "current": "13965"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "20267",
+          "current": "20255"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "32944",
+          "current": "32925"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "65884",
+          "current": "65846"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "759",
+          "current": "757"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "721",
+          "current": "735"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "119373",
+          "current": "119394"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "114471",
+          "current": "114486"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "13950",
+          "current": "13952"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "20267",
+          "current": "20255"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "32944",
+          "current": "32925"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "65884",
+          "current": "65846"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "759",
+          "current": "757"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "697",
+          "current": "704"
+        },
+        {
+          "rank": 4,
+          "field": "size_bad",
+          "base": "690",
+          "current": "691"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "114471",
+          "current": "114486"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "128573",
+          "current": "128570"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "14736",
+          "current": "14730"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "20267",
+          "current": "20255"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "32944",
+          "current": "32925"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "65884",
+          "current": "65846"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "759",
+          "current": "757"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "874",
+          "current": "877"
+        },
+        {
+          "rank": 5,
+          "field": "size_bad",
+          "base": "876",
+          "current": "881"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "128573",
+          "current": "128570"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 26146,
+        "upper_work": 1038655749,
+        "traversal_work": 1025549944,
+        "support_facets": 2772437,
+        "scope_build_work": 3470797,
+        "facet_build_work": 1745784,
+        "piece_selection_work": 5525732
+      },
+      "current_work": {
+        "upper_calls": 25983,
+        "upper_work": 932200715,
+        "traversal_work": 919057039,
+        "support_facets": 2774947,
+        "scope_build_work": 3491634,
+        "facet_build_work": 1746018,
+        "piece_selection_work": 5540185
+      },
+      "traversal_work_reduction": 106492905,
+      "traversal_reduction_fraction": 0.10383980382724296,
+      "new_memo_totals": {
+        "memo_direct_hits": 12927,
+        "memo_direct_misses": 88272,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 23458,
+        "memo_stores": 111730,
+        "memo_evictions": 57961,
+        "memo_evicted_bytes": 31922504,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 3479562,
+        "memo_bytes": 25162704,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 38572,
+        "memo_union_entries": 15197
+      },
+      "base_elapsed": 811.258136079,
+      "current_elapsed": 787.075511391,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "11",
+      "current_counts": {
+        "cells": 716444,
+        "size_bad": 2128,
+        "geometry_bad": 4637,
+        "length_splits": 87084,
+        "upper_calls": 27058,
+        "upper_work": 984889120
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "121651",
+          "current": "121664"
+        },
+        {
+          "rank": 0,
+          "field": "length_splits",
+          "base": "15216",
+          "current": "15217"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "20497",
+          "current": "20492"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "34049",
+          "current": "34032"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "68094",
+          "current": "68060"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "761",
+          "current": "759"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "913",
+          "current": "912"
+        },
+        {
+          "rank": 0,
+          "field": "size_bad",
+          "base": "606",
+          "current": "600"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "121651",
+          "current": "121664"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "121669",
+          "current": "121642"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "16368",
+          "current": "16364"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "20497",
+          "current": "20492"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "34049",
+          "current": "34032"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "68094",
+          "current": "68060"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "761",
+          "current": "759"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "877",
+          "current": "904"
+        },
+        {
+          "rank": 1,
+          "field": "size_bad",
+          "base": "168",
+          "current": "178"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "121669",
+          "current": "121642"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "109146",
+          "current": "109099"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "12292",
+          "current": "12271"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "20497",
+          "current": "20492"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "34049",
+          "current": "34032"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "68094",
+          "current": "68060"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "761",
+          "current": "759"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "455",
+          "current": "460"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "109146",
+          "current": "109099"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "119851",
+          "current": "119859"
+        },
+        {
+          "rank": 3,
+          "field": "length_splits",
+          "base": "14127",
+          "current": "14133"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "20497",
+          "current": "20492"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "34049",
+          "current": "34032"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "68094",
+          "current": "68060"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "761",
+          "current": "759"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "747",
+          "current": "778"
+        },
+        {
+          "rank": 3,
+          "field": "size_bad",
+          "base": "391",
+          "current": "397"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "119851",
+          "current": "119859"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "114975",
+          "current": "114998"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "14137",
+          "current": "14142"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "20497",
+          "current": "20492"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "34049",
+          "current": "34032"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "68094",
+          "current": "68060"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "761",
+          "current": "759"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "677",
+          "current": "684"
+        },
+        {
+          "rank": 4,
+          "field": "size_bad",
+          "base": "423",
+          "current": "414"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "114975",
+          "current": "114998"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "129173",
+          "current": "129182"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "14960",
+          "current": "14957"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "20497",
+          "current": "20492"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "34049",
+          "current": "34032"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "68094",
+          "current": "68060"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "761",
+          "current": "759"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "908",
+          "current": "899"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "129173",
+          "current": "129182"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 27295,
+        "upper_work": 1101892413,
+        "traversal_work": 1088464357,
+        "support_facets": 2794371,
+        "scope_build_work": 3621361,
+        "facet_build_work": 1746518,
+        "piece_selection_work": 5673602
+      },
+      "current_work": {
+        "upper_calls": 27058,
+        "upper_work": 984889120,
+        "traversal_work": 971437886,
+        "support_facets": 2795480,
+        "scope_build_work": 3636989,
+        "facet_build_work": 1746566,
+        "piece_selection_work": 5680232
+      },
+      "traversal_work_reduction": 117026471,
+      "traversal_reduction_fraction": 0.10751520731698154,
+      "new_memo_totals": {
+        "memo_direct_hits": 12929,
+        "memo_direct_misses": 91625,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 24533,
+        "memo_stores": 116158,
+        "memo_evictions": 60841,
+        "memo_evicted_bytes": 33593832,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 3706009,
+        "memo_bytes": 25163720,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 40123,
+        "memo_union_entries": 15194
+      },
+      "base_elapsed": 849.850941413,
+      "current_elapsed": 817.679661087,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "12",
+      "current_counts": {
+        "cells": 718970,
+        "size_bad": 1100,
+        "geometry_bad": 4626,
+        "length_splits": 88080,
+        "upper_calls": 28118,
+        "upper_work": 1020390889
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "122201",
+          "current": "122218"
+        },
+        {
+          "rank": 0,
+          "field": "length_splits",
+          "base": "15425",
+          "current": "15427"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "20707",
+          "current": "20702"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "35039",
+          "current": "35028"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "70074",
+          "current": "70052"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "929",
+          "current": "947"
+        },
+        {
+          "rank": 0,
+          "field": "size_bad",
+          "base": "316",
+          "current": "317"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "122201",
+          "current": "122218"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "122041",
+          "current": "122051"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "16525",
+          "current": "16536"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "20707",
+          "current": "20702"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "35039",
+          "current": "35028"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "70074",
+          "current": "70052"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "888",
+          "current": "912"
+        },
+        {
+          "rank": 1,
+          "field": "size_bad",
+          "base": "93",
+          "current": "96"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "122041",
+          "current": "122051"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "109392",
+          "current": "109334"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "12396",
+          "current": "12370"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "20707",
+          "current": "20702"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "35039",
+          "current": "35028"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "70074",
+          "current": "70052"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "361",
+          "current": "368"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "109392",
+          "current": "109334"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "120237",
+          "current": "120251"
+        },
+        {
+          "rank": 3,
+          "field": "length_splits",
+          "base": "14281",
+          "current": "14289"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "20707",
+          "current": "20702"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "35039",
+          "current": "35028"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "70074",
+          "current": "70052"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "765",
+          "current": "798"
+        },
+        {
+          "rank": 3,
+          "field": "size_bad",
+          "base": "204",
+          "current": "205"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "120237",
+          "current": "120251"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "115395",
+          "current": "115410"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "14297",
+          "current": "14299"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "20707",
+          "current": "20702"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "35039",
+          "current": "35028"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "70074",
+          "current": "70052"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "674",
+          "current": "667"
+        },
+        {
+          "rank": 4,
+          "field": "size_bad",
+          "base": "223",
+          "current": "216"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "115395",
+          "current": "115410"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "129689",
+          "current": "129706"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "15166",
+          "current": "15159"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "20707",
+          "current": "20702"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "35039",
+          "current": "35028"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "70074",
+          "current": "70052"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "947",
+          "current": "934"
+        },
+        {
+          "rank": 5,
+          "field": "size_bad",
+          "base": "267",
+          "current": "266"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "129689",
+          "current": "129706"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 28296,
+        "upper_work": 1139915656,
+        "traversal_work": 1126222110,
+        "support_facets": 2812005,
+        "scope_build_work": 3746490,
+        "facet_build_work": 1746518,
+        "piece_selection_work": 5795328
+      },
+      "current_work": {
+        "upper_calls": 28118,
+        "upper_work": 1020390889,
+        "traversal_work": 1006658015,
+        "support_facets": 2814916,
+        "scope_build_work": 3768567,
+        "facet_build_work": 1746566,
+        "piece_selection_work": 5809798
+      },
+      "traversal_work_reduction": 119564095,
+      "traversal_reduction_fraction": 0.10616386762287947,
+      "new_memo_totals": {
+        "memo_direct_hits": 12933,
+        "memo_direct_misses": 94549,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 25593,
+        "memo_stores": 120142,
+        "memo_evictions": 63617,
+        "memo_evicted_bytes": 35097928,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 3903594,
+        "memo_bytes": 25164552,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 41160,
+        "memo_union_entries": 15365
+      },
+      "base_elapsed": 877.197922556,
+      "current_elapsed": 841.767039322,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "13",
+      "current_counts": {
+        "cells": 721071,
+        "size_bad": 438,
+        "geometry_bad": 4523,
+        "length_splits": 88937,
+        "upper_calls": 29199,
+        "upper_work": 1051933075
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "122646",
+          "current": "122665"
+        },
+        {
+          "rank": 0,
+          "field": "length_splits",
+          "base": "15602",
+          "current": "15608"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "20886",
+          "current": "20884"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "35905",
+          "current": "35885"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "71806",
+          "current": "71766"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "938",
+          "current": "946"
+        },
+        {
+          "rank": 0,
+          "field": "size_bad",
+          "base": "124",
+          "current": "122"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "122646",
+          "current": "122665"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "122421",
+          "current": "122439"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "16689",
+          "current": "16698"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "20886",
+          "current": "20884"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "35905",
+          "current": "35885"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "71806",
+          "current": "71766"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "873",
+          "current": "893"
+        },
+        {
+          "rank": 1,
+          "field": "size_bad",
+          "base": "41",
+          "current": "42"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "122421",
+          "current": "122439"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "109605",
+          "current": "109538"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "12486",
+          "current": "12458"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "20886",
+          "current": "20884"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "35905",
+          "current": "35885"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "71806",
+          "current": "71766"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "263",
+          "current": "280"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "109605",
+          "current": "109538"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "120546",
+          "current": "120570"
+        },
+        {
+          "rank": 3,
+          "field": "length_splits",
+          "base": "14407",
+          "current": "14416"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "20886",
+          "current": "20884"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "35905",
+          "current": "35885"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "71806",
+          "current": "71766"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "783",
+          "current": "807"
+        },
+        {
+          "rank": 3,
+          "field": "size_bad",
+          "base": "79",
+          "current": "83"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "120546",
+          "current": "120570"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "115732",
+          "current": "115740"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "14436",
+          "current": "14431"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "20886",
+          "current": "20884"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "35905",
+          "current": "35885"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "71806",
+          "current": "71766"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "653",
+          "current": "648"
+        },
+        {
+          "rank": 4,
+          "field": "size_bad",
+          "base": "101",
+          "current": "88"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "115732",
+          "current": "115740"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "130096",
+          "current": "130119"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "15336",
+          "current": "15326"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "20886",
+          "current": "20884"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "35905",
+          "current": "35885"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "71806",
+          "current": "71766"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "989",
+          "current": "949"
+        },
+        {
+          "rank": 5,
+          "field": "size_bad",
+          "base": "106",
+          "current": "103"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "130096",
+          "current": "130119"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 29319,
+        "upper_work": 1182524151,
+        "traversal_work": 1168576747,
+        "support_facets": 2829426,
+        "scope_build_work": 3864692,
+        "facet_build_work": 1746860,
+        "piece_selection_work": 5912198
+      },
+      "current_work": {
+        "upper_calls": 29199,
+        "upper_work": 1051933075,
+        "traversal_work": 1037940706,
+        "support_facets": 2833185,
+        "scope_build_work": 3888969,
+        "facet_build_work": 1746870,
+        "piece_selection_work": 5929237
+      },
+      "traversal_work_reduction": 130636041,
+      "traversal_reduction_fraction": 0.1117907243451251,
+      "new_memo_totals": {
+        "memo_direct_hits": 12938,
+        "memo_direct_misses": 96896,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 26674,
+        "memo_stores": 123570,
+        "memo_evictions": 66589,
+        "memo_evicted_bytes": 36391856,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 4064127,
+        "memo_bytes": 25164376,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 41251,
+        "memo_union_entries": 15730
+      },
+      "base_elapsed": 906.517505943,
+      "current_elapsed": 864.105830476,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "14",
+      "current_counts": {
+        "cells": 722752,
+        "size_bad": 131,
+        "geometry_bad": 4441,
+        "length_splits": 89660,
+        "upper_calls": 30127,
+        "upper_work": 1077932242
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "122960",
+          "current": "123004"
+        },
+        {
+          "rank": 0,
+          "field": "length_splits",
+          "base": "15732",
+          "current": "15755"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "21033",
+          "current": "21038"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "36596",
+          "current": "36608"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "73188",
+          "current": "73212"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "946",
+          "current": "942"
+        },
+        {
+          "rank": 0,
+          "field": "size_bad",
+          "base": "45",
+          "current": "41"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "122960",
+          "current": "123004"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "122749",
+          "current": "122780"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "16835",
+          "current": "16849"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "21033",
+          "current": "21038"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "36596",
+          "current": "36608"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "73188",
+          "current": "73212"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "865",
+          "current": "890"
+        },
+        {
+          "rank": 1,
+          "field": "size_bad",
+          "base": "11",
+          "current": "14"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "122749",
+          "current": "122780"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "109763",
+          "current": "109703"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "12554",
+          "current": "12530"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "21033",
+          "current": "21038"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "36596",
+          "current": "36608"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "73188",
+          "current": "73212"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "196",
+          "current": "199"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "109763",
+          "current": "109703"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "120778",
+          "current": "120825"
+        },
+        {
+          "rank": 3,
+          "field": "length_splits",
+          "base": "14508",
+          "current": "14523"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "21033",
+          "current": "21038"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "36596",
+          "current": "36608"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "73188",
+          "current": "73212"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "810",
+          "current": "807"
+        },
+        {
+          "rank": 3,
+          "field": "size_bad",
+          "base": "24",
+          "current": "22"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "120778",
+          "current": "120825"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "116000",
+          "current": "115996"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "14544",
+          "current": "14537"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "21033",
+          "current": "21038"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "36596",
+          "current": "36608"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "73188",
+          "current": "73212"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "622",
+          "current": "634"
+        },
+        {
+          "rank": 4,
+          "field": "size_bad",
+          "base": "25",
+          "current": "22"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "116000",
+          "current": "115996"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "130415",
+          "current": "130444"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "15474",
+          "current": "15466"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "21033",
+          "current": "21038"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "36596",
+          "current": "36608"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "73188",
+          "current": "73212"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "1030",
+          "current": "969"
+        },
+        {
+          "rank": 5,
+          "field": "size_bad",
+          "base": "26",
+          "current": "32"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "130415",
+          "current": "130444"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 30182,
+        "upper_work": 1218393321,
+        "traversal_work": 1204228654,
+        "support_facets": 2843556,
+        "scope_build_work": 3967162,
+        "facet_build_work": 1746860,
+        "piece_selection_work": 6011998
+      },
+      "current_work": {
+        "upper_calls": 30127,
+        "upper_work": 1077932242,
+        "traversal_work": 1063718954,
+        "support_facets": 2848506,
+        "scope_build_work": 3991765,
+        "facet_build_work": 1746870,
+        "piece_selection_work": 6031111
+      },
+      "traversal_work_reduction": 140509700,
+      "traversal_reduction_fraction": 0.11668024966295147,
+      "new_memo_totals": {
+        "memo_direct_hits": 12938,
+        "memo_direct_misses": 98860,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 27602,
+        "memo_stores": 126462,
+        "memo_evictions": 69109,
+        "memo_evicted_bytes": 37480448,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 4178390,
+        "memo_bytes": 25165232,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 41380,
+        "memo_union_entries": 15973
+      },
+      "base_elapsed": 928.745787438,
+      "current_elapsed": 884.094730394,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "15",
+      "current_counts": {
+        "cells": 724164,
+        "size_bad": 29,
+        "geometry_bad": 4364,
+        "length_splits": 90276,
+        "upper_calls": 30939,
+        "upper_work": 1098140986
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "123238",
+          "current": "123276"
+        },
+        {
+          "rank": 0,
+          "field": "length_splits",
+          "base": "15855",
+          "current": "15876"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "21175",
+          "current": "21177"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "37205",
+          "current": "37224"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "74406",
+          "current": "74444"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "959",
+          "current": "942"
+        },
+        {
+          "rank": 0,
+          "field": "size_bad",
+          "base": "13",
+          "current": "11"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "123238",
+          "current": "123276"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "123064",
+          "current": "123099"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "16974",
+          "current": "16986"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "21175",
+          "current": "21177"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "37205",
+          "current": "37224"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "74406",
+          "current": "74444"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "854",
+          "current": "881"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "123064",
+          "current": "123099"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "109881",
+          "current": "109822"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "12602",
+          "current": "12580"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "21175",
+          "current": "21177"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "37205",
+          "current": "37224"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "74406",
+          "current": "74444"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "109881",
+          "current": "109822"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "120978",
+          "current": "121032"
+        },
+        {
+          "rank": 3,
+          "field": "length_splits",
+          "base": "14594",
+          "current": "14614"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "21175",
+          "current": "21177"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "37205",
+          "current": "37224"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "74406",
+          "current": "74444"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "832",
+          "current": "835"
+        },
+        {
+          "rank": 3,
+          "field": "size_bad",
+          "base": "4",
+          "current": "6"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "120978",
+          "current": "121032"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "116223",
+          "current": "116206"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "14641",
+          "current": "14627"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "21175",
+          "current": "21177"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "37205",
+          "current": "37224"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "74406",
+          "current": "74444"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "591",
+          "current": "602"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "116223",
+          "current": "116206"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "130685",
+          "current": "130729"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "15590",
+          "current": "15593"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "21175",
+          "current": "21177"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "37205",
+          "current": "37224"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "74406",
+          "current": "74444"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "760"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "1055",
+          "current": "957"
+        },
+        {
+          "rank": 5,
+          "field": "size_bad",
+          "base": "2",
+          "current": "6"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "130685",
+          "current": "130729"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 31009,
+        "upper_work": 1250190764,
+        "traversal_work": 1235837102,
+        "support_facets": 2855879,
+        "scope_build_work": 4054813,
+        "facet_build_work": 1746860,
+        "piece_selection_work": 6100192
+      },
+      "current_work": {
+        "upper_calls": 30939,
+        "upper_work": 1098140986,
+        "traversal_work": 1083737613,
+        "support_facets": 2860930,
+        "scope_build_work": 4081330,
+        "facet_build_work": 1746870,
+        "piece_selection_work": 6118395
+      },
+      "traversal_work_reduction": 152099489,
+      "traversal_reduction_fraction": 0.12307405948069683,
+      "new_memo_totals": {
+        "memo_direct_hits": 12942,
+        "memo_direct_misses": 100512,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 28414,
+        "memo_stores": 128926,
+        "memo_evictions": 71289,
+        "memo_evicted_bytes": 38403168,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 4277338,
+        "memo_bytes": 25163984,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 41421,
+        "memo_union_entries": 16216
+      },
+      "base_elapsed": 949.724754162,
+      "current_elapsed": 900.298918347,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "16",
+      "current_counts": {
+        "cells": 725434,
+        "size_bad": 8,
+        "geometry_bad": 4203,
+        "length_splits": 90844,
+        "upper_calls": 31695,
+        "upper_work": 1115823049
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "123481",
+          "current": "123512"
+        },
+        {
+          "rank": 0,
+          "field": "length_splits",
+          "base": "15965",
+          "current": "15981"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "21313",
+          "current": "21318"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "37767",
+          "current": "37792"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "75530",
+          "current": "75580"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "969",
+          "current": "945"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "123481",
+          "current": "123512"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "123381",
+          "current": "123402"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "17110",
+          "current": "17121"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "21313",
+          "current": "21318"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "37767",
+          "current": "37792"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "75530",
+          "current": "75580"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "806",
+          "current": "829"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "123381",
+          "current": "123402"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "109968",
+          "current": "109913"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "12640",
+          "current": "12619"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "21313",
+          "current": "21318"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "37767",
+          "current": "37792"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "75530",
+          "current": "75580"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "109",
+          "current": "104"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "109968",
+          "current": "109913"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "121162",
+          "current": "121227"
+        },
+        {
+          "rank": 3,
+          "field": "length_splits",
+          "base": "14678",
+          "current": "14703"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "21313",
+          "current": "21318"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "37767",
+          "current": "37792"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "75530",
+          "current": "75580"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "843",
+          "current": "836"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "121162",
+          "current": "121227"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "116416",
+          "current": "116398"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "14728",
+          "current": "14713"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "21313",
+          "current": "21318"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "37767",
+          "current": "37792"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "75530",
+          "current": "75580"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "116416",
+          "current": "116398"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "130933",
+          "current": "130982"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "15697",
+          "current": "15707"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "21313",
+          "current": "21318"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "37767",
+          "current": "37792"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "75530",
+          "current": "75580"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "1059",
+          "current": "949"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "130933",
+          "current": "130982"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 31750,
+        "upper_work": 1279620734,
+        "traversal_work": 1265101208,
+        "support_facets": 2866854,
+        "scope_build_work": 4133232,
+        "facet_build_work": 1746860,
+        "piece_selection_work": 6175921
+      },
+      "current_work": {
+        "upper_calls": 31695,
+        "upper_work": 1115823049,
+        "traversal_work": 1101254506,
+        "support_facets": 2871664,
+        "scope_build_work": 4158555,
+        "facet_build_work": 1746870,
+        "piece_selection_work": 6194850
+      },
+      "traversal_work_reduction": 163846702,
+      "traversal_reduction_fraction": 0.1295127227481076,
+      "new_memo_totals": {
+        "memo_direct_hits": 12946,
+        "memo_direct_misses": 102028,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 29170,
+        "memo_stores": 131198,
+        "memo_evictions": 73342,
+        "memo_evicted_bytes": 39245632,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 4358761,
+        "memo_bytes": 25164832,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 41490,
+        "memo_union_entries": 16366
+      },
+      "base_elapsed": 969.84315169,
+      "current_elapsed": 914.809292699,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "17",
+      "current_counts": {
+        "cells": 726653,
+        "size_bad": 2,
+        "geometry_bad": 4018,
+        "length_splits": 91392,
+        "upper_calls": 32414,
+        "upper_work": 1132758449
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "123722",
+          "current": "123752"
+        },
+        {
+          "rank": 0,
+          "field": "length_splits",
+          "base": "16073",
+          "current": "16089"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "21444",
+          "current": "21452"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "38312",
+          "current": "38340"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "76620",
+          "current": "76676"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "993",
+          "current": "950"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "123722",
+          "current": "123752"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "123670",
+          "current": "123693"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "17238",
+          "current": "17251"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "21444",
+          "current": "21452"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "38312",
+          "current": "38340"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "76620",
+          "current": "76676"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "757",
+          "current": "761"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "123670",
+          "current": "123693"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "110031",
+          "current": "109982"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "12669",
+          "current": "12649"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "21444",
+          "current": "21452"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "38312",
+          "current": "38340"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "76620",
+          "current": "76676"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "85",
+          "current": "63"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "110031",
+          "current": "109982"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "121349",
+          "current": "121402"
+        },
+        {
+          "rank": 3,
+          "field": "length_splits",
+          "base": "14766",
+          "current": "14784"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "21444",
+          "current": "21452"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "38312",
+          "current": "38340"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "76620",
+          "current": "76676"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "840",
+          "current": "835"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "121349",
+          "current": "121402"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "116589",
+          "current": "116576"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "14806",
+          "current": "14793"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "21444",
+          "current": "21452"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "38312",
+          "current": "38340"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "76620",
+          "current": "76676"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "496",
+          "current": "483"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "116589",
+          "current": "116576"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "131188",
+          "current": "131248"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "15811",
+          "current": "15826"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "21444",
+          "current": "21452"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "38312",
+          "current": "38340"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "76620",
+          "current": "76676"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "1050",
+          "current": "926"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "131188",
+          "current": "131248"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 32475,
+        "upper_work": 1299307170,
+        "traversal_work": 1284629061,
+        "support_facets": 2876937,
+        "scope_build_work": 4208155,
+        "facet_build_work": 1746860,
+        "piece_selection_work": 6248773
+      },
+      "current_work": {
+        "upper_calls": 32414,
+        "upper_work": 1132758449,
+        "traversal_work": 1118033878,
+        "support_facets": 2881894,
+        "scope_build_work": 4231605,
+        "facet_build_work": 1746870,
+        "piece_selection_work": 6266879
+      },
+      "traversal_work_reduction": 166595183,
+      "traversal_reduction_fraction": 0.12968349234627816,
+      "new_memo_totals": {
+        "memo_direct_hits": 12947,
+        "memo_direct_misses": 103501,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 29889,
+        "memo_stores": 133390,
+        "memo_evictions": 75446,
+        "memo_evicted_bytes": 40059192,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 4442613,
+        "memo_bytes": 25164712,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 41272,
+        "memo_union_entries": 16672
+      },
+      "base_elapsed": 985.813108855,
+      "current_elapsed": 929.359113534,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "18",
+      "current_counts": {
+        "cells": 727818,
+        "size_bad": 0,
+        "geometry_bad": 3770,
+        "length_splits": 91910,
+        "upper_calls": 33088,
+        "upper_work": 1146716427
+      },
+      "all_selected_per_rank_counts_equal": false,
+      "count_differences": [
+        {
+          "rank": 0,
+          "field": "cells",
+          "base": "123963",
+          "current": "123988"
+        },
+        {
+          "rank": 0,
+          "field": "length_splits",
+          "base": "16182",
+          "current": "16197"
+        },
+        {
+          "rank": 0,
+          "field": "rounds",
+          "base": "21566",
+          "current": "21582"
+        },
+        {
+          "rank": 0,
+          "field": "associations",
+          "base": "38839",
+          "current": "38858"
+        },
+        {
+          "rank": 0,
+          "field": "working_faces",
+          "base": "77674",
+          "current": "77712"
+        },
+        {
+          "rank": 0,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 0,
+          "field": "geometry_bad",
+          "base": "976",
+          "current": "934"
+        },
+        {
+          "rank": 0,
+          "field": "measured",
+          "base": "123963",
+          "current": "123988"
+        },
+        {
+          "rank": 1,
+          "field": "cells",
+          "base": "123931",
+          "current": "123976"
+        },
+        {
+          "rank": 1,
+          "field": "length_splits",
+          "base": "17350",
+          "current": "17372"
+        },
+        {
+          "rank": 1,
+          "field": "rounds",
+          "base": "21566",
+          "current": "21582"
+        },
+        {
+          "rank": 1,
+          "field": "associations",
+          "base": "38839",
+          "current": "38858"
+        },
+        {
+          "rank": 1,
+          "field": "working_faces",
+          "base": "77674",
+          "current": "77712"
+        },
+        {
+          "rank": 1,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 1,
+          "field": "geometry_bad",
+          "base": "698",
+          "current": "672"
+        },
+        {
+          "rank": 1,
+          "field": "measured",
+          "base": "123931",
+          "current": "123976"
+        },
+        {
+          "rank": 2,
+          "field": "cells",
+          "base": "110084",
+          "current": "110027"
+        },
+        {
+          "rank": 2,
+          "field": "length_splits",
+          "base": "12690",
+          "current": "12669"
+        },
+        {
+          "rank": 2,
+          "field": "rounds",
+          "base": "21566",
+          "current": "21582"
+        },
+        {
+          "rank": 2,
+          "field": "associations",
+          "base": "38839",
+          "current": "38858"
+        },
+        {
+          "rank": 2,
+          "field": "working_faces",
+          "base": "77674",
+          "current": "77712"
+        },
+        {
+          "rank": 2,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 2,
+          "field": "geometry_bad",
+          "base": "69",
+          "current": "40"
+        },
+        {
+          "rank": 2,
+          "field": "measured",
+          "base": "110084",
+          "current": "110027"
+        },
+        {
+          "rank": 3,
+          "field": "cells",
+          "base": "121536",
+          "current": "121583"
+        },
+        {
+          "rank": 3,
+          "field": "length_splits",
+          "base": "14855",
+          "current": "14867"
+        },
+        {
+          "rank": 3,
+          "field": "rounds",
+          "base": "21566",
+          "current": "21582"
+        },
+        {
+          "rank": 3,
+          "field": "associations",
+          "base": "38839",
+          "current": "38858"
+        },
+        {
+          "rank": 3,
+          "field": "working_faces",
+          "base": "77674",
+          "current": "77712"
+        },
+        {
+          "rank": 3,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 3,
+          "field": "geometry_bad",
+          "base": "840",
+          "current": "823"
+        },
+        {
+          "rank": 3,
+          "field": "measured",
+          "base": "121536",
+          "current": "121583"
+        },
+        {
+          "rank": 4,
+          "field": "cells",
+          "base": "116759",
+          "current": "116743"
+        },
+        {
+          "rank": 4,
+          "field": "length_splits",
+          "base": "14883",
+          "current": "14866"
+        },
+        {
+          "rank": 4,
+          "field": "rounds",
+          "base": "21566",
+          "current": "21582"
+        },
+        {
+          "rank": 4,
+          "field": "associations",
+          "base": "38839",
+          "current": "38858"
+        },
+        {
+          "rank": 4,
+          "field": "working_faces",
+          "base": "77674",
+          "current": "77712"
+        },
+        {
+          "rank": 4,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 4,
+          "field": "geometry_bad",
+          "base": "444",
+          "current": "426"
+        },
+        {
+          "rank": 4,
+          "field": "measured",
+          "base": "116759",
+          "current": "116743"
+        },
+        {
+          "rank": 5,
+          "field": "cells",
+          "base": "131449",
+          "current": "131501"
+        },
+        {
+          "rank": 5,
+          "field": "length_splits",
+          "base": "15930",
+          "current": "15939"
+        },
+        {
+          "rank": 5,
+          "field": "rounds",
+          "base": "21566",
+          "current": "21582"
+        },
+        {
+          "rank": 5,
+          "field": "associations",
+          "base": "38839",
+          "current": "38858"
+        },
+        {
+          "rank": 5,
+          "field": "working_faces",
+          "base": "77674",
+          "current": "77712"
+        },
+        {
+          "rank": 5,
+          "field": "trace_pieces",
+          "base": "762",
+          "current": "761"
+        },
+        {
+          "rank": 5,
+          "field": "geometry_bad",
+          "base": "1032",
+          "current": "875"
+        },
+        {
+          "rank": 5,
+          "field": "measured",
+          "base": "131449",
+          "current": "131501"
+        }
+      ],
+      "base_work": {
+        "upper_calls": 33158,
+        "upper_work": 1320033382,
+        "traversal_work": 1305219707,
+        "support_facets": 2886066,
+        "scope_build_work": 4271002,
+        "facet_build_work": 1746860,
+        "piece_selection_work": 6311680
+      },
+      "current_work": {
+        "upper_calls": 33088,
+        "upper_work": 1146716427,
+        "traversal_work": 1131850186,
+        "support_facets": 2891254,
+        "scope_build_work": 4297922,
+        "facet_build_work": 1746870,
+        "piece_selection_work": 6332198
+      },
+      "traversal_work_reduction": 173369521,
+      "traversal_reduction_fraction": 0.13282784505183692,
+      "new_memo_totals": {
+        "memo_direct_hits": 12948,
+        "memo_direct_misses": 104899,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 30563,
+        "memo_stores": 135462,
+        "memo_evictions": 77374,
+        "memo_evicted_bytes": 40826144,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 4519749,
+        "memo_bytes": 25164640,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 41266,
+        "memo_union_entries": 16822
+      },
+      "base_elapsed": 1002.191889942,
+      "current_elapsed": 942.549760884,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
     }
   ],
   "limits": [
-    "Both191and193have the same bounded numeric memo implementation/counters. Upper certificates and work can affect existing retention.",
+    "Both191and193have the same bounded numeric memo implementation and counters. Different upper certificates/work can affect existing retention.",
     "Misses do not distinguish unique positions from evicted repeats.",
-    "Per-generation count identity is reported; later divergent counts prevent an identical-work timing claim.",
-    "Cumulative maintenance, traversal and preparation are distinct; nested times cannot be added.",
-    "q/J deliberately unmeasured in construction, not zero bad cells.",
-    "No geometry,feature,body,height,q/J/size acceptance gate changed. Stronger conservative bounds can change valid construction proposals."
+    "Selected count identity is not a byte-identical intermediate mesh claim; later divergent counts prevent an identical-work comparison.",
+    "Maintenance, traversal and preparation work are distinct counters and must not be arbitrarily summed.",
+    "Do not interpret construction q_bad/J_bad zeros as measured shape success.",
+    "Host contention confounds wall-time comparisons."
   ]
 }

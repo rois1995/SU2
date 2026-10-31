@@ -26,18 +26,31 @@ Config/mesh/native_ref/savedCFD and actual continued original-grid restart00000
 BYTEIDENTICAL191. CURRENT/early_runtime_provenance.json.
 Initial CFD CL.269535/CD.013536; first remesh uses the same ITER1 continuation from
 saved force-stable seed, never a fresh freestream field. Native5400s,strict50k and
-all gates unchanged. Completed construction evidence now preserved: coarsening
-292709cells/2627collapses,all17selected per-rank count/flag fields EXACT191,upper
-calls14870same,traversal293483522→277428465 (-5.4705%); native elapsed349.040946
-vs358.820959s,not a wall speedup claim. First splitting generation495390cells,
-3861geometry/117030size-bad,all17selected per-rank fields EXACT191,traversal -8.1560%.
-Generation2 has680820cells and diverges slightly from191 (counts/rounds/geometry):
-later work differences include changed queries/mesh. q/J intentionally UNMEASURED,
-not zero bad cells. CURRENT/coarsening_comparison.json,construction_comparison.json,
-split_generation_assessment.json and initial_partition_comparison.json. Initial
-partition all18selected fields EXACT191;188differs only104B/rank reported native
-accounting,not demand/partition. First2generations saved; later progress not yet
-assessed. No complete quality-entry census yet.
+all gates unchanged. Construction ALL18generations COMPLETE:727818workingcells,
+sizebad0,geometrybad3770; ALL complete geometry/census/cache flags, q/J deliberately
+UNMEASURED(shape_complete0). Cumulative traversal1131850186vs1911305219707(-13.2828%);
+uppercalls33088vs33158; engineelapsed942.549761vs1002.191890s. Trajectories differ
+fromgeneration2:96morecells/289fewer geometry-bad atconstructionexit. Stronger
+certificates and changed mesh both contribute; no isolated timing/shape/acceptance
+claim. Current finalconstructionround21582vs19121566: observation windows are
+shifted, so do NOT compare same window index or round as identical quality work.
+Complete quality ENTRY at990.484282689engine seconds:727818cells,54081q/53392J/
+3770geometry,size0,qJdebt25413.45557726506; ALL cells measured/completeflags1.
+Compared191entry:+96cells/+10q/+15J/-289geometry/+176.6681745253debt. Use each
+run own entry and actual quality times,not shifted window labels/rounds. Initial
+quality ownership migration conserved counts/debt/completeflags,cache/memo counters
+AND live bytes/entries unchanged; debtmax/min15.7760→1.53880. First3complete
+censuses audited,private trackedcollectives0/commits0atentry,no repair progress yet.
+CURRENT/quality_entry_assessment.json,quality_entry_comparison.json,
+quality_initial_ownership_assessment.json and all_quality_census_assessment.json.
+All10handles/all1401pins/82ELF reverified1793486628:quality_entry_provenance.json. Receipts CURRENT/
+construction_comparison.json,split_generation_assessment.json,
+construction_complete_provenance.json (all10handles/1401pins/82ELF at1793486484).
+Coarsening selected17per-rank fields EXACT191:292709cells/2627collapses,uppercalls
+14870same,traversal -5.4705%; firstsplit selected17fields EXACT191,traversal -8.156%.
+Later counts differ. Initialpartition all18fields EXACT191;188differs only104B/rank
+reported native accounting. CURRENT/coarsening_comparison.json and
+initial_partition_comparison.json preserve matched-stage limits.
 
 One owned heavy job. Do not edit ANY pinned C++/test/helper/binary/config/input.
 Before restart/edit/stop, reverify exact actual host handles; sandbox process
