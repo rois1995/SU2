@@ -47,16 +47,27 @@ Quality ENTRY1059.456117native seconds:727722cells,54071q/53377J/4059geometry,si
 qJdebt25236.787402739737. All14selected per-rank counts/debts/flags EXACT188/190.
 LIVE/quality_entry_assessment.json,quality_entry_comparison.json. ALL1401pins/
 10exacthandles/82mappedELFcoverage reverified at quality entry; quality_entry_provenance.json.
-First short quality window10.747744s:728099cells,53858q/53136J/4054geometry,size0,
-78publications,213netq/241netJ/5geometryremoved; same outcome as188/190. New traversal
-19209209vs19913058 (-3.5346%),uppercalls1548same,unionmemo807hits/741misses,
-retentionrefusals0. Only a short initial window,not sustained closure or isolated timing.
-Old exact memo existed without hit/miss counters; hitshare alone is not incremental
-benefit,misses cannot label nearby trials vs evicted repeats. ALL4initial complete
-censuses (including ownership stages) audited in all_quality_census_assessment.json:
-churn identities,flags,globalmigrationconservation,privatecollectives0,missing0,stuck0.
-Current outcome remains pending; no actual transfer/adapted restart. First coarsening
-and identical CFD/partition provenance retained in linked LIVE JSON receipts.
+Latest complete window2 at330.445887quality seconds:734404cells,49084q/47891J/
+3994geometry,size0;2173publications,4987netq/5486netJ/65geometryremoved since entry.
+Whole-field outcome/publications EXACT188/190 at same round21632. New traversal
+488082888vs493424356 (-1.08253%),uppercalls33176same. Netq15.0917/s vs18815.6778/s,
+19011.0331/s; wall-time confounded by host contention. Latest interval join-callshare
+.49023 includes protocol and waiting; not pure idle. Rawslot candidatefill~94.95%,
+reservationfraction84.375%,publication/reservation~85.62%; raw8-slot ceiling is not
+required demand, and unreserved is not an exact conflict count. Memo18241hits/
+14935misses,retentionrefusals4 (soft retain refusal, recomputation remains mandatory).
+Old exact memo lacked hit/miss counters; newhitshare alone is not incremental benefit;
+misses cannot label nearby trials vs evicted repeats. First short window had3.53%
+less traversal,same78publications/netcounts; this is not sustained closure evidence.
+ALL7complete censuses audited (including ownership stages),churn identities,flags,
+globalmigrationconservation,privatecollectives0,missing0,stuck0. Latest one complete-
+census redistribution round21632 committed in13.56315s including observations;
+debtspread1.89661→1.47445,globalcounts/debt unchanged,ALLpreparedcache and numericmemo
+counter/entry/byte deltas0,drift samples unchanged. No cache clearing or recertification.
+LIVE/quality_window2_comparison.json,quality_service_assessment.json,
+quality_migration_assessment.json,all_quality_census_assessment.json preserve detail.
+Migration occurs AFTER window2 and belongs in next window's complete interval cost.
+Current outcome pending; no actual transfer/adapted restart. Source remains FROZEN.
 Monitor complete aligned censuses, net whole-field q/J/geometry removal and distinct
 geometry/preparation/maintenance/trial work counters. Timers overlap; do not add
 nested scopes or call collective-call time pure idle. CPUtime includes MPIspin.
