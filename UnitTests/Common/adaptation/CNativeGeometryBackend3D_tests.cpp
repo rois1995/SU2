@@ -421,6 +421,45 @@ TEST_CASE("Surface union bounds span a noncoplanar triangulated graph without fi
   }
 }
 
+TEST_CASE("Finite triangular graph envelopes bound the whole source face", "[NativeGeometryBackend3D][NativeSurfaceEnvelope3D]") {
+  using namespace SU2Native3D;
+  const unsigned axis=GENERATE(0u,1u,2u);const bool reverse=GENERATE(false,true);
+  auto transform=[&](Point p){std::array<double,3> v{{p.x,p.y,p.z}};return Point{v[axis],v[(axis+1)%3],v[(axis+2)%3]};};
+  std::array<Node,7> nodes{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,1}},
+      {4,{.5,0,0}},{5,{.5,.5,0}},{6,{0,.5,0}}}};
+  for(auto& n:nodes)n.p=transform(n.p);
+  // Split all incident side edges too: a closed shell, with a finite triangular bottom graph.
+  const std::array<Face,10> topology{{{0,6,4},{4,6,5},{4,5,1},{6,2,5},
+      {0,4,3},{4,1,3},{1,5,3},{5,2,3},{2,6,3},{6,0,3}}};
+  std::vector<Facet> facets;for(const auto& f:topology)facets.push_back({Id(facets.size()),0,{nodes[f[0]],nodes[f[1]],nodes[f[2]]}});
+  auto reference=std::make_shared<PlanarReference>(facets);std::map<Id,double> errors;
+  MappedFacetReference::CurvedNets nets;
+  const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+  for(const auto& f:facets) {
+    errors.emplace(f.id,1e-12);
+    for(unsigned q=0;q<10;++q) {
+      Point p{};for(unsigned k=0;k<3;++k){p.x+=powers[q][k]*f.v[k].p.x/3;p.y+=powers[q][k]*f.v[k].p.y/3;p.z+=powers[q][k]*f.v[k].p.z/3;}nets[f.id][q]=p;
+    }
+  }
+  MappedFacetReference cached(reference,errors,1,SIZE_MAX,false,nets),uncached(reference,errors,1,SIZE_MAX,false,nets,0);
+  constexpr double tolerance=1e-4;
+  for(double gap:{.5*tolerance,.99*tolerance,1.01*tolerance}) {
+    std::array<Point,3> triangle{{transform({0,0,-gap}),transform({1,0,-gap}),transform({0,1,-gap})}};
+    if(reverse)std::swap(triangle[1],triangle[2]);
+    const std::vector<std::array<Point,3>> physical{triangle};
+    auto a=BackendBudget(),b=a,c=a;
+    const auto answer=cached.BoundPhysicalSurface({0,1,2,3},physical,tolerance,a);
+    CHECK(answer>=gap);CHECK((answer<=tolerance)==(gap<tolerance));
+    CHECK(cached.BoundPhysicalSurface({0,1,2,3},physical,tolerance,b)==answer);
+    CHECK(uncached.BoundPhysicalSurface({0,1,2,3},physical,tolerance,c)==answer);
+    auto limited=BackendBudget();limited.maximum_work=0;
+    CHECK_THROWS(cached.BoundPhysicalSurface({0,1,2,3},physical,tolerance,limited));CHECK(limited.work_exhausted);
+    auto storage=BackendBudget();storage.maximum_bytes=1;
+    CHECK_THROWS(cached.BoundPhysicalSurface({0,1,2,3},physical,tolerance,storage));
+    auto missing=BackendBudget();CHECK(cached.BoundPhysicalSurface({0,1,2},physical,tolerance,missing)>tolerance);
+  }
+}
+
 TEST_CASE("Physical source tubes preserve conservative shell checks without face correspondence", "[NativeGeometryBackend3D][NativeJointAffineSource3D]") {
   using namespace SU2Native3D;
   const std::array<Point,3> triangle{{{0,0,0},{1,0,0},{0,1,0}}};

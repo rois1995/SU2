@@ -118,3 +118,7 @@ under SAME cumulative limits. Require TWOaccepted meshes/native_ref pairs,actual
 conservative admissible transfer,finite continued CFD and isolated adapted disk
 restart. Then dedicated BL/constraint/MPI qualification and corresponding RANS500k.
 CAD optional; no-CAD geometry authority remains sufficient throughout.
+
+Build192 candidate written: shared PlaneUnion::Upper and closed triangular-shell proof
+test only. Unbuilt/unvalidated; no timing or traversal saving established. Existing
+12-query replay and connected serial/MPI6 plan: R/geometry_envelope192_validation_plan.json.

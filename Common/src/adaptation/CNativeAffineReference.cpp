@@ -340,7 +340,32 @@ class TriangleUnion {
       else covered=positive ? (footprint->ContainsFace({p,q,r},&predicates)&&footprint->ContainsFace({p,r,s},&predicates)) :
           (footprint->ContainsFace({p,r,q},&predicates)&&footprint->ContainsFace({p,s,r},&predicates));
       op.Work(transfer_memory::Add(predicates.filtered_orientations,predicates.exact_orientations));
-      if(!covered)return INFINITY;
+      std::array<Box,3> nominal;bool triangle_covered=false;double padding=0;
+      if constexpr(N==3) {
+        if(!covered) {
+          op.Storage(2048);predicates={};std::array<Point,3> projected;
+          for(unsigned i=0;i<3;++i) {
+            const auto center=BoxMiddle(hull[i]);nominal[i]=Exact(center);
+            padding=std::max(padding,NormBound(Difference(hull[i],nominal[i])));
+            const auto c=Values(center);projected[i]={c[x],c[y],0};
+          }
+          const auto orientation=SU2Native3D::SurfaceNormalSign({0,0,1},projected,&predicates);
+          if(std::isfinite(padding)&&orientation) {
+            if((orientation>0)!=positive)std::swap(projected[1],projected[2]);
+            triangle_covered=footprint->ContainsFace(projected,&predicates);
+          }
+          op.Work(transfer_memory::Add(predicates.filtered_orientations,predicates.exact_orientations));
+          if(triangle_covered) {
+            dx=dy=0;
+            for(unsigned k=0;k<2;++k) {
+              const auto d=k?y:x;a[k]=b[k]=double(nominal[0][d].lo);
+              for(unsigned i=1;i<3;++i){a[k]=std::min(a[k],double(nominal[i][d].lo));b[k]=std::max(b[k],double(nominal[i][d].hi));}
+            }
+          }
+        }
+      }
+      if(!covered&&!triangle_covered)return INFINITY;
+      auto source=[&](size_t i)->const Box& {return triangle_covered?nominal[i]:hull[i];};
       // Coverage supplies a target point on some overlapping face; bound every possible lift.
       double bound=0;bool found=false;
       auto lift=[&](const Plane& face) {
@@ -348,13 +373,14 @@ class TriangleUnion {
         const auto& normal=face.normal;const auto denominator=std::max(normal[axis].lo,-normal[axis].hi);
         if(!(denominator>0)){found=true;bound=INFINITY;return;}
         std::array<Range,N> residual;
-        long double vertical=0;for(size_t i=0;i<N;++i){residual[i]=DotBox(Difference(hull[i],Exact(face.origin)),normal);
+        long double vertical=0;for(size_t i=0;i<N;++i){residual[i]=DotBox(Difference(source(i),Exact(face.origin)),normal);
           vertical=std::max(vertical,std::max(std::abs(residual[i].lo),std::abs(residual[i].hi)));}
         if constexpr(N==3) {
           if(std::all_of(residual.begin(),residual.end(),[](Range value){return std::isfinite(value.lo)&&std::isfinite(value.hi);})) {
             // Restrict the source simplex to weights that can meet this target piece.
             // Upper half-plane coefficients relax interval uncertainty and the admitted XY shift.
-            op.Storage(512);op.Work(3);std::array<long double,3> lower{{0,0,0}},upper{{1,1,1}};
+            op.Storage(2048);op.Work(3);std::array<std::array<long double,3>,3> constraints{};
+            std::array<long double,3> lower{{0,0,0}},upper{{1,1,1}};
             const auto& triangle=owner->triangles[face.triangle].points;
             for(unsigned edge=0;edge<3;++edge) {
               const auto u=Values(triangle[edge]),v=Values(triangle[(edge+1)%3]);
@@ -363,10 +389,11 @@ class TriangleUnion {
                   Multiply({dy,dy},std::max(std::abs(ex.lo),std::abs(ex.hi))));
               std::array<long double,3> coefficient;
               for(unsigned i=0;i<3;++i) {
-                auto value=Subtract(Multiply(ex,Subtract(hull[i][y],{u[y],u[y]})),Multiply(ey,Subtract(hull[i][x],{u[x],u[x]})));
+                auto value=Subtract(Multiply(ex,Subtract(source(i)[y],{u[y],u[y]})),Multiply(ey,Subtract(source(i)[x],{u[x],u[x]})));
                 if(!positive)value=Multiply(value,-1);coefficient[i]=Add(value,{shift.hi,shift.hi}).hi;
               }
               if(!std::isfinite(coefficient[0])||!std::isfinite(coefficient[1])||!std::isfinite(coefficient[2]))continue;
+              constraints[edge]=coefficient;
               if(*std::max_element(coefficient.begin(),coefficient.end())<0)return;
               for(unsigned i=0;i<3;++i) {
                 const auto other=std::max(coefficient[(i+1)%3],coefficient[(i+2)%3]),value=coefficient[i];
@@ -391,6 +418,32 @@ class TriangleUnion {
                   value=Add(value,Multiply({lower[i],upper[i]},Subtract({c[i],c[i]},{pivot,pivot})));
                 best=std::min(best,value.hi);
               }
+              if(vertical>owner->accuracy*denominator/4) {
+                // Any nonnegative multipliers give c.lambda <= max_i(c_i + sum mu_e*a_ei).
+                auto certify=[&](unsigned e,long double mu,unsigned f,long double nu) {
+                  if(!std::isfinite(mu)||!std::isfinite(nu)||mu<0||nu<0)return;
+                  op.Work();long double bound=-INFINITY;
+                  for(unsigned i=0;i<3;++i) {
+                    const auto value=Add(Add({c[i],c[i]},Multiply({mu,mu},constraints[e][i])),Multiply({nu,nu},constraints[f][i]));
+                    if(!std::isfinite(value.hi))return;
+                    bound=std::max(bound,value.hi);
+                  }
+                  best=std::min(best,bound);
+                };
+                for(unsigned e=0;e<3;++e) {
+                  for(unsigned i=0;i<3;++i)for(unsigned j=i+1;j<3;++j) {
+                    const auto d=constraints[e][i]-constraints[e][j];
+                    if(d!=0)certify(e,(c[j]-c[i])/d,e,0);
+                  }
+                  for(unsigned f=e+1;f<3;++f) {
+                    const auto a=constraints[e][0]-constraints[e][1],b=constraints[f][0]-constraints[f][1],
+                        d=constraints[e][0]-constraints[e][2],e2=constraints[f][0]-constraints[f][2];
+                    const auto determinant=a*e2-d*b;
+                    if(determinant!=0)certify(e,((c[1]-c[0])*e2-(c[2]-c[0])*b)/determinant,
+                        f,(a*(c[2]-c[0])-d*(c[1]-c[0]))/determinant);
+                  }
+                }
+              }
               return best;
             };
             vertical=std::min(vertical,std::max({0.L,maximum(false),maximum(true)}));
@@ -408,7 +461,9 @@ class TriangleUnion {
         auto& nearby=owner->graph_candidates;nearby.clear();op.Work();owner->index->DetermineIntersectingElements(low,high,nearby);
         for(auto i:nearby)if(owner->triangle_plane[i]==group)lift(faces[owner->triangle_slot[i]]);
       } else for(const auto& face:faces)lift(face);
-      return found?bound:INFINITY;
+      if(!found)return INFINITY;
+      // Every original hull point is within padding of a point on the covered nominal triangle.
+      return triangle_covered?std::nextafter(double(Add({bound,bound},{0,padding}).hi),INFINITY):bound;
     }
   };
   std::vector<PlaneUnion> planes;std::vector<size_t> triangle_plane,triangle_slot;
