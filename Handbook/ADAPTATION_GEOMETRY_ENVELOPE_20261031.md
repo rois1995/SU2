@@ -1,6 +1,7 @@
 # Existing projected-envelope tightening —191terminal analysis and next design
 
-Status: ANALYSIS/DESIGN ONLY; no next C++ edit/build yet. One active connected
+Status: build193 refinement compiling, sources frozen; NOT production validated.
+Analysis/proof completed before implementation. One active connected
 geometry/quality optimization cycle. Preserve191bounded memo retention,190ownership/
 history and all latest validity-first construction improvements. No new options,
 scheduler,repair slots/local passes,time limits or acceptance thresholds.
@@ -113,12 +114,23 @@ Immediately return to full TWO-event M6 with SAME saved real-CFD seed,50k/native
 strictgeometry1e-4,q>=.2,J>=.05,maxedge1.8/heights. Compare net whole-field q/J/geometry
 counts and useful progress at actual matching work/stages,with host contention stated.
 
+Existing phase plan: after complete q/J/height closure, enable residual size repair
+if required; when size is clean, EnableGeometryRepairs queues geometry-only demand
+with strict complete-patch guidance progress. Geometry-only repair or a valid
+return through construction can change shape, so remeasure/reclose shape before
+acceptance. This is existing behavior, not established M6 closure: build191 never
+reached the geometry-only entry. Preserve all checks and cumulative budgets.
+
 Shape closure → residual geometry/size closure → shape reclosure remain required
 under SAME cumulative limits. Require TWOaccepted meshes/native_ref pairs,actual
 conservative admissible transfer,finite continued CFD and isolated adapted disk
 restart. Then dedicated BL/constraint/MPI qualification and corresponding RANS500k.
 CAD optional; no-CAD geometry authority remains sufficient throughout.
 
-Build192 candidate written: shared PlaneUnion::Upper and closed triangular-shell proof
-test only. Unbuilt/unvalidated; no timing or traversal saving established. Existing
-12-query replay and connected serial/MPI6 plan: R/geometry_envelope192_validation_plan.json.
+Build192 focused proof PASS307assertions/2cases; all handles terminal/pins unchanged.
+Existing12saved queries: traversal401486→384426 (-4.25%);8queries much cheaper,4more
+expensive. Cached/recomputed results equal; no full-run speedup established.
+Build193 refines only when coupled proposals are attempted: skip if existing
+objective upper already certifies tolerance. Repeat replay, then connected
+serial/MPI6 qualification and immediate full two-event M6. Plans and primary review
+are R/geometry_envelope193_validation_plan.json and geometry_envelope193_source_review.json.

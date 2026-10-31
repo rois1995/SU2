@@ -29,8 +29,10 @@ and all10identities matched BEFORE signal:event1_failure_owned_stop.json. Exec36
 TERMINALexit1/statussolver_exit1 after stopping remaining attempt. Independent
 1793482215audit ALL10handles ABSENT/all1401pins unchanged BEFORE ANY next C++edit:
 CURRENT/terminal_handles.json. All401117/401313/401314/401315/401320..401325handles
-are now HISTORICAL; never resignal/restart from old status. Source freeze lifted after terminal audit; the connected envelope candidate is now
-written for build192 (unbuilt/unvalidated). No other implementation cycle.
+are now HISTORICAL; never resignal/restart from old status. Source freeze lifted after terminal audit; build192 and its focused proof are terminal, all host handles absent and pins
+unchanged. Proof PASS307assertions/2cases; existing12query traversal401486→384426
+(-4.25%), with4queries worse. One refinement for build193 skips dual proposals
+when the old objective bound already certifies. Same connected cycle; no other job.
 
 Terminal counters and existing geometry facilities reviewed: next target SPEED of
 useful closure. Quality retired net37880q/40412J/550geometry at8.8564netq/s;
@@ -49,7 +51,8 @@ on this evidence. Existing exact unchanged-face reuse, old star context, screeni
 and hole-aware projected envelopes already exist. The connected candidate tightens
 that existing envelope with whole-triangle coverage and outward coupled half-plane
 bounds: [design/proof](Handbook/ADAPTATION_GEOMETRY_ENVELOPE_20261031.md).
-Primary and bounded read-only review found no proof blocker. It is written for build192 but unbuilt/unvalidated; no speedup established. Require measured saved-query work benefit, focused serial/
+Primary and bounded read-only review found no proof blocker. Build192 focused proof passed; build193 refinement written, unbuilt/unvalidated.
+No production speedup established. Require measured saved-query work benefit, focused serial/
 ONE MPI6 and immediate full two-event M6 from SAME seed/50k/5400, unchanged gates.
 
 Build191 PASS754.100808s,all1296pins unchanged/all2handles absent before validation.

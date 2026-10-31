@@ -1,0 +1,21 @@
+{
+  "scope": "Primary review of existing-envelope connected change, with bounded read-only second review. No scheduler/config/cache/support-identity changes.",
+  "time": 1793484644.698139,
+  "files": {
+    "Common/src/adaptation/CNativeAffineReference.cpp": "05df8626fb86156324c987b8d5d942de20220f38915439b2657c6bde8a7d6021",
+    "UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp": "f6c26d3015b6940ebf202349b71d11b56b2e0d3f30b37c1a8c8d66f6372761d8"
+  },
+  "proof": [
+    "Exact whole projected-triangle coverage preserves finite holes, winding and body support. Degenerate/uncertain projections fall back.",
+    "Nominal hull displacement bound added outward once; rectangle shifts zero only when nominal triangle completely covered.",
+    "Relaxed halfplanes a dot lambda>=0; concrete finite nonnegative dual multipliers certified via outward Add/Multiply. Approximate candidate solves not trusted.",
+    "N10 path unchanged; no shortcut around initial finite/nondegenerate input checks or association/features/body/heights/reverse gates.",
+    "Existing Work(3) per objective covers bounded three-row candidate generation; accepted dual certificate evaluations charged separately. Scratch2048 within admitted query scratch; exceptions propagate.",
+    "192focused proof passed307assertions/2cases;12savedqueries cached==repeat==recomputed. 4.25%less counted traversal,4hardqueries worse.193changes only scheduling of extra bound attempts when existing objective already certifies."
+  ],
+  "limits": [
+    "Full serial/MPI6 milestone and production net bad-cell rate not validated yet.",
+    "Saved12query evidence from older168projected stars, not complete191distribution.",
+    "Existing noncoplanar graph and saved curved M6 tests exercise nonuniform residuals and interval evaluation; dedicated new fixture targets finite triangular coverage."
+  ]
+}

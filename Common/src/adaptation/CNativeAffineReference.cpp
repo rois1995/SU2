@@ -418,7 +418,7 @@ class TriangleUnion {
                   value=Add(value,Multiply({lower[i],upper[i]},Subtract({c[i],c[i]},{pivot,pivot})));
                 best=std::min(best,value.hi);
               }
-              if(vertical>owner->accuracy*denominator/4) {
+              if(best>owner->accuracy*denominator) {
                 // Any nonnegative multipliers give c.lambda <= max_i(c_i + sum mu_e*a_ei).
                 auto certify=[&](unsigned e,long double mu,unsigned f,long double nu) {
                   if(!std::isfinite(mu)||!std::isfinite(nu)||mu<0||nu<0)return;
