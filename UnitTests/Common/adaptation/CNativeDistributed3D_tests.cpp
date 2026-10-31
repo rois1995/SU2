@@ -3949,7 +3949,7 @@ TEST_CASE("Native MPI interior placement repairs a complete star through ordinar
   }
 }
 
-TEST_CASE("Global repair age precedes ownership and reactivated low IDs", "[NativeRepairFairness3D]") {
+TEST_CASE("Global repair age survives repeated quality ownership", "[NativeRepairFairness3D][NativePhaseOwnership3D]") {
   World world;
   for(bool reversed:{false,true}) {
     Fixture fixture;Owned input;
@@ -3971,19 +3971,46 @@ TEST_CASE("Global repair age precedes ownership and reactivated low IDs", "[Nati
     }
     const auto saved=Bytes(input);const PlanarReference geometry(fixture.facets);
     EngineOptions options;options.candidate_batch=1;options.maximum_rounds=9;options.maximum_work=4096;
+    options.stagnation_window=1;options.phase_ownership=PhaseOwnership::DiagnosticAlways;
     options.capture_feature={{8,0,0},1};unsigned serviced=0;uint64_t service_round=UINT64_MAX;
+    unsigned late_staged=0,late_committed=0;bool complete_migrations=true,quality_mode=true,serviced_after_late=false;
     options.transaction_observer=[&](const TransactionView& view) {
       if(view.selected && std::string(view.stage)=="transaction_end") {
         ++serviced;service_round=view.round;
+        serviced_after_late |= late_staged>0;
         CHECK(std::all_of(view.old.cells.begin(),view.old.cells.end(),[](const Cell& c) {
           return std::any_of(c.v.begin(),c.v.end(),[](Node n){return n.id==8;});
         }));
       }
     };
+    options.stage_observer=[&](const StageProgressView& view) {
+      const std::string stage=view.stage;
+      if(stage!="ownership_staged" && stage!="ownership_committed" && stage!="quality_entry")return;
+      quality_mode &= view.phase==EnginePhase::Improvement && view.wall_heights.empty();
+      const auto& p=view.progress;
+      complete_migrations &= p.cache_consistent && p.census_complete && p.shape_complete &&
+          p.geometry_complete && p.complete && p.owned_cells==view.working.size() &&
+          p.measured_cells==view.working.size() && p.unmeasured_cells==0 &&
+          p.q_measured_cells==view.working.size() && p.j_measured_cells==view.working.size() &&
+          p.shape_measured_cells==view.working.size() && p.shape_unmeasured_cells==0 &&
+          p.geometry_measured_cells==view.working.size() && p.geometry_unmeasured_cells==0;
+      if(stage=="ownership_staged" && view.round>0)++late_staged;
+      if(stage=="ownership_committed" && view.round>0)++late_committed;
+    };
     const auto result=Repair(world,input,Uniform(input,Tensor{}),geometry,{},options);INFO(result.reason);
     // At most the eight original corner demands precede this waiting interior star. A newly
     // generated/reactivated corner gets a later epoch, regardless of which worker owns either box.
     CHECK(world.sum(serviced)==1);CHECK(world.maximum(service_round<9));
+    // This fixture starts on at most two ranks, leaving MPI6 peers empty. A later aligned census
+    // must migrate the current complete improvement-phase cache without changing repair age.
+    CHECK(world.sum(!input.empty())==(world.size==1?1:2));
+    CHECK(world.maximum(!complete_migrations)==0);CHECK(world.maximum(!quality_mode)==0);
+    if(world.size>1) {
+      CHECK(world.maximum(late_staged>0));CHECK(world.maximum(late_committed>0));
+      CHECK(world.sum(serviced_after_late)==1);
+      CHECK(world.maximum(result.stats.ownership_evaluations<2)==0);
+      CHECK(world.maximum(result.stats.ownership_changes<2)==0);
+    }
     CHECK(result.stats.quality_stages>0);CHECK(result.stats.global_work<=options.maximum_work);
     CHECK(Bytes(input)==saved);
     for(const auto& row:result.cells) {
@@ -4522,12 +4549,15 @@ TEST_CASE("Completed metric size hands residual curved geometry to a quality cen
   auto parameters=std::make_shared<BoundaryParameterState>(authority,points,fixture.patch.surface);
   auto geometry=PlanarReference::WithParameters(root,parameters);const auto snapshot=parameters->Snapshot();
   const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
-  bool geometry_only=false;
+  bool geometry_only=false,late_geometry_mode=false;
   SECTION("Complete quality-entry census"){ }
   SECTION("Geometry demand waits for closed shape and size"){geometry_only=true;}
-  bool split_exit=false,quality_seen=false,geometry_seen=false;size_t geometry_at_exit=0;
+  SECTION("Late quality ownership preserves residual geometry-only mode"){late_geometry_mode=true;}
+  bool split_exit=false,quality_seen=false,geometry_seen=false,late_mode_witness=false;
+  bool late_geometry_debt=false,late_geometry_repair=false;size_t geometry_at_exit=0;
   EngineOptions options;options.maximum_work=4096;options.maximum_rounds=256;options.surface_tolerance=1e-4;
   options.phase_ownership=PhaseOwnership::DiagnosticAlways;
+  if(late_geometry_mode)options.stagnation_window=1;
   options.stage_observer=[&](const StageProgressView& view) {
     if(view.phase==EnginePhase::Construction && !view.stats.quality_stages) {
       CHECK(view.progress.q_measured_cells==0);CHECK(view.progress.j_measured_cells==0);
@@ -4543,22 +4573,47 @@ TEST_CASE("Completed metric size hands residual curved geometry to a quality cen
       CHECK(view.phase==EnginePhase::Improvement);CHECK(view.progress.shape_complete);
       CHECK(view.progress.q_bad_cells==0);CHECK(view.progress.j_bad_cells==0);
       CHECK(view.progress.size_bad_cells==0);CHECK(view.progress.geometry_complete);
-      CHECK(world.maximum(view.progress.geometry_bad_cells!=0));
-      CHECK(world.maximum(view.progress.remaining_repairs!=0));
-      throw std::runtime_error("bounded geometry-only repair witness");
+      late_geometry_debt |= view.progress.geometry_bad_cells!=0;
+      late_geometry_repair |= view.progress.remaining_repairs!=0;
+      if(geometry_only)throw std::runtime_error("bounded geometry-only repair witness");
+      if(late_geometry_mode && world.size==1)
+        throw std::runtime_error("bounded serial late geometry mode witness");
+    }
+    if(late_geometry_mode && world.size>1 && std::string(view.stage)=="ownership_committed" &&
+       view.round>0 && geometry_seen) {
+      const auto& p=view.progress;
+      const bool complete=p.cache_consistent && p.census_complete && p.shape_complete &&
+          p.geometry_complete && p.complete && p.owned_cells==view.working.size() &&
+          p.measured_cells==view.working.size() && p.q_measured_cells==view.working.size() &&
+          p.j_measured_cells==view.working.size() && p.shape_measured_cells==view.working.size() &&
+          p.shape_unmeasured_cells==0 && p.q_bad_cells==0 && p.j_bad_cells==0 && p.size_bad_cells==0;
+      const bool residual=p.geometry_bad_cells!=0 && p.remaining_repairs!=0;
+      CHECK(view.phase==EnginePhase::Improvement);CHECK(complete);
+      if(p.geometry_bad_cells)CHECK(p.remaining_repairs!=0);
+      if(complete && residual) {
+        late_mode_witness=true;
+        throw std::runtime_error("bounded late residual geometry mode ownership witness");
+      }
     }
     if(std::string(view.stage)!="quality_entry")return;
     quality_seen=true;CHECK(view.stats.length_split_passes==1);
     CHECK(view.stats.ownership_changes==(world.size>1?2:0));
     CHECK(view.progress.census_complete);CHECK(view.progress.shape_complete);
     CHECK(view.progress.geometry_complete);CHECK_FALSE(view.valid);
-    if(!geometry_only)throw std::runtime_error("bounded residual geometry handoff witness");
+    if(!geometry_only && !late_geometry_mode)throw std::runtime_error("bounded residual geometry handoff witness");
   };
   const auto result=AdaptMetric(world,input,Uniform(input,Tensor{}),*geometry,{},options);INFO(result.reason);
   CHECK(world.maximum(split_exit));CHECK(world.sum(geometry_at_exit)>0);CHECK(world.maximum(quality_seen));
   CHECK(world.sum(result.stats.length_splits)>0);CHECK_FALSE(result.valid);
-  CHECK(world.maximum(geometry_seen)==geometry_only);
-  CHECK(result.reason.find(geometry_only?"bounded geometry-only repair witness":"bounded residual geometry handoff witness")!=std::string::npos);
+  CHECK(world.maximum(geometry_seen)==(geometry_only||late_geometry_mode));
+  if(late_geometry_mode) {
+    CHECK(world.maximum(late_geometry_debt));CHECK(world.maximum(late_geometry_repair));
+    if(world.size>1)CHECK(world.maximum(late_mode_witness));
+    const std::string expected=world.size==1?"bounded serial late geometry mode witness":"bounded late residual geometry mode ownership witness";
+    CHECK(result.reason.find(expected)!=std::string::npos);
+  } else {
+    CHECK(result.reason.find(geometry_only?"bounded geometry-only repair witness":"bounded residual geometry handoff witness")!=std::string::npos);
+  }
   CHECK(Bytes(input)==saved);CHECK(parameters->Snapshot()==snapshot);
   CHECK(result.stats.global_work<=options.maximum_work);
   for(const auto& row:result.cells){const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);}

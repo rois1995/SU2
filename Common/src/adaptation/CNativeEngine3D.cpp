@@ -276,7 +276,8 @@ class Selection {
   };
   struct CachedRow {
     Id id=0;CellState state;std::array<long double,6> lengths{};
-    template<class S>void Fields(S& s){s(id,state);for(auto& x:lengths)CachedScalar(s,x);}
+    std::array<uint64_t,14> repair_epochs{};uint16_t repair_active=0,repair_blocked=0;
+    template<class S>void Fields(S& s){s(id,state);for(auto& x:lengths)CachedScalar(s,x);s(repair_epochs,repair_active,repair_blocked);}
   };
   std::map<Id,CellState> cells;
   std::map<Edge,EdgeState> edges;
@@ -605,8 +606,9 @@ class Selection {
     if(needed&&!cell_repairs.count(cell.id))AddRepairs(cell,quality_only && size_repairs && row.quality_valid && !geometry_repairs);
     else if(!needed&&cell_repairs.count(cell.id))RemoveRepairs(cell.id);
   }
-  void ChangePhase(bool improvement,const Owned& working,const std::shared_ptr<const FrozenMetricIdentity>& identity) {
-    size_repairs=geometry_repairs=false;
+  void ChangePhase(bool improvement,const Owned& working,const std::shared_ptr<const FrozenMetricIdentity>& identity,
+                   bool keep_repair_mode=false) {
+    if(!keep_repair_mode)size_repairs=geometry_repairs=false;
     track_repairs=repair_event=improvement;prune_collapses=false;queue.clear();surface_queue.clear();geometry_queue.clear();construction_frontier.clear();
     for(auto& item:cells) {
       auto& row=item.second;const auto found=working.find(item.first);
@@ -907,6 +909,58 @@ class Selection {
     }
     Account(row,true);invalid+=!row.valid;construction_invalid+=!row.construction_valid;
     quality_invalid+=!row.quality_valid;unmeasured_shape+=!row.shape_measured;
+  }
+  static std::array<RepairFeature,14> RepairKeys(const CellState& row) {
+    std::array<RepairFeature,14> keys{};unsigned at=0;
+    for(Id vertex:row.vertices)keys[at++]={1,{vertex,0,0}};
+    for(const auto& edge:row.edges)keys[at++]={2,{edge[0],edge[1],0}};
+    for(unsigned opposite=0;opposite<4;++opposite) {
+      Face face{};unsigned k=0;for(unsigned i=0;i<4;++i)if(i!=opposite)face[k++]=row.vertices[i];
+      keys[at++]={3,Key(face)};
+    }
+    return keys;
+  }
+  void SaveRepairState(CachedRow& record)const {
+    const auto found=cell_repairs.find(record.id);if(found==cell_repairs.end())return;
+    const auto keys=RepairKeys(record.state);size_t saved=0;
+    for(unsigned i=0;i<keys.size();++i) {
+      if(std::find(found->second.begin(),found->second.end(),keys[i])==found->second.end())continue;
+      const auto& demand=repair_users.at(keys[i]);
+      if(!demand.users||demand.epoch>repair_epoch)throw std::logic_error("Invalid phase repair history.");
+      record.repair_active|=uint16_t(1u<<i);record.repair_epochs[i]=demand.epoch;
+      if(demand.blocked)record.repair_blocked|=uint16_t(1u<<i);
+      ++saved;
+    }
+    if(saved!=found->second.size())throw std::logic_error("Incomplete phase repair history.");
+  }
+  void RestoreRepairState(const std::vector<CachedRow>& records) {
+    if(!repair_zero.empty())throw std::logic_error("Phase repair history has unfinished users.");
+    repair_queue.clear();repair_severity_queue.clear();
+    for(auto& row:repair_users){row.second.users=0;row.second.epoch=repair_epoch;row.second.blocked=true;}
+    for(const auto& record:records) {
+      if((record.repair_active&~uint16_t(0x3fff)) || (record.repair_blocked&~record.repair_active))
+        throw std::logic_error("Invalid migrated repair masks.");
+      const auto keys=RepairKeys(record.state);const auto found=cell_repairs.find(record.id);
+      size_t restored=0;
+      for(unsigned i=0;i<keys.size();++i) {
+        const bool active=record.repair_active&(1u<<i);
+        const bool needed=found!=cell_repairs.end()&&std::find(found->second.begin(),found->second.end(),keys[i])!=found->second.end();
+        if(active!=needed)throw std::logic_error("Migration changed required repair support.");
+        if(!active)continue;
+        if(record.repair_epochs[i]>repair_epoch)throw std::logic_error("Migrated repair epoch is in the future.");
+        auto& demand=repair_users.at(keys[i]);
+        ++demand.users;
+        demand.epoch=std::min(demand.epoch,record.repair_epochs[i]);
+        demand.blocked=demand.blocked&&bool(record.repair_blocked&(1u<<i));++restored;
+      }
+      if(found!=cell_repairs.end()&&restored!=found->second.size())throw std::logic_error("Incomplete migrated repair support.");
+    }
+    // A merged feature stays unavailable only if every prior contributor rejected its unchanged support.
+    for(const auto& row:repair_users) {
+      const auto& demand=row.second;
+      if(!demand.users)throw std::logic_error("Missing migrated repair history.");
+      if(!demand.blocked){repair_queue.insert({demand.epoch,row.first});repair_severity_queue.insert({-repair_severity.at(row.first),row.first});}
+    }
   }
   void SwapState(Selection& other) noexcept {
     cells.swap(other.cells);edges.swap(other.edges);queue.swap(other.queue);surface_queue.swap(other.surface_queue);
@@ -2471,6 +2525,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
   };
   std::array<bool,2> ownership_evaluated{{false,false}};
+  uint64_t quality_ownership_round=0;
   auto phase_ownership=[&](bool quality) {
     auto within_time=[&]() {
       if(!options.maximum_seconds)return true;
@@ -2479,14 +2534,18 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     };
     if(!within_time())return false;
     const unsigned boundary=quality?1:0;
-    if(ownership_evaluated[boundary] || world.size==1 || options.phase_ownership==PhaseOwnership::Disabled)return true;
-    ownership_evaluated[boundary]=true;++stats.ownership_evaluations;
+    if(world.size==1 || options.phase_ownership==PhaseOwnership::Disabled)return true;
+    if(ownership_evaluated[boundary]&&(!quality||stats.rounds<quality_ownership_round||
+        stats.rounds-quality_ownership_round<options.stagnation_window))return true;
+    if(!quality){ownership_evaluated[boundary]=true;++stats.ownership_evaluations;}
     // The checkpoint's ownership is part of its rollback contract. Its enclosing speculative
     // coarsening cycle retains that ownership until it is explicitly retired.
-    if(world.maximum(checkpoint.valid || selection.cells.size()!=working.size()))return true;
+    if(world.maximum(checkpoint.valid || selection.cells.size()!=working.size() || (quality&&!selection.repair_zero.empty())))return true;
+    if(quality&&world.maximum(!selection.Progress(working.size()).complete))return true;
     const auto global_cells=CPassiveComm::Allreduce(uint64_t(working.size()),CPassiveComm::Op::SUM,world.comm);
     // Optional migration cannot populate one graph part per rank with fewer cells than ranks.
     if(global_cells<uint64_t(world.size))return true;
+    if(quality){ownership_evaluated[boundary]=true;quality_ownership_round=stats.rounds;++stats.ownership_evaluations;}
     const double transition_started=world.seconds();
     const auto scratch=transfer_memory::Add(MapBytes(working),transfer_memory::Mul(working.size(),
         sizeof(uint32_t)*(quality?3:2)+sizeof(double)*(quality?3:2)+sizeof(Selection::CachedRow)*3+sizeof(Id)),
@@ -2603,6 +2662,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       for(const auto& row:working) {
         Selection::CachedRow record;record.id=row.first;record.state=selection.cells.at(row.first);
         for(unsigned i=0;i<6;++i)record.lengths[i]=selection.edges.at(record.state.edges[i]).measure.length;
+        if(quality)selection.SaveRepairState(record);
         outgoing.at(partition.destinations.at(slot++)).push_back(std::move(record));
       }
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -2623,12 +2683,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       for(const auto& row:pending)pending_initial.push_back(row.first);
       for(const auto& record:records)pending_selection.Restore(pending.at(record.id),record,field_identity);
       if(records.size()!=pending.size())throw std::logic_error("Incomplete migrated phase census.");
-      pending_selection.ChangePhase(quality,pending,field_identity);
+      pending_selection.ChangePhase(quality,pending,field_identity,quality);
+      if(quality)pending_selection.RestoreRepairState(records);
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     if(!vote(failure))return false;
     if(!within_time() || !observe_progress("ownership_staged"))return false;
-    // Every transaction scope ended before this call. Retire old phase claims and rejection
-    // queues together; new phase frontiers are rebuilt exactly once on the migrated ownership.
+    // No private transaction survives this swap; required features retain their inherited service history.
     retire_directory(directory->Statistics());working.swap(pending);directory.swap(pending_directory);selection.SwapState(pending_selection);
     reset_fixed_metric_cells();
     inactive_blocked_edges.clear();inactive_blocked_links=0;length_blocks_dirty={{false,false}};
@@ -2646,7 +2706,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         <<" quality_debt_weight_before="<<partition.quality_debt_before.at(world.rank)<<" quality_debt_weight_after="<<partition.quality_debt_after.at(world.rank)
         <<" directory_peak_bytes="<<directory->Statistics().maximum_work_bytes
         <<" cells="<<working.size()<<" transition_peak_bytes="<<stats.maximum_work_bytes<<'\n';
-    return true;
+    return !quality||observe_progress("ownership_committed");
   };
   auto enter_phase=[&](Phase next) {
     if(bidirectional) {
@@ -3008,6 +3068,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if (!mesh_progress) ++stats.stagnant_windows;
         if (!mesh_progress && search_progress) ++stats.search_windows;
         if(!observe_progress("window"))return finish();
+        if(phase==Phase::Improvement&&complete&&!phase_ownership(true))return finish();
         // Fresh rejected directions are finite search work even on invalid meshes; do not declare infeasibility early.
         if (!mesh_progress && !search_progress) {
           if(!bidirectional && phase==Phase::Construction && !world.maximum(selection.cells.size()!=working.size())) {
