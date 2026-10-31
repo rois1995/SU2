@@ -14,7 +14,7 @@ All staged57 paths below are under
 AFTER = `staged57/m6_runs/euler_build183_real_cfd50k_after`.
 BEFORE = `staged57/m6_runs/euler_build179_real_cfd50k_before`.
 
-## Authoritative state —183terminal, connected feature fix in progress
+## Authoritative state —188full M6 LIVE, feature-publication fix qualified
 
 Full TWO-event M6 AFTER TERMINAL, exec94456exit1. First event naturally failed
 `Replacement changes genuine feature coverage.` on all6,refine max2763.908s,
@@ -22,7 +22,7 @@ native total2971.892s, before5400s. Accepted original CFD retained. Raw6summarie
 details/rejection saved before verified launcher3733372SIGTERM during event2setup.
 ALL10exact owned handles independently ABSENT/all1401pins unchanged BEFORE edits:
 AFTER/terminal_handles.json,event1_natural_failure.json,event1_failure_owned_stop.json.
-No heavy job now. Source freeze is lifted for this demonstrated fix.
+183 is historical terminal evidence. Current188 is LIVE below; all its pins are frozen.
 
 ONE connected correction is written/reviewed, not yet built/validated:
 BoundaryParameterState::CheckReplacement reuses Prepare locally against the
@@ -30,8 +30,8 @@ replicated accepted base and complete candidate old/fresh boundary delta. Engine
 quality guards and final private backstop reject bad candidates before publication,
 keeping valid peers. No per-slot MPI; final combined atomic check remains. Exact
 unchanged face contracts skip unchanged delta work. Constructor paths/gates and
-5400s budget unchanged. Primary owns Engine; ownership_survey owns BoundaryParameters
-header/source and focused curved feature tests, no jobs. Source checkpoint b64674701a pushed. Build184 PASS522.810s, build185 PASS45.176s; exact handles absent and1296pins unchanged before edits. Focused184/185 terminal failures preserved/allhandles absent: retained-ID assertion corrected to required refusal; nonlinear legacy MoveVertex refuses before new preflight with Reference PSLG constraints cross. Entity branch passes all checks. Original legacy fixture restored with old parameter export and local preflight; nonlinear entity peer-publication case retained. Build186 PASS45.173s, exact handles absent/allpins unchanged. Build187 PASS45.179s/all1296pins unchanged/both handles absent. Serial187 PASS21cases/6148assertions/9.699s/allpins unchanged/all5handles absent. Affected187 MPI6 TERMINAL19.634s/allpins unchanged/all10handles absent. All163cases passed5ranks; rank3 had only newtest local-directory-change assertion (empty unaffected rank legitimately unchanged). Production/publication passed; all other assertions passed. Corrected to world.maximum(local_snapshot_changed)==1. Build188 PASS54.151s/all1296pins unchanged/both exact handles absent. Focused188serial PASS2cases/71assertions/6.195s and MPI6PASS2cases/all6/5.954s, allpins unchanged/all sampled handles absent. Qualified via187affected campaign plus188assertion-only continuation:staged57/feature_publication188_qualification.json. Production unchanged since184; only testpin changed187→188. No heavy job now. IMMEDIATELY launch full two-event M6 build188 from saved real CFD, unchanged50k/5400s/event.
+5400s budget unchanged. Primary owns Engine; ownership_survey completed BoundaryParameters
+header/source and focused curved feature tests, no jobs. Source checkpoint b64674701a pushed. Build184 PASS522.810s, build185 PASS45.176s; exact handles absent and1296pins unchanged before edits. Focused184/185 terminal failures preserved/allhandles absent: retained-ID assertion corrected to required refusal; nonlinear legacy MoveVertex refuses before new preflight with Reference PSLG constraints cross. Entity branch passes all checks. Original legacy fixture restored with old parameter export and local preflight; nonlinear entity peer-publication case retained. Build186 PASS45.173s, exact handles absent/allpins unchanged. Build187 PASS45.179s/all1296pins unchanged/both handles absent. Serial187 PASS21cases/6148assertions/9.699s/allpins unchanged/all5handles absent. Affected187 MPI6 TERMINAL19.634s/allpins unchanged/all10handles absent. All163cases passed5ranks; rank3 had only newtest local-directory-change assertion (empty unaffected rank legitimately unchanged). Production/publication passed; all other assertions passed. Corrected to world.maximum(local_snapshot_changed)==1. Build188 PASS54.151s/all1296pins unchanged/both exact handles absent. Focused188serial PASS2cases/71assertions/6.195s and MPI6PASS2cases/all6/5.954s, allpins unchanged/all sampled handles absent. Qualified via187affected campaign plus188assertion-only continuation:staged57/feature_publication188_qualification.json. Production unchanged since184; only testpin changed187→188. Full TWO-event build188 M6 RUNNING exec16914, attempt staged57/m6_runs/euler_build188_real_cfd50k_feature_safe. Helper4103308/start87384875; time4103462/timeout4103463/launcher4103464 start87385499; ranks4103468–73/start87385504. All10identities match/all1401pins unchanged/all82loaded runtime files pinned+matching. Initial continued original-grid CFD is BYTEIDENTICAL179/183 (6bbed8da...), positive finite61330pointstate. Source freeze ACTIVE until verified terminal/authorized evidence stop. One owned heavy job, nice19/libs1/MPI6, unchanged50k/5400s/event. Qualified checkpoint34f458f5ed pushed. No mesh accepted yet.
 Validation plan:staged57/feature_publication188_validation_plan.json. [Active design](Handbook/ADAPTATION_FEATURE_PUBLICATION_20261031.md).
 
 Preserved handles (allABSENT):Python3733069/start86521654;time3733370,timeout3733371,
@@ -134,9 +134,9 @@ receipts preserve raw six-rank evidence. Old startup175/179 are different fields
 
 ## Continue the full workflow
 
-1. Finish/review the connected feature-publication source, build184once coherent,
-   focused serial then affected MPI6 milestone, immediately full TWO-event M6retry
-   from SAMEsavedCFD. No new baseline/profiling campaign or gate relaxation.
+1. Observe the LIVE full TWO-event build188 M6retry from SAMEsavedCFD, keep all
+   pinned sources/helpers/binaries/config/inputs unchanged. Its actual outcome
+   drives the next connected fix. No new baseline/profiling campaign or gate relaxation.
 2. Preserve complete all-rank phases/windows and compare matching quality-time
    regions with actual timestamps, counts/rates, geometry work, debt spread and
    inclusive call-wall. Cadence differs; never fabricate interpolated field counts.
