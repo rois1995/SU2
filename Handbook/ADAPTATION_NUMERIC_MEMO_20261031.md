@@ -90,3 +90,12 @@ body/association/height/final geometry gate, no configuration options. Choose an
 further implementation from measured traversal savings and net bad-cell removal/s;
 record unproven alternatives in the backlog. Keep one active cycle and the full
 strict two-event/transfer/CFD/restart then BL/MPI/RANS goal.
+
+
+191terminal outcome:0accepted,time budget,16191q/12965J/3509geometry remain.
+Full counters and source-contract analysis are preserved in the current handoff.
+Uniform displacement/slack reuse certifies0of12saved representative queries; do not
+implement it on this evidence. The next connected design tightens the ALREADY
+existing projected envelope: [analysis and proof](ADAPTATION_GEOMETRY_ENVELOPE_20261031.md).
+No new C++ edit/build yet; no speedup established. Preserve191memo/190ownership and
+all full M6/transfer/restart then BL/MPI/RANS obligations.

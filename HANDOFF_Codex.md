@@ -9,23 +9,49 @@ maxedge1.8,requested heights stay strict. Construction preserves exact positive/
 nondegenerate/topology/body/feature/height validity and deliberately omits q/J.
 CAD optional; no-CAD geometry authority sufficient. No accepted adapted M6 mesh yet.
 
-## Authoritative live state —191 FULL TWO-EVENT M6; sources FROZEN
+## Authoritative state —191 TERMINAL; no heavy job; source freeze lifted
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-LIVE=`R/m6_runs/euler_build191_real_cfd50k_numeric_memo`.
+CURRENT=`R/m6_runs/euler_build191_real_cfd50k_numeric_memo` (TERMINAL).
 BASELINE=`R/m6_runs/euler_build188_real_cfd50k_feature_safe`.
 PREVIOUS=`R/m6_runs/euler_build190_real_cfd50k_census_ownership`.
-One owned heavy job:exec36816. Helper401117/start89158697,time401313/start89159335,
-timeout401314 and launcher401315/start89159336; ranks401320..401324/start89159345,
-rank401325/start89159346. LIVE/owned_startup.json records exact host identities.
-All10handles matched1793477253; source/runtime/input all1401pins unchanged at
-1793476745; all82mappedELFfiles pinned at startup. MPI non-ELF shared-memory files
-are transient state, separately recorded. Initial all-mapping false-positive audit
-is preserved locally, corrected by executable/library classification; no pin failure.
-Build/header/test/helper/binary/config/input remain FROZEN until verified terminal.
-Let run finish unless preserved failure/bottleneck/resource evidence justifies the
-authorized exact-owned stop/fix/retry workflow. Forecasts or stale logs do not justify
-stopping. Current process/session identities, not historical IDs/status, control.
+First event NATURALLY rejected on ALL6ranks:time_budget,root`Native3D private repair
+round exhausts elapsed-time budget.` Native totalmax5403.563701s; complete EXIT:
+787840cells,16191q/12965J/3509geometry,size0,qJdebt713.871163452273. Every shape/
+geometry/census/cache flag complete,allcells measured. Quality elapsed4277.122739s
+(entry1059.456116924,EXIT5336.578855643). Queue192741,blocked326,stuck9,missing0.
+No accepted adapted mesh/actual transfer/adapted CFD/restart. Original CFD retained.
+
+Raw6summaries/refine details/completeEXIT/root rejection saved BEFORE any signal:
+CURRENT/event1_natural_failure.json. Exact verified owned launcher401315 SIGTERM
+under standing preserved-failure stop/fix/retry authorization; all1401pins unchanged
+and all10identities matched BEFORE signal:event1_failure_owned_stop.json. Exec36816
+TERMINALexit1/statussolver_exit1 after stopping remaining attempt. Independent
+1793482215audit ALL10handles ABSENT/all1401pins unchanged BEFORE ANY next C++edit:
+CURRENT/terminal_handles.json. All401117/401313/401314/401315/401320..401325handles
+are now HISTORICAL; never resignal/restart from old status. Source freeze LIFTED for
+the authorized outcome-driven analysis/fix cycle. No next source edit/build yet.
+
+Terminal counters and existing geometry facilities reviewed: next target SPEED of
+useful closure. Quality retired net37880q/40412J/550geometry at8.8564netq/s;
+28245publications,1.3411netq/publication. Geometry traversal6.1464Bwork/4941.4summed
+rank seconds; exact union memo303285hits/293078misses. Misses do not distinguish
+nearby trials from evicted identical queries. Interior holds13743of16191q-bad;
+private boundary218104upper queries/3804.8ranksec vs interior0/137.4ranksec.
+Private and publication gains differ; nested times must not be added. Ten late
+complete-census migrations conserved counts/debt/flags. ALL7counter groups reviewed
+in CURRENT/terminal_assessment.json; terminal_geometry_service_assessment.json and
+terminal_three_build_comparison.json retain scope and contention caveats.
+
+Analysis-first result: uniform movement/slack proof certifies ZERO of12saved queries
+(CURRENT/saved_query_motion_bound_analysis.json). Do not implement a motion cache
+on this evidence. Existing exact unchanged-face reuse, old star context, screening
+and hole-aware projected envelopes already exist. The connected candidate tightens
+that existing envelope with whole-triangle coverage and outward coupled half-plane
+bounds: [design/proof](Handbook/ADAPTATION_GEOMETRY_ENVELOPE_20261031.md).
+Primary and bounded read-only review found no proof blocker. It is NOT implemented
+or an established speedup. Require measured saved-query work benefit, focused serial/
+ONE MPI6 and immediate full two-event M6 from SAME seed/50k/5400, unchanged gates.
 
 Build191 PASS754.100808s,all1296pins unchanged/all2handles absent before validation.
 Serial PASS67cases/20499assertions,including hot/cold memo churn and12savedM6queries.
@@ -67,36 +93,23 @@ counter/entry/byte deltas0,drift samples unchanged. No cache clearing or recerti
 LIVE/quality_window2_comparison.json,quality_service_assessment.json,
 quality_migration_assessment.json,all_quality_census_assessment.json preserve detail.
 Migration occurs AFTER window2 and belongs in next window's complete interval cost.
-Last audited window10 at2867.224145quality seconds:769683cells,28093q/25325J/
-3673geometry,size0;17242publications,25978netq/28052netJ/386geometryremoved since entry.
-Latest interval244.252381s INCLUDES sixth migration:2631netq/2789netJ/29geometry,
-2001commits,q10.7716/s,J11.4185/s,join-callshare.41529(protocol+wait,not pure idle).
-Cumulativeq9.06033/s. Queue271937,blocked141,stuck0/missing0/privatecollectives0.
-Current debtspread1.74372. No same-round190baseline exists beyond round22079;
-quality_window10_comparison.json explicitly marks this,not an exact comparison.
-quality_near_state_windows9_10.json retains nearest ACTUAL q-bad snapshots and J/
-geometry/cell/publication mismatches. Currentwindow9 round22080 vs190EXIT22079:
-q30724vs30754,J28114vs28157,geometry3702same,cells+118,traversal3.879292Bvs3.998620B.
-Currentwindow10 vs188round22272:q28093vs27757,J25325vs24995,geometry3673vs3648;
-traversal4.235461Bvs4.139970B. These are near-state pairs,not identical meshes/work.
-Last exact190comparison window7:34716q/32297J/3728geometry,11889publications same,
-traversal-3.00703%. Historical window2/3/4/5/7 snapshots retained; timings contended.
-Prior window4 vs3 actual traversal+63% despite publications-3.9%; traversal/publication
-+69.7%,netq/publication-29.3%. Contention alone cannot explain those work/yield changes;
-quality_window4_work_diagnosis.json retains detail. No next code selected before terminal.
-Six late redistributions committed21632/21696/21824/21888/21952/22080; globalcounts/
-debt preserved within1.82e-12,ALLpreparedcache and numericmemo counters/entries/bytes
-unchanged,drift samples unchanged. Latest cost16.284840s incl observations,spread
-1.84299→1.32963,already included in window10. ALL25complete censuses audited;
-150rankcache snapshots within fixed numeric/prepared allowances. At1793480289ALL1401
-pins unchanged/10exacthandles live/82mappedELFfiles pinned:midrun_quality7_provenance.json.
-No source edits,source freeze remains active. Initial/earlier provenance retained.
-Current outcome pending; no actual transfer/adapted restart. Source remains FROZEN.
+Historical partial windows and work comparisons are preserved in CURRENT JSON,
+including quality_window7_comparison.json (last exact190same-round match,traversal
+-3.00703%),quality_window10_comparison.json and quality_near_state_windows9_10.json
+(explicit near-state count mismatches beyond190terminal). Do not substitute those
+partial counts/times for current complete EXIT. Full39census ledger now audited:
+all_quality_census_assessment.json,including ownership stages and finalEXIT. Raw
+coordinate-key churn retires/reintroduces moved cells despite unchanged connectivity.
+Prior window4 vs3 traversal/publication+69.7%,netq/publication-29.3% demonstrated
+real work/yield changes that contention alone cannot explain; detailed proof in
+quality_window4_work_diagnosis.json. No next implementation selected from partials.
+Latest preterminal source/runtime/input audit1793480289alsoverifiedall1401pins/
+10exacthandles/82mappedELFfiles;terminal audit above supersedes live-state notes.
 Monitor complete aligned censuses, net whole-field q/J/geometry removal and distinct
 geometry/preparation/maintenance/trial work counters. Timers overlap; do not add
 nested scopes or call collective-call time pure idle. CPUtime includes MPIspin.
 
-## One active implementation/validation cycle
+## One active optimization/validation cycle — existing-envelope analysis
 
 [Numeric certificate retention](Handbook/ADAPTATION_NUMERIC_MEMO_20261031.md) follows
 190terminal time-budget failure. Existing exact FaceMemo now uses bounded cost-aware

@@ -253,3 +253,12 @@ Use191exact memo hit/miss/traversal counters plus existing representative diagno
 and net q/J/geometry progress; misses alone cannot label nearby positions. No speedup
 established. Full instructions are in ADAPTATION_NUMERIC_MEMO_20261031.md. Source is
 frozen through the current validation/full M6 attempt; one active cycle/no new options.
+
+
+191terminal analysis: simple prior-upper+uniform-vertex-displacement bound is sound
+but certifies0of12existing expensive M6 queries (same support pairs move1.51e-4..
+3.02e-4 while slack1.98e-6..5.14e-5). No reordered identical geometry in that payload.
+Do not implement a motion index/cache absent new evidence. Existing PlaneUnion
+already has hole-aware projected envelopes and simplex-box residual bounds; the
+active next design is their connected tightening,not a duplicate envelope/cache.
+Detailed proof and acceptance remain in ADAPTATION_GEOMETRY_ENVELOPE_20261031.md.

@@ -1,0 +1,110 @@
+{
+  "scope": "Complete first-event terminal comparison, same saved real CFD and strict gates. Different ownership/cache trajectories and host contention; no isolated speedup or mesh acceptance claim.",
+  "builds": {
+    "euler_build188_real_cfd50k_feature_safe": {
+      "quality_seconds": 4452.518087234,
+      "entry": {
+        "cells": 727722,
+        "q_bad": 54071,
+        "j_bad": 53377,
+        "geometry_bad": 4059,
+        "size_bad": 0,
+        "qj_debt": 25236.787402739737
+      },
+      "exit": {
+        "cells": 786068,
+        "q_bad": 17190,
+        "j_bad": 14369,
+        "geometry_bad": 3526,
+        "size_bad": 0,
+        "qj_debt": 1344.6617040560986
+      },
+      "publications": 28742,
+      "net_q_removed": 36881,
+      "net_j_removed": 39008,
+      "net_q_per_second": 8.283178030369614,
+      "net_j_per_second": 8.760885241958132,
+      "net_q_per_publication": 1.283174448542203,
+      "traversal_work_per_net_q_removed": 165036.34074455683,
+      "work": {
+        "upper_calls": 612673,
+        "upper_work": 6226807177,
+        "traversal_work": 6086705283,
+        "scope_build_work": 6923165,
+        "facet_build_work": 723401,
+        "piece_selection_work": 73670411,
+        "support_facets": 117739240
+      }
+    },
+    "euler_build190_real_cfd50k_census_ownership": {
+      "quality_seconds": 4097.68918358,
+      "entry": {
+        "cells": 727722,
+        "q_bad": 54071,
+        "j_bad": 53377,
+        "geometry_bad": 4059,
+        "size_bad": 0,
+        "qj_debt": 25236.787402739737
+      },
+      "exit": {
+        "cells": 765728,
+        "q_bad": 30754,
+        "j_bad": 28157,
+        "geometry_bad": 3702,
+        "size_bad": 0,
+        "qj_debt": 4418.429452007085
+      },
+      "publications": 15194,
+      "net_q_removed": 23317,
+      "net_j_removed": 25220,
+      "net_q_per_second": 5.690280291007528,
+      "net_j_per_second": 6.15468837926019,
+      "net_q_per_publication": 1.5346189285244176,
+      "traversal_work_per_net_q_removed": 171489.46446798474,
+      "work": {
+        "upper_calls": 314781,
+        "upper_work": 4058942733,
+        "traversal_work": 3998619843,
+        "scope_build_work": 4668854,
+        "facet_build_work": 1438926,
+        "piece_selection_work": 31391993,
+        "support_facets": 49859879
+      }
+    },
+    "euler_build191_real_cfd50k_numeric_memo": {
+      "quality_seconds": 4277.122738718999,
+      "entry": {
+        "cells": 727722,
+        "q_bad": 54071,
+        "j_bad": 53377,
+        "geometry_bad": 4059,
+        "size_bad": 0,
+        "qj_debt": 25236.787402739737
+      },
+      "exit": {
+        "cells": 787840,
+        "q_bad": 16191,
+        "j_bad": 12965,
+        "geometry_bad": 3509,
+        "size_bad": 0,
+        "qj_debt": 713.871163452273
+      },
+      "publications": 28245,
+      "net_q_removed": 37880,
+      "net_j_removed": 40412,
+      "net_q_per_second": 8.856421083521461,
+      "net_j_per_second": 9.448407835989158,
+      "net_q_per_publication": 1.341122322534962,
+      "traversal_work_per_net_q_removed": 162259.78038542767,
+      "work": {
+        "upper_calls": 596363,
+        "upper_work": 6271788281,
+        "traversal_work": 6146400481,
+        "scope_build_work": 7873644,
+        "facet_build_work": 1927325,
+        "piece_selection_work": 65194812,
+        "support_facets": 108615724
+      }
+    }
+  }
+}

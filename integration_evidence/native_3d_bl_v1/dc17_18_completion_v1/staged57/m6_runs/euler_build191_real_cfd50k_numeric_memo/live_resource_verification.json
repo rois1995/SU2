@@ -1,0 +1,113 @@
+{
+  "time": 1793480583.418945,
+  "handles": [
+    {
+      "pid": 401117,
+      "state": "S",
+      "identity_matches": true
+    },
+    {
+      "pid": 401313,
+      "state": "S",
+      "identity_matches": true
+    },
+    {
+      "pid": 401314,
+      "state": "S",
+      "identity_matches": true
+    },
+    {
+      "pid": 401315,
+      "state": "S",
+      "identity_matches": true
+    },
+    {
+      "pid": 401325,
+      "state": "R",
+      "identity_matches": true
+    },
+    {
+      "pid": 401324,
+      "state": "R",
+      "identity_matches": true
+    },
+    {
+      "pid": 401323,
+      "state": "R",
+      "identity_matches": true
+    },
+    {
+      "pid": 401322,
+      "state": "R",
+      "identity_matches": true
+    },
+    {
+      "pid": 401321,
+      "state": "R",
+      "identity_matches": true
+    },
+    {
+      "pid": 401320,
+      "state": "R",
+      "identity_matches": true
+    }
+  ],
+  "resource_sample": {
+    "elapsed_seconds": 4006.2925941944122,
+    "processes": [
+      {
+        "pid": 401313,
+        "rss_bytes": 679936,
+        "name": "time"
+      },
+      {
+        "pid": 401314,
+        "rss_bytes": 659456,
+        "name": "timeout"
+      },
+      {
+        "pid": 401315,
+        "rss_bytes": 22142976,
+        "name": "mpirun"
+      },
+      {
+        "pid": 401325,
+        "rss_bytes": 1554886656,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 401324,
+        "rss_bytes": 1570996224,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 401323,
+        "rss_bytes": 1541361664,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 401322,
+        "rss_bytes": 1617350656,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 401321,
+        "rss_bytes": 1588207616,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 401320,
+        "rss_bytes": 1580695552,
+        "name": "SU2_CFD"
+      }
+    ],
+    "sampled_process_tree_rss_bytes": 9476980736
+  },
+  "load": [
+    7.47,
+    8.19,
+    8.36
+  ],
+  "cpu_pressure": "some avg10=5.90 avg60=6.63 avg300=8.69 total=41964896925\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+  "memory_pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=768147416\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=474716937\n"
+}
