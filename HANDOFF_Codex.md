@@ -21,7 +21,11 @@ handles independently verified absent on host /proc; all1396 pins unchanged.
 Driver2685167,time2685263,timeout2685264,mpirun2685265,ranks2685269–2685274.
 Exact10identities/startticks in startup_verification.json;1396pins independently
 verified and all81actually mapped libraries covered. Config/geometry authority
-byte-identical175. C++/binary/helpers/config/inputs FROZEN until terminal or
+byte-identical175. Initial restart SHAee7ae469... is byte-identical175,61330points;
+all6initial partition counts/metric/geometry workload fields identical175.
+See initial_field_partition_assessment.json; this is NOT adapted transfer/restart.
+Latest observed coarsening in progress; no native rejection, treeRSS~4.7GiB.
+C++/binary/helpers/config/inputs FROZEN until terminal or
 preserved authorized stop. One heavy job,nice19,libs1,MPI6,native5400s/event,
 outer14400s,two actual accepted events required.
 CFD SHAe8f81c5a941f6d03fea81c6437e9f4f6d4305044e55e6de4d6a2113bd0116072.
