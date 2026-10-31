@@ -16,18 +16,24 @@ First native event naturally rejected for elapsed-time budget on all six ranks,
 complete=0/final=0, before the authorized launcher stop prevented an unchanged
 retry. No accepted mesh, actual transfer or adapted restart. All ten exact owned
 handles independently verified absent on host /proc; all1396 pins unchanged.
-Connected quality-service candidate1d5e24a7c9 is UNVALIDATED and FROZEN.
-Build176 TERMINAL compile failure preserved. Build177 TERMINAL successful
-474.968s/all1296pins unchanged/all81sampled handles absent. This is build evidence
-only: review found the batched oversized-refusal receipt gap, now corrected.
-The connected candidate remains UNVALIDATED. Build178 not started; no heavy job.
-Serial/MPI validation follows the final rebuild, then full M6 immediately.
-No acceptance gates changed. Exact terminal receipts under staged57.
+Production quality-service candidatec132020654 remains UNVALIDATED and FROZEN.
+Build178 PASS123.267s/all1296pins unchanged/all17sampled handles absent.
+Focused serial178TERMINAL:27/29cases,8011/8013assertions, all pins unchanged,
+all4observed handles absent. New batch/census checks pass; campaign NOT passing.
+Two first-layer test contracts corrected: zero construction shape screens; private
+rows retain exact mesh while metric bootstrap fills sensor attributes. Every
+populated tensor, remaining row bytes, height checks and input immutability checked.
+Only validation C++ changed since178. Build179 RUNNING exec34790,Ninja2664825,
+1296pins, one owned heavy job,nice19,j3,libs1,TMPDIR4TBcompile-tmp.
+Exact handles: `staged57/build179_owned_startup.json`. No C++/helper/binary edits
+until terminal verification. Then serial29cases, one connected MPI milestone,
+and immediate full M6 retry. Build176compile failure and177build success preserved.
+No acceptance gates changed.
 
 Terminal receipts: `terminal_assessment.json`, `terminal_handles.json`,
 `event1_time_budget_stop_receipt.json` under the175run directory.
 
-Qualified source checkpoint924f531ac3; bounded-guidance candidate3747bdd26f.
+Previous qualified baseline checkpoint924f531ac3; bounded-guidance candidate3747bdd26f.
 Build175PASS588.881s/1296pins/all sampled build handles absent; serial51cases/
 3885assertions PASS46.257s/1388pins/all4handles absent; MPI6 204cases/rank PASS
 278.518s/1387pins/all9handles absent. Supporting qualification, not capability.

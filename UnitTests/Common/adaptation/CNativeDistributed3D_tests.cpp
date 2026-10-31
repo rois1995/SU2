@@ -2588,7 +2588,7 @@ TEST_CASE("Native first-row owner retains coupled-wall reconstruction with empty
   auto result=Refine(world,input,Uniform(input,{1,0,0,1,0,1}),reference,{},options);
   INFO(result.reason);CHECK(Bytes(input)==saved);CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::WorkBudget);
   CHECK(world.sum(int(result.stats.layer_published))==1);CHECK(world.maximum(result.stats.layer_donor_batches>0));
-  CHECK(world.maximum(result.stats.layer_shape_screens>0));
+  CHECK(result.stats.layer_shape_screens==0);  // Construction defers q/J to improvement.
   for(const auto& row:result.cells) {FirstHeightReport report;std::string reason;
     CHECK(CheckFirstHeight(PatchOf({row.second}),options.wall_heights,reference,report,reason));
   }
@@ -2645,7 +2645,19 @@ TEST_CASE("Native3D engine elects inconsistent wall-height policies before chang
   const auto impossible=Refine(world,input,Uniform(input,{}),reference,{},options);
   INFO(impossible.reason);
   CHECK_FALSE(impossible.valid);CHECK(impossible.reason.find("geometry-height incompatibility")!=std::string::npos);
-  CHECK(world.sum(int(impossible.stats.layer_published))==0);CHECK(Bytes(impossible.cells)==saved);CHECK(Bytes(input)==saved);
+  CHECK(world.sum(int(impossible.stats.layer_published))==0);CHECK(Bytes(input)==saved);
+  auto unchanged=impossible.cells;
+  for(auto& row:unchanged) {
+    REQUIRE(input.count(row.first));const auto& prior=input.at(row.first);
+    CHECK(row.second.sensor_present);
+    for(const auto& sensor:row.second.sensor) {
+      CHECK(sensor.xx==1);CHECK(sensor.yy==1);CHECK(sensor.zz==1);
+      CHECK(sensor.xy==0);CHECK(sensor.xz==0);CHECK(sensor.yz==0);
+    }
+    // Bootstrap fills private sensor attributes before the height refusal; the mesh stays exact.
+    row.second.sensor_present=prior.sensor_present;row.second.sensor=prior.sensor;
+  }
+  CHECK(Bytes(unchanged)==saved);
   for(auto& h:options.wall_heights)h.second=.1;
   options.maximum_work=1;
   const auto bounded=Refine(world,input,Uniform(input,{1,0,0,1,0,100}),reference,{},options);

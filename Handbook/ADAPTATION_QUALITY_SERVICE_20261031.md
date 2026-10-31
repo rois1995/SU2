@@ -71,3 +71,17 @@ stages. Completion still requires TWO accepted meshes, actual conservative
 admissible transfer, finite continued CFD and actual isolated adapted disk restart;
 then dedicated BL/MPI qualification and RANS500k. Passing fixtures or faster
 private progress is not completion. Unrelated policies remain in the backlog.
+
+## Qualification in progress
+
+Build178 passes after preserved176compile failure and177terminal source review.
+Focused serial178:27of29cases/8011of8013assertions pass; campaign is NOT passing.
+New repair-batch severity/fair service and independent recomputed census checks
+pass. Two first-layer assertions conflict with existing source contracts:
+`layer_shape_screens` has no increment in validity-first construction (the existing
+batch fixture also requires zero), and `CavityMetricSource::Build` fills private
+sensor attributes before an impossible-height refusal. No new repair batch runs
+on either failing construction path. Corrected tests require zero screens and
+check every bootstrapped identity tensor plus exact remaining serialized row
+attributes, input immutability, no published layer and geometry-height refusal.
+No production gate changed. Rebuild179 then rerun serial and connected MPI.

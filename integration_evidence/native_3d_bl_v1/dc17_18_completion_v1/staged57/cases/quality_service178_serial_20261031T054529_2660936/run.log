@@ -1,0 +1,888 @@
+Filters: [NativeRepairBatch3D],[NativeRepairFairness3D],[NativeCoordinateStar3D],[NativeQualityPass3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeConcurrentRepair3D],[NativeStageProgress3D],[NativeHeightOptimization3D],[NativeShapeAdmission3D],[NativePhaseOwnership3D],[NativeFirstLayerEngine3D]
+BATCH_LOOKUP rank=0 ranks=1 features=5 serial_wrapped_calls=30 batch_wrapped_calls=6 serial_payload_bytes=720 batch_payload_bytes=720
+NATIVE3D_STORAGE rank=0 stage=construction_entry authority_plus_memo_bytes=0 prepared_reserved_bytes=0 facet_live_bytes=0 scope_live_bytes=0 private_cells_bytes=43008 selection_bytes=118976 directory_bytes=85248 metric_source_bytes=114280 parameter_bytes=0 caller_reservation_bytes=0 native_peak_bytes=14453416
+NATIVE3D_STAGE rank=0 stage=construction_entry phase=construction cells=96 measured=96 cache_consistent=1 census_complete=1 shape_complete=0 geometry_complete=1 q_measured=0 j_measured=0 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=0 geometry_debt=0 associations=0 working_faces=0 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=0 rounds=0 batch_rounds=0 batch_candidates=0 batch_reserved=0 quality_progress=0 accepted=0 updated_cells=0 update_seconds=0 geometry_trials=0 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=34 collective_seconds=4.2642000000002456e-05 election_calls=137 election_seconds=8.3270000000093547e-06 direct_calls=0 direct_exceptions=0 direct_work=0 direct_seconds=0 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=0 prepared_limit=0 facet_bytes=0 scope_bytes=0 facet_entries=0 scope_entries=0 cache_evictions=0 cache_evicted_bytes=0 length_splits=0 length_collapses=0 split_passes=0 collapse_passes=0 quality_stages=0 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0 child_ratio_measured=0 elapsed=0.002884321
+NATIVE3D_STORAGE rank=0 stage=quality_entry authority_plus_memo_bytes=0 prepared_reserved_bytes=0 facet_live_bytes=0 scope_live_bytes=0 private_cells_bytes=43008 selection_bytes=94912 directory_bytes=85248 metric_source_bytes=114280 parameter_bytes=0 caller_reservation_bytes=0 native_peak_bytes=15349080
+NATIVE3D_STAGE rank=0 stage=quality_entry phase=improvement cells=96 measured=96 cache_consistent=1 census_complete=1 shape_complete=1 geometry_complete=1 q_measured=96 j_measured=96 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=0 geometry_debt=0 associations=0 working_faces=0 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=0 rounds=0 batch_rounds=0 batch_candidates=0 batch_reserved=0 quality_progress=0 accepted=0 updated_cells=96 update_seconds=0 geometry_trials=0 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=35 collective_seconds=4.2816000000001075e-05 election_calls=190 election_seconds=1.2106000000011718e-05 direct_calls=0 direct_exceptions=0 direct_work=0 direct_seconds=0 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=0 prepared_limit=0 facet_bytes=0 scope_bytes=0 facet_entries=0 scope_entries=0 cache_evictions=0 cache_evicted_bytes=0 length_splits=0 length_collapses=0 split_passes=0 collapse_passes=0 quality_stages=1 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0 child_ratio_measured=0 elapsed=0.0056556519999999997
+NATIVE3D_STORAGE rank=0 stage=construction_entry authority_plus_memo_bytes=0 prepared_reserved_bytes=0 facet_live_bytes=0 scope_live_bytes=0 private_cells_bytes=43008 selection_bytes=123072 directory_bytes=85248 metric_source_bytes=114280 parameter_bytes=0 caller_reservation_bytes=0 native_peak_bytes=15349080
+NATIVE3D_STAGE rank=0 stage=construction_entry phase=construction cells=96 measured=96 cache_consistent=1 census_complete=1 shape_complete=1 geometry_complete=1 q_measured=96 j_measured=96 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=0 geometry_debt=0 associations=0 working_faces=0 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=0 rounds=0 batch_rounds=0 batch_candidates=0 batch_reserved=0 quality_progress=0 accepted=0 updated_cells=96 update_seconds=0 geometry_trials=0 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=43 collective_seconds=5.629400000000187e-05 election_calls=207 election_seconds=1.325800000001251e-05 direct_calls=0 direct_exceptions=0 direct_work=0 direct_seconds=0 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=0 prepared_limit=0 facet_bytes=0 scope_bytes=0 facet_entries=0 scope_entries=0 cache_evictions=0 cache_evicted_bytes=0 length_splits=0 length_collapses=0 split_passes=0 collapse_passes=0 quality_stages=1 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0 child_ratio_measured=0 elapsed=0.0060683669999999999
+NATIVE3D_STORAGE rank=0 stage=quality_entry authority_plus_memo_bytes=0 prepared_reserved_bytes=0 facet_live_bytes=0 scope_live_bytes=0 private_cells_bytes=21504 selection_bytes=57600 directory_bytes=45384 metric_source_bytes=114280 parameter_bytes=0 caller_reservation_bytes=0 native_peak_bytes=16679744
+NATIVE3D_STAGE rank=0 stage=quality_entry phase=improvement cells=48 measured=48 cache_consistent=1 census_complete=1 shape_complete=1 geometry_complete=1 q_measured=48 j_measured=48 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=0 geometry_debt=0 associations=0 working_faces=0 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=8 rounds=1 batch_rounds=1 batch_candidates=8 batch_reserved=8 quality_progress=0 accepted=8 updated_cells=192 update_seconds=0.00063320499999999997 geometry_trials=8 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=319 collective_seconds=0.00012559599999997784 election_calls=786 election_seconds=4.7319000000031752e-05 direct_calls=0 direct_exceptions=0 direct_work=0 direct_seconds=0 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=0 prepared_limit=0 facet_bytes=0 scope_bytes=0 facet_entries=0 scope_entries=0 cache_evictions=0 cache_evicted_bytes=0 length_splits=0 length_collapses=8 split_passes=0 collapse_passes=0 quality_stages=2 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0 child_ratio_measured=0 elapsed=0.020642506000000001
+NATIVE3D_STORAGE rank=0 stage=exit authority_plus_memo_bytes=0 prepared_reserved_bytes=0 facet_live_bytes=0 scope_live_bytes=0 private_cells_bytes=21504 selection_bytes=57600 directory_bytes=45384 metric_source_bytes=114280 parameter_bytes=0 caller_reservation_bytes=0 native_peak_bytes=16786752
+NATIVE3D_STAGE rank=0 stage=exit phase=improvement cells=48 measured=48 cache_consistent=1 census_complete=1 shape_complete=1 geometry_complete=1 q_measured=48 j_measured=48 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=0 geometry_debt=0 associations=0 working_faces=0 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=8 rounds=1 batch_rounds=1 batch_candidates=8 batch_reserved=8 quality_progress=0 accepted=8 updated_cells=192 update_seconds=0.00063320499999999997 geometry_trials=8 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=325 collective_seconds=0.00012606399999997436 election_calls=788 election_seconds=4.7495000000029319e-05 direct_calls=0 direct_exceptions=0 direct_work=0 direct_seconds=0 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=0 prepared_limit=0 facet_bytes=0 scope_bytes=0 facet_entries=0 scope_entries=0 cache_evictions=0 cache_evicted_bytes=0 length_splits=0 length_collapses=8 split_passes=0 collapse_passes=0 quality_stages=2 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0 child_ratio_measured=0 elapsed=0.020747969000000002
+MESH batched_coarsen_initial 20 37 0 0 0 0 8 0.5 0.5 0.5 1 1 0 0 2 1 1 0 0 0 1 0 0 0 0 0
+MESH batched_coarsen_initial 21 38 8 0.5 0.5 0.5 6 1 1 1 1 1 0 0 2 1 1 0 1 6 0 0 0 0 0 0
+MESH batched_coarsen_initial 22 39 0 0 0 0 8 0.5 0.5 0.5 2 1 1 0 3 0 1 0 0 0 1 2 0 0 0 0
+MESH batched_coarsen_initial 23 40 8 0.5 0.5 0.5 6 1 1 1 2 1 1 0 3 0 1 0 1 8 0 0 0 0 0 0
+MESH batched_coarsen_initial 24 41 0 0 0 0 8 0.5 0.5 0.5 3 0 1 0 7 0 1 1 0 0 1 3 0 0 0 0
+MESH batched_coarsen_initial 25 42 8 0.5 0.5 0.5 6 1 1 1 3 0 1 0 7 0 1 1 1 9 0 0 0 0 0 0
+MESH batched_coarsen_initial 26 43 0 0 0 0 8 0.5 0.5 0.5 7 0 1 1 4 0 0 1 0 0 1 5 0 0 0 0
+MESH batched_coarsen_initial 27 44 8 0.5 0.5 0.5 6 1 1 1 7 0 1 1 4 0 0 1 1 11 0 0 0 0 0 0
+MESH batched_coarsen_initial 28 45 0 0 0 0 8 0.5 0.5 0.5 4 0 0 1 5 1 0 1 0 0 1 4 0 0 0 0
+MESH batched_coarsen_initial 29 46 8 0.5 0.5 0.5 6 1 1 1 4 0 0 1 5 1 0 1 1 10 0 0 0 0 0 0
+MESH batched_coarsen_initial 30 47 0 0 0 0 8 0.5 0.5 0.5 5 1 0 1 1 1 0 0 0 0 1 1 0 0 0 0
+MESH batched_coarsen_initial 31 48 8 0.5 0.5 0.5 6 1 1 1 5 1 0 1 1 1 0 0 1 7 0 0 0 0 0 0
+MESH batched_coarsen_initial 120 137 16 2 0 0 24 2.5 0.5 0.5 17 3 0 0 18 3 1 0 0 0 1 12 0 0 0 0
+MESH batched_coarsen_initial 121 138 24 2.5 0.5 0.5 22 3 1 1 17 3 0 0 18 3 1 0 1 18 0 0 0 0 0 0
+MESH batched_coarsen_initial 122 139 16 2 0 0 24 2.5 0.5 0.5 18 3 1 0 19 2 1 0 0 0 1 14 0 0 0 0
+MESH batched_coarsen_initial 123 140 24 2.5 0.5 0.5 22 3 1 1 18 3 1 0 19 2 1 0 1 20 0 0 0 0 0 0
+MESH batched_coarsen_initial 124 141 16 2 0 0 24 2.5 0.5 0.5 19 2 1 0 23 2 1 1 0 0 1 15 0 0 0 0
+MESH batched_coarsen_initial 125 142 24 2.5 0.5 0.5 22 3 1 1 19 2 1 0 23 2 1 1 1 21 0 0 0 0 0 0
+MESH batched_coarsen_initial 126 143 16 2 0 0 24 2.5 0.5 0.5 23 2 1 1 20 2 0 1 0 0 1 17 0 0 0 0
+MESH batched_coarsen_initial 127 144 24 2.5 0.5 0.5 22 3 1 1 23 2 1 1 20 2 0 1 1 23 0 0 0 0 0 0
+MESH batched_coarsen_initial 128 145 16 2 0 0 24 2.5 0.5 0.5 20 2 0 1 21 3 0 1 0 0 1 16 0 0 0 0
+MESH batched_coarsen_initial 129 146 24 2.5 0.5 0.5 22 3 1 1 20 2 0 1 21 3 0 1 1 22 0 0 0 0 0 0
+MESH batched_coarsen_initial 130 147 16 2 0 0 24 2.5 0.5 0.5 21 3 0 1 17 3 0 0 0 0 1 13 0 0 0 0
+MESH batched_coarsen_initial 131 148 24 2.5 0.5 0.5 22 3 1 1 21 3 0 1 17 3 0 0 1 19 0 0 0 0 0 0
+MESH batched_coarsen_initial 220 237 32 4 0 0 40 4.5 0.5 0.5 33 5 0 0 34 5 1 0 0 0 1 24 0 0 0 0
+MESH batched_coarsen_initial 221 238 40 4.5 0.5 0.5 38 5 1 1 33 5 0 0 34 5 1 0 1 30 0 0 0 0 0 0
+MESH batched_coarsen_initial 222 239 32 4 0 0 40 4.5 0.5 0.5 34 5 1 0 35 4 1 0 0 0 1 26 0 0 0 0
+MESH batched_coarsen_initial 223 240 40 4.5 0.5 0.5 38 5 1 1 34 5 1 0 35 4 1 0 1 32 0 0 0 0 0 0
+MESH batched_coarsen_initial 224 241 32 4 0 0 40 4.5 0.5 0.5 35 4 1 0 39 4 1 1 0 0 1 27 0 0 0 0
+MESH batched_coarsen_initial 225 242 40 4.5 0.5 0.5 38 5 1 1 35 4 1 0 39 4 1 1 1 33 0 0 0 0 0 0
+MESH batched_coarsen_initial 226 243 32 4 0 0 40 4.5 0.5 0.5 39 4 1 1 36 4 0 1 0 0 1 29 0 0 0 0
+MESH batched_coarsen_initial 227 244 40 4.5 0.5 0.5 38 5 1 1 39 4 1 1 36 4 0 1 1 35 0 0 0 0 0 0
+MESH batched_coarsen_initial 228 245 32 4 0 0 40 4.5 0.5 0.5 36 4 0 1 37 5 0 1 0 0 1 28 0 0 0 0
+MESH batched_coarsen_initial 229 246 40 4.5 0.5 0.5 38 5 1 1 36 4 0 1 37 5 0 1 1 34 0 0 0 0 0 0
+MESH batched_coarsen_initial 230 247 32 4 0 0 40 4.5 0.5 0.5 37 5 0 1 33 5 0 0 0 0 1 25 0 0 0 0
+MESH batched_coarsen_initial 231 248 40 4.5 0.5 0.5 38 5 1 1 37 5 0 1 33 5 0 0 1 31 0 0 0 0 0 0
+MESH batched_coarsen_initial 320 337 48 6 0 0 56 6.5 0.5 0.5 49 7 0 0 50 7 1 0 0 0 1 36 0 0 0 0
+MESH batched_coarsen_initial 321 338 56 6.5 0.5 0.5 54 7 1 1 49 7 0 0 50 7 1 0 1 42 0 0 0 0 0 0
+MESH batched_coarsen_initial 322 339 48 6 0 0 56 6.5 0.5 0.5 50 7 1 0 51 6 1 0 0 0 1 38 0 0 0 0
+MESH batched_coarsen_initial 323 340 56 6.5 0.5 0.5 54 7 1 1 50 7 1 0 51 6 1 0 1 44 0 0 0 0 0 0
+MESH batched_coarsen_initial 324 341 48 6 0 0 56 6.5 0.5 0.5 51 6 1 0 55 6 1 1 0 0 1 39 0 0 0 0
+MESH batched_coarsen_initial 325 342 56 6.5 0.5 0.5 54 7 1 1 51 6 1 0 55 6 1 1 1 45 0 0 0 0 0 0
+MESH batched_coarsen_initial 326 343 48 6 0 0 56 6.5 0.5 0.5 55 6 1 1 52 6 0 1 0 0 1 41 0 0 0 0
+MESH batched_coarsen_initial 327 344 56 6.5 0.5 0.5 54 7 1 1 55 6 1 1 52 6 0 1 1 47 0 0 0 0 0 0
+MESH batched_coarsen_initial 328 345 48 6 0 0 56 6.5 0.5 0.5 52 6 0 1 53 7 0 1 0 0 1 40 0 0 0 0
+MESH batched_coarsen_initial 329 346 56 6.5 0.5 0.5 54 7 1 1 52 6 0 1 53 7 0 1 1 46 0 0 0 0 0 0
+MESH batched_coarsen_initial 330 347 48 6 0 0 56 6.5 0.5 0.5 53 7 0 1 49 7 0 0 0 0 1 37 0 0 0 0
+MESH batched_coarsen_initial 331 348 56 6.5 0.5 0.5 54 7 1 1 53 7 0 1 49 7 0 0 1 43 0 0 0 0 0 0
+MESH batched_coarsen_initial 420 437 64 8 0 0 72 8.5 0.5 0.5 65 9 0 0 66 9 1 0 0 0 1 48 0 0 0 0
+MESH batched_coarsen_initial 421 438 72 8.5 0.5 0.5 70 9 1 1 65 9 0 0 66 9 1 0 1 54 0 0 0 0 0 0
+MESH batched_coarsen_initial 422 439 64 8 0 0 72 8.5 0.5 0.5 66 9 1 0 67 8 1 0 0 0 1 50 0 0 0 0
+MESH batched_coarsen_initial 423 440 72 8.5 0.5 0.5 70 9 1 1 66 9 1 0 67 8 1 0 1 56 0 0 0 0 0 0
+MESH batched_coarsen_initial 424 441 64 8 0 0 72 8.5 0.5 0.5 67 8 1 0 71 8 1 1 0 0 1 51 0 0 0 0
+MESH batched_coarsen_initial 425 442 72 8.5 0.5 0.5 70 9 1 1 67 8 1 0 71 8 1 1 1 57 0 0 0 0 0 0
+MESH batched_coarsen_initial 426 443 64 8 0 0 72 8.5 0.5 0.5 71 8 1 1 68 8 0 1 0 0 1 53 0 0 0 0
+MESH batched_coarsen_initial 427 444 72 8.5 0.5 0.5 70 9 1 1 71 8 1 1 68 8 0 1 1 59 0 0 0 0 0 0
+MESH batched_coarsen_initial 428 445 64 8 0 0 72 8.5 0.5 0.5 68 8 0 1 69 9 0 1 0 0 1 52 0 0 0 0
+MESH batched_coarsen_initial 429 446 72 8.5 0.5 0.5 70 9 1 1 68 8 0 1 69 9 0 1 1 58 0 0 0 0 0 0
+MESH batched_coarsen_initial 430 447 64 8 0 0 72 8.5 0.5 0.5 69 9 0 1 65 9 0 0 0 0 1 49 0 0 0 0
+MESH batched_coarsen_initial 431 448 72 8.5 0.5 0.5 70 9 1 1 69 9 0 1 65 9 0 0 1 55 0 0 0 0 0 0
+MESH batched_coarsen_initial 520 537 80 10 0 0 88 10.5 0.5 0.5 81 11 0 0 82 11 1 0 0 0 1 60 0 0 0 0
+MESH batched_coarsen_initial 521 538 88 10.5 0.5 0.5 86 11 1 1 81 11 0 0 82 11 1 0 1 66 0 0 0 0 0 0
+MESH batched_coarsen_initial 522 539 80 10 0 0 88 10.5 0.5 0.5 82 11 1 0 83 10 1 0 0 0 1 62 0 0 0 0
+MESH batched_coarsen_initial 523 540 88 10.5 0.5 0.5 86 11 1 1 82 11 1 0 83 10 1 0 1 68 0 0 0 0 0 0
+MESH batched_coarsen_initial 524 541 80 10 0 0 88 10.5 0.5 0.5 83 10 1 0 87 10 1 1 0 0 1 63 0 0 0 0
+MESH batched_coarsen_initial 525 542 88 10.5 0.5 0.5 86 11 1 1 83 10 1 0 87 10 1 1 1 69 0 0 0 0 0 0
+MESH batched_coarsen_initial 526 543 80 10 0 0 88 10.5 0.5 0.5 87 10 1 1 84 10 0 1 0 0 1 65 0 0 0 0
+MESH batched_coarsen_initial 527 544 88 10.5 0.5 0.5 86 11 1 1 87 10 1 1 84 10 0 1 1 71 0 0 0 0 0 0
+MESH batched_coarsen_initial 528 545 80 10 0 0 88 10.5 0.5 0.5 84 10 0 1 85 11 0 1 0 0 1 64 0 0 0 0
+MESH batched_coarsen_initial 529 546 88 10.5 0.5 0.5 86 11 1 1 84 10 0 1 85 11 0 1 1 70 0 0 0 0 0 0
+MESH batched_coarsen_initial 530 547 80 10 0 0 88 10.5 0.5 0.5 85 11 0 1 81 11 0 0 0 0 1 61 0 0 0 0
+MESH batched_coarsen_initial 531 548 88 10.5 0.5 0.5 86 11 1 1 85 11 0 1 81 11 0 0 1 67 0 0 0 0 0 0
+MESH batched_coarsen_initial 620 637 96 12 0 0 104 12.5 0.5 0.5 97 13 0 0 98 13 1 0 0 0 1 72 0 0 0 0
+MESH batched_coarsen_initial 621 638 104 12.5 0.5 0.5 102 13 1 1 97 13 0 0 98 13 1 0 1 78 0 0 0 0 0 0
+MESH batched_coarsen_initial 622 639 96 12 0 0 104 12.5 0.5 0.5 98 13 1 0 99 12 1 0 0 0 1 74 0 0 0 0
+MESH batched_coarsen_initial 623 640 104 12.5 0.5 0.5 102 13 1 1 98 13 1 0 99 12 1 0 1 80 0 0 0 0 0 0
+MESH batched_coarsen_initial 624 641 96 12 0 0 104 12.5 0.5 0.5 99 12 1 0 103 12 1 1 0 0 1 75 0 0 0 0
+MESH batched_coarsen_initial 625 642 104 12.5 0.5 0.5 102 13 1 1 99 12 1 0 103 12 1 1 1 81 0 0 0 0 0 0
+MESH batched_coarsen_initial 626 643 96 12 0 0 104 12.5 0.5 0.5 103 12 1 1 100 12 0 1 0 0 1 77 0 0 0 0
+MESH batched_coarsen_initial 627 644 104 12.5 0.5 0.5 102 13 1 1 103 12 1 1 100 12 0 1 1 83 0 0 0 0 0 0
+MESH batched_coarsen_initial 628 645 96 12 0 0 104 12.5 0.5 0.5 100 12 0 1 101 13 0 1 0 0 1 76 0 0 0 0
+MESH batched_coarsen_initial 629 646 104 12.5 0.5 0.5 102 13 1 1 100 12 0 1 101 13 0 1 1 82 0 0 0 0 0 0
+MESH batched_coarsen_initial 630 647 96 12 0 0 104 12.5 0.5 0.5 101 13 0 1 97 13 0 0 0 0 1 73 0 0 0 0
+MESH batched_coarsen_initial 631 648 104 12.5 0.5 0.5 102 13 1 1 101 13 0 1 97 13 0 0 1 79 0 0 0 0 0 0
+MESH batched_coarsen_initial 720 737 112 14 0 0 120 14.5 0.5 0.5 113 15 0 0 114 15 1 0 0 0 1 84 0 0 0 0
+MESH batched_coarsen_initial 721 738 120 14.5 0.5 0.5 118 15 1 1 113 15 0 0 114 15 1 0 1 90 0 0 0 0 0 0
+MESH batched_coarsen_initial 722 739 112 14 0 0 120 14.5 0.5 0.5 114 15 1 0 115 14 1 0 0 0 1 86 0 0 0 0
+MESH batched_coarsen_initial 723 740 120 14.5 0.5 0.5 118 15 1 1 114 15 1 0 115 14 1 0 1 92 0 0 0 0 0 0
+MESH batched_coarsen_initial 724 741 112 14 0 0 120 14.5 0.5 0.5 115 14 1 0 119 14 1 1 0 0 1 87 0 0 0 0
+MESH batched_coarsen_initial 725 742 120 14.5 0.5 0.5 118 15 1 1 115 14 1 0 119 14 1 1 1 93 0 0 0 0 0 0
+MESH batched_coarsen_initial 726 743 112 14 0 0 120 14.5 0.5 0.5 119 14 1 1 116 14 0 1 0 0 1 89 0 0 0 0
+MESH batched_coarsen_initial 727 744 120 14.5 0.5 0.5 118 15 1 1 119 14 1 1 116 14 0 1 1 95 0 0 0 0 0 0
+MESH batched_coarsen_initial 728 745 112 14 0 0 120 14.5 0.5 0.5 116 14 0 1 117 15 0 1 0 0 1 88 0 0 0 0
+MESH batched_coarsen_initial 729 746 120 14.5 0.5 0.5 118 15 1 1 116 14 0 1 117 15 0 1 1 94 0 0 0 0 0 0
+MESH batched_coarsen_initial 730 747 112 14 0 0 120 14.5 0.5 0.5 117 15 0 1 113 15 0 0 0 0 1 85 0 0 0 0
+MESH batched_coarsen_initial 731 748 120 14.5 0.5 0.5 118 15 1 1 117 15 0 1 113 15 0 0 1 91 0 0 0 0 0 0
+MESH batched_coarsen_final 732 0 0 0 0 0 6 1 1 1 1 1 0 0 2 1 1 0 1 6 1 0 0 0 0 0
+MESH batched_coarsen_final 733 0 0 0 0 0 6 1 1 1 2 1 1 0 3 0 1 0 1 8 1 2 0 0 0 0
+MESH batched_coarsen_final 734 0 0 0 0 0 6 1 1 1 3 0 1 0 7 0 1 1 1 9 1 3 0 0 0 0
+MESH batched_coarsen_final 735 0 0 0 0 0 6 1 1 1 7 0 1 1 4 0 0 1 1 11 1 5 0 0 0 0
+MESH batched_coarsen_final 736 0 0 0 0 0 6 1 1 1 4 0 0 1 5 1 0 1 1 10 1 4 0 0 0 0
+MESH batched_coarsen_final 737 0 0 0 0 0 6 1 1 1 5 1 0 1 1 1 0 0 1 7 1 1 0 0 0 0
+MESH batched_coarsen_final 860 0 16 2 0 0 22 3 1 1 17 3 0 0 18 3 1 0 1 18 1 12 0 0 0 0
+MESH batched_coarsen_final 861 0 16 2 0 0 22 3 1 1 18 3 1 0 19 2 1 0 1 20 1 14 0 0 0 0
+MESH batched_coarsen_final 862 0 16 2 0 0 22 3 1 1 19 2 1 0 23 2 1 1 1 21 1 15 0 0 0 0
+MESH batched_coarsen_final 863 0 16 2 0 0 22 3 1 1 23 2 1 1 20 2 0 1 1 23 1 17 0 0 0 0
+MESH batched_coarsen_final 864 0 16 2 0 0 22 3 1 1 20 2 0 1 21 3 0 1 1 22 1 16 0 0 0 0
+MESH batched_coarsen_final 865 0 16 2 0 0 22 3 1 1 21 3 0 1 17 3 0 0 1 19 1 13 0 0 0 0
+MESH batched_coarsen_final 988 0 32 4 0 0 38 5 1 1 33 5 0 0 34 5 1 0 1 30 1 24 0 0 0 0
+MESH batched_coarsen_final 989 0 32 4 0 0 38 5 1 1 34 5 1 0 35 4 1 0 1 32 1 26 0 0 0 0
+MESH batched_coarsen_final 990 0 32 4 0 0 38 5 1 1 35 4 1 0 39 4 1 1 1 33 1 27 0 0 0 0
+MESH batched_coarsen_final 991 0 32 4 0 0 38 5 1 1 39 4 1 1 36 4 0 1 1 35 1 29 0 0 0 0
+MESH batched_coarsen_final 992 0 32 4 0 0 38 5 1 1 36 4 0 1 37 5 0 1 1 34 1 28 0 0 0 0
+MESH batched_coarsen_final 993 0 32 4 0 0 38 5 1 1 37 5 0 1 33 5 0 0 1 31 1 25 0 0 0 0
+MESH batched_coarsen_final 1116 0 48 6 0 0 54 7 1 1 49 7 0 0 50 7 1 0 1 42 1 36 0 0 0 0
+MESH batched_coarsen_final 1117 0 48 6 0 0 54 7 1 1 50 7 1 0 51 6 1 0 1 44 1 38 0 0 0 0
+MESH batched_coarsen_final 1118 0 48 6 0 0 54 7 1 1 51 6 1 0 55 6 1 1 1 45 1 39 0 0 0 0
+MESH batched_coarsen_final 1119 0 48 6 0 0 54 7 1 1 55 6 1 1 52 6 0 1 1 47 1 41 0 0 0 0
+MESH batched_coarsen_final 1120 0 48 6 0 0 54 7 1 1 52 6 0 1 53 7 0 1 1 46 1 40 0 0 0 0
+MESH batched_coarsen_final 1121 0 48 6 0 0 54 7 1 1 53 7 0 1 49 7 0 0 1 43 1 37 0 0 0 0
+MESH batched_coarsen_final 1244 0 64 8 0 0 70 9 1 1 65 9 0 0 66 9 1 0 1 54 1 48 0 0 0 0
+MESH batched_coarsen_final 1245 0 64 8 0 0 70 9 1 1 66 9 1 0 67 8 1 0 1 56 1 50 0 0 0 0
+MESH batched_coarsen_final 1246 0 64 8 0 0 70 9 1 1 67 8 1 0 71 8 1 1 1 57 1 51 0 0 0 0
+MESH batched_coarsen_final 1247 0 64 8 0 0 70 9 1 1 71 8 1 1 68 8 0 1 1 59 1 53 0 0 0 0
+MESH batched_coarsen_final 1248 0 64 8 0 0 70 9 1 1 68 8 0 1 69 9 0 1 1 58 1 52 0 0 0 0
+MESH batched_coarsen_final 1249 0 64 8 0 0 70 9 1 1 69 9 0 1 65 9 0 0 1 55 1 49 0 0 0 0
+MESH batched_coarsen_final 1372 0 80 10 0 0 86 11 1 1 81 11 0 0 82 11 1 0 1 66 1 60 0 0 0 0
+MESH batched_coarsen_final 1373 0 80 10 0 0 86 11 1 1 82 11 1 0 83 10 1 0 1 68 1 62 0 0 0 0
+MESH batched_coarsen_final 1374 0 80 10 0 0 86 11 1 1 83 10 1 0 87 10 1 1 1 69 1 63 0 0 0 0
+MESH batched_coarsen_final 1375 0 80 10 0 0 86 11 1 1 87 10 1 1 84 10 0 1 1 71 1 65 0 0 0 0
+MESH batched_coarsen_final 1376 0 80 10 0 0 86 11 1 1 84 10 0 1 85 11 0 1 1 70 1 64 0 0 0 0
+MESH batched_coarsen_final 1377 0 80 10 0 0 86 11 1 1 85 11 0 1 81 11 0 0 1 67 1 61 0 0 0 0
+MESH batched_coarsen_final 1500 0 96 12 0 0 102 13 1 1 97 13 0 0 98 13 1 0 1 78 1 72 0 0 0 0
+MESH batched_coarsen_final 1501 0 96 12 0 0 102 13 1 1 98 13 1 0 99 12 1 0 1 80 1 74 0 0 0 0
+MESH batched_coarsen_final 1502 0 96 12 0 0 102 13 1 1 99 12 1 0 103 12 1 1 1 81 1 75 0 0 0 0
+MESH batched_coarsen_final 1503 0 96 12 0 0 102 13 1 1 103 12 1 1 100 12 0 1 1 83 1 77 0 0 0 0
+MESH batched_coarsen_final 1504 0 96 12 0 0 102 13 1 1 100 12 0 1 101 13 0 1 1 82 1 76 0 0 0 0
+MESH batched_coarsen_final 1505 0 96 12 0 0 102 13 1 1 101 13 0 1 97 13 0 0 1 79 1 73 0 0 0 0
+MESH batched_coarsen_final 1628 0 112 14 0 0 118 15 1 1 113 15 0 0 114 15 1 0 1 90 1 84 0 0 0 0
+MESH batched_coarsen_final 1629 0 112 14 0 0 118 15 1 1 114 15 1 0 115 14 1 0 1 92 1 86 0 0 0 0
+MESH batched_coarsen_final 1630 0 112 14 0 0 118 15 1 1 115 14 1 0 119 14 1 1 1 93 1 87 0 0 0 0
+MESH batched_coarsen_final 1631 0 112 14 0 0 118 15 1 1 119 14 1 1 116 14 0 1 1 95 1 89 0 0 0 0
+MESH batched_coarsen_final 1632 0 112 14 0 0 118 15 1 1 116 14 0 1 117 15 0 1 1 94 1 88 0 0 0 0
+MESH batched_coarsen_final 1633 0 112 14 0 0 118 15 1 1 117 15 0 1 113 15 0 0 1 91 1 85 0 0 0 0
+ENGINE rank=0 ranks=1 valid=1 case=box initial=96 updated=192 final=48 seed_batches=10 unmeasured_retired=0 rounds=1 proposed=8 attempts=8 accepted=8 rejected=0 conflicts=0 collapse_geometry_checks=288 collapse_filtered=128 collapse_orientation_checks=207 collapse_orientation_filtered=42 collapse_reactivated=0 changed_star_scans=576 changed_vertices_sent=72 changed_vertices_received=72 nested_change_notifications=5.3059999999999997e-05 nested_collapse_orientation=0.00018562500000000003 collapse_geometry_nested_s=7.2170000000000036e-05 selection_edge_evaluations=208 selection_edge_reused=1520 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 field_requests=144 field_hits=0 field_misses=144 field_invalid_queries=0 field_failures=0 field_evictions=0 field_edges=216 work_bytes=16786752 total_s=0.020756356 init_s=0.001637526 seed_s=0.00084250100000000006 selection_s=0.00033944800000000001 dependency_s=0.00016036699999999999 reservation_s=2.6004999999999999e-05 donor_s=0.0014322300000000003 reconstruction_s=0.0093092509999999993 metric_s=0.00054104899999999994 routing_s=0.00037476000000000002 publication_s=0.00044770200000000002 update_s=0.00063320499999999997 completion_s=0 other_s=0.0050123120000000014 tracked_bytes=367552 tracked_calls=325 tracked_collectives_nested_s=0.00012606399999997436 directory_elections=113 directory_election_nested_s=1.1619999999999995e-05 process_cpu_s=0.020754999999999999 reconstruction_cpu_s=0.0093010000000000002 metric_cpu_s=0.000446 measurement_cpu_s=0.0032340000000000008 repair_fallbacks=0 fallback_accepted=0 recovery_starts=0 repair_proposals=0 moved=0 reconnected=0 inserted=0 batches=57 batch_retries=0 query_import_retries=0 private_query_retries=8 donor_reused=0 edge_separated=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=432 donor_maximum_patch=10 donor_search_nested_s=0 donor_filter_nested_s=0 planning_nested_s=0 batch_considered=8 batch_deferred=0 proposal_duplicates=0 batch_rounds=1 batch_candidates=8 stop=complete global_work=8 work_limit=6144 progress_windows=0 stagnant_windows=0 search_windows=0 bidirectional=0 length_split_passes=0 length_collapse_passes=0 length_splits=0 length_collapses=8 length_pass_deferred=0 size_progress=0 quality_progress=0 cell_removals=8 geometry_trials=8 geometry_rejected=0 metric_trials=8 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_shape_measured=0 sample_q=unavailable sample_j=unavailable sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 coarsen_checkpoints=1 coarsen_committed_passes=1 coarsen_rolled_back_passes=0 coarsen_retired_directions=0 coarsen_restored_cells=0 coarsen_rolled_back_collapses=0 quality_stages=2 construction_returns=1 shape_measured=0 batch_reserved=8 concurrent_rounds=0 final_reservations=0 proposal_deferred=0 maximum_parallel_commits=0 field_build_nested_s=0.000246374 field_query_nested_s=0.00061234899999999999 cache_nested_s=0 search_nested_s=0.00060333299999999995 interpolation_nested_s=0 composition_nested_s=0 edge_nested_s=0.00015896500000000001 edge_search_nested_s=0 edge_trace_nested_s=0 edge_integral_nested_s=8.1913e-05
+NATIVE3D_STORAGE rank=0 stage=construction_entry authority_plus_memo_bytes=0 prepared_reserved_bytes=0 facet_live_bytes=0 scope_live_bytes=0 private_cells_bytes=43008 selection_bytes=118976 directory_bytes=85248 metric_source_bytes=114280 parameter_bytes=0 caller_reservation_bytes=0 native_peak_bytes=14453416
+NATIVE3D_STAGE rank=0 stage=construction_entry phase=construction cells=96 measured=96 cache_consistent=1 census_complete=1 shape_complete=0 geometry_complete=1 q_measured=0 j_measured=0 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=0 geometry_debt=0 associations=0 working_faces=0 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=0 rounds=0 batch_rounds=0 batch_candidates=0 batch_reserved=0 quality_progress=0 accepted=0 updated_cells=0 update_seconds=0 geometry_trials=0 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=34 collective_seconds=3.120300000000048e-05 election_calls=137 election_seconds=7.6329999999721898e-06 direct_calls=0 direct_exceptions=0 direct_work=0 direct_seconds=0 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=0 prepared_limit=0 facet_bytes=0 scope_bytes=0 facet_entries=0 scope_entries=0 cache_evictions=0 cache_evicted_bytes=0 length_splits=0 length_collapses=0 split_passes=0 collapse_passes=0 quality_stages=0 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0 child_ratio_measured=0 elapsed=0.0027964439999999999
+NATIVE3D_STORAGE rank=0 stage=quality_entry authority_plus_memo_bytes=0 prepared_reserved_bytes=0 facet_live_bytes=0 scope_live_bytes=0 private_cells_bytes=43008 selection_bytes=94912 directory_bytes=85248 metric_source_bytes=114280 parameter_bytes=0 caller_reservation_bytes=0 native_peak_bytes=15349080
+NATIVE3D_STAGE rank=0 stage=quality_entry phase=improvement cells=96 measured=96 cache_consistent=1 census_complete=1 shape_complete=1 geometry_complete=1 q_measured=96 j_measured=96 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=0 geometry_debt=0 associations=0 working_faces=0 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=0 rounds=0 batch_rounds=0 batch_candidates=0 batch_reserved=0 quality_progress=0 accepted=0 updated_cells=96 update_seconds=0 geometry_trials=0 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=35 collective_seconds=3.1329999999996083e-05 election_calls=190 election_seconds=1.1126999999978848e-05 direct_calls=0 direct_exceptions=0 direct_work=0 direct_seconds=0 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=0 prepared_limit=0 facet_bytes=0 scope_bytes=0 facet_entries=0 scope_entries=0 cache_evictions=0 cache_evicted_bytes=0 length_splits=0 length_collapses=0 split_passes=0 collapse_passes=0 quality_stages=1 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0 child_ratio_measured=0 elapsed=0.0054573149999999999
+NATIVE3D_STORAGE rank=0 stage=construction_entry authority_plus_memo_bytes=0 prepared_reserved_bytes=0 facet_live_bytes=0 scope_live_bytes=0 private_cells_bytes=43008 selection_bytes=123072 directory_bytes=85248 metric_source_bytes=114280 parameter_bytes=0 caller_reservation_bytes=0 native_peak_bytes=15349080
+NATIVE3D_STAGE rank=0 stage=construction_entry phase=construction cells=96 measured=96 cache_consistent=1 census_complete=1 shape_complete=1 geometry_complete=1 q_measured=96 j_measured=96 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=0 geometry_debt=0 associations=0 working_faces=0 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=0 rounds=0 batch_rounds=0 batch_candidates=0 batch_reserved=0 quality_progress=0 accepted=0 updated_cells=96 update_seconds=0 geometry_trials=0 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=43 collective_seconds=4.4727000000001349e-05 election_calls=207 election_seconds=1.2213999999961811e-05 direct_calls=0 direct_exceptions=0 direct_work=0 direct_seconds=0 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=0 prepared_limit=0 facet_bytes=0 scope_bytes=0 facet_entries=0 scope_entries=0 cache_evictions=0 cache_evicted_bytes=0 length_splits=0 length_collapses=0 split_passes=0 collapse_passes=0 quality_stages=1 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0 child_ratio_measured=0 elapsed=0.0058830009999999997
+NATIVE3D_STORAGE rank=0 stage=exit authority_plus_memo_bytes=0 prepared_reserved_bytes=0 facet_live_bytes=0 scope_live_bytes=0 private_cells_bytes=40320 selection_bytes=113752 directory_bytes=80328 metric_source_bytes=114280 parameter_bytes=0 caller_reservation_bytes=0 native_peak_bytes=16400664
+NATIVE3D_STAGE rank=0 stage=exit phase=construction cells=90 measured=90 cache_consistent=1 census_complete=1 shape_complete=0 geometry_complete=1 q_measured=84 j_measured=84 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=0 geometry_debt=0 associations=0 working_faces=0 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=1 rounds=1 batch_rounds=0 batch_candidates=0 batch_reserved=0 quality_progress=0 accepted=1 updated_cells=102 update_seconds=8.2410999999999994e-05 geometry_trials=1 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=100 collective_seconds=5.5638000000003685e-05 election_calls=318 election_seconds=1.7839999999963441e-05 direct_calls=0 direct_exceptions=0 direct_work=0 direct_seconds=0 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=0 prepared_limit=0 facet_bytes=0 scope_bytes=0 facet_entries=0 scope_entries=0 cache_evictions=0 cache_evicted_bytes=0 length_splits=0 length_collapses=1 split_passes=0 collapse_passes=0 quality_stages=1 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0 child_ratio_measured=0 elapsed=0.0075507009999999999
+NATIVE3D_STORAGE rank=0 stage=exit authority_plus_memo_bytes=0 prepared_reserved_bytes=0 facet_live_bytes=0 scope_live_bytes=0 private_cells_bytes=0 selection_bytes=0 directory_bytes=0 metric_source_bytes=0 parameter_bytes=0 caller_reservation_bytes=0 native_peak_bytes=0
+NATIVE3D_STAGE rank=0 stage=exit phase=construction cells=0 measured=0 cache_consistent=1 census_complete=0 shape_complete=0 geometry_complete=1 q_measured=0 j_measured=0 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=0 geometry_debt=0 associations=0 working_faces=0 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=0 rounds=0 batch_rounds=0 batch_candidates=0 batch_reserved=0 quality_progress=0 accepted=0 updated_cells=0 update_seconds=0 geometry_trials=0 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=3 collective_seconds=1.3199999999990997e-07 election_calls=2 election_seconds=8.399999999950114e-07 direct_calls=0 direct_exceptions=0 direct_work=0 direct_seconds=0 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=0 prepared_limit=0 facet_bytes=0 scope_bytes=0 facet_entries=0 scope_entries=0 cache_evictions=0 cache_evicted_bytes=0 length_splits=0 length_collapses=0 split_passes=0 collapse_passes=0 quality_stages=0 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0 child_ratio_measured=0 elapsed=2.3853e-05
+NATIVE3D_STORAGE rank=0 stage=construction_entry authority_plus_memo_bytes=0 prepared_reserved_bytes=0 facet_live_bytes=0 scope_live_bytes=0 private_cells_bytes=172032 selection_bytes=365632 directory_bytes=334128 metric_source_bytes=65512 parameter_bytes=0 caller_reservation_bytes=0 native_peak_bytes=17262768
+NATIVE3D_STAGE rank=0 stage=construction_entry phase=construction cells=384 measured=384 cache_consistent=1 census_complete=1 shape_complete=0 geometry_complete=1 q_measured=0 j_measured=0 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=7.1272740313765848e-17 geometry_debt=0 associations=0 working_faces=0 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=152 rounds=19 batch_rounds=19 batch_candidates=152 batch_reserved=152 quality_progress=0 accepted=152 updated_cells=672 update_seconds=0.0069801310000000005 geometry_trials=152 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=5016 collective_seconds=0.0011052950000007 election_calls=10227 election_seconds=0.00058271299999842346 direct_calls=0 direct_exceptions=0 direct_work=0 direct_seconds=0 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=0 prepared_limit=0 facet_bytes=0 scope_bytes=0 facet_entries=0 scope_entries=0 cache_evictions=0 cache_evicted_bytes=0 length_splits=152 length_collapses=0 split_passes=0 collapse_passes=0 quality_stages=0 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0.5 child_ratio_measured=149 elapsed=0.089976131000000001
+NATIVE3D_STORAGE rank=0 stage=quality_entry authority_plus_memo_bytes=0 prepared_reserved_bytes=0 facet_live_bytes=0 scope_live_bytes=0 private_cells_bytes=172032 selection_bytes=365632 directory_bytes=334128 metric_source_bytes=65512 parameter_bytes=0 caller_reservation_bytes=0 native_peak_bytes=19563272
+NATIVE3D_STAGE rank=0 stage=quality_entry phase=improvement cells=384 measured=384 cache_consistent=1 census_complete=1 shape_complete=1 geometry_complete=1 q_measured=384 j_measured=384 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=7.1272740313765848e-17 geometry_debt=0 associations=0 working_faces=0 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=152 rounds=19 batch_rounds=19 batch_candidates=152 batch_reserved=152 quality_progress=0 accepted=152 updated_cells=1056 update_seconds=0.0069801310000000005 geometry_trials=152 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=5017 collective_seconds=0.0011054690000006917 election_calls=10425 election_seconds=0.00059661399999846182 direct_calls=0 direct_exceptions=0 direct_work=0 direct_seconds=0 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=0 prepared_limit=0 facet_bytes=0 scope_bytes=0 facet_entries=0 scope_entries=0 cache_evictions=0 cache_evicted_bytes=0 length_splits=152 length_collapses=0 split_passes=0 collapse_passes=0 quality_stages=1 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0.5 child_ratio_measured=149 elapsed=0.102692977
+NATIVE3D_STORAGE rank=0 stage=exit authority_plus_memo_bytes=0 prepared_reserved_bytes=0 facet_live_bytes=0 scope_live_bytes=0 private_cells_bytes=172032 selection_bytes=365632 directory_bytes=334128 metric_source_bytes=65512 parameter_bytes=0 caller_reservation_bytes=0 native_peak_bytes=19563272
+NATIVE3D_STAGE rank=0 stage=exit phase=improvement cells=384 measured=384 cache_consistent=1 census_complete=1 shape_complete=1 geometry_complete=1 q_measured=384 j_measured=384 q_bad=0 j_bad=0 size_bad=0 geometry_bad=0 q_debt=0 j_debt=0 size_debt=7.1272740313765848e-17 geometry_debt=0 associations=0 working_faces=0 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=152 rounds=19 batch_rounds=19 batch_candidates=152 batch_reserved=152 quality_progress=0 accepted=152 updated_cells=1056 update_seconds=0.0069801310000000005 geometry_trials=152 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=5023 collective_seconds=0.0011059710000007328 election_calls=10426 election_seconds=0.00059670199999844326 direct_calls=0 direct_exceptions=0 direct_work=0 direct_seconds=0 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=0 prepared_limit=0 facet_bytes=0 scope_bytes=0 facet_entries=0 scope_entries=0 cache_evictions=0 cache_evicted_bytes=0 length_splits=152 length_collapses=0 split_passes=0 collapse_passes=0 quality_stages=1 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0.5 child_ratio_measured=149 elapsed=0.10273700400000001
+MESH batched_refine_initial 0 17 0 0 0 0 6 1 1 1 1 1 0 0 2 1 1 0 1 6 1 0 0 0 0 0
+MESH batched_refine_initial 1 18 0 0 0 0 6 1 1 1 2 1 1 0 3 0 1 0 1 8 1 2 0 0 0 0
+MESH batched_refine_initial 2 19 0 0 0 0 6 1 1 1 3 0 1 0 7 0 1 1 1 9 1 3 0 0 0 0
+MESH batched_refine_initial 3 20 0 0 0 0 6 1 1 1 7 0 1 1 4 0 0 1 1 11 1 5 0 0 0 0
+MESH batched_refine_initial 4 21 0 0 0 0 6 1 1 1 4 0 0 1 5 1 0 1 1 10 1 4 0 0 0 0
+MESH batched_refine_initial 5 22 0 0 0 0 6 1 1 1 5 1 0 1 1 1 0 0 1 7 1 1 0 0 0 0
+MESH batched_refine_initial 100 117 16 2 0 0 22 3 1 1 17 3 0 0 18 3 1 0 1 18 1 12 0 0 0 0
+MESH batched_refine_initial 101 118 16 2 0 0 22 3 1 1 18 3 1 0 19 2 1 0 1 20 1 14 0 0 0 0
+MESH batched_refine_initial 102 119 16 2 0 0 22 3 1 1 19 2 1 0 23 2 1 1 1 21 1 15 0 0 0 0
+MESH batched_refine_initial 103 120 16 2 0 0 22 3 1 1 23 2 1 1 20 2 0 1 1 23 1 17 0 0 0 0
+MESH batched_refine_initial 104 121 16 2 0 0 22 3 1 1 20 2 0 1 21 3 0 1 1 22 1 16 0 0 0 0
+MESH batched_refine_initial 105 122 16 2 0 0 22 3 1 1 21 3 0 1 17 3 0 0 1 19 1 13 0 0 0 0
+MESH batched_refine_initial 200 217 32 4 0 0 38 5 1 1 33 5 0 0 34 5 1 0 1 30 1 24 0 0 0 0
+MESH batched_refine_initial 201 218 32 4 0 0 38 5 1 1 34 5 1 0 35 4 1 0 1 32 1 26 0 0 0 0
+MESH batched_refine_initial 202 219 32 4 0 0 38 5 1 1 35 4 1 0 39 4 1 1 1 33 1 27 0 0 0 0
+MESH batched_refine_initial 203 220 32 4 0 0 38 5 1 1 39 4 1 1 36 4 0 1 1 35 1 29 0 0 0 0
+MESH batched_refine_initial 204 221 32 4 0 0 38 5 1 1 36 4 0 1 37 5 0 1 1 34 1 28 0 0 0 0
+MESH batched_refine_initial 205 222 32 4 0 0 38 5 1 1 37 5 0 1 33 5 0 0 1 31 1 25 0 0 0 0
+MESH batched_refine_initial 300 317 48 6 0 0 54 7 1 1 49 7 0 0 50 7 1 0 1 42 1 36 0 0 0 0
+MESH batched_refine_initial 301 318 48 6 0 0 54 7 1 1 50 7 1 0 51 6 1 0 1 44 1 38 0 0 0 0
+MESH batched_refine_initial 302 319 48 6 0 0 54 7 1 1 51 6 1 0 55 6 1 1 1 45 1 39 0 0 0 0
+MESH batched_refine_initial 303 320 48 6 0 0 54 7 1 1 55 6 1 1 52 6 0 1 1 47 1 41 0 0 0 0
+MESH batched_refine_initial 304 321 48 6 0 0 54 7 1 1 52 6 0 1 53 7 0 1 1 46 1 40 0 0 0 0
+MESH batched_refine_initial 305 322 48 6 0 0 54 7 1 1 53 7 0 1 49 7 0 0 1 43 1 37 0 0 0 0
+MESH batched_refine_initial 400 417 64 8 0 0 70 9 1 1 65 9 0 0 66 9 1 0 1 54 1 48 0 0 0 0
+MESH batched_refine_initial 401 418 64 8 0 0 70 9 1 1 66 9 1 0 67 8 1 0 1 56 1 50 0 0 0 0
+MESH batched_refine_initial 402 419 64 8 0 0 70 9 1 1 67 8 1 0 71 8 1 1 1 57 1 51 0 0 0 0
+MESH batched_refine_initial 403 420 64 8 0 0 70 9 1 1 71 8 1 1 68 8 0 1 1 59 1 53 0 0 0 0
+MESH batched_refine_initial 404 421 64 8 0 0 70 9 1 1 68 8 0 1 69 9 0 1 1 58 1 52 0 0 0 0
+MESH batched_refine_initial 405 422 64 8 0 0 70 9 1 1 69 9 0 1 65 9 0 0 1 55 1 49 0 0 0 0
+MESH batched_refine_initial 500 517 80 10 0 0 86 11 1 1 81 11 0 0 82 11 1 0 1 66 1 60 0 0 0 0
+MESH batched_refine_initial 501 518 80 10 0 0 86 11 1 1 82 11 1 0 83 10 1 0 1 68 1 62 0 0 0 0
+MESH batched_refine_initial 502 519 80 10 0 0 86 11 1 1 83 10 1 0 87 10 1 1 1 69 1 63 0 0 0 0
+MESH batched_refine_initial 503 520 80 10 0 0 86 11 1 1 87 10 1 1 84 10 0 1 1 71 1 65 0 0 0 0
+MESH batched_refine_initial 504 521 80 10 0 0 86 11 1 1 84 10 0 1 85 11 0 1 1 70 1 64 0 0 0 0
+MESH batched_refine_initial 505 522 80 10 0 0 86 11 1 1 85 11 0 1 81 11 0 0 1 67 1 61 0 0 0 0
+MESH batched_refine_initial 600 617 96 12 0 0 102 13 1 1 97 13 0 0 98 13 1 0 1 78 1 72 0 0 0 0
+MESH batched_refine_initial 601 618 96 12 0 0 102 13 1 1 98 13 1 0 99 12 1 0 1 80 1 74 0 0 0 0
+MESH batched_refine_initial 602 619 96 12 0 0 102 13 1 1 99 12 1 0 103 12 1 1 1 81 1 75 0 0 0 0
+MESH batched_refine_initial 603 620 96 12 0 0 102 13 1 1 103 12 1 1 100 12 0 1 1 83 1 77 0 0 0 0
+MESH batched_refine_initial 604 621 96 12 0 0 102 13 1 1 100 12 0 1 101 13 0 1 1 82 1 76 0 0 0 0
+MESH batched_refine_initial 605 622 96 12 0 0 102 13 1 1 101 13 0 1 97 13 0 0 1 79 1 73 0 0 0 0
+MESH batched_refine_initial 700 717 112 14 0 0 118 15 1 1 113 15 0 0 114 15 1 0 1 90 1 84 0 0 0 0
+MESH batched_refine_initial 701 718 112 14 0 0 118 15 1 1 114 15 1 0 115 14 1 0 1 92 1 86 0 0 0 0
+MESH batched_refine_initial 702 719 112 14 0 0 118 15 1 1 115 14 1 0 119 14 1 1 1 93 1 87 0 0 0 0
+MESH batched_refine_initial 703 720 112 14 0 0 118 15 1 1 119 14 1 1 116 14 0 1 1 95 1 89 0 0 0 0
+MESH batched_refine_initial 704 721 112 14 0 0 118 15 1 1 116 14 0 1 117 15 0 1 1 94 1 88 0 0 0 0
+MESH batched_refine_initial 705 722 112 14 0 0 118 15 1 1 117 15 0 1 113 15 0 0 1 91 1 85 0 0 0 0
+MESH batched_refine_final 7874 0 0 0 0 0 120 0.5 0.5 0.5 9136 0.5 0 0 1408 0.5 0.5 0 0 0 1 0 0 0 0 0
+MESH batched_refine_final 7875 0 9136 0.5 0 0 120 0.5 0.5 0.5 1 1 0 0 1408 0.5 0.5 0 0 0 1 0 0 0 0 0
+MESH batched_refine_final 7876 0 0 0 0 0 120 0.5 0.5 0.5 2696 0.5 0 0.5 9136 0.5 0 0 0 0 1 1 0 0 0 0
+MESH batched_refine_final 7877 0 9136 0.5 0 0 120 0.5 0.5 0.5 2696 0.5 0 0.5 1 1 0 0 0 0 1 1 0 0 0 0
+MESH batched_refine_final 8002 0 16 2 0 0 281 2.5 0.5 0.5 9297 2.5 0 0 1569 2.5 0.5 0 0 0 1 12 0 0 0 0
+MESH batched_refine_final 8003 0 9297 2.5 0 0 281 2.5 0.5 0.5 17 3 0 0 1569 2.5 0.5 0 0 0 1 12 0 0 0 0
+MESH batched_refine_final 8004 0 16 2 0 0 281 2.5 0.5 0.5 2857 2.5 0 0.5 9297 2.5 0 0 0 0 1 13 0 0 0 0
+MESH batched_refine_final 8005 0 9297 2.5 0 0 281 2.5 0.5 0.5 2857 2.5 0 0.5 17 3 0 0 0 0 1 13 0 0 0 0
+MESH batched_refine_final 8130 0 32 4 0 0 442 4.5 0.5 0.5 9458 4.5 0 0 1730 4.5 0.5 0 0 0 1 24 0 0 0 0
+MESH batched_refine_final 8131 0 9458 4.5 0 0 442 4.5 0.5 0.5 33 5 0 0 1730 4.5 0.5 0 0 0 1 24 0 0 0 0
+MESH batched_refine_final 8132 0 32 4 0 0 442 4.5 0.5 0.5 3018 4.5 0 0.5 9458 4.5 0 0 0 0 1 25 0 0 0 0
+MESH batched_refine_final 8133 0 9458 4.5 0 0 442 4.5 0.5 0.5 3018 4.5 0 0.5 33 5 0 0 0 0 1 25 0 0 0 0
+MESH batched_refine_final 8258 0 48 6 0 0 603 6.5 0.5 0.5 9619 6.5 0 0 1891 6.5 0.5 0 0 0 1 36 0 0 0 0
+MESH batched_refine_final 8259 0 9619 6.5 0 0 603 6.5 0.5 0.5 49 7 0 0 1891 6.5 0.5 0 0 0 1 36 0 0 0 0
+MESH batched_refine_final 8260 0 48 6 0 0 603 6.5 0.5 0.5 3179 6.5 0 0.5 9619 6.5 0 0 0 0 1 37 0 0 0 0
+MESH batched_refine_final 8261 0 9619 6.5 0 0 603 6.5 0.5 0.5 3179 6.5 0 0.5 49 7 0 0 0 0 1 37 0 0 0 0
+MESH batched_refine_final 8386 0 64 8 0 0 764 8.5 0.5 0.5 9780 8.5 0 0 2052 8.5 0.5 0 0 0 1 48 0 0 0 0
+MESH batched_refine_final 8387 0 9780 8.5 0 0 764 8.5 0.5 0.5 65 9 0 0 2052 8.5 0.5 0 0 0 1 48 0 0 0 0
+MESH batched_refine_final 8388 0 64 8 0 0 764 8.5 0.5 0.5 3340 8.5 0 0.5 9780 8.5 0 0 0 0 1 49 0 0 0 0
+MESH batched_refine_final 8389 0 9780 8.5 0 0 764 8.5 0.5 0.5 3340 8.5 0 0.5 65 9 0 0 0 0 1 49 0 0 0 0
+MESH batched_refine_final 8514 0 80 10 0 0 925 10.5 0.5 0.5 9941 10.5 0 0 2213 10.5 0.5 0 0 0 1 60 0 0 0 0
+MESH batched_refine_final 8515 0 9941 10.5 0 0 925 10.5 0.5 0.5 81 11 0 0 2213 10.5 0.5 0 0 0 1 60 0 0 0 0
+MESH batched_refine_final 8516 0 80 10 0 0 925 10.5 0.5 0.5 3501 10.5 0 0.5 9941 10.5 0 0 0 0 1 61 0 0 0 0
+MESH batched_refine_final 8517 0 9941 10.5 0 0 925 10.5 0.5 0.5 3501 10.5 0 0.5 81 11 0 0 0 0 1 61 0 0 0 0
+MESH batched_refine_final 8642 0 96 12 0 0 1086 12.5 0.5 0.5 10102 12.5 0 0 2374 12.5 0.5 0 0 0 1 72 0 0 0 0
+MESH batched_refine_final 8643 0 10102 12.5 0 0 1086 12.5 0.5 0.5 97 13 0 0 2374 12.5 0.5 0 0 0 1 72 0 0 0 0
+MESH batched_refine_final 8644 0 96 12 0 0 1086 12.5 0.5 0.5 3662 12.5 0 0.5 10102 12.5 0 0 0 0 1 73 0 0 0 0
+MESH batched_refine_final 8645 0 10102 12.5 0 0 1086 12.5 0.5 0.5 3662 12.5 0 0.5 97 13 0 0 0 0 1 73 0 0 0 0
+MESH batched_refine_final 8770 0 112 14 0 0 1247 14.5 0.5 0.5 10263 14.5 0 0 2535 14.5 0.5 0 0 0 1 84 0 0 0 0
+MESH batched_refine_final 8771 0 10263 14.5 0 0 1247 14.5 0.5 0.5 113 15 0 0 2535 14.5 0.5 0 0 0 1 84 0 0 0 0
+MESH batched_refine_final 8772 0 112 14 0 0 1247 14.5 0.5 0.5 3823 14.5 0 0.5 10263 14.5 0 0 0 0 1 85 0 0 0 0
+MESH batched_refine_final 8773 0 10263 14.5 0 0 1247 14.5 0.5 0.5 3823 14.5 0 0.5 113 15 0 0 0 0 1 85 0 0 0 0
+MESH batched_refine_final 8898 0 0 0 0 0 120 0.5 0.5 0.5 1408 0.5 0.5 0 10424 0 0.5 0 0 0 1 2 0 0 0 0
+MESH batched_refine_final 8899 0 10424 0 0.5 0 120 0.5 0.5 0.5 1408 0.5 0.5 0 3 0 1 0 0 0 1 2 0 0 0 0
+MESH batched_refine_final 8900 0 0 0 0 0 120 0.5 0.5 0.5 10424 0 0.5 0 3984 0 0.5 0.5 0 0 1 3 0 0 0 0
+MESH batched_refine_final 8901 0 10424 0 0.5 0 120 0.5 0.5 0.5 3 0 1 0 3984 0 0.5 0.5 0 0 1 3 0 0 0 0
+MESH batched_refine_final 9026 0 16 2 0 0 281 2.5 0.5 0.5 1569 2.5 0.5 0 10585 2 0.5 0 0 0 1 14 0 0 0 0
+MESH batched_refine_final 9027 0 10585 2 0.5 0 281 2.5 0.5 0.5 1569 2.5 0.5 0 19 2 1 0 0 0 1 14 0 0 0 0
+MESH batched_refine_final 9028 0 16 2 0 0 281 2.5 0.5 0.5 10585 2 0.5 0 4145 2 0.5 0.5 0 0 1 15 0 0 0 0
+MESH batched_refine_final 9029 0 10585 2 0.5 0 281 2.5 0.5 0.5 19 2 1 0 4145 2 0.5 0.5 0 0 1 15 0 0 0 0
+MESH batched_refine_final 9154 0 32 4 0 0 442 4.5 0.5 0.5 1730 4.5 0.5 0 10746 4 0.5 0 0 0 1 26 0 0 0 0
+MESH batched_refine_final 9155 0 10746 4 0.5 0 442 4.5 0.5 0.5 1730 4.5 0.5 0 35 4 1 0 0 0 1 26 0 0 0 0
+MESH batched_refine_final 9156 0 32 4 0 0 442 4.5 0.5 0.5 10746 4 0.5 0 4306 4 0.5 0.5 0 0 1 27 0 0 0 0
+MESH batched_refine_final 9157 0 10746 4 0.5 0 442 4.5 0.5 0.5 35 4 1 0 4306 4 0.5 0.5 0 0 1 27 0 0 0 0
+MESH batched_refine_final 9282 0 48 6 0 0 603 6.5 0.5 0.5 1891 6.5 0.5 0 10907 6 0.5 0 0 0 1 38 0 0 0 0
+MESH batched_refine_final 9283 0 10907 6 0.5 0 603 6.5 0.5 0.5 1891 6.5 0.5 0 51 6 1 0 0 0 1 38 0 0 0 0
+MESH batched_refine_final 9284 0 48 6 0 0 603 6.5 0.5 0.5 10907 6 0.5 0 4467 6 0.5 0.5 0 0 1 39 0 0 0 0
+MESH batched_refine_final 9285 0 10907 6 0.5 0 603 6.5 0.5 0.5 51 6 1 0 4467 6 0.5 0.5 0 0 1 39 0 0 0 0
+MESH batched_refine_final 9410 0 64 8 0 0 764 8.5 0.5 0.5 2052 8.5 0.5 0 11068 8 0.5 0 0 0 1 50 0 0 0 0
+MESH batched_refine_final 9411 0 11068 8 0.5 0 764 8.5 0.5 0.5 2052 8.5 0.5 0 67 8 1 0 0 0 1 50 0 0 0 0
+MESH batched_refine_final 9412 0 64 8 0 0 764 8.5 0.5 0.5 11068 8 0.5 0 4628 8 0.5 0.5 0 0 1 51 0 0 0 0
+MESH batched_refine_final 9413 0 11068 8 0.5 0 764 8.5 0.5 0.5 67 8 1 0 4628 8 0.5 0.5 0 0 1 51 0 0 0 0
+MESH batched_refine_final 9538 0 80 10 0 0 925 10.5 0.5 0.5 2213 10.5 0.5 0 11229 10 0.5 0 0 0 1 62 0 0 0 0
+MESH batched_refine_final 9539 0 11229 10 0.5 0 925 10.5 0.5 0.5 2213 10.5 0.5 0 83 10 1 0 0 0 1 62 0 0 0 0
+MESH batched_refine_final 9540 0 80 10 0 0 925 10.5 0.5 0.5 11229 10 0.5 0 4789 10 0.5 0.5 0 0 1 63 0 0 0 0
+MESH batched_refine_final 9541 0 11229 10 0.5 0 925 10.5 0.5 0.5 83 10 1 0 4789 10 0.5 0.5 0 0 1 63 0 0 0 0
+MESH batched_refine_final 9666 0 96 12 0 0 1086 12.5 0.5 0.5 2374 12.5 0.5 0 11390 12 0.5 0 0 0 1 74 0 0 0 0
+MESH batched_refine_final 9667 0 11390 12 0.5 0 1086 12.5 0.5 0.5 2374 12.5 0.5 0 99 12 1 0 0 0 1 74 0 0 0 0
+MESH batched_refine_final 9668 0 96 12 0 0 1086 12.5 0.5 0.5 11390 12 0.5 0 4950 12 0.5 0.5 0 0 1 75 0 0 0 0
+MESH batched_refine_final 9669 0 11390 12 0.5 0 1086 12.5 0.5 0.5 99 12 1 0 4950 12 0.5 0.5 0 0 1 75 0 0 0 0
+MESH batched_refine_final 9794 0 112 14 0 0 1247 14.5 0.5 0.5 2535 14.5 0.5 0 11551 14 0.5 0 0 0 1 86 0 0 0 0
+MESH batched_refine_final 9795 0 11551 14 0.5 0 1247 14.5 0.5 0.5 2535 14.5 0.5 0 115 14 1 0 0 0 1 86 0 0 0 0
+MESH batched_refine_final 9796 0 112 14 0 0 1247 14.5 0.5 0.5 11551 14 0.5 0 5111 14 0.5 0.5 0 0 1 87 0 0 0 0
+MESH batched_refine_final 9797 0 11551 14 0.5 0 1247 14.5 0.5 0.5 115 14 1 0 5111 14 0.5 0.5 0 0 1 87 0 0 0 0
+MESH batched_refine_final 9922 0 0 0 0 0 120 0.5 0.5 0.5 11712 0 0 0.5 2696 0.5 0 0.5 0 0 1 4 0 0 0 0
+MESH batched_refine_final 9923 0 11712 0 0 0.5 120 0.5 0.5 0.5 4 0 0 1 2696 0.5 0 0.5 0 0 1 4 0 0 0 0
+MESH batched_refine_final 9924 0 0 0 0 0 120 0.5 0.5 0.5 3984 0 0.5 0.5 11712 0 0 0.5 0 0 1 5 0 0 0 0
+MESH batched_refine_final 9925 0 11712 0 0 0.5 120 0.5 0.5 0.5 3984 0 0.5 0.5 4 0 0 1 0 0 1 5 0 0 0 0
+MESH batched_refine_final 10050 0 16 2 0 0 281 2.5 0.5 0.5 11873 2 0 0.5 2857 2.5 0 0.5 0 0 1 16 0 0 0 0
+MESH batched_refine_final 10051 0 11873 2 0 0.5 281 2.5 0.5 0.5 20 2 0 1 2857 2.5 0 0.5 0 0 1 16 0 0 0 0
+MESH batched_refine_final 10052 0 16 2 0 0 281 2.5 0.5 0.5 4145 2 0.5 0.5 11873 2 0 0.5 0 0 1 17 0 0 0 0
+MESH batched_refine_final 10053 0 11873 2 0 0.5 281 2.5 0.5 0.5 4145 2 0.5 0.5 20 2 0 1 0 0 1 17 0 0 0 0
+MESH batched_refine_final 10178 0 32 4 0 0 442 4.5 0.5 0.5 12034 4 0 0.5 3018 4.5 0 0.5 0 0 1 28 0 0 0 0
+MESH batched_refine_final 10179 0 12034 4 0 0.5 442 4.5 0.5 0.5 36 4 0 1 3018 4.5 0 0.5 0 0 1 28 0 0 0 0
+MESH batched_refine_final 10180 0 32 4 0 0 442 4.5 0.5 0.5 4306 4 0.5 0.5 12034 4 0 0.5 0 0 1 29 0 0 0 0
+MESH batched_refine_final 10181 0 12034 4 0 0.5 442 4.5 0.5 0.5 4306 4 0.5 0.5 36 4 0 1 0 0 1 29 0 0 0 0
+MESH batched_refine_final 10306 0 48 6 0 0 603 6.5 0.5 0.5 12195 6 0 0.5 3179 6.5 0 0.5 0 0 1 40 0 0 0 0
+MESH batched_refine_final 10307 0 12195 6 0 0.5 603 6.5 0.5 0.5 52 6 0 1 3179 6.5 0 0.5 0 0 1 40 0 0 0 0
+MESH batched_refine_final 10308 0 48 6 0 0 603 6.5 0.5 0.5 4467 6 0.5 0.5 12195 6 0 0.5 0 0 1 41 0 0 0 0
+MESH batched_refine_final 10309 0 12195 6 0 0.5 603 6.5 0.5 0.5 4467 6 0.5 0.5 52 6 0 1 0 0 1 41 0 0 0 0
+MESH batched_refine_final 10434 0 64 8 0 0 764 8.5 0.5 0.5 12356 8 0 0.5 3340 8.5 0 0.5 0 0 1 52 0 0 0 0
+MESH batched_refine_final 10435 0 12356 8 0 0.5 764 8.5 0.5 0.5 68 8 0 1 3340 8.5 0 0.5 0 0 1 52 0 0 0 0
+MESH batched_refine_final 10436 0 64 8 0 0 764 8.5 0.5 0.5 4628 8 0.5 0.5 12356 8 0 0.5 0 0 1 53 0 0 0 0
+MESH batched_refine_final 10437 0 12356 8 0 0.5 764 8.5 0.5 0.5 4628 8 0.5 0.5 68 8 0 1 0 0 1 53 0 0 0 0
+MESH batched_refine_final 10562 0 80 10 0 0 925 10.5 0.5 0.5 12517 10 0 0.5 3501 10.5 0 0.5 0 0 1 64 0 0 0 0
+MESH batched_refine_final 10563 0 12517 10 0 0.5 925 10.5 0.5 0.5 84 10 0 1 3501 10.5 0 0.5 0 0 1 64 0 0 0 0
+MESH batched_refine_final 10564 0 80 10 0 0 925 10.5 0.5 0.5 4789 10 0.5 0.5 12517 10 0 0.5 0 0 1 65 0 0 0 0
+MESH batched_refine_final 10565 0 12517 10 0 0.5 925 10.5 0.5 0.5 4789 10 0.5 0.5 84 10 0 1 0 0 1 65 0 0 0 0
+MESH batched_refine_final 10690 0 96 12 0 0 1086 12.5 0.5 0.5 12678 12 0 0.5 3662 12.5 0 0.5 0 0 1 76 0 0 0 0
+MESH batched_refine_final 10691 0 12678 12 0 0.5 1086 12.5 0.5 0.5 100 12 0 1 3662 12.5 0 0.5 0 0 1 76 0 0 0 0
+MESH batched_refine_final 10692 0 96 12 0 0 1086 12.5 0.5 0.5 4950 12 0.5 0.5 12678 12 0 0.5 0 0 1 77 0 0 0 0
+MESH batched_refine_final 10693 0 12678 12 0 0.5 1086 12.5 0.5 0.5 4950 12 0.5 0.5 100 12 0 1 0 0 1 77 0 0 0 0
+MESH batched_refine_final 10818 0 112 14 0 0 1247 14.5 0.5 0.5 12839 14 0 0.5 3823 14.5 0 0.5 0 0 1 88 0 0 0 0
+MESH batched_refine_final 10819 0 12839 14 0 0.5 1247 14.5 0.5 0.5 116 14 0 1 3823 14.5 0 0.5 0 0 1 88 0 0 0 0
+MESH batched_refine_final 10820 0 112 14 0 0 1247 14.5 0.5 0.5 5111 14 0.5 0.5 12839 14 0 0.5 0 0 1 89 0 0 0 0
+MESH batched_refine_final 10821 0 12839 14 0 0.5 1247 14.5 0.5 0.5 5111 14 0.5 0.5 116 14 0 1 0 0 1 89 0 0 0 0
+MESH batched_refine_final 10946 0 1408 0.5 0.5 0 120 0.5 0.5 0.5 1 1 0 0 13000 1 0.5 0 0 0 1 0 0 0 0 0
+MESH batched_refine_final 10947 0 1408 0.5 0.5 0 120 0.5 0.5 0.5 13000 1 0.5 0 2 1 1 0 0 0 1 0 0 0 0 0
+MESH batched_refine_final 10948 0 120 0.5 0.5 0.5 5272 1 0.5 0.5 1 1 0 0 13000 1 0.5 0 1 6 0 0 0 0 0 0
+MESH batched_refine_final 10949 0 120 0.5 0.5 0.5 5272 1 0.5 0.5 13000 1 0.5 0 2 1 1 0 1 6 0 0 0 0 0 0
+MESH batched_refine_final 11074 0 1569 2.5 0.5 0 281 2.5 0.5 0.5 17 3 0 0 13161 3 0.5 0 0 0 1 12 0 0 0 0
+MESH batched_refine_final 11075 0 1569 2.5 0.5 0 281 2.5 0.5 0.5 13161 3 0.5 0 18 3 1 0 0 0 1 12 0 0 0 0
+MESH batched_refine_final 11076 0 281 2.5 0.5 0.5 5433 3 0.5 0.5 17 3 0 0 13161 3 0.5 0 1 18 0 0 0 0 0 0
+MESH batched_refine_final 11077 0 281 2.5 0.5 0.5 5433 3 0.5 0.5 13161 3 0.5 0 18 3 1 0 1 18 0 0 0 0 0 0
+MESH batched_refine_final 11202 0 1730 4.5 0.5 0 442 4.5 0.5 0.5 33 5 0 0 13322 5 0.5 0 0 0 1 24 0 0 0 0
+MESH batched_refine_final 11203 0 1730 4.5 0.5 0 442 4.5 0.5 0.5 13322 5 0.5 0 34 5 1 0 0 0 1 24 0 0 0 0
+MESH batched_refine_final 11204 0 442 4.5 0.5 0.5 5594 5 0.5 0.5 33 5 0 0 13322 5 0.5 0 1 30 0 0 0 0 0 0
+MESH batched_refine_final 11205 0 442 4.5 0.5 0.5 5594 5 0.5 0.5 13322 5 0.5 0 34 5 1 0 1 30 0 0 0 0 0 0
+MESH batched_refine_final 11330 0 1891 6.5 0.5 0 603 6.5 0.5 0.5 49 7 0 0 13483 7 0.5 0 0 0 1 36 0 0 0 0
+MESH batched_refine_final 11331 0 1891 6.5 0.5 0 603 6.5 0.5 0.5 13483 7 0.5 0 50 7 1 0 0 0 1 36 0 0 0 0
+MESH batched_refine_final 11332 0 603 6.5 0.5 0.5 5755 7 0.5 0.5 49 7 0 0 13483 7 0.5 0 1 42 0 0 0 0 0 0
+MESH batched_refine_final 11333 0 603 6.5 0.5 0.5 5755 7 0.5 0.5 13483 7 0.5 0 50 7 1 0 1 42 0 0 0 0 0 0
+MESH batched_refine_final 11458 0 2052 8.5 0.5 0 764 8.5 0.5 0.5 65 9 0 0 13644 9 0.5 0 0 0 1 48 0 0 0 0
+MESH batched_refine_final 11459 0 2052 8.5 0.5 0 764 8.5 0.5 0.5 13644 9 0.5 0 66 9 1 0 0 0 1 48 0 0 0 0
+MESH batched_refine_final 11460 0 764 8.5 0.5 0.5 5916 9 0.5 0.5 65 9 0 0 13644 9 0.5 0 1 54 0 0 0 0 0 0
+MESH batched_refine_final 11461 0 764 8.5 0.5 0.5 5916 9 0.5 0.5 13644 9 0.5 0 66 9 1 0 1 54 0 0 0 0 0 0
+MESH batched_refine_final 11586 0 2213 10.5 0.5 0 925 10.5 0.5 0.5 81 11 0 0 13805 11 0.5 0 0 0 1 60 0 0 0 0
+MESH batched_refine_final 11587 0 2213 10.5 0.5 0 925 10.5 0.5 0.5 13805 11 0.5 0 82 11 1 0 0 0 1 60 0 0 0 0
+MESH batched_refine_final 11588 0 925 10.5 0.5 0.5 6077 11 0.5 0.5 81 11 0 0 13805 11 0.5 0 1 66 0 0 0 0 0 0
+MESH batched_refine_final 11589 0 925 10.5 0.5 0.5 6077 11 0.5 0.5 13805 11 0.5 0 82 11 1 0 1 66 0 0 0 0 0 0
+MESH batched_refine_final 11714 0 2374 12.5 0.5 0 1086 12.5 0.5 0.5 97 13 0 0 13966 13 0.5 0 0 0 1 72 0 0 0 0
+MESH batched_refine_final 11715 0 2374 12.5 0.5 0 1086 12.5 0.5 0.5 13966 13 0.5 0 98 13 1 0 0 0 1 72 0 0 0 0
+MESH batched_refine_final 11716 0 1086 12.5 0.5 0.5 6238 13 0.5 0.5 97 13 0 0 13966 13 0.5 0 1 78 0 0 0 0 0 0
+MESH batched_refine_final 11717 0 1086 12.5 0.5 0.5 6238 13 0.5 0.5 13966 13 0.5 0 98 13 1 0 1 78 0 0 0 0 0 0
+MESH batched_refine_final 11842 0 2535 14.5 0.5 0 1247 14.5 0.5 0.5 113 15 0 0 14127 15 0.5 0 0 0 1 84 0 0 0 0
+MESH batched_refine_final 11843 0 2535 14.5 0.5 0 1247 14.5 0.5 0.5 14127 15 0.5 0 114 15 1 0 0 0 1 84 0 0 0 0
+MESH batched_refine_final 11844 0 1247 14.5 0.5 0.5 6399 15 0.5 0.5 113 15 0 0 14127 15 0.5 0 1 90 0 0 0 0 0 0
+MESH batched_refine_final 11845 0 1247 14.5 0.5 0.5 6399 15 0.5 0.5 14127 15 0.5 0 114 15 1 0 1 90 0 0 0 0 0 0
+MESH batched_refine_final 11970 0 2696 0.5 0 0.5 120 0.5 0.5 0.5 14288 1 0 0.5 1 1 0 0 0 0 1 1 0 0 0 0
+MESH batched_refine_final 11971 0 2696 0.5 0 0.5 120 0.5 0.5 0.5 5 1 0 1 14288 1 0 0.5 0 0 1 1 0 0 0 0
+MESH batched_refine_final 11972 0 120 0.5 0.5 0.5 5272 1 0.5 0.5 14288 1 0 0.5 1 1 0 0 1 7 0 0 0 0 0 0
+MESH batched_refine_final 11973 0 120 0.5 0.5 0.5 5272 1 0.5 0.5 5 1 0 1 14288 1 0 0.5 1 7 0 0 0 0 0 0
+MESH batched_refine_final 12098 0 2857 2.5 0 0.5 281 2.5 0.5 0.5 14449 3 0 0.5 17 3 0 0 0 0 1 13 0 0 0 0
+MESH batched_refine_final 12099 0 2857 2.5 0 0.5 281 2.5 0.5 0.5 21 3 0 1 14449 3 0 0.5 0 0 1 13 0 0 0 0
+MESH batched_refine_final 12100 0 281 2.5 0.5 0.5 5433 3 0.5 0.5 14449 3 0 0.5 17 3 0 0 1 19 0 0 0 0 0 0
+MESH batched_refine_final 12101 0 281 2.5 0.5 0.5 5433 3 0.5 0.5 21 3 0 1 14449 3 0 0.5 1 19 0 0 0 0 0 0
+MESH batched_refine_final 12226 0 3018 4.5 0 0.5 442 4.5 0.5 0.5 14610 5 0 0.5 33 5 0 0 0 0 1 25 0 0 0 0
+MESH batched_refine_final 12227 0 3018 4.5 0 0.5 442 4.5 0.5 0.5 37 5 0 1 14610 5 0 0.5 0 0 1 25 0 0 0 0
+MESH batched_refine_final 12228 0 442 4.5 0.5 0.5 5594 5 0.5 0.5 14610 5 0 0.5 33 5 0 0 1 31 0 0 0 0 0 0
+MESH batched_refine_final 12229 0 442 4.5 0.5 0.5 5594 5 0.5 0.5 37 5 0 1 14610 5 0 0.5 1 31 0 0 0 0 0 0
+MESH batched_refine_final 12354 0 3179 6.5 0 0.5 603 6.5 0.5 0.5 14771 7 0 0.5 49 7 0 0 0 0 1 37 0 0 0 0
+MESH batched_refine_final 12355 0 3179 6.5 0 0.5 603 6.5 0.5 0.5 53 7 0 1 14771 7 0 0.5 0 0 1 37 0 0 0 0
+MESH batched_refine_final 12356 0 603 6.5 0.5 0.5 5755 7 0.5 0.5 14771 7 0 0.5 49 7 0 0 1 43 0 0 0 0 0 0
+MESH batched_refine_final 12357 0 603 6.5 0.5 0.5 5755 7 0.5 0.5 53 7 0 1 14771 7 0 0.5 1 43 0 0 0 0 0 0
+MESH batched_refine_final 12482 0 3340 8.5 0 0.5 764 8.5 0.5 0.5 14932 9 0 0.5 65 9 0 0 0 0 1 49 0 0 0 0
+MESH batched_refine_final 12483 0 3340 8.5 0 0.5 764 8.5 0.5 0.5 69 9 0 1 14932 9 0 0.5 0 0 1 49 0 0 0 0
+MESH batched_refine_final 12484 0 764 8.5 0.5 0.5 5916 9 0.5 0.5 14932 9 0 0.5 65 9 0 0 1 55 0 0 0 0 0 0
+MESH batched_refine_final 12485 0 764 8.5 0.5 0.5 5916 9 0.5 0.5 69 9 0 1 14932 9 0 0.5 1 55 0 0 0 0 0 0
+MESH batched_refine_final 12610 0 3501 10.5 0 0.5 925 10.5 0.5 0.5 15093 11 0 0.5 81 11 0 0 0 0 1 61 0 0 0 0
+MESH batched_refine_final 12611 0 3501 10.5 0 0.5 925 10.5 0.5 0.5 85 11 0 1 15093 11 0 0.5 0 0 1 61 0 0 0 0
+MESH batched_refine_final 12612 0 925 10.5 0.5 0.5 6077 11 0.5 0.5 15093 11 0 0.5 81 11 0 0 1 67 0 0 0 0 0 0
+MESH batched_refine_final 12613 0 925 10.5 0.5 0.5 6077 11 0.5 0.5 85 11 0 1 15093 11 0 0.5 1 67 0 0 0 0 0 0
+MESH batched_refine_final 12738 0 3662 12.5 0 0.5 1086 12.5 0.5 0.5 15254 13 0 0.5 97 13 0 0 0 0 1 73 0 0 0 0
+MESH batched_refine_final 12739 0 3662 12.5 0 0.5 1086 12.5 0.5 0.5 101 13 0 1 15254 13 0 0.5 0 0 1 73 0 0 0 0
+MESH batched_refine_final 12740 0 1086 12.5 0.5 0.5 6238 13 0.5 0.5 15254 13 0 0.5 97 13 0 0 1 79 0 0 0 0 0 0
+MESH batched_refine_final 12741 0 1086 12.5 0.5 0.5 6238 13 0.5 0.5 101 13 0 1 15254 13 0 0.5 1 79 0 0 0 0 0 0
+MESH batched_refine_final 12866 0 3823 14.5 0 0.5 1247 14.5 0.5 0.5 15415 15 0 0.5 113 15 0 0 0 0 1 85 0 0 0 0
+MESH batched_refine_final 12867 0 3823 14.5 0 0.5 1247 14.5 0.5 0.5 117 15 0 1 15415 15 0 0.5 0 0 1 85 0 0 0 0
+MESH batched_refine_final 12868 0 1247 14.5 0.5 0.5 6399 15 0.5 0.5 15415 15 0 0.5 113 15 0 0 1 91 0 0 0 0 0 0
+MESH batched_refine_final 12869 0 1247 14.5 0.5 0.5 6399 15 0.5 0.5 117 15 0 1 15415 15 0 0.5 1 91 0 0 0 0 0 0
+MESH batched_refine_final 12994 0 1408 0.5 0.5 0 120 0.5 0.5 0.5 2 1 1 0 15576 0.5 1 0 0 0 1 2 0 0 0 0
+MESH batched_refine_final 12995 0 1408 0.5 0.5 0 120 0.5 0.5 0.5 15576 0.5 1 0 3 0 1 0 0 0 1 2 0 0 0 0
+MESH batched_refine_final 12996 0 120 0.5 0.5 0.5 6560 0.5 1 0.5 2 1 1 0 15576 0.5 1 0 1 8 0 0 0 0 0 0
+MESH batched_refine_final 12997 0 120 0.5 0.5 0.5 6560 0.5 1 0.5 15576 0.5 1 0 3 0 1 0 1 8 0 0 0 0 0 0
+MESH batched_refine_final 13122 0 1569 2.5 0.5 0 281 2.5 0.5 0.5 18 3 1 0 15737 2.5 1 0 0 0 1 14 0 0 0 0
+MESH batched_refine_final 13123 0 1569 2.5 0.5 0 281 2.5 0.5 0.5 15737 2.5 1 0 19 2 1 0 0 0 1 14 0 0 0 0
+MESH batched_refine_final 13124 0 281 2.5 0.5 0.5 6721 2.5 1 0.5 18 3 1 0 15737 2.5 1 0 1 20 0 0 0 0 0 0
+MESH batched_refine_final 13125 0 281 2.5 0.5 0.5 6721 2.5 1 0.5 15737 2.5 1 0 19 2 1 0 1 20 0 0 0 0 0 0
+MESH batched_refine_final 13250 0 1730 4.5 0.5 0 442 4.5 0.5 0.5 34 5 1 0 15898 4.5 1 0 0 0 1 26 0 0 0 0
+MESH batched_refine_final 13251 0 1730 4.5 0.5 0 442 4.5 0.5 0.5 15898 4.5 1 0 35 4 1 0 0 0 1 26 0 0 0 0
+MESH batched_refine_final 13252 0 442 4.5 0.5 0.5 6882 4.5 1 0.5 34 5 1 0 15898 4.5 1 0 1 32 0 0 0 0 0 0
+MESH batched_refine_final 13253 0 442 4.5 0.5 0.5 6882 4.5 1 0.5 15898 4.5 1 0 35 4 1 0 1 32 0 0 0 0 0 0
+MESH batched_refine_final 13378 0 1891 6.5 0.5 0 603 6.5 0.5 0.5 50 7 1 0 16059 6.5 1 0 0 0 1 38 0 0 0 0
+MESH batched_refine_final 13379 0 1891 6.5 0.5 0 603 6.5 0.5 0.5 16059 6.5 1 0 51 6 1 0 0 0 1 38 0 0 0 0
+MESH batched_refine_final 13380 0 603 6.5 0.5 0.5 7043 6.5 1 0.5 50 7 1 0 16059 6.5 1 0 1 44 0 0 0 0 0 0
+MESH batched_refine_final 13381 0 603 6.5 0.5 0.5 7043 6.5 1 0.5 16059 6.5 1 0 51 6 1 0 1 44 0 0 0 0 0 0
+MESH batched_refine_final 13506 0 2052 8.5 0.5 0 764 8.5 0.5 0.5 66 9 1 0 16220 8.5 1 0 0 0 1 50 0 0 0 0
+MESH batched_refine_final 13507 0 2052 8.5 0.5 0 764 8.5 0.5 0.5 16220 8.5 1 0 67 8 1 0 0 0 1 50 0 0 0 0
+MESH batched_refine_final 13508 0 764 8.5 0.5 0.5 7204 8.5 1 0.5 66 9 1 0 16220 8.5 1 0 1 56 0 0 0 0 0 0
+MESH batched_refine_final 13509 0 764 8.5 0.5 0.5 7204 8.5 1 0.5 16220 8.5 1 0 67 8 1 0 1 56 0 0 0 0 0 0
+MESH batched_refine_final 13634 0 2213 10.5 0.5 0 925 10.5 0.5 0.5 82 11 1 0 16381 10.5 1 0 0 0 1 62 0 0 0 0
+MESH batched_refine_final 13635 0 2213 10.5 0.5 0 925 10.5 0.5 0.5 16381 10.5 1 0 83 10 1 0 0 0 1 62 0 0 0 0
+MESH batched_refine_final 13636 0 925 10.5 0.5 0.5 7365 10.5 1 0.5 82 11 1 0 16381 10.5 1 0 1 68 0 0 0 0 0 0
+MESH batched_refine_final 13637 0 925 10.5 0.5 0.5 7365 10.5 1 0.5 16381 10.5 1 0 83 10 1 0 1 68 0 0 0 0 0 0
+MESH batched_refine_final 13762 0 2374 12.5 0.5 0 1086 12.5 0.5 0.5 98 13 1 0 16542 12.5 1 0 0 0 1 74 0 0 0 0
+MESH batched_refine_final 13763 0 2374 12.5 0.5 0 1086 12.5 0.5 0.5 16542 12.5 1 0 99 12 1 0 0 0 1 74 0 0 0 0
+MESH batched_refine_final 13764 0 1086 12.5 0.5 0.5 7526 12.5 1 0.5 98 13 1 0 16542 12.5 1 0 1 80 0 0 0 0 0 0
+MESH batched_refine_final 13765 0 1086 12.5 0.5 0.5 7526 12.5 1 0.5 16542 12.5 1 0 99 12 1 0 1 80 0 0 0 0 0 0
+MESH batched_refine_final 13890 0 2535 14.5 0.5 0 1247 14.5 0.5 0.5 114 15 1 0 16703 14.5 1 0 0 0 1 86 0 0 0 0
+MESH batched_refine_final 13891 0 2535 14.5 0.5 0 1247 14.5 0.5 0.5 16703 14.5 1 0 115 14 1 0 0 0 1 86 0 0 0 0
+MESH batched_refine_final 13892 0 1247 14.5 0.5 0.5 7687 14.5 1 0.5 114 15 1 0 16703 14.5 1 0 1 92 0 0 0 0 0 0
+MESH batched_refine_final 13893 0 1247 14.5 0.5 0.5 7687 14.5 1 0.5 16703 14.5 1 0 115 14 1 0 1 92 0 0 0 0 0 0
+MESH batched_refine_final 14018 0 120 0.5 0.5 0.5 16864 1 1 0.5 5272 1 0.5 0.5 2 1 1 0 1 6 0 0 0 0 0 0
+MESH batched_refine_final 14019 0 120 0.5 0.5 0.5 6 1 1 1 5272 1 0.5 0.5 16864 1 1 0.5 1 6 0 0 0 0 0 0
+MESH batched_refine_final 14020 0 120 0.5 0.5 0.5 16864 1 1 0.5 2 1 1 0 6560 0.5 1 0.5 1 8 0 0 0 0 0 0
+MESH batched_refine_final 14021 0 120 0.5 0.5 0.5 6 1 1 1 16864 1 1 0.5 6560 0.5 1 0.5 1 8 0 0 0 0 0 0
+MESH batched_refine_final 14146 0 281 2.5 0.5 0.5 17025 3 1 0.5 5433 3 0.5 0.5 18 3 1 0 1 18 0 0 0 0 0 0
+MESH batched_refine_final 14147 0 281 2.5 0.5 0.5 22 3 1 1 5433 3 0.5 0.5 17025 3 1 0.5 1 18 0 0 0 0 0 0
+MESH batched_refine_final 14148 0 281 2.5 0.5 0.5 17025 3 1 0.5 18 3 1 0 6721 2.5 1 0.5 1 20 0 0 0 0 0 0
+MESH batched_refine_final 14149 0 281 2.5 0.5 0.5 22 3 1 1 17025 3 1 0.5 6721 2.5 1 0.5 1 20 0 0 0 0 0 0
+MESH batched_refine_final 14274 0 442 4.5 0.5 0.5 17186 5 1 0.5 5594 5 0.5 0.5 34 5 1 0 1 30 0 0 0 0 0 0
+MESH batched_refine_final 14275 0 442 4.5 0.5 0.5 38 5 1 1 5594 5 0.5 0.5 17186 5 1 0.5 1 30 0 0 0 0 0 0
+MESH batched_refine_final 14276 0 442 4.5 0.5 0.5 17186 5 1 0.5 34 5 1 0 6882 4.5 1 0.5 1 32 0 0 0 0 0 0
+MESH batched_refine_final 14277 0 442 4.5 0.5 0.5 38 5 1 1 17186 5 1 0.5 6882 4.5 1 0.5 1 32 0 0 0 0 0 0
+MESH batched_refine_final 14402 0 603 6.5 0.5 0.5 17347 7 1 0.5 5755 7 0.5 0.5 50 7 1 0 1 42 0 0 0 0 0 0
+MESH batched_refine_final 14403 0 603 6.5 0.5 0.5 54 7 1 1 5755 7 0.5 0.5 17347 7 1 0.5 1 42 0 0 0 0 0 0
+MESH batched_refine_final 14404 0 603 6.5 0.5 0.5 17347 7 1 0.5 50 7 1 0 7043 6.5 1 0.5 1 44 0 0 0 0 0 0
+MESH batched_refine_final 14405 0 603 6.5 0.5 0.5 54 7 1 1 17347 7 1 0.5 7043 6.5 1 0.5 1 44 0 0 0 0 0 0
+MESH batched_refine_final 14530 0 764 8.5 0.5 0.5 17508 9 1 0.5 5916 9 0.5 0.5 66 9 1 0 1 54 0 0 0 0 0 0
+MESH batched_refine_final 14531 0 764 8.5 0.5 0.5 70 9 1 1 5916 9 0.5 0.5 17508 9 1 0.5 1 54 0 0 0 0 0 0
+MESH batched_refine_final 14532 0 764 8.5 0.5 0.5 17508 9 1 0.5 66 9 1 0 7204 8.5 1 0.5 1 56 0 0 0 0 0 0
+MESH batched_refine_final 14533 0 764 8.5 0.5 0.5 70 9 1 1 17508 9 1 0.5 7204 8.5 1 0.5 1 56 0 0 0 0 0 0
+MESH batched_refine_final 14658 0 925 10.5 0.5 0.5 17669 11 1 0.5 6077 11 0.5 0.5 82 11 1 0 1 66 0 0 0 0 0 0
+MESH batched_refine_final 14659 0 925 10.5 0.5 0.5 86 11 1 1 6077 11 0.5 0.5 17669 11 1 0.5 1 66 0 0 0 0 0 0
+MESH batched_refine_final 14660 0 925 10.5 0.5 0.5 17669 11 1 0.5 82 11 1 0 7365 10.5 1 0.5 1 68 0 0 0 0 0 0
+MESH batched_refine_final 14661 0 925 10.5 0.5 0.5 86 11 1 1 17669 11 1 0.5 7365 10.5 1 0.5 1 68 0 0 0 0 0 0
+MESH batched_refine_final 14786 0 1086 12.5 0.5 0.5 17830 13 1 0.5 6238 13 0.5 0.5 98 13 1 0 1 78 0 0 0 0 0 0
+MESH batched_refine_final 14787 0 1086 12.5 0.5 0.5 102 13 1 1 6238 13 0.5 0.5 17830 13 1 0.5 1 78 0 0 0 0 0 0
+MESH batched_refine_final 14788 0 1086 12.5 0.5 0.5 17830 13 1 0.5 98 13 1 0 7526 12.5 1 0.5 1 80 0 0 0 0 0 0
+MESH batched_refine_final 14789 0 1086 12.5 0.5 0.5 102 13 1 1 17830 13 1 0.5 7526 12.5 1 0.5 1 80 0 0 0 0 0 0
+MESH batched_refine_final 14914 0 1247 14.5 0.5 0.5 17991 15 1 0.5 6399 15 0.5 0.5 114 15 1 0 1 90 0 0 0 0 0 0
+MESH batched_refine_final 14915 0 1247 14.5 0.5 0.5 118 15 1 1 6399 15 0.5 0.5 17991 15 1 0.5 1 90 0 0 0 0 0 0
+MESH batched_refine_final 14916 0 1247 14.5 0.5 0.5 17991 15 1 0.5 114 15 1 0 7687 14.5 1 0.5 1 92 0 0 0 0 0 0
+MESH batched_refine_final 14917 0 1247 14.5 0.5 0.5 118 15 1 1 17991 15 1 0.5 7687 14.5 1 0.5 1 92 0 0 0 0 0 0
+MESH batched_refine_final 15042 0 3984 0 0.5 0.5 120 0.5 0.5 0.5 3 0 1 0 18152 0 1 0.5 0 0 1 3 0 0 0 0
+MESH batched_refine_final 15043 0 3984 0 0.5 0.5 120 0.5 0.5 0.5 18152 0 1 0.5 7 0 1 1 0 0 1 3 0 0 0 0
+MESH batched_refine_final 15044 0 120 0.5 0.5 0.5 6560 0.5 1 0.5 3 0 1 0 18152 0 1 0.5 1 9 0 0 0 0 0 0
+MESH batched_refine_final 15045 0 120 0.5 0.5 0.5 6560 0.5 1 0.5 18152 0 1 0.5 7 0 1 1 1 9 0 0 0 0 0 0
+MESH batched_refine_final 15170 0 4145 2 0.5 0.5 281 2.5 0.5 0.5 19 2 1 0 18313 2 1 0.5 0 0 1 15 0 0 0 0
+MESH batched_refine_final 15171 0 4145 2 0.5 0.5 281 2.5 0.5 0.5 18313 2 1 0.5 23 2 1 1 0 0 1 15 0 0 0 0
+MESH batched_refine_final 15172 0 281 2.5 0.5 0.5 6721 2.5 1 0.5 19 2 1 0 18313 2 1 0.5 1 21 0 0 0 0 0 0
+MESH batched_refine_final 15173 0 281 2.5 0.5 0.5 6721 2.5 1 0.5 18313 2 1 0.5 23 2 1 1 1 21 0 0 0 0 0 0
+MESH batched_refine_final 15298 0 4306 4 0.5 0.5 442 4.5 0.5 0.5 35 4 1 0 18474 4 1 0.5 0 0 1 27 0 0 0 0
+MESH batched_refine_final 15299 0 4306 4 0.5 0.5 442 4.5 0.5 0.5 18474 4 1 0.5 39 4 1 1 0 0 1 27 0 0 0 0
+MESH batched_refine_final 15300 0 442 4.5 0.5 0.5 6882 4.5 1 0.5 35 4 1 0 18474 4 1 0.5 1 33 0 0 0 0 0 0
+MESH batched_refine_final 15301 0 442 4.5 0.5 0.5 6882 4.5 1 0.5 18474 4 1 0.5 39 4 1 1 1 33 0 0 0 0 0 0
+MESH batched_refine_final 15426 0 4467 6 0.5 0.5 603 6.5 0.5 0.5 51 6 1 0 18635 6 1 0.5 0 0 1 39 0 0 0 0
+MESH batched_refine_final 15427 0 4467 6 0.5 0.5 603 6.5 0.5 0.5 18635 6 1 0.5 55 6 1 1 0 0 1 39 0 0 0 0
+MESH batched_refine_final 15428 0 603 6.5 0.5 0.5 7043 6.5 1 0.5 51 6 1 0 18635 6 1 0.5 1 45 0 0 0 0 0 0
+MESH batched_refine_final 15429 0 603 6.5 0.5 0.5 7043 6.5 1 0.5 18635 6 1 0.5 55 6 1 1 1 45 0 0 0 0 0 0
+MESH batched_refine_final 15554 0 4628 8 0.5 0.5 764 8.5 0.5 0.5 67 8 1 0 18796 8 1 0.5 0 0 1 51 0 0 0 0
+MESH batched_refine_final 15555 0 4628 8 0.5 0.5 764 8.5 0.5 0.5 18796 8 1 0.5 71 8 1 1 0 0 1 51 0 0 0 0
+MESH batched_refine_final 15556 0 764 8.5 0.5 0.5 7204 8.5 1 0.5 67 8 1 0 18796 8 1 0.5 1 57 0 0 0 0 0 0
+MESH batched_refine_final 15557 0 764 8.5 0.5 0.5 7204 8.5 1 0.5 18796 8 1 0.5 71 8 1 1 1 57 0 0 0 0 0 0
+MESH batched_refine_final 15682 0 4789 10 0.5 0.5 925 10.5 0.5 0.5 83 10 1 0 18957 10 1 0.5 0 0 1 63 0 0 0 0
+MESH batched_refine_final 15683 0 4789 10 0.5 0.5 925 10.5 0.5 0.5 18957 10 1 0.5 87 10 1 1 0 0 1 63 0 0 0 0
+MESH batched_refine_final 15684 0 925 10.5 0.5 0.5 7365 10.5 1 0.5 83 10 1 0 18957 10 1 0.5 1 69 0 0 0 0 0 0
+MESH batched_refine_final 15685 0 925 10.5 0.5 0.5 7365 10.5 1 0.5 18957 10 1 0.5 87 10 1 1 1 69 0 0 0 0 0 0
+MESH batched_refine_final 15810 0 4950 12 0.5 0.5 1086 12.5 0.5 0.5 99 12 1 0 19118 12 1 0.5 0 0 1 75 0 0 0 0
+MESH batched_refine_final 15811 0 4950 12 0.5 0.5 1086 12.5 0.5 0.5 19118 12 1 0.5 103 12 1 1 0 0 1 75 0 0 0 0
+MESH batched_refine_final 15812 0 1086 12.5 0.5 0.5 7526 12.5 1 0.5 99 12 1 0 19118 12 1 0.5 1 81 0 0 0 0 0 0
+MESH batched_refine_final 15813 0 1086 12.5 0.5 0.5 7526 12.5 1 0.5 19118 12 1 0.5 103 12 1 1 1 81 0 0 0 0 0 0
+MESH batched_refine_final 15938 0 5111 14 0.5 0.5 1247 14.5 0.5 0.5 115 14 1 0 19279 14 1 0.5 0 0 1 87 0 0 0 0
+MESH batched_refine_final 15939 0 5111 14 0.5 0.5 1247 14.5 0.5 0.5 19279 14 1 0.5 119 14 1 1 0 0 1 87 0 0 0 0
+MESH batched_refine_final 15940 0 1247 14.5 0.5 0.5 7687 14.5 1 0.5 115 14 1 0 19279 14 1 0.5 1 93 0 0 0 0 0 0
+MESH batched_refine_final 15941 0 1247 14.5 0.5 0.5 7687 14.5 1 0.5 19279 14 1 0.5 119 14 1 1 1 93 0 0 0 0 0 0
+MESH batched_refine_final 16066 0 2696 0.5 0 0.5 120 0.5 0.5 0.5 4 0 0 1 19440 0.5 0 1 0 0 1 4 0 0 0 0
+MESH batched_refine_final 16067 0 2696 0.5 0 0.5 120 0.5 0.5 0.5 19440 0.5 0 1 5 1 0 1 0 0 1 4 0 0 0 0
+MESH batched_refine_final 16068 0 120 0.5 0.5 0.5 7848 0.5 0.5 1 4 0 0 1 19440 0.5 0 1 1 10 0 0 0 0 0 0
+MESH batched_refine_final 16069 0 120 0.5 0.5 0.5 7848 0.5 0.5 1 19440 0.5 0 1 5 1 0 1 1 10 0 0 0 0 0 0
+MESH batched_refine_final 16194 0 2857 2.5 0 0.5 281 2.5 0.5 0.5 20 2 0 1 19601 2.5 0 1 0 0 1 16 0 0 0 0
+MESH batched_refine_final 16195 0 2857 2.5 0 0.5 281 2.5 0.5 0.5 19601 2.5 0 1 21 3 0 1 0 0 1 16 0 0 0 0
+MESH batched_refine_final 16196 0 281 2.5 0.5 0.5 8009 2.5 0.5 1 20 2 0 1 19601 2.5 0 1 1 22 0 0 0 0 0 0
+MESH batched_refine_final 16197 0 281 2.5 0.5 0.5 8009 2.5 0.5 1 19601 2.5 0 1 21 3 0 1 1 22 0 0 0 0 0 0
+MESH batched_refine_final 16322 0 3018 4.5 0 0.5 442 4.5 0.5 0.5 36 4 0 1 19762 4.5 0 1 0 0 1 28 0 0 0 0
+MESH batched_refine_final 16323 0 3018 4.5 0 0.5 442 4.5 0.5 0.5 19762 4.5 0 1 37 5 0 1 0 0 1 28 0 0 0 0
+MESH batched_refine_final 16324 0 442 4.5 0.5 0.5 8170 4.5 0.5 1 36 4 0 1 19762 4.5 0 1 1 34 0 0 0 0 0 0
+MESH batched_refine_final 16325 0 442 4.5 0.5 0.5 8170 4.5 0.5 1 19762 4.5 0 1 37 5 0 1 1 34 0 0 0 0 0 0
+MESH batched_refine_final 16450 0 3179 6.5 0 0.5 603 6.5 0.5 0.5 52 6 0 1 19923 6.5 0 1 0 0 1 40 0 0 0 0
+MESH batched_refine_final 16451 0 3179 6.5 0 0.5 603 6.5 0.5 0.5 19923 6.5 0 1 53 7 0 1 0 0 1 40 0 0 0 0
+MESH batched_refine_final 16452 0 603 6.5 0.5 0.5 8331 6.5 0.5 1 52 6 0 1 19923 6.5 0 1 1 46 0 0 0 0 0 0
+MESH batched_refine_final 16453 0 603 6.5 0.5 0.5 8331 6.5 0.5 1 19923 6.5 0 1 53 7 0 1 1 46 0 0 0 0 0 0
+MESH batched_refine_final 16578 0 3340 8.5 0 0.5 764 8.5 0.5 0.5 68 8 0 1 20084 8.5 0 1 0 0 1 52 0 0 0 0
+MESH batched_refine_final 16579 0 3340 8.5 0 0.5 764 8.5 0.5 0.5 20084 8.5 0 1 69 9 0 1 0 0 1 52 0 0 0 0
+MESH batched_refine_final 16580 0 764 8.5 0.5 0.5 8492 8.5 0.5 1 68 8 0 1 20084 8.5 0 1 1 58 0 0 0 0 0 0
+MESH batched_refine_final 16581 0 764 8.5 0.5 0.5 8492 8.5 0.5 1 20084 8.5 0 1 69 9 0 1 1 58 0 0 0 0 0 0
+MESH batched_refine_final 16706 0 3501 10.5 0 0.5 925 10.5 0.5 0.5 84 10 0 1 20245 10.5 0 1 0 0 1 64 0 0 0 0
+MESH batched_refine_final 16707 0 3501 10.5 0 0.5 925 10.5 0.5 0.5 20245 10.5 0 1 85 11 0 1 0 0 1 64 0 0 0 0
+MESH batched_refine_final 16708 0 925 10.5 0.5 0.5 8653 10.5 0.5 1 84 10 0 1 20245 10.5 0 1 1 70 0 0 0 0 0 0
+MESH batched_refine_final 16709 0 925 10.5 0.5 0.5 8653 10.5 0.5 1 20245 10.5 0 1 85 11 0 1 1 70 0 0 0 0 0 0
+MESH batched_refine_final 16834 0 3662 12.5 0 0.5 1086 12.5 0.5 0.5 100 12 0 1 20406 12.5 0 1 0 0 1 76 0 0 0 0
+MESH batched_refine_final 16835 0 3662 12.5 0 0.5 1086 12.5 0.5 0.5 20406 12.5 0 1 101 13 0 1 0 0 1 76 0 0 0 0
+MESH batched_refine_final 16836 0 1086 12.5 0.5 0.5 8814 12.5 0.5 1 100 12 0 1 20406 12.5 0 1 1 82 0 0 0 0 0 0
+MESH batched_refine_final 16837 0 1086 12.5 0.5 0.5 8814 12.5 0.5 1 20406 12.5 0 1 101 13 0 1 1 82 0 0 0 0 0 0
+MESH batched_refine_final 16962 0 3823 14.5 0 0.5 1247 14.5 0.5 0.5 116 14 0 1 20567 14.5 0 1 0 0 1 88 0 0 0 0
+MESH batched_refine_final 16963 0 3823 14.5 0 0.5 1247 14.5 0.5 0.5 20567 14.5 0 1 117 15 0 1 0 0 1 88 0 0 0 0
+MESH batched_refine_final 16964 0 1247 14.5 0.5 0.5 8975 14.5 0.5 1 116 14 0 1 20567 14.5 0 1 1 94 0 0 0 0 0 0
+MESH batched_refine_final 16965 0 1247 14.5 0.5 0.5 8975 14.5 0.5 1 20567 14.5 0 1 117 15 0 1 1 94 0 0 0 0 0 0
+MESH batched_refine_final 17090 0 3984 0 0.5 0.5 120 0.5 0.5 0.5 20728 0 0.5 1 4 0 0 1 0 0 1 5 0 0 0 0
+MESH batched_refine_final 17091 0 3984 0 0.5 0.5 120 0.5 0.5 0.5 7 0 1 1 20728 0 0.5 1 0 0 1 5 0 0 0 0
+MESH batched_refine_final 17092 0 120 0.5 0.5 0.5 7848 0.5 0.5 1 20728 0 0.5 1 4 0 0 1 1 11 0 0 0 0 0 0
+MESH batched_refine_final 17093 0 120 0.5 0.5 0.5 7848 0.5 0.5 1 7 0 1 1 20728 0 0.5 1 1 11 0 0 0 0 0 0
+MESH batched_refine_final 17218 0 4145 2 0.5 0.5 281 2.5 0.5 0.5 20889 2 0.5 1 20 2 0 1 0 0 1 17 0 0 0 0
+MESH batched_refine_final 17219 0 4145 2 0.5 0.5 281 2.5 0.5 0.5 23 2 1 1 20889 2 0.5 1 0 0 1 17 0 0 0 0
+MESH batched_refine_final 17220 0 281 2.5 0.5 0.5 8009 2.5 0.5 1 20889 2 0.5 1 20 2 0 1 1 23 0 0 0 0 0 0
+MESH batched_refine_final 17221 0 281 2.5 0.5 0.5 8009 2.5 0.5 1 23 2 1 1 20889 2 0.5 1 1 23 0 0 0 0 0 0
+MESH batched_refine_final 17346 0 4306 4 0.5 0.5 442 4.5 0.5 0.5 21050 4 0.5 1 36 4 0 1 0 0 1 29 0 0 0 0
+MESH batched_refine_final 17347 0 4306 4 0.5 0.5 442 4.5 0.5 0.5 39 4 1 1 21050 4 0.5 1 0 0 1 29 0 0 0 0
+MESH batched_refine_final 17348 0 442 4.5 0.5 0.5 8170 4.5 0.5 1 21050 4 0.5 1 36 4 0 1 1 35 0 0 0 0 0 0
+MESH batched_refine_final 17349 0 442 4.5 0.5 0.5 8170 4.5 0.5 1 39 4 1 1 21050 4 0.5 1 1 35 0 0 0 0 0 0
+MESH batched_refine_final 17474 0 4467 6 0.5 0.5 603 6.5 0.5 0.5 21211 6 0.5 1 52 6 0 1 0 0 1 41 0 0 0 0
+MESH batched_refine_final 17475 0 4467 6 0.5 0.5 603 6.5 0.5 0.5 55 6 1 1 21211 6 0.5 1 0 0 1 41 0 0 0 0
+MESH batched_refine_final 17476 0 603 6.5 0.5 0.5 8331 6.5 0.5 1 21211 6 0.5 1 52 6 0 1 1 47 0 0 0 0 0 0
+MESH batched_refine_final 17477 0 603 6.5 0.5 0.5 8331 6.5 0.5 1 55 6 1 1 21211 6 0.5 1 1 47 0 0 0 0 0 0
+MESH batched_refine_final 17602 0 4628 8 0.5 0.5 764 8.5 0.5 0.5 21372 8 0.5 1 68 8 0 1 0 0 1 53 0 0 0 0
+MESH batched_refine_final 17603 0 4628 8 0.5 0.5 764 8.5 0.5 0.5 71 8 1 1 21372 8 0.5 1 0 0 1 53 0 0 0 0
+MESH batched_refine_final 17604 0 764 8.5 0.5 0.5 8492 8.5 0.5 1 21372 8 0.5 1 68 8 0 1 1 59 0 0 0 0 0 0
+MESH batched_refine_final 17605 0 764 8.5 0.5 0.5 8492 8.5 0.5 1 71 8 1 1 21372 8 0.5 1 1 59 0 0 0 0 0 0
+MESH batched_refine_final 17730 0 4789 10 0.5 0.5 925 10.5 0.5 0.5 21533 10 0.5 1 84 10 0 1 0 0 1 65 0 0 0 0
+MESH batched_refine_final 17731 0 4789 10 0.5 0.5 925 10.5 0.5 0.5 87 10 1 1 21533 10 0.5 1 0 0 1 65 0 0 0 0
+MESH batched_refine_final 17732 0 925 10.5 0.5 0.5 8653 10.5 0.5 1 21533 10 0.5 1 84 10 0 1 1 71 0 0 0 0 0 0
+MESH batched_refine_final 17733 0 925 10.5 0.5 0.5 8653 10.5 0.5 1 87 10 1 1 21533 10 0.5 1 1 71 0 0 0 0 0 0
+MESH batched_refine_final 17858 0 4950 12 0.5 0.5 1086 12.5 0.5 0.5 21694 12 0.5 1 100 12 0 1 0 0 1 77 0 0 0 0
+MESH batched_refine_final 17859 0 4950 12 0.5 0.5 1086 12.5 0.5 0.5 103 12 1 1 21694 12 0.5 1 0 0 1 77 0 0 0 0
+MESH batched_refine_final 17860 0 1086 12.5 0.5 0.5 8814 12.5 0.5 1 21694 12 0.5 1 100 12 0 1 1 83 0 0 0 0 0 0
+MESH batched_refine_final 17861 0 1086 12.5 0.5 0.5 8814 12.5 0.5 1 103 12 1 1 21694 12 0.5 1 1 83 0 0 0 0 0 0
+MESH batched_refine_final 17986 0 5111 14 0.5 0.5 1247 14.5 0.5 0.5 21855 14 0.5 1 116 14 0 1 0 0 1 89 0 0 0 0
+MESH batched_refine_final 17987 0 5111 14 0.5 0.5 1247 14.5 0.5 0.5 119 14 1 1 21855 14 0.5 1 0 0 1 89 0 0 0 0
+MESH batched_refine_final 17988 0 1247 14.5 0.5 0.5 8975 14.5 0.5 1 21855 14 0.5 1 116 14 0 1 1 95 0 0 0 0 0 0
+MESH batched_refine_final 17989 0 1247 14.5 0.5 0.5 8975 14.5 0.5 1 119 14 1 1 21855 14 0.5 1 1 95 0 0 0 0 0 0
+MESH batched_refine_final 18114 0 120 0.5 0.5 0.5 22016 1 0.5 1 5 1 0 1 5272 1 0.5 0.5 1 7 0 0 0 0 0 0
+MESH batched_refine_final 18115 0 120 0.5 0.5 0.5 6 1 1 1 22016 1 0.5 1 5272 1 0.5 0.5 1 7 0 0 0 0 0 0
+MESH batched_refine_final 18116 0 120 0.5 0.5 0.5 22016 1 0.5 1 7848 0.5 0.5 1 5 1 0 1 1 10 0 0 0 0 0 0
+MESH batched_refine_final 18117 0 120 0.5 0.5 0.5 6 1 1 1 7848 0.5 0.5 1 22016 1 0.5 1 1 10 0 0 0 0 0 0
+MESH batched_refine_final 18242 0 281 2.5 0.5 0.5 22177 3 0.5 1 21 3 0 1 5433 3 0.5 0.5 1 19 0 0 0 0 0 0
+MESH batched_refine_final 18243 0 281 2.5 0.5 0.5 22 3 1 1 22177 3 0.5 1 5433 3 0.5 0.5 1 19 0 0 0 0 0 0
+MESH batched_refine_final 18244 0 281 2.5 0.5 0.5 22177 3 0.5 1 8009 2.5 0.5 1 21 3 0 1 1 22 0 0 0 0 0 0
+MESH batched_refine_final 18245 0 281 2.5 0.5 0.5 22 3 1 1 8009 2.5 0.5 1 22177 3 0.5 1 1 22 0 0 0 0 0 0
+MESH batched_refine_final 18370 0 442 4.5 0.5 0.5 22338 5 0.5 1 37 5 0 1 5594 5 0.5 0.5 1 31 0 0 0 0 0 0
+MESH batched_refine_final 18371 0 442 4.5 0.5 0.5 38 5 1 1 22338 5 0.5 1 5594 5 0.5 0.5 1 31 0 0 0 0 0 0
+MESH batched_refine_final 18372 0 442 4.5 0.5 0.5 22338 5 0.5 1 8170 4.5 0.5 1 37 5 0 1 1 34 0 0 0 0 0 0
+MESH batched_refine_final 18373 0 442 4.5 0.5 0.5 38 5 1 1 8170 4.5 0.5 1 22338 5 0.5 1 1 34 0 0 0 0 0 0
+MESH batched_refine_final 18498 0 603 6.5 0.5 0.5 22499 7 0.5 1 53 7 0 1 5755 7 0.5 0.5 1 43 0 0 0 0 0 0
+MESH batched_refine_final 18499 0 603 6.5 0.5 0.5 54 7 1 1 22499 7 0.5 1 5755 7 0.5 0.5 1 43 0 0 0 0 0 0
+MESH batched_refine_final 18500 0 603 6.5 0.5 0.5 22499 7 0.5 1 8331 6.5 0.5 1 53 7 0 1 1 46 0 0 0 0 0 0
+MESH batched_refine_final 18501 0 603 6.5 0.5 0.5 54 7 1 1 8331 6.5 0.5 1 22499 7 0.5 1 1 46 0 0 0 0 0 0
+MESH batched_refine_final 18626 0 764 8.5 0.5 0.5 22660 9 0.5 1 69 9 0 1 5916 9 0.5 0.5 1 55 0 0 0 0 0 0
+MESH batched_refine_final 18627 0 764 8.5 0.5 0.5 70 9 1 1 22660 9 0.5 1 5916 9 0.5 0.5 1 55 0 0 0 0 0 0
+MESH batched_refine_final 18628 0 764 8.5 0.5 0.5 22660 9 0.5 1 8492 8.5 0.5 1 69 9 0 1 1 58 0 0 0 0 0 0
+MESH batched_refine_final 18629 0 764 8.5 0.5 0.5 70 9 1 1 8492 8.5 0.5 1 22660 9 0.5 1 1 58 0 0 0 0 0 0
+MESH batched_refine_final 18754 0 925 10.5 0.5 0.5 22821 11 0.5 1 85 11 0 1 6077 11 0.5 0.5 1 67 0 0 0 0 0 0
+MESH batched_refine_final 18755 0 925 10.5 0.5 0.5 86 11 1 1 22821 11 0.5 1 6077 11 0.5 0.5 1 67 0 0 0 0 0 0
+MESH batched_refine_final 18756 0 925 10.5 0.5 0.5 22821 11 0.5 1 8653 10.5 0.5 1 85 11 0 1 1 70 0 0 0 0 0 0
+MESH batched_refine_final 18757 0 925 10.5 0.5 0.5 86 11 1 1 8653 10.5 0.5 1 22821 11 0.5 1 1 70 0 0 0 0 0 0
+MESH batched_refine_final 18882 0 1086 12.5 0.5 0.5 22982 13 0.5 1 101 13 0 1 6238 13 0.5 0.5 1 79 0 0 0 0 0 0
+MESH batched_refine_final 18883 0 1086 12.5 0.5 0.5 102 13 1 1 22982 13 0.5 1 6238 13 0.5 0.5 1 79 0 0 0 0 0 0
+MESH batched_refine_final 18884 0 1086 12.5 0.5 0.5 22982 13 0.5 1 8814 12.5 0.5 1 101 13 0 1 1 82 0 0 0 0 0 0
+MESH batched_refine_final 18885 0 1086 12.5 0.5 0.5 102 13 1 1 8814 12.5 0.5 1 22982 13 0.5 1 1 82 0 0 0 0 0 0
+MESH batched_refine_final 19010 0 1247 14.5 0.5 0.5 23143 15 0.5 1 117 15 0 1 6399 15 0.5 0.5 1 91 0 0 0 0 0 0
+MESH batched_refine_final 19011 0 1247 14.5 0.5 0.5 118 15 1 1 23143 15 0.5 1 6399 15 0.5 0.5 1 91 0 0 0 0 0 0
+MESH batched_refine_final 19012 0 1247 14.5 0.5 0.5 23143 15 0.5 1 8975 14.5 0.5 1 117 15 0 1 1 94 0 0 0 0 0 0
+MESH batched_refine_final 19013 0 1247 14.5 0.5 0.5 118 15 1 1 8975 14.5 0.5 1 23143 15 0.5 1 1 94 0 0 0 0 0 0
+MESH batched_refine_final 19138 0 120 0.5 0.5 0.5 6 1 1 1 6560 0.5 1 0.5 23304 0.5 1 1 1 9 0 0 0 0 0 0
+MESH batched_refine_final 19139 0 120 0.5 0.5 0.5 23304 0.5 1 1 6560 0.5 1 0.5 7 0 1 1 1 9 0 0 0 0 0 0
+MESH batched_refine_final 19140 0 120 0.5 0.5 0.5 6 1 1 1 23304 0.5 1 1 7848 0.5 0.5 1 1 11 0 0 0 0 0 0
+MESH batched_refine_final 19141 0 120 0.5 0.5 0.5 23304 0.5 1 1 7 0 1 1 7848 0.5 0.5 1 1 11 0 0 0 0 0 0
+MESH batched_refine_final 19266 0 281 2.5 0.5 0.5 22 3 1 1 6721 2.5 1 0.5 23465 2.5 1 1 1 21 0 0 0 0 0 0
+MESH batched_refine_final 19267 0 281 2.5 0.5 0.5 23465 2.5 1 1 6721 2.5 1 0.5 23 2 1 1 1 21 0 0 0 0 0 0
+MESH batched_refine_final 19268 0 281 2.5 0.5 0.5 22 3 1 1 23465 2.5 1 1 8009 2.5 0.5 1 1 23 0 0 0 0 0 0
+MESH batched_refine_final 19269 0 281 2.5 0.5 0.5 23465 2.5 1 1 23 2 1 1 8009 2.5 0.5 1 1 23 0 0 0 0 0 0
+MESH batched_refine_final 19394 0 442 4.5 0.5 0.5 38 5 1 1 6882 4.5 1 0.5 23626 4.5 1 1 1 33 0 0 0 0 0 0
+MESH batched_refine_final 19395 0 442 4.5 0.5 0.5 23626 4.5 1 1 6882 4.5 1 0.5 39 4 1 1 1 33 0 0 0 0 0 0
+MESH batched_refine_final 19396 0 442 4.5 0.5 0.5 38 5 1 1 23626 4.5 1 1 8170 4.5 0.5 1 1 35 0 0 0 0 0 0
+MESH batched_refine_final 19397 0 442 4.5 0.5 0.5 23626 4.5 1 1 39 4 1 1 8170 4.5 0.5 1 1 35 0 0 0 0 0 0
+MESH batched_refine_final 19522 0 603 6.5 0.5 0.5 54 7 1 1 7043 6.5 1 0.5 23787 6.5 1 1 1 45 0 0 0 0 0 0
+MESH batched_refine_final 19523 0 603 6.5 0.5 0.5 23787 6.5 1 1 7043 6.5 1 0.5 55 6 1 1 1 45 0 0 0 0 0 0
+MESH batched_refine_final 19524 0 603 6.5 0.5 0.5 54 7 1 1 23787 6.5 1 1 8331 6.5 0.5 1 1 47 0 0 0 0 0 0
+MESH batched_refine_final 19525 0 603 6.5 0.5 0.5 23787 6.5 1 1 55 6 1 1 8331 6.5 0.5 1 1 47 0 0 0 0 0 0
+MESH batched_refine_final 19650 0 764 8.5 0.5 0.5 70 9 1 1 7204 8.5 1 0.5 23948 8.5 1 1 1 57 0 0 0 0 0 0
+MESH batched_refine_final 19651 0 764 8.5 0.5 0.5 23948 8.5 1 1 7204 8.5 1 0.5 71 8 1 1 1 57 0 0 0 0 0 0
+MESH batched_refine_final 19652 0 764 8.5 0.5 0.5 70 9 1 1 23948 8.5 1 1 8492 8.5 0.5 1 1 59 0 0 0 0 0 0
+MESH batched_refine_final 19653 0 764 8.5 0.5 0.5 23948 8.5 1 1 71 8 1 1 8492 8.5 0.5 1 1 59 0 0 0 0 0 0
+MESH batched_refine_final 19778 0 925 10.5 0.5 0.5 86 11 1 1 7365 10.5 1 0.5 24109 10.5 1 1 1 69 0 0 0 0 0 0
+MESH batched_refine_final 19779 0 925 10.5 0.5 0.5 24109 10.5 1 1 7365 10.5 1 0.5 87 10 1 1 1 69 0 0 0 0 0 0
+MESH batched_refine_final 19780 0 925 10.5 0.5 0.5 86 11 1 1 24109 10.5 1 1 8653 10.5 0.5 1 1 71 0 0 0 0 0 0
+MESH batched_refine_final 19781 0 925 10.5 0.5 0.5 24109 10.5 1 1 87 10 1 1 8653 10.5 0.5 1 1 71 0 0 0 0 0 0
+MESH batched_refine_final 19906 0 1086 12.5 0.5 0.5 102 13 1 1 7526 12.5 1 0.5 24270 12.5 1 1 1 81 0 0 0 0 0 0
+MESH batched_refine_final 19907 0 1086 12.5 0.5 0.5 24270 12.5 1 1 7526 12.5 1 0.5 103 12 1 1 1 81 0 0 0 0 0 0
+MESH batched_refine_final 19908 0 1086 12.5 0.5 0.5 102 13 1 1 24270 12.5 1 1 8814 12.5 0.5 1 1 83 0 0 0 0 0 0
+MESH batched_refine_final 19909 0 1086 12.5 0.5 0.5 24270 12.5 1 1 103 12 1 1 8814 12.5 0.5 1 1 83 0 0 0 0 0 0
+MESH batched_refine_final 20034 0 1247 14.5 0.5 0.5 118 15 1 1 7687 14.5 1 0.5 24431 14.5 1 1 1 93 0 0 0 0 0 0
+MESH batched_refine_final 20035 0 1247 14.5 0.5 0.5 24431 14.5 1 1 7687 14.5 1 0.5 119 14 1 1 1 93 0 0 0 0 0 0
+MESH batched_refine_final 20036 0 1247 14.5 0.5 0.5 118 15 1 1 24431 14.5 1 1 8975 14.5 0.5 1 1 95 0 0 0 0 0 0
+MESH batched_refine_final 20037 0 1247 14.5 0.5 0.5 24431 14.5 1 1 119 14 1 1 8975 14.5 0.5 1 1 95 0 0 0 0 0 0
+ENGINE rank=0 ranks=1 valid=1 case=box initial=48 updated=1056 final=384 seed_batches=5 unmeasured_retired=0 rounds=19 proposed=152 attempts=152 accepted=152 rejected=0 conflicts=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=16416 changed_vertices_sent=936 changed_vertices_received=936 nested_change_notifications=0.0010488790000000002 nested_collapse_orientation=0 collapse_geometry_nested_s=0 selection_edge_evaluations=157 selection_edge_reused=6467 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 field_requests=384 field_hits=0 field_misses=384 field_invalid_queries=0 field_failures=0 field_evictions=0 field_edges=941 work_bytes=19563272 total_s=0.102741101 init_s=0.000311887 seed_s=0.00044019799999999993 selection_s=0.00082520199999999971 dependency_s=0.00094543899999999985 reservation_s=0.00032594500000000006 donor_s=0.0064583509999999976 reconstruction_s=0.056435304999999991 metric_s=0.0054514629999999967 routing_s=0.0033252369999999996 publication_s=0.0056285330000000033 update_s=0.0069801310000000005 completion_s=0 other_s=0.015613410000000022 tracked_bytes=1094016 tracked_calls=5023 tracked_collectives_nested_s=0.0011059710000007328 directory_elections=1888 directory_election_nested_s=0.00017373999999999989 process_cpu_s=0.102741 reconstruction_cpu_s=0.056307999999999997 metric_cpu_s=0.0048170000000000027 measurement_cpu_s=0.01083900000000001 repair_fallbacks=0 fallback_accepted=0 recovery_starts=0 repair_proposals=0 moved=0 reconnected=0 inserted=0 batches=516 batch_retries=0 query_import_retries=0 private_query_retries=152 donor_reused=0 edge_separated=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=2112 donor_maximum_patch=10 donor_search_nested_s=0 donor_filter_nested_s=0 planning_nested_s=0 batch_considered=152 batch_deferred=0 proposal_duplicates=0 batch_rounds=19 batch_candidates=152 stop=complete global_work=152 work_limit=4096 progress_windows=0 stagnant_windows=0 search_windows=0 bidirectional=0 length_split_passes=0 length_collapse_passes=0 length_splits=152 length_collapses=0 length_pass_deferred=0 size_progress=152 quality_progress=0 cell_removals=0 geometry_trials=152 geometry_rejected=0 metric_trials=152 metric_shape_rejected=0 metric_progress_rejected=0 metric_measurement_rejected=0 sample_metric_present=0 sample_shape_measured=0 sample_q=unavailable sample_j=unavailable sample_cell=0 sample_sliver=0 sample_feature=0 sample_v0=0 sample_v1=0 sample_v2=0 sample_x=0 sample_y=0 sample_z=0 coarsen_checkpoints=0 coarsen_committed_passes=0 coarsen_rolled_back_passes=0 coarsen_retired_directions=0 coarsen_restored_cells=0 coarsen_rolled_back_collapses=0 quality_stages=1 construction_returns=0 shape_measured=0 batch_reserved=152 concurrent_rounds=0 final_reservations=0 proposal_deferred=0 maximum_parallel_commits=0 field_build_nested_s=0.0013390259999999992 field_query_nested_s=0.0016600180000000003 cache_nested_s=0 search_nested_s=0.0016355999999999999 interpolation_nested_s=0 composition_nested_s=0 edge_nested_s=0.00072094800000000077 edge_search_nested_s=0 edge_trace_nested_s=0 edge_integral_nested_s=0.00039334500000000002
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Native first-row owner retains coupled-wall reconstruction with empty MPI ranks
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2575
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2591: FAILED:
+  CHECK( world.maximum(result.stats.layer_shape_screens>0) )
+with expansion:
+  0
+with message:
+  Native 3D global proposal budget exhausted before admission; feasibility is
+  undetermined.
+
+NATIVE3D_STORAGE rank=0 stage=exit authority_plus_memo_bytes=0 prepared_reserved_bytes=0 facet_live_bytes=0 scope_live_bytes=0 private_cells_bytes=8960 selection_bytes=20136 directory_bytes=17464 metric_source_bytes=22728 parameter_bytes=0 caller_reservation_bytes=0 native_peak_bytes=21768376
+NATIVE3D_STAGE rank=0 stage=exit phase=construction cells=20 measured=20 cache_consistent=1 census_complete=1 shape_complete=0 geometry_complete=1 q_measured=0 j_measured=0 q_bad=0 j_bad=0 size_bad=18 geometry_bad=0 q_debt=0 j_debt=0 size_debt=656.82485978828298 geometry_debt=0 associations=0 working_faces=0 face_pieces=0 trace_pieces=0 maximum_ratio_limbs=0 atlas_work=0 atlas_bytes=0 global_work=3 rounds=1 batch_rounds=1 batch_candidates=1 batch_reserved=1 quality_progress=0 accepted=1 updated_cells=16 update_seconds=0.00016562400000000001 geometry_trials=1 geometry_rejected=0 guidance_trials=0 guidance_rejected=0 guidance_faces=0 guidance_early_rejected=0 guidance_seconds=0 collective_calls=105 collective_seconds=3.0603999999989639e-05 election_calls=247 election_seconds=1.331700000026248e-05 direct_calls=0 direct_exceptions=0 direct_work=0 direct_seconds=0 upper_calls=0 union_exceptions=0 upper_refusals=0 upper_work=0 upper_seconds=0 full_calls=0 full_work=0 full_seconds=0 facet_hits=0 facet_misses=0 scope_hits=0 scope_misses=0 scope_attempts=0 scope_builds=0 scope_build_work=0 scope_build_seconds=0 support_calls=0 support_facets=0 support_seconds=0 facet_build_work=0 facet_build_seconds=0 piece_selection_work=0 piece_selection_seconds=0 traversal_work=0 traversal_seconds=0 selected_pieces=0 support_pieces=0 smooth_boundary_stars=0 smooth_boundary_reused=0 smooth_boundary_candidates=0 smooth_boundary_rejects=0,0,0,0 smooth_boundary_guidance=0 smooth_boundary_upper_queries=0 smooth_boundary_guidance_faces=0 smooth_boundary_guidance_early_rejected=0 smooth_boundary_moves=0 smooth_boundary_debt_reduction=0 smooth_boundary_seconds=0 smooth_interior_stars=0 smooth_interior_reused=0 smooth_interior_candidates=0 smooth_interior_rejects=0,0,0,0 smooth_interior_guidance=0 smooth_interior_upper_queries=0 smooth_interior_moves=0 smooth_interior_debt_reduction=0 smooth_interior_seconds=0 retention_refusals=0 prepared_bytes=0 prepared_limit=0 facet_bytes=0 scope_bytes=0 facet_entries=0 scope_entries=0 cache_evictions=0 cache_evicted_bytes=0 length_splits=1 length_collapses=0 split_passes=0 collapse_passes=0 quality_stages=0 split_generation=0 split_lane=0 surface_rounds=0 interior_rounds=0 surface_seconds=0 interior_seconds=0 surface_conflicts=0 interior_conflicts=0 interior_boundary_discoveries=0 unique_long_surface=0 unique_long_interior=0 unique_edge_debt=0 maximum_edge=0 edge_census_round=18446744073709551615 edge_census_current=0 edge_histogram=0,0,0 child_parent_max=0.5 child_ratio_measured=1 elapsed=0.0033566949999999998
+-------------------------------------------------------------------------------
+Native3D engine elects inconsistent wall-height policies before changing input
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2630
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2648: FAILED:
+  CHECK( Bytes(impossible.cells)==saved )
+with expansion:
+  { 0, 0, 0, 0, 0, 0, 0, 0, 2, 'L', 'L', 'E', 'C', 'D', '3', 'N', 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð',
+  '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 1, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0,
+  0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+  0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?',
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?',
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð',
+  '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð',
+  '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0,
+  'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 1, 0, 0, 0, 0,
+  0, 0, 0, 2, 'L', 'L', 'E', 'C', 'D', '3', 'N', 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0,
+  0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 3, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0,
+  0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0,
+  0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 2, 0, 0, 0, 0, 0, 0, 0, 2, 'L', 'L',
+  'E', 'C', 'D', '3', 'N', 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0,
+  0, 0, 0, 0, 'ð', '?', 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 19,
+  0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '\t', 0, 0, 0, 0, 0, 0, 0, 1, 0,
+  0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 'ð', '?', 3, 0, 0, 0, 0, 0, 0, 0, 2, 'L', 'L', 'E', 'C', 'D', '3',
+  'N', 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?',
+  7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?',
+  0, 0, 0, 0, 0, 0, 'ð', '?', 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 20, 0, 0, 0, 0, 0, 0, 0,
+  1, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 5,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0,
+  0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0,
+  0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0,
+  0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 4,
+  0, 0, 0, 0, 0, 0, 0, 2, 'L', 'L', 'E', 'C', 'D', '3', 'N', 4, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?',
+  0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 4, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð',
+  '?', 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 'ð', '?', 21, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+  0, '\n', 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?',
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?',
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð',
+  '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð',
+  '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 5, 0, 0, 0, 0, 0, 0,
+  0, 2, 'L', 'L', 'E', 'C', 'D', '3', 'N', 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0,
+  'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 1, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0,
+  0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?' }
+  ==
+  { 0, 0, 0, 0, 0, 0, 0, 0, 2, 'L', 'L', 'E', 'C', 'D', '3', 'N', 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð',
+  '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 1, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0,
+  0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+  0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?',
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?',
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð',
+  '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð',
+  '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0,
+  'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 1, 0, 0, 0, 0,
+  0, 0, 0, 2, 'L', 'L', 'E', 'C', 'D', '3', 'N', 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0,
+  0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 3, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0,
+  0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0,
+  0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 2, 0, 0, 0, 0, 0, 0, 0, 2, 'L', 'L',
+  'E', 'C', 'D', '3', 'N', 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0,
+  0, 0, 0, 0, 'ð', '?', 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 19,
+  0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '\t', 0, 0, 0, 0, 0, 0, 0, 1, 0,
+  0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 'ð', '?', 3, 0, 0, 0, 0, 0, 0, 0, 2, 'L', 'L', 'E', 'C', 'D', '3',
+  'N', 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?',
+  7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?',
+  0, 0, 0, 0, 0, 0, 'ð', '?', 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 20, 0, 0, 0, 0, 0, 0, 0,
+  1, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 5,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0,
+  0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0,
+  0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0,
+  0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 4,
+  0, 0, 0, 0, 0, 0, 0, 2, 'L', 'L', 'E', 'C', 'D', '3', 'N', 4, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?',
+  0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 4, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð',
+  '?', 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 'ð', '?', 21, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+  0, '\n', 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?',
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?',
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð',
+  '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð',
+  '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 5, 0, 0, 0, 0, 0, 0,
+  0, 2, 'L', 'L', 'E', 'C', 'D', '3', 'N', 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0,
+  'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 1, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0,
+  0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?', 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 'ð', '?' }
+with message:
+  Native3D initial first-row construction rejected: Native3D geometry-height
+  incompatibility within admitted volume at facet 0
+
+ENGINE rank=0 ranks=1 valid=0 case=quality_pass_with_construction_debt initial=172 updated=294 final=184 seed_batches=22 unmeasured_retired=0 rounds=494 proposed=514 attempts=514 accepted=11 rejected=503 conflicts=0 collapse_geometry_checks=0 collapse_filtered=0 collapse_orientation_checks=0 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=1148 changed_vertices_sent=102 changed_vertices_received=102 nested_change_notifications=0.0011542529999999994 nested_collapse_orientation=0 collapse_geometry_nested_s=0 selection_edge_evaluations=438 selection_edge_reused=2358 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 field_requests=13783 field_hits=0 field_misses=13783 field_invalid_queries=0 field_failures=0 field_evictions=0 field_edges=1100 work_bytes=17881936 total_s=0 init_s=0 seed_s=0 selection_s=0 dependency_s=0 reservation_s=0 donor_s=0 reconstruction_s=0 metric_s=0 routing_s=0 publication_s=0 update_s=0 completion_s=0 other_s=0 tracked_bytes=1107936 tracked_calls=47886 tracked_collectives_nested_s=0.005368919000012351 directory_elections=14500 directory_election_nested_s=0.0012408429999999967 process_cpu_s=0 reconstruction_cpu_s=0 metric_cpu_s=0 measurement_cpu_s=0 repair_fallbacks=0 fallback_accepted=0 recovery_starts=0 repair_proposals=3076 moved=8 reconnected=3 inserted=0 batches=3093 batch_retries=0 query_import_retries=0 private_query_retries=512 donor_reused=0 edge_separated=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=5872 donor_maximum_patch=12 donor_search_nested_s=0 donor_filter_nested_s=0 planning_nested_s=0 batch_considered=513 batch_deferred=0 proposal_duplicates=0 batch_rounds=493 batch_candidates=513 stop=operator_stagnation global_work=1083 work_limit=32768 progress_windows=7 stagnant_windows=7 search_windows=7 bidirectional=0 length_split_passes=0 length_collapse_passes=0 length_splits=0 length_collapses=0 length_pass_deferred=0 size_progress=0 quality_progress=11 cell_removals=0 geometry_trials=2997 geometry_rejected=1096 metric_trials=1901 metric_shape_rejected=0 metric_progress_rejected=1890 metric_measurement_rejected=0 sample_metric_present=1 sample_shape_measured=1 sample_q=0.20015865487674087 sample_j=0.063384563186493464 sample_cell=1504903 sample_sliver=1504903 sample_feature=3 sample_v0=1000069 sample_v1=1001000 sample_v2=1001001 sample_x=0.49497597064846716 sample_y=-0.067049050925517661 sample_z=0 coarsen_checkpoints=0 coarsen_committed_passes=0 coarsen_rolled_back_passes=0 coarsen_retired_directions=0 coarsen_restored_cells=0 coarsen_rolled_back_collapses=0 quality_stages=2 construction_returns=1 shape_measured=1 batch_reserved=512 concurrent_rounds=0 final_reservations=0 proposal_deferred=0 maximum_parallel_commits=0 field_build_nested_s=0 field_query_nested_s=0 cache_nested_s=0 search_nested_s=0 interpolation_nested_s=0 composition_nested_s=0 edge_nested_s=0 edge_search_nested_s=0 edge_trace_nested_s=0 edge_integral_nested_s=0
+ENGINE rank=0 ranks=1 valid=1 case=bidirectional_lengths initial=30 updated=198 final=74 seed_batches=3 unmeasured_retired=0 rounds=29 proposed=29 attempts=29 accepted=24 rejected=5 conflicts=0 collapse_geometry_checks=408 collapse_filtered=16 collapse_orientation_checks=12 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=2672 changed_vertices_sent=158 changed_vertices_received=158 nested_change_notifications=0.000176181 nested_collapse_orientation=0 collapse_geometry_nested_s=0 selection_edge_evaluations=71 selection_edge_reused=1297 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 field_requests=74 field_hits=0 field_misses=74 field_invalid_queries=0 field_failures=0 field_evictions=0 field_edges=218 work_bytes=17213560 total_s=0 init_s=0 seed_s=0 selection_s=0 dependency_s=0 reservation_s=0 donor_s=0 reconstruction_s=0 metric_s=0 routing_s=0 publication_s=0 update_s=0 completion_s=0 other_s=0 tracked_bytes=466592 tracked_calls=1929 tracked_collectives_nested_s=0.00035134100000178137 directory_elections=761 directory_election_nested_s=6.6602999999999904e-05 process_cpu_s=0 reconstruction_cpu_s=0 metric_cpu_s=0 measurement_cpu_s=0 repair_fallbacks=0 fallback_accepted=0 recovery_starts=0 repair_proposals=0 moved=0 reconnected=0 inserted=0 batches=97 batch_retries=0 query_import_retries=0 private_query_retries=29 donor_reused=0 edge_separated=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=477 donor_maximum_patch=10 donor_search_nested_s=0 donor_filter_nested_s=0 planning_nested_s=0 batch_considered=0 batch_deferred=0 proposal_duplicates=0 batch_rounds=0 batch_candidates=0 stop=complete global_work=29 work_limit=4096 progress_windows=13 stagnant_windows=3 search_windows=3 bidirectional=1 length_split_passes=15 length_collapse_passes=1 length_splits=22 length_collapses=2 length_pass_deferred=642 size_progress=22 quality_progress=0 cell_removals=2 geometry_trials=29 geometry_rejected=0 metric_trials=29 metric_shape_rejected=0 metric_progress_rejected=5 metric_measurement_rejected=0 sample_metric_present=1 sample_shape_measured=0 sample_q=unavailable sample_j=unavailable sample_cell=0 sample_sliver=0 sample_feature=2 sample_v0=103 sample_v1=9737 sample_v2=0 sample_x=0.6875 sample_y=0.9375 sample_z=0.375 coarsen_checkpoints=0 coarsen_committed_passes=0 coarsen_rolled_back_passes=0 coarsen_retired_directions=0 coarsen_restored_cells=0 coarsen_rolled_back_collapses=0 quality_stages=1 construction_returns=0 shape_measured=0 batch_reserved=0 concurrent_rounds=0 final_reservations=0 proposal_deferred=0 maximum_parallel_commits=0 field_build_nested_s=0 field_query_nested_s=0 cache_nested_s=0 search_nested_s=0 interpolation_nested_s=0 composition_nested_s=0 edge_nested_s=0 edge_search_nested_s=0 edge_trace_nested_s=0 edge_integral_nested_s=0
+ENGINE rank=0 ranks=1 valid=1 case=bidirectional_lengths initial=30 updated=198 final=74 seed_batches=3 unmeasured_retired=0 rounds=29 proposed=29 attempts=29 accepted=24 rejected=5 conflicts=0 collapse_geometry_checks=408 collapse_filtered=16 collapse_orientation_checks=12 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=2672 changed_vertices_sent=158 changed_vertices_received=158 nested_change_notifications=0.00017767400000000001 nested_collapse_orientation=0 collapse_geometry_nested_s=0 selection_edge_evaluations=71 selection_edge_reused=1297 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=0 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 field_requests=74 field_hits=0 field_misses=74 field_invalid_queries=0 field_failures=0 field_evictions=0 field_edges=218 work_bytes=17213560 total_s=0 init_s=0 seed_s=0 selection_s=0 dependency_s=0 reservation_s=0 donor_s=0 reconstruction_s=0 metric_s=0 routing_s=0 publication_s=0 update_s=0 completion_s=0 other_s=0 tracked_bytes=466592 tracked_calls=1929 tracked_collectives_nested_s=0.00034206400000380555 directory_elections=761 directory_election_nested_s=6.6590000000000025e-05 process_cpu_s=0 reconstruction_cpu_s=0 metric_cpu_s=0 measurement_cpu_s=0 repair_fallbacks=0 fallback_accepted=0 recovery_starts=0 repair_proposals=0 moved=0 reconnected=0 inserted=0 batches=97 batch_retries=0 query_import_retries=0 private_query_retries=29 donor_reused=0 edge_separated=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=477 donor_maximum_patch=10 donor_search_nested_s=0 donor_filter_nested_s=0 planning_nested_s=0 batch_considered=0 batch_deferred=0 proposal_duplicates=0 batch_rounds=0 batch_candidates=0 stop=complete global_work=29 work_limit=4096 progress_windows=13 stagnant_windows=3 search_windows=3 bidirectional=1 length_split_passes=15 length_collapse_passes=1 length_splits=22 length_collapses=2 length_pass_deferred=642 size_progress=22 quality_progress=0 cell_removals=2 geometry_trials=29 geometry_rejected=0 metric_trials=29 metric_shape_rejected=0 metric_progress_rejected=5 metric_measurement_rejected=0 sample_metric_present=1 sample_shape_measured=0 sample_q=unavailable sample_j=unavailable sample_cell=0 sample_sliver=0 sample_feature=2 sample_v0=103 sample_v1=9737 sample_v2=0 sample_x=0.6875 sample_y=0.9375 sample_z=0.375 coarsen_checkpoints=0 coarsen_committed_passes=0 coarsen_rolled_back_passes=0 coarsen_retired_directions=0 coarsen_restored_cells=0 coarsen_rolled_back_collapses=0 quality_stages=1 construction_returns=0 shape_measured=0 batch_reserved=0 concurrent_rounds=0 final_reservations=0 proposal_deferred=0 maximum_parallel_commits=0 field_build_nested_s=0 field_query_nested_s=0 cache_nested_s=0 search_nested_s=0 interpolation_nested_s=0 composition_nested_s=0 edge_nested_s=0 edge_search_nested_s=0 edge_trace_nested_s=0 edge_integral_nested_s=0
+ENGINE rank=0 ranks=1 valid=1 case=bidirectional_lengths initial=28 updated=197 final=71 seed_batches=4 unmeasured_retired=2 rounds=25 proposed=25 attempts=25 accepted=23 rejected=2 conflicts=2 collapse_geometry_checks=390 collapse_filtered=8 collapse_orientation_checks=10 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=2526 changed_vertices_sent=157 changed_vertices_received=157 nested_change_notifications=0.00016663599999999995 nested_collapse_orientation=0 collapse_geometry_nested_s=0 selection_edge_evaluations=70 selection_edge_reused=1280 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=3 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 field_requests=129 field_hits=0 field_misses=86 field_invalid_queries=0 field_failures=0 field_evictions=0 field_edges=527 work_bytes=17204848 total_s=0 init_s=0 seed_s=0 selection_s=0 dependency_s=0 reservation_s=0 donor_s=0 reconstruction_s=0 metric_s=0 routing_s=0 publication_s=0 update_s=0 completion_s=0 other_s=0 tracked_bytes=482888 tracked_calls=1885 tracked_collectives_nested_s=0.0003382960000020141 directory_elections=753 directory_election_nested_s=9.8472999999999746e-05 process_cpu_s=0 reconstruction_cpu_s=0 metric_cpu_s=0 measurement_cpu_s=0 repair_fallbacks=0 fallback_accepted=0 recovery_starts=0 repair_proposals=29 moved=0 reconnected=0 inserted=1 batches=156 batch_retries=0 query_import_retries=0 private_query_retries=25 donor_reused=0 edge_separated=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=920 donor_maximum_patch=12 donor_search_nested_s=0 donor_filter_nested_s=0 planning_nested_s=0 batch_considered=0 batch_deferred=0 proposal_duplicates=0 batch_rounds=0 batch_candidates=0 stop=complete global_work=54 work_limit=4096 progress_windows=9 stagnant_windows=2 search_windows=2 bidirectional=1 length_split_passes=15 length_collapse_passes=1 length_splits=21 length_collapses=2 length_pass_deferred=644 size_progress=21 quality_progress=0 cell_removals=2 geometry_trials=54 geometry_rejected=0 metric_trials=54 metric_shape_rejected=0 metric_progress_rejected=31 metric_measurement_rejected=0 sample_metric_present=1 sample_shape_measured=0 sample_q=unavailable sample_j=unavailable sample_cell=0 sample_sliver=0 sample_feature=2 sample_v0=101 sample_v1=10121 sample_v2=0 sample_x=0.875 sample_y=0.375 sample_z=0.625 coarsen_checkpoints=0 coarsen_committed_passes=0 coarsen_rolled_back_passes=0 coarsen_retired_directions=0 coarsen_restored_cells=0 coarsen_rolled_back_collapses=0 quality_stages=1 construction_returns=0 shape_measured=0 batch_reserved=0 concurrent_rounds=0 final_reservations=0 proposal_deferred=0 maximum_parallel_commits=0 field_build_nested_s=0 field_query_nested_s=0 cache_nested_s=0 search_nested_s=0 interpolation_nested_s=0 composition_nested_s=0 edge_nested_s=0 edge_search_nested_s=0 edge_trace_nested_s=0 edge_integral_nested_s=0
+ENGINE rank=0 ranks=1 valid=1 case=bidirectional_lengths initial=28 updated=197 final=71 seed_batches=4 unmeasured_retired=2 rounds=25 proposed=25 attempts=25 accepted=23 rejected=2 conflicts=2 collapse_geometry_checks=390 collapse_filtered=8 collapse_orientation_checks=10 collapse_orientation_filtered=0 collapse_reactivated=0 changed_star_scans=2526 changed_vertices_sent=157 changed_vertices_received=157 nested_change_notifications=0.00019538499999999999 nested_collapse_orientation=0 collapse_geometry_nested_s=0 selection_edge_evaluations=70 selection_edge_reused=1280 wall_reconstruction_trials=0 wall_reconstruction_accepted=0 wall_joint_trials=0 wall_joint_moves=0 wall_joint_removals=0 wall_joint_accepted=0 placement_connectivity_trials=0 placement_flips=0 placement_moves=0 placement_dependency_expansions=0 placement_classified_vertices=0 placement_trials=3 placement_validated=0 wall_topology_trials=0 wall_topology_accepted=0 field_requests=129 field_hits=0 field_misses=86 field_invalid_queries=0 field_failures=0 field_evictions=0 field_edges=527 work_bytes=17204848 total_s=0 init_s=0 seed_s=0 selection_s=0 dependency_s=0 reservation_s=0 donor_s=0 reconstruction_s=0 metric_s=0 routing_s=0 publication_s=0 update_s=0 completion_s=0 other_s=0 tracked_bytes=482888 tracked_calls=1885 tracked_collectives_nested_s=0.00033816600000102781 directory_elections=753 directory_election_nested_s=6.6389999999999979e-05 process_cpu_s=0 reconstruction_cpu_s=0 metric_cpu_s=0 measurement_cpu_s=0 repair_fallbacks=0 fallback_accepted=0 recovery_starts=0 repair_proposals=29 moved=0 reconnected=0 inserted=1 batches=156 batch_retries=0 query_import_retries=0 private_query_retries=25 donor_reused=0 edge_separated=0 donor_candidates=0 donor_filtered=0 donor_box_filtered=0 donor_payloads=920 donor_maximum_patch=12 donor_search_nested_s=0 donor_filter_nested_s=0 planning_nested_s=0 batch_considered=0 batch_deferred=0 proposal_duplicates=0 batch_rounds=0 batch_candidates=0 stop=complete global_work=54 work_limit=4096 progress_windows=9 stagnant_windows=2 search_windows=2 bidirectional=1 length_split_passes=15 length_collapse_passes=1 length_splits=21 length_collapses=2 length_pass_deferred=644 size_progress=21 quality_progress=0 cell_removals=2 geometry_trials=54 geometry_rejected=0 metric_trials=54 metric_shape_rejected=0 metric_progress_rejected=31 metric_measurement_rejected=0 sample_metric_present=1 sample_shape_measured=0 sample_q=unavailable sample_j=unavailable sample_cell=0 sample_sliver=0 sample_feature=2 sample_v0=101 sample_v1=10121 sample_v2=0 sample_x=0.875 sample_y=0.375 sample_z=0.625 coarsen_checkpoints=0 coarsen_committed_passes=0 coarsen_rolled_back_passes=0 coarsen_retired_directions=0 coarsen_restored_cells=0 coarsen_rolled_back_collapses=0 quality_stages=1 construction_returns=0 shape_measured=0 batch_reserved=0 concurrent_rounds=0 final_reservations=0 proposal_deferred=0 maximum_parallel_commits=0 field_build_nested_s=0 field_query_nested_s=0 cache_nested_s=0 search_nested_s=0 interpolation_nested_s=0 composition_nested_s=0 edge_nested_s=0 edge_search_nested_s=0 edge_trace_nested_s=0 edge_integral_nested_s=0
+===============================================================================
+test cases:   29 |   27 passed | 2 failed
+assertions: 8013 | 8011 passed | 2 failed
+
+Command exited with non-zero status 2
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeRepairBatch3D],[NativeRepairFairness3D],[NativeCoordinateStar3D],[NativeQualityPass3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeConcurrentRepair3D],[NativeStageProgress3D],[NativeHeightOptimization3D],[NativeShapeAdmission3D],[NativePhaseOwnership3D],[NativeFirstLayerEngine3D]"
+	User time (seconds): 1.92
+	System time (seconds): 0.01
+	Percent of CPU this job got: 86%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:02.23
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 39188
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 5233
+	Voluntary context switches: 1089
+	Involuntary context switches: 21
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 280
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 2
