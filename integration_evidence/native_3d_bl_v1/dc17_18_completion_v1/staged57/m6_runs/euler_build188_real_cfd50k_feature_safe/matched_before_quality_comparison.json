@@ -1,5 +1,5 @@
 {
-  "time": 1793460887.7000864,
+  "time": 1793461541.7541113,
   "scope": "Nearest available COMPLETE census comparison at matching quality-time region; actual timestamps/rates shown, not exact matched clock or causal isolated speed proof.",
   "same_original_seed_and_continued_state": true,
   "after_entry": {
@@ -23,6 +23,8 @@
       "before_target_quality_seconds": 698.7270018600002,
       "time_difference_seconds": -25.44363795000004,
       "exact_time_match": false,
+      "observed_through_before_time": true,
+      "relative_time_difference": -0.036414276079598296,
       "before": {
         "window": 1,
         "quality_seconds": 698.7270018600002,
@@ -199,9 +201,192 @@
           }
         }
       }
+    },
+    {
+      "before_target_quality_seconds": 1479.0201550270003,
+      "time_difference_seconds": -5.199878930000295,
+      "exact_time_match": false,
+      "observed_through_before_time": false,
+      "relative_time_difference": -0.0035157593439998584,
+      "before": {
+        "window": 2,
+        "quality_seconds": 1479.0201550270003,
+        "totals": {
+          "cells": 740798,
+          "q_bad": 43764,
+          "j_bad": 42274,
+          "size_bad": 0,
+          "geometry_bad": 4067,
+          "qj_debt": 13087.097023086382
+        },
+        "commits": 4098,
+        "commits_per_second": 2.7707533166951257,
+        "net_q_bad_removed_per_second": 6.459682085823629,
+        "net_q_bad_removed": 9554,
+        "q_bad_removed_per_commit": 2.3313811615422155,
+        "rank_qj_debts": {
+          "0": 1765.645700654833,
+          "1": 2470.961018718268,
+          "2": 2685.2778663308586,
+          "3": 609.8203217174226,
+          "4": 4561.792103600238,
+          "5": 993.6000120647625
+        },
+        "debt_spread": 7.480551141282025,
+        "per_rank_inclusive_call_wall": {
+          "0": {
+            "election_seconds": {
+              "seconds": 715.7667445701347,
+              "share": 0.48394657918442496
+            },
+            "collective_seconds": {
+              "seconds": 478.93008243196255,
+              "share": 0.32381579169434604
+            }
+          },
+          "1": {
+            "election_seconds": {
+              "seconds": 710.9814544593016,
+              "share": 0.480711133004352
+            },
+            "collective_seconds": {
+              "seconds": 420.2951428131123,
+              "share": 0.2841713423475555
+            }
+          },
+          "2": {
+            "election_seconds": {
+              "seconds": 653.5516139242814,
+              "share": 0.4418814792367386
+            },
+            "collective_seconds": {
+              "seconds": 362.8961779771307,
+              "share": 0.24536256435971682
+            }
+          },
+          "3": {
+            "election_seconds": {
+              "seconds": 595.7160698419934,
+              "share": 0.4027775198446287
+            },
+            "collective_seconds": {
+              "seconds": 423.73003402889753,
+              "share": 0.28649375235942076
+            }
+          },
+          "4": {
+            "election_seconds": {
+              "seconds": 730.8303116120669,
+              "share": 0.49413140796497473
+            },
+            "collective_seconds": {
+              "seconds": 518.1954629829934,
+              "share": 0.3503640306872853
+            }
+          },
+          "5": {
+            "election_seconds": {
+              "seconds": 776.4911275838742,
+              "share": 0.5250037499115074
+            },
+            "collective_seconds": {
+              "seconds": 466.5734336250225,
+              "share": 0.3154611734256623
+            }
+          }
+        }
+      },
+      "after": {
+        "window": 6,
+        "quality_seconds": 1473.820276097,
+        "totals": {
+          "cells": 750702,
+          "q_bad": 38969,
+          "j_bad": 36891,
+          "size_bad": 0,
+          "geometry_bad": 3861,
+          "qj_debt": 8925.616491797935
+        },
+        "commits": 9073,
+        "commits_per_second": 6.156110176491327,
+        "net_q_bad_removed_per_second": 10.24683962144517,
+        "net_q_bad_removed": 15102,
+        "q_bad_removed_per_commit": 1.664499063154414,
+        "rank_qj_debts": {
+          "0": 748.4687332987992,
+          "1": 1217.1821865492516,
+          "2": 2277.8084778039342,
+          "3": 1177.6207859777273,
+          "4": 2492.5656037863296,
+          "5": 1011.9707043818926
+        },
+        "debt_spread": 3.330220078533678,
+        "per_rank_inclusive_call_wall": {
+          "0": {
+            "election_seconds": {
+              "seconds": 186.7826452919977,
+              "share": 0.1267336651023958
+            },
+            "collective_seconds": {
+              "seconds": 6.534965483055544,
+              "share": 0.004434031468451206
+            }
+          },
+          "1": {
+            "election_seconds": {
+              "seconds": 166.5748775300105,
+              "share": 0.11302251721704995
+            },
+            "collective_seconds": {
+              "seconds": 7.08240824301879,
+              "share": 0.004805476188572031
+            }
+          },
+          "2": {
+            "election_seconds": {
+              "seconds": 160.78971934904496,
+              "share": 0.10909723658766012
+            },
+            "collective_seconds": {
+              "seconds": 7.032176371016703,
+              "share": 0.004771393422296681
+            }
+          },
+          "3": {
+            "election_seconds": {
+              "seconds": 197.1319702280657,
+              "share": 0.13375577295632984
+            },
+            "collective_seconds": {
+              "seconds": 7.2681275900096125,
+              "share": 0.004931488396439498
+            }
+          },
+          "4": {
+            "election_seconds": {
+              "seconds": 147.50321415004885,
+              "share": 0.10008222613185223
+            },
+            "collective_seconds": {
+              "seconds": 7.189947421985153,
+              "share": 0.004878442465879024
+            }
+          },
+          "5": {
+            "election_seconds": {
+              "seconds": 165.62485545996765,
+              "share": 0.11237791889970375
+            },
+            "collective_seconds": {
+              "seconds": 7.050009829999226,
+              "share": 0.004783493580824659
+            }
+          }
+        }
+      }
     }
   ],
-  "unreached_before_targets": [
+  "targets_later_than_latest_complete_after_census": [
     1479.0201550270003
   ],
   "limits": [

@@ -66,7 +66,7 @@ lost0,maxcurrentnodaldrift.084754961 (replicated views,not96samples). Existing
 original continuous-target caveat remains below. Current receipts:
 matched_construction183_assessment.json,quality_entry_ownership_assessment.json,
 quality_entry_assessment.json,quality_trend_assessment.json,quality_window1_counters_assessment.json.
-Latest COMPLETE quality window3 at673.283quality seconds:739479cells,
+Preserved matching183quality window3 at673.283quality seconds:739479cells,
 45817q-bad/44474J-bad/3954geometry-bad,size0,debt14479.797316,4028commits
 (5.983/s),8254netq-bad removed(12.259/s). ALLfirst3windows counts/debt/commits
 EXACT183; itswindow3took808.030s. Host contention differs; no isolated speed claim.
@@ -85,17 +85,29 @@ feature_publication_barrier_assessment.json records exact evidence, not mesh acc
 Window4commits1809,qchurn28559removed/25755created,J26555/23533; privatecollectives0,
 unmeasuredchurn0,stuckshape0. Join-callshares[.558,.595,.564,.482,.486,.337] include
 protocol+wait. All16driftpoints supported/lost0,max.084197787.
-Closest actual179BEFOREquality-time comparison:188window3/673.283s vs179window1/
-698.727s(-25.444s,3.64%). 18845817q/44474J/3954geometry vs17948483/47386/4112,
-commits/s5.983vs2.715,netqbadremoved/s12.259vs6.920,debtspread2.053vs4.863.
-Hostload/cache/ownership/entrycounts differ; never claim exact clock/isolatedspeed.
-No interpolatedcounts. BEFORE1479scomparison pending current matchingregion.
-matched_before_quality_comparison.json preserves scope and raw comparisons.
-Live provenance1793460502:ALL1401pins unchanged/all82mapped runtime files pinned.
-Latest passive1793460756:ALL10identities match,~29GiBavailable,treeRSS~8.64GiB
-(sampled sum,not jobpeak),load10.85,no rejection. Source freeze ACTIVE; exec16914.
-No accepted mesh/transfer/restart. Last pushed window2checkpointa17a554060;
-window3/4receipts and publication-barrier/currenthandoff ready for checkpoint.
+Latest COMPLETE quality window6/round21888 at1473.820quality seconds:
+750702cells,38969q-bad/36891J-bad/3861geometry-bad,size0,debt8925.616492,
+9073commits(6.156/s),15102netq-bad removed(10.247/s). No rejection/acceptedmesh.
+Window6commits1601,qchurn20663removed/18800created,J19472/17381;privatecollectives0,
+unmeasuredchurn0,stuckshape0,queue324649,blockedfeatures147. Rankjoin-callshares
+[.664,.522,.564,.752,.230,.556] include protocol+wait,notpureidle. Global16driftpoints
+supported/lost0,max.084197787. Complete per-rank raw diagnostics in window6counter receipt.
+Passive reporting audit verifies per-rank location/features/histograms against wholefield
+counts, short05<=short09<=badunion, and laddercommits equalwindowcommits. Actual net
+q/J/debt removals equal attributed ladder totals in all6windows (debt onlyroundoff).
+See passive_census_integrity_assessment.json. No new profiling or repair decisions.
+Closest actual179BEFOREquality-time pair:188window6/1473.820s vs179window2/1479.020s
+(-5.200s,0.35%). Current38969q/36891J/3861geometry vs17943764/42274/4067,size0both;
+commits/s6.156vs2.771,netqbadremoved/s10.247vs6.460,debtspread3.330vs7.481.
+Earlier673vs699scomparison preserved too. Hostload/cache/ownership/entrycounts differ;
+never claim exact clock/isolated speed, never interpolate wholefieldcounts. Actual
+nearest1473.820census is5.2s EARLIER than1791479.020; not an exactclockmatch.
+matched_before_quality_comparison.json preserves both paired records and limitations.
+Live provenance1793461513:ALL1401pins unchanged/all82mapped runtime files pinned/
+ALL10identities match,~29GiBavailable,treeRSS~8.65GiB(sampled sum,not jobpeak),load8.53.
+Source freeze ACTIVE; exec16914. No accepted mesh/transfer/restart. Last pushed
+publication-barrier/window3/4 checkpoint078dcf454d; window5/6receipts/integrityaudit/
+matching1479scomparison/currenthandoff ready for next authorized checkpoint.
 
 183 is HISTORICAL TERMINAL: first event naturally failed genuine-feature coverage
 at2763.908refine seconds before5400s; original CFD retained. Saved raw6rank outcome
