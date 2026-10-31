@@ -21,11 +21,17 @@ outer3600s. Numbered restarts every100iterations preserve earlier files. History
 contains all five residuals and CL/CD every iteration. Qualification requires
 rho log<=-6,all5residuals down>=4orders,stable final200CL/CD,exact mesh-coordinate
 order and finite positive density/internal energy. No convergence acceptance yet.
-Latest observation237history rows,iteration236,rho log-2.87504,CL.26991,CD.0140922.
+Latest independent handle observation: all ten original identities LIVE at
+1793434194UTCepoch. CFD iteration1371; complete100-step checkpoint histories through
+1300 saved in convergence_windows.json. None yet meets all qualification gates.
+At1300rho log-5.688785,smallest residual reduction2.582orders; final200CLstable,
+CDnotstable(range4.2749e-5 vs~1.3549e-5 allowance). Do not claim convergence or
+launch baseline yet. Preserve frozen run to its bounded outcome; current force/
+residual variability needs terminal assessment, not a lowered criterion now.
 First numbered checkpoint100independently coordinate/admissibility validated;
-checkpoint100_assessment.json is NOT convergence qualification. Earlier resource
-sample68.6s,treeRSS.712GiB. Hostload22.00/19.58/15.93 with~31.6GiB available: timing
-contended; no whole-job peak inference. Sole owned heavy workload.
+checkpoint100_assessment.json is NOT convergence qualification. Latest hostload
+13.42/15.71/16.86,MemAvailable~31.6GiB. Earlier treeRSS.712GiB; no whole-job peak
+inference. Sole owned heavy workload.
 
 New run_m6.py REQUIRES a qualified seed directory, copies baseline_euler_seed.dat
 and sets RESTART_SOL=YES with separate restart_flow output. Before/after first
@@ -43,7 +49,7 @@ CFD configs/restarts/histories. Nearby CGNS metadata check is recorded in
 unconverged120iteration RANS/SA/no-slip, incompatible with current Euler slip-wall
 seed; leave it intact for possible later RANS work. Continue current Euler solve
 without discarding progress. Its qualified saved field is reused for all first
-remeshes. Latest iteration478,rho log-4.8191,CL.269635,CD.013495; not qualified yet.
+remeshes. Current convergence state is reported above; no qualified seed yet.
 
 **Build179 TERMINAL after latest explicit user-authorized stop because it uses
 ITER1 startup CFD, not a reasonably converged solution**, exec16090 exit1.
@@ -223,6 +229,8 @@ provenance. Fork pushes authorized: https://github.com/rois1995/SU2.git,
 branch codex/native-3d-bl. Use git -c gc.auto=0 -c submodule.recurse=false and
 --ignore-submodules=all due unrelated broken Eigen worktree. Whitelist adds;
 leave unrelated155logs/binaries/meshes/restarts/rawperf untouched. Efficient
-ownership_survey completed read-only surveys; quality_queue_survey finished ONLY
-new run_m6_seed.py. Both DONE, no independent heavy jobs/edits. Primary owns
+ownership_survey completed read-only surveys; quality_queue_survey finished
+run_m6_seed.py and a bounded read-only counter/API survey. Current source-review
+decisions (batch clearance and genuine current-field sampling) are in the parallel
+repair plan; no C++ implementation before saved-field baseline. Both DONE, no independent heavy jobs/edits. Primary owns
 integrated acceptance. No permission pending.

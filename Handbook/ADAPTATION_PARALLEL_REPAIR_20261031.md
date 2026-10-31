@@ -102,6 +102,54 @@ the CURRENT transported target, not only original frozen donors, with missing
 samples explicit. Keep diagnostics outside decision/work-budget charging and
 bound/account their memory; avoid costly additional geometry certification.
 
+## Source-review decisions pending the saved-field baseline
+
+The current Clearance algorithm already pages proposals and validates new-vs-old
+and new-vs-new contacts, but groups all pages by owner and permits one proposal
+per rank. Extend its existing page/proposal identity to owner+candidate ticket,
+retain each candidate's existing topology/coordinate limits and priority, and
+return per-ticket veto/defer results in one round exchange. Do not concatenate
+multiple candidates under the single-star admission or remove collision checks.
+Existing single-candidate callers retain their behavior; construction stays intact.
+Combined Publish/PrepareParameters can then stage accepted replacements once.
+
+CavityMetricSource::ImportCells is locally computable when the complete current
+cavity is supplied, but still performs a world election. Its current nodal donor
+path, TransportNodalMetrics and FrozenField construction are the reuse point for
+private evaluation, with one error election after local work. Do not substitute
+the bootstrap stage_snapshot for the current metric or silently truncate support.
+
+For diagnostic gate-miss histograms, the existing CellDebt.q/j already store
+squared normalized deficits. sqrt(q/j) provides the requested normalized miss
+without extra shape evaluation or new raw-score storage. Short-edge flags use
+cached six lengths. Stuck cells require a nonempty feature set with every feature
+blocked; report missing feature coverage separately. Parameter binding dimension
+is not physical feature dimension: use Geometry().MobilityDimension(binding,
+Mobility()) so artificial chart seams are not labeled genuine features. State
+explicitly whether near means the topological one-ring; no unrequested geometric
+distance/certification campaign. Cache geometry excess/type during existing
+SurfaceDeviation calls; RefreshQuality deliberately does not repeat geometry work.
+
+Ladder counters distinguish private certified proposals from actual published
+commits; inner optimizer accepted moves can still be rejected by the outer gate.
+Use existing MetricDiagnosis old/new shape debt and add q/J bad counts to the
+existing measurement loop if needed, never remeasure just for diagnostics.
+Churn must distinguish retired/introduced cells from matched-cell fixes; coordinate
+moves replace node identities, and reused cell IDs alone are not proof of a
+persistent tetrahedron. Version differences are invalidation metadata, not by
+themselves evidence of topology creation. Account migration in/out separately.
+
+Fixed-point drift must sample the CURRENT nodal field. EvaluateCavitySample uses
+clamped best-parent extrapolation outside its donor cells; do not report that as
+a genuine sample of the current spatial field. Verify containment first and mark
+lost/unsupported samples explicitly. A bounded candidate is to retain 16 fixed
+quality-entry cell-centroid points, update containing-cell references from actual
+published removed/added rows, and gather tensors only at complete censuses. This
+avoids a rebuilt spatial index/full mesh scan for each sample/window and avoids
+original-frozen-field false-zero drift. Track diagnostic seconds/memory separately;
+apply the existing target composition when applicable. This tracking design still
+needs implementation and focused migration/topology tests after the baseline.
+
 ## Saved original-grid CFD solution — latest user requirement
 
 After179terminal and before the next full two-event M6, solve the ORIGINAL M6
