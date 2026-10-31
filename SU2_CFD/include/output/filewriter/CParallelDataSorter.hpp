@@ -2,14 +2,14 @@
  * \file CParallelDataSorter.hpp
  * \brief Headers fo the data sorter class.
  * \author T. Albring, T. Economon
- * \version 8.2.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
  * The SU2 Project is maintained by the SU2 Foundation
  * (http://su2foundation.org)
  *
- * Copyright 2012-2025, SU2 Contributors (cf. AUTHORS.md)
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
  *
  * SU2 is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -99,8 +99,8 @@ protected:
   int *nPoint_Recv;                    //!< Number of points this processor receives from other processors
   int *nElem_Send;                     //!< Number of elements this processor has to send to other processors
   int *nElem_Cum;                      //!< Cumulative number of elements
-  int *nElemConn_Send;                 //!< Number of element connectivity this processor has to send to other processors
-  int *nElemConn_Cum;                  //!< Cumulative number of element connectivity entries
+  unsigned long *nElemConn_Send;       //!< Number of element connectivity this processor has to send to other processors
+  unsigned long *nElemConn_Cum;        //!< Cumulative number of element connectivity entries
   unsigned long *Index;                //!< Index each point has in the send buffer
   passivedouble *connSend;             //!< Send buffer holding the data that will be send to other processors
   passivedouble *dataBuffer;           //!< Buffer holding the sorted, partitioned data as passivedouble types

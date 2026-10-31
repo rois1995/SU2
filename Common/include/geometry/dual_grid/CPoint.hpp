@@ -3,14 +3,14 @@
  * \brief Declaration of the point class that stores geometric and adjacency
  *        information for dual control volumes.
  * \author F. Palacios, T. Economon
- * \version 8.2.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
  * The SU2 Project is maintained by the SU2 Foundation
  * (http://su2foundation.org)
  *
- * Copyright 2012-2025, SU2 Contributors (cf. AUTHORS.md)
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
  *
  * SU2 is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -82,10 +82,9 @@ class CPoint {
   su2activematrix Coord; /*!< \brief vector with the coordinates of the node. */
   su2activematrix
       Coord_Old; /*!< \brief Old coordinates vector for primal solution reloading for Disc.Adj. with dynamic grid. */
-  su2activematrix Coord_Sum; /*!< \brief Sum of coordinates vector for geometry smoothing. */
-  su2activematrix Coord_n;   /*!< \brief Coordinates at time n for use with dynamic meshes. */
-  su2activematrix Coord_n1;  /*!< \brief Coordinates at time n-1 for use with dynamic meshes. */
-  su2activematrix Coord_p1;  /*!< \brief Coordinates at time n+1 for use with dynamic meshes. */
+  su2activematrix Coord_n;  /*!< \brief Coordinates at time n for use with dynamic meshes. */
+  su2activematrix Coord_n1; /*!< \brief Coordinates at time n-1 for use with dynamic meshes. */
+  su2activematrix Coord_p1; /*!< \brief Coordinates at time n+1 for use with dynamic meshes. */
 
   su2activematrix GridVel;      /*!< \brief Velocity of the grid for dynamic mesh cases. */
   CVectorOfMatrix GridVel_Grad; /*!< \brief Gradient of the grid velocity for dynamic meshes. */
@@ -113,9 +112,10 @@ class CPoint {
   su2activevector MaxLength;          /*!< \brief The maximum cell-center to cell-center length. */
   su2activevector RoughnessHeight;    /*!< \brief Roughness of the nearest wall. */
 
-  su2matrix<int> AD_InputIndex; /*!< \brief Indices of Coord variables in the adjoint vector. */
-  su2matrix<int>
-      AD_OutputIndex; /*!< \brief Indices of Coord variables in the adjoint vector after having been updated. */
+  su2matrix<AD::Identifier>
+      AD_InputIndex; /*!< \brief Indices of Coord variables in the adjoint vector before solver iteration. */
+  su2matrix<AD::Identifier>
+      AD_OutputIndex; /*!< \brief Indices of Coord variables in the adjoint vector after solver iteration. */
 
   /*!
    * \brief Allocate fields required by the minimal constructor.
@@ -657,6 +657,15 @@ class CPoint {
   }
 
   /*!
+   * \brief Set all the children control volumes of an agglomerated control volume at once.
+   * \param[in] iPoint - Index of the point.
+   * \param[in] children_CV - Indices of the children control volumes.
+   */
+  inline void SetChildren_CV(unsigned long iPoint, const vector<unsigned long>& children_CV) {
+    Children_CV[iPoint] = children_CV;
+  }
+
+  /*!
    * \brief Get the parent control volume of an agglomerated control volume.
    * \param[in] iPoint - Index of the point.
    * \return Index of the parent control volume.
@@ -672,6 +681,14 @@ class CPoint {
   inline unsigned long GetChildren_CV(unsigned long iPoint, unsigned short nchildren_CV) const {
     return Children_CV[iPoint][nchildren_CV];
   }
+
+  /*!
+   * \brief Get the children control volumes of an agglomerated control volume. Only the first
+   *        GetnChildren_CV entries are meaningful, the storage may be longer.
+   * \param[in] iPoint - Index of the point.
+   * \return Indices of the children control volumes.
+   */
+  inline const vector<unsigned long>& GetChildren_CV(unsigned long iPoint) const { return Children_CV[iPoint]; }
 
   /*!
    * \brief Get information about if a control volume has been agglomerated.

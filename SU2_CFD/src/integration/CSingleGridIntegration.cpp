@@ -2,14 +2,14 @@
  * \file CSingleGridIntegration.cpp
  * \brief Single (fine) grid integration class implementation.
  * \author F. Palacios, T. Economon
- * \version 8.2.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
  * The SU2 Project is maintained by the SU2 Foundation
  * (http://su2foundation.org)
  *
- * Copyright 2012-2025, SU2 Contributors (cf. AUTHORS.md)
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
  *
  * SU2 is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -35,6 +35,7 @@ void CSingleGridIntegration::SingleGrid_Iteration(CGeometry ****geometry, CSolve
                                                   CNumerics ******numerics_container, CConfig **config,
                                                   unsigned short RunTime_EqSystem, unsigned short iZone,
                                                   unsigned short iInst) {
+  SU2_ZONE_SCOPED
 
   const unsigned short Solver_Position = config[iZone]->GetContainerPosition(RunTime_EqSystem);
 
@@ -47,6 +48,20 @@ void CSingleGridIntegration::SingleGrid_Iteration(CGeometry ****geometry, CSolve
 
   CGeometry* geometry_fine = geometry[iZone][iInst][FinestMesh];
   CSolver** solvers_fine = solver_container[iZone][iInst][FinestMesh];
+
+  /*--- CFL scaling of turbulence during the warmpup phase if FMG. ---*/
+  if ((RunTime_EqSystem == RUNTIME_TURB_SYS) && (FinestMesh != MESH_0)) {
+    const su2double turbReduction = SU2_TYPE::GetValue(config[iZone]->GetCFLRedCoeff_Turb());
+    const su2double turbCFL = SU2_TYPE::GetValue(config[iZone]->GetCFL(FinestMesh)) * turbReduction;
+    auto* turbSolver = solvers_fine[Solver_Position];
+
+    SU2_OMP_SAFE_GLOBAL_ACCESS(turbSolver->SetCFL_Local_Stats(turbCFL);)
+    SU2_OMP_FOR_STAT(roundUpDiv(geometry_fine->GetnPoint(), omp_get_num_threads()))
+    for (auto iPoint = 0ul; iPoint < geometry_fine->GetnPoint(); ++iPoint) {
+      turbSolver->GetNodes()->SetLocalCFL(iPoint, turbCFL);
+    }
+    END_SU2_OMP_FOR
+  }
 
   /*--- Preprocessing ---*/
 
@@ -80,9 +95,9 @@ void CSingleGridIntegration::SingleGrid_Iteration(CGeometry ****geometry, CSolve
     SU2_OMP_SAFE_GLOBAL_ACCESS(solvers_fine[HEAT_SOL]->Heat_Fluxes(geometry_fine, solvers_fine, config[iZone]);)
   }
 
-  /*--- If turbulence model, copy the turbulence variables to the coarse levels ---*/
+  /*--- Copy the turbulence or species variables to the coarse levels ---*/
 
-  if (RunTime_EqSystem == RUNTIME_TURB_SYS) {
+  if (RunTime_EqSystem == RUNTIME_TURB_SYS || RunTime_EqSystem == RUNTIME_SPECIES_SYS) {
 
     for (unsigned short iMesh = FinestMesh; iMesh < config[iZone]->GetnMGLevels(); iMesh++) {
 
@@ -93,12 +108,25 @@ void CSingleGridIntegration::SingleGrid_Iteration(CGeometry ****geometry, CSolve
                              geometry[iZone][iInst][iMesh+1],
                              config[iZone]);
 
-      SetRestricted_EddyVisc(RunTime_EqSystem,
-                             solver_container[iZone][iInst][iMesh][Solver_Position],
-                             solver_container[iZone][iInst][iMesh+1][Solver_Position],
-                             geometry[iZone][iInst][iMesh],
-                             geometry[iZone][iInst][iMesh+1],
-                             config[iZone]);
+      if (RunTime_EqSystem == RUNTIME_SPECIES_SYS) {
+        /*--- The flow solver on the coarse level needs the species gradient for the enthalpy diffusion. ---*/
+        CSolver* species_coarse = solver_container[iZone][iInst][iMesh+1][Solver_Position];
+        CGeometry* geometry_coarse = geometry[iZone][iInst][iMesh+1];
+        switch (config[iZone]->GetKind_Gradient_Method()) {
+          case GREEN_GAUSS: species_coarse->SetSolution_Gradient_GG(geometry_coarse, config[iZone], -1); break;
+          case WEIGHTED_LEAST_SQUARES: species_coarse->SetSolution_Gradient_LS(geometry_coarse, config[iZone], -1); break;
+          default: break;
+        }
+      }
+
+      if (RunTime_EqSystem == RUNTIME_TURB_SYS) {
+        SetRestricted_EddyVisc(RunTime_EqSystem,
+                               solver_container[iZone][iInst][iMesh][Solver_Position],
+                               solver_container[iZone][iInst][iMesh+1][Solver_Position],
+                               geometry[iZone][iInst][iMesh],
+                               geometry[iZone][iInst][iMesh+1],
+                               config[iZone]);
+      }
     }
 
   }
@@ -109,6 +137,8 @@ void CSingleGridIntegration::SingleGrid_Iteration(CGeometry ****geometry, CSolve
 
 void CSingleGridIntegration::SetRestricted_Solution(unsigned short RunTime_EqSystem, CSolver *sol_fine, CSolver *sol_coarse,
                                                     CGeometry *geo_fine, CGeometry *geo_coarse, CConfig *config) {
+  SU2_ZONE_SCOPED
+
   CSolver::MultigridRestriction(*geo_fine, sol_fine->GetNodes()->GetSolution(),
                                 *geo_coarse, sol_coarse->GetNodes()->GetSolution());
   sol_coarse->InitiateComms(geo_coarse, config, MPI_QUANTITIES::SOLUTION);
@@ -117,6 +147,7 @@ void CSingleGridIntegration::SetRestricted_Solution(unsigned short RunTime_EqSys
 
 void CSingleGridIntegration::SetRestricted_EddyVisc(unsigned short RunTime_EqSystem, CSolver *sol_fine, CSolver *sol_coarse,
                                                     CGeometry *geo_fine, CGeometry *geo_coarse, CConfig *config) {
+  SU2_ZONE_SCOPED
 
   unsigned long iVertex, Point_Fine, Point_Coarse;
   unsigned short iMarker, iChildren;

@@ -2,14 +2,14 @@
  * \file common.hpp
  * \brief Helper functions for viscous methods.
  * \author P. Gomes, C. Pederson, A. Bueno, F. Palacios, T. Economon
- * \version 8.2.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
  * The SU2 Project is maintained by the SU2 Foundation
  * (http://su2foundation.org)
  *
- * Copyright 2012-2025, SU2 Contributors (cf. AUTHORS.md)
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
  *
  * SU2 is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -36,7 +36,7 @@
  * \brief Average gradients at i/j points.
  */
 template<size_t nVar, size_t nDim, class GradientType>
-FORCEINLINE MatrixDbl<nVar,nDim> averageGradient(Int iPoint, Int jPoint,
+FORCEINLINE MatrixDbl<nVar,nDim> averageGradient(const Int& iPoint, const Int& jPoint,
                                                  const GradientType& gradient) {
   auto avgGrad = gatherVariables<nVar,nDim>(iPoint, gradient);
   auto grad_j = gatherVariables<nVar,nDim>(jPoint, gradient);
@@ -103,7 +103,7 @@ FORCEINLINE void correctGradient2(const PrimitiveType& V,
  * \note Second viscosity term ignored.
  */
 template<size_t nVar, size_t nDim>
-FORCEINLINE MatrixDbl<nDim> stressTensor(Double viscosity,
+FORCEINLINE MatrixDbl<nDim> stressTensor(const Double& viscosity,
                                          const MatrixDbl<nVar,nDim>& grad) {
   /*--- Hydrostatic term. ---*/
   Double velDiv = 0.0;
@@ -154,7 +154,7 @@ NEVERINLINE void addPerturbedRSM(const PrimitiveType& V,
  * \brief SA-QCR2000 modification of the stress tensor.
  */
 template<class MatrixType, size_t nDim>
-FORCEINLINE void addQCR(const MatrixType& grad, MatrixDbl<nDim>& tau) {
+FORCEINLINE void addQCR(const MatrixType& grad, MatrixDbl<nDim>& tau, Double turb_fraction) {
   constexpr passivedouble c_cr1 = 0.3;
 
   /*--- Denominator, antisymmetric normalized rotation tensor. ---*/
@@ -179,7 +179,7 @@ FORCEINLINE void addQCR(const MatrixType& grad, MatrixDbl<nDim>& tau) {
   }
   for (size_t iDim = 0; iDim < nDim; ++iDim)
     for (size_t jDim = 0; jDim < nDim; ++jDim)
-      tau(iDim,jDim) -= c_cr1 * qcr(iDim,jDim);
+      tau(iDim,jDim) -= turb_fraction * c_cr1 * qcr(iDim,jDim);
 }
 
 /*!
@@ -187,7 +187,7 @@ FORCEINLINE void addQCR(const MatrixType& grad, MatrixDbl<nDim>& tau) {
  *        wall function) magnitude in the tangential direction.
  */
 template<class Container, size_t nDim>
-FORCEINLINE void addTauWall(Int iPoint, Int jPoint,
+FORCEINLINE void addTauWall(const Int& iPoint, const Int& jPoint,
                             const Container& tauWall,
                             const VectorDbl<nDim>& unitNormal,
                             MatrixDbl<nDim>& tau) {
@@ -218,7 +218,7 @@ FORCEINLINE void addTauWall(Int iPoint, Int jPoint,
 template<size_t nVar, size_t nDim, class PrimitiveType>
 FORCEINLINE MatrixDbl<nDim,nVar> stressTensorJacobian(const PrimitiveType& V,
                                                       const VectorDbl<nDim>& normal,
-                                                      Double dist_ij) {
+                                                      const Double& dist_ij) {
   Double viscosity = V.laminarVisc() + V.eddyVisc();
   Double xi = viscosity / (V.density() * dist_ij);
   MatrixDbl<nDim,nVar> jac;

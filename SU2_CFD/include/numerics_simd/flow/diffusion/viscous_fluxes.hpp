@@ -2,14 +2,14 @@
  * \file viscous_fluxes.hpp
  * \brief Decorator classes for computation of viscous fluxes.
  * \author P. Gomes, C. Pederson, A. Bueno, F. Palacios, T. Economon
- * \version 8.2.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
  * The SU2 Project is maintained by the SU2 Foundation
  * (http://su2foundation.org)
  *
- * Copyright 2012-2025, SU2 Contributors (cf. AUTHORS.md)
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
  *
  * SU2 is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -71,13 +71,14 @@ template<size_t NDIM, class Derived>
 class CCompressibleViscousFluxBase : public CNumericsSIMD {
 protected:
   static constexpr size_t nDim = NDIM;
-  static constexpr size_t nPrimVarGrad = nDim+3;
+  static constexpr size_t nPrimVarGrad = nDim+1;
+  static constexpr size_t nPrimVarGradFull = nDim+3; /*!< \brief For the accurate Jacobian (density and pressure). */
   static constexpr size_t nSeconVar = 8;
 
   const su2double gamma;
   const su2double gasConst;
-  const su2double prandtlLam;
   const su2double prandtlTurb;
+  const su2double prandtlLam;
   const su2double cp;
   const bool correct_EN;
   const bool correct_FT;
@@ -100,8 +101,8 @@ protected:
                                const CVariable* turbVars_, Ts&...) :
     gamma(config.GetGamma()),
     gasConst(config.GetGas_ConstantND()),
-    prandtlLam(config.GetPrandtl_Lam()),
     prandtlTurb(config.GetPrandtl_Turb()),
+    prandtlLam(config.GetPrandtl_Lam()),
     cp(gamma * gasConst / (gamma - 1)),
     correct_EN(iMesh == MESH_0 && config.GetKind_ViscousGradCorr() == VISCOUS_GRAD_CORR::EDGE_NORMAL),
     correct_FT(iMesh == MESH_0 && config.GetKind_ViscousGradCorr() == VISCOUS_GRAD_CORR::FACE_TANGENT),
@@ -120,23 +121,23 @@ protected:
    * \brief Add viscous contributions to flux and jacobians.
    */
   template<class PrimVarType, size_t nVar>
-  FORCEINLINE void viscousTerms(Int iEdge,
-                                Int iPoint,
-                                Int jPoint,
+  FORCEINLINE void viscousTerms(const Int& iEdge,
+                                const Int& iPoint,
+                                const Int& jPoint,
                                 const PrimVarType& avgV,
                                 const CPair<PrimVarType>& V,
                                 const CVariable& solution_,
                                 const VectorDbl<nDim>& vector_ij,
                                 const CGeometry& geometry,
                                 const CConfig& config,
-                                Double area,
+                                const Double& area,
                                 const VectorDbl<nDim>& unitNormal,
                                 bool implicit,
                                 VectorDbl<nVar>& flux,
                                 MatrixDbl<nVar>& jac_i,
                                 MatrixDbl<nVar>& jac_j) const {
 
-    static_assert(PrimVarType::nVar <= Derived::nPrimVar,"");
+    static_assert(PrimVarType::nVar <= Derived::nPrimVar);
 
     /*--- Pointer on which to call the "compile-time virtual" methods. ---*/
 
@@ -144,7 +145,6 @@ protected:
 
     const auto& solution = static_cast<const CNSVariable&>(solution_);
     const auto& gradient = solution.GetGradient_Primitive();
-    const auto& secondary = solution.GetSecondary();
 
     /*--- Compute distance and handle zero without "ifs" by making it large. ---*/
 
@@ -155,7 +155,6 @@ protected:
     /*--- Compute the corrected mean gradient. ---*/
 
     auto avgGrad = averageGradient<nPrimVarGrad,nDim>(iPoint, jPoint, gradient);
-    auto avgSecond = averageSecondary<nSeconVar>(iPoint, jPoint, secondary);
 
     Double eDn = dot(vector_ij,unitNormal);
     mask = eDn < EPS;
@@ -174,8 +173,9 @@ protected:
 
     /*--- Stress and heat flux tensors. ---*/
 
-    auto tau = stressTensor(avgV.laminarVisc() + (uq? Double(0.0) : avgV.eddyVisc()), avgGrad);
-    if(useSA_QCR) addQCR(avgGrad, tau);
+    const Double eddyVisc = uq? Double(0.0) : avgV.eddyVisc();
+    auto tau = stressTensor(avgV.laminarVisc() + eddyVisc, avgGrad);
+    if(useSA_QCR) addQCR(avgGrad, tau, eddyVisc / (avgV.laminarVisc() + eddyVisc));
     if(uq) {
       Double turb_ke = 0.5*(gatherVariables(iPoint, turbVars->GetSolution()) +
                             gatherVariables(jPoint, turbVars->GetSolution()));
@@ -205,8 +205,14 @@ protected:
 
     if (config.GetUse_Accurate_Jacobians()) {
 
+      /*--- Only this path needs the full gradient and the secondary variables, see EulerNPrimVarGrad. ---*/
+      auto fullGrad = averageGradient<nPrimVarGradFull,nDim>(iPoint, jPoint, gradient);
+      if (correct_EN || correct_FT || correct_AD)
+        correctGradient(V, vector_ij, diss, fullGrad);
+      auto avgSecond = averageSecondary<nSeconVar>(iPoint, jPoint, solution.GetSecondary());
+
       MatrixDbl<nVar> dFdUL,dFdUR;
-      viscousFluxJacobian(avgV,V.i,V.j,unitNormal,diss,avgGrad,
+      viscousFluxJacobian(avgV,V.i,V.j,unitNormal,diss,fullGrad,
                           cp,prandtlLam,prandtlTurb,avgSecond,dFdUL,dFdUR);
 
       for (size_t iVar = 0; iVar < nVar; ++iVar) {
@@ -253,9 +259,9 @@ protected:
    * \overload Average primitives if not provided yet.
    */
   template<class PrimVarType, class... Ts>
-  FORCEINLINE void viscousTerms(Int iEdge,
-                                Int iPoint,
-                                Int jPoint,
+  FORCEINLINE void viscousTerms(const Int& iEdge,
+                                const Int& iPoint,
+                                const Int& jPoint,
                                 const CPair<PrimVarType>& V,
                                 Ts&... args) const {
     PrimVarType avgV;
@@ -271,9 +277,9 @@ protected:
    * \overload Compute the i-j vector if not provided yet.
    */
   template<class PrimVarType, class... Ts>
-  FORCEINLINE void viscousTerms(Int iEdge,
-                                Int iPoint,
-                                Int jPoint,
+  FORCEINLINE void viscousTerms(const Int& iEdge,
+                                const Int& iPoint,
+                                const Int& jPoint,
                                 const PrimVarType& avgV,
                                 const CPair<PrimVarType>& V,
                                 const CVariable& solution_,
@@ -295,13 +301,11 @@ protected:
 template<size_t NDIM>
 class CCompressibleViscousFlux : public CCompressibleViscousFluxBase<NDIM, CCompressibleViscousFlux<NDIM> > {
 public:
-  static constexpr size_t nPrimVar = NDIM+7;
+  static constexpr size_t nPrimVar = NDIM+9;
   using Base = CCompressibleViscousFluxBase<NDIM, CCompressibleViscousFlux<NDIM> >;
   using Base::gamma;
   using Base::gasConst;
-  using Base::prandtlLam;
   using Base::prandtlTurb;
-  using Base::cp;
 
   /*!
    * \brief Constructor, initialize constants and booleans.
@@ -314,7 +318,7 @@ public:
    */
   template<class PrimitiveType>
   FORCEINLINE Double thermalConductivity(const PrimitiveType& V) const {
-    return cp * (V.laminarVisc()/prandtlLam + V.eddyVisc()/prandtlTurb);
+    return V.thermalCond() + V.cp() * V.eddyVisc() / prandtlTurb;
   }
 
   /*!
@@ -323,9 +327,9 @@ public:
   template<size_t nVar, size_t nDim, class PrimitiveType, class... Ts>
   FORCEINLINE VectorDbl<nVar> energyJacobian(const PrimitiveType& V,
                                              const MatrixDbl<nDim,nVar>& dtau,
-                                             Double thermalCond,
-                                             Double area,
-                                             Double dist_ij,
+                                             const Double& thermalCond,
+                                             const Double& area,
+                                             const Double& dist_ij,
                                              Ts&... args) const {
     Double vel2 = 0.5 * squaredNorm<nDim>(V.velocity());
     Double phi = (gamma-1) / V.density();
@@ -379,11 +383,11 @@ public:
   template<size_t nVar, size_t nDim, class PrimitiveType, class VariableType>
   FORCEINLINE VectorDbl<nVar> energyJacobian(const PrimitiveType& V,
                                              const MatrixDbl<nDim,nVar>& dtau,
-                                             Double thermalCond,
-                                             Double area,
-                                             Double dist_ij,
-                                             Int iPoint,
-                                             Int jPoint,
+                                             const Double& thermalCond,
+                                             const Double& area,
+                                             const Double& dist_ij,
+                                             const Int& iPoint,
+                                             const Int& jPoint,
                                              const VariableType& solution) const {
     Double vel2 = squaredNorm<nDim>(V.velocity());
     Double contraction = 0.0;

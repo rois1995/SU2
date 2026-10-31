@@ -3,14 +3,14 @@
 ## \file meson.py
 #  \brief An extended meson script for setting up the environment and running meson
 #  \author T. Albring and F. Poli
-#  \version 8.2.0 "Harrier"
+#  \version 8.6.0 "Harrier"
 #
 # SU2 Project Website: https://su2code.github.io
 #
 # The SU2 Project is maintained by the SU2 Foundation
 # (http://su2foundation.org)
 #
-# Copyright 2012-2025, SU2 Contributors (cf. AUTHORS.md)
+# Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
 #
 # SU2 is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -35,8 +35,9 @@ if __name__ == "__main__":
     if sys.version_info[0] < 3:
         raise Exception("Script must be run using Python 3")
 
-    # Preconfigure
-    preconfigure.run(own_meson=True)
+    # Preconfigure, Cantera is large and only downloaded when it is enabled
+    use_cantera = any(arg.lower() == "-denable-cantera=true" for arg in sys.argv[1:])
+    preconfigure.run(own_meson=True, own_cantera=use_cantera)
 
     # Add paths for meson and ninja to environment
     os.environ["NINJA"] = sys.path[0] + os.path.sep + "ninja"

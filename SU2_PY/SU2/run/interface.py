@@ -3,14 +3,14 @@
 ## \file interface.py
 #  \brief python package interfacing with the SU2 suite
 #  \author T. Lukaczyk, F. Palacios
-#  \version 8.2.0 "Harrier"
+#  \version 8.6.0 "Harrier"
 #
 # SU2 Project Website: https://su2code.github.io
 #
 # The SU2 Project is maintained by the SU2 Foundation
 # (http://su2foundation.org)
 #
-# Copyright 2012-2025, SU2 Contributors (cf. AUTHORS.md)
+# Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
 #
 # SU2 is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -30,6 +30,7 @@
 # ----------------------------------------------------------------------
 
 import os, sys, shutil, copy
+import shlex
 import subprocess
 from ..io import Config
 from ..util import which
@@ -38,9 +39,14 @@ from ..util import which
 #  Setup
 # ------------------------------------------------------------
 
-SU2_RUN = os.environ["SU2_RUN"]
+try:
+    SU2_RUN = os.environ["SU2_RUN"]
+except KeyError as exc:
+    raise RuntimeError(
+        'Environment variable "SU2_RUN" is not set. Please set SU2_RUN to the SU2 installation bin directory.'
+    ) from exc
+
 sys.path.append(SU2_RUN)
-quote = '"' if sys.platform == "win32" else ""
 
 # SU2 suite run command template
 base_Command = os.path.join(SU2_RUN, "%s")
@@ -56,9 +62,9 @@ if user_defined:
     mpi_Command = os.environ["SU2_MPI_COMMAND"]
 elif slurm_job:
     mpi_Command = "srun -n %i %s"
-elif not which("mpirun") is None:
+elif which("mpirun") is not None:
     mpi_Command = "mpirun -n %i %s"
-elif not which("mpiexec") is None:
+elif which("mpiexec") is not None:
     mpi_Command = "mpiexec -n %i %s"
 else:
     mpi_Command = ""
@@ -92,7 +98,7 @@ def CFD(config):
 
         processes = konfig["NUMBER_PART"]
 
-        the_Command = "SU2_CFD_DIRECTDIFF%s %s" % (quote, tempname)
+        the_Command = "SU2_CFD_DIRECTDIFF %s" % tempname
 
     elif auto_diff:
         tempname = "config_CFD_AD.cfg"
@@ -100,7 +106,7 @@ def CFD(config):
 
         processes = konfig["NUMBER_PART"]
 
-        the_Command = "SU2_CFD_AD%s %s" % (quote, tempname)
+        the_Command = "SU2_CFD_AD %s" % tempname
 
     else:
         tempname = "config_CFD.cfg"
@@ -108,7 +114,7 @@ def CFD(config):
 
         processes = konfig["NUMBER_PART"]
 
-        the_Command = "SU2_CFD%s %s" % (quote, tempname)
+        the_Command = "SU2_CFD %s" % tempname
 
     the_Command = build_command(the_Command, processes)
     run_command(the_Command)
@@ -131,7 +137,7 @@ def DEF(config):
     # must run with rank 1
     processes = konfig["NUMBER_PART"]
 
-    the_Command = "SU2_DEF%s %s" % (quote, tempname)
+    the_Command = "SU2_DEF %s" % tempname
     the_Command = build_command(the_Command, processes)
     run_command(the_Command)
 
@@ -158,7 +164,7 @@ def DOT(config):
 
         processes = konfig["NUMBER_PART"]
 
-        the_Command = "SU2_DOT_AD%s %s" % (quote, tempname)
+        the_Command = "SU2_DOT_AD %s" % tempname
     else:
 
         tempname = "config_DOT.cfg"
@@ -166,7 +172,7 @@ def DOT(config):
 
         processes = konfig["NUMBER_PART"]
 
-        the_Command = "SU2_DOT%s %s" % (quote, tempname)
+        the_Command = "SU2_DOT %s" % tempname
 
     the_Command = build_command(the_Command, processes)
     run_command(the_Command)
@@ -189,7 +195,7 @@ def GEO(config):
     # must run with rank 1
     processes = konfig["NUMBER_PART"]
 
-    the_Command = "SU2_GEO%s %s" % (quote, tempname)
+    the_Command = "SU2_GEO %s" % tempname
     the_Command = build_command(the_Command, processes)
     run_command(the_Command)
 
@@ -211,7 +217,7 @@ def SOL(config):
     # must run with rank 1
     processes = konfig["NUMBER_PART"]
 
-    the_Command = "SU2_SOL%s %s" % (quote, tempname)
+    the_Command = "SU2_SOL %s" % tempname
     the_Command = build_command(the_Command, processes)
     run_command(the_Command)
 
@@ -233,7 +239,7 @@ def SOL_FSI(config):
     # must run with rank 1
     processes = konfig["NUMBER_PART"]
 
-    the_Command = "SU2_SOL%s %s 2" % (quote, tempname)
+    the_Command = "SU2_SOL %s 2" % tempname
     the_Command = build_command(the_Command, processes)
     run_command(the_Command)
 
@@ -249,7 +255,14 @@ def SOL_FSI(config):
 
 def build_command(the_Command, processes=0):
     """builds an mpi command for given number of processes"""
-    the_Command = quote + (base_Command % the_Command)
+    # quote the executable path, SU2_RUN may contain spaces
+    executable, _, arguments = the_Command.partition(" ")
+    executable = base_Command % executable
+    if sys.platform == "win32":
+        executable = '"%s"' % executable
+    else:
+        executable = shlex.quote(executable)
+    the_Command = "%s %s" % (executable, arguments) if arguments else executable
     if processes > 1:
         if not mpi_Command:
             raise RuntimeError("could not find an mpi interface")
@@ -261,14 +274,19 @@ def run_command(Command):
     """runs os command with subprocess
     checks for errors from command
     """
-
     sys.stdout.flush()
 
+    # Avoid potential deadlocks when a child process writes heavily to stderr:
+    # read stderr via communicate() while streaming stdout to the console.
+    # Use communicate() to continuously drain stderr and avoid deadlocks if the
+    # subprocess writes a lot of output to stderr.
     proc = subprocess.Popen(
         Command, shell=True, stdout=sys.stdout, stderr=subprocess.PIPE
     )
-    return_code = proc.wait()
-    message = proc.stderr.read().decode()
+    _, stderr = proc.communicate()
+
+    return_code = proc.returncode
+    message = (stderr or b"").decode(errors="replace")
 
     if return_code < 0:
         message = "SU2 process was terminated by signal '%s'\n%s" % (
@@ -278,7 +296,7 @@ def run_command(Command):
         raise SystemExit(message)
     elif return_code > 0:
         message = "Path = %s\nCommand = %s\nSU2 process returned error '%s'\n%s" % (
-            os.path.abspath(","),
+            os.path.abspath("."),
             Command,
             return_code,
             message,

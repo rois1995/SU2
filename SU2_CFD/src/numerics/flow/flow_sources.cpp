@@ -3,14 +3,14 @@
  * \brief Implementation of numerics classes for integration
  *        of source terms in fluid flow problems.
  * \author F. Palacios, T. Economon
- * \version 8.2.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
  * The SU2 Project is maintained by the SU2 Foundation
  * (http://su2foundation.org)
  *
- * Copyright 2012-2025, SU2 Contributors (cf. AUTHORS.md)
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
  *
  * SU2 is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -63,27 +63,64 @@ CNumerics::ResidualType<> CSourceAxisymmetric_Flow::ComputeResidual(const CConfi
   su2double Pressure_i, Enthalpy_i, Velocity_i, sq_vel;
   unsigned short iDim, iVar, jVar;
 
-  if (Coord_i[1] > EPS) {
+  /*--- Common calculations for both branches ---*/
+  su2double rho = U_i[0];                     // density
+  su2double u = U_i[1]/U_i[0];                // u-velocity
+  su2double r = Coord_i[1];                   // radial coordinate
+  su2double dv_dr = PrimVar_Grad_i[2][1];     // ∂v/∂r (radial velocity gradient)
 
-    yinv = 1.0/Coord_i[1];
+  sq_vel = 0.0;
+  for (iDim = 0; iDim < nDim; iDim++) {
+    Velocity_i = U_i[iDim+1] / U_i[0];
+    sq_vel += Velocity_i * Velocity_i;
+  }
+  Pressure_i = Gamma_Minus_One*U_i[0]*(U_i[nDim+1]/U_i[0]-0.5*sq_vel);
+  Enthalpy_i = (U_i[nDim+1] + Pressure_i) / U_i[0];
 
-    sq_vel = 0.0;
-    for (iDim = 0; iDim < nDim; iDim++) {
-      Velocity_i = U_i[iDim+1] / U_i[0];
-      sq_vel += Velocity_i *Velocity_i;
-    }
+  /*--- Smooth blending between gradient formulation and standard formulation ---*/
+  su2double transition_width = 50.0 * EPS;  // Smooth transition over 50×EPS (much wider)
+  su2double alpha = 0.0;  // Blending factor: 0=gradient_form, 1=standard_form
 
-    Pressure_i = (Gamma-1.0)*U_i[0]*(U_i[nDim+1]/U_i[0]-0.5*sq_vel);
-    Enthalpy_i = (U_i[nDim+1] + Pressure_i) / U_i[0];
+  if (r > transition_width) {
+    alpha = 1.0;  // Far from axis: use standard v/r formulation
+  } else if (r > EPS) {
+    // Smooth transition zone: blend between formulations (gentler slope)
+    alpha = 0.5 * (1.0 + tanh(2.0 * (r - 0.5*(EPS + transition_width))/(transition_width - EPS)));
+  } else {
+    alpha = 0.0;  // Near axis: use gradient formulation
+  }
 
-    residual[0] = yinv*Volume*U_i[2];
-    residual[1] = yinv*Volume*U_i[1]*U_i[2]/U_i[0];
-    residual[2] = yinv*Volume*(U_i[2]*U_i[2]/U_i[0]);
-    residual[3] = yinv*Volume*Enthalpy_i*U_i[2];
+  /*--- Standard formulation (v/r) ---*/
+  su2double std_res[4];
+  yinv = 0.0;
+  if (r > EPS) {
+    yinv = 1.0/r;
+    std_res[0] = yinv*Volume*U_i[2];                    // ρv/r
+    std_res[1] = yinv*Volume*U_i[1]*U_i[2]/U_i[0];     // ρuv/r
+    std_res[2] = yinv*Volume*(U_i[2]*U_i[2]/U_i[0]);   // ρv²/r
+    std_res[3] = yinv*Volume*Enthalpy_i*U_i[2];        // ρHv/r
+  } else {
+    // Avoid division by zero, set to zero (will be blended out anyway)
+    std_res[0] = std_res[1] = std_res[2] = std_res[3] = 0.0;
+  }
 
-    /*--- Inviscid component of the source term. ---*/
+  /*--- Gradient formulation (∂v/∂r) ---*/
+  su2double grad_res[4];
+  grad_res[0] = Volume * rho * dv_dr;              // ρ(∂v/∂r)
+  grad_res[1] = Volume * rho * u * dv_dr;          // ρu(∂v/∂r)
+  grad_res[2] = 0.0;                               // ρv(∂v/∂r) = 0 since v→0 as r→0
+  grad_res[3] = Volume * rho * Enthalpy_i * dv_dr; // ρH(∂v/∂r)
 
-    if (implicit) {
+  /*--- Blend the two formulations ---*/
+  residual[0] = (1.0 - alpha) * grad_res[0] + alpha * std_res[0];
+  residual[1] = (1.0 - alpha) * grad_res[1] + alpha * std_res[1];
+  residual[2] = (1.0 - alpha) * grad_res[2] + alpha * std_res[2];
+  residual[3] = (1.0 - alpha) * grad_res[3] + alpha * std_res[3];
+
+  /*--- Jacobian calculation ---*/
+  if (implicit) {
+    if (alpha > 0.5) {
+      // Use standard Jacobian when mostly in standard formulation
       jacobian[0][0] = 0.0;
       jacobian[0][1] = 0.0;
       jacobian[0][2] = 1.0;
@@ -107,28 +144,17 @@ CNumerics::ResidualType<> CSourceAxisymmetric_Flow::ComputeResidual(const CConfi
       for (iVar=0; iVar < nVar; iVar++)
         for (jVar=0; jVar < nVar; jVar++)
           jacobian[iVar][jVar] *= yinv*Volume;
-
-    }
-
-    /*--- Add the viscous terms if necessary. ---*/
-
-    if (viscous) ResidualDiffusion();
-
-  }
-
-  else {
-
-    for (iVar=0; iVar < nVar; iVar++)
-      residual[iVar] = 0.0;
-
-    if (implicit) {
+    } else {
+      // Near axis: set Jacobian to zero (gradient formulation is more complex)
       for (iVar=0; iVar < nVar; iVar++) {
         for (jVar=0; jVar < nVar; jVar++)
           jacobian[iVar][jVar] = 0.0;
       }
     }
-
   }
+
+  /*--- Add the viscous terms if necessary. ---*/
+  if (viscous) ResidualDiffusion();
 
   return ResidualType<>(residual, jacobian, nullptr);
 }
@@ -223,16 +249,33 @@ CNumerics::ResidualType<> CSourceGeneralAxisymmetric_Flow::ComputeResidual(const
   }
 
   else {
+    /*--- At the axis of symmetry, use L'Hôpital's rule: lim(v/r) = dv/dr ---*/
+    const su2double dv_dr = PrimVar_Grad_i[2][1];  // ∂v/∂r (radial velocity gradient)
+    const su2double u = U_i[1]/U_i[0];            // axial velocity u
+    const su2double rho = U_i[0];                 // density
 
-    for (iVar=0; iVar < nVar; iVar++)
-      residual[iVar] = 0.0;
+    /* Compute pressure and enthalpy consistently with the general-gas formulation. */
+    const su2double Density_i = rho;
+    const su2double Energy_i  = U_i[3]/U_i[0];
+    const su2double Pressure_i = V_j[3];
+    const su2double Enthalpy_i = Energy_i + Pressure_i/Density_i;
+
+    /*--- Apply L'Hôpital's rule to axisymmetric source terms ---*/
+    residual[0] = Volume * rho * dv_dr;               // ρ(∂v/∂r)
+    residual[1] = Volume * rho * u * dv_dr;           // ρu(∂v/∂r)
+    residual[2] = 0.0;                                // ρv(∂v/∂r) = 0 since v=0 at axis
+    residual[3] = Volume * rho * Enthalpy_i * dv_dr;  // ρH(∂v/∂r)
 
     if (implicit) {
-      for (iVar=0; iVar < nVar; iVar++) {
-        for (jVar=0; jVar < nVar; jVar++)
+      /* For now, set Jacobian to zero at axis (can be improved later to help with convergence). */
+      for (iVar = 0; iVar < nVar; iVar++) {
+        for (jVar = 0; jVar < nVar; jVar++)
           jacobian[iVar][jVar] = 0.0;
       }
     }
+
+    /*--- Add the viscous terms if necessary. ---*/
+    if (viscous) ResidualDiffusion();
 
   }
 
@@ -245,7 +288,7 @@ CSourceIncAxisymmetric_Flow::CSourceIncAxisymmetric_Flow(unsigned short val_nDim
   implicit = (config->GetKind_TimeIntScheme_Flow() == EULER_IMPLICIT);
   energy   = config->GetEnergy_Equation();
   viscous  = config->GetViscous();
-
+  multicomponent = config->GetMulticomponentFluid();
 }
 
 CNumerics::ResidualType<> CSourceIncAxisymmetric_Flow::ComputeResidual(const CConfig* config) {
@@ -259,12 +302,11 @@ CNumerics::ResidualType<> CSourceIncAxisymmetric_Flow::ComputeResidual(const CCo
 
     /*--- Set primitive variables at points iPoint. ---*/
 
-    const su2double Temp_i = V_i[nDim+1];
     Pressure_i    = V_i[0];
     DensityInc_i  = V_i[nDim+2];
-    BetaInc2_i    = V_i[nDim+3];
-    Cp_i          = V_i[nDim+7];
-    Enthalpy_i    = Cp_i*Temp_i;
+    BetaInc2_i    = V_i[nDim+4];
+    Cp_i          = V_i[nDim+8];
+    Enthalpy_i    = V_i[nDim+3];
 
     for (iDim = 0; iDim < nDim; iDim++)
       Velocity_i[iDim] = V_i[iDim+1];
@@ -296,7 +338,7 @@ CNumerics::ResidualType<> CSourceIncAxisymmetric_Flow::ComputeResidual(const CCo
       jacobian[3][0] = 0.0;
       jacobian[3][1] = 0.0;
       jacobian[3][2] = Enthalpy_i;
-      jacobian[3][3] = Cp_i*Velocity_i[1];
+      jacobian[3][3] = Velocity_i[1];
 
       for (iVar=0; iVar < nVar; iVar++)
         for (jVar=0; jVar < nVar; jVar++)
@@ -308,9 +350,9 @@ CNumerics::ResidualType<> CSourceIncAxisymmetric_Flow::ComputeResidual(const CCo
 
     if (viscous) {
 
-      Laminar_Viscosity_i    = V_i[nDim+4];
-      Eddy_Viscosity_i       = V_i[nDim+5];
-      Thermal_Conductivity_i = V_i[nDim+6];
+      Laminar_Viscosity_i    = V_i[nDim+5];
+      Eddy_Viscosity_i       = V_i[nDim+6];
+      Thermal_Conductivity_i = V_i[nDim+7];
 
       su2double total_viscosity;
 
@@ -326,8 +368,11 @@ CNumerics::ResidualType<> CSourceIncAxisymmetric_Flow::ComputeResidual(const CCo
       residual[2] -= Volume*(yinv*2.0*total_viscosity*PrimVar_Grad_i[2][1] -
                              yinv* yinv*2.0*total_viscosity*Velocity_i[1] -
                              TWO3*AuxVar_Grad_i[0][1]);
-      residual[3] -= Volume*yinv*Thermal_Conductivity_i*PrimVar_Grad_i[nDim+1][1];
-
+      residual[3] -= Volume * yinv * Thermal_Conductivity_i * PrimVar_Grad_i[nDim + 1][1];
+      if (multicomponent && energy) {
+        residual[3] -= Volume * yinv * HeatFluxDiffusion;
+        if (implicit) jacobian[3][3] -= Volume * yinv * JacHeatFluxDiffusion / Cp_i;
+      }
     }
 
   } else {
@@ -487,13 +532,9 @@ CNumerics::ResidualType<> CSourceGravity::ComputeResidual(const CConfig* config)
   return ResidualType<>(residual, jacobian, nullptr);
 }
 
-CSourceRotatingFrame_Flow::CSourceRotatingFrame_Flow(unsigned short val_nDim, unsigned short val_nVar, const CConfig* config) :
-                           CSourceBase_Flow(val_nDim, val_nVar, config) {
-
-  Gamma = config->GetGamma();
-  Gamma_Minus_One = Gamma - 1.0;
-
-}
+CSourceRotatingFrame_Flow::CSourceRotatingFrame_Flow(unsigned short val_nDim, unsigned short val_nVar,
+                                                     const CConfig* config)
+    : CSourceBase_Flow(val_nDim, val_nVar, config) {}
 
 CNumerics::ResidualType<> CSourceRotatingFrame_Flow::ComputeResidual(const CConfig* config) {
 
@@ -555,9 +596,6 @@ CSourceIncRotatingFrame_Flow::CSourceIncRotatingFrame_Flow(unsigned short val_nD
 
   implicit = (config->GetKind_TimeIntScheme_Flow() == EULER_IMPLICIT);
 
-  Gamma = config->GetGamma();
-  Gamma_Minus_One = Gamma - 1.0;
-
   /*--- Retrieve the angular velocity vector from config. ---*/
   for (unsigned short iDim = 0; iDim < 3; iDim++)
     Omega[iDim] = config->GetRotation_Rate(iDim)/config->GetOmega_Ref();
@@ -618,10 +656,7 @@ CNumerics::ResidualType<> CSourceIncRotatingFrame_Flow::ComputeResidual(const CC
 
 CSourceVorticityConfinement::CSourceVorticityConfinement(unsigned short val_nDim, unsigned short val_nVar,
                                                          const CConfig* config)
-    : CSourceBase_Flow(val_nDim, val_nVar, config) {
-  Gamma = config->GetGamma();
-  Gamma_Minus_One = Gamma - 1.0;
-}
+    : CSourceBase_Flow(val_nDim, val_nVar, config) {}
 
 CNumerics::ResidualType<> CSourceVorticityConfinement::ComputeResidual(const CConfig* config) {
   /*--- density, \rho ---*/
@@ -831,8 +866,7 @@ CNumerics::ResidualType<> CSourceRadiation::ComputeResidual(const CConfig *confi
 
     /*--- Jacobian is set to zero on initialization. ---*/
 
-    jacobian[nDim+1][nDim+1] = -RadVar_Source[1]*Volume;
-
+    jacobian[nDim + 1][nDim + 1] = -RadVar_Source[1] * Volume / Cp_i;
   }
 
   return ResidualType<>(residual, jacobian, nullptr);

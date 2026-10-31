@@ -3,14 +3,14 @@
  * \brief Headers of the main subroutines for storing the primal grid structure.
  *        The subroutines and functions are in the <i>primal_grid_structure.cpp</i> file.
  * \author F. Palacios
- * \version 8.2.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
  * The SU2 Project is maintained by the SU2 Foundation
  * (http://su2foundation.org)
  *
- * Copyright 2012-2025, SU2 Contributors (cf. AUTHORS.md)
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
  *
  * SU2 is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -28,12 +28,12 @@
 
 #pragma once
 
+#include <cstdint>
 #include <iostream>
 #include <vector>
 #include <array>
 #include <limits>
 #include <cstdlib>
-#include <limits>
 #include <memory>
 
 #include "../../option_structure.hpp"
@@ -207,7 +207,9 @@ class CPrimalGrid {
           Coord_CG[iDim] += val_coord[iNode][iDim] / su2double(GetnNodes());
       }
     } else {
-      getElemCG(nDim,val_coord,&Coord_CG[0]);
+      std::array<const su2double*, N_POINTS_MAXIMUM> coords;
+      for (unsigned short iNode = 0; iNode < GetnNodes(); iNode++) coords[iNode] = val_coord[iNode];
+      getElemCG(nDim, coords, &Coord_CG[0]);
     }
     return Coord_CG;
   }

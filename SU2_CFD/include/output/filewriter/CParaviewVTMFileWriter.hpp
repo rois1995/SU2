@@ -2,14 +2,14 @@
  * \file CParaviewVTMFileWriter.hpp
  * \brief Headers fo paraview binary file writer class.
  * \author T. Albring
- * \version 8.2.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
  * The SU2 Project is maintained by the SU2 Foundation
  * (http://su2foundation.org)
  *
- * Copyright 2012-2025, SU2 Contributors (cf. AUTHORS.md)
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
  *
  * SU2 is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -124,7 +124,8 @@ public:
    * \param[in] dataSorter - Datasorter object containing the actual data. Note, data must be sorted.
    */
   //void AddDataset(string name, string file, CParallelDataSorter* dataSorter);
-  void AddDataset(const string& foldername, string name, const string& file, CParallelDataSorter* dataSorter);
+  void AddDataset(const string& foldername, string name, const string& file, CParallelDataSorter* dataSorter,
+                  bool doublePrecision);
 
   /*!
    * \brief Start a new block

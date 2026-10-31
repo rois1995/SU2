@@ -2,14 +2,14 @@
  * \file CParaviewVTMFileWriter.cpp
  * \brief Filewriter class for Paraview binary format.
  * \author T. Albring
- * \version 8.2.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
  * The SU2 Project is maintained by the SU2 Foundation
  * (http://su2foundation.org)
  *
- * Copyright 2012-2025, SU2 Contributors (cf. AUTHORS.md)
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
  *
  * SU2 is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -87,7 +87,8 @@ void CParaviewVTMFileWriter::WriteData(string val_filename){
 
 }
 
-void CParaviewVTMFileWriter::AddDataset(const string& foldername, string name, const string& file, CParallelDataSorter* dataSorter){
+void CParaviewVTMFileWriter::AddDataset(const string& foldername, string name, const string& file,
+                                        CParallelDataSorter* dataSorter, bool doublePrecision){
 
   /*--- Construct the full file name incl. folder ---*/
   /*--- Note that the folder name is simply the filename ---*/
@@ -96,7 +97,7 @@ void CParaviewVTMFileWriter::AddDataset(const string& foldername, string name, c
 
   /*--- Create an XML writer and dump data into file ---*/
 
-  CParaviewXMLFileWriter XMLWriter(dataSorter);
+  CParaviewXMLFileWriter XMLWriter(dataSorter, doublePrecision);
   XMLWriter.WriteData(fullFilename);
 
   /*--- Add the dataset to the vtm file ---*/
@@ -136,7 +137,7 @@ void CParaviewVTMFileWriter::WriteFolderData(const string& foldername, CConfig *
   StartBlock(std::move(multiZoneHeaderString));
 
   StartBlock("Internal");
-  AddDataset(foldername,"Internal", "Internal", volumeDataSorter);
+  AddDataset(foldername, "Internal", "Internal", volumeDataSorter, config->GetVolume_Output_Double_Precision());
   EndBlock();
 
   /*--- Open a block for the boundary ---*/
@@ -180,7 +181,7 @@ void CParaviewVTMFileWriter::WriteFolderData(const string& foldername, CConfig *
 
       /*--- Add the dataset ---*/
 
-      AddDataset(foldername, markerTag, markerTag, surfaceDataSorter);
+      AddDataset(foldername, markerTag, markerTag, surfaceDataSorter, config->GetVolume_Output_Double_Precision());
 
     }
   }

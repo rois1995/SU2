@@ -2,14 +2,14 @@
  * \file CFEASolver.cpp
  * \brief Main subroutines for solving direct FEM elasticity problems.
  * \author R. Sanchez
- * \version 8.2.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
  * The SU2 Project is maintained by the SU2 Foundation
  * (http://su2foundation.org)
  *
- * Copyright 2012-2025, SU2 Contributors (cf. AUTHORS.md)
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
  *
  * SU2 is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -37,6 +37,7 @@ using namespace GeometryToolbox;
 
 
 CFEASolver::CFEASolver(LINEAR_SOLVER_MODE mesh_deform_mode) : CFEASolverBase(mesh_deform_mode) {
+  SU2_ZONE_SCOPED
 
   Total_CFEA = 0.0;
   WAitken_Dyn = 0.0;
@@ -49,6 +50,7 @@ CFEASolver::CFEASolver(LINEAR_SOLVER_MODE mesh_deform_mode) : CFEASolverBase(mes
 }
 
 CFEASolver::CFEASolver(CGeometry *geometry, CConfig *config) : CFEASolverBase(geometry, config) {
+  SU2_ZONE_SCOPED
 
   bool dynamic = config->GetTime_Domain();
   config->SetDelta_UnstTimeND(config->GetDelta_UnstTime());
@@ -220,6 +222,7 @@ CFEASolver::CFEASolver(CGeometry *geometry, CConfig *config) : CFEASolverBase(ge
 }
 
 CFEASolver::~CFEASolver() {
+  SU2_ZONE_SCOPED
 
   if (element_properties != nullptr) {
     for (unsigned long iElem = 0; iElem < nElement; iElem++)
@@ -238,6 +241,7 @@ CFEASolver::~CFEASolver() {
 }
 
 void CFEASolver::HybridParallelInitialization(CGeometry* geometry) {
+  SU2_ZONE_SCOPED
 #ifdef HAVE_OMP
   /*--- Get the element coloring. ---*/
 
@@ -254,7 +258,7 @@ void CFEASolver::HybridParallelInitialization(CGeometry* geometry) {
 
   if (!coloring.empty()) {
     /*--- We are not constrained by the color group size when using locks. ---*/
-    auto groupSize = LockStrategy? 1ul : geometry->GetElementColorGroupSize();
+    auto groupSize = static_cast<su2uint>(LockStrategy ? 1ul : geometry->GetElementColorGroupSize());
     auto nColor = coloring.getOuterSize();
     ElemColoring.reserve(nColor);
 
@@ -283,9 +287,7 @@ void CFEASolver::HybridParallelInitialization(CGeometry* geometry) {
 }
 
 void CFEASolver::Set_ElementProperties(CGeometry *geometry, CConfig *config) {
-
-  const auto iZone = config->GetiZone();
-  const auto nZone = geometry->GetnZone();
+  SU2_ZONE_SCOPED
 
   const bool topology_mode = config->GetTopology_Optimization();
 
@@ -295,9 +297,6 @@ void CFEASolver::Set_ElementProperties(CGeometry *geometry, CConfig *config) {
 
   auto filename = config->GetFEA_FileName();
 
-  /*--- If multizone, append zone name ---*/
-  if (nZone > 1)
-    filename = config->GetMultizone_FileName(filename, iZone, ".dat");
 
   if (rank == MASTER_NODE) cout << "Filename: " << filename << "." << endl;
 
@@ -395,6 +394,7 @@ void CFEASolver::Set_ElementProperties(CGeometry *geometry, CConfig *config) {
 }
 
 void CFEASolver::Set_Prestretch(CGeometry *geometry, CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const auto iZone = config->GetiZone();
   const auto nZone = geometry->GetnZone();
@@ -469,6 +469,7 @@ void CFEASolver::Set_Prestretch(CGeometry *geometry, CConfig *config) {
 }
 
 void CFEASolver::Set_ReferenceGeometry(CGeometry *geometry, CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const auto iZone = config->GetiZone();
   const auto file_format = config->GetRefGeom_FileFormat();
@@ -542,6 +543,7 @@ void CFEASolver::Set_ReferenceGeometry(CGeometry *geometry, CConfig *config) {
 }
 
 void CFEASolver::Set_VertexEliminationSchedule(CGeometry *geometry, const vector<unsigned short>& markers) {
+  SU2_ZONE_SCOPED
 
   /*--- Store global point indices of essential BC markers. ---*/
   vector<unsigned long> myPoints;
@@ -559,6 +561,7 @@ void CFEASolver::Set_VertexEliminationSchedule(CGeometry *geometry, const vector
 
 void CFEASolver::Preprocessing(CGeometry *geometry, CSolver **solver_container, CConfig *config, CNumerics **numerics,
                                unsigned short iMesh, unsigned long Iteration, unsigned short RunTime_EqSystem, bool Output) {
+  SU2_ZONE_SCOPED
 
   const bool dynamic = config->GetTime_Domain();
   const bool disc_adj_fem = (config->GetKind_Solver() == MAIN_SOLVER::DISC_ADJ_FEM);
@@ -619,6 +622,7 @@ void CFEASolver::Preprocessing(CGeometry *geometry, CSolver **solver_container, 
 }
 
 void CFEASolver::SetInitialCondition(CGeometry **geometry, CSolver ***solver_container, CConfig *config, unsigned long TimeIter) {
+  SU2_ZONE_SCOPED
 
   SU2_OMP_PARALLEL
   {
@@ -648,6 +652,7 @@ void CFEASolver::SetInitialCondition(CGeometry **geometry, CSolver ***solver_con
 }
 
 void CFEASolver::Compute_StiffMatrix(CGeometry *geometry, CNumerics **numerics, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const bool topology_mode = config->GetTopology_Optimization();
   const su2double simp_exponent = config->GetSIMP_Exponent();
@@ -743,6 +748,7 @@ void CFEASolver::Compute_StiffMatrix(CGeometry *geometry, CNumerics **numerics, 
 }
 
 void CFEASolver::Compute_StiffMatrix_NodalStressRes(CGeometry *geometry, CNumerics **numerics, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const bool prestretch_fem = config->GetPrestretch();
   const bool de_effects = config->GetDE_Effects();
@@ -889,6 +895,7 @@ void CFEASolver::Compute_StiffMatrix_NodalStressRes(CGeometry *geometry, CNumeri
 }
 
 void CFEASolver::Compute_MassMatrix(const CGeometry *geometry, CNumerics **numerics, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const bool topology_mode = config->GetTopology_Optimization();
   const su2double simp_minstiff = config->GetSIMP_MinStiffness();
@@ -980,6 +987,7 @@ void CFEASolver::Compute_MassMatrix(const CGeometry *geometry, CNumerics **numer
 }
 
 void CFEASolver::Compute_MassRes(const CGeometry *geometry, CNumerics **numerics, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const bool topology_mode = config->GetTopology_Optimization();
   const su2double simp_minstiff = config->GetSIMP_MinStiffness();
@@ -1060,6 +1068,7 @@ void CFEASolver::Compute_MassRes(const CGeometry *geometry, CNumerics **numerics
 }
 
 void CFEASolver::Compute_NodalStressRes(CGeometry *geometry, CNumerics **numerics, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const bool prestretch_fem = config->GetPrestretch();
 
@@ -1157,6 +1166,7 @@ void CFEASolver::Compute_NodalStressRes(CGeometry *geometry, CNumerics **numeric
 }
 
 void CFEASolver::Compute_NodalStress(CGeometry *geometry, CNumerics **numerics, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const bool prestretch_fem = config->GetPrestretch();
 
@@ -1169,7 +1179,7 @@ void CFEASolver::Compute_NodalStress(CGeometry *geometry, CNumerics **numerics, 
   const su2double stress_scale = 1.0 / stressParam[0];
   const su2double ks_mult = stressParam[1];
 
-  const unsigned short nStress = (nDim == 2) ? 3 : 6;
+  const unsigned short nStress = 2 * nDim;
 
   su2double StressPenalty = 0.0;
   su2double MaxVonMises_Stress = 0.0;
@@ -1302,9 +1312,7 @@ void CFEASolver::Compute_NodalStress(CGeometry *geometry, CNumerics **numerics, 
       maxVonMises = max(maxVonMises, vms);
     }
     END_SU2_OMP_FOR
-    SU2_OMP_CRITICAL
-    MaxVonMises_Stress = max(MaxVonMises_Stress, maxVonMises);
-    END_SU2_OMP_CRITICAL
+    atomicMax(maxVonMises, MaxVonMises_Stress);
 
     AD::EndPassive(wasActive);
 
@@ -1439,6 +1447,7 @@ void CFEASolver::Compute_NodalStress(CGeometry *geometry, CNumerics **numerics, 
 }
 
 void CFEASolver::Compute_BodyForces(CGeometry *geometry, CNumerics **numerics, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const su2double t_ref = config->GetTemperature_Ref();
 
@@ -1522,6 +1531,7 @@ void CFEASolver::Compute_BodyForces(CGeometry *geometry, CNumerics **numerics, c
 }
 
 void CFEASolver::Compute_IntegrationConstants(const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   su2double Delta_t= config->GetDelta_UnstTime();
 
@@ -1570,6 +1580,7 @@ void CFEASolver::Compute_IntegrationConstants(const CConfig *config) {
 
 
 void CFEASolver::BC_Clamped(CGeometry *geometry, const CConfig *config, unsigned short val_marker) {
+  SU2_ZONE_SCOPED
 
   const bool dynamic = config->GetTime_Domain();
   const su2double zeros[MAXNVAR] = {0.0};
@@ -1602,6 +1613,7 @@ void CFEASolver::BC_Clamped(CGeometry *geometry, const CConfig *config, unsigned
 }
 
 void CFEASolver::BC_Clamped_Post(CGeometry *geometry, const CConfig *config, unsigned short val_marker) {
+  SU2_ZONE_SCOPED
 
   bool dynamic = config->GetTime_Domain();
 
@@ -1638,6 +1650,7 @@ void SubtractProjection(unsigned short nDim, const su2double* n, const Read& rea
 }
 
 void CFEASolver::BC_Sym_Plane(CGeometry *geometry, const CConfig *config, unsigned short val_marker) {
+  SU2_ZONE_SCOPED
 
   if (geometry->GetnElem_Bound(val_marker) == 0) return;
   const bool dynamic = config->GetTime_Domain();
@@ -1699,6 +1712,7 @@ void CFEASolver::BC_Sym_Plane(CGeometry *geometry, const CConfig *config, unsign
 }
 
 void CFEASolver::BC_DispDir(CGeometry *geometry, const CConfig *config, unsigned short val_marker) {
+  SU2_ZONE_SCOPED
 
   unsigned short iDim;
 
@@ -1765,6 +1779,7 @@ CSysVector<T> computeLinearResidual(const CSysMatrix<T>& A,
 }
 
 void CFEASolver::Postprocessing(CGeometry *geometry, CConfig *config, CNumerics **numerics, bool of_comp_mode) {
+  SU2_ZONE_SCOPED
 
   /*--- Compute the objective function. ---*/
 
@@ -1818,14 +1833,13 @@ void CFEASolver::Postprocessing(CGeometry *geometry, CConfig *config, CNumerics 
     /*--- RTOL = norm(Residual(k): ABSOLUTE, norm of the residual (T-F) ---*/
     /*--- ETOL = Delta_U(k) * Residual(k): ABSOLUTE, energy norm ---*/
 
-    SU2_OMP_PARALLEL
-    {
+    SU2_OMP_PARALLEL {
+
     su2double utol = LinSysSol.norm();
     su2double rtol = LinSysRes.norm();
     su2double etol = fabs(LinSysSol.dot(LinSysRes));
 
-    SU2_OMP_MASTER
-    {
+    SU2_OMP_MASTER {
       Conv_Check[0] = utol;
       Conv_Check[1] = rtol;
       Conv_Check[2] = etol;
@@ -1857,8 +1871,14 @@ void CFEASolver::Postprocessing(CGeometry *geometry, CConfig *config, CNumerics 
     END_SU2_OMP_FOR
 
     /*--- "Add" residuals from all threads to global residual variables. ---*/
-    ResidualReductions_FromAllThreads(geometry, config, resRMS,resMax,idxMax);
+    ResidualReductions_FromAllThreads(geometry, config, resRMS, resMax, idxMax);
 
+    SU2_OMP_MASTER {
+      Conv_Check[0] = Residual_RMS[0];
+      Conv_Check[1] = Residual_RMS[1];
+      Conv_Check[2] = nDim == 3 ? Residual_RMS[2] : 0;
+    }
+    END_SU2_OMP_MASTER
     }
     END_SU2_OMP_PARALLEL
 
@@ -1867,6 +1887,7 @@ void CFEASolver::Postprocessing(CGeometry *geometry, CConfig *config, CNumerics 
 }
 
 void CFEASolver::BC_Normal_Load(CGeometry *geometry, const CConfig *config, unsigned short val_marker) {
+  SU2_ZONE_SCOPED
 
   /*--- Determine whether the load conditions are applied in the reference or in the current configuration. ---*/
 
@@ -1961,6 +1982,7 @@ void CFEASolver::BC_Normal_Load(CGeometry *geometry, const CConfig *config, unsi
 }
 
 void CFEASolver::BC_Dir_Load(CGeometry *geometry, const CConfig *config, unsigned short val_marker) {
+  SU2_ZONE_SCOPED
 
   auto TagBound = config->GetMarker_All_TagBound(val_marker);
   su2double LoadDirVal = config->GetLoad_Dir_Value(TagBound);
@@ -2022,6 +2044,7 @@ void CFEASolver::BC_Dir_Load(CGeometry *geometry, const CConfig *config, unsigne
 }
 
 void CFEASolver::BC_Damper(CGeometry *geometry, const CConfig *config, unsigned short val_marker) {
+  SU2_ZONE_SCOPED
 
   const su2double dampConst = config->GetDamper_Constant(config->GetMarker_All_TagBound(val_marker));
 
@@ -2079,6 +2102,7 @@ void CFEASolver::BC_Damper(CGeometry *geometry, const CConfig *config, unsigned 
 }
 
 su2double CFEASolver::Compute_LoadCoefficient(su2double CurrentTime, su2double RampTime, const CConfig *config){
+  SU2_ZONE_SCOPED
 
   su2double LoadCoeff = 1.0;
 
@@ -2152,6 +2176,7 @@ su2double CFEASolver::Compute_LoadCoefficient(su2double CurrentTime, su2double R
 }
 
 void CFEASolver::ImplicitNewmark_Iteration(const CGeometry *geometry, CNumerics **numerics, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const bool first_iter = (config->GetInnerIter() == 0);
   const bool dynamic = (config->GetTime_Domain());
@@ -2238,6 +2263,7 @@ void CFEASolver::ImplicitNewmark_Iteration(const CGeometry *geometry, CNumerics 
 }
 
 void CFEASolver::ImplicitNewmark_Update(const CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const bool dynamic = (config->GetTime_Domain());
 
@@ -2288,6 +2314,7 @@ void CFEASolver::ImplicitNewmark_Update(const CGeometry *geometry, const CConfig
 }
 
 void CFEASolver::ImplicitNewmark_Relaxation(const CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const bool dynamic = (config->GetTime_Domain());
 
@@ -2339,6 +2366,7 @@ void CFEASolver::ImplicitNewmark_Relaxation(const CGeometry *geometry, const CCo
 
 
 void CFEASolver::GeneralizedAlpha_Iteration(const CGeometry *geometry, CNumerics **numerics, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const bool first_iter = (config->GetInnerIter() == 0);
   const bool dynamic = (config->GetTime_Domain());
@@ -2450,6 +2478,7 @@ void CFEASolver::GeneralizedAlpha_Iteration(const CGeometry *geometry, CNumerics
 }
 
 void CFEASolver::GeneralizedAlpha_UpdateDisp(const CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   /*--- Update displacement components of the solution. ---*/
 
@@ -2462,6 +2491,7 @@ void CFEASolver::GeneralizedAlpha_UpdateDisp(const CGeometry *geometry, const CC
 }
 
 void CFEASolver::GeneralizedAlpha_UpdateSolution(const CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const su2double alpha_f = config->Get_Int_Coeffs(2);
   const su2double alpha_m = config->Get_Int_Coeffs(3);
@@ -2517,6 +2547,7 @@ void CFEASolver::GeneralizedAlpha_UpdateSolution(const CGeometry *geometry, cons
 }
 
 void CFEASolver::GeneralizedAlpha_UpdateLoads(const CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   /*--- Set the load conditions of the time step n+1 as the load conditions for time step n ---*/
   nodes->Set_SurfaceLoad_Res_n();
@@ -2525,6 +2556,7 @@ void CFEASolver::GeneralizedAlpha_UpdateLoads(const CGeometry *geometry, const C
 }
 
 void CFEASolver::Solve_System(CGeometry *geometry, CConfig *config) {
+  SU2_ZONE_SCOPED
 
   /*--- Enforce solution at some halo points possibly not covered by essential BC markers. ---*/
   CSysMatrixComms::Initiate(LinSysSol, geometry, config);
@@ -2559,6 +2591,7 @@ void CFEASolver::Solve_System(CGeometry *geometry, CConfig *config) {
 
 
 void CFEASolver::PredictStruct_Displacement(CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const unsigned short predOrder = config->GetPredictorOrder();
   const su2double Delta_t = config->GetDelta_UnstTime();
@@ -2610,6 +2643,7 @@ void CFEASolver::PredictStruct_Displacement(CGeometry *geometry, const CConfig *
 }
 
 void CFEASolver::ComputeAitken_Coefficient(CGeometry *geometry, const CConfig *config, unsigned long iOuterIter) {
+  SU2_ZONE_SCOPED
 
   unsigned long iPoint, iDim;
   su2double rbuf_numAitk = 0, sbuf_numAitk = 0;
@@ -2700,6 +2734,7 @@ void CFEASolver::ComputeAitken_Coefficient(CGeometry *geometry, const CConfig *c
 }
 
 void CFEASolver::SetAitken_Relaxation(CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
 
   const su2double WAitken = WAitken_Dyn;
   const bool dynamic = config->GetTime_Domain();
@@ -2742,6 +2777,7 @@ void CFEASolver::SetAitken_Relaxation(CGeometry *geometry, const CConfig *config
 void CFEASolver::OutputForwardModeGradient(const CConfig *config, bool newFile,
                                            su2double fun, su2double fun_avg,
                                            su2double der, su2double der_avg) const {
+  SU2_ZONE_SCOPED
   if (rank != MASTER_NODE) return;
 
   bool dynamic = config->GetTime_Domain();
@@ -2810,6 +2846,7 @@ void CFEASolver::OutputForwardModeGradient(const CConfig *config, bool newFile,
 }
 
 void CFEASolver::Compute_OFRefGeom(CGeometry *geometry, const CConfig *config){
+  SU2_ZONE_SCOPED
 
   bool fsi = config->GetFSI_Simulation();
   unsigned long TimeIter = config->GetTimeIter();
@@ -2882,6 +2919,7 @@ void CFEASolver::Compute_OFRefGeom(CGeometry *geometry, const CConfig *config){
 }
 
 void CFEASolver::Compute_OFRefNode(CGeometry *geometry, const CConfig *config){
+  SU2_ZONE_SCOPED
 
   bool fsi = config->GetFSI_Simulation();
   unsigned long TimeIter = config->GetTimeIter();
@@ -2926,6 +2964,7 @@ void CFEASolver::Compute_OFRefNode(CGeometry *geometry, const CConfig *config){
 
 void CFEASolver::Compute_OFVolFrac(CGeometry *geometry, const CConfig *config)
 {
+  SU2_ZONE_SCOPED
   /*--- Perform a volume average of the physical density of the elements for topology optimization ---*/
 
   su2double total_volume = 0.0, integral = 0.0, discreteness = 0.0;
@@ -2968,6 +3007,7 @@ void CFEASolver::Compute_OFVolFrac(CGeometry *geometry, const CConfig *config)
 
 void CFEASolver::Compute_OFCompliance(CGeometry *geometry, const CConfig *config)
 {
+  SU2_ZONE_SCOPED
   /*--- If the loads are being applied incrementaly ---*/
   const bool incremental_load = config->GetIncrementalLoad();
 
@@ -3019,6 +3059,7 @@ void CFEASolver::Compute_OFCompliance(CGeometry *geometry, const CConfig *config
 }
 
 void CFEASolver::Stiffness_Penalty(CGeometry *geometry, CNumerics **numerics, CConfig *config){
+  SU2_ZONE_SCOPED
 
   if (config->GetTotalDV_Penalty() == 0.0) {
     /*--- No need to go into expensive computations. ---*/
@@ -3104,8 +3145,9 @@ void CFEASolver::Stiffness_Penalty(CGeometry *geometry, CNumerics **numerics, CC
 }
 
 void CFEASolver::LoadRestart(CGeometry **geometry, CSolver ***solver, CConfig *config, int val_iter, bool val_update_geo) {
+  SU2_ZONE_SCOPED
 
-  const bool dynamic = (config->GetTime_Domain());
+  const bool dynamic = config->GetTime_Domain();
   const bool fluid_structure = config->GetFSI_Simulation();
   const bool discrete_adjoint = config->GetDiscrete_Adjoint();
 
@@ -3115,11 +3157,13 @@ void CFEASolver::LoadRestart(CGeometry **geometry, CSolver ***solver, CConfig *c
 
   /*--- Read the restart data from either an ASCII or binary SU2 file. ---*/
 
-  string filename = config->GetFilename(config->GetSolution_FileName(), "", val_iter);
+  string filename = config->GetSolution_FileName();
 
   if (config->GetRead_Binary_Restart()) {
+    filename = config->GetFilename(filename, ".dat", val_iter);
     Read_SU2_Restart_Binary(geometry[MESH_0], config, filename);
   } else {
+    filename = config->GetFilename(filename, ".csv", val_iter);
     Read_SU2_Restart_ASCII(geometry[MESH_0], config, filename);
   }
 
@@ -3200,6 +3244,7 @@ void CFEASolver::LoadRestart(CGeometry **geometry, CSolver ***solver, CConfig *c
 
 void CFEASolver::RegisterVariables(CGeometry *geometry, CConfig *config, bool reset)
 {
+  SU2_ZONE_SCOPED
   /*--- Register the element density to get the derivatives required for
   material-based topology optimization, this is done here because element_properties
   is a member of CFEASolver only. ---*/
@@ -3211,6 +3256,7 @@ void CFEASolver::RegisterVariables(CGeometry *geometry, CConfig *config, bool re
 
 void CFEASolver::ExtractAdjoint_Variables(CGeometry *geometry, CConfig *config)
 {
+  SU2_ZONE_SCOPED
   /*--- Extract and output derivatives for topology optimization, this is done
   here because element_properties is a member of CFEASolver only and the output
   structure only supports nodal values (these are elemental). ---*/
@@ -3256,6 +3302,7 @@ void CFEASolver::ExtractAdjoint_Variables(CGeometry *geometry, CConfig *config)
 
 void CFEASolver::FilterElementDensities(CGeometry *geometry, const CConfig *config)
 {
+  SU2_ZONE_SCOPED
   /*--- Apply a filter to the design densities of the elements to generate the
   physical densities which are the ones used to penalize their stiffness. ---*/
 

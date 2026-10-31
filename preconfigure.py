@@ -3,14 +3,14 @@
 ## \file preconfigure.py
 #  \brief An preconfigure script for setting up the build environment
 #  \author T. Albring and F. Poli
-#  \version 8.2.0 "Harrier"
+#  \version 8.6.0 "Harrier"
 #
 # SU2 Project Website: https://su2code.github.io
 #
 # The SU2 Project is maintained by the SU2 Foundation
 # (http://su2foundation.org)
 #
-# Copyright 2012-2025, SU2 Contributors (cf. AUTHORS.md)
+# Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
 #
 # SU2 is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -37,7 +37,8 @@ def build_ninja():
 
     # If we are on windows, we don't need to compile ninja, we just download the executable
     if os.name == "nt":
-        ninja_exe_url = "https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-win.zip"
+        ninja_exe_url = "https://github.com/ninja-build/ninja/releases/download/v1.13.0/ninja-win.zip"
+        ninja_zip_path = os.path.join(sys.path[0], "ninja-win.zip")
 
         # Try to execute ninja, if it fails, download .exe from github
         try:
@@ -48,8 +49,8 @@ def build_ninja():
         except OSError:
             print("Downloading ninja ... ")
             try:
-                urllib.request.urlretrieve(ninja_exe_url, "ninja-win.zip")
-            except:
+                urllib.request.urlretrieve(ninja_exe_url, ninja_zip_path)
+            except Exception as e:
                 print(e)
                 print("Download of ninja executable failed.")
                 print("Get archive at " + ninja_exe_url)
@@ -57,9 +58,9 @@ def build_ninja():
                 print("Run meson.py again.")
                 sys.exit(1)
 
-            zipf = zipfile.ZipFile(sys.path[0] + os.path.sep + "ninja-win.zip")
-            zipf.extractall(sys.path[0])
-            remove_file(sys.path[0] + os.path.sep + "ninja-win.zip")
+            with zipfile.ZipFile(ninja_zip_path) as zipf:
+                zipf.extractall(sys.path[0])
+            remove_file(ninja_zip_path)
     else:
         ninjapath = sys.path[0] + os.path.sep + "externals" + os.path.sep + "ninja"
         try:
@@ -69,8 +70,23 @@ def build_ninja():
             )
         except OSError:
             print("ninja executable not found. Building ...")
-            subprocess.run(["python3", "configure.py", "--bootstrap"], cwd=ninjapath)
-            shutil.copy(ninjapath + os.path.sep + "ninja", ".")
+            # Specify C++17
+            env = os.environ.copy()
+            env["CXXFLAGS"] = env.get("CXXFLAGS", "") + " -std=c++17"
+            # ninja is a build tool and must not be instrumented by sanitizers
+            for var in ("CFLAGS", "CXXFLAGS", "LDFLAGS"):
+                env[var] = " ".join(
+                    f
+                    for f in env.get(var, "").split()
+                    if not f.startswith("-fsanitize")
+                )
+            subprocess.run(
+                ["python3", "configure.py", "--bootstrap"], cwd=ninjapath, env=env
+            )
+            shutil.copy(
+                os.path.join(ninjapath, "ninja"),
+                os.path.join(sys.path[0], "ninja"),
+            )
 
 
 def run(
@@ -80,11 +96,12 @@ def run(
     own_opdi=True,
     own_mpp=True,
     own_cool=True,
+    own_cantera=False,
     own_mel=True,
     own_fado=True,
     own_mlpcpp=True,
+    own_eigen=True,
 ):
-
     # Set up the build environment, i.e. clone or download submodules
     init_submodules(
         method="auto",
@@ -94,9 +111,11 @@ def run(
         own_opdi=own_opdi,
         own_mpp=own_mpp,
         own_cool=own_cool,
+        own_cantera=own_cantera,
         own_mel=own_mel,
         own_fado=own_fado,
         own_mlpcpp=own_mlpcpp,
+        own_eigen=own_eigen,
     )
 
     if own_meson:
@@ -137,6 +156,11 @@ if __name__ == "__main__":
         action="store_false",
     )
     parser.add_argument(
+        "--with-cantera",
+        help="download own copy of Cantera, needed for -Denable-cantera=true",
+        action="store_true",
+    )
+    parser.add_argument(
         "--no-mel", help="do not download own copy of MEL", action="store_false"
     )
     parser.add_argument(
@@ -147,6 +171,9 @@ if __name__ == "__main__":
         help="do not download copy of MLpCpp",
         action="store_false",
     )
+    parser.add_argument(
+        "--no-eigen", help="do not download copy of Eigen", action="store_false"
+    )
     args = parser.parse_args()
 
     run(
@@ -156,7 +183,9 @@ if __name__ == "__main__":
         own_opdi=args.no_opdi,
         own_mpp=args.no_mpp,
         own_cool=args.no_coolprop,
+        own_cantera=args.with_cantera,
         own_mel=args.no_mel,
         own_fado=args.no_fado,
         own_mlpcpp=args.no_mlpcpp,
+        own_eigen=args.no_eigen,
     )
