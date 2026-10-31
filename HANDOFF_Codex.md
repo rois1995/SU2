@@ -42,34 +42,24 @@ Size closure982.301native seconds vs175986.182,720958cells/size0. Quality entry
 1031.098vs1751021.402: all720958measured/allcompleteflags1,52432q-bad/
 53564J-bad/3293geometry-bad/size0; q/Jdebt22311.06548689389. ALL entry counts,
 debts and geometry/cache work match175. Ownership moved360022cells once in13.998s.
-Current phase: quality. Latest COMPLETE window2:1083.918quality seconds,
-12455.161503403138q/Jdebt,44.174959%fall,9.092849debt/s.735068cells,
-43816q-bad/44429J-bad/3171geometry-bad/size0, all measured/allflags1.
-5252candidates/4865reserved/3998commits over110batch rounds. Baseline175window4
-at1084.562s has5.138672%fall/1.057102debt/s. Near-matching elapsed time,
-not an isolated benchmark; strict closure/actual transfer/restart still pending.
-See quality_window2_assessment.json and quality_trend_assessment.json.
+Current phase: quality. Latest COMPLETE window3:1638.605quality seconds,
+10584.575830015372q/Jdebt,52.559075%fall,7.156386debt/s.739297cells,
+41321q-bad/41744J-bad/3096geometry-bad/size0, all measured/allflags1.
+8219candidates/7650reserved/6127commits over174batch rounds. Latest interval
+3.372328debt/s. Continue frozen generously; strict closure still pending.
+Window2at1083.918s had44.174959%fall vs1755.138672%at1084.562s (near matching
+elapsed, not isolated benchmark). See quality_window3_assessment.json and
+quality_trend_assessment.json. No accepted mesh/actual transfer/adapted restart.
 
-First COMPLETE window:516.883quality seconds,
-15496.059051234q/Jdebt,30.545410%fall,13.184824debt/s.729578cells,
-46969q-bad/47848J-bad/3206geometry-bad/size0, all measured/allflags1.
-Actual2201candidates/2045reserved/1800commits over46batch rounds. Baseline175
-complete windows bracket this time:2.2497%fall at420.146s and3.5659%at691.041s.
-Upper-query work per whole-debt reduction95001vs1751215625(~12.8xlower),
-while total query work647.4Mvs338.1M over different window workloads.
-This is improved useful progress, NOT strict closure. First-window assessment
-verifies1396pins/ten live identities/81mapped libraries. See quality_window1_*
-and quality_trend_assessment.json. Continue frozen generously.
-One2s49Hz profile520samples/0lost confirms active fitting/exact predicates and
-parameter publication plus waits; Allreduce76.27%inclusive overlaps other shares.
-No all-rank deadlock during sample; not phase-wide cost/progress evidence.
-Profile context/assessment/text reports in179run; raw perf remains LOCALONLY.
-Capture/report overhead is a timing limitation, not subtracted.
-Latest observation treeRSS~8.47GiB, ~23.9GiB host available; sampled sum peak
-11.685GiB. Summed RSS is not physical memory or an unsampled whole-job peak.
-Resources/owned_observations retained. See split_generation_assessment.json and
-quality_entry_assessment.json. The new batching affects this quality phase.
-See179run/coarsen_assessment.json. Timings are observations, not isolated benchmarks.
+Earlier first window:30.545410%fall in516.883quality seconds. Upper-query
+work/debt95001vs1751215625(~12.8xlower); different window workloads, not isolated
+timing. First-window assessment verifies1396pins/ten live handles/81mapped libs.
+One bounded2s49Hz profile520samples/0lost showed active fitting/exact predicates
+and parameter publication plus waits; inclusive Allreduce76.27%overlaps other
+shares. Not phase totals. Profile raw data stays LOCALONLY; diagnostic overhead
+is not subtracted. Latest treeRSS~8.48GiB, ~24GiB host available; sampled sum peak
+11.685GiB is not physical memory or an unsampled whole-job peak. Resource and
+owned-handle receipts retained in179run.
 
 Quality-service179 qualification: build PASS111.227s/1296pins/all9handles absent;
 CFD identical178. Serial29cases/8169assertions PASS8.052s/1386pins/all4handles

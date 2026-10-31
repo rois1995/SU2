@@ -160,3 +160,15 @@ publication facilities before creating new infrastructure. Any grouping must
 prove complete geometry/parameter dependencies and simultaneous clearance, retain
 versions/IDs/height/body gates and transient admission, and avoid stale prebuilt
 curved contexts. No immediate reprioritization or batch-limit increase.
+
+### 2026-10-31 conditional repair-freedom review after179outcome
+
+If the full179attempt fails strict closure despite its demonstrated faster
+whole-debt reduction, distinguish remaining query/service cost from insufficient
+construction freedom. The optimizer's imported star has an artificial frame;
+original neighboring vertices generally cannot move together unless their complete
+stars are inside that region. Inspect actual remaining difficult cavities before
+choosing a strategy. Reuse existing multi-feature lookup, full-star imports,
+versioned reservations and height/geometry dependencies if wider coordination is
+required. Do not add another local fallback or change limits without target-run
+evidence. No reprioritization while179is healthy/frozen.

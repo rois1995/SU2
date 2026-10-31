@@ -1,0 +1,177 @@
+{
+  "time": 1793429121.9677186,
+  "scope": "Third COMPLETE private first-event quality census; not accepted mesh/transfer",
+  "summary": {
+    "window": 3,
+    "native_elapsed": 2669.702826531,
+    "quality_elapsed": 1638.6050134710001,
+    "qj_debt": 10584.575830015372,
+    "debt_reduction": 11726.489656878519,
+    "percent_reduction": 52.55907506419614,
+    "debt_reduction_per_second": 7.156385804068,
+    "counts": {
+      "cells": 739297,
+      "q_bad": 41321,
+      "j_bad": 41744,
+      "geometry_bad": 3096,
+      "size_bad": 0
+    },
+    "upper_calls": 163962,
+    "upper_work": 1959810331,
+    "upper_seconds_per_rank": [
+      277.2523057829997,
+      255.20536775100183,
+      171.89697992200104,
+      365.90835139999984,
+      131.7730716310004,
+      375.7073787929998
+    ],
+    "rounds_per_rank": [
+      174,
+      174,
+      174,
+      174,
+      174,
+      174
+    ],
+    "batch_rounds_per_rank": [
+      174,
+      174,
+      174,
+      174,
+      174,
+      174
+    ],
+    "batch_candidates_per_rank": [
+      1391,
+      1392,
+      1348,
+      1308,
+      1391,
+      1389
+    ],
+    "batch_reserved_per_rank": [
+      1364,
+      1381,
+      1118,
+      1038,
+      1369,
+      1380
+    ],
+    "accepted_per_rank": [
+      1158,
+      1193,
+      1025,
+      547,
+      1143,
+      1061
+    ],
+    "quality_progress_per_rank": [
+      1158,
+      1193,
+      1025,
+      547,
+      1143,
+      1061
+    ],
+    "updated_cells_per_rank": [
+      43300,
+      35829,
+      40411,
+      13027,
+      36053,
+      34439
+    ]
+  },
+  "interval_debt_reduction_per_second": 3.372327518899161,
+  "rank_diagnostics": [
+    {
+      "rank": 0,
+      "cells": 123055,
+      "q_bad": 11966,
+      "j_bad": 11722,
+      "geometry_bad": 712,
+      "qj_debt": 2584.036049566482,
+      "entry_qj_debt": 5018.426217137247,
+      "upper_seconds": 277.2523057829997,
+      "boundary_private_seconds": 131.28902915699973,
+      "interior_private_seconds": 4.970204731000002,
+      "actual_commits": 1158,
+      "candidates": 1391
+    },
+    {
+      "rank": 1,
+      "cells": 126163,
+      "q_bad": 3116,
+      "j_bad": 3019,
+      "geometry_bad": 583,
+      "qj_debt": 623.2285220686078,
+      "entry_qj_debt": 2883.4097778667738,
+      "upper_seconds": 255.20536775100183,
+      "boundary_private_seconds": 95.71919387900009,
+      "interior_private_seconds": 4.117748046000001,
+      "actual_commits": 1193,
+      "candidates": 1392
+    },
+    {
+      "rank": 2,
+      "cells": 120636,
+      "q_bad": 12592,
+      "j_bad": 13515,
+      "geometry_bad": 250,
+      "qj_debt": 2799.1753399896215,
+      "entry_qj_debt": 5322.111770564635,
+      "upper_seconds": 171.89697992200104,
+      "boundary_private_seconds": 85.64011248400003,
+      "interior_private_seconds": 5.159856272999999,
+      "actual_commits": 1025,
+      "candidates": 1348
+    },
+    {
+      "rank": 3,
+      "cells": 131008,
+      "q_bad": 464,
+      "j_bad": 558,
+      "geometry_bad": 562,
+      "qj_debt": 79.66448205893482,
+      "entry_qj_debt": 988.9423771913616,
+      "upper_seconds": 365.90835139999984,
+      "boundary_private_seconds": 278.6024034029999,
+      "interior_private_seconds": 1.9205926730000007,
+      "actual_commits": 547,
+      "candidates": 1308
+    },
+    {
+      "rank": 4,
+      "cells": 121621,
+      "q_bad": 7626,
+      "j_bad": 7499,
+      "geometry_bad": 444,
+      "qj_debt": 2964.4949709132334,
+      "entry_qj_debt": 4748.192535800858,
+      "upper_seconds": 131.7730716310004,
+      "boundary_private_seconds": 103.78747194200028,
+      "interior_private_seconds": 4.325724930999999,
+      "actual_commits": 1143,
+      "candidates": 1391
+    },
+    {
+      "rank": 5,
+      "cells": 116814,
+      "q_bad": 5557,
+      "j_bad": 5431,
+      "geometry_bad": 545,
+      "qj_debt": 1533.9764654184933,
+      "entry_qj_debt": 3349.982808333015,
+      "upper_seconds": 375.7073787929998,
+      "boundary_private_seconds": 249.57549612599985,
+      "interior_private_seconds": 4.133015025999996,
+      "actual_commits": 1061,
+      "candidates": 1389
+    }
+  ],
+  "notes": [
+    "Upper/boundary/interior timers overlap; do not sum or equate them with MPI protocol cost.",
+    "Per-rank diagnostics describe the present ownership; private smoothing may be outer-rejected."
+  ]
+}

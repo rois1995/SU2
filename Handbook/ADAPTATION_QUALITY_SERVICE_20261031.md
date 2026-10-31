@@ -182,3 +182,11 @@ versus175window4at1084.562s/5.138672%fall. Current9.092849debt/s vs1.057102.
 735068private cells,43816q-bad/44429J-bad/3171geometry-bad/size0, all measured
 and complete.5252candidates/4865reserved/3998actual commits over110batch rounds.
 No accepted mesh/transfer/restart; continue the frozen full workflow generously.
+
+Third complete quality window:52.559075%fall in1638.605quality seconds,
+10584.575830015q/Jdebt, average7.156386debt/s, latest interval3.372328debt/s.
+739297private cells,41321q-bad/41744J-bad/3096geometry-bad/size0, all measured
+and complete.8219candidates/7650reserved/6127actual commits over174batch rounds.
+Rank-local debt and separate nested geometry/boundary/interior diagnostics are in
+quality_window3_assessment.json. These do not change the requirement for complete
+strict acceptance, actual transfer and adapted restart.179continues frozen.
