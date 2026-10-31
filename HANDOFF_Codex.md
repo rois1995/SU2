@@ -14,17 +14,30 @@ CURRENT=`staged57/m6_runs/euler_build188_real_cfd50k_feature_safe`.
 BEFORE=`staged57/m6_runs/euler_build179_real_cfd50k_before`.
 PREVIOUS=`staged57/m6_runs/euler_build183_real_cfd50k_after`.
 
-## Authoritative state —188terminal; next connected cycle SPEED
+## Authoritative state —190 building;189 terminal
 
-Full TWO-event build188 TERMINAL, exec16914exit1. First event naturally rejected
+ONE owned heavy job: build190 exec9954, helper134511/start88241416, ninja134519/start88241447(nice19,j3). All1296compiled/header/test/helper pins FROZEN.
+Build189 PASS126.277s; serial28cases/8100assertions PASS.
+MPI189 TERMINAL FAILED:2 modified fixtures failed,161other cases/rank passed.
+All10MPI handles independently ABSENT/all pins unchanged before source edits;
+staged57/cases/census_ownership189_mpi6_20261031T171248_115554/terminal_verification.json.
+Failure caught the new hook requiring mesh admissibility instead of measurement
+completeness, preventing debt migration while bad cells remained. Corrected hook
+uses the existing global complete-census guard inside phase_ownership. Repair history
+now restores exact inherited feature subsets directly, preserving specialized modes
+without an artificial phase change. Geometry-mode fixture scoped to current phase;
+empty ranks checked without requiring local geometry debt. Corrections UNVALIDATED.
+Build190 running; freeze ACTIVE. Both agents done; no independent jobs.
+
+HISTORICAL full TWO-event build188 TERMINAL, exec16914exit1. First event naturally rejected
 `Native3D private repair round exhausts elapsed-time budget.` All6stop=time_budget;
 native total max5403.529847s,refine5345.821634s. Accepted original CFD retained.
 Preserved raw6summaries/details/EXIT/root rejection BEFORE verified launcher4103464
 SIGTERM during second-event setup. Independent audit1793464454:ALL10owned handles
-ABSENT and ALL1401pins unchanged BEFORE ANY next compiled source edit. No heavy job.
+ABSENT and ALL1401pins unchanged BEFORE ANY next compiled source edit.
 CURRENT/event1_natural_failure.json,event1_failure_owned_stop.json,terminal_handles.json.
-Old handles are historical,never infer live work from old status. Source freeze lifted
-for this demonstrated fix; next build/run freezes its own exact pins until terminal.
+Those188handles are historical,never infer live work from old status. Freeze was lifted
+for the demonstrated fix;189 is terminal and its freeze is lifted.
 
 188production sourceb64674701a,qualification34f458f5ed; CFD SHA
 191ccb8869b3320de35a56ed91f608790897ebe7626741841e3edaf077eb4ca1. Qualified serial+
@@ -61,16 +74,13 @@ state. Source confirms quality ownership is entry-only despite late debt skew.
 Cached cell/edge certificates already migrate, but feature ages/blocked state and
 specialized phase modes must survive; blindly repeating migration would reset them.
 [Connected design/acceptance](Handbook/ADAPTATION_CENSUS_OWNERSHIP_20261031.md).
-Connected source written/reviewed, UNBUILT: primary owns Engine.cpp; agent finished
-focused NativeDistributed3D_tests age/empty-rank and residual-geometry-mode cases,
-primary corrected local empty-rank assertion. Fixed14feature epochs/active/blocked
-masks migrate with CachedRow; exact required membership/range checked, oldest=min,
-blocked=all prior contributors. Existing queues/severities reconstructed; modes kept.
-Repeat evaluation only at complete aligned census cadence with existing gain/deadline
-gates; construction one-shot unchanged. No heavy job; source freeze lifted. Build189next.
-Validation plan:staged57/census_ownership189_validation_plan.json. No new source built/
-validated yet. Both agents done/no independent jobs. Keep ONEcycle, no
-new scheduler/options or construction changes. Reuse existing gain/deadline/admission,
+Connected checkpoint3f791fe715 preceded189; subsequent fixes described above
+remain UNVALIDATED. Primary owns Engine.cpp; agent completed focused fixture
+corrections. Fixed14feature age/active/blocked masks migrate with CachedRow; exact
+required membership/range checked, oldest=min,blocked=all prior contributors.
+Existing user/severity/oldest queues reconstructed from inherited subsets.
+Validation plan:staged57/census_ownership190_validation_plan.json. Keep ONE cycle,
+no new scheduler/options or construction changes. Reuse gain/deadline/admission,
 directory/partition/reservation/publication and zero-clean debt constraint. Preserve
 oldest fairness,worst-first,actual support invalidation,curved view freshness/heights.
 
@@ -91,8 +101,8 @@ isolated actual adapted disk CFD restart (copy mesh/native_ref+matchingflow,
 RESTART_SOLYES/ADAP_LOOPNO/correct SOLUTION_FILENAME/distinct outputs). Seed00000
 never proves adapted restart. Then dedicated BL/constraint/MPI and RANS500k.
 
-Terminal evidence/design pushed5dbfea1bfe. Current unbuilt source/test changes and
-validation plan are ready for a labeled checkpoint before build189. No acceptedmesh/
+Terminal evidence/design pushed5dbfea1bfe; connected source/test checkpoint3f791fe715
+pushed explicitly unvalidated before build189. No acceptedmesh/
 transfer/restart.
 
 ## Reusable input, history and open limits

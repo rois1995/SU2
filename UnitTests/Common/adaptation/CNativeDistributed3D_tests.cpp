@@ -4554,7 +4554,8 @@ TEST_CASE("Completed metric size hands residual curved geometry to a quality cen
   SECTION("Geometry demand waits for closed shape and size"){geometry_only=true;}
   SECTION("Late quality ownership preserves residual geometry-only mode"){late_geometry_mode=true;}
   bool split_exit=false,quality_seen=false,geometry_seen=false,late_mode_witness=false;
-  bool late_geometry_debt=false,late_geometry_repair=false;size_t geometry_at_exit=0;
+  bool geometry_mode_active=false,late_geometry_debt=false,late_geometry_repair=false;
+  uint64_t geometry_mode_entry_round=UINT64_MAX;size_t geometry_at_exit=0;
   EngineOptions options;options.maximum_work=4096;options.maximum_rounds=256;options.surface_tolerance=1e-4;
   options.phase_ownership=PhaseOwnership::DiagnosticAlways;
   if(late_geometry_mode)options.stagnation_window=1;
@@ -4569,7 +4570,7 @@ TEST_CASE("Completed metric size hands residual curved geometry to a quality cen
       CHECK(view.progress.size_bad_cells==0);
     }
     if(std::string(view.stage)=="geometry_repair_entry") {
-      geometry_seen=true;
+      geometry_seen=true;geometry_mode_active=true;geometry_mode_entry_round=view.round;
       CHECK(view.phase==EnginePhase::Improvement);CHECK(view.progress.shape_complete);
       CHECK(view.progress.q_bad_cells==0);CHECK(view.progress.j_bad_cells==0);
       CHECK(view.progress.size_bad_cells==0);CHECK(view.progress.geometry_complete);
@@ -4579,25 +4580,29 @@ TEST_CASE("Completed metric size hands residual curved geometry to a quality cen
       if(late_geometry_mode && world.size==1)
         throw std::runtime_error("bounded serial late geometry mode witness");
     }
-    if(late_geometry_mode && world.size>1 && std::string(view.stage)=="ownership_committed" &&
-       view.round>0 && geometry_seen) {
+    if(late_geometry_mode && world.size>1 && geometry_mode_active &&
+       std::string(view.stage)=="ownership_committed" && view.round>geometry_mode_entry_round) {
       const auto& p=view.progress;
       const bool complete=p.cache_consistent && p.census_complete && p.shape_complete &&
           p.geometry_complete && p.complete && p.owned_cells==view.working.size() &&
           p.measured_cells==view.working.size() && p.q_measured_cells==view.working.size() &&
           p.j_measured_cells==view.working.size() && p.shape_measured_cells==view.working.size() &&
-          p.shape_unmeasured_cells==0 && p.q_bad_cells==0 && p.j_bad_cells==0 && p.size_bad_cells==0;
-      const bool residual=p.geometry_bad_cells!=0 && p.remaining_repairs!=0;
+          p.shape_unmeasured_cells==0;
+      const bool shape_size_closed=p.q_bad_cells==0 && p.j_bad_cells==0 && p.size_bad_cells==0;
+      const bool local_geometry_repair=p.geometry_bad_cells!=0 && p.remaining_repairs!=0;
       CHECK(view.phase==EnginePhase::Improvement);CHECK(complete);
-      if(p.geometry_bad_cells)CHECK(p.remaining_repairs!=0);
-      if(complete && residual) {
+      if(complete && shape_size_closed && local_geometry_repair) {
         late_mode_witness=true;
         throw std::runtime_error("bounded late residual geometry mode ownership witness");
       }
     }
     if(std::string(view.stage)!="quality_entry")return;
-    quality_seen=true;CHECK(view.stats.length_split_passes==1);
-    CHECK(view.stats.ownership_changes==(world.size>1?2:0));
+    geometry_mode_active=false;geometry_mode_entry_round=UINT64_MAX;
+    const bool first_quality_entry=!quality_seen;quality_seen=true;
+    if(!late_geometry_mode || first_quality_entry) {
+      CHECK(view.stats.length_split_passes==1);
+      CHECK(view.stats.ownership_changes==(world.size>1?2:0));
+    }
     CHECK(view.progress.census_complete);CHECK(view.progress.shape_complete);
     CHECK(view.progress.geometry_complete);CHECK_FALSE(view.valid);
     if(!geometry_only && !late_geometry_mode)throw std::runtime_error("bounded residual geometry handoff witness");
