@@ -30,29 +30,32 @@ staged57/census_ownership190_qualification.json records actual binary hash/resul
 Construction CLOSED:727722cells,size0,geometry4059; ALL18generations EXACT188
 counts/query work. Complete quality entry1241.413606native seconds:54071q/53377J/
 4059geometry,size0,debt25236.78740274; all15selected per-rank fields EXACT188.
-Latest complete window5 at2473.951533quality seconds:750209cells,40488q/38625J/
-3826geometry,size0,debt9565.588440. Interval995.093620s:2374netq/2542netJ/
-49geometry removed,1898commits,q2.38571/s,J2.55453/s,q1.25079/commit.
-Cumulativeq5.49041/s,commits3.24097/s. Actual188nearby2532.324077s(delta-58.373s,
-2.36%):30961q/28318J/3668geometry,netq9.12600/s. Observed190wall progress BEHIND;
-NO isolated code-regression claim: host contention is directly measured.
-Latest user asks whether machine contention explains slowdown: YES plausible major
-contributor. Fresh1793472025receipt:8CPUs,load17.13,CPU PSI some avg60=39.06%,
-I/O some15.53%,memorypressure0,~29GiBavailable. PSI is not own-rank CPU loss share.
-LIVE/host_contention_receipts.jsonl. Window5geometrywork FELL40% vswindow4 while
-wall ROSE56%; collective-call seconds392–420/rank include wait,not protocol proof.
-Outer update126.56–130.59s (~13%window), not the entire slow interval. Maxprivate
-rank4 354.801s,165netq published;rank1 246.797s,260netq. Shape-stuck0,missing0;
-76.13%q-bad interior. LIVE/quality_census11_diagnosis.json records actual directional
-changes (not hardcoded previous-window cause). Geometry510Mwork/44495uppercalls.
-THREElate migrations committed rounds21632/21696/21824; global counts exact,
-debt conserved within1.82e-12,all flags complete,missing/privatecollectives/churn0.
-Latestcost34.448s incl observations,spread2.01595→1.25108; prepared cache entries/
-bytes/querywork and16GLOBALmetric samples preserved. No acceptedmesh or closure.
-Evaluation21760skipped existingimbalance1.20847<1.25 guard. Next full window pending.
-LIVE/matched_quality_time_comparison.json is latest; independent window4/window5
-comparison files preserve past measured pairs.179has no close complete census for
-latesttime; earlier window4 had actual1479.020155s match. Never extrapolate179.
+Latest ASSESSED window7 at3418.365411quality seconds:759998cells,34716q/32297J/
+3728geometry,size0,debt6261.361281. Latest interval300.909058s INCLUDES prior
+migration:2561netq/2702netJ/48geometry removed,1933commits,q8.51088/s,J8.97946/s,
+q1.32488/commit. Cumulativeq5.66206/s,commits3.47798/s; still no accepted mesh.
+FIVElate migrations committed rounds21632/21696/21824/21888/21952; global counts
+exact,debt conserved within1.82e-12,flags complete,missing/privatecollectives/churn0.
+Latestcost14.7849s incl observations,spread1.57002→1.34556. Prepared cache entries/
+bytes/querywork and16GLOBALmetric samples preserved. Evaluation21760skippedguard.
+User asks FAIR comparison under contention: use work/quality vectors separate from
+wall time,not CPUtime (MPIspin). LIVE/work_normalized_comparison.json,.csv,.svg
+provides actual-census q/J/geometry curves vs published cavities and separately
+traversal work,plus trials/optimizer/preparation work. Immutable work_comparison_
+window6/window7 JSON/CSV/SVG preserve completed snapshots. Data input SHA256 receipts
+are historical; live assessment files may extend,selected snapshot datasets stayfixed.
+Identical starting quality-entry AND per-rank cache limits396836704/entries/buildwork
+verified. Geometry work-counter source/headers unchanged; only Engine.cpp/testsource
+pins differ. Same-round21952:netq19355vs18817147,pub11889vs10724,traversal3.454Bvs
+2.299B. Nearly SAMEq/Jstate current34716/32297 vs18834759/32465:optimizerwork
+1.295527Mvs1.279606M,trials76608vs77593,but traversal3.454003Bvs2.758137B(+25.2%).
+Geometrybad3728vs3786 at that near-state pair. No interpolation or arbitrary sum of
+work units; source/runtime/inputs and complete snapshot points remain auditable.
+Latest user contention question: direct8CPU/load17/CPU PSI~39%/I/O~15.5%,memory
+pressure0. Wall-rate gap is NOT an isolated code regression. LIVE/host_contention_
+receipts.jsonl. Native work/time/gates unchanged; current cycle remains frozen.
+Earlier slow window5:995.094s despite40%lessgeometrywork thanwindow4; update126–131s,
+collective-call392–420s/rank includes wait. Full per-window diagnosis preserved.
 LIVE/quality_service_assessment.json includes ALL ownership stage costs in windows;
 all_quality_census_assessment.json has full location/feature/miss histograms,ladder,
 churn,drift. quality_migration_assessment.json and first_postmigration_comparison.json

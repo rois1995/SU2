@@ -165,3 +165,42 @@ ownership_staged→committed global counts/debt conserved;0privatecollectives/ch
 At construction closure all1401pins unchanged/all10handles matching/all82mapped
 runtime files pinned; LIVE/quality_entry_provenance.json. ~31GiBavailable RAM,
 sampled owned tree~7.5GiB,not physical/job peak. Current source freeze ACTIVE.
+
+## Fair work comparison while host is contended (user request)
+
+190continues frozen. Compare identical QUALITY-ENTRY state against188; original
+saved CFD/continued donor,18construction generations and all15selected entry
+per-rank count/work fields match.179entry differs, so179is context, not the equally
+controlled work baseline. Counter-source checks show only Engine.cpp and focused
+tests differ between188/190; geometry work counter sources/headers are unchanged.
+
+LIVE/work_normalized_comparison.json and.csv record actual complete-census work
+vectors and input-file SHA256 provenance. The SVG plots whole-field q/J/geometry
+bad counts vs published cavities and separately vs geometry traversal work. Dataset
+also carries upper queries/work, scope/facet preparation work, trials, optimizer
+work, updated cells and actual elapsed seconds. Do not add these heterogeneous or
+nested units into an invented scalar. Match actual work or achieved-quality points,
+show mismatch and the full other-gate vector; no interpolated mesh counts. Cavity
+sizes/costs differ, so cavities alone are insufficient. Cache savings belong in the
+algorithm work comparison. CPU seconds can include MPI spin; pressure is context,
+not a direct own-rank stolen-CPU fraction. Native budgets remain wall-clock budgets.
+
+Snapshot through190window6/round21888:netq16794vs18815102(+11.2%),netJ18378vs16486,
+published9956vs9073(+9.73%),trials61903vs55429,optimizerwork1057027vs931521.
+Geometrytraversal3.032934007Bvs2.073965291B(+46.2%); work/netq180596vs137331
+(+31.5%). Netq/cavity1.68682vs1.66450(+1.34%). Geometrybad3776vs3861 at that
+round. These are different achieved meshes: compare the whole curves/work vectors
+rather than declaring the change good/bad from one ratio. Wall3117.456s vs1473.820s
+is observed under different contention and is not an isolated timing measurement.
+No new instrumentation, perf/GDB, baseline campaign, source change or extra heavy
+workload was used. Plotting existing counters is analysis, not mesh acceptance.
+
+Follow-up actual near-quality pair through190window7:34716q/32297J/3728geometry
+vs188window8:34759q/32465J/3786geometry. q mismatch.124%,J.52%; no interpolation.
+Current optimizerwork1.295527M vs1.279606M and trials76608vs77593 are similar;
+geometry traversal3.454002933B vs2.758136897B is25.2%greater. Published cavities
+11889vs12317. This separates repair effort/yield and geometry work from contended
+wall time. Warm quality-entry per-rank cache limits396836704bytes,facet/scopeentry
+counts and preparation work match exactly. Plot/CSV/JSON snapshots forwindows6/7
+are retained independently; live input-file hash receipts identify generation-time
+files that may later extend. Immutable dataset points remain available for audits.
