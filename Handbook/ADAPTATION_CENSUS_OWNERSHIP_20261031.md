@@ -104,3 +104,19 @@ constrained candidates and valid cheap screening. No new cache/scheduler, larger
 batches/passes or profiling campaign while190runs. Existing exact invalidation,
 fresh position-dependent evaluation, seams/features/body/height and no-CAD authority
 remain required. Literature is design context, not authorization for another cycle.
+
+Counter semantics verified in AccountQualityChurn (Engine.cpp): cell matching uses
+sorted exact vertex COORDINATES, not IDs/connectivity alone. A coordinate move
+retires the old physical tetrahedron and introduces its replacement even if
+connectivity is unchanged. q_removed includes q_retired; q_created includes
+q_introduced. Never label all q_removed as same-cell fixes or all retirement churn
+as ineffective topology. Net global change and net removals/committed cavity are
+the closure evidence. Ladder published net counts provide an independent check.
+
+Existing repair_slots is already debt-proportional and capped at8per rank, with a
+fair minimum1. Comparing candidates to8*ranks*rounds is raw ceiling occupancy,
+not proof of underfilled permitted batches: low-debt ranks can intentionally get
+fewer slots. Stage counters give candidates and reservations; their difference can
+include refused stars, so it is not an exact per-window conflict count. Existing
+terminal summary has aggregate conflict/oversized counters. Do not add telemetry
+or change decisions in frozen190; retain these attribution limits in assessment.

@@ -33,7 +33,16 @@ entry1241.413606s (vs188892.079978):54071q/53377J/4059geometry,size0,
 qJdebt25236.78740274. ALL15selected per-rank count/work fields EXACT188; same
 entry ownership. Initial quality migration21.031s vs18811.124s; host contention
 and history transport differ, no isolated cost claim. Entrydebt4662.403/4246.852/
-4764.376/3528.335/4761.761/3273.061. No repair-rate result yet.
+4764.376/3528.335/4761.761/3273.061. First short window exact188; first FULL window at452.002671quality seconds
+(vs188318.093273) also EXACT counts/2173commits:49084q/47891J/3994geometry,
+size0,734404cells,debt17828.615202. Netq4987=11.0331/s; netJ5486=12.1371/s,
+netq2.29498/commit. Same-round comparison, NOT matched-time speed evidence.
+First LATE quality migration COMMITTED round21632:120518cells moved,21.205s
+native transition (21.553s including census observations). Global counts/debt EXACT
+before/after; all census flags complete,missing features0,privatecollectives0,
+unmeasuredchurn0. Debtspread1.8966→1.47445; largest share.21404→.19078.
+LIVE/quality_migration_assessment.json and all_quality_census_assessment.json.
+Postmigration repair window pending; balance alone is not closure.
 LIVE/construction_generation_comparison.json,quality_entry_comparison.json,
 all_quality_census_assessment.json include additive ownership stages. Complete
 ownership_staged→committed global counts/debt conserved;0privatecollectives/churn.
