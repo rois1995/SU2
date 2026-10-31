@@ -140,6 +140,7 @@ private:
   FluxCorrection,
   ModCentroids,
   BC_Flux_Closure,          /*!< \brief Boundary flux weights that are exact for a P1 flux (walls and symmetries).*/
+  BC_Weak_P1,               /*!< \brief Weak boundary fluxes of all markers with the weights of a P1 flux.*/
   Central_Group_Flux,       /*!< \brief Central flux as the average of nodal fluxes, not the flux of the average.*/
   Dissipation_Mod_Normals,  /*!< \brief Median normal in the central flux, modified normal in dissipation and Jacobian.*/
   Edge_Form_P1,             /*!< \brief Central flux with the edge coefficients n_ik and E_ik of the modified dual.*/
@@ -9937,6 +9938,12 @@ public:
    * \return YES if the closure is used.
    */
   bool GetBC_Flux_Closure() const { return BC_Flux_Closure; }
+
+  /*!
+   * \brief Get if all the weak boundary fluxes use the weights of a P1 flux.
+   * \return YES if the weights are used.
+   */
+  bool GetBC_Weak_P1() const { return BC_Weak_P1; }
 
   /*!
    * \brief Get if the centered schemes average nodal fluxes instead of evaluating the flux of the average.

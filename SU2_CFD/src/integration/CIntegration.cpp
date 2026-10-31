@@ -94,7 +94,7 @@ void CIntegration::Space_Integration(CGeometry *geometry,
 
   /*--- Weak boundary conditions ---*/
 
-  if (MainSolver == FLOW_SOL && config->GetFluxCorrection()) {
+  if (MainSolver == FLOW_SOL && (config->GetFluxCorrection() || config->GetBC_Weak_P1())) {
     solver_container[MainSolver]->Weak_BC_Residual(geometry, solver_container, numerics, config, iMesh);
     solver_container[MainSolver]->Strong_BC(geometry, solver_container, config, iMesh);
   }

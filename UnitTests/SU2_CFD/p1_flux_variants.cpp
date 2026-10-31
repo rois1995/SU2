@@ -569,6 +569,49 @@ TEST_CASE("P1 edge form on the modified dual", "[P1Flux]") {
   }
 }
 
+TEST_CASE("Boundary closure makes the P1 edge form exact at all nodes", "[P1Flux]") {
+  for (int nDim : {2, 3}) {
+    for (double stretch : {1.0, 1e-3}) {
+      const std::string mesh = "p1_edgeform_bc_" + std::to_string(nDim) + "d.su2";
+      WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 12 : 5, 0.4, stretch);
+      MeshCase test(mesh, "MOD_CENTROIDS= YES\nCONV_NUM_METHOD_FLOW= JST\nEDGE_FORM_P1= YES\nBC_WEAK_P1= YES\n");
+      auto& geometry = *test.geometry;
+      geometry.SetEdgeFormP1();
+
+      LinearFlux flux;
+      std::vector<su2double> R(geometry.GetnPoint(), 0.0);
+      for (auto iEdge = 0ul; iEdge < geometry.GetnEdge(); ++iEdge) {
+        const auto iPoint = geometry.edges->GetNode(iEdge, 0);
+        const auto jPoint = geometry.edges->GetNode(iEdge, 1);
+        su2double phi = 0.0;
+        for (auto iDim = 0; iDim < nDim; ++iDim) {
+          const auto Fi = flux.Eval(geometry, iPoint, iDim);
+          const auto Fj = flux.Eval(geometry, jPoint, iDim);
+          phi += 0.5 * (Fi + Fj) * geometry.edges->GetFormNormal()(iEdge, iDim);
+          phi += (Fj - Fi) * geometry.edges->GetFormE()(iEdge, iDim);
+        }
+        R[iPoint] += phi;
+        R[jPoint] -= phi;
+      }
+
+      for (auto iMarker = 0u; iMarker < geometry.GetnMarker(); ++iMarker) {
+        if (test.config->GetMarker_All_KindBC(iMarker) == SEND_RECEIVE) continue;
+        for (auto iDim = 0; iDim < nDim; ++iDim) {
+          su2activematrix face(geometry.GetnVertex(iMarker), nDim);
+          face = su2double(0.0);
+          auto field = [&](unsigned long iPoint) { return flux.Eval(geometry, iPoint, iDim); };
+          BoundaryClosure::AddMarkerFlux(geometry, iMarker, field, face);
+          for (auto iVertex = 0ul; iVertex < geometry.GetnVertex(iMarker); ++iVertex) {
+            R[geometry.vertex[iMarker][iVertex]->GetNode()] += face(iVertex, iDim);
+          }
+        }
+      }
+      INFO("nDim " << nDim << " stretch " << stretch);
+      CHECK(MaxDivError(geometry, R, flux.Div(nDim)) < 1e-9);
+    }
+  }
+}
+
 TEST_CASE("P1 edge form reduces to the median normal on the median dual", "[P1Flux]") {
   for (int nDim : {2, 3}) {
     const std::string mesh = "p1_edgeform_median_" + std::to_string(nDim) + "d.su2";

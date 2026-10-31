@@ -1827,6 +1827,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("MOD_CENTROIDS", ModCentroids, false);
   /*!\brief BC_FLUX_CLOSURE \n DESCRIPTION: Euler wall and symmetry momentum flux with weights 5:1 (2D), 6:1:1 (3D), exact for a P1 flux on simplices \ingroup Config \default false */
   addBoolOption("BC_FLUX_CLOSURE", BC_Flux_Closure, false);
+  /*!\brief BC_WEAK_P1 \n DESCRIPTION: Weak boundary fluxes of all markers with the weights 5:1 (2D) and 6:1:1 (3D), for the median dual and for EDGE_FORM_P1. \ingroup Config*/
+  addBoolOption("BC_WEAK_P1", BC_Weak_P1, false);
   /*!\brief CENTRAL_GROUP_FLUX \n DESCRIPTION: Centered schemes use 0.5(F_i+F_j).n, the exact P1 integral on the median dual of simplices \ingroup Config \default false */
   addBoolOption("CENTRAL_GROUP_FLUX", Central_Group_Flux, false);
   /*!\brief DISSIPATION_MOD_NORMALS \n DESCRIPTION: Median normal in the central flux, normal of the modified dual in dissipation and Jacobian, median volumes \ingroup Config \default false */
@@ -6213,6 +6215,7 @@ void CConfig::CheckP1FluxOptions() const {
 
   vector<string> active;
   if (BC_Flux_Closure) active.push_back("BC_FLUX_CLOSURE");
+  if (BC_Weak_P1) active.push_back("BC_WEAK_P1");
   if (Central_Group_Flux) active.push_back("CENTRAL_GROUP_FLUX");
   if (Dissipation_Mod_Normals) active.push_back("DISSIPATION_MOD_NORMALS");
   if (Kind_Viscous_Scheme == VISCOUS_SCHEME::P1_CELL) active.push_back("VISCOUS_SCHEME= P1_CELL");
@@ -6239,6 +6242,15 @@ void CConfig::CheckP1FluxOptions() const {
   if (BC_Flux_Closure) {
     if (FluxCorrection) refuse("FLUX_CORRECTION has its own boundary closure.");
     if (nMarker_PerBound > 0) refuse("not available with periodic boundaries.");
+  }
+  if (BC_Weak_P1) {
+    const string name = "BC_WEAK_P1: ";
+    if (FluxCorrection) SU2_MPI::Error(name + "FLUX_CORRECTION has its own weights.", CURRENT_FUNCTION);
+    if (BC_Flux_Closure) SU2_MPI::Error(name + "it replaces BC_FLUX_CLOSURE, remove that option.", CURRENT_FUNCTION);
+    if (Split_Edge_Flux) SU2_MPI::Error(name + "not available with SPLIT_EDGE_FLUX.", CURRENT_FUNCTION);
+    if (ModCentroids && !Edge_Form_P1) SU2_MPI::Error(name + "with MOD_CENTROIDS it needs EDGE_FORM_P1.", CURRENT_FUNCTION);
+    if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries.", CURRENT_FUNCTION);
+    if (nMGLevels > 0) SU2_MPI::Error(name + "not available with multigrid, set MGLEVEL= 0.", CURRENT_FUNCTION);
   }
   if (Central_Group_Flux && Kind_ConvNumScheme_Flow != SPACE_CENTERED) {
     SU2_MPI::Error("CENTRAL_GROUP_FLUX: only for centered schemes, the central part of Roe is already in group form.",

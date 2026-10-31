@@ -4759,6 +4759,13 @@ void CSolver::SavelibROM(CGeometry *geometry, CConfig *config, bool converged) {
 void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
                                    CNumerics **numerics_container, CConfig *config, unsigned short iMesh) {
 
+  /*--- BC_WEAK_P1: the weights (5,1)/12 and (6,1,1)/24 make the median edge sum exact for a linear flux.
+   * The error of the P1 edge form at a boundary node does not depend on the dual, so it uses the same ones. ---*/
+  const bool weakP1 = config->GetBC_Weak_P1();
+  const su2double wSelf = weakP1 ? 5.0 / 12.0 : 3.0 / 8.0;
+  const su2double wOther = weakP1 ? 1.0 / 12.0 : 1.0 / 8.0;
+  const su2double p1Coeffs[3] = {1.0 / 3.0, 1.0 / 8.0, 1.0 / 8.0};
+
   const bool implicit         = config->GetKind_TimeIntScheme() == EULER_IMPLICIT;
   const bool viscous          = config->GetViscous();
   const bool ideal_gas        = (config->GetKind_FluidModel() == STANDARD_AIR) ||
@@ -4838,6 +4845,8 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
     for (iElem = 0; iElem < geometry->GetnElem_Bound(iMarker); ++iElem ) {
       auto& element = geometry->bound[iMarker][iElem];
       const auto nNodes = element->GetnNodes();
+      if (weakP1 && (nNodes == 4)) SU2_MPI::Error("BC_WEAK_P1 needs segments or triangles on the boundary.", CURRENT_FUNCTION);
+      auto nodeCoeffs = [&](unsigned short node) -> const su2double* { return weakP1 ? p1Coeffs : element->getNodeCoeffs(node); };
       su2double Area = GeometryToolbox::Norm(nDim,element->getNormal());
       su2double Area2 = GeometryToolbox::Norm(nDim,element->getNormal());
       Area = 1.0;
@@ -4854,7 +4863,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
         /** node 0 **/
         iNode = 0;
         for (iVar = 0; iVar < nVar; ++iVar) {
-        res[iVar] = ((3.0/8.0) * buffer[0][iVar] + (1.0/8.0) * buffer[1][iVar]) *  1;
+        res[iVar] = (wSelf * buffer[0][iVar] + wOther * buffer[1][iVar]) *  1;
 //        res[iVar] = ((5.0/6.0) * buffer[0][iVar] + (1.0/6.0) * buffer[1][iVar]) *  0.5;
         }
         /** get iPoint and add residual to system **/
@@ -4870,7 +4879,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
             for (iVar = 0; iVar < nVar; ++iVar) {
               for (jVar = 0; jVar < nVar; ++jVar) {
                 const unsigned totalIndex = MAXNVAR + iVar * nVar + jVar;
-                jac[iVar][jVar] = ((3.0 / 8.0) * buffer[iNode][totalIndex]) * 1;
+                jac[iVar][jVar] = (wSelf * buffer[iNode][totalIndex]) * 1;
                 //            jac[iVar][jVar] = ((5.0 / 6.0) * buffer[iNode][totalIndex]) * 0.5;
               }
             }
@@ -4881,7 +4890,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
             for (iVar = 0; iVar < nVar; ++iVar) {
               for (jVar = 0; jVar < nVar; ++jVar) {
                 const unsigned totalIndex = MAXNVAR + iVar * nVar + jVar;
-                jac[iVar][jVar] = ((1.0 / 8.0) * buffer[jNode][totalIndex]) * 1;
+                jac[iVar][jVar] = (wOther * buffer[jNode][totalIndex]) * 1;
                 //            jac[iVar][jVar] = ((1.0 / 6.0) * buffer[jNode][totalIndex]) * 0.5;
               }
             }
@@ -4894,7 +4903,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
         /** node 1 **/
         iNode = 1;
         for (iVar = 0; iVar < nVar; ++iVar) {
-          res[iVar] = ((3.0/8.0) * buffer[1][iVar] + (1.0/8.0) * buffer[0][iVar]) *  1;
+          res[iVar] = (wSelf * buffer[1][iVar] + wOther * buffer[0][iVar]) *  1;
 //          res[iVar] = ((5.0/6.0) * buffer[1][iVar] + (1.0/6.0) * buffer[0][iVar]) *  0.5;
         }
         /** get iPoint and add residual to system **/
@@ -4910,7 +4919,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
             for (iVar = 0; iVar < nVar; ++iVar) {
               for (jVar = 0; jVar < nVar; ++jVar) {
                 const unsigned totalIndex = MAXNVAR + iVar * nVar + jVar;
-                jac[iVar][jVar] = ((3.0 / 8.0) * buffer[iNode][totalIndex]) * 1;
+                jac[iVar][jVar] = (wSelf * buffer[iNode][totalIndex]) * 1;
                 //            jac[iVar][jVar] = ((5.0 / 6.0) * buffer[iNode][totalIndex]) * 0.5;
               }
             }
@@ -4921,7 +4930,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
             for (iVar = 0; iVar < nVar; ++iVar) {
               for (jVar = 0; jVar < nVar; ++jVar) {
                 const unsigned totalIndex = MAXNVAR + iVar * nVar + jVar;
-                jac[iVar][jVar] = ((1.0 / 8.0) * buffer[jNode][totalIndex]) * 1;
+                jac[iVar][jVar] = (wOther * buffer[jNode][totalIndex]) * 1;
                 //            jac[iVar][jVar] = ((1.0 / 6.0) * buffer[jNode][totalIndex]) * 0.5;
               }
             }
@@ -4936,7 +4945,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
 
         /** node 0 **/
         iNode = 0;
-        auto BCCoeffs = element->getNodeCoeffs(iNode);
+        auto BCCoeffs = nodeCoeffs(iNode);
         for (iVar = 0; iVar < nVar; ++iVar) {
           res[iVar] = ((1.0 - BCCoeffs[1] - BCCoeffs[2]) * buffer[0][iVar] + BCCoeffs[1] * buffer[1][iVar] +
                           BCCoeffs[2] * buffer[2][iVar]) *
@@ -4982,7 +4991,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
 
         /** node 1 **/
         iNode = 1;
-        BCCoeffs = element->getNodeCoeffs(iNode);
+        BCCoeffs = nodeCoeffs(iNode);
         for (iVar = 0; iVar < nVar; ++iVar) {
           res[iVar] = ((1.0 - BCCoeffs[1] - BCCoeffs[2]) * buffer[1][iVar] + BCCoeffs[1] * buffer[2][iVar] +
                               BCCoeffs[2] * buffer[0][iVar]) *
@@ -5028,7 +5037,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
 
         /** node 2 **/
         iNode = 2;
-        BCCoeffs = element->getNodeCoeffs(iNode);
+        BCCoeffs = nodeCoeffs(iNode);
         for (iVar = 0; iVar < nVar; ++iVar) {
           res[iVar] = ((1.0 - BCCoeffs[1] - BCCoeffs[2]) * buffer[2][iVar] + BCCoeffs[1] * buffer[0][iVar] +
                               BCCoeffs[2] * buffer[1][iVar]) *
@@ -5076,7 +5085,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
 
         /** node 0 **/
         iNode = 0;
-        auto BCCoeffs = element->getNodeCoeffs(iNode);
+        auto BCCoeffs = nodeCoeffs(iNode);
         for (iVar = 0; iVar < nVar; ++iVar) {
           res[iVar] = ((1.0 - BCCoeffs[1] - BCCoeffs[2] - BCCoeffs[3]) * buffer[0][iVar] + BCCoeffs[1] * buffer[3][iVar] +
                               BCCoeffs[2] * buffer[1][iVar] + BCCoeffs[3] * buffer[2][iVar]) *
@@ -5121,7 +5130,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
 
         /** node 1 **/
         iNode = 1;
-        BCCoeffs = element->getNodeCoeffs(iNode);
+        BCCoeffs = nodeCoeffs(iNode);
         for (iVar = 0; iVar < nVar; ++iVar) {
           res[iVar] = ((1.0 - BCCoeffs[1] - BCCoeffs[2] - BCCoeffs[3]) * buffer[1][iVar] + BCCoeffs[1] * buffer[0][iVar] +
                               BCCoeffs[2] * buffer[2][iVar] + BCCoeffs[3] * buffer[3][iVar]) *
@@ -5166,7 +5175,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
 
         /** node 2 **/
         iNode = 2;
-        BCCoeffs = element->getNodeCoeffs(iNode);
+        BCCoeffs = nodeCoeffs(iNode);
         for (iVar = 0; iVar < nVar; ++iVar) {
           res[iVar] = ((1.0 - BCCoeffs[1] - BCCoeffs[2] - BCCoeffs[3]) * buffer[2][iVar] + BCCoeffs[1] * buffer[1][iVar] +
                               BCCoeffs[2] * buffer[3][iVar] + BCCoeffs[3] * buffer[0][iVar]) *
@@ -5211,7 +5220,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
 
         /** node 3 **/
         iNode = 3;
-        BCCoeffs = element->getNodeCoeffs(iNode);
+        BCCoeffs = nodeCoeffs(iNode);
         for (iVar = 0; iVar < nVar; ++iVar) {
           res[iVar] = ((1.0 - BCCoeffs[1] - BCCoeffs[2] - BCCoeffs[3]) * buffer[3][iVar] + BCCoeffs[1] * buffer[2][iVar] +
                               BCCoeffs[2] * buffer[0][iVar] + BCCoeffs[3] * buffer[1][iVar]) *
