@@ -4519,7 +4519,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       ready=admit(transfer_memory::Add(
           batched&&repairing ? transfer_memory::Add(
               transfer_memory::GrowthBound(transfer_memory::Add(batch_changed.size(),added.size()),sizeof(Id)),
-              MapBytes<std::set<Id>>(transfer_memory::Add(batch_touched.size(),directory->ChangedVertices().size()))) : 0,
+              transfer_memory::Mul(transfer_memory::Add(batch_touched.size(),directory->ChangedVertices().size()),sizeof(Id)+4*sizeof(void*))) : 0,
           checkpoint.valid ? transfer_memory::Mul(transfer_memory::Mul(4,transfer_memory::Add(removed.size(),added.size())),sizeof(Id)+4*sizeof(void*)) : 0,
           transfer_memory::Mul(working.size(),selection_bound(selection.track_repairs)),
           transfer_memory::Mul(transfer_memory::Mul(6,removed.size()),sizeof(std::pair<const Edge,EdgeMeasure>)+4*sizeof(void*)),

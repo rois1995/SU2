@@ -1,0 +1,17 @@
+{
+  "state": "planned_not_run",
+  "build": "build177",
+  "serial": {
+    "case": "quality_service177_serial",
+    "ranks": 1,
+    "filter": "[NativeRepairBatch3D],[NativeRepairFairness3D],[NativeCoordinateStar3D],[NativeQualityPass3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeConcurrentRepair3D],[NativeStageProgress3D],[NativeHeightOptimization3D],[NativeShapeAdmission3D],[NativePhaseOwnership3D],[NativeFirstLayerEngine3D]",
+    "timeout": 600
+  },
+  "mpi": {
+    "case": "quality_service177_mpi6",
+    "ranks": 6,
+    "filter": "[NativeSurfaceCache3D],[NativeSurfaceMemo3D],[NativeGeometryStats3D],[NativeReferenceIO3D],[NativeReference3D],[NativeAtlasReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeMappedPublication3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeGeometryBackend3D],[NativeCurvedGeometry3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D]",
+    "timeout": 600
+  },
+  "followup": "immediate full endorsed M6 two-event attempt, actual accepted transfer/restart required"
+}
