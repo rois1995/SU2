@@ -1,0 +1,31 @@
+{
+  "time": 1793505424.356854,
+  "handles": [
+    {
+      "pid": 1115329,
+      "cmd": "python3 -u integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build_checkpoint.py 197 ",
+      "startticks": 92042274,
+      "state": "S",
+      "exe": "/usr/bin/python3.8",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "nspid": "NSpid:\t1115329",
+      "nice": 0
+    },
+    {
+      "pid": 1115336,
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/tools/ninja -C integration_evidence/build-integrated-v2 -j3 UnitTests/test_driver -k 0 SU2_CFD/src/SU2_CFD ",
+      "startticks": 92042294,
+      "state": "S",
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/tools/ninja",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2",
+      "nspid": "NSpid:\t1115336",
+      "nice": 19
+    }
+  ],
+  "load": [
+    0.94,
+    1.49,
+    3.52
+  ],
+  "mem_available": "MemAvailable:   37533404 kB"
+}

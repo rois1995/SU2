@@ -2719,15 +2719,31 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         <<" cells="<<working.size()<<" transition_peak_bytes="<<stats.maximum_work_bytes<<'\n';
     return !quality||observe_progress("ownership_committed");
   };
-  auto enter_phase=[&](Phase next) {
+  auto begin_length_generation=[&](bool collapse) {
+    if(!admit(transfer_memory::Add(transfer_memory::Mul(working.size(),selection_bound(false)),
+        transfer_memory::Mul(transfer_memory::Mul(collapse?12:6,working.size()),sizeof(Edge)+4*sizeof(void*)))))return false;
+    CLocalFailure failure;
+    try {
+      selection.lane=Selection::Lane::Surface;construction_claims=true;
+      stats.split_lane=collapse?0:1;
+      if(!collapse){stats.split_generation=stats.length_split_passes+1;selection.RefreshHistory(true);}
+      directory->BeginConstructionPass();length_direction(collapse);selection.ChangePhase(false,working,field_identity);
+    }catch(const std::exception& error){failure.Set(2,0,error.what());}
+    if(!vote(failure))return false;
+    construction_generation_changed=false;phase_start_round=stats.rounds;
+    progress_at_window=stats.size_progress+stats.quality_progress+stats.cell_removals+stats.geometry_progress;
+    attempted_at_window=stats.attempted;deferred_at_window=stats.length_pass_deferred;
+    return true;
+  };
+  auto enter_phase=[&](Phase next,bool refine_geometry=false) {
     if(bidirectional) {
       construction_claims=next==Phase::Construction;stats.split_lane=0;
       if(next==Phase::Construction) {
         generation_window_count=0;selection.edge_history.clear();
         if(world.maximum(improvement_changed))length_blocks_dirty={{true,true}};
-        directory->BeginConstructionPass();
+        if(!refine_geometry)directory->BeginConstructionPass();
       } else directory->EndConstructionPass();
-      length_direction(next==Phase::Construction);
+      if(!refine_geometry)length_direction(next==Phase::Construction);
     }
     if(phase==Phase::Construction && !construction_entry_reported) {
       if(!observe_progress("construction_entry"))return false;
@@ -2741,9 +2757,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(repairing)++stats.quality_stages;else ++stats.construction_returns;
     if(!admit(transfer_memory::Add(transfer_memory::Mul(working.size(),sizeof(Id)),
         transfer_memory::Mul(working.size(),selection_bound(repairing)))))return false;
+    if(refine_geometry && !begin_length_generation(false))return false;
     CLocalFailure failure;
     try {
-      selection.ChangePhase(repairing,working,field_identity);
+      if(!refine_geometry)selection.ChangePhase(repairing,working,field_identity);
       initial.clear();initial.reserve(working.size());
       for(const auto& row:working) {const auto found=selection.cells.find(row.first);
         if(found==selection.cells.end() || (repairing && (!found->second.shape_measured ||
@@ -2765,22 +2782,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     std::set<Edge>().swap(checkpoint.edges);std::set<Edge>().swap(checkpoint.attempted);
     std::set<Id>().swap(checkpoint.changed);checkpoint.blocked_links=0;
     checkpoint.valid=checkpoint.trial=false;
-  };
-  auto begin_length_generation=[&](bool collapse) {
-    if(!admit(transfer_memory::Add(transfer_memory::Mul(working.size(),selection_bound(false)),
-        transfer_memory::Mul(transfer_memory::Mul(collapse?12:6,working.size()),sizeof(Edge)+4*sizeof(void*)))))return false;
-    CLocalFailure failure;
-    try {
-      selection.lane=Selection::Lane::Surface;construction_claims=true;
-      stats.split_lane=collapse?0:1;
-      if(!collapse){stats.split_generation=stats.length_split_passes+1;selection.RefreshHistory(true);}
-      directory->BeginConstructionPass();length_direction(collapse);selection.ChangePhase(false,working,field_identity);
-    }catch(const std::exception& error){failure.Set(2,0,error.what());}
-    if(!vote(failure))return false;
-    construction_generation_changed=false;phase_start_round=stats.rounds;
-    progress_at_window=stats.size_progress+stats.quality_progress+stats.cell_removals+stats.geometry_progress;
-    attempted_at_window=stats.attempted;deferred_at_window=stats.length_pass_deferred;
-    return true;
   };
   auto capture_checkpoint=[&]() {
     // This call follows the complete fresh quality census, including measured strict height.
@@ -2960,7 +2961,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(phase==Phase::Improvement && (world.maximum(improvement_changed) || (construction_handoff_progress && clean_quality)) &&
         (standalone_coarsening || world.maximum(selection.construction_invalid!=0)) &&
         ((!world.maximum(selection.quality_invalid!=0) && !selection.size_repairs && !selection.geometry_repairs) || !any)) {
-      if(!enter_phase(Phase::Construction))return finish();
+      const auto progress=selection.Progress(working.size());
+      // An exhausted shape pass needs its residual surface rebuilt before another global coarsening sweep.
+      const bool refine_geometry=bidirectional &&
+          !world.maximum(!progress.complete || progress.size_bad_cells || progress.height_bad_cells || progress.height_unresolved_cells) &&
+          world.maximum(progress.geometry_bad_cells!=0);
+      if(!observe_progress("quality_exit") || !enter_phase(Phase::Construction,refine_geometry))return finish();
       continue;
     }
     if(bidirectional&&phase==Phase::Construction&&!coarsening&&!any&&selection.lane==Selection::Lane::Surface&&

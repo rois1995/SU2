@@ -9,10 +9,30 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current —196TERMINAL; terminal analysis, no next source edit yet
+## Current —197connected residual geometry continuation BUILDING; sources frozen
+
+No M6 run live.196all10hostidentities reverifiedABSENT/all1401pinsunchanged
+1793505148.2194312:196/terminal_pre_design_reverification.json BEFORE197edits.
+Owned build197exec27972; HOSThelper1115329/start92042274,
+Ninja1115336/start92042294,nice19/-j3/libs1,TMPDIR4TBcompile-tmp.
+R/build197_owned_startup.json,build197_source_pins.json,build197_status.json.
+All1296buildpins frozen; verify actual owned handles terminal BEFORE any further
+Cpp/header/test/helper/binary edits. No second heavy job or tests while building.
+
+Connectedchange routes an exhausted complete measured quality return with closed
+size/heights and residualgeometry through the EXISTING finite surface-split generation,
+not broadcoarsening. Initialconstruction/operators and strictgeometry-only quality
+mode prerequisite stay unchanged. Existing quality_exit census emitted before mode
+switch preserves final counters. No newcache/config/gate/budget/CADdependency.
+Design:[ADAPTATION_RESIDUAL_GEOMETRY_20261101.md](Handbook/ADAPTATION_RESIDUAL_GEOMETRY_20261101.md).
+R/residual_geometry197_validation_plan.json: focusedserial,affectedserial,ONE MPI6,
+thenIMMEDIATELYfulltwoeventM6sameCFDseed50k/native5400. None197validatedyet.
+196certification savings retained; furthercoverage/motioncache ideas remainbacklog.
+
+## Preserved196terminal outcome and analysis
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-CURRENT=`R/m6_runs/euler_build196_real_cfd50k_witness_first`.
+RUN196=`R/m6_runs/euler_build196_real_cfd50k_witness_first`.
 PREVIOUS=`R/m6_runs/euler_build194_real_cfd50k_early_exit` (TERMINAL).
 Sourcecheckpoint12afb10245pushed; CFDSHAbd71ad267291f8acdec981aaf7bdf221b09836e141ab8eeda64b733fdacb937c.
 Exec95607TERMINAL1. ALL6natural time-budget rejections,native5402.707783s,
@@ -20,7 +40,7 @@ refine5345.112232s. Failure preserved BEFORE signaling ONLY exact remaining owne
 launcher968836/start91406100,all10identities/1401pins verified before signal.
 ALL10hostidentitiesABSENT/all1401pinsunchanged1793504580.738665:terminal_handles.json.
 ALL968xxxhandles are HISTORICAL; NEVERresignal. No owned heavy job remains.
-No Cpp/header/test/helper/binary/config/input edit since sourcecheckpoint12afb10245.
+196source/input pins were unchanged through terminal verification;197edits start only afterward.
 
 Samequalified saved real-CFD/config/originalmesh/native_ref as194/191:
 early_runtime_provenance.json. OriginalcontinuedCFD CL.269535/CD.013536,rms-5.735442.

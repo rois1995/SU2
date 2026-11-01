@@ -4521,7 +4521,7 @@ TEST_CASE("Phase ownership preserves a complete census without a subsequent edit
   CHECK(Bytes(input)==saved);REQUIRE(result.valid);
 }
 
-TEST_CASE("Completed metric size hands residual curved geometry to a quality census", "[NativeConstructionHandoff3D]") {
+TEST_CASE("Completed metric size hands residual curved geometry to a quality census", "[NativeConstructionHandoff3D][NativeGeometryReturn3D]") {
   World world;auto fixture=Box();fixture.patch.cells.clear();const Node center{8,{.5,.5,.5}};
   for(const auto& f:fixture.facets) {
     Cell cell{fixture.patch.cells.size(),{center,f.v[0],f.v[1],f.v[2]}};
@@ -4549,17 +4549,32 @@ TEST_CASE("Completed metric size hands residual curved geometry to a quality cen
   auto parameters=std::make_shared<BoundaryParameterState>(authority,points,fixture.patch.surface);
   auto geometry=PlanarReference::WithParameters(root,parameters);const auto snapshot=parameters->Snapshot();
   const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
-  bool geometry_only=false,late_geometry_mode=false;
+  bool geometry_only=false,late_geometry_mode=false,geometry_return=false;
   SECTION("Complete quality-entry census"){ }
   SECTION("Geometry demand waits for closed shape and size"){geometry_only=true;}
   SECTION("Late quality ownership preserves residual geometry-only mode"){late_geometry_mode=true;}
+  SECTION("Exhausted residual geometry rebuilds before another coarsening pass"){geometry_return=true;}
   bool split_exit=false,quality_seen=false,geometry_seen=false,late_mode_witness=false;
   bool geometry_mode_active=false,late_geometry_debt=false,late_geometry_repair=false;
   uint64_t geometry_mode_entry_round=UINT64_MAX;size_t geometry_at_exit=0;
+  bool quality_exit_seen=false,refinement_return_seen=false;uint64_t collapses_at_quality_exit=0;
   EngineOptions options;options.maximum_work=4096;options.maximum_rounds=256;options.surface_tolerance=1e-4;
   options.phase_ownership=PhaseOwnership::DiagnosticAlways;
   if(late_geometry_mode)options.stagnation_window=1;
   options.stage_observer=[&](const StageProgressView& view) {
+    if(geometry_return && std::string(view.stage)=="quality_exit") {
+      quality_exit_seen=true;collapses_at_quality_exit=view.stats.length_collapses;
+      CHECK(view.phase==EnginePhase::Improvement);CHECK(view.progress.complete);
+      CHECK(view.progress.size_bad_cells==0);CHECK(view.progress.height_bad_cells==0);
+    }
+    if(geometry_return && std::string(view.stage)=="construction_entry" && view.stats.quality_stages) {
+      refinement_return_seen=true;
+      CHECK(quality_exit_seen);CHECK(view.phase==EnginePhase::Construction);
+      CHECK(view.progress.complete);CHECK(view.progress.size_bad_cells==0);
+      CHECK(view.stats.length_collapses==collapses_at_quality_exit);
+      CHECK(view.stats.split_lane==1);CHECK(view.stats.split_generation==view.stats.length_split_passes+1);
+      throw std::runtime_error("bounded residual geometry refinement return witness");
+    }
     if(view.phase==EnginePhase::Construction && !view.stats.quality_stages) {
       CHECK(view.progress.q_measured_cells==0);CHECK(view.progress.j_measured_cells==0);
     }
@@ -4605,13 +4620,16 @@ TEST_CASE("Completed metric size hands residual curved geometry to a quality cen
     }
     CHECK(view.progress.census_complete);CHECK(view.progress.shape_complete);
     CHECK(view.progress.geometry_complete);CHECK_FALSE(view.valid);
-    if(!geometry_only && !late_geometry_mode)throw std::runtime_error("bounded residual geometry handoff witness");
+    if(!geometry_only && !late_geometry_mode && !geometry_return)throw std::runtime_error("bounded residual geometry handoff witness");
   };
   const auto result=AdaptMetric(world,input,Uniform(input,Tensor{}),*geometry,{},options);INFO(result.reason);
   CHECK(world.maximum(split_exit));CHECK(world.sum(geometry_at_exit)>0);CHECK(world.maximum(quality_seen));
   CHECK(world.sum(result.stats.length_splits)>0);CHECK_FALSE(result.valid);
-  CHECK(world.maximum(geometry_seen)==(geometry_only||late_geometry_mode));
-  if(late_geometry_mode) {
+  CHECK(world.maximum(geometry_seen)==(geometry_only||late_geometry_mode||geometry_return));
+  if(geometry_return) {
+    CHECK(world.maximum(quality_exit_seen));CHECK(world.maximum(refinement_return_seen));
+    CHECK(result.reason.find("bounded residual geometry refinement return witness")!=std::string::npos);
+  } else if(late_geometry_mode) {
     CHECK(world.maximum(late_geometry_debt));CHECK(world.maximum(late_geometry_repair));
     if(world.size>1)CHECK(world.maximum(late_mode_witness));
     const std::string expected=world.size==1?"bounded serial late geometry mode witness":"bounded late residual geometry mode ownership witness";
