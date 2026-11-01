@@ -9,7 +9,45 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current —198TERMINAL; same-cycle acceptance retry preparation
+## Current —198 same-source acceptance retry LIVE and FROZEN
+
+R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+ACTIVE=`R/m6_runs/euler_build198_real_cfd50k_retry1`.
+Full TWO-event M6 same-qualified-source acceptance retry exec64497, launched after
+terminal evidence/analysis checkpoint a604d1c54f was pushed. Source7aa53848ea,
+CFDSHA96bcaff470bb4571966a2db93e0e7ed0b0920e46a9b3483a0898cc7f0b19a1f1.
+No source/header/test/helper/binary/config/input changes since198qualification.
+All1401parent pins verified unchanged, all prior10owned identities absent and no
+other owned heavy workload before launch. Reuse qualified198proof/serial/MPI6.
+Same saved realCFD seed, Euler50k/native5400/outer14400/twoevents/strictgates.
+This is acceptance continuation in the SAME cycle, not an old-code baseline.
+
+Actual HOST startup1793518985.7476037: helper1441945/start93398497;
+time1442099+timeout1442100/start93399070;launcher1442101/start93399070;
+ranks1442105/1442106/1442107/1442108/1442109 start93399077,
+rank1442110 start93399078. All10LIVE, all1401pins unchanged,69initialmappedELF
+covered initially; initial_native_live_provenance.json1793519039.0905287 then
+verified all82mappedELF covered/all1401pins unchanged/all10LIVE. No inferred termination
+from sandbox/proc absence. Verify these exact identities before any stop/restart.
+ACTIVE/owned_startup.json. Heavy processes nice19, all six ranks libs1.
+ACTIVE/runtime_environment.json confirms actual rank TMPDIR and
+OMPI_MCA_orte_tmpdir_base both point to owned4TBcompile-tmp/m6_build198_retry1;
+actual OpenMPI session is there. Default shared-memory transport unchanged.
+Root/tmp has15MBfree; no unrelatedfiles/jobs modified. Preflight actual host
+load2.19/2.19/4.21,40.50GBMemAvailable,CPUpsiavg60=1.22%,4TB61.46GBfree.
+R/geometry_coverage198_retry1_preflight.json. Lower contention is observed;
+causality for previous timing is not established.
+
+Actual config/mesh/native_ref/savedseed BYTEIDENTICAL parent198 atstartup.
+Original continued00000 is not yet emitted/audited; verify when available.
+ZEROaccepted adapted meshes/transfer/adaptedCFD/adaptedrestart. AllCpp/header/tests/
+helpers/binary/config/inputs FROZEN until actualterminal or preserved authorized
+failure. No competing implementation/profiler/new config/raisedlimits/gaterelaxation.
+Monitor actual complete censuses/netwholefieldq/Jbad/s,geometry counts,work and
+resources. Retain197geometry continuation,as yet unexercised onM6. GoalACTIVE.
+
+## Parent198 first attempt — TERMINAL analysis
+
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 CURRENT=`R/m6_runs/euler_build198_real_cfd50k_triangle_coverage`.
@@ -26,7 +64,7 @@ Natural failure preserved BEFORE signaling ONLY exact remaining ownedlauncher
 1293494/start92754544. All10identities/all1401pins verified beforesignal.
 ALL10ABSENT/all1401pinsunchanged1793518046.7156804:CURRENT/terminal_handles.json.
 All1293335/1293492/1293493/1293494/1293498/1293499/1293500/1293501/1293502/1293504
-handles HISTORICAL;NEVERresignal. Noownedheavyjob remains. NoCpp/header/test/helper/
+handles HISTORICAL;NEVERresignal. At parent terminal noownedheavyjob remained. NoCpp/header/test/helper/
 binary/config/input edit since198qualifiedsource. Preserveallterminalreceipts:
 event1_natural_failure.json,event1_failure_owned_stop.json,status.json,
 terminal_assessment.json,terminal_counter_review.json,terminal_geometry_service_assessment.json,
@@ -91,8 +129,8 @@ ROOT/tmpfreeONLY15MB;4TBworkspace61.46GBfree,/dev/shm32GBfree. No unrelatedfiles
 modified. Beforenextfullacceptanceattempt,redirectTMPDIRandinstalledOpenMPI
 OMPI_MCA_orte_tmpdir_base to4TBcompile-tmp;keepvaderdefault/dev/shm. Thisisruntime
 storage,notnewnativeconfig/transport/math. Recordactualchildenvironment/paths.
-Nextaction:reusequalified198inSAMEcycleforfulltwo-eventM6same savedrealCFD,
-verifybetteractualhostresources andtempstoragefirst. No newbaselinecampaign or
+This plan was executed as ACTIVEretry1 above after resources/tempstorage checks:
+reusequalified198inSAMEcycleforfulltwo-eventM6same savedrealCFD. No newbaselinecampaign or
 sourcechange. Strictacceptedmeshes/transfer/finiteadaptedCFD/isolatedadaptedrestart,
 thenBL/MPI/RANS500k remainrequired. GoalACTIVE.
 
@@ -119,8 +157,9 @@ verified terminal before subsequent source edits. Full receipts remain in R/m6_r
 ## Next monitoring and acceptance
 
 198firstfulltwoeventM6 is TERMINAL with complete measured rejection.
-Prepare a same-source acceptance retry only after resource/tempstorage provenance
-is verified; once launched, keep it frozen untilterminal orpreservedfailure. Compare actual complete censuses and countedwork versus197,without
+Same-source retry1 is LIVE with resource/tempstorage provenance verified. Keep it
+frozen untilterminal orpreservedfailure. Compare actual complete censuses and
+countedwork versus197 and parent198,without
 confusing unmeasured construction shape with closure. No newimplementation while
 this run is healthy; checkpoint accepted stages independently. Actualterminaloutcome
 chooses nextblocker; regular evidence pushes and current handoff remainrequired.

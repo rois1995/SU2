@@ -1,0 +1,71 @@
+{
+  "time": 1793519031.3492377,
+  "scope": "Same qualified original-grid CFD seed, configuration, mesh and geometry as parent198. Original-grid continued restart compared only if emitted; this is NOT adapted restart evidence.",
+  "files": [
+    {
+      "file": "run.cfg",
+      "candidate_sha256": "74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d",
+      "baseline_sha256": "74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d",
+      "identical": true
+    },
+    {
+      "file": "m6.su2",
+      "candidate_sha256": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+      "baseline_sha256": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+      "identical": true
+    },
+    {
+      "file": "m6.su2.native_ref",
+      "candidate_sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+      "baseline_sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+      "identical": true
+    },
+    {
+      "file": "baseline_euler_seed.dat",
+      "candidate_sha256": "1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880",
+      "baseline_sha256": "1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880",
+      "identical": true
+    }
+  ],
+  "continued_restart_state": "not_yet_emitted",
+  "qualified_seed_sha256": "1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880",
+  "qualification_sha256": "e5782d139bc9d398780f04e77800757c01012dabd05c2a3b51b3065000b40fc9",
+  "cfd_sha256": "96bcaff470bb4571966a2db93e0e7ed0b0920e46a9b3483a0898cc7f0b19a1f1",
+  "config": {
+    "build": "build198",
+    "case": "M6 Euler full adaptation",
+    "ranks": 6,
+    "expected_events": 2,
+    "target_complexity": 50000,
+    "qualified_seed_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_original_force_seed_v1",
+    "native_budget_seconds": 5400,
+    "outer_timeout_seconds": 14400,
+    "argv": [
+      "nice",
+      "-n",
+      "19",
+      "/usr/bin/time",
+      "-v",
+      "timeout",
+      "14400",
+      "mpirun",
+      "--output-filename",
+      "rank_output",
+      "-n",
+      "6",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD",
+      "run.cfg"
+    ],
+    "environment": {
+      "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/m6_build198_retry1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "config_sha256": "74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d",
+    "input_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/input_pins.json",
+    "runtime_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/loaded_runtime_pins.json"
+  },
+  "startup_receipt_sha256": "4a340152b1469cec1c285698577374ebc86718ccbce5ac909d4d52794de8e525",
+  "workflow_accepted": false
+}
