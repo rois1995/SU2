@@ -1,6 +1,6 @@
 {
   "time": 1793493435.2483444,
-  "scope": "Actual complete193quality snapshot and191actual bracketing-time/nearest-q snapshots. No interpolation, identical-work or isolated timing claim; construction and subsequent paths differ. Rates use own complete entry.",
+  "scope": "Actual complete194quality snapshot and193actual bracketing-time/nearest-q snapshots. No interpolation or isolated timing claim. Selected construction counts/entry match; later paths assessed from actual records. Rates use own complete entry.",
   "window": 1,
   "current_q_below_baseline_observed_range": false,
   "current": {
@@ -255,5 +255,7 @@
     "Coordinate-cell churn retires/introduces moved cells despite unchanged connectivity.",
     "When current q is below all baseline observations, the nearest baseline is its boundary, not a matched state.",
     "Positive progress is not strict mesh acceptance, transfer, continued CFD or adapted restart."
-  ]
+  ],
+  "baseline_run": "euler_build193_real_cfd50k_envelope",
+  "current_run": "euler_build194_real_cfd50k_early_exit"
 }

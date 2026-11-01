@@ -1,0 +1,320 @@
+{
+  "time": 1793493686.6073847,
+  "scope": "Actual cumulative second complete quality window; same initial state and selected construction counts, exact observed global count/debt/publication match. Passive counters only. No byte-identical mesh proof or isolated timing/acceptance claim. Redistribution after the window is charged to the next interval.",
+  "baseline": "euler_build193_real_cfd50k_envelope",
+  "current": "euler_build194_real_cfd50k_early_exit",
+  "runs": {
+    "euler_build193_real_cfd50k_envelope": {
+      "quality_seconds": 459.179622215,
+      "whole_field": {
+        "cells": 739233,
+        "q_bad": 46176,
+        "j_bad": 44617,
+        "geometry_bad": 3608,
+        "size_bad": 0,
+        "qj_debt": 14595.909676722005
+      },
+      "rank_debts": {
+        "0": 2400.9619514698406,
+        "1": 1670.682125311998,
+        "2": 3162.7977541913706,
+        "3": 1717.4651685235694,
+        "4": 3185.9365417964464,
+        "5": 2458.0661354287786
+      },
+      "counts": {
+        "commits": 2023,
+        "q_removed": 38204,
+        "q_created": 34222,
+        "j_removed": 35467,
+        "j_created": 31054,
+        "unmeasured_churn": 0,
+        "private_tracked_collectives": 0,
+        "queue": 344382,
+        "blocked_features": 79,
+        "stuck_shape": 0,
+        "stuck_required": 0,
+        "missing_features": 0,
+        "construction_edits": 0,
+        "ownership_changes": 0
+      },
+      "net_removed": {
+        "q_bad": 7905,
+        "j_bad": 8775,
+        "geometry_bad": 162
+      },
+      "commits": 3762,
+      "net_q_per_second": 17.21548522094186,
+      "net_j_per_second": 19.11016860389182,
+      "work": {
+        "upper_calls": 66468,
+        "upper_work": 796244875,
+        "traversal_work": 785983522,
+        "scope_build_work": 1484103,
+        "facet_build_work": 594438,
+        "piece_selection_work": 5246776,
+        "support_facets": 6594149
+      },
+      "per_rank_service": {
+        "0": {
+          "window_seconds": 459.1192293849999,
+          "busy_seconds": 168.31004940100001,
+          "join_call_seconds": 183.04071562199996,
+          "tracked_collective_call_seconds": 67.66810966196294,
+          "commits": 642.0,
+          "q_removed": 15005.0,
+          "q_created": 14200.0,
+          "j_removed": 14148.0,
+          "j_created": 13245.0
+        },
+        "1": {
+          "window_seconds": 459.12035144000004,
+          "busy_seconds": 177.9413890960001,
+          "join_call_seconds": 173.391237241,
+          "tracked_collective_call_seconds": 50.9000155539818,
+          "commits": 434.0,
+          "q_removed": 6260.0,
+          "q_created": 5010.0,
+          "j_removed": 6071.0,
+          "j_created": 4675.0
+        },
+        "2": {
+          "window_seconds": 459.1206021170001,
+          "busy_seconds": 147.24914185699998,
+          "join_call_seconds": 204.087212938,
+          "tracked_collective_call_seconds": 69.68692393698825,
+          "commits": 510.0,
+          "q_removed": 8450.0,
+          "q_created": 7246.0,
+          "j_removed": 8042.0,
+          "j_created": 6705.0
+        },
+        "3": {
+          "window_seconds": 459.1203941719999,
+          "busy_seconds": 101.46659813700006,
+          "join_call_seconds": 249.86151563800001,
+          "tracked_collective_call_seconds": 69.59658383099463,
+          "commits": 784.0,
+          "q_removed": 17110.0,
+          "q_created": 14271.0,
+          "j_removed": 15585.0,
+          "j_created": 12586.0
+        },
+        "4": {
+          "window_seconds": 459.120013706,
+          "busy_seconds": 125.17553886600002,
+          "join_call_seconds": 226.15692131099996,
+          "tracked_collective_call_seconds": 64.23328114804826,
+          "commits": 637.0,
+          "q_removed": 12762.0,
+          "q_created": 11865.0,
+          "j_removed": 11937.0,
+          "j_created": 10819.0
+        },
+        "5": {
+          "window_seconds": 459.1182527279999,
+          "busy_seconds": 187.468513486,
+          "join_call_seconds": 163.86034052499994,
+          "tracked_collective_call_seconds": 64.56345188902424,
+          "commits": 755.0,
+          "q_removed": 20311.0,
+          "q_created": 19401.0,
+          "j_removed": 18837.0,
+          "j_created": 17815.0
+        }
+      },
+      "post_migration_whole_field": {
+        "cells": 739233,
+        "q_bad": 46176,
+        "j_bad": 44617,
+        "geometry_bad": 3608,
+        "size_bad": 0,
+        "qj_debt": 14595.909676722003
+      },
+      "post_migration_rank_debts": {
+        "0": 2035.581037364222,
+        "1": 2445.8572871362153,
+        "2": 2782.725141979676,
+        "3": 2647.7914791482744,
+        "4": 2593.5674620276627,
+        "5": 2090.387269065953
+      },
+      "post_migration_gauges": {
+        "commits": 0,
+        "q_removed": 0,
+        "q_created": 0,
+        "j_removed": 0,
+        "j_created": 0,
+        "unmeasured_churn": 0,
+        "private_tracked_collectives": 0,
+        "queue": 340993,
+        "blocked_features": 79,
+        "stuck_shape": 0,
+        "stuck_required": 0,
+        "missing_features": 0,
+        "construction_edits": 0,
+        "ownership_changes": 6
+      }
+    },
+    "euler_build194_real_cfd50k_early_exit": {
+      "quality_seconds": 416.7601869729999,
+      "whole_field": {
+        "cells": 739233,
+        "q_bad": 46176,
+        "j_bad": 44617,
+        "geometry_bad": 3608,
+        "size_bad": 0,
+        "qj_debt": 14595.909676722005
+      },
+      "rank_debts": {
+        "0": 2400.9619514698406,
+        "1": 1670.682125311998,
+        "2": 3162.7977541913706,
+        "3": 1717.4651685235694,
+        "4": 3185.9365417964464,
+        "5": 2458.0661354287786
+      },
+      "counts": {
+        "commits": 2023,
+        "q_removed": 38204,
+        "q_created": 34222,
+        "j_removed": 35467,
+        "j_created": 31054,
+        "unmeasured_churn": 0,
+        "private_tracked_collectives": 0,
+        "queue": 344382,
+        "blocked_features": 79,
+        "stuck_shape": 0,
+        "stuck_required": 0,
+        "missing_features": 0,
+        "construction_edits": 0,
+        "ownership_changes": 0
+      },
+      "net_removed": {
+        "q_bad": 7905,
+        "j_bad": 8775,
+        "geometry_bad": 162
+      },
+      "commits": 3762,
+      "net_q_per_second": 18.967742714138215,
+      "net_j_per_second": 21.055274170343182,
+      "work": {
+        "upper_calls": 66468,
+        "upper_work": 752845832,
+        "traversal_work": 742584479,
+        "scope_build_work": 1484103,
+        "facet_build_work": 594438,
+        "piece_selection_work": 5246776,
+        "support_facets": 6594149
+      },
+      "per_rank_service": {
+        "0": {
+          "window_seconds": 416.7524109620001,
+          "busy_seconds": 154.62216604499997,
+          "join_call_seconds": 158.8851961629999,
+          "tracked_collective_call_seconds": 63.710480044993574,
+          "commits": 642.0,
+          "q_removed": 15005.0,
+          "q_created": 14200.0,
+          "j_removed": 14148.0,
+          "j_created": 13245.0
+        },
+        "1": {
+          "window_seconds": 416.75236191499994,
+          "busy_seconds": 163.93527802299997,
+          "join_call_seconds": 149.56925884499998,
+          "tracked_collective_call_seconds": 49.11109679602282,
+          "commits": 434.0,
+          "q_removed": 6260.0,
+          "q_created": 5010.0,
+          "j_removed": 6071.0,
+          "j_created": 4675.0
+        },
+        "2": {
+          "window_seconds": 416.75322761999996,
+          "busy_seconds": 127.73200106200002,
+          "join_call_seconds": 185.78736173500005,
+          "tracked_collective_call_seconds": 66.24704172202507,
+          "commits": 510.0,
+          "q_removed": 8450.0,
+          "q_created": 7246.0,
+          "j_removed": 8042.0,
+          "j_created": 6705.0
+        },
+        "3": {
+          "window_seconds": 416.750841347,
+          "busy_seconds": 92.06693034299997,
+          "join_call_seconds": 221.4497119,
+          "tracked_collective_call_seconds": 66.04358380002327,
+          "commits": 784.0,
+          "q_removed": 17110.0,
+          "q_created": 14271.0,
+          "j_removed": 15585.0,
+          "j_created": 12586.0
+        },
+        "4": {
+          "window_seconds": 416.750908417,
+          "busy_seconds": 114.39428636799994,
+          "join_call_seconds": 199.11129001999993,
+          "tracked_collective_call_seconds": 59.73680070400155,
+          "commits": 637.0,
+          "q_removed": 12762.0,
+          "q_created": 11865.0,
+          "j_removed": 11937.0,
+          "j_created": 10819.0
+        },
+        "5": {
+          "window_seconds": 416.75291464,
+          "busy_seconds": 169.116992819,
+          "join_call_seconds": 144.39941704800006,
+          "tracked_collective_call_seconds": 60.74501832600288,
+          "commits": 755.0,
+          "q_removed": 20311.0,
+          "q_created": 19401.0,
+          "j_removed": 18837.0,
+          "j_created": 17815.0
+        }
+      },
+      "post_migration_whole_field": {
+        "cells": 739233,
+        "q_bad": 46176,
+        "j_bad": 44617,
+        "geometry_bad": 3608,
+        "size_bad": 0,
+        "qj_debt": 14595.909676722003
+      },
+      "post_migration_rank_debts": {
+        "0": 2035.581037364222,
+        "1": 2445.8572871362153,
+        "2": 2782.725141979676,
+        "3": 2647.7914791482744,
+        "4": 2593.5674620276627,
+        "5": 2090.387269065953
+      },
+      "post_migration_gauges": {
+        "commits": 0,
+        "q_removed": 0,
+        "q_created": 0,
+        "j_removed": 0,
+        "j_created": 0,
+        "unmeasured_churn": 0,
+        "private_tracked_collectives": 0,
+        "queue": 340993,
+        "blocked_features": 79,
+        "stuck_shape": 0,
+        "stuck_required": 0,
+        "missing_features": 0,
+        "construction_edits": 0,
+        "ownership_changes": 6
+      }
+    }
+  },
+  "global_fields_exact": true,
+  "rank_debts_exact": true,
+  "count_counters_exact": true,
+  "commits_exact": true,
+  "post_migration_fields_exact": true,
+  "post_migration_rank_debts_exact": true,
+  "relative_traversal_work_change": -0.05521622500376033,
+  "relative_net_q_per_second_change": 0.1017837993357753
+}

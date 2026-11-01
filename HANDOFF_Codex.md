@@ -48,12 +48,12 @@ counts/debt/completeflags and20selectedcache/memocounters/entries/bytes unchange
 debtmax/min15.776024→1.538801:quality_initial_ownership_assessment.json. Counter
 identity does not independently prove every entrykey/feature history.
 
-Quality progress (latest complete):window1 at210.243560seconds sinceentry,
-733582workingcells,50158q/49030J/3660geometry/0sizebad,
-qJdebt18961.961605569937;1739publications,net3923q/4362J/
-110geometry removed,18.659311netq/s,20.747366netJ/s.
-All4complete censuses audited,latestwindow round21632;queue351681,
-blockedfeatures54,stuckshape/required0/0,missing0,
+Quality progress (latest complete):window2 at416.760187seconds sinceentry,
+739233workingcells,46176q/44617J/3608geometry/0sizebad,
+qJdebt14595.909676722005;3762publications,net7905q/8775J/
+162geometry removed,18.967743netq/s,21.055274netJ/s.
+All7complete censuses audited,latestwindow round21696;queue344382,
+blockedfeatures79,stuckshape/required0/0,missing0,
 private trackedcollectives0.
 quality_trend_assessment.json,quality_service_assessment.json,
 all_quality_census_assessment.json preserve whole-field/netchurn/service/location data.
@@ -63,10 +63,19 @@ q/Jnet3923/4362,geometrynet110. Quality210.243560vs233.197927s; traversal
 join-call share40.13%vs41.35%includes protocol+wait,not pure idle. No isolated code
 wall speedup,byteidentical mesh or acceptance claim. quality_window1_service_summary.json
 and quality_window*_comparison.json retain actual states/times/work/limits.
+Second matched window:EXACT193wholefield/rankdebts/countcounters/3762publications,
+7905q/8775J/162geometry net removed. Quality416.760187vs459.179622s; cumulative
+traversal742584479vs785983522(-5.5216%),netq/s18.9677vs17.2155. Lastinterval
+3982q/4413J/52geometry removed in206.516627s. quality_window2_service_summary.json.
+One late complete-census migration committed at21696:counts/debt/flags conserved,
+selected prepared/memo counters/entries/bytes/drift availability unchanged;
+debtspread1.90697→1.36704,observedfullcost13.392412s charged to NEXTwindow.
+quality_migration_assessment.json. Counters do not prove every exactcachekey/
+featureage history; unchanged source/qualifiedMPI6 support those contracts.
 Quality progress end.
 
-All10hosthandles/1401pins/82mappedELF reverified1793493466.461851:
-quality_window1_live_provenance.json. quality_window1_resources.json preserves
+All10hosthandles/1401pins/82mappedELF reverified1793493642.778907:
+quality_window2_live_provenance.json. quality_window2_resources.json preserves
 sampled summedRSS/hostload/RAM/PSI; sampledRSS is not physical or truepeak.
 No memorypressure stop justified. One owned heavyjob,nice19/libs1; no pinned
 C++/test/helper/binary/config/input edits. Source remainsf518f2d727.
