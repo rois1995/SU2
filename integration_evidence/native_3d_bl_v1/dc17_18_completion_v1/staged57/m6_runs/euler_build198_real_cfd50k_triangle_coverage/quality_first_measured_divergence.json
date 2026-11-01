@@ -1,0 +1,42 @@
+{
+  "time": 1793515163.4900517,
+  "scope": "First observed matching-round measured divergence atwindow8. Whole-field bad counts still equal; do not assume identical states/trials thereafter. Cause not established from aggregate counters.",
+  "baseline_run": "euler_build197_real_cfd50k_geometry_return",
+  "current_run": "euler_build198_real_cfd50k_triangle_coverage",
+  "round": 22080,
+  "whole_field_differences": {
+    "cells": {
+      "baseline": 765320,
+      "current": 765317,
+      "delta": -3
+    },
+    "qj_debt": {
+      "baseline": 3944.7900209618665,
+      "current": 3944.791014727871,
+      "delta": 0.0009937660042851348
+    }
+  },
+  "baseline_publications": 15542,
+  "current_publications": 15543,
+  "rank_debt_differences": {
+    "0": {
+      "baseline": 636.0118388019703,
+      "current": 636.0128325679746
+    }
+  },
+  "baseline_q_j_geometry_bad": {
+    "q_bad": 29334,
+    "j_bad": 26759,
+    "geometry_bad": 3423
+  },
+  "current_q_j_geometry_bad": {
+    "q_bad": 29334,
+    "j_bad": 26759,
+    "geometry_bad": 3423
+  },
+  "limits": [
+    "Counts/debt are not byte-identical mesh proof.",
+    "Different proof traversal can conservatively return different bounds; nondeterministic MPI/ownership/trial ordering is also not isolated here.",
+    "All strict gates and source/runtime/input pins remain unchanged. No interruption justified by this observation."
+  ]
+}
