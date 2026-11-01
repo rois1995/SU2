@@ -29,24 +29,29 @@ host conditions differ, so no isolated runtime claim. LAST/quality_entry_compari
 records all6 raw row locations and observed log-prefix hashes. Seven earlier
 complete construction stages also match selected state/work counters exactly;
 LAST/construction_matching_stage_assessment.json. These do not establish closure.
-Latest HOST audit1793549682.061135:all10exact handles LIVE,1403pins unchanged,
-MemAvailable31,318,868kB; sampled summed processRSS9,107,521,536B, not physical peak.
-First complete50-round window:733582cells/50158q/49030J/3660geometry/0size,
-1739commits; q41694retired/37771introduced, J39153retired/34791introduced.
-Net3923q/4362J in158.289647899quality seconds (24.784q/s,27.557J/s).
-202matching50rounds:49598q/48405J/3675geometry,1888commits,27.133q/s/30.183J/s
-in165.225937174s. Thus early206net shape progress is lower, geometry count15lower;
-one early window does not establish the targeted late-tail effect or a bottleneck.
-No stop justified. LAST/quality_first_window_comparison.json retains all6rows,
-prefix hashes and churn reconciliation. Pushed checkpoint b2af598568 covers matching entry.
-Second complete window round21696:739233cells/46176q/44617J/3608geometry/0size
-at323.014074872quality seconds. The subsequent executed redistribution preserves
-those totals, complete shape/geometry/cache flags and aggregate q/J debt (within
-1e-9sum tolerance); q/J-debt max/mean falls1.30966→1.14391. This proves count/flag
-preservation and improved measured balance, not throughput or every-attribute
-identity. LAST/quality_census_migration_round21696.json retains transition evidence.
-Latest exact HOST audit1793550062.9780142:all10LIVE/1403pins unchanged,load10.59,
-MemAvailable30,638,080kB,sampled summedRSS9,194,450,944B. No resource-pressure stop.
+Latest COMPLETE window round21824:749172cells/39886q/38086J/3518geometry/0size,
+at771.76424484quality seconds (engine1421.273222308). Latest-window net removal
+2796q/2973J/45geometry. q9746surface/30140interior; J13684surface/24402interior.
+Interior can still contain constrained vertices. LAST/quality_progress_snapshot.json
+retains first4complete windows, per-rank counters/location and matching202rounds.
+At round21760, previous-window net removal was3494q/3558J/45geometry over
+253.492094885s,2164commits. Matching202round interval
+removed3171q/3363J/57geometry over178.16399285s,2042commits.206traversal work is
+2.84%higher, netq/commit1.615vs1.553, but elapsed42.28%higher. Different queries,
+ownership and host scheduling prevent isolated code/contending-job attribution.
+LAST/quality_window3_work_comparison.json records selected per-rank work/timers,
+whole-field churn reconciliation and exact observed prefixes; both receipts
+are included in this evidence checkpoint.
+The targeted late-tail effect is not established. No stop justified.
+
+Executed round21696redistribution preserved739233cells/46176q/44617J/3608geometry/
+0size, complete shape/geometry/cache flags and aggregate q/J debt (within1e-9);
+q/J-debt max/mean fell1.30966→1.14391. This is measured balance/count preservation,
+not throughput or every-attribute identity. LAST/quality_census_migration_round21696.json
+and quality_first_window_comparison.json pushed in2138e8092b; matching-entry
+checkpoint b2af598568. Latest HOST audit1793550495.5545266:all10exact handles LIVE,
+1403pins unchanged,load6.81,MemAvailable30,712,388kB,sampled summedRSS9,363,513,344B
+(not physical/job peak). No actual resource pressure.
 
 HOST startup at1793548936.893354, all10LIVE:
 helper2159446/start96386176;time2159605/timeout2159606/start96386786;
