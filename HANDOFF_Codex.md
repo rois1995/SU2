@@ -75,22 +75,22 @@ ACTIVE/quality_entry_live_provenance.json andquality_entry_resources.json preser
 Actualcomplete
 censuses,geometrywork,netwholefieldq/Jbad/s andgeometrycounts chooseutility.
 ComparetoLATEST198retry1 atactualmatchingstages/times,notassumedfuturestateidentity.
-Latestcompletequalitywindow3/round21760: 744779cells/42682q/41059J/
-3563geometry/0size. Sincefirstqualityentry554.908265s,
-net11399q/12333J/207geometry through5926publications;
-netq20.542134/s. Constructioneditssinceentry0;wholefieldrate
+Latestcompletequalitywindow4/round21824: 749172cells/39886q/38086J/
+3518geometry/0size. Sincefirstqualityentry908.581747s,
+net14195q/15306J/252geometry through7831publications;
+netq15.623250/s. Constructioneditssinceentry0;wholefieldrate
 includesanyconstruction,notnecessarilypurepublishedrepairyield.
-Actual198retry1same-roundnetq20.214109/s;selectedwholefieldexact=True,
+Actual198retry1same-roundnetq17.945214/s;selectedwholefieldexact=True,
 rankdebtsexact=True,commitsexact=True,churnexact=True.
-Traversal536716589→252654243(-52.9259%).
+Traversal762273510→348333172(-54.3034%).
 2complete lateownershipmigrations audited forglobalcounts/debt/completeflagsand20selected
-cachecounters/entries/bytes;notproofeverykey/history. Currentjoinshare0.37982
+cachecounters/entries/bytes;notproofeverykey/history. Currentjoinshare0.37528
 includesprotocol+wait,notpureidle. PredicatecountsarenotuniformCPUcost;timersoverlap/
 hostconditionsdiffer. Noisolatedspeedupclaim. FullruncontinuesFROZEN. Actual
-quality_window3_comparison.json/service_summary.json,quality_migration_assessment.json and
-all_quality_census_assessment.json retaincounters;window1geometryassessmentpreserved.
-Latestwindow3HOSTaudit1793528227.378965:all10LIVE/1401pinsunchanged/
-82mappedELFcovered. Actualquality_window3_live_provenance.json/resources.json.
+quality_window4_comparison.json/service_summary.json,quality_migration_assessment.json and
+all_quality_census_assessment.json andquality_matching_window_assessment.json retaincounters.
+Latestwindow4HOSTaudit1793528524.397122:all10LIVE/1401pinsunchanged/
+82mappedELFcovered. Actualquality_window4_live_provenance.json/resources.json.
 ZEROaccepted adaptedmeshes/transfer/adaptedCFD/adaptedrestart. FullgoalACTIVE.
 
 ## Previous198 terminal evidence — never resignal

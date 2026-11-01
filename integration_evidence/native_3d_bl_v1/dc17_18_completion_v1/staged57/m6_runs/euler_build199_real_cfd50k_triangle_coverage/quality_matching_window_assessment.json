@@ -1,0 +1,163 @@
+{
+  "time": 1793528556.2217767,
+  "scope": "Qualified199 winding versus latest198retry1 at actual matching complete first-event quality windows. Different sources; traversal work is intentionally different. No isolated timing or byte-identical mesh/trial-history claim.",
+  "work_fields": [
+    "upper_calls",
+    "upper_work",
+    "traversal_work",
+    "scope_build_work",
+    "facet_build_work",
+    "piece_selection_work",
+    "support_facets"
+  ],
+  "compared_unchanged_work_fields": [
+    "upper_calls",
+    "scope_build_work",
+    "facet_build_work",
+    "piece_selection_work",
+    "support_facets"
+  ],
+  "windows": [
+    {
+      "window": 1,
+      "round": 21632,
+      "current_census": 3,
+      "baseline_same_round_available": true,
+      "whole_field_equal": true,
+      "rank_debts_equal": true,
+      "window_counters_equal": true,
+      "unchanged_work_fields_equal": true,
+      "current_work": {
+        "upper_calls": 31091,
+        "upper_work": 101391440,
+        "traversal_work": 97046296,
+        "scope_build_work": 937248,
+        "facet_build_work": 517280,
+        "piece_selection_work": 2170198,
+        "support_facets": 1752084
+      },
+      "baseline_work": {
+        "upper_calls": 31091,
+        "upper_work": 205074385,
+        "traversal_work": 200729241,
+        "scope_build_work": 937248,
+        "facet_build_work": 517280,
+        "piece_selection_work": 2170198,
+        "support_facets": 1752084
+      },
+      "current_quality_seconds": 179.316862484,
+      "baseline_quality_seconds": 182.02993399900004,
+      "current_net_q_per_second": 21.877474018094865,
+      "baseline_net_q_per_second": 21.551400441762237,
+      "traversal_work_reduction_fraction": 0.5165313458241991
+    },
+    {
+      "window": 2,
+      "round": 21696,
+      "current_census": 4,
+      "baseline_same_round_available": true,
+      "whole_field_equal": true,
+      "rank_debts_equal": true,
+      "window_counters_equal": true,
+      "unchanged_work_fields_equal": true,
+      "current_work": {
+        "upper_calls": 66468,
+        "upper_work": 181951718,
+        "traversal_work": 171690365,
+        "scope_build_work": 1484103,
+        "facet_build_work": 594438,
+        "piece_selection_work": 5246776,
+        "support_facets": 6594149
+      },
+      "baseline_work": {
+        "upper_calls": 66468,
+        "upper_work": 378721528,
+        "traversal_work": 368460175,
+        "scope_build_work": 1484103,
+        "facet_build_work": 594438,
+        "piece_selection_work": 5246776,
+        "support_facets": 6594149
+      },
+      "current_quality_seconds": 346.0822477219999,
+      "baseline_quality_seconds": 352.5422433680001,
+      "current_net_q_per_second": 22.841391178058657,
+      "baseline_net_q_per_second": 22.422844775933395,
+      "traversal_work_reduction_fraction": 0.5340327757267118
+    },
+    {
+      "window": 3,
+      "round": 21760,
+      "current_census": 7,
+      "baseline_same_round_available": true,
+      "whole_field_equal": true,
+      "rank_debts_equal": true,
+      "window_counters_equal": true,
+      "unchanged_work_fields_equal": true,
+      "current_work": {
+        "upper_calls": 111166,
+        "upper_work": 271244991,
+        "traversal_work": 252654243,
+        "scope_build_work": 2193892,
+        "facet_build_work": 723006,
+        "piece_selection_work": 9563313,
+        "support_facets": 13425905
+      },
+      "baseline_work": {
+        "upper_calls": 111166,
+        "upper_work": 555307337,
+        "traversal_work": 536716589,
+        "scope_build_work": 2193892,
+        "facet_build_work": 723006,
+        "piece_selection_work": 9563313,
+        "support_facets": 13425905
+      },
+      "current_quality_seconds": 554.908265323,
+      "baseline_quality_seconds": 563.913047801,
+      "current_net_q_per_second": 20.542134100966923,
+      "baseline_net_q_per_second": 20.21410932846975,
+      "traversal_work_reduction_fraction": 0.529259485959358
+    },
+    {
+      "window": 4,
+      "round": 21824,
+      "current_census": 10,
+      "baseline_same_round_available": true,
+      "whole_field_equal": true,
+      "rank_debts_equal": true,
+      "window_counters_equal": true,
+      "unchanged_work_fields_equal": true,
+      "current_work": {
+        "upper_calls": 154389,
+        "upper_work": 374216663,
+        "traversal_work": 348333172,
+        "scope_build_work": 2917974,
+        "facet_build_work": 803943,
+        "piece_selection_work": 13360843,
+        "support_facets": 19796907
+      },
+      "baseline_work": {
+        "upper_calls": 154389,
+        "upper_work": 788157001,
+        "traversal_work": 762273510,
+        "scope_build_work": 2917974,
+        "facet_build_work": 803943,
+        "piece_selection_work": 13360843,
+        "support_facets": 19796907
+      },
+      "current_quality_seconds": 908.5817471329999,
+      "baseline_quality_seconds": 791.018707577,
+      "current_net_q_per_second": 15.623250241149858,
+      "baseline_net_q_per_second": 17.945214018365323,
+      "traversal_work_reduction_fraction": 0.5430338750719541
+    }
+  ],
+  "migration_comparison_through_round": 21824,
+  "current_only_migration_rounds": [],
+  "baseline_only_migration_rounds": [],
+  "limits": [
+    "Migration differences in future baseline windows are excluded. Existing decisions depend on observed service time and remaining budget; no future trajectory identity assumed.",
+    "Counted operations need not have equal runtime cost. Timers overlap and host conditions differ.",
+    "Selected state equality is checked independently for every window. Work differences are not mislabeled as state divergence."
+  ],
+  "first_measured_state_difference": null
+}
