@@ -1,6 +1,47 @@
 # Cheaper geometry certification —198coverage-order integration
 
-## Current198 terminal analysis
+## Current retry1 terminal analysis
+
+Same qualified source198 retry1 is TERMINAL. All6natural time-budget rejection,
+native5403.711369s. Natural failure preceded stopping only the verifiedlauncher.
+All10hostidentities absent/all1401pins unchanged1793524505.578266. No accepted
+adapted mesh/transfer/adaptedCFD/adaptedrestart. Actual EXIT803395cells butall6
+cache/census/shape/geometryflags0: terminalwholefieldgatecounts UNKNOWN,notzero.
+
+Latest COMPLETEwindow26:803251cells/2985q/1636J/3098geometry/0size bad,
+quality4537.669830s. Net51096q/51756J/672geometry removed through46164publications;
+11.260405netq/s. Final18.564879s contain291additionalpublications withunknown
+wholefieldchanges. All7diagnosticgroups reconcile throughlastcompletewindow.
+37stuckbadcells/4162badunion,47453queuedfeatures do notshowexhaustedglobalrepair
+power. Constructionreturns0:197continuation unexercised,notdisproved. No shortedge
+correlation-to-construction causal proof.
+
+Entry-to-lastcomplete:998780uppercalls,3.526695695Bupperwork/3.309979350Btraversal
+(93.855%);unionmemo492347hits/506433misses. Missescannotclassifynearbytrials versus
+evicted identicalqueries. Boundaryprivate908.679gain/3699.587ranksec;interior
+4627.274/214.771,notpublishedgains. Existingreuse/screens/prooflimitsbelow remain.
+No newmotioncache/envelope justified from0of12wholequeries oroptimisticsubtree
+.5765%beforeoverhead. Olderqueries are notfreshlatepopulation.
+
+Selectedsnapshotcounts/debts/churn/work matchparent198throughwindow21. Extra
+migration afterround22912 precedes firstmeasuredsnapshotdifference atwindow22.
+Laterstates/trials are notassumedidentical. Existingproceed usesobservedwall,
+predictedgain/cost andremainingbudget: same source/config canchoose different
+ownership. Actualparentbracketingtimes/gatevectors,notinterpolation,are in
+retry1/terminal_comparison.json. No isolated code/host/migrationgain established.
+
+Nexttarget remains usefulclosure SPEED withdecliningyield/churn. Source-checked
+window18rankreview showsrank3has37.6977%oftraversalworkdelta,withcomplete debt
+max/mean1.2480. Existingownershipcost ispredicted/structural,notobservedqueryhistory.
+That is anunprovenalternative inbacklog,not aselectednewscheduler. Analyzeexisting
+facilities before choosingoneconnectedfix. No furtherunchanged-source retry/new
+baselinecampaign selected. Preserve198construction/certification and197continuation,
+allgates/budgets/CADoptional authority andcompleteworkflowgoal. Currentreceipts:
+staged57/m6_runs/euler_build198_real_cfd50k_retry1/terminal_assessment.json,
+terminal_counter_review.json,terminal_geometry_service_assessment.json,
+geometry_certification_analysis.json andterminal_handles.json; actualhandlesinHANDOFF.
+
+## Preserved parent198 terminal analysis
 
 Build198 finished naturally at the unchanged time budget. Its COMPLETE EXIT census
 contains 802821 cells: 3529 q-bad, 1903 J-bad, 3107 geometry-bad and zero size-bad.

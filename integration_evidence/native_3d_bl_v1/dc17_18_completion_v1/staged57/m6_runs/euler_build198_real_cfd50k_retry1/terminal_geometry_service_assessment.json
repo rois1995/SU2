@@ -1,0 +1,552 @@
+{
+  "time": 1793524652.9213576,
+  "scope": "Complete quality-entry to LATEST COMPLETE WINDOW passive counters; actual natural EXIT is incomplete and excluded here, no new profiler/query campaign. Summed rank timers are nested/overlapping, not global wall time. Private smoothing moves/merit are not published cavity effects. Numeric memo hit/miss/eviction counters are available in this run; misses alone cannot distinguish changed positions from evicted identical queries.",
+  "quality_seconds": 4537.6698298070005,
+  "totals": {
+    "upper_calls": 998780,
+    "upper_work": 3526695695,
+    "upper_seconds": 4492.68361224806,
+    "support_calls": 998780,
+    "support_facets": 182858355,
+    "support_seconds": 188.98217735000148,
+    "scope_attempts": 138787,
+    "scope_builds": 138787,
+    "scope_build_work": 11287318,
+    "scope_build_seconds": 506.75757945400164,
+    "facet_hits": 88636810,
+    "facet_misses": 99776,
+    "facet_build_work": 2358019,
+    "facet_build_seconds": 104.92234374500003,
+    "piece_selection_work": 113827989,
+    "piece_selection_seconds": 47.02501337199992,
+    "traversal_work": 3309979350,
+    "traversal_seconds": 3756.569019130967,
+    "updated_cells": 1265969,
+    "update_seconds": 1967.706001314002,
+    "collective_calls": 1025118,
+    "collective_seconds": 474.7785492690356,
+    "election_calls": 2840904,
+    "election_seconds": 3774.3607005557496,
+    "memo_direct_hits": 223152,
+    "memo_direct_misses": 156135,
+    "memo_union_hits": 492347,
+    "memo_union_misses": 506433,
+    "memo_stores": 662488,
+    "memo_evictions": 701931,
+    "memo_evicted_bytes": 907680432,
+    "memo_retention_refusals": 80,
+    "memo_maintenance_work": 252776216
+  },
+  "private_smoothing": {
+    "boundary": {
+      "stars": 653183.0,
+      "reused": 5.0,
+      "candidates": 628711.0,
+      "guidance": 89504.0,
+      "upper_queries": 389278.0,
+      "moves": 25798.0,
+      "debt_reduction": 908.6790065322855,
+      "seconds": 3699.587463963002,
+      "private_debt_reduction_per_rank_second": 0.2456163059756148,
+      "rejects": {
+        "validity": 15219,
+        "shape": 551085,
+        "edge": 1068,
+        "geometry": 23687
+      }
+    },
+    "interior": {
+      "stars": 34894.0,
+      "reused": 4.0,
+      "candidates": 232523.0,
+      "guidance": 0.0,
+      "upper_queries": 0.0,
+      "moves": 27856.0,
+      "debt_reduction": 4627.273644558069,
+      "seconds": 214.771006747,
+      "private_debt_reduction_per_rank_second": 21.545150412266732,
+      "rejects": {
+        "validity": 18442,
+        "shape": 110895,
+        "edge": 2907,
+        "geometry": 0
+      }
+    }
+  },
+  "per_rank": {
+    "0": {
+      "geometry_and_update": {
+        "upper_calls": 135280,
+        "upper_work": 545292261,
+        "upper_seconds": 630.8964786420064,
+        "support_calls": 135280,
+        "support_facets": 23865721,
+        "support_seconds": 25.0900722390006,
+        "scope_attempts": 19966,
+        "scope_builds": 19966,
+        "scope_build_work": 1765125,
+        "scope_build_seconds": 76.59363516299977,
+        "facet_hits": 10065054,
+        "facet_misses": 17009,
+        "facet_build_work": 171986,
+        "facet_build_seconds": 7.42230265799985,
+        "piece_selection_work": 13348973,
+        "piece_selection_seconds": 5.900772639999957,
+        "traversal_work": 519858941,
+        "traversal_seconds": 531.4924308039928,
+        "updated_cells": 196339,
+        "update_seconds": 328.228143772004,
+        "collective_calls": 170853,
+        "collective_seconds": 79.23153508005396,
+        "election_calls": 473484,
+        "election_seconds": 672.4478646949087,
+        "memo_direct_hits": 23534,
+        "memo_direct_misses": 17148,
+        "memo_union_hits": 70107,
+        "memo_union_misses": 65173,
+        "memo_stores": 82311,
+        "memo_evictions": 88852,
+        "memo_evicted_bytes": 105053568,
+        "memo_retention_refusals": 10,
+        "memo_maintenance_work": 29221859
+      },
+      "private_smoothing": {
+        "boundary": {
+          "stars": 108764.0,
+          "reused": 0.0,
+          "candidates": 82163.0,
+          "guidance": 11451.0,
+          "upper_queries": 50028.0,
+          "moves": 2960.0,
+          "debt_reduction": 99.24350310332149,
+          "seconds": 547.2347223250014,
+          "rejects": {
+            "validity": 1532,
+            "shape": 72226,
+            "edge": 341,
+            "geometry": 3611
+          }
+        },
+        "interior": {
+          "stars": 5814.0,
+          "reused": 0.0,
+          "candidates": 38865.0,
+          "guidance": 0.0,
+          "upper_queries": 0.0,
+          "moves": 4673.0,
+          "debt_reduction": 561.1727702527963,
+          "seconds": 35.284172158999986,
+          "rejects": {
+            "validity": 3012,
+            "shape": 18151,
+            "edge": 669,
+            "geometry": 0
+          }
+        }
+      },
+      "service": {
+        "window_seconds": 4537.709630323,
+        "busy_seconds": 1149.8905757879975,
+        "join_call_seconds": 2021.515248379999,
+        "tracked_collective_call_seconds": 751.6793997749627,
+        "diagnostic_seconds": 3.7469934519999994,
+        "published_net_q_removed": 7900
+      }
+    },
+    "1": {
+      "geometry_and_update": {
+        "upper_calls": 197218,
+        "upper_work": 798651787,
+        "upper_seconds": 1010.2812467340148,
+        "support_calls": 197218,
+        "support_facets": 50705503,
+        "support_seconds": 46.327082053000055,
+        "scope_attempts": 28749,
+        "scope_builds": 28749,
+        "scope_build_work": 1606451,
+        "scope_build_seconds": 75.46912416700034,
+        "facet_hits": 28462054,
+        "facet_misses": 27724,
+        "facet_build_work": 540468,
+        "facet_build_seconds": 23.711895817000194,
+        "piece_selection_work": 32826968,
+        "piece_selection_seconds": 11.217348502000107,
+        "traversal_work": 735077084,
+        "traversal_seconds": 876.4892205079911,
+        "updated_cells": 199113,
+        "update_seconds": 327.9435873129949,
+        "collective_calls": 170853,
+        "collective_seconds": 78.0362532909262,
+        "election_calls": 473484,
+        "election_seconds": 541.6008509989679,
+        "memo_direct_hits": 48644,
+        "memo_direct_misses": 42857,
+        "memo_union_hits": 86180,
+        "memo_union_misses": 111038,
+        "memo_stores": 153870,
+        "memo_evictions": 161154,
+        "memo_evicted_bytes": 274357720,
+        "memo_retention_refusals": 25,
+        "memo_maintenance_work": 77417355
+      },
+      "private_smoothing": {
+        "boundary": {
+          "stars": 97558.0,
+          "reused": 2.0,
+          "candidates": 135593.0,
+          "guidance": 19426.0,
+          "upper_queries": 77198.0,
+          "moves": 5787.0,
+          "debt_reduction": 204.5902604164507,
+          "seconds": 749.9508311169994,
+          "rejects": {
+            "validity": 3590,
+            "shape": 118635,
+            "edge": 0,
+            "geometry": 4483
+          }
+        },
+        "interior": {
+          "stars": 4753.0,
+          "reused": 1.0,
+          "candidates": 31378.0,
+          "guidance": 0.0,
+          "upper_queries": 0.0,
+          "moves": 3771.0,
+          "debt_reduction": 819.1655077499514,
+          "seconds": 25.163047875999986,
+          "rejects": {
+            "validity": 3431,
+            "shape": 14376,
+            "edge": 90,
+            "geometry": 0
+          }
+        }
+      },
+      "service": {
+        "window_seconds": 4537.709385707,
+        "busy_seconds": 1576.6968783379973,
+        "join_call_seconds": 1594.4885739330014,
+        "tracked_collective_call_seconds": 619.6371042898941,
+        "diagnostic_seconds": 4.663663789,
+        "published_net_q_removed": 9106
+      }
+    },
+    "2": {
+      "geometry_and_update": {
+        "upper_calls": 165054,
+        "upper_work": 584276150,
+        "upper_seconds": 859.3346136689948,
+        "support_calls": 165054,
+        "support_facets": 23301388,
+        "support_seconds": 27.283445538999988,
+        "scope_attempts": 28881,
+        "scope_builds": 28881,
+        "scope_build_work": 2869598,
+        "scope_build_seconds": 125.75884005399976,
+        "facet_hits": 10665889,
+        "facet_misses": 7813,
+        "facet_build_work": 225914,
+        "facet_build_seconds": 11.472175520999947,
+        "piece_selection_work": 15678065,
+        "piece_selection_seconds": 8.034581964999985,
+        "traversal_work": 554748181,
+        "traversal_seconds": 703.5024711939967,
+        "updated_cells": 207960,
+        "update_seconds": 327.8007278280084,
+        "collective_calls": 170853,
+        "collective_seconds": 77.09206228808125,
+        "election_calls": 473484,
+        "election_seconds": 641.7173869263245,
+        "memo_direct_hits": 44638,
+        "memo_direct_misses": 32190,
+        "memo_union_hits": 84364,
+        "memo_union_misses": 80690,
+        "memo_stores": 112867,
+        "memo_evictions": 119252,
+        "memo_evicted_bytes": 119539552,
+        "memo_retention_refusals": 13,
+        "memo_maintenance_work": 31549808
+      },
+      "private_smoothing": {
+        "boundary": {
+          "stars": 90173.0,
+          "reused": 0.0,
+          "candidates": 112962.0,
+          "guidance": 15525.0,
+          "upper_queries": 59413.0,
+          "moves": 4838.0,
+          "debt_reduction": 253.30633234731445,
+          "seconds": 659.1208425470018,
+          "rejects": {
+            "validity": 3131,
+            "shape": 99447,
+            "edge": 19,
+            "geometry": 3354
+          }
+        },
+        "interior": {
+          "stars": 5247.0,
+          "reused": 0.0,
+          "candidates": 34862.0,
+          "guidance": 0.0,
+          "upper_queries": 0.0,
+          "moves": 4039.0,
+          "debt_reduction": 1092.6340544586112,
+          "seconds": 33.01922558800001,
+          "rejects": {
+            "validity": 2796,
+            "shape": 17041,
+            "edge": 734,
+            "geometry": 0
+          }
+        }
+      },
+      "service": {
+        "window_seconds": 4537.709592419,
+        "busy_seconds": 1335.247066729002,
+        "join_call_seconds": 1836.3764829719971,
+        "tracked_collective_call_seconds": 718.8094492144058,
+        "diagnostic_seconds": 5.378180262000001,
+        "published_net_q_removed": 7851
+      }
+    },
+    "3": {
+      "geometry_and_update": {
+        "upper_calls": 142583,
+        "upper_work": 594661341,
+        "upper_seconds": 724.0893962360142,
+        "support_calls": 142583,
+        "support_facets": 24614247,
+        "support_seconds": 26.279090764999935,
+        "scope_attempts": 20715,
+        "scope_builds": 20715,
+        "scope_build_work": 1840435,
+        "scope_build_seconds": 82.39064348000083,
+        "facet_hits": 11180410,
+        "facet_misses": 18994,
+        "facet_build_work": 642929,
+        "facet_build_seconds": 28.352556088999957,
+        "piece_selection_work": 14742833,
+        "piece_selection_seconds": 6.712025570000043,
+        "traversal_work": 566166452,
+        "traversal_seconds": 596.2599503509934,
+        "updated_cells": 217870,
+        "update_seconds": 327.8158525689921,
+        "collective_calls": 170853,
+        "collective_seconds": 80.4662695008841,
+        "election_calls": 473484,
+        "election_seconds": 652.2190007527286,
+        "memo_direct_hits": 37308,
+        "memo_direct_misses": 23557,
+        "memo_union_hits": 73295,
+        "memo_union_misses": 69288,
+        "memo_stores": 92835,
+        "memo_evictions": 100890,
+        "memo_evicted_bytes": 117450776,
+        "memo_retention_refusals": 10,
+        "memo_maintenance_work": 33109773
+      },
+      "private_smoothing": {
+        "boundary": {
+          "stars": 110749.0,
+          "reused": 1.0,
+          "candidates": 85298.0,
+          "guidance": 13496.0,
+          "upper_queries": 52800.0,
+          "moves": 3118.0,
+          "debt_reduction": 119.22274529111063,
+          "seconds": 613.8741243569992,
+          "rejects": {
+            "validity": 2103,
+            "shape": 73051,
+            "edge": 298,
+            "geometry": 5046
+          }
+        },
+        "interior": {
+          "stars": 6546.0,
+          "reused": 0.0,
+          "candidates": 43644.0,
+          "guidance": 0.0,
+          "upper_queries": 0.0,
+          "moves": 5317.0,
+          "debt_reduction": 839.6846364619765,
+          "seconds": 39.68133694699993,
+          "rejects": {
+            "validity": 3041,
+            "shape": 20692,
+            "edge": 424,
+            "geometry": 0
+          }
+        }
+      },
+      "service": {
+        "window_seconds": 4537.708998234,
+        "busy_seconds": 1279.954272034,
+        "join_call_seconds": 1891.2660627799978,
+        "tracked_collective_call_seconds": 732.6852702536128,
+        "diagnostic_seconds": 4.22703651,
+        "published_net_q_removed": 10832
+      }
+    },
+    "4": {
+      "geometry_and_update": {
+        "upper_calls": 205675,
+        "upper_work": 397605739,
+        "upper_seconds": 532.7429239590026,
+        "support_calls": 205675,
+        "support_facets": 27804901,
+        "support_seconds": 32.54630523800127,
+        "scope_attempts": 17780,
+        "scope_builds": 17780,
+        "scope_build_work": 1351021,
+        "scope_build_seconds": 59.749710290000024,
+        "facet_hits": 13435734,
+        "facet_misses": 11301,
+        "facet_build_work": 446013,
+        "facet_build_seconds": 19.697497510000012,
+        "piece_selection_work": 18778871,
+        "piece_selection_seconds": 7.669635557999886,
+        "traversal_work": 363477765,
+        "traversal_seconds": 435.4114465019894,
+        "updated_cells": 270008,
+        "update_seconds": 328.02698596400165,
+        "collective_calls": 170853,
+        "collective_seconds": 80.25327778606265,
+        "election_calls": 473484,
+        "election_seconds": 586.1448494349156,
+        "memo_direct_hits": 36895,
+        "memo_direct_misses": 21437,
+        "memo_union_hits": 100641,
+        "memo_union_misses": 105034,
+        "memo_stores": 126462,
+        "memo_evictions": 129958,
+        "memo_evicted_bytes": 144678744,
+        "memo_retention_refusals": 9,
+        "memo_maintenance_work": 39025700
+      },
+      "private_smoothing": {
+        "boundary": {
+          "stars": 147363.0,
+          "reused": 0.0,
+          "candidates": 127901.0,
+          "guidance": 16330.0,
+          "upper_queries": 91134.0,
+          "moves": 5837.0,
+          "debt_reduction": 116.43715867246824,
+          "seconds": 510.4118471349999,
+          "rejects": {
+            "validity": 3030,
+            "shape": 114604,
+            "edge": 80,
+            "geometry": 2734
+          }
+        },
+        "interior": {
+          "stars": 8051.0,
+          "reused": 3.0,
+          "candidates": 54006.0,
+          "guidance": 0.0,
+          "upper_queries": 0.0,
+          "moves": 6501.0,
+          "debt_reduction": 766.3724474530442,
+          "seconds": 52.43673598700003,
+          "rejects": {
+            "validity": 3423,
+            "shape": 26548,
+            "edge": 594,
+            "geometry": 0
+          }
+        }
+      },
+      "service": {
+        "window_seconds": 4537.707064654,
+        "busy_seconds": 1238.0584557049974,
+        "join_call_seconds": 1933.2676444870033,
+        "tracked_collective_call_seconds": 666.3981272209783,
+        "diagnostic_seconds": 4.968239127,
+        "published_net_q_removed": 9288
+      }
+    },
+    "5": {
+      "geometry_and_update": {
+        "upper_calls": 152970,
+        "upper_work": 606208417,
+        "upper_seconds": 735.3389530080271,
+        "support_calls": 152970,
+        "support_facets": 32566595,
+        "support_seconds": 31.456181515999642,
+        "scope_attempts": 22696,
+        "scope_builds": 22696,
+        "scope_build_work": 1854688,
+        "scope_build_seconds": 86.79562630000089,
+        "facet_hits": 14827669,
+        "facet_misses": 16935,
+        "facet_build_work": 330709,
+        "facet_build_seconds": 14.265916150000074,
+        "piece_selection_work": 18452279,
+        "piece_selection_seconds": 7.490649136999937,
+        "traversal_work": 570650927,
+        "traversal_seconds": 613.4134997720028,
+        "updated_cells": 174679,
+        "update_seconds": 327.8907038680009,
+        "collective_calls": 170853,
+        "collective_seconds": 79.69915132302742,
+        "election_calls": 473484,
+        "election_seconds": 680.2307477479046,
+        "memo_direct_hits": 32133,
+        "memo_direct_misses": 18946,
+        "memo_union_hits": 77760,
+        "memo_union_misses": 75210,
+        "memo_stores": 94143,
+        "memo_evictions": 101825,
+        "memo_evicted_bytes": 146600072,
+        "memo_retention_refusals": 13,
+        "memo_maintenance_work": 42451721
+      },
+      "private_smoothing": {
+        "boundary": {
+          "stars": 98576.0,
+          "reused": 2.0,
+          "candidates": 84794.0,
+          "guidance": 13276.0,
+          "upper_queries": 58705.0,
+          "moves": 3258.0,
+          "debt_reduction": 115.87900670161991,
+          "seconds": 618.9950964820003,
+          "rejects": {
+            "validity": 1833,
+            "shape": 73122,
+            "edge": 330,
+            "geometry": 4459
+          }
+        },
+        "interior": {
+          "stars": 4483.0,
+          "reused": 0.0,
+          "candidates": 29768.0,
+          "guidance": 0.0,
+          "upper_queries": 0.0,
+          "moves": 3555.0,
+          "debt_reduction": 548.2442281816893,
+          "seconds": 29.18648819000006,
+          "rejects": {
+            "validity": 2739,
+            "shape": 14087,
+            "edge": 396,
+            "geometry": 0
+          }
+        }
+      },
+      "service": {
+        "window_seconds": 4537.708888471,
+        "busy_seconds": 1255.069388585001,
+        "join_call_seconds": 1916.261515326002,
+        "tracked_collective_call_seconds": 759.9298990709322,
+        "diagnostic_seconds": 4.045835903999998,
+        "published_net_q_removed": 6119
+      }
+    }
+  }
+}

@@ -62,3 +62,9 @@ Build198 retained this continuation unchanged. Its COMPLETE terminal EXIT has
 geometry closure nor this branch's M6 utility has been established. All owned
 handles are terminal before the same-source retry preparation. Current assessment
 and exact receipts: ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md and HANDOFF.
+
+Same-source198retry1 naturally time-budget rejected. Latest completewindow:
+2985q/1636J/3098geometry/0size. Actual EXIT allcache/censusflags0:terminalcounts
+UNKNOWN. Constructionreturns0 again. Continuation remains unexercised,notdisproved.
+Allownedhandles terminal/pinsunchanged before further source work. Currentreceipts
+andnextblocker assessment are inHANDOFF/certification handbook.
