@@ -40,15 +40,38 @@ in202, unlike199. Aggregate reopening is not proof of repeated local cycling.
 Next diagnose the boundary tail and subsequent phase/reclosure interaction before
 choosing speed, repair power or construction as the next correction.
 
-All6 explicitly selected first-failure raw shards were saved, complete and
-measurements complete, each file below128MiB. NEXT: run existing
-R/inspect_native_failure3d.py on LAST/*inspection_rank*_manifest.json into a NEW
-output directory, one bounded nice19 offline job after host resource check.
-Validate complete global SU2/VTU, cross-rank cavities, counts and exact provenance;
-then inspect bad and matched clean regions. Combined rejected_mesh.su2/VTU have
-NOT yet been assembled. Raw files are inspection evidence, not an adapted restart
-or a faithful historical trial replay. Reference visualization cannot certify.
-No ordinary/per-trial mesh dumping. See
+All6 explicitly selected first-failure raw shards and measurements are complete.
+Offline extractor exec17281 TERMINAL0,31input hashes unchanged, all three owned
+extraction handles ABSENT. Actual complete files now exist at
+LAST/inspection/rejected_mesh.su2 and rejected_mesh.vtu: **164526points/810163tets**.
+2476bad cells/35426neighboring vertex-star cells, zero omissions/unknown metrics.
+Independent standalone SU2 parse and count checks passed; raw flags match EXIT.
+Generic SU2 markers0/1/2 correspond to FARFIELD/SYMMETRY/WING3D, verified from
+original sidecar. Actual files stay local, not committed. All10output hashes in
+LAST/inspection_artifacts.json. Extraction sampled summedRSS720207872bytes,
+wall437.704s; this offline cost is separate from native runtime. No owned heavy job.
+
+Actual final shape-bad union450:243surface/187constrained-interior/20with no
+captured binding. All2110geometry-bad cells have physical faces. Short-edge controls:
+32948of32950nearby all-bad-flags-clear cells also have an edge<.5; no construction
+cause established. Complete phase totals show48q/26J→571q/666J after first rebuild,
+then38q/22J→521q/642J after second; final295/294. Partial construction shape counts
+are not whole-field truth. LAST/terminal_phase_assessment.json,
+inspection_analysis.json and inspection_clean_controls.json retain evidence.
+
+Next bounded witness: cell143424775 q4.5129e-9/J2.6424e-13, geometry excess0,
+physical face4502/174173910/181199364, all genuine-curve mobility1, all14repair
+demands blocked. Complete52cell union of its four vertex stars saved in
+LAST/witness_143424775_owned.bin and witness_143424775_state.json. Exact integer
+orientation test found4502→181199364 keeps all surviving cells positive; this is
+NOT topology/geometry/metric/height/contact/dependency admission or a historical
+trial replay. Reuse existing CollapseVertex/current-cavity metric/feature-chain
+facilities to reproduce old measures and the candidate's actual rejection. Do not
+treat missing explicit traces as empty accepted traces or add another operator.
+Provisional next target: repair power and geometry/shape reclosure, with certification
+cost still relevant. C++/binary/production policy unchanged; no full workflow success.
+Details and actual mesh links:
+[inspection](Handbook/ADAPTATION_M6_INSPECTION_20261101.md),
 [bounded export](Handbook/ADAPTATION_BAD_CAVITY_EXPORT_20261101.md).
 
 ## Connected diagnostic qualification — PASS, not workflow completion
@@ -124,10 +147,10 @@ are unknown, never substitute an earlier subset/window as terminal truth.
 
 ## Next diagnostic and complete acceptance obligations
 
-Build202 terminal evidence and all exact handle closures are preserved. Assemble
-its saved raw mesh with the qualified existing extractor before selecting a repair
-change. Keep source/helper/input frozen during extraction, retain resource and
-coverage receipts, and inspect actual witnesses. Do not launch another baseline
+Build202 terminal evidence, completed extraction and exact handle closures are
+preserved. Use its actual saved witnesses before selecting a repair change. Reuse
+existing reconstruction/metric facilities and require evaluator agreement and
+complete constraints before interpreting a local feasibility test. Do not launch another baseline
 campaign. Passing diagnostics or a saved rejected mesh do not complete the goal.
 
 Analysis caution: historical matching-window summaries assume the first quality

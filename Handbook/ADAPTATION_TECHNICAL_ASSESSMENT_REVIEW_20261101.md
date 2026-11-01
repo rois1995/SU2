@@ -119,7 +119,9 @@ scheduler, new options or weaker gates from the assessment alone.
 ## Terminal202 update and smallest next step
 
 All6 raw owned/metric/reference/rejection shards are saved and complete. Combined
-SU2/VTU assembly remains pending. All ten exact owned processes are absent and
+SU2/VTU assembly is now complete:164526points/810163tetrahedra, no omitted bad
+cells/cavities or unknown measurements. See the
+[actual mesh inspection](ADAPTATION_M6_INSPECTION_20261101.md). All ten exact owned processes are absent and
 1403frozen pins unchanged. Use these witnesses before another full capture run.
 
 One qualification to the replay discussion: production private repairs explicitly

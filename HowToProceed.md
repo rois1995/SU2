@@ -16,8 +16,10 @@ remains optional.
 Latest build202 finished naturally at the unchanged native time budget. Its
 complete terminal census contains **810163cells,295q-bad,294J-bad,2110geometry-bad
 and zero size-bad**. All ten exact owned processes are absent;1403pins unchanged.
-No adapted mesh was accepted. Raw final inspection shards from all6ranks are saved
-and complete; global SU2/VTU assembly is the next diagnostic task.
+No adapted mesh was accepted. Complete SU2/VTU are now saved under
+`inspection/rejected_mesh.su2` and `inspection/rejected_mesh.vtu`:164526points and
+810163tetrahedra,2476bad cells and35426complete neighboring vertex-star cells.
+See the [actual inspection and next witness test](Handbook/ADAPTATION_M6_INSPECTION_20261101.md).
 
 Authoritative entry point: [HANDOFF_Codex.md](HANDOFF_Codex.md). Current receipts:
 `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/`
@@ -48,7 +50,7 @@ Do not declare it successful or unsuccessful from this run. Metric transport als
 changes values at fixed samples;16supported samples do not prove fidelity to an
 immutable original continuous CFD target. Keep that limitation visible.
 
-## First obtain one useful saved state
+## Saved state and inspection policy
 
 The user wants an actual saved mesh for inspection, including an eventual
 unapproved mesh. **Do not write mesh files for every trial, candidate, or routine
@@ -184,13 +186,13 @@ Existing source facilities include the stage/rejected-state hooks and the
    evidence. Serial and one connected MPI6 milestone already passed; rerun only
    checks affected by actual changes or unresolved failures. Keep capture explicitly
    selected, not automatic on ordinary rejection or `WRT_ADAP_MESH` use.
-3. Reuse build202natural-failure, stop and terminal-handle receipts. Assemble its
-   saved raw shards with the qualified extractor, preserving input hashes and
-   explicit coverage. Do not repeat the full run merely to recover these data.
-4. On a rejected exit, validate raw shard/measurement completeness, extract the
-   actual complete SU2/VTU mesh and cross-rank cavities, and inspect the location,
-   constraints and historical rejection evidence. Truncated data cannot prove that
-   a repair is impossible. Preserve unknown measurements explicitly.
+3. Reuse build202natural-failure, stop, extraction and terminal-handle receipts.
+   The complete actual SU2/VTU and bounded52cell witness are already saved. Do not
+   repeat the full run merely to recover these data.
+4. Inspect the selected nearly-collinear genuine-curve cell143424775 using the
+   existing complete-star collapse/metric/geometry machinery. Reproduce old measures
+   and validate reconstructed associations/traces before interpreting a fresh
+   candidate. Necessary positivity alone does not establish a legal repair.
 5. Use that evidence before pursuing the construction/repair hypotheses above;
    test one connected hypothesis thoroughly. If M6 accepts, continue the second
    accepted event, conservative admissible transfer, continued CFD and isolated
