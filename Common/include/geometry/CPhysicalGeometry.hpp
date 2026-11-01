@@ -41,7 +41,7 @@
  * \brief One pulling split of a cell type, in local node indices, with its weight constraints.
  */
 struct CSplitPattern {
-  std::vector<std::array<unsigned short, MAXNDIM + 1>> simplices;  /*!< \brief Simplices of the split. */
+  std::vector<std::array<unsigned short, 4>> simplices;  /*!< \brief Simplices of the split, unused nodes in 2D are 0. */
   std::vector<std::vector<size_t>> rows;  /*!< \brief Unknown weights of each constraint. */
   std::vector<passivedouble> inverse;     /*!< \brief Inverse of A A^T, it holds only counts of shared weights. */
 };
