@@ -1,0 +1,139 @@
+{
+  "time": 1793511645.1058357,
+  "scope": "Analysis first, after actual build197 terminal verification. Existing counters and already saved query traces only; no new profiler, baseline run or repair decision change.",
+  "source_checkpoint": "27778de652",
+  "binary_sha256": "7215d61fe30a6d77ec294ac67adb7fadea416ea4bde3a758b3a06810d46ce240",
+  "terminal_handles_receipt": "terminal_handles.json",
+  "last_complete_quality_scope": {
+    "quality_seconds": 4649.703851446,
+    "whole_field": {
+      "cells": 803337,
+      "q_bad": 2299,
+      "j_bad": 1062,
+      "geometry_bad": 3079,
+      "size_bad": 0,
+      "qj_debt": 10.996957994080876
+    },
+    "net_q_removed_per_second": 11.136623246208776,
+    "net_j_removed_per_second": 11.254480214632599,
+    "final_exit_whole_field": {
+      "cells": 803358,
+      "q_bad": null,
+      "j_bad": null,
+      "geometry_bad": null,
+      "size_bad": null
+    }
+  },
+  "work_breakdown": {
+    "upper_calls": 1006245,
+    "upper_work": 5072525376,
+    "upper_seconds": 4770.318684343005,
+    "support_calls": 1006245,
+    "support_facets": 181155749,
+    "support_seconds": 174.91734547799965,
+    "scope_attempts": 141759,
+    "scope_builds": 141759,
+    "scope_build_work": 11600017,
+    "scope_build_seconds": 466.01216333299845,
+    "facet_hits": 87568853,
+    "facet_misses": 105123,
+    "facet_build_work": 2796602,
+    "facet_build_seconds": 132.26622543699992,
+    "piece_selection_work": 111740665,
+    "piece_selection_seconds": 43.1905895200002,
+    "traversal_work": 4858204352,
+    "traversal_seconds": 4056.4256922969903,
+    "updated_cells": 1300700,
+    "update_seconds": 2009.7216645890076,
+    "collective_calls": 1029306,
+    "collective_seconds": 435.98628716020664,
+    "election_calls": 2859828,
+    "election_seconds": 3597.8974753756315,
+    "memo_direct_hits": 217009,
+    "memo_direct_misses": 152228,
+    "memo_union_hits": 496481,
+    "memo_union_misses": 509764,
+    "memo_stores": 661897,
+    "memo_evictions": 696934,
+    "memo_evicted_bytes": 898670824,
+    "memo_retention_refusals": 95,
+    "memo_maintenance_work": 251555473
+  },
+  "traversal_share_of_upper_work": 0.9577486541488718,
+  "exact_union_memo_hit_fraction": 0.4933997187563665,
+  "query_identity_assessment": {
+    "exact_hits": "BoundPhysicalSurface memo uses authority-owned cache, complete ordered support, tolerance and exact physical coordinates. FaceMemo includes bindings and versions. Existing keys must remain exact.",
+    "misses": "Cannot separate novel or nearby positions, changed support/tolerance and evicted identical queries from aggregate counters. Evictions are observed, not proof that every miss is novel.",
+    "saved_payload": "Existing older168 payload has six same-face/same-support pairs with changed coordinates. It is not a representative sample of build197 misses or blocked stars."
+  },
+  "existing_support_review": {
+    "unchanged_faces": "HasAcceptedFaceCertificate and ExportParameters check exact accepted face, binding/point and trace overrides; boundary_replacement_ready reuses unchanged complete face contracts. Association/coverage certificate is not a numerical distance bound.",
+    "changed_faces": "Unchanged accepted association checks can be skipped. Exact numerical face/union memo can reuse identical queries. Changed-face-only work cannot replace a complete final two-sided union check or establish absence of holes.",
+    "prepared_geometry": "Existing prepared facet pools, exact scope pools, reusable SurfaceForest/witness subtrees and spatial candidates are starting points. No new whole-union-copy mechanism selected.",
+    "smoothing": "Existing star/support/old merit/projected context, lazy old-side guidance, shape/validity/height/edge screening, and safe partial nonnegative geometry rejection remain in place. Fresh position-dependent metric and private geometry evaluations remain necessary.",
+    "early_bounds": "Existing outward interval plane/witness bounds, finite hole-aware footprints and full fallback. Build196 witness-first savings are retained; no duplicate envelope justified."
+  },
+  "private_smoothing": {
+    "boundary": {
+      "stars": 655296.0,
+      "reused": 4.0,
+      "candidates": 608512.0,
+      "guidance": 89328.0,
+      "upper_queries": 383144.0,
+      "moves": 24958.0,
+      "debt_reduction": 905.4571701970588,
+      "seconds": 3866.334104274003,
+      "private_debt_reduction_per_rank_second": 0.2341900999181963,
+      "rejects": {
+        "validity": 15267,
+        "shape": 529951,
+        "edge": 1492,
+        "geometry": 24789
+      }
+    },
+    "interior": {
+      "stars": 35901.0,
+      "reused": 6.0,
+      "candidates": 239341.0,
+      "guidance": 0.0,
+      "upper_queries": 0.0,
+      "moves": 28730.0,
+      "debt_reduction": 4635.365159597524,
+      "seconds": 213.93856516900001,
+      "private_debt_reduction_per_rank_second": 21.666804935032793,
+      "rejects": {
+        "validity": 19170,
+        "shape": 113962,
+        "edge": 2965,
+        "geometry": 0
+      }
+    }
+  },
+  "boundary_shape_reject_fraction_of_candidates": 0.8708965476440892,
+  "smoothing_limit": "Private accepted moves/debt gain do not measure published whole-field q/J improvement; costs overlap with upper/traversal service.",
+  "remaining_tolerance_assessment": {
+    "mathematical_condition": "For corresponding affine physical triangles and identical immutable target/support, a proven one-sided upper U plus an outward-rounded maximum corresponding vertex displacement D bounds the new one-sided distance. Uncertain support/correspondence/rounding falls back.",
+    "limits": "This one-sided bound does not by itself certify reverse coverage, associations, genuine features, body separation or requested heights. Sampling is insufficient.",
+    "existing_measured_evidence": "Previously preserved exact-rational motion analysis certifies 0 of12 saved whole queries. Optimistic subtree bound saves at most810/140510 counted work (0.5765%) before lookup/storage/invalidation. Not a measured build197 speedup.",
+    "decision": "No motion/slack cache or new envelope implementation justified."
+  },
+  "saved_trace_attribution": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/geometry_certification196_existing_trace_attribution.json",
+    "traversal_work": 259729,
+    "coverage_work": 202306,
+    "coverage_share": 0.7789118658293837,
+    "limits": "Older12query corpus, not build197 cache miss population. No new trace campaign.",
+    "backlog_only": "Existing nominal triangle coverage order, finer preparation and new envelope/index alternatives remain unproven. Must measure hard/easy saved-query regressions before choosing implementation."
+  },
+  "next_target": "Speed of net whole-field quality closure in this attempt, while retaining the active197 boundary repair-power/geometry continuation. Its new return branch was never reached, so it is unqualified on M6, not disproved. No competing implementation selected by this analysis.",
+  "acceptance": "All geometry/association/feature/body/height and final quality/size gates unchanged; exact invalidation, memory admission, reference lifetime and fail-closed exhaustion mandatory. CAD optional. Two accepted meshes, transfer, finite adapted CFD, disk restart, BL/MPI and RANS500k remain outstanding.",
+  "additional_existing_scope_guidance_counters": {
+    "scope_hits": 368005,
+    "scope_misses": 141759,
+    "guidance_trials": 51391,
+    "guidance_rejected": 4327,
+    "guidance_faces": 613150,
+    "guidance_early_rejected": 3814,
+    "guidance_seconds": 1699.0923517050023
+  }
+}

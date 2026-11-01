@@ -1,4 +1,66 @@
-# Cheaper geometry certification —196terminal analysis
+# Cheaper geometry certification —197terminal analysis
+
+Build197 is now TERMINAL. All six ranks naturally exhausted the unchanged time
+budget; native maximum5403.632129s. The failure was preserved before stopping only
+the verified remaining launcher. All10owned host identities were absent and all1401
+pins unchanged at1793511528.269277. No source change or new certification shortcut
+has followed. Current evidence: staged57/m6_runs/euler_build197_real_cfd50k_geometry_return/
+geometry_certification_analysis.json,terminal_assessment.json,terminal_counter_review.json.
+
+The last complete census,26windows/63complete censuses, had803337cells,
+2299q/1062J/3079geometry/0size bad at4649.703851quality seconds. Net51782q/52330J/
+691geometry removed through47064publications:11.136623netq/s,11.254480netJ/s.
+The final5.199104s contain43additional publications, but EXIT measurements are
+incomplete on five ranks. Terminal whole-field q/J/geometry/size remain UNKNOWN.
+No accepted adapted mesh,transfer,continued adapted CFD or adapted restart.
+
+For matching round23232,196had2044q/916J/3076geometry at4221.765971quality seconds;
+197has2299/1062/3079 at4649.703851s,with2.9457%less counted traversal. First22windows
+matched measured fields/work; subsequent trajectories differ. Host contention and
+nested timing prevent an isolated code-speed conclusion. The197residual-geometry
+return was NEVER reached: construction_returns=0. This does not establish its
+utility or failure on M6. Keep the existing connected cycle.
+
+Entry-to-last-complete geometry work:1006245upper calls,5.072525376Bupper work,
+4.858204352Btraversal(95.7749%). Nested summed rank seconds:upper4770.319,
+traversal4056.426,scope466.012,facet132.266,support174.917. Do not add these as
+independent costs. Exactunionmemo496481hits/509764misses(49.3400%hits),696934memo
+evictions across direct/union entries. Miss counters cannot distinguish nearby
+positions,changedsupport/tolerance or evicted identical queries. Existing older
+payload has six same-face/support changed-coordinate pairs,not a197population sample.
+Prepared-scope reuse served368005hits/141759misses/builds; it is already avoiding
+most repeat preparation after numerical-memo misses. Whole-patch guidance recorded
+51391trials,4327rejections,3814early rejections,613150evaluated faces and1699.092
+nested rank seconds. These overlap smoothing/upper service and must not be added.
+
+Private boundary smoothing:608512candidates,529951shape rejections,89328guidance
+calls,383144upper queries,24958moves,905.457private debt gain over3866.334ranksec.
+Interior:239341candidates,28730moves,4635.365private debt gain over213.939ranksec,
+zero upper queries. Boundary/interior private debt/ranksec=.23419/21.66680;
+these are not published q/J gains. Existing screening already rejects87.09%of
+boundary candidates by shape; reducing trial counts blindly is not justified.
+Latest complete q-bad445surface/1854interior,J318surface/744interior. All3123bad-union
+cells have an edge<.9;3075have one<.5. This correlation does not prove construction cause.
+
+Existing unchanged-face association/coverage reuse,exact numerical memo,prepared
+facets/scopes/subtrees,star/old-side context and conservative candidate screening
+were reviewed before adding anything. Details and source anchors remain below.
+For identical immutable support and corresponding triangles,outward(U+D) can bound
+the new one-sided distance. It does not independently prove reverse coverage,
+associations,features,bodies or heights. Existing exact-rational evidence passes
+ZEROof12whole queries; optimistic subtree savings810/140510work(.5765%)exclude all
+lookup/storage/invalidation cost. No new motion cache or conservative envelope is
+justified by this evidence. Uncertain bounds retain full certification.
+
+Next target: speed of useful whole-field quality closure in this attempt,while
+retaining197's unexercised boundary repair-power continuation and196's measured
+traversal savings. Existing saved trace still attributes77.8912%of traversal to
+coverage,not a197miss-population estimate. Coverage-order/finer-preparation/envelope
+alternatives remain UNPROVEN in the backlog; no competing code/configuration or
+new baseline/profiler campaign selected. All strict gates and CAD-optional authority
+remain. Full two-event M6/transfer/CFD/restart,thenBL/MPI/RANS500k remain required.
+
+## Preserved196terminal assessment
 
 Current run196is TERMINAL; no source edit since its qualified checkpoint.
 Exact terminal owned handles,source/runtime/input provenance and full goal:Handoff

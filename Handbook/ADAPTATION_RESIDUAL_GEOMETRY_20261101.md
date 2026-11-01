@@ -48,3 +48,11 @@ Keep196witness-first certification savings. Whole-field q/J/geometry counts and 
 bad-cell removal per second,not debt percent or commits,judge the full attempt.
 Actual conservative admissible transfer,continuedCFD andisolatedadapteddiskrestart
 remain required,thenBL/MPI/RANS500k. Goal remains active.
+
+Build197 full-M6 outcome: natural first-event time-budget rejection on all6ranks,
+5403.632129native seconds. Last complete window2299q/1062J/3079geometry,size0;
+terminal EXIT incomplete,whole-field terminal bad counts unknown. Construction
+returns0: this new continuation was never reached,so itsM6utility is unproved,
+not disproved. All10owned handles absent/all1401pinsunchanged1793511528.269277.
+Analysis-first certification review preserved in197/geometry_certification_analysis.json
+and ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md. No competing code selected.

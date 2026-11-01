@@ -354,5 +354,16 @@ Current terminal analysis:ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md.
 197selected andqualified the existing finite-refinement continuation for a complete
 size/height-clean quality return with residualgeometry. Initialconstruction and all
 operator/finalgates unchanged; strictgeometry-only qualitymode stillwaits forshape.
-Fulltwoevent197M6 isACTIVE/frozen; targetclosure unproved. No prematuregeometrymode
+Fulltwoevent197M6 isTERMINAL after natural time-budget rejection; targetclosure unproved. No prematuregeometrymode
 oradditionalcertificate/cache/orderchange isactive. SeeADAPTATION_RESIDUAL_GEOMETRY_20261101.md.
+
+197terminal analysis: no construction return was reached,so the qualified residual
+geometry continuation remains unexercised,not disproved onM6. Last complete census
+2299q/1062J/3079geometry; terminal EXIT is incomplete. Traversal95.7749%ofupperwork;
+unionmemo49.3400%hits. Misses mix new/nearby/support/tolerance/eviction causes; no
+current population classification. Existing unchanged-face/context/prepared-data/
+screening facilities reviewed. Prior motion slack still0of12,optimistic subtree
+savings.5765%beforeoverheads. Keep motioncache/newenvelope/finerpreparation/coverage
+order UNPROVEN; no competing implementation/configuration selected. Further work
+requires saved-query traversal savings and netwholefieldq/Jbad/s evidence.
+Current analysis:ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md and197/geometry_certification_analysis.json.

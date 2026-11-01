@@ -1,0 +1,204 @@
+{
+  "time": 1793511574.568318,
+  "scope": "ALL seven requested diagnostic groups at latest complete first-event quality window; natural EXIT is incomplete and terminal whole-field gate counts are unknown. Final partial publications are separate; no missing churn/ladder values invented.",
+  "complete_censuses": 63,
+  "latest_complete_quality_census": 62,
+  "last_complete_quality_window": {
+    "round": 23232,
+    "max_engine_elapsed": 5340.108023612,
+    "whole_field": {
+      "cells": 803337,
+      "q_bad": 2299,
+      "j_bad": 1062,
+      "geometry_bad": 3079,
+      "size_bad": 0,
+      "qj_debt": 10.996957994080876
+    },
+    "totals": {
+      "commits": 1152,
+      "q_removed": 2674,
+      "q_created": 2003,
+      "j_removed": 1324,
+      "j_created": 938,
+      "unmeasured_churn": 0,
+      "private_tracked_collectives": 0,
+      "queue": 36418,
+      "blocked_features": 601,
+      "stuck_shape": 35,
+      "stuck_required": 35,
+      "missing_features": 0,
+      "construction_edits": 0,
+      "ownership_changes": 0
+    }
+  },
+  "published_churn": {
+    "commits": 47064,
+    "q_removed": 406822,
+    "q_created": 355040,
+    "j_removed": 350952,
+    "j_created": 298622,
+    "unmeasured_churn": 0,
+    "private_tracked_collectives": 0
+  },
+  "net_removed": {
+    "q_bad": 51782,
+    "j_bad": 52330,
+    "geometry_bad": 691,
+    "qj_debt": 25402.45861927098
+  },
+  "ladder": {
+    "0": {
+      "trials": 152382,
+      "certified": 18730,
+      "commits": 18730,
+      "seconds": 2162.865621527003,
+      "debt_removed": 6209.296554845613,
+      "q_removed": 10103,
+      "j_removed": 10268,
+      "rejected_by_index": [
+        26383,
+        0,
+        0,
+        107269,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "1": {
+      "trials": 41067,
+      "certified": 27237,
+      "commits": 27237,
+      "seconds": 5373.469257899995,
+      "debt_removed": 17867.27272958218,
+      "q_removed": 37458,
+      "j_removed": 38321,
+      "rejected_by_index": [
+        13096,
+        0,
+        0,
+        8750,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "2": {
+      "trials": 164288,
+      "certified": 1097,
+      "commits": 1097,
+      "seconds": 120.63044436400006,
+      "debt_removed": 1325.88933484318,
+      "q_removed": 4221,
+      "j_removed": 3741,
+      "rejected_by_index": [
+        139992,
+        0,
+        0,
+        19423,
+        0,
+        0,
+        0,
+        3776
+      ]
+    }
+  },
+  "locations": {
+    "q_surface": 445,
+    "q_interior": 1854,
+    "j_surface": 318,
+    "j_interior": 744,
+    "q_feature": 208,
+    "q_no_feature": 2091,
+    "q_feature_unknown": 0,
+    "j_feature": 81,
+    "j_no_feature": 981,
+    "j_feature_unknown": 0,
+    "bad_union": 3123,
+    "short09": 3123,
+    "short05": 3075
+  },
+  "histograms": {
+    "q_miss_hist": [
+      677,
+      1543,
+      58,
+      18,
+      3,
+      0
+    ],
+    "j_miss_hist": [
+      323,
+      711,
+      20,
+      6,
+      2,
+      0
+    ],
+    "geometry_excess_hist": [
+      93,
+      495,
+      1615,
+      833,
+      43,
+      0
+    ],
+    "geometry_authority_types": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      6,
+      3077,
+      0
+    ]
+  },
+  "short09_share": 1.0,
+  "short05_share": 0.9846301633045149,
+  "drift": {
+    "global_samples": 16,
+    "supported": 16,
+    "lost": 0,
+    "maximum_relative_frobenius": 0.026441915117210148,
+    "limit": "Replicated GLOBAL samples, not96independent samples; no immutable continuous original CFD target proof."
+  },
+  "final_partial": {
+    "per_rank": {
+      "0": {
+        "publication_delta": 8,
+        "elapsed_after_last_complete_census": 5.199103782000748
+      },
+      "1": {
+        "publication_delta": 11,
+        "elapsed_after_last_complete_census": 5.1976587980007025
+      },
+      "2": {
+        "publication_delta": 6,
+        "elapsed_after_last_complete_census": 5.197586254000271
+      },
+      "3": {
+        "publication_delta": 8,
+        "elapsed_after_last_complete_census": 5.197292165000363
+      },
+      "4": {
+        "publication_delta": 10,
+        "elapsed_after_last_complete_census": 5.197557712000162
+      },
+      "5": {
+        "publication_delta": 0,
+        "elapsed_after_last_complete_census": 5.198473542000102
+      }
+    },
+    "publications": 43,
+    "whole_field_q_j_geometry_unknown": true
+  },
+  "limits": [
+    "Churn keys include physical coordinates; retirement/introduction is not necessarily a connectivity change.",
+    "Interior means no physical face, not no constrained vertices.",
+    "Geometry authority bins overlap.",
+    "Private smoothing gains and publications differ."
+  ]
+}
