@@ -9,9 +9,19 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current —198 retry1 TERMINAL; terminal analysis active
+## Current —199connected winding screening implemented; NOTbuilt/validated
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+Activecandidate199 implements exact conservative winding screening in shared
+planar/finite-footprint andmappedcomponent containment; no cache/config/scheduler/
+gate/budget changes. CNativeBoundary3D.cpp+ CNativeAffineReference.cpp andexisting
+finitegeometry regression updated. Design:Handbook/ADAPTATION_GEOMETRY_WINDING_20261101.md;
+R/geometry_winding199_validation_plan.json. All198retry1handles reverified absent/
+1401oldpins unchanged BEFOREediting. Build199 notstarted; currentbinary still198.
+Oneactiveimplementation/validationcycle. Firstfocused savedquery+finiteproof, then
+serial/oneMPI6milestone; immediatefulltwoeventM6sameCFD50k5400 afterqualification.
+No newperformance/acceptedmesh claim. Priorterminal evidence follows.
+
 CURRENT=`R/m6_runs/euler_build198_real_cfd50k_retry1`.
 Exec64497TERMINAL1. All6ranks naturally rejected at unchangedtimebudget;
 native5403.711369s,enginerefine5337.513147s.
@@ -54,8 +64,8 @@ All7diagnosticgroups reconcile throughlastcompletewindow;291publications in
 final18.564879s haveUNKNOWNwholefieldgatechanges. Constructionreturns0:
 197continuation unexercised,notdisproved. Nexttarget:usefulqualityclosure SPEED
 withdecliningyield/churn,notprovenconstructioncause/globallyexhaustedrepairpower.
-No nextCppchange/newheavyjob selectedyet;no furtherunchanged-source retry or
-separatebaselinecampaign selected. Preserve198construction/certification improvements and197
+199winding screening is now the selected connected fix; no furtherunchanged-source
+retry or separatebaselinecampaign selected. Preserve198construction/certification improvements and197
 geometrycontinuation. Strictgates/budgets/fairness/history/invalidation/association/
 feature/body/height/CADoptional contracts unchanged. Passingfixtures/weights/RSS
 are not completion. Terminalgeometry:3.309979350Btraversal/3.526695695Bupperwork(93.855%);
@@ -176,6 +186,7 @@ timed out; serial_full170 NOT passing. BL/RANS qualification not started.
 ## Operating links and discipline
 
 [AGENTS](AGENTS.md) · [complete task](Handbook/ADAPTATION_INTEGRATED_NEXT_TASK.md) ·
+[winding screening](Handbook/ADAPTATION_GEOMETRY_WINDING_20261101.md) ·
 [certification analysis](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md) ·
 [envelope](Handbook/ADAPTATION_GEOMETRY_ENVELOPE_20261031.md) ·
 [memo](Handbook/ADAPTATION_NUMERIC_MEMO_20261031.md) ·

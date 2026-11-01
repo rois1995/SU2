@@ -398,3 +398,11 @@ to persistent support/cavity state, invalidation/admission and measured net q/J
 closure benefit; countedwork isnotconstantCPUcost. No new scheduler/configuration,
 larger batches or limit/gate changes selected. Evidence: retry1/
 quality_window18_rank_service_review.json; current run remains frozen.
+
+199source review also found SmoothBoundary prepares an atlas for preliminary
+screening and MoveVertex prepares again for surviving proposals. Reusable move
+context is deferred: the measured dominant component is certification traversal,
+and no incremental M6 saving from this preparation reuse is established. Keep
+raw proposal/projection non-idempotence, fresh associations, exact old-star state,
+full validation and transient admission if later evidence selects it. Active199
+change is only shared conservative winding screening; no competing implementation.

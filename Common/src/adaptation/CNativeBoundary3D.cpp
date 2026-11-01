@@ -1164,9 +1164,11 @@ bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
       for(auto edge:group->second) {
         const auto a=PlaneCoordinates(nodes.at(edge[0]).p,axis),b=PlaneCoordinates(nodes.at(edge[1]).p,axis);
         if(OnEdge(a,b,q,stats))return true;
+        const bool up=a.y<=q.y && b.y>q.y,down=a.y>q.y && b.y<=q.y;
+        if(!up && !down)continue;
         const auto side=Projected(a,b,q,2,stats);
-        if(a.y<=q.y && b.y>q.y && side>0)++winding;
-        if(a.y>q.y && b.y<=q.y && side<0)--winding;
+        if(up && side>0)++winding;
+        if(down && side<0)--winding;
       }
       return winding==(area>0?1:-1);
     } else
@@ -1249,14 +1251,24 @@ bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle, 
       if(!((old>0 && fresh>0)||(old<0 && fresh<0)))return false;
       if(nonconvex.count(Canonical(id))) {
         std::array<Point,3> t;for(size_t i=0;i<3;++i)t[i]=PlaneCoordinates(triangle[i],axis);
+        const double lo=std::min({t[0].y,t[1].y,t[2].y}),hi=std::max({t[0].y,t[1].y,t[2].y});
+        auto centroid_side=[&](double y) {
+          if(y<lo)return 1;
+          if(y>hi)return -1;
+          return OrientationCentroidSign({0,y,0},{1,y,0},t,{0,0,1},stats);
+        };
         int winding=0;
         for(auto edge:boundaries.at(Canonical(id))) {
           const auto a=PlaneCoordinates(nodes.at(edge[0]).p,axis),b=PlaneCoordinates(nodes.at(edge[1]).p,axis);
-          const int ay=OrientationCentroidSign({0,a.y,0},{1,a.y,0},t,{0,0,1},stats);
-          const int by=OrientationCentroidSign({0,b.y,0},{1,b.y,0},t,{0,0,1},stats);
-          const int side=OrientationCentroidSign(a,b,t,{0,0,1},stats);
-          if(ay>=0 && by<0 && side>0)++winding;
-          if(ay<0 && by>=0 && side<0)--winding;
+          // A strictly separated height interval cannot cross the face or its exact centroid ray.
+          if(std::max(a.y,b.y)<lo || std::min(a.y,b.y)>hi)continue;
+          const int ay=centroid_side(a.y),by=centroid_side(b.y);
+          const bool up=ay>=0 && by<0,down=ay<0 && by>=0;
+          if(up || down) {
+            const int side=OrientationCentroidSign(a,b,t,{0,0,1},stats);
+            if(up && side>0)++winding;
+            if(down && side<0)--winding;
+          }
           if(BorderCrossesTriangleInterior(a,b,t,stats))return false;
         }
         if(winding!=(old>0?1:-1))return false;

@@ -101,6 +101,9 @@ TEST_CASE("Finite rotated planes retain multiple holes concavity and disconnecte
   CHECK(plane.ContainsFace({p(0,0),p(6,0),p(3,.5)}));
   CHECK_FALSE(plane.ContainsFace({p(1,1),p(2,1),p(2,2)}));
   CHECK_FALSE(plane.ContainsFace({p(0,0),p(6,0),p(3,3)}));
+  // This hole is below the exact centroid: its border must still exclude the face interior.
+  CHECK_FALSE(plane.ContainsFace({p(.1,3.9),p(1,.1),p(1.9,3.9)}));
+  CHECK(plane.ContainsFace({p(.1,2.1),p(1.9,2.1),p(1,3.9)}));
   CHECK_FALSE(plane.ContainsFace({p(5,.5),p(8.5,.5),p(8.5,.75)}));
   CHECK(plane.FeaturesIntersecting(p(.5,1.5),p(5.5,1.5)).size()==4);
   CHECK_THROWS(plane.Project(p(1.5,1.5)));CHECK_THROWS(FinitePlaneReference(definition,facets,1));

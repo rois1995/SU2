@@ -2763,8 +2763,11 @@ bool MappedFacetReference::ComponentContainsFace(Id facet,const std::array<Surfa
       if(apart&&oneSide)continue;
     }
     const int ay=ParametricCentroidSide({{0,a.y,0}},{{1,a.y,0}},t,2,stats),by=ParametricCentroidSide({{0,b.y,0}},{{1,b.y,0}},t,2,stats);
-    const int side=ParametricCentroidSide({a},{b},t,2,stats);
-    if(ay>=0&&by<0&&side>0)++winding;if(ay<0&&by>=0&&side<0)--winding;
+    const bool up=ay>=0&&by<0,down=ay<0&&by>=0;
+    if(up||down) {
+      const int side=ParametricCentroidSide({a},{b},t,2,stats);
+      if(up&&side>0)++winding;if(down&&side<0)--winding;
+    }
     if(ParametricSegmentEntersTriangle({a},{b},t,2,stats))return false;
   }
   return winding==c.orientation;
