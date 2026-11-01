@@ -1,0 +1,91 @@
+{
+  "time": 1793521768.0249681,
+  "handles": [
+    {
+      "pid": 1441945,
+      "startticks": 93398497,
+      "state": "S",
+      "cpu_seconds": 49.2,
+      "rss_bytes": 49991680
+    },
+    {
+      "pid": 1442099,
+      "startticks": 93399070,
+      "state": "S",
+      "cpu_seconds": 0.0,
+      "rss_bytes": 741376
+    },
+    {
+      "pid": 1442100,
+      "startticks": 93399070,
+      "state": "S",
+      "cpu_seconds": 0.0,
+      "rss_bytes": 598016
+    },
+    {
+      "pid": 1442101,
+      "startticks": 93399070,
+      "state": "S",
+      "cpu_seconds": 0.13,
+      "rss_bytes": 22319104
+    },
+    {
+      "pid": 1442110,
+      "startticks": 93399078,
+      "state": "R",
+      "cpu_seconds": 2426.61,
+      "rss_bytes": 1531854848
+    },
+    {
+      "pid": 1442109,
+      "startticks": 93399077,
+      "state": "R",
+      "cpu_seconds": 2427.43,
+      "rss_bytes": 1571098624
+    },
+    {
+      "pid": 1442108,
+      "startticks": 93399077,
+      "state": "R",
+      "cpu_seconds": 2427.41,
+      "rss_bytes": 1502699520
+    },
+    {
+      "pid": 1442107,
+      "startticks": 93399077,
+      "state": "R",
+      "cpu_seconds": 2425.22,
+      "rss_bytes": 1591672832
+    },
+    {
+      "pid": 1442106,
+      "startticks": 93399077,
+      "state": "R",
+      "cpu_seconds": 2432.32,
+      "rss_bytes": 1561808896
+    },
+    {
+      "pid": 1442105,
+      "startticks": 93399077,
+      "state": "R",
+      "cpu_seconds": 2426.13,
+      "rss_bytes": 1549430784
+    }
+  ],
+  "host_load": [
+    8.3,
+    9.89,
+    9.62
+  ],
+  "mem_available": "MemAvailable:   30303524 kB",
+  "cpu_pressure": "some avg10=8.29 avg60=8.58 avg300=18.07 total=44893168868\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+  "memory_pressure": "some avg10=0.00 avg60=0.00 avg300=0.04 total=777627084\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=478397147\n",
+  "disk_free_bytes": {
+    "/": 15056896,
+    "/dev/shm": 33449078784,
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build198_real_cfd50k_retry1": 61390917632
+  },
+  "sampled_tree_rss_max": 14106599424,
+  "latest_elapsed": 2791.0886013507843,
+  "limits": "RSS sums are not physical RAM/true peaks. Process CPU includes MPI spin and timers overlap; counters and net complete-field progress remain primary."
+}

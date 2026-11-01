@@ -1,0 +1,109 @@
+{
+  "time": 1793522024.592794,
+  "scope": "Bounded read-only independent counter review through window8; primary independently verified selected equality assertions and timer source. No edits to pinned source/helpers, no tests/jobs/profilers.",
+  "checks": [
+    {
+      "window": 1,
+      "selected_identity_flags": {
+        "global_fields_exact": true,
+        "rank_debts_exact": true,
+        "commits_exact": true,
+        "window_count_counters_exact": true
+      },
+      "selected_geometry_work_equal": true,
+      "parent_quality_seconds": 245.0806099550001,
+      "retry_quality_seconds": 182.02993399900004
+    },
+    {
+      "window": 2,
+      "selected_identity_flags": {
+        "global_fields_exact": true,
+        "rank_debts_exact": true,
+        "commits_exact": true,
+        "window_count_counters_exact": true
+      },
+      "selected_geometry_work_equal": true,
+      "parent_quality_seconds": 484.64656942199997,
+      "retry_quality_seconds": 352.5422433680001
+    },
+    {
+      "window": 3,
+      "selected_identity_flags": {
+        "global_fields_exact": true,
+        "rank_debts_exact": true,
+        "commits_exact": true,
+        "window_count_counters_exact": true
+      },
+      "selected_geometry_work_equal": true,
+      "parent_quality_seconds": 693.939330043,
+      "retry_quality_seconds": 563.913047801
+    },
+    {
+      "window": 4,
+      "selected_identity_flags": {
+        "global_fields_exact": true,
+        "rank_debts_exact": true,
+        "commits_exact": true,
+        "window_count_counters_exact": true
+      },
+      "selected_geometry_work_equal": true,
+      "parent_quality_seconds": 920.088060937,
+      "retry_quality_seconds": 791.018707577
+    },
+    {
+      "window": 5,
+      "selected_identity_flags": {
+        "global_fields_exact": true,
+        "rank_debts_exact": true,
+        "commits_exact": true,
+        "window_count_counters_exact": true
+      },
+      "selected_geometry_work_equal": true,
+      "parent_quality_seconds": 1082.3797876520002,
+      "retry_quality_seconds": 954.612839382
+    },
+    {
+      "window": 6,
+      "selected_identity_flags": {
+        "global_fields_exact": true,
+        "rank_debts_exact": true,
+        "commits_exact": true,
+        "window_count_counters_exact": true
+      },
+      "selected_geometry_work_equal": true,
+      "parent_quality_seconds": 1265.804413809,
+      "retry_quality_seconds": 1279.844898661
+    },
+    {
+      "window": 7,
+      "selected_identity_flags": {
+        "global_fields_exact": true,
+        "rank_debts_exact": true,
+        "commits_exact": true,
+        "window_count_counters_exact": true
+      },
+      "selected_geometry_work_equal": true,
+      "parent_quality_seconds": 1434.4830299609998,
+      "retry_quality_seconds": 1647.0920689759998
+    },
+    {
+      "window": 8,
+      "selected_identity_flags": {
+        "global_fields_exact": true,
+        "rank_debts_exact": true,
+        "commits_exact": true,
+        "window_count_counters_exact": true
+      },
+      "selected_geometry_work_equal": true,
+      "parent_quality_seconds": 1599.1495230259998,
+      "retry_quality_seconds": 1810.912639466
+    }
+  ],
+  "timer_source": "Common/src/adaptation/CNativeEngine3D.cpp:3364,5156-5161,1579-1580",
+  "busy_seconds": "Elapsed wall time around the private repair-slot loop, before the following common reduction. Not process CPU time. Zero private_tracked_collectives observed; do not label this timer MPI spinning.",
+  "join_call_seconds": "Elapsed wall time around the subsequent CPassiveComm::Allreduce of private_work_used. Includes protocol and waiting; not pure idle time.",
+  "counter_interpretation": "Matching measured whole-field/rank debts/churn/publications/selected geometry work establishes snapshot counter identity, not byte-identical meshes, trial history or causal trajectory identity.",
+  "smoothing_limit": "Boundary/interior private trials and debt gains are not published whole-field yield. Nested geometry/smoothing/collective timers must not be added.",
+  "timing_limit": "Host snapshots varied substantially, but snapshots and counters do not isolate a contention-only or algorithm-only explanation. Counted work is not a fixed CPU-cost unit.",
+  "acceptance": "Not established. Frozen full M6 continues with unchanged gates/budgets; transfer/adaptedCFD/restart and BL/MPI/RANS remain required."
+}
