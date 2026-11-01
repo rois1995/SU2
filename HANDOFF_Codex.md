@@ -9,105 +9,78 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current —199connected winding screening implemented; NOTbuilt/validated
+## Current —199fulltwoeventM6 LIVE/FROZEN; winding qualification PASS
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-Activecandidate199 implements exact conservative winding screening in shared
-planar/finite-footprint andmappedcomponent containment; no cache/config/scheduler/
-gate/budget changes. CNativeBoundary3D.cpp+ CNativeAffineReference.cpp andexisting
-finitegeometry regression updated. Design:Handbook/ADAPTATION_GEOMETRY_WINDING_20261101.md;
-R/geometry_winding199_validation_plan.json. All198retry1handles reverified absent/
-1401oldpins unchanged BEFOREediting. Build199 notstarted; currentbinary still198.
-Oneactiveimplementation/validationcycle. Firstfocused savedquery+finiteproof, then
-serial/oneMPI6milestone; immediatefulltwoeventM6sameCFD50k5400 afterqualification.
-No newperformance/acceptedmesh claim. Priorterminal evidence follows.
+ACTIVE=`R/m6_runs/euler_build199_real_cfd50k_triangle_coverage`.
+Actual directory inherited an old triangle_coverage label from launcher substitution;
+this is build199 WINDING screening, not198coverage code. No rename/restart/config
+change. R/geometry_winding199_M6_preflight.json records planned/actual paths.
+Exec47583LIVE. Source86d292e517 PUSHED;CFDSHA
+ea0067da5f39f2cf09b75bbc737bfda14d57fd4decc15b1f5d1454000a6408da.
+TestdriverSHAba37efed110714d5b89420991015a01440da4ae454a7bd2398ddde4f83b7ada4.
+Only sharedwinding screening changed: PlanarReference::Contains/ContainsFace and
+mappedcomponent face winding omit predicates only when ray contribution or full
+height separation is proven. Boundary/hole intersection/orientation/support/
+association/body/feature/height/final gates remain. No cache/config/scheduler/
+budget/CAD requirement change; preserve198construction and197geometrycontinuation.
+Design:[winding screening](Handbook/ADAPTATION_GEOMETRY_WINDING_20261101.md).
 
-CURRENT=`R/m6_runs/euler_build198_real_cfd50k_retry1`.
-Exec64497TERMINAL1. All6ranks naturally rejected at unchangedtimebudget;
-native5403.711369s,enginerefine5337.513147s.
-Natural failure receipt preserved1793524466.362567 BEFORE signaling ONLY verified
-ownedlauncher1442101/start93399070 at1793524487.492374. All10exactHOSTidentities
-ABSENT/all1401pins unchanged1793524505.578266. CURRENT/event1_natural_failure.json,
-event1_failure_owned_stop.json,terminal_handles.json,status.json.
-All1441945/1442099/1442100/1442101/1442105/1442106/1442107/1442108/1442109/1442110
-areHISTORICAL; NEVERresignal. No ownedheavyjob remains;sourcefreeze safelyreleased.
-NoCpp/header/test/helper/binary/config/input changes sincequalified198source7aa53848ea.
-CFDSHA96bcaff470bb4571966a2db93e0e7ed0b0920e46a9b3483a0898cc7f0b19a1f1.
-Source/runtime/inputqualification reused with actualmapped82ELF/pinsaudited throughout.
-Same realCFDseed/originalmesh/native_ref/config/ACTUALcontinued00000byteidenticalparent198.
-TMPDIR+OMPI_MCA_orte_tmpdir_base verified onowned4TBcompile-tmp;root/tmp15MBfree.
+Build199exec39029TERMINAL0/90.228679s,1296pinsunchanged/all2HOSThandlesABSENT.
+Focusedexec25002PASS3306assertions/10cases18.279344s;all5HOSThandlesABSENT.
+Serialexec41273PASS23048assertions/72cases241.540099s;all5HOSThandlesABSENT.
+SingleMPI6exec41384PASS216cases EACH6ranks333.504807s; all10HOSThandlesABSENT/
+pinsunchanged1793526137.041104 BEFOREfullM6. NoCpp/header/test/helper/binary edits
+sincequalification. R/geometry_winding199_qualification.json retains exactreceipts.
+Same12older168savedquerypayload/bounds EXACT198,cached/recomputed checksPASS;
+traversal198551→101600(-48.8293%). Coverage141128→44177(-96951),same1164domains/
+790graphcalls/distance32289/lift11489. All12improve;hard48.84–50.50%lesswork.
+Selectedpreparation/piececounts unchanged. OlderqueriesarenotlateM6population;
+countedwork isnotCPUcost/fullM6speedup/acceptance. R/geometry_winding199_*assessment/
+trace_attribution/source_review JSON preserveproof/limits. Read-onlyreviewfoundno
+concreteproof-contract defect; not a substitute forruntimeacceptance.
 
-ActualterminalEXIT803395cells;ALL6cache/census/shape/geometryflags0. Terminalwholefield
-q/J/geometry/sizebad UNKNOWN. Thezero counters areunmeasured,notclosure.
-LatestCOMPLETEwindow26 round23232: 803251cells/2985q/1636J/
-3098geometry/0size bad; qJdebt21.258681419,
-quality4537.669830s.
-Completecensusledger has57records. Finalincompleteinterval mustbe assessed
-separately;do notsubstitute thislastwindow foractualterminalwholefieldcounts.
-ZEROaccepted adaptedmeshes/actualtransfer/adaptedCFD/adapteddiskrestart.
-GoalACTIVE: fulltwoeventEuler50k/transfer/finiteCFD/diskrestart thenBL/MPI/RANS500k.
+Actual HOSTstartup1793526273.877595: helper1607128/start94120510;
+time1607401/start94121590;timeout1607402+launcher1607403/start94121591;
+ranks1607407/start94121602,1607408/start94121603,1607409/start94121604,
+1607410+1607413/start94121605,1607416/start94121607. All10LIVE/all1401pinsunchanged/
+82mappedELFcovered. ACTIVE/owned_startup.json. All6CFDranksnice19/libs1 and actual
+TMPDIR+OMPI_MCA_orte_tmpdir_base onowned4TBcompile-tmp/native_winding199_runtime/m6;
+ACTIVE/runtime_environment.json. Defaultsharedmemorytransport unchanged. Root/tmp
+~15MBfree;4TB~61GBfree. No unrelatedfiles/jobs modified. Preflight40.15GBavailableRAM.
+Same savedrealCFDseed/config/originalmesh/native_ref andACTUALcontinued00000
+BYTEIDENTICAL latest198retry1. ACTIVE/early_runtime_provenance.json;00000 isORIGINAL
+not adaptedrestartproof. CL.269535/CD.013536,rms-5.735442;61330points/303359cells.
+Target50kmetriccomplexity isseparate fromactualpoint/cellcounts. Same2events/
+native5400/outer14400/strictgeometry1e-4,q.2,J.05,maxedge1.8/heights.
 
-Allselectedsnapshotcounts/debts/churn/work matchparent198throughwindow21.
-Extra complete-census migration afterround22912 is thefirstownershipdecisiondifference;
-firstmeasuredsnapshotdifference atwindow22. Laterstates/trials NOTassumedidentical.
-Existingproceed logic includes observedwalltime/gain/cost/remainingbudget. No source/
-config change betweenattempts; noisolatedcounterfactualmigrationgain claimed.
-CURRENT/quality_matching_window_assessment.json andquality_*comparison/service receipts.
-Read-only window18rankreview: rank3has37.6977%oftraversalworkdelta whiledebtmax/mean1.2480.
-Busy isprivate-loop elapsedwalltime;join isfollowingreductioncall,notpureidle/CPU.
-Existingownershipgeometryweights usepredicted/structuralcost,notobservedqueryhistory.
-Thisis anUNPROVENalternative recordedinbacklog,notanewselectedscheduler.
+Cpp/headers/tests/helpers/binary/config/inputs FROZEN untilactualterminal orpreserved
+failure. No competingimplementation/profiler/newoptions/raisedlimits/gaterelaxation.
+Nowfirstnativeconstruction; q/JUNMEASUREDuntilpermittedqualityentry. Actualcomplete
+censuses,geometrywork,netwholefieldq/Jbad/s andgeometrycounts chooseutility.
+ComparetoLATEST198retry1 atactualmatchingstages/times,notassumedfuturestateidentity.
+ZEROaccepted adaptedmeshes/transfer/adaptedCFD/adaptedrestart. FullgoalACTIVE.
 
-Last preterminal pushedcheckpoint4e7a9efe60 coverswindows22–24. Window25/26 and
-terminalreceipts/counter/geometry/resourceassessments are preserved underCURRENT.
-All7diagnosticgroups reconcile throughlastcompletewindow;291publications in
-final18.564879s haveUNKNOWNwholefieldgatechanges. Constructionreturns0:
-197continuation unexercised,notdisproved. Nexttarget:usefulqualityclosure SPEED
-withdecliningyield/churn,notprovenconstructioncause/globallyexhaustedrepairpower.
-199winding screening is now the selected connected fix; no furtherunchanged-source
-retry or separatebaselinecampaign selected. Preserve198construction/certification improvements and197
-geometrycontinuation. Strictgates/budgets/fairness/history/invalidation/association/
-feature/body/height/CADoptional contracts unchanged. Passingfixtures/weights/RSS
-are not completion. Terminalgeometry:3.309979350Btraversal/3.526695695Bupperwork(93.855%);
-unionmemo49.295%hits.Misses do notclassifynearbypositions versus evictedrepeats.
-Boundaryprivate908.679gain/3699.587ranksec;interior4627.274/214.771,notpublished
-gains.37fullyblockedbadcells/4162badunion,47453queuedfeatures. Shortedgescorrelate
-withallbadunioncells,notprovenconstructioncause.16GLOBALdriftsamples retained,
-max4.43048%sinceentry;notimmutableoriginalcontinuousCFDtargetproof.
-Detailedcertificationanalysis is linked below.
+## Previous198 terminal evidence — never resignal
 
-## Parent198 first attempt — TERMINAL analysis
+Full preserved handoff and exact historical handles/receipts:
+[build198 terminal archive](Handbook/History/HANDOFF_Codex_build198_terminal_20261101.md).
+Latest198retry1 TERMINAL69b502b359:all6natural5403.711369s rejection;all10HOSTidentities
+ABSENT/all1401pinsunchanged1793524505.578266 before199edits. ActualEXIT803395cells,
+all6cache/censusflags0:terminalwholefieldq/J/geometry/size UNKNOWN. LastCOMPLETE
+window803251cells/2985q/1636J/3098geometry/0size,quality4537.669830s. Final18.564879s/
+291publications haveunknowngatechanges. Net51096q/51756J/672geometry tolastcomplete,
+46164publications,11.260405netq/s. All7groups audited.37stuck/4162badunion,47453queue.
+Constructionreturns0:197continuationunexercised,notdisproved. Noacceptedmesh.
 
-Parent=`R/m6_runs/euler_build198_real_cfd50k_triangle_coverage`,exec72458TERMINAL1.
-All6natural time-budget rejection,native5403.732045s. COMPLETE measured EXIT:
-802821cells/3529q/1903J/3107geometry/0size bad,qJdebt29.968095035807.
-Allmeasurement/cache/censusflags1. Quality4548.497238s,45208publications,
-net50552q/51489J/663geometry removed,11.114000netq/s. All56complete censuses/
-26windows+finalEXIT andall7diagnosticgroups audited. Noaccepted adapted mesh.
-Constructionreturns0:197geometrycontinuation unexercised,notdisproved.
-
-Natural rejection preserved BEFORE stopping only verified remaininglauncher.
-All10oldHOSTidentitiesABSENT/all1401pins unchanged1793518046.7156804.
-All1293335/1293492/1293493/1293494/1293498/1293499/1293500/1293501/1293502/1293504
-areHISTORICAL; NEVERresignal. Parent/terminal_handles.json andevent1_*receipts.
-Terminalcheckpointa604d1c54f PUSHED. Detailed counters,limits and selected nextaction:
-parent/terminal_assessment.json,terminal_counter_review.json,
-terminal_geometry_service_assessment.json,geometry_certification_analysis.json,
-terminal_resources.json and[certification handbook](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md).
-
-Lowertraversalwork didNOTestablishfasternetclosure.197latestCOMPLETEwindow had
-2299q/1062J/3079geometry at4649.704qualityseconds,11.1366netq/s;197terminalEXIT
-incomplete,UNKNOWNterminalcounts. No interpolation orsame-state/trial assumption
-afterwindow7. Exactunionmemo49.70%hits;missesdon'tseparatenearbyqueries fromevicted
-identicalqueries. Existingunchangedface/context/prepareddata/memo/screens reviewed;
-motionslack0of12wholequeries,optimisticsubtree.5765%beforeoverheads. No newcache/
-envelope/config/scheduler/gate/budget selected. Primarytarget remains usefulclosure
-speed withdecliningyield/churn; shortedgesdon'tproveconstructioncause. Same-source
-retry1 above uses availablehostresources; contentioncausality isnotisolated.
-
-198qualification PASS reused unchanged:proof403assertions/2cases;serial20145/64;
-MPI6216cases EACH6ranks. AllhandlesABSENT/pinsunchanged BEFOREfullM6.
-R/geometry_coverage198_qualification.json. FullBL/RANSsuite notclaimed.
+Parent198firstattempt COMPLETEEXIT802821cells/3529q/1903J/3107geometry/0size;
+69b/parentterminalcheckpointa604d1c54f. Same-source retrymatchedparentselectedstates/
+workthroughwindow21,extra migrationafter22912,firstsnapshotdifference atwindow22.
+No causal timing/migrationbenefit claim. Retryterminal_comparison.json showsactual
+parentbracketingtimes,notinterpolation. Geometrycostskew/unprovenownershipalternative
+andnegative motionbound evidence remain in[certification analysis](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md)
+andbacklog. No furtherunchanged-source retry selected. All144xxxx/129xxxx historical
+handles mustNEVERberesignaled. Currentownedhandles are199listedabove.
 
 ## Historical evidence — all terminal,never resignal
 
@@ -131,14 +104,13 @@ verified terminal before subsequent source edits. Full receipts remain in R/m6_r
 
 ## Next monitoring and acceptance
 
-198firstfulltwoeventM6 is TERMINAL with complete measured rejection.
-Same-source retry1 is TERMINAL after preserved natural rejection and verified
-owned-handle termination. Analyze its complete censuses and incomplete EXIT before
-selecting the next connected fix. Compare actual complete censuses and
-countedwork versus197 and parent198,without
-confusing unmeasured construction shape with closure. No newimplementation while
-this run is healthy; checkpoint accepted stages independently. Actualterminaloutcome
-chooses nextblocker; regular evidence pushes and current handoff remainrequired.
+199fulltwoeventM6 isLIVE/FROZEN afterconnectedqualification. Keepitfrozen until
+actualterminal orpreserved authorizedfailure. Comparecompletecensuses andcounted
+work versus198retry1 withoutassumingidenticalfuturestates. No newimplementation
+whilehealthy. Firststrictacceptedmeshmustlead toactualconservativeadmissibletransfer,
+finitecontinuedCFD andsecondstrictacceptedmesh; preserveeachverifiedstage. Isolated
+adapteddiskrestart onlyafterallownedrunhandles terminal. ThenBL/MPI andRANS500k.
+
 Analysis caution: historical matching-window summaries assume the first quality
 pass. The retry1 stored command now distinguishes published repair churn from
 whole-field construction changes if the197return crosses construction. Adapt analysis assertions to

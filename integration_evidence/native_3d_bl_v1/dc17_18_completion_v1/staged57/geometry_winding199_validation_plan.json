@@ -30,11 +30,15 @@
     "case": "geometry_winding199_mpi",
     "ranks": 6,
     "filter": "[NativeReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeFirstLayerEngine3D],[NativeCollision3D],[NativeCollapseFilter3D],[NativeAcceptedFaceCertificate3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D]",
-    "timeout": 600
+    "timeout": 600,
+    "environment": {
+      "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/native_winding199_runtime/mpi",
+      "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/native_winding199_runtime/mpi"
+    }
   },
   "time": 1793525244.674753,
   "build": "build199",
-  "state": "implementation_not_built",
+  "state": "connected_qualification_PASS_fulltwoeventM6_live_not_accepted",
   "scope": "Shared exact winding screening, no cache/config/scheduler/gate/budget changes; construction operators unchanged.",
   "evidence": "m6_runs/euler_build198_real_cfd50k_retry1/geometry_certification_analysis.json",
   "design": "Handbook/ADAPTATION_GEOMETRY_WINDING_20261101.md",
@@ -43,5 +47,66 @@
     "Hole below centroid, tangencies, nonrepresentable centroid and uncertain fallback retain exact checks.",
     "Same12savedquery bounds and cached/recomputed answers; record all actual work changes.",
     "One MPI6 milestone, then immediate fulltwoeventM6sameCFD50k5400."
-  ]
+  ],
+  "source_checkpoint": "86d292e517",
+  "build_exec_session": 39029,
+  "source_review": "geometry_winding199_source_review.json",
+  "proof_result": {
+    "case": "cases/geometry_winding199_proof_20261101T093019_1587727",
+    "assertions": 3306,
+    "cases": 10,
+    "seconds": 18.279344081878662,
+    "terminal_verification": "cases/geometry_winding199_proof_20261101T093019_1587727/terminal_verification.json"
+  },
+  "saved_query_assessment": "geometry_winding199_saved_query_assessment.json",
+  "serial_exec_session": 41273,
+  "runtime_temp_storage": {
+    "root_tmp_free_limit": "Root/tmp remains nearly full; owned runtime temp is on4TB. Default shared-memory transport unchanged.",
+    "mpi": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/native_winding199_runtime/mpi",
+    "m6": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/native_winding199_runtime/m6"
+  },
+  "serial_result": {
+    "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_winding199_serial_20261101T093132_1589590",
+    "seconds": 241.54009914398193,
+    "terminal_verification": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_winding199_serial_20261101T093132_1589590/terminal_verification.json",
+    "assertions": 23048,
+    "cases": 72
+  },
+  "mpi_exec_session": 41384,
+  "trace_attribution": "geometry_winding199_trace_attribution.json",
+  "cfd_sha256": "ea0067da5f39f2cf09b75bbc737bfda14d57fd4decc15b1f5d1454000a6408da",
+  "test_driver_sha256": "ba37efed110714d5b89420991015a01440da4ae454a7bd2398ddde4f83b7ada4",
+  "mpi_result": {
+    "seconds": 333.5048072338104,
+    "rank_summaries": [
+      [
+        "32005",
+        "216"
+      ],
+      [
+        "32450",
+        "216"
+      ],
+      [
+        "32535",
+        "216"
+      ],
+      [
+        "35138",
+        "216"
+      ],
+      [
+        "31704",
+        "216"
+      ],
+      [
+        "31982",
+        "216"
+      ]
+    ],
+    "terminal_verification": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_winding199_mpi_20261101T093622_1596712/terminal_verification.json"
+  },
+  "run": "m6_runs/euler_build199_real_cfd50k_triangle_coverage",
+  "exec_session": 47583,
+  "attempt_label_note": "Inherited triangle_coverage label;actualbuild199/binary/config verified."
 }

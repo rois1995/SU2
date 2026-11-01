@@ -38,4 +38,6 @@ These later snapshots are separate from the original line-range archive above.
 
 - [Build191–197 handoff detail](HANDOFF_Codex_build191_to197_20261101.md), preserved
   separately from the original line-range archive. Its header records the verbatim
-  historical-body hash. Build198 live state remains in the current handoff.
+  historical-body hash. Current build/run state remains in the root handoff.
+
+- [Build198 terminal evidence and199qualification transition](HANDOFF_Codex_build198_terminal_20261101.md): exact historical handles, failure limits and counter analysis; current state remains in the root handoff.

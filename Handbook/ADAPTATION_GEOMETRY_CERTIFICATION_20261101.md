@@ -1,6 +1,22 @@
-# Cheaper geometry certification —198coverage-order integration
+# Cheaper geometry certification — shared winding screening199
 
-## Current retry1 terminal analysis
+## Current199 qualified change; fullM6 LIVE/FROZEN
+
+Selectedsharedwinding screening is in
+[the connected design](ADAPTATION_GEOMETRY_WINDING_20261101.md). Source86d292e517.
+Build199PASS;focused3306assertions/10cases;serial23048/72;oneMPI6milestone216cases
+EACH6ranks. Allownedqualificationhandles absent/pinsunchanged BEFOREfullM6.
+Same12savedquerybounds EXACT198/cached-recomputed checksPASS;traversal198551→101600
+(-48.8293%). Coverageworkalone drops96951,withsame1164domains/790graphs/distance/
+lift counts. ThisisnotCPU/fullM6speedup orlate-star representativeness proof.
+R/geometry_winding199_qualification.json,source_review.json,saved_query_assessment.json,
+trace_attribution.json preserveevidence. No newcache/envelope/scheduler/config/gates.
+FulltwoeventM6 launchedimmediately fromsameCFD50k/5400. Actualdirectory inherited
+triangle_coverage label: euler_build199_real_cfd50k_triangle_coverage isWINDING199,
+not198code. Actualbinary/config/seed/originalcontinued00000 verified; current
+handles/sourcefreeze inHANDOFF. No acceptedmesh/transfer/adaptedrestart yet.
+
+## Preserved retry1 terminal analysis
 
 Same qualified source198 retry1 is TERMINAL. All6natural time-budget rejection,
 native5403.711369s. Natural failure preceded stopping only the verifiedlauncher.

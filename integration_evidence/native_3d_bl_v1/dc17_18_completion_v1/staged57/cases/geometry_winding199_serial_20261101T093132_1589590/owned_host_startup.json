@@ -1,0 +1,48 @@
+{
+  "time": 1793525527.8086433,
+  "scope": "Host identity audit, host-launched case only; no namespace-local PID interpretation.",
+  "handles": [
+    {
+      "pid": 1589590,
+      "state": "S",
+      "startticks": 94050290,
+      "exe": "/usr/bin/python3.8",
+      "cmd": "python3 -u - "
+    },
+    {
+      "pid": 1589674,
+      "state": "S",
+      "startticks": 94050553,
+      "exe": "/usr/bin/time",
+      "cmd": "/usr/bin/time -v timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeSurfaceError3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeAcceptedFaceCertificate3D],[NativeGeometryReturn3D],[NativeAffineGeometry],[NativePlanarUnion3D] --durations yes "
+    },
+    {
+      "pid": 1589675,
+      "state": "S",
+      "startticks": 94050554,
+      "exe": "/usr/bin/timeout",
+      "cmd": "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeSurfaceError3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeAcceptedFaceCertificate3D],[NativeGeometryReturn3D],[NativeAffineGeometry],[NativePlanarUnion3D] --durations yes "
+    },
+    {
+      "pid": 1589676,
+      "state": "R",
+      "startticks": 94050554,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeSurfaceError3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeAcceptedFaceCertificate3D],[NativeGeometryReturn3D],[NativeAffineGeometry],[NativePlanarUnion3D] --durations yes "
+    },
+    {
+      "pid": 1589677,
+      "state": "S",
+      "startticks": 94050556,
+      "exe": "/usr/bin/orted",
+      "cmd": "orted --hnp --set-sid --report-uri 8 --singleton-died-pipe 9 -mca state_novm_select 1 -mca ess hnp -mca pmix ^s1,s2,cray,isolated "
+    }
+  ],
+  "changed": [],
+  "pins_verified": true,
+  "status": {
+    "state": "running",
+    "pid": 1589674,
+    "started_at": 1793525492.791122
+  }
+}

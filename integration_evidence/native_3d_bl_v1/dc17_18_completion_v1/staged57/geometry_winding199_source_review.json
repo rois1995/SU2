@@ -1,0 +1,19 @@
+{
+  "time": 1793525405.4357224,
+  "scope": "Primary proof review plus bounded independent read-only review, no tests yet.",
+  "source_sha256": {
+    "Common/src/adaptation/CNativeBoundary3D.cpp": "f59e90305695302a3610a78929e44614d4a3b8d7e32895ac39406837ae8039b5",
+    "Common/src/adaptation/CNativeAffineReference.cpp": "2b9d9f39ef72f44ec8ba98aba6e74429cc3d45d151471d001d9c9bf9678a0119",
+    "UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp": "837c4eca2c07268425086bb960b1b10323f1762df8c7f2298b44edfb5b6e88c2"
+  },
+  "proof": [
+    "Point winding preserves OnEdge-first and exact half-open height straddles; noncrossing edges contribute zero.",
+    "Exact triangle centroid lies in vertex height min/max; strict outside bounds certify sign without forming a rounded centroid.",
+    "Strictly height-separated border cannot intersect triangle interior or straddle centroid ray; equality retains exact fallback.",
+    "Other hole/interior crossing checks remain even when no centroid ray crossing occurs.",
+    "Mapped component retains support/admissibility/orientation/exact centroid sides and full parametric border intersection.",
+    "No new allocation, cache/key/lifetime, configuration, metric/height, phase/scheduler or gate change; actual called predicates drive existing work charges."
+  ],
+  "independent_review": "No concrete correctness defect found; no edits/tests/jobs by reviewer.",
+  "limit": "Read-only review does not establish measured savings, regression qualification or accepted M6 workflow."
+}
