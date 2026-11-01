@@ -29,11 +29,17 @@ host conditions differ, so no isolated runtime claim. LAST/quality_entry_compari
 records all6 raw row locations and observed log-prefix hashes. Seven earlier
 complete construction stages also match selected state/work counters exactly;
 LAST/construction_matching_stage_assessment.json. These do not establish closure.
-Latest COMPLETE window round21824:749172cells/39886q/38086J/3518geometry/0size,
-at771.76424484quality seconds (engine1421.273222308). Latest-window net removal
-2796q/2973J/45geometry. q9746surface/30140interior; J13684surface/24402interior.
-Interior can still contain constrained vertices. LAST/quality_progress_snapshot.json
-retains first4complete windows, per-rank counters/location and matching202rounds.
+Latest COMPLETE window round22080:765317cells/29334q/26759J/3423geometry/0size,
+at1351.696594137seconds since first quality entry (engine2001.205571605).
+Latest-window net removal2593q/2810J/6geometry over139.752255955s.
+LAST/quality_trend_assessment.json retains all8complete windows and per-rank
+state/work rows. LAST/quality_time_brackets_snapshot.json compares actual complete
+202censuses without interpolation:202at1172.901s had31409q/28958J/3412geometry;
+at1374.956s had28794q/26175J/3370geometry. Current q/J counts lie between those
+counts; geometry-bad is higher than both. No isolated timing/trajectory claim.
+LAST/quality_progress_snapshot.json retains first4complete windows, per-rank
+counters/location and matching202rounds (q9746surface/30140interior at window4;
+interior can still contain constrained vertices).
 At round21760, previous-window net removal was3494q/3558J/45geometry over
 253.492094885s,2164commits. Matching202round interval
 removed3171q/3363J/57geometry over178.16399285s,2042commits.206traversal work is
@@ -49,8 +55,9 @@ Executed round21696redistribution preserved739233cells/46176q/44617J/3608geometr
 q/J-debt max/mean fell1.30966→1.14391. This is measured balance/count preservation,
 not throughput or every-attribute identity. LAST/quality_census_migration_round21696.json
 and quality_first_window_comparison.json pushed in2138e8092b; matching-entry
-checkpoint b2af598568. Latest HOST audit1793550495.5545266:all10exact handles LIVE,
-1403pins unchanged,load6.81,MemAvailable30,712,388kB,sampled summedRSS9,363,513,344B
+checkpoint b2af598568. Four-window work comparison/handoff pushed b861c01537.
+Latest HOST audit1793550773.2999468:all10exact handles LIVE,1403pins unchanged,
+load7.80,MemAvailable30,543,612kB,sampled summedRSS9,388,785,664B
 (not physical/job peak). No actual resource pressure.
 
 HOST startup at1793548936.893354, all10LIVE:
