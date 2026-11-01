@@ -7097,26 +7097,28 @@ void CPhysicalGeometry::SetDissipationNormals() {
 
 namespace {
 
+constexpr unsigned short maxDim = 3;
+
 /*!
  * \brief Share of each node of a cell, with the sub-volumes of SetControlVolume and the centroid rule of the cell.
  * \param[out] shares - Added to, one value per node of the cell.
  */
 void CellNodeShares(CPrimalGrid* element, unsigned short nDim, const array<const su2double*, N_POINTS_MAXIMUM>& Coord,
                     su2double* shares) {
-  su2double Coord_Elem_CG[MAXNDIM] = {0.0};
+  su2double Coord_Elem_CG[maxDim] = {0.0};
   element->getElemCG(nDim, Coord, Coord_Elem_CG);
 
   for (unsigned short iFace = 0; iFace < element->GetnFaces(); iFace++) {
     const unsigned short nEdgesFace = (nDim == 3) ? element->GetnNodesFace(iFace) : 1;
 
-    su2double Coord_FaceElem_CG[MAXNDIM] = {0.0};
+    su2double Coord_FaceElem_CG[maxDim] = {0.0};
     if (nDim == 3) element->getFaceCG(iFace, nDim, Coord, Coord_FaceElem_CG);
 
     for (unsigned short iEdgesFace = 0; iEdgesFace < nEdgesFace; iEdgesFace++) {
       const auto face_iNode = element->GetFaces(iFace, iEdgesFace);
       const auto face_jNode = element->GetFaces(iFace, (nDim == 2) ? 1 : (iEdgesFace + 1) % nEdgesFace);
 
-      su2double Coord_Edge_CG[MAXNDIM] = {0.0};
+      su2double Coord_Edge_CG[maxDim] = {0.0};
       for (unsigned short iDim = 0; iDim < nDim; iDim++) {
         Coord_Edge_CG[iDim] = 0.5 * (Coord[face_iNode][iDim] + Coord[face_jNode][iDim]);
       }
@@ -7145,13 +7147,13 @@ su2double SplitWeights(const CSplitPattern& pattern, unsigned short nDim,
 
   const auto nSimplex = simplices.size();
   size.resize(nSimplex);
-  grad.resize(nSimplex * (MAXNDIM + 1) * 3);
+  grad.resize(nSimplex * (maxDim + 1) * 3);
   su2double total = 0.0;
 
   for (size_t t = 0; t < nSimplex; t++) {
-    array<const su2double*, MAXNDIM + 1> tCoord;
+    array<const su2double*, maxDim + 1> tCoord;
     for (auto a = 0u; a < nNodes; a++) tCoord[a] = Coord[simplices[t][a]];
-    size[t] = P1Simplex::ShapeGradients(nDim, tCoord, reinterpret_cast<su2double(*)[3]>(&grad[t * (MAXNDIM + 1) * 3]));
+    size[t] = P1Simplex::ShapeGradients(nDim, tCoord, reinterpret_cast<su2double(*)[3]>(&grad[t * (maxDim + 1) * 3]));
     total += size[t];
   }
   const su2double sign = (total < 0.0) ? -1.0 : 1.0;
@@ -7447,6 +7449,15 @@ void CPhysicalGeometry::SetSplitEdges() {
         const auto* face = bound[iMarker][iElem];
         const auto nFaceNodes = face->GetnNodes();
 
+        su2double outward[3] = {0.0};
+        const auto* cell = elem[face->GetDomainElement()];
+        for (unsigned short iNode = 0; iNode < nFaceNodes; iNode++) {
+          for (unsigned short iDim = 0; iDim < 3; iDim++) outward[iDim] += nodes->GetCoord(face->GetNode(iNode), iDim) / nFaceNodes;
+        }
+        for (unsigned short iNode = 0; iNode < cell->GetnNodes(); iNode++) {
+          for (unsigned short iDim = 0; iDim < 3; iDim++) outward[iDim] -= nodes->GetCoord(cell->GetNode(iNode), iDim) / cell->GetnNodes();
+        }
+
         for (unsigned short w = 0; w < nFaceNodes; w++) {
           const su2double fanWeight = (nFaceNodes == 4) ? 0.25 : 1.0 / 3.0;
           for (unsigned short iNode = 1; iNode + 1 < nFaceNodes; iNode++) {
@@ -7458,11 +7469,13 @@ void CPhysicalGeometry::SetSplitEdges() {
               v[iDim] = nodes->GetCoord(tri[2], iDim) - nodes->GetCoord(tri[0], iDim);
             }
             GeometryToolbox::CrossProduct(u, v, area);
+
+            /*--- The vertex normal cannot give the direction at a jagged boundary, the cell behind the face can. ---*/
+            const su2double dir = (GeometryToolbox::DotProduct(3, area, outward) < 0.0) ? -1.0 : 1.0;
+
             for (const auto iPoint : tri) {
               const auto iVertex = nodes->GetVertex(iPoint, iMarker);
               if (iVertex < 0) continue;
-              const auto* inward = vertex[iMarker][iVertex]->GetNormal();
-              const su2double dir = (GeometryToolbox::DotProduct(3, inward, area) > 0.0) ? -1.0 : 1.0;
               for (unsigned short iDim = 0; iDim < 3; iDim++) {
                 edges->SplitBoundNormal(iPoint, iDim) += dir * fanWeight * area[iDim] / 6.0;
               }
