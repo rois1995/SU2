@@ -75,6 +75,7 @@ private:
   unsigned short Kind_SpanWise;                  /*!< \brief Kind of span-wise section computation.*/
   unsigned short iZone, nZone;    /*!< \brief Number of zones in the mesh. */
   unsigned short nZoneSpecified;  /*!< \brief Number of zones that are specified in config file. */
+  su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
   su2double Fan_Poly_Eff;         /*!< \brief Fan polytropic effeciency. */
   su2double MinLogResidual;       /*!< \brief Minimum value of the log residual. */
@@ -9942,6 +9943,12 @@ public:
   bool GetIntegrated_HeatFlux() const { return Integrated_HeatFlux; }
 
   bool GetFluxCorrection() const { return FluxCorrection; }
+
+  /*!
+   * \brief Get the power of the face area in the modified centroid.
+   * \return 2 by default.
+   */
+  su2double GetMod_Centroid_Exponent() const { return Mod_Centroid_Exponent; }
 
   /*!
    * \brief Get if the gradients of the flux correction use the limiter of the reconstruction.

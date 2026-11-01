@@ -27,6 +27,8 @@
 
 #include "../../../include/geometry/primal_grid/CPrimalGrid.hpp"
 
+su2double CPrimalGrid::modCentroidExponent = 2.0;
+
 CPrimalGrid::CPrimalGrid(bool FEM, unsigned short nNodes, unsigned short nNeighbor_Elements, bool useModCentroids)
     : Nodes(new unsigned long[nNodes]), Neighbor_Elements(new long[nNeighbor_Elements]), FEM(FEM), modCentroids(useModCentroids) {
   GlobalIndex_DomainElement = 0;

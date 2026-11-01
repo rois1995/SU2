@@ -1824,6 +1824,8 @@ void CConfig::SetConfig_Options() {
 
   addEnumOption("VISC_GRAD_CORR", Kind_Visc_Corr, Viscous_Grad_Corr_Map, VISCOUS_GRAD_CORR::EDGE_NORMAL);
   addBoolOption("FLUX_CORRECTION", FluxCorrection, false);
+  /*!\brief MOD_CENTROIDS_EXPONENT \n DESCRIPTION: Power of the face area in the centroid of MOD_CENTROIDS, 2 by default, 0 gives the median. \ingroup Config*/
+  addDoubleOption("MOD_CENTROIDS_EXPONENT", Mod_Centroid_Exponent, 2.0);
   /*!\brief FLUX_CORRECTION_LIMITED \n DESCRIPTION: The gradients of FLUX_CORRECTION use the point limiter of the reconstruction. \ingroup Config*/
   addBoolOption("FLUX_CORRECTION_LIMITED", Flux_Correction_Limited, false);
   addBoolOption("MOD_CENTROIDS", ModCentroids, false);

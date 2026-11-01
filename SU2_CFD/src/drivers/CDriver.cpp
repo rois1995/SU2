@@ -754,6 +754,7 @@ void CDriver::InitializeGeometryFVM(CConfig *config, CGeometry **&geometry) {
 
   if (rank == MASTER_NODE) cout << "Setting the control volume structure." << endl;
   SU2_OMP_PARALLEL {
+    CPrimalGrid::SetModCentroidExponent(config->GetMod_Centroid_Exponent());
     geometry[MESH_0]->SetControlVolume(config, ALLOCATE);
     geometry[MESH_0]->SetBoundControlVolume(config, ALLOCATE);
     geometry[MESH_0]->SetBoundCVCoeffs(config, ALLOCATE);

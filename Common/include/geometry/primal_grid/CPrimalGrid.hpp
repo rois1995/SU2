@@ -70,6 +70,7 @@ class CPrimalGrid {
   bool ElementOwnsFace[N_FACES_MAXIMUM]; /*!< \brief Whether or not the element owns each face. */
   const bool FEM;                        /*!< \brief Whether this is a FEM element. */
   bool modCentroids;
+  static su2double modCentroidExponent; /*!< \brief Power of the face area in the modified centroid. */
 
  public:
   CPrimalGrid() = delete;
@@ -479,6 +480,12 @@ class CPrimalGrid {
    * \brief Select the centroid rule of getFaceCG and getElemCG, without changing the stored centroid.
    * \param[in] val_modCentroids - True for the modified centroids.
    */
+  /*!
+   * \brief Set the power of the face area in the modified centroid, for all cells.
+   * \param[in] exponent - 2 is the rule of MOD_CENTROIDS, 0 is the median centroid.
+   */
+  static void SetModCentroidExponent(su2double exponent) { modCentroidExponent = exponent; }
+
   inline void SetModCentroids(bool val_modCentroids) { modCentroids = val_modCentroids; }
 
   inline su2double* getNodeCoeffs(unsigned short iNode) {return BCCoeffs[iNode];};
@@ -629,7 +636,7 @@ class CPrimalGridWithConnectivity : public CPrimalGrid {
         for (int iDim = 0; iDim < nDim; ++iDim) facetCG[iFacet * 3 + iDim] = 0.5 * (iCoord[iDim] + jCoord[iDim]);
     }
 
-    const short exponent = (modCentroids) ? 2 : 0;
+    const su2double exponent = (modCentroids) ? modCentroidExponent : 0.0;
 
     for (iFacet = 0; iFacet < GetnNodesFace(iFace); ++iFacet) facetArea[iFacet] /= maxArea;
 
@@ -656,7 +663,7 @@ class CPrimalGridWithConnectivity : public CPrimalGrid {
       maxArea = std::max(faceArea[iFace],maxArea);
     }
 
-    const short exponent = (modCentroids) ? 2 : 0;
+    const su2double exponent = (modCentroids) ? modCentroidExponent : 0.0;
 
     for (iFace = 0; iFace < GetnFaces(); ++iFace) faceArea[iFace] /= maxArea;
 
