@@ -96,8 +96,11 @@ Build196PASS45.152546s/all1296pinsunchanged/all2hosthandlesabsent beforeproof.
 ProofPASS403assertions/2cases16.979416s/all5handlesabsent/pinsunchanged.
 SAME12savedqueries traversal360066→259729(-27.8663%),ALL12boundsEXACT194.
 Every4hardquery improves24.36–30.33%;8easyqueriescost3extraoperations(0.43–0.49%).
-No fullM6speedup/acceptance claim. Affectedserialrunning; thenONE MPI6 milestone and
-IMMEDIATE fulltwoeventM6sameCFD50k/native5400/allstrictgates. Single activecycle.
+No fullM6speedup/acceptance claim. SerialPASS20739assertions/68cases249.189708s;MPI6PASS216cases EACH6ranks262.256337s.
+Allrespective5/10hosthandlesabsent/pinsunchangedBEFORE fullM6. Completequalification:
+R/geometry_witness196_qualification.json. Fulltwoevent196M6 launchedIMMEDIATELYfrom
+sameCFD50k/native5400/allstrictgates;CURRENT handles/sourcefreeze inHANDOFF.
+No acceptedmesh or fullM6speedupyet. Singleactivecycle.
 No further alternatives while these pinned sources are executing.
 
 ## Historical193analysis that selected194

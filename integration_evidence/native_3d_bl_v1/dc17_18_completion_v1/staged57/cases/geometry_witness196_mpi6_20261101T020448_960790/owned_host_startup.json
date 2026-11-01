@@ -1,0 +1,83 @@
+{
+  "time": 1793498741.0346365,
+  "scope": "Host identity audit, host-launched case only; no namespace-local PID interpretation.",
+  "handles": [
+    {
+      "pid": 960790,
+      "state": "S",
+      "startticks": 91369839,
+      "exe": "/usr/bin/python3.8",
+      "cmd": "python3 -u - "
+    },
+    {
+      "pid": 960856,
+      "state": "S",
+      "startticks": 91370076,
+      "exe": "/usr/bin/time",
+      "cmd": "/usr/bin/time -v timeout 600 mpirun --bind-to none -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeFirstLayerEngine3D],[NativeCollision3D],[NativeCollapseFilter3D],[NativeAcceptedFaceCertificate3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D] --durations yes "
+    },
+    {
+      "pid": 960857,
+      "state": "S",
+      "startticks": 91370076,
+      "exe": "/usr/bin/timeout",
+      "cmd": "timeout 600 mpirun --bind-to none -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeFirstLayerEngine3D],[NativeCollision3D],[NativeCollapseFilter3D],[NativeAcceptedFaceCertificate3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D] --durations yes "
+    },
+    {
+      "pid": 960858,
+      "state": "S",
+      "startticks": 91370076,
+      "exe": "/usr/bin/orterun",
+      "cmd": "mpirun --bind-to none -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeFirstLayerEngine3D],[NativeCollision3D],[NativeCollapseFilter3D],[NativeAcceptedFaceCertificate3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D] --durations yes "
+    },
+    {
+      "pid": 960872,
+      "state": "R",
+      "startticks": 91370081,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeFirstLayerEngine3D],[NativeCollision3D],[NativeCollapseFilter3D],[NativeAcceptedFaceCertificate3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D] --durations yes "
+    },
+    {
+      "pid": 960873,
+      "state": "R",
+      "startticks": 91370081,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeFirstLayerEngine3D],[NativeCollision3D],[NativeCollapseFilter3D],[NativeAcceptedFaceCertificate3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D] --durations yes "
+    },
+    {
+      "pid": 960874,
+      "state": "R",
+      "startticks": 91370081,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeFirstLayerEngine3D],[NativeCollision3D],[NativeCollapseFilter3D],[NativeAcceptedFaceCertificate3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D] --durations yes "
+    },
+    {
+      "pid": 960875,
+      "state": "R",
+      "startticks": 91370081,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeFirstLayerEngine3D],[NativeCollision3D],[NativeCollapseFilter3D],[NativeAcceptedFaceCertificate3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D] --durations yes "
+    },
+    {
+      "pid": 960876,
+      "state": "R",
+      "startticks": 91370081,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeFirstLayerEngine3D],[NativeCollision3D],[NativeCollapseFilter3D],[NativeAcceptedFaceCertificate3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D] --durations yes "
+    },
+    {
+      "pid": 960877,
+      "state": "R",
+      "startticks": 91370081,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "cmd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeFirstLayerEngine3D],[NativeCollision3D],[NativeCollapseFilter3D],[NativeAcceptedFaceCertificate3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D] --durations yes "
+    }
+  ],
+  "changed": [],
+  "pins_verified": true,
+  "status": {
+    "state": "running",
+    "pid": 960856,
+    "started_at": 1793498688.2776418
+  }
+}

@@ -9,86 +9,90 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current —194TERMINAL;196witness-order serial qualification, sources frozen
+## Current —196full two-event M6 ACTIVE; sources frozen
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-CURRENT=`R/m6_runs/euler_build194_real_cfd50k_early_exit`.
-PREVIOUS=`R/m6_runs/euler_build193_real_cfd50k_envelope` (TERMINAL).
+CURRENT=`R/m6_runs/euler_build196_real_cfd50k_witness_first`.
+PREVIOUS=`R/m6_runs/euler_build194_real_cfd50k_early_exit` (TERMINAL).
+Sourcecheckpoint12afb10245pushed; CFDSHAbd71ad267291f8acdec981aaf7bdf221b09836e141ab8eeda64b733fdacb937c.
 
-ALL6ranks naturally time-budget rejected at native5402.687673s BEFORE any signal.
-Complete EXIT: 801912workingcells,4369q/2352J/3111geometry/0sizebad,
-qJdebt29.821866148054. ALL56complete first-event quality censuses audited.
-Quality4442.390488s,43286publications,net49712q/51040J/659geometry
-removed,11.190372netq/s,11.489310netJ/s.
-Queue65423,blockedfeatures520,fullyblockedshape/required29,missing0,
-private trackedcollectives0. Shape never closed; geometry-only phase not reached.
-ZEROaccepted adapted meshes,transfer/adaptedCFD/restart. Last partial EXIT is included.
+Fulltwoeventexec95607;actualHOSThandles verified1793499069.2033494:
+968712/start91405628, 968834/start91406099, 968835/start91406099, 968836/start91406100, 968845/start91406106, 968844/start91406106, 968843/start91406106, 968842/start91406106, 968841/start91406106, 968840/start91406106.
+All10LIVE/all1401pinsunchanged/82actualmappedELFcovered:CURRENT/owned_startup.json.
+Oneownedheavyjob,nice19/libs1. NoCpp/header/test/helper/binary/config/input edits.
+Keep196frozen until terminal or preserved evidence justifies an authorized stop.
+SamequalifiedsavedrealCFD/config/mesh/native_ref as194/191:CURRENT/early_runtime_provenance.json.
+OriginalcontinuedCFD CL.269535/CD.013536,rms-5.735442. ACTUAL originalrestart00000
+BYTEIDENTICAL194(SHA6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a),
+verifiedafteremission:early_runtime_provenance.json. This is NOT an
+adaptedrestart proof. Euler50k/native5400/outer14400/2events/allstrictgatesunchanged.
+No nativeacceptance yet. Observe actualstagecounts/work/resources,not projection.
 
-Natural rejection preserved CURRENT/event1_natural_failure.json BEFORE SIGTERM
-only verified remaining launcher801607/start90716193; all10actual hostidentities/
-all1401pins verified before signal:event1_failure_owned_stop.json.
-Exec60431terminal1. All10identities ABSENT/all1401pins unchanged at1793497689.333789:
-terminal_handles.json. ALL194PIDs801458/801605/801606/801607/801612..801617 are now
-HISTORICAL; NEVER resignal. No owned heavy job. 194sources remainedf518f2d727through terminal. After independent host revalidation,
-195adds only existing worktrace coverage/lift and source-domain cost fields;
-NO geometrybound/repairdecision/workcharge change. 195diagnostic buildPASS48.173527s/all1296pinsunchanged/all2handlesabsent;
-replayPASS163assertions/1case/all5handlesabsent/pinsunchanged. ALL12bounds/work
-EXACT194. Attribution:coverage300573of360066traversalwork(83.4772%),
-allcoveredgraphbounds alreadybelowtol. R/geometry_certification195_attribution.json.
-196candidate now tries ALREADYexistingrigoroustrianglewitness before finitegraph
-coverage in sharedUpper. No newcache/config/scheduler/budget/operator; allfallbacks
-retained. Belowtol numeric boundsmaydiffer,zero geometryhingeremains0. Saved12replay traversal360066→259729(-27.8663%),ALL12boundsEXACT194;
-8easyqueriescost3extraoperations each,all4hardqueries improve. ProofPASS403assertions/
-2cases16.979416s/all5handlesabsent/pinsunchanged. Build196PASS45.152546s/
-all1296pinsunchanged/all2handlesabsent beforeproof. Affectedserialrunning,sourcesfrozen;
-R/geometry_witness196_validation_plan.json.
-CFDSHA434846cf1fca385747e52a8167b4912d853f7d4de65b9ea9642f71308966951a.
-Same qualified savedrealCFD/config/mesh/native_ref/ACTUALoriginal continued restart
-BYTEIDENTICAL193/191:early_runtime_provenance.json. CL.269535/CD.013536 at original
-continuation,not adapted restart proof. Euler50k/native5400/outer14400/gates unchanged.
+196sharedUpper tries ALREADYexistingrigorous convextrianglewitness BEFORE finite
+projectedgraphcoverage. No newcache/API/config/scheduler/constructionoperator/batch/
+budget/gatechange. Sharedcoarsen/split/quality/boundarysmoothing/fullcertificatepath.
+Uncertainbounds retain graph+directedrefinement; association/entity/feature/body/
+height/reversechecks unchanged. Belowtolnumericboundmaydiffergenerally,butgeometry
+hingeEXACT0;saved12boundsEXACT194. Primaryproof:R/geometry_witness196_source_review.json.
 
-194shared rigorous Upper early-success change qualified before full M6:
-buildPASS84.234683s,proof403assertions/2cases,serial20739assertions/68cases,
-MPI6PASS216cases EACH6ranks. All respective handles terminal/pins unchanged before
-next stage. R/geometry_early_exit194_qualification.json and source_review.json.
-Same12savedqueries traversal379146→360066(-5.032%),all12lesswork,boundsEXACT193.
-No newcache/config/scheduler/constructionoperator/batch/budget changes.
-All18construction generations/entry counted fields EXACT193:727818cells,
-54081q/53392J/3770geometry/0size at quality entry895.641810engine seconds.
-Construction q/J deliberately unmeasured until entry. Through quality window18,
-wholefield/counts/rankdebts/publications EXACT193 with5.9092%less qualitytraversal;
-thereafter trajectories diverge,matching state claims cease.
-All15late quality migrations conserve audited counts/debt/completeflags and selected
-prepared/numericmemo counters/entries/bytes/drift availability. Qualified source
-supports fairness/rejection history preservation; aggregate counts alone do not
-prove every key. quality_migration_assessment.json.
+194terminal drove195EXISTINGtrace attribution,withoutchanging bounds/decisions/
+workcharges. All12savedbounds/workEXACT194. Coverage300573of360066traversalwork
+(83.4772%);everycoveredgraphboundalreadybelowtol. Hardqueriesmaxdepth8/7. No new
+motioncache:exact-rational oldsubtreeUpper+outwardmotion optimistic810/140510work
+(0.5765%)beforecost; wholeface0of12. R/geometry_certification195_attribution.json,
+geometry_certification195_subtree_motion_analysis.json; minimaldiagnostic.patch
+reproduces195sourcehash against194sourcef518f2d727.
 
-Terminal counter/service assessment COMPLETE: CURRENT/terminal_assessment.json,
-terminal_geometry_service_assessment.json,terminal_counter_review.json and
-geometry_certification_analysis.json include all7diagnosticgroups/finalpartialEXIT.
-Allpublishedladderq/J/debt/commit gains reconcile to wholefield changes.
-NexttargetSPEED:96.9508%uppercountedwork is traversal; exactunionmemo49.7109%hits.
-Boundaryprivate3848.10ranksec/345748upperqueries vsinterior191.12sec/0queries.
-At almostidenticalqualitytimes4343.445330vs1934343.580956s,current5077q/2907J/3117geo
-vsbaseline8654q/5779J/3151geo. Hostcontention/trajectories preventisolatedtimingclaim.
-Blockedfeatures520>280andstuck29>10increased;activequeue65423remains.
-A single existing12queryreplay with existingworktrace PASS163assertions/1case;
-all5hosthandlesabsent/pinsunchanged: R/cases/geometry_certification194_trace_20261101T014936_937744.
-ALL12bounds/workEXACToriginal194replay;4hardpassingqueriesconsume98.5811%traversal,
-sourceprogressdepth6,allfootprintbuildsvalid/norefusals,no finer-targetretry.
-Trace does not separate per-domain footprintcoverage failure from loose lift bounds.
-195attribution and196candidate evidence above supersede the remaining attribution
-uncertainty. Analyze cheaper certification using existing counters/
-savedqueries/trace and source contracts. Distinguish exact repeats from nearby
-positions and eviction misses; existing aggregate counters cannot fully classify.
-Uniform displacement+remaining-slack proof certifies0of12savedqueries; no motion
-cache justified. Review existing unchanged-face reuse,changed-face-only checks,
-preparedgeometry,early bounds and candidate screening before adding anything.
-Uncertain bounds fall back to full traversal; preserve associations/features/bodies/
-heights/reverse/final gates. No sampling-only proof,newoptions,perf/GDB/baselinecampaign.
-One active cycle: further work must address measured traversal cost/net wholefield
-q/J-bad removal/s with geometrycounts,not rawcommits/debtalone. 196is the single connected candidate under validation.
-[Current certification analysis](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md).
+196connectedqualificationPASS BEFOREfullM6:
+build45.152546s/all1296pinsunchanged/all2handlesabsent;proof403assertions/2cases
+16.979416s/all5handlesabsent;serial20739assertions/68cases249.189708s/all5handlesabsent;
+MPI6PASS216cases on EACH6ranks262.256337s/all10handlesabsent/pinsunchanged.
+AllactualMPIidentities absent at1793499040.861584BEFOREfullM6launch.
+R/geometry_witness196_qualification.json,validation_plan.json contain completecase
+paths,command/runtime/sourcepins,all6ANSI-strippedsummaries andhostterminalreceipts.
+Same12querytraversal360066→259729(-27.8663%),ALL12boundsEXACT194;4hardqueriesimprove
+24.36–30.33%,8easyqueriescost3extraops(0.43–0.49%). Not fullM6speedup/acceptedmeshproof.
+R/geometry_witness196_saved_query_comparison.json.
+
+Comparewholefieldq/J/geometrycounts and netbadcellremoval/s,geometrywork/usefulprogress
+at ACTUALmatchingstates/times vs194. Preserve rankbusy/join/debtspread,capacity/
+conflicts,blockedtail,interiorvsboundaryyield/churn. Timersnest;joinincludesprotocol/
+wait,CPUincludesMPIspin. Counters only,no perf/GDB/oldcodebaselinecampaign.
+Shape/heightclosure→residualsize/geometry→shapereclosure underSAMEcumulativebudgets;
+then TWOacceptedmeshes,actual conservativeadmissibletransfer,finitecontinuedCFD,
+isolatedmatchingadapteddiskrestart,BL/MPI,RANS500k. No competingimplementation;
+unprovenmotion/envelope/projection/finerpreparation alternatives remainbacklog.
+
+## Preserved194outcome and cheaper-certification analysis — terminal
+
+CURRENT194=`R/m6_runs/euler_build194_real_cfd50k_early_exit`.
+ALL6naturaltimebudgetrejections,native5402.687673s; completeEXIT801912cells,
+4369q/2352J/3111geometry/0size,qJdebt29.821866148054. ALL56completecensuses inclEXIT.
+Quality4442.390488s,43286publications,49712netq/51040netJ/659netgeometry,
+11.190372netq/s,11.489310netJ/s. Queue65423,blockedfeatures520,stuck29,missing0,
+privatecollectives0. Shape notclosed; geometry-onlynotreached.0accepted adapted meshes.
+All7groups and finalpartial98.945158s(708q/555J/6geometrynet)reconcile in
+terminal_assessment.json,terminal_counter_review.json,terminal_geometry_service_assessment.json,
+geometry_certification_analysis.json. NexttargetSPEEDwithblockedtailriskvisible;
+shortedgescorrelationnotconstructioncause. Interiorremainingq3539/4369,J1678/2352.
+
+Naturalrejectionpreserved event1_natural_failure.json BEFORE SIGTERM ONLY exact
+remaininglauncher801607/start90716193,all10identities/1401pinscheckedbeforesignal.
+Exec60431terminal1; all10ABSENT/all1401pinsunchanged1793497689.333789:terminal_handles.json.
+Revalidated1793498118.744672BEFORE195edit. ALL801458/801605/801606/801607/801612..801617
+HISTORICAL;NEVERresignal. Sourcef518f2d727remainedunchangedthroughthe194run.
+SameCFDseed/config/mesh/native_ref/ACTUALoriginalcontinuedrestartbyteidentical193/191:
+early_runtime_provenance.json. CL.269535/CD.013536onoriginalcontinuation,notadaptedrestart.
+All18construction/entrycountfieldsEXACT193;727818cells,54081q/53392J/3770geometry.
+Throughwindow18fields/counts/debts/commitsEXACT193with5.9092%lesstraversal;laterdiverged.
+Atactualalmostmatchedqualitytimes4343.445330vs1934343.580956s,current5077q/2907J/3117geo
+vsbaseline8654q/5779J/3151geo. Hostcontention/trajectoriespreventisolatedtimingclaim.
+All15latemigrationsconserveauditedcounts/debt/completeflags/selectedcachecounters;
+notproofeverykey/history.96.9508%upperworktraversal,exactunion49.7109%hits;misscausesmixed.
+Boundaryprivate3848.10ranksec/345748upperqueriesvsinterior191.12sec/0;timersnest,
+privategainsnotpublishedgains. Blocked520>280/stuck29>10increasedvs193;queuefell.
+All16GLOBALdriftsamples3.0549%sinceentry;notimmutablecontinuousCFDtargetproof.
+Terminalcheckpointdbe7189e24pushed. Fullgoal and strict acceptance remainunchanged.
 
 ## Preserved193outcome and analysis — historical handles, never resignal
 
@@ -192,14 +196,13 @@ debt25236.7874.188terminal17190q/14369J/3526geometry,quality4452.518s,8.283netq/
 trajectories and host contention; no isolated wall speedup claim. Historical179
 real-CFD terminal census INCOMPLETE,not zero bad cells. Old startup fields differ.
 
-## Next analysis and acceptance
+## Next monitoring and acceptance
 
-194is terminal with complete preserved failure and counter/source assessment.
-Further hard-query attribution precedes selecting another implementation. Match actual useful states and
-counted work against193; walltiming includes measured host contention. Timers nest;
-join includes protocol/wait,CPUtime may includeMPIspin. Original continued restart
-byteequality is not adapted restart proof. Keep one connected cycle and return to
-full2eventM6 immediately after qualified changes,if evidence supports them.
+196fulltwoeventM6 is ACTIVE/FROZEN after complete connectedserial/MPIqualification.
+Observecompletealignedfirst-eventcensuses and allwholefieldgates;compareactualuseful
+states/work vs194,with timingcontentionand pathdifferences explicit. Keeponeowned
+heavyjob,pins/handles/resourcesaudited,checkpointacceptedstagesindependently.
+No newimplementationwhilethisrunishealthy. Useactualoutcometochoose thenextblocker.
 
 Existing closure plan: shape/height → residual size → geometry-only repair via
 EnableGeometryRepairs/strict complete-patch guidance,or valid construction return,

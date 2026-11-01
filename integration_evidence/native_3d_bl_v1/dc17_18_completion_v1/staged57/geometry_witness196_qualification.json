@@ -1,0 +1,216 @@
+{
+  "time": 1793499041.213789,
+  "state": "Connected196qualification PASS; no M6 acceptance claim",
+  "source_checkpoint": "12afb10245",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 45.15254616737366,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "cases": {
+    "proof": {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_witness196_proof_20261101T015932_953114",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 16.979416131973267,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 347496448,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "summaries": [
+        [
+          "403",
+          "2"
+        ]
+      ],
+      "terminal_sha256": "34be94656b060bfe53129887b81da88775a82b72f488de51dd7276b218c32dc0",
+      "pins_sha256": "55ce029374922bc67941a29978be7d7cd813e1e1898b5c1ef13a1323b77c1499"
+    },
+    "serial": {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_witness196_serial_20261101T020023_954330",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 249.18970799446106,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 352342016,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "summaries": [
+        [
+          "20739",
+          "68"
+        ]
+      ],
+      "terminal_sha256": "fcf59a5c94a8ed55951484e6042abd7df41aec6641a1930193abecfc06030511",
+      "pins_sha256": "55ce029374922bc67941a29978be7d7cd813e1e1898b5c1ef13a1323b77c1499"
+    },
+    "mpi6": {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_witness196_mpi6_20261101T020448_960790",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 262.25633692741394,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 62550016,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "summaries": [
+        [
+          "31939",
+          "216"
+        ],
+        [
+          "31930",
+          "216"
+        ],
+        [
+          "32414",
+          "216"
+        ],
+        [
+          "32451",
+          "216"
+        ],
+        [
+          "35094",
+          "216"
+        ],
+        [
+          "31660",
+          "216"
+        ]
+      ],
+      "terminal_sha256": "ecf2e1febdb03b2554dc396324b1b80c36f758d956c29e68747b7df17fa03843",
+      "pins_sha256": "289956d55a5e2a6105abc1eb60f8ddd50849e85b4fec3eba5433af7247cb79cf"
+    }
+  },
+  "pins": 1296,
+  "changed": [],
+  "CFD_sha256": "bd71ad267291f8acdec981aaf7bdf221b09836e141ab8eeda64b733fdacb937c",
+  "same_saved_seed": {
+    "baseline_euler_seed.dat": "1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880",
+    "qualification.json": "e5782d139bc9d398780f04e77800757c01012dabd05c2a3b51b3065000b40fc9",
+    "m6.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "m6.su2.native_ref": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+  },
+  "saved_queries": {
+    "time": 1793498424.7416148,
+    "scope": "Same12savedM6querypayload/reference/tolerance under existing rigorous witness order; no fullM6speedup/acceptance claim.",
+    "rows": [
+      {
+        "id": 0,
+        "old_traversal": 625,
+        "new_traversal": 628,
+        "relative_change": 0.0047999999999999154,
+        "old_bound": 4.3414539104802786e-05,
+        "new_bound": 4.3414539104802786e-05
+      },
+      {
+        "id": 1,
+        "old_traversal": 625,
+        "new_traversal": 628,
+        "relative_change": 0.0047999999999999154,
+        "old_bound": 4.342846301083234e-05,
+        "new_bound": 4.342846301083234e-05
+      },
+      {
+        "id": 2,
+        "old_traversal": 618,
+        "new_traversal": 621,
+        "relative_change": 0.004854368932038833,
+        "old_bound": 4.341453910480643e-05,
+        "new_bound": 4.341453910480643e-05
+      },
+      {
+        "id": 3,
+        "old_traversal": 618,
+        "new_traversal": 621,
+        "relative_change": 0.004854368932038833,
+        "old_bound": 4.3428463010825025e-05,
+        "new_bound": 4.3428463010825025e-05
+      },
+      {
+        "id": 4,
+        "old_traversal": 625,
+        "new_traversal": 628,
+        "relative_change": 0.0047999999999999154,
+        "old_bound": 4.343520190203368e-05,
+        "new_bound": 4.343520190203368e-05
+      },
+      {
+        "id": 5,
+        "old_traversal": 693,
+        "new_traversal": 696,
+        "relative_change": 0.0043290043290042934,
+        "old_bound": 4.356884222589747e-05,
+        "new_bound": 4.356884222589747e-05
+      },
+      {
+        "id": 6,
+        "old_traversal": 618,
+        "new_traversal": 621,
+        "relative_change": 0.004854368932038833,
+        "old_bound": 4.34352019020351e-05,
+        "new_bound": 4.34352019020351e-05
+      },
+      {
+        "id": 7,
+        "old_traversal": 687,
+        "new_traversal": 690,
+        "relative_change": 0.004366812227074135,
+        "old_bound": 4.356884222589423e-05,
+        "new_bound": 4.356884222589423e-05
+      },
+      {
+        "id": 8,
+        "old_traversal": 106572,
+        "new_traversal": 74249,
+        "relative_change": -0.3032973013549525,
+        "old_bound": 9.802212326242183e-05,
+        "new_bound": 9.802212326242183e-05
+      },
+      {
+        "id": 9,
+        "old_traversal": 68243,
+        "new_traversal": 50472,
+        "relative_change": -0.26040766085898925,
+        "old_bound": 9.945838364172987e-05,
+        "new_bound": 9.945838364172987e-05
+      },
+      {
+        "id": 10,
+        "old_traversal": 110498,
+        "new_traversal": 77198,
+        "relative_change": -0.3013629205958479,
+        "old_bound": 9.802212326239655e-05,
+        "new_bound": 9.802212326239655e-05
+      },
+      {
+        "id": 11,
+        "old_traversal": 69644,
+        "new_traversal": 52677,
+        "relative_change": -0.24362472000459479,
+        "old_bound": 9.945838364172998e-05,
+        "new_bound": 9.945838364172998e-05
+      }
+    ],
+    "old_traversal": 360066,
+    "new_traversal": 259729,
+    "all_bounds_exact": true,
+    "regressions": "Eight easy queries each cost3extra countedoperations (0.43\u20130.49%); allfourhardqueries improve24.36\u201330.33%.",
+    "proof_case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_witness196_proof_20261101T015932_953114",
+    "proof_assertions": 403,
+    "proof_cases": 2,
+    "terminal_pins_verified": true,
+    "relative_traversal_change": -0.27866280070875893
+  },
+  "followup": "IMMEDIATE full2eventM6sameCFD50k/native5400/outer14400/allstrictgates. Shape then residualgeometry/size then shape reclosure; actualtransfer/continuedCFD/isolatedadaptedrestart required;BL/MPI thenRANS500k."
+}
