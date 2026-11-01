@@ -35,14 +35,53 @@ No197acceptedadaptedmesh/transfer/continuedadaptedCFD/diskrestart yet.
 Initialpartition303359cells:ALL18selectedper-rankfieldsEXACT196.
 InitialcoarseningCOMPLETE292709cells/2627collapses:ALL17selectedcountfields and
 geometryworkEXACT196;traversal191026912/uppercalls14870same. Engine256.557136vs
-250.049109s;hostconditionsdiffer,notisolatedcodetiming. ALLfirst5splitgenerations
-COMPLETE withselectedper-rankcounts/workEXACT196. Gen5:696411cells,9816sizebad,
-4573geometrybad,traversal418620849/uppercalls20086same. q/JintentionallyUNMEASURED;
-noqualityclosure/acceptedmeshclaim. CURRENT/initial_partition_comparison.json,
+250.049109s;hostconditionsdiffer,notisolatedcodetiming. ALL18initialsplitgenerations
+COMPLETE withselectedper-rankcounts/workEXACT196 throughout. Gen18:727818cells,
+0sizebad/3770geometrybad,traversal746099652/uppercalls33088same.
+Constructionq/JintentionallyUNMEASURED. CURRENT/initial_partition_comparison.json,
 coarsening_comparison.json,construction_comparison.json,split_generation_assessment.json.
-Livepins/actualhandles reverified aftergen5:construction_checkpoint_live_provenance.json.
-construction_checkpoint_resources.json retains sampledRSS/RAM/load withpeaklimitations.
-Newpost-qualitycontinuation notyetexercised onM6;frozenruncontinues.
+
+FIRSTcompletequalityENTRY690.404172166engine seconds,round21582:
+727818cells,54081q/53392J/3770geometry/0size,debt25413.45557726506.
+Counts/debt/all6rankdebts+gaugesEXACT196entry. Complete/cache/shape/geometryflags1;
+queue359054,blocked/stuck/missing0,qualitypublications0atentry.
+Initialmigrationconservescounts/debt/completeflags and20selectedcache/memocounters/
+entries/bytes;debtspread15.776024→1.538801. Countsnotproofeverykey/history.
+CURRENT/quality_entry_comparison.json,quality_entry_assessment.json,
+quality_initial_ownership_assessment.json,all_quality_census_assessment.json.
+All10actualHOSThandles/1401pins/82mappedELF reverified1793506861.5344718:
+quality_entry_live_provenance.json. quality_entry_resources.json retains sampled
+RSS/RAM/load withpeaklimitations. Frozenquality repairactive,noacceptedmesh.
+Newpost-qualitycontinuation notyetexercised onM6; doNOTedit pinned sources.
+
+Qualityprogress:window2,round21696,qualityelapsed324.925600s sinceFIRSTentry:
+739233cells,46176q/44617J/3608geometry/0sizebad,
+qJdebt14595.909676722005;3762publishedqualitycavities.
+Wholefieldnet7905q/8775J/162geometry,
+24.328646netq/s,27.006182netJ/s,includingALLelapsedphases.
+Publishedrepairnet7905q/8775J;constructioneditsafterfirstentry0.
+Latestinterval158.194334s:net3982q/4413J/
+52geometry,25.171572netq/s.
+Constructioncrossinginterval=False;donotlabelconstructionchangesrepairchurn.
+All7completequalitycensusesaudited;latestownership_committedround21696:
+queue340993,blockedfeatures79,stuckshape/required
+0/0,missing0,
+privatecollectives0.
+Actualsame-round196reference:fieldsexactTrue,rankdebtsexactTrue,
+commitsexactTrue,windowcountcountersexactTrue;
+relativegeometrytraversalworkchange0.00000000.
+No byteidenticalmesh orisolatedcodetimingclaim;timersnest/joinincludesprotocol+wait.
+1latequalitymigrations audited:counts/debt/completeflags andselectedprepared/numericmemo
+counters/entries/bytes/driftavailabilityconserved;notproofeverykey/history.
+Latestmigrationround21696:debtspread1.906968→1.367042,
+observedfullcost10.588961s,awaitingnextcompletewindowinterval.
+CURRENT/quality_migration_assessment.json retains receipts;doNOTaddnestedatomic/fullcost timers.
+Remainingqsurface/interior12824/33352,J17018/27599.
+Interior meansnophysicalface,notnoconstrainedvertices. Private smoothinggainsarenotpublishedcavitygains.
+CURRENT/quality_window2_service_summary.json,quality_window2_comparison.json,
+quality_service_assessment.json,all_quality_census_assessment.json preserve counters andactualcomparisons.
+ActualHOSTall10handles/1401pins/82mappedELFverified1793507311.792576:quality_window2_live_provenance.json.
+Frozenruncontinues;nocensusaloneprovesmesh/workflowacceptance.
 
 197connectedqualificationPASS BEFOREfullM6:
 build189.466310s/all1296pinsunchanged/all2hosthandlesABSENT1793505621.7061243;
