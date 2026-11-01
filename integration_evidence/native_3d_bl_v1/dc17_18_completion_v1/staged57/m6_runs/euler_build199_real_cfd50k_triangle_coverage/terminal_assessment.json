@@ -1,0 +1,167 @@
+{
+  "time": 1793532254.2374218,
+  "state": "TERMINAL natural first-event time-budget rejection on all6ranks, preserved before signaling only the verified owned launcher.",
+  "native_seconds": 5403.368014249,
+  "terminal_coverage": {
+    "0": {
+      "cells": 136278,
+      "measured": 136278,
+      "q_measured": 136278,
+      "j_measured": 136278,
+      "cache_consistent": 1,
+      "census_complete": 1,
+      "shape_complete": 1,
+      "geometry_complete": 1
+    },
+    "1": {
+      "cells": 129743,
+      "measured": 129743,
+      "q_measured": 129743,
+      "j_measured": 129743,
+      "cache_consistent": 1,
+      "census_complete": 1,
+      "shape_complete": 1,
+      "geometry_complete": 1
+    },
+    "2": {
+      "cells": 136670,
+      "measured": 136670,
+      "q_measured": 136670,
+      "j_measured": 136670,
+      "cache_consistent": 1,
+      "census_complete": 1,
+      "shape_complete": 1,
+      "geometry_complete": 1
+    },
+    "3": {
+      "cells": 134877,
+      "measured": 134877,
+      "q_measured": 134877,
+      "j_measured": 134877,
+      "cache_consistent": 1,
+      "census_complete": 1,
+      "shape_complete": 1,
+      "geometry_complete": 1
+    },
+    "4": {
+      "cells": 140265,
+      "measured": 140265,
+      "q_measured": 140265,
+      "j_measured": 140265,
+      "cache_consistent": 1,
+      "census_complete": 1,
+      "shape_complete": 1,
+      "geometry_complete": 1
+    },
+    "5": {
+      "cells": 124284,
+      "measured": 124284,
+      "q_measured": 124284,
+      "j_measured": 124284,
+      "cache_consistent": 1,
+      "census_complete": 1,
+      "shape_complete": 1,
+      "geometry_complete": 1
+    }
+  },
+  "terminal_whole_field": {
+    "cells": 802117,
+    "q_bad": 4368,
+    "j_bad": 2537,
+    "geometry_bad": 3098,
+    "size_bad": 0,
+    "qj_debt": 36.326780011050275
+  },
+  "quality_seconds": 4131.482940588,
+  "net_removed": {
+    "q_bad": 49713,
+    "j_bad": 50855,
+    "geometry_bad": 672,
+    "qj_debt": 25377.12879725401
+  },
+  "publications": 43866,
+  "net_q_removed_per_second": 12.032725468043385,
+  "net_j_removed_per_second": 12.309139534474811,
+  "net_q_per_publication": 1.133292299275065,
+  "per_rank_service": {
+    "0": {
+      "window_seconds": 4131.494417462,
+      "busy_seconds": 1075.2141988219996,
+      "join_call_seconds": 1794.226956071999,
+      "tracked_collective_call_seconds": 674.8079465114567,
+      "commits": 7176.0,
+      "published_net_q_removed": 8426,
+      "published_net_j_removed": 8383,
+      "published_debt_removed": 4503.438935017094
+    },
+    "1": {
+      "window_seconds": 4131.496961053,
+      "busy_seconds": 1418.4731398599977,
+      "join_call_seconds": 1450.3457203959983,
+      "tracked_collective_call_seconds": 595.0907489454637,
+      "commits": 8170.0,
+      "published_net_q_removed": 8571,
+      "published_net_j_removed": 8542,
+      "published_debt_removed": 3786.020926472662
+    },
+    "2": {
+      "window_seconds": 4131.495976645001,
+      "busy_seconds": 1262.4494366139995,
+      "join_call_seconds": 1606.9330523510012,
+      "tracked_collective_call_seconds": 682.7115091447108,
+      "commits": 6804.0,
+      "published_net_q_removed": 7655,
+      "published_net_j_removed": 8460,
+      "published_debt_removed": 4285.854518639947
+    },
+    "3": {
+      "window_seconds": 4131.496429647001,
+      "busy_seconds": 1195.2494229010017,
+      "join_call_seconds": 1673.7905751990002,
+      "tracked_collective_call_seconds": 706.6913164319262,
+      "commits": 6483.0,
+      "published_net_q_removed": 9902,
+      "published_net_j_removed": 10201,
+      "published_debt_removed": 5640.850640162861
+    },
+    "4": {
+      "window_seconds": 4131.497598324,
+      "busy_seconds": 1159.3277808649989,
+      "join_call_seconds": 1709.5425769820001,
+      "tracked_collective_call_seconds": 622.5933988263923,
+      "commits": 9020.0,
+      "published_net_q_removed": 9057,
+      "published_net_j_removed": 9004,
+      "published_debt_removed": 3123.9440922867834
+    },
+    "5": {
+      "window_seconds": 4131.497902125,
+      "busy_seconds": 1135.3500470420015,
+      "join_call_seconds": 1733.763855562003,
+      "tracked_collective_call_seconds": 699.0281411320493,
+      "commits": 6213.0,
+      "published_net_q_removed": 6102,
+      "published_net_j_removed": 6265,
+      "published_debt_removed": 4037.0196846746603
+    }
+  },
+  "busy_share": 0.29230989879497843,
+  "join_call_share": 0.4021384915389046,
+  "timer_limit": "Rank wall timers overlap. Join includes protocol and waiting; process CPU may include MPI spin. No isolated code or contention attribution.",
+  "construction_returns_by_rank": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "5": 0
+  },
+  "geometry_continuation_exercised": false,
+  "accepted_adapted_meshes": 0,
+  "transfer_adapted_cfd_disk_restart_proved": false,
+  "terminal_handles_receipt": "terminal_handles.json",
+  "unchanged_pins": 1401,
+  "next_target": "Speed of useful closure remains the measured time-budget blocker, with declining repair yield. Next authorized diagnostic is a bounded bad-cell/cavity/reference export to distinguish placement, constraints and missing topology; no further geometry speedup is established.",
+  "counter_review": "terminal_counter_review.json",
+  "geometry_service": "terminal_geometry_service_assessment.json"
+}

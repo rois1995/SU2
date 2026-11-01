@@ -1,6 +1,40 @@
 # Cheaper geometry certification — shared winding screening199
 
-## Current199 qualified change; fullM6 LIVE/FROZEN
+## Current: build199 terminal; bounded cavity export selected by the user
+
+Full M6 exec47583 TERMINAL1. All6 natural time-budget rejections, native maximum
+5403.368014s. COMPLETE EXIT802117cells/4368q/2537J/3098geometry/0size. All10exact
+owned HOST identities absent/all1401pins unchanged1793531839.785239 before any
+source change. The preserved failure predates signaling only the verified launcher.
+No accepted adapted mesh, transfer, adapted CFD or adapted disk restart.
+
+All7counter groups reconcile through complete EXIT, including the final471
+publications. Quality4131.482941s removed49713q/50855J/672geometry through43866
+publications:12.032725netq/s,12.309140netJ/s. Traversal1.471449262B of1.674224805B
+upper work; nested upper4069.367/traversal3385.624/scope469.009 rank seconds.
+Unionmemo472431hits/475942misses cannot classify nearby misses versus evicted exact
+queries. Unchanged-face/context/prepared-data reuse and candidate screens below
+remain relevant. Prior whole-query motion slack succeeds0of12; no new motion cache
+or envelope is justified by those older queries. Counted work is not uniform CPU
+cost and host/timing/ownership effects do not isolate code speedup.
+
+Only33of6132q-or-Jbad cells are fully blocked, with67428queued features; this does
+not prove adequate repair power. Most q-bad cells are interior(3623vs745surface).
+All bad-union cells have an edge<.9; that correlation does not prove construction
+cause. Construction returns0:197geometry continuation is unexercised, not disproved.
+Selected states match198retry1 throughwindow20; confirmed migration decisions differ
+afterround22848/22912 and first measured selected-state difference is21. Actual
+terminal brackets and limits are in current/terminal_comparison.json.
+
+The user's next diagnostic is [bounded bad-cell/cavity/reference export](ADAPTATION_BAD_CAVITY_EXPORT_20261101.md).
+Existing hooks and bounded rank-local snapshot writers are available but were not
+installed in production CFD. The discarded199working mesh cannot be recovered from
+counters or original-grid restarts. Implement that connected diagnostic, validate
+it, then immediately full two-event M6 with the same seed/gates/budgets. No further
+geometry speedup is established or selected. Full terminal receipts and source/
+binary/input provenance are in the current handoff and199evidence directory.
+
+## Build199 qualification and early-window evidence (historical)
 
 Selectedsharedwinding screening is in
 [the connected design](ADAPTATION_GEOMETRY_WINDING_20261101.md). Source86d292e517.

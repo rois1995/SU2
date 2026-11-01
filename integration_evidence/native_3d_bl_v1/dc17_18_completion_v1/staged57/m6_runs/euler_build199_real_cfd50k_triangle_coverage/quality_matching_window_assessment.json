@@ -1,5 +1,5 @@
 {
-  "time": 1793531646.022832,
+  "time": 1793531866.0341074,
   "scope": "Qualified199 winding versus latest198retry1 at actual matching complete first-event quality windows. Different sources; traversal work is intentionally different. No isolated timing or byte-identical mesh/trial-history claim.",
   "work_fields": [
     "upper_calls",
@@ -776,9 +776,42 @@
       "current_net_q_per_second": 12.191634079630719,
       "baseline_net_q_per_second": 11.53034079615212,
       "traversal_work_reduction_fraction": 0.531289614852184
+    },
+    {
+      "window": 24,
+      "round": 23104,
+      "current_census": 50,
+      "baseline_same_round_available": true,
+      "whole_field_equal": false,
+      "rank_debts_equal": false,
+      "window_counters_equal": false,
+      "unchanged_work_fields_equal": false,
+      "current_work": {
+        "upper_calls": 939107,
+        "upper_work": 1662615621,
+        "traversal_work": 1462199700,
+        "scope_build_work": 10705261,
+        "facet_build_work": 2313661,
+        "piece_selection_work": 105169406,
+        "support_facets": 170809518
+      },
+      "baseline_work": {
+        "upper_calls": 949623,
+        "upper_work": 3365202923,
+        "traversal_work": 3160593668,
+        "scope_build_work": 10942006,
+        "facet_build_work": 2354637,
+        "piece_selection_work": 107320805,
+        "support_facets": 173320624
+      },
+      "current_quality_seconds": 4094.3572599159997,
+      "baseline_quality_seconds": 4332.628095375,
+      "current_net_q_per_second": 12.081505559926358,
+      "baseline_net_q_per_second": 11.435784219026438,
+      "traversal_work_reduction_fraction": 0.5373654909189042
     }
   ],
-  "migration_comparison_through_round": 23040,
+  "migration_comparison_through_round": 23104,
   "current_only_migration_rounds": [],
   "baseline_only_migration_rounds": [
     22848,
@@ -813,7 +846,8 @@
     22848,
     22912,
     22976,
-    23040
+    23040,
+    23104
   ],
   "unsettled_boundary_rounds": [],
   "confirmed_migration_decision_differences": [

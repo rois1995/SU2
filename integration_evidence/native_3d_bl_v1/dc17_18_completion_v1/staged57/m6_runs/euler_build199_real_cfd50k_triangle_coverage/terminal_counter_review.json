@@ -1,0 +1,284 @@
+{
+  "time": 1793532254.2359488,
+  "scope": "All seven requested counter groups through fully measured terminal EXIT. The final interval is included; actual terminal counts are known. No new query/profiler campaign.",
+  "complete_censuses": 52,
+  "terminal_census": 51,
+  "terminal_whole_field": {
+    "cells": 802117,
+    "q_bad": 4368,
+    "j_bad": 2537,
+    "geometry_bad": 3098,
+    "size_bad": 0,
+    "qj_debt": 36.326780011050275
+  },
+  "published_churn": {
+    "commits": 43866,
+    "q_removed": 393849,
+    "q_created": 344136,
+    "j_removed": 346235,
+    "j_created": 295380,
+    "unmeasured_churn": 0,
+    "private_tracked_collectives": 0
+  },
+  "net_removed": {
+    "q_bad": 49713,
+    "j_bad": 50855,
+    "geometry_bad": 672,
+    "qj_debt": 25377.12879725401
+  },
+  "ladder": {
+    "0": {
+      "trials": 143017,
+      "certified": 17098,
+      "commits": 17089,
+      "seconds": 2001.6545638499983,
+      "debt_removed": 6201.5717946893055,
+      "q_removed": 9558,
+      "j_removed": 9835,
+      "rejected_by_index": [
+        25937,
+        0,
+        0,
+        99982,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "1": {
+      "trials": 38485,
+      "certified": 25748,
+      "commits": 25740,
+      "seconds": 4791.084845232002,
+      "debt_removed": 17854.556892661654,
+      "q_removed": 36068,
+      "j_removed": 37354,
+      "rejected_by_index": [
+        12050,
+        0,
+        0,
+        8045,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "2": {
+      "trials": 151829,
+      "certified": 1038,
+      "commits": 1037,
+      "seconds": 105.17372538500021,
+      "debt_removed": 1321.0001099030492,
+      "q_removed": 4087,
+      "j_removed": 3666,
+      "rejected_by_index": [
+        130717,
+        0,
+        0,
+        16799,
+        0,
+        0,
+        0,
+        3275
+      ]
+    }
+  },
+  "ladder_kind_names": {
+    "0": "coordinate moves",
+    "1": "optimizer",
+    "2": "collapse/reconnect"
+  },
+  "rejection_names_by_index": [
+    "geometry/association",
+    "height/footprint",
+    "shape",
+    "insufficient progress",
+    "measurement",
+    "publication clearance/dependency",
+    "publication stage/validation",
+    "other operator refusal"
+  ],
+  "locations": {
+    "q_surface": 745,
+    "q_interior": 3623,
+    "j_surface": 656,
+    "j_interior": 1881,
+    "q_feature": 295,
+    "q_no_feature": 4073,
+    "q_feature_unknown": 0,
+    "j_feature": 132,
+    "j_no_feature": 2405,
+    "j_feature_unknown": 0,
+    "bad_union": 6132,
+    "short09": 6132,
+    "short05": 6045
+  },
+  "histograms": {
+    "q_miss_hist": [
+      947,
+      3054,
+      321,
+      41,
+      5,
+      0
+    ],
+    "j_miss_hist": [
+      520,
+      1744,
+      249,
+      19,
+      5,
+      0
+    ],
+    "geometry_excess_hist": [
+      85,
+      478,
+      1650,
+      844,
+      41,
+      0
+    ],
+    "geometry_authority_types": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      6,
+      3096,
+      0
+    ]
+  },
+  "histogram_normalized_miss_intervals": [
+    "[0,.01)",
+    "[.01,.1)",
+    "[.1,.25)",
+    "[.25,.5)",
+    "[.5,infinity)",
+    "nonfinite"
+  ],
+  "geometry_histogram_relative_excess_intervals": [
+    "[0,.01)",
+    "[.01,.1)",
+    "[.1,1)",
+    "[1,10)",
+    "[10,infinity)",
+    "nonfinite"
+  ],
+  "short09_share": 1.0,
+  "short05_share": 0.985812133072407,
+  "drift": {
+    "global_samples": 16,
+    "supported": 16,
+    "lost": 0,
+    "maximum_relative_frobenius": 0.04430482335549069,
+    "limit": "Replicated global samples, not96independent samples or proof of immutable original continuous CFD target fidelity."
+  },
+  "per_rank_service": {
+    "0": {
+      "window_seconds": 4131.494417462,
+      "busy_seconds": 1075.2141988219996,
+      "join_call_seconds": 1794.226956071999,
+      "tracked_collective_call_seconds": 674.8079465114567,
+      "commits": 7176.0,
+      "published_net_q_removed": 8426,
+      "published_net_j_removed": 8383,
+      "published_debt_removed": 4503.438935017094
+    },
+    "1": {
+      "window_seconds": 4131.496961053,
+      "busy_seconds": 1418.4731398599977,
+      "join_call_seconds": 1450.3457203959983,
+      "tracked_collective_call_seconds": 595.0907489454637,
+      "commits": 8170.0,
+      "published_net_q_removed": 8571,
+      "published_net_j_removed": 8542,
+      "published_debt_removed": 3786.020926472662
+    },
+    "2": {
+      "window_seconds": 4131.495976645001,
+      "busy_seconds": 1262.4494366139995,
+      "join_call_seconds": 1606.9330523510012,
+      "tracked_collective_call_seconds": 682.7115091447108,
+      "commits": 6804.0,
+      "published_net_q_removed": 7655,
+      "published_net_j_removed": 8460,
+      "published_debt_removed": 4285.854518639947
+    },
+    "3": {
+      "window_seconds": 4131.496429647001,
+      "busy_seconds": 1195.2494229010017,
+      "join_call_seconds": 1673.7905751990002,
+      "tracked_collective_call_seconds": 706.6913164319262,
+      "commits": 6483.0,
+      "published_net_q_removed": 9902,
+      "published_net_j_removed": 10201,
+      "published_debt_removed": 5640.850640162861
+    },
+    "4": {
+      "window_seconds": 4131.497598324,
+      "busy_seconds": 1159.3277808649989,
+      "join_call_seconds": 1709.5425769820001,
+      "tracked_collective_call_seconds": 622.5933988263923,
+      "commits": 9020.0,
+      "published_net_q_removed": 9057,
+      "published_net_j_removed": 9004,
+      "published_debt_removed": 3123.9440922867834
+    },
+    "5": {
+      "window_seconds": 4131.497902125,
+      "busy_seconds": 1135.3500470420015,
+      "join_call_seconds": 1733.763855562003,
+      "tracked_collective_call_seconds": 699.0281411320493,
+      "commits": 6213.0,
+      "published_net_q_removed": 6102,
+      "published_net_j_removed": 6265,
+      "published_debt_removed": 4037.0196846746603
+    }
+  },
+  "final_measured_interval": {
+    "census": 51,
+    "round": 23129,
+    "max_engine_elapsed": 5317.211946829,
+    "whole_field": {
+      "cells": 802117,
+      "q_bad": 4368,
+      "j_bad": 2537,
+      "geometry_bad": 3098,
+      "size_bad": 0,
+      "qj_debt": 36.326780011050275
+    },
+    "totals": {
+      "commits": 471,
+      "q_removed": 1329,
+      "q_created": 1082,
+      "j_removed": 893,
+      "j_created": 703,
+      "unmeasured_churn": 0,
+      "private_tracked_collectives": 0,
+      "queue": 67428,
+      "blocked_features": 581,
+      "stuck_shape": 33,
+      "stuck_required": 33,
+      "missing_features": 0,
+      "construction_edits": 0,
+      "ownership_changes": 0
+    },
+    "global_net_change": {
+      "q_bad": 247,
+      "j_bad": 190,
+      "geometry_bad": 8,
+      "qj_debt": 5.406944913809909
+    }
+  },
+  "limits": [
+    "Churn uses physical coordinates; introduction/retirement is not necessarily a connectivity change.",
+    "Interior means no physical face, not all vertices unconstrained.",
+    "Geometry authority bins overlap.",
+    "Private smoothing gain is not published cavity gain.",
+    "Short-edge correlation is not a construction cause.",
+    "Rank-local queue/stuck flags do not prove adequate or exhausted repair power."
+  ]
+}

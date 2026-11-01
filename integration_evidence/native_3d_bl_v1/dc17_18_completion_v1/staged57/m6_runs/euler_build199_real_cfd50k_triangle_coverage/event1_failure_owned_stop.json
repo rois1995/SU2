@@ -1,0 +1,75 @@
+{
+  "time": 1793531826.436573,
+  "failure_sha256": "e9600cda9d01b4f7b8f017db1bc3b903d6d77266a2cc58a2631f2a61e848bb5b",
+  "reason": "First event naturally rejected on all six ranks; exact terminal counts and census coverage are preserved in event1_natural_failure.json. A failed consumed event cannot produce two accepted events in this attempt. Stop only verified remaining owned launcher after preserving natural failure.",
+  "handles": [
+    {
+      "pid": 1607128,
+      "expected_startticks": 94120510,
+      "startticks": 94120510,
+      "state": "S"
+    },
+    {
+      "pid": 1607401,
+      "expected_startticks": 94121590,
+      "startticks": 94121590,
+      "state": "S"
+    },
+    {
+      "pid": 1607402,
+      "expected_startticks": 94121591,
+      "startticks": 94121591,
+      "state": "S"
+    },
+    {
+      "pid": 1607403,
+      "expected_startticks": 94121591,
+      "startticks": 94121591,
+      "state": "S"
+    },
+    {
+      "pid": 1607416,
+      "expected_startticks": 94121607,
+      "startticks": 94121607,
+      "state": "R"
+    },
+    {
+      "pid": 1607413,
+      "expected_startticks": 94121605,
+      "startticks": 94121605,
+      "state": "R"
+    },
+    {
+      "pid": 1607410,
+      "expected_startticks": 94121605,
+      "startticks": 94121605,
+      "state": "R"
+    },
+    {
+      "pid": 1607409,
+      "expected_startticks": 94121604,
+      "startticks": 94121604,
+      "state": "R"
+    },
+    {
+      "pid": 1607408,
+      "expected_startticks": 94121603,
+      "startticks": 94121603,
+      "state": "R"
+    },
+    {
+      "pid": 1607407,
+      "expected_startticks": 94121602,
+      "startticks": 94121602,
+      "state": "R"
+    }
+  ],
+  "pin_count": 1401,
+  "changed": [],
+  "signal_target": {
+    "pid": 1607403,
+    "expected_startticks": 94121591,
+    "startticks": 94121591,
+    "state": "S"
+  }
+}

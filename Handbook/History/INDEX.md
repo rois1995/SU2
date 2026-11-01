@@ -41,3 +41,5 @@ These later snapshots are separate from the original line-range archive above.
   historical-body hash. Current build/run state remains in the root handoff.
 
 - [Build198 terminal evidence and199qualification transition](HANDOFF_Codex_build198_terminal_20261101.md): exact historical handles, failure limits and counter analysis; current state remains in the root handoff.
+
+- [Build199 qualification and live monitoring](HANDOFF_Codex_build199_20261101.md): historical section; actual complete terminal outcome is in the current root handoff.

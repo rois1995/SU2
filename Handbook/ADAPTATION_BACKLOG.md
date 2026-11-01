@@ -406,3 +406,12 @@ and no incremental M6 saving from this preparation reuse is established. Keep
 raw proposal/projection non-idempotence, fresh associations, exact old-star state,
 full validation and transient admission if later evidence selects it. Active199
 change is only shared conservative winding screening; no competing implementation.
+
+
+2026-11-01 build199 terminal: complete4368q/2537J/3098geometry bad at the unchanged
+native time limit. Counted traversal savings did not establish accepted closure.
+The user selected bounded bad-cell/cavity/reference export as the active next
+diagnostic; see ADAPTATION_BAD_CAVITY_EXPORT_20261101.md. Keep motion/slack caches,
+extra envelopes and unproven measured-cost ownership alternatives deferred. Use
+actual exported placement, constraints and topology-rejection evidence before
+selecting another repair or construction change. No new speedup is established.
