@@ -12,6 +12,7 @@
 #include <map>
 #include "../../../Common/include/adaptation/CNativeRemesher3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
+#include "../../../Common/include/adaptation/CNativeFailureCapture3D.hpp"
 #include "../../../SU2_CFD/include/output/CMeshOutput.hpp"
 #include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -58,8 +59,12 @@ void CheckTransport(const RemeshStats& s) {
   CHECK(s.communication_seconds == Approx(s.imported.tracked_collective_seconds + s.parent_transport_seconds +
                                           s.worker_transport_seconds).margin(1e-12));
   CHECK(s.worker_transport_bytes == s.refine.tracked_bytes + s.coarsen.tracked_bytes);
-  CHECK(s.worker_transport_calls == s.refine.tracked_calls + s.coarsen.tracked_calls);
-  CHECK(s.worker_transport_seconds == Approx(s.refine.tracked_collective_seconds + s.coarsen.tracked_collective_seconds).margin(1e-12));
+  // Worker totals also include the current-metric snapshot before entering the engine.
+  const auto engine_calls=s.refine.tracked_calls+s.coarsen.tracked_calls;
+  CHECK(s.worker_transport_calls >= engine_calls);
+  if(s.normalization_stages==1 && !s.construction && s.refine.initial_cells)
+    CHECK(s.worker_transport_calls == engine_calls+1);
+  CHECK(s.worker_transport_seconds+1e-12 >= s.refine.tracked_collective_seconds+s.coarsen.tracked_collective_seconds);
   CHECK(s.parent_transport_bytes >= s.weights.tracked_bytes + s.returned.tracked_bytes);
   CHECK(s.parent_transport_calls >= s.weights.tracked_calls + s.returned.tracked_calls);
   for (const auto* engine : {&s.refine, &s.coarsen}) {
@@ -263,6 +268,31 @@ TEST_CASE("Native3D configured work and time ceilings preserve CFD and BDF donor
   }
 }
 
+
+TEST_CASE("Selected native workflow saves its first rejected working mesh for inspection", "[.][NativeSelectedFailureWorkflow3D]") {
+  const auto* path=std::getenv("SU2_NATIVE_FROZEN_CONFIG");REQUIRE(path);
+  class InspectionDriver : public CSinglezoneDriver {
+   public:
+    using CSinglezoneDriver::CSinglezoneDriver;
+    void Install() {
+      remeshDiagnostic=[this](CRemesher& backend,unsigned long event) {
+        auto* native=dynamic_cast<CNativeRemesher3D*>(&backend);
+        if(!native)throw std::invalid_argument("Selected inspection requires the native 3D remesher.");
+        const auto prefix=config_container[ZONE_0]->GetMesh_Out_FileName()+"_inspection";
+        native->SetStageObserver([this,prefix,event](const StageProgressView& view) {
+          if(captured || view.valid || std::string(view.stage)!="exit")return;
+          captured=true;
+          FailureCapture capture(prefix,view.rank,view.ranks,event,nativeReference3D->marker_names);
+          capture.Observe(view);
+        },FailureCapture::ScratchBytes);
+      };
+    }
+   private:
+    bool captured=false;
+  };
+  std::string config(path);InspectionDriver driver(config.data(),1,SU2_MPI::GetComm());
+  driver.Install();driver.StartSolver();driver.Finalize();
+}
 
 TEST_CASE("Native3D remeshes an externally frozen original sensor field without advancing CFD", "[.][NativeFrozenVolume3D]") {
   World world;

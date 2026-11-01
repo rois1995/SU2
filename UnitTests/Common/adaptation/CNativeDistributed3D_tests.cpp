@@ -9,11 +9,13 @@
 #include "../../../Common/include/adaptation/CNativeDonor3D.hpp"
 #include "../../../Common/include/adaptation/CNativeRegionField3D.hpp"
 #include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
+#include "../../../Common/include/adaptation/CNativeFailureCapture3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include "../../../Common/include/adaptation/CNativeOptimize3D.hpp"
 #include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
 #include "SimplexMeshTestCase.hpp"
 #include <cmath>
+#include <cstdlib>
 #include <fstream>
 #include <chrono>
 #include <ctime>
@@ -3496,6 +3498,102 @@ TEST_CASE("Final reservations include expanded candidates and completed peers wi
   CHECK(Bytes(input)==before);CHECK(directory.Snapshot()==metadata);
 }
 
+TEST_CASE("Selected failure capture streams actual owned records without changing repair decisions", "[NativeFailureCapture3D]") {
+  const bool construction=GENERATE(false,true);
+  const bool mapped=GENERATE(false,true);
+  World world;const auto fixture=Box(.05);
+  auto root_geometry=std::make_shared<PlanarReference>(fixture.facets);
+  std::shared_ptr<const PlanarReference> reference=root_geometry;
+  if(mapped) {
+    SU2NativeGeometry::MappedFacetReference::CurvedNets controls;std::map<Id,double> errors;
+    const unsigned powers[10][3]={{3,0,0},{0,3,0},{0,0,3},{2,1,0},{1,2,0},{0,2,1},{0,1,2},{1,0,2},{2,0,1},{1,1,1}};
+    std::map<int,int> roles;
+    for(const auto& f:fixture.facets) {
+      errors.emplace(f.id,1e-12);roles.emplace(f.marker,2);auto& net=controls[f.id];
+      for(unsigned q=0;q<10;++q)for(unsigned k=0;k<3;++k) {
+        net[q].x+=powers[q][k]*f.v[k].p.x/3;net[q].y+=powers[q][k]*f.v[k].p.y/3;net[q].z+=powers[q][k]*f.v[k].p.z/3;
+      }
+      if(f.id==0)net[9].z+=1e-5;
+    }
+    auto authority=std::make_shared<SU2NativeGeometry::MappedFacetReference>(root_geometry,errors,7,SIZE_MAX,false,controls);
+    BoundaryPoints points;for(const auto& f:fixture.facets)for(auto n:f.v)points.emplace(n.id,BoundaryPoint{n,authority->Vertex(n.id)});
+    auto parameters=std::make_shared<BoundaryParameterState>(authority,points,fixture.patch.surface);
+    SU2NativeGeometry::AtlasBudget budget{100000,size_t(1)<<30,8192};
+    parameters=parameters->WithMobilityPolicy(45,roles,budget);
+    reference=PlanarReference::WithParameters(root_geometry,parameters);
+  }
+  const auto& geometry=*reference;
+  Owned input;for(const auto& row:Rows(fixture.patch))
+    if(row.cell.id%std::max(1,world.size-1)==unsigned(world.rank))input.emplace(row.cell.id,row);
+  const Tensor tensor=construction?Tensor{4,0,0,4,0,4}:Tensor{};
+  const auto source=Uniform(input,tensor);const auto original=Bytes(input);
+  EngineOptions options;options.maximum_rounds=1;options.maximum_work=4096;options.phase_ownership=PhaseOwnership::Disabled;
+  options.surface_tolerance=1e-4;
+  for(const auto& f:fixture.facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))options.wall_heights.emplace(f.marker,.05);
+  const auto baseline=construction?Refine(world,input,source,geometry,{},options):Repair(world,input,source,geometry,{},options);
+  std::vector<char> directory;
+  if(!world.rank) {
+    const auto* temporary=std::getenv("TMPDIR");REQUIRE(temporary);
+    std::string name=std::string(temporary)+"/native-failure-capture-XXXXXX";
+    REQUIRE(mkdtemp(name.data()));directory.assign(name.begin(),name.end());
+  }
+  const auto shared=CPassiveComm::Allgatherv(directory,nullptr,world.comm);
+  const std::string root(shared.begin(),shared.end());
+  FailureCapture capture(root+"/full",world.rank,world.size,1),capped(root+"/capped",world.rank,world.size,1,{},1024);
+  FailureCapture unknown(root+"/unknown",world.rank,world.size,1),refused(root+"/refused",world.rank,world.size,1);
+  std::vector<char> observed;bool exit_seen=false;size_t measured=0;
+  options.stage_observer_bytes=FailureCapture::ScratchBytes;
+  options.stage_observer=[&](const StageProgressView& view) {
+    CHECK(view.rank==world.rank);CHECK(view.ranks==world.size);
+    for(const auto& item:view.working) {
+      CellDiagnostic d;if(!view.cell_diagnostic(item.first,d))continue;
+      CHECK(d.cache_valid);
+      if(view.phase==EnginePhase::Construction){CHECK_FALSE(d.q_measured);CHECK_FALSE(d.j_measured);}
+      if(d.q_measured&&d.j_measured) {
+        const auto& v=item.second.cell.v;const auto exact=Measure({v[0].p,v[1].p,v[2].p,v[3].p},tensor);
+        CHECK(d.q==Approx(exact.mean_ratio));CHECK(d.J==Approx(exact.minimum_scaled_jacobian));++measured;
+      }
+      for(size_t k=0;k<6;++k) {
+        const auto& v=item.second.cell.v;Point a{},b{};
+        for(const auto& n:v){if(n.id==d.edges[k][0])a=n.p;if(n.id==d.edges[k][1])b=n.p;}
+        CHECK(double(d.lengths[k])==Approx(double(MetricNorm(a,b,tensor))));
+      }
+    }
+    if(std::string(view.stage)!="exit")return;
+    exit_seen=true;observed=Bytes(view.working);
+    capture.Observe(view);capped.Observe(view);
+    auto missing=view;missing.cell_diagnostic={};unknown.Observe(missing);
+    auto no_scratch=view;no_scratch.stage_observer_bytes=0;refused.Observe(no_scratch);
+  };
+  const auto result=construction?Refine(world,input,source,geometry,{},options):Repair(world,input,source,geometry,{},options);
+  INFO(result.reason);CHECK_FALSE(result.valid);CHECK(exit_seen);CHECK(capture.Complete());CHECK(unknown.Complete());CHECK_FALSE(refused.Complete());
+  CHECK(result.valid==baseline.valid);CHECK(result.reason==baseline.reason);CHECK(Bytes(result.cells)==Bytes(baseline.cells));
+  CHECK(result.stats.accepted==baseline.stats.accepted);CHECK(result.stats.global_work==baseline.stats.global_work);
+  CHECK(result.stats.field_requests==baseline.stats.field_requests);CHECK(result.stats.field_edges==baseline.stats.field_edges);
+  CHECK(Bytes(input)==original);CHECK(observed==Bytes(result.cells));
+  if(!construction)CHECK(world.sum(int(measured))>0);
+  const auto stem=root+"/full_rank"+std::to_string(world.rank);
+  std::ifstream binary(stem+"_owned.bin",std::ios::binary);uint64_t count=UINT64_MAX;binary.read(reinterpret_cast<char*>(&count),8);
+  REQUIRE(count==result.cells.size());std::vector<char> payload((std::istreambuf_iterator<char>(binary)),{});
+  CHECK(payload.size()==count*416);RecordStream decode(static_cast<const std::vector<char>&>(payload));Owned restored;
+  for(uint64_t i=0;i<count;++i){OwnedCell row;decode(row);restored.emplace(row.cell.id,row);}
+  CHECK(decode.End());CHECK(Bytes(restored)==Bytes(result.cells));
+  const auto read=[](const std::string& path){std::ifstream file(path);return std::string(std::istreambuf_iterator<char>(file),{});};
+  const auto manifest=read(capture.ManifestPath());FailureCapture overwrite(root+"/full",world.rank,world.size,1);
+  CHECK(manifest.find("\"wall_heights\":[[")!=std::string::npos);
+  if(mapped) {
+    const auto metadata=read(stem+"_reference.jsonl");CHECK(metadata.find("\"controls\":[")!=std::string::npos);
+    CHECK(metadata.find("\"kind\":\"feature\"")!=std::string::npos);CHECK(metadata.find("\"body\":null")==std::string::npos);
+    if(count)CHECK(read(stem+"_metrics.jsonl").find("\"mobility_dimension\":")!=std::string::npos);
+  }
+  options.stage_observer=[&](const StageProgressView& view){overwrite.Observe(view);};
+  const auto again=construction?Refine(world,input,source,geometry,{},options):Repair(world,input,source,geometry,{},options);
+  CHECK_FALSE(overwrite.Complete());CHECK(read(capture.ManifestPath())==manifest);CHECK(Bytes(again.cells)==Bytes(result.cells));
+  if(world.size>1&&world.rank==world.size-1)CHECK(count==0);
+  if(!result.cells.empty())CHECK_FALSE(capped.Complete());
+  if(!world.rank)std::cout<<"NATIVE_FAILURE_CAPTURE_TEST construction="<<construction<<" mapped="<<mapped<<" ranks="<<world.size<<" root="<<root<<std::endl;
+}
+
 TEST_CASE("Rejected working states are observable without changing accepted inputs", "[NativeRejectedState3D]") {
   World world;const auto fixture=Box();const PlanarReference geometry(fixture.facets);
   const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
@@ -4513,6 +4611,13 @@ TEST_CASE("Phase ownership preserves a complete census without a subsequent edit
     CHECK(view.progress.geometry_complete);CHECK(view.progress.unmeasured_cells==0);
     CHECK(view.progress.shape_unmeasured_cells==0);
     CHECK(view.stats.ownership_changes==(world.size>1?2:0));
+    for(const auto& item:view.working) {
+      CellDiagnostic d;CHECK(view.cell_diagnostic(item.first,d));CHECK(d.cache_valid);
+      CHECK(d.q_measured);CHECK(d.j_measured);CHECK(d.geometry_measured);
+      const auto& v=item.second.cell.v;const auto direct=Measure({v[0].p,v[1].p,v[2].p,v[3].p},Tensor{});
+      CHECK(d.q==Approx(direct.mean_ratio));CHECK(d.J==Approx(direct.minimum_scaled_jacobian));
+      CHECK(d.q_bad==(direct.mean_ratio<MinimumMeanRatio));CHECK(d.j_bad==(direct.minimum_scaled_jacobian<MinimumScaledJacobian));
+    }
   };
   const auto result=AdaptMetric(world,input,source,geometry,{},options);INFO(result.reason);
   CHECK(world.maximum(quality_seen));CHECK(result.stats.attempted==0);

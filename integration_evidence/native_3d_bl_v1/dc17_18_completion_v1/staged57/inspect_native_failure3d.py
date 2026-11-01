@@ -18,7 +18,7 @@ from typing import Any, Iterator
 
 SCHEMA = "native_failure3d_v1"
 OWNED_FORMAT = 0x4E334443454C4C02
-OWNED_RECORD_BYTES = 381
+OWNED_RECORD_BYTES = 416
 FILE_LIMIT = 128 << 20
 MAX_CORE_CELLS = 32768
 MAX_CAVITY_CELLS = 262144
@@ -120,7 +120,7 @@ def _load_manifests(inputs: list[str]) -> tuple[list[dict[str, Any]], list[str]]
         if not isinstance(manifest.get("event"), (int, str)) or isinstance(manifest.get("event"), bool):
             raise InspectionError(f"invalid event in {path}")
         _boolean(manifest.get("complete_shard"), "complete_shard")
-        for flag in ("owned_complete", "metrics_complete", "reference_complete"):
+        for flag in ("owned_complete", "metrics_complete", "reference_complete", "rejections_complete"):
             _boolean(manifest.get(flag), flag)
         _integer(manifest.get("working_rows"), "working_rows")
         written = _integer(manifest.get("written_rows"), "written_rows")
@@ -216,13 +216,11 @@ def _read_owned(path: Path, expected: int, cap: int) -> Iterator[dict[str, Any]]
             version = u64()
             physical = []
             for _ in range(4):
-                present = record[offset]
-                offset += 1
+                present = u64()
                 if present not in (0, 1):
                     raise InspectionError(f"invalid physical bool in {path}, row {row_index}")
                 physical.append({"present": bool(present), "facet": u64()})
-            sensor_present = record[offset]
-            offset += 1
+            sensor_present = u64()
             if sensor_present not in (0, 1):
                 raise InspectionError(f"invalid sensor bool in {path}, row {row_index}")
             sensor = [f64() for _ in range(24)]
@@ -238,12 +236,21 @@ def _validate_metric(row: dict[str, Any], cell: dict[str, Any], path: Path) -> d
     if cell_id != cell["id"] or version != cell["version"]:
         raise InspectionError(f"metric id/version mismatch in {path}: {cell_id}/{version} != {cell['id']}/{cell['version']}")
     cache_valid = _boolean(row.get("cache_valid"), "cache_valid")
+    measured = {}
+    for channel, value_name in (("q", "q"), ("j", "J"), ("geometry", "geometry_excess_l2")):
+        flag = channel + "_measured"
+        measured[channel] = _boolean(row.get(flag, cache_valid and row.get(value_name) is not None), flag)
     for name in ("q_bad", "j_bad", "geometry_bad", "size_bad", "height_bad", "height_unresolved",
                  "surface", "near_feature", "feature_known"):
         _boolean(row.get(name), name)
     q = _finite(row.get("q"), "q", nullable=True)
     jac = _finite(row.get("J"), "J", nullable=True)
     geometry_excess = _finite(row.get("geometry_excess_l2"), "geometry_excess_l2", nullable=True)
+    for channel, value in (("q", q), ("j", jac), ("geometry", geometry_excess)):
+        if measured[channel] != (value is not None):
+            raise InspectionError(f"{channel}_measured disagrees with its value")
+    if not cache_valid and (q is not None or jac is not None or geometry_excess is not None):
+        raise InspectionError("cache-invalid metric row must mark q/J/geometry excess unknown")
     if geometry_excess is not None and geometry_excess < 0:
         raise InspectionError("geometry_excess_l2 must be nonnegative")
     edges = row.get("edges")
@@ -256,9 +263,10 @@ def _validate_metric(row: dict[str, Any], cell: dict[str, Any], path: Path) -> d
         if not isinstance(edge, list) or len(edge) != 3:
             raise InspectionError("each edge must be [a,b,length]")
         a, b = _integer(edge[0], "edge a"), _integer(edge[1], "edge b")
-        length = _finite(edge[2], "edge length")
+        length = _finite(edge[2], "edge length", nullable=not cache_valid)
         key = tuple(sorted((a, b)))
-        if a == b or a not in cell_nodes or b not in cell_nodes or key in seen_edges or length < 0:
+        if (a == b or a not in cell_nodes or b not in cell_nodes or key in seen_edges
+                or (length is not None and length < 0)):
             raise InspectionError("invalid or duplicate cell edge")
         seen_edges.add(key)
         normalized_edges.append([a, b, length])
@@ -288,8 +296,10 @@ def _validate_metric(row: dict[str, Any], cell: dict[str, Any], path: Path) -> d
                 _finite(binding[name], f"binding {name}")
     result = dict(row)
     result.update(q=q, J=jac, geometry_excess_l2=geometry_excess, edges=normalized_edges,
-                  is_bad=bool(row["q_bad"] or row["j_bad"] or row["geometry_bad"] or row["size_bad"] or
-                              row["height_bad"] or row["height_unresolved"]))
+                  q_measured=measured["q"], j_measured=measured["j"],
+                  geometry_measured=measured["geometry"],
+                  is_bad=bool(cache_valid and (row["q_bad"] or row["j_bad"] or row["geometry_bad"] or
+                                               row["size_bad"] or row["height_bad"] or row["height_unresolved"])))
     return result
 
 
@@ -370,7 +380,8 @@ def _pair_rows(manifest: dict[str, Any], cell_ids: set[int], node_coords: dict[i
                 raise InspectionError(f"conflicting coordinates for global node {node['id']}")
         if len(node_coords) > MAX_GLOBAL_NODES:
             raise InspectionError("unique node count exceeds internal safety cap")
-        if not metric["cache_valid"] or metric["q"] is None or metric["J"] is None:
+        if (not metric["cache_valid"] or not metric["q_measured"] or not metric["j_measured"]
+                or not metric["geometry_measured"]):
             counts["unknown_metric_rows"] += 1
         if metric["is_bad"]:
             counts["bad_rows_total"] += 1
@@ -479,11 +490,24 @@ def _write_vtu(path: Path, cells: list[dict[str, Any]], *, reference: bool = Fal
             ("geometry_excess_l2", lambda x: x["metric"]["geometry_excess_l2"]),
         ):
             _xml_array(cell_data, name, "Float64", ["nan" if getter(c) is None else getter(c) for c in cells])
-        for name in ("q_bad", "j_bad", "geometry_bad", "size_bad", "height_bad", "height_unresolved",
-                     "surface", "near_feature", "feature_known", "cache_valid"):
+        for name in ("q_bad", "j_bad", "geometry_bad", "size_bad", "height_bad", "height_unresolved"):
+            _xml_array(cell_data, name, "Float64", [
+                "nan" if not c["metric"]["cache_valid"] else int(c["metric"][name]) for c in cells])
+        for name in ("surface", "near_feature", "feature_known", "cache_valid"):
             _xml_array(cell_data, name, "UInt8", [int(c["metric"][name]) for c in cells])
         for index in range(6):
-            _xml_array(cell_data, f"edge_{index}_length", "Float64", [c["metric"]["edges"][index][2] for c in cells])
+            _xml_array(cell_data, f"edge_{index}_length", "Float64", [
+                "nan" if (not c["metric"]["cache_valid"] or c["metric"]["edges"][index][2] is None)
+                else c["metric"]["edges"][index][2]
+                for c in cells])
+        def edge_extreme(item: dict[str, Any], which: str) -> float | str:
+            lengths = [e[2] for e in item["metric"]["edges"]]
+            if not item["metric"]["cache_valid"] or any(x is None for x in lengths):
+                return "nan"
+            return min(lengths) if which == "min" else max(lengths)
+        for which in ("min", "max"):
+            _xml_array(cell_data, f"metric_edge_{which}", "Float64",
+                       [edge_extreme(c, which) for c in cells])
     point_section = ET.SubElement(piece, "Points")
     _xml_array(point_section, "coordinates", "Float64", [x for _, xyz in points for x in xyz], 3)
     cell_section = ET.SubElement(piece, "Cells")
@@ -558,10 +582,20 @@ def _write_full_vtu(path: Path, manifests: list[dict[str, Any]],
                     elif name == "geometry_excess_l2":
                         yield "nan" if metric["geometry_excess_l2"] is None else metric["geometry_excess_l2"]
                     elif name == "geometry_bad":
-                        yield int(metric["geometry_bad"])
+                        yield "nan" if not metric["cache_valid"] else int(metric["geometry_bad"])
+                    elif name == "cache_valid":
+                        yield int(metric["cache_valid"])
+                    elif name in ("metric_edge_min", "metric_edge_max"):
+                        lengths = [edge[2] for edge in metric["edges"]]
+                        if not metric["cache_valid"] or any(x is None for x in lengths):
+                            yield "nan"
+                        else:
+                            yield min(lengths) if name.endswith("min") else max(lengths)
 
         for name, kind in (("global_cell_id", "UInt64"), ("q", "Float64"), ("J", "Float64"),
-                           ("geometry_excess_l2", "Float64"), ("geometry_bad", "UInt8")):
+                           ("geometry_excess_l2", "Float64"), ("geometry_bad", "Float64"),
+                           ("cache_valid", "UInt8"), ("metric_edge_min", "Float64"),
+                           ("metric_edge_max", "Float64")):
             _stream_data_array(stream, name, kind, cell_values(name))
         stream.write('</CellData><Points>')
         _stream_data_array(stream, "coordinates", "Float64",
@@ -790,8 +824,11 @@ def inspect(inputs: list[str], output: str) -> dict[str, Any]:
     _write_lines(output_path / "reference_records.jsonl", [*facets, *feature_rows])
     _write_lines(output_path / "rejections_historical.jsonl", rejections)
     source_complete = not missing_ranks and all(
-        m["complete_shard"] and m["owned_complete"] and m["written_rows"] == m["working_rows"]
+        m["owned_complete"] and m["written_rows"] == m["working_rows"]
         for m in manifests)
+    bad_set_complete = (not missing_ranks and all(m["metrics_complete"] for m in manifests)
+                        and counts["unknown_metric_rows"] == 0 and omitted_cores == 0)
+    cavity_complete = source_complete and bad_set_complete and omitted_cavity == 0
     full_mesh_exported_cells = 0
     full_mesh_complete = False
     full_mesh_error = None
@@ -836,7 +873,9 @@ def inspect(inputs: list[str], output: str) -> dict[str, Any]:
         "present_ranks": [m["rank"] for m in manifests], "missing_ranks": [int(x) for x in missing_ranks],
         "input_rows": counts["input_rows"], "bad_rows_total": counts["bad_rows_total"],
         "bad_cells_retained": len(bad_rows), "bad_cells_omitted": omitted_cores,
+        "bad_set_complete": bad_set_complete,
         "cavity_cells_retained": len(cavity_rows), "cavity_cells_omitted": omitted_cavity,
+        "cavity_complete": cavity_complete,
         "unknown_metric_rows": counts["unknown_metric_rows"],
         "actual_full_mesh_points": len(node_coords), "actual_full_mesh_cells": counts["input_rows"],
         "full_mesh_exported_cells": full_mesh_exported_cells,

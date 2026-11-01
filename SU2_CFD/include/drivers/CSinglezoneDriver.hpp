@@ -33,6 +33,7 @@
 #include "../../../Common/include/adaptation/CSimplexMesh.hpp"
 
 #include <memory>
+#include <functional>
 
 class CSolutionTransfer;
 class CMultiGridIntegration;
@@ -61,6 +62,8 @@ protected:
   /*! Diagnostics of FIRST_ROW events: report prefix (empty: <MESH_OUT_FILENAME>_bl_event<k>) and gate-mesh export. */
   std::string nativeConstructionPrefix;
   bool nativeConstructionExport = false;
+  /*! Explicitly selected diagnostics; ordinary CFD runs install no observer. Event numbers start at one. */
+  std::function<void(CRemesher&,unsigned long)> remeshDiagnostic;
   std::unique_ptr<CRemesher> MakeRemesher();
 
   /*!

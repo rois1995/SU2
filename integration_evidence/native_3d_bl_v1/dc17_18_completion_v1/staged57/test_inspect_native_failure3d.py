@@ -23,17 +23,18 @@ def _owned_record(cell_id, version, nodes, physical=None):
         data += struct.pack("<Q3d", node_id, *xyz)
     data += struct.pack("<Q", version)
     for present, facet_id in (physical or [(False, 0)] * 4):
-        data += struct.pack("<BQ", int(present), facet_id)
-    data += struct.pack("<B", 0)
+        data += struct.pack("<QQ", int(present), facet_id)
+    data += struct.pack("<Q", 0)
     data += struct.pack("<24d", *([0.0] * 24))
     assert len(data) == INSPECT.OWNED_RECORD_BYTES
     return data
 
 
 def _metric(cell_id, version, nodes, *, bad=False, valid=True):
-    edges = [[a, b, 1.0] for (a, _), (b, _) in itertools.combinations(nodes, 2)]
+    edges = [[a, b, 1.0 if valid else None] for (a, _), (b, _) in itertools.combinations(nodes, 2)]
     return {
         "id": cell_id, "version": version, "cache_valid": valid,
+        "q_measured": valid, "j_measured": valid, "geometry_measured": valid,
         "q": 0.1 if valid else None, "J": 0.01 if valid else None,
         "q_bad": bad, "j_bad": False, "geometry_bad": False, "size_bad": False,
         "height_bad": False, "height_unresolved": False, "geometry_excess_l2": 0.0 if valid else None,
@@ -50,7 +51,8 @@ def _reference():
 
 
 def _write_shard(directory, rank, ranks, cells, *, event=7, written_rows=None, working_rows=None,
-                 complete=True, reference=None, rejections=None, physical_slots=None, marker_names=None):
+                 complete=True, reference=None, rejections=None, physical_slots=None, marker_names=None,
+                 owned_complete=None, metrics_complete=None, reference_complete=None, rejections_complete=None):
     prefix = f"event{event}_rank{rank}"
     owned_name, metrics_name = prefix + ".owned", prefix + ".metrics.jsonl"
     reference_name, rejections_name = prefix + ".reference.jsonl", prefix + ".rejections.jsonl"
@@ -68,8 +70,10 @@ def _write_shard(directory, rank, ranks, cells, *, event=7, written_rows=None, w
     manifest = {
         "schema": INSPECT.SCHEMA, "rank": rank, "ranks": ranks, "event": event,
         "complete_shard": complete,
-        "owned_complete": complete, "metrics_complete": complete,
-        "reference_complete": complete,
+        "owned_complete": complete if owned_complete is None else owned_complete,
+        "metrics_complete": complete if metrics_complete is None else metrics_complete,
+        "reference_complete": complete if reference_complete is None else reference_complete,
+        "rejections_complete": complete if rejections_complete is None else rejections_complete,
         **({"marker_names": marker_names} if marker_names is not None else {}),
         "working_rows": len(cells) if working_rows is None else working_rows,
         "written_rows": len(cells) if written_rows is None else written_rows,
@@ -100,9 +104,10 @@ def _fixture(directory):
     reject = {"feature": [1, 2], "old_cells": [10], "old_cells_truncated": False,
               "reason": "rejected trial", "shape_measured": True, "q": 0.1, "J": 0.01, "failure": 2}
     manifests = [
-        _write_shard(directory, 0, 3, [bad], rejections=[reject]),
-        _write_shard(directory, 1, 3, [neighbor]),
-        _write_shard(directory, 2, 3, [distant]),
+        _write_shard(directory, 0, 4, [bad], rejections=[reject]),
+        _write_shard(directory, 1, 4, [neighbor]),
+        _write_shard(directory, 2, 4, [distant]),
+        _write_shard(directory, 3, 4, []),
     ]
     return manifests
 
@@ -119,12 +124,14 @@ class InspectNativeFailureTests(unittest.TestCase):
         manifests = _fixture(self.root)
         result = INSPECT.inspect([str(self.root)], str(self.root / "out"))
         self.assertFalse(result["partial"])
-        self.assertEqual(result["present_ranks"], [0, 1, 2])
+        self.assertEqual(result["present_ranks"], [0, 1, 2, 3])
         self.assertEqual(result["bad_cells_retained"], 1)
         self.assertEqual(result["cavity_cells_retained"], 2)
         self.assertEqual(result["actual_full_mesh_cells"], 3)
         self.assertEqual(result["actual_full_mesh_points"], 9)
         self.assertTrue(result["final_mesh_complete"])
+        self.assertTrue(result["bad_set_complete"])
+        self.assertTrue(result["cavity_complete"])
         self.assertFalse(result["final_mesh_accepted"])
         self.assertTrue(result["final_su2_complete"])
         su2_header = (self.root / "out/rejected_mesh.su2").read_text().splitlines()
@@ -152,13 +159,12 @@ class InspectNativeFailureTests(unittest.TestCase):
         self.assertEqual(set(full_ids) - {10, 20}, {30})
         records = (self.root / "out/reference_records.jsonl").read_text()
         self.assertIn('"controls"', records)
-        self.assertEqual(len(manifests), 3)
+        self.assertEqual(len(manifests), 4)
 
     def test_unknown_metric_is_explicit_nan_and_partial(self):
         xyz = {i: (float(i), 0.0, 0.0) for i in range(1, 5)}
         nodes = list(xyz.items())
         unknown = _metric(5, 2, nodes, valid=False)
-        unknown["geometry_bad"] = True
         row = (5, 2, nodes, unknown)
         _write_shard(self.root, 0, 1, [row])
         result = INSPECT.inspect([str(self.root)], str(self.root / "out"))
@@ -166,8 +172,28 @@ class InspectNativeFailureTests(unittest.TestCase):
         self.assertEqual(result["unknown_metric_rows"], 1)
         self.assertTrue(result["final_mesh_complete"])
         self.assertFalse(result["full_mesh_measurements_complete"])
-        text = (self.root / "out/bad_cells.vtu").read_text()
-        self.assertIn("nan", text)
+        self.assertFalse(result["bad_set_complete"])
+        self.assertFalse(result["cavity_complete"])
+        self.assertEqual(result["bad_rows_total"], 0)
+        full = ET.parse(self.root / "out/rejected_mesh.vtu").getroot()
+        piece = full.find("./UnstructuredGrid/Piece")
+        for name in ("q", "J", "geometry_bad", "metric_edge_min", "metric_edge_max"):
+            value = piece.find(f"./CellData/DataArray[@Name='{name}']").text.strip()
+            self.assertEqual(value, "nan")
+
+    def test_cached_row_can_have_unmeasured_shape_and_geometry_channels(self):
+        nodes = [(1, (0.0, 0.0, 0.0)), (2, (1.0, 0.0, 0.0)),
+                 (3, (0.0, 1.0, 0.0)), (4, (0.0, 0.0, 1.0))]
+        metric = _metric(6, 2, nodes)
+        metric.update(q=None, q_measured=False, geometry_excess_l2=None, geometry_measured=False)
+        _write_shard(self.root, 0, 1, [(6, 2, nodes, metric)])
+        result = INSPECT.inspect([str(self.root)], str(self.root / "out"))
+        self.assertEqual(result["unknown_metric_rows"], 1)
+        self.assertFalse(result["full_mesh_measurements_complete"])
+        piece = ET.parse(self.root / "out/rejected_mesh.vtu").getroot().find("./UnstructuredGrid/Piece")
+        self.assertEqual(piece.find("./CellData/DataArray[@Name='q']").text.strip(), "nan")
+        self.assertEqual(piece.find("./CellData/DataArray[@Name='geometry_excess_l2']").text.strip(), "nan")
+        self.assertEqual(piece.find("./CellData/DataArray[@Name='J']").text.strip(), "0.01")
 
     def test_explicit_partial_and_missing_rank_never_claim_complete(self):
         xyz = {i: (float(i), 0.0, 0.0) for i in range(1, 5)}
@@ -180,12 +206,25 @@ class InspectNativeFailureTests(unittest.TestCase):
         self.assertEqual(result["bad_cells_omitted"], 0)
         self.assertFalse(result["final_mesh_complete"])
 
+    def test_complete_owned_mesh_survives_incomplete_historical_shard_files(self):
+        nodes = [(1, (0.0, 0.0, 0.0)), (2, (1.0, 0.0, 0.0)),
+                 (3, (0.0, 1.0, 0.0)), (4, (0.0, 0.0, 1.0))]
+        cell = (8, 1, nodes, _metric(8, 1, nodes))
+        _write_shard(self.root, 0, 1, [cell], complete=False, owned_complete=True,
+                     metrics_complete=True, reference_complete=True, rejections_complete=False)
+        result = INSPECT.inspect([str(self.root)], str(self.root / "out"))
+        self.assertTrue(result["partial"])
+        self.assertTrue(result["final_mesh_complete"])
+        self.assertTrue(result["final_su2_complete"])
+
     def test_rejects_bad_schema_endian_count_and_path_traversal(self):
-        for mutation in ("schema", "endian", "count", "path"):
+        for mutation in ("schema", "endian", "count", "path", "bool"):
             with self.subTest(mutation=mutation):
                 root = self.root / mutation
                 root.mkdir()
-                manifest = _write_shard(root, 0, 1, [])
+                test_nodes = [(i, (float(i), 0.0, 0.0)) for i in range(1, 5)]
+                test_cell = (4, 1, test_nodes, _metric(4, 1, test_nodes))
+                manifest = _write_shard(root, 0, 1, [test_cell] if mutation == "bool" else [])
                 value = json.loads(manifest.read_text())
                 if mutation == "schema":
                     value["schema"] = "other"
@@ -193,6 +232,11 @@ class InspectNativeFailureTests(unittest.TestCase):
                     value["byte_order"] = "big"
                 elif mutation == "count":
                     value["written_rows"] = 1
+                elif mutation == "bool":
+                    owned_file = root / value["files"]["owned"]
+                    raw = bytearray(owned_file.read_bytes())
+                    raw[8 + 8 + 8 + 128 + 8] = 2
+                    owned_file.write_bytes(raw)
                 else:
                     value["files"]["owned"] = "../escape"
                 manifest.write_text(json.dumps(value))

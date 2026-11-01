@@ -1,0 +1,95 @@
+{
+  "time": 1793537083.1595674,
+  "state": "Connected diagnostic export milestone PASS; complete M6 workflow unproved",
+  "build": "build202",
+  "build_status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 306.39882373809814,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "source_pin_count": 1297,
+  "source_pins_verified": true,
+  "binary_sha256": {
+    "integration_evidence/build-integrated-v2/UnitTests/test_driver": "d630234ec127b793237fb7c1dc609cd9db216b96463fc5330560a1fa01acaf04",
+    "integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD": "7de0cc448004521becb5609d83a0841836d7744187700244dd36d8538b8ef666"
+  },
+  "cases": [
+    {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_serial_20261101T124205_1881888",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 7.134305715560913,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 42283008,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "summaries": [
+        [
+          "6845",
+          "14"
+        ]
+      ],
+      "pins_sha256": "02620518ae8e2f86608eea2bb1a739187bcd8563b1f38f36f32f9fadf8314f14",
+      "terminal_verification_sha256": "3f20309004647d33a8aefb2af11d73d83b7fc4267e10cb592eeb98f143a5975d"
+    },
+    {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261101T124226_1882536",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 8.165647506713867,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 43745280,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "summaries": [
+        [
+          "2290",
+          "22"
+        ],
+        [
+          "2323",
+          "22"
+        ],
+        [
+          "2295",
+          "22"
+        ],
+        [
+          "2459",
+          "22"
+        ],
+        [
+          "2148",
+          "22"
+        ],
+        [
+          "3030",
+          "22"
+        ]
+      ],
+      "pins_sha256": "9f11fb9b6daf3b216b82b25511efc27985e9024e142cf7fa1b8a7c0582ef71a2",
+      "terminal_verification_sha256": "bf85990a522b37750e25cd607e7f5f9c775fdcace4d379024e2f8dce6158b342"
+    }
+  ],
+  "actual_interop": "failure_export202_actual_interop.json",
+  "actual_interop_sha256": "f1a727034617208262f136c65ac3ac78740c9e2e80da94243d26a2a6b720d712",
+  "actual_interop_cases": 24,
+  "cross_rank_cases": 4,
+  "python_synthetic_tests": 11,
+  "source_scope": "Opt-in diagnostics only; cached q/J and internal migration serialization, bounded rejection metadata, rank-local streaming, explicit selected full-driver hook. No candidate, construction, ownership policy, gate, budget or config change. Test transport contract corrected for existing pre-engine metric snapshot call.",
+  "remaining": [
+    "Selected actual M6 capture or accepted first mesh",
+    "Two strictly accepted Euler50k events",
+    "Conservative admissible transfer and finite continued CFD",
+    "Isolated adapted disk restart",
+    "BL generation and constraints MPI qualification",
+    "RANS500k workflow"
+  ]
+}

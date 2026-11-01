@@ -268,10 +268,11 @@ def copy_qualified_seed(seed, attempt):
 
 
 def main():
-    if (len(sys.argv) != 5 or sys.argv[3] != "2" or
+    inspect_rejected = len(sys.argv) == 6 and sys.argv[5] == "--inspect-rejected"
+    if ((len(sys.argv) != 5 and not inspect_rejected) or sys.argv[3] != "2" or
         not re.fullmatch(r"build[1-9][0-9]*", sys.argv[1]) or
         not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,60}", sys.argv[2])):
-        raise SystemExit("usage: run_m6.py buildN unique_attempt 2 qualified_seed_directory")
+        raise SystemExit("usage: run_m6.py buildN unique_attempt 2 qualified_seed_directory [--inspect-rejected]")
     build, unique_attempt = sys.argv[1:3]
     seed = Path(sys.argv[4]).resolve(strict=True)
     expected_events = 2
@@ -322,7 +323,8 @@ def main():
             (attempt / filename).symlink_to(target)
         seed_paths = copy_qualified_seed(seed, attempt)
         (attempt / "run.cfg").write_text(seed_config((attempt / "run.cfg").read_text()))
-        libraries = ldd_paths(CFD)
+        binary = REPO / "integration_evidence/build-integrated-v2/UnitTests/test_driver" if inspect_rejected else CFD
+        libraries = ldd_paths(binary)
         utilities = [Path(shutil.which(name) or "/nonexistent").resolve()
                      for name in ("nice", "timeout", "mpirun")]
         utilities.append(Path("/usr/bin/time"))
@@ -333,7 +335,7 @@ def main():
         pins = dict(source_pins)
         pins.update(input_paths)
         pins.update(runtime_pins)
-        for path in [CFD, *libraries, *utilities, *helpers, *seed_paths, config_source, INPUTS, RUNTIME,
+        for path in [CFD, binary, *libraries, *utilities, *helpers, *seed_paths, config_source, INPUTS, RUNTIME,
                      build_status_path, source_pins_path, build_command_path, attempt / "run.cfg",
                      attempt / "m6.su2", attempt / "m6.su2.native_ref"]:
             pins[str(path)] = sha(path)
@@ -341,11 +343,15 @@ def main():
 
         env = os.environ.copy()
         env.update(OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1")
+        if inspect_rejected:
+            env["SU2_NATIVE_FROZEN_CONFIG"] = str((attempt / "run.cfg").resolve())
+        arguments = ["[NativeSelectedFailureWorkflow3D]"] if inspect_rejected else ["run.cfg"]
         argv = ["nice", "-n", "19", "/usr/bin/time", "-v", "timeout", str(outer_timeout), "mpirun",
-                "--output-filename", "rank_output", "-n", "6", str(CFD), "run.cfg"]
+                "--output-filename", "rank_output", "-n", "6", str(binary), *arguments]
         save(attempt / "command.json", {
             "build": build, "case": "M6 Euler full adaptation", "ranks": 6, "expected_events": expected_events,
             "target_complexity": EULER_TARGET, "qualified_seed_directory": str(seed),
+            "selected_rejected_mesh_inspection": inspect_rejected,
             "native_budget_seconds": native_budget, "outer_timeout_seconds": outer_timeout,
             "argv": argv,
             "environment": {key: value for key, value in env.items()

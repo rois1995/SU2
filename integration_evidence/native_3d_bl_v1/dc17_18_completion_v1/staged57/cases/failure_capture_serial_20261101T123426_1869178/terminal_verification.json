@@ -1,0 +1,15 @@
+{
+  "time": 1793536582.9849494,
+  "pid": 1869260,
+  "state": "ABSENT",
+  "status": {
+    "state": "terminal",
+    "exit_code": 4,
+    "seconds": 7.098612546920776,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 36888576,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "diagnosis": "4 transport nesting assertions failed: current metric snapshot workers.maximum precedes engine, so worker aggregate counts one extra collective; other 13 cases and 6839 assertions passed. No mesh acceptance or diagnostic behavior failure observed."
+}

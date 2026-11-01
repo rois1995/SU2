@@ -146,39 +146,53 @@ The following is **unfinished diagnostic work**, not a qualified new solver buil
   automatic production writer were added.
 - `staged57/inspect_native_failure3d.py` and its focused test file: an offline
   prototype for bounded rank shards, full SU2/VTU mesh output, native ID maps,
-  bad-cell/cavity/reference views and explicit coverage. **Nine synthetic-format
+  bad-cell/cavity/reference views and explicit coverage. **Eleven synthetic-format
   tests pass.** This is not producer interoperability or actual M6 export evidence.
 
-Still missing: the selected-run C++ producer/wiring, actual reference/binding and
-policy serialization, schema agreement with real producer records, C++ compilation,
-cached-versus-recomputed and migration checks, and validation on an actual M6
-capture. Review the prototype's bounds and memory use; record all admitted buffers
-and output limits. The native-field binary reader assumes381-byte little-endian
-OwnedCell records and must verify that against the C++ serializer.
+The opt-in C++ producer and selected full-driver wiring are now qualified in
+build202:6845serial assertions/14cases,22MPI6cases on every rank, and24actual
+producer/reader combinations. These checks cover curved/body/feature/height
+metadata, cached values after migration, empty ranks, cross-rank cavities and
+resource refusals. The actual416-byte little-endian RecordStream layout uses
+8-byte booleans; the initial381-byte assumption was incorrect. Qualification is
+saved in staged57/failure_export202_qualification.json. It proves diagnostic
+behavior, not M6 acceptance or a construction/repair improvement.
+
+A selected full two-event M6 is now LIVE at
+staged57/m6_runs/euler_build202_real_cfd50k_inspection, using the same saved CFD
+seed,50k/native5400 and strict gates. Consult HANDOFF_Codex.md for exact owned
+handles and source freezing. Its first rejected exit will be captured; when
+terminal, extract and inspect the actual mesh before choosing another policy.
 
 Related plan: [bounded export](Handbook/ADAPTATION_BAD_CAVITY_EXPORT_20261101.md).
+The [independent assessment review](Handbook/ADAPTATION_TECHNICAL_ASSESSMENT_REVIEW_20261101.md)
+adds three verified interpretation limits: geometry-bad can mean conservative
+failure to certify, interior cells can contain constrained vertices, and this
+inspection snapshot is not a faithful rejected-trial replay. Actual witness data
+must distinguish those cases before selecting another change.
 Existing source facilities include the stage/rejected-state hooks and the
 `NativeStageCapture` fixture. Prefer extending those over a new capture framework.
 
 ## Resume and validation order
 
-1. Read AGENTS.md, HANDOFF_Codex.md and this file. Confirm no owned process/build
-   is live. Build199exec47583is terminal; old1607xxxprocess handles must never be
-   signaled again. No new heavy workload was started during consolidation.
-2. Finish and review the opt-in diagnostic as one connected change. Keep capture
-   explicitly selected, not automatic on every rejection or `WRT_ADAP_MESH` use.
-3. Run focused serial checks against actual C++ produced shards, including empty
-   data, caps, overwrite refusal, unknown cache, negative/degenerate cells and
-   remeshed boundary IDs different from reference-facet IDs. Preserve the actual
-   rejected state; diagnostic export must not require an admissible mesh.
-4. Run one meaningful MPI6 milestone covering complete cross-rank cavities, empty
-   ranks, cached metrics and census migration, curved associations, genuine
-   features, separate bodies and requested heights. Then selected full two-event
-   M6 with the same saved real CFD seed and unchanged50k/5400s/gates.
-5. Inspect the actual saved mesh if it rejects; use that evidence before pursuing
-   the hypotheses above. If it accepts, continue the second accepted event,
-   conservative admissible transfer, continued CFD and isolated adapted restart.
-   Only after the Euler objective passes proceed to dedicated BL/MPI and RANS500k.
+1. Read AGENTS.md, HANDOFF_Codex.md and this file. Verify the current owned
+   handles; observe the live frozen build202 M6 before editing pinned sources or
+   starting another workload. Historical1607xxxhandles must never be signaled.
+2. Reuse the qualified build202 diagnostic and its exact source/runtime/helper
+   evidence. Serial and one connected MPI6 milestone already passed; rerun only
+   checks affected by actual changes or unresolved failures. Keep capture explicitly
+   selected, not automatic on ordinary rejection or `WRT_ADAP_MESH` use.
+3. Let the selected full two-event M6 continue with the same saved real CFD seed
+   and unchanged50k/5400s/gates. Preserve actual terminal evidence before an
+   authorized owned stop. Verify exact handles absent before source edits.
+4. On a rejected exit, validate raw shard/measurement completeness, extract the
+   actual complete SU2/VTU mesh and cross-rank cavities, and inspect the location,
+   constraints and historical rejection evidence. Truncated data cannot prove that
+   a repair is impossible. Preserve unknown measurements explicitly.
+5. Use that evidence before pursuing the construction/repair hypotheses above;
+   test one connected hypothesis thoroughly. If M6 accepts, continue the second
+   accepted event, conservative admissible transfer, continued CFD and isolated
+   adapted restart. Only after Euler passes proceed to dedicated BL/MPI and RANS500k.
 
 One owned heavy job; nice19; single-threaded libraries;2–4build workers. Root/tmp
 had only about1.5MBfree at the latest check. Put build, test, MPI and export scratch

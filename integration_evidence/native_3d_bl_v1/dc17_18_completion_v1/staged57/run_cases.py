@@ -17,6 +17,14 @@ from run import sha, save
 REPO = ROOT.parents[3]
 BINARY = REPO / "integration_evidence/build-integrated-v2/UnitTests/test_driver"
 CASES = {
+    "failure_capture": (1, "[NativeFailureCapture3D]"),
+    "failure_capture_serial": (1, "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],"
+                               "[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],"
+                               "[NativeHeightOptimization3D],[NativeDefault3D]"),
+    "failure_capture_mpi6": (6, "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],"
+                              "[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],"
+                              "[NativeHeightOptimization3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],"
+                              "[NativeConcurrentComposed3D],[NativeConcurrentRepair3D],[NativeDefault3D]"),
     "nodal_metric": (1, "[NativeMesh3D],[NativeDistributed3D],[NativeBridge3D],[NativeReassessment3D],[NativeCurrentNormalization3D],[NativeMetricFamily3D],[NativeBLTargetNormalization]"),
     "nodal_metric6": (6, "[NativeMesh3D],[NativeDistributed3D],[NativeBridge3D],[NativeReassessment3D],[NativeCurrentNormalization3D],[NativeMetricFamily3D],[NativeBLTargetNormalization]"),
     "m6_stage": (6, "[NativeFrozenVolume3D]"),

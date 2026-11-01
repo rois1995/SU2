@@ -1766,7 +1766,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           options.surface_tolerance,options.maximum_seconds,std::chrono::duration<double>(Clock::now()-started).count(),
           options.maximum_rounds,options.maximum_work,options.memory_ceiling,options.caller_bytes,options.stage_observer_bytes,
           [&](Id id,CellDiagnostic& out){const auto row=working.find(id);return row!=working.end()&&selection.Diagnose(row->second,out);},
-          &last_rejection,&diagnostic_rejections});
+          &last_rejection,&diagnostic_rejections,world.rank,world.size});
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     const auto elected=world.elect(failure);
     if(elected.any) {

@@ -9,6 +9,7 @@ assert not (ROOT/(name+'_status.json')).exists(), 'Inspect the previous owned ha
 paths=set(json.loads((ROOT/'build4_source_pins.json').read_text()))
 paths.add(str(Path(__file__).resolve()))
 paths.update(str(ROOT.parents[3]/p) for p in (
+    'Common/include/adaptation/CNativeFailureCapture3D.hpp',
     'Common/include/adaptation/CNativeMetricTransport3D.hpp',
     'Common/include/adaptation/CNativeAtlas3D.hpp',
     'Common/include/adaptation/CNativeCurvedAtlas3D.hpp',

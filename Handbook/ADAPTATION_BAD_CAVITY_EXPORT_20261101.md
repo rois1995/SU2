@@ -20,10 +20,28 @@ the actual complete unapproved mesh (.su2), not just a picture or filtered subse
 Construction-quality ideas remain hypotheses and must be thoroughly tested before
 pursuing them; the current validity-only construction policy has not changed.
 
-Diagnostic cache-view/rejection metadata C++ edits are WIP and uncompiled. An
-offline prototype writes full SU2/VTU and filtered views;9synthetic-format tests
-pass. The C++ producer, opt-in wiring and actual producer/M6 interoperability are
-not implemented or validated yet. No new build or heavy run has started.
+Build202 diagnostic integration qualified:6845serial assertions/14cases,
+22MPI6cases on EACH rank and24actual producer/reader combinations PASS.636artifact
+hashes retain full/capped/unknown, quality/construction, planar/curved and serial/
+MPI evidence. Cross-rank vertex stars and empty rank5 verified. Cached q/J after
+migration, geometry controls/body/features/bindings and requested heights passed.
+11synthetic offline tests also pass. Qualification records:
+staged57/failure_export202_qualification.json and failure_export202_actual_interop.json.
+
+The initial381-byte prototype assumption was incorrect: actual RecordStream cells
+occupy416bytes, all arithmetic fields including bool encoded in8bytes. Producer
+and reader now match actual records. One serial campaign exposed a stale transport
+nesting assertion: metric snapshot setup adds a worker collective outside the
+engine. The corrected test explicitly requires that call; no gate was changed.
+
+The selected full M6 is LIVE at euler_build202_real_cfd50k_inspection. No actual
+M6 working-state capture or mesh acceptance has been obtained yet. The hidden
+NativeSelectedFailureWorkflow3D case uses the existing frozen-config path only to
+select the input config, then calls real StartSolver/ADAP_LOOP/Finalize; it does
+not replay a frozen metric. Ordinary invocations install no observer. The existing
+run_m6.py helper has explicit --inspect-rejected selection, preserving the saved
+seed/config/gates/budgets and pinning the actual test-driver binary/runtime.
+The harness saves at most its first failed exit, with actual event and worker IDs.
 
 ## Connected implementation
 

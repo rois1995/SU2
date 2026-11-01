@@ -422,3 +422,17 @@ placements and topology changes are hypotheses requiring thorough tests, not a
 selected implementation. Do not silently change validity-only construction.
 HowToProceed.md records evidence, uncertainty and controlled-test acceptance.
 Mesh capture is opt-in for selected substantial runs, never every routine attempt.
+
+2026-11-01 build202 LIVE assessment review: keep the selected M6 frozen. Source
+confirms that the geometry-bad counter can include conservative upper-bound
+refusals without an outside witness; it is not automatically a count of proved
+Hausdorff violations. After terminal, use a selected actual witness to separate
+outside/unresolved/exhausted outcomes; do not relax the strict final certificate.
+Also distinguish physical-face cells from constrained-interior and free-interior
+cells, and compare unique short edges against matched clean controls. Current
+full-state capture supports inspection, not faithful rejected-trial replay;
+original donors/evaluators, old/fresh proposals and full dependency/parameter state
+are not all present. Reuse existing Stage/TransactionCapture only if inspection
+demonstrates that those missing pieces block a causal explanation. No new repair,
+construction, bound/cache or scheduler selected. See
+ADAPTATION_TECHNICAL_ASSESSMENT_REVIEW_20261101.md for verified facts and limits.

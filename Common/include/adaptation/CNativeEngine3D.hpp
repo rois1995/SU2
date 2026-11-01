@@ -78,6 +78,7 @@ struct StageProgressView {
   std::function<bool(Id,CellDiagnostic&)> cell_diagnostic;  // Borrowed cache lookup; no measurement/collectives.
   const std::string* last_rejection_reason=nullptr;
   const std::vector<RejectionDiagnostic>* rejections=nullptr;
+  int rank=0,ranks=1;  // Worker communicator identities, including subset execution.
 };
 /*! Borrowed diagnostic view; callbacks copy bounded data and never call collectives or mutate state. */
 struct TransactionView {

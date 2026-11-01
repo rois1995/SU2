@@ -9,146 +9,124 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current — consolidation checkpoint; build199 terminal; diagnostic work is WIP
+## Current — build202 selected full M6 LIVE; source frozen
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-LAST=`R/m6_runs/euler_build199_real_cfd50k_triangle_coverage`.
-The inherited directory label describes neither the source nor a new baseline:
-this is WINDING build199, source86d292e517; CFD SHA
- ea0067da5f39f2cf09b75bbc737bfda14d57fd4decc15b1f5d1454000a6408da.
-Testdriver SHA ba37efed110714d5b89420991015a01440da4ae454a7bd2398ddde4f83b7ada4.
-These identify the last qualified build199 source/binaries. The worktree now has
-uncompiled diagnostic C++ edits and an offline prototype; do not claim the current
-source was validated by the old binaries. No new build or M6 run has started.
-Build PASS; focused3306assertions/10cases; serial23048/72; one MPI6 milestone
-216cases EACH rank. Full qualification, construction comparisons and earlier live
-receipts are preserved in the [build199 archive](Handbook/History/HANDOFF_Codex_build199_20261101.md).
+LAST=`R/m6_runs/euler_build202_real_cfd50k_inspection`.
+Full two-event M6 exec88642 RUNNING. This explicitly selected inspection run uses
+[NativeSelectedFailureWorkflow3D] in the test-driver, calling the real
+CSinglezoneDriver::StartSolver/ADAP_LOOP/Finalize with the same saved real CFD seed,
+Euler50k, native5400s and unchanged gates. This is not frozen-metric replay.
+Ordinary CFD runs install no capture callback. Current implementation only adds
+diagnostics; no construction/repair/ownership policy or config option changed.
 
-Full M6 exec47583 TERMINAL1. All6 ranks naturally time-budget rejected at
-native maximum5403.368014s. COMPLETE EXIT:802117cells/4368q-bad/2537J-bad/
-3098geometry-bad/0size-bad, q+J debt36.326780. All6 cache/census/shape/geometry
-flags complete; these are actual terminal counts, not an earlier subset.
-52complete censuses,24quality windows plus fully measured final interval.
-Quality4131.482941s removed net49713q/50855J/672geometry through43866publications:
-12.032725netq/s and12.309140netJ/s. Final interval471publications/247q/190J/8geometry
-is included. Zero accepted adapted meshes; no conservative transfer, adapted CFD
-or adapted disk restart. Original-grid restart00001 and continued history after
-rejection are not adapted evidence.
+HOST identities at1793537141.985488 (all10 verified LIVE;1403pins unchanged):
+helper1886348/start95210821;time1886569/start95211629;
+timeout1886570/start95211629;launcher1886571/start95211630;
+ranks1886586–1886591 all/start95211634. All rank/launcher priorities19, libs1.
+LAST/owned_startup.json,command.json,pins.json,status.json,resources.jsonl are
+current authority. Do not edit pinned C++/headers/tests/helpers/binary/config/inputs
+while this run lives. First restarted CFD iteration and metric computation reached;
+no adaptation acceptance yet. Latest source checkpoint is the diagnostic export
+checkpoint accompanying this handoff; commit changes do not alter frozen files.
+CFD SHA7de0cc448004521becb5609d83a0841836d7744187700244dd36d8538b8ef666.
+Test-driver SHAd630234ec127b793237fb7c1dc609cd9db216b96463fc5330560a1fa01acaf04.
 
-Natural failure preserved1793531764.146309 before any signal; SHA
- e9600cda9d01b4f7b8f017db1bc3b903d6d77266a2cc58a2631f2a61e848bb5b.
-Only verified launcher1607403/start94121591 received SIGTERM1793531826.436573.
-All10 exact HOST identities ABSENT/all1401pins unchanged1793531839.785239.
-LAST/event1_natural_failure.json,event1_failure_owned_stop.json,terminal_handles.json.
-All1607xxx handles are historical: NEVER resignal. No owned heavy job remains.
-Source freezing ended only after that terminal proof. The diagnostic cache-view/
-rejection-metadata edits started after pre_export_implementation_audit.json verified
-all10 identities absent/all1401old pins unchanged1793533690.643077.
+Capture policy: only the first rejected exit of this selected substantial attempt,
+with actual event and worker rank IDs. Prefix <MESH_OUT_FILENAME>_inspection.
+Stream owned/metric/reference/rejection shards,128MiB per file,1MiB admitted scratch;
+exclusive creation, explicit truncation/unknown measurements. Existing observers
+handle stage-election alignment; no per-trial/private-slot collectives added.
+When terminal, run R/inspect_native_failure3d.py on ONLY the selected full-prefix
+rank manifests into a new output directory. Save actual complete rejected_mesh.su2
+and VTU plus bad cells, cross-rank cavities, reference and historical rejection data.
+Raw records are416bytes, all scalars including bool8bytes. Diagnostic mesh is
+unapproved, not an adapted restart. Sampling/visualization cannot certify geometry.
+No mesh files on ordinary attempts or per trial. Details:
+[bounded export](Handbook/ADAPTATION_BAD_CAVITY_EXPORT_20261101.md).
 
-Traversal1.471449262B/upper1.674224805B work (87.89%); nested rank seconds:
-upper4069.367,traversal3385.624,scope469.009,facet107.581,support164.203.
-Exact union memo472431hits/475942misses; misses do not classify nearby positions
-versus evicted exact queries. Boundary private gain906.097/3367.753ranksec;
-interior4623.378/203.816, with0interior upper queries. These are private merit,
-not published bad-cell gains. Terminalq745surface/3623interior; J656/1881.
-33fullyblocked bad cells,67428queued features,581blocked features. All6132q-or-J
-bad cells have an edge<.9;6045have one<.5. Correlation is not construction cause.
-Construction returns0:197residual-geometry continuation is unexercised, not disproved.
-All seven counter groups reconcile through COMPLETE EXIT. LAST/terminal_assessment.json,
-terminal_counter_review.json,terminal_geometry_service_assessment.json and
-geometry_certification_analysis.json retain data and limits. Fixed16metric samples
-remain supported but do not prove immutable original continuous-CFD-target fidelity.
+## Connected diagnostic qualification — PASS, not workflow completion
 
-Selected states/churn/preparation work match198retry1 throughwindow20. Confirmed
-all6-rank decisions migrate=0 afterround22848/22912 differ from baseline migrate=1;
-first measured selected-state difference is window21. Later trajectories are not
-assumed identical. Terminal comparison uses actual current EXIT at4131.482941qualitys
-and actual baseline brackets4096.783336/4224.419803s, without interpolation.
-The baseline's actual EXIT counts are UNKNOWN. Counted predicate work is not uniform
-CPU cost; nested wall timers and variable host pressure do not isolate code speedup.
-Initial construction fields match all18generations; traversal fell52.87689%, but
-construction elapsed1133.899305vs730.857434s. Saved12older-query traversal fell48.8293%;
-these are not representative late-query or full-workflow speedup proofs.
+Build202 PASS; serial6845assertions/14cases; one MPI6 milestone22cases EACH rank.
+All24actual C++ producer/reader combinations PASS (serial/MPI6, planar/genuinely
+curved, quality/construction, full/unknown/capped);636artifact hashes retained.
+Four full MPI cases verified complete cross-rank vertex stars and empty rank5.
+Cached q/J/edge values match direct known-field measurement; construction q/J stay
+unmeasured; migration preserves cached values/census flags; captured and uncaptured
+repair cells/work counters match. Curved controls/body/features/bindings/requested
+heights, overwrite refusal and scratch/disk cap refusal exercised.11offline Python
+synthetic tests PASS. R/failure_export202_qualification.json and
+failure_export202_actual_interop.json preserve exact scope/provenance.
 
-**Resume from [HowToProceed.md](HowToProceed.md).** The user requested consolidation
-and clarified that meshes should be saved only for selected substantial milestones
-when inspection is useful, not every trial or routine M6 attempt. Save the actual
-complete unapproved mesh as .su2, plus inspection views. Their construction-quality
-ideas are hypotheses requiring thorough testing, not authorization to change policy.
+Build201 serial found4stale transport test assertions: current-metric snapshot
+performs one workers.maximum before entering the engine, so worker total includes
+that call. Whole transport aggregate was already correct. Corrected nesting test
+explicitly requires the extra call for a single ordinary stage; mesh gates were
+unchanged. All build200/201/202 and serial/MPI handles are terminal/absent; no old
+handle may be signaled. Source freezing for current M6 began after qualification.
+Earlier implementation/test details and terminal199 analysis are preserved in the
+[export-validation archive](Handbook/History/HANDOFF_Codex_export_validation_20261101.md).
 
-Current WIP: Engine3D diagnostic cache view, actual cached q/J retention/migration
-and bounded in-memory rejected-proposal metadata. No automatic writer or per-trial
-files. Offline inspect_native_failure3d.py and its test file exist under R;9focused
-synthetic-format Python tests PASS. C++ has NOT been compiled/tested; producer/
-selected-run wiring and actual C++/M6 interoperability remain missing. Last heavy
-workload remains terminal build199. Root/tmp is nearly full (~1.5MB); use4TBscratch.
+## Latest terminal difficult case — build199, no accepted mesh
 
-User's next diagnostic: bounded export of remaining bad cells, neighboring cavities
-and reference surface, carrying q/J, geometry excess, metric edge lengths and
-rejection evidence. Existing 3D stage/rejected-state/trial hooks and bounded
-rank-local NativeStageCapture are available but not wired into production CFD.
-Build199 retained no working-volume/cavity artifact; its discarded private mesh
-cannot be reconstructed from aggregate counters or original-grid restart files.
-Active plan: [bounded bad-cavity export](Handbook/ADAPTATION_BAD_CAVITY_EXPORT_20261101.md).
-Use explicit opt-in callback installation for a selected milestone. Do not add
-automatic capture on every rejection or WRT_ADAP_MESH use. Reuse those hooks,
-cached measurements and bounded rank-local snapshot streaming;
-extract complete cross-rank cavities offline by global IDs, with explicit coverage/
-truncation and exact reference provenance. No new scheduler/configuration, gate
-relaxation, candidate change or additional speedup is established. Unproven motion/
-envelope alternatives remain in the backlog. After focused validation and one
-MPI6 milestone, immediately full two-event M6 with the same saved CFD50k/5400;
-inspect exports on rejection or continue accepted transfer/CFD/restart on success.
+LAST199=`R/m6_runs/euler_build199_real_cfd50k_triangle_coverage` (WINDING199).
+All6 naturally rejected at native5403.368014s; COMPLETE EXIT802117cells,
+4368q-bad/2537J-bad/3098geometry-bad/0size-bad, q+J debt36.326780.
+Quality4131.482941s;43866publications; net49713q/50855J/672geometry removed:
+12.032725netq/s and12.309140netJ/s. No conservative transfer/adapted CFD/restart.
+Original-grid restart00001 and continued history after rejection are not adapted
+proof. No private working mesh was saved in199 and it cannot be recovered from
+counters or original-grid restart. Natural failure preceded the verified owned
+stop; all old1607xxx identities absent/pins unchanged before subsequent edits.
+NEVER resignal old handles. LAST199/event1_natural_failure.json and
+terminal_handles.json preserve exact proof.
 
-## Previous198 terminal evidence — never resignal
+Traversal87.89%of upper-query work; boundary private gain906.097/3367.753ranksec,
+interior4623.378/203.816 with0interior upper queries. Private merit is not published
+bad-cell gain. Finalq745surface/3623interior;J656/1881. Only33fullyblocked cells;
+all6132q-or-J-bad cells have edge<.9,6045edge<.5. Correlation is not construction
+cause. Construction returns0:197geometry continuation remains unexercised.
+Shape closure then residual size/geometry closure and shape reclosure remain needed.
+Selected199states matched198retry1 throughwindow20; later ownership/trajectories
+differ. Baseline198retry1 actual EXIT counts UNKNOWN. Work/timers overlap and host
+pressure varied; no isolated runtime speedup claim. Full terminal counters and
+matching comparisons remain in LAST199/terminal_assessment.json,
+terminal_counter_review.json and geometry_certification_analysis.json.
 
-Full preserved handoff and exact historical handles/receipts:
-[build198 terminal archive](Handbook/History/HANDOFF_Codex_build198_terminal_20261101.md).
-Latest198retry1 TERMINAL69b502b359:all6natural5403.711369s rejection;all10HOSTidentities
-ABSENT/all1401pinsunchanged1793524505.578266 before199edits. ActualEXIT803395cells,
-all6cache/censusflags0:terminalwholefieldq/J/geometry/size UNKNOWN. LastCOMPLETE
-window803251cells/2985q/1636J/3098geometry/0size,quality4537.669830s. Final18.564879s/
-291publications haveunknowngatechanges. Net51096q/51756J/672geometry tolastcomplete,
-46164publications,11.260405netq/s. All7groups audited.37stuck/4162badunion,47453queue.
-Constructionreturns0:197continuationunexercised,notdisproved. Noacceptedmesh.
+**Read [HowToProceed.md](HowToProceed.md).** Construction-quality preferences,
+geometry motion/envelope bounds and other suggestions are hypotheses, not approved
+production policies. Diagnose actual remaining cavities, test a selected connected
+hypothesis thoroughly, then assess net whole-field q/J-bad removal per second with
+geometry-bad counts. Do not choose from commits/debt percent alone, add competing
+implementations, relax gates or raise budgets. Unrelated/unproven ideas belong in
+[backlog](Handbook/ADAPTATION_BACKLOG.md).
 
-Parent198firstattempt COMPLETEEXIT802821cells/3529q/1903J/3107geometry/0size;
-69b/parentterminalcheckpointa604d1c54f. Same-source retrymatchedparentselectedstates/
-workthroughwindow21,extra migrationafter22912,firstsnapshotdifference atwindow22.
-No causal timing/migrationbenefit claim. Retryterminal_comparison.json showsactual
-parentbracketingtimes,notinterpolation. Geometrycostskew/unprovenownershipalternative
-andnegative motionbound evidence remain in[certification analysis](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md)
-andbacklog. No furtherunchanged-source retry selected. All144xxxx/129xxxx historical
-handles mustNEVERberesignaled. All199handles are now historical too; current terminal proof is above.
+New attachment reviewed read-only while202was frozen:
+[technical assessment review](Handbook/ADAPTATION_TECHNICAL_ASSESSMENT_REVIEW_20261101.md).
+Confirmed: geometry-bad can include unresolved conservative upper bounds, not
+proved violations; final two-sided certification remains strict. Interior labels
+mean no physical face, not necessarily free vertices. Current export is inspection,
+not faithful trial replay. Use actual captured witnesses/clean controls before
+selecting a change; do not interrupt202or implement attachment proposals now.
 
-## Historical evidence — all terminal,never resignal
+Historical191–197 and198 records:
+[191–197 archive](Handbook/History/HANDOFF_Codex_build191_to197_20261101.md),
+[198 terminal archive](Handbook/History/HANDOFF_Codex_build198_terminal_20261101.md),
+[199 archive](Handbook/History/HANDOFF_Codex_build199_20261101.md).
+All their handles are historical. Incomplete EXIT flags mean whole-field counts
+are unknown, never substitute an earlier subset/window as terminal truth.
 
-Full build191–197 handoff detail is preserved in the
-[historical archive](Handbook/History/HANDOFF_Codex_build191_to197_20261101.md),
-including exact handles, source/runtime/input receipts, terminal failures and all
-prior counter/geometry analyses. Historical ACTIVE notes never override CURRENT.
+## Monitor frozen M6 and preserve the full acceptance obligations
 
-| Run | Preserved measured outcome | Limit |
-|---|---|---|
-|197|Lastcomplete2299q/1062J/3079geometry|TerminalEXITincomplete;returnbranchunexercised|
-|196|Firstshape-pass47q/26J/3051geometry|Thenbroadcoarsening;terminalEXITincomplete|
-|194|CompleteEXIT4369q/2352J/3111geometry|Noacceptedmesh|
-|193|CompleteEXIT8628q/5768J/3151geometry|Noacceptedmesh|
-|191|CompleteEXIT16191q/12965J/3509geometry|Noacceptedmesh|
-
-197/196 true terminalwholefield q/J/geometry/size areUNKNOWN; do not substitute
-cached subsets or earlier complete states. All natural failures were preserved
-BEFORE verified owned-launcher stops; all exact identities/pins independently
-verified terminal before subsequent source edits. Full receipts remain in R/m6_runs.
-
-## Next monitoring and acceptance
-
-Build199 is terminal. The user requested consolidation; do not start a new heavy
-run during this checkpoint. On resumption, finish and qualify the opt-in bounded failure
-export within the same cycle, then return immediately to full two-event M6 from
-the saved real CFD seed. Keep all strict gates, construction improvements, cache/
-ownership safety and cumulative budgets. The complete Euler acceptance/transfer/
-continued-CFD/isolated adapted restart obligation remains; then BL/MPI and RANS500k.
+Let current M6 finish unless preserved evidence justifies the authorized owned
+stop/fix/retry. At a natural first-event rejection preserve all6rank terminal
+censuses, failure messages, artifact sizes/hashes, source/runtime/input pins and
+current exact process identities BEFORE stopping only the verified owned launcher.
+Check/close the same exec88642; require all exact HOST handles absent before any
+pinned source edit. Do not infer termination from a stale log/observation timeout.
+If accepted, continue event2/transfer/CFD; passing diagnostics or a saved rejected
+mesh do not complete the goal. Record useful work/progress at matching actual
+stages; account for contention and avoid another unchanged-source baseline campaign.
 
 Analysis caution: historical matching-window summaries assume the first quality
 pass. The retry1 stored command now distinguishes published repair churn from

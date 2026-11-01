@@ -542,6 +542,7 @@ void CSinglezoneDriver::RunAdaptationLoop() {
 
     /*--- Postprocess just built the metric of this solve, with this cycle's options. Consume it directly,
      *    as in the time-window loop; public RemeshFromMetric still refreshes potentially changed solutions. ---*/
+    if (remeshDiagnostic) remeshDiagnostic(*remesher, iCycle + 1);
     const auto mesh = remesher->Remesh(*config, *geometry_container[ZONE_0][INST_0][MESH_0],
                                       solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetMetric());
 
