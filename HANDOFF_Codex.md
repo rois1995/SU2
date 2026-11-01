@@ -39,12 +39,27 @@ R/geometry_coverage198_retry1_preflight.json. Lower contention is observed;
 causality for previous timing is not established.
 
 Actual config/mesh/native_ref/savedseed BYTEIDENTICAL parent198 atstartup.
-Original continued00000 is not yet emitted/audited; verify when available.
+Actual original continued00000 is now emitted and BYTEIDENTICAL parent198
+(SHA6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a).
+ACTIVE/early_runtime_provenance.json. Original00000 is NOTadaptedrestartproof.
+Initialpartition ALLselectedstablefields EXACTparent198,303359cells;
+ACTIVE/initial_partition_comparison.json. Resources1793519181.948772:
+MemAvailable35726056kB,sampledRSS4.013GB,CPUpsiavg60=7.11%,memorypsiavg10=0.
+ACTIVE/initial_partition_resources.json. This is not a shape/acceptance result.
 ZEROaccepted adapted meshes/transfer/adaptedCFD/adaptedrestart. AllCpp/header/tests/
 helpers/binary/config/inputs FROZEN until actualterminal or preserved authorized
 failure. No competing implementation/profiler/new config/raisedlimits/gaterelaxation.
 Monitor actual complete censuses/netwholefieldq/Jbad/s,geometry counts,work and
 resources. Retain197geometry continuation,as yet unexercised onM6. GoalACTIVE.
+
+Retry1 firstcomplete coarsening:292709cells/2627collapses,ALL17selected per-rank
+fields EXACTparent198; traversal158224112work SAME,allpreparation/discoverywork
+same. Engine268.138009267s versusparent266.985899094s.
+No material timing improvement at this stage; q/Jintentionally UNMEASURED.
+Splitting now running. ACTIVE/coarsening_comparison.json,coarsening_resources.json,
+coarsening_live_provenance.json. All10actualHOSTidentitiesLIVE/all1401pins unchanged/
+82mappedELFcovered1793519422.5346503. This is not acceptedmesh/qualityclosure.
+
 
 ## Parent198 first attempt — TERMINAL analysis
 
@@ -163,9 +178,9 @@ countedwork versus197 and parent198,without
 confusing unmeasured construction shape with closure. No newimplementation while
 this run is healthy; checkpoint accepted stages independently. Actualterminaloutcome
 chooses nextblocker; regular evidence pushes and current handoff remainrequired.
-Analysis caution: the stored matching-window summary assumes the first quality
-pass. If the197return crosses construction, reconcile published repair churn
-separately from whole-field construction changes. Adapt analysis assertions to
+Analysis caution: historical matching-window summaries assume the first quality
+pass. The retry1 stored command now distinguishes published repair churn from
+whole-field construction changes if the197return crosses construction. Adapt analysis assertions to
 actual phase/census coverage; an analysis assertion alone is not a solver failure.
 
 Read-only downstreamreadinessreview:

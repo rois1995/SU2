@@ -1,5 +1,5 @@
 {
-  "time": 1793519031.3492377,
+  "time": 1793519102.9393935,
   "scope": "Same qualified original-grid CFD seed, configuration, mesh and geometry as parent198. Original-grid continued restart compared only if emitted; this is NOT adapted restart evidence.",
   "files": [
     {
@@ -25,9 +25,15 @@
       "candidate_sha256": "1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880",
       "baseline_sha256": "1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880",
       "identical": true
+    },
+    {
+      "file": "restart_flow_adap_00000.dat",
+      "candidate_sha256": "6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a",
+      "baseline_sha256": "6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a",
+      "identical": true
     }
   ],
-  "continued_restart_state": "not_yet_emitted",
+  "continued_restart_state": "emitted_byte_identical_parent198",
   "qualified_seed_sha256": "1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880",
   "qualification_sha256": "e5782d139bc9d398780f04e77800757c01012dabd05c2a3b51b3065000b40fc9",
   "cfd_sha256": "96bcaff470bb4571966a2db93e0e7ed0b0920e46a9b3483a0898cc7f0b19a1f1",
