@@ -75,14 +75,22 @@ ACTIVE/quality_entry_live_provenance.json andquality_entry_resources.json preser
 Actualcomplete
 censuses,geometrywork,netwholefieldq/Jbad/s andgeometrycounts chooseutility.
 ComparetoLATEST198retry1 atactualmatchingstages/times,notassumedfuturestateidentity.
-Firstcompletequalitywindow21632:733582cells/50158q/49030J/3660geometry/0size.
-Net3923q/4362J/110geometry through1739publications in179.316862s;netq21.877474/s
-vs198retry121.551400/s(+1.513%). Selectedfields/rankdebts/commits/churnEXACTsame-round.
-Traversal200729241→97046296(-51.6531%),same31091uppercalls/preparationwork.
-Nestedtraversalseconds229.821629→221.890623(-3.451%);predicatecounts arenotuniform
-CPUcost andnestedrankwalltimers donotisolatecode/hostcausality. Currentjoinshare.36169
-includesprotocol+wait,notpureidle. FullruncontinuesFROZEN. Actualwindow1comparison/
-service/geometryassessments andall_quality_census_assessment.json retaincounters.
+Latestcompletequalitywindow3/round21760: 744779cells/42682q/41059J/
+3563geometry/0size. Sincefirstqualityentry554.908265s,
+net11399q/12333J/207geometry through5926publications;
+netq20.542134/s. Constructioneditssinceentry0;wholefieldrate
+includesanyconstruction,notnecessarilypurepublishedrepairyield.
+Actual198retry1same-roundnetq20.214109/s;selectedwholefieldexact=True,
+rankdebtsexact=True,commitsexact=True,churnexact=True.
+Traversal536716589→252654243(-52.9259%).
+2complete lateownershipmigrations audited forglobalcounts/debt/completeflagsand20selected
+cachecounters/entries/bytes;notproofeverykey/history. Currentjoinshare0.37982
+includesprotocol+wait,notpureidle. PredicatecountsarenotuniformCPUcost;timersoverlap/
+hostconditionsdiffer. Noisolatedspeedupclaim. FullruncontinuesFROZEN. Actual
+quality_window3_comparison.json/service_summary.json,quality_migration_assessment.json and
+all_quality_census_assessment.json retaincounters;window1geometryassessmentpreserved.
+Latestwindow3HOSTaudit1793528227.378965:all10LIVE/1401pinsunchanged/
+82mappedELFcovered. Actualquality_window3_live_provenance.json/resources.json.
 ZEROaccepted adaptedmeshes/transfer/adaptedCFD/adaptedrestart. FullgoalACTIVE.
 
 ## Previous198 terminal evidence — never resignal
