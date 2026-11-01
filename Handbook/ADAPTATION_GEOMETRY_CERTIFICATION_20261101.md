@@ -59,6 +59,22 @@ claim contention caused the prior result. Verify current resources and provenanc
 redirect runtime temporary storage to4TB because root/tmp has only15MB free.
 No new options, larger limits, source change or repeated qualification campaign.
 
+Retry1 live evidence through qualitywindow7 reinforces the timing limit of these
+comparisons: same selected measured states and geometry-work counters as parent198,
+but window1 took182.0vs245.1s andwindow7 took367.2vs168.7s. Host CPU-pressure
+snapshots changed substantially during the retry. Neither walltime alone nor these
+snapshots isolate algorithm cost. Strict acceptance is still unproved; frozenrun
+continues. Exact current handles/provenance/counters remain in HANDOFF and retry1.
+
+Read-only diagnostic-facility check: AtlasOps::Trace caches the
+SU2_NATIVE_GEOMETRY_WORK_TRACE setting on first use. QuerySurfaceUnionAtResolution
+emits payload under that trace only for one physical triangle and <=64 facets.
+Engine transaction_observer/capture_feature are existing
+API hooks, but are not wired into this CFD launch. No trace/observer was enabled
+mid-run, and no fresh late-star query population is claimed. Older saved12queries
+remain the limited motion-bound evidence; aggregate misses still cannot classify
+nearby trials versus evicted identical queries. No additional implementation chosen.
+
 ## Current198candidate,continuing197cycle
 
 After197terminal identities/pins were reverified1793511796.099736,198moves the
