@@ -27,10 +27,24 @@ ranks1886586–1886591 all/start95211634. All rank/launcher priorities19, libs1.
 LAST/owned_startup.json,command.json,pins.json,status.json,resources.jsonl are
 current authority. Do not edit pinned C++/headers/tests/helpers/binary/config/inputs
 while this run lives. First restarted CFD iteration and metric computation reached;
-no adaptation acceptance yet. Latest source checkpoint is the diagnostic export
-checkpoint accompanying this handoff; commit changes do not alter frozen files.
+no adaptation acceptance yet. Source/checkpoint18738aeb32 is pushed to the fork;
+commit/documentation changes do not alter the frozen sources.
 CFD SHA7de0cc448004521becb5609d83a0841836d7744187700244dd36d8538b8ef666.
 Test-driver SHAd630234ec127b793237fb7c1dc609cd9db216b96463fc5330560a1fa01acaf04.
+
+Current measured progress: quality entry at636.681267engine seconds with COMPLETE
+727818cells/54081q/53392J/3770geometry-admission/0size failures. All18construction
+generations match199on17selected per-rank work/state counters, not a whole-mesh
+bit-identity proof. Entry199was1185.729006s; changed host conditions prevent a causal
+code-speedup claim. Quality-entry rank distribution differs, so subsequent selected
+repair states are not assumed identical. Latest complete window(round21824), at
+654.522661qualitys:749970cells/39542q/37717J/3508geometry/0size;8071publications,
+net14539q/15675J,22.213135q/s and23.948751J/s. Latest-window published
+q churn26906retired/24364introduced; no construction edits/private tracked
+collectives/unmeasured churn in recorded windows. Bulk rates are not a closure forecast.
+LAST/quality_entry_assessment.json,split_generation_assessment.json,
+quality_trend_assessment.json. At1793538668.336787 all10HOSThandles LIVE/1403pins
+unchanged; MemAvailable30,757,032kB/summedRSS9.3603GB(sample,not physical/job peak).
 
 Capture policy: only the first rejected exit of this selected substantial attempt,
 with actual event and worker rank IDs. Prefix <MESH_OUT_FILENAME>_inspection.
