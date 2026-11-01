@@ -52,33 +52,33 @@ completeflags and20selectedcache/memocounters/entries/bytesunchanged;debtspread
 All10handles/1401pins/82mappedELFreverified1793499954.022988:
 quality_entry_live_provenance.json. Frozenqualityrepairactive;noacceptedmesh.
 
-Qualityprogress:window5 at898.264304seconds sinceentry,round21888:
-753591workingcells,37310q/35416J/3462geometry/0size,
-qJdebt7685.934318914528;9621publications,
-net16771q/17976J/308geometryremoved,
-18.670451netq/s,20.011927netJ/s.
-Latestinterval:net2576q/2670J/56geometryremoved
-in158.150849s,16.288246netq/s,
-1.439106netq/publication. Allprecedingownershipstages included.
-All14completecensusesaudited;latestownership_committedround21888:
-queue313153,blockedfeatures123,stuckshape/required0/0,
+Qualityprogress:window7 at1224.119460seconds sinceentry,round22016:
+761511workingcells,31927q/29569J/3429geometry/0size,
+qJdebt4996.192735075473;13537publications,
+net22154q/23823J/341geometryremoved,
+18.097907netq/s,19.461336netJ/s.
+Latestinterval:net2234q/2448J/13geometryremoved
+in154.476773s,14.461721netq/s,
+1.169021netq/publication. Allprecedingownershipstages included.
+All20completecensusesaudited;latestownership_committedround22016:
+queue289438,blockedfeatures148,stuckshape/required0/0,
 missing0,privatecollectives0.
 Same-round194reference:wholefieldexactTrue,rankdebtsexactTrue,
 commitsexactTrue,windowcountcountersexactTrue.
-Quality898.264304vs1126.552799s;traversal
-1267394439vs1807087244(-29.8653%).
-Uppercalls195741vs195741. Noisolatedtimingclaim.
-Remainingqsurface/interior8593/28717,
-J12316/23100.
+Quality1224.119460vs1538.256090s;traversal
+1589324703vs2257306957(-29.5920%).
+Uppercalls285630vs285630. Noisolatedtimingclaim.
+Remainingqsurface/interior6538/25389,
+J9687/19882.
 Interior meansnophysicalface,notnoconstrainedvertices;privategainsnotpublicationgains.
-3latequalitymigrations audited:counts/debt/completeflags andselected
+5latequalitymigrations audited:counts/debt/completeflags andselected
 prepared/numericmemocounters/entries/bytes/driftavailabilityconserved.
-Latestmigrationround21888:debtspread1.785703→1.277509,
-observedfullcost13.080990s,awaitingnextcompletewindowinterval.
+Latestmigrationround22016:debtspread1.695437→1.474195,
+observedfullcost12.332405s,awaitingnextcompletewindowinterval.
 Countersalone donotproveeverykey/history;unchangedqualifiedsourcesupportscontracts.
-CURRENT/quality_window5_service_summary.json preservesperrankbusy/join/commits/
-publisheddebtremoved/netq/J. quality_window5_comparison.json retainsactualtimebrackets.
-All10handles/1401pins/82mappedELFreverified1793500797.8938713:quality_window5_live_provenance.json.
+CURRENT/quality_window7_service_summary.json preservesperrankbusy/join/commits/
+publisheddebtremoved/netq/J. quality_window7_comparison.json retainsactualtimebrackets.
+All10handles/1401pins/82mappedELFreverified1793501180.6943033:quality_window7_live_provenance.json.
 Frozenruncontinues;noacceptedmesh/transfer/adaptedrestartclaim.
 
 
@@ -259,6 +259,8 @@ heavyjob,pins/handles/resourcesaudited,checkpointacceptedstagesindependently.
 No newimplementationwhilethisrunishealthy. Useactualoutcometochoose thenextblocker.
 
 Read-only downstreamreadinessreview:CURRENT/workflow_acceptance_readiness.json.
+Existing175transfer_restart_acceptance_source_review.md and audit_native_unsteady.py
+were located/reused; P1integralaudit needs IMMEDIATEposttransfer states,notlaterCFD.
 Existing workflowreceipts alone are insufficient transfer/state/restartproof.
 Actual pinned distributedtransfer unconditionally gates finite trueresidual<=1e-10,
 fulladmissibility and1e-12scaledtargetintegrals before publication; inspect ACTUAL

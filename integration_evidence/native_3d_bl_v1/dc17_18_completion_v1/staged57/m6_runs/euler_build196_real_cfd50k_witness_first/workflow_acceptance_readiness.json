@@ -54,5 +54,29 @@
     "This is a concrete reuse plan,not executedadaptedstate/restart evidence.",
     "ContinuedCFD restart differs from immediate post-transfer state; independent post-CFD admissibility cannot byitself prove immediate transfer conservation. Use actual immutable runtimegate evidence + reported projection residuals and source provenance,with separate diskstate audit.",
     "General adaptationresume cycle0/output collision remainsopen; isolated ADAP_LOOP=NO probe avoids it without claiming itfixed."
-  ]
+  ],
+  "existing_prior_source_review": "staged57/m6_runs/euler_build175_bounded_guidance50k/transfer_restart_acceptance_source_review.md",
+  "current_source_hash_comparison_to_prior_review": {
+    "SU2_CFD/src/adaptation/CConservativeTransfer.cpp": {
+      "sha256": "9da510e846516899f222b5421d72e09fd05d89e978f8d592c02003c63604fee2",
+      "same_as175_source_review": true
+    },
+    "SU2_CFD/src/adaptation/CDistributedProjection.cpp": {
+      "sha256": "b651e393ee2897167a45c990c214ae2c77a602444361813970fa5620bf3944bb",
+      "same_as175_source_review": true
+    },
+    "SU2_CFD/src/adaptation/ConservativeKernels.cpp": {
+      "sha256": "e81a533c852898a39fa15889ad7bf7d0cb5571baae8a16ef42d892dc722634d9",
+      "same_as175_source_review": true
+    },
+    "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": {
+      "sha256": "4979e78879292f03f6c910c7932b34bbac3d7075e6f6446ffb231c1c9ca6481f",
+      "same_as175_source_review": true
+    }
+  },
+  "additional_existing_audits": {
+    "source": "integration_evidence/audit_native_unsteady.py::state_values and audit_3d_transfer",
+    "use": "Reuse state header/shape/admissibility logic. Use P1integral audit ONLY if exactdonor and immediateposttransfer states/meshes are available; never compare after evolving CFD and call it transfererror.",
+    "provenance_limit": "Sourcehash equality preserves cited codecontract review,not full runtime equivalence. Currentbinary/loadedruntime/buildflags and exact actual artifacts still must be pinned/checked."
+  }
 }
