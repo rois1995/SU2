@@ -168,3 +168,10 @@ were recovered and SHA-verified against original pins for resumable history.
 Return immediately to normal full two-event M6 with saved CFDseed/50k/5400s. Do not
 capture every rejected run:202complete saved mesh remains available.
 Final geometry/shape/size/heights and transfer/continued-CFD/restart gates unchanged.
+
+
+The connected source checkpoint12a14dc955 is pushed. Normal full two-event M6
+`euler_build206_real_cfd50k_feature_companion` is now live on the same saved CFD
+seed/config/50k/5400s, without selected failure-mesh dumping. Exact handles and
+source freezing are in HANDOFF_Codex.md. No new implementation while healthy;
+use its whole-field outcome before choosing the next correction.

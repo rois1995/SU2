@@ -9,10 +9,41 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current — build206 connected proof/accounting qualified; full M6 next
+## Current — build206 normal full two-event M6 LIVE; source frozen
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-LAST=`R/m6_runs/euler_build202_real_cfd50k_inspection`.
+LAST=`R/m6_runs/euler_build206_real_cfd50k_feature_companion`.
+INSPECT202=`R/m6_runs/euler_build202_real_cfd50k_inspection`.
+Full M6 exec39395 RUNNING with normal SU2_CFD, not a selected test-driver wrapper.
+Source checkpoint12a14dc955 PUSHED.1403runtime/source/input pins. ConfigSHA74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d
+and saved real CFD seedSHA1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880
+exactly match202. CFD SHAbb4a5432351a170404332fb89edc7a3f4d6e1a4036adb155838bc1c090a85214.
+First restarted original-grid CFD step finite, screenCL.269535/CD.013536; native
+adaptation entered. No accepted adapted mesh/transfer/continued adapted CFD yet.
+
+HOST startup at1793548936.893354, all10LIVE:
+helper2159446/start96386176;time2159605/timeout2159606/start96386786;
+launcher2159607/start96386787;ranks2159611–2159614/start96386794,
+2159615–2159616/start96386795. Launcher/ranks nice19, libs1; helper0.
+LAST/owned_startup.json/command.json/pins.json/status.json/resources.jsonl are live
+authority. StartupMemAvailable38,709,816kB; sampled summedRSS2.202GB at100.108s,
+not physical/job peak. Unique OMPI4TBcompile-tmp/native_feature206_m6. No selected
+failure dump:202actual mesh remains saved; no routine/per-trial mesh files.
+
+Do not edit C++/headers/tests/helpers/binaries/config/inputs or launch another
+heavy job while this healthy run lives. Let it finish or preserve demonstrated
+failure/bottleneck/resource evidence before an authorized exact-owned stop. No206
+stop sent. Before any retry check SAME exec39395 and exact host startticks; stale
+logs/timeouts alone do not establish termination. At natural first-event rejection,
+preserve all6complete EXITs/stops/pins/handles BEFORE stopping only verified owned
+launcher if two accepted events can no longer be obtained. Never resignal oldPIDs.
+Judge net whole-field q/J retirement+introduction, geometry and size counts at
+matching complete stages; witness debt reduction is not closure. Shape→residual
+size/geometry→shape reclosure→two strict accepted events with conservative admissible
+transfer/finite continued CFD→isolated adapted disk restart, then BL/MPI/RANS500k.
+
+## Connected206 qualification — scoped PASS, not workflow completion
+
 Build206 exec38075 TERMINAL0,261.348s,1298pins unchanged; exact ninja2136532 absent.
 Connected strict retained-feature companion proof and incremental RebuildFeatureTraces
 byte accounting QUALIFIED locally: feature_publication153assertions/4cases PASS;
@@ -39,13 +70,8 @@ admitted; exact unsigned coverage and established-route coordination remain stri
 allocation overlap/work/routes unchanged. Its34case/2666assertion serial checks PASS.
 Global reconstruction now completes, but no ordinary-M6 speedup established.
 
-NEXT immediately start normal full two-event M6 `euler_build206_real_cfd50k_feature_companion`
-via R/run_m6.py build206 <label> 2 R/m6_inputs/euler_original_force_seed_v1.
-Use existing4TBcompile-tmp and unique OMPI tempdir, nice19/libs1, native5400/target50k,
-unchanged strict gates and saved CFD seed. No --inspect-rejected:202actual mesh is
-already saved; no routine attempt/per-trial mesh capture. Freeze sources/helpers/
-binaries/inputs throughout. Shape→residual size/geometry→shape reclosure→strict
-acceptance/transfer/continuedCFD/two accepted events/isolated adapted disk restart.
+The qualified implementation is now frozen in the normal full M6 above, same real
+CFD seed/50k/5400/gates. No further operator or diagnostic cycle while healthy.
 
 Diagnostic history:203arbitrary100m allowance exhausted before candidate;204whole-
 boundary resource callbacks timed out600s before candidate. All handles absent/
@@ -53,7 +79,9 @@ pins unchanged; evidence preserved.205relevant source/helper snapshots (7files)
 recovered and verified against original pins under R/witness_sources/build205/.
 Boundary preparation810163paired rows/38752points/77500faces/52metrics passed;
 initial prep interruption withoutcapturedhostPID preserved in LAST receipt. Never
-resignal any historical handles. No owned heavy job at this qualification boundary.
+resignal any historical handles. The qualification jobs are terminal; the normal M6 above is now the only owned heavy job.
+
+## Previous selected M6 — build202 terminal inspection
 
 Selected full-driver attempt exec88642 TERMINAL1. Event1 naturally rejected on all6
 ranks at native5405.620649636s, stop=time_budget. COMPLETE actual EXIT:
@@ -62,9 +90,9 @@ All6 full shape/geometry/census/cache flags complete; raw inspection counts matc
 ZERO accepted adapted meshes; no adapted transfer/continued CFD/restart proof.
 
 Natural failure was preserved BEFORE the authorized stop of the exact verified
-owned launcher. LAST/event1_natural_failure.json and event1_failure_owned_stop.json
+owned launcher. INSPECT202/event1_natural_failure.json and event1_failure_owned_stop.json
 are authority. Stop already sent; NEVER resignal historical1886xxxPIDs.
-LAST/terminal_handles.json proves all ten exact owned handles ABSENT and1403pins
+INSPECT202/terminal_handles.json proves all ten exact owned handles ABSENT and1403pins
 unchanged. These M6 handles are historical. Sources were unchanged throughout the run.
 Source checkpoint18738aeb32 and progress942c154d17 are pushed.
 CFD SHA7de0cc448004521becb5609d83a0841836d7744187700244dd36d8538b8ef666.
@@ -79,18 +107,18 @@ Later complete window45:38q/22J/2554geometry at quality4597.57455s.
 Actual EXIT295q/294J/2110geometry supersedes those windows. Detailed counters show
 quality_stages=3 and construction_returns=2: the existing continuation WAS exercised
 in202, unlike199. Aggregate reopening is not proof of repeated local cycling.
-Next diagnose the boundary tail and subsequent phase/reclosure interaction before
-choosing speed, repair power or construction as the next correction.
+This motivated the strict feature-proof correction qualified above; the current
+full206attempt must now establish its effect on whole-field closure.
 
 All6 explicitly selected first-failure raw shards and measurements are complete.
 Offline extractor exec17281 TERMINAL0,31input hashes unchanged, all three owned
 extraction handles ABSENT. Actual complete files now exist at
-LAST/inspection/rejected_mesh.su2 and rejected_mesh.vtu: **164526points/810163tets**.
+INSPECT202/inspection/rejected_mesh.su2 and rejected_mesh.vtu: **164526points/810163tets**.
 2476bad cells/35426neighboring vertex-star cells, zero omissions/unknown metrics.
 Independent standalone SU2 parse and count checks passed; raw flags match EXIT.
 Generic SU2 markers0/1/2 correspond to FARFIELD/SYMMETRY/WING3D, verified from
 original sidecar. Actual files stay local, not committed. All10output hashes in
-LAST/inspection_artifacts.json. Extraction sampled summedRSS720207872bytes,
+INSPECT202/inspection_artifacts.json. Extraction sampled summedRSS720207872bytes,
 wall437.704s; this offline cost is separate from native runtime. Extraction is terminal.
 
 Actual final shape-bad union450:243surface/187constrained-interior/20with no
@@ -98,20 +126,20 @@ captured binding. All2110geometry-bad cells have physical faces. Short-edge cont
 32948of32950nearby all-bad-flags-clear cells also have an edge<.5; no construction
 cause established. Complete phase totals show48q/26J→571q/666J after first rebuild,
 then38q/22J→521q/642J after second; final295/294. Partial construction shape counts
-are not whole-field truth. LAST/terminal_phase_assessment.json,
+are not whole-field truth. INSPECT202/terminal_phase_assessment.json,
 inspection_analysis.json and inspection_clean_controls.json retain evidence.
 
-Next bounded witness: cell143424775 q4.5129e-9/J2.6424e-13, geometry excess0,
+Selected witness for the206correction: cell143424775 q4.5129e-9/J2.6424e-13, geometry excess0,
 physical face4502/174173910/181199364, all genuine-curve mobility1, all14repair
 demands blocked. Complete52cell union of its four vertex stars saved in
-LAST/witness_143424775_owned.bin and witness_143424775_state.json. Exact integer
+INSPECT202/witness_143424775_owned.bin and witness_143424775_state.json. Exact integer
 orientation test found4502→181199364 keeps all surviving cells positive; this is
 NOT topology/geometry/metric/height/contact/dependency admission or a historical
-trial replay. Reuse existing CollapseVertex/current-cavity metric/feature-chain
-facilities to reproduce old measures and the candidate's actual rejection. Do not
-treat missing explicit traces as empty accepted traces or add another operator.
-Provisional next target: repair power and geometry/shape reclosure, with certification
-cost still relevant. C++/binary/production policy unchanged; no full workflow success.
+trial replay. Existing CollapseVertex/current-cavity metric/feature-chain facilities reproduced
+the old measures and demonstrated the refusal corrected above. Do not treat missing
+explicit traces as empty accepted traces or add another operator.
+The current target remains repair power and geometry/shape reclosure. The206
+change is frozen in its full M6; no full workflow success is established.
 Details and actual mesh links:
 [inspection](Handbook/ADAPTATION_M6_INSPECTION_20261101.md),
 [bounded export](Handbook/ADAPTATION_BAD_CAVITY_EXPORT_20261101.md).
