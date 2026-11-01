@@ -76,35 +76,35 @@ Resources1793519937.878137:MemAvailable30826672kB,CPUpsiavg60=8.36%,memorypsi0,
 sampledRSSmax12.949GB(decimal),notphysical/truewholejobpeak. SourcesstillFROZEN.
 Now qualityservice; strictacceptedmesh/transfer/adaptedCFD/restart remainunproved.
 
-LatestCOMPLETEqualitywindow4 round21824:749172cells,39886q/
-38086J/3518geometry/0size bad; qJdebt9265.267591854.
-Quality791.018708s,net14195q/15306J/
-252geometry removed through7831publications;
-netq17.945214/s,netJ19.349732/s.
+LatestCOMPLETEqualitywindow6 round21952:758285cells,34161q/
+32017J/3442geometry/0size bad; qJdebt6095.983416738.
+Quality1279.844899s,net19920q/21375J/
+328geometry removed through11626publications;
+netq15.564386/s,netJ16.701242/s.
 Selectedwholefield/rankdebts/publications/churn/gauges EXACTparent198same-round:True;
 allselectedupper/preparation/discoverywork identical:True. No byte-identical
 intermediatemesh orfuturestate/trialidentity claim.
-Parentqualitytime920.088061s,netq15.427871/s;
-observednetqratechange16.3169%.
-Joincallshare0.403383 versusparent0.387058;
-busyshare0.313548 versus0.308404.
+Parentqualitytime1265.804414s,netq15.737028/s;
+observednetqratechange-1.0970%.
+Joincallshare0.390986 versusparent0.394501;
+busyshare0.300398 versus0.305668.
 Timersoverlap;joinincludesprotocol+wait,CPUincludesMPIspin. Countedwork and
 actualbracketingtime snapshots are retained separately;notanisolatedcode/hostgain.
 Publishedrepairnet andwholefieldchanges remainseparate acrossconstructionreturns.
 16GLOBALdriftsamples,supported16,lost0,
 max3.225397%sinceentry;notimmutablecontinuous
 originalCFDtargetproof. All10HOSTidentitiesLIVE/all1401pinsunchanged/
-82mappedELFcovered1793520793.680674. Resource1793520795.395419:
-MemAvailable:   30324584 kB,sampledRSSmax13.748GB(decimal),
-notphysical/truewholejobpeak. ACTIVE/quality_window4_* plusall_quality_census_assessment.json/
+82mappedELFcovered1793521227.633507. Resource1793521230.355637:
+MemAvailable:   29354856 kB,sampledRSSmax14.107GB(decimal),
+notphysical/truewholejobpeak. ACTIVE/quality_window6_* plusall_quality_census_assessment.json/
 quality_service_assessment.json preserveactualcounters/limitations. SourcesFROZEN;
 strictacceptance/transfer/adaptedCFD/diskrestart thenBL/MPI/RANS500k stillrequired.
 
-Complete latermigrations audited:2,globalcounts/debt/flags and20selected
+Complete latermigrations audited:3,globalcounts/debt/flags and20selected
 prepared/memo counters/bytes/entries unchanged;notproofeverykey/history.
-Latestmigrationround21760,debtspread1.699127→
-1.385238;elapsedfromprecedingwindow
-14.663962s. Latestmigrationcost countedthroughlatestwindow:True.
+Latestmigrationround21888,debtspread1.785703→
+1.277509;elapsedfromprecedingwindow
+29.633686s. Latestmigrationcost countedthroughlatestwindow:True.
 Any postwindowcost enters the NEXTqualitywindowinterval.
 ACTIVE/quality_migration_assessment.json retainsactualstagecensuses anddeltas.
 
