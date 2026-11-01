@@ -1,4 +1,34 @@
-# Cheaper geometry certification —197terminal analysis
+# Cheaper geometry certification —198coverage-order integration
+
+## Current198candidate,continuing197cycle
+
+After197terminal identities/pins were reverified1793511796.099736,198moves the
+EXISTING nominal triangle coverage proof before rectangle coverage for N=3 only.
+It preserves exact interval/nominal padding,orientation,finite footprint and lift
+checks. Failed/degenerate/nonfinite triangle proofs retain the original rectangle/
+segment fallback; N!=3 remains on that route. No gate/cache/config/scheduler/budget
+change. Engine197residual-geometry continuation is unchanged. Shared upper callers
+cover boundary coarsening/splitting/smoothing/quality and both distance directions.
+Read-only review found no correctness objection under those preserved contracts;
+rectangle-first successes can incur extra work,so saved-query regressions were
+measured rather than assumed absent.
+
+Build198PASS54.189982s/all1296pinsunchanged/all2hosthandlesABSENT1793511884.925061.
+Existing focusedproofPASS403assertions/2cases18.287446s;all5hosthandlesABSENT and
+pinsunchanged1793511926.371941. Same12saved168inputs:traversal259729→198551
+(-23.5546%),ALL12boundsEXACT196,cached/recomputed equality passed. All12queries
+improve;4hardqueries improve21.13–28.09%,8easyqueries8.41–13.85%. Repeated memo
+work remains87–90. This is countedwork evidence,notfullM6speedup/acceptance.
+R/geometry_coverage198_saved_query_assessment.json andvalidation_plan.json retain
+provenance andfullqueryrows. No new baseline/perf/GDBcampaign ormotioncache.
+
+Current: affectedserial thenONE MPI6 milestone,thenimmediatelyfulltwoeventM6 same
+savedrealCFD50k/native5400. Preserve197continuation forresidualgeometry/reclosure.
+Judge netwholefieldq/Jbad/s andgeometrycounts atactualmatchingstages/work,notcommits
+orfixtures. Strictacceptance/transfer/continuedCFD/diskrestart,thenBL/MPI/RANS500k
+remainrequired. No newcertificateproofisintroduced; unsurebounds stillfall back.
+
+## Preserved197terminal analysis
 
 Build197 is now TERMINAL. All six ranks naturally exhausted the unchanged time
 budget; native maximum5403.632129s. The failure was preserved before stopping only

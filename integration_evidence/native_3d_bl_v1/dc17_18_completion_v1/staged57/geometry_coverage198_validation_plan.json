@@ -1,0 +1,49 @@
+{
+  "time": 1793511873.0031478,
+  "build": "build198",
+  "state": "saved_query_candidate_pass_affected_serial_running",
+  "scope": "Continue197geometry-return cycle; reorder EXISTING nominal triangle and rectangle coverage for N3 only; all proof padding, finite union checks, lift, segment/rectangle fallback, model direction, admissions and work accounting preserved. No new config/cache/scheduler/gate/budget.",
+  "evidence": "m6_runs/euler_build197_real_cfd50k_geometry_return/geometry_certification_analysis.json",
+  "proof": {
+    "case": "geometry_coverage198_proof",
+    "ranks": 1,
+    "filter": "[NativeSurfaceEnvelope3D],[NativeM6GeometryQueries3D]",
+    "environment": {
+      "SU2_NATIVE_TRANSACTION_REFERENCE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation22/m6_authority.json.native_ref",
+      "SU2_NATIVE_TRANSACTION_HAUSD": "0.0001",
+      "SU2_NATIVE_GEOMETRY_QUERY_INPUT": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_geometry_capture168_host_20261031T012917_2091486/m6_surface_queries.bin",
+      "SU2_NATIVE_GEOMETRY_WORK_TRACE": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    }
+  },
+  "serial": {
+    "case": "geometry_coverage198_serial",
+    "ranks": 1,
+    "filter": "[NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeSurfaceError3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeAcceptedFaceCertificate3D],[NativeGeometryReturn3D]",
+    "environment": {
+      "SU2_NATIVE_TRANSACTION_REFERENCE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation22/m6_authority.json.native_ref",
+      "SU2_NATIVE_TRANSACTION_HAUSD": "0.0001",
+      "SU2_NATIVE_GEOMETRY_QUERY_INPUT": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_geometry_capture168_host_20261031T012917_2091486/m6_surface_queries.bin",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    }
+  },
+  "mpi": {
+    "case": "geometry_coverage198_mpi6",
+    "ranks": 6,
+    "filter": "[NativeReferenceIO3D],[NativePartition3D],[NativePhaseOwnership3D],[NativeSplitLanes3D],[NativeGenerationProgress3D],[NativeConstructionPassClaims3D],[NativeStageProgress3D],[NativeFirstLayer3D],[NativeJointGeometry3D],[NativeBidirectionalLength3D],[NativeConstructionHandoff3D],[NativeConcurrentRepair3D],[NativeInteriorPlacement3D],[NativeQualityPass3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeConstructionSweep3D],[NativeRepairFairness3D],[NativeStagedConstruction3D],[NativeOptimize3D],[NativeMesh3D],[NativeShapeAdmission3D],[NativeMetricSplitRule3D],[NativeSurfaceError3D],[NativeCoordinateStar3D],[NativeGeometryWorkEstimate3D],[NativeConcurrentComposed3D],[NativeRepairBatch3D],[NativeBatchLookup3D],[NativeBatchPlanning3D],[NativeBatchEngine3D],[NativeFirstLayerEngine3D],[NativeCollision3D],[NativeCollapseFilter3D],[NativeAcceptedFaceCertificate3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D]",
+    "timeout": 600
+  },
+  "acceptance": [
+    "Keep197Enginecontinuation unchanged.",
+    "Measure all12savedqueries against196trace,including4hardqueries; no new baseline campaign.",
+    "Exact cached/recomputed answers and finite triangle/holes/body/curved/height/resource contracts must pass.",
+    "Reject material regressions; no full-run timing speedup claim from savedquerywork.",
+    "Then one MPI6 integration milestone and immediate fulltwoevent M6 same realCFD50k/native5400."
+  ],
+  "cfd_sha256": "96bcaff470bb4571966a2db93e0e7ed0b0920e46a9b3483a0898cc7f0b19a1f1",
+  "test_driver_sha256": "9fa9bd82d0e3ec89b2930fa20a6ee6471b9b70ff2b3d8255efd9b9d6fb817642"
+}

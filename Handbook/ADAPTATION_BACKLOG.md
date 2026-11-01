@@ -367,3 +367,11 @@ savings.5765%beforeoverheads. Keep motioncache/newenvelope/finerpreparation/cove
 order UNPROVEN; no competing implementation/configuration selected. Further work
 requires saved-query traversal savings and netwholefieldq/Jbad/s evidence.
 Current analysis:ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md and197/geometry_certification_analysis.json.
+
+198measured evaluation selects only the existing N3nominal-triangle-before-rectangle
+proof order: same12savedqueries198551vs196259729traversal(-23.5546%),allboundsEXACT,
+allqueriesimprove,hardqueries21–28%. This supersedes its UNPROVEN status above for
+saved-querywork only; fullM6speed/closure unproved. It extends the197connectedcycle,
+retains197Enginecontinuation andallfallbacks/gates/budgets,addsno cache/envelope.
+Other alternatives remain deferred. Affectedserial/MPI qualification precedes
+immediatefullM6. Currentstatus inHANDOFF andgeometry_coverage198_validation_plan.json.

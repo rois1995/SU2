@@ -1,0 +1,27 @@
+{
+  "time": 1793512017.4520736,
+  "scope": "Primary source review plus bounded read-only second opinion; tests/fullM6 remain authoritative.",
+  "changed_source": "Common/src/adaptation/CNativeAffineReference.cpp",
+  "callers": [
+    "TriangleUnion::Upper per-group plane bound",
+    "SurfaceForest::Upper forwarding to its joined immutable witness",
+    "directed model and physical domains in QuerySurfaceUnion"
+  ],
+  "preserved": [
+    "N3nominal centers and outward norm padding",
+    "orientation and finite footprint ContainsFace authority",
+    "rectangle/segment fallback on triangle refusal/nonfinite/degenerate",
+    "dx/dy and a/b replaced only after proven triangle coverage",
+    "nominal lift residuals, constrained simplex bound, final added padding",
+    "all nonN3original branches",
+    "predicate work accounting, scratch admission and finite proof fallback",
+    "geometry/association/feature/body/height and final two-sided gates",
+    "197Engine continuation; construction operators and validity policy"
+  ],
+  "risks": [
+    "Rectangle successes may now incur extra triangle predicates/admission; cannot infer whole-population gains from12savedqueries.",
+    "General numerical bounds/traversal sequence can change although all12savedbounds areexact. Uncertainbounds remainconservative/failclosed.",
+    "Source review does not prove M6closure."
+  ],
+  "measurement": "geometry_coverage198_saved_query_assessment.json"
+}

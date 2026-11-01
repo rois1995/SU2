@@ -9,7 +9,31 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current —197TERMINAL; certification analysis complete,goal ACTIVE
+## Current —198coverage-order validation;197M6 TERMINAL
+
+The current connected cycle retains197's residual-geometry continuation and adds
+a measured reordering of EXISTING finite triangle/rectangle coverage proofs forN3.
+No newcache/config/scheduler/gates/budgets. Geometryauthority and all curved/feature/
+body/height/reversecoverage checks remain. No-CAD authority remains sufficient.
+Current design:[certification](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md).
+R/geometry_coverage198_validation_plan.json. ChangedCpp ONLY CNativeAffineReference.cpp;
+CNativeEngine3D.cpp isUNCHANGEDfromqualified197.
+
+Build198PASS54.189982s/1296pinsunchanged/2hosthandlesABSENT1793511884.925061.
+FocusedproofPASS403assertions/2cases18.287446s/5hosthandlesABSENT/pinsunchanged
+1793511926.371941. Same12savedquerytraversal259729→198551(-23.5546%);ALL12bounds
+EXACT196,cached/recomputed results equal. All4hardqueries21–28%lesswork;noquery
+regression. No fullM6speedup oracceptanceclaim.
+Affectedserialexec36681 LIVE/FROZEN;hosthelper1279490/start92696518,
+time1279572/start92696785,timeout/test1279573/1279574/start92696786,
+orted1279575/start92696788. All5LIVE/pinsunchanged1793511986.535824;
+case geometry_coverage198_serial_20261101T054555_1279490/owned_host_startup.json.
+ONE MPI6 afterpassing,thenfullTWOeventM6same savedCFD
+50k/native5400. KeepCpp/header/tests/helpers/binary/config/inputs FROZEN throughout
+build/cases/run. Verify actualHOSThandles; oneownedheavyjob,nice19/libs1.
+No competing implementation ornewprofiler/baselinecampaign.
+
+## Preserved197terminal outcome and analysis
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 CURRENT=`R/m6_runs/euler_build197_real_cfd50k_geometry_return`.
@@ -22,8 +46,8 @@ all10ABSENT/all1401pinsunchanged1793511528.269277:CURRENT/terminal_handles.json.
 ALL1129577/1129720/1129721/1129722/1129726..1129731handles HISTORICAL; NEVERresignal.
 No owned heavy workload remains. CURRENT/terminal_resources.json preserves sampled
 RSS/RAM/pressure/disk receipts; sampled summedRSS isnottruephysicalwholejobpeak.
-No Cpp/header/test/helper/binary/config/input
-change since197qualification. Git/evidence changes do not alter runtime pins.
+197Cpp/header/test/helper/binary/config/input pins stayed unchanged through
+terminal verification;198source edits began only after the fresh pre-edit audit.
 
 Firstevent consumed a natural failure:ZEROaccepted adapted meshes. Terminal EXIT
 803358cells has incomplete measurements/cache on five ranks; whole-field terminal

@@ -345,33 +345,35 @@ class TriangleUnion {
         (k?dy:dx)=shift;}
       const Point p{a[0],a[1],0},q{b[0],a[1],0},r{b[0],b[1],0},s{a[0],b[1],0};
       SU2Native3D::KernelStats predicates;bool covered=false;
-      if(a[0]==b[0]||a[1]==b[1])covered=footprint->ContainsSegment(p,r,&predicates);
-      else covered=positive ? (footprint->ContainsFace({p,q,r},&predicates)&&footprint->ContainsFace({p,r,s},&predicates)) :
-          (footprint->ContainsFace({p,r,q},&predicates)&&footprint->ContainsFace({p,s,r},&predicates));
-      op.Work(transfer_memory::Add(predicates.filtered_orientations,predicates.exact_orientations));
       std::array<Box,3> nominal;bool triangle_covered=false;double padding=0;
       if constexpr(N==3) {
-        if(!covered) {
-          op.Storage(2048);predicates={};std::array<Point,3> projected;
-          for(unsigned i=0;i<3;++i) {
-            const auto center=BoxMiddle(hull[i]);nominal[i]=Exact(center);
-            padding=std::max(padding,NormBound(Difference(hull[i],nominal[i])));
-            const auto c=Values(center);projected[i]={c[x],c[y],0};
-          }
-          const auto orientation=SU2Native3D::SurfaceNormalSign({0,0,1},projected,&predicates);
-          if(std::isfinite(padding)&&orientation) {
-            if((orientation>0)!=positive)std::swap(projected[1],projected[2]);
-            triangle_covered=footprint->ContainsFace(projected,&predicates);
-          }
-          op.Work(transfer_memory::Add(predicates.filtered_orientations,predicates.exact_orientations));
-          if(triangle_covered) {
-            dx=dy=0;
-            for(unsigned k=0;k<2;++k) {
-              const auto d=k?y:x;a[k]=b[k]=double(nominal[0][d].lo);
-              for(unsigned i=1;i<3;++i){a[k]=std::min(a[k],double(nominal[i][d].lo));b[k]=std::max(b[k],double(nominal[i][d].hi));}
-            }
+        op.Storage(2048);predicates={};std::array<Point,3> projected;
+        for(unsigned i=0;i<3;++i) {
+          const auto center=BoxMiddle(hull[i]);nominal[i]=Exact(center);
+          padding=std::max(padding,NormBound(Difference(hull[i],nominal[i])));
+          const auto c=Values(center);projected[i]={c[x],c[y],0};
+        }
+        const auto orientation=SU2Native3D::SurfaceNormalSign({0,0,1},projected,&predicates);
+        if(std::isfinite(padding)&&orientation) {
+          if((orientation>0)!=positive)std::swap(projected[1],projected[2]);
+          triangle_covered=footprint->ContainsFace(projected,&predicates);
+        }
+        op.Work(transfer_memory::Add(predicates.filtered_orientations,predicates.exact_orientations));
+        if(triangle_covered) {
+          dx=dy=0;
+          for(unsigned k=0;k<2;++k) {
+            const auto d=k?y:x;a[k]=b[k]=double(nominal[0][d].lo);
+            for(unsigned i=1;i<3;++i){a[k]=std::min(a[k],double(nominal[i][d].lo));b[k]=std::max(b[k],double(nominal[i][d].hi));}
           }
         }
+      }
+      // The source triangle can fit the finite footprint when its enclosing rectangle does not.
+      if(!triangle_covered) {
+        predicates={};
+        if(a[0]==b[0]||a[1]==b[1])covered=footprint->ContainsSegment(p,r,&predicates);
+        else covered=positive ? (footprint->ContainsFace({p,q,r},&predicates)&&footprint->ContainsFace({p,r,s},&predicates)) :
+            (footprint->ContainsFace({p,r,q},&predicates)&&footprint->ContainsFace({p,s,r},&predicates));
+        op.Work(transfer_memory::Add(predicates.filtered_orientations,predicates.exact_orientations));
       }
       trace.coverage_work=op.budget.work-trace.start;trace.coverage=covered?1:triangle_covered?2:0;
       if(!covered&&!triangle_covered)return INFINITY;
