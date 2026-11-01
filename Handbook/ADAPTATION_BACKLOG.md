@@ -290,3 +290,19 @@ Do not change a gate,add an option/cache,or interrupt193for this unproven idea.
 in the latest interval. The window10single stuck cell was transient in these
 aggregate counters. Do not treat it as a diagnosed persistent OldMerit failure or
 reprioritize a separate fix without terminal evidence.
+
+
+193terminal analysis2026-11-01: all49complete censuses,8628q/5768J/3151geometry bad,
+0accepted; all10handles terminal/all1401pins unchanged. Shared traversal remains
+97.05%ofupperwork; exact union hits50.18%,miss causes mixed/unknown. The current
+analysis reviews existing unchanged-face/parameter-delta reuse,context reuse,screening,
+finite envelopes and the negative0of12motion-slack result. No new motion cache,
+scheduler,construction fallback/configuration,or envelope framework is justified.
+Existing Upper's quarter-accuracy early return is a bounded evaluation candidate
+only: caller/margin audit supports its contract premise, but no measured savings
+from earlier success yet. Preserve numerical upper-bound/cached-recomputed/resource
+contracts and all strict final gates. Primary report:
+ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md and current193/
+geometry_certification_analysis.json. Unproven alternatives stay here, not a second
+active implementation. Do not infer short-edge causation or exhausted repair power
+from residual10stuck cells; most remaining demand is not classified blocked.

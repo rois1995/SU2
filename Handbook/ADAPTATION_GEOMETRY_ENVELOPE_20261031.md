@@ -1,7 +1,10 @@
 # Existing projected-envelope tightening —191terminal analysis and next design
 
-Status:193proof/serial/MPI6 PASS; full two-event real-CFD M6 ACTIVE, sources frozen.
-No accepted adapted mesh or production speedup claim.
+Status:193proof/serial/MPI6 PASS; full real-CFD M6 TERMINAL, natural time-budget
+rejection. Complete EXIT8628q/5768J/3151geometry bad; no accepted adapted mesh.
+All10owned handles absent/all1401pins unchanged before further analysis.
+[Terminal analysis](ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md) is current;
+no further C++ change or measured speedup from the new alternatives.
 Analysis/proof completed before implementation. One active connected
 geometry/quality optimization cycle. Preserve191bounded memo retention,190ownership/
 history and all latest validity-first construction improvements. No new options,

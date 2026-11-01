@@ -1,0 +1,72 @@
+{
+  "time": 1793491147.1609824,
+  "scope": "Actual natural complete EXIT states and own quality entries. Different meshes/trajectories and host contention; terminal times differ and are not matching work states. Earlier actual time brackets and near-state comparisons retained separately; no interpolated/isolated speedup claim.",
+  "runs": {
+    "euler_build191_real_cfd50k_numeric_memo": {
+      "quality_seconds": 4277.122738718999,
+      "entry": {
+        "cells": 727722,
+        "q_bad": 54071,
+        "j_bad": 53377,
+        "geometry_bad": 4059,
+        "size_bad": 0,
+        "qj_debt": 25236.787402739737
+      },
+      "exit": {
+        "cells": 787840,
+        "q_bad": 16191,
+        "j_bad": 12965,
+        "geometry_bad": 3509,
+        "size_bad": 0,
+        "qj_debt": 713.871163452273
+      },
+      "net_removed": {
+        "q_bad": 37880,
+        "j_bad": 40412,
+        "geometry_bad": 550
+      },
+      "commits": 28245,
+      "traversal_work": 6146400481,
+      "net_q_per_second": 8.856421083521461,
+      "net_j_per_second": 9.448407835989158,
+      "work_per_net_q": 162259.78038542767,
+      "net_q_per_commit": 1.341122322534962
+    },
+    "euler_build193_real_cfd50k_envelope": {
+      "quality_seconds": 4348.781705258,
+      "entry": {
+        "cells": 727818,
+        "q_bad": 54081,
+        "j_bad": 53392,
+        "geometry_bad": 3770,
+        "size_bad": 0,
+        "qj_debt": 25413.45557726506
+      },
+      "exit": {
+        "cells": 796684,
+        "q_bad": 8628,
+        "j_bad": 5768,
+        "geometry_bad": 3151,
+        "size_bad": 0,
+        "qj_debt": 136.65854138562534
+      },
+      "net_removed": {
+        "q_bad": 45453,
+        "j_bad": 47624,
+        "geometry_bad": 619
+      },
+      "commits": 37144,
+      "traversal_work": 5664508219,
+      "net_q_per_second": 10.451892755399506,
+      "net_j_per_second": 10.951113030672255,
+      "work_per_net_q": 124623.41801421248,
+      "net_q_per_commit": 1.223696963170364
+    }
+  },
+  "relative": {
+    "net_q_per_second": 0.1801485788482471,
+    "net_j_per_second": 0.1590432187907116,
+    "traversal_work": -0.07840235329436229,
+    "work_per_net_q": -0.23195127148462025
+  }
+}

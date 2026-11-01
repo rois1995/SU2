@@ -1,0 +1,609 @@
+{
+  "accepted_adapted_meshes": 0,
+  "assessment": "Quality closure/time-budget failure. Remaining active demand and positive net yield support investigating cheaper certification; this does not prove repair power suffices for eventual strict closure. Geometry-only phase not reached. No accepted adapted mesh/transfer/restart.",
+  "commits": 37144,
+  "complete_census_count": 49,
+  "entry": {
+    "cells": 727818,
+    "geometry_bad": 3770,
+    "j_bad": 53392,
+    "q_bad": 54081,
+    "qj_debt": 25413.45557726506,
+    "size_bad": 0
+  },
+  "exit": {
+    "cells": 796684,
+    "geometry_bad": 3151,
+    "j_bad": 5768,
+    "q_bad": 8628,
+    "qj_debt": 136.65854138562534,
+    "size_bad": 0
+  },
+  "exit_queue": {
+    "blocked_features": 280,
+    "commits": 29,
+    "construction_edits": 0,
+    "j_created": 54,
+    "j_removed": 65,
+    "missing_features": 0,
+    "ownership_changes": 0,
+    "private_tracked_collectives": 0,
+    "q_created": 83,
+    "q_removed": 109,
+    "queue": 120828,
+    "stuck_required": 10,
+    "stuck_shape": 10,
+    "unmeasured_churn": 0
+  },
+  "geometry_service": {
+    "per_rank": {
+      "0": {
+        "geometry_and_update": {
+          "collective_calls": 127047,
+          "collective_seconds": 38.853368298049645,
+          "election_calls": 357197,
+          "election_seconds": 532.3192658954836,
+          "facet_build_seconds": 20.300852355000004,
+          "facet_build_work": 459858,
+          "facet_hits": 8764323,
+          "facet_misses": 15951,
+          "memo_direct_hits": 22298,
+          "memo_direct_misses": 14568,
+          "memo_evicted_bytes": 91021968,
+          "memo_evictions": 77847,
+          "memo_maintenance_work": 25668704,
+          "memo_retention_refusals": 10,
+          "memo_stores": 70120,
+          "memo_union_hits": 57838,
+          "memo_union_misses": 55562,
+          "piece_selection_seconds": 4.488742402000006,
+          "piece_selection_work": 11558125,
+          "scope_attempts": 17880,
+          "scope_build_seconds": 65.38055575100032,
+          "scope_build_work": 1638756,
+          "scope_builds": 17880,
+          "support_calls": 113400,
+          "support_facets": 20042818,
+          "support_seconds": 18.264443573999845,
+          "traversal_seconds": 748.1936157440035,
+          "traversal_work": 1182248510,
+          "update_seconds": 344.1318603090068,
+          "updated_cells": 169430,
+          "upper_calls": 113400,
+          "upper_seconds": 844.8646123689831,
+          "upper_work": 1204741085
+        },
+        "private_smoothing": {
+          "boundary": {
+            "candidates": 58291.0,
+            "debt_reduction": 96.7551930484408,
+            "guidance": 9289.0,
+            "moves": 2288.0,
+            "rejects": {
+              "edge": 236,
+              "geometry": 3197,
+              "shape": 50301,
+              "validity": 1118
+            },
+            "reused": 1.0,
+            "seconds": 664.167416526,
+            "stars": 83621.0,
+            "upper_queries": 39773.0
+          },
+          "interior": {
+            "candidates": 31272.0,
+            "debt_reduction": 532.5132000263493,
+            "guidance": 0.0,
+            "moves": 3828.0,
+            "rejects": {
+              "edge": 615,
+              "geometry": 0,
+              "shape": 14141,
+              "validity": 2405
+            },
+            "reused": 0.0,
+            "seconds": 27.082428770999982,
+            "stars": 4656.0,
+            "upper_queries": 0.0
+          }
+        },
+        "service": {
+          "busy_seconds": 1215.113932352001,
+          "diagnostic_seconds": 2.6927394939999987,
+          "join_call_seconds": 2084.0915524900033,
+          "published_net_q_removed": 6955,
+          "tracked_collective_call_seconds": 571.1726341935332,
+          "window_seconds": 4348.801584454999
+        }
+      },
+      "1": {
+        "geometry_and_update": {
+          "collective_calls": 127047,
+          "collective_seconds": 37.770207613986486,
+          "election_calls": 357197,
+          "election_seconds": 412.99915145207456,
+          "facet_build_seconds": 22.42895428600021,
+          "facet_build_work": 530369,
+          "facet_hits": 20972878,
+          "facet_misses": 28610,
+          "memo_direct_hits": 40929,
+          "memo_direct_misses": 34945,
+          "memo_evicted_bytes": 203774344,
+          "memo_evictions": 125178,
+          "memo_maintenance_work": 56485306,
+          "memo_retention_refusals": 20,
+          "memo_stores": 117938,
+          "memo_union_hits": 68660,
+          "memo_union_misses": 83013,
+          "piece_selection_seconds": 7.44034188800004,
+          "piece_selection_work": 24096571,
+          "scope_attempts": 21437,
+          "scope_build_seconds": 49.15636304099916,
+          "scope_build_work": 1167384,
+          "scope_builds": 21437,
+          "support_calls": 151673,
+          "support_facets": 38805975,
+          "support_seconds": 31.19038558800022,
+          "traversal_seconds": 894.1786818119986,
+          "traversal_work": 957512830,
+          "update_seconds": 344.08518097499933,
+          "updated_cells": 153994,
+          "upper_calls": 151673,
+          "upper_seconds": 988.3349552270195,
+          "upper_work": 1004391655
+        },
+        "private_smoothing": {
+          "boundary": {
+            "candidates": 105120.0,
+            "debt_reduction": 199.41542672084327,
+            "guidance": 14348.0,
+            "moves": 4558.0,
+            "rejects": {
+              "edge": 30,
+              "geometry": 2632,
+              "shape": 92616,
+              "validity": 2878
+            },
+            "reused": 2.0,
+            "seconds": 632.3819210110003,
+            "stars": 79102.0,
+            "upper_queries": 57940.0
+          },
+          "interior": {
+            "candidates": 23456.0,
+            "debt_reduction": 807.9547068084621,
+            "guidance": 0.0,
+            "moves": 2913.0,
+            "rejects": {
+              "edge": 88,
+              "geometry": 0,
+              "shape": 10158,
+              "validity": 2584
+            },
+            "reused": 1.0,
+            "seconds": 19.069251038999973,
+            "stars": 3528.0,
+            "upper_queries": 0.0
+          }
+        },
+        "service": {
+          "busy_seconds": 1359.4476816180004,
+          "diagnostic_seconds": 3.3391627630000005,
+          "join_call_seconds": 1939.600790489999,
+          "published_net_q_removed": 7810,
+          "tracked_collective_call_seconds": 450.76935906606104,
+          "window_seconds": 4348.802707673
+        }
+      },
+      "2": {
+        "geometry_and_update": {
+          "collective_calls": 127047,
+          "collective_seconds": 37.20762380504948,
+          "election_calls": 357197,
+          "election_seconds": 515.699937247841,
+          "facet_build_seconds": 9.911365815000018,
+          "facet_build_work": 214478,
+          "facet_hits": 9400641,
+          "facet_misses": 8385,
+          "memo_direct_hits": 37728,
+          "memo_direct_misses": 29977,
+          "memo_evicted_bytes": 105663328,
+          "memo_evictions": 101787,
+          "memo_maintenance_work": 28431318,
+          "memo_retention_refusals": 13,
+          "memo_stores": 100074,
+          "memo_union_hits": 71715,
+          "memo_union_misses": 70110,
+          "piece_selection_seconds": 6.021015941000032,
+          "piece_selection_work": 13775384,
+          "scope_attempts": 26371,
+          "scope_build_seconds": 100.88196651400018,
+          "scope_build_work": 2527509,
+          "scope_builds": 26371,
+          "support_calls": 141825,
+          "support_facets": 20273094,
+          "support_seconds": 18.90818323999992,
+          "traversal_seconds": 998.9579878730007,
+          "traversal_work": 1058710599,
+          "update_seconds": 344.12876721301194,
+          "updated_cells": 166677,
+          "upper_calls": 141825,
+          "upper_seconds": 1123.007331878004,
+          "upper_work": 1084707106
+        },
+        "private_smoothing": {
+          "boundary": {
+            "candidates": 84040.0,
+            "debt_reduction": 261.6023285713575,
+            "guidance": 13740.0,
+            "moves": 3788.0,
+            "rejects": {
+              "edge": 5,
+              "geometry": 3823,
+              "shape": 71561,
+              "validity": 2903
+            },
+            "reused": 0.0,
+            "seconds": 792.9943448029978,
+            "stars": 73081.0,
+            "upper_queries": 50329.0
+          },
+          "interior": {
+            "candidates": 28665.0,
+            "debt_reduction": 1106.7972840417824,
+            "guidance": 0.0,
+            "moves": 3450.0,
+            "rejects": {
+              "edge": 634,
+              "geometry": 0,
+              "shape": 13229,
+              "validity": 2490
+            },
+            "reused": 0.0,
+            "seconds": 26.06419042399998,
+            "stars": 4303.0,
+            "upper_queries": 0.0
+          }
+        },
+        "service": {
+          "busy_seconds": 1475.770527867999,
+          "diagnostic_seconds": 3.604073479999999,
+          "join_call_seconds": 1823.331401657999,
+          "published_net_q_removed": 7416,
+          "tracked_collective_call_seconds": 552.9075610528905,
+          "window_seconds": 4348.803120209
+        }
+      },
+      "3": {
+        "geometry_and_update": {
+          "collective_calls": 127047,
+          "collective_seconds": 39.68907534905475,
+          "election_calls": 357197,
+          "election_seconds": 514.9500594419954,
+          "facet_build_seconds": 27.253802653999934,
+          "facet_build_work": 599052,
+          "facet_hits": 9065984,
+          "facet_misses": 18283,
+          "memo_direct_hits": 30334,
+          "memo_direct_misses": 18267,
+          "memo_evicted_bytes": 95779528,
+          "memo_evictions": 85813,
+          "memo_maintenance_work": 26345042,
+          "memo_retention_refusals": 11,
+          "memo_stores": 77391,
+          "memo_union_hits": 61018,
+          "memo_union_misses": 59135,
+          "piece_selection_seconds": 4.794177894000051,
+          "piece_selection_work": 11973371,
+          "scope_attempts": 18921,
+          "scope_build_seconds": 64.6261439300003,
+          "scope_build_work": 1605250,
+          "scope_builds": 18921,
+          "support_calls": 120153,
+          "support_facets": 19260500,
+          "support_seconds": 18.360645694000247,
+          "traversal_seconds": 577.358976950009,
+          "traversal_work": 715030935,
+          "update_seconds": 344.163910989003,
+          "updated_cells": 198449,
+          "upper_calls": 120153,
+          "upper_seconds": 681.0532523510133,
+          "upper_work": 738352010
+        },
+        "private_smoothing": {
+          "boundary": {
+            "candidates": 64438.0,
+            "debt_reduction": 122.25703106847634,
+            "guidance": 9805.0,
+            "moves": 2684.0,
+            "rejects": {
+              "edge": 331,
+              "geometry": 2672,
+              "shape": 55725,
+              "validity": 1552
+            },
+            "reused": 0.0,
+            "seconds": 490.776319847,
+            "stars": 92082.0,
+            "upper_queries": 41641.0
+          },
+          "interior": {
+            "candidates": 39749.0,
+            "debt_reduction": 865.0823511346714,
+            "guidance": 0.0,
+            "moves": 5004.0,
+            "rejects": {
+              "edge": 503,
+              "geometry": 0,
+              "shape": 17771,
+              "validity": 2548
+            },
+            "reused": 2.0,
+            "seconds": 32.676713159999956,
+            "stars": 5907.0,
+            "upper_queries": 0.0
+          }
+        },
+        "service": {
+          "busy_seconds": 1075.450459056,
+          "diagnostic_seconds": 3.004834060999999,
+          "join_call_seconds": 2223.558601214999,
+          "published_net_q_removed": 10820,
+          "tracked_collective_call_seconds": 554.6391347910503,
+          "window_seconds": 4348.802750479999
+        }
+      },
+      "4": {
+        "geometry_and_update": {
+          "collective_calls": 127047,
+          "collective_seconds": 38.64435422691645,
+          "election_calls": 357197,
+          "election_seconds": 469.62688998415604,
+          "facet_build_seconds": 18.544068770000056,
+          "facet_build_work": 419067,
+          "facet_hits": 11244256,
+          "facet_misses": 11283,
+          "memo_direct_hits": 35181,
+          "memo_direct_misses": 19477,
+          "memo_evicted_bytes": 118027840,
+          "memo_evictions": 98387,
+          "memo_maintenance_work": 32283064,
+          "memo_retention_refusals": 8,
+          "memo_stores": 94447,
+          "memo_union_hits": 74415,
+          "memo_union_misses": 74978,
+          "piece_selection_seconds": 5.149482011000014,
+          "piece_selection_work": 14484079,
+          "scope_attempts": 15851,
+          "scope_build_seconds": 50.71698407800004,
+          "scope_build_work": 1204959,
+          "scope_builds": 15851,
+          "support_calls": 149393,
+          "support_facets": 23970463,
+          "support_seconds": 20.907629027000333,
+          "traversal_seconds": 681.3406777669986,
+          "traversal_work": 790550545,
+          "update_seconds": 344.1399152170109,
+          "updated_cells": 204226,
+          "upper_calls": 149393,
+          "upper_seconds": 762.0940459299931,
+          "upper_work": 817989167
+        },
+        "private_smoothing": {
+          "boundary": {
+            "candidates": 90397.0,
+            "debt_reduction": 103.17780790105913,
+            "guidance": 11755.0,
+            "moves": 3964.0,
+            "rejects": {
+              "edge": 84,
+              "geometry": 2132,
+              "shape": 79963,
+              "validity": 2789
+            },
+            "reused": 0.0,
+            "seconds": 597.7717778369972,
+            "stars": 116267.0,
+            "upper_queries": 61495.0
+          },
+          "interior": {
+            "candidates": 39661.0,
+            "debt_reduction": 724.3526483324313,
+            "guidance": 0.0,
+            "moves": 4573.0,
+            "rejects": {
+              "edge": 526,
+              "geometry": 0,
+              "shape": 19919,
+              "validity": 2829
+            },
+            "reused": 2.0,
+            "seconds": 38.16990233300001,
+            "stars": 5933.0,
+            "upper_queries": 0.0
+          }
+        },
+        "service": {
+          "busy_seconds": 1258.9074810900017,
+          "diagnostic_seconds": 3.409863508999998,
+          "join_call_seconds": 2040.0985633949974,
+          "published_net_q_removed": 6981,
+          "tracked_collective_call_seconds": 508.27124421107237,
+          "window_seconds": 4348.8023700740005
+        }
+      },
+      "5": {
+        "geometry_and_update": {
+          "collective_calls": 127047,
+          "collective_seconds": 38.66430910604913,
+          "election_calls": 357197,
+          "election_seconds": 528.5668612147853,
+          "facet_build_seconds": 6.819565760000183,
+          "facet_build_work": 159916,
+          "facet_hits": 10680740,
+          "facet_misses": 13238,
+          "memo_direct_hits": 27093,
+          "memo_direct_misses": 14828,
+          "memo_evicted_bytes": 107422728,
+          "memo_evictions": 79437,
+          "memo_maintenance_work": 31561049,
+          "memo_retention_refusals": 10,
+          "memo_stores": 73944,
+          "memo_union_hits": 71178,
+          "memo_union_misses": 59126,
+          "piece_selection_seconds": 4.971777537000002,
+          "piece_selection_work": 13607595,
+          "scope_attempts": 16674,
+          "scope_build_seconds": 58.699292399000115,
+          "scope_build_work": 1438461,
+          "scope_builds": 16674,
+          "support_calls": 130304,
+          "support_facets": 26839334,
+          "support_seconds": 22.684002014999738,
+          "traversal_seconds": 739.9834323930029,
+          "traversal_work": 960454800,
+          "update_seconds": 344.12748783800174,
+          "updated_cells": 158478,
+          "upper_calls": 130304,
+          "upper_seconds": 818.3485623779976,
+          "upper_work": 986413876
+        },
+        "private_smoothing": {
+          "boundary": {
+            "candidates": 70022.0,
+            "debt_reduction": 105.97485393556697,
+            "guidance": 10675.0,
+            "moves": 2690.0,
+            "rejects": {
+              "edge": 721,
+              "geometry": 3447,
+              "shape": 60098,
+              "validity": 1517
+            },
+            "reused": 0.0,
+            "seconds": 630.0429613370007,
+            "stars": 99472.0,
+            "upper_queries": 48639.0
+          },
+          "interior": {
+            "candidates": 28982.0,
+            "debt_reduction": 563.4426340760256,
+            "guidance": 0.0,
+            "moves": 3414.0,
+            "rejects": {
+              "edge": 385,
+              "geometry": 0,
+              "shape": 13886,
+              "validity": 2328
+            },
+            "reused": 0.0,
+            "seconds": 28.23731172399999,
+            "stars": 4349.0,
+            "upper_queries": 0.0
+          }
+        },
+        "service": {
+          "busy_seconds": 1248.8142616779992,
+          "diagnostic_seconds": 2.595745413999999,
+          "join_call_seconds": 2050.218354838,
+          "published_net_q_removed": 5471,
+          "tracked_collective_call_seconds": 567.2311703208345,
+          "window_seconds": 4348.800609532001
+        }
+      }
+    },
+    "private_smoothing": {
+      "boundary": {
+        "candidates": 472308.0,
+        "debt_reduction": 889.182641245744,
+        "guidance": 69612.0,
+        "moves": 19972.0,
+        "private_debt_reduction_per_rank_second": 0.23349558291310815,
+        "rejects": {
+          "edge": 1407,
+          "geometry": 17903,
+          "shape": 410264,
+          "validity": 12757
+        },
+        "reused": 3.0,
+        "seconds": 3808.1347413609956,
+        "stars": 543625.0,
+        "upper_queries": 299817.0
+      },
+      "interior": {
+        "candidates": 191785.0,
+        "debt_reduction": 4600.142824419722,
+        "guidance": 0.0,
+        "moves": 23182.0,
+        "private_debt_reduction_per_rank_second": 26.854338959365013,
+        "rejects": {
+          "edge": 2751,
+          "geometry": 0,
+          "shape": 89104,
+          "validity": 15184
+        },
+        "reused": 5.0,
+        "seconds": 171.2997974509999,
+        "stars": 28676.0,
+        "upper_queries": 0.0
+      }
+    },
+    "quality_seconds": 4348.781705258,
+    "scope": "Complete quality-entry to natural EXIT passive counters, no new profiler/query campaign. Summed rank timers are nested/overlapping, not global wall time. Private smoothing moves/merit are not published cavity effects. Numeric memo hit/miss/eviction counters are available in193; misses alone cannot distinguish changed positions from evicted identical queries.",
+    "time": 1793491112.0850415,
+    "totals": {
+      "collective_calls": 762282,
+      "collective_seconds": 230.82893839910594,
+      "election_calls": 2143182,
+      "election_seconds": 2974.162165236336,
+      "facet_build_seconds": 105.2586096400004,
+      "facet_build_work": 2382740,
+      "facet_hits": 70128822,
+      "facet_misses": 95750,
+      "memo_direct_hits": 193563,
+      "memo_direct_misses": 132062,
+      "memo_evicted_bytes": 721689736,
+      "memo_evictions": 568449,
+      "memo_maintenance_work": 200774483,
+      "memo_retention_refusals": 72,
+      "memo_stores": 533914,
+      "memo_union_hits": 404824,
+      "memo_union_misses": 401924,
+      "piece_selection_seconds": 32.86553767300015,
+      "piece_selection_work": 89495125,
+      "scope_attempts": 117134,
+      "scope_build_seconds": 389.4613057130001,
+      "scope_build_work": 9582319,
+      "scope_builds": 117134,
+      "support_calls": 806748,
+      "support_facets": 149192184,
+      "support_seconds": 130.3152891380003,
+      "traversal_seconds": 4640.013372539013,
+      "traversal_work": 5664508219,
+      "update_seconds": 2064.777122541034,
+      "updated_cells": 1051254,
+      "upper_calls": 806748,
+      "upper_seconds": 5217.702760133011,
+      "upper_work": 5836594899
+    }
+  },
+  "net_per_commit": {
+    "geometry_bad": 0.01666487185009692,
+    "j_bad": 1.282145164764161,
+    "q_bad": 1.223696963170364
+  },
+  "net_per_second": {
+    "geometry_bad": 0.14233871505934248,
+    "j_bad": 10.951113030672255,
+    "q_bad": 10.451892755399506
+  },
+  "net_removed": {
+    "geometry_bad": 619,
+    "j_bad": 47624,
+    "q_bad": 45453
+  },
+  "quality_seconds": 4348.781705258,
+  "source": "51c8323724",
+  "state": "NATURAL time-budget rejection; remaining owned attempt stopped only after preserved rejection; all10 handles terminal/all1401 pins unchanged",
+  "time": 1793491111.874583
+}

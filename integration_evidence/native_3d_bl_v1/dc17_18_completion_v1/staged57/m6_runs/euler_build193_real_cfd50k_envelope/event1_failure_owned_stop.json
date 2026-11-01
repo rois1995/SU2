@@ -1,0 +1,64 @@
+{
+  "time": 1793491063.5814984,
+  "failure_sha256": "a334e142dfa231cf79c06685106fa3367feaeb51cef994ed94c81aee6bc22414",
+  "reason": "All six ranks naturally rejected event1 at unchanged native time limit with complete exit censuses. Two accepted events cannot be achieved within the remaining attempt. Standing stop/fix/retry authorization.",
+  "handles": [
+    {
+      "pid": 627325,
+      "startticks": 90036257,
+      "command": "python3 -u integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py build193 euler_build193_real_cfd50k_envelope 2 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_original_force_seed_v1 "
+    },
+    {
+      "pid": 627534,
+      "startticks": 90036807,
+      "command": "/usr/bin/time -v timeout 14400 mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 627535,
+      "startticks": 90036808,
+      "command": "timeout 14400 mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 627536,
+      "startticks": 90036808,
+      "command": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 627547,
+      "startticks": 90036815,
+      "command": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 627548,
+      "startticks": 90036815,
+      "command": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 627549,
+      "startticks": 90036815,
+      "command": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 627550,
+      "startticks": 90036815,
+      "command": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 627551,
+      "startticks": 90036815,
+      "command": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    },
+    {
+      "pid": 627552,
+      "startticks": 90036815,
+      "command": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD run.cfg "
+    }
+  ],
+  "pin_count": 1401,
+  "changed": [],
+  "signal_target": {
+    "pid": 627536,
+    "startticks": 90036808,
+    "signal": "SIGTERM"
+  }
+}

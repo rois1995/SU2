@@ -1,0 +1,101 @@
+{
+  "time": 1793491229.7744963,
+  "status": "Analysis only; no new implementation/build/run or profiler. Build193 outcome preserved and all owned handles terminal before review.",
+  "active_target": "Speed of useful quality closure through the existing shared geometry-certification path. Positive net q/J yield does not establish eventual repair power. No new scheduler/construction fallback.",
+  "evidence": {
+    "quality_seconds": 4348.781705258,
+    "whole_field_exit": {
+      "cells": 796684,
+      "geometry_bad": 3151,
+      "j_bad": 5768,
+      "q_bad": 8628,
+      "qj_debt": 136.65854138562534,
+      "size_bad": 0
+    },
+    "net_q_per_second": 10.451892755399506,
+    "net_j_per_second": 10.951113030672255,
+    "traversal_share_of_upper_work": 0.9705159115926507,
+    "traversal_work": 5664508219,
+    "preparation_work": 11965059,
+    "exact_union_hits": 404824,
+    "exact_union_misses": 401924,
+    "exact_union_hit_share": 0.5017973394418084,
+    "boundary_private": {
+      "stars": 543625.0,
+      "reused": 3.0,
+      "candidates": 472308.0,
+      "guidance": 69612.0,
+      "upper_queries": 299817.0,
+      "moves": 19972.0,
+      "debt_reduction": 889.182641245744,
+      "seconds": 3808.1347413609956,
+      "private_debt_reduction_per_rank_second": 0.23349558291310815,
+      "rejects": {
+        "validity": 12757,
+        "shape": 410264,
+        "edge": 1407,
+        "geometry": 17903
+      }
+    },
+    "interior_private": {
+      "stars": 28676.0,
+      "reused": 5.0,
+      "candidates": 191785.0,
+      "guidance": 0.0,
+      "upper_queries": 0.0,
+      "moves": 23182.0,
+      "debt_reduction": 4600.142824419722,
+      "seconds": 171.2997974509999,
+      "private_debt_reduction_per_rank_second": 26.854338959365013,
+      "rejects": {
+        "validity": 15184,
+        "shape": 89104,
+        "edge": 2751,
+        "geometry": 0
+      }
+    }
+  },
+  "query_identity": {
+    "exact_repeat": "An exact union hit has the same immutable authority owner, ordered complete support IDs, tolerance and all physical-coordinate bits. It is already reused numerically.",
+    "miss": "A miss may be a new position, changed support/tolerance, or a previously identical query evicted from the bounded memo. Aggregate misses cannot distinguish these.",
+    "saved_payload": "Existing12 older M6 queries: six same-face/same-support previous pairs with changed coordinates; no reordered identical physical triangles. Not a current193 query-population census."
+  },
+  "existing_support": [
+    {
+      "location": "Common/src/adaptation/CNativeBoundaryParameters3D.cpp:1001",
+      "behavior": "HasAcceptedFaceCertificate checks oriented face/facet identity, exact BoundaryPoint coordinate/binding records and face/trace overrides. ExportParameters skips unchanged accepted coverage checks. This is association/coverage reuse, not a numeric distance certificate."
+    },
+    {
+      "location": "Common/src/adaptation/CNativeBoundaryParameters3D.cpp:368",
+      "behavior": "GeometryCertificates caches by accepted revision for incomplete/source enclosure queries; complete=true constructs the required full two-sided certificate. No per-face numeric substitute for complete union coverage."
+    },
+    {
+      "location": "Common/src/adaptation/CNativeAffineReference.cpp:1725",
+      "behavior": "Existing bounded exact FaceMemo retains numeric union upper bounds; prepared facet and scoped witness pools retain reusable immutable geometry with active-reference/resource accounting."
+    },
+    {
+      "location": "Common/src/adaptation/CNativeEngine3D.cpp:5876",
+      "behavior": "SmoothBoundary builds unchanged star/support/old merit once, retains projected context, lazily computes old geometry guidance once, screens validity and shape before MoveVertex, then fresh merit/heights/edges before candidate geometry. Rejected stars use existing context invalidation; reused counter is rejected-search reuse, not all context reuse."
+    },
+    {
+      "location": "Common/src/adaptation/CNativeBoundary3D.cpp:3103",
+      "behavior": "Whole-patch geometry guidance retains face order and nonnegative partial-sum early rejection. Unchanged numeric faces can hit existing exact memo; changed candidate positions still need fresh evaluation."
+    },
+    {
+      "location": "Common/src/adaptation/CNativeAffineReference.cpp:299",
+      "behavior": "Upper already uses exact finite footprints and rigorous plane/witness upper bounds, interval arithmetic, spatial candidates and full adaptive fallback. Build193 tightened this same envelope, not a duplicate framework."
+    }
+  ],
+  "motion_slack": {
+    "proof": "For paired affine triangle vertices against identical immutable target/support, distance-to-set is 1-Lipschitz: new one-sided upper <= outward(old upper + max paired displacement). This alone says nothing about association, orientation/features/bodies/heights or reverse coverage.",
+    "measured": "ZERO of12 saved newer queries certified; six same-support pairs move1.51e-4..3.02e-4 versus slack1.98e-6..5.14e-5. Do not implement a motion index/cache on these inputs.",
+    "receipt": "../euler_build191_real_cfd50k_numeric_memo/saved_query_motion_bound_analysis.json"
+  },
+  "early_success_review": {
+    "finding": "TriangleUnion::Upper searches until best<=accuracy/4 although directed() accepts node.upper<=tolerance. All current Upper callers are the directed() lambda or SurfaceForest forwarding to its joined witness; active witness/mesh/model unions are constructed with actual query tolerance. Per-facet resolution-based unions are used for Distance, not Upper.",
+    "soundness": "Plane/witness Upper already includes target piece approximation error and nominal-hull uncertainty padding. Any returned bound<=actual query tolerance proves that source domain. Returning a larger still-valid bound below tolerance preserves zero geometry hinge excess for the current guidance caller. Association/body/feature/height and full reverse/final gates remain independent.",
+    "quantitative_limit": "BoundPhysicalSurface is a public numeric upper-bound API, not a minimum-distance estimate; nevertheless earlier exit can change returned numeric bounds, piece counts, retained results and resource usage. Equality between cached/recomputed behavior and all quantitative callers must be validated. No current counter says how much search happens after an adequate bound; NO speedup established.",
+    "next_evidence": "If pursued within this same cycle, evaluate only a bounded earlier-success candidate against the existing12queries and affected geometry tests. Measure counted traversal, not wall alone. Reject or revise it if savings are absent or hard queries regress materially; no new old-code M6 baseline campaign."
+  },
+  "constraints": "No gate/time/work/memory increase, new config, duplicate cache/envelope, sampling acceptance or stale private context. Uncertain bounds fall back to existing full certification; CAD optional. Shape then residual geometry/size and shape reclosure remain required before transfer/continued CFD/disk restart. Goal remains two accepted Euler50k meshes then BL/MPI and RANS500k."
+}
