@@ -1832,29 +1832,46 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry) {
 
   const auto& splitNodes = geometry->edges->GetSplitNodes();
   const auto& splitNormal = geometry->edges->GetSplitNormal();
+  const auto& splitE = geometry->edges->GetSplitE();
+  const auto& boundNormal = geometry->edges->GetSplitBoundNormal();
+
+  /*--- Convective flux of a point through an area vector, added with a factor. ---*/
+
+  auto addFlux = [&](unsigned long iPoint, const su2double* normal, su2double factor, su2double* flux) {
+    const su2double density = nodes->GetDensity(iPoint);
+    const su2double pressure = nodes->GetPressure(iPoint);
+    su2double projVel = 0.0;
+    for (auto iDim = 0u; iDim < nDim; ++iDim) projVel += nodes->GetVelocity(iPoint, iDim) * normal[iDim];
+
+    flux[0] += factor * density * projVel;
+    for (auto iDim = 0u; iDim < nDim; ++iDim) {
+      flux[iDim + 1] += factor * (density * projVel * nodes->GetVelocity(iPoint, iDim) + pressure * normal[iDim]);
+    }
+    flux[nDim + 1] += factor * density * projVel * nodes->GetEnthalpy(iPoint);
+  };
 
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     for (auto iSplit = 0ul; iSplit < splitNodes.size(); ++iSplit) {
+      const auto iPoint = splitNodes[iSplit][0], kPoint = splitNodes[iSplit][1];
       su2double flux[MAXNVAR] = {};
 
-      /*--- Group form 0.5(F_i+F_k).n_ik, these pairs have no dissipation and no Jacobian. ---*/
+      /*--- 0.5(F_i+F_k).n_ik + (F_k-F_i).E_ik, these pairs have no dissipation and no Jacobian. ---*/
 
-      for (const auto iPoint : splitNodes[iSplit]) {
-        const su2double density = nodes->GetDensity(iPoint);
-        const su2double pressure = nodes->GetPressure(iPoint);
-        su2double projVel = 0.0;
-        for (auto iDim = 0u; iDim < nDim; ++iDim) projVel += nodes->GetVelocity(iPoint, iDim) * splitNormal(iSplit, iDim);
+      addFlux(iPoint, splitNormal[iSplit], 0.5, flux);
+      addFlux(kPoint, splitNormal[iSplit], 0.5, flux);
+      addFlux(kPoint, splitE[iSplit], 1.0, flux);
+      addFlux(iPoint, splitE[iSplit], -1.0, flux);
 
-        flux[0] += 0.5 * density * projVel;
-        for (auto iDim = 0u; iDim < nDim; ++iDim) {
-          flux[iDim + 1] += 0.5 * (density * projVel * nodes->GetVelocity(iPoint, iDim) +
-                                   pressure * splitNormal(iSplit, iDim));
-        }
-        flux[nDim + 1] += 0.5 * density * projVel * nodes->GetEnthalpy(iPoint);
+      if (geometry->nodes->GetDomain(iPoint)) LinSysRes.AddBlock(iPoint, flux);
+      if (geometry->nodes->GetDomain(kPoint)) LinSysRes.SubtractBlock(kPoint, flux);
+    }
+
+    if (nDim == 3) {
+      for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
+        su2double flux[MAXNVAR] = {};
+        addFlux(iPoint, boundNormal[iPoint], 1.0, flux);
+        LinSysRes.AddBlock(iPoint, flux);
       }
-
-      if (geometry->nodes->GetDomain(splitNodes[iSplit][0])) LinSysRes.AddBlock(splitNodes[iSplit][0], flux);
-      if (geometry->nodes->GetDomain(splitNodes[iSplit][1])) LinSysRes.SubtractBlock(splitNodes[iSplit][1], flux);
     }
   }
   END_SU2_OMP_SAFE_GLOBAL_ACCESS

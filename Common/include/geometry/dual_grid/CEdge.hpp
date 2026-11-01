@@ -52,6 +52,8 @@ class CEdge {
   su2activematrix FormNormal, FormE; /*!< \brief Coefficients n_ik and E_ik, allocated only for EDGE_FORM_P1. */
   std::vector<std::array<Index, 2>> SplitNodes; /*!< \brief Node pairs of the split edges that are not true edges. */
   su2activematrix SplitNormal; /*!< \brief Coefficient n_ik of those pairs, allocated only for SPLIT_EDGE_FLUX. */
+  su2activematrix SplitE; /*!< \brief Coefficient E_ik of those pairs, allocated only for SPLIT_EDGE_FLUX. */
+  su2activematrix SplitBoundNormal; /*!< \brief Per point, outward split area minus outward vertex normal. */
   su2activevector SplitVolume; /*!< \brief Nodal volume of the split, sum_t |t|/(d+1), allocated only for SPLIT_EDGE_FLUX. */
   const Index nEdge, nEdgeSIMD;
 
@@ -230,7 +232,17 @@ class CEdge {
   inline const su2activematrix& GetSplitNormal() const { return SplitNormal; }
 
   /*!
-   * \brief Nodal volume of the split, not used by the solver (the volumes stay median).
+   * \brief Coefficient E_ik of the split edges that are not true edges, one row per pair.
+   */
+  inline const su2activematrix& GetSplitE() const { return SplitE; }
+
+  /*!
+   * \brief Per point, outward area of the fans of the boundary faces minus the outward vertex normal.
+   */
+  inline const su2activematrix& GetSplitBoundNormal() const { return SplitBoundNormal; }
+
+  /*!
+   * \brief Nodal volume of the split, equal to the median volume, a check of the weights.
    */
   inline const su2activevector& GetSplitVolume() const { return SplitVolume; }
 

@@ -640,21 +640,27 @@ TEST_CASE("P1 edge form reduces to the median normal on the median dual", "[P1Fl
 std::vector<su2double> SplitSum(const CGeometry& geometry, const LinearFlux& flux, bool constant) {
   const auto nDim = geometry.GetnDim();
   std::vector<su2double> R(geometry.GetnPoint(), 0.0);
-  auto add = [&](unsigned long iPoint, unsigned long jPoint, const su2double* normal) {
+  auto add = [&](unsigned long iPoint, unsigned long jPoint, const su2double* normal, const su2double* E) {
     su2double phi = 0.0;
     for (auto iDim = 0u; iDim < nDim; ++iDim) {
-      phi += (constant ? flux.b[iDim] : 0.5 * (flux.Eval(geometry, iPoint, iDim) + flux.Eval(geometry, jPoint, iDim))) *
-             normal[iDim];
+      if (constant) {
+        phi += flux.b[iDim] * normal[iDim];
+      } else {
+        const auto Fi = flux.Eval(geometry, iPoint, iDim);
+        const auto Fj = flux.Eval(geometry, jPoint, iDim);
+        phi += 0.5 * (Fi + Fj) * normal[iDim] + (Fj - Fi) * E[iDim];
+      }
     }
     R[iPoint] += phi;
     R[jPoint] -= phi;
   };
   for (auto iEdge = 0ul; iEdge < geometry.GetnEdge(); ++iEdge) {
-    add(geometry.edges->GetNode(iEdge, 0), geometry.edges->GetNode(iEdge, 1), geometry.edges->GetFormNormal()[iEdge]);
+    add(geometry.edges->GetNode(iEdge, 0), geometry.edges->GetNode(iEdge, 1), geometry.edges->GetFormNormal()[iEdge],
+        geometry.edges->GetFormE()[iEdge]);
   }
   const auto& pairs = geometry.edges->GetSplitNodes();
   for (auto iSplit = 0ul; iSplit < pairs.size(); ++iSplit) {
-    add(pairs[iSplit][0], pairs[iSplit][1], geometry.edges->GetSplitNormal()[iSplit]);
+    add(pairs[iSplit][0], pairs[iSplit][1], geometry.edges->GetSplitNormal()[iSplit], geometry.edges->GetSplitE()[iSplit]);
   }
   return R;
 }
@@ -675,7 +681,7 @@ TEST_CASE("Split edges on general cells", "[P1Flux]") {
 
       /*--- The split volumes fill the box. ---*/
 
-      su2double local[3] = {}, global[3] = {};
+      su2double local[4] = {}, global[4] = {};
       for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
         local[0] += geometry.edges->GetSplitVolume()[iPoint];
       }
@@ -702,14 +708,19 @@ TEST_CASE("Split edges on general cells", "[P1Flux]") {
         }
       }
       for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+        if (mesh.nDim == 3) {
+          for (auto iDim = 0u; iDim < 3; ++iDim) R[iPoint] += flux.b[iDim] * geometry.edges->GetSplitBoundNormal()(iPoint, iDim);
+        }
         local[2] = std::max(local[2], fabs(R[iPoint]) / geometry.nodes->GetVolume(iPoint));
+        local[3] = std::max(local[3], fabs(geometry.edges->GetSplitVolume()[iPoint] / geometry.nodes->GetVolume(iPoint) - 1.0));
       }
 
       SU2_MPI::Allreduce(local, global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
-      SU2_MPI::Allreduce(local + 1, global + 1, 2, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      SU2_MPI::Allreduce(local + 1, global + 1, 3, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
       CHECK(fabs(global[0] - stretch) < 1e-10 * stretch);
       CHECK(global[1] < 1e-8);
       CHECK(global[2] < 1e-8 / stretch);
+      CHECK(global[3] < 1e-8);
     }
   }
 }

@@ -455,10 +455,10 @@ class CPhysicalGeometry final : public CGeometry {
   void SetEdgeFormP1() override;
 
   /*!
-   * \brief Split the cells with the pulling rule on global IDs, no new points. For each simplex t and
-   *        each of its edges (i,k): n_ik += |t|/(d+1) (grad(phi_k) - grad(phi_i)), signed |t|. True edges
-   *        store n_ik in the form normal with E_ik = 0, the other pairs are stored apart. On 3D markers
-   *        with quadrilaterals the vertex normals become the sum of the split triangles, for free stream.
+   * \brief Mean of all pulling splits of each cell, with no new points and no dependence on node IDs. In each
+   *        split the node weights W are closest to |t|/(d+1) with sum_a W_a = |t| per simplex and
+   *        sum_t W_i = median share per node, so the flux scales with the median volume like all other
+   *        terms. n_ik and E_ik follow SetEdgeFormP1. Vertex normals do not change.
    */
   void SetSplitEdges() override;
 

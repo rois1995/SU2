@@ -32,6 +32,7 @@
 #include "../../include/toolboxes/C1DInterpolation.hpp"
 #include "../../include/toolboxes/geometry_toolbox.hpp"
 #include "../../include/toolboxes/p1_simplex.hpp"
+#include <algorithm>
 #include <map>
 #include "../../include/geometry/meshreader/CSU2ASCIIMeshReaderFEM.hpp"
 #include "../../include/geometry/meshreader/CSU2ASCIIMeshReaderFVM.hpp"
@@ -7167,77 +7168,202 @@ void CPhysicalGeometry::SetSplitEdges() {
     edges->SplitVolume.resize(nPoint) = su2double(0.0);
 
     const auto nNodes = nDim + 1u;
-    std::map<std::pair<unsigned long, unsigned long>, std::array<su2double, MAXNDIM>> pairs;
-
-    auto signedSize = [&](const std::array<unsigned long, MAXNDIM + 1>& simplex, su2double grad[][3]) {
-      array<const su2double*, MAXNDIM + 1> Coord;
-      for (auto iNode = 0u; iNode < nNodes; iNode++) Coord[iNode] = nodes->GetCoord(simplex[iNode]);
-      return P1Simplex::ShapeGradients(nDim, Coord, grad);
-    };
+    using Coefficients = std::array<su2double, 2 * MAXNDIM>;
+    std::map<std::pair<unsigned long, unsigned long>, Coefficients> pairs;
 
     for (auto iElem = 0ul; iElem < nElem; iElem++) {
       const auto* element = elem[iElem];
       const auto nElemNodes = element->GetnNodes();
 
-      /*--- Pulling split: cone the faces without v from v, each face is fanned from its smallest global ID. ---*/
+      array<const su2double*, N_POINTS_MAXIMUM> Coord;
+      for (unsigned short iNode = 0; iNode < nElemNodes; iNode++) Coord[iNode] = nodes->GetCoord(element->GetNode(iNode));
 
-      unsigned short v = 0;
-      for (unsigned short iNode = 1; iNode < nElemNodes; iNode++) {
-        if (nodes->GetGlobalIndex(element->GetNode(iNode)) < nodes->GetGlobalIndex(element->GetNode(v))) v = iNode;
+      /*--- Share of the median volume of each node in this cell, with the sub-volumes of SetControlVolume. ---*/
+
+      su2double Coord_Elem_CG[MAXNDIM] = {0.0}, median[N_POINTS_MAXIMUM] = {0.0};
+      element->getElemCG(nDim, Coord, Coord_Elem_CG);
+
+      for (unsigned short iFace = 0; iFace < element->GetnFaces(); iFace++) {
+        const unsigned short nEdgesFace = (nDim == 3) ? element->GetnNodesFace(iFace) : 1;
+
+        su2double Coord_FaceElem_CG[MAXNDIM] = {0.0};
+        if (nDim == 3) element->getFaceCG(iFace, nDim, Coord, Coord_FaceElem_CG);
+
+        for (unsigned short iEdgesFace = 0; iEdgesFace < nEdgesFace; iEdgesFace++) {
+          const auto face_iNode = element->GetFaces(iFace, iEdgesFace);
+          const auto face_jNode = element->GetFaces(iFace, (nDim == 2) ? 1 : (iEdgesFace + 1) % nEdgesFace);
+
+          su2double Coord_Edge_CG[MAXNDIM] = {0.0};
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+            Coord_Edge_CG[iDim] = 0.5 * (Coord[face_iNode][iDim] + Coord[face_jNode][iDim]);
+          }
+          if (nDim == 2) {
+            median[face_iNode] += CEdge::GetVolume(Coord[face_iNode], Coord_Edge_CG, Coord_Elem_CG);
+            median[face_jNode] += CEdge::GetVolume(Coord[face_jNode], Coord_Edge_CG, Coord_Elem_CG);
+          } else {
+            median[face_iNode] += CEdge::GetVolume(Coord[face_iNode], Coord_Edge_CG, Coord_FaceElem_CG, Coord_Elem_CG);
+            median[face_jNode] += CEdge::GetVolume(Coord[face_jNode], Coord_Edge_CG, Coord_FaceElem_CG, Coord_Elem_CG);
+          }
+        }
       }
 
-      vector<std::array<unsigned long, MAXNDIM + 1>> simplices;
+      /*--- All pulling splits of the cell: every apex v, each face without v fanned from either diagonal.
+       * The mean of all of them does not depend on node IDs, and each face sees both diagonals equally
+       * from the two cells that share it. A split is a list of simplices of local node indices. ---*/
+
+      vector<vector<std::array<unsigned short, MAXNDIM + 1>>> splits;
 
       if (nDim == 2) {
-        for (unsigned short iNode = 1; iNode + 1 < nElemNodes; iNode++) {
-          simplices.push_back({element->GetNode(v), element->GetNode((v + iNode) % nElemNodes),
-                               element->GetNode((v + iNode + 1) % nElemNodes), 0});
+        for (unsigned short v = 0; v < nElemNodes; v++) {
+          vector<std::array<unsigned short, MAXNDIM + 1>> simplices;
+          for (unsigned short iNode = 1; iNode + 1 < nElemNodes; iNode++) {
+            simplices.push_back({v, static_cast<unsigned short>((v + iNode) % nElemNodes),
+                                 static_cast<unsigned short>((v + iNode + 1) % nElemNodes), 0});
+          }
+          splits.push_back(simplices);
         }
       } else {
-        for (unsigned short iFace = 0; iFace < element->GetnFaces(); iFace++) {
-          const auto nFaceNodes = element->GetnNodesFace(iFace);
-          bool hasV = false;
-          unsigned short w = 0;
-          for (unsigned short iNode = 0; iNode < nFaceNodes; iNode++) {
-            const auto node = element->GetFaces(iFace, iNode);
-            hasV = hasV || (node == v);
-            const auto best = element->GetNode(element->GetFaces(iFace, w));
-            if (nodes->GetGlobalIndex(element->GetNode(node)) < nodes->GetGlobalIndex(best)) w = iNode;
+        for (unsigned short v = 0; v < nElemNodes; v++) {
+          vector<unsigned short> faces, nChoices;
+          for (unsigned short iFace = 0; iFace < element->GetnFaces(); iFace++) {
+            bool hasV = false;
+            for (unsigned short iNode = 0; iNode < element->GetnNodesFace(iFace); iNode++) {
+              hasV = hasV || (element->GetFaces(iFace, iNode) == v);
+            }
+            if (!hasV) {
+              faces.push_back(iFace);
+              nChoices.push_back((element->GetnNodesFace(iFace) == 4) ? 2 : 1);
+            }
           }
-          if (hasV) continue;
-          for (unsigned short iNode = 1; iNode + 1 < nFaceNodes; iNode++) {
-            simplices.push_back({element->GetNode(v), element->GetNode(element->GetFaces(iFace, w)),
-                                 element->GetNode(element->GetFaces(iFace, (w + iNode) % nFaceNodes)),
-                                 element->GetNode(element->GetFaces(iFace, (w + iNode + 1) % nFaceNodes))});
+          unsigned short nCombinations = 1;
+          for (const auto nChoice : nChoices) nCombinations *= nChoice;
+
+          for (unsigned short iCombination = 0; iCombination < nCombinations; iCombination++) {
+            vector<std::array<unsigned short, MAXNDIM + 1>> simplices;
+            auto remaining = iCombination;
+            for (size_t k = 0; k < faces.size(); k++) {
+              const auto iFace = faces[k];
+              const auto nFaceNodes = element->GetnNodesFace(iFace);
+              const unsigned short w = remaining % nChoices[k];
+              remaining /= nChoices[k];
+              for (unsigned short iNode = 1; iNode + 1 < nFaceNodes; iNode++) {
+                simplices.push_back({v, element->GetFaces(iFace, w), element->GetFaces(iFace, (w + iNode) % nFaceNodes),
+                                     element->GetFaces(iFace, (w + iNode + 1) % nFaceNodes)});
+              }
+            }
+            splits.push_back(simplices);
           }
         }
       }
 
-      /*--- The sub-simplices of a cell share one orientation, the sign of the cell makes the sizes signed. ---*/
+      const su2double weight = 1.0 / splits.size();
 
-      su2double grad[MAXNDIM + 1][3], total = 0.0;
-      for (const auto& simplex : simplices) total += signedSize(simplex, grad);
-      const su2double sign = (total < 0.0) ? -1.0 : 1.0;
+      for (const auto& simplices : splits) {
 
-      for (const auto& simplex : simplices) {
-        const auto weight = sign * signedSize(simplex, grad) / nNodes;
+        /*--- The sub-simplices of a split share one orientation, the sign of the cell makes the sizes signed. ---*/
 
-        for (auto a = 0u; a < nNodes; a++) {
-          edges->SplitVolume[simplex[a]] += weight;
+        const auto nSimplex = simplices.size();
+        vector<su2double> size(nSimplex), grad(nSimplex * (MAXNDIM + 1) * 3);
+        su2double total = 0.0;
 
-          for (auto b = a + 1; b < nNodes; b++) {
-            const auto iPoint = simplex[a], kPoint = simplex[b];
-            if (FindEdge(iPoint, kPoint, false) >= 0) {
-              const auto iEdge = FindEdge(iPoint, kPoint);
-              const su2double dir = (edges->GetNode(iEdge, CEdge::LEFT) == iPoint) ? 1.0 : -1.0;
-              for (unsigned short iDim = 0; iDim < nDim; iDim++) {
-                edges->FormNormal(iEdge, iDim) += dir * weight * (grad[b][iDim] - grad[a][iDim]);
-              }
-            } else {
-              const su2double dir = (iPoint < kPoint) ? 1.0 : -1.0;
-              auto& normal = pairs[{std::min(iPoint, kPoint), std::max(iPoint, kPoint)}];
-              for (unsigned short iDim = 0; iDim < nDim; iDim++) {
-                normal[iDim] += dir * weight * (grad[b][iDim] - grad[a][iDim]);
+        for (size_t t = 0; t < nSimplex; t++) {
+          array<const su2double*, MAXNDIM + 1> tCoord;
+          for (auto a = 0u; a < nNodes; a++) tCoord[a] = Coord[simplices[t][a]];
+          size[t] = P1Simplex::ShapeGradients(nDim, tCoord,
+                                              reinterpret_cast<su2double(*)[3]>(&grad[t * (MAXNDIM + 1) * 3]));
+          total += size[t];
+        }
+        const su2double sign = (total < 0.0) ? -1.0 : 1.0;
+        for (auto& value : size) value *= sign;
+        total *= sign;
+
+        /*--- W closest to |t|/(d+1), with sum_a W_a = |t| per simplex and sum_t W_i = median share per node.
+         * The shares are scaled to the size of the split, warped faces make the two differ a little.
+         * With W0 = |t|/(d+1) and constraints A W = b: W = W0 + A^T x, (A A^T) x = b - A W0. The last node
+         * constraint follows from the others and is left out. ---*/
+
+        su2double sumMedian = 0.0;
+        for (unsigned short iNode = 0; iNode < nElemNodes; iNode++) sumMedian += median[iNode];
+
+        const size_t nRows = nSimplex + nElemNodes - 1, nW = nSimplex * nNodes;
+        vector<su2double> W(nW), matrix(nRows * nRows, 0.0), rhs(nRows, 0.0);
+        vector<vector<size_t>> rows(nRows);
+
+        for (size_t t = 0; t < nSimplex; t++) {
+          for (auto a = 0u; a < nNodes; a++) {
+            W[t * nNodes + a] = size[t] / nNodes;
+            rows[t].push_back(t * nNodes + a);
+            if (simplices[t][a] + 1u < nElemNodes) rows[nSimplex + simplices[t][a]].push_back(t * nNodes + a);
+          }
+          rhs[t] = 0.0;
+        }
+        for (unsigned short iNode = 0; iNode + 1 < nElemNodes; iNode++) {
+          rhs[nSimplex + iNode] = median[iNode] * total / sumMedian;
+          for (const auto entry : rows[nSimplex + iNode]) rhs[nSimplex + iNode] -= W[entry];
+        }
+        for (size_t r = 0; r < nRows; r++) {
+          for (size_t c = 0; c < nRows; c++) {
+            size_t shared = 0;
+            for (const auto entry : rows[r]) shared += std::count(rows[c].begin(), rows[c].end(), entry);
+            matrix[r * nRows + c] = su2double(shared);
+          }
+        }
+
+        /*--- Gauss elimination with pivoting, the system is small. ---*/
+
+        vector<su2double> x(rhs);
+        for (size_t k = 0; k < nRows; k++) {
+          size_t pivot = k;
+          for (size_t r = k + 1; r < nRows; r++) {
+            if (fabs(matrix[r * nRows + k]) > fabs(matrix[pivot * nRows + k])) pivot = r;
+          }
+          for (size_t c = 0; c < nRows; c++) std::swap(matrix[k * nRows + c], matrix[pivot * nRows + c]);
+          std::swap(x[k], x[pivot]);
+          if (fabs(matrix[k * nRows + k]) < 1e-12) continue;
+          for (size_t r = k + 1; r < nRows; r++) {
+            const su2double factor = matrix[r * nRows + k] / matrix[k * nRows + k];
+            for (size_t c = k; c < nRows; c++) matrix[r * nRows + c] -= factor * matrix[k * nRows + c];
+            x[r] -= factor * x[k];
+          }
+        }
+        for (size_t k = nRows; k-- > 0;) {
+          for (size_t c = k + 1; c < nRows; c++) x[k] -= matrix[k * nRows + c] * x[c];
+          x[k] = (fabs(matrix[k * nRows + k]) < 1e-12) ? su2double(0.0) : su2double(x[k] / matrix[k * nRows + k]);
+        }
+        for (size_t r = 0; r < nRows; r++) {
+          for (const auto entry : rows[r]) W[entry] += x[r];
+        }
+
+        /*--- n_ik = W_i grad(phi_k) - W_k grad(phi_i), E_ik = 0.5 [(W_i-m) grad(phi_k) + (W_k-m) grad(phi_i)]. ---*/
+
+        for (size_t t = 0; t < nSimplex; t++) {
+          const auto* gradT = &grad[t * (MAXNDIM + 1) * 3];
+          const su2double m = size[t] / nNodes;
+
+          for (auto a = 0u; a < nNodes; a++) {
+            const auto Wa = W[t * nNodes + a];
+            edges->SplitVolume[element->GetNode(simplices[t][a])] += weight * Wa;
+
+            for (auto b = a + 1; b < nNodes; b++) {
+              const auto Wb = W[t * nNodes + b];
+              const auto iPoint = element->GetNode(simplices[t][a]), kPoint = element->GetNode(simplices[t][b]);
+              const auto* gradA = gradT + 3 * a;
+              const auto* gradB = gradT + 3 * b;
+
+              if (FindEdge(iPoint, kPoint, false) >= 0) {
+                const auto iEdge = FindEdge(iPoint, kPoint);
+                const su2double dir = (edges->GetNode(iEdge, CEdge::LEFT) == iPoint) ? 1.0 : -1.0;
+                for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+                  edges->FormNormal(iEdge, iDim) += dir * weight * (Wa * gradB[iDim] - Wb * gradA[iDim]);
+                  edges->FormE(iEdge, iDim) += weight * 0.5 * ((Wa - m) * gradB[iDim] + (Wb - m) * gradA[iDim]);
+                }
+              } else {
+                const su2double dir = (iPoint < kPoint) ? 1.0 : -1.0;
+                auto& entry = pairs[{std::min(iPoint, kPoint), std::max(iPoint, kPoint)}];
+                for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+                  entry[iDim] += dir * weight * (Wa * gradB[iDim] - Wb * gradA[iDim]);
+                  entry[MAXNDIM + iDim] += weight * 0.5 * ((Wa - m) * gradB[iDim] + (Wb - m) * gradA[iDim]);
+                }
               }
             }
           }
@@ -7254,69 +7380,57 @@ void CPhysicalGeometry::SetSplitEdges() {
       }
     }
     edges->SplitNormal.resize(edges->SplitNodes.size(), nDim) = su2double(0.0);
+    edges->SplitE.resize(edges->SplitNodes.size(), nDim) = su2double(0.0);
     for (auto iSplit = 0ul; iSplit < edges->SplitNodes.size(); iSplit++) {
       const auto& nodePair = edges->SplitNodes[iSplit];
-      const auto& normal = pairs.at({nodePair[0], nodePair[1]});
-      for (unsigned short iDim = 0; iDim < nDim; iDim++) edges->SplitNormal(iSplit, iDim) = normal[iDim];
+      const auto& entry = pairs.at({nodePair[0], nodePair[1]});
+      for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+        edges->SplitNormal(iSplit, iDim) = entry[iDim];
+        edges->SplitE(iSplit, iDim) = entry[MAXNDIM + iDim];
+      }
     }
 
-    /*--- Boundary faces use the same fan, a quadrilateral gives two triangles. Triangles are already A/3. ---*/
+    /*--- The sum of n_ik at a boundary node is minus the outward area of the mean of the fans of its faces.
+     * The vertex normals stay, since all other terms need them. A quadrilateral that is not a parallelogram
+     * gives a small difference, kept per node and added as a nodal flux so that free stream holds. ---*/
+
+    edges->SplitBoundNormal.resize(nPoint, nDim) = su2double(0.0);
 
     for (unsigned short iMarker = 0; (nDim == 3) && (iMarker < nMarker); iMarker++) {
-      bool hasQuad = false;
-      for (auto iElem = 0ul; iElem < nElem_Bound[iMarker]; iElem++) {
-        hasQuad = hasQuad || (bound[iMarker][iElem]->GetnNodes() == 4);
-      }
-      if (!hasQuad) continue;
-
-      su2activematrix normals(nVertex[iMarker], nDim);
-      normals = su2double(0.0);
-
-      auto addTriangle = [&](unsigned long a, unsigned long b, unsigned long c) {
-        const auto* xa = nodes->GetCoord(a);
-        const auto* xb = nodes->GetCoord(b);
-        const auto* xc = nodes->GetCoord(c);
-        su2double u[3], w[3], area[3];
-        for (unsigned short iDim = 0; iDim < 3; iDim++) {
-          u[iDim] = xb[iDim] - xa[iDim];
-          w[iDim] = xc[iDim] - xa[iDim];
-        }
-        GeometryToolbox::CrossProduct(u, w, area);
-        for (const auto iPoint : {a, b, c}) {
-          const auto iVertex = nodes->GetVertex(iPoint, iMarker);
-          if (iVertex < 0) continue;
-          for (unsigned short iDim = 0; iDim < 3; iDim++) normals(iVertex, iDim) += area[iDim] / 6.0;
-        }
-      };
+      if (nElem_Bound[iMarker] == 0) continue;  // SEND_RECEIVE markers have vertices but no faces.
 
       for (auto iElem = 0ul; iElem < nElem_Bound[iMarker]; iElem++) {
         const auto* face = bound[iMarker][iElem];
         const auto nFaceNodes = face->GetnNodes();
-        unsigned short w = 0;
-        for (unsigned short iNode = 1; iNode < nFaceNodes; iNode++) {
-          if (nodes->GetGlobalIndex(face->GetNode(iNode)) < nodes->GetGlobalIndex(face->GetNode(w))) w = iNode;
-        }
-        for (unsigned short iNode = 1; iNode + 1 < nFaceNodes; iNode++) {
-          addTriangle(face->GetNode(w), face->GetNode((w + iNode) % nFaceNodes),
-                      face->GetNode((w + iNode + 1) % nFaceNodes));
+
+        for (unsigned short w = 0; w < nFaceNodes; w++) {
+          const su2double fanWeight = (nFaceNodes == 4) ? 0.25 : 1.0 / 3.0;
+          for (unsigned short iNode = 1; iNode + 1 < nFaceNodes; iNode++) {
+            const unsigned long tri[3] = {face->GetNode(w), face->GetNode((w + iNode) % nFaceNodes),
+                                          face->GetNode((w + iNode + 1) % nFaceNodes)};
+            su2double u[3], v[3], area[3];
+            for (unsigned short iDim = 0; iDim < 3; iDim++) {
+              u[iDim] = nodes->GetCoord(tri[1], iDim) - nodes->GetCoord(tri[0], iDim);
+              v[iDim] = nodes->GetCoord(tri[2], iDim) - nodes->GetCoord(tri[0], iDim);
+            }
+            GeometryToolbox::CrossProduct(u, v, area);
+            for (const auto iPoint : tri) {
+              const auto iVertex = nodes->GetVertex(iPoint, iMarker);
+              if (iVertex < 0) continue;
+              const auto* inward = vertex[iMarker][iVertex]->GetNormal();
+              const su2double dir = (GeometryToolbox::DotProduct(3, inward, area) > 0.0) ? -1.0 : 1.0;
+              for (unsigned short iDim = 0; iDim < 3; iDim++) {
+                edges->SplitBoundNormal(iPoint, iDim) += dir * fanWeight * area[iDim] / 6.0;
+              }
+            }
+          }
         }
       }
-
       for (auto iVertex = 0ul; iVertex < nVertex[iMarker]; iVertex++) {
-        const auto* oldNormal = vertex[iMarker][iVertex]->GetNormal();
-        const su2double dir = (GeometryToolbox::DotProduct(3, oldNormal, normals[iVertex]) < 0.0) ? -1.0 : 1.0;
-        for (unsigned short iDim = 0; iDim < 3; iDim++) normals(iVertex, iDim) *= dir;
-        vertex[iMarker][iVertex]->SetNormal(normals[iVertex]);
+        const auto iPoint = vertex[iMarker][iVertex]->GetNode();
+        const auto* inward = vertex[iMarker][iVertex]->GetNormal();
+        for (unsigned short iDim = 0; iDim < 3; iDim++) edges->SplitBoundNormal(iPoint, iDim) += inward[iDim];
       }
-    }
-
-    /*--- A warped cell can give a negative split volume: report it, do not change it. ---*/
-
-    unsigned long nBad = 0, nBadGlobal = 0;
-    for (auto iPoint = 0ul; iPoint < nPointDomain; iPoint++) nBad += (edges->SplitVolume[iPoint] <= 0.0);
-    SU2_MPI::Allreduce(&nBad, &nBadGlobal, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
-    if ((nBadGlobal != 0) && (rank == MASTER_NODE)) {
-      cout << "WARNING: SPLIT_EDGE_FLUX found " << nBadGlobal << " nodes with split volume <= 0." << endl;
     }
   }
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
