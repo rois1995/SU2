@@ -1,0 +1,75 @@
+{
+  "time": 1793493204.308026,
+  "scope": "Actual complete quality entries with matching selected construction counts throughout18generations, same saved CFD/config/initial partition. No byte-identical intermediate mesh proof or acceptance claim. Use actual quality elapsed from each own entry.",
+  "baseline": "euler_build193_real_cfd50k_envelope",
+  "current": "euler_build194_real_cfd50k_early_exit",
+  "entries": {
+    "euler_build193_real_cfd50k_envelope": {
+      "elapsed": 990.484282689,
+      "totals": {
+        "cells": 727818,
+        "q_bad": 54081,
+        "j_bad": 53392,
+        "size_bad": 0,
+        "geometry_bad": 3770,
+        "qj_debt": 25413.45557726506
+      },
+      "work": {
+        "upper_calls": 33088,
+        "upper_work": 1146716427,
+        "traversal_work": 1131850186,
+        "facet_build_work": 1746870,
+        "scope_build_work": 4297922,
+        "piece_selection_work": 6332198,
+        "support_facets": 2891254
+      },
+      "rank_debts": {
+        "0": 4169.720405772552,
+        "1": 3099.831971662573,
+        "2": 4770.0230531932575,
+        "3": 4477.4062970699115,
+        "4": 4665.818460604748,
+        "5": 4230.655388962019
+      }
+    },
+    "euler_build194_real_cfd50k_early_exit": {
+      "elapsed": 895.641809767,
+      "totals": {
+        "cells": 727818,
+        "q_bad": 54081,
+        "j_bad": 53392,
+        "size_bad": 0,
+        "geometry_bad": 3770,
+        "qj_debt": 25413.45557726506
+      },
+      "work": {
+        "upper_calls": 33088,
+        "upper_work": 1082715889,
+        "traversal_work": 1067849648,
+        "facet_build_work": 1746870,
+        "scope_build_work": 4297922,
+        "piece_selection_work": 6332198,
+        "support_facets": 2891254
+      },
+      "rank_debts": {
+        "0": 4169.720405772552,
+        "1": 3099.831971662573,
+        "2": 4770.0230531932575,
+        "3": 4477.4062970699115,
+        "4": 4665.818460604748,
+        "5": 4230.655388962019
+      }
+    }
+  },
+  "current_minus_baseline": {
+    "cells": 0,
+    "q_bad": 0,
+    "j_bad": 0,
+    "size_bad": 0,
+    "geometry_bad": 0,
+    "qj_debt": 0.0
+  },
+  "all_global_entry_counts_debt_equal": true,
+  "entry_engine_seconds_saved": 94.84247292199996,
+  "flags": "All six ranks allcells measured q/J and allcompletegeometry/cache/census/shape flags1."
+}

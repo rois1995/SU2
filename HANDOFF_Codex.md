@@ -26,18 +26,35 @@ early_runtime_provenance.json. Actual original-grid continued restart00000 now
 BYTEIDENTICAL193(SHA6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a).
 Initial continued CFD CL.269535/CD.013536. This is NOT adapted restart proof.
 Same seed,ITER1continuation,50k/native5400/outer14400/allstrictgates unchanged.
-Initial partition COMPLETE303359cells;ALL18selected per-rank fields EXACT193:
-CURRENT/initial_partition_comparison.json. Coarsening COMPLETE292709cells/2627collapses; ALL17selected per-rankfields EXACT193,
-allcompletegeometry/cache/censusflags1,q/JUNMEASURED(shapecomplete0):
-CURRENT/coarsening_comparison.json. Traversal277428465→260034825(-6.2696%),
-uppercalls14870same; engine312.196318vs193358.820959s(rawfirst-event records;
-not an isolated code timing). Firstsplit COMPLETE495390cells/117030sizebad/
-3861geometrybad,ALL17selectedrankfieldsEXACT193; traversal357559009→336133439
-(-5.9922%),engine377.938909vs431.185157s. construction_comparison.json and
-split_generation_assessment.json preserve counts/work/limits. No quality census yet.
-All10handles/1401pins/82ELF reverified1793492669.2467856:
-coarsening_complete_provenance.json; resource receipt coarsening_complete_resources.json. Do NOT interpret unmeasured construction q/J as clean. One owned heavy
-job,nice19/libs1; no pinned C++/test/helper/binary/config/input edits.
+Initial partition303359cells:ALL18selected per-rankfields EXACT193.
+Coarsening COMPLETE292709cells/2627collapses:ALL17selected fields EXACT193;
+traversal277428465→260034825(-6.2696%),engine312.196318vs358.820959s.
+ALL18construction generations COMPLETE727818workingcells,sizebad0,geometrybad3770;
+ALL17selected per-rank countfields EXACT193 throughout. Cumulative traversal
+1131850186→1067849648(-5.6545%),uppercalls33088same,scope/facet/preparation/support
+work same. Engine847.303442vs942.549761s; wall conditions differ,not an isolated
+code timing claim. Construction q/J deliberately UNMEASURED(shapecomplete0).
+CURRENT/initial_partition_comparison.json,coarsening_comparison.json,
+construction_comparison.json,split_generation_assessment.json preserve raw rows/limits.
+
+Complete quality ENTRY at895.641809767engine seconds,round21582:
+727818cells,54081q/53392J/3770geometry/0size,qJdebt25413.45557726506.
+Globalcounts/debt AND all6rankdebts EXACT193qualityentry; engineentry94.842473s
+earlier. Allcellsq/Jmeasured,allcompletecache/census/shape/geometryflags1. Three
+complete quality censuses audited; no complete repair window yet. Queue359054,
+blocked/stuck/missing0,publications0atentry,private trackedcollectives0.
+Current repair runs frozen; no accepted mesh or closure-rate claim atentry.
+quality_entry_assessment.json,quality_entry_comparison.json,
+all_quality_census_assessment.json. Initial quality ownership migration conserved
+counts/debt/completeflags and20selectedcache/memocounters/entries/bytes unchanged;
+debtmax/min15.776024→1.538801:quality_initial_ownership_assessment.json. Counter
+identity does not independently prove every entrykey/feature history.
+
+All10hosthandles/1401pins/82mappedELF reverified1793493204.182865:
+quality_entry_provenance.json. quality_entry_resources.json preserves sampled
+summedRSS~9.02GBdecimal/availableRAM~31.4GB,not physical or truepeak. No memory
+pressure stop justified. One owned heavy job,nice19/libs1. No pinned C++/test/
+helper/binary/config/input edits. Current source remainsf518f2d727.
 
 194is the bounded follow-up to193terminal analysis,not a second optimization cycle:
 existing TriangleUnion::Upper stops at an already rigorous bound<=actual tolerance,
