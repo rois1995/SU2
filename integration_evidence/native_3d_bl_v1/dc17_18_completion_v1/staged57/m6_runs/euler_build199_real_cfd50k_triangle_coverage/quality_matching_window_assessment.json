@@ -1,5 +1,5 @@
 {
-  "time": 1793528556.2217767,
+  "time": 1793528801.0194464,
   "scope": "Qualified199 winding versus latest198retry1 at actual matching complete first-event quality windows. Different sources; traversal work is intentionally different. No isolated timing or byte-identical mesh/trial-history claim.",
   "work_fields": [
     "upper_calls",
@@ -149,9 +149,42 @@
       "current_net_q_per_second": 15.623250241149858,
       "baseline_net_q_per_second": 17.945214018365323,
       "traversal_work_reduction_fraction": 0.5430338750719541
+    },
+    {
+      "window": 5,
+      "round": 21888,
+      "current_census": 11,
+      "baseline_same_round_available": true,
+      "whole_field_equal": true,
+      "rank_debts_equal": true,
+      "window_counters_equal": true,
+      "unchanged_work_fields_equal": true,
+      "current_work": {
+        "upper_calls": 195741,
+        "upper_work": 443815277,
+        "traversal_work": 410528876,
+        "scope_build_work": 3409116,
+        "facet_build_work": 854691,
+        "piece_selection_work": 17258269,
+        "support_facets": 26689920
+      },
+      "baseline_work": {
+        "upper_calls": 195741,
+        "upper_work": 927805501,
+        "traversal_work": 894519100,
+        "scope_build_work": 3409116,
+        "facet_build_work": 854691,
+        "piece_selection_work": 17258269,
+        "support_facets": 26689920
+      },
+      "current_quality_seconds": 1183.3425694559999,
+      "baseline_quality_seconds": 954.612839382,
+      "current_net_q_per_second": 14.17256543699757,
+      "baseline_net_q_per_second": 17.568378831838526,
+      "traversal_work_reduction_fraction": 0.5410619225458685
     }
   ],
-  "migration_comparison_through_round": 21824,
+  "migration_comparison_through_round": 21888,
   "current_only_migration_rounds": [],
   "baseline_only_migration_rounds": [],
   "limits": [
