@@ -1,5 +1,5 @@
 {
-  "time": 1793531095.1670184,
+  "time": 1793531419.2578363,
   "scope": "Qualified199 winding versus latest198retry1 at actual matching complete first-event quality windows. Different sources; traversal work is intentionally different. No isolated timing or byte-identical mesh/trial-history claim.",
   "work_fields": [
     "upper_calls",
@@ -644,15 +644,121 @@
       "current_net_q_per_second": 12.750965221523126,
       "baseline_net_q_per_second": 12.30629544225173,
       "traversal_work_reduction_fraction": 0.5197117354162406
+    },
+    {
+      "window": 20,
+      "round": 22848,
+      "current_census": 46,
+      "baseline_same_round_available": true,
+      "whole_field_equal": true,
+      "rank_debts_equal": true,
+      "window_counters_equal": true,
+      "unchanged_work_fields_equal": true,
+      "current_work": {
+        "upper_calls": 826785,
+        "upper_work": 1491115149,
+        "traversal_work": 1314658719,
+        "scope_build_work": 9749910,
+        "facet_build_work": 2295003,
+        "piece_selection_work": 92320185,
+        "support_facets": 151675062
+      },
+      "baseline_work": {
+        "upper_calls": 826785,
+        "upper_work": 2926191870,
+        "traversal_work": 2749735440,
+        "scope_build_work": 9749910,
+        "facet_build_work": 2295003,
+        "piece_selection_work": 92320185,
+        "support_facets": 151675062
+      },
+      "current_quality_seconds": 3653.131365733,
+      "baseline_quality_seconds": 3792.249501219,
+      "current_net_q_per_second": 12.40908017303236,
+      "baseline_net_q_per_second": 11.95385482559316,
+      "traversal_work_reduction_fraction": 0.5218962886844125
+    },
+    {
+      "window": 21,
+      "round": 22912,
+      "current_census": 47,
+      "baseline_same_round_available": true,
+      "whole_field_equal": false,
+      "rank_debts_equal": false,
+      "window_counters_equal": false,
+      "unchanged_work_fields_equal": false,
+      "current_work": {
+        "upper_calls": 858214,
+        "upper_work": 1545745328,
+        "traversal_work": 1363188146,
+        "scope_build_work": 10053653,
+        "facet_build_work": 2303834,
+        "piece_selection_work": 95597158,
+        "support_facets": 156399893
+      },
+      "baseline_work": {
+        "upper_calls": 857309,
+        "upper_work": 3042498644,
+        "traversal_work": 2859894104,
+        "scope_build_work": 10118846,
+        "facet_build_work": 2317243,
+        "piece_selection_work": 95615694,
+        "support_facets": 156100829
+      },
+      "current_quality_seconds": 3776.457357188,
+      "baseline_quality_seconds": 3938.3299341330003,
+      "current_net_q_per_second": 12.323983987642599,
+      "baseline_net_q_per_second": 11.792308104380272,
+      "traversal_work_reduction_fraction": 0.5233431391416303
     }
   ],
-  "migration_comparison_through_round": 22784,
+  "migration_comparison_through_round": 22912,
   "current_only_migration_rounds": [],
-  "baseline_only_migration_rounds": [],
+  "baseline_only_migration_rounds": [
+    22848,
+    22912
+  ],
   "limits": [
     "Migration differences in future baseline windows are excluded. Existing decisions depend on observed service time and remaining budget; no future trajectory identity assumed.",
     "Counted operations need not have equal runtime cost. Timers overlap and host conditions differ.",
-    "Selected state equality is checked independently for every window. Work differences are not mislabeled as state divergence."
+    "Selected state equality is checked independently for every window. Work differences are not mislabeled as state divergence.",
+    "A missing frontier publication alone is not a decision difference: require an explicit migrate=0 decision on all six ranks, completed publication, or a later complete window. Initial entry migration is audited separately."
   ],
-  "first_measured_state_difference": null
+  "settled_boundary_rounds": [
+    21632,
+    21696,
+    21760,
+    21824,
+    21888,
+    21952,
+    22016,
+    22080,
+    22144,
+    22208,
+    22272,
+    22336,
+    22400,
+    22464,
+    22528,
+    22592,
+    22656,
+    22720,
+    22784,
+    22848,
+    22912
+  ],
+  "unsettled_boundary_rounds": [],
+  "confirmed_migration_decision_differences": [
+    {
+      "round": 22848,
+      "current_migrate": 0,
+      "baseline_migrate": 1
+    },
+    {
+      "round": 22912,
+      "current_migrate": 0,
+      "baseline_migrate": 1
+    }
+  ],
+  "first_measured_state_difference": 21
 }
