@@ -27,6 +27,10 @@
 
 #pragma once
 
+#include <array>
+#include <map>
+#include <vector>
+
 #include "CGeometry.hpp"
 #include "meshreader/CMeshReaderBase.hpp"
 #include "../containers/C2DContainer.hpp"
@@ -34,11 +38,22 @@
 #include "../toolboxes/fem/CFaceOfElement.hpp"
 
 /*!
+ * \brief One pulling split of a cell type, in local node indices, with its weight constraints.
+ */
+struct CSplitPattern {
+  std::vector<std::array<unsigned short, MAXNDIM + 1>> simplices;  /*!< \brief Simplices of the split. */
+  std::vector<std::vector<size_t>> rows;  /*!< \brief Unknown weights of each constraint. */
+  std::vector<passivedouble> inverse;     /*!< \brief Inverse of A A^T, it holds only counts of shared weights. */
+};
+
+/*!
  * \class CPhysicalGeometry
  * \brief Class for reading a defining the primal grid which is read from the grid file in .su2 or .cgns format.
  * \author F. Palacios, T. Economon, J. Alonso
  */
 class CPhysicalGeometry final : public CGeometry {
+  std::map<unsigned short, std::vector<CSplitPattern>> SplitPatterns; /*!< \brief Splits by VTK cell type. */
+
   unordered_map<unsigned long, unsigned long>
       Global_to_Local_Point;              /*!< \brief Global-local indexation for the points. */
   long* Local_to_Global_Point{nullptr};   /*!< \brief Local-global indexation for the points. */
@@ -461,6 +476,13 @@ class CPhysicalGeometry final : public CGeometry {
    *        terms. n_ik and E_ik follow SetEdgeFormP1. Vertex normals do not change.
    */
   void SetSplitEdges() override;
+
+  /*!
+   * \brief Pulling splits of a cell type. They depend only on the connectivity, so they do not change if the mesh moves.
+   * \param[in] element - A cell of that type.
+   * \return The splits of the cell type, built on first use.
+   */
+  const std::vector<CSplitPattern>& GetSplitPatterns(const CPrimalGrid* element);
 
   /*!
    * \brief Coefficients of the boundary closure of the flux correction.

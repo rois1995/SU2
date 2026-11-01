@@ -2727,6 +2727,12 @@ void CGeometry::RegisterCoordinates() const {
   END_SU2_OMP_FOR
 }
 
+void CGeometry::UpdateP1FluxCoefficients(const CConfig* config) {
+  if (config->GetDissipation_Mod_Normals()) SetDissipationNormals();
+  if (config->GetEdge_Form_P1()) SetEdgeFormP1();
+  if (config->GetSplit_Edge_Flux()) SetSplitEdges();
+}
+
 void CGeometry::UpdateGeometry(CGeometry** geometry_container, CConfig* config) {
   geometry_container[MESH_0]->InitiateComms(geometry_container[MESH_0], config, MPI_QUANTITIES::COORDINATES);
   geometry_container[MESH_0]->CompleteComms(geometry_container[MESH_0], config, MPI_QUANTITIES::COORDINATES);
@@ -2734,6 +2740,7 @@ void CGeometry::UpdateGeometry(CGeometry** geometry_container, CConfig* config) 
   geometry_container[MESH_0]->SetControlVolume(config, UPDATE);
   geometry_container[MESH_0]->SetBoundControlVolume(config, UPDATE);
   geometry_container[MESH_0]->SetBoundCVCoeffs(config, UPDATE);
+  geometry_container[MESH_0]->UpdateP1FluxCoefficients(config);
   geometry_container[MESH_0]->SetMaxLength(config);
 
   for (unsigned short iMesh = 1; iMesh <= config->GetnMGLevels(); iMesh++) {

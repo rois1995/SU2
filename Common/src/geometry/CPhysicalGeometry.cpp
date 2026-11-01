@@ -7161,6 +7161,125 @@ void CPhysicalGeometry::SetEdgeFormP1() {
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
+const vector<CSplitPattern>& CPhysicalGeometry::GetSplitPatterns(const CPrimalGrid* element) {
+  const auto found = SplitPatterns.find(element->GetVTK_Type());
+  if (found != SplitPatterns.end()) return found->second;
+
+  const auto nElemNodes = element->GetnNodes();
+  const auto nNodes = nDim + 1u;
+
+  /*--- All pulling splits of the cell: every apex v, each face without v fanned from either diagonal.
+   * The mean of all of them does not depend on node IDs, and each face sees both diagonals equally
+   * from the two cells that share it. ---*/
+
+  vector<CSplitPattern> patterns;
+
+  if (nDim == 2) {
+    for (unsigned short v = 0; v < nElemNodes; v++) {
+      CSplitPattern pattern;
+      for (unsigned short iNode = 1; iNode + 1 < nElemNodes; iNode++) {
+        pattern.simplices.push_back({v, static_cast<unsigned short>((v + iNode) % nElemNodes),
+                                     static_cast<unsigned short>((v + iNode + 1) % nElemNodes), 0});
+      }
+      patterns.push_back(pattern);
+    }
+  } else {
+    for (unsigned short v = 0; v < nElemNodes; v++) {
+      vector<unsigned short> faces, nChoices;
+      for (unsigned short iFace = 0; iFace < element->GetnFaces(); iFace++) {
+        bool hasV = false;
+        for (unsigned short iNode = 0; iNode < element->GetnNodesFace(iFace); iNode++) {
+          hasV = hasV || (element->GetFaces(iFace, iNode) == v);
+        }
+        if (!hasV) {
+          faces.push_back(iFace);
+          nChoices.push_back((element->GetnNodesFace(iFace) == 4) ? 2 : 1);
+        }
+      }
+      unsigned short nCombinations = 1;
+      for (const auto nChoice : nChoices) nCombinations *= nChoice;
+
+      for (unsigned short iCombination = 0; iCombination < nCombinations; iCombination++) {
+        CSplitPattern pattern;
+        auto remaining = iCombination;
+        for (size_t k = 0; k < faces.size(); k++) {
+          const auto iFace = faces[k];
+          const auto nFaceNodes = element->GetnNodesFace(iFace);
+          const unsigned short w = remaining % nChoices[k];
+          remaining /= nChoices[k];
+          for (unsigned short iNode = 1; iNode + 1 < nFaceNodes; iNode++) {
+            pattern.simplices.push_back({v, element->GetFaces(iFace, w), element->GetFaces(iFace, (w + iNode) % nFaceNodes),
+                                         element->GetFaces(iFace, (w + iNode + 1) % nFaceNodes)});
+          }
+        }
+        patterns.push_back(pattern);
+      }
+    }
+  }
+
+  /*--- One constraint per simplex and per node, the last node follows from the others. A A^T holds only
+   * the number of weights that two constraints share, so its inverse does not depend on the coordinates. ---*/
+
+  for (auto& pattern : patterns) {
+    const auto nSimplex = pattern.simplices.size();
+    const size_t nRows = nSimplex + nElemNodes - 1;
+    pattern.rows.resize(nRows);
+
+    for (size_t t = 0; t < nSimplex; t++) {
+      for (auto a = 0u; a < nNodes; a++) {
+        pattern.rows[t].push_back(t * nNodes + a);
+        if (pattern.simplices[t][a] + 1u < nElemNodes) {
+          pattern.rows[nSimplex + pattern.simplices[t][a]].push_back(t * nNodes + a);
+        }
+      }
+    }
+
+    vector<passivedouble> matrix(nRows * nRows, 0.0), inverse(nRows * nRows, 0.0);
+    for (size_t r = 0; r < nRows; r++) {
+      inverse[r * nRows + r] = 1.0;
+      for (size_t c = 0; c < nRows; c++) {
+        size_t shared = 0;
+        for (const auto entry : pattern.rows[r]) {
+          shared += std::count(pattern.rows[c].begin(), pattern.rows[c].end(), entry);
+        }
+        matrix[r * nRows + c] = shared;
+      }
+    }
+
+    /*--- Gauss-Jordan elimination with pivoting, the system is small and is solved once per split. ---*/
+
+    for (size_t k = 0; k < nRows; k++) {
+      size_t pivot = k;
+      for (size_t r = k + 1; r < nRows; r++) {
+        if (fabs(matrix[r * nRows + k]) > fabs(matrix[pivot * nRows + k])) pivot = r;
+      }
+      for (size_t c = 0; c < nRows; c++) {
+        std::swap(matrix[k * nRows + c], matrix[pivot * nRows + c]);
+        std::swap(inverse[k * nRows + c], inverse[pivot * nRows + c]);
+      }
+      if (fabs(matrix[k * nRows + k]) < 1e-12) {
+        SU2_MPI::Error("SPLIT_EDGE_FLUX: singular weight constraints.", CURRENT_FUNCTION);
+      }
+      const auto diagonal = matrix[k * nRows + k];
+      for (size_t c = 0; c < nRows; c++) {
+        matrix[k * nRows + c] /= diagonal;
+        inverse[k * nRows + c] /= diagonal;
+      }
+      for (size_t r = 0; r < nRows; r++) {
+        if (r == k) continue;
+        const auto factor = matrix[r * nRows + k];
+        for (size_t c = 0; c < nRows; c++) {
+          matrix[r * nRows + c] -= factor * matrix[k * nRows + c];
+          inverse[r * nRows + c] -= factor * inverse[k * nRows + c];
+        }
+      }
+    }
+    pattern.inverse = inverse;
+  }
+
+  return SplitPatterns.emplace(element->GetVTK_Type(), patterns).first->second;
+}
+
 void CPhysicalGeometry::SetSplitEdges() {
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     edges->FormNormal.resize(edges->nEdgeSIMD, nDim) = su2double(0.0);
@@ -7207,58 +7326,11 @@ void CPhysicalGeometry::SetSplitEdges() {
         }
       }
 
-      /*--- All pulling splits of the cell: every apex v, each face without v fanned from either diagonal.
-       * The mean of all of them does not depend on node IDs, and each face sees both diagonals equally
-       * from the two cells that share it. A split is a list of simplices of local node indices. ---*/
-
-      vector<vector<std::array<unsigned short, MAXNDIM + 1>>> splits;
-
-      if (nDim == 2) {
-        for (unsigned short v = 0; v < nElemNodes; v++) {
-          vector<std::array<unsigned short, MAXNDIM + 1>> simplices;
-          for (unsigned short iNode = 1; iNode + 1 < nElemNodes; iNode++) {
-            simplices.push_back({v, static_cast<unsigned short>((v + iNode) % nElemNodes),
-                                 static_cast<unsigned short>((v + iNode + 1) % nElemNodes), 0});
-          }
-          splits.push_back(simplices);
-        }
-      } else {
-        for (unsigned short v = 0; v < nElemNodes; v++) {
-          vector<unsigned short> faces, nChoices;
-          for (unsigned short iFace = 0; iFace < element->GetnFaces(); iFace++) {
-            bool hasV = false;
-            for (unsigned short iNode = 0; iNode < element->GetnNodesFace(iFace); iNode++) {
-              hasV = hasV || (element->GetFaces(iFace, iNode) == v);
-            }
-            if (!hasV) {
-              faces.push_back(iFace);
-              nChoices.push_back((element->GetnNodesFace(iFace) == 4) ? 2 : 1);
-            }
-          }
-          unsigned short nCombinations = 1;
-          for (const auto nChoice : nChoices) nCombinations *= nChoice;
-
-          for (unsigned short iCombination = 0; iCombination < nCombinations; iCombination++) {
-            vector<std::array<unsigned short, MAXNDIM + 1>> simplices;
-            auto remaining = iCombination;
-            for (size_t k = 0; k < faces.size(); k++) {
-              const auto iFace = faces[k];
-              const auto nFaceNodes = element->GetnNodesFace(iFace);
-              const unsigned short w = remaining % nChoices[k];
-              remaining /= nChoices[k];
-              for (unsigned short iNode = 1; iNode + 1 < nFaceNodes; iNode++) {
-                simplices.push_back({v, element->GetFaces(iFace, w), element->GetFaces(iFace, (w + iNode) % nFaceNodes),
-                                     element->GetFaces(iFace, (w + iNode + 1) % nFaceNodes)});
-              }
-            }
-            splits.push_back(simplices);
-          }
-        }
-      }
-
+      const auto& splits = GetSplitPatterns(element);
       const su2double weight = 1.0 / splits.size();
 
-      for (const auto& simplices : splits) {
+      for (const auto& pattern : splits) {
+        const auto& simplices = pattern.simplices;
 
         /*--- The sub-simplices of a split share one orientation, the sign of the cell makes the sizes signed. ---*/
 
@@ -7279,59 +7351,25 @@ void CPhysicalGeometry::SetSplitEdges() {
 
         /*--- W closest to |t|/(d+1), with sum_a W_a = |t| per simplex and sum_t W_i = median share per node.
          * The shares are scaled to the size of the split, warped faces make the two differ a little.
-         * With W0 = |t|/(d+1) and constraints A W = b: W = W0 + A^T x, (A A^T) x = b - A W0. The last node
-         * constraint follows from the others and is left out. ---*/
+         * With W0 = |t|/(d+1) and constraints A W = b: W = W0 + A^T x, (A A^T) x = b - A W0. ---*/
 
         su2double sumMedian = 0.0;
         for (unsigned short iNode = 0; iNode < nElemNodes; iNode++) sumMedian += median[iNode];
 
-        const size_t nRows = nSimplex + nElemNodes - 1, nW = nSimplex * nNodes;
-        vector<su2double> W(nW), matrix(nRows * nRows, 0.0), rhs(nRows, 0.0);
-        vector<vector<size_t>> rows(nRows);
+        const auto nRows = pattern.rows.size();
+        vector<su2double> W(nSimplex * nNodes), rhs(nRows, 0.0);
 
         for (size_t t = 0; t < nSimplex; t++) {
-          for (auto a = 0u; a < nNodes; a++) {
-            W[t * nNodes + a] = size[t] / nNodes;
-            rows[t].push_back(t * nNodes + a);
-            if (simplices[t][a] + 1u < nElemNodes) rows[nSimplex + simplices[t][a]].push_back(t * nNodes + a);
-          }
-          rhs[t] = 0.0;
+          for (auto a = 0u; a < nNodes; a++) W[t * nNodes + a] = size[t] / nNodes;
         }
-        for (unsigned short iNode = 0; iNode + 1 < nElemNodes; iNode++) {
-          rhs[nSimplex + iNode] = median[iNode] * total / sumMedian;
-          for (const auto entry : rows[nSimplex + iNode]) rhs[nSimplex + iNode] -= W[entry];
+        for (size_t r = nSimplex; r < nRows; r++) {
+          rhs[r] = median[r - nSimplex] * total / sumMedian;
+          for (const auto entry : pattern.rows[r]) rhs[r] -= W[entry];
         }
         for (size_t r = 0; r < nRows; r++) {
-          for (size_t c = 0; c < nRows; c++) {
-            size_t shared = 0;
-            for (const auto entry : rows[r]) shared += std::count(rows[c].begin(), rows[c].end(), entry);
-            matrix[r * nRows + c] = su2double(shared);
-          }
-        }
-
-        /*--- Gauss elimination with pivoting, the system is small. ---*/
-
-        vector<su2double> x(rhs);
-        for (size_t k = 0; k < nRows; k++) {
-          size_t pivot = k;
-          for (size_t r = k + 1; r < nRows; r++) {
-            if (fabs(matrix[r * nRows + k]) > fabs(matrix[pivot * nRows + k])) pivot = r;
-          }
-          for (size_t c = 0; c < nRows; c++) std::swap(matrix[k * nRows + c], matrix[pivot * nRows + c]);
-          std::swap(x[k], x[pivot]);
-          if (fabs(matrix[k * nRows + k]) < 1e-12) continue;
-          for (size_t r = k + 1; r < nRows; r++) {
-            const su2double factor = matrix[r * nRows + k] / matrix[k * nRows + k];
-            for (size_t c = k; c < nRows; c++) matrix[r * nRows + c] -= factor * matrix[k * nRows + c];
-            x[r] -= factor * x[k];
-          }
-        }
-        for (size_t k = nRows; k-- > 0;) {
-          for (size_t c = k + 1; c < nRows; c++) x[k] -= matrix[k * nRows + c] * x[c];
-          x[k] = (fabs(matrix[k * nRows + k]) < 1e-12) ? su2double(0.0) : su2double(x[k] / matrix[k * nRows + k]);
-        }
-        for (size_t r = 0; r < nRows; r++) {
-          for (const auto entry : rows[r]) W[entry] += x[r];
+          su2double x = 0.0;
+          for (size_t c = 0; c < nRows; c++) x += pattern.inverse[r * nRows + c] * rhs[c];
+          for (const auto entry : pattern.rows[r]) W[entry] += x;
         }
 
         /*--- n_ik = W_i grad(phi_k) - W_k grad(phi_i), E_ik = 0.5 [(W_i-m) grad(phi_k) + (W_k-m) grad(phi_i)]. ---*/

@@ -959,6 +959,13 @@ class CGeometry {
    */
   inline virtual void SetSplitEdges() {}
 
+  /*!
+   * \brief Compute the coefficients of the active P1 flux variants, after the control volumes.
+   * \note The splits are kept, the coefficients follow the coordinates, so this is also called if the mesh moves.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void UpdateP1FluxCoefficients(const CConfig* config);
+
   inline virtual void SetBoundCVCoeffs(const CConfig* config, unsigned short action) {}
 
   /*!

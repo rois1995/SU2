@@ -45,6 +45,7 @@ dual mesh control volumes in the domain and on the boundaries. ---*/
   geometry->SetControlVolume(config, UPDATE);
   geometry->SetBoundControlVolume(config, UPDATE);
   geometry->SetBoundCVCoeffs(config, UPDATE);
+  geometry->UpdateP1FluxCoefficients(config);
   geometry->SetMaxLength(config);
 }
 

@@ -725,6 +725,48 @@ TEST_CASE("Split edges on general cells", "[P1Flux]") {
   }
 }
 
+TEST_CASE("Split coefficients follow a moved mesh", "[P1Flux]") {
+  struct Kind {
+    int nDim, kind;
+    unsigned long n;
+  };
+  for (const auto& mesh : {Kind{2, 0, 10}, Kind{3, 0, 5}, Kind{3, 1, 5}, Kind{3, 2, 4}}) {
+    const std::string name = "p1_split_move_" + std::to_string(mesh.nDim) + "_" + std::to_string(mesh.kind) + ".su2";
+    WriteGeneralMesh(name, mesh.nDim, mesh.kind, mesh.n, 0.2, 1.0);
+    MeshCase test(name, "CONV_NUM_METHOD_FLOW= JST\nSPLIT_EDGE_FLUX= YES\n");
+    auto& geometry = *test.geometry;
+    geometry.UpdateP1FluxCoefficients(test.config.get());
+
+    /*--- A smooth motion of all nodes, the same on every rank. ---*/
+
+    for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+      const su2double x = geometry.nodes->GetCoord(iPoint, 0), y = geometry.nodes->GetCoord(iPoint, 1);
+      geometry.nodes->SetCoord(iPoint, 0, x + 0.1 * y * y);
+      geometry.nodes->SetCoord(iPoint, 1, y + 0.05 * sin(3.0 * x));
+    }
+    geometry.SetControlVolume(test.config.get(), UPDATE);
+    geometry.SetBoundControlVolume(test.config.get(), UPDATE);
+    geometry.SetBoundCVCoeffs(test.config.get(), UPDATE);
+    geometry.UpdateP1FluxCoefficients(test.config.get());
+
+    LinearFlux flux;
+    const auto div = flux.Div(mesh.nDim);
+    const auto R = SplitSum(geometry, flux, false);
+    su2double local[2] = {}, global[2] = {};
+    for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+      const auto volume = geometry.nodes->GetVolume(iPoint);
+      local[0] = std::max(local[0], fabs(geometry.edges->GetSplitVolume()[iPoint] / volume - 1.0));
+      if (!geometry.nodes->GetPhysicalBoundary(iPoint)) {
+        local[1] = std::max(local[1], fabs(R[iPoint] / volume - div) / fabs(div));
+      }
+    }
+    SU2_MPI::Allreduce(local, global, 2, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+    INFO("nDim " << mesh.nDim << " kind " << mesh.kind);
+    CHECK(global[0] < 1e-3);
+    CHECK(global[1] < 1e-3);
+  }
+}
+
 TEST_CASE("Split edges on simplices reduce to the median normal", "[P1Flux]") {
   for (int nDim : {2, 3}) {
     const std::string mesh = "p1_split_simplex_" + std::to_string(nDim) + "d.su2";
