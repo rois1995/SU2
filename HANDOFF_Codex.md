@@ -49,6 +49,27 @@ verified1793512980.9799993:coarsening_live_provenance.json. Currentcoarsening_re
 preserves sampledRSS/RAM/load/CPUpsi/memorypsi/disklimits;noresource-pressurestop.
 Frozenruncontinues into splitting; no accepted mesh ormeasured shapeclosure.
 
+ALL18completedinitialsplitgenerations retain17selectedper-rankfieldsEXACT197.
+Latestgeneration18:727818cells,0sizebad/3770geometrybad,q/JUNMEASURED.
+Uppercalls33088same;traversal746099652→532351350(-28.6488%),support/facet/scope/
+pieceselectionworkunchanged. Engine738.427450vs197654.713796s;noisolatedwalltime
+speedupclaim. CURRENT/split_generation_assessment.json,construction_comparison.json.
+Historicalfirstgeneration1and4liveauditreceipts retained,notcurrentphaseclaims.
+
+FIRSTCOMPLETEqualityENTRY789.000275927engine seconds,round21582:
+727818cells,54081q/53392J/3770geometry/0size,qJdebt25413.45557726506.
+Allcounts/debt/rankdebts/gaugesEXACT197entry;98.596104engine seconds later.
+Cache/census/shape/geometryflagsALL1,allcellsmeasured. Queue359054,blocked/stuck/
+missing0,qualitypublications0atentry. Initialmigration preservesglobalcounts/debt/
+completeflags and20selectedcache/memo counters/bytes/entries;debtspread15.776024→
+1.538801. Countersdonotproveeverykey/history. CURRENT/quality_entry_comparison.json,
+quality_entry_assessment.json,quality_initial_ownership_assessment.json,
+all_quality_census_assessment.json. Qualityrepairnowactive,noacceptedmesh.
+ActualHOSTall10identities/1401pins/82mappedELFverified1793513597.250606:
+quality_entry_live_provenance.json. quality_entry_resources.json preservessampledRSS/
+RAM/load/pressure/diskwithpeaklimits. Noresource-pressurestopjustified.
+New197residualgeometrycontinuation NOTyetexercised on198M6. DoNOTeditpinnedsources.
+
 198extends197's existing residualgeometry continuation with ONLY an existing N3
 finitecoverage proof order: nominaltriangle before rectangle; rectangle/segment
 fallback for failed/degenerate/nonfinite triangle proofs; allpadding/orientation/
@@ -60,6 +81,30 @@ Saved12traversal259729→198551(-23.5546%),ALLboundsEXACT196,cached/recomputed e
 All4hardqueries21–28%lesswork;all12improve. Trace proves61178lesscoveragework with
 unchangeddomains1164/graphs790/distance32289/lift11489. Countedwork evidence,not
 fullM6speedup/acceptance. R/geometry_coverage198_trace_attribution.json.
+
+Qualityprogress:window1,round21632,qualityelapsed245.080610s sinceFIRSTentry:
+733582cells,50158q/49030J/3660geometry/0sizebad,
+qJdebt18961.961605569937;1739publishedqualitycavities.
+Wholefieldnet3923q/4362J/110geometry,
+16.006978netq/s,17.798226netJ/s,includingALLelapsedphases.
+Publishedrepairnet3923q/4362J;constructioneditsafterfirstentry0.
+Latestinterval245.080610s:net3923q/4362J/
+110geometry,16.006978netq/s.
+Constructioncrossinginterval=False;donotlabelconstructionchangesrepairchurn.
+All4completequalitycensusesaudited;latestwindowround21632:
+queue351681,blockedfeatures54,stuckshape/required
+0/0,missing0,
+privatecollectives0.
+Actualsame-round197reference:fieldsexactTrue,rankdebtsexactTrue,
+commitsexactTrue,windowcountcountersexactTrue;
+relativegeometrytraversalworkchange-0.29018110.
+No byteidenticalmesh orisolatedcodetimingclaim;timersnest/joinincludesprotocol+wait.
+Remainingqsurface/interior14799/35359,J19153/29877.
+Interior meansnophysicalface,notnoconstrainedvertices. Private smoothinggainsarenotpublishedcavitygains.
+CURRENT/quality_window1_service_summary.json,quality_window1_comparison.json,
+quality_service_assessment.json,all_quality_census_assessment.json preserve counters andactualcomparisons.
+ActualHOSTall10handles/1401pins/82mappedELFverified1793513750.9802022:quality_window1_live_provenance.json.
+Frozenruncontinues;nocensusaloneprovesmesh/workflowacceptance.
 
 198connectedqualificationPASS BEFOREfullM6:
 build54.189982s/1296pinsunchanged/2hosthandlesABSENT1793511884.925061;

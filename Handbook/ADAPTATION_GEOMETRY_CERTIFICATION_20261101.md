@@ -495,3 +495,23 @@ Current live ownership/input/source details are inHANDOFF. No accepted M6 mesh y
 Q/JdeliberatelyUNMEASURED. Frozenrunproceeds throughsplitting;this isnotqualityclosure
 oracceptedmesh. Current/coarsening_comparison.json,coarsening_live_provenance.json,
 coarsening_resources.json preserveactualdata/pins/hostpressure,notanotherbaseline.
+
+198ALL18initialsplitgenerations nowretain17selected per-rankfieldsEXACT197.
+Construction ends727818cells,size0/geometry3770;q/JintentionallyUNMEASURED.
+Traversal746099652→532351350(-28.6488%),uppercalls33088andpreparation/discoverywork
+same. Engine738.427450vs197654.713796s. FirstcompletequalityENTRY789.000276s:
+54081q/53392J/3770geometry/0size,debt25413.45557726506;allfield/rankdebt/gauges
+EXACT197. Initialmigration counts/debt/completeflags/20selectedmemo+preparedcounters
+conserved;debtspread15.776024→1.538801. Notproofeverykey/history orimmutabletarget.
+
+198firstqualitywindow21632:733582cells,50158q/49030J/3660geometry/0size bad.
+Net3923q/4362J/110geometry through1739publications;field/rankdebts/publications/
+windowcountsexact197same-round. Traversal282789371→200729241(-29.0181%).
+Observedqualitytime245.080610vs197166.731266s,netq16.006978vs23.528880/s.
+Lowercountedwork hasNOTestablished fasterusefulprogress. Passiveentryhostsnapshot
+load11.62/CPUpsiavg6025.59%;freshwindowhostauditload12.9,all10identitiesLIVE/
+1401pinsunchanged/82mappedELFcovered1793513750.980202. Snapshots/timersdonotprove
+causality;noextraCPU/perf/GDBcampaign. SampledsummedRSSpeak14.715GB(decimal),not
+physicalRAM/truewholejobpeak;memorypsi0,~30.4GBMemAvailable atentrysnapshot.
+Frozenfulltwoeventruncontinues;currentHDand198quality_* receipts retainactualdata.
+Noacceptedmesh/shapeclosure ornew197geometrycontinuationM6proof yet.
