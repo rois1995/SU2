@@ -9,29 +9,60 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current —198coverage-order validation;197M6 TERMINAL
+## Current —198full TWO-event M6 ACTIVE; sources FROZEN
 
-The current connected cycle retains197's residual-geometry continuation and adds
-a measured reordering of EXISTING finite triangle/rectangle coverage proofs forN3.
-No newcache/config/scheduler/gates/budgets. Geometryauthority and all curved/feature/
-body/height/reversecoverage checks remain. No-CAD authority remains sufficient.
-Current design:[certification](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md).
-R/geometry_coverage198_validation_plan.json. ChangedCpp ONLY CNativeAffineReference.cpp;
-CNativeEngine3D.cpp isUNCHANGEDfromqualified197.
+R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+CURRENT=`R/m6_runs/euler_build198_real_cfd50k_triangle_coverage`.
+PREVIOUS=`R/m6_runs/euler_build197_real_cfd50k_geometry_return` (TERMINAL).
+Sourcecheckpoint7aa53848eaPUSHED; CFD SHA96bcaff470bb4571966a2db93e0e7ed0b0920e46a9b3483a0898cc7f0b19a1f1.
+TestdriverSHA9fa9bd82d0e3ec89b2930fa20a6ee6471b9b70ff2b3d8255efd9b9d6fb817642.
+Fulltwoeventexec72458 LIVE/FROZEN. ActualHOSThandles1793512551.1515205:
+helper1293335/start92753994;time1293492/timeout1293493/start92754543;
+launcher1293494/start92754544;ranks1293498/1293499/1293500/start92754549,
+1293501/1293502/1293504/start92754550. All10LIVE/all1401pinsunchanged/82mappedELF
+covered:CURRENT/owned_startup.json. Oneownedheavyjob,nice19/libs1. NoCpp/header/test/
+helper/binary/config/input edits while executing. VerifyactualHOSTidentity before
+any authorized stop; absentnamespace-localPID isnotterminalproof. NEVERsignal
+historical197/196/MPIvalidationhandles.
 
-Build198PASS54.189982s/1296pinsunchanged/2hosthandlesABSENT1793511884.925061.
-FocusedproofPASS403assertions/2cases18.287446s/5hosthandlesABSENT/pinsunchanged
-1793511926.371941. Same12savedquerytraversal259729→198551(-23.5546%);ALL12bounds
-EXACT196,cached/recomputed results equal. All4hardqueries21–28%lesswork;noquery
-regression. No fullM6speedup oracceptanceclaim.
-Affectedserialexec36681 LIVE/FROZEN;hosthelper1279490/start92696518,
-time1279572/start92696785,timeout/test1279573/1279574/start92696786,
-orted1279575/start92696788. All5LIVE/pinsunchanged1793511986.535824;
-case geometry_coverage198_serial_20261101T054555_1279490/owned_host_startup.json.
-ONE MPI6 afterpassing,thenfullTWOeventM6same savedCFD
-50k/native5400. KeepCpp/header/tests/helpers/binary/config/inputs FROZEN throughout
-build/cases/run. Verify actualHOSThandles; oneownedheavyjob,nice19/libs1.
-No competing implementation ornewprofiler/baselinecampaign.
+Same savedrealCFDseed,Euler50k/native5400/outer14400/2events andstrictgates unchanged.
+Config/mesh/native_ref/savedseed BYTEIDENTICAL197:CURRENT/early_runtime_provenance.json.
+ActualoriginalcontinuedCFDCL.269535/CD.013536,rms-5.735442;restart00000notyetemitted
+atthisaudit. Compareactualfilewhenavailable;original00000isNOTadaptedrestartproof. Original61330points/303359cells;targetcomplexity isnotpoints.
+No198accepted adaptedmesh/transfer/continuedadaptedCFD/adapteddiskrestart yet.
+Nativeconstruction/quality hasnotyetemitted acompletecensus. Observeactualoutcome;
+no newbaseline/perf/GDBcampaign orcompetingimplementation.
+
+198extends197's existing residualgeometry continuation with ONLY an existing N3
+finitecoverage proof order: nominaltriangle before rectangle; rectangle/segment
+fallback for failed/degenerate/nonfinite triangle proofs; allpadding/orientation/
+finitefootprint/lift/admission/finalgates unchanged. CNativeEngine3D.cpp UNCHANGED.
+No newcache/config/scheduler/gates/budgets; no-CADauthority stays sufficient.
+Design:[certification](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md).
+R/geometry_coverage198_validation_plan.json,source_review.json,saved_query_assessment.json.
+Saved12traversal259729→198551(-23.5546%),ALLboundsEXACT196,cached/recomputed equal.
+All4hardqueries21–28%lesswork;all12improve. Trace proves61178lesscoveragework with
+unchangeddomains1164/graphs790/distance32289/lift11489. Countedwork evidence,not
+fullM6speedup/acceptance. R/geometry_coverage198_trace_attribution.json.
+
+198connectedqualificationPASS BEFOREfullM6:
+build54.189982s/1296pinsunchanged/2hosthandlesABSENT1793511884.925061;
+focused403assertions/2cases18.287446s/5handlesABSENT/pinsunchanged;
+affectedserial20145assertions/64cases244.606102s/5handlesABSENT/pinsunchanged;
+MPI6PASS216cases EACH6ranks282.659565s/10actualHOSThandlesABSENT/pinsunchanged
+1793512524.691580 BEFOREfullM6launch. Per-rankassertions31716/31982/35150/32505/
+32468/31993. R/geometry_coverage198_qualification.json retainssummaries/provenance.
+No broadfullsuite,fullM6orBL/RANSacceptanceclaim. Hostpreflight load4.64/5.20/5.68,
+MemAvailable40068472kB,memorypsi0,noownedheavyprocesses,4TBfree61.51GB,
+rootfree200.85MB: R/geometry_coverage198_M6_preflight.json. Use4TBcompile-tmp.
+
+Compare netwholefieldq/Jbad/s,geometrybad,perrankbusy/join/debtspread/churn and
+boundary/interioryield with197actualmatchingstages/work. Geometrywork/counters
+muststay separatefromcontendedwalltime. Initialconstructionq/JareUNMEASURED.
+Shape/heightclosure→residualsize/geometryrepair or197finitegeometrycontinuation→
+freshshaperemeasurement/reclosure,samecumulativebudgets. ALLfinalstrictgates,
+conservativeadmissibletransfer,finitecontinuedCFD andisolatedadapteddiskrestart
+remainrequired,thenBL/MPI/RANS500k. GoalACTIVE;ZEROaccepted adaptedmeshes sofar.
 
 ## Preserved197terminal outcome and analysis
 
@@ -369,11 +400,12 @@ real-CFD terminal census INCOMPLETE,not zero bad cells. Old startup fields diffe
 
 ## Next monitoring and acceptance
 
-197fulltwoeventM6 is TERMINAL after natural first-event time-budget rejection.
-Terminal counters and cheaper-certification analysis are preserved above. Keep the
-existing197cycle; select further code only from measured useful-work savings.
-No new implementation is selected by the analysis. Verify host resources and all
-provenance before another heavy job; preserve independently accepted stages.
+198fulltwoeventM6 is ACTIVE/FROZEN after connected serial/MPI qualification.
+Keep the full attempt running until terminal or preserved evidence justifies an
+authorizedstop. Compare actual complete censuses and countedwork versus197,without
+confusing unmeasured construction shape with closure. No newimplementation while
+this run is healthy; checkpoint accepted stages independently. Actualterminaloutcome
+chooses nextblocker; regular evidence pushes and current handoff remainrequired.
 
 Read-only downstreamreadinessreview:RUN196/workflow_acceptance_readiness.json.
 Existing175transfer_restart_acceptance_source_review.md and audit_native_unsteady.py

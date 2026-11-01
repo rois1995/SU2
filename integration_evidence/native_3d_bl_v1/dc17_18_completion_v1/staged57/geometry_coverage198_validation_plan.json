@@ -1,7 +1,7 @@
 {
   "time": 1793511873.0031478,
   "build": "build198",
-  "state": "saved_query_candidate_pass_affected_serial_running",
+  "state": "connected_qualification_PASS_fulltwoeventM6_active_not_accepted",
   "scope": "Continue197geometry-return cycle; reorder EXISTING nominal triangle and rectangle coverage for N3 only; all proof padding, finite union checks, lift, segment/rectangle fallback, model direction, admissions and work accounting preserved. No new config/cache/scheduler/gate/budget.",
   "evidence": "m6_runs/euler_build197_real_cfd50k_geometry_return/geometry_certification_analysis.json",
   "proof": {
@@ -45,5 +45,13 @@
     "Then one MPI6 integration milestone and immediate fulltwoevent M6 same realCFD50k/native5400."
   ],
   "cfd_sha256": "96bcaff470bb4571966a2db93e0e7ed0b0920e46a9b3483a0898cc7f0b19a1f1",
-  "test_driver_sha256": "9fa9bd82d0e3ec89b2930fa20a6ee6471b9b70ff2b3d8255efd9b9d6fb817642"
+  "test_driver_sha256": "9fa9bd82d0e3ec89b2930fa20a6ee6471b9b70ff2b3d8255efd9b9d6fb817642",
+  "serial_result": {
+    "assertions": 20145,
+    "cases": 64,
+    "seconds": 244.60610151290894,
+    "terminal_verification": "cases/geometry_coverage198_serial_20261101T054555_1279490/terminal_verification.json"
+  },
+  "run": "m6_runs/euler_build198_real_cfd50k_triangle_coverage",
+  "exec_session": 72458
 }

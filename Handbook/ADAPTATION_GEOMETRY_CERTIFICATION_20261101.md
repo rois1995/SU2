@@ -20,9 +20,16 @@ pinsunchanged1793511926.371941. Same12saved168inputs:traversal259729→198551
 improve;4hardqueries improve21.13–28.09%,8easyqueries8.41–13.85%. Repeated memo
 work remains87–90. This is countedwork evidence,notfullM6speedup/acceptance.
 R/geometry_coverage198_saved_query_assessment.json andvalidation_plan.json retain
-provenance andfullqueryrows. No new baseline/perf/GDBcampaign ormotioncache.
+provenance andfullqueryrows. Existing198trace reconcilescold/recomputedwork forall12:
+coverage202306→141128(-61178),traversal259729→198551(-61178);source domains1164,
+graphcalls790,distance32289andlift11489UNCHANGED. All311successfulgraphs use the
+existingtriangleproof;479failures remain. This isolates countedcoverage savings,
+notwalltimeorfullM6utility. R/geometry_coverage198_trace_attribution.json.
+No new baseline/perf/GDBcampaign ormotioncache.
 
-Current: affectedserial thenONE MPI6 milestone,thenimmediatelyfulltwoeventM6 same
+AffectedserialPASS20145assertions/64cases244.606102s,all5hosthandlesABSENT/
+pinsunchanged1793512209.549875. MPI6PASS216cases EACH6ranks282.659565s;all10HOSThandlesABSENT/pinsunchanged
+1793512524.691580. FulltwoeventM6exec72458 launchedIMMEDIATELY usingthe same
 savedrealCFD50k/native5400. Preserve197continuation forresidualgeometry/reclosure.
 Judge netwholefieldq/Jbad/s andgeometrycounts atactualmatchingstages/work,notcommits
 orfixtures. Strictacceptance/transfer/continuedCFD/diskrestart,thenBL/MPI/RANS500k
@@ -30,11 +37,11 @@ remainrequired. No newcertificateproofisintroduced; unsurebounds stillfall back.
 
 ## Preserved197terminal analysis
 
-Build197 is now TERMINAL. All six ranks naturally exhausted the unchanged time
+Historical build197 is TERMINAL. All six ranks naturally exhausted the unchanged time
 budget; native maximum5403.632129s. The failure was preserved before stopping only
 the verified remaining launcher. All10owned host identities were absent and all1401
-pins unchanged at1793511528.269277. No source change or new certification shortcut
-has followed. Current evidence: staged57/m6_runs/euler_build197_real_cfd50k_geometry_return/
+pins unchanged at1793511528.269277. The198evaluation began only after the fresh
+pre-edit audit described above. Preserved197evidence: staged57/m6_runs/euler_build197_real_cfd50k_geometry_return/
 geometry_certification_analysis.json,terminal_assessment.json,terminal_counter_review.json.
 
 The last complete census,26windows/63complete censuses, had803337cells,
@@ -92,7 +99,7 @@ remain. Full two-event M6/transfer/CFD/restart,thenBL/MPI/RANS500k remain requir
 
 ## Preserved196terminal assessment
 
-Current run196is TERMINAL; no source edit since its qualified checkpoint.
+Historical run196is TERMINAL; its pins stayed unchanged through terminal verification.
 Exact terminal owned handles,source/runtime/input provenance and full goal:Handoff
 [HANDOFF_Codex.md](../HANDOFF_Codex.md). Earlier194/195/196qualification below is
 preserved historical design/evidence,not live-state authority.
@@ -476,3 +483,7 @@ ALL17selectedper-rankfieldsEXACT194,uppercalls14870same. Traversal260034825→19
 notisolatedcodetimingclaim. Q/JintentionallyUNMEASUREDduringconstruction. Complete
 coarsening evidence is not shape/geometryclosure or acceptedmesh. Frozenruncontinues;
 actualhandles/pins/currentstatus inHANDOFF. CURRENT/coarsening_comparison.json.
+
+198connected qualification and full-run receipts are in
+R/geometry_coverage198_qualification.json andgeometry_coverage198_M6_preflight.json.
+Current live ownership/input/source details are inHANDOFF. No accepted M6 mesh yet.
