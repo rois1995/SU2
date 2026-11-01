@@ -52,29 +52,29 @@ completeflags and20selectedcache/memocounters/entries/bytesunchanged;debtspread
 All10handles/1401pins/82mappedELFreverified1793499954.022988:
 quality_entry_live_provenance.json. Frozenqualityrepairactive;noacceptedmesh.
 
-Qualityprogress:window24 at3974.496767seconds sinceentry,round23104:
-802747workingcells,3396q/1651J/3081geometry/0size,
-qJdebt16.983228719694;45109publications,
-net50685q/51741J/689geometryremoved,
-12.752558netq/s,13.018252netJ/s.
-Latestinterval:net690q/528J/16geometryremoved
-in191.574957s,3.601723netq/s,
-0.519970netq/publication. Allprecedingownershipstages included.
-All67completecensusesaudited;latestownership_committedround23104:
-queue52296,blockedfeatures550,stuckshape/required32/32,
+Qualityprogress:window27 at4286.322746seconds sinceentry,round23296:
+803656workingcells,1612q/705J/3066geometry/0size,
+qJdebt7.766705134638;48055publications,
+net52469q/52687J/704geometryremoved,
+12.241029netq/s,12.291888netJ/s.
+Latestinterval:net432q/211J/10geometryremoved
+in64.556775s,6.691784netq/s,
+0.638109netq/publication. Allprecedingownershipstages included.
+All72completecensusesaudited;latestwindowround23296:
+queue25689,blockedfeatures645,stuckshape/required42/42,
 missing0,privatecollectives0.
 No194same-roundreferenceexists;actualtimebrackets/nearstatesretainedwithoutinterpolation.
-Remainingqsurface/interior564/2832,
-J437/1214.
+Remainingqsurface/interior328/1284,
+J209/496.
 Interior meansnophysicalface,notnoconstrainedvertices;privategainsnotpublicationgains.
-20latequalitymigrations audited:counts/debt/completeflags andselected
+21latequalitymigrations audited:counts/debt/completeflags andselected
 prepared/numericmemocounters/entries/bytes/driftavailabilityconserved.
-Latestmigrationround23104:debtspread2.384245→1.446284,
-observedfullcost24.793110s,awaitingnextcompletewindowinterval.
+Latestmigrationround23168:debtspread2.042012→2.036069,
+observedfullcost13.536815s,includedinwindowcensus70.
 Countersalone donotproveeverykey/history;unchangedqualifiedsourcesupportscontracts.
-CURRENT/quality_window24_service_summary.json preservesperrankbusy/join/commits/
-publisheddebtremoved/netq/J. quality_window24_comparison.json retainsactualtimebrackets.
-All10handles/1401pins/82mappedELFreverified1793503920.1907218:quality_window24_live_provenance.json.
+CURRENT/quality_window27_service_summary.json preservesperrankbusy/join/commits/
+publisheddebtremoved/netq/J. quality_window27_comparison.json retainsactualtimebrackets.
+All10handles/1401pins/82mappedELFreverified1793504184.8494794:quality_window27_live_provenance.json.
 Frozenruncontinues;noacceptedmesh/transfer/adaptedrestartclaim.
 
 
