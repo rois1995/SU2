@@ -200,16 +200,48 @@ public:
     Double projGridVel = 0.0;
     if (dynamicGrid) {
       const auto& gridVel = geometry.nodes->GetGridVel();
-      projGridVel = 0.5*(dot(gatherVariables<nDim>(iPoint,gridVel), normal)+
-                         dot(gatherVariables<nDim>(jPoint,gridVel), normal));
+      const auto gridVel_i = gatherVariables<nDim>(iPoint,gridVel);
+      const auto gridVel_j = gatherVariables<nDim>(jPoint,gridVel);
+      projGridVel = 0.5*(dot(gridVel_i, normal)+dot(gridVel_j, normal));
 
-      for (size_t iVar = 0; iVar < nVar; ++iVar) {
-        flux(iVar) -= projGridVel * avgU.all(iVar);
-        if (implicit) {
-          jac_i(iVar,iVar) -= 0.5 * projGridVel;
-          jac_j(iVar,iVar) -= 0.5 * projGridVel;
+      if (edgeForm || groupFlux) {
+        /*--- The nodal flux F - U v with the coefficients of F, as CGeometry::SetGridFluxP1 does for the GCL. ---*/
+        VectorDbl<nDim> formNormal = normal, formE;
+        if (edgeForm) {
+          formNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal());
+          formE = gatherVariables<nDim>(iEdge, geometry.edges->GetFormE());
+        } else {
+          for (size_t iDim = 0; iDim < nDim; ++iDim) formE(iDim) = 0.0;
+        }
+        const Double grid_i = 0.5 * dot(gridVel_i, formNormal) - dot(gridVel_i, formE);
+        const Double grid_j = 0.5 * dot(gridVel_j, formNormal) + dot(gridVel_j, formE);
+
+        /*--- Like the flux Jacobians: exact for the group form, on the dual normal for the edge form. ---*/
+        Double jacGrid_i = 0.5 * projGridVel, jacGrid_j = 0.5 * projGridVel;
+        if (exactFormJac || !edgeForm) {
+          jacGrid_i = grid_i;
+          jacGrid_j = grid_j;
+        }
+
+        for (size_t iVar = 0; iVar < nVar; ++iVar) {
+          flux(iVar) -= grid_i * U.i.all(iVar) + grid_j * U.j.all(iVar);
+          if (implicit) {
+            jac_i(iVar,iVar) -= jacGrid_i;
+            jac_j(iVar,iVar) -= jacGrid_j;
+          }
+        }
+      } else {
+        for (size_t iVar = 0; iVar < nVar; ++iVar) {
+          flux(iVar) -= projGridVel * avgU.all(iVar);
+          if (implicit) {
+            jac_i(iVar,iVar) -= 0.5 * projGridVel;
+            jac_j(iVar,iVar) -= 0.5 * projGridVel;
+          }
         }
       }
+
+      /*--- The wave speed of the dissipation follows its normal. ---*/
+      if (modNormals) projGridVel = 0.5*(dot(gridVel_i, dissNormal)+dot(gridVel_j, dissNormal));
     }
 
     const Double projVel = dot(avgV.velocity(), dissNormal) - projGridVel;

@@ -1848,6 +1848,11 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry) {
       flux[iDim + 1] += factor * (density * projVel * nodes->GetVelocity(iPoint, iDim) + pressure * normal[iDim]);
     }
     flux[nDim + 1] += factor * density * projVel * nodes->GetEnthalpy(iPoint);
+
+    if (dynamic_grid) {
+      const su2double projGridVel = GeometryToolbox::DotProduct(nDim, geometry->nodes->GetGridVel(iPoint), normal);
+      for (auto iVar = 0u; iVar < nVar; ++iVar) flux[iVar] -= factor * projGridVel * nodes->GetSolution(iPoint, iVar);
+    }
   };
 
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
@@ -1855,7 +1860,7 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry) {
       const auto iPoint = splitNodes[iSplit][0], kPoint = splitNodes[iSplit][1];
       su2double flux[MAXNVAR] = {};
 
-      /*--- 0.5(F_i+F_k).n_ik + (F_k-F_i).E_ik, these pairs have no dissipation and no Jacobian. ---*/
+      /*--- 0.5(F_i+F_k).n_ik + (F_k-F_i).E_ik with F - U v, these pairs have no dissipation and no Jacobian. ---*/
 
       addFlux(iPoint, splitNormal[iSplit], 0.5, flux);
       addFlux(kPoint, splitNormal[iSplit], 0.5, flux);

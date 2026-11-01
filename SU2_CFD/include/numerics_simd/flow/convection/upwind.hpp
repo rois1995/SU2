@@ -178,6 +178,19 @@ public:
         flux(iVar) += 0.5 * (flux_i(iVar) + flux_j(iVar)) + fluxE_j(iVar) - fluxE_i(iVar);
       }
 
+      /*--- The same nodal difference for the grid term, finalizeFlux has added its median part. ---*/
+      Double grid_i = 0.0, grid_j = 0.0;
+      if (dynamicGrid) {
+        const auto& gridVel = geometry.nodes->GetGridVel();
+        const auto gridVel_i = gatherVariables<nDim>(iPoint, gridVel);
+        const auto gridVel_j = gatherVariables<nDim>(jPoint, gridVel);
+        grid_i = 0.5 * dot(gridVel_i, diffNormal) - dot(gridVel_i, formE);
+        grid_j = 0.5 * dot(gridVel_j, diffNormal) + dot(gridVel_j, formE);
+        for (size_t iVar = 0; iVar < nVar; ++iVar) {
+          flux(iVar) -= grid_i * U1st.i.all(iVar) + grid_j * U1st.j.all(iVar);
+        }
+      }
+
       if (implicit && exactFormJac) {
         VectorDbl<nDim> normal_i, normal_j;
         for (size_t iDim = 0; iDim < nDim; ++iDim) {
@@ -191,6 +204,8 @@ public:
             jac_i(iVar, jVar) += addJac_i(iVar, jVar);
             jac_j(iVar, jVar) += addJac_j(iVar, jVar);
           }
+          jac_i(iVar, iVar) -= grid_i;
+          jac_j(iVar, iVar) -= grid_j;
         }
       }
     }
@@ -243,6 +258,7 @@ private:
   using Base::gamma;
   using Base::gasConst;
   using Base::dynamicGrid;
+  using Base::modNormals;
 
 public:
   /*!
@@ -322,9 +338,16 @@ public:
     /*--- Correct for grid motion. ---*/
 
     if (dynamicGrid) {
+      /*--- With modified normals in the dissipation the grid flux keeps the median normal of the central flux. ---*/
+      const Double dFdU = projGridVel * area * 0.5;
+      Double dFluxdU = dFdU;
+      if (modNormals) {
+        const auto& gridVel = geometry.nodes->GetGridVel();
+        dFluxdU = 0.25*(dot(gatherVariables<nDim>(iPoint,gridVel), normal)+
+                        dot(gatherVariables<nDim>(jPoint,gridVel), normal));
+      }
       for (size_t iVar = 0; iVar < nVar; ++iVar) {
-        Double dFdU = projGridVel * area * 0.5;
-        flux(iVar) -= dFdU * (U.i.all(iVar) + U.j.all(iVar));
+        flux(iVar) -= dFluxdU * (U.i.all(iVar) + U.j.all(iVar));
 
         if (implicit) {
           jac_i(iVar,iVar) -= dFdU;
