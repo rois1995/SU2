@@ -1,5 +1,5 @@
 {
-  "time": 1793524034.3498256,
+  "time": 1793524256.4228992,
   "scope": "All actual complete first-event quality windows versus parent198 at matching rounds; no interpolation or identical intermediate mesh/trial-history claim.",
   "selected_work_fields": [
     "upper_calls",
@@ -241,6 +241,39 @@
       "selected_work_equal": true,
       "current_quality_seconds": 3938.3299341330003,
       "baseline_quality_seconds": 4016.9019121949996
+    },
+    {
+      "round": 22976,
+      "current_census": 52,
+      "baseline_same_round_available": true,
+      "whole_field_equal": false,
+      "rank_debts_equal": false,
+      "window_counters_equal": false,
+      "selected_work_equal": false,
+      "current_quality_seconds": 4096.7833358610005,
+      "baseline_quality_seconds": 4137.35780805
+    },
+    {
+      "round": 23040,
+      "current_census": 53,
+      "baseline_same_round_available": true,
+      "whole_field_equal": false,
+      "rank_debts_equal": false,
+      "window_counters_equal": false,
+      "selected_work_equal": false,
+      "current_quality_seconds": 4224.419803468,
+      "baseline_quality_seconds": 4254.592352515
+    },
+    {
+      "round": 23104,
+      "current_census": 54,
+      "baseline_same_round_available": true,
+      "whole_field_equal": false,
+      "rank_debts_equal": false,
+      "window_counters_equal": false,
+      "selected_work_equal": false,
+      "current_quality_seconds": 4332.628095375,
+      "baseline_quality_seconds": 4346.883834477
     }
   ],
   "extra_retry_migration_rounds": [
@@ -248,5 +281,17 @@
   ],
   "first_observed_migration_decision_difference": 22912,
   "source_decision": "CNativeEngine3D.cpp:2634-2652 includes observed walltime, predicted gain/cost and remaining elapsed-time budget in the proceed predicate. This can produce different ownership decisions without a source/configuration change.",
-  "limit": "After differing ownership decisions compare actual states, geometry/gate vectors and net work; do not assume identical future repair trajectories."
+  "limit": "After differing ownership decisions compare actual states, geometry/gate vectors and net work; do not assume identical future repair trajectories.",
+  "first_measured_snapshot_difference": {
+    "window": 22,
+    "round": 22976,
+    "current_census": 52,
+    "baseline_same_round_available": true,
+    "whole_field_equal": false,
+    "rank_debts_equal": false,
+    "window_counters_equal": false,
+    "selected_work_equal": false,
+    "current_quality_seconds": 4096.7833358610005,
+    "baseline_quality_seconds": 4137.35780805
+  }
 }
