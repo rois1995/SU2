@@ -48,12 +48,12 @@ counts/debt/completeflags and20selectedcache/memocounters/entries/bytes unchange
 debtmax/min15.776024→1.538801:quality_initial_ownership_assessment.json. Counter
 identity does not independently prove every entrykey/feature history.
 
-Quality progress (latest complete):window12 at2613.629501seconds sinceentry,
-779631workingcells,19876q/16783J/3312geometry/0sizebad,
-qJdebt1336.162051803809;24048publications,net34205q/36609J/
-458geometry removed,13.087165netq/s,14.006959netJ/s.
-All33complete censuses audited,latestwindow round22336;queue220595,
-blockedfeatures136,stuckshape/required0/0,missing0,
+Quality progress (latest complete):window13 at2787.002193seconds sinceentry,
+782995workingcells,17697q/14490J/3274geometry/0sizebad,
+qJdebt966.945555842859;26201publications,net36384q/38902J/
+496geometry removed,13.054887netq/s,13.958367netJ/s.
+All34complete censuses audited,latestwindow round22400;queue205018,
+blockedfeatures145,stuckshape/required2/2,missing0,
 private trackedcollectives0.
 quality_trend_assessment.json,quality_service_assessment.json,
 all_quality_census_assessment.json preserve whole-field/netchurn/service/location data.
@@ -61,13 +61,13 @@ Actual matched-state summaries and actual-time brackets retain counts/work/limit
 quality_window*_service_summary.json and quality_window*_comparison.json.
 Latest same-round193reference:wholefieldexactTrue,
 rankdebtsexactTrue,commitsexactTrue.
-Quality2613.629501vs2879.186242s;traversal
-3473758273vs3696030835
-(-6.0138%),netq/s
-13.087165vs11.880093.
-quality_window12_service_summary.json; actual-time brackets retained separately.
-Remaining q/Jsurface3357/5218,
-interior16519/11565;interior means no physical face,
+Quality2787.002193vs3066.721197s;traversal
+3677650734vs3914023107
+(-6.0391%),netq/s
+13.054887vs11.864137.
+quality_window13_service_summary.json; actual-time brackets retained separately.
+Remaining q/Jsurface2807/4372,
+interior14890/10118;interior means no physical face,
 not necessarily unconstrained vertices. Private merit gains are not publication gains.
 9late complete-census migrations conserve counts/debt/flags and
 selected prepared/numericmemo counters/entries/bytes/drift availability. Latest
@@ -77,8 +77,8 @@ quality_migration_assessment.json. Counters do not independently prove every
 featureage/rejection history/cachekey; unchanged source/qualifiedMPI6 support them.
 Quality progress end.
 
-All10hosthandles/1401pins/82mappedELF reverified1793495871.950588:
-quality_window12_live_provenance.json. quality_window12_resources.json preserves
+All10hosthandles/1401pins/82mappedELF reverified1793496100.315368:
+quality_window13_live_provenance.json. quality_window13_resources.json preserves
 sampled summedRSS/hostload/RAM/PSI; sampledRSS is not physical or truepeak.
 No memorypressure stop justified. One owned heavyjob,nice19/libs1; no pinned
 C++/test/helper/binary/config/input edits. Source remainsf518f2d727.
