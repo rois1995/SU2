@@ -386,3 +386,15 @@ all independent association/coverage/feature/body/height gates and full fallback
 No competing implementation selected. See certification handbook and198 terminal
 geometry_certification_analysis.json; same qualified-source acceptance retry is
 part of the existing cycle, not another baseline campaign.
+
+Retry1 window18 measured cost-skew alternative — UNPROVEN, not selected while frozen:
+rank3 accounts for37.6977%of184881263 traversal-work units; complete-window debt
+max/mean1.2480,max/min1.7070. Busy is private elapsedwalltime,notCPU; raw slots and
+unreserved candidates do not isolate useful capacity or conflicts. Current quality
+geometry weights use EstimateGeometryWork/structural estimates,not observed query
+traversal history. Assess whether existing ownership weights can represent this
+cost safely before considering any scheduling change. Need meaningful attribution
+to persistent support/cavity state, invalidation/admission and measured net q/J
+closure benefit; countedwork isnotconstantCPUcost. No new scheduler/configuration,
+larger batches or limit/gate changes selected. Evidence: retry1/
+quality_window18_rank_service_review.json; current run remains frozen.
