@@ -21,6 +21,17 @@ exactly match202. CFD SHAbb4a5432351a170404332fb89edc7a3f4d6e1a4036adb155838bc1c
 First restarted original-grid CFD step finite, screenCL.269535/CD.013536; native
 adaptation entered. No accepted adapted mesh/transfer/continued adapted CFD yet.
 
+First COMPLETE quality entry now recorded on all6 ranks:727818cells,54081q-bad,
+53392J-bad,3770geometry-bad,0size-bad; maximum engine elapsed649.508977468s.
+Counts and selected cumulative geometry/work counters exactly match202 entry
+(636.681267335s); J-debt sum differs only1.82e-12 from rank summation. Ownership/
+host conditions differ, so no isolated runtime claim. LAST/quality_entry_comparison.json
+records all6 raw row locations and observed log-prefix hashes. Seven earlier
+complete construction stages also match selected state/work counters exactly;
+LAST/construction_matching_stage_assessment.json. These do not establish closure.
+Latest HOST audit1793549682.061135:all10exact handles LIVE,1403pins unchanged,
+MemAvailable31,318,868kB; sampled summed processRSS9,107,521,536B, not physical peak.
+
 HOST startup at1793548936.893354, all10LIVE:
 helper2159446/start96386176;time2159605/timeout2159606/start96386786;
 launcher2159607/start96386787;ranks2159611–2159614/start96386794,

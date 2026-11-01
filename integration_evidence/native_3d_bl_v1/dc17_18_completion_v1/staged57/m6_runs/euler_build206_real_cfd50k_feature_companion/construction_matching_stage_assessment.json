@@ -1,0 +1,964 @@
+{
+  "aggregation": "cells/bad counts and rank-local operation counters summed across disjoint rank ownership; global_work and rounds asserted replicated and recorded once; max_elapsed is max rank-reported elapsed at that completed stage",
+  "baseline_complete_prequality_stages": [
+    {
+      "split_generation": 0,
+      "stage": "length_collapse_exit"
+    },
+    {
+      "split_generation": 1,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 3,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 4,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 5,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 6,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 7,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 8,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 10,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 11,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 12,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 13,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 14,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 16,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 17,
+      "stage": "length_split_exit"
+    }
+  ],
+  "build206_complete_prequality_stages": [
+    {
+      "split_generation": 0,
+      "stage": "length_collapse_exit"
+    },
+    {
+      "split_generation": 1,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 3,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 4,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 5,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 6,
+      "stage": "length_split_exit"
+    },
+    {
+      "split_generation": 7,
+      "stage": "length_split_exit"
+    }
+  ],
+  "build206_incomplete_or_invalid_prequality_stages": {
+    "2:length_split_exit": {
+      "ranks": [
+        2,
+        3,
+        4,
+        0,
+        1
+      ],
+      "rows": 5
+    },
+    "8:length_split_exit": {
+      "ranks": [
+        2,
+        4,
+        3,
+        1,
+        5
+      ],
+      "rows": 5
+    },
+    "9:length_split_exit": {
+      "ranks": [
+        2,
+        3,
+        0,
+        1,
+        5
+      ],
+      "rows": 5
+    }
+  },
+  "cutoffs": {
+    "baseline202": {
+      "byte_offset": 1620209,
+      "first_cutoff_record": {
+        "line": 2101,
+        "rank": "3",
+        "stage": "quality_entry"
+      }
+    },
+    "build206": {
+      "byte_offset": 846008,
+      "first_cutoff_record": null
+    }
+  },
+  "matching_complete_stages": [
+    {
+      "baseline202": {
+        "accepted": 2627,
+        "cache_consistent_all": true,
+        "cells": 292709,
+        "census_complete_all": true,
+        "direct_calls": 63418,
+        "facet_build_work": 1491264,
+        "geometry_bad": 3512,
+        "geometry_complete_all": true,
+        "geometry_rejected": 2298,
+        "geometry_trials": 7678,
+        "guidance_faces": 20567,
+        "guidance_rejected": 2202,
+        "guidance_trials": 5380,
+        "j_bad": 0,
+        "j_measured_all_false": true,
+        "max_elapsed": 233.323109822,
+        "measured": 292709,
+        "measured_equals_cells_all": true,
+        "q_bad": 0,
+        "q_measured_all_false": true,
+        "quality_progress": 0,
+        "replicated": {
+          "global_work": 6002,
+          "rounds": 1254
+        },
+        "scope_build_work": 1618671,
+        "size_bad": 55180,
+        "traversal_work": 93487444,
+        "updated_cells": 26932,
+        "upper_calls": 14870,
+        "upper_work": 102412710
+      },
+      "baseline_source_lines": {
+        "0": 271,
+        "1": 266,
+        "2": 274,
+        "3": 268,
+        "4": 272,
+        "5": 276
+      },
+      "build206": {
+        "accepted": 2627,
+        "cache_consistent_all": true,
+        "cells": 292709,
+        "census_complete_all": true,
+        "direct_calls": 63418,
+        "facet_build_work": 1491264,
+        "geometry_bad": 3512,
+        "geometry_complete_all": true,
+        "geometry_rejected": 2298,
+        "geometry_trials": 7678,
+        "guidance_faces": 20567,
+        "guidance_rejected": 2202,
+        "guidance_trials": 5380,
+        "j_bad": 0,
+        "j_measured_all_false": true,
+        "max_elapsed": 239.095376628,
+        "measured": 292709,
+        "measured_equals_cells_all": true,
+        "q_bad": 0,
+        "q_measured_all_false": true,
+        "quality_progress": 0,
+        "replicated": {
+          "global_work": 6002,
+          "rounds": 1254
+        },
+        "scope_build_work": 1618671,
+        "size_bad": 55180,
+        "traversal_work": 93487444,
+        "updated_cells": 26932,
+        "upper_calls": 14870,
+        "upper_work": 102412710
+      },
+      "build206_source_lines": {
+        "0": 290,
+        "1": 288,
+        "2": 296,
+        "3": 294,
+        "4": 298,
+        "5": 292
+      },
+      "delta_build206_minus_baseline202": {
+        "accepted": 0,
+        "cells": 0,
+        "direct_calls": 0,
+        "facet_build_work": 0,
+        "geometry_bad": 0,
+        "geometry_rejected": 0,
+        "geometry_trials": 0,
+        "guidance_faces": 0,
+        "guidance_rejected": 0,
+        "guidance_trials": 0,
+        "j_bad": 0,
+        "measured": 0,
+        "q_bad": 0,
+        "quality_progress": 0,
+        "scope_build_work": 0,
+        "size_bad": 0,
+        "traversal_work": 0,
+        "updated_cells": 0,
+        "upper_calls": 0,
+        "upper_work": 0
+      },
+      "max_elapsed_delta_seconds": 5.772266806000005,
+      "replicated_delta": {
+        "global_work": 0,
+        "rounds": 0
+      },
+      "split_generation": 0,
+      "stage": "length_collapse_exit"
+    },
+    {
+      "baseline202": {
+        "accepted": 39450,
+        "cache_consistent_all": true,
+        "cells": 495390,
+        "census_complete_all": true,
+        "direct_calls": 69931,
+        "facet_build_work": 1675960,
+        "geometry_bad": 3861,
+        "geometry_complete_all": true,
+        "geometry_rejected": 35797,
+        "geometry_trials": 78825,
+        "guidance_faces": 20567,
+        "guidance_rejected": 2202,
+        "guidance_trials": 5380,
+        "j_bad": 0,
+        "j_measured_all_false": true,
+        "max_elapsed": 280.349695531,
+        "measured": 495390,
+        "measured_equals_cells_all": true,
+        "q_bad": 0,
+        "q_measured_all_false": true,
+        "quality_progress": 0,
+        "replicated": {
+          "global_work": 43673,
+          "rounds": 9866
+        },
+        "scope_build_work": 1808663,
+        "size_bad": 117030,
+        "traversal_work": 105805033,
+        "updated_cells": 432294,
+        "upper_calls": 15800,
+        "upper_work": 115313821
+      },
+      "baseline_source_lines": {
+        "0": 330,
+        "1": 372,
+        "2": 382,
+        "3": 341,
+        "4": 353,
+        "5": 362
+      },
+      "build206": {
+        "accepted": 39450,
+        "cache_consistent_all": true,
+        "cells": 495390,
+        "census_complete_all": true,
+        "direct_calls": 69931,
+        "facet_build_work": 1675960,
+        "geometry_bad": 3861,
+        "geometry_complete_all": true,
+        "geometry_rejected": 35797,
+        "geometry_trials": 78825,
+        "guidance_faces": 20567,
+        "guidance_rejected": 2202,
+        "guidance_trials": 5380,
+        "j_bad": 0,
+        "j_measured_all_false": true,
+        "max_elapsed": 286.329403984,
+        "measured": 495390,
+        "measured_equals_cells_all": true,
+        "q_bad": 0,
+        "q_measured_all_false": true,
+        "quality_progress": 0,
+        "replicated": {
+          "global_work": 43673,
+          "rounds": 9866
+        },
+        "scope_build_work": 1808663,
+        "size_bad": 117030,
+        "traversal_work": 105805033,
+        "updated_cells": 432294,
+        "upper_calls": 15800,
+        "upper_work": 115313821
+      },
+      "build206_source_lines": {
+        "0": 352,
+        "1": 394,
+        "2": 404,
+        "3": 384,
+        "4": 364,
+        "5": 374
+      },
+      "delta_build206_minus_baseline202": {
+        "accepted": 0,
+        "cells": 0,
+        "direct_calls": 0,
+        "facet_build_work": 0,
+        "geometry_bad": 0,
+        "geometry_rejected": 0,
+        "geometry_trials": 0,
+        "guidance_faces": 0,
+        "guidance_rejected": 0,
+        "guidance_trials": 0,
+        "j_bad": 0,
+        "measured": 0,
+        "q_bad": 0,
+        "quality_progress": 0,
+        "scope_build_work": 0,
+        "size_bad": 0,
+        "traversal_work": 0,
+        "updated_cells": 0,
+        "upper_calls": 0,
+        "upper_work": 0
+      },
+      "max_elapsed_delta_seconds": 5.979708453000001,
+      "replicated_delta": {
+        "global_work": 0,
+        "rounds": 0
+      },
+      "split_generation": 1,
+      "stage": "length_split_exit"
+    },
+    {
+      "baseline202": {
+        "accepted": 80339,
+        "cache_consistent_all": true,
+        "cells": 689054,
+        "census_complete_all": true,
+        "direct_calls": 78065,
+        "facet_build_work": 1728472,
+        "geometry_bad": 4299,
+        "geometry_complete_all": true,
+        "geometry_rejected": 71081,
+        "geometry_trials": 155881,
+        "guidance_faces": 20567,
+        "guidance_rejected": 2202,
+        "guidance_trials": 5380,
+        "j_bad": 0,
+        "j_measured_all_false": true,
+        "max_elapsed": 354.978426012,
+        "measured": 689054,
+        "measured_equals_cells_all": true,
+        "q_bad": 0,
+        "q_measured_all_false": true,
+        "quality_progress": 0,
+        "replicated": {
+          "global_work": 85491,
+          "rounds": 18304
+        },
+        "scope_build_work": 2221894,
+        "size_bad": 11298,
+        "traversal_work": 130843147,
+        "updated_cells": 819622,
+        "upper_calls": 17835,
+        "upper_work": 141273013
+      },
+      "baseline_source_lines": {
+        "0": 590,
+        "1": 600,
+        "2": 557,
+        "3": 569,
+        "4": 579,
+        "5": 610
+      },
+      "build206": {
+        "accepted": 80339,
+        "cache_consistent_all": true,
+        "cells": 689054,
+        "census_complete_all": true,
+        "direct_calls": 78065,
+        "facet_build_work": 1728472,
+        "geometry_bad": 4299,
+        "geometry_complete_all": true,
+        "geometry_rejected": 71081,
+        "geometry_trials": 155881,
+        "guidance_faces": 20567,
+        "guidance_rejected": 2202,
+        "guidance_trials": 5380,
+        "j_bad": 0,
+        "j_measured_all_false": true,
+        "max_elapsed": 362.618968366,
+        "measured": 689054,
+        "measured_equals_cells_all": true,
+        "q_bad": 0,
+        "q_measured_all_false": true,
+        "quality_progress": 0,
+        "replicated": {
+          "global_work": 85491,
+          "rounds": 18304
+        },
+        "scope_build_work": 2221894,
+        "size_bad": 11298,
+        "traversal_work": 130843147,
+        "updated_cells": 819622,
+        "upper_calls": 17835,
+        "upper_work": 141273013
+      },
+      "build206_source_lines": {
+        "0": 612,
+        "1": 622,
+        "2": 579,
+        "3": 597,
+        "4": 593,
+        "5": 632
+      },
+      "delta_build206_minus_baseline202": {
+        "accepted": 0,
+        "cells": 0,
+        "direct_calls": 0,
+        "facet_build_work": 0,
+        "geometry_bad": 0,
+        "geometry_rejected": 0,
+        "geometry_trials": 0,
+        "guidance_faces": 0,
+        "guidance_rejected": 0,
+        "guidance_trials": 0,
+        "j_bad": 0,
+        "measured": 0,
+        "q_bad": 0,
+        "quality_progress": 0,
+        "scope_build_work": 0,
+        "size_bad": 0,
+        "traversal_work": 0,
+        "updated_cells": 0,
+        "upper_calls": 0,
+        "upper_work": 0
+      },
+      "max_elapsed_delta_seconds": 7.64054235399999,
+      "replicated_delta": {
+        "global_work": 0,
+        "rounds": 0
+      },
+      "split_generation": 3,
+      "stage": "length_split_exit"
+    },
+    {
+      "baseline202": {
+        "accepted": 81537,
+        "cache_consistent_all": true,
+        "cells": 692878,
+        "census_complete_all": true,
+        "direct_calls": 80999,
+        "facet_build_work": 1737766,
+        "geometry_bad": 4487,
+        "geometry_complete_all": true,
+        "geometry_rejected": 71612,
+        "geometry_trials": 157946,
+        "guidance_faces": 20567,
+        "guidance_rejected": 2202,
+        "guidance_trials": 5380,
+        "j_bad": 0,
+        "j_measured_all_false": true,
+        "max_elapsed": 375.148914284,
+        "measured": 692878,
+        "measured_equals_cells_all": true,
+        "q_bad": 0,
+        "q_measured_all_false": true,
+        "quality_progress": 0,
+        "replicated": {
+          "global_work": 87040,
+          "rounds": 18645
+        },
+        "scope_build_work": 2413788,
+        "size_bad": 10629,
+        "traversal_work": 141266764,
+        "updated_cells": 827270,
+        "upper_calls": 18935,
+        "upper_work": 152112492
+      },
+      "baseline_source_lines": {
+        "0": 670,
+        "1": 691,
+        "2": 646,
+        "3": 680,
+        "4": 660,
+        "5": 700
+      },
+      "build206": {
+        "accepted": 81537,
+        "cache_consistent_all": true,
+        "cells": 692878,
+        "census_complete_all": true,
+        "direct_calls": 80999,
+        "facet_build_work": 1737766,
+        "geometry_bad": 4487,
+        "geometry_complete_all": true,
+        "geometry_rejected": 71612,
+        "geometry_trials": 157946,
+        "guidance_faces": 20567,
+        "guidance_rejected": 2202,
+        "guidance_trials": 5380,
+        "j_bad": 0,
+        "j_measured_all_false": true,
+        "max_elapsed": 383.389314901,
+        "measured": 692878,
+        "measured_equals_cells_all": true,
+        "q_bad": 0,
+        "q_measured_all_false": true,
+        "quality_progress": 0,
+        "replicated": {
+          "global_work": 87040,
+          "rounds": 18645
+        },
+        "scope_build_work": 2413788,
+        "size_bad": 10629,
+        "traversal_work": 141266764,
+        "updated_cells": 827270,
+        "upper_calls": 18935,
+        "upper_work": 152112492
+      },
+      "build206_source_lines": {
+        "0": 702,
+        "1": 712,
+        "2": 669,
+        "3": 680,
+        "4": 686,
+        "5": 717
+      },
+      "delta_build206_minus_baseline202": {
+        "accepted": 0,
+        "cells": 0,
+        "direct_calls": 0,
+        "facet_build_work": 0,
+        "geometry_bad": 0,
+        "geometry_rejected": 0,
+        "geometry_trials": 0,
+        "guidance_faces": 0,
+        "guidance_rejected": 0,
+        "guidance_trials": 0,
+        "j_bad": 0,
+        "measured": 0,
+        "q_bad": 0,
+        "quality_progress": 0,
+        "scope_build_work": 0,
+        "size_bad": 0,
+        "traversal_work": 0,
+        "updated_cells": 0,
+        "upper_calls": 0,
+        "upper_work": 0
+      },
+      "max_elapsed_delta_seconds": 8.240400616999978,
+      "replicated_delta": {
+        "global_work": 0,
+        "rounds": 0
+      },
+      "split_generation": 4,
+      "stage": "length_split_exit"
+    },
+    {
+      "baseline202": {
+        "accepted": 82684,
+        "cache_consistent_all": true,
+        "cells": 696411,
+        "census_complete_all": true,
+        "direct_calls": 84029,
+        "facet_build_work": 1738454,
+        "geometry_bad": 4573,
+        "geometry_complete_all": true,
+        "geometry_rejected": 71935,
+        "geometry_trials": 159630,
+        "guidance_faces": 20567,
+        "guidance_rejected": 2202,
+        "guidance_trials": 5380,
+        "j_bad": 0,
+        "j_measured_all_false": true,
+        "max_elapsed": 396.881532088,
+        "measured": 696411,
+        "measured_equals_cells_all": true,
+        "q_bad": 0,
+        "q_measured_all_false": true,
+        "quality_progress": 0,
+        "replicated": {
+          "global_work": 88418,
+          "rounds": 18938
+        },
+        "scope_build_work": 2612082,
+        "size_bad": 9816,
+        "traversal_work": 154492290,
+        "updated_cells": 834336,
+        "upper_calls": 20086,
+        "upper_work": 165759722
+      },
+      "baseline_source_lines": {
+        "0": 760,
+        "1": 770,
+        "2": 736,
+        "3": 780,
+        "4": 749,
+        "5": 790
+      },
+      "build206": {
+        "accepted": 82684,
+        "cache_consistent_all": true,
+        "cells": 696411,
+        "census_complete_all": true,
+        "direct_calls": 84029,
+        "facet_build_work": 1738454,
+        "geometry_bad": 4573,
+        "geometry_complete_all": true,
+        "geometry_rejected": 71935,
+        "geometry_trials": 159630,
+        "guidance_faces": 20567,
+        "guidance_rejected": 2202,
+        "guidance_trials": 5380,
+        "j_bad": 0,
+        "j_measured_all_false": true,
+        "max_elapsed": 405.589477923,
+        "measured": 696411,
+        "measured_equals_cells_all": true,
+        "q_bad": 0,
+        "q_measured_all_false": true,
+        "quality_progress": 0,
+        "replicated": {
+          "global_work": 88418,
+          "rounds": 18938
+        },
+        "scope_build_work": 2612082,
+        "size_bad": 9816,
+        "traversal_work": 154492290,
+        "updated_cells": 834336,
+        "upper_calls": 20086,
+        "upper_work": 165759722
+      },
+      "build206_source_lines": {
+        "0": 792,
+        "1": 802,
+        "2": 759,
+        "3": 782,
+        "4": 773,
+        "5": 812
+      },
+      "delta_build206_minus_baseline202": {
+        "accepted": 0,
+        "cells": 0,
+        "direct_calls": 0,
+        "facet_build_work": 0,
+        "geometry_bad": 0,
+        "geometry_rejected": 0,
+        "geometry_trials": 0,
+        "guidance_faces": 0,
+        "guidance_rejected": 0,
+        "guidance_trials": 0,
+        "j_bad": 0,
+        "measured": 0,
+        "q_bad": 0,
+        "quality_progress": 0,
+        "scope_build_work": 0,
+        "size_bad": 0,
+        "traversal_work": 0,
+        "updated_cells": 0,
+        "upper_calls": 0,
+        "upper_work": 0
+      },
+      "max_elapsed_delta_seconds": 8.707945835000032,
+      "replicated_delta": {
+        "global_work": 0,
+        "rounds": 0
+      },
+      "split_generation": 5,
+      "stage": "length_split_exit"
+    },
+    {
+      "baseline202": {
+        "accepted": 83841,
+        "cache_consistent_all": true,
+        "cells": 699951,
+        "census_complete_all": true,
+        "direct_calls": 87236,
+        "facet_build_work": 1740842,
+        "geometry_bad": 4691,
+        "geometry_complete_all": true,
+        "geometry_rejected": 72139,
+        "geometry_trials": 161110,
+        "guidance_faces": 20567,
+        "guidance_rejected": 2202,
+        "guidance_trials": 5380,
+        "j_bad": 0,
+        "j_measured_all_false": true,
+        "max_elapsed": 418.394340735,
+        "measured": 699951,
+        "measured_equals_cells_all": true,
+        "q_bad": 0,
+        "q_measured_all_false": true,
+        "quality_progress": 0,
+        "replicated": {
+          "global_work": 89707,
+          "rounds": 19201
+        },
+        "scope_build_work": 2800743,
+        "size_bad": 8789,
+        "traversal_work": 165394767,
+        "updated_cells": 841416,
+        "upper_calls": 21209,
+        "upper_work": 177062828
+      },
+      "baseline_source_lines": {
+        "0": 860,
+        "1": 870,
+        "2": 827,
+        "3": 840,
+        "4": 850,
+        "5": 880
+      },
+      "build206": {
+        "accepted": 83841,
+        "cache_consistent_all": true,
+        "cells": 699951,
+        "census_complete_all": true,
+        "direct_calls": 87236,
+        "facet_build_work": 1740842,
+        "geometry_bad": 4691,
+        "geometry_complete_all": true,
+        "geometry_rejected": 72139,
+        "geometry_trials": 161110,
+        "guidance_faces": 20567,
+        "guidance_rejected": 2202,
+        "guidance_trials": 5380,
+        "j_bad": 0,
+        "j_measured_all_false": true,
+        "max_elapsed": 427.185717342,
+        "measured": 699951,
+        "measured_equals_cells_all": true,
+        "q_bad": 0,
+        "q_measured_all_false": true,
+        "quality_progress": 0,
+        "replicated": {
+          "global_work": 89707,
+          "rounds": 19201
+        },
+        "scope_build_work": 2800743,
+        "size_bad": 8789,
+        "traversal_work": 165394767,
+        "updated_cells": 841416,
+        "upper_calls": 21209,
+        "upper_work": 177062828
+      },
+      "build206_source_lines": {
+        "0": 882,
+        "1": 892,
+        "2": 849,
+        "3": 871,
+        "4": 861,
+        "5": 902
+      },
+      "delta_build206_minus_baseline202": {
+        "accepted": 0,
+        "cells": 0,
+        "direct_calls": 0,
+        "facet_build_work": 0,
+        "geometry_bad": 0,
+        "geometry_rejected": 0,
+        "geometry_trials": 0,
+        "guidance_faces": 0,
+        "guidance_rejected": 0,
+        "guidance_trials": 0,
+        "j_bad": 0,
+        "measured": 0,
+        "q_bad": 0,
+        "quality_progress": 0,
+        "scope_build_work": 0,
+        "size_bad": 0,
+        "traversal_work": 0,
+        "updated_cells": 0,
+        "upper_calls": 0,
+        "upper_work": 0
+      },
+      "max_elapsed_delta_seconds": 8.791376606999961,
+      "replicated_delta": {
+        "global_work": 0,
+        "rounds": 0
+      },
+      "split_generation": 6,
+      "stage": "length_split_exit"
+    },
+    {
+      "baseline202": {
+        "accepted": 85062,
+        "cache_consistent_all": true,
+        "cells": 703597,
+        "census_complete_all": true,
+        "direct_calls": 90670,
+        "facet_build_work": 1742560,
+        "geometry_bad": 4672,
+        "geometry_complete_all": true,
+        "geometry_rejected": 72249,
+        "geometry_trials": 162488,
+        "guidance_faces": 20567,
+        "guidance_rejected": 2202,
+        "guidance_trials": 5380,
+        "j_bad": 0,
+        "j_measured_all_false": true,
+        "max_elapsed": 440.630778541,
+        "measured": 703597,
+        "measured_equals_cells_all": true,
+        "q_bad": 0,
+        "q_measured_all_false": true,
+        "quality_progress": 0,
+        "replicated": {
+          "global_work": 90984,
+          "rounds": 19479
+        },
+        "scope_build_work": 2991076,
+        "size_bad": 7529,
+        "traversal_work": 177370842,
+        "updated_cells": 848708,
+        "upper_calls": 22463,
+        "upper_work": 189445856
+      },
+      "baseline_source_lines": {
+        "0": 950,
+        "1": 960,
+        "2": 918,
+        "3": 939,
+        "4": 929,
+        "5": 970
+      },
+      "build206": {
+        "accepted": 85062,
+        "cache_consistent_all": true,
+        "cells": 703597,
+        "census_complete_all": true,
+        "direct_calls": 90670,
+        "facet_build_work": 1742560,
+        "geometry_bad": 4672,
+        "geometry_complete_all": true,
+        "geometry_rejected": 72249,
+        "geometry_trials": 162488,
+        "guidance_faces": 20567,
+        "guidance_rejected": 2202,
+        "guidance_trials": 5380,
+        "j_bad": 0,
+        "j_measured_all_false": true,
+        "max_elapsed": 450.14676623,
+        "measured": 703597,
+        "measured_equals_cells_all": true,
+        "q_bad": 0,
+        "q_measured_all_false": true,
+        "quality_progress": 0,
+        "replicated": {
+          "global_work": 90984,
+          "rounds": 19479
+        },
+        "scope_build_work": 2991076,
+        "size_bad": 7529,
+        "traversal_work": 177370842,
+        "updated_cells": 848708,
+        "upper_calls": 22463,
+        "upper_work": 189445856
+      },
+      "build206_source_lines": {
+        "0": 972,
+        "1": 982,
+        "2": 939,
+        "3": 962,
+        "4": 952,
+        "5": 992
+      },
+      "delta_build206_minus_baseline202": {
+        "accepted": 0,
+        "cells": 0,
+        "direct_calls": 0,
+        "facet_build_work": 0,
+        "geometry_bad": 0,
+        "geometry_rejected": 0,
+        "geometry_trials": 0,
+        "guidance_faces": 0,
+        "guidance_rejected": 0,
+        "guidance_trials": 0,
+        "j_bad": 0,
+        "measured": 0,
+        "q_bad": 0,
+        "quality_progress": 0,
+        "scope_build_work": 0,
+        "size_bad": 0,
+        "traversal_work": 0,
+        "updated_cells": 0,
+        "upper_calls": 0,
+        "upper_work": 0
+      },
+      "max_elapsed_delta_seconds": 9.515987689000042,
+      "replicated_delta": {
+        "global_work": 0,
+        "rounds": 0
+      },
+      "split_generation": 7,
+      "stage": "length_split_exit"
+    }
+  ],
+  "not_claimed": [
+    "runtime speedup",
+    "source-commit isolation",
+    "whole M6 outcome",
+    "q/J quality during construction",
+    "mesh acceptance"
+  ],
+  "schema": "native_m6_matching_construction_stages_v1",
+  "scope": "FIRST native kernel only; length collapse/split exit stages strictly before first quality_entry or stage=exit; complete six-rank census+geometry rows only; q/J intentionally unmeasured during construction",
+  "source_snapshot_caveat": "SHA-256 values identify the exact observed run.log byte prefixes parsed here. Build206 was live; its log may append later, and those appended rows are not included. The hashes are evidence snapshots, not immutable input/source pins. Build202 is the terminal baseline log.",
+  "source_snapshots": {
+    "baseline202": {
+      "bytes": 5132298,
+      "grew_during_read": false,
+      "line_count": 7057,
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build202_real_cfd50k_inspection/run.log",
+      "sha256": "96b5bcea6ce36c50a59629855594775460a1b930ec3ef99556a5755c2d05e280",
+      "stat_size_after_read": 5132298,
+      "stat_size_before_read": 5132298
+    },
+    "build206": {
+      "bytes": 846008,
+      "grew_during_read": false,
+      "line_count": 1180,
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build206_real_cfd50k_feature_companion/run.log",
+      "sha256": "f20482e35da7ee737733d0b4c9e1182759f804aa9d2df614bc8a2dca93645586",
+      "stat_size_after_read": 846008,
+      "stat_size_before_read": 846008
+    }
+  }
+}
