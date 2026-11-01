@@ -54,33 +54,33 @@ quality_entry_live_provenance.json. quality_entry_resources.json retains sampled
 RSS/RAM/load withpeaklimitations. Frozenquality repairactive,noacceptedmesh.
 Newpost-qualitycontinuation notyetexercised onM6; doNOTedit pinned sources.
 
-Qualityprogress:window8,round22080,qualityelapsed1330.437030s sinceFIRSTentry:
-765320cells,29334q/26759J/3423geometry/0sizebad,
-qJdebt3944.790020961867;15542publishedqualitycavities.
-Wholefieldnet24747q/26633J/347geometry,
-18.600655netq/s,20.018234netJ/s,includingALLelapsedphases.
-Publishedrepairnet24747q/26633J;constructioneditsafterfirstentry0.
-Latestinterval145.516564s:net2593q/2810J/
-6geometry,17.819277netq/s.
+Qualityprogress:window9,round22144,qualityelapsed1609.428032s sinceFIRSTentry:
+769810cells,26152q/23403J/3368geometry/0sizebad,
+qJdebt2882.675577276201;17847publishedqualitycavities.
+Wholefieldnet27929q/29989J/402geometry,
+17.353370netq/s,18.633328netJ/s,includingALLelapsedphases.
+Publishedrepairnet27929q/29989J;constructioneditsafterfirstentry0.
+Latestinterval278.991002s:net3182q/3356J/
+55geometry,11.405386netq/s.
 Constructioncrossinginterval=False;donotlabelconstructionchangesrepairchurn.
-All23completequalitycensusesaudited;latestownership_committedround22080:
-queue276750,blockedfeatures129,stuckshape/required
+All26completequalitycensusesaudited;latestownership_committedround22144:
+queue259683,blockedfeatures160,stuckshape/required
 0/0,missing0,
 privatecollectives0.
 Actualsame-round196reference:fieldsexactTrue,rankdebtsexactTrue,
 commitsexactTrue,windowcountcountersexactTrue;
 relativegeometrytraversalworkchange0.00000000.
 No byteidenticalmesh orisolatedcodetimingclaim;timersnest/joinincludesprotocol+wait.
-6latequalitymigrations audited:counts/debt/completeflags andselectedprepared/numericmemo
+7latequalitymigrations audited:counts/debt/completeflags andselectedprepared/numericmemo
 counters/entries/bytes/driftavailabilityconserved;notproofeverykey/history.
-Latestmigrationround22080:debtspread1.714289→1.194354,
-observedfullcost10.725654s,awaitingnextcompletewindowinterval.
+Latestmigrationround22144:debtspread1.642723→1.463773,
+observedfullcost25.461324s,awaitingnextcompletewindowinterval.
 CURRENT/quality_migration_assessment.json retains receipts;doNOTaddnestedatomic/fullcost timers.
-Remainingqsurface/interior5795/23539,J8708/18051.
+Remainingqsurface/interior4876/21276,J7419/15984.
 Interior meansnophysicalface,notnoconstrainedvertices. Private smoothinggainsarenotpublishedcavitygains.
-CURRENT/quality_window8_service_summary.json,quality_window8_comparison.json,
+CURRENT/quality_window9_service_summary.json,quality_window9_comparison.json,
 quality_service_assessment.json,all_quality_census_assessment.json preserve counters andactualcomparisons.
-ActualHOSTall10handles/1401pins/82mappedELFverified1793508188.4945076:quality_window8_live_provenance.json.
+ActualHOSTall10handles/1401pins/82mappedELFverified1793508526.7001326:quality_window9_live_provenance.json.
 Frozenruncontinues;nocensusaloneprovesmesh/workflowacceptance.
 
 197connectedqualificationPASS BEFOREfullM6:
@@ -102,6 +102,13 @@ remain. No newcache/config/gate/budget/CADdependency.196certification savings re
 Design:[ADAPTATION_RESIDUAL_GEOMETRY_20261101.md](Handbook/ADAPTATION_RESIDUAL_GEOMETRY_20261101.md).
 R/residual_geometry197_validation_plan.json. Read-only sourcereview foundno concrete
 phase/collective defect; this isnotproof oftargetclosure. No competingimplementation.
+
+Observedwindow9hostcontention snapshot1793508594.0864282:
+8allowedCPUs,load9.67/9.61/8.11(after11.31atwindowreceipt),CPUpsiavg60=14.41%,
+memorypsi0,MemAvailable30977144kB. CURRENT/quality_window9_host_pressure.json.
+Window9work/field/debts/publications remainEXACT196 whilewalltimevaries; noisolated
+codetimingclaim. Noresource-pressurestopjustified;unrelatedprocessesuntouched.
+This isatimestampedsnapshot,notafuturelive-stateclaim.
 
 Monitor actualconstruction/quality counts andnetwholefieldq/Jretirement/s,geometry,
 rankbusy/join/debtspread,blockedtail/churn andboundary/interioryield against196actual
