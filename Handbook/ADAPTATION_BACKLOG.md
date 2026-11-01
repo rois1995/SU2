@@ -338,3 +338,15 @@ trianglecoverage ontheeasyqueries;196alreadytriescheaptriangle-distance witnesse
 first,so remaining benefit/regressions are UNMEASURED. No newenvelope/index/cache,
 no N=10shortcut,no gate/config/budgetchange,and no competingimplementation while
 196is frozen. Judge any eventual candidate from savedquerywork+netM6badcellremoval.
+
+196terminal reassessment supersedes the active-run state above: all10hostidentities
+terminal/all1401pinsunchanged. Firstshape pass exhaustedchoices at47q/26J/3051geo;
+lastcompletequalitywindow45of48q andall26Jsurface,46badcellsfullyblocked.
+Nexttarget is boundaryREPAIRPOWER/geometry coupling while preserving196costsavings.
+Existing prooftrace still77.8912%coveragework; no newtrace/baselinecampaign.
+Nominaltriangle-firstcoverage remainsUNPROVEN andnotanactive competingimplementation.
+Review whether existing residualgeometry repair/phase paths canaddress blockedboundary
+stars before broadcoarsening; prematuregeometrymode ornewdirectionpolicy isUNPROVEN,
+not authorized as an ungatedshortcut. Keep allfreshshape/size/height/body/association
+checks,exact invalidation andstrictfinalgates; do not infer cause fromshortedges.
+Current terminal analysis:ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md.

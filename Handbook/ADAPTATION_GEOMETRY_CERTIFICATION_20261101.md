@@ -1,13 +1,96 @@
-# Cheaper geometry certification — current194terminal analysis
+# Cheaper geometry certification —196terminal analysis
 
-193analysis led to qualified194candidate; full194M6 is now TERMINAL.
-Current194analysis below;193records remain historical evidence.
-No new configuration or profiling run. Current handles/source freeze: HANDOFF.
-One active geometry/quality optimization cycle. Full two-event Euler50k acceptance,
-actual conservative admissible transfer, finite continued CFD and isolated adapted
-disk restart remain required, then dedicated BL/MPI and RANS500k.
+Current run196is TERMINAL; no source edit since its qualified checkpoint.
+Exact terminal owned handles,source/runtime/input provenance and full goal:Handoff
+[HANDOFF_Codex.md](../HANDOFF_Codex.md). Earlier194/195/196qualification below is
+preserved historical design/evidence,not live-state authority.
 
-## Build194 outcome and analysis — current
+##196outcome and next target
+
+ALL6naturaltimebudget rejected,native5402.707783s. Failure preserved BEFORE stopping
+only exactremainingownedlauncher; all10hostidentitiesabsent/all1401pinsunchanged
+1793504580.738665. No owned heavyjob remains. CURRENT evidence directory:
+`staged57/m6_runs/euler_build196_real_cfd50k_witness_first`.
+No acceptedadaptedmesh,transfer,continuedadaptedCFD oradapteddiskrestart.
+
+Complete firstshape-pass return to construction:804092cells,47q/26J/3051geometry/
+0size,debt6.328205450462,atengine5243.296932372/quality4550.7040643s.
+50883qualitypublications,net54034q/53366J/719geometry removed.
+Lastcompletequalitywindow48q/26J/3052geometry,45qsurface/3interior,all26Jsurface;
+46of48badcells haveallrequiredfeaturesblocked,missingfeatures0. Sixq/twoJ near
+truefeatures. All48bad-unioncells haveedge<.5: correlation,notconstructioncause.
+38windows/83completecensuses audited; allwindowchurn/ladderq/J/debt/publications
+reconcile. Final7.175541s/15publications afterlastwindow contribute1q/0J/1geometry
+net; this partial interval has complete stage measurements but no ladder row.
+
+The existing feedback path then entered broadcoarsening. Terminal EXIT797738cells
+has INCOMPLETEcensus(measured797697,q/Jmeasured785651). True terminalwholefield
+q/J/geometry/size areUNKNOWN/null; cached47/26/2921/0 areNOTwholefield counts.
+Do not claim shapeclosure,geometry-onlyentry or constructor regression from this.
+`terminal_assessment.json`,`terminal_counter_review.json`,
+`quality_first_pass_construction_return.json`,`event1_natural_failure.json` preserve
+these distinctions. SampledmaximumtreeRSS15.591GB(decimal),nottruephysicalpeak;
+noresource-pressurestop. No new perf/GDB or baselinecampaign.
+
+At actualalmostmatching qualitytimes4444.594995vs1944442.390488s:
+196569q/221J/3063geometry vs1944369q/2352J/3111geometry. Throughwindow20actual
+fields/debts/commits match194withabout29%lesstraversal. Fromwindow21trajectories
+differ. This establishes countedwork andusefulprogress improvement,notisolated
+walltime causality oracceptance. Same qualifiedreal-CFDseed/config/input andactual
+originalrestart arebyteidentical.21lateownershipmigrations conserveauditedcounts/
+debt/flags/selectedmemo+preparedcounters; countersalone donotproveeverykey/history.
+
+Nexttarget is REPAIRPOWER at the remainingphysicalboundary and itsgeometry coupling,
+retaining196cost reductions. More speedalone cannotreopen a fullyrejected unchanged
+star. Existing phase/operator paths needreview before oneconnectedimplementation;
+none selectedyet. Boundary privatesmoothing costs3817.24ranksec vsinterior198.01
+throughfirstpass; privategainsare notpublishedcavity effects. Firstpassentrydifferences:
+5.208479611Btraversal/5.437112367Bupperwork; nestedupper4778.19,traversal4133.80,
+scope439.84,facet122.66,support130.56ranksec. Theseare DIFFERENCES,notrawcumulative
+construction+quality counters. Timersoverlap; doNOTaddthem orlabeljoinpurewait.
+
+##196cheaper-certification assessment using existing evidence
+
+No additionalrun: parse the alreadyqualified196proof trace overthe same12saved168M6
+queries. Cold/recomputedtraversalcounts reconcile independently for all12:
+259729traversalwork=227440upper+32289distance. Coverage202306(77.8912%oftraversal),
+lift11489;790graphchecks:479failed,250rectangle-covered,61nominaltriangle-covered.
+Allcoveredgraphboundsalreadybelowtol.195coverage300573→196202306work isconsistent
+with witness-firstavoidingexpensivecoverage; remainingcoverage isstilldominant on
+this corpus. See `staged57/geometry_certification196_existing_trace_attribution.json`.
+This isNOT current196cache-miss frequency or a sample ofits blockedboundarystars.
+
+Firstpass exactunionmemo528359hits/551243misses. Exacthits include completeimmutable
+authority/support/tolerance/coordinateidentity. Aggregate misses doNOTdistinguish
+newnearbypositions/support/tolerance fromidenticalqueriesevictedearlier. Savedpayload
+has sixsameface/supportpairs with changedcoordinates; repeats use87–90work. DoNOT
+infer a populationfraction orunusedmemoopportunity fromthis limitedpayload.
+
+Existingunchanged acceptedfacecertificates coverassociation/coverage; numerical
+FaceMemo andexactunionmemo alreadyreuse unchangedqueries. Existing star/support/
+oldmerit/projectedcontexts andlazyoldsideguidance,validity/shape/height/edge screening,
+partialnonnegativegeometry rejection,preparedfacets/scopes andspatialwitnessindices
+are reviewed below andremain startingpoints. Exactsupport/bindings/coords andversions,
+active-reference accounting andtransientmemory admission remainmandatory. Unchanged
+faces cannot proveabsenceofholes elsewhere in aunion; nochanged-face-onlyshortcut
+maybypass completefinaltwo-sided certification.
+
+RemainingtoleranceboundU+outwardmotion isrigorous onlywithunchangedtarget/support and
+correspondence,and doesnotproveassociation/features/bodies/heights/reversecoverage.
+Existingexact-rational evidence certifies0of12wholequeries; optimisticsubtreework
+ceiling810/140510(0.5765%)beforelookup/storage/invalidation. NOmotioncache justified.
+Existingnominaltriangle-before-rectanglecoverage is anUNPROVENbacklogalternative;
+250rectangle successes versus61triangle successes show that regressions must be
+measured,notassumed. No newenvelope,index,configoption orCADdependency isselected.
+
+Allstrictgates,budgets,validity-firstconstruction,oldestfairness,worst-firstqueue,
+rejected-starhistory,versionedfullvertex-disjointpublication andphaseownership
+contracts remain. Futureuncertainbounds fallbacktofullcertification. Oneactivecycle;
+full2eventM6sameCFD50k/5400 immediatelyafteranyqualifiedconnectedchange,thenactual
+transfer/continuedCFD/isolatedadapteddiskrestart,BL/MPI andRANS500k.
+
+## Build194 outcome and analysis — historical
+
 
 ALL6ranks naturally time-budget rejected at native5402.687673s. Complete EXIT:
 801912workingcells,4369q/2352J/3111geometry/0sizebad,qJdebt29.821866.

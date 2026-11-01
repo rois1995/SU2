@@ -1,0 +1,147 @@
+{
+  "time": 1793504637.7468357,
+  "scope": "Terminal first-event natural time-budget rejection. Complete first-pass quality measurements are separate from incomplete final construction EXIT. No accepted adapted mesh, transfer,continued adapted CFD or disk restart.",
+  "terminal_owned_handles_receipt": "terminal_handles.json",
+  "all_pins_unchanged": true,
+  "native_total_max_seconds": 5402.7077831980005,
+  "engine_terminal_max_seconds": 5345.112232436,
+  "exit_census_complete": false,
+  "terminal_whole_field": {
+    "cells": 797738,
+    "q_bad": null,
+    "j_bad": null,
+    "geometry_bad": null,
+    "size_bad": null
+  },
+  "cached_measured_subset_totals": {
+    "cells": 797738,
+    "measured": 797697,
+    "q_measured": 785651,
+    "j_measured": 785651,
+    "q_bad": 47,
+    "j_bad": 26,
+    "geometry_bad": 2921,
+    "size_bad": 0
+  },
+  "last_complete_quality_window": {
+    "census": 82,
+    "round": 24000,
+    "max_engine_elapsed": 5236.12139143,
+    "whole_field": {
+      "cells": 804092,
+      "q_bad": 48,
+      "j_bad": 26,
+      "geometry_bad": 3052,
+      "size_bad": 0,
+      "qj_debt": 6.329393753152537
+    },
+    "totals": {
+      "commits": 22,
+      "q_removed": 29,
+      "q_created": 29,
+      "j_removed": 15,
+      "j_created": 15,
+      "unmeasured_churn": 0,
+      "private_tracked_collectives": 0,
+      "queue": 19,
+      "blocked_features": 582,
+      "stuck_shape": 46,
+      "stuck_required": 46,
+      "missing_features": 0,
+      "construction_edits": 0,
+      "ownership_changes": 0
+    }
+  },
+  "quality_first_pass_end": {
+    "stage": "construction_entry",
+    "round": 24056,
+    "engine_seconds": 5243.296932372,
+    "quality_seconds": 4550.7040643,
+    "whole_field": {
+      "cells": 804092,
+      "q_bad": 47,
+      "j_bad": 26,
+      "geometry_bad": 3051,
+      "size_bad": 0
+    },
+    "qj_debt": 6.328205450461694,
+    "net_removed": {
+      "q_bad": 54034,
+      "j_bad": 53366,
+      "geometry_bad": 719
+    },
+    "net_q_per_second": 11.873767055936131,
+    "net_j_per_second": 11.72697658339356,
+    "quality_publications_from_accepted_counter_delta": 50883,
+    "fully_emitted_quality_publications": 50868,
+    "final_partial_interval": {
+      "seconds": 7.175540942000225,
+      "net_removed": {
+        "q_bad": 1,
+        "j_bad": 0,
+        "geometry_bad": 1
+      },
+      "accepted_counter_difference": 15,
+      "note": "Final partial quality interval is absent from quality-ladder/churn census rows after switching to construction. Whole-field stage deltas are independently measured; do not invent missing interval counters."
+    },
+    "geometry_count_closed": false,
+    "shape_count_closed": false,
+    "geometry_only_phase_reached": false,
+    "work_deltas": {
+      "accepted": 50883,
+      "upper_calls": 1079602,
+      "upper_work": 5437112367,
+      "traversal_work": 5208479611,
+      "scope_build_work": 12413656,
+      "facet_build_work": 2994928,
+      "memo_union_hits": 528359,
+      "memo_union_misses": 551243,
+      "memo_evictions": 742823,
+      "memo_retention_refusals": 102,
+      "length_collapses": 0,
+      "length_splits": 0
+    },
+    "nested_rank_service_deltas": {
+      "upper_seconds": 4778.188263459982,
+      "traversal_seconds": 4133.801489739001,
+      "scope_build_seconds": 439.83517838399985,
+      "facet_build_seconds": 122.65655697500011,
+      "support_seconds": 130.55588041599913,
+      "smooth_boundary_seconds": 3817.236144132993,
+      "smooth_interior_seconds": 198.00613659799998,
+      "smooth_boundary_debt_reduction": 906.3620378618217,
+      "smooth_interior_debt_reduction": 4636.377431180935
+    }
+  },
+  "acceptance": {
+    "accepted_adapted_meshes": 0,
+    "conservative_admissible_transfer": false,
+    "continued_adapted_CFD": false,
+    "adapted_disk_restart": false,
+    "BL_MPI_qualification": false,
+    "RANS500k": false
+  },
+  "next_target": "Repair power for residual physical-boundary shape and geometry coupling, while retaining196certification savings. More speed alone does not reopen a fully rejected unchanged star. Construction causation is unproved.",
+  "terminal_counter_review": "terminal_counter_review.json",
+  "actual_matching_quality_time_comparison": {
+    "baseline_quality_seconds": 4442.390488497999,
+    "current_quality_seconds": 4444.5949950310005,
+    "baseline_whole_field": {
+      "cells": 801912,
+      "q_bad": 4369,
+      "j_bad": 2352,
+      "geometry_bad": 3111,
+      "size_bad": 0,
+      "qj_debt": 29.82186614805384
+    },
+    "current_whole_field": {
+      "cells": 804017,
+      "q_bad": 569,
+      "j_bad": 221,
+      "geometry_bad": 3063,
+      "size_bad": 0,
+      "qj_debt": 6.556497179187447
+    },
+    "note": "Actual closest emitted current window versus194completeEXIT,not interpolation or same trajectory."
+  }
+}

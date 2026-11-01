@@ -9,74 +9,77 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current —196full two-event M6 ACTIVE; sources frozen
+## Current —196TERMINAL; terminal analysis, no next source edit yet
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 CURRENT=`R/m6_runs/euler_build196_real_cfd50k_witness_first`.
 PREVIOUS=`R/m6_runs/euler_build194_real_cfd50k_early_exit` (TERMINAL).
 Sourcecheckpoint12afb10245pushed; CFDSHAbd71ad267291f8acdec981aaf7bdf221b09836e141ab8eeda64b733fdacb937c.
+Exec95607TERMINAL1. ALL6natural time-budget rejections,native5402.707783s,
+refine5345.112232s. Failure preserved BEFORE signaling ONLY exact remaining owned
+launcher968836/start91406100,all10identities/1401pins verified before signal.
+ALL10hostidentitiesABSENT/all1401pinsunchanged1793504580.738665:terminal_handles.json.
+ALL968xxxhandles are HISTORICAL; NEVERresignal. No owned heavy job remains.
+No Cpp/header/test/helper/binary/config/input edit since sourcecheckpoint12afb10245.
 
-Fulltwoeventexec95607;actualHOSThandles verified1793499069.2033494:
-968712/start91405628, 968834/start91406099, 968835/start91406099, 968836/start91406100, 968845/start91406106, 968844/start91406106, 968843/start91406106, 968842/start91406106, 968841/start91406106, 968840/start91406106.
-All10LIVE/all1401pinsunchanged/82actualmappedELFcovered:CURRENT/owned_startup.json.
-Oneownedheavyjob,nice19/libs1. NoCpp/header/test/helper/binary/config/input edits.
-Keep196frozen until terminal or preserved evidence justifies an authorized stop.
-SamequalifiedsavedrealCFD/config/mesh/native_ref as194/191:CURRENT/early_runtime_provenance.json.
-OriginalcontinuedCFD CL.269535/CD.013536,rms-5.735442. ACTUAL originalrestart00000
-BYTEIDENTICAL194(SHA6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a),
-verifiedafteremission:early_runtime_provenance.json. This is NOT an
-adaptedrestart proof. Euler50k/native5400/outer14400/2events/allstrictgatesunchanged.
-Initialpartition303359cells:ALL18selectedper-rankfieldsEXACT194.
-CURRENT/initial_partition_comparison.json. CoarseningCOMPLETE292709workingcells/
-2627collapses:ALL17selectedper-rankfieldsEXACT194,uppercalls14870same,
-traversal260034825→191026912(-26.53795%),scope/facet/preparation/supportworksame.
-Engine250.049109vs312.196318s; hostconditions differ,notisolatedcodetimingclaim.
-CURRENT/coarsening_comparison.json,coarsening_resources.json; all10handles/1401pins/
-82mappedELFreverified1793499439.866116:coarsening_complete_live_provenance.json.
-ALL18constructiongenerations COMPLETE727818workingcells,sizebad0,geometrybad3770.
-ALL17selectedper-rankfieldsEXACT194 throughout. Cumulative traversal1067849648→
-746099652(-30.13065%),uppercalls33088same,scope/facet/preparation/discoveryworksame.
-Engine656.347589vs847.303442s;notisolatedcodetimingclaim. Constructionq/Jwere
-intentionallyUNMEASURED until qualityentry. CURRENT/construction_comparison.json,
-split_generation_assessment.json.
+Samequalified saved real-CFD/config/originalmesh/native_ref as194/191:
+early_runtime_provenance.json. OriginalcontinuedCFD CL.269535/CD.013536,rms-5.735442.
+ACTUAL originalrestart00000 byteidentical194(SHA6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a).
+That is NOT an adaptedrestart proof. Euler50k/native5400/outer14400/2events/allgatesunchanged.
+Original61330points/303359cells; metriccomplexity target is not meshpointcount.
 
-Complete qualityENTRY692.592868072engine seconds,round21582:
-727818cells,54081q/53392J/3770geometry/0size,qJdebt25413.45557726506.
-Globalcounts/debt AND all6rankdebts/gaugesEXACT194entry;engine203.048942searlier.
-Allcellsq/Jmeasured,allcomplete/cache/shape/geometryflags1;queue359054,blocked/stuck/
-missing0,publications0atentry. Theseare ENTRYcounts,notlaterprogress/acceptance.
-CURRENT/quality_entry_comparison.json,quality_entry_assessment.json,
-all_quality_census_assessment.json. Initialqualitymigrationconservescounts/debt/
-completeflags and20selectedcache/memocounters/entries/bytesunchanged;debtspread
-15.776024→1.538801:quality_initial_ownership_assessment.json. Countsnotproofeverykey.
-All10handles/1401pins/82mappedELFreverified1793499954.022988:
-quality_entry_live_provenance.json. Frozenqualityrepairactive;noacceptedmesh.
+All18initialconstructiongenerations COMPLETE727818cells,size0,geometry3770;
+q/JintentionallyUNMEASURED untilqualityentry. ALL17selectedper-rankconstructionfields
+EXACT194; traversal1067849648→746099652(-30.13065%),sameuppercalls33088,
+scope/facet/preparation/discoverywork unchanged. initial_partition_comparison.json,
+coarsening_comparison.json,construction_comparison.json preserve earlier work receipts.
+Qualityentry692.592868s,54081q/53392J/3770geometry/0size,debt25413.45557726506,
+counts/debts/all6rankgaugefieldsEXACT194entry. Initialmigrationconservescounts/
+debt/completeflags+20selectedmemo/cachecounters; debtspread15.776024→1.538801.
 
-Qualityprogress:window27 at4286.322746seconds sinceentry,round23296:
-803656workingcells,1612q/705J/3066geometry/0size,
-qJdebt7.766705134638;48055publications,
-net52469q/52687J/704geometryremoved,
-12.241029netq/s,12.291888netJ/s.
-Latestinterval:net432q/211J/10geometryremoved
-in64.556775s,6.691784netq/s,
-0.638109netq/publication. Allprecedingownershipstages included.
-All72completecensusesaudited;latestwindowround23296:
-queue25689,blockedfeatures645,stuckshape/required42/42,
-missing0,privatecollectives0.
-No194same-roundreferenceexists;actualtimebrackets/nearstatesretainedwithoutinterpolation.
-Remainingqsurface/interior328/1284,
-J209/496.
-Interior meansnophysicalface,notnoconstrainedvertices;privategainsnotpublicationgains.
-21latequalitymigrations audited:counts/debt/completeflags andselected
-prepared/numericmemocounters/entries/bytes/driftavailabilityconserved.
-Latestmigrationround23168:debtspread2.042012→2.036069,
-observedfullcost13.536815s,includedinwindowcensus70.
-Countersalone donotproveeverykey/history;unchangedqualifiedsourcesupportscontracts.
-CURRENT/quality_window27_service_summary.json preservesperrankbusy/join/commits/
-publisheddebtremoved/netq/J. quality_window27_comparison.json retainsactualtimebrackets.
-All10handles/1401pins/82mappedELFreverified1793504184.8494794:quality_window27_live_provenance.json.
-Frozenruncontinues;noacceptedmesh/transfer/adaptedrestartclaim.
+Firstshape-pass COMPLETE measured return to construction atengine5243.296932372,
+round24056:804092cells,47q/26J/3051geometry/0size,debt6.328205450462.
+Shape did NOTclose; geometry-only repair was NOTreached. Quality4550.7040643s,
+50883qualitypublications from cumulativeacceptedcounterdelta,net54034q/53366J/
+719geometry,11.873767netq/s,11.726977netJ/s.
+83completequalitycensuses/38windows audited; last window at5236.121391430:
+48q/26J/3052geometry,queue19,blockedfeatures582,stuck46,missing0,privatecollectives0.
+Published windowchurn413246qretired/359213introduced,353926Jretired/300560introduced;
+ladder q/J/debt/publications reconcile for50868fullyemittedqualitypublications.
+Finalpartial7.175541s/15publications/net1q,0J,1geometry lacks a quality-ladder row;
+keep independently measured stage deltas separate,do not invent missing counters.
+quality_first_pass_construction_return.json,terminal_assessment.json,terminal_counter_review.json.
 
+Lastcompletequalitywindow q45surface/3interior,J26surface/0interior;46of48badcells
+have allrequiredfeaturesblocked. Only6q/2J near genuinefeatures,unknown0.
+All48bad-unioncells haveanedge<.5; correlation does NOTprove constructioncause.
+16GLOBALdriftsamples supported/no lost,max2.7962%; notimmutablecontinuousCFDtargetproof.
+At actualalmostmatching qualitytime4444.594995vs1944442.390488s:
+196569q/221J/3063geometry vs1944369q/2352J/3111geometry. Trajectories/hostconditionsdiffer;
+not isolatedcode timing. Throughwindow20 measuredfields/debts/publications EXACT194
+with~29%lesstraversal; fromwindow21trajectories differ. Laterreference states notextrapolated.
+21latequalitymigrations conserveauditedcounts/debt/flags/selectedcache/memocounters;
+notproofeverykey/history. Privateboundary/interiorsmoothing gains are notpublicationgains.
+
+After the blockedshape pass, existingphase logic returned to broadcoarsening.
+Terminal EXIT797738cells has INCOMPLETEcensus: measured797697, q/Jmeasured785651.
+Wholefieldterminal q/J/geometry/size counts are UNKNOWN/null; cached47/26/2921/0
+are measuredsubsetvalues,NEVERaccepted or wholefield terminalcounts.
+No assertion that construction worsened or repaired shape is justified by these data.
+event1_natural_failure.json,event1_failure_owned_stop.json,terminal_resources.json.
+
+Nexttarget: REPAIRPOWER for the residual physical-boundary shape/geometry coupling,
+while retaining196certification savings. Speedalone doesnotreopen a rejectedunchangedstar.
+Review existing boundary/phase paths before selecting ONEconnectedchange; none selectedyet.
+Do not start another baseline/perf/GDB campaign,raisebudgets,relaxgates or addconfigoptions.
+Cheaper-certanalysis reuses196proof trace:259729traversalwork,202306coverage(77.8912%),
+11489lift,32289distance; allcoveredgraphboundsalreadybelowtol. Cold/recomputedworks
+agree. Same12older168queries,NOT currentmissfrequency or blockedstarrepresentativeness.
+R/geometry_certification196_existing_trace_attribution.json. Exactunionmemoqualityhits
+528359/misses551243; misses doNOTclassify newpositions/support/tolerance vsevictedrepeats.
+Wholeface motion-slack0of12; optimistic subtreeworkceiling0.5765%beforecachecost.
+No motioncache/newenvelope justified; existingtriangle-firstcoverage remainsUNPROVENbacklog.
+Fullcurrentanalysis:Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md.
 
 196sharedUpper tries ALREADYexistingrigorous convextrianglewitness BEFORE finite
 projectedgraphcoverage. No newcache/API/config/scheduler/constructionoperator/batch/

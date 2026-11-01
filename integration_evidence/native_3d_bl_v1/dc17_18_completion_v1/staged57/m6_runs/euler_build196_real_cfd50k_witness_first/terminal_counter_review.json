@@ -1,0 +1,206 @@
+{
+  "time": 1793504923.4382396,
+  "scope": "All7requested diagnostic groups using existing complete first-pass census counters. Terminal construction EXIT is incomplete and whole-field failure counts are unknown. The final7.1755s/15quality publications after this latest complete window are separately measured in terminal_assessment, not covered by these ladder/churn interval counters.",
+  "complete_censuses": 83,
+  "latest_complete_quality_census": 82,
+  "last_complete_quality_window": {
+    "round": 24000,
+    "max_engine_elapsed": 5236.12139143,
+    "whole_field": {
+      "cells": 804092,
+      "q_bad": 48,
+      "j_bad": 26,
+      "geometry_bad": 3052,
+      "size_bad": 0,
+      "qj_debt": 6.329393753152537
+    },
+    "totals": {
+      "commits": 22,
+      "q_removed": 29,
+      "q_created": 29,
+      "j_removed": 15,
+      "j_created": 15,
+      "unmeasured_churn": 0,
+      "private_tracked_collectives": 0,
+      "queue": 19,
+      "blocked_features": 582,
+      "stuck_shape": 46,
+      "stuck_required": 46,
+      "missing_features": 0,
+      "construction_edits": 0,
+      "ownership_changes": 0
+    }
+  },
+  "published_churn": {
+    "commits": 50868,
+    "q_removed": 413246,
+    "q_created": 359213,
+    "j_removed": 353926,
+    "j_created": 300560,
+    "unmeasured_churn": 0,
+    "private_tracked_collectives": 0
+  },
+  "ladder": {
+    "0": {
+      "trials": 164175,
+      "certified": 20228,
+      "commits": 20228,
+      "seconds": 2038.4864158719972,
+      "debt_removed": 6210.184300239728,
+      "q_removed": 10783,
+      "j_removed": 10622
+    },
+    "1": {
+      "trials": 44278,
+      "certified": 29466,
+      "commits": 29466,
+      "seconds": 5223.7513701860025,
+      "debt_removed": 17869.591462698976,
+      "q_removed": 38843,
+      "j_removed": 38938
+    },
+    "2": {
+      "trials": 174858,
+      "certified": 1174,
+      "commits": 1174,
+      "seconds": 103.39716095600005,
+      "debt_removed": 1327.3504205731936,
+      "q_removed": 4407,
+      "j_removed": 3806
+    }
+  },
+  "ladder_rejection_flags_8": {
+    "0": [
+      27494,
+      0,
+      0,
+      116453,
+      0,
+      0,
+      0,
+      0
+    ],
+    "1": [
+      14051,
+      0,
+      0,
+      9273,
+      0,
+      0,
+      0,
+      0
+    ],
+    "2": [
+      148472,
+      0,
+      0,
+      21135,
+      0,
+      0,
+      0,
+      4077
+    ]
+  },
+  "rejection_note": "Existing flag positions; can overlap within a trial. Do not sum as mutually exclusive trial outcomes.",
+  "location_histogram_and_shortedge_totals": {
+    "q_surface": 45,
+    "q_interior": 3,
+    "j_surface": 26,
+    "j_interior": 0,
+    "q_miss_hist": [
+      3,
+      14,
+      15,
+      13,
+      3,
+      0
+    ],
+    "j_miss_hist": [
+      5,
+      8,
+      7,
+      3,
+      3,
+      0
+    ],
+    "q_feature": 6,
+    "j_feature": 2,
+    "geometry_excess_hist": [
+      88,
+      489,
+      1612,
+      825,
+      38,
+      0
+    ],
+    "q_no_feature": 42,
+    "q_feature_unknown": 0,
+    "j_no_feature": 24,
+    "j_feature_unknown": 0,
+    "bad_union": 48,
+    "short09": 48,
+    "short05": 48,
+    "short09_share": 1.0,
+    "short05_share": 1.0,
+    "geometry_authority_types": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      6,
+      3049,
+      0
+    ]
+  },
+  "drift_global": {
+    "rank": "0",
+    "stage": "window",
+    "initialized": "1",
+    "available": "1",
+    "samples": "16",
+    "supported": "16",
+    "lost": "0",
+    "owned": "0",
+    "maximum_relative_frobenius": "0.027962295243575521",
+    "owned_maximum_relative_frobenius": "0",
+    "current_nodal_sensor": "1",
+    "full_target": "1"
+  },
+  "private_smoothing_note": "Boundary/interior counters describe private candidate search and merit; not published cavity effects. Use entry differences, not raw cumulative counters.",
+  "actual_matching_quality_time_comparison": {
+    "baseline_quality_seconds": 4442.390488497999,
+    "current_quality_seconds": 4444.5949950310005,
+    "baseline_whole_field": {
+      "cells": 801912,
+      "q_bad": 4369,
+      "j_bad": 2352,
+      "geometry_bad": 3111,
+      "size_bad": 0,
+      "qj_debt": 29.82186614805384
+    },
+    "current_whole_field": {
+      "cells": 804017,
+      "q_bad": 569,
+      "j_bad": 221,
+      "geometry_bad": 3063,
+      "size_bad": 0,
+      "qj_debt": 6.556497179187447
+    },
+    "note": "Actual closest emitted current window versus194completeEXIT,not interpolation or same trajectory."
+  },
+  "next_target": "Repair power for residual physical-boundary shape and geometry coupling, while retaining196certification savings. More speed alone does not reopen a fully rejected unchanged star. Construction causation is unproved.",
+  "evidence_for_next_target": [
+    "45of48q-bad and all26J-bad are surface cells in last complete quality window.",
+    "46bad cells are stuck across all required features; missing-feature count0; eventual quality choices exhausted before construction return.",
+    "Complete first-pass return still47q/26J/3051geometry despite54034netq retirement.",
+    "Existing return then spent remaining time in coarsening; actual final shape/geometry census unavailable. This is not proof construction worsened it."
+  ],
+  "limits": [
+    "No new perf/GDB/baseline run.",
+    "Aggregate exact-memo misses do not classify nearby positions versus evicted identical queries.",
+    "Short-edge correlation does not prove construction or identify a safe collapse.",
+    "Global16sample drift does not prove an immutable original continuous metric.",
+    "Strict acceptance,conservative admissible transfer,continued adaptedCFD,adapted diskrestart,BL/MPI,RANS500k remain unproved."
+  ]
+}
