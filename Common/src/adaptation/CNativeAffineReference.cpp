@@ -302,10 +302,12 @@ class TriangleUnion {
     if(++visit==0){std::fill(visited.begin(),visited.end(),0);visit=1;}
     auto plane_bound=[&](size_t i)->double{const auto group=triangle_plane[i];if(group==SIZE_MAX||visited[group]==visit)return INFINITY;
       visited[group]=visit;op.Work();return planes[group].Upper(hull,op);};
-    const auto seed=Seed(box,op);double best=plane_bound(seed);if(best<=accuracy/4)return best;
+    // Upper callers construct this witness at their query tolerance; a proven bound already suffices.
+    const auto seed=Seed(box,op);double best=plane_bound(seed);if(best<=accuracy)return best;
     // A passing witness must intersect the hull's tolerance neighbourhood; retain the seed's valid upper bound.
-    best=std::min(best,witness(seed));Candidates(box,std::min(best,accuracy),op);
-    for(auto i:candidates){best=std::min(best,plane_bound(i));if(best<=accuracy/4)return best;best=std::min(best,witness(i));}return best;
+    best=std::min(best,witness(seed));if(best<=accuracy)return best;Candidates(box,std::min(best,accuracy),op);
+    for(auto i:candidates){best=std::min(best,plane_bound(i));if(best<=accuracy)return best;
+      best=std::min(best,witness(i));if(best<=accuracy)return best;}return best;
   }
   size_t ResidentBytes()const {
     auto bytes=[](const auto& v){return transfer_memory::Mul(v.capacity(),sizeof(typename std::decay_t<decltype(v)>::value_type));};

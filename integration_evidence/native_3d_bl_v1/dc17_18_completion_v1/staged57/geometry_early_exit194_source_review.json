@@ -1,0 +1,18 @@
+{
+  "time": 1793491471.8637314,
+  "state": "Primary source review, candidate unvalidated",
+  "changed": [
+    "Common/src/adaptation/CNativeAffineReference.cpp:TriangleUnion::Upper",
+    "UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp:finite triangular graph tolerance gaps"
+  ],
+  "callers": [
+    "SurfaceForest::Upper forwards joined witness",
+    "directed() target.Upper(net/domain) or affine physical hull"
+  ],
+  "constructors": "All current active Upper targets built at query tolerance; per-facet resolution targets only used by Distance.",
+  "proof": "Returned plane/triangle bound unchanged and conservative, including target-piece error and source-hull interval/padding. Early exit only when bound<=actual tolerance. Each domain still enters directed queue; full union coverage/reverse/final checks unchanged. No lower-bound sampling acceptance.",
+  "numeric_contract": "Public API permits conservative upper bound, not optimally tight distance. Values<=tolerance may increase; cached/recomputed answers must agree within194. An already passing source subdomain need not be improved further.",
+  "guidance_review": "GeometryGuidanceExcess uses max(0,bound-tolerance)^2*area, so different in-tolerance bounds contribute EXACTLY zero. Engine Demand uses same positive hinge; Region SurfaceError checks tolerance; final SurfaceDeviation admission compares tolerance. ParameterError max(maximum,U): if another authority maximum>tolerance, changed U<=tolerance cannot affect maximum. No quantitative caller uses positive merit below its geometry tolerance. Above-tolerance queries still refine/search and may have different already-passing subdomain numeric contributions, so tests/full attempt remain necessary.",
+  "limits": "Read-only efficient-model review supports bound conservatism, but its possible up-to4x score statement is not a proved ratio and ignores zero-hinge clipping. Primary reviewed actual callers; model review not correctness evidence.",
+  "acceptance": "Saved-query counted work including regressions; proof/serial/MPI6 affected suites; full2eventM6sameCFD50k5400 allstrictgates. No completion from fixtures or work alone."
+}

@@ -443,7 +443,7 @@ TEST_CASE("Finite triangular graph envelopes bound the whole source face", "[Nat
   }
   MappedFacetReference cached(reference,errors,1,SIZE_MAX,false,nets),uncached(reference,errors,1,SIZE_MAX,false,nets,0);
   constexpr double tolerance=1e-4;
-  for(double gap:{.5*tolerance,.99*tolerance,1.01*tolerance}) {
+  for(double gap:{.26*tolerance,.5*tolerance,.75*tolerance,.99*tolerance,1.01*tolerance}) {
     std::array<Point,3> triangle{{transform({0,0,-gap}),transform({1,0,-gap}),transform({0,1,-gap})}};
     if(reverse)std::swap(triangle[1],triangle[2]);
     const std::vector<std::array<Point,3>> physical{triangle};

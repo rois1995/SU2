@@ -9,13 +9,34 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current —193M6 TERMINAL; analysis first, no heavy job
+## Current —194serial qualification ACTIVE; sources frozen
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 CURRENT=`R/m6_runs/euler_build193_real_cfd50k_envelope`.
 PREVIOUS=`R/m6_runs/euler_build191_real_cfd50k_numeric_memo` (TERMINAL).
 
-First event NATURALLY rejected on ALL6ranks at unchanged native time budget:
+Build194PASS84.234683s;all1296pins unchanged/all2host handles absent before proof:
+R/build194_terminal_verification.json. Focused proof exec35375PASS403assertions/
+2cases18.236763s;all5hosthandles absent/allpins unchanged. Current serialexec29228,
+R/cases/geometry_early_exit194_serial_* (exact host startup in that case); one heavy
+job,nice19/libs1. Do not edit pinned C++/tests/helpers/binary/config/inputs.
+Prior193all10handles absent/all1401pins reverified before194edit:
+R/geometry_early_exit194_preflight.json. Saved SAME12query traversal379146→360066
+(-5.032%);ALL12lowerwork,ALLboundsEXACT193. Within194repeat/recomputed equality
+asserted by test. R/geometry_early_exit194_saved_query_comparison.json. No M6 speedup
+or acceptance claim from replay. Primary proof/caller review:
+R/geometry_early_exit194_source_review.json; small quantitative upper changes
+permitted by API,geometry hinge is EXACT0belowtol. Tests/fullattempt still required.
+Candidate: existing TriangleUnion::Upper returns an already rigorous bound when
+it proves caller tolerance, instead of searching for quarter-tolerance. Also stop
+after adequate single-triangle witnesses. Same shared callers/coarsen/split/quality/
+boundary path,all final gates,geometry authority,source/support identity and resource
+admission unchanged. Numeric upper values may differ; no config/cache/scheduler or
+construction change. Envelope tests add .26/.75tolerance gap cases,retain .99/1.01,
+axes/windings/cache/recompute/refusal checks. Saved-query savings above now measured; full-run benefit UNPROVEN. R/geometry_early_exit194_validation_plan.json: proof PASS,connected serial ACTIVE then MPI6; immediately fulltwoeventM6sameCFD50k/5400.
+No new baseline/profiler campaign.193below is historical terminal evidence.
+
+First193event NATURALLY rejected on ALL6ranks at unchanged native time budget:
 native maximum5403.239256s; all49complete censuses audited, EXIT796684workingcells,
 8628q-bad/5768J-bad/3151geometry-bad/0size-bad,qJdebt136.658541385625.
 Quality4348.781705s from its complete entry54081q/53392J/3770geometry:
@@ -30,8 +51,8 @@ remaining launcher627536/start90036808. All10 exact host identities/all1401pins
 verified before signal: event1_failure_owned_stop.json. Exec83395terminalexit1;
 ALL10 host handles ABSENT/all1401pins unchanged at1793491076.8872397:
 terminal_handles.json. Historical193PIDs627325/627534/627535/627536/627547..627552
-must NEVER be signaled again. No owned heavy job remains; source freeze lifted
-only after independent terminal audit. No new C++ edit/build has been made.
+must NEVER be signaled again.193source freeze lifted only after independent
+terminal audit; the194candidate above was then written and is now frozen.
 Source51c8323724; CFD SHA
 8a1a2cb30f8300ac7ba281d94e6ca5e8af96638f29dad126a287e63aed308e58.
 Config/mesh/native_ref/savedCFD/actual original-grid continued restart00000
@@ -62,7 +83,7 @@ terminal_assessment.json and terminal_counter_review.json (primary reviewed).
 Analysis ONLY: prior-upper+uniform-displacement bound certifies0of12existing saved
 queries. No motion cache justified. Existing Upper searches to preparationaccuracy/4
 although caller accepts actual tolerance; caller/margin review identifies a possible
-bounded earlier-success candidate, NOT measured savings or an implemented change.
+bounded earlier-success candidate;194now evaluates it with savings unproven.
 No new configuration/cache/envelope/scheduler. Follow up within this cycle only
 with saved-query counted-work evidence and affected serial/MPI qualification,
 then immediately full TWO-event M6 using the SAME saved CFD and unchanged budgets.

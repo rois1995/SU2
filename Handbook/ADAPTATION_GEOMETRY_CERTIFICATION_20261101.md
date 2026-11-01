@@ -1,6 +1,7 @@
 # Cheaper geometry certification —193terminal analysis
 
-Analysis first; no new C++ implementation, build, configuration or profiling run.
+Analysis completed before194candidate.194build/proof PASS; connected serial ACTIVE.
+No new configuration or profiling run. Current handles/source freeze: HANDOFF.
 One active geometry/quality optimization cycle. Full two-event Euler50k acceptance,
 actual conservative admissible transfer, finite continued CFD and isolated adapted
 disk restart remain required, then dedicated BL/MPI and RANS500k.
@@ -171,3 +172,16 @@ repair→shape remeasurement/reclosure under the same cumulative budgets.193neve
 reached geometry-only entry; its closure is unproved. Require two accepted meshes,
 actual conservative admissible transfer, finite continued CFD and isolated adapted
 disk restart, then BL/constraint/MPI and RANS500k. CAD remains optional.
+
+
+194candidate after terminal analysis: only existing Upper early-success cutoff and
+post-witness success exits changed; all current Upper targets use actual query
+tolerance. Whole rigorous bound returned unchanged; full checks remain. Numeric
+bounds below tolerance may differ in general, but contribute exactly zero hinge.
+Finite triangle test adds .26/.75tolerance offsets alongside .99/1.01,3axes/2windings,
+cache/recompute/refusal checks. BuildPASS84.234683s/1296pins/2hosthandles absent;
+focused proofPASS403assertions/2cases18.236763s/5handles absent/pinsunchanged.
+Same12saved-query traversal379146→360066(-5.032%);all12lesswork,including4hardqueries,
+all bounds EXACT193; cached/recomputed equality passed. This supports integration
+validation, not full-run speedup/acceptance. Current serial then one MPI6 milestone;
+immediately full2eventM6sameCFD/50k/5400. R/geometry_early_exit194_* receipts.
