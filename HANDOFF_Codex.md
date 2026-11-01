@@ -56,7 +56,14 @@ native5400/outer14400/strictgeometry1e-4,q.2,J.05,maxedge1.8/heights.
 
 Cpp/headers/tests/helpers/binary/config/inputs FROZEN untilactualterminal orpreserved
 failure. No competingimplementation/profiler/newoptions/raisedlimits/gaterelaxation.
-Nowfirstnativeconstruction; q/JUNMEASUREDuntilpermittedqualityentry. Actualcomplete
+Firstcompletecoarsening:292709cells/2627collapses;ALL17selectedper-rankfieldsEXACT
+latest198retry1,uppercalls14870same. Traversal158224112→93487444(-40.91454%);
+scope/facet/preparation/discoveryworkunchanged. Engine363.104827vs268.138009s;
+noisolatedwalltimegain. Latestall6ranks split_interior_entry/round1457;construction
+q/JUNMEASURED. All10HOSTidentitiesLIVE/1401pinsunchanged/82mappedELFcovered
+1793526822.357377. Resources:33.38GBavailableRAM,CPUpsiavg6022.81%;sampledsummedRSS
+max7.851GBnotphysicalRAM/truepeak. ACTIVE/coarsening_comparison.json,
+coarsening_live_provenance.json,coarsening_resources.json preserveevidence. Actualcomplete
 censuses,geometrywork,netwholefieldq/Jbad/s andgeometrycounts chooseutility.
 ComparetoLATEST198retry1 atactualmatchingstages/times,notassumedfuturestateidentity.
 ZEROaccepted adaptedmeshes/transfer/adaptedCFD/adaptedrestart. FullgoalACTIVE.

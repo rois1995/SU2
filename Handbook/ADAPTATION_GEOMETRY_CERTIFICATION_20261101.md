@@ -16,6 +16,14 @@ triangle_coverage label: euler_build199_real_cfd50k_triangle_coverage isWINDING1
 not198code. Actualbinary/config/seed/originalcontinued00000 verified; current
 handles/sourcefreeze inHANDOFF. No acceptedmesh/transfer/adaptedrestart yet.
 
+199 first actual complete coarsening: all17selected per-rank result fields match
+latest198retry1,292709cells/2627collapses,14870uppercalls. Traversal158224112→93487444
+(-40.91454%);scope/facet/selection/support work unchanged. Engine363.104827vs268.138009s
+under different host conditions; lower counted work has not established walltime or
+net quality-closure improvement. Q/J deliberately unmeasured during construction.
+Current run stays frozen. Actual current receipts: coarsening_comparison.json,
+coarsening_live_provenance.json and coarsening_resources.json in the199directory.
+
 ## Preserved retry1 terminal analysis
 
 Same qualified source198 retry1 is TERMINAL. All6natural time-budget rejection,
