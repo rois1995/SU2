@@ -67,6 +67,7 @@ protected:
   const bool edgeForm;
   const bool exactFormJac;
   const su2double positiveDiss;
+  const su2double positiveSensor;
   const bool sweptFlux;
 
   /*!
@@ -87,6 +88,7 @@ protected:
     edgeForm(finestGrid && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())),
     exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()),
     positiveDiss(edgeForm ? config.GetEdge_Form_Positive_Diss() : 0.0),
+    positiveSensor(config.GetEdge_Form_Positive_Sensor()),
     sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
   }
 
@@ -236,7 +238,14 @@ public:
         const Double rhoForm = abs(dot(avgVel, formNormal)) + avgC * norm(formNormal);
         const Double rhoE = abs(dot(avgVel, formE)) + avgC * norm(formE);
         const Double rhoDual = abs(dot(avgVel, normal)) + avgC * area;
-        const Double extra = positiveDiss * fmax(rhoForm + 2.0 * rhoE - rhoDual, 0.0);
+        Double extra = positiveDiss * fmax(rhoForm + 2.0 * rhoE - rhoDual, 0.0);
+
+        /*--- EDGE_FORM_POSITIVE_SENSOR: the scalar term harms the shear layers, where the pressure is nearly
+         * constant across an edge. Scale it with the pressure jump, which is small there. ---*/
+        if (positiveSensor > 0.0) {
+          const Double jumpP = abs(V1st.j.pressure() - V1st.i.pressure()) / (0.5 * (V1st.i.pressure() + V1st.j.pressure()));
+          extra *= fmin(jumpP / positiveSensor, 1.0);
+        }
 
         for (size_t iVar = 0; iVar < nVar; ++iVar) {
           flux(iVar) -= 0.5 * extra * (U.j.all(iVar) - U.i.all(iVar));
