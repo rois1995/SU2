@@ -1,5 +1,5 @@
 {
-  "time": 1793531419.2578363,
+  "time": 1793531646.022832,
   "scope": "Qualified199 winding versus latest198retry1 at actual matching complete first-event quality windows. Different sources; traversal work is intentionally different. No isolated timing or byte-identical mesh/trial-history claim.",
   "work_fields": [
     "upper_calls",
@@ -710,9 +710,75 @@
       "current_net_q_per_second": 12.323983987642599,
       "baseline_net_q_per_second": 11.792308104380272,
       "traversal_work_reduction_fraction": 0.5233431391416303
+    },
+    {
+      "window": 22,
+      "round": 22976,
+      "current_census": 48,
+      "baseline_same_round_available": true,
+      "whole_field_equal": false,
+      "rank_debts_equal": false,
+      "window_counters_equal": false,
+      "unchanged_work_fields_equal": false,
+      "current_work": {
+        "upper_calls": 887620,
+        "upper_work": 1593583672,
+        "traversal_work": 1405042211,
+        "scope_build_work": 10316370,
+        "facet_build_work": 2311536,
+        "piece_selection_work": 98838380,
+        "support_facets": 161132141
+      },
+      "baseline_work": {
+        "upper_calls": 893586,
+        "upper_work": 3160994726,
+        "traversal_work": 2969394719,
+        "scope_build_work": 10440763,
+        "facet_build_work": 2348124,
+        "piece_selection_work": 100351021,
+        "support_facets": 163329785
+      },
+      "current_quality_seconds": 3889.0775767229998,
+      "baseline_quality_seconds": 4096.7833358610005,
+      "current_net_q_per_second": 12.2437773638146,
+      "baseline_net_q_per_second": 11.616430769824504,
+      "traversal_work_reduction_fraction": 0.526825382287615
+    },
+    {
+      "window": 23,
+      "round": 23040,
+      "current_census": 49,
+      "baseline_same_round_available": true,
+      "whole_field_equal": false,
+      "rank_debts_equal": false,
+      "window_counters_equal": false,
+      "unchanged_work_fields_equal": false,
+      "current_work": {
+        "upper_calls": 914937,
+        "upper_work": 1634138830,
+        "traversal_work": 1439580134,
+        "scope_build_work": 10550782,
+        "facet_build_work": 2313234,
+        "piece_selection_work": 102059028,
+        "support_facets": 165897920
+      },
+      "baseline_work": {
+        "upper_calls": 923919,
+        "upper_work": 3270153831,
+        "traversal_work": 3071363852,
+        "scope_build_work": 10704656,
+        "facet_build_work": 2354027,
+        "piece_selection_work": 104189887,
+        "support_facets": 168895454
+      },
+      "current_quality_seconds": 3987.7345138849996,
+      "baseline_quality_seconds": 4224.419803468,
+      "current_net_q_per_second": 12.191634079630719,
+      "baseline_net_q_per_second": 11.53034079615212,
+      "traversal_work_reduction_fraction": 0.531289614852184
     }
   ],
-  "migration_comparison_through_round": 22912,
+  "migration_comparison_through_round": 23040,
   "current_only_migration_rounds": [],
   "baseline_only_migration_rounds": [
     22848,
@@ -745,7 +811,9 @@
     22720,
     22784,
     22848,
-    22912
+    22912,
+    22976,
+    23040
   ],
   "unsettled_boundary_rounds": [],
   "confirmed_migration_decision_differences": [

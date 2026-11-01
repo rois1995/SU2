@@ -75,30 +75,30 @@ ACTIVE/quality_entry_live_provenance.json andquality_entry_resources.json preser
 Actualcomplete
 censuses,geometrywork,netwholefieldq/Jbad/s andgeometrycounts chooseutility.
 ComparetoLATEST198retry1 atactualmatchingstages/times,notassumedfuturestateidentity.
-Latestcompletequalitywindow21/round22912: 798684cells/7540q/4943J/
-3126geometry/0size. Sincefirstqualityentry3776.457357s,
-net46541q/48449J/644geometry through39240publications;
-netq12.323984/s. Constructioneditssinceentry0;wholefieldrate
+Latestcompletequalitywindow23/round23040: 801065cells/5464q/3327J/
+3115geometry/0size. Sincefirstqualityentry3987.734514s,
+net48617q/50065J/655geometry through42147publications;
+netq12.191634/s. Constructioneditssinceentry0;wholefieldrate
 includesanyconstruction,notnecessarilypurepublishedrepairyield.
-Remainingqsurface/interior1060/6480;J1323/3620.
-Queue109114/blockedfeatures398/stuckshape13;
+Remainingqsurface/interior868/4596;J873/2454.
+Queue82056/blockedfeatures544/stuckshape28;
 Counters alone do not establish repair power; interior cells may have constrained vertices.
-Actual198retry1same-roundnetq11.792308/s;selectedwholefieldexact=False,
+Actual198retry1same-roundnetq11.530341/s;selectedwholefieldexact=False,
 rankdebtsexact=False,commitsexact=False,churnexact=False.
-Traversal2859894104→1363188146(-52.3343%).
+Traversal3071363852→1439580134(-53.1290%).
 12complete lateownershipmigrations audited forglobalcounts/debt/completeflagsand20selected
-cachecounters/entries/bytes;notproofeverykey/history. Currentjoinshare0.39745
+cachecounters/entries/bytes;notproofeverykey/history. Currentjoinshare0.40159
 includesprotocol+wait,notpureidle. PredicatecountsarenotuniformCPUcost;timersoverlap/
 hostconditionsdiffer. Noisolatedspeedupclaim. FullruncontinuesFROZEN. Actual
-quality_window21_comparison.json/service_summary.json,quality_migration_assessment.json and
+quality_window23_comparison.json/service_summary.json,quality_migration_assessment.json and
 all_quality_census_assessment.json andquality_matching_window_assessment.json retaincounters.
 First measured selected-state difference is window21;later states/work are not assumed identical.
 Confirmed ownership decision difference at round22848: current migrate=0,
 198retry1 migrate=1, confirmed on all6ranks. Do not assume future state identity.
 Confirmed ownership decision difference at round22912: current migrate=0,
 198retry1 migrate=1, confirmed on all6ranks. Do not assume future state identity.
-Latestwindow21HOSTaudit1793531436.1208549:all10LIVE/1401pinsunchanged/
-82mappedELFcovered. Actualquality_window21_live_provenance.json/resources.json.
+Latestwindow23HOSTaudit1793531655.1068807:all10LIVE/1401pinsunchanged/
+82mappedELFcovered. Actualquality_window23_live_provenance.json/resources.json.
 Afterwindow4hostfollowup1793528607:load23.98/RAM30.81GBavailable/CPUpsiavg6021.81%,
 memorypsiavg60some10.44/full.79%;quality_window4_followup_resources.json. Snapshotnotcausality.
 ZEROaccepted adaptedmeshes/transfer/adaptedCFD/adaptedrestart. FullgoalACTIVE.
