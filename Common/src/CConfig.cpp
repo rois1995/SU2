@@ -6237,8 +6237,19 @@ void CConfig::CheckP1FluxOptions() const {
   }
   if (ContinuousAdjoint || DiscreteAdjoint) refuse("not available for adjoint problems.");
   if (Multizone_Problem) refuse("not available for multizone problems.");
-  if (GetDynamic_Grid()) refuse("not available with grid motion.");
   if (Axisymmetric) refuse("not available for axisymmetric problems.");
+
+  /*--- Grid motion: the options keep free stream through the GCL term of the dual time source, which matches the grid
+   * term of their flux. The steady path of rotating frames and the field velocity of gusts use the median normals. ---*/
+
+  const bool dualTime = (GetTime_Marching() == TIME_MARCHING::DT_STEPPING_1ST) ||
+                        (GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND);
+
+  if (GetDynamic_Grid()) {
+    if (!dualTime) refuse("grid motion needs dual time stepping, the GCL term is in the dual time source.");
+    if (Rotating_Frame) refuse("not available with a rotating frame, SetRotatingFrame_GCL uses the median normals.");
+    if (Wind_Gust) refuse("not available with wind gusts, the gust source terms use the median normals.");
+  }
 
   /*--- Specific to each option. ---*/
 
@@ -6305,7 +6316,7 @@ void CConfig::CheckP1FluxOptions() const {
     if (Dissipation_Mod_Normals) SU2_MPI::Error(name + "not available with DISSIPATION_MOD_NORMALS.", CURRENT_FUNCTION);
     if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries.", CURRENT_FUNCTION);
     if (nMGLevels > 0) SU2_MPI::Error(name + "not available with multigrid, set MGLEVEL= 0.", CURRENT_FUNCTION);
-    if (Time_Domain) SU2_MPI::Error(name + "steady problems only, the volumes stay median.", CURRENT_FUNCTION);
+    if (Time_Domain && !dualTime) SU2_MPI::Error(name + "time accurate runs need dual time stepping.", CURRENT_FUNCTION);
     if (Kind_ConvNumScheme_Flow == SPACE_UPWIND && Kind_Upwind_Flow != UPWIND::ROE) {
       SU2_MPI::Error(name + "among the upwind schemes only ROE is supported.", CURRENT_FUNCTION);
     }

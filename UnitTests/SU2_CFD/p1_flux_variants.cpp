@@ -789,3 +789,184 @@ TEST_CASE("Split edges on simplices reduce to the median normal", "[P1Flux]") {
     CHECK(maxDiff < 1e-13);
   }
 }
+
+namespace {
+
+/*--- Options of a moving mesh, grid velocities are only allocated with them. ---*/
+const std::string GridMotion =
+    "TIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nTIME_STEP= 0.01\nGRID_MOVEMENT= RIGID_MOTION\n";
+
+/*--- Rate of a motion x = X + s d(X), nonlinear, with boundary nodes moving along and across the boundary. ---*/
+void Displacement(unsigned short nDim, const su2double* X, su2double* d) {
+  d[0] = 0.08 * X[1] * X[1] + 0.05 * sin(2.0 * X[0]);
+  d[1] = 0.05 * sin(3.0 * X[0]) + 0.06 * X[1] * X[0];
+  if (nDim == 3) {
+    d[0] += 0.04 * X[2] * X[1];
+    d[1] += 0.03 * cos(2.0 * X[2]);
+    d[2] = 0.05 * sin(2.0 * X[1]) * X[0] + 0.04 * X[2] * X[2];
+  }
+}
+
+/*--- Reference coordinates, so that all ranks and all halos follow the same motion. ---*/
+std::vector<std::array<su2double, 3>> StoreCoord(const CGeometry& geometry) {
+  std::vector<std::array<su2double, 3>> X0(geometry.GetnPoint(), std::array<su2double, 3>{});
+  for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+    for (auto iDim = 0u; iDim < geometry.GetnDim(); ++iDim) X0[iPoint][iDim] = geometry.nodes->GetCoord(iPoint, iDim);
+  }
+  return X0;
+}
+
+void MoveMesh(CGeometry& geometry, CConfig* config, const std::vector<std::array<su2double, 3>>& X0, su2double s) {
+  const auto nDim = geometry.GetnDim();
+  for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+    su2double d[3] = {};
+    Displacement(nDim, X0[iPoint].data(), d);
+    for (auto iDim = 0u; iDim < nDim; ++iDim) geometry.nodes->SetCoord(iPoint, iDim, X0[iPoint][iDim] + s * d[iDim]);
+  }
+  geometry.SetControlVolume(config, UPDATE);
+  geometry.SetBoundControlVolume(config, UPDATE);
+  geometry.SetBoundCVCoeffs(config, UPDATE);
+  geometry.UpdateP1FluxCoefficients(config);
+}
+
+su2double GlobalMax(su2double local) {
+  su2double global = 0.0;
+  SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  return global;
+}
+
+su2double GlobalSum(su2double local) {
+  su2double global = 0.0;
+  SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  return global;
+}
+
+su2double OwnedVolume(const CGeometry& geometry) {
+  su2double volume = 0.0;
+  for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) volume += geometry.nodes->GetVolume(iPoint);
+  return GlobalSum(volume);
+}
+
+/*--- Grid flux on the mesh at s = 0.5, and dV/dt from the two neighbouring configurations. ---*/
+void GridFluxAndVolumeChange(CGeometry& geometry, CConfig* config, std::vector<su2double>& dVdt, su2activevector& G) {
+  const auto X0 = StoreCoord(geometry);
+  const su2double s = 0.5, eps = 1e-4;
+  dVdt.assign(geometry.GetnPointDomain(), 0.0);
+
+  MoveMesh(geometry, config, X0, s + eps);
+  for (auto iPoint = 0ul; iPoint < dVdt.size(); ++iPoint) dVdt[iPoint] = geometry.nodes->GetVolume(iPoint) / (2 * eps);
+  MoveMesh(geometry, config, X0, s - eps);
+  for (auto iPoint = 0ul; iPoint < dVdt.size(); ++iPoint) dVdt[iPoint] -= geometry.nodes->GetVolume(iPoint) / (2 * eps);
+  MoveMesh(geometry, config, X0, s);
+
+  for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+    su2double d[3] = {};
+    Displacement(geometry.GetnDim(), X0[iPoint].data(), d);
+    for (auto iDim = 0u; iDim < geometry.GetnDim(); ++iDim) geometry.nodes->SetGridVel(iPoint, iDim, d[iDim]);
+  }
+  geometry.SetGridFluxP1(config, G);
+}
+
+}  // namespace
+
+TEST_CASE("Grid flux of the median dual with the weak weights is the volume change", "[P1Flux]") {
+  for (int nDim : {2, 3}) {
+    const std::string mesh = "p1_gcl_median_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 12 : 5, 0.4, 1.0);
+    MeshCase test(mesh, GridMotion + "CONV_NUM_METHOD_FLOW= JST\nBC_WEAK_P1= YES\n");
+    auto& geometry = *test.geometry;
+
+    std::vector<su2double> dVdt;
+    su2activevector G;
+    GridFluxAndVolumeChange(geometry, test.config.get(), dVdt, G);
+
+    su2double scale = 0.0, error = 0.0;
+    for (auto iPoint = 0ul; iPoint < dVdt.size(); ++iPoint) {
+      scale = std::max(scale, fabs(dVdt[iPoint]));
+      error = std::max(error, fabs(G[iPoint] - dVdt[iPoint]));
+    }
+    INFO("nDim " << nDim);
+    CHECK(GlobalMax(error) < 1e-7 * GlobalMax(scale));
+  }
+}
+
+TEST_CASE("Grid flux of the P1 forms on moving meshes", "[P1Flux]") {
+  struct Kind {
+    int nDim, kind;  // kind -1: simplex mesh.
+    unsigned long n;
+    std::string options;
+    bool weak;
+  };
+  const std::string edge = "MOD_CENTROIDS= YES\nCONV_NUM_METHOD_FLOW= JST\nEDGE_FORM_P1= YES\n";
+  const std::string split = "CONV_NUM_METHOD_FLOW= JST\nSPLIT_EDGE_FLUX= YES\n";
+  const std::vector<Kind> cases = {
+      Kind{2, -1, 12, edge + "BC_WEAK_P1= YES\n", true}, Kind{3, -1, 5, edge + "BC_WEAK_P1= YES\n", true},
+      Kind{2, -1, 12, edge, false},                      Kind{2, -1, 12, split, false},
+      Kind{3, -1, 5, split, false},                      Kind{2, 0, 10, split, false},
+      Kind{3, 0, 5, split, false},                       Kind{3, 1, 5, split, false},
+      Kind{3, 2, 4, split, false}};
+
+  for (const auto& mesh : cases) {
+    const std::string name = "p1_gcl_" + std::to_string(mesh.nDim) + "_" + std::to_string(mesh.kind) + ".su2";
+    if (mesh.kind < 0) {
+      WriteSimplexMesh(name, mesh.nDim, mesh.n, 0.4, 1.0);
+    } else {
+      WriteGeneralMesh(name, mesh.nDim, mesh.kind, mesh.n, 0.2, 1.0);
+    }
+    MeshCase test(name, GridMotion + mesh.options);
+    auto& geometry = *test.geometry;
+    const auto nDim = geometry.GetnDim();
+    INFO("nDim " << mesh.nDim << " kind " << mesh.kind << " weak " << mesh.weak << " " << mesh.options);
+
+    /*--- The total grid flux is the total volume change: it must reach all pairs and all boundaries once. ---*/
+
+    const auto X0 = StoreCoord(geometry);
+    const su2double s = 0.5, eps = 1e-4;
+    MoveMesh(geometry, test.config.get(), X0, s + eps);
+    const auto volumeP = OwnedVolume(geometry);
+    MoveMesh(geometry, test.config.get(), X0, s - eps);
+    const auto volumeM = OwnedVolume(geometry);
+    MoveMesh(geometry, test.config.get(), X0, 0.0);
+
+    std::vector<su2double> dVdt;
+    su2activevector G;
+    GridFluxAndVolumeChange(geometry, test.config.get(), dVdt, G);
+
+    su2double total = 0.0, scale = 0.0;
+    for (auto iPoint = 0ul; iPoint < dVdt.size(); ++iPoint) {
+      total += G[iPoint];
+      scale = std::max(scale, fabs(dVdt[iPoint]));
+    }
+    CHECK(fabs(GlobalSum(total) - (volumeP - volumeM) / (2 * eps)) < 1e-7 * GlobalMax(scale));
+
+    /*--- A translation gives no grid flux at any node, the pairs close with the boundary terms. ---*/
+
+    const su2double translation[3] = {0.7, -0.4, 0.3};
+    for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+      for (auto iDim = 0u; iDim < nDim; ++iDim) geometry.nodes->SetGridVel(iPoint, iDim, translation[iDim]);
+    }
+    geometry.SetGridFluxP1(test.config.get(), G);
+    su2double closure = 0.0;
+    for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+      closure = std::max(closure, fabs(G[iPoint]) / geometry.nodes->GetVolume(iPoint));
+    }
+    CHECK(GlobalMax(closure) < 1e-9);
+
+    /*--- A linear velocity gives its divergence at interior nodes, and at all nodes with the weak weights. ---*/
+
+    LinearFlux flux;
+    for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+      for (auto iDim = 0u; iDim < nDim; ++iDim) {
+        geometry.nodes->SetGridVel(iPoint, iDim, flux.Eval(geometry, iPoint, iDim));
+      }
+    }
+    geometry.SetGridFluxP1(test.config.get(), G);
+    su2double linear = 0.0;
+    const auto div = flux.Div(nDim);
+    for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+      if (!mesh.weak && geometry.nodes->GetPhysicalBoundary(iPoint)) continue;
+      linear = std::max(linear, fabs(G[iPoint] / geometry.nodes->GetVolume(iPoint) - div) / fabs(div));
+    }
+    CHECK(GlobalMax(linear) < 1e-8);
+  }
+}
