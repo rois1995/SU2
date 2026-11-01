@@ -1841,6 +1841,8 @@ void CConfig::SetConfig_Options() {
   addEnumOption("VISCOUS_SCHEME", Kind_Viscous_Scheme, Viscous_Scheme_Map, VISCOUS_SCHEME::EDGE_GRADIENT);
   /*!\brief EDGE_FORM_P1 \n DESCRIPTION: Variant C, central flux 0.5(F_i+F_k).n_ik + (F_k-F_i).E_ik on the modified dual, requires MOD_CENTROIDS \ingroup Config \default false */
   addBoolOption("EDGE_FORM_P1", Edge_Form_P1, false);
+  /*!\brief EDGE_FORM_MEDIAN_DUAL \n DESCRIPTION: Only the weights of EDGE_FORM_P1 use the moved centroid, dissipation, Jacobians and viscous terms stay on the median dual. Use without MOD_CENTROIDS. \ingroup Config*/
+  addBoolOption("EDGE_FORM_MEDIAN_DUAL", Edge_Form_Median_Dual, false);
   /*!\brief EDGE_FORM_MIN_SHARE \n DESCRIPTION: Smallest part of a cell that a node may hold in EDGE_FORM_P1, the weights are pulled toward the median. 0 is off. \ingroup Config*/
   addDoubleOption("EDGE_FORM_MIN_SHARE", Edge_Form_Min_Share, 0.0);
   /*!\brief EDGE_FORM_EXACT_JACOBIAN \n DESCRIPTION: Central Jacobian of EDGE_FORM_P1 or SPLIT_EDGE_FLUX with the coefficients of the form, not the normal of the dual. \ingroup Config*/
@@ -6327,7 +6329,8 @@ void CConfig::CheckP1FluxOptions() const {
   }
   if (Edge_Form_P1) {
     const string name = "EDGE_FORM_P1: ";
-    if (!ModCentroids) SU2_MPI::Error(name + "needs MOD_CENTROIDS= YES.", CURRENT_FUNCTION);
+    if (Edge_Form_Median_Dual && ModCentroids) SU2_MPI::Error(name + "EDGE_FORM_MEDIAN_DUAL replaces MOD_CENTROIDS.", CURRENT_FUNCTION);
+    if (!Edge_Form_Median_Dual && !ModCentroids) SU2_MPI::Error(name + "needs MOD_CENTROIDS= YES or EDGE_FORM_MEDIAN_DUAL= YES.", CURRENT_FUNCTION);
     if (FluxCorrection) SU2_MPI::Error(name + "not available with FLUX_CORRECTION.", CURRENT_FUNCTION);
     if (BC_Flux_Closure) SU2_MPI::Error(name + "BC_FLUX_CLOSURE is derived for the median dual.", CURRENT_FUNCTION);
     if (Central_Group_Flux) SU2_MPI::Error(name + "it is already in group form, remove CENTRAL_GROUP_FLUX.", CURRENT_FUNCTION);

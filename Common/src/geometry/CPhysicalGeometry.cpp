@@ -7188,7 +7188,7 @@ su2double SplitWeights(const CSplitPattern& pattern, unsigned short nDim,
 
 }  // namespace
 
-void CPhysicalGeometry::SetEdgeFormP1(su2double minShare) {
+void CPhysicalGeometry::SetEdgeFormP1(su2double minShare, bool medianDual) {
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     edges->FormNormal.resize(edges->nEdgeSIMD, nDim) = su2double(0.0);
     edges->FormE.resize(edges->nEdgeSIMD, nDim) = su2double(0.0);
@@ -7207,7 +7207,20 @@ void CPhysicalGeometry::SetEdgeFormP1(su2double minShare) {
       /*--- W = |C_i cap T|, built with the sub-volumes of SetControlVolume, so that sum_T W = V_i. ---*/
 
       su2double W[MAXNDIM + 1] = {0.0};
-      CellNodeShares(element, nDim, Coord, W);
+
+      /*--- EDGE_FORM_MEDIAN_DUAL: SU2 keeps the median dual for dissipation, Jacobians and viscous terms, the
+       * moved centroid gives only the weights of the flux, and the nodal volume follows the weights. ---*/
+
+      if (medianDual) {
+        su2double shareMedian[MAXNDIM + 1] = {0.0};
+        CellNodeShares(element, nDim, Coord, shareMedian);
+        element->SetModCentroids(true);
+        CellNodeShares(element, nDim, Coord, W);
+        element->SetModCentroids(false);
+        for (unsigned short a = 0; a < nNodes; a++) nodes->AddVolume(element->GetNode(a), W[a] - shareMedian[a]);
+      } else {
+        CellNodeShares(element, nDim, Coord, W);
+      }
 
       su2double grad[MAXNDIM + 1][3];
       const su2double median = fabs(P1Simplex::ShapeGradients(nDim, Coord, grad)) / nNodes;

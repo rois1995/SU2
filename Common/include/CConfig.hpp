@@ -148,6 +148,7 @@ private:
   Dissipation_Mod_Normals,  /*!< \brief Median normal in the central flux, modified normal in dissipation and Jacobian.*/
   Edge_Form_P1,             /*!< \brief Central flux with the edge coefficients n_ik and E_ik of the modified dual.*/
   Edge_Form_Exact_Jacobian, /*!< \brief Central Jacobian of the edge form with n_ik and E_ik.*/
+  Edge_Form_Median_Dual,    /*!< \brief Only the flux weights of the edge form use the moved centroid.*/
   GCL_Exact_P1,             /*!< \brief Make the grid flux of the P1 forms equal to the BDF difference of the volumes.*/
   Split_Edge_Flux,          /*!< \brief Central flux on the split edges of the cells, with no new points.*/
   Pressure_Based;           /*!< \brief Flag to check if we are using a pressure-based system.*/
@@ -9994,6 +9995,12 @@ public:
    * \return YES if the edge form is used.
    */
   bool GetEdge_Form_P1() const { return Edge_Form_P1; }
+
+  /*!
+   * \brief Get if the edge form keeps the median dual for dissipation, Jacobians and viscous terms.
+   * \return YES if only the flux weights use the moved centroid.
+   */
+  bool GetEdge_Form_Median_Dual() const { return Edge_Form_Median_Dual; }
 
   /*!
    * \brief Get the smallest part of a cell that a node may hold in the P1 edge form.
