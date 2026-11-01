@@ -66,6 +66,40 @@ If another connected change is justified: affectedfocusedserial/oneMPI6,immediat
 fulltwoeventM6sameCFD50k/5400,then actualtransfer/continuedCFD/adaptedrestart;BL/MPI,
 RANS500k. Shape→residualgeometry/size→shapereclosure remains unproved onM6.
 
+## Connected195diagnostic and196candidate — current qualification
+
+After revalidating194all10hosthandlesabsent/1401pinsunchanged,195extended ONLYthe
+EXISTING worktrace with per-plane coverage/lift cost and per-domain upper/distance
+work. No repair/bound/workcharge changes. BuildPASS48.173527s/1296pins/2handlesabsent;
+existing12queryreplayPASS163assertions/1case/5handlesabsent/pinsunchanged. Allbounds
+andcountedworkEXACT194. Source-domainwork sums exactly to reportedtraversal.
+Coverage300573of360066work(83.4772%); lift14818,distance32289. Every coveredgraphbound
+alreadybelowtol. Hardqueries require373/205domains atmaxdepth8/7; no loosecovered
+liftbound caused their failed uppers. Coveragefailure and repeated full footprint
+checks are the measured limitation on this corpus,not finer targetapproximation.
+
+Offline exact-rational prior-subtree Upper+outward motion,identical face/support/
+parametercorrespondence: optimistic810of140510newquerywork(0.5765%)avoidable before
+lookup/storage/invalidationcost. Originalwholeface0of12 remains. Do not build a
+motion/subtreecache from this evidence. R/geometry_certification195_attribution.json
+and geometry_certification195_subtree_motion_analysis.json preserve checks/limits.
+
+196uses the smallestexistingalternative: try the alreadyrigorous convextriangle
+witness before finitegraphcoverage. All fallback/interval/approximation/support/
+reverse/final/association/feature/body/height/resourcecontracts remain. No newcache,
+config/scheduler/constructionoperator/budgetchange. TriangleDistance certifies convex
+witnesses for each sourcecontrolbox; convexinterpolation bounds the complete source
+hull,plus outward targetpieceerror. Belowtol numericvaluesmaychange generally but
+geometryhingeEXACT0; full source review:R/geometry_witness196_source_review.json.
+
+Build196PASS45.152546s/all1296pinsunchanged/all2hosthandlesabsent beforeproof.
+ProofPASS403assertions/2cases16.979416s/all5handlesabsent/pinsunchanged.
+SAME12savedqueries traversal360066→259729(-27.8663%),ALL12boundsEXACT194.
+Every4hardquery improves24.36–30.33%;8easyqueriescost3extraoperations(0.43–0.49%).
+No fullM6speedup/acceptance claim. Affectedserialrunning; thenONE MPI6 milestone and
+IMMEDIATE fulltwoeventM6sameCFD50k/native5400/allstrictgates. Single activecycle.
+No further alternatives while these pinned sources are executing.
+
 ## Historical193analysis that selected194
 
 ## Outcome and provenance

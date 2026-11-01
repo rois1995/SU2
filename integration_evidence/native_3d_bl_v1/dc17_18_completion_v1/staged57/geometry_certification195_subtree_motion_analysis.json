@@ -1,0 +1,81 @@
+{
+  "scope": "OFFLINE exact-rational Lipschitz subtree reuse feasibility on existing saved same-face/same-support query pairs. Upper bound+outward norm tested against exact binary tolerance. No production cache or speedup claim. Lookup/key/motion/tree storage/validation costs excluded; this is an optimistic work ceiling. Does not prove associations/features/bodies/heights/reverse coverage.",
+  "geometry_version": 18,
+  "queries": 12,
+  "payload_bytes": 10448,
+  "results": [
+    {
+      "old_query": 0,
+      "new_query": 1,
+      "whole_face_certified": false,
+      "new_traversal_work": 625,
+      "potential_traversal_skipped": 0,
+      "optimistic_skipped_share": 0.0,
+      "maximal_reusable_domains": []
+    },
+    {
+      "old_query": 2,
+      "new_query": 3,
+      "whole_face_certified": false,
+      "new_traversal_work": 618,
+      "potential_traversal_skipped": 0,
+      "optimistic_skipped_share": 0.0,
+      "maximal_reusable_domains": []
+    },
+    {
+      "old_query": 4,
+      "new_query": 5,
+      "whole_face_certified": false,
+      "new_traversal_work": 693,
+      "potential_traversal_skipped": 0,
+      "optimistic_skipped_share": 0.0,
+      "maximal_reusable_domains": []
+    },
+    {
+      "old_query": 6,
+      "new_query": 7,
+      "whole_face_certified": false,
+      "new_traversal_work": 687,
+      "potential_traversal_skipped": 0,
+      "optimistic_skipped_share": 0.0,
+      "maximal_reusable_domains": []
+    },
+    {
+      "old_query": 8,
+      "new_query": 9,
+      "whole_face_certified": false,
+      "new_traversal_work": 68243,
+      "potential_traversal_skipped": 405,
+      "optimistic_skipped_share": 0.005934674618642205,
+      "maximal_reusable_domains": [
+        {
+          "depth": 2,
+          "old_depth": 2,
+          "old_upper": 2.4434653258132535e-05,
+          "motion_upper": 7.539104153566482e-05,
+          "skipped_work": 405
+        }
+      ]
+    },
+    {
+      "old_query": 10,
+      "new_query": 11,
+      "whole_face_certified": false,
+      "new_traversal_work": 69644,
+      "potential_traversal_skipped": 405,
+      "optimistic_skipped_share": 0.0058152891849979895,
+      "maximal_reusable_domains": [
+        {
+          "depth": 2,
+          "old_depth": 2,
+          "old_upper": 2.443465325813912e-05,
+          "motion_upper": 7.539104153560076e-05,
+          "skipped_work": 405
+        }
+      ]
+    }
+  ],
+  "total_new_traversal": 140510,
+  "optimistic_total_skipped": 810,
+  "optimistic_skipped_share": 0.0057647142552131525
+}

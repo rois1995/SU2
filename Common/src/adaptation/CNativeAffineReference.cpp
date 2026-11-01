@@ -302,12 +302,13 @@ class TriangleUnion {
     if(++visit==0){std::fill(visited.begin(),visited.end(),0);visit=1;}
     auto plane_bound=[&](size_t i)->double{const auto group=triangle_plane[i];if(group==SIZE_MAX||visited[group]==visit)return INFINITY;
       visited[group]=visit;op.Work();return planes[group].Upper(hull,op);};
-    // Upper callers construct this witness at their query tolerance; a proven bound already suffices.
-    const auto seed=Seed(box,op);double best=plane_bound(seed);if(best<=accuracy)return best;
+    // A convex triangle witness can certify small domains before expensive finite-footprint coverage.
+    const auto seed=Seed(box,op);double best=witness(seed);if(best<=accuracy)return best;
+    best=std::min(best,plane_bound(seed));if(best<=accuracy)return best;
     // A passing witness must intersect the hull's tolerance neighbourhood; retain the seed's valid upper bound.
-    best=std::min(best,witness(seed));if(best<=accuracy)return best;Candidates(box,std::min(best,accuracy),op);
-    for(auto i:candidates){best=std::min(best,plane_bound(i));if(best<=accuracy)return best;
-      best=std::min(best,witness(i));if(best<=accuracy)return best;}return best;
+    Candidates(box,std::min(best,accuracy),op);
+    for(auto i:candidates){best=std::min(best,witness(i));if(best<=accuracy)return best;
+      best=std::min(best,plane_bound(i));if(best<=accuracy)return best;}return best;
   }
   size_t ResidentBytes()const {
     auto bytes=[](const auto& v){return transfer_memory::Mul(v.capacity(),sizeof(typename std::decay_t<decltype(v)>::value_type));};
@@ -326,6 +327,12 @@ class TriangleUnion {
     TriangleUnion* owner=nullptr;size_t group=0;double axis_lo=INFINITY,axis_hi=-INFINITY;
     std::array<double,2> lo{},hi{};bool positive=true;
     template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op)const {
+      struct TraceReceipt {
+        AtlasOps& op;size_t start,coverage_work=0;unsigned coverage=0;double bound=INFINITY;
+        ~TraceReceipt(){if(AtlasOps::Trace())std::fprintf(stderr,
+            "NATIVE_SURFACE_GRAPH coverage=%u bound=%.17g coverage_work=%zu lift_work=%zu\n",
+            coverage,bound,coverage_work,op.budget.work-start-coverage_work);}
+      } trace{op,op.budget.work};
       const unsigned x=(axis==0?1:0),y=(axis==2?1:2);
       long double dx=0,dy=0;std::array<long double,2> lower{{INFINITY,INFINITY}},upper{{-INFINITY,-INFINITY}};
       for(const auto& p:hull) {
@@ -366,6 +373,7 @@ class TriangleUnion {
           }
         }
       }
+      trace.coverage_work=op.budget.work-trace.start;trace.coverage=covered?1:triangle_covered?2:0;
       if(!covered&&!triangle_covered)return INFINITY;
       auto source=[&](size_t i)->const Box& {return triangle_covered?nominal[i]:hull[i];};
       // Coverage supplies a target point on some overlapping face; bound every possible lift.
@@ -465,7 +473,8 @@ class TriangleUnion {
       } else for(const auto& face:faces)lift(face);
       if(!found)return INFINITY;
       // Every original hull point is within padding of a point on the covered nominal triangle.
-      return triangle_covered?std::nextafter(double(Add({bound,bound},{0,padding}).hi),INFINITY):bound;
+      trace.bound=triangle_covered?std::nextafter(double(Add({bound,bound},{0,padding}).hi),INFINITY):bound;
+      return trace.bound;
     }
   };
   std::vector<PlaneUnion> planes;std::vector<size_t> triangle_plane,triangle_slot;
@@ -1977,12 +1986,21 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
     std::vector<NodeBound> queue;double lower=0,finished=0;size_t leaves=0;
     size_t traced_work=budget.work;
     auto prepare=[&](const UnionDomain& domain) {
+      const auto upper_work=budget.work;
       op.Work();double upper=0,diameter=0;
       if(from_model)upper=target.Upper(net(domain),op);
       else {std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=LinearPoint(physical.at(domain.facet),Exact(domain.parameter[k]));upper=target.Upper(points,op);
         if(upper>tolerance&&target.ApproximationError()>0)for(unsigned k=0;k<3;++k)
           diameter=std::max(diameter,NormBound(Difference(points[k],points[(k+1)%3])));}
+      const auto distance_work=budget.work;
       if(upper>tolerance)lower=std::max(lower,target.Distance(sample(domain,from_model),op).lower);
+      if(AtlasOps::Trace()) {
+        std::fprintf(stderr,"NATIVE_SURFACE_DOMAIN model=%d facet=%llu depth=%u upper=%.17g lower=%.17g upper_work=%zu distance_work=%zu parameter=",
+            int(from_model),static_cast<unsigned long long>(domain.facet),domain.depth,upper,lower,
+            distance_work-upper_work,budget.work-distance_work);
+        for(auto p:domain.parameter)std::fprintf(stderr,"%.17g,%.17g,%.17g;",p.x,p.y,p.z);
+        std::fprintf(stderr,"\n");
+      }
       if(!std::isfinite(upper))throw std::invalid_argument("Unrepresentable surface-union upper bound.");
       op.Storage(transfer_memory::GrowthBound(queue.size()+1,sizeof(NodeBound)));
       queue.push_back({domain,upper,diameter});std::push_heap(queue.begin(),queue.end(),compare);

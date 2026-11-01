@@ -9,7 +9,7 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current —194TERMINAL; analysis first, no next implementation selected
+## Current —194TERMINAL;196witness-order serial qualification, sources frozen
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 CURRENT=`R/m6_runs/euler_build194_real_cfd50k_early_exit`.
@@ -29,7 +29,19 @@ only verified remaining launcher801607/start90716193; all10actual hostidentities
 all1401pins verified before signal:event1_failure_owned_stop.json.
 Exec60431terminal1. All10identities ABSENT/all1401pins unchanged at1793497689.333789:
 terminal_handles.json. ALL194PIDs801458/801605/801606/801607/801612..801617 are now
-HISTORICAL; NEVER resignal. No owned heavy job. No C++ edits since sourcef518f2d727.
+HISTORICAL; NEVER resignal. No owned heavy job. 194sources remainedf518f2d727through terminal. After independent host revalidation,
+195adds only existing worktrace coverage/lift and source-domain cost fields;
+NO geometrybound/repairdecision/workcharge change. 195diagnostic buildPASS48.173527s/all1296pinsunchanged/all2handlesabsent;
+replayPASS163assertions/1case/all5handlesabsent/pinsunchanged. ALL12bounds/work
+EXACT194. Attribution:coverage300573of360066traversalwork(83.4772%),
+allcoveredgraphbounds alreadybelowtol. R/geometry_certification195_attribution.json.
+196candidate now tries ALREADYexistingrigoroustrianglewitness before finitegraph
+coverage in sharedUpper. No newcache/config/scheduler/budget/operator; allfallbacks
+retained. Belowtol numeric boundsmaydiffer,zero geometryhingeremains0. Saved12replay traversal360066→259729(-27.8663%),ALL12boundsEXACT194;
+8easyqueriescost3extraoperations each,all4hardqueries improve. ProofPASS403assertions/
+2cases16.979416s/all5handlesabsent/pinsunchanged. Build196PASS45.152546s/
+all1296pinsunchanged/all2handlesabsent beforeproof. Affectedserialrunning,sourcesfrozen;
+R/geometry_witness196_validation_plan.json.
 CFDSHA434846cf1fca385747e52a8167b4912d853f7d4de65b9ea9642f71308966951a.
 Same qualified savedrealCFD/config/mesh/native_ref/ACTUALoriginal continued restart
 BYTEIDENTICAL193/191:early_runtime_provenance.json. CL.269535/CD.013536 at original
@@ -65,7 +77,8 @@ all5hosthandlesabsent/pinsunchanged: R/cases/geometry_certification194_trace_202
 ALL12bounds/workEXACToriginal194replay;4hardpassingqueriesconsume98.5811%traversal,
 sourceprogressdepth6,allfootprintbuildsvalid/norefusals,no finer-targetretry.
 Trace does not separate per-domain footprintcoverage failure from loose lift bounds.
-No new speedup established or codechange selected; analyze that distinction first. Analyze cheaper certification FIRST using existing counters/
+195attribution and196candidate evidence above supersede the remaining attribution
+uncertainty. Analyze cheaper certification using existing counters/
 savedqueries/trace and source contracts. Distinguish exact repeats from nearby
 positions and eviction misses; existing aggregate counters cannot fully classify.
 Uniform displacement+remaining-slack proof certifies0of12savedqueries; no motion
@@ -74,7 +87,7 @@ preparedgeometry,early bounds and candidate screening before adding anything.
 Uncertain bounds fall back to full traversal; preserve associations/features/bodies/
 heights/reverse/final gates. No sampling-only proof,newoptions,perf/GDB/baselinecampaign.
 One active cycle: further work must address measured traversal cost/net wholefield
-q/J-bad removal/s with geometrycounts,not rawcommits/debtalone. No next change selected.
+q/J-bad removal/s with geometrycounts,not rawcommits/debtalone. 196is the single connected candidate under validation.
 [Current certification analysis](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md).
 
 ## Preserved193outcome and analysis — historical handles, never resignal
