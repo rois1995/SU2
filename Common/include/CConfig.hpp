@@ -76,6 +76,7 @@ private:
   unsigned short iZone, nZone;    /*!< \brief Number of zones in the mesh. */
   unsigned short nZoneSpecified;  /*!< \brief Number of zones that are specified in config file. */
   su2double Edge_Form_Min_Share; /*!< \brief Smallest part of a cell held by a node in the P1 edge form. */
+  su2double Edge_Form_Positive_Diss; /*!< \brief Part of the extra Roe dissipation up to the positivity bound of the P1 edge form. */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
   su2double Fan_Poly_Eff;         /*!< \brief Fan polytropic effeciency. */
@@ -10013,6 +10014,12 @@ public:
    * \return YES if the exact Jacobian is used.
    */
   bool GetEdge_Form_Exact_Jacobian() const { return Edge_Form_Exact_Jacobian; }
+
+  /*!
+   * \brief Part of the extra Roe dissipation of the edge form up to its positivity bound.
+   * \return 0 for off, 1 for the full bound.
+   */
+  su2double GetEdge_Form_Positive_Diss() const { return Edge_Form_Positive_Diss; }
 
   /*!
    * \brief Make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes.

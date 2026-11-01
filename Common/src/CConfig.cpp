@@ -1847,6 +1847,8 @@ void CConfig::SetConfig_Options() {
   addDoubleOption("EDGE_FORM_MIN_SHARE", Edge_Form_Min_Share, 0.0);
   /*!\brief EDGE_FORM_EXACT_JACOBIAN \n DESCRIPTION: Central Jacobian of EDGE_FORM_P1 or SPLIT_EDGE_FLUX with the coefficients of the form, not the normal of the dual. \ingroup Config*/
   addBoolOption("EDGE_FORM_EXACT_JACOBIAN", Edge_Form_Exact_Jacobian, false);
+  /*!\brief EDGE_FORM_POSITIVE_DISS \n DESCRIPTION: Part of the extra Roe dissipation of EDGE_FORM_P1 up to the positivity bound 0.5 rho(n_ik) + rho(E_ik), on the reconstructed jump. 0 is off, 1 is the full bound. \ingroup Config*/
+  addDoubleOption("EDGE_FORM_POSITIVE_DISS", Edge_Form_Positive_Diss, 0.0);
   /*!\brief GCL_EXACT_P1 \n DESCRIPTION: Add the swept terms that make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes, for conservation in time on moving meshes. \ingroup Config*/
   addBoolOption("GCL_EXACT_P1", GCL_Exact_P1, false);
   /*!\brief SPLIT_EDGE_FLUX \n DESCRIPTION: Central flux 0.5(F_i+F_k).n_ik on the split edges of the cells, dissipation and Jacobians stay on the true edges. \ingroup Config*/
@@ -6233,6 +6235,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Kind_Viscous_Scheme == VISCOUS_SCHEME::P1_CELL) active.push_back("VISCOUS_SCHEME= P1_CELL");
   if (Edge_Form_P1) active.push_back("EDGE_FORM_P1");
   if (Edge_Form_Exact_Jacobian) active.push_back("EDGE_FORM_EXACT_JACOBIAN");
+  if (Edge_Form_Positive_Diss != 0.0) active.push_back("EDGE_FORM_POSITIVE_DISS");
   if (GCL_Exact_P1) active.push_back("GCL_EXACT_P1");
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
 
@@ -6333,6 +6336,12 @@ void CConfig::CheckP1FluxOptions() const {
     if (Restart && ((Kind_GridMovement == RIGID_MOTION) || Deform_Mesh)) {
       SU2_MPI::Error(name + "a restart does not restore the old coordinates of this motion.", CURRENT_FUNCTION);
     }
+  }
+  if (Edge_Form_Positive_Diss != 0.0) {
+    const string name = "EDGE_FORM_POSITIVE_DISS: ";
+    if (Edge_Form_Positive_Diss < 0.0) SU2_MPI::Error(name + "must not be negative.", CURRENT_FUNCTION);
+    if (!Edge_Form_P1 || (Kind_ConvNumScheme_Flow != SPACE_UPWIND)) SU2_MPI::Error(name + "needs EDGE_FORM_P1 with ROE.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
   }
   if ((Edge_Form_Min_Share < 0.0) || (Edge_Form_Min_Share >= 0.25)) {
     SU2_MPI::Error("EDGE_FORM_MIN_SHARE: must be at least 0 and below 0.25.", CURRENT_FUNCTION);

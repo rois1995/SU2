@@ -66,6 +66,7 @@ protected:
   const bool modNormals;
   const bool edgeForm;
   const bool exactFormJac;
+  const su2double positiveDiss;
   const bool sweptFlux;
 
   /*!
@@ -85,6 +86,7 @@ protected:
     modNormals(finestGrid && config.GetDissipation_Mod_Normals()),
     edgeForm(finestGrid && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())),
     exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()),
+    positiveDiss(edgeForm ? config.GetEdge_Form_Positive_Diss() : 0.0),
     sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
   }
 
@@ -217,6 +219,31 @@ public:
           }
           jac_i(iVar, iVar) -= grid_i;
           jac_j(iVar, iVar) -= grid_j;
+        }
+      }
+
+      /*--- EDGE_FORM_POSITIVE_DISS: the dissipation above uses the dual normal, which can be far smaller than
+       * n_ik. Add a scalar part on the reconstructed jump, up to the bound 0.5 rho(n_ik) + rho(E_ik) that makes
+       * the first order form positive. rho(v) = |u.v| + c|v|. It stays second order in smooth flow. ---*/
+
+      if (positiveDiss > 0.0) {
+        VectorDbl<nDim> avgVel;
+        for (size_t iDim = 0; iDim < nDim; ++iDim) {
+          avgVel(iDim) = 0.5 * (V1st.i.velocity(iDim) + V1st.j.velocity(iDim));
+        }
+        const Double avgC = 0.5 * (sqrt(gamma * V1st.i.pressure() / V1st.i.density()) +
+                                   sqrt(gamma * V1st.j.pressure() / V1st.j.density()));
+        const Double rhoForm = abs(dot(avgVel, formNormal)) + avgC * norm(formNormal);
+        const Double rhoE = abs(dot(avgVel, formE)) + avgC * norm(formE);
+        const Double rhoDual = abs(dot(avgVel, normal)) + avgC * area;
+        const Double extra = positiveDiss * fmax(rhoForm + 2.0 * rhoE - rhoDual, 0.0);
+
+        for (size_t iVar = 0; iVar < nVar; ++iVar) {
+          flux(iVar) -= 0.5 * extra * (U.j.all(iVar) - U.i.all(iVar));
+          if (implicit) {
+            jac_i(iVar, iVar) += 0.5 * extra;
+            jac_j(iVar, iVar) -= 0.5 * extra;
+          }
         }
       }
     }
