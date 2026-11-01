@@ -278,13 +278,22 @@ Do not infer a cause from the aggregate. The previously reported OldMerit/invali
 quality concern is one unproven alternative,not a diagnosed193failure. No competing
 implementation or interruption of the frozen run; use its terminal data first.
 
-Conditional geometry-cost follow-up AFTER frozen193terminal,not a new active cycle:
-TriangleUnion::Upper keeps searching until an upper bound is <=preparation
-resolution/4. Saved queries often return valid bounds between that and the actual
-query tolerance. Check the true caller tolerance,source/target approximation margins
-and all quantitative users before considering earlier success exit. Existing work
-counters/replay must establish benefit; no speedup or equivalence is proved yet.
-Do not change a gate,add an option/cache,or interrupt193for this unproven idea.
+Existing Upper earlier-success candidate was evaluated after193terminal and is now
+build194's active frozen full M6 cycle. Caller/margin audit,proof/serial/MPI6 passed;
+same12saved-query traversal -5.03%,allboundsunchanged. Matching complete M6 quality
+states show counted traversal savings; no mesh accepted or isolated wall speedup
+claim. HANDOFF and ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md are authoritative.
+Do not implement this again or start a competing cycle.
+
+Conditional ONLY after194terminal if geometry traversal remains the demonstrated
+blocker: use existing saved queries/trace to distinguish failed finite projected
+footprints/graph groups from costly source refinement near tolerance and target
+approximation margins. Existing finer-resolution/prepared-subtree facilities are
+the starting point; no evidence yet that changing preparation/refinement scheduling
+helps. Do not add another cache/envelope without showing existing facilities are
+insufficient. Full conservative fallback,allgates/resources/CADoptional remain;
+no newbaseline/perf/GDB/configuration. No further implementation chosen or speedup
+established from these alternatives.
 
 193window12 reportsstuckshape/required0again,missing0,with2118q/2240J net retirement
 in the latest interval. The window10single stuck cell was transient in these
