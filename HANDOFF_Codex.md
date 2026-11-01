@@ -26,8 +26,17 @@ early_runtime_provenance.json. Actual original-grid continued restart00000 now
 BYTEIDENTICAL193(SHA6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a).
 Initial continued CFD CL.269535/CD.013536. This is NOT adapted restart proof.
 Same seed,ITER1continuation,50k/native5400/outer14400/allstrictgates unchanged.
-Metric/CFDcontinuation completed; native setup active,no complete construction/quality
-census yet. Do NOT interpret unmeasured construction q/J as clean. One owned heavy
+Initial partition COMPLETE303359cells;ALL18selected per-rank fields EXACT193:
+CURRENT/initial_partition_comparison.json. Coarsening COMPLETE292709cells/2627collapses; ALL17selected per-rankfields EXACT193,
+allcompletegeometry/cache/censusflags1,q/JUNMEASURED(shapecomplete0):
+CURRENT/coarsening_comparison.json. Traversal277428465→260034825(-6.2696%),
+uppercalls14870same; engine312.196318vs193358.820959s(rawfirst-event records;
+not an isolated code timing). Firstsplit COMPLETE495390cells/117030sizebad/
+3861geometrybad,ALL17selectedrankfieldsEXACT193; traversal357559009→336133439
+(-5.9922%),engine377.938909vs431.185157s. construction_comparison.json and
+split_generation_assessment.json preserve counts/work/limits. No quality census yet.
+All10handles/1401pins/82ELF reverified1793492669.2467856:
+coarsening_complete_provenance.json; resource receipt coarsening_complete_resources.json. Do NOT interpret unmeasured construction q/J as clean. One owned heavy
 job,nice19/libs1; no pinned C++/test/helper/binary/config/input edits.
 
 194is the bounded follow-up to193terminal analysis,not a second optimization cycle:
@@ -49,7 +58,9 @@ all6pass lines. Underlying exit/pins/terminal audits passed before launch; no te
 failure/retry. Saved SAME12queries traversal379146→360066(-5.032%),ALL12lesswork,
 ALLboundsEXACT193; cached/recomputed equality passed. No full-run speedup or accepted
 mesh claim. R/geometry_early_exit194_saved_query_comparison.json.
-Source checkpointf518f2d727pushed; qualification/fullrun checkpoint follows.
+Sourcef518f2d727and qualification/fullrun checkpointe45c88289bpushed.
+CURRENT/native_setup_provenance.json reverifiedall10handles/1401pins/82ELF at
+1793492296.0092645; native_entry_resources.json preserves headroom/load/sampleRSS.
 
 Keep194frozen until terminal or preserved evidence justifies authorized stop under
 AGENTS. Compare actual whole-field q/J-bad removal/s and geometry counts,geometry
