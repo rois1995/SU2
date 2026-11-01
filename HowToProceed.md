@@ -13,10 +13,18 @@ Actual mesh point/cell counts are separate from metric complexity. Keep geometry
 1e-4, q>=.2, J>=.05, maximum metric edge1.8 and requested heights unchanged. CAD
 remains optional.
 
-Current build206 normal full two-event M6 is LIVE, source checkpoint12a14dc955
-pushed and frozen, same saved real CFD seed/config/50k/5400s. First restarted CFD
-CL.269535/CD.013536; no accepted adapted mesh yet. Consult HANDOFF_Codex.md for
-exact owned handles and current evidence. Keep this run intact while healthy.
+Build206 normal full two-event M6 is terminal. Its first event naturally rejected
+at the unchanged time budget: **809684cells/281q-bad/341J-bad/2129geometry-bad/
+0size-bad**, with all6 EXIT census/shape/geometry/cache flags complete. Three
+quality stages and two construction returns did not close the mesh. The failure
+was preserved before stopping only the verified owned launcher; all10exact handles
+are absent and1403pins unchanged. No accepted adapted mesh yet. Source checkpoint
+12a14dc955 and the same saved real CFD seed/config/50k/5400s were preserved throughout.
+The active cycle targets repair power and shape/geometry reclosure. Source review
+has identified a sufficient direct geometry bound to compare with the existing
+rigorous union query on saved202bad/clean faces. This is a bounded diagnostic,
+not an established production fallback or speedup. See HANDOFF_Codex.md and the
+[current geometry review](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md).
 
 Latest build202 finished naturally at the unchanged native time budget. Its
 complete terminal census contains **810163cells,295q-bad,294J-bad,2110geometry-bad
@@ -185,8 +193,10 @@ Existing source facilities include the stage/rejected-state hooks and the
 The current connected correction is the strict retained-feature proof described in
 [the inspection record](Handbook/ADAPTATION_M6_INSPECTION_20261101.md). Build205
 reproduces all52oldq/J exactly and identifies a missing unchanged companion-face
-contribution. Build206passed the narrow proof correction and distributed regression. Keep source frozen while the full M6 run lives. Serial/actual-witness checks and one MPI6 milestone passed; the normal
-full two-event M6 is now running; no weaker geometry or shape gate is proposed.
+contribution. Build206passed the narrow proof correction and distributed regression,
+then failed the full M6 at the unchanged budget. Serial/actual-witness checks and
+one MPI6 milestone remain scoped evidence. The complete result did not establish
+closure; no weaker geometry or shape gate is proposed.
 
 ## Resume and validation order
 
@@ -197,9 +207,10 @@ full two-event M6 is now running; no weaker geometry or shape gate is proposed.
    evidence. Serial and one connected MPI6 milestone already passed; rerun only
    checks affected by actual changes or unresolved failures. Keep capture explicitly
    selected, not automatic on ordinary rejection or `WRT_ADAP_MESH` use.
-3. Monitor the current normal206full M6, verifying its exact owned handles and
-   source/input pins. The qualified local witness work and202saved SU2/VTU need
-   not be repeated. No second heavy workload while it is healthy.
+3. Verify206terminal receipts and all10exact handle absences before source changes
+   or sustained computation. Reuse the qualified local witness work and202saved
+   SU2/VTU. Assess current counters and existing certification/reuse facilities
+   before selecting one connected correction; do not launch another baseline campaign.
 4. Use complete all-rank censuses to judge whole-field q/J retirement/introduction,
    geometry and size closure, then transfer/continued CFD. Diagnose a demonstrated
    failure before another correction. A local admissible private trial and its

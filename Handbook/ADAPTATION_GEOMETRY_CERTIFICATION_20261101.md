@@ -1,6 +1,55 @@
-# Cheaper geometry certification — shared winding screening199
+# Geometry certification — current review and preserved history
 
-## Current: build199 terminal; bounded cavity export selected by the user
+## Current: build206 terminal; classify geometry refusals before changing code
+
+The normal full M6 first event naturally rejected at the unchanged time budget:
+809684cells/281q-bad/341J-bad/2129geometry-bad/0size-bad, with complete all6 EXIT
+census/cache/shape/geometry flags. All10exact owned handles are absent and1403pins
+unchanged after preserved failure and the authorized owned stop. Current authority
+is HANDOFF_Codex.md and staged57/m6_runs/euler_build206_real_cfd50k_feature_companion/.
+No adapted mesh, transfer, continued adapted CFD or adapted restart is accepted.
+
+The next target is **repair power and shape/geometry reclosure**, with measured
+query cost a secondary opportunity. The first two quality tails had46and39q-or-J
+bad cells, respectively ALL blocked with empty repair queues. Geometry construction
+then reopened550q/645J and499q/632J. Across repair phases, published ladder gains
+54764q/54278J minus construction reopenings964q/1227J reconcile exactly to net
+53800q/53051J. Final466q-or-J bad cells include18fully blocked, queue4920; this does
+not prove the final queue exhausted or global infeasibility. Source-checked full
+ladder publications53290, not just final-interval126. See terminal_counter_assessment.json.
+
+Final q139surface/142interior; J220surface/121interior. Interior can contain
+constrained vertices. All466shape-bad cells have an edge<.5; nearby202clean controls
+also commonly do, so this does not establish a construction cause. All16metric
+samples remain supported; maximum relative tensor drift4.04324% does not certify
+an immutable original continuous target. Compared with202, terminal q is14lower,
+J47higher and geometry19higher; no whole-field closure improvement is established.
+
+Source review confirms existing unchanged-face association/coverage contracts,
+exact numeric memo keys, prepared facet/scope pools, once-per-star old guidance,
+shape/edge screening and conservative partial-sum rejection. These are different
+contracts: HasAcceptedFaceCertificate is not a numerical distance certificate.
+Direct ParameterError uses SurfaceError when all bindings support one facet and
+returns its sufficient correspondence bound even when above tolerance. That is
+safe refusal, but it need not be a proved distance violation. Cross-patch guidance
+already uses BoundPhysicalSurface. Final two-sided certification remains separate.
+
+Next bounded diagnostic: reuse the qualified202current authority and saved actual
+physical faces, compare failed direct bounds with the EXISTING one-sided union
+query on identical allowed support, plus a nearby clean face. Reproduce recorded
+guidance first; measure work and cached/recomputed equality. A whole-face rigorous
+upper<=1e-4 can establish that directed condition; point sampling cannot. Unresolved
+queries remain unresolved; all associations, features, bodies, heights, reverse
+coverage and final gates stay independent. Only measured results may select a
+connected correction. No production fallback or speedup is established yet.
+
+Older whole-query displacement/slack certifies0of12saved queries, and optimistic
+subtree reuse saved only0.5765%before overhead in that population. Do not add a
+motion cache, envelope or scheduler from these results. Exact memo misses still
+do not classify new positions versus evicted identical queries. Reuse existing
+diagnostics; no new baseline/perf/GDB campaign. Construction q/J stays off.
+
+## Historical: build199 terminal and selected bounded export
 
 Full M6 exec47583 TERMINAL1. All6 natural time-budget rejections, native maximum
 5403.368014s. COMPLETE EXIT802117cells/4368q/2537J/3098geometry/0size. All10exact

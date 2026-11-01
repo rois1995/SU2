@@ -171,7 +171,11 @@ Final geometry/shape/size/heights and transfer/continued-CFD/restart gates uncha
 
 
 The connected source checkpoint12a14dc955 is pushed. Normal full two-event M6
-`euler_build206_real_cfd50k_feature_companion` is now live on the same saved CFD
-seed/config/50k/5400s, without selected failure-mesh dumping. Exact handles and
-source freezing are in HANDOFF_Codex.md. No new implementation while healthy;
-use its whole-field outcome before choosing the next correction.
+`euler_build206_real_cfd50k_feature_companion` naturally rejected event1 at the
+unchanged time budget:809684cells/281q-bad/341J-bad/2129geometry-bad/0size-bad.
+All6 EXIT measurement/census flags are complete. Three quality stages and two
+construction returns were exercised; neither small intermediate shape tail closed.
+Natural failure and pins/handles were preserved before the exact owned-launcher
+stop. All10exact handles are absent and1403pins unchanged; HANDOFF_Codex.md is
+current authority. The selected202mesh remains the inspection artifact. Use the
+terminal counters and existing geometry facilities before selecting another fix.

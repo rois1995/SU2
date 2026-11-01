@@ -9,86 +9,87 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current — build206 normal full two-event M6 LIVE; source frozen
+## Current — build206 terminal rejection; no owned heavy job
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 LAST=`R/m6_runs/euler_build206_real_cfd50k_feature_companion`.
 INSPECT202=`R/m6_runs/euler_build202_real_cfd50k_inspection`.
-Full M6 exec39395 RUNNING with normal SU2_CFD, not a selected test-driver wrapper.
-Source checkpoint12a14dc955 PUSHED.1403runtime/source/input pins. ConfigSHA74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d
-and saved real CFD seedSHA1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880
-exactly match202. CFD SHAbb4a5432351a170404332fb89edc7a3f4d6e1a4036adb155838bc1c090a85214.
-First restarted original-grid CFD step finite, screenCL.269535/CD.013536; native
-adaptation entered. No accepted adapted mesh/transfer/continued adapted CFD yet.
+Normal full M6 exec39395 is TERMINAL1. Event1 naturally failed the unchanged
+native time budget on all6ranks BEFORE the authorized owned-launcher stop.
+COMPLETE actual first EXIT round24710: **809684cells/281q-bad/341J-bad/
+2129geometry-bad/0size-bad**, max engine5344.974750123s. All6 EXIT census/cache/
+shape/geometry flags complete; DETAIL complete=0 means the capability failed,
+not that the census is partial. Three quality stages and two construction returns.
+ZERO accepted adapted meshes; no adapted transfer/continued CFD/restart proof.
 
-First COMPLETE quality entry now recorded on all6 ranks:727818cells,54081q-bad,
-53392J-bad,3770geometry-bad,0size-bad; maximum engine elapsed649.508977468s.
-Counts and selected cumulative geometry/work counters exactly match202 entry
-(636.681267335s); J-debt sum differs only1.82e-12 from rank summation. Ownership/
-host conditions differ, so no isolated runtime claim. LAST/quality_entry_comparison.json
-records all6 raw row locations and observed log-prefix hashes. Seven earlier
-complete construction stages also match selected state/work counters exactly;
-LAST/construction_matching_stage_assessment.json. These do not establish closure.
-Latest COMPLETE window round23232:802902cells/3616q/1968J/3096geometry/0size,
-at3764.215964508seconds since first quality entry (engine4413.724941976).
-Latest-window net removal766q/433J/0geometry over92.855907877s.
-All6last stage rows remain improvement/window with complete shape measurements;
-no construction return or native EXIT yet. Monitor now also reports per-rank phase.
-Residual q629surface/2987interior; J563surface/1405interior. Interior is not
-necessarily unconstrained. LAST/quality_trend_assessment.json includes those
-location counters with source lines; no separate published-yield attribution.
-Both shape counts are below half their entry values; this is not strict closure.
-LAST/quality_trend_assessment.json retains all26complete windows and per-rank
-state/work/location rows;20-window checkpoint a984dbccb4 pushed.
-Pushed8-window checkpoint c8013c5569 includes
-LAST/quality_time_brackets_snapshot.json for that earlier1351.697s observation.
-Latest3764.216s compared with INSPECT202/quality_trend_assessment.json:
-202at3757.578s had4195q/2350J/3017geometry; at3850.981s had3488q/1838J/3009geometry.
-Current q/J counts lie between those adjacent baseline counts; geometry-bad is
-above both. These are actual complete windows, with no isolated timing/trajectory claim.
-LAST/quality_progress_snapshot.json retains first4complete windows, per-rank
-counters/location and matching202rounds (q9746surface/30140interior at window4;
-interior can still contain constrained vertices).
-At round21760, previous-window net removal was3494q/3558J/45geometry over
-253.492094885s,2164commits. Matching202round interval
-removed3171q/3363J/57geometry over178.16399285s,2042commits.206traversal work is
-2.84%higher, netq/commit1.615vs1.553, but elapsed42.28%higher. Different queries,
-ownership and host scheduling prevent isolated code/contending-job attribution.
-LAST/quality_window3_work_comparison.json records selected per-rank work/timers,
-whole-field churn reconciliation and exact observed prefixes; both receipts
-are included in this evidence checkpoint.
-The targeted late-tail effect is not established. No stop justified.
+Natural failure authority LAST/event1_natural_failure.json,
+SHA8714a8ebd138f54a660fbc6a4ec303bd83fe3e14f1888a17d8a8a676c4a5674b.
+It preserves all6 full EXIT/DETAIL rows, exact source prefixes and pre-stop pins/
+owned handles. LAST/event1_failure_owned_stop.json records the single SIGTERM
+already sent to launcher2159607/start96386787 AFTER preservation. NEVER repeat it
+or signal historical2159xxxPIDs. Driver had begun the next original-grid event;
+that output is not an adapted continuation or restart proof. Two accepted events
+could no longer be obtained in this configured two-event attempt.
 
-Executed round21696redistribution preserved739233cells/46176q/44617J/3608geometry/
-0size, complete shape/geometry/cache flags and aggregate q/J debt (within1e-9);
-q/J-debt max/mean fell1.30966→1.14391. This is measured balance/count preservation,
-not throughput or every-attribute identity. LAST/quality_census_migration_round21696.json
-and quality_first_window_comparison.json pushed in2138e8092b; matching-entry
-checkpoint b2af598568. Four-window work comparison/handoff pushed b861c01537.
-Latest HOST audit1793553426.1817224:all10exact handles LIVE,1403pins unchanged,
-load7.07,MemAvailable30,698,268kB,sampled summedRSS9,845,624,832B
-(not physical/job peak). No actual resource pressure.
+LAST/terminal_handles.json proves all10exact owned handles ABSENT at
+1793554482.9539447 and1403pins unchanged. Sources can now change safely. No owned
+heavy job remains. Host then MemAvailable40,200,848kB/load5.55; rerun resource and
+handle checks before sustained work. Overall helper5619.598s includes startup,
+post-rejection original-grid work and owned shutdown, not just first native work.
+LAST/terminal_resource_assessment.json:2731existing tree samples peak15,283,798,016B
+summed RSS (not physical/job peak); largest individual2,860,605,440B. Sparse live
+host snapshots had at least30,466,872kB available; no pressure-driven stop occurred.
 
-HOST startup at1793548936.893354, all10LIVE:
-helper2159446/start96386176;time2159605/timeout2159606/start96386786;
-launcher2159607/start96386787;ranks2159611–2159614/start96386794,
-2159615–2159616/start96386795. Launcher/ranks nice19, libs1; helper0.
-LAST/owned_startup.json/command.json/pins.json/status.json/resources.jsonl are live
-authority. StartupMemAvailable38,709,816kB; sampled summedRSS2.202GB at100.108s,
-not physical/job peak. Unique OMPI4TBcompile-tmp/native_feature206_m6. No selected
-failure dump:202actual mesh remains saved; no routine/per-trial mesh files.
+Source checkpoint12a14dc955 PUSHED, unchanged throughout build/run.
+CFD SHAbb4a5432351a170404332fb89edc7a3f4d6e1a4036adb155838bc1c090a85214.
+Config SHA74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d
+and real CFD seedSHA1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880
+exactly match202. Initial restarted original-grid CFD finite, CL.269535/CD.013536.
+No selected206private mesh dump:202actual SU2/VTU remains the saved inspection
+mesh; do not create per-trial or routine-attempt mesh files.
 
-Do not edit C++/headers/tests/helpers/binaries/config/inputs or launch another
-heavy job while this healthy run lives. Let it finish or preserve demonstrated
-failure/bottleneck/resource evidence before an authorized exact-owned stop. No206
-stop sent. Before any retry check SAME exec39395 and exact host startticks; stale
-logs/timeouts alone do not establish termination. At natural first-event rejection,
-preserve all6complete EXITs/stops/pins/handles BEFORE stopping only verified owned
-launcher if two accepted events can no longer be obtained. Never resignal oldPIDs.
-Judge net whole-field q/J retirement+introduction, geometry and size counts at
-matching complete stages; witness debt reduction is not closure. Shape→residual
-size/geometry→shape reclosure→two strict accepted events with conservative admissible
-transfer/finite continued CFD→isolated adapted disk restart, then BL/MPI/RANS500k.
+First COMPLETE quality entry727818cells/54081q/53392J/3770geometry/0size at
+649.508977468engine seconds. Counts and selected cumulative work match202 entry;
+seven earlier complete construction stages also match selected state/work exactly.
+LAST/quality_entry_comparison.json and construction_matching_stage_assessment.json.
+This preserves selected construction behavior, not whole-mesh bit identity.
+
+Complete phases: first quality_exit804645cells/46q/28J/3045geometry; first rebuilt
+entry806031/550q/645J/2758geometry. Second quality_exit807610/39q/22J/2592geometry;
+second rebuilt entry808914/499q/632J/2229geometry. Actual EXIT above supersedes
+last window809464/360q/442J/2167geometry. Neither small shape tail was closure.
+Geometry reduction reopens substantial shape counts; this is not proof that the
+same cavities cycle. LAST/phase_progress_assessment.json preserves all6 transition
+rows/flags, times and prefixes. quality_trend_assessment.json retains45complete
+windows from FIRST native event only. Do not mix the interrupted second event.
+
+Compared with202 EXIT810163/295q/294J/2110geometry,206has14fewer q-bad but47more
+J-bad and19more geometry-bad. The connected feature proof fix has not established
+whole-field closure. Host/query/ownership trajectories differ; no isolated timing
+claim. Earlier matching-time and work receipts remain linked in LAST. Executed
+round21696migration preserved counts/flags/debt sum and reduced debt max/mean
+1.30966→1.14391; balance improvement alone was not acceptance.
+
+Active cycle now: ANALYSIS FIRST of geometry admission and shape/geometry reclosure.
+LAST/terminal_counter_assessment.json reconciles all7diagnostic groups through EXIT:
+53290published ladder commits,54764q/54278J removed minus construction reopenings
+964q/1227J = net53800q/53051J. First two shape tails ALL blocked (46/46and39/39,
+empty queues); final18of466shape-bad blocked,queue4920. Final q139surface/142interior,
+J220surface/121interior; all466short<.5,not construction causation. Drift16/16supported,
+max4.04324%; immutable continuous target fidelity remains unproved.
+Source review confirms existing reuse/screens; direct single-patch sufficient
+geometry bounds may conservatively refuse. Next bounded diagnostic reuses selected
+202actual bad/clean faces to compare those bounds with EXISTING rigorous physical
+union queries and cache behavior before selecting ONE connected correction. See
+Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md. No production change yet.
+No new operator,
+cache, scheduler, config option, construction q/J policy or gate relaxation is
+authorized by an unproven idea. Reuse selected202actual cavities/reference before
+another capture/baseline campaign. Record unrelated ideas in the linked backlog.
+Then focused affected validation and one MPI milestone as needed, immediately full
+M6 with same real CFD seed/50k/unchanged budgets. Goal remains two strict accepted
+meshes, conservative admissible transfer, finite continued CFD and isolated actual
+adapted disk restart, then dedicated BL/MPI qualification and RANS500k.
 
 ## Connected206 qualification — scoped PASS, not workflow completion
 

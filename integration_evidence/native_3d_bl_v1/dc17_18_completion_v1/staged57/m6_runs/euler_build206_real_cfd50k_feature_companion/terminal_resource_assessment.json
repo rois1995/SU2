@@ -1,0 +1,20 @@
+{
+  "schema": "native_m6_terminal_resource_receipt_v1",
+  "scope": "Existing helper samples of the owned time/timeout/mpirun/rank descendant tree, including first event and post-rejection original-grid work through shutdown.",
+  "resource_source": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build206_real_cfd50k_feature_companion/resources.jsonl",
+    "bytes": 1758130,
+    "sha256": "3ed3d7fe3cc16a568787607c5be5a6079b4ed056911cab0c1426acfdd781b482"
+  },
+  "sample_count": 2731,
+  "sampled_tree_rss_peak_bytes": 15283798016,
+  "sampled_peak_elapsed_seconds": 3830.7073261737823,
+  "sampled_largest_individual_rss_bytes": 2860605440,
+  "maximum_observed_live_host_load1": 10.59,
+  "minimum_observed_live_MemAvailable_kB": 30466872,
+  "limitations": [
+    "Sampled process RSS sum is not physical resident RAM or a true job peak.",
+    "The helper root is outside this descendant-tree sample; source-provenance audits separately sampled all owned handles.",
+    "Sparse host snapshots do not isolate contention, bandwidth or useful compute; process CPU includes MPI spin."
+  ]
+}
