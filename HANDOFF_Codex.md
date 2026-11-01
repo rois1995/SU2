@@ -59,11 +59,20 @@ failure. No competingimplementation/profiler/newoptions/raisedlimits/gaterelaxat
 Firstcompletecoarsening:292709cells/2627collapses;ALL17selectedper-rankfieldsEXACT
 latest198retry1,uppercalls14870same. Traversal158224112→93487444(-40.91454%);
 scope/facet/preparation/discoveryworkunchanged. Engine363.104827vs268.138009s;
-noisolatedwalltimegain. Latestall6ranks split_interior_entry/round1457;construction
-q/JUNMEASURED. All10HOSTidentitiesLIVE/1401pinsunchanged/82mappedELFcovered
-1793526822.357377. Resources:33.38GBavailableRAM,CPUpsiavg6022.81%;sampledsummedRSS
-max7.851GBnotphysicalRAM/truepeak. ACTIVE/coarsening_comparison.json,
-coarsening_live_provenance.json,coarsening_resources.json preserveevidence. Actualcomplete
+noisolatedwalltimegain. All18initialsplitgenerations retain17selectedper-rankfieldsEXACT198retry1.
+Constructionends727818cells/91910splits,0sizebad/3770geometrybad;q/JUNMEASUREDthere.
+Traversal532351350→250860529(-52.87689%),same33088uppercalls/preparation/discovery.
+Engine1133.899305vs730.857434s;notisolatedwalltimegain. CompletequalityENTRY
+1185.729006s:54081q/53392J/3770geometry/0size,debt25413.45557726506;wholefield/
+rankdebts/gaugesEXACT198retry1(entry781.278426s). Initialmigrationglobalcounts/debt/
+completeflags/20selectedcachecounters conserved;debtmax/min15.776024→1.538801.
+Notproofeverycachekey/history orimmutableoriginaltarget. ACTIVE/construction_comparison.json,
+quality_entry_comparison.json,quality_initial_ownership_assessment.json retainactualrows.
+All10HOSTidentitiesLIVE/1401pinsunchanged/82mappedELFcovered1793527603.102109.
+Entrysnapshot30.52GBavailableRAM,CPUpsiavg6010.53%,memorypsiavg60some.51/full.43%;
+sampledsummedRSSmax12.938GBnotphysicalRAM/truepeak. Actualqualityrepairnowrunning.
+ACTIVE/quality_entry_live_provenance.json andquality_entry_resources.json preserveevidence.
+Actualcomplete
 censuses,geometrywork,netwholefieldq/Jbad/s andgeometrycounts chooseutility.
 ComparetoLATEST198retry1 atactualmatchingstages/times,notassumedfuturestateidentity.
 ZEROaccepted adaptedmeshes/transfer/adaptedCFD/adaptedrestart. FullgoalACTIVE.

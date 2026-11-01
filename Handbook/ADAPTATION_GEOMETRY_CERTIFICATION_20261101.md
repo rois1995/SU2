@@ -24,6 +24,18 @@ net quality-closure improvement. Q/J deliberately unmeasured during construction
 Current run stays frozen. Actual current receipts: coarsening_comparison.json,
 coarsening_live_provenance.json and coarsening_resources.json in the199directory.
 
+199 initial construction and full quality entry are now complete. All18splitgenerations
+retain17selected per-rank result fields EXACT198retry1. Construction ends727818cells,
+0sizebad/3770geometrybad;shape deliberately unmeasured there. Traversal532351350→250860529
+(-52.87689%),same33088uppercalls/preparation/discoverywork. Engine1133.899305vs730.857434s;
+not an isolated speedup. Complete quality entry1185.729006s has54081q/53392J/3770geometry/
+0size,debt25413.45557726506;wholefield/rankdebts/gauges match198retry1entry781.278426s.
+Initial migration preserves globalcounts/debt/completeflags/20selectedcachecounters;
+debtmax/min15.776024→1.538801. Not every cachekey/history or immutable target proof.
+Now evaluate net wholefieldq/Jbad/s and geometry counts during frozen quality repair.
+Current/construction_comparison.json,quality_entry_comparison.json and
+quality_initial_ownership_assessment.json retain the actual records.
+
 ## Preserved retry1 terminal analysis
 
 Same qualified source198 retry1 is TERMINAL. All6natural time-budget rejection,
