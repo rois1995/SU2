@@ -29,19 +29,20 @@ host conditions differ, so no isolated runtime claim. LAST/quality_entry_compari
 records all6 raw row locations and observed log-prefix hashes. Seven earlier
 complete construction stages also match selected state/work counters exactly;
 LAST/construction_matching_stage_assessment.json. These do not establish closure.
-Latest COMPLETE window round22464:783305cells/17667q/14356J/3287geometry/0size,
-at2183.146183159seconds since first quality entry (engine2832.655160627).
-Latest-window net removal1568q/1576J/16geometry over109.492572518s.
-Residual q2873surface/14794interior; J4366surface/9990interior. Interior is not
+Latest COMPLETE window round22848:796544cells/8991q/5954J/3133geometry/0size,
+at3054.035539571seconds since first quality entry (engine3703.544517039).
+Latest-window net removal1014q/966J/15geometry over140.658410061s.
+Residual q1246surface/7745interior; J1643surface/4311interior. Interior is not
 necessarily unconstrained. LAST/quality_trend_assessment.json includes those
 location counters with source lines; no separate published-yield attribution.
 Both shape counts are below half their entry values; this is not strict closure.
-LAST/quality_trend_assessment.json retains all14complete windows and per-rank
-state/work rows (latest update local). Pushed8-window checkpoint c8013c5569 includes
+LAST/quality_trend_assessment.json retains all20complete windows and per-rank
+state/work/location rows;14-window checkpoint a7adf32d56 pushed.
+Pushed8-window checkpoint c8013c5569 includes
 LAST/quality_time_brackets_snapshot.json for that earlier1351.697s observation.
-Latest2183.146s observation compared with INSPECT202/quality_trend_assessment.json:
-202at2162.622s had20514q/17435J/3286geometry; at2288.659s had18710q/15686J/3276geometry.
-Current q/J counts are below both adjacent baseline counts, geometry-bad above
+Latest3054.036s compared with INSPECT202/quality_trend_assessment.json:
+202at2981.208s had11336q/8323J/3121geometry; at3107.463s had9863q/7088J/3108geometry.
+At that point q/J counts were below both adjacent baseline counts, geometry-bad above
 both. These are actual complete windows, with no isolated timing/trajectory claim.
 LAST/quality_progress_snapshot.json retains first4complete windows, per-rank
 counters/location and matching202rounds (q9746surface/30140interior at window4;
@@ -62,8 +63,8 @@ q/J-debt max/mean fell1.30966→1.14391. This is measured balance/count preserva
 not throughput or every-attribute identity. LAST/quality_census_migration_round21696.json
 and quality_first_window_comparison.json pushed in2138e8092b; matching-entry
 checkpoint b2af598568. Four-window work comparison/handoff pushed b861c01537.
-Latest HOST audit1793551882.5947602:all10exact handles LIVE,1403pins unchanged,
-load7.40,MemAvailable30,796,172kB,sampled summedRSS9,669,431,296B
+Latest HOST audit1793552767.7266347:all10exact handles LIVE,1403pins unchanged,
+load7.17,MemAvailable30,776,740kB,sampled summedRSS9,681,874,944B
 (not physical/job peak). No actual resource pressure.
 
 HOST startup at1793548936.893354, all10LIVE:
