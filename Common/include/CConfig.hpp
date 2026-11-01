@@ -145,6 +145,7 @@ private:
   Dissipation_Mod_Normals,  /*!< \brief Median normal in the central flux, modified normal in dissipation and Jacobian.*/
   Edge_Form_P1,             /*!< \brief Central flux with the edge coefficients n_ik and E_ik of the modified dual.*/
   Edge_Form_Exact_Jacobian, /*!< \brief Central Jacobian of the edge form with n_ik and E_ik.*/
+  GCL_Exact_P1,             /*!< \brief Make the grid flux of the P1 forms equal to the BDF difference of the volumes.*/
   Split_Edge_Flux,          /*!< \brief Central flux on the split edges of the cells, with no new points.*/
   Pressure_Based;           /*!< \brief Flag to check if we are using a pressure-based system.*/
   su2double Buffet_k;       /*!< \brief Sharpness coefficient for buffet sensor.*/
@@ -9984,6 +9985,12 @@ public:
    * \return YES if the exact Jacobian is used.
    */
   bool GetEdge_Form_Exact_Jacobian() const { return Edge_Form_Exact_Jacobian; }
+
+  /*!
+   * \brief Make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes.
+   * \return <code>TRUE</code> if the swept terms are added.
+   */
+  bool GetGCL_Exact_P1() const { return GCL_Exact_P1; }
 
   /*!
    * \brief Get if the central flux uses the split edges of all cells (section 4.2 of the P1 flux variants).

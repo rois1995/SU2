@@ -1824,16 +1824,34 @@ void CEulerSolver::Centered_Residual(CGeometry *geometry, CSolver **solver_conta
   SU2_ZONE_SCOPED
 
   EdgeFluxResidual(geometry, solver_container, config);
-  if ((iMesh == MESH_0) && config->GetSplit_Edge_Flux()) SplitEdgeResidual(geometry);
+  if ((iMesh == MESH_0) && config->GetSplit_Edge_Flux()) SplitEdgeResidual(geometry, config);
+  if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry);
 }
 
-void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry) {
+void CEulerSolver::SweptBoundaryResidual(const CGeometry *geometry) {
+  SU2_ZONE_SCOPED
+
+  /*--- -U_i beta_i, the nodal boundary term of the grid flux of GCL_EXACT_P1. No Jacobian, as for the split pairs. ---*/
+
+  const auto& boundSwept = geometry->edges->GetBoundSwept();
+
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
+    for (auto iVar = 0u; iVar < nVar; ++iVar) {
+      LinSysRes(iPoint, iVar) -= boundSwept[iPoint] * nodes->GetSolution(iPoint, iVar);
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *config) {
   SU2_ZONE_SCOPED
 
   const auto& splitNodes = geometry->edges->GetSplitNodes();
   const auto& splitNormal = geometry->edges->GetSplitNormal();
   const auto& splitE = geometry->edges->GetSplitE();
   const auto& boundNormal = geometry->edges->GetSplitBoundNormal();
+  const bool sweptFlux = config->GetGCL_Exact_P1();
 
   /*--- Convective flux of a point through an area vector, added with a factor. ---*/
 
@@ -1867,6 +1885,13 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry) {
       addFlux(kPoint, splitE[iSplit], 1.0, flux);
       addFlux(iPoint, splitE[iSplit], -1.0, flux);
 
+      if (sweptFlux) {
+        const su2double omega = geometry->edges->GetSplitSwept()[iSplit];
+        for (auto iVar = 0u; iVar < nVar; ++iVar) {
+          flux[iVar] -= 0.5 * omega * (nodes->GetSolution(iPoint, iVar) + nodes->GetSolution(kPoint, iVar));
+        }
+      }
+
       if (geometry->nodes->GetDomain(iPoint)) LinSysRes.AddBlock(iPoint, flux);
       if (geometry->nodes->GetDomain(kPoint)) LinSysRes.SubtractBlock(kPoint, flux);
     }
@@ -1896,7 +1921,8 @@ void CEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_contain
     if (config->GetKind_Upwind_Flow() == UPWIND::ROE || config->GetKind_Upwind_Flow() == UPWIND::MSW ||
         config->GetKind_Upwind_Flow() == UPWIND::ROENEW) {
       EdgeFluxResidual(geometry, solver_container, config);
-      if ((iMesh == MESH_0) && config->GetSplit_Edge_Flux()) SplitEdgeResidual(geometry);
+      if ((iMesh == MESH_0) && config->GetSplit_Edge_Flux()) SplitEdgeResidual(geometry, config);
+      if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry);
       return;
     }
   }

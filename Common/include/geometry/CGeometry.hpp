@@ -960,11 +960,23 @@ class CGeometry {
   inline virtual void SetSplitEdges() {}
 
   /*!
+   * \brief Pair and boundary terms that make the grid flux equal to the BDF difference of the volumes (GCL_EXACT_P1).
+   * \note Needs the grid velocity and the old coordinates, so it runs from UpdateSweptFluxP1, not with the coefficients.
+   * \param[in] config - Definition of the particular problem.
+   */
+  inline virtual void SetSweptFluxP1(const CConfig* config) {}
+
+  /*!
    * \brief Compute the coefficients of the active P1 flux variants, after the control volumes.
    * \note The splits are kept, the coefficients follow the coordinates, so this is also called if the mesh moves.
    * \param[in] config - Definition of the particular problem.
    */
   void UpdateP1FluxCoefficients(const CConfig* config);
+
+ protected:
+  bool sweptFluxStale = false; /*!< \brief The mesh moved since the terms of GCL_EXACT_P1 were computed. */
+
+ public:
 
   /*!
    * \brief Grid flux residual of each node with the pairs, coefficients and boundary weights of the P1 flux options.
@@ -976,6 +988,13 @@ class CGeometry {
    * \param[out] gridFlux - Grid flux of each point, valid at owned points.
    */
   void SetGridFluxP1(const CConfig* config, su2activevector& gridFlux) const;
+
+  /*!
+   * \brief Compute the terms of GCL_EXACT_P1 if the mesh has moved since the last call. To call before the residuals:
+   *        the mesh solver computes the grid velocity only after it updates the dual grid.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void UpdateSweptFluxP1(const CConfig* config);
 
   inline virtual void SetBoundCVCoeffs(const CConfig* config, unsigned short action) {}
 

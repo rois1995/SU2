@@ -1839,6 +1839,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_FORM_P1", Edge_Form_P1, false);
   /*!\brief EDGE_FORM_EXACT_JACOBIAN \n DESCRIPTION: Central Jacobian of EDGE_FORM_P1 or SPLIT_EDGE_FLUX with the coefficients of the form, not the normal of the dual. \ingroup Config*/
   addBoolOption("EDGE_FORM_EXACT_JACOBIAN", Edge_Form_Exact_Jacobian, false);
+  /*!\brief GCL_EXACT_P1 \n DESCRIPTION: Add the swept terms that make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes, for conservation in time on moving meshes. \ingroup Config*/
+  addBoolOption("GCL_EXACT_P1", GCL_Exact_P1, false);
   /*!\brief SPLIT_EDGE_FLUX \n DESCRIPTION: Central flux 0.5(F_i+F_k).n_ik on the split edges of the cells, dissipation and Jacobians stay on the true edges. \ingroup Config*/
   addBoolOption("SPLIT_EDGE_FLUX", Split_Edge_Flux, false);
 
@@ -6223,6 +6225,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Kind_Viscous_Scheme == VISCOUS_SCHEME::P1_CELL) active.push_back("VISCOUS_SCHEME= P1_CELL");
   if (Edge_Form_P1) active.push_back("EDGE_FORM_P1");
   if (Edge_Form_Exact_Jacobian) active.push_back("EDGE_FORM_EXACT_JACOBIAN");
+  if (GCL_Exact_P1) active.push_back("GCL_EXACT_P1");
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
 
   if (active.empty()) return;
@@ -6294,6 +6297,16 @@ void CConfig::CheckP1FluxOptions() const {
   }
   if (Edge_Form_Exact_Jacobian && !Edge_Form_P1 && !Split_Edge_Flux) {
     SU2_MPI::Error("EDGE_FORM_EXACT_JACOBIAN: needs EDGE_FORM_P1 or SPLIT_EDGE_FLUX.", CURRENT_FUNCTION);
+  }
+  if (GCL_Exact_P1) {
+    const string name = "GCL_EXACT_P1: ";
+    if (!Edge_Form_P1 && !Split_Edge_Flux) SU2_MPI::Error(name + "needs EDGE_FORM_P1 or SPLIT_EDGE_FLUX.", CURRENT_FUNCTION);
+    if (!GetGrid_Movement() || !dualTime) SU2_MPI::Error(name + "needs grid motion with dual time stepping.", CURRENT_FUNCTION);
+    if (nMGLevels > 0) SU2_MPI::Error(name + "not available with multigrid, set MGLEVEL= 0.", CURRENT_FUNCTION);
+    if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries.", CURRENT_FUNCTION);
+    if (Restart && ((Kind_GridMovement == RIGID_MOTION) || Deform_Mesh)) {
+      SU2_MPI::Error(name + "a restart does not restore the old coordinates of this motion.", CURRENT_FUNCTION);
+    }
   }
   if (Edge_Form_P1) {
     const string name = "EDGE_FORM_P1: ";

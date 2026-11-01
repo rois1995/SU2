@@ -49,6 +49,10 @@ void CIntegration::Space_Integration(CGeometry *geometry,
   bool dual_time = ((config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_1ST) ||
                     (config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND));
 
+  /*--- The grid velocity is available from here on, the convective flux and the GCL term both use this. ---*/
+
+  if ((iMesh == MESH_0) && (MainSolver == FLOW_SOL) && config->GetGCL_Exact_P1()) geometry->UpdateSweptFluxP1(config);
+
   /*--- Compute inviscid residuals ---*/
 
   switch (config->GetKind_ConvNumScheme()) {

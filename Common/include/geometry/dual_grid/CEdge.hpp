@@ -55,6 +55,9 @@ class CEdge {
   su2activematrix SplitE; /*!< \brief Coefficient E_ik of those pairs, allocated only for SPLIT_EDGE_FLUX. */
   su2activematrix SplitBoundNormal; /*!< \brief Per point, outward split area minus outward vertex normal. */
   su2activevector SplitVolume; /*!< \brief Nodal volume of the split, sum_t |t|/(d+1), allocated only for SPLIT_EDGE_FLUX. */
+  su2activevector FormSwept; /*!< \brief Term omega_ik of the true edges, allocated only for GCL_EXACT_P1. */
+  su2activevector SplitSwept; /*!< \brief Term omega_ik of the split pairs, allocated only for GCL_EXACT_P1. */
+  su2activevector BoundSwept; /*!< \brief Per point, nodal boundary term, allocated only for GCL_EXACT_P1. */
   const Index nEdge, nEdgeSIMD;
 
   friend class CPhysicalGeometry;
@@ -245,6 +248,21 @@ class CEdge {
    * \brief Nodal volume of the split, equal to the median volume, a check of the weights.
    */
   inline const su2activevector& GetSplitVolume() const { return SplitVolume; }
+
+  /*!
+   * \brief Pair term of GCL_EXACT_P1, with the sign of the normal of the edge.
+   */
+  inline const su2activevector& GetFormSwept() const { return FormSwept; }
+
+  /*!
+   * \brief Pair term of GCL_EXACT_P1 of the split edges that are not true edges.
+   */
+  inline const su2activevector& GetSplitSwept() const { return SplitSwept; }
+
+  /*!
+   * \brief Nodal boundary term of GCL_EXACT_P1.
+   */
+  inline const su2activevector& GetBoundSwept() const { return BoundSwept; }
 
   inline const su2activematrix& GetCorrection_X() const { return a; }
   inline const su2activematrix& GetCorrection_Y() const { return b; }

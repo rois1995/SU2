@@ -970,3 +970,81 @@ TEST_CASE("Grid flux of the P1 forms on moving meshes", "[P1Flux]") {
     CHECK(GlobalMax(linear) < 1e-8);
   }
 }
+
+TEST_CASE("GCL_EXACT_P1 makes the grid flux the BDF difference of the volumes", "[P1Flux]") {
+  struct Kind {
+    int nDim, kind;  // kind -1: simplex mesh.
+    unsigned long n;
+    std::string options;
+  };
+  const std::string edge = "MOD_CENTROIDS= YES\nCONV_NUM_METHOD_FLOW= JST\nEDGE_FORM_P1= YES\n";
+  const std::string split = "CONV_NUM_METHOD_FLOW= JST\nSPLIT_EDGE_FLUX= YES\n";
+  const std::vector<Kind> cases = {
+      Kind{2, -1, 12, edge + "BC_WEAK_P1= YES\n"}, Kind{3, -1, 5, edge + "BC_WEAK_P1= YES\n"}, Kind{2, -1, 12, edge},
+      Kind{2, -1, 12, split}, Kind{3, -1, 5, split}, Kind{2, 0, 10, split}, Kind{3, 0, 5, split}, Kind{3, 1, 5, split},
+      Kind{3, 2, 4, split}};
+
+  for (int order : {1, 2}) {
+    for (const auto& mesh : cases) {
+      const std::string name = "p1_gcl_exact_" + std::to_string(mesh.nDim) + "_" + std::to_string(mesh.kind) + ".su2";
+      if (mesh.kind < 0) {
+        WriteSimplexMesh(name, mesh.nDim, mesh.n, 0.4, 1.0);
+      } else {
+        WriteGeneralMesh(name, mesh.nDim, mesh.kind, mesh.n, 0.2, 1.0);
+      }
+      const std::string motion = "TIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-" +
+                                 std::string(order == 1 ? "1ST" : "2ND") +
+                                 "_ORDER\nTIME_STEP= 0.01\nGRID_MOVEMENT= RIGID_MOTION\n";
+      MeshCase test(name, motion + mesh.options + "GCL_EXACT_P1= YES\n");
+      auto& geometry = *test.geometry;
+      const auto config = test.config.get();
+      const auto nDim = geometry.GetnDim();
+      INFO("BDF" << order << " nDim " << mesh.nDim << " kind " << mesh.kind << " " << mesh.options);
+
+      /*--- A large step, so that the BDF differences are far from the time derivatives. ---*/
+
+      const su2double dt = 0.01, step = 0.1;
+      config->SetDelta_UnstTimeND(dt);
+      const auto X0 = StoreCoord(geometry);
+
+      MoveMesh(geometry, config, X0, 0.5 - 2 * step);
+      geometry.nodes->SetVolume_n();
+      geometry.nodes->SetCoord_n();
+      MoveMesh(geometry, config, X0, 0.5 - step);
+      geometry.nodes->SetVolume_nM1();
+      geometry.nodes->SetVolume_n();
+      geometry.nodes->SetCoord_n1();
+      geometry.nodes->SetCoord_n();
+      MoveMesh(geometry, config, X0, 0.5);
+
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+        const auto* x = geometry.nodes->GetCoord(iPoint);
+        const auto* x_n = geometry.nodes->GetCoord_n(iPoint);
+        const auto* x_n1 = geometry.nodes->GetCoord_n1(iPoint);
+        for (auto iDim = 0u; iDim < nDim; ++iDim) {
+          const su2double vel = (order == 1) ? (x[iDim] - x_n[iDim]) / dt
+                                             : (1.5 * x[iDim] - 2.0 * x_n[iDim] + 0.5 * x_n1[iDim]) / dt;
+          geometry.nodes->SetGridVel(iPoint, iDim, vel);
+        }
+      }
+
+      geometry.UpdateSweptFluxP1(config);
+      su2activevector G;
+      geometry.SetGridFluxP1(config, G);
+
+      su2double error = 0.0, scale = 0.0, total = 0.0, totalDV = 0.0;
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+        const auto V = geometry.nodes->GetVolume(iPoint);
+        const auto V_n = geometry.nodes->GetVolume_n(iPoint);
+        const auto V_n1 = geometry.nodes->GetVolume_nM1(iPoint);
+        const su2double dVdt = (order == 1) ? (V - V_n) / dt : (1.5 * V - 2.0 * V_n + 0.5 * V_n1) / dt;
+        error = std::max(error, fabs(G[iPoint] - dVdt));
+        scale = std::max(scale, fabs(dVdt));
+        total += G[iPoint];
+        totalDV += dVdt;
+      }
+      CHECK(GlobalMax(error) < 1e-10 * GlobalMax(scale));
+      CHECK(fabs(GlobalSum(total) - GlobalSum(totalDV)) < 1e-9 * GlobalMax(scale));
+    }
+  }
+}

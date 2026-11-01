@@ -485,6 +485,12 @@ class CPhysicalGeometry final : public CGeometry {
   const std::vector<CSplitPattern>& GetSplitPatterns(const CPrimalGrid* element);
 
   /*!
+   * \brief Pair and boundary terms that make the grid flux equal to the BDF difference of the volumes (GCL_EXACT_P1).
+   * \param[in] config - Definition of the particular problem.
+   */
+  void SetSweptFluxP1(const CConfig* config) override;
+
+  /*!
    * \brief Coefficients of the boundary closure of the flux correction.
    */
   void SetBoundCVCoeffs(const CConfig* config, unsigned short action) override;

@@ -65,6 +65,7 @@ protected:
   const bool modNormals;
   const bool edgeForm;
   const bool exactFormJac;
+  const bool sweptFlux;
 
   /*!
    * \brief Constructor, store some constants and forward args to base.
@@ -81,7 +82,8 @@ protected:
     correction(muscl && config.GetFluxCorrection()),
     modNormals(finestGrid && config.GetDissipation_Mod_Normals()),
     edgeForm(finestGrid && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())),
-    exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()) {
+    exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()),
+    sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
   }
 
 public:
@@ -188,6 +190,13 @@ public:
         grid_j = 0.5 * dot(gridVel_j, diffNormal) + dot(gridVel_j, formE);
         for (size_t iVar = 0; iVar < nVar; ++iVar) {
           flux(iVar) -= grid_i * U1st.i.all(iVar) + grid_j * U1st.j.all(iVar);
+        }
+        /*--- GCL_EXACT_P1: -0.5(U_i+U_k) omega_ik, the pair term of the grid flux. ---*/
+        if (sweptFlux) {
+          const Double omega = gatherVariables(iEdge, geometry.edges->GetFormSwept());
+          for (size_t iVar = 0; iVar < nVar; ++iVar) {
+            flux(iVar) -= 0.5 * omega * (U1st.i.all(iVar) + U1st.j.all(iVar));
+          }
         }
       }
 

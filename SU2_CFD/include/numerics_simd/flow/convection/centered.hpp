@@ -55,6 +55,7 @@ protected:
   const bool modNormals;
   const bool edgeForm;
   const bool exactFormJac;
+  const bool sweptFlux;
   const su2double stretchParam = 0.3;
 
   /*!
@@ -68,7 +69,8 @@ protected:
     groupFlux(iMesh == MESH_0 && config.GetCentral_Group_Flux()),
     modNormals(iMesh == MESH_0 && config.GetDissipation_Mod_Normals()),
     edgeForm(iMesh == MESH_0 && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())),
-    exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()) {
+    exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()),
+    sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
   }
 
   /*!
@@ -228,6 +230,14 @@ public:
           if (implicit) {
             jac_i(iVar,iVar) -= jacGrid_i;
             jac_j(iVar,iVar) -= jacGrid_j;
+          }
+        }
+
+        /*--- GCL_EXACT_P1: -0.5(U_i+U_k) omega_ik, the pair term of the grid flux. ---*/
+        if (sweptFlux) {
+          const Double omega = gatherVariables(iEdge, geometry.edges->GetFormSwept());
+          for (size_t iVar = 0; iVar < nVar; ++iVar) {
+            flux(iVar) -= 0.5 * omega * (U.i.all(iVar) + U.j.all(iVar));
           }
         }
       } else {

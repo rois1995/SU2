@@ -2732,20 +2732,30 @@ void CGeometry::UpdateP1FluxCoefficients(const CConfig* config) {
   if (config->GetDissipation_Mod_Normals()) SetDissipationNormals();
   if (config->GetEdge_Form_P1()) SetEdgeFormP1();
   if (config->GetSplit_Edge_Flux()) SetSplitEdges();
+  if (config->GetGCL_Exact_P1()) sweptFluxStale = true;
+}
+
+void CGeometry::UpdateSweptFluxP1(const CConfig* config) {
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    if (sweptFluxStale) SetSweptFluxP1(config);
+    sweptFluxStale = false;
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
 void CGeometry::SetGridFluxP1(const CConfig* config, su2activevector& gridFlux) const {
   const bool split = config->GetSplit_Edge_Flux();
   const bool form = config->GetEdge_Form_P1() || split;
+  const bool exact = config->GetGCL_Exact_P1();
 
   gridFlux.resize(nPoint) = su2double(0.0);
 
-  /*--- 0.5(v_i+v_k).n_ik + (v_k-v_i).E_ik, normal from i to k. ---*/
+  /*--- 0.5(v_i+v_k).n_ik + (v_k-v_i).E_ik + omega_ik, normal from i to k. ---*/
 
-  auto addPair = [&](unsigned long iPoint, unsigned long kPoint, const su2double* normal, const su2double* E) {
+  auto addPair = [&](unsigned long iPoint, unsigned long kPoint, const su2double* normal, const su2double* E, su2double omega) {
     const su2double* gridVel_i = nodes->GetGridVel(iPoint);
     const su2double* gridVel_k = nodes->GetGridVel(kPoint);
-    su2double flux = 0.0;
+    su2double flux = omega;
     for (auto iDim = 0u; iDim < nDim; iDim++) {
       flux += 0.5 * (gridVel_i[iDim] + gridVel_k[iDim]) * normal[iDim];
       if (E != nullptr) flux += (gridVel_k[iDim] - gridVel_i[iDim]) * E[iDim];
@@ -2758,16 +2768,18 @@ void CGeometry::SetGridFluxP1(const CConfig* config, su2activevector& gridFlux) 
     const auto iPoint = edges->GetNode(iEdge, CEdge::LEFT);
     const auto kPoint = edges->GetNode(iEdge, CEdge::RIGHT);
     if (form) {
-      addPair(iPoint, kPoint, edges->GetFormNormal()[iEdge], edges->GetFormE()[iEdge]);
+      addPair(iPoint, kPoint, edges->GetFormNormal()[iEdge], edges->GetFormE()[iEdge],
+              exact ? edges->GetFormSwept()[iEdge] : su2double(0.0));
     } else {
-      addPair(iPoint, kPoint, edges->GetNormal(iEdge), nullptr);
+      addPair(iPoint, kPoint, edges->GetNormal(iEdge), nullptr, 0.0);
     }
   }
 
   if (split) {
     const auto& pairs = edges->GetSplitNodes();
     for (auto iSplit = 0ul; iSplit < pairs.size(); iSplit++) {
-      addPair(pairs[iSplit][0], pairs[iSplit][1], edges->GetSplitNormal()[iSplit], edges->GetSplitE()[iSplit]);
+      addPair(pairs[iSplit][0], pairs[iSplit][1], edges->GetSplitNormal()[iSplit], edges->GetSplitE()[iSplit],
+              exact ? edges->GetSplitSwept()[iSplit] : su2double(0.0));
     }
   }
 
@@ -2804,6 +2816,10 @@ void CGeometry::SetGridFluxP1(const CConfig* config, su2activevector& gridFlux) 
     for (auto iPoint = 0ul; iPoint < nPoint; iPoint++) {
       gridFlux[iPoint] += GeometryToolbox::DotProduct(nDim, nodes->GetGridVel(iPoint), boundNormal[iPoint]);
     }
+  }
+
+  if (exact) {
+    for (auto iPoint = 0ul; iPoint < nPoint; iPoint++) gridFlux[iPoint] += edges->GetBoundSwept()[iPoint];
   }
 }
 

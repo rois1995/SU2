@@ -470,8 +470,15 @@ public:
   /*!
    * \brief Add the central flux of the split edges that are not true edges.
    * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
    */
-  void SplitEdgeResidual(const CGeometry *geometry);
+  void SplitEdgeResidual(const CGeometry *geometry, const CConfig *config);
+
+  /*!
+   * \brief Add the nodal boundary term of the grid flux of GCL_EXACT_P1.
+   * \param[in] geometry - Geometrical definition.
+   */
+  void SweptBoundaryResidual(const CGeometry *geometry);
 
   /*!
    * \brief Recompute the extrapolated quantities, after MUSCL reconstruction,

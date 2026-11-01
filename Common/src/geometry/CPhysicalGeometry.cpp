@@ -7095,6 +7095,97 @@ void CPhysicalGeometry::SetDissipationNormals() {
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
+namespace {
+
+/*!
+ * \brief Share of each node of a cell, with the sub-volumes of SetControlVolume and the centroid rule of the cell.
+ * \param[out] shares - Added to, one value per node of the cell.
+ */
+void CellNodeShares(CPrimalGrid* element, unsigned short nDim, const array<const su2double*, N_POINTS_MAXIMUM>& Coord,
+                    su2double* shares) {
+  su2double Coord_Elem_CG[MAXNDIM] = {0.0};
+  element->getElemCG(nDim, Coord, Coord_Elem_CG);
+
+  for (unsigned short iFace = 0; iFace < element->GetnFaces(); iFace++) {
+    const unsigned short nEdgesFace = (nDim == 3) ? element->GetnNodesFace(iFace) : 1;
+
+    su2double Coord_FaceElem_CG[MAXNDIM] = {0.0};
+    if (nDim == 3) element->getFaceCG(iFace, nDim, Coord, Coord_FaceElem_CG);
+
+    for (unsigned short iEdgesFace = 0; iEdgesFace < nEdgesFace; iEdgesFace++) {
+      const auto face_iNode = element->GetFaces(iFace, iEdgesFace);
+      const auto face_jNode = element->GetFaces(iFace, (nDim == 2) ? 1 : (iEdgesFace + 1) % nEdgesFace);
+
+      su2double Coord_Edge_CG[MAXNDIM] = {0.0};
+      for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+        Coord_Edge_CG[iDim] = 0.5 * (Coord[face_iNode][iDim] + Coord[face_jNode][iDim]);
+      }
+      if (nDim == 2) {
+        shares[face_iNode] += CEdge::GetVolume(Coord[face_iNode], Coord_Edge_CG, Coord_Elem_CG);
+        shares[face_jNode] += CEdge::GetVolume(Coord[face_jNode], Coord_Edge_CG, Coord_Elem_CG);
+      } else {
+        shares[face_iNode] += CEdge::GetVolume(Coord[face_iNode], Coord_Edge_CG, Coord_FaceElem_CG, Coord_Elem_CG);
+        shares[face_jNode] += CEdge::GetVolume(Coord[face_jNode], Coord_Edge_CG, Coord_FaceElem_CG, Coord_Elem_CG);
+      }
+    }
+  }
+}
+
+/*!
+ * \brief Sizes, shape gradients and weights of the simplices of one split of a cell.
+ * \return Sign that orients the simplices of the split like the cell.
+ */
+su2double SplitWeights(const CSplitPattern& pattern, unsigned short nDim,
+                       const array<const su2double*, N_POINTS_MAXIMUM>& Coord, const su2double* median,
+                       unsigned short nElemNodes, vector<su2double>& size, vector<su2double>& grad, vector<su2double>& W) {
+  const auto& simplices = pattern.simplices;
+  const auto nNodes = nDim + 1u;
+
+  /*--- The sub-simplices of a split share one orientation, the sign of the cell makes the sizes signed. ---*/
+
+  const auto nSimplex = simplices.size();
+  size.resize(nSimplex);
+  grad.resize(nSimplex * (MAXNDIM + 1) * 3);
+  su2double total = 0.0;
+
+  for (size_t t = 0; t < nSimplex; t++) {
+    array<const su2double*, MAXNDIM + 1> tCoord;
+    for (auto a = 0u; a < nNodes; a++) tCoord[a] = Coord[simplices[t][a]];
+    size[t] = P1Simplex::ShapeGradients(nDim, tCoord, reinterpret_cast<su2double(*)[3]>(&grad[t * (MAXNDIM + 1) * 3]));
+    total += size[t];
+  }
+  const su2double sign = (total < 0.0) ? -1.0 : 1.0;
+  for (auto& value : size) value *= sign;
+  total *= sign;
+
+  /*--- W closest to |t|/(d+1), with sum_a W_a = |t| per simplex and sum_t W_i = median share per node.
+   * The shares are scaled to the size of the split, warped faces make the two differ a little.
+   * With W0 = |t|/(d+1) and constraints A W = b: W = W0 + A^T x, (A A^T) x = b - A W0. ---*/
+
+  su2double sumMedian = 0.0;
+  for (unsigned short iNode = 0; iNode < nElemNodes; iNode++) sumMedian += median[iNode];
+
+  const auto nRows = pattern.rows.size();
+  W.resize(nSimplex * nNodes);
+  vector<su2double> rhs(nRows, 0.0);
+
+  for (size_t t = 0; t < nSimplex; t++) {
+    for (auto a = 0u; a < nNodes; a++) W[t * nNodes + a] = size[t] / nNodes;
+  }
+  for (size_t r = nSimplex; r < nRows; r++) {
+    rhs[r] = median[r - nSimplex] * total / sumMedian;
+    for (const auto entry : pattern.rows[r]) rhs[r] -= W[entry];
+  }
+  for (size_t r = 0; r < nRows; r++) {
+    su2double x = 0.0;
+    for (size_t c = 0; c < nRows; c++) x += pattern.inverse[r * nRows + c] * rhs[c];
+    for (const auto entry : pattern.rows[r]) W[entry] += x;
+  }
+  return sign;
+}
+
+}  // namespace
+
 void CPhysicalGeometry::SetEdgeFormP1() {
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     edges->FormNormal.resize(edges->nEdgeSIMD, nDim) = su2double(0.0);
@@ -7113,32 +7204,8 @@ void CPhysicalGeometry::SetEdgeFormP1() {
 
       /*--- W = |C_i cap T|, built with the sub-volumes of SetControlVolume, so that sum_T W = V_i. ---*/
 
-      su2double Coord_Elem_CG[MAXNDIM] = {0.0}, W[MAXNDIM + 1] = {0.0};
-      element->getElemCG(nDim, Coord, Coord_Elem_CG);
-
-      for (unsigned short iFace = 0; iFace < element->GetnFaces(); iFace++) {
-        const unsigned short nEdgesFace = (nDim == 3) ? element->GetnNodesFace(iFace) : 1;
-
-        su2double Coord_FaceElem_CG[MAXNDIM] = {0.0};
-        if (nDim == 3) element->getFaceCG(iFace, nDim, Coord, Coord_FaceElem_CG);
-
-        for (unsigned short iEdgesFace = 0; iEdgesFace < nEdgesFace; iEdgesFace++) {
-          const auto face_iNode = element->GetFaces(iFace, iEdgesFace);
-          const auto face_jNode = element->GetFaces(iFace, (nDim == 2) ? 1 : (iEdgesFace + 1) % nEdgesFace);
-
-          su2double Coord_Edge_CG[MAXNDIM] = {0.0};
-          for (unsigned short iDim = 0; iDim < nDim; iDim++) {
-            Coord_Edge_CG[iDim] = 0.5 * (Coord[face_iNode][iDim] + Coord[face_jNode][iDim]);
-          }
-          if (nDim == 2) {
-            W[face_iNode] += CEdge::GetVolume(Coord[face_iNode], Coord_Edge_CG, Coord_Elem_CG);
-            W[face_jNode] += CEdge::GetVolume(Coord[face_jNode], Coord_Edge_CG, Coord_Elem_CG);
-          } else {
-            W[face_iNode] += CEdge::GetVolume(Coord[face_iNode], Coord_Edge_CG, Coord_FaceElem_CG, Coord_Elem_CG);
-            W[face_jNode] += CEdge::GetVolume(Coord[face_jNode], Coord_Edge_CG, Coord_FaceElem_CG, Coord_Elem_CG);
-          }
-        }
-      }
+      su2double W[MAXNDIM + 1] = {0.0};
+      CellNodeShares(element, nDim, Coord, W);
 
       su2double grad[MAXNDIM + 1][3];
       const su2double median = fabs(P1Simplex::ShapeGradients(nDim, Coord, grad)) / nNodes;
@@ -7299,78 +7366,17 @@ void CPhysicalGeometry::SetSplitEdges() {
 
       /*--- Share of the median volume of each node in this cell, with the sub-volumes of SetControlVolume. ---*/
 
-      su2double Coord_Elem_CG[MAXNDIM] = {0.0}, median[N_POINTS_MAXIMUM] = {0.0};
-      element->getElemCG(nDim, Coord, Coord_Elem_CG);
-
-      for (unsigned short iFace = 0; iFace < element->GetnFaces(); iFace++) {
-        const unsigned short nEdgesFace = (nDim == 3) ? element->GetnNodesFace(iFace) : 1;
-
-        su2double Coord_FaceElem_CG[MAXNDIM] = {0.0};
-        if (nDim == 3) element->getFaceCG(iFace, nDim, Coord, Coord_FaceElem_CG);
-
-        for (unsigned short iEdgesFace = 0; iEdgesFace < nEdgesFace; iEdgesFace++) {
-          const auto face_iNode = element->GetFaces(iFace, iEdgesFace);
-          const auto face_jNode = element->GetFaces(iFace, (nDim == 2) ? 1 : (iEdgesFace + 1) % nEdgesFace);
-
-          su2double Coord_Edge_CG[MAXNDIM] = {0.0};
-          for (unsigned short iDim = 0; iDim < nDim; iDim++) {
-            Coord_Edge_CG[iDim] = 0.5 * (Coord[face_iNode][iDim] + Coord[face_jNode][iDim]);
-          }
-          if (nDim == 2) {
-            median[face_iNode] += CEdge::GetVolume(Coord[face_iNode], Coord_Edge_CG, Coord_Elem_CG);
-            median[face_jNode] += CEdge::GetVolume(Coord[face_jNode], Coord_Edge_CG, Coord_Elem_CG);
-          } else {
-            median[face_iNode] += CEdge::GetVolume(Coord[face_iNode], Coord_Edge_CG, Coord_FaceElem_CG, Coord_Elem_CG);
-            median[face_jNode] += CEdge::GetVolume(Coord[face_jNode], Coord_Edge_CG, Coord_FaceElem_CG, Coord_Elem_CG);
-          }
-        }
-      }
+      su2double median[N_POINTS_MAXIMUM] = {0.0};
+      CellNodeShares(element, nDim, Coord, median);
 
       const auto& splits = GetSplitPatterns(element);
       const su2double weight = 1.0 / splits.size();
 
       for (const auto& pattern : splits) {
         const auto& simplices = pattern.simplices;
-
-        /*--- The sub-simplices of a split share one orientation, the sign of the cell makes the sizes signed. ---*/
-
         const auto nSimplex = simplices.size();
-        vector<su2double> size(nSimplex), grad(nSimplex * (MAXNDIM + 1) * 3);
-        su2double total = 0.0;
-
-        for (size_t t = 0; t < nSimplex; t++) {
-          array<const su2double*, MAXNDIM + 1> tCoord;
-          for (auto a = 0u; a < nNodes; a++) tCoord[a] = Coord[simplices[t][a]];
-          size[t] = P1Simplex::ShapeGradients(nDim, tCoord,
-                                              reinterpret_cast<su2double(*)[3]>(&grad[t * (MAXNDIM + 1) * 3]));
-          total += size[t];
-        }
-        const su2double sign = (total < 0.0) ? -1.0 : 1.0;
-        for (auto& value : size) value *= sign;
-        total *= sign;
-
-        /*--- W closest to |t|/(d+1), with sum_a W_a = |t| per simplex and sum_t W_i = median share per node.
-         * The shares are scaled to the size of the split, warped faces make the two differ a little.
-         * With W0 = |t|/(d+1) and constraints A W = b: W = W0 + A^T x, (A A^T) x = b - A W0. ---*/
-
-        su2double sumMedian = 0.0;
-        for (unsigned short iNode = 0; iNode < nElemNodes; iNode++) sumMedian += median[iNode];
-
-        const auto nRows = pattern.rows.size();
-        vector<su2double> W(nSimplex * nNodes), rhs(nRows, 0.0);
-
-        for (size_t t = 0; t < nSimplex; t++) {
-          for (auto a = 0u; a < nNodes; a++) W[t * nNodes + a] = size[t] / nNodes;
-        }
-        for (size_t r = nSimplex; r < nRows; r++) {
-          rhs[r] = median[r - nSimplex] * total / sumMedian;
-          for (const auto entry : pattern.rows[r]) rhs[r] -= W[entry];
-        }
-        for (size_t r = 0; r < nRows; r++) {
-          su2double x = 0.0;
-          for (size_t c = 0; c < nRows; c++) x += pattern.inverse[r * nRows + c] * rhs[c];
-          for (const auto entry : pattern.rows[r]) W[entry] += x;
-        }
+        vector<su2double> size, grad, W;
+        SplitWeights(pattern, nDim, Coord, median, nElemNodes, size, grad, W);
 
         /*--- n_ik = W_i grad(phi_k) - W_k grad(phi_i), E_ik = 0.5 [(W_i-m) grad(phi_k) + (W_k-m) grad(phi_i)]. ---*/
 
@@ -7472,6 +7478,196 @@ void CPhysicalGeometry::SetSplitEdges() {
     }
   }
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
+}
+
+void CPhysicalGeometry::SetSweptFluxP1(const CConfig* config) {
+  const bool secondOrder = (config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND);
+  const bool split = config->GetSplit_Edge_Flux();
+  const su2double dt = config->GetDelta_UnstTimeND();
+  const unsigned short nLevels = secondOrder ? 3 : 2;
+  const auto nNodes = nDim + 1u;
+
+  /*--- D Y = sum_L coeff[L] Y^L, the difference of the time term, L = 0 is n+1. It is also
+   * Y^0 - Y^1 and Y^1 - Y^2 with the factors of the two intervals, used for the swept volumes. ---*/
+
+  const su2double coeff[3] = {(secondOrder ? 1.5 : 1.0) / dt, (secondOrder ? -2.0 : -1.0) / dt, (secondOrder ? 0.5 : 0.0) / dt};
+  const su2double interval[2] = {(secondOrder ? 1.5 : 1.0) / dt, (secondOrder ? -0.5 : 0.0) / dt};
+
+  edges->FormSwept.resize(edges->nEdgeSIMD) = su2double(0.0);
+  edges->SplitSwept.resize(edges->SplitNodes.size()) = su2double(0.0);
+  edges->BoundSwept.resize(nPoint) = su2double(0.0);
+
+  std::map<std::pair<unsigned long, unsigned long>, unsigned long> pairIndex;
+  for (auto iSplit = 0ul; iSplit < edges->SplitNodes.size(); iSplit++) {
+    pairIndex[{edges->SplitNodes[iSplit][0], edges->SplitNodes[iSplit][1]}] = iSplit;
+  }
+
+  auto coordAt = [&](unsigned short level, unsigned long iPoint) -> const su2double* {
+    if (level == 0) return nodes->GetCoord(iPoint);
+    return (level == 1) ? nodes->GetCoord_n(iPoint) : nodes->GetCoord_n1(iPoint);
+  };
+
+  using SimplexCoord = array<const su2double*, MAXNDIM + 1>;
+
+  /*--- Outward area of the face opposite each node, -d S grad(phi), a polynomial of degree d-1 in the coordinates. ---*/
+
+  auto faceAreas = [&](const SimplexCoord& x, su2double sign, su2double (*area)[3]) {
+    su2double grad[MAXNDIM + 1][3];
+    const su2double size = sign * P1Simplex::ShapeGradients(nDim, x, grad);
+    for (auto a = 0u; a < nNodes; a++) {
+      for (unsigned short iDim = 0; iDim < nDim; iDim++) area[a][iDim] = -su2double(nDim) * size * grad[a][iDim];
+    }
+  };
+
+  /*--- Volume swept by each face between two levels on straight node paths: the integral in time of A.mean(dx) is
+   * exact with the midpoint rule in 2D, where A is linear, and with Simpson's in 3D, where it is quadratic. ---*/
+
+  auto sweptVolume = [&](const SimplexCoord& x0, const SimplexCoord& x1, su2double sign, su2double* swept) {
+    su2double mid[MAXNDIM + 1][3] = {{0.0}}, dx[MAXNDIM + 1][3] = {{0.0}}, sumDx[3] = {0.0};
+    SimplexCoord xMid;
+    for (auto a = 0u; a < nNodes; a++) {
+      for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+        mid[a][iDim] = 0.5 * (x0[a][iDim] + x1[a][iDim]);
+        dx[a][iDim] = x1[a][iDim] - x0[a][iDim];
+        sumDx[iDim] += dx[a][iDim];
+      }
+      xMid[a] = mid[a];
+    }
+    su2double area[MAXNDIM + 1][3];
+    faceAreas(xMid, sign, area);
+    if (nDim == 3) {
+      su2double area0[MAXNDIM + 1][3], area1[MAXNDIM + 1][3];
+      faceAreas(x0, sign, area0);
+      faceAreas(x1, sign, area1);
+      for (auto a = 0u; a < nNodes; a++) {
+        for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+          area[a][iDim] = (area0[a][iDim] + 4.0 * area[a][iDim] + area1[a][iDim]) / 6.0;
+        }
+      }
+    }
+    for (auto a = 0u; a < nNodes; a++) {
+      swept[a] = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+        swept[a] += area[a][iDim] * (sumDx[iDim] - dx[a][iDim]) / nDim;
+      }
+    }
+  };
+
+  /*--- One simplex. Q_a = DW_a - W_a div(v) has the sum D|t| - |t| div(v), which is not zero with a BDF difference.
+   * That sum is the sum over the faces of delta = Psi - A.mean(v), with Psi the swept volume. delta has opposite signs
+   * in the two simplices of a face, so taking its share from the nodes of each face leaves a sum of zero per simplex
+   * and adds nothing at a node, except on boundary faces. Then omega_ab = (Q_a-Q_b)/(d+1) gives sum_b omega_ab = Q_a. ---*/
+
+  auto addSimplex = [&](const array<unsigned long, MAXNDIM + 1>& point, const array<array<su2double, MAXNDIM + 1>, 3>& W,
+                        su2double sign, su2double weight) {
+    array<SimplexCoord, 3> x;
+    for (unsigned short level = 0; level < nLevels; level++) {
+      for (auto a = 0u; a < nNodes; a++) x[level][a] = coordAt(level, point[a]);
+    }
+
+    su2double grad[MAXNDIM + 1][3], area[MAXNDIM + 1][3], sumVel[3] = {0.0}, div = 0.0;
+    P1Simplex::ShapeGradients(nDim, x[0], grad);
+    faceAreas(x[0], sign, area);
+    for (auto a = 0u; a < nNodes; a++) {
+      const su2double* gridVel = nodes->GetGridVel(point[a]);
+      for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+        div += gridVel[iDim] * grad[a][iDim];
+        sumVel[iDim] += gridVel[iDim];
+      }
+    }
+
+    su2double psi[MAXNDIM + 1] = {0.0}, swept[MAXNDIM + 1], delta[MAXNDIM + 1], sumDelta = 0.0;
+    for (unsigned short iInterval = 0; iInterval + 1 < nLevels; iInterval++) {
+      sweptVolume(x[iInterval + 1], x[iInterval], sign, swept);
+      for (auto a = 0u; a < nNodes; a++) psi[a] += interval[iInterval] * swept[a];
+    }
+    for (auto a = 0u; a < nNodes; a++) {
+      delta[a] = psi[a];
+      const su2double* gridVel = nodes->GetGridVel(point[a]);
+      for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+        delta[a] -= area[a][iDim] * (sumVel[iDim] - gridVel[iDim]) / nDim;
+      }
+      sumDelta += delta[a];
+    }
+
+    su2double Q[MAXNDIM + 1];
+    for (auto a = 0u; a < nNodes; a++) {
+      Q[a] = -W[0][a] * div - (sumDelta - delta[a]) / nDim;
+      for (unsigned short level = 0; level < nLevels; level++) Q[a] += coeff[level] * W[level][a];
+    }
+
+    for (auto a = 0u; a < nNodes; a++) {
+      for (auto b = a + 1; b < nNodes; b++) {
+        const su2double omega = weight * (Q[a] - Q[b]) / nNodes;
+        const auto iPoint = point[a], kPoint = point[b];
+
+        if (FindEdge(iPoint, kPoint, false) >= 0) {
+          const auto iEdge = FindEdge(iPoint, kPoint);
+          edges->FormSwept[iEdge] += (edges->GetNode(iEdge, CEdge::LEFT) == iPoint) ? omega : -omega;
+        } else {
+          const auto found = pairIndex.find({std::min(iPoint, kPoint), std::max(iPoint, kPoint)});
+          if (found != pairIndex.end()) edges->SplitSwept[found->second] += (iPoint < kPoint) ? omega : -omega;
+        }
+      }
+    }
+  };
+
+  for (auto iElem = 0ul; iElem < nElem; iElem++) {
+    auto* element = elem[iElem];
+    const auto nElemNodes = element->GetnNodes();
+
+    array<array<const su2double*, N_POINTS_MAXIMUM>, 3> Coord;
+    su2double shares[3][N_POINTS_MAXIMUM] = {{0.0}};
+    for (unsigned short level = 0; level < nLevels; level++) {
+      for (unsigned short iNode = 0; iNode < nElemNodes; iNode++) Coord[level][iNode] = coordAt(level, element->GetNode(iNode));
+      CellNodeShares(element, nDim, Coord[level], shares[level]);
+    }
+
+    array<unsigned long, MAXNDIM + 1> point{};
+    array<array<su2double, MAXNDIM + 1>, 3> W{};
+
+    if (!split) {
+      for (unsigned short level = 0; level < nLevels; level++) {
+        for (auto a = 0u; a < nNodes; a++) W[level][a] = shares[level][a];
+      }
+      su2double grad[MAXNDIM + 1][3];
+      for (auto a = 0u; a < nNodes; a++) point[a] = element->GetNode(a);
+      const su2double sign = (P1Simplex::ShapeGradients(nDim, Coord[0], grad) < 0.0) ? -1.0 : 1.0;
+      addSimplex(point, W, sign, 1.0);
+      continue;
+    }
+
+    const auto& splits = GetSplitPatterns(element);
+    const su2double weight = 1.0 / splits.size();
+
+    for (const auto& pattern : splits) {
+      vector<su2double> size, grad, levelW[3];
+      su2double sign = 1.0;
+      for (unsigned short level = 0; level < nLevels; level++) {
+        const su2double levelSign = SplitWeights(pattern, nDim, Coord[level], shares[level], nElemNodes, size, grad, levelW[level]);
+        if (level == 0) sign = levelSign;
+      }
+      for (size_t t = 0; t < pattern.simplices.size(); t++) {
+        for (auto a = 0u; a < nNodes; a++) {
+          point[a] = element->GetNode(pattern.simplices[t][a]);
+          for (unsigned short level = 0; level < nLevels; level++) W[level][a] = levelW[level][t * nNodes + a];
+        }
+        addSimplex(point, W, sign, weight);
+      }
+    }
+  }
+
+  /*--- Interior nodes are closed now. What is left at a boundary node goes to the boundary as a nodal term. ---*/
+
+  su2activevector gridFlux;
+  SetGridFluxP1(config, gridFlux);
+
+  for (auto iPoint = 0ul; iPoint < nPointDomain; iPoint++) {
+    if (!nodes->GetPhysicalBoundary(iPoint)) continue;
+    const su2double dVdt = coeff[0] * nodes->GetVolume(iPoint) + coeff[1] * nodes->GetVolume_n(iPoint) +
+                           coeff[2] * nodes->GetVolume_nM1(iPoint);
+    edges->BoundSwept[iPoint] = dVdt - gridFlux[iPoint];
+  }
 }
 
 void CPhysicalGeometry::SetBoundCVCoeffs(const CConfig* config, unsigned short action) {
