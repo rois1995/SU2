@@ -27,10 +27,16 @@ historical197/196/MPIvalidationhandles.
 
 Same savedrealCFDseed,Euler50k/native5400/outer14400/2events andstrictgates unchanged.
 Config/mesh/native_ref/savedseed BYTEIDENTICAL197:CURRENT/early_runtime_provenance.json.
-ActualoriginalcontinuedCFDCL.269535/CD.013536,rms-5.735442;restart00000notyetemitted
-atthisaudit. Compareactualfilewhenavailable;original00000isNOTadaptedrestartproof. Original61330points/303359cells;targetcomplexity isnotpoints.
+ActualoriginalcontinuedCFDCL.269535/CD.013536,rms-5.735442. ACTUALoriginalrestart00000
+nowemitted,BYTEIDENTICAL197(SHA6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a).
+Original00000isNOTadaptedrestartproof. Original61330points/303359cells;targetcomplexity isnotpoints.
 No198accepted adaptedmesh/transfer/continuedadaptedCFD/adapteddiskrestart yet.
-Nativeconstruction/quality hasnotyetemitted acompletecensus. Observeactualoutcome;
+Firstnativepartition303359cells:ALL18selectedper-rankfieldsEXACT197.
+CURRENT/initial_partition_comparison.json. Q/JintentionallyUNMEASUREDinconstruction;
+noacceptedmesh orshapeclosureclaim. All10actualHOSThandles/1401pins/82mappedELF
+reverified1793512765.9127417:initial_partition_live_provenance.json.
+CURRENT/initial_partition_resources.json preserves sampledRSS/RAM/loadwithpeaklimits.
+Earlierinitial_live_reverification.json remains historical. Observeactualoutcome;
 no newbaseline/perf/GDBcampaign orcompetingimplementation.
 
 198extends197's existing residualgeometry continuation with ONLY an existing N3
