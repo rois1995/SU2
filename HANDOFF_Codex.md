@@ -31,6 +31,22 @@ complete construction stages also match selected state/work counters exactly;
 LAST/construction_matching_stage_assessment.json. These do not establish closure.
 Latest HOST audit1793549682.061135:all10exact handles LIVE,1403pins unchanged,
 MemAvailable31,318,868kB; sampled summed processRSS9,107,521,536B, not physical peak.
+First complete50-round window:733582cells/50158q/49030J/3660geometry/0size,
+1739commits; q41694retired/37771introduced, J39153retired/34791introduced.
+Net3923q/4362J in158.289647899quality seconds (24.784q/s,27.557J/s).
+202matching50rounds:49598q/48405J/3675geometry,1888commits,27.133q/s/30.183J/s
+in165.225937174s. Thus early206net shape progress is lower, geometry count15lower;
+one early window does not establish the targeted late-tail effect or a bottleneck.
+No stop justified. LAST/quality_first_window_comparison.json retains all6rows,
+prefix hashes and churn reconciliation. Pushed checkpoint b2af598568 covers matching entry.
+Second complete window round21696:739233cells/46176q/44617J/3608geometry/0size
+at323.014074872quality seconds. The subsequent executed redistribution preserves
+those totals, complete shape/geometry/cache flags and aggregate q/J debt (within
+1e-9sum tolerance); q/J-debt max/mean falls1.30966→1.14391. This proves count/flag
+preservation and improved measured balance, not throughput or every-attribute
+identity. LAST/quality_census_migration_round21696.json retains transition evidence.
+Latest exact HOST audit1793550062.9780142:all10LIVE/1403pins unchanged,load10.59,
+MemAvailable30,638,080kB,sampled summedRSS9,194,450,944B. No resource-pressure stop.
 
 HOST startup at1793548936.893354, all10LIVE:
 helper2159446/start96386176;time2159605/timeout2159606/start96386786;
