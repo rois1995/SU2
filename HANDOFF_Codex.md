@@ -32,6 +32,18 @@ This isNOTadaptedrestartproof. Euler50k/native5400/outer14400/2events/allstrictg
 Original61330points/303359cells; actualworkingcounts remainseparatefrommetriccomplexity.
 No197acceptedadaptedmesh/transfer/continuedadaptedCFD/diskrestart yet.
 
+Initialpartition303359cells:ALL18selectedper-rankfieldsEXACT196.
+InitialcoarseningCOMPLETE292709cells/2627collapses:ALL17selectedcountfields and
+geometryworkEXACT196;traversal191026912/uppercalls14870same. Engine256.557136vs
+250.049109s;hostconditionsdiffer,notisolatedcodetiming. ALLfirst5splitgenerations
+COMPLETE withselectedper-rankcounts/workEXACT196. Gen5:696411cells,9816sizebad,
+4573geometrybad,traversal418620849/uppercalls20086same. q/JintentionallyUNMEASURED;
+noqualityclosure/acceptedmeshclaim. CURRENT/initial_partition_comparison.json,
+coarsening_comparison.json,construction_comparison.json,split_generation_assessment.json.
+Livepins/actualhandles reverified aftergen5:construction_checkpoint_live_provenance.json.
+construction_checkpoint_resources.json retains sampledRSS/RAM/load withpeaklimitations.
+Newpost-qualitycontinuation notyetexercised onM6;frozenruncontinues.
+
 197connectedqualificationPASS BEFOREfullM6:
 build189.466310s/all1296pinsunchanged/all2hosthandlesABSENT1793505621.7061243;
 focused213assertions/1case5.796347s/observed2handlesABSENT/pinsunchanged;
@@ -55,7 +67,9 @@ phase/collective defect; this isnotproof oftargetclosure. No competingimplementa
 Monitor actualconstruction/quality counts andnetwholefieldq/Jretirement/s,geometry,
 rankbusy/join/debtspread,blockedtail/churn andboundary/interioryield against196actual
 matchingstages/times. No forecastedtermination or matchedstatesafterdivergence.
-Existing196analysiscommands needpath/baseline adaptation andphaseawareness beforeuse:
+Stored197stage/serviceanalysiscommands arepreparedfor inheritedshape/constructioncrossings;
+validate actualcrossingreconciliation whenitoccurs,withoutinterruptingthefrozenrun;
+other196-derivedcomparisons stillneedphaseawareness beforeuse:
 197addscompletequality_exit andmayreturn toconstruction/newqualityentry; neverlabel
 unmeasuredconstructionq/J aszero orreconcileconstructionchanges asrepairchurn.
 Usecompletecensus flags andpreserve incompleteEXPLICITLY. No perf/GDB/baselinecampaign.

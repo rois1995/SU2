@@ -1,0 +1,417 @@
+{
+  "time": 1793506578.189093,
+  "scope": "Completed first-event splitting generations:196versus194. Selected count identity checked separately at each actual generation; no assumed future identity or divergence. Cumulative work and field counters retained separately; no isolated timing or acceptance claim. q/J deliberately unmeasured.",
+  "base": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build196_real_cfd50k_witness_first",
+  "current": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build197_real_cfd50k_geometry_return",
+  "count_fields": [
+    "cells",
+    "length_splits",
+    "length_collapses",
+    "rounds",
+    "associations",
+    "working_faces",
+    "face_pieces",
+    "trace_pieces",
+    "geometry_bad",
+    "size_bad",
+    "measured",
+    "q_measured",
+    "j_measured",
+    "shape_complete",
+    "geometry_complete",
+    "cache_consistent",
+    "census_complete"
+  ],
+  "complete_generation_count": 5,
+  "all_selected_counts_equal": true,
+  "generations": [
+    {
+      "generation": "1",
+      "current_counts": {
+        "cells": 495390,
+        "size_bad": 117030,
+        "geometry_bad": 3861,
+        "length_splits": 36823,
+        "upper_calls": 15800,
+        "upper_work": 250775665
+      },
+      "all_selected_per_rank_counts_equal": true,
+      "count_differences": [],
+      "base_work": {
+        "upper_calls": 15800,
+        "upper_work": 250775665,
+        "traversal_work": 241266877,
+        "support_facets": 2528021,
+        "scope_build_work": 1808663,
+        "facet_build_work": 1675960,
+        "piece_selection_work": 3914264
+      },
+      "current_work": {
+        "upper_calls": 15800,
+        "upper_work": 250775665,
+        "traversal_work": 241266877,
+        "support_facets": 2528021,
+        "scope_build_work": 1808663,
+        "facet_build_work": 1675960,
+        "piece_selection_work": 3914264
+      },
+      "traversal_work_reduction": 0,
+      "traversal_reduction_fraction": 0.0,
+      "new_memo_totals": {
+        "memo_direct_hits": 10036,
+        "memo_direct_misses": 59895,
+        "memo_union_hits": 2519,
+        "memo_union_misses": 13281,
+        "memo_stores": 73176,
+        "memo_evictions": 38719,
+        "memo_evicted_bytes": 16895264,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 1640594,
+        "memo_bytes": 25158576,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 22563,
+        "memo_union_entries": 11894
+      },
+      "base_elapsed": 299.608003093,
+      "current_elapsed": 305.585779523,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "2",
+      "current_counts": {
+        "cells": 680820,
+        "size_bad": 13483,
+        "geometry_bad": 4153,
+        "length_splits": 75525,
+        "upper_calls": 16706,
+        "upper_work": 290981026
+      },
+      "all_selected_per_rank_counts_equal": true,
+      "count_differences": [],
+      "base_work": {
+        "upper_calls": 16706,
+        "upper_work": 290981026,
+        "traversal_work": 281027813,
+        "support_facets": 2556548,
+        "scope_build_work": 2006451,
+        "facet_build_work": 1709932,
+        "piece_selection_work": 4098667
+      },
+      "current_work": {
+        "upper_calls": 16706,
+        "upper_work": 290981026,
+        "traversal_work": 281027813,
+        "support_facets": 2556548,
+        "scope_build_work": 2006451,
+        "facet_build_work": 1709932,
+        "piece_selection_work": 4098667
+      },
+      "traversal_work_reduction": 0,
+      "traversal_reduction_fraction": 0.0,
+      "new_memo_totals": {
+        "memo_direct_hits": 11905,
+        "memo_direct_misses": 62792,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 14181,
+        "memo_stores": 76973,
+        "memo_evictions": 40090,
+        "memo_evicted_bytes": 18405600,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 1843758,
+        "memo_bytes": 25162056,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 24592,
+        "memo_union_entries": 12291
+      },
+      "base_elapsed": 349.813167677,
+      "current_elapsed": 355.359694633,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "3",
+      "current_counts": {
+        "cells": 689054,
+        "size_bad": 11298,
+        "geometry_bad": 4299,
+        "length_splits": 77712,
+        "upper_calls": 17835,
+        "upper_work": 342113525
+      },
+      "all_selected_per_rank_counts_equal": true,
+      "count_differences": [],
+      "base_work": {
+        "upper_calls": 17835,
+        "upper_work": 342113525,
+        "traversal_work": 331683659,
+        "support_facets": 2588612,
+        "scope_build_work": 2221894,
+        "facet_build_work": 1728472,
+        "piece_selection_work": 4308144
+      },
+      "current_work": {
+        "upper_calls": 17835,
+        "upper_work": 342113525,
+        "traversal_work": 331683659,
+        "support_facets": 2588612,
+        "scope_build_work": 2221894,
+        "facet_build_work": 1728472,
+        "piece_selection_work": 4308144
+      },
+      "traversal_work_reduction": 0,
+      "traversal_reduction_fraction": 0.0,
+      "new_memo_totals": {
+        "memo_direct_hits": 12506,
+        "memo_direct_misses": 65559,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 15310,
+        "memo_stores": 80869,
+        "memo_evictions": 41685,
+        "memo_evicted_bytes": 19978680,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 2054822,
+        "memo_bytes": 25157728,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 26373,
+        "memo_union_entries": 12811
+      },
+      "base_elapsed": 380.969856385,
+      "current_elapsed": 385.256447334,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "4",
+      "current_counts": {
+        "cells": 692878,
+        "size_bad": 10629,
+        "geometry_bad": 4487,
+        "length_splits": 78910,
+        "upper_calls": 18935,
+        "upper_work": 380714727
+      },
+      "all_selected_per_rank_counts_equal": true,
+      "count_differences": [],
+      "base_work": {
+        "upper_calls": 18935,
+        "upper_work": 380714727,
+        "traversal_work": 369868999,
+        "support_facets": 2616863,
+        "scope_build_work": 2413788,
+        "facet_build_work": 1737766,
+        "piece_selection_work": 4493467
+      },
+      "current_work": {
+        "upper_calls": 18935,
+        "upper_work": 380714727,
+        "traversal_work": 369868999,
+        "support_facets": 2616863,
+        "scope_build_work": 2413788,
+        "facet_build_work": 1737766,
+        "piece_selection_work": 4493467
+      },
+      "traversal_work_reduction": 0,
+      "traversal_reduction_fraction": 0.0,
+      "new_memo_totals": {
+        "memo_direct_hits": 12654,
+        "memo_direct_misses": 68345,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 16410,
+        "memo_stores": 84755,
+        "memo_evictions": 43530,
+        "memo_evicted_bytes": 21514224,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 2250151,
+        "memo_bytes": 25159152,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 27963,
+        "memo_union_entries": 13262
+      },
+      "base_elapsed": 404.200919195,
+      "current_elapsed": 407.929237915,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    },
+    {
+      "generation": "5",
+      "current_counts": {
+        "cells": 696411,
+        "size_bad": 9816,
+        "geometry_bad": 4573,
+        "length_splits": 80057,
+        "upper_calls": 20086,
+        "upper_work": 429888281
+      },
+      "all_selected_per_rank_counts_equal": true,
+      "count_differences": [],
+      "base_work": {
+        "upper_calls": 20086,
+        "upper_work": 429888281,
+        "traversal_work": 418620849,
+        "support_facets": 2646062,
+        "scope_build_work": 2612082,
+        "facet_build_work": 1738454,
+        "piece_selection_work": 4685839
+      },
+      "current_work": {
+        "upper_calls": 20086,
+        "upper_work": 429888281,
+        "traversal_work": 418620849,
+        "support_facets": 2646062,
+        "scope_build_work": 2612082,
+        "facet_build_work": 1738454,
+        "piece_selection_work": 4685839
+      },
+      "traversal_work_reduction": 0,
+      "traversal_reduction_fraction": 0.0,
+      "new_memo_totals": {
+        "memo_direct_hits": 12753,
+        "memo_direct_misses": 71276,
+        "memo_union_hits": 2525,
+        "memo_union_misses": 17561,
+        "memo_stores": 88837,
+        "memo_evictions": 45440,
+        "memo_evicted_bytes": 23121480,
+        "memo_retention_refusals": 0,
+        "memo_maintenance_work": 2448080,
+        "memo_bytes": 25162928,
+        "memo_limit": 25165824,
+        "memo_direct_entries": 29661,
+        "memo_union_entries": 13736
+      },
+      "base_elapsed": 429.555068009,
+      "current_elapsed": 432.586167401,
+      "prepared_limit_per_rank": {
+        "0": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "1": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "2": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "3": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "4": {
+          "base": "396836624",
+          "current": "396836624"
+        },
+        "5": {
+          "base": "396836624",
+          "current": "396836624"
+        }
+      }
+    }
+  ],
+  "limits": [
+    "Both194and196have the same bounded numeric memo implementation and counters. Different upper certificates/work can affect existing retention.",
+    "Misses do not distinguish unique positions from evicted repeats.",
+    "Selected count identity is not a byte-identical intermediate mesh claim. If later counts diverge, do not label those states identical.",
+    "Maintenance, traversal and preparation work are distinct counters and must not be arbitrarily summed.",
+    "Do not interpret construction q_bad/J_bad zeros as measured shape success.",
+    "Host contention confounds wall-time comparisons."
+  ]
+}
