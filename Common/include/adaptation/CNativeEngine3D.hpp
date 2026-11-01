@@ -14,6 +14,28 @@ constexpr size_t MaximumCandidateBatch = 8;
 enum class EnginePhase { Construction, Improvement };
 enum class PhaseOwnership { Automatic, Disabled, DiagnosticAlways };
 struct EngineStats;
+/*! Cached inspection data only; never used for repair admission or candidate ordering. */
+struct CellDiagnostic {
+  struct Repair {Feature feature{};uint64_t epoch=0;bool blocked=false;};
+  bool cache_valid=false,q_measured=false,j_measured=false,geometry_measured=false;
+  bool q_bad=false,j_bad=false,geometry_bad=false,size_bad=false,height_bad=false,height_unresolved=false;
+  bool surface=false,near_feature=false,feature_known=false;
+  double q=0,J=0,geometry_excess_l2=0;
+  std::array<Edge,6> edges{};
+  std::array<long double,6> lengths{};
+  std::array<Repair,14> repairs{};
+  size_t repair_count=0;
+};
+struct RejectionDiagnostic {
+  uint64_t sequence=0,round=0;
+  Feature feature{};
+  std::array<Id,32> old_cells{};
+  size_t old_count=0;
+  bool old_cells_truncated=false,shape_measured=false,reason_truncated=false;
+  double q=0,J=0;
+  MetricFailure failure=MetricFailure::None;
+  std::array<char,256> reason{};
+};
 /*! Rank-local owned-cell diagnostics. Sums cover measured cells only; completeness/counts must
  * accompany them. Edge debt counts all six cell incidences, not unique global edges. */
 struct StageProgress {
@@ -53,6 +75,9 @@ struct StageProgressView {
   const std::map<int,RegionWallPolicy>& region_walls;
   double surface_tolerance,maximum_seconds,elapsed_seconds;
   size_t maximum_rounds,maximum_work,memory_ceiling,caller_bytes,stage_observer_bytes;
+  std::function<bool(Id,CellDiagnostic&)> cell_diagnostic;  // Borrowed cache lookup; no measurement/collectives.
+  const std::string* last_rejection_reason=nullptr;
+  const std::vector<RejectionDiagnostic>* rejections=nullptr;
 };
 /*! Borrowed diagnostic view; callbacks copy bounded data and never call collectives or mutate state. */
 struct TransactionView {

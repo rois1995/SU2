@@ -1,0 +1,33 @@
+{
+  "time": 1793534675.4200776,
+  "status": "WIP consolidation, not a qualified solver build or completed export",
+  "files_sha256": {
+    "Common/include/adaptation/CNativeEngine3D.hpp": "fd659f2a835a11a4f0a89b6ae847970a0a191615c39689f1ab433c08cf3b0e2e",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "f3930d839f361451ad93f386b90f710c7eb4ec81139d012550619ffd4abb9a83",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py": "316477b812844437d67f48373013bd73fdfd121aeede3de89371f1af338788e8",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/test_inspect_native_failure3d.py": "7408ad54b57be4724f4141e20234a6a7426019ca52f9c814fbc51e2a81a124c0",
+    "HowToProceed.md": "66b0bd158dd57f49a8cc9b2e004a6d1c2712a7826f089d8d201ab74f95ff305c",
+    "Handbook/ADAPTATION_BAD_CAVITY_EXPORT_20261101.md": "2e47a75ad918c48ac51bd2f15588916bb182ec8029c3cd92f84b42376d78d3ed"
+  },
+  "python_tests": {
+    "command": "python3 -B -m unittest -q integration_evidence.native_3d_bl_v1.dc17_18_completion_v1.staged57.test_inspect_native_failure3d",
+    "observed_exit_code": 0,
+    "observed_tests": 9,
+    "scope": "Synthetic producer-format fixtures only. Primary rerun passed in this session; source unchanged since that run. Actual C++ producer interoperability remains unvalidated."
+  },
+  "cpp_compiled": false,
+  "cpp_tests_run": false,
+  "new_mpi_campaign": false,
+  "new_m6_started": false,
+  "actual_m6_failure_mesh_retained": false,
+  "capture_policy": "Explicitly selected substantial milestone only; no automatic dumps on each trial or routine rejection. Save actual full unapproved .su2 plus inspection artifacts.",
+  "construction_policy_changed": false,
+  "ideas_status": "Soft construction quality/placement/topology ideas are hypotheses requiring thorough controlled tests, not selected implementations.",
+  "resume_document": "HowToProceed.md",
+  "remaining": [
+    "Finish opt-in C++ producer and actual reference/policy serialization",
+    "Validate cached q/J and metric lengths, serialized migration and unchanged construction behavior",
+    "Validate extractor on actual C++ shards including full saved mesh",
+    "One connected MPI6 milestone, then selected full M6 from same saved CFD with unchanged gates/budgets"
+  ]
+}

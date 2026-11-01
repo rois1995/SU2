@@ -9,7 +9,7 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current — build199 terminal; bounded failure export is the active next diagnostic
+## Current — consolidation checkpoint; build199 terminal; diagnostic work is WIP
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 LAST=`R/m6_runs/euler_build199_real_cfd50k_triangle_coverage`.
@@ -17,7 +17,9 @@ The inherited directory label describes neither the source nor a new baseline:
 this is WINDING build199, source86d292e517; CFD SHA
  ea0067da5f39f2cf09b75bbc737bfda14d57fd4decc15b1f5d1454000a6408da.
 Testdriver SHA ba37efed110714d5b89420991015a01440da4ae454a7bd2398ddde4f83b7ada4.
-No C++/header/test/helper/binary edits since its passing qualification and full run.
+These identify the last qualified build199 source/binaries. The worktree now has
+uncompiled diagnostic C++ edits and an offline prototype; do not claim the current
+source was validated by the old binaries. No new build or M6 run has started.
 Build PASS; focused3306assertions/10cases; serial23048/72; one MPI6 milestone
 216cases EACH rank. Full qualification, construction comparisons and earlier live
 receipts are preserved in the [build199 archive](Handbook/History/HANDOFF_Codex_build199_20261101.md).
@@ -39,7 +41,9 @@ Only verified launcher1607403/start94121591 received SIGTERM1793531826.436573.
 All10 exact HOST identities ABSENT/all1401pins unchanged1793531839.785239.
 LAST/event1_natural_failure.json,event1_failure_owned_stop.json,terminal_handles.json.
 All1607xxx handles are historical: NEVER resignal. No owned heavy job remains.
-Source freezing ended only after that terminal proof; no new implementation yet.
+Source freezing ended only after that terminal proof. The diagnostic cache-view/
+rejection-metadata edits started after pre_export_implementation_audit.json verified
+all10 identities absent/all1401old pins unchanged1793533690.643077.
 
 Traversal1.471449262B/upper1.674224805B work (87.89%); nested rank seconds:
 upper4069.367,traversal3385.624,scope469.009,facet107.581,support164.203.
@@ -66,6 +70,19 @@ Initial construction fields match all18generations; traversal fell52.87689%, but
 construction elapsed1133.899305vs730.857434s. Saved12older-query traversal fell48.8293%;
 these are not representative late-query or full-workflow speedup proofs.
 
+**Resume from [HowToProceed.md](HowToProceed.md).** The user requested consolidation
+and clarified that meshes should be saved only for selected substantial milestones
+when inspection is useful, not every trial or routine M6 attempt. Save the actual
+complete unapproved mesh as .su2, plus inspection views. Their construction-quality
+ideas are hypotheses requiring thorough testing, not authorization to change policy.
+
+Current WIP: Engine3D diagnostic cache view, actual cached q/J retention/migration
+and bounded in-memory rejected-proposal metadata. No automatic writer or per-trial
+files. Offline inspect_native_failure3d.py and its test file exist under R;9focused
+synthetic-format Python tests PASS. C++ has NOT been compiled/tested; producer/
+selected-run wiring and actual C++/M6 interoperability remain missing. Last heavy
+workload remains terminal build199. Root/tmp is nearly full (~1.5MB); use4TBscratch.
+
 User's next diagnostic: bounded export of remaining bad cells, neighboring cavities
 and reference surface, carrying q/J, geometry excess, metric edge lengths and
 rejection evidence. Existing 3D stage/rejected-state/trial hooks and bounded
@@ -73,7 +90,9 @@ rank-local NativeStageCapture are available but not wired into production CFD.
 Build199 retained no working-volume/cavity artifact; its discarded private mesh
 cannot be reconstructed from aggregate counters or original-grid restart files.
 Active plan: [bounded bad-cavity export](Handbook/ADAPTATION_BAD_CAVITY_EXPORT_20261101.md).
-Reuse those hooks, cached measurements and bounded rank-local snapshot streaming;
+Use explicit opt-in callback installation for a selected milestone. Do not add
+automatic capture on every rejection or WRT_ADAP_MESH use. Reuse those hooks,
+cached measurements and bounded rank-local snapshot streaming;
 extract complete cross-rank cavities offline by global IDs, with explicit coverage/
 truncation and exact reference provenance. No new scheduler/configuration, gate
 relaxation, candidate change or additional speedup is established. Unproven motion/
@@ -124,7 +143,8 @@ verified terminal before subsequent source edits. Full receipts remain in R/m6_r
 
 ## Next monitoring and acceptance
 
-Build199 is terminal. Implement and qualify the newly requested bounded failure
+Build199 is terminal. The user requested consolidation; do not start a new heavy
+run during this checkpoint. On resumption, finish and qualify the opt-in bounded failure
 export within the same cycle, then return immediately to full two-event M6 from
 the saved real CFD seed. Keep all strict gates, construction improvements, cache/
 ownership safety and cumulative budgets. The complete Euler acceptance/transfer/

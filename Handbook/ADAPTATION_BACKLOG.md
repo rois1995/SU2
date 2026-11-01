@@ -415,3 +415,10 @@ diagnostic; see ADAPTATION_BAD_CAVITY_EXPORT_20261101.md. Keep motion/slack cach
 extra envelopes and unproven measured-cost ownership alternatives deferred. Use
 actual exported placement, constraints and topology-rejection evidence before
 selecting another repair or construction change. No new speedup is established.
+
+
+2026-11-01 user consolidation: soft construction quality preferences, alternative
+placements and topology changes are hypotheses requiring thorough tests, not a
+selected implementation. Do not silently change validity-only construction.
+HowToProceed.md records evidence, uncertainty and controlled-test acceptance.
+Mesh capture is opt-in for selected substantial runs, never every routine attempt.

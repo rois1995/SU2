@@ -12,17 +12,32 @@ The complete goal remains two strictly accepted M6 Euler events at50k, conservat
 admissible transfer, finite continued CFD and isolated adapted disk restart; then
 BL/MPI qualification and RANS500k. All gates and budgets remain unchanged.
 
+## Current consolidation status
+
+See [HowToProceed.md](../HowToProceed.md). The user clarified that capture should
+be explicitly selected for substantial milestones, not every attempt/trial. Save
+the actual complete unapproved mesh (.su2), not just a picture or filtered subset.
+Construction-quality ideas remain hypotheses and must be thoroughly tested before
+pursuing them; the current validity-only construction policy has not changed.
+
+Diagnostic cache-view/rejection metadata C++ edits are WIP and uncompiled. An
+offline prototype writes full SU2/VTU and filtered views;9synthetic-format tests
+pass. The C++ producer, opt-in wiring and actual producer/M6 interoperability are
+not implemented or validated yet. No new build or heavy run has started.
+
 ## Connected implementation
 
 Reuse the existing stage/rejected-state/trial observer APIs and the bounded
 rank-local `NativeStageCapture` streaming precedent. Do not gather the complete
 volume mesh or add a scheduler, a configuration option or a second baseline run.
 
-1. Capture once at the final rejected exit, before the working mesh and matching
+1. For an explicitly selected substantial run, capture once at the final rejected
+   exit, before the working mesh and matching
    private geometry are released. Retain global node/cell IDs, coordinates,
    versions, physical faces, current nodal tensors and association information.
    Wire production CFD through the existing observer facility and existing output
-   naming. Keep diagnostics separate from accepted mesh publication.
+   naming. Do not enable automatic dumps on ordinary rejection or mesh-output
+   configuration. Keep diagnostics separate from accepted mesh publication.
 2. Expose already measured cell-cache values to the observer. Export actual q/J,
    measurement/completeness flags, geometry excess with its precise definition,
    all six cached metric edge lengths, boundary/feature classification and blocked
@@ -44,7 +59,8 @@ volume mesh or add a scheduler, a configuration option or a second baseline run.
    curved controls and requested-height policies. Keep CAD optional. A rendered
    reference approximation is a visualization, never a new geometry certificate.
 6. Offline, combine the bounded shards by global IDs and extract the remaining
-   bad cells and their complete neighboring vertex-star cavities, including rank
+   complete mesh as .su2 and VTU, plus bad cells and complete neighboring
+   vertex-star cavities, including rank
    cuts. Produce inspectable volume/surface artifacts and a compact manifest with
    q/J, geometry excess, metric edge lengths and rejection evidence. Bound the
    selected/output population and memory. State total/retained/omitted counts and

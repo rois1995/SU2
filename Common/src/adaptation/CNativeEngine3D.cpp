@@ -264,11 +264,11 @@ class Selection {
   };
   StageProgress debt;
   bool progress_consistent=true,census_started=false;
-  struct CellState { uint64_t version=0; CellDebt debt;std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{};std::array<bool,6> physical{}; std::array<Id,4> vertices{}; std::array<long double,6> geometry_scores{}; bool valid = false,target_valid=false,geometry_invalid=false,construction_valid=false,quality_valid=false,shape_measured=false;
+  struct CellState { uint64_t version=0; CellDebt debt;double q_value=0,j_value=0;std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{};std::array<bool,6> physical{}; std::array<Id,4> vertices{}; std::array<long double,6> geometry_scores{}; bool valid = false,target_valid=false,geometry_invalid=false,construction_valid=false,quality_valid=false,shape_measured=false;
     bool surface=false,near_feature=false,feature_known=false;
     unsigned char geometry_types=0,geometry_excess_bin=0;
     template<class S>void Fields(S& s) {
-      s(version,debt,edges,forbidden,physical,vertices);
+      s(version,debt,q_value,j_value,edges,forbidden,physical,vertices);
       for(auto& x:geometry_scores)CachedScalar(s,x);
       s(valid,target_valid,geometry_invalid,construction_valid,quality_valid,shape_measured);
       s(surface,near_feature,feature_known,geometry_types,geometry_excess_bin);
@@ -366,6 +366,24 @@ class Selection {
     result.size_hinge_squared=std::max(0.L,result.size_hinge_squared);result.height_hinge_squared=std::max(0.L,result.height_hinge_squared);
     result.geometry_excess_squared=std::max(0.L,result.geometry_excess_squared);
     return result;
+  }
+  bool Diagnose(const OwnedCell& owned,CellDiagnostic& out)const {
+    out={};const auto found=cells.find(owned.cell.id);
+    if(!progress_consistent||found==cells.end()||found->second.version!=owned.version)return false;
+    const auto& row=found->second;const auto& d=row.debt;
+    out.q_measured=d.q_measured;out.j_measured=d.j_measured;out.geometry_measured=d.geometry_measured;
+    out.q=row.q_value;out.J=row.j_value;out.geometry_excess_l2=double(std::sqrt(std::max(0.L,d.geometry)));
+    out.q_bad=d.q_bad;out.j_bad=d.j_bad;out.geometry_bad=row.geometry_invalid;out.size_bad=d.size_bad;
+    out.height_bad=d.height_bad;out.height_unresolved=d.height_unresolved;out.surface=row.surface;
+    out.near_feature=row.near_feature;out.feature_known=row.feature_known;out.edges=row.edges;
+    for(size_t i=0;i<6;++i){const auto edge=edges.find(row.edges[i]);if(edge==edges.end())return false;out.lengths[i]=edge->second.measure.length;}
+    const auto repairs=cell_repairs.find(owned.cell.id);
+    if(repairs!=cell_repairs.end())for(const auto& key:repairs->second) {
+      if(out.repair_count==out.repairs.size())return false;
+      const auto demand=repair_users.find(key);if(demand==repair_users.end())return false;
+      out.repairs[out.repair_count++]={Feature{key.second,key.first},demand->second.epoch,demand->second.blocked};
+    }
+    out.cache_valid=true;return true;
   }
   Choice Best(bool repairing) const {
     if (repairing) {
@@ -664,6 +682,7 @@ class Selection {
     Account(row,false);invalid-=!row.valid;quality_invalid-=!row.quality_valid;unmeasured_shape-=!row.shape_measured;
     auto& d=row.debt;auto hinge=[](long double x){return std::max(0.L,x);};
     row.shape_measured=metric.shape_measured;row.quality_valid=quality_valid;
+    row.q_value=metric.shape_measured?metric.minimum_mean_ratio:0;row.j_value=metric.shape_measured?metric.minimum_scaled_jacobian:0;
     d.q_measured=metric.shape_measured&&std::isfinite(metric.minimum_mean_ratio);d.j_measured=metric.shape_measured&&std::isfinite(metric.minimum_scaled_jacobian);
     d.q=d.j=0;d.q_bad=d.j_bad=false;
     if(d.q_measured){const auto r=hinge(1.L-static_cast<long double>(metric.minimum_mean_ratio)/MinimumMeanRatio);d.q=r*r;d.q_bad=metric.minimum_mean_ratio<MinimumMeanRatio;}
@@ -712,6 +731,7 @@ class Selection {
     row.construction_valid=metric.maximum_length<=MaximumMetricEdge;
     auto hinge=[](long double value){return std::max(0.L,value);};
     auto& d=row.debt;
+    row.q_value=metric.shape_measured?metric.minimum_mean_ratio:0;row.j_value=metric.shape_measured?metric.minimum_scaled_jacobian:0;
     d.q_measured=metric.shape_measured && std::isfinite(metric.minimum_mean_ratio);
     d.j_measured=metric.shape_measured && std::isfinite(metric.minimum_scaled_jacobian);
     if(d.q_measured) {
@@ -1351,6 +1371,23 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     return certify_support || vote(failure);
   };
   std::string last_rejection;
+  std::vector<RejectionDiagnostic> diagnostic_rejections;uint64_t diagnostic_sequence=0;
+  constexpr size_t diagnostic_rejection_limit=64;
+  if(options.stage_observer && options.stage_observer_bytes>=diagnostic_rejection_limit*sizeof(RejectionDiagnostic)+(size_t(64)<<10))
+    diagnostic_rejections.reserve(diagnostic_rejection_limit);
+  auto record_rejection=[&](Feature feature,const Patch* old,const MetricDiagnosis* metric,const std::string& reason) {
+    if(!diagnostic_rejections.capacity())return;
+    const size_t index=diagnostic_sequence%diagnostic_rejection_limit;
+    if(diagnostic_rejections.size()<diagnostic_rejection_limit)diagnostic_rejections.emplace_back();
+    auto& row=diagnostic_rejections[index];row={};row.sequence=diagnostic_sequence++;row.round=stats.rounds;row.feature=feature;
+    if(old){row.old_count=std::min(old->cells.size(),row.old_cells.size());row.old_cells_truncated=row.old_count<old->cells.size();
+      for(size_t i=0;i<row.old_count;++i)row.old_cells[i]=old->cells[i].id;}
+    else row.old_cells_truncated=true;
+    if(metric){row.shape_measured=metric->shape_measured;row.q=metric->minimum_mean_ratio;row.J=metric->minimum_scaled_jacobian;row.failure=metric->failure;}
+    size_t count=std::min(reason.size(),row.reason.size()-1);
+    if(count<reason.size())while(count && (static_cast<unsigned char>(reason[count])&0xc0)==0x80)--count;
+    std::copy_n(reason.data(),count,row.reason.data());row.reason_truncated=count<reason.size();
+  };
   uint64_t progress_at_window=0, attempted_at_window=0, deferred_at_window=0;
   auto height_check=[&](const Patch& patch,std::string& reason,bool provisional=false,FirstHeightReport* measured=nullptr) {
     if(options.wall_heights.empty())return true;
@@ -1727,7 +1764,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       options.stage_observer({stage,phase,stats.rounds,result.valid,progress.complete,progress,stats,result.reason,
           working,original,geometry,composition,options.edge_breakpoints,options.wall_heights,options.region_walls,
           options.surface_tolerance,options.maximum_seconds,std::chrono::duration<double>(Clock::now()-started).count(),
-          options.maximum_rounds,options.maximum_work,options.memory_ceiling,options.caller_bytes,options.stage_observer_bytes});
+          options.maximum_rounds,options.maximum_work,options.memory_ceiling,options.caller_bytes,options.stage_observer_bytes,
+          [&](Id id,CellDiagnostic& out){const auto row=working.find(id);return row!=working.end()&&selection.Diagnose(row->second,out);},
+          &last_rejection,&diagnostic_rejections});
     }catch(const std::exception& e){failure.Set(2,0,e.what());}
     const auto elected=world.elect(failure);
     if(elected.any) {
@@ -3154,6 +3193,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       stats.last_rejected_feature=feature;++refused_candidates;
       last_rejection="feature "+std::to_string(feature.count)+":"+std::to_string(feature.vertices[0])+": "+why;
+      record_rejection(feature,nullptr,nullptr,why);
     };
     // Every nonempty selected round admits work; at most batch*workers metadata frontiers per admitted round.
     auto plan_choices=[&]() {
@@ -4979,6 +5019,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     if (chosen && !approved) last_rejection = (repairing ? "feature " + std::to_string(choice.feature.count) + ":" +
         std::to_string(choice.feature.vertices[0]) : "edge " + std::to_string(choice.edge[0]) + "," + std::to_string(choice.edge[1])) + ": " + result.reason;
+    if(chosen && !approved)record_rejection(stats.last_rejected_feature,&old,&certified,result.reason);
     std::vector<std::vector<Dependency>> removals(world.size);
     std::vector<std::vector<OwnedCell>> additions(world.size);
     std::vector<std::vector<BlockedEdge>> blocked(world.size);
@@ -5283,6 +5324,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               if(!proposal.old.cells.empty())stats.last_rejected_cavity_centroid=Centroid(proposal.old.cells.front());
               last_rejection="feature "+std::to_string(proposal.choice.feature.count)+":"+
                   std::to_string(proposal.choice.feature.vertices[0])+": "+proposal.rejection;
+              record_rejection(proposal.choice.feature,&proposal.old,&proposal.certified,proposal.rejection);
               std::set<int> owners;for(const auto& dependency:proposal.dependencies.cells)owners.insert(dependency.owner);
               for(int owner:owners)blocked.at(owner).push_back({proposal.choice.edge,proposal.choice.feature});
             }
