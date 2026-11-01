@@ -1,6 +1,6 @@
 # Review of the independent M6 technical assessment
 
-Reviewed2026-11-01 while build202 selected full M6 is LIVE and source frozen.
+Reviewed2026-11-01 while build202 was frozen; updated after its natural rejection.
 The attachment is analysis, not implementation authorization or reproduced CFD
 evidence. Its hashes and a local input copy are recorded in
 `staged57/technical_assessment202_review.json`. The complete objective remains two
@@ -91,9 +91,11 @@ terminal witness should determine which missing piece actually matters.
 The surface/volume coupling argument is useful at the level of an actual failing
 branch. Inspect whether an existing complete private candidate is vetoed before
 an available volume adjustment; do not presume coupling or collapse is absent.
-The existing finite surface-splitting/geometry continuation remains relevant but
-unexercised on the latest difficult M6 trajectory. Neither force its phase early
-nor call it ineffective without an eligible witness.
+The existing finite surface-splitting/geometry continuation was unexercised in199.
+Build202now records3quality stages and2construction returns, so that coverage gap
+is partly closed. Its complete EXIT is295q/294J/2110geometry-bad, after a smaller
+shape tail and further geometry reduction. This warrants examining reclosure,
+but does not prove that the same local neighborhoods cycled.
 
 The suggested few-facet partition bound is a candidate to compare with existing
 facilities, not an established missing optimization. Current `TriangleUnion::Upper`
@@ -105,7 +107,7 @@ can justify another bound. The attachment's literature is design context, not a
 speed or correctness proof for this implementation; external papers were not
 independently reviewed in this source-level assessment.
 
-After the current run reaches a preserved terminal state, inspect representative
+With build202terminal evidence preserved, inspect representative
 boundary, constrained-interior, free-interior and matched clean regions. Reuse
 complete census counters to separate waiting, unsuccessful search, publication
 loss and churn. If inspection leaves a concrete rejection unexplained, select one
@@ -113,3 +115,21 @@ bounded existing transaction replay and verify reproduction before interpreting
 alternatives. Choose one demonstrated correction, qualify affected behavior and
 return to the full workflow. Do not add a competing construction strategy, cache,
 scheduler, new options or weaker gates from the assessment alone.
+
+## Terminal202 update and smallest next step
+
+All6 raw owned/metric/reference/rejection shards are saved and complete. Combined
+SU2/VTU assembly remains pending. All ten exact owned processes are absent and
+1403frozen pins unchanged. Use these witnesses before another full capture run.
+
+One qualification to the replay discussion: production private repairs explicitly
+use `ImportCellsLocal`/`SamplePointsLocal` with the complete current cavity and no
+bootstrap fallback (`CNativeMetricTransport3D.hpp:277,307`, engine:3478,3486).
+Missing original donors therefore need not prevent every local feasibility test.
+Verify exact composition, geometry, support and evaluator agreement for the chosen
+operator first. This still cannot reconstruct a historical candidate or its exact
+resource/dependency state from the final inspection mesh alone.
+
+No attachment proposal has been implemented as a repair policy. External papers
+were not independently checked; no speedup or general local infeasibility follows
+from this review.

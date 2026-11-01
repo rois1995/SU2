@@ -13,16 +13,16 @@ Actual mesh point/cell counts are separate from metric complexity. Keep geometry
 1e-4, q>=.2, J>=.05, maximum metric edge1.8 and requested heights unchanged. CAD
 remains optional.
 
-Build199 finished naturally at the unchanged native time budget. Its complete
-terminal census contains **802117 cells,4368q-bad,2537J-bad,3098geometry-bad and
-zero size-bad**. All owned processes are terminal. No adapted mesh was accepted;
-conservative transfer, continued adapted CFD and adapted restart remain unproved.
-The original-grid restart files are not evidence of those capabilities.
+Latest build202 finished naturally at the unchanged native time budget. Its
+complete terminal census contains **810163cells,295q-bad,294J-bad,2110geometry-bad
+and zero size-bad**. All ten exact owned processes are absent;1403pins unchanged.
+No adapted mesh was accepted. Raw final inspection shards from all6ranks are saved
+and complete; global SU2/VTU assembly is the next diagnostic task.
 
-Authoritative entry point: [HANDOFF_Codex.md](HANDOFF_Codex.md). Full receipts are
-under `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/`
-`euler_build199_real_cfd50k_triangle_coverage/`. The inherited directory label is
-historical; this was the build199 winding-screening implementation.
+Authoritative entry point: [HANDOFF_Codex.md](HANDOFF_Codex.md). Current receipts:
+`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/`
+`euler_build202_real_cfd50k_inspection/`. Build199 figures below remain historical
+comparison evidence, not the current terminal state.
 
 ## What the evidence actually says
 
@@ -158,11 +158,13 @@ resource refusals. The actual416-byte little-endian RecordStream layout uses
 saved in staged57/failure_export202_qualification.json. It proves diagnostic
 behavior, not M6 acceptance or a construction/repair improvement.
 
-A selected full two-event M6 is now LIVE at
-staged57/m6_runs/euler_build202_real_cfd50k_inspection, using the same saved CFD
-seed,50k/native5400 and strict gates. Consult HANDOFF_Codex.md for exact owned
-handles and source freezing. Its first rejected exit will be captured; when
-terminal, extract and inspect the actual mesh before choosing another policy.
+The selected build202 full-driver M6 has naturally rejected event1. The existing
+continuation was exercised:3quality stages and2construction returns. Shape reached
+a small predominantly boundary tail before geometry reduction and later shape
+reopening; actual EXIT is295q/294J/2110geometry. Inspect the saved actual state and
+phase counters before attributing this to cycling, construction or lack of speed.
+The subsequent authorized owned stop preserved first-event evidence; all exact
+handles are absent. No further signal is needed.
 
 Related plan: [bounded export](Handbook/ADAPTATION_BAD_CAVITY_EXPORT_20261101.md).
 The [independent assessment review](Handbook/ADAPTATION_TECHNICAL_ASSESSMENT_REVIEW_20261101.md)
@@ -176,15 +178,15 @@ Existing source facilities include the stage/rejected-state hooks and the
 ## Resume and validation order
 
 1. Read AGENTS.md, HANDOFF_Codex.md and this file. Verify the current owned
-   handles; observe the live frozen build202 M6 before editing pinned sources or
-   starting another workload. Historical1607xxxhandles must never be signaled.
+   handles and terminal receipts before starting another workload. Historical
+   build199and202handles must never be signaled.
 2. Reuse the qualified build202 diagnostic and its exact source/runtime/helper
    evidence. Serial and one connected MPI6 milestone already passed; rerun only
    checks affected by actual changes or unresolved failures. Keep capture explicitly
    selected, not automatic on ordinary rejection or `WRT_ADAP_MESH` use.
-3. Let the selected full two-event M6 continue with the same saved real CFD seed
-   and unchanged50k/5400s/gates. Preserve actual terminal evidence before an
-   authorized owned stop. Verify exact handles absent before source edits.
+3. Reuse build202natural-failure, stop and terminal-handle receipts. Assemble its
+   saved raw shards with the qualified extractor, preserving input hashes and
+   explicit coverage. Do not repeat the full run merely to recover these data.
 4. On a rejected exit, validate raw shard/measurement completeness, extract the
    actual complete SU2/VTU mesh and cross-rank cavities, and inspect the location,
    constraints and historical rejection evidence. Truncated data cannot prove that

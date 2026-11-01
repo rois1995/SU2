@@ -1,0 +1,16 @@
+{
+  "time": 1793542938.6772242,
+  "action": "SIGTERM to only the verified owned M6 launcher",
+  "handle": {
+    "pid": 1886571,
+    "startticks": 95211630,
+    "state": "S",
+    "exe": "/usr/bin/orterun",
+    "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build202_real_cfd50k_inspection",
+    "cmd": "mpirun --output-filename rank_output -n 6 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver [NativeSelectedFailureWorkflow3D] "
+  },
+  "natural_failure_sha256": "5a2a63febc741771553d25db1547554556d90014a28bf324e5f83892d46e4dbd",
+  "natural_failure_preserved_at": 1793542876.1962981,
+  "reason": "All six ranks naturally rejected event1 at the unchanged time budget before any signal. With only two configured events, two accepted events are no longer achievable in this attempt. Inspection artifacts and native failure were preserved first.",
+  "owned_handles_must_be_rechecked_before_source_edits": true
+}

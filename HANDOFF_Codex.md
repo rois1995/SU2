@@ -9,55 +9,46 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current — build202 selected full M6 LIVE; source frozen
+## Current — build202 naturally rejected; owned handles terminal
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 LAST=`R/m6_runs/euler_build202_real_cfd50k_inspection`.
-Full two-event M6 exec88642 RUNNING. This explicitly selected inspection run uses
-[NativeSelectedFailureWorkflow3D] in the test-driver, calling the real
-CSinglezoneDriver::StartSolver/ADAP_LOOP/Finalize with the same saved real CFD seed,
-Euler50k, native5400s and unchanged gates. This is not frozen-metric replay.
-Ordinary CFD runs install no capture callback. Current implementation only adds
-diagnostics; no construction/repair/ownership policy or config option changed.
+Selected full-driver attempt exec88642 TERMINAL1. Event1 naturally rejected on all6
+ranks at native5405.620649636s, stop=time_budget. COMPLETE actual EXIT:
+**810163cells/295q-bad/294J-bad/2110geometry-bad/0size-bad**.
+All6 full shape/geometry/census/cache flags complete; raw inspection counts match.
+ZERO accepted adapted meshes; no adapted transfer/continued CFD/restart proof.
 
-HOST identities at1793537141.985488 (all10 verified LIVE;1403pins unchanged):
-helper1886348/start95210821;time1886569/start95211629;
-timeout1886570/start95211629;launcher1886571/start95211630;
-ranks1886586–1886591 all/start95211634. All rank/launcher priorities19, libs1.
-LAST/owned_startup.json,command.json,pins.json,status.json,resources.jsonl are
-current authority. Do not edit pinned C++/headers/tests/helpers/binary/config/inputs
-while this run lives. First restarted CFD iteration and metric computation reached;
-no adaptation acceptance yet. Source/checkpoint18738aeb32 is pushed to the fork;
-commit/documentation changes do not alter the frozen sources.
+Natural failure was preserved BEFORE the authorized stop of the exact verified
+owned launcher. LAST/event1_natural_failure.json and event1_failure_owned_stop.json
+are authority. Stop already sent; NEVER resignal historical1886xxxPIDs.
+LAST/terminal_handles.json proves all ten exact owned handles ABSENT and1403pins
+unchanged. No owned heavy job remains. Sources were unchanged throughout the run.
+Source checkpoint18738aeb32 and progress942c154d17 are pushed.
 CFD SHA7de0cc448004521becb5609d83a0841836d7744187700244dd36d8538b8ef666.
 Test-driver SHAd630234ec127b793237fb7c1dc609cd9db216b96463fc5330560a1fa01acaf04.
 
-Current measured progress: quality entry at636.681267335engine seconds with COMPLETE
-727818cells/54081q/53392J/3770geometry-admission/0size failures. All18construction
-generations match199on17selected per-rank work/state counters, not a whole-mesh
-bit-identity proof. Entry199was1185.729006s; changed host conditions prevent a causal
-code-speedup claim. Quality-entry rank distribution differs, so subsequent selected
-repair states are not assumed identical. Latest complete window17(round22656), at
-2803.422287qualitys:790703cells/12972q/9849J/3129geometry/0size;32404publications,
-net41109q/43543J,14.663863q/s and15.532087J/s. q-or-J bad union18029.
-Latest-window published q churn11561retired/9667introduced.
-Recorded window counters: construction edits0, private tracked collectives0,
-unmeasured churn0. Bulk rates are not a closure forecast.
-LAST/quality_entry_assessment.json,split_generation_assessment.json,
-quality_trend_assessment.json. At1793540548.205854 all10HOSThandles LIVE/1403pins
-unchanged; MemAvailable30,216,284kB/summedRSS9.7493GB(sample,not physical/job peak).
+Quality entry COMPLETE727818cells/54081q/53392J/3770geometry/0size at
+636.681267335engine seconds. Construction matches199on17selected counters across
+all18generations, not whole-mesh bit identity; host and later ownership differ.
+Bulk shape repair reached49q/26J/2988geometry at quality4362.75369s, with46of49
+q-or-J-bad cells fully blocked, q46surface/3interior and J26surface/0interior.
+Later complete window45:38q/22J/2554geometry at quality4597.57455s.
+Actual EXIT295q/294J/2110geometry supersedes those windows. Detailed counters show
+quality_stages=3 and construction_returns=2: the existing continuation WAS exercised
+in202, unlike199. Aggregate reopening is not proof of repeated local cycling.
+Next diagnose the boundary tail and subsequent phase/reclosure interaction before
+choosing speed, repair power or construction as the next correction.
 
-Capture policy: only the first rejected exit of this selected substantial attempt,
-with actual event and worker rank IDs. Prefix <MESH_OUT_FILENAME>_inspection.
-Stream owned/metric/reference/rejection shards,128MiB per file,1MiB admitted scratch;
-exclusive creation, explicit truncation/unknown measurements. Existing observers
-handle stage-election alignment; no per-trial/private-slot collectives added.
-When terminal, run R/inspect_native_failure3d.py on ONLY the selected full-prefix
-rank manifests into a new output directory. Save actual complete rejected_mesh.su2
-and VTU plus bad cells, cross-rank cavities, reference and historical rejection data.
-Raw records are416bytes, all scalars including bool8bytes. Diagnostic mesh is
-unapproved, not an adapted restart. Sampling/visualization cannot certify geometry.
-No mesh files on ordinary attempts or per trial. Details:
+All6 explicitly selected first-failure raw shards were saved, complete and
+measurements complete, each file below128MiB. NEXT: run existing
+R/inspect_native_failure3d.py on LAST/*inspection_rank*_manifest.json into a NEW
+output directory, one bounded nice19 offline job after host resource check.
+Validate complete global SU2/VTU, cross-rank cavities, counts and exact provenance;
+then inspect bad and matched clean regions. Combined rejected_mesh.su2/VTU have
+NOT yet been assembled. Raw files are inspection evidence, not an adapted restart
+or a faithful historical trial replay. Reference visualization cannot certify.
+No ordinary/per-trial mesh dumping. See
 [bounded export](Handbook/ADAPTATION_BAD_CAVITY_EXPORT_20261101.md).
 
 ## Connected diagnostic qualification — PASS, not workflow completion
@@ -82,7 +73,7 @@ handle may be signaled. Source freezing for current M6 began after qualification
 Earlier implementation/test details and terminal199 analysis are preserved in the
 [export-validation archive](Handbook/History/HANDOFF_Codex_export_validation_20261101.md).
 
-## Latest terminal difficult case — build199, no accepted mesh
+## Historical comparison — build199, no accepted mesh
 
 LAST199=`R/m6_runs/euler_build199_real_cfd50k_triangle_coverage` (WINDING199).
 All6 naturally rejected at native5403.368014s; COMPLETE EXIT802117cells,
@@ -100,7 +91,7 @@ Traversal87.89%of upper-query work; boundary private gain906.097/3367.753ranksec
 interior4623.378/203.816 with0interior upper queries. Private merit is not published
 bad-cell gain. Finalq745surface/3623interior;J656/1881. Only33fullyblocked cells;
 all6132q-or-J-bad cells have edge<.9,6045edge<.5. Correlation is not construction
-cause. Construction returns0:197geometry continuation remains unexercised.
+cause. Construction returns0:197geometry continuation was unexercised in199.
 Shape closure then residual size/geometry closure and shape reclosure remain needed.
 Selected199states matched198retry1 throughwindow20; later ownership/trajectories
 differ. Baseline198retry1 actual EXIT counts UNKNOWN. Work/timers overlap and host
@@ -131,17 +122,13 @@ Historical191–197 and198 records:
 All their handles are historical. Incomplete EXIT flags mean whole-field counts
 are unknown, never substitute an earlier subset/window as terminal truth.
 
-## Monitor frozen M6 and preserve the full acceptance obligations
+## Next diagnostic and complete acceptance obligations
 
-Let current M6 finish unless preserved evidence justifies the authorized owned
-stop/fix/retry. At a natural first-event rejection preserve all6rank terminal
-censuses, failure messages, artifact sizes/hashes, source/runtime/input pins and
-current exact process identities BEFORE stopping only the verified owned launcher.
-Check/close the same exec88642; require all exact HOST handles absent before any
-pinned source edit. Do not infer termination from a stale log/observation timeout.
-If accepted, continue event2/transfer/CFD; passing diagnostics or a saved rejected
-mesh do not complete the goal. Record useful work/progress at matching actual
-stages; account for contention and avoid another unchanged-source baseline campaign.
+Build202 terminal evidence and all exact handle closures are preserved. Assemble
+its saved raw mesh with the qualified existing extractor before selecting a repair
+change. Keep source/helper/input frozen during extraction, retain resource and
+coverage receipts, and inspect actual witnesses. Do not launch another baseline
+campaign. Passing diagnostics or a saved rejected mesh do not complete the goal.
 
 Analysis caution: historical matching-window summaries assume the first quality
 pass. The retry1 stored command now distinguishes published repair churn from
