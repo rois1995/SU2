@@ -17,6 +17,8 @@ from run import sha, save
 REPO = ROOT.parents[3]
 BINARY = REPO / "integration_evidence/build-integrated-v2/UnitTests/test_driver"
 CASES = {
+    "captured_cavity": (1, "[NativeCapturedCavity3D]"),
+    "feature_publication": (1, "[NativeFeaturePublication3D],Entity feature reconstruction handles ordinary and genuine routes"),
     "failure_capture": (1, "[NativeFailureCapture3D]"),
     "failure_capture_serial": (1, "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],"
                                "[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],"
@@ -243,6 +245,24 @@ def main():
                     path = folder / f"stage_quality_entry_rank{rank}_{suffix}"
                     pins[str(path)] = sha(path)
         stage_environment = {}
+        if case == "captured_cavity":
+            config = Path(os.environ["SU2_NATIVE_FROZEN_CONFIG"]).resolve()
+            folder = config.parent
+            preparation_path = folder / "witness_boundary_preparation.json"
+            preparation = json.loads(preparation_path.read_text())
+            for name, receipt in preparation["outputs"].items():
+                path = folder / name
+                if sha(path) != receipt["sha256"] or path.stat().st_size != receipt["bytes"]:
+                    raise RuntimeError("captured boundary input changed: " + str(path))
+                pins[str(path)] = receipt["sha256"]
+            state_path = folder / "witness_143424775_state.json"
+            state = json.loads(state_path.read_text())
+            owned = folder / state["owned_file"]
+            if sha(owned) != state["owned_sha256"]:
+                raise RuntimeError("captured cavity owned records changed")
+            for path in (config, folder / "m6.su2.native_ref", owned, state_path, preparation_path,
+                         ROOT / "prepare_boundary202.py"):
+                pins[str(path.resolve())] = sha(path)
         if case == "mapped_work_trace":
             stage_environment["SU2_NATIVE_GEOMETRY_WORK_TRACE"] = "1"
         if case.startswith("workflow_resolved_m"):

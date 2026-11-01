@@ -177,6 +177,13 @@ must distinguish those cases before selecting another change.
 Existing source facilities include the stage/rejected-state hooks and the
 `NativeStageCapture` fixture. Prefer extending those over a new capture framework.
 
+The current connected correction is the strict retained-feature proof described in
+[the inspection record](Handbook/ADAPTATION_M6_INSPECTION_20261101.md). Build205
+reproduces all52oldq/J exactly and identifies a missing unchanged companion-face
+contribution. Build206passed the narrow proof correction and distributed regression. Keep source frozen while its owned build/test
+lives. Serial/actual-witness checks and one MPI6 milestone passed; return
+immediately to full two-event M6; no weaker geometry or shape gate is proposed.
+
 ## Resume and validation order
 
 1. Read AGENTS.md, HANDOFF_Codex.md and this file. Verify the current owned

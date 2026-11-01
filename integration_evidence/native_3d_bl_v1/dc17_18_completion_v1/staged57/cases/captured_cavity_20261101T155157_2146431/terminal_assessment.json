@@ -1,0 +1,65 @@
+{
+  "time": 1793548505.6590421,
+  "handles": [
+    {
+      "pid": 2146504,
+      "state": "ABSENT"
+    },
+    {
+      "pid": 2146505,
+      "state": "ABSENT"
+    },
+    {
+      "pid": 2146506,
+      "state": "ABSENT"
+    },
+    {
+      "pid": 2146507,
+      "state": "ABSENT"
+    }
+  ],
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 89.983966588974,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 437133312,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "candidate": {
+    "stage": "directed_collapse",
+    "removed": 4502,
+    "retained": 181199364,
+    "compatible": true,
+    "constructed": true,
+    "construction_reason": "",
+    "replacement": true,
+    "replacement_reason": "",
+    "metric_measured": true,
+    "metric_valid": true,
+    "metric_reason": "",
+    "guidance_valid": true,
+    "guidance_reason": "",
+    "old_cells": 12,
+    "new_cells": 9,
+    "old_q_bad": 1,
+    "old_J_bad": 1,
+    "new_q_bad": 1,
+    "new_J_bad": 1,
+    "old_shape_debt": 1.9999999548602898,
+    "new_shape_debt": 0.154238144127167,
+    "old_geometry_guidance": 0,
+    "new_geometry_guidance": 0,
+    "work": 243951929,
+    "global_contact_and_publication_checked": false,
+    "accepted_repair": false
+  },
+  "scope": "Fresh actual-state candidate passes local existing construction/replacement/metric/guidance; q/J-bad counts remain1each, global contact/publication/final mesh acceptance unproved.",
+  "host_load": [
+    0.65,
+    1.26,
+    1.4
+  ],
+  "mem_available": "MemAvailable:   40164060 kB"
+}

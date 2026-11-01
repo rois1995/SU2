@@ -116,3 +116,55 @@ and reconstruction creates further shape work. Certification cost remains
 relevant; a geometry optimization should follow actual unresolved/expensive query
 witnesses. There is presently no evidence supporting a construction q/J preference
 or another coarsening pass as the selected correction.
+
+
+## Connected witness cycle — build206 scoped qualification passed
+
+The selected diagnostic now reconstructs the complete current boundary using the
+existing feature-path and parameter-state facilities. An initial100m work allowance
+was insufficient for the diagnostic. Using the production per-face reservation,
+204then hit its unchanged600s fixture limit in repeated whole-map resource-size
+callbacks, before evaluating a collapse. These are preserved diagnostic failures,
+not evidence that the M6 repair is infeasible.
+
+205replaces those repeated size walks with exact checked retained-byte totals and
+four phase-boundary full-scan invariants. Same allocations, overlap admission,
+arithmetic, work charges and geometry decisions. Focused projection_paths passed
+34cases/2666assertions, including one-byte-below-peak refusal and exact-peak
+admission. Actual captured_cavity_20261101T152837_2113440 passed38872assertions in
+90.230s:760current genuine traces validated, all52cachedq/J reproduce bit-exactly,
+maximum metric edge error2.4042183174866061e-17. No ordinary-M6 speedup is established
+by this setup result.
+
+The4502→181199364collapse constructs a positive12→9cell replacement, but parameter
+preflight rejects genuine feature coverage before fresh metric/guidance evaluation.
+New trace174173910/181199364 belongs to an already retained physical edge. Its
+unchanged companion face181199364/173349490/174173910 in cell143424774/facet16300
+is outside4502's complete vertex star. The directed proof sees changed faces but
+omits this newly induced trace use on the unchanged face. The strict unsigned
+whole-curve proof remains necessary.
+
+206implements a narrow correction: when a previously untraced accepted physical
+edge receives a genuine trace, include its unchanged accepted incident face's
+read-only directed contribution. No companion volume/face edit, degree update or
+vertex move; explicit bounded scratch; existing non-equal old-route coordination,
+exact unsigned feature coverage, topology, revisions and reservation unchanged.
+The endpoints are already in a valid candidate's full-vertex footprint. Current
+replicated parameter state supplies the accepted companion and immutable entity.
+
+A self-contained bent-feature regression covers a4→2cell collapse, a companion on
+another rank, an empty sixth rank, lost-arc refusal, clearance/publication and
+revision/stale-revision checks. The actual witness requires replacement and rejects
+its missing-arc variant; fresh metric results explicitly report whether measured.
+206build passed261.348s with1298pins unchanged. Serial publication153assertions/
+4cases, actual captured witness38878assertions/1case, and ONE MPI6 milestone23cases
+on EACH of six ranks all passed. All owned handles are absent. Actual witness
+passes construction/replacement/metric/guidance with zero geometry excess; q/J-bad
+remain1each, debt1.99999995486→.15423814413. This removes a demonstrated refusal,
+not the full repair burden. Actual global contact/publication is not checked here;
+the self-contained distributed regression checks them separately. Evidence is in
+staged57/feature_proof206_qualification.json. Relevant205source/helper snapshots
+were recovered and SHA-verified against original pins for resumable history.
+Return immediately to normal full two-event M6 with saved CFDseed/50k/5400s. Do not
+capture every rejected run:202complete saved mesh remains available.
+Final geometry/shape/size/heights and transfer/continued-CFD/restart gates unchanged.

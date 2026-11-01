@@ -570,7 +570,11 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
     const auto index_bytes=transfer_memory::Add(transfer_memory::Mul(affected,sizeof(Face)+4*sizeof(void*)),
         transfer_memory::Mul(transfer_memory::Mul(6,affected),sizeof(std::pair<Edge,Face>)+4*sizeof(void*)),
         transfer_memory::Mul(transfer_memory::Add(transfer_memory::Mul(6,affected),transfer_memory::Mul(2,transfer_memory::Add(affected,old_pieces,new_pieces))),sizeof(std::pair<Id,Face>)+4*sizeof(void*)));
-    const size_t bound=transfer_memory::Add(caller,ResidentBytes(),transfer_memory::Mul(inherited_bytes,4),transfer_memory::Mul(edits.size(),2048),transfer_memory::Mul(faces.size(),8192),transfer_memory::Mul(BoundaryCoverageBytes(delta),8),index_bytes);
+    size_t new_retained_features=0;
+    if(EntityGeometry())for(const auto& row:delta.traces)
+      new_retained_features+=edge_counts.count(row.first)&&!coverage.traces.count(row.first);
+    const size_t bound=transfer_memory::Add(caller,ResidentBytes(),transfer_memory::Mul(inherited_bytes,4),transfer_memory::Mul(edits.size(),2048),transfer_memory::Mul(faces.size(),8192),transfer_memory::Mul(BoundaryCoverageBytes(delta),8),index_bytes,
+        transfer_memory::Mul(new_retained_features,1024));
     if(bound==SIZE_MAX || bound>ceiling)throw std::length_error("Boundary parameter publication exceeds storage admission.");
     AtlasStorage reservation_storage(reservation,bound,ceiling);
     if(edits.empty() && faces.empty() && delta.faces.empty() && delta.traces.empty()){staged.valid=true;reason.clear();return staged;}
@@ -621,6 +625,8 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
       auto& budget=*reservation;std::map<Edge,int64_t> edge_degree;
       std::map<std::pair<EntityKey,Edge>,int> boundary;
       std::map<EntityKey,std::vector<std::pair<const EdgeTrace*,int>>> oriented;
+      struct Companion {Edge edge;const SurfaceFace* face;const EdgeTrace* trace;};
+      std::vector<Companion> companions;companions.reserve(transfer_memory::Mul(new_retained_features,2));
       for(const auto& face:faces)for(unsigned k=0;k<3;++k){Edge edge{face.nodes[k],face.nodes[(k+1)%3]};std::sort(edge.begin(),edge.end());edge_degree[edge]+=face.insert?1:-1;}
       for(const auto& row:edge_degree){const auto old=edge_counts.find(row.first);const uint64_t count=old==edge_counts.end()?0:old->second;
         if(row.second<0&&uint64_t(-row.second)>count)throw std::invalid_argument("Entity edge incidence underflows.");
@@ -647,7 +653,15 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
             for(const auto* face:incident)if(!face||!staged.surface_removed.count(FaceKey(face->v)))
               throw std::invalid_argument("Changed feature route requires all incident faces together.");}
         }
-        staged.coverage_added.traces.emplace(row.first,std::move(trace));
+        const auto inserted=staged.coverage_added.traces.emplace(row.first,std::move(trace));
+        if(prior==coverage.traces.end()&&old!=edge_counts.end()) {
+          // A new feature on a retained edge also changes the unchanged incident face's trace metadata.
+          // Its endpoints are already in the cavity's full-vertex reservation; no face/volume change is staged.
+          for(const auto* face:IncidentFaces(row.first)) {
+            if(!face)throw std::invalid_argument("New retained feature lacks both accepted incident faces.");
+            if(!staged.surface_removed.count(FaceKey(face->v)))companions.push_back({row.first,face,&inserted.first->second});
+          }
+        }
       }
       auto trace=[&](Edge edge,bool inserted)->const EdgeTrace* {
         if(inserted){const auto fresh=staged.coverage_added.traces.find(edge);if(fresh!=staged.coverage_added.traces.end())return &fresh->second;}
@@ -661,6 +675,12 @@ BoundaryParameterState::Publication BoundaryParameterState::Prepare(const std::v
         const auto entity=Entity(face.facet);
         for(unsigned k=0;k<3;++k){Edge edge{face.nodes[k],face.nodes[(k+1)%3]};const int sign=(edge[0]<edge[1]?1:-1)*(face.insert?1:-1);std::sort(edge.begin(),edge.end());
           boundary[{entity,edge}]+=sign;if(const auto* curve=trace(edge,face.insert))oriented[entity].push_back({curve,sign});}
+      }
+      for(const auto& companion:companions) {
+        bool found=false;
+        for(unsigned k=0;k<3;++k){Edge edge{companion.face->v[k],companion.face->v[(k+1)%3]};const int sign=edge[0]<edge[1]?1:-1;std::sort(edge.begin(),edge.end());
+          if(edge==companion.edge){oriented[Entity(companion.face->facet)].push_back({companion.trace,sign});found=true;break;}}
+        if(!found)throw std::invalid_argument("Retained feature companion lacks its accepted edge.");
       }
       for(const auto& row:boundary)if(row.second&&!trace(row.first.second,false)&&!trace(row.first.second,true))
         throw std::invalid_argument("Entity replacement changes an unconstrained retained interface.");

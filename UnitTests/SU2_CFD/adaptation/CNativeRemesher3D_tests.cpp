@@ -13,6 +13,8 @@
 #include "../../../Common/include/adaptation/CNativeRemesher3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../Common/include/adaptation/CNativeFailureCapture3D.hpp"
+#include "../../../Common/include/adaptation/CNativeCurvedAtlas3D.hpp"
+#include "../../../Common/include/adaptation/CNativeMetricTransport3D.hpp"
 #include "../../../SU2_CFD/include/output/CMeshOutput.hpp"
 #include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -32,6 +34,7 @@
 using namespace transfer_test;
 using namespace SU2Native3D;
 #include "fixtures/native_transaction_capture.inc"
+#include "fixtures/native_failure202_witness.inc"
 
 #if defined(__GNUC__) && defined(__linux__)
 // Optional test-only PMPI collector; ordinary binaries do not supply these symbols.

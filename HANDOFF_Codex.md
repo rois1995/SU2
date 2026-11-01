@@ -9,10 +9,52 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current — build202 naturally rejected; owned handles terminal
+## Current — build206 connected proof/accounting qualified; full M6 next
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 LAST=`R/m6_runs/euler_build202_real_cfd50k_inspection`.
+Build206 exec38075 TERMINAL0,261.348s,1298pins unchanged; exact ninja2136532 absent.
+Connected strict retained-feature companion proof and incremental RebuildFeatureTraces
+byte accounting QUALIFIED locally: feature_publication153assertions/4cases PASS;
+actual captured_cavity38878assertions/1case PASS; ONE MPI6 milestone23cases EACH
+rank PASS (six success totals3058,2478,2165,2313,2309,2342in interleaved stdout order,
+not rank-mapped). All owned handles absent. R/feature_proof206_qualification.json.
+
+Actual52cell witness reproduces ALL oldq/J bit-exactly, edge error<=2.4042e-17.
+4502→181199364now passes compatibility,12→9construction, parameter replacement,
+metric merit and geometry guidance0→0. It STILL has1q/1J bad (unchanged counts),
+debt1.99999995486→.15423814413; not shape closure or accepted repair. Global contact/
+publication not checked on this actual witness. Self-contained bent-feature test
+checks complete publication/clearance with unchanged companion on remote rank,
+emptyMPIrank5, lost-arc refusal, revision+1/stale refusal. Existing MPI suite checks
+conflicts/curved associations/heights/migration/census/cache/resource/capture cases;
+not general BL qualification. Current boundary reconstruction has760validated
+traces but historical trace identity/peer schedule is not claimed.
+
+Change scope: ONLY a newly genuine trace on an already accepted physical edge gets
+its unchanged accepted companion face's directed contribution. No companion volume/
+face edits, degree changes, gate waivers or scheduling changes. Extra scratch
+admitted; exact unsigned coverage and established-route coordination remain strict.
+205accounting removes repeated whole-map byte scans, with four full-scan invariants;
+allocation overlap/work/routes unchanged. Its34case/2666assertion serial checks PASS.
+Global reconstruction now completes, but no ordinary-M6 speedup established.
+
+NEXT immediately start normal full two-event M6 `euler_build206_real_cfd50k_feature_companion`
+via R/run_m6.py build206 <label> 2 R/m6_inputs/euler_original_force_seed_v1.
+Use existing4TBcompile-tmp and unique OMPI tempdir, nice19/libs1, native5400/target50k,
+unchanged strict gates and saved CFD seed. No --inspect-rejected:202actual mesh is
+already saved; no routine attempt/per-trial mesh capture. Freeze sources/helpers/
+binaries/inputs throughout. Shape→residual size/geometry→shape reclosure→strict
+acceptance/transfer/continuedCFD/two accepted events/isolated adapted disk restart.
+
+Diagnostic history:203arbitrary100m allowance exhausted before candidate;204whole-
+boundary resource callbacks timed out600s before candidate. All handles absent/
+pins unchanged; evidence preserved.205relevant source/helper snapshots (7files)
+recovered and verified against original pins under R/witness_sources/build205/.
+Boundary preparation810163paired rows/38752points/77500faces/52metrics passed;
+initial prep interruption withoutcapturedhostPID preserved in LAST receipt. Never
+resignal any historical handles. No owned heavy job at this qualification boundary.
+
 Selected full-driver attempt exec88642 TERMINAL1. Event1 naturally rejected on all6
 ranks at native5405.620649636s, stop=time_budget. COMPLETE actual EXIT:
 **810163cells/295q-bad/294J-bad/2110geometry-bad/0size-bad**.
@@ -23,7 +65,7 @@ Natural failure was preserved BEFORE the authorized stop of the exact verified
 owned launcher. LAST/event1_natural_failure.json and event1_failure_owned_stop.json
 are authority. Stop already sent; NEVER resignal historical1886xxxPIDs.
 LAST/terminal_handles.json proves all ten exact owned handles ABSENT and1403pins
-unchanged. No owned heavy job remains. Sources were unchanged throughout the run.
+unchanged. These M6 handles are historical. Sources were unchanged throughout the run.
 Source checkpoint18738aeb32 and progress942c154d17 are pushed.
 CFD SHA7de0cc448004521becb5609d83a0841836d7744187700244dd36d8538b8ef666.
 Test-driver SHAd630234ec127b793237fb7c1dc609cd9db216b96463fc5330560a1fa01acaf04.
@@ -49,7 +91,7 @@ Independent standalone SU2 parse and count checks passed; raw flags match EXIT.
 Generic SU2 markers0/1/2 correspond to FARFIELD/SYMMETRY/WING3D, verified from
 original sidecar. Actual files stay local, not committed. All10output hashes in
 LAST/inspection_artifacts.json. Extraction sampled summedRSS720207872bytes,
-wall437.704s; this offline cost is separate from native runtime. No owned heavy job.
+wall437.704s; this offline cost is separate from native runtime. Extraction is terminal.
 
 Actual final shape-bad union450:243surface/187constrained-interior/20with no
 captured binding. All2110geometry-bad cells have physical faces. Short-edge controls:

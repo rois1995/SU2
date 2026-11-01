@@ -1,0 +1,24 @@
+{
+  "build": "build205",
+  "case": "projection_paths",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeGeometryBackend3D],[NativeMetricSplitRule3D],[NativeBidirectionalLength3D],[NativeConstructionPassClaims3D],Entity feature reconstruction handles ordinary and genuine routes,Cumulative atlas and backend failure stop all workers before construction",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "timeout_seconds": 600
+}

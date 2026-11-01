@@ -1,0 +1,48 @@
+{
+  "time": 1793546621.4731297,
+  "handles": [
+    {
+      "pid": 2088828,
+      "startticks": 96098054,
+      "nice": 19,
+      "exe": "/usr/bin/time",
+      "state": "ABSENT"
+    },
+    {
+      "pid": 2088829,
+      "startticks": 96098054,
+      "nice": 19,
+      "exe": "/usr/bin/timeout",
+      "state": "ABSENT"
+    },
+    {
+      "pid": 2088830,
+      "startticks": 96098054,
+      "nice": 19,
+      "exe": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "state": "ABSENT"
+    },
+    {
+      "pid": 2088831,
+      "startticks": 96098056,
+      "nice": 19,
+      "exe": "/usr/bin/orted",
+      "state": "ABSENT"
+    }
+  ],
+  "status": {
+    "state": "terminal",
+    "exit_code": 124,
+    "seconds": 606.0407721996307,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 357605376,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "last_phase_rows": [
+    "{\"stage\":\"loaded\",\"points\":38752,\"surface\":77500,\"cells\":52}",
+    "{\"stage\":\"mobility_ready\",\"work\":174193,\"work_limit\":2071822336}",
+    "{\"stage\":\"entity_ready\",\"work\":181938600}"
+  ],
+  "diagnosis": "600s diagnostic timeout while rebuilding whole current feature paths; no collapse evaluated. Repeated full-map resident-size callbacks in RebuildFeatureTraces are quadratic in this whole-boundary input. Not proof of ordinary M6 trial bottleneck or repair infeasibility."
+}

@@ -703,29 +703,49 @@ bool RebuildFeatureTraces(const SU2Native3D::Patch& old,const std::vector<SU2Nat
     }
     const auto& geometry=reference.Parameters()->Geometry();const auto& policy=reference.Parameters()->Mobility();
     FeatureArithmeticScope scope(budget);for(const auto& row:old.coverage.traces)scope.Add(row.second);scope.Activate(true);
-    Ops op(budget,[&]{size_t bytes=Plus(SU2Native3D::BoundaryCoverageBytes(old.coverage),Times(old.parameters.size()+points.size(),sizeof(SU2Native3D::BoundaryPoint)+4*sizeof(void*)));
+    // Resource checks must not rescan every retained edge at each arithmetic/allocation step.
+    size_t fixed_bytes=Plus(SU2Native3D::BoundaryCoverageBytes(old.coverage),Times(Plus(old.parameters.size(),points.size()),sizeof(SU2Native3D::BoundaryPoint)+4*sizeof(void*)));
+    for(const auto& row:result)fixed_bytes=Plus(fixed_bytes,Plus(sizeof(row)+4*sizeof(void*),TraceBytes(row.second)));
+    size_t inherited_payload=0,incidence_payload=0,output_payload=0;
+    Ops op(budget,[&]{size_t bytes=fixed_bytes;
       bytes=Plus(bytes,Plus(Times(inherited.size(),sizeof(decltype(inherited)::value_type)+4*sizeof(void*)),Times(incidence.size(),sizeof(decltype(incidence)::value_type)+4*sizeof(void*))));
       bytes=Plus(bytes,Plus(Times(bindings.size(),sizeof(decltype(bindings)::value_type)+4*sizeof(void*)),Times(feature_edges.capacity(),sizeof(Edge))));
-      for(const auto& row:inherited)bytes=Plus(bytes,TraceBytes(row.second.second));for(const auto& row:incidence)bytes=Plus(bytes,Times(row.second.capacity(),sizeof(size_t)));
-      for(const auto& row:output)bytes=Plus(bytes,Plus(sizeof(row)+4*sizeof(void*),TraceBytes(row.second)));
-      for(const auto& row:result)bytes=Plus(bytes,Plus(sizeof(row)+4*sizeof(void*),TraceBytes(row.second)));
+      bytes=Plus(bytes,Plus(Plus(inherited_payload,incidence_payload),Plus(Times(output.size(),sizeof(decltype(output)::value_type)+4*sizeof(void*)),output_payload)));
       return Plus(bytes,Plus(TraceBytes(working),Times(first.capacity()+last.capacity(),sizeof(uint64_t))));});
+    auto check_payloads=[&] {
+      size_t a=0,b=0,c=0;
+      for(const auto& row:inherited)a=Plus(a,TraceBytes(row.second.second));
+      for(const auto& row:incidence)b=Plus(b,Times(row.second.capacity(),sizeof(size_t)));
+      for(const auto& row:output)c=Plus(c,TraceBytes(row.second));
+      if(a!=inherited_payload||b!=incidence_payload||c!=output_payload)
+        throw std::logic_error("Feature reconstruction retained storage accounting changed without an update.");
+    };
     for(const auto& face:old.surface)for(unsigned k=0;k<3;++k) {
       const auto edge=Sorted(face.v[k],face.v[(k+1)%3]);auto found=inherited.find(edge);
       if(found!=inherited.end()){if(++found->second.first>2)throw std::invalid_argument("Source edge has nonmanifold incidence.");continue;}
       const auto trace=old.coverage.traces.find(edge);
       op.Sync(Plus(sizeof(decltype(inherited)::value_type)+4*sizeof(void*),trace==old.coverage.traces.end()?0:TraceBytes(trace->second)));
-      inherited.emplace(edge,std::make_pair(size_t(1),trace==old.coverage.traces.end()?EdgeTrace{}:trace->second));
+      const auto inserted=inherited.emplace(edge,std::make_pair(size_t(1),trace==old.coverage.traces.end()?EdgeTrace{}:trace->second));
+      inherited_payload=Plus(inherited_payload,TraceBytes(inserted.first->second.second));
     }
+    check_payloads();
     for(auto& row:inherited)if(!row.second.second.pieces.empty() && TraceChain(row.second.second,geometry,policy,op)) {
-      CleanFeatureTrace(row.second.second,geometry,policy,op);Reserve(feature_edges,feature_edges.size()+1,op);feature_edges.push_back(row.first);
+      const auto before=TraceBytes(row.second.second);
+      CleanFeatureTrace(row.second.second,geometry,policy,op);
+      if(before>inherited_payload)throw std::logic_error("Feature reconstruction trace storage underflow.");
+      inherited_payload=Plus(inherited_payload-before,TraceBytes(row.second.second));
+      Reserve(feature_edges,feature_edges.size()+1,op);feature_edges.push_back(row.first);
     }
+    check_payloads();
     for(size_t i=0;i<faces.size();++i){const auto& face=faces[i];if(!policy.sheets.count(face.facet))throw std::invalid_argument("Candidate face has no immutable physical sheet.");
       for(unsigned k=0;k<3;++k){const auto point=points.find(face.v[k]);if(point==points.end())throw std::invalid_argument("Candidate feature endpoint lacks binding.");
         geometry.MobilityDimension(point->second.binding,policy);
         op.Sync(sizeof(decltype(bindings)::value_type)+sizeof(decltype(incidence)::value_type)+8*sizeof(void*));
         bindings.emplace(point->first,point->second.binding);const auto edge=Sorted(face.v[k],face.v[(k+1)%3]);auto& sides=incidence[edge];
-        Reserve(sides,sides.size()+1,op);sides.push_back(i);if(sides.size()>2)throw std::invalid_argument("Candidate edge has nonmanifold incidence.");}}
+        const auto before=sides.capacity();Reserve(sides,sides.size()+1,op);
+        incidence_payload=Plus(incidence_payload,Times(sides.capacity()-before,sizeof(size_t)));
+        sides.push_back(i);if(sides.size()>2)throw std::invalid_argument("Candidate edge has nonmanifold incidence.");}}
+    check_payloads();
     for(const auto& row:incidence){const auto& edge=row.first;working={};const auto old_edge=inherited.find(edge);
       if(old_edge!=inherited.end() && old_edge->second.first==1 && !old_edge->second.second.pieces.empty() && TraceChain(old_edge->second.second,geometry,policy,op))working=old_edge->second.second;
       else {bool found=false;
@@ -738,8 +758,11 @@ bool RebuildFeatureTraces(const SU2Native3D::Patch& old,const std::vector<SU2Nat
           for(size_t side:row.second)if(policy.sheets.at(faces.at(side).facet)!=sheet)throw std::invalid_argument("A shared edge crosses physical sheets without a genuine feature path.");
           continue;
         }}
-      op.Sync(Plus(sizeof(decltype(output)::value_type)+4*sizeof(void*),TraceBytes(working)));output.emplace(edge,std::move(working));
+      op.Sync(Plus(sizeof(decltype(output)::value_type)+4*sizeof(void*),TraceBytes(working)));
+      const auto inserted=output.emplace(edge,std::move(working));
+      if(inserted.second)output_payload=Plus(output_payload,TraceBytes(inserted.first->second));
     }
+    check_payloads();
     result=std::move(output);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }

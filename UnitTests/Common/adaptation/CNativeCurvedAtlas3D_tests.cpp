@@ -28,9 +28,9 @@ struct RemappingFixture {
   std::vector<SurfaceFace> surface;
   Patch patch;
   MobilityPolicy policy;
-  explicit RemappingFixture(bool crease) {
+  explicit RemappingFixture(bool crease,double feature_bend=0) {
     if(crease){std::array<Node,8> c;for(unsigned i=0;i<8;++i)c[i]={10+10*i,{double(i&1),double((i>>1)&1),double((i>>2)&1)}};
-      const Node p{0,{.5,0,0}};
+      const Node p{0,{.5,0,feature_bend}};
       facets={{0,0,{c[0],c[2],p}},{1,0,{p,c[2],c[3]}},{2,0,{p,c[3],c[1]}},
               {3,0,{c[0],p,c[4]}},{4,0,{p,c[1],c[5]}},{5,0,{p,c[5],c[4]}}};
       const unsigned q[4][4]={{4,5,7,6},{2,6,7,3},{0,4,6,2},{1,3,7,5}};
@@ -856,6 +856,65 @@ TEST_CASE("Entity feature reconstruction accepts empty interior cavities only", 
   CHECK(result.at(key).pieces[0].end.denominator==one.denominator);
 }
 
+TEST_CASE("A new retained feature includes an unchanged remote face in its directed proof",
+          "[NativeCurvedAtlas3D][NativeFeaturePublication3D]") {
+  World world;RemappingFixture fixture(true,-1e-4);auto budget=RemappingBudget();std::string reason;
+  REQUIRE(fixture.geometry->MobilityDimension(fixture.points.at(0).binding,fixture.policy)==1);
+  auto entity=fixture.state->WithEntityGeometry(.01,budget);
+  std::vector<SurfaceFace> surface;
+  for(const auto& face:fixture.surface)if(face.facet<3||face.facet>5)surface.push_back(face);
+  surface.push_back({{10,0,20},3});surface.push_back({{10,20,60},4});surface.push_back({{10,60,50},5});
+  auto state=std::make_shared<BoundaryParameterState>(fixture.geometry,fixture.points,surface,2,SIZE_MAX,0,
+      entity->Coverage(),fixture.policy,&budget,.01);
+  auto reference=PlanarReference::WithParameters(fixture.definition,state);const auto snapshot=state->Snapshot();
+  const auto revision=state->Revision();const Edge retained{10,20};REQUIRE_FALSE(state->Coverage().traces.count(retained));
+  const auto incident=state->IncidentFaces(retained);REQUIRE(incident[0]);REQUIRE(incident[1]);
+  const unsigned owners=std::min(5,world.size);Owned owned;const Node apex{90,{.5,.5,.5}};
+  for(size_t i=0;i<surface.size();++i)if(i%owners==unsigned(world.rank)) {
+    const auto& face=surface[i];OwnedCell row;row.cell.id=i;
+    row.cell.v={fixture.points.at(face.v[0]).node,fixture.points.at(face.v[1]).node,fixture.points.at(face.v[2]).node,apex};
+    if(Orientation(row.cell.v[0].p,row.cell.v[1].p,row.cell.v[2].p,row.cell.v[3].p)<0)std::swap(row.cell.v[0],row.cell.v[1]);
+    REQUIRE(Orientation(row.cell.v[0].p,row.cell.v[1].p,row.cell.v[2].p,row.cell.v[3].p)>0);
+    row.physical[3]={true,face.facet};owned.emplace(row.cell.id,row);
+  }
+  if(world.size==6&&world.rank==5)CHECK(owned.empty());
+  if(world.size==6)CHECK(12%owners!=0); // The retained companion tetrahedron belongs to another rank.
+  Directory directory(world,true,state.get());REQUIRE(directory.Build(owned,reason));
+  const auto deps=directory.Lookup(world.rank?std::vector<Feature>{}:std::vector<Feature>{{{0,0,0},1}});
+  INFO(deps.reason);REQUIRE(deps.valid);const auto fetched=directory.Fetch(deps,owned);REQUIRE(fetched.valid);
+  const bool reserved=directory.Reserve(fetched,world.rank==0,reason);if(!world.rank)REQUIRE(reserved);
+  Patch old,fresh;bool candidate=false;
+  const std::array<std::array<unsigned,3>,4> opposite{{{{1,2,3}},{{0,3,2}},{{0,1,3}},{{0,2,1}}}};
+  if(!world.rank) {
+    REQUIRE(fetched.cells.size()==4);
+    for(const auto& row:fetched.cells){old.cells.push_back(row.cell);
+      for(unsigned slot=0;slot<4;++slot)if(row.physical[slot].present){Face face;
+        for(unsigned k=0;k<3;++k)face[k]=row.cell.v[opposite[slot][k]].id;old.surface.push_back({face,row.physical[slot].facet});}}
+    auto scope=reference->WithAtlasReservation(budget);scope->ExportParameters(old);
+    candidate=CollapseVertex(old,0,10,1000,*scope,fresh,reason);INFO(reason);REQUIRE(candidate);REQUIRE(fresh.cells.size()==2);
+    REQUIRE(fresh.coverage.traces.count(retained));REQUIRE(state->CheckReplacement(old,fresh,reason,SIZE_MAX,0,&budget));
+    auto lost=fresh;lost.coverage.traces.erase(retained);CHECK_FALSE(state->CheckReplacement(old,lost,reason,SIZE_MAX,0,&budget));
+  }
+  CHECK(state->Snapshot()==snapshot);
+  REQUIRE(directory.Clearance(owned,old,fresh,candidate,reason));
+  std::vector<std::vector<Dependency>> removed(world.size);std::vector<std::vector<OwnedCell>> added(world.size);
+  if(!world.rank) {
+    for(const auto& dep:deps.cells)removed[dep.owner].push_back(dep);
+    for(const auto& cell:fresh.cells){OwnedCell row;row.cell=cell;
+      for(unsigned slot=0;slot<4;++slot){Face face;for(unsigned k=0;k<3;++k)face[k]=cell.v[opposite[slot][k]].id;std::sort(face.begin(),face.end());
+        for(const auto& physical:fresh.surface){auto key=physical.v;std::sort(key.begin(),key.end());if(face==key)row.physical[slot]={true,physical.facet};}}
+      added[0].push_back(row);}
+  }
+  const auto received_removed=world.exchange(removed);const auto received_added=world.exchange(added);
+  const auto edits=world.rank?std::vector<BoundaryParameterEdit>{}:BoundaryParameterState::Changes(old,fresh,revision);
+  const BoundaryCoverage empty;const bool published=directory.Publish(owned,received_removed,received_added,true,reason,SIZE_MAX,0,
+      edits,world.rank?empty:fresh.coverage,&budget);INFO(reason);REQUIRE(published);
+  CHECK(state->Revision()==revision+1);CHECK_FALSE(state->Find(0));CHECK(state->Coverage().traces.count(retained)==1);
+  CHECK(CPassiveComm::Allreduce(uint64_t(owned.size()),CPassiveComm::Op::SUM,world.comm)==surface.size()-2);
+  if(!world.rank){const auto unchanged=state->Snapshot();const auto stale=state->Prepare(edits,{},reason,SIZE_MAX,0,{},&budget);
+    CHECK_FALSE(stale.valid);CHECK(state->Snapshot()==unchanged);}
+}
+
 TEST_CASE("Entity feature reconstruction handles ordinary and genuine routes", "[NativeCurvedAtlas3D]") {
   const bool crease=GENERATE(false,true);RemappingFixture fixture(crease);auto budget=RemappingBudget();std::string reason;
   auto entity=fixture.state->WithEntityGeometry(.01,budget);auto reference=PlanarReference::WithParameters(fixture.definition,entity);
@@ -873,6 +932,16 @@ TEST_CASE("Entity feature reconstruction handles ordinary and genuine routes", "
   if(crease)for(const Edge edge:{Edge{10,100},Edge{20,100}}){REQUIRE(output.count(edge));
     auto trace=output.at(edge);std::optional<Id> chain;
     REQUIRE(NormalizeFeatureTrace(*fixture.geometry,fixture.policy,trace,chain,budget,reason));CHECK(chain);}
+  auto encoded=[&](const std::map<Edge,EdgeTrace>& traces){BoundaryCoverage coverage;coverage.traces=traces;return EncodeBoundaryAtlas(coverage,fixture.policy);};
+  const auto expected=encoded(output);auto repeated=output;auto measured=RemappingBudget();measured.caller_bytes=64;
+  REQUIRE(RebuildFeatureTraces(old,faces,points,*reference,repeated,measured,reason));CHECK(encoded(repeated)==expected);
+  const auto peak=measured.peak_bytes;REQUIRE(peak>64);
+  auto tight=RemappingBudget();tight.caller_bytes=64;tight.maximum_bytes=peak-1;auto unchanged=output;
+  CHECK_FALSE(RebuildFeatureTraces(old,faces,points,*reference,unchanged,tight,reason));CHECK(encoded(unchanged)==expected);
+  CHECK(tight.caller_bytes==64);CHECK_FALSE(tight.work_exhausted);
+  auto exact=RemappingBudget();exact.caller_bytes=64;exact.maximum_bytes=peak;auto admitted=output;
+  REQUIRE(RebuildFeatureTraces(old,faces,points,*reference,admitted,exact,reason));CHECK(encoded(admitted)==expected);
+  CHECK(exact.peak_bytes==peak);CHECK(exact.work==measured.work);CHECK(exact.caller_bytes==64);
   auto invalid=points;invalid.at(crease?100:0).binding.version++;
   const auto saved=output.size();CHECK_FALSE(RebuildFeatureTraces(old,faces,invalid,*reference,output,budget,reason));CHECK(output.size()==saved);
 }
