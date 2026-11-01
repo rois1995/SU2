@@ -1,0 +1,58 @@
+{
+  "time": 1793500640.7802913,
+  "scope": "Read-only readiness review while196frozen; no test/solver/config/source change and no acceptance claim. Reuse existing facilities after actual mesh acceptance; any disk CFD probe only after current ownedrun terminal.",
+  "workflow_receipts": {
+    "source": "staged57/run_m6.py:106-185,381-395",
+    "artifacts": [
+      "workflow_event_00001.json",
+      "workflow_event_00002.json",
+      "workflow_assessment.json"
+    ],
+    "checks": "Per-event native summaries/order of transfer/replacement/mesh publication, adaptedmesh/native_ref hashes, continuedhistory. These log receipts alone do not inspect all states or independently recompute conservative integrals."
+  },
+  "actual_unconditional_runtime_gates": [
+    {
+      "source": "SU2_CFD/src/adaptation/ConservativeKernels.cpp:454-459",
+      "gate": "Finite true mass-solve residual <=TransferTol(1e-10,1e-4),doublegate1e-10."
+    },
+    {
+      "source": "SU2_CFD/src/adaptation/CDistributedProjection.cpp:1438-1447",
+      "gate": "Failed residual causes collective solver error before projection proceeds."
+    },
+    {
+      "source": "SU2_CFD/src/adaptation/CConservativeTransfer.cpp:997-1032",
+      "gate": "Distributed final full admissibility on every point/every statelevel and collective failure; final flow totals within1e-12*fieldscale of projection target, before arraysset."
+    },
+    {
+      "source": "SU2_CFD/src/adaptation/CConservativeTransfer.cpp:1275-1309",
+      "gate": "Gatheredreference same full admissibility/target-integral checks."
+    },
+    {
+      "source": "SU2_CFD/src/adaptation/CTransferAdmissibility.cpp:65-78 and CBarycentricTransfer.cpp:307-332",
+      "gate": "Finite conservativefields,positivedensity and thermodynamically valid pressure/temperature/sound-speed; direct independent rho/internalenergy diskstate check remains required."
+    }
+  ],
+  "runtime_path": "CSinglezoneDriver.cpp:484 creates default CConservativeTransfer; constructor gathered=false, options.sliverRule=CLOSED. Under MPI6 this uses distributed transfer, not gathered reference.",
+  "conservation_interpretation": "PrintSummary per-field projection table reports true residual. Its later donor-vs-new integral-change table is NOT the target-integral residual. CLOSED sliver policy preserves impermeablewall/symmetry totals and follows genuine open-boundary domain changes; inspect reported S_n/S_d correction and source-enforced target rule, do not substitute finite donor-relative changes for1e-12targetproof.",
+  "existing_state_audit": {
+    "source": "staged57/run_m6_seed.py:165-186 validate_state(attempt,restart_path), using TestCases/adaptation/capability/capcheck.py read_su2/read_restart",
+    "reuse": "After terminal,copy exact accepted adaptedmesh as m6.su2 and matchingnative_ref as m6.su2.native_ref into isolateddirectory; call existing validate_state(isolated_dir,exact_matching_restartpath). Despite original-seed use,the function derives expectedpointcount from parsedmesh and has no61330point/original-coordinate identity hardcode.",
+    "checks": "Exactpointcount/coordinateorder at scaled1e-12,finite density/momentum/energy,positivedensity,finitepositive internalenergy."
+  },
+  "exact_case_pairing": [
+    "adapted_mesh_adap_00001.su2 + .native_ref with restart_flow_adap_00001.dat AFTERcycle1continuedCFD",
+    "adapted_mesh_adap_00002.su2 + .native_ref with restart_flow_adap_00002.dat AFTERcycle2continuedCFD"
+  ],
+  "pairing_limit": "Verify actual filenames/filesize/finalheaders/order/hashes before assuming these pairs. restart_flow_adap_00000.dat is ORIGINALGRIDcontinuedstate,never adaptedrestart proof.",
+  "isolated_actual_restart_recipe": [
+    "Verify original ownedrun terminal by actualhandles and pins. Preserve acceptedstage receipts/hash copies before probe.",
+    "Copy finalacceptedmesh/native_ref + actualmatchingcontinuedCFDrestart into freshisolateddirectory; no input/output basename collision.",
+    "Use existingconfig with MESH_FILENAME=m6.su2,RESTART_SOL=YES,READ_BINARY_RESTART=YES,ADAP_LOOP=NO,SOLUTION_FILENAME=distinctsavedinputprefix,RESTART_FILENAME=distinctnewoutputprefix; bounded finitecontinuedCFD using samepinnedbinary/runtime and resource discipline.",
+    "Require actualrestart load success,finitecontinuedhistory/state,rho/internalenergypositive and matchingcoordinate/order stateaudit before andafter. Native_ref copyhash validates originalgeometrypair; no adaptation-loop cycle0 resume needed."
+  ],
+  "limits": [
+    "This is a concrete reuse plan,not executedadaptedstate/restart evidence.",
+    "ContinuedCFD restart differs from immediate post-transfer state; independent post-CFD admissibility cannot byitself prove immediate transfer conservation. Use actual immutable runtimegate evidence + reported projection residuals and source provenance,with separate diskstate audit.",
+    "General adaptationresume cycle0/output collision remainsopen; isolated ADAP_LOOP=NO probe avoids it without claiming itfixed."
+  ]
+}

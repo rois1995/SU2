@@ -52,33 +52,36 @@ completeflags and20selectedcache/memocounters/entries/bytesunchanged;debtspread
 All10handles/1401pins/82mappedELFreverified1793499954.022988:
 quality_entry_live_provenance.json. Frozenqualityrepairactive;noacceptedmesh.
 
-Qualityprogress:window2 at331.867605seconds sinceentry,round21696:
-739233workingcells,46176q/44617J/3608geometry/0size,
-qJdebt14595.909676722005;3762publications,
-net7905q/8775J/162geometryremoved,
-23.819740netq/s,26.441267netJ/s.
-Latestinterval:net3982q/4413J/52geometryremoved
-in161.619067s,24.638182netq/s,
-1.968364netq/publication. Allprecedingownershipstages included.
-All7completecensusesaudited;latestownership_committedround21696:
-queue340993,blockedfeatures79,stuckshape/required0/0,
+Qualityprogress:window4 at740.113455seconds sinceentry,round21824:
+749172workingcells,39886q/38086J/3518geometry/0size,
+qJdebt9265.267591853688;7831publications,
+net14195q/15306J/252geometryremoved,
+19.179492netq/s,20.680613netJ/s.
+Latestinterval:net2796q/2973J/45geometryremoved
+in215.690929s,12.962993netq/s,
+1.467717netq/publication. Allprecedingownershipstages included.
+All11completecensusesaudited;latestwindowround21824:
+queue323635,blockedfeatures127,stuckshape/required0/0,
 missing0,privatecollectives0.
 Same-round194reference:wholefieldexactTrue,rankdebtsexactTrue,
 commitsexactTrue,windowcountcountersexactTrue.
-Quality331.867605vs416.760187s;traversal
-525731554vs742584479(-29.2025%).
-Uppercalls66468vs66468. Noisolatedtimingclaim.
-Remainingqsurface/interior12824/33352,
-J17018/27599.
+Quality740.113455vs935.609065s;traversal
+1083399437vs1548518539(-30.0364%).
+Uppercalls154389vs154389. Noisolatedtimingclaim.
+Remainingqsurface/interior9746/30140,
+J13684/24402.
 Interior meansnophysicalface,notnoconstrainedvertices;privategainsnotpublicationgains.
-1latequalitymigrations audited:counts/debt/completeflags andselected
+2latequalitymigrations audited:counts/debt/completeflags andselected
 prepared/numericmemocounters/entries/bytes/driftavailabilityconserved.
-Latestmigrationround21696:debtspread1.906968→1.367042,
-observedfullcost10.403504s,awaitingnextcompletewindowinterval.
+Latestmigrationround21760:debtspread1.699127→1.385238,
+observedfullcost10.482443s,includedinwindowcensus10.
 Countersalone donotproveeverykey/history;unchangedqualifiedsourcesupportscontracts.
-CURRENT/quality_window2_service_summary.json preservesperrankbusy/join/commits/
-publisheddebtremoved/netq/J. quality_window2_comparison.json retainsactualtimebrackets.
-All10handles/1401pins/82mappedELFreverified1793500207.8894453:quality_window2_live_provenance.json.
+CURRENT/quality_window4_service_summary.json preservesperrankbusy/join/commits/
+publisheddebtremoved/netq/J. quality_window4_comparison.json retainsactualtimebrackets.
+All10handles/1401pins/82mappedELFreverified1793500670.0487423:quality_window4_live_provenance.json.
+Hostloadspike/CPUpressurecontext:CURRENT/quality_window3_host_pressure.json;
+8allowedlogicalCPUs,load13.23observed,CPUpressureavg10~1.46%,memorypressure0.
+Load/pressuredonotisolateown-rankstolenCPU;nootherjobtouched.
 Frozenruncontinues;noacceptedmesh/transfer/adaptedrestartclaim.
 
 
@@ -257,6 +260,17 @@ Observecompletealignedfirst-eventcensuses and allwholefieldgates;compareactualus
 states/work vs194,with timingcontentionand pathdifferences explicit. Keeponeowned
 heavyjob,pins/handles/resourcesaudited,checkpointacceptedstagesindependently.
 No newimplementationwhilethisrunishealthy. Useactualoutcometochoose thenextblocker.
+
+Read-only downstreamreadinessreview:CURRENT/workflow_acceptance_readiness.json.
+Existing workflowreceipts alone are insufficient transfer/state/restartproof.
+Actual pinned distributedtransfer unconditionally gates finite trueresidual<=1e-10,
+fulladmissibility and1e-12scaledtargetintegrals before publication; inspect ACTUAL
+per-eventprojectiontable/source provenance. Donor-vs-newintegralchange is a different
+quantity (CLOSEDsliverrule/open-boundary domaincorrection). Existing validate_state
+can be reused on an isolatedcopy of ADAPTEDmesh namedm6.su2 and actualmatchingflow;
+functionuses parsedpointcount,not61330hardcode. Thenactual RESTART_SOLYES/ADAP_LOOPNO
+probe with distinctinput/outputprefixes onlyafterownedrunterminal. No newhelper/
+source/configchange now; no adaptedstate/restartclaim.
 
 Existing closure plan: shape/height → residual size → geometry-only repair via
 EnableGeometryRepairs/strict complete-patch guidance,or valid construction return,
