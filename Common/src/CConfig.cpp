@@ -6241,6 +6241,11 @@ void CConfig::CheckP1FluxOptions() const {
     SU2_MPI::Error("FLUX_CORRECTION_LIMITED: needs FLUX_CORRECTION, MUSCL_FLOW and a point limiter.", CURRENT_FUNCTION);
   }
 
+  /*--- The grid term of FLUX_CORRECTION does not match the old GCL term, a uniform flow is not kept. ---*/
+  if (FluxCorrection && GetDynamic_Grid()) {
+    SU2_MPI::Error("FLUX_CORRECTION: not available with grid motion, it does not keep free stream.", CURRENT_FUNCTION);
+  }
+
   if (active.empty()) return;
 
   auto refuse = [&](const string& reason) { SU2_MPI::Error(active[0] + ": " + reason, CURRENT_FUNCTION); };
@@ -6254,6 +6259,14 @@ void CConfig::CheckP1FluxOptions() const {
   if (ContinuousAdjoint || DiscreteAdjoint) refuse("not available for adjoint problems.");
   if (Multizone_Problem) refuse("not available for multizone problems.");
   if (Axisymmetric) refuse("not available for axisymmetric problems.");
+
+  /*--- The form is in the vectorized numerics. Upwind_Residual uses them only for an ideal gas without
+   * LOW_MACH_CORR, otherwise the form would be dropped without a message. ---*/
+
+  const bool idealGas = (Kind_FluidModel == STANDARD_AIR) || (Kind_FluidModel == IDEAL_GAS);
+  if ((Edge_Form_P1 || Split_Edge_Flux) && (Kind_ConvNumScheme_Flow == SPACE_UPWIND) && (Low_Mach_Corr || !idealGas)) {
+    refuse("upwind schemes need an ideal gas and no LOW_MACH_CORR.");
+  }
 
   /*--- Grid motion: the options keep free stream through the GCL term of the dual time source, which matches the grid
    * term of their flux. The steady path of rotating frames and the field velocity of gusts use the median normals. ---*/
@@ -6350,6 +6363,7 @@ void CConfig::CheckP1FluxOptions() const {
     if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries.", CURRENT_FUNCTION);
     if (nMGLevels > 0) SU2_MPI::Error(name + "not available with multigrid, set MGLEVEL= 0.", CURRENT_FUNCTION);
     if (Time_Domain && !dualTime) SU2_MPI::Error(name + "time accurate runs need dual time stepping.", CURRENT_FUNCTION);
+    if (GetBounded_Scalar()) SU2_MPI::Error(name + "the edge mass fluxes of BOUNDED_SCALAR do not hold the split flux.", CURRENT_FUNCTION);
     if (Kind_ConvNumScheme_Flow == SPACE_UPWIND && Kind_Upwind_Flow != UPWIND::ROE) {
       SU2_MPI::Error(name + "among the upwind schemes only ROE is supported.", CURRENT_FUNCTION);
     }

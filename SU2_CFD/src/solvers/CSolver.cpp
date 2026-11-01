@@ -4839,7 +4839,13 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
   for (int iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
 
     const auto KindBC = config->GetMarker_All_KindBC(iMarker);
-    if (!isImplemented(KindBC)) continue;
+    if (!isImplemented(KindBC)) {
+      /*--- The strong path is not called in this mode, the marker would have no condition at all. ---*/
+      if (weakP1 && (KindBC != SEND_RECEIVE)) {
+        SU2_MPI::Error("BC_WEAK_P1 does not support marker " + config->GetMarker_All_TagBound(iMarker) + ".", CURRENT_FUNCTION);
+      }
+      continue;
+    }
 
     SU2_OMP_SAFE_GLOBAL_ACCESS(
     for (iElem = 0; iElem < geometry->GetnElem_Bound(iMarker); ++iElem ) {
