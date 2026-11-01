@@ -350,3 +350,9 @@ stars before broadcoarsening; prematuregeometrymode ornewdirectionpolicy isUNPRO
 not authorized as an ungatedshortcut. Keep allfreshshape/size/height/body/association
 checks,exact invalidation andstrictfinalgates; do not infer cause fromshortedges.
 Current terminal analysis:ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md.
+
+197selected andqualified the existing finite-refinement continuation for a complete
+size/height-clean quality return with residualgeometry. Initialconstruction and all
+operator/finalgates unchanged; strictgeometry-only qualitymode stillwaits forshape.
+Fulltwoevent197M6 isACTIVE/frozen; targetclosure unproved. No prematuregeometrymode
+oradditionalcertificate/cache/orderchange isactive. SeeADAPTATION_RESIDUAL_GEOMETRY_20261101.md.

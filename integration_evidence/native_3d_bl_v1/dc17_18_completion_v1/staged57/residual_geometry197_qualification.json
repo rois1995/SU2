@@ -1,0 +1,100 @@
+{
+  "time": 1793506007.029063,
+  "source_checkpoint": "27778de652",
+  "state": "affected_qualification_pass_full_M6_required",
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 189.46630954742432,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "build_terminal_receipt": "build197_terminal_verification.json",
+  "cases": {
+    "focused": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/residual_geometry197_focused_20261101T040028_1120731",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 5.79634690284729,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 610304,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "assertions": 213,
+      "test_cases": 1,
+      "observed_host_handles_absent": 2,
+      "terminal_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/residual_geometry197_focused_20261101T040028_1120731/terminal_verification.json"
+    },
+    "serial": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/residual_geometry197_serial_20261101T040102_1121666",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 9.849688291549683,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 41672704,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "assertions": 6411,
+      "test_cases": 18,
+      "observed_host_handles_absent": 5,
+      "terminal_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/residual_geometry197_serial_20261101T040102_1121666/terminal_verification.json"
+    },
+    "mpi": {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/residual_geometry197_mpi6_20261101T040145_1122741",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 262.31794571876526,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 63533056,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "rank_summaries": [
+        {
+          "assertions": 31704,
+          "test_cases": 216
+        },
+        {
+          "assertions": 31982,
+          "test_cases": 216
+        },
+        {
+          "assertions": 32005,
+          "test_cases": 216
+        },
+        {
+          "assertions": 35138,
+          "test_cases": 216
+        },
+        {
+          "assertions": 32450,
+          "test_cases": 216
+        },
+        {
+          "assertions": 32535,
+          "test_cases": 216
+        }
+      ],
+      "observed_host_handles_absent": 10,
+      "terminal_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/residual_geometry197_mpi6_20261101T040145_1122741/terminal_verification.json"
+    }
+  },
+  "binary_sha256": {
+    "integration_evidence/build-integrated-v2/UnitTests/test_driver": "8f92dd686a444e8d6a8f354de69d5f6060f366181aa237eb5eba935835c0c0c3",
+    "integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD": "7215d61fe30a6d77ec294ac67adb7fadea416ea4bde3a758b3a06810d46ce240"
+  },
+  "scope_limit": "Affected qualification only,not acceptedM6 meshes ortransfer/continuedadaptedCFD/diskrestart/BL/RANS qualification.",
+  "full_M6": {
+    "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build197_real_cfd50k_geometry_return",
+    "exec_session": 74120,
+    "state": "active_frozen_not_accepted",
+    "startup_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build197_real_cfd50k_geometry_return/owned_startup.json",
+    "provenance_receipt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build197_real_cfd50k_geometry_return/early_runtime_provenance.json"
+  }
+}

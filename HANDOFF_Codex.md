@@ -9,25 +9,58 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current —197connected residual geometry continuation BUILDING; sources frozen
+## Current —197full two-event M6 ACTIVE; sources frozen
 
-No M6 run live.196all10hostidentities reverifiedABSENT/all1401pinsunchanged
-1793505148.2194312:196/terminal_pre_design_reverification.json BEFORE197edits.
-Owned build197exec27972; HOSThelper1115329/start92042274,
-Ninja1115336/start92042294,nice19/-j3/libs1,TMPDIR4TBcompile-tmp.
-R/build197_owned_startup.json,build197_source_pins.json,build197_status.json.
-All1296buildpins frozen; verify actual owned handles terminal BEFORE any further
-Cpp/header/test/helper/binary edits. No second heavy job or tests while building.
+R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+CURRENT=`R/m6_runs/euler_build197_real_cfd50k_geometry_return`.
+PREVIOUS=`R/m6_runs/euler_build196_real_cfd50k_witness_first` (TERMINAL).
+Sourcecheckpoint27778de652pushed; CFD SHA7215d61fe30a6d77ec294ac67adb7fadea416ea4bde3a758b3a06810d46ce240.
+
+Fulltwoeventexec74120 LIVE/FROZEN. ActualHOSThandles1793506038.0387013:
+helper1129577/start92102273;time1129720/start92102819;timeout1129721/start92102819;
+launcher1129722/start92102820;ranks1129726/1129727/1129728/start92102824,
+1129729/1129730/1129731/start92102825. All10LIVE/all1401pinsunchanged/82mappedELF
+covered:CURRENT/owned_startup.json. Nice19/libs1/oneownedheavyjob; no Cpp/header/test/
+helper/binary/config/input edits until terminal or preservedfailurejustifies authorizedstop.
+NEVERsignal historical196/194handles. HOST /proc requires host-escalated tools;
+missing namespace-local PIDs doNOTestablish termination. Verify sameexec/identities.
+
+SamequalifiedsavedrealCFD/config/mesh/native_ref as196verifiedBYTEIDENTICAL:
+CURRENT/early_runtime_provenance.json. Actual originalcontinuedCFD CL.269535/CD.013536,
+rms-5.735442. ACTUAL originalrestart00000 nowemitted,BYTEIDENTICAL196(SHA6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a).
+This isNOTadaptedrestartproof. Euler50k/native5400/outer14400/2events/allstrictgatesunchanged.
+Original61330points/303359cells; actualworkingcounts remainseparatefrommetriccomplexity.
+No197acceptedadaptedmesh/transfer/continuedadaptedCFD/diskrestart yet.
+
+197connectedqualificationPASS BEFOREfullM6:
+build189.466310s/all1296pinsunchanged/all2hosthandlesABSENT1793505621.7061243;
+focused213assertions/1case5.796347s/observed2handlesABSENT/pinsunchanged;
+affectedserial6411assertions/18cases9.849688s/all5handlesABSENT/pinsunchanged;
+MPI6PASS216cases on EACH6ranks262.317946s/all10actualhosthandlesABSENT/pinsunchanged
+1793506006.912749 BEFOREfullM6launch. R/residual_geometry197_qualification.json has
+allcasepaths/6summaries/source+runtimepins/binaryhashes/terminalreceipts.
+No broadfullsuite,fullM6orBL/RANSacceptanceclaimfromthese checks.
 
 Connectedchange routes an exhausted complete measured quality return with closed
-size/heights and residualgeometry through the EXISTING finite surface-split generation,
-not broadcoarsening. Initialconstruction/operators and strictgeometry-only quality
-mode prerequisite stay unchanged. Existing quality_exit census emitted before mode
-switch preserves final counters. No newcache/config/gate/budget/CADdependency.
+size/heights andresidualgeometry through EXISTINGfinite surface-split generation,
+not broadcoarsening. Initialconstruction/operators andstrictgeometry-only quality
+mode prerequisite unchanged. quality_exit census beforemode switch preservesfinal
+privatequalitywindow counters. Allfreshpositionalmetrics,associations,features,bodies,
+height/geometry/finalgates/reservations/publication/ownership/fairness/invalidation
+remain. No newcache/config/gate/budget/CADdependency.196certification savings retained.
 Design:[ADAPTATION_RESIDUAL_GEOMETRY_20261101.md](Handbook/ADAPTATION_RESIDUAL_GEOMETRY_20261101.md).
-R/residual_geometry197_validation_plan.json: focusedserial,affectedserial,ONE MPI6,
-thenIMMEDIATELYfulltwoeventM6sameCFDseed50k/native5400. None197validatedyet.
-196certification savings retained; furthercoverage/motioncache ideas remainbacklog.
+R/residual_geometry197_validation_plan.json. Read-only sourcereview foundno concrete
+phase/collective defect; this isnotproof oftargetclosure. No competingimplementation.
+
+Monitor actualconstruction/quality counts andnetwholefieldq/Jretirement/s,geometry,
+rankbusy/join/debtspread,blockedtail/churn andboundary/interioryield against196actual
+matchingstages/times. No forecastedtermination or matchedstatesafterdivergence.
+Existing196analysiscommands needpath/baseline adaptation andphaseawareness beforeuse:
+197addscompletequality_exit andmayreturn toconstruction/newqualityentry; neverlabel
+unmeasuredconstructionq/J aszero orreconcileconstructionchanges asrepairchurn.
+Usecompletecensus flags andpreserve incompleteEXPLICITLY. No perf/GDB/baselinecampaign.
+Full2eventacceptance,actualconservativeadmissibletransfer,finitecontinuedCFD andisolated
+matchingadapteddiskrestart remainrequired,thenBL/MPI/RANS500k. Goal remainsACTIVE.
 
 ## Preserved196terminal outcome and analysis
 
@@ -90,7 +123,7 @@ event1_natural_failure.json,event1_failure_owned_stop.json,terminal_resources.js
 
 Nexttarget: REPAIRPOWER for the residual physical-boundary shape/geometry coupling,
 while retaining196certification savings. Speedalone doesnotreopen a rejectedunchangedstar.
-Review existing boundary/phase paths before selecting ONEconnectedchange; none selectedyet.
+197selected the existingfinite refinement continuation described above; fullM6outcome ispending.
 Do not start another baseline/perf/GDB campaign,raisebudgets,relaxgates or addconfigoptions.
 Cheaper-certanalysis reuses196proof trace:259729traversalwork,202306coverage(77.8912%),
 11489lift,32289distance; allcoveredgraphboundsalreadybelowtol. Cold/recomputedworks
@@ -107,7 +140,7 @@ budget/gatechange. Sharedcoarsen/split/quality/boundarysmoothing/fullcertificate
 Uncertainbounds retain graph+directedrefinement; association/entity/feature/body/
 height/reversechecks unchanged. Belowtolnumericboundmaydiffergenerally,butgeometry
 hingeEXACT0;saved12boundsEXACT194. Primaryproof:R/geometry_witness196_source_review.json.
-PASSIVE matchedwindow15 private-smoothing review:CURRENT/quality_window15_smoothing_comparison.json.
+PASSIVE matchedwindow15 private-smoothing review:RUN196/quality_window15_smoothing_comparison.json.
 Boundary/interior counts andprivategainsEXACT194;boundary2077.90vs2587.34summedranksec,
 interior132.15vs144.86. Timersnest/hostconditionsdiffer;privategainsnotpublicationgains.
 No screening/trial/repairdecision changes or extra profiler were used.
@@ -282,7 +315,7 @@ states/work vs194,with timingcontentionand pathdifferences explicit. Keeponeowne
 heavyjob,pins/handles/resourcesaudited,checkpointacceptedstagesindependently.
 No newimplementationwhilethisrunishealthy. Useactualoutcometochoose thenextblocker.
 
-Read-only downstreamreadinessreview:CURRENT/workflow_acceptance_readiness.json.
+Read-only downstreamreadinessreview:RUN196/workflow_acceptance_readiness.json.
 Existing175transfer_restart_acceptance_source_review.md and audit_native_unsteady.py
 were located/reused; P1integralaudit needs IMMEDIATEposttransfer states,notlaterCFD.
 Existing workflowreceipts alone are insufficient transfer/state/restartproof.

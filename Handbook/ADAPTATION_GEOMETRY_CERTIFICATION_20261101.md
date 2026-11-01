@@ -42,8 +42,10 @@ debt/flags/selectedmemo+preparedcounters; countersalone donotproveeverykey/histo
 
 Nexttarget is REPAIRPOWER at the remainingphysicalboundary and itsgeometry coupling,
 retaining196cost reductions. More speedalone cannotreopen a fullyrejected unchanged
-star. Existing phase/operator paths needreview before oneconnectedimplementation;
-none selectedyet. Boundary privatesmoothing costs3817.24ranksec vsinterior198.01
+star. 197selected the existingfinite refinement continuation for complete size/height-clean
+returns with residualgeometry,retaining alloperators and strictquality-mode gates.
+See[residual geometry continuation](ADAPTATION_RESIDUAL_GEOMETRY_20261101.md);
+focused/serial/MPI6qualified,fullM6active,notaccepted. Boundary privatesmoothing costs3817.24ranksec vsinterior198.01
 throughfirstpass; privategainsare notpublishedcavity effects. Firstpassentrydifferences:
 5.208479611Btraversal/5.437112367Bupperwork; nestedupper4778.19,traversal4133.80,
 scope439.84,facet122.66,support130.56ranksec. Theseare DIFFERENCES,notrawcumulative
