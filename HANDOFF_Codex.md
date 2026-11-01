@@ -52,33 +52,33 @@ completeflags and20selectedcache/memocounters/entries/bytesunchanged;debtspread
 All10handles/1401pins/82mappedELFreverified1793499954.022988:
 quality_entry_live_provenance.json. Frozenqualityrepairactive;noacceptedmesh.
 
-Qualityprogress:window7 at1224.119460seconds sinceentry,round22016:
-761511workingcells,31927q/29569J/3429geometry/0size,
-qJdebt4996.192735075473;13537publications,
-net22154q/23823J/341geometryremoved,
-18.097907netq/s,19.461336netJ/s.
-Latestinterval:net2234q/2448J/13geometryremoved
-in154.476773s,14.461721netq/s,
-1.169021netq/publication. Allprecedingownershipstages included.
-All20completecensusesaudited;latestownership_committedround22016:
-queue289438,blockedfeatures148,stuckshape/required0/0,
+Qualityprogress:window8 at1377.312944seconds sinceentry,round22080:
+765320workingcells,29334q/26759J/3423geometry/0size,
+qJdebt3944.790020961867;15542publications,
+net24747q/26633J/347geometryremoved,
+17.967594netq/s,19.336927netJ/s.
+Latestinterval:net2593q/2810J/6geometryremoved
+in153.193484s,16.926307netq/s,
+1.293267netq/publication. Allprecedingownershipstages included.
+All23completecensusesaudited;latestownership_committedround22080:
+queue276750,blockedfeatures129,stuckshape/required0/0,
 missing0,privatecollectives0.
 Same-round194reference:wholefieldexactTrue,rankdebtsexactTrue,
 commitsexactTrue,windowcountcountersexactTrue.
-Quality1224.119460vs1538.256090s;traversal
-1589324703vs2257306957(-29.5920%).
-Uppercalls285630vs285630. Noisolatedtimingclaim.
-Remainingqsurface/interior6538/25389,
-J9687/19882.
+Quality1377.312944vs1728.100961s;traversal
+1730205730vs2460304532(-29.6751%).
+Uppercalls328940vs328940. Noisolatedtimingclaim.
+Remainingqsurface/interior5795/23539,
+J8708/18051.
 Interior meansnophysicalface,notnoconstrainedvertices;privategainsnotpublicationgains.
-5latequalitymigrations audited:counts/debt/completeflags andselected
+6latequalitymigrations audited:counts/debt/completeflags andselected
 prepared/numericmemocounters/entries/bytes/driftavailabilityconserved.
-Latestmigrationround22016:debtspread1.695437→1.474195,
-observedfullcost12.332405s,awaitingnextcompletewindowinterval.
+Latestmigrationround22080:debtspread1.714289→1.194354,
+observedfullcost10.817478s,awaitingnextcompletewindowinterval.
 Countersalone donotproveeverykey/history;unchangedqualifiedsourcesupportscontracts.
-CURRENT/quality_window7_service_summary.json preservesperrankbusy/join/commits/
-publisheddebtremoved/netq/J. quality_window7_comparison.json retainsactualtimebrackets.
-All10handles/1401pins/82mappedELFreverified1793501180.6943033:quality_window7_live_provenance.json.
+CURRENT/quality_window8_service_summary.json preservesperrankbusy/join/commits/
+publisheddebtremoved/netq/J. quality_window8_comparison.json retainsactualtimebrackets.
+All10handles/1401pins/82mappedELFreverified1793501349.2968383:quality_window8_live_provenance.json.
 Frozenruncontinues;noacceptedmesh/transfer/adaptedrestartclaim.
 
 
