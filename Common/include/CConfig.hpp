@@ -75,6 +75,7 @@ private:
   unsigned short Kind_SpanWise;                  /*!< \brief Kind of span-wise section computation.*/
   unsigned short iZone, nZone;    /*!< \brief Number of zones in the mesh. */
   unsigned short nZoneSpecified;  /*!< \brief Number of zones that are specified in config file. */
+  su2double Edge_Form_Min_Share; /*!< \brief Smallest part of a cell held by a node in the P1 edge form. */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
   su2double Fan_Poly_Eff;         /*!< \brief Fan polytropic effeciency. */
@@ -9993,6 +9994,12 @@ public:
    * \return YES if the edge form is used.
    */
   bool GetEdge_Form_P1() const { return Edge_Form_P1; }
+
+  /*!
+   * \brief Get the smallest part of a cell that a node may hold in the P1 edge form.
+   * \return 0 by default, the option is off.
+   */
+  su2double GetEdge_Form_Min_Share() const { return Edge_Form_Min_Share; }
 
   /*!
    * \brief Get if the central Jacobian is the exact one of the edge form, n_ik and E_ik included.

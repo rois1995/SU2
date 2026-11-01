@@ -952,7 +952,7 @@ class CGeometry {
   /*!
    * \brief Set the coefficients of the P1 edge form on the current (modified) dual.
    */
-  inline virtual void SetEdgeFormP1() {}
+  inline virtual void SetEdgeFormP1(su2double minShare = 0.0) {}
 
   /*!
    * \brief Split all cells into simplices and set the central flux coefficients of the split edges.

@@ -7188,7 +7188,7 @@ su2double SplitWeights(const CSplitPattern& pattern, unsigned short nDim,
 
 }  // namespace
 
-void CPhysicalGeometry::SetEdgeFormP1() {
+void CPhysicalGeometry::SetEdgeFormP1(su2double minShare) {
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     edges->FormNormal.resize(edges->nEdgeSIMD, nDim) = su2double(0.0);
     edges->FormE.resize(edges->nEdgeSIMD, nDim) = su2double(0.0);
@@ -7211,6 +7211,24 @@ void CPhysicalGeometry::SetEdgeFormP1() {
 
       su2double grad[MAXNDIM + 1][3];
       const su2double median = fabs(P1Simplex::ShapeGradients(nDim, Coord, grad)) / nNodes;
+
+      /*--- EDGE_FORM_MIN_SHARE: pull W toward the median until no node holds less than this part of the cell.
+       * The sum of W does not change, the exactness of the form does not depend on W, and each node keeps
+       * the volume its weights add up to. ---*/
+
+      if (minShare > 0.0) {
+        const su2double floorW = minShare * median * nNodes;
+        su2double minW = W[0];
+        for (unsigned short a = 1; a < nNodes; a++) minW = min(minW, W[a]);
+        if (minW < floorW) {
+          const su2double alpha = (median - floorW) / (median - minW);
+          for (unsigned short a = 0; a < nNodes; a++) {
+            const su2double capped = median + alpha * (W[a] - median);
+            nodes->AddVolume(element->GetNode(a), capped - W[a]);
+            W[a] = capped;
+          }
+        }
+      }
 
       for (unsigned short a = 0; a < nNodes; a++) {
         for (unsigned short b = a + 1; b < nNodes; b++) {

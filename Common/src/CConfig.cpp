@@ -1841,6 +1841,8 @@ void CConfig::SetConfig_Options() {
   addEnumOption("VISCOUS_SCHEME", Kind_Viscous_Scheme, Viscous_Scheme_Map, VISCOUS_SCHEME::EDGE_GRADIENT);
   /*!\brief EDGE_FORM_P1 \n DESCRIPTION: Variant C, central flux 0.5(F_i+F_k).n_ik + (F_k-F_i).E_ik on the modified dual, requires MOD_CENTROIDS \ingroup Config \default false */
   addBoolOption("EDGE_FORM_P1", Edge_Form_P1, false);
+  /*!\brief EDGE_FORM_MIN_SHARE \n DESCRIPTION: Smallest part of a cell that a node may hold in EDGE_FORM_P1, the weights are pulled toward the median. 0 is off. \ingroup Config*/
+  addDoubleOption("EDGE_FORM_MIN_SHARE", Edge_Form_Min_Share, 0.0);
   /*!\brief EDGE_FORM_EXACT_JACOBIAN \n DESCRIPTION: Central Jacobian of EDGE_FORM_P1 or SPLIT_EDGE_FLUX with the coefficients of the form, not the normal of the dual. \ingroup Config*/
   addBoolOption("EDGE_FORM_EXACT_JACOBIAN", Edge_Form_Exact_Jacobian, false);
   /*!\brief GCL_EXACT_P1 \n DESCRIPTION: Add the swept terms that make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes, for conservation in time on moving meshes. \ingroup Config*/
@@ -6316,6 +6318,12 @@ void CConfig::CheckP1FluxOptions() const {
     if (Restart && ((Kind_GridMovement == RIGID_MOTION) || Deform_Mesh)) {
       SU2_MPI::Error(name + "a restart does not restore the old coordinates of this motion.", CURRENT_FUNCTION);
     }
+  }
+  if ((Edge_Form_Min_Share < 0.0) || (Edge_Form_Min_Share >= 0.25)) {
+    SU2_MPI::Error("EDGE_FORM_MIN_SHARE: must be at least 0 and below 0.25.", CURRENT_FUNCTION);
+  }
+  if ((Edge_Form_Min_Share > 0.0) && GCL_Exact_P1) {
+    SU2_MPI::Error("EDGE_FORM_MIN_SHARE: not available with GCL_EXACT_P1, its weights come from the dual.", CURRENT_FUNCTION);
   }
   if (Edge_Form_P1) {
     const string name = "EDGE_FORM_P1: ";
