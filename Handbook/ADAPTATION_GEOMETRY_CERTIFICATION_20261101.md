@@ -487,3 +487,11 @@ actualhandles/pins/currentstatus inHANDOFF. CURRENT/coarsening_comparison.json.
 198connected qualification and full-run receipts are in
 R/geometry_coverage198_qualification.json andgeometry_coverage198_M6_preflight.json.
 Current live ownership/input/source details are inHANDOFF. No accepted M6 mesh yet.
+
+198actual first complete coarsening matches197 ALL17selected per-rankfields:
+292709cells/2627collapses,uppercalls14870same. Traversal191026912→158224112
+(-17.1718%);scope/facet/support/pieceselectionworkunchanged. Engine266.985899vs
+197256.557136s;hostconditionsdiffer andtimersoverlap,no isolatedwalltimegainclaim.
+Q/JdeliberatelyUNMEASURED. Frozenrunproceeds throughsplitting;this isnotqualityclosure
+oracceptedmesh. Current/coarsening_comparison.json,coarsening_live_provenance.json,
+coarsening_resources.json preserveactualdata/pins/hostpressure,notanotherbaseline.

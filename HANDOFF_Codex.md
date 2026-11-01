@@ -39,6 +39,16 @@ CURRENT/initial_partition_resources.json preserves sampledRSS/RAM/loadwithpeakli
 Earlierinitial_live_reverification.json remains historical. Observeactualoutcome;
 no newbaseline/perf/GDBcampaign orcompetingimplementation.
 
+FirstcoarseningCOMPLETE292709cells/2627collapses:ALL17selectedper-rankfields
+EXACT197,includinggeometry/size and complete measurement flags. Q/Jdeliberately
+UNMEASURED. Uppercalls14870same; traversal191026912→158224112(-17.1718%),
+upperwork199952178→167149378;support/facet/scope/pieceselectionworkUNCHANGED.
+Engine266.985899vs197256.557136s;noclaimofisolatedcodewalltimespeedup.
+CURRENT/coarsening_comparison.json. ActualHOSTall10handles/1401pins/82mappedELF
+verified1793512980.9799993:coarsening_live_provenance.json. Currentcoarsening_resources.json
+preserves sampledRSS/RAM/load/CPUpsi/memorypsi/disklimits;noresource-pressurestop.
+Frozenruncontinues into splitting; no accepted mesh ormeasured shapeclosure.
+
 198extends197's existing residualgeometry continuation with ONLY an existing N3
 finitecoverage proof order: nominaltriangle before rectangle; rectangle/segment
 fallback for failed/degenerate/nonfinite triangle proofs; allpadding/orientation/

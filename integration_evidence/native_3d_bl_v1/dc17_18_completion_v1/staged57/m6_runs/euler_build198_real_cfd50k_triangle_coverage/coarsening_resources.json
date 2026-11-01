@@ -1,0 +1,70 @@
+{
+  "time": 1793512983.2849498,
+  "scope": "Passive host snapshot at observed complete coarsening/ownership transition. No extra profiler, sampling campaign, signals or decisions.",
+  "sample_count": 224,
+  "largest_sampled_tree_rss_bytes": 6295568384,
+  "latest_sample": {
+    "elapsed_seconds": 452.17760133743286,
+    "processes": [
+      {
+        "pid": 1293492,
+        "rss_bytes": 745472,
+        "name": "time"
+      },
+      {
+        "pid": 1293493,
+        "rss_bytes": 659456,
+        "name": "timeout"
+      },
+      {
+        "pid": 1293494,
+        "rss_bytes": 22282240,
+        "name": "mpirun"
+      },
+      {
+        "pid": 1293504,
+        "rss_bytes": 1003728896,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 1293502,
+        "rss_bytes": 1049645056,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 1293501,
+        "rss_bytes": 952057856,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 1293500,
+        "rss_bytes": 1029963776,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 1293499,
+        "rss_bytes": 1016668160,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 1293498,
+        "rss_bytes": 1034223616,
+        "name": "SU2_CFD"
+      }
+    ],
+    "sampled_process_tree_rss_bytes": 6109974528
+  },
+  "rss_limit": "Summed sampled process RSS is not unique/physical RAM or true wholejobpeak.",
+  "host_load": [
+    8.49,
+    7.46,
+    6.59
+  ],
+  "mem_available": "MemAvailable:   34219344 kB",
+  "cpu_pressure": "some avg10=10.87 avg60=8.93 avg300=7.01 total=43824603003\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+  "memory_pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=768890252\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=475316702\n",
+  "disk_free_bytes": {
+    "root": 192348160,
+    "workspace": 61490442240
+  }
+}
