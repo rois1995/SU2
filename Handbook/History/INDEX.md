@@ -33,3 +33,9 @@ These later snapshots are separate from the original line-range archive above.
 
 - [Handoff](goal3_handoff_before_support_selection.md).
 - [Goal 3 state](goal3_current_before_support_selection.md).
+
+## M6 terminal evidence through build197 (2026-11-01)
+
+- [Build191–197 handoff detail](HANDOFF_Codex_build191_to197_20261101.md), preserved
+  separately from the original line-range archive. Its header records the verbatim
+  historical-body hash. Build198 live state remains in the current handoff.
