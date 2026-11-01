@@ -1,0 +1,228 @@
+{
+  "time": 1793518584.2512922,
+  "state": "TERMINAL natural first-event time-budget rejection on all6ranks; complete measured EXIT, strict gates failed. Remaining launcher stopped only after preserving failure and rechecking exact identities/all1401pins.",
+  "native_seconds": 5403.732045064,
+  "native_refine_seconds": 5337.497519408,
+  "quality_seconds": 4548.497238469,
+  "terminal_whole_field": {
+    "cells": 802821,
+    "q_bad": 3529,
+    "j_bad": 1903,
+    "geometry_bad": 3107,
+    "size_bad": 0,
+    "qj_debt": 29.968095035807224
+  },
+  "terminal_all_gates_measured_complete": true,
+  "net_removed": {
+    "q_bad": 50552,
+    "j_bad": 51489,
+    "geometry_bad": 663
+  },
+  "publications": 45208,
+  "net_q_removed_per_second": 11.11400037191526,
+  "net_j_removed_per_second": 11.320002475659615,
+  "net_q_per_publication": 1.1182091665192002,
+  "final_partial_interval": {
+    "seconds": 14.760462090000146,
+    "net_removed": {
+      "q_bad": 95,
+      "j_bad": 95,
+      "geometry_bad": 3
+    },
+    "commits": 128,
+    "net_per_second": {
+      "q_bad": 6.436112868333586,
+      "j_bad": 6.436112868333586,
+      "geometry_bad": 0.20324566952632378
+    }
+  },
+  "complete_censuses": 56,
+  "complete_windows": 26,
+  "construction_returns": 0,
+  "geometry_continuation_exercised": false,
+  "accepted_adapted_meshes": 0,
+  "transfer_adapted_cfd_disk_restart_proved": false,
+  "busy_share": 0.2895166097256791,
+  "join_call_share": 0.4131861443988715,
+  "timer_limit": "Nested rank timers overlap. Join includes protocol+wait. ProcessCPU includes MPIspin.",
+  "capacity": {
+    "per_rank": {
+      "0": {
+        "batch_rounds": 1658,
+        "batch_candidates": 11777,
+        "batch_reserved": 10136,
+        "quality_progress": 7349,
+        "raw_slot_ceiling": 13264,
+        "unreserved_candidates": 1641
+      },
+      "1": {
+        "batch_rounds": 1658,
+        "batch_candidates": 12411,
+        "batch_reserved": 11276,
+        "quality_progress": 8452,
+        "raw_slot_ceiling": 13264,
+        "unreserved_candidates": 1135
+      },
+      "2": {
+        "batch_rounds": 1658,
+        "batch_candidates": 11658,
+        "batch_reserved": 9048,
+        "quality_progress": 7291,
+        "raw_slot_ceiling": 13264,
+        "unreserved_candidates": 2610
+      },
+      "3": {
+        "batch_rounds": 1658,
+        "batch_candidates": 12354,
+        "batch_reserved": 9541,
+        "quality_progress": 6774,
+        "raw_slot_ceiling": 13264,
+        "unreserved_candidates": 2813
+      },
+      "4": {
+        "batch_rounds": 1658,
+        "batch_candidates": 12107,
+        "batch_reserved": 11704,
+        "quality_progress": 9381,
+        "raw_slot_ceiling": 13264,
+        "unreserved_candidates": 403
+      },
+      "5": {
+        "batch_rounds": 1658,
+        "batch_candidates": 11108,
+        "batch_reserved": 8527,
+        "quality_progress": 5961,
+        "raw_slot_ceiling": 13264,
+        "unreserved_candidates": 2581
+      }
+    },
+    "totals": {
+      "batch_rounds": 9948,
+      "batch_candidates": 71415,
+      "batch_reserved": 60232,
+      "quality_progress": 45208,
+      "raw_slot_ceiling": 79584,
+      "unreserved_candidates": 11183
+    },
+    "candidate_fraction_of_raw_ceiling": 0.8973537394451147,
+    "reserved_fraction_of_candidates": 0.8434082475670377,
+    "published_fraction_of_reserved": 0.7505644839952185,
+    "published_fraction_of_raw_ceiling": 0.5680538801769199,
+    "limit": "Raw8slot ceiling isnot guaranteed eligible independent useful work. Unreserved candidates are not a separately isolated MPI conflict count."
+  },
+  "rank_debts": {
+    "0": 2.06700320106187,
+    "1": 3.2993738255687686,
+    "2": 1.7558641791710388,
+    "3": 17.968202117309794,
+    "4": 2.551557763704354,
+    "5": 2.3260939489913994
+  },
+  "locations": {
+    "q_surface": 692,
+    "q_interior": 2837,
+    "j_surface": 600,
+    "j_interior": 1303,
+    "q_feature": 290,
+    "q_no_feature": 3239,
+    "q_feature_unknown": 0,
+    "j_feature": 131,
+    "j_no_feature": 1772,
+    "j_feature_unknown": 0,
+    "bad_union": 4811,
+    "short09": 4811,
+    "short05": 4752
+  },
+  "drift": {
+    "0": {
+      "rank": "0",
+      "stage": "exit",
+      "initialized": "1",
+      "available": "1",
+      "samples": "16",
+      "supported": "16",
+      "lost": "0",
+      "owned": "6",
+      "maximum_relative_frobenius": "0.044304823355490691",
+      "owned_maximum_relative_frobenius": "0.044304823355490691",
+      "current_nodal_sensor": "1",
+      "full_target": "1"
+    },
+    "1": {
+      "rank": "1",
+      "stage": "exit",
+      "initialized": "1",
+      "available": "1",
+      "samples": "16",
+      "supported": "16",
+      "lost": "0",
+      "owned": "3",
+      "maximum_relative_frobenius": "0.044304823355490691",
+      "owned_maximum_relative_frobenius": "0.015163476291644682",
+      "current_nodal_sensor": "1",
+      "full_target": "1"
+    },
+    "2": {
+      "rank": "2",
+      "stage": "exit",
+      "initialized": "1",
+      "available": "1",
+      "samples": "16",
+      "supported": "16",
+      "lost": "0",
+      "owned": "0",
+      "maximum_relative_frobenius": "0.044304823355490691",
+      "owned_maximum_relative_frobenius": "0",
+      "current_nodal_sensor": "1",
+      "full_target": "1"
+    },
+    "3": {
+      "rank": "3",
+      "stage": "exit",
+      "initialized": "1",
+      "available": "1",
+      "samples": "16",
+      "supported": "16",
+      "lost": "0",
+      "owned": "2",
+      "maximum_relative_frobenius": "0.044304823355490691",
+      "owned_maximum_relative_frobenius": "0.00088070217679555091",
+      "current_nodal_sensor": "1",
+      "full_target": "1"
+    },
+    "4": {
+      "rank": "4",
+      "stage": "exit",
+      "initialized": "1",
+      "available": "1",
+      "samples": "16",
+      "supported": "16",
+      "lost": "0",
+      "owned": "5",
+      "maximum_relative_frobenius": "0.044304823355490691",
+      "owned_maximum_relative_frobenius": "0.032508671447144582",
+      "current_nodal_sensor": "1",
+      "full_target": "1"
+    },
+    "5": {
+      "rank": "5",
+      "stage": "exit",
+      "initialized": "1",
+      "available": "1",
+      "samples": "16",
+      "supported": "16",
+      "lost": "0",
+      "owned": "0",
+      "maximum_relative_frobenius": "0.044304823355490691",
+      "owned_maximum_relative_frobenius": "0",
+      "current_nodal_sensor": "1",
+      "full_target": "1"
+    }
+  },
+  "terminal_handles_receipt": "terminal_handles.json",
+  "unchanged_pins": 1401,
+  "counter_review": "terminal_counter_review.json",
+  "geometry_service": "terminal_geometry_service_assessment.json",
+  "next_target": "Primary SPEED of useful closure with declining yield/churn; only31badcells fullyblocked and52844featuresqueued at time limit. No evidence that short-edge correlation proves a construction cause. Existing197geometry continuation remains unexercised, not disproved.",
+  "decision": "No further geometry cache/envelope shortcut selected from these data. Reuse qualified198 in the same active cycle for a full acceptance attempt when actual host resources permit, retaining savedCFD/gates/budgets. Roottemporary storage must be redirected to4TB before launch."
+}

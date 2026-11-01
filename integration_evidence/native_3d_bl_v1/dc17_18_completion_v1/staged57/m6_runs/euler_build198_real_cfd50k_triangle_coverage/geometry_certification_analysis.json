@@ -1,0 +1,163 @@
+{
+  "time": 1793518584.2516966,
+  "scope": "Analysis after complete198terminal outcome. Existing counters/saved traces only; no new profiler or old-code M6baseline.",
+  "terminal_whole_field": {
+    "cells": 802821,
+    "q_bad": 3529,
+    "j_bad": 1903,
+    "geometry_bad": 3107,
+    "size_bad": 0,
+    "qj_debt": 29.968095035807224
+  },
+  "quality_seconds": 4548.497238469,
+  "net_q_per_second": 11.11400037191526,
+  "net_j_per_second": 11.320002475659615,
+  "baseline197_limit": "Its terminalEXITis incomplete. Compare only its actual latestcompletewindow or bracketing qualitytimes; no fabricated terminalwholefieldcounts.",
+  "work_and_nested_times": {
+    "upper_calls": 970363,
+    "upper_work": 3450813654,
+    "upper_seconds": 4562.947931382021,
+    "support_calls": 970363,
+    "support_facets": 174046250,
+    "support_seconds": 183.94008137300136,
+    "scope_attempts": 136322,
+    "scope_builds": 136322,
+    "scope_build_work": 11166325,
+    "scope_build_seconds": 527.8682048050017,
+    "facet_hits": 83597424,
+    "facet_misses": 99078,
+    "facet_build_work": 2357800,
+    "facet_build_seconds": 112.39505939000028,
+    "piece_selection_work": 108213729,
+    "piece_selection_seconds": 46.770709098999774,
+    "traversal_work": 3244891247,
+    "traversal_seconds": 3799.0710671859883,
+    "updated_cells": 1249646,
+    "update_seconds": 1986.269457632018,
+    "collective_calls": 1024866,
+    "collective_seconds": 397.0174948501117,
+    "election_calls": 2830596,
+    "election_seconds": 3805.043724005316,
+    "memo_direct_hits": 223103,
+    "memo_direct_misses": 153516,
+    "memo_union_hits": 482312,
+    "memo_union_misses": 488051,
+    "memo_stores": 641490,
+    "memo_evictions": 676522,
+    "memo_evicted_bytes": 861275336,
+    "memo_retention_refusals": 77,
+    "memo_maintenance_work": 239299789
+  },
+  "traversal_share_of_upper_work": 0.9403264193181496,
+  "memo_union_hit_fraction": 0.49704285921866354,
+  "miss_limit": "Aggregate misses cannot distinguish nearby new positions/support/tolerance from evicted identical queries. Older12saved168query payload is not current late-star population.",
+  "private_smoothing": {
+    "boundary": {
+      "stars": 640548.0,
+      "reused": 4.0,
+      "candidates": 608200.0,
+      "guidance": 87170.0,
+      "upper_queries": 376350.0,
+      "moves": 24862.0,
+      "debt_reduction": 904.8854576659426,
+      "seconds": 3721.4633916480047,
+      "private_debt_reduction_per_rank_second": 0.24315312618599347,
+      "rejects": {
+        "validity": 15036,
+        "shape": 532056,
+        "edge": 1151,
+        "geometry": 23688
+      }
+    },
+    "interior": {
+      "stars": 34460.0,
+      "reused": 4.0,
+      "candidates": 229757.0,
+      "guidance": 0.0,
+      "upper_queries": 0.0,
+      "moves": 27576.0,
+      "debt_reduction": 4626.509288207299,
+      "seconds": 216.63080681000008,
+      "private_debt_reduction_per_rank_second": 21.35665446819418,
+      "rejects": {
+        "validity": 18092,
+        "shape": 109391,
+        "edge": 2925,
+        "geometry": 0
+      }
+    }
+  },
+  "capacity": {
+    "per_rank": {
+      "0": {
+        "batch_rounds": 1658,
+        "batch_candidates": 11777,
+        "batch_reserved": 10136,
+        "quality_progress": 7349,
+        "raw_slot_ceiling": 13264,
+        "unreserved_candidates": 1641
+      },
+      "1": {
+        "batch_rounds": 1658,
+        "batch_candidates": 12411,
+        "batch_reserved": 11276,
+        "quality_progress": 8452,
+        "raw_slot_ceiling": 13264,
+        "unreserved_candidates": 1135
+      },
+      "2": {
+        "batch_rounds": 1658,
+        "batch_candidates": 11658,
+        "batch_reserved": 9048,
+        "quality_progress": 7291,
+        "raw_slot_ceiling": 13264,
+        "unreserved_candidates": 2610
+      },
+      "3": {
+        "batch_rounds": 1658,
+        "batch_candidates": 12354,
+        "batch_reserved": 9541,
+        "quality_progress": 6774,
+        "raw_slot_ceiling": 13264,
+        "unreserved_candidates": 2813
+      },
+      "4": {
+        "batch_rounds": 1658,
+        "batch_candidates": 12107,
+        "batch_reserved": 11704,
+        "quality_progress": 9381,
+        "raw_slot_ceiling": 13264,
+        "unreserved_candidates": 403
+      },
+      "5": {
+        "batch_rounds": 1658,
+        "batch_candidates": 11108,
+        "batch_reserved": 8527,
+        "quality_progress": 5961,
+        "raw_slot_ceiling": 13264,
+        "unreserved_candidates": 2581
+      }
+    },
+    "totals": {
+      "batch_rounds": 9948,
+      "batch_candidates": 71415,
+      "batch_reserved": 60232,
+      "quality_progress": 45208,
+      "raw_slot_ceiling": 79584,
+      "unreserved_candidates": 11183
+    },
+    "candidate_fraction_of_raw_ceiling": 0.8973537394451147,
+    "reserved_fraction_of_candidates": 0.8434082475670377,
+    "published_fraction_of_reserved": 0.7505644839952185,
+    "published_fraction_of_raw_ceiling": 0.5680538801769199,
+    "limit": "Raw8slot ceiling isnot guaranteed eligible independent useful work. Unreserved candidates are not a separately isolated MPI conflict count."
+  },
+  "counter_groups": "All7requested groups, including finalpartial EXIT, reconcile in terminal_counter_review.json.",
+  "screening": "Boundary532056shape rejections of608200candidates. Existing unchanged star/support/oldmerit/projected context/lazy oldguidance/shape-height-edge-validity screens/nonnegative partialgeometry rejection remain startingpoints. Private moves/debt gains are not published cavity gains.",
+  "existing_reuse": "Accepted face association/coverage contracts and exact numerical face/unionmemo already reuse unchanged inputs. Prepared facets/scopes/subtrees retained under exact identity/reference-lifetime/transientadmission. Changed-face-only checks do not prove complete reverse coverage or absence of holes.",
+  "motion_bound": "Outward(U+D) needs identical immutable target/support and proven correspondence. Existing exact-rational analysis passes0of12wholequeries; optimistic subtree ceiling810/140510work(.5765%)beforeoverheads. No new motioncache/envelope justified.",
+  "certification_result": "198savedqueries reduce traversal23.5546%,boundsall12exact; fullconstruction through18generations retains selected197counts with28.6488%lesswork; first7qualitywindows selectedcounts/publicationsmatch. Firstmeasured divergence at8, so laterstates/trials are not assumed identical. Lowercountedwork has not established faster netclosure.",
+  "next_target": "Primary SPEED of useful closure with declining yield/churn; only31badcells fullyblocked and52844featuresqueued at time limit. No evidence that short-edge correlation proves a construction cause. Existing197geometry continuation remains unexercised, not disproved.",
+  "next_action": "No further geometry cache/envelope shortcut selected from these data. Reuse qualified198 in the same active cycle for a full acceptance attempt when actual host resources permit, retaining savedCFD/gates/budgets. Roottemporary storage must be redirected to4TB before launch.",
+  "preserve": "Allstrictgeometry/shape/J/size/association/feature/body/height gates, budgets, fairness, rejectionhistory, versionedfullvertexdisjointpublication, freshcontexts and CADoptional authority. FulltwoeventM6/transfer/finiteCFD/diskrestart thenBL/MPI/RANS500k remain required."
+}

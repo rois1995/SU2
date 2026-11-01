@@ -375,3 +375,14 @@ saved-querywork only; fullM6speed/closure unproved. It extends the197connectedcy
 retains197Enginecontinuation andallfallbacks/gates/budgets,addsno cache/envelope.
 Other alternatives remain deferred. Affectedserial/MPI qualification precedes
 immediatefullM6. Currentstatus inHANDOFF andgeometry_coverage198_validation_plan.json.
+
+198 terminal review: keep motion/slack cache, extra envelopes and additional
+screening alternatives deferred. Current exact union memo has482312hits/488051misses;
+misses do not classify nearby positions versus evicted identical queries. Existing
+whole-query motion proof succeeds0of12; optimistic subtree saving0.5765% before
+costs. Traversal savings did not establish improved netq/s. Next analysis must use
+representative query evidence and useful net whole-field improvement, retaining
+all independent association/coverage/feature/body/height gates and full fallback.
+No competing implementation selected. See certification handbook and198 terminal
+geometry_certification_analysis.json; same qualified-source acceptance retry is
+part of the existing cycle, not another baseline campaign.

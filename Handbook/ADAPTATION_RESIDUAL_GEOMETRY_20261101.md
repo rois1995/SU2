@@ -56,3 +56,9 @@ returns0: this new continuation was never reached,so itsM6utility is unproved,
 not disproved. All10owned handles absent/all1401pinsunchanged1793511528.269277.
 Analysis-first certification review preserved in197/geometry_certification_analysis.json
 and ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md. No competing code selected.
+
+Build198 retained this continuation unchanged. Its COMPLETE terminal EXIT has
+3529q/1903J/3107geometry/0size bad; construction_returns=0 again. Thus neither
+geometry closure nor this branch's M6 utility has been established. All owned
+handles are terminal before the same-source retry preparation. Current assessment
+and exact receipts: ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md and HANDOFF.

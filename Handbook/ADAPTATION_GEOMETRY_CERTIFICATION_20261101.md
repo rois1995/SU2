@@ -1,5 +1,64 @@
 # Cheaper geometry certification —198coverage-order integration
 
+## Current198 terminal analysis
+
+Build198 finished naturally at the unchanged time budget. Its COMPLETE EXIT census
+contains 802821 cells: 3529 q-bad, 1903 J-bad, 3107 geometry-bad and zero size-bad.
+All six measurement/cache/census flags are complete. All ten owned host identities
+are absent and all 1401 source/runtime/input pins unchanged before this analysis.
+No accepted adapted mesh, transfer, adapted CFD continuation or disk restart.
+
+Evidence directory:
+`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build198_real_cfd50k_triangle_coverage`.
+Read `geometry_certification_analysis.json`, `terminal_counter_review.json`,
+`terminal_geometry_service_assessment.json` and `terminal_handles.json` there.
+All seven requested counter groups include the complete final partial window.
+
+Quality service removed net 50552 q-bad and 51489 J-bad in 4548.497238 seconds:
+11.114000 net q/s and 11.320002 net J/s. Published q retirement/introduction was
+396480/345928: substantial churn. Of remaining q-bad, 2837 are interior and 692
+surface. Shape never closed, so the retained197 geometry reconstruction return
+was never exercised. Residual geometry must still close through that continuation
+or strict geometry-only repair after shape/size closure, followed by remeasurement
+and shape reclosure under the same cumulative budgets.
+
+Geometry traversal accounts for 3.244891247B of 3.450813654B upper work (94.03%).
+Union memo recorded 482312 hits and 488051 misses. Hits demonstrate identical-key
+reuse; misses cannot distinguish nearby trial positions from support/tolerance
+changes or identical evicted queries. Do not call all misses nearby-position work.
+Prepared scopes/facets, exact face/union memo, unchanged association/coverage
+certificates, old-side star context and inexpensive candidate screens already exist.
+Boundary shape screening rejected 532056 of 608200 candidates before expensive
+acceptance work. Changed-face-only checking cannot replace whole-support reverse
+coverage or prove that no hole or separate body was crossed.
+
+For fixed immutable support and corresponding affine source triangles, outward
+U + D bounds the new one-sided distance by the distance-to-set Lipschitz property.
+Its slack proves neither association nor reverse coverage, features, bodies or
+heights. The existing exact-rational saved-query analysis certified zero of twelve
+whole queries; optimistic subtree savings were only 810/140510 work (0.5765%)
+before overhead. Those older queries are not the current late-star population.
+No motion cache or new conservative envelope is justified. Uncertain bounds retain
+full certification and every independent acceptance gate. CAD remains optional.
+
+The existing198 coverage order reduced traversal 23.55% on the saved queries and
+28.65% through matching initial M6 construction, but did not establish faster net
+closure:197 achieved 11.1366 net q/s through its latest complete window. Its actual
+terminal EXIT is incomplete, so terminal whole-field comparison is unavailable.
+After window7 trajectories differ; compare actual bracketing times without
+interpolation or assuming identical trials. Nested geometry/smoothing/MPI timings
+must not be added together.
+
+Next target is useful closure speed with declining repair yield and churn, rather
+than another unproven geometry shortcut. Only31 bad cells are fully blocked with
+52844 queued features. Short-edge correlation does not establish a construction
+cause. Preserve the same connected implementation and unexercised197 continuation.
+A same-qualified-source full two-event acceptance retry is justified by substantially
+lower current host CPU pressure; this is not an old-code baseline campaign or a
+claim contention caused the prior result. Verify current resources and provenance;
+redirect runtime temporary storage to4TB because root/tmp has only15MB free.
+No new options, larger limits, source change or repeated qualification campaign.
+
 ## Current198candidate,continuing197cycle
 
 After197terminal identities/pins were reverified1793511796.099736,198moves the
