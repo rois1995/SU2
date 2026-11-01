@@ -76,36 +76,36 @@ Resources1793519937.878137:MemAvailable30826672kB,CPUpsiavg60=8.36%,memorypsi0,
 sampledRSSmax12.949GB(decimal),notphysical/truewholejobpeak. SourcesstillFROZEN.
 Now qualityservice; strictacceptedmesh/transfer/adaptedCFD/restart remainunproved.
 
-LatestCOMPLETEqualitywindow13 round22400:780858cells,19235q/
-15932J/3303geometry/0size bad; qJdebt1220.887089570.
-Quality2645.154060s,net34846q/37460J/
-467geometry removed through24907publications;
-netq13.173524/s,netJ14.161746/s.
+LatestCOMPLETEqualitywindow15 round22528:786002cells,15843q/
+12504J/3249geometry/0size bad; qJdebt711.791524062.
+Quality2944.120288s,net38238q/40888J/
+521geometry removed through28764publications;
+netq12.987920/s,netJ13.888020/s.
 Selectedwholefield/rankdebts/publications/churn/gauges EXACTparent198same-round:True;
 allselectedupper/preparation/discoverywork identical:True. No byte-identical
 intermediatemesh orfuturestate/trialidentity claim.
-Parentqualitytime2700.652420s,netq12.902808/s;
-observednetqratechange2.0981%.
-Joincallshare0.371460 versusparent0.373819;
-busyshare0.289198 versus0.293762.
+Parentqualitytime3001.768429s,netq12.738491/s;
+observednetqratechange1.9581%.
+Joincallshare0.374101 versusparent0.376167;
+busyshare0.292511 versus0.296346.
 Busy is private-trial walltime;join is subsequent reduction-call walltime. Neither
 is processCPU orpureidle. ProcessCPU mayincludeMPIspin. Timersoverlap. Countedwork and
 actualbracketingtime snapshots are retained separately;notanisolatedcode/hostgain.
 Publishedrepairnet andwholefieldchanges remainseparate acrossconstructionreturns.
 16GLOBALdriftsamples,supported16,lost0,
-max4.446267%sinceentry;notimmutablecontinuous
+max4.491636%sinceentry;notimmutablecontinuous
 originalCFDtargetproof. All10HOSTidentitiesLIVE/all1401pinsunchanged/
-82mappedELFcovered1793522604.413321. Resource1793522606.181418:
-MemAvailable:   30452532 kB,sampledRSSmax14.716GB(decimal),
-notphysical/truewholejobpeak. ACTIVE/quality_window13_* plusall_quality_census_assessment.json/
+82mappedELFcovered1793522899.604349. Resource1793522901.324937:
+MemAvailable:   30442092 kB,sampledRSSmax14.716GB(decimal),
+notphysical/truewholejobpeak. ACTIVE/quality_window15_* plusall_quality_census_assessment.json/
 quality_service_assessment.json preserveactualcounters/limitations. SourcesFROZEN;
 strictacceptance/transfer/adaptedCFD/diskrestart thenBL/MPI/RANS500k stillrequired.
 
-Complete latermigrations audited:9,globalcounts/debt/flags and20selected
+Complete latermigrations audited:10,globalcounts/debt/flags and20selected
 prepared/memo counters/bytes/entries unchanged;notproofeverykey/history.
-Latestmigrationround22336,debtspread2.025440→
-2.195733;elapsedfromprecedingwindow
-17.321467s. Latestmigrationcost countedthroughlatestwindow:True.
+Latestmigrationround22464,debtspread2.684032→
+1.310062;elapsedfromprecedingwindow
+15.718240s. Latestmigrationcost countedthroughlatestwindow:True.
 Any postwindowcost enters the NEXTqualitywindowinterval.
 ACTIVE/quality_migration_assessment.json retainsactualstagecensuses anddeltas.
 
