@@ -1,6 +1,6 @@
 # Cheaper geometry certification —193terminal analysis
 
-Analysis completed before194candidate.194build/proof PASS; connected serial ACTIVE.
+Analysis completed before194candidate.194build/proof/serial/MPI6 PASS; full two-event M6 ACTIVE,sources frozen.
 No new configuration or profiling run. Current handles/source freeze: HANDOFF.
 One active geometry/quality optimization cycle. Full two-event Euler50k acceptance,
 actual conservative admissible transfer, finite continued CFD and isolated adapted
@@ -185,3 +185,11 @@ Same12saved-query traversal379146→360066(-5.032%);all12lesswork,including4hard
 all bounds EXACT193; cached/recomputed equality passed. This supports integration
 validation, not full-run speedup/acceptance. Current serial then one MPI6 milestone;
 immediately full2eventM6sameCFD/50k/5400. R/geometry_early_exit194_* receipts.
+
+
+194connected qualification now PASS:serial20739assertions/68cases257.556372s;
+MPI6216cases on EACH6ranks283.602851s. All5serial/10MPIhosthandles absent and
+pins unchanged before full M6. R/geometry_early_exit194_qualification.json includes
+all6MPI summaries (ANSI colors stripped by reporting parser; no test retry/failure).
+Full2eventM6 launched immediately with savedrealCFD50k/5400; actual live handles,
+source freeze and input provenance are maintained in HANDOFF.0accepted so far.

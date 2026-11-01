@@ -1,0 +1,98 @@
+{
+  "time": 1793492168.1896865,
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 84.23468327522278,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "source_checkpoint": "f518f2d727",
+  "cfd_sha256": "434846cf1fca385747e52a8167b4912d853f7d4de65b9ea9642f71308966951a",
+  "results": {
+    "proof": {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_early_exit194_proof_20261101T000528_785066",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 18.23676300048828,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 348209152,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "pass_summaries": [
+        [
+          "403",
+          "2"
+        ]
+      ],
+      "host_handles_terminal": 5,
+      "terminal_receipt_sha256": "c0348f4a1236ef6aa57d96d8fedcee879f6300756a9dbba457ae5d4afdee866a"
+    },
+    "serial": {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_early_exit194_serial_20261101T000608_786214",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 257.55637192726135,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 352702464,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "pass_summaries": [
+        [
+          "20739",
+          "68"
+        ]
+      ],
+      "host_handles_terminal": 5,
+      "terminal_receipt_sha256": "fee3aa671526421b0755e74dfa180be8163373ab42c37d406e3de986e5b0afc2"
+    },
+    "mpi": {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_early_exit194_mpi6_20261101T001042_794073",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 283.60285091400146,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 63488000,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "pass_summaries": [
+        [
+          "31660",
+          "216"
+        ],
+        [
+          "31939",
+          "216"
+        ],
+        [
+          "32414",
+          "216"
+        ],
+        [
+          "32451",
+          "216"
+        ],
+        [
+          "31930",
+          "216"
+        ],
+        [
+          "35094",
+          "216"
+        ]
+      ],
+      "host_handles_terminal": 10,
+      "terminal_receipt_sha256": "c770ce5458c962dd4125095483fd95f4432950621e5391d5e3ea61f30d820fa2"
+    }
+  },
+  "reporting_note": "Initial summary parser did not strip MPI ANSI colors and failed before writing this receipt. Underlying successful case exits/pins/terminal audits were already verified before M6. This corrected parser strips ANSI and asserts all six summaries.",
+  "scope": "Focused connected shared certification integration only; no full-suite/M6 acceptance or production speedup claim. All owned validation handles independently terminal and pins unchanged before M6.",
+  "followup": "Full2eventM6now running samequalifiedCFD50k/native5400; strictgates/actualtransfer/continuedCFD/isolated adapted diskrestart thenBL/MPI/RANS500k remain."
+}

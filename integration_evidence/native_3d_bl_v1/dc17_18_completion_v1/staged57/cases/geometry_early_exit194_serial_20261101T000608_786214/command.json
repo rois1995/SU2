@@ -1,0 +1,27 @@
+{
+  "build": "build194",
+  "case": "geometry_early_exit194_serial",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeGeometryBackend3D],[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryStats3D],[NativeAcceptedFaceCertificate3D],[NativeMappedComponent3D],[NativeCurvedAtlas3D],[NativeCurvedAtlasRemap3D],[NativeCurvedMapped3D],[NativeFeaturePublication3D],[NativeCurvedTransaction3D],[NativeHeightOptimization3D],[NativeFirstLayerEngine3D],[NativePhaseOwnership3D],[NativeRepairFairness3D],[NativeM6GeometryQueries3D]",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "SU2_NATIVE_TRANSACTION_REFERENCE": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation22/m6_authority.json.native_ref",
+    "SU2_NATIVE_TRANSACTION_HAUSD": "0.0001",
+    "SU2_NATIVE_GEOMETRY_QUERY_INPUT": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/m6_geometry_capture168_host_20261031T012917_2091486/m6_surface_queries.bin",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "timeout_seconds": 600
+}
