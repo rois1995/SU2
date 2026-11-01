@@ -40,9 +40,7 @@ construction_comparison.json,split_generation_assessment.json preserve raw rows/
 Complete quality ENTRY at895.641809767engine seconds,round21582:
 727818cells,54081q/53392J/3770geometry/0size,qJdebt25413.45557726506.
 Globalcounts/debt AND all6rankdebts EXACT193qualityentry; engineentry94.842473s
-earlier. Allcellsq/Jmeasured,allcompletecache/census/shape/geometryflags1. Three
-complete quality censuses audited; no complete repair window yet. Queue359054,
-blocked/stuck/missing0,publications0atentry,private trackedcollectives0.
+earlier. Allcellsq/Jmeasured,allcompletecache/census/shape/geometryflags1. Entry queue359054,blocked/stuck/missing0,publications0; current progress below.
 Current repair runs frozen; no accepted mesh or closure-rate claim atentry.
 quality_entry_assessment.json,quality_entry_comparison.json,
 all_quality_census_assessment.json. Initial quality ownership migration conserved
@@ -50,11 +48,28 @@ counts/debt/completeflags and20selectedcache/memocounters/entries/bytes unchange
 debtmax/min15.776024→1.538801:quality_initial_ownership_assessment.json. Counter
 identity does not independently prove every entrykey/feature history.
 
-All10hosthandles/1401pins/82mappedELF reverified1793493204.182865:
-quality_entry_provenance.json. quality_entry_resources.json preserves sampled
-summedRSS~9.02GBdecimal/availableRAM~31.4GB,not physical or truepeak. No memory
-pressure stop justified. One owned heavy job,nice19/libs1. No pinned C++/test/
-helper/binary/config/input edits. Current source remainsf518f2d727.
+Quality progress (latest complete):window1 at210.243560seconds sinceentry,
+733582workingcells,50158q/49030J/3660geometry/0sizebad,
+qJdebt18961.961605569937;1739publications,net3923q/4362J/
+110geometry removed,18.659311netq/s,20.747366netJ/s.
+All4complete censuses audited,latestwindow round21632;queue351681,
+blockedfeatures54,stuckshape/required0/0,missing0,
+private trackedcollectives0.
+quality_trend_assessment.json,quality_service_assessment.json,
+all_quality_census_assessment.json preserve whole-field/netchurn/service/location data.
+First matched193window has EXACTwholefield/rankdebts/countcounters/1739publications;
+q/Jnet3923/4362,geometrynet110. Quality210.243560vs233.197927s; traversal
+387970522vs412080675(-5.8508%),netq/s18.6593vs16.8226(+10.918%). Timers nest,
+join-call share40.13%vs41.35%includes protocol+wait,not pure idle. No isolated code
+wall speedup,byteidentical mesh or acceptance claim. quality_window1_service_summary.json
+and quality_window*_comparison.json retain actual states/times/work/limits.
+Quality progress end.
+
+All10hosthandles/1401pins/82mappedELF reverified1793493466.461851:
+quality_window1_live_provenance.json. quality_window1_resources.json preserves
+sampled summedRSS/hostload/RAM/PSI; sampledRSS is not physical or truepeak.
+No memorypressure stop justified. One owned heavyjob,nice19/libs1; no pinned
+C++/test/helper/binary/config/input edits. Source remainsf518f2d727.
 
 194is the bounded follow-up to193terminal analysis,not a second optimization cycle:
 existing TriangleUnion::Upper stops at an already rigorous bound<=actual tolerance,
