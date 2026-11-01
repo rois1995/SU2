@@ -329,3 +329,12 @@ Saved12traversal-27.8663%,allboundsEXACT194; affectedserial/MPI6PASS;full196M6AC
 Exact-rational subtreeUpper+outwardmotion reuse optimisticceiling810/140510work
 (0.5765%)beforelookup/storage/invalidationcost. Keepmotion/subtreecachedeferred.
 Do not start projectiongroup/finerpreparation/newenvelope alternatives during196.
+
+Conditional after196terminal ONLY if its actual outcome still identifies footprint
+coverage as dominant: evaluate trying the EXISTING nominal-source-triangle coverage
+certificate before rectangle coverage for N=3,with unchanged outwardpadding and
+segment/rectangle/fulltraversal fallback.195showed failedrectangles followedby
+trianglecoverage ontheeasyqueries;196alreadytriescheaptriangle-distance witnesses
+first,so remaining benefit/regressions are UNMEASURED. No newenvelope/index/cache,
+no N=10shortcut,no gate/config/budgetchange,and no competingimplementation while
+196is frozen. Judge any eventual candidate from savedquerywork+netM6badcellremoval.
