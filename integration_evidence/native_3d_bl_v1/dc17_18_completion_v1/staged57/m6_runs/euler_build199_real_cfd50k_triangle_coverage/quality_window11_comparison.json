@@ -1,0 +1,359 @@
+{
+  "time": 1793529965.1212494,
+  "scope": "Actual complete199quality snapshot and198retry1 actual bracketing-time/nearest-q snapshots. No interpolation or isolated timing claim. State identity is not assumed; compare actual counts and all gate vectors. Later paths must be assessed from actual records. Rates use own complete entry.",
+  "window": 11,
+  "current_q_below_baseline_observed_range": false,
+  "current": {
+    "census": 29,
+    "stage": "window",
+    "round": 22272,
+    "quality_seconds": 2320.1915497669997,
+    "whole_field": {
+      "cells": 776286,
+      "q_bad": 22605,
+      "j_bad": 19399,
+      "geometry_bad": 3340,
+      "size_bad": 0,
+      "qj_debt": 1875.3457052454555
+    },
+    "net_removed": {
+      "q_bad": 31476,
+      "j_bad": 33993,
+      "geometry_bad": 430
+    },
+    "published_repair_net_removed": {
+      "q_bad": 31476,
+      "j_bad": 33993
+    },
+    "construction_edits": 0,
+    "commits": 21440,
+    "net_q_per_second": 13.566121298545765,
+    "net_j_per_second": 14.650945523620097,
+    "net_q_per_commit": 1.4680970149253731,
+    "work": {
+      "upper_calls": 459184,
+      "upper_work": 874260992,
+      "traversal_work": 782235396,
+      "scope_build_work": 5998766,
+      "facet_build_work": 1710995,
+      "piece_selection_work": 47727477,
+      "support_facets": 81642292
+    },
+    "upper_calls_per_net_q": 14.588384801118313,
+    "traversal_work_per_net_q": 24851.80442241708,
+    "traversal_work_per_upper_call": 1703.5336509982926,
+    "rank_timing": {
+      "0": {
+        "window_seconds": 2320.206650891,
+        "busy_seconds": 578.1161686489995,
+        "join_call_seconds": 949.5761259649995,
+        "tracked_collective_call_seconds": 438.69349699908685
+      },
+      "1": {
+        "window_seconds": 2320.209193844,
+        "busy_seconds": 785.4205655659998,
+        "join_call_seconds": 741.7118030030003,
+        "tracked_collective_call_seconds": 380.28215140913585
+      },
+      "2": {
+        "window_seconds": 2320.208209021,
+        "busy_seconds": 665.9045988829995,
+        "join_call_seconds": 861.7724861989997,
+        "tracked_collective_call_seconds": 443.71670447501856
+      },
+      "3": {
+        "window_seconds": 2320.208655051,
+        "busy_seconds": 593.4196030549998,
+        "join_call_seconds": 933.9846257890001,
+        "tracked_collective_call_seconds": 433.7866083609488
+      },
+      "4": {
+        "window_seconds": 2320.209831205,
+        "busy_seconds": 723.3131745149985,
+        "join_call_seconds": 803.8326850300004,
+        "tracked_collective_call_seconds": 401.50752144908984
+      },
+      "5": {
+        "window_seconds": 2320.210134758,
+        "busy_seconds": 652.6809263590002,
+        "join_call_seconds": 874.7218781820001,
+        "tracked_collective_call_seconds": 441.96474638988184
+      }
+    },
+    "churn": {
+      "q_removed": 285468,
+      "q_created": 253992,
+      "j_removed": 261670,
+      "j_created": 227677,
+      "unmeasured_churn": 0,
+      "private_tracked_collectives": 0
+    }
+  },
+  "baseline_before_current_quality_time": {
+    "census": 26,
+    "stage": "window",
+    "round": 22208,
+    "quality_seconds": 2225.6523801900003,
+    "whole_field": {
+      "cells": 773733,
+      "q_bad": 24284,
+      "j_bad": 21154,
+      "geometry_bad": 3339,
+      "size_bad": 0,
+      "qj_debt": 2309.3206363663526
+    },
+    "net_removed": {
+      "q_bad": 29797,
+      "j_bad": 32238,
+      "geometry_bad": 431
+    },
+    "published_repair_net_removed": {
+      "q_bad": 29797,
+      "j_bad": 32238
+    },
+    "construction_edits": 0,
+    "commits": 19574,
+    "net_q_per_second": 13.387984693933326,
+    "net_j_per_second": 14.4847417714207,
+    "net_q_per_commit": 1.5222744456932666,
+    "work": {
+      "upper_calls": 415404,
+      "upper_work": 1637270028,
+      "traversal_work": 1555366885,
+      "scope_build_work": 5775098,
+      "facet_build_work": 1641829,
+      "piece_selection_work": 42461576,
+      "support_facets": 70792262
+    },
+    "upper_calls_per_net_q": 13.941135013591973,
+    "traversal_work_per_net_q": 52198.77454106118,
+    "traversal_work_per_upper_call": 3744.227029590471,
+    "rank_timing": {
+      "0": {
+        "window_seconds": 2225.667782923,
+        "busy_seconds": 548.5602418869995,
+        "join_call_seconds": 921.4988140659995,
+        "tracked_collective_call_seconds": 422.9111777228849
+      },
+      "1": {
+        "window_seconds": 2225.66775631,
+        "busy_seconds": 768.6870513850005,
+        "join_call_seconds": 701.1983758540003,
+        "tracked_collective_call_seconds": 360.3665352070102
+      },
+      "2": {
+        "window_seconds": 2225.667962313,
+        "busy_seconds": 642.1381690190001,
+        "join_call_seconds": 828.0707470079991,
+        "tracked_collective_call_seconds": 423.2333542791647
+      },
+      "3": {
+        "window_seconds": 2225.6673702430003,
+        "busy_seconds": 571.3218682240002,
+        "join_call_seconds": 898.5544234129992,
+        "tracked_collective_call_seconds": 416.387705866003
+      },
+      "4": {
+        "window_seconds": 2225.6654351959996,
+        "busy_seconds": 657.2060550969995,
+        "join_call_seconds": 812.7677881680005,
+        "tracked_collective_call_seconds": 385.94589764105444
+      },
+      "5": {
+        "window_seconds": 2225.667259038,
+        "busy_seconds": 626.6908797600004,
+        "join_call_seconds": 843.2316596589998,
+        "tracked_collective_call_seconds": 429.91129543104717
+      }
+    },
+    "churn": {
+      "q_removed": 268248,
+      "q_created": 238451,
+      "j_removed": 247283,
+      "j_created": 215045,
+      "unmeasured_churn": 0,
+      "private_tracked_collectives": 0
+    }
+  },
+  "baseline_after_current_quality_time": {
+    "census": 29,
+    "stage": "window",
+    "round": 22272,
+    "quality_seconds": 2373.0560151440004,
+    "whole_field": {
+      "cells": 776286,
+      "q_bad": 22605,
+      "j_bad": 19399,
+      "geometry_bad": 3340,
+      "size_bad": 0,
+      "qj_debt": 1875.3457052454555
+    },
+    "net_removed": {
+      "q_bad": 31476,
+      "j_bad": 33993,
+      "geometry_bad": 430
+    },
+    "published_repair_net_removed": {
+      "q_bad": 31476,
+      "j_bad": 33993
+    },
+    "construction_edits": 0,
+    "commits": 21440,
+    "net_q_per_second": 13.263909405901652,
+    "net_j_per_second": 14.324567049015595,
+    "net_q_per_commit": 1.4680970149253731,
+    "work": {
+      "upper_calls": 459184,
+      "upper_work": 1727445289,
+      "traversal_work": 1635419693,
+      "scope_build_work": 5998766,
+      "facet_build_work": 1710995,
+      "piece_selection_work": 47727477,
+      "support_facets": 81642292
+    },
+    "upper_calls_per_net_q": 14.588384801118313,
+    "traversal_work_per_net_q": 51957.67228999873,
+    "traversal_work_per_upper_call": 3561.578132077773,
+    "rank_timing": {
+      "0": {
+        "window_seconds": 2373.072488813,
+        "busy_seconds": 580.8547034109993,
+        "join_call_seconds": 983.6622467439996,
+        "tracked_collective_call_seconds": 447.487503337912
+      },
+      "1": {
+        "window_seconds": 2373.0724605940004,
+        "busy_seconds": 832.4473753410005,
+        "join_call_seconds": 731.8954933690006,
+        "tracked_collective_call_seconds": 381.47064635602055
+      },
+      "2": {
+        "window_seconds": 2373.072666294,
+        "busy_seconds": 678.9525665179997,
+        "join_call_seconds": 885.718107661999,
+        "tracked_collective_call_seconds": 445.3096383321421
+      },
+      "3": {
+        "window_seconds": 2373.0720741990003,
+        "busy_seconds": 612.0065779420004,
+        "join_call_seconds": 952.3284549869994,
+        "tracked_collective_call_seconds": 441.90082253900187
+      },
+      "4": {
+        "window_seconds": 2373.0701393599998,
+        "busy_seconds": 708.6260313379993,
+        "join_call_seconds": 855.8051182210003,
+        "tracked_collective_call_seconds": 407.7827073660553
+      },
+      "5": {
+        "window_seconds": 2373.0719647389997,
+        "busy_seconds": 668.508875328,
+        "join_call_seconds": 895.8747510779999,
+        "tracked_collective_call_seconds": 454.2919889840605
+      }
+    },
+    "churn": {
+      "q_removed": 285468,
+      "q_created": 253992,
+      "j_removed": 261670,
+      "j_created": 227677,
+      "unmeasured_churn": 0,
+      "private_tracked_collectives": 0
+    }
+  },
+  "baseline_nearest_actual_q_state": {
+    "census": 29,
+    "stage": "window",
+    "round": 22272,
+    "quality_seconds": 2373.0560151440004,
+    "whole_field": {
+      "cells": 776286,
+      "q_bad": 22605,
+      "j_bad": 19399,
+      "geometry_bad": 3340,
+      "size_bad": 0,
+      "qj_debt": 1875.3457052454555
+    },
+    "net_removed": {
+      "q_bad": 31476,
+      "j_bad": 33993,
+      "geometry_bad": 430
+    },
+    "published_repair_net_removed": {
+      "q_bad": 31476,
+      "j_bad": 33993
+    },
+    "construction_edits": 0,
+    "commits": 21440,
+    "net_q_per_second": 13.263909405901652,
+    "net_j_per_second": 14.324567049015595,
+    "net_q_per_commit": 1.4680970149253731,
+    "work": {
+      "upper_calls": 459184,
+      "upper_work": 1727445289,
+      "traversal_work": 1635419693,
+      "scope_build_work": 5998766,
+      "facet_build_work": 1710995,
+      "piece_selection_work": 47727477,
+      "support_facets": 81642292
+    },
+    "upper_calls_per_net_q": 14.588384801118313,
+    "traversal_work_per_net_q": 51957.67228999873,
+    "traversal_work_per_upper_call": 3561.578132077773,
+    "rank_timing": {
+      "0": {
+        "window_seconds": 2373.072488813,
+        "busy_seconds": 580.8547034109993,
+        "join_call_seconds": 983.6622467439996,
+        "tracked_collective_call_seconds": 447.487503337912
+      },
+      "1": {
+        "window_seconds": 2373.0724605940004,
+        "busy_seconds": 832.4473753410005,
+        "join_call_seconds": 731.8954933690006,
+        "tracked_collective_call_seconds": 381.47064635602055
+      },
+      "2": {
+        "window_seconds": 2373.072666294,
+        "busy_seconds": 678.9525665179997,
+        "join_call_seconds": 885.718107661999,
+        "tracked_collective_call_seconds": 445.3096383321421
+      },
+      "3": {
+        "window_seconds": 2373.0720741990003,
+        "busy_seconds": 612.0065779420004,
+        "join_call_seconds": 952.3284549869994,
+        "tracked_collective_call_seconds": 441.90082253900187
+      },
+      "4": {
+        "window_seconds": 2373.0701393599998,
+        "busy_seconds": 708.6260313379993,
+        "join_call_seconds": 855.8051182210003,
+        "tracked_collective_call_seconds": 407.7827073660553
+      },
+      "5": {
+        "window_seconds": 2373.0719647389997,
+        "busy_seconds": 668.508875328,
+        "join_call_seconds": 895.8747510779999,
+        "tracked_collective_call_seconds": 454.2919889840605
+      }
+    },
+    "churn": {
+      "q_removed": 285468,
+      "q_created": 253992,
+      "j_removed": 261670,
+      "j_created": 227677,
+      "unmeasured_churn": 0,
+      "private_tracked_collectives": 0
+    }
+  },
+  "limits": [
+    "Bracketing states do not establish the baseline state at the current time.",
+    "Nearest actual q state can differ in J,geometry,mesh,metrics and time; all values shown.",
+    "Counted work is not constant CPU cost. Host contention confounds wall time.",
+    "Join calls include protocol/wait; nested timers cannot be added.",
+    "Coordinate-cell churn retires/introduces moved cells despite unchanged connectivity.",
+    "When current q is below all baseline observations, the nearest baseline is its boundary, not a matched state.",
+    "Positive progress is not strict mesh acceptance, transfer, continued CFD or adapted restart."
+  ]
+}
