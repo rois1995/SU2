@@ -1,0 +1,163 @@
+{
+  "time": 1793523699.5729825,
+  "scope": "Primary-checked extraction following bounded read-only independent review, actual complete window18/census42 versus window17/census39; no new instrumentation/jobs or repair changes.",
+  "included_censuses": [
+    40,
+    41,
+    42
+  ],
+  "per_rank": {
+    "0": {
+      "busy_wall_seconds": 41.52660495800012,
+      "join_call_wall_seconds": 124.243608206001,
+      "published_q_net": 181,
+      "published_j_net": 137,
+      "published_debt_removed": 21.552584109370983,
+      "commits": 260,
+      "candidates": 512,
+      "reserved": 436,
+      "raw_slot_ceiling": 512,
+      "unreserved_candidates": 76,
+      "query_work_delta": {
+        "upper_calls": 8545,
+        "upper_work": 10012046,
+        "traversal_work": 7850038
+      },
+      "qj_debt_at_complete_window": 60.00988626907059
+    },
+    "1": {
+      "busy_wall_seconds": 79.26751492799985,
+      "join_call_wall_seconds": 86.49910591900016,
+      "published_q_net": 398,
+      "published_j_net": 348,
+      "published_debt_removed": 28.526518141783207,
+      "commits": 345,
+      "candidates": 510,
+      "reserved": 508,
+      "raw_slot_ceiling": 512,
+      "unreserved_candidates": 2,
+      "query_work_delta": {
+        "upper_calls": 9311,
+        "upper_work": 50981486,
+        "traversal_work": 47283456
+      },
+      "qj_debt_at_complete_window": 44.91062517272691
+    },
+    "2": {
+      "busy_wall_seconds": 81.04414936300077,
+      "join_call_wall_seconds": 84.74259539700074,
+      "published_q_net": 360,
+      "published_j_net": 407,
+      "published_debt_removed": 34.114917333155624,
+      "commits": 405,
+      "candidates": 480,
+      "reserved": 471,
+      "raw_slot_ceiling": 512,
+      "unreserved_candidates": 9,
+      "query_work_delta": {
+        "upper_calls": 6170,
+        "upper_work": 49678873,
+        "traversal_work": 49034193
+      },
+      "qj_debt_at_complete_window": 45.96836034778155
+    },
+    "3": {
+      "busy_wall_seconds": 93.14743061600007,
+      "join_call_wall_seconds": 72.62816119299987,
+      "published_q_net": 91,
+      "published_j_net": 130,
+      "published_debt_removed": 18.077092809040984,
+      "commits": 178,
+      "candidates": 391,
+      "reserved": 363,
+      "raw_slot_ceiling": 512,
+      "unreserved_candidates": 28,
+      "query_work_delta": {
+        "upper_calls": 5170,
+        "upper_work": 70462286,
+        "traversal_work": 69695934
+      },
+      "qj_debt_at_complete_window": 35.15582378141892
+    },
+    "4": {
+      "busy_wall_seconds": 30.237777208000125,
+      "join_call_wall_seconds": 135.5392628650004,
+      "published_q_net": 487,
+      "published_j_net": 421,
+      "published_debt_removed": 22.84279262192858,
+      "commits": 431,
+      "candidates": 498,
+      "reserved": 496,
+      "raw_slot_ceiling": 512,
+      "unreserved_candidates": 2,
+      "query_work_delta": {
+        "upper_calls": 8119,
+        "upper_work": 6325354,
+        "traversal_work": 5530656
+      },
+      "qj_debt_at_complete_window": 47.478693682747775
+    },
+    "5": {
+      "busy_wall_seconds": 27.724363069000447,
+      "join_call_wall_seconds": 138.05370158800088,
+      "published_q_net": 136,
+      "published_j_net": 99,
+      "published_debt_removed": 8.427929097576992,
+      "commits": 248,
+      "candidates": 512,
+      "reserved": 332,
+      "raw_slot_ceiling": 512,
+      "unreserved_candidates": 180,
+      "query_work_delta": {
+        "upper_calls": 5410,
+        "upper_work": 6798450,
+        "traversal_work": 5486986
+      },
+      "qj_debt_at_complete_window": 54.9856442504665
+    }
+  },
+  "traversal_work_delta_total": 184881263,
+  "rank3_traversal_share": 0.37697673019466554,
+  "debt_spread": {
+    "minimum": 35.15582378141892,
+    "maximum": 60.00988626907059,
+    "mean": 48.08483891736871,
+    "max_minus_min": 24.854062487651674,
+    "max_over_min": 1.706968570618104,
+    "max_over_mean": 1.2480001518190476
+  },
+  "private_smoothing": {
+    "boundary": {
+      "stars": 26014.0,
+      "reused": 0.0,
+      "candidates": 30184.0,
+      "guidance": 4118.0,
+      "upper_queries": 19644.0,
+      "moves": 1195.0,
+      "debt_reduction": 12.270069998054069,
+      "seconds": 201.0040183879998,
+      "private_debt_per_rank_second": 0.0610439039799147
+    },
+    "interior": {
+      "stars": 1317.0,
+      "reused": 1.0,
+      "candidates": 8701.0,
+      "guidance": 0.0,
+      "upper_queries": 0.0,
+      "moves": 1045.0,
+      "debt_reduction": 31.555212202887105,
+      "seconds": 6.926613242999949,
+      "private_debt_per_rank_second": 4.555648062893778
+    }
+  },
+  "source_weight_review": "CNativeEngine3D.cpp:2570-2622: separate q+j debt weights are zero for clean cells. Main demand uses debt/height/geometry-invalid/star/metric-edge demand; geometry dimension uses EstimateGeometryWork or StructuralEstimate. These are estimated costs, not observed per-support query traversal history.",
+  "limits": [
+    "Counted traversal work is not CPU seconds.",
+    "busy is private-loop elapsed walltime; join is the following reduction-call walltime, not pure idle.",
+    "Raw slot ceiling is not guaranteed eligible independent repair demand; unreserved candidates do not isolate MPI conflicts.",
+    "Debt max-minus-min range differs from max/min and max/mean ratios.",
+    "Private smoothing gains are not published whole-field gains.",
+    "Observed cost skew does not select a unique next implementation or establish a scheduling speedup."
+  ],
+  "acceptance": "Still unproved; frozen M6 continues. No new scheduler/configuration/budget/gate/CAD requirement selected."
+}
