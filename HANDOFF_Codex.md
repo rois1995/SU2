@@ -54,33 +54,33 @@ quality_entry_live_provenance.json. quality_entry_resources.json retains sampled
 RSS/RAM/load withpeaklimitations. Frozenquality repairactive,noacceptedmesh.
 Newpost-qualitycontinuation notyetexercised onM6; doNOTedit pinned sources.
 
-Qualityprogress:window17,round22656,qualityelapsed3185.134085s sinceFIRSTentry:
-791971cells,11595q/8568J/3193geometry/0sizebad,
-qJdebt308.705525503857;33263publishedqualitycavities.
-Wholefieldnet42486q/44824J/577geometry,
-13.338842netq/s,14.072877netJ/s,includingALLelapsedphases.
-Publishedrepairnet42486q/44824J;constructioneditsafterfirstentry0.
-Latestinterval237.941334s:net1526q/1460J/
-20geometry,6.413346netq/s.
+Qualityprogress:window18,round22720,qualityelapsed3421.856735s sinceFIRSTentry:
+794720cells,10007q/7071J/3169geometry/0sizebad,
+qJdebt199.404717080274;35271publishedqualitycavities.
+Wholefieldnet44074q/46321J/601geometry,
+12.880142netq/s,13.536803netJ/s,includingALLelapsedphases.
+Publishedrepairnet44074q/46321J;constructioneditsafterfirstentry0.
+Latestinterval236.722650s:net1588q/1497J/
+24geometry,6.708272netq/s.
 Constructioncrossinginterval=False;donotlabelconstructionchangesrepairchurn.
-All46completequalitycensusesaudited;latestownership_committedround22656:
-queue152629,blockedfeatures294,stuckshape/required
-8/8,missing0,
+All49completequalitycensusesaudited;latestownership_committedround22720:
+queue136291,blockedfeatures287,stuckshape/required
+9/9,missing0,
 privatecollectives0.
 Actualsame-round196reference:fieldsexactTrue,rankdebtsexactTrue,
 commitsexactTrue,windowcountcountersexactTrue;
 relativegeometrytraversalworkchange0.00000000.
 No byteidenticalmesh orisolatedcodetimingclaim;timersnest/joinincludesprotocol+wait.
-13latequalitymigrations audited:counts/debt/completeflags andselectedprepared/numericmemo
+14latequalitymigrations audited:counts/debt/completeflags andselectedprepared/numericmemo
 counters/entries/bytes/driftavailabilityconserved;notproofeverykey/history.
-Latestmigrationround22656:debtspread2.510949→1.425727,
-observedfullcost17.234653s,awaitingnextcompletewindowinterval.
+Latestmigrationround22720:debtspread1.895429→1.539782,
+observedfullcost15.937758s,awaitingnextcompletewindowinterval.
 CURRENT/quality_migration_assessment.json retains receipts;doNOTaddnestedatomic/fullcost timers.
-Remainingqsurface/interior1642/9953,J2382/6186.
+Remainingqsurface/interior1409/8598,J1957/5114.
 Interior meansnophysicalface,notnoconstrainedvertices. Private smoothinggainsarenotpublishedcavitygains.
-CURRENT/quality_window17_service_summary.json,quality_window17_comparison.json,
+CURRENT/quality_window18_service_summary.json,quality_window18_comparison.json,
 quality_service_assessment.json,all_quality_census_assessment.json preserve counters andactualcomparisons.
-ActualHOSTall10handles/1401pins/82mappedELFverified1793510036.9813745:quality_window17_live_provenance.json.
+ActualHOSTall10handles/1401pins/82mappedELFverified1793510327.9271417:quality_window18_live_provenance.json.
 Frozenruncontinues;nocensusaloneprovesmesh/workflowacceptance.
 
 197connectedqualificationPASS BEFOREfullM6:
