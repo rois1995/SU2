@@ -819,18 +819,17 @@ void CNSSolver::BC_HeatFlux_Wall_Generic_Residual(CGeometry* geometry, CSolver**
     /*--- If the wall is moving, there are additional residual contributions
      due to pressure (p v_wall.n) and shear stress (tau.v_wall.n). ---*/
 
-//    if (dynamic_grid) {
-//      if (implicit) {
-//        for (auto iVar = 0u; iVar < nVar; ++iVar)
-//          Jacobian_i[nDim+1][iVar] = 0.0;
-//      }
-//
-//      const auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
-//
-//      AddDynamicGridResidualContribution(iPoint, Point_Normal, geometry, UnitNormal,
-//                                         Area, geometry->nodes->GetGridVel(iPoint),
-//                                         Jacobian_i, Res_Conv, Res_Visc);
-//    }
+    const bool movingWall = dynamic_grid && config->GetBC_Weak_P1();
+    if (movingWall) {
+      su2double* jacobianRows[MAXNVAR];
+      for (auto iVar = 0u; iVar < nVar; ++iVar) jacobianRows[iVar] = Jacobian_i[iVar];
+
+      const auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+
+      AddDynamicGridResidualContribution(iPoint, Point_Normal, geometry, UnitNormal,
+                                         Area, geometry->nodes->GetGridVel(iPoint),
+                                         jacobianRows, Res_Conv, Res_Visc);
+    }
 
 
     /*--- Enforce the no-slip boundary condition in a strong way by
@@ -872,7 +871,7 @@ void CNSSolver::BC_HeatFlux_Wall_Generic_Residual(CGeometry* geometry, CSolver**
     if (implicit) {
       for (short iVar = 0; iVar < nVar; ++iVar){
         for (short jVar = 0; jVar < nVar; ++jVar) {
-          residualBuffer[MAXNVAR + iVar*nVar + jVar] = (kind_boundary == HEAT_TRANSFER) ? Jacobian_i[iVar][jVar] : 0;
+          residualBuffer[MAXNVAR + iVar*nVar + jVar] = (kind_boundary == HEAT_TRANSFER || movingWall) ? Jacobian_i[iVar][jVar] : 0;
         }
       }
     }
@@ -1178,11 +1177,14 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Residual(CGeometry* geometry, CSolver
     /*--- If the wall is moving, there are additional residual contributions
      due to pressure (p v_wall.n) and shear stress (tau.v_wall.n). ---*/
 
-//    if (dynamic_grid) {
-//      AddDynamicGridResidualContribution(iPoint, Point_Normal, geometry, UnitNormal,
-//                                         Area, geometry->nodes->GetGridVel(iPoint),
-//                                         Jacobian_i, Res_Conv, Res_Visc);
-//    }
+    if (dynamic_grid && config->GetBC_Weak_P1()) {
+      su2double* jacobianRows[MAXNVAR];
+      for (auto iVar = 0u; iVar < nVar; ++iVar) jacobianRows[iVar] = Jacobian_i[iVar];
+
+      AddDynamicGridResidualContribution(iPoint, Point_Normal, geometry, UnitNormal,
+                                         Area, geometry->nodes->GetGridVel(iPoint),
+                                         jacobianRows, Res_Conv, Res_Visc);
+    }
 
     /*--- Update residual value ---*/
     for (short iVar = 0; iVar < nVar; ++iVar) residualBuffer[iVar] = 0.0;

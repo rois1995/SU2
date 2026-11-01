@@ -30,6 +30,7 @@
 #include "../../include/geometry/CGeometry.hpp"
 #include "../../include/geometry/elements/CElement.hpp"
 #include "../../include/parallelization/omp_structure.hpp"
+#include "../../include/toolboxes/boundary_closure.hpp"
 #include "../../include/toolboxes/geometry_toolbox.hpp"
 #include "../../include/toolboxes/ndflattener.hpp"
 
@@ -2731,6 +2732,79 @@ void CGeometry::UpdateP1FluxCoefficients(const CConfig* config) {
   if (config->GetDissipation_Mod_Normals()) SetDissipationNormals();
   if (config->GetEdge_Form_P1()) SetEdgeFormP1();
   if (config->GetSplit_Edge_Flux()) SetSplitEdges();
+}
+
+void CGeometry::SetGridFluxP1(const CConfig* config, su2activevector& gridFlux) const {
+  const bool split = config->GetSplit_Edge_Flux();
+  const bool form = config->GetEdge_Form_P1() || split;
+
+  gridFlux.resize(nPoint) = su2double(0.0);
+
+  /*--- 0.5(v_i+v_k).n_ik + (v_k-v_i).E_ik, normal from i to k. ---*/
+
+  auto addPair = [&](unsigned long iPoint, unsigned long kPoint, const su2double* normal, const su2double* E) {
+    const su2double* gridVel_i = nodes->GetGridVel(iPoint);
+    const su2double* gridVel_k = nodes->GetGridVel(kPoint);
+    su2double flux = 0.0;
+    for (auto iDim = 0u; iDim < nDim; iDim++) {
+      flux += 0.5 * (gridVel_i[iDim] + gridVel_k[iDim]) * normal[iDim];
+      if (E != nullptr) flux += (gridVel_k[iDim] - gridVel_i[iDim]) * E[iDim];
+    }
+    gridFlux[iPoint] += flux;
+    gridFlux[kPoint] -= flux;
+  };
+
+  for (auto iEdge = 0ul; iEdge < nEdge; iEdge++) {
+    const auto iPoint = edges->GetNode(iEdge, CEdge::LEFT);
+    const auto kPoint = edges->GetNode(iEdge, CEdge::RIGHT);
+    if (form) {
+      addPair(iPoint, kPoint, edges->GetFormNormal()[iEdge], edges->GetFormE()[iEdge]);
+    } else {
+      addPair(iPoint, kPoint, edges->GetNormal(iEdge), nullptr);
+    }
+  }
+
+  if (split) {
+    const auto& pairs = edges->GetSplitNodes();
+    for (auto iSplit = 0ul; iSplit < pairs.size(); iSplit++) {
+      addPair(pairs[iSplit][0], pairs[iSplit][1], edges->GetSplitNormal()[iSplit], edges->GetSplitE()[iSplit]);
+    }
+  }
+
+  /*--- The weak boundary flux mixes the grid velocity of the nodes of a face, the strong one uses the node's own. ---*/
+
+  for (auto iMarker = 0u; iMarker < nMarker; iMarker++) {
+    const auto kindBC = config->GetMarker_All_KindBC(iMarker);
+    if ((kindBC == SEND_RECEIVE) || (kindBC == INTERNAL_BOUNDARY) || (kindBC == NEARFIELD_BOUNDARY) ||
+        (kindBC == PERIODIC_BOUNDARY) || (nVertex[iMarker] == 0)) {
+      continue;
+    }
+
+    if (config->GetBC_Weak_P1()) {
+      su2activematrix faceFlux(nVertex[iMarker], nDim);
+      for (auto iDim = 0u; iDim < nDim; iDim++) {
+        faceFlux = su2double(0.0);
+        auto gridVel = [&](unsigned long iPoint) { return nodes->GetGridVel(iPoint)[iDim]; };
+        BoundaryClosure::AddMarkerFlux(*this, iMarker, gridVel, faceFlux);
+        for (auto iVertex = 0ul; iVertex < nVertex[iMarker]; iVertex++) {
+          gridFlux[vertex[iMarker][iVertex]->GetNode()] += faceFlux(iVertex, iDim);
+        }
+      }
+    } else {
+      for (auto iVertex = 0ul; iVertex < nVertex[iMarker]; iVertex++) {
+        const auto iPoint = vertex[iMarker][iVertex]->GetNode();
+        const su2double* inward = vertex[iMarker][iVertex]->GetNormal();
+        gridFlux[iPoint] -= GeometryToolbox::DotProduct(nDim, nodes->GetGridVel(iPoint), inward);
+      }
+    }
+  }
+
+  if (split && (nDim == 3)) {
+    const auto& boundNormal = edges->GetSplitBoundNormal();
+    for (auto iPoint = 0ul; iPoint < nPoint; iPoint++) {
+      gridFlux[iPoint] += GeometryToolbox::DotProduct(nDim, nodes->GetGridVel(iPoint), boundNormal[iPoint]);
+    }
+  }
 }
 
 void CGeometry::UpdateGeometry(CGeometry** geometry_container, CConfig* config) {

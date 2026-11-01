@@ -1666,6 +1666,13 @@ void CFVMFlowSolverBase<V, R>::BC_Sym_Plane_Residual(CGeometry* geometry, CSolve
             }
             residualBuffer[nDim+1] = Density_i * VB * Enthalpy_i * Area;
 
+      /*--- The relative flux through a moving wall is zero, what remains is the pressure work p v.n. ---*/
+      su2double wallVel = 0.0;
+      if (dynamic_grid && config->GetBC_Weak_P1()) {
+        wallVel = GeometryToolbox::DotProduct(nDim, geometry->nodes->GetGridVel(iPoint), UnitNormal);
+        residualBuffer[nDim+1] += Pressure_i * wallVel * Area;
+      }
+
       if (implicit) {
         su2double V2 = nodes->GetVelocity2(iPoint);
         int index;
@@ -1687,6 +1694,16 @@ void CFVMFlowSolverBase<V, R>::BC_Sym_Plane_Residual(CGeometry* geometry, CSolve
 
         index = MAXNVAR + (nDim+1)*nVar + nDim + 1;
         residualBuffer[index] = VB * Gamma;
+
+        /* pressure work of a moving wall */
+        if (wallVel != 0.0) {
+          index = MAXNVAR + (nDim+1)*nVar;
+          residualBuffer[index] += wallVel * 0.5 * Gamma_Minus_One * V2;
+          for (iDim = 0; iDim < nDim; ++iDim) {
+            residualBuffer[index + iDim + 1] -= wallVel * Gamma_Minus_One * V_domain[iDim+1];
+          }
+          residualBuffer[index + nDim + 1] += wallVel * Gamma_Minus_One;
+        }
 
         /* momentum */
 
@@ -2574,66 +2591,88 @@ void CFVMFlowSolverBase<V, FlowRegime>::SetResidual_DualTime(CGeometry *geometry
      we will loop over the edges and boundaries to compute the GCL component
      of the dual time source term that depends on grid velocities. ---*/
 
-    SU2_OMP_FOR_STAT(omp_chunk_size)
-    for (iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+    /*--- The P1 flux options have their own pairs, coefficients or boundary weights, the term must
+     match the grid term of their convective residual exactly. Multigrid levels use the normal path. ---*/
 
-      GridVel_i = geometry->nodes->GetGridVel(iPoint);
-      U_time_n = nodes->GetSolution_time_n(iPoint);
+    const bool p1GridFlux = (iMesh == MESH_0) &&
+                            (config->GetEdge_Form_P1() || config->GetSplit_Edge_Flux() || config->GetBC_Weak_P1());
 
-      for (iNeigh = 0; iNeigh < geometry->nodes->GetnPoint(iPoint); iNeigh++) {
+    if (p1GridFlux) {
+      BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+        su2activevector gridFlux;
+        geometry->SetGridFluxP1(config, gridFlux);
 
-        iEdge = geometry->nodes->GetEdge(iPoint, iNeigh);
-        Normal = geometry->edges->GetNormal(iEdge);
-
-        jPoint = geometry->nodes->GetPoint(iPoint, iNeigh);
-        GridVel_j = geometry->nodes->GetGridVel(jPoint);
-
-        /*--- Determine whether to consider the normal outward or inward. ---*/
-        su2double dir = (iPoint < jPoint)? 0.5 : -0.5;
-
-        Residual_GCL = 0.0;
-        for (iDim = 0; iDim < nDim; iDim++)
-          Residual_GCL += dir*(GridVel_i[iDim]+GridVel_j[iDim])*Normal[iDim];
-
-        for (iVar = 0; iVar < nVar; iVar++)
-          LinSysRes(iPoint,iVar) += U_time_n[iVar]*Residual_GCL;
+        for (iPoint = 0; iPoint < nPointDomain; iPoint++) {
+          U_time_n = nodes->GetSolution_time_n(iPoint);
+          for (iVar = 0; iVar < nVar; iVar++)
+            LinSysRes(iPoint,iVar) += U_time_n[iVar]*gridFlux[iPoint];
+        }
       }
+      END_SU2_OMP_SAFE_GLOBAL_ACCESS
     }
-    END_SU2_OMP_FOR
+    else {
 
-    /*--- Loop over the boundary edges ---*/
+      SU2_OMP_FOR_STAT(omp_chunk_size)
+      for (iPoint = 0; iPoint < nPointDomain; ++iPoint) {
 
-    for (iMarker = 0; iMarker < geometry->GetnMarker(); iMarker++) {
-      if ((config->GetMarker_All_KindBC(iMarker) != INTERNAL_BOUNDARY) &&
-          (config->GetMarker_All_KindBC(iMarker) != NEARFIELD_BOUNDARY) &&
-          (config->GetMarker_All_KindBC(iMarker) != PERIODIC_BOUNDARY)) {
+        GridVel_i = geometry->nodes->GetGridVel(iPoint);
+        U_time_n = nodes->GetSolution_time_n(iPoint);
 
-        SU2_OMP_FOR_STAT(OMP_MIN_SIZE)
-        for (iVertex = 0; iVertex < geometry->GetnVertex(iMarker); iVertex++) {
+        for (iNeigh = 0; iNeigh < geometry->nodes->GetnPoint(iPoint); iNeigh++) {
 
-          /*--- Get the index for node i plus the boundary face normal ---*/
+          iEdge = geometry->nodes->GetEdge(iPoint, iNeigh);
+          Normal = geometry->edges->GetNormal(iEdge);
 
-          iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
-          Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+          jPoint = geometry->nodes->GetPoint(iPoint, iNeigh);
+          GridVel_j = geometry->nodes->GetGridVel(jPoint);
 
-          /*--- Grid velocities stored at boundary node i ---*/
-
-          GridVel_i = geometry->nodes->GetGridVel(iPoint);
-
-          /*--- Compute the GCL term by dotting the grid velocity with the face
-           normal. The normal is negated to match the boundary convention. ---*/
+          /*--- Determine whether to consider the normal outward or inward. ---*/
+          su2double dir = (iPoint < jPoint)? 0.5 : -0.5;
 
           Residual_GCL = 0.0;
           for (iDim = 0; iDim < nDim; iDim++)
-            Residual_GCL -= 0.5*(GridVel_i[iDim]+GridVel_i[iDim])*Normal[iDim];
+            Residual_GCL += dir*(GridVel_i[iDim]+GridVel_j[iDim])*Normal[iDim];
 
-          /*--- Compute the GCL component of the source term for node i ---*/
-
-          U_time_n = nodes->GetSolution_time_n(iPoint);
           for (iVar = 0; iVar < nVar; iVar++)
             LinSysRes(iPoint,iVar) += U_time_n[iVar]*Residual_GCL;
         }
-        END_SU2_OMP_FOR
+      }
+      END_SU2_OMP_FOR
+
+      /*--- Loop over the boundary edges ---*/
+
+      for (iMarker = 0; iMarker < geometry->GetnMarker(); iMarker++) {
+        if ((config->GetMarker_All_KindBC(iMarker) != INTERNAL_BOUNDARY) &&
+            (config->GetMarker_All_KindBC(iMarker) != NEARFIELD_BOUNDARY) &&
+            (config->GetMarker_All_KindBC(iMarker) != PERIODIC_BOUNDARY)) {
+
+          SU2_OMP_FOR_STAT(OMP_MIN_SIZE)
+          for (iVertex = 0; iVertex < geometry->GetnVertex(iMarker); iVertex++) {
+
+            /*--- Get the index for node i plus the boundary face normal ---*/
+
+            iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+            Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+
+            /*--- Grid velocities stored at boundary node i ---*/
+
+            GridVel_i = geometry->nodes->GetGridVel(iPoint);
+
+            /*--- Compute the GCL term by dotting the grid velocity with the face
+             normal. The normal is negated to match the boundary convention. ---*/
+
+            Residual_GCL = 0.0;
+            for (iDim = 0; iDim < nDim; iDim++)
+              Residual_GCL -= 0.5*(GridVel_i[iDim]+GridVel_i[iDim])*Normal[iDim];
+
+            /*--- Compute the GCL component of the source term for node i ---*/
+
+            U_time_n = nodes->GetSolution_time_n(iPoint);
+            for (iVar = 0; iVar < nVar; iVar++)
+              LinSysRes(iPoint,iVar) += U_time_n[iVar]*Residual_GCL;
+          }
+          END_SU2_OMP_FOR
+        }
       }
     }
 

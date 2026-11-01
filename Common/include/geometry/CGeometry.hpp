@@ -966,6 +966,17 @@ class CGeometry {
    */
   void UpdateP1FluxCoefficients(const CConfig* config);
 
+  /*!
+   * \brief Grid flux residual of each node with the pairs, coefficients and boundary weights of the P1 flux options.
+   *        With G_i the result, -U G_i is the grid term of the convective residual for a constant U, so that U^n G_i
+   *        in the dual time source keeps free stream, for any time scheme and whatever the dual does.
+   * \note For a dual with W_i = theta_i |t|, theta constant, and BC_WEAK_P1, G_i is dV_i/dt. It is not with moved
+   *       centroids or the split weights, where dV_i/dt also has |t| dtheta_i/dt, which would need other time levels.
+   * \param[in] config - Definition of the particular problem.
+   * \param[out] gridFlux - Grid flux of each point, valid at owned points.
+   */
+  void SetGridFluxP1(const CConfig* config, su2activevector& gridFlux) const;
+
   inline virtual void SetBoundCVCoeffs(const CConfig* config, unsigned short action) {}
 
   /*!
