@@ -138,6 +138,7 @@ private:
   Enable_Cuda,              /*!< \brief Flag for switching GPU computing*/
   Integrated_HeatFlux,      /*!< \brief Flag for heat flux BC whether it deals with integrated values.*/
   FluxCorrection,
+  Flux_Correction_Limited,  /*!< \brief The gradients of the flux correction use the limiter.*/
   ModCentroids,
   BC_Flux_Closure,          /*!< \brief Boundary flux weights that are exact for a P1 flux (walls and symmetries).*/
   BC_Weak_P1,               /*!< \brief Weak boundary fluxes of all markers with the weights of a P1 flux.*/
@@ -9941,6 +9942,12 @@ public:
   bool GetIntegrated_HeatFlux() const { return Integrated_HeatFlux; }
 
   bool GetFluxCorrection() const { return FluxCorrection; }
+
+  /*!
+   * \brief Get if the gradients of the flux correction use the limiter of the reconstruction.
+   * \return YES if the limiter is used.
+   */
+  bool GetFlux_Correction_Limited() const { return Flux_Correction_Limited; }
 
   bool GetModifiedCentroids() const { return ModCentroids; }
 

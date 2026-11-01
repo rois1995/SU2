@@ -62,6 +62,7 @@ protected:
   const su2double umusclKappa;
   const LIMITER typeLimiter;
   const bool correction;
+  const bool correctionLimited;
   const bool modNormals;
   const bool edgeForm;
   const bool exactFormJac;
@@ -80,6 +81,7 @@ protected:
     umusclKappa(config.GetMUSCL_Kappa_Flow()),
     typeLimiter(config.GetKind_SlopeLimit_Flow()),
     correction(muscl && config.GetFluxCorrection()),
+    correctionLimited(config.GetFlux_Correction_Limited()),
     modNormals(finestGrid && config.GetDissipation_Mod_Normals()),
     edgeForm(finestGrid && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())),
     exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()),
@@ -224,7 +226,7 @@ public:
       const auto corrX = gatherVariables<nDim>(iEdge, geometry.edges->GetCorrection_X());
       const auto corrY = gatherVariables<nDim>(iEdge, geometry.edges->GetCorrection_Y());
       const auto corrZ = gatherVariables<nDim>(iEdge, geometry.edges->GetCorrection_Z());
-      CorrectFlux(iPoint, jPoint, solution, V, flux, corrX, corrY, corrZ, gamma);
+      CorrectFlux(iPoint, jPoint, solution, V, flux, corrX, corrY, corrZ, gamma, correctionLimited);
     }
 
     /*--- Add the contributions from the base class (static decorator). ---*/
@@ -551,6 +553,7 @@ class CRoeNewBase : public Base {
   const bool dynamicGrid;
   const bool muscl;
   const bool correction;
+  const bool correctionLimited;
   const su2double umusclKappa;
   const LIMITER typeLimiter;
 
@@ -567,6 +570,7 @@ class CRoeNewBase : public Base {
                                                                     dynamicGrid(config.GetDynamic_Grid()),
                                                                     muscl(finestGrid && config.GetMUSCL_Flow()),
                                                                     correction(muscl && config.GetFluxCorrection()),
+    correctionLimited(config.GetFlux_Correction_Limited()),
                                                                     umusclKappa(config.GetMUSCL_Kappa_Flow()),
                                                                     typeLimiter(config.GetKind_SlopeLimit_Flow()) {
   }
@@ -1632,7 +1636,7 @@ class CRoeNewBase : public Base {
       const auto corrX = gatherVariables<nDim>(iEdge, geometry.edges->GetCorrection_X());
       const auto corrY = gatherVariables<nDim>(iEdge, geometry.edges->GetCorrection_Y());
       const auto corrZ = gatherVariables<nDim>(iEdge, geometry.edges->GetCorrection_Z());
-      CorrectFlux(iPoint, jPoint, solution, V, flux, corrX, corrY, corrZ, gamma);
+      CorrectFlux(iPoint, jPoint, solution, V, flux, corrX, corrY, corrZ, gamma, correctionLimited);
       //      reconstructPrimitives<CCompressiblePrimitives<nDim,nPrimVarGrad> >(iEdge, iPoint, jPoint, muscl, typeLimiter, V1st, vector_ij, solution);
     }
 

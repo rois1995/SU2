@@ -1824,6 +1824,8 @@ void CConfig::SetConfig_Options() {
 
   addEnumOption("VISC_GRAD_CORR", Kind_Visc_Corr, Viscous_Grad_Corr_Map, VISCOUS_GRAD_CORR::EDGE_NORMAL);
   addBoolOption("FLUX_CORRECTION", FluxCorrection, false);
+  /*!\brief FLUX_CORRECTION_LIMITED \n DESCRIPTION: The gradients of FLUX_CORRECTION use the point limiter of the reconstruction. \ingroup Config*/
+  addBoolOption("FLUX_CORRECTION_LIMITED", Flux_Correction_Limited, false);
   addBoolOption("MOD_CENTROIDS", ModCentroids, false);
   /*!\brief BC_FLUX_CLOSURE \n DESCRIPTION: Euler wall and symmetry momentum flux with weights 5:1 (2D), 6:1:1 (3D), exact for a P1 flux on simplices \ingroup Config \default false */
   addBoolOption("BC_FLUX_CLOSURE", BC_Flux_Closure, false);
@@ -6227,6 +6229,11 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_Exact_Jacobian) active.push_back("EDGE_FORM_EXACT_JACOBIAN");
   if (GCL_Exact_P1) active.push_back("GCL_EXACT_P1");
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
+
+  if (Flux_Correction_Limited && (!FluxCorrection || !MUSCL_Flow || (Kind_SlopeLimit_Flow == LIMITER::NONE) ||
+                                  (Kind_SlopeLimit_Flow == LIMITER::VAN_ALBADA_EDGE))) {
+    SU2_MPI::Error("FLUX_CORRECTION_LIMITED: needs FLUX_CORRECTION, MUSCL_FLOW and a point limiter.", CURRENT_FUNCTION);
+  }
 
   if (active.empty()) return;
 

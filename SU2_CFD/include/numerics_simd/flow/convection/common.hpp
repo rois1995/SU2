@@ -137,7 +137,8 @@ FORCEINLINE void CorrectFlux(Int iPoint, Int jPoint,
                  const VectorDbl<nDim> dirX,
                  const VectorDbl<nDim> dirY,
                  const VectorDbl<nDim> dirZ,
-                 const Double gamma) {
+                 const Double gamma,
+                 bool limited = false) {
 
   /*--- Reconstructed primitives. ---*/
 
@@ -161,6 +162,20 @@ FORCEINLINE void CorrectFlux(Int iPoint, Int jPoint,
 
   auto grad_i = gatherVariables<ReconVarType::nVar,nDim>(iPoint, solution.GetGradient_Reconstruction());
   auto grad_j = gatherVariables<ReconVarType::nVar,nDim>(jPoint, solution.GetGradient_Reconstruction());
+
+  /*--- FLUX_CORRECTION_LIMITED: the gradients of the correction use the limiter of the reconstruction. ---*/
+
+  if (limited) {
+    const auto lim_i = gatherVariables<ReconVarType::nVar>(iPoint, solution.GetLimiter_Primitive());
+    const auto lim_j = gatherVariables<ReconVarType::nVar>(jPoint, solution.GetLimiter_Primitive());
+    for (size_t jVar = 0; jVar < nDim+2; ++jVar) {
+      const auto var = index[jVar];
+      for (size_t iDim = 0; iDim < nDim; ++iDim) {
+        grad_i[var][iDim] *= lim_i(var);
+        grad_j[var][iDim] *= lim_j(var);
+      }
+    }
+  }
 
   for (size_t iVar = 0; iVar < nDim+2; ++iVar) {
     for (size_t jVar = 0; jVar < nDim+2; ++jVar) {
