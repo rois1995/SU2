@@ -1,5 +1,5 @@
 {
-  "time": 1793510455.724954,
+  "time": 1793510687.9180317,
   "scope": "Complete quality-window intervals include ALL ownership census stages and anyconstruction transition time. Wholefieldchanges andpublishedrepairchurn reconcile separately acrossconstruction. Rawcapacitycounters areNOTquality-onlywhenconstruction_edits>0. Raw8-slot ceiling is not allowed-slot demand; unreserved is not exact conflict count. Surface/interior populations are not per-cavity causal attribution. Smoothing is private trial work. Nested timers cannot be added; join is protocol plus waiting. Global <=16 drift points are replicated across six reports, never96 distinct.",
   "windows": [
     {
@@ -5386,6 +5386,290 @@
         47,
         48,
         49
+      ]
+    },
+    {
+      "construction_edits": 0,
+      "includes_construction_transition": false,
+      "published_net_q_removed": 1415,
+      "published_net_j_removed": 1278,
+      "nonrepair_whole_field_q_net_removed": 0,
+      "nonrepair_whole_field_j_net_removed": 0,
+      "published_net_q_per_commit": 0.7518597236981934,
+      "published_net_j_per_commit": 0.6790648246546227,
+      "capacity_valid_for_quality_only": true,
+      "census": 52,
+      "round": 22848,
+      "elapsed_since_quality_entry": 3820.32676563,
+      "interval_wall_seconds": 238.49822357500034,
+      "whole_field": {
+        "cells": 798558,
+        "q_bad": 7319,
+        "j_bad": 4590,
+        "geometry_bad": 3131,
+        "size_bad": 0,
+        "qj_debt": 83.93699711367147
+      },
+      "net_q_removed": 1415,
+      "net_j_removed": 1278,
+      "net_geometry_removed": 23,
+      "net_q_per_second": 5.932958236709994,
+      "net_j_per_second": 5.358530478102737,
+      "net_q_per_commit": 0.7518597236981934,
+      "net_j_per_commit": 0.6790648246546227,
+      "churn": {
+        "commits": 1882,
+        "q_removed": 6257,
+        "q_created": 4842,
+        "j_removed": 4415,
+        "j_created": 3137,
+        "q_retired": 6257,
+        "q_introduced": 4842,
+        "j_retired": 4415,
+        "j_introduced": 3137,
+        "unmeasured_churn": 0,
+        "private_tracked_collectives": 0
+      },
+      "per_rank_timing": {
+        "0": {
+          "window_seconds": 238.55909255799997,
+          "busy_seconds": 18.311957658000438,
+          "join_call_seconds": 166.4172814619992,
+          "tracked_collective_call_seconds": 28.502343709966226,
+          "diagnostic_seconds": 0.12205389199999939,
+          "join_call_wall_share": 0.6975935382615475,
+          "published_net_q_removed": 70,
+          "published_net_j_removed": 51
+        },
+        "1": {
+          "window_seconds": 238.5590935979999,
+          "busy_seconds": 118.82380291499976,
+          "join_call_seconds": 65.90381256699948,
+          "tracked_collective_call_seconds": 22.02552922589257,
+          "diagnostic_seconds": 0.18258799899999945,
+          "join_call_wall_share": 0.27625780922044896,
+          "published_net_q_removed": 260,
+          "published_net_j_removed": 220
+        },
+        "2": {
+          "window_seconds": 238.55909278299987,
+          "busy_seconds": 61.43558253399965,
+          "join_call_seconds": 123.28749848600069,
+          "tracked_collective_call_seconds": 24.390221160089823,
+          "diagnostic_seconds": 0.1734022520000007,
+          "join_call_wall_share": 0.5168006679089214,
+          "published_net_q_removed": 288,
+          "published_net_j_removed": 322
+        },
+        "3": {
+          "window_seconds": 238.55909237600008,
+          "busy_seconds": 58.65548946600006,
+          "join_call_seconds": 126.06698448299994,
+          "tracked_collective_call_seconds": 29.189875866969487,
+          "diagnostic_seconds": 0.12823450599999964,
+          "join_call_wall_share": 0.5284518113621174,
+          "published_net_q_removed": 68,
+          "published_net_j_removed": 82
+        },
+        "4": {
+          "window_seconds": 238.55923124199944,
+          "busy_seconds": 25.598046949000718,
+          "join_call_seconds": 159.17893513500053,
+          "tracked_collective_call_seconds": 22.694503393980085,
+          "diagnostic_seconds": 0.20135265899999988,
+          "join_call_wall_share": 0.6672512076194868,
+          "published_net_q_removed": 316,
+          "published_net_j_removed": 234
+        },
+        "5": {
+          "window_seconds": 238.5590927129997,
+          "busy_seconds": 63.560980108999274,
+          "join_call_seconds": 121.17297608099943,
+          "tracked_collective_call_seconds": 22.669318000988824,
+          "diagnostic_seconds": 0.16055499399999995,
+          "join_call_wall_share": 0.5079369421763248,
+          "published_net_q_removed": 413,
+          "published_net_j_removed": 369
+        }
+      },
+      "capacity": {
+        "0": {
+          "batch_rounds": 64,
+          "batch_candidates": 512,
+          "batch_reserved": 233,
+          "quality_progress": 192,
+          "upper_calls": 5218,
+          "upper_work": 3596283,
+          "raw_slot_ceiling": 512,
+          "unreserved_candidates": 279
+        },
+        "1": {
+          "batch_rounds": 64,
+          "batch_candidates": 512,
+          "batch_reserved": 507,
+          "quality_progress": 318,
+          "upper_calls": 9616,
+          "upper_work": 122887622,
+          "raw_slot_ceiling": 512,
+          "unreserved_candidates": 5
+        },
+        "2": {
+          "batch_rounds": 64,
+          "batch_candidates": 441,
+          "batch_reserved": 438,
+          "quality_progress": 355,
+          "upper_calls": 6701,
+          "upper_work": 41460471,
+          "raw_slot_ceiling": 512,
+          "unreserved_candidates": 3
+        },
+        "3": {
+          "batch_rounds": 64,
+          "batch_candidates": 445,
+          "batch_reserved": 314,
+          "quality_progress": 198,
+          "upper_calls": 5223,
+          "upper_work": 51117150,
+          "raw_slot_ceiling": 512,
+          "unreserved_candidates": 131
+        },
+        "4": {
+          "batch_rounds": 64,
+          "batch_candidates": 505,
+          "batch_reserved": 505,
+          "quality_progress": 453,
+          "upper_calls": 7370,
+          "upper_work": 3945964,
+          "raw_slot_ceiling": 512,
+          "unreserved_candidates": 0
+        },
+        "5": {
+          "batch_rounds": 64,
+          "batch_candidates": 449,
+          "batch_reserved": 449,
+          "quality_progress": 366,
+          "upper_calls": 4776,
+          "upper_work": 58130923,
+          "raw_slot_ceiling": 512,
+          "unreserved_candidates": 0
+        }
+      },
+      "ladder": {
+        "0": {
+          "trials": 5758.0,
+          "certified": 810.0,
+          "commits": 810.0,
+          "seconds": 82.63589737199953,
+          "debt_removed": 14.860886979162782,
+          "q_removed": 283.0,
+          "j_removed": 293.0,
+          "rejected": [
+            757,
+            0,
+            0,
+            4191,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "1": {
+          "trials": 1581.0,
+          "certified": 1038.0,
+          "commits": 1038.0,
+          "seconds": 248.9183655190019,
+          "debt_removed": 33.067270572252426,
+          "q_removed": 1020.0,
+          "j_removed": 877.0,
+          "rejected": [
+            531,
+            0,
+            0,
+            260,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "2": {
+          "trials": 5733.0,
+          "certified": 34.0,
+          "commits": 34.0,
+          "seconds": 4.777532430000081,
+          "debt_removed": 5.959811414627116,
+          "q_removed": 112.0,
+          "j_removed": 108.0,
+          "rejected": [
+            4485,
+            0,
+            0,
+            1025,
+            0,
+            0,
+            0,
+            189
+          ]
+        }
+      },
+      "location": {
+        "q_surface": 1070,
+        "q_interior": 6249,
+        "j_surface": 1236,
+        "j_interior": 3354,
+        "bad_union": 10186,
+        "short09": 10185,
+        "short05": 10025
+      },
+      "net_population_changes": {
+        "q_surface": 160,
+        "q_interior": 1255,
+        "j_surface": 390,
+        "j_interior": 888
+      },
+      "private_smoothing": {
+        "boundary": {
+          "stars": 19558.0,
+          "reused": 0.0,
+          "candidates": 23150.0,
+          "guidance": 3547.0,
+          "upper_queries": 16525.0,
+          "moves": 963.0,
+          "debt_reduction": 6.240502267839645,
+          "seconds": 201.85948597400193,
+          "private_debt_per_rank_second": 0.030915080545897047
+        },
+        "interior": {
+          "stars": 1372.0,
+          "reused": 0.0,
+          "candidates": 9102.0,
+          "guidance": 0.0,
+          "upper_queries": 0.0,
+          "moves": 1114.0,
+          "debt_reduction": 14.537600265250262,
+          "seconds": 7.5015085040000145,
+          "private_debt_per_rank_second": 1.937956913265966
+        }
+      },
+      "distinct_global_metric_drift": {
+        "rank": "0",
+        "stage": "window",
+        "initialized": "1",
+        "available": "1",
+        "samples": "16",
+        "supported": "16",
+        "lost": "0",
+        "owned": "0",
+        "maximum_relative_frobenius": "0.03054896458215329",
+        "owned_maximum_relative_frobenius": "0",
+        "current_nodal_sensor": "1",
+        "full_target": "1"
+      },
+      "included_censuses": [
+        50,
+        51,
+        52
       ]
     }
   ]
