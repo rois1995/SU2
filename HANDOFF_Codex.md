@@ -33,11 +33,54 @@ traversal260034825→191026912(-26.53795%),scope/facet/preparation/supportworksa
 Engine250.049109vs312.196318s; hostconditions differ,notisolatedcodetimingclaim.
 CURRENT/coarsening_comparison.json,coarsening_resources.json; all10handles/1401pins/
 82mappedELFreverified1793499439.866116:coarsening_complete_live_provenance.json.
-FirstsplitgenerationCOMPLETE495390cells/36823splits,sizebad117030,geometrybad3861.
-ALL17selectedper-rankfieldsEXACT194; cumulative traversal336133439→241266877
-(-28.2229%),uppercalls15800same,preparation/discoveryworksame. Engine299.608003
-vs377.938909s; noisolatedtimingclaim. CURRENT/construction_comparison.json,
-split_generation_assessment.json. Constructioncontinues;q/JUNMEASURED;noacceptance.
+ALL18constructiongenerations COMPLETE727818workingcells,sizebad0,geometrybad3770.
+ALL17selectedper-rankfieldsEXACT194 throughout. Cumulative traversal1067849648→
+746099652(-30.13065%),uppercalls33088same,scope/facet/preparation/discoveryworksame.
+Engine656.347589vs847.303442s;notisolatedcodetimingclaim. Constructionq/Jwere
+intentionallyUNMEASURED until qualityentry. CURRENT/construction_comparison.json,
+split_generation_assessment.json.
+
+Complete qualityENTRY692.592868072engine seconds,round21582:
+727818cells,54081q/53392J/3770geometry/0size,qJdebt25413.45557726506.
+Globalcounts/debt AND all6rankdebts/gaugesEXACT194entry;engine203.048942searlier.
+Allcellsq/Jmeasured,allcomplete/cache/shape/geometryflags1;queue359054,blocked/stuck/
+missing0,publications0atentry. Theseare ENTRYcounts,notlaterprogress/acceptance.
+CURRENT/quality_entry_comparison.json,quality_entry_assessment.json,
+all_quality_census_assessment.json. Initialqualitymigrationconservescounts/debt/
+completeflags and20selectedcache/memocounters/entries/bytesunchanged;debtspread
+15.776024→1.538801:quality_initial_ownership_assessment.json. Countsnotproofeverykey.
+All10handles/1401pins/82mappedELFreverified1793499954.022988:
+quality_entry_live_provenance.json. Frozenqualityrepairactive;noacceptedmesh.
+
+Qualityprogress:window2 at331.867605seconds sinceentry,round21696:
+739233workingcells,46176q/44617J/3608geometry/0size,
+qJdebt14595.909676722005;3762publications,
+net7905q/8775J/162geometryremoved,
+23.819740netq/s,26.441267netJ/s.
+Latestinterval:net3982q/4413J/52geometryremoved
+in161.619067s,24.638182netq/s,
+1.968364netq/publication. Allprecedingownershipstages included.
+All7completecensusesaudited;latestownership_committedround21696:
+queue340993,blockedfeatures79,stuckshape/required0/0,
+missing0,privatecollectives0.
+Same-round194reference:wholefieldexactTrue,rankdebtsexactTrue,
+commitsexactTrue,windowcountcountersexactTrue.
+Quality331.867605vs416.760187s;traversal
+525731554vs742584479(-29.2025%).
+Uppercalls66468vs66468. Noisolatedtimingclaim.
+Remainingqsurface/interior12824/33352,
+J17018/27599.
+Interior meansnophysicalface,notnoconstrainedvertices;privategainsnotpublicationgains.
+1latequalitymigrations audited:counts/debt/completeflags andselected
+prepared/numericmemocounters/entries/bytes/driftavailabilityconserved.
+Latestmigrationround21696:debtspread1.906968→1.367042,
+observedfullcost10.403504s,awaitingnextcompletewindowinterval.
+Countersalone donotproveeverykey/history;unchangedqualifiedsourcesupportscontracts.
+CURRENT/quality_window2_service_summary.json preservesperrankbusy/join/commits/
+publisheddebtremoved/netq/J. quality_window2_comparison.json retainsactualtimebrackets.
+All10handles/1401pins/82mappedELFreverified1793500207.8894453:quality_window2_live_provenance.json.
+Frozenruncontinues;noacceptedmesh/transfer/adaptedrestartclaim.
+
 
 196sharedUpper tries ALREADYexistingrigorous convextrianglewitness BEFORE finite
 projectedgraphcoverage. No newcache/API/config/scheduler/constructionoperator/batch/
