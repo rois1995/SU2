@@ -76,6 +76,24 @@ Resources1793519937.878137:MemAvailable30826672kB,CPUpsiavg60=8.36%,memorypsi0,
 sampledRSSmax12.949GB(decimal),notphysical/truewholejobpeak. SourcesstillFROZEN.
 Now qualityservice; strictacceptedmesh/transfer/adaptedCFD/restart remainunproved.
 
+LatestCOMPLETEqualitywindow1 round21632:733582cells,50158q/49030J/3660geometry/
+0size bad. Quality182.029934s versusparent245.080610s; net3923q/4362J/110geometry
+removed through1739publications. Netq21.551400/s versus16.006978/s (+34.6375%).
+Wholefield/rankdebts/publications/churn/gauges EXACTparent198same-round;
+31091uppercalls/200729241traversalwork andallselectedprep/discoverywork SAME.
+This is observed same-source/time variability,not newcode speedup orisolatedhost
+causality. Churn41694qretired/37771introduced;J39153/34791;netq2.255894/pub.
+Joincallshare.367239 versusparent.341754;busyshare.356393 versus.337758.
+Bothabsolutebusy/joincalltimes fall; sharesalone don'tmeasure idle/conflictcost.
+Timersoverlap,joinincludesprotocol+wait,CPUincludesMPIspin.16GLOBALdriftsamples
+supported/lost0,max1.0212%sinceentry;notimmutablecontinuousoriginalCFDtargetproof.
+All10HOSTidentitiesLIVE/all1401pinsunchanged/82mappedELFcovered1793520157.052827.
+Resources1793520158.593040:MemAvailable30665288kB,CPUpsiavg60=6.87%,memorypsi0,
+sampledRSSmax12.949GB(decimal),notphysical/truewholejobpeak. ACTIVE/quality_window1_*
+plusall_quality_census_assessment.json/quality_service_assessment.json preserve
+actualcounters,bracketingtimecomparison andlimitations. Frozenruncontinues.
+
+
 ## Parent198 first attempt — TERMINAL analysis
 
 Parent=`R/m6_runs/euler_build198_real_cfd50k_triangle_coverage`,exec72458TERMINAL1.
