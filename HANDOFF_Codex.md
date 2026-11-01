@@ -75,25 +75,25 @@ ACTIVE/quality_entry_live_provenance.json andquality_entry_resources.json preser
 Actualcomplete
 censuses,geometrywork,netwholefieldq/Jbad/s andgeometrycounts chooseutility.
 ComparetoLATEST198retry1 atactualmatchingstages/times,notassumedfuturestateidentity.
-Latestcompletequalitywindow13/round22400: 780858cells/19235q/15932J/
-3303geometry/0size. Sincefirstqualityentry2574.549641s,
-net34846q/37460J/467geometry through24907publications;
-netq13.534794/s. Constructioneditssinceentry0;wholefieldrate
+Latestcompletequalitywindow15/round22528: 786002cells/15843q/12504J/
+3249geometry/0size. Sincefirstqualityentry2859.634514s,
+net38238q/40888J/521geometry through28764publications;
+netq13.371639/s. Constructioneditssinceentry0;wholefieldrate
 includesanyconstruction,notnecessarilypurepublishedrepairyield.
-Remainingqsurface/interior3214/16021;J4862/11070.
-Queue216034/blockedfeatures207/stuckshape1;
+Remainingqsurface/interior2372/13471;J3649/8855.
+Queue190355/blockedfeatures221/stuckshape3;
 Counters alone do not establish repair power; interior cells may have constrained vertices.
-Actual198retry1same-roundnetq13.173524/s;selectedwholefieldexact=True,
+Actual198retry1same-roundnetq12.987920/s;selectedwholefieldexact=True,
 rankdebtsexact=True,commitsexact=True,churnexact=True.
-Traversal1809035054→871441092(-51.8284%).
-9complete lateownershipmigrations audited forglobalcounts/debt/completeflagsand20selected
-cachecounters/entries/bytes;notproofeverykey/history. Currentjoinshare0.37055
+Traversal2019421470→974265080(-51.7552%).
+10complete lateownershipmigrations audited forglobalcounts/debt/completeflagsand20selected
+cachecounters/entries/bytes;notproofeverykey/history. Currentjoinshare0.37317
 includesprotocol+wait,notpureidle. PredicatecountsarenotuniformCPUcost;timersoverlap/
 hostconditionsdiffer. Noisolatedspeedupclaim. FullruncontinuesFROZEN. Actual
-quality_window13_comparison.json/service_summary.json,quality_migration_assessment.json and
+quality_window15_comparison.json/service_summary.json,quality_migration_assessment.json and
 all_quality_census_assessment.json andquality_matching_window_assessment.json retaincounters.
-Latestwindow13HOSTaudit1793530248.192686:all10LIVE/1401pinsunchanged/
-82mappedELFcovered. Actualquality_window13_live_provenance.json/resources.json.
+Latestwindow15HOSTaudit1793530543.7560859:all10LIVE/1401pinsunchanged/
+82mappedELFcovered. Actualquality_window15_live_provenance.json/resources.json.
 Afterwindow4hostfollowup1793528607:load23.98/RAM30.81GBavailable/CPUpsiavg6021.81%,
 memorypsiavg60some10.44/full.79%;quality_window4_followup_resources.json. Snapshotnotcausality.
 ZEROaccepted adaptedmeshes/transfer/adaptedCFD/adaptedrestart. FullgoalACTIVE.
