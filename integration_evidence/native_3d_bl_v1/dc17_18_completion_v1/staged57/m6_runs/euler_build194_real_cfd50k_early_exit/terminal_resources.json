@@ -1,0 +1,67 @@
+{
+  "time": 1793497997.539919,
+  "state": "M6 all10hosthandles absent; single saved-query diagnostic also all5absent. No owned heavyjob.",
+  "load": [
+    1.72,
+    3.31,
+    5.44
+  ],
+  "meminfo": {
+    "MemAvailable": "40087108 kB",
+    "SwapFree": "3704768 kB"
+  },
+  "sample_count": 2702,
+  "largest_sampled_process_tree_rss_bytes": 14655295488,
+  "last_sample": {
+    "elapsed_seconds": 5534.827045917511,
+    "processes": [
+      {
+        "pid": 801605,
+        "rss_bytes": 679936,
+        "name": "time"
+      },
+      {
+        "pid": 801606,
+        "rss_bytes": 659456,
+        "name": "timeout"
+      },
+      {
+        "pid": 801607,
+        "rss_bytes": 22224896,
+        "name": "mpirun"
+      },
+      {
+        "pid": 801617,
+        "rss_bytes": 1541668864,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 801616,
+        "rss_bytes": 1556914176,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 801615,
+        "rss_bytes": 1581338624,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 801614,
+        "rss_bytes": 1619066880,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 801613,
+        "rss_bytes": 1535209472,
+        "name": "SU2_CFD"
+      },
+      {
+        "pid": 801612,
+        "rss_bytes": 1544704000,
+        "name": "SU2_CFD"
+      }
+    ],
+    "sampled_process_tree_rss_bytes": 9402466304
+  },
+  "limit": "Sum of sampled process RSS,not physical/unique allocation or true wholejob peak. Root/tmp nearlyfull; future compileTMPDIR remains4TB."
+}

@@ -279,21 +279,27 @@ quality concern is one unproven alternative,not a diagnosed193failure. No compet
 implementation or interruption of the frozen run; use its terminal data first.
 
 Existing Upper earlier-success candidate was evaluated after193terminal and is now
-build194's active frozen full M6 cycle. Caller/margin audit,proof/serial/MPI6 passed;
+build194's now-terminal full M6 cycle. Caller/margin audit,proof/serial/MPI6 passed;
 same12saved-query traversal -5.03%,allboundsunchanged. Matching complete M6 quality
 states show counted traversal savings; no mesh accepted or isolated wall speedup
 claim. HANDOFF and ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md are authoritative.
 Do not implement this again or start a competing cycle.
 
-Conditional ONLY after194terminal if geometry traversal remains the demonstrated
-blocker: use existing saved queries/trace to distinguish failed finite projected
-footprints/graph groups from costly source refinement near tolerance and target
-approximation margins. Existing finer-resolution/prepared-subtree facilities are
-the starting point; no evidence yet that changing preparation/refinement scheduling
-helps. Do not add another cache/envelope without showing existing facilities are
-insufficient. Full conservative fallback,allgates/resources/CADoptional remain;
-no newbaseline/perf/GDB/configuration. No further implementation chosen or speedup
-established from these alternatives.
+194terminal analysis2026-11-01: firsteventnatural timebudgetrejection,4369q/2352J/
+3111geometrybad,0accepted. ALL56completecensuses inclpartialEXIT reviewed.
+Traversal96.95%ofupperwork; currenttargetSPEED,blockedtailrisknotdismissed.
+ONE existing12queryreplay/EXISTINGworktrace:4hardpassingqueries98.5811%traversal,
+allfootprintbuildsinvalid0/storage_refused0,sourceprogressdepth6,no finer-targetretry.
+Existingtrace does not separate per-domain footprintcoveragefailure from looselift
+bounds,so that remains analysis before choosing further implementation.
+Finerresolution/preparedsubtree reuse,alternateprojection/grouping and tighter
+source-targetintersection/envelope proposals are UNPROVEN,not activeimplementation.
+Uniformmotion/slack0of12stilldoesnotjustifyanindex/cache. No newcache/envelope until
+existingfacilities are showninsufficient and savedquerytraversal savings measured.
+Full conservativefallback/allgates/resources/CADoptional remain. No newbaseline/
+perf/GDB/configuration. Reportnetwholefieldq/Jbad/swithgeometrycounts,notrawcommits.
+Primaryreport: ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md and current194/
+geometry_certification_analysis.json. Keep one activecycle; no furthercode selected.
 
 193window12 reportsstuckshape/required0again,missing0,with2118q/2240J net retirement
 in the latest interval. The window10single stuck cell was transient in these

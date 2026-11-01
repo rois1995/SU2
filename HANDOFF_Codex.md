@@ -9,108 +9,73 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current —194full two-event M6 ACTIVE; sources frozen
+## Current —194TERMINAL; analysis first, no next implementation selected
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 CURRENT=`R/m6_runs/euler_build194_real_cfd50k_early_exit`.
 PREVIOUS=`R/m6_runs/euler_build193_real_cfd50k_envelope` (TERMINAL).
-OLDER=`R/m6_runs/euler_build191_real_cfd50k_numeric_memo` (TERMINAL).
 
-Full2eventexec60431; helper801458/start90715641,time801605/timeout801606/
-launcher801607/start90716193,ranks801612..801614/start90716197,
-801615..801617/start90716198. All10actual host identities/all1401pins/82mappedELF
-verified1793492159.6435194:CURRENT/owned_startup.json. Sourcef518f2d727; CFD SHA
-434846cf1fca385747e52a8167b4912d853f7d4de65b9ea9642f71308966951a.
-Config/mesh/native_ref/savedrealCFD BYTEIDENTICAL193:
-early_runtime_provenance.json. Actual original-grid continued restart00000 now
-BYTEIDENTICAL193(SHA6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a).
-Initial continued CFD CL.269535/CD.013536. This is NOT adapted restart proof.
-Same seed,ITER1continuation,50k/native5400/outer14400/allstrictgates unchanged.
-Initial partition303359cells:ALL18selected per-rankfields EXACT193.
-Coarsening COMPLETE292709cells/2627collapses:ALL17selected fields EXACT193;
-traversal277428465→260034825(-6.2696%),engine312.196318vs358.820959s.
-ALL18construction generations COMPLETE727818workingcells,sizebad0,geometrybad3770;
-ALL17selected per-rank countfields EXACT193 throughout. Cumulative traversal
-1131850186→1067849648(-5.6545%),uppercalls33088same,scope/facet/preparation/support
-work same. Engine847.303442vs942.549761s; wall conditions differ,not an isolated
-code timing claim. Construction q/J deliberately UNMEASURED(shapecomplete0).
-CURRENT/initial_partition_comparison.json,coarsening_comparison.json,
-construction_comparison.json,split_generation_assessment.json preserve raw rows/limits.
+ALL6ranks naturally time-budget rejected at native5402.687673s BEFORE any signal.
+Complete EXIT: 801912workingcells,4369q/2352J/3111geometry/0sizebad,
+qJdebt29.821866148054. ALL56complete first-event quality censuses audited.
+Quality4442.390488s,43286publications,net49712q/51040J/659geometry
+removed,11.190372netq/s,11.489310netJ/s.
+Queue65423,blockedfeatures520,fullyblockedshape/required29,missing0,
+private trackedcollectives0. Shape never closed; geometry-only phase not reached.
+ZEROaccepted adapted meshes,transfer/adaptedCFD/restart. Last partial EXIT is included.
 
-Complete quality ENTRY at895.641809767engine seconds,round21582:
-727818cells,54081q/53392J/3770geometry/0size,qJdebt25413.45557726506.
-Globalcounts/debt AND all6rankdebts EXACT193qualityentry; engineentry94.842473s
-earlier. Allcellsq/Jmeasured,allcompletecache/census/shape/geometryflags1. Entry queue359054,blocked/stuck/missing0,publications0; current progress below.
-Current repair runs frozen; no accepted mesh or closure-rate claim atentry.
-quality_entry_assessment.json,quality_entry_comparison.json,
-all_quality_census_assessment.json. Initial quality ownership migration conserved
-counts/debt/completeflags and20selectedcache/memocounters/entries/bytes unchanged;
-debtmax/min15.776024→1.538801:quality_initial_ownership_assessment.json. Counter
-identity does not independently prove every entrykey/feature history.
+Natural rejection preserved CURRENT/event1_natural_failure.json BEFORE SIGTERM
+only verified remaining launcher801607/start90716193; all10actual hostidentities/
+all1401pins verified before signal:event1_failure_owned_stop.json.
+Exec60431terminal1. All10identities ABSENT/all1401pins unchanged at1793497689.333789:
+terminal_handles.json. ALL194PIDs801458/801605/801606/801607/801612..801617 are now
+HISTORICAL; NEVER resignal. No owned heavy job. No C++ edits since sourcef518f2d727.
+CFDSHA434846cf1fca385747e52a8167b4912d853f7d4de65b9ea9642f71308966951a.
+Same qualified savedrealCFD/config/mesh/native_ref/ACTUALoriginal continued restart
+BYTEIDENTICAL193/191:early_runtime_provenance.json. CL.269535/CD.013536 at original
+continuation,not adapted restart proof. Euler50k/native5400/outer14400/gates unchanged.
 
-Quality progress (latest complete):window21 at4217.899883seconds sinceentry,
-799809workingcells,6121q/3631J/3116geometry/0sizebad,
-qJdebt59.133093548966;40558publications,net47960q/49761J/
-654geometry removed,11.370588netq/s,11.797577netJ/s.
-All54complete censuses audited,latestwindow round22912;queue89474,
-blockedfeatures425,stuckshape/required22/22,missing0,
-private trackedcollectives0.
-quality_trend_assessment.json,quality_service_assessment.json,
-all_quality_census_assessment.json preserve whole-field/netchurn/service/location data.
-Actual matched-state summaries and actual-time brackets retain counts/work/limits:
-quality_window*_service_summary.json and quality_window*_comparison.json.
-Latest interval:net1198q/959J/
-15geometry removed in142.898520s,
-8.383572netq/s,0.745025netq/publication.
-Includes preceding migration cost; any newer transition belongs to its next interval.
-No actual193same-round window available; use explicit bracketing/nearest-state limits.
-Remaining q/Jsurface978/981,
-interior5143/2650;interior means no physical face,
-not necessarily unconstrained vertices. Private merit gains are not publication gains.
-15late complete-census migrations conserve counts/debt/flags and
-selected prepared/numericmemo counters/entries/bytes/drift availability. Latest
-round22784:debtspread1.95340→1.54706,
-observedfullcost11.114894s;included in completewindow20 interval.
-quality_migration_assessment.json. Counters do not independently prove every
-featureage/rejection history/cachekey; unchanged source/qualifiedMPI6 support them.
-Quality progress end.
+194shared rigorous Upper early-success change qualified before full M6:
+buildPASS84.234683s,proof403assertions/2cases,serial20739assertions/68cases,
+MPI6PASS216cases EACH6ranks. All respective handles terminal/pins unchanged before
+next stage. R/geometry_early_exit194_qualification.json and source_review.json.
+Same12savedqueries traversal379146→360066(-5.032%),all12lesswork,boundsEXACT193.
+No newcache/config/scheduler/constructionoperator/batch/budget changes.
+All18construction generations/entry counted fields EXACT193:727818cells,
+54081q/53392J/3770geometry/0size at quality entry895.641810engine seconds.
+Construction q/J deliberately unmeasured until entry. Through quality window18,
+wholefield/counts/rankdebts/publications EXACT193 with5.9092%less qualitytraversal;
+thereafter trajectories diverge,matching state claims cease.
+All15late quality migrations conserve audited counts/debt/completeflags and selected
+prepared/numericmemo counters/entries/bytes/drift availability. Qualified source
+supports fairness/rejection history preservation; aggregate counts alone do not
+prove every key. quality_migration_assessment.json.
 
-All10hosthandles/1401pins/82mappedELF reverified1793497413.724535:
-quality_window21_live_provenance.json. quality_window21_resources.json preserves
-sampled summedRSS/hostload/RAM/PSI; sampledRSS is not physical or truepeak.
-No memorypressure stop justified. One owned heavyjob,nice19/libs1; no pinned
-C++/test/helper/binary/config/input edits. Source remainsf518f2d727.
-
-194is the bounded follow-up to193terminal analysis,not a second optimization cycle:
-existing TriangleUnion::Upper stops at an already rigorous bound<=actual tolerance,
-rather than searching for quarter-tolerance,and also stops after adequate triangle
-witnesses. Same shared coarsen/split/quality/boundary path. No newcache/config/
-scheduler/construction operators,batch sizes or budgets. Final directions/support/
-association/features/body/height gates remain. Quantitative in-tolerance upper
-values may change in general,contributing EXACT0to geometry hinge; fullproof/caller
-limits:R/geometry_early_exit194_source_review.json and
-[analysis](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md).
-
-Build194PASS84.234683s/all1296pins unchanged/all2hosthandles absent before proof.
-ProofPASS403assertions/2cases18.236763s; serialPASS20739assertions/68cases257.556372s;
-MPI6PASS216cases on EACH6ranks283.602851s. All respective5/5/10hosthandles absent/
-allpins unchanged BEFORE M6. R/geometry_early_exit194_qualification.json.
-Initial summary parser failed to strip MPI ANSI coloring; corrected summary reads
-all6pass lines. Underlying exit/pins/terminal audits passed before launch; no test
-failure/retry. Saved SAME12queries traversal379146→360066(-5.032%),ALL12lesswork,
-ALLboundsEXACT193; cached/recomputed equality passed. No full-run speedup or accepted
-mesh claim. R/geometry_early_exit194_saved_query_comparison.json.
-Sourcef518f2d727and qualification/fullrun checkpointe45c88289bpushed.
-CURRENT/native_setup_provenance.json reverifiedall10handles/1401pins/82ELF at
-1793492296.0092645; native_entry_resources.json preserves headroom/load/sampleRSS.
-
-Keep194frozen until terminal or preserved evidence justifies authorized stop under
-AGENTS. Compare actual whole-field q/J-bad removal/s and geometry counts,geometry
-work per useful progress,rankservice/join/debtspread,capacity/conflicts,interior vs
-boundary yield/churn. Timers nest; no adding overlap or claiming pure MPI idle.
-Same counters only/no perf/GDB/newoldcodebaseline campaign. Shape→residualgeometry/
-size→shape reclosure under unchanged cumulative5400budget,thenactualtransfer/
-continuedCFD/isolated adapted restart,BL/MPI,RANS500k.
+Terminal counter/service assessment COMPLETE: CURRENT/terminal_assessment.json,
+terminal_geometry_service_assessment.json,terminal_counter_review.json and
+geometry_certification_analysis.json include all7diagnosticgroups/finalpartialEXIT.
+Allpublishedladderq/J/debt/commit gains reconcile to wholefield changes.
+NexttargetSPEED:96.9508%uppercountedwork is traversal; exactunionmemo49.7109%hits.
+Boundaryprivate3848.10ranksec/345748upperqueries vsinterior191.12sec/0queries.
+At almostidenticalqualitytimes4343.445330vs1934343.580956s,current5077q/2907J/3117geo
+vsbaseline8654q/5779J/3151geo. Hostcontention/trajectories preventisolatedtimingclaim.
+Blockedfeatures520>280andstuck29>10increased;activequeue65423remains.
+A single existing12queryreplay with existingworktrace PASS163assertions/1case;
+all5hosthandlesabsent/pinsunchanged: R/cases/geometry_certification194_trace_20261101T014936_937744.
+ALL12bounds/workEXACToriginal194replay;4hardpassingqueriesconsume98.5811%traversal,
+sourceprogressdepth6,allfootprintbuildsvalid/norefusals,no finer-targetretry.
+Trace does not separate per-domain footprintcoverage failure from loose lift bounds.
+No new speedup established or codechange selected; analyze that distinction first. Analyze cheaper certification FIRST using existing counters/
+savedqueries/trace and source contracts. Distinguish exact repeats from nearby
+positions and eviction misses; existing aggregate counters cannot fully classify.
+Uniform displacement+remaining-slack proof certifies0of12savedqueries; no motion
+cache justified. Review existing unchanged-face reuse,changed-face-only checks,
+preparedgeometry,early bounds and candidate screening before adding anything.
+Uncertain bounds fall back to full traversal; preserve associations/features/bodies/
+heights/reverse/final gates. No sampling-only proof,newoptions,perf/GDB/baselinecampaign.
+One active cycle: further work must address measured traversal cost/net wholefield
+q/J-bad removal/s with geometrycounts,not rawcommits/debtalone. No next change selected.
+[Current certification analysis](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md).
 
 ## Preserved193outcome and analysis — historical handles, never resignal
 
@@ -214,15 +179,14 @@ debt25236.7874.188terminal17190q/14369J/3526geometry,quality4452.518s,8.283netq/
 trajectories and host contention; no isolated wall speedup claim. Historical179
 real-CFD terminal census INCOMPLETE,not zero bad cells. Old startup fields differ.
 
-## Next monitoring and acceptance
+## Next analysis and acceptance
 
-193is terminal with preserved evidence. In the current194frozen attempt, observe existing
-complete aligned per-rank censuses: net whole-field q/J-
-bad removal/s,geometry-bad counts,committed cavity yield/churn,interior versus boundary
-work,geometry traversal/preparation/memo,rank debt spread,busy/join/resource evidence.
-Join/collective-call time includes protocol and waiting; CPUtime includes MPIspin.
-Compare actual matching stages/work; do not silently equate changed trajectories.
-Original-grid continued restart00000 equality verified; this is not adapted restart evidence.
+194is terminal with complete preserved failure and counter/source assessment.
+Further hard-query attribution precedes selecting another implementation. Match actual useful states and
+counted work against193; walltiming includes measured host contention. Timers nest;
+join includes protocol/wait,CPUtime may includeMPIspin. Original continued restart
+byteequality is not adapted restart proof. Keep one connected cycle and return to
+full2eventM6 immediately after qualified changes,if evidence supports them.
 
 Existing closure plan: shape/height → residual size → geometry-only repair via
 EnableGeometryRepairs/strict complete-patch guidance,or valid construction return,

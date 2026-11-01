@@ -1,10 +1,72 @@
-# Cheaper geometry certification —193terminal analysis
+# Cheaper geometry certification — current194terminal analysis
 
-Analysis completed before194candidate.194build/proof/serial/MPI6 PASS; full two-event M6 ACTIVE,sources frozen.
+193analysis led to qualified194candidate; full194M6 is now TERMINAL.
+Current194analysis below;193records remain historical evidence.
 No new configuration or profiling run. Current handles/source freeze: HANDOFF.
 One active geometry/quality optimization cycle. Full two-event Euler50k acceptance,
 actual conservative admissible transfer, finite continued CFD and isolated adapted
 disk restart remain required, then dedicated BL/MPI and RANS500k.
+
+## Build194 outcome and analysis — current
+
+ALL6ranks naturally time-budget rejected at native5402.687673s. Complete EXIT:
+801912workingcells,4369q/2352J/3111geometry/0sizebad,qJdebt29.821866.
+All56complete censuses include finalpartialEXIT. Quality4442.390488s,43286published
+cavities,49712netq/51040netJ/659geometry removed:11.19037netq/s,11.48931netJ/s.
+Previous19310.45189netq/s/10.95111netJ/s; different trajectories/hostcontention,
+not isolated code timing. Almostmatched actual qualitytime4343.445330vs4343.580956s:
+1945077q/2907J/3117geometry vs1938654q/5779J/3151geometry. No interpolation.
+Shape neverclosed,geometry-only phase neverreached,ZEROaccepted adapted meshes.
+
+Natural failure preserved before SIGTERM only exact remaining launcher; all10actual
+hostidentities absent/all1401pins unchanged at1793497689.333789 BEFOREanalysis.
+No new C++ edits. Historical801xxxhandles must never be signaled again.
+Currentrun receipts: terminal_assessment.json,terminal_counter_review.json,
+terminal_geometry_service_assessment.json,geometry_certification_analysis.json,
+event1_natural_failure.json,event1_failure_owned_stop.json,terminal_handles.json.
+
+All7requested diagnostics reviewed. Published churn395168qretired/345456introduced
+and345548Jretired/294508introduced reconciles wholefieldnet. Coordinate/optimizer/
+collapse-reconnect netq9751/36109/3852 and netJ9991/37426/3623; debtandpublication
+counts also reconcile. Lastpartial98.945158s:708q/555J/6geometrynetremoved,
+7.15548netq/s. Remainingq3539interior/830surface,J1678interior/674surface.
+All5983q-orJbadcells haveedge<.9;5889edge<.5. Correlation is not constructioncause.
+Queue65423lower than193120828, but blockedfeatures520>280andstuck29>10 INCREASED.
+No missingfeatures/privatecollectives/unmeasuredchurn.16GLOBALdriftsamples supported,
+max3.0549%sinceentry; not proof of immutableoriginalcontinuousCFDtargetfidelity.
+
+Traversal6.237984722B/upper6.434177899Bwork=96.9508%. Preparationfacet/scope
+13.339750Mwork remains muchsmaller. Nestedrankseconds:upper5103.41,traversal4491.10,
+scope418.22,facet111.12,support130.47. Boundaryprivate345748upperqueries/3848.10ranksec,
+interior0/191.12; privategainsare notpublicationgains. Exactunionmemo458529hits/
+463862misses(49.7109%hits). Misses do not distinguish newpositions from identical
+queries evicted earlier. Existing cache/cert/context/screening review below remains
+valid for this unchanged source path. Do not add a duplicate cache/envelope.
+
+After terminal, ONE serial replay used the SAME12savedqueries and EXISTINGworktrace,
+not another M6 baseline/perf/GDBcampaign. PASS163assertions/1case; all5hosthandles
+absent/pins unchanged: staged57/cases/geometry_certification194_trace_20261101T014936_937744.
+ALL12bounds/traversalcounts match original194replay exactly; repeatmemo work87–90.
+Fourpassingqueries8–11 consume354957of360066traversalwork(98.5811%); remainingeight
+consume5109. Easyqueries60witnesspieces/twoacceptedgraphs; hard61pieces/threegroups/
+twoacceptedgraphs. This correlation does not diagnose grouping as thecause.
+All16observedfootprintbuildrows invalid0/storage_refused0. Eightprogressrows show
+source depth6/queues142–148 withlower~2.7e-5andupperstill>1e-4; allquerieseventually
+pass. No finer-targetretry occurred. Existingtrace DOESNOTseparate per-domain
+footprintcoverage rejection from loose liftbounds; no claim either caused it.
+These older168queries share authority,not current194miss-frequencyrepresentativeness.
+
+Nexttarget remains SPEEDofusefulclosure,with blocked-tailrepairpower risk visible.
+No motioncache: previous rigorous slackbound certifies0of12savedqueries. No proven
+benefit from finerpreparation/newenvelopes/projectiongroupchanges. Those alternatives
+remain backlogpending attribution/proof. No next C++implementation selected from
+this analysis; no further speedup established. Preserve194improvements and strict
+association/feature/body/height/reverse/finalgates; uncertain bounds usefulltraversal.
+If another connected change is justified: affectedfocusedserial/oneMPI6,immediately
+fulltwoeventM6sameCFD50k/5400,then actualtransfer/continuedCFD/adaptedrestart;BL/MPI,
+RANS500k. Shape→residualgeometry/size→shapereclosure remains unproved onM6.
+
+## Historical193analysis that selected194
 
 ## Outcome and provenance
 
