@@ -36,6 +36,18 @@ Now evaluate net wholefieldq/Jbad/s and geometry counts during frozen quality re
 Current/construction_comparison.json,quality_entry_comparison.json and
 quality_initial_ownership_assessment.json retain the actual records.
 
+199 first complete quality window21632:733582cells/50158q/49030J/3660geometry/0size.
+Net3923q/4362J/110geometry through1739publications in179.316862s;netq21.877474/s
+versus198retry121.551400/s(+1.513%). Selectedwholefield/rankdebts/commits/churn match.
+Traversal200729241→97046296(-51.6531%),same31091uppercalls/preparation/discoverywork.
+Observed nested traversal rank seconds229.821629→221.890623(-3.451%),upper293.315259→
+285.177618. Counted predicates need not have equal cost; these wall timers nest and
+cannot isolate code or host effects. Joinshare.36169vs.36724 includes protocol+wait.
+No substantial useful-closure speedup or acceptance is established by this window.
+Current/quality_window1_geometry_assessment.json preserves actual data and limits.
+Continue frozen run; terminal counters choose further work, without a competing
+implementation, new profiler or motion/envelope/cache framework.
+
 ## Preserved retry1 terminal analysis
 
 Same qualified source198 retry1 is TERMINAL. All6natural time-budget rejection,
