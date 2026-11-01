@@ -292,3 +292,10 @@ pins unchanged before full M6. R/geometry_early_exit194_qualification.json inclu
 all6MPI summaries (ANSI colors stripped by reporting parser; no test retry/failure).
 Full2eventM6 launched immediately with savedrealCFD50k/5400; actual live handles,
 source freeze and input provenance are maintained in HANDOFF.0accepted so far.
+
+196fullM6 first completedcoarsening stage:292709workingcells/2627collapses,
+ALL17selectedper-rankfieldsEXACT194,uppercalls14870same. Traversal260034825→191026912
+(-26.53795%); preparation/discoverycountersunchanged. Engine250.049109vs312.196318s,
+notisolatedcodetimingclaim. Q/JintentionallyUNMEASUREDduringconstruction. Complete
+coarsening evidence is not shape/geometryclosure or acceptedmesh. Frozenruncontinues;
+actualhandles/pins/currentstatus inHANDOFF. CURRENT/coarsening_comparison.json.

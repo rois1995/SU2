@@ -325,7 +325,7 @@ from residual10stuck cells; most remaining demand is not classified blocked.
 195post-terminal diagnostic supersedes the coverage/lift uncertainty above:
 83.4772%ofsavedreplaytraversal is coveragework; allcoveredgraphboundsbelowtol.
 196activecandidate reorders EXISTINGtrianglewitnessbeforegraphcoverage,notnewcache.
-Saved12traversal-27.8663%,allboundsEXACT194; affectedserial/MPI6/fullM6pending.
+Saved12traversal-27.8663%,allboundsEXACT194; affectedserial/MPI6PASS;full196M6ACTIVE.
 Exact-rational subtreeUpper+outwardmotion reuse optimisticceiling810/140510work
 (0.5765%)beforelookup/storage/invalidationcost. Keepmotion/subtreecachedeferred.
 Do not start projectiongroup/finerpreparation/newenvelope alternatives during196.

@@ -26,7 +26,18 @@ OriginalcontinuedCFD CL.269535/CD.013536,rms-5.735442. ACTUAL originalrestart000
 BYTEIDENTICAL194(SHA6bbed8da75c40eca7364cc9d3fe96f13311fad69706e013acb68ba8feaf4240a),
 verifiedafteremission:early_runtime_provenance.json. This is NOT an
 adaptedrestart proof. Euler50k/native5400/outer14400/2events/allstrictgatesunchanged.
-No nativeacceptance yet. Observe actualstagecounts/work/resources,not projection.
+Initialpartition303359cells:ALL18selectedper-rankfieldsEXACT194.
+CURRENT/initial_partition_comparison.json. CoarseningCOMPLETE292709workingcells/
+2627collapses:ALL17selectedper-rankfieldsEXACT194,uppercalls14870same,
+traversal260034825→191026912(-26.53795%),scope/facet/preparation/supportworksame.
+Engine250.049109vs312.196318s; hostconditions differ,notisolatedcodetimingclaim.
+CURRENT/coarsening_comparison.json,coarsening_resources.json; all10handles/1401pins/
+82mappedELFreverified1793499439.866116:coarsening_complete_live_provenance.json.
+FirstsplitgenerationCOMPLETE495390cells/36823splits,sizebad117030,geometrybad3861.
+ALL17selectedper-rankfieldsEXACT194; cumulative traversal336133439→241266877
+(-28.2229%),uppercalls15800same,preparation/discoveryworksame. Engine299.608003
+vs377.938909s; noisolatedtimingclaim. CURRENT/construction_comparison.json,
+split_generation_assessment.json. Constructioncontinues;q/JUNMEASURED;noacceptance.
 
 196sharedUpper tries ALREADYexistingrigorous convextrianglewitness BEFORE finite
 projectedgraphcoverage. No newcache/API/config/scheduler/constructionoperator/batch/
