@@ -52,7 +52,7 @@ Quality progress (latest complete):window16 at3216.752155seconds sinceentry,
 789664workingcells,13121q/10028J/3213geometry/0sizebad,
 qJdebt428.317382608074;31682publications,net40960q/43364J/
 557geometry removed,12.733340netq/s,13.480678netJ/s.
-All41complete censuses audited,latestwindow round22592;queue167611,
+All43complete censuses audited,latestwindow round22592;queue167611,
 blockedfeatures268,stuckshape/required6/6,missing0,
 private trackedcollectives0.
 quality_trend_assessment.json,quality_service_assessment.json,
@@ -69,10 +69,10 @@ quality_window16_service_summary.json; actual-time brackets retained separately.
 Remaining q/Jsurface1900/2869,
 interior11221/7159;interior means no physical face,
 not necessarily unconstrained vertices. Private merit gains are not publication gains.
-11late complete-census migrations conserve counts/debt/flags and
+12late complete-census migrations conserve counts/debt/flags and
 selected prepared/numericmemo counters/entries/bytes/drift availability. Latest
-round22528:debtspread1.96328→1.39739,
-observedfullcost11.002917s;included in completewindow16 interval.
+round22592:debtspread1.71030→1.67791,
+observedfullcost11.275658s;awaiting next completewindow interval.
 quality_migration_assessment.json. Counters do not independently prove every
 featureage/rejection history/cachekey; unchanged source/qualifiedMPI6 support them.
 Quality progress end.
