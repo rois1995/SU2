@@ -7291,7 +7291,7 @@ void CPhysicalGeometry::SetSplitEdges() {
     std::map<std::pair<unsigned long, unsigned long>, Coefficients> pairs;
 
     for (auto iElem = 0ul; iElem < nElem; iElem++) {
-      const auto* element = elem[iElem];
+      auto* element = elem[iElem];
       const auto nElemNodes = element->GetnNodes();
 
       array<const su2double*, N_POINTS_MAXIMUM> Coord;
