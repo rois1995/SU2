@@ -1841,6 +1841,8 @@ void CConfig::SetConfig_Options() {
   addDoubleOption("EDGE_FORM_POSITIVE_SENSOR", Edge_Form_Positive_Sensor, 0.0);
   /*!\brief EDGE_FORM_ENTROPY_DISS \n DESCRIPTION: Add the positive part of the Roe matrix along E_ik on the reconstructed jump, which makes the E term of EDGE_FORM_P1 energy stable. \ingroup Config*/
   addBoolOption("EDGE_FORM_ENTROPY_DISS", Edge_Form_Entropy_Diss, false);
+  /*!\brief EDGE_FORM_EC_FLUX \n DESCRIPTION: Replace the mean 0.5(F_i+F_k).(n_ik-n) of EDGE_FORM_P1 with ROE by the Ismail-Roe entropy conservative flux along n_ik-n. \ingroup Config \default false */
+  addBoolOption("EDGE_FORM_EC_FLUX", Edge_Form_EC_Flux, false);
   /*!\brief GCL_EXACT_P1 \n DESCRIPTION: Add the swept terms that make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes, for conservation in time on moving meshes. \ingroup Config*/
   addBoolOption("GCL_EXACT_P1", GCL_Exact_P1, false);
   /*!\brief SPLIT_EDGE_FLUX \n DESCRIPTION: Central flux 0.5(F_i+F_k).n_ik on the split edges of the cells, dissipation and Jacobians stay on the true edges. \ingroup Config*/
@@ -6225,6 +6227,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_Exact_Jacobian) active.push_back("EDGE_FORM_EXACT_JACOBIAN");
   if (Edge_Form_Positive_Diss != 0.0) active.push_back("EDGE_FORM_POSITIVE_DISS");
   if (Edge_Form_Entropy_Diss) active.push_back("EDGE_FORM_ENTROPY_DISS");
+  if (Edge_Form_EC_Flux) active.push_back("EDGE_FORM_EC_FLUX");
   if (GCL_Exact_P1) active.push_back("GCL_EXACT_P1");
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
 
@@ -6304,6 +6307,12 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_Entropy_Diss) {
     const string name = "EDGE_FORM_ENTROPY_DISS: ";
     if (!Edge_Form_P1 || (Kind_ConvNumScheme_Flow != SPACE_UPWIND)) SU2_MPI::Error(name + "needs EDGE_FORM_P1 with ROE.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
+  }
+  if (Edge_Form_EC_Flux) {
+    const string name = "EDGE_FORM_EC_FLUX: ";
+    if (!Edge_Form_P1 || (Kind_ConvNumScheme_Flow != SPACE_UPWIND)) SU2_MPI::Error(name + "needs EDGE_FORM_P1 with ROE.", CURRENT_FUNCTION);
+    if (!idealGas) SU2_MPI::Error(name + "the Ismail-Roe flux needs an ideal gas.", CURRENT_FUNCTION);
     if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
   }
   if ((Edge_Form_Positive_Sensor < 0.0) || ((Edge_Form_Positive_Sensor > 0.0) && (Edge_Form_Positive_Diss == 0.0))) {

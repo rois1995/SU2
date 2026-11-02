@@ -154,6 +154,7 @@ MAKE_BINARY_FUN(fmin, min_p)
   }
 
 MAKE_UNARY_FUN(exp, ::exp)
+MAKE_UNARY_FUN(log, ::log)
 
 #undef MAKE_UNARY_FUN
 

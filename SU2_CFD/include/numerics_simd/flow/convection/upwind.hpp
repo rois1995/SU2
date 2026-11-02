@@ -68,6 +68,7 @@ protected:
   const su2double positiveDiss;
   const su2double positiveSensor;
   const bool entropyDiss;
+  const bool ecFlux;
   const bool sweptFlux;
 
   /*!
@@ -89,6 +90,7 @@ protected:
     positiveDiss(edgeForm ? config.GetEdge_Form_Positive_Diss() : 0.0),
     positiveSensor(config.GetEdge_Form_Positive_Sensor()),
     entropyDiss(edgeForm && config.GetEdge_Form_Entropy_Diss()),
+    ecFlux(edgeForm && config.GetEdge_Form_EC_Flux()),
     sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
   }
 
@@ -166,12 +168,23 @@ public:
       U1st.i = compressibleConservatives(V1st.i);
       U1st.j = compressibleConservatives(V1st.j);
 
-      const auto flux_i = inviscidProjFlux(V1st.i, U1st.i, diffNormal);
-      const auto flux_j = inviscidProjFlux(V1st.j, U1st.j, diffNormal);
+      /*--- EDGE_FORM_EC_FLUX: the mean 0.5(F_i+F_k).dn, dn = n_ik - n, has entropy production of third order in the
+       * jump and of either sign, which no dissipation along n is sized for when |dn| >> |n|. The Ismail-Roe flux
+       * F_ec with (w_k-w_i).F_ec(dn) = (psi_k-psi_i).dn, psi = rho u, makes this part entropy conservative: its total
+       * production is sum_i psi_i.sum_k dn_ik, zero at interior nodes because sum_k n_ik = sum_k n = 0 there.
+       * F_ec(U,U) = F(U), so uniform flow and the boundary closure are unchanged. ---*/
+      VectorDbl<nVar> fluxDiff;
+      if (ecFlux) {
+        fluxDiff = ismailRoeProjFlux(gamma, V1st.i, V1st.j, diffNormal);
+      } else {
+        const auto flux_i = inviscidProjFlux(V1st.i, U1st.i, diffNormal);
+        const auto flux_j = inviscidProjFlux(V1st.j, U1st.j, diffNormal);
+        for (size_t iVar = 0; iVar < nVar; ++iVar) fluxDiff(iVar) = 0.5 * (flux_i(iVar) + flux_j(iVar));
+      }
       const auto fluxE_i = inviscidProjFlux(V1st.i, U1st.i, formE);
       const auto fluxE_j = inviscidProjFlux(V1st.j, U1st.j, formE);
       for (size_t iVar = 0; iVar < nVar; ++iVar) {
-        flux(iVar) += 0.5 * (flux_i(iVar) + flux_j(iVar)) + fluxE_j(iVar) - fluxE_i(iVar);
+        flux(iVar) += fluxDiff(iVar) + fluxE_j(iVar) - fluxE_i(iVar);
       }
 
       /*--- The same nodal difference for the grid term, finalizeFlux has added its median part. ---*/

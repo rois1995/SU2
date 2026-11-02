@@ -144,6 +144,7 @@ namespace math = ::std;
 MAKE_UNARY_FUN(operator-, minus_, -)
 MAKE_UNARY_FUN(abs, abs_, math::abs)
 MAKE_UNARY_FUN(exp, exp_, math::exp)
+MAKE_UNARY_FUN(log, log_, math::log)
 MAKE_UNARY_FUN(sqrt, sqrt_, math::sqrt)
 MAKE_UNARY_FUN(sign, sign_, sign_impl)
 #undef sign_impl

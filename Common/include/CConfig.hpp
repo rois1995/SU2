@@ -78,6 +78,7 @@ private:
   su2double Edge_Form_Positive_Diss; /*!< \brief Part of the extra Roe dissipation up to the positivity bound of the P1 edge form. */
   su2double Edge_Form_Positive_Sensor; /*!< \brief Relative pressure jump at which that dissipation acts in full. */
   bool Edge_Form_Entropy_Diss; /*!< \brief Energy stable dissipation of the E term of the P1 edge form. */
+  bool Edge_Form_EC_Flux;      /*!< \brief Entropy conservative central part of the P1 edge form along n_ik - n. */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
   su2double Fan_Poly_Eff;         /*!< \brief Fan polytropic effeciency. */
@@ -9992,6 +9993,12 @@ public:
    * \return YES if the positive part of the Roe matrix along E_ik is added.
    */
   bool GetEdge_Form_Entropy_Diss() const { return Edge_Form_Entropy_Diss; }
+
+  /*!
+   * \brief Ismail-Roe entropy conservative flux for the part of the edge form along n_ik minus the dual normal.
+   * \return <code>TRUE</code> if it replaces the arithmetic mean of the nodal fluxes there.
+   */
+  bool GetEdge_Form_EC_Flux() const { return Edge_Form_EC_Flux; }
 
   /*!
    * \brief Make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes.

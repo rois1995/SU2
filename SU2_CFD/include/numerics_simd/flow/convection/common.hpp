@@ -332,6 +332,60 @@ FORCEINLINE VectorDbl<nDim+2> inviscidProjFlux(const PrimVarType& V,
 }
 
 /*!
+ * \brief Logarithmic mean (a-b)/(ln a - ln b) of positive a, b, in the stable form of Ismail and Roe (2009),
+ * appendix B: f = (a-b)/(a+b), u = f^2, mean = (a+b) / (2 F), F = ln(a/b) / (2f) = 1 + u/3 + u^2/5 + u^3/7 + ...
+ * Both branches are evaluated (SIMD), the log one with f = 1 where the series is used, so it stays finite.
+ */
+FORCEINLINE Double logMean(const Double& a, const Double& b) {
+  const Double f = (a - b) / (a + b);
+  const Double u = f * f;
+  const Double series = 1.0 + u * (1.0/3.0 + u * (1.0/5.0 + u * (1.0/7.0)));
+  const Double large = (u >= 1e-2);
+  const Double fSafe = large * f + (1.0 - large);
+  const Double F = large * log(a / b) / (2.0 * fSafe) + (1.0 - large) * series;
+  return (a + b) / (2.0 * F);
+}
+
+/*!
+ * \brief Entropy conservative flux of Ismail and Roe (2009) projected on "normal" (ideal gas). With z = sqrt(rho/p),
+ * y = sqrt(rho p), arithmetic means {.} and logarithmic means ln(.): rho = {z} ln(y), u = {z u}/{z}, p1 = {y}/{z},
+ * p2 = [(gamma+1) ln(y)/ln(z) + (gamma-1) {y}/{z}] / (2 gamma), H = gamma p2 / ((gamma-1) rho) + |u|^2/2.
+ * It equals the flux of the state when both states are equal.
+ */
+template<class PrimVarType, size_t nDim>
+FORCEINLINE VectorDbl<nDim+2> ismailRoeProjFlux(const Double& gamma,
+                                                const PrimVarType& Vi,
+                                                const PrimVarType& Vj,
+                                                const VectorDbl<nDim>& normal) {
+  const Double z_i = sqrt(Vi.density() / Vi.pressure());
+  const Double z_j = sqrt(Vj.density() / Vj.pressure());
+  const Double y_i = z_i * Vi.pressure();
+  const Double y_j = z_j * Vj.pressure();
+  const Double zAvg = 0.5 * (z_i + z_j);
+  const Double yAvg = 0.5 * (y_i + y_j);
+  const Double zLog = logMean(z_i, z_j);
+  const Double yLog = logMean(y_i, y_j);
+
+  const Double density = zAvg * yLog;
+  VectorDbl<nDim> velocity;
+  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+    velocity(iDim) = 0.5 * (z_i * Vi.velocity(iDim) + z_j * Vj.velocity(iDim)) / zAvg;
+  }
+  const Double pressure1 = yAvg / zAvg;
+  const Double pressure2 = ((gamma + 1.0) * yLog / zLog + (gamma - 1.0) * pressure1) / (2.0 * gamma);
+  const Double enthalpy = gamma * pressure2 / ((gamma - 1.0) * density) + 0.5 * squaredNorm(velocity);
+
+  const Double mdot = density * dot(velocity, normal);
+  VectorDbl<nDim+2> flux;
+  flux(0) = mdot;
+  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+    flux(iDim+1) = mdot * velocity(iDim) + normal(iDim) * pressure1;
+  }
+  flux(nDim+1) = mdot * enthalpy;
+  return flux;
+}
+
+/*!
  * \brief Jacobian of the convective flux (compressible flow, ideal gas).
  */
 template<size_t nDim, class RandomAccessIterator>
