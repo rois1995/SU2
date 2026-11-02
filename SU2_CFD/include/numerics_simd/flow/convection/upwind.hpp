@@ -67,7 +67,7 @@ protected:
   const bool exactFormJac;
   const su2double positiveDiss;
   const su2double positiveSensor;
-  const su2double matrixDiss;
+  const bool entropyDiss;
   const bool sweptFlux;
 
   /*!
@@ -88,7 +88,7 @@ protected:
     exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()),
     positiveDiss(edgeForm ? config.GetEdge_Form_Positive_Diss() : 0.0),
     positiveSensor(config.GetEdge_Form_Positive_Sensor()),
-    matrixDiss(edgeForm ? config.GetEdge_Form_Matrix_Diss() : 0.0),
+    entropyDiss(edgeForm && config.GetEdge_Form_Entropy_Diss()),
     sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
   }
 
@@ -244,36 +244,34 @@ public:
         }
       }
 
-      /*--- EDGE_FORM_MATRIX_DISS: the same positivity bound for each wave family instead of the largest speed.
-       * In the eigenvectors of the Roe matrix along n_ik, family k needs s_k(n_ik) + 2 s_k(E_ik) and has
-       * s_k(n_dual) from the Roe flux above, with s = |u.v| for the entropy and shear waves and
-       * |u.v +- c|v|| for the acoustic waves. Only the missing part is added, on the reconstructed jump. Shear
-       * waves across a boundary layer have small u.v, so they get little extra dissipation. ---*/
+      /*--- EDGE_FORM_ENTROPY_DISS: energy stability of the E term. For scalar advection the interior edge (i,k) of
+       * the form changes d/dt sum V u^2/2 by -(u_k-u_i) F_ik, which is 0 for the central part 0.5 a.n_ik (u_i+u_k),
+       * because sum_k n_ik = 0, and +(a.E_ik)(u_k-u_i)^2 for the E part: growth where a.E_ik > 0. A dissipation
+       * d (u_k-u_i) with d >= max(a.E_ik, 0) removes it. For the system, in symmetrizing variables, the condition is
+       * D >= [A(E_ik)]_+, the positive part of the Roe matrix along E_ik, with eigenvalues u.E, u.E +- c|E|.
+       * It is applied in full, without credit for the Roe dissipation of the dual normal, so it is sufficient.
+       * On the reconstructed jump it stays second order in smooth flow and acts in full where the limiter does. ---*/
 
-      if (matrixDiss > 0.0) {
-        const auto roeAvg = roeAveragedVariables(gamma, V, formNormal);
-        const Double formArea = norm(formNormal);
-        VectorDbl<nDim> formUnit;
-        for (size_t iDim = 0; iDim < nDim; ++iDim) formUnit(iDim) = formNormal(iDim) / fmax(formArea, 1e-300);
-        const Double cE = roeAvg.speedSound * norm(formE);
-        const Double cD = roeAvg.speedSound * area;
-        const Double cF = roeAvg.speedSound * formArea;
-        const Double uF = roeAvg.projVel, uE = dot(roeAvg.velocity, formE), uD = dot(roeAvg.velocity, normal);
+      if (entropyDiss) {
+        const auto roeAvg = roeAveragedVariables(gamma, V, formE);
+        const Double areaE = norm(formE);
+        VectorDbl<nDim> unitE;
+        for (size_t iDim = 0; iDim < nDim; ++iDim) unitE(iDim) = formE(iDim) / fmax(areaE, 1e-300);
+        const Double cE = roeAvg.speedSound * areaE;
 
-        VectorDbl<nVar> extra;
-        for (size_t iDim = 0; iDim < nDim; ++iDim) extra(iDim) = fmax(abs(uF) + 2.0 * abs(uE) - abs(uD), 0.0);
-        extra(nDim) = fmax(abs(uF + cF) + 2.0 * (abs(uE) + cE) - abs(uD + cD), 0.0);
-        extra(nDim+1) = fmax(abs(uF - cF) + 2.0 * (abs(uE) + cE) - abs(uD - cD), 0.0);
+        VectorDbl<nVar> lambdaE;
+        for (size_t iDim = 0; iDim < nDim; ++iDim) lambdaE(iDim) = fmax(roeAvg.projVel, 0.0);
+        lambdaE(nDim) = fmax(roeAvg.projVel + cE, 0.0);
+        lambdaE(nDim+1) = fmax(roeAvg.projVel - cE, 0.0);
 
-        const Double projUnit = dot(roeAvg.velocity, formUnit);
-        const auto pMat = pMatrix(gamma, roeAvg.density, roeAvg.velocity, projUnit, roeAvg.speedSound, formUnit);
-        const auto pMatInv = pMatrixInv(gamma, roeAvg.density, roeAvg.velocity, projUnit, roeAvg.speedSound, formUnit);
+        const Double projUnit = dot(roeAvg.velocity, unitE);
+        const auto pMat = pMatrix(gamma, roeAvg.density, roeAvg.velocity, projUnit, roeAvg.speedSound, unitE);
+        const auto pMatInv = pMatrixInv(gamma, roeAvg.density, roeAvg.velocity, projUnit, roeAvg.speedSound, unitE);
 
         for (size_t iVar = 0; iVar < nVar; ++iVar) {
           for (size_t jVar = 0; jVar < nVar; ++jVar) {
             Double d = 0.0;
-            for (size_t kVar = 0; kVar < nVar; ++kVar) d += pMat(iVar,kVar) * extra(kVar) * pMatInv(kVar,jVar);
-            d *= 0.5 * matrixDiss;
+            for (size_t kVar = 0; kVar < nVar; ++kVar) d += pMat(iVar,kVar) * lambdaE(kVar) * pMatInv(kVar,jVar);
             flux(iVar) -= d * (U.j.all(jVar) - U.i.all(jVar));
             if (implicit) {
               jac_i(iVar, jVar) += d;
