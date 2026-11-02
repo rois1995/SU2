@@ -2733,6 +2733,34 @@ void CGeometry::UpdateP1FluxCoefficients(const CConfig* config) {
   if (config->GetEdge_Form_P1() && config->GetEdge_Form_ES_Blend()) SetEdgeFormBlend();
   if (config->GetSplit_Edge_Flux()) SetSplitEdges();
   if (config->GetGCL_Exact_P1()) sweptFluxStale = true;
+  if (config->GetEdge_Diss_Projected()) CheckProjectedDissipation();
+}
+
+void CGeometry::CheckProjectedDissipation() const {
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    /*--- The numerics compute nu = (n.e/|e|^2) e on the fly from the normal and the coordinates. On simplices every
+     * element adds n^T.e = 2|T|/(d+1) > 0 to the edge, on other cells the sign is not guaranteed. Edges with no
+     * owned node only update halo residuals and are skipped. ---*/
+    unsigned long nBad = 0;
+    for (auto iEdge = 0ul; iEdge < nEdge; iEdge++) {
+      const auto iPoint = edges->GetNode(iEdge, 0);
+      const auto jPoint = edges->GetNode(iEdge, 1);
+      if (!nodes->GetDomain(iPoint) && !nodes->GetDomain(jPoint)) continue;
+      const su2double* normal = edges->GetNormal(iEdge);
+      su2double proj = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+        proj += normal[iDim] * (nodes->GetCoord(jPoint, iDim) - nodes->GetCoord(iPoint, iDim));
+      }
+      if (!(proj > 0.0)) nBad++;
+    }
+    if (nBad > 0) {
+      SU2_MPI::Error("EDGE_DISS_PROJECTED: " + std::to_string(nBad) + " edges on rank " +
+                         std::to_string(SU2_MPI::GetRank()) +
+                         " have n.e <= 0, the projected dissipation normal is not defined there.",
+                     CURRENT_FUNCTION);
+    }
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
 void CGeometry::UpdateSweptFluxP1(const CConfig* config) {

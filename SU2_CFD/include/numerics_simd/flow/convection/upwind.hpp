@@ -70,6 +70,7 @@ protected:
   const bool entropyDiss;
   const bool esDiss;
   const bool esBlend;
+  const bool projDiss;  /*!< \brief EDGE_DISS_PROJECTED, declared before ecFlux, which depends on it. */
   const bool ecFlux;
   const bool sweptFlux;
 
@@ -94,7 +95,8 @@ protected:
     entropyDiss(edgeForm && config.GetEdge_Form_Entropy_Diss()),
     esDiss(edgeForm && config.GetEdge_Form_ES_Diss()),
     esBlend(edgeForm && config.GetEdge_Form_ES_Blend()),
-    ecFlux(edgeForm && config.GetEdge_Form_EC_Flux()),
+    projDiss(finestGrid && config.GetEdge_Diss_Projected()),
+    ecFlux((edgeForm || projDiss) && config.GetEdge_Form_EC_Flux()),
     sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
   }
 
@@ -152,13 +154,65 @@ public:
     U.i = compressibleConservatives(V.i);
     U.j = compressibleConservatives(V.j);
 
+    /*--- EDGE_DISS_PROJECTED: the Roe flux uses nu = (n.e/|e|^2) e, the edge projection of the median normal, from
+     * the coordinates already read for the reconstruction. Off, the references below are the median normal. ---*/
+
+    VectorDbl<nDim> projNormal, projUnitNormal;
+    Double projArea = 0.0;
+    if (projDiss) projectedNormal(normal, vector_ij, projNormal, projArea, projUnitNormal);
+    const VectorDbl<nDim>& rNormal = projDiss ? projNormal : normal;
+    const VectorDbl<nDim>& rUnitNormal = projDiss ? projUnitNormal : unitNormal;
+    const Double& rArea = projDiss ? projArea : area;
+
     /*--- Finalize in derived class (static polymorphism). ---*/
 
     const auto derived = static_cast<const Derived*>(this);
     VectorDbl<nVar> flux;
     MatrixDbl<nVar> jac_i, jac_j;
-    derived->finalizeFlux(flux, jac_i, jac_j, implicit, area, unitNormal, normal,
+    derived->finalizeFlux(flux, jac_i, jac_j, implicit, rArea, rUnitNormal, rNormal,
                           V, U, iPoint, jPoint, nonPhysical, solution, geometry);
+
+    if (projDiss) {
+      /*--- Roe(U_L, U_R; nu) + 0.5(F_i+F_k).(n - nu): the part along n - nu is central, on the nodal states. It is
+       * the component of n normal to the edge, unbounded under stretching, and its terms cancel between the edges
+       * of a node only with nodal fluxes (as the difference part of the edge form, never on MUSCL states). With
+       * EDGE_FORM_EC_FLUX see below. Note sum_k (n_ik - nu_ik) = -sum_k nu_ik is not
+       * zero, so with EDGE_FORM_EC_FLUX the Ismail-Roe flux is taken along the whole n and the Roe central part
+       * along nu is removed (see below). ---*/
+      VectorDbl<nDim> diffNormal;
+      for (size_t iDim = 0; iDim < nDim; ++iDim) diffNormal(iDim) = normal(iDim) - projNormal(iDim);
+
+      CPair<CCompressibleConservatives<nDim> > U1st;
+      U1st.i = compressibleConservatives(V1st.i);
+      U1st.j = compressibleConservatives(V1st.j);
+
+      if (ecFlux) {
+        /*--- Lemma D1 form: F_ec(U_i, U_k; n) on the nodal states, which telescopes (sum_k n_ik = 0 at interior
+         * nodes), plus the Roe dissipation on nu only: the central part 0.5(F_L+F_R).nu of the Roe flux on the
+         * reconstructed states is removed. So the scheme is entropy conservative plus a PSD dissipation. ---*/
+        const auto fluxEC = ismailRoeProjFlux(gamma, V1st.i, V1st.j, normal);
+        const auto fluxL = inviscidProjFlux(V.i, U.i, projNormal);
+        const auto fluxR = inviscidProjFlux(V.j, U.j, projNormal);
+        for (size_t iVar = 0; iVar < nVar; ++iVar) flux(iVar) += fluxEC(iVar) - 0.5 * (fluxL(iVar) + fluxR(iVar));
+      } else {
+        const auto flux_i = inviscidProjFlux(V1st.i, U1st.i, diffNormal);
+        const auto flux_j = inviscidProjFlux(V1st.j, U1st.j, diffNormal);
+        for (size_t iVar = 0; iVar < nVar; ++iVar) flux(iVar) += 0.5 * (flux_i(iVar) + flux_j(iVar));
+      }
+
+      /*--- Jacobian: Roe on nu from finalizeFlux, plus 0.5 A_i(n - nu) and 0.5 A_k(n - nu) of the nodal states,
+       * so the central Jacobian is on the whole median normal (also for the Ismail-Roe flux, as the edge form). ---*/
+      if (implicit) {
+        const auto addJac_i = inviscidProjJac(gamma, V1st.i.velocity(), U1st.i.energy(), diffNormal, 0.5);
+        const auto addJac_j = inviscidProjJac(gamma, V1st.j.velocity(), U1st.j.energy(), diffNormal, 0.5);
+        for (size_t iVar = 0; iVar < nVar; ++iVar) {
+          for (size_t jVar = 0; jVar < nVar; ++jVar) {
+            jac_i(iVar, jVar) += addJac_i(iVar, jVar);
+            jac_j(iVar, jVar) += addJac_j(iVar, jVar);
+          }
+        }
+      }
+    }
 
     if (edgeForm) {
       /*--- The median MUSCL flux stays, the form is added as a nodal difference: the terms of the form

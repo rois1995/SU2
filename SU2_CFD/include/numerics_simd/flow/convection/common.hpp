@@ -386,6 +386,28 @@ FORCEINLINE VectorDbl<nDim+2> ismailRoeProjFlux(const Double& gamma,
 }
 
 /*!
+ * \brief Edge projection of a dual normal, nu = (n.e/|e|^2) e (EDGE_DISS_PROJECTED).
+ * \note nu.e = n.e, and nu = n when n is parallel to e. Among the normals with the edge projection n.e it has the
+ *       least length, hence the least acoustic dissipation c|nu| (Lemma G4 of the optimal dual notes).
+ * \param[in] normal - Median normal n of the edge, oriented from i to j.
+ * \param[in] vector_ij - Edge vector e = x_j - x_i.
+ * \param[out] projNormal - nu.
+ * \param[out] projArea - |nu| = n.e/|e|, positive since the geometry checks n.e > 0.
+ * \param[out] projUnitNormal - nu/|nu| = e/|e|.
+ */
+template<size_t nDim>
+FORCEINLINE void projectedNormal(const VectorDbl<nDim>& normal, const VectorDbl<nDim>& vector_ij,
+                                 VectorDbl<nDim>& projNormal, Double& projArea, VectorDbl<nDim>& projUnitNormal) {
+  const Double invLength = 1.0 / norm(vector_ij);
+  projArea = dot(normal, vector_ij) * invLength;
+  const Double scale = projArea * invLength;
+  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+    projNormal(iDim) = scale * vector_ij(iDim);
+    projUnitNormal(iDim) = vector_ij(iDim) * invLength;
+  }
+}
+
+/*!
  * \brief Jacobian of the convective flux (compressible flow, ideal gas).
  */
 template<size_t nDim, class RandomAccessIterator>

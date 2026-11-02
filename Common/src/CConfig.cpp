@@ -1841,7 +1841,7 @@ void CConfig::SetConfig_Options() {
   addDoubleOption("EDGE_FORM_POSITIVE_SENSOR", Edge_Form_Positive_Sensor, 0.0);
   /*!\brief EDGE_FORM_ENTROPY_DISS \n DESCRIPTION: Add the positive part of the Roe matrix along E_ik on the reconstructed jump, which makes the E term of EDGE_FORM_P1 energy stable. \ingroup Config*/
   addBoolOption("EDGE_FORM_ENTROPY_DISS", Edge_Form_Entropy_Diss, false);
-  /*!\brief EDGE_FORM_EC_FLUX \n DESCRIPTION: Replace the mean 0.5(F_i+F_k).(n_ik-n) of EDGE_FORM_P1 by the Ismail-Roe entropy conservative flux, along n_ik-n with ROE, along n_ik with JST. \ingroup Config \default false */
+  /*!\brief EDGE_FORM_EC_FLUX \n DESCRIPTION: Replace the mean 0.5(F_i+F_k).(n_ik-n) of EDGE_FORM_P1 by the Ismail-Roe entropy conservative flux, along n_ik-n with ROE, along n_ik with JST. With EDGE_DISS_PROJECTED along n-nu with ROE, along n with JST. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_EC_FLUX", Edge_Form_EC_Flux, false);
   /*!\brief EDGE_FORM_ES_DISS \n DESCRIPTION: Add lam (U_k-U_i), lam = max(0, max(u.e) + max(c)) |E_ik| over the two nodes, which makes the E part of EDGE_FORM_P1 entropy stable for any jump. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_ES_DISS", Edge_Form_ES_Diss, false);
@@ -1853,6 +1853,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("GCL_EXACT_P1", GCL_Exact_P1, false);
   /*!\brief SPLIT_EDGE_FLUX \n DESCRIPTION: Central flux 0.5(F_i+F_k).n_ik on the split edges of the cells, dissipation and Jacobians stay on the true edges. \ingroup Config*/
   addBoolOption("SPLIT_EDGE_FLUX", Split_Edge_Flux, false);
+  /*!\brief EDGE_DISS_PROJECTED \n DESCRIPTION: Median dual, central part on the median normal n, dissipation on its edge projection nu = (n.e/|e|^2) e. ROE: Roe flux on nu plus 0.5(F_i+F_k).(n-nu) with nodal states; JST: spectral radius |u.nu| + c|nu|. Fine grid only. \ingroup Config \default false */
+  addBoolOption("EDGE_DISS_PROJECTED", Edge_Diss_Projected, false);
 
   /*!\brief MARKER_HEATTRANSFER DESCRIPTION: Heat flux with specified heat transfer coefficient boundary marker(s)\n
    * Format: ( Heat transfer marker, heat transfer coefficient, wall temperature (static), ... ) \ingroup Config  */
@@ -6239,6 +6241,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (BC_Entropy_P1) active.push_back("BC_ENTROPY_P1");
   if (GCL_Exact_P1) active.push_back("GCL_EXACT_P1");
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
+  if (Edge_Diss_Projected) active.push_back("EDGE_DISS_PROJECTED");
 
   if (Flux_Correction_Limited && (!FluxCorrection || !MUSCL_Flow || (Kind_SlopeLimit_Flow == LIMITER::NONE) ||
                                   (Kind_SlopeLimit_Flow == LIMITER::VAN_ALBADA_EDGE))) {
@@ -6268,7 +6271,8 @@ void CConfig::CheckP1FluxOptions() const {
    * LOW_MACH_CORR, otherwise the form would be dropped without a message. ---*/
 
   const bool idealGas = (Kind_FluidModel == STANDARD_AIR) || (Kind_FluidModel == IDEAL_GAS);
-  if ((Edge_Form_P1 || Split_Edge_Flux) && (Kind_ConvNumScheme_Flow == SPACE_UPWIND) && (Low_Mach_Corr || !idealGas)) {
+  if ((Edge_Form_P1 || Split_Edge_Flux || Edge_Diss_Projected) && (Kind_ConvNumScheme_Flow == SPACE_UPWIND) &&
+      (Low_Mach_Corr || !idealGas)) {
     refuse("upwind schemes need an ideal gas and no LOW_MACH_CORR.");
   }
 
@@ -6338,9 +6342,10 @@ void CConfig::CheckP1FluxOptions() const {
   }
   if (Edge_Form_EC_Flux) {
     const string name = "EDGE_FORM_EC_FLUX: ";
-    if (!Edge_Form_P1 || !((Kind_ConvNumScheme_Flow == SPACE_UPWIND) ||
-                           (Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST)))
-      SU2_MPI::Error(name + "needs EDGE_FORM_P1 with ROE or JST.", CURRENT_FUNCTION);
+    if (!(Edge_Form_P1 || Edge_Diss_Projected) ||
+        !((Kind_ConvNumScheme_Flow == SPACE_UPWIND) ||
+          (Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST)))
+      SU2_MPI::Error(name + "needs EDGE_FORM_P1 or EDGE_DISS_PROJECTED with ROE or JST.", CURRENT_FUNCTION);
     if (!idealGas) SU2_MPI::Error(name + "the Ismail-Roe flux needs an ideal gas.", CURRENT_FUNCTION);
     if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
   }
@@ -6376,6 +6381,20 @@ void CConfig::CheckP1FluxOptions() const {
     if (GetBounded_Scalar()) SU2_MPI::Error(name + "the edge mass fluxes of BOUNDED_SCALAR do not hold the split flux.", CURRENT_FUNCTION);
     if (Kind_ConvNumScheme_Flow == SPACE_UPWIND && Kind_Upwind_Flow != UPWIND::ROE) {
       SU2_MPI::Error(name + "among the upwind schemes only ROE is supported.", CURRENT_FUNCTION);
+    }
+  }
+  if (Edge_Diss_Projected) {
+    /*--- The central part keeps the median normal n and the dissipation uses nu = (n.e/|e|^2) e. This needs the
+     * median dual, on which E = 0 and sum_k n_ik = 0 at interior nodes, so no form option applies. ---*/
+    const string name = "EDGE_DISS_PROJECTED: ";
+    if (ModCentroids) SU2_MPI::Error(name + "built on the median dual, not available with MOD_CENTROIDS.", CURRENT_FUNCTION);
+    if (FluxCorrection) SU2_MPI::Error(name + "not available with FLUX_CORRECTION.", CURRENT_FUNCTION);
+    if (Edge_Form_P1) SU2_MPI::Error(name + "not available with EDGE_FORM_P1.", CURRENT_FUNCTION);
+    if (Split_Edge_Flux) SU2_MPI::Error(name + "not available with SPLIT_EDGE_FLUX.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
+    if (!((Kind_ConvNumScheme_Flow == SPACE_UPWIND && Kind_Upwind_Flow == UPWIND::ROE) ||
+          (Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST))) {
+      SU2_MPI::Error(name + "only ROE and JST are supported.", CURRENT_FUNCTION);
     }
   }
 }

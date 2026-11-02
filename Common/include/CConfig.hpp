@@ -153,6 +153,7 @@ private:
   Edge_Form_Exact_Jacobian, /*!< \brief Central Jacobian of the edge form with n_ik and E_ik.*/
   GCL_Exact_P1,             /*!< \brief Make the grid flux of the P1 forms equal to the BDF difference of the volumes.*/
   Split_Edge_Flux,          /*!< \brief Central flux on the split edges of the cells, with no new points.*/
+  Edge_Diss_Projected,      /*!< \brief Median dual, dissipation on the edge projection nu = (n.e/|e|^2) e of the normal.*/
   Pressure_Based;           /*!< \brief Flag to check if we are using a pressure-based system.*/
   su2double Buffet_k;       /*!< \brief Sharpness coefficient for buffet sensor.*/
   su2double Buffet_lambda;  /*!< \brief Offset parameter for buffet sensor.*/
@@ -10030,6 +10031,12 @@ public:
    * \return YES if the split edges are used.
    */
   bool GetSplit_Edge_Flux() const { return Split_Edge_Flux; }
+
+  /*!
+   * \brief Get if the dissipation uses the edge projection nu = (n.e/|e|^2) e of the median normal (EDGE_DISS_PROJECTED).
+   * \return YES if the central part keeps n and the dissipation and its Jacobian use nu.
+   */
+  bool GetEdge_Diss_Projected() const { return Edge_Diss_Projected; }
 
   /*!
    * \brief Get Compute Average.

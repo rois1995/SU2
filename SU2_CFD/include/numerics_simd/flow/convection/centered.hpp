@@ -53,6 +53,7 @@ protected:
   const bool dynamicGrid;
   const bool edgeForm;
   const bool exactFormJac;
+  const bool projDiss;  /*!< \brief EDGE_DISS_PROJECTED, declared before ecFlux, which depends on it. */
   const bool ecFlux;
   const bool esDiss;
   const bool esBlend;
@@ -69,7 +70,8 @@ protected:
     dynamicGrid(config.GetDynamic_Grid()),
     edgeForm(iMesh == MESH_0 && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())),
     exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()),
-    ecFlux(edgeForm && config.GetEdge_Form_EC_Flux()),
+    projDiss(iMesh == MESH_0 && config.GetEdge_Diss_Projected()),
+    ecFlux((edgeForm || projDiss) && config.GetEdge_Form_EC_Flux()),
     esDiss(edgeForm && config.GetEdge_Form_ES_Diss()),
     esBlend(edgeForm && config.GetEdge_Form_ES_Blend()),
     sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
@@ -168,6 +170,10 @@ public:
       for (size_t iVar = 0; iVar < nVar; ++iVar) {
         flux(iVar) = fluxMean(iVar) + fluxE_j(iVar) - fluxE_i(iVar);
       }
+    } else if (ecFlux) {
+      /*--- EDGE_DISS_PROJECTED with EDGE_FORM_EC_FLUX: Ismail-Roe along the median normal, entropy conservative at
+       * interior nodes because sum_k n_ik = 0 there, the dissipation below is on nu. ---*/
+      flux = ismailRoeProjFlux(gamma, V.i, V.j, normal);
     } else {
       flux = inviscidProjFlux(avgV, avgU, normal);
     }
@@ -276,14 +282,29 @@ public:
       }
     }
 
-    const Double projVel = dot(avgV.velocity(), normal) - projGridVel;
+    /*--- EDGE_DISS_PROJECTED: the dissipation uses nu = (n.e/|e|^2) e, the edge projection of the median normal,
+     * so the spectral radius is |u.nu| + c|nu|. The central part and its Jacobian above keep n, the nodal spectral
+     * radii of the stretching correction and of the time step stay median. Off, the references are the median
+     * normal and nothing else is read. ---*/
+
+    VectorDbl<nDim> projNormal, projUnitNormal;
+    Double projArea = 0.0;
+    if (projDiss) {
+      const auto vector_ij = distanceVector<nDim>(iPoint, jPoint, geometry.nodes->GetCoord());
+      projectedNormal(normal, vector_ij, projNormal, projArea, projUnitNormal);
+    }
+    const VectorDbl<nDim>& rNormal = projDiss ? projNormal : normal;
+    const VectorDbl<nDim>& rUnitNormal = projDiss ? projUnitNormal : unitNormal;
+    const Double& rArea = projDiss ? projArea : area;
+
+    const Double projVel = dot(avgV.velocity(), rNormal) - projGridVel;
 
     /*--- Finalize in derived class (static polymorphism). ---*/
 
     const auto derived = static_cast<const Derived*>(this);
 
-    derived->finalizeFlux(flux, jac_i, jac_j, implicit, area, projVel, avgV, V,
-                          diffU, iPoint, jPoint, geometry, solution, unitNormal);
+    derived->finalizeFlux(flux, jac_i, jac_j, implicit, rArea, projVel, avgV, V,
+                          diffU, iPoint, jPoint, geometry, solution, rUnitNormal);
 
     /*--- Add the contributions from the base class (static decorator). ---*/
 
