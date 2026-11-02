@@ -84,6 +84,13 @@ class CEulerVariable : public CFlowVariable {
   VectorType FluidEntropy;          /*!< \brief Stores the fluid entropy value as computed by the data-driven fluid model. */
 
  public:
+  su2activevector EdgeBlendLambda; /*!< \brief EDGE_FORM_ES_BLEND: per edge sum_T theta_T lam^T_ik, set before each edge loop. */
+
+  /*!
+   * \brief EDGE_FORM_ES_BLEND: coefficient of the nodal jump U_k - U_i on each edge (empty when the option is off).
+   */
+  inline const su2activevector& GetEdgeBlendLambda() const { return EdgeBlendLambda; }
+
   /*!
    * \brief Constructor of the class.
    * \param[in] density - Value of the flow density (initialization value).

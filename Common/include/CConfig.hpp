@@ -79,6 +79,7 @@ private:
   su2double Edge_Form_Positive_Sensor; /*!< \brief Relative pressure jump at which that dissipation acts in full. */
   bool Edge_Form_Entropy_Diss; /*!< \brief Energy stable dissipation of the E term of the P1 edge form. */
   bool Edge_Form_ES_Diss;      /*!< \brief Certified entropy stable dissipation of the E part on the nodal jump. */
+  bool Edge_Form_ES_Blend;     /*!< \brief Element theta blend of that dissipation, theta_T = P_T^+ / D_T. */
   bool Edge_Form_EC_Flux;      /*!< \brief Entropy conservative central part of the P1 edge form along n_ik - n. */
   bool BC_Entropy_P1;          /*!< \brief Entropy stable hybridized weak boundary of BC_WEAK_P1 (closure C). */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
@@ -10004,6 +10005,11 @@ public:
    * \brief Certified entropy stable scalar dissipation of the E part of EDGE_FORM_P1 on the nodal jump.
    */
   bool GetEdge_Form_ES_Diss() const { return Edge_Form_ES_Diss; }
+
+  /*!
+   * \brief Element theta blend of the Lemma 3 dissipation of the E part: theta_T = P_T^+ / D_T per element.
+   */
+  bool GetEdge_Form_ES_Blend() const { return Edge_Form_ES_Blend; }
 
   bool GetEdge_Form_EC_Flux() const { return Edge_Form_EC_Flux; }
 

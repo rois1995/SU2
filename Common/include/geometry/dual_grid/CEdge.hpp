@@ -57,6 +57,8 @@ class CEdge {
   su2activevector FormSwept; /*!< \brief Term omega_ik of the true edges, allocated only for GCL_EXACT_P1. */
   su2activevector SplitSwept; /*!< \brief Term omega_ik of the split pairs, allocated only for GCL_EXACT_P1. */
   su2activevector BoundSwept; /*!< \brief Per point, nodal boundary term, allocated only for GCL_EXACT_P1. */
+  su2activematrix BlendDelta; /*!< \brief Per simplex, W_a - |T|/(d+1) of its nodes, allocated only for EDGE_FORM_ES_BLEND. */
+  su2matrix<Index> BlendEdges; /*!< \brief Per simplex, the edge of each node pair a < b, only for EDGE_FORM_ES_BLEND. */
   const Index nEdge, nEdgeSIMD;
 
   friend class CPhysicalGeometry;
@@ -257,6 +259,17 @@ class CEdge {
    * \brief Nodal boundary term of GCL_EXACT_P1.
    */
   inline const su2activevector& GetBoundSwept() const { return BoundSwept; }
+
+  /*!
+   * \brief Per simplex (row = element index), delta_a = W_a - |T|/(d+1) in the node order of the element.
+   *        With g_a the shape gradients, E^T_ab = 0.5 (delta_a g_b + delta_b g_a) and sum_T E^T_ab = E_ab.
+   */
+  inline const su2activematrix& GetBlendDelta() const { return BlendDelta; }
+
+  /*!
+   * \brief Per simplex, the edge of the node pairs (0,1),(0,2),(1,2) in 2D, (0,1),(0,2),(0,3),(1,2),(1,3),(2,3) in 3D.
+   */
+  inline const su2matrix<Index>& GetBlendEdges() const { return BlendEdges; }
 
   inline const su2activematrix& GetCorrection_X() const { return a; }
   inline const su2activematrix& GetCorrection_Y() const { return b; }

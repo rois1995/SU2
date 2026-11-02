@@ -7166,6 +7166,42 @@ void CPhysicalGeometry::SetEdgeFormP1() {
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
+void CPhysicalGeometry::SetEdgeFormBlend() {
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    const unsigned short nNodes = nDim + 1;
+    edges->BlendDelta.resize(nElem, nNodes) = su2double(0.0);
+    edges->BlendEdges.resize(nElem, nNodes * nDim / 2) = 0ul;
+
+    for (auto iElem = 0ul; iElem < nElem; iElem++) {
+      auto* element = elem[iElem];
+
+      if (element->GetnNodes() != nNodes) {
+        SU2_MPI::Error("EDGE_FORM_ES_BLEND needs a mesh of triangles or tetrahedra.", CURRENT_FUNCTION);
+      }
+
+      array<const su2double*, N_POINTS_MAXIMUM> Coord;
+      for (unsigned short iNode = 0; iNode < nNodes; iNode++) Coord[iNode] = nodes->GetCoord(element->GetNode(iNode));
+
+      /*--- The same W and |T|/(d+1) as SetEdgeFormP1, so that sum_T E^T_ab is the E_ab of the edge. ---*/
+
+      su2double W[MAXNDIM + 1] = {0.0};
+      CellNodeShares(element, nDim, Coord, W);
+
+      su2double grad[MAXNDIM + 1][3];
+      const su2double median = fabs(P1Simplex::ShapeGradients(nDim, Coord, grad)) / nNodes;
+
+      unsigned short pair = 0;
+      for (unsigned short a = 0; a < nNodes; a++) {
+        edges->BlendDelta(iElem, a) = W[a] - median;
+        for (unsigned short b = a + 1; b < nNodes; b++) {
+          edges->BlendEdges(iElem, pair++) = FindEdge(element->GetNode(a), element->GetNode(b));
+        }
+      }
+    }
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+}
+
 const vector<CSplitPattern>& CPhysicalGeometry::GetSplitPatterns(const CPrimalGrid* element) {
   const auto found = SplitPatterns.find(element->GetVTK_Type());
   if (found != SplitPatterns.end()) return found->second;

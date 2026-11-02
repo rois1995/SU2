@@ -475,6 +475,13 @@ public:
   void SplitEdgeResidual(const CGeometry *geometry, const CConfig *config);
 
   /*!
+   * \brief EDGE_FORM_ES_BLEND: per simplex theta_T = P_T^+ / D_T from the nodal states, and per edge
+   *        sum_T theta_T lam^T_ik, read by the edge loop. Called once per residual, before the edge loop.
+   * \param[in] geometry - Geometrical definition of the problem.
+   */
+  void SetEdgeBlendLambda(const CGeometry *geometry);
+
+  /*!
    * \brief Add the nodal boundary term of the grid flux of GCL_EXACT_P1.
    * \param[in] geometry - Geometrical definition.
    */

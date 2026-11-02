@@ -29,6 +29,7 @@
 #include "../../include/variables/CNSVariable.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../../../Common/include/toolboxes/printing_toolbox.hpp"
+#include "../../../Common/include/toolboxes/p1_simplex.hpp"
 #include "../../include/fluid/CIdealGas.hpp"
 #include "../../include/fluid/CVanDerWaalsGas.hpp"
 #include "../../include/fluid/CPengRobinson.hpp"
@@ -301,6 +302,9 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
 
   if (iMesh == MESH_0) {
     nodes->NonPhysicalEdgeCounter.resize(geometry->GetnEdge()) = 0;
+    if (config->GetEdge_Form_P1() && config->GetEdge_Form_ES_Blend()) {
+      nodes->EdgeBlendLambda.resize(geometry->GetnEdge()) = su2double(0.0);
+    }
   }
 
   /*--- Check that the initial solution is physical, report any non-physical nodes ---*/
@@ -1823,6 +1827,7 @@ void CEulerSolver::Centered_Residual(CGeometry *geometry, CSolver **solver_conta
                                      CConfig *config, unsigned short iMesh, unsigned short iRKStep) {
   SU2_ZONE_SCOPED
 
+  if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry);
   EdgeFluxResidual(geometry, solver_container, config);
   if ((iMesh == MESH_0) && config->GetSplit_Edge_Flux()) SplitEdgeResidual(geometry, config);
   if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry);
@@ -1907,6 +1912,123 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
+void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry) {
+  SU2_ZONE_SCOPED
+
+  /*--- EDGE_FORM_ES_BLEND, element theta blend of the Lemma 3 dissipation of the E part (P1_SECOND_ORDER.md, B2).
+   * In a simplex T with shape gradients g_a and delta_a = W_a - |T|/(d+1), the E part of the pair ab is
+   * E^T_ab = 0.5 (delta_a g_b + delta_b g_a), and sum_T E^T_ab = E_ab. With w the entropy variables of
+   * U = -rho s/(gamma-1), the E part produces exactly P_T = sum_{a<b} (w_b - w_a).(F_b - F_a).E^T_ab in T (METHOD 2),
+   * and lam^T_ab (U_b - U_a) produces -D_T, D_T = sum_{a<b} lam^T_ab (w_b - w_a).(U_b - U_a) >= 0, with
+   * lam^T_ab = max(0, max(u_a.E, u_b.E) + max(c_a, c_b) |E|), E = E^T_ab (Lemma 3 on the piece). Lemma 3 gives
+   * P_T <= D_T, so theta_T = P_T^+ / D_T is in [0,1] and P_T - theta_T D_T = min(P_T, 0) <= 0 for any states.
+   * The sum over T of the pair production is the edge production, so the edge gets sum_T theta_T lam^T_ab on the
+   * nodal jump, with theta frozen in the Jacobian. All terms use the nodal states of the edge loop.
+   * MPI: an edge with an owned node has all its simplices on this rank (they contain that node), with halo primitives
+   * that are up to date, so its coefficient equals the serial one. Edges between halo nodes are incomplete, as is
+   * their residual. ---*/
+
+  const auto& delta = geometry->edges->GetBlendDelta();
+  const auto& blendEdges = geometry->edges->GetBlendEdges();
+  auto& lamBlend = nodes->EdgeBlendLambda;
+  const unsigned short nNodes = nDim + 1;
+
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    lamBlend = su2double(0.0);
+
+    for (auto iElem = 0ul; iElem < geometry->GetnElem(); ++iElem) {
+      const auto* element = geometry->elem[iElem];
+
+      std::array<const su2double*, MAXNDIM + 1> coord;
+      unsigned long point[MAXNDIM + 1];
+      for (unsigned short a = 0; a < nNodes; ++a) {
+        point[a] = element->GetNode(a);
+        coord[a] = geometry->nodes->GetCoord(point[a]);
+      }
+      su2double grad[MAXNDIM + 1][3];
+      P1Simplex::ShapeGradients(nDim, coord, grad);
+
+      /*--- Nodal states as in the edge loop, from the primitives (T, u, p, rho, h): U from them as compressibleConservatives,
+       * w = ((gamma-s)/(gamma-1) - beta|u|^2, 2 beta u, -2 beta) with beta = rho/(2p) and s = ln p - gamma ln rho. ---*/
+
+      su2double density[MAXNDIM + 1], pressure[MAXNDIM + 1], enthalpy[MAXNDIM + 1], soundSpeed2[MAXNDIM + 1];
+      su2double velocity[MAXNDIM + 1][MAXNDIM], U[MAXNDIM + 1][MAXNDIM + 2], w[MAXNDIM + 1][MAXNDIM + 2];
+
+      for (unsigned short a = 0; a < nNodes; ++a) {
+        density[a] = nodes->GetPrimitive(point[a], nDim + 2);
+        pressure[a] = nodes->GetPrimitive(point[a], nDim + 1);
+        enthalpy[a] = nodes->GetPrimitive(point[a], nDim + 3);
+        soundSpeed2[a] = Gamma * pressure[a] / density[a];
+
+        const su2double beta = 0.5 * density[a] / pressure[a];
+        const su2double entropy = log(pressure[a]) - Gamma * log(density[a]);
+        su2double velocity2 = 0.0;
+        U[a][0] = density[a];
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+          velocity[a][iDim] = nodes->GetPrimitive(point[a], iDim + 1);
+          velocity2 += velocity[a][iDim] * velocity[a][iDim];
+          U[a][iDim + 1] = density[a] * velocity[a][iDim];
+          w[a][iDim + 1] = 2.0 * beta * velocity[a][iDim];
+        }
+        U[a][nDim + 1] = density[a] * enthalpy[a] - pressure[a];
+        w[a][0] = (Gamma - entropy) / Gamma_Minus_One - beta * velocity2;
+        w[a][nDim + 1] = -2.0 * beta;
+      }
+
+      /*--- P_T and D_T over the pairs, pair order as in CPhysicalGeometry::SetEdgeFormBlend. ---*/
+
+      su2double lam[MAXNDIM * (MAXNDIM + 1) / 2];
+      su2double production = 0.0, dissipation = 0.0;
+      unsigned short pair = 0;
+
+      for (unsigned short a = 0; a < nNodes; ++a) {
+        for (unsigned short b = a + 1; b < nNodes; ++b) {
+          su2double E[MAXNDIM] = {0.0};
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+            E[iDim] = 0.5 * (delta(iElem, a) * grad[b][iDim] + delta(iElem, b) * grad[a][iDim]);
+          }
+          const su2double areaE = GeometryToolbox::Norm(nDim, E);
+          const su2double projVel_a = GeometryToolbox::DotProduct(nDim, velocity[a], E);
+          const su2double projVel_b = GeometryToolbox::DotProduct(nDim, velocity[b], E);
+
+          const su2double maxProjVel = max(projVel_a, projVel_b);
+          const su2double maxSoundSpeed = sqrt(max(soundSpeed2[a], soundSpeed2[b]));
+          const su2double speed = maxProjVel + maxSoundSpeed * areaE;
+          lam[pair] = max(su2double(0.0), speed);
+
+          /*--- (w_b - w_a).(F_b - F_a).E with F.E = (rho u.E, rho u.E u + p E, rho u.E H), as inviscidProjFlux. ---*/
+          const su2double mdot_a = density[a] * projVel_a;
+          const su2double mdot_b = density[b] * projVel_b;
+          su2double prodPair = (w[b][0] - w[a][0]) * (mdot_b - mdot_a);
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+            prodPair += (w[b][iDim + 1] - w[a][iDim + 1]) *
+                        (mdot_b * velocity[b][iDim] + pressure[b] * E[iDim] - mdot_a * velocity[a][iDim] - pressure[a] * E[iDim]);
+          }
+          prodPair += (w[b][nDim + 1] - w[a][nDim + 1]) * (mdot_b * enthalpy[b] - mdot_a * enthalpy[a]);
+
+          su2double dissPair = 0.0;
+          for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) dissPair += (w[b][iVar] - w[a][iVar]) * (U[b][iVar] - U[a][iVar]);
+
+          production += prodPair;
+          dissipation += lam[pair] * dissPair;
+          ++pair;
+        }
+      }
+
+      /*--- P_T <= D_T holds exactly, min(.,1) only guards round-off. theta = 0 if P_T <= 0 or D_T = 0. ---*/
+
+      if ((production <= 0.0) || (dissipation <= 0.0)) continue;
+      const su2double ratio = production / dissipation;
+      const su2double theta = min(ratio, su2double(1.0));
+
+      for (unsigned short iPair = 0; iPair < pair; ++iPair) {
+        lamBlend(blendEdges(iElem, iPair)) += theta * lam[iPair];
+      }
+    }
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+}
+
 void CEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_container,
                                    CNumerics **numerics_container, CConfig *config, unsigned short iMesh) {
   SU2_ZONE_SCOPED
@@ -1920,6 +2042,7 @@ void CEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_contain
   if (ideal_gas && !low_mach_corr) {
     if (config->GetKind_Upwind_Flow() == UPWIND::ROE || config->GetKind_Upwind_Flow() == UPWIND::MSW ||
         config->GetKind_Upwind_Flow() == UPWIND::ROENEW) {
+      if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry);
       EdgeFluxResidual(geometry, solver_container, config);
       if ((iMesh == MESH_0) && config->GetSplit_Edge_Flux()) SplitEdgeResidual(geometry, config);
       if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry);

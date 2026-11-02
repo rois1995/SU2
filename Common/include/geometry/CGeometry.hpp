@@ -950,6 +950,11 @@ class CGeometry {
   inline virtual void SetEdgeFormP1() {}
 
   /*!
+   * \brief Per simplex, the moved-dual shares delta_a = W_a - |T|/(d+1) and the edges of its node pairs (EDGE_FORM_ES_BLEND).
+   */
+  inline virtual void SetEdgeFormBlend() {}
+
+  /*!
    * \brief Split all cells into simplices and set the central flux coefficients of the split edges.
    */
   inline virtual void SetSplitEdges() {}

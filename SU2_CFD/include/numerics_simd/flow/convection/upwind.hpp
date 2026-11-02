@@ -69,6 +69,7 @@ protected:
   const su2double positiveSensor;
   const bool entropyDiss;
   const bool esDiss;
+  const bool esBlend;
   const bool ecFlux;
   const bool sweptFlux;
 
@@ -92,6 +93,7 @@ protected:
     positiveSensor(config.GetEdge_Form_Positive_Sensor()),
     entropyDiss(edgeForm && config.GetEdge_Form_Entropy_Diss()),
     esDiss(edgeForm && config.GetEdge_Form_ES_Diss()),
+    esBlend(edgeForm && config.GetEdge_Form_ES_Blend()),
     ecFlux(edgeForm && config.GetEdge_Form_EC_Flux()),
     sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
   }
@@ -310,6 +312,19 @@ public:
           proj_j += V1st.j.velocity(iDim) * formE(iDim);
         }
         const Double lam = fmax(0.0, fmax(proj_i, proj_j) + sqrt(gamma * fmax(V1st.i.pressure() / V1st.i.density(), V1st.j.pressure() / V1st.j.density())) * areaE);
+        for (size_t iVar = 0; iVar < nVar; ++iVar) {
+          flux(iVar) -= lam * (U1st.j.all(iVar) - U1st.i.all(iVar));
+          if (implicit) {
+            jac_i(iVar, iVar) += lam;
+            jac_j(iVar, iVar) -= lam;
+          }
+        }
+      }
+
+      /*--- EDGE_FORM_ES_BLEND: the same dissipation on the nodal jump, with sum_T theta_T lam^T_ik from the element
+       * pass CEulerSolver::SetEdgeBlendLambda, theta_T = P_T^+ / D_T in [0,1]. Theta is frozen in the Jacobian. ---*/
+      if (esBlend) {
+        const Double lam = gatherVariables(iEdge, solution.GetEdgeBlendLambda());
         for (size_t iVar = 0; iVar < nVar; ++iVar) {
           flux(iVar) -= lam * (U1st.j.all(iVar) - U1st.i.all(iVar));
           if (implicit) {

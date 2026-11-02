@@ -1845,6 +1845,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_FORM_EC_FLUX", Edge_Form_EC_Flux, false);
   /*!\brief EDGE_FORM_ES_DISS \n DESCRIPTION: Add lam (U_k-U_i), lam = max(0, max(u.e) + max(c)) |E_ik| over the two nodes, which makes the E part of EDGE_FORM_P1 entropy stable for any jump. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_ES_DISS", Edge_Form_ES_Diss, false);
+  /*!\brief EDGE_FORM_ES_BLEND \n DESCRIPTION: Per element T, theta_T = P_T^+ / D_T with P_T the exact entropy production of the E part of EDGE_FORM_P1 in T and D_T that of the Lemma 3 dissipation on the element pieces E^T_ik; adds sum_T theta_T lam^T_ik (U_k-U_i) on each edge. Entropy stable for any states, second order at smooth steady states. \ingroup Config \default false */
+  addBoolOption("EDGE_FORM_ES_BLEND", Edge_Form_ES_Blend, false);
   /*!\brief BC_ENTROPY_P1 \n DESCRIPTION: Entropy stable weak boundary of BC_WEAK_P1 with EDGE_FORM_P1: degree 2 face rule, entropy projected states at the points, Ismail-Roe coupling to the face nodes; pressure flux at Euler walls and symmetry planes, Ismail-Roe plus Rusanov against the characteristic ghost at the far field. \ingroup Config \default false */
   addBoolOption("BC_ENTROPY_P1", BC_Entropy_P1, false);
   /*!\brief GCL_EXACT_P1 \n DESCRIPTION: Add the swept terms that make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes, for conservation in time on moving meshes. \ingroup Config*/
@@ -6233,6 +6235,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_Entropy_Diss) active.push_back("EDGE_FORM_ENTROPY_DISS");
   if (Edge_Form_EC_Flux) active.push_back("EDGE_FORM_EC_FLUX");
   if (Edge_Form_ES_Diss) active.push_back("EDGE_FORM_ES_DISS");
+  if (Edge_Form_ES_Blend) active.push_back("EDGE_FORM_ES_BLEND");
   if (BC_Entropy_P1) active.push_back("BC_ENTROPY_P1");
   if (GCL_Exact_P1) active.push_back("GCL_EXACT_P1");
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
@@ -6321,6 +6324,16 @@ void CConfig::CheckP1FluxOptions() const {
                            (Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST)))
       SU2_MPI::Error(name + "needs EDGE_FORM_P1 with ROE or JST.", CURRENT_FUNCTION);
     if (!idealGas) SU2_MPI::Error(name + "the bound uses c^2 = gamma p / rho, it needs an ideal gas.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
+  }
+  if (Edge_Form_ES_Blend) {
+    const string name = "EDGE_FORM_ES_BLEND: ";
+    if (!Edge_Form_P1 || !((Kind_ConvNumScheme_Flow == SPACE_UPWIND) ||
+                           (Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST)))
+      SU2_MPI::Error(name + "needs EDGE_FORM_P1 with ROE or JST.", CURRENT_FUNCTION);
+    if (Edge_Form_ES_Diss) SU2_MPI::Error(name + "not together with EDGE_FORM_ES_DISS, which is the blend with theta = 1.", CURRENT_FUNCTION);
+    if (Split_Edge_Flux) SU2_MPI::Error(name + "needs the simplices of EDGE_FORM_P1, not available with SPLIT_EDGE_FLUX.", CURRENT_FUNCTION);
+    if (!idealGas) SU2_MPI::Error(name + "the entropy variables and the bound use an ideal gas.", CURRENT_FUNCTION);
     if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
   }
   if (Edge_Form_EC_Flux) {

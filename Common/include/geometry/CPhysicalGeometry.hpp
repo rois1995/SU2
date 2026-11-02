@@ -469,6 +469,12 @@ class CPhysicalGeometry final : public CGeometry {
   void SetEdgeFormP1() override;
 
   /*!
+   * \brief Per simplex T, delta_a = W_a - |T|/(d+1) with the W of SetEdgeFormP1, and the edge of each node pair,
+   *        so that the element pieces E^T_ab = 0.5 (delta_a g_b + delta_b g_a) of E_ab can be rebuilt.
+   */
+  void SetEdgeFormBlend() override;
+
+  /*!
    * \brief Mean of all pulling splits of each cell, with no new points and no dependence on node IDs. In each
    *        split the node weights W are closest to |t|/(d+1) with sum_a W_a = |t| per simplex and
    *        sum_t W_i = median share per node, so the flux scales with the median volume like all other

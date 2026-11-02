@@ -55,6 +55,7 @@ protected:
   const bool exactFormJac;
   const bool ecFlux;
   const bool esDiss;
+  const bool esBlend;
   const bool sweptFlux;
   const su2double stretchParam = 0.3;
 
@@ -70,6 +71,7 @@ protected:
     exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()),
     ecFlux(edgeForm && config.GetEdge_Form_EC_Flux()),
     esDiss(edgeForm && config.GetEdge_Form_ES_Diss()),
+    esBlend(edgeForm && config.GetEdge_Form_ES_Blend()),
     sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
   }
 
@@ -203,6 +205,19 @@ public:
         proj_j += V.j.velocity(iDim) * formE(iDim);
       }
       const Double lam = fmax(0.0, fmax(proj_i, proj_j) + sqrt(gamma * fmax(V.i.pressure() / V.i.density(), V.j.pressure() / V.j.density())) * areaE);
+      for (size_t iVar = 0; iVar < nVar; ++iVar) {
+        flux(iVar) -= lam * (U.j.all(iVar) - U.i.all(iVar));
+        if (implicit) {
+          jac_i(iVar, iVar) += lam;
+          jac_j(iVar, iVar) -= lam;
+        }
+      }
+    }
+
+    /*--- EDGE_FORM_ES_BLEND: the same dissipation on the nodal jump, with sum_T theta_T lam^T_ik from the element
+     * pass CEulerSolver::SetEdgeBlendLambda, theta_T = P_T^+ / D_T in [0,1]. Theta is frozen in the Jacobian. ---*/
+    if (esBlend) {
+      const Double lam = gatherVariables(iEdge, solution.GetEdgeBlendLambda());
       for (size_t iVar = 0; iVar < nVar; ++iVar) {
         flux(iVar) -= lam * (U.j.all(iVar) - U.i.all(iVar));
         if (implicit) {
