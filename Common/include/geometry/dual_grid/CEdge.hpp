@@ -48,7 +48,6 @@ class CEdge {
   NodeArray Nodes;        /*!< \brief Vector to store the node indices of the edge. */
   su2activematrix Normal; /*!< \brief Normal (area) of the edge. */
   su2activematrix a,b,c; /*!< \brief Normal (area) of the edge. */
-  su2activematrix ModNormal; /*!< \brief Normal of the modified dual, allocated only for DISSIPATION_MOD_NORMALS. */
   su2activematrix FormNormal, FormE; /*!< \brief Coefficients n_ik and E_ik, allocated only for EDGE_FORM_P1. */
   std::vector<std::array<Index, 2>> SplitNodes; /*!< \brief Node pairs of the split edges that are not true edges. */
   su2activematrix SplitNormal; /*!< \brief Coefficient n_ik of those pairs, allocated only for SPLIT_EDGE_FLUX. */
@@ -209,11 +208,6 @@ class CEdge {
    * \brief Get the entire matrix of edge normals.
    */
   inline const su2activematrix& GetNormal() const { return Normal; }
-  /*!
-   * \brief Normals of the modified dual, one row per edge, same orientation as GetNormal.
-   */
-  inline const su2activematrix& GetModNormal() const { return ModNormal; }
-
   /*!
    * \brief Coefficient n_ik of the P1 edge form, one row per edge, i is the LEFT node.
    */

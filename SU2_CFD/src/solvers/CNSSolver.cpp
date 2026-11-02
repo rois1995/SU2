@@ -29,8 +29,6 @@
 #include "../../include/variables/CNSVariable.hpp"
 #include "../../../Common/include/toolboxes/printing_toolbox.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
-#include "../../../Common/include/toolboxes/p1_simplex.hpp"
-#include "../../include/numerics/flow/p1_viscous.hpp"
 #include "../../include/solvers/CFVMFlowSolverBase.inl"
 
 /*--- Explicit instantiation of the parent class of CEulerSolver,
@@ -184,66 +182,6 @@ CNumerics::ResidualType<> CNSSolver::Viscous_Residual(unsigned long iEdge, CGeom
                                                       CSolver **solver_container, CNumerics *numerics,
                                                       CConfig *config) {
   return Viscous_Residual_impl(iEdge, geometry, solver_container, numerics, config);
-}
-
-void CNSSolver::Viscous_Residual(CGeometry *geometry, CSolver **solver_container, CNumerics **numerics_container,
-                                 CConfig *config, unsigned short iMesh, unsigned short iRKStep) {
-  if ((iMesh == MESH_0) && (config->GetKind_Viscous_Scheme() == VISCOUS_SCHEME::P1_CELL)) {
-    Viscous_Residual_P1(geometry, config);
-  }
-}
-
-void CNSSolver::Viscous_Residual_P1(CGeometry *geometry, const CConfig *config) {
-  SU2_ZONE_SCOPED
-
-  const su2double prandtlTurb = config->GetPrandtl_Turb();
-
-  /*--- The coloring is built on first use. ---*/
-  SU2_OMP_SAFE_GLOBAL_ACCESS(geometry->GetElementColoring();)
-
-  const auto& coloring = geometry->GetElementColoring();
-  const auto groupSize = geometry->GetElementColorGroupSize();
-
-  for (auto iColor = 0ul; iColor < coloring.getOuterSize(); ++iColor) {
-    const auto* indices = coloring.innerIdx(iColor);
-    const auto nInColor = coloring.getNumNonZeros(iColor);
-
-    SU2_OMP_FOR_DYN(nextMultiple(OMP_MIN_SIZE, groupSize))
-    for (auto k = 0ul; k < nInColor; ++k) {
-      const auto* element = geometry->elem[indices[k]];
-      const auto nNodes = element->GetnNodes();
-
-      if (nNodes != nDim + 1) {
-        SU2_MPI::Error("VISCOUS_SCHEME= P1_CELL needs triangles or tetrahedra.", CURRENT_FUNCTION);
-      }
-
-      const su2double* coord[MAXNDIM + 1];
-      su2double velocity[MAXNDIM + 1][3] = {}, temperature[MAXNDIM + 1], viscosity[MAXNDIM + 1],
-                conductivity[MAXNDIM + 1], grad[MAXNDIM + 1][3], residual[MAXNDIM + 1][5];
-
-      for (auto iNode = 0u; iNode < nNodes; ++iNode) {
-        const auto iPoint = element->GetNode(iNode);
-        const auto eddyViscosity = nodes->GetEddyViscosity(iPoint);
-        coord[iNode] = geometry->nodes->GetCoord(iPoint);
-        for (auto iDim = 0u; iDim < nDim; ++iDim) velocity[iNode][iDim] = nodes->GetVelocity(iPoint, iDim);
-        temperature[iNode] = nodes->GetTemperature(iPoint);
-        viscosity[iNode] = nodes->GetLaminarViscosity(iPoint) + eddyViscosity;
-        conductivity[iNode] = nodes->GetThermalConductivity(iPoint) +
-                              nodes->GetSpecificHeatCp(iPoint) * eddyViscosity / prandtlTurb;
-      }
-
-      const su2double size = fabs(P1Simplex::ShapeGradients(nDim, coord, grad));
-
-      P1Viscous::CellResidual(nDim, size, grad, velocity, temperature, viscosity, conductivity, residual);
-
-      /*--- An element sits on every rank that owns one of its nodes, each rank adds to its owned nodes only. ---*/
-      for (auto iNode = 0u; iNode < nNodes; ++iNode) {
-        const auto iPoint = element->GetNode(iNode);
-        if (geometry->nodes->GetDomain(iPoint)) LinSysRes.AddBlock(iPoint, residual[iNode]);
-      }
-    }
-    END_SU2_OMP_FOR
-  }
 }
 
 void CNSSolver::Buffet_Monitoring(const CGeometry *geometry, const CConfig *config) {

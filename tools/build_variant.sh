@@ -11,8 +11,8 @@
 #   /media/rausa/4TB/SU2_Versions/SU2_P1FluxVariants_bin/<tag>/bin/SU2_CFD
 #
 # NOTE: the tip binary contains all options, so one binary runs every variant through the
-# config file (BC_FLUX_CLOSURE, CENTRAL_GROUP_FLUX, DISSIPATION_MOD_NORMALS, VISCOUS_SCHEME,
-# EDGE_FORM_P1, SPLIT_EDGE_FLUX, and FLUX_CORRECTION with MOD_CENTROIDS for variant D).
+# config file (EDGE_FORM_P1, BC_WEAK_P1, SPLIT_EDGE_FLUX, and FLUX_CORRECTION with MOD_CENTROIDS
+# for variant D). Options dropped from the branch stay in the older tags.
 # All options default to off. Tagged binaries exist only for isolation.
 #
 # The tag is built from a private detached worktree, so this tree is left alone. Resource

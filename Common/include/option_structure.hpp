@@ -1028,12 +1028,10 @@ enum class VISCOUS_GRAD_CORR {
  * \brief Types of viscous term discretization for the flow equations.
  */
 enum class VISCOUS_SCHEME {
-  EDGE_GRADIENT,   /*!< \brief Edge flux with averaged nodal gradients. */
-  P1_CELL          /*!< \brief Cell loop with P1 shape functions. */
+  EDGE_GRADIENT    /*!< \brief Edge flux with averaged nodal gradients. */
 };
 static const MapType<std::string, VISCOUS_SCHEME> Viscous_Scheme_Map = {
   MakePair("EDGE_GRADIENT", VISCOUS_SCHEME::EDGE_GRADIENT)
-  MakePair("P1_CELL", VISCOUS_SCHEME::P1_CELL)
 };
 
 static const MapType<std::string, VISCOUS_GRAD_CORR> Viscous_Grad_Corr_Map = {

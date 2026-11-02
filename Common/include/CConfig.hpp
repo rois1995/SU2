@@ -75,7 +75,6 @@ private:
   unsigned short Kind_SpanWise;                  /*!< \brief Kind of span-wise section computation.*/
   unsigned short iZone, nZone;    /*!< \brief Number of zones in the mesh. */
   unsigned short nZoneSpecified;  /*!< \brief Number of zones that are specified in config file. */
-  su2double Edge_Form_Min_Share; /*!< \brief Smallest part of a cell held by a node in the P1 edge form. */
   su2double Edge_Form_Positive_Diss; /*!< \brief Part of the extra Roe dissipation up to the positivity bound of the P1 edge form. */
   su2double Edge_Form_Positive_Sensor; /*!< \brief Relative pressure jump at which that dissipation acts in full. */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
@@ -144,13 +143,9 @@ private:
   FluxCorrection,
   Flux_Correction_Limited,  /*!< \brief The gradients of the flux correction use the limiter.*/
   ModCentroids,
-  BC_Flux_Closure,          /*!< \brief Boundary flux weights that are exact for a P1 flux (walls and symmetries).*/
   BC_Weak_P1,               /*!< \brief Weak boundary fluxes of all markers with the weights of a P1 flux.*/
-  Central_Group_Flux,       /*!< \brief Central flux as the average of nodal fluxes, not the flux of the average.*/
-  Dissipation_Mod_Normals,  /*!< \brief Median normal in the central flux, modified normal in dissipation and Jacobian.*/
   Edge_Form_P1,             /*!< \brief Central flux with the edge coefficients n_ik and E_ik of the modified dual.*/
   Edge_Form_Exact_Jacobian, /*!< \brief Central Jacobian of the edge form with n_ik and E_ik.*/
-  Edge_Form_Median_Dual,    /*!< \brief Only the flux weights of the edge form use the moved centroid.*/
   GCL_Exact_P1,             /*!< \brief Make the grid flux of the P1 forms equal to the BDF difference of the volumes.*/
   Split_Edge_Flux,          /*!< \brief Central flux on the split edges of the cells, with no new points.*/
   Pressure_Based;           /*!< \brief Flag to check if we are using a pressure-based system.*/
@@ -9963,32 +9958,14 @@ public:
   bool GetModifiedCentroids() const { return ModCentroids; }
 
   /*!
-   * \brief Get if the Euler wall and symmetry fluxes use the P1 boundary closure weights.
-   * \return YES if the closure is used.
-   */
-  bool GetBC_Flux_Closure() const { return BC_Flux_Closure; }
-
-  /*!
    * \brief Get if all the weak boundary fluxes use the weights of a P1 flux.
    * \return YES if the weights are used.
    */
   bool GetBC_Weak_P1() const { return BC_Weak_P1; }
 
   /*!
-   * \brief Get if the centered schemes average nodal fluxes instead of evaluating the flux of the average.
-   * \return YES if the group form is used.
-   */
-  bool GetCentral_Group_Flux() const { return Central_Group_Flux; }
-
-  /*!
-   * \brief Get if dissipation and Jacobian use the normals of the modified dual (variant B).
-   * \return YES if the modified normals are used.
-   */
-  bool GetDissipation_Mod_Normals() const { return Dissipation_Mod_Normals; }
-
-  /*!
    * \brief Get the discretization of the viscous term of the flow equations.
-   * \return EDGE_GRADIENT or P1_CELL.
+   * \return EDGE_GRADIENT.
    */
   VISCOUS_SCHEME GetKind_Viscous_Scheme() const { return Kind_Viscous_Scheme; }
 
@@ -9997,18 +9974,6 @@ public:
    * \return YES if the edge form is used.
    */
   bool GetEdge_Form_P1() const { return Edge_Form_P1; }
-
-  /*!
-   * \brief Get if the edge form keeps the median dual for dissipation, Jacobians and viscous terms.
-   * \return YES if only the flux weights use the moved centroid.
-   */
-  bool GetEdge_Form_Median_Dual() const { return Edge_Form_Median_Dual; }
-
-  /*!
-   * \brief Get the smallest part of a cell that a node may hold in the P1 edge form.
-   * \return 0 by default, the option is off.
-   */
-  su2double GetEdge_Form_Min_Share() const { return Edge_Form_Min_Share; }
 
   /*!
    * \brief Get if the central Jacobian is the exact one of the edge form, n_ik and E_ik included.

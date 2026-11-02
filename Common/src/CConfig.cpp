@@ -1829,22 +1829,12 @@ void CConfig::SetConfig_Options() {
   /*!\brief FLUX_CORRECTION_LIMITED \n DESCRIPTION: The gradients of FLUX_CORRECTION use the point limiter of the reconstruction. \ingroup Config*/
   addBoolOption("FLUX_CORRECTION_LIMITED", Flux_Correction_Limited, false);
   addBoolOption("MOD_CENTROIDS", ModCentroids, false);
-  /*!\brief BC_FLUX_CLOSURE \n DESCRIPTION: Euler wall and symmetry momentum flux with weights 5:1 (2D), 6:1:1 (3D), exact for a P1 flux on simplices \ingroup Config \default false */
-  addBoolOption("BC_FLUX_CLOSURE", BC_Flux_Closure, false);
   /*!\brief BC_WEAK_P1 \n DESCRIPTION: Weak boundary fluxes of all markers with the weights 5:1 (2D) and 6:1:1 (3D), for the median dual and for EDGE_FORM_P1. \ingroup Config*/
   addBoolOption("BC_WEAK_P1", BC_Weak_P1, false);
-  /*!\brief CENTRAL_GROUP_FLUX \n DESCRIPTION: Centered schemes use 0.5(F_i+F_j).n, the exact P1 integral on the median dual of simplices \ingroup Config \default false */
-  addBoolOption("CENTRAL_GROUP_FLUX", Central_Group_Flux, false);
-  /*!\brief DISSIPATION_MOD_NORMALS \n DESCRIPTION: Median normal in the central flux, normal of the modified dual in dissipation and Jacobian, median volumes \ingroup Config \default false */
-  addBoolOption("DISSIPATION_MOD_NORMALS", Dissipation_Mod_Normals, false);
-  /*!\brief VISCOUS_SCHEME \n DESCRIPTION: Viscous term of the flow equations, EDGE_GRADIENT or P1_CELL (the edge Jacobian is kept) \ingroup Config \default EDGE_GRADIENT */
+  /*!\brief VISCOUS_SCHEME \n DESCRIPTION: Viscous term of the flow equations, EDGE_GRADIENT \ingroup Config \default EDGE_GRADIENT */
   addEnumOption("VISCOUS_SCHEME", Kind_Viscous_Scheme, Viscous_Scheme_Map, VISCOUS_SCHEME::EDGE_GRADIENT);
   /*!\brief EDGE_FORM_P1 \n DESCRIPTION: Variant C, central flux 0.5(F_i+F_k).n_ik + (F_k-F_i).E_ik on the modified dual, requires MOD_CENTROIDS \ingroup Config \default false */
   addBoolOption("EDGE_FORM_P1", Edge_Form_P1, false);
-  /*!\brief EDGE_FORM_MEDIAN_DUAL \n DESCRIPTION: Only the weights of EDGE_FORM_P1 use the moved centroid, dissipation, Jacobians and viscous terms stay on the median dual. Use without MOD_CENTROIDS. \ingroup Config*/
-  addBoolOption("EDGE_FORM_MEDIAN_DUAL", Edge_Form_Median_Dual, false);
-  /*!\brief EDGE_FORM_MIN_SHARE \n DESCRIPTION: Smallest part of a cell that a node may hold in EDGE_FORM_P1, the weights are pulled toward the median. 0 is off. \ingroup Config*/
-  addDoubleOption("EDGE_FORM_MIN_SHARE", Edge_Form_Min_Share, 0.0);
   /*!\brief EDGE_FORM_EXACT_JACOBIAN \n DESCRIPTION: Central Jacobian of EDGE_FORM_P1 or SPLIT_EDGE_FLUX with the coefficients of the form, not the normal of the dual. \ingroup Config*/
   addBoolOption("EDGE_FORM_EXACT_JACOBIAN", Edge_Form_Exact_Jacobian, false);
   /*!\brief EDGE_FORM_POSITIVE_DISS \n DESCRIPTION: Part of the extra Roe dissipation of EDGE_FORM_P1 up to the positivity bound 0.5 rho(n_ik) + rho(E_ik), on the reconstructed jump. 0 is off, 1 is the full bound. \ingroup Config*/
@@ -6230,11 +6220,7 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
 void CConfig::CheckP1FluxOptions() const {
 
   vector<string> active;
-  if (BC_Flux_Closure) active.push_back("BC_FLUX_CLOSURE");
   if (BC_Weak_P1) active.push_back("BC_WEAK_P1");
-  if (Central_Group_Flux) active.push_back("CENTRAL_GROUP_FLUX");
-  if (Dissipation_Mod_Normals) active.push_back("DISSIPATION_MOD_NORMALS");
-  if (Kind_Viscous_Scheme == VISCOUS_SCHEME::P1_CELL) active.push_back("VISCOUS_SCHEME= P1_CELL");
   if (Edge_Form_P1) active.push_back("EDGE_FORM_P1");
   if (Edge_Form_Exact_Jacobian) active.push_back("EDGE_FORM_EXACT_JACOBIAN");
   if (Edge_Form_Positive_Diss != 0.0) active.push_back("EDGE_FORM_POSITIVE_DISS");
@@ -6287,44 +6273,13 @@ void CConfig::CheckP1FluxOptions() const {
 
   /*--- Specific to each option. ---*/
 
-  if (BC_Flux_Closure) {
-    if (FluxCorrection) refuse("FLUX_CORRECTION has its own boundary closure.");
-    if (nMarker_PerBound > 0) refuse("not available with periodic boundaries.");
-  }
   if (BC_Weak_P1) {
     const string name = "BC_WEAK_P1: ";
     if (FluxCorrection) SU2_MPI::Error(name + "FLUX_CORRECTION has its own weights.", CURRENT_FUNCTION);
-    if (BC_Flux_Closure) SU2_MPI::Error(name + "it replaces BC_FLUX_CLOSURE, remove that option.", CURRENT_FUNCTION);
     if (Split_Edge_Flux) SU2_MPI::Error(name + "not available with SPLIT_EDGE_FLUX.", CURRENT_FUNCTION);
     if (ModCentroids && !Edge_Form_P1) SU2_MPI::Error(name + "with MOD_CENTROIDS it needs EDGE_FORM_P1.", CURRENT_FUNCTION);
     if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries.", CURRENT_FUNCTION);
     if (nMGLevels > 0) SU2_MPI::Error(name + "not available with multigrid, set MGLEVEL= 0.", CURRENT_FUNCTION);
-  }
-  if (Central_Group_Flux && Kind_ConvNumScheme_Flow != SPACE_CENTERED) {
-    SU2_MPI::Error("CENTRAL_GROUP_FLUX: only for centered schemes, the central part of Roe is already in group form.",
-                   CURRENT_FUNCTION);
-  }
-  if (Dissipation_Mod_Normals) {
-    const string name = "DISSIPATION_MOD_NORMALS: ";
-    if (ModCentroids) SU2_MPI::Error(name + "the volumes stay median, do not combine it with MOD_CENTROIDS.", CURRENT_FUNCTION);
-    if (FluxCorrection) SU2_MPI::Error(name + "not available with FLUX_CORRECTION.", CURRENT_FUNCTION);
-    if (Kind_ConvNumScheme_Flow == SPACE_UPWIND && Kind_Upwind_Flow != UPWIND::ROE) {
-      SU2_MPI::Error(name + "among the upwind schemes only ROE is supported.", CURRENT_FUNCTION);
-    }
-  }
-  if (Kind_Viscous_Scheme == VISCOUS_SCHEME::P1_CELL) {
-    const string name = "VISCOUS_SCHEME= P1_CELL: ";
-    const bool ideal_gas = (Kind_FluidModel == STANDARD_AIR) || (Kind_FluidModel == IDEAL_GAS);
-    if (!GetViscous()) SU2_MPI::Error(name + "the problem is not viscous.", CURRENT_FUNCTION);
-    if (saParsedOptions.qcr2000) SU2_MPI::Error(name + "not available with QCR.", CURRENT_FUNCTION);
-    if (sstParsedOptions.uq) SU2_MPI::Error(name + "not available with uncertainty quantification.", CURRENT_FUNCTION);
-    if (Wall_Functions) SU2_MPI::Error(name + "not available with wall functions.", CURRENT_FUNCTION);
-    if (FluxCorrection) SU2_MPI::Error(name + "not available with FLUX_CORRECTION.", CURRENT_FUNCTION);
-    if (ModCentroids) SU2_MPI::Error(name + "the P1 form uses the median dual, not available with MOD_CENTROIDS.", CURRENT_FUNCTION);
-    if (Kind_ConvNumScheme_Flow != SPACE_CENTERED && !(Kind_Upwind_Flow == UPWIND::ROE && ideal_gas)) {
-      SU2_MPI::Error(name + "only with the centered schemes, or ROE with an ideal gas: the other schemes add "
-                     "the viscous edge flux outside the vectorized numerics.", CURRENT_FUNCTION);
-    }
   }
   if (Edge_Form_Exact_Jacobian && !Edge_Form_P1 && !Split_Edge_Flux) {
     SU2_MPI::Error("EDGE_FORM_EXACT_JACOBIAN: needs EDGE_FORM_P1 or SPLIT_EDGE_FLUX.", CURRENT_FUNCTION);
@@ -6348,20 +6303,10 @@ void CConfig::CheckP1FluxOptions() const {
   if ((Edge_Form_Positive_Sensor < 0.0) || ((Edge_Form_Positive_Sensor > 0.0) && (Edge_Form_Positive_Diss == 0.0))) {
     SU2_MPI::Error("EDGE_FORM_POSITIVE_SENSOR: must be positive and needs EDGE_FORM_POSITIVE_DISS.", CURRENT_FUNCTION);
   }
-  if ((Edge_Form_Min_Share < 0.0) || (Edge_Form_Min_Share >= 0.25)) {
-    SU2_MPI::Error("EDGE_FORM_MIN_SHARE: must be at least 0 and below 0.25.", CURRENT_FUNCTION);
-  }
-  if ((Edge_Form_Min_Share > 0.0) && GCL_Exact_P1) {
-    SU2_MPI::Error("EDGE_FORM_MIN_SHARE: not available with GCL_EXACT_P1, its weights come from the dual.", CURRENT_FUNCTION);
-  }
   if (Edge_Form_P1) {
     const string name = "EDGE_FORM_P1: ";
-    if (Edge_Form_Median_Dual && ModCentroids) SU2_MPI::Error(name + "EDGE_FORM_MEDIAN_DUAL replaces MOD_CENTROIDS.", CURRENT_FUNCTION);
-    if (!Edge_Form_Median_Dual && !ModCentroids) SU2_MPI::Error(name + "needs MOD_CENTROIDS= YES or EDGE_FORM_MEDIAN_DUAL= YES.", CURRENT_FUNCTION);
+    if (!ModCentroids) SU2_MPI::Error(name + "needs MOD_CENTROIDS= YES.", CURRENT_FUNCTION);
     if (FluxCorrection) SU2_MPI::Error(name + "not available with FLUX_CORRECTION.", CURRENT_FUNCTION);
-    if (BC_Flux_Closure) SU2_MPI::Error(name + "BC_FLUX_CLOSURE is derived for the median dual.", CURRENT_FUNCTION);
-    if (Central_Group_Flux) SU2_MPI::Error(name + "it is already in group form, remove CENTRAL_GROUP_FLUX.", CURRENT_FUNCTION);
-    if (Dissipation_Mod_Normals) SU2_MPI::Error(name + "not available with DISSIPATION_MOD_NORMALS.", CURRENT_FUNCTION);
     if (Kind_ConvNumScheme_Flow == SPACE_UPWIND && Kind_Upwind_Flow != UPWIND::ROE) {
       SU2_MPI::Error(name + "among the upwind schemes only ROE is supported.", CURRENT_FUNCTION);
     }
@@ -6371,9 +6316,6 @@ void CConfig::CheckP1FluxOptions() const {
     if (ModCentroids) SU2_MPI::Error(name + "built on the median volumes, not available with MOD_CENTROIDS.", CURRENT_FUNCTION);
     if (FluxCorrection) SU2_MPI::Error(name + "not available with FLUX_CORRECTION.", CURRENT_FUNCTION);
     if (Edge_Form_P1) SU2_MPI::Error(name + "not available with EDGE_FORM_P1.", CURRENT_FUNCTION);
-    if (BC_Flux_Closure) SU2_MPI::Error(name + "not available with BC_FLUX_CLOSURE.", CURRENT_FUNCTION);
-    if (Central_Group_Flux) SU2_MPI::Error(name + "it is already in group form, remove CENTRAL_GROUP_FLUX.", CURRENT_FUNCTION);
-    if (Dissipation_Mod_Normals) SU2_MPI::Error(name + "not available with DISSIPATION_MOD_NORMALS.", CURRENT_FUNCTION);
     if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries.", CURRENT_FUNCTION);
     if (nMGLevels > 0) SU2_MPI::Error(name + "not available with multigrid, set MGLEVEL= 0.", CURRENT_FUNCTION);
     if (Time_Domain && !dualTime) SU2_MPI::Error(name + "time accurate runs need dual time stepping.", CURRENT_FUNCTION);

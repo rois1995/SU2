@@ -35,7 +35,6 @@
 #include "../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../Common/include/toolboxes/boundary_closure.hpp"
 #include "../../Common/include/toolboxes/p1_simplex.hpp"
-#include "../../SU2_CFD/include/numerics/flow/p1_viscous.hpp"
 
 namespace {
 
@@ -415,117 +414,6 @@ TEST_CASE("Median edge sum is the P1 integral of the group flux at interior node
       SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
       INFO("nDim " << nDim << " stretch " << stretch);
       CHECK(global < 1e-10);
-    }
-  }
-}
-
-TEST_CASE("Modified normals close the dual and leave the median data alone", "[P1Flux]") {
-  for (int nDim : {2, 3}) {
-    const std::string mesh = "p1_modnormal_" + std::to_string(nDim) + "d.su2";
-    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 12 : 5, 0.4, 1.0);
-    MeshCase test(mesh, "DISSIPATION_MOD_NORMALS= YES\nCONV_NUM_METHOD_FLOW= JST\n");
-    auto& geometry = *test.geometry;
-
-    const auto nEdge = geometry.GetnEdge();
-    su2activematrix median(nEdge, nDim);
-    for (auto iEdge = 0ul; iEdge < nEdge; ++iEdge) {
-      for (auto iDim = 0; iDim < nDim; ++iDim) median(iEdge, iDim) = geometry.edges->GetNormal(iEdge)[iDim];
-    }
-    std::vector<su2double> volume(geometry.GetnPoint());
-    for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) volume[iPoint] = geometry.nodes->GetVolume(iPoint);
-
-    geometry.SetDissipationNormals();
-
-    const auto& modNormal = geometry.edges->GetModNormal();
-    std::vector<su2double> closure(geometry.GetnPoint() * nDim, 0.0);
-    su2double maxMedianChange = 0.0, maxDifference = 0.0, maxVolumeChange = 0.0, maxOpen = 0.0;
-
-    for (auto iEdge = 0ul; iEdge < nEdge; ++iEdge) {
-      const auto iPoint = geometry.edges->GetNode(iEdge, 0);
-      const auto jPoint = geometry.edges->GetNode(iEdge, 1);
-      for (auto iDim = 0; iDim < nDim; ++iDim) {
-        maxMedianChange = std::max(maxMedianChange, fabs(median(iEdge, iDim) - geometry.edges->GetNormal(iEdge)[iDim]));
-        maxDifference = std::max(maxDifference, fabs(median(iEdge, iDim) - modNormal(iEdge, iDim)));
-        closure[iPoint * nDim + iDim] += modNormal(iEdge, iDim);
-        closure[jPoint * nDim + iDim] -= modNormal(iEdge, iDim);
-      }
-    }
-    for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
-      maxVolumeChange = std::max(maxVolumeChange, fabs(volume[iPoint] - geometry.nodes->GetVolume(iPoint)));
-    }
-    for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
-      if (geometry.nodes->GetPhysicalBoundary(iPoint)) continue;
-      for (auto iDim = 0; iDim < nDim; ++iDim) maxOpen = std::max(maxOpen, fabs(closure[iPoint * nDim + iDim]));
-    }
-    INFO("nDim " << nDim);
-    CHECK(maxMedianChange == 0.0);
-    CHECK(maxVolumeChange == 0.0);
-    CHECK(maxOpen < 1e-13);
-    if (SU2_MPI::GetSize() == 1) CHECK(maxDifference > 1e-4);
-  }
-}
-
-TEST_CASE("P1 viscous residual of linear fields", "[P1Flux]") {
-  for (int nDim : {2, 3}) {
-    for (double stretch : {1.0, 1e-3}) {
-      const std::string mesh = "p1_viscous_" + std::to_string(nDim) + "d.su2";
-      WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 12 : 5, 0.4, stretch);
-      MeshCase test(mesh);
-      const auto& geometry = *test.geometry;
-      const unsigned short nVar = nDim + 2, nNodes = nDim + 1;
-      const su2double mu = 1.7, k = 0.6;
-
-      /*--- u = B x + c, T linear. Then tau is constant, the momentum and heat conduction residuals
-       * vanish at interior nodes, and the energy residual is -V tau : grad(u). ---*/
-      const su2double B[3][3] = {{1.3, -0.4, 0.7}, {0.2, -2.1, -0.9}, {-0.6, 0.5, 0.8}};
-      const su2double c[3] = {0.3, -1.1, 0.6}, gradT[3] = {2.0, -1.0, 0.5};
-      su2double tauB = 0.0, div = 0.0;
-      for (auto i = 0; i < nDim; ++i) div += B[i][i];
-      for (auto i = 0; i < nDim; ++i) {
-        for (auto j = 0; j < nDim; ++j) {
-          const su2double tau = mu * (B[i][j] + B[j][i]) - ((i == j) ? 2.0 / 3.0 * mu * div : 0.0);
-          tauB += tau * B[i][j];
-        }
-      }
-
-      std::vector<su2double> R(geometry.GetnPoint() * nVar, 0.0);
-
-      for (auto iElem = 0ul; iElem < geometry.GetnElem(); ++iElem) {
-        auto* elem = geometry.elem[iElem];
-        const su2double* x[4];
-        su2double velocity[4][3] = {}, temperature[4], viscosity[4], conductivity[4], grad[4][3], residual[4][5];
-        for (auto iNode = 0u; iNode < nNodes; ++iNode) {
-          const auto iPoint = elem->GetNode(iNode);
-          x[iNode] = geometry.nodes->GetCoord(iPoint);
-          temperature[iNode] = 1.0;
-          for (auto i = 0; i < nDim; ++i) {
-            velocity[iNode][i] = c[i];
-            temperature[iNode] += gradT[i] * x[iNode][i];
-            for (auto j = 0; j < nDim; ++j) velocity[iNode][i] += B[i][j] * x[iNode][j];
-          }
-          viscosity[iNode] = mu;
-          conductivity[iNode] = k;
-        }
-        const su2double size = fabs(P1Simplex::ShapeGradients(nDim, x, grad));
-        P1Viscous::CellResidual(nDim, size, grad, velocity, temperature, viscosity, conductivity, residual);
-        for (auto iNode = 0u; iNode < nNodes; ++iNode) {
-          const auto iPoint = elem->GetNode(iNode);
-          for (auto iVar = 0; iVar < nVar; ++iVar) R[iPoint * nVar + iVar] += residual[iNode][iVar];
-        }
-      }
-
-      su2double maxMomentum = 0.0, maxEnergy = 0.0, global[2] = {};
-      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
-        if (geometry.nodes->GetPhysicalBoundary(iPoint)) continue;
-        const auto volume = geometry.nodes->GetVolume(iPoint);
-        for (auto i = 1; i <= nDim; ++i) maxMomentum = std::max(maxMomentum, fabs(R[iPoint * nVar + i] / volume) / fabs(tauB));
-        maxEnergy = std::max(maxEnergy, fabs(R[iPoint * nVar + nDim + 1] / volume + tauB) / fabs(tauB));
-      }
-      const su2double local[2] = {maxMomentum, maxEnergy};
-      SU2_MPI::Allreduce(local, global, 2, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
-      INFO("nDim " << nDim << " stretch " << stretch);
-      CHECK(global[0] * stretch < 1e-9);
-      CHECK(global[1] * stretch < 1e-9);
     }
   }
 }

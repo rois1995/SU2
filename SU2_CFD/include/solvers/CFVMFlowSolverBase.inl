@@ -31,7 +31,6 @@
 #include "../limiters/computeLimiters.hpp"
 #include "../numerics_simd/CNumericsSIMD.hpp"
 #include "CFVMFlowSolverBase.hpp"
-#include "../../../Common/include/toolboxes/boundary_closure.hpp"
 
 template <class V, ENUM_REGIME R>
 void CFVMFlowSolverBase<V, R>::AeroCoeffsArray::allocate(int size) {
@@ -1333,21 +1332,6 @@ void CFVMFlowSolverBase<V, FlowRegime>::BC_Sym_Plane(CGeometry* geometry, CSolve
   const auto iVel = prim_idx.Velocity();
 
 
-  /*--- BC_FLUX_CLOSURE, fine grid: the momentum flux of the P1 pressure through this marker, summed
-   * over the faces of each vertex. Its normal part is removed with the rest of the momentum below. ---*/
-  const bool fluxClosure = config->GetBC_Flux_Closure() && (MGLevel == MESH_0);
-  if (fluxClosure) {
-    BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
-      if (PressureClosure.empty()) PressureClosure.resize(geometry->GetnMarker());
-      auto& closure = PressureClosure[val_marker];
-      closure.resize(geometry->GetnVertex(val_marker), nDim);
-      closure = su2double(0.0);
-      auto pressure = [&](unsigned long iPoint) { return nodes->GetPressure(iPoint); };
-      BoundaryClosure::AddMarkerFlux(*geometry, val_marker, pressure, closure);
-    }
-    END_SU2_OMP_SAFE_GLOBAL_ACCESS
-  }
-
   /*--- Blazek chapter 8.:
    * The components of the momentum residual normal to the symmetry plane are zeroed out.
    * The gradients have already been corrected acording to Eq. (8.40).
@@ -1452,12 +1436,6 @@ void CFVMFlowSolverBase<V, FlowRegime>::BC_Sym_Plane(CGeometry* geometry, CSolve
     }
     for (auto iDim = 0u; iDim < nDim; iDim++) {
       solutionOld[iVel + iDim] -= vp * UnitNormal[iDim];
-    }
-
-    if (fluxClosure) {
-      for (auto iDim = 0u; iDim < nDim; iDim++) {
-        LinSysRes(iPoint, iVel + iDim) += PressureClosure[val_marker](iVertex, iDim);
-      }
     }
 
     /*--- Keep only the tangential part of the momentum residuals. ---*/

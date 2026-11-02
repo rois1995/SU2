@@ -7031,70 +7031,6 @@ void CPhysicalGeometry::SetBoundControlVolume(const CConfig* config, unsigned sh
 }
 
 
-void CPhysicalGeometry::SetDissipationNormals() {
-  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
-    /*--- Run the area loop of SetControlVolume on a zeroed "Normal", with the modified centroids, then
-     * move the result to "ModNormal" and put the median normals back. Volumes are not touched. ---*/
-    su2activematrix medianNormal = edges->Normal;
-    edges->Normal = su2double(0.0);
-
-    for (auto iElem = 0ul; iElem < nElem; iElem++) {
-      auto* element = elem[iElem];
-      const auto nNodes = element->GetnNodes();
-
-      array<const su2double*, N_POINTS_MAXIMUM> Coord;
-      for (unsigned short iNode = 0; iNode < nNodes; iNode++) Coord[iNode] = nodes->GetCoord(element->GetNode(iNode));
-
-      element->SetModCentroids(true);
-
-      su2double Coord_Elem_CG[MAXNDIM] = {0.0};
-      element->getElemCG(nDim, Coord, Coord_Elem_CG);
-
-      for (unsigned short iFace = 0; iFace < element->GetnFaces(); iFace++) {
-        const unsigned short nEdgesFace = (nDim == 3) ? element->GetnNodesFace(iFace) : 1;
-
-        su2double Coord_FaceElem_CG[MAXNDIM] = {0.0};
-        if (nDim == 3) element->getFaceCG(iFace, nDim, Coord, Coord_FaceElem_CG);
-
-        for (unsigned short iEdgesFace = 0; iEdgesFace < nEdgesFace; iEdgesFace++) {
-          const auto face_iNode = element->GetFaces(iFace, iEdgesFace);
-          const auto face_jNode = element->GetFaces(iFace, (nDim == 2) ? 1 : (iEdgesFace + 1) % nEdgesFace);
-
-          const auto face_iPoint = element->GetNode(face_iNode);
-          const auto face_jPoint = element->GetNode(face_jNode);
-          const bool change_face_orientation = (face_iPoint > face_jPoint);
-          const auto iEdge = FindEdge(face_iPoint, face_jPoint);
-
-          su2double Coord_Edge_CG[MAXNDIM] = {0.0};
-          for (unsigned short iDim = 0; iDim < nDim; iDim++) {
-            Coord_Edge_CG[iDim] = 0.5 * (Coord[face_iNode][iDim] + Coord[face_jNode][iDim]);
-          }
-
-          if (nDim == 2) {
-            if (change_face_orientation) edges->SetNodes_Coord(iEdge, Coord_Elem_CG, Coord_Edge_CG);
-            else edges->SetNodes_Coord(iEdge, Coord_Edge_CG, Coord_Elem_CG);
-          } else {
-            if (change_face_orientation) edges->SetNodes_Coord(iEdge, Coord_FaceElem_CG, Coord_Edge_CG, Coord_Elem_CG);
-            else edges->SetNodes_Coord(iEdge, Coord_Edge_CG, Coord_FaceElem_CG, Coord_Elem_CG);
-          }
-        }
-      }
-      element->SetModCentroids(false);
-    }
-
-    /*--- A null normal would give a division by zero in the numerics. ---*/
-    for (auto iEdge = 0ul; iEdge < nEdge; iEdge++) {
-      const auto Area2 = GeometryToolbox::SquaredNorm(nDim, edges->GetNormal(iEdge));
-      su2double DefaultArea[MAXNDIM] = {EPS * EPS};
-      if (Area2 == 0.0) edges->SetNormal(iEdge, DefaultArea);
-    }
-
-    edges->ModNormal = edges->Normal;
-    edges->Normal = medianNormal;
-  }
-  END_SU2_OMP_SAFE_GLOBAL_ACCESS
-}
-
 namespace {
 
 constexpr unsigned short maxDim = 3;
@@ -7188,7 +7124,7 @@ su2double SplitWeights(const CSplitPattern& pattern, unsigned short nDim,
 
 }  // namespace
 
-void CPhysicalGeometry::SetEdgeFormP1(su2double minShare, bool medianDual) {
+void CPhysicalGeometry::SetEdgeFormP1() {
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     edges->FormNormal.resize(edges->nEdgeSIMD, nDim) = su2double(0.0);
     edges->FormE.resize(edges->nEdgeSIMD, nDim) = su2double(0.0);
@@ -7207,41 +7143,10 @@ void CPhysicalGeometry::SetEdgeFormP1(su2double minShare, bool medianDual) {
       /*--- W = |C_i cap T|, built with the sub-volumes of SetControlVolume, so that sum_T W = V_i. ---*/
 
       su2double W[MAXNDIM + 1] = {0.0};
-
-      /*--- EDGE_FORM_MEDIAN_DUAL: SU2 keeps the median dual for dissipation, Jacobians and viscous terms, the
-       * moved centroid gives only the weights of the flux, and the nodal volume follows the weights. ---*/
-
-      if (medianDual) {
-        su2double shareMedian[MAXNDIM + 1] = {0.0};
-        CellNodeShares(element, nDim, Coord, shareMedian);
-        element->SetModCentroids(true);
-        CellNodeShares(element, nDim, Coord, W);
-        element->SetModCentroids(false);
-        for (unsigned short a = 0; a < nNodes; a++) nodes->AddVolume(element->GetNode(a), W[a] - shareMedian[a]);
-      } else {
-        CellNodeShares(element, nDim, Coord, W);
-      }
+      CellNodeShares(element, nDim, Coord, W);
 
       su2double grad[MAXNDIM + 1][3];
       const su2double median = fabs(P1Simplex::ShapeGradients(nDim, Coord, grad)) / nNodes;
-
-      /*--- EDGE_FORM_MIN_SHARE: pull W toward the median until no node holds less than this part of the cell.
-       * The sum of W does not change, the exactness of the form does not depend on W, and each node keeps
-       * the volume its weights add up to. ---*/
-
-      if (minShare > 0.0) {
-        const su2double floorW = minShare * median * nNodes;
-        su2double minW = W[0];
-        for (unsigned short a = 1; a < nNodes; a++) minW = min(minW, W[a]);
-        if (minW < floorW) {
-          const su2double alpha = (median - floorW) / (median - minW);
-          for (unsigned short a = 0; a < nNodes; a++) {
-            const su2double capped = median + alpha * (W[a] - median);
-            nodes->AddVolume(element->GetNode(a), capped - W[a]);
-            W[a] = capped;
-          }
-        }
-      }
 
       for (unsigned short a = 0; a < nNodes; a++) {
         for (unsigned short b = a + 1; b < nNodes; b++) {

@@ -51,8 +51,6 @@ protected:
   const su2double gamma;
   const su2double fixFactor;
   const bool dynamicGrid;
-  const bool groupFlux;
-  const bool modNormals;
   const bool edgeForm;
   const bool exactFormJac;
   const bool sweptFlux;
@@ -66,8 +64,6 @@ protected:
     gamma(config.GetGamma()),
     fixFactor(config.GetCent_Jac_Fix_Factor()),
     dynamicGrid(config.GetDynamic_Grid()),
-    groupFlux(iMesh == MESH_0 && config.GetCentral_Group_Flux()),
-    modNormals(iMesh == MESH_0 && config.GetDissipation_Mod_Normals()),
     edgeForm(iMesh == MESH_0 && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())),
     exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()),
     sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
@@ -119,18 +115,6 @@ public:
       unitNormal(iDim) = normal(iDim) / area;
     }
 
-    /*--- The central flux and the viscous terms use the median normal. Dissipation and
-     * Jacobians use the modified one if requested (the same one otherwise). ---*/
-
-    auto dissNormal = normal;
-    auto dissArea = area;
-    auto dissUnitNormal = unitNormal;
-    if (modNormals) {
-      dissNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetModNormal());
-      dissArea = norm(dissNormal);
-      for (size_t iDim = 0; iDim < nDim; ++iDim) dissUnitNormal(iDim) = dissNormal(iDim) / dissArea;
-    }
-
     /*--- Primitive variables. ---*/
 
     CPair<CCompressiblePrimitives<nDim,nPrimVar> > V;
@@ -170,11 +154,6 @@ public:
       for (size_t iVar = 0; iVar < nVar; ++iVar) {
         flux(iVar) = 0.5 * (flux_i(iVar) + flux_j(iVar)) + fluxE_j(iVar) - fluxE_i(iVar);
       }
-    } else if (groupFlux) {
-      /*--- Average of the nodal fluxes, the Jacobians below are already the exact ones for this form. ---*/
-      const auto flux_i = inviscidProjFlux(V.i, U.i, normal);
-      const auto flux_j = inviscidProjFlux(V.j, U.j, normal);
-      for (size_t iVar = 0; iVar < nVar; ++iVar) flux(iVar) = 0.5 * (flux_i(iVar) + flux_j(iVar));
     } else {
       flux = inviscidProjFlux(avgV, avgU, normal);
     }
@@ -192,8 +171,8 @@ public:
         jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), normal_i, 0.5);
         jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), normal_j, 0.5);
       } else {
-        jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), dissNormal, 0.5);
-        jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), dissNormal, 0.5);
+        jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), normal, 0.5);
+        jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), normal, 0.5);
       }
     }
 
@@ -206,21 +185,16 @@ public:
       const auto gridVel_j = gatherVariables<nDim>(jPoint,gridVel);
       projGridVel = 0.5*(dot(gridVel_i, normal)+dot(gridVel_j, normal));
 
-      if (edgeForm || groupFlux) {
+      if (edgeForm) {
         /*--- The nodal flux F - U v with the coefficients of F, as CGeometry::SetGridFluxP1 does for the GCL. ---*/
-        VectorDbl<nDim> formNormal = normal, formE;
-        if (edgeForm) {
-          formNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal());
-          formE = gatherVariables<nDim>(iEdge, geometry.edges->GetFormE());
-        } else {
-          for (size_t iDim = 0; iDim < nDim; ++iDim) formE(iDim) = 0.0;
-        }
+        const auto formNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal());
+        const auto formE = gatherVariables<nDim>(iEdge, geometry.edges->GetFormE());
         const Double grid_i = 0.5 * dot(gridVel_i, formNormal) - dot(gridVel_i, formE);
         const Double grid_j = 0.5 * dot(gridVel_j, formNormal) + dot(gridVel_j, formE);
 
-        /*--- Like the flux Jacobians: exact for the group form, on the dual normal for the edge form. ---*/
+        /*--- Like the flux Jacobians: on the dual normal, or exact with EDGE_FORM_EXACT_JACOBIAN. ---*/
         Double jacGrid_i = 0.5 * projGridVel, jacGrid_j = 0.5 * projGridVel;
-        if (exactFormJac || !edgeForm) {
+        if (exactFormJac) {
           jacGrid_i = grid_i;
           jacGrid_j = grid_j;
         }
@@ -249,19 +223,16 @@ public:
           }
         }
       }
-
-      /*--- The wave speed of the dissipation follows its normal. ---*/
-      if (modNormals) projGridVel = 0.5*(dot(gridVel_i, dissNormal)+dot(gridVel_j, dissNormal));
     }
 
-    const Double projVel = dot(avgV.velocity(), dissNormal) - projGridVel;
+    const Double projVel = dot(avgV.velocity(), normal) - projGridVel;
 
     /*--- Finalize in derived class (static polymorphism). ---*/
 
     const auto derived = static_cast<const Derived*>(this);
 
-    derived->finalizeFlux(flux, jac_i, jac_j, implicit, dissArea, projVel, avgV, V,
-                          diffU, iPoint, jPoint, geometry, solution, dissUnitNormal);
+    derived->finalizeFlux(flux, jac_i, jac_j, implicit, area, projVel, avgV, V,
+                          diffU, iPoint, jPoint, geometry, solution, unitNormal);
 
     /*--- Add the contributions from the base class (static decorator). ---*/
 

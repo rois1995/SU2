@@ -69,7 +69,7 @@ class CPrimalGrid {
   bool JacobianFaceIsConstant[N_FACES_MAXIMUM];
   bool ElementOwnsFace[N_FACES_MAXIMUM]; /*!< \brief Whether or not the element owns each face. */
   const bool FEM;                        /*!< \brief Whether this is a FEM element. */
-  bool modCentroids;
+  const bool modCentroids;
   static su2double modCentroidExponent; /*!< \brief Power of the face area in the modified centroid. */
 
  public:
@@ -477,16 +477,10 @@ class CPrimalGrid {
   inline virtual void RemoveMultipleDonorsWallFunctions() {}
 
   /*!
-   * \brief Select the centroid rule of getFaceCG and getElemCG, without changing the stored centroid.
-   * \param[in] val_modCentroids - True for the modified centroids.
-   */
-  /*!
    * \brief Set the power of the face area in the modified centroid, for all cells.
    * \param[in] exponent - 2 is the rule of MOD_CENTROIDS, 0 is the median centroid.
    */
   static void SetModCentroidExponent(su2double exponent) { modCentroidExponent = exponent; }
-
-  inline void SetModCentroids(bool val_modCentroids) { modCentroids = val_modCentroids; }
 
   inline su2double* getNodeCoeffs(unsigned short iNode) {return BCCoeffs[iNode];};
   inline su2double* getNormal() {return Normal;};

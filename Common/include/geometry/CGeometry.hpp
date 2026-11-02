@@ -945,14 +945,9 @@ class CGeometry {
    */
   inline virtual void SetBoundControlVolume(const CConfig* config, unsigned short action) {}
   /*!
-   * \brief Set the edge normals of the modified dual, leaving the median normals and volumes as they are.
-   */
-  inline virtual void SetDissipationNormals() {}
-
-  /*!
    * \brief Set the coefficients of the P1 edge form on the current (modified) dual.
    */
-  inline virtual void SetEdgeFormP1(su2double minShare = 0.0, bool medianDual = false) {}
+  inline virtual void SetEdgeFormP1() {}
 
   /*!
    * \brief Split all cells into simplices and set the central flux coefficients of the split edges.
