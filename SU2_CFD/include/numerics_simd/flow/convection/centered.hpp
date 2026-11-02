@@ -53,6 +53,7 @@ protected:
   const bool dynamicGrid;
   const bool edgeForm;
   const bool exactFormJac;
+  const bool ecFlux;
   const bool sweptFlux;
   const su2double stretchParam = 0.3;
 
@@ -66,6 +67,7 @@ protected:
     dynamicGrid(config.GetDynamic_Grid()),
     edgeForm(iMesh == MESH_0 && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())),
     exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()),
+    ecFlux(edgeForm && config.GetEdge_Form_EC_Flux()),
     sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
   }
 
@@ -147,12 +149,20 @@ public:
       /*--- 0.5(F_i+F_k).n_ik + (F_k-F_i).E_ik, the dissipation and Jacobians keep the normal of the dual. ---*/
       const auto formNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal());
       const auto formE = gatherVariables<nDim>(iEdge, geometry.edges->GetFormE());
-      const auto flux_i = inviscidProjFlux(V.i, U.i, formNormal);
-      const auto flux_j = inviscidProjFlux(V.j, U.j, formNormal);
+      /*--- EDGE_FORM_EC_FLUX: the mean 0.5(F_i+F_k).n_ik is replaced by the Ismail-Roe flux along n_ik. With
+       * sum_k n_ik = 0 at interior nodes this part is entropy conservative, F_ec(U,U) = F(U). ---*/
+      VectorDbl<nVar> fluxMean;
+      if (ecFlux) {
+        fluxMean = ismailRoeProjFlux(gamma, V.i, V.j, formNormal);
+      } else {
+        const auto flux_i = inviscidProjFlux(V.i, U.i, formNormal);
+        const auto flux_j = inviscidProjFlux(V.j, U.j, formNormal);
+        for (size_t iVar = 0; iVar < nVar; ++iVar) fluxMean(iVar) = 0.5 * (flux_i(iVar) + flux_j(iVar));
+      }
       const auto fluxE_i = inviscidProjFlux(V.i, U.i, formE);
       const auto fluxE_j = inviscidProjFlux(V.j, U.j, formE);
       for (size_t iVar = 0; iVar < nVar; ++iVar) {
-        flux(iVar) = 0.5 * (flux_i(iVar) + flux_j(iVar)) + fluxE_j(iVar) - fluxE_i(iVar);
+        flux(iVar) = fluxMean(iVar) + fluxE_j(iVar) - fluxE_i(iVar);
       }
     } else {
       flux = inviscidProjFlux(avgV, avgU, normal);
