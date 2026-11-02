@@ -1845,6 +1845,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_FORM_EC_FLUX", Edge_Form_EC_Flux, false);
   /*!\brief EDGE_FORM_ES_DISS \n DESCRIPTION: Add lam (U_k-U_i), lam = max(0, max(u.e) + max(c)) |E_ik| over the two nodes, which makes the E part of EDGE_FORM_P1 entropy stable for any jump. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_ES_DISS", Edge_Form_ES_Diss, false);
+  /*!\brief BC_ENTROPY_P1 \n DESCRIPTION: Entropy stable weak boundary of BC_WEAK_P1 with EDGE_FORM_P1: degree 2 face rule, entropy projected states at the points, Ismail-Roe coupling to the face nodes; pressure flux at Euler walls and symmetry planes, Ismail-Roe plus Rusanov against the characteristic ghost at the far field. \ingroup Config \default false */
+  addBoolOption("BC_ENTROPY_P1", BC_Entropy_P1, false);
   /*!\brief GCL_EXACT_P1 \n DESCRIPTION: Add the swept terms that make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes, for conservation in time on moving meshes. \ingroup Config*/
   addBoolOption("GCL_EXACT_P1", GCL_Exact_P1, false);
   /*!\brief SPLIT_EDGE_FLUX \n DESCRIPTION: Central flux 0.5(F_i+F_k).n_ik on the split edges of the cells, dissipation and Jacobians stay on the true edges. \ingroup Config*/
@@ -6231,6 +6233,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_Entropy_Diss) active.push_back("EDGE_FORM_ENTROPY_DISS");
   if (Edge_Form_EC_Flux) active.push_back("EDGE_FORM_EC_FLUX");
   if (Edge_Form_ES_Diss) active.push_back("EDGE_FORM_ES_DISS");
+  if (BC_Entropy_P1) active.push_back("BC_ENTROPY_P1");
   if (GCL_Exact_P1) active.push_back("GCL_EXACT_P1");
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
 
@@ -6327,6 +6330,16 @@ void CConfig::CheckP1FluxOptions() const {
       SU2_MPI::Error(name + "needs EDGE_FORM_P1 with ROE or JST.", CURRENT_FUNCTION);
     if (!idealGas) SU2_MPI::Error(name + "the Ismail-Roe flux needs an ideal gas.", CURRENT_FUNCTION);
     if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
+  }
+  if (BC_Entropy_P1) {
+    const string name = "BC_ENTROPY_P1: ";
+    if (!BC_Weak_P1 || !Edge_Form_P1) SU2_MPI::Error(name + "needs BC_WEAK_P1= YES and EDGE_FORM_P1= YES.", CURRENT_FUNCTION);
+    if (Kind_Solver != MAIN_SOLVER::EULER) SU2_MPI::Error(name + "inviscid boundary fluxes only, needs SOLVER= EULER.", CURRENT_FUNCTION);
+    if (!idealGas) SU2_MPI::Error(name + "the Ismail-Roe flux and the entropy variables need an ideal gas.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
+    if ((nMarker_Inlet > 0) || (nMarker_Outlet > 0) || (nMarker_Supersonic_Inlet > 0)) {
+      SU2_MPI::Error(name + "only Euler walls, symmetry planes and far field are supported, not inlets or outlets.", CURRENT_FUNCTION);
+    }
   }
   if ((Edge_Form_Positive_Sensor < 0.0) || ((Edge_Form_Positive_Sensor > 0.0) && (Edge_Form_Positive_Diss == 0.0))) {
     SU2_MPI::Error("EDGE_FORM_POSITIVE_SENSOR: must be positive and needs EDGE_FORM_POSITIVE_DISS.", CURRENT_FUNCTION);

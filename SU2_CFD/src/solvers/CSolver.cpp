@@ -4756,6 +4756,198 @@ void CSolver::SavelibROM(CGeometry *geometry, CConfig *config, bool converged) {
 }
 
 
+namespace {
+
+/*--- BC_ENTROPY_P1: closure C of the weak boundary (P1_BOUNDARY.md, Thm B9), ideal gas, scalar code.
+ * Entropy U = -rho s/(gamma-1), s = ln(p rho^-gamma), entropy variables
+ * w = ((gamma-s)/(gamma-1) - beta|u|^2, 2 beta u, -2 beta), beta = rho/(2p). ---*/
+
+constexpr unsigned short ES_NVAR = 5;
+
+struct EsState {
+  su2double rho = 1.0, vel[3] = {0.0, 0.0, 0.0}, p = 1.0;
+};
+
+/*--- Logarithmic mean (a-b)/(ln a - ln b), stable form of Ismail and Roe (2009), as logMean of the vectorized
+ * numerics: f = (a-b)/(a+b), u = f^2, mean = (a+b)/(2F), F = ln(a/b)/(2f) = 1 + u/3 + u^2/5 + u^3/7 + ... ---*/
+su2double EsLogMean(const su2double& a, const su2double& b) {
+  const su2double f = (a - b) / (a + b);
+  const su2double u = f * f;
+  if (u < 1e-2) return (a + b) / (2.0 * (1.0 + u * (1.0/3.0 + u * (1.0/5.0 + u * (1.0/7.0)))));
+  return (a + b) * f / log(a / b);
+}
+
+/*--- Ismail-Roe entropy conservative flux projected on "normal", the same formulas as ismailRoeProjFlux of the
+ * vectorized numerics. Symmetric in the two states, equal to the physical flux for equal states. ---*/
+void EsIsmailRoeFlux(unsigned short nDim, const su2double& gamma, const EsState& L, const EsState& R,
+                     const su2double* normal, su2double* flux) {
+  const su2double zL = sqrt(L.rho / L.p), zR = sqrt(R.rho / R.p);
+  const su2double yL = zL * L.p, yR = zR * R.p;
+  const su2double zAvg = 0.5 * (zL + zR), yAvg = 0.5 * (yL + yR);
+  const su2double zLog = EsLogMean(zL, zR), yLog = EsLogMean(yL, yR);
+
+  const su2double density = zAvg * yLog;
+  su2double vel[3] = {0.0, 0.0, 0.0}, vel2 = 0.0, velN = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    vel[iDim] = 0.5 * (zL * L.vel[iDim] + zR * R.vel[iDim]) / zAvg;
+    vel2 += vel[iDim] * vel[iDim];
+    velN += vel[iDim] * normal[iDim];
+  }
+  const su2double pressure1 = yAvg / zAvg;
+  const su2double pressure2 = ((gamma + 1.0) * yLog / zLog + (gamma - 1.0) * pressure1) / (2.0 * gamma);
+  const su2double enthalpy = gamma * pressure2 / ((gamma - 1.0) * density) + 0.5 * vel2;
+
+  const su2double mdot = density * velN;
+  flux[0] = mdot;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) flux[iDim+1] = mdot * vel[iDim] + normal[iDim] * pressure1;
+  flux[nDim+1] = mdot * enthalpy;
+}
+
+void EsEntropyVariables(unsigned short nDim, const su2double& gamma, const EsState& S, su2double* w) {
+  const su2double beta = 0.5 * S.rho / S.p;
+  su2double vel2 = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) vel2 += S.vel[iDim] * S.vel[iDim];
+  const su2double entropy = log(S.p) - gamma * log(S.rho);
+  w[0] = (gamma - entropy) / (gamma - 1.0) - beta * vel2;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) w[iDim+1] = 2.0 * beta * S.vel[iDim];
+  w[nDim+1] = -2.0 * beta;
+}
+
+/*--- Inverse map u(w). It needs only w[nDim+1] < 0, which a convex combination of entropy variables keeps, so the
+ * projected state is admissible (rho, p > 0): beta = -w_E/2, u = w_mom/(2 beta), s = gamma - (gamma-1)(w_0 + beta|u|^2),
+ * p rho^-gamma = e^s with p = rho/(2 beta), i.e. rho^(1-gamma) = 2 beta e^s. ---*/
+void EsStateFromEntropyVariables(unsigned short nDim, const su2double& gamma, const su2double* w, EsState& S) {
+  const su2double beta = -0.5 * w[nDim+1];
+  su2double vel2 = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    S.vel[iDim] = 0.5 * w[iDim+1] / beta;
+    vel2 += S.vel[iDim] * S.vel[iDim];
+  }
+  const su2double entropy = gamma - (gamma - 1.0) * (w[0] + beta * vel2);
+  S.rho = exp((log(2.0 * beta) + entropy) / (1.0 - gamma));
+  S.p = 0.5 * S.rho / beta;
+}
+
+void EsConservative(unsigned short nDim, const su2double& gamma, const EsState& S, su2double* U) {
+  su2double vel2 = 0.0;
+  U[0] = S.rho;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    U[iDim+1] = S.rho * S.vel[iDim];
+    vel2 += S.vel[iDim] * S.vel[iDim];
+  }
+  U[nDim+1] = S.p / (gamma - 1.0) + 0.5 * S.rho * vel2;
+}
+
+/*--- Characteristic far-field ghost of CEulerSolver::BC_Far_Field_Residual (Riemann invariants, no grid motion),
+ * built from the state S at a face point instead of the nodal state. ---*/
+void EsFarFieldGhost(unsigned short nDim, const su2double& gamma, const EsState& S, const EsState& Inf,
+                     const su2double* unitNormal, EsState& G) {
+  const su2double gm1 = gamma - 1.0;
+  su2double VnB = 0.0, VnI = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    VnB += S.vel[iDim] * unitNormal[iDim];
+    VnI += Inf.vel[iDim] * unitNormal[iDim];
+  }
+  const su2double cB = sqrt(gamma * S.p / S.rho), cI = sqrt(gamma * Inf.p / Inf.rho);
+  const su2double entropyB = pow(S.rho, gamma) / S.p, entropyI = pow(Inf.rho, gamma) / Inf.p;
+
+  /*--- if/else rather than ?: so that the AD expression types need not match. ---*/
+  su2double rPlus, rMinus;
+  if (VnI > -cI) rPlus = VnB + 2.0 * cB / gm1;
+  else rPlus = VnI + 2.0 * cI / gm1;
+  if (VnI > cI) rMinus = VnB - 2.0 * cB / gm1;
+  else rMinus = VnI - 2.0 * cI / gm1;
+  const su2double Vn = 0.5 * (rPlus + rMinus);
+  const su2double c = 0.25 * (rPlus - rMinus) * gm1;
+
+  const bool outflow = (VnI > 0.0);
+  const su2double entropy = outflow ? entropyB : entropyI;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    if (outflow) G.vel[iDim] = S.vel[iDim] + (Vn - VnB) * unitNormal[iDim];
+    else G.vel[iDim] = Inf.vel[iDim] + (Vn - VnI) * unitNormal[iDim];
+  }
+  G.rho = pow(entropy * c * c / gamma, 1.0 / gm1);
+  G.p = G.rho * c * c / gamma;
+}
+
+/*--- Closure C on one boundary simplex face (segment: 2 nodes, triangle: 3 nodes) with the outward area vector
+ * faceNormal = A_f nu_f. Points x_q, weights a_q A_f: 2-point Gauss on segments (a_q = 1/2), barycentric
+ * (2/3,1/6,1/6) on triangles (a_q = 1/3), both exact to degree 2. With N_q = a_q A_f nu_f,
+ * w~_q = sum_k phi_k(x_q) w_k, u~_q = u(w~_q) and G_qk = F_IR(u~_q, u_k; N_q):
+ *   b_i = sum_q phi_i(x_q) [ G_qi - sum_k phi_k(x_q) G_qk + F*_q ],
+ * F*_q = (0, p~_q N_q, 0) at walls (entropy conservative), and at the far field
+ * F*_q = F_IR(u~_q, g_q; N_q) - lam/2 |N_q| (U(g_q) - U(u~_q)), lam = max(|u.nu| + c) over u~_q and the ghost g_q. ---*/
+void EsFaceResidual(unsigned short nDim, unsigned short nNodes, const su2double& gamma, const EsState* inf,
+                    const su2double* faceNormal, const EsState* nodeState, su2double (*res)[ES_NVAR]) {
+  const unsigned short nVar = nDim + 2;
+
+  su2double phi[3][3] = {{0.0}}, weight = 0.0;
+  if (nNodes == 2) {
+    const su2double g = 0.5 / sqrt(3.0);
+    phi[0][0] = 0.5 + g; phi[0][1] = 0.5 - g;
+    phi[1][0] = 0.5 - g; phi[1][1] = 0.5 + g;
+    weight = 0.5;
+  } else {
+    for (unsigned short q = 0; q < 3; ++q)
+      for (unsigned short k = 0; k < 3; ++k) phi[q][k] = (q == k) ? 2.0 / 3.0 : 1.0 / 6.0;
+    weight = 1.0 / 3.0;
+  }
+
+  const su2double area = GeometryToolbox::Norm(nDim, faceNormal);
+  su2double unitNormal[3] = {0.0, 0.0, 0.0}, pointNormal[3] = {0.0, 0.0, 0.0};
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    unitNormal[iDim] = faceNormal[iDim] / area;
+    pointNormal[iDim] = weight * faceNormal[iDim];
+  }
+
+  su2double w[3][ES_NVAR] = {{0.0}};
+  for (unsigned short k = 0; k < nNodes; ++k) EsEntropyVariables(nDim, gamma, nodeState[k], w[k]);
+
+  for (unsigned short i = 0; i < nNodes; ++i)
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[i][iVar] = 0.0;
+
+  for (unsigned short q = 0; q < nNodes; ++q) {
+    su2double wq[ES_NVAR] = {0.0};
+    for (unsigned short k = 0; k < nNodes; ++k)
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) wq[iVar] += phi[q][k] * w[k][iVar];
+    EsState sq;
+    EsStateFromEntropyVariables(nDim, gamma, wq, sq);
+
+    /*--- G_qk once per node: F_IR is symmetric, so it serves both F_ec(u_i, u~_q) and F_ec(u~_q, u_k). ---*/
+    su2double G[3][ES_NVAR] = {{0.0}}, Gbar[ES_NVAR] = {0.0};
+    for (unsigned short k = 0; k < nNodes; ++k) {
+      EsIsmailRoeFlux(nDim, gamma, sq, nodeState[k], pointNormal, G[k]);
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) Gbar[iVar] += phi[q][k] * G[k][iVar];
+    }
+
+    su2double Fstar[ES_NVAR] = {0.0};
+    if (inf == nullptr) {
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) Fstar[iDim+1] = sq.p * pointNormal[iDim];
+    } else {
+      EsState gq;
+      EsFarFieldGhost(nDim, gamma, sq, *inf, unitNormal, gq);
+      EsIsmailRoeFlux(nDim, gamma, sq, gq, pointNormal, Fstar);
+      su2double velNq = 0.0, velNg = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+        velNq += sq.vel[iDim] * unitNormal[iDim];
+        velNg += gq.vel[iDim] * unitNormal[iDim];
+      }
+      const su2double lamQ = fabs(velNq) + sqrt(gamma * sq.p / sq.rho);
+      const su2double lamG = fabs(velNg) + sqrt(gamma * gq.p / gq.rho);
+      const su2double lam = fmax(lamQ, lamG);
+      su2double Uq[ES_NVAR] = {0.0}, Ug[ES_NVAR] = {0.0};
+      EsConservative(nDim, gamma, sq, Uq);
+      EsConservative(nDim, gamma, gq, Ug);
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) Fstar[iVar] -= 0.5 * lam * weight * area * (Ug[iVar] - Uq[iVar]);
+    }
+
+    for (unsigned short i = 0; i < nNodes; ++i)
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[i][iVar] += phi[q][i] * (G[i][iVar] - Gbar[iVar] + Fstar[iVar]);
+  }
+}
+
+}  // namespace
+
 void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
                                    CNumerics **numerics_container, CConfig *config, unsigned short iMesh) {
 
@@ -4765,6 +4957,16 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
   const su2double wSelf = weakP1 ? 5.0 / 12.0 : 3.0 / 8.0;
   const su2double wOther = weakP1 ? 1.0 / 12.0 : 1.0 / 8.0;
   const su2double p1Coeffs[3] = {1.0 / 3.0, 1.0 / 8.0, 1.0 / 8.0};
+
+  /*--- BC_ENTROPY_P1: closure C (EsFaceResidual) replaces the weighted nodal fluxes of Euler walls, symmetry planes
+   * and far field. CConfig makes sure that BC_WEAK_P1 is on, so the face weights below are (5,1)/12 and (6,1,1)/24. ---*/
+  const bool bcEntropyP1 = config->GetBC_Entropy_P1();
+  EsState esInf;
+  if (bcEntropyP1) {
+    esInf.rho = GetDensity_Inf();
+    esInf.p = GetPressure_Inf();
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) esInf.vel[iDim] = GetVelocity_Inf(iDim);
+  }
 
   const bool implicit         = config->GetKind_TimeIntScheme() == EULER_IMPLICIT;
   const bool viscous          = config->GetViscous();
@@ -4847,6 +5049,11 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
       continue;
     }
 
+    if (bcEntropyP1 && (KindBC != EULER_WALL) && (KindBC != SYMMETRY_PLANE) && (KindBC != FAR_FIELD)) {
+      SU2_MPI::Error("BC_ENTROPY_P1 supports Euler walls, symmetry planes and far field, not marker " +
+                     config->GetMarker_All_TagBound(iMarker) + ".", CURRENT_FUNCTION);
+    }
+
     SU2_OMP_SAFE_GLOBAL_ACCESS(
     for (iElem = 0; iElem < geometry->GetnElem_Bound(iMarker); ++iElem ) {
       auto& element = geometry->bound[iMarker][iElem];
@@ -4860,6 +5067,46 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
       for (iNode = 0; iNode < nNodes; ++iNode) {
         std::memset(buffer[iNode].data(),0,(MAXNVAR+MAXNVAR*MAXNVAR) * sizeof(su2double));
         compute_BC_residual(iMarker,KindBC,iElem,iNode,buffer[iNode].data());
+      }
+
+      /*--- BC_ENTROPY_P1: residual of closure C from the nodal primitives (halo nodes included, as above), added to
+       * the owned nodes only. The Jacobian is the approximate one of the 5:1 / 6:1:1 closure of the nodal boundary
+       * fluxes in "buffer" (pressure flux at walls, Riemann ghost flux at the far field), which is the linearization
+       * of closure C in its linear analog (Thm B9 iv). Same sparsity as the path below. ---*/
+      if (bcEntropyP1) {
+        EsState faceStates[3];
+        for (unsigned short a = 0; a < nNodes; ++a) {
+          const su2double* V = base_nodes->GetPrimitive(element->GetNode(a));
+          faceStates[a].rho = V[nDim+2];
+          faceStates[a].p = V[nDim+1];
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceStates[a].vel[iDim] = V[iDim+1];
+        }
+        su2double faceRes[3][ES_NVAR] = {{0.0}};
+        EsFaceResidual(nDim, nNodes, config->GetGamma(), (KindBC == FAR_FIELD) ? &esInf : nullptr,
+                       element->getNormal(), faceStates, faceRes);
+
+        su2double omegaSelf = wSelf, omegaOther = wOther;
+        if (nNodes == 3) {
+          omegaSelf = p1Coeffs[0] * (1.0 - p1Coeffs[1] - p1Coeffs[2]);
+          omegaOther = p1Coeffs[0] * p1Coeffs[1];
+        }
+
+        for (unsigned short a = 0; a < nNodes; ++a) {
+          const auto pointA = element->GetNode(a);
+          if (!geometry->nodes->GetDomain(pointA)) continue;
+          LinSysRes.AddBlock(pointA, faceRes[a]);
+          if (!implicit) continue;
+
+          for (unsigned short b = 0; b < nNodes; ++b) {
+            const auto pointB = element->GetNode(b);
+            const su2double omega = (b == a) ? omegaSelf : omegaOther;
+            for (iVar = 0; iVar < nVar; ++iVar)
+              for (jVar = 0; jVar < nVar; ++jVar) jac[iVar][jVar] = omega * buffer[b][MAXNVAR + iVar * nVar + jVar];
+            if (b == a) Jacobian.AddBlock2Diag(pointA, jac);
+            else if (geometry->nodes->GetDomain(pointB)) Jacobian.AddBlock(pointA, pointB, jac);
+          }
+        }
+        continue;
       }
 
       bool isDomain_i, isDomain_j;

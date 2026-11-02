@@ -80,6 +80,7 @@ private:
   bool Edge_Form_Entropy_Diss; /*!< \brief Energy stable dissipation of the E term of the P1 edge form. */
   bool Edge_Form_ES_Diss;      /*!< \brief Certified entropy stable dissipation of the E part on the nodal jump. */
   bool Edge_Form_EC_Flux;      /*!< \brief Entropy conservative central part of the P1 edge form along n_ik - n. */
+  bool BC_Entropy_P1;          /*!< \brief Entropy stable hybridized weak boundary of BC_WEAK_P1 (closure C). */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
   su2double Fan_Poly_Eff;         /*!< \brief Fan polytropic effeciency. */
@@ -10005,6 +10006,12 @@ public:
   bool GetEdge_Form_ES_Diss() const { return Edge_Form_ES_Diss; }
 
   bool GetEdge_Form_EC_Flux() const { return Edge_Form_EC_Flux; }
+
+  /*!
+   * \brief Entropy stable weak boundary of BC_WEAK_P1: degree 2 face rule, entropy projected states at the points,
+   *        hybridized Ismail-Roe coupling to the nodes (closure C of the boundary notes).
+   */
+  bool GetBC_Entropy_P1() const { return BC_Entropy_P1; }
 
   /*!
    * \brief Make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes.
