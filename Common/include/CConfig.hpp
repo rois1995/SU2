@@ -78,6 +78,7 @@ private:
   su2double Edge_Form_Positive_Diss; /*!< \brief Part of the extra Roe dissipation up to the positivity bound of the P1 edge form. */
   su2double Edge_Form_Positive_Sensor; /*!< \brief Relative pressure jump at which that dissipation acts in full. */
   bool Edge_Form_Entropy_Diss; /*!< \brief Energy stable dissipation of the E term of the P1 edge form. */
+  bool Edge_Form_ES_Diss;      /*!< \brief Certified entropy stable dissipation of the E part on the nodal jump. */
   bool Edge_Form_EC_Flux;      /*!< \brief Entropy conservative central part of the P1 edge form along n_ik - n. */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
@@ -9998,6 +9999,11 @@ public:
    * \brief Ismail-Roe entropy conservative flux for the part of the edge form along n_ik minus the dual normal.
    * \return <code>TRUE</code> if it replaces the arithmetic mean of the nodal fluxes there.
    */
+  /*!
+   * \brief Certified entropy stable scalar dissipation of the E part of EDGE_FORM_P1 on the nodal jump.
+   */
+  bool GetEdge_Form_ES_Diss() const { return Edge_Form_ES_Diss; }
+
   bool GetEdge_Form_EC_Flux() const { return Edge_Form_EC_Flux; }
 
   /*!

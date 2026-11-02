@@ -68,6 +68,7 @@ protected:
   const su2double positiveDiss;
   const su2double positiveSensor;
   const bool entropyDiss;
+  const bool esDiss;
   const bool ecFlux;
   const bool sweptFlux;
 
@@ -90,6 +91,7 @@ protected:
     positiveDiss(edgeForm ? config.GetEdge_Form_Positive_Diss() : 0.0),
     positiveSensor(config.GetEdge_Form_Positive_Sensor()),
     entropyDiss(edgeForm && config.GetEdge_Form_Entropy_Diss()),
+    esDiss(edgeForm && config.GetEdge_Form_ES_Diss()),
     ecFlux(edgeForm && config.GetEdge_Form_EC_Flux()),
     sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
   }
@@ -290,6 +292,29 @@ public:
               jac_i(iVar, jVar) += d;
               jac_j(iVar, jVar) -= d;
             }
+          }
+        }
+      }
+
+      /*--- EDGE_FORM_ES_DISS: certified entropy stability of the E part for any jump (Lemma 3 of the method notes).
+       * With dw the nodal jump of the entropy variables, u_k - u_i = Hbar dw and F_k.E - F_i.E = Bbar(E) dw exactly
+       * (path averages along the straight w path). lam H - A H >= 0 iff lam >= lambda_max(A(E)) = (u.e + c)|E|, and
+       * along a straight w path u.e and c are monotone (ratio of linear functions, c^2 = gamma/(2 beta) with beta
+       * linear), so their maxima are at the nodes. lam = max(0, max(u_i.e, u_k.e) + max(c_i, c_k)) |E| on the nodal
+       * conserved jump makes the E part entropy stable. No average state, no constant. ---*/
+      if (esDiss) {
+        const Double areaE = norm(formE);
+        Double proj_i = 0.0, proj_j = 0.0;
+        for (size_t iDim = 0; iDim < nDim; ++iDim) {
+          proj_i += V1st.i.velocity(iDim) * formE(iDim);
+          proj_j += V1st.j.velocity(iDim) * formE(iDim);
+        }
+        const Double lam = fmax(0.0, fmax(proj_i, proj_j) + sqrt(gamma * fmax(V1st.i.pressure() / V1st.i.density(), V1st.j.pressure() / V1st.j.density())) * areaE);
+        for (size_t iVar = 0; iVar < nVar; ++iVar) {
+          flux(iVar) -= lam * (U1st.j.all(iVar) - U1st.i.all(iVar));
+          if (implicit) {
+            jac_i(iVar, iVar) += lam;
+            jac_j(iVar, iVar) -= lam;
           }
         }
       }

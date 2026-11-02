@@ -54,6 +54,7 @@ protected:
   const bool edgeForm;
   const bool exactFormJac;
   const bool ecFlux;
+  const bool esDiss;
   const bool sweptFlux;
   const su2double stretchParam = 0.3;
 
@@ -68,6 +69,7 @@ protected:
     edgeForm(iMesh == MESH_0 && (config.GetEdge_Form_P1() || config.GetSplit_Edge_Flux())),
     exactFormJac(edgeForm && config.GetEdge_Form_Exact_Jacobian()),
     ecFlux(edgeForm && config.GetEdge_Form_EC_Flux()),
+    esDiss(edgeForm && config.GetEdge_Form_ES_Diss()),
     sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
   }
 
@@ -183,6 +185,30 @@ public:
       } else {
         jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), normal, 0.5);
         jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), normal, 0.5);
+      }
+    }
+
+    /*--- EDGE_FORM_ES_DISS: certified entropy stability of the E part for any jump (Lemma 3 of the method notes).
+     * With dw the nodal jump of the entropy variables, u_k - u_i = Hbar dw and F_k.E - F_i.E = Bbar(E) dw exactly
+     * (path averages along the straight w path). lam H - A H >= 0 iff lam >= lambda_max(A(E)) = (u.e + c)|E|, and
+     * along a straight w path u.e and c are monotone (ratio of linear functions, c^2 = gamma/(2 beta) with beta
+     * linear), so their maxima are at the nodes. lam = max(0, max(u_i.e, u_k.e) + max(c_i, c_k)) |E| on the nodal
+     * conserved jump makes the E part entropy stable. No average state, no constant. ---*/
+    if (esDiss) {
+      const auto formE = gatherVariables<nDim>(iEdge, geometry.edges->GetFormE());
+      const Double areaE = norm(formE);
+      Double proj_i = 0.0, proj_j = 0.0;
+      for (size_t iDim = 0; iDim < nDim; ++iDim) {
+        proj_i += V.i.velocity(iDim) * formE(iDim);
+        proj_j += V.j.velocity(iDim) * formE(iDim);
+      }
+      const Double lam = fmax(0.0, fmax(proj_i, proj_j) + sqrt(gamma * fmax(V.i.pressure() / V.i.density(), V.j.pressure() / V.j.density())) * areaE);
+      for (size_t iVar = 0; iVar < nVar; ++iVar) {
+        flux(iVar) -= lam * (U.j.all(iVar) - U.i.all(iVar));
+        if (implicit) {
+          jac_i(iVar, iVar) += lam;
+          jac_j(iVar, iVar) -= lam;
+        }
       }
     }
 
