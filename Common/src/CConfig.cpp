@@ -1831,8 +1831,6 @@ void CConfig::SetConfig_Options() {
   addBoolOption("MOD_CENTROIDS", ModCentroids, false);
   /*!\brief BC_WEAK_P1 \n DESCRIPTION: Weak boundary fluxes of all markers with the weights 5:1 (2D) and 6:1:1 (3D), for the median dual and for EDGE_FORM_P1. \ingroup Config*/
   addBoolOption("BC_WEAK_P1", BC_Weak_P1, false);
-  /*!\brief VISCOUS_SCHEME \n DESCRIPTION: Viscous term of the flow equations, EDGE_GRADIENT \ingroup Config \default EDGE_GRADIENT */
-  addEnumOption("VISCOUS_SCHEME", Kind_Viscous_Scheme, Viscous_Scheme_Map, VISCOUS_SCHEME::EDGE_GRADIENT);
   /*!\brief EDGE_FORM_P1 \n DESCRIPTION: Variant C, central flux 0.5(F_i+F_k).n_ik + (F_k-F_i).E_ik on the modified dual, requires MOD_CENTROIDS \ingroup Config \default false */
   addBoolOption("EDGE_FORM_P1", Edge_Form_P1, false);
   /*!\brief EDGE_FORM_EXACT_JACOBIAN \n DESCRIPTION: Central Jacobian of EDGE_FORM_P1 or SPLIT_EDGE_FLUX with the coefficients of the form, not the normal of the dual. \ingroup Config*/

@@ -2224,6 +2224,8 @@ void CFVMFlowSolverBase<V, R>::BC_Custom_Weak(CGeometry* geometry, CSolver** sol
             CMatrixView<su2double> grad(reinterpret_cast<su2double *>(MMSGrad), 3);
             V_outlet[nDim+5] = nodes->GetLaminarViscosity(iPoint);
             V_outlet[nDim+6] = nodes->GetEddyViscosity(iPoint);
+            V_outlet[nDim+7] = nodes->GetThermalConductivity(iPoint);
+            V_outlet[nDim+8] = nodes->GetSpecificHeatCp(iPoint);
   
             /*--- Set the normal vector and the coordinates ---*/
   
@@ -2359,6 +2361,8 @@ void CFVMFlowSolverBase<V, R>::BC_Custom_Weak_Residual(CGeometry* geometry, CSol
 
           V_outlet[nDim+5] = nodes->GetLaminarViscosity(iPoint);
           V_outlet[nDim+6] = nodes->GetEddyViscosity(iPoint);
+          V_outlet[nDim+7] = nodes->GetThermalConductivity(iPoint);
+          V_outlet[nDim+8] = nodes->GetSpecificHeatCp(iPoint);
 
           /*--- Set the normal vector and the coordinates ---*/
 

@@ -587,7 +587,6 @@ private:
   Kind_Centered_Template;       /*!< \brief Centered scheme for the template model. */
 
   VISCOUS_GRAD_CORR Kind_Visc_Corr;
-  VISCOUS_SCHEME Kind_Viscous_Scheme;  /*!< \brief Discretization of the viscous term of the flow equations. */
 
   bool computeTruncationError;
 
@@ -9962,12 +9961,6 @@ public:
    * \return YES if the weights are used.
    */
   bool GetBC_Weak_P1() const { return BC_Weak_P1; }
-
-  /*!
-   * \brief Get the discretization of the viscous term of the flow equations.
-   * \return EDGE_GRADIENT.
-   */
-  VISCOUS_SCHEME GetKind_Viscous_Scheme() const { return Kind_Viscous_Scheme; }
 
   /*!
    * \brief Get if the central flux uses the P1 edge form on the modified dual (variant C).
