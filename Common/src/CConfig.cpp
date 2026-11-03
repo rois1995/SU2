@@ -1857,6 +1857,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_DISS_PROJECTED", Edge_Diss_Projected, false);
   /*!\brief EDGE_FORM_TECNO \n DESCRIPTION: ROE only. Replace the Roe flux on the dissipation normal (dual normal, or nu with EDGE_DISS_PROJECTED) by the Ismail-Roe flux of the nodal states plus 1/2 |nu| sum_j |lam_j| T_j r_j sigma_j dy_j, dy = R^T (w_k - w_i) with Barth-scaled eigenvectors at the Roe average of the nodal states and sigma_j in [0,1] from a minmod limiter of the entropy-variable slopes in each characteristic field (sign property). Entropy stable for any states, second order where the limiter is inactive. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_TECNO", Edge_Form_TeCNO, false);
+  /*!\brief EDGE_FORM_TECNO_WIDE \n DESCRIPTION: TeCNO limiter with each slope ratio clamped to [0,2] and sigma to [0,1], the widest per side bound that keeps the sign property (less dissipation than minmod). \ingroup Config \default false */
+  addBoolOption("EDGE_FORM_TECNO_WIDE", Edge_Form_TeCNO_Wide, false);
 
   /*!\brief MARKER_HEATTRANSFER DESCRIPTION: Heat flux with specified heat transfer coefficient boundary marker(s)\n
    * Format: ( Heat transfer marker, heat transfer coefficient, wall temperature (static), ... ) \ingroup Config  */
@@ -6245,6 +6247,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
   if (Edge_Diss_Projected) active.push_back("EDGE_DISS_PROJECTED");
   if (Edge_Form_TeCNO) active.push_back("EDGE_FORM_TECNO");
+  if (Edge_Form_TeCNO_Wide && !Edge_Form_TeCNO) SU2_MPI::Error("EDGE_FORM_TECNO_WIDE: needs EDGE_FORM_TECNO= YES.", CURRENT_FUNCTION);
 
   if (Flux_Correction_Limited && (!FluxCorrection || !MUSCL_Flow || (Kind_SlopeLimit_Flow == LIMITER::NONE) ||
                                   (Kind_SlopeLimit_Flow == LIMITER::VAN_ALBADA_EDGE))) {

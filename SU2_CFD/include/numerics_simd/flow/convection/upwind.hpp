@@ -74,6 +74,7 @@ protected:
   const bool ecFlux;
   const bool sweptFlux;
   const bool tecno;               /*!< \brief EDGE_FORM_TECNO, entropy stable Roe part (P1_TECNO.md). */
+  const bool tecnoWide;           /*!< \brief EDGE_FORM_TECNO_WIDE, widest sigma range of the sign property. */
   const su2double tecnoFix;       /*!< \brief Its eigenvalue floor, ENTROPY_FIX_COEFF (|u.n| + c). */
   const ENUM_ROELOWDISS tecnoLowDiss;
 
@@ -102,6 +103,7 @@ protected:
     ecFlux((edgeForm || projDiss) && config.GetEdge_Form_EC_Flux()),
     sweptFlux(edgeForm && config.GetGCL_Exact_P1()),
     tecno(finestGrid && config.GetEdge_Form_TeCNO()),
+    tecnoWide(config.GetEdge_Form_TeCNO_Wide()),
     tecnoFix(config.GetEntropyFix_Coeff()),
     tecnoLowDiss(static_cast<ENUM_ROELOWDISS>(config.GetKind_RoeLowDiss())) {
   }
@@ -218,14 +220,19 @@ protected:
 
       /*--- clamp(a.d/|d|^2, 0, 1) of the U-MUSCL slope ramp((1-kappa) a + kappa d); any value in [0,1] keeps the
        * sign property, so the floor of the denominator is harmless. ---*/
+      /*--- EDGE_FORM_TECNO_WIDE: the sign property only needs sigma = 1 - (r_i + r_k)/2 in [0,1]. Clamping each ratio
+       * to [0,2] and then sigma to [0,1] is the widest per side bound that keeps it: sigma = 0 (no dissipation) where
+       * the two one-sided slopes average to the jump (smooth monotone data), sigma = 1 where both are flat, and
+       * sigma >= 0 always. Same theorem, less dissipation than minmod where the slopes differ. ---*/
+      const su2double rMax = tecnoWide ? 2.0 : 1.0;
       auto ratio = [&](const Double& ad, const Double& dd) {
         const Double r = umusclRamp * ((1.0 - umusclKappa) * ad + umusclKappa * dd) / fmax(dd, 1e-300);
-        return fmin(fmax(r, 0.0), 1.0);
+        return fmin(fmax(r, 0.0), rMax);
       };
-      sigM = 1.0 - 0.5 * (ratio(aM_i * dM, dM * dM) + ratio(aM_j * dM, dM * dM));
-      sig0 = 1.0 - 0.5 * (ratio(a0_i * d0, d0 * d0) + ratio(a0_j * d0, d0 * d0));
-      sigP = 1.0 - 0.5 * (ratio(aP_i * dP, dP * dP) + ratio(aP_j * dP, dP * dP));
-      sigS = 1.0 - 0.5 * (ratio(dot(aS_i, dS), dS2) + ratio(dot(aS_j, dS), dS2));
+      sigM = fmax(0.0, 1.0 - 0.5 * (ratio(aM_i * dM, dM * dM) + ratio(aM_j * dM, dM * dM)));
+      sig0 = fmax(0.0, 1.0 - 0.5 * (ratio(a0_i * d0, d0 * d0) + ratio(a0_j * d0, d0 * d0)));
+      sigP = fmax(0.0, 1.0 - 0.5 * (ratio(aP_i * dP, dP * dP) + ratio(aP_j * dP, dP * dP)));
+      sigS = fmax(0.0, 1.0 - 0.5 * (ratio(dot(aS_i, dS), dS2) + ratio(dot(aS_j, dS), dS2)));
     }
 
     /*--- Dissipation sum_j |lam_j| T_j r_j sigma_j dy_j. ---*/

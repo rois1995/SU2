@@ -82,6 +82,7 @@ private:
   bool Edge_Form_ES_Blend;     /*!< \brief Element theta blend of that dissipation, theta_T = P_T^+ / D_T. */
   bool Edge_Form_EC_Flux;      /*!< \brief Entropy conservative central part of the P1 edge form along n_ik - n. */
   bool Edge_Form_TeCNO;        /*!< \brief Entropy stable second order Roe part: Ismail-Roe flux plus TeCNO dissipation. */
+  bool Edge_Form_TeCNO_Wide;   /*!< \brief Widest sign-property bound of the TeCNO limiter. */
   bool BC_Entropy_P1;          /*!< \brief Entropy stable hybridized weak boundary of BC_WEAK_P1 (closure C). */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
@@ -10020,6 +10021,11 @@ public:
    *        dissipation normal plus 1/2 R|Lambda|T R^T on a sign preserving reconstruction of the entropy variables.
    */
   bool GetEdge_Form_TeCNO() const { return Edge_Form_TeCNO; }
+
+  /*!
+   * \brief EDGE_FORM_TECNO_WIDE: ratios clamped to [0,2], sigma to [0,1] (still the sign property).
+   */
+  bool GetEdge_Form_TeCNO_Wide() const { return Edge_Form_TeCNO_Wide; }
 
   /*!
    * \brief Entropy stable weak boundary of BC_WEAK_P1: degree 2 face rule, entropy projected states at the points,
