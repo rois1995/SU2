@@ -83,6 +83,7 @@ private:
   bool Edge_Form_EC_Flux;      /*!< \brief Entropy conservative central part of the P1 edge form along n_ik - n. */
   bool Edge_Form_TeCNO;        /*!< \brief Entropy stable second order Roe part: Ismail-Roe flux plus TeCNO dissipation. */
   bool Edge_Form_TeCNO_Wide;   /*!< \brief Widest sign-property bound of the TeCNO limiter. */
+  bool Edge_Form_TeCNO_Smooth; /*!< \brief Smooth rational sigma of the TeCNO dissipation. */
   bool BC_Entropy_P1;          /*!< \brief Entropy stable hybridized weak boundary of BC_WEAK_P1 (closure C). */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
@@ -10026,6 +10027,11 @@ public:
    * \brief EDGE_FORM_TECNO_WIDE: ratios clamped to [0,2], sigma to [0,1] (still the sign property).
    */
   bool GetEdge_Form_TeCNO_Wide() const { return Edge_Form_TeCNO_Wide; }
+
+  /*!
+   * \brief EDGE_FORM_TECNO_SMOOTH: sigma = (1-s)^2/(s^2-s+1), s the mean slope ratio.
+   */
+  bool GetEdge_Form_TeCNO_Smooth() const { return Edge_Form_TeCNO_Smooth; }
 
   /*!
    * \brief Entropy stable weak boundary of BC_WEAK_P1: degree 2 face rule, entropy projected states at the points,

@@ -1859,6 +1859,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_FORM_TECNO", Edge_Form_TeCNO, false);
   /*!\brief EDGE_FORM_TECNO_WIDE \n DESCRIPTION: TeCNO limiter with each slope ratio clamped to [0,2] and sigma to [0,1], the widest per side bound that keeps the sign property (less dissipation than minmod). \ingroup Config \default false */
   addBoolOption("EDGE_FORM_TECNO_WIDE", Edge_Form_TeCNO_Wide, false);
+  /*!\brief EDGE_FORM_TECNO_SMOOTH \n DESCRIPTION: TeCNO dissipation weight sigma = (1-s)^2/(s^2-s+1), s the mean of the two slope ratios: smooth, >= 0 (entropy stable), O(h^2) for smooth monotone data, 1 at extrema. \ingroup Config \default false */
+  addBoolOption("EDGE_FORM_TECNO_SMOOTH", Edge_Form_TeCNO_Smooth, false);
 
   /*!\brief MARKER_HEATTRANSFER DESCRIPTION: Heat flux with specified heat transfer coefficient boundary marker(s)\n
    * Format: ( Heat transfer marker, heat transfer coefficient, wall temperature (static), ... ) \ingroup Config  */
@@ -6248,6 +6250,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Diss_Projected) active.push_back("EDGE_DISS_PROJECTED");
   if (Edge_Form_TeCNO) active.push_back("EDGE_FORM_TECNO");
   if (Edge_Form_TeCNO_Wide && !Edge_Form_TeCNO) SU2_MPI::Error("EDGE_FORM_TECNO_WIDE: needs EDGE_FORM_TECNO= YES.", CURRENT_FUNCTION);
+  if (Edge_Form_TeCNO_Smooth && (!Edge_Form_TeCNO || Edge_Form_TeCNO_Wide)) SU2_MPI::Error("EDGE_FORM_TECNO_SMOOTH: needs EDGE_FORM_TECNO= YES and not EDGE_FORM_TECNO_WIDE.", CURRENT_FUNCTION);
 
   if (Flux_Correction_Limited && (!FluxCorrection || !MUSCL_Flow || (Kind_SlopeLimit_Flow == LIMITER::NONE) ||
                                   (Kind_SlopeLimit_Flow == LIMITER::VAN_ALBADA_EDGE))) {

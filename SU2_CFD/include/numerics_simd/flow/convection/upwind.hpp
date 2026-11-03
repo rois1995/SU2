@@ -75,6 +75,7 @@ protected:
   const bool sweptFlux;
   const bool tecno;               /*!< \brief EDGE_FORM_TECNO, entropy stable Roe part (P1_TECNO.md). */
   const bool tecnoWide;           /*!< \brief EDGE_FORM_TECNO_WIDE, widest sigma range of the sign property. */
+  const bool tecnoSmooth;         /*!< \brief EDGE_FORM_TECNO_SMOOTH, smooth rational sigma. */
   const su2double tecnoFix;       /*!< \brief Its eigenvalue floor, ENTROPY_FIX_COEFF (|u.n| + c). */
   const ENUM_ROELOWDISS tecnoLowDiss;
 
@@ -104,6 +105,7 @@ protected:
     sweptFlux(edgeForm && config.GetGCL_Exact_P1()),
     tecno(finestGrid && config.GetEdge_Form_TeCNO()),
     tecnoWide(config.GetEdge_Form_TeCNO_Wide()),
+    tecnoSmooth(config.GetEdge_Form_TeCNO_Smooth()),
     tecnoFix(config.GetEntropyFix_Coeff()),
     tecnoLowDiss(static_cast<ENUM_ROELOWDISS>(config.GetKind_RoeLowDiss())) {
   }
@@ -233,6 +235,23 @@ protected:
       sig0 = fmax(0.0, 1.0 - 0.5 * (ratio(a0_i * d0, d0 * d0) + ratio(a0_j * d0, d0 * d0)));
       sigP = fmax(0.0, 1.0 - 0.5 * (ratio(aP_i * dP, dP * dP) + ratio(aP_j * dP, dP * dP)));
       sigS = fmax(0.0, 1.0 - 0.5 * (ratio(dot(aS_i, dS), dS2) + ratio(dot(aS_j, dS), dS2)));
+
+      /*--- EDGE_FORM_TECNO_SMOOTH: with s = (r_i + r_k)/2 (unclamped ratios), sigma = (1-s)^2 / (s^2 - s + 1).
+       * Entropy stability needs only sigma >= 0 (production -sigma dy^2 per field). This sigma is C-infinity
+       * (the denominator is >= 3/4), 0 at s = 1 and O(h^2) for smooth monotone data (s = 1 + O(h)), 1 at a smooth
+       * extremum (s = 0) and for s -> infinity, at most 4/3. No switch, no constant. ---*/
+      if (tecnoSmooth) {
+        auto smoothSigma = [&](const Double& ad_i, const Double& ad_j, const Double& dd) {
+          const Double ddSafe = fmax(dd, 1e-300);
+          const Double s = 0.5 * umusclRamp * ((1.0 - umusclKappa) * (ad_i + ad_j) + 2.0 * umusclKappa * dd) / ddSafe;
+          const Double om = 1.0 - s;
+          return om * om / (s * s - s + 1.0);
+        };
+        sigM = smoothSigma(aM_i * dM, aM_j * dM, dM * dM);
+        sig0 = smoothSigma(a0_i * d0, a0_j * d0, d0 * d0);
+        sigP = smoothSigma(aP_i * dP, aP_j * dP, dP * dP);
+        sigS = smoothSigma(dot(aS_i, dS), dot(aS_j, dS), dS2);
+      }
     }
 
     /*--- Dissipation sum_j |lam_j| T_j r_j sigma_j dy_j. ---*/
