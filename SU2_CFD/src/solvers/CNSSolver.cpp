@@ -29,6 +29,7 @@
 #include "../../include/variables/CNSVariable.hpp"
 #include "../../../Common/include/toolboxes/printing_toolbox.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
+#include "../../include/numerics/flow/p1_viscous_entropy.hpp"
 #include "../../include/solvers/CFVMFlowSolverBase.inl"
 
 /*--- Explicit instantiation of the parent class of CEulerSolver,
@@ -54,6 +55,12 @@ CNSSolver::CNSSolver(CGeometry *geometry, CConfig *config, unsigned short iMesh)
   Viscosity_Inf   = config->GetViscosity_FreeStreamND();
   Prandtl_Turb    = config->GetPrandtl_Turb();
   Tke_Inf         = config->GetTke_FreeStreamND();
+
+  if ((iMesh == MESH_0) && config->GetVisc_P1_Entropy() && config->GetModifiedCentroids() && (nDim == 3) &&
+      (rank == MASTER_NODE)) {
+    cout << "VISC_P1_ENTROPY with MOD_CENTROIDS in 3D: the moved dual and the P1 viscous operator have different "
+            "test functions, which leaves a first moment defect (Prop. V9 of the P1 viscous notes)." << endl;
+  }
 
   /*--- Initialize the seed values for forward mode differentiation. ---*/
 
@@ -181,7 +188,95 @@ unsigned long CNSSolver::SetPrimitive_Variables(CSolver **solver_container, cons
 CNumerics::ResidualType<> CNSSolver::Viscous_Residual(unsigned long iEdge, CGeometry *geometry,
                                                       CSolver **solver_container, CNumerics *numerics,
                                                       CConfig *config) {
+  /*--- VISC_P1_ENTROPY: the element loop gives the viscous residual and Jacobian on the fine grid. ---*/
+  if ((MGLevel == MESH_0) && config->GetVisc_P1_Entropy()) return CNumerics::ResidualType<>(nullptr, nullptr, nullptr);
   return Viscous_Residual_impl(iEdge, geometry, solver_container, numerics, config);
+}
+
+void CNSSolver::Viscous_Residual(CGeometry *geometry, CSolver **solver_container, CNumerics **numerics_container,
+                                 CConfig *config, unsigned short iMesh, unsigned short iRKStep) {
+  if ((iMesh == MESH_0) && config->GetVisc_P1_Entropy()) Viscous_Residual_P1Entropy(geometry, config);
+}
+
+void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
+
+  namespace pve = P1ViscousEntropy;
+
+  /*--- Operator V-A of the P1 viscous notes, see p1_viscous_entropy.hpp. The edge viscous flux and its Jacobian
+   * are off (CNSSolver::Viscous_Residual for the scalar numerics, CCompressibleViscousFluxBase for the vectorized
+   * ones), the element Jacobian with K frozen replaces them. ---*/
+
+  const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
+  const su2double prandtlTurb = config->GetPrandtl_Turb();
+  const su2double gasConst = config->GetGas_ConstantND();
+
+  /*--- The coloring is built on first use. ---*/
+  SU2_OMP_SAFE_GLOBAL_ACCESS(geometry->GetElementColoring();)
+
+  const auto& coloring = geometry->GetElementColoring();
+  const auto groupSize = geometry->GetElementColorGroupSize();
+
+  for (auto iColor = 0ul; iColor < coloring.getOuterSize(); ++iColor) {
+    const auto* indices = coloring.innerIdx(iColor);
+    const auto nInColor = coloring.getNumNonZeros(iColor);
+
+    SU2_OMP_FOR_DYN(nextMultiple(OMP_MIN_SIZE, groupSize))
+    for (auto k = 0ul; k < nInColor; ++k) {
+      const auto* element = geometry->elem[indices[k]];
+      const auto nNodes = element->GetnNodes();
+
+      if (nNodes != nDim + 1) {
+        SU2_MPI::Error("VISC_P1_ENTROPY needs triangles or tetrahedra.", CURRENT_FUNCTION);
+      }
+
+      /*--- An element sits on every rank that owns one of its nodes, each rank adds to its owned rows only. ---*/
+      bool owned = false;
+      for (auto iNode = 0u; iNode < nNodes; ++iNode) owned |= geometry->nodes->GetDomain(element->GetNode(iNode));
+      if (!owned) continue;
+
+      const su2double* coord[pve::MAXNODE];
+      pve::NodeState state[pve::MAXNODE];
+      for (auto iNode = 0u; iNode < nNodes; ++iNode) {
+        const auto iPoint = element->GetNode(iNode);
+        coord[iNode] = geometry->nodes->GetCoord(iPoint);
+        pve::GatherNode(*nodes, iPoint, nDim, prandtlTurb, state[iNode]);
+      }
+
+      pve::Element simplex;
+      if (simplex.Set(nDim, coord, state, gasConst) == 0.0) {
+        SU2_MPI::Error("VISC_P1_ENTROPY: degenerate element.", CURRENT_FUNCTION);
+      }
+
+      su2double residual[pve::MAXNODE][pve::MAXNVAR];
+      simplex.Residual(residual);
+
+      for (auto iNode = 0u; iNode < nNodes; ++iNode) {
+        const auto iPoint = element->GetNode(iNode);
+        if (geometry->nodes->GetDomain(iPoint)) LinSysRes.AddBlock(iPoint, residual[iNode]);
+      }
+
+      if (!implicit) continue;
+
+      su2double dwdu[pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR], jacobian[pve::MAXNODE][pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
+      for (auto iNode = 0u; iNode < nNodes; ++iNode) pve::EntropyVariableJacobian(nDim, Gamma, state[iNode], dwdu[iNode]);
+      simplex.Jacobian(dwdu, jacobian);
+
+      for (auto iNode = 0u; iNode < nNodes; ++iNode) {
+        const auto iPoint = element->GetNode(iNode);
+        if (!geometry->nodes->GetDomain(iPoint)) continue;
+        for (auto jNode = 0u; jNode < nNodes; ++jNode) {
+          const auto jPoint = element->GetNode(jNode);
+          /*--- Row pointers, the matrix takes a block as su2double** (a 2D array would match the flat overload). ---*/
+          const su2double* rows[pve::MAXNVAR];
+          for (auto iVar = 0u; iVar < nVar; ++iVar) rows[iVar] = jacobian[iNode][jNode][iVar];
+          if (jNode == iNode) Jacobian.AddBlock2Diag(iPoint, rows);
+          else Jacobian.AddBlock(iPoint, jPoint, rows);
+        }
+      }
+    }
+    END_SU2_OMP_FOR
+  }
 }
 
 void CNSSolver::Buffet_Monitoring(const CGeometry *geometry, const CConfig *config) {

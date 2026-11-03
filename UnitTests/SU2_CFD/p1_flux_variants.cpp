@@ -35,6 +35,7 @@
 #include "../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../Common/include/toolboxes/boundary_closure.hpp"
 #include "../../Common/include/toolboxes/p1_simplex.hpp"
+#include "../../SU2_CFD/include/numerics/flow/p1_viscous_entropy.hpp"
 
 namespace {
 
@@ -933,6 +934,263 @@ TEST_CASE("GCL_EXACT_P1 makes the grid flux the BDF difference of the volumes", 
       }
       CHECK(GlobalMax(error) < 1e-10 * GlobalMax(scale));
       CHECK(fabs(GlobalSum(total) - GlobalSum(totalDV)) < 1e-9 * GlobalMax(scale));
+    }
+  }
+}
+
+namespace {
+
+namespace pve = P1ViscousEntropy;
+
+constexpr su2double kGamma = 1.4, kGas = 0.7;
+
+/*--- Random simplex (z or y stretched by "stretch") and random nodal data of VISC_P1_ENTROPY. ---*/
+void RandomElement(std::mt19937& gen, int nDim, double stretch, su2double x[4][3], pve::NodeState* state) {
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  while (true) {
+    for (int a = 0; a <= nDim; ++a) {
+      for (int i = 0; i < 3; ++i) x[a][i] = (i < nDim) ? u(gen) : 0.0;
+      x[a][nDim - 1] *= stretch;
+    }
+    su2double g[4][3];
+    if (fabs(P1Simplex::ShapeGradients(nDim, x, g)) > 1e-3 * stretch) break;
+  }
+  for (int a = 0; a <= nDim; ++a) {
+    auto& S = state[a];
+    S.rho = exp(u(gen));
+    S.p = S.rho * kGas * exp(u(gen));
+    for (int i = 0; i < 3; ++i) S.vel[i] = (i < nDim) ? 1.5 * u(gen) : 0.0;
+    S.mu = exp(2.0 * u(gen) - 1.0);
+    S.kappa = exp(2.0 * u(gen));
+  }
+}
+
+/*--- Full entropy variables of the closure C helpers, w = (w_0, theta v, -theta). ---*/
+void FullEntropyVariables(int nDim, const pve::NodeState& S, su2double* w) {
+  su2double vel2 = 0.0;
+  for (int i = 0; i < nDim; ++i) vel2 += S.vel[i] * S.vel[i];
+  const su2double theta = S.rho / S.p, s = log(S.p) - kGamma * log(S.rho);
+  w[0] = (kGamma - s) / (kGamma - 1.0) - 0.5 * theta * vel2;
+  for (int i = 0; i < nDim; ++i) w[i + 1] = theta * S.vel[i];
+  w[nDim + 1] = -theta;
+}
+
+/*--- Element flux with the frozen state of E and the nodal entropy variables of "state" (Picard). ---*/
+pve::Element Frozen(const pve::Element& E, const pve::NodeState* state) {
+  pve::Element F = E;
+  su2double gT[3] = {}, gM[3][3] = {};
+  for (int a = 0; a < E.nNodes; ++a) {
+    F.thetaNode[a] = state[a].rho / state[a].p;
+    for (int i = 0; i < E.nDim; ++i) F.wMom[a][i] = F.thetaNode[a] * state[a].vel[i];
+    for (int j = 0; j < E.nDim; ++j) {
+      gT[j] += F.thetaNode[a] * E.grad[a][j];
+      for (int i = 0; i < E.nDim; ++i) gM[i][j] += F.wMom[a][i] * E.grad[a][j];
+    }
+  }
+  F.Flux(gT, gM, F.flux);
+  return F;
+}
+
+void Perturb(int nDim, pve::NodeState& S, int jVar, su2double h) {
+  su2double U[5] = {S.rho, 0.0, 0.0, 0.0, 0.0}, vel2 = 0.0;
+  for (int i = 0; i < nDim; ++i) {
+    U[i + 1] = S.rho * S.vel[i];
+    vel2 += S.vel[i] * S.vel[i];
+  }
+  U[nDim + 1] = S.p / (kGamma - 1.0) + 0.5 * S.rho * vel2;
+  U[jVar] += h;
+  S.rho = U[0];
+  vel2 = 0.0;
+  for (int i = 0; i < nDim; ++i) {
+    S.vel[i] = U[i + 1] / U[0];
+    vel2 += S.vel[i] * S.vel[i];
+  }
+  S.p = (kGamma - 1.0) * (U[nDim + 1] - 0.5 * S.rho * vel2);
+}
+
+}  // namespace
+
+TEST_CASE("VISC_P1_ENTROPY element: entropy dissipation, P1_CELL limit, Picard Jacobian", "[P1Flux]") {
+  std::mt19937 gen(4321);
+  for (int nDim : {2, 3}) {
+    const int nNodes = nDim + 1, nVar = nDim + 2;
+    for (int trial = 0; trial < 200; ++trial) {
+      const double stretch = (trial % 2) ? 1.0 : 1e-3;
+      su2double x[4][3];
+      pve::NodeState state[4];
+      RandomElement(gen, nDim, stretch, x, state);
+      pve::Element E;
+      REQUIRE(E.Set(nDim, x, state, kGas) > 0.0);
+      su2double res[4][5];
+      E.Residual(res);
+
+      /*--- sum_a w_a . R_a = |T| G:K G >= 0, and the residual is conservative with no mass row. ---*/
+      su2double rate = 0.0, scale = 0.0, sum[5] = {};
+      for (int a = 0; a < nNodes; ++a) {
+        su2double w[5];
+        FullEntropyVariables(nDim, state[a], w);
+        for (int v = 0; v < nVar; ++v) {
+          rate += w[v] * res[a][v];
+          scale += fabs(w[v] * res[a][v]);
+          sum[v] += res[a][v];
+        }
+        CHECK(res[a][0] == 0.0);
+      }
+      CHECK(rate >= -1e-13 * scale);
+      su2double maxRes = 0.0;
+      for (int a = 0; a < nNodes; ++a)
+        for (int v = 0; v < nVar; ++v) maxRes = std::max(maxRes, fabs(res[a][v]));
+      for (int v = 0; v < nVar; ++v) CHECK(fabs(sum[v]) <= 1e-12 * maxRes);
+
+      /*--- Constant temperature and linear velocity: the primitive P1 cell residual (old P1_CELL). ---*/
+      pve::NodeState iso[4];
+      for (int a = 0; a < nNodes; ++a) {
+        iso[a] = state[a];
+        iso[a].p = iso[a].rho * kGas * 1.3;
+      }
+      pve::Element Eiso;
+      Eiso.Set(nDim, x, iso, kGas);
+      su2double resIso[4][5], gradVel[3][3] = {}, tau[3][3] = {}, meanVel[3] = {}, mu = 0.0;
+      Eiso.Residual(resIso);
+      for (int a = 0; a < nNodes; ++a) {
+        mu += iso[a].mu / nNodes;
+        for (int i = 0; i < nDim; ++i) {
+          meanVel[i] += iso[a].vel[i] / nNodes;
+          for (int j = 0; j < nDim; ++j) gradVel[i][j] += iso[a].vel[i] * Eiso.grad[a][j];
+        }
+      }
+      CNumerics::ComputeStressTensor(nDim, tau, gradVel, mu);
+      su2double err = 0.0, ref = 0.0;
+      for (int a = 0; a < nNodes; ++a) {
+        su2double energy = 0.0;
+        for (int i = 0; i < nDim; ++i) {
+          su2double mom = 0.0;
+          for (int j = 0; j < nDim; ++j) {
+            mom += Eiso.size * tau[i][j] * Eiso.grad[a][j];
+            energy += Eiso.size * meanVel[j] * tau[j][i] * Eiso.grad[a][i];
+          }
+          err = std::max(err, fabs(mom - resIso[a][i + 1]));
+          ref = std::max(ref, fabs(mom));
+        }
+        err = std::max(err, fabs(energy - resIso[a][nDim + 1]));
+      }
+      CHECK(err <= 1e-10 * ref);
+
+      /*--- Picard Jacobian against central differences of the residual with K frozen. ---*/
+      su2double dwdu[4][5][5], jac[4][4][5][5], jacMax = 0.0, jacErr = 0.0;
+      for (int a = 0; a < nNodes; ++a) pve::EntropyVariableJacobian(nDim, kGamma, state[a], dwdu[a]);
+      E.Jacobian(dwdu, jac);
+      for (int b = 0; b < nNodes; ++b) {
+        for (int j = 0; j < nVar; ++j) {
+          const su2double h = 1e-6;
+          pve::NodeState plus[4], minus[4];
+          for (int a = 0; a < nNodes; ++a) plus[a] = minus[a] = state[a];
+          Perturb(nDim, plus[b], j, h);
+          Perturb(nDim, minus[b], j, -h);
+          su2double rp[4][5], rm[4][5];
+          Frozen(E, plus).Residual(rp);
+          Frozen(E, minus).Residual(rm);
+          for (int a = 0; a < nNodes; ++a) {
+            for (int v = 0; v < nVar; ++v) {
+              jacErr = std::max(jacErr, fabs((rp[a][v] - rm[a][v]) / (2 * h) - jac[a][b][v][j]));
+              jacMax = std::max(jacMax, fabs(jac[a][b][v][j]));
+            }
+          }
+        }
+      }
+      CHECK(jacErr <= 1e-6 * jacMax);
+    }
+  }
+}
+
+TEST_CASE("BC_WALL_ENTROPY_P1 on one wall element: entropy bound, rest state, Jacobian", "[P1Flux]") {
+  std::mt19937 gen(8765);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nNodes = nDim + 1, nVar = nDim + 2;
+    const unsigned short faceNodes[3] = {1, 2, 3};
+    for (int trial = 0; trial < 200; ++trial) {
+      const bool isothermal = (trial % 2 == 1);
+      const su2double sipg = (trial % 4 < 2) ? 1.0 : 0.0;
+      su2double x[4][3];
+      pve::NodeState state[4];
+      RandomElement(gen, nDim, (trial % 3) ? 1.0 : 1e-3, x, state);
+      pve::Element E;
+      REQUIRE(E.Set(nDim, x, state, kGas) > 0.0);
+
+      /*--- Outward normal of the face opposite node 0. ---*/
+      su2double N[3] = {};
+      if (nDim == 2) {
+        N[0] = x[2][1] - x[1][1];
+        N[1] = -(x[2][0] - x[1][0]);
+      } else {
+        const su2double a[3] = {x[2][0] - x[1][0], x[2][1] - x[1][1], x[2][2] - x[1][2]};
+        const su2double b[3] = {x[3][0] - x[1][0], x[3][1] - x[1][1], x[3][2] - x[1][2]};
+        N[0] = 0.5 * (a[1] * b[2] - a[2] * b[1]);
+        N[1] = 0.5 * (a[2] * b[0] - a[0] * b[2]);
+        N[2] = 0.5 * (a[0] * b[1] - a[1] * b[0]);
+      }
+      su2double orient = 0.0;
+      for (int i = 0; i < nDim; ++i) orient += N[i] * (x[1][i] - x[0][i]);
+      if (orient < 0.0) for (int i = 0; i < nDim; ++i) N[i] = -N[i];
+
+      const su2double wallT = exp(u(gen)), wallTheta = 1.0 / (kGas * wallT);
+
+      /*--- Theorem N6 on one element (m_T = 1): sum_a (w_a - g).(R_a + b_a) >= 0 for c >= 1. ---*/
+      su2double res[4][5], wall[4][5];
+      E.Residual(res);
+      pve::NoSlipWall(E, nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, wall);
+      su2double rate = 0.0, scale = 0.0, resScale = 0.0;
+      for (int a = 0; a < nNodes; ++a) {
+        su2double w[5];
+        FullEntropyVariables(nDim, state[a], w);
+        if (isothermal) w[nDim + 1] += wallTheta;
+        for (int v = 0; v < nVar; ++v) {
+          rate += w[v] * (res[a][v] + wall[a][v]);
+          scale += fabs(w[v] * (res[a][v] + wall[a][v]));
+          resScale = std::max(resScale, fabs(res[a][v]) + fabs(wall[a][v]));
+        }
+      }
+      CHECK(rate >= -1e-12 * scale);
+
+      /*--- Rest state at the wall temperature: no residual. ---*/
+      pve::NodeState rest[4];
+      for (int a = 0; a < nNodes; ++a) {
+        rest[a] = state[a];
+        for (int i = 0; i < 3; ++i) rest[a].vel[i] = 0.0;
+        rest[a].p = rest[a].rho * kGas * wallT;
+      }
+      pve::Element Erest;
+      Erest.Set(nDim, x, rest, kGas);
+      su2double resRest[4][5], wallRest[4][5];
+      Erest.Residual(resRest);
+      pve::NoSlipWall(Erest, nDim, faceNodes, N, true, wallTheta, 1, sipg, 2.5, wallRest);
+      for (int a = 0; a < nNodes; ++a)
+        for (int v = 0; v < nVar; ++v) CHECK(fabs(resRest[a][v] + wallRest[a][v]) < 1e-9 * resScale);
+
+      /*--- Picard Jacobian (K and sigma frozen) against central differences. ---*/
+      su2double dwdu[4][5][5], jac[4][4][5][5], jacMax = 0.0, jacErr = 0.0;
+      for (int a = 0; a < nNodes; ++a) pve::EntropyVariableJacobian(nDim, kGamma, state[a], dwdu[a]);
+      pve::NoSlipWall(E, nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, wall, dwdu, jac);
+      for (int b = 0; b < nNodes; ++b) {
+        for (int j = 0; j < nVar; ++j) {
+          const su2double h = 1e-6;
+          pve::NodeState plus[4], minus[4];
+          for (int a = 0; a < nNodes; ++a) plus[a] = minus[a] = state[a];
+          Perturb(nDim, plus[b], j, h);
+          Perturb(nDim, minus[b], j, -h);
+          su2double rp[4][5], rm[4][5];
+          pve::NoSlipWall(Frozen(E, plus), nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, rp);
+          pve::NoSlipWall(Frozen(E, minus), nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, rm);
+          for (int a = 0; a < nNodes; ++a) {
+            for (int v = 0; v < nVar; ++v) {
+              jacErr = std::max(jacErr, fabs((rp[a][v] - rm[a][v]) / (2 * h) - jac[a][b][v][j]));
+              jacMax = std::max(jacMax, fabs(jac[a][b][v][j]));
+            }
+          }
+        }
+      }
+      CHECK(jacErr <= 1e-6 * jacMax);
     }
   }
 }

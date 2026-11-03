@@ -83,6 +83,7 @@ protected:
   const bool correct_EN;
   const bool correct_FT;
   const bool correct_AD;
+  const bool p1Entropy;
   const bool useSA_QCR;
   const bool wallFun;
   const bool uq;
@@ -107,6 +108,7 @@ protected:
     correct_EN(iMesh == MESH_0 && config.GetKind_ViscousGradCorr() == VISCOUS_GRAD_CORR::EDGE_NORMAL),
     correct_FT(iMesh == MESH_0 && config.GetKind_ViscousGradCorr() == VISCOUS_GRAD_CORR::FACE_TANGENT),
     correct_AD(iMesh == MESH_0 && config.GetKind_ViscousGradCorr() == VISCOUS_GRAD_CORR::ALPHA_DAMPING),
+    p1Entropy(iMesh == MESH_0 && config.GetVisc_P1_Entropy()),
     useSA_QCR(config.GetSAParsedOptions().qcr2000),
     wallFun(config.GetWall_Functions()),
     uq(config.GetSSTParsedOptions().uq),
@@ -138,6 +140,9 @@ protected:
                                 MatrixDbl<nVar>& jac_j) const {
 
     static_assert(PrimVarType::nVar <= Derived::nPrimVar);
+
+    /*--- VISC_P1_ENTROPY: residual and Jacobian come from the element loop (CNSSolver::Viscous_Residual_P1Entropy). ---*/
+    if (p1Entropy) return;
 
     /*--- Pointer on which to call the "compile-time virtual" methods. ---*/
 

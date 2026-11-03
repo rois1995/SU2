@@ -132,6 +132,14 @@ private:
                                              CNumerics *numerics, CConfig *config) override;
 
   /*!
+   * \brief Viscous residual and Jacobian of the flow equations from the P1 Galerkin operator in entropy variables
+   *        (VISC_P1_ENTROPY), an element loop on the fine grid.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *config);
+
+  /*!
    * \brief Computes the wall shear stress (Tau_Wall) on the surface using a wall function.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] solver_container - Container vector with all the solutions.
@@ -140,6 +148,18 @@ private:
   void SetTau_Wall_WF(CGeometry *geometry, CSolver** solver_container, const CConfig* config);
 
 public:
+  /*!
+   * \brief Compute the viscous residual that does not come from the edge loop (VISC_P1_ENTROPY).
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] solver_container - Container vector with all the solutions.
+   * \param[in] numerics_container - Description of the numerical method.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] iMesh - Index of the mesh in multigrid computations.
+   * \param[in] iRKStep - Current step of the Runge-Kutta iteration.
+   */
+  void Viscous_Residual(CGeometry *geometry, CSolver **solver_container, CNumerics **numerics_container,
+                        CConfig *config, unsigned short iMesh, unsigned short iRKStep) override;
+
   /*!
    * \brief Constructor of the class.
    */

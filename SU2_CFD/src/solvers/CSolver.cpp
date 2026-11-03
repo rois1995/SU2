@@ -48,6 +48,9 @@
 #include "../../../Common/include/toolboxes/MMS/CUserDefinedSolution.hpp"
 #include "../../../Common/include/toolboxes/printing_toolbox.hpp"
 #include "../../../Common/include/toolboxes/C1DInterpolation.hpp"
+#include "../../include/numerics/flow/p1_viscous_entropy.hpp"
+#include <array>
+#include <map>
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../../../Common/include/toolboxes/CLinearPartitioner.hpp"
 #include "../../../Common/include/adt/CADTPointsOnlyClass.hpp"
@@ -4974,6 +4977,10 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
                          (config->GetKind_FluidModel() == IDEAL_GAS);
   const bool rans             = (config->GetKind_Turb_Model() != TURB_MODEL::NONE);
 
+  /*--- BC_WALL_ENTROPY_P1: weak no-slip at heat flux (q = 0) and isothermal walls, done from the wall elements in
+   * WeakNoSlipWallResidual after the marker loop. ---*/
+  const bool bcWallEntropyP1 = config->GetBC_Wall_Entropy_P1();
+
   /*--- Pick one numerics object per thread. ---*/
   CNumerics* conv_bound_numerics = numerics_container[CONV_BOUND_TERM + omp_get_thread_num()*MAX_TERMS];
   CNumerics* visc_bound_numerics = numerics_container[VISC_BOUND_TERM + omp_get_thread_num()*MAX_TERMS];
@@ -5049,10 +5056,14 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
       continue;
     }
 
-    if (bcEntropyP1 && (KindBC != EULER_WALL) && (KindBC != SYMMETRY_PLANE) && (KindBC != FAR_FIELD)) {
+    const bool weakNoSlip = bcWallEntropyP1 && ((KindBC == HEAT_FLUX) || (KindBC == ISOTHERMAL));
+
+    if (bcEntropyP1 && !weakNoSlip && (KindBC != EULER_WALL) && (KindBC != SYMMETRY_PLANE) && (KindBC != FAR_FIELD)) {
       SU2_MPI::Error("BC_ENTROPY_P1 supports Euler walls, symmetry planes and far field, not marker " +
                      config->GetMarker_All_TagBound(iMarker) + ".", CURRENT_FUNCTION);
     }
+
+    if (weakNoSlip) continue;
 
     SU2_OMP_SAFE_GLOBAL_ACCESS(
     for (iElem = 0; iElem < geometry->GetnElem_Bound(iMarker); ++iElem ) {
@@ -5523,7 +5534,226 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
 
   }
 
+  if (bcWallEntropyP1) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(WeakNoSlipWallResidual(geometry, config);)
+  }
+
   AD::EndNoSharedReading();
+}
+
+void CSolver::SetP1WallFaces(CGeometry *geometry, const CConfig *config) {
+
+  /*--- A rank holds a boundary face only if it owns one of its nodes, but the SIPG adjoint term also reaches the node
+   * opposite the face. So the wall faces are gathered on all ranks (sorted global node IDs and the config file index
+   * of the marker) and found again from the volume elements, which every rank owning one of their nodes holds.
+   * m_T is then exact on every rank. ---*/
+
+  constexpr unsigned long NONE = std::numeric_limits<unsigned long>::max();
+  constexpr int RECORD = 4;
+  using FaceKey = std::array<unsigned long, 3>;
+
+  vector<unsigned long> sendRecords;
+  for (unsigned short iMarker = 0; iMarker < config->GetnMarker_All(); ++iMarker) {
+    const auto kind = config->GetMarker_All_KindBC(iMarker);
+    if ((kind != HEAT_FLUX) && (kind != ISOTHERMAL)) continue;
+    const unsigned long cfgMarker = config->GetMarker_CfgFile_TagBound(config->GetMarker_All_TagBound(iMarker));
+    for (unsigned long iElem = 0; iElem < geometry->GetnElem_Bound(iMarker); ++iElem) {
+      const auto* face = geometry->bound[iMarker][iElem];
+      if (face->GetnNodes() != nDim) {
+        SU2_MPI::Error("BC_WALL_ENTROPY_P1 needs segments or triangles on the walls.", CURRENT_FUNCTION);
+      }
+      FaceKey key = {NONE, NONE, NONE};
+      for (unsigned short k = 0; k < nDim; ++k) key[k] = geometry->nodes->GetGlobalIndex(face->GetNode(k));
+      std::sort(key.begin(), key.end());
+      sendRecords.insert(sendRecords.end(), key.begin(), key.end());
+      sendRecords.push_back(cfgMarker);
+    }
+  }
+
+  const int nRank = SU2_MPI::GetSize();
+  const int nLocal = sendRecords.size() / RECORD;
+  vector<int> nFaces(nRank), counts(nRank), displs(nRank, 0);
+  SU2_MPI::Allgather(&nLocal, 1, MPI_INT, nFaces.data(), 1, MPI_INT, SU2_MPI::GetComm());
+  for (int iRank = 0; iRank < nRank; ++iRank) {
+    counts[iRank] = RECORD * nFaces[iRank];
+    if (iRank > 0) displs[iRank] = displs[iRank - 1] + counts[iRank - 1];
+  }
+  const unsigned long nTotal = (displs[nRank - 1] + counts[nRank - 1]) / RECORD;
+  vector<unsigned long> allRecords(RECORD * nTotal);
+  SU2_MPI::Allgatherv(sendRecords.data(), RECORD * nLocal, MPI_UNSIGNED_LONG, allRecords.data(), counts.data(),
+                      displs.data(), MPI_UNSIGNED_LONG, SU2_MPI::GetComm());
+
+  std::map<FaceKey, unsigned long> wallFaces;
+  for (unsigned long iFace = 0; iFace < nTotal; ++iFace) {
+    const auto* r = &allRecords[RECORD * iFace];
+    wallFaces.emplace(FaceKey{r[0], r[1], r[2]}, r[3]);
+  }
+
+  P1WallFaces.clear();
+  for (unsigned long iElem = 0; iElem < geometry->GetnElem(); ++iElem) {
+    const auto* elem = geometry->elem[iElem];
+    const unsigned short nNodes = elem->GetnNodes();
+    if (nNodes != nDim + 1) continue;  /*--- VISC_P1_ENTROPY stops the run on other cells. ---*/
+    const auto first = P1WallFaces.size();
+    for (unsigned short opp = 0; opp < nNodes; ++opp) {
+      FaceKey key = {NONE, NONE, NONE};
+      for (unsigned short c = 0, k = 0; c < nNodes; ++c)
+        if (c != opp) key[k++] = geometry->nodes->GetGlobalIndex(elem->GetNode(c));
+      std::sort(key.begin(), key.end());
+      const auto it = wallFaces.find(key);
+      if (it == wallFaces.end()) continue;
+      const auto tag = config->GetMarker_CfgFile_TagBound(static_cast<unsigned short>(it->second));
+      P1WallFace record;
+      record.elem = iElem;
+      record.opposite = opp;
+      record.isothermal = (config->GetMarker_CfgFile_KindBC(tag) == ISOTHERMAL);
+      if (record.isothermal) {
+        const su2double wallTemperature = config->GetIsothermal_Temperature(tag) / config->GetTemperature_Ref();
+        record.wallTheta = 1.0 / (config->GetGas_ConstantND() * wallTemperature);
+      }
+      P1WallFaces.push_back(record);
+    }
+    for (auto i = first; i < P1WallFaces.size(); ++i) P1WallFaces[i].nWallFaces = P1WallFaces.size() - first;
+  }
+
+  /*--- Every local wall face must belong to a local triangle or tetrahedron. ---*/
+  std::set<FaceKey> localFaces;
+  for (const auto& record : P1WallFaces) {
+    const auto* elem = geometry->elem[record.elem];
+    FaceKey key = {NONE, NONE, NONE};
+    for (unsigned short c = 0, k = 0; c < nDim + 1; ++c)
+      if (c != record.opposite) key[k++] = geometry->nodes->GetGlobalIndex(elem->GetNode(c));
+    std::sort(key.begin(), key.end());
+    localFaces.insert(key);
+  }
+  for (int iFace = 0; iFace < nLocal; ++iFace) {
+    const auto* r = &sendRecords[RECORD * iFace];
+    if (localFaces.count(FaceKey{r[0], r[1], r[2]}) == 0) {
+      SU2_MPI::Error("BC_WALL_ENTROPY_P1: a wall face has no triangle or tetrahedron.", CURRENT_FUNCTION);
+    }
+  }
+  P1WallFacesReady = true;
+}
+
+void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config) {
+
+  namespace pve = P1ViscousEntropy;
+
+  if (!P1WallFacesReady) SetP1WallFaces(geometry, config);
+
+  const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
+  const su2double gamma = config->GetGamma(), gm1 = gamma - 1.0;
+  const su2double prandtlTurb = config->GetPrandtl_Turb(), gasConst = config->GetGas_ConstantND();
+
+  /*--- SIPG (s = 1) and c = 5/2, the maximum of lambda(c)/c (P1_NOSLIP.md, 3.3). ---*/
+  const su2double sipg = 1.0, penalty = 2.5;
+
+  /*--- Weights of the approximate pressure flux Jacobian, as for BC_ENTROPY_P1 (5:1 and 6:1:1). ---*/
+  const su2double omegaSelf = (nDim == 2) ? 5.0 / 12.0 : 1.0 / 4.0;
+  const su2double omegaOther = (nDim == 2) ? 1.0 / 12.0 : 1.0 / 24.0;
+
+  for (const auto& record : P1WallFaces) {
+    const auto* elem = geometry->elem[record.elem];
+    const unsigned short nNodes = nDim + 1;
+
+    /*--- An element sits on every rank that owns one of its nodes, each rank adds to its owned rows only. ---*/
+    bool owned = false;
+    for (unsigned short c = 0; c < nNodes; ++c) owned |= geometry->nodes->GetDomain(elem->GetNode(c));
+    if (!owned) continue;
+
+    unsigned short faceNodes[3] = {0, 0, 0};
+    for (unsigned short c = 0, k = 0; c < nNodes; ++c)
+      if (c != record.opposite) faceNodes[k++] = c;
+
+    const su2double* coord[pve::MAXNODE];
+    pve::NodeState state[pve::MAXNODE];
+    for (unsigned short c = 0; c < nNodes; ++c) {
+      const auto iPoint = elem->GetNode(c);
+      coord[c] = geometry->nodes->GetCoord(iPoint);
+      pve::GatherNode(*base_nodes, iPoint, nDim, prandtlTurb, state[c]);
+    }
+    pve::Element simplex;
+    if (simplex.Set(nDim, coord, state, gasConst) == 0.0) {
+      SU2_MPI::Error("BC_WALL_ENTROPY_P1: degenerate wall element.", CURRENT_FUNCTION);
+    }
+
+    /*--- Area vector A_f nu of the face, pointing away from the opposite node. ---*/
+    su2double faceNormal[3] = {0.0, 0.0, 0.0}, orientation = 0.0;
+    const auto* x0 = coord[faceNodes[0]];
+    const auto* x1 = coord[faceNodes[1]];
+    if (nDim == 2) {
+      faceNormal[0] = x1[1] - x0[1];
+      faceNormal[1] = -(x1[0] - x0[0]);
+    } else {
+      const auto* x2 = coord[faceNodes[2]];
+      const su2double a[3] = {x1[0] - x0[0], x1[1] - x0[1], x1[2] - x0[2]};
+      const su2double b[3] = {x2[0] - x0[0], x2[1] - x0[1], x2[2] - x0[2]};
+      GeometryToolbox::CrossProduct(a, b, faceNormal);
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceNormal[iDim] *= 0.5;
+    }
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+      orientation += faceNormal[iDim] * (x0[iDim] - coord[record.opposite][iDim]);
+    if (orientation < 0.0)
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceNormal[iDim] = -faceNormal[iDim];
+
+    /*--- Inviscid part: closure C with the pressure flux, as at Euler walls (entropy conservative). ---*/
+    EsState faceStates[3];
+    for (unsigned short a = 0; a < nDim; ++a) {
+      const auto& S = state[faceNodes[a]];
+      faceStates[a].rho = S.rho;
+      faceStates[a].p = S.p;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceStates[a].vel[iDim] = S.vel[iDim];
+    }
+    su2double faceRes[3][ES_NVAR] = {{0.0}};
+    EsFaceResidual(nDim, nDim, gamma, nullptr, faceNormal, faceStates, faceRes);
+
+    /*--- Viscous part: consistency, adjoint term and penalty with the K of the wall element. ---*/
+    su2double res[pve::MAXNODE][pve::MAXNVAR], dwdu[pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
+    su2double jac[pve::MAXNODE][pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
+    if (implicit) {
+      for (unsigned short c = 0; c < nNodes; ++c) pve::EntropyVariableJacobian(nDim, gamma, state[c], dwdu[c]);
+    }
+    pve::NoSlipWall(simplex, nDim, faceNodes, faceNormal, record.isothermal, record.wallTheta, record.nWallFaces,
+                    sipg, penalty, res, implicit ? dwdu : nullptr, implicit ? jac : nullptr);
+
+    for (unsigned short a = 0; a < nDim; ++a)
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[faceNodes[a]][iVar] += faceRes[a][iVar];
+
+    /*--- Approximate Jacobian of the pressure flux, N (x) dp/du with the 5:1 / 6:1:1 weights. ---*/
+    if (implicit) {
+      for (unsigned short a = 0; a < nDim; ++a) {
+        for (unsigned short b = 0; b < nDim; ++b) {
+          const auto& S = state[faceNodes[b]];
+          const su2double omega = (b == a) ? omegaSelf : omegaOther;
+          su2double dpdu[ES_NVAR] = {0.0}, vel2 = 0.0;
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+            vel2 += S.vel[iDim] * S.vel[iDim];
+            dpdu[iDim + 1] = -gm1 * S.vel[iDim];
+          }
+          dpdu[0] = 0.5 * gm1 * vel2;
+          dpdu[nDim + 1] = gm1;
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            for (unsigned short jVar = 0; jVar < nVar; ++jVar)
+              jac[faceNodes[a]][faceNodes[b]][iDim + 1][jVar] += omega * faceNormal[iDim] * dpdu[jVar];
+        }
+      }
+    }
+
+    /*--- Owned rows only; the adjoint term reaches every node of the wall element. ---*/
+    for (unsigned short c = 0; c < nNodes; ++c) {
+      const auto pointC = elem->GetNode(c);
+      if (!geometry->nodes->GetDomain(pointC)) continue;
+      LinSysRes.AddBlock(pointC, res[c]);
+      if (!implicit) continue;
+      for (unsigned short b = 0; b < nNodes; ++b) {
+        /*--- Row pointers, the matrix takes a block as su2double** (a 2D array would match the flat overload). ---*/
+        const su2double* rows[pve::MAXNVAR];
+        for (unsigned short iVar = 0; iVar < nVar; ++iVar) rows[iVar] = jac[c][b][iVar];
+        if (b == c) Jacobian.AddBlock2Diag(pointC, rows);
+        else Jacobian.AddBlock(pointC, elem->GetNode(b), rows);
+      }
+    }
+  }
 }
 
 
@@ -5543,7 +5773,8 @@ void CSolver::Strong_BC(CGeometry* geometry, CSolver** solver_container, CConfig
       case HEAT_TRANSFER:
       case ISOTHERMAL:
       case CHT_WALL_INTERFACE:
-        BC_Viscous_Wall_Strong(geometry, solver_container, config, val_marker);
+        /*--- BC_WALL_ENTROPY_P1: the no-slip condition is weak (Weak_BC_Residual), no rows are replaced. ---*/
+        if (!config->GetBC_Wall_Entropy_P1()) BC_Viscous_Wall_Strong(geometry, solver_container, config, val_marker);
         break;
     }
 

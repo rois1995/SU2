@@ -85,6 +85,8 @@ private:
   bool Edge_Form_TeCNO_Wide;   /*!< \brief Widest sign-property bound of the TeCNO limiter. */
   bool Edge_Form_TeCNO_Smooth; /*!< \brief Smooth rational sigma of the TeCNO dissipation. */
   bool BC_Entropy_P1;          /*!< \brief Entropy stable hybridized weak boundary of BC_WEAK_P1 (closure C). */
+  bool Visc_P1_Entropy;        /*!< \brief P1 Galerkin viscous operator in entropy variables, one frozen K per simplex. */
+  bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
   su2double Fan_Poly_Eff;         /*!< \brief Fan polytropic effeciency. */
@@ -10038,6 +10040,18 @@ public:
    *        hybridized Ismail-Roe coupling to the nodes (closure C of the boundary notes).
    */
   bool GetBC_Entropy_P1() const { return BC_Entropy_P1; }
+
+  /*!
+   * \brief VISC_P1_ENTROPY: viscous residual of the flow equations from the P1 Galerkin operator in entropy
+   *        variables, F_T = K(wbar_T) grad(w_h) on each simplex (operator V-A of the P1 viscous notes).
+   */
+  bool GetVisc_P1_Entropy() const { return Visc_P1_Entropy; }
+
+  /*!
+   * \brief BC_WALL_ENTROPY_P1: weak no-slip heat flux (q = 0) and isothermal walls, closure C with the pressure
+   *        flux plus the SIPG penalty in entropy variables with the K of the wall element.
+   */
+  bool GetBC_Wall_Entropy_P1() const { return BC_Wall_Entropy_P1; }
 
   /*!
    * \brief Make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes.

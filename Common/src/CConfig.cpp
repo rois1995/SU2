@@ -1849,6 +1849,10 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_FORM_ES_BLEND", Edge_Form_ES_Blend, false);
   /*!\brief BC_ENTROPY_P1 \n DESCRIPTION: Entropy stable weak boundary of BC_WEAK_P1 with EDGE_FORM_P1: degree 2 face rule, entropy projected states at the points, Ismail-Roe coupling to the face nodes; pressure flux at Euler walls and symmetry planes, Ismail-Roe plus Rusanov against the characteristic ghost at the far field. \ingroup Config \default false */
   addBoolOption("BC_ENTROPY_P1", BC_Entropy_P1, false);
+  /*!\brief VISC_P1_ENTROPY \n DESCRIPTION: Viscous residual of the flow equations from the P1 Galerkin operator in entropy variables: on each simplex F_T = K(wbar_T) grad(w_h), evaluated with the stress tensor and heat flux of the effective gradients grad(v) = (G_m - v* G_theta)/theta*, grad(T) = -G_theta/(R theta*^2), theta = rho/p, mean of the nodal entropy variables, mean mu + mu_t (mu_t >= 0) and conductivity. Replaces the edge viscous flux and its Jacobian (Picard element Jacobian, frozen K). Triangles and tetrahedra. Entropy dissipative for any state. \ingroup Config \default false */
+  addBoolOption("VISC_P1_ENTROPY", Visc_P1_Entropy, false);
+  /*!\brief BC_WALL_ENTROPY_P1 \n DESCRIPTION: Weak no-slip walls (HEAT_FLUX with zero heat flux, ISOTHERMAL): closure C with the pressure flux, plus the SIPG penalty in entropy variables with the K of the wall element, sigma_f = 5/2 (1+s)^2 d m_T/(4 h_f), s = 1, h_f = d|T|/A_f. Needs VISC_P1_ENTROPY and BC_WEAK_P1. \ingroup Config \default false */
+  addBoolOption("BC_WALL_ENTROPY_P1", BC_Wall_Entropy_P1, false);
   /*!\brief GCL_EXACT_P1 \n DESCRIPTION: Add the swept terms that make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes, for conservation in time on moving meshes. \ingroup Config*/
   addBoolOption("GCL_EXACT_P1", GCL_Exact_P1, false);
   /*!\brief SPLIT_EDGE_FLUX \n DESCRIPTION: Central flux 0.5(F_i+F_k).n_ik on the split edges of the cells, dissipation and Jacobians stay on the true edges. \ingroup Config*/
@@ -6249,6 +6253,8 @@ void CConfig::CheckP1FluxOptions() const {
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
   if (Edge_Diss_Projected) active.push_back("EDGE_DISS_PROJECTED");
   if (Edge_Form_TeCNO) active.push_back("EDGE_FORM_TECNO");
+  if (Visc_P1_Entropy) active.push_back("VISC_P1_ENTROPY");
+  if (BC_Wall_Entropy_P1) active.push_back("BC_WALL_ENTROPY_P1");
   if (Edge_Form_TeCNO_Wide && !Edge_Form_TeCNO) SU2_MPI::Error("EDGE_FORM_TECNO_WIDE: needs EDGE_FORM_TECNO= YES.", CURRENT_FUNCTION);
   if (Edge_Form_TeCNO_Smooth && (!Edge_Form_TeCNO || Edge_Form_TeCNO_Wide)) SU2_MPI::Error("EDGE_FORM_TECNO_SMOOTH: needs EDGE_FORM_TECNO= YES and not EDGE_FORM_TECNO_WIDE.", CURRENT_FUNCTION);
 
@@ -6382,6 +6388,44 @@ void CConfig::CheckP1FluxOptions() const {
     if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
     if ((nMarker_Inlet > 0) || (nMarker_Outlet > 0) || (nMarker_Supersonic_Inlet > 0)) {
       SU2_MPI::Error(name + "only Euler walls, symmetry planes and far field are supported, not inlets or outlets.", CURRENT_FUNCTION);
+    }
+  }
+  if (Visc_P1_Entropy || BC_Wall_Entropy_P1) {
+    /*--- P1 Galerkin viscous operator in entropy variables (V-A) and the weak no-slip wall built on it. The quantized
+     * matrices drop added off-diagonal blocks, the element and wall Jacobians need them. ---*/
+    const bool quantized = (Kind_Linear_Solver_Prec == Q_LU_SGS) || (Kind_Linear_Solver_Prec == Q_JACOBI) ||
+                           (Kind_Linear_Solver_Prec == Q_IDENTITY);
+    const string name = Visc_P1_Entropy ? "VISC_P1_ENTROPY: " : "BC_WALL_ENTROPY_P1: ";
+    if (!Viscous) SU2_MPI::Error(name + "the problem is not viscous.", CURRENT_FUNCTION);
+    if (!idealGas) SU2_MPI::Error(name + "the entropy variables need an ideal gas.", CURRENT_FUNCTION);
+    if (saParsedOptions.qcr2000) SU2_MPI::Error(name + "not available with QCR, the stress is not of the form K grad(w).", CURRENT_FUNCTION);
+    if (sstParsedOptions.uq) SU2_MPI::Error(name + "not available with uncertainty quantification.", CURRENT_FUNCTION);
+    if (Wall_Functions) SU2_MPI::Error(name + "not available with wall functions.", CURRENT_FUNCTION);
+    if (quantized && (Kind_TimeIntScheme_Flow == EULER_IMPLICIT))
+      SU2_MPI::Error(name + "not available with the quantized preconditioners Q_*, they drop the element Jacobian blocks.", CURRENT_FUNCTION);
+  }
+  if (BC_Wall_Entropy_P1) {
+    const string name = "BC_WALL_ENTROPY_P1: ";
+    if (!Visc_P1_Entropy || !BC_Weak_P1) SU2_MPI::Error(name + "needs VISC_P1_ENTROPY= YES and BC_WEAK_P1= YES.", CURRENT_FUNCTION);
+    if (!Edge_Form_P1 && !Edge_Diss_Projected) SU2_MPI::Error(name + "needs EDGE_FORM_P1 or EDGE_DISS_PROJECTED.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion, the wall data must be w_m = 0.", CURRENT_FUNCTION);
+    if (Kind_ConductivityModel != CONDUCTIVITYMODEL::CONSTANT_PRANDTL)
+      SU2_MPI::Error(name + "needs CONDUCTIVITY_MODEL= CONSTANT_PRANDTL.", CURRENT_FUNCTION);
+    if ((Kind_Turb_Model != TURB_MODEL::NONE) && (Kind_ConductivityModel_Turb != CONDUCTIVITYMODEL_TURB::CONSTANT_PRANDTL))
+      SU2_MPI::Error(name + "needs CONDUCTIVITY_MODEL_TURB= CONSTANT_PRANDTL_TURB.", CURRENT_FUNCTION);
+    if ((nMarker_HeatTransfer > 0) || (nMarker_CHTInterface > 0))
+      SU2_MPI::Error(name + "only MARKER_HEATFLUX with zero heat flux and MARKER_ISOTHERMAL, not heat transfer or CHT walls.", CURRENT_FUNCTION);
+    for (unsigned short iMarker = 0; iMarker < nMarker_HeatFlux; ++iMarker) {
+      if (Heat_Flux[iMarker] != 0.0)
+        SU2_MPI::Error(name + "only adiabatic heat flux walls (q = 0), not marker " + Marker_HeatFlux[iMarker] + ".", CURRENT_FUNCTION);
+    }
+    for (unsigned short iMarker = 0; iMarker < nMarker_PyCustom; ++iMarker) {
+      for (unsigned short jMarker = 0; jMarker < nMarker_HeatFlux; ++jMarker)
+        if (Marker_PyCustom[iMarker] == Marker_HeatFlux[jMarker])
+          SU2_MPI::Error(name + "not available for the custom marker " + Marker_PyCustom[iMarker] + ".", CURRENT_FUNCTION);
+      for (unsigned short jMarker = 0; jMarker < nMarker_Isothermal; ++jMarker)
+        if (Marker_PyCustom[iMarker] == Marker_Isothermal[jMarker])
+          SU2_MPI::Error(name + "not available for the custom marker " + Marker_PyCustom[iMarker] + ".", CURRENT_FUNCTION);
     }
   }
   if ((Edge_Form_Positive_Sensor < 0.0) || ((Edge_Form_Positive_Sensor > 0.0) && (Edge_Form_Positive_Diss == 0.0))) {
