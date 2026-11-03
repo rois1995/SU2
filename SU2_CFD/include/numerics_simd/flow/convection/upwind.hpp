@@ -273,10 +273,15 @@ protected:
       jac_i = inviscidProjJac(gamma, V1st.i.velocity(), U_i.energy(), normal, 0.5);
       jac_j = inviscidProjJac(gamma, V1st.j.velocity(), U_j.energy(), normal, 0.5);
 
+      /*--- The dissipation Jacobian uses the same sigma per field as the residual (frozen), so the implicit operator
+       * is consistent with the limited dissipation. Columns of pMatrix: in 2D entropy wave, shear wave, u+c, u-c; in
+       * 3D the first three columns mix the entropy and shear waves, so they get max(sigma_0, sigma_S). With sigma = 1
+       * in the Jacobian all TeCNO weights stalled (T4 at -6 to -9, Euler M6 at -3.5). ---*/
       VectorDbl<nVar> lambda;
-      for (size_t iDim = 0; iDim < nDim; ++iDim) lambda(iDim) = lam0;
-      lambda(nDim) = lamP;
-      lambda(nDim+1) = lamM;
+      const Double sigLin = fmax(sig0, sigS);
+      for (size_t iDim = 0; iDim < nDim; ++iDim) lambda(iDim) = lam0 * ((nDim == 2) ? ((iDim == 0) ? sig0 : sigS) : sigLin);
+      lambda(nDim) = lamP * sigP;
+      lambda(nDim+1) = lamM * sigM;
       const auto pMat = pMatrix(gamma, avg.density, avg.velocity, un, c, unitNormal);
       const auto pMatInv = pMatrixInv(gamma, avg.density, avg.velocity, un, c, unitNormal);
       for (size_t iVar = 0; iVar < nVar; ++iVar) {
