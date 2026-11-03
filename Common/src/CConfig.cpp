@@ -1855,6 +1855,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("SPLIT_EDGE_FLUX", Split_Edge_Flux, false);
   /*!\brief EDGE_DISS_PROJECTED \n DESCRIPTION: Median dual, central part on the median normal n, dissipation on its edge projection nu = (n.e/|e|^2) e. ROE: Roe flux on nu plus 0.5(F_i+F_k).(n-nu) with nodal states; JST: spectral radius |u.nu| + c|nu|. Fine grid only. \ingroup Config \default false */
   addBoolOption("EDGE_DISS_PROJECTED", Edge_Diss_Projected, false);
+  /*!\brief EDGE_FORM_TECNO \n DESCRIPTION: ROE only. Replace the Roe flux on the dissipation normal (dual normal, or nu with EDGE_DISS_PROJECTED) by the Ismail-Roe flux of the nodal states plus 1/2 |nu| sum_j |lam_j| T_j r_j sigma_j dy_j, dy = R^T (w_k - w_i) with Barth-scaled eigenvectors at the Roe average of the nodal states and sigma_j in [0,1] from a minmod limiter of the entropy-variable slopes in each characteristic field (sign property). Entropy stable for any states, second order where the limiter is inactive. \ingroup Config \default false */
+  addBoolOption("EDGE_FORM_TECNO", Edge_Form_TeCNO, false);
 
   /*!\brief MARKER_HEATTRANSFER DESCRIPTION: Heat flux with specified heat transfer coefficient boundary marker(s)\n
    * Format: ( Heat transfer marker, heat transfer coefficient, wall temperature (static), ... ) \ingroup Config  */
@@ -6242,6 +6244,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (GCL_Exact_P1) active.push_back("GCL_EXACT_P1");
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
   if (Edge_Diss_Projected) active.push_back("EDGE_DISS_PROJECTED");
+  if (Edge_Form_TeCNO) active.push_back("EDGE_FORM_TECNO");
 
   if (Flux_Correction_Limited && (!FluxCorrection || !MUSCL_Flow || (Kind_SlopeLimit_Flow == LIMITER::NONE) ||
                                   (Kind_SlopeLimit_Flow == LIMITER::VAN_ALBADA_EDGE))) {
@@ -6271,7 +6274,7 @@ void CConfig::CheckP1FluxOptions() const {
    * LOW_MACH_CORR, otherwise the form would be dropped without a message. ---*/
 
   const bool idealGas = (Kind_FluidModel == STANDARD_AIR) || (Kind_FluidModel == IDEAL_GAS);
-  if ((Edge_Form_P1 || Split_Edge_Flux || Edge_Diss_Projected) && (Kind_ConvNumScheme_Flow == SPACE_UPWIND) &&
+  if ((Edge_Form_P1 || Split_Edge_Flux || Edge_Diss_Projected || Edge_Form_TeCNO) && (Kind_ConvNumScheme_Flow == SPACE_UPWIND) &&
       (Low_Mach_Corr || !idealGas)) {
     refuse("upwind schemes need an ideal gas and no LOW_MACH_CORR.");
   }
@@ -6348,6 +6351,22 @@ void CConfig::CheckP1FluxOptions() const {
       SU2_MPI::Error(name + "needs EDGE_FORM_P1 or EDGE_DISS_PROJECTED with ROE or JST.", CURRENT_FUNCTION);
     if (!idealGas) SU2_MPI::Error(name + "the Ismail-Roe flux needs an ideal gas.", CURRENT_FUNCTION);
     if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
+  }
+  if (Edge_Form_TeCNO) {
+    /*--- Entropy stable Roe part: Ismail-Roe flux of the nodal states plus a PSD dissipation on a sign preserving
+     * reconstruction of the entropy variables. With EDGE_FORM_P1 the part along n_ik - n must be entropy
+     * conservative too. The other reconstructed-jump terms are not covered by the proof. ---*/
+    const string name = "EDGE_FORM_TECNO: ";
+    if (Kind_ConvNumScheme_Flow != SPACE_UPWIND || Kind_Upwind_Flow != UPWIND::ROE)
+      SU2_MPI::Error(name + "only for the ROE scheme.", CURRENT_FUNCTION);
+    if (!idealGas) SU2_MPI::Error(name + "the Ismail-Roe flux and the entropy variables need an ideal gas.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
+    if (FluxCorrection) SU2_MPI::Error(name + "not available with FLUX_CORRECTION.", CURRENT_FUNCTION);
+    if (Split_Edge_Flux) SU2_MPI::Error(name + "not available with SPLIT_EDGE_FLUX.", CURRENT_FUNCTION);
+    if (Edge_Form_P1 && !Edge_Form_EC_Flux)
+      SU2_MPI::Error(name + "with EDGE_FORM_P1 it needs EDGE_FORM_EC_FLUX= YES (entropy conservative part along n_ik - n).", CURRENT_FUNCTION);
+    if ((Edge_Form_Positive_Diss != 0.0) || Edge_Form_Entropy_Diss)
+      SU2_MPI::Error(name + "not with EDGE_FORM_POSITIVE_DISS or EDGE_FORM_ENTROPY_DISS, use EDGE_FORM_ES_DISS or EDGE_FORM_ES_BLEND for the E part.", CURRENT_FUNCTION);
   }
   if (BC_Entropy_P1) {
     const string name = "BC_ENTROPY_P1: ";

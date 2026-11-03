@@ -73,6 +73,9 @@ protected:
   const bool projDiss;  /*!< \brief EDGE_DISS_PROJECTED, declared before ecFlux, which depends on it. */
   const bool ecFlux;
   const bool sweptFlux;
+  const bool tecno;               /*!< \brief EDGE_FORM_TECNO, entropy stable Roe part (P1_TECNO.md). */
+  const su2double tecnoFix;       /*!< \brief Its eigenvalue floor, ENTROPY_FIX_COEFF (|u.n| + c). */
+  const ENUM_ROELOWDISS tecnoLowDiss;
 
   /*!
    * \brief Constructor, store some constants and forward args to base.
@@ -97,7 +100,168 @@ protected:
     esBlend(edgeForm && config.GetEdge_Form_ES_Blend()),
     projDiss(finestGrid && config.GetEdge_Diss_Projected()),
     ecFlux((edgeForm || projDiss) && config.GetEdge_Form_EC_Flux()),
-    sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
+    sweptFlux(edgeForm && config.GetGCL_Exact_P1()),
+    tecno(finestGrid && config.GetEdge_Form_TeCNO()),
+    tecnoFix(config.GetEntropyFix_Coeff()),
+    tecnoLowDiss(static_cast<ENUM_ROELOWDISS>(config.GetKind_RoeLowDiss())) {
+  }
+
+  /*!
+   * \brief EDGE_FORM_TECNO (P1_TECNO.md): entropy stable, second order Roe-type flux on the dissipation normal nu,
+   *
+   *    F = F_ec(V_i, V_k; nu) - 1/2 |nu| delta sum_j |lam_j| T_j r_j sigma_j dy_j,   dy = R^T (w_k - w_i),
+   *
+   * w = ((gamma - s)/(gamma-1) - rho|u|^2/(2p), rho u/p, -rho/p) the entropy variables of U = -rho s/(gamma-1),
+   * r_j the eigenvectors of A(nu/|nu|) at the Roe average of the NODAL states (a physical state, p = rho c^2/gamma),
+   * T_j = rho/(2 gamma) (acoustic), rho (gamma-1)/gamma (entropy), p (shear), so that R T R^T = dU/dw there (Barth),
+   * and the linearized dissipation is the Roe matrix 1/2 |A| dU. The reconstruction is the U-MUSCL one of SU2 done
+   * in the characteristic entropy variables y = R^T w with a minmod bound: the slope a_j of each node, from the
+   * nodal gradients of (T, u, p) projected on the edge, is limited to [0, dy_j] (sign of dy_j), so the reconstructed
+   * jump is sigma_j dy_j with sigma_j = 1 - (clamp(a_ij/dy_j) + clamp(a_kj/dy_j))/2 in [0, 1] (sign property).
+   * The shear waves form one tangent vector with one sigma (rotation invariant). Then the entropy production
+   * of the edge is (w_k - w_i).F - (psi_k - psi_i).nu = -1/2 |nu| delta sum_j |lam_j| T_j sigma_j dy_j^2 <= 0 for any
+   * states and gradients: F_ec is entropy conservative (Tadmor), the rest is a nonnegative quadratic form.
+   * Jacobian: 1/2 A_i(nu), 1/2 A_k(nu) of the nodal states, plus/minus 1/2 |nu| delta |A| at the Roe state (the
+   * dissipation with sigma = 1 and frozen eigenvectors, as the Roe Jacobian of a MUSCL flux).
+   */
+  template<class PrimVarType, class VariableType>
+  FORCEINLINE void tecnoFlux(VectorDbl<nVar>& flux, MatrixDbl<nVar>& jac_i, MatrixDbl<nVar>& jac_j,
+                             const bool implicit, const Double& area, const VectorDbl<nDim>& unitNormal,
+                             const VectorDbl<nDim>& normal, const CPair<PrimVarType>& V1st,
+                             const VectorDbl<nDim>& vector_ij, const Int& iPoint, const Int& jPoint,
+                             const VariableType& solution, const su2double& umusclRamp) const {
+
+    /*--- Entropy conservative part on the nodal states. ---*/
+    flux = ismailRoeProjFlux(gamma, V1st.i, V1st.j, normal);
+
+    /*--- Roe average of the nodal states, eigenvalues with the floor of the Roe scheme. ---*/
+    const auto avg = roeAveragedVariables(gamma, V1st, unitNormal);
+    const Double& c = avg.speedSound;
+    const Double& un = avg.projVel;
+    const Double& enthalpy = avg.enthalpy;
+    const Double halfSqVel = 0.5 * squaredNorm(avg.velocity);
+    const Double lamMin = tecnoFix * (abs(un) + c);
+    const Double lamM = fmax(abs(un - c), lamMin);
+    const Double lam0 = fmax(abs(un), lamMin);
+    const Double lamP = fmax(abs(un + c), lamMin);
+    const Double scale = 0.5 * area * roeDissipation(iPoint, jPoint, tecnoLowDiss, solution);
+
+    /*--- Characteristic entropy variables y = R^T v: acoustic (u.n -+ c), entropy (u.n), shear (tangent vector). ---*/
+    auto project = [&](const VectorDbl<nVar>& v, Double& yM, Double& y0, VectorDbl<nDim>& yS, Double& yP) {
+      Double uv = 0.0, nv = 0.0, nq = 0.0;
+      for (size_t iDim = 0; iDim < nDim; ++iDim) {
+        uv += avg.velocity(iDim) * v(iDim+1);
+        nv += unitNormal(iDim) * v(iDim+1);
+        yS(iDim) = v(iDim+1) + avg.velocity(iDim) * v(nDim+1);
+        nq += unitNormal(iDim) * yS(iDim);
+      }
+      for (size_t iDim = 0; iDim < nDim; ++iDim) yS(iDim) -= nq * unitNormal(iDim);
+      yM = v(0) + uv - c * nv + (enthalpy - un * c) * v(nDim+1);
+      y0 = v(0) + uv + halfSqVel * v(nDim+1);
+      yP = v(0) + uv + c * nv + (enthalpy + un * c) * v(nDim+1);
+    };
+
+    /*--- Nodal jump of the entropy variables, without forming w (log of ratios). ---*/
+    VectorDbl<nVar> dw;
+    {
+      const Double beta_i = V1st.i.density() / V1st.i.pressure();
+      const Double beta_j = V1st.j.density() / V1st.j.pressure();
+      const Double ds = log(V1st.j.pressure() / V1st.i.pressure()) - gamma * log(V1st.j.density() / V1st.i.density());
+      Double sq_i = 0.0, sq_j = 0.0;
+      for (size_t iDim = 0; iDim < nDim; ++iDim) {
+        sq_i += pow(V1st.i.velocity(iDim), 2);
+        sq_j += pow(V1st.j.velocity(iDim), 2);
+        dw(iDim+1) = beta_j * V1st.j.velocity(iDim) - beta_i * V1st.i.velocity(iDim);
+      }
+      dw(0) = -ds / (gamma - 1.0) - 0.5 * (beta_j * sq_j - beta_i * sq_i);
+      dw(nDim+1) = beta_i - beta_j;
+    }
+    Double dM, d0, dP;
+    VectorDbl<nDim> dS;
+    project(dw, dM, d0, dS, dP);
+    const Double dS2 = squaredNorm(dS);
+
+    /*--- sigma in [0,1] per field from the minmod bound of the U-MUSCL slopes, 1 (nodal jump) without MUSCL. ---*/
+    Double sigM = 1.0, sig0 = 1.0, sigS = 1.0, sigP = 1.0;
+    if (muscl) {
+      const auto& gradients = solution.GetGradient_Reconstruction();
+
+      /*--- Slope of w along the edge from the gradients of (T, u, p): with beta = rho/p, t = dT/T, q = dp/p,
+       * dw = (q - gamma/(gamma-1) t + beta (|u|^2 t/2 - u.du), beta (du - u t), beta t). ---*/
+      auto entropySlope = [&](const PrimVarType& V, const auto& grad) {
+        Double t = 0.0, q = 0.0;
+        VectorDbl<nDim> du;
+        for (size_t iDim = 0; iDim < nDim; ++iDim) {
+          t += grad(0, iDim) * vector_ij(iDim);
+          q += grad(nDim+1, iDim) * vector_ij(iDim);
+          du(iDim) = 0.0;
+          for (size_t jDim = 0; jDim < nDim; ++jDim) du(iDim) += grad(iDim+1, jDim) * vector_ij(jDim);
+        }
+        t /= V.temperature();
+        q /= V.pressure();
+        const Double beta = V.density() / V.pressure();
+        Double sq = 0.0, udu = 0.0;
+        for (size_t iDim = 0; iDim < nDim; ++iDim) {
+          sq += pow(V.velocity(iDim), 2);
+          udu += V.velocity(iDim) * du(iDim);
+        }
+        VectorDbl<nVar> s;
+        s(0) = q - gamma / (gamma - 1.0) * t + beta * (0.5 * sq * t - udu);
+        for (size_t iDim = 0; iDim < nDim; ++iDim) s(iDim+1) = beta * (du(iDim) - V.velocity(iDim) * t);
+        s(nDim+1) = beta * t;
+        return s;
+      };
+      Double aM_i, a0_i, aP_i, aM_j, a0_j, aP_j;
+      VectorDbl<nDim> aS_i, aS_j;
+      project(entropySlope(V1st.i, gatherVariables<nDim+2, nDim>(iPoint, gradients)), aM_i, a0_i, aS_i, aP_i);
+      project(entropySlope(V1st.j, gatherVariables<nDim+2, nDim>(jPoint, gradients)), aM_j, a0_j, aS_j, aP_j);
+
+      /*--- clamp(a.d/|d|^2, 0, 1) of the U-MUSCL slope ramp((1-kappa) a + kappa d); any value in [0,1] keeps the
+       * sign property, so the floor of the denominator is harmless. ---*/
+      auto ratio = [&](const Double& ad, const Double& dd) {
+        const Double r = umusclRamp * ((1.0 - umusclKappa) * ad + umusclKappa * dd) / fmax(dd, 1e-300);
+        return fmin(fmax(r, 0.0), 1.0);
+      };
+      sigM = 1.0 - 0.5 * (ratio(aM_i * dM, dM * dM) + ratio(aM_j * dM, dM * dM));
+      sig0 = 1.0 - 0.5 * (ratio(a0_i * d0, d0 * d0) + ratio(a0_j * d0, d0 * d0));
+      sigP = 1.0 - 0.5 * (ratio(aP_i * dP, dP * dP) + ratio(aP_j * dP, dP * dP));
+      sigS = 1.0 - 0.5 * (ratio(dot(aS_i, dS), dS2) + ratio(dot(aS_j, dS), dS2));
+    }
+
+    /*--- Dissipation sum_j |lam_j| T_j r_j sigma_j dy_j. ---*/
+    const Double coefM = scale * lamM * avg.density / (2.0 * gamma) * sigM * dM;
+    const Double coef0 = scale * lam0 * avg.density * (gamma - 1.0) / gamma * sig0 * d0;
+    const Double coefP = scale * lamP * avg.density / (2.0 * gamma) * sigP * dP;
+    const Double coefS = scale * lam0 * avg.density * c * c / gamma * sigS;
+    flux(0) -= coefM + coef0 + coefP;
+    for (size_t iDim = 0; iDim < nDim; ++iDim) {
+      flux(iDim+1) -= (coefM + coef0 + coefP) * avg.velocity(iDim) + (coefP - coefM) * c * unitNormal(iDim) +
+                      coefS * dS(iDim);
+    }
+    flux(nDim+1) -= (coefM + coefP) * enthalpy + (coefP - coefM) * un * c + coef0 * halfSqVel +
+                    coefS * dot(avg.velocity, dS);
+
+    if (implicit) {
+      const auto U_i = compressibleConservatives(V1st.i);
+      const auto U_j = compressibleConservatives(V1st.j);
+      jac_i = inviscidProjJac(gamma, V1st.i.velocity(), U_i.energy(), normal, 0.5);
+      jac_j = inviscidProjJac(gamma, V1st.j.velocity(), U_j.energy(), normal, 0.5);
+
+      VectorDbl<nVar> lambda;
+      for (size_t iDim = 0; iDim < nDim; ++iDim) lambda(iDim) = lam0;
+      lambda(nDim) = lamP;
+      lambda(nDim+1) = lamM;
+      const auto pMat = pMatrix(gamma, avg.density, avg.velocity, un, c, unitNormal);
+      const auto pMatInv = pMatrixInv(gamma, avg.density, avg.velocity, un, c, unitNormal);
+      for (size_t iVar = 0; iVar < nVar; ++iVar) {
+        for (size_t jVar = 0; jVar < nVar; ++jVar) {
+          Double d = 0.0;
+          for (size_t kVar = 0; kVar < nVar; ++kVar) d += pMat(iVar,kVar) * lambda(kVar) * pMatInv(kVar,jVar);
+          jac_i(iVar,jVar) += scale * d;
+          jac_j(iVar,jVar) -= scale * d;
+        }
+      }
+    }
   }
 
 public:
@@ -142,10 +306,11 @@ public:
     V1st.i.all = gatherVariables<nPrimVar>(iPoint, solution.GetPrimitive());
     V1st.j.all = gatherVariables<nPrimVar>(jPoint, solution.GetPrimitive());
 
-    /*--- Recompute density and enthalpy instead of reconstructing. ---*/
+    /*--- Recompute density and enthalpy instead of reconstructing. EDGE_FORM_TECNO reconstructs the entropy
+     * variables itself, V and U are then the nodal states. ---*/
     Double nonPhysical;
     auto V = reconstructPrimitives<CCompressiblePrimitives<nDim,nPrimVarGrad> >(
-        iEdge, iPoint, jPoint, gamma, gasConst, muscl, umusclKappa, umusclRamp,
+        iEdge, iPoint, jPoint, gamma, gasConst, muscl && !tecno, umusclKappa, umusclRamp,
         typeLimiter, V1st, vector_ij, solution, nonPhysical);
 
     /*--- Compute conservative variables. ---*/
@@ -169,8 +334,13 @@ public:
     const auto derived = static_cast<const Derived*>(this);
     VectorDbl<nVar> flux;
     MatrixDbl<nVar> jac_i, jac_j;
-    derived->finalizeFlux(flux, jac_i, jac_j, implicit, rArea, rUnitNormal, rNormal,
-                          V, U, iPoint, jPoint, nonPhysical, solution, geometry);
+    if (tecno) {
+      tecnoFlux(flux, jac_i, jac_j, implicit, rArea, rUnitNormal, rNormal, V1st, vector_ij, iPoint, jPoint,
+                solution, umusclRamp);
+    } else {
+      derived->finalizeFlux(flux, jac_i, jac_j, implicit, rArea, rUnitNormal, rNormal,
+                            V, U, iPoint, jPoint, nonPhysical, solution, geometry);
+    }
 
     if (projDiss) {
       /*--- Roe(U_L, U_R; nu) + 0.5(F_i+F_k).(n - nu): the part along n - nu is central, on the nodal states. It is
@@ -186,7 +356,12 @@ public:
       U1st.i = compressibleConservatives(V1st.i);
       U1st.j = compressibleConservatives(V1st.j);
 
-      if (ecFlux) {
+      if (tecno) {
+        /*--- EDGE_FORM_TECNO gave F_ec(nu) minus its dissipation on nu; F_ec is linear in the normal, so adding
+         * F_ec(n - nu) makes the central part F_ec(V_i, V_k; n) (Lemma D1 with the TeCNO dissipation). ---*/
+        const auto fluxEC = ismailRoeProjFlux(gamma, V1st.i, V1st.j, diffNormal);
+        for (size_t iVar = 0; iVar < nVar; ++iVar) flux(iVar) += fluxEC(iVar);
+      } else if (ecFlux) {
         /*--- Lemma D1 form: F_ec(U_i, U_k; n) on the nodal states, which telescopes (sum_k n_ik = 0 at interior
          * nodes), plus the Roe dissipation on nu only: the central part 0.5(F_L+F_R).nu of the Roe flux on the
          * reconstructed states is removed. So the scheme is entropy conservative plus a PSD dissipation. ---*/
