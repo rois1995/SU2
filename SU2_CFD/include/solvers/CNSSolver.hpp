@@ -140,6 +140,13 @@ private:
   void Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *config);
 
   /*!
+   * \brief VISC_P1_ENTROPY_MOVED: P^v_T and D^gal_T - W_T of a simplex with an owned node, for the one-budget blend
+   *        of SetEdgeBlendLambda (W_T: weak no-slip faces of BC_WALL_ENTROPY_P1).
+   */
+  bool P1MovedViscousBudget(const CGeometry *geometry, const CConfig *config, unsigned long iElem,
+                            su2double& production, su2double& dissipation) const override;
+
+  /*!
    * \brief Computes the wall shear stress (Tau_Wall) on the surface using a wall function.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] solver_container - Container vector with all the solutions.

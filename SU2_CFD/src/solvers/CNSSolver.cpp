@@ -56,10 +56,16 @@ CNSSolver::CNSSolver(CGeometry *geometry, CConfig *config, unsigned short iMesh)
   Prandtl_Turb    = config->GetPrandtl_Turb();
   Tke_Inf         = config->GetTke_FreeStreamND();
 
-  if ((iMesh == MESH_0) && config->GetVisc_P1_Entropy() && config->GetModifiedCentroids() && (nDim == 3) &&
-      (rank == MASTER_NODE)) {
+  if ((iMesh == MESH_0) && config->GetVisc_P1_Entropy_Moved() && (nDim == 2)) {
+    SU2_MPI::Error("VISC_P1_ENTROPY_MOVED is for 3D: in 2D the dual points of the faces are the edge midpoints, so "
+                   "Y_T = 0 and VISC_P1_ENTROPY already is the finite volume of the element fluxes on the moved dual "
+                   "(P1_VISCOUS_MOVED.md, Lemma MV1(d)). Use VISC_P1_ENTROPY without this option.", CURRENT_FUNCTION);
+  }
+  if ((iMesh == MESH_0) && config->GetVisc_P1_Entropy() && !config->GetVisc_P1_Entropy_Moved() &&
+      config->GetModifiedCentroids() && (nDim == 3) && (rank == MASTER_NODE)) {
     cout << "VISC_P1_ENTROPY with MOD_CENTROIDS in 3D: the moved dual and the P1 viscous operator have different "
-            "test functions, which leaves a first moment defect (Prop. V9 of the P1 viscous notes)." << endl;
+            "test functions, which leaves a first moment defect (Prop. V9 of the P1 viscous notes). "
+            "VISC_P1_ENTROPY_MOVED puts the viscous term on the moved dual." << endl;
   }
 
   /*--- Initialize the seed values for forward mode differentiation. ---*/
@@ -211,6 +217,10 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
   const su2double prandtlTurb = config->GetPrandtl_Turb();
   const su2double gasConst = config->GetGas_ConstantND();
 
+  /*--- VISC_P1_ENTROPY_MOVED: test vectors (|T| I + (1 - theta_v) Y_T^T) g_a, theta_v of SetEdgeBlendLambda (frozen in
+   * the Jacobian, which is no longer symmetric). ---*/
+  const bool moved = config->GetVisc_P1_Entropy_Moved();
+
   /*--- The coloring is built on first use. ---*/
   SU2_OMP_SAFE_GLOBAL_ACCESS(geometry->GetElementColoring();)
 
@@ -247,6 +257,10 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
       if (simplex.Set(nDim, coord, state, gasConst) == 0.0) {
         SU2_MPI::Error("VISC_P1_ENTROPY: degenerate element.", CURRENT_FUNCTION);
       }
+      if (moved) {
+        const auto iElem = indices[k];
+        simplex.SetMovedTest(geometry->edges->GetBlendY()[iElem], 1.0 - P1MovedThetaV[iElem]);
+      }
 
       su2double residual[pve::MAXNODE][pve::MAXNVAR];
       simplex.Residual(residual);
@@ -277,6 +291,55 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
     }
     END_SU2_OMP_FOR
   }
+}
+
+bool CNSSolver::P1MovedViscousBudget(const CGeometry *geometry, const CConfig *config, unsigned long iElem,
+                                     su2double& production, su2double& dissipation) const {
+  namespace pve = P1ViscousEntropy;
+
+  /*--- The element and wall terms of Viscous_Residual_P1Entropy and WeakNoSlipWallResidual with the same nodal states
+   * (P1_VISCOUS_MOVED.md, MV2, MV13): P^v_T = -(G Y_T):F_T, D^gal_T = |T| G:F_T, W_T = sum over the weak no-slip
+   * faces of the element of the production of their viscous terms (without the wall data terms). ---*/
+
+  const auto* element = geometry->elem[iElem];
+  const unsigned short nNodes = nDim + 1;
+  if (element->GetnNodes() != nNodes) return false;
+
+  bool owned = false;
+  for (unsigned short iNode = 0; iNode < nNodes; ++iNode) owned |= geometry->nodes->GetDomain(element->GetNode(iNode));
+  if (!owned) return false;
+
+  const su2double* coord[pve::MAXNODE];
+  pve::NodeState state[pve::MAXNODE];
+  for (unsigned short iNode = 0; iNode < nNodes; ++iNode) {
+    const auto iPoint = element->GetNode(iNode);
+    coord[iNode] = geometry->nodes->GetCoord(iPoint);
+    pve::GatherNode(*nodes, iPoint, nDim, Prandtl_Turb, state[iNode]);
+  }
+
+  pve::Element simplex;
+  if (simplex.Set(nDim, coord, state, config->GetGas_ConstantND()) == 0.0) {
+    SU2_MPI::Error("VISC_P1_ENTROPY_MOVED: degenerate element.", CURRENT_FUNCTION);
+  }
+  production = simplex.MovedProduction(geometry->edges->GetBlendY()[iElem]);
+  dissipation = simplex.GalerkinDissipation();
+
+  if (!config->GetBC_Wall_Entropy_P1()) return true;
+
+  /*--- P1WallFaces is sorted by element (SetP1WallFaces). ---*/
+  auto record = std::lower_bound(P1WallFaces.begin(), P1WallFaces.end(), iElem,
+                                 [](const P1WallFace& face, unsigned long elem) { return face.elem < elem; });
+  for (; (record != P1WallFaces.end()) && (record->elem == iElem); ++record) {
+    unsigned short faceNodes[3] = {0, 0, 0};
+    for (unsigned short c = 0, k = 0; c < nNodes; ++c)
+      if (c != record->opposite) faceNodes[k++] = c;
+    su2double faceNormal[3] = {0.0, 0.0, 0.0};
+    pve::WallFaceNormal(nDim, coord, record->opposite, faceNodes, faceNormal);
+    dissipation -= pve::NoSlipWallProduction(simplex, nDim, faceNodes, faceNormal, record->isothermal,
+                                             record->wallTheta, record->nWallFaces, pve::NOSLIP_SIPG,
+                                             pve::NOSLIP_PENALTY, record->share);
+  }
+  return true;
 }
 
 void CNSSolver::Buffet_Monitoring(const CGeometry *geometry, const CConfig *config) {

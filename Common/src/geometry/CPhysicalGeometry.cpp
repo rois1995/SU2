@@ -7166,11 +7166,15 @@ void CPhysicalGeometry::SetEdgeFormP1() {
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
-void CPhysicalGeometry::SetEdgeFormBlend() {
+void CPhysicalGeometry::SetEdgeFormBlend(bool movedViscous) {
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     const unsigned short nNodes = nDim + 1;
     edges->BlendDelta.resize(nElem, nNodes) = su2double(0.0);
     edges->BlendEdges.resize(nElem, nNodes * nDim / 2) = 0ul;
+
+    /*--- VISC_P1_ENTROPY_MOVED (3D, 2D is refused by the solver since Y = 0 there). ---*/
+    const bool storeY = movedViscous && (nDim == 3);
+    if (storeY) edges->BlendY.resize(nElem, 9) = su2double(0.0);
 
     for (auto iElem = 0ul; iElem < nElem; iElem++) {
       auto* element = elem[iElem];
@@ -7197,6 +7201,26 @@ void CPhysicalGeometry::SetEdgeFormBlend() {
           edges->BlendEdges(iElem, pair++) = FindEdge(element->GetNode(a), element->GetNode(b));
         }
       }
+
+      if (!storeY) continue;
+
+      /*--- Y_T from the dual points of the faces (the getFaceCG of SetControlVolume), on coordinates recentred on the
+       * element: xi_o is a small difference of points, absolute coordinates would lose digits. ---*/
+
+      su2double center[3] = {0.0, 0.0, 0.0}, local[4][3];
+      for (unsigned short a = 0; a < nNodes; a++)
+        for (unsigned short iDim = 0; iDim < nDim; iDim++) center[iDim] += Coord[a][iDim] / nNodes;
+      array<const su2double*, N_POINTS_MAXIMUM> localCoord;
+      for (unsigned short a = 0; a < nNodes; a++) {
+        for (unsigned short iDim = 0; iDim < nDim; iDim++) local[a][iDim] = Coord[a][iDim] - center[iDim];
+        localCoord[a] = local[a];
+      }
+      su2double localGrad[4][3], xi[4][3], Y[3][3];
+      const su2double size = fabs(P1Simplex::ShapeGradients(nDim, localCoord, localGrad));
+      P1Simplex::FaceShifts(*element, localCoord, xi);
+      P1Simplex::MovedFaceTensor(size, localGrad, xi, Y);
+      for (unsigned short i = 0; i < 3; i++)
+        for (unsigned short j = 0; j < 3; j++) edges->BlendY(iElem, 3 * i + j) = Y[i][j];
     }
   }
   END_SU2_OMP_SAFE_GLOBAL_ACCESS

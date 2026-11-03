@@ -1194,3 +1194,497 @@ TEST_CASE("BC_WALL_ENTROPY_P1 on one wall element: entropy bound, rest state, Ja
     }
   }
 }
+
+namespace {
+
+/*--- MOD_CENTROIDS face points of a tetrahedron written out independently of CPrimalGrid::getFaceCG:
+ * p_f = sum_e w_e m_e / sum_e w_e over the three edges of the face, w_e = (L_e/L_max)^p (P1_VISCOUS_MOVED.md, 1.1). ---*/
+struct ModCentroidTet {
+  static constexpr unsigned short faces[4][3] = {{0, 2, 1}, {0, 1, 3}, {0, 3, 2}, {1, 2, 3}};
+  double exponent = 2.0;
+  unsigned short GetFaces(unsigned short iFace, unsigned short k) const { return faces[iFace][k]; }
+  template <class Coords>
+  void getFaceCG(unsigned short iFace, unsigned short, const Coords& x, su2double* cg) const {
+    su2double L[3], mid[3][3], Lmax = 0.0;
+    for (int e = 0; e < 3; ++e) {
+      const auto a = faces[iFace][e], b = faces[iFace][(e + 1) % 3];
+      su2double L2 = 0.0;
+      for (int i = 0; i < 3; ++i) {
+        mid[e][i] = 0.5 * (x[a][i] + x[b][i]);
+        L2 += (x[b][i] - x[a][i]) * (x[b][i] - x[a][i]);
+      }
+      L[e] = sqrt(L2);
+      Lmax = std::max(Lmax, L[e]);
+    }
+    su2double num[3] = {}, den = 0.0;
+    for (int e = 0; e < 3; ++e) {
+      const su2double w = pow(L[e] / Lmax, exponent);
+      den += w;
+      for (int i = 0; i < 3; ++i) num[i] += w * mid[e][i];
+    }
+    for (int i = 0; i < 3; ++i) cg[i] = num[i] / den;
+  }
+};
+constexpr unsigned short ModCentroidTet::faces[4][3];
+
+/*--- Y_T (row major) and the face shifts of a tetrahedron with the MOD_CENTROIDS points above. ---*/
+void MovedGeometry(const su2double x[4][3], su2double Y[9], su2double xi[4][3]) {
+  ModCentroidTet tet;
+  su2double grad[4][3], Ym[3][3];
+  const su2double size = fabs(P1Simplex::ShapeGradients(3, x, grad));
+  P1Simplex::FaceShifts(tet, x, xi);
+  P1Simplex::MovedFaceTensor(size, grad, xi, Ym);
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j) Y[3 * i + j] = Ym[i][j];
+}
+
+su2double TetVolume(const su2double* a, const su2double* b, const su2double* c, const su2double* d) {
+  su2double u[3], v[3], w[3], n[3];
+  for (int i = 0; i < 3; ++i) {
+    u[i] = b[i] - a[i];
+    v[i] = c[i] - a[i];
+    w[i] = d[i] - a[i];
+  }
+  GeometryToolbox::CrossProduct(u, v, n);
+  return GeometryToolbox::DotProduct(3, n, w) / 6.0;
+}
+
+/*--- Nodal data of a linear velocity field v = v0 + L x at constant temperature (L = rotation + dilatation + eps strain
+ * is close to the kernel of K, where the moved form is negative, Theorem MV3). ---*/
+void NearKernelStates(std::mt19937& gen, const su2double x[4][3], pve::NodeState* state) {
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  su2double L[3][3], S[3][3], v0[3];
+  const su2double dil = u(gen), eps = pow(10.0, -3.0 + 2.0 * u(gen));
+  for (int i = 0; i < 3; ++i) {
+    v0[i] = u(gen);
+    for (int j = 0; j < 3; ++j) S[i][j] = u(gen);
+  }
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) L[i][j] = (i == j) ? dil : 0.0;
+  }
+  const su2double w[3] = {u(gen), u(gen), u(gen)};
+  L[0][1] -= w[2]; L[1][0] += w[2]; L[0][2] += w[1]; L[2][0] -= w[1]; L[1][2] -= w[0]; L[2][1] += w[0];
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j) L[i][j] += eps * (S[i][j] + S[j][i]);
+  const su2double mu = exp(2.0 * u(gen) - 1.0), kappa = exp(2.0 * u(gen));
+  for (int a = 0; a < 4; ++a) {
+    state[a].rho = 1.0;
+    state[a].p = kGas;
+    for (int i = 0; i < 3; ++i) {
+      state[a].vel[i] = v0[i];
+      for (int j = 0; j < 3; ++j) state[a].vel[i] += L[i][j] * x[a][j];
+    }
+    state[a].mu = mu;
+    state[a].kappa = kappa;
+  }
+}
+
+}  // namespace
+
+TEST_CASE("VISC_P1_ENTROPY_MOVED: moved test vectors are the dual facets, wall shares", "[P1Flux]") {
+  std::mt19937 gen(2468);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int trial = 0; trial < 400; ++trial) {
+    su2double x[4][3];
+    pve::NodeState state[4];
+    RandomElement(gen, 3, pow(10.0, -3.0 * (trial % 4) / 3.0), x, state);
+    pve::Element E;
+    REQUIRE(E.Set(3, x, state, kGas) > 0.0);
+    su2double Y[9], xi[4][3];
+    MovedGeometry(x, Y, xi);
+    E.SetMovedTest(Y, 1.0);
+
+    /*--- Explicit dual facets (m_ab, p_o, c) with an arbitrary cell point c, oriented as on the median dual:
+     * nu_a = -(outward facet areas of C_a in T), Lemma MV1(b, c). ---*/
+    ModCentroidTet tet;
+    su2double point[4][3], centroid[4][3], cell[3], cellMedian[3] = {}, nu[4][3] = {};
+    for (int iFace = 0; iFace < 4; ++iFace) {
+      int opposite = 6;
+      for (int k = 0; k < 3; ++k) opposite -= tet.GetFaces(iFace, k);
+      tet.getFaceCG(iFace, 3, x, point[opposite]);
+      for (int i = 0; i < 3; ++i) {
+        centroid[opposite][i] = 0.0;
+        for (int k = 0; k < 3; ++k) centroid[opposite][i] += x[tet.GetFaces(iFace, k)][i] / 3.0;
+      }
+    }
+    for (int a = 0; a < 4; ++a)
+      for (int i = 0; i < 3; ++i) cellMedian[i] += x[a][i] / 4.0;
+    for (int i = 0; i < 3; ++i) cell[i] = cellMedian[i] + 0.1 * u(gen) * (x[1][i] - x[0][i]);
+    for (int a = 0; a < 4; ++a) {
+      for (int b = a + 1; b < 4; ++b) {
+        su2double m[3];
+        for (int i = 0; i < 3; ++i) m[i] = 0.5 * (x[a][i] + x[b][i]);
+        for (int o = 0; o < 4; ++o) {
+          if (o == a || o == b) continue;
+          const su2double sign = (TetVolume(x[a], m, centroid[o], cellMedian) > 0.0) ? 1.0 : -1.0;
+          su2double r[3], s[3], n[3];
+          for (int i = 0; i < 3; ++i) {
+            r[i] = point[o][i] - m[i];
+            s[i] = cell[i] - m[i];
+          }
+          GeometryToolbox::CrossProduct(r, s, n);
+          for (int i = 0; i < 3; ++i) {
+            nu[a][i] -= 0.5 * sign * n[i];
+            nu[b][i] += 0.5 * sign * n[i];
+          }
+        }
+      }
+    }
+    su2double scale = 0.0, err = 0.0, errShares = 0.0;
+    for (int a = 0; a < 4; ++a)
+      for (int i = 0; i < 3; ++i) scale = std::max(scale, fabs(E.size * E.grad[a][i]));
+    for (int a = 0; a < 4; ++a)
+      for (int i = 0; i < 3; ++i) err = std::max(err, fabs(nu[a][i] - E.test[a][i]));
+    CHECK(err <= 1e-9 * scale);
+
+    /*--- tr Y = 0, and nu_a = sum_{o != a} (a_a/|f_o|) N_o with the moved wall shares, N_o = -3|T| g_o (MV1(a)). ---*/
+    CHECK(fabs(Y[0] + Y[4] + Y[8]) <= 1e-12 * E.size);
+    su2double frac[4][4], nuShares[4][3] = {};
+    for (int o = 0; o < 4; ++o) {
+      P1Simplex::MovedFaceShares(E.grad, o, xi[o], frac[o]);
+      su2double sum = 0.0;
+      for (int a = 0; a < 4; ++a) {
+        if (a == o) continue;
+        sum += frac[o][a];
+        CHECK(frac[o][a] >= 0.25 - 1e-12);
+        CHECK(frac[o][a] <= 0.5 + 1e-12);
+        for (int i = 0; i < 3; ++i) nuShares[a][i] += frac[o][a] * (-3.0 * E.size * E.grad[o][i]);
+      }
+      CHECK(fabs(sum - 1.0) < 1e-12);
+
+      /*--- beta_a = (w_ab + w_ac)/(2 sum w) of the face weights; with p = 2, w_e is proportional to L_e^2. The face
+       * opposite node o is face 3 - o of ModCentroidTet. ---*/
+      const int iFace = 3 - o;
+      su2double w[3], sumW = 0.0;
+      for (int e = 0; e < 3; ++e) {
+        w[e] = GeometryToolbox::SquaredDistance(3, x[tet.GetFaces(iFace, e)], x[tet.GetFaces(iFace, (e + 1) % 3)]);
+        sumW += w[e];
+      }
+      for (int k = 0; k < 3; ++k) {
+        const auto a = tet.GetFaces(iFace, k);
+        /*--- Node k of the face is in edges k-1 and k. ---*/
+        const su2double beta = 0.5 * (w[k] + w[(k + 2) % 3]) / sumW;
+        errShares = std::max(errShares, fabs(frac[o][a] - 0.5 * (1.0 - beta)));
+      }
+    }
+    CHECK(errShares < 1e-10);
+    su2double errNu = 0.0;
+    for (int a = 0; a < 4; ++a)
+      for (int i = 0; i < 3; ++i) errNu = std::max(errNu, fabs(nuShares[a][i] - E.test[a][i]));
+    CHECK(errNu <= 1e-9 * scale);
+  }
+}
+
+TEST_CASE("VISC_P1_ENTROPY_MOVED element: production identity, conservation, Jacobian", "[P1Flux]") {
+  std::mt19937 gen(1357);
+  std::uniform_real_distribution<double> u(0.0, 1.0);
+  for (int trial = 0; trial < 200; ++trial) {
+    su2double x[4][3];
+    pve::NodeState state[4];
+    RandomElement(gen, 3, (trial % 2) ? 1.0 : 1e-3, x, state);
+    if (trial % 3 == 0) NearKernelStates(gen, x, state);
+    pve::Element E;
+    REQUIRE(E.Set(3, x, state, kGas) > 0.0);
+    su2double Y[9], xi[4][3];
+    MovedGeometry(x, Y, xi);
+    const su2double keep = (trial % 5 == 0) ? 1.0 : u(gen);
+    const su2double Dgal = E.GalerkinDissipation(), Pv = E.MovedProduction(Y);
+    CHECK(Dgal >= 0.0);
+    E.SetMovedTest(Y, keep);
+
+    /*--- sum_a w_a . R_a = D^gal - keep P^v (Lemma MV2), sum_a R_a = 0, no mass row. ---*/
+    su2double res[4][5];
+    E.Residual(res);
+    su2double rate = 0.0, scale = 0.0, sum[5] = {}, maxRes = 0.0;
+    for (int a = 0; a < 4; ++a) {
+      su2double w[5];
+      FullEntropyVariables(3, state[a], w);
+      for (int v = 0; v < 5; ++v) {
+        rate += w[v] * res[a][v];
+        scale += fabs(w[v] * res[a][v]);
+        sum[v] += res[a][v];
+        maxRes = std::max(maxRes, fabs(res[a][v]));
+      }
+      CHECK(res[a][0] == 0.0);
+    }
+    CHECK(fabs(rate - (Dgal - keep * Pv)) <= 1e-11 * (scale + Dgal + fabs(Pv)));
+    for (int v = 0; v < 5; ++v) CHECK(fabs(sum[v]) <= 1e-12 * maxRes);
+
+    /*--- Picard Jacobian (K and theta_v frozen, not symmetric) against central differences. ---*/
+    su2double dwdu[4][5][5], jac[4][4][5][5], jacMax = 0.0, jacErr = 0.0;
+    for (int a = 0; a < 4; ++a) pve::EntropyVariableJacobian(3, kGamma, state[a], dwdu[a]);
+    E.Jacobian(dwdu, jac);
+    for (int b = 0; b < 4; ++b) {
+      for (int j = 0; j < 5; ++j) {
+        const su2double h = 1e-6;
+        pve::NodeState plus[4], minus[4];
+        for (int a = 0; a < 4; ++a) plus[a] = minus[a] = state[a];
+        Perturb(3, plus[b], j, h);
+        Perturb(3, minus[b], j, -h);
+        su2double rp[4][5], rm[4][5];
+        Frozen(E, plus).Residual(rp);
+        Frozen(E, minus).Residual(rm);
+        for (int a = 0; a < 4; ++a) {
+          for (int v = 0; v < 5; ++v) {
+            jacErr = std::max(jacErr, fabs((rp[a][v] - rm[a][v]) / (2 * h) - jac[a][b][v][j]));
+            jacMax = std::max(jacMax, fabs(jac[a][b][v][j]));
+          }
+        }
+      }
+    }
+    CHECK(jacErr <= 1e-6 * jacMax);
+  }
+}
+
+TEST_CASE("VISC_P1_ENTROPY_MOVED one-budget blend: theta in [0,1], element production min(E,0)", "[P1Flux]") {
+  std::mt19937 gen(9753);
+  std::uniform_real_distribution<double> u(0.0, 1.0);
+  int nFiredV = 0, nFiredC = 0;
+  for (int trial = 0; trial < 4000; ++trial) {
+    /*--- P^c <= D^c (Lemma 3); P^v, D^gal from real elements (near-kernel states every other trial, where the moved
+     * form is negative), or synthetic; W_T <= D^gal/c (MV12). ---*/
+    su2double Pv, Dgal;
+    if (trial % 2 == 0) {
+      su2double x[4][3], Y[9], xi[4][3];
+      pve::NodeState state[4];
+      RandomElement(gen, 3, (trial % 4) ? 1.0 : 1e-3, x, state);
+      if (trial % 4 == 0) NearKernelStates(gen, x, state);
+      pve::Element E;
+      E.Set(3, x, state, kGas);
+      MovedGeometry(x, Y, xi);
+      Pv = E.MovedProduction(Y);
+      Dgal = E.GalerkinDissipation();
+    } else {
+      Dgal = u(gen);
+      Pv = 3.0 * (2.0 * u(gen) - 1.0) * Dgal;
+    }
+    const su2double scale = Dgal + fabs(Pv) + 1e-300;
+    const su2double Dc = (trial % 7 == 0) ? 0.0 : scale * pow(10.0, 2.0 * u(gen) - 1.0);
+    const su2double Pc = (2.0 * u(gen) - 1.0) * Dc;
+    const su2double W = (trial % 3 == 0) ? (u(gen) * 1.4 - 1.0) * Dgal / pve::NOSLIP_PENALTY : 0.0;
+
+    su2double thetaV = -1.0, thetaC = -1.0;
+    pve::OneBudgetBlend(Pc, Dc, Pv, Dgal - W, thetaV, thetaC);
+    CHECK(thetaV >= 0.0);
+    CHECK(thetaV <= 1.0);
+    CHECK(thetaC >= 0.0);
+    CHECK(thetaC <= 1.0);
+    nFiredV += (thetaV > 0.0);
+    nFiredC += (thetaC > 0.0);
+
+    const su2double excess = Pc + Pv - Dgal + W;
+    const su2double net = Pc - thetaC * Dc + (1.0 - thetaV) * Pv - Dgal + W;
+    CHECK(fabs(net - std::min(excess, su2double(0.0))) <= 1e-12 * (scale + Dc));
+
+    /*--- Lemma MV7: never more convective floor than the B2 blend. ---*/
+    if (Dc > 0.0) CHECK(thetaC <= std::max(Pc, su2double(0.0)) / Dc * (1.0 + 1e-12) + 1e-15);
+  }
+  CHECK(nFiredV > 0);
+  CHECK(nFiredC > 0);
+}
+
+TEST_CASE("VISC_P1_ENTROPY_MOVED weak wall: moved shares, wall production W_T, Jacobian", "[P1Flux]") {
+  std::mt19937 gen(3141);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const unsigned short faceNodes[3] = {1, 2, 3};
+  for (int trial = 0; trial < 300; ++trial) {
+    const bool isothermal = (trial % 2 == 1);
+    su2double x[4][3];
+    pve::NodeState state[4];
+    RandomElement(gen, 3, (trial % 3) ? 1.0 : 1e-3, x, state);
+    pve::Element E;
+    REQUIRE(E.Set(3, x, state, kGas) > 0.0);
+    su2double Y[9], xi[4][3], frac[4];
+    MovedGeometry(x, Y, xi);
+    P1Simplex::MovedFaceShares(E.grad, 0, xi[0], frac);
+    const su2double share[3] = {frac[1], frac[2], frac[3]};
+    const su2double keep = 0.5 * (1.0 + u(gen));
+
+    su2double N[3];
+    pve::WallFaceNormal(3, x, 0, faceNodes, N);
+    su2double orient = 0.0;
+    for (int i = 0; i < 3; ++i) orient += N[i] * (x[1][i] - x[0][i]);
+    CHECK(orient > 0.0);
+    const su2double wallTheta = 1.0 / (kGas * exp(u(gen)));
+
+    /*--- -sum_c (w_c - g) . b_c = W_f exactly (the g terms vanish with w - g), and W_f <= D^gal / c (MV12, MV13). ---*/
+    su2double wall[4][5], res[4][5];
+    pve::NoSlipWall(E, 3, faceNodes, N, isothermal, wallTheta, 1, pve::NOSLIP_SIPG, pve::NOSLIP_PENALTY, wall, nullptr,
+                    nullptr, share);
+    const su2double W = pve::NoSlipWallProduction(E, 3, faceNodes, N, isothermal, wallTheta, 1, pve::NOSLIP_SIPG,
+                                                  pve::NOSLIP_PENALTY, share);
+    const su2double Dgal = E.GalerkinDissipation(), Pv = E.MovedProduction(Y);
+    E.SetMovedTest(Y, keep);
+    E.Residual(res);
+    su2double rateWall = 0.0, rate = 0.0, scale = 0.0;
+    for (int a = 0; a < 4; ++a) {
+      su2double w[5];
+      FullEntropyVariables(3, state[a], w);
+      if (isothermal) w[4] += wallTheta;
+      for (int v = 0; v < 5; ++v) {
+        rateWall -= w[v] * wall[a][v];
+        rate -= w[v] * (res[a][v] + wall[a][v]);
+        scale += fabs(w[v] * wall[a][v]) + fabs(w[v] * res[a][v]);
+      }
+    }
+    CHECK(fabs(rateWall - W) <= 1e-11 * scale);
+    CHECK(W <= Dgal / pve::NOSLIP_PENALTY + 1e-11 * scale);
+    CHECK(fabs(rate - (-Dgal + keep * Pv + W)) <= 1e-11 * (scale + Dgal + fabs(Pv)));
+
+    /*--- Lumped shares 1/3 reproduce the default closure. ---*/
+    const su2double third[3] = {1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0};
+    su2double wallLumped[4][5], wallThird[4][5], maxWall = 0.0, errLumped = 0.0;
+    pve::NoSlipWall(E, 3, faceNodes, N, isothermal, wallTheta, 1, pve::NOSLIP_SIPG, pve::NOSLIP_PENALTY, wallLumped);
+    pve::NoSlipWall(E, 3, faceNodes, N, isothermal, wallTheta, 1, pve::NOSLIP_SIPG, pve::NOSLIP_PENALTY, wallThird,
+                    nullptr, nullptr, third);
+    for (int a = 0; a < 4; ++a) {
+      for (int v = 0; v < 5; ++v) {
+        maxWall = std::max(maxWall, fabs(wallLumped[a][v]));
+        errLumped = std::max(errLumped, fabs(wallLumped[a][v] - wallThird[a][v]));
+      }
+    }
+    CHECK(errLumped <= 1e-14 * maxWall);
+
+    /*--- Picard Jacobian of the closure with the moved shares against central differences. ---*/
+    su2double dwdu[4][5][5], jac[4][4][5][5], jacMax = 0.0, jacErr = 0.0;
+    for (int a = 0; a < 4; ++a) pve::EntropyVariableJacobian(3, kGamma, state[a], dwdu[a]);
+    pve::NoSlipWall(E, 3, faceNodes, N, isothermal, wallTheta, 1, pve::NOSLIP_SIPG, pve::NOSLIP_PENALTY, wall, dwdu,
+                    jac, share);
+    for (int b = 0; b < 4; ++b) {
+      for (int j = 0; j < 5; ++j) {
+        const su2double h = 1e-6;
+        pve::NodeState plus[4], minus[4];
+        for (int a = 0; a < 4; ++a) plus[a] = minus[a] = state[a];
+        Perturb(3, plus[b], j, h);
+        Perturb(3, minus[b], j, -h);
+        su2double rp[4][5], rm[4][5];
+        pve::NoSlipWall(Frozen(E, plus), 3, faceNodes, N, isothermal, wallTheta, 1, pve::NOSLIP_SIPG,
+                        pve::NOSLIP_PENALTY, rp, nullptr, nullptr, share);
+        pve::NoSlipWall(Frozen(E, minus), 3, faceNodes, N, isothermal, wallTheta, 1, pve::NOSLIP_SIPG,
+                        pve::NOSLIP_PENALTY, rm, nullptr, nullptr, share);
+        for (int a = 0; a < 4; ++a) {
+          for (int v = 0; v < 5; ++v) {
+            jacErr = std::max(jacErr, fabs((rp[a][v] - rm[a][v]) / (2 * h) - jac[a][b][v][j]));
+            jacMax = std::max(jacMax, fabs(jac[a][b][v][j]));
+          }
+        }
+      }
+    }
+    CHECK(jacErr <= 1e-6 * jacMax);
+  }
+}
+
+TEST_CASE("VISC_P1_ENTROPY_MOVED off and Y = 0: the Galerkin operator", "[P1Flux]") {
+  std::mt19937 gen(8642);
+  std::uniform_real_distribution<double> u(0.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nNodes = nDim + 1, nVar = nDim + 2;
+    for (int trial = 0; trial < 50; ++trial) {
+      su2double x[4][3];
+      pve::NodeState state[4];
+      RandomElement(gen, nDim, (trial % 2) ? 1.0 : 1e-3, x, state);
+      pve::Element E;
+      REQUIRE(E.Set(nDim, x, state, kGas) > 0.0);
+
+      /*--- Off: R_a = |T| F_T . g_a exactly as before. ---*/
+      su2double res[4][5], resMoved[4][5], maxRes = 0.0, err = 0.0;
+      E.Residual(res);
+      for (int a = 0; a < nNodes; ++a) {
+        for (int v = 0; v < nVar; ++v) {
+          su2double sum = 0.0;
+          for (int j = 0; j < nDim; ++j) sum += E.flux[v][j] * E.grad[a][j];
+          err = std::max(err, fabs(res[a][v] - E.size * sum));
+          maxRes = std::max(maxRes, fabs(res[a][v]));
+        }
+      }
+
+      CHECK(err <= 1e-15 * maxRes);
+      err = 0.0;
+
+      /*--- Y = 0 (median dual, 2D, equilateral faces): any theta_v gives the Galerkin residual. ---*/
+      const su2double zero[9] = {};
+      pve::Element Ezero = E;
+      Ezero.SetMovedTest(zero, u(gen));
+      Ezero.Residual(resMoved);
+      for (int a = 0; a < nNodes; ++a)
+        for (int v = 0; v < nVar; ++v) err = std::max(err, fabs(resMoved[a][v] - res[a][v]));
+      CHECK(err <= 1e-14 * maxRes);
+      CHECK(E.MovedProduction(zero) == 0.0);
+
+      /*--- Lumped default shares in 2D and 3D. ---*/
+      const unsigned short faceNodes[3] = {1, 2, 3};
+      su2double N[3];
+      pve::WallFaceNormal(nDim, x, 0, faceNodes, N);
+      const su2double lumped[3] = {1.0 / nDim, 1.0 / nDim, 1.0 / nDim};
+      su2double wallA[4][5], wallB[4][5], maxWall = 0.0, errWall = 0.0;
+      pve::NoSlipWall(E, nDim, faceNodes, N, false, 1.0, 1, 1.0, 2.5, wallA);
+      pve::NoSlipWall(E, nDim, faceNodes, N, false, 1.0, 1, 1.0, 2.5, wallB, nullptr, nullptr, lumped);
+      for (int a = 0; a < nNodes; ++a) {
+        for (int v = 0; v < nVar; ++v) {
+          maxWall = std::max(maxWall, fabs(wallA[a][v]));
+          errWall = std::max(errWall, fabs(wallA[a][v] - wallB[a][v]));
+        }
+      }
+      CHECK(errWall <= 1e-14 * maxWall);
+    }
+  }
+
+  /*--- Regular tetrahedron: all faces equilateral, the face points are the centroids, Y = 0 (MV1(d)). ---*/
+  const su2double reg[4][3] = {{1, 1, 1}, {1, -1, -1}, {-1, 1, -1}, {-1, -1, 1}};
+  su2double Y[9], xi[4][3];
+  MovedGeometry(reg, Y, xi);
+  for (int k = 0; k < 9; ++k) CHECK(fabs(Y[k]) < 1e-14);
+}
+
+TEST_CASE("VISC_P1_ENTROPY_MOVED: face tensor of the moved dual on a mesh, constant flux exactness", "[P1Flux]") {
+  for (bool modCentroids : {true, false}) {
+    for (double stretch : {1.0, 1e-3}) {
+      const std::string mesh = "p1_visc_moved_3d.su2";
+      WriteSimplexMesh(mesh, 3, 5, 0.4, stretch);
+      MeshCase test(mesh, std::string(modCentroids ? "MOD_CENTROIDS= YES\n" : "") +
+                              "CONV_NUM_METHOD_FLOW= JST\nEDGE_FORM_P1= YES\n");
+      auto& geometry = *test.geometry;
+      geometry.SetEdgeFormBlend(true);
+      const auto& blendY = geometry.edges->GetBlendY();
+
+      /*--- Stored Y_T against the independent MOD_CENTROIDS points, and the assembled moved test vectors: zero at
+       * interior nodes (constant fluxes are exact, MV1(e)). ---*/
+      std::vector<std::array<su2double, 3>> S(geometry.GetnPoint(), {0.0, 0.0, 0.0});
+      su2double scale = 0.0, errY = 0.0, maxY = 0.0;
+      for (auto iElem = 0ul; iElem < geometry.GetnElem(); ++iElem) {
+        const auto* element = geometry.elem[iElem];
+        su2double x[4][3], center[3] = {}, grad[4][3];
+        for (int a = 0; a < 4; ++a)
+          for (int i = 0; i < 3; ++i) center[i] += geometry.nodes->GetCoord(element->GetNode(a), i) / 4.0;
+        for (int a = 0; a < 4; ++a)
+          for (int i = 0; i < 3; ++i) x[a][i] = geometry.nodes->GetCoord(element->GetNode(a), i) - center[i];
+        const su2double size = fabs(P1Simplex::ShapeGradients(3, x, grad));
+        su2double Y[9], xi[4][3];
+        MovedGeometry(x, Y, xi);
+        for (int k = 0; k < 9; ++k) {
+          if (modCentroids) errY = std::max(errY, fabs(blendY(iElem, k) - Y[k]) / size);
+          maxY = std::max(maxY, fabs(blendY(iElem, k)) / size);
+        }
+        for (int a = 0; a < 4; ++a) {
+          for (int j = 0; j < 3; ++j) {
+            su2double nu = size * grad[a][j];
+            for (int i = 0; i < 3; ++i) nu += blendY(iElem, 3 * i + j) * grad[a][i];
+            S[element->GetNode(a)][j] += nu;
+            scale = std::max(scale, fabs(size * grad[a][j]));
+          }
+        }
+      }
+      su2double local = 0.0, global = 0.0;
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+        if (geometry.nodes->GetPhysicalBoundary(iPoint)) continue;
+        for (int j = 0; j < 3; ++j) local = std::max(local, fabs(S[iPoint][j]) / scale);
+      }
+      SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      INFO("MOD_CENTROIDS " << modCentroids << " stretch " << stretch);
+      CHECK(global < 1e-10);
+      CHECK(errY < 1e-10);
+      if (modCentroids) CHECK(maxY > 1e-3);
+      else CHECK(maxY < 1e-11);
+    }
+  }
+}

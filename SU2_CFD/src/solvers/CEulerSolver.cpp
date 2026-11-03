@@ -30,6 +30,7 @@
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../../../Common/include/toolboxes/printing_toolbox.hpp"
 #include "../../../Common/include/toolboxes/p1_simplex.hpp"
+#include "../../include/numerics/flow/p1_viscous_entropy.hpp"
 #include "../../include/fluid/CIdealGas.hpp"
 #include "../../include/fluid/CVanDerWaalsGas.hpp"
 #include "../../include/fluid/CPengRobinson.hpp"
@@ -304,6 +305,7 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
     nodes->NonPhysicalEdgeCounter.resize(geometry->GetnEdge()) = 0;
     if (config->GetEdge_Form_P1() && config->GetEdge_Form_ES_Blend()) {
       nodes->EdgeBlendLambda.resize(geometry->GetnEdge()) = su2double(0.0);
+      if (config->GetVisc_P1_Entropy_Moved()) P1MovedThetaV.resize(geometry->GetnElem()) = su2double(0.0);
     }
   }
 
@@ -1827,7 +1829,7 @@ void CEulerSolver::Centered_Residual(CGeometry *geometry, CSolver **solver_conta
                                      CConfig *config, unsigned short iMesh, unsigned short iRKStep) {
   SU2_ZONE_SCOPED
 
-  if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry);
+  if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry, config);
   EdgeFluxResidual(geometry, solver_container, config);
   if ((iMesh == MESH_0) && config->GetSplit_Edge_Flux()) SplitEdgeResidual(geometry, config);
   if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry);
@@ -1912,7 +1914,7 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
-void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry) {
+void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *config) {
   SU2_ZONE_SCOPED
 
   /*--- EDGE_FORM_ES_BLEND, element theta blend of the Lemma 3 dissipation of the E part (P1_SECOND_ORDER.md, B2).
@@ -1926,15 +1928,25 @@ void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry) {
    * nodal jump, with theta frozen in the Jacobian. All terms use the nodal states of the edge loop.
    * MPI: an edge with an owned node has all its simplices on this rank (they contain that node), with halo primitives
    * that are up to date, so its coefficient equals the serial one. Edges between halo nodes are incomplete, as is
-   * their residual. ---*/
+   * their residual.
+   * VISC_P1_ENTROPY_MOVED (P1_VISCOUS_MOVED.md, MV5-MV7, MV13): one budget per simplex with the viscous defect of the
+   * moved test vectors, E_T = P_T + P^v_T - D^gal_T + W_T, theta_v = min(1, E_T/P^v_T) first, then
+   * theta_T = (E_T - theta_v P^v_T)^+ / D_T <= P_T^+ / D_T. theta_v is stored for the viscous element loop of the same
+   * residual, frozen in its Jacobian. An element with an owned node is complete on this rank (halo primitives, all
+   * its wall faces), so theta_v and theta_T equal the serial ones; elements without one only reach halo edges and
+   * keep theta_v = 0 and the B2 value. ---*/
 
   const auto& delta = geometry->edges->GetBlendDelta();
   const auto& blendEdges = geometry->edges->GetBlendEdges();
   auto& lamBlend = nodes->EdgeBlendLambda;
   const unsigned short nNodes = nDim + 1;
+  const bool movedVisc = config->GetVisc_P1_Entropy_Moved();
 
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     lamBlend = su2double(0.0);
+
+    /*--- The wall faces of the budget (W_T), built on first use (collective). ---*/
+    if (movedVisc && config->GetBC_Wall_Entropy_P1() && !P1WallFacesReady) SetP1WallFaces(geometry, config);
 
     for (auto iElem = 0ul; iElem < geometry->GetnElem(); ++iElem) {
       const auto* element = geometry->elem[iElem];
@@ -2015,6 +2027,22 @@ void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry) {
         }
       }
 
+      /*--- VISC_P1_ENTROPY_MOVED: one budget with the viscous terms. ---*/
+
+      if (movedVisc) {
+        su2double viscProduction = 0.0, viscDissipation = 0.0, thetaV = 0.0, thetaC = 0.0;
+        P1MovedThetaV[iElem] = 0.0;
+        if (P1MovedViscousBudget(geometry, config, iElem, viscProduction, viscDissipation)) {
+          P1ViscousEntropy::OneBudgetBlend(production, dissipation, viscProduction, viscDissipation, thetaV, thetaC);
+          P1MovedThetaV[iElem] = thetaV;
+          if (thetaC <= 0.0) continue;
+          for (unsigned short iPair = 0; iPair < pair; ++iPair) {
+            lamBlend(blendEdges(iElem, iPair)) += thetaC * lam[iPair];
+          }
+          continue;
+        }
+      }
+
       /*--- P_T <= D_T holds exactly, min(.,1) only guards round-off. theta = 0 if P_T <= 0 or D_T = 0. ---*/
 
       if ((production <= 0.0) || (dissipation <= 0.0)) continue;
@@ -2042,7 +2070,7 @@ void CEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_contain
   if (ideal_gas && !low_mach_corr) {
     if (config->GetKind_Upwind_Flow() == UPWIND::ROE || config->GetKind_Upwind_Flow() == UPWIND::MSW ||
         config->GetKind_Upwind_Flow() == UPWIND::ROENEW) {
-      if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry);
+      if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry, config);
       EdgeFluxResidual(geometry, solver_container, config);
       if ((iMesh == MESH_0) && config->GetSplit_Edge_Flux()) SplitEdgeResidual(geometry, config);
       if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry);

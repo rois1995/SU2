@@ -471,8 +471,10 @@ class CPhysicalGeometry final : public CGeometry {
   /*!
    * \brief Per simplex T, delta_a = W_a - |T|/(d+1) with the W of SetEdgeFormP1, and the edge of each node pair,
    *        so that the element pieces E^T_ab = 0.5 (delta_a g_b + delta_b g_a) of E_ab can be rebuilt.
+   *        With movedViscous (3D), also Y_T = (3|T|/2) sum_o xi_o (x) g_o from the dual points of the faces.
+   * \param[in] movedViscous - Store Y_T (VISC_P1_ENTROPY_MOVED).
    */
-  void SetEdgeFormBlend() override;
+  void SetEdgeFormBlend(bool movedViscous) override;
 
   /*!
    * \brief Mean of all pulling splits of each cell, with no new points and no dependence on node IDs. In each

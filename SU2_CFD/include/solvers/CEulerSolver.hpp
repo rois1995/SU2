@@ -44,6 +44,22 @@ protected:
   su2double
   Prandtl_Turb = 0.0;   /*!< \brief Turbulent Prandtl number. */
 
+  su2activevector P1MovedThetaV; /*!< \brief VISC_P1_ENTROPY_MOVED: theta_v of each simplex, set by SetEdgeBlendLambda. */
+
+  /*!
+   * \brief VISC_P1_ENTROPY_MOVED: viscous part of the element budget of SetEdgeBlendLambda (Navier-Stokes solver).
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] iElem - Local simplex.
+   * \param[out] production - P^v_T, entropy production of the moved part Y_T^T g_a of the viscous test vectors.
+   * \param[out] dissipation - D^gal_T - W_T, Galerkin viscous dissipation minus the production of the weak wall terms.
+   * \return false if nothing was computed (no owned node, or no viscous term).
+   */
+  virtual bool P1MovedViscousBudget(const CGeometry *geometry, const CConfig *config, unsigned long iElem,
+                                    su2double& production, su2double& dissipation) const {
+    return false;
+  }
+
   su2double AllBound_CEquivArea_Inv=0.0; /*!< \brief equivalent area coefficient (inviscid contribution) for all the boundaries. */
   vector<su2double> CEquivArea_Mnt;      /*!< \brief Equivalent area (inviscid contribution) for each boundary. */
   vector<su2double> CEquivArea_Inv;      /*!< \brief Equivalent area (inviscid contribution) for each boundary. */
@@ -477,9 +493,11 @@ public:
   /*!
    * \brief EDGE_FORM_ES_BLEND: per simplex theta_T = P_T^+ / D_T from the nodal states, and per edge
    *        sum_T theta_T lam^T_ik, read by the edge loop. Called once per residual, before the edge loop.
+   *        With VISC_P1_ENTROPY_MOVED the one-budget blend gives theta_c and theta_v (P1MovedThetaV).
    * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
    */
-  void SetEdgeBlendLambda(const CGeometry *geometry);
+  void SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *config);
 
   /*!
    * \brief Add the nodal boundary term of the grid flux of GCL_EXACT_P1.

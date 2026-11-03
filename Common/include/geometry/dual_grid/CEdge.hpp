@@ -59,6 +59,7 @@ class CEdge {
   su2activevector BoundSwept; /*!< \brief Per point, nodal boundary term, allocated only for GCL_EXACT_P1. */
   su2activematrix BlendDelta; /*!< \brief Per simplex, W_a - |T|/(d+1) of its nodes, allocated only for EDGE_FORM_ES_BLEND. */
   su2matrix<Index> BlendEdges; /*!< \brief Per simplex, the edge of each node pair a < b, only for EDGE_FORM_ES_BLEND. */
+  su2activematrix BlendY; /*!< \brief Per tetrahedron, the moved-dual face tensor Y_T (row major), only for VISC_P1_ENTROPY_MOVED. */
   const Index nEdge, nEdgeSIMD;
 
   friend class CPhysicalGeometry;
@@ -270,6 +271,12 @@ class CEdge {
    * \brief Per simplex, the edge of the node pairs (0,1),(0,2),(1,2) in 2D, (0,1),(0,2),(0,3),(1,2),(1,3),(2,3) in 3D.
    */
   inline const su2matrix<Index>& GetBlendEdges() const { return BlendEdges; }
+
+  /*!
+   * \brief Per tetrahedron, Y_T = (3|T|/2) sum_o xi_o (x) g_o of the moved dual, Y(iElem, 3 i + j) = Y_ij, so that the
+   *        dual facets of node a in T have the inward area vector (|T| I + Y_T^T) g_a (VISC_P1_ENTROPY_MOVED).
+   */
+  inline const su2activematrix& GetBlendY() const { return BlendY; }
 
   inline const su2activematrix& GetCorrection_X() const { return a; }
   inline const su2activematrix& GetCorrection_Y() const { return b; }

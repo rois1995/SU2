@@ -29,6 +29,7 @@
 
 #include "../../../../Common/include/basic_types/datatype_structure.hpp"
 #include "../../../../Common/include/toolboxes/p1_simplex.hpp"
+#include "../../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../CNumerics.hpp"
 
 /*--- Ideal gas, entropy U = -rho s/(gamma-1), entropy variables w = (w_0, theta v, -theta), theta = rho/p = 1/(R T).
@@ -43,10 +44,20 @@
  * Then sum_a w_a . R_a = |T| grad(w_h) : K grad(w_h) >= 0 for any state (Theorem V6), so the operator dissipates
  * entropy. mu_T, kappa_T are the means of the nodal mu + mu_t and kappa + cp mu_t/Pr_t, mu_t clipped at 0. ---*/
 
+/*--- Moved test space (VISC_P1_ENTROPY_MOVED, P1_VISCOUS_MOVED.md): the finite volume of the element fluxes on the moved
+ * (MOD_CENTROIDS) dual of a tetrahedron is R_a = F_T . nu_a, nu_a = (|T| I + Y_T^T) g_a (Lemma MV1), and
+ *   -sum_a w_a . R_a = -D^gal_T + P^v_T,  D^gal_T = |T| G:K G >= 0,  P^v_T = -(G Y_T):K G        (Lemma MV2),
+ * which can be positive whenever Y_T != 0 (Theorem MV3). The element blend pays it in one budget with the convective
+ * defect: E_T = P^c_T + P^v_T - D^gal_T (+ W_T, the production of the weak wall terms), theta_v = min(1, E_T/P^v_T)
+ * first, theta_c = (E_T - theta_v P^v_T)^+ / D^c_T, test vectors (|T| I + (1 - theta_v) Y_T^T) g_a. Then theta_v,
+ * theta_c are in [0,1] and the element production is min(E_T, 0) <= 0 (Theorem MV6, MV13). ---*/
+
 namespace P1ViscousEntropy {
 
 constexpr unsigned short MAXNODE = 4;
 constexpr unsigned short MAXNVAR = 5;
+constexpr double NOSLIP_SIPG = 1.0;     /*!< \brief s of the weak no-slip wall, SIPG. */
+constexpr double NOSLIP_PENALTY = 2.5;  /*!< \brief c of the weak no-slip wall, the maximum of lambda(c)/c (P1_NOSLIP.md, 3.3). */
 
 /*!
  * \brief Nodal data of the operator: density, velocity, pressure, total viscosity and total conductivity.
@@ -107,6 +118,8 @@ class Element {
   su2double theta = 1.0, vel[3] = {0.0, 0.0, 0.0}, mu = 0.0, kappa = 0.0; /*!< \brief Frozen state. */
   su2double gasConst = 1.0;
   su2double flux[MAXNVAR][3] = {{0.0}};         /*!< \brief F_T, flux[iVar][iDim]. */
+  bool moved = false;                           /*!< \brief Moved test vectors (SetMovedTest), otherwise |T| g_a. */
+  su2double test[MAXNODE][3] = {{0.0}};         /*!< \brief Moved test vectors (|T| I + keep Y^T) g_a. */
 
   /*!
    * \brief Set the element from the coordinates and the nodal data of its nDim+1 nodes.
@@ -118,6 +131,7 @@ class Element {
     nNodes = nDim + 1;
     nVar = nDim + 2;
     gasConst = gasConst_;
+    moved = false;
     size = fabs(P1Simplex::ShapeGradients(nDim, coord, grad));
     if (size == 0.0) return size;
 
@@ -186,12 +200,77 @@ class Element {
   }
 
   /*!
-   * \brief Residual of every node, R_a = |T| F_T . g_a (sign of the edge scheme, R_a = -sum_k F_v . n_ak).
+   * \brief Moved test vectors test_a = |T| g_a + keep Y^T g_a (3D), used by Residual and Jacobian from now on.
+   * \param[in] Y - Y_T of the moved dual, row major Y[3 i + j] = Y_ij (CEdge::GetBlendY).
+   * \param[in] keep - 1 - theta_v, the part of Y_T kept by the element blend.
+   */
+  void SetMovedTest(const su2double* Y, const su2double& keep) {
+    moved = true;
+    for (unsigned short a = 0; a < nNodes; ++a) {
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim) {
+        su2double sum = 0.0;
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) sum += Y[3 * iDim + jDim] * grad[a][iDim];
+        test[a][jDim] = size * grad[a][jDim] + keep * sum;
+      }
+    }
+  }
+
+  /*!
+   * \brief Gradient G = grad(w_h) of the entropy variables, rows like the conservative variables (mass row 0, the
+   *        flux has no mass row).
+   */
+  void Gradient(su2double G[][3]) const {
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+      for (unsigned short jDim = 0; jDim < 3; ++jDim) G[iVar][jDim] = 0.0;
+    for (unsigned short a = 0; a < nNodes; ++a) {
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim) {
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) G[iDim + 1][jDim] += wMom[a][iDim] * grad[a][jDim];
+        G[nDim + 1][jDim] -= thetaNode[a] * grad[a][jDim];
+      }
+    }
+  }
+
+  /*!
+   * \brief D^gal_T = |T| G:F_T = |T| G:K G >= 0, the entropy dissipation of the Galerkin (V-A) operator.
+   */
+  su2double GalerkinDissipation() const {
+    su2double G[MAXNVAR][3], sum = 0.0;
+    Gradient(G);
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim) sum += G[iVar][jDim] * flux[iVar][jDim];
+    return size * sum;
+  }
+
+  /*!
+   * \brief P^v_T = -(G Y):F_T, the entropy production of the moved part Y^T g_a of the test vectors (Lemma MV2).
+   * \param[in] Y - Row major Y_T, as SetMovedTest.
+   */
+  su2double MovedProduction(const su2double* Y) const {
+    su2double G[MAXNVAR][3], sum = 0.0;
+    Gradient(G);
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim) {
+        su2double GY = 0.0;
+        for (unsigned short kDim = 0; kDim < nDim; ++kDim) GY += G[iVar][kDim] * Y[3 * kDim + jDim];
+        sum += GY * flux[iVar][jDim];
+      }
+    }
+    return -sum;
+  }
+
+  /*!
+   * \brief Residual of every node, R_a = |T| F_T . g_a (sign of the edge scheme, R_a = -sum_k F_v . n_ak),
+   *        or R_a = F_T . test_a with moved test vectors.
    */
   void Residual(su2double res[][MAXNVAR]) const {
     for (unsigned short a = 0; a < nNodes; ++a) {
       for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
         su2double sum = 0.0;
+        if (moved) {
+          for (unsigned short jDim = 0; jDim < nDim; ++jDim) sum += flux[iVar][jDim] * test[a][jDim];
+          res[a][iVar] = sum;
+          continue;
+        }
         for (unsigned short jDim = 0; jDim < nDim; ++jDim) sum += flux[iVar][jDim] * grad[a][jDim];
         res[a][iVar] = size * sum;
       }
@@ -199,7 +278,8 @@ class Element {
   }
 
   /*!
-   * \brief Picard Jacobian (K frozen): dR_a/du_b = |T| sum_jk g_a,j K_jk g_b,k W_b, W_b = dw/du at node b.
+   * \brief Picard Jacobian (K frozen): dR_a/du_b = |T| sum_jk g_a,j K_jk g_b,k W_b, W_b = dw/du at node b. With moved
+   *        test vectors sum_jk test_a,j K_jk g_b,k W_b (not symmetric, theta_v frozen).
    * \param[in] dwdu - dw/du of each node, from EntropyVariableJacobian.
    * \param[out] jac - jac[a][b][iVar][jVar].
    */
@@ -212,6 +292,11 @@ class Element {
         for (unsigned short a = 0; a < nNodes; ++a) {
           for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
             su2double sum = 0.0;
+            if (moved) {
+              for (unsigned short jDim = 0; jDim < nDim; ++jDim) sum += F[iVar][jDim] * test[a][jDim];
+              jac[a][b][iVar][jVar] = sum;
+              continue;
+            }
             for (unsigned short jDim = 0; jDim < nDim; ++jDim) sum += F[iVar][jDim] * grad[a][jDim];
             jac[a][b][iVar][jVar] = size * sum;
           }
@@ -244,12 +329,14 @@ class Element {
  * \param[out] res - res[c][iVar] for the element nodes, overwritten.
  * \param[in] dwdu - dw/du of the element nodes, or nullptr.
  * \param[out] jac - jac[a][b][iVar][jVar] (Picard: K and sigma frozen), overwritten if dwdu is given.
+ * \param[in] shareFrac - Moved wall shares a_a/A_f of the face nodes (VISC_P1_ENTROPY_MOVED, Lemma MV11), in the
+ *            order of faceNodes; nullptr for the lumped rule 1/d. They replace A_f/d in all three terms.
  */
 inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsigned short* faceNodes,
                        const su2double* faceNormal, bool isothermal, const su2double& wallTheta,
                        unsigned short nWallFaces, const su2double& s, const su2double& c, su2double res[][MAXNVAR],
                        const su2double (*dwdu)[MAXNVAR][MAXNVAR] = nullptr,
-                       su2double (*jac)[MAXNODE][MAXNVAR][MAXNVAR] = nullptr) {
+                       su2double (*jac)[MAXNODE][MAXNVAR][MAXNVAR] = nullptr, const su2double* shareFrac = nullptr) {
   const unsigned short nDim = E.nDim, nVar = E.nVar, nNodes = E.nNodes;
 
   su2double area = 0.0;
@@ -258,7 +345,12 @@ inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsign
   su2double nu[3] = {0.0, 0.0, 0.0};
   for (unsigned short iDim = 0; iDim < nDim; ++iDim) nu[iDim] = faceNormal[iDim] / area;
 
-  const su2double weight = area / nDim;                        /*--- A_f/d, lumped face rule. ---*/
+  /*--- A_f/d, lumped face rule, or the moved shares a_a. ---*/
+  su2double weight[3] = {0.0, 0.0, 0.0};
+  for (unsigned short k = 0; k < nFaceNodes; ++k) {
+    if (shareFrac != nullptr) weight[k] = area * shareFrac[k];
+    else weight[k] = area / nDim;
+  }
   const su2double sigma = c * (1.0 + s) * (1.0 + s) * nWallFaces * area / (4.0 * E.size);  /*--- c(1+s)^2 d m_T/(4 h_f). ---*/
 
   su2double mask[MAXNVAR] = {0.0};
@@ -286,11 +378,11 @@ inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsign
     su2double e[MAXNVAR] = {0.0}, F[MAXNVAR][3] = {{0.0}}, Me[MAXNVAR] = {0.0};
     for (unsigned short iDim = 0; iDim < nDim; ++iDim) e[iDim + 1] = E.wMom[a][iDim];
     if (isothermal) e[nDim + 1] = wallTheta - E.thetaNode[a];
-    for (unsigned short iVar = 0; iVar < nVar; ++iVar) ebar[iVar] += weight * e[iVar];
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) ebar[iVar] += weight[k] * e[iVar];
 
     E.FluxOuter(e, nu, F);
     projectNormal(F, Me);
-    for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[a][iVar] -= weight * (FTn[iVar] - sigma * Me[iVar]);
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[a][iVar] -= weight[k] * (FTn[iVar] - sigma * Me[iVar]);
   }
 
   /*--- Adjoint term. ---*/
@@ -321,7 +413,7 @@ inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsign
       E.FluxOuter(dw, E.grad[b], F);
       projectNormal(F, Fn);
       for (unsigned short k = 0; k < nFaceNodes; ++k)
-        for (unsigned short iVar = 0; iVar < nVar; ++iVar) jac[faceNodes[k]][b][iVar][jVar] -= weight * Fn[iVar];
+        for (unsigned short iVar = 0; iVar < nVar; ++iVar) jac[faceNodes[k]][b][iVar][jVar] -= weight[k] * Fn[iVar];
     }
   }
 
@@ -333,16 +425,133 @@ inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsign
       for (unsigned short iVar = 0; iVar < nVar; ++iVar) de[iVar] = mask[iVar] * dwdu[a][iVar][jVar];
       E.FluxOuter(de, nu, F);
       projectNormal(F, Fn);
-      for (unsigned short iVar = 0; iVar < nVar; ++iVar) jac[a][a][iVar][jVar] += weight * sigma * Fn[iVar];
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) jac[a][a][iVar][jVar] += weight[k] * sigma * Fn[iVar];
       if (s == 0.0) continue;
       for (unsigned short b = 0; b < nNodes; ++b) {
         for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
           su2double sum = 0.0;
           for (unsigned short iDim = 0; iDim < nDim; ++iDim) sum += F[iVar][iDim] * E.grad[b][iDim];
-          jac[b][a][iVar][jVar] -= s * weight * sum;
+          jac[b][a][iVar][jVar] -= s * weight[k] * sum;
         }
       }
     }
+  }
+}
+
+/*!
+ * \brief Exact entropy production of the viscous wall terms of NoSlipWall on one face, without the terms of the wall
+ *        data g (physical wall entropy flux, Corollary N7): W_f = (1 + s) sum_a a_a e_a . P F_T nu - sigma_f X_f,
+ *        X_f = sum_a a_a e_a . M e_a (Theorem MV13, with a_a = A_f/d for shareFrac = nullptr). W_f <= D^gal_T / c.
+ *        For an adiabatic wall at rest it is -sum_c w_c . res_c of NoSlipWall. Same arguments as NoSlipWall.
+ */
+inline su2double NoSlipWallProduction(const Element& E, unsigned short nFaceNodes, const unsigned short* faceNodes,
+                                      const su2double* faceNormal, bool isothermal, const su2double& wallTheta,
+                                      unsigned short nWallFaces, const su2double& s, const su2double& c,
+                                      const su2double* shareFrac = nullptr) {
+  const unsigned short nDim = E.nDim, nVar = E.nVar;
+
+  su2double area = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) area += faceNormal[iDim] * faceNormal[iDim];
+  area = sqrt(area);
+  su2double nu[3] = {0.0, 0.0, 0.0};
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) nu[iDim] = faceNormal[iDim] / area;
+  const su2double sigma = c * (1.0 + s) * (1.0 + s) * nWallFaces * area / (4.0 * E.size);
+
+  su2double mask[MAXNVAR] = {0.0};
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) mask[iDim + 1] = 1.0;
+  mask[nDim + 1] = isothermal ? 1.0 : 0.0;
+
+  auto projectNormal = [&](const su2double (*F)[3], su2double* Fn) {
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+      su2double sum = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) sum += F[iVar][iDim] * nu[iDim];
+      Fn[iVar] = mask[iVar] * sum;
+    }
+  };
+
+  su2double FTn[MAXNVAR] = {0.0};
+  projectNormal(E.flux, FTn);
+
+  su2double production = 0.0;
+  for (unsigned short k = 0; k < nFaceNodes; ++k) {
+    const auto a = faceNodes[k];
+    su2double weight = area / nDim;
+    if (shareFrac != nullptr) weight = area * shareFrac[k];
+    su2double e[MAXNVAR] = {0.0}, F[MAXNVAR][3] = {{0.0}}, Me[MAXNVAR] = {0.0};
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) e[iDim + 1] = E.wMom[a][iDim];
+    if (isothermal) e[nDim + 1] = wallTheta - E.thetaNode[a];
+    E.FluxOuter(e, nu, F);
+    projectNormal(F, Me);
+    su2double eFTn = 0.0, eMe = 0.0;
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+      eFTn += e[iVar] * FTn[iVar];
+      eMe += e[iVar] * Me[iVar];
+    }
+    production += weight * ((1.0 + s) * eFTn - sigma * eMe);
+  }
+  return production;
+}
+
+/*!
+ * \brief Outward area vector A_f nu of the face of a simplex opposite node "opposite" (pointing away from it).
+ * \param[in] coord - Coordinates of the simplex nodes.
+ * \param[in] faceNodes - Element-local indices of the face nodes (the other nodes).
+ */
+template <class Coords>
+inline void WallFaceNormal(unsigned short nDim, const Coords& coord, unsigned short opposite,
+                           const unsigned short* faceNodes, su2double* faceNormal) {
+  su2double orientation = 0.0;
+  for (unsigned short iDim = 0; iDim < 3; ++iDim) faceNormal[iDim] = 0.0;
+  const auto* x0 = coord[faceNodes[0]];
+  const auto* x1 = coord[faceNodes[1]];
+  if (nDim == 2) {
+    faceNormal[0] = x1[1] - x0[1];
+    faceNormal[1] = -(x1[0] - x0[0]);
+  } else {
+    const auto* x2 = coord[faceNodes[2]];
+    const su2double a[3] = {x1[0] - x0[0], x1[1] - x0[1], x1[2] - x0[2]};
+    const su2double b[3] = {x2[0] - x0[0], x2[1] - x0[1], x2[2] - x0[2]};
+    GeometryToolbox::CrossProduct(a, b, faceNormal);
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceNormal[iDim] *= 0.5;
+  }
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+    orientation += faceNormal[iDim] * (x0[iDim] - coord[opposite][iDim]);
+  if (orientation < 0.0)
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceNormal[iDim] = -faceNormal[iDim];
+}
+
+/*!
+ * \brief One-budget element blend of VISC_P1_ENTROPY_MOVED (P1_VISCOUS_MOVED.md, Definition MV5, Theorems MV6, MV13):
+ *        E = P^c + P^v - D^v, theta_v = min(1, E/P^v) if E > 0 and P^v > 0 (else 0), theta_c = (E - theta_v P^v)^+/D^c.
+ *        Both are in [0,1]; with P^c <= D^c (Lemma 3) and W_T <= D^gal (MV12) the element production
+ *        P^c - theta_c D^c + (1 - theta_v) P^v - D^v is min(E, 0) <= 0.
+ * \param[in] convProduction - P^c, production of the E part of the element.
+ * \param[in] convDissipation - D^c >= 0, dissipation of the Lemma 3 floor of the element.
+ * \param[in] viscProduction - P^v, production of the moved part of the viscous test vectors.
+ * \param[in] viscDissipation - D^v = D^gal - W_T, Galerkin viscous dissipation minus the weak wall production.
+ * \param[out] thetaV - Part of Y_T removed from the viscous test vectors.
+ * \param[out] thetaC - Factor of the Lemma 3 floor.
+ */
+inline void OneBudgetBlend(const su2double& convProduction, const su2double& convDissipation,
+                           const su2double& viscProduction, const su2double& viscDissipation, su2double& thetaV,
+                           su2double& thetaC) {
+  const su2double excess = convProduction + viscProduction - viscDissipation;
+  thetaV = 0.0;
+  thetaC = 0.0;
+  if (excess <= 0.0) return;
+
+  /*--- The V-A geometry pays first: consistent, no artificial dissipation. ---*/
+  if ((viscProduction > 0.0) && (excess <= viscProduction)) {
+    thetaV = excess / viscProduction;
+    return;
+  }
+  if (viscProduction > 0.0) thetaV = 1.0;
+
+  /*--- Rest <= P^c - D^gal + W_T <= P^c <= D^c, min(.,1) only guards round-off. ---*/
+  const su2double rest = excess - thetaV * viscProduction;
+  if ((rest > 0.0) && (convDissipation > 0.0)) {
+    const su2double ratio = rest / convDissipation;
+    thetaC = (ratio < 1.0) ? ratio : su2double(1.0);
   }
 }
 

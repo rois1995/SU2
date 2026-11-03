@@ -1853,6 +1853,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("VISC_P1_ENTROPY", Visc_P1_Entropy, false);
   /*!\brief BC_WALL_ENTROPY_P1 \n DESCRIPTION: Weak no-slip walls (HEAT_FLUX with zero heat flux, ISOTHERMAL): closure C with the pressure flux, plus the SIPG penalty in entropy variables with the K of the wall element, sigma_f = 5/2 (1+s)^2 d m_T/(4 h_f), s = 1, h_f = d|T|/A_f. Needs VISC_P1_ENTROPY and BC_WEAK_P1. \ingroup Config \default false */
   addBoolOption("BC_WALL_ENTROPY_P1", BC_Wall_Entropy_P1, false);
+  /*!\brief VISC_P1_ENTROPY_MOVED \n DESCRIPTION: 3D, the element fluxes F_T of VISC_P1_ENTROPY on the test space of the moved (MOD_CENTROIDS) dual, i.e. the finite volume of F_T on the dual cells: residual of node a F_T (|T| I + (1 - theta_v) Y_T^T) g_a, Y_T = (3|T|/2) sum_o xi_o (x) g_o with xi_o the shift of the dual point of face o from its centroid. Its entropy defect P^v_T is paid in the element budget of EDGE_FORM_ES_BLEND, E_T = P^c_T + P^v_T - D^gal_T (+ W_T at weak walls): theta_v = min(1, E_T/P^v_T) first, then theta_c = (E_T - theta_v P^v_T)^+/D^c_T. Weak walls use the moved wall shares. Needs VISC_P1_ENTROPY, MOD_CENTROIDS, EDGE_FORM_P1 and EDGE_FORM_ES_BLEND. \ingroup Config \default false */
+  addBoolOption("VISC_P1_ENTROPY_MOVED", Visc_P1_Entropy_Moved, false);
   /*!\brief GCL_EXACT_P1 \n DESCRIPTION: Add the swept terms that make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes, for conservation in time on moving meshes. \ingroup Config*/
   addBoolOption("GCL_EXACT_P1", GCL_Exact_P1, false);
   /*!\brief SPLIT_EDGE_FLUX \n DESCRIPTION: Central flux 0.5(F_i+F_k).n_ik on the split edges of the cells, dissipation and Jacobians stay on the true edges. \ingroup Config*/
@@ -6255,6 +6257,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_TeCNO) active.push_back("EDGE_FORM_TECNO");
   if (Visc_P1_Entropy) active.push_back("VISC_P1_ENTROPY");
   if (BC_Wall_Entropy_P1) active.push_back("BC_WALL_ENTROPY_P1");
+  if (Visc_P1_Entropy_Moved) active.push_back("VISC_P1_ENTROPY_MOVED");
   if (Edge_Form_TeCNO_Wide && !Edge_Form_TeCNO) SU2_MPI::Error("EDGE_FORM_TECNO_WIDE: needs EDGE_FORM_TECNO= YES.", CURRENT_FUNCTION);
   if (Edge_Form_TeCNO_Smooth && (!Edge_Form_TeCNO || Edge_Form_TeCNO_Wide)) SU2_MPI::Error("EDGE_FORM_TECNO_SMOOTH: needs EDGE_FORM_TECNO= YES and not EDGE_FORM_TECNO_WIDE.", CURRENT_FUNCTION);
 
@@ -6403,6 +6406,16 @@ void CConfig::CheckP1FluxOptions() const {
     if (Wall_Functions) SU2_MPI::Error(name + "not available with wall functions.", CURRENT_FUNCTION);
     if (quantized && (Kind_TimeIntScheme_Flow == EULER_IMPLICIT))
       SU2_MPI::Error(name + "not available with the quantized preconditioners Q_*, they drop the element Jacobian blocks.", CURRENT_FUNCTION);
+  }
+  if (Visc_P1_Entropy_Moved) {
+    /*--- The moved viscous element form is indefinite whenever Y_T != 0 (P1_VISCOUS_MOVED.md, Theorem MV3), so the
+     * element blend that pays its entropy defect is part of the scheme, not an option. 2D is refused in CNSSolver. ---*/
+    const string name = "VISC_P1_ENTROPY_MOVED: ";
+    if (!Visc_P1_Entropy) SU2_MPI::Error(name + "needs VISC_P1_ENTROPY= YES.", CURRENT_FUNCTION);
+    if (!ModCentroids) SU2_MPI::Error(name + "needs MOD_CENTROIDS= YES, the dual it is built on.", CURRENT_FUNCTION);
+    if (!Edge_Form_P1 || !Edge_Form_ES_Blend)
+      SU2_MPI::Error(name + "needs EDGE_FORM_P1= YES and EDGE_FORM_ES_BLEND= YES, the element blend pays the entropy "
+                     "defect of the moved viscous form (indefinite for Y_T != 0).", CURRENT_FUNCTION);
   }
   if (BC_Wall_Entropy_P1) {
     const string name = "BC_WALL_ENTROPY_P1: ";

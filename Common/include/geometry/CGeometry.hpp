@@ -951,8 +951,9 @@ class CGeometry {
 
   /*!
    * \brief Per simplex, the moved-dual shares delta_a = W_a - |T|/(d+1) and the edges of its node pairs (EDGE_FORM_ES_BLEND).
+   * \param[in] movedViscous - Also the face tensor Y_T of each tetrahedron (VISC_P1_ENTROPY_MOVED).
    */
-  inline virtual void SetEdgeFormBlend() {}
+  inline virtual void SetEdgeFormBlend(bool movedViscous) {}
 
   /*!
    * \brief Split all cells into simplices and set the central flux coefficients of the split edges.

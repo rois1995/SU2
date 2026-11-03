@@ -5541,7 +5541,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
   AD::EndNoSharedReading();
 }
 
-void CSolver::SetP1WallFaces(CGeometry *geometry, const CConfig *config) {
+void CSolver::SetP1WallFaces(const CGeometry *geometry, const CConfig *config) {
 
   /*--- A rank holds a boundary face only if it owns one of its nodes, but the SIPG adjoint term also reaches the node
    * opposite the face. So the wall faces are gathered on all ranks (sorted global node IDs and the config file index
@@ -5611,6 +5611,26 @@ void CSolver::SetP1WallFaces(CGeometry *geometry, const CConfig *config) {
         const su2double wallTemperature = config->GetIsothermal_Temperature(tag) / config->GetTemperature_Ref();
         record.wallTheta = 1.0 / (config->GetGas_ConstantND() * wallTemperature);
       }
+      if (config->GetVisc_P1_Entropy_Moved() && (nDim == 3)) {
+        /*--- Moved wall shares a_a/A_f = (1 - beta_a)/2 from the dual point of the face (P1_VISCOUS_MOVED.md, MV1(a)),
+         * on coordinates recentred on the element as for Y_T in CPhysicalGeometry::SetEdgeFormBlend. ---*/
+        auto* element = geometry->elem[iElem];
+        su2double center[3] = {0.0, 0.0, 0.0}, local[4][3], grad[4][3], xi[4][3], frac[4];
+        for (unsigned short c = 0; c < nNodes; ++c)
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            center[iDim] += geometry->nodes->GetCoord(element->GetNode(c), iDim) / nNodes;
+        std::array<const su2double*, N_POINTS_MAXIMUM> localCoord;
+        for (unsigned short c = 0; c < nNodes; ++c) {
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            local[c][iDim] = geometry->nodes->GetCoord(element->GetNode(c), iDim) - center[iDim];
+          localCoord[c] = local[c];
+        }
+        P1Simplex::ShapeGradients(nDim, localCoord, grad);
+        P1Simplex::FaceShifts(*element, localCoord, xi);
+        P1Simplex::MovedFaceShares(grad, opp, xi[opp], frac);
+        for (unsigned short c = 0, k = 0; c < nNodes; ++c)
+          if (c != opp) record.share[k++] = frac[c];
+      }
       P1WallFaces.push_back(record);
     }
     for (auto i = first; i < P1WallFaces.size(); ++i) P1WallFaces[i].nWallFaces = P1WallFaces.size() - first;
@@ -5646,7 +5666,10 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
   const su2double prandtlTurb = config->GetPrandtl_Turb(), gasConst = config->GetGas_ConstantND();
 
   /*--- SIPG (s = 1) and c = 5/2, the maximum of lambda(c)/c (P1_NOSLIP.md, 3.3). ---*/
-  const su2double sipg = 1.0, penalty = 2.5;
+  const su2double sipg = pve::NOSLIP_SIPG, penalty = pve::NOSLIP_PENALTY;
+
+  /*--- VISC_P1_ENTROPY_MOVED: moved wall shares in the consistency, penalty and adjoint terms (Lemma MV11). ---*/
+  const bool movedShares = config->GetVisc_P1_Entropy_Moved() && (nDim == 3);
 
   /*--- Weights of the approximate pressure flux Jacobian, as for BC_ENTROPY_P1 (5:1 and 6:1:1). ---*/
   const su2double omegaSelf = (nDim == 2) ? 5.0 / 12.0 : 1.0 / 4.0;
@@ -5678,23 +5701,8 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
     }
 
     /*--- Area vector A_f nu of the face, pointing away from the opposite node. ---*/
-    su2double faceNormal[3] = {0.0, 0.0, 0.0}, orientation = 0.0;
-    const auto* x0 = coord[faceNodes[0]];
-    const auto* x1 = coord[faceNodes[1]];
-    if (nDim == 2) {
-      faceNormal[0] = x1[1] - x0[1];
-      faceNormal[1] = -(x1[0] - x0[0]);
-    } else {
-      const auto* x2 = coord[faceNodes[2]];
-      const su2double a[3] = {x1[0] - x0[0], x1[1] - x0[1], x1[2] - x0[2]};
-      const su2double b[3] = {x2[0] - x0[0], x2[1] - x0[1], x2[2] - x0[2]};
-      GeometryToolbox::CrossProduct(a, b, faceNormal);
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceNormal[iDim] *= 0.5;
-    }
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim)
-      orientation += faceNormal[iDim] * (x0[iDim] - coord[record.opposite][iDim]);
-    if (orientation < 0.0)
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceNormal[iDim] = -faceNormal[iDim];
+    su2double faceNormal[3] = {0.0, 0.0, 0.0};
+    pve::WallFaceNormal(nDim, coord, record.opposite, faceNodes, faceNormal);
 
     /*--- Inviscid part: closure C with the pressure flux, as at Euler walls (entropy conservative). ---*/
     EsState faceStates[3];
@@ -5714,7 +5722,8 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
       for (unsigned short c = 0; c < nNodes; ++c) pve::EntropyVariableJacobian(nDim, gamma, state[c], dwdu[c]);
     }
     pve::NoSlipWall(simplex, nDim, faceNodes, faceNormal, record.isothermal, record.wallTheta, record.nWallFaces,
-                    sipg, penalty, res, implicit ? dwdu : nullptr, implicit ? jac : nullptr);
+                    sipg, penalty, res, implicit ? dwdu : nullptr, implicit ? jac : nullptr,
+                    movedShares ? record.share : nullptr);
 
     for (unsigned short a = 0; a < nDim; ++a)
       for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[faceNodes[a]][iVar] += faceRes[a][iVar];

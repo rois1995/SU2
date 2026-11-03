@@ -2730,7 +2730,7 @@ void CGeometry::RegisterCoordinates() const {
 
 void CGeometry::UpdateP1FluxCoefficients(const CConfig* config) {
   if (config->GetEdge_Form_P1()) SetEdgeFormP1();
-  if (config->GetEdge_Form_P1() && config->GetEdge_Form_ES_Blend()) SetEdgeFormBlend();
+  if (config->GetEdge_Form_P1() && config->GetEdge_Form_ES_Blend()) SetEdgeFormBlend(config->GetVisc_P1_Entropy_Moved());
   if (config->GetSplit_Edge_Flux()) SetSplitEdges();
   if (config->GetGCL_Exact_P1()) sweptFluxStale = true;
   if (config->GetEdge_Diss_Projected()) CheckProjectedDissipation();

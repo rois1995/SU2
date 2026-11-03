@@ -190,17 +190,20 @@ protected:
     unsigned short nWallFaces = 1;   /*!< \brief m_T, number of no-slip wall faces of the element. */
     bool isothermal = false;         /*!< \brief Isothermal wall, otherwise adiabatic. */
     su2double wallTheta = 0.0;       /*!< \brief 1/(R T_w) of an isothermal wall. */
+    su2double share[3] = {0.0, 0.0, 0.0}; /*!< \brief Moved wall shares a_a/A_f of the face nodes in increasing local
+                                               index (VISC_P1_ENTROPY_MOVED, 3D), unused otherwise. */
   };
-  vector<P1WallFace> P1WallFaces;    /*!< \brief Wall faces of the local elements (BC_WALL_ENTROPY_P1). */
+  vector<P1WallFace> P1WallFaces;    /*!< \brief Wall faces of the local elements (BC_WALL_ENTROPY_P1), sorted by element. */
   bool P1WallFacesReady = false;     /*!< \brief P1WallFaces is built on first use. */
 
   /*!
    * \brief Find the no-slip wall faces of the local volume elements (BC_WALL_ENTROPY_P1). The wall faces are
-   *        gathered on all ranks, so that the rank owning only the node opposite a face finds it too.
+   *        gathered on all ranks, so that the rank owning only the node opposite a face finds it too. With
+   *        VISC_P1_ENTROPY_MOVED also the moved wall shares of the face nodes. Collective (MPI).
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  void SetP1WallFaces(CGeometry *geometry, const CConfig *config);
+  void SetP1WallFaces(const CGeometry *geometry, const CConfig *config);
 
   /*!
    * \brief Weak no-slip walls of BC_WALL_ENTROPY_P1: closure C with the pressure flux plus the SIPG penalty in
