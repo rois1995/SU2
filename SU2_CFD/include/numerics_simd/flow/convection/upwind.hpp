@@ -200,17 +200,14 @@ public:
         for (size_t iVar = 0; iVar < nVar; ++iVar) flux(iVar) += 0.5 * (flux_i(iVar) + flux_j(iVar));
       }
 
-      /*--- Jacobian: Roe on nu from finalizeFlux, plus 0.5 A_i(n - nu) and 0.5 A_k(n - nu) of the nodal states,
-       * so the central Jacobian is on the whole median normal (also for the Ismail-Roe flux, as the edge form). ---*/
+      /*--- Jacobian: the Roe Jacobian of the median normal (central part on n and dissipation |A(n)|). The residual
+       * keeps the dissipation on nu; only the implicit operator uses the larger median dissipation, which keeps it
+       * diagonally dominant at high CFL (with the Jacobian on nu, T4 diverged at CFL 1000 and converged at CFL 100).
+       * This is a defect correction: the converged solution does not depend on the Jacobian. ---*/
       if (implicit) {
-        const auto addJac_i = inviscidProjJac(gamma, V1st.i.velocity(), U1st.i.energy(), diffNormal, 0.5);
-        const auto addJac_j = inviscidProjJac(gamma, V1st.j.velocity(), U1st.j.energy(), diffNormal, 0.5);
-        for (size_t iVar = 0; iVar < nVar; ++iVar) {
-          for (size_t jVar = 0; jVar < nVar; ++jVar) {
-            jac_i(iVar, jVar) += addJac_i(iVar, jVar);
-            jac_j(iVar, jVar) += addJac_j(iVar, jVar);
-          }
-        }
+        VectorDbl<nVar> fluxMedian;
+        derived->finalizeFlux(fluxMedian, jac_i, jac_j, implicit, area, unitNormal, normal,
+                              V, U, iPoint, jPoint, nonPhysical, solution, geometry);
       }
     }
 
