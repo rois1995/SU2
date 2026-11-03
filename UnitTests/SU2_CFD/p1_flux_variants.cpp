@@ -1637,7 +1637,9 @@ TEST_CASE("VISC_P1_ENTROPY_MOVED off and Y = 0: the Galerkin operator", "[P1Flux
 }
 
 TEST_CASE("VISC_P1_ENTROPY_MOVED: face tensor of the moved dual on a mesh, constant flux exactness", "[P1Flux]") {
-  for (bool modCentroids : {true, false}) {
+  /*--- EDGE_FORM_P1 needs MOD_CENTROIDS (refused otherwise), so only the moved dual is tested on a mesh; Y = 0 for
+   * centroid face points is covered by the regular tetrahedron in the "off and Y = 0" test. ---*/
+  for (bool modCentroids : {true}) {
     for (double stretch : {1.0, 1e-3}) {
       const std::string mesh = "p1_visc_moved_3d.su2";
       WriteSimplexMesh(mesh, 3, 5, 0.4, stretch);
