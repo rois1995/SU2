@@ -1682,11 +1682,15 @@ TEST_CASE("VISC_P1_ENTROPY_MOVED: face tensor of the moved dual on a mesh, const
         for (int j = 0; j < 3; ++j) local = std::max(local, fabs(S[iPoint][j]) / scale);
       }
       SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      /*--- The test geometry may sit on one rank only (empty on the others), so the maxima are reduced. ---*/
+      su2double maxYAll = 0.0, errYAll = 0.0;
+      SU2_MPI::Allreduce(&maxY, &maxYAll, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      SU2_MPI::Allreduce(&errY, &errYAll, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
       INFO("MOD_CENTROIDS " << modCentroids << " stretch " << stretch);
       CHECK(global < 1e-10);
-      CHECK(errY < 1e-10);
-      if (modCentroids) CHECK(maxY > 1e-3);
-      else CHECK(maxY < 1e-11);
+      CHECK(errYAll < 1e-10);
+      if (modCentroids) CHECK(maxYAll > 1e-3);
+      else CHECK(maxYAll < 1e-11);
     }
   }
 }
