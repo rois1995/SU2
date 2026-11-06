@@ -1,0 +1,56 @@
+{
+  "scope": "First native event only; complete whole-field final census and cumulative rank sums. Nested timers overlap. Optimizer private debt is not published whole-field progress.",
+  "accepted_meshes": 0,
+  "totals": {
+    "cells": 1011596,
+    "q_bad": 10286,
+    "j_bad": 6872,
+    "geometry_bad": 1753,
+    "size_bad": 0
+  },
+  "maximum_native_seconds": 5337.855033633,
+  "last_complete_window_to_exit": {
+    "round_before": 36480,
+    "round_after": 36525,
+    "seconds": 115.91654960899996,
+    "net_removed": {
+      "q_bad": 953,
+      "j_bad": 827,
+      "geometry_bad": 5
+    },
+    "net_removed_per_second": {
+      "q_bad": 8.221431738734289,
+      "j_bad": 7.134442862469315,
+      "geometry_bad": 0.04313447921686406
+    }
+  },
+  "cumulative_rank_sums": {
+    "q_debt": 40.40983622337726,
+    "j_debt": 33.25295677254673,
+    "upper_calls": 1024185.0,
+    "upper_work": 2287725067.0,
+    "upper_seconds": 5151.688807661023,
+    "traversal_work": 2082081511.0,
+    "traversal_seconds": 4412.863932267008,
+    "scope_builds": 167468.0,
+    "scope_build_work": 16329124.0,
+    "scope_build_seconds": 537.1419171419996,
+    "memo_union_hits": 467227.0,
+    "memo_union_misses": 556958.0,
+    "smooth_boundary_moves": 23998.0,
+    "smooth_boundary_candidates": 598740.0,
+    "smooth_boundary_debt_reduction": 939.0539284577475,
+    "smooth_boundary_seconds": 3214.4996945860044,
+    "smooth_interior_moves": 49149.0,
+    "smooth_interior_candidates": 386054.0,
+    "smooth_interior_debt_reduction": 6619.925938377783,
+    "smooth_interior_seconds": 226.13404635899988
+  },
+  "source_receipts": {
+    "event1_natural_failure.json": "67c9b1debcbba347e8aa4f765dc009a008a591fa774ca173eae7b4b0f49810b4",
+    "quality_net_progress.json": "d1c606357f628eaf2394cd26c2e4aa5066a3c1d511eb835c2ebec9c9bdb406d0",
+    "terminal_handles.json": "befabd4a5ac97d466faad7fede9914c185fb94e9107847fa6f08083a496068dc",
+    "inspection_artifacts.json": "03787d1f8728e77b1fdeabc9d30739a9651e1ac4ce8c4a0274e08ed87258ed47"
+  },
+  "interpretation": "Substantial unfinished shape work remains; positive late-window net removal does not establish eventual closure. Existing bounded current-star tests will distinguish useful repair capability from certification/selection cost. No new production correction or construction-policy change selected."
+}

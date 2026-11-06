@@ -1,0 +1,49 @@
+{
+  "time": 1793989094.9226642,
+  "reader": "meshio 5.3.5",
+  "accepted": false,
+  "full_mesh_complete": true,
+  "full_classifications_complete": true,
+  "cavity_view_complete": false,
+  "files": {
+    "rejected_mesh.vtu": {
+      "points": 197550,
+      "cells": 1011596,
+      "bytes": 142095375,
+      "sha256": "fbf50739b18db47f428f51b9eadd6abc12a0cfebf69b0b3e00c82f9bfb8e55ac",
+      "all_nodal_metrics_finite_symmetric_SPD": true,
+      "q_bad": 10286,
+      "J_bad": 6872,
+      "geometry_bad": 1753
+    },
+    "bad_cells.vtu": {
+      "points": 36056,
+      "cells": 16721,
+      "bytes": 9435571,
+      "sha256": "fdd98b9ec1c22c725d3d1758685916cc03ed99c2ad9ecb239c971fde1f04a286",
+      "all_nodal_metrics_finite_symmetric_SPD": true
+    },
+    "cavities.vtu": {
+      "points": 77792,
+      "cells": 262144,
+      "bytes": 75693411,
+      "sha256": "6bb96e64e05df81809bd6269e826864b4e1b945162cecc26728b94733bb28dda",
+      "all_nodal_metrics_finite_symmetric_SPD": true
+    },
+    "reference.vtu": {
+      "points": 24479,
+      "cells": 48954,
+      "bytes": 3834731,
+      "sha256": "f199d5699cc3ff13964785d0c862d4914f96c70f07d0906b734c0c5282a239d8"
+    },
+    "rejected_mesh.su2": {
+      "points": 197550,
+      "tetrahedra": 1011596,
+      "bytes": 43350986,
+      "sha256": "b6de636b0f312d6cfb7abd25c347a08e1576f92b308f0b9304f19a29409fef33"
+    }
+  },
+  "manifest_sha256": "876326a0450fbf3bc78c441f4bfbaaeee8274cf3ef2c9e0482ffb0343888a639",
+  "capture_ready_sha256": "028baa0bf5462e14a4c1ac5527f5ce2db8d7d253ee788e3dcb45e2c411044396",
+  "helper_sha256": "028b7184ff25a0b5de1333c1da287c433251f4b52cccb34b05607e8a2f55c76d"
+}

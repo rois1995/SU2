@@ -29,74 +29,102 @@ L2share3.45%; shock-section medians4.37–6.54%chord and3.62–6.03%respectively
 L2coarsens4of11samples and raises radius.05tip budget6.44%→13.59%; finest tip
 normal request4.46e-5→6.64e-6. Select **L1**, isolating the proven correction without
 an unproven stronger corner objective. Existing default ADAP_NORM=1is verified.
-Production M6 is now LIVE as recorded below.
+Corrected-target M6 first event is now TERMINAL, as recorded below.
 All18metric-assessment owned handles ABSENT; frozen assessment pins unchanged.
 [Review and measured target choice](Handbook/ADAPTATION_METRIC_FLOOR_20261106.md).
 
-## LIVE219: corrected-target complete two-event M6
+## TERMINAL219: corrected L1target first event rejected; complete capture
 
-Pushed implementation/target checkpoint6209e172e3. Tool96966 LIVE.
+R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A219=`R/m6_runs/euler_build219_local_metricL1_real_cfd50k`.
-Host helper987033/start2727950; time987275/timeout987276/mpirun987277allstart2728523;
-6ranks987280–987285allstart2728526. A219/owned_startup.json is exact authority.
-1518pins unchanged;84actual mapped ELFs covered by pins. R/metric219_m6_launch.json
-records resources/environment. One owned heavy workload, nice19/MPI6/libs1/4TBscratch.
-Freeze all executing/pinned sources/helpers/config/inputs. Never infer terminal
-state from elapsed time or log age; poll tool/verify exact owned handles.
-
+Implementation/target checkpoint6209e172e3; latest pushed live evidence d219bf9627.
 Same saved real CFD seed,50k/defaultL1, unchanged5400native/14400outer budgets and
-two events. Selected first-rejected snapshot capture enabled because this is a
-substantial changed-target checkpoint; no trial dumps. Config identical217.
-Actual initial original-grid restart and all6metric components plus7conserved/
-primitive fields are BITWISE IDENTICAL to assessed correctedL1restart(SHA5132ee2a...
-5d692). A219/initial_target_match.json. This is not adapted transfer/restart proof.
-First complete quality_entry round34594at798.559652native seconds:
-871607cells/102058q-bad/101860J-bad/1997geometry-bad/0size-bad. All6census/cache/
-shape/geometry flags1. Actual quality ownership migration preserves every count and
-flag; committed q/J/debt max-over-mean1.2605/1.2797/1.1389. A219/quality_entry_assessment.json.
-A219/construction_progress_assessment.json preserves complete6-rank stages/prefix
-hashes. Shape zeros during construction were unmeasured, never closure.
-23 complete quality windows are preserved in A219/quality_net_progress.json.
-Latest round36032at4233.437021native seconds:990557cells/
-23298q-bad/19782J-bad/1789geometry-bad/0size-bad; all6census/cache/shape/geometry
-flags1. Latest window removes1859q/2006J/7geometry in136.668918s
-(13.60q/s,14.68J/s). Rates vary; this is measured net progress,
-not a closure forecast. Counter parser now seals each rank at its FIRST native EXIT
-(self-check passed); later original-grid work cannot contaminate first-event counts.
-First-window retired/introduced populations reconcile exactly to whole-field net
-counts; they are published-cavity populations, not unique-cell cure counts.
-A219/quality_window1_assessment.json. Actual ownership at34752preserves all counts/
-flags. All10owned handles remain live and1518pins unchanged; sampled tree RSS~10.7GB.
-Wait for terminal outcome; no source speed attribution, closure forecast, competing
-correction or prediction-based stop.
-Bounded read-only historical window35008/census11counter review is preserved in
-A219/quality_window35008_counter_assessment.json. Primary recomputation reconciles
-ladder q/Jnet4678/4839to whole-field deltas. Of73345q-bad,66094are interior;
-geometry/topology refusals are not classified as physical vs conservative failures.
-Boundary/interior optimizer smoothing deltas cost86.70/8.22rank-summed seconds and
-reduce private debt53.85/421.33; not a published whole-field efficiency comparison.
-No new operator, larger cavity, scheduler, geometry representation or construction
-quality policy selected before frozen219outcome. All strict gates and construction policy retained.
+all strict gates. Initial restart/6metric components/7flow fields BITWISE match the
+assessed production L1target(SHA5132ee2a...5d692); initial_target_match.json.
 
-If native event naturally rejects, preserve all6first-event EXIT/DETAIL rows AND
-complete6-rank capture shards/hashes before any authorized single owned-launcher
-stop. Capture source review confirms boundary bindings are serialized independently
-of CellDiagnostic cache validity, and OwnedCell carries the nodal tensors. Actual
-manifests/row counts/hashes must still prove capture completeness. If q/J is missing,
-reuse the existing centroid/Measure diagnostic after terminal; the deferred218test
-currently has a217-specific790537cell assertion and must not be run on219unchanged. Final census completeness must be checked; never treat partial zero counts
-as closure. Do not repeat historical217or210stops. If accepted, continue event2,
-conservative admissible transfer, finite adapted CFD and isolated actual restart.
+First native event NATURALLY rejected `time_budget`, maximum5337.855034native
+seconds, round36525. COMPLETE6-rank census: **1011596cells/10286q-bad/6872J-bad/
+1753geometry-bad/0size-bad**. All cells q/J measured; all cache/census/shape/geometry
+flags1. Unlike217, these are actual whole-field final counts. ZERO accepted adapted
+meshes; no transfer/continued adapted CFD/disk restart proof. Preserve all obligations.
+A219/event1_natural_failure.json seals first-event EXIT/DETAIL and exact source prefixes.
 
-User literature steering is recorded in
-[repair/support diagnostic](Handbook/ADAPTATION_REPAIR_SUPPORT_20261106.md): AFTER
-this corrected-target outcome, choose representative actual boundary cavities,
-distinguish placement/constraints/connectivity/certification, and test ONE combined
-surface-volume hypothesis with existing operators and complete neighboring-patch
-q/J/geometry/metric/height checks. Papers authorize no new scheduler/larger cavity/
-geometry representation or quality-aware construction policy. CAD remains optional.
-218diagnostic built but was not executed before user pause; keep its unrelated local
-fixture/helper edits deferred while219drives the sole active cycle.
+All6capture manifests have complete owned, metric classification, reference and
+rejection shards; written rows equal working rows and sum1011596. All30files hashed
+in A219/capture_ready.json BEFORE stopping. SIGTERM ALREADY SENT ONCE to verified
+launcher987277/start2728523. **NEVER repeat or signal historical handles.**
+A219/event1_failure_owned_stop.json records sent=true. Tool96966TERMINAL1, helper
+5573.623042s including post-reject original-grid work. All10exact handles ABSENT,
+1518pins unchanged: A219/terminal_handles.json. Historical helper987033/start2727950,
+time987275/timeout987276/start2728523, ranks987280–987285/start2728526 are gone.
+No live M6 solver/build. Later original-grid files are not adapted workflow proof.
+
+## TERMINAL219 inspection and current witness inputs
+
+Exporttool26613TERMINAL0 (501.185701s). Qualified helper unchanged. Independent
+meshio reads of fullVTU/SU2 and all4VTUs PASS:197550points/1011596tets, exact final
+q/J/geometry counts, all197550nodal tensors finite/symmetric/SPD and available.
+A219/inspection_artifacts.json records hashes and checks. Full actual requested
+mesh WITH9component captured_nodal_metric: A219/inspection/rejected_mesh.vtu;
+also rejected_mesh.su2. This is an UNACCEPTED mesh, not a workflow result.
+Full mesh and16721bad-cell view are complete. Only bounded cavities.vtu is partial:
+262144cells exported/136409neighbor cells omitted. ParaView GUI was not available.
+
+A219/terminal_nodal_metric_audit.json estimates50985.7902 current transported nodal
+complexity (+1.97%); quadrature/transport effects are not separated, so this is
+NOT an immutable-background drift bound or justification to change the target.
+
+Current witness preparation TERMINAL:48.341376s,1011596paired rows,32784boundary
+points/65564physical faces. A219/current_witnesses_v1/witness_preparation.json
+seals four actual residual core/neighbor supports and input/output hashes.
+Leading/root59cells, blocked midspan67, tip feature55, interior control91 are
+CONTEXT unions only. Active core-vertex stars contain8–42cells, within existing64.
+Do not enlarge operator bounds. Witness preparation/export/solver are terminal.
+Build220 LIVE (exec14915): test-only current-star diagnostic and input pin support;
+freeze C++/fixtures/build helper until terminal. No production operator changed.
+Next diagnostic reuses existing operators on these bounded stars; fresh current
+associations are reconstructed, not historical dependency/scheduling replay.
+
+## Current post-outcome analysis; no new production correction selected
+
+First complete quality entry at798.559652s was871607cells/102058q/101860J/
+1997geometry/0size. Final rejection still has substantial shape debt; it never
+established shape closure. Existing counters and actual captured residual cavities
+must distinguish throughput, repair yield/power and construction burden. No source
+speed comparison with217because the metric target changed. Source field correction
+is qualified; its actual targets and tradeoffs are in the metric-floor handbook.
+A219/quality_net_progress.json preserves complete windows; construction_progress_
+assessment.json preserves complete6-rank stage rows and first-native source prefixes.
+Counter parser seals each rank at FIRST native EXIT; later work cannot contaminate it.
+
+Bounded historical window35008/census11counter review is in
+A219/quality_window35008_counter_assessment.json: ladder net q/J4678/4839matches
+whole-field changes; most q-bad cells there are interior. Boundary/interior optimizer
+smoothing cost86.70/8.22rank-summed seconds for private debt53.85/421.33; this is not
+published whole-field efficiency. Geometry/topology refusal flags do not identify
+physical violation versus conservative certification. Terminal counters show only20fully blocked shape cells versus15081remaining
+shape-union cells and163555queued feature demands. Most residual q-bad cells
+(9499of10286) have no physical face. Boundary optimizer costs remain material;
+primary retains diagnosis/design/acceptance.
+
+Selected current219witnesses replace the historical202probe. Test representative
+ACTUAL residual boundary cavities plus relevant
+interior/clean controls. Distinguish placement, constrained movement, insufficient
+connectivity and certification refusal. Test ONE connected hypothesis with EXISTING
+surface/volume operators and complete affected/neighbouring q/J, geometry, metric,
+height checks. No new scheduler, larger-cavity campaign, geometry representation,
+construction q/Jpolicy or new configuration is selected by literature alone.
+CAD remains optional; no-CAD authority must suffice. Read the current
+[repair/support and literature steering](Handbook/ADAPTATION_REPAIR_SUPPORT_20261106.md).
+
+The deferred218captured-q/J diagnostic has a217-specific790537cell assertion and
+was never executed; do not run it unchanged on219. It is unnecessary to recover
+219classifications because all6are complete. Preserve its unrelated local fixture/
+run_cases edits. Reuse verified source/build/input/runtime evidence. After a
+DEMONSTRATED connected correction, focused affected serial and ONE MPI milestone,
+then immediate full two-event M6 with this same saved CFD seed/L1/50k/gates/budgets.
+Current transfer/restart audit readiness is A219/workflow_acceptance_readiness_current.json;
+all4executing paths match reviewed210source. Actual adapted outcomes remain unproved.
 
 ## TERMINAL217: latest requested mesh and metric saved
 
