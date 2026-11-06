@@ -64,55 +64,44 @@ metric219: actual leading-edge before/after mesh+metric is useful. No per-trial
 mesh exports. Actual initial restart coordinates,6metric components and7flow fields
 BITWISE match219and its assessed production L1target: A225/initial_target_match.json,
 restartSHA5132ee2a83635b457943c2679a3a50c5e0b733427e620cc748da53865ce5d692.
-Restarted CL.269535/CD.013536. Curved mobility181938600setup work; initial6rank
-ownership migration completed. First complete coarsening exit/round1777:
-293396cells/2968geometry/119026size demands; q/J deliberately unmeasured.
-Coarsening work/counter vectors are IDENTICAL per rank to219, including2520
-collapses/10313geometry trials/21669upper queries/106031874traversal work, but
-953.638858s vs301.972880s(~3.158xwall). A225/coarsening_comparison219.json.
-Construction and quality-entry ownership transitions preserved counts and flags.
+Restarted CL.269535/CD.013536; curved mobility181938600setup work.
 All76matching complete construction stage/round pairs have identical tested
-per-rank work vectors, mesh totals and census flags versus219:
-A225/construction_comparison219.json. Final validity-only construction completed
-at1527.934458s vs753.370630s; q/J remained deliberately unmeasured there.
+per-rank work vectors, totals and flags versus219: construction_comparison219.json.
+Coarsening2520collapses/10313geometry trials/106031874traversal work are identical,
+but953.638858s vs301.972880s(~3.158xwall): coarsening_comparison219.json.
+Final validity-only construction1527.934458s vs753.370630s; q/J unmeasured there.
 First COMPLETE quality entry round34594 at1584.159718native seconds:
-871607cells/102058q/101860J/1997geometry/0size-bad, all completeness flags1.
-Counts/flags match219entry exactly; matching counts alone are not a connectivity
-identity proof. A225/quality_entry_assessment.json preserves actual migration
-rank spread and first quality entry; quality_net_progress.json begins this first
-episode only. First COMPLETE quality window round34624 at1708.272730s:
-874801cells/100036q/99863J/1991geometry/0size. Net2022q/1997J/6geometry removed
-in124.113013s,16.2916q/s versus219firstwindow16.1765q/s in124.748571s.
-Both1170commits; qretired31647/qintroduced29625 demonstrates substantial churn.
-A225/first_quality_comparison219.json preserves exact service rank rows, source
-prefixes and stage-counter deltas. Early yield/rate essentially unchanged; no
-late-tail/closure or source-only speedup claim. Upper traversal66.371Mwork vs
-66.499M219; boundary smoothing118.36rank-s vs119.04, interior3.11rank-s in both.
-Timers overlap; join/collective call seconds are not pure wait or CPU time.
-Latest COMPLETE window34880 at2739.043815s(1154.884097s since entry):
-900679cells/82729q/82432J/1910geometry/0size. Fifth window net4938q/5054J/32geo
-removed in368.870523s versus2195106q/5113J/20geo in191.644959s.
-Matching-round counts differ+176q/+40J/-14geometry; cumulative q removal16.7367/s
-versus21922.0610/s at884.139643quality seconds. No demonstrated closure benefit.
-A225/matched_quality_comparison219.json preserves matching rounds with actual
-quality times and validates the preceding ownership transition: counts/flags
-unchanged; q/J debt min/max3485.69/5940.85→4332.71/5825.71.
-A225/fourth_quality_comparison219.json and fifth_quality_comparison219.json preserve
-per-rank service/churn and geometry work. Fifth traversal126.922Mvs92.479M;
-uppercalls37683vs31230; boundary candidates15565vs14487, moves628vs662,
-private debt reduction63.192vs66.511, boundary297.77vs140.49rank-s. Thus extra work
-and lower boundary yield accompany timing contention; overlapping timers are not
-additive and private debt is not whole-field benefit. Keep frozen to its outcome;
-no new profiler/implementation/baseline. Read-only OS CPU samples in
-A225/process_cpu_observations.jsonl show54–57CPU-s per rank in66.49wall-s;
-this includes possible MPI spin, not useful mesh-work proof.
-A225/owned_observations.jsonl records current exact all10handles LIVE/no stop:
-sampled summed RSS10.325GB, available RAM25.705GB(decimal), load12.70. Host contention
-exists; compare counters/stage vectors alongside elapsed time. No new implementation
-or baseline/profiler campaign. Sources/fixtures/helpers/config/inputs remain FROZEN.
-Compare complete whole-field q/J-bad removal/s and geometry-bad at matching quality
-times, plus work/certification, busy/wait and rank spread; commits/debt alone do not
-establish useful closure. Construction remains unchanged.
+871607cells/102058q/101860J/1997geometry/0size, allflags1, counts/flags match219.
+Counts alone do not prove identical connectivity. quality_entry_assessment.json.
+
+Latest COMPLETE window35008 at3022.224564s(1438.064846s since entry):
+911686cells/74342q/74046J/1906geometry/0size; allflags1. Seventh window net3993q/
+4008J/1geo removed in137.721195s(~29q/J per second). Matching219round has
+73345q/73076J/1899geometry at1164.925319quality seconds; cumulative q removal
+19.2731/s versus24.6479/s. No established whole-field benefit. quality_net_progress.json
+contains first quality episode only; matched_quality_comparison219.json records
+complete matched rounds with actual times, no interpolation/forecast.
+Both quality redistributions35008/34752preserved counts/flags. Latest q/J debt
+min/max1924.43/3174.72→2090.30/2943.72; window-to-committed20.2641s includes
+transition work. These observations do not independently prove every history field.
+
+Detailed first/fourth/fifth_quality_comparison219.json preserve per-rank service,
+churn and geometry work. First window16.2916q/s vs16.1765, both1170commits;
+qretired31647/qintroduced29625 shows substantial churn. Fifth window368.8705s
+vs191.6450s, traversal126.922Mvs92.479M; uppercalls37683vs31230; boundary
+candidates15565vs14487/moves628vs662/private debt63.192vs66.511/time297.77vs140.49
+rank-s. Extra work and lower boundary yield accompany contention. Timers overlap;
+join/collective call seconds are not pure wait/CPU; private debt is not whole-field
+benefit. OS process_cpu_observations.jsonl includes possible MPI spin, not useful
+work proof. No profiler/new baseline/competing implementation is selected.
+
+All10exact owned handles remain LIVE/no stop: owned_observations.jsonl.
+Sampled summed RSS briefly12.635GB during migration, then10.436GB; available
+RAM25.125GB(decimal),load10.42 after transition. Not a whole-job physical-memory
+peak. Keep sources/fixtures/helpers/binary/config/inputs FROZEN to its outcome.
+Judge complete whole-field q/J-bad net removal/s and geometry-bad at matching
+quality times, alongside work/certification/busy/wait/rank spread. Commits/debt
+alone do not establish closure. Construction remains unchanged.
 
 ## Corrected target and latest TERMINAL M6:219
 
