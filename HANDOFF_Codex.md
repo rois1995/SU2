@@ -70,17 +70,21 @@ ownership migration completed. First complete coarsening exit/round1777:
 Coarsening work/counter vectors are IDENTICAL per rank to219, including2520
 collapses/10313geometry trials/21669upper queries/106031874traversal work, but
 953.638858s vs301.972880s(~3.158xwall). A225/coarsening_comparison219.json.
-Ownership transition preserved counts. Splitting reached round32393:850809cells,
-3696geometry/3407size demands; q/J still deliberately unmeasured. All29matching
-complete construction stage/round pairs have identical tested per-rank work vectors,
-mesh totals and census flags versus219: A225/construction_comparison219.json.
-Current matching split exit1255.048979s vs513.916554s; this is not a quality-stage
-speed comparison. Do not attribute raw time differences to quality code; host
-contention is present.
-A225/owned_observations.jsonl records resource receipts: summed RSS6.261GB, available
-RAM29.573GB(decimal), load11.74 at the complete coarsening observation. Host
-contention exists; counters/stage vectors
-matter for comparison. No new implementation or baseline/profiler campaign.
+Construction and quality-entry ownership transitions preserved counts and flags.
+All76matching complete construction stage/round pairs have identical tested
+per-rank work vectors, mesh totals and census flags versus219:
+A225/construction_comparison219.json. Final validity-only construction completed
+at1527.934458s vs753.370630s; q/J remained deliberately unmeasured there.
+First COMPLETE quality entry round34594 at1584.159718native seconds:
+871607cells/102058q/101860J/1997geometry/0size-bad, all completeness flags1.
+Counts/flags match219entry exactly; matching counts alone are not a connectivity
+identity proof. A225/quality_entry_assessment.json preserves actual migration
+rank spread and first quality entry; quality_net_progress.json begins this first
+episode only. No complete quality window or quality-speed claim yet.
+A225/owned_observations.jsonl records current exact all10handles LIVE/no stop:
+sampled summed RSS9.942GB, available RAM26.082GB(decimal), load8.34. Host contention
+exists; compare counters/stage vectors alongside elapsed time. No new implementation
+or baseline/profiler campaign. Sources/fixtures/helpers/config/inputs remain FROZEN.
 Compare complete whole-field q/J-bad removal/s and geometry-bad at matching quality
 times, plus work/certification, busy/wait and rank spread; commits/debt alone do not
 establish useful closure. Construction remains unchanged.
