@@ -1855,7 +1855,10 @@ TEST_CASE("GRID_ENTROPY_P1: closure C-ALE on one face, moving wall and far field
     /*--- Moving pressure wall: Theta = 0 for any state (Theorem A13 ii, Lemma A14), no mass flux. ---*/
     su2double res[3][5], scale = 0.0;
     ale::FaceResidual(nDim, nNodes, kGamma, nullptr, N, S, gridVel, kappa, res);
-    CHECK(fabs(theta(res, scale)) <= 1e-8 * scale);
+    {
+      const su2double thetaValue = theta(res, scale);
+      CHECK(fabs(thetaValue) <= 1e-8 * scale);
+    }
     su2double mass = 0.0;
     for (int a = 0; a < nNodes; ++a) mass += res[a][0];
     CHECK(fabs(mass) <= 1e-13 * scale);
