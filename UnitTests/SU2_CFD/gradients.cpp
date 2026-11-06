@@ -438,6 +438,35 @@ TEST_CASE("Periodic edge weight cache rebuild", "[Periodic][Geometry]") {
   REQUIRE(global > 0);
 }
 
+TEST_CASE("Translated periodic edge weights follow the geometry", "[Periodic][Geometry]") {
+  const bool reverse = GENERATE(false, true);
+  UnitQuadTestCase field;
+  const auto start = field.config_options.find("MARKER_HEATFLUX=");
+  const auto end = field.config_options.find("VISCOSITY_MODEL=");
+  field.config_options.erase(start, end - start);
+  const std::string x = "x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0";
+  const std::string y = "y_minus,y_plus, 0,0,0, 0,0,0, 0,1,0";
+  const std::string z = "z_minus,z_plus, 0,0,0, 0,0,0, 0,0,1";
+  field.AddOption("MARKER_PERIODIC= (" + (reverse ? z + "," + y + "," + x : x + "," + y + "," + z) + ")");
+  field.InitConfig();
+  field.InitGeometry(true);
+  field.geometry->PreprocessPeriodicGeometry(*field.config);
+  unsigned long shared = 0, total = 0;
+  for (auto edge = 0ul; edge < field.geometry->GetnEdge(); ++edge) {
+    const auto i = field.geometry->edges->GetNode(edge, 0), j = field.geometry->edges->GetNode(edge, 1);
+    if (!field.geometry->nodes->GetDomain(i) || !field.geometry->nodes->GetDomain(j)) continue;
+    const auto* a = field.geometry->nodes->GetCoord(i);
+    const auto* b = field.geometry->nodes->GetCoord(j);
+    unsigned planes = 0;
+    for (auto dim = 0u; dim < 3; ++dim)
+      if ((a[dim] == 0 && b[dim] == 0) || (a[dim] == 1 && b[dim] == 1)) ++planes;
+    CHECK(field.geometry->GetPeriodicEdgeWeight(edge) == Approx(std::ldexp(1.0, -int(planes))));
+    if (planes == 2) ++shared;
+  }
+  SU2_MPI::Allreduce(&shared, &total, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+  REQUIRE(total > 0);
+}
+
 TEST_CASE("Coarse periodic boundary flags", "[Periodic]") {
   UnitQuadTestCase field;
   const auto start = field.config_options.find("MARKER_HEATFLUX=");

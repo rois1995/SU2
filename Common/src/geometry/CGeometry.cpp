@@ -1161,11 +1161,21 @@ void CGeometry::PreprocessPeriodicGeometry(const CConfig& config) {
   }
 
   vector<unsigned short> firstPair(nPoint, 0);
+  vector<unsigned short> localDonor(nMarker, nMarker);
   vector<bool> rotating(nPoint, false);
   unsigned short local[2] = {}, global[2] = {};
   for (auto iMarker = 0u; iMarker < nMarker; ++iMarker) {
     if (config.GetMarker_All_KindBC(iMarker) != PERIODIC_BOUNDARY) continue;
-    const auto pair = (config.GetMarker_All_PerBound(iMarker) - 1) % nPairs + 1;
+    const auto periodic = config.GetMarker_All_PerBound(iMarker);
+    const auto pair = (periodic - 1) % nPairs + 1;
+    const auto donorPeriodic = periodic <= nPairs ? periodic + nPairs : periodic - nPairs;
+    // Partition-local marker indices need not match configuration marker indices.
+    for (auto jMarker = 0u; jMarker < nMarker; ++jMarker)
+      if (config.GetMarker_All_KindBC(jMarker) == PERIODIC_BOUNDARY &&
+          config.GetMarker_All_PerBound(jMarker) == donorPeriodic) {
+        localDonor[iMarker] = jMarker;
+        break;
+      }
     const auto rotation =
         GeometryToolbox::HasRotation(config.GetPeriodicRotAngles(config.GetMarker_All_TagBound(iMarker)));
     for (auto iVertex = 0ul; iVertex < nVertex[iMarker]; ++iVertex) {
@@ -1194,8 +1204,9 @@ void CGeometry::PreprocessPeriodicGeometry(const CConfig& config) {
           nodes->GetVertex(jPoint, iMarker) < 0)
         continue;
       const auto tag = config.GetMarker_All_TagBound(iMarker);
-      const auto donor = config.GetMarker_Periodic_Donor(tag);
-      if (donor < nMarker && nodes->GetVertex(iPoint, donor) >= 0 && nodes->GetVertex(jPoint, donor) >= 0) {
+      const auto donor = localDonor[iMarker];
+      if (GeometryToolbox::HasRotation(config.GetPeriodicRotAngles(tag)) && donor < nMarker &&
+          nodes->GetVertex(iPoint, donor) >= 0 && nodes->GetVertex(jPoint, donor) >= 0) {
         /*--- An edge along the rotation axis is shared by all N sectors,
          * rather than by two copies of each of the two periodic faces. ---*/
         if (config.GetMarker_All_PerBound(iMarker) > config.GetnMarker_Periodic() / 2) continue;
