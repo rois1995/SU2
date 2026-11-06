@@ -80,7 +80,15 @@ First COMPLETE quality entry round34594 at1584.159718native seconds:
 Counts/flags match219entry exactly; matching counts alone are not a connectivity
 identity proof. A225/quality_entry_assessment.json preserves actual migration
 rank spread and first quality entry; quality_net_progress.json begins this first
-episode only. No complete quality window or quality-speed claim yet.
+episode only. First COMPLETE quality window round34624 at1708.272730s:
+874801cells/100036q/99863J/1991geometry/0size. Net2022q/1997J/6geometry removed
+in124.113013s,16.2916q/s versus219firstwindow16.1765q/s in124.748571s.
+Both1170commits; qretired31647/qintroduced29625 demonstrates substantial churn.
+A225/first_quality_comparison219.json preserves exact service rank rows, source
+prefixes and stage-counter deltas. Early yield/rate essentially unchanged; no
+late-tail/closure or source-only speedup claim. Upper traversal66.371Mwork vs
+66.499M219; boundary smoothing118.36rank-s vs119.04, interior3.11rank-s in both.
+Timers overlap; join/collective call seconds are not pure wait or CPU time.
 A225/owned_observations.jsonl records current exact all10handles LIVE/no stop:
 sampled summed RSS9.942GB, available RAM26.082GB(decimal), load8.34. Host contention
 exists; compare counters/stage vectors alongside elapsed time. No new implementation
