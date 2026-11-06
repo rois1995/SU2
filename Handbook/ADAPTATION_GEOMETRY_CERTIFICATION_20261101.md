@@ -1,12 +1,36 @@
 # Geometry certification — current review and preserved history
 
-## Current: build206 terminal; classify geometry refusals before changing code
+## Current: shared bound refinement qualified; full build210 M6 frozen and live
+
+Build210's budgeted entity direct path refines an unsuccessful correspondence
+upper using the existing singleton-support physical union query, retaining the
+smaller valid bound and independent affine maximum. No new cache, approximation,
+configuration or gate was introduced. Scratch is admitted before allocating;
+resource exhaustion propagates. The successful cheap direct path is unchanged.
+
+Current-host GCC13.3 build210passed with1301source pins unchanged. Actual M6
+witness38938assertions/1case, geometry2666assertions/34cases and one MPI6milestone
+23cases per rank PASS. Runtime-v2includes193files and covers all observed ELF
+mappings. See `staged57/geometry210_qualification.json`; setup failures remain
+preserved, with no source changes between serial and successful MPI qualification.
+
+Full two-event M6 is frozen/live from source6744638324, same real CFD seed/50k/5400s.
+First complete quality entry:721643cells/49380q/48218J/2713geometry/0size bad.
+Build206entry was727818/54081q/53392J/3770geometry/0size. Upper work at entry rose
+265726770→325633701. This is a smaller initial repair burden with more certification
+work, not closure or an isolated speed comparison. Host/compiler/runtime differ.
+Authoritative live handles and pins are in HANDOFF_Codex.md; current receipts are
+`staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/`. Wait for net q/J
+removal and residual geometry/shape reclosure under unchanged gates and budgets.
+
+### Preserved terminal206 analysis and probe207 selection
 
 The normal full M6 first event naturally rejected at the unchanged time budget:
 809684cells/281q-bad/341J-bad/2129geometry-bad/0size-bad, with complete all6 EXIT
 census/cache/shape/geometry flags. All10exact owned handles are absent and1403pins
-unchanged after preserved failure and the authorized owned stop. Current authority
-is HANDOFF_Codex.md and staged57/m6_runs/euler_build206_real_cfd50k_feature_companion/.
+unchanged after preserved failure and the authorized owned stop. Terminal206authority
+is staged57/m6_runs/euler_build206_real_cfd50k_feature_companion/; current live
+state is maintained in HANDOFF_Codex.md.
 No adapted mesh, transfer, continued adapted CFD or adapted restart is accepted.
 
 The next target is **repair power and shape/geometry reclosure**, with measured
@@ -29,31 +53,33 @@ Source review confirms existing unchanged-face association/coverage contracts,
 exact numeric memo keys, prepared facet/scope pools, once-per-star old guidance,
 shape/edge screening and conservative partial-sum rejection. These are different
 contracts: HasAcceptedFaceCertificate is not a numerical distance certificate.
-Direct ParameterError uses SurfaceError when all bindings support one facet and
-returns its sufficient correspondence bound even when above tolerance. That is
+Before210, direct ParameterError used SurfaceError when all bindings supported one facet and
+returned its sufficient correspondence bound even when above tolerance. That is
 safe refusal, but it need not be a proved distance violation. Cross-patch guidance
 already uses BoundPhysicalSurface. Final two-sided certification remains separate.
 
-Next bounded diagnostic: reuse the qualified202current authority and saved actual
-physical faces, compare failed direct bounds with the EXISTING one-sided union
-query on identical allowed support, plus a nearby clean face. Reproduce recorded
-guidance first; measure work and cached/recomputed equality. A whole-face rigorous
+Probe207reused the qualified202current authority and saved actual
+physical faces. It compared failed direct bounds with the EXISTING one-sided union
+query on identical allowed support, plus a nearby clean face. Recorded guidance
+was reproduced first; work and cached/recomputed equality were checked. A whole-face rigorous
 upper<=1e-4 can establish that directed condition; point sampling cannot. Unresolved
 queries remain unresolved; all associations, features, bodies, heights, reverse
 coverage and final gates stay independent. Only measured results may select a
-connected correction. No production fallback or speedup is established yet.
+connected correction. The qualified210correction is described above; no
+production speedup or accepted mesh is established yet.
 
 2026-11-06probe207completed: three saved direct-bad faces and one clean neighbor;
 38924assertions/1case PASS, old52q/J bit-exact. Cell152256924/facet10699 has direct
 1.2346577241708644e-4 but existing one-sided union9.4657910071089152e-5, inside1e-4.
 All4cached/fresh bounds match exactly. Two other bad faces get worse union bounds,
 so the better valid bound must be retained; the clean direct path remains cheap.
-This selects refinement of failed direct bounds in shared ParameterError when an
+This selected refinement of failed direct bounds in shared ParameterError when an
 atlas budget is present, retaining the independent affine maximum. No acceptance
 or production speedup follows yet. R/geometry_probe207_assessment.json records scope.
 Host runtime changed since November1; the successful probe observed extra hwloc
 modules beyond prelaunch pins. Their hashes stayed stable through exit, but an
-expanded versioned runtime and fresh production serial/MPI qualification are required.
+expanded versioned runtime and fresh production serial/MPI qualification were
+required. Runtime-v2and the210qualification above now provide that scoped evidence.
 
 Older whole-query displacement/slack certifies0of12saved queries, and optimistic
 subtree reuse saved only0.5765%before overhead in that population. Do not add a

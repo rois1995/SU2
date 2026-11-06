@@ -36,7 +36,19 @@ construction exits vs206. Coarsening:292680cells/2970geometry-bad/55181size-bad,
 geometry flags complete, shape_complete0 and q/Jmeasured0 as required. Geometry
 counts include conservative refusals, so lower counts do not prove proportional
 physical improvement. Fresh compiler/runtime/contention prevent isolated elapsed
-attribution. Wait for quality-entry whole-field q/J and net closure, no stop yet.
+attribution. First complete quality ENTRY now721643cells/49380q/48218J/2713geometry/0size,
+all6census/cache/shape/geometry flags1 and allcells q/Jmeasured. Compare206entry
+727818/54081q/53392J/3770geometry/0size. New entry has4701fewer q-bad,5174fewer
+J-bad and1057fewer geometry-admission failures; this is a smaller starting burden,
+not measured repair yield/acceptance. LIVE/quality_entry_comparison.json preserves
+all6rows, counters and source prefixes. Keep run frozen; assess net q/J removal
+per second with geometry counts at complete quality windows. No stop justified.
+First complete quality window census3/round20928 now723343cells/48006q/46652J/
+2700geometry/0size. Net1374q/1566J/13geometry removed in81.891419quality seconds,
+725commits. qretired18987/introduced17613, J17788/16222 reconcile to whole-field
+net; do not judge by commits or debt alone. LIVE/quality_window1_assessment.json
+preserves all6stage/service rows, timing limits and source prefixes. Baseline206
+first complete window is158.290quality seconds, not matched to this early window.
 Checkpoint293b8361bf verified on fork2026-11-06; no owned heavy handles live before edits.
 Current unvalidated change: budgeted entity direct-bound failures try the existing
 singleton-support physical union query, retain the tighter upper and independent

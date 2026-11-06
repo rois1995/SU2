@@ -1,6 +1,6 @@
 # How to proceed
 
-Updated 2026-11-01. This is a consolidation checkpoint, not a claim that the
+Updated 2026-11-06. This is a consolidation checkpoint, not a claim that the
 adaptation workflow or the new diagnostic is complete.
 
 ## Objective and current state
@@ -20,23 +20,33 @@ quality stages and two construction returns did not close the mesh. The failure
 was preserved before stopping only the verified owned launcher; all10exact handles
 are absent and1403pins unchanged. No accepted adapted mesh yet. Source checkpoint
 12a14dc955 and the same saved real CFD seed/config/50k/5400s were preserved throughout.
-The active cycle targets repair power and shape/geometry reclosure. Source review
-has identified a sufficient direct geometry bound to compare with the existing
-rigorous union query on saved202bad/clean faces. This is a bounded diagnostic,
-not an established production fallback or speedup. See HANDOFF_Codex.md and the
-[current geometry review](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md).
-Build207passed with source pins unchanged; its exact owned handles are absent.
-The focused run with the current runtime and portable MPI window backend passed:
-one actual face's direct1.23466e-4 was rigorously bounded by the existing union
-query at9.46579e-5. Four cached/fresh results matched, old52cell q/J stayed exact.
-This selects a shared failed-direct-bound refinement for implementation, retaining
-the better bound and all independent gates. Full mesh closure remains unproved.
-Preserved earlier failures cover missing historical loader paths and default
-MPI_Win_create failure. Expand the runtime snapshot with observed hwloc modules
-before production qualification; old runtime checks do not qualify this host.
-Exact handles, runtime migration and the namespace caveat are in HANDOFF_Codex.md.
+The active cycle targets repair power and shape/geometry reclosure. The saved207
+probe demonstrated a safe refusal: direct1.23466e-4 versus existing rigorous
+one-sided union9.46579e-5 on identical support. The shared correction is now
+implemented: refine failed budgeted direct bounds with that existing query,
+retaining the better bound and independent affine maximum; cheap successful
+direct paths remain unchanged. All final geometry/association/body/feature/height
+gates and fail-closed resource accounting remain independent.
 
-Latest build202 finished naturally at the unchanged native time budget. Its
+Build210 is a fresh current-host GCC13.3 build with the previous options. It passed
+actual M6 witness38938assertions/1case, geometry2666assertions/34cases and one
+MPI6milestone23cases on every rank. Runtime-v2covers all observed loaded ELF
+mappings; old175file pins remain historical. Setup failures and the include-only
+compiler fix are preserved in geometry210_qualification.json. No speedup follows
+from these checks.
+
+The full two-event build210 M6 attempt is now frozen and live, using the same saved
+real CFD seed/50k/5400s. Its first complete quality entry has721643cells,
+49380q-bad/48218J-bad/2713geometry-bad/0size-bad, compared with206entry
+727818/54081q/53392J/3770geometry/0size. All6census/cache/shape/geometry flags are
+complete. This is a smaller starting repair burden, not a measured closure rate.
+Construction upper work rose265726770→325633701; engine entry649.509→905.708s.
+Host/compiler/runtime differ, so do not attribute elapsed changes to source alone.
+Use net whole-field q/J removal and geometry counts at complete quality windows.
+Keep sources frozen until terminal or preserved evidence justifies an authorized
+stop. Exact handles, provenance and current status are in HANDOFF_Codex.md.
+
+The selected inspection build202 finished naturally at the unchanged native time budget. Its
 complete terminal census contains **810163cells,295q-bad,294J-bad,2110geometry-bad
 and zero size-bad**. All ten exact owned processes are absent;1403pins unchanged.
 No adapted mesh was accepted. Complete SU2/VTU are now saved under
