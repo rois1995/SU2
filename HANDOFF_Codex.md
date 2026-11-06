@@ -89,6 +89,14 @@ prefixes and stage-counter deltas. Early yield/rate essentially unchanged; no
 late-tail/closure or source-only speedup claim. Upper traversal66.371Mwork vs
 66.499M219; boundary smoothing118.36rank-s vs119.04, interior3.11rank-s in both.
 Timers overlap; join/collective call seconds are not pure wait or CPU time.
+Latest COMPLETE window34752 at2048.908397s(464.748680s since entry):
+886575cells/92608q/92467J/1954geometry/0size. Net cumulative q removal20.3336/s
+versus21920.6837/s at456.348695quality seconds; mixed tiny count differences
+(-11q/+5J/-3geometry) do not establish a late-tail or speed benefit.
+A225/matched_quality_comparison219.json preserves all complete matching-round
+windows with actual quality times and validates the following ownership transition:
+counts/flags unchanged; q/J debt min/max3485.69/5940.85→4332.71/5825.71.
+Window-to-committed14.90056s includes transition work; no pure partition-time claim.
 A225/owned_observations.jsonl records current exact all10handles LIVE/no stop:
 sampled summed RSS9.942GB, available RAM26.082GB(decimal), load8.34. Host contention
 exists; compare counters/stage vectors alongside elapsed time. No new implementation
