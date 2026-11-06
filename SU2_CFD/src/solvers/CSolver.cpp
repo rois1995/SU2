@@ -51,6 +51,7 @@
 #include "../../include/numerics/flow/p1_viscous_entropy.hpp"
 #include "../../include/numerics/flow/p1_ale_entropy.hpp"
 #include "../../include/numerics/flow/p1_boundary_ghost.hpp"
+#include "../../include/numerics/flow/p1_boundary_closure.hpp"
 #include <array>
 #include <map>
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
@@ -4761,240 +4762,12 @@ void CSolver::SavelibROM(CGeometry *geometry, CConfig *config, bool converged) {
 }
 
 
-namespace {
-
-/*--- BC_ENTROPY_P1: closure C of the weak boundary (P1_BOUNDARY.md, Thm B9), ideal gas, scalar code.
- * Entropy U = -rho s/(gamma-1), s = ln(p rho^-gamma), entropy variables
- * w = ((gamma-s)/(gamma-1) - beta|u|^2, 2 beta u, -2 beta), beta = rho/(2p). ---*/
-
-constexpr unsigned short ES_NVAR = 5;
-
-struct EsState {
-  su2double rho = 1.0, vel[3] = {0.0, 0.0, 0.0}, p = 1.0;
-};
-
-/*--- Logarithmic mean (a-b)/(ln a - ln b), stable form of Ismail and Roe (2009), as logMean of the vectorized
- * numerics: f = (a-b)/(a+b), u = f^2, mean = (a+b)/(2F), F = ln(a/b)/(2f) = 1 + u/3 + u^2/5 + u^3/7 + ... ---*/
-su2double EsLogMean(const su2double& a, const su2double& b) {
-  const su2double f = (a - b) / (a + b);
-  const su2double u = f * f;
-  if (u < 1e-2) return (a + b) / (2.0 * (1.0 + u * (1.0/3.0 + u * (1.0/5.0 + u * (1.0/7.0)))));
-  return (a + b) * f / log(a / b);
-}
-
-/*--- Ismail-Roe entropy conservative flux projected on "normal", the same formulas as ismailRoeProjFlux of the
- * vectorized numerics. Symmetric in the two states, equal to the physical flux for equal states. ---*/
-void EsIsmailRoeFlux(unsigned short nDim, const su2double& gamma, const EsState& L, const EsState& R,
-                     const su2double* normal, su2double* flux) {
-  const su2double zL = sqrt(L.rho / L.p), zR = sqrt(R.rho / R.p);
-  const su2double yL = zL * L.p, yR = zR * R.p;
-  const su2double zAvg = 0.5 * (zL + zR), yAvg = 0.5 * (yL + yR);
-  const su2double zLog = EsLogMean(zL, zR), yLog = EsLogMean(yL, yR);
-
-  const su2double density = zAvg * yLog;
-  su2double vel[3] = {0.0, 0.0, 0.0}, vel2 = 0.0, velN = 0.0;
-  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-    vel[iDim] = 0.5 * (zL * L.vel[iDim] + zR * R.vel[iDim]) / zAvg;
-    vel2 += vel[iDim] * vel[iDim];
-    velN += vel[iDim] * normal[iDim];
-  }
-  const su2double pressure1 = yAvg / zAvg;
-  const su2double pressure2 = ((gamma + 1.0) * yLog / zLog + (gamma - 1.0) * pressure1) / (2.0 * gamma);
-  const su2double enthalpy = gamma * pressure2 / ((gamma - 1.0) * density) + 0.5 * vel2;
-
-  const su2double mdot = density * velN;
-  flux[0] = mdot;
-  for (unsigned short iDim = 0; iDim < nDim; ++iDim) flux[iDim+1] = mdot * vel[iDim] + normal[iDim] * pressure1;
-  flux[nDim+1] = mdot * enthalpy;
-}
-
-void EsEntropyVariables(unsigned short nDim, const su2double& gamma, const EsState& S, su2double* w) {
-  const su2double beta = 0.5 * S.rho / S.p;
-  su2double vel2 = 0.0;
-  for (unsigned short iDim = 0; iDim < nDim; ++iDim) vel2 += S.vel[iDim] * S.vel[iDim];
-  const su2double entropy = log(S.p) - gamma * log(S.rho);
-  w[0] = (gamma - entropy) / (gamma - 1.0) - beta * vel2;
-  for (unsigned short iDim = 0; iDim < nDim; ++iDim) w[iDim+1] = 2.0 * beta * S.vel[iDim];
-  w[nDim+1] = -2.0 * beta;
-}
-
-/*--- Inverse map u(w). It needs only w[nDim+1] < 0, which a convex combination of entropy variables keeps, so the
- * projected state is admissible (rho, p > 0): beta = -w_E/2, u = w_mom/(2 beta), s = gamma - (gamma-1)(w_0 + beta|u|^2),
- * p rho^-gamma = e^s with p = rho/(2 beta), i.e. rho^(1-gamma) = 2 beta e^s. ---*/
-void EsStateFromEntropyVariables(unsigned short nDim, const su2double& gamma, const su2double* w, EsState& S) {
-  const su2double beta = -0.5 * w[nDim+1];
-  su2double vel2 = 0.0;
-  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-    S.vel[iDim] = 0.5 * w[iDim+1] / beta;
-    vel2 += S.vel[iDim] * S.vel[iDim];
-  }
-  const su2double entropy = gamma - (gamma - 1.0) * (w[0] + beta * vel2);
-  S.rho = exp((log(2.0 * beta) + entropy) / (1.0 - gamma));
-  S.p = 0.5 * S.rho / beta;
-}
-
-void EsConservative(unsigned short nDim, const su2double& gamma, const EsState& S, su2double* U) {
-  su2double vel2 = 0.0;
-  U[0] = S.rho;
-  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-    U[iDim+1] = S.rho * S.vel[iDim];
-    vel2 += S.vel[iDim] * S.vel[iDim];
-  }
-  U[nDim+1] = S.p / (gamma - 1.0) + 0.5 * S.rho * vel2;
-}
-
-/*--- Characteristic far-field ghost of CEulerSolver::BC_Far_Field_Residual (Riemann invariants, no grid motion),
- * built from the state S at a face point instead of the nodal state (P1BoundaryGhost::FarField). ---*/
-void EsFarFieldGhost(unsigned short nDim, const su2double& gamma, const EsState& S, const EsState& Inf,
-                     const su2double* unitNormal, EsState& G) {
-  P1BoundaryGhost::FarFieldState ghost;
-  P1BoundaryGhost::FarField(nDim, gamma, S.rho, S.vel, S.p, Inf.rho, Inf.vel, Inf.p, unitNormal, nullptr, ghost);
-  G.rho = ghost.Density;
-  G.p = ghost.Pressure;
-  for (unsigned short iDim = 0; iDim < nDim; ++iDim) G.vel[iDim] = ghost.Velocity[iDim];
-}
-
-/*--- BC_ENTROPY_P1 (P1_NOSLIP.md, 11): the marker of a boundary face and its data at the face nodes, in the order of
- * the face states of EsFaceResidual. Far field, inlet and outlet get the ghost of the weak boundary residuals of
- * CEulerSolver at every face point, from the projected state u~_q and the data interpolated to the point; walls and
- * symmetry planes the pressure flux. ---*/
-struct EsBoundaryData {
-  unsigned short kind = EULER_WALL;   /*!< \brief KindBC of the marker. */
-  string tag;                         /*!< \brief Marker tag, for the messages. */
-  EsState inf;                        /*!< \brief Free stream (far field). */
-  bool massFlow = false;              /*!< \brief Inlet: mass flow, otherwise total conditions. */
-  bool useNormal = false;             /*!< \brief Inlet: flow along the negative face normal. */
-  su2double gasConst = 1.0, refT = 1.0, refP = 1.0;   /*!< \brief Inlet: gas constant, references of the data. */
-  su2double dataT[3] = {0.0, 0.0, 0.0};               /*!< \brief Inlet: Inlet_Ttotal of the face nodes. */
-  su2double dataP[3] = {0.0, 0.0, 0.0};               /*!< \brief Inlet: Inlet_Ptotal of the face nodes. */
-  su2double flowDir[3][3] = {{0.0}};                  /*!< \brief Inlet: flow direction of the face nodes. */
-  su2double pExit[3] = {0.0, 0.0, 0.0};               /*!< \brief Outlet: non-dimensional back pressure of the face nodes. */
-};
-
-/*--- Ghost g_q at a face point with phi_k(x_q) = phiq[k]. False for walls and symmetry planes (pressure flux). The
- * ghost must be admissible (Lemma B7 needs rho, p > 0), otherwise the run stops. ---*/
-bool EsBoundaryGhost(unsigned short nDim, unsigned short nNodes, const su2double& gamma, const EsBoundaryData& data,
-                     const su2double* phiq, const EsState& sq, const su2double* unitNormal, EsState& gq) {
-  switch (data.kind) {
-    case FAR_FIELD:
-      EsFarFieldGhost(nDim, gamma, sq, data.inf, unitNormal, gq);
-      break;
-    case INLET_FLOW: {
-      su2double dataT = 0.0, dataP = 0.0, flowDir[3] = {0.0, 0.0, 0.0}, vel2 = 0.0;
-      for (unsigned short k = 0; k < nNodes; ++k) {
-        dataT += phiq[k] * data.dataT[k];
-        dataP += phiq[k] * data.dataP[k];
-        for (unsigned short iDim = 0; iDim < nDim; ++iDim) flowDir[iDim] += phiq[k] * data.flowDir[k][iDim];
-      }
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) vel2 += sq.vel[iDim] * sq.vel[iDim];
-      const su2double enthalpy = gamma * sq.p / ((gamma - 1.0) * sq.rho) + 0.5 * vel2;
-      P1BoundaryGhost::InletState ghost;
-      P1BoundaryGhost::Inlet(nDim, data.massFlow, gamma, data.gasConst, sq.rho, sq.vel, sq.p, enthalpy, dataT, dataP,
-                             flowDir, data.useNormal, unitNormal, data.refT, data.refP, ghost);
-      gq.rho = ghost.Density;
-      gq.p = ghost.Pressure;
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) gq.vel[iDim] = ghost.Velocity[iDim];
-      break;
-    }
-    case OUTLET_FLOW: {
-      su2double pExit = 0.0;
-      for (unsigned short k = 0; k < nNodes; ++k) pExit += phiq[k] * data.pExit[k];
-      P1BoundaryGhost::OutletState ghost;
-      P1BoundaryGhost::Outlet(nDim, gamma, sq.rho, sq.vel, sq.p, pExit, unitNormal, ghost);
-      gq.rho = ghost.Density;
-      gq.p = ghost.Pressure;
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) gq.vel[iDim] = ghost.Velocity[iDim];
-      break;
-    }
-    default:
-      return false;
-  }
-  if (!P1BoundaryGhost::Admissible(gq.rho, gq.p)) {
-    SU2_MPI::Error("BC_ENTROPY_P1: inadmissible ghost state (rho or p not positive) on marker " + data.tag + ".",
-                   CURRENT_FUNCTION);
-  }
-  return true;
-}
-
-/*--- Closure C on one boundary simplex face (segment: 2 nodes, triangle: 3 nodes) with the outward area vector
- * faceNormal = A_f nu_f. Points x_q, weights a_q A_f: 2-point Gauss on segments (a_q = 1/2), barycentric
- * (2/3,1/6,1/6) on triangles (a_q = 1/3), both exact to degree 2. With N_q = a_q A_f nu_f,
- * w~_q = sum_k phi_k(x_q) w_k, u~_q = u(w~_q) and G_qk = F_IR(u~_q, u_k; N_q):
- *   b_i = sum_q phi_i(x_q) [ G_qi - sum_k phi_k(x_q) G_qk + F*_q ],
- * F*_q = (0, p~_q N_q, 0) at walls and symmetry planes (entropy conservative, also for data = nullptr), and at the
- * far field, inlets and outlets (EsBoundaryGhost)
- * F*_q = F_IR(u~_q, g_q; N_q) - lam/2 |N_q| (U(g_q) - U(u~_q)), lam = max(|u.nu| + c) over u~_q and the ghost g_q,
- * Tadmor entropy stable for any admissible ghost (Lemma B7). ---*/
-void EsFaceResidual(unsigned short nDim, unsigned short nNodes, const su2double& gamma, const EsBoundaryData* data,
-                    const su2double* faceNormal, const EsState* nodeState, su2double (*res)[ES_NVAR]) {
-  const unsigned short nVar = nDim + 2;
-
-  su2double phi[3][3] = {{0.0}}, weight = 0.0;
-  if (nNodes == 2) {
-    const su2double g = 0.5 / sqrt(3.0);
-    phi[0][0] = 0.5 + g; phi[0][1] = 0.5 - g;
-    phi[1][0] = 0.5 - g; phi[1][1] = 0.5 + g;
-    weight = 0.5;
-  } else {
-    for (unsigned short q = 0; q < 3; ++q)
-      for (unsigned short k = 0; k < 3; ++k) phi[q][k] = (q == k) ? 2.0 / 3.0 : 1.0 / 6.0;
-    weight = 1.0 / 3.0;
-  }
-
-  const su2double area = GeometryToolbox::Norm(nDim, faceNormal);
-  su2double unitNormal[3] = {0.0, 0.0, 0.0}, pointNormal[3] = {0.0, 0.0, 0.0};
-  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-    unitNormal[iDim] = faceNormal[iDim] / area;
-    pointNormal[iDim] = weight * faceNormal[iDim];
-  }
-
-  su2double w[3][ES_NVAR] = {{0.0}};
-  for (unsigned short k = 0; k < nNodes; ++k) EsEntropyVariables(nDim, gamma, nodeState[k], w[k]);
-
-  for (unsigned short i = 0; i < nNodes; ++i)
-    for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[i][iVar] = 0.0;
-
-  for (unsigned short q = 0; q < nNodes; ++q) {
-    su2double wq[ES_NVAR] = {0.0};
-    for (unsigned short k = 0; k < nNodes; ++k)
-      for (unsigned short iVar = 0; iVar < nVar; ++iVar) wq[iVar] += phi[q][k] * w[k][iVar];
-    EsState sq;
-    EsStateFromEntropyVariables(nDim, gamma, wq, sq);
-
-    /*--- G_qk once per node: F_IR is symmetric, so it serves both F_ec(u_i, u~_q) and F_ec(u~_q, u_k). ---*/
-    su2double G[3][ES_NVAR] = {{0.0}}, Gbar[ES_NVAR] = {0.0};
-    for (unsigned short k = 0; k < nNodes; ++k) {
-      EsIsmailRoeFlux(nDim, gamma, sq, nodeState[k], pointNormal, G[k]);
-      for (unsigned short iVar = 0; iVar < nVar; ++iVar) Gbar[iVar] += phi[q][k] * G[k][iVar];
-    }
-
-    su2double Fstar[ES_NVAR] = {0.0};
-    EsState gq;
-    const bool ghost = (data != nullptr) && EsBoundaryGhost(nDim, nNodes, gamma, *data, phi[q], sq, unitNormal, gq);
-    if (!ghost) {
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) Fstar[iDim+1] = sq.p * pointNormal[iDim];
-    } else {
-      EsIsmailRoeFlux(nDim, gamma, sq, gq, pointNormal, Fstar);
-      su2double velNq = 0.0, velNg = 0.0;
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-        velNq += sq.vel[iDim] * unitNormal[iDim];
-        velNg += gq.vel[iDim] * unitNormal[iDim];
-      }
-      const su2double lamQ = fabs(velNq) + sqrt(gamma * sq.p / sq.rho);
-      const su2double lamG = fabs(velNg) + sqrt(gamma * gq.p / gq.rho);
-      const su2double lam = fmax(lamQ, lamG);
-      su2double Uq[ES_NVAR] = {0.0}, Ug[ES_NVAR] = {0.0};
-      EsConservative(nDim, gamma, sq, Uq);
-      EsConservative(nDim, gamma, gq, Ug);
-      for (unsigned short iVar = 0; iVar < nVar; ++iVar) Fstar[iVar] -= 0.5 * lam * weight * area * (Ug[iVar] - Uq[iVar]);
-    }
-
-    for (unsigned short i = 0; i < nNodes; ++i)
-      for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[i][iVar] += phi[q][i] * (G[i][iVar] - Gbar[iVar] + Fstar[iVar]);
-  }
-}
-
-}  // namespace
+/*--- BC_ENTROPY_P1: closure C of the weak boundary and its exact Jacobian (p1_boundary_closure.hpp). ---*/
+using P1BoundaryClosure::ES_NVAR;
+using P1BoundaryClosure::EsState;
+using P1BoundaryClosure::EsBoundaryData;
+using P1BoundaryClosure::EsFaceResidual;
+using P1BoundaryClosure::EsFaceJacobian;
 
 void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
                                    CNumerics **numerics_container, CConfig *config, unsigned short iMesh) {
@@ -5177,8 +4950,11 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
         su2double subNormal[4][3];
         P1Mixed::QuadSubNormals(faceCoord, savedNormal, subNormal);
 
-        /*--- (6,1,1)/24 of the triangle path, also the weights of the approximate Jacobian of closure C. ---*/
+        /*--- (6,1,1)/24 of the triangle path, also the weights of the approximate Jacobian of closure C at walls and
+         * symmetry planes; far field, inlets and outlets get the exact one of each sub-triangle (EsFaceJacobian). ---*/
         const su2double omegaSelf = 0.25, omegaOther = 1.0 / 24.0;
+        const bool exactJac = bcEntropyP1 && implicit &&
+                              ((KindBC == FAR_FIELD) || (KindBC == INLET_FLOW) || (KindBC == OUTLET_FLOW));
 
         for (unsigned short tri = 0; tri < 4; ++tri) {
           const auto* local = P1Mixed::QuadTriangles[tri];
@@ -5190,6 +4966,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
           for (unsigned short iDim = 0; iDim < 3; ++iDim) faceNormal[iDim] = savedNormal[iDim];
 
           su2double triRes[3][MAXNVAR] = {{0.0}};
+          su2double triJac[3][3][ES_NVAR][ES_NVAR];
           if (bcEntropyP1) {
             EsState faceStates[3];
             unsigned long facePoints[3] = {0, 0, 0};
@@ -5205,6 +4982,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
             EsFaceResidual(nDim, 3, config->GetGamma(), &esData, subNormal[tri], faceStates, faceRes);
             for (unsigned short a = 0; a < 3; ++a)
               for (iVar = 0; iVar < nVar; ++iVar) triRes[a][iVar] = faceRes[a][iVar];
+            if (exactJac) EsFaceJacobian(nDim, 3, config->GetGamma(), &esData, subNormal[tri], faceStates, triJac);
           } else {
             for (unsigned short a = 0; a < 3; ++a)
               for (unsigned short b = 0; b < 3; ++b)
@@ -5220,8 +4998,12 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
             for (unsigned short b = 0; b < 3; ++b) {
               const auto pointB = element->GetNode(local[b]);
               const su2double omega = (b == a) ? omegaSelf : omegaOther;
-              for (iVar = 0; iVar < nVar; ++iVar)
-                for (jVar = 0; jVar < nVar; ++jVar) jac[iVar][jVar] = omega * buffer[b][MAXNVAR + iVar * nVar + jVar];
+              for (iVar = 0; iVar < nVar; ++iVar) {
+                for (jVar = 0; jVar < nVar; ++jVar) {
+                  if (exactJac) jac[iVar][jVar] = triJac[a][b][iVar][jVar];
+                  else jac[iVar][jVar] = omega * buffer[b][MAXNVAR + iVar * nVar + jVar];
+                }
+              }
               if (b == a) Jacobian.AddBlock2Diag(pointA, jac);
               else if (geometry->nodes->GetDomain(pointB)) Jacobian.AddBlock(pointA, pointB, jac);
             }
@@ -5240,11 +5022,14 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
       }
 
       /*--- BC_ENTROPY_P1: residual of closure C from the nodal primitives (halo nodes included, as above), added to
-       * the owned nodes only. The Jacobian is the approximate one of the 5:1 / 6:1:1 closure of the nodal boundary
-       * fluxes in "buffer" (pressure flux at walls, ghost fluxes at the far field, inlets, outlets), the linearization
-       * of closure C in its linear analog (Thm B9 iv). Same sparsity as the path below. ---*/
+       * the owned nodes only. Far field, inlets and outlets on static meshes: the exact Jacobian of the face residual
+       * (EsFaceJacobian, P1_BOUNDARY.md, 11). Walls, symmetry planes and closure C-ALE: the approximate one of the
+       * 5:1 / 6:1:1 closure of the nodal boundary fluxes in "buffer" (pressure flux at walls, ghost fluxes at the far
+       * field), the linearization of closure C in its linear analog (Thm B9 iv). Same sparsity as the path below. ---*/
       if (bcEntropyP1) {
         su2double faceRes[3][ES_NVAR] = {{0.0}};
+        su2double faceJac[3][3][ES_NVAR][ES_NVAR];
+        bool exactJac = false;
         if (gridEntropyP1) {
           /*--- GRID_ENTROPY_P1: closure C-ALE (p1_ale_entropy.hpp) with the grid velocities of the face nodes and the
            * point grid flux kappa_f of the nodal swept remainder; SweptBoundaryResidual leaves this face out. ---*/
@@ -5276,6 +5061,10 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
           }
           setFaceData(iMarker, nNodes, facePoints);
           EsFaceResidual(nDim, nNodes, config->GetGamma(), &esData, element->getNormal(), faceStates, faceRes);
+          exactJac = implicit && ((KindBC == FAR_FIELD) || (KindBC == INLET_FLOW) || (KindBC == OUTLET_FLOW));
+          if (exactJac) {
+            EsFaceJacobian(nDim, nNodes, config->GetGamma(), &esData, element->getNormal(), faceStates, faceJac);
+          }
         }
 
         su2double omegaSelf = wSelf, omegaOther = wOther;
@@ -5293,8 +5082,12 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
           for (unsigned short b = 0; b < nNodes; ++b) {
             const auto pointB = element->GetNode(b);
             const su2double omega = (b == a) ? omegaSelf : omegaOther;
-            for (iVar = 0; iVar < nVar; ++iVar)
-              for (jVar = 0; jVar < nVar; ++jVar) jac[iVar][jVar] = omega * buffer[b][MAXNVAR + iVar * nVar + jVar];
+            for (iVar = 0; iVar < nVar; ++iVar) {
+              for (jVar = 0; jVar < nVar; ++jVar) {
+                if (exactJac) jac[iVar][jVar] = faceJac[a][b][iVar][jVar];
+                else jac[iVar][jVar] = omega * buffer[b][MAXNVAR + iVar * nVar + jVar];
+              }
+            }
             if (b == a) Jacobian.AddBlock2Diag(pointA, jac);
             else if (geometry->nodes->GetDomain(pointB)) Jacobian.AddBlock(pointA, pointB, jac);
           }

@@ -48,6 +48,7 @@
 #include "../../SU2_CFD/include/numerics/flow/p1_ale_entropy.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_positive_update.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_boundary_ghost.hpp"
+#include "../../SU2_CFD/include/numerics/flow/p1_boundary_closure.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/variables.hpp"
 #include "tecno_adjoint_checks.hpp"
@@ -5062,4 +5063,266 @@ TEST_CASE("VISC_P1_JACOBIAN: split averages of prisms and hexahedra and the drop
     ReportMissing(cellName + " split average, assembled Picard", picardNorms, names);
     ReportMissing(cellName + " split average, assembled FULL (non-edge blocks dropped)", fullNorms, names);
   }
+}
+
+/*--- BC_ENTROPY_P1 Jacobian (P1_BOUNDARY.md, 11): EsFaceJacobian of closure C against central differences of
+ * EsFaceResidual in the conservative variables of the face nodes, segments (2D) and triangles (3D). ---*/
+
+namespace {
+
+namespace pbc = P1BoundaryClosure;
+
+/*--- Random admissible state with rho, p in exp(+-2 spread) and |u_i| <= vmax. ---*/
+pbc::EsState JacRandomState(std::mt19937& gen, int nDim, double spread, double vmax) {
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  pbc::EsState S;
+  S.rho = exp(2.0 * spread * u(gen));
+  S.p = exp(2.0 * spread * u(gen));
+  for (int i = 0; i < 3; ++i) S.vel[i] = (i < nDim) ? vmax * u(gen) : 0.0;
+  return S;
+}
+
+/*--- Face node state near S: relative changes of rho and p, absolute of u, all of size eps. ---*/
+pbc::EsState JacPerturb(std::mt19937& gen, int nDim, const pbc::EsState& S, double eps) {
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  pbc::EsState P = S;
+  P.rho = S.rho * exp(eps * u(gen));
+  P.p = S.p * exp(eps * u(gen));
+  for (int i = 0; i < nDim; ++i) P.vel[i] = S.vel[i] + eps * u(gen);
+  return P;
+}
+
+pbc::EsState JacStateOf(int nDim, const su2double* U) {
+  pbc::EsState S;
+  su2double vel2 = 0.0;
+  S.rho = U[0];
+  for (int i = 0; i < nDim; ++i) {
+    S.vel[i] = U[i + 1] / U[0];
+    vel2 += S.vel[i] * S.vel[i];
+  }
+  S.p = (kGamma - 1.0) * (U[nDim + 1] - 0.5 * U[0] * vel2);
+  return S;
+}
+
+/*--- Random unit normal n, tangent t (t.n = 0) and face area vector N = A n. ---*/
+void JacRandomNormal(std::mt19937& gen, int nDim, su2double* n, su2double* t, su2double* N) {
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  RandomUnitNormal(gen, nDim, n);
+  su2double r[3] = {u(gen), u(gen), u(gen)}, rn = 0.0, norm = 0.0;
+  if (nDim == 2) r[2] = 0.0;
+  for (int i = 0; i < nDim; ++i) rn += r[i] * n[i];
+  for (int i = 0; i < 3; ++i) {
+    t[i] = (i < nDim) ? r[i] - rn * n[i] : 0.0;
+    norm += t[i] * t[i];
+  }
+  norm = sqrt(norm);
+  for (int i = 0; i < nDim; ++i) t[i] /= norm;
+  const su2double area = exp(u(gen));
+  for (int i = 0; i < 3; ++i) N[i] = (i < nDim) ? area * n[i] : 0.0;
+}
+
+/*--- State with density, pressure from JacRandomState and velocity (Mn n + Mt t) c. ---*/
+pbc::EsState JacStateWithMach(std::mt19937& gen, int nDim, const su2double* n, const su2double* t, double Mn,
+                              double Mt) {
+  pbc::EsState S = JacRandomState(gen, nDim, 0.5, 0.0);
+  const su2double c = sqrt(kGamma * S.p / S.rho);
+  for (int i = 0; i < nDim; ++i) S.vel[i] = (Mn * n[i] + Mt * t[i]) * c;
+  return S;
+}
+
+/*--- max |J - J_fd| / max |J_fd| over all blocks of one face (nNodes = nDim). ---*/
+su2double FaceJacobianError(int nDim, const pbc::EsBoundaryData* data, const su2double* N, const pbc::EsState* states) {
+  const int nNodes = nDim, nVar = nDim + 2;
+  su2double jac[3][3][pbc::ES_NVAR][pbc::ES_NVAR];
+  pbc::EsFaceJacobian(nDim, nNodes, kGamma, data, N, states, jac);
+  su2double err = 0.0, ref = 0.0;
+  for (int j = 0; j < nNodes; ++j) {
+    su2double U[pbc::ES_NVAR] = {0.0};
+    pbc::EsConservative(nDim, kGamma, states[j], U);
+    for (int c = 0; c < nVar; ++c) {
+      const su2double h = 1e-6 * std::max(su2double(1.0), su2double(fabs(U[c])));
+      su2double Up[pbc::ES_NVAR], Um[pbc::ES_NVAR];
+      for (int v = 0; v < nVar; ++v) Up[v] = Um[v] = U[v];
+      Up[c] += h;
+      Um[c] -= h;
+      pbc::EsState sp[3], sm[3];
+      for (int k = 0; k < nNodes; ++k) sp[k] = sm[k] = states[k];
+      sp[j] = JacStateOf(nDim, Up);
+      sm[j] = JacStateOf(nDim, Um);
+      su2double rp[3][pbc::ES_NVAR] = {{0.0}}, rm[3][pbc::ES_NVAR] = {{0.0}};
+      pbc::EsFaceResidual(nDim, nNodes, kGamma, data, N, sp, rp);
+      pbc::EsFaceResidual(nDim, nNodes, kGamma, data, N, sm, rm);
+      for (int i = 0; i < nNodes; ++i) {
+        for (int a = 0; a < nVar; ++a) {
+          const su2double fd = (rp[i][a] - rm[i][a]) / (2.0 * h);
+          err = std::max(err, su2double(fabs(fd - jac[i][j][a][c])));
+          ref = std::max(ref, su2double(fabs(fd)));
+        }
+      }
+    }
+  }
+  return err / ref;
+}
+
+/*--- Scalar EsIsmailRoeJacobian against ismailRoeProjJac of EDGE_FORM_EC_EXACT_JACOBIAN. ---*/
+template <size_t nDim>
+su2double IsmailRoeScalarVersusVectorized(std::mt19937& gen) {
+  constexpr size_t nVar = nDim + 2;
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const pbc::EsState L = JacRandomState(gen, nDim, 0.5, 0.8), R = JacRandomState(gen, nDim, 0.5, 0.8);
+  su2double n[3] = {0.0, 0.0, 0.0};
+  VectorDbl<nDim> normal;
+  for (size_t d = 0; d < nDim; ++d) {
+    n[d] = u(gen);
+    normal(d) = n[d];
+  }
+  su2double jL[pbc::ES_NVAR][pbc::ES_NVAR], jR[pbc::ES_NVAR][pbc::ES_NVAR];
+  pbc::EsIsmailRoeJacobian(nDim, kGamma, L, R, n, jL, jR);
+  const auto VL = TeCNOAdjointChecks::Primitives<nDim>(L.rho, L.vel, L.p);
+  const auto VR = TeCNOAdjointChecks::Primitives<nDim>(R.rho, R.vel, R.p);
+  MatrixDbl<nVar> jac_i, jac_k;
+  ismailRoeProjJac(Double(TeCNOAdjointChecks::GAMMA), VL, VR, normal, jac_i, jac_k);
+  su2double err = 0.0, ref = 0.0;
+  for (size_t a = 0; a < nVar; ++a) {
+    for (size_t b = 0; b < nVar; ++b) {
+      err = std::max(err, su2double(fabs(jL[a][b] - jac_i(a, b)[0])));
+      err = std::max(err, su2double(fabs(jR[a][b] - jac_k(a, b)[0])));
+      ref = std::max(ref, su2double(fabs(jac_i(a, b)[0])));
+      ref = std::max(ref, su2double(fabs(jac_k(a, b)[0])));
+    }
+  }
+  return err / ref;
+}
+
+}  // namespace
+
+TEST_CASE("BC_ENTROPY_P1 Jacobian: far field faces in the four characteristic regimes against finite differences", "[P1Flux]") {
+  /*--- Free stream normal Mach number -1.6 (supersonic inflow), -0.5 (subsonic inflow), 0.5 (subsonic outflow), 1.6
+   * (supersonic outflow), each with a tangential component; face states near a random interior state. ---*/
+  std::mt19937 gen(9101);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const double regimes[4] = {-1.6, -0.5, 0.5, 1.6};
+  for (int nDim : {2, 3}) {
+    for (int regime = 0; regime < 4; ++regime) {
+      su2double worst = 0.0;
+      for (int trial = 0; trial < 40; ++trial) {
+        su2double n[3], t[3], N[3];
+        JacRandomNormal(gen, nDim, n, t, N);
+        pbc::EsBoundaryData data;
+        data.kind = FAR_FIELD;
+        data.tag = "farfield";
+        data.inf = JacStateWithMach(gen, nDim, n, t, regimes[regime] + 0.1 * u(gen), 0.5 * u(gen));
+        const pbc::EsState base = JacRandomState(gen, nDim, 0.5, 0.8);
+        const double eps = (trial % 2) ? 0.2 : 0.02;
+        pbc::EsState states[3];
+        for (int k = 0; k < nDim; ++k) states[k] = JacPerturb(gen, nDim, base, eps);
+        worst = std::max(worst, FaceJacobianError(nDim, &data, N, states));
+      }
+      INFO("nDim " << nDim << " regime " << regimes[regime] << " worst relative error " << worst);
+      CHECK(worst < 1e-6);
+    }
+  }
+}
+
+TEST_CASE("BC_ENTROPY_P1 Jacobian: inlet faces with total conditions and mass flow against finite differences", "[P1Flux]") {
+  /*--- Subsonic inflow interior states (u.n about -0.4 c), nodal marker data as for the inlet ghost test: total
+   * conditions above the static state, or density and velocity magnitude; flow direction or the face normal. ---*/
+  std::mt19937 gen(9202);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    for (int variant = 0; variant < 4; ++variant) {
+      su2double worst = 0.0;
+      for (int trial = 0; trial < 40; ++trial) {
+        su2double n[3], t[3], N[3];
+        JacRandomNormal(gen, nDim, n, t, N);
+        const pbc::EsState base = JacStateWithMach(gen, nDim, n, t, -0.4 + 0.2 * u(gen), 0.3 * u(gen));
+        const double eps = (trial % 2) ? 0.2 : 0.02;
+        pbc::EsState states[3];
+        for (int k = 0; k < nDim; ++k) states[k] = JacPerturb(gen, nDim, base, eps);
+
+        pbc::EsBoundaryData data;
+        data.kind = INLET_FLOW;
+        data.tag = "inlet";
+        data.massFlow = (variant % 2 == 1);
+        data.useNormal = (variant >= 2);
+        data.gasConst = kGas;
+        data.refT = exp(0.3 * u(gen));
+        data.refP = exp(0.3 * u(gen));
+        const su2double T = base.p / (kGas * base.rho), c = sqrt(kGamma * base.p / base.rho);
+        for (int k = 0; k < nDim; ++k) {
+          su2double dn = 0.0;
+          for (int i = 0; i < nDim; ++i) {
+            data.flowDir[k][i] = u(gen) - 1.5 * n[i];
+            dn += data.flowDir[k][i] * n[i];
+          }
+          if (dn > -0.1) for (int i = 0; i < nDim; ++i) data.flowDir[k][i] -= (dn + 0.5) * n[i];
+          if (!data.massFlow) {
+            data.dataT[k] = data.refT * T * (1.0 + 0.3 * (1.0 + u(gen)));
+            data.dataP[k] = data.refP * base.p * exp(0.5 + 0.3 * u(gen));
+          } else {
+            data.dataT[k] = data.refT * base.rho * exp(0.3 * u(gen));
+            data.dataP[k] = data.refP * c * 0.3 * (1.0 + u(gen));
+          }
+        }
+        worst = std::max(worst, FaceJacobianError(nDim, &data, N, states));
+      }
+      INFO("nDim " << nDim << " mass flow " << (variant % 2) << " normal " << (variant >= 2) << " worst " << worst);
+      CHECK(worst < 1e-6);
+    }
+  }
+}
+
+TEST_CASE("BC_ENTROPY_P1 Jacobian: outlet faces with subsonic and supersonic exits and backflow against finite differences", "[P1Flux]") {
+  /*--- Interior normal Mach number 0.5 (subsonic exit), 2.2 (supersonic, ghost = state), -0.3 (subsonic backflow);
+   * back pressure per face node. ---*/
+  std::mt19937 gen(9303);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const double regimes[3] = {0.5, 2.2, -0.3};
+  for (int nDim : {2, 3}) {
+    for (int regime = 0; regime < 3; ++regime) {
+      su2double worst = 0.0;
+      for (int trial = 0; trial < 40; ++trial) {
+        su2double n[3], t[3], N[3];
+        JacRandomNormal(gen, nDim, n, t, N);
+        const pbc::EsState base = JacStateWithMach(gen, nDim, n, t, regimes[regime] + 0.1 * u(gen), 0.3 * u(gen));
+        const double eps = (trial % 2) ? 0.1 : 0.02;
+        pbc::EsState states[3];
+        for (int k = 0; k < nDim; ++k) states[k] = JacPerturb(gen, nDim, base, eps * sqrt(kGamma * base.p / base.rho));
+        pbc::EsBoundaryData data;
+        data.kind = OUTLET_FLOW;
+        data.tag = "outlet";
+        for (int k = 0; k < nDim; ++k) data.pExit[k] = base.p * exp(0.3 * u(gen));
+        worst = std::max(worst, FaceJacobianError(nDim, &data, N, states));
+      }
+      INFO("nDim " << nDim << " regime " << regimes[regime] << " worst " << worst);
+      CHECK(worst < 1e-6);
+    }
+  }
+}
+
+TEST_CASE("BC_ENTROPY_P1 Jacobian: pressure flux faces and the scalar Ismail-Roe Jacobian", "[P1Flux]") {
+  /*--- The wall branch of EsFaceJacobian (not used by the solver, which keeps the approximate wall Jacobian) and the
+   * port of ismailRoeProjJac, which must equal the vectorized one to round-off. ---*/
+  std::mt19937 gen(9404);
+  su2double worstWall = 0.0, worstPort = 0.0;
+  for (int nDim : {2, 3}) {
+    for (int trial = 0; trial < 40; ++trial) {
+      su2double n[3], t[3], N[3];
+      JacRandomNormal(gen, nDim, n, t, N);
+      const pbc::EsState base = JacRandomState(gen, nDim, 0.5, 0.8);
+      pbc::EsState states[3];
+      for (int k = 0; k < nDim; ++k) states[k] = JacPerturb(gen, nDim, base, (trial % 2) ? 0.2 : 0.02);
+      pbc::EsBoundaryData data;
+      data.kind = EULER_WALL;
+      worstWall = std::max(worstWall, FaceJacobianError(nDim, &data, N, states));
+      worstWall = std::max(worstWall, FaceJacobianError(nDim, nullptr, N, states));
+    }
+  }
+  for (int trial = 0; trial < 100; ++trial) {
+    worstPort = std::max(worstPort, IsmailRoeScalarVersusVectorized<2>(gen));
+    worstPort = std::max(worstPort, IsmailRoeScalarVersusVectorized<3>(gen));
+  }
+  INFO("wall " << worstWall << " port " << worstPort);
+  CHECK(worstWall < 1e-6);
+  CHECK(worstPort < 1e-12);
 }

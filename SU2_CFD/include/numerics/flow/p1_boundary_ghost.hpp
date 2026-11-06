@@ -261,4 +261,230 @@ inline void Outlet(unsigned short nDim, const su2double& gamma, const su2double&
   }
 }
 
+/*--- Exact Jacobians of the ghosts above for closure C of BC_ENTROPY_P1 (P1_BOUNDARY.md, 11): dG[a][b] = dP_g[a]/dP_B[b]
+ * in the primitive variables P = (rho, u_1..u_nDim, p) of the ghost (rows) and of the boundary state (columns). The
+ * branches are those of the builders, evaluated with the same expressions; the marker data are constants. Static grid
+ * only (gridVel = nullptr), as closure C uses them. ---*/
+
+constexpr unsigned short JAC_NVAR = 5;
+
+inline void ZeroJacobian(unsigned short nVar, su2double (*dG)[JAC_NVAR]) {
+  for (unsigned short a = 0; a < nVar; a++)
+    for (unsigned short b = 0; b < nVar; b++) dG[a][b] = 0.0;
+}
+
+/*!
+ * \brief Jacobian of FarField without grid motion. The switches depend on the free stream only (Qn_Infty = u_inf.n),
+ *        so the ghost is smooth in the boundary state: dR+ = dVn_B + 2 dc_B/(gamma-1) where it comes from the boundary
+ *        (0 otherwise), likewise dR-, dVn = (dR+ + dR-)/2, dc = (gamma-1)(dR+ - dR-)/4,
+ *        d rho = rho/(gamma-1) (dS/S + 2 dc/c), dp = p (d rho/rho + 2 dc/c), dS = dS_B at outflow, 0 at inflow.
+ */
+inline void FarFieldJacobian(unsigned short nDim, const su2double& gamma, const su2double& densityB,
+                             const su2double* velB, const su2double& pressureB, const su2double& densityInf,
+                             const su2double* velInf, const su2double& pressureInf, const su2double* unitNormal,
+                             su2double (*dG)[JAC_NVAR]) {
+  const unsigned short nVar = nDim + 2;
+  const su2double gm1 = gamma - 1.0;
+  ZeroJacobian(nVar, dG);
+
+  su2double Vn_Bound = 0.0, Vn_Infty = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+    Vn_Bound += velB[iDim] * unitNormal[iDim];
+    Vn_Infty += velInf[iDim] * unitNormal[iDim];
+  }
+  const su2double SoundSpeed_Bound = sqrt(gamma * pressureB / densityB);
+  const su2double Entropy_Bound = pow(densityB, gamma) / pressureB;
+  const su2double SoundSpeed_Infty = sqrt(gamma * pressureInf / densityInf);
+  const su2double Entropy_Infty = pow(densityInf, gamma) / pressureInf;
+  const su2double Qn_Infty = Vn_Infty;
+
+  su2double dVnB[JAC_NVAR] = {0.0}, dcB[JAC_NVAR] = {0.0}, dSB[JAC_NVAR] = {0.0};
+  for (unsigned short iDim = 0; iDim < nDim; iDim++) dVnB[iDim+1] = unitNormal[iDim];
+  dcB[0] = -0.5 * SoundSpeed_Bound / densityB;
+  dcB[nDim+1] = 0.5 * SoundSpeed_Bound / pressureB;
+  dSB[0] = gamma * Entropy_Bound / densityB;
+  dSB[nDim+1] = -Entropy_Bound / pressureB;
+
+  su2double RiemannPlus, RiemannMinus, dRp[JAC_NVAR] = {0.0}, dRm[JAC_NVAR] = {0.0};
+  if (Qn_Infty > -SoundSpeed_Infty) {
+    RiemannPlus = Vn_Bound + 2.0 * SoundSpeed_Bound / gm1;
+    for (unsigned short b = 0; b < nVar; b++) dRp[b] = dVnB[b] + 2.0 * dcB[b] / gm1;
+  } else {
+    RiemannPlus = Vn_Infty + 2.0 * SoundSpeed_Infty / gm1;
+  }
+  if (Qn_Infty > SoundSpeed_Infty) {
+    RiemannMinus = Vn_Bound - 2.0 * SoundSpeed_Bound / gm1;
+    for (unsigned short b = 0; b < nVar; b++) dRm[b] = dVnB[b] - 2.0 * dcB[b] / gm1;
+  } else {
+    RiemannMinus = Vn_Infty - 2.0 * SoundSpeed_Infty / gm1;
+  }
+  const su2double SoundSpeed = 0.25 * (RiemannPlus - RiemannMinus) * gm1;
+
+  const bool outflow = (Qn_Infty > 0.0);
+  su2double Entropy = Entropy_Infty;
+  if (outflow) Entropy = Entropy_Bound;
+  const su2double Density = pow(Entropy * SoundSpeed * SoundSpeed / gamma, 1.0 / gm1);
+  const su2double Pressure = Density * SoundSpeed * SoundSpeed / gamma;
+
+  for (unsigned short b = 0; b < nVar; b++) {
+    const su2double dVn = 0.5 * (dRp[b] + dRm[b]);
+    const su2double dc = 0.25 * gm1 * (dRp[b] - dRm[b]);
+    su2double dLogS = 0.0;
+    if (outflow) dLogS = dSB[b] / Entropy;
+    dG[0][b] = Density / gm1 * (dLogS + 2.0 * dc / SoundSpeed);
+    dG[nDim+1][b] = Pressure * (dG[0][b] / Density + 2.0 * dc / SoundSpeed);
+    for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+      if (outflow) dG[iDim+1][b] = (dVn - dVnB[b]) * unitNormal[iDim];
+      else dG[iDim+1][b] = dVn * unitNormal[iDim];
+    }
+  }
+  if (outflow) {
+    for (unsigned short iDim = 0; iDim < nDim; iDim++) dG[iDim+1][iDim+1] += 1.0;
+  }
+}
+
+/*!
+ * \brief Jacobian of Inlet. Total conditions: with h the enthalpy of the boundary state (as closure C passes it),
+ *        SoundSpeed_Total2 = (gamma-1) H_Total does not depend on the state, and the velocity magnitude depends on it
+ *        through the Riemann invariant R only, dR = dVn_B + 2 dc_B/(gamma-1); the root, the clips MaxZero/MinOne and
+ *        the static relations of the builder are differentiated in turn (a clipped value has zero derivative).
+ *        Mass flow: density and velocity are data, p = max(0, (gamma-1)(R - |v| dir.n)/2)^2 rho/gamma.
+ */
+inline void InletJacobian(unsigned short nDim, bool massFlow, const su2double& gamma, const su2double& gasConst,
+                          const su2double& densityB, const su2double* velB, const su2double& pressureB,
+                          const su2double& enthalpyB, const su2double& dataT, const su2double& dataP,
+                          const su2double* flowDir, bool useNormal, const su2double* unitNormal,
+                          const su2double& refT, const su2double& refP, su2double (*dG)[JAC_NVAR]) {
+  const unsigned short nVar = nDim + 2;
+  const su2double gm1 = gamma - 1.0;
+  const su2double Two_Gamma_M1 = 2.0 / gm1;
+  ZeroJacobian(nVar, dG);
+
+  su2double mag = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; iDim++) mag += flowDir[iDim] * flowDir[iDim];
+  mag = sqrt(mag);
+  su2double Flow_Dir[3] = {0.0, 0.0, 0.0};
+  for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+    if (useNormal) Flow_Dir[iDim] = -unitNormal[iDim];
+    else Flow_Dir[iDim] = flowDir[iDim] / mag;
+  }
+
+  /*--- Riemann invariant of the boundary state and its gradient. ---*/
+  const su2double SoundSpeedB2 = gamma * pressureB / densityB;
+  const su2double SoundSpeedB = sqrt(SoundSpeedB2);
+  su2double Riemann = Two_Gamma_M1 * SoundSpeedB, dR[JAC_NVAR] = {0.0};
+  for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+    Riemann += velB[iDim] * unitNormal[iDim];
+    dR[iDim+1] = unitNormal[iDim];
+  }
+  dR[0] = -Two_Gamma_M1 * 0.5 * SoundSpeedB / densityB;
+  dR[nDim+1] = Two_Gamma_M1 * 0.5 * SoundSpeedB / pressureB;
+
+  if (!massFlow) {
+    const su2double P_Total = dataP / refP;
+    const su2double T_Total = dataT / refT;
+
+    su2double Velocity2 = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; iDim++) Velocity2 += velB[iDim] * velB[iDim];
+    const su2double Energy = enthalpyB - pressureB / densityB;
+    const su2double H_Total = (gamma * gasConst / gm1) * T_Total;
+    const su2double SoundSpeed_Total2 = gm1 * (H_Total - (Energy + pressureB / densityB) + 0.5 * Velocity2) + SoundSpeedB2;
+
+    su2double alpha = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; iDim++) alpha += unitNormal[iDim] * Flow_Dir[iDim];
+    const su2double aa = 1.0 + 0.5 * gm1 * alpha * alpha;
+    const su2double bb = -1.0 * gm1 * alpha * Riemann;
+    const su2double cc = 0.5 * gm1 * Riemann * Riemann - 2.0 * SoundSpeed_Total2 / gm1;
+    const su2double dd = bb * bb - 4.0 * aa * cc;
+    su2double ddRoot = 0.0;
+    if (0.0 < dd) ddRoot = sqrt(dd);
+    const su2double velMagRoot = (-bb + ddRoot) / (2.0 * aa);
+    const bool positiveRoot = (0.0 < velMagRoot);
+    su2double Vel_Mag = 0.0;
+    if (positiveRoot) Vel_Mag = velMagRoot;
+    const su2double Velocity2a = Vel_Mag * Vel_Mag;
+    const su2double SoundSpeed2a = SoundSpeed_Total2 - 0.5 * gm1 * Velocity2a;
+    const su2double Mach2a = Velocity2a / SoundSpeed2a;
+    const bool subsonic = (Mach2a < 1.0);
+    su2double Mach2 = 1.0;
+    if (subsonic) Mach2 = Mach2a;
+    const su2double Velocity2b = Mach2 * SoundSpeed2a;
+    const su2double Vel_Mag_b = sqrt(Velocity2b);
+    const su2double SoundSpeed2 = SoundSpeed_Total2 - 0.5 * gm1 * Velocity2b;
+    const su2double Temperature = SoundSpeed2 / (gamma * gasConst);
+    const su2double Pressure = P_Total * pow((Temperature / T_Total), gamma / gm1);
+    const su2double Density = Pressure / (gasConst * Temperature);
+
+    for (unsigned short b = 0; b < nVar; b++) {
+      const su2double dbb = -gm1 * alpha * dR[b];
+      const su2double dcc = gm1 * Riemann * dR[b];
+      su2double dRoot = 0.0;
+      if (0.0 < dd) dRoot = (2.0 * bb * dbb - 4.0 * aa * dcc) / (2.0 * ddRoot);
+      su2double dVelMag = 0.0;
+      if (positiveRoot) dVelMag = (-dbb + dRoot) / (2.0 * aa);
+      const su2double dVelocity2a = 2.0 * Vel_Mag * dVelMag;
+      const su2double dSoundSpeed2a = -0.5 * gm1 * dVelocity2a;
+      su2double dMach2 = 0.0;
+      if (subsonic) dMach2 = (dVelocity2a - Mach2a * dSoundSpeed2a) / SoundSpeed2a;
+      const su2double dVelocity2b = dMach2 * SoundSpeed2a + Mach2 * dSoundSpeed2a;
+      su2double dVelMagB = 0.0;
+      if (Vel_Mag_b > 0.0) dVelMagB = dVelocity2b / (2.0 * Vel_Mag_b);
+      const su2double dTemperature = -0.5 * gm1 * dVelocity2b / (gamma * gasConst);
+      const su2double dPressure = Pressure * gamma / gm1 * dTemperature / Temperature;
+      dG[0][b] = Density * (dPressure / Pressure - dTemperature / Temperature);
+      for (unsigned short iDim = 0; iDim < nDim; iDim++) dG[iDim+1][b] = dVelMagB * Flow_Dir[iDim];
+      dG[nDim+1][b] = dPressure;
+    }
+    return;
+  }
+
+  /*--- Mass flow. ---*/
+  const su2double Density = dataT / refT;
+  const su2double Vel_Mag = dataP / refP;
+  su2double SoundSpeed = Riemann;
+  for (unsigned short iDim = 0; iDim < nDim; iDim++) SoundSpeed -= Vel_Mag * Flow_Dir[iDim] * unitNormal[iDim];
+  const su2double half = 0.5 * gm1 * SoundSpeed;
+  if (0.0 < half) {
+    for (unsigned short b = 0; b < nVar; b++) dG[nDim+1][b] = 2.0 * half * 0.5 * gm1 * dR[b] * Density / gamma;
+  }
+}
+
+/*!
+ * \brief Jacobian of Outlet. Supersonic: the identity. Subsonic: p_g = pExit, rho_g = (pExit/(p rho^-gamma))^(1/gamma),
+ *        so d rho_g = rho_g (d rho/rho - dp/(gamma p)), and u_g = u + (Vn_Exit - Vn) n with
+ *        Vn_Exit - Vn = 2 (c - c_g)/(gamma-1), dc = c (dp/p - d rho/rho)/2, dc_g = -c_g d rho_g/(2 rho_g).
+ */
+inline void OutletJacobian(unsigned short nDim, const su2double& gamma, const su2double& densityB,
+                           const su2double* velB, const su2double& pressureB, const su2double& pExit,
+                           const su2double* unitNormal, su2double (*dG)[JAC_NVAR]) {
+  const unsigned short nVar = nDim + 2;
+  const su2double gm1 = gamma - 1.0;
+  ZeroJacobian(nVar, dG);
+
+  su2double Velocity2 = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; iDim++) Velocity2 += velB[iDim] * velB[iDim];
+  const su2double SoundSpeed = sqrt(gamma * pressureB / densityB);
+  const su2double Mach_Exit = sqrt(Velocity2) / SoundSpeed;
+
+  if (Mach_Exit >= 1.0) {
+    for (unsigned short a = 0; a < nVar; a++) dG[a][a] = 1.0;
+    return;
+  }
+
+  const su2double Entropy = pressureB * pow(1.0 / densityB, gamma);
+  const su2double Density = pow(pExit / Entropy, 1.0 / gamma);
+  const su2double SoundSpeedExit = sqrt(gamma * pExit / Density);
+
+  su2double dc[JAC_NVAR] = {0.0};
+  dc[0] = -0.5 * SoundSpeed / densityB;
+  dc[nDim+1] = 0.5 * SoundSpeed / pressureB;
+  dG[0][0] = Density / densityB;
+  dG[0][nDim+1] = -Density / (gamma * pressureB);
+  for (unsigned short b = 0; b < nVar; b++) {
+    const su2double dcExit = -0.5 * SoundSpeedExit * dG[0][b] / Density;
+    for (unsigned short iDim = 0; iDim < nDim; iDim++) dG[iDim+1][b] = 2.0 / gm1 * (dc[b] - dcExit) * unitNormal[iDim];
+  }
+  for (unsigned short iDim = 0; iDim < nDim; iDim++) dG[iDim+1][iDim+1] += 1.0;
+}
+
 }  // namespace P1BoundaryGhost
