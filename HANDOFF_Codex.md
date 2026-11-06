@@ -87,9 +87,23 @@ Current-residual serial check TERMINAL0 (exec3121),34503assertions/1case;
 failures occurred before tests; preserved, then same pt2pt settings as217used.
 R/current_residual220_assessment.json records16bounded-star results.
 Build221TERMINAL0 (402.404887s),1302pins unchanged, targets up to date.
-Current compound serial check LIVE (exec82386): existing collapse followed by
-retained-star optimizer, no production change. Freeze sources/fixtures/helpers/
-binary/witness inputs until terminal. One owned heavy workload.
+Compound serial check TERMINAL0 (exec82386),33135assertions/1case,93.979100s;
+all pins unchanged. All24core-edge collapse directions refused before optimizer:
+22exact orientation obstructions,2duplicate physical faces. Thus this sampled
+collapse-then-optimizer hypothesis is not useful. R/current_compound221_assessment.json.
+Build222TERMINAL0 (285.261596s),1302pins unchanged, targets up to date.
+Current shell/compound serial check TERMINAL0 (exec76864),33203assertions/1case,
+96.155815s; all pins unchanged. No owned heavy workload remains.
+R/current_shell222_assessment.json: root existing4-cell shell gives59→58context
+cells,q5→4,J3→2,geometry8→8,weighted geometry excess−18.12%,zero added size
+excess; interface/boundary replacement asserted. This useful intermediate is
+suppressed by optimizer new-face strict geometry threshold. Midspan6-cell shell
+refuses unequal raw facet IDs. Next connected change aligns shell entity matching
+and validity-only geometry-debt admission with existing quality repair semantics.
+Final strict gates/construction unchanged; no accepted mesh/transfer/restart proof.
+A219/current_shell_entity_assessment.json preserves captured facets16677/29999/
+36291body0/sheet10154/marker2; both opposite edges have0physical-face incidence.
+Equivalent captured metadata is not yet an admissible shell replacement proof.
 Next diagnostic reuses existing operators on these bounded stars; fresh current
 associations are reconstructed, not historical dependency/scheduling replay.
 

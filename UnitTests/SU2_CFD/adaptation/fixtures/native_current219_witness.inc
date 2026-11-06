@@ -99,7 +99,7 @@ static void CapturedCurrentResidual(bool compound) {
     REQUIRE(q_error<=1e-10);REQUIRE(j_error<=1e-10);REQUIRE(edge_error<=1e-10);
     log<<"{\"stage\":\"current_metric_match\",\"case\":"<<std::quoted(test.first)<<",\"cells\":"<<rows.size()
        <<",\"q_error\":"<<q_error<<",\"J_error\":"<<j_error<<",\"edge_error\":"<<edge_error<<"}\n";log.flush();
-    auto assess=[&](Owned local,const std::set<Id>& retired,const Patch& seed,Patch input,Id vertex,const char* kind) {
+    auto assess=[&](Owned local,const std::set<Id>& retired,const Patch& seed,Patch input,Id vertex,const char* kind,bool optimize=true) {
       REQUIRE_FALSE(seed.cells.empty());REQUIRE(seed.cells.size()<=MaximumCavityCells);
       auto context=scope->PrivateParameters(input);REQUIRE(context);context->ExportParameters(input);
       const auto stats0=state->Geometry().GeometryStatsSnapshot();
@@ -107,7 +107,7 @@ static void CapturedCurrentResidual(bool compound) {
       OptimizeOptions options;options.maximum_work=160;options.maximum_seconds=30;options.boundary=false;
       options.cache_entries=8*MaximumReplacementCells;options.geometry=context.get();options.surface_tolerance=1e-4;
       Id node=600000000,cell=700000000;OptimizeReport report;
-      const bool changed=OptimizeMetricMesh(local,RegionMetric(field),node,cell,options,report);
+      const bool changed=optimize&&OptimizeMetricMesh(local,RegionMetric(field),node,cell,options,report);
       const auto optimized_stats=state->Geometry().GeometryStatsSnapshot();
       REQUIRE(report.trials<=160);REQUIRE(local.size()<=MaximumReplacementCells);
       auto result=patch_from(local);result.parameters=input.parameters;result.coverage=input.coverage;
@@ -223,6 +223,31 @@ static void CapturedCurrentResidual(bool compound) {
       for(const auto& row:fresh.coverage.traces)input.coverage.traces.insert_or_assign(row.first,row.second);
       retain_coverage(input);
       assess(prior,retired,seed,input,retained.id,"collapse_then_retained_star_optimizer");
+    }
+    if(compound) {
+      const auto& core=owned.at(test.second);std::vector<unsigned> faces;
+      for(unsigned slot=0;slot<4;++slot)if(core.physical[slot].present)faces.push_back(slot);
+      REQUIRE(faces.size()==2);const Id a=core.cell.v[faces[0]].id,b=core.cell.v[faces[1]].id;
+      Owned shell;
+      for(const auto& row:owned){bool has_a=false,has_b=false;for(Node n:row.second.cell.v){has_a=has_a||n.id==a;has_b=has_b||n.id==b;}
+        if(has_a&&has_b)shell.insert(row);}
+      REQUIRE(shell.size()==(test.second==224633219?4:6));REQUIRE(shell.size()<=MaximumCavityCells);
+      auto old=patch_from(shell);scope->ExportParameters(old);Patch fresh;std::string reason;
+      const auto started=std::chrono::steady_clock::now();
+      const bool constructed=ShellBoundaryCell(old,test.second,800000000,*scope,fresh,reason);
+      log<<"{\"stage\":\"current_shell_boundary\",\"case\":"<<std::quoted(test.first)<<",\"core\":"<<test.second
+         <<",\"ring_cells\":"<<shell.size()<<",\"constructed\":"<<constructed<<",\"reason\":"<<std::quoted(reason)
+         <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()<<"}\n";log.flush();
+      if(constructed) {
+        std::set<Id> retired;for(const auto& row:shell)retired.insert(row.first);
+        Owned local;std::map<Face,Id> physical;
+        for(auto f:fresh.surface){std::sort(f.v.begin(),f.v.end());physical.emplace(f.v,f.facet);}
+        for(const auto& c:fresh.cells){OwnedCell row;row.cell=c;
+          for(unsigned slot=0;slot<4;++slot){Face key;for(unsigned k=0;k<3;++k)key[k]=c.v[opposite[slot][k]].id;
+            std::sort(key.begin(),key.end());auto f=physical.find(key);if(f!=physical.end())row.physical[slot]={true,f->second};}
+          REQUIRE(local.emplace(c.id,row).second);}
+        assess(local,retired,old,fresh,test.second,"existing_shell_without_optimizer",false);
+      }
     }
   }
   log.close();REQUIRE(bool(log));

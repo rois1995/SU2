@@ -168,3 +168,44 @@ metric admission. Existing primitive outputs are not automatically engine-admiss
 metric_valid is observational, while interface/boundary replacement are asserted.
 Nonlocal contact/publication and requested-height qualification remain separate.
 No production change is yet justified; build221 is this bounded diagnostic only.
+
+The221compound diagnostic is now TERMINAL:33135assertions/1case PASS, all24directed
+core-edge contractions refuse construction (22exact adjacent-cell inversions,
+2duplicate physical faces). Thus the proposed postcollapse optimizer never runs
+on these samples; do not integrate it as a remedy. This differs from historical202.
+R/current_compound221_assessment.json preserves all exact refusal cells/reasons.
+Both current obstructing tetrahedra have four boundary-associated vertices and two
+physical faces. Their complete opposite-edge rings have4(root)/6(midspan)cells.
+The next same-cycle check inspects EXISTING ShellBoundaryCell and its admission on
+these complete small rings before inventing another operator. Root face labels
+match16677; midspan face labels differ29999/36291. Whether these are safely
+interchangeable geometry supports must be proved with existing entity/feature/body
+and coverage checks; differing original labels alone do not establish that proof.
+
+## Demonstrated222 admission gap; connected shell correction selected
+
+R/current_shell222_assessment.json:33203assertions/1case PASS. Existing root shell
+on4cells constructs in0.000494s; complete59-cell context becomes58, q5→4/J3→2,
+geometry8→8, weighted geometry excess3.7067511e-13→3.0350370e-13(−18.12%),
+no added size excess. Interface and boundary replacement pass. The audit takes
+~0.989s, separately from primitive construction; neither is an all-field speedup.
+A new exposed face remains geometry-bad, so MeshOptimizer's strict-new-face veto
+prevents the useful intermediate despite the normal non-increasing complete
+geometry guidance. Surface/volume repair can therefore make progress with an
+EXISTING operator before inventing a new topology kernel or larger cavities.
+
+Midspan6-cell shell refuses raw facet-ID inequality. Captured facets29999/36291
+(and root16677) have body0/sheet10154/marker2; exact reference rows/source hashes
+are in A219/current_shell_entity_assessment.json. Runtime EntityKey equality still
+needs assertion in the actual-current regression. Geometry support/feature/body,
+new-face orientation and complete publication checks remain independent.
+
+Selected correction: retain the raw-facet guard for legacy geometry, permit exact
+existing EntityKey equivalence for entity geometry, and use whole-ring non-increasing
+GeometryGuidanceExcess as a fallback ONLY in validity-only optimization when a new
+face fails the strict bound. Keep absolute-mode and final geometry gates, q/J/size/
+height checks, full-vertex reservations, dependency invalidation, budgets and
+construction unchanged. This reuses existing quality-stage semantics; no new
+scheduler/operator/config or geometry representation. Qualify affected serial
+behavior, actual current candidates and ONE MPI milestone, then full two-event
+same-seed corrected-L1M6. Passing this local diagnostic is not completion.
