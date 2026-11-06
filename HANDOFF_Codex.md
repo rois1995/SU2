@@ -50,8 +50,14 @@ substantial changed-target checkpoint; no trial dumps. Config identical217.
 Actual initial original-grid restart and all6metric components plus7conserved/
 primitive fields are BITWISE IDENTICAL to assessed correctedL1restart(SHA5132ee2a...
 5d692). A219/initial_target_match.json. This is not adapted transfer/restart proof.
-Initial native partition has executed; await outcome. No source improvement speedup
-claim against217because target changed. All strict gates and construction policy retained.
+First complete quality_entry round34594at798.559652native seconds:
+871607cells/102058q-bad/101860J-bad/1997geometry-bad/0size-bad. All6census/cache/
+shape/geometry flags1. Actual quality ownership migration preserves every count and
+flag; committed q/J/debt max-over-mean1.2605/1.2797/1.1389. A219/quality_entry_assessment.json.
+A219/construction_progress_assessment.json preserves complete6-rank stages/prefix
+hashes. Shape zeros during construction were unmeasured, never closure.
+Latest sampled tree RSS~10.0GB; all10owned handles live and1518pins unchanged.
+No source speedup claim against217because target changed. All strict gates and construction policy retained.
 
 If native event naturally rejects, preserve all6first-event EXIT/DETAIL rows AND
 complete6-rank capture shards/hashes before any authorized single owned-launcher
