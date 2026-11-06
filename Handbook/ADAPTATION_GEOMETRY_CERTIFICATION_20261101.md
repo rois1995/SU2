@@ -1,27 +1,39 @@
 # Geometry certification — current review and preserved history
 
-## Current: shared bound refinement qualified; full build210 M6 frozen and live
+## Current: build210 naturally rejected; coupled closure remains missing
 
-Build210's budgeted entity direct path refines an unsuccessful correspondence
-upper using the existing singleton-support physical union query, retaining the
-smaller valid bound and independent affine maximum. No new cache, approximation,
-configuration or gate was introduced. Scratch is admitted before allocating;
-resource exhaustion propagates. The successful cheap direct path is unchanged.
+The budgeted shared direct-bound refinement is implemented and scoped-qualified.
+It uses the EXISTING singleton-support physical union query after unsuccessful
+correspondence bounds, retaining the smaller valid upper and independent affine
+maximum. Admitted scratch, sticky resource errors, cheap successful direct paths
+and all final two-sided/association/body/feature/height gates remain unchanged.
+Current-host GCC13.3 build210passed1301pins; actual witness38938assertions/1case,
+geometry2666assertions/34cases and MPI6all6ranks23cases PASS. Runtime-v2(193files)
+covers all observed loaded ELFs. R/geometry210_qualification.json.
 
-Current-host GCC13.3 build210passed with1301source pins unchanged. Actual M6
-witness38938assertions/1case, geometry2666assertions/34cases and one MPI6milestone
-23cases per rank PASS. Runtime-v2includes193files and covers all observed ELF
-mappings. See `staged57/geometry210_qualification.json`; setup failures remain
-preserved, with no source changes between serial and successful MPI qualification.
+Full M6 first event NATURALLY rejected at unchanged time_budget:790388cells/
+64q/39J/2283geometry/0size, maximum engine5336.156753s, complete6-rank census flags.
+Failure preserved before the single verified owned launcher stop. All10handles
+absent and1517pins unchanged. No accepted mesh, transfer, adapted continuation or
+restart. See [complete210outcome](ADAPTATION_BUILD210_OUTCOME_20261106.md) and
+HANDOFF_Codex.md for current source/handles and next-cycle authority.
 
-Full two-event M6 is frozen/live from source6744638324, same real CFD seed/50k/5400s.
-First complete quality entry:721643cells/49380q/48218J/2713geometry/0size bad.
-Build206entry was727818/54081q/53392J/3770geometry/0size. Upper work at entry rose
-265726770→325633701. This is a smaller initial repair burden with more certification
-work, not closure or an isolated speed comparison. Host/compiler/runtime differ.
-Authoritative live handles and pins are in HANDOFF_Codex.md; current receipts are
-`staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/`. Wait for net q/J
-removal and residual geometry/shape reclosure under unchanged gates and budgets.
+First quality entry721643cells/49380q/48218J/2713geometry/0size. First shape tail
+26q/11J at5164.024s was ALL26blocked, queue0. Geometry construction reopened356q/
+488J while reducing geometry2535→2286; final reclosure left64q/39J/2283geometry.
+Full45192published commits remove49672q/48667J; subtract construction reopenings
+for net49316q/48179J. Final80shape-union include10blocked and queue770, not full
+exhaustion. Current final geometry is154higher than206despite smaller entry burden.
+
+Next target: repair power and geometry/shape reclosure, with geometry cost as a
+measured efficiency opportunity. Existing trace/caches/screens and prepared scopes
+must be reviewed before new machinery. Conservative refusals are not proved
+violations. Use saved202actual faces/cavities as feasibility witnesses, not a replay
+of210. Bounded tightening of existing interval Bernstein control bounds is in the
+backlog, unproven; only actual-witness savings can select it. No new scheduler,
+configuration, construction q/J policy, larger budget or weakened gate follows.
+After a demonstrated connected correction and focused serial/ONE MPI milestone,
+return immediately to complete two-event M6 from the same saved real CFD seed.
 
 ### Preserved terminal206 analysis and probe207 selection
 

@@ -13,38 +13,43 @@ Actual mesh point/cell counts are separate from metric complexity. Keep geometry
 1e-4, q>=.2, J>=.05, maximum metric edge1.8 and requested heights unchanged. CAD
 remains optional.
 
-Build206 normal full two-event M6 is terminal. Its first event naturally rejected
-at the unchanged time budget: **809684cells/281q-bad/341J-bad/2129geometry-bad/
-0size-bad**, with all6 EXIT census/shape/geometry/cache flags complete. Three
-quality stages and two construction returns did not close the mesh. The failure
-was preserved before stopping only the verified owned launcher; all10exact handles
-are absent and1403pins unchanged. No accepted adapted mesh yet. Source checkpoint
-12a14dc955 and the same saved real CFD seed/config/50k/5400s were preserved throughout.
-The active cycle targets repair power and shape/geometry reclosure. The saved207
-probe demonstrated a safe refusal: direct1.23466e-4 versus existing rigorous
-one-sided union9.46579e-5 on identical support. The shared correction is now
-implemented: refine failed budgeted direct bounds with that existing query,
-retaining the better bound and independent affine maximum; cheap successful
-direct paths remain unchanged. All final geometry/association/body/feature/height
-gates and fail-closed resource accounting remain independent.
+Latest terminal build210 first event naturally rejected at the unchanged time
+budget: **790388cells/64q-bad/39J-bad/2283geometry-bad/0size-bad**, complete6-rank
+census/cache/shape/geometry flags. All10owned handles are absent and1517pins
+unchanged after preservation and one authorized launcher stop. No accepted mesh,
+transfer, adapted continuation or adapted restart. Source6744638324 remained
+unchanged. See [terminal210 findings](Handbook/ADAPTATION_BUILD210_OUTCOME_20261106.md).
 
-Build210 is a fresh current-host GCC13.3 build with the previous options. It passed
-actual M6 witness38938assertions/1case, geometry2666assertions/34cases and one
-MPI6milestone23cases on every rank. Runtime-v2covers all observed loaded ELF
-mappings; old175file pins remain historical. Setup failures and the include-only
-compiler fix are preserved in geometry210_qualification.json. No speedup follows
-from these checks.
+The shared failed-direct-bound correction is implemented and scoped-qualified on
+the current-host GCC13.3/runtime193files: actual witness38938assertions/1case,
+geometry2666assertions/34cases and MPI6all6ranks23cases each PASS. Existing rigorous
+one-sided union bounds can tighten a failed correspondence bound; preserve the
+better bound and independent affine maximum. All other gates and fail-closed
+resource handling remain independent. This did not establish workflow closure.
 
-The full two-event build210 M6 attempt is now frozen and live, using the same saved
-real CFD seed/50k/5400s. Its first complete quality entry has721643cells,
-49380q-bad/48218J-bad/2713geometry-bad/0size-bad, compared with206entry
-727818/54081q/53392J/3770geometry/0size. All6census/cache/shape/geometry flags are
-complete. This is a smaller starting repair burden, not a measured closure rate.
-Construction upper work rose265726770→325633701; engine entry649.509→905.708s.
-Host/compiler/runtime differ, so do not attribute elapsed changes to source alone.
-Use net whole-field q/J removal and geometry counts at complete quality windows.
-Keep sources frozen until terminal or preserved evidence justifies an authorized
-stop. Exact handles, provenance and current status are in HANDOFF_Codex.md.
+The first quality tail had26q/11J, all26shape-union cells blocked and queue0.
+Geometry construction reduced geometry-bad2535→2286 while reopening356q/488J.
+Reclosure reached64q/39J before time budget, still2283geometry-bad. Full45192
+published repairs remove49672q/48667J; subtract construction reopenings for exact
+net49316q/48179J. Final80shape-union include10blocked, queue770, so final search
+was not globally exhausted. Faster bulk alone does not prove that coupled closure.
+
+Next target is repair power and geometry/shape reclosure, with geometry cost a
+measured efficiency opportunity. Reuse existing saved witnesses and query/context
+facilities before selecting another connected correction. Bounded Bernstein
+subdivision is UNPROVEN/backlogged; no implementation or saving follows from that
+idea. Construction soft q/J policies remain unproved and must not be introduced
+under validity-only construction. Qualify a demonstrated change, then immediately
+full two-event M6 with the same real CFD seed/50k/5400s and unchanged gates.
+
+Previous206terminal was809684cells/281q/341J/2129geometry/0size. Current has fewer
+shape failures but154more geometry-admission failures; this is mixed, not strict
+closure. Host/compiler/runtime and initial populations differ.32complete210quality
+windows and actual EXIT are preserved; last window144q/126J/2287geometry is not
+terminal64q/39J/2283geometry. Peak sampled descendant RSS14.736GB(decimal), not
+physical RAM/true job peak.16metric samples stay supported, max drift6.1285%; the
+original continuous-target fidelity remains unproved. All current handles,
+provenance and downstream audit obligations are in HANDOFF_Codex.md.
 
 The selected inspection build202 finished naturally at the unchanged native time budget. Its
 complete terminal census contains **810163cells,295q-bad,294J-bad,2110geometry-bad

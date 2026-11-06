@@ -1,0 +1,23 @@
+{
+  "time": 1793966060.124858,
+  "failure_evidence": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/event1_natural_failure.json",
+  "failure_sha256": "7877d7ff7b6fe2322236097eee02f35efd6a1714f05c4ee5cbbe157fc72cf63b",
+  "launcher": {
+    "pid": 195411,
+    "startticks": 480761,
+    "argv": [
+      "mpirun",
+      "--output-filename",
+      "rank_output",
+      "-n",
+      "6",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD",
+      "run.cfg"
+    ],
+    "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement"
+  },
+  "signal": "SIGTERM",
+  "sent": true,
+  "reason": "First event naturally rejected at time budget; configured2events can no longer yield2accepted meshes. Existing stop/fix/retry authorization.",
+  "sent_at": 1793966060.1253755
+}
