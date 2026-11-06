@@ -1859,6 +1859,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("VISC_P1_ENTROPY_MOVED", Visc_P1_Entropy_Moved, false);
   /*!\brief VISC_P1_TIME_STEP \n DESCRIPTION: Viscous local time step from the operator of VISC_P1_ENTROPY (P1_TIME_STEP.md). On the fine grid the edge viscous term of the time step is replaced by Lambda_v = V_i B_i, so dt_v = CFL 0.25 V_i / B_i, with B_i the block Gershgorin row bound of the Picard Jacobian of the element operator (moved test vectors and split-average weights included) and of the weak no-slip walls (consistency, penalty and adjoint terms), each block bounded by Cauchy-Schwarz in K and Lambda_b = sup x.K(t,t)x/(|t|^2 x.H_b x) in closed form (H_b the entropy Hessian of the node). Then the viscous part of the local-step operator has spectral radius <= 0.25 CFL. The bounds come from the residual of the previous iteration; the first iteration and the coarse levels keep the edge term. Needs VISC_P1_ENTROPY. \ingroup Config \default false */
   addBoolOption("VISC_P1_TIME_STEP", Visc_P1_Time_Step, false);
+  /*!\brief VISC_P1_JACOBIAN \n DESCRIPTION: Jacobian of the VISC_P1_ENTROPY element operator and of the weak walls of BC_WALL_ENTROPY_P1 (and the viscous symmetry SAT of BC_ENTROPY_P1). PICARD: K frozen. FULL: adds the dK/du terms, the derivatives of the frozen state (theta*, v*) and of mu(T) (constant or Sutherland) and kappa(T) (constant or constant Prandtl), mu_t frozen. Blocks between nodes of mixed cells that are not edges stay dropped, they are not in the sparsity pattern. Needs VISC_P1_ENTROPY. \ingroup Config \default PICARD */
+  addEnumOption("VISC_P1_JACOBIAN", Kind_Visc_P1_Jacobian, Visc_P1_Jacobian_Map, VISC_P1_JACOBIAN::PICARD);
   /*!\brief EDGE_FORM_P1_MIXED \n DESCRIPTION: EDGE_FORM_P1 (JST) on meshes with quadrilaterals, hexahedra, prisms and pyramids: each non-simplex cell carries the mean of the neighbour-fan subset of its pulling splits (hexahedra: the 4 Kuhn triangulations; prisms, pyramids, quadrilaterals: all pulling splits), merged into weighted sub-simplices t with W = |t|/(d+1) (no E part, no blend), n_ik on the true edges and on the face and body diagonals (Ismail-Roe with EDGE_FORM_EC_FLUX, no dissipation, no Jacobian on the diagonals), VISC_P1_ENTROPY per sub-simplex, quad boundary faces with both diagonals at 1/2 (BC_WEAK_P1, BC_ENTROPY_P1, BC_WALL_ENTROPY_P1). Simplices keep EDGE_FORM_P1. Needs EDGE_FORM_P1 and JST; steady, static meshes. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_P1_MIXED", Edge_Form_P1_Mixed, false);
   /*!\brief GCL_EXACT_P1 \n DESCRIPTION: Add the swept terms that make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX (or of the median dual of EDGE_DISS_PROJECTED with GRID_ENTROPY_P1) equal to the BDF difference of the volumes, for conservation in time on moving meshes. \ingroup Config*/
@@ -6281,6 +6283,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (P1_Wall_Forces) active.push_back("P1_WALL_FORCES");
   if (Visc_P1_Entropy_Moved) active.push_back("VISC_P1_ENTROPY_MOVED");
   if (Visc_P1_Time_Step) active.push_back("VISC_P1_TIME_STEP");
+  if (Kind_Visc_P1_Jacobian == VISC_P1_JACOBIAN::FULL) active.push_back("VISC_P1_JACOBIAN= FULL");
   if (Edge_Form_P1_Mixed) active.push_back("EDGE_FORM_P1_MIXED");
   if (Edge_Form_TeCNO_Adjoint) active.push_back("EDGE_FORM_TECNO_ADJOINT");
   if (Edge_Form_TeCNO_Adjoint_Limiter) active.push_back("EDGE_FORM_TECNO_ADJOINT_LIMITER");
@@ -6522,6 +6525,15 @@ void CConfig::CheckP1FluxOptions() const {
   }
   if (Visc_P1_Time_Step && !Visc_P1_Entropy) {
     SU2_MPI::Error("VISC_P1_TIME_STEP: needs VISC_P1_ENTROPY= YES, the bound is that of its element operator.", CURRENT_FUNCTION);
+  }
+  if (Kind_Visc_P1_Jacobian == VISC_P1_JACOBIAN::FULL) {
+    const string name = "VISC_P1_JACOBIAN= FULL: ";
+    if (!Visc_P1_Entropy) SU2_MPI::Error(name + "needs VISC_P1_ENTROPY= YES.", CURRENT_FUNCTION);
+    if ((Kind_ViscosityModel != VISCOSITYMODEL::CONSTANT) && (Kind_ViscosityModel != VISCOSITYMODEL::SUTHERLAND))
+      SU2_MPI::Error(name + "needs VISCOSITY_MODEL= CONSTANT_VISCOSITY or SUTHERLAND.", CURRENT_FUNCTION);
+    if ((Kind_ConductivityModel != CONDUCTIVITYMODEL::CONSTANT) &&
+        (Kind_ConductivityModel != CONDUCTIVITYMODEL::CONSTANT_PRANDTL))
+      SU2_MPI::Error(name + "needs CONDUCTIVITY_MODEL= CONSTANT_CONDUCTIVITY or CONSTANT_PRANDTL.", CURRENT_FUNCTION);
   }
   if (BC_Wall_Entropy_P1) {
     const string name = "BC_WALL_ENTROPY_P1: ";

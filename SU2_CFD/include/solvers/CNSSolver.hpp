@@ -29,6 +29,10 @@
 
 #include "CEulerSolver.hpp"
 
+namespace P1ViscousEntropy {
+struct TransportLaw;
+}
+
 /*!
  * \class CNSSolver
  * \brief Main class for defining the Navier-Stokes flow solver.
@@ -148,9 +152,11 @@ private:
    * \param[in] rowBound - VISC_P1_TIME_STEP: add the row bounds of the sub-simplices to P1ViscRowBound.
    * \param[in] prandtlTurb - Turbulent Prandtl number.
    * \param[in] gasConst - Gas constant (non-dimensional).
+   * \param[in] law - VISC_P1_JACOBIAN= FULL: transport laws for the dK/du terms, nullptr for the Picard Jacobian.
    */
   void MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, bool implicit, bool rowBound,
-                            const su2double& prandtlTurb, const su2double& gasConst);
+                            const su2double& prandtlTurb, const su2double& gasConst,
+                            const P1ViscousEntropy::TransportLaw* law);
 
   /*!
    * \brief VISC_P1_ENTROPY_MOVED: P^v_T and D^gal_T - W_T of a simplex with an owned node, for the one-budget blend

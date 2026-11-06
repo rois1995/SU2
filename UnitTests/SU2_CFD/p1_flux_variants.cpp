@@ -4736,3 +4736,330 @@ TEST_CASE("BC_ENTROPY_P1 viscous: free stream preservation of the ghosts and the
     }
   }
 }
+
+namespace {
+
+/*--- VISC_P1_JACOBIAN: Sutherland viscosity and constant Prandtl conductivity (non-dimensional), mu_t frozen (SA). ---*/
+constexpr double kMuRef = 0.8, kTRef = 1.2, kSuth = 0.38, kPrLam = 0.72, kPrTurb = 0.9;
+
+pve::TransportLaw SutherlandLaw() {
+  pve::TransportLaw law;
+  law.sutherland = true;
+  law.sutherlandS = kSuth;
+  law.constantPrandtl = true;
+  law.prandtlLam = kPrLam;
+  return law;
+}
+
+/*--- mu and kappa of a node recomputed from its temperature (as CNSVariable and GatherNode, mu_t given), and the
+ * temperature derivatives of the code (TransportDerivatives). ---*/
+void RecomputeTransport(pve::NodeState& S, const su2double& muTurb) {
+  const su2double T = S.p / (S.rho * kGas), cp = kGamma * kGas / (kGamma - 1.0);
+  const su2double muLam = kMuRef * pow(T / kTRef, 1.5) * (kTRef + kSuth) / (T + kSuth);
+  S.mu = muLam + muTurb;
+  S.kappa = cp * muLam / kPrLam + cp * muTurb / kPrTurb;
+  pve::TransportDerivatives(muLam, cp, kGas, SutherlandLaw(), S);
+}
+
+/*--- Squared Frobenius norms per block type of a finite-difference Jacobian and of its part missing from an analytic
+ * one, summed over the draws, and the largest relative missing part of one draw. ---*/
+struct BlockNorms {
+  su2double fd[3] = {0.0, 0.0, 0.0}, missing[3] = {0.0, 0.0, 0.0}, worst[3] = {0.0, 0.0, 0.0};
+  su2double drawFd[3] = {0.0, 0.0, 0.0}, drawMissing[3] = {0.0, 0.0, 0.0};
+  void Add(int type, const su2double& exact, const su2double& approx) {
+    drawFd[type] += exact * exact;
+    drawMissing[type] += (exact - approx) * (exact - approx);
+  }
+  void EndDraw() {
+    for (int t = 0; t < 3; ++t) {
+      fd[t] += drawFd[t];
+      missing[t] += drawMissing[t];
+      if (drawFd[t] > 0.0) worst[t] = std::max(worst[t], su2double(sqrt(drawMissing[t] / drawFd[t])));
+      drawFd[t] = drawMissing[t] = 0.0;
+    }
+  }
+  su2double Relative(int t) const { return (fd[t] > 0.0) ? su2double(sqrt(missing[t] / fd[t])) : su2double(0.0); }
+  su2double Total() const {
+    const su2double f = fd[0] + fd[1] + fd[2], m = missing[0] + missing[1] + missing[2];
+    return (f > 0.0) ? su2double(sqrt(m / f)) : su2double(0.0);
+  }
+};
+
+/*--- Report ||J_fd - J||/||J_fd|| per block type (INFO, and WARN on the master rank so that it is always printed). ---*/
+void ReportMissing(const std::string& what, const BlockNorms& norms, const std::vector<std::string>& names) {
+  std::ostringstream msg;
+  msg.precision(3);
+  msg << "VISC_P1_JACOBIAN " << what << ", ||J_fd - J||/||J_fd|| per block type:";
+  for (size_t t = 0; t < names.size(); ++t)
+    msg << " " << names[t] << " " << norms.Relative(static_cast<int>(t)) << " (largest draw " << norms.worst[t] << ");";
+  msg << " all blocks " << norms.Total();
+  INFO(msg.str());
+  CHECK(std::isfinite(SU2_TYPE::GetValue(norms.Total())));
+  if (SU2_MPI::GetRank() == MASTER_NODE) {
+    WARN(msg.str());
+  }
+}
+
+}  // namespace
+
+TEST_CASE("VISC_P1_JACOBIAN: simplex element and weak wall Jacobians against finite differences with recomputed mu and kappa", "[P1Flux]") {
+  /*--- The finite differences recompute every coefficient from the state: the frozen state theta*, v* and mu(T),
+   * kappa(T) (Sutherland, constant Prandtl), mu_t frozen. The Picard Jacobian (K frozen) must match the differences
+   * of the frozen-K residual; FULL (Picard + dK/du) must match the full differences. The missing part of Picard is
+   * reported per block type. ---*/
+  std::mt19937 gen(97531);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const unsigned short faceNodes[3] = {1, 2, 3};
+  const std::vector<std::string> wallNames = {"adiabatic wall", "isothermal wall", "symmetry SAT"};
+  for (int nDim : {2, 3}) {
+    const int nNodes = nDim + 1, nVar = nDim + 2;
+    BlockNorms elemNorms, wallNorms[3];
+    for (int trial = 0; trial < 120; ++trial) {
+      const double stretch = (trial % 2) ? 1.0 : 1e-3;
+      su2double x[4][3];
+      pve::NodeState state[4];
+      RandomElement(gen, nDim, stretch, x, state);
+      su2double muTurb[4] = {0.0, 0.0, 0.0, 0.0};
+      for (int a = 0; a < nNodes; ++a) {
+        if (trial % 3 != 0) muTurb[a] = exp(3.0 * u(gen));
+        RecomputeTransport(state[a], muTurb[a]);
+      }
+
+      /*--- 3D: moved test vectors on every fourth element (theta_v frozen). ---*/
+      const bool moved = (nDim == 3) && (trial % 4 == 3);
+      su2double Y[9] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+      pve::Element E;
+      REQUIRE(E.Set(nDim, x, state, kGas) > 0.0);
+      if (moved) {
+        for (auto& y : Y) y = 0.3 * E.size * u(gen);
+        E.SetMovedTest(Y, 0.6);
+      }
+      auto recomputed = [&](const pve::NodeState* S) {
+        pve::NodeState R[4];
+        for (int a = 0; a < nNodes; ++a) {
+          R[a] = S[a];
+          RecomputeTransport(R[a], muTurb[a]);
+        }
+        pve::Element F;
+        F.Set(nDim, x, R, kGas);
+        if (moved) F.SetMovedTest(Y, 0.6);
+        return F;
+      };
+
+      /*--- Wall face opposite node 0: adiabatic, isothermal or symmetry plane, SIPG or IIPG. ---*/
+      const int kind = (trial / 2) % 3;
+      const bool isothermal = (kind == 1), symmetry = (kind == 2);
+      const su2double sipg = (trial % 4 < 2) ? 1.0 : 0.0, wallTheta = 1.0 / (kGas * exp(u(gen)));
+      su2double N[3] = {0.0, 0.0, 0.0};
+      pve::WallFaceNormal(nDim, x, 0, faceNodes, N);
+      auto wall = [&](const pve::Element& F, su2double res[][5]) {
+        pve::NoSlipWall(F, nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, pve::NOSLIP_PENALTY, res, nullptr, nullptr,
+                        nullptr, nullptr, nullptr, symmetry);
+      };
+
+      /*--- Analytic Jacobians: Picard and FULL. ---*/
+      su2double dwdu[4][5][5], elemP[4][4][5][5], elemF[4][4][5][5], wallP[4][4][5][5], wallF[4][4][5][5], res[4][5];
+      for (int a = 0; a < nNodes; ++a) pve::EntropyVariableJacobian(nDim, kGamma, state[a], dwdu[a]);
+      E.Jacobian(dwdu, elemP);
+      pve::NoSlipWall(E, nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, pve::NOSLIP_PENALTY, res, dwdu, wallP,
+                      nullptr, nullptr, nullptr, symmetry);
+      for (int a = 0; a < nNodes; ++a)
+        for (int b = 0; b < nNodes; ++b)
+          for (int v = 0; v < nVar; ++v)
+            for (int j = 0; j < nVar; ++j) {
+              elemF[a][b][v][j] = elemP[a][b][v][j];
+              wallF[a][b][v][j] = wallP[a][b][v][j];
+            }
+      E.AddStateJacobian(state, dwdu, elemF);
+      pve::NoSlipWallStateJacobian(E, state, dwdu, nDim, faceNodes, N, isothermal, wallTheta, 1, sipg,
+                                   pve::NOSLIP_PENALTY, wallF, nullptr, nullptr, symmetry);
+
+      su2double errP = 0.0, maxP = 0.0, errF = 0.0, maxF = 0.0, wErrP = 0.0, wMaxP = 0.0, wErrF = 0.0, wMaxF = 0.0;
+      for (int b = 0; b < nNodes; ++b) {
+        for (int j = 0; j < nVar; ++j) {
+          const su2double h = 1e-6;
+          pve::NodeState plus[4], minus[4];
+          for (int a = 0; a < nNodes; ++a) plus[a] = minus[a] = state[a];
+          Perturb(nDim, plus[b], j, h);
+          Perturb(nDim, minus[b], j, -h);
+
+          /*--- K frozen: the Picard part. ---*/
+          su2double rp[4][5], rm[4][5], wp[4][5], wm[4][5];
+          const auto frozenPlus = Frozen(E, plus), frozenMinus = Frozen(E, minus);
+          frozenPlus.Residual(rp);
+          frozenMinus.Residual(rm);
+          wall(frozenPlus, wp);
+          wall(frozenMinus, wm);
+          for (int a = 0; a < nNodes; ++a) {
+            for (int v = 0; v < nVar; ++v) {
+              errP = std::max(errP, su2double(fabs((rp[a][v] - rm[a][v]) / (2 * h) - elemP[a][b][v][j])));
+              maxP = std::max(maxP, su2double(fabs(elemP[a][b][v][j])));
+              wErrP = std::max(wErrP, su2double(fabs((wp[a][v] - wm[a][v]) / (2 * h) - wallP[a][b][v][j])));
+              wMaxP = std::max(wMaxP, su2double(fabs(wallP[a][b][v][j])));
+            }
+          }
+
+          /*--- Coefficients recomputed from the state: the exact Jacobian. ---*/
+          const auto fullPlus = recomputed(plus), fullMinus = recomputed(minus);
+          fullPlus.Residual(rp);
+          fullMinus.Residual(rm);
+          wall(fullPlus, wp);
+          wall(fullMinus, wm);
+          for (int a = 0; a < nNodes; ++a) {
+            const int type = (a == b) ? 0 : 1;
+            for (int v = 0; v < nVar; ++v) {
+              const su2double fdElem = (rp[a][v] - rm[a][v]) / (2 * h), fdWall = (wp[a][v] - wm[a][v]) / (2 * h);
+              errF = std::max(errF, su2double(fabs(fdElem - elemF[a][b][v][j])));
+              maxF = std::max(maxF, su2double(fabs(elemF[a][b][v][j])));
+              wErrF = std::max(wErrF, su2double(fabs(fdWall - wallF[a][b][v][j])));
+              wMaxF = std::max(wMaxF, su2double(fabs(wallF[a][b][v][j])));
+              elemNorms.Add(type, fdElem, elemP[a][b][v][j]);
+              wallNorms[kind].Add(type, fdWall, wallP[a][b][v][j]);
+            }
+          }
+        }
+      }
+      elemNorms.EndDraw();
+      wallNorms[kind].EndDraw();
+      INFO("nDim " << nDim << ", trial " << trial << ", wall kind " << kind << ", moved " << moved);
+      CHECK(errP <= 1e-6 * maxP);
+      CHECK(wErrP <= 1e-6 * wMaxP);
+      CHECK(errF <= 1e-6 * maxF);
+      CHECK(wErrF <= 1e-6 * wMaxF);
+    }
+    const std::vector<std::string> names = {"diagonal", "edge"};
+    ReportMissing(std::to_string(nDim) + "D simplex element, Picard", elemNorms, names);
+    for (int kind = 0; kind < 3; ++kind)
+      ReportMissing(std::to_string(nDim) + "D " + wallNames[kind] + ", Picard", wallNorms[kind], names);
+  }
+}
+
+TEST_CASE("VISC_P1_JACOBIAN: split averages of prisms and hexahedra and the dropped non-edge blocks", "[P1Flux]") {
+  /*--- One cell, V-A on the sub-simplices of its split average with weights omega_t (CNSSolver::MixedViscousResidual).
+   * The cell Jacobian has blocks between nodes that are not edges of the cell (face and body diagonals); they are not
+   * in the edge sparsity pattern of the matrix, so the solver drops them with Picard and with FULL. Reported: the part
+   * of the full finite-difference Jacobian missing from the assembled Picard and FULL Jacobians, per block type. ---*/
+  std::mt19937 gen(24680);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const int nDim = 3, nVar = 5;
+  const std::string mesh = "p1_visc_jacobian_mixed_3d.su2";
+  WriteMixedMesh(mesh, nDim, 3, 0.0, 1.0);
+  MeshCase test(mesh, MixedOptions);
+  auto& geometry = static_cast<CPhysicalGeometry&>(*test.geometry);
+  const std::vector<std::string> names = {"diagonal", "edge", "non-edge"};
+
+  for (const int vtk : {PRISM, HEXAHEDRON}) {
+    const auto cell = MakeCell(vtk);
+    const auto& list = geometry.SetMixedSimplices(cell.get());
+    const int nCell = cell->GetnNodes();
+    INFO("VTK type " << vtk);
+
+    /*--- 0 diagonal, 1 edge of the cell, 2 any other pair (not in the sparsity pattern). ---*/
+    auto blockType = [&](int i, int k) {
+      if (i == k) return 0;
+      for (unsigned short n = 0; n < cell->GetnNeighbor_Nodes(i); ++n)
+        if (cell->GetNeighbor_Nodes(i, n) == k) return 1;
+      return 2;
+    };
+    auto at = [&](int i, int k, int v, int j) { return ((i * nCell + k) * nVar + v) * nVar + j; };
+
+    BlockNorms picardNorms, fullNorms;
+    for (int draw = 0; draw < 12; ++draw) {
+      const auto x = CellCoords(gen, vtk, 0.12, (draw % 2) ? 1e-2 : 1.0);
+      std::vector<pve::NodeState> state(nCell);
+      std::vector<su2double> muTurb(nCell, 0.0);
+      for (int i = 0; i < nCell; ++i) {
+        auto& S = state[i];
+        S.rho = exp(u(gen));
+        S.p = S.rho * kGas * exp(u(gen));
+        for (int d = 0; d < 3; ++d) S.vel[d] = 1.5 * u(gen);
+        if (draw % 3 != 0) muTurb[i] = exp(3.0 * u(gen));
+        RecomputeTransport(S, muTurb[i]);
+      }
+
+      /*--- Sub-simplices at the base state and the omega-weighted Picard and FULL cell Jacobians (all blocks). ---*/
+      std::vector<pve::Element> base(list.size());
+      std::vector<su2double> JP(nCell * nCell * nVar * nVar, 0.0), JF(nCell * nCell * nVar * nVar, 0.0);
+      for (size_t t = 0; t < list.size(); ++t) {
+        const su2double* X[4] = {nullptr, nullptr, nullptr, nullptr};
+        pve::NodeState sub[4];
+        for (int a = 0; a <= nDim; ++a) {
+          X[a] = x[list[t].nodes[a]].data();
+          sub[a] = state[list[t].nodes[a]];
+        }
+        REQUIRE(base[t].Set(nDim, X, sub, kGas) > 0.0);
+        su2double dwdu[4][5][5], jacP[4][4][5][5], jacF[4][4][5][5];
+        for (int a = 0; a <= nDim; ++a) pve::EntropyVariableJacobian(nDim, kGamma, sub[a], dwdu[a]);
+        base[t].Jacobian(dwdu, jacP);
+        for (int a = 0; a < 4; ++a)
+          for (int b = 0; b < 4; ++b)
+            for (int v = 0; v < 5; ++v)
+              for (int j = 0; j < 5; ++j) jacF[a][b][v][j] = jacP[a][b][v][j];
+        base[t].AddStateJacobian(sub, dwdu, jacF);
+        for (int a = 0; a <= nDim; ++a)
+          for (int b = 0; b <= nDim; ++b)
+            for (int v = 0; v < nVar; ++v)
+              for (int j = 0; j < nVar; ++j) {
+                JP[at(list[t].nodes[a], list[t].nodes[b], v, j)] += list[t].weight * jacP[a][b][v][j];
+                JF[at(list[t].nodes[a], list[t].nodes[b], v, j)] += list[t].weight * jacF[a][b][v][j];
+              }
+      }
+
+      /*--- Cell residual, K of each sub-simplex frozen at the base state or recomputed from the state. ---*/
+      auto residual = [&](const std::vector<pve::NodeState>& S, bool recompute) {
+        std::vector<std::array<su2double, 5>> R(nCell, {0, 0, 0, 0, 0});
+        for (size_t t = 0; t < list.size(); ++t) {
+          const su2double* X[4] = {nullptr, nullptr, nullptr, nullptr};
+          pve::NodeState sub[4];
+          for (int a = 0; a <= nDim; ++a) {
+            X[a] = x[list[t].nodes[a]].data();
+            sub[a] = S[list[t].nodes[a]];
+            if (recompute) RecomputeTransport(sub[a], muTurb[list[t].nodes[a]]);
+          }
+          pve::Element Et;
+          if (recompute) Et.Set(nDim, X, sub, kGas);
+          else Et = Frozen(base[t], sub);
+          su2double r[4][5];
+          Et.Residual(r);
+          for (int a = 0; a <= nDim; ++a)
+            for (int v = 0; v < nVar; ++v) R[list[t].nodes[a]][v] += list[t].weight * r[a][v];
+        }
+        return R;
+      };
+
+      su2double errP = 0.0, maxP = 0.0, errF = 0.0, maxF = 0.0;
+      for (int k = 0; k < nCell; ++k) {
+        for (int j = 0; j < nVar; ++j) {
+          const su2double h = 1e-6;
+          auto plus = state, minus = state;
+          Perturb(nDim, plus[k], j, h);
+          Perturb(nDim, minus[k], j, -h);
+          const auto Rp = residual(plus, false), Rm = residual(minus, false);
+          const auto Qp = residual(plus, true), Qm = residual(minus, true);
+          for (int i = 0; i < nCell; ++i) {
+            const int type = blockType(i, k);
+            for (int v = 0; v < nVar; ++v) {
+              const su2double fdFrozen = (Rp[i][v] - Rm[i][v]) / (2 * h), fdFull = (Qp[i][v] - Qm[i][v]) / (2 * h);
+              const su2double picard = JP[at(i, k, v, j)], full = JF[at(i, k, v, j)];
+              errP = std::max(errP, su2double(fabs(fdFrozen - picard)));
+              maxP = std::max(maxP, su2double(fabs(picard)));
+              errF = std::max(errF, su2double(fabs(fdFull - full)));
+              maxF = std::max(maxF, su2double(fabs(full)));
+              /*--- What the solver assembles: no blocks between non-edge pairs. ---*/
+              picardNorms.Add(type, fdFull, (type == 2) ? su2double(0.0) : picard);
+              fullNorms.Add(type, fdFull, (type == 2) ? su2double(0.0) : full);
+            }
+          }
+        }
+      }
+      picardNorms.EndDraw();
+      fullNorms.EndDraw();
+      INFO("draw " << draw);
+      CHECK(errP <= 1e-6 * maxP);
+      CHECK(errF <= 1e-6 * maxF);
+    }
+    const std::string cellName = (vtk == PRISM) ? "prism" : "hexahedron";
+    ReportMissing(cellName + " split average, assembled Picard", picardNorms, names);
+    ReportMissing(cellName + " split average, assembled FULL (non-edge blocks dropped)", fullNorms, names);
+  }
+}

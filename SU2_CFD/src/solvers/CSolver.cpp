@@ -5940,6 +5940,12 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
   /*--- VISC_P1_TIME_STEP: add the row bounds of the viscous wall terms to those of Viscous_Residual_P1Entropy. ---*/
   const bool rowBound = config->GetVisc_P1_Time_Step();
 
+  /*--- VISC_P1_JACOBIAN= FULL: the dK/du terms of the viscous wall terms (frozen state of the wall element, mu(T),
+   * kappa(T), mu_t frozen). On a sub-simplex of a mixed cell, blocks of non-edge pairs are dropped by AddBlock (not in
+   * the sparsity pattern). ---*/
+  const bool fullJacobian = implicit && (config->GetKind_Visc_P1_Jacobian() == VISC_P1_JACOBIAN::FULL);
+  const pve::TransportLaw law = fullJacobian ? pve::MakeTransportLaw(*config) : pve::TransportLaw();
+
   /*--- Weights of the approximate pressure flux Jacobian, as for BC_ENTROPY_P1 (5:1 and 6:1:1). ---*/
   const su2double omegaSelf = (nDim == 2) ? 5.0 / 12.0 : 1.0 / 4.0;
   const su2double omegaOther = (nDim == 2) ? 1.0 / 12.0 : 1.0 / 24.0;
@@ -6023,6 +6029,14 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
                     sipg, penalty, res, implicit ? dwdu : nullptr, implicit ? jac : nullptr,
                     (movedShares && !subSimplex) ? record.share : nullptr,
                     (movingWall && !symmetry) ? wallVel : nullptr, nullptr, symmetry);
+    if (fullJacobian) {
+      for (unsigned short c = 0; c < nNodes; ++c)
+        pve::GatherTransportDerivatives(*base_nodes, point[c], gasConst, law, state[c]);
+      pve::NoSlipWallStateJacobian(simplex, state, dwdu, nDim, faceNodes, faceNormal, record.isothermal,
+                                   record.wallTheta, record.nWallFaces, sipg, penalty, jac,
+                                   (movedShares && !subSimplex) ? record.share : nullptr,
+                                   (movingWall && !symmetry) ? wallVel : nullptr, symmetry);
+    }
 
     for (unsigned short a = 0; a < nDim; ++a)
       for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[faceNodes[a]][iVar] += faceRes[a][iVar];

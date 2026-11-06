@@ -851,6 +851,18 @@ static const MapType<std::string, CONDUCTIVITYMODEL_TURB> TurbConductivityModel_
 };
 
 /*!
+ * \brief Jacobian of the VISC_P1_ENTROPY element operator and of its weak walls (VISC_P1_JACOBIAN).
+ */
+enum class VISC_P1_JACOBIAN {
+  PICARD, /*!< \brief K frozen (default). */
+  FULL,   /*!< \brief Plus the dK/du terms of the frozen state and of mu(T), kappa(T) (mu_t frozen). */
+};
+static const MapType<std::string, VISC_P1_JACOBIAN> Visc_P1_Jacobian_Map = {
+  MakePair("PICARD", VISC_P1_JACOBIAN::PICARD)
+  MakePair("FULL", VISC_P1_JACOBIAN::FULL)
+};
+
+/*!
  * \brief types of mass diffusivity models
  */
 enum class DIFFUSIVITYMODEL {

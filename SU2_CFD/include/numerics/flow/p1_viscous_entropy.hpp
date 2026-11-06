@@ -64,6 +64,7 @@ constexpr double NOSLIP_PENALTY = 2.5;  /*!< \brief c of the weak no-slip wall, 
  */
 struct NodeState {
   su2double rho = 1.0, vel[3] = {0.0, 0.0, 0.0}, p = 1.0, mu = 0.0, kappa = 0.0;
+  su2double dmudT = 0.0, dkappadT = 0.0; /*!< \brief VISC_P1_JACOBIAN= FULL: d mu/dT, d kappa/dT (mu_t frozen), else 0. */
 };
 
 /*!
@@ -80,6 +81,57 @@ inline void GatherNode(const Nodes& nodes, unsigned long iPoint, unsigned short 
   if (eddy < 0.0) eddy = 0.0;
   S.mu = nodes.GetLaminarViscosity(iPoint) + eddy;
   S.kappa = nodes.GetThermalConductivity(iPoint) + nodes.GetSpecificHeatCp(iPoint) * eddy / prandtlTurb;
+}
+
+/*!
+ * \brief VISC_P1_JACOBIAN= FULL: laws of the laminar transport coefficients whose temperature derivatives enter the full
+ *        Jacobian. mu: constant, or Sutherland mu = mu_ref (T/T_ref)^(3/2) (T_ref + S)/(T + S), so
+ *        d mu/dT = mu (3/(2T) - 1/(T + S)). kappa: constant, or constant Prandtl kappa = cp mu/Pr, d kappa/dT = (cp/Pr) d mu/dT
+ *        (cp constant, ideal gas). mu_t is frozen, as in the Jacobians of the edge viscous fluxes of SU2.
+ */
+struct TransportLaw {
+  bool sutherland = false;       /*!< \brief Sutherland viscosity, else constant. */
+  su2double sutherlandS = 0.0;   /*!< \brief Non-dimensional S of Sutherland's law. */
+  bool constantPrandtl = false;  /*!< \brief kappa_lam = cp mu_lam/Pr_lam, else constant. */
+  su2double prandtlLam = 1.0;    /*!< \brief Pr_lam. */
+};
+
+/*!
+ * \brief TransportLaw of the configuration (VISCOSITY_MODEL, MU_S, CONDUCTIVITY_MODEL, PRANDTL_LAM). CConfig refuses
+ *        VISC_P1_JACOBIAN= FULL with other laws.
+ */
+inline TransportLaw MakeTransportLaw(const CConfig& config) {
+  TransportLaw law;
+  law.sutherland = (config.GetKind_ViscosityModel() == VISCOSITYMODEL::SUTHERLAND);
+  if (law.sutherland) law.sutherlandS = config.GetMu_SND();
+  law.constantPrandtl = (config.GetKind_ConductivityModel() == CONDUCTIVITYMODEL::CONSTANT_PRANDTL);
+  law.prandtlLam = config.GetPrandtl_Lam();
+  return law;
+}
+
+/*!
+ * \brief VISC_P1_JACOBIAN= FULL: d mu/dT and d kappa/dT of a node, T = p/(rho R) (the T of the entropy variables).
+ * \param[in] muLam - Laminar viscosity of the node.
+ * \param[in] cp - Specific heat at constant pressure of the node.
+ */
+inline void TransportDerivatives(const su2double& muLam, const su2double& cp, const su2double& gasConst,
+                                 const TransportLaw& law, NodeState& S) {
+  S.dmudT = 0.0;
+  S.dkappadT = 0.0;
+  if (law.sutherland) {
+    const su2double T = S.p / (S.rho * gasConst);
+    S.dmudT = muLam * (1.5 / T - 1.0 / (T + law.sutherlandS));
+  }
+  if (law.constantPrandtl) S.dkappadT = cp * S.dmudT / law.prandtlLam;
+}
+
+/*!
+ * \brief TransportDerivatives with the laminar viscosity and cp of the node iPoint (after GatherNode).
+ */
+template <class Nodes>
+inline void GatherTransportDerivatives(const Nodes& nodes, unsigned long iPoint, const su2double& gasConst,
+                                       const TransportLaw& law, NodeState& S) {
+  TransportDerivatives(nodes.GetLaminarViscosity(iPoint), nodes.GetSpecificHeatCp(iPoint), gasConst, law, S);
 }
 
 /*!
@@ -120,6 +172,11 @@ class Element {
   su2double flux[MAXNVAR][3] = {{0.0}};         /*!< \brief F_T, flux[iVar][iDim]. */
   bool moved = false;                           /*!< \brief Moved test vectors (SetMovedTest), otherwise |T| g_a. */
   su2double test[MAXNODE][3] = {{0.0}};         /*!< \brief Moved test vectors (|T| I + keep Y^T) g_a. */
+
+  /*--- VISC_P1_JACOBIAN= FULL (StateDerivative): increments of the frozen state theta*, v*, mu_T, kappa_T. With
+   * stateDerivative set, Flux returns dK G, the derivative of K(wbar_T) G along them with G fixed, instead of K G. ---*/
+  bool stateDerivative = false;
+  su2double dTheta = 0.0, dVel[3] = {0.0, 0.0, 0.0}, dMu = 0.0, dKappa = 0.0;
 
   /*!
    * \brief Set the element from the coordinates and the nodal data of its nDim+1 nodes.
@@ -167,6 +224,10 @@ class Element {
    *        with SU2's stress tensor of grad v_eff and the heat flux kappa grad T_eff (Lemma V5). Linear in G.
    */
   void Flux(const su2double* gradTheta, const su2double (*gradMom)[3], su2double F[][3]) const {
+    if (stateDerivative) {
+      FluxStateDerivative(gradTheta, gradMom, F);
+      return;
+    }
     su2double gradVel[3][3] = {{0.0}}, tau[3][3] = {{0.0}}, gradT[3] = {0.0, 0.0, 0.0};
     const su2double invTheta = 1.0 / theta;
     for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
@@ -185,6 +246,72 @@ class Element {
       }
       F[nDim + 1][jDim] = work + kappa * gradT[jDim];
     }
+  }
+
+  /*!
+   * \brief VISC_P1_JACOBIAN= FULL: dK G along (dTheta, dVel, dMu, dKappa), G fixed. With
+   *        grad v_eff = (G_m - v* (x) G_theta)/theta*, grad T_eff = -G_theta/(R theta*^2):
+   *          d grad v_eff = -(dv* (x) G_theta)/theta* - grad v_eff dtheta*/theta*,  d grad T_eff = -2 grad T_eff dtheta*/theta*,
+   *          d tau = tau(mu; d grad v_eff) + tau(dmu; grad v_eff),
+   *          dF_m = d tau,  dF_E = d tau v* + tau dv* + dkappa grad T_eff + kappa d grad T_eff.
+   */
+  void FluxStateDerivative(const su2double* gradTheta, const su2double (*gradMom)[3], su2double F[][3]) const {
+    su2double gradVel[3][3] = {{0.0}}, dGradVel[3][3] = {{0.0}}, tau[3][3] = {{0.0}}, dTau[3][3] = {{0.0}};
+    su2double tauMu[3][3] = {{0.0}}, gradT[3] = {0.0, 0.0, 0.0}, dGradT[3] = {0.0, 0.0, 0.0};
+    const su2double invTheta = 1.0 / theta, ratio = dTheta * invTheta;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      gradT[iDim] = -gradTheta[iDim] * invTheta * invTheta / gasConst;
+      dGradT[iDim] = -2.0 * ratio * gradT[iDim];
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim) {
+        gradVel[iDim][jDim] = (gradMom[iDim][jDim] - vel[iDim] * gradTheta[jDim]) * invTheta;
+        dGradVel[iDim][jDim] = -dVel[iDim] * gradTheta[jDim] * invTheta - ratio * gradVel[iDim][jDim];
+      }
+    }
+    CNumerics::ComputeStressTensor(nDim, tau, gradVel, mu);
+    CNumerics::ComputeStressTensor(nDim, dTau, dGradVel, mu);
+    CNumerics::ComputeStressTensor(nDim, tauMu, gradVel, dMu);
+
+    for (unsigned short jDim = 0; jDim < nDim; ++jDim) {
+      F[0][jDim] = 0.0;
+      su2double work = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+        F[iDim + 1][jDim] = dTau[iDim][jDim] + tauMu[iDim][jDim];
+        work += (dTau[jDim][iDim] + tauMu[jDim][iDim]) * vel[iDim] + tau[jDim][iDim] * dVel[iDim];
+      }
+      F[nDim + 1][jDim] = work + dKappa * gradT[jDim] + kappa * dGradT[jDim];
+    }
+  }
+
+  /*!
+   * \brief VISC_P1_JACOBIAN= FULL: copy of the element whose flux is the state derivative of F_T = K(wbar_T) G (G fixed)
+   *        along du_b = e_jVar at node b. With dtheta_b = -W_b[E], d(theta v)_b = W_b[m] and T_b = 1/(R theta_b):
+   *          dtheta* = dtheta_b/n,  dv* = (d(theta v)_b - v* dtheta_b)/sum_a theta_a,
+   *          dmu_T = (dmu_b/dT) dT_b/n,  dkappa_T = (dkappa_b/dT) dT_b/n,  dT_b = W_b[E]/(R theta_b^2),
+   *        n = d+1 (means over the nodes). Its Flux, FluxOuter and Residual are then the derivatives of those of this
+   *        element through the frozen state, and NoSlipWall of it the derivative of the wall terms (linear in K).
+   * \param[in] b - Element node.
+   * \param[in] S - Nodal data of node b (dmudT, dkappadT).
+   * \param[in] W - dw/du of node b, from EntropyVariableJacobian.
+   * \param[in] jVar - Conservative variable.
+   */
+  Element StateDerivative(unsigned short b, const NodeState& S, const su2double (*W)[MAXNVAR], unsigned short jVar) const {
+    Element D = *this;
+    const su2double dThetaB = -W[nDim + 1][jVar], sumTheta = nNodes * theta;
+    D.stateDerivative = true;
+    D.dTheta = dThetaB / nNodes;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) D.dVel[iDim] = (W[iDim + 1][jVar] - vel[iDim] * dThetaB) / sumTheta;
+    const su2double dT = W[nDim + 1][jVar] / (gasConst * thetaNode[b] * thetaNode[b]);
+    D.dMu = S.dmudT * dT / nNodes;
+    D.dKappa = S.dkappadT * dT / nNodes;
+
+    su2double G[MAXNVAR][3], gradTheta[3] = {0.0, 0.0, 0.0}, gradMom[3][3] = {{0.0}};
+    Gradient(G);
+    for (unsigned short jDim = 0; jDim < nDim; ++jDim) {
+      gradTheta[jDim] = -G[nDim + 1][jDim];
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) gradMom[iDim][jDim] = G[iDim + 1][jDim];
+    }
+    D.Flux(gradTheta, gradMom, D.flux);
+    return D;
   }
 
   /*!
@@ -301,6 +428,28 @@ class Element {
             jac[a][b][iVar][jVar] = size * sum;
           }
         }
+      }
+    }
+  }
+
+  /*!
+   * \brief VISC_P1_JACOBIAN= FULL: add the dK/du part to the Picard Jacobian of Jacobian(): sum over the columns (b, jVar) of
+   *        the residual of StateDerivative(b, node[b], dwdu[b], jVar): dR_a/du_b = Picard + |T| (dK/du_b G) . g_a (or
+   *        . test_a with moved test vectors, theta_v frozen). Then jac is the exact Jacobian of Residual with the
+   *        coefficients recomputed from the state (mu(T), kappa(T); mu_t frozen).
+   * \param[in] node - Nodal data given to Set, with dmudT and dkappadT (TransportDerivatives).
+   * \param[in] dwdu - dw/du of each node, from EntropyVariableJacobian.
+   * \param[in,out] jac - jac[a][b][iVar][jVar], added to.
+   */
+  void AddStateJacobian(const NodeState* node, const su2double (*dwdu)[MAXNVAR][MAXNVAR],
+                        su2double (*jac)[MAXNODE][MAXNVAR][MAXNVAR]) const {
+    for (unsigned short b = 0; b < nNodes; ++b) {
+      for (unsigned short jVar = 0; jVar < nVar; ++jVar) {
+        const Element D = StateDerivative(b, node[b], dwdu[b], jVar);
+        su2double res[MAXNODE][MAXNVAR];
+        D.Residual(res);
+        for (unsigned short a = 0; a < nNodes; ++a)
+          for (unsigned short iVar = 0; iVar < nVar; ++iVar) jac[a][b][iVar][jVar] += res[a][iVar];
       }
     }
   }
@@ -588,6 +737,33 @@ inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsign
           jac[b][a][iVar][jVar] -= s * weight[k] * sum;
         }
       }
+    }
+  }
+}
+
+/*!
+ * \brief VISC_P1_JACOBIAN= FULL: add the dK/du part of the Jacobian of NoSlipWall (consistency, penalty and adjoint
+ *        terms are linear in K for fixed G and e, sigma_f and the projectors do not depend on the state), the residual of
+ *        NoSlipWall for E.StateDerivative(b, node[b], dwdu[b], jVar) in column (b, jVar).
+ * \param[in] node - Nodal data given to Element::Set, with dmudT and dkappadT.
+ * \param[in] dwdu - dw/du of the element nodes.
+ * \param[in,out] jac - jac[a][b][iVar][jVar], added to (after NoSlipWall has written the Picard part).
+ * \note The other arguments are those of NoSlipWall.
+ */
+inline void NoSlipWallStateJacobian(const Element& E, const NodeState* node, const su2double (*dwdu)[MAXNVAR][MAXNVAR],
+                                    unsigned short nFaceNodes, const unsigned short* faceNodes,
+                                    const su2double* faceNormal, bool isothermal, const su2double& wallTheta,
+                                    unsigned short nWallFaces, const su2double& s, const su2double& c,
+                                    su2double (*jac)[MAXNODE][MAXNVAR][MAXNVAR], const su2double* shareFrac = nullptr,
+                                    const su2double (*wallVel)[3] = nullptr, bool symmetry = false) {
+  for (unsigned short b = 0; b < E.nNodes; ++b) {
+    for (unsigned short jVar = 0; jVar < E.nVar; ++jVar) {
+      const Element D = E.StateDerivative(b, node[b], dwdu[b], jVar);
+      su2double res[MAXNODE][MAXNVAR];
+      NoSlipWall(D, nFaceNodes, faceNodes, faceNormal, isothermal, wallTheta, nWallFaces, s, c, res, nullptr, nullptr,
+                 shareFrac, wallVel, nullptr, symmetry);
+      for (unsigned short a = 0; a < E.nNodes; ++a)
+        for (unsigned short iVar = 0; iVar < E.nVar; ++iVar) jac[a][b][iVar][jVar] += res[a][iVar];
     }
   }
 }

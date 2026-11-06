@@ -235,6 +235,13 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
    * moved test vectors. Jacobian blocks of node pairs that are not edges are not in the sparsity pattern and drop. ---*/
   const bool mixed = config->GetEdge_Form_P1_Mixed();
 
+  /*--- VISC_P1_JACOBIAN= FULL: add the dK/du terms (frozen state and mu(T), kappa(T), mu_t frozen) to the Picard
+   * element Jacobian. On mixed cells the sub-simplex blocks of node pairs that are not edges are passed to AddBlock like
+   * the Picard ones, which drops them: the edge (FVM, fill 0) sparsity pattern of the matrix has no such blocks, so
+   * they cannot be added without a change of the sparsity pattern. ---*/
+  const bool fullJacobian = implicit && (config->GetKind_Visc_P1_Jacobian() == VISC_P1_JACOBIAN::FULL);
+  const pve::TransportLaw law = fullJacobian ? pve::MakeTransportLaw(*config) : pve::TransportLaw();
+
   /*--- VISC_P1_TIME_STEP (P1_TIME_STEP.md, Theorem T3): block row bounds B_i of this operator, the weak walls add
    * theirs in WeakNoSlipWallResidual. SetTime_Step uses them at the next iteration (it runs before the residual). ---*/
   const bool rowBound = config->GetVisc_P1_Time_Step();
@@ -259,7 +266,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
 
       if (nNodes != nDim + 1) {
         if (!mixed) SU2_MPI::Error("VISC_P1_ENTROPY needs triangles or tetrahedra, or EDGE_FORM_P1_MIXED= YES.", CURRENT_FUNCTION);
-        MixedViscousResidual(geometry, element, implicit, rowBound, prandtlTurb, gasConst);
+        MixedViscousResidual(geometry, element, implicit, rowBound, prandtlTurb, gasConst, fullJacobian ? &law : nullptr);
         continue;
       }
 
@@ -307,6 +314,11 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
       su2double dwdu[pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR], jacobian[pve::MAXNODE][pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
       for (auto iNode = 0u; iNode < nNodes; ++iNode) pve::EntropyVariableJacobian(nDim, Gamma, state[iNode], dwdu[iNode]);
       simplex.Jacobian(dwdu, jacobian);
+      if (fullJacobian) {
+        for (auto iNode = 0u; iNode < nNodes; ++iNode)
+          pve::GatherTransportDerivatives(*nodes, element->GetNode(iNode), gasConst, law, state[iNode]);
+        simplex.AddStateJacobian(state, dwdu, jacobian);
+      }
 
       for (auto iNode = 0u; iNode < nNodes; ++iNode) {
         const auto iPoint = element->GetNode(iNode);
@@ -326,7 +338,8 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
 }
 
 void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, bool implicit, bool rowBound,
-                                     const su2double& prandtlTurb, const su2double& gasConst) {
+                                     const su2double& prandtlTurb, const su2double& gasConst,
+                                     const P1ViscousEntropy::TransportLaw* law) {
   namespace pve = P1ViscousEntropy;
 
   const auto nCellNodes = element->GetnNodes();
@@ -337,6 +350,13 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
   pve::NodeState cellState[N_POINTS_MAXIMUM];
   for (auto iNode = 0u; iNode < nCellNodes; ++iNode)
     pve::GatherNode(*nodes, element->GetNode(iNode), nDim, prandtlTurb, cellState[iNode]);
+
+  /*--- VISC_P1_JACOBIAN= FULL: d mu/dT, d kappa/dT of the cell nodes for the dK/du terms of every sub-simplex. ---*/
+  const bool fullJacobian = implicit && (law != nullptr);
+  if (fullJacobian) {
+    for (auto iNode = 0u; iNode < nCellNodes; ++iNode)
+      pve::GatherTransportDerivatives(*nodes, element->GetNode(iNode), gasConst, *law, cellState[iNode]);
+  }
 
   const unsigned short nNodes = nDim + 1;
   for (const auto& entry : geometry->GetMixedSimplices(element->GetVTK_Type())) {
@@ -376,7 +396,9 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
     su2double dwdu[pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR], jacobian[pve::MAXNODE][pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
     for (unsigned short a = 0; a < nNodes; ++a) pve::EntropyVariableJacobian(nDim, Gamma, state[a], dwdu[a]);
     simplex.Jacobian(dwdu, jacobian);
+    if (fullJacobian) simplex.AddStateJacobian(state, dwdu, jacobian);
 
+    /*--- Blocks of non-edge pairs (face and body diagonals) are not in the sparsity pattern, AddBlock drops them. ---*/
     for (unsigned short a = 0; a < nNodes; ++a) {
       if (!geometry->nodes->GetDomain(point[a])) continue;
       for (unsigned short b = 0; b < nNodes; ++b) {

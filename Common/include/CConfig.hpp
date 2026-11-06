@@ -94,6 +94,7 @@ private:
   bool P1_Wall_Forces;         /*!< \brief Wall forces, Cf and heat flux from the boundary fluxes of the P1 entropy walls. */
   bool Visc_P1_Entropy_Moved;  /*!< \brief Element viscous fluxes of VISC_P1_ENTROPY on the moved (MOD_CENTROIDS) dual test space, 3D. */
   bool Visc_P1_Time_Step;      /*!< \brief Viscous local time step from the block row bounds of VISC_P1_ENTROPY and the weak walls (P1_TIME_STEP.md). */
+  VISC_P1_JACOBIAN Kind_Visc_P1_Jacobian; /*!< \brief Jacobian of VISC_P1_ENTROPY and its weak walls: Picard (K frozen) or full (plus dK/du). */
   bool Edge_Form_P1_Mixed;     /*!< \brief EDGE_FORM_P1 on quadrilaterals, hexahedra, prisms and pyramids by split averages (P1_MIXED.md). */
   bool Positive_Update_Flow;   /*!< \brief Positivity-preserving step length of the implicit flow and SST updates (P1_POSITIVITY.md). */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
@@ -10125,6 +10126,14 @@ public:
    *        norms of the nodal entropy Hessians (P1_TIME_STEP.md), instead of the edge formula.
    */
   bool GetVisc_P1_Time_Step() const { return Visc_P1_Time_Step; }
+
+  /*!
+   * \brief VISC_P1_JACOBIAN: PICARD (default, K frozen) or FULL, which adds the dK/du terms (frozen state theta*, v* and
+   *        mu(T), kappa(T), mu_t frozen) to the element Jacobian of VISC_P1_ENTROPY and to the weak wall Jacobians of
+   *        BC_WALL_ENTROPY_P1 and of the viscous symmetry SAT. Blocks between non-edge nodes of mixed cells stay dropped
+   *        (not in the sparsity pattern).
+   */
+  VISC_P1_JACOBIAN GetKind_Visc_P1_Jacobian() const { return Kind_Visc_P1_Jacobian; }
 
   /*!
    * \brief EDGE_FORM_P1_MIXED: the P1 pieces of non-simplex cells (quadrilaterals, hexahedra, prisms, pyramids) as
