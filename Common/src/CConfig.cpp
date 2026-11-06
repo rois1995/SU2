@@ -31,6 +31,7 @@
 
 #include "../include/CConfig.hpp"
 #include "../include/toolboxes/stress_field.hpp"
+#include "../include/toolboxes/stress_replay.hpp"
 #undef ENABLE_MAPS
 
 #include "../include/fem/fem_gauss_jacobi_quadrature.hpp"
@@ -3252,6 +3253,8 @@ void CConfig::SetConfig_Options() {
   addDoubleOption("STRESS_DISCREPANCY_SCALE", stress_discrepancy_scale, 1.0);
   addStringOption("STRESS_DISCREPANCY_PURPOSE", stress_discrepancy_purpose, "SCENARIO");
   addStringOption("STRESS_DISCREPANCY_RESTART", stress_restart_policy, "SAME_FIELD");
+  addStringOption("STRESS_DIAGNOSTIC", stress_diagnostic, "NONE");
+  addStringOption("STRESS_DIAGNOSTIC_FILE", stress_diagnostic_file, "stress_control.sur");
 
   /* DESCRIPTION: Number of calls to 'Build' that trigger re-factorization (0 means only once). */
   addUnsignedLongOption("PASTIX_FACTORIZATION_FREQUENCY", pastix_fact_freq, 1);
@@ -6142,12 +6145,27 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
 }
 
 void CConfig::InitializeStressDiscrepancy() {
-  if (!GetStressDiscrepancy()) return;
+  if (!GetStressDiscrepancy() && !GetStressDiagnostic()) return;
   if (stress_discrepancy_file == "NONE") stress_discrepancy_file.clear();
   auto require = [](bool valid, const string& message) {
     if (!valid) SU2_MPI::Error("STRESS_DISCREPANCY: " + message, CURRENT_FUNCTION);
   };
-  require(GetPrescribedStress() || GetMatchedEPM(), "choose NONE, PRESCRIBED or EPM_MATCHED");
+  require(stress_diagnostic == "NONE" || stress_diagnostic == "CAPTURE" || stress_diagnostic == "RESIDUAL",
+          "diagnostic must be NONE, CAPTURE or RESIDUAL");
+  require(GetPrescribedStress() || GetMatchedEPM() || GetStressReplay() || stress_discrepancy_mode == "NONE",
+          "choose NONE, PRESCRIBED, EPM_MATCHED or REPLAY");
+  if (GetStressDiagnostic()) {
+    // shortcut: exact replay is a serial one-assembly control; qualify parallel replay before extending it.
+    require(size == 1 && omp_get_max_threads() == 1, "diagnostic requires one rank and one thread");
+    require(nInnerIter == 1 && Kind_TimeIntScheme_Flow == EULER_IMPLICIT && Kind_TimeIntScheme_Turb == EULER_IMPLICIT,
+            "diagnostic requires ITER=1 and implicit Euler for flow/turbulence");
+    require(!stress_diagnostic_file.empty(), "diagnostic file must not be empty");
+  }
+  if (GetStressReplay()) {
+    require(stress_diagnostic == "RESIDUAL" && stress_discrepancy_purpose == "COUPLING_CONTROL" &&
+            stress_discrepancy_scale == 1 && stress_discrepancy_file.empty(),
+            "REPLAY requires RESIDUAL diagnostic, COUPLING_CONTROL, scale=1 and no physical field file");
+  }
   require(Kind_Solver == MAIN_SOLVER::RANS || Kind_Solver == MAIN_SOLVER::INC_RANS,
           "only direct finite-volume RANS and INC_RANS are implemented");
   require(!DiscreteAdjoint && DirectDiff == NO_DERIVATIVE, "adjoint and direct differentiation are not qualified");
@@ -6174,7 +6192,8 @@ void CConfig::InitializeStressDiscrepancy() {
   if (Kind_Turb_Model == TURB_MODEL::SA) {
     require(!GetMatchedEPM(), "EPM_MATCHED is SST-only");
     require((saParsedOptions.version == SA_OPTIONS::NONE || saParsedOptions.version == SA_OPTIONS::NEG) &&
-            !saParsedOptions.qcr2000 && !saParsedOptions.comp && !saParsedOptions.rot && !saParsedOptions.bc,
+            (!saParsedOptions.qcr2000 || (GetStressDiagnostic() && !GetStressDiscrepancy())) &&
+            !saParsedOptions.comp && !saParsedOptions.rot && !saParsedOptions.bc,
             "choose linear SA or SA-neg without QCR, transition, rotation or compressibility corrections");
   } else {
     require(Kind_Turb_Model == TURB_MODEL::SST && sstParsedOptions.version == SST_OPTIONS::V2003 &&
@@ -6187,7 +6206,7 @@ void CConfig::InitializeStressDiscrepancy() {
     require(eig_val_comp >= 1 && eig_val_comp <= 3 && std::isfinite(SU2_TYPE::GetValue(uq_delta_b)) &&
             std::isfinite(SU2_TYPE::GetValue(uq_urlx)) && uq_delta_b >= 0 && uq_delta_b <= 1 &&
             uq_urlx >= 0 && uq_urlx <= 1, "EPM controls require component 1..3 and finite factors in [0,1]");
-  } else {
+  } else if (GetPrescribedStress()) {
     try {
       stress_field = std::make_shared<const StressField::Field>(stress_discrepancy_file);
     } catch (const std::exception& error) { SU2_MPI::Error(error.what(), CURRENT_FUNCTION); }
@@ -6207,7 +6226,50 @@ void CConfig::InitializeStressDiscrepancy() {
          << ", scale=" << stress_discrepancy_scale << "; implicit Jacobian is approximate; no validated adjoint." << endl;
 }
 
-void CConfig::EvaluateStressDiscrepancy(const su2double* coord, unsigned short dim, su2double (&tensor)[3][3]) const {
+void CConfig::StartStressDiagnostic(const string& state) {
+  if (!GetStressDiagnostic()) return;
+  try {
+    std::ifstream mesh(GetMesh_FileName(), std::ios::binary);
+    StressField::Require(bool(mesh), "cannot fingerprint diagnostic mesh");
+    const string bytes((std::istreambuf_iterator<char>(mesh)), {});
+    std::ostringstream identity;
+    identity << std::setprecision(17) << StressField::SHA256(bytes) << ' ' << StressField::SHA256(state)
+             << ' ' << static_cast<int>(Kind_Solver) << ' ' << static_cast<int>(Kind_Turb_Model)
+             << ' ' << static_cast<int>(saParsedOptions.version) << ' ' << saParsedOptions.ft2
+             << ' ' << static_cast<int>(Kind_FluidModel) << ' ' << Length_Ref << ' ' << Velocity_Ref << ' ' << Density_Ref
+             << ' ' << GetKind_Gradient_Method() << ' ' << GetKind_Gradient_Method_Recon()
+             << ' ' << GetMUSCL_Flow() << ' ' << GetMUSCL_Turb() << ' ' << static_cast<int>(GetKind_Upwind_Flow())
+             << ' ' << static_cast<int>(GetKind_SlopeLimit_Flow()) << ' ' << static_cast<int>(GetKind_SlopeLimit_Turb());
+    identity << ' ' << GetEnergy_Equation() << ' ' << static_cast<int>(GetKind_DensityModel())
+             << ' ' << static_cast<int>(GetKind_ViscosityModel()) << ' ' << static_cast<int>(GetKind_ConductivityModel())
+             << ' ' << GetPrandtl_Lam() << ' ' << GetPrandtl_Turb();
+    if (Kind_Solver == MAIN_SOLVER::RANS) identity << ' ' << GetGamma() << ' ' << GetGas_ConstantND();
+    if (GetStressCapture() || GetStressReplay())
+      stress_replay = std::make_shared<StressField::Replay>(StressField::SHA256(identity.str()), GetStressReplay(), stress_diagnostic_file);
+  } catch (const std::exception& error) { SU2_MPI::Error(error.what(), CURRENT_FUNCTION); }
+}
+
+void CConfig::ExchangeStressQuery(const string& query, su2double (&tensor)[3][3]) const {
+  try {
+    StressField::Require(bool(stress_replay), "diagnostic replay not initialized");
+    StressField::Tensor value{};
+    for (int i=0;i<3;++i) for (int j=0;j<3;++j) value[i][j]=SU2_TYPE::GetValue(tensor[i][j]);
+    value = stress_replay->Exchange(query, value);
+    for (int i=0;i<3;++i) for (int j=0;j<3;++j) tensor[i][j]=value[i][j];
+  } catch (const std::exception& error) { SU2_MPI::Error(error.what(), CURRENT_FUNCTION); }
+}
+
+void CConfig::FinishStressDiagnostic() const {
+  if (!stress_replay) return;
+  try { stress_replay->Finish(stress_diagnostic_file); }
+  catch (const std::exception& error) { SU2_MPI::Error(error.what(), CURRENT_FUNCTION); }
+}
+
+void CConfig::ReportStressQueries() const {
+  if (stress_field) cout << "Stress query statistics rank " << rank << ": " << stress_field->QuerySummary() << endl;
+}
+
+void CConfig::EvaluateStressDiscrepancy(const su2double* coord, unsigned short dim, su2double (&tensor)[3][3], char kind) const {
   for (auto& row : tensor) for (auto& x : row) x = 0;
   if (!GetPrescribedStress()) return;
   try {
@@ -6216,10 +6278,10 @@ void CConfig::EvaluateStressDiscrepancy(const su2double* coord, unsigned short d
     if (stress_discrepancy_scale == 0) return;
     StressField::Point point{};
     for (unsigned short j=0;j<dim;++j) point[j]=SU2_TYPE::GetValue(coord[j]*Length_Ref);
-    const auto value=stress_field->Evaluate(point);
+    const auto value=stress_field->Evaluate(point,kind);
     const su2double factor=stress_discrepancy_scale/(Velocity_Ref*Velocity_Ref);
     for (int i=0;i<3;++i) for (int j=0;j<3;++j) tensor[i][j]=factor*value[i][j];
-  } catch (const std::exception& error) { SU2_MPI::Error(error.what(), CURRENT_FUNCTION); }
+  } catch (const std::exception& error) { ReportStressQueries(); SU2_MPI::Error(error.what(), CURRENT_FUNCTION); }
 }
 
 string CConfig::StressDiscrepancyIdentity(bool with_internal_units) const {

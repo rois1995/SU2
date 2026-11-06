@@ -12,6 +12,31 @@ from scipy.sparse.linalg import splu
 from field_io import assemble, write_field
 
 
+def make_seed(nodes, definition):
+    dim=nodes.shape[1]
+    if definition.get("type") == "SINE_PHYSICAL_V1":
+        frequencies=np.asarray(definition["wave_vectors"],dtype=float)
+        phases=np.asarray(definition["phases"],dtype=float)
+        if frequencies.shape!=(5,dim) or phases.shape!=(5,) or not np.isfinite(frequencies).all() or not np.isfinite(phases).all():
+            raise ValueError("seed needs five finite physical wave vectors and phases")
+        seed=np.sin(nodes@frequencies.T+phases)
+        if dim==2:seed[:,3:]=0
+        return seed
+    if definition.get("type") != "LOCALIZED_PHYSICAL_V1":
+        raise ValueError("supported seeds: SINE_PHYSICAL_V1, LOCALIZED_PHYSICAL_V1")
+    terms=definition["terms"]
+    if not 1<=len(terms)<=64:raise ValueError("localized seed needs 1..64 terms")
+    seed=np.zeros((len(nodes),5))
+    for term in terms:
+        center=np.asarray(term["center"],dtype=float);width=np.asarray(term["width"],dtype=float)
+        direction=np.asarray(term["coefficients"],dtype=float)
+        if center.shape!=(dim,) or width.shape!=(dim,) or direction.shape!=(5,) or not all(np.isfinite(a).all() for a in (center,width,direction)) or np.any(width<=0):
+            raise ValueError("invalid localized center, width or tensor coefficients")
+        if dim==2 and np.any(direction[3:]!=0):raise ValueError("out-of-plane localized seed")
+        seed += np.exp(-.5*np.sum(((nodes-center)/width)**2,axis=1))[:,None]*direction
+    return seed
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mesh", required=True, help="NPZ with nodes and cells; no pickle")
@@ -26,16 +51,7 @@ def main():
     with np.load(args.mesh, allow_pickle=False) as mesh:
         nodes, cells = mesh["nodes"], mesh["cells"]
     mass, stiffness, measure, _ = assemble(nodes, cells)
-    seed_definition = definition["seed"]
-    if seed_definition["type"] != "SINE_PHYSICAL_V1":
-        raise ValueError("supported seed: SINE_PHYSICAL_V1")
-    frequencies = np.asarray(seed_definition["wave_vectors"], dtype=float)
-    phases = np.asarray(seed_definition["phases"], dtype=float)
-    if frequencies.shape != (5, nodes.shape[1]) or phases.shape != (5,) or not np.isfinite(frequencies).all() or not np.isfinite(phases).all():
-        raise ValueError("seed needs five physical wave vectors and phases")
-    seed = np.sin(nodes @ frequencies.T + phases)
-    if nodes.shape[1] == 2:
-        seed[:, 3:] = 0
+    seed = make_seed(nodes, definition["seed"])
     operator = (mass + float(definition["ell"])**2 * stiffness).tocsc()
     rhs = mass @ seed
     coefficients = splu(operator).solve(rhs)
@@ -47,7 +63,7 @@ def main():
     denominator = max(n_inf, n_h1)
     if denominator > 0:
         coefficients *= float(definition["epsilon"]) / denominator
-    definition["generator"] = {"backend": "P1_HELMHOLTZ_NEUMANN_SINE_V1", "numpy": np.__version__,
+    definition["generator"] = {"backend": "P1_HELMHOLTZ_NEUMANN_V1", "numpy": np.__version__,
                                "scipy": scipy.__version__, "smoothing_relative_residual": residual,
                                "mesh_sha256": hashlib.sha256(Path(args.mesh).read_bytes()).hexdigest()}
     report = write_field(args.output, nodes, cells, coefficients, definition, binary=not args.text)

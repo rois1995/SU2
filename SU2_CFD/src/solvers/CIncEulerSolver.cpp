@@ -3655,7 +3655,7 @@ void CIncEulerSolver::LoadRestart(CGeometry **geometry, CSolver ***solver, CConf
   auto nVar_Restart = nVar;
   if (!(config->GetEnergy_Equation() || config->GetWeakly_Coupled_Heat())) {
     nVar_Restart--;
-    Solution[nVar-1] = GetTemperature_Inf();
+    Solution[nVar-1] = Enthalpy_Inf;
   }
 
   LoadRestart_impl(geometry, solver, config, val_iter, val_update_geo, Solution, nVar_Restart);
@@ -3695,7 +3695,7 @@ void CIncEulerSolver::SetFreeStream_Solution(const CConfig *config){
     for (unsigned short iDim = 0; iDim < nDim; iDim++){
       nodes->SetSolution(iPoint,iDim+1, Velocity_Inf[iDim]);
     }
-    nodes->SetSolution(iPoint,nDim+1, Temperature_Inf);
+    nodes->SetSolution(iPoint,nDim+1, Enthalpy_Inf);
   }
   END_SU2_OMP_FOR
 

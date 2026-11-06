@@ -100,6 +100,35 @@ def read_csv(path):
     return data
 
 
+def stress_budget(data, covariance_tolerance=0.0):
+    """Integrate nodal diagnostics over owned volumes; these are not face-flux balances."""
+    if not np.isfinite(covariance_tolerance) or covariance_tolerance < 0:
+        raise ValueError("covariance tolerance must be finite and nonnegative")
+    volume=data["Stress_Volume"]
+    if np.any(volume<0) or not np.any(volume>0):raise ValueError("invalid owned volumes")
+    owned=volume>0;total=float(volume.sum())
+    tensor=np.zeros((len(volume),3,3))
+    for name,i,j in (("XX",0,0),("YY",1,1),("ZZ",2,2),("XY",0,1),("XZ",0,2),("YZ",1,2)):
+        tensor[:,i,j]=tensor[:,j,i]=data["Stress_E_"+name]
+    result={"scope":"nodal volume quadrature, not exact discrete energy balance","owned_volume":total,
+            "max_absolute_trace":float(np.max(abs(np.trace(tensor[owned],axis1=1,axis2=2)))),
+            "max_stress_norm":float(np.max(np.linalg.norm(tensor[owned],axis=(1,2)))),
+            "stress_work_integral":float(volume@data["Stress_Work"])}
+    if "Stress_PARENT" in data:
+        for name in ("PARENT","RAW","LIMITED","OMEGA","CAP_GAP"):
+            result[name.lower()+"_integral"]=float(volume@data["Stress_"+name])
+        result["absolute_cap_gap_integral"]=float(volume@abs(data["Stress_CAP_GAP"]))
+        for name in ("LOWER_CAP","UPPER_CAP","K_FLOOR","OMEGA_FLOOR"):
+            mask=data["Stress_"+name]
+            if not np.isin(mask,[0,1]).all():raise ValueError("invalid diagnostic flag: "+name)
+            result[name.lower()+"_volume_fraction"]=float(volume@mask/total)
+        covariance=data["Stress_COV_MIN"]
+        result["minimum_covariance_eigenvalue"]=float(covariance[owned].min())
+        result["negative_covariance_volume_fraction"]=float(volume@(covariance < -covariance_tolerance)/total)
+        result["covariance_tolerance"]=covariance_tolerance
+    return result
+
+
 def extract(run_path,schema_path,output):
     root=Path(run_path).resolve();record=json.loads((root/"run.json").read_text());schema=json.loads(Path(schema_path).read_text())
     for name,info in record["inputs"].items():
@@ -123,6 +152,8 @@ def extract(run_path,schema_path,output):
             volume=data[description["volume_column"]]
             if np.any(volume<=0):raise ValueError("nonpositive owned control volume")
             result["files"][kind]["integrals"]={name:float(volume@data[name]) for name in description.get("integrate",[])}
+        if description.get("stress_budget"):
+            result["files"][kind]["stress_budget"]=stress_budget(data,float(description.get("covariance_tolerance",0)))
     save(output,result);return result
 
 

@@ -1,6 +1,6 @@
 # Field generation and provider checks
 
-**CURVED_GEOMETRY_SUPPORT: OFFLINE_ONLY.** No flow calculation was run.
+**CURVED_GEOMETRY_SUPPORT: OFFLINE_ONLY.** No curved-wall flow calculation was run.
 
 The new generator is a sparse, consistent P1 Helmholtz solve on a supplied
 nonperiodic simplex mesh, followed by common scaling to the two declared bounds.
@@ -46,7 +46,8 @@ maximum diameter `0.1767766952966369 m`, `ell=0.6 m`, and `H/ell=0.2946278254943
 The positive/negative raw shear fields have both norms equal to 0.01 within
 roundoff. The bottom is an analytic wall; inlet/outlet are open, top is symmetry.
 A box taper makes the applied correction zero at all physical boundaries.
-Straight boundaries have no chord approximation. These are input fixtures only.
+Straight boundaries have no chord approximation. The bounded local suite now uses
+this fixture and a 27-node, 48-tetrahedron cube. Neither is a physical benchmark.
 
 ## Reuse decision
 
@@ -64,6 +65,15 @@ SHA-256 was `389d2bacd28c42ffb3bac74a1d688ca3a4784f721d7b6184e3f1386fbee85fdb`.
 All 200 checks passed; maximum absolute difference was `2.2204460492503131e-16`.
 `check_meshadaptation_reference.py` reproduces this check given the source path.
 
-Full query timings, per-rank cost measurements, field/CFD refinement trends and
-physical admissibility coverage remain unmeasured. Raw-to-final differences are
-checked in the tests; there is no Python oracle or timing counter in the CFD loop.
+The generator accepts both SINE_PHYSICAL_V1 and LOCALIZED_PHYSICAL_V1 seeds.
+The latter combines up to 64 Gaussian terms with physical centers, directional
+widths and five signed coefficients. Both use the same P1 Helmholtz smoothing
+and common normalization. Localized combinations and sign symmetry are tested;
+flow-dependent scaling and directional smoothing operators are not implemented.
+
+The provider now reports face/source/other query counts, failures, accumulated
+query time and persistent storage per rank. The serial solver suite exercises
+these counters. They do not establish parallel cost or large-case scaling.
+Field/CFD refinement trends and independent physical coverage remain unmeasured.
+Raw-to-final differences are checked outside the solver; there is no Python oracle
+in the CFD loop.

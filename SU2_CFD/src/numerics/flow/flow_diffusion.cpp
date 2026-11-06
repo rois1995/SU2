@@ -142,12 +142,14 @@ void CAvgGrad_Base::SetStressTensor(const su2double *val_primvar,
     ComputeStressTensor(nDim, tau, val_gradprimvar+1, total_viscosity, Density, su2double(0.0));
   }
 
-  if (config->GetStressDiscrepancy() && (correct_gradient || config->GetMatchedEPM())) {
+  if ((config->GetStressDiscrepancy() && (correct_gradient || config->GetMatchedEPM() || config->GetStressReplay())) ||
+      (config->GetStressCapture() && !config->GetSAParsedOptions().qcr2000)) {
     su2double point[3]{}, difference[3][3]{};
     // Prescribed boundary stress is validated as zero at startup; MG is rejected.
-    if (config->GetPrescribedStress())
+    if (config->GetPrescribedStress() || config->GetStressDiagnostic())
       for (unsigned short j=0;j<nDim;++j) point[j]=0.5*(Coord_i[j]+Coord_j[j]);
-    ComputeStressDiscrepancy(nDim, config, point, val_gradprimvar+1, Density, val_eddy_viscosity, val_turb_ke, difference);
+    ComputeStressDiscrepancy(nDim, config, point, val_gradprimvar+1, Density, val_eddy_viscosity, val_turb_ke, difference,
+                             correct_gradient ? 'F' : 'B');
     for (unsigned short i=0;i<nDim;++i) for (unsigned short j=0;j<nDim;++j)
       tau[i][j] -= Density*difference[i][j];
   }
@@ -159,6 +161,25 @@ void CAvgGrad_Base::SetStressTensor(const su2double *val_primvar,
       for (unsigned short jDim = 0 ; jDim < nDim; jDim++) {
         tau[iDim][jDim] += stochReynStress[iDim][jDim];
       }
+  }
+
+  if (config->GetSAParsedOptions().qcr2000) {
+    const su2double total_viscosity = val_laminar_viscosity + val_eddy_viscosity;
+    const su2double turb_fraction = val_eddy_viscosity / fmax(total_viscosity, EPS);
+    su2double before[3][3]{};
+    if (config->GetStressCapture())
+      for (unsigned short i=0;i<nDim;++i) for (unsigned short j=0;j<nDim;++j) before[i][j]=tau[i][j];
+    AddQCR(nDim, val_gradprimvar+1, tau, turb_fraction);
+    if (config->GetStressCapture()) {
+      su2double point[3]{}, difference[3][3]{};
+      for (unsigned short i=0;i<nDim;++i) {
+        point[i]=0.5*(Coord_i[i]+Coord_j[i]);
+        for (unsigned short j=0;j<nDim;++j) difference[i][j]=(before[i][j]-tau[i][j])/Density;
+      }
+      if (nDim==2) difference[2][2]=-difference[0][0]-difference[1][1];
+      TraceStressQuery(nDim,config,correct_gradient?'F':'B',point,val_gradprimvar+1,
+                       Density,val_eddy_viscosity,val_turb_ke,difference);
+    }
   }
 
 }
@@ -488,11 +509,6 @@ CNumerics::ResidualType<> CAvgGrad_Flow::ComputeResidual(const CConfig* config) 
 
   SetStressTensor(Mean_PrimVar, Mean_GradPrimVar, Mean_turb_ke,
                   Mean_Laminar_Viscosity, Mean_Eddy_Viscosity, config);
-  if (config->GetSAParsedOptions().qcr2000) {
-    const su2double total_viscosity = Mean_Laminar_Viscosity + Mean_Eddy_Viscosity;
-    const su2double turb_fraction = Mean_Eddy_Viscosity / fmax(total_viscosity, EPS);
-    AddQCR(nDim, &Mean_GradPrimVar[1], tau, turb_fraction);
-  }
   if (Mean_TauWall > 0) AddTauWall(UnitNormal, Mean_TauWall);
 
   SetHeatFluxVector(Mean_GradPrimVar, Mean_Eddy_Viscosity, Mean_Thermal_Conductivity, Mean_Cp);
@@ -672,11 +688,6 @@ CNumerics::ResidualType<> CAvgGradInc_Flow::ComputeResidual(const CConfig* confi
 
   SetStressTensor(Mean_PrimVar, Mean_GradPrimVar, Mean_turb_ke,
                   Mean_Laminar_Viscosity, Mean_Eddy_Viscosity, config);
-  if (config->GetSAParsedOptions().qcr2000) {
-    const su2double total_viscosity = Mean_Laminar_Viscosity + Mean_Eddy_Viscosity;
-    const su2double turb_fraction = Mean_Eddy_Viscosity / fmax(total_viscosity, EPS);
-    AddQCR(nDim, &Mean_GradPrimVar[1], tau, turb_fraction);
-  }
   if (Mean_TauWall > 0) AddTauWall(UnitNormal, Mean_TauWall);
 
   GetViscousIncProjFlux(Mean_GradPrimVar, Normal, Mean_Thermal_Conductivity);
@@ -1006,11 +1017,6 @@ CNumerics::ResidualType<> CGeneralAvgGrad_Flow::ComputeResidual(const CConfig* c
 
   SetStressTensor(Mean_PrimVar, Mean_GradPrimVar, Mean_turb_ke,
                   Mean_Laminar_Viscosity, Mean_Eddy_Viscosity, config);
-  if (config->GetSAParsedOptions().qcr2000) {
-    const su2double total_viscosity = Mean_Laminar_Viscosity + Mean_Eddy_Viscosity;
-    const su2double turb_fraction = Mean_Eddy_Viscosity / fmax(total_viscosity, EPS);
-    AddQCR(nDim, &Mean_GradPrimVar[1], tau, turb_fraction);
-  }
   if (Mean_TauWall > 0) AddTauWall(UnitNormal, Mean_TauWall);
 
   SetHeatFluxVector(Mean_GradPrimVar, Mean_Eddy_Viscosity, Mean_Thermal_Conductivity, Mean_Cp);

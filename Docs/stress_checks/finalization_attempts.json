@@ -1,0 +1,2752 @@
+{
+  "scope": "All bounded local solver-suite attempts; failed and invalid comparisons retained.",
+  "production_runs": 0,
+  "cluster_access": false,
+  "total_process_checks": 180,
+  "attempts": [
+    {
+      "directory": "/tmp/su2-finalize-solver-checks",
+      "reason_or_outcome": "CSV output is the restart CSV, not volume.csv; harness path corrected.",
+      "report_sha256": "4783d05971de7adff50f404c1f933a97de077ad02e9c36f93388ebe7ee1db938",
+      "solver_sha256": "8de25de74e42cae1e46c4c677f02f341df3ef355e3b41333f314d5fedce13601",
+      "reported_status": "INCOMPLETE",
+      "runs": [
+        {
+          "id": "SA_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "8f0e7d1ad4a149e0aec1982cdab748bc4fe396760acefe4688b7c243f25ab10a"
+        },
+        {
+          "id": "SA_zero",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "aa5ba014ed0af84171ab6a1b03fcabc4a0ddfc57415cc7372e34e3890eff3cbd"
+        },
+        {
+          "id": "SA_positive",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "74bea65408cd2c833e95db482a705515d2ddd9ed4f56a116cedeffe2863074cf"
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "SA_zero_recovery",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 0.0,
+            "Velocity_x": 0.0,
+            "Velocity_y": 0.0,
+            "Nu_Tilde": 0.0,
+            "Pressure_Coefficient": 0.0,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 0.0,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "directory": "/tmp/su2-finalize-solver-checks-v2",
+      "reason_or_outcome": "Energy-disabled restart stored temperature in the enthalpy slot; fixed upstream assignments.",
+      "report_sha256": "b6029c9b1686275f4c49a4716213e5d44fc58e7240f334f18517132b113a345f",
+      "solver_sha256": "8de25de74e42cae1e46c4c677f02f341df3ef355e3b41333f314d5fedce13601",
+      "reported_status": "INCOMPLETE",
+      "runs": [
+        {
+          "id": "SA_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "509fdc77007639404acd48edbd68060ea2132838762fe93576fba2a19b6761f1"
+        },
+        {
+          "id": "SA_zero",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "ba96253643fd5bdc56274a9c782291eb8ddae89d0fb437ebbd0476246275e9d9"
+        },
+        {
+          "id": "SA_positive",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "db64c0d79670c34d6c8646c7157ff9b620cecd11a5b8191141aede615c23de54"
+        },
+        {
+          "id": "SA_continuous",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "6e36012eb9b7d51c35acfb0e801ede2c54fbc3cb1b757734291866e4aca9993d"
+        },
+        {
+          "id": "SA_resumed",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "1717cd4d4a0e514d01b0bb17ba7427605d5680cf9f4b2dc886ad535fe5c29c22"
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "SA_zero_recovery",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 0.0,
+            "Velocity_x": 0.0,
+            "Velocity_y": 0.0,
+            "Nu_Tilde": 0.0,
+            "Pressure_Coefficient": 0.0,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 0.0,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 0.0
+          }
+        },
+        {
+          "id": "SA_disk_restart",
+          "status": "FAIL",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 5.902633796236317e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 6.4061101800842735e-18,
+            "Nu_Tilde": 1.3010426069826053e-18,
+            "Pressure_Coefficient": 1.1804928779293733e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 1.1368683772161603e-13,
+            "Temperature": 0.03470760131533801,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 2.168404344971009e-19
+          }
+        }
+      ]
+    },
+    {
+      "directory": "/tmp/su2-finalize-solver-checks-v3",
+      "reason_or_outcome": "Matched EPM nodal output did not skip exact walls; fixed wall skip.",
+      "report_sha256": "a3c98aa0fdca1add23c190f9ce5a2bee75a0d8371ac2ec69e9c7d2a6f8c7f959",
+      "solver_sha256": "8de25de74e42cae1e46c4c677f02f341df3ef355e3b41333f314d5fedce13601",
+      "reported_status": "INCOMPLETE",
+      "runs": [
+        {
+          "id": "SA_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "fe742d3482f864cb85137db826aac7235184f4d5c4b23873b0d83ae46d632a21"
+        },
+        {
+          "id": "SA_zero",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "fc8d49d266f6265f5451c5059b1cd14002ef408a43900bc04eba15942fd538d1"
+        },
+        {
+          "id": "SA_positive",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "627fe777950a6c9a50f8a09714ef7f131a467a5bf1a1b8dec2a56c3c3d9a8b35"
+        },
+        {
+          "id": "SA_continuous",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "10c4362432b576672d3dbe8276066350dc993bf8a421b44cde2b2854e8e86a11"
+        },
+        {
+          "id": "SA_resumed",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "89e61feb3df87de38a1c034440b8271971bbf731041a0db2b734e2ae0f81a405"
+        },
+        {
+          "id": "SA_changed_field",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "Missing or mismatched stress restart identity",
+          "log_sha256": "60c34b0ec06e83cc7590d20af1bc2dcf0e7f7c482c06800b5c95ebc7f36ba91b"
+        },
+        {
+          "id": "SA_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "c7a6b9e2b104aa7270f2027a781104d570a51025eb052a0c5c93f07cb26a7ad7"
+        },
+        {
+          "id": "SA_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "5571c3b8b4dd1a5801c4480ba7797d9f1a6280ce4df3ec557c0274b512fab01f"
+        },
+        {
+          "id": "SA_changed_replay_state",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "fingerprint mismatch",
+          "log_sha256": "efce935bf6a298d5570bd53ed02a74e2499ff9ee2536a0d3f346e16e4d7009de"
+        },
+        {
+          "id": "SST_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "e7eb8e4a266ca1eda9b677e8e24c4ec255f2c338f9dfb6bb8779f597d780d2a2"
+        },
+        {
+          "id": "SST_zero",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "5d87037299eef2f482ad1d3bc27bbd6f0effc4c1732b4faf4cb02ab938a5d6f4"
+        },
+        {
+          "id": "SST_positive",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "9005de41a9dd3f1758ee4a3ea73728782b684f36fa4c7a032a8e9980353feeba"
+        },
+        {
+          "id": "SST_continuous",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "b14aa0bc6e94d22c41fbea3da9dc1d869a972ab77cb352148daadf6617290589"
+        },
+        {
+          "id": "SST_resumed",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "0b1e8b2607dcf183787ce88ff8096921bc12abff95a581a32fa1102c767fc27d"
+        },
+        {
+          "id": "SST_changed_field",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "Missing or mismatched stress restart identity",
+          "log_sha256": "6f7a4584b8ce04aa7830948b75b4d404d6f35233e822e94b9123a3bdb38f9c35"
+        },
+        {
+          "id": "SST_capture",
+          "status": "FAIL",
+          "returncode": 1,
+          "expected_error": null,
+          "log_sha256": "681e6890d8de11555e142e7e3dddf0fe07a4c249a6458ca5098b8a7ea1aadae4"
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "SA_zero_recovery",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 0.0,
+            "Velocity_x": 0.0,
+            "Velocity_y": 0.0,
+            "Enthalpy": 0.0,
+            "Nu_Tilde": 0.0,
+            "Pressure_Coefficient": 0.0,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 0.0,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 0.0
+          }
+        },
+        {
+          "id": "SA_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 4.8030156241107846e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 3.9397619959165645e-18,
+            "Enthalpy": 1.0913936421275139e-11,
+            "Nu_Tilde": 1.3010426069826053e-18,
+            "Pressure_Coefficient": 9.606031248221569e-17,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 2.2737367544323206e-13,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 2.168404344971009e-19
+          }
+        },
+        {
+          "id": "SA_exact_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0
+          }
+        },
+        {
+          "id": "SA_exact_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0
+          }
+        },
+        {
+          "id": "SST_zero_recovery",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 0.0,
+            "Velocity_x": 0.0,
+            "Velocity_y": 0.0,
+            "Enthalpy": 0.0,
+            "Turb_Kin_Energy": 0.0,
+            "Omega": 0.0,
+            "Pressure_Coefficient": 0.0,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 0.0,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 0.0
+          }
+        },
+        {
+          "id": "SST_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 5.661568219447743e-17,
+            "Velocity_x": 8.881784197001252e-16,
+            "Velocity_y": 7.516411555257051e-18,
+            "Enthalpy": 1.0913936421275139e-11,
+            "Turb_Kin_Energy": 1.3010426069826053e-18,
+            "Omega": 2.220446049250313e-16,
+            "Pressure_Coefficient": 1.1323136438895487e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 2.2737367544323206e-12,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 5.204170427930421e-18
+          }
+        }
+      ]
+    },
+    {
+      "directory": "/tmp/su2-finalize-solver-checks-v4",
+      "reason_or_outcome": "Apparent scalar/SIMD parity invalid: both paths used SIMD; diagnostic selection added.",
+      "report_sha256": "3910307023d3c1dcc540410864a9e3433a1684d894ce53b701cfed4493c5c69c",
+      "solver_sha256": "fa8587e9f7458eadf92742a855ba81882910ecc167e392286fd34db990da44a6",
+      "reported_status": "PASS",
+      "runs": [
+        {
+          "id": "SA_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "fe742d3482f864cb85137db826aac7235184f4d5c4b23873b0d83ae46d632a21"
+        },
+        {
+          "id": "SA_zero",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "f53e0c577ea7ea71514e218133f510803b42b26e271744e7140263e53399ce36"
+        },
+        {
+          "id": "SA_positive",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "c6a6892527a83ea8a1c37bd93e1c95f5024c84004cfeac680846e7e991bd495c"
+        },
+        {
+          "id": "SA_continuous",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "84273211ba42cac4a2afc7f9d99cab134b004e70bc829b534b6ecd1c4313db8d"
+        },
+        {
+          "id": "SA_resumed",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "dfee5f53efa968ffaa67dc789fe6a14bb5fcd94ebb8c051d736f1af416759fab"
+        },
+        {
+          "id": "SA_changed_field",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "Missing or mismatched stress restart identity",
+          "log_sha256": "60c34b0ec06e83cc7590d20af1bc2dcf0e7f7c482c06800b5c95ebc7f36ba91b"
+        },
+        {
+          "id": "SA_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "c7a6b9e2b104aa7270f2027a781104d570a51025eb052a0c5c93f07cb26a7ad7"
+        },
+        {
+          "id": "SA_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "5571c3b8b4dd1a5801c4480ba7797d9f1a6280ce4df3ec557c0274b512fab01f"
+        },
+        {
+          "id": "SA_changed_replay_state",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "fingerprint mismatch",
+          "log_sha256": "efce935bf6a298d5570bd53ed02a74e2499ff9ee2536a0d3f346e16e4d7009de"
+        },
+        {
+          "id": "SA_no_energy_part",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "10f90e0cee004329ec5f09b1b5791e96bdc97339b374e5f44680b7f1c4debd17"
+        },
+        {
+          "id": "SA_no_energy_complete",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "80df9d6a9f5378d0763a9bace6597034271e689e639d779b8432f610e72cda2e"
+        },
+        {
+          "id": "SA_no_energy_restart",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "61a1776b6b1344af41f5335bd78cc643c89a0b0cb38379a6f0f98d1e01b92171"
+        },
+        {
+          "id": "SST_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "e7eb8e4a266ca1eda9b677e8e24c4ec255f2c338f9dfb6bb8779f597d780d2a2"
+        },
+        {
+          "id": "SST_zero",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "2b6c38670aaa68963963ca54b52a9e75387fdf921fbe1d387ecc44483cb17e31"
+        },
+        {
+          "id": "SST_positive",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "6c35dc0a1ddb60f380d5edc3e4e0030b923b304253747ea4079eab7876ce7099"
+        },
+        {
+          "id": "SST_continuous",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "6d0d51bede86b515f4ca36647279c5b702105c07b6688e5490ecda1d66bf0649"
+        },
+        {
+          "id": "SST_resumed",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "e762c4c922e1b54b4aa2d1216fddf00513d48dea0ca597089caa7810a725b818"
+        },
+        {
+          "id": "SST_changed_field",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "Missing or mismatched stress restart identity",
+          "log_sha256": "6f7a4584b8ce04aa7830948b75b4d404d6f35233e822e94b9123a3bdb38f9c35"
+        },
+        {
+          "id": "SST_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "b65f1fafda7971b7cbbd974e87dab08ef6e83e6078af6a06a8a411cd587d7c3b"
+        },
+        {
+          "id": "SST_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "420db279c9605cc3f9cbd509bd47c02772410b637c25ecb656387289e0af9ba9"
+        },
+        {
+          "id": "SST_changed_replay_state",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "fingerprint mismatch",
+          "log_sha256": "b992685b2ef211ccbca591e0f454b3fa6afd399d0bf5ccea49651bfb652536ce"
+        },
+        {
+          "id": "SST_no_energy_part",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "c10d7789de66a61c258d7972837948eda41e28efdb92291d83b3951fbc6fa65d"
+        },
+        {
+          "id": "SST_no_energy_complete",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "ab9ac943bc3d6fb3beb468a544fdd89a3f7d9775e9174251e6eb70872e359dc8"
+        },
+        {
+          "id": "SST_no_energy_restart",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "efdee732911d8a3536c383df4e9b8f23085e58e3c487046a83b8d484e83a5fcb"
+        },
+        {
+          "id": "COMP_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "a6341916ab684cd62ac6dc4b2ad5392e9b157cedcf7118473ae0ed5cf8c8f6a0"
+        },
+        {
+          "id": "COMP_PRESCRIBED_scalar",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "ce3caa51627acc1dc3ee58bdcc11ffd2c3417b7babe0533c25b9a2ea6c6dd047"
+        },
+        {
+          "id": "COMP_PRESCRIBED_simd",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "d9d9fce98206004c7fc4b95f87da738e60c24409a58ebba6eaaebf0bed3f8619"
+        },
+        {
+          "id": "COMP_EPM_MATCHED_scalar",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "c0d562a8a0e045274ad4e7e3ddda62880545204584518db9ea3273c0c721a4a6"
+        },
+        {
+          "id": "COMP_EPM_MATCHED_simd",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "c0d562a8a0e045274ad4e7e3ddda62880545204584518db9ea3273c0c721a4a6"
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "SA_zero_recovery",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 0.0,
+            "Velocity_x": 0.0,
+            "Velocity_y": 0.0,
+            "Enthalpy": 0.0,
+            "Nu_Tilde": 0.0,
+            "Pressure_Coefficient": 0.0,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 0.0,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 0.0
+          }
+        },
+        {
+          "id": "SA_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 4.8030156241107846e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 3.9397619959165645e-18,
+            "Enthalpy": 1.0913936421275139e-11,
+            "Nu_Tilde": 1.3010426069826053e-18,
+            "Pressure_Coefficient": 9.606031248221569e-17,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 2.2737367544323206e-13,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 2.168404344971009e-19
+          }
+        },
+        {
+          "id": "SA_exact_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0
+          }
+        },
+        {
+          "id": "SA_exact_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0
+          }
+        },
+        {
+          "id": "SA_no_energy_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 5.902633796236317e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 6.4061101800842735e-18,
+            "Nu_Tilde": 1.3010426069826053e-18,
+            "Pressure_Coefficient": 1.1804928779293733e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 1.1368683772161603e-13,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 2.168404344971009e-19
+          }
+        },
+        {
+          "id": "SST_zero_recovery",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 0.0,
+            "Velocity_x": 0.0,
+            "Velocity_y": 0.0,
+            "Enthalpy": 0.0,
+            "Turb_Kin_Energy": 0.0,
+            "Omega": 0.0,
+            "Pressure_Coefficient": 0.0,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 0.0,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 0.0
+          }
+        },
+        {
+          "id": "SST_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 5.661568219447743e-17,
+            "Velocity_x": 8.881784197001252e-16,
+            "Velocity_y": 7.516411555257051e-18,
+            "Enthalpy": 1.0913936421275139e-11,
+            "Turb_Kin_Energy": 1.3010426069826053e-18,
+            "Omega": 2.220446049250313e-16,
+            "Pressure_Coefficient": 1.1323136438895487e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 2.2737367544323206e-12,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 5.204170427930421e-18
+          }
+        },
+        {
+          "id": "SST_exact_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0
+          }
+        },
+        {
+          "id": "SST_exact_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        },
+        {
+          "id": "SST_no_energy_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 6.29514886399396e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 5.274685920789342e-18,
+            "Turb_Kin_Energy": 1.3010426069826053e-18,
+            "Omega": 1.1102230246251565e-16,
+            "Pressure_Coefficient": 1.259029772798792e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 1.3642420526593924e-12,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 3.469446951953614e-18
+          }
+        },
+        {
+          "id": "COMP_PRESCRIBED_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0
+          }
+        },
+        {
+          "id": "COMP_PRESCRIBED_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        },
+        {
+          "id": "COMP_EPM_MATCHED_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0
+          }
+        },
+        {
+          "id": "COMP_EPM_MATCHED_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "directory": "/tmp/su2-finalize-solver-checks-v5",
+      "reason_or_outcome": "Genuine nearly uniform 1C EPM parity exceeds 1e-10. Retained as qualification limitation.",
+      "report_sha256": "9ee0f947355b49eb560c712aafaecbaddce71353154697cc869b1fe0fa2389cb",
+      "solver_sha256": "5722624f7fcd430613c6abeb97597c63628372f84ed678be0f1dbe91e6b87881",
+      "reported_status": "INCOMPLETE",
+      "runs": [
+        {
+          "id": "SA_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "fe742d3482f864cb85137db826aac7235184f4d5c4b23873b0d83ae46d632a21"
+        },
+        {
+          "id": "SA_zero",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "4f4bf19359def8562c764c7c089c65e1e0c9d97af90b56d858a5713e88610a9a"
+        },
+        {
+          "id": "SA_positive",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "2ab4147531252458cf3049914c26b22a0b0e8e97ec94d518dbcd81fcf3fcd6a3"
+        },
+        {
+          "id": "SA_continuous",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "e78875b7e6df1f8d5199b61a2b50d33e1a9db26284a39aecb53cd5f63ce2d0e1"
+        },
+        {
+          "id": "SA_resumed",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "f88431c435cde5f1fbad69b637c9dd79a454dd03844b31e51d91a0b2569a58f2"
+        },
+        {
+          "id": "SA_changed_field",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "Missing or mismatched stress restart identity",
+          "log_sha256": "60c34b0ec06e83cc7590d20af1bc2dcf0e7f7c482c06800b5c95ebc7f36ba91b"
+        },
+        {
+          "id": "SA_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "c7a6b9e2b104aa7270f2027a781104d570a51025eb052a0c5c93f07cb26a7ad7"
+        },
+        {
+          "id": "SA_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "5571c3b8b4dd1a5801c4480ba7797d9f1a6280ce4df3ec557c0274b512fab01f"
+        },
+        {
+          "id": "SA_changed_replay_state",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "fingerprint mismatch",
+          "log_sha256": "efce935bf6a298d5570bd53ed02a74e2499ff9ee2536a0d3f346e16e4d7009de"
+        },
+        {
+          "id": "SA_no_energy_part",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "6e954d50bf4ee9075c73fce8a08df801bbefd6761131652a2fa5213e0395f554"
+        },
+        {
+          "id": "SA_no_energy_complete",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "95bf7acca356bfd83bb5a5c0467e3cd63fabf96a93abcc130f2f34457589a67c"
+        },
+        {
+          "id": "SA_no_energy_restart",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "15e1ba184f756529f24c0760cb62ad5b1d241b3e56f30f728ee09cb7db51515d"
+        },
+        {
+          "id": "SST_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "e7eb8e4a266ca1eda9b677e8e24c4ec255f2c338f9dfb6bb8779f597d780d2a2"
+        },
+        {
+          "id": "SST_zero",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "60ebd9ef3849a2a97ed4c8e9cdf77c8de4ff300f00606a719e9c56918d0c5a37"
+        },
+        {
+          "id": "SST_positive",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "c323989370edcb69a74f3b91b9692ad768e985be805921ca85b55b9e7a95c401"
+        },
+        {
+          "id": "SST_continuous",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "778b7c0361ed3013075a6446b1d5a32596693a3bb43a73bcc37fc015cf23b3b6"
+        },
+        {
+          "id": "SST_resumed",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "6b87de0b61ce0ab72460f542246acd739e7f8a5f55a3d31f7863f90cf2a6d602"
+        },
+        {
+          "id": "SST_changed_field",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "Missing or mismatched stress restart identity",
+          "log_sha256": "6f7a4584b8ce04aa7830948b75b4d404d6f35233e822e94b9123a3bdb38f9c35"
+        },
+        {
+          "id": "SST_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "b65f1fafda7971b7cbbd974e87dab08ef6e83e6078af6a06a8a411cd587d7c3b"
+        },
+        {
+          "id": "SST_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "420db279c9605cc3f9cbd509bd47c02772410b637c25ecb656387289e0af9ba9"
+        },
+        {
+          "id": "SST_changed_replay_state",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "fingerprint mismatch",
+          "log_sha256": "b992685b2ef211ccbca591e0f454b3fa6afd399d0bf5ccea49651bfb652536ce"
+        },
+        {
+          "id": "SST_no_energy_part",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "1bf582e5456531532fb25985409eae5de7426be609ac31fbee6415eb4af8cd69"
+        },
+        {
+          "id": "SST_no_energy_complete",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "8dd53cb9b1d8926b359d11440c6885b2a83c33471c2f722c5198c990dacbd32d"
+        },
+        {
+          "id": "SST_no_energy_restart",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "2c67b1b5a6882ed9500f4a2f5c0fa947e8610597ea1bedc526061fcc238c0245"
+        },
+        {
+          "id": "COMP_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "a6341916ab684cd62ac6dc4b2ad5392e9b157cedcf7118473ae0ed5cf8c8f6a0"
+        },
+        {
+          "id": "COMP_PRESCRIBED_scalar",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "677eb4838782a911053006d05a699312827c7e3ffe01c0360fcfb03b82ff6bd7"
+        },
+        {
+          "id": "COMP_PRESCRIBED_simd",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "1941c94e83c1f325b6ebf0d5a0a2428fcf9f92bcd998a442659de9e36a2e0753"
+        },
+        {
+          "id": "COMP_EPM_MATCHED_scalar",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "d59af6c835155912d4805cb76c6587fa32fe6bddd75c6abcca05519d0e94844b"
+        },
+        {
+          "id": "COMP_EPM_MATCHED_simd",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "d134c4c089d82e1fbea1f2c5f9ceb38e598e1afe21e44a96d24ca7134d59d0b6"
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "SA_zero_recovery",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 0.0,
+            "Velocity_x": 0.0,
+            "Velocity_y": 0.0,
+            "Enthalpy": 0.0,
+            "Nu_Tilde": 0.0,
+            "Pressure_Coefficient": 0.0,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 0.0,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 0.0
+          }
+        },
+        {
+          "id": "SA_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 4.8030156241107846e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 3.9397619959165645e-18,
+            "Enthalpy": 1.0913936421275139e-11,
+            "Nu_Tilde": 1.3010426069826053e-18,
+            "Pressure_Coefficient": 9.606031248221569e-17,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 2.2737367544323206e-13,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 2.168404344971009e-19
+          }
+        },
+        {
+          "id": "SA_exact_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0
+          }
+        },
+        {
+          "id": "SA_exact_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0
+          }
+        },
+        {
+          "id": "SA_no_energy_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 5.902633796236317e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 6.4061101800842735e-18,
+            "Nu_Tilde": 1.3010426069826053e-18,
+            "Pressure_Coefficient": 1.1804928779293733e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 1.1368683772161603e-13,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 2.168404344971009e-19
+          }
+        },
+        {
+          "id": "SST_zero_recovery",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 0.0,
+            "Velocity_x": 0.0,
+            "Velocity_y": 0.0,
+            "Enthalpy": 0.0,
+            "Turb_Kin_Energy": 0.0,
+            "Omega": 0.0,
+            "Pressure_Coefficient": 0.0,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 0.0,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 0.0
+          }
+        },
+        {
+          "id": "SST_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 5.661568219447743e-17,
+            "Velocity_x": 8.881784197001252e-16,
+            "Velocity_y": 7.516411555257051e-18,
+            "Enthalpy": 1.0913936421275139e-11,
+            "Turb_Kin_Energy": 1.3010426069826053e-18,
+            "Omega": 2.220446049250313e-16,
+            "Pressure_Coefficient": 1.1323136438895487e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 2.2737367544323206e-12,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 5.204170427930421e-18
+          }
+        },
+        {
+          "id": "SST_exact_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0
+          }
+        },
+        {
+          "id": "SST_exact_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        },
+        {
+          "id": "SST_no_energy_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 6.29514886399396e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 5.274685920789342e-18,
+            "Turb_Kin_Energy": 1.3010426069826053e-18,
+            "Omega": 1.1102230246251565e-16,
+            "Pressure_Coefficient": 1.259029772798792e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 1.3642420526593924e-12,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 3.469446951953614e-18
+          }
+        },
+        {
+          "id": "COMP_PRESCRIBED_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 5.759281940243e-16,
+            "R1": 3.612615478253411e-15,
+            "R2": 3.9968028886505635e-15,
+            "R3": 1.7197762693684147e-13
+          }
+        },
+        {
+          "id": "COMP_PRESCRIBED_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        },
+        {
+          "id": "COMP_EPM_MATCHED_flow",
+          "status": "FAIL",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 5.759281940243e-16,
+            "R1": 2.1693420847114682e-10,
+            "R2": 1.6079196556438883e-10,
+            "R3": 2.1703143698436483e-10
+          }
+        }
+      ]
+    },
+    {
+      "directory": "/tmp/su2-finalize-solver-checks-v6",
+      "reason_or_outcome": "Manufactured restart quoted numeric values; fixture writer corrected.",
+      "report_sha256": "df527c3194cb8139a2b671dfce1f031eded3ce5196779baad55c73f35cf6def7",
+      "solver_sha256": "5722624f7fcd430613c6abeb97597c63628372f84ed678be0f1dbe91e6b87881",
+      "reported_status": "INCOMPLETE",
+      "runs": [
+        {
+          "id": "SA_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "fe742d3482f864cb85137db826aac7235184f4d5c4b23873b0d83ae46d632a21"
+        },
+        {
+          "id": "SA_zero",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "f97eacc17c84bf88dd0f242fde18b7896940512b3a92d75743bbc1e92502c277"
+        },
+        {
+          "id": "SA_positive",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "e6df5c53f5c4430937aac72b0dcf30a6fd1459fc61455be9449c5bab4a20846a"
+        },
+        {
+          "id": "SA_continuous",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "ffa9be7203687af09962647b26860019dbc4fa2bac52817bda2729c415e787ae"
+        },
+        {
+          "id": "SA_resumed",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "34a3bb573801288ab5b77db1e03e4b1eb8e26251bd6eb1479992c89a6c92542a"
+        },
+        {
+          "id": "SA_changed_field",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "Missing or mismatched stress restart identity",
+          "log_sha256": "60c34b0ec06e83cc7590d20af1bc2dcf0e7f7c482c06800b5c95ebc7f36ba91b"
+        },
+        {
+          "id": "SA_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "c7a6b9e2b104aa7270f2027a781104d570a51025eb052a0c5c93f07cb26a7ad7"
+        },
+        {
+          "id": "SA_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "5571c3b8b4dd1a5801c4480ba7797d9f1a6280ce4df3ec557c0274b512fab01f"
+        },
+        {
+          "id": "SA_changed_replay_state",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "fingerprint mismatch",
+          "log_sha256": "efce935bf6a298d5570bd53ed02a74e2499ff9ee2536a0d3f346e16e4d7009de"
+        },
+        {
+          "id": "SA_no_energy_part",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "03393d11dd0c8308b5305652c3b52986c2958175a451ececb0963d4590f28600"
+        },
+        {
+          "id": "SA_no_energy_complete",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "daec6a90c289dfc35045c22ac9a3517dc5da383d0fbf58842103a12fc668751c"
+        },
+        {
+          "id": "SA_no_energy_restart",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "4151fdc54352f9ddb024aaa2e590604fdcb91425b33927e9d7aee9d940272b4c"
+        },
+        {
+          "id": "SST_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "e7eb8e4a266ca1eda9b677e8e24c4ec255f2c338f9dfb6bb8779f597d780d2a2"
+        },
+        {
+          "id": "SST_zero",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "7b0f888379276850e26360599a371e7ff42572906ac0e1e7c414ec1c0c1b914e"
+        },
+        {
+          "id": "SST_positive",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "4ad70220ec24dcf031d9dec49c16a0370ba30bcaac28b123e124164ed4de2161"
+        },
+        {
+          "id": "SST_continuous",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "e509ae95352e6b349d45054d5c17fea846d3946ed93f87ad669c240e0e3a1e02"
+        },
+        {
+          "id": "SST_resumed",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "7145f94e61537ec7b656b11062f85b96bb42a20c6d379e830c2a410b635dc64c"
+        },
+        {
+          "id": "SST_changed_field",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "Missing or mismatched stress restart identity",
+          "log_sha256": "6f7a4584b8ce04aa7830948b75b4d404d6f35233e822e94b9123a3bdb38f9c35"
+        },
+        {
+          "id": "SST_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "b65f1fafda7971b7cbbd974e87dab08ef6e83e6078af6a06a8a411cd587d7c3b"
+        },
+        {
+          "id": "SST_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "420db279c9605cc3f9cbd509bd47c02772410b637c25ecb656387289e0af9ba9"
+        },
+        {
+          "id": "SST_changed_replay_state",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "fingerprint mismatch",
+          "log_sha256": "b992685b2ef211ccbca591e0f454b3fa6afd399d0bf5ccea49651bfb652536ce"
+        },
+        {
+          "id": "SST_no_energy_part",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "b871f47a98b23abd7ef8849341631731e36662c2ef78bda58be292c7e68dc8e1"
+        },
+        {
+          "id": "SST_no_energy_complete",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "53aac23b40d3b4ba0be7d32bde8e98ce3f548efb4a46f90faf0b81af81365b4e"
+        },
+        {
+          "id": "SST_no_energy_restart",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "cb91a094d5ced986899f14b8509a1fde16f5d85045a4b4bfc6e90c0a9a58fd86"
+        },
+        {
+          "id": "COMP_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "a6341916ab684cd62ac6dc4b2ad5392e9b157cedcf7118473ae0ed5cf8c8f6a0"
+        },
+        {
+          "id": "COMP_PRESCRIBED_scalar",
+          "status": "FAIL",
+          "returncode": 1,
+          "expected_error": null,
+          "log_sha256": "38863892cced3ba83dfd2ddcd65f1c25dddd52540a2deb646c2f5f150970e9ea"
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "SA_zero_recovery",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 0.0,
+            "Velocity_x": 0.0,
+            "Velocity_y": 0.0,
+            "Enthalpy": 0.0,
+            "Nu_Tilde": 0.0,
+            "Pressure_Coefficient": 0.0,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 0.0,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 0.0
+          }
+        },
+        {
+          "id": "SA_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 4.8030156241107846e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 3.9397619959165645e-18,
+            "Enthalpy": 1.0913936421275139e-11,
+            "Nu_Tilde": 1.3010426069826053e-18,
+            "Pressure_Coefficient": 9.606031248221569e-17,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 2.2737367544323206e-13,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 2.168404344971009e-19
+          }
+        },
+        {
+          "id": "SA_exact_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0
+          }
+        },
+        {
+          "id": "SA_exact_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0
+          }
+        },
+        {
+          "id": "SA_no_energy_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 5.902633796236317e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 6.4061101800842735e-18,
+            "Nu_Tilde": 1.3010426069826053e-18,
+            "Pressure_Coefficient": 1.1804928779293733e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 1.1368683772161603e-13,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 2.168404344971009e-19
+          }
+        },
+        {
+          "id": "SST_zero_recovery",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 0.0,
+            "Velocity_x": 0.0,
+            "Velocity_y": 0.0,
+            "Enthalpy": 0.0,
+            "Turb_Kin_Energy": 0.0,
+            "Omega": 0.0,
+            "Pressure_Coefficient": 0.0,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 0.0,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 0.0
+          }
+        },
+        {
+          "id": "SST_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 5.661568219447743e-17,
+            "Velocity_x": 8.881784197001252e-16,
+            "Velocity_y": 7.516411555257051e-18,
+            "Enthalpy": 1.0913936421275139e-11,
+            "Turb_Kin_Energy": 1.3010426069826053e-18,
+            "Omega": 2.220446049250313e-16,
+            "Pressure_Coefficient": 1.1323136438895487e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 2.2737367544323206e-12,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 5.204170427930421e-18
+          }
+        },
+        {
+          "id": "SST_exact_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0
+          }
+        },
+        {
+          "id": "SST_exact_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        },
+        {
+          "id": "SST_no_energy_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 6.29514886399396e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 5.274685920789342e-18,
+            "Turb_Kin_Energy": 1.3010426069826053e-18,
+            "Omega": 1.1102230246251565e-16,
+            "Pressure_Coefficient": 1.259029772798792e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 1.3642420526593924e-12,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 3.469446951953614e-18
+          }
+        }
+      ]
+    },
+    {
+      "directory": "/tmp/su2-finalize-solver-checks-v7",
+      "reason_or_outcome": "Passed 35 process checks and 18 comparisons; final suite adds uniform 3C comparison.",
+      "report_sha256": "d23e626423c699e45bd39c19169e1c916d66feb0fda0b596b962a1917d560bc6",
+      "solver_sha256": "5722624f7fcd430613c6abeb97597c63628372f84ed678be0f1dbe91e6b87881",
+      "reported_status": "PASS",
+      "runs": [
+        {
+          "id": "SA_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "fe742d3482f864cb85137db826aac7235184f4d5c4b23873b0d83ae46d632a21"
+        },
+        {
+          "id": "SA_zero",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "f8279b2810ca17c9ed60fa5eaaaf83655306d7fd93772d235ff1d1fce5f52466"
+        },
+        {
+          "id": "SA_positive",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "72c967696ab72cbb977aa319ec975b7b464b568f2a70f9739961f86a420058b7"
+        },
+        {
+          "id": "SA_continuous",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "43cd55cb445613f6fba80f1d771a83ca7992d8145e6de73faec696e17a947f9b"
+        },
+        {
+          "id": "SA_resumed",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "37055899c8ec7dcada9ca543010ea3312937d7a4b843f02cca92addb94a6899c"
+        },
+        {
+          "id": "SA_changed_field",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "Missing or mismatched stress restart identity",
+          "log_sha256": "60c34b0ec06e83cc7590d20af1bc2dcf0e7f7c482c06800b5c95ebc7f36ba91b"
+        },
+        {
+          "id": "SA_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "c7a6b9e2b104aa7270f2027a781104d570a51025eb052a0c5c93f07cb26a7ad7"
+        },
+        {
+          "id": "SA_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "5571c3b8b4dd1a5801c4480ba7797d9f1a6280ce4df3ec557c0274b512fab01f"
+        },
+        {
+          "id": "SA_changed_replay_state",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "fingerprint mismatch",
+          "log_sha256": "efce935bf6a298d5570bd53ed02a74e2499ff9ee2536a0d3f346e16e4d7009de"
+        },
+        {
+          "id": "SA_no_energy_part",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "a3997762b4950c580f2c16d575511ffba5b53209e443d954b0b0e80ea890b788"
+        },
+        {
+          "id": "SA_no_energy_complete",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "5eb4b1fd093bf8ce06875c70016a64023e0fe78030966506a32f14ef62690fef"
+        },
+        {
+          "id": "SA_no_energy_restart",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "7e40fb602820c9aa7ef4b36b3e89832dc02ee57866da2acd3ee87914fba6dbd3"
+        },
+        {
+          "id": "SST_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "e7eb8e4a266ca1eda9b677e8e24c4ec255f2c338f9dfb6bb8779f597d780d2a2"
+        },
+        {
+          "id": "SST_zero",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "b2f495852636b85e65aabcc77e5185af6a9466b4bcd2cfb1350771974d09002f"
+        },
+        {
+          "id": "SST_positive",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "b1082045b311fe4970e4fcd04c42f48097b3c7d6616031bc899627bfb3a5931e"
+        },
+        {
+          "id": "SST_continuous",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "d5107096d831a9790afaf0fd43248ac2d0665b484e857fa7c34e157760215c4d"
+        },
+        {
+          "id": "SST_resumed",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "a4f53a90382ab4ded7f4a050c27d2e4dc0986eb90338a767768376f2cb04cfb9"
+        },
+        {
+          "id": "SST_changed_field",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "Missing or mismatched stress restart identity",
+          "log_sha256": "6f7a4584b8ce04aa7830948b75b4d404d6f35233e822e94b9123a3bdb38f9c35"
+        },
+        {
+          "id": "SST_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "b65f1fafda7971b7cbbd974e87dab08ef6e83e6078af6a06a8a411cd587d7c3b"
+        },
+        {
+          "id": "SST_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "420db279c9605cc3f9cbd509bd47c02772410b637c25ecb656387289e0af9ba9"
+        },
+        {
+          "id": "SST_changed_replay_state",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "fingerprint mismatch",
+          "log_sha256": "b992685b2ef211ccbca591e0f454b3fa6afd399d0bf5ccea49651bfb652536ce"
+        },
+        {
+          "id": "SST_no_energy_part",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "a42c515d9315a91aa485e06c6b4eac9b4c84c296848d1955233cced0912fe291"
+        },
+        {
+          "id": "SST_no_energy_complete",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "24c1490b57b4edaee78baea09e9633979ea20ab3ef164e954e163ee71ede6590"
+        },
+        {
+          "id": "SST_no_energy_restart",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "874bb0567e2db46c83027eaf3605842661799a50e6a5435c94320b5f418f1f7f"
+        },
+        {
+          "id": "COMP_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "a6341916ab684cd62ac6dc4b2ad5392e9b157cedcf7118473ae0ed5cf8c8f6a0"
+        },
+        {
+          "id": "COMP_PRESCRIBED_scalar",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "b4754d9e62a56f2cd37e07762358da217793dcc6fe4a5fdb8eb976359800c331"
+        },
+        {
+          "id": "COMP_PRESCRIBED_simd",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "9682db3d9e42bf272cdb990b4683d2140a09a83532316af5c3b22cfac9d4fd87"
+        },
+        {
+          "id": "COMP_EPM_MATCHED_scalar",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "d59af6c835155912d4805cb76c6587fa32fe6bddd75c6abcca05519d0e94844b"
+        },
+        {
+          "id": "COMP_EPM_MATCHED_simd",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "d134c4c089d82e1fbea1f2c5f9ceb38e598e1afe21e44a96d24ca7134d59d0b6"
+        },
+        {
+          "id": "CUBE_SA_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "2e25f4a7c3375490cf1f24c9abf4ec024f9bff094762d65cedbbba4585ca74a4"
+        },
+        {
+          "id": "CUBE_SA_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "24a162881af81890d7a3be05a8f650d53432ef3ceac0c450bbe046a299120358"
+        },
+        {
+          "id": "CUBE_SA_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "3232400ec30b9962a1763a7244c81da96b10522434872b2c6474a1e9b4d4d3f9"
+        },
+        {
+          "id": "CUBE_SST_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "a434794d5098910b7bc85b3658467a241d69af99ee44dec3e6f5cfb3f4ea8376"
+        },
+        {
+          "id": "CUBE_SST_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "676923b6a308f1fb0a7f4ea8afd1bc5f7fd3a46e1b7b59a58b46febdca79d4da"
+        },
+        {
+          "id": "CUBE_SST_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "78af2261a0f6a25d52f1c5af49c2243d4c6b91d7e5aced84e20b13bbe5b45224"
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "SA_zero_recovery",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 0.0,
+            "Velocity_x": 0.0,
+            "Velocity_y": 0.0,
+            "Enthalpy": 0.0,
+            "Nu_Tilde": 0.0,
+            "Pressure_Coefficient": 0.0,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 0.0,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 0.0
+          }
+        },
+        {
+          "id": "SA_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 4.8030156241107846e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 3.9397619959165645e-18,
+            "Enthalpy": 1.0913936421275139e-11,
+            "Nu_Tilde": 1.3010426069826053e-18,
+            "Pressure_Coefficient": 9.606031248221569e-17,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 2.2737367544323206e-13,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 2.168404344971009e-19
+          }
+        },
+        {
+          "id": "SA_exact_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0
+          }
+        },
+        {
+          "id": "SA_exact_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0
+          }
+        },
+        {
+          "id": "SA_no_energy_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 5.902633796236317e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 6.4061101800842735e-18,
+            "Nu_Tilde": 1.3010426069826053e-18,
+            "Pressure_Coefficient": 1.1804928779293733e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 1.1368683772161603e-13,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 2.168404344971009e-19
+          }
+        },
+        {
+          "id": "SST_zero_recovery",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 0.0,
+            "Velocity_x": 0.0,
+            "Velocity_y": 0.0,
+            "Enthalpy": 0.0,
+            "Turb_Kin_Energy": 0.0,
+            "Omega": 0.0,
+            "Pressure_Coefficient": 0.0,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 0.0,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 0.0
+          }
+        },
+        {
+          "id": "SST_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 5.661568219447743e-17,
+            "Velocity_x": 8.881784197001252e-16,
+            "Velocity_y": 7.516411555257051e-18,
+            "Enthalpy": 1.0913936421275139e-11,
+            "Turb_Kin_Energy": 1.3010426069826053e-18,
+            "Omega": 2.220446049250313e-16,
+            "Pressure_Coefficient": 1.1323136438895487e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 2.2737367544323206e-12,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 5.204170427930421e-18
+          }
+        },
+        {
+          "id": "SST_exact_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0
+          }
+        },
+        {
+          "id": "SST_exact_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        },
+        {
+          "id": "SST_no_energy_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 6.29514886399396e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 5.274685920789342e-18,
+            "Turb_Kin_Energy": 1.3010426069826053e-18,
+            "Omega": 1.1102230246251565e-16,
+            "Pressure_Coefficient": 1.259029772798792e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 1.3642420526593924e-12,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 3.469446951953614e-18
+          }
+        },
+        {
+          "id": "COMP_PRESCRIBED_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 4.2327252813834093e-16,
+            "R1": 4.722350982477863e-15,
+            "R2": 4.861128860556008e-15,
+            "R3": 1.1361311197388702e-13
+          }
+        },
+        {
+          "id": "COMP_PRESCRIBED_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        },
+        {
+          "id": "COMP_EPM_MATCHED_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 4.2327252813834093e-16,
+            "R1": 4.957839694341715e-15,
+            "R2": 4.846166870575708e-15,
+            "R3": 1.0820370207470509e-13
+          }
+        },
+        {
+          "id": "COMP_EPM_MATCHED_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        },
+        {
+          "id": "CUBE_SA_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0,
+            "R4": 0.0
+          }
+        },
+        {
+          "id": "CUBE_SA_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0
+          }
+        },
+        {
+          "id": "CUBE_SST_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0,
+            "R4": 0.0
+          }
+        },
+        {
+          "id": "CUBE_SST_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "directory": "/tmp/su2-finalize-solver-checks-v8",
+      "reason_or_outcome": "Final suite: 37 process checks, 20 comparisons pass.",
+      "report_sha256": "4653cc14ab5abdc3371c5ccf67752637b834b6204a0577bcecff8ae153d41326",
+      "solver_sha256": "e6a524cfcb60bf0a71b123466757a5a58fb0385dc9634299f623331610fa2c08",
+      "reported_status": "PASS",
+      "runs": [
+        {
+          "id": "SA_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "fe742d3482f864cb85137db826aac7235184f4d5c4b23873b0d83ae46d632a21"
+        },
+        {
+          "id": "SA_zero",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "ce3f924f6ce8435b1e620ed4587f4f45a336ef74b949ec0d3d16a4f29c7f4a31"
+        },
+        {
+          "id": "SA_positive",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "e1b6eecb41bb9f0a3de92bd40ed58246d538b42ef18296b4ee95db1de7f8b8ca"
+        },
+        {
+          "id": "SA_continuous",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "62e050cd97decb113af554633046b89e1ed7f077e06250c9110d069c1df417d1"
+        },
+        {
+          "id": "SA_resumed",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "f8cf755713ecc4a1e247ffda5f6835472e3aec3343b728090cbf695fe2f44c1b"
+        },
+        {
+          "id": "SA_changed_field",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "Missing or mismatched stress restart identity",
+          "log_sha256": "60c34b0ec06e83cc7590d20af1bc2dcf0e7f7c482c06800b5c95ebc7f36ba91b"
+        },
+        {
+          "id": "SA_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "c7a6b9e2b104aa7270f2027a781104d570a51025eb052a0c5c93f07cb26a7ad7"
+        },
+        {
+          "id": "SA_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "5571c3b8b4dd1a5801c4480ba7797d9f1a6280ce4df3ec557c0274b512fab01f"
+        },
+        {
+          "id": "SA_changed_replay_state",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "fingerprint mismatch",
+          "log_sha256": "efce935bf6a298d5570bd53ed02a74e2499ff9ee2536a0d3f346e16e4d7009de"
+        },
+        {
+          "id": "SA_no_energy_part",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "751440b19e9980fad067811c073fd4d4d152ef0e82f22fdeb26a6287c4a42b2f"
+        },
+        {
+          "id": "SA_no_energy_complete",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "78601e802738e4db7b20aad8884de68b83b0e7529133acda377bcf989b95c71e"
+        },
+        {
+          "id": "SA_no_energy_restart",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "0adbd6277b0ed7b8d3a21e32e6f09dc1b8191c6e1970ce9e30717688078e8105"
+        },
+        {
+          "id": "SST_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "e7eb8e4a266ca1eda9b677e8e24c4ec255f2c338f9dfb6bb8779f597d780d2a2"
+        },
+        {
+          "id": "SST_zero",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "54a08db126380b9e78c1db2d1b7535853dad2bf87e497fe1a60445a3212af0fb"
+        },
+        {
+          "id": "SST_positive",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "2e15984bc04ef93d7b3db088d79759195ade4fb183315eed44d1a99acfd9c58f"
+        },
+        {
+          "id": "SST_continuous",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "a47ef31fffe882fefff23bf5e3adb5ef3afbfc9b38d90f3bb45ceb9d30da6005"
+        },
+        {
+          "id": "SST_resumed",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "7fa83712256b61adf5d61f4554827442773db9f61eb95f47a78d91f77471c226"
+        },
+        {
+          "id": "SST_changed_field",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "Missing or mismatched stress restart identity",
+          "log_sha256": "6f7a4584b8ce04aa7830948b75b4d404d6f35233e822e94b9123a3bdb38f9c35"
+        },
+        {
+          "id": "SST_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "b65f1fafda7971b7cbbd974e87dab08ef6e83e6078af6a06a8a411cd587d7c3b"
+        },
+        {
+          "id": "SST_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "420db279c9605cc3f9cbd509bd47c02772410b637c25ecb656387289e0af9ba9"
+        },
+        {
+          "id": "SST_changed_replay_state",
+          "status": "PASS",
+          "returncode": 1,
+          "expected_error": "fingerprint mismatch",
+          "log_sha256": "b992685b2ef211ccbca591e0f454b3fa6afd399d0bf5ccea49651bfb652536ce"
+        },
+        {
+          "id": "SST_no_energy_part",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "a8368fdf21d31ba31d774f0217d33dac9298537999aa86ce51255b51a59115e1"
+        },
+        {
+          "id": "SST_no_energy_complete",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "c2d3b079e5c48d6a9814bfff72866630a5193201c2fa07b761f2a3cab3b6b281"
+        },
+        {
+          "id": "SST_no_energy_restart",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "8cb87d31cf5e084aedccfd086493710e8a52b8231ec996a88c0cf2b232595ca3"
+        },
+        {
+          "id": "COMP_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "a6341916ab684cd62ac6dc4b2ad5392e9b157cedcf7118473ae0ed5cf8c8f6a0"
+        },
+        {
+          "id": "COMP_PRESCRIBED_scalar",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "3f6bf2abadca1108c516152c2f9b1ae5bb41fc15c6bafb2a3ae53bf8faa6f49d"
+        },
+        {
+          "id": "COMP_PRESCRIBED_simd",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "d6b6382fc5f3a99af8f2a4ab0788993de3883e1b2acc533920d9a549f666b70a"
+        },
+        {
+          "id": "COMP_EPM_MATCHED_scalar",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "d59af6c835155912d4805cb76c6587fa32fe6bddd75c6abcca05519d0e94844b"
+        },
+        {
+          "id": "COMP_EPM_MATCHED_simd",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "d134c4c089d82e1fbea1f2c5f9ceb38e598e1afe21e44a96d24ca7134d59d0b6"
+        },
+        {
+          "id": "CUBE_SA_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "2e25f4a7c3375490cf1f24c9abf4ec024f9bff094762d65cedbbba4585ca74a4"
+        },
+        {
+          "id": "CUBE_SA_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "24a162881af81890d7a3be05a8f650d53432ef3ceac0c450bbe046a299120358"
+        },
+        {
+          "id": "CUBE_SA_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "3232400ec30b9962a1763a7244c81da96b10522434872b2c6474a1e9b4d4d3f9"
+        },
+        {
+          "id": "CUBE_SST_base",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "a434794d5098910b7bc85b3658467a241d69af99ee44dec3e6f5cfb3f4ea8376"
+        },
+        {
+          "id": "CUBE_SST_capture",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "676923b6a308f1fb0a7f4ea8afd1bc5f7fd3a46e1b7b59a58b46febdca79d4da"
+        },
+        {
+          "id": "CUBE_SST_replay",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "78af2261a0f6a25d52f1c5af49c2243d4c6b91d7e5aced84e20b13bbe5b45224"
+        },
+        {
+          "id": "COMP_3C_uniform_scalar",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "d59af6c835155912d4805cb76c6587fa32fe6bddd75c6abcca05519d0e94844b"
+        },
+        {
+          "id": "COMP_3C_uniform_simd",
+          "status": "PASS",
+          "returncode": 0,
+          "expected_error": null,
+          "log_sha256": "d134c4c089d82e1fbea1f2c5f9ceb38e598e1afe21e44a96d24ca7134d59d0b6"
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "SA_zero_recovery",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 0.0,
+            "Velocity_x": 0.0,
+            "Velocity_y": 0.0,
+            "Enthalpy": 0.0,
+            "Nu_Tilde": 0.0,
+            "Pressure_Coefficient": 0.0,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 0.0,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 0.0
+          }
+        },
+        {
+          "id": "SA_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 4.8030156241107846e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 3.9397619959165645e-18,
+            "Enthalpy": 1.0913936421275139e-11,
+            "Nu_Tilde": 1.3010426069826053e-18,
+            "Pressure_Coefficient": 9.606031248221569e-17,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 2.2737367544323206e-13,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 2.168404344971009e-19
+          }
+        },
+        {
+          "id": "SA_exact_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0
+          }
+        },
+        {
+          "id": "SA_exact_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0
+          }
+        },
+        {
+          "id": "SA_no_energy_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 5.902633796236317e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 6.4061101800842735e-18,
+            "Nu_Tilde": 1.3010426069826053e-18,
+            "Pressure_Coefficient": 1.1804928779293733e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 1.1368683772161603e-13,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 2.168404344971009e-19
+          }
+        },
+        {
+          "id": "SST_zero_recovery",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 0.0,
+            "Velocity_x": 0.0,
+            "Velocity_y": 0.0,
+            "Enthalpy": 0.0,
+            "Turb_Kin_Energy": 0.0,
+            "Omega": 0.0,
+            "Pressure_Coefficient": 0.0,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 0.0,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 0.0
+          }
+        },
+        {
+          "id": "SST_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 5.661568219447743e-17,
+            "Velocity_x": 8.881784197001252e-16,
+            "Velocity_y": 7.516411555257051e-18,
+            "Enthalpy": 1.0913936421275139e-11,
+            "Turb_Kin_Energy": 1.3010426069826053e-18,
+            "Omega": 2.220446049250313e-16,
+            "Pressure_Coefficient": 1.1323136438895487e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 2.2737367544323206e-12,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 5.204170427930421e-18
+          }
+        },
+        {
+          "id": "SST_exact_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0
+          }
+        },
+        {
+          "id": "SST_exact_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        },
+        {
+          "id": "SST_no_energy_disk_restart",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-09,
+          "errors": {
+            "x": 0.0,
+            "y": 0.0,
+            "Pressure": 6.29514886399396e-17,
+            "Velocity_x": 1.1102230246251565e-15,
+            "Velocity_y": 5.274685920789342e-18,
+            "Turb_Kin_Energy": 1.3010426069826053e-18,
+            "Omega": 1.1102230246251565e-16,
+            "Pressure_Coefficient": 1.259029772798792e-16,
+            "Density": 0.0,
+            "Laminar_Viscosity": 0.0,
+            "Heat_Capacity": 0.0,
+            "Thermal_Conductivity": 1.3642420526593924e-12,
+            "Temperature": 0.0,
+            "Skin_Friction_Coefficient_x": 0.0,
+            "Skin_Friction_Coefficient_y": 0.0,
+            "Heat_Flux": 0.0,
+            "Y_Plus": 0.0,
+            "Eddy_Viscosity": 3.469446951953614e-18
+          }
+        },
+        {
+          "id": "COMP_PRESCRIBED_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 4.2327252813834093e-16,
+            "R1": 4.722350982477863e-15,
+            "R2": 4.861128860556008e-15,
+            "R3": 1.1361311197388702e-13
+          }
+        },
+        {
+          "id": "COMP_PRESCRIBED_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        },
+        {
+          "id": "COMP_EPM_MATCHED_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 4.2327252813834093e-16,
+            "R1": 4.957839694341715e-15,
+            "R2": 4.846166870575708e-15,
+            "R3": 1.0820370207470509e-13
+          }
+        },
+        {
+          "id": "COMP_EPM_MATCHED_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        },
+        {
+          "id": "CUBE_SA_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0,
+            "R4": 0.0
+          }
+        },
+        {
+          "id": "CUBE_SA_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0
+          }
+        },
+        {
+          "id": "CUBE_SST_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0,
+            "R2": 0.0,
+            "R3": 0.0,
+            "R4": 0.0
+          }
+        },
+        {
+          "id": "CUBE_SST_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        },
+        {
+          "id": "COMP_3C_uniform_flow",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 5.759281940243e-16,
+            "R1": 4.156727993981421e-15,
+            "R2": 5.705004545438977e-15,
+            "R3": 1.57894107879049e-13
+          }
+        },
+        {
+          "id": "COMP_3C_uniform_turb",
+          "status": "PASS",
+          "absolute_tolerance_internal_units": 1e-10,
+          "errors": {
+            "R0": 0.0,
+            "R1": 0.0
+          }
+        }
+      ]
+    }
+  ]
+}

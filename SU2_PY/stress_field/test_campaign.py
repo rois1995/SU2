@@ -4,13 +4,39 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from campaign import compare, config_options, digest, extract, prepare, save
+from campaign import compare, config_options, digest, extract, prepare, save, stress_budget
+from generate_field import make_seed
+import numpy as np
 from prepare_example import prepare as example
 
 class CampaignTests(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)
     def tearDown(self):self.tmp.cleanup()
+    def test_owned_stress_budget_and_source_limiter_gap(self):
+        data={"Stress_Volume":np.array([1.,3.,0.]),"Stress_Work":np.array([2.,-1.,100.])}
+        for name in ("XX","YY","ZZ","XY","XZ","YZ"):data["Stress_E_"+name]=np.zeros(3)
+        for name in ("PARENT","RAW","LIMITED","OMEGA","CAP_GAP"):data["Stress_"+name]=np.array([2.,1.,100.])
+        for name in ("LOWER_CAP","UPPER_CAP","K_FLOOR","OMEGA_FLOOR"):data["Stress_"+name]=np.array([1.,0.,1.])
+        data["Stress_COV_MIN"]=np.array([-.2,.1,-100.])
+        budget=stress_budget(data,.01)
+        self.assertEqual(budget["owned_volume"],4)
+        self.assertEqual(budget["stress_work_integral"],-1)
+        self.assertEqual(budget["negative_covariance_volume_fraction"],.25)
+        self.assertEqual(budget["minimum_covariance_eigenvalue"],-.2)
+        self.assertEqual(budget["k_floor_volume_fraction"],.25)
+        with self.assertRaises(ValueError):stress_budget(data,-1)
+
+    def test_localized_seed_combinations_and_physical_queries(self):
+        nodes=np.array([[0.,0.],[.5,.5],[1.,1.]])
+        positive={"center":[.5,.5],"width":[.2,.4],"coefficients":[1,0,2,0,0]}
+        definition={"type":"LOCALIZED_PHYSICAL_V1","terms":[positive]}
+        seed=make_seed(nodes,definition)
+        np.testing.assert_array_equal(seed[1],[1,0,2,0,0])
+        np.testing.assert_array_equal(make_seed(nodes[[1]],definition)[0],seed[1])
+        negative={**positive,"coefficients":[-1,0,-2,0,0]}
+        np.testing.assert_array_equal(make_seed(nodes,{**definition,"terms":[positive,negative]}),0)
+        with self.assertRaises(ValueError):make_seed(nodes,{**definition,"terms":[{**positive,"width":[0,1]}]})
     def test_prepare_preserves_inputs_and_refuses_stale_output(self):
         plan=example(self.root/"inputs");out=self.root/"runs"
         self.assertEqual(prepare(plan,out),{"prepared":13,"executed":0})

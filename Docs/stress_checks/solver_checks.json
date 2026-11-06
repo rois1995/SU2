@@ -1,0 +1,1183 @@
+{
+  "schema": "SU2_STRESS_SOLVER_CHECKS_1",
+  "solver_sha256": "e6a524cfcb60bf0a71b123466757a5a58fb0385dc9634299f623331610fa2c08",
+  "mesh_points": [
+    81,
+    27
+  ],
+  "production_runs": 0,
+  "cluster_access": false,
+  "runs": [
+    {
+      "id": "SA_base",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.03530314800445922,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "1b13854e679d99a07adf34e6dd53803ddaffcbc0dd4e9e580bc4cd41ee8df20a"
+      },
+      "outputs": {
+        "history.csv": "dcb318d6ef6da781b4b3cebd3112dd36da36cdffddd41e677bd7ff0ba0d74727",
+        "solver.log": "fe742d3482f864cb85137db826aac7235184f4d5c4b23873b0d83ae46d632a21",
+        "restart.csv": "1025c3a0eb5103182a95d5a87cd1a06a5f72f497536481ea9984f88b73b9b660"
+      }
+    },
+    {
+      "id": "SA_zero",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.035109201999148354,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "2ab319f243ec29bbd92e8781c3b0f2bd752886befae017e9d8197728790aea81",
+        "field.suf": "e4654810d8fa39f4647bcfbdf9863459da5cf2718271a36d2da8491b55a9efa0"
+      },
+      "outputs": {
+        "history.csv": "dcb318d6ef6da781b4b3cebd3112dd36da36cdffddd41e677bd7ff0ba0d74727",
+        "solver.log": "ce3f924f6ce8435b1e620ed4587f4f45a336ef74b949ec0d3d16a4f29c7f4a31",
+        "restart.stress": "9377fc8b38dbdfeb11b04d1528ce166a122e27e30c4d77e0b1e227821a64b828",
+        "restart.csv": "1987ba4d792589c9b81d429b28dca13df186f7d2230945d10f55ff714bf6baf4"
+      }
+    },
+    {
+      "id": "SA_positive",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06821035200118786,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "2ab319f243ec29bbd92e8781c3b0f2bd752886befae017e9d8197728790aea81",
+        "field.suf": "eaf8273d6c361ff52efab75f971fad8198ba67b3c0d04460759cf72d0d2aad1e"
+      },
+      "outputs": {
+        "history.csv": "f7fd9fe28c7ded263e61f17483cb458748323c1ee3785a76b6aed94338aff8e3",
+        "solver.log": "e1b6eecb41bb9f0a3de92bd40ed58246d538b42ef18296b4ee95db1de7f8b8ca",
+        "restart.stress": "b36e82d48b8989ab9df5e8d443718fabfbeeafe7f32aca9ef31af184652c0be0",
+        "restart.csv": "b68cb49dd811331bd60954bf77afd7c8a699f30d92c2ea7c5d2ba7f092b33ee4"
+      }
+    },
+    {
+      "id": "SA_continuous",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06472199900599662,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "caeeb453dff275bace72d2a667b62f2d5aad449f04e6fd5197ca1f9ea36deeb6",
+        "field.suf": "eaf8273d6c361ff52efab75f971fad8198ba67b3c0d04460759cf72d0d2aad1e"
+      },
+      "outputs": {
+        "history.csv": "3d15f4113e273bc5dc141e7bf42d7e986c67214eb4bc30ef81b45004e000625a",
+        "solver.log": "62e050cd97decb113af554633046b89e1ed7f077e06250c9110d069c1df417d1",
+        "restart.stress": "b36e82d48b8989ab9df5e8d443718fabfbeeafe7f32aca9ef31af184652c0be0",
+        "restart.csv": "7df1dcdd68cc0820c89f4a88bfccb508ac2221d805ad74880c537b8a4f05c2e6"
+      }
+    },
+    {
+      "id": "SA_resumed",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06719273400085513,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "4741e8ac82a1dcacc2fd7354ec729f30176b9652a94b40e82b492cb4e24adfaf",
+        "field.suf": "eaf8273d6c361ff52efab75f971fad8198ba67b3c0d04460759cf72d0d2aad1e",
+        "initial.stress": "b36e82d48b8989ab9df5e8d443718fabfbeeafe7f32aca9ef31af184652c0be0",
+        "initial.csv": "b68cb49dd811331bd60954bf77afd7c8a699f30d92c2ea7c5d2ba7f092b33ee4"
+      },
+      "outputs": {
+        "history.csv": "4d78354167839eb8751e7ea61866e85d3446332d1efcaf644ac724055144e2e7",
+        "solver.log": "f8cf755713ecc4a1e247ffda5f6835472e3aec3343b728090cbf695fe2f44c1b",
+        "restart.stress": "b36e82d48b8989ab9df5e8d443718fabfbeeafe7f32aca9ef31af184652c0be0",
+        "restart.csv": "4bee192ed29c4ee0bc62620faca1fd913d49600d8c340e31b3674d60e0eee2c1"
+      }
+    },
+    {
+      "id": "SA_changed_field",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 1,
+      "seconds": 0.03296539899747586,
+      "status": "PASS",
+      "expected_error": "Missing or mismatched stress restart identity",
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "4741e8ac82a1dcacc2fd7354ec729f30176b9652a94b40e82b492cb4e24adfaf",
+        "field.suf": "c20255562eafef923df5d7a9c3a8d6eab22c4b105e75a98a2b03aec0f465a650",
+        "initial.stress": "b36e82d48b8989ab9df5e8d443718fabfbeeafe7f32aca9ef31af184652c0be0",
+        "initial.csv": "b68cb49dd811331bd60954bf77afd7c8a699f30d92c2ea7c5d2ba7f092b33ee4"
+      },
+      "outputs": {
+        "history.csv": "9a590c4c97fae67df2a888f69bf05890676b718a1a41e74ca5080cd799499e85",
+        "solver.log": "60c34b0ec06e83cc7590d20af1bc2dcf0e7f7c482c06800b5c95ebc7f36ba91b"
+      }
+    },
+    {
+      "id": "SA_capture",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.07770864499616437,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "160296960755ece3e9db67f30e1d245d5f05b2202de083f357bfe992dceabc39",
+        "initial.csv": "1025c3a0eb5103182a95d5a87cd1a06a5f72f497536481ea9984f88b73b9b660"
+      },
+      "outputs": {
+        "history.csv": "bc9d0e3aeb9bb513af589fb9450abdb271e4d79a7b6c93eb6c83b613d2d18d46",
+        "solver.log": "c7a6b9e2b104aa7270f2027a781104d570a51025eb052a0c5c93f07cb26a7ad7",
+        "control.sur.turb.csv": "c1f2a5934976e0e29e96f8829d9ba309dcc7313942d66fab0bf07a7894c3b02a",
+        "restart.csv": "73c113f745963e8e6d06c934b034cb06596d01d86052c81a9b5e88735d36ee20",
+        "control.sur": "7f8222c86eca7c003bb9239f48a628392eb1df85e2164b2313fb406caf31866d",
+        "control.sur.flow.csv": "b7cc249a9e962d10e55f488c4af97fe4dbdd90c63d01991b108a75c99c1a50be"
+      }
+    },
+    {
+      "id": "SA_replay",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.0687817840007483,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "fa535da5a645be11b005ed6c8de2343db261bf668bd3e7b380adfaeaf33eb916",
+        "initial.csv": "1025c3a0eb5103182a95d5a87cd1a06a5f72f497536481ea9984f88b73b9b660",
+        "control.sur": "7f8222c86eca7c003bb9239f48a628392eb1df85e2164b2313fb406caf31866d"
+      },
+      "outputs": {
+        "history.csv": "bc9d0e3aeb9bb513af589fb9450abdb271e4d79a7b6c93eb6c83b613d2d18d46",
+        "solver.log": "5571c3b8b4dd1a5801c4480ba7797d9f1a6280ce4df3ec557c0274b512fab01f",
+        "control.sur.turb.csv": "c1f2a5934976e0e29e96f8829d9ba309dcc7313942d66fab0bf07a7894c3b02a",
+        "restart.stress": "d7cc02f886926418361d4c6f1efe7b86043030c735aed0c8ac79576d74f17467",
+        "restart.csv": "73c113f745963e8e6d06c934b034cb06596d01d86052c81a9b5e88735d36ee20",
+        "control.sur.flow.csv": "b7cc249a9e962d10e55f488c4af97fe4dbdd90c63d01991b108a75c99c1a50be"
+      }
+    },
+    {
+      "id": "SA_changed_replay_state",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 1,
+      "seconds": 0.037981617999321315,
+      "status": "PASS",
+      "expected_error": "fingerprint mismatch",
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "fa535da5a645be11b005ed6c8de2343db261bf668bd3e7b380adfaeaf33eb916",
+        "initial.stress": "b36e82d48b8989ab9df5e8d443718fabfbeeafe7f32aca9ef31af184652c0be0",
+        "initial.csv": "b68cb49dd811331bd60954bf77afd7c8a699f30d92c2ea7c5d2ba7f092b33ee4",
+        "control.sur": "7f8222c86eca7c003bb9239f48a628392eb1df85e2164b2313fb406caf31866d"
+      },
+      "outputs": {
+        "history.csv": "9a590c4c97fae67df2a888f69bf05890676b718a1a41e74ca5080cd799499e85",
+        "solver.log": "efce935bf6a298d5570bd53ed02a74e2499ff9ee2536a0d3f346e16e4d7009de"
+      }
+    },
+    {
+      "id": "SA_no_energy_part",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06454272999690147,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "786746a6fea608ed56e1b0d1e5cc92976a43c521bbdec2b88f335e874e887b83",
+        "field.suf": "eaf8273d6c361ff52efab75f971fad8198ba67b3c0d04460759cf72d0d2aad1e"
+      },
+      "outputs": {
+        "history.csv": "19a1c74821521499bfb5f361d3919e0f6d46f44fd89268a6f18099adc09d7fed",
+        "solver.log": "751440b19e9980fad067811c073fd4d4d152ef0e82f22fdeb26a6287c4a42b2f",
+        "restart.stress": "b36e82d48b8989ab9df5e8d443718fabfbeeafe7f32aca9ef31af184652c0be0",
+        "restart.csv": "28bd1234065209eff4dfa70c86d5248cabec5af915f06e059db1ea9451967920"
+      }
+    },
+    {
+      "id": "SA_no_energy_complete",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.0664457559978473,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "95d9ed8dd60859f8dc18549a884d44bd6cf119de9c2dffe2ad1f918bddc50c22",
+        "field.suf": "eaf8273d6c361ff52efab75f971fad8198ba67b3c0d04460759cf72d0d2aad1e"
+      },
+      "outputs": {
+        "history.csv": "6890c0f6f9f7c6159ebd65dcc06ae9c580e76e5ac065d9d9ccda6e93ab84b0c1",
+        "solver.log": "78601e802738e4db7b20aad8884de68b83b0e7529133acda377bcf989b95c71e",
+        "restart.stress": "b36e82d48b8989ab9df5e8d443718fabfbeeafe7f32aca9ef31af184652c0be0",
+        "restart.csv": "c9c9a5e329e71e77f279f7c0c45e2b53ba99044abc2d5c69d8c0d22a9c8162ad"
+      }
+    },
+    {
+      "id": "SA_no_energy_restart",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06537283299985575,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "9e1454477aa6cf405661065c403f428c2ee5f6876e781ddf3ea27816f34782d7",
+        "field.suf": "eaf8273d6c361ff52efab75f971fad8198ba67b3c0d04460759cf72d0d2aad1e",
+        "initial.stress": "b36e82d48b8989ab9df5e8d443718fabfbeeafe7f32aca9ef31af184652c0be0",
+        "initial.csv": "28bd1234065209eff4dfa70c86d5248cabec5af915f06e059db1ea9451967920"
+      },
+      "outputs": {
+        "history.csv": "94999b7701ea767a2881d8314aceed26ee2ee1dd01a4f694748a11f41838c567",
+        "solver.log": "0adbd6277b0ed7b8d3a21e32e6f09dc1b8191c6e1970ce9e30717688078e8105",
+        "restart.stress": "b36e82d48b8989ab9df5e8d443718fabfbeeafe7f32aca9ef31af184652c0be0",
+        "restart.csv": "08e438bddcfeec5e534480d43ddd82419348584f35dfdfc7a9be1662f0926148"
+      }
+    },
+    {
+      "id": "SST_base",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.03767383000376867,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "c6a3f207d61a13895fec4789707d039b492f599c02375b506ceab52c6a24492d"
+      },
+      "outputs": {
+        "history.csv": "192d9db0214f8e80fc1d4f9a627b6a0f5745ad4b1e3e53b3acd63f8505c226fb",
+        "solver.log": "e7eb8e4a266ca1eda9b677e8e24c4ec255f2c338f9dfb6bb8779f597d780d2a2",
+        "restart.csv": "436b21bda746f8c75a2781f5d90a842aa5c18d41b70254aa48f695149d3161a4"
+      }
+    },
+    {
+      "id": "SST_zero",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06846280700119678,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "eb9149ce6fde403c8b2e592811f85122c06a3a81c38d2959df5e327b60dfd6e1",
+        "field.suf": "e4654810d8fa39f4647bcfbdf9863459da5cf2718271a36d2da8491b55a9efa0"
+      },
+      "outputs": {
+        "history.csv": "192d9db0214f8e80fc1d4f9a627b6a0f5745ad4b1e3e53b3acd63f8505c226fb",
+        "solver.log": "54a08db126380b9e78c1db2d1b7535853dad2bf87e497fe1a60445a3212af0fb",
+        "restart.stress": "d38c920ebe4ce85da1df2006ed26ddaf4e021831de1649f8d06edfb5b8c92caa",
+        "restart.csv": "53294c60d6f34cc4a121896340154be195ce02fcb3a205c2c4895d834859ae83"
+      }
+    },
+    {
+      "id": "SST_positive",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06604739099566359,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "eb9149ce6fde403c8b2e592811f85122c06a3a81c38d2959df5e327b60dfd6e1",
+        "field.suf": "eaf8273d6c361ff52efab75f971fad8198ba67b3c0d04460759cf72d0d2aad1e"
+      },
+      "outputs": {
+        "history.csv": "e57c7df7cd3b4f60561d5e1578702ee30099a6da73cd8fd702e8e8a931f80d49",
+        "solver.log": "2e15984bc04ef93d7b3db088d79759195ade4fb183315eed44d1a99acfd9c58f",
+        "restart.stress": "20a88addad420c6e44a3df4e5d532c792b4e83ccfd4e29a3b84a1da9ec9455d0",
+        "restart.csv": "06e8862b75380d307c3c71aac7b609ed7d4ef5b7f10ba1f27689b541fd88222d"
+      }
+    },
+    {
+      "id": "SST_continuous",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.12648255599924596,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "6ad3b2fc829668a52d483d85ebd2f4b15614ae40f9169f11b44f3c78628b8890",
+        "field.suf": "eaf8273d6c361ff52efab75f971fad8198ba67b3c0d04460759cf72d0d2aad1e"
+      },
+      "outputs": {
+        "history.csv": "6022dcbae4f070965caa54479a8909ea31621df947dcfb1dcdc69662c2e6beba",
+        "solver.log": "a47ef31fffe882fefff23bf5e3adb5ef3afbfc9b38d90f3bb45ceb9d30da6005",
+        "restart.stress": "20a88addad420c6e44a3df4e5d532c792b4e83ccfd4e29a3b84a1da9ec9455d0",
+        "restart.csv": "4b348eacbbbfa1ab95d99ed9c5f10eaafc29708bc3d138401b667a4382adb35f"
+      }
+    },
+    {
+      "id": "SST_resumed",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.11496907100081444,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "956b479fed6a9b342ef47b04876d560b652b126ec245a710d8e96a136c1f38ba",
+        "field.suf": "eaf8273d6c361ff52efab75f971fad8198ba67b3c0d04460759cf72d0d2aad1e",
+        "initial.stress": "20a88addad420c6e44a3df4e5d532c792b4e83ccfd4e29a3b84a1da9ec9455d0",
+        "initial.csv": "06e8862b75380d307c3c71aac7b609ed7d4ef5b7f10ba1f27689b541fd88222d"
+      },
+      "outputs": {
+        "history.csv": "7deb68bdd8463e618ea5914a18221b7dd88f15efe563b2df3ebdbb1ae19e1bfc",
+        "solver.log": "7fa83712256b61adf5d61f4554827442773db9f61eb95f47a78d91f77471c226",
+        "restart.stress": "20a88addad420c6e44a3df4e5d532c792b4e83ccfd4e29a3b84a1da9ec9455d0",
+        "restart.csv": "ae85a4a82633b7708cedfc416e1c7cd72bbc11bc9475dfb7f08099637d624767"
+      }
+    },
+    {
+      "id": "SST_changed_field",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 1,
+      "seconds": 0.03549416199530242,
+      "status": "PASS",
+      "expected_error": "Missing or mismatched stress restart identity",
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "956b479fed6a9b342ef47b04876d560b652b126ec245a710d8e96a136c1f38ba",
+        "field.suf": "c20255562eafef923df5d7a9c3a8d6eab22c4b105e75a98a2b03aec0f465a650",
+        "initial.stress": "20a88addad420c6e44a3df4e5d532c792b4e83ccfd4e29a3b84a1da9ec9455d0",
+        "initial.csv": "06e8862b75380d307c3c71aac7b609ed7d4ef5b7f10ba1f27689b541fd88222d"
+      },
+      "outputs": {
+        "history.csv": "5b4f4c01cb629299e6fbe328edafa1627a9c85ee1bf11d93427b9a22d566472a",
+        "solver.log": "6f7a4584b8ce04aa7830948b75b4d404d6f35233e822e94b9123a3bdb38f9c35"
+      }
+    },
+    {
+      "id": "SST_capture",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06960886500019114,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "94b6d4d9c2333119596073384973a95643e55b1a58f3b7781e494a47b1a884f3",
+        "initial.csv": "436b21bda746f8c75a2781f5d90a842aa5c18d41b70254aa48f695149d3161a4"
+      },
+      "outputs": {
+        "history.csv": "845ce65d7fdf11c664985bdb755a34c0e77a03b7538dc41af93c34919f13bc7b",
+        "solver.log": "b65f1fafda7971b7cbbd974e87dab08ef6e83e6078af6a06a8a411cd587d7c3b",
+        "control.sur.turb.csv": "f5ad6123e634d5a2de32aedf98f46c80cdb94d0b2e100186ae0d52b3887580ef",
+        "restart.stress": "7a61299c372ebd5fff1ac6c984758a62664b677bc5aa7b7c984718ffb54823f7",
+        "restart.csv": "f1e07e3a023971730e701f896a8989b12b28dd6856c00d3238f4f370555105e0",
+        "control.sur": "8e7b20c05a0b54b311f5a7d868f56f23f5e5a25b70eadc30524adb927f6aedda",
+        "control.sur.flow.csv": "79bbcd73c2ebc8995b80dc0135fe038f79598c1b76574dddbab91e1f9eacb464"
+      }
+    },
+    {
+      "id": "SST_replay",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.0691423069947632,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "488ceeabd3cbd7b435b62d95ac4e45521cc991d9458b5d8e5839bef07bde9b29",
+        "initial.csv": "436b21bda746f8c75a2781f5d90a842aa5c18d41b70254aa48f695149d3161a4",
+        "control.sur": "8e7b20c05a0b54b311f5a7d868f56f23f5e5a25b70eadc30524adb927f6aedda"
+      },
+      "outputs": {
+        "history.csv": "845ce65d7fdf11c664985bdb755a34c0e77a03b7538dc41af93c34919f13bc7b",
+        "solver.log": "420db279c9605cc3f9cbd509bd47c02772410b637c25ecb656387289e0af9ba9",
+        "control.sur.turb.csv": "f5ad6123e634d5a2de32aedf98f46c80cdb94d0b2e100186ae0d52b3887580ef",
+        "restart.stress": "8255563fb6d303928b4df9146ea38c401a716e5b198f0249f1793978d87efcfa",
+        "restart.csv": "f1e07e3a023971730e701f896a8989b12b28dd6856c00d3238f4f370555105e0",
+        "control.sur.flow.csv": "79bbcd73c2ebc8995b80dc0135fe038f79598c1b76574dddbab91e1f9eacb464"
+      }
+    },
+    {
+      "id": "SST_changed_replay_state",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 1,
+      "seconds": 0.03632646599726286,
+      "status": "PASS",
+      "expected_error": "fingerprint mismatch",
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "488ceeabd3cbd7b435b62d95ac4e45521cc991d9458b5d8e5839bef07bde9b29",
+        "initial.stress": "20a88addad420c6e44a3df4e5d532c792b4e83ccfd4e29a3b84a1da9ec9455d0",
+        "initial.csv": "06e8862b75380d307c3c71aac7b609ed7d4ef5b7f10ba1f27689b541fd88222d",
+        "control.sur": "8e7b20c05a0b54b311f5a7d868f56f23f5e5a25b70eadc30524adb927f6aedda"
+      },
+      "outputs": {
+        "history.csv": "5b4f4c01cb629299e6fbe328edafa1627a9c85ee1bf11d93427b9a22d566472a",
+        "solver.log": "b992685b2ef211ccbca591e0f454b3fa6afd399d0bf5ccea49651bfb652536ce"
+      }
+    },
+    {
+      "id": "SST_no_energy_part",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06596759999956703,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "c9f3cc779a86c966804f14ffe431397ce631bdbba3493f77a86a5664c7dd966d",
+        "field.suf": "eaf8273d6c361ff52efab75f971fad8198ba67b3c0d04460759cf72d0d2aad1e"
+      },
+      "outputs": {
+        "history.csv": "d31362ab8746142a703afb55d263c9a80fcbf6a53b458e4b4aa6bd53cc9efca1",
+        "solver.log": "a8368fdf21d31ba31d774f0217d33dac9298537999aa86ce51255b51a59115e1",
+        "restart.stress": "20a88addad420c6e44a3df4e5d532c792b4e83ccfd4e29a3b84a1da9ec9455d0",
+        "restart.csv": "382bcbf52afb13e774699308e8a6e6ebe432a10b04cf68748cbe8ef0953e39de"
+      }
+    },
+    {
+      "id": "SST_no_energy_complete",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06568035999953281,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "1b2c9ff9a8fe85e93d5132b7c78babea3b4e619b0a3bef8162381a210f144b7d",
+        "field.suf": "eaf8273d6c361ff52efab75f971fad8198ba67b3c0d04460759cf72d0d2aad1e"
+      },
+      "outputs": {
+        "history.csv": "47a5ee5d33fbe5d7117d1d5c9e4e497bdc7e56a7a9c0d1d85ab3594bfa9411b8",
+        "solver.log": "c2d3b079e5c48d6a9814bfff72866630a5193201c2fa07b761f2a3cab3b6b281",
+        "restart.stress": "20a88addad420c6e44a3df4e5d532c792b4e83ccfd4e29a3b84a1da9ec9455d0",
+        "restart.csv": "9ace1b0dfd218a416b1ac703cbc9ca886d858b355b72a2fa9cfed0579be7b82a"
+      }
+    },
+    {
+      "id": "SST_no_energy_restart",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06657428099424578,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "3b4ae76ee9a75a650ebc2fd6fdfbd6f35c9030b86aa376abad16169b39dbae81",
+        "field.suf": "eaf8273d6c361ff52efab75f971fad8198ba67b3c0d04460759cf72d0d2aad1e",
+        "initial.stress": "20a88addad420c6e44a3df4e5d532c792b4e83ccfd4e29a3b84a1da9ec9455d0",
+        "initial.csv": "382bcbf52afb13e774699308e8a6e6ebe432a10b04cf68748cbe8ef0953e39de"
+      },
+      "outputs": {
+        "history.csv": "6216a8e213db69c0fdee44cb0771c2a6dde47efc1f2577d9030732d77bca64dc",
+        "solver.log": "8cb87d31cf5e084aedccfd086493710e8a52b8231ec996a88c0cf2b232595ca3",
+        "restart.stress": "20a88addad420c6e44a3df4e5d532c792b4e83ccfd4e29a3b84a1da9ec9455d0",
+        "restart.csv": "6cec9f7f4d8b366c107353d025b41143520364373036f79b35fb8870d28d327d"
+      }
+    },
+    {
+      "id": "COMP_base",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06635978299891576,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "e84bfc264252a1031af0e489fb64f08531134f3744e0d63695bc6b78feb97033"
+      },
+      "outputs": {
+        "history.csv": "af76203d6ae5a6a2b02495eafb64097716d63e8c3cff79e162dd459afec4792d",
+        "solver.log": "a6341916ab684cd62ac6dc4b2ad5392e9b157cedcf7118473ae0ed5cf8c8f6a0",
+        "restart.csv": "a5b479e938d8a55991187a2d9be1699ae62eaea73b306c5048aa0d62555ae70c"
+      }
+    },
+    {
+      "id": "COMP_PRESCRIBED_scalar",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06970453100075247,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "0e88dba3006cf13fe6028f81f5eb3d30462cc9d8999fca16c9f8dd029159d86d",
+        "field.suf": "eaf8273d6c361ff52efab75f971fad8198ba67b3c0d04460759cf72d0d2aad1e",
+        "initial.csv": "d10fc047e5a95053fd27e825ba2905abbd8688bcf852f8b2251da5d0a7d6b522"
+      },
+      "outputs": {
+        "history.csv": "0f4f96d246291430facf125991c785086616edec985390b79b5c3bfefec821e2",
+        "solver.log": "3f6bf2abadca1108c516152c2f9b1ae5bb41fc15c6bafb2a3ae53bf8faa6f49d",
+        "control.sur.turb.csv": "16982977da3d52e96589ec8884985310fafc5836862b7d9f9bd5842e91d78793",
+        "restart.stress": "9fb11c25e60effc4393c5a59d98b30229c53a6287734d2f2b6fd52ea1b0648a7",
+        "restart.csv": "dc58f7a9e8c85c9025aebbe68639c47e551aa0b3bd39c8adb406593a9f5632c9",
+        "control.sur.flow.csv": "00d9426b43d96d4802cb86ce4bc75d1935e9c6cbe4d1cd5fdebb9b68808e8a73"
+      }
+    },
+    {
+      "id": "COMP_PRESCRIBED_simd",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.042931158997816965,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "a965f4683823125a6f58ba35ae716e154df2cfd95f6de84bbb4654bd70bc3041",
+        "field.suf": "eaf8273d6c361ff52efab75f971fad8198ba67b3c0d04460759cf72d0d2aad1e",
+        "initial.csv": "d10fc047e5a95053fd27e825ba2905abbd8688bcf852f8b2251da5d0a7d6b522"
+      },
+      "outputs": {
+        "history.csv": "0f4f96d246291430facf125991c785086616edec985390b79b5c3bfefec821e2",
+        "solver.log": "d6b6382fc5f3a99af8f2a4ab0788993de3883e1b2acc533920d9a549f666b70a",
+        "control.sur.turb.csv": "16982977da3d52e96589ec8884985310fafc5836862b7d9f9bd5842e91d78793",
+        "restart.stress": "9fb11c25e60effc4393c5a59d98b30229c53a6287734d2f2b6fd52ea1b0648a7",
+        "restart.csv": "dc58f7a9e8c85c9025aebbe68639c47e551aa0b3bd39c8adb406593a9f5632c9",
+        "control.sur.flow.csv": "8a796cf4c82f7e949881430281ee728bbb7b153c71d83f5533a9f4058caad74d"
+      }
+    },
+    {
+      "id": "COMP_EPM_MATCHED_scalar",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06515145199955441,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "75201541d10dec181a4bcf5ccd41c4944170d52ced3ac65b07cfe3297edbdce1",
+        "initial.csv": "d10fc047e5a95053fd27e825ba2905abbd8688bcf852f8b2251da5d0a7d6b522"
+      },
+      "outputs": {
+        "history.csv": "0f4f96d246291430facf125991c785086616edec985390b79b5c3bfefec821e2",
+        "solver.log": "d59af6c835155912d4805cb76c6587fa32fe6bddd75c6abcca05519d0e94844b",
+        "control.sur.turb.csv": "2b155416ff8058b70496f40e341d1b9f15fea748f5f1ab1c413c3a19855062d9",
+        "restart.stress": "d183482d00128173037c7c7468140ed772b50e77a9cca5a2d32385efe1d5a6ef",
+        "restart.csv": "f530858f3445c946c4e027332fc54e55189c29eeadd8b9051e37227c79c19dee",
+        "control.sur.flow.csv": "d588cfc1acdf0fad33af6f8b5b0b93de94558ca0f7742daf796226a681c98b3d"
+      }
+    },
+    {
+      "id": "COMP_EPM_MATCHED_simd",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.03351341699453769,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "4bbd8e9b427cce743a17d83e1ab8a938499c0e9f09e94c6e09942e4dda2033db",
+        "initial.csv": "d10fc047e5a95053fd27e825ba2905abbd8688bcf852f8b2251da5d0a7d6b522"
+      },
+      "outputs": {
+        "history.csv": "0f4f96d246291430facf125991c785086616edec985390b79b5c3bfefec821e2",
+        "solver.log": "d134c4c089d82e1fbea1f2c5f9ceb38e598e1afe21e44a96d24ca7134d59d0b6",
+        "control.sur.turb.csv": "2b155416ff8058b70496f40e341d1b9f15fea748f5f1ab1c413c3a19855062d9",
+        "restart.stress": "d183482d00128173037c7c7468140ed772b50e77a9cca5a2d32385efe1d5a6ef",
+        "restart.csv": "f530858f3445c946c4e027332fc54e55189c29eeadd8b9051e37227c79c19dee",
+        "control.sur.flow.csv": "072cf6a333522a1df2e7a6dd8b2a581610485df265c12d989eee4474cff842f5"
+      }
+    },
+    {
+      "id": "CUBE_SA_base",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.06481802299822448,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "fa9e5753e2088fc92b0be5ef2653c488a197d07ff4190c3670a59f573016f895",
+        "case.cfg": "1b13854e679d99a07adf34e6dd53803ddaffcbc0dd4e9e580bc4cd41ee8df20a"
+      },
+      "outputs": {
+        "history.csv": "3bbdc317e4df4a42ffb71757146f85e3f6d7a979461327d5a5429467779a57b2",
+        "solver.log": "2e25f4a7c3375490cf1f24c9abf4ec024f9bff094762d65cedbbba4585ca74a4",
+        "restart.csv": "0b882d67346f0c4b6c52301a9b0ef278238b5a856114515490ba69e33802042e"
+      }
+    },
+    {
+      "id": "CUBE_SA_capture",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.032846476999111474,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "fa9e5753e2088fc92b0be5ef2653c488a197d07ff4190c3670a59f573016f895",
+        "case.cfg": "482aba064b6a61afbb3e1edf3852e1662d03f436dcb0bbde69e70357d0263fbe",
+        "initial.csv": "0b882d67346f0c4b6c52301a9b0ef278238b5a856114515490ba69e33802042e"
+      },
+      "outputs": {
+        "history.csv": "ecc487790a91feacd9eaedc7b42cde1e8eebdb8c8fc80d71e66b0294f2fb7933",
+        "solver.log": "24a162881af81890d7a3be05a8f650d53432ef3ceac0c450bbe046a299120358",
+        "control.sur.turb.csv": "dcdb5f14db1b83425e1f220fd2775cbece87d9d2648fa03d0d5f3f4a69be82e4",
+        "restart.csv": "cf7b956ef6c21ff364977cf61e3198ff65dca3d3b47fc3f77be0e0622906676b",
+        "control.sur": "301b6d205b285a851d4351694ae3f39eb32ef01c7e2c35f334a3c0873043d995",
+        "control.sur.flow.csv": "26c021f99f8f4934672191800f40f7d71d92225dab21be0197995826a1739e90"
+      }
+    },
+    {
+      "id": "CUBE_SA_replay",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.03403650900145294,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "fa9e5753e2088fc92b0be5ef2653c488a197d07ff4190c3670a59f573016f895",
+        "case.cfg": "30060fd2eca9444f9001ab2d4d37d7c398650a337336979f884e821df9108adf",
+        "initial.csv": "0b882d67346f0c4b6c52301a9b0ef278238b5a856114515490ba69e33802042e",
+        "control.sur": "301b6d205b285a851d4351694ae3f39eb32ef01c7e2c35f334a3c0873043d995"
+      },
+      "outputs": {
+        "history.csv": "ecc487790a91feacd9eaedc7b42cde1e8eebdb8c8fc80d71e66b0294f2fb7933",
+        "solver.log": "3232400ec30b9962a1763a7244c81da96b10522434872b2c6474a1e9b4d4d3f9",
+        "control.sur.turb.csv": "dcdb5f14db1b83425e1f220fd2775cbece87d9d2648fa03d0d5f3f4a69be82e4",
+        "restart.stress": "d7cc02f886926418361d4c6f1efe7b86043030c735aed0c8ac79576d74f17467",
+        "restart.csv": "cf7b956ef6c21ff364977cf61e3198ff65dca3d3b47fc3f77be0e0622906676b",
+        "control.sur.flow.csv": "26c021f99f8f4934672191800f40f7d71d92225dab21be0197995826a1739e90"
+      }
+    },
+    {
+      "id": "CUBE_SST_base",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.03402553300111322,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "fa9e5753e2088fc92b0be5ef2653c488a197d07ff4190c3670a59f573016f895",
+        "case.cfg": "c6a3f207d61a13895fec4789707d039b492f599c02375b506ceab52c6a24492d"
+      },
+      "outputs": {
+        "history.csv": "706ad3b74881bb35dbb69c08af959fc9f58f125dd662abd108f13061bfa30167",
+        "solver.log": "a434794d5098910b7bc85b3658467a241d69af99ee44dec3e6f5cfb3f4ea8376",
+        "restart.csv": "e77ae9062808314733f054a551e400444fabf9fc7dc3255f304215250be54270"
+      }
+    },
+    {
+      "id": "CUBE_SST_capture",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.03221284699975513,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "fa9e5753e2088fc92b0be5ef2653c488a197d07ff4190c3670a59f573016f895",
+        "case.cfg": "c4006be460bd58216a2a6f060dc8b0757994eb0cd0226eb4abe3437994c7a44b",
+        "initial.csv": "e77ae9062808314733f054a551e400444fabf9fc7dc3255f304215250be54270"
+      },
+      "outputs": {
+        "history.csv": "787f1a64003e06ae95ec4f6c49a843c1fad4744c84809869e5ee957d91567944",
+        "solver.log": "676923b6a308f1fb0a7f4ea8afd1bc5f7fd3a46e1b7b59a58b46febdca79d4da",
+        "control.sur.turb.csv": "5bbc9bd323fe1237d6f9a911775d2bf3ca13e28b687dcc46525faeeba5bbb153",
+        "restart.stress": "7a61299c372ebd5fff1ac6c984758a62664b677bc5aa7b7c984718ffb54823f7",
+        "restart.csv": "2a4c40cf1fba1d7309d8cdc4a03a527a3fef5fa6f5e8ea4bfea12a84da9ed319",
+        "control.sur": "5299cf7b29796d6b843b5fd32ba6361b1e2b5a5e8eae6af1b2e98d68b11a1446",
+        "control.sur.flow.csv": "d5dec46f8334479612760a854dabb3386fa88d925a26ecf7c739355c98e07dfe"
+      }
+    },
+    {
+      "id": "CUBE_SST_replay",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.03606663800019305,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "fa9e5753e2088fc92b0be5ef2653c488a197d07ff4190c3670a59f573016f895",
+        "case.cfg": "c3deaade13c2ac824bb45f1d206e8f7121c746dd19bb727613be423de80bfe60",
+        "initial.csv": "e77ae9062808314733f054a551e400444fabf9fc7dc3255f304215250be54270",
+        "control.sur": "5299cf7b29796d6b843b5fd32ba6361b1e2b5a5e8eae6af1b2e98d68b11a1446"
+      },
+      "outputs": {
+        "history.csv": "787f1a64003e06ae95ec4f6c49a843c1fad4744c84809869e5ee957d91567944",
+        "solver.log": "78af2261a0f6a25d52f1c5af49c2243d4c6b91d7e5aced84e20b13bbe5b45224",
+        "control.sur.turb.csv": "5bbc9bd323fe1237d6f9a911775d2bf3ca13e28b687dcc46525faeeba5bbb153",
+        "restart.stress": "8255563fb6d303928b4df9146ea38c401a716e5b198f0249f1793978d87efcfa",
+        "restart.csv": "2a4c40cf1fba1d7309d8cdc4a03a527a3fef5fa6f5e8ea4bfea12a84da9ed319",
+        "control.sur.flow.csv": "d5dec46f8334479612760a854dabb3386fa88d925a26ecf7c739355c98e07dfe"
+      }
+    },
+    {
+      "id": "COMP_3C_uniform_scalar",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.03207050199853256,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "22d71c123d9b1d135b6239414062a77d7e35c0579e16bd41d7baf096890ca70f",
+        "initial.csv": "a5b479e938d8a55991187a2d9be1699ae62eaea73b306c5048aa0d62555ae70c"
+      },
+      "outputs": {
+        "history.csv": "0f4f96d246291430facf125991c785086616edec985390b79b5c3bfefec821e2",
+        "solver.log": "d59af6c835155912d4805cb76c6587fa32fe6bddd75c6abcca05519d0e94844b",
+        "control.sur.turb.csv": "3ab8d17b3536447bf5133ac5a9706a30dc94c9755539d205b521b3cdfed457bf",
+        "restart.stress": "74f6069da44cf70731bdd33eea2b20ebd7698bb66f354259a47603d57d14acfa",
+        "restart.csv": "f4efdb1b105996cb8bfe43973879bd4d115777145a44315f89f658c1fb4cff4f",
+        "control.sur.flow.csv": "fd91f6bd865f15cbfa20e944ec4d2d7dc03ba99bdadd254a3da68651fcddf6bc"
+      }
+    },
+    {
+      "id": "COMP_3C_uniform_simd",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "returncode": 0,
+      "seconds": 0.03444056100124726,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "a42f99e4db1607a99dde5bd6166584c340d11c67974931d34ea17e30f3c52bfc",
+        "initial.csv": "a5b479e938d8a55991187a2d9be1699ae62eaea73b306c5048aa0d62555ae70c"
+      },
+      "outputs": {
+        "history.csv": "0f4f96d246291430facf125991c785086616edec985390b79b5c3bfefec821e2",
+        "solver.log": "d134c4c089d82e1fbea1f2c5f9ceb38e598e1afe21e44a96d24ca7134d59d0b6",
+        "control.sur.turb.csv": "3ab8d17b3536447bf5133ac5a9706a30dc94c9755539d205b521b3cdfed457bf",
+        "restart.stress": "74f6069da44cf70731bdd33eea2b20ebd7698bb66f354259a47603d57d14acfa",
+        "restart.csv": "f4efdb1b105996cb8bfe43973879bd4d115777145a44315f89f658c1fb4cff4f",
+        "control.sur.flow.csv": "9c400475ee84a44d848cb640fb75031d883ba258b2ac42dd6e22b9787082b08c"
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "SA_zero_recovery",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "x": 0.0,
+        "y": 0.0,
+        "Pressure": 0.0,
+        "Velocity_x": 0.0,
+        "Velocity_y": 0.0,
+        "Enthalpy": 0.0,
+        "Nu_Tilde": 0.0,
+        "Pressure_Coefficient": 0.0,
+        "Density": 0.0,
+        "Laminar_Viscosity": 0.0,
+        "Heat_Capacity": 0.0,
+        "Thermal_Conductivity": 0.0,
+        "Temperature": 0.0,
+        "Skin_Friction_Coefficient_x": 0.0,
+        "Skin_Friction_Coefficient_y": 0.0,
+        "Heat_Flux": 0.0,
+        "Y_Plus": 0.0,
+        "Eddy_Viscosity": 0.0
+      }
+    },
+    {
+      "id": "SA_disk_restart",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-09,
+      "errors": {
+        "x": 0.0,
+        "y": 0.0,
+        "Pressure": 4.8030156241107846e-17,
+        "Velocity_x": 1.1102230246251565e-15,
+        "Velocity_y": 3.9397619959165645e-18,
+        "Enthalpy": 1.0913936421275139e-11,
+        "Nu_Tilde": 1.3010426069826053e-18,
+        "Pressure_Coefficient": 9.606031248221569e-17,
+        "Density": 0.0,
+        "Laminar_Viscosity": 0.0,
+        "Heat_Capacity": 0.0,
+        "Thermal_Conductivity": 2.2737367544323206e-13,
+        "Temperature": 0.0,
+        "Skin_Friction_Coefficient_x": 0.0,
+        "Skin_Friction_Coefficient_y": 0.0,
+        "Heat_Flux": 0.0,
+        "Y_Plus": 0.0,
+        "Eddy_Viscosity": 2.168404344971009e-19
+      }
+    },
+    {
+      "id": "SA_exact_flow",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "R0": 0.0,
+        "R1": 0.0,
+        "R2": 0.0,
+        "R3": 0.0
+      }
+    },
+    {
+      "id": "SA_exact_turb",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "R0": 0.0
+      }
+    },
+    {
+      "id": "SA_no_energy_disk_restart",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-09,
+      "errors": {
+        "x": 0.0,
+        "y": 0.0,
+        "Pressure": 5.902633796236317e-17,
+        "Velocity_x": 1.1102230246251565e-15,
+        "Velocity_y": 6.4061101800842735e-18,
+        "Nu_Tilde": 1.3010426069826053e-18,
+        "Pressure_Coefficient": 1.1804928779293733e-16,
+        "Density": 0.0,
+        "Laminar_Viscosity": 0.0,
+        "Heat_Capacity": 0.0,
+        "Thermal_Conductivity": 1.1368683772161603e-13,
+        "Temperature": 0.0,
+        "Skin_Friction_Coefficient_x": 0.0,
+        "Skin_Friction_Coefficient_y": 0.0,
+        "Heat_Flux": 0.0,
+        "Y_Plus": 0.0,
+        "Eddy_Viscosity": 2.168404344971009e-19
+      }
+    },
+    {
+      "id": "SST_zero_recovery",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "x": 0.0,
+        "y": 0.0,
+        "Pressure": 0.0,
+        "Velocity_x": 0.0,
+        "Velocity_y": 0.0,
+        "Enthalpy": 0.0,
+        "Turb_Kin_Energy": 0.0,
+        "Omega": 0.0,
+        "Pressure_Coefficient": 0.0,
+        "Density": 0.0,
+        "Laminar_Viscosity": 0.0,
+        "Heat_Capacity": 0.0,
+        "Thermal_Conductivity": 0.0,
+        "Temperature": 0.0,
+        "Skin_Friction_Coefficient_x": 0.0,
+        "Skin_Friction_Coefficient_y": 0.0,
+        "Heat_Flux": 0.0,
+        "Y_Plus": 0.0,
+        "Eddy_Viscosity": 0.0
+      }
+    },
+    {
+      "id": "SST_disk_restart",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-09,
+      "errors": {
+        "x": 0.0,
+        "y": 0.0,
+        "Pressure": 5.661568219447743e-17,
+        "Velocity_x": 8.881784197001252e-16,
+        "Velocity_y": 7.516411555257051e-18,
+        "Enthalpy": 1.0913936421275139e-11,
+        "Turb_Kin_Energy": 1.3010426069826053e-18,
+        "Omega": 2.220446049250313e-16,
+        "Pressure_Coefficient": 1.1323136438895487e-16,
+        "Density": 0.0,
+        "Laminar_Viscosity": 0.0,
+        "Heat_Capacity": 0.0,
+        "Thermal_Conductivity": 2.2737367544323206e-12,
+        "Temperature": 0.0,
+        "Skin_Friction_Coefficient_x": 0.0,
+        "Skin_Friction_Coefficient_y": 0.0,
+        "Heat_Flux": 0.0,
+        "Y_Plus": 0.0,
+        "Eddy_Viscosity": 5.204170427930421e-18
+      }
+    },
+    {
+      "id": "SST_exact_flow",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "R0": 0.0,
+        "R1": 0.0,
+        "R2": 0.0,
+        "R3": 0.0
+      }
+    },
+    {
+      "id": "SST_exact_turb",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "R0": 0.0,
+        "R1": 0.0
+      }
+    },
+    {
+      "id": "SST_no_energy_disk_restart",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-09,
+      "errors": {
+        "x": 0.0,
+        "y": 0.0,
+        "Pressure": 6.29514886399396e-17,
+        "Velocity_x": 1.1102230246251565e-15,
+        "Velocity_y": 5.274685920789342e-18,
+        "Turb_Kin_Energy": 1.3010426069826053e-18,
+        "Omega": 1.1102230246251565e-16,
+        "Pressure_Coefficient": 1.259029772798792e-16,
+        "Density": 0.0,
+        "Laminar_Viscosity": 0.0,
+        "Heat_Capacity": 0.0,
+        "Thermal_Conductivity": 1.3642420526593924e-12,
+        "Temperature": 0.0,
+        "Skin_Friction_Coefficient_x": 0.0,
+        "Skin_Friction_Coefficient_y": 0.0,
+        "Heat_Flux": 0.0,
+        "Y_Plus": 0.0,
+        "Eddy_Viscosity": 3.469446951953614e-18
+      }
+    },
+    {
+      "id": "COMP_PRESCRIBED_flow",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "R0": 4.2327252813834093e-16,
+        "R1": 4.722350982477863e-15,
+        "R2": 4.861128860556008e-15,
+        "R3": 1.1361311197388702e-13
+      }
+    },
+    {
+      "id": "COMP_PRESCRIBED_turb",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "R0": 0.0,
+        "R1": 0.0
+      }
+    },
+    {
+      "id": "COMP_EPM_MATCHED_flow",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "R0": 4.2327252813834093e-16,
+        "R1": 4.957839694341715e-15,
+        "R2": 4.846166870575708e-15,
+        "R3": 1.0820370207470509e-13
+      }
+    },
+    {
+      "id": "COMP_EPM_MATCHED_turb",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "R0": 0.0,
+        "R1": 0.0
+      }
+    },
+    {
+      "id": "CUBE_SA_flow",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "R0": 0.0,
+        "R1": 0.0,
+        "R2": 0.0,
+        "R3": 0.0,
+        "R4": 0.0
+      }
+    },
+    {
+      "id": "CUBE_SA_turb",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "R0": 0.0
+      }
+    },
+    {
+      "id": "CUBE_SST_flow",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "R0": 0.0,
+        "R1": 0.0,
+        "R2": 0.0,
+        "R3": 0.0,
+        "R4": 0.0
+      }
+    },
+    {
+      "id": "CUBE_SST_turb",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "R0": 0.0,
+        "R1": 0.0
+      }
+    },
+    {
+      "id": "COMP_3C_uniform_flow",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "R0": 5.759281940243e-16,
+        "R1": 4.156727993981421e-15,
+        "R2": 5.705004545438977e-15,
+        "R3": 1.57894107879049e-13
+      }
+    },
+    {
+      "id": "COMP_3C_uniform_turb",
+      "status": "PASS",
+      "absolute_tolerance_internal_units": 1e-10,
+      "errors": {
+        "R0": 0.0,
+        "R1": 0.0
+      }
+    }
+  ],
+  "budgets": {
+    "SA": {
+      "scope": "nodal volume quadrature, not exact discrete energy balance",
+      "owned_volume": 1.0,
+      "max_absolute_trace": 0.0,
+      "max_stress_norm": 0.009240843487765398,
+      "stress_work_integral": -0.0013369898316498677
+    },
+    "SST": {
+      "scope": "nodal volume quadrature, not exact discrete energy balance",
+      "owned_volume": 1.0,
+      "max_absolute_trace": 0.0,
+      "max_stress_norm": 0.009240843487765398,
+      "stress_work_integral": -0.0013369877962408495,
+      "parent_integral": 0.0005875137285535856,
+      "raw_integral": -0.0007494740676872639,
+      "limited_integral": 2.27793873729488e-05,
+      "omega_integral": 0.04757788627098689,
+      "cap_gap_integral": -0.0007722534550602125,
+      "absolute_cap_gap_integral": 0.0008833171403547934,
+      "lower_cap_volume_fraction": 0.75,
+      "upper_cap_volume_fraction": 0.015625,
+      "k_floor_volume_fraction": 0.0,
+      "omega_floor_volume_fraction": 0.0,
+      "minimum_covariance_eigenvalue": -0.004030407372640907,
+      "negative_covariance_volume_fraction": 0.65625,
+      "covariance_tolerance": 1e-12
+    }
+  },
+  "status": "PASS"
+}

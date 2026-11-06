@@ -26,7 +26,7 @@ def main():
     for i,source in enumerate(sources):
         obj=build/f"support{i}.o";run(flags+["-c",source,"-o",obj]);objects.append(obj)
     main=build/"catch_main.cpp";main.write_text('#define CATCH_CONFIG_MAIN\n#include "catch.hpp"\n')
-    tests=[main]+[root/"UnitTests/SU2_CFD/numerics"/(name+".cpp") for name in ("epm_tests","epm_source_tests","stress_coupling_tests")]
+    tests=[main]+[root/"UnitTests/SU2_CFD/numerics"/(name+".cpp") for name in ("epm_tests","epm_source_tests","stress_coupling_tests","stress_replay_tests")]
     test_objects=[]
     for i,source in enumerate(tests):
         obj=build/f"test{i}.o";run(flags+["-c",source,"-o",obj]);test_objects.append(obj)
@@ -41,5 +41,6 @@ def main():
     run(command)
     run([sys.executable,"SU2_PY/stress_field/test_campaign.py"])
     run([sys.executable,"SU2_PY/stress_field/test_target.py","--probe",probe])
+    run([sys.executable,"SU2_PY/stress_field/test_validation.py"])
 
 if __name__=="__main__":main()

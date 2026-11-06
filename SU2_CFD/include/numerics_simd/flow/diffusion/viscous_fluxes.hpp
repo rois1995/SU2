@@ -151,6 +151,8 @@ protected:
 
     const Double eddyVisc = uq? Double(0.0) : avgV.eddyVisc();
     auto tau = stressTensor(avgV.laminarVisc() + eddyVisc, avgGrad);
+    decltype(tau) parent_tau;
+    if (useSA_QCR && config.GetStressCapture()) parent_tau = tau;
     if(useSA_QCR) addQCR(avgGrad, tau, eddyVisc / (avgV.laminarVisc() + eddyVisc));
     if(uq) {
       Double turb_ke = 0.5*(gatherVariables(iPoint, turbVars->GetSolution()) +
@@ -159,7 +161,7 @@ protected:
                       uq_eigval_comp, uq_permute, uq_delta_b, uq_urlx);
     }
 
-    if (config.GetStressDiscrepancy()) {
+    if (config.GetStressDiscrepancy() || config.GetStressCapture()) {
       for (size_t lane=0;lane<Double::Size;++lane) {
         su2double point[3]{}, grad[nDim][nDim], difference[3][3]{};
         for (size_t i=0;i<nDim;++i) {
@@ -167,9 +169,16 @@ protected:
           for (size_t j=0;j<nDim;++j) grad[i][j]=avgGrad(i+1,j)[lane];
         }
         su2double k=0;
-        if (config.GetMatchedEPM()) k=0.5*(turbVars->GetSolution(iPoint[lane],0)+turbVars->GetSolution(jPoint[lane],0));
-        CNumerics::ComputeStressDiscrepancy(nDim,&config,point,grad,avgV.density()[lane],avgV.eddyVisc()[lane],k,difference);
-        for (size_t i=0;i<nDim;++i) for (size_t j=0;j<nDim;++j) tau(i,j)[lane]-=avgV.density()[lane]*difference[i][j];
+        if (config.GetKind_Turb_Model()==TURB_MODEL::SST) k=0.5*(turbVars->GetSolution(iPoint[lane],0)+turbVars->GetSolution(jPoint[lane],0));
+        if (useSA_QCR && config.GetStressCapture()) {
+          for (size_t i=0;i<nDim;++i) for (size_t j=0;j<nDim;++j)
+            difference[i][j]=(parent_tau(i,j)[lane]-tau(i,j)[lane])/avgV.density()[lane];
+          if (nDim==2) difference[2][2]=-difference[0][0]-difference[1][1];
+          CNumerics::TraceStressQuery(nDim,&config,'F',point,grad,avgV.density()[lane],avgV.eddyVisc()[lane],k,difference);
+        } else {
+          CNumerics::ComputeStressDiscrepancy(nDim,&config,point,grad,avgV.density()[lane],avgV.eddyVisc()[lane],k,difference,'F');
+          for (size_t i=0;i<nDim;++i) for (size_t j=0;j<nDim;++j) tau(i,j)[lane]-=avgV.density()[lane]*difference[i][j];
+        }
       }
     }
 

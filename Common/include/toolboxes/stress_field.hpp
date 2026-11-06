@@ -4,6 +4,9 @@
 #pragma once
 #include <algorithm>
 #include <array>
+#include <atomic>
+#include <chrono>
+#include <exception>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -89,6 +92,16 @@ inline Tensor FromCoefficients(const std::array<double, 5>& c) {
 }
 
 class Field {
+  mutable std::atomic<uint64_t> face_queries{0}, source_queries{0}, other_queries{0}, failed_queries{0}, query_ns{0};
+  struct QueryTimer {
+    const Field& field;
+    const int exceptions = std::uncaught_exceptions();
+    const std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+    ~QueryTimer() {
+      field.query_ns.fetch_add(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-start).count(), std::memory_order_relaxed);
+      if (std::uncaught_exceptions() > exceptions) field.failed_queries.fetch_add(1, std::memory_order_relaxed);
+    }
+  };
   struct Node {
     Point x;
     std::array<double, 5> c;
@@ -403,7 +416,9 @@ class Field {
             "norm/measure/diameter certificate mismatch");
   }
 
-  Tensor Evaluate(const Point& x) const {
+  Tensor Evaluate(const Point& x, char kind = 'N') const {
+    (kind == 'F' ? face_queries : kind == 'S' ? source_queries : other_queries).fetch_add(1, std::memory_order_relaxed);
+    QueryTimer timer{*this};
     for (double v : x) Require(std::isfinite(v), "nonfinite query coordinate");
     if (dim == 2) Require(x[2] == 0, "out-of-plane query");
     auto smooth = [](double t) {
@@ -484,6 +499,13 @@ class Field {
     out << std::setprecision(17) << "scenario=" << scenario << " sha256=" << identity << " nodes=" << nodes.size()
         << " cells=" << cells.size() << " norm_inf=" << norm_inf << " norm_H1=" << norm_h1 << " measure=" << volume
         << " H/ell=" << diameter / ell << " bytes_per_rank=" << MemoryBytes();
+    return out.str();
+  }
+  std::string QuerySummary() const {
+    std::ostringstream out;
+    out << "face_queries=" << face_queries.load() << " source_queries=" << source_queries.load()
+        << " other_queries=" << other_queries.load() << " failed_queries=" << failed_queries.load()
+        << " query_seconds=" << query_ns.load()*1e-9 << " bytes_per_rank=" << MemoryBytes();
     return out.str();
   }
 };

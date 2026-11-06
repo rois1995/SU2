@@ -971,10 +971,10 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
                                             PrimVar_Grad_i + idx.Velocity(), Density_i);
       }
       su2double stress_work = 0.0;
-      if (config->GetStressDiscrepancy()) {
+      if (config->GetStressDiscrepancy() || config->GetStressCapture()) {
         su2double difference[3][3]{};
         ComputeStressDiscrepancy(nDim, config, Coord_i, PrimVar_Grad_i + idx.Velocity(),
-                                Density_i, Eddy_Viscosity_i, ScalarVar_i[0], difference);
+                                Density_i, Eddy_Viscosity_i, ScalarVar_i[0], difference, 'S');
         stress_work = ComputeReynoldsStressProduction(nDim, difference, PrimVar_Grad_i + idx.Velocity(), Density_i);
         P += stress_work;
       }

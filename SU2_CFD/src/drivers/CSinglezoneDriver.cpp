@@ -161,10 +161,24 @@ void CSinglezoneDriver::Run() {
   unsigned long OuterIter = 0;
   config_container[ZONE_0]->SetOuterIter(OuterIter);
 
+  if (config_container[ZONE_0]->GetStressDiagnostic()) {
+    auto* mesh = geometry_container[ZONE_0][INST_0][MESH_0];
+    if (mesh->GetnPoint() > 10000) SU2_MPI::Error("Stress diagnostic limit: 10000 mesh points.", CURRENT_FUNCTION);
+    std::ostringstream state;
+    state << std::setprecision(17);
+    for (auto system : {FLOW_SOL, TURB_SOL}) {
+      const auto* solver = solver_container[ZONE_0][INST_0][MESH_0][system];
+      for (unsigned long p=0;p<mesh->GetnPoint();++p)
+        for (unsigned short v=0;v<solver->GetnVar();++v) state << SU2_TYPE::GetValue(solver->GetNodes()->GetSolution(p,v)) << ' ';
+    }
+    config_container[ZONE_0]->StartStressDiagnostic(state.str());
+  }
+
   /*--- Iterate the zone as a block, either to convergence or to a max number of iterations ---*/
   iteration_container[ZONE_0][INST_0]->Solve(output_container[ZONE_0], integration_container, geometry_container, solver_container,
         numerics_container, config_container, surface_movement, grid_movement, FFDBox, ZONE_0, INST_0);
 
+  config_container[ZONE_0]->FinishStressDiagnostic();
 }
 
 void CSinglezoneDriver::Postprocess() {
@@ -205,6 +219,7 @@ void CSinglezoneDriver::Output(unsigned long TimeIter) {
                                                                config_container[ZONE_0],
                                                                solver_container[ZONE_0][INST_0][MESH_0],
                                                                TimeIter, StopCalc);
+  config_container[ZONE_0]->ReportStressQueries();
 
   /*--- Save iteration solution for libROM ---*/
   if (config_container[MESH_0]->GetSave_libROM()) {

@@ -379,7 +379,7 @@ void CTurbSSTSolver::Source_Residual(CGeometry *geometry, CSolver **solver_conta
       numerics->SetIntermittencyEff(solver_container[TRANS_SOL]->GetNodes()->GetIntermittencyEff(iPoint));
     }
 
-    if (axisymmetric || config->GetStressDiscrepancy()){
+    if (axisymmetric || config->GetStressDiscrepancy() || config->GetStressDiagnostic()){
       /*--- Physical source location (also supplies y for axisymmetry). ---*/
       numerics->SetCoord(geometry->nodes->GetCoord(iPoint), geometry->nodes->GetCoord(iPoint));
     }

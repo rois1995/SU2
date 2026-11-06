@@ -527,13 +527,33 @@ public:
 
   /*! \brief One effective kinematic discrepancy shared by momentum, energy and SST production. */
   template<class Gradient>
+  static void TraceStressQuery(size_t nDim, const CConfig* config, char kind, const su2double* point,
+                                const Gradient& gradient, su2double density, su2double viscosity, su2double k,
+                                su2double (&difference)[3][3]) {
+    if (!kind || (!config->GetStressCapture() && !config->GetStressReplay())) return;
+    std::ostringstream query;
+    query << std::setprecision(17) << kind << ' ' << nDim;
+    auto put = [&](su2double x) {
+      const double value = SU2_TYPE::GetValue(x);
+      if (!std::isfinite(value)) SU2_MPI::Error("Nonfinite stress replay query.", CURRENT_FUNCTION);
+      query << ' ' << (value == 0 ? 0.0 : value);
+    };
+    for (size_t i=0;i<nDim;++i) put(point[i]);
+    put(density); put(viscosity); put(k);
+    for (size_t i=0;i<nDim;++i) for (size_t j=0;j<nDim;++j) put(gradient[i][j]);
+    config->ExchangeStressQuery(query.str(), difference);
+  }
+
+  template<class Gradient>
   static void ComputeStressDiscrepancy(size_t nDim, const CConfig* config, const su2double* point,
                                        const Gradient& gradient, su2double density, su2double viscosity,
-                                       su2double k, su2double (&difference)[3][3]) {
+                                       su2double k, su2double (&difference)[3][3], char query_kind = 0) {
     for (auto& row : difference) for (auto& x : row) x = 0;
+    auto calculate = [&]() {
+    if (config->GetStressReplay()) return;
     if (!config->GetStressDiscrepancy() || config->GetStressDiscrepancyScale() == 0) return;
     if (config->GetPrescribedStress()) {
-      config->EvaluateStressDiscrepancy(point, nDim, difference);
+      if (query_kind != 'B') config->EvaluateStressDiscrepancy(point, nDim, difference, query_kind);
       return;
     }
     if (config->GetUQ_URLX() == 0 || (config->GetUQ_Delta_B() == 0 && !config->GetUQ_Permute())) return;
@@ -548,6 +568,9 @@ public:
     for (int i=0;i<3;++i) difference[i][i] -= trace;
     for (int i=0;i<3;++i) for (int j=0;j<3;++j)
       difference[i][j] = config->GetStressDiscrepancyScale()*(difference[i][j]+parent[i][j]/density);
+    };
+    calculate();
+    TraceStressQuery(nDim,config,query_kind,point,gradient,density,viscosity,k,difference);
   }
 
   /*!

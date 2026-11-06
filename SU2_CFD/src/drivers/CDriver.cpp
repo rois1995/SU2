@@ -1409,7 +1409,8 @@ void CDriver::InitializeNumerics(CConfig *config, CGeometry **geometry, CSolver 
   SU2_ZONE_SCOPED
 
   if (config->GetStressDiscrepancy()) {
-    if (config->GetRestart() || config->GetRestart_Flow()) config->CheckStressRestart(config->GetSolution_FileName());
+    if (!config->GetStressDiagnostic() && (config->GetRestart() || config->GetRestart_Flow()))
+      config->CheckStressRestart(config->GetSolution_FileName());
     if (rank == MASTER_NODE)
       cout << "Stress field units: x_physical=x_internal*" << config->GetLength_Ref()
            << "; E_internal=E_physical/" << pow(config->GetVelocity_Ref(),2)

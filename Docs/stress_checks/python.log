@@ -1,26 +1,39 @@
-+ /usr/bin/python3 SU2_PY/stress_field/test_config.py --probe /tmp/su2-uq-final-checks/stress_config_probe
-..
++ c++ -std=c++17 -O0 -ffunction-sections -fdata-sections -Iexternals/catch2 UnitTests/SU2_CFD/numerics/stress_config_probe.cpp /tmp/su2-finalize-checks/support0.o /tmp/su2-finalize-checks/support1.o /tmp/su2-finalize-checks/support2.o /tmp/su2-finalize-checks/support3.o /tmp/su2-finalize-checks/support4.o /tmp/su2-finalize-checks/support5.o /tmp/su2-finalize-checks/support6.o -Wl,--gc-sections -o /tmp/su2-finalize-checks/stress_config_probe
++ /usr/bin/python3 SU2_PY/stress_field/test_config.py --probe /tmp/su2-finalize-checks/stress_config_probe
+...
 ----------------------------------------------------------------------
-Ran 2 tests in 0.071s
+Ran 3 tests in 0.142s
 
 OK
-+ /usr/bin/python3 SU2_PY/stress_field/test_field.py --probe /tmp/su2-uq-final-checks/stress_field_probe --v07-root /tmp/su2-research-v07/SA_stress_uncertainty_v07
++ c++ -std=c++17 -O2 -Wall -Wextra UnitTests/SU2_CFD/numerics/stress_field_probe.cpp -o /tmp/su2-finalize-checks/stress_field_probe
++ /usr/bin/python3 SU2_PY/stress_field/test_field.py --probe /tmp/su2-finalize-checks/stress_field_probe --v07-root /tmp/su2-research-v07/SA_stress_uncertainty_v07
 .......
 ----------------------------------------------------------------------
-Ran 7 tests in 1.725s
+Ran 7 tests in 1.647s
 
 OK
 + /usr/bin/python3 SU2_PY/stress_field/test_campaign.py
-...
+.....
 ----------------------------------------------------------------------
-Ran 3 tests in 0.050s
+Ran 5 tests in 0.058s
 
 OK
-+ /usr/bin/python3 SU2_PY/stress_field/test_target.py --probe /tmp/su2-uq-final-checks/stress_field_probe
++ /usr/bin/python3 SU2_PY/stress_field/test_target.py --probe /tmp/su2-finalize-checks/stress_field_probe
 .
 ----------------------------------------------------------------------
-Ran 1 test in 0.040s
+Ran 1 test in 0.027s
 
 OK
-+ /usr/bin/python3 SU2_PY/stress_field/check_meshadaptation_reference.py --geometry-helper /media/rausa/4TB/MeshAdaptation/Scripts/FunScripts/GeometryHelper.py --probe /tmp/su2-uq-final-checks/stress_field_probe
-PASS: 200 queries; max_abs=2.2204460492503131e-16; source_sha256=389d2bacd28c42ffb3bac74a1d688ca3a4784f721d7b6184e3f1386fbee85fdb
++ /usr/bin/python3 SU2_PY/stress_field/test_validation.py
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.004s
+
+OK
+
+Final study tool check after adding all-failed scenario reporting:
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.004s
+
+OK

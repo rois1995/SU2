@@ -2,7 +2,7 @@
 
 This is a disabled-by-default research interface. It implements a saved physical
 stress field and a same-parent SST EPM comparator. It has local operator/file
-checks; it is not a qualified flow campaign or an uncertainty calibration.
+checks and tiny serial solver checks; it is not an uncertainty calibration.
 Read the [assessment](SA_SST_APPROACH_ASSESSMENT.md),
 [field format](STRESS_FIELD_FORMAT.md) and [verification report](CAMPAIGN_REPORT.md).
 
@@ -44,7 +44,7 @@ a separately saved negative field. `NONE` preserves the existing solver route.
 | Geometry | Analytic planar wall sheets or explicitly wall-free; box support |
 | Field mesh | Positive triangles/tetrahedra, all five 3D coefficients; planar restrictions enforced |
 | Boundaries | Prescribed stress must be exactly zero on every physical boundary vertex |
-| Parallel code | Immutable replicated small field and rank identity check; MPI execution NOT_RUN |
+| Parallel code | Immutable replicated small field and rank identity check; MPI execution BLOCKED_ENVIRONMENT |
 | Implicit solve | Parent approximation retained; complete new tangent not supplied |
 | Adjoint/direct differentiation | Explicitly rejected |
 | Curved geometry | Circle provider OFFLINE_ONLY; coupled circle/general CAD UNSUPPORTED |
@@ -61,7 +61,8 @@ flow. These configurations are rejected instead of silently omitting a term.
 A QCR **donor** can use the existing QCR model with discrepancy mode NONE and
 request the STRESS_DISCREPANCY output group. Its exported E is the QCR difference
 from the linear parent, evaluated at nodes. It is diagnostic and is not applied
-again. This does not qualify a prescribed QCR receiver or exact residual replay.
+again. A prescribed QCR receiving model is unsupported; exact diagnostic replay
+uses a linear parent and the separate mechanism below.
 
 ## What is inserted, and where
 
@@ -101,11 +102,15 @@ all three comparison arms. It does not combine prescribed fields with legacy UQ.
 
 `STRESS_E_XX/YY/ZZ/XY/XZ/YZ`, `STRESS_WORK`, `STRESS_VOLUME` are output field
 identifiers. Their CSV labels are `Stress_E_XX`, etc. For SST the group also has
-`STRESS_PARENT`, `RAW`, `LIMITED`, `OMEGA`, `LOWER_CAP`, `UPPER_CAP`, `COV_MIN`.
+`STRESS_PARENT`, `RAW`, `LIMITED`, `OMEGA`, `LOWER_CAP`, `UPPER_CAP`, `COV_MIN`,
+`CAP_GAP`, `K_FLOOR`, `OMEGA_FLOOR` (all prefixed `STRESS_`).
 The minimum covariance eigenvalue is diagnostic; no hidden realizability limiter
 changes the applied E. Values use SU2 internal units. Nodal E is not a substitute
 for the face-midpoint E used in flux assembly. Sorted volume output excludes
-halo duplicates; use the exported control volumes for integration.
+halo duplicates; exported ghost volumes are zero. Use positive owned control
+volumes for integration. CAP_GAP is raw minus limited production. Floor flags
+use the actual solver lower limits. Query counts, failures, accumulated query
+time and persistent bytes per rank are printed with result output.
 
 ## Restart and persistence
 
@@ -120,7 +125,9 @@ checkpoint or proof that all boundary/numerical settings are unchanged.
 
 ## Offline preparation and analysis
 
-All tools below are in `SU2_PY/stress_field`. None launches SU2, MPI or a scheduler.
+The preparation and analysis tools below are in `SU2_PY/stress_field` and never
+launch SU2. The separately described bounded solver-check runner launches only a
+local executable, with no MPI launcher or scheduler.
 Generate the tiny 81-node square and 13-case plan, then validate prepared inputs:
 
 ```bash
@@ -140,14 +147,16 @@ existing entries, including multiline lists. Restart checkpoints are copied as
 `initial.dat` or `initial.csv`, including a sidecar when present.
 
 `campaign.py extract --run DIR --schema schema.json --output metrics.json`
-requires an `execution.json` recorded by the future local runner, containing
+requires an `execution.json` recorded by the runner, containing
 `returncode:0`, the actual `command`, `inputs:{filename:sha256}`, and
 `outputs:{filename:sha256}`. Changed inputs/outputs or absent evidence fail.
 It does not infer convergence from exit code. The schema declares `files`, each
 with `path`, `required` CSV columns, optional `metrics:{name:{column,units,window}}`
 and optional `volume_column`/`integrate` lists. It reports final values, history
 window ranges and volume integrals as EXTRACTED_NOT_QUALIFIED. Supply explicit
-acceptance criteria before interpreting them.
+acceptance criteria before interpreting them. Set `stress_budget:true` on a file
+entry and declare `covariance_tolerance` to obtain owned-volume stress/production
+summaries. These are nodal quadratures, not an exact face-based energy balance.
 
 `campaign.py compare --left a.csv --right b.csv --columns R1 R2 --scales 1 1
 --key PointID --tolerance 1e-10 --output pair.json` aligns exact row IDs and
@@ -162,7 +171,104 @@ must match donor output nodes exactly. It inverts the declared wall/support map
 at those nodes, labels the artifact COUPLING_CONTROL, reports bounds separately,
 and refuses incompatible wall values or stale output files. It does not silently
 normalize a target into the scenario family. This is a nodal representation fit;
-exact face/source replay tables and a full target-recovery harness remain open.
+exact replay below checks insertion separately. Converged physical-field donor
+recovery and representation-error studies remain unperformed.
+
+## Same-state capture and replay
+
+This diagnostic exports assembled residuals without a time update. It is limited
+to one rank, one thread, ITER=1, implicit Euler for flow and turbulence, and at
+most 10,000 mesh points. Use a separate new directory for each run.
+
+For a donor checkpoint, keep its mesh and parent settings and add:
+
+```ini
+STRESS_DIAGNOSTIC= CAPTURE
+STRESS_DIAGNOSTIC_FILE= control.sur
+ITER= 1
+```
+
+Use SA QCR2000 with discrepancy NONE, or SST with EPM_MATCHED. PRESCRIBED capture
+is also supported. This writes `control.sur`, `control.sur.flow.csv` and
+`control.sur.turb.csv`. The tables contain global PointID and residual components
+R0, R1, etc., in native equation order and internal units. RESIDUAL alone writes
+the tables without creating a capture file.
+
+Copy the same checkpoint, mesh and capture file to the receiving directory.
+Use the linear parent (remove QCR2000 for SA) and:
+
+```ini
+STRESS_DISCREPANCY= REPLAY
+STRESS_DISCREPANCY_PURPOSE= COUPLING_CONTROL
+STRESS_DISCREPANCY_SCALE= 1
+STRESS_DISCREPANCY_FILE= NONE
+STRESS_DIAGNOSTIC= RESIDUAL
+STRESS_DIAGNOSTIC_FILE= control.sur
+ITER= 1
+```
+
+Replay uses the actual face/boundary/source correction, including the donor's
+reconstructed gradients. The file binds the mesh bytes, initial flow/turbulence
+state, units and selected parent/reconstruction settings. Each query key also
+binds its kind, position, gradient, density, eddy viscosity and turbulence energy.
+Checks reject changed queries, unused records, malformed/duplicate records,
+checksum errors and incompatible identity. Capture files and residual tables
+are not overwritten. Maximum size is 64 MiB and 300,000 unique queries.
+
+The ordinary field sidecar check is replaced by the diagnostic identity check
+for these controls, allowing the donor and receiver mode to differ. This does
+not authorize ordinary nonlinear continuation with a different field. Exact
+replay is not a nodal physical field, so it does not export a STRESS_DISCREPANCY
+nodal group or work on a different state/grid. Compare residual tables instead.
+
+For ideal-gas Roe/MSW diagnostic assembly, USE_VECTORIZATION=NO forces the scalar
+route and YES uses SIMD. The log explicitly states the selected route. This
+choice is deliberately confined to diagnostics; normal solver selection is
+unchanged. Near-isotropic 1C EPM remains a documented parity qualification limit.
+
+## Localized fields and study records
+
+In a generator definition, the existing `seed` object may be replaced by:
+
+```json
+{"type":"LOCALIZED_PHYSICAL_V1","terms":[
+  {"center":[0.3,0.2],"width":[0.15,0.05],"coefficients":[0,0,1,0,0]},
+  {"center":[0.7,0.2],"width":[0.15,0.05],"coefficients":[0,0,-1,0,0]}
+]}
+```
+
+Centers and positive widths use physical coordinates. The five coefficients use
+the existing tensor basis; the final two must be zero in 2D. One to 64 terms
+are combined, then passed through the existing smoothing and common scaling.
+A directional seed width is not a directional smoothing operator.
+
+`validation.py` accepts a study JSON such as:
+
+```json
+{"schema":"SU2_STRESS_STUDY_1","family":"declared flow family",
+ "parameters":"parameters.json","cases":[
+   {"id":"case_a","group":"geometry_a","split":"CALIBRATION","reference":"a.csv"},
+   {"id":"case_b","group":"geometry_b","split":"VALIDATION","reference":"b.csv"}
+ ]}
+```
+
+Reference CSV headers are `Output,Lower,Upper,Scale`. Intervals and positive
+reference scales must be declared before evaluation. Related cases must share
+a group; groups cannot cross the split. Select parameters using calibration
+cases, then freeze the study before looking at validation results:
+
+```bash
+python3 SU2_PY/stress_field/validation.py freeze --study study.json --output study.lock.json
+python3 SU2_PY/stress_field/validation.py assess --lock study.lock.json --results results.csv --output assessment.json
+```
+
+Result headers are
+`Case,Output,Baseline,Minimum,Maximum,Requested,Completed,CostSeconds`.
+Use empty Minimum/Maximum with Completed=0 for all-failed scenarios. Missing
+cases stay visible. Partial scenario ranges are labelled incomplete. Reference
+and parameter hashes are checked; outputs are not overwritten. These tools do
+not fit parameters, choose reference uncertainty, prove convergence or compute
+probabilistic coverage. Numerical-error studies remain separate evidence.
 
 ## Reproduce the small checks
 
@@ -171,12 +277,13 @@ python3 SU2_PY/stress_field/run_local_checks.py --build-dir /tmp/stress-checks -
 ```
 
 This builds a small serial Catch executable and two probes with C++17, and runs
-operator, parser, sidecar, field, preparation and synthetic-target tests. Python
+operator, replay, parser, sidecar, field, preparation, synthetic-target and study
+definition tests. Python
 needs NumPy/SciPy. It never creates a flow solver. The normal Meson unit suite
 also includes `stress_coupling_tests.cpp` and `stress_simd_tests.cpp`. The complete
 serial solver link and direct scalar/SIMD viscous operator comparison passed.
-Assembled residual parity, MPI execution, disk restart continuation and physical
-studies remain separate checks; see the report for their current status.
+The bounded runner below also checks assembled residuals and actual disk
+continuation. MPI and physical studies remain unqualified; see the report.
 
 The complete build used the pinned local Eigen, MEL and Meson sources and a
 local Ninja executable. No dependencies were downloaded. With those available,
@@ -199,3 +306,17 @@ g++ /tmp/stress-checks/test0.o /tmp/stress-checks/stress_simd.o -Wl,--start-grou
 ```
 
 These commands compile the flow solver but execute only the small operator test.
+
+To execute only the bounded serial integration suite:
+
+```bash
+python3 SU2_PY/stress_field/run_solver_checks.py --solver /tmp/su2-uq-build/SU2_CFD/src/SU2_CFD --output /tmp/stress-solver-checks
+```
+
+The output directory must be new. The runner generates 81-node and 27-node
+fixtures, permits only one to four iterations per solve, uses a 45-second timeout,
+and forces one thread. It saves configuration, mesh/field/restart hashes, logs,
+execution records and a report. Four expected changed-input failures count as
+successful rejection checks. Fixed internal-unit residual scales are one with
+1e-10 tolerance; full saved-output restart tolerance is 1e-9. These are small
+implementation checks, with no cluster access and no physical validation claim.

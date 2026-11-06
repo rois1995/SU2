@@ -1,3 +1,17 @@
++ c++ -std=c++17 -O0 -ffunction-sections -fdata-sections -Iexternals/catch2 -c Common/src/CConfig.cpp -o /tmp/su2-finalize-checks/support0.o
++ c++ -std=c++17 -O0 -ffunction-sections -fdata-sections -Iexternals/catch2 -c SU2_CFD/src/numerics/CNumerics.cpp -o /tmp/su2-finalize-checks/support1.o
++ c++ -std=c++17 -O0 -ffunction-sections -fdata-sections -Iexternals/catch2 -c SU2_CFD/src/numerics/flow/flow_diffusion.cpp -o /tmp/su2-finalize-checks/support2.o
++ c++ -std=c++17 -O0 -ffunction-sections -fdata-sections -Iexternals/catch2 -c Common/include/parallelization/mpi_structure.cpp -o /tmp/su2-finalize-checks/support3.o
++ c++ -std=c++17 -O0 -ffunction-sections -fdata-sections -Iexternals/catch2 -c Common/src/toolboxes/SwapBytes.cpp -o /tmp/su2-finalize-checks/support4.o
++ c++ -std=c++17 -O0 -ffunction-sections -fdata-sections -Iexternals/catch2 -c Common/src/toolboxes/printing_toolbox.cpp -o /tmp/su2-finalize-checks/support5.o
++ c++ -std=c++17 -O0 -ffunction-sections -fdata-sections -Iexternals/catch2 -c Common/src/fem/fem_gauss_jacobi_quadrature.cpp -o /tmp/su2-finalize-checks/support6.o
++ c++ -std=c++17 -O0 -ffunction-sections -fdata-sections -Iexternals/catch2 -c /tmp/su2-finalize-checks/catch_main.cpp -o /tmp/su2-finalize-checks/test0.o
++ c++ -std=c++17 -O0 -ffunction-sections -fdata-sections -Iexternals/catch2 -c /home/rausa/SU2/UnitTests/SU2_CFD/numerics/epm_tests.cpp -o /tmp/su2-finalize-checks/test1.o
++ c++ -std=c++17 -O0 -ffunction-sections -fdata-sections -Iexternals/catch2 -c /home/rausa/SU2/UnitTests/SU2_CFD/numerics/epm_source_tests.cpp -o /tmp/su2-finalize-checks/test2.o
++ c++ -std=c++17 -O0 -ffunction-sections -fdata-sections -Iexternals/catch2 -c /home/rausa/SU2/UnitTests/SU2_CFD/numerics/stress_coupling_tests.cpp -o /tmp/su2-finalize-checks/test3.o
++ c++ -std=c++17 -O0 -ffunction-sections -fdata-sections -Iexternals/catch2 -c /home/rausa/SU2/UnitTests/SU2_CFD/numerics/stress_replay_tests.cpp -o /tmp/su2-finalize-checks/test4.o
++ c++ -Wl,--gc-sections /tmp/su2-finalize-checks/support0.o /tmp/su2-finalize-checks/support1.o /tmp/su2-finalize-checks/support2.o /tmp/su2-finalize-checks/support3.o /tmp/su2-finalize-checks/support4.o /tmp/su2-finalize-checks/support5.o /tmp/su2-finalize-checks/support6.o /tmp/su2-finalize-checks/test0.o /tmp/su2-finalize-checks/test1.o /tmp/su2-finalize-checks/test2.o /tmp/su2-finalize-checks/test3.o /tmp/su2-finalize-checks/test4.o -o /tmp/su2-finalize-checks/test_stress
++ /tmp/su2-finalize-checks/test_stress
 Prescribed stress: scenario=constant_shear_fixture sha256=7ad9dfe1bec621189c16bf93e7ad8aa8273b2e3a24b407ea23b517804285bcbc nodes=4 cells=2 norm_inf=0.22627416997969524 norm_H1=0.22627416997969521 measure=1 H/ell=14.142135623730951 bytes_per_rank=632
 Experimental stress discrepancy: PRESCRIBED, purpose=SCENARIO, scale=1; implicit Jacobian is approximate; no validated adjoint.
 Prescribed stress: scenario=constant_shear_fixture sha256=7ad9dfe1bec621189c16bf93e7ad8aa8273b2e3a24b407ea23b517804285bcbc nodes=4 cells=2 norm_inf=0.22627416997969524 norm_H1=0.22627416997969521 measure=1 H/ell=14.142135623730951 bytes_per_rank=632
@@ -58,4 +72,4 @@ Experimental stress discrepancy: EPM_MATCHED, purpose=SCENARIO, scale=1; implici
 Experimental stress discrepancy: EPM_MATCHED, purpose=SCENARIO, scale=1; implicit Jacobian is approximate; no validated adjoint.
 Experimental stress discrepancy: EPM_MATCHED, purpose=SCENARIO, scale=1; implicit Jacobian is approximate; no validated adjoint.
 ===============================================================================
-All tests passed (418 assertions in 13 test cases)
+All tests passed (436 assertions in 15 test cases)

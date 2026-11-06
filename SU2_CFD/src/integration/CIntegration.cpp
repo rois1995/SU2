@@ -204,6 +204,29 @@ void CIntegration::Time_Integration(CGeometry *geometry, CSolver **solver_contai
 
   unsigned short MainSolver = config->GetContainerPosition(RunTime_EqSystem);
 
+  if (config->GetStressDiagnostic()) {
+    const string block = RunTime_EqSystem == RUNTIME_FLOW_SYS ? "flow" : "turb";
+    const string path = config->GetStressDiagnosticFile() + "." + block + ".csv";
+    if (std::ifstream(path).good()) SU2_MPI::Error("Refusing to overwrite diagnostic residual: " + path, CURRENT_FUNCTION);
+    std::ofstream file(path);
+    auto* solver = solver_container[MainSolver];
+    file << "PointID";
+    for (unsigned short v=0;v<solver->GetnVar();++v) file << ",R" << v;
+    file << '\n' << std::setprecision(17);
+    for (unsigned long p=0;p<geometry->GetnPointDomain();++p) {
+      file << geometry->nodes->GetGlobalIndex(p);
+      for (unsigned short v=0;v<solver->GetnVar();++v) {
+        const auto value = SU2_TYPE::GetValue(solver->LinSysRes(p,v));
+        if (!std::isfinite(value)) SU2_MPI::Error("Nonfinite diagnostic residual.", CURRENT_FUNCTION);
+        file << ',' << value;
+      }
+      file << '\n';
+    }
+    file.close();
+    if (!file) SU2_MPI::Error("Cannot write diagnostic residual.", CURRENT_FUNCTION);
+    return;  // Same-state assembly: deliberately do not advance either flow or turbulence.
+  }
+
   switch (config->GetKind_TimeIntScheme()) {
     case (RUNGE_KUTTA_EXPLICIT):
       solver_container[MainSolver]->ExplicitRK_Iteration(geometry, solver_container, config, iRKStep);

@@ -1,185 +1,112 @@
 # Improving the reliability of the SA/SST stress-field approach
 
 The central idea is worth keeping: apply a saved stress correction, let SA or
-SST respond, and measure what changes. The biggest scientific improvement is to
-give the choice of corrections a stronger physical and experimental basis.
-Smooth, bounded fields alone do not establish likely model errors.
+SST respond, and measure what changes. The infrastructure is now ready for small,
+controlled research within its supported scope. Its answers are ranges of tested
+scenarios, not trustworthy error bars without further evidence.
 
-This document describes future work. It does not claim that the changes or
-validation below have been completed. The current evidence is recorded in
-[CAMPAIGN_REPORT.md](Docs/CAMPAIGN_REPORT.md). Production runs and cluster access
-remain excluded. The separate adjoint estimator remains outside the agreed scope.
+## What is implemented
 
-## Recommended changes
+- Exact donor capture and replay at actual flux and source queries, with saved
+  state, mesh, units and parent-setting checks. Separate residual tables allow
+  comparison without advancing the solution. Tiny 2D and 3D QCR/EPM checks pass.
+- A bounded local runner checks baseline recovery, nonzero fields, disk restarts,
+  changed-input rejection and actual scalar/vectorized assembly. It saves hashes,
+  timings and failures. The final suite passes 37 checks and 20 comparisons.
+- Owned-volume summaries show stress work, production limits, floor activity and
+  physically impossible SST covariance. Query counts, failures, storage and time
+  are reported. These summaries do not claim an exact discrete energy balance.
+- The offline generator accepts localized fields, opposite signs and combinations.
+  The saved physical field remains fixed during a solve.
+- Study tools freeze parameter and reference files, separate calibration from
+  independent validation, and report missing cases, misses, widths and costs.
+  Their tests use synthetic data; no physical study has been performed.
 
-### 1. Calibrate field strength and spatial scales against independent data
+The [verification report](Docs/CAMPAIGN_REPORT.md) records evidence and limits.
+The [runbook](Docs/STRESS_DISCREPANCY.md) gives commands. Production runs and
+cluster access remain excluded. The separate adjoint estimator is outside scope.
 
-Amplitude, smoothing length and wall damping largely determine the resulting
-range. Start with a small number of these parameters and estimate them from a
-defined family of flows. Freeze those choices before testing on entire cases
-excluded from calibration, including different operating conditions.
+## What would improve credibility next
 
-Measure both how often the range misses the reference and how wide it is. A
-range that contains everything because it is enormous is not useful. Keep
-inflow, measurement and numerical uncertainties separate, so the stress field
-does not simply compensate for incorrect boundary conditions.
+### Choose field strength using independent evidence
 
-Calibration across multiple flow cases has precedent, but success within one
-family does not establish general reliability. See
+Amplitude, smoothing length and wall damping largely determine the answer.
+Choose a narrow family of flows, estimate a few parameters using its calibration
+cases, then freeze them before examining separate validation cases. Split whole
+related cases together, rather than scattering neighboring samples across sets.
+Measure both misses and range width: containing everything with an enormous range
+is not useful. Keep inflow, measurement and numerical uncertainty separate.
+
+Calibration across several flows has precedent, but success within one family
+does not establish general reliability. See
 [Edeling, Cinnella and Dwight](https://sam.ensam.eu/bitstream/handle/10985/10035/Dynfluid-JCP-Cinella-2014.pdf?isAllowed=y&sequence=1).
 
-### 2. Make the fields reflect local flow structure
+### Make additional field flexibility earn its complexity
 
-Allow different variation lengths along and across a shear layer, and different
-correction strengths in attached boundary layers, separated regions and wakes.
-One global smoothing length and freestream-based amplitude may distribute the
-correction poorly. Derive these choices from geometry and the baseline solution,
-then freeze and save the field before the corrected solve.
+Localized fields and combinations are available. First test whether they capture
+reference discrepancies. If they do not, consider different smoothing lengths
+along and across shear layers, and different strengths in attached flow,
+separation and wakes. Derive those choices from geometry or a saved baseline,
+then freeze them. No flow-dependent correction is silently updated during a solve.
 
-Test the restrictions too: does the wall damping exclude known stress errors?
-Does forcing zero correction at an outlet make the answer depend on the outlet
-location? More flexible fields should earn their complexity through these tests.
+Test the restrictions too. Wall damping may exclude an important stress error;
+zero correction at an outlet may make results depend on outlet location. General
+curved-wall support needs implementation and verification before use.
 
-### 3. Separate a mathematical correction from a physically possible stress
+### Reject misleading physical interpretations
 
-For SST, monitor whether the reconstructed total turbulence covariance implies
-negative fluctuation energy in any direction. The correction alone need not be
-positive. The existing minimum-eigenvalue diagnostic is a starting point; add
-clear summaries of where and how strongly the condition is violated.
+For SST, examine the reconstructed total covariance, not positivity of the
+correction alone. The new summary flags negative directional fluctuation energy.
+It does not clip the field and thereby change the experiment. SA has no transported
+turbulence energy for the same test; describe its field as a momentum-stress
+correction unless extra information is justified.
 
-SA has no transported turbulence energy with which to complete the same check.
-Describe its field as a momentum-stress discrepancy unless additional information
-is introduced and justified. Do not invent an SA energy variable just to reuse
-an SST test.
+Track the gap between stress work and limited SST production. Physical stress
+constraints alone do not ensure plausible dynamics; see
+[Matha and Morsbach](https://arxiv.org/abs/2311.01355).
+The deliberately strong tiny SST fixture already shows substantial violations.
+Its successful execution is a wiring check, not physical acceptance.
 
-Flag violations rather than silently clipping the field during the solve:
-clipping changes the supposedly fixed experiment. Record source-limiter activity
-and the difference between the applied stress work and limited SST production.
-Physical stress constraints do not by themselves guarantee plausible dynamics;
-see [Matha and Morsbach](https://arxiv.org/abs/2311.01355).
+### Separate insertion, representation and convergence errors
 
-### 4. Explore combinations of fields
+Exact same-state replay now verifies insertion. Next fit the donor into the
+mesh-independent field, measure the additional representation error, and then
+check whether a solve reaches the donor solution. A nodal fit alone cannot
+establish exact face/source recovery. Recovering QCR or EPM validates machinery,
+not predictions against reality.
 
-Five simple directions are useful checks. Important responses may require a
-correction concentrated near separation, opposite signs in different regions,
-or a rotated three-dimensional stress. Build a modest collection of smooth,
-localized fields, test both signs, and examine combinations that strongly affect
-the selected output. Small finite-difference tests can guide selection without
-an adjoint.
+Retain failed cases. A nearly uniform 1C EPM scalar/vectorized comparison differed
+by 2.17e-10, above the fixed 1e-10 threshold. A nonuniform 1C case and a uniform
+3C case pass. Nearly repeated eigenvalues remain a qualification limit; the
+threshold was not relaxed and a general fix is not claimed.
 
-The computed extremes remain observed scenario extremes, not proven bounds over
-every allowed field. Calculate lift or drag for each actual solution before
-taking its range; a pointwise envelope is not a single realizable solution.
+### Establish numerical robustness before enlarging studies
 
-### 5. Finish exact donor replay
+Compare more than one starting state and gradual introduction of the correction,
+always ending at the same declared field. Measure mesh error, incomplete
+convergence and field interpolation error separately. Improve the incomplete
+implicit derivative only if these tests show it is needed. Stress prescriptions
+can be sensitive to small errors in some formulations; see
+[Wu and colleagues](https://arxiv.org/abs/1803.05581).
 
-This is the first software priority. Save the donor correction at the actual
-flux and source evaluation locations, then verify that replay reproduces the
-donor's discrete equations at the same state. Keep face and source values
-separate, including their reconstruction and units.
+Local MPI checks remain blocked by this environment's socket restrictions.
+Parallel execution and repartitioned restarts need verification on an authorized
+local setup. Exact replay deliberately supports one rank and one thread only.
 
-Next fit the same correction into the mesh-independent field representation and
-measure the additional error separately. This distinguishes an insertion bug,
-an inadequate field representation and a different nonlinear solution. The
-current nodal fit cannot establish that distinction by itself. Recovering QCR or
-EPM verifies the machinery; it does not validate predictions against reality.
+## How I would proceed in practice
 
-### 6. Treat numerical robustness as part of the evidence
+1. Choose a small initial flow family and a few outputs, collect reference
+   intervals and record uncertainty in the measurements and boundary conditions.
+2. Use the study tools to separate calibration and validation cases. Choose field
+   parameters using calibration cases, then freeze the parameter file and case list.
+3. On an authorized local setup, finish parallel checks and donor representation
+   studies. Keep the current nearly uniform 1C EPM limitation visible.
+4. Run a separately authorized validation study with explicit convergence and
+   mesh-error criteria. Save every requested scenario, including failures.
+5. Add more field flexibility or improve the implicit derivative only when the
+   evidence identifies a shortcoming. Revalidate after changing the model family.
 
-Improve the incomplete implicit derivative where testing shows it matters.
-Check gradual introduction of the correction and different starting states,
-always reaching the same declared final field. Retain every failed scenario.
-
-Measure mesh error, incomplete convergence and field interpolation error
-separately. They must be small compared with the reported response. Explicit
-stress prescriptions can be highly sensitive to stress errors in some
-formulations; that motivates testing ours, rather than proving it has the same
-problem. See [Wu and colleagues](https://arxiv.org/abs/1803.05581).
-
-### 7. Keep the claim narrow and testable
-
-Initially claim usefulness only for the tested flow family. Report reference
-cases missed, range width, computational cost and failed solves. Probability
-claims require an additional justified statistical model and independent
-validation. A random generator or a successful donor recovery does not supply
-that justification.
-
-## How to proceed in practice
-
-There is still implementation work. The core field interface is implemented;
-the full verification infrastructure and scientific validation are not complete.
-The order below avoids adding complexity before knowing which part needs it.
-
-### Step 1: implement exact replay and equation comparison
-
-Add a clearly labelled same-grid diagnostic format for donor face/source values.
-Bind it to the mesh, saved state, parent-model settings, units and reconstruction
-settings. Reject missing, duplicate or mismatched records. It must not become a
-replacement for the physical field format used across different meshes.
-
-Add a way to assemble and export the equation imbalances at a saved state
-without taking a flow iteration. Compare momentum, energy where applicable,
-and SST k/omega blocks separately. Use the actual correction insertion paths.
-Start with serial, fixed-mesh cases and fail clearly for unsupported paths.
-
-Completion evidence: small tests for corrupt input and exact replay, followed by
-a small same-state donor/receiver comparison. Use the handoff's normalized
-per-block tolerance of 1e-10 with declared reference scales; investigate failures
-before changing the tolerance. Passing here establishes insertion correctness,
-not convergence from arbitrary starting states or physical accuracy.
-
-### Step 2: complete small end-to-end checks
-
-Use tiny local fixtures to compare baseline against zero correction, then test a
-nonzero correction. Compare assembled scalar and vectorized results, rather than
-only individual flux operators. Perform a real disk restart and compare it with
-uninterrupted continuation. Then check small local parallel cases if the local
-build supports them; otherwise retain an explicit untested status.
-
-This needs test harness work and may expose solver fixes. Existing field readers
-and sidecar checks do not need to be rewritten merely because these tests remain.
-No cluster or production cases are needed. Keep any local runs strictly small.
-
-### Step 3: close diagnostic gaps and make failures visible
-
-Add owned-volume summaries of physical-stress violations, source limiting and
-stress-work differences. Complete field-query failure, timing and memory reports.
-Preserve input/output hashes, final amplitude and failed-run records in the
-campaign tools. Distinguish exact replay error from physical-field fitting error.
-
-Use failures from the preceding checks to decide whether to improve the implicit
-derivative. A complete derivative can help convergence but cannot make an
-unphysical stress field credible. Do not add adjoint support as part of this step.
-
-### Step 4: extend the offline generator only where justified
-
-Add localized fields and a small set of combinations. If reference discrepancies
-show that global scaling or smoothing is inadequate, add spatially varying
-strength and directional smoothing. Keep these choices fixed during each solve.
-Test saved-field reproducibility, units, rotations, wall behavior and mesh
-independence. Change the file schema only when the saved representation needs it.
-
-### Step 5: prepare calibration and independent validation
-
-Choose a narrow initial flow family and a few outputs before fitting parameters.
-Prepare versioned reference-data records, separate calibration/validation case
-lists, and scripts reporting misses, widths, numerical errors, costs and failures.
-Include measurement and boundary-condition uncertainty where data allow it.
-
-Preparing those tools is implementation work. Running a meaningful calibration
-and validation study is research work and may exceed the present small-local-test
-scope. Keep such runs prepared and unexecuted under the current restriction.
-Do not choose new parameters after looking at the held-out results and still
-describe those results as independent validation.
-
-## Priority and stopping point
-
-Do steps 1 and 2 first, then fill the diagnostic gaps exposed by them. Establish
-that the equations are inserted and continued correctly before enlarging the
-field family. After that, use independent data to justify additional flexibility.
-
-Infrastructure is ready for controlled research when the replay, comparison,
-restart and reporting tools exist, the small supported cases pass, and remaining
-unsupported cases are stated plainly. Predictive credibility is a later result
-that must be earned on independent data. Even a well-tested field family can
-exclude the real model error.
+The agreed infrastructure work is implemented. Remaining physical calibration,
+converged donor recovery and mesh studies are research work. Broader geometry,
+parallel replay and a complete derivative would be additional implementation work
+if those capabilities become necessary. None is silently claimed ready here.

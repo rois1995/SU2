@@ -69,39 +69,37 @@ they cannot establish physical uncertainty coverage.
 
 ## What is ready now
 
-The saved-field generator and reader, SA/SST flow coupling, matched SST EPM
-comparison, restart identity checks and nodal diagnostics are implemented.
-There are tools to prepare small cases, inspect saved results, compare tables
-and fit a nodal field from a QCR or EPM donor. All new solver behavior is off by
-default. Unsupported combinations stop with a clear error.
+The saved-field generator and reader, SA/SST coupling, matched SST EPM comparator,
+restart guards and diagnostics are implemented. The generator supports localized
+fields and combinations. Study tools freeze parameters and reference files and
+report missing cases, range misses, width and cost. All new behavior is off by default.
 
-The local checks cover the signs in momentum and energy, the SST production
-limits, the unchanged SA equation, very small positive turbulence energy, field
-units and file integrity. The reader agrees with all 4,000 saved points in the
-circular example, and with 200 further points checked using your MeshAdaptation
-barycentric routine. Thirteen tiny configurations have been prepared and checked
-by the parser. The complete serial solver builds and links. A further small
-check confirms that its scalar and vectorized viscous operators agree for the
-tested stresses, including matched EPM in 3D. No flow calculation has been run.
+Exact capture now records the correction at actual face and source queries.
+Replaying it at the same saved state gives identical flow and turbulence residuals
+in tiny 2D and 3D QCR/EPM tests. Actual disk restarts pass for SA and SST with the
+incompressible energy equation enabled and disabled. The bounded final suite has
+37 checks and 20 comparisons, on 81-node and 27-node meshes with at most four
+iterations. These are wiring tests, not converged physical cases.
 
-The initial coupled scope is a fixed mesh with planar walls or no walls. The
-added field must vanish at every physical boundary. Circular geometry is checked
-only as a field reader; curved-wall flow, periodic cases and several other model
-combinations are rejected. The linear solve uses an incomplete derivative of the new terms. That can affect
-convergence and must be tested before larger work.
+Actual scalar/vectorized assembly agrees for prescribed stress, nonuniform 1C EPM
+and uniform 3C EPM. A nearly uniform 1C EPM comparison missed the fixed tolerance
+and remains recorded as a limitation. The deliberately strong SST test field also
+violates physical covariance constraints; the diagnostics flag that clearly.
 
-The remaining work is real and separate: actual parallel
-and disk-restart checks, whole-flow scalar/vectorized agreement, exact face-by-face
-donor replay, and coupled target recovery. The nodal donor fit does not replace
-those checks. The small local tests do not make the method physically qualified.
+The initial coupled scope remains fixed planar walls or no walls, with zero added
+stress on physical boundaries. Circular geometry is tested only as a provider.
+The implicit derivative is incomplete. Parallel execution could not be tested
+because the local launcher is blocked by socket restrictions. No cluster was used.
+
+Converged donor recovery, physical-field representation error, mesh studies and
+independent validation remain separate work. Exact replay does not replace them.
 The [runbook](STRESS_DISCREPANCY.md) and [verification report](CAMPAIGN_REPORT.md)
-state the implemented scope and untested items explicitly.
+state the supported scope and actual evidence.
 
 ## My recommendation
 
-Use this as the starting infrastructure for controlled experiments. First prove
-that a saved donor correction reproduces the same discrete residuals and then
-the donor solution. After that, test fields chosen without looking at the donor
+Use this as the starting infrastructure for controlled experiments. Same-state donor residual recovery now passes the tiny checks. Next test
+representation error and recovery of the converged donor solution. After that, test fields chosen without looking at the donor
 answer, with both signs and more than one mesh. Only independent reference data
 can tell us whether the chosen fields capture useful model error.
 

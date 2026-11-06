@@ -43,6 +43,7 @@ protected:
   vector<su2activematrix> Inlet_TurbVars;  /*!< \brief Turbulence variables at inlet profiles */
 
 public:
+  su2double GetLowerLimit(unsigned short variable) const { return lowerlimit[variable]; }
   /*!
    * \brief Destructor of the class.
    */

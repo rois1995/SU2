@@ -2,9 +2,53 @@
 """Write a tiny planar input set and run plan. Never runs a flow solver."""
 import argparse
 import json
+import itertools
 from pathlib import Path
 import numpy as np
 from field_io import write_field
+
+
+def prepare_cube(output, base_config):
+    """A 27-node tetrahedral wiring fixture with one wall; never runs CFD."""
+    root=Path(output);root.mkdir(parents=True,exist_ok=False)
+    n=3;nodes=np.array([(x,y,z) for z in np.linspace(0,1,n) for y in np.linspace(0,1,n) for x in np.linspace(0,1,n)])
+    def index(v):return int(v[0]+n*v[1]+n*n*v[2])
+    cells=[]
+    for base in itertools.product(range(n-1),repeat=3):
+        for order in itertools.permutations(range(3)):
+            point=np.array(base);tet=[index(point)]
+            for axis in order:point=point.copy();point[axis]+=1;tet.append(index(point))
+            if np.linalg.det(nodes[tet[1:]]-nodes[tet[0]])<0:tet[1],tet[2]=tet[2],tet[1]
+            cells.append(tet)
+    cells=np.array(cells);faces={}
+    for cell in cells:
+        for omitted in range(4):
+            face=[int(cell[i]) for i in range(4) if i!=omitted];key=tuple(sorted(face))
+            faces.setdefault(key,[]).append((face,int(cell[omitted])))
+    boundary={name:[] for name in ("wall","inlet","outlet","top")}
+    for adjacent in faces.values():
+        if len(adjacent)!=1:continue
+        face,opposite=adjacent[0];xyz=nodes[face];center=xyz.mean(axis=0)
+        if np.dot(np.cross(xyz[1]-xyz[0],xyz[2]-xyz[0]),nodes[opposite]-center)>0:face[1],face[2]=face[2],face[1]
+        name="wall" if center[2]==0 else "inlet" if center[0]==0 else "outlet" if center[0]==1 else "top"
+        boundary[name].append(face)
+    with (root/"mesh.su2").open("w") as stream:
+        stream.write(f"NDIME= 3\nNELEM= {len(cells)}\n")
+        for i,c in enumerate(cells):stream.write("10 "+" ".join(map(str,c))+f" {i}\n")
+        stream.write(f"NPOIN= {len(nodes)}\n")
+        for i,point in enumerate(nodes):stream.write(" ".join(map(str,point))+f" {i}\n")
+        stream.write("NMARK= 4\n")
+        for name,triangles in boundary.items():
+            stream.write(f"MARKER_TAG= {name}\nMARKER_ELEMS= {len(triangles)}\n")
+            for face in triangles:stream.write("5 "+" ".join(map(str,face))+"\n")
+    definition={"scenario":"tiny_cube","U_ref":1,"L_ref":1,"epsilon":.01,"ell":1,"ell_w":.02,
+                "geometry":{"type":"PLANES","walls":[{"normal":[0,0,1],"offset":0}]},
+                "support":{"type":"BOX","lower":[0,0,0],"upper":[1,1,1],"width":[.2,.2,.2]}}
+    for name,amplitude in (("zero",0),("positive",.01),("negative",-.01)):
+        raw=np.zeros((len(nodes),5));raw[:,3]=amplitude
+        write_field(root/(name+".suf"),nodes,cells,raw,{**definition,"scenario":"tiny_cube_"+name})
+    (root/"base.cfg").write_text(Path(base_config).read_text())
+    return root
 
 
 def prepare(output):

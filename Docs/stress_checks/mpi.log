@@ -1,0 +1,9 @@
+Command: timeout 10 /usr/bin/mpiexec --host localhost -n 2 /usr/bin/true
+Exit status: 1
+[pc-rausa:00004] opal_ifinit: socket() failed with errno=1
+[pc-rausa:00004] pmix_ifinit: socket() failed with errno=1
+[pc-rausa:00004] ptl_tool: problems getting address for index 0 (kernel index -1)
+--------------------------------------------------------------------------
+The PMIx server's listener thread failed to start. We cannot
+continue.
+--------------------------------------------------------------------------

@@ -52,6 +52,16 @@ STRESS_DISCREPANCY_FILE={fixture}
         self.invoke(self.base.replace("KIND_TURB_MODEL=SST","KIND_TURB_MODEL=SA"),"CHECK",False,"Missing or mismatched")
         self.invoke(self.base+"STRESS_DISCREPANCY_SCALE=0.5\nSTRESS_DISCREPANCY_RESTART=NEW_SEGMENT\n","CHECK")
 
+    def test_diagnostic_scope_and_replay_contract(self):
+        self.invoke(self.base+"STRESS_DIAGNOSTIC=CAPTURE\n",success=False,reason="ITER=1")
+        self.invoke(self.base+"ITER=1\nSTRESS_DIAGNOSTIC=CAPTURE\n")
+        replay="\n".join(line for line in self.base.replace("STRESS_DISCREPANCY=PRESCRIBED","STRESS_DISCREPANCY=REPLAY").splitlines()
+                           if not line.startswith("STRESS_DISCREPANCY_FILE="))+"\nITER=1\n"
+        self.invoke(replay,success=False,reason="REPLAY requires")
+        replay+="STRESS_DIAGNOSTIC=RESIDUAL\nSTRESS_DISCREPANCY_PURPOSE=COUPLING_CONTROL\n"
+        self.invoke(replay)
+        self.invoke(replay+"STRESS_DISCREPANCY_SCALE=0.5\n",success=False,reason="scale=1")
+
 if __name__=="__main__":
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument("--probe",required=True)
     args,rest=parser.parse_known_args();ConfigTests.probe=str(Path(args.probe).resolve())

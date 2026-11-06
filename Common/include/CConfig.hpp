@@ -55,7 +55,7 @@
 
 using namespace std;
 
-namespace StressField { class Field; }
+namespace StressField { class Field; class Replay; }
 
 /*!
  * \class CConfig
@@ -70,6 +70,8 @@ private:
   string stress_discrepancy_purpose = "SCENARIO", stress_restart_policy = "SAME_FIELD";
   su2double stress_discrepancy_scale = 1.0;
   std::shared_ptr<const StressField::Field> stress_field;
+  std::shared_ptr<StressField::Replay> stress_replay;
+  string stress_diagnostic = "NONE", stress_diagnostic_file = "stress_control.sur";
   void InitializeStressDiscrepancy();
   SU2_MPI::Comm SU2_Communicator; /*!< \brief MPI communicator of SU2.*/
   int rank, size;                 /*!< \brief MPI rank and size.*/
@@ -1501,8 +1503,16 @@ public:
   bool GetStressDiscrepancy() const { return stress_discrepancy_mode != "NONE"; }
   bool GetPrescribedStress() const { return stress_discrepancy_mode == "PRESCRIBED"; }
   bool GetMatchedEPM() const { return stress_discrepancy_mode == "EPM_MATCHED"; }
+  bool GetStressReplay() const { return stress_discrepancy_mode == "REPLAY"; }
+  bool GetStressDiagnostic() const { return stress_diagnostic != "NONE"; }
+  bool GetStressCapture() const { return stress_diagnostic == "CAPTURE"; }
+  const string& GetStressDiagnosticFile() const { return stress_diagnostic_file; }
+  void StartStressDiagnostic(const string& state);
+  void ExchangeStressQuery(const string& query, su2double (&tensor)[3][3]) const;
+  void FinishStressDiagnostic() const;
   su2double GetStressDiscrepancyScale() const { return stress_discrepancy_scale; }
-  void EvaluateStressDiscrepancy(const su2double* coord, unsigned short dim, su2double (&tensor)[3][3]) const;
+  void EvaluateStressDiscrepancy(const su2double* coord, unsigned short dim, su2double (&tensor)[3][3], char kind = 'N') const;
+  void ReportStressQueries() const;
   string StressDiscrepancyIdentity(bool with_internal_units = false) const;
   void CheckStressRestart(const string& basename) const;
   void WriteStressRestart(const string& basename) const;
