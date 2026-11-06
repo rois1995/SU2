@@ -56,16 +56,16 @@ shape/geometry flags1. Actual quality ownership migration preserves every count 
 flag; committed q/J/debt max-over-mean1.2605/1.2797/1.1389. A219/quality_entry_assessment.json.
 A219/construction_progress_assessment.json preserves complete6-rank stages/prefix
 hashes. Shape zeros during construction were unmeasured, never closure.
-Ten complete quality windows are preserved in A219/quality_net_progress.json.
-Latest round35200at2566.810746native seconds:932925cells/60149q-bad/59528J-bad/
-1867geometry-bad/0size-bad; all6census/cache/shape/geometry flags1. Latest window
-removes3652q/3857J/2geometry in145.710659s(~25.06q/s,26.47J/s). Actual ownership
-migration at2580.147477s preserves all counts/flags. Rates vary; this is measured
+Thirteen complete quality windows are preserved in A219/quality_net_progress.json.
+Latest round35392at3009.061587native seconds:950268cells/48084q-bad/46780J-bad/
+1842geometry-bad/0size-bad; all6census/cache/shape/geometry flags1. Latest window
+removes3575q/3908J/8geometry in116.183855s(~30.77q/s,33.64J/s). Actual ownership
+migration at2739.843868s preserves all counts/flags. Rates vary; this is measured
 net progress, not a closure forecast.
 First-window retired/introduced populations reconcile exactly to whole-field net
 counts; they are published-cavity populations, not unique-cell cure counts.
 A219/quality_window1_assessment.json. Actual ownership at34752preserves all counts/
-flags. All10owned handles remain live and1518pins unchanged; sampled tree RSS~10.2GB.
+flags. All10owned handles remain live and1518pins unchanged; sampled tree RSS~10.6GB.
 Wait for terminal outcome; no source speed attribution, closure forecast, competing
 correction or prediction-based stop.
 Bounded read-only historical window35008/census11counter review is preserved in
