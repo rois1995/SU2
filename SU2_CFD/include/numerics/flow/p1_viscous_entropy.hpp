@@ -251,7 +251,7 @@ class Element {
   /*!
    * \brief VISC_P1_JACOBIAN= FULL: dK G along (dTheta, dVel, dMu, dKappa), G fixed. With
    *        grad v_eff = (G_m - v* (x) G_theta)/theta*, grad T_eff = -G_theta/(R theta*^2):
-   *          d grad v_eff = -(dv* (x) G_theta)/theta* - grad v_eff dtheta*/theta*,  d grad T_eff = -2 grad T_eff dtheta*/theta*,
+   *          d grad v_eff = -(dv* (x) G_theta)/theta* - grad v_eff dtheta* / theta*,  d grad T_eff = -2 grad T_eff dtheta* / theta*,
    *          d tau = tau(mu; d grad v_eff) + tau(dmu; grad v_eff),
    *          dF_m = d tau,  dF_E = d tau v* + tau dv* + dkappa grad T_eff + kappa d grad T_eff.
    */
