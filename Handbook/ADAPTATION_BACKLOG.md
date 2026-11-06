@@ -458,3 +458,15 @@ the210union refinement. Leading faces151610623/152331796 remain unresolved at
 the unchanged work budget. Not selected for production; no speedup established.
 R/geometry212_partition_assessment.json. Next active diagnosis is retained-star
 support/repair power using the existing52cell witness, not a new bound framework.
+
+2026-11-06 conditional geometry-closure idea, UNPROVEN and NOT selected: only if a
+complete M6 census closes q/J/size/heights and actual residual-geometry trials show
+that a geometry-improving split is rejected solely for fresh shape, examine whether
+existing split/move and quality-repair operators can form one private composite
+before strict publication. The geometry-only ladder currently skips optimize_repair
+(CNativeEngine3D.cpp), and its final metric gate preserves closed q/J/size. Reuse
+complete dependency/reservation, current geometry contexts, existing operators and
+budgets; do not change validity-only construction or add a scheduler/configuration.
+Require an actual captured failing cavity and smaller-support/existing-path controls
+before selecting anything. This does not diagnose217, whose frozen outcome is still
+pending, and does not establish a speedup or missing production capability.

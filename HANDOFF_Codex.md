@@ -46,10 +46,12 @@ A217/quality_entry_comparison.json preserves per-rank rows/work and exact prefix
 First window preserved in A217/quality_window1_assessment.json. Actual20992
 ownership transition preserves728520cells/43972q/42277J/2679geometry/0size and ALL
 complete flags. Debt max/mean1.40089→1.13770 is balance evidence only, not closure.
-A217/quality_ownership20992_assessment.json. Latest preserved census21504reaches
-760495cells/22619q/19688J/2604geometry/0size at2622.089927native seconds; all24
+A217/quality_ownership20992_assessment.json. Latest preserved census22720reaches
+787930cells/201q/53J/2505geometry/0size at4634.750916native seconds; all69
 complete quality/ownership groups are in A217/quality_trend_assessment.json.
 Capture is still pending.
+Mid-quality6-rank runtime audit:84mapped ELFs, no missing/changed/deleted files.
+A217/loaded_runtime_midquality.json.1518frozen pins remain unchanged.
 A217/metric_export_preflight_review.json checks exact shared-tensor/export contracts;
 actual output validation remains mandatory. Current sources/pins remain frozen.
 Read-only source review found existing publication/support invalidation covers
