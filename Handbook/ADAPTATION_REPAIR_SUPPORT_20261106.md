@@ -97,3 +97,45 @@ repair ladder stalls, existing bounded geometry construction still requires
 subsequent shape/size/height reclosure. Final whole-mesh two-sided geometry and
 association/body/feature/height gates remain independent. Neither this plan nor
 zero one-sided guidance in one cavity proves final geometry closure.
+
+## User-supplied literature steering after corrected-target219
+
+These are design references and hypotheses only; no competing implementation.
+The LIVE219corrected-L1attempt and its residuals decide the next experiment.
+
+- [Loseille, Alauzet, Menier: Unique cavity-based operator and hierarchical domain partitioning](https://www.sciencedirect.com/science/article/pii/S0010448516301142).
+  Publisher abstract and [author-hosted indexed PDF](https://pages.saclay.inria.fr/frederic.alauzet/download/Loseille_Unique%20cavity%20based%20operator%20and%20hierarchical%20domain%20partitioning%20for%20fast%20parallel%20generation%20of%20anisotropic%20meshes.pdf)
+  describe simultaneous surface/volume adaptation through a generic cavity kernel.
+  Direct full-PDF retrieval timed out; do not infer equivalence to our gates.
+- [Tsolakis, Chrisochoides: Speculative anisotropic mesh adaptation on shared memory for CFD applications](https://link.springer.com/article/10.1007/s00366-024-01994-0).
+  Sections3.4–3.5show constrained smoothing and combined boundary/volume operations;
+  section4discusses surrogate geometry versus direct CAD associations. Its reported
+  pipeline results do not establish our q/J/geometry/height/transfer requirements.
+- [User-supplied2023ScienceDirect reference](https://www.sciencedirect.com/science/article/pii/S0010448523000477).
+  Retrieval returned403/cache miss; title/content are not independently verified.
+  Preserve as a supplied reference; do not attribute unverified claims to it.
+
+After terminal219, choose representative ACTUAL residual boundary cavities,
+including a nearby successful/clean control. Keep no-CAD geometry authority,
+exact support/coordinate/association invalidation and all strict final gates.
+First distinguish: poor placement; movement constrained by feature/body/height;
+missing useful connectivity changes; conservative certification refusal. A failed
+rigorous upper bound is not automatically an actual geometric violation.
+
+Test ONE connected hypothesis using existing collapse/insertion/reconnection/
+relocation and private replacement facilities. Determine whether they can form a
+combined surface/adjacent-volume candidate where sequential public moves stall.
+Use complete affected supports and neighboring cells, unchanged exact dependency/
+reservation and publication checks, current target queries and resource accounting.
+Record q/Jretired AND introduced, geometry failures removed AND introduced, metric
+edge conformity, requested heights and net whole-patch improvement per second.
+Do not report private debt improvement or one successful cavity as whole-field closure.
+
+No new scheduler, cavity enlargement or geometry representation is selected.
+Validity-first construction remains unchanged. Quality-aware construction would
+be a separate demonstrated experiment requiring explicit policy reconsideration,
+not an implication of any paper. Existing213–217controls already show that larger
+support is unnecessary for one historical now-repairable witness; current corrected
+metric cavities are required to establish a fresh limitation. Completion remains
+two accepted Euler meshes, admissible conservative transfer, finite adapted CFD,
+actual isolated adapted disk restart, then BL/MPI and RANS500k.

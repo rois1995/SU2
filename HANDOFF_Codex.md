@@ -29,17 +29,45 @@ L2share3.45%; shock-section medians4.37–6.54%chord and3.62–6.03%respectively
 L2coarsens4of11samples and raises radius.05tip budget6.44%→13.59%; finest tip
 normal request4.46e-5→6.64e-6. Select **L1**, isolating the proven correction without
 an unproven stronger corner objective. Existing default ADAP_NORM=1is verified.
-No production M6 adaptation has run since this patch at this checkpoint.
+Production M6 is now LIVE as recorded below.
 All18metric-assessment owned handles ABSENT; frozen assessment pins unchanged.
 [Review and measured target choice](Handbook/ADAPTATION_METRIC_FLOOR_20261106.md).
 
-Next immediate action: full two-event M6, build219, same saved CFD seed,50k/L1,
-unchanged5400native/14400outer budgets and all strict gates. Verify initial emitted
-target against L1assessment; all previous construction/geometry improvements retained.
-This changed metric is NOT a matched-target performance comparison with217.
-The user's prior diagnostic218completed its build but was not run before the user
-paused; keep its fixture/helper edits and defer current-cavity reassessment until
-this corrected-target outcome identifies the blocker. One active cycle only.
+## LIVE219: corrected-target complete two-event M6
+
+Pushed implementation/target checkpoint6209e172e3. Tool96966 LIVE.
+A219=`R/m6_runs/euler_build219_local_metricL1_real_cfd50k`.
+Host helper987033/start2727950; time987275/timeout987276/mpirun987277allstart2728523;
+6ranks987280–987285allstart2728526. A219/owned_startup.json is exact authority.
+1518pins unchanged;84actual mapped ELFs covered by pins. R/metric219_m6_launch.json
+records resources/environment. One owned heavy workload, nice19/MPI6/libs1/4TBscratch.
+Freeze all executing/pinned sources/helpers/config/inputs. Never infer terminal
+state from elapsed time or log age; poll tool/verify exact owned handles.
+
+Same saved real CFD seed,50k/defaultL1, unchanged5400native/14400outer budgets and
+two events. Selected first-rejected snapshot capture enabled because this is a
+substantial changed-target checkpoint; no trial dumps. Config identical217.
+Actual initial original-grid restart and all6metric components plus7conserved/
+primitive fields are BITWISE IDENTICAL to assessed correctedL1restart(SHA5132ee2a...
+5d692). A219/initial_target_match.json. This is not adapted transfer/restart proof.
+Initial native partition has executed; await outcome. No source improvement speedup
+claim against217because target changed. All strict gates and construction policy retained.
+
+If native event naturally rejects, preserve all6first-event EXIT/DETAIL rows AND
+complete6-rank capture shards/hashes before any authorized single owned-launcher
+stop. Final census completeness must be checked; never treat partial zero counts
+as closure. Do not repeat historical217or210stops. If accepted, continue event2,
+conservative admissible transfer, finite adapted CFD and isolated actual restart.
+
+User literature steering is recorded in
+[repair/support diagnostic](Handbook/ADAPTATION_REPAIR_SUPPORT_20261106.md): AFTER
+this corrected-target outcome, choose representative actual boundary cavities,
+distinguish placement/constraints/connectivity/certification, and test ONE combined
+surface-volume hypothesis with existing operators and complete neighboring-patch
+q/J/geometry/metric/height checks. Papers authorize no new scheduler/larger cavity/
+geometry representation or quality-aware construction policy. CAD remains optional.
+218diagnostic built but was not executed before user pause; keep its unrelated local
+fixture/helper edits deferred while219drives the sole active cycle.
 
 ## TERMINAL217: latest requested mesh and metric saved
 
