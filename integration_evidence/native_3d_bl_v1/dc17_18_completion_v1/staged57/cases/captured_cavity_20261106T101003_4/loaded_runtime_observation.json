@@ -1,0 +1,146 @@
+{
+  "case": "captured_cavity",
+  "exit_code": 1,
+  "time": 1793959810.8453934,
+  "processes": [
+    {
+      "pid": 20,
+      "startticks": 424542,
+      "name": "test_driver",
+      "pid_scope": "tool execution namespace",
+      "mapped_elf": [
+        {
+          "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+          "sha256": "4c042d37af5c0b11ff1c9e0c1251fb82e3382e06402baf5fc5352749110aac40",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libnl-3.so.200.26.0",
+          "sha256": "afcb69e2ef0b46c2ce7b7483848332fa9462776d33163f64209acf01f86eddd7",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_ess_singleton.so",
+          "sha256": "2981b3b54893a5c9bb29d018857b874a18eb94b0f97b95b7d5fe514e26c860eb",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+          "sha256": "3a15d66867d83762c7f2f1e37359cb8f6c5743edb369c65285cb0b1c4f7498bf",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_schizo_flux.so",
+          "sha256": "f1f34eb6b9a7b1e78a2ad0956ee373496a5d0fb403ae257d310d12ffc4f5e309",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_schizo_orte.so",
+          "sha256": "0424fc8d35055ef009c9abfe4973b80d3d9ad9e9f24503f29714f3680cb2d1b5",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_schizo_slurm.so",
+          "sha256": "3b5bdc378bc346add14e4ac4865607fd6e133b45250a74099ac0707421e8b044",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libudev.so.1.7.8",
+          "sha256": "0d6934adafb2ef3c640382440c14d6bd60f391e688c000796ffcea0c72849269",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libevent_core-2.1.so.7.0.1",
+          "sha256": "7fa4592ebaec38a7c1ce665c29244fbaae249cab6c1dbdd5024418dcdfd4898e",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libopen-pal.so.40.30.3",
+          "sha256": "59c4d9b111cd3ec326a4df475a338daae050496087c67e86956187056fdc3051",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libopen-rte.so.40.30.3",
+          "sha256": "26467e1da428d31dab924ddbc50bc6ade75da47dbb82c77498a5f127a5466ba7",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+          "sha256": "1fd75fe70354a416d75aef22bcae68c47bd25d20e2d0568c30b1a9838cf62f11",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libcap.so.2.66",
+          "sha256": "6ac6abc86ac891c6e13486470e26f1d939f47fda9e6b5d5508a7f5ec881adc84",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libevent_pthreads-2.1.so.7.0.1",
+          "sha256": "e386329c9c16032b489bebbd545750f35eafc0f50ab88ef0c986a31acb4b47a2",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libhwloc.so.15.7.0",
+          "sha256": "86dff44a023254d997cea910b9a51f35afefe6780f4b5530f974a2009ba47487",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1",
+          "sha256": "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+          "sha256": "fce00b6f25f459cf4ae0b7fae4257909a1a8a86f9149e7c029a5d617baf1ccd0",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libmpi_cxx.so.40.30.1",
+          "sha256": "bf970d3b7ffdd471e5d073ff3bd689f2ef26a0b318eec5cfcef6acab802fe24b",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libmpi.so.40.30.6",
+          "sha256": "9055018b12757e830591aa0283e485e471f1f2a06d3bc0dd5fb35ab00386c172",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/libz.so.1.3",
+          "sha256": "f61677c7bdb7c2aa2a243ea781bfd16afcb361cede7b4ef76127a9d8eb9a5242",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_schizo_jsm.so",
+          "sha256": "1397a435fd4fbfbbb0db9c0003131545f93cb0bd1f4e0a77d1a86f8a61e90758",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_schizo_ompi.so",
+          "sha256": "b25fc56c3d4d8b78c0360fa02430a806f1cc6c5a356ffcb7a2b2a0628df6e600",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_reachable_netlink.so",
+          "sha256": "decb881c043181796c84fdac1881b3fc1d3ccbb7f2b72f74f3f75874c7384f9c",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_shmem_mmap.so",
+          "sha256": "b372f03065836541ada4216df1ac17fdb4dabe89c051ce9b8989c595e3051461",
+          "pinned": true
+        },
+        {
+          "path": "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+          "sha256": "c20a2dc8917c755f02b94049356320fe1f62ac7d9f8994731f807d9df39302da",
+          "pinned": true
+        }
+      ]
+    }
+  ],
+  "uncovered": {},
+  "changed_after_exit": [],
+  "worker_processes_observed": 1,
+  "expected_workers": 1,
+  "coverage_complete": true,
+  "note": "Observed ELF mappings, with current runtime and binary hashes checked; not an exhaustive trace of transient loads."
+}

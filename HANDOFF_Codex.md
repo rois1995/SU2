@@ -9,7 +9,7 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current — shared geometry admission correction implemented; fresh build209 live
+## Current — build210 geometry qualification passed; full M6 starting
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 Checkpoint293b8361bf verified on fork2026-11-06; no owned heavy handles live before edits.
@@ -25,9 +25,33 @@ exact build208 tool session83130 TERMINAL1.
 Old generated configuration identifies GCC9.4; current compiler GCC13.3. A fresh
 current-host Meson configuration preserves all options at
 `integration_evidence/build-integrated-v3-currenthost`; setup TERMINAL0. Active
-helpers now use that build and pin its generated configuration. Build209 exact tool session16890 CONFIRMED LIVE; helper PID4 is execution-
-namespace local, never treat it as a host PID. Both targets compile from scratch, nice19/3workers/single-threaded libraries.
+helpers now use that build and pin its generated configuration. Build210 exact tool session34871 TERMINAL0; helper PID4 is execution-
+namespace local, never treat it as a host PID. Fresh current-host objects from209are retained, nice19/3workers/single-threaded libraries.
 Freeze production/test sources and helpers through build/validation.
+Build209 exact session16890 TERMINAL1 after1507.450405s, all1301pins unchanged.
+Only compile failure: CNativeAffineReference.cpp used std::optional without its
+direct<optional> include. Independent compilation finished (873/876steps).
+R/build209_terminal_session.json and discovered_failure.json preserve evidence.
+After terminal verification added the one direct include. Build210 reuses the
+successful current-host objects and rebuilds the failed object/dependent targets.
+No algorithm or acceptance changes accompany that include. Freeze current sources
+and helpers through build210/qualification. Earlier tail-only updates missed the
+209compile error; no successful build was claimed.
+Build210 TERMINAL0 in45.113142s,1301pins unchanged, both targets up to date.
+Geometry210qualification COMPLETE: actual captured_cavity38938assertions/1case
+PASS89.592s; projection_paths2666assertions/34cases PASS53.350s; MPI6all6ranks
+PASS23cases each9.532s. Runtime-v2covers all observed ELF mappings and all6workers,
+post-exit hashes stable; pinned sources/helpers/binary/config unchanged.
+R/geometry210_qualification.json, validation_progress.json and case receipts.
+Initial sessions63687/31432 failed before tests (missing witness config/sandbox
+sockets), preserved. Host session85808 passed both serial cases, then MPI fixture
+failed because launcher omitted TMPDIR; only verified mpirun181079/start444653
+received SIGTERM after pins/error/handles preserved; all10handles now absent.
+NEVERrepeat that signal. Corrected MPI-only session87663 TERMINAL0 used pt2pt and
+4TB TMPDIR, no source change; serial evidence reused. Tests do not prove full M6.
+Next full attempt euler_build210_real_cfd50k_bound_refinement, same saved realCFD
+seed,2events,50k,5400native budget. Verify handles/resource before launch. No
+routine rejected-mesh dump; future selected export includes requested metric.
 No speedup or full-mesh acceptance established. Full M6 follows affected checks.
 User observes poor leading-edge mesh. Read-only selected202localization receipt
 `INSPECT202/leading_edge_observation_assessment.json`: forward coordinate strip
@@ -72,7 +96,7 @@ captured_cavity_20261106T092108_43129 exec76931 TERMINAL0,100.622s,
 Current175-file runtime snapshot covered ldd/MPI modules, but actual maps found
 additional hwloc modules/dependencies. Their observed hashes stayed unchanged
 through exit; NEW runtime-v2 now includes them before production qualification.
-The historical175-file manifest remains preserved. Build209 is the sole live heavy job.
+The historical175-file manifest remains preserved. Build210 is terminal; qualification is terminal; no owned workload live until the next full M6 starts.
 Historical build207 changed only the diagnostic fixture/helper input pin:4saved202bad/clean faces,
 recorded direct bounds, existing union query, exact cached/fresh comparisons and
 1,048,576work/query. R/geometry_probe207_assessment.json: one saved bad face

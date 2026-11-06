@@ -1,0 +1,84 @@
+{
+  "time": 1793959902.4408512,
+  "tool_session": 85808,
+  "host_processes": [
+    {
+      "pid": 175710,
+      "startticks": 429811,
+      "ppid": 175648,
+      "argv": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_cases.py",
+        "build210",
+        "captured_cavity"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated"
+    },
+    {
+      "pid": 175771,
+      "startticks": 429992,
+      "ppid": 175710,
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "timeout",
+        "600",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeCapturedCavity3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/captured_cavity_20261106T101058_175710"
+    },
+    {
+      "pid": 175772,
+      "startticks": 429992,
+      "ppid": 175771,
+      "argv": [
+        "timeout",
+        "600",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeCapturedCavity3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/captured_cavity_20261106T101058_175710"
+    },
+    {
+      "pid": 175773,
+      "startticks": 429992,
+      "ppid": 175772,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeCapturedCavity3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/captured_cavity_20261106T101058_175710"
+    },
+    {
+      "pid": 175774,
+      "startticks": 429992,
+      "ppid": 175773,
+      "argv": [
+        "orted",
+        "--hnp",
+        "--set-sid",
+        "--report-uri",
+        "8",
+        "--singleton-died-pipe",
+        "9",
+        "-mca",
+        "state_novm_select",
+        "1",
+        "-mca",
+        "ess",
+        "hnp",
+        "-mca",
+        "pmix",
+        "^s1,s2,cray,isolated"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/captured_cavity_20261106T101058_175710"
+    }
+  ]
+}

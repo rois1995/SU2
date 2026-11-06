@@ -1,0 +1,169 @@
+{
+  "time": 1793960142.8383973,
+  "reason": "MPI6 capture fixture root requires TMPDIR; omitted from launcher environment. Root assertion leaves peers waiting before collective. This is setup failure, not adaptation behavior.",
+  "launcher": {
+    "pid": 181079,
+    "startticks": 444653,
+    "argv": [
+      "mpirun",
+      "--bind-to",
+      "none",
+      "-n",
+      "6",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+      "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],[NativeHeightOptimization3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeConcurrentComposed3D],[NativeConcurrentRepair3D],[NativeDefault3D]",
+      "--durations",
+      "yes"
+    ],
+    "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T101325_181020"
+  },
+  "owned_processes": [
+    {
+      "pid": 181020,
+      "startticks": 444483,
+      "ppid": 175648,
+      "argv": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_cases.py",
+        "build210",
+        "failure_capture_mpi6"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated"
+    },
+    {
+      "pid": 181077,
+      "startticks": 444653,
+      "ppid": 181020,
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "timeout",
+        "600",
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "6",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],[NativeHeightOptimization3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeConcurrentComposed3D],[NativeConcurrentRepair3D],[NativeDefault3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T101325_181020"
+    },
+    {
+      "pid": 181078,
+      "startticks": 444653,
+      "ppid": 181077,
+      "argv": [
+        "timeout",
+        "600",
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "6",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],[NativeHeightOptimization3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeConcurrentComposed3D],[NativeConcurrentRepair3D],[NativeDefault3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T101325_181020"
+    },
+    {
+      "pid": 181079,
+      "startticks": 444653,
+      "ppid": 181078,
+      "argv": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-n",
+        "6",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],[NativeHeightOptimization3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeConcurrentComposed3D],[NativeConcurrentRepair3D],[NativeDefault3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T101325_181020"
+    },
+    {
+      "pid": 181087,
+      "startticks": 444656,
+      "ppid": 181079,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],[NativeHeightOptimization3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeConcurrentComposed3D],[NativeConcurrentRepair3D],[NativeDefault3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T101325_181020"
+    },
+    {
+      "pid": 181086,
+      "startticks": 444656,
+      "ppid": 181079,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],[NativeHeightOptimization3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeConcurrentComposed3D],[NativeConcurrentRepair3D],[NativeDefault3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T101325_181020"
+    },
+    {
+      "pid": 181085,
+      "startticks": 444656,
+      "ppid": 181079,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],[NativeHeightOptimization3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeConcurrentComposed3D],[NativeConcurrentRepair3D],[NativeDefault3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T101325_181020"
+    },
+    {
+      "pid": 181084,
+      "startticks": 444656,
+      "ppid": 181079,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],[NativeHeightOptimization3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeConcurrentComposed3D],[NativeConcurrentRepair3D],[NativeDefault3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T101325_181020"
+    },
+    {
+      "pid": 181083,
+      "startticks": 444656,
+      "ppid": 181079,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],[NativeHeightOptimization3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeConcurrentComposed3D],[NativeConcurrentRepair3D],[NativeDefault3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T101325_181020"
+    },
+    {
+      "pid": 181082,
+      "startticks": 444656,
+      "ppid": 181079,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],[NativeHeightOptimization3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],[NativeConcurrentComposed3D],[NativeConcurrentRepair3D],[NativeDefault3D]",
+        "--durations",
+        "yes"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T101325_181020"
+    }
+  ],
+  "pins_changed": [],
+  "input_pins": 1503,
+  "failure_log_sha256_before_stop": "99ecfbce8a739a2cd7296fb43f7e70e3895deffb9ad3f222dc561ad4d8178094",
+  "signal": "SIGTERM",
+  "sent": true,
+  "sent_at": 1793960142.8399525
+}

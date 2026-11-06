@@ -17,6 +17,7 @@
 #include <chrono>
 #include <queue>
 #include <list>
+#include <optional>
 #include <type_traits>
 #include <utility>
 namespace SU2NativeGeometry {

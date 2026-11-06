@@ -1,0 +1,31 @@
+{
+  "time": 1793959008.5642462,
+  "state": "build still live; no source edit permitted yet",
+  "tool_session": 16890,
+  "source": "Common/src/adaptation/CNativeAffineReference.cpp",
+  "source_sha256": "2b9d9f39ef72f44ec8ba98aba6e74429cc3d45d151471d001d9c9bf9678a0119",
+  "error_excerpt": [
+    "FAILED: [code=1] Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o ",
+    "c++ -ICommon/src/libSU2AccurateSum.a.p -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -Wno-dangling-pointer -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -fno-fast-math -fno-unsafe-math-optimizations -ffp-contract=off -MD -MQ Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o -MF Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o.d -o Common/src/libSU2AccurateSum.a.p/adaptation_CNativeAffineReference.cpp.o -c ../../Common/src/adaptation/CNativeAffineReference.cpp",
+    "../../Common/src/adaptation/CNativeAffineReference.cpp: In member function \u2018bool SU2NativeGeometry::MappedFacetReference::ValidateFeatureReplacement(const std::vector<std::pair<const SU2NativeGeometry::EdgeTrace*, int> >&, const SU2NativeGeometry::MobilityPolicy&, bool, SU2NativeGeometry::AtlasBudget&, std::string&) const\u2019:",
+    "../../Common/src/adaptation/CNativeAffineReference.cpp:2247:12: error: \u2018optional\u2019 is not a member of \u2018std\u2019",
+    " 2247 |       std::optional<Id> chain;",
+    "      |            ^~~~~~~~",
+    "../../Common/src/adaptation/CNativeAffineReference.cpp:20:1: note: \u2018std::optional\u2019 is defined in header \u2018<optional>\u2019; did you forget to \u2018#include <optional>\u2019?",
+    "   19 | #include <list>",
+    "  +++ |+#include <optional>",
+    "   20 | #include <type_traits>",
+    "../../Common/src/adaptation/CNativeAffineReference.cpp:2247:23: error: expected primary-expression before \u2018>\u2019 token",
+    " 2247 |       std::optional<Id> chain;",
+    "      |                       ^",
+    "../../Common/src/adaptation/CNativeAffineReference.cpp:2247:25: error: \u2018chain\u2019 was not declared in this scope",
+    " 2247 |       std::optional<Id> chain;",
+    "      |                         ^~~~~",
+    "[457/876] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeCavity3D.cpp.o",
+    "[458/876] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o",
+    "[459/876] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeMetric3D.cpp.o",
+    "[460/876] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundaryParameters3D.cpp.o",
+    "[461/876] Compiling C++ object Common/src/libSU2AccurateSum.a.p/adaptation_CNativeRegionField3D.cpp.o"
+  ],
+  "next": "After exact build session is terminal, add the direct <optional> include and rerun incremental checkpoint build."
+}
