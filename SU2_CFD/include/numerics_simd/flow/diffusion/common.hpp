@@ -90,6 +90,24 @@ FORCEINLINE MatrixDbl<nDim> stressTensor(const Double& viscosity,
   return tau;
 }
 
+/* The reverse-AD fused edge kernel uses this path even with USE_VECTORIZATION=NO. */
+template<class PrimitiveType, class MatrixType, size_t nDim>
+NEVERINLINE void addEPMExtractionStress(const PrimitiveType& V, const MatrixType& grad,
+                                        const Double& turb_ke, MatrixDbl<nDim,nDim>& tau,
+                                        const CConfig& config) {
+  const auto& amplitude = config.GetEPMExtraction().amplitude;
+  AD::SetPreaccIn(amplitude);
+  for (size_t lane = 0; lane < Double::Size; ++lane) {
+    passivedouble velgrad[nDim][nDim], correction[3][3];
+    for (size_t i = 0; i < nDim; ++i)
+      for (size_t j = 0; j < nDim; ++j) velgrad[i][j] = SU2_TYPE::GetValue(grad(i+1,j)[lane]);
+    CNumerics::EPMExtractionStressCorrection(nDim, velgrad, V.density()[lane], V.eddyVisc()[lane],
+                                             turb_ke[lane], &config, correction);
+    for (size_t i = 0; i < nDim; ++i)
+      for (size_t j = 0; j < nDim; ++j) tau(i,j)[lane] += amplitude * correction[i][j];
+  }
+}
+
 /*!
  * \brief Add perturbed stress tensor.
  * \note Not inlined because it is not easy to vectorize properly, due to tred2 and tql2.

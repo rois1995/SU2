@@ -52,9 +52,6 @@ CDiscAdjSinglezoneDriver::CDiscAdjSinglezoneDriver(char* confFile,
   geometry    = geometry_container[ZONE_0][INST_0][MESH_0];
   integration = integration_container[ZONE_0][INST_0];
 
-  if (config->GetEPMExtraction().enabled && (nDim != 2 || SU2_MPI::GetSize() != 1))
-    SU2_MPI::Error("SST_EPM_POSTPROCESS currently supports 2D and one MPI process only.", CURRENT_FUNCTION);
-
   /*--- Store the recording state ---*/
   RecordingState = RECORDING::CLEAR_INDICES;
 
@@ -495,7 +492,7 @@ void CDiscAdjSinglezoneDriver::SecondaryRecording(){
 }
 
 void CDiscAdjSinglezoneDriver::ExtractEPMSensitivities() {
-  // shortcut: serial planar extraction only; extend after driver and parallel replay validation.
+  using PassiveMPI = SelectMPIWrapper<passivedouble>::W;
   if (!output_container[ZONE_0]->GetConvergence() || output_container[ZONE_0]->GetConvergenceInterrupted())
     SU2_MPI::Error("EPM extraction requires the native adjoint convergence criterion to pass.", CURRENT_FUNCTION);
 
@@ -515,8 +512,9 @@ void CDiscAdjSinglezoneDriver::ExtractEPMSensitivities() {
   const char* names[] = {"1C_KEEP", "1C_SWAP", "2C_KEEP", "2C_SWAP", "3C"};
   std::ostringstream rows;
   rows << std::setprecision(17);
-  rows << "case,objective,probe_pair,probe_angle,J_baseline,dJ_da_at_zero,J_linear_at_one,"
-          "ambiguous_evaluations,total_evaluations,gap_tolerance,delta_b,tensor_blend_factor,"
+  rows << "case,objective,dimension,mpi_ranks,probe_pair,probe_angle,J_baseline,dJ_da_at_zero,J_linear_at_one,"
+          "ambiguous_evaluations,total_evaluations,stress_evaluations,source_evaluations,"
+          "gap_tolerance,delta_b,tensor_blend_factor,"
           "primal_converged,adjoint_converged,status\n";
   passivedouble lower = baseline, upper = baseline;
 
@@ -529,7 +527,7 @@ void CDiscAdjSinglezoneDriver::ExtractEPMSensitivities() {
       SetRecording(RECORDING::CLEAR_INDICES);
       epm.angle = probe == 0 ? 0.0 : PI_NUMBER / 2;
       epm.probe_pair = probe == 0 ? 3 : probe - 1;
-      epm.evaluations = epm.ambiguous = 0;
+      epm.evaluations = epm.ambiguous = epm.stress_evaluations = 0;
       epm.active = true;
       config->SetInnerIter(saved_iter);
       SetRecording(MainVariables);
@@ -551,17 +549,25 @@ void CDiscAdjSinglezoneDriver::ExtractEPMSensitivities() {
       iteration->InitializeAdjoint(solver_container, geometry_container, config_container, ZONE_0, INST_0);
       SetAdjObjFunction();
       AD::ComputeAdjoint();
-      const auto gradient = SU2_TYPE::GetDerivative(epm.amplitude);
+      const passivedouble local_gradient = SU2_TYPE::GetDerivative(epm.amplitude);
+      passivedouble gradient = 0;
+      PassiveMPI::Allreduce(&local_gradient, &gradient, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+      const unsigned long local_counts[] = {epm.ambiguous, epm.evaluations, epm.stress_evaluations};
+      unsigned long global_counts[3] = {};
+      PassiveMPI::Allreduce(local_counts, global_counts, 3, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
       if (!std::isfinite(gradient)) SU2_MPI::Error("Nonfinite EPM sensitivity.", CURRENT_FUNCTION);
       rows << names[mode] << ',' << (config->GetKind_ObjFunc() == DRAG_COEFFICIENT ? "DRAG" : "LIFT") << ','
+           << nDim << ',' << SU2_MPI::GetSize() << ','
            << epm.probe_pair << ',' << epm.angle << ',' << baseline << ',' << gradient << ',' << baseline + gradient << ','
-           << epm.ambiguous << ',' << epm.evaluations << ',' << CEPMExtraction::gap_tolerance
+           << global_counts[0] << ',' << global_counts[1] << ',' << global_counts[2] << ','
+           << global_counts[1] - global_counts[2] << ',' << CEPMExtraction::gap_tolerance
            << ",1,1,unverified,true,frozen_forcing_unverified\n";
       lower = min(lower, baseline + gradient);
       upper = max(upper, baseline + gradient);
       AD::ClearAdjoints();
       epm.active = false;
-      if (epm.ambiguous == 0) break;
+      // Every rank must perform the same recordings and reverse communication sequence.
+      if (global_counts[0] == 0) break;
     }
   }
 
@@ -574,10 +580,12 @@ void CDiscAdjSinglezoneDriver::ExtractEPMSensitivities() {
                              ZONE_0, INST_0, MainVariables);
   AD::ResetInput(epm.amplitude);
   epm.amplitude = 0.0;
-  std::ofstream output("sst_epm_sensitivities.csv");
-  output << rows.str();
-  output.close();
-  if (!output) SU2_MPI::Error("Could not write sst_epm_sensitivities.csv.", CURRENT_FUNCTION);
-  cout << "\nClassical EPM first-order frozen-forcing predictions: [" << lower << ", " << upper
-       << "]. Includes baseline and sampled orientations; not verified nonlinear bounds.\n";
+  if (rank == MASTER_NODE) {
+    std::ofstream output("sst_epm_sensitivities.csv");
+    output << rows.str();
+    output.close();
+    if (!output) SU2_MPI::Error("Could not write sst_epm_sensitivities.csv.", CURRENT_FUNCTION);
+    cout << "\nClassical EPM first-order frozen-forcing predictions: [" << lower << ", " << upper
+         << "]. Includes baseline and sampled orientations; not verified nonlinear bounds.\n";
+  }
 }

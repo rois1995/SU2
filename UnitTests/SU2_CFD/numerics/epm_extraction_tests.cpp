@@ -29,14 +29,15 @@
 #include "../../../SU2_CFD/include/numerics/turbulent/turb_sources.hpp"
 #include "../../../SU2_CFD/include/numerics/flow/flow_diffusion.hpp"
 #include "../../../SU2_CFD/include/variables/CEulerVariable.hpp"
+#include "../../../SU2_CFD/include/numerics_simd/flow/diffusion/common.hpp"
 
 namespace {
 struct Result {
-  std::array<double, 4> value{};
+  std::array<double, 5> value{};
   double parameter = 0, state = 0;
 };
 
-Result Evaluate(bool flux, int mode, bool legacy, bool active, double amplitude, double omega = 100) {
+Result Evaluate(bool flux, int mode, bool legacy, bool active, double amplitude, double omega = 100, unsigned short nDim = 2) {
   std::stringstream options;
   options << "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\nSST_OPTIONS= (V2003m" << (legacy ? ", UQ" : "")
           << ")\nUQ_COMPONENT= " << mode / 2 + 1 << "\nUQ_PERMUTE= " << (mode % 2 ? "YES" : "NO")
@@ -47,20 +48,24 @@ Result Evaluate(bool flux, int mode, bool legacy, bool active, double amplitude,
   epm.component = mode / 2 + 1;
   epm.permute = mode % 2;
   epm.amplitude = amplitude;
-  su2double v[11] = {1, .7, .2, 1, 2, 10, 10, .01, .3, .2, 1};
-  su2double scalar[2] = {1, omega}, grad[3][2] = {{.1, 0}, {0, 2}, {0, 0}}, sg[2][2] = {};
-  su2double vort[3] = {0, 0, -2}, x[2] = {0, 0}, y[2] = {1, 0}, normal[2] = {1, .4};
+  su2double v[12] = {1, .7, .2, 1, 2, 10, 10, .01, .3, .2, 1};
+  if (nDim == 3) {
+    for (int i = 11; i > 3; --i) v[i] = v[i-1];
+    v[3] = .1;
+  }
+  su2double scalar[2] = {1, omega}, grad[4][3] = {{.1, 0, .02}, {0, 2, .4}, {0, 0, 0}, {.3, 0, 0}};
+  su2double sg[2][3] = {}, vort[3] = {0, .1, -2}, x[3] = {}, y[3] = {1, 0, 0}, normal[3] = {1, .4, .2};
   const su2double constants[] = {.85, 1, .5, .856, .075, .0828, .09, .31, 5.0 / 9, .44, 10};
   std::unique_ptr<CNumerics> source;
   if (flux)
-    source.reset(new CAvgGrad_Flow(2, 4, false, &config));
+    source.reset(new CAvgGrad_Flow(nDim, nDim + 2, false, &config));
   else
     source.reset(
-        new CSourcePieceWise_TurbSST<CEulerVariable::CIndices<unsigned short>>(2, 2, constants, 0, 0, &config));
+        new CSourcePieceWise_TurbSST<CEulerVariable::CIndices<unsigned short>>(nDim, 2, constants, 0, 0, &config));
   source->SetPrimitive(v, v);
   source->SetScalarVar(scalar, scalar);
-  source->SetPrimVarGradient({&grad[0][0], 2}, {&grad[0][0], 2});
-  source->SetScalarVarGradient({&sg[0][0], 2}, {&sg[0][0], 2});
+  source->SetPrimVarGradient({&grad[0][0], 3}, {&grad[0][0], 3});
+  source->SetScalarVarGradient({&sg[0][0], 3}, {&sg[0][0], 3});
   source->SetVorticity(vort, vort);
   source->SetStrainMag(2, 2);
   source->SetF1blending(1, 1);
@@ -82,7 +87,7 @@ Result Evaluate(bool flux, int mode, bool legacy, bool active, double amplitude,
   const auto residual = source->ComputeResidual(&config);
   Result result;
   su2double objective = 0;
-  for (int i = 0; i < (flux ? 4 : 2); ++i) {
+  for (int i = 0; i < (flux ? nDim + 2 : 2); ++i) {
     result.value[i] = SU2_TYPE::GetValue(residual[i]);
     objective += (i + 1) * residual[i];
   }
@@ -95,33 +100,117 @@ Result Evaluate(bool flux, int mode, bool legacy, bool active, double amplitude,
   AD::ClearAdjoints();
   return result;
 }
+
+template<size_t nDim>
+Result EvaluateFused(int mode, bool legacy, bool active, double amplitude) {
+  std::stringstream options("SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\nSST_OPTIONS= V2003m\n");
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+  auto& epm = config.GetEPMExtraction();
+  epm.component = mode / 2 + 1;
+  epm.permute = mode % 2;
+  epm.amplitude = amplitude;
+  CCompressiblePrimitives<nDim,nDim+9> v;
+  for (size_t i = 0; i < v.nVar; ++i) v.all(i) = 0;
+  v.density() = 2;
+  v.laminarVisc() = .01;
+  v.eddyVisc() = .3;
+  MatrixDbl<nDim+1,nDim> grad;
+  VectorDbl<nDim> normal, heat;
+  for (size_t i = 0; i < nDim; ++i) {
+    v.velocity(i) = .7 / (i+1);
+    normal(i) = 1.0 / (i+1);
+    heat(i) = 0;
+    for (size_t j = 0; j <= nDim; ++j) grad(j,i) = 0;
+  }
+  grad(1,1) = 2;
+  if (nDim == 3) { grad(1,2) = .4; grad(3,0) = .3; }
+  AD::Reset();
+#ifdef CODI_REVERSE_TYPE
+  AD::PreaccEnabled = true;
+#endif
+  AD::StartRecording();
+  AD::RegisterInput(epm.amplitude);
+  AD::RegisterInput(v.eddyVisc()[0]);
+  AD::StartPreacc();
+  AD::SetPreaccIn(v.eddyVisc()[0]);
+  auto tau = stressTensor(v.laminarVisc() + (legacy ? Double(0.0) : v.eddyVisc()), grad);
+  if (legacy) addPerturbedRSM(v, grad, Double(1), tau, epm.component, epm.permute, su2double(1), su2double(1));
+  if (active) addEPMExtractionStress(v, grad, Double(1), tau, config);
+  auto flux = viscousFlux<nDim+2>(v, tau, heat, normal);
+  for (size_t i = 0; i < nDim+2; ++i)
+    for (size_t lane = 0; lane < Double::Size; ++lane) AD::SetPreaccOut(flux(i)[lane]);
+  AD::EndPreacc();
+  Result result;
+  su2double objective = 0;
+  for (size_t i = 0; i < nDim+2; ++i) {
+    result.value[i] = SU2_TYPE::GetValue(flux(i)[0]);
+    objective += (i+1) * flux(i)[0];
+  }
+  AD::RegisterOutput(objective);
+  AD::StopRecording();
+  SU2_TYPE::SetDerivative(objective, 1);
+  AD::ComputeAdjoint();
+  result.parameter = SU2_TYPE::GetDerivative(epm.amplitude);
+  result.state = SU2_TYPE::GetDerivative(v.eddyVisc()[0]);
+  AD::ClearAdjoints();
+  return result;
+}
+
+template<size_t nDim>
+void CheckFused() {
+  const auto base = EvaluateFused<nDim>(0, false, false, 0);
+  for (int mode = 0; mode < 5; ++mode) {
+    const auto zero = EvaluateFused<nDim>(mode, false, true, 0);
+    const auto end = EvaluateFused<nDim>(mode, false, true, 1);
+    const auto classical = EvaluateFused<nDim>(mode, true, false, 0);
+    for (size_t i = 0; i < nDim+2; ++i) {
+      CHECK(zero.value[i] == Approx(base.value[i]).margin(1e-12));
+      CHECK(end.value[i] == Approx(classical.value[i]).margin(1e-12));
+    }
+#ifdef CODI_REVERSE_TYPE
+    const double h = 1e-5;
+    const auto step = EvaluateFused<nDim>(mode, false, true, h);
+    double fd = 0;
+    for (size_t i = 0; i < nDim+2; ++i) fd += (i+1) * (step.value[i] - zero.value[i]) / h;
+    CHECK(zero.parameter == Approx(fd).margin(1e-7));
+    CHECK(zero.state == Approx(base.state).margin(1e-12));
+#endif
+  }
+}
 }  // namespace
 
+TEST_CASE("Fused edge EPM flux preserves baseline, endpoints and parameter derivatives", "[EPM][EPMExtraction]") {
+  CheckFused<2>();
+  CheckFused<3>();
+}
+
 TEST_CASE("EPM extraction preserves baseline and classical local endpoints", "[EPM][EPMExtraction]") {
-  for (bool flux : {false, true})
-    for (double omega : {.01, 100.0}) {
-      const auto base = Evaluate(flux, 0, false, false, 0, omega);
-      for (int mode = 0; mode < 5; ++mode) {
-        const auto zero = Evaluate(flux, mode, false, true, 0, omega);
-        const auto end = Evaluate(flux, mode, false, true, 1, omega);
-        const auto classical = Evaluate(flux, mode, true, false, 0, omega);
-        const auto half = Evaluate(flux, mode, false, true, .5, omega);
-        for (int i = 0; i < (flux ? 4 : 2); ++i) {
-          CHECK(zero.value[i] == Approx(base.value[i]).margin(1e-12));
-          CHECK(end.value[i] == Approx(classical.value[i]).margin(1e-12));
-          CHECK(half.value[i] == Approx(.5 * (base.value[i] + classical.value[i])).margin(1e-12));
-        }
+  for (unsigned short nDim : {2, 3}) {
+    for (bool flux : {false, true})
+      for (double omega : {.01, 100.0}) {
+        const auto base = Evaluate(flux, 0, false, false, 0, omega, nDim);
+        for (int mode = 0; mode < 5; ++mode) {
+          const auto zero = Evaluate(flux, mode, false, true, 0, omega, nDim);
+          const auto end = Evaluate(flux, mode, false, true, 1, omega, nDim);
+          const auto classical = Evaluate(flux, mode, true, false, 0, omega, nDim);
+          const auto half = Evaluate(flux, mode, false, true, .5, omega, nDim);
+          for (int i = 0; i < (flux ? nDim + 2 : 2); ++i) {
+            CHECK(zero.value[i] == Approx(base.value[i]).margin(1e-12));
+            CHECK(end.value[i] == Approx(classical.value[i]).margin(1e-12));
+            CHECK(half.value[i] == Approx(.5 * (base.value[i] + classical.value[i])).margin(1e-12));
+          }
 #ifdef CODI_REVERSE_TYPE
-        CHECK(zero.state == Approx(base.state).margin(1e-12));
-        const double h = 1e-5;
-        const auto step = Evaluate(flux, mode, false, true, h, omega);
-        double fd = 0;
-        for (int i = 0; i < (flux ? 4 : 2); ++i) fd += (i + 1) * (step.value[i] - zero.value[i]) / h;
-        CHECK(zero.parameter == Approx(fd).margin(1e-7));
-        CHECK(base.parameter == 0);
+          CHECK(zero.state == Approx(base.state).margin(1e-12));
+          const double h = 1e-5;
+          const auto step = Evaluate(flux, mode, false, true, h, omega, nDim);
+          double fd = 0;
+          for (int i = 0; i < (flux ? nDim + 2 : 2); ++i) fd += (i + 1) * (step.value[i] - zero.value[i]) / h;
+          CHECK(zero.parameter == Approx(fd).margin(1e-7));
+          CHECK(base.parameter == 0);
 #endif
+        }
       }
-    }
+  }
 }
 
 TEST_CASE("EPM tie probes retain full strength", "[EPM][EPMExtraction]") {

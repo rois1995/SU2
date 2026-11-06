@@ -729,6 +729,22 @@ public:
     epm.ambiguous += ambiguous;
   }
 
+  /*! \brief Shared passive turbulent-stress correction for scalar and fused edge fluxes. */
+  template<class Mat>
+  static void EPMExtractionStressCorrection(size_t nDim, const Mat& gradient, su2double density,
+                                            su2double viscosity, su2double k, const CConfig* config,
+                                            passivedouble (&correction)[3][3]) {
+    EPMExtractionTarget(nDim, gradient, density, viscosity, k, config, correction);
+    passivedouble grad[3][3] = {}, baseline[3][3] = {};
+    for (size_t i = 0; i < nDim; ++i)
+      for (size_t j = 0; j < nDim; ++j) grad[i][j] = SU2_TYPE::GetValue(gradient[i][j]);
+    ComputeStressTensor(nDim, baseline, grad, SU2_TYPE::GetValue(viscosity));
+    for (size_t i = 0; i < nDim; ++i)
+      for (size_t j = 0; j < nDim; ++j)
+        correction[i][j] = -SU2_TYPE::GetValue(density) * correction[i][j] - baseline[i][j];
+    ++config->GetEPMExtraction().stress_evaluations;
+  }
+
   /*!
    * \brief Compute a random contribution to the Reynolds stress tensor (Stochastic Backscatter Model).
    * \details See: Kok, Johan C. "A stochastic backscatter model for grey-area mitigation in detached

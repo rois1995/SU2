@@ -29,7 +29,7 @@
 
 #include "basic_types/datatype_structure.hpp"
 
-/* Runtime state for serial, post-convergence classical EPM parameter recordings. */
+/* Rank-local runtime state for post-convergence classical EPM parameter recordings. */
 struct CEPMExtraction {
   bool enabled = false;
   bool active = false;
@@ -40,5 +40,6 @@ struct CEPMExtraction {
   unsigned short probe_pair = 3;
   unsigned long ambiguous = 0;
   unsigned long evaluations = 0;
+  unsigned long stress_evaluations = 0;
   static constexpr double gap_tolerance = 1e-10;
 };

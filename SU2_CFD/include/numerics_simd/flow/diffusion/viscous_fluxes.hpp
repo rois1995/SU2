@@ -158,6 +158,11 @@ protected:
       addPerturbedRSM(avgV, avgGrad, turb_ke, tau,
                       uq_eigval_comp, uq_permute, uq_delta_b, uq_urlx);
     }
+    if (config.GetEPMExtraction().active) {
+      const Double turb_ke = 0.5*(gatherVariables(iPoint, turbVars->GetSolution()) +
+                                  gatherVariables(jPoint, turbVars->GetSolution()));
+      addEPMExtractionStress(avgV, avgGrad, turb_ke, tau, config);
+    }
 
     if(wallFun) addTauWall(iPoint, jPoint, solution.GetTau_Wall(), unitNormal, tau);
 

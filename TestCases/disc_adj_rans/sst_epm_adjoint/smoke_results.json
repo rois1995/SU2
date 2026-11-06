@@ -1,0 +1,115 @@
+{
+  "purpose": "Tiny infrastructure regressions, not physical or nonlinear EPM validation",
+  "compiler": "GCC 13.3.0, C++17, O0, CoDiPack JacobianLinear, no MPI/OpenMP in runtime executable",
+  "unit_tests": {
+    "passive_assertions": 721,
+    "passive_cases": 7,
+    "reverse_assertions": 695,
+    "reverse_cases": 4
+  },
+  "mpi": "Driver and flux sources pass MPI/MeDiPack syntax compilation; local MPI launch blocked by socket errno=1",
+  "cases": {
+    "2d": {
+      "binary_sha256": "52a89d4a29e5d6fbd22090f58f5a7cef06000ee63e24dd1c3990371c0daaaf22",
+      "dimension": 2,
+      "ranks": 1,
+      "primal_restart_sha256": "357e9025c13323c56f536bc9575d740d9c78ca865fd847de967e93428df54946",
+      "timings_seconds": {
+        "baseline": 75.31676070200047,
+        "disabled": 1.5192233289999422,
+        "enabled": 3.0389692380049382,
+        "restarted": 2.325868932006415
+      },
+      "primal_final_residuals": {
+        "rms[Rho]": "-11.04788062322367",
+        "rms[RhoU]": "-11.59747593101525",
+        "rms[RhoV]": "-12.00354672319323",
+        "rms[RhoE]": "-10.73454837982625",
+        "rms[k]": "-14.48265313161381",
+        "rms[w]": "-10.00071687668422"
+      },
+      "canonical_gradients": {
+        "1C_KEEP": -3.3924349396879284e-05,
+        "1C_SWAP": 1.3283764531064551e-05,
+        "2C_KEEP": -4.357428617426086e-06,
+        "2C_SWAP": 1.924540671388162e-05,
+        "3C": 2.4470571286735354e-05
+      },
+      "stress_evaluations": 243,
+      "source_evaluations": 104,
+      "J_baseline": 0.008355488771649247,
+      "max_restart_gradient_abs_error": 2.0855140937759906e-12,
+      "adjoint_final_residuals": {
+        "rms[A_Rho]": "-10.00887345368064",
+        "rms[A_RhoU]": "-11.10933356089178",
+        "rms[A_RhoV]": "-10.98900186646931",
+        "rms[A_E]": "-11.44540247236869",
+        "rms[A_k]": "-10.5313989800128",
+        "rms[A_w]": "-15.00801195558898"
+      },
+      "rows": 5,
+      "status": "passed_infrastructure_smoke_test",
+      "baseline_history_rows": 1532,
+      "enabled_history_rows": 174,
+      "restarted_history_rows": 11
+    },
+    "3d": {
+      "binary_sha256": "52a89d4a29e5d6fbd22090f58f5a7cef06000ee63e24dd1c3990371c0daaaf22",
+      "dimension": 3,
+      "ranks": 1,
+      "primal_restart_sha256": "98932451b16190ec79f96e1cc382d49851df7ecaa0fe49a36b753c3ca9ff8bf0",
+      "timings_seconds": {
+        "baseline": 152.69062465299794,
+        "disabled": 6.087033029994927,
+        "enabled": 15.518251540001074,
+        "restarted": 14.28488415099855
+      },
+      "primal_final_residuals": {
+        "rms[Rho]": "-11.10873564946514",
+        "rms[RhoU]": "-11.70452691599415",
+        "rms[RhoV]": "-11.67511170770505",
+        "rms[RhoW]": "-11.45172007137726",
+        "rms[RhoE]": "-10.00268969787552",
+        "rms[k]": "-14.29436531499773",
+        "rms[w]": "-10.10339425685681"
+      },
+      "canonical_gradients": {
+        "1C_KEEP": -1.446005461510308e-06,
+        "1C_SWAP": 3.7051227662290717e-06,
+        "2C_KEEP": -7.412892891884487e-07,
+        "2C_SWAP": 1.910907315085544e-06,
+        "3C": 2.6051534050306015e-06
+      },
+      "stress_evaluations": 1043,
+      "source_evaluations": 270,
+      "J_baseline": 0.00616232256797062,
+      "max_restart_gradient_abs_error": 3.618411023791708e-13,
+      "adjoint_final_residuals": {
+        "rms[A_Rho]": "-10.00734507210869",
+        "rms[A_RhoU]": "-11.74792252093232",
+        "rms[A_RhoV]": "-11.57972443798767",
+        "rms[A_RhoW]": "-11.7067792243651",
+        "rms[A_E]": "-11.46437937746618",
+        "rms[A_k]": "-10.84584743082581",
+        "rms[A_w]": "-15.8255845657769"
+      },
+      "rows": 5,
+      "status": "passed_infrastructure_smoke_test",
+      "baseline_history_rows": 545,
+      "enabled_history_rows": 95,
+      "restarted_history_rows": 11
+    }
+  },
+  "modified_cpp_sha256": {
+    "Common/include/CEPMExtraction.hpp": "3435dd5a7383523b75fb4fda9cdc5a02f9105f76706b18b3afbe0f1d72f3f1d1",
+    "SU2_CFD/include/interfaces/cfd/CMixingPlaneInterface.hpp": "16315086fed2368589c5e98e3ffa25d08a33c8915933e3da75f4553b151473ad",
+    "SU2_CFD/include/numerics/CNumerics.hpp": "b30ee73f9469189a1a5c3f53ba403ae2b5eae1218d9e1e28c618381bd9813b9a",
+    "SU2_CFD/include/numerics_simd/flow/diffusion/common.hpp": "f2efaa0207f162b92619fdc94fe81f90d13e002351679349e9437686602ff31d",
+    "SU2_CFD/include/numerics_simd/flow/diffusion/viscous_fluxes.hpp": "af667a7642c0bff6b90a54ebb4987aea2d09f443eb79a7dd31ad9fdea2281aed",
+    "SU2_CFD/src/drivers/CDiscAdjSinglezoneDriver.cpp": "23670d9ab16276bcae5eb8d0c6a35b0468f55f60ffc65f5cab783fe930441848",
+    "SU2_CFD/src/interfaces/cfd/CMixingPlaneInterface.cpp": "f46a493186d6ae4ad45cf4c076d4bbfa63a5f0a63a3306dbf9e436c156cc55e1",
+    "SU2_CFD/src/interfaces/fsi/CFlowTractionInterface.cpp": "64ed5c940f62f8dc1af05f4f83036dc2e1d919ebf6b0139774281c3e78c76b9e",
+    "SU2_CFD/src/numerics/flow/flow_diffusion.cpp": "943756b6e5b3e669469804b18dca49b48a6a7da24c56218e246b985c67744f03",
+    "UnitTests/SU2_CFD/numerics/epm_extraction_tests.cpp": "1e950124141debeb84c7210053b7e007a72ebbca0681b132256deb7122425da5"
+  }
+}
