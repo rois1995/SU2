@@ -42,6 +42,9 @@ First complete217quality entry:721643cells/49380q/48218J/2713geometry/0size,
 all6census/cache/shape/geometry flags1, maximum759.619664native seconds. Whole-field
 entry counts MATCH210(905.707714s); no source timing improvement is inferred.
 A217/quality_entry_comparison.json preserves per-rank rows/work and exact prefixes.
+First complete quality window:723557cells/47621q/46229J/2693geometry/0size;
+net1759q/1989J/20geometry removed over93.314469native seconds. No closure forecast.
+A217/quality_window1_assessment.json; window indices/ownership differ from210.
 Read-only source review found existing publication/support invalidation covers
 changed neighbor stars and migration retains history; no demonstrated gap selected
 for a fix. A217/repair_invalidation_source_review.json. Await actual217residuals.
