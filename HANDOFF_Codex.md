@@ -10,6 +10,37 @@ Geometry1e-4,q>=.2,J>=.05,maxedge1.8 and requested heights stay strict. Construc
 remains validity-first: positive/nondegenerate/topology/body/feature/height validity,
 no fresh q/J measurements/ranking/vetoes. CAD optional; no-CAD authority sufficient.
 
+## Current cycle: reviewed local metric correction, selected L1
+
+The shared2D/3DComputeMetric patch is REVIEWED and integrated for the next M6.
+CSolver.cpp local Hessian relative regularization/logarithmic normalization/flat
+handling and AdaptationMPI_tests.cpp regressions are the production change.
+Build219TERMINAL0, all1301source pins and source/binary/check hashes reverified.
+Related serial40cases/207605assertions; MPI6all6ranks4cases PASS. Reuse that evidence;
+no new AD/single-precision or geometry-empty-rank qualification claim. No gate,
+operator, budget or construction-policy change. Preserve unrelated working edits.
+
+Actual production L1/L2assessment COMPLETE, no remeshing: same saved CFD seed,
+one continuation iteration, MPI6sequential, actual binary restart tensors. Seven
+conserved/primitive fields BITWISE identical to build217and between norms.
+R/metric_target219_production/comparison.json and selection.json are current authority.
+Both50kand all778330directed-edge checks PASS. CorrectedL1old-plateau share33.02%,
+L2share3.45%; shock-section medians4.37–6.54%chord and3.62–6.03%respectively.
+L2coarsens4of11samples and raises radius.05tip budget6.44%→13.59%; finest tip
+normal request4.46e-5→6.64e-6. Select **L1**, isolating the proven correction without
+an unproven stronger corner objective. Existing default ADAP_NORM=1is verified.
+No production M6 adaptation has run since this patch at this checkpoint.
+All18metric-assessment owned handles ABSENT; frozen assessment pins unchanged.
+[Review and measured target choice](Handbook/ADAPTATION_METRIC_FLOOR_20261106.md).
+
+Next immediate action: full two-event M6, build219, same saved CFD seed,50k/L1,
+unchanged5400native/14400outer budgets and all strict gates. Verify initial emitted
+target against L1assessment; all previous construction/geometry improvements retained.
+This changed metric is NOT a matched-target performance comparison with217.
+The user's prior diagnostic218completed its build but was not run before the user
+paused; keep its fixture/helper edits and defer current-cavity reassessment until
+this corrected-target outcome identifies the blocker. One active cycle only.
+
 ## TERMINAL217: latest requested mesh and metric saved
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.

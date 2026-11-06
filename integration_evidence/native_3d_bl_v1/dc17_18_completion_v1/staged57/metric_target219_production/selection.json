@@ -1,0 +1,139 @@
+{
+  "time": 1793982674.4623206,
+  "production_review": "Local Hessian scaling/relative spectrum, log-sum normalization and flat sensor branches reviewed in shared ComputeMetric. No change required after review. Supplied/replay metric, physical bounds, corner/BL/gradation and final acceptance paths preserved. Qualification hashes reverified.",
+  "selected_norm": 1,
+  "complexity": 50000,
+  "reason": "L1 removes demonstrated global-floor defect and improves all 11 shock samples versus old target. L2 is not uniformly better: 4/11 samples become coarser, tip-corner radius .05 budget rises from 6.44% to 13.59%, and finest sampled tip normal spacing drops from 4.46e-5 to 6.64e-6. No physical or accepted-mesh evidence yet justifies that stronger corner demand. Keep original objective while testing corrected metric.",
+  "L2_over_L1_shock_spacing_ratios": [
+    1.0014807667968015,
+    1.0143356639146817,
+    0.9555584616430292,
+    0.9039301747901689,
+    0.8862554106322326,
+    0.8454277525227092,
+    1.0214501730531726,
+    1.00357312014187,
+    0.8635566340712377,
+    0.8474380205787475,
+    0.7403760210346659
+  ],
+  "L2_coarser_sections": 4,
+  "unchanged_pins": true,
+  "owned_handles": [
+    {
+      "pid": 974563,
+      "startticks": 2694475,
+      "state": "absent",
+      "norm": 1
+    },
+    {
+      "pid": 974564,
+      "startticks": 2694475,
+      "state": "absent",
+      "norm": 1
+    },
+    {
+      "pid": 974565,
+      "startticks": 2694475,
+      "state": "absent",
+      "norm": 1
+    },
+    {
+      "pid": 974574,
+      "startticks": 2694479,
+      "state": "absent",
+      "norm": 1
+    },
+    {
+      "pid": 974572,
+      "startticks": 2694479,
+      "state": "absent",
+      "norm": 1
+    },
+    {
+      "pid": 974571,
+      "startticks": 2694479,
+      "state": "absent",
+      "norm": 1
+    },
+    {
+      "pid": 974570,
+      "startticks": 2694479,
+      "state": "absent",
+      "norm": 1
+    },
+    {
+      "pid": 974569,
+      "startticks": 2694479,
+      "state": "absent",
+      "norm": 1
+    },
+    {
+      "pid": 974568,
+      "startticks": 2694478,
+      "state": "absent",
+      "norm": 1
+    },
+    {
+      "pid": 975863,
+      "startticks": 2698073,
+      "state": "absent",
+      "norm": 2
+    },
+    {
+      "pid": 975864,
+      "startticks": 2698073,
+      "state": "absent",
+      "norm": 2
+    },
+    {
+      "pid": 975865,
+      "startticks": 2698073,
+      "state": "absent",
+      "norm": 2
+    },
+    {
+      "pid": 975874,
+      "startticks": 2698077,
+      "state": "absent",
+      "norm": 2
+    },
+    {
+      "pid": 975872,
+      "startticks": 2698076,
+      "state": "absent",
+      "norm": 2
+    },
+    {
+      "pid": 975871,
+      "startticks": 2698076,
+      "state": "absent",
+      "norm": 2
+    },
+    {
+      "pid": 975870,
+      "startticks": 2698076,
+      "state": "absent",
+      "norm": 2
+    },
+    {
+      "pid": 975869,
+      "startticks": 2698076,
+      "state": "absent",
+      "norm": 2
+    },
+    {
+      "pid": 975868,
+      "startticks": 2698076,
+      "state": "absent",
+      "norm": 2
+    }
+  ],
+  "limitations": [
+    "No adapted mesh has been accepted",
+    "Shock samples are compression-direction diagnostics, not a shock-resolution acceptance gate",
+    "CFD seed is force-qualified, not fully residual-converged",
+    "No additional differentiated/single-precision or explicit geometry-empty-rank qualification"
+  ],
+  "next": "Full two-event M6 with same saved CFD seed, L1, 50k and unchanged constraints/budgets; verify emitted initial target matches this assessment."
+}

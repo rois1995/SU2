@@ -1056,3 +1056,70 @@ TEST_CASE("MPI custom sensors, gradients, Hessians and metric by global point", 
   Serial([&]() { run(false); });
   run(true);
 }
+
+TEST_CASE("Sensor metrics preserve weak curvature independently of remote extremes", "[SensorMetricFloor]") {
+  struct Scenario { passivedouble remote, amplitude; unsigned shape; bool twoSensors; };
+  const std::vector<Scenario> scenarios = {{1,1,0,false}, {1e13,1,0,false}, {1e13,1e200,0,false},
+      {1e13,1e-200,0,false}, {1,1,1,true}, {1,1,2,true}, {1,1,3,false}, {1e13,1,0,true}};
+  for (unsigned short dim : {2,3}) {
+    const auto input = BoxMesh(dim,4,false);
+    std::vector<passivedouble> unitMetric;
+    for (size_t scenario = 0; scenario < scenarios.size(); ++scenario) {
+      const auto test = scenarios[scenario];
+      CAPTURE(dim,scenario);
+      std::vector<passivedouble> serial;
+      auto run = [&](bool parallel) {
+        Mute mute;
+        auto config = MakeConfig(dim,"SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= (" +
+            string(test.twoSensors ? "MACH, PRESSURE" : "MACH") + ")\nADAP_NORM= 2\n"
+            "ADAP_COMPLEXITY= 80\nADAP_HMIN= 1e-10\nADAP_HMAX= 1e15\nADAP_ARMAX= 1e8\n"
+            "ADAP_ISO_CORNER= NO\n");
+        MeshSolution state(config.get(),input,0);
+        auto& geometry = state.Fine();
+        auto* flow = state.solver[MESH_0][FLOW_SOL];auto* nodes = flow->GetNodes();
+        const auto nMet = dim*(dim+1)/2;
+        for (unsigned long p=0;p<geometry.GetnPoint();++p) {
+          const auto id = geometry.nodes->GetGlobalIndex(p);
+          for (unsigned sensor=0;sensor<config->GetnAdap_Sensor();++sensor) {
+            passivedouble value = id==1 ? 50 : id+1==geometry.GetGlobal_nPointDomain() ? test.remote : 1e-12;
+            if (test.shape==1) value = id==0 ? 0 : sensor==0 ? 1 : id+1==geometry.GetGlobal_nPointDomain() ? 2 : 0;
+            else if (test.shape==2 || sensor!=0) value=0;
+            else if (test.shape==3) value=1;
+            unsigned k=0;
+            for (unsigned a=0;a<dim;++a)for(unsigned b=a;b<dim;++b)
+              nodes->GetHessian()(p,sensor,k++) = a==b && (test.shape!=3 || a==0) ? test.amplitude*value : 0;
+          }
+        }
+        flow->ComputeMetric(&geometry,config.get());
+        if (!parallel) serial.assign(geometry.GetGlobal_nPointDomain()*nMet,0);
+        passivedouble error=0;su2double complexity=0,weak=0,feature=0;
+        for (unsigned long p=0;p<geometry.GetnPointDomain();++p) {
+          const auto id = geometry.nodes->GetGlobalIndex(p);
+          su2double M[3][3],Q[3][3],eigenvalues[3],work[3];nodes->GetMetricMat(p,M);
+          CBlasStructure::EigenDecomposition(M,Q,eigenvalues,dim,work);
+          su2double determinant=1;
+          for(unsigned a=0;a<dim;++a){CHECK(std::isfinite(SU2_TYPE::GetValue(eigenvalues[a])));CHECK(eigenvalues[a]>0);determinant*=eigenvalues[a];}
+          complexity+=sqrt(determinant)*geometry.nodes->GetVolume(p);
+          if(id==0)weak=M[0][0];if(id==1)feature=M[0][0];
+          for(unsigned k=0;k<nMet;++k) {
+            const auto slot=id*nMet+k;const auto value=SU2_TYPE::GetValue(nodes->GetMetric(p,k));
+            if(!parallel)serial[slot]=value;
+            else error=max(error,fabs(value-serial[slot])/max(passivedouble(1e-30),fabs(serial[slot])));
+          }
+        }
+        CHECK(GlobalSum(complexity)==Approx(80).epsilon(1e-6));
+        if(test.shape==0)CHECK(GlobalSum(feature)/GlobalSum(weak)==Approx(pow(50/1e-12,4.0/(4+dim))).epsilon(1e-8));
+        if(test.shape==1)CHECK(GlobalSum(weak)==Approx(1e-30).epsilon(1e-8));
+        if(parallel)CHECK(GlobalMax(error)<1e-8);
+      };
+      Serial([&](){run(false);});
+      if(scenario==1)unitMetric=serial;
+      if(scenario==2 || scenario==3 || scenario==7) {
+        REQUIRE(serial.size()==unitMetric.size());
+        for(size_t k=0;k<serial.size();++k)
+          CHECK(fabs(serial[k]-unitMetric[k])<=1e-8*max(passivedouble(1e-30),fabs(unitMetric[k])));
+      }
+      run(true);
+    }
+  }
+}

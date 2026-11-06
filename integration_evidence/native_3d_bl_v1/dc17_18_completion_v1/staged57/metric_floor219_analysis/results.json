@@ -1,0 +1,83 @@
+{
+  "scope": "Independent offline diagnostic; no production fix or remeshing claim",
+  "source_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build217_real_cfd50k_inspection_metric/m6.su2": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build217_real_cfd50k_inspection_metric/restart_flow_adap_00000.dat": "7a99eb28fc518ea7e06d2b0b904d8a27c35c4da13ee72d0373006b616ffd5616",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/src/solvers/CSolver.cpp": "32475e26d5eca655e12bd493b452ac42776f495f8831efb10d91abcb65289412",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/SU2_CFD/include/gradients/computeHessiansQuadratic.hpp": "b3fe9693d32c687ced5349100dde9335677c5f9fda2a24cd3df3ee8db2c86384"
+  },
+  "self_tests": {
+    "unit_invariance_False": true,
+    "unit_invariance_True": true,
+    "remote_outlier_weak_vs_feature_ratios": {
+      "False": [
+        301708.81682725804,
+        75.78582832552021
+      ],
+      "True": [
+        301708.81682725815,
+        301708.81682725804
+      ]
+    },
+    "rank_deficient_and_locally_flat": true,
+    "globally_flat": true,
+    "rotation_covariance": true,
+    "remote_outlier_rotation_errors": {
+      "False": [
+        2.5413015290927543e-05,
+        0.19328223089020125,
+        0.1932826970166409
+      ],
+      "True": [
+        2.404765214854965e-16,
+        7.569952101664594e-16,
+        3.906254789454128e-07
+      ]
+    },
+    "flat_and_rank_deficient_2D_and_3D": true
+  },
+  "complexity": 49999.998577187784,
+  "plateau_nodes": 4621,
+  "plateau_complexity": 39850.482362553026,
+  "plateau_fraction": 0.7970096699309624,
+  "minimum_eigenvalue": 0.0718601939500102,
+  "plateau_spacing": 3.7304034791186416,
+  "constant_floor_entire_domain_complexity": 40230.841411149595,
+  "independent_recovery": {
+    "comparison": {
+      "Mach": {
+        "production_global_floor": {
+          "old_plateau_budget_fraction": 0.9904305295638706,
+          "target_complexity": 50000.00000000002,
+          "plateau_hmin_median": 3.4697830991678327
+        },
+        "local_relative_floor": {
+          "old_plateau_budget_fraction": 0.6142011907310173,
+          "target_complexity": 49999.99999999999,
+          "plateau_hmin_median": 3.343513545124165
+        }
+      },
+      "Pressure": {
+        "production_global_floor": {
+          "old_plateau_budget_fraction": 0.9904487196136588,
+          "target_complexity": 49999.99999999997,
+          "plateau_hmin_median": 3.4697618576462004
+        },
+        "local_relative_floor": {
+          "old_plateau_budget_fraction": 0.6136184939511523,
+          "target_complexity": 49999.999999999985,
+          "plateau_hmin_median": 3.271529994259249
+        }
+      }
+    },
+    "mean_residual": 0.1515938733788036,
+    "poor_fits": 79038,
+    "first_ring": 79058,
+    "grown": 43602,
+    "maximum_abs_hessian": [
+      12523423101128.016,
+      1.4542666584401503e+18
+    ],
+    "limitations": "NumPy SVD solve rather than Eigen pivoted QR; no floating-resolution curvature cutoff, native gradation, sensor intersection or production acceptance replay. Cubic/quartic corrections were zero in recorded production run."
+  }
+}

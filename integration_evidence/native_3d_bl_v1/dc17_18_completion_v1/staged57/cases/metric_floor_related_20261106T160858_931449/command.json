@@ -1,0 +1,25 @@
+{
+  "build": "build219",
+  "case": "metric_floor_related",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[SensorMetricFloor],[GoalMetric],[MetricRobustness],Sharp wall points*,Isotropic metric at sharp wall corners,Boundary-layer metric of*,Boundary-layer metric intersected with*",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMPI_MCA_osc": "pt2pt"
+  },
+  "timeout_seconds": 600
+}

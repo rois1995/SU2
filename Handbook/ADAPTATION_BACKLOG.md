@@ -470,3 +470,12 @@ budgets; do not change validity-only construction or add a scheduler/configurati
 Require an actual captured failing cavity and smaller-support/existing-path controls
 before selecting anything. This does not diagnose217, whose frozen outcome is still
 pending, and does not establish a speedup or missing production capability.
+
+2026-11-06 user-directed metric reprioritization: diagnostic218built a hidden
+current-captured-nodal q/J recensus but did not execute before the user pause.
+Preserve local fixture/run_cases edits; do not run it as a competing cycle while
+reviewed219metric correction and same-seed L1/L2target selection drive full M6.
+Revisit current residual cavities only if the corrected-target run demonstrates
+that blocker. Old217last complete window is71q/39J/2223geometry-bad; incomplete
+EXIT zeros are not closure. Independent metric assessments choose correctedL1;
+L2corner-demand tradeoff is measured, not selected or universally rejected.

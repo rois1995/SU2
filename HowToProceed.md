@@ -13,21 +13,24 @@ Actual mesh point/cell counts are separate from metric complexity. Keep geometry
 1e-4, q>=.2, J>=.05, maximum metric edge1.8 and requested heights unchanged. CAD
 remains optional.
 
-The user explicitly requests a fresh latest-checkpoint whole mesh WITH metric,
-including rejection. Selected full two-event build217M6 is LIVE, exact same saved
-CFD seed/config/50k/5400 and unchanged production binary. Existing first-rejected
-exit capture is enabled; freeze sources. After terminal owned handles, assemble
-complete SU2/VTU plus bad/cavity/reference views with the metric-enabled exporter.
-The current actual handles and pending export are in HANDOFF_Codex.md. No217mesh
-is ready yet;202inspection is historical. This selected run also supplies current
-failure witnesses rather than guessing from the older repaired cavity.
+The latest selected build217mesh is saved WITH its complete nodal metric:
+159281points/790537tetrahedra. It remains unapproved. Its last complete census
+reports71q/39J/2223geometry-bad; terminal classification is incomplete on5ranks,
+so raw final q0/J0is not closure. Actual corrected VTU/SU2links and artifact checks
+are in HANDOFF_Codex.md and the inspection handbook. All owned217handles are absent.
 
-Latest terminal build210 first event naturally rejected at the unchanged time
-budget: **790388cells/64q-bad/39J-bad/2283geometry-bad/0size-bad**, complete6-rank
-census/cache/shape/geometry flags. All10owned handles are absent and1517pins
-unchanged after preservation and one authorized launcher stop. No accepted mesh,
-transfer, adapted continuation or adapted restart. Source6744638324 remained
-unchanged. See [terminal210 findings](Handbook/ADAPTATION_BUILD210_OUTCOME_20261106.md).
+The user-authorized shared metric correction is reviewed and qualified in build219.
+Actual same-seed production L1/L2targets at50k were measured before remeshing; select
+correctedL1. See [metric correction and target choice](Handbook/ADAPTATION_METRIC_FLOOR_20261106.md).
+The next immediate action is the complete two-event M6 with unchanged gates/budgets.
+Old-target residual diagnosis218is deferred to this corrected-target outcome; retain
+its local fixture/helper edits. No competing implementation or extra baseline run.
+There are still zero accepted adapted M6 meshes and no adapted transfer/restart proof.
+
+Historical build210 naturally rejected64q/39J/2283geometry-bad with complete census.
+Its terminal evidence remains useful for coupled closure, but219changes the target;
+comparisons must identify that difference. See
+[terminal210 findings](Handbook/ADAPTATION_BUILD210_OUTCOME_20261106.md).
 
 The shared failed-direct-bound correction is implemented and scoped-qualified on
 the current-host GCC13.3/runtime193files: actual witness38938assertions/1case,
@@ -43,13 +46,12 @@ published repairs remove49672q/48667J; subtract construction reopenings for exac
 net49316q/48179J. Final80shape-union include10blocked, queue770, so final search
 was not globally exhausted. Faster bulk alone does not prove that coupled closure.
 
-Next target is repair power and geometry/shape reclosure, with geometry cost a
-measured efficiency opportunity. Reuse existing saved witnesses and query/context
+After the corrected-target219outcome, select repair power or geometry/shape reclosure
+from that run; old-target evidence identifies a coupled-closure risk. Reuse existing saved witnesses and query/context
 facilities before selecting another connected correction. Postterminal212 tested
 existing exact subdivision: no additional bad face was certified beyond210's union
 refinement; do not add it to production. No speedup is established. 217controls show three smaller postcollapse stars also close the saved witness;
-broader cavities are not justified. The user now explicitly requests a latest
-whole-mesh/metric capture; current launch state is in HANDOFF_Codex.md. Construction soft q/J policies remain unproved and must not be introduced
+broader cavities are not justified. The selected217whole-mesh/metric capture is complete; current state is in HANDOFF_Codex.md. Construction soft q/J policies remain unproved and must not be introduced
 under validity-only construction. Qualify a demonstrated change, then immediately
 full two-event M6 with the same real CFD seed/50k/5400s and unchanged gates.
 

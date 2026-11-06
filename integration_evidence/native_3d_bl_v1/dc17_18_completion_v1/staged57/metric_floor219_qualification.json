@@ -1,0 +1,145 @@
+{
+  "scope": "Production metric regularization: direct 2D/3D build, focused serial and MPI6 correctness; no ONERA M6 run",
+  "build": "build219",
+  "build_status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 72.16659903526306,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "unchanged_source_pins": 1301,
+  "source_files": {
+    "SU2_CFD/src/solvers/CSolver.cpp": "ef7d3176d904a1426440fc1c07f10a429f233162dd3830be4e08e293ed355d49",
+    "UnitTests/SU2_CFD/adaptation/AdaptationMPI_tests.cpp": "c07d7ae914a33830a041c78bc39bc3922abbd1e786ed210657daf9a160d5c4f1"
+  },
+  "binaries": {
+    "integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD": "4870cecea999ce33d71f9a4c28c87fe865c827cecee02cd65164e15cdf8b58a7",
+    "integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver": "83eb21b9a7359d01de1d614d47b7b1eaee4e9702fe7c0c0434f4bd5c4496e54b"
+  },
+  "checks": [
+    {
+      "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_serial_20261106T160838_930803",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 5.176580429077148,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 602112,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "success_summaries": [
+        {
+          "assertions": 17613,
+          "test_cases": 1
+        }
+      ],
+      "files": {
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_serial_20261106T160838_930803/command.json": "611fb227984ec74c761bbd2a3411f03390a8e98caa8523d3f2f20fb1ab3af1bc",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_serial_20261106T160838_930803/status.json": "df18cdbd9b456c4f21bded2264a332340223211c3aabb3a7053fe8563a66b5b7",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_serial_20261106T160838_930803/pins.json": "f3dc72ff586ae6abc63f1742adb31ec2a13e21cb5abfa7cbd428b0a8836998eb",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_serial_20261106T160838_930803/run.log": "78f42c45daf0965c9d54dfc0e8bec2e4c137dae5891ade99bf8b3df81a9e4408"
+      }
+    },
+    {
+      "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_related_20261106T160858_931449",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 5.6175525188446045,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 54902784,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "success_summaries": [
+        {
+          "assertions": 207605,
+          "test_cases": 40
+        }
+      ],
+      "files": {
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_related_20261106T160858_931449/command.json": "6368c5fe568c085dece1e91c0cb0182200c94f23ea8cc74427e31fbb72fe4582",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_related_20261106T160858_931449/status.json": "0cd14f07f9bff8bfd60d6ac058e4ecdd85a4b530547e3794a33b86dbca25d5f8",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_related_20261106T160858_931449/pins.json": "f3dc72ff586ae6abc63f1742adb31ec2a13e21cb5abfa7cbd428b0a8836998eb",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_related_20261106T160858_931449/run.log": "091f0f778470e3fd17df1db0385e1f1d369f6476620a68ed622b9e94ddc6677c"
+      }
+    },
+    {
+      "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_mpi6_20261106T160958_933496",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 4.533710718154907,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 872448,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "success_summaries": [
+        {
+          "assertions": 76006,
+          "test_cases": 4
+        },
+        {
+          "assertions": 75512,
+          "test_cases": 4
+        },
+        {
+          "assertions": 75819,
+          "test_cases": 4
+        },
+        {
+          "assertions": 75784,
+          "test_cases": 4
+        },
+        {
+          "assertions": 76091,
+          "test_cases": 4
+        },
+        {
+          "assertions": 75397,
+          "test_cases": 4
+        }
+      ],
+      "files": {
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_mpi6_20261106T160958_933496/command.json": "29778c5b44ce6a33d8a1408a1abb870945ea693d05cea6648e8c036f4dc3bd1c",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_mpi6_20261106T160958_933496/status.json": "a010f7ee4772a86b92556198b57bd0e0c499d9c6bef2fcbc7e8bce80443551a5",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_mpi6_20261106T160958_933496/pins.json": "f3dc72ff586ae6abc63f1742adb31ec2a13e21cb5abfa7cbd428b0a8836998eb",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/metric_floor_mpi6_20261106T160958_933496/run.log": "dd4fac68cca12406a3d0b813f704f9594043d72d7f309e5ec14e3ee612f38bfe"
+      }
+    }
+  ],
+  "initial_sandbox_failure": "cases/metric_floor_serial_20261106T160814_2: MPI local sockets denied before test entry; pins unchanged; superseded by host run",
+  "tool_sessions_terminal": {
+    "build219": 21896,
+    "serial": 54861,
+    "related_serial": 42658,
+    "mpi6": 13022
+  },
+  "limitations": [
+    "No ONERA M6 invocation after production change, per explicit user instruction",
+    "No adapted mesh, CFD transfer or disk-restart claim",
+    "No new differentiated or single-precision build qualification",
+    "No explicit geometry-empty-rank case; globally flat sensors and distributed ownership tested",
+    "Standalone M6 candidate analysis is earlier numerical evidence, not execution of the new production binary on M6"
+  ],
+  "analysis_artifacts": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_floor219_analysis/gradation_probe.cpp": "0bb5ca8d013b6f510882f04066c0d6d6debf7cf4265def9123db13d8e28e8ef2",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_floor219_analysis/export_surface_comparison.py": "ba98cd3563543658539d6219a542187a4a92f3c0dd77b76aa05f2243fed7a117",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_floor219_analysis/prepare_gradation_inputs.py": "df0c70b3a9495a99b462d2ad44f84479be2a2c8db97483c2ee451cbe538ac59e",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_floor219_analysis/FINDINGS.md": "0c988cd548f037860bf91841462e908995b713173b24d7d651e927118957cc5a",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_floor219_analysis/gradation_scalar_calibration_correction.json": "2f9c411699eca79fdd4c0ec401abac07a0c703f9527f33d4f53567a653f2456a",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_floor219_analysis/metric_floor_diagnostic.py": "03a84a61a095c82a948ac1db22150541de15967226b5391450c8c784edeb3fd5",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_floor219_analysis/combined_results.json": "08a7dfc10ce218d47d80299adb30a7614e55070464391ad23adf414220ee4e2f",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_floor219_analysis/run_production_checks.py": "fea526f49745937fbf058fdc3c09ff4e186b8591166f7869c35eb4e3a9cdbea8",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_floor219_analysis/combined_metric_tests.py": "7f7420e8cfba8a72a4f8db297116020b7b2dc62eee9fa6229d43ca5eaf2f4885",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_floor219_analysis/graded_comparison.json": "409e5814aa18ee7db196f5a3ba4351e87013e514db4b6af6e616332a17340ef7",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_floor219_analysis/gradation_reproduction_assessment.json": "63a1f172f34017f099c909a23428ff9a71a71ce18dd677008fa7e184cd2c00d4",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_floor219_analysis/gradation_unit_test.json": "cad3375e74ecdc57ad21488523245070348c72b14d5c42bfcc50018f87fdad87",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_floor219_analysis/results.json": "3a37f83b2d7e313e0eaa5fc70f3b8e6600431d13bcb4f9fec0ded153aed8c107",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_floor219_analysis/farfield_curvature_assessment.json": "d9abf3cd4e7b1b7b695ad7db51b88109c51f514bb820450a3f72912d6de8b87c"
+  }
+}

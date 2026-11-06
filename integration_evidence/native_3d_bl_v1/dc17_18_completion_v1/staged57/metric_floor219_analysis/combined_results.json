@@ -1,0 +1,72 @@
+{
+  "scope": "Independent full-grid two-sensor diagnostic; no native gradation or production correction qualification",
+  "self_tests": {
+    "sensor_dominance": true,
+    "commutation": true,
+    "idempotence": true,
+    "absent_and_flat_sensor": true
+  },
+  "recorded_production_metric": {
+    "complexity": 49999.998577187784,
+    "old_plateau_fraction": 0.7970096699309624,
+    "root_corner_fraction": 0.000497412292263003,
+    "tip_corner_fraction": 0.01868496438769868,
+    "shock_spacing_fraction_chord": {
+      "0.55": 0.11491773908330531,
+      "0.85": 0.14819537641853822
+    }
+  },
+  "variants": {
+    "global_floor_p1": {
+      "complexity": 49999.99999999999,
+      "old_plateau_fraction": 0.990386202033381,
+      "root_corner_fraction": 1.379553576737373e-07,
+      "tip_corner_fraction": 3.1460371530160387e-07,
+      "shock_spacing_fraction_chord": {
+        "0.55": 0.4430493428867654,
+        "0.85": 0.5368476631734254
+      }
+    },
+    "local_floor_p1": {
+      "complexity": 50000.0,
+      "old_plateau_fraction": 0.6255452167104704,
+      "root_corner_fraction": 8.790170697656313e-05,
+      "tip_corner_fraction": 0.0002021648621524024,
+      "shock_spacing_fraction_chord": {
+        "0.55": 0.05189687631837588,
+        "0.85": 0.061068758733580045
+      }
+    },
+    "local_floor_p2": {
+      "complexity": 49999.99999999805,
+      "old_plateau_fraction": 0.023851230300179126,
+      "root_corner_fraction": 0.0014628517243382118,
+      "tip_corner_fraction": 0.0026177390872787845,
+      "shock_spacing_fraction_chord": {
+        "0.55": 0.028514625033470596,
+        "0.85": 0.03870538888717769
+      }
+    },
+    "local_floor_p4": {
+      "complexity": 49999.99999999639,
+      "old_plateau_fraction": 5.296686316951272e-05,
+      "root_corner_fraction": 0.00028971833581697173,
+      "tip_corner_fraction": 0.0009005049517005937,
+      "shock_spacing_fraction_chord": {
+        "0.55": 0.08406931318722226,
+        "0.85": 0.1118346090679728
+      }
+    }
+  },
+  "old_before_gradation_at_observed_floor": {
+    "complexity": 40237.315787250554,
+    "old_plateau_fraction": 0.990386202033381,
+    "root_corner_fraction": 1.3795535767373675e-07,
+    "tip_corner_fraction": 3.146037153014776e-07,
+    "shock_spacing_fraction_chord": {
+      "0.55": 0.4763203075677713,
+      "0.85": 0.5771624496126608
+    }
+  },
+  "old_raw_plateau_eigenvalue_relative_spread": 8.520984123677757e-15
+}

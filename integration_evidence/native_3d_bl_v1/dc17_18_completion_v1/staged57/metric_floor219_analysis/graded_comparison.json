@@ -1,0 +1,121 @@
+{
+  "scope": "Serial diagnostic reproduction of native gradation on independent recovered Hessians; no SU2 production patch, MPI or adapted mesh",
+  "old": {
+    "complexity": 49999.99858266945,
+    "old_plateau_fraction": 0.7970096698435801,
+    "root_corner_fraction": 0.0004974122934463561,
+    "tip_corner_fraction": 0.018684964401563517,
+    "shock_spacing_fraction_chord": {
+      "0.55": 0.11491773905256558,
+      "0.85": 0.14819537633301344
+    }
+  },
+  "candidate": {
+    "complexity": 50000.02150115419,
+    "old_plateau_fraction": 0.3302291498738996,
+    "root_corner_fraction": 0.007865284836997033,
+    "tip_corner_fraction": 0.0643848380087463,
+    "shock_spacing_fraction_chord": {
+      "0.55": 0.05385765214868266,
+      "0.85": 0.059429643711356166
+    }
+  },
+  "candidate_gradation": {
+    "points": 61330,
+    "arcs": 778330,
+    "scale": 0.4236855,
+    "sweeps": 110,
+    "converged": true,
+    "time_budget": false,
+    "complexity": 50000.02150115406,
+    "max_ratio": 1.0000000999757885,
+    "bad_directed_edges": 0,
+    "updates": 1198965,
+    "visits": 1876149,
+    "seconds": 13.278152762
+  },
+  "compression_sections": [
+    {
+      "y": 0.15,
+      "triangles": 10,
+      "median_xc": 0.6556364794509888,
+      "old_spacing_fraction_chord": 0.1001300158540765,
+      "candidate_spacing_fraction_chord": 0.043755543433384794
+    },
+    {
+      "y": 0.25,
+      "triangles": 11,
+      "median_xc": 0.613124295978015,
+      "old_spacing_fraction_chord": 0.10507516716433592,
+      "candidate_spacing_fraction_chord": 0.04644621209540083
+    },
+    {
+      "y": 0.35,
+      "triangles": 12,
+      "median_xc": 0.5896706717475811,
+      "old_spacing_fraction_chord": 0.1076688962646349,
+      "candidate_spacing_fraction_chord": 0.043653787307249205
+    },
+    {
+      "y": 0.45,
+      "triangles": 13,
+      "median_xc": 0.5457208295469986,
+      "old_spacing_fraction_chord": 0.11422984228190201,
+      "candidate_spacing_fraction_chord": 0.04425323234700791
+    },
+    {
+      "y": 0.55,
+      "triangles": 16,
+      "median_xc": 0.5394485665623322,
+      "old_spacing_fraction_chord": 0.11685626309026334,
+      "candidate_spacing_fraction_chord": 0.053446784059443295
+    },
+    {
+      "y": 0.65,
+      "triangles": 17,
+      "median_xc": 0.5198466264488695,
+      "old_spacing_fraction_chord": 0.126082349165922,
+      "candidate_spacing_fraction_chord": 0.06014299548219157
+    },
+    {
+      "y": 0.75,
+      "triangles": 20,
+      "median_xc": 0.4730636694382755,
+      "old_spacing_fraction_chord": 0.13825351471493968,
+      "candidate_spacing_fraction_chord": 0.05899735791768708
+    },
+    {
+      "y": 0.85,
+      "triangles": 20,
+      "median_xc": 0.4453905444745328,
+      "old_spacing_fraction_chord": 0.14716272298901475,
+      "candidate_spacing_fraction_chord": 0.059799312669181336
+    },
+    {
+      "y": 0.95,
+      "triangles": 21,
+      "median_xc": 0.36206415363220923,
+      "old_spacing_fraction_chord": 0.1500955917465361,
+      "candidate_spacing_fraction_chord": 0.06536028754588279
+    },
+    {
+      "y": 1.05,
+      "triangles": 20,
+      "median_xc": 0.26551160290420095,
+      "old_spacing_fraction_chord": 0.13871233604720928,
+      "candidate_spacing_fraction_chord": 0.04957425383836113
+    },
+    {
+      "y": 1.15,
+      "triangles": 37,
+      "median_xc": 0.2226262776361854,
+      "old_spacing_fraction_chord": 0.12639960478133802,
+      "candidate_spacing_fraction_chord": 0.04893559016427424
+    }
+  ],
+  "physical_bounds": {
+    "minimum_eigenvalue": 0.0025878936191761357,
+    "maximum_eigenvalue": 535579462.34494406,
+    "maximum_aspect_ratio": 38.259255886873895
+  }
+}

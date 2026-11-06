@@ -2691,26 +2691,37 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     CPassiveComm::Allreduce(localHessianScale.data(), hessianScale.data(), nSensor, CPassiveComm::Op::MAX);
   }
 
-  /*--- Eigen decomposition of |H| for a sensor. Non-finite Hessians are replaced by zero,
-   *    small eigenvalues are bounded away from zero. ---*/
+  /*--- Keep regularization local: a remote curvature extreme must not create a background demand.
+   *    Logs retain weak spectra without underflow in determinant powers. Zero curvature stays absent. ---*/
 
-  auto absHessian = [&](unsigned long iPoint, unsigned short iSensor, su2double (&vec)[3][3], su2double (&val)[3],
-                        unsigned long* nInvalid = nullptr) {
+  auto hessianLogSpectrum = [&](unsigned long iPoint, unsigned short iSensor, su2double (&vec)[3][3],
+                                su2double (&val)[3], unsigned long* nInvalid = nullptr) {
     su2double H[3][3] = {{0.0}}, work[3];
     base_nodes->GetHessianMat(iPoint, iSensor, H);
     bool finite = true;
+    passivedouble normalization = 0.0;
     for (auto i = 0u; i < nDim; ++i)
-      for (auto j = 0u; j < nDim; ++j) finite = finite && std::isfinite(SU2_TYPE::GetValue(H[i][j]));
-    if (!finite) {
-      if (nInvalid != nullptr) ++*nInvalid;
-      for (auto i = 0u; i < nDim; ++i)
-        for (auto j = 0u; j < nDim; ++j) H[i][j] = 0.0;
+      for (auto j = 0u; j < nDim; ++j) {
+        const auto value = SU2_TYPE::GetValue(H[i][j]);
+        finite = finite && std::isfinite(value);
+        normalization = std::max(normalization, fabs(value));
+      }
+    if (!finite || normalization == 0.0) {
+      if (!finite && nInvalid != nullptr) ++*nInvalid;
+      for (auto i = 0u; i < nDim; ++i) {
+        val[i] = 0.0;
+        for (auto j = 0u; j < nDim; ++j) vec[i][j] = i == j ? 1.0 : 0.0;
+      }
+      return false;
     }
-    const auto normalization = hessianScale[iSensor] > 0.0 ? hessianScale[iSensor] : 1.0;
     for (auto i = 0u; i < nDim; ++i)
       for (auto j = 0u; j < nDim; ++j) H[i][j] /= normalization;
     CBlasStructure::EigenDecomposition(H, vec, val, nDim, work);
-    for (auto i = 0u; i < nDim; ++i) val[i] = fmax(fabs(val[i]), 1e-16);
+    su2double largest = 0.0;
+    for (auto i = 0u; i < nDim; ++i) largest = fmax(largest, fabs(val[i]));
+    const auto shift = log(normalization) - log(hessianScale[iSensor]);
+    for (auto i = 0u; i < nDim; ++i) val[i] = log(fmax(fabs(val[i]), 1e-14 * largest)) + shift;
+    return true;
   };
 
   auto determinant = [&](const su2double (&val)[3]) {
@@ -2735,22 +2746,31 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
 
   if (givenMetric == nullptr && !replay) {
     vector<unsigned long> localInvalid(nSensor, 0), globalInvalid(nSensor, 0);
-#if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
-    vector<passivedouble> sensorTerms(nPointDomain * nSensor);
-#endif
+    vector<su2double> sensorTerms(nPointDomain * nSensor, 0.0);
+    vector<unsigned char> present(sensorTerms.size(), 0);
+    vector<passivedouble> localReference(nSensor, std::numeric_limits<passivedouble>::lowest()), reference(nSensor);
     for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
       const su2double volume = geometry->nodes->GetVolume(iPoint);
       for (auto iSensor = 0u; iSensor < nSensor; ++iSensor) {
         su2double vec[3][3], val[3];
-        absHessian(iPoint, iSensor, vec, val, &localInvalid[iSensor]);
-        const auto term = pow(determinant(val), p / (2 * p + nDim)) * volume;
-#if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
-        sensorTerms[iPoint * nSensor + iSensor] = SU2_TYPE::GetValue(term);
-#else
-        localScale[iSensor] += term;
-#endif
+        if (!hessianLogSpectrum(iPoint, iSensor, vec, val, &localInvalid[iSensor]) || volume == 0.0) continue;
+        su2double logDet = 0.0;
+        for (auto i = 0u; i < nDim; ++i) logDet += val[i];
+        const auto slot = iPoint * nSensor + iSensor;
+        sensorTerms[slot] = log(volume) + p / (2 * p + nDim) * logDet;
+        present[slot] = 1;
+        localReference[iSensor] = std::max(localReference[iSensor], SU2_TYPE::GetValue(sensorTerms[slot]));
       }
     }
+    CPassiveComm::Allreduce(localReference.data(), reference.data(), nSensor, CPassiveComm::Op::MAX);
+    for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint)
+      for (auto sensor = 0u; sensor < nSensor; ++sensor) {
+        const auto slot = iPoint * nSensor + sensor;
+        sensorTerms[slot] = present[slot] ? exp(sensorTerms[slot] - reference[sensor]) : su2double(0.0);
+#if defined(CODI_FORWARD_TYPE) || defined(CODI_REVERSE_TYPE)
+        localScale[sensor] += sensorTerms[slot];
+#endif
+      }
 #if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
     // Reuse the protected compensated reducer; tiny normalization errors can move weak sensor directions.
     CAccurateSumBatch sensorSums;
@@ -2765,6 +2785,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     // Retain active MPI sums so differentiated builds preserve their existing tape/derivative semantics.
     SU2_MPI::Allreduce(localScale.data(), globalScale.data(), nSensor, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
 #endif
+    for (auto sensor = 0u; sensor < nSensor; ++sensor)
+      if (globalScale[sensor] > 0.0) globalScale[sensor] = log(globalScale[sensor]) + reference[sensor];
     SU2_MPI::Allreduce(localInvalid.data(), globalInvalid.data(), nSensor, MPI_UNSIGNED_LONG, MPI_SUM,
                        SU2_MPI::GetComm());
     if (rank == MASTER_NODE) {
@@ -2782,10 +2804,14 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   /*--- Lp-optimal metric of a sensor, scaled to the complexity, in its eigen decomposition. ---*/
 
   auto sensorMetric = [&](unsigned long iPoint, unsigned short iSensor, su2double (&vec)[3][3], su2double (&val)[3]) {
-    absHessian(iPoint, iSensor, vec, val);
-    const su2double factor = pow(complexity / globalScale[iSensor], 2.0 / nDim) *
-                             pow(determinant(val), -1.0 / (2 * p + nDim));
-    for (auto i = 0u; i < nDim; ++i) val[i] *= factor;
+    if (!hessianLogSpectrum(iPoint, iSensor, vec, val)) {
+      for (auto i = 0u; i < nDim; ++i) val[i] = hessianScale[iSensor] == 0.0 ? 1.0 : 0.0;
+      return;
+    }
+    su2double logDet = 0.0;
+    for (auto i = 0u; i < nDim; ++i) logDet += val[i];
+    const su2double logFactor = 2.0 / nDim * (log(complexity) - globalScale[iSensor]) - logDet / (2 * p + nDim);
+    for (auto i = 0u; i < nDim; ++i) val[i] = exp(val[i] + logFactor);
   };
 
   /*--- Intersection of the sensor metrics, stored as the metric of the point until the bounds are applied. Each
@@ -2802,6 +2828,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         su2double vec[3][3], val[3], current[3][3];
         sensorMetric(iPoint, iSensor, vec, val);
         const su2double valMax = *max_element(val, val + nDim);
+        if (valMax == 0.0) continue;
         for (auto i = 0u; i < nDim; ++i) val[i] = fmax(val[i], 1e-14 * valMax);
         CBlasStructure::EigenRecomposition(current, vec, val, nDim);
 
@@ -2816,7 +2843,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           IntersectMetrics(nDim, previous, current, metric);
         }
       }
-      if (first) { // All sensors are flat: the complexity and bounds define a uniform fallback.
+      if (first && std::all_of(hessianScale.begin(), hessianScale.end(), [](passivedouble x) { return x == 0.0; })) {
+        // Only a globally flat field uses a uniform fallback; locally flat points use the physical size bounds.
         for (auto i = 0u; i < nDim; ++i) metric[i][i] = 1.0;
       }
       base_nodes->SetMetricMat(iPoint, metric);
