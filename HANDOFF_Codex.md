@@ -56,12 +56,12 @@ shape/geometry flags1. Actual quality ownership migration preserves every count 
 flag; committed q/J/debt max-over-mean1.2605/1.2797/1.1389. A219/quality_entry_assessment.json.
 A219/construction_progress_assessment.json preserves complete6-rank stages/prefix
 hashes. Shape zeros during construction were unmeasured, never closure.
-Thirteen complete quality windows are preserved in A219/quality_net_progress.json.
-Latest round35392at3009.061587native seconds:950268cells/48084q-bad/46780J-bad/
-1842geometry-bad/0size-bad; all6census/cache/shape/geometry flags1. Latest window
-removes3575q/3908J/8geometry in116.183855s(~30.77q/s,33.64J/s). Actual ownership
-migration at2739.843868s preserves all counts/flags. Rates vary; this is measured
-net progress, not a closure forecast.
+18 complete quality windows are preserved in A219/quality_net_progress.json.
+Latest round35712at3647.607257native seconds:972496cells/
+34070q-bad/31475J-bad/1808geometry-bad/0size-bad; all6census/cache/shape/geometry
+flags1. Latest window removes2527q/2738J/0geometry in128.675159s
+(19.64q/s,21.28J/s). Rates vary; this is measured net progress,
+not a closure forecast.
 First-window retired/introduced populations reconcile exactly to whole-field net
 counts; they are published-cavity populations, not unique-cell cure counts.
 A219/quality_window1_assessment.json. Actual ownership at34752preserves all counts/
