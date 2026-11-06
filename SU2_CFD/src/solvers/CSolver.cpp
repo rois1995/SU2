@@ -207,7 +207,7 @@ void CSolver::GetPeriodicCommCountAndType(const CConfig* config,
       break;
     case PERIODIC_NEIGHBORS:
       COUNT_PER_POINT  = 1;
-      MPI_TYPE         = COMM_TYPE::UNSIGNED_SHORT;
+      MPI_TYPE         = COMM_TYPE::DOUBLE;
       break;
     case PERIODIC_RESIDUAL:
       COUNT_PER_POINT  = nVar + nVar*nVar + 1;
@@ -424,6 +424,20 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
     SU2_MPI::Error("The NEMO solvers do not support rotational periodicity yet.", CURRENT_FUNCTION);
   }
 
+  const bool intersectingPairs = geometry->HasPeriodicPairIntersections();
+  if (commType == PERIODIC_NEIGHBORS && intersectingPairs && val_periodic_index == 1) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(periodicNeighborCount.resize(geometry->GetnPoint());)
+    SU2_OMP_FOR_STAT(OMP_MIN_SIZE)
+    for (auto iPoint = 0ul; iPoint < geometry->GetnPoint(); ++iPoint) {
+      periodicNeighborCount(iPoint) = 0;
+      for (auto iNeigh = 0u; iNeigh < geometry->nodes->GetnPoint(iPoint); ++iNeigh) {
+        const auto iEdge = geometry->nodes->GetEdge(iPoint, iNeigh);
+        periodicNeighborCount(iPoint) += geometry->GetPeriodicEdgeWeight(iEdge);
+      }
+    }
+    END_SU2_OMP_FOR
+  }
+
   /*--- Local variables ---*/
 
   bool boundary_i, boundary_j;
@@ -492,7 +506,6 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
 
   su2double *bufDSend = geometry->bufD_PeriodicSend;
 
-  unsigned short *bufSSend = geometry->bufS_PeriodicSend;
 
   /*--- Handle the different types of gradient and limiter. ---*/
 
@@ -641,20 +654,26 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
 
           case PERIODIC_NEIGHBORS:
 
+            if (intersectingPairs) {
+              bufDSend[buf_offset] = periodicNeighborCount(iPoint);
+              break;
+            }
+
             nNeighbor = 0;
-            for (auto jPoint : geometry->nodes->GetPoints(iPoint)) {
+            for (auto iNeigh = 0u; iNeigh < geometry->nodes->GetnPoint(iPoint); ++iNeigh) {
+              const auto iEdge = geometry->nodes->GetEdge(iPoint, iNeigh);
 
               /*--- Check if this neighbor lies on the periodic face so
                that we avoid double counting neighbors on both sides. If
                not, increment the count of neighbors for the donor. ---*/
 
-              if (!sharedEdge(jPoint))
+              if (geometry->GetPeriodicEdgeWeight(iEdge) == 1.0)
                 nNeighbor++;
             }
 
             /*--- Store the number of neighbors in bufffer. ---*/
 
-            bufSSend[buf_offset] = nNeighbor;
+            bufDSend[buf_offset] = nNeighbor;
 
             break;
 
@@ -754,6 +773,14 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
 
           case PERIODIC_LAPLACIAN:
 
+            if (intersectingPairs) {
+              const auto* undLapl = base_nodes->GetUndivided_Laplacian(iPoint);
+              for (auto iField = 0u; iField < nVar; ++iField)
+                bufDSend[buf_offset + iField] = undLapl[iField];
+              if (rotate_periodic) Rotate(zeros, &undLapl[1], &bufDSend[buf_offset + 1]);
+              break;
+            }
+
             /*--- For JST, the undivided Laplacian must be computed
              consistently by using the complete control volume info
              from both sides of the periodic face. ---*/
@@ -761,12 +788,14 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
             for (iVar = 0; iVar < nVar; iVar++)
               Und_Lapl[iVar] = 0.0;
 
-            for (auto jPoint : geometry->nodes->GetPoints(iPoint)) {
+            for (auto iNeigh = 0u; iNeigh < geometry->nodes->GetnPoint(iPoint); ++iNeigh) {
+              const auto jPoint = geometry->nodes->GetPoint(iPoint, iNeigh);
+              const auto iEdge = geometry->nodes->GetEdge(iPoint, iNeigh);
 
               /*--- Avoid periodic boundary points so that we do not
                duplicate edges on both sides of the periodic BC. ---*/
 
-              if (!sharedEdge(jPoint)) {
+              if (geometry->GetPeriodicEdgeWeight(iEdge) == 1.0) {
 
                 /*--- Solution differences ---*/
 
@@ -820,6 +849,11 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
             break;
 
           case PERIODIC_SENSOR: {
+            if (intersectingPairs) {
+              bufDSend[buf_offset] = iPoint_UndLapl(iPoint);
+              bufDSend[buf_offset + 1] = jPoint_UndLapl(iPoint);
+              break;
+            }
             const bool msw = config->GetKind_Upwind_Flow() == UPWIND::MSW;
 
             /*--- For the centered schemes, the sensor must be computed
@@ -827,12 +861,14 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
              on both sides of the periodic face. ---*/
 
             Sensor_i = 0; Sensor_j = 0;
-            for (auto jPoint : geometry->nodes->GetPoints(iPoint)) {
+            for (auto iNeigh = 0u; iNeigh < geometry->nodes->GetnPoint(iPoint); ++iNeigh) {
+              const auto jPoint = geometry->nodes->GetPoint(iPoint, iNeigh);
+              const auto iEdge = geometry->nodes->GetEdge(iPoint, iNeigh);
 
               /*--- Avoid halos and boundary points so that we don't
                duplicate edges on both sides of the periodic BC. ---*/
 
-              if (sharedEdge(jPoint)) continue;
+              if (geometry->GetPeriodicEdgeWeight(iEdge) < 1.0) continue;
 
               /*--- Use density instead of pressure for incomp. flows. ---*/
 
@@ -852,7 +888,7 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
 
               if ((!boundary_i || boundary_j) && geometry->nodes->GetDomain(iPoint)) {
                 if (msw) {
-                  Sensor_i = fmax(Sensor_i, fabs(Pressure_j - Pressure_i)) / fmin(Pressure_i, Pressure_j);
+                  Sensor_i = fmax(Sensor_i, fabs(Pressure_j - Pressure_i) / fmin(Pressure_i, Pressure_j));
                 } else {
                   Sensor_i += (Pressure_j - Pressure_i);
                   Sensor_j += (Pressure_i + Pressure_j);
@@ -930,6 +966,28 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
 
             /*--- Set a flag for unweighted or weighted least-squares. ---*/
 
+            if (intersectingPairs) {
+              if (nDim == 2)
+                detail::rotateLeastSquaresNormalMatrix(iPoint, base_nodes->GetRmatrix(), rotMatrix2D, &bufDSend[buf_offset]);
+              else
+                detail::rotateLeastSquaresNormalMatrix(iPoint, base_nodes->GetRmatrix(), rotMatrix3D, &bufDSend[buf_offset]);
+              buf_offset += static_cast<unsigned long>(nDim) * nDim;
+              for (auto iField = 0u; iField < ICOUNT; ++iField)
+                Rotate(zeros, gradient[iPoint][iField], rotBlock[iField]);
+              if (rotate_periodic) {
+                for (auto iCoordinate = 0u; iCoordinate < nDim; ++iCoordinate) {
+                  su2double velocity[3] = {}, rotatedVelocity[3] = {};
+                  for (auto jDim = 0u; jDim < nDim; ++jDim) velocity[jDim] = rotBlock[1+jDim][iCoordinate];
+                  Rotate(zeros, velocity, rotatedVelocity);
+                  for (auto jDim = 0u; jDim < nDim; ++jDim) rotBlock[1+jDim][iCoordinate] = rotatedVelocity[jDim];
+                }
+              }
+              for (auto iField = 0u; iField < ICOUNT; ++iField)
+                for (auto iCoordinate = 0u; iCoordinate < nDim; ++iCoordinate)
+                  bufDSend[buf_offset++] = rotBlock[iField][iCoordinate];
+              break;
+            }
+
             switch(commType) {
               case PERIODIC_SOL_ULS:
               case PERIODIC_SOL_ULS_R:
@@ -970,12 +1028,14 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
             r11 = 0.0;   r12 = 0.0;   r22 = 0.0;
             r13 = 0.0; r23_a = 0.0; r23_b = 0.0;  r33 = 0.0;
 
-            for (auto jPoint : geometry->nodes->GetPoints(iPoint)) {
+            for (auto iNeigh = 0u; iNeigh < geometry->nodes->GetnPoint(iPoint); ++iNeigh) {
+              const auto jPoint = geometry->nodes->GetPoint(iPoint, iNeigh);
+              const auto iEdge = geometry->nodes->GetEdge(iPoint, iNeigh);
 
               /*--- Avoid periodic boundary points so that we do not
                duplicate edges on both sides of the periodic BC. ---*/
 
-              if (!sharedEdge(jPoint)) {
+              if (geometry->GetPeriodicEdgeWeight(iEdge) == 1.0) {
 
                 /*--- Get coordinates for the neighbor point. ---*/
 
@@ -1224,7 +1284,6 @@ void CSolver::CompletePeriodicComms(CGeometry *geometry,
 
   const su2double *bufDRecv = geometry->bufD_PeriodicRecv;
 
-  const unsigned short *bufSRecv = geometry->bufS_PeriodicRecv;
 
   /*--- Handle the different types of gradient and limiter. ---*/
 
@@ -1308,13 +1367,13 @@ void CSolver::CompletePeriodicComms(CGeometry *geometry,
               break;
 
             case PERIODIC_NEIGHBORS:
-
-              /*--- Store the extra neighbors on the periodic face. ---*/
-
-              nNeighbor = (geometry->nodes->GetnNeighbor(iPoint) +
-                           bufSRecv[buf_offset]);
-              geometry->nodes->SetnNeighbor(iPoint, nNeighbor);
-
+              if (geometry->HasPeriodicPairIntersections()) {
+                periodicNeighborCount(iPoint) += bufDRecv[buf_offset];
+                geometry->nodes->SetnNeighbor(iPoint, SU2_TYPE::Int(periodicNeighborCount(iPoint) + 0.5));
+              } else {
+                nNeighbor = geometry->nodes->GetnNeighbor(iPoint) + SU2_TYPE::Int(bufDRecv[buf_offset]);
+                geometry->nodes->SetnNeighbor(iPoint, nNeighbor);
+              }
               break;
 
             case PERIODIC_RESIDUAL:
@@ -2549,7 +2608,9 @@ void CSolver::SetUndivided_Laplacian(CGeometry *geometry, const CConfig *config)
       base_nodes->SetUnd_Lapl(iPoint, iVar, 0.0);
 
     /*--- Loop over the neighbors of point i. ---*/
-    for (auto jPoint : geometry->nodes->GetPoints(iPoint)) {
+    for (auto iNeigh = 0u; iNeigh < geometry->nodes->GetnPoint(iPoint); ++iNeigh) {
+      const auto jPoint = geometry->nodes->GetPoint(iPoint, iNeigh);
+      const auto iEdge = geometry->nodes->GetEdge(iPoint, iNeigh);
 
       bool boundary_j = geometry->nodes->GetPhysicalBoundary(jPoint);
 
@@ -2560,6 +2621,7 @@ void CSolver::SetUndivided_Laplacian(CGeometry *geometry, const CConfig *config)
 
       for (unsigned short iVar = 0; iVar < nVar; iVar++) {
         su2double delta = base_nodes->GetSolution(jPoint,iVar)-base_nodes->GetSolution(iPoint,iVar);
+        if (geometry->HasPeriodicPairIntersections()) delta *= geometry->GetPeriodicEdgeWeight(iEdge);
         base_nodes->AddUnd_Lapl(iPoint, iVar, delta);
       }
     }
