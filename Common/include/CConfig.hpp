@@ -93,6 +93,7 @@ private:
   bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
   bool Visc_P1_Entropy_Moved;  /*!< \brief Element viscous fluxes of VISC_P1_ENTROPY on the moved (MOD_CENTROIDS) dual test space, 3D. */
   bool Edge_Form_P1_Mixed;     /*!< \brief EDGE_FORM_P1 on quadrilaterals, hexahedra, prisms and pyramids by split averages (P1_MIXED.md). */
+  bool Positive_Update_Flow;   /*!< \brief Positivity-preserving step length of the implicit flow and SST updates (P1_POSITIVITY.md). */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
   su2double Fan_Poly_Eff;         /*!< \brief Fan polytropic effeciency. */
@@ -1146,7 +1147,9 @@ private:
   DV_Penalty;                       /*!< \brief Penalty weight to add a constraint to the total amount of stiffness. */
   array<su2double,2> StressPenaltyParam = {{1.0, 20.0}}; /*!< \brief Allowed stress and KS aggregation exponent. */
   unsigned long Nonphys_Points,     /*!< \brief Current number of non-physical points in the solution. */
-  Nonphys_Reconstr;                 /*!< \brief Current number of non-physical reconstructions for 2nd-order upwinding. */
+  Nonphys_Reconstr,                 /*!< \brief Current number of non-physical reconstructions for 2nd-order upwinding. */
+  Positive_Limited_Points,          /*!< \brief POSITIVE_UPDATE_FLOW: nodes whose factor was reduced in the last update. */
+  Positive_Failed_Points;           /*!< \brief POSITIVE_UPDATE_FLOW: nodes whose accepted state is still inadmissible. */
   su2double ParMETIS_tolerance;     /*!< \brief Load balancing tolerance for ParMETIS. */
   long ParMETIS_pointWgt;           /*!< \brief Load balancing weight given to points. */
   long ParMETIS_edgeWgt;            /*!< \brief Load balancing weight given to edges. */
@@ -9384,6 +9387,25 @@ public:
   unsigned long GetNonphysical_Points(void) const { return Nonphys_Points; }
 
   /*!
+   * \brief POSITIVE_UPDATE_FLOW: set the numbers of nodes of the last flow update with a reduced factor and with an
+   *        accepted state that is still inadmissible (0 by construction from admissible starts).
+   */
+  void SetPositive_Update_Points(unsigned long val_limited, unsigned long val_failed) {
+    Positive_Limited_Points = val_limited;
+    Positive_Failed_Points = val_failed;
+  }
+
+  /*!
+   * \brief POSITIVE_UPDATE_FLOW: number of nodes of the last flow update whose factor was reduced.
+   */
+  unsigned long GetPositive_Limited_Points(void) const { return Positive_Limited_Points; }
+
+  /*!
+   * \brief POSITIVE_UPDATE_FLOW: number of nodes of the last flow update whose accepted state is inadmissible.
+   */
+  unsigned long GetPositive_Failed_Points(void) const { return Positive_Failed_Points; }
+
+  /*!
    * \brief Set the current number of non-physical reconstructions for 2nd-order upwinding.
    * \param[in] val_nonphys_reconstr - current number of non-physical reconstructions for 2nd-order upwinding.
    */
@@ -10094,6 +10116,12 @@ public:
    *        (P1_MIXED.md, section 8). Simplices keep EDGE_FORM_P1 unchanged.
    */
   bool GetEdge_Form_P1_Mixed() const { return Edge_Form_P1_Mixed; }
+
+  /*!
+   * \brief POSITIVE_UPDATE_FLOW: the factor of the implicit flow update is reduced so that rho >= eps_r rho_old and
+   *        q >= eps_e q_old (q = rho e, minus rho k with SST), and the SST factor so that rho k <= (1 - eps_e) q.
+   */
+  bool GetPositive_Update_Flow() const { return Positive_Update_Flow; }
 
   /*!
    * \brief Make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes.

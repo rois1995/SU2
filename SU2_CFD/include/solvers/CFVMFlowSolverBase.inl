@@ -752,10 +752,16 @@ void CFVMFlowSolverBase<V, R>::ComputeVerificationError(CGeometry* geometry, CCo
 }
 
 template <class V, ENUM_REGIME R>
-void CFVMFlowSolverBase<V, R>::CompleteImplicitIteration(CGeometry *geometry, CSolver**, CConfig *config) {
+void CFVMFlowSolverBase<V, R>::CompleteImplicitIteration(CGeometry *geometry, CSolver** solver_container,
+                                                         CConfig *config) {
   SU2_ZONE_SCOPED
 
-  if constexpr (R == ENUM_REGIME::COMPRESSIBLE) ComputeUnderRelaxationFactor(config);
+  if constexpr (R == ENUM_REGIME::COMPRESSIBLE) {
+    ComputeUnderRelaxationFactor(config);
+
+    /*--- POSITIVE_UPDATE_FLOW: the final factor keeps rho and q positive, before the update and the communication. ---*/
+    if (config->GetPositive_Update_Flow()) LimitUnderRelaxationPositivity(solver_container, config);
+  }
 
   /*--- Update solution with under-relaxation and communicate it. ---*/
 
@@ -782,10 +788,11 @@ void CFVMFlowSolverBase<V, R>::CompleteImplicitIteration(CGeometry *geometry, CS
 }
 
 template <class V, ENUM_REGIME R>
-void CFVMFlowSolverBase<V, R>::ImplicitEuler_Iteration(CGeometry *geometry, CSolver**, CConfig *config) {
+void CFVMFlowSolverBase<V, R>::ImplicitEuler_Iteration(CGeometry *geometry, CSolver** solver_container,
+                                                       CConfig *config) {
   SU2_ZONE_SCOPED
 
-  PrepareImplicitIteration(geometry, nullptr, config);
+  PrepareImplicitIteration(geometry, solver_container, config);
 
   /*--- Solve or smooth the linear system. ---*/
 
@@ -804,7 +811,7 @@ void CFVMFlowSolverBase<V, R>::ImplicitEuler_Iteration(CGeometry *geometry, CSol
   }
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 
-  CompleteImplicitIteration(geometry, nullptr, config);
+  CompleteImplicitIteration(geometry, solver_container, config);
 }
 
 template <class V, ENUM_REGIME R>

@@ -26,6 +26,8 @@
 
 #include "catch.hpp"
 #include <algorithm>
+#include <cmath>
+#include <limits>
 #include <array>
 #include <map>
 #include <fstream>
@@ -44,6 +46,7 @@
 #include "../../Common/include/geometry/primal_grid/CQuadrilateral.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_viscous_entropy.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_ale_entropy.hpp"
+#include "../../SU2_CFD/include/numerics/flow/p1_positive_update.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/variables.hpp"
 #include "tecno_adjoint_checks.hpp"
@@ -3326,4 +3329,226 @@ TEST_CASE("EDGE_FORM_EC_EXACT_JACOBIAN: exact Ismail-Roe Jacobian and dw/dU agai
   CHECK(std::max(std::max(far2, far3), std::max(near2, near3)) < 1e-6);
   CHECK(equal < 1e-12);
   CHECK(hessian < 1e-6);
+}
+
+/*--- POSITIVE_UPDATE_FLOW (P1_POSITIVITY.md): step lengths of P1PositiveUpdate, no solver needed. ---*/
+
+namespace {
+
+namespace ppu = P1PositiveUpdate;
+
+/*--- Factor of CEulerSolver::ComputeUnderRelaxationFactor for one node (the formula of this branch). ---*/
+double SU2UnderRelaxation(int nDim, const double* U, const double* dU, double allowableRatio) {
+  const int nVar = nDim + 2;
+  double ratio = std::fabs(dU[0]) / std::max(U[0], EPS);
+  double e_old = U[nVar - 1], e_new = U[nVar - 1] + dU[nVar - 1];
+  const double rho_old = std::max(U[0], EPS);
+  const double rho_new = std::max(rho_old + dU[0], EPS);
+  for (int j = 1; j <= nDim; ++j) {
+    e_old -= 0.5 * std::pow(U[j], 2) / rho_old;
+    e_new -= 0.5 * std::pow(U[j] + dU[j], 2) / rho_new;
+  }
+  ratio = std::fmax(ratio, std::fabs(e_new - e_old) / std::max(e_old, EPS));
+  double factor = std::fmin(allowableRatio / std::fmax(ratio, EPS), 1.0);
+  if (factor < 1e-10) factor = 0.0;
+  return factor;
+}
+
+/*--- The margins hold up to rounding of the comparison form. ---*/
+bool KeepsMargins(int nDim, const double* U0, const double* U, double k) {
+  const double q0 = ppu::InternalEnergy(nDim, U0, k);
+  const double q = ppu::InternalEnergy(nDim, U, k);
+  return (U[0] > 0.0) && (q > 0.0) && (U[0] >= ppu::EPS_RHO * U0[0] * (1.0 - 1e-12)) &&
+         (q >= ppu::EPS_Q * q0 * (1.0 - 1e-12));
+}
+
+/*--- Brute force: feasible(a) on the exact conditions, a* by bisection (the feasible set is [0, a*]). ---*/
+double BruteForceStep(int nDim, const double* U0, const double* dU, double k, double alpha0) {
+  const double rho0 = U0[0], q0 = ppu::InternalEnergy(nDim, U0, k);
+  auto feasible = [&](double a) {
+    double U[ppu::MAXNVAR];
+    for (int i = 0; i < nDim + 2; ++i) U[i] = U0[i] + a * dU[i];
+    return (U[0] >= ppu::EPS_RHO * rho0) && (ppu::InternalEnergy(nDim, U, k) >= ppu::EPS_Q * q0);
+  };
+  if (feasible(alpha0)) return alpha0;
+  double lo = 0.0, hi = alpha0;
+  for (int it = 0; it < 200; ++it) {
+    const double mid = 0.5 * (lo + hi);
+    if (feasible(mid)) lo = mid; else hi = mid;
+  }
+  return lo;
+}
+
+/*--- Random admissible state: rho, velocity, pressure (gamma = 1.4), k a fraction of q/rho (0 for no SST). ---*/
+void RandomState(std::mt19937& gen, int nDim, bool sst, double* U, double& k) {
+  std::uniform_real_distribution<double> logu(-3.0, 1.0), vel(-3.0, 3.0), frac(0.0, 0.9);
+  const double rho = std::pow(10.0, logu(gen)), p = std::pow(10.0, logu(gen));
+  double v2 = 0.0;
+  U[0] = rho;
+  for (int i = 0; i < nDim; ++i) {
+    const double v = vel(gen);
+    U[i + 1] = rho * v;
+    v2 += v * v;
+  }
+  const double q = p / 0.4;
+  k = sst ? frac(gen) * q / rho : 0.0;
+  U[nDim + 1] = q + rho * k + 0.5 * rho * v2;
+}
+
+void RandomIncrement(std::mt19937& gen, int nDim, const double* U, double* dU) {
+  std::uniform_real_distribution<double> logs(-3.0, 1.5), unit(-1.0, 1.0);
+  const double scale = std::pow(10.0, logs(gen));
+  for (int i = 0; i < nDim + 2; ++i) dU[i] = scale * unit(gen) * (std::fabs(U[i]) + U[0]);
+}
+
+}  // namespace
+
+TEST_CASE("POSITIVE_UPDATE_FLOW: the counterexample of the SU2 factor gives an admissible state", "[P1Flux]") {
+  const double U0[3] = {1.0, 1.0, 0.51}, dU[3] = {-2.0, -1.0, -0.5};
+  const double zero = 0.0;
+
+  /*--- SU2's factor: rho e < 0 at the accepted state. ---*/
+  const double alphaSU2 = SU2UnderRelaxation(1, U0, dU, 0.2);
+  CHECK(alphaSU2 == Approx(0.1));
+  double U[3];
+  for (int i = 0; i < 3; ++i) U[i] = U0[i] + alphaSU2 * dU[i];
+  CHECK(ppu::InternalEnergy(1, U, zero) == Approx(-0.04625));
+  CHECK_FALSE(ppu::Admissible(1, U, zero, zero, zero));
+
+  /*--- The positive limit: the smallest root of P, 0.0176761..., or its half after the rounded check. ---*/
+  const double alpha = ppu::FlowStepLimit(1, U0, dU, zero, alphaSU2);
+  INFO("alpha " << alpha);
+  CHECK(alpha <= 0.017676104908030614 * (1.0 + 1e-12));
+  CHECK(alpha >= 0.5 * 0.017676104908030614 * (1.0 - 1e-12));
+  for (int i = 0; i < 3; ++i) U[i] = U0[i] + alpha * dU[i];
+  CHECK(ppu::Admissible(1, U, zero, ppu::EPS_RHO * U0[0], ppu::EPS_Q * ppu::InternalEnergy(1, U0, zero)));
+}
+
+TEST_CASE("POSITIVE_UPDATE_FLOW: linear and constant cases of P and the stable root formula", "[P1Flux]") {
+  /*--- Roots of c0 + c1 a + c2 a^2, c0 > 0. ---*/
+  CHECK(ppu::SmallestPositiveRoot(1.0, -2.0, 0.0) == Approx(0.5));
+  CHECK(ppu::SmallestPositiveRoot(1.0, 2.0, 0.0) < 0.0);
+  CHECK(ppu::SmallestPositiveRoot(1.0, 0.0, 0.0) < 0.0);
+  CHECK(ppu::SmallestPositiveRoot(1.0, -3.0, 2.0) == Approx(0.5));
+  CHECK(ppu::SmallestPositiveRoot(1.0, 0.0, -1.0) == Approx(1.0));
+  CHECK(ppu::SmallestPositiveRoot(1.0, 5.0, -1.0) == Approx((5.0 + std::sqrt(29.0)) / 2.0));
+  CHECK(ppu::SmallestPositiveRoot(1.0, 1.0, 1.0) < 0.0);
+  CHECK(ppu::SmallestPositiveRoot(1.0, 3.0, 2.0) < 0.0);
+  /*--- Tiny c2: the stable form keeps the root of the linear part. ---*/
+  CHECK(ppu::SmallestPositiveRoot(1.0, -2.0, 1e-300) == Approx(0.5));
+
+  const double zero = 0.0;
+
+  /*--- Linear P (d rho = 0, d m = 0): q(a) = q0 + a dE >= 0.1 q0 gives a = 0.9 q0 / 2. ---*/
+  const double U0[3] = {1.0, 0.5, 1.0};
+  const double q0 = ppu::InternalEnergy(1, U0, zero);
+  CHECK(q0 == Approx(0.875));
+  const double dLin[3] = {0.0, 0.0, -2.0};
+  const double aLin = ppu::FlowStepLimit(1, U0, dLin, zero, 1.0);
+  CHECK(aLin <= 0.9 * q0 / 2.0 * (1.0 + 1e-12));
+  CHECK(aLin >= 0.45 * q0 / 2.0 * (1.0 - 1e-12));
+
+  /*--- Constant P (dU = 0) and increasing linear P (dE > 0): the factor stays alpha0. ---*/
+  const double dZero[3] = {0.0, 0.0, 0.0}, dUp[3] = {0.0, 0.0, 3.0};
+  CHECK(ppu::FlowStepLimit(1, U0, dZero, zero, 0.7) == 0.7);
+  CHECK(ppu::FlowStepLimit(1, U0, dUp, zero, 0.7) == 0.7);
+
+  /*--- Density only: the linear step 1, rho >= 0.1 rho0. ---*/
+  const double U1[3] = {1.0, 0.0, 1.0}, dRho[3] = {-2.0, 0.0, 0.0};
+  const double aRho = ppu::FlowStepLimit(1, U1, dRho, zero, 1.0);
+  CHECK(aRho <= 0.45 * (1.0 + 1e-12));
+  CHECK(aRho >= 0.225 * (1.0 - 1e-12));
+
+  /*--- A zero factor stays zero. ---*/
+  CHECK(ppu::FlowStepLimit(1, U0, dLin, zero, 0.0) == 0.0);
+}
+
+TEST_CASE("POSITIVE_UPDATE_FLOW: a nonfinite increment gives a zero factor", "[P1Flux]") {
+  const double zero = 0.0;
+  const double U0[4] = {1.0, 0.2, -0.1, 2.5};
+  const double nan = std::numeric_limits<double>::quiet_NaN(), inf = std::numeric_limits<double>::infinity();
+  const double dNan[4] = {0.0, nan, 0.0, 0.0}, dInf[4] = {0.0, 0.0, 0.0, -inf};
+  CHECK(ppu::FlowStepLimit(2, U0, dNan, zero, 1.0) == 0.0);
+  CHECK(ppu::FlowStepLimit(2, U0, dInf, zero, 1.0) == 0.0);
+  CHECK(ppu::TkeStepLimit(1.0, 1.0, 1.0, 0.1, nan, 1.0, 1e-10, 1e10) == 0.0);
+  CHECK(ppu::TkeStepLimit(1.0, 1.0, 1.0, 0.1, inf, 1.0, 1e-10, 1e10) == 0.0);
+}
+
+TEST_CASE("POSITIVE_UPDATE_FLOW: random states and increments never give an inadmissible accepted state", "[P1Flux]") {
+  std::mt19937 gen(20261106);
+  std::uniform_real_distribution<double> unit(0.0, 1.0);
+  int limited = 0, failed = 0, notMaximal = 0, zeroSteps = 0;
+  for (int nDim = 1; nDim <= 3; ++nDim) {
+    for (int sst = 0; sst < 2; ++sst) {
+      for (int t = 0; t < 4000; ++t) {
+        double U0[ppu::MAXNVAR], dU[ppu::MAXNVAR], U[ppu::MAXNVAR], k = 0.0;
+        RandomState(gen, nDim, sst == 1, U0, k);
+        RandomIncrement(gen, nDim, U0, dU);
+        const double alpha0 = (t % 3 == 0) ? 1.0 : unit(gen);
+
+        const double alpha = ppu::FlowStepLimit(nDim, U0, dU, k, alpha0);
+        for (int i = 0; i < nDim + 2; ++i) U[i] = U0[i] + alpha * dU[i];
+
+        if (alpha < alpha0) limited++;
+        if (!(alpha >= 0.0 && alpha <= alpha0) || !KeepsMargins(nDim, U0, U, k)) failed++;
+        if (alpha0 > 0.0 && !(alpha > 0.0)) zeroSteps++;
+
+        /*--- Largest step up to the one halving of the rounded check. ---*/
+        const double aStar = BruteForceStep(nDim, U0, dU, k, alpha0);
+        if (alpha > aStar * (1.0 + 1e-9) + 1e-300 || alpha < 0.5 * aStar * (1.0 - 1e-9)) notMaximal++;
+      }
+    }
+  }
+  INFO("limited " << limited << ", failed " << failed << ", not maximal " << notMaximal << ", zero " << zeroSteps);
+  CHECK(limited > 0);
+  CHECK(failed == 0);
+  CHECK(notMaximal == 0);
+  CHECK(zeroSteps == 0);
+}
+
+TEST_CASE("POSITIVE_UPDATE_FLOW: SST flow step and k limit keep q - rho k positive", "[P1Flux]") {
+  const double kLower = 1e-10, kUpper = 1e10;
+
+  /*--- Deterministic k limit: rho = 1, q = 1, k0 = 0.1, d(rho k) = 2: room 0.9 - 0.1 gives beta = 0.4. ---*/
+  const double beta = ppu::TkeStepLimit(1.0, 1.0, 1.0, 0.1, 2.0, 1.0, kLower, kUpper);
+  CHECK(beta <= 0.4 * (1.0 + 1e-12));
+  CHECK(beta >= 0.2 * (1.0 - 1e-12));
+  CHECK(1.0 - ppu::ClippedTke(1.0, 0.1, 2.0, beta, kLower, kUpper) > 0.0);
+  /*--- Without it the full step gives q - rho k = 1 - 2.1 < 0. ---*/
+  CHECK(1.0 - ppu::ClippedTke(1.0, 0.1, 2.0, 1.0, kLower, kUpper) < 0.0);
+  /*--- A decreasing k keeps the factor, no room for a growing k cancels it. ---*/
+  CHECK(ppu::TkeStepLimit(1.0, 1.0, 1.0, 0.1, -0.05, 0.8, kLower, kUpper) == 0.8);
+  CHECK(ppu::TkeStepLimit(1.0, 1.0, 1.0, 0.95, 0.1, 0.8, kLower, kUpper) == 0.0);
+
+  /*--- Random flow step with k, then the k step on the accepted flow state. ---*/
+  std::mt19937 gen(611);
+  std::uniform_real_distribution<double> unit(0.0, 1.0), signedUnit(-1.0, 1.0), logs(-3.0, 1.5);
+  int failed = 0, limitedK = 0;
+  for (int nDim = 2; nDim <= 3; ++nDim) {
+    for (int t = 0; t < 5000; ++t) {
+      double U0[ppu::MAXNVAR], dU[ppu::MAXNVAR], U[ppu::MAXNVAR], k0 = 0.0;
+      RandomState(gen, nDim, true, U0, k0);
+      RandomIncrement(gen, nDim, U0, dU);
+
+      const double alpha = ppu::FlowStepLimit(nDim, U0, dU, k0, unit(gen));
+      for (int i = 0; i < nDim + 2; ++i) U[i] = U0[i] + alpha * dU[i];
+      if (!KeepsMargins(nDim, U0, U, k0)) failed++;
+
+      /*--- k step: q of the updated flow state without k, d(rho k) random of either sign. ---*/
+      /*--- The k update uses the old (primitive) density rhoP, the pressure the new density rho. ---*/
+      const double rho = U[0], rhoP = U0[0], zero = 0.0;
+      const double q = ppu::InternalEnergy(nDim, U, zero);
+      const double dK = std::pow(10.0, logs(gen)) * signedUnit(gen) * (rho * k0 + q);
+      const double beta0 = unit(gen);
+      const double b = ppu::TkeStepLimit(rho, rhoP, q, k0, dK, beta0, kLower, kUpper);
+      const double kNew = ppu::ClippedTke(rhoP, k0, dK, b, kLower, kUpper);
+      if (b < beta0) limitedK++;
+      /*--- b = 0 cancels the k update (k0 up to rounding), q - rho k0 > 0 from the flow step. ---*/
+      const bool bound = (b == 0.0) || (rho * kNew <= (1.0 - ppu::EPS_Q) * q * (1.0 + 1e-12)) || (kNew <= k0);
+      if (!(b >= 0.0 && b <= beta0) || !bound || !(q - rho * kNew * (1.0 - 1e-12) > 0.0)) failed++;
+    }
+  }
+  INFO("failed " << failed << ", k limited " << limitedK);
+  CHECK(failed == 0);
+  CHECK(limitedK > 0);
 }

@@ -1879,6 +1879,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_FORM_TECNO_A4_JACOBIAN", Edge_Form_TeCNO_A4_Jacobian, false);
   /*!\brief EDGE_FORM_EC_EXACT_JACOBIAN \n DESCRIPTION: ROE with EDGE_FORM_EC_FLUX or EDGE_FORM_TECNO: exact Jacobian of the Ismail-Roe flux of the nodal states (both node blocks) instead of 1/2 A_i, 1/2 A_k. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_EC_EXACT_JACOBIAN", Edge_Form_EC_Exact_Jacobian, false);
+  /*!\brief POSITIVE_UPDATE_FLOW \n DESCRIPTION: Positivity-preserving implicit update (P1_POSITIVITY.md). The factor of MAX_UPDATE_FLOW is reduced per node to the largest alpha with rho >= eps_r rho_old (linear) and q >= eps_e q_old (smallest positive root of a quadratic, q = rhoE - |m|^2/(2 rho), minus rho k with SST), eps_r = eps_e = 0.1, the rounded state checked again (halving). A nonfinite increment cancels the update. With SST the turbulence factor also keeps rho k <= (1 - eps_e) q; SA and SST updates with a nonfinite increment are cancelled. Positive pressure for an ideal gas. History fields POSITIVE_LIMITED_POINTS and POSITIVE_FAILED_POINTS (group POSITIVE_UPDATE). \ingroup Config \default false */
+  addBoolOption("POSITIVE_UPDATE_FLOW", Positive_Update_Flow, false);
 
   /*!\brief MARKER_HEATTRANSFER DESCRIPTION: Heat flux with specified heat transfer coefficient boundary marker(s)\n
    * Format: ( Heat transfer marker, heat transfer coefficient, wall temperature (static), ... ) \ingroup Config  */
@@ -4351,6 +4353,8 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
 
   Nonphys_Points   = 0;
   Nonphys_Reconstr = 0;
+  Positive_Limited_Points = 0;
+  Positive_Failed_Points  = 0;
 
   /*--- Set the number of external iterations to 1 for the steady state problem ---*/
 
@@ -6278,6 +6282,12 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_EC_Exact_Jacobian) active.push_back("EDGE_FORM_EC_EXACT_JACOBIAN");
   if (Edge_Form_TeCNO_Wide && !Edge_Form_TeCNO) SU2_MPI::Error("EDGE_FORM_TECNO_WIDE: needs EDGE_FORM_TECNO= YES.", CURRENT_FUNCTION);
   if (Edge_Form_TeCNO_Smooth && (!Edge_Form_TeCNO || Edge_Form_TeCNO_Wide)) SU2_MPI::Error("EDGE_FORM_TECNO_SMOOTH: needs EDGE_FORM_TECNO= YES and not EDGE_FORM_TECNO_WIDE.", CURRENT_FUNCTION);
+
+  /*--- The positive update is written for the conservative variables (rho, m, rhoE) of the compressible FVM solvers. ---*/
+  if (Positive_Update_Flow && Kind_Solver != MAIN_SOLVER::EULER && Kind_Solver != MAIN_SOLVER::NAVIER_STOKES &&
+      Kind_Solver != MAIN_SOLVER::RANS) {
+    SU2_MPI::Error("POSITIVE_UPDATE_FLOW: only for the compressible FVM solvers (EULER, NAVIER_STOKES, RANS).", CURRENT_FUNCTION);
+  }
 
   if (Flux_Correction_Limited && (!FluxCorrection || !MUSCL_Flow || (Kind_SlopeLimit_Flow == LIMITER::NONE) ||
                                   (Kind_SlopeLimit_Flow == LIMITER::VAN_ALBADA_EDGE))) {

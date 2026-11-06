@@ -1661,6 +1661,9 @@ void CTurbSASolver::ComputeUnderRelaxationFactor(CSolver** solver_container, con
 
   ComputeUnderRelaxationFactorHelper(solver_container, allowableRatio);
 
+  /*--- POSITIVE_UPDATE_FLOW: a nonfinite increment cancels the update of the node. ---*/
+  if (config->GetPositive_Update_Flow()) LimitTurbUnderRelaxationPositivity(solver_container, false);
+
 }
 
 

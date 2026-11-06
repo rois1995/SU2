@@ -1214,4 +1214,7 @@ void CTurbSSTSolver::ComputeUnderRelaxationFactor(CSolver** solver_container, co
   const su2double allowableRatio = config->GetMaxUpdateFractionSST();
 
   ComputeUnderRelaxationFactorHelper(solver_container, allowableRatio);
+
+  /*--- POSITIVE_UPDATE_FLOW: one combined factor, finite increments and rho k <= (1 - eps_e) q. ---*/
+  if (config->GetPositive_Update_Flow()) LimitTurbUnderRelaxationPositivity(solver_container, true);
 }

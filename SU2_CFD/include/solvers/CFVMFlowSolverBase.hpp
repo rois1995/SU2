@@ -399,6 +399,16 @@ class CFVMFlowSolverBase : public CSolver {
   }
 
   /*!
+   * \brief POSITIVE_UPDATE_FLOW: reduce the under-relaxation factor of each node so that the update keeps the
+   *        density and the internal energy positive (P1_POSITIVITY.md).
+   * \param[in] solver_container - Container with all the solutions (the turbulent k of SST), may be nullptr.
+   * \param[in] config - Definition of the particular problem, receives the counts of limited and failed nodes.
+   */
+  virtual void LimitUnderRelaxationPositivity(CSolver** solver_container, CConfig* config) {
+    SU2_MPI::Error("POSITIVE_UPDATE_FLOW: not implemented for this solver.", CURRENT_FUNCTION);
+  }
+
+  /*!
    * \brief General implementation to load a flow solution from a restart file.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] solver - Container vector with all of the solvers.

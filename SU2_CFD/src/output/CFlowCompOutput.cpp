@@ -57,6 +57,19 @@ CFlowCompOutput::CFlowCompOutput(const CConfig *config, unsigned short nDim) : C
     nRequestedVolumeFields = requestedVolumeFields.size();
   }
 
+  /*--- POSITIVE_UPDATE_FLOW: show the counts of limited and failed nodes on screen and in the history. ---*/
+  if (config->GetPositive_Update_Flow()) {
+    const string group = "POSITIVE_UPDATE";
+    if (find(requestedScreenFields.begin(), requestedScreenFields.end(), group) == requestedScreenFields.end()) {
+      requestedScreenFields.push_back(group);
+      nRequestedScreenFields = requestedScreenFields.size();
+    }
+    if (find(requestedHistoryFields.begin(), requestedHistoryFields.end(), group) == requestedHistoryFields.end()) {
+      requestedHistoryFields.push_back(group);
+      nRequestedHistoryFields = requestedHistoryFields.size();
+    }
+  }
+
   if (gridMovement) {
     auto notFound = requestedVolumeFields.end();
     if (find(requestedVolumeFields.begin(), notFound, string("GRID_VELOCITY")) == notFound) {
@@ -161,6 +174,13 @@ void CFlowCompOutput::SetHistoryOutputFields(CConfig *config){
   /// DESCRIPTION: Linear solver iterations
   AddHistoryOutput("LINSOL_ITER", "Linear_Solver_Iterations", ScreenOutputFormat::INTEGER, "LINSOL", "Number of iterations of the linear solver.");
   AddHistoryOutput("LINSOL_RESIDUAL", "LinSolRes", ScreenOutputFormat::FIXED, "LINSOL", "Residual of the linear solver.");
+
+  if (config->GetPositive_Update_Flow()) {
+    /// BEGIN_GROUP: POSITIVE_UPDATE, DESCRIPTION: Nodes of the last flow update of POSITIVE_UPDATE_FLOW.
+    AddHistoryOutput("POSITIVE_LIMITED_POINTS", "Pos_Limited", ScreenOutputFormat::INTEGER, "POSITIVE_UPDATE", "Nodes whose update factor was reduced by POSITIVE_UPDATE_FLOW.");
+    AddHistoryOutput("POSITIVE_FAILED_POINTS", "Pos_Failed", ScreenOutputFormat::INTEGER, "POSITIVE_UPDATE", "Nodes whose accepted state is still inadmissible (0 by construction).");
+    /// END_GROUP
+  }
   AddHistoryOutputFieldsScalarLinsol(config);
 
   AddHistoryOutput("MIN_DELTA_TIME", "Min DT", ScreenOutputFormat::SCIENTIFIC, "CFL_NUMBER", "Current minimum local time step");
@@ -492,6 +512,11 @@ void CFlowCompOutput::LoadHistoryData(CConfig *config, CGeometry *geometry, CSol
 
   SetHistoryOutputValue("LINSOL_ITER", flow_solver->GetIterLinSolver());
   SetHistoryOutputValue("LINSOL_RESIDUAL", log10(flow_solver->GetResLinSolver()));
+
+  if (config->GetPositive_Update_Flow()) {
+    SetHistoryOutputValue("POSITIVE_LIMITED_POINTS", config->GetPositive_Limited_Points());
+    SetHistoryOutputValue("POSITIVE_FAILED_POINTS", config->GetPositive_Failed_Points());
+  }
 
   if (config->GetDeform_Mesh()){
     SetHistoryOutputValue("DEFORM_MIN_VOLUME", mesh_solver->GetMinimum_Volume());

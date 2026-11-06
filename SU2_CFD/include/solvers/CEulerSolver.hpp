@@ -152,6 +152,8 @@ protected:
   unsigned long Iter_Update_AoA = 0; /*!< \brief Iteration at which AoA was updated last */
   su2double dCL_dAlpha;              /*!< \brief Value of dCL_dAlpha used to control CL in fixed CL mode */
   unsigned long BCThrust_Counter;
+  unsigned long PositiveLimited_Counter = 0; /*!< \brief POSITIVE_UPDATE_FLOW: nodes with a reduced factor. */
+  unsigned long PositiveFailed_Counter = 0;  /*!< \brief POSITIVE_UPDATE_FLOW: nodes with an inadmissible accepted state. */
 
   vector<CFluidModel*> FluidModel;   /*!< \brief fluid model used in the solver. */
 
@@ -968,6 +970,14 @@ public:
    * \param[in] config - Definition of the particular problem.
    */
   void ComputeUnderRelaxationFactor(const CConfig *config) final;
+
+  /*!
+   * \brief POSITIVE_UPDATE_FLOW: reduce the factor of each node to the positivity-preserving step length of
+   *        P1PositiveUpdate::FlowStepLimit (with the k of SST), count the limited and the failed nodes.
+   * \param[in] solver_container - Container with all the solutions, may be nullptr.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void LimitUnderRelaxationPositivity(CSolver** solver_container, CConfig* config) final;
 
   /*!
    * \brief Identify points where the static temperature is an outlier to treat them

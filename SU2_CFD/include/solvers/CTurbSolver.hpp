@@ -141,4 +141,13 @@ public:
    * \param[in] allowableRatio - Maximum percentage update in variable per iteration.
    */
   void ComputeUnderRelaxationFactorHelper(CSolver** solver_container, su2double allowableRatio);
+
+  /*!
+   * \brief POSITIVE_UPDATE_FLOW (P1_POSITIVITY.md): reduce the factor of ComputeUnderRelaxationFactorHelper to one
+   *        combined turbulence factor. A nonfinite increment cancels the update of the node; with SST (sstTke) the
+   *        factor also keeps rho k_new <= (1 - eps_e) q of the updated flow state (P1PositiveUpdate::TkeStepLimit).
+   * \param[in] solver_container - Container with all the solutions.
+   * \param[in] sstTke - Apply the k limit of SST (variable 0 is k, conservative update with the flow density).
+   */
+  void LimitTurbUnderRelaxationPositivity(CSolver** solver_container, bool sstTke);
 };

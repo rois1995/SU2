@@ -32,6 +32,7 @@
 #include "../../../Common/include/toolboxes/p1_simplex.hpp"
 #include "../../include/numerics/flow/p1_viscous_entropy.hpp"
 #include "../../include/numerics/flow/p1_ale_entropy.hpp"
+#include "../../include/numerics/flow/p1_positive_update.hpp"
 #include "../../include/fluid/CIdealGas.hpp"
 #include "../../include/fluid/CVanDerWaalsGas.hpp"
 #include "../../include/fluid/CPengRobinson.hpp"
@@ -3154,6 +3155,70 @@ void CEulerSolver::ComputeUnderRelaxationFactor(const CConfig* config) {
     nodes->SetUnderRelaxation(iPoint, localUnderRelaxation);
   }
   END_SU2_OMP_FOR
+}
+
+void CEulerSolver::LimitUnderRelaxationPositivity(CSolver** solver_container, CConfig* config) {
+  SU2_ZONE_SCOPED
+
+  /*--- POSITIVE_UPDATE_FLOW (P1_POSITIVITY.md): reduce the factor of ComputeUnderRelaxationFactor to the largest step
+   * with rho >= eps_r rho_old and q >= eps_e q_old, q = rhoE - |m|^2/(2 rho) - rho k. With SST the pressure of
+   * CNSVariable::SetPrimVar subtracts the current k of the turbulence solver, which advances after the flow. ---*/
+
+  const bool sst = (config->GetKind_Turb_Model() == TURB_MODEL::SST) && (solver_container != nullptr) &&
+                   (solver_container[TURB_SOL] != nullptr);
+  const CVariable* turbNodes = sst ? solver_container[TURB_SOL]->GetNodes() : nullptr;
+
+  ompMasterAssignBarrier(PositiveLimited_Counter, 0, PositiveFailed_Counter, 0);
+
+  unsigned long limitedPoints = 0, failedPoints = 0;
+  const su2double zero = 0.0;
+
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (unsigned long iPoint = 0; iPoint < nPointDomain; iPoint++) {
+    su2double U0[P1PositiveUpdate::MAXNVAR] = {0.0}, dU[P1PositiveUpdate::MAXNVAR] = {0.0};
+    for (unsigned short iVar = 0; iVar < nVar; iVar++) {
+      U0[iVar] = nodes->GetSolution(iPoint, iVar);
+      dU[iVar] = LinSysSol(iPoint, iVar);
+    }
+    const su2double k = sst ? turbNodes->GetSolution(iPoint, 0) : zero;
+    const su2double alpha0 = nodes->GetUnderRelaxation(iPoint);
+
+    const su2double alpha = P1PositiveUpdate::FlowStepLimit(nDim, U0, dU, k, alpha0);
+    if (alpha < alpha0) limitedPoints++;
+
+    /*--- A nonfinite increment is cancelled: 0 * NaN would still reach the solution through AddSolution. ---*/
+    bool finite = true;
+    for (unsigned short iVar = 0; iVar < nVar; iVar++) {
+      if (!P1PositiveUpdate::IsFinite(dU[iVar])) finite = false;
+    }
+    if (!finite) {
+      for (unsigned short iVar = 0; iVar < nVar; iVar++) {
+        LinSysSol(iPoint, iVar) = 0.0;
+        dU[iVar] = 0.0;
+      }
+    }
+
+    /*--- Safety net: the accepted state, 0 failures by construction from admissible starts. ---*/
+    su2double U[P1PositiveUpdate::MAXNVAR] = {0.0};
+    for (unsigned short iVar = 0; iVar < nVar; iVar++) U[iVar] = U0[iVar] + alpha * dU[iVar];
+    if (!P1PositiveUpdate::Admissible(nDim, U, k, zero, zero)) failedPoints++;
+
+    nodes->SetUnderRelaxation(iPoint, alpha);
+  }
+  END_SU2_OMP_FOR
+
+  atomicAdd(limitedPoints, PositiveLimited_Counter);
+  atomicAdd(failedPoints, PositiveFailed_Counter);
+
+  if ((MGLevel == MESH_0) && (config->GetComm_Level() == COMM_FULL)) {
+    BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+      unsigned long localCounts[2] = {PositiveLimited_Counter, PositiveFailed_Counter};
+      unsigned long globalCounts[2] = {0, 0};
+      SU2_MPI::Allreduce(localCounts, globalCounts, 2, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+      config->SetPositive_Update_Points(globalCounts[0], globalCounts[1]);
+    }
+    END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  }
 }
 
 void CEulerSolver::IdentifySolutionOutliers(const CConfig *config, unsigned long iter) {

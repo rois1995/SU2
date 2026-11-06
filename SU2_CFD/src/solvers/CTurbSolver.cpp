@@ -29,6 +29,7 @@
 #include "../../../Common/include/parallelization/omp_structure.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../../include/solvers/CScalarSolver.inl"
+#include "../../include/numerics/flow/p1_positive_update.hpp"
 
 /*--- Explicit instantiation of the parent class of CTurbSolver. ---*/
 template class CScalarSolver<CTurbVariable>;
@@ -320,6 +321,44 @@ void CTurbSolver::ComputeUnderRelaxationFactorHelper(CSolver** solver_container,
     /* Store the under-relaxation factor for this point. */
 
     nodes->SetUnderRelaxation(iPoint, localUnderRelaxation);
+  }
+  END_SU2_OMP_FOR
+}
+
+void CTurbSolver::LimitTurbUnderRelaxationPositivity(CSolver** solver_container, bool sstTke) {
+  SU2_ZONE_SCOPED
+
+  /*--- The bounds k, omega, nu_tilde > 0 already hold through the clipping of CompleteImplicitIteration (lowerlimit),
+   * for any finite increment. A nonfinite increment passes that clipping, so it cancels the update here. With SST the
+   * pressure of CNSVariable::SetPrimVar is (gamma-1)(q - rho k): the k increment is limited so that
+   * rho k_new <= (1 - eps_e) q with the flow state of this update (its density is the one of AddClippedSolution). ---*/
+
+  const CVariable* flowNodes = solver_container[FLOW_SOL]->GetNodes();
+
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (unsigned long iPoint = 0; iPoint < nPointDomain; iPoint++) {
+    su2double beta = nodes->GetUnderRelaxation(iPoint);
+
+    bool finite = true;
+    for (unsigned short iVar = 0; iVar < nVar; iVar++) {
+      if (!P1PositiveUpdate::IsFinite(LinSysSol(iPoint, iVar))) finite = false;
+    }
+
+    if (!finite) {
+      /*--- 0 * NaN would still reach the solution through AddClippedSolution, so the increment is zeroed too. ---*/
+      beta = 0.0;
+      for (unsigned short iVar = 0; iVar < nVar; iVar++) LinSysSol(iPoint, iVar) = 0.0;
+    } else if (sstTke && Conservative) {
+      su2double U[P1PositiveUpdate::MAXNVAR] = {0.0};
+      for (unsigned short iVar = 0; iVar < nDim + 2; iVar++) U[iVar] = flowNodes->GetSolution(iPoint, iVar);
+      const su2double rho = flowNodes->GetDensity(iPoint);
+      const su2double zero = 0.0;
+      const su2double q = (rho > 0.0) ? P1PositiveUpdate::InternalEnergy(nDim, U, zero) : zero;
+      beta = P1PositiveUpdate::TkeStepLimit(U[0], rho, q, nodes->GetSolution_Old(iPoint, 0), LinSysSol(iPoint, 0), beta,
+                                            lowerlimit[0], upperlimit[0]);
+    }
+
+    nodes->SetUnderRelaxation(iPoint, beta);
   }
   END_SU2_OMP_FOR
 }
