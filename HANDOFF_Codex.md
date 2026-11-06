@@ -14,14 +14,19 @@ sources, fixtures, helpers, binary/config/inputs through each run. Verify actual
 owned handle terminal before edits/restarts. Preserve failures; authorized stop/
 fix/retry for demonstrated failures, clear bottlenecks or actual resource pressure.
 
-## Current: qualified225; full two-event M6 is NEXT, not launched yet
+## LIVE225: complete two-event M6, FROZEN
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-Planned A225=`R/m6_runs/euler_build225_entity_shell_real_cfd50k`.
+A225=`R/m6_runs/euler_build225_entity_shell_real_cfd50k`.
 Build225TERMINAL0(33.114415s),1302pins unchanged, both targets up to date.
 Final serial exec34204TERMINAL0:116cases/75941assertions PASS across geometry88,
 quality13,failure/census14,actual-current1. MPI6exec35336TERMINAL0:26cases on EACH
-of6ranks PASS. All validation handles terminal; no owned heavy workload remains.
+of6ranks PASS. All validation handles terminal; full M6exec32146 LIVE is the sole heavy workload.
+Source integration checkpoint60b32aaf74 is PUSHED. Helper1530921; launcher1531290/
+start4040862; ranks1531301/2/3/4/5/10. Exact all10argv/cwd/startticks and1519pins
+are in A225/owned_startup.json. All owned handles verified live; NO stop sent.
+Freeze C++/fixtures/helpers/binary/config/inputs until terminal or preserved evidence
+justifies the authorized owned stop. NEVER signal historical219/217/210handles.
 R/shell225_qualification.json is the complete focused receipt, not workflow proof.
 
 Connected production correction:
@@ -51,13 +56,19 @@ assessment.json and shell224_failed_mpi_assessment.json. Missing TMPDIR caused a
 separate preserved setup failure; helper now defaults to existing4TBscratch and
 records it. All affected checks subsequently PASS; no production import-mode rollback.
 
-Next launch uses same qualified real CFD seed, correctedL1/50k,6ranks/nice19/libs1,
+LIVE run uses same qualified real CFD seed, correctedL1/50k,6ranks/nice19/libs1,
 5400native/14400outer/two events. Generated config BYTEIDENTICAL219:
 SHA74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d.
-Select --inspect-rejected for this first coupled-boundary attempt after corrected
+Selected --inspect-rejected for this first coupled-boundary attempt after corrected
 metric219: actual leading-edge before/after mesh+metric is useful. No per-trial
-mesh exports. Verify resource headroom and owned handles, push exact checkpoint,
-then launch immediately; do not add another implementation or baseline campaign.
+mesh exports. Actual initial restart coordinates,6metric components and7flow fields
+BITWISE match219and its assessed production L1target: A225/initial_target_match.json,
+restartSHA5132ee2a83635b457943c2679a3a50c5e0b733427e620cc748da53865ce5d692.
+Restarted CL.269535/CD.013536. Curved mobility181938600setup work; initial6rank
+ownership migration completed. No complete engine census yet at this observation.
+A225/owned_observations.jsonl records resource receipts: summed RSS4.447GB, available
+RAM30.406GB(decimal), load13.66. Host contention exists; counters/stage vectors
+matter for comparison. No new implementation or baseline/profiler campaign.
 Compare complete whole-field q/J-bad removal/s and geometry-bad at matching quality
 times, plus work/certification, busy/wait and rank spread; commits/debt alone do not
 establish useful closure. Construction remains unchanged.
@@ -106,7 +117,7 @@ strict q/J/size/heights while reducing complete guidance. If bounded geometry
 construction is needed, subsequently reclose shape/size/heights. Final whole-mesh
 two-sided geometry/association/body/feature gates remain independent.
 
-R/workflow_acceptance225_readiness.json revalidates all4transfer/projection/kernel/
+A225/workflow_acceptance_readiness_current.json (copied from R) revalidates all4transfer/projection/kernel/
 driver source paths against reviewed219and225pins. Require actual true-CV mass
 residual<=1e-10, full admissibility and scaled target-integral1e-12 BEFOREpublication.
 Donor-vs-new domain integral change is separate; finite post-CFD does not prove

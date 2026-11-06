@@ -1,0 +1,183 @@
+{
+  "time": 1793996053.9218643,
+  "state": "verified_owned_live",
+  "source_checkpoint": "60b32aaf74",
+  "tool_session": 32146,
+  "helper_pid": 1530921,
+  "launcher": {
+    "pid": 1531290,
+    "ppid": 1531288,
+    "state": "S",
+    "startticks": 4040862,
+    "argv": [
+      "mpirun",
+      "--output-filename",
+      "rank_output",
+      "-n",
+      "6",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+      "[NativeSelectedFailureWorkflow3D]"
+    ],
+    "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k",
+    "rss_bytes": 15794176
+  },
+  "processes": [
+    {
+      "pid": 1530921,
+      "ppid": 27939,
+      "state": "S",
+      "startticks": 4040125,
+      "argv": [
+        "python3",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py",
+        "build225",
+        "euler_build225_entity_shell_real_cfd50k",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_original_force_seed_v1",
+        "--inspect-rejected"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "rss_bytes": 73682944
+    },
+    {
+      "pid": 1531287,
+      "ppid": 1530921,
+      "state": "S",
+      "startticks": 4040862,
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "timeout",
+        "14400",
+        "mpirun",
+        "--output-filename",
+        "rank_output",
+        "-n",
+        "6",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeSelectedFailureWorkflow3D]"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k",
+      "rss_bytes": 1531904
+    },
+    {
+      "pid": 1531288,
+      "ppid": 1531287,
+      "state": "S",
+      "startticks": 4040862,
+      "argv": [
+        "timeout",
+        "14400",
+        "mpirun",
+        "--output-filename",
+        "rank_output",
+        "-n",
+        "6",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeSelectedFailureWorkflow3D]"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k",
+      "rss_bytes": 2088960
+    },
+    {
+      "pid": 1531290,
+      "ppid": 1531288,
+      "state": "S",
+      "startticks": 4040862,
+      "argv": [
+        "mpirun",
+        "--output-filename",
+        "rank_output",
+        "-n",
+        "6",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeSelectedFailureWorkflow3D]"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k",
+      "rss_bytes": 15794176
+    },
+    {
+      "pid": 1531310,
+      "ppid": 1531290,
+      "state": "R",
+      "startticks": 4040868,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeSelectedFailureWorkflow3D]"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k",
+      "rss_bytes": 383815680
+    },
+    {
+      "pid": 1531305,
+      "ppid": 1531290,
+      "state": "R",
+      "startticks": 4040867,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeSelectedFailureWorkflow3D]"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k",
+      "rss_bytes": 400076800
+    },
+    {
+      "pid": 1531304,
+      "ppid": 1531290,
+      "state": "R",
+      "startticks": 4040867,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeSelectedFailureWorkflow3D]"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k",
+      "rss_bytes": 390639616
+    },
+    {
+      "pid": 1531303,
+      "ppid": 1531290,
+      "state": "R",
+      "startticks": 4040867,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeSelectedFailureWorkflow3D]"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k",
+      "rss_bytes": 391942144
+    },
+    {
+      "pid": 1531302,
+      "ppid": 1531290,
+      "state": "R",
+      "startticks": 4040867,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeSelectedFailureWorkflow3D]"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k",
+      "rss_bytes": 393584640
+    },
+    {
+      "pid": 1531301,
+      "ppid": 1531290,
+      "state": "R",
+      "startticks": 4040867,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+        "[NativeSelectedFailureWorkflow3D]"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k",
+      "rss_bytes": 393003008
+    }
+  ],
+  "pins": 1519,
+  "pins_manifest_sha256": "d23ce20c01b68927313399151796524139bf7e54e84193b854de60fabec37fce",
+  "startup_source_runtime_input_verification": "run_m6.py validates all pins before launching; executing paths/argv/cwd/startticks verified here",
+  "load": "14.44 9.58 7.09 19/3701 1536347",
+  "memory": {
+    "MemAvailable": 32905158656,
+    "SwapFree": 10411307008
+  },
+  "sampled_tree_rss_bytes": 2446159872,
+  "rss_limit": "summed process RSS, not physical-memory or whole-job peak",
+  "stop_sent": false
+}
