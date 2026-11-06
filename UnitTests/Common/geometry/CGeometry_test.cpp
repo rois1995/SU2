@@ -33,9 +33,8 @@
 std::unique_ptr<UnitQuadTestCase> TestCase;
 
 TEST_CASE("Geometry constructor", "[Geometry]") {
-  cout.rdbuf(nullptr);
-
   TestCase = std::unique_ptr<UnitQuadTestCase>(new UnitQuadTestCase());
+  cout.rdbuf(nullptr);
 
   TestCase->InitConfig();
 
