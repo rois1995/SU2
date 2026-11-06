@@ -1,0 +1,189 @@
+{
+  "schema": "SU2_STRESS_VERIFICATION_1",
+  "scope": "small local operator/file tests; no flow solver execution",
+  "base_develop": "f4b67d23deaac22948cc8d2a2c0da3138ae804f6",
+  "field_commit": "c1464ac673ba2a078727d95abb0aca99c0ec1c8a",
+  "coupling_commit": "bece941f3a0c1f0b7024d7a2218a1ccfb879e4e1",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "python": "3.12.3",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "compile_flags": [
+    "-std=c++17",
+    "-O0",
+    "-ffunction-sections",
+    "-fdata-sections"
+  ],
+  "field_probe_flags": [
+    "-std=c++17",
+    "-O2",
+    "-Wall",
+    "-Wextra"
+  ],
+  "pinned_headers": {
+    "Eigen": "d71c30c47858effcbd39967097a2d99ee48db464",
+    "MEL": "46205ab019e5224559091375a6d71aabae6bc5b9"
+  },
+  "source_sha256": {
+    "Common/include/CConfig.hpp": "972601f1b3334d17d8f4170f98f5e39de822d0eaef060a18c4bd76a5324bcaca",
+    "Common/include/toolboxes/stress_field.hpp": "d6e517d78dc1a087b783af3b4023102382b5f47bdafde2798a31d77ba894ac37",
+    "Common/src/CConfig.cpp": "2f0ad796e6ea89f06b09afa2f0977aad8a3fa313444a909545547c60b1f28512",
+    "SU2_CFD/include/numerics/CNumerics.hpp": "c559c47a4fe89466bea1ecb50b9b64dcc61b49fcab9fde0725ae9d2783fce753",
+    "SU2_CFD/include/numerics/turbulent/turb_sources.hpp": "e98781e7088adad959a48e9abebd43c2ac62fffbc5cbad4b29e1a079862e5fde",
+    "SU2_CFD/include/numerics_simd/flow/diffusion/viscous_fluxes.hpp": "9a631714dd9e2d6b747beb230339566a603bfb133d0fdad5324f0600139af9d5",
+    "SU2_CFD/src/drivers/CDriver.cpp": "6ddf28f74232e651fd82b8e6cd20b09c6b99b8ad1a14c8b4f9a815910a5d2b22",
+    "SU2_CFD/src/numerics/flow/flow_diffusion.cpp": "eb456a68de80613f669d5cac6e4a7f207d14732293765434c42275ce25f3062b",
+    "SU2_CFD/src/output/CFlowOutput.cpp": "85705fa19893d3efa1c08cc7fdabd6d9bb349c6bcf6206eda6f8d4e90b04c150",
+    "SU2_CFD/src/output/COutput.cpp": "e5802c6a229733d46a4a5e3bdc6fdcc01c8ed5423e94d4528284423da6133293",
+    "SU2_CFD/src/solvers/CTurbSSTSolver.cpp": "c46630cf1d9153c50ba1470b6a08f49ccec14fbeef696c3253c020e3508dcc70",
+    "SU2_PY/stress_field/campaign.py": "aab2936ba4a4b60752bd95d59a84811316f5a0e70dca6c73409e59127de7c749",
+    "SU2_PY/stress_field/check_meshadaptation_reference.py": "c875fda0b0ce2257bbc15cbbb68be1eff846c20014314f643c449b5a827a928f",
+    "SU2_PY/stress_field/export_field.py": "0e8befd7ba2a153f0fe424fc54f7d7775ff2bb6c6ca9293c2f62ca89b5ef0ff7",
+    "SU2_PY/stress_field/export_target.py": "7d36e78f7f427f930a05127238fcd9ae284e6af95905fa41f586339bc7ac83ed",
+    "SU2_PY/stress_field/field_io.py": "54d71ea637957f8e8e36bfef44955a95ff10c4e4ccc6ab3f9ed5f249f9931fa9",
+    "SU2_PY/stress_field/generate_field.py": "c947c7d736ab70c7234673e33511f0a0f80b3da548b77e0a41143b220c8e6b79",
+    "SU2_PY/stress_field/prepare_example.py": "48d7f286a077eed8692c3b0b87d6e657fcdad6a22473f3b9d3d7e4bb4e8274b9",
+    "SU2_PY/stress_field/run_local_checks.py": "aae5c39da2760c4dcc63a05eb70c5c36b66620bd54f8901b2a3fdb340dee7b2d",
+    "SU2_PY/stress_field/test_campaign.py": "ff7adc601662031007429e81f0e43181a2efbd9c7df5eb9e375a23f638c85282",
+    "SU2_PY/stress_field/test_config.py": "f6afb671e5dfc9f07d28684a54f304f9894885e0ff6bd74324b8b32753d71b9d",
+    "SU2_PY/stress_field/test_field.py": "c368e74283ca563435bfbbc7a8c1d4a7267ff4be836db4e5f053c620cd870cb5",
+    "SU2_PY/stress_field/test_target.py": "cc28a91990d85eb98d7bbf2fa220ec602562384245f73199bc1f18f160093ddd",
+    "UnitTests/SU2_CFD/numerics/epm_source_tests.cpp": "08985eee984153950661d2d18858de3f0eeaa50c00eafed4fedaee1fd4b0b035",
+    "UnitTests/SU2_CFD/numerics/epm_tests.cpp": "9e6f53a047a5efecbaae961ca157a74ed2370ae3141bf82affb3a2eb5696b652",
+    "UnitTests/SU2_CFD/numerics/stress_config_probe.cpp": "520592d43d449031ace98b01967aa60f3c1727b3cd9dd59bd8df5489de3876fc",
+    "UnitTests/SU2_CFD/numerics/stress_coupling_tests.cpp": "fea96ffed8b068a6af8b4783455499d0fafe4394ee0ba9b6599c6cb1b7609c7b",
+    "UnitTests/SU2_CFD/numerics/stress_field_probe.cpp": "7248a12c05163b01154b1760f9a7a6ae124a81ef3c1c259b7407317355f6216e",
+    "UnitTests/fixtures/stress/negative.suf": "a15cb49a679434402795c0530bd450ab32049f6e0c4182e65e65895550eed41d",
+    "UnitTests/fixtures/stress/negative.suf.json": "5dcd9381d08caed18172e5235f555d552a7f1524bdea4399434563082679ff7e",
+    "UnitTests/fixtures/stress/positive.suf": "7ad9dfe1bec621189c16bf93e7ad8aa8273b2e3a24b407ea23b517804285bcbc",
+    "UnitTests/fixtures/stress/positive.suf.json": "11799c792acc5da030d69a487a62018d228c37227d2865fb5fc73d7310f2b563",
+    "UnitTests/fixtures/stress/zero.suf": "0af4ce8d012bb86aaaf055ce3026b3e80d374c2e667bc79ae74cac7a430b230e",
+    "UnitTests/fixtures/stress/zero.suf.json": "f794c775fda5636f36c596adde7a674ff57505c0c896aad2070ca28a9abcb83e",
+    "UnitTests/meson.build": "e99d691343e1ef4ca66ebac5cc2477829ddeee35866c3173cb6c12af1255e588",
+    "config_template.cfg": "6ed5cc5efc533ab49302f52bae8d1efa8e7abcaae4ab072b64e1a11d4dbf2050",
+    "UnitTests/SU2_CFD/numerics/stress_simd_tests.cpp": "33c3e75c2164c124a5e91cd92fda6f2074233b4d1ca87b99f6f3d19bd8c7231a",
+    "SU2_CFD/include/interfaces/cfd/CMixingPlaneInterface.hpp": "16315086fed2368589c5e98e3ffa25d08a33c8915933e3da75f4553b151473ad",
+    "SU2_CFD/src/interfaces/cfd/CMixingPlaneInterface.cpp": "f46a493186d6ae4ad45cf4c076d4bbfa63a5f0a63a3306dbf9e436c156cc55e1",
+    "SU2_CFD/src/interfaces/fsi/CFlowTractionInterface.cpp": "64ed5c940f62f8dc1af05f4f83036dc2e1d919ebf6b0139774281c3e78c76b9e"
+  },
+  "checks": {
+    "operators": {
+      "status": "PASS",
+      "assertions": 418,
+      "test_cases": 13
+    },
+    "parser_sidecar": {
+      "status": "PASS",
+      "tests": 2
+    },
+    "provider": {
+      "status": "PASS",
+      "tests": 7
+    },
+    "campaign_tools": {
+      "status": "PASS",
+      "tests": 3
+    },
+    "synthetic_target": {
+      "status": "PASS",
+      "tests": 1
+    },
+    "mesh_adaptation_reference": {
+      "status": "PASS",
+      "queries": 200,
+      "max_absolute_error": 2.220446049250313e-16
+    },
+    "circular_provider": {
+      "status": "PASS",
+      "queries": 4000,
+      "max_absolute_error": 7.771561172376096e-14,
+      "scope": "offline provider only, no CFD"
+    },
+    "syntax": {
+      "status": "PASS",
+      "files": [
+        "SU2_CFD/src/drivers/CDriver.cpp",
+        "SU2_CFD/src/output/CFlowOutput.cpp",
+        "SU2_CFD/src/output/COutput.cpp",
+        "SU2_CFD/src/solvers/CTurbSSTSolver.cpp",
+        "SU2_CFD/include/numerics_simd/CNumericsSIMD.cpp"
+      ],
+      "flags": [
+        "-std=c++17",
+        "-fsyntax-only",
+        "-ISU2_CFD/include/drivers",
+        "-Iexternals/CLI11",
+        "-Iexternals/mel",
+        "-Iexternals/eigen"
+      ]
+    },
+    "full_link": {
+      "status": "PASS",
+      "target": "SU2_CFD/src/SU2_CFD",
+      "binary_sha256": "b620b1d21045201f114c8ed276aa93b697351a8fa42c0cde2b77fc1ff8bf9a82",
+      "options": [
+        "--wrap-mode=nodownload",
+        "--buildtype=debug",
+        "-Ddebug=false",
+        "-Dwith-mpi=disabled",
+        "-Dwith-omp=false",
+        "-Denable-tecio=false",
+        "-Denable-cgns=false",
+        "-Denable-autodiff=false",
+        "-Denable-directdiff=false",
+        "-Denable-tests=false",
+        "-Denable-pywrapper=false"
+      ],
+      "jobs": 2,
+      "solver_executed": false
+    },
+    "CFD": {
+      "status": "NOT_RUN",
+      "runs": 0
+    },
+    "MPI": {
+      "status": "NOT_RUN"
+    },
+    "checkpoint_continuation": {
+      "status": "NOT_RUN"
+    },
+    "scalar_SIMD_residual_parity": {
+      "status": "NOT_RUN"
+    },
+    "exact_discrete_donor_replay": {
+      "status": "UNSUPPORTED",
+      "reason": "nodal representation export only"
+    },
+    "curved_solver": {
+      "status": "UNSUPPORTED"
+    },
+    "physical_qualification": {
+      "status": "NOT_RUN"
+    },
+    "scalar_SIMD_operator_parity": {
+      "status": "PASS",
+      "assertions": 172,
+      "test_cases": 1,
+      "simd_lanes": 4,
+      "scope": "2D NONE and PRESCRIBED; 2D/3D EPM_MATCHED; scales 0, 0.4, 1; actual viscous operators, not assembled flow residuals",
+      "flags": [
+        "-std=c++17",
+        "-O0",
+        "-march=native"
+      ],
+      "libraries": [
+        "SU2_CFD/src/libSU2core.a",
+        "Common/src/libSU2Common.a"
+      ]
+    }
+  },
+  "cluster_access": false,
+  "evidence_sha256": {
+    "operators.log": "432d1905b4cc4f4f55a567210f9d891cafd5cf7c9912418f227c057b99f8ece3",
+    "python.log": "463ad3ee583c10eb2b52ca26efe7bc8de68f5af3fcf4d5cdc6b7913d2e9f44fa",
+    "simd.log": "8d1f8509d81f84246e31eb3fb97063360bf4cdb09e0b2bfdb6ce1abb9778ff72",
+    "build.log": "57ce7fc3f22be1af1be634ac72dc879c6ad74d4e7759a190f475002fc3c52e29",
+    "run_matrix.csv": "4307fee6f278828ac82ffa5d8537739934f81854eb28cfc9a9148527f8951676"
+  },
+  "evidence_note": "Log final blank lines and trailing whitespace removed; terminal color escapes removed from build log; CSV line endings normalized to LF. Build log retains initial include-path and Ninja-environment failures followed by successful rebuild."
+}

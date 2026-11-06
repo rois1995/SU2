@@ -1,0 +1,26 @@
++ /usr/bin/python3 SU2_PY/stress_field/test_config.py --probe /tmp/su2-uq-final-checks/stress_config_probe
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.071s
+
+OK
++ /usr/bin/python3 SU2_PY/stress_field/test_field.py --probe /tmp/su2-uq-final-checks/stress_field_probe --v07-root /tmp/su2-research-v07/SA_stress_uncertainty_v07
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 1.725s
+
+OK
++ /usr/bin/python3 SU2_PY/stress_field/test_campaign.py
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.050s
+
+OK
++ /usr/bin/python3 SU2_PY/stress_field/test_target.py --probe /tmp/su2-uq-final-checks/stress_field_probe
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.040s
+
+OK
++ /usr/bin/python3 SU2_PY/stress_field/check_meshadaptation_reference.py --geometry-helper /media/rausa/4TB/MeshAdaptation/Scripts/FunScripts/GeometryHelper.py --probe /tmp/su2-uq-final-checks/stress_field_probe
+PASS: 200 queries; max_abs=2.2204460492503131e-16; source_sha256=389d2bacd28c42ffb3bac74a1d688ca3a4784f721d7b6184e3f1386fbee85fdb
