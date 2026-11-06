@@ -1,0 +1,210 @@
+{
+  "schema": "native_saved_face_partition_assessment_v1",
+  "time": 1793968498.9457948,
+  "inputs": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/captured_cavity_20261106T123135_484060/pins.json": "7e7559a664db45deccc57955f0c4fe7e41f8b4597ee1972ec73323b375bcbbbd",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/captured_cavity_20261106T123135_484060/status.json": "dd18e9ae5e52b6977448b1dfeb989985c3fb0277b27e38cc11bc1ac465295d44",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/captured_cavity_20261106T123135_484060/command.json": "ff728b98a6ccdd69afc55de9c3c60b338aa972d3b950afcbd7a6415b4f9475f6",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/captured_cavity_20261106T123135_484060/native_captured_cavity_result.jsonl": "a7561d8e30a0e1da6da642af2f3c19e07ac1261a648d1679f5f0996dc062d5de",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/geometry212_loaded_runtime.json": "a026b0190fd9a1301a47804e26d04cf6b6939c1d65ab6504cb9111024316bb02",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/geometry211_terminal_failure.json": "7a46c8849a533dd4776d01565bba58f476da4a613c3134cb15dee53df554ea36"
+  },
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/captured_cavity_20261106T123135_484060",
+  "assertions": 39500,
+  "production_changed": false,
+  "results": [
+    {
+      "stage": "geometry_partition_probe",
+      "cell": 152256924,
+      "depth": 0,
+      "pieces": 1,
+      "upper": 0.00012346577241708644,
+      "bound_work": 9169,
+      "preparation_work": 28868,
+      "seconds": 0.000206741,
+      "directed_within": false
+    },
+    {
+      "stage": "geometry_partition_probe",
+      "cell": 152256924,
+      "depth": 1,
+      "pieces": 4,
+      "upper": 7.02220402255591e-05,
+      "bound_work": 50878,
+      "preparation_work": 442120,
+      "seconds": 0.000704699,
+      "directed_within": true
+    },
+    {
+      "stage": "geometry_partition_refusal",
+      "cell": 152256924,
+      "depth": 2,
+      "work": 1048576,
+      "work_exhausted": true,
+      "reason": "Atlas arithmetic work budget exhausted."
+    },
+    {
+      "stage": "geometry_partition_probe",
+      "cell": 151610623,
+      "depth": 0,
+      "pieces": 1,
+      "upper": 0.0004066715588644725,
+      "bound_work": 4766,
+      "preparation_work": 9832,
+      "seconds": 0.000156668,
+      "directed_within": false
+    },
+    {
+      "stage": "geometry_partition_probe",
+      "cell": 151610623,
+      "depth": 1,
+      "pieces": 4,
+      "upper": 0.0002644687833480403,
+      "bound_work": 32384,
+      "preparation_work": 209994,
+      "seconds": 0.00056833,
+      "directed_within": false
+    },
+    {
+      "stage": "geometry_partition_probe",
+      "cell": 151610623,
+      "depth": 2,
+      "pieces": 16,
+      "upper": 0.0002545685243776633,
+      "bound_work": 172916,
+      "preparation_work": 825254,
+      "seconds": 0.002422431,
+      "directed_within": false
+    },
+    {
+      "stage": "geometry_partition_probe",
+      "cell": 152331796,
+      "depth": 0,
+      "pieces": 1,
+      "upper": 0.0005730775988526313,
+      "bound_work": 4949,
+      "preparation_work": 10096,
+      "seconds": 0.000130466,
+      "directed_within": false
+    },
+    {
+      "stage": "geometry_partition_probe",
+      "cell": 152331796,
+      "depth": 1,
+      "pieces": 4,
+      "upper": 0.000394583344029943,
+      "bound_work": 33521,
+      "preparation_work": 216893,
+      "seconds": 0.0005362230000000001,
+      "directed_within": false
+    },
+    {
+      "stage": "geometry_partition_probe",
+      "cell": 152331796,
+      "depth": 2,
+      "pieces": 16,
+      "upper": 0.0003865805952505026,
+      "bound_work": 178196,
+      "preparation_work": 851281,
+      "seconds": 0.002296451,
+      "directed_within": false
+    },
+    {
+      "stage": "geometry_partition_probe",
+      "cell": 152256925,
+      "depth": 0,
+      "pieces": 1,
+      "upper": 7.442757571993535e-05,
+      "bound_work": 13252,
+      "preparation_work": 49065,
+      "seconds": 0.000182071,
+      "directed_within": true
+    },
+    {
+      "stage": "geometry_partition_probe",
+      "cell": 152256925,
+      "depth": 1,
+      "pieces": 4,
+      "upper": 4.7989571442744324e-05,
+      "bound_work": 55612,
+      "preparation_work": 600001,
+      "seconds": 0.000664548,
+      "directed_within": true
+    },
+    {
+      "stage": "geometry_partition_refusal",
+      "cell": 152256925,
+      "depth": 2,
+      "work": 1048576,
+      "work_exhausted": true,
+      "reason": "Atlas arithmetic work budget exhausted."
+    }
+  ],
+  "union_results": [
+    {
+      "stage": "geometry_probe_result",
+      "cell": 152256924,
+      "query_completed": true,
+      "union_upper": 9.465791007108915e-05,
+      "cached_upper": 9.465791007108915e-05,
+      "recomputed_upper": 9.465791007108915e-05,
+      "directed_within": true,
+      "first_work": 2527,
+      "cached_work": 13,
+      "recomputed_work": 2527,
+      "traversal_work": 2335,
+      "scope_build_work": 21
+    },
+    {
+      "stage": "geometry_probe_result",
+      "cell": 151610623,
+      "query_completed": true,
+      "union_upper": 0.0034055989788844463,
+      "cached_upper": 0.0034055989788844463,
+      "recomputed_upper": 0.0034055989788844463,
+      "directed_within": false,
+      "first_work": 554,
+      "cached_work": 13,
+      "recomputed_work": 554,
+      "traversal_work": 212,
+      "scope_build_work": 56
+    },
+    {
+      "stage": "geometry_probe_result",
+      "cell": 152331796,
+      "query_completed": true,
+      "union_upper": 0.00407389781626705,
+      "cached_upper": 0.00407389781626705,
+      "recomputed_upper": 0.00407389781626705,
+      "directed_within": false,
+      "first_work": 791,
+      "cached_work": 13,
+      "recomputed_work": 791,
+      "traversal_work": 274,
+      "scope_build_work": 88
+    },
+    {
+      "stage": "geometry_probe_result",
+      "cell": 152256925,
+      "query_completed": true,
+      "union_upper": 9.658843863631609e-05,
+      "cached_upper": 9.658843863631609e-05,
+      "recomputed_upper": 9.658843863631609e-05,
+      "directed_within": true,
+      "first_work": 4641,
+      "cached_work": 13,
+      "recomputed_work": 4641,
+      "traversal_work": 4597,
+      "scope_build_work": 13
+    }
+  ],
+  "decision": "Do not add production subdivision: no newly certified bad face beyond existing build210 union refinement; difficult leading-edge faces remain unresolved. Return to repair/support and coupled reclosure diagnosis.",
+  "limits": [
+    "These four saved202faces are not a replay of terminal210.",
+    "Bounds above tolerance are not proofs of distance violation.",
+    "Subdivision seconds exclude exact coverage preparation/traces and do not establish production speedup.",
+    "Two depth2 trace checks exhausted the unchanged 1048576-work budget; no depth2 certificate claimed there.",
+    "All repeated/fresh authority bounds agree exactly; old52 q/J exact and edge error 2.4042183174866061e-17.",
+    "No accepted mesh/transfer/continued adapted CFD/restart."
+  ]
+}

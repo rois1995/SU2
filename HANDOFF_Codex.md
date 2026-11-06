@@ -47,6 +47,31 @@ No new scheduler/config, gate relaxation, time increase or construction q/J poli
 Then focused affected serial and ONE MPI milestone, immediately full M6 same seed.
 [Terminal210 findings and continuation](Handbook/ADAPTATION_BUILD210_OUTCOME_20261106.md).
 
+## Active bounded repair/support diagnostic: build214
+
+Only the captured202fixture changed; production source remains6744638324.
+Build212PASS156.166044s/1301pins, case tool48060TERMINAL0,39500assertions/1case
+PASS87.688321s, runtime allcovered/unchanged, all5exact host handles ABSENT.
+R/geometry212_partition_assessment.json:1/4/16piece existing bounds tighten, but
+certify NO additional bad face beyond210's union refinement. Two difficult leading
+faces remain above tolerance; this does not prove true distance violations.
+Two depth2trace checks hit unchanged1048576work; fresh/repeated bounds bit-exact.
+Do NOT add production subdivision from this evidence. Initial211failure was
+preserved; corrected diagnostic establishes resource refusal, not path mismatch.
+
+Next bounded experiment uses existing OptimizeMetricMesh with production160trial
+allowance on the saved52cell union of four COMPLETE seed-vertex stars, and on
+49cells after the qualified4502→181199364collapse including the retained star.
+Same current nodal target, existing geometry/trace checks,30s per optimizer,
+explicit memory reservation. Compare whole52region q/J/debt/geometry and boundary/
+interior rejection counters. No global contact/publication or210tail replay claim.
+Build213TERMINAL1/tool92521,15.107502s/1301pins unchanged: the diagnostic
+called a private engine coverage-pruning helper. Fixed test-local pruning matching
+that existing behavior, no new production API. Build214 LIVE tool57838;
+R/build214_status.json/source pins. Sandbox PID3 is NOT a host PID. Freeze
+until actual build/case handles terminal.
+No production repair decisions, construction paths, gates/config/budgets changed.
+
 ## Preserved qualification, runtime and evidence
 
 The current shared ParameterError refinement tries EXISTING physical-union bounds

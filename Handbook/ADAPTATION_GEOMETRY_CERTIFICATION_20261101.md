@@ -35,6 +35,21 @@ configuration, construction q/J policy, larger budget or weakened gate follows.
 After a demonstrated connected correction and focused serial/ONE MPI milestone,
 return immediately to complete two-event M6 from the same saved real CFD seed.
 
+### Postterminal212 existing-partition diagnostic
+
+Existing exact FaceCoverage subdivision at1/4/16pieces was tested on the same4
+actual202faces, with boundary-trace equivalence and repeated/fresh authority checks.
+39500assertions/1case PASS87.688321s, runtime covered/unchanged; all5host handles
+absent. First bad face tightens1.2346577e-4→7.0222040e-5 at4pieces, but210already
+certifies it using union9.4657910e-5. Two difficult leading faces remain unresolved
+at16pieces:2.5456852e-4 and3.8658060e-4. No additional bad face certified. Two other
+depth2trace checks exhaust the unchanged1048576work ceiling; no depth2certificate
+claimed there. Bounds above tolerance still do not prove actual distance violation.
+Bound-only times exclude exact preparation/traces; no production speedup established.
+R/geometry212_partition_assessment.json. Do not add production subdivision from
+these results. Current bounded support/repair diagnostic is in HANDOFF_Codex.md;
+production source and all strict gates remain unchanged.
+
 ### Preserved terminal206 analysis and probe207 selection
 
 The normal full M6 first event naturally rejected at the unchanged time budget:

@@ -1,3 +1,5 @@
+#include <chrono>
+#include "../../../../Common/include/adaptation/CNativeOptimize3D.hpp"
 // Explicitly selected actual-state feasibility diagnostic; no production dispatch or historical replay claim.
 namespace {
 std::vector<char> Captured202Bytes(const std::string& path) {
@@ -105,6 +107,71 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
       auto query=budget;query.work=0;query.maximum_work=64*SU2NativeGeometry::MappedFacetReference::ClearanceWork;
       query.caller_bytes=query_caller;query.work_exhausted=false;query.geometry_failure.clear();
       auto fresh_budget=query;const auto before=authority.GeometryStatsSnapshot();
+      {
+        using namespace SU2NativeGeometry;
+        auto partition_budget=query;partition_budget.maximum_integer_bits=4096;
+        // Admit both coverage generations, traces and bounded exact-coordinate temporaries before allocation.
+        const auto scratch=size_t(8)<<20;
+        REQUIRE(transfer_memory::Add(partition_budget.caller_bytes,scratch)<partition_budget.maximum_bytes);
+        partition_budget.caller_bytes+=scratch;
+        FaceCoverage partition;std::string why;
+        REQUIRE(authority.ResolveSingleChart(probe.facet,bindings,partition,partition_budget,why));
+        REQUIRE(partition.pieces.size()==1);
+        std::array<EdgeTrace,3> original_traces;
+        REQUIRE(authority.CoverageTraces(partition,original_traces,partition_budget,why));
+        ExactRatio half;REQUIRE(ExactBinary64(.5,half,partition_budget,why));
+        double previous=direct;
+        for(unsigned depth=0;depth<=2;++depth) {
+          const auto work=partition_budget.work;const auto started=std::chrono::steady_clock::now();
+          const double upper=authority.SurfaceError(partition,physical,partition_budget);
+          const auto bound_work=partition_budget.work-work;
+          const auto seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();
+          auto repeated_budget=partition_budget;repeated_budget.work=0;
+          CHECK(upper==authority.SurfaceError(partition,physical,repeated_budget));
+          CHECK(upper==recomputed.SurfaceError(partition,physical,repeated_budget));
+          CHECK(std::isfinite(upper));CHECK(upper<=previous+1e-12);
+          if(depth==0)CHECK(std::abs(upper-direct)<=1e-12);
+          log<<"{\"stage\":\"geometry_partition_probe\",\"cell\":"<<probe.cell<<",\"depth\":"<<depth
+             <<",\"pieces\":"<<partition.pieces.size()<<",\"upper\":"<<upper<<",\"bound_work\":"<<bound_work
+             <<",\"preparation_work\":"<<work<<",\"seconds\":"<<seconds
+             <<",\"directed_within\":"<<(upper<=1e-4)<<"}\n";log.flush();
+          budget.work=transfer_memory::Add(budget.work,repeated_budget.work);
+          previous=upper;if(depth==2)break;
+          auto midpoint=[&](const ExactBary& a,const ExactBary& b) {
+            ExactBary out;
+            REQUIRE(ExactAdd(a.u,b.u,out.u,partition_budget,why));
+            REQUIRE(ExactMultiply(out.u,half,out.u,partition_budget,why));
+            REQUIRE(ExactAdd(a.v,b.v,out.v,partition_budget,why));
+            REQUIRE(ExactMultiply(out.v,half,out.v,partition_budget,why));return out;
+          };
+          FaceCoverage divided;divided.pieces.reserve(4*partition.pieces.size());
+          const std::array<std::array<unsigned,3>,4> children{{{{0,3,5}},{{3,1,4}},{{5,4,2}},{{3,4,5}}}};
+          for(const auto& piece:partition.pieces) {
+            auto split=[&](const std::array<ExactBary,3>& p) {
+              return std::array<ExactBary,6>{{p[0],p[1],p[2],midpoint(p[0],p[1]),midpoint(p[1],p[2]),midpoint(p[2],p[0])}};
+            };
+            const auto reference_points=split(piece.reference),active_points=split(piece.active);
+            for(const auto& child:children){CoveragePiece next;next.facet=piece.facet;
+              for(unsigned k=0;k<3;++k){next.reference[k]=reference_points[child[k]];next.active[k]=active_points[child[k]];}
+              divided.pieces.push_back(std::move(next));}
+          }
+          partition=std::move(divided);
+          std::array<EdgeTrace,3> traces;
+          bool verified=authority.CoverageTraces(partition,traces,partition_budget,why);
+          for(unsigned k=0;k<3&&verified;++k)verified=authority.EqualTraces(original_traces[k],traces[k],partition_budget,why);
+          if(!verified) {
+            log<<"{\"stage\":\"geometry_partition_refusal\",\"cell\":"<<probe.cell<<",\"depth\":"<<depth+1
+               <<",\"work\":"<<partition_budget.work<<",\"work_exhausted\":"<<partition_budget.work_exhausted
+               <<",\"reason\":"<<std::quoted(why)<<"}\n";log.flush();
+            INFO(why);REQUIRE(partition_budget.work_exhausted);break;
+          }
+        }
+        auto exhausted=partition_budget;exhausted.maximum_work=exhausted.work=0;
+        CHECK_THROWS(authority.SurfaceError(partition,physical,exhausted));CHECK(exhausted.work_exhausted);
+        auto tight=partition_budget;tight.maximum_bytes=tight.caller_bytes;
+        CHECK_THROWS_AS(authority.SurfaceError(partition,physical,tight),std::length_error);
+        budget.work=transfer_memory::Add(budget.work,partition_budget.work);REQUIRE(budget.work<=budget.maximum_work);
+      }
       log<<"{\"stage\":\"geometry_probe_start\",\"cell\":"<<probe.cell<<",\"facet\":"<<probe.facet
          <<",\"direct_upper\":"<<direct<<",\"recorded_excess\":"<<probe.excess
          <<",\"query_work_limit\":"<<query.maximum_work<<"}\n";log.flush();
@@ -171,6 +238,68 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
 
   const std::array<Edge,4> trials{{{4502,181199364},{4502,174173910},{181199364,4502},{4502,174150582}}};
   const std::array<std::array<unsigned,3>,4> opposite{{{{1,2,3}},{{0,3,2}},{{0,1,3}},{{0,2,1}}}};
+  Patch full_patch;full_patch.cells=regions;
+  for(const auto& row:cells)for(unsigned slot=0;slot<4;++slot)if(row.physical[slot].present) {
+    Face face;for(unsigned k=0;k<3;++k)face[k]=row.cell.v[opposite[slot][k]].id;
+    full_patch.surface.push_back({face,row.physical[slot].facet});
+  }
+  auto assess_optimizer=[&](const Patch& seed,const char* label) {
+    struct RestoreCaller {SU2NativeGeometry::AtlasBudget& b;size_t caller;~RestoreCaller(){b.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
+    budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,state->ResidentBytes(),reference->ResidentBytes(),
+        2*MaximumFrozenFieldBytes,size_t(64)<<20);
+    REQUIRE(budget.caller_bytes<ceiling);
+    auto scope=reference->WithAtlasReservation(budget);auto context=scope->PrivateParameters(seed);REQUIRE(context);
+    Owned local;std::map<Face,Id> physical;
+    for(const auto& f:seed.surface){auto key=f.v;std::sort(key.begin(),key.end());physical.emplace(key,f.facet);}
+    for(const auto& cell:seed.cells){OwnedCell row;row.cell=cell;
+      for(unsigned slot=0;slot<4;++slot){Face face;for(unsigned k=0;k<3;++k)face[k]=cell.v[opposite[slot][k]].id;
+        std::sort(face.begin(),face.end());const auto found=physical.find(face);
+        if(found!=physical.end())row.physical[slot]={true,found->second};}
+      REQUIRE(local.emplace(cell.id,std::move(row)).second);}
+    OptimizeOptions options;options.maximum_work=160;options.maximum_seconds=30;
+    options.cache_entries=8*MaximumReplacementCells;options.boundary=false;options.geometry=context.get();options.surface_tolerance=1e-4;
+    Id next_node=300000000,next_cell=400000000;OptimizeReport report;
+    const bool changed=OptimizeMetricMesh(local,RegionMetric(*full_field),next_node,next_cell,options,report);
+    CHECK(report.trials<=160);CHECK(local.size()<=MaximumReplacementCells);
+    Patch result=seed;result.cells.clear();result.surface.clear();
+    for(const auto& row:local){const auto& cell=row.second.cell;result.cells.push_back(cell);
+      for(unsigned slot=0;slot<4;++slot)if(row.second.physical[slot].present){Face face;
+        for(unsigned k=0;k<3;++k)face[k]=cell.v[opposite[slot][k]].id;
+        result.surface.push_back({face,row.second.physical[slot].facet});}}
+    for(const auto& p:report.parameters)result.parameters.insert_or_assign(p.first,p.second);
+    for(const auto& p:report.coverage.faces)result.coverage.faces.insert_or_assign(p.first,p.second);
+    for(const auto& p:report.coverage.traces)result.coverage.traces.insert_or_assign(p.first,p.second);
+    std::set<Face> remaining_faces;std::set<Edge> remaining_edges;
+    for(auto face:result.surface){std::rotate(face.v.begin(),std::min_element(face.v.begin(),face.v.end()),face.v.end());remaining_faces.insert(face.v);
+      for(unsigned k=0;k<3;++k){Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());remaining_edges.insert(edge);}}
+    for(auto it=result.coverage.faces.begin();it!=result.coverage.faces.end();)if(!remaining_faces.count(it->first))it=result.coverage.faces.erase(it);else ++it;
+    for(auto it=result.coverage.traces.begin();it!=result.coverage.traces.end();)if(!remaining_edges.count(it->first))it=result.coverage.traces.erase(it);else ++it;
+    auto final_context=context->PrivateParameters(result);REQUIRE(final_context);final_context->ExportParameters(result);
+    const auto before=MeasureMetricCells(full_patch.cells,*full_field),after=MeasureMetricCells(result.cells,*full_field);
+    std::string metric_reason,replacement_reason;
+    const bool metric_valid=ValidateMetricChange(full_patch.cells.size(),before,result.cells.size(),after,MetricChange::Repair,metric_reason);
+    const bool replacement=state->CheckReplacement(full_patch,result,replacement_reason,ceiling,budget.caller_bytes,&budget);
+    const auto old_guidance=GeometryGuidanceExcess(full_patch,*scope,1e-4);
+    const auto new_guidance=GeometryGuidanceExcess(result,*final_context,1e-4,old_guidance.excess);
+    log<<"{\"stage\":\"complete_support_optimizer\",\"seed\":"<<std::quoted(label)<<",\"changed\":"<<changed
+       <<",\"trials\":"<<report.trials<<",\"seconds\":"<<report.seconds<<",\"stop\":"<<std::quoted(report.stop)
+       <<",\"old_cells\":"<<full_patch.cells.size()<<",\"new_cells\":"<<result.cells.size()
+       <<",\"old_q_bad\":"<<before.q_bad_cells<<",\"old_J_bad\":"<<before.j_bad_cells
+       <<",\"new_q_bad\":"<<after.q_bad_cells<<",\"new_J_bad\":"<<after.j_bad_cells
+       <<",\"old_debt\":"<<double(before.shape_debt)<<",\"new_debt\":"<<double(after.shape_debt)
+       <<",\"metric_valid\":"<<metric_valid<<",\"metric_reason\":"<<std::quoted(metric_reason)
+       <<",\"replacement\":"<<replacement<<",\"replacement_reason\":"<<std::quoted(replacement_reason)
+       <<",\"old_geometry\":"<<double(old_guidance.excess)<<",\"new_geometry\":"<<double(new_guidance.excess)
+       <<",\"geometry_complete\":"<<(old_guidance.complete&&new_guidance.complete)
+       <<",\"boundary_candidates\":"<<report.boundary_candidates<<",\"boundary_moves\":"<<report.boundary_moves
+       <<",\"boundary_shape_rejected\":"<<report.boundary_rejected_shape<<",\"boundary_geometry_rejected\":"<<report.boundary_rejected_geometry
+       <<",\"boundary_validity_rejected\":"<<report.boundary_rejected_validity<<",\"boundary_edge_rejected\":"<<report.boundary_rejected_edge
+       <<",\"interior_candidates\":"<<report.interior_candidates<<",\"interior_moves\":"<<report.interior_moves
+       <<",\"interior_shape_rejected\":"<<report.interior_rejected_shape<<",\"interior_geometry_rejected\":"<<report.interior_rejected_geometry
+       <<",\"global_contact_and_publication_checked\":false,\"accepted_repair\":false}\n";log.flush();
+    CHECK_FALSE(budget.work_exhausted);CHECK(budget.geometry_failure.empty());
+  };
+  assess_optimizer(full_patch,"original_complete_52");
   for(const auto& direction:trials) {
     std::vector<OwnedCell> cavity;Patch old,fresh;
     for(const auto& row:cells)if(std::any_of(row.cell.v.begin(),row.cell.v.end(),[&](Node n){return n.id==direction[0];})) {
@@ -203,6 +332,16 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
         const auto now=GeometryGuidanceExcess(fresh,*scope,1e-4,old_geometry);new_geometry=now.excess;
         guidance_valid=was.complete&&now.complete&&std::isfinite(new_geometry)&&new_geometry<=old_geometry;
       }catch(const std::exception& e){guidance_reason=e.what();}
+    }
+    if(direction==Edge{4502,181199364}&&constructed&&replacement) {
+      Patch joined=full_patch;std::set<Id> retired;for(const auto& c:old.cells)retired.insert(c.id);
+      joined.cells.erase(std::remove_if(joined.cells.begin(),joined.cells.end(),[&](const Cell& c){return retired.count(c.id);}),joined.cells.end());
+      joined.cells.insert(joined.cells.end(),fresh.cells.begin(),fresh.cells.end());
+      std::set<Face> retired_faces;for(const auto& f:old.surface){auto key=f.v;std::sort(key.begin(),key.end());retired_faces.insert(key);}
+      joined.surface.erase(std::remove_if(joined.surface.begin(),joined.surface.end(),[&](const SurfaceFace& f){auto key=f.v;std::sort(key.begin(),key.end());return retired_faces.count(key);}),joined.surface.end());
+      joined.surface.insert(joined.surface.end(),fresh.surface.begin(),fresh.surface.end());
+      joined.parameters=fresh.parameters;joined.coverage=fresh.coverage;
+      assess_optimizer(joined,"collapse_with_retained_star_49");
     }
     log<<"{\"stage\":\"directed_collapse\",\"removed\":"<<direction[0]<<",\"retained\":"<<direction[1]
        <<",\"compatible\":"<<compatible<<",\"constructed\":"<<constructed<<",\"construction_reason\":"<<std::quoted(construction_reason)

@@ -36,9 +36,10 @@ was not globally exhausted. Faster bulk alone does not prove that coupled closur
 
 Next target is repair power and geometry/shape reclosure, with geometry cost a
 measured efficiency opportunity. Reuse existing saved witnesses and query/context
-facilities before selecting another connected correction. Bounded Bernstein
-subdivision is UNPROVEN/backlogged; no implementation or saving follows from that
-idea. Construction soft q/J policies remain unproved and must not be introduced
+facilities before selecting another connected correction. Postterminal212 tested
+existing exact subdivision: no additional bad face was certified beyond210's union
+refinement; do not add it to production. No speedup is established. Current bounded
+repair/support diagnosis is recorded in HANDOFF_Codex.md. Construction soft q/J policies remain unproved and must not be introduced
 under validity-only construction. Qualify a demonstrated change, then immediately
 full two-event M6 with the same real CFD seed/50k/5400s and unchanged gates.
 
@@ -59,10 +60,11 @@ No adapted mesh was accepted. Complete SU2/VTU are now saved under
 810163tetrahedra,2476bad cells and35426complete neighboring vertex-star cells.
 See the [actual inspection and next witness test](Handbook/ADAPTATION_M6_INSPECTION_20261101.md).
 
-Authoritative entry point: [HANDOFF_Codex.md](HANDOFF_Codex.md). Current receipts:
-`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/`
-`euler_build202_real_cfd50k_inspection/`. Build199 figures below remain historical
-comparison evidence, not the current terminal state.
+Authoritative entry point: [HANDOFF_Codex.md](HANDOFF_Codex.md). Current terminal
+receipts are in `staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/`;
+selected inspection files remain in `staged57/m6_runs/euler_build202_real_cfd50k_inspection/`.
+Build199 figures below remain historical comparison evidence, not the current
+terminal state.
 
 ## What the evidence actually says
 

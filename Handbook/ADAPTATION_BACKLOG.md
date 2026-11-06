@@ -450,3 +450,11 @@ ADAPTATION_TECHNICAL_ASSESSMENT_REVIEW_20261101.md for verified facts and limits
   This is UNPROVEN and not an active implementation or validation campaign while
   210 is live. Select it only if terminal evidence and a bounded existing-witness
   diagnostic justify it; no new cache/configuration/framework follows from it.
+
+2026-11-06 postterminal212diagnostic: existing exact FaceCoverage subdivision on
+four actual202faces tightens bounds but certifies no additional bad face beyond
+the210union refinement. Leading faces151610623/152331796 remain unresolved at
+16pieces (upper2.545685e-4/3.865806e-4). Two other depth2trace comparisons exhaust
+the unchanged work budget. Not selected for production; no speedup established.
+R/geometry212_partition_assessment.json. Next active diagnosis is retained-star
+support/repair power using the existing52cell witness, not a new bound framework.
