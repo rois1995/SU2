@@ -124,3 +124,13 @@ are exactly225. Measurement-complete flags do not mean passing shape gates.
 A227/construction_comparison225.json and quality_entry_assessment.json preserve
 source prefixes, exact rows and comparison scope. Frozen run continues. Whole-field
 quality removal/s and eventual acceptance/transfer/continued CFD/restart are unproved.
+
+First COMPLETE quality window at matching round34624: both225/227 have874801cells,
+100036q/99863J/1991geometry/0size bad. Same1170commits,31647q retired/29625introduced;
+net2022q/1997J/6geometry removed. Quality elapsed124.113013→112.763195s, netq
+16.2916→17.9314/s(+10.1%). Counted traversal66370834→59277782(-10.7%), calls and
+preparation work unchanged. Boundary private seconds118.356→107.106; interior
+3.111→3.117, with identical private moves/debt. Join-call wall share48.19→48.45%
+is not CPU-idle share and cannot be added to overlapping tracked collectives.
+This window establishes counted savings with unchanged yield, not isolated timing
+causality or eventual acceptance. A227/first_quality_comparison225.json.

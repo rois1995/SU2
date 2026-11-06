@@ -59,6 +59,13 @@ code timing claim. A227/construction_comparison225.json records all matching gro
 COMPLETE quality entry34594 at775.819046native seconds (2251584.159718):
 871607cells/102058q-bad/101860J-bad/1997geometry-bad/0size-bad; all measurement flags1.
 Counts/flags/per-rank q/Jdebt EXACT225. A227/quality_entry_assessment.json.
+First complete quality window34624:874801cells/100036q/99863J/1991geometry/0size.
+Counts/flags,1170commits and churn EXACT225:31647q retired/29625introduced,
+net2022q/1997J/6geometry removed. Quality112.763195s vs225124.113013s;
+netq17.9314vs16.2916/s(+10.1%); traversal66370834→59277782(-10.7%). Boundary
+private work118.356→107.106rank-s; interior3.111→3.117rank-s, moves/debt same.
+Join-call wall share48.45%vs48.19% is NOT CPU-idle share; timers overlap.
+A227/first_quality_comparison225.json. Host effects remain; no repair-yield gain.
 Continue frozen; judge net whole-field q/J-bad removal per QUALITY second alongside
 geometry counts, churn and interior/boundary useful work. No accepted mesh yet.
 After shape closes, residual geometry/size repair must preserve shape/heights;
