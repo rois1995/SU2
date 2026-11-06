@@ -121,6 +121,23 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
            <<",\"cached_work\":"<<query.work-first_work<<",\"recomputed_work\":"<<fresh_budget.work
            <<",\"traversal_work\":"<<after.traversal_work-before.traversal_work
            <<",\"scope_build_work\":"<<after.scope_build_work-before.scope_build_work<<"}\n";
+        auto scoped=reference->WithAtlasReservation(query);
+        const auto scoped_before=authority.GeometryStatsSnapshot();
+        CHECK(scoped->SurfaceDeviation(probe.facet,physical)==(direct<=1e-4?direct:std::min(direct,bound)));
+        const auto scoped_after=authority.GeometryStatsSnapshot();
+        if(direct<=1e-4)CHECK(scoped_after.upper_calls==scoped_before.upper_calls);
+        if(probe.cell==152256924) {
+          CHECK(scoped->SurfaceDeviation(probe.facet,physical)<=1e-4);
+          const auto saved_caller=query.caller_bytes,saved_ceiling=query.maximum_bytes;
+          auto exhausted=query;auto exhausted_scope=reference->WithAtlasReservation(exhausted);
+          exhausted.work=0;exhausted.maximum_work=0;
+          CHECK_THROWS(exhausted_scope->SurfaceDeviation(probe.facet,physical));CHECK(exhausted.work_exhausted);
+          CHECK(exhausted.caller_bytes==saved_caller);CHECK(exhausted.maximum_bytes==saved_ceiling);
+          auto tight=query;auto tight_scope=reference->WithAtlasReservation(tight);tight.maximum_bytes=tight.caller_bytes;
+          CHECK_THROWS_AS(tight_scope->SurfaceDeviation(probe.facet,physical),std::length_error);
+          CHECK(tight.caller_bytes==saved_caller);CHECK(tight.maximum_bytes==saved_caller);
+          CHECK(reference->SurfaceDeviation(probe.facet,physical)==direct);
+        }
       }catch(const std::exception& error) {
         WARN(error.what());
         log<<"{\"stage\":\"geometry_probe_result\",\"cell\":"<<probe.cell<<",\"query_completed\":false"

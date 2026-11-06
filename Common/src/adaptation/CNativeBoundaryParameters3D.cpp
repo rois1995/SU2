@@ -1384,10 +1384,19 @@ double PlanarReference::ParameterError(Id facet,const std::array<Point,3>& p)con
   if(EntityGeometry()) {
     const auto& state=*parameter_view->accepted;
     bool direct=true;for(const auto& b:binding)direct=direct&&g.Supports(facet,b);
-    if(direct){const auto start=std::chrono::steady_clock::now();
-      try{const auto result=std::max(maximum,g.SurfaceError(facet,binding,p));
-        g.RecordDirectQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count(),0,false);return result;}
-      catch(...){g.RecordDirectQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count(),0,true);throw;}}
+    if(direct){const auto start=std::chrono::steady_clock::now();double result;
+      try{result=std::max(maximum,g.SurfaceError(facet,binding,p));}
+      catch(...){g.RecordDirectQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count(),0,true);throw;}
+      g.RecordDirectQuery(std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count(),0,false);
+      auto* budget=parameter_view->reservation;
+      if(result>state.GeometryTolerance()&&maximum<=state.GeometryTolerance()&&budget) {
+        // A failed correspondence upper bound need not imply a distance violation.
+        const auto scratch=transfer_memory::Add(budget->caller_bytes,256,2*sizeof(Id),2*sizeof(std::array<Point,3>));
+        AtlasStorage storage(budget,scratch,budget->maximum_bytes);
+        const std::vector<Id> support{facet};const std::vector<std::array<Point,3>> triangles{p};
+        result=std::max(maximum,std::min(result,g.BoundPhysicalSurface(support,triangles,state.GeometryTolerance(),*budget)));
+      }
+      return result;}
 
     auto* budget=parameter_view->reservation;if(!budget)throw std::invalid_argument("Entity surface query lacks a geometry reservation.");
     const auto support_start=std::chrono::steady_clock::now();

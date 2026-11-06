@@ -6,7 +6,7 @@ sys.path.insert(0,str(ROOT.parent/'diagnostic56'))
 from run import sha, save
 name='build'+str(int(sys.argv[1]))
 assert not (ROOT/(name+'_status.json')).exists(), 'Inspect the previous owned handle before retrying'
-paths=set(json.loads((ROOT/'build4_source_pins.json').read_text()))
+paths={p.replace('/build-integrated-v2/', '/build-integrated-v3-currenthost/') for p in json.loads((ROOT/'build4_source_pins.json').read_text())}
 paths.add(str(Path(__file__).resolve()))
 paths.update(str(ROOT.parents[3]/p) for p in (
     'Common/include/adaptation/CNativeFailureCapture3D.hpp',
@@ -37,6 +37,8 @@ paths.update(str(ROOT.parents[3]/p) for p in (
 paths.update(str(p) for p in (ROOT.parents[3]/'externals/eigen/Eigen').rglob('*') if p.is_file())
 command=json.loads((ROOT/'build4_command.json').read_text())
 command['argv']=['-j3' if argument=='-j1' else argument for argument in command['argv']]
+command['argv'][command['argv'].index('-C')+1]='integration_evidence/build-integrated-v3-currenthost'
+paths.update(str(ROOT.parents[3]/'integration_evidence/build-integrated-v3-currenthost'/p) for p in ('meson-info/intro-compilers.json','meson-info/intro-buildoptions.json','meson-private/cmd_line.txt'))
 if not Path(command['argv'][3]).is_file():
     command['argv'][3]=str(ROOT.parents[3]/'integration_evidence/build-integrated-v2/tools/ninja')
 assert Path(command['argv'][3]).is_file(), 'Restore the recorded Ninja or the repository build-tools copy'

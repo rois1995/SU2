@@ -15,7 +15,7 @@ sys.path.insert(0, str(DIAGNOSTIC))
 from run import sha, save
 
 REPO = ROOT.parents[3]
-BINARY = REPO / "integration_evidence/build-integrated-v2/UnitTests/test_driver"
+BINARY = REPO / "integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver"
 CASES = {
     "captured_cavity": (1, "[NativeCapturedCavity3D]"),
     "feature_publication": (1, "[NativeFeaturePublication3D],Entity feature reconstruction handles ordinary and genuine routes"),
@@ -223,7 +223,7 @@ def main():
         changed = [path for path, digest in source_pins.items() if sha(path) != digest]
         if changed:
             raise RuntimeError("build source pins changed: " + ", ".join(changed[:8]))
-        runtime_manifest = ROOT / "runtime_20261106/loaded_runtime_pins.json"
+        runtime_manifest = ROOT / "runtime_20261106_v2/loaded_runtime_pins.json"
         runtime_pins = json.loads(runtime_manifest.read_text())
         changed = [path for path, digest in runtime_pins.items() if sha(path) != digest]
         if changed:

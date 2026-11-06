@@ -9,9 +9,35 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current — build207 diagnostic terminal; shared geometry admission correction selected
+## Current — shared geometry admission correction implemented; build208 qualification starting
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+Checkpoint293b8361bf verified on fork2026-11-06; no owned heavy handles live before edits.
+Current unvalidated change: budgeted entity direct-bound failures try the existing
+singleton-support physical union query, retain the tighter upper and independent
+planar bound; cheap successful direct paths unchanged. Admitted scratch before
+allocation; work/storage exhaustion propagates. Actual saved-face fixture adds
+production-scope agreement, cheap-path and resource-refusal checks. Runtime-v2
+193files includes observed hwloc modules/dependencies; original175pins preserved.
+Build208 TERMINAL1 before compilation (3.132s), frozen pins unchanged: old
+generated link dependencies require absent glibc2.31. Separate tool /proc scan empty (namespace-limited, not a host-wide proof);
+exact build208 tool session83130 TERMINAL1.
+Old generated configuration identifies GCC9.4; current compiler GCC13.3. A fresh
+current-host Meson configuration preserves all options at
+`integration_evidence/build-integrated-v3-currenthost`; setup TERMINAL0. Active
+helpers now use that build and pin its generated configuration. Build209 exact tool session16890 CONFIRMED LIVE; helper PID4 is execution-
+namespace local, never treat it as a host PID. Both targets compile from scratch, nice19/3workers/single-threaded libraries.
+Freeze production/test sources and helpers through build/validation.
+No speedup or full-mesh acceptance established. Full M6 follows affected checks.
+User observes poor leading-edge mesh. Read-only selected202localization receipt
+`INSPECT202/leading_edge_observation_assessment.json`: forward coordinate strip
+xi=x-y/sqrt(3) in[0,.02), |z|<.08, y[-.01,1.23] contains281/450shape-union,
+1371/2110geometry-bad. Region is a proxy, not association/feature classification;
+no clean-population denominator or construction causation claimed. Two worst
+q witnesses151610623/152331796 are existing saved-face probes whose alternative
+bounds remain above tolerance. Current correction cannot alone explain/repair
+that leading-edge shape tail. Keep this localization within the active cycle;
+no competing construction/operator implementation while build is frozen.
 LAST=`R/m6_runs/euler_build206_real_cfd50k_feature_companion`.
 INSPECT202=`R/m6_runs/euler_build202_real_cfd50k_inspection`.
 Build207 exec83367 TERMINAL0,331.648681s,1298source pins unchanged and targets up
