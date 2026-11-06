@@ -74,17 +74,15 @@ First COMPLETE quality entry round34594 at1584.159718native seconds:
 871607cells/102058q/101860J/1997geometry/0size, allflags1, counts/flags match219.
 Counts alone do not prove identical connectivity. quality_entry_assessment.json.
 
-Latest COMPLETE window35584 at4630.444964s(3046.285246s since entry):
-961087cells/40145q/38471J/1816geometry/0size; allflags1. Sixteenth window net2785q/
-2894J/23geo removed in141.129997s including preceding ownership(19.73q/20.51J/s).
-Matching219repair round has39067q/37007J/1821geometry at2575.566893quality seconds.
-Near matching QUALITY TIME219has29655q/26577J/1797geometry at3057.683059s, only
-11.397813s later. Useful progress materially trails219; no demonstrated whole-field
-benefit. Contention and changed geometry work are not isolated.
-quality_net_progress.json contains first quality episode only;
-matched_quality_comparison219.json records BOTH matching rounds and observed
-neighboring censuses at matching quality time, explicit time differences and no
-interpolation/forecast/count bounds. Keep frozen to its outcome.
+Latest COMPLETE window35776 at4956.718380s(3372.558662s since entry):
+975770cells/31139q/28606J/1798geometry/0size; allflags1. Nineteenth window net2967q/
+3273J/5geo removed in102.838182s(28.85q/31.83J/s). Matching219repair round has
+31747q/28890J/1798geometry at2960.397882quality seconds. Thus shape counts are
+slightly better at this round, but reached412.160780quality seconds later.
+Whole-field useful progress per second still trails219; no closure/speedup claim.
+quality_net_progress.json contains first quality episode only; comparisons include
+both repair rounds and observed neighboring censuses at matching quality time,
+explicit time differences, no interpolation/forecast/count bounds. Keep frozen.
 sixteenth_quality_comparison219.json: traversal48.413Mvs29.752M, upperwork55.693Mvs
 38.220M, uppercalls37206vs32545; boundary candidates24339vs19080/moves1024vs734/
 private debt30.413vs19.972/time100.846vs82.216rank-s. Boundary private yield is
@@ -95,10 +93,10 @@ interior58806; badunion90207,90183with edge<.9,87801with edge<.5. Interior means
 no physical face, not necessarily unconstrained vertices. Short-edge association
 is not proof of construction causality. Stuckshape0/queue585178. All16fixed metric
 samples supported/0lost, maxrelativeFrobenius3.92349%; not a whole-field drift bound.
-All five quality redistributions35520/35456/35136/35008/34752preserved counts/flags.
-Latest q/J debt min/max413.94/814.15→500.04/704.25; q-bad range4069–9586→5271–9601.
+All six quality redistributions35648/35520/35456/35136/35008/34752preserved counts/flags.
+Earlier35520q/J debt min/max413.94/814.15→500.04/704.25; q-bad range4069–9586→5271–9601.
 Previous transition narrowed debt but widened q-bad range6548–9214→4778–10532;
-this is not a blanket balancing/quality win. Latest window-to-committed14.4908s
+this is not a blanket balancing/quality win. 35520window-to-committed14.4908s
 includes transition work. These observations do not independently prove every
 history field.
 
@@ -116,6 +114,12 @@ All10exact owned handles remain LIVE/no stop: owned_observations.jsonl.
 Sampled summed RSS briefly12.635GB during migration, then10.436GB; available
 RAM26.252GB(decimal),load10.73 at the latest eleventh-window observation. Not a whole-job physical-memory
 peak. Keep sources/fixtures/helpers/binary/config/inputs FROZEN to its outcome.
+Terminal preparation reviewed; functions store m6_225_capture_readiness_cmd is a
+READ-ONLY checker, prepared but awaits first complete six-rank EXIT. It sends NO
+signals. Require all6complete manifest flags and all30shards
+hashed before any post-failure stop; owned.bin has8byte count plus416bytes/row
+in this qualified writer. Independently validate/export after owned handles terminal.
+NO stop sent; never signal historical handles.
 Judge complete whole-field q/J-bad net removal/s and geometry-bad at matching
 quality times, alongside work/certification/busy/wait/rank spread. Commits/debt
 alone do not establish closure. Construction remains unchanged.
