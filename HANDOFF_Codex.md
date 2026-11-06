@@ -49,11 +49,11 @@ First complete quality window census3/round20928 now723343cells/48006q/46652J/
 net; do not judge by commits or debt alone. LIVE/quality_window1_assessment.json
 preserves all6stage/service rows, timing limits and source prefixes. Baseline206
 first complete window is158.290quality seconds, not matched to this early window.
-Latest preserved trend round21440: 757962cells/24671q/21743J/
-2624geometry/0size, 2200.192428quality seconds after entry.
-Net since entry24709q/26475J removed through16424quality commits.
-All6complete flags1. LIVE/quality_trend_assessment.json preserves9measured windows.
-Last interval removed2026q/2097J in154.791793s. Rates vary
+Latest preserved trend round21888: 777352cells/10427q/7639J/
+2594geometry/0size, 3259.567842quality seconds after entry.
+Net since entry38953q/40579J removed through29926quality commits.
+All6complete flags1. LIVE/quality_trend_assessment.json preserves16measured windows.
+Last interval removed2076q/1869J in165.346043s. Rates vary
 with workload/contention under frozen code; no isolated attribution or forecast.
 The preserved EARLY nearby-time comparison (967.730s vs206912.143s,55.588s gap)
 remains in LIVE/quality_comparison_early.json with immutable source-prefix hashes;
