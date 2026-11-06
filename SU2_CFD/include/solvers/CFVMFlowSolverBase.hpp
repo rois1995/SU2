@@ -470,6 +470,11 @@ class CFVMFlowSolverBase : public CSolver {
                                (config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND);
     const su2double K_v = 0.25;
 
+    /*--- VISC_P1_TIME_STEP (P1_TIME_STEP.md): on the fine grid the block row bound B_i of the P1 viscous operator and
+     *    of the weak walls (CSolver::P1ViscRowBound, last residual evaluation) replaces the edge viscous term,
+     *    Lambda_v = V_i B_i, so that dt_v = CFL K_v V_i / B_i. Before the first residual the edge term is kept. ---*/
+    const bool p1ViscStep = viscous && (iMesh == MESH_0) && config->GetVisc_P1_Time_Step() && P1ViscRowBoundReady;
+
     /*--- Init thread-shared variables to compute min/max values.
      *    Critical sections are used for this instead of reduction
      *    clauses for compatibility with OpenMP 2.0 (Windows...). ---*/
@@ -520,7 +525,7 @@ class CFVMFlowSolverBase : public CSolver {
 
         /*--- Viscous contribution ---*/
 
-        if (!viscous) continue;
+        if (!viscous || p1ViscStep) continue;
 
         Lambda = lambdaVisc(*nodes, iPoint, jPoint) * Area2;
         nodes->AddMax_Lambda_Visc(iPoint, Lambda);
@@ -568,13 +573,21 @@ class CFVMFlowSolverBase : public CSolver {
 
           /*--- Viscous contribution ---*/
 
-          if (!viscous) continue;
+          if (!viscous || p1ViscStep) continue;
 
           Lambda = lambdaVisc(*nodes,iPoint) * Area2;
           nodes->AddMax_Lambda_Visc(iPoint, Lambda);
         }
         END_SU2_OMP_FOR
       }
+    }
+
+    if (p1ViscStep) {
+      SU2_OMP_FOR_STAT(omp_chunk_size)
+      for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
+        nodes->SetMax_Lambda_Visc(iPoint, geometry->nodes->GetVolume(iPoint) * P1ViscRowBound[iPoint]);
+      }
+      END_SU2_OMP_FOR
     }
 
     /*--- Each element uses their own speed, steady state simulation. ---*/

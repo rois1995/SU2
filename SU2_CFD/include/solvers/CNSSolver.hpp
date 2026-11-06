@@ -145,11 +145,12 @@ private:
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] element - The cell.
    * \param[in] implicit - Add the Jacobian.
+   * \param[in] rowBound - VISC_P1_TIME_STEP: add the row bounds of the sub-simplices to P1ViscRowBound.
    * \param[in] prandtlTurb - Turbulent Prandtl number.
    * \param[in] gasConst - Gas constant (non-dimensional).
    */
-  void MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, bool implicit, const su2double& prandtlTurb,
-                            const su2double& gasConst);
+  void MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, bool implicit, bool rowBound,
+                            const su2double& prandtlTurb, const su2double& gasConst);
 
   /*!
    * \brief VISC_P1_ENTROPY_MOVED: P^v_T and D^gal_T - W_T of a simplex with an owned node, for the one-budget blend

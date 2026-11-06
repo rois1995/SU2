@@ -3823,3 +3823,414 @@ TEST_CASE("P1_WALL_FORCES: closure C pressure shares are its wall force and the 
     CHECK(GlobalMax(err) < 1e-12 * scaleAll);
   }
 }
+
+namespace {
+
+/*--- VISC_P1_TIME_STEP checks (P1_TIME_STEP.md). Full dw/du with the w_0 row by central differences of the entropy
+ * variables: the inner product x.W y of the nodal entropy Hessians (EntropyVariableJacobian has no w_0 row). ---*/
+void FullEntropyJacobian(int nDim, const pve::NodeState& S, su2double W[5][5]) {
+  const int nVar = nDim + 2;
+  const su2double h = 1e-6;
+  for (int j = 0; j < nVar; ++j) {
+    pve::NodeState plus = S, minus = S;
+    Perturb(nDim, plus, j, h);
+    Perturb(nDim, minus, j, -h);
+    su2double wp[5], wm[5];
+    FullEntropyVariables(nDim, plus, wp);
+    FullEntropyVariables(nDim, minus, wm);
+    for (int i = 0; i < nVar; ++i) W[i][j] = (wp[i] - wm[i]) / (2 * h);
+  }
+  for (int i = 0; i < nVar; ++i) {
+    for (int j = 0; j < i; ++j) {
+      const su2double mean = 0.5 * (W[i][j] + W[j][i]);
+      W[i][j] = mean;
+      W[j][i] = mean;
+    }
+  }
+}
+
+/*--- x.K(t,t)x of the frozen K of E, K(t,t)x = F(x (x) t) t. ---*/
+su2double NormalForm(const pve::Element& E, const su2double* x, const su2double* t) {
+  su2double F[5][3] = {};
+  E.FluxOuter(x, t, F);
+  su2double form = 0.0;
+  for (int v = 0; v < E.nVar; ++v)
+    for (int j = 0; j < E.nDim; ++j) form += x[v] * F[v][j] * t[j];
+  return form;
+}
+
+void RandomNodeState(std::mt19937& gen, int nDim, pve::NodeState& S) {
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  S.rho = exp(u(gen));
+  S.p = S.rho * kGas * exp(u(gen));
+  for (int i = 0; i < 3; ++i) S.vel[i] = (i < nDim) ? 1.5 * u(gen) : 0.0;
+  S.mu = exp(2.0 * u(gen) - 1.0);
+  S.kappa = exp(2.0 * u(gen));
+}
+
+/*--- Small graded simplex mesh with a wall at the lowest level: 2D 4 x 3 squares split by parity, 3D 2 x 2 x 2 Kuhn
+ * cubes, first heights 0.01 and 0.02, jittered off the wall. walls = (cell, node opposite the wall face). ---*/
+struct TimeStepMesh {
+  int nDim = 2;
+  std::vector<std::array<su2double, 3>> x;
+  std::vector<std::array<unsigned long, 4>> cells;
+  std::vector<std::pair<unsigned long, unsigned short>> walls;
+};
+
+TimeStepMesh GradedWallMesh(int nDim, std::mt19937& gen) {
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  TimeStepMesh m;
+  m.nDim = nDim;
+  if (nDim == 2) {
+    const int nx = 4, ny = 3;
+    const double level[4] = {0.0, 0.01, 0.06, 0.3};
+    auto id = [&](int i, int j) { return static_cast<unsigned long>(j * (nx + 1) + i); };
+    for (int j = 0; j <= ny; ++j)
+      for (int i = 0; i <= nx; ++i) m.x.push_back({(i + ((j > 0) ? 0.2 * u(gen) : 0.0)) / nx, level[j], 0.0});
+    for (int j = 0; j < ny; ++j) {
+      for (int i = 0; i < nx; ++i) {
+        const auto a = id(i, j), b = id(i + 1, j), c = id(i, j + 1), d = id(i + 1, j + 1);
+        if ((i + j) % 2 == 0) {
+          m.cells.push_back({a, b, d, 0});
+          m.cells.push_back({a, d, c, 0});
+        } else {
+          m.cells.push_back({a, b, c, 0});
+          m.cells.push_back({b, d, c, 0});
+        }
+      }
+    }
+  } else {
+    const unsigned long n = 2;
+    const double level[3] = {0.0, 0.02, 0.2};
+    for (unsigned long i = 0; i <= n; ++i)
+      for (unsigned long j = 0; j <= n; ++j)
+        for (unsigned long k = 0; k <= n; ++k) {
+          const double jx = (k > 0) ? 0.15 * u(gen) : 0.0, jy = (k > 0) ? 0.15 * u(gen) : 0.0;
+          m.x.push_back({(i + jx) / n, (j + jy) / n, level[k]});
+        }
+    static const int kuhn[6][4] = {{0, 1, 2, 6}, {0, 2, 3, 6}, {0, 3, 7, 6}, {0, 7, 4, 6}, {0, 4, 5, 6}, {0, 5, 1, 6}};
+    for (unsigned long i = 0; i < n; ++i)
+      for (unsigned long j = 0; j < n; ++j)
+        for (unsigned long k = 0; k < n; ++k) {
+          const unsigned long h[] = {Lattice(i, j, k, n),         Lattice(i + 1, j, k, n),
+                                     Lattice(i + 1, j + 1, k, n), Lattice(i, j + 1, k, n),
+                                     Lattice(i, j, k + 1, n),     Lattice(i + 1, j, k + 1, n),
+                                     Lattice(i + 1, j + 1, k + 1, n), Lattice(i, j + 1, k + 1, n)};
+          for (const auto& t : kuhn) m.cells.push_back({h[t[0]], h[t[1]], h[t[2]], h[t[3]]});
+        }
+  }
+  for (unsigned long e = 0; e < m.cells.size(); ++e) {
+    for (unsigned short opp = 0; opp <= nDim; ++opp) {
+      bool wall = true;
+      for (unsigned short c = 0; c <= nDim; ++c)
+        if (c != opp) wall = wall && (m.x[m.cells[e][c]][nDim - 1] == 0.0);
+      if (wall) m.walls.emplace_back(e, opp);
+    }
+  }
+  return m;
+}
+
+/*--- Dense Picard Jacobian (conservative variables) of VISC_P1_ENTROPY and of the weak walls on the mesh, and the
+ * row bounds B_i of VISC_P1_TIME_STEP, assembled as Viscous_Residual_P1Entropy and WeakNoSlipWallResidual do. ---*/
+void AssembleViscousOperator(const TimeStepMesh& m, const std::vector<pve::NodeState>& states, bool isothermal,
+                             const su2double& wallTheta, std::vector<su2double>& J, std::vector<su2double>& rows,
+                             std::vector<su2double>& lumped) {
+  const int nDim = m.nDim, nVar = nDim + 2, nNodes = nDim + 1;
+  const unsigned long nPoint = m.x.size(), n = nPoint * nVar;
+  J.assign(n * n, 0.0);
+  rows.assign(nPoint, 0.0);
+  lumped.assign(nPoint, 0.0);
+  std::vector<unsigned short> nWall(m.cells.size(), 0);
+  for (const auto& w : m.walls) ++nWall[w.first];
+
+  auto setElement = [&](unsigned long e, pve::Element& E, pve::NodeState* st, su2double (*dwdu)[5][5]) {
+    const su2double* coord[4];
+    for (int a = 0; a < nNodes; ++a) {
+      coord[a] = m.x[m.cells[e][a]].data();
+      st[a] = states[m.cells[e][a]];
+      pve::EntropyVariableJacobian(nDim, kGamma, st[a], dwdu[a]);
+    }
+    REQUIRE(E.Set(nDim, coord, st, kGas) > 0.0);
+  };
+  auto addBlocks = [&](unsigned long e, su2double (*jac)[4][5][5]) {
+    for (int a = 0; a < nNodes; ++a)
+      for (int b = 0; b < nNodes; ++b)
+        for (int v = 0; v < nVar; ++v)
+          for (int w = 0; w < nVar; ++w)
+            J[(m.cells[e][a] * nVar + v) * n + m.cells[e][b] * nVar + w] += jac[a][b][v][w];
+  };
+
+  for (unsigned long e = 0; e < m.cells.size(); ++e) {
+    pve::Element E;
+    pve::NodeState st[4];
+    su2double dwdu[4][5][5], jac[4][4][5][5], r[4] = {};
+    setElement(e, E, st, dwdu);
+    E.Jacobian(dwdu, jac);
+    addBlocks(e, jac);
+    E.RowBound(st, kGamma, r);
+    for (int a = 0; a < nNodes; ++a) {
+      rows[m.cells[e][a]] += r[a];
+      lumped[m.cells[e][a]] += E.size / nNodes;
+    }
+  }
+  for (const auto& w : m.walls) {
+    const auto e = w.first;
+    pve::Element E;
+    pve::NodeState st[4];
+    su2double dwdu[4][5][5], jac[4][4][5][5], res[4][5], r[4] = {}, N[3] = {};
+    setElement(e, E, st, dwdu);
+    const su2double* coord[4];
+    for (int a = 0; a < nNodes; ++a) coord[a] = m.x[m.cells[e][a]].data();
+    unsigned short faceNodes[3] = {0, 0, 0};
+    for (unsigned short c = 0, k = 0; c < nNodes; ++c)
+      if (c != w.second) faceNodes[k++] = c;
+    pve::WallFaceNormal(nDim, coord, w.second, faceNodes, N);
+    pve::NoSlipWall(E, nDim, faceNodes, N, isothermal, wallTheta, nWall[e], pve::NOSLIP_SIPG, pve::NOSLIP_PENALTY, res,
+                    dwdu, jac);
+    addBlocks(e, jac);
+    pve::NoSlipWallRowBound(E, st, kGamma, nDim, faceNodes, N, isothermal, nWall[e], pve::NOSLIP_SIPG,
+                            pve::NOSLIP_PENALTY, r);
+    for (int a = 0; a < nNodes; ++a) rows[m.cells[e][a]] += r[a];
+  }
+}
+
+}  // namespace
+
+TEST_CASE("VISC_P1_TIME_STEP: Lambda bounds the normal form of K against the entropy Hessian and is attained", "[P1Flux]") {
+  std::mt19937 gen(97531);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    su2double worst = 0.0, worstWall = 0.0, worstMoving = 0.0;
+    for (int trial = 0; trial < 300; ++trial) {
+      su2double x[4][3];
+      pve::NodeState state[4];
+      RandomElement(gen, nDim, (trial % 2) ? 1.0 : 1e-3, x, state);
+      pve::Element E;
+      REQUIRE(E.Set(nDim, x, state, kGas) > 0.0);
+      const int b = trial % (nDim + 1);
+      su2double W[5][5];
+      FullEntropyJacobian(nDim, state[b], W);
+      su2double t[3] = {}, nu[3] = {}, t2 = 0.0, vw[3] = {};
+      for (int i = 0; i < nDim; ++i) {
+        t[i] = u(gen);
+        t2 += t[i] * t[i];
+        vw[i] = u(gen);
+      }
+      for (int i = 0; i < nDim; ++i) nu[i] = t[i] / sqrt(t2);
+      const su2double lambda = E.SpectralFactor(state[b], kGamma);
+      const su2double piAdiabatic = E.SpectralFactor(state[b], kGamma, false);
+      const su2double piMoving = pve::MovingWallSpectralFactor(E, state[b], kGamma, vw);
+      for (int sample = 0; sample < 20; ++sample) {
+        /*--- x = W du, so x.H x = x.du. ---*/
+        su2double du[5] = {}, dw[5] = {}, hx = 0.0;
+        for (int v = 0; v < nVar; ++v) du[v] = u(gen);
+        for (int v = 0; v < nVar; ++v)
+          for (int k = 0; k < nVar; ++k) dw[v] += W[v][k] * du[k];
+        for (int v = 0; v < nVar; ++v) hx += dw[v] * du[v];
+        REQUIRE(hx > 0.0);
+        const su2double q = NormalForm(E, dw, t) / (t2 * lambda * hx);
+        worst = std::max(worst, q);
+
+        su2double pAdi[5] = {}, pMov[5] = {};
+        for (int i = 0; i < nDim; ++i) pAdi[i + 1] = dw[i + 1];
+        pve::MovingWallProjector(nDim, vw, dw, pMov);
+        const su2double qa = NormalForm(E, pAdi, nu) / (piAdiabatic * hx);
+        const su2double qm = NormalForm(E, pMov, nu) / (piMoving * hx);
+        worstWall = std::max(worstWall, qa);
+        worstMoving = std::max(worstMoving, qm);
+      }
+    }
+    INFO("nDim " << nDim);
+    CHECK(worst <= 1.0 + 1e-8);
+    CHECK(worstWall <= 1.0 + 1e-8);
+    CHECK(worstMoving <= 1.0 + 1e-8);
+
+    /*--- Attained (Lemma T1 is sharp): uniform state, viscous part larger than the thermal one, du = (0, rho dv,
+     * rho v.dv) with dv || t gives the ratio 1. ---*/
+    pve::NodeState uniform[4];
+    su2double x[4][3] = {};
+    for (int a = 0; a <= nDim; ++a) {
+      uniform[a].rho = 1.3;
+      uniform[a].p = 0.8;
+      for (int i = 0; i < nDim; ++i) uniform[a].vel[i] = 0.4 - 0.3 * i;
+      uniform[a].mu = 2.0;
+      uniform[a].kappa = 0.1;
+      if (a > 0) x[a][a - 1] = 1.0 + 0.2 * a;
+    }
+    pve::Element E;
+    REQUIRE(E.Set(nDim, x, uniform, kGas) > 0.0);
+    su2double W[5][5], t[3] = {0.3, -0.7, 0.5}, t2 = 0.0, du[5] = {}, dw[5] = {}, hx = 0.0;
+    FullEntropyJacobian(nDim, uniform[0], W);
+    for (int i = 0; i < nDim; ++i) {
+      t2 += t[i] * t[i];
+      du[i + 1] = uniform[0].rho * t[i];
+      du[nDim + 1] += uniform[0].rho * uniform[0].vel[i] * t[i];
+    }
+    for (int v = 0; v < nVar; ++v)
+      for (int k = 0; k < nVar; ++k) dw[v] += W[v][k] * du[k];
+    for (int v = 0; v < nVar; ++v) hx += dw[v] * du[v];
+    const su2double lambda = E.SpectralFactor(uniform[0], kGamma);
+    CHECK(fabs(lambda - 4.0 * 2.0 / (3.0 * 1.3)) < 1e-12 * lambda);
+    CHECK(fabs(NormalForm(E, dw, t) / (t2 * lambda * hx) - 1.0) < 1e-6);
+  }
+}
+
+TEST_CASE("VISC_P1_TIME_STEP: the row bound dominates the spectral radius of the assembled viscous operator", "[P1Flux]") {
+  std::mt19937 gen(24680);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    const auto mesh = GradedWallMesh(nDim, gen);
+    REQUIRE(!mesh.walls.empty());
+    const unsigned long nPoint = mesh.x.size(), n = nPoint * nVar;
+    for (int trial = 0; trial < 8; ++trial) {
+      const bool isothermal = (trial % 2 == 1);
+      std::vector<pve::NodeState> states(nPoint);
+      for (auto& S : states) RandomNodeState(gen, nDim, S);
+      const su2double wallTheta = 1.0 / (kGas * exp(u(gen)));
+      std::vector<su2double> J, rows, lumped;
+      AssembleViscousOperator(mesh, states, isothermal, wallTheta, J, rows, lumped);
+
+      /*--- Lumped and random volumes: the bound max_i B_i/V_i holds for any V > 0. ---*/
+      std::vector<su2double> V(nPoint);
+      for (unsigned long i = 0; i < nPoint; ++i) V[i] = (trial < 4) ? lumped[i] : su2double(exp(2.0 * u(gen)));
+      su2double bound = 0.0;
+      for (unsigned long i = 0; i < nPoint; ++i) bound = std::max(bound, su2double(rows[i] / V[i]));
+
+      /*--- Power iteration on V^-1 J, self-adjoint in <x,y> = sum_i V_i x_i.W_i y_i (W_i = dw/du, SIPG), positive
+       * semidefinite (Theorem N6), so the Rayleigh quotient rises to the largest eigenvalue from below. ---*/
+      std::vector<std::array<std::array<su2double, 5>, 5>> W(nPoint);
+      for (unsigned long i = 0; i < nPoint; ++i) {
+        su2double Wi[5][5];
+        FullEntropyJacobian(nDim, states[i], Wi);
+        for (int a = 0; a < 5; ++a)
+          for (int b = 0; b < 5; ++b) W[i][a][b] = Wi[a][b];
+      }
+      auto inner = [&](const std::vector<su2double>& a, const std::vector<su2double>& b) {
+        su2double sum = 0.0;
+        for (unsigned long i = 0; i < nPoint; ++i)
+          for (int v = 0; v < nVar; ++v)
+            for (int w = 0; w < nVar; ++w) sum += V[i] * a[i * nVar + v] * W[i][v][w] * b[i * nVar + w];
+        return sum;
+      };
+      std::vector<su2double> x(n), y(n);
+      for (auto& xi : x) xi = u(gen);
+      su2double rayleigh = 0.0;
+      for (int it = 0; it < 3000; ++it) {
+        for (unsigned long r = 0; r < n; ++r) {
+          su2double sum = 0.0;
+          for (unsigned long c = 0; c < n; ++c) sum += J[r * n + c] * x[c];
+          y[r] = sum / V[r / nVar];
+        }
+        const su2double xx = inner(x, x);
+        rayleigh = inner(x, y) / xx;
+        const su2double scale = 1.0 / sqrt(inner(y, y));
+        for (unsigned long r = 0; r < n; ++r) x[r] = y[r] * scale;
+      }
+      INFO("nDim " << nDim << " trial " << trial << " rayleigh " << rayleigh << " bound " << bound);
+      CHECK(rayleigh <= bound * (1.0 + 1e-8));
+      if (trial < 4) CHECK(rayleigh >= 0.1 * bound);  /*--- Not vacuous (lumped volumes; Python: 0.26-0.88). ---*/
+    }
+  }
+}
+
+TEST_CASE("VISC_P1_TIME_STEP: uniform simplex meshes against the SU2 edge formula", "[P1Flux]") {
+  /*--- Uniform state: Lambda_b = max(4/3 mu, gamma kappa/cp)/rho, SU2's edge factor (4/3 mu + gamma kappa/cp)/rho.
+   * Interior node: V_i B_i / Lambda_v(SU2) = geometric factor x max/sum (median dual, P1_TIME_STEP.md, section 4);
+   * geometric factors 9/2 (equilateral), 9/4 + 3 sqrt(2)/2 (right triangles, one diagonal), 9.3254834 (Kuhn). ---*/
+  const su2double cp = kGamma * kGas / (kGamma - 1.0), mu = 0.8, kappa = cp * mu / 0.72;
+  pve::NodeState S;
+  S.rho = 1.2;
+  S.p = 0.9;
+  S.vel[0] = 0.3;
+  S.vel[1] = -0.2;
+  S.vel[2] = 0.1;
+  S.mu = mu;
+  S.kappa = kappa;
+  const su2double viscous = 4.0 * mu / 3.0, thermal = kGamma * kappa / cp;
+  const su2double physical = std::max(viscous, thermal) / (viscous + thermal);
+
+  struct Patch {
+    int nDim;
+    std::vector<std::array<su2double, 3>> x;
+    std::vector<std::array<unsigned long, 4>> cells;
+    unsigned long centre;
+    su2double geometric;
+  };
+  std::vector<Patch> patches;
+  {
+    Patch p{2, {}, {}, 0, 4.5};
+    p.x.push_back({0.0, 0.0, 0.0});
+    for (int k = 0; k < 6; ++k) p.x.push_back({cos(k * M_PI / 3.0), sin(k * M_PI / 3.0), 0.0});
+    for (unsigned long k = 1; k <= 6; ++k) p.cells.push_back({0, k, k % 6 + 1, 0});
+    patches.push_back(p);
+  }
+  {
+    Patch p{2, {}, {}, 4, 2.25 + 1.5 * sqrt(2.0)};
+    for (int j = 0; j <= 2; ++j)
+      for (int i = 0; i <= 2; ++i) p.x.push_back({0.5 * i, 0.5 * j, 0.0});
+    for (unsigned long j = 0; j < 2; ++j)
+      for (unsigned long i = 0; i < 2; ++i) {
+        const unsigned long a = 3 * j + i;
+        p.cells.push_back({a, a + 1, a + 4, 0});
+        p.cells.push_back({a, a + 4, a + 3, 0});
+      }
+    patches.push_back(p);
+  }
+  {
+    const unsigned long n = 2;
+    Patch p{3, {}, {}, Lattice(1, 1, 1, n), 9.32548339959391};
+    for (unsigned long i = 0; i <= n; ++i)
+      for (unsigned long j = 0; j <= n; ++j)
+        for (unsigned long k = 0; k <= n; ++k) p.x.push_back({0.7 * i, 0.7 * j, 0.7 * k});
+    static const int kuhn[6][4] = {{0, 1, 2, 6}, {0, 2, 3, 6}, {0, 3, 7, 6}, {0, 7, 4, 6}, {0, 4, 5, 6}, {0, 5, 1, 6}};
+    for (unsigned long i = 0; i < n; ++i)
+      for (unsigned long j = 0; j < n; ++j)
+        for (unsigned long k = 0; k < n; ++k) {
+          const unsigned long h[] = {Lattice(i, j, k, n),         Lattice(i + 1, j, k, n),
+                                     Lattice(i + 1, j + 1, k, n), Lattice(i, j + 1, k, n),
+                                     Lattice(i, j, k + 1, n),     Lattice(i + 1, j, k + 1, n),
+                                     Lattice(i + 1, j + 1, k + 1, n), Lattice(i, j + 1, k + 1, n)};
+          for (const auto& t : kuhn) p.cells.push_back({h[t[0]], h[t[1]], h[t[2]], h[t[3]]});
+        }
+    patches.push_back(p);
+  }
+
+  for (const auto& p : patches) {
+    const int nDim = p.nDim, nNodes = nDim + 1;
+    su2double rowBound = 0.0, volume = 0.0;
+    std::map<unsigned long, std::array<su2double, 3>> normals;
+    for (const auto& t : p.cells) {
+      int local = -1;
+      for (int a = 0; a < nNodes; ++a)
+        if (t[a] == p.centre) local = a;
+      if (local < 0) continue;
+      const su2double* coord[4];
+      pve::NodeState st[4];
+      for (int a = 0; a < nNodes; ++a) {
+        coord[a] = p.x[t[a]].data();
+        st[a] = S;
+      }
+      pve::Element E;
+      REQUIRE(E.Set(nDim, coord, st, kGas) > 0.0);
+      CHECK(fabs(E.SpectralFactor(S, kGamma) - std::max(viscous, thermal) / S.rho) < 1e-12 * thermal);
+      su2double r[4] = {};
+      E.RowBound(st, kGamma, r);
+      rowBound += r[local];
+      volume += E.size / nNodes;
+      /*--- Median dual normal of edge (centre, b) in E: |T|/(d+1) (g_b - g_centre). ---*/
+      for (int b = 0; b < nNodes; ++b) {
+        if (b == local) continue;
+        auto& nb = normals[t[b]];
+        for (int i = 0; i < nDim; ++i) nb[i] += E.size / nNodes * (E.grad[b][i] - E.grad[local][i]);
+      }
+    }
+    su2double lambdaSU2 = 0.0;
+    for (const auto& entry : normals)
+      for (int i = 0; i < nDim; ++i) lambdaSU2 += (viscous + thermal) / S.rho * entry.second[i] * entry.second[i];
+    const su2double ratio = volume * rowBound / lambdaSU2;
+    INFO("nDim " << nDim << " ratio " << ratio << " expected " << p.geometric * physical);
+    CHECK(fabs(ratio - p.geometric * physical) < 1e-10 * ratio);
+  }
+}

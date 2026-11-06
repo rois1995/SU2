@@ -1857,6 +1857,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("P1_WALL_FORCES", P1_Wall_Forces, false);
   /*!\brief VISC_P1_ENTROPY_MOVED \n DESCRIPTION: 3D, the element fluxes F_T of VISC_P1_ENTROPY on the test space of the moved (MOD_CENTROIDS) dual, i.e. the finite volume of F_T on the dual cells: residual of node a F_T (|T| I + (1 - theta_v) Y_T^T) g_a, Y_T = (3|T|/2) sum_o xi_o (x) g_o with xi_o the shift of the dual point of face o from its centroid. Its entropy defect P^v_T is paid in the element budget of EDGE_FORM_ES_BLEND, E_T = P^c_T + P^v_T - D^gal_T (+ W_T at weak walls): theta_v = min(1, E_T/P^v_T) first, then theta_c = (E_T - theta_v P^v_T)^+/D^c_T. Weak walls use the moved wall shares. Needs VISC_P1_ENTROPY, MOD_CENTROIDS, EDGE_FORM_P1 and EDGE_FORM_ES_BLEND. \ingroup Config \default false */
   addBoolOption("VISC_P1_ENTROPY_MOVED", Visc_P1_Entropy_Moved, false);
+  /*!\brief VISC_P1_TIME_STEP \n DESCRIPTION: Viscous local time step from the operator of VISC_P1_ENTROPY (P1_TIME_STEP.md). On the fine grid the edge viscous term of the time step is replaced by Lambda_v = V_i B_i, so dt_v = CFL 0.25 V_i / B_i, with B_i the block Gershgorin row bound of the Picard Jacobian of the element operator (moved test vectors and split-average weights included) and of the weak no-slip walls (consistency, penalty and adjoint terms), each block bounded by Cauchy-Schwarz in K and Lambda_b = sup x.K(t,t)x/(|t|^2 x.H_b x) in closed form (H_b the entropy Hessian of the node). Then the viscous part of the local-step operator has spectral radius <= 0.25 CFL. The bounds come from the residual of the previous iteration; the first iteration and the coarse levels keep the edge term. Needs VISC_P1_ENTROPY. \ingroup Config \default false */
+  addBoolOption("VISC_P1_TIME_STEP", Visc_P1_Time_Step, false);
   /*!\brief EDGE_FORM_P1_MIXED \n DESCRIPTION: EDGE_FORM_P1 (JST) on meshes with quadrilaterals, hexahedra, prisms and pyramids: each non-simplex cell carries the mean of the neighbour-fan subset of its pulling splits (hexahedra: the 4 Kuhn triangulations; prisms, pyramids, quadrilaterals: all pulling splits), merged into weighted sub-simplices t with W = |t|/(d+1) (no E part, no blend), n_ik on the true edges and on the face and body diagonals (Ismail-Roe with EDGE_FORM_EC_FLUX, no dissipation, no Jacobian on the diagonals), VISC_P1_ENTROPY per sub-simplex, quad boundary faces with both diagonals at 1/2 (BC_WEAK_P1, BC_ENTROPY_P1, BC_WALL_ENTROPY_P1). Simplices keep EDGE_FORM_P1. Needs EDGE_FORM_P1 and JST; steady, static meshes. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_P1_MIXED", Edge_Form_P1_Mixed, false);
   /*!\brief GCL_EXACT_P1 \n DESCRIPTION: Add the swept terms that make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX (or of the median dual of EDGE_DISS_PROJECTED with GRID_ENTROPY_P1) equal to the BDF difference of the volumes, for conservation in time on moving meshes. \ingroup Config*/
@@ -6278,6 +6280,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (BC_Wall_Entropy_P1) active.push_back("BC_WALL_ENTROPY_P1");
   if (P1_Wall_Forces) active.push_back("P1_WALL_FORCES");
   if (Visc_P1_Entropy_Moved) active.push_back("VISC_P1_ENTROPY_MOVED");
+  if (Visc_P1_Time_Step) active.push_back("VISC_P1_TIME_STEP");
   if (Edge_Form_P1_Mixed) active.push_back("EDGE_FORM_P1_MIXED");
   if (Edge_Form_TeCNO_Adjoint) active.push_back("EDGE_FORM_TECNO_ADJOINT");
   if (Edge_Form_TeCNO_Adjoint_Limiter) active.push_back("EDGE_FORM_TECNO_ADJOINT_LIMITER");
@@ -6498,6 +6501,9 @@ void CConfig::CheckP1FluxOptions() const {
     if (!Edge_Form_P1 || !Edge_Form_ES_Blend)
       SU2_MPI::Error(name + "needs EDGE_FORM_P1= YES and EDGE_FORM_ES_BLEND= YES, the element blend pays the entropy "
                      "defect of the moved viscous form (indefinite for Y_T != 0).", CURRENT_FUNCTION);
+  }
+  if (Visc_P1_Time_Step && !Visc_P1_Entropy) {
+    SU2_MPI::Error("VISC_P1_TIME_STEP: needs VISC_P1_ENTROPY= YES, the bound is that of its element operator.", CURRENT_FUNCTION);
   }
   if (BC_Wall_Entropy_P1) {
     const string name = "BC_WALL_ENTROPY_P1: ";

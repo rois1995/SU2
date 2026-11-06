@@ -304,7 +304,64 @@ class Element {
       }
     }
   }
+
+  /*!
+   * \brief VISC_P1_TIME_STEP: Lambda_b of Lemma T1 (P1_TIME_STEP.md), the bound sup_x x.K(t,t)x / (|t|^2 x.H_b x) of
+   *        the frozen K of this element against the entropy Hessian H_b = du/dw of node b.
+   * \param[in] S - Nodal data of node b, as given to Set.
+   * \param[in] gamma - Ratio of specific heats.
+   * \param[in] full - false: momentum rows only (projector of the adiabatic wall at rest), then delta = v_b.
+   */
+  su2double SpectralFactor(const NodeState& S, const su2double& gamma, bool full = true) const;
+
+  /*!
+   * \brief VISC_P1_TIME_STEP: add the block row bounds of Jacobian (Theorem T3 of P1_TIME_STEP.md),
+   *        rows[a] += |t_a| sqrt(Lambda_a) sum_b |g_b| sqrt(Lambda_b), t_a = |T| g_a or the moved test vector.
+   * \param[in] node - Nodal data given to Set.
+   * \param[in] gamma - Ratio of specific heats.
+   * \param[in,out] rows - Row bounds of the element nodes, added to.
+   */
+  void RowBound(const NodeState* node, const su2double& gamma, su2double* rows) const;
 };
+
+/*!
+ * \brief VISC_P1_TIME_STEP: largest eigenvalue of L S L^T (Lemma T1 of P1_TIME_STEP.md),
+ *        (a + b)/2 + sqrt(((a - b)/2)^2 + c^2), a = alphaM (1/p + beta |delta|^2), b = alphaE beta,
+ *        c^2 = alphaM alphaE beta^2 |delta|^2, beta = (gamma - 1) rho/p^2 at the node.
+ */
+inline su2double SpectralPencil(const su2double& alphaM, const su2double& alphaE, const su2double& delta2,
+                                const NodeState& S, const su2double& gamma) {
+  const su2double invP = 1.0 / S.p, beta = (gamma - 1.0) * S.rho * invP * invP;
+  const su2double a = alphaM * (invP + beta * delta2), b = alphaE * beta;
+  const su2double half = 0.5 * (a - b), disc = half * half + alphaM * alphaE * beta * beta * delta2;
+  su2double root = 0.0;
+  if (disc > 0.0) root = sqrt(disc);
+  return 0.5 * (a + b) + root;
+}
+
+inline su2double Element::SpectralFactor(const NodeState& S, const su2double& gamma, bool full) const {
+  const su2double alphaM = 4.0 * mu / (3.0 * theta);
+  const su2double alphaE = full ? su2double(kappa / (gasConst * theta * theta)) : su2double(0.0);
+  su2double delta2 = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    const su2double delta = full ? su2double(S.vel[iDim] - vel[iDim]) : S.vel[iDim];
+    delta2 += delta * delta;
+  }
+  return SpectralPencil(alphaM, alphaE, delta2, S, gamma);
+}
+
+inline void Element::RowBound(const NodeState* node, const su2double& gamma, su2double* rows) const {
+  su2double rootLambda[MAXNODE] = {0.0}, sum = 0.0;
+  for (unsigned short a = 0; a < nNodes; ++a) {
+    rootLambda[a] = sqrt(SpectralFactor(node[a], gamma));
+    sum += GeometryToolbox::Norm(nDim, grad[a]) * rootLambda[a];
+  }
+  for (unsigned short a = 0; a < nNodes; ++a) {
+    const su2double testNorm =
+        moved ? GeometryToolbox::Norm(nDim, test[a]) : su2double(size * GeometryToolbox::Norm(nDim, grad[a]));
+    rows[a] += testNorm * rootLambda[a] * sum;
+  }
+}
 
 /*!
  * \brief Projector of the moving adiabatic no-slip wall (P1_ALE.md, Lemma A17, Theorem A18): v = v_w is the linear,
@@ -583,6 +640,85 @@ inline su2double NoSlipWallProduction(const Element& E, unsigned short nFaceNode
     production += weight * ((1.0 + s) * eFTn - sigma * eMe);
   }
   return production;
+}
+
+/*!
+ * \brief VISC_P1_TIME_STEP, moving adiabatic wall: bound of lambda_max((L P) S (L P)^T) by its Frobenius norm
+ *        (P1_TIME_STEP.md, Lemma T2), P = MovingWallProjector(v_w), rows of L: sqrt(alphaM) (0, e_i, v*_i) and
+ *        sqrt(alphaE) (0, 0, 1), S = dw/du at the node.
+ */
+inline su2double MovingWallSpectralFactor(const Element& E, const NodeState& S, const su2double& gamma,
+                                          const su2double* wallVel) {
+  const unsigned short nDim = E.nDim, nVar = E.nVar;
+  const su2double rootM = sqrt(4.0 * E.mu / (3.0 * E.theta));
+  const su2double rootE = sqrt(E.kappa / (E.gasConst * E.theta * E.theta));
+  su2double W[MAXNVAR][MAXNVAR], rows[MAXNODE][MAXNVAR];
+  EntropyVariableJacobian(nDim, gamma, S, W);
+  for (unsigned short r = 0; r <= nDim; ++r) {
+    su2double x[MAXNVAR] = {0.0};
+    if (r < nDim) {
+      x[r + 1] = rootM;
+      x[nDim + 1] = rootM * E.vel[r];
+    } else {
+      x[nDim + 1] = rootE;
+    }
+    MovingWallProjector(nDim, wallVel, x, rows[r]);
+  }
+  /*--- The rows have no mass entry, so the w_0 row of W (zero in EntropyVariableJacobian) is not needed. ---*/
+  su2double frobenius = 0.0;
+  for (unsigned short i = 0; i <= nDim; ++i) {
+    for (unsigned short j = 0; j <= nDim; ++j) {
+      su2double entry = 0.0;
+      for (unsigned short p = 1; p < nVar; ++p)
+        for (unsigned short q = 1; q < nVar; ++q) entry += rows[i][p] * W[p][q] * rows[j][q];
+      frobenius += entry * entry;
+    }
+  }
+  su2double bound = 0.0;
+  if (frobenius > 0.0) bound = sqrt(frobenius);
+  return bound;
+}
+
+/*!
+ * \brief VISC_P1_TIME_STEP: block row bounds of the Picard Jacobian of NoSlipWall on one face (P1_TIME_STEP.md,
+ *        Theorem T3), with r_b = |g_b| sqrt(Lambda_b) and pi_k the bound of the projected normal block P K_nunu P at
+ *        face node a_k (adiabatic at rest: momentum rows; isothermal: Lambda; moving adiabatic: Lemma T2):
+ *          face node a_k:     rows += weight_k (sqrt(pi_k) sum_b r_b + sigma_f pi_k)     (consistency, penalty)
+ *          every node c of E: rows += |s| r_c sum_k weight_k sqrt(pi_k)                   (adjoint term)
+ *        weight_k = A_f/d or the moved shares, sigma_f as in NoSlipWall.
+ * \param[in] node - Nodal data of the element nodes, as given to Element::Set.
+ * \param[in] gamma - Ratio of specific heats.
+ * \param[in,out] rows - Row bounds of the element nodes, added to.
+ * \note The other arguments are those of NoSlipWall.
+ */
+inline void NoSlipWallRowBound(const Element& E, const NodeState* node, const su2double& gamma,
+                               unsigned short nFaceNodes, const unsigned short* faceNodes, const su2double* faceNormal,
+                               bool isothermal, unsigned short nWallFaces, const su2double& s, const su2double& c,
+                               su2double* rows, const su2double* shareFrac = nullptr,
+                               const su2double (*wallVel)[3] = nullptr) {
+  const unsigned short nDim = E.nDim, nNodes = E.nNodes;
+  const su2double area = GeometryToolbox::Norm(nDim, faceNormal);
+  const su2double sigma = c * (1.0 + s) * (1.0 + s) * nWallFaces * area / (4.0 * E.size);
+
+  su2double rootGrad[MAXNODE] = {0.0}, sum = 0.0;
+  for (unsigned short b = 0; b < nNodes; ++b) {
+    rootGrad[b] = GeometryToolbox::Norm(nDim, E.grad[b]) * sqrt(E.SpectralFactor(node[b], gamma));
+    sum += rootGrad[b];
+  }
+
+  const bool movingProjector = (wallVel != nullptr) && !isothermal;
+  su2double adjoint = 0.0;
+  for (unsigned short k = 0; k < nFaceNodes; ++k) {
+    const auto a = faceNodes[k];
+    const su2double weight = (shareFrac != nullptr) ? su2double(area * shareFrac[k]) : su2double(area / nDim);
+    const su2double pi = movingProjector ? MovingWallSpectralFactor(E, node[a], gamma, wallVel[k])
+                                         : E.SpectralFactor(node[a], gamma, isothermal);
+    su2double rootPi = 0.0;
+    if (pi > 0.0) rootPi = sqrt(pi);
+    rows[a] += weight * (rootPi * sum + sigma * pi);
+    adjoint += weight * rootPi;
+  }
+  for (unsigned short b = 0; b < nNodes; ++b) rows[b] += fabs(s) * adjoint * rootGrad[b];
 }
 
 /*!

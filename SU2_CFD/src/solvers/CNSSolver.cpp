@@ -68,6 +68,9 @@ CNSSolver::CNSSolver(CGeometry *geometry, CConfig *config, unsigned short iMesh)
             "VISC_P1_ENTROPY_MOVED puts the viscous term on the moved dual." << endl;
   }
 
+  /*--- VISC_P1_TIME_STEP: block row bounds of the P1 viscous operator and the weak walls (P1_TIME_STEP.md). ---*/
+  if ((iMesh == MESH_0) && config->GetVisc_P1_Time_Step()) P1ViscRowBound.resize(nPoint) = su2double(0.0);
+
   /*--- Initialize the seed values for forward mode differentiation. ---*/
 
   switch(config->GetDirectDiff()) {
@@ -232,6 +235,13 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
    * moved test vectors. Jacobian blocks of node pairs that are not edges are not in the sparsity pattern and drop. ---*/
   const bool mixed = config->GetEdge_Form_P1_Mixed();
 
+  /*--- VISC_P1_TIME_STEP (P1_TIME_STEP.md, Theorem T3): block row bounds B_i of this operator, the weak walls add
+   * theirs in WeakNoSlipWallResidual. SetTime_Step uses them at the next iteration (it runs before the residual). ---*/
+  const bool rowBound = config->GetVisc_P1_Time_Step();
+  if (rowBound) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(P1ViscRowBound = su2double(0.0); P1ViscRowBoundReady = true;)
+  }
+
   /*--- The coloring is built on first use. ---*/
   SU2_OMP_SAFE_GLOBAL_ACCESS(geometry->GetElementColoring();)
 
@@ -249,7 +259,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
 
       if (nNodes != nDim + 1) {
         if (!mixed) SU2_MPI::Error("VISC_P1_ENTROPY needs triangles or tetrahedra, or EDGE_FORM_P1_MIXED= YES.", CURRENT_FUNCTION);
-        MixedViscousResidual(geometry, element, implicit, prandtlTurb, gasConst);
+        MixedViscousResidual(geometry, element, implicit, rowBound, prandtlTurb, gasConst);
         continue;
       }
 
@@ -283,6 +293,15 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
         if (geometry->nodes->GetDomain(iPoint)) LinSysRes.AddBlock(iPoint, residual[iNode]);
       }
 
+      if (rowBound) {
+        su2double rows[pve::MAXNODE] = {0.0};
+        simplex.RowBound(state, Gamma, rows);
+        for (auto iNode = 0u; iNode < nNodes; ++iNode) {
+          const auto iPoint = element->GetNode(iNode);
+          if (geometry->nodes->GetDomain(iPoint)) P1ViscRowBound[iPoint] += rows[iNode];
+        }
+      }
+
       if (!implicit) continue;
 
       su2double dwdu[pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR], jacobian[pve::MAXNODE][pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
@@ -306,7 +325,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
   }
 }
 
-void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, bool implicit,
+void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, bool implicit, bool rowBound,
                                      const su2double& prandtlTurb, const su2double& gasConst) {
   namespace pve = P1ViscousEntropy;
 
@@ -342,6 +361,14 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
       if (!geometry->nodes->GetDomain(point[a])) continue;
       for (auto iVar = 0u; iVar < nVar; ++iVar) residual[a][iVar] *= weight;
       LinSysRes.AddBlock(point[a], residual[a]);
+    }
+
+    /*--- VISC_P1_TIME_STEP: the omega-weighted row bounds of the sub-simplex. ---*/
+    if (rowBound) {
+      su2double rows[pve::MAXNODE] = {0.0};
+      simplex.RowBound(state, Gamma, rows);
+      for (unsigned short a = 0; a < nNodes; ++a)
+        if (geometry->nodes->GetDomain(point[a])) P1ViscRowBound[point[a]] += weight * rows[a];
     }
 
     if (!implicit) continue;

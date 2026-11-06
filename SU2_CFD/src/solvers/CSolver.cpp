@@ -5842,6 +5842,9 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
   /*--- VISC_P1_ENTROPY_MOVED: moved wall shares in the consistency, penalty and adjoint terms (Lemma MV11). ---*/
   const bool movedShares = config->GetVisc_P1_Entropy_Moved() && (nDim == 3);
 
+  /*--- VISC_P1_TIME_STEP: add the row bounds of the viscous wall terms to those of Viscous_Residual_P1Entropy. ---*/
+  const bool rowBound = config->GetVisc_P1_Time_Step();
+
   /*--- Weights of the approximate pressure flux Jacobian, as for BC_ENTROPY_P1 (5:1 and 6:1:1). ---*/
   const su2double omegaSelf = (nDim == 2) ? 5.0 / 12.0 : 1.0 / 4.0;
   const su2double omegaOther = (nDim == 2) ? 1.0 / 12.0 : 1.0 / 24.0;
@@ -5923,6 +5926,18 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
 
     for (unsigned short a = 0; a < nDim; ++a)
       for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[faceNodes[a]][iVar] += faceRes[a][iVar];
+
+    /*--- VISC_P1_TIME_STEP: consistency, penalty and adjoint terms of the face (P1_TIME_STEP.md, Theorem T3), omega_t
+     * on a sub-simplex, owned rows only. ---*/
+    if (rowBound) {
+      su2double rows[pve::MAXNODE] = {0.0};
+      pve::NoSlipWallRowBound(simplex, state, gamma, nDim, faceNodes, faceNormal, record.isothermal, record.nWallFaces,
+                              sipg, penalty, rows, (movedShares && !subSimplex) ? record.share : nullptr,
+                              movingWall ? wallVel : nullptr);
+      const su2double weight = subSimplex ? su2double(record.weight) : su2double(1.0);
+      for (unsigned short c = 0; c < nNodes; ++c)
+        if (geometry->nodes->GetDomain(point[c])) P1ViscRowBound[point[c]] += weight * rows[c];
+    }
 
     /*--- Approximate Jacobian of the pressure flux, N (x) dp/du with the 5:1 / 6:1:1 weights. ---*/
     if (implicit) {

@@ -202,6 +202,12 @@ protected:
   bool P1WallFacesReady = false;     /*!< \brief P1WallFaces is built on first use. */
   unsigned long P1WallFacesVersion = 0; /*!< \brief CGeometry::GetP1FluxVersion of the coordinates P1WallFaces was built on. */
 
+  /*--- VISC_P1_TIME_STEP (P1_TIME_STEP.md): block row bounds B_i of the Picard Jacobian of VISC_P1_ENTROPY and of the
+   * weak no-slip walls, in the norms of the nodal entropy Hessians, from the last residual evaluation (fine grid,
+   * owned nodes). SetTime_Step uses Lambda_v = V_i B_i in place of the edge viscous term. ---*/
+  su2activevector P1ViscRowBound;      /*!< \brief B_i of each node. */
+  bool P1ViscRowBoundReady = false;    /*!< \brief P1ViscRowBound holds the bounds of a residual evaluation. */
+
   /*!
    * \brief Build P1WallFaces on first use, and again after the mesh has moved with GRID_ENTROPY_P1 (the moved wall
    *        shares follow the coordinates). Collective (MPI): all ranks see the same geometry versions.

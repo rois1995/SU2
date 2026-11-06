@@ -93,6 +93,7 @@ private:
   bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
   bool P1_Wall_Forces;         /*!< \brief Wall forces, Cf and heat flux from the boundary fluxes of the P1 entropy walls. */
   bool Visc_P1_Entropy_Moved;  /*!< \brief Element viscous fluxes of VISC_P1_ENTROPY on the moved (MOD_CENTROIDS) dual test space, 3D. */
+  bool Visc_P1_Time_Step;      /*!< \brief Viscous local time step from the block row bounds of VISC_P1_ENTROPY and the weak walls (P1_TIME_STEP.md). */
   bool Edge_Form_P1_Mixed;     /*!< \brief EDGE_FORM_P1 on quadrilaterals, hexahedra, prisms and pyramids by split averages (P1_MIXED.md). */
   bool Positive_Update_Flow;   /*!< \brief Positivity-preserving step length of the implicit flow and SST updates (P1_POSITIVITY.md). */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
@@ -10117,6 +10118,13 @@ public:
    *        fluxes of VISC_P1_ENTROPY (3D), theta_v from the one-budget element blend of EDGE_FORM_ES_BLEND.
    */
   bool GetVisc_P1_Entropy_Moved() const { return Visc_P1_Entropy_Moved; }
+
+  /*!
+   * \brief VISC_P1_TIME_STEP: on the fine grid the viscous term of the local time step is Lambda_v = V_i B_i, B_i the
+   *        block row bound of the Picard Jacobian of VISC_P1_ENTROPY and of the weak walls of BC_WALL_ENTROPY_P1 in the
+   *        norms of the nodal entropy Hessians (P1_TIME_STEP.md), instead of the edge formula.
+   */
+  bool GetVisc_P1_Time_Step() const { return Visc_P1_Time_Step; }
 
   /*!
    * \brief EDGE_FORM_P1_MIXED: the P1 pieces of non-simplex cells (quadrilaterals, hexahedra, prisms, pyramids) as
