@@ -1,0 +1,6195 @@
+{
+  "time": 1794006231.9286537,
+  "scope": "First native event; complete six-rank matching stage/round groups. Same initial restart/config byte equality proven separately. Nested timers overlap; work and useful progress distinct from elapsed. q/J intentionally unmeasured during construction.",
+  "source_prefixes": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build227_witness_real_cfd50k/rank_output/1/rank.0/stdout": {
+      "bytes": 351409,
+      "sha256": "202b864d753b7624c17fe71b0a045743edb7503712f6c8d2c851d722d67e01e3"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build227_witness_real_cfd50k/rank_output/1/rank.1/stdout": {
+      "bytes": 328890,
+      "sha256": "c482f5db6c0ff2587b5d36cec466d57df7e494dbfad98eed2ad43e87ad522604"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build227_witness_real_cfd50k/rank_output/1/rank.2/stdout": {
+      "bytes": 328537,
+      "sha256": "f9a6a85deffe027a4a21c1ded63690c15c3b958db08d2c06e0d44de925a7605a"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build227_witness_real_cfd50k/rank_output/1/rank.3/stdout": {
+      "bytes": 328734,
+      "sha256": "06a7fafec29a3daf232aa0b0091698cbce5c48258f1128b40778673883b4c532"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build227_witness_real_cfd50k/rank_output/1/rank.4/stdout": {
+      "bytes": 328052,
+      "sha256": "211575b78a4e70f1e8d2e09586db1a4b92d434e9decc1e5a387cb7ccd3a8bcd0"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build227_witness_real_cfd50k/rank_output/1/rank.5/stdout": {
+      "bytes": 328725,
+      "sha256": "6af25fdf0d337344a75af9ed32f2e4e1a7d258a02a45c5ea4612da07c5da954f"
+    }
+  },
+  "prior_metadata_sha256": "f4186e4f60f6229171907b700b9520def044f13cb85dca0586b99b6956d80be4",
+  "stages": [
+    {
+      "stage": "length_collapse_exit",
+      "round": 1777,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 953.638857656,
+      "build227_native_seconds": 294.623415678,
+      "build227_totals": {
+        "cells": 293396,
+        "measured": 293396,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2968,
+        "size_bad": 119026
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 116831381.0,
+          "build227": 80484723.0,
+          "relative_change": -0.3111035553024919
+        },
+        "traversal_work": {
+          "build225": 106031874.0,
+          "build227": 69685216.0,
+          "relative_change": -0.3427899237167118
+        },
+        "scope_build_work": {
+          "build225": 2511405.0,
+          "build227": 2511405.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1465784.0,
+          "build227": 1465784.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 4578136.0,
+          "build227": 4578136.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 454.35880757399997,
+          "build227": 325.3806704369999,
+          "relative_change": -0.28386846471770844
+        },
+        "traversal_seconds": {
+          "build225": 267.666018197,
+          "build227": 173.55016774899974,
+          "relative_change": -0.35161673148487527
+        },
+        "scope_build_seconds": {
+          "build225": 97.65523640699993,
+          "build227": 80.04961440199993,
+          "relative_change": -0.1802834405277015
+        }
+      }
+    },
+    {
+      "stage": "ownership_staged",
+      "round": 1777,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 958.612890513,
+      "build227_native_seconds": 298.413990331,
+      "build227_totals": {
+        "cells": 293396,
+        "measured": 293396,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2968,
+        "size_bad": 119026
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 116831381.0,
+          "build227": 80484723.0,
+          "relative_change": -0.3111035553024919
+        },
+        "traversal_work": {
+          "build225": 106031874.0,
+          "build227": 69685216.0,
+          "relative_change": -0.3427899237167118
+        },
+        "scope_build_work": {
+          "build225": 2511405.0,
+          "build227": 2511405.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1465784.0,
+          "build227": 1465784.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 4578136.0,
+          "build227": 4578136.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 454.35880757399997,
+          "build227": 325.3806704369999,
+          "relative_change": -0.28386846471770844
+        },
+        "traversal_seconds": {
+          "build225": 267.666018197,
+          "build227": 173.55016774899974,
+          "relative_change": -0.35161673148487527
+        },
+        "scope_build_seconds": {
+          "build225": 97.65523640699993,
+          "build227": 80.04961440199993,
+          "relative_change": -0.1802834405277015
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 1957,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 994.012788241,
+      "build227_native_seconds": 326.76112493,
+      "build227_totals": {
+        "cells": 294585,
+        "measured": 294585,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3171,
+        "size_bad": 119231
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 138021966.0,
+          "build227": 99691116.0,
+          "relative_change": -0.2777155775335065
+        },
+        "traversal_work": {
+          "build225": 126418321.0,
+          "build227": 88087471.0,
+          "relative_change": -0.3032064474262397
+        },
+        "scope_build_work": {
+          "build225": 2799091.0,
+          "build227": 2799091.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1703784.0,
+          "build227": 1703784.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 4826976.0,
+          "build227": 4826976.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 525.5769964039998,
+          "build227": 384.4956437729999,
+          "relative_change": -0.2684313689455192
+        },
+        "traversal_seconds": {
+          "build225": 317.2091502780002,
+          "build227": 213.8962405739999,
+          "relative_change": -0.3256933465300653
+        },
+        "scope_build_seconds": {
+          "build225": 107.289761559,
+          "build227": 88.42913019399997,
+          "relative_change": -0.17579153025359584
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 1957,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 994.019054483,
+      "build227_native_seconds": 326.765426125,
+      "build227_totals": {
+        "cells": 294585,
+        "measured": 294585,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3171,
+        "size_bad": 119231
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 138021966.0,
+          "build227": 99691116.0,
+          "relative_change": -0.2777155775335065
+        },
+        "traversal_work": {
+          "build225": 126418321.0,
+          "build227": 88087471.0,
+          "relative_change": -0.3032064474262397
+        },
+        "scope_build_work": {
+          "build225": 2799091.0,
+          "build227": 2799091.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1703784.0,
+          "build227": 1703784.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 4826976.0,
+          "build227": 4826976.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 525.5769964039998,
+          "build227": 384.4956437729999,
+          "relative_change": -0.2684313689455192
+        },
+        "traversal_seconds": {
+          "build225": 317.2091502780002,
+          "build227": 213.8962405739999,
+          "relative_change": -0.3256933465300653
+        },
+        "scope_build_seconds": {
+          "build225": 107.289761559,
+          "build227": 88.42913019399997,
+          "relative_change": -0.17579153025359584
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 15552,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1051.722266022,
+      "build227_native_seconds": 363.638227909,
+      "build227_totals": {
+        "cells": 612110,
+        "measured": 612110,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3171,
+        "size_bad": 74083
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 141848960.0,
+          "build227": 101670463.0,
+          "relative_change": -0.2832484425687718
+        },
+        "traversal_work": {
+          "build225": 129970314.0,
+          "build227": 89791817.0,
+          "relative_change": -0.30913595392252413
+        },
+        "scope_build_work": {
+          "build225": 2819645.0,
+          "build227": 2819645.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1731940.0,
+          "build227": 1731940.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 4951337.0,
+          "build227": 4951337.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 532.6915178749999,
+          "build227": 389.7631766149999,
+          "relative_change": -0.26831352943288134
+        },
+        "traversal_seconds": {
+          "build225": 322.63427137400015,
+          "build227": 217.626590621,
+          "relative_change": -0.3254697038408373
+        },
+        "scope_build_seconds": {
+          "build225": 108.03769594899998,
+          "build227": 89.08650682599993,
+          "relative_change": -0.17541274789816053
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 15706,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1083.092733683,
+      "build227_native_seconds": 384.202367375,
+      "build227_totals": {
+        "cells": 613601,
+        "measured": 613601,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3400,
+        "size_bad": 74134
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 155986747.0,
+          "build227": 114433850.0,
+          "relative_change": -0.26638735533089875
+        },
+        "traversal_work": {
+          "build225": 143559877.0,
+          "build227": 102006980.0,
+          "relative_change": -0.28944645167117267
+        },
+        "scope_build_work": {
+          "build225": 3085728.0,
+          "build227": 3085728.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1748864.0,
+          "build227": 1748864.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5186918.0,
+          "build227": 5186918.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 582.515392391,
+          "build227": 426.03734122799995,
+          "relative_change": -0.26862474916022094
+        },
+        "traversal_seconds": {
+          "build225": 359.8157705360001,
+          "build227": 245.271554496,
+          "relative_change": -0.31834128856933963
+        },
+        "scope_build_seconds": {
+          "build225": 119.51146244999998,
+          "build227": 96.83360621399999,
+          "relative_change": -0.18975465424906612
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 15706,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1083.107811207,
+      "build227_native_seconds": 384.206650773,
+      "build227_totals": {
+        "cells": 613601,
+        "measured": 613601,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3400,
+        "size_bad": 74134
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 155986747.0,
+          "build227": 114433850.0,
+          "relative_change": -0.26638735533089875
+        },
+        "traversal_work": {
+          "build225": 143559877.0,
+          "build227": 102006980.0,
+          "relative_change": -0.28944645167117267
+        },
+        "scope_build_work": {
+          "build225": 3085728.0,
+          "build227": 3085728.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1748864.0,
+          "build227": 1748864.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5186918.0,
+          "build227": 5186918.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 582.515392391,
+          "build227": 426.03734122799995,
+          "relative_change": -0.26862474916022094
+        },
+        "traversal_seconds": {
+          "build225": 359.8157705360001,
+          "build227": 245.271554496,
+          "relative_change": -0.31834128856933963
+        },
+        "scope_build_seconds": {
+          "build225": 119.51146244999998,
+          "build227": 96.83360621399999,
+          "relative_change": -0.18975465424906612
+        }
+      }
+    },
+    {
+      "stage": "split_interior_exit",
+      "round": 23042,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1122.834200187,
+      "build227_native_seconds": 400.307002411,
+      "build227_totals": {
+        "cells": 754586,
+        "measured": 754586,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3400,
+        "size_bad": 20935
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 155993881.0,
+          "build227": 114440984.0,
+          "relative_change": -0.2663751727543723
+        },
+        "traversal_work": {
+          "build225": 143562459.0,
+          "build227": 102009562.0,
+          "relative_change": -0.28944124591791787
+        },
+        "scope_build_work": {
+          "build225": 3085728.0,
+          "build227": 3085728.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1748864.0,
+          "build227": 1748864.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5189311.0,
+          "build227": 5189311.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 582.526080529,
+          "build227": 426.0473945069999,
+          "relative_change": -0.26862091029452206
+        },
+        "traversal_seconds": {
+          "build225": 359.8241641450001,
+          "build227": 245.27958429499998,
+          "relative_change": -0.3183348737074855
+        },
+        "scope_build_seconds": {
+          "build225": 119.51146244999998,
+          "build227": 96.83360621399999,
+          "relative_change": -0.18975465424906612
+        }
+      }
+    },
+    {
+      "stage": "split_surface_resume",
+      "round": 23042,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1122.839040844,
+      "build227_native_seconds": 400.311045905,
+      "build227_totals": {
+        "cells": 754586,
+        "measured": 754586,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3400,
+        "size_bad": 20935
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 155993881.0,
+          "build227": 114440984.0,
+          "relative_change": -0.2663751727543723
+        },
+        "traversal_work": {
+          "build225": 143562459.0,
+          "build227": 102009562.0,
+          "relative_change": -0.28944124591791787
+        },
+        "scope_build_work": {
+          "build225": 3085728.0,
+          "build227": 3085728.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1748864.0,
+          "build227": 1748864.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5189311.0,
+          "build227": 5189311.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 582.526080529,
+          "build227": 426.0473945069999,
+          "relative_change": -0.26862091029452206
+        },
+        "traversal_seconds": {
+          "build225": 359.8241641450001,
+          "build227": 245.27958429499998,
+          "relative_change": -0.3183348737074855
+        },
+        "scope_build_seconds": {
+          "build225": 119.51146244999998,
+          "build227": 96.83360621399999,
+          "relative_change": -0.18975465424906612
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 23044,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1124.276409478,
+      "build227_native_seconds": 400.832535672,
+      "build227_totals": {
+        "cells": 754589,
+        "measured": 754589,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3400,
+        "size_bad": 20936
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 155993881.0,
+          "build227": 114440984.0,
+          "relative_change": -0.2663751727543723
+        },
+        "traversal_work": {
+          "build225": 143562459.0,
+          "build227": 102009562.0,
+          "relative_change": -0.28944124591791787
+        },
+        "scope_build_work": {
+          "build225": 3085728.0,
+          "build227": 3085728.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1748864.0,
+          "build227": 1748864.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5189311.0,
+          "build227": 5189311.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 582.526080529,
+          "build227": 426.0473945069999,
+          "relative_change": -0.26862091029452206
+        },
+        "traversal_seconds": {
+          "build225": 359.8241641450001,
+          "build227": 245.27958429499998,
+          "relative_change": -0.3183348737074855
+        },
+        "scope_build_seconds": {
+          "build225": 119.51146244999998,
+          "build227": 96.83360621399999,
+          "relative_change": -0.18975465424906612
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 23044,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1124.282462401,
+      "build227_native_seconds": 400.836666486,
+      "build227_totals": {
+        "cells": 754589,
+        "measured": 754589,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3400,
+        "size_bad": 20936
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 155993881.0,
+          "build227": 114440984.0,
+          "relative_change": -0.2663751727543723
+        },
+        "traversal_work": {
+          "build225": 143562459.0,
+          "build227": 102009562.0,
+          "relative_change": -0.28944124591791787
+        },
+        "scope_build_work": {
+          "build225": 3085728.0,
+          "build227": 3085728.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1748864.0,
+          "build227": 1748864.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5189311.0,
+          "build227": 5189311.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 582.526080529,
+          "build227": 426.0473945069999,
+          "relative_change": -0.26862091029452206
+        },
+        "traversal_seconds": {
+          "build225": 359.8241641450001,
+          "build227": 245.27958429499998,
+          "relative_change": -0.3183348737074855
+        },
+        "scope_build_seconds": {
+          "build225": 119.51146244999998,
+          "build227": 96.83360621399999,
+          "relative_change": -0.18975465424906612
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 23044,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1124.621510931,
+      "build227_native_seconds": 401.094898366,
+      "build227_totals": {
+        "cells": 754589,
+        "measured": 754589,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3400,
+        "size_bad": 20936
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 155993881.0,
+          "build227": 114440984.0,
+          "relative_change": -0.2663751727543723
+        },
+        "traversal_work": {
+          "build225": 143562459.0,
+          "build227": 102009562.0,
+          "relative_change": -0.28944124591791787
+        },
+        "scope_build_work": {
+          "build225": 3085728.0,
+          "build227": 3085728.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1748864.0,
+          "build227": 1748864.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5189311.0,
+          "build227": 5189311.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 582.526080529,
+          "build227": 426.0473945069999,
+          "relative_change": -0.26862091029452206
+        },
+        "traversal_seconds": {
+          "build225": 359.8241641450001,
+          "build227": 245.27958429499998,
+          "relative_change": -0.3183348737074855
+        },
+        "scope_build_seconds": {
+          "build225": 119.51146244999998,
+          "build227": 96.83360621399999,
+          "relative_change": -0.18975465424906612
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 23205,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1153.630044203,
+      "build227_native_seconds": 424.73166978,
+      "build227_totals": {
+        "cells": 756142,
+        "measured": 756142,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3536,
+        "size_bad": 20915
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 171366762.0,
+          "build227": 128305202.0,
+          "relative_change": -0.25128303468790525
+        },
+        "traversal_work": {
+          "build225": 158374033.0,
+          "build227": 115312473.0,
+          "relative_change": -0.27189785588146254
+        },
+        "scope_build_work": {
+          "build225": 3354897.0,
+          "build227": 3354897.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1764774.0,
+          "build227": 1764774.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5433585.0,
+          "build227": 5433585.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 628.9782338000002,
+          "build227": 464.61582097299976,
+          "relative_change": -0.261316535286122
+        },
+        "traversal_seconds": {
+          "build225": 396.1236203240002,
+          "build227": 275.366818012,
+          "relative_change": -0.30484625535137233
+        },
+        "scope_build_seconds": {
+          "build225": 128.681222231,
+          "build227": 104.47911296999999,
+          "relative_change": -0.18807801823294767
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 23205,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1153.63592293,
+      "build227_native_seconds": 424.736684773,
+      "build227_totals": {
+        "cells": 756142,
+        "measured": 756142,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3536,
+        "size_bad": 20915
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 171366762.0,
+          "build227": 128305202.0,
+          "relative_change": -0.25128303468790525
+        },
+        "traversal_work": {
+          "build225": 158374033.0,
+          "build227": 115312473.0,
+          "relative_change": -0.27189785588146254
+        },
+        "scope_build_work": {
+          "build225": 3354897.0,
+          "build227": 3354897.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1764774.0,
+          "build227": 1764774.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5433585.0,
+          "build227": 5433585.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 628.9782338000002,
+          "build227": 464.61582097299976,
+          "relative_change": -0.261316535286122
+        },
+        "traversal_seconds": {
+          "build225": 396.1236203240002,
+          "build227": 275.366818012,
+          "relative_change": -0.30484625535137233
+        },
+        "scope_build_seconds": {
+          "build225": 128.681222231,
+          "build227": 104.47911296999999,
+          "relative_change": -0.18807801823294767
+        }
+      }
+    },
+    {
+      "stage": "split_interior_exit",
+      "round": 26394,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1165.440658618,
+      "build227_native_seconds": 434.555208772,
+      "build227_totals": {
+        "cells": 795255,
+        "measured": 795255,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3536,
+        "size_bad": 17741
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 171369562.0,
+          "build227": 128308002.0,
+          "relative_change": -0.25127892898506676
+        },
+        "traversal_work": {
+          "build225": 158374992.0,
+          "build227": 115313432.0,
+          "relative_change": -0.2718962094722631
+        },
+        "scope_build_work": {
+          "build225": 3354897.0,
+          "build227": 3354897.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1764774.0,
+          "build227": 1764774.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5434543.0,
+          "build227": 5434543.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 628.9815850720003,
+          "build227": 464.61921336599977,
+          "relative_change": -0.261315077590365
+        },
+        "traversal_seconds": {
+          "build225": 396.1261003240002,
+          "build227": 275.369276631,
+          "relative_change": -0.30484440079618735
+        },
+        "scope_build_seconds": {
+          "build225": 128.681222231,
+          "build227": 104.47911296999999,
+          "relative_change": -0.18807801823294767
+        }
+      }
+    },
+    {
+      "stage": "split_surface_resume",
+      "round": 26394,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1165.445246099,
+      "build227_native_seconds": 434.559992301,
+      "build227_totals": {
+        "cells": 795255,
+        "measured": 795255,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3536,
+        "size_bad": 17741
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 171369562.0,
+          "build227": 128308002.0,
+          "relative_change": -0.25127892898506676
+        },
+        "traversal_work": {
+          "build225": 158374992.0,
+          "build227": 115313432.0,
+          "relative_change": -0.2718962094722631
+        },
+        "scope_build_work": {
+          "build225": 3354897.0,
+          "build227": 3354897.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1764774.0,
+          "build227": 1764774.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5434543.0,
+          "build227": 5434543.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 628.9815850720003,
+          "build227": 464.61921336599977,
+          "relative_change": -0.261315077590365
+        },
+        "traversal_seconds": {
+          "build225": 396.1261003240002,
+          "build227": 275.369276631,
+          "relative_change": -0.30484440079618735
+        },
+        "scope_build_seconds": {
+          "build225": 128.681222231,
+          "build227": 104.47911296999999,
+          "relative_change": -0.18807801823294767
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 26395,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1166.035311904,
+      "build227_native_seconds": 435.054618778,
+      "build227_totals": {
+        "cells": 795263,
+        "measured": 795263,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3536,
+        "size_bad": 17741
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 171369562.0,
+          "build227": 128308002.0,
+          "relative_change": -0.25127892898506676
+        },
+        "traversal_work": {
+          "build225": 158374992.0,
+          "build227": 115313432.0,
+          "relative_change": -0.2718962094722631
+        },
+        "scope_build_work": {
+          "build225": 3354897.0,
+          "build227": 3354897.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1764774.0,
+          "build227": 1764774.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5434543.0,
+          "build227": 5434543.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 628.9815850720003,
+          "build227": 464.61921336599977,
+          "relative_change": -0.261315077590365
+        },
+        "traversal_seconds": {
+          "build225": 396.1261003240002,
+          "build227": 275.369276631,
+          "relative_change": -0.30484440079618735
+        },
+        "scope_build_seconds": {
+          "build225": 128.681222231,
+          "build227": 104.47911296999999,
+          "relative_change": -0.18807801823294767
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 26395,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1166.040141508,
+      "build227_native_seconds": 435.058820851,
+      "build227_totals": {
+        "cells": 795263,
+        "measured": 795263,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3536,
+        "size_bad": 17741
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 171369562.0,
+          "build227": 128308002.0,
+          "relative_change": -0.25127892898506676
+        },
+        "traversal_work": {
+          "build225": 158374992.0,
+          "build227": 115313432.0,
+          "relative_change": -0.2718962094722631
+        },
+        "scope_build_work": {
+          "build225": 3354897.0,
+          "build227": 3354897.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1764774.0,
+          "build227": 1764774.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5434543.0,
+          "build227": 5434543.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 628.9815850720003,
+          "build227": 464.61921336599977,
+          "relative_change": -0.261315077590365
+        },
+        "traversal_seconds": {
+          "build225": 396.1261003240002,
+          "build227": 275.369276631,
+          "relative_change": -0.30484440079618735
+        },
+        "scope_build_seconds": {
+          "build225": 128.681222231,
+          "build227": 104.47911296999999,
+          "relative_change": -0.18807801823294767
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 26395,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1166.367762477,
+      "build227_native_seconds": 435.349587969,
+      "build227_totals": {
+        "cells": 795263,
+        "measured": 795263,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3536,
+        "size_bad": 17741
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 171369562.0,
+          "build227": 128308002.0,
+          "relative_change": -0.25127892898506676
+        },
+        "traversal_work": {
+          "build225": 158374992.0,
+          "build227": 115313432.0,
+          "relative_change": -0.2718962094722631
+        },
+        "scope_build_work": {
+          "build225": 3354897.0,
+          "build227": 3354897.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1764774.0,
+          "build227": 1764774.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5434543.0,
+          "build227": 5434543.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 628.9815850720003,
+          "build227": 464.61921336599977,
+          "relative_change": -0.261315077590365
+        },
+        "traversal_seconds": {
+          "build225": 396.1261003240002,
+          "build227": 275.369276631,
+          "relative_change": -0.30484440079618735
+        },
+        "scope_build_seconds": {
+          "build225": 128.681222231,
+          "build227": 104.47911296999999,
+          "relative_change": -0.18807801823294767
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 26574,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1195.050122825,
+      "build227_native_seconds": 458.748579226,
+      "build227_totals": {
+        "cells": 796980,
+        "measured": 796980,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3673,
+        "size_bad": 17593
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 185797331.0,
+          "build227": 141429368.0,
+          "relative_change": -0.23879763375072383
+        },
+        "traversal_work": {
+          "build225": 172277226.0,
+          "build227": 127909263.0,
+          "relative_change": -0.2575381786098645
+        },
+        "scope_build_work": {
+          "build225": 3613099.0,
+          "build227": 3613099.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1767210.0,
+          "build227": 1767210.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5668808.0,
+          "build227": 5668808.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 670.9077047620004,
+          "build227": 500.0202405189998,
+          "relative_change": -0.2547108388084792
+        },
+        "traversal_seconds": {
+          "build225": 429.1188429000001,
+          "build227": 303.20171239100006,
+          "relative_change": -0.2934318373391569
+        },
+        "scope_build_seconds": {
+          "build225": 137.2991642799999,
+          "build227": 111.80376851999989,
+          "relative_change": -0.18569228657507475
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 26574,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1195.055022078,
+      "build227_native_seconds": 458.75298328,
+      "build227_totals": {
+        "cells": 796980,
+        "measured": 796980,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3673,
+        "size_bad": 17593
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 185797331.0,
+          "build227": 141429368.0,
+          "relative_change": -0.23879763375072383
+        },
+        "traversal_work": {
+          "build225": 172277226.0,
+          "build227": 127909263.0,
+          "relative_change": -0.2575381786098645
+        },
+        "scope_build_work": {
+          "build225": 3613099.0,
+          "build227": 3613099.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1767210.0,
+          "build227": 1767210.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5668808.0,
+          "build227": 5668808.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 670.9077047620004,
+          "build227": 500.0202405189998,
+          "relative_change": -0.2547108388084792
+        },
+        "traversal_seconds": {
+          "build225": 429.1188429000001,
+          "build227": 303.20171239100006,
+          "relative_change": -0.2934318373391569
+        },
+        "scope_build_seconds": {
+          "build225": 137.2991642799999,
+          "build227": 111.80376851999989,
+          "relative_change": -0.18569228657507475
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 30156,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1211.078066229,
+      "build227_native_seconds": 467.084939406,
+      "build227_totals": {
+        "cells": 834314,
+        "measured": 834314,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3673,
+        "size_bad": 9432
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 185797860.0,
+          "build227": 141429897.0,
+          "relative_change": -0.238796953850814
+        },
+        "traversal_work": {
+          "build225": 172277354.0,
+          "build227": 127909391.0,
+          "relative_change": -0.2575379872620983
+        },
+        "scope_build_work": {
+          "build225": 3613099.0,
+          "build227": 3613099.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1767210.0,
+          "build227": 1767210.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5669014.0,
+          "build227": 5669014.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 670.9082502610004,
+          "build227": 500.0207839369998,
+          "relative_change": -0.2547106348111251
+        },
+        "traversal_seconds": {
+          "build225": 429.1191818510001,
+          "build227": 303.20204188300005,
+          "relative_change": -0.2934316276071792
+        },
+        "scope_build_seconds": {
+          "build225": 137.2991642799999,
+          "build227": 111.80376851999989,
+          "relative_change": -0.18569228657507475
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 30344,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1246.640549489,
+      "build227_native_seconds": 495.963826413,
+      "build227_totals": {
+        "cells": 836082,
+        "measured": 836082,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3696,
+        "size_bad": 9235
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 204534795.0,
+          "build227": 158105169.0,
+          "relative_change": -0.22700111245130683
+        },
+        "traversal_work": {
+          "build225": 190469230.0,
+          "build227": 144039604.0,
+          "relative_change": -0.24376444426220445
+        },
+        "scope_build_work": {
+          "build225": 3881253.0,
+          "build227": 3881253.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1768560.0,
+          "build227": 1768560.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5913184.0,
+          "build227": 5913184.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 725.3441343490001,
+          "build227": 547.1040629579999,
+          "relative_change": -0.24573173332541187
+        },
+        "traversal_seconds": {
+          "build225": 473.5344841960002,
+          "build227": 340.99293201799964,
+          "relative_change": -0.27989841627487566
+        },
+        "scope_build_seconds": {
+          "build225": 147.03588331199984,
+          "build227": 120.78211858999994,
+          "relative_change": -0.17855345328385763
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 30344,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1246.646877563,
+      "build227_native_seconds": 495.969774489,
+      "build227_totals": {
+        "cells": 836082,
+        "measured": 836082,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3696,
+        "size_bad": 9235
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 204534795.0,
+          "build227": 158105169.0,
+          "relative_change": -0.22700111245130683
+        },
+        "traversal_work": {
+          "build225": 190469230.0,
+          "build227": 144039604.0,
+          "relative_change": -0.24376444426220445
+        },
+        "scope_build_work": {
+          "build225": 3881253.0,
+          "build227": 3881253.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1768560.0,
+          "build227": 1768560.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5913184.0,
+          "build227": 5913184.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 725.3441343490001,
+          "build227": 547.1040629579999,
+          "relative_change": -0.24573173332541187
+        },
+        "traversal_seconds": {
+          "build225": 473.5344841960002,
+          "build227": 340.99293201799964,
+          "relative_change": -0.27989841627487566
+        },
+        "scope_build_seconds": {
+          "build225": 147.03588331199984,
+          "build227": 120.78211858999994,
+          "relative_change": -0.17855345328385763
+        }
+      }
+    },
+    {
+      "stage": "split_interior_exit",
+      "round": 32392,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1253.917131652,
+      "build227_native_seconds": 502.408190175,
+      "build227_totals": {
+        "cells": 850806,
+        "measured": 850806,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3696,
+        "size_bad": 3408
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 204536183.0,
+          "build227": 158106557.0,
+          "relative_change": -0.22699957200237764
+        },
+        "traversal_work": {
+          "build225": 190469676.0,
+          "build227": 144040050.0,
+          "relative_change": -0.24376387346823647
+        },
+        "scope_build_work": {
+          "build225": 3881253.0,
+          "build227": 3881253.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1768560.0,
+          "build227": 1768560.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5913675.0,
+          "build227": 5913675.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 725.3462248290001,
+          "build227": 547.1056155639999,
+          "relative_change": -0.24573176665670293
+        },
+        "traversal_seconds": {
+          "build225": 473.53552747300023,
+          "build227": 340.99391187499964,
+          "relative_change": -0.2798979335411276
+        },
+        "scope_build_seconds": {
+          "build225": 147.03588331199984,
+          "build227": 120.78211858999994,
+          "relative_change": -0.17855345328385763
+        }
+      }
+    },
+    {
+      "stage": "split_surface_resume",
+      "round": 32392,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1253.924887397,
+      "build227_native_seconds": 502.413306576,
+      "build227_totals": {
+        "cells": 850806,
+        "measured": 850806,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3696,
+        "size_bad": 3408
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 204536183.0,
+          "build227": 158106557.0,
+          "relative_change": -0.22699957200237764
+        },
+        "traversal_work": {
+          "build225": 190469676.0,
+          "build227": 144040050.0,
+          "relative_change": -0.24376387346823647
+        },
+        "scope_build_work": {
+          "build225": 3881253.0,
+          "build227": 3881253.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1768560.0,
+          "build227": 1768560.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5913675.0,
+          "build227": 5913675.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 725.3462248290001,
+          "build227": 547.1056155639999,
+          "relative_change": -0.24573176665670293
+        },
+        "traversal_seconds": {
+          "build225": 473.53552747300023,
+          "build227": 340.99391187499964,
+          "relative_change": -0.2798979335411276
+        },
+        "scope_build_seconds": {
+          "build225": 147.03588331199984,
+          "build227": 120.78211858999994,
+          "relative_change": -0.17855345328385763
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 32393,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1254.556378092,
+      "build227_native_seconds": 502.962020237,
+      "build227_totals": {
+        "cells": 850809,
+        "measured": 850809,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3696,
+        "size_bad": 3407
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 204536183.0,
+          "build227": 158106557.0,
+          "relative_change": -0.22699957200237764
+        },
+        "traversal_work": {
+          "build225": 190469676.0,
+          "build227": 144040050.0,
+          "relative_change": -0.24376387346823647
+        },
+        "scope_build_work": {
+          "build225": 3881253.0,
+          "build227": 3881253.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1768560.0,
+          "build227": 1768560.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5913675.0,
+          "build227": 5913675.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 725.3462248290001,
+          "build227": 547.1056155639999,
+          "relative_change": -0.24573176665670293
+        },
+        "traversal_seconds": {
+          "build225": 473.53552747300023,
+          "build227": 340.99391187499964,
+          "relative_change": -0.2798979335411276
+        },
+        "scope_build_seconds": {
+          "build225": 147.03588331199984,
+          "build227": 120.78211858999994,
+          "relative_change": -0.17855345328385763
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 32393,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1254.561829065,
+      "build227_native_seconds": 502.966686996,
+      "build227_totals": {
+        "cells": 850809,
+        "measured": 850809,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3696,
+        "size_bad": 3407
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 204536183.0,
+          "build227": 158106557.0,
+          "relative_change": -0.22699957200237764
+        },
+        "traversal_work": {
+          "build225": 190469676.0,
+          "build227": 144040050.0,
+          "relative_change": -0.24376387346823647
+        },
+        "scope_build_work": {
+          "build225": 3881253.0,
+          "build227": 3881253.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1768560.0,
+          "build227": 1768560.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5913675.0,
+          "build227": 5913675.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 725.3462248290001,
+          "build227": 547.1056155639999,
+          "relative_change": -0.24573176665670293
+        },
+        "traversal_seconds": {
+          "build225": 473.53552747300023,
+          "build227": 340.99391187499964,
+          "relative_change": -0.2798979335411276
+        },
+        "scope_build_seconds": {
+          "build225": 147.03588331199984,
+          "build227": 120.78211858999994,
+          "relative_change": -0.17855345328385763
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 32393,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1255.048979134,
+      "build227_native_seconds": 503.353012549,
+      "build227_totals": {
+        "cells": 850809,
+        "measured": 850809,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3696,
+        "size_bad": 3407
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 204536183.0,
+          "build227": 158106557.0,
+          "relative_change": -0.22699957200237764
+        },
+        "traversal_work": {
+          "build225": 190469676.0,
+          "build227": 144040050.0,
+          "relative_change": -0.24376387346823647
+        },
+        "scope_build_work": {
+          "build225": 3881253.0,
+          "build227": 3881253.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1768560.0,
+          "build227": 1768560.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 5913675.0,
+          "build227": 5913675.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 725.3462248290001,
+          "build227": 547.1056155639999,
+          "relative_change": -0.24573176665670293
+        },
+        "traversal_seconds": {
+          "build225": 473.53552747300023,
+          "build227": 340.99391187499964,
+          "relative_change": -0.2798979335411276
+        },
+        "scope_build_seconds": {
+          "build225": 147.03588331199984,
+          "build227": 120.78211858999994,
+          "relative_change": -0.17855345328385763
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 32580,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1285.918234582,
+      "build227_native_seconds": 528.851913925,
+      "build227_totals": {
+        "cells": 852608,
+        "measured": 852608,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3779,
+        "size_bad": 3140
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 221455982.0,
+          "build227": 173429099.0,
+          "relative_change": -0.2168687545319954
+        },
+        "traversal_work": {
+          "build225": 206872678.0,
+          "build227": 158845795.0,
+          "relative_change": -0.23215672298687984
+        },
+        "scope_build_work": {
+          "build225": 4132696.0,
+          "build227": 4132696.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1773730.0,
+          "build227": 1773730.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6143734.0,
+          "build227": 6143734.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 772.4535994370004,
+          "build227": 587.3900976499999,
+          "relative_change": -0.2395787940167322
+        },
+        "traversal_seconds": {
+          "build225": 511.80886841100033,
+          "build227": 373.3331569499999,
+          "relative_change": -0.2705613755598304
+        },
+        "scope_build_seconds": {
+          "build225": 155.44099365699978,
+          "build227": 128.32849757299988,
+          "relative_change": -0.17442307493110254
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 32580,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1285.922835081,
+      "build227_native_seconds": 528.856704964,
+      "build227_totals": {
+        "cells": 852608,
+        "measured": 852608,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3779,
+        "size_bad": 3140
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 221455982.0,
+          "build227": 173429099.0,
+          "relative_change": -0.2168687545319954
+        },
+        "traversal_work": {
+          "build225": 206872678.0,
+          "build227": 158845795.0,
+          "relative_change": -0.23215672298687984
+        },
+        "scope_build_work": {
+          "build225": 4132696.0,
+          "build227": 4132696.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1773730.0,
+          "build227": 1773730.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6143734.0,
+          "build227": 6143734.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 772.4535994370004,
+          "build227": 587.3900976499999,
+          "relative_change": -0.2395787940167322
+        },
+        "traversal_seconds": {
+          "build225": 511.80886841100033,
+          "build227": 373.3331569499999,
+          "relative_change": -0.2705613755598304
+        },
+        "scope_build_seconds": {
+          "build225": 155.44099365699978,
+          "build227": 128.32849757299988,
+          "relative_change": -0.17442307493110254
+        }
+      }
+    },
+    {
+      "stage": "split_interior_exit",
+      "round": 32724,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1287.700682156,
+      "build227_native_seconds": 530.148261722,
+      "build227_totals": {
+        "cells": 853498,
+        "measured": 853498,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3779,
+        "size_bad": 2651
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 221456501.0,
+          "build227": 173429618.0,
+          "relative_change": -0.21686824628372503
+        },
+        "traversal_work": {
+          "build225": 206872839.0,
+          "build227": 158845956.0,
+          "relative_change": -0.23215654230954896
+        },
+        "scope_build_work": {
+          "build225": 4132696.0,
+          "build227": 4132696.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1773730.0,
+          "build227": 1773730.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6143921.0,
+          "build227": 6143921.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 772.4541144290005,
+          "build227": 587.390593462,
+          "relative_change": -0.2395786591204836
+        },
+        "traversal_seconds": {
+          "build225": 511.8092138300003,
+          "build227": 373.3334913809999,
+          "relative_change": -0.2705612144274444
+        },
+        "scope_build_seconds": {
+          "build225": 155.44099365699978,
+          "build227": 128.32849757299988,
+          "relative_change": -0.17442307493110254
+        }
+      }
+    },
+    {
+      "stage": "split_surface_resume",
+      "round": 32724,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1287.706983203,
+      "build227_native_seconds": 530.153750081,
+      "build227_totals": {
+        "cells": 853498,
+        "measured": 853498,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3779,
+        "size_bad": 2651
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 221456501.0,
+          "build227": 173429618.0,
+          "relative_change": -0.21686824628372503
+        },
+        "traversal_work": {
+          "build225": 206872839.0,
+          "build227": 158845956.0,
+          "relative_change": -0.23215654230954896
+        },
+        "scope_build_work": {
+          "build225": 4132696.0,
+          "build227": 4132696.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1773730.0,
+          "build227": 1773730.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6143921.0,
+          "build227": 6143921.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 772.4541144290005,
+          "build227": 587.390593462,
+          "relative_change": -0.2395786591204836
+        },
+        "traversal_seconds": {
+          "build225": 511.8092138300003,
+          "build227": 373.3334913809999,
+          "relative_change": -0.2705612144274444
+        },
+        "scope_build_seconds": {
+          "build225": 155.44099365699978,
+          "build227": 128.32849757299988,
+          "relative_change": -0.17442307493110254
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 32725,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1288.164639649,
+      "build227_native_seconds": 530.440946145,
+      "build227_totals": {
+        "cells": 853503,
+        "measured": 853503,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3779,
+        "size_bad": 2650
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 221456501.0,
+          "build227": 173429618.0,
+          "relative_change": -0.21686824628372503
+        },
+        "traversal_work": {
+          "build225": 206872839.0,
+          "build227": 158845956.0,
+          "relative_change": -0.23215654230954896
+        },
+        "scope_build_work": {
+          "build225": 4132696.0,
+          "build227": 4132696.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1773730.0,
+          "build227": 1773730.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6143921.0,
+          "build227": 6143921.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 772.4541144290005,
+          "build227": 587.390593462,
+          "relative_change": -0.2395786591204836
+        },
+        "traversal_seconds": {
+          "build225": 511.8092138300003,
+          "build227": 373.3334913809999,
+          "relative_change": -0.2705612144274444
+        },
+        "scope_build_seconds": {
+          "build225": 155.44099365699978,
+          "build227": 128.32849757299988,
+          "relative_change": -0.17442307493110254
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 32725,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1288.170731253,
+      "build227_native_seconds": 530.445345547,
+      "build227_totals": {
+        "cells": 853503,
+        "measured": 853503,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3779,
+        "size_bad": 2650
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 221456501.0,
+          "build227": 173429618.0,
+          "relative_change": -0.21686824628372503
+        },
+        "traversal_work": {
+          "build225": 206872839.0,
+          "build227": 158845956.0,
+          "relative_change": -0.23215654230954896
+        },
+        "scope_build_work": {
+          "build225": 4132696.0,
+          "build227": 4132696.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1773730.0,
+          "build227": 1773730.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6143921.0,
+          "build227": 6143921.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 772.4541144290005,
+          "build227": 587.390593462,
+          "relative_change": -0.2395786591204836
+        },
+        "traversal_seconds": {
+          "build225": 511.8092138300003,
+          "build227": 373.3334913809999,
+          "relative_change": -0.2705612144274444
+        },
+        "scope_build_seconds": {
+          "build225": 155.44099365699978,
+          "build227": 128.32849757299988,
+          "relative_change": -0.17442307493110254
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 32725,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1288.561772529,
+      "build227_native_seconds": 530.760295161,
+      "build227_totals": {
+        "cells": 853503,
+        "measured": 853503,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3779,
+        "size_bad": 2650
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 221456501.0,
+          "build227": 173429618.0,
+          "relative_change": -0.21686824628372503
+        },
+        "traversal_work": {
+          "build225": 206872839.0,
+          "build227": 158845956.0,
+          "relative_change": -0.23215654230954896
+        },
+        "scope_build_work": {
+          "build225": 4132696.0,
+          "build227": 4132696.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1773730.0,
+          "build227": 1773730.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6143921.0,
+          "build227": 6143921.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 772.4541144290005,
+          "build227": 587.390593462,
+          "relative_change": -0.2395786591204836
+        },
+        "traversal_seconds": {
+          "build225": 511.8092138300003,
+          "build227": 373.3334913809999,
+          "relative_change": -0.2705612144274444
+        },
+        "scope_build_seconds": {
+          "build225": 155.44099365699978,
+          "build227": 128.32849757299988,
+          "relative_change": -0.17442307493110254
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 32900,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1313.655550322,
+      "build227_native_seconds": 551.506914105,
+      "build227_totals": {
+        "cells": 855223,
+        "measured": 855223,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3781,
+        "size_bad": 2371
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 235701457.0,
+          "build227": 186169116.0,
+          "relative_change": -0.21014864155039992
+        },
+        "traversal_work": {
+          "build225": 220613495.0,
+          "build227": 171081154.0,
+          "relative_change": -0.22452090249510803
+        },
+        "scope_build_work": {
+          "build225": 4377352.0,
+          "build227": 4377352.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1774412.0,
+          "build227": 1774412.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6371089.0,
+          "build227": 6371089.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 813.7761393700006,
+          "build227": 622.705647578,
+          "relative_change": -0.2347949055620151
+        },
+        "traversal_seconds": {
+          "build225": 544.5018176020002,
+          "build227": 401.14801203399986,
+          "relative_change": -0.2632751644417536
+        },
+        "scope_build_seconds": {
+          "build225": 163.84877247099982,
+          "build227": 135.65343259799982,
+          "relative_change": -0.17208148372298848
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 32900,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1313.660525231,
+      "build227_native_seconds": 551.511217689,
+      "build227_totals": {
+        "cells": 855223,
+        "measured": 855223,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3781,
+        "size_bad": 2371
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 235701457.0,
+          "build227": 186169116.0,
+          "relative_change": -0.21014864155039992
+        },
+        "traversal_work": {
+          "build225": 220613495.0,
+          "build227": 171081154.0,
+          "relative_change": -0.22452090249510803
+        },
+        "scope_build_work": {
+          "build225": 4377352.0,
+          "build227": 4377352.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1774412.0,
+          "build227": 1774412.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6371089.0,
+          "build227": 6371089.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 813.7761393700006,
+          "build227": 622.705647578,
+          "relative_change": -0.2347949055620151
+        },
+        "traversal_seconds": {
+          "build225": 544.5018176020002,
+          "build227": 401.14801203399986,
+          "relative_change": -0.2632751644417536
+        },
+        "scope_build_seconds": {
+          "build225": 163.84877247099982,
+          "build227": 135.65343259799982,
+          "relative_change": -0.17208148372298848
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 32987,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1314.490842391,
+      "build227_native_seconds": 552.250116065,
+      "build227_totals": {
+        "cells": 855768,
+        "measured": 855768,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3781,
+        "size_bad": 2102
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 235701457.0,
+          "build227": 186169116.0,
+          "relative_change": -0.21014864155039992
+        },
+        "traversal_work": {
+          "build225": 220613495.0,
+          "build227": 171081154.0,
+          "relative_change": -0.22452090249510803
+        },
+        "scope_build_work": {
+          "build225": 4377352.0,
+          "build227": 4377352.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1774412.0,
+          "build227": 1774412.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6371089.0,
+          "build227": 6371089.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 813.7761393700006,
+          "build227": 622.705647578,
+          "relative_change": -0.2347949055620151
+        },
+        "traversal_seconds": {
+          "build225": 544.5018176020002,
+          "build227": 401.14801203399986,
+          "relative_change": -0.2632751644417536
+        },
+        "scope_build_seconds": {
+          "build225": 163.84877247099982,
+          "build227": 135.65343259799982,
+          "relative_change": -0.17208148372298848
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 33158,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1337.156925397,
+      "build227_native_seconds": 572.904175061,
+      "build227_totals": {
+        "cells": 857416,
+        "measured": 857416,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3725,
+        "size_bad": 1845
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 249575791.0,
+          "build227": 198620809.0,
+          "relative_change": -0.204166364837846
+        },
+        "traversal_work": {
+          "build225": 234024474.0,
+          "build227": 183069492.0,
+          "relative_change": -0.21773356063605553
+        },
+        "scope_build_work": {
+          "build225": 4603911.0,
+          "build227": 4603911.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1775290.0,
+          "build227": 1775290.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6580148.0,
+          "build227": 6580148.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 850.5445371960006,
+          "build227": 657.1228413449998,
+          "relative_change": -0.22740925065330064
+        },
+        "traversal_seconds": {
+          "build225": 574.1523757380003,
+          "build227": 428.4909722359998,
+          "relative_change": -0.253698163862461
+        },
+        "scope_build_seconds": {
+          "build225": 170.7829961119998,
+          "build227": 142.54552464499977,
+          "relative_change": -0.1653412348409783
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 33158,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1337.16112483,
+      "build227_native_seconds": 572.908955557,
+      "build227_totals": {
+        "cells": 857416,
+        "measured": 857416,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3725,
+        "size_bad": 1845
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 249575791.0,
+          "build227": 198620809.0,
+          "relative_change": -0.204166364837846
+        },
+        "traversal_work": {
+          "build225": 234024474.0,
+          "build227": 183069492.0,
+          "relative_change": -0.21773356063605553
+        },
+        "scope_build_work": {
+          "build225": 4603911.0,
+          "build227": 4603911.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1775290.0,
+          "build227": 1775290.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6580148.0,
+          "build227": 6580148.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 850.5445371960006,
+          "build227": 657.1228413449998,
+          "relative_change": -0.22740925065330064
+        },
+        "traversal_seconds": {
+          "build225": 574.1523757380003,
+          "build227": 428.4909722359998,
+          "relative_change": -0.253698163862461
+        },
+        "scope_build_seconds": {
+          "build225": 170.7829961119998,
+          "build227": 142.54552464499977,
+          "relative_change": -0.1653412348409783
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 33220,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1337.60176872,
+      "build227_native_seconds": 573.437421502,
+      "build227_totals": {
+        "cells": 857872,
+        "measured": 857872,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3725,
+        "size_bad": 1618
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 249576913.0,
+          "build227": 198621931.0,
+          "relative_change": -0.2041654469858757
+        },
+        "traversal_work": {
+          "build225": 234024804.0,
+          "build227": 183069822.0,
+          "relative_change": -0.21773325360845086
+        },
+        "scope_build_work": {
+          "build225": 4603911.0,
+          "build227": 4603911.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1775290.0,
+          "build227": 1775290.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6580558.0,
+          "build227": 6580558.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 850.5455930400007,
+          "build227": 657.1239293469998,
+          "relative_change": -0.22740893054501354
+        },
+        "traversal_seconds": {
+          "build225": 574.1531014220003,
+          "build227": 428.4917066709998,
+          "relative_change": -0.2536978279665164
+        },
+        "scope_build_seconds": {
+          "build225": 170.7829961119998,
+          "build227": 142.54552464499977,
+          "relative_change": -0.1653412348409783
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 33374,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1358.611818538,
+      "build227_native_seconds": 591.379808,
+      "build227_totals": {
+        "cells": 859500,
+        "measured": 859500,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3692,
+        "size_bad": 1346
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 261188380.0,
+          "build227": 209212267.0,
+          "relative_change": -0.19899856570954655
+        },
+        "traversal_work": {
+          "build225": 245201966.0,
+          "build227": 193225853.0,
+          "relative_change": -0.21197266012133031
+        },
+        "scope_build_work": {
+          "build225": 4818385.0,
+          "build227": 4818385.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1776124.0,
+          "build227": 1776124.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6775819.0,
+          "build227": 6775819.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 883.4517586180006,
+          "build227": 685.8616339890002,
+          "relative_change": -0.22365694866926755
+        },
+        "traversal_seconds": {
+          "build225": 599.8236235480008,
+          "build227": 450.7574118539997,
+          "relative_change": -0.24851674032487003
+        },
+        "scope_build_seconds": {
+          "build225": 177.82319201999982,
+          "build227": 148.85297631899977,
+          "relative_change": -0.16291584563245143
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 33374,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1358.616507224,
+      "build227_native_seconds": 591.384056649,
+      "build227_totals": {
+        "cells": 859500,
+        "measured": 859500,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3692,
+        "size_bad": 1346
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 261188380.0,
+          "build227": 209212267.0,
+          "relative_change": -0.19899856570954655
+        },
+        "traversal_work": {
+          "build225": 245201966.0,
+          "build227": 193225853.0,
+          "relative_change": -0.21197266012133031
+        },
+        "scope_build_work": {
+          "build225": 4818385.0,
+          "build227": 4818385.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1776124.0,
+          "build227": 1776124.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6775819.0,
+          "build227": 6775819.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 883.4517586180006,
+          "build227": 685.8616339890002,
+          "relative_change": -0.22365694866926755
+        },
+        "traversal_seconds": {
+          "build225": 599.8236235480008,
+          "build227": 450.7574118539997,
+          "relative_change": -0.24851674032487003
+        },
+        "scope_build_seconds": {
+          "build225": 177.82319201999982,
+          "build227": 148.85297631899977,
+          "relative_change": -0.16291584563245143
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 33415,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1359.189615023,
+      "build227_native_seconds": 591.779786664,
+      "build227_totals": {
+        "cells": 859753,
+        "measured": 859753,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3692,
+        "size_bad": 1212
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 261188931.0,
+          "build227": 209212818.0,
+          "relative_change": -0.19899814590534848
+        },
+        "traversal_work": {
+          "build225": 245202107.0,
+          "build227": 193225994.0,
+          "relative_change": -0.21197253822945328
+        },
+        "scope_build_work": {
+          "build225": 4818385.0,
+          "build227": 4818385.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1776124.0,
+          "build227": 1776124.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6776030.0,
+          "build227": 6776030.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 883.4522448260007,
+          "build227": 685.8621089670002,
+          "relative_change": -0.22365683829114802
+        },
+        "traversal_seconds": {
+          "build225": 599.8238985120007,
+          "build227": 450.75767659299976,
+          "relative_change": -0.2485166434495083
+        },
+        "scope_build_seconds": {
+          "build225": 177.82319201999982,
+          "build227": 148.85297631899977,
+          "relative_change": -0.16291584563245143
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 33558,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1379.549058085,
+      "build227_native_seconds": 609.253730444,
+      "build227_totals": {
+        "cells": 861335,
+        "measured": 861335,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3644,
+        "size_bad": 959
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 273561195.0,
+          "build227": 220652280.0,
+          "relative_change": -0.19340796855343467
+        },
+        "traversal_work": {
+          "build225": 257130614.0,
+          "build227": 204221699.0,
+          "relative_change": -0.2057666886759738
+        },
+        "scope_build_work": {
+          "build225": 5039082.0,
+          "build227": 5039082.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1776214.0,
+          "build227": 1776214.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6976167.0,
+          "build227": 6976167.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 917.4370289740009,
+          "build227": 715.8089191550001,
+          "relative_change": -0.2197732415972875
+        },
+        "traversal_seconds": {
+          "build225": 626.6136045180009,
+          "build227": 474.26633755999956,
+          "relative_change": -0.24312792741738953
+        },
+        "scope_build_seconds": {
+          "build225": 184.86382527199984,
+          "build227": 155.16156648599994,
+          "relative_change": -0.16067101685414875
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 33558,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1379.554007712,
+      "build227_native_seconds": 609.259000709,
+      "build227_totals": {
+        "cells": 861335,
+        "measured": 861335,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3644,
+        "size_bad": 959
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 273561195.0,
+          "build227": 220652280.0,
+          "relative_change": -0.19340796855343467
+        },
+        "traversal_work": {
+          "build225": 257130614.0,
+          "build227": 204221699.0,
+          "relative_change": -0.2057666886759738
+        },
+        "scope_build_work": {
+          "build225": 5039082.0,
+          "build227": 5039082.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1776214.0,
+          "build227": 1776214.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6976167.0,
+          "build227": 6976167.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 917.4370289740009,
+          "build227": 715.8089191550001,
+          "relative_change": -0.2197732415972875
+        },
+        "traversal_seconds": {
+          "build225": 626.6136045180009,
+          "build227": 474.26633755999956,
+          "relative_change": -0.24312792741738953
+        },
+        "scope_build_seconds": {
+          "build225": 184.86382527199984,
+          "build227": 155.16156648599994,
+          "relative_change": -0.16067101685414875
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 33584,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1380.006253731,
+      "build227_native_seconds": 609.724237029,
+      "build227_totals": {
+        "cells": 861488,
+        "measured": 861488,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3644,
+        "size_bad": 868
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 273562248.0,
+          "build227": 220653333.0,
+          "relative_change": -0.19340722408451627
+        },
+        "traversal_work": {
+          "build225": 257130943.0,
+          "build227": 204222028.0,
+          "relative_change": -0.20576642539672874
+        },
+        "scope_build_work": {
+          "build225": 5039082.0,
+          "build227": 5039082.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1776214.0,
+          "build227": 1776214.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 6976545.0,
+          "build227": 6976545.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 917.4380675230009,
+          "build227": 715.8102670140001,
+          "relative_change": -0.21977265566642268
+        },
+        "traversal_seconds": {
+          "build225": 626.614259905001,
+          "build227": 474.2670226199996,
+          "relative_change": -0.24312762577107372
+        },
+        "scope_build_seconds": {
+          "build225": 184.86382527199984,
+          "build227": 155.16156648599994,
+          "relative_change": -0.16067101685414875
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 33720,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1407.453320097,
+      "build227_native_seconds": 629.785006276,
+      "build227_totals": {
+        "cells": 862972,
+        "measured": 862972,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3520,
+        "size_bad": 645
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 287531886.0,
+          "build227": 233361487.0,
+          "relative_change": -0.1883978843306443
+        },
+        "traversal_work": {
+          "build225": 270692209.0,
+          "build227": 216521810.0,
+          "relative_change": -0.20011805733204535
+        },
+        "scope_build_work": {
+          "build225": 5240045.0,
+          "build227": 5240045.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1778320.0,
+          "build227": 1778320.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7160380.0,
+          "build227": 7160380.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 959.1844269300007,
+          "build227": 748.4453610590004,
+          "relative_change": -0.21970651311083012
+        },
+        "traversal_seconds": {
+          "build225": 660.5900543360008,
+          "build227": 500.7060959489998,
+          "relative_change": -0.24203203989758837
+        },
+        "scope_build_seconds": {
+          "build225": 192.34196945099984,
+          "build227": 161.14099643399993,
+          "relative_change": -0.1622161460967495
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 33720,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1407.460074826,
+      "build227_native_seconds": 629.790496933,
+      "build227_totals": {
+        "cells": 862972,
+        "measured": 862972,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3520,
+        "size_bad": 645
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 287531886.0,
+          "build227": 233361487.0,
+          "relative_change": -0.1883978843306443
+        },
+        "traversal_work": {
+          "build225": 270692209.0,
+          "build227": 216521810.0,
+          "relative_change": -0.20011805733204535
+        },
+        "scope_build_work": {
+          "build225": 5240045.0,
+          "build227": 5240045.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1778320.0,
+          "build227": 1778320.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7160380.0,
+          "build227": 7160380.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 959.1844269300007,
+          "build227": 748.4453610590004,
+          "relative_change": -0.21970651311083012
+        },
+        "traversal_seconds": {
+          "build225": 660.5900543360008,
+          "build227": 500.7060959489998,
+          "relative_change": -0.24203203989758837
+        },
+        "scope_build_seconds": {
+          "build225": 192.34196945099984,
+          "build227": 161.14099643399993,
+          "relative_change": -0.1622161460967495
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 33737,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1407.905301591,
+      "build227_native_seconds": 630.178577128,
+      "build227_totals": {
+        "cells": 863077,
+        "measured": 863077,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3520,
+        "size_bad": 580
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 287531886.0,
+          "build227": 233361487.0,
+          "relative_change": -0.1883978843306443
+        },
+        "traversal_work": {
+          "build225": 270692209.0,
+          "build227": 216521810.0,
+          "relative_change": -0.20011805733204535
+        },
+        "scope_build_work": {
+          "build225": 5240045.0,
+          "build227": 5240045.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1778320.0,
+          "build227": 1778320.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7160380.0,
+          "build227": 7160380.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 959.1844269300007,
+          "build227": 748.4453610590004,
+          "relative_change": -0.21970651311083012
+        },
+        "traversal_seconds": {
+          "build225": 660.5900543360008,
+          "build227": 500.7060959489998,
+          "relative_change": -0.24203203989758837
+        },
+        "scope_build_seconds": {
+          "build225": 192.34196945099984,
+          "build227": 161.14099643399993,
+          "relative_change": -0.1622161460967495
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 33856,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1428.952771457,
+      "build227_native_seconds": 644.765873068,
+      "build227_totals": {
+        "cells": 864443,
+        "measured": 864443,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3427,
+        "size_bad": 432
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 297538829.0,
+          "build227": 242550772.0,
+          "relative_change": -0.18480968411689214
+        },
+        "traversal_work": {
+          "build225": 280329705.0,
+          "build227": 225341648.0,
+          "relative_change": -0.19615494191027671
+        },
+        "scope_build_work": {
+          "build225": 5422540.0,
+          "build227": 5422540.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1779634.0,
+          "build227": 1779634.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7327297.0,
+          "build227": 7327297.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 992.4506238830008,
+          "build227": 772.9406291210004,
+          "relative_change": -0.22117976398982875
+        },
+        "traversal_seconds": {
+          "build225": 686.5238550660009,
+          "build227": 519.6365224359998,
+          "relative_change": -0.2430903622627314
+        },
+        "scope_build_seconds": {
+          "build225": 199.43931172399994,
+          "build227": 166.53818624199982,
+          "relative_change": -0.16496810582424848
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 33856,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1428.969723469,
+      "build227_native_seconds": 644.77013572,
+      "build227_totals": {
+        "cells": 864443,
+        "measured": 864443,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3427,
+        "size_bad": 432
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 297538829.0,
+          "build227": 242550772.0,
+          "relative_change": -0.18480968411689214
+        },
+        "traversal_work": {
+          "build225": 280329705.0,
+          "build227": 225341648.0,
+          "relative_change": -0.19615494191027671
+        },
+        "scope_build_work": {
+          "build225": 5422540.0,
+          "build227": 5422540.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1779634.0,
+          "build227": 1779634.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7327297.0,
+          "build227": 7327297.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 992.4506238830008,
+          "build227": 772.9406291210004,
+          "relative_change": -0.22117976398982875
+        },
+        "traversal_seconds": {
+          "build225": 686.5238550660009,
+          "build227": 519.6365224359998,
+          "relative_change": -0.2430903622627314
+        },
+        "scope_build_seconds": {
+          "build225": 199.43931172399994,
+          "build227": 166.53818624199982,
+          "relative_change": -0.16496810582424848
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 33863,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1429.860543594,
+      "build227_native_seconds": 645.188234825,
+      "build227_totals": {
+        "cells": 864478,
+        "measured": 864478,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3427,
+        "size_bad": 403
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 297538829.0,
+          "build227": 242550772.0,
+          "relative_change": -0.18480968411689214
+        },
+        "traversal_work": {
+          "build225": 280329705.0,
+          "build227": 225341648.0,
+          "relative_change": -0.19615494191027671
+        },
+        "scope_build_work": {
+          "build225": 5422540.0,
+          "build227": 5422540.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1779634.0,
+          "build227": 1779634.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7327297.0,
+          "build227": 7327297.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 992.4506238830008,
+          "build227": 772.9406291210004,
+          "relative_change": -0.22117976398982875
+        },
+        "traversal_seconds": {
+          "build225": 686.5238550660009,
+          "build227": 519.6365224359998,
+          "relative_change": -0.2430903622627314
+        },
+        "scope_build_seconds": {
+          "build225": 199.43931172399994,
+          "build227": 166.53818624199982,
+          "relative_change": -0.16496810582424848
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 33982,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1449.728721289,
+      "build227_native_seconds": 660.877219982,
+      "build227_totals": {
+        "cells": 865715,
+        "measured": 865715,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3309,
+        "size_bad": 279
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 308231701.0,
+          "build227": 252423351.0,
+          "relative_change": -0.18105973467018566
+        },
+        "traversal_work": {
+          "build225": 290689477.0,
+          "build227": 234881127.0,
+          "relative_change": -0.1919861378401393
+        },
+        "scope_build_work": {
+          "build225": 5587252.0,
+          "build227": 5587252.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1779634.0,
+          "build227": 1779634.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7478593.0,
+          "build227": 7478593.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1022.8952345420007,
+          "build227": 797.7962074470001,
+          "relative_change": -0.22006068607386586
+        },
+        "traversal_seconds": {
+          "build225": 710.9267973150013,
+          "build227": 539.6051660919999,
+          "relative_change": -0.24098350472937835
+        },
+        "scope_build_seconds": {
+          "build225": 205.3514436689999,
+          "build227": 171.32762199399977,
+          "relative_change": -0.16568581679826
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 33982,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1449.734211985,
+      "build227_native_seconds": 660.8817947,
+      "build227_totals": {
+        "cells": 865715,
+        "measured": 865715,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3309,
+        "size_bad": 279
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 308231701.0,
+          "build227": 252423351.0,
+          "relative_change": -0.18105973467018566
+        },
+        "traversal_work": {
+          "build225": 290689477.0,
+          "build227": 234881127.0,
+          "relative_change": -0.1919861378401393
+        },
+        "scope_build_work": {
+          "build225": 5587252.0,
+          "build227": 5587252.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1779634.0,
+          "build227": 1779634.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7478593.0,
+          "build227": 7478593.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1022.8952345420007,
+          "build227": 797.7962074470001,
+          "relative_change": -0.22006068607386586
+        },
+        "traversal_seconds": {
+          "build225": 710.9267973150013,
+          "build227": 539.6051660919999,
+          "relative_change": -0.24098350472937835
+        },
+        "scope_build_seconds": {
+          "build225": 205.3514436689999,
+          "build227": 171.32762199399977,
+          "relative_change": -0.16568581679826
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 33984,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1450.129069471,
+      "build227_native_seconds": 661.205769055,
+      "build227_totals": {
+        "cells": 865727,
+        "measured": 865727,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3309,
+        "size_bad": 271
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 308231701.0,
+          "build227": 252423351.0,
+          "relative_change": -0.18105973467018566
+        },
+        "traversal_work": {
+          "build225": 290689477.0,
+          "build227": 234881127.0,
+          "relative_change": -0.1919861378401393
+        },
+        "scope_build_work": {
+          "build225": 5587252.0,
+          "build227": 5587252.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1779634.0,
+          "build227": 1779634.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7478593.0,
+          "build227": 7478593.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1022.8952345420007,
+          "build227": 797.7962074470001,
+          "relative_change": -0.22006068607386586
+        },
+        "traversal_seconds": {
+          "build225": 710.9267973150013,
+          "build227": 539.6051660919999,
+          "relative_change": -0.24098350472937835
+        },
+        "scope_build_seconds": {
+          "build225": 205.3514436689999,
+          "build227": 171.32762199399977,
+          "relative_change": -0.16568581679826
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 34094,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1465.276220069,
+      "build227_native_seconds": 675.03078879,
+      "build227_totals": {
+        "cells": 866908,
+        "measured": 866908,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3139,
+        "size_bad": 173
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 317444688.0,
+          "build227": 261015793.0,
+          "relative_change": -0.17775977086124684
+        },
+        "traversal_work": {
+          "build225": 299616483.0,
+          "build227": 243187588.0,
+          "relative_change": -0.1883370849126481
+        },
+        "scope_build_work": {
+          "build225": 5728688.0,
+          "build227": 5728688.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1780746.0,
+          "build227": 1780746.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7608090.0,
+          "build227": 7608090.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1046.9294718080012,
+          "build227": 819.9951161710004,
+          "relative_change": -0.21676183711314867
+        },
+        "traversal_seconds": {
+          "build225": 730.3288817070015,
+          "build227": 557.3103090049996,
+          "relative_change": -0.23690501229747996
+        },
+        "scope_build_seconds": {
+          "build225": 209.8317395649999,
+          "build227": 175.67678548099977,
+          "relative_change": -0.16277305880800697
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 34094,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1465.281091145,
+      "build227_native_seconds": 675.035204976,
+      "build227_totals": {
+        "cells": 866908,
+        "measured": 866908,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3139,
+        "size_bad": 173
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 317444688.0,
+          "build227": 261015793.0,
+          "relative_change": -0.17775977086124684
+        },
+        "traversal_work": {
+          "build225": 299616483.0,
+          "build227": 243187588.0,
+          "relative_change": -0.1883370849126481
+        },
+        "scope_build_work": {
+          "build225": 5728688.0,
+          "build227": 5728688.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1780746.0,
+          "build227": 1780746.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7608090.0,
+          "build227": 7608090.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1046.9294718080012,
+          "build227": 819.9951161710004,
+          "relative_change": -0.21676183711314867
+        },
+        "traversal_seconds": {
+          "build225": 730.3288817070015,
+          "build227": 557.3103090049996,
+          "relative_change": -0.23690501229747996
+        },
+        "scope_build_seconds": {
+          "build225": 209.8317395649999,
+          "build227": 175.67678548099977,
+          "relative_change": -0.16277305880800697
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 34096,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1465.631869911,
+      "build227_native_seconds": 675.357824195,
+      "build227_totals": {
+        "cells": 866915,
+        "measured": 866915,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3139,
+        "size_bad": 168
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 317444688.0,
+          "build227": 261015793.0,
+          "relative_change": -0.17775977086124684
+        },
+        "traversal_work": {
+          "build225": 299616483.0,
+          "build227": 243187588.0,
+          "relative_change": -0.1883370849126481
+        },
+        "scope_build_work": {
+          "build225": 5728688.0,
+          "build227": 5728688.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1780746.0,
+          "build227": 1780746.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7608090.0,
+          "build227": 7608090.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1046.9294718080012,
+          "build227": 819.9951161710004,
+          "relative_change": -0.21676183711314867
+        },
+        "traversal_seconds": {
+          "build225": 730.3288817070015,
+          "build227": 557.3103090049996,
+          "relative_change": -0.23690501229747996
+        },
+        "scope_build_seconds": {
+          "build225": 209.8317395649999,
+          "build227": 175.67678548099977,
+          "relative_change": -0.16277305880800697
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 34202,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1480.074401599,
+      "build227_native_seconds": 688.366412572,
+      "build227_totals": {
+        "cells": 868001,
+        "measured": 868001,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2980,
+        "size_bad": 91
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 325693486.0,
+          "build227": 268721347.0,
+          "relative_change": -0.17492563237816794
+        },
+        "traversal_work": {
+          "build225": 307609702.0,
+          "build227": 250637563.0,
+          "relative_change": -0.18520917457928554
+        },
+        "scope_build_work": {
+          "build225": 5856077.0,
+          "build227": 5856077.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1780746.0,
+          "build227": 1780746.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7723632.0,
+          "build227": 7723632.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1068.5831191860013,
+          "build227": 839.6434205240005,
+          "relative_change": -0.2142460371603071
+        },
+        "traversal_seconds": {
+          "build225": 747.8572536360017,
+          "build227": 572.9982156520002,
+          "relative_change": -0.2338133876937819
+        },
+        "scope_build_seconds": {
+          "build225": 213.86785780399998,
+          "build227": 179.55461042199974,
+          "relative_change": -0.1604413479160891
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 34202,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1480.078942593,
+      "build227_native_seconds": 688.371005632,
+      "build227_totals": {
+        "cells": 868001,
+        "measured": 868001,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2980,
+        "size_bad": 91
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 325693486.0,
+          "build227": 268721347.0,
+          "relative_change": -0.17492563237816794
+        },
+        "traversal_work": {
+          "build225": 307609702.0,
+          "build227": 250637563.0,
+          "relative_change": -0.18520917457928554
+        },
+        "scope_build_work": {
+          "build225": 5856077.0,
+          "build227": 5856077.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1780746.0,
+          "build227": 1780746.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7723632.0,
+          "build227": 7723632.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1068.5831191860013,
+          "build227": 839.6434205240005,
+          "relative_change": -0.2142460371603071
+        },
+        "traversal_seconds": {
+          "build225": 747.8572536360017,
+          "build227": 572.9982156520002,
+          "relative_change": -0.2338133876937819
+        },
+        "scope_build_seconds": {
+          "build225": 213.86785780399998,
+          "build227": 179.55461042199974,
+          "relative_change": -0.1604413479160891
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 34203,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1480.385912021,
+      "build227_native_seconds": 688.680622622,
+      "build227_totals": {
+        "cells": 868001,
+        "measured": 868001,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2980,
+        "size_bad": 91
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 325693486.0,
+          "build227": 268721347.0,
+          "relative_change": -0.17492563237816794
+        },
+        "traversal_work": {
+          "build225": 307609702.0,
+          "build227": 250637563.0,
+          "relative_change": -0.18520917457928554
+        },
+        "scope_build_work": {
+          "build225": 5856077.0,
+          "build227": 5856077.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1780746.0,
+          "build227": 1780746.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7723632.0,
+          "build227": 7723632.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1068.5831191860013,
+          "build227": 839.6434205240005,
+          "relative_change": -0.2142460371603071
+        },
+        "traversal_seconds": {
+          "build225": 747.8572536360017,
+          "build227": 572.9982156520002,
+          "relative_change": -0.2338133876937819
+        },
+        "scope_build_seconds": {
+          "build225": 213.86785780399998,
+          "build227": 179.55461042199974,
+          "relative_change": -0.1604413479160891
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 34302,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1493.626313958,
+      "build227_native_seconds": 700.183059437,
+      "build227_totals": {
+        "cells": 869021,
+        "measured": 869021,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2753,
+        "size_bad": 55
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 332988991.0,
+          "build227": 275611082.0,
+          "relative_change": -0.17231172966916497
+        },
+        "traversal_work": {
+          "build225": 314685467.0,
+          "build227": 257307558.0,
+          "relative_change": -0.18233415590177227
+        },
+        "scope_build_work": {
+          "build225": 5964688.0,
+          "build227": 5964688.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1780746.0,
+          "build227": 1780746.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7823363.0,
+          "build227": 7823363.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1087.4108192340009,
+          "build227": 856.6074898730003,
+          "relative_change": -0.21225035219309674
+        },
+        "traversal_seconds": {
+          "build225": 763.1788080530017,
+          "build227": 586.6822161610003,
+          "relative_change": -0.23126505876424175
+        },
+        "scope_build_seconds": {
+          "build225": 217.2976406680001,
+          "build227": 182.76898866899973,
+          "relative_change": -0.1589002618383476
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 34302,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1493.632478007,
+      "build227_native_seconds": 700.187621373,
+      "build227_totals": {
+        "cells": 869021,
+        "measured": 869021,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2753,
+        "size_bad": 55
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 332988991.0,
+          "build227": 275611082.0,
+          "relative_change": -0.17231172966916497
+        },
+        "traversal_work": {
+          "build225": 314685467.0,
+          "build227": 257307558.0,
+          "relative_change": -0.18233415590177227
+        },
+        "scope_build_work": {
+          "build225": 5964688.0,
+          "build227": 5964688.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1780746.0,
+          "build227": 1780746.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7823363.0,
+          "build227": 7823363.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1087.4108192340009,
+          "build227": 856.6074898730003,
+          "relative_change": -0.21225035219309674
+        },
+        "traversal_seconds": {
+          "build225": 763.1788080530017,
+          "build227": 586.6822161610003,
+          "relative_change": -0.23126505876424175
+        },
+        "scope_build_seconds": {
+          "build225": 217.2976406680001,
+          "build227": 182.76898866899973,
+          "relative_change": -0.1589002618383476
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 34303,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1493.980586428,
+      "build227_native_seconds": 700.491136943,
+      "build227_totals": {
+        "cells": 869027,
+        "measured": 869027,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2753,
+        "size_bad": 49
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 332989354.0,
+          "build227": 275611445.0,
+          "relative_change": -0.1723115418278508
+        },
+        "traversal_work": {
+          "build225": 314685472.0,
+          "build227": 257307563.0,
+          "relative_change": -0.18233415300468658
+        },
+        "scope_build_work": {
+          "build225": 5964688.0,
+          "build227": 5964688.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1780746.0,
+          "build227": 1780746.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7823550.0,
+          "build227": 7823550.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1087.411104812001,
+          "build227": 856.6076893990003,
+          "relative_change": -0.21225037558624493
+        },
+        "traversal_seconds": {
+          "build225": 763.1788268930017,
+          "build227": 586.6822334770003,
+          "relative_change": -0.2312650550520925
+        },
+        "scope_build_seconds": {
+          "build225": 217.2976406680001,
+          "build227": 182.76898866899973,
+          "relative_change": -0.1589002618383476
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 34402,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1505.545582191,
+      "build227_native_seconds": 710.600085803,
+      "build227_totals": {
+        "cells": 869969,
+        "measured": 869969,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2474,
+        "size_bad": 26
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 339304373.0,
+          "build227": 281567480.0,
+          "relative_change": -0.17016253722141095
+        },
+        "traversal_work": {
+          "build225": 320808349.0,
+          "build227": 263071456.0,
+          "relative_change": -0.17997316210744874
+        },
+        "scope_build_work": {
+          "build225": 6058401.0,
+          "build227": 6058401.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1781544.0,
+          "build227": 1781544.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7911152.0,
+          "build227": 7911152.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1104.1401872400008,
+          "build227": 871.4418052840003,
+          "relative_change": -0.21075075850438196
+        },
+        "traversal_seconds": {
+          "build225": 776.7229937860016,
+          "build227": 598.6103895210001,
+          "relative_change": -0.2293129026563543
+        },
+        "scope_build_seconds": {
+          "build225": 220.37868487700007,
+          "build227": 185.58087471699974,
+          "relative_change": -0.15790007177609766
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 34402,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1505.55070203,
+      "build227_native_seconds": 710.604417933,
+      "build227_totals": {
+        "cells": 869969,
+        "measured": 869969,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2474,
+        "size_bad": 26
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 339304373.0,
+          "build227": 281567480.0,
+          "relative_change": -0.17016253722141095
+        },
+        "traversal_work": {
+          "build225": 320808349.0,
+          "build227": 263071456.0,
+          "relative_change": -0.17997316210744874
+        },
+        "scope_build_work": {
+          "build225": 6058401.0,
+          "build227": 6058401.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1781544.0,
+          "build227": 1781544.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7911152.0,
+          "build227": 7911152.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1104.1401872400008,
+          "build227": 871.4418052840003,
+          "relative_change": -0.21075075850438196
+        },
+        "traversal_seconds": {
+          "build225": 776.7229937860016,
+          "build227": 598.6103895210001,
+          "relative_change": -0.2293129026563543
+        },
+        "scope_build_seconds": {
+          "build225": 220.37868487700007,
+          "build227": 185.58087471699974,
+          "relative_change": -0.15790007177609766
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 34402,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1505.927764851,
+      "build227_native_seconds": 710.927198525,
+      "build227_totals": {
+        "cells": 869969,
+        "measured": 869969,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2474,
+        "size_bad": 26
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 339304373.0,
+          "build227": 281567480.0,
+          "relative_change": -0.17016253722141095
+        },
+        "traversal_work": {
+          "build225": 320808349.0,
+          "build227": 263071456.0,
+          "relative_change": -0.17997316210744874
+        },
+        "scope_build_work": {
+          "build225": 6058401.0,
+          "build227": 6058401.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1781544.0,
+          "build227": 1781544.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7911152.0,
+          "build227": 7911152.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1104.1401872400008,
+          "build227": 871.4418052840003,
+          "relative_change": -0.21075075850438196
+        },
+        "traversal_seconds": {
+          "build225": 776.7229937860016,
+          "build227": 598.6103895210001,
+          "relative_change": -0.2293129026563543
+        },
+        "scope_build_seconds": {
+          "build225": 220.37868487700007,
+          "build227": 185.58087471699974,
+          "relative_change": -0.15790007177609766
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 34503,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1517.085330505,
+      "build227_native_seconds": 720.509825172,
+      "build227_totals": {
+        "cells": 870833,
+        "measured": 870833,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2241,
+        "size_bad": 2
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 344761900.0,
+          "build227": 286728886.0,
+          "relative_change": -0.16832780536364367
+        },
+        "traversal_work": {
+          "build225": 326103154.0,
+          "build227": 268070140.0,
+          "relative_change": -0.17795906996962074
+        },
+        "scope_build_work": {
+          "build225": 6136501.0,
+          "build227": 6136501.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1781606.0,
+          "build227": 1781606.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7986504.0,
+          "build227": 7986504.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1118.1053222340015,
+          "build227": 884.0007275810005,
+          "relative_change": -0.2093761562508748
+        },
+        "traversal_seconds": {
+          "build225": 788.0845976810017,
+          "build227": 608.7330319759999,
+          "relative_change": -0.227579077465487
+        },
+        "scope_build_seconds": {
+          "build225": 222.91907781200018,
+          "build227": 187.96141123399983,
+          "relative_change": -0.15681774265853576
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 34503,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1517.093017162,
+      "build227_native_seconds": 720.514404383,
+      "build227_totals": {
+        "cells": 870833,
+        "measured": 870833,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2241,
+        "size_bad": 2
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 344761900.0,
+          "build227": 286728886.0,
+          "relative_change": -0.16832780536364367
+        },
+        "traversal_work": {
+          "build225": 326103154.0,
+          "build227": 268070140.0,
+          "relative_change": -0.17795906996962074
+        },
+        "scope_build_work": {
+          "build225": 6136501.0,
+          "build227": 6136501.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1781606.0,
+          "build227": 1781606.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7986504.0,
+          "build227": 7986504.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1118.1053222340015,
+          "build227": 884.0007275810005,
+          "relative_change": -0.2093761562508748
+        },
+        "traversal_seconds": {
+          "build225": 788.0845976810017,
+          "build227": 608.7330319759999,
+          "relative_change": -0.227579077465487
+        },
+        "scope_build_seconds": {
+          "build225": 222.91907781200018,
+          "build227": 187.96141123399983,
+          "relative_change": -0.15681774265853576
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 34503,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1517.500275649,
+      "build227_native_seconds": 720.855617981,
+      "build227_totals": {
+        "cells": 870833,
+        "measured": 870833,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2241,
+        "size_bad": 2
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 344761900.0,
+          "build227": 286728886.0,
+          "relative_change": -0.16832780536364367
+        },
+        "traversal_work": {
+          "build225": 326103154.0,
+          "build227": 268070140.0,
+          "relative_change": -0.17795906996962074
+        },
+        "scope_build_work": {
+          "build225": 6136501.0,
+          "build227": 6136501.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1781606.0,
+          "build227": 1781606.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 7986504.0,
+          "build227": 7986504.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1118.1053222340015,
+          "build227": 884.0007275810005,
+          "relative_change": -0.2093761562508748
+        },
+        "traversal_seconds": {
+          "build225": 788.0845976810017,
+          "build227": 608.7330319759999,
+          "relative_change": -0.227579077465487
+        },
+        "scope_build_seconds": {
+          "build225": 222.91907781200018,
+          "build227": 187.96141123399983,
+          "relative_change": -0.15681774265853576
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 34594,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1527.45642039,
+      "build227_native_seconds": 729.670330706,
+      "build227_totals": {
+        "cells": 871607,
+        "measured": 871607,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1997,
+        "size_bad": 0
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 349202166.0,
+          "build227": 290938973.0,
+          "relative_change": -0.1668465968220827
+        },
+        "traversal_work": {
+          "build225": 330406661.0,
+          "build227": 272143468.0,
+          "relative_change": -0.17633782812871313
+        },
+        "scope_build_work": {
+          "build225": 6202320.0,
+          "build227": 6202320.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1781606.0,
+          "build227": 1781606.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 8050081.0,
+          "build227": 8050081.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1129.668962545001,
+          "build227": 894.6311369950007,
+          "relative_change": -0.20805902732822712
+        },
+        "traversal_seconds": {
+          "build225": 797.3858669140014,
+          "build227": 617.3046498409999,
+          "relative_change": -0.22583948944309973
+        },
+        "scope_build_seconds": {
+          "build225": 225.12553954500024,
+          "build227": 189.97510315599982,
+          "relative_change": -0.1561370445132202
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 34594,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1527.461953077,
+      "build227_native_seconds": 729.674887105,
+      "build227_totals": {
+        "cells": 871607,
+        "measured": 871607,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1997,
+        "size_bad": 0
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 349202166.0,
+          "build227": 290938973.0,
+          "relative_change": -0.1668465968220827
+        },
+        "traversal_work": {
+          "build225": 330406661.0,
+          "build227": 272143468.0,
+          "relative_change": -0.17633782812871313
+        },
+        "scope_build_work": {
+          "build225": 6202320.0,
+          "build227": 6202320.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1781606.0,
+          "build227": 1781606.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 8050081.0,
+          "build227": 8050081.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1129.668962545001,
+          "build227": 894.6311369950007,
+          "relative_change": -0.20805902732822712
+        },
+        "traversal_seconds": {
+          "build225": 797.3858669140014,
+          "build227": 617.3046498409999,
+          "relative_change": -0.22583948944309973
+        },
+        "scope_build_seconds": {
+          "build225": 225.12553954500024,
+          "build227": 189.97510315599982,
+          "relative_change": -0.1561370445132202
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 34594,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1527.93013731,
+      "build227_native_seconds": 729.996302176,
+      "build227_totals": {
+        "cells": 871607,
+        "measured": 871607,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1997,
+        "size_bad": 0
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 349202166.0,
+          "build227": 290938973.0,
+          "relative_change": -0.1668465968220827
+        },
+        "traversal_work": {
+          "build225": 330406661.0,
+          "build227": 272143468.0,
+          "relative_change": -0.17633782812871313
+        },
+        "scope_build_work": {
+          "build225": 6202320.0,
+          "build227": 6202320.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1781606.0,
+          "build227": 1781606.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 8050081.0,
+          "build227": 8050081.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1129.668962545001,
+          "build227": 894.6311369950007,
+          "relative_change": -0.20805902732822712
+        },
+        "traversal_seconds": {
+          "build225": 797.3858669140014,
+          "build227": 617.3046498409999,
+          "relative_change": -0.22583948944309973
+        },
+        "scope_build_seconds": {
+          "build225": 225.12553954500024,
+          "build227": 189.97510315599982,
+          "relative_change": -0.1561370445132202
+        }
+      }
+    },
+    {
+      "stage": "construction_entry",
+      "round": 34594,
+      "phase": "construction",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1527.93445786,
+      "build227_native_seconds": 730.000647784,
+      "build227_totals": {
+        "cells": 871607,
+        "measured": 871607,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1997,
+        "size_bad": 0
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 349202166.0,
+          "build227": 290938973.0,
+          "relative_change": -0.1668465968220827
+        },
+        "traversal_work": {
+          "build225": 330406661.0,
+          "build227": 272143468.0,
+          "relative_change": -0.17633782812871313
+        },
+        "scope_build_work": {
+          "build225": 6202320.0,
+          "build227": 6202320.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1781606.0,
+          "build227": 1781606.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 8050081.0,
+          "build227": 8050081.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1129.668962545001,
+          "build227": 894.6311369950007,
+          "relative_change": -0.20805902732822712
+        },
+        "traversal_seconds": {
+          "build225": 797.3858669140014,
+          "build227": 617.3046498409999,
+          "relative_change": -0.22583948944309973
+        },
+        "scope_build_seconds": {
+          "build225": 225.12553954500024,
+          "build227": 189.97510315599982,
+          "relative_change": -0.1561370445132202
+        }
+      }
+    },
+    {
+      "stage": "ownership_staged",
+      "round": 34594,
+      "phase": "improvement",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1582.180259981,
+      "build227_native_seconds": 774.144416351,
+      "build227_totals": {
+        "cells": 871607,
+        "measured": 871607,
+        "q_measured": 871607,
+        "j_measured": 871607,
+        "q_bad": 102058,
+        "j_bad": 101860,
+        "geometry_bad": 1997,
+        "size_bad": 0
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 349202166.0,
+          "build227": 290938973.0,
+          "relative_change": -0.1668465968220827
+        },
+        "traversal_work": {
+          "build225": 330406661.0,
+          "build227": 272143468.0,
+          "relative_change": -0.17633782812871313
+        },
+        "scope_build_work": {
+          "build225": 6202320.0,
+          "build227": 6202320.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1781606.0,
+          "build227": 1781606.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 8050081.0,
+          "build227": 8050081.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1129.668962545001,
+          "build227": 894.6311369950007,
+          "relative_change": -0.20805902732822712
+        },
+        "traversal_seconds": {
+          "build225": 797.3858669140014,
+          "build227": 617.3046498409999,
+          "relative_change": -0.22583948944309973
+        },
+        "scope_build_seconds": {
+          "build225": 225.12553954500024,
+          "build227": 189.97510315599982,
+          "relative_change": -0.1561370445132202
+        }
+      }
+    },
+    {
+      "stage": "ownership_committed",
+      "round": 34594,
+      "phase": "improvement",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1582.389906054,
+      "build227_native_seconds": 774.245897262,
+      "build227_totals": {
+        "cells": 871607,
+        "measured": 871607,
+        "q_measured": 871607,
+        "j_measured": 871607,
+        "q_bad": 102058,
+        "j_bad": 101860,
+        "geometry_bad": 1997,
+        "size_bad": 0
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 349202166.0,
+          "build227": 290938973.0,
+          "relative_change": -0.1668465968220827
+        },
+        "traversal_work": {
+          "build225": 330406661.0,
+          "build227": 272143468.0,
+          "relative_change": -0.17633782812871313
+        },
+        "scope_build_work": {
+          "build225": 6202320.0,
+          "build227": 6202320.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1781606.0,
+          "build227": 1781606.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 8050081.0,
+          "build227": 8050081.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1129.668962545001,
+          "build227": 894.6311369950007,
+          "relative_change": -0.20805902732822712
+        },
+        "traversal_seconds": {
+          "build225": 797.3858669140014,
+          "build227": 617.3046498409999,
+          "relative_change": -0.22583948944309973
+        },
+        "scope_build_seconds": {
+          "build225": 225.12553954500024,
+          "build227": 189.97510315599982,
+          "relative_change": -0.1561370445132202
+        }
+      }
+    },
+    {
+      "stage": "quality_entry",
+      "round": 34594,
+      "phase": "improvement",
+      "totals_identical": true,
+      "flags_identical": true,
+      "rank_vectors_identical": {
+        "accepted": true,
+        "updated_cells": true,
+        "geometry_trials": true,
+        "geometry_rejected": true,
+        "direct_calls": true,
+        "upper_calls": true,
+        "scope_builds": true,
+        "scope_build_work": true,
+        "memo_union_hits": true,
+        "memo_union_misses": true,
+        "length_collapses": true,
+        "length_splits": true,
+        "global_work": true,
+        "facet_build_work": true,
+        "piece_selection_work": true
+      },
+      "build225_native_seconds": 1584.159717904,
+      "build227_native_seconds": 775.819045555,
+      "build227_totals": {
+        "cells": 871607,
+        "measured": 871607,
+        "q_measured": 871607,
+        "j_measured": 871607,
+        "q_bad": 102058,
+        "j_bad": 101860,
+        "geometry_bad": 1997,
+        "size_bad": 0
+      },
+      "summed_rank_work_and_nested_timers": {
+        "upper_work": {
+          "build225": 349202166.0,
+          "build227": 290938973.0,
+          "relative_change": -0.1668465968220827
+        },
+        "traversal_work": {
+          "build225": 330406661.0,
+          "build227": 272143468.0,
+          "relative_change": -0.17633782812871313
+        },
+        "scope_build_work": {
+          "build225": 6202320.0,
+          "build227": 6202320.0,
+          "relative_change": 0.0
+        },
+        "facet_build_work": {
+          "build225": 1781606.0,
+          "build227": 1781606.0,
+          "relative_change": 0.0
+        },
+        "piece_selection_work": {
+          "build225": 8050081.0,
+          "build227": 8050081.0,
+          "relative_change": 0.0
+        },
+        "upper_seconds": {
+          "build225": 1129.668962545001,
+          "build227": 894.6311369950007,
+          "relative_change": -0.20805902732822712
+        },
+        "traversal_seconds": {
+          "build225": 797.3858669140014,
+          "build227": 617.3046498409999,
+          "relative_change": -0.22583948944309973
+        },
+        "scope_build_seconds": {
+          "build225": 225.12553954500024,
+          "build227": 189.97510315599982,
+          "relative_change": -0.1561370445132202
+        }
+      }
+    }
+  ]
+}

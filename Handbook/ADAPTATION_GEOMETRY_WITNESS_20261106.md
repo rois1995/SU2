@@ -108,3 +108,19 @@ paths, hashes and scopes. This covers affected geometry, quality/heights and
 publication/ownership behavior; it is not the separate later BL qualification.
 Return immediately to full same-seed correctedL1/50k/5400 two-event M6. No full-run
 speedup or acceptance established by these checks.
+
+## Frozen227 actual construction result
+
+Full M6 is running, source frozen. All76matching complete construction groups
+preserve checked counts/flags and15selected per-rank operation/preparation/call
+vectors from225. Coarsening: traversal106031874→69685216(-34.3%). Whole construction:
+330406661→272143468(-17.6%); upper349202166→290938973(-16.7%); scope/facet/piece
+selection work unchanged. Native construction1527.934458→730.000648s, host-sensitive.
+Counted work supports algorithmic savings; the wall-time change is not isolated.
+
+Complete quality entry at775.819046native seconds (2251584.159718),round34594:
+871607cells/102058q/101860J/1997geometry/0size bad. Counts/flags and rank q/Jdebt
+are exactly225. Measurement-complete flags do not mean passing shape gates.
+A227/construction_comparison225.json and quality_entry_assessment.json preserve
+source prefixes, exact rows and comparison scope. Frozen run continues. Whole-field
+quality removal/s and eventual acceptance/transfer/continued CFD/restart are unproved.

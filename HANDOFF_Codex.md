@@ -1,6 +1,6 @@
 # Native adaptation — current handoff
 
-Updated2026-11-06(Europe/Rome). Goal ACTIVE: TWO strictly accepted ONERA M6 Euler
+Updated2026-11-07(Europe/Rome). Goal ACTIVE: TWO strictly accepted ONERA M6 Euler
 CFD→mesh→CFD→mesh at50k metric complexity, conservative admissible transfer, finite
 continued adapted CFD and isolated actual adapted disk restart. Then BL/constraint/
 MPI qualification and corresponding RANS500k. Actual mesh counts are separate.
@@ -14,57 +14,58 @@ sources, fixtures, helpers, binary/config/inputs through each run. Verify actual
 owned handle terminal before edits/restarts. Preserve failures; authorized stop/
 fix/retry for demonstrated failures, clear bottlenecks or actual resource pressure.
 
-## ACTIVE227: rigorous witness screening in the existing geometry path
+## ACTIVE227: frozen full M6, complete construction and quality entry
 
-Production candidate builds on terminal226analysis, not a competing cycle.
-Existing exact repeats are cheap; no new cache/motion envelope is justified.
-Twelve ACTUAL225captured curved faces (root/midspan/tip, six geometry-bad/six
-clean) passed production SurfaceDeviation/cold/repeated/recomputed equality:
-exec30653TERMINAL0,268assertions/1case. Exact v1packet replay with existing work
-trace exec26793TERMINAL0,163assertions/1case. Both pins unchanged/all host handles
-absent. R/geometry226_current_terminal_handles.json and replay_terminal_handles.json.
-First setup60789MPI_Win_create failure preserved; qualified pt2pt/4TBscratch fixed
-setup without a source change. Build226terminal0/1302pins unchanged. No full226M6.
+Source checkpoint bd653aa58f PUSHED; live provenance636e1360c4 PUSHED. One connected
+geometry cycle: existing rigorous sample witness upper<=query tolerance returns
+lower0 instead of searching full support for a lower bound that cannot prove
+outside. Full domain upper/final two-sided certification and uncertain samples'
+complete-support search unchanged. No new cache/config/representation/policy.
+Twelve ACTUAL225faces pass cached/recomputed/production-guidance equality; exact
+packet unchanged, traversal870948→472780(-45.7%). Source review/failed setup/
+226measurement and proof: [current handbook](Handbook/ADAPTATION_GEOMETRY_WITNESS_20261106.md).
 
-R/geometry226_trace_review.json: cold domain upper458395work, distance412553work;
-7752failed footprint checks/239081work,1536passed/69740work, lift40365work. Graph
-work is NESTED in upper work. Expensive clean near-tolerance faces dominate.
-Identical repeats23–292work. Nearby trial positions are not sampled by this packet.
+Build227exec56586TERMINAL0,36.105134s,1302pins unchanged/both targets up to date.
+Serial102cases/35396assertions and MPI6exec59919TERMINAL0,26cases on EACH rank PASS.
+All qualification handles absent; R/geometry_witness227_qualification.json. These
+checks do not establish the later separate BL qualification or workflow completion.
 
-227candidate changes ONLY SurfaceForest sample-distance screening: when the
-already-computed rigorous witness upper bound <= query tolerance, return lower0
-and that upper, avoiding complete-support lower traversal. Such a sample cannot
-prove outside. Domain upper certification, uncertain-sample complete support,
-association/body/features/heights and final two-sided gates remain unchanged.
-No new config/cache/representation/construction policy. Exact repeat/recomputed
-answers and hard-query work must be checked before selecting this candidate.
-
-Build227exec56586TERMINAL0,36.105134s,1302pins unchanged/both targets up to date;
-host wrapper1900768/Ninja1900769 absent. R/build227_terminal_handles.json.
-Actual-current query exec7179TERMINAL0,268assertions/1case,58.594722s,pins unchanged;
-all observed host handles absent. Packet byte-identical226; all bounds/production
-guidance EXACT. Traversal870948→472780(-45.7%),cold910366→512198(-43.7%);
-eight improve/four unchanged/no increases. R/geometry227_query_comparison.json.
-No full-run speedup established.
-
-Connected227qualification PASS: serial102cases/35396assertions (actual current1,
-geometry88,quality13); MPI6exec59919TERMINAL0,26cases on EACH rank. All source/
-runtime/input pins unchanged; all owned geometry/build/serial/MPI host handles
-absent. R/geometry_witness227_qualification.json and witness227_*_terminal_handles.json.
-Checkpoint bd653aa58f PUSHED. Full M6exec50998LIVE, sole owned heavy job:
+Full M6exec50998LIVE, sole owned heavy job:
 A227=R/m6_runs/euler_build227_witness_real_cfd50k. Same saved real CFD seed,
-correctedL1/50000,2events,native5400/outer14400; config SHA74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d EXACT225.
-All C++/fixtures/helpers/binary/config/inputs FROZEN. Host exact handles are in
-A227/startup_verification.json: helper1929640/start4972961,time1929996/start4973666,
-timeout1929997/start4973666,mpirun1929998/start4973666,rank PIDs1930001..1930006.
-Never infer terminal from quiet logs or an observation timeout. No stop is justified
-at startup. Initial restarted CFD CL.269535/CD.013536 matches saved real seed. Full initial
-restart SHA5132ee2a83635b457943c2679a3a50c5e0b733427e620cc748da53865ce5d692
-is BYTE-IDENTICAL225/219 (coordinates,6tensor/7flow fields): A227/initial_target_match.json.
-R/geometry_witness227_M6_preflight.json records unchanged source pins/load/RAM/disk.
-Qualification is not full-run speedup or mesh acceptance. Compare counted geometry
-work and useful progress at matching stages, then whole-field q/J/geometry counts.
-[Proof, scope and measured work](Handbook/ADAPTATION_GEOMETRY_WITNESS_20261106.md).
+correctedL1/50000,2events,native5400/outer14400. All C++/fixtures/helpers/binary/
+config/inputs FROZEN. Exact host handles: A227/startup_verification.json,
+helper1929640/start4972961,time1929996/start4973666,timeout1929997/start4973666,
+mpirun1929998/start4973666,rank PIDs1930001..1930006. No stop justified.
+Last host observation1794006215: ALL10identities LIVE/1519pins unchanged;
+sampled sumRSS10.095GB(decimal), not physicalRAM/whole-job peak. Memory PSI
+avg60.34% is a small observed transient, not evidence of insufficient RAM.
+A227/quality_entry_resources.json is immutable; latest_owned_observation.json updates.
+No terminal inference from quiet logs/timeouts; host /proc required, sandbox PID
+namespace differs. Historical225/219/217/210handles must never be signaled again.
+
+ConfigSHA74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d EXACT225.
+Initial restartSHA5132ee2a83635b457943c2679a3a50c5e0b733427e620cc748da53865ce5d692
+BYTE-IDENTICAL225/219: coordinates,6tensor/7flow fields. CL.269535/CD.013536.
+A227/initial_target_match.json; R/geometry_witness227_M6_preflight.json.
+
+ALL76matching complete construction groups preserve all checked counts/flags and
+15selected per-rank operation/preparation/call vectors. Construction ends730.000648s,
+871607cells/1997geometry-bad/0size-bad; q/J deliberately UNMEASURED until quality.
+Counted traversal330406661→272143468(-17.6%),upper349202166→290938973(-16.7%);
+scope/facet/piece selection work unchanged. Coarsening alone traversal-34.3%.
+Native construction time2251527.934458vs227730.000648 is host-sensitive; NO isolated
+code timing claim. A227/construction_comparison225.json records all matching groups.
+
+COMPLETE quality entry34594 at775.819046native seconds (2251584.159718):
+871607cells/102058q-bad/101860J-bad/1997geometry-bad/0size-bad; all measurement flags1.
+Counts/flags/per-rank q/Jdebt EXACT225. A227/quality_entry_assessment.json.
+Continue frozen; judge net whole-field q/J-bad removal per QUALITY second alongside
+geometry counts, churn and interior/boundary useful work. No accepted mesh yet.
+After shape closes, residual geometry/size repair must preserve shape/heights;
+any validity-only geometry construction requires shape remeasurement/reclosure.
+Workflow receipts only show finite reported integral changes; independently verify
+true CV residual/admissibility/scaled target-integral gate and actual isolated
+adapted disk restart. Do not treat helper workflow_accepted as full goal completion.
 Do not apply old225source-pin assertion after intentional226/227source edits.
 
 ## TERMINAL225: rejected; full mesh+metric saved and independently read
