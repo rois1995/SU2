@@ -928,7 +928,8 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
         case SST_OPTIONS::UQ:
           ComputePerturbedRSM(nDim, Eig_Val_Comp, uq_permute, uq_delta_b, uq_urlx, PrimVar_Grad_i + idx.Velocity(),
                             Density_i, Eddy_Viscosity_i, ScalarVar_i[0], MeanPerturbedRSM);
-          P_Base = PerturbedStrainMag(ScalarVar_i[0]);
+          // Retain the legacy 1994 formulation until its omega production is separately defined.
+          if (sstParsedOptions.version == SST_OPTIONS::V1994) P_Base = PerturbedStrainMag(ScalarVar_i[0]);
           break;
 
         case SST_OPTIONS::V:
@@ -963,6 +964,12 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
       const su2double prod_limit = prod_lim_const * beta_star * Density_i * ScalarVar_i[1] * ScalarVar_i[0];
 
       su2double P = Eddy_Viscosity_i * pow(P_Base, 2);
+      const bool epm2003 = sstParsedOptions.production == SST_OPTIONS::UQ &&
+                           sstParsedOptions.version == SST_OPTIONS::V2003;
+      if (epm2003) {
+        P = ComputeReynoldsStressProduction(nDim, MeanPerturbedRSM,
+                                            PrimVar_Grad_i + idx.Velocity(), Density_i);
+      }
       su2double pk = max(0.0, min(P, prod_limit));
 
       const auto& eddy_visc_var = sstParsedOptions.version == SST_OPTIONS::V1994 ? VorticityMag : StrainMag_i;
@@ -973,7 +980,9 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
       if (sstParsedOptions.version == SST_OPTIONS::V1994) {
         pw = alfa_blended * Density_i * pow(P_Base, 2);
       } else {
-        pw = (alfa_blended * Density_i / Eddy_Viscosity_i) * pk;
+        // Zero eddy viscosity has no omega production in the corrected EPM reference.
+        pw = epm2003 && Eddy_Viscosity_i <= 0.0 ? su2double(0.0)
+                                             : (alfa_blended * Density_i / Eddy_Viscosity_i) * pk;
       }
 
       /*--- Sustaining terms, if desired. Note that if the production terms are

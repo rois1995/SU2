@@ -515,6 +515,16 @@ public:
     }
   }
 
+  /*! \brief Signed Reynolds-stress production per unit volume, before SST limiting. */
+  template<class Mat1, class Mat2, class Scalar>
+  static Scalar ComputeReynoldsStressProduction(size_t nDim, const Mat1& stress,
+                                               const Mat2& velgrad, Scalar density) {
+    Scalar production = 0.0;
+    for (size_t i = 0; i < nDim; ++i)
+      for (size_t j = 0; j < nDim; ++j) production -= density * stress[i][j] * velgrad[i][j];
+    return production;
+  }
+
   /*!
    * \brief Add a correction using a Quadratic Constitutive Relation to the stress tensor.
    *
@@ -589,6 +599,13 @@ public:
       for (size_t jDim = 0; jDim < 3; jDim++)
         MeanReynoldsStress[iDim][jDim] /= -density;
 
+    /*--- At a smooth wall k = mu_t = 0: the stress is zero without an eigensystem. ---*/
+    if (turb_ke == 0.0 && viscosity == 0.0) {
+      for (size_t i = 0; i < 3; ++i)
+        for (size_t j = 0; j < 3; ++j) MeanPerturbedRSM[i][j] = 0.0;
+      return;
+    }
+
     /* --- Calculate anisotropic part of Reynolds Stress tensor --- */
 
     Scalar A_ij[3][3];
@@ -642,10 +659,10 @@ public:
     Eig_Val[1] = 0.5 *c2c + Eig_Val[0];
     Eig_Val[2] = c1c + Eig_Val[1];
 
-    /* permute eigenvectors if required */
+    /* Eigenvectors are columns; exchange eigenvalue assignments, not coordinate axes. */
     if (uq_permute) {
       for (size_t jDim = 0; jDim < 3; jDim++)
-        swap(Eig_Vec[0][jDim], Eig_Vec[2][jDim]);
+        swap(Eig_Vec[jDim][0], Eig_Vec[jDim][2]);
     }
 
     CBlasStructure::EigenRecomposition(A_ij, Eig_Vec, Eig_Val, 3);
