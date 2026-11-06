@@ -39,6 +39,8 @@
 #include "../../include/fluid/CCoolProp.hpp"
 #include "../../include/numerics_simd/CNumericsSIMD.hpp"
 #include "../../include/limiters/CLimiterDetails.hpp"
+#include "../../include/limiters/computeLimiters.hpp"
+#include "../../include/numerics/flow/tecno_adjoint.hpp"
 #include "../../include/output/COutput.hpp"
 #include "../../include/output/CTurboOutput.hpp"
 
@@ -307,6 +309,31 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
     if (config->GetEdge_Form_P1() && config->GetEdge_Form_ES_Blend()) {
       nodes->EdgeBlendLambda.resize(geometry->GetnEdge()) = su2double(0.0);
       if (config->GetVisc_P1_Entropy_Moved()) P1MovedThetaV.resize(geometry->GetnElem()) = su2double(0.0);
+    }
+    if (config->GetEdge_Form_TeCNO_Adjoint()) {
+      /*--- Simplex meshes only for now (P1_TECNO_CONVERGENCE.md, 5.1). ---*/
+      unsigned long nonSimplex = 0, nonSimplexGlobal = 0;
+      for (auto iElem = 0ul; iElem < geometry->GetnElem(); ++iElem) {
+        nonSimplex += (geometry->elem[iElem]->GetnNodes() != nDim + 1);
+      }
+      SU2_MPI::Allreduce(&nonSimplex, &nonSimplexGlobal, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+      if (nonSimplexGlobal > 0) {
+        SU2_MPI::Error("EDGE_FORM_TECNO_ADJOINT: simplex meshes only (triangles, tetrahedra) for now.", CURRENT_FUNCTION);
+      }
+      nodes->TeCNOAdjGradient.resize(nPoint, nVar, nDim, 0.0);
+      nodes->TeCNOAdjPhi.resize(nPoint) = su2double(1.0);
+      nodes->TeCNOAdjEdgeQ.resize(geometry->GetnEdge(), nVar) = su2double(0.0);
+      TeCNOAdjW.resize(nPoint, nVar) = su2double(0.0);
+      TeCNOAdjY.resize(nPoint, nVar, nDim, 0.0);
+      if (config->GetEdge_Form_TeCNO_Adjoint_Limiter()) {
+        TeCNOAdjLimiter.resize(nPoint, nVar) = su2double(1.0);
+        TeCNOAdjMin.resize(nPoint, nVar) = su2double(0.0);
+        TeCNOAdjMax.resize(nPoint, nVar) = su2double(0.0);
+      }
+      if (config->GetEdge_Form_TeCNO_A4_Jacobian()) {
+        nodes->TeCNOAdjEdgeD.resize(geometry->GetnEdge(), nVar * nVar) = su2double(0.0);
+        TeCNOAdjP.resize(nPoint, nVar * nVar) = su2double(0.0);
+      }
     }
   }
 
@@ -1739,6 +1766,8 @@ void CEulerSolver::Preprocessing(CGeometry *geometry, CSolver **solver_container
     /*--- Limiter computation ---*/
 
     if (limiter && !van_albada) SetPrimitive_Limiter(geometry, config);
+
+    if (config->GetEdge_Form_TeCNO_Adjoint()) SetTeCNOAdjointGradient(geometry, config);
   }
 }
 
@@ -2162,6 +2191,139 @@ void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
+namespace {
+/*!
+ * \brief Copy count values per point of a contiguous row major array (rows = points) from the owners to the halos,
+ *        as CSolver::InitiateComms/CompleteComms for the solver quantities. Called by all threads.
+ */
+void CommPointData(CGeometry* geometry, const CConfig* config, su2double* data, unsigned short count) {
+  geometry->AllocateP2PComms(count);
+  su2double* bufDSend = geometry->bufD_P2PSend;
+
+  if (geometry->nP2PSend > 0) {
+    geometry->PostP2PRecvs(geometry, config, COMM_TYPE::DOUBLE, count, false);
+    for (int iMessage = 0; iMessage < geometry->nP2PSend; iMessage++) {
+      const auto msg_offset = geometry->nPoint_P2PSend[iMessage];
+      const auto nSend = geometry->nPoint_P2PSend[iMessage + 1] - geometry->nPoint_P2PSend[iMessage];
+      SU2_OMP_FOR_STAT(OMP_MIN_SIZE)
+      for (long iSend = 0; iSend < static_cast<long>(nSend); iSend++) {
+        const auto iPoint = geometry->Local_Point_P2PSend[msg_offset + iSend];
+        const auto buf_offset = (msg_offset + iSend) * count;
+        for (unsigned short k = 0; k < count; ++k) bufDSend[buf_offset + k] = data[iPoint * count + k];
+      }
+      END_SU2_OMP_FOR
+      geometry->PostP2PSends(geometry, config, COMM_TYPE::DOUBLE, count, iMessage, false);
+    }
+  }
+
+  static SU2_MPI::Status status;
+  const su2double* bufDRecv = geometry->bufD_P2PRecv;
+
+  if (geometry->nP2PRecv > 0) {
+    for (int iMessage = 0; iMessage < geometry->nP2PRecv; iMessage++) {
+      int ind = 0;
+      SU2_OMP_SAFE_GLOBAL_ACCESS(SU2_MPI::Waitany(geometry->nP2PRecv, geometry->req_P2PRecv, &ind, &status);)
+      const int jRecv = geometry->P2PRecv2Neighbor[status.MPI_SOURCE];
+      const auto msg_offset = geometry->nPoint_P2PRecv[jRecv];
+      const auto nRecv = geometry->nPoint_P2PRecv[jRecv + 1] - geometry->nPoint_P2PRecv[jRecv];
+      SU2_OMP_FOR_STAT(OMP_MIN_SIZE)
+      for (long iRecv = 0; iRecv < static_cast<long>(nRecv); iRecv++) {
+        const auto iPoint = geometry->Local_Point_P2PRecv[msg_offset + iRecv];
+        const auto buf_offset = (msg_offset + iRecv) * count;
+        for (unsigned short k = 0; k < count; ++k) data[iPoint * count + k] = bufDRecv[buf_offset + k];
+      }
+      END_SU2_OMP_FOR
+    }
+#ifdef HAVE_MPI
+    SU2_OMP_SAFE_GLOBAL_ACCESS(SU2_MPI::Waitall(geometry->nP2PSend, geometry->req_P2PSend, MPI_STATUS_IGNORE);)
+#endif
+  }
+}
+}  // namespace
+
+void CEulerSolver::SetTeCNOAdjointGradient(CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
+
+  /*--- EDGE_FORM_TECNO_ADJOINT (TeCNOAdjoint, numerics/flow/tecno_adjoint.hpp): w on all nodes from the primitives
+   * (halo primitives are up to date), G w on the owned nodes, copied to the halos. The limiter of w (optional) is
+   * computed on the owned nodes and copied; phi_i is its minimum over the variables. Theorem A1 holds for any phi,
+   * which is frozen in the residual (no derivative of phi is used anywhere). ---*/
+
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+    /*--- The primitives of the edge loop, (T, u, p, rho, ...). ---*/
+    su2double velocity[MAXNDIM] = {0.0};
+    for (auto iDim = 0u; iDim < nDim; ++iDim) velocity[iDim] = nodes->GetPrimitive(iPoint, iDim + 1);
+    TeCNOAdjoint::EntropyVariables(nDim, Gamma, nodes->GetPrimitive(iPoint, nDim + 2), velocity,
+                                   nodes->GetPrimitive(iPoint, nDim + 1), TeCNOAdjW[iPoint]);
+  }
+  END_SU2_OMP_FOR
+
+  auto& gradient = nodes->TeCNOAdjGradient;
+  TeCNOAdjoint::Gradient(*geometry, nDim, nVar, TeCNOAdjW, gradient);
+  CommPointData(geometry, config, gradient.data(), nVar * nDim);
+
+  if (config->GetEdge_Form_TeCNO_Adjoint_Limiter()) {
+    if (config->GetInnerIter() <= config->GetLimiterIter()) {
+      computeLimiters(config->GetKind_SlopeLimit_Flow(), nullptr, MPI_QUANTITIES::SOLUTION_LIMITER, PERIODIC_NONE,
+                      PERIODIC_NONE, *geometry, *config, 0, nVar, config->GetMUSCL_Kappa_Flow(), TeCNOAdjW, gradient,
+                      TeCNOAdjMin, TeCNOAdjMax, TeCNOAdjLimiter);
+      CommPointData(geometry, config, TeCNOAdjLimiter.data(), nVar);
+      SU2_OMP_FOR_STAT(omp_chunk_size)
+      for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+        su2double phi = TeCNOAdjLimiter(iPoint, 0);
+        for (auto iVar = 1u; iVar < nVar; ++iVar) phi = min(phi, TeCNOAdjLimiter(iPoint, iVar));
+        nodes->TeCNOAdjPhi(iPoint) = phi;
+      }
+      END_SU2_OMP_FOR
+    }
+  }
+}
+
+void CEulerSolver::TeCNOAdjointResidual(CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
+
+  /*--- EDGE_FORM_TECNO_ADJOINT: gradient part of R_m = sum_e c_{e,m} q_e (TeCNOAdjoint). The edge loop added the
+   * Delta part and stored q_e. Y = Z/V on the owned nodes (all their edges are here), copied to the halos, then
+   * R_m += -gam/2 sum_k n_mk.(Y_m + Y_k), gam = -1/2 rho (1-kappa) with the ramp of the edge loop. ---*/
+
+  const su2double ramp = config->GetMUSCLRampValue() * config->GetNewtonKrylovRelaxation();
+  const su2double gam = TeCNOAdjoint::GradientCoefficient(ramp, config->GetMUSCL_Kappa_Flow());
+  const auto& phi = nodes->TeCNOAdjPhi;
+
+  TeCNOAdjoint::NodalMoment(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeQ, phi, TeCNOAdjY);
+  CommPointData(geometry, config, TeCNOAdjY.data(), nVar * nDim);
+  TeCNOAdjoint::AddTranspose(*geometry, nDim, nVar, TeCNOAdjY, gam, LinSysRes);
+
+  /*--- EDGE_FORM_TECNO_A4_JACOBIAN: diagonal blocks 3/2 [sum_k |n_mk|/2 Phat_k + |sum_k n_mk|/2 Phat_m] dw/dU_m of
+   * M#, the edge loop added the Delta blocks. ---*/
+
+  if (config->GetEdge_Form_TeCNO_A4_Jacobian() && (config->GetKind_TimeIntScheme() == EULER_IMPLICIT)) {
+    TeCNOAdjoint::MajorantNodal(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeD, phi, gam, TeCNOAdjP);
+    CommPointData(geometry, config, TeCNOAdjP.data(), nVar * nVar);
+
+    SU2_OMP_FOR_STAT(omp_chunk_size)
+    for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
+      TeCNOAdjoint::Block blockW, H, block;
+      TeCNOAdjoint::MajorantDiagonal(*geometry, nDim, nVar, TeCNOAdjP, iPoint, blockW);
+      su2double velocity[MAXNDIM] = {0.0};
+      for (auto iDim = 0u; iDim < nDim; ++iDim) velocity[iDim] = nodes->GetPrimitive(iPoint, iDim + 1);
+      const su2double density = nodes->GetPrimitive(iPoint, nDim + 2);
+      const su2double pressure = nodes->GetPrimitive(iPoint, nDim + 1);
+      TeCNOAdjoint::EntropyHessian(nDim, Gamma, density, velocity, pressure, H);
+      for (auto iVar = 0u; iVar < nVar; ++iVar) {
+        for (auto jVar = 0u; jVar < nVar; ++jVar) {
+          su2double d = 0.0;
+          for (auto kVar = 0u; kVar < nVar; ++kVar) d += blockW(iVar, kVar) * H(kVar, jVar);
+          block(iVar, jVar) = d;
+        }
+      }
+      Jacobian.AddBlock2Diag(iPoint, block.v);
+    }
+    END_SU2_OMP_FOR
+  }
+}
+
 void CEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_container,
                                    CNumerics **numerics_container, CConfig *config, unsigned short iMesh) {
   SU2_ZONE_SCOPED
@@ -2177,6 +2339,9 @@ void CEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_contain
         config->GetKind_Upwind_Flow() == UPWIND::ROENEW) {
       if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry, config);
       EdgeFluxResidual(geometry, solver_container, config);
+      if ((iMesh == MESH_0) && config->GetEdge_Form_TeCNO_Adjoint() && config->GetMUSCL_Flow()) {
+        TeCNOAdjointResidual(geometry, config);
+      }
       if ((iMesh == MESH_0) && config->GetSplit_Edge_Flux()) SplitEdgeResidual(geometry, config);
       if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry, config);
       return;

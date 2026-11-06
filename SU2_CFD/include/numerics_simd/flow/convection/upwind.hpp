@@ -32,6 +32,7 @@
 #include "../variables.hpp"
 #include "common.hpp"
 #include "../../../variables/CEulerVariable.hpp"
+#include "../../../numerics/flow/tecno_adjoint.hpp"
 #include "../../../../../Common/include/geometry/CGeometry.hpp"
 
 /*!
@@ -78,6 +79,10 @@ protected:
   const bool tecnoSmooth;         /*!< \brief EDGE_FORM_TECNO_SMOOTH, smooth rational sigma. */
   const su2double tecnoFix;       /*!< \brief Its eigenvalue floor, ENTROPY_FIX_COEFF (|u.n| + c). */
   const ENUM_ROELOWDISS tecnoLowDiss;
+  const bool tecnoAdj;            /*!< \brief EDGE_FORM_TECNO_ADJOINT, dissipation C^T D C w (P1_TECNO_CONVERGENCE.md). */
+  const bool tecnoA4;             /*!< \brief EDGE_FORM_TECNO_A4_JACOBIAN, Lemma A4 majorant as its Jacobian. */
+  const bool ecExactJac;          /*!< \brief EDGE_FORM_EC_EXACT_JACOBIAN, exact Jacobian of the Ismail-Roe parts. */
+  const su2double roeKappa;       /*!< \brief ROE_KAPPA, weight of the central Jacobian of finalizeFlux. */
 
   /*!
    * \brief Constructor, store some constants and forward args to base.
@@ -107,7 +112,11 @@ protected:
     tecnoWide(config.GetEdge_Form_TeCNO_Wide()),
     tecnoSmooth(config.GetEdge_Form_TeCNO_Smooth()),
     tecnoFix(config.GetEntropyFix_Coeff()),
-    tecnoLowDiss(static_cast<ENUM_ROELOWDISS>(config.GetKind_RoeLowDiss())) {
+    tecnoLowDiss(static_cast<ENUM_ROELOWDISS>(config.GetKind_RoeLowDiss())),
+    tecnoAdj(tecno && muscl && config.GetEdge_Form_TeCNO_Adjoint()),
+    tecnoA4(tecnoAdj && config.GetEdge_Form_TeCNO_A4_Jacobian()),
+    ecExactJac(finestGrid && config.GetEdge_Form_EC_Exact_Jacobian()),
+    roeKappa(config.GetRoe_Kappa()) {
   }
 
   /*!
@@ -132,8 +141,9 @@ protected:
   FORCEINLINE void tecnoFlux(VectorDbl<nVar>& flux, MatrixDbl<nVar>& jac_i, MatrixDbl<nVar>& jac_j,
                              const bool implicit, const Double& area, const VectorDbl<nDim>& unitNormal,
                              const VectorDbl<nDim>& normal, const CPair<PrimVarType>& V1st,
-                             const VectorDbl<nDim>& vector_ij, const Int& iPoint, const Int& jPoint,
-                             const VariableType& solution, const su2double& umusclRamp) const {
+                             const VectorDbl<nDim>& vector_ij, const Int& iEdge, const Int& iPoint,
+                             const Int& jPoint, const Double& updateMask, const VariableType& solution,
+                             const su2double& umusclRamp) const {
 
     /*--- Entropy conservative part on the nodal states. ---*/
     flux = ismailRoeProjFlux(gamma, V1st.i, V1st.j, normal);
@@ -180,6 +190,93 @@ protected:
       dw(0) = -ds / (gamma - 1.0) - 0.5 * (beta_j * sq_j - beta_i * sq_i);
       dw(nDim+1) = beta_i - beta_j;
     }
+    /*--- EDGE_FORM_TECNO_ADJOINT (P1_TECNO_CONVERGENCE.md, 3.2 and 5.1): no sigma, the dissipation acts on the linear
+     * U-MUSCL jump of the nodal entropy variables, L = (1 - rho kappa) dw - 1/2 rho (1-kappa)(phi_i G_i w + phi_k G_k w).e,
+     * G the Green-Gauss gradient of w of the solver (TeCNOAdjoint::Gradient), phi the nodal weights, q = D L with the
+     * same D = 1/2 |nu| delta R|Lambda|T R^T as below. This edge gives the Delta part -(1 - rho kappa) q of the
+     * residual c_e^T q; q is stored for the gradient part, applied by the solver after the edge loop
+     * (CEulerSolver::TeCNOAdjointResidual), so that sum_m w_m.R_m = sum_e L^T D L >= 0 for any states and phi. ---*/
+    if (tecnoAdj) {
+      const auto gradW_i = gatherVariables<nVar, nDim>(iPoint, solution.TeCNOAdjGradient);
+      const auto gradW_j = gatherVariables<nVar, nDim>(jPoint, solution.TeCNOAdjGradient);
+      const Double phi_i = gatherVariables(iPoint, solution.TeCNOAdjPhi);
+      const Double phi_j = gatherVariables(jPoint, solution.TeCNOAdjPhi);
+      VectorDbl<nVar> jump;
+      TeCNOAdjoint::EdgeJump(nDim, nVar, dw, gradW_i, gradW_j, phi_i, phi_j, vector_ij, umusclRamp, umusclKappa, jump);
+      const auto q = tecnoDissipation(gamma, avg, unitNormal, lamM, lam0, lamP, scale, jump);
+      const su2double coefDelta = 1.0 - umusclRamp * umusclKappa;
+      for (size_t iVar = 0; iVar < nVar; ++iVar) flux(iVar) -= coefDelta * q(iVar);
+
+      /*--- Per edge stores (the reducer strategy forbids scattering to the nodes here), masked lanes repeat an edge. ---*/
+      auto& edgeQ = solution.TeCNOAdjEdgeQ;
+      for (size_t k = 0; k < Double::Size; ++k) {
+        if (updateMask[k] == 0.0) continue;
+        for (size_t iVar = 0; iVar < nVar; ++iVar) edgeQ(iEdge[k], iVar) = q(iVar)[k];
+      }
+
+      if (implicit) {
+        /*--- Central part: exact Ismail-Roe Jacobian, or 1/2 A of the nodal states. ---*/
+        if (ecExactJac) {
+          ismailRoeProjJac(gamma, V1st.i, V1st.j, normal, jac_i, jac_j);
+        } else {
+          const auto U_i = compressibleConservatives(V1st.i);
+          const auto U_j = compressibleConservatives(V1st.j);
+          jac_i = inviscidProjJac(gamma, V1st.i.velocity(), U_i.energy(), normal, 0.5);
+          jac_j = inviscidProjJac(gamma, V1st.j.velocity(), U_j.energy(), normal, 0.5);
+        }
+
+        if (tecnoA4) {
+          /*--- Lemma A4 (TeCNOAdjoint::MajorantNodal): the Delta blocks 3/2 (1 - rho kappa)^2 D_e dw/dU of each node,
+           * the solver adds the gradient part on the diagonals. D_e is stored per edge for it (dense, row major). ---*/
+          MatrixDbl<nVar> D;
+          for (size_t jVar = 0; jVar < nVar; ++jVar) {
+            VectorDbl<nVar> unit;
+            for (size_t iVar = 0; iVar < nVar; ++iVar) unit(iVar) = (iVar == jVar) ? 1.0 : 0.0;
+            const auto col = tecnoDissipation(gamma, avg, unitNormal, lamM, lam0, lamP, scale, unit);
+            for (size_t iVar = 0; iVar < nVar; ++iVar) D(iVar, jVar) = col(iVar);
+          }
+          auto& edgeD = solution.TeCNOAdjEdgeD;
+          for (size_t k = 0; k < Double::Size; ++k) {
+            if (updateMask[k] == 0.0) continue;
+            for (size_t iVar = 0; iVar < nVar; ++iVar)
+              for (size_t jVar = 0; jVar < nVar; ++jVar) edgeD(iEdge[k], iVar * nVar + jVar) = D(iVar, jVar)[k];
+          }
+          MatrixDbl<nVar> H_i, H_j;
+          TeCNOAdjoint::EntropyHessian(nDim, Double(gamma), V1st.i.density(), V1st.i.velocity(), V1st.i.pressure(), H_i);
+          TeCNOAdjoint::EntropyHessian(nDim, Double(gamma), V1st.j.density(), V1st.j.velocity(), V1st.j.pressure(), H_j);
+          const su2double factor = 1.5 * coefDelta * coefDelta;
+          for (size_t iVar = 0; iVar < nVar; ++iVar) {
+            for (size_t jVar = 0; jVar < nVar; ++jVar) {
+              Double d_i = 0.0, d_j = 0.0;
+              for (size_t kVar = 0; kVar < nVar; ++kVar) {
+                d_i += D(iVar,kVar) * H_i(kVar,jVar);
+                d_j += D(iVar,kVar) * H_j(kVar,jVar);
+              }
+              jac_i(iVar,jVar) += factor * d_i;
+              jac_j(iVar,jVar) -= factor * d_j;
+            }
+          }
+        } else {
+          /*--- First order Roe dissipation on nu (sigma = 1, frozen eigenvectors), as below. ---*/
+          VectorDbl<nVar> lambda;
+          for (size_t iDim = 0; iDim < nDim; ++iDim) lambda(iDim) = lam0;
+          lambda(nDim) = lamP;
+          lambda(nDim+1) = lamM;
+          const auto pMat = pMatrix(gamma, avg.density, avg.velocity, un, c, unitNormal);
+          const auto pMatInv = pMatrixInv(gamma, avg.density, avg.velocity, un, c, unitNormal);
+          for (size_t iVar = 0; iVar < nVar; ++iVar) {
+            for (size_t jVar = 0; jVar < nVar; ++jVar) {
+              Double d = 0.0;
+              for (size_t kVar = 0; kVar < nVar; ++kVar) d += pMat(iVar,kVar) * lambda(kVar) * pMatInv(kVar,jVar);
+              jac_i(iVar,jVar) += scale * d;
+              jac_j(iVar,jVar) -= scale * d;
+            }
+          }
+        }
+      }
+      return;
+    }
+
     Double dM, d0, dP;
     VectorDbl<nDim> dS;
     project(dw, dM, d0, dS, dP);
@@ -268,10 +365,14 @@ protected:
                     coefS * dot(avg.velocity, dS);
 
     if (implicit) {
-      const auto U_i = compressibleConservatives(V1st.i);
-      const auto U_j = compressibleConservatives(V1st.j);
-      jac_i = inviscidProjJac(gamma, V1st.i.velocity(), U_i.energy(), normal, 0.5);
-      jac_j = inviscidProjJac(gamma, V1st.j.velocity(), U_j.energy(), normal, 0.5);
+      if (ecExactJac) {
+        ismailRoeProjJac(gamma, V1st.i, V1st.j, normal, jac_i, jac_j);
+      } else {
+        const auto U_i = compressibleConservatives(V1st.i);
+        const auto U_j = compressibleConservatives(V1st.j);
+        jac_i = inviscidProjJac(gamma, V1st.i.velocity(), U_i.energy(), normal, 0.5);
+        jac_j = inviscidProjJac(gamma, V1st.j.velocity(), U_j.energy(), normal, 0.5);
+      }
 
       VectorDbl<nVar> lambda;
       for (size_t iDim = 0; iDim < nDim; ++iDim) lambda(iDim) = lam0;
@@ -361,8 +462,8 @@ public:
     VectorDbl<nVar> flux;
     MatrixDbl<nVar> jac_i, jac_j;
     if (tecno) {
-      tecnoFlux(flux, jac_i, jac_j, implicit, rArea, rUnitNormal, rNormal, V1st, vector_ij, iPoint, jPoint,
-                solution, umusclRamp);
+      tecnoFlux(flux, jac_i, jac_j, implicit, rArea, rUnitNormal, rNormal, V1st, vector_ij, iEdge, iPoint, jPoint,
+                updateMask, solution, umusclRamp);
     } else {
       derived->finalizeFlux(flux, jac_i, jac_j, implicit, rArea, rUnitNormal, rNormal,
                             V, U, iPoint, jPoint, nonPhysical, solution, geometry);
@@ -402,8 +503,30 @@ public:
       }
 
       /*--- Jacobian: Roe on nu from finalizeFlux, plus 0.5 A_i(n - nu) and 0.5 A_k(n - nu) of the nodal states,
-       * so the central Jacobian is on the whole median normal (also for the Ismail-Roe flux, as the edge form). ---*/
-      if (implicit) {
+       * so the central Jacobian is on the whole median normal (also for the Ismail-Roe flux, as the edge form).
+       * EDGE_FORM_EC_EXACT_JACOBIAN: the exact Jacobians of the Ismail-Roe parts instead. With TeCNO, tecnoFlux has
+       * those of F_ec(nu), F_ec(n - nu) is added. Otherwise the central part of the Roe flux on nu is removed from
+       * the flux, so its Jacobian (ROE_KAPPA A_L(nu), A_R(nu)) is removed and that of F_ec(n) added. ---*/
+      if (implicit && ecExactJac && (tecno || ecFlux)) {
+        MatrixDbl<nVar> ecJac_i, ecJac_j;
+        ismailRoeProjJac(gamma, V1st.i, V1st.j, tecno ? diffNormal : normal, ecJac_i, ecJac_j);
+        if (!tecno) {
+          const auto roeJac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), projNormal, roeKappa);
+          const auto roeJac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), projNormal, roeKappa);
+          for (size_t iVar = 0; iVar < nVar; ++iVar) {
+            for (size_t jVar = 0; jVar < nVar; ++jVar) {
+              ecJac_i(iVar, jVar) -= roeJac_i(iVar, jVar);
+              ecJac_j(iVar, jVar) -= roeJac_j(iVar, jVar);
+            }
+          }
+        }
+        for (size_t iVar = 0; iVar < nVar; ++iVar) {
+          for (size_t jVar = 0; jVar < nVar; ++jVar) {
+            jac_i(iVar, jVar) += ecJac_i(iVar, jVar);
+            jac_j(iVar, jVar) += ecJac_j(iVar, jVar);
+          }
+        }
+      } else if (implicit) {
         const auto addJac_i = inviscidProjJac(gamma, V1st.i.velocity(), U1st.i.energy(), diffNormal, 0.5);
         const auto addJac_j = inviscidProjJac(gamma, V1st.j.velocity(), U1st.j.energy(), diffNormal, 0.5);
         for (size_t iVar = 0; iVar < nVar; ++iVar) {
@@ -472,8 +595,22 @@ public:
           normal_i(iDim) = diffNormal(iDim) - 2.0 * formE(iDim);
           normal_j(iDim) = diffNormal(iDim) + 2.0 * formE(iDim);
         }
-        const auto addJac_i = inviscidProjJac(gamma, V1st.i.velocity(), U1st.i.energy(), normal_i, 0.5);
-        const auto addJac_j = inviscidProjJac(gamma, V1st.j.velocity(), U1st.j.energy(), normal_j, 0.5);
+        auto addJac_i = inviscidProjJac(gamma, V1st.i.velocity(), U1st.i.energy(), normal_i, 0.5);
+        auto addJac_j = inviscidProjJac(gamma, V1st.j.velocity(), U1st.j.energy(), normal_j, 0.5);
+        /*--- EDGE_FORM_EC_EXACT_JACOBIAN: the part along n_ik - n is the Ismail-Roe flux, its exact Jacobian replaces
+         * 0.5 A(n_ik - n), the E part -A_i(E), +A_k(E) stays. ---*/
+        if (ecFlux && ecExactJac) {
+          MatrixDbl<nVar> ecJac_i, ecJac_j;
+          ismailRoeProjJac(gamma, V1st.i, V1st.j, diffNormal, ecJac_i, ecJac_j);
+          addJac_i = inviscidProjJac(gamma, V1st.i.velocity(), U1st.i.energy(), formE, -1.0);
+          addJac_j = inviscidProjJac(gamma, V1st.j.velocity(), U1st.j.energy(), formE, 1.0);
+          for (size_t iVar = 0; iVar < nVar; ++iVar) {
+            for (size_t jVar = 0; jVar < nVar; ++jVar) {
+              addJac_i(iVar, jVar) += ecJac_i(iVar, jVar);
+              addJac_j(iVar, jVar) += ecJac_j(iVar, jVar);
+            }
+          }
+        }
         for (size_t iVar = 0; iVar < nVar; ++iVar) {
           for (size_t jVar = 0; jVar < nVar; ++jVar) {
             jac_i(iVar, jVar) += addJac_i(iVar, jVar);

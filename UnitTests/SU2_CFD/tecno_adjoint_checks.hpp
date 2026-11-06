@@ -1,0 +1,436 @@
+/*!
+ * \file tecno_adjoint_checks.hpp
+ * \brief Checks of EDGE_FORM_TECNO_ADJOINT and EDGE_FORM_EC_EXACT_JACOBIAN on any geometry with the CGeometry interface
+ *        used by TeCNOAdjoint (serial: every node owned). Used by p1_flux_variants.cpp.
+ * \version 8.6.0 "Harrier"
+ *
+ * SU2 Project Website: https://su2code.github.io
+ *
+ * The SU2 Project is maintained by the SU2 Foundation
+ * (http://su2foundation.org)
+ *
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
+ *
+ * SU2 is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * SU2 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with SU2. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#pragma once
+
+#include <Eigen/Dense>
+#include <algorithm>
+#include <array>
+#include <random>
+#include <vector>
+#include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
+#include "../../SU2_CFD/include/numerics_simd/flow/variables.hpp"
+#include "../../SU2_CFD/include/numerics/flow/tecno_adjoint.hpp"
+
+namespace TeCNOAdjointChecks {
+
+constexpr double GAMMA = 1.4;
+
+/*--- Nodal states rho, u, p. ---*/
+struct States {
+  std::vector<double> rho, p;
+  std::vector<std::array<double, 3>> u;
+};
+
+/*!
+ * \brief Random states, rho and p in exp(+-spread), |u_d| <= 3c / sqrt(nDim).
+ */
+inline States RandomStates(unsigned long nPoint, unsigned short nDim, std::mt19937& gen, double spread) {
+  std::uniform_real_distribution<double> r(-1.0, 1.0);
+  States S;
+  S.rho.resize(nPoint);
+  S.p.resize(nPoint);
+  S.u.resize(nPoint);
+  for (auto i = 0ul; i < nPoint; ++i) {
+    S.rho[i] = exp(spread * r(gen));
+    S.p[i] = exp(spread * r(gen));
+    const double c = sqrt(GAMMA * S.p[i] / S.rho[i]);
+    S.u[i] = {0.0, 0.0, 0.0};
+    for (unsigned short d = 0; d < nDim; ++d) S.u[i][d] = 3.0 * c * r(gen) / sqrt(double(nDim));
+  }
+  return S;
+}
+
+template <size_t nDim>
+CCompressiblePrimitives<nDim, nDim + 4> Primitives(double rho, const double* u, double p) {
+  CCompressiblePrimitives<nDim, nDim + 4> V;
+  V.density() = rho;
+  V.pressure() = p;
+  V.temperature() = p / rho;
+  double q2 = 0.0;
+  for (size_t d = 0; d < nDim; ++d) {
+    V.velocity(d) = u[d];
+    q2 += u[d] * u[d];
+  }
+  V.enthalpy() = GAMMA / (GAMMA - 1.0) * p / rho + 0.5 * q2;
+  return V;
+}
+
+template <size_t nDim>
+CCompressiblePrimitives<nDim, nDim + 4> PrimitivesOfConservatives(const double* U) {
+  double u[3] = {0.0, 0.0, 0.0}, q2 = 0.0;
+  for (size_t d = 0; d < nDim; ++d) {
+    u[d] = U[d + 1] / U[0];
+    q2 += u[d] * u[d];
+  }
+  return Primitives<nDim>(U[0], u, (GAMMA - 1.0) * (U[nDim + 1] - 0.5 * U[0] * q2));
+}
+
+inline su2activematrix EntropyField(const States& S, unsigned short nDim) {
+  su2activematrix w(S.rho.size(), nDim + 2);
+  for (auto i = 0ul; i < S.rho.size(); ++i)
+    TeCNOAdjoint::EntropyVariables(nDim, GAMMA, S.rho[i], S.u[i].data(), S.p[i], w[i]);
+  return w;
+}
+
+/*!
+ * \brief D_e of each edge as in the edge kernel: Roe average of the nodal states on nu (projected, or the dual normal),
+ *        eigenvalue floor 0.001 (|u.n| + c), 1/2 |nu|, as dense nVar x nVar row major rows of an (nEdge, nVar^2) matrix.
+ */
+template <size_t nDim, class Geometry>
+su2activematrix FrozenD(const Geometry& geometry, const States& S, bool projected) {
+  constexpr size_t nVar = nDim + 2;
+  su2activematrix D(geometry.GetnEdge(), nVar * nVar);
+  for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+    const auto i = geometry.edges->GetNode(e, 0), k = geometry.edges->GetNode(e, 1);
+    const auto* n = geometry.edges->GetNormal(e);
+    double edge[3] = {0.0}, e2 = 0.0, ne = 0.0;
+    for (size_t d = 0; d < nDim; ++d) {
+      edge[d] = geometry.nodes->GetCoord(k)[d] - geometry.nodes->GetCoord(i)[d];
+      e2 += edge[d] * edge[d];
+      ne += n[d] * edge[d];
+    }
+    double nu[3] = {0.0}, area = 0.0;
+    for (size_t d = 0; d < nDim; ++d) {
+      nu[d] = projected ? ne / e2 * edge[d] : n[d];
+      area += nu[d] * nu[d];
+    }
+    area = sqrt(area);
+    VectorDbl<nDim> unit;
+    for (size_t d = 0; d < nDim; ++d) unit(d) = nu[d] / area;
+    CPair<CCompressiblePrimitives<nDim, nDim + 4>> V;
+    V.i = Primitives<nDim>(S.rho[i], S.u[i].data(), S.p[i]);
+    V.j = Primitives<nDim>(S.rho[k], S.u[k].data(), S.p[k]);
+    const auto avg = roeAveragedVariables(Double(GAMMA), V, unit);
+    const Double lamMin = 0.001 * (abs(avg.projVel) + avg.speedSound);
+    const Double lamM = fmax(abs(avg.projVel - avg.speedSound), lamMin);
+    const Double lam0 = fmax(abs(avg.projVel), lamMin);
+    const Double lamP = fmax(abs(avg.projVel + avg.speedSound), lamMin);
+    for (size_t col = 0; col < nVar; ++col) {
+      VectorDbl<nVar> v;
+      for (size_t r = 0; r < nVar; ++r) v(r) = (r == col) ? 1.0 : 0.0;
+      const auto q = tecnoDissipation(Double(GAMMA), avg, unit, lamM, lam0, lamP, Double(0.5 * area), v);
+      for (size_t r = 0; r < nVar; ++r) D(e, r * nVar + col) = q(r)[0];
+    }
+  }
+  return D;
+}
+
+/*!
+ * \brief Adjoint dissipation residual for frozen D and phi, any nodal field w: the Delta part of the edge loop
+ *        -(1 - ramp kappa) q (+ at node 0, - at node 1 of the flux convention, i.e. R_i -= , R_k +=) and the transpose
+ *        loop of the solver. Returns R (nPoint, nVar), and sum_e L_e^T D_e L_e.
+ */
+template <size_t nDim, class Geometry>
+su2activematrix Residual(const Geometry& geometry, const su2activematrix& D, const su2activevector& phi,
+                         const su2activematrix& w, double ramp, double kappa, double& sumLDL) {
+  constexpr size_t nVar = nDim + 2;
+  const auto nPoint = w.rows();
+  CVectorOfMatrix grad(nPoint, nVar, nDim, 0.0);
+  TeCNOAdjoint::Gradient(geometry, nDim, nVar, w, grad);
+  su2activematrix Q(geometry.GetnEdge(), nVar);
+  su2activematrix R(nPoint, nVar);
+  R = su2double(0.0);
+  sumLDL = 0.0;
+  const double coefDelta = 1.0 - ramp * kappa;
+  for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+    const auto i = geometry.edges->GetNode(e, 0), k = geometry.edges->GetNode(e, 1);
+    Vector<su2double, nVar> dw, L;
+    Vector<su2double, nDim> edge;
+    for (size_t v = 0; v < nVar; ++v) dw(v) = w(k, v) - w(i, v);
+    for (size_t d = 0; d < nDim; ++d) edge(d) = geometry.nodes->GetCoord(k)[d] - geometry.nodes->GetCoord(i)[d];
+    TeCNOAdjoint::EdgeJump(nDim, nVar, dw, grad[i], grad[k], phi(i), phi(k), edge, ramp, kappa, L);
+    for (size_t r = 0; r < nVar; ++r) {
+      double q = 0.0;
+      for (size_t c = 0; c < nVar; ++c) q += D(e, r * nVar + c) * L(c);
+      Q(e, r) = q;
+      sumLDL += L(r) * q;
+      R(i, r) -= coefDelta * q;
+      R(k, r) += coefDelta * q;
+    }
+  }
+  CVectorOfMatrix Y(nPoint, nVar, nDim, 0.0);
+  TeCNOAdjoint::NodalMoment(geometry, nDim, nVar, Q, phi, Y);
+  TeCNOAdjoint::AddTranspose(geometry, nDim, nVar, Y, TeCNOAdjoint::GradientCoefficient(ramp, kappa), R);
+  return R;
+}
+
+/*--- Theorem A1 and conservation for random states and weights. ---*/
+struct EntropyResult {
+  double identity = 0.0;    /*!< \brief max |sum w.R - sum L^T D L| / sum |w R|. */
+  double production = -1e300; /*!< \brief max of -sum L^T D L / sum |w R| (must be <= 0). */
+  double conservation = 0.0;  /*!< \brief max |sum_m R_m| / max |R|. */
+};
+
+template <size_t nDim, class Geometry>
+EntropyResult EntropyCheck(const Geometry& geometry, unsigned long nPoint, int nTrials, unsigned seed) {
+  constexpr size_t nVar = nDim + 2;
+  std::mt19937 gen(seed);
+  std::uniform_real_distribution<double> r01(0.0, 1.0);
+  EntropyResult res;
+  for (int t = 0; t < nTrials; ++t) {
+    const auto S = RandomStates(nPoint, nDim, gen, 2.0);
+    const auto D = FrozenD<nDim>(geometry, S, t % 2);
+    su2activevector phi(nPoint);
+    for (auto i = 0ul; i < nPoint; ++i) phi(i) = -0.5 + 2.0 * r01(gen);
+    const double ramp = (t % 3 == 0) ? 0.6 : 1.0, kappa = (t % 4 == 1) ? 1.0 / 3.0 : 0.0;
+    const auto w = EntropyField(S, nDim);
+    double sumLDL = 0.0;
+    const auto R = Residual<nDim>(geometry, D, phi, w, ramp, kappa, sumLDL);
+    double wR = 0.0, absWR = 0.0, maxR = 0.0, cons[nVar] = {0.0};
+    for (auto i = 0ul; i < nPoint; ++i) {
+      for (size_t v = 0; v < nVar; ++v) {
+        wR += w(i, v) * R(i, v);
+        absWR += fabs(w(i, v) * R(i, v));
+        maxR = std::max(maxR, fabs(R(i, v)));
+        cons[v] += R(i, v);
+      }
+    }
+    res.identity = std::max(res.identity, fabs(wR - sumLDL) / absWR);
+    res.production = std::max(res.production, -sumLDL / absWR);
+    for (size_t v = 0; v < nVar; ++v) res.conservation = std::max(res.conservation, fabs(cons[v]) / maxR);
+  }
+  return res;
+}
+
+/*--- Linearization with frozen data: symmetry, PSD, and the Lemma A4 majorant 2 M# - C^T D C >= 0. ---*/
+struct LinearizationResult {
+  double asymmetry = 0.0;   /*!< \brief |A - A^T| / |A|. */
+  double negative = 0.0;    /*!< \brief max(0, -lambda_min / lambda_max) of A. */
+  double majorant = 0.0;    /*!< \brief max(0, -lambda_min(2 M# - A) / lambda_max(A)). */
+};
+
+template <size_t nDim, class Geometry>
+LinearizationResult LinearizationCheck(const Geometry& geometry, unsigned long nPoint, int nTrials, unsigned seed) {
+  constexpr size_t nVar = nDim + 2;
+  std::mt19937 gen(seed);
+  std::uniform_real_distribution<double> r01(0.0, 1.0);
+  LinearizationResult res;
+  const auto nDof = nVar * nPoint;
+  for (int t = 0; t < nTrials; ++t) {
+    const auto S = RandomStates(nPoint, nDim, gen, 1.0);
+    const auto D = FrozenD<nDim>(geometry, S, t % 2);
+    su2activevector phi(nPoint);
+    for (auto i = 0ul; i < nPoint; ++i) phi(i) = -0.5 + 2.0 * r01(gen);
+    const double ramp = 1.0, kappa = (t % 2) ? 1.0 / 3.0 : 0.0;
+
+    /*--- The residual is linear in w for frozen D and phi: its matrix column by column. ---*/
+    Eigen::MatrixXd A(nDof, nDof);
+    for (auto col = 0ul; col < nDof; ++col) {
+      su2activematrix w(nPoint, nVar);
+      w = su2double(0.0);
+      w(col / nVar, col % nVar) = 1.0;
+      double sumLDL = 0.0;
+      const auto R = Residual<nDim>(geometry, D, phi, w, ramp, kappa, sumLDL);
+      for (auto i = 0ul; i < nPoint; ++i)
+        for (size_t v = 0; v < nVar; ++v) A(nVar * i + v, col) = R(i, v);
+    }
+    res.asymmetry = std::max(res.asymmetry, (A - A.transpose()).norm() / A.norm());
+    const Eigen::MatrixXd As = 0.5 * (A + A.transpose());
+    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigA(As);
+    const double lamMax = eigA.eigenvalues().maxCoeff();
+    res.negative = std::max(res.negative, -eigA.eigenvalues().minCoeff() / lamMax);
+
+    /*--- M#: the Delta blocks of the edge loop and the diagonal blocks of the solver. ---*/
+    const double coefDelta = 1.0 - ramp * kappa;
+    const su2double gam = TeCNOAdjoint::GradientCoefficient(ramp, kappa);
+    Eigen::MatrixXd M = Eigen::MatrixXd::Zero(nDof, nDof);
+    for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+      const auto i = geometry.edges->GetNode(e, 0), k = geometry.edges->GetNode(e, 1);
+      for (size_t a = 0; a < nVar; ++a) {
+        for (size_t b = 0; b < nVar; ++b) {
+          const double blk = 1.5 * coefDelta * coefDelta * D(e, a * nVar + b);
+          M(nVar * i + a, nVar * i + b) += blk;
+          M(nVar * k + a, nVar * k + b) += blk;
+          M(nVar * i + a, nVar * k + b) -= blk;
+          M(nVar * k + a, nVar * i + b) -= blk;
+        }
+      }
+    }
+    su2activematrix P(nPoint, nVar * nVar);
+    TeCNOAdjoint::MajorantNodal(geometry, nDim, nVar, D, phi, gam, P);
+    for (auto i = 0ul; i < nPoint; ++i) {
+      TeCNOAdjoint::Block blk;
+      TeCNOAdjoint::MajorantDiagonal(geometry, nDim, nVar, P, i, blk);
+      for (size_t a = 0; a < nVar; ++a)
+        for (size_t b = 0; b < nVar; ++b) M(nVar * i + a, nVar * i + b) += blk(a, b);
+    }
+    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigM(2.0 * M - As);
+    res.majorant = std::max(res.majorant, -eigM.eigenvalues().minCoeff() / lamMax);
+  }
+  return res;
+}
+
+/*!
+ * \brief Largest |L_e| (relative to |w_k - w_i| if relative) over the edges whose two nodes satisfy interior(i), for
+ *        phi = 1, ramp 1, kappa 0 and a field w(x) given at the nodes.
+ */
+template <size_t nDim, class Geometry, class Interior>
+double MaxJump(const Geometry& geometry, const su2activematrix& w, const Interior& interior, bool relative) {
+  constexpr size_t nVar = nDim + 2;
+  const auto nPoint = w.rows();
+  CVectorOfMatrix grad(nPoint, nVar, nDim, 0.0);
+  TeCNOAdjoint::Gradient(geometry, nDim, nVar, w, grad);
+  double worst = 0.0;
+  for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+    const auto i = geometry.edges->GetNode(e, 0), k = geometry.edges->GetNode(e, 1);
+    if (!interior(i) || !interior(k)) continue;
+    Vector<su2double, nVar> dw, L;
+    Vector<su2double, nDim> edge;
+    for (size_t v = 0; v < nVar; ++v) dw(v) = w(k, v) - w(i, v);
+    for (size_t d = 0; d < nDim; ++d) edge(d) = geometry.nodes->GetCoord(k)[d] - geometry.nodes->GetCoord(i)[d];
+    TeCNOAdjoint::EdgeJump(nDim, nVar, dw, grad[i], grad[k], su2double(1.0), su2double(1.0), edge, 1.0, 0.0, L);
+    for (size_t v = 0; v < nVar; ++v) {
+      worst = std::max(worst, relative ? fabs(L(v)) / std::max(fabs(dw(v)), 1e-300) : fabs(L(v)));
+    }
+  }
+  return worst;
+}
+
+/*!
+ * \brief Largest relative error of ismailRoeProjJac against central differences of ismailRoeProjFlux in the
+ *        conservative variables, random states at relative distance spread, both node blocks.
+ */
+template <size_t nDim>
+double IsmailRoeJacobianError(std::mt19937& gen, double spread) {
+  constexpr size_t nVar = nDim + 2;
+  std::uniform_real_distribution<double> r(-1.0, 1.0);
+  auto random = [&](double* U) {
+    const double rho = exp(r(gen)), p = exp(r(gen));
+    double q2 = 0.0;
+    U[0] = rho;
+    for (size_t d = 0; d < nDim; ++d) {
+      const double u = 0.8 * r(gen);
+      U[d + 1] = rho * u;
+      q2 += u * u;
+    }
+    U[nDim + 1] = p / (GAMMA - 1.0) + 0.5 * rho * q2;
+  };
+  double U_i[nVar], U_k[nVar], other[nVar];
+  random(U_i);
+  random(other);
+  for (size_t v = 0; v < nVar; ++v) U_k[v] = U_i[v] + spread * (other[v] - U_i[v]);
+  VectorDbl<nDim> normal;
+  for (size_t d = 0; d < nDim; ++d) normal(d) = r(gen);
+  const auto V_i = PrimitivesOfConservatives<nDim>(U_i);
+  const auto V_k = PrimitivesOfConservatives<nDim>(U_k);
+  MatrixDbl<nVar> jac_i, jac_k;
+  ismailRoeProjJac(Double(GAMMA), V_i, V_k, normal, jac_i, jac_k);
+
+  double err = 0.0, ref = 0.0;
+  for (int side = 0; side < 2; ++side) {
+    const double* U0 = side ? U_k : U_i;
+    for (size_t c = 0; c < nVar; ++c) {
+      double Up[nVar], Um[nVar];
+      for (size_t v = 0; v < nVar; ++v) Up[v] = Um[v] = U0[v];
+      const double h = 1e-6 * std::max(1.0, fabs(U0[c]));
+      Up[c] += h;
+      Um[c] -= h;
+      const auto Vp = PrimitivesOfConservatives<nDim>(Up), Vm = PrimitivesOfConservatives<nDim>(Um);
+      const auto Fp = side ? ismailRoeProjFlux(Double(GAMMA), V_i, Vp, normal) : ismailRoeProjFlux(Double(GAMMA), Vp, V_k, normal);
+      const auto Fm = side ? ismailRoeProjFlux(Double(GAMMA), V_i, Vm, normal) : ismailRoeProjFlux(Double(GAMMA), Vm, V_k, normal);
+      for (size_t v = 0; v < nVar; ++v) {
+        const double fd = (Fp(v)[0] - Fm(v)[0]) / (2.0 * h);
+        const double exact = side ? jac_k(v, c)[0] : jac_i(v, c)[0];
+        err = std::max(err, fabs(fd - exact));
+        ref = std::max(ref, fabs(fd));
+      }
+    }
+  }
+  return err / ref;
+}
+
+/*!
+ * \brief Equal states: both blocks are 1/2 A(n). Returns the largest relative deviation.
+ */
+template <size_t nDim>
+double IsmailRoeJacobianEqualStates(std::mt19937& gen) {
+  constexpr size_t nVar = nDim + 2;
+  std::uniform_real_distribution<double> r(-1.0, 1.0);
+  double u[3] = {0.0};
+  for (size_t d = 0; d < nDim; ++d) u[d] = r(gen);
+  const auto V = Primitives<nDim>(exp(r(gen)), u, exp(r(gen)));
+  VectorDbl<nDim> normal;
+  for (size_t d = 0; d < nDim; ++d) normal(d) = r(gen);
+  MatrixDbl<nVar> jac_i, jac_k;
+  ismailRoeProjJac(Double(GAMMA), V, V, normal, jac_i, jac_k);
+  const auto U = compressibleConservatives(V);
+  const auto A = inviscidProjJac(Double(GAMMA), V.velocity(), U.energy(), normal, Double(0.5));
+  double err = 0.0, ref = 0.0;
+  for (size_t a = 0; a < nVar; ++a) {
+    for (size_t b = 0; b < nVar; ++b) {
+      err = std::max(err, std::max(fabs(jac_i(a, b)[0] - A(a, b)[0]), fabs(jac_k(a, b)[0] - A(a, b)[0])));
+      ref = std::max(ref, fabs(A(a, b)[0]));
+    }
+  }
+  return err / ref;
+}
+
+/*!
+ * \brief dw/dU of TeCNOAdjoint::EntropyHessian against central differences of EntropyVariables.
+ */
+inline double EntropyHessianError(std::mt19937& gen, unsigned short nDim) {
+  std::uniform_real_distribution<double> r(-1.0, 1.0);
+  const unsigned short nVar = nDim + 2;
+  const double rho = exp(r(gen)), p = exp(r(gen));
+  double u[3] = {0.0}, q2 = 0.0;
+  for (unsigned short d = 0; d < nDim; ++d) {
+    u[d] = r(gen);
+    q2 += u[d] * u[d];
+  }
+  TeCNOAdjoint::Block H;
+  TeCNOAdjoint::EntropyHessian(nDim, GAMMA, rho, u, p, H);
+  double U[5] = {rho, 0.0, 0.0, 0.0, 0.0};
+  for (unsigned short d = 0; d < nDim; ++d) U[d + 1] = rho * u[d];
+  U[nDim + 1] = p / (GAMMA - 1.0) + 0.5 * rho * q2;
+  auto entropy = [&](const double* Uc, double* w) {
+    double uc[3] = {0.0}, s2 = 0.0;
+    for (unsigned short d = 0; d < nDim; ++d) {
+      uc[d] = Uc[d + 1] / Uc[0];
+      s2 += uc[d] * uc[d];
+    }
+    TeCNOAdjoint::EntropyVariables(nDim, GAMMA, Uc[0], uc, (GAMMA - 1.0) * (Uc[nDim + 1] - 0.5 * Uc[0] * s2), w);
+  };
+  double err = 0.0, ref = 0.0;
+  for (unsigned short c = 0; c < nVar; ++c) {
+    double Up[5], Um[5], wp[5], wm[5];
+    for (unsigned short v = 0; v < nVar; ++v) Up[v] = Um[v] = U[v];
+    const double h = 1e-6 * std::max(1.0, fabs(U[c]));
+    Up[c] += h;
+    Um[c] -= h;
+    entropy(Up, wp);
+    entropy(Um, wm);
+    for (unsigned short v = 0; v < nVar; ++v) {
+      const double fd = (wp[v] - wm[v]) / (2.0 * h);
+      err = std::max(err, fabs(fd - H(v, c)));
+      ref = std::max(ref, fabs(fd));
+    }
+  }
+  return err / ref;
+}
+
+}  // namespace TeCNOAdjointChecks

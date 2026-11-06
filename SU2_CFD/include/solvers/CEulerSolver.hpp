@@ -46,6 +46,28 @@ protected:
 
   su2activevector P1MovedThetaV; /*!< \brief VISC_P1_ENTROPY_MOVED: theta_v of each simplex, set by SetEdgeBlendLambda. */
 
+  /*--- EDGE_FORM_TECNO_ADJOINT work arrays (MESH_0, sized only with the option). ---*/
+  su2activematrix TeCNOAdjW;       /*!< \brief Nodal entropy variables (iPoint, iVar). */
+  CVectorOfMatrix TeCNOAdjY;       /*!< \brief Y_i = Z_i / V_i of the adjoint gradient loop (iPoint, iVar, iDim). */
+  su2activematrix TeCNOAdjP;       /*!< \brief Phat_i of the Lemma A4 majorant (iPoint, iVar*nVar + jVar). */
+  su2activematrix TeCNOAdjLimiter, TeCNOAdjMin, TeCNOAdjMax; /*!< \brief Limiter of w and its work arrays. */
+
+  /*!
+   * \brief EDGE_FORM_TECNO_ADJOINT: entropy variables, their Green-Gauss gradient (difference form) and the nodal
+   *        weights phi, owned nodes copied to the halos. Called in Preprocessing, before the residual.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void SetTeCNOAdjointGradient(CGeometry *geometry, const CConfig *config);
+
+  /*!
+   * \brief EDGE_FORM_TECNO_ADJOINT: gradient part of the adjoint dissipation, the transpose of the gradient applied to
+   *        Z_i = phi_i sum_e e_e (x) q_e, and the diagonal blocks of the Lemma A4 Jacobian. Called after the edge loop.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void TeCNOAdjointResidual(CGeometry *geometry, const CConfig *config);
+
   /*!
    * \brief VISC_P1_ENTROPY_MOVED: viscous part of the element budget of SetEdgeBlendLambda (Navier-Stokes solver).
    * \param[in] geometry - Geometrical definition of the problem.

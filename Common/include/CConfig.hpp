@@ -84,6 +84,10 @@ private:
   bool Edge_Form_TeCNO;        /*!< \brief Entropy stable second order Roe part: Ismail-Roe flux plus TeCNO dissipation. */
   bool Edge_Form_TeCNO_Wide;   /*!< \brief Widest sign-property bound of the TeCNO limiter. */
   bool Edge_Form_TeCNO_Smooth; /*!< \brief Smooth rational sigma of the TeCNO dissipation. */
+  bool Edge_Form_TeCNO_Adjoint; /*!< \brief Adjoint (dual consistent) entropy dissipation of TeCNO, sum_e C_e^T D_e C_e w. */
+  bool Edge_Form_TeCNO_Adjoint_Limiter; /*!< \brief Nodal limiter phi of SLOPE_LIMITER_FLOW on w in that dissipation. */
+  bool Edge_Form_TeCNO_A4_Jacobian; /*!< \brief Provable majorant (Lemma A4) of its linearization as the Jacobian. */
+  bool Edge_Form_EC_Exact_Jacobian; /*!< \brief Exact Jacobian of the Ismail-Roe central parts of the ROE options. */
   bool BC_Entropy_P1;          /*!< \brief Entropy stable hybridized weak boundary of BC_WEAK_P1 (closure C). */
   bool Visc_P1_Entropy;        /*!< \brief P1 Galerkin viscous operator in entropy variables, one frozen K per simplex. */
   bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
@@ -10037,6 +10041,28 @@ public:
    * \brief EDGE_FORM_TECNO_SMOOTH: sigma = (1-s)^2/(s^2-s+1), s the mean slope ratio.
    */
   bool GetEdge_Form_TeCNO_Smooth() const { return Edge_Form_TeCNO_Smooth; }
+
+  /*!
+   * \brief EDGE_FORM_TECNO_ADJOINT: the TeCNO dissipation is sum_e C_e^T D_e C_e w, C_e w the linear U-MUSCL jump of
+   *        the nodal entropy variables with their Green-Gauss gradients (P1_TECNO_CONVERGENCE.md, 3.2 and 5.1).
+   */
+  bool GetEdge_Form_TeCNO_Adjoint() const { return Edge_Form_TeCNO_Adjoint; }
+
+  /*!
+   * \brief EDGE_FORM_TECNO_ADJOINT_LIMITER: nodal weights phi_i = min over w of the SLOPE_LIMITER_FLOW limiter (else 1).
+   */
+  bool GetEdge_Form_TeCNO_Adjoint_Limiter() const { return Edge_Form_TeCNO_Adjoint_Limiter; }
+
+  /*!
+   * \brief EDGE_FORM_TECNO_A4_JACOBIAN: dissipation Jacobian from the majorant of Lemma A4 instead of first order Roe.
+   */
+  bool GetEdge_Form_TeCNO_A4_Jacobian() const { return Edge_Form_TeCNO_A4_Jacobian; }
+
+  /*!
+   * \brief EDGE_FORM_EC_EXACT_JACOBIAN: exact Jacobian of the Ismail-Roe central flux of the nodal states (both node
+   *        blocks) instead of 1/2 A_i, 1/2 A_k, for ROE with EDGE_FORM_EC_FLUX or EDGE_FORM_TECNO.
+   */
+  bool GetEdge_Form_EC_Exact_Jacobian() const { return Edge_Form_EC_Exact_Jacobian; }
 
   /*!
    * \brief Entropy stable weak boundary of BC_WEAK_P1: degree 2 face rule, entropy projected states at the points,

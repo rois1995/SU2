@@ -1,0 +1,304 @@
+/*!
+ * \file tecno_adjoint.hpp
+ * \brief Adjoint (dual consistent) entropy dissipation of EDGE_FORM_TECNO (EDGE_FORM_TECNO_ADJOINT): the linear
+ *        U-MUSCL jump of the nodal entropy variables, its Green-Gauss gradient, the transpose of that gradient, and
+ *        the Lemma A4 majorant of its linearization (P1_TECNO_CONVERGENCE.md, 3.2 and 5.1).
+ * \version 8.6.0 "Harrier"
+ *
+ * SU2 Project Website: https://su2code.github.io
+ *
+ * The SU2 Project is maintained by the SU2 Foundation
+ * (http://su2foundation.org)
+ *
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
+ *
+ * SU2 is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * SU2 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with SU2. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#pragma once
+
+#include <cmath>
+#include "../../../../Common/include/basic_types/datatype_structure.hpp"
+#include "../../../../Common/include/parallelization/omp_structure.hpp"
+
+/*--- Scheme (P1_TECNO_CONVERGENCE.md, 3.2). Ideal gas, w = ((gamma-s)/(gamma-1) - beta|u|^2/2, beta u, -beta) the
+ * entropy variables of U = -rho s/(gamma-1), beta = rho/p. On the edge e = (i,k), e_ik = x_k - x_i,
+ *
+ *   L_e(w) = (1 - rho kappa)(w_k - w_i) - 1/2 rho (1-kappa) (phi_i G_i w + phi_k G_k w).e_ik = sum_m c_{e,m} w_m,
+ *   q_e = D_e L_e,  D_e = 1/2 |nu| delta R|Lambda|T R^T (frozen, PSD),   R^diss_m = sum_e c_{e,m} q_e,
+ *
+ * rho the MUSCL ramp, kappa the U-MUSCL kappa, phi_i any nodal reals, G the gradient below. Then
+ * sum_m w_m.R^diss_m = sum_e L_e^T D_e L_e >= 0 for any states and phi (Theorem A1). The Delta part of c_e is the edge
+ * flux -(1 - rho kappa) q_e (scattered +/- by the edge loop), the gradient part is
+ *   R_m += gam sum_i dG_i/dw_m : Z_i,  Z_i = phi_i sum_{e ni i} e_e (x) q_e,  gam = -1/2 rho (1-kappa),
+ * applied here after the edge loop (the SIMD colouring does not allow scattering to second neighbours).
+ *
+ * Gradient: Green-Gauss on the dual in difference form, G_i w = V_i^-1 sum_k 1/2 (w_k - w_i) n_ik. With the closure
+ * sum_k n_ik + beta_i = 0 of the dual cell (beta_i its outward boundary normal) it equals the usual
+ * V_i^-1 [sum_k 1/2 (w_i + w_k) n_ik + w_i beta_i], so it is linear exact where that one is (interior nodes of the
+ * median dual), and G 1 = 0 holds exactly, without the boundary normals. Its transpose is
+ *   dG_i/dw_k = n_ik/(2 V_i),  dG_i/dw_i = -sum_k n_ik/(2 V_i),  so  R_m += -gam/2 sum_k n_mk.(Y_m + Y_k),  Y = Z/V.
+ *
+ * MPI: G, Y and phi are computed on the owned nodes, whose edges, neighbours, volumes and normals are all on this
+ * rank, and copied to the halos. Z_i needs q_e on all edges of i, i.e. G and phi of its neighbours (halos after the
+ * copy). Y is divided by the volume on the owner, halo volumes being incomplete. The residual of an owned node then
+ * equals the serial one. ---*/
+
+namespace TeCNOAdjoint {
+
+constexpr unsigned short MAXNVAR = 5;
+constexpr unsigned long OMP_CHUNK = 512;
+
+/*!
+ * \brief Small dense block, for the su2double users of the templates below.
+ */
+struct Block {
+  su2double v[MAXNVAR][MAXNVAR] = {};
+  su2double& operator()(unsigned short i, unsigned short j) { return v[i][j]; }
+  const su2double& operator()(unsigned short i, unsigned short j) const { return v[i][j]; }
+};
+
+/*!
+ * \brief Entropy variables w of U = -rho s/(gamma-1), s = ln p - gamma ln rho.
+ */
+inline void EntropyVariables(unsigned short nDim, su2double gamma, su2double density, const su2double* velocity,
+                             su2double pressure, su2double* w) {
+  const su2double beta = density / pressure;
+  const su2double entropy = log(pressure) - gamma * log(density);
+  su2double sqVel = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    sqVel += velocity[iDim] * velocity[iDim];
+    w[iDim + 1] = beta * velocity[iDim];
+  }
+  w[0] = (gamma - entropy) / (gamma - 1.0) - 0.5 * beta * sqVel;
+  w[nDim + 1] = -beta;
+}
+
+/*!
+ * \brief dw/dU of those variables (the Hessian of U, symmetric positive definite), ideal gas:
+ *        dw/dU = c0 z z^T + B,  c0 = (gamma-1) rho/p^2,  z = (-|u|^2/2, u, -1),
+ *        B(0,0) = gamma/((gamma-1) rho), B(0,E) = B(E,0) = -1/p, B(m,m) = I/p, zero otherwise.
+ * \note Templated on the scalar (su2double or a SIMD lane array) and on any matrix with operator()(i,j).
+ */
+template <class Scalar, class MatrixType>
+inline void EntropyHessian(unsigned short nDim, const Scalar& gamma, const Scalar& density, const Scalar* velocity,
+                           const Scalar& pressure, MatrixType& H) {
+  const unsigned short nVar = nDim + 2;
+  Scalar z[MAXNVAR];
+  Scalar sqVel = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    sqVel += velocity[iDim] * velocity[iDim];
+    z[iDim + 1] = velocity[iDim];
+  }
+  z[0] = -0.5 * sqVel;
+  z[nDim + 1] = -1.0;
+  const Scalar invP = 1.0 / pressure;
+  const Scalar c0 = (gamma - 1.0) * density * invP * invP;
+  for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+    for (unsigned short jVar = 0; jVar < nVar; ++jVar) H(iVar, jVar) = c0 * z[iVar] * z[jVar];
+  }
+  H(0, 0) += gamma / ((gamma - 1.0) * density);
+  H(0, nDim + 1) -= invP;
+  H(nDim + 1, 0) -= invP;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) H(iDim + 1, iDim + 1) += invP;
+}
+
+/*!
+ * \brief Linear U-MUSCL jump of the entropy variables on one edge,
+ *        L = (1 - ramp kappa) dw - 1/2 ramp (1-kappa) (phi_i grad_i + phi_k grad_k).e.
+ * \param[in] dw - Nodal jump w_k - w_i.
+ * \param[in] grad_i, grad_k - Gradients of w at the two nodes, (iVar, iDim).
+ * \param[in] e - Edge vector x_k - x_i.
+ */
+template <class Scalar, class VectorType, class GradType_i, class GradType_k, class EdgeType, class OutType>
+inline void EdgeJump(unsigned short nDim, unsigned short nVar, const VectorType& dw, const GradType_i& grad_i,
+                     const GradType_k& grad_k, const Scalar& phi_i, const Scalar& phi_k, const EdgeType& e,
+                     su2double ramp, su2double kappa, OutType& L) {
+  const su2double coefDelta = 1.0 - ramp * kappa;
+  const su2double coefGrad = 0.5 * ramp * (1.0 - kappa);
+  for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+    Scalar proj_i = 0.0, proj_k = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      proj_i += grad_i(iVar, iDim) * e(iDim);
+      proj_k += grad_k(iVar, iDim) * e(iDim);
+    }
+    L(iVar) = coefDelta * dw(iVar) - coefGrad * (phi_i * proj_i + phi_k * proj_k);
+  }
+}
+
+/*!
+ * \brief Coefficient gam = -1/2 ramp (1-kappa) of the gradient part of c_e.
+ */
+inline su2double GradientCoefficient(su2double ramp, su2double kappa) { return -0.5 * ramp * (1.0 - kappa); }
+
+/*!
+ * \brief Green-Gauss gradient of w in difference form on the owned nodes, G_i w = V_i^-1 sum_k 1/2 (w_k - w_i) n_ik.
+ * \param[in] w - Field (iPoint, iVar), halos included.
+ * \param[out] grad - (iPoint, iVar, iDim), owned nodes.
+ */
+template <class Geometry, class FieldType, class GradientType>
+void Gradient(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const FieldType& w,
+              GradientType& grad) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double g[MAXNVAR][3] = {};
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const bool first = (geometry.edges->GetNode(iEdge, 0) == iPoint);
+      const unsigned long jPoint = geometry.edges->GetNode(iEdge, first ? 1 : 0);
+      const su2double sign = first ? 0.5 : -0.5;
+      const auto* normal = geometry.edges->GetNormal(iEdge);
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+        const su2double delta = sign * (w(jPoint, iVar) - w(iPoint, iVar));
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) g[iVar][iDim] += delta * normal[iDim];
+      }
+    }
+    const su2double invVol = 1.0 / geometry.nodes->GetVolume(iPoint);
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) grad(iPoint, iVar, iDim) = g[iVar][iDim] * invVol;
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Y_i = (phi_i / V_i) sum_{e ni i} e_e (x) q_e on the owned nodes, e_e = x_{node 1} - x_{node 0} of the edge.
+ * \param[in] edgeQ - q_e = D_e L_e of each edge (iEdge, iVar), from the edge loop.
+ * \param[in] phi - Nodal weights.
+ * \param[out] Y - (iPoint, iVar, iDim).
+ */
+template <class Geometry, class EdgeType, class PhiType, class MomentType>
+void NodalMoment(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const EdgeType& edgeQ,
+                 const PhiType& phi, MomentType& Y) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double z[MAXNVAR][3] = {};
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const auto* x0 = geometry.nodes->GetCoord(geometry.edges->GetNode(iEdge, 0));
+      const auto* x1 = geometry.nodes->GetCoord(geometry.edges->GetNode(iEdge, 1));
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+        const su2double q = edgeQ(iEdge, iVar);
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) z[iVar][iDim] += (x1[iDim] - x0[iDim]) * q;
+      }
+    }
+    const su2double scale = phi(iPoint) / geometry.nodes->GetVolume(iPoint);
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) Y(iPoint, iVar, iDim) = scale * z[iVar][iDim];
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Gradient part of the residual, the transpose of Gradient applied to Y:
+ *        R_m += -gam/2 sum_k n_mk.(Y_m + Y_k) on the owned nodes, Y needed on the halos too.
+ */
+template <class Geometry, class MomentType, class ResidualType>
+void AddTranspose(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const MomentType& Y,
+                  su2double gam, ResidualType& residual) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double res[MAXNVAR] = {};
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const bool first = (geometry.edges->GetNode(iEdge, 0) == iPoint);
+      const unsigned long jPoint = geometry.edges->GetNode(iEdge, first ? 1 : 0);
+      const su2double sign = first ? -0.5 * gam : 0.5 * gam;
+      const auto* normal = geometry.edges->GetNormal(iEdge);
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+        su2double flux = 0.0;
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+          flux += normal[iDim] * (Y(iPoint, iVar, iDim) + Y(jPoint, iVar, iDim));
+        res[iVar] += sign * flux;
+      }
+    }
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) residual(iPoint, iVar) += res[iVar];
+  }
+  END_SU2_OMP_FOR
+}
+
+/*--- Lemma A4 with a three-term split (P1_TECNO_CONVERGENCE.md, 3.2, adapted to a halo of one layer). Write
+ * L_e = a_e + p_i + p_k, a_e = (1 - rho kappa) dw, p_i = gam phi_i sum_m (g_im.e) w_m, g_im = dG_i/dw_m. Then
+ *   L^T D L <= 3 (a^T D a + p_i^T D p_i + p_k^T D p_k),
+ *   p_i^T D p_i <= gam^2 phi_i^2 |b|_1 sum_m |b_m| w_m^T D w_m,  b_m = g_im.e   (Jensen, D PSD),
+ *   |b|_1 <= |e| N_i / V_i,  |b_m| <= |e| |g_im|,  N_i = sum_k |n_ik|/2 + |sum_k n_ik|/2,
+ * so that, summed over the edges, C^T D C <= 2 M#, with M# = 3/2 [sum_e a-blocks of D_e + diag_m(sum_i |g_im| P_i)],
+ *   P_i = gam^2 phi_i^2 (N_i / V_i) S_i,  S_i = sum_{e ni i} |e|^2 D_e.
+ * The a-blocks are the edge blocks (1-rho kappa)^2 [D, -D; -D, D] (edge loop). With Phat_i = P_i / V_i (owned nodes,
+ * copied to the halos), the diagonal block of an owned node m is
+ *   3/2 [sum_k |n_mk|/2 Phat_k + |sum_k n_mk|/2 Phat_m],
+ * which needs only first neighbours. Lemma C4 (ii) then holds for the iteration with M# as the dissipation part. ---*/
+
+/*!
+ * \brief Phat_i = gam^2 phi_i^2 N_i S_i / V_i^2 on the owned nodes.
+ * \param[in] edgeD - D_e of each edge, row major nVar x nVar per row (iEdge, iVar*nVar + jVar).
+ * \param[out] P - (iPoint, iVar*nVar + jVar).
+ */
+template <class Geometry, class EdgeType, class PhiType, class NodeType>
+void MajorantNodal(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const EdgeType& edgeD,
+                   const PhiType& phi, su2double gam, NodeType& P) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double S[MAXNVAR * MAXNVAR] = {};
+    su2double sumNormal[3] = {}, sumArea = 0.0;
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const bool first = (geometry.edges->GetNode(iEdge, 0) == iPoint);
+      const auto* x0 = geometry.nodes->GetCoord(geometry.edges->GetNode(iEdge, 0));
+      const auto* x1 = geometry.nodes->GetCoord(geometry.edges->GetNode(iEdge, 1));
+      const auto* normal = geometry.edges->GetNormal(iEdge);
+      su2double length2 = 0.0, area2 = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+        length2 += pow(x1[iDim] - x0[iDim], 2);
+        area2 += normal[iDim] * normal[iDim];
+        sumNormal[iDim] += (first ? 1.0 : -1.0) * normal[iDim];
+      }
+      sumArea += sqrt(area2);
+      for (unsigned short k = 0; k < nVar * nVar; ++k) S[k] += length2 * edgeD(iEdge, k);
+    }
+    su2double normSum = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) normSum += sumNormal[iDim] * sumNormal[iDim];
+    const su2double N = 0.5 * sumArea + 0.5 * sqrt(normSum);
+    const su2double vol = geometry.nodes->GetVolume(iPoint);
+    const su2double coef = gam * gam * phi(iPoint) * phi(iPoint) * N / (vol * vol);
+    for (unsigned short k = 0; k < nVar * nVar; ++k) P(iPoint, k) = coef * S[k];
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Diagonal block of M# (in w) of the owned node iPoint from Phat (needed on the halos), the factor 3/2 included.
+ */
+template <class Geometry, class NodeType, class MatrixType>
+void MajorantDiagonal(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const NodeType& P,
+                      unsigned long iPoint, MatrixType& block) {
+  for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+    for (unsigned short jVar = 0; jVar < nVar; ++jVar) block(iVar, jVar) = 0.0;
+  su2double sumNormal[3] = {};
+  for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+    const bool first = (geometry.edges->GetNode(iEdge, 0) == iPoint);
+    const unsigned long jPoint = geometry.edges->GetNode(iEdge, first ? 1 : 0);
+    const auto* normal = geometry.edges->GetNormal(iEdge);
+    su2double area2 = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      area2 += normal[iDim] * normal[iDim];
+      sumNormal[iDim] += (first ? 1.0 : -1.0) * normal[iDim];
+    }
+    const su2double weight = 0.75 * sqrt(area2);
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+      for (unsigned short jVar = 0; jVar < nVar; ++jVar) block(iVar, jVar) += weight * P(jPoint, iVar * nVar + jVar);
+  }
+  su2double normSum = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) normSum += sumNormal[iDim] * sumNormal[iDim];
+  const su2double weight = 0.75 * sqrt(normSum);
+  for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+    for (unsigned short jVar = 0; jVar < nVar; ++jVar) block(iVar, jVar) += weight * P(iPoint, iVar * nVar + jVar);
+}
+
+}  // namespace TeCNOAdjoint

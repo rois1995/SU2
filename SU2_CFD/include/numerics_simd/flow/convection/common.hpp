@@ -386,6 +386,181 @@ FORCEINLINE VectorDbl<nDim+2> ismailRoeProjFlux(const Double& gamma,
 }
 
 /*!
+ * \brief Logarithmic mean of logMean and its partial derivatives, from the derivatives of its two branches:
+ * L = (a+b)/(2F(f)), f = (a-b)/(a+b), F the series (u = f^2 < 1e-2) or ln(a/b)/(2f) = atanh(f)/f, whose derivative is
+ * (1/(1-u) - F)/f. dL/da = 1/(2F) - b F'/((a+b) F^2), dL/db = 1/(2F) + a F'/((a+b) F^2).
+ */
+FORCEINLINE void logMeanDerivatives(const Double& a, const Double& b, Double& mean, Double& dMean_a, Double& dMean_b) {
+  const Double sum = a + b;
+  const Double f = (a - b) / sum;
+  const Double u = f * f;
+  const Double series = 1.0 + u * (1.0/3.0 + u * (1.0/5.0 + u * (1.0/7.0)));
+  const Double dSeries = 2.0 * f * (1.0/3.0 + u * (2.0/5.0 + u * (3.0/7.0)));
+  const Double large = (u >= 1e-2);
+  const Double fSafe = large * f + (1.0 - large);
+  const Double logBranch = log(a / b) / (2.0 * fSafe);
+  const Double dLogBranch = (1.0 / (1.0 - u) - logBranch) / fSafe;
+  const Double F = large * logBranch + (1.0 - large) * series;
+  const Double dF = large * dLogBranch + (1.0 - large) * dSeries;
+  mean = sum / (2.0 * F);
+  const Double factor = dF / (sum * F * F);
+  dMean_a = 0.5 / F - b * factor;
+  dMean_b = 0.5 / F + a * factor;
+}
+
+/*!
+ * \brief Exact Jacobians (EDGE_FORM_EC_EXACT_JACOBIAN) of ismailRoeProjFlux with respect to the conservative variables
+ * of the two states, jac_i = dF/dU_i and jac_j = dF/dU_j. Chain rule through z = sqrt(rho/p), y = sqrt(rho p) and the
+ * velocity of each state: with zbar = {z}, the logarithmic means zl, yl and their derivatives zl', yl' (one side),
+ *   d rho/dz = yl/2, d rho/dy = zbar yl',  d u/dz = (u_s - u)/(2 zbar),  d u/du_s = z_s/(2 zbar),
+ *   d p1/dz = -p1/(2 zbar),  d p1/dy = 1/(2 zbar),  d p2 = [(gamma+1) d(yl/zl) + (gamma-1) d p1] / (2 gamma),
+ *   d H = gamma/((gamma-1) rho) (d p2 - p2/rho d rho) + u.du,  F = (m, m u + p1 n, m H), m = rho u.n,
+ * and dz/dU = z/(2 rho) d rho/dU - z/(2p) dp/dU, dy/dU = y/(2 rho) d rho/dU + y/(2p) dp/dU, dp/dU = (gamma-1)(|u|^2/2, -u, 1).
+ * Linear in the normal, like the flux.
+ */
+template<class PrimVarType, size_t nDim>
+FORCEINLINE void ismailRoeProjJac(const Double& gamma,
+                                  const PrimVarType& Vi,
+                                  const PrimVarType& Vj,
+                                  const VectorDbl<nDim>& normal,
+                                  MatrixDbl<nDim+2>& jac_i,
+                                  MatrixDbl<nDim+2>& jac_j) {
+  constexpr size_t nVar = nDim+2;
+  const Double z_i = sqrt(Vi.density() / Vi.pressure());
+  const Double z_j = sqrt(Vj.density() / Vj.pressure());
+  const Double y_i = z_i * Vi.pressure();
+  const Double y_j = z_j * Vj.pressure();
+  const Double zAvg = 0.5 * (z_i + z_j);
+  const Double yAvg = 0.5 * (y_i + y_j);
+  Double zLog, dzLog_i, dzLog_j, yLog, dyLog_i, dyLog_j;
+  logMeanDerivatives(z_i, z_j, zLog, dzLog_i, dzLog_j);
+  logMeanDerivatives(y_i, y_j, yLog, dyLog_i, dyLog_j);
+
+  const Double density = zAvg * yLog;
+  VectorDbl<nDim> velocity;
+  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+    velocity(iDim) = 0.5 * (z_i * Vi.velocity(iDim) + z_j * Vj.velocity(iDim)) / zAvg;
+  }
+  const Double pressure1 = yAvg / zAvg;
+  const Double pressure2 = ((gamma + 1.0) * yLog / zLog + (gamma - 1.0) * pressure1) / (2.0 * gamma);
+  const Double enthalpy = gamma * pressure2 / ((gamma - 1.0) * density) + 0.5 * squaredNorm(velocity);
+  const Double projVel = dot(velocity, normal);
+  const Double mdot = density * projVel;
+  const Double hFactor = gamma / ((gamma - 1.0) * density);
+
+  auto side = [&](const PrimVarType& V, const Double& z, const Double& y, const Double& dzLog, const Double& dyLog,
+                  MatrixDbl<nVar>& jac) {
+    /*--- Partial derivatives with respect to z, y and the velocity of this state. ---*/
+    const Double dRho_z = 0.5 * yLog;
+    const Double dRho_y = zAvg * dyLog;
+    VectorDbl<nDim> dVel_z;
+    for (size_t iDim = 0; iDim < nDim; ++iDim) dVel_z(iDim) = (V.velocity(iDim) - velocity(iDim)) / (2.0 * zAvg);
+    const Double dVel_u = z / (2.0 * zAvg);
+    const Double dP1_z = -pressure1 / (2.0 * zAvg);
+    const Double dP1_y = 1.0 / (2.0 * zAvg);
+    const Double dP2_z = (-(gamma + 1.0) * yLog * dzLog / (zLog * zLog) + (gamma - 1.0) * dP1_z) / (2.0 * gamma);
+    const Double dP2_y = ((gamma + 1.0) * dyLog / zLog + (gamma - 1.0) * dP1_y) / (2.0 * gamma);
+    const Double dH_z = hFactor * (dP2_z - pressure2 / density * dRho_z) + dot(velocity, dVel_z);
+    const Double dH_y = hFactor * (dP2_y - pressure2 / density * dRho_y);
+    const Double dMdot_z = dRho_z * projVel + density * dot(dVel_z, normal);
+    const Double dMdot_y = dRho_y * projVel;
+
+    VectorDbl<nVar> dF_z, dF_y;
+    MatrixDbl<nVar, nDim> dF_u;
+    dF_z(0) = dMdot_z;
+    dF_y(0) = dMdot_y;
+    for (size_t iDim = 0; iDim < nDim; ++iDim) {
+      dF_z(iDim+1) = dMdot_z * velocity(iDim) + mdot * dVel_z(iDim) + normal(iDim) * dP1_z;
+      dF_y(iDim+1) = dMdot_y * velocity(iDim) + normal(iDim) * dP1_y;
+    }
+    dF_z(nDim+1) = dMdot_z * enthalpy + mdot * dH_z;
+    dF_y(nDim+1) = dMdot_y * enthalpy + mdot * dH_y;
+    for (size_t jDim = 0; jDim < nDim; ++jDim) {
+      const Double dMdot_u = density * normal(jDim) * dVel_u;
+      dF_u(0, jDim) = dMdot_u;
+      for (size_t iDim = 0; iDim < nDim; ++iDim) {
+        dF_u(iDim+1, jDim) = dMdot_u * velocity(iDim);
+      }
+      dF_u(jDim+1, jDim) += mdot * dVel_u;
+      dF_u(nDim+1, jDim) = dMdot_u * enthalpy + mdot * velocity(jDim) * dVel_u;
+    }
+
+    /*--- Chain rule to the conservative variables of this state. ---*/
+    const Double& rho = V.density();
+    const Double& p = V.pressure();
+    VectorDbl<nVar> dp;
+    dp(0) = 0.5 * (gamma - 1.0) * squaredNorm<nDim>(V.velocity());
+    for (size_t iDim = 0; iDim < nDim; ++iDim) dp(iDim+1) = -(gamma - 1.0) * V.velocity(iDim);
+    dp(nDim+1) = gamma - 1.0;
+    VectorDbl<nVar> dz, dy;
+    for (size_t iVar = 0; iVar < nVar; ++iVar) {
+      dz(iVar) = -z / (2.0 * p) * dp(iVar);
+      dy(iVar) = y / (2.0 * p) * dp(iVar);
+    }
+    dz(0) += z / (2.0 * rho);
+    dy(0) += y / (2.0 * rho);
+    const Double invRho = 1.0 / rho;
+    for (size_t iVar = 0; iVar < nVar; ++iVar) {
+      /*--- du_k/dU = (-u_k/rho, delta_k/rho, 0). ---*/
+      Double d0 = dF_z(iVar) * dz(0) + dF_y(iVar) * dy(0);
+      for (size_t kDim = 0; kDim < nDim; ++kDim) d0 -= dF_u(iVar, kDim) * V.velocity(kDim) * invRho;
+      jac(iVar, 0) = d0;
+      for (size_t jVar = 1; jVar < nVar; ++jVar) {
+        jac(iVar, jVar) = dF_z(iVar) * dz(jVar) + dF_y(iVar) * dy(jVar);
+      }
+      for (size_t kDim = 0; kDim < nDim; ++kDim) jac(iVar, kDim+1) += dF_u(iVar, kDim) * invRho;
+    }
+  };
+  side(Vi, z_i, y_i, dzLog_i, dyLog_i, jac_i);
+  side(Vj, z_j, y_j, dzLog_j, dyLog_j, jac_j);
+}
+
+/*!
+ * \brief TeCNO dissipation applied to a vector v of entropy variables (EDGE_FORM_TECNO_ADJOINT):
+ * q = scale R |Lambda| T R^T v at the Roe state, eigenvectors of A(n) with the Barth scalings T (acoustic rho/(2 gamma),
+ * entropy rho (gamma-1)/gamma, shear p as one tangent vector), the same products as the sigma = 1 dissipation of
+ * CUpwindBase::tecnoFlux with dy = R^T v. Symmetric positive semidefinite in v.
+ */
+template<size_t nDim>
+FORCEINLINE VectorDbl<nDim+2> tecnoDissipation(const Double& gamma, const CRoeVariables<nDim>& avg,
+                                               const VectorDbl<nDim>& unitNormal, const Double& lamM,
+                                               const Double& lam0, const Double& lamP, const Double& scale,
+                                               const VectorDbl<nDim+2>& v) {
+  const Double& c = avg.speedSound;
+  const Double& un = avg.projVel;
+  const Double& enthalpy = avg.enthalpy;
+  const Double halfSqVel = 0.5 * squaredNorm(avg.velocity);
+
+  Double uv = 0.0, nv = 0.0, nq = 0.0;
+  VectorDbl<nDim> yS;
+  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+    uv += avg.velocity(iDim) * v(iDim+1);
+    nv += unitNormal(iDim) * v(iDim+1);
+    yS(iDim) = v(iDim+1) + avg.velocity(iDim) * v(nDim+1);
+    nq += unitNormal(iDim) * yS(iDim);
+  }
+  for (size_t iDim = 0; iDim < nDim; ++iDim) yS(iDim) -= nq * unitNormal(iDim);
+  const Double yM = v(0) + uv - c * nv + (enthalpy - un * c) * v(nDim+1);
+  const Double y0 = v(0) + uv + halfSqVel * v(nDim+1);
+  const Double yP = v(0) + uv + c * nv + (enthalpy + un * c) * v(nDim+1);
+
+  const Double coefM = scale * lamM * avg.density / (2.0 * gamma) * yM;
+  const Double coef0 = scale * lam0 * avg.density * (gamma - 1.0) / gamma * y0;
+  const Double coefP = scale * lamP * avg.density / (2.0 * gamma) * yP;
+  const Double coefS = scale * lam0 * avg.density * c * c / gamma;
+
+  VectorDbl<nDim+2> q;
+  q(0) = coefM + coef0 + coefP;
+  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+    q(iDim+1) = (coefM + coef0 + coefP) * avg.velocity(iDim) + (coefP - coefM) * c * unitNormal(iDim) +
+                coefS * yS(iDim);
+  }
+  q(nDim+1) = (coefM + coefP) * enthalpy + (coefP - coefM) * un * c + coef0 * halfSqVel +
+              coefS * dot(avg.velocity, yS);
+  return q;
+}
+
+/*!
  * \brief Temporal entropy conservative average of two states (GRID_ENTROPY_P1, P1_ALE.md, Lemma A6), ideal gas:
  * ubar = rho_ln (1, {v}, 1/(2(gamma-1) beta_ln) + |{v}|^2 - {|v|^2}/2), beta = rho/(2p), ln the logarithmic mean.
  * It is symmetric, ubar(U,U) = U, and [[w]].ubar = [[rho]] for the entropy variables w of U = -rho s/(gamma-1),

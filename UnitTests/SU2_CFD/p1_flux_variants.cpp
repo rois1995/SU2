@@ -46,6 +46,7 @@
 #include "../../SU2_CFD/include/numerics/flow/p1_ale_entropy.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/variables.hpp"
+#include "tecno_adjoint_checks.hpp"
 
 namespace {
 
@@ -3211,4 +3212,118 @@ TEST_CASE("EDGE_FORM_P1_MIXED: the Kuhn subset of a brick has dihedral angles <=
   }
   CHECK(worstKuhn <= 90.0 + 1e-6);
   CHECK(worstAll > 170.0);
+}
+
+/*--- EDGE_FORM_TECNO_ADJOINT and EDGE_FORM_EC_EXACT_JACOBIAN (P1_TECNO_CONVERGENCE.md, 3.2 and 5.1). The residual of
+ * TeCNOAdjointChecks::Residual is the one of the edge loop (Delta part) plus the transpose loop of the solver, on all
+ * nodes, so these cases run in serial only (no halo copies of G, Y and phi). ---*/
+
+namespace {
+template <size_t nDim>
+void TeCNOAdjointEntropyCase() {
+  const std::string mesh = "tecno_adj_entropy_" + std::to_string(nDim) + "d.su2";
+  WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 6 : 3, 0.4, 1.0);
+  MeshCase test(mesh);
+  const auto& geometry = *test.geometry;
+  const auto r = TeCNOAdjointChecks::EntropyCheck<nDim>(geometry, geometry.GetnPoint(), 100, 5);
+  INFO("nDim " << nDim << ": identity " << r.identity << ", production " << r.production << ", conservation "
+               << r.conservation);
+  CHECK(r.identity < 1e-12);
+  CHECK(r.production < 0.0);
+  CHECK(r.conservation < 1e-12);
+}
+
+template <size_t nDim>
+void TeCNOAdjointLinearizationCase() {
+  const std::string mesh = "tecno_adj_lin_" + std::to_string(nDim) + "d.su2";
+  WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 3 : 2, 0.4, 1.0);
+  MeshCase test(mesh);
+  const auto& geometry = *test.geometry;
+  const auto r = TeCNOAdjointChecks::LinearizationCheck<nDim>(geometry, geometry.GetnPoint(), 8, 9);
+  INFO("nDim " << nDim << ": asymmetry " << r.asymmetry << ", negative " << r.negative << ", majorant " << r.majorant);
+  CHECK(r.asymmetry < 1e-12);
+  CHECK(r.negative < 1e-12);
+  CHECK(r.majorant < 1e-12);
+}
+
+template <size_t nDim>
+void TeCNOAdjointJumpCase() {
+  /*--- Linear w: L_e = 0 between interior nodes of a jittered median dual (GG is linear exact there). ---*/
+  {
+    const std::string mesh = "tecno_adj_linear_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 8 : 4, 0.4, 1.0);
+    MeshCase test(mesh);
+    const auto& geometry = *test.geometry;
+    su2activematrix w(geometry.GetnPoint(), nDim + 2);
+    for (auto i = 0ul; i < geometry.GetnPoint(); ++i) {
+      for (size_t v = 0; v < nDim + 2; ++v) {
+        su2double val = 0.3 + v;
+        for (size_t d = 0; d < nDim; ++d) val += (1.0 + v - 0.7 * d) * geometry.nodes->GetCoord(i, d);
+        w(i, v) = val;
+      }
+    }
+    auto interior = [&](unsigned long i) { return !geometry.nodes->GetBoundary(i); };
+    const auto err = TeCNOAdjointChecks::MaxJump<nDim>(geometry, w, interior, true);
+    INFO("nDim " << nDim << ": linear field, max |L|/|dw| " << err);
+    CHECK(err < 1e-10);
+  }
+  /*--- Smooth w on lattice meshes (centrally symmetric stencils): L_e = O(h^3). ---*/
+  std::vector<double> maxJump;
+  for (unsigned long n : (nDim == 2) ? std::vector<unsigned long>{8, 16, 32} : std::vector<unsigned long>{4, 8}) {
+    const std::string mesh = "tecno_adj_order_" + std::to_string(nDim) + "d_" + std::to_string(n) + ".su2";
+    WriteSimplexMesh(mesh, nDim, n, 0.0, 1.0);
+    MeshCase test(mesh);
+    const auto& geometry = *test.geometry;
+    su2activematrix w(geometry.GetnPoint(), nDim + 2);
+    for (auto i = 0ul; i < geometry.GetnPoint(); ++i) {
+      const auto* x = geometry.nodes->GetCoord(i);
+      for (size_t v = 0; v < nDim + 2; ++v) {
+        w(i, v) = sin(2.0 * x[0] + 0.5 * v) * cos(1.5 * x[1] - 0.3 * v) + 0.2 * v * x[0] * x[1] +
+                  ((nDim == 3) ? sin(x[nDim - 1] + 0.2 * v) : 0.0);
+      }
+    }
+    auto interior = [&](unsigned long i) { return !geometry.nodes->GetBoundary(i); };
+    maxJump.push_back(TeCNOAdjointChecks::MaxJump<nDim>(geometry, w, interior, false));
+  }
+  const double order = log2(maxJump[maxJump.size() - 2] / maxJump.back());
+  INFO("nDim " << nDim << ": order of the jump " << order);
+  CHECK(order > 2.6);
+}
+}  // namespace
+
+TEST_CASE("EDGE_FORM_TECNO_ADJOINT: entropy identity, sign and conservation for random states and weights", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  TeCNOAdjointEntropyCase<2>();
+  TeCNOAdjointEntropyCase<3>();
+}
+
+TEST_CASE("EDGE_FORM_TECNO_ADJOINT: symmetric PSD linearization and the Lemma A4 majorant", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  TeCNOAdjointLinearizationCase<2>();
+  TeCNOAdjointLinearizationCase<3>();
+}
+
+TEST_CASE("EDGE_FORM_TECNO_ADJOINT: the jump C_e w is linear exact and third order", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  TeCNOAdjointJumpCase<2>();
+  TeCNOAdjointJumpCase<3>();
+}
+
+TEST_CASE("EDGE_FORM_EC_EXACT_JACOBIAN: exact Ismail-Roe Jacobian and dw/dU against finite differences", "[P1Flux]") {
+  std::mt19937 gen(3);
+  double far2 = 0.0, near2 = 0.0, far3 = 0.0, near3 = 0.0, equal = 0.0, hessian = 0.0;
+  for (int t = 0; t < 100; ++t) {
+    far2 = std::max(far2, TeCNOAdjointChecks::IsmailRoeJacobianError<2>(gen, 1.0));
+    near2 = std::max(near2, TeCNOAdjointChecks::IsmailRoeJacobianError<2>(gen, 0.01));
+    far3 = std::max(far3, TeCNOAdjointChecks::IsmailRoeJacobianError<3>(gen, 1.0));
+    near3 = std::max(near3, TeCNOAdjointChecks::IsmailRoeJacobianError<3>(gen, 0.01));
+    equal = std::max(equal, TeCNOAdjointChecks::IsmailRoeJacobianEqualStates<2>(gen));
+    equal = std::max(equal, TeCNOAdjointChecks::IsmailRoeJacobianEqualStates<3>(gen));
+    hessian = std::max(hessian, TeCNOAdjointChecks::EntropyHessianError(gen, 2));
+    hessian = std::max(hessian, TeCNOAdjointChecks::EntropyHessianError(gen, 3));
+  }
+  INFO("far " << far2 << " " << far3 << ", near " << near2 << " " << near3 << ", equal " << equal << ", dw/dU " << hessian);
+  CHECK(std::max(std::max(far2, far3), std::max(near2, near3)) < 1e-6);
+  CHECK(equal < 1e-12);
+  CHECK(hessian < 1e-6);
 }

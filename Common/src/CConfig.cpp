@@ -1871,6 +1871,14 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_FORM_TECNO_WIDE", Edge_Form_TeCNO_Wide, false);
   /*!\brief EDGE_FORM_TECNO_SMOOTH \n DESCRIPTION: TeCNO dissipation weight sigma = (1-s)^2/(s^2-s+1), s the mean of the two slope ratios: smooth, >= 0 (entropy stable), O(h^2) for smooth monotone data, 1 at extrema. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_TECNO_SMOOTH", Edge_Form_TeCNO_Smooth, false);
+  /*!\brief EDGE_FORM_TECNO_ADJOINT \n DESCRIPTION: TeCNO dissipation sum_e C_e^T D_e C_e w (P1_TECNO_CONVERGENCE.md, 3.2): C_e w = (1 - ramp kappa)(w_k - w_i) - 1/2 ramp (1-kappa)(phi_i G_i w + phi_k G_k w).e the linear U-MUSCL jump of the nodal entropy variables, G the Green-Gauss gradient of w on the dual, D_e = 1/2 |nu| R|Lambda|T R^T frozen. Entropy stable for any states and any phi (Theorem A1), second order, PSD linearization. Needs EDGE_FORM_TECNO and MUSCL_FLOW, with EDGE_FORM_P1, EDGE_FORM_EC_FLUX and EDGE_FORM_ES_BLEND or with EDGE_DISS_PROJECTED and EDGE_FORM_EC_FLUX. Simplex meshes only. \ingroup Config \default false */
+  addBoolOption("EDGE_FORM_TECNO_ADJOINT", Edge_Form_TeCNO_Adjoint, false);
+  /*!\brief EDGE_FORM_TECNO_ADJOINT_LIMITER \n DESCRIPTION: Nodal weights phi_i of EDGE_FORM_TECNO_ADJOINT from the SLOPE_LIMITER_FLOW limiter of the entropy variables (minimum over the variables), for shocks. Off, phi = 1. Entropy stability holds for any phi. \ingroup Config \default false */
+  addBoolOption("EDGE_FORM_TECNO_ADJOINT_LIMITER", Edge_Form_TeCNO_Adjoint_Limiter, false);
+  /*!\brief EDGE_FORM_TECNO_A4_JACOBIAN \n DESCRIPTION: Dissipation Jacobian of EDGE_FORM_TECNO_ADJOINT from a majorant of C^T D C in the sparsity of the edge loop (Lemma A4, with a three-term split): provably sufficient for contraction (Lemma C4), slower than the default first order Roe Jacobian on nu. \ingroup Config \default false */
+  addBoolOption("EDGE_FORM_TECNO_A4_JACOBIAN", Edge_Form_TeCNO_A4_Jacobian, false);
+  /*!\brief EDGE_FORM_EC_EXACT_JACOBIAN \n DESCRIPTION: ROE with EDGE_FORM_EC_FLUX or EDGE_FORM_TECNO: exact Jacobian of the Ismail-Roe flux of the nodal states (both node blocks) instead of 1/2 A_i, 1/2 A_k. \ingroup Config \default false */
+  addBoolOption("EDGE_FORM_EC_EXACT_JACOBIAN", Edge_Form_EC_Exact_Jacobian, false);
 
   /*!\brief MARKER_HEATTRANSFER DESCRIPTION: Heat flux with specified heat transfer coefficient boundary marker(s)\n
    * Format: ( Heat transfer marker, heat transfer coefficient, wall temperature (static), ... ) \ingroup Config  */
@@ -6264,6 +6272,10 @@ void CConfig::CheckP1FluxOptions() const {
   if (BC_Wall_Entropy_P1) active.push_back("BC_WALL_ENTROPY_P1");
   if (Visc_P1_Entropy_Moved) active.push_back("VISC_P1_ENTROPY_MOVED");
   if (Edge_Form_P1_Mixed) active.push_back("EDGE_FORM_P1_MIXED");
+  if (Edge_Form_TeCNO_Adjoint) active.push_back("EDGE_FORM_TECNO_ADJOINT");
+  if (Edge_Form_TeCNO_Adjoint_Limiter) active.push_back("EDGE_FORM_TECNO_ADJOINT_LIMITER");
+  if (Edge_Form_TeCNO_A4_Jacobian) active.push_back("EDGE_FORM_TECNO_A4_JACOBIAN");
+  if (Edge_Form_EC_Exact_Jacobian) active.push_back("EDGE_FORM_EC_EXACT_JACOBIAN");
   if (Edge_Form_TeCNO_Wide && !Edge_Form_TeCNO) SU2_MPI::Error("EDGE_FORM_TECNO_WIDE: needs EDGE_FORM_TECNO= YES.", CURRENT_FUNCTION);
   if (Edge_Form_TeCNO_Smooth && (!Edge_Form_TeCNO || Edge_Form_TeCNO_Wide)) SU2_MPI::Error("EDGE_FORM_TECNO_SMOOTH: needs EDGE_FORM_TECNO= YES and not EDGE_FORM_TECNO_WIDE.", CURRENT_FUNCTION);
 
@@ -6403,6 +6415,42 @@ void CConfig::CheckP1FluxOptions() const {
       SU2_MPI::Error(name + "with EDGE_FORM_P1 it needs EDGE_FORM_EC_FLUX= YES (entropy conservative part along n_ik - n).", CURRENT_FUNCTION);
     if ((Edge_Form_Positive_Diss != 0.0) || Edge_Form_Entropy_Diss)
       SU2_MPI::Error(name + "not with EDGE_FORM_POSITIVE_DISS or EDGE_FORM_ENTROPY_DISS, use EDGE_FORM_ES_DISS or EDGE_FORM_ES_BLEND for the E part.", CURRENT_FUNCTION);
+  }
+  if (Edge_Form_TeCNO_Adjoint) {
+    /*--- P1_TECNO_CONVERGENCE.md, 5.1. Theorem A1 needs the entropy conservative central part on the whole normal
+     * (EDGE_FORM_EC_FLUX), the entropy stable E part on the moved dual (EDGE_FORM_ES_BLEND), and a gradient that is a
+     * linear function of the nodal w (Green-Gauss on the dual, built in the solver). Its transpose is applied by the
+     * solver after the edge loop, so the gradient stencil must be the local one: no periodic pairs. ---*/
+    const string name = "EDGE_FORM_TECNO_ADJOINT: ";
+    if (!Edge_Form_TeCNO) SU2_MPI::Error(name + "needs EDGE_FORM_TECNO= YES.", CURRENT_FUNCTION);
+    if (!MUSCL_Flow) SU2_MPI::Error(name + "needs MUSCL_FLOW= YES (the dissipation acts on the U-MUSCL jump).", CURRENT_FUNCTION);
+    if (!((Edge_Form_P1 && Edge_Form_EC_Flux && Edge_Form_ES_Blend) || (Edge_Diss_Projected && Edge_Form_EC_Flux)))
+      SU2_MPI::Error(name + "needs EDGE_FORM_P1, EDGE_FORM_EC_FLUX and EDGE_FORM_ES_BLEND, or EDGE_DISS_PROJECTED and EDGE_FORM_EC_FLUX.", CURRENT_FUNCTION);
+    if (Edge_Form_TeCNO_Wide || Edge_Form_TeCNO_Smooth)
+      SU2_MPI::Error(name + "replaces the sigma weights, not with EDGE_FORM_TECNO_WIDE or EDGE_FORM_TECNO_SMOOTH.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid() || GetGrid_Movement()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
+    if (Edge_Form_P1_Mixed) SU2_MPI::Error(name + "not available with EDGE_FORM_P1_MIXED.", CURRENT_FUNCTION);
+    if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries.", CURRENT_FUNCTION);
+  }
+  if (Edge_Form_TeCNO_Adjoint_Limiter) {
+    const string name = "EDGE_FORM_TECNO_ADJOINT_LIMITER: ";
+    if (!Edge_Form_TeCNO_Adjoint) SU2_MPI::Error(name + "needs EDGE_FORM_TECNO_ADJOINT= YES.", CURRENT_FUNCTION);
+    if ((Kind_SlopeLimit_Flow == LIMITER::NONE) || (Kind_SlopeLimit_Flow == LIMITER::VAN_ALBADA_EDGE))
+      SU2_MPI::Error(name + "needs a nodal SLOPE_LIMITER_FLOW (not NONE or VAN_ALBADA_EDGE).", CURRENT_FUNCTION);
+  }
+  if (Edge_Form_TeCNO_A4_Jacobian) {
+    const string name = "EDGE_FORM_TECNO_A4_JACOBIAN: ";
+    if (!Edge_Form_TeCNO_Adjoint) SU2_MPI::Error(name + "needs EDGE_FORM_TECNO_ADJOINT= YES.", CURRENT_FUNCTION);
+    if (Kind_TimeIntScheme_Flow != EULER_IMPLICIT) SU2_MPI::Error(name + "needs TIME_DISCRE_FLOW= EULER_IMPLICIT.", CURRENT_FUNCTION);
+  }
+  if (Edge_Form_EC_Exact_Jacobian) {
+    const string name = "EDGE_FORM_EC_EXACT_JACOBIAN: ";
+    if (Kind_ConvNumScheme_Flow != SPACE_UPWIND || Kind_Upwind_Flow != UPWIND::ROE || !(Edge_Form_EC_Flux || Edge_Form_TeCNO))
+      SU2_MPI::Error(name + "only for ROE with EDGE_FORM_EC_FLUX or EDGE_FORM_TECNO.", CURRENT_FUNCTION);
+    if (!idealGas) SU2_MPI::Error(name + "the Ismail-Roe flux needs an ideal gas.", CURRENT_FUNCTION);
+    if (Edge_Form_P1 && !Edge_Form_TeCNO && !Edge_Form_Exact_Jacobian)
+      SU2_MPI::Error(name + "with EDGE_FORM_P1 and without EDGE_FORM_TECNO the Ismail-Roe part (along n_ik - n) is only "
+                     "in the Jacobian of EDGE_FORM_EXACT_JACOBIAN, set it to YES.", CURRENT_FUNCTION);
   }
   if (BC_Entropy_P1) {
     const string name = "BC_ENTROPY_P1: ";

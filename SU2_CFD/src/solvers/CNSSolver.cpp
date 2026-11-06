@@ -130,6 +130,12 @@ void CNSSolver::Preprocessing(CGeometry *geometry, CSolver **solver_container, C
     SetPrimitive_Limiter(geometry, config);
   }
 
+  /*--- EDGE_FORM_TECNO_ADJOINT: gradient of the entropy variables and nodal weights, as in CEulerSolver. ---*/
+
+  if (muscl && !center && !Output && config->GetEdge_Form_TeCNO_Adjoint()) {
+    SetTeCNOAdjointGradient(geometry, config);
+  }
+
   if (Output || config->GetVorticityConfinement()) {
     ComputeVorticityAndStrainMag(*config, geometry, iMesh);
   }
