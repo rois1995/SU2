@@ -33,9 +33,26 @@
         "q_bad_min": 9513,
         "q_bad_max": 14057
       }
+    },
+    {
+      "round": 35136,
+      "counts_and_flags_preserved": true,
+      "window_to_committed_seconds": 16.791067593000207,
+      "rank_spread_before": {
+        "qJ_debt_min": 1386.0718892535979,
+        "qJ_debt_max": 2291.2452175813746,
+        "q_bad_min": 8092,
+        "q_bad_max": 12893
+      },
+      "rank_spread_after": {
+        "qJ_debt_min": 1589.8688378342413,
+        "qJ_debt_max": 2063.468659494161,
+        "q_bad_min": 8636,
+        "q_bad_max": 12271
+      }
     }
   ],
-  "time": 1793999470.4478803,
+  "time": 1793999730.304989,
   "scope": "First quality episode, matching complete repair rounds; elapsed quality times reported rather than assumed equal. No interpolation, contention isolation or closure forecast.",
   "windows": [
     {
@@ -253,10 +270,37 @@
       },
       "cumulative_net_q_per_second219": 23.50465349261807,
       "cumulative_net_q_per_second225": 18.85819105568615
+    },
+    {
+      "round": 35136,
+      "quality_seconds_219": 1622.5404350909998,
+      "quality_seconds_225": 1964.2044671889998,
+      "counts219": {
+        "cells": 926914,
+        "q_bad": 63801,
+        "j_bad": 63385,
+        "geometry_bad": 1869,
+        "size_bad": 0
+      },
+      "counts225": {
+        "cells": 925595,
+        "q_bad": 64907,
+        "j_bad": 64544,
+        "geometry_bad": 1888,
+        "size_bad": 0
+      },
+      "bad_counts_225_minus_219": {
+        "q_bad": 1106,
+        "j_bad": 1159,
+        "geometry_bad": 19,
+        "size_bad": 0
+      },
+      "cumulative_net_q_per_second219": 23.57845707423271,
+      "cumulative_net_q_per_second225": 18.914018688271955
     }
   ],
   "source_assessment_sha256": {
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build219_local_metricL1_real_cfd50k/construction_progress_assessment.json": "76094321cb8eb6b99d0441220c03199540e635b4b88a8b4ce5341cf9a8f971fb",
-    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/construction_progress_assessment.json": "58788679aae32559b612162097e28f31137b32994b471351d0cd9a4153de7fc9"
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/construction_progress_assessment.json": "fe42eeb133ce2925db5c73017bf9d9466e806945d9a61843394761d063cd4bfb"
   }
 }

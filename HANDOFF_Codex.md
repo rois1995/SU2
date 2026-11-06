@@ -74,11 +74,11 @@ First COMPLETE quality entry round34594 at1584.159718native seconds:
 871607cells/102058q/101860J/1997geometry/0size, allflags1, counts/flags match219.
 Counts alone do not prove identical connectivity. quality_entry_assessment.json.
 
-Latest COMPLETE window35072 at3326.320453s(1742.160736s since entry):
-918982cells/69204q/68918J/1899geometry/0size; allflags1. Eighth window net5138q/
-5128J/7geo removed in304.095889s(~16.9q/J per second). Matching219round has
-68336q/68174J/1881geometry at1434.694624quality seconds; cumulative q removal
-18.8582/s versus23.5047/s. No established whole-field benefit. quality_net_progress.json
+Latest COMPLETE window35136 at3548.364185s(1964.204467s since entry):
+925595cells/64907q/64544J/1888geometry/0size; allflags1. Ninth window net4297q/
+4374J/11geo removed in222.043732s(~19.4q/19.7J per second). Matching219round has
+63801q/63385J/1869geometry at1622.540435quality seconds; cumulative q removal
+18.9140/s versus23.5785/s. No established whole-field benefit. quality_net_progress.json
 contains first quality episode only; matched_quality_comparison219.json records
 complete matched rounds with actual times, no interpolation/forecast.
 quality_location35072_assessment.json: qsurface6629/interior62575, Jsurface10112/
@@ -86,8 +86,8 @@ interior58806; badunion90207,90183with edge<.9,87801with edge<.5. Interior means
 no physical face, not necessarily unconstrained vertices. Short-edge association
 is not proof of construction causality. Stuckshape0/queue585178. All16fixed metric
 samples supported/0lost, maxrelativeFrobenius3.92349%; not a whole-field drift bound.
-Both quality redistributions35008/34752preserved counts/flags. Latest q/J debt
-min/max1924.43/3174.72→2090.30/2943.72; window-to-committed20.2641s includes
+All three quality redistributions35136/35008/34752preserved counts/flags. Latest
+q/J debt min/max1386.07/2291.25→1589.87/2063.47; window-to-committed16.7911s includes
 transition work. These observations do not independently prove every history field.
 
 Detailed first/fourth/fifth_quality_comparison219.json preserve per-rank service,
@@ -102,7 +102,7 @@ work proof. No profiler/new baseline/competing implementation is selected.
 
 All10exact owned handles remain LIVE/no stop: owned_observations.jsonl.
 Sampled summed RSS briefly12.635GB during migration, then10.436GB; available
-RAM26.050GB(decimal),load9.20 at the latest eighth-window observation. Not a whole-job physical-memory
+RAM26.282GB(decimal),load9.50 at the latest ninth-window observation. Not a whole-job physical-memory
 peak. Keep sources/fixtures/helpers/binary/config/inputs FROZEN to its outcome.
 Judge complete whole-field q/J-bad net removal/s and geometry-bad at matching
 quality times, alongside work/certification/busy/wait/rank spread. Commits/debt
