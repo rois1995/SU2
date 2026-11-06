@@ -30,6 +30,7 @@
 #include <limits>
 
 #include "../include/CConfig.hpp"
+#include "../include/toolboxes/stress_field.hpp"
 #undef ENABLE_MAPS
 
 #include "../include/fem/fem_gauss_jacobi_quadrature.hpp"
@@ -3246,6 +3247,12 @@ void CConfig::SetConfig_Options() {
   /* DESCRIPTION: Permuting eigenvectors for UQ analysis */
   addBoolOption("UQ_PERMUTE", uq_permute, false);
 
+  addStringOption("STRESS_DISCREPANCY", stress_discrepancy_mode, "NONE");
+  addStringOption("STRESS_DISCREPANCY_FILE", stress_discrepancy_file, "");
+  addDoubleOption("STRESS_DISCREPANCY_SCALE", stress_discrepancy_scale, 1.0);
+  addStringOption("STRESS_DISCREPANCY_PURPOSE", stress_discrepancy_purpose, "SCENARIO");
+  addStringOption("STRESS_DISCREPANCY_RESTART", stress_restart_policy, "SAME_FIELD");
+
   /* DESCRIPTION: Number of calls to 'Build' that trigger re-factorization (0 means only once). */
   addUnsignedLongOption("PASTIX_FACTORIZATION_FREQUENCY", pastix_fact_freq, 1);
 
@@ -6130,6 +6137,123 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     }
   }
 
+  InitializeStressDiscrepancy();
+
+}
+
+void CConfig::InitializeStressDiscrepancy() {
+  if (!GetStressDiscrepancy()) return;
+  if (stress_discrepancy_file == "NONE") stress_discrepancy_file.clear();
+  auto require = [](bool valid, const string& message) {
+    if (!valid) SU2_MPI::Error("STRESS_DISCREPANCY: " + message, CURRENT_FUNCTION);
+  };
+  require(GetPrescribedStress() || GetMatchedEPM(), "choose NONE, PRESCRIBED or EPM_MATCHED");
+  require(Kind_Solver == MAIN_SOLVER::RANS || Kind_Solver == MAIN_SOLVER::INC_RANS,
+          "only direct finite-volume RANS and INC_RANS are implemented");
+  require(!DiscreteAdjoint && DirectDiff == NO_DERIVATIVE, "adjoint and direct differentiation are not qualified");
+  require(!Time_Domain && !GetDynamic_Grid() && Kind_GridMovement == NO_MOVEMENT && !Deform_Mesh,
+          "only stationary meshes and walls in steady flow are supported");
+  require(nZone <= 1 && !Multizone_Problem && nMGLevels == 0, "single zone, MGLEVEL=0 required");
+  require(Kind_Trans_Model == TURB_TRANS_MODEL::NONE && Kind_Species_Model == SPECIES_MODEL::NONE &&
+          Kind_HybridRANSLES == NO_HYBRIDRANSLES && !SBSParam.StochasticBackscatter,
+          "transition, species, hybrid RANS/LES and stochastic backscatter are unsupported");
+  require(!Axisymmetric && !Wall_Functions && nRough_Wall == 0 && !Fixed_CL_Mode,
+          "axisymmetry, wall functions, roughness and fixed lift are unsupported");
+  require(nMarker_PerBound == 0 && GetKind_Streamwise_Periodic() == ENUM_STREAMWISE_PERIODIC::NONE,
+          "periodic geometry/controllers require separate qualification");
+  require(Kind_Incomp_System != INCOMP_SYSTEM::PRESSURE_BASED, "incompressible pressure-based path is unsupported");
+  require(SystemMeasurements == SI && !Enable_Cuda, "SI units and CPU execution required");
+  require(Kind_FluidModel == STANDARD_AIR || Kind_FluidModel == IDEAL_GAS || Kind_FluidModel == CONSTANT_DENSITY,
+          "only ideal-gas RANS and constant-density INC_RANS are supported");
+  require(std::isfinite(SU2_TYPE::GetValue(stress_discrepancy_scale)) &&
+          stress_discrepancy_scale >= 0 && stress_discrepancy_scale <= 1, "scale must be finite and in [0,1]");
+  require(stress_discrepancy_purpose == "SCENARIO" || stress_discrepancy_purpose == "COUPLING_CONTROL",
+          "purpose must be SCENARIO or COUPLING_CONTROL");
+  require(stress_restart_policy == "SAME_FIELD" || stress_restart_policy == "NEW_SEGMENT",
+          "restart policy must be SAME_FIELD or an explicit NEW_SEGMENT");
+  if (Kind_Turb_Model == TURB_MODEL::SA) {
+    require(!GetMatchedEPM(), "EPM_MATCHED is SST-only");
+    require((saParsedOptions.version == SA_OPTIONS::NONE || saParsedOptions.version == SA_OPTIONS::NEG) &&
+            !saParsedOptions.qcr2000 && !saParsedOptions.comp && !saParsedOptions.rot && !saParsedOptions.bc,
+            "choose linear SA or SA-neg without QCR, transition, rotation or compressibility corrections");
+  } else {
+    require(Kind_Turb_Model == TURB_MODEL::SST && sstParsedOptions.version == SST_OPTIONS::V2003 &&
+            sstParsedOptions.modified && sstParsedOptions.production == SST_OPTIONS::NONE &&
+            !sstParsedOptions.uq && !sstParsedOptions.sust && !sstParsedOptions.dll,
+            "choose SST_OPTIONS=(V2003m), without legacy UQ or other modifiers");
+  }
+  if (GetMatchedEPM()) {
+    require(stress_discrepancy_file.empty(), "EPM_MATCHED must not also supply a prescribed file");
+    require(eig_val_comp >= 1 && eig_val_comp <= 3 && std::isfinite(SU2_TYPE::GetValue(uq_delta_b)) &&
+            std::isfinite(SU2_TYPE::GetValue(uq_urlx)) && uq_delta_b >= 0 && uq_delta_b <= 1 &&
+            uq_urlx >= 0 && uq_urlx <= 1, "EPM controls require component 1..3 and finite factors in [0,1]");
+  } else {
+    try {
+      stress_field = std::make_shared<const StressField::Field>(stress_discrepancy_file);
+    } catch (const std::exception& error) { SU2_MPI::Error(error.what(), CURRENT_FUNCTION); }
+    require(stress_field->Purpose() == stress_discrepancy_purpose, "file and configuration purposes differ");
+    require(stress_field->Geometry() != "CIRCLE", "circular geometry is OFFLINE_ONLY; use the provider probe");
+    if (rank == MASTER_NODE) cout << "Prescribed stress: " << stress_field->Summary() << endl;
+  }
+  // Every rank reads the same small immutable artifact; fail before entering edge loops.
+  string local = StressDiscrepancyIdentity(), root = local;
+  int root_length = int(root.size());
+  SU2_MPI::Bcast(&root_length, 1, MPI_INT, MASTER_NODE, SU2_Communicator);
+  root.resize(root_length);
+  SU2_MPI::Bcast(&root[0], root_length, MPI_CHAR, MASTER_NODE, SU2_Communicator);
+  require(local == root, "MPI ranks disagree on field/model identity");
+  if (rank == MASTER_NODE)
+    cout << "Experimental stress discrepancy: " << stress_discrepancy_mode << ", purpose=" << stress_discrepancy_purpose
+         << ", scale=" << stress_discrepancy_scale << "; implicit Jacobian is approximate; no validated adjoint." << endl;
+}
+
+void CConfig::EvaluateStressDiscrepancy(const su2double* coord, unsigned short dim, su2double (&tensor)[3][3]) const {
+  for (auto& row : tensor) for (auto& x : row) x = 0;
+  if (!GetPrescribedStress()) return;
+  try {
+    StressField::Require(stress_field && dim == stress_field->Dimension(), "field and CFD dimensions differ");
+    StressField::Require(Length_Ref > 0 && Velocity_Ref > 0, "internal reference units are not initialized");
+    if (stress_discrepancy_scale == 0) return;
+    StressField::Point point{};
+    for (unsigned short j=0;j<dim;++j) point[j]=SU2_TYPE::GetValue(coord[j]*Length_Ref);
+    const auto value=stress_field->Evaluate(point);
+    const su2double factor=stress_discrepancy_scale/(Velocity_Ref*Velocity_Ref);
+    for (int i=0;i<3;++i) for (int j=0;j<3;++j) tensor[i][j]=factor*value[i][j];
+  } catch (const std::exception& error) { SU2_MPI::Error(error.what(), CURRENT_FUNCTION); }
+}
+
+string CConfig::StressDiscrepancyIdentity(bool with_internal_units) const {
+  std::ostringstream out;
+  out << std::setprecision(17) << "STRESS_DISCREPANCY_V1 " << stress_discrepancy_mode << ' '
+      << stress_discrepancy_purpose << ' ' << stress_discrepancy_scale << ' '
+      << static_cast<int>(Kind_Turb_Model) << ' ' << static_cast<int>(saParsedOptions.version) << ' ' << saParsedOptions.ft2
+      << ' ' << static_cast<int>(Kind_Solver) << ' ' << static_cast<int>(Kind_FluidModel);
+  if (with_internal_units) out << ' ' << Length_Ref << ' ' << Velocity_Ref << ' ' << Density_Ref;
+  if (GetPrescribedStress()) out << ' ' << stress_field->Identity();
+  if (GetMatchedEPM()) out << ' ' << eig_val_comp << ' ' << uq_permute << ' ' << uq_delta_b << ' ' << uq_urlx;
+  return out.str();
+}
+
+void CConfig::CheckStressRestart(const string& basename) const {
+  if (!GetStressDiscrepancy()) return;
+  if (stress_restart_policy == "NEW_SEGMENT") {
+    if (rank == MASTER_NODE) cout << "Explicit new stress continuation segment; previous field/amplitude may differ." << endl;
+    return;
+  }
+  string stem = basename;
+  PrintingToolbox::TrimExtension(GetRead_Binary_Restart() ? ".dat" : ".csv", stem);
+  std::ifstream file(stem + ".stress"); string identity;
+  std::getline(file, identity);
+  if (!file || identity != StressDiscrepancyIdentity(true))
+    SU2_MPI::Error("Missing or mismatched stress restart identity. Restore the field and scale, or explicitly choose "
+                   "STRESS_DISCREPANCY_RESTART=NEW_SEGMENT.", CURRENT_FUNCTION);
+}
+
+void CConfig::WriteStressRestart(const string& basename) const {
+  if (!GetStressDiscrepancy() || rank != MASTER_NODE) return;
+  std::ofstream file(basename + ".stress", std::ios::trunc);
+  file << StressDiscrepancyIdentity(true) << '\n'; file.close();
+  if (!file) SU2_MPI::Error("Cannot write stress restart identity for " + basename, CURRENT_FUNCTION);
 }
 
 void CConfig::SetMarkers(SU2_COMPONENT val_software) {

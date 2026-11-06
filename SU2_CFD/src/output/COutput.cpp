@@ -805,6 +805,9 @@ void COutput::WriteToFile(CConfig *config, CGeometry *geometry, OUTPUT_TYPE form
     /*--- Write data to file ---*/
 
     fileWriter->WriteData(fileName);
+    const bool stress_restart = config->GetStressDiscrepancy() &&
+        (format == OUTPUT_TYPE::RESTART_ASCII || format == OUTPUT_TYPE::RESTART_BINARY || format == OUTPUT_TYPE::CSV);
+    if (stress_restart) config->WriteStressRestart(fileName);
 
     su2double BandWidth = fileWriter->GetBandwidth();
 
@@ -812,6 +815,7 @@ void COutput::WriteToFile(CConfig *config, CGeometry *geometry, OUTPUT_TYPE form
 
     if (!filename_iter.empty()) {
       fileWriter->WriteData(filename_iter);
+      if (stress_restart) config->WriteStressRestart(filename_iter);
 
       /*--- Average bandwidth ---*/
       BandWidth = (BandWidth + fileWriter->GetBandwidth()) / 2;

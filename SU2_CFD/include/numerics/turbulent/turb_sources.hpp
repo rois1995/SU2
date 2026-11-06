@@ -970,6 +970,14 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
         P = ComputeReynoldsStressProduction(nDim, MeanPerturbedRSM,
                                             PrimVar_Grad_i + idx.Velocity(), Density_i);
       }
+      su2double stress_work = 0.0;
+      if (config->GetStressDiscrepancy()) {
+        su2double difference[3][3]{};
+        ComputeStressDiscrepancy(nDim, config, Coord_i, PrimVar_Grad_i + idx.Velocity(),
+                                Density_i, Eddy_Viscosity_i, ScalarVar_i[0], difference);
+        stress_work = ComputeReynoldsStressProduction(nDim, difference, PrimVar_Grad_i + idx.Velocity(), Density_i);
+        P += stress_work;
+      }
       su2double pk = max(0.0, min(P, prod_limit));
 
       const auto& eddy_visc_var = sstParsedOptions.version == SST_OPTIONS::V1994 ? VorticityMag : StrainMag_i;
@@ -979,6 +987,12 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
       su2double pw;
       if (sstParsedOptions.version == SST_OPTIONS::V1994) {
         pw = alfa_blended * Density_i * pow(P_Base, 2);
+      } else if (config->GetStressDiscrepancy() && stress_work != 0.0) {
+        if (ScalarVar_i[0] <= 0 || ScalarVar_i[1] <= 0 || Eddy_Viscosity_i <= 0)
+          SU2_MPI::Error("Stress-coupled SST requires positive interior k, omega and eddy viscosity.", CURRENT_FUNCTION);
+        const su2double ratio = P <= 0 ? su2double(0) :
+            (P >= prod_limit ? prod_lim_const*beta_star*Density_i*ScalarVar_i[1] : P/ScalarVar_i[0]);
+        pw = alfa_blended*zeta*ratio;
       } else {
         // Zero eddy viscosity has no omega production in the corrected EPM reference.
         pw = epm2003 && Eddy_Viscosity_i <= 0.0 ? su2double(0.0)

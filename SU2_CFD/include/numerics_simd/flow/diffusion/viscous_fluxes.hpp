@@ -159,6 +159,20 @@ protected:
                       uq_eigval_comp, uq_permute, uq_delta_b, uq_urlx);
     }
 
+    if (config.GetStressDiscrepancy()) {
+      for (size_t lane=0;lane<Double::Size;++lane) {
+        su2double point[3]{}, grad[nDim][nDim], difference[3][3]{};
+        for (size_t i=0;i<nDim;++i) {
+          point[i]=0.5*(geometry.nodes->GetCoord(iPoint[lane],i)+geometry.nodes->GetCoord(jPoint[lane],i));
+          for (size_t j=0;j<nDim;++j) grad[i][j]=avgGrad(i+1,j)[lane];
+        }
+        su2double k=0;
+        if (config.GetMatchedEPM()) k=0.5*(turbVars->GetSolution(iPoint[lane],0)+turbVars->GetSolution(jPoint[lane],0));
+        CNumerics::ComputeStressDiscrepancy(nDim,&config,point,grad,avgV.density()[lane],avgV.eddyVisc()[lane],k,difference);
+        for (size_t i=0;i<nDim;++i) for (size_t j=0;j<nDim;++j) tau(i,j)[lane]-=avgV.density()[lane]*difference[i][j];
+      }
+    }
+
     if(wallFun) addTauWall(iPoint, jPoint, solution.GetTau_Wall(), unitNormal, tau);
 
     Double cond = derived->thermalConductivity(avgV);

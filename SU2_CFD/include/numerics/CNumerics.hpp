@@ -525,6 +525,31 @@ public:
     return production;
   }
 
+  /*! \brief One effective kinematic discrepancy shared by momentum, energy and SST production. */
+  template<class Gradient>
+  static void ComputeStressDiscrepancy(size_t nDim, const CConfig* config, const su2double* point,
+                                       const Gradient& gradient, su2double density, su2double viscosity,
+                                       su2double k, su2double (&difference)[3][3]) {
+    for (auto& row : difference) for (auto& x : row) x = 0;
+    if (!config->GetStressDiscrepancy() || config->GetStressDiscrepancyScale() == 0) return;
+    if (config->GetPrescribedStress()) {
+      config->EvaluateStressDiscrepancy(point, nDim, difference);
+      return;
+    }
+    if (config->GetUQ_URLX() == 0 || (config->GetUQ_Delta_B() == 0 && !config->GetUQ_Permute())) return;
+    if (k == 0 && viscosity == 0) return;
+    if (k <= 0 || density <= 0 || viscosity < 0)
+      SU2_MPI::Error("Matched EPM needs positive interior k/density and nonnegative eddy viscosity.", CURRENT_FUNCTION);
+    ComputePerturbedRSM(nDim, config->GetEig_Val_Comp(), config->GetUQ_Permute(), config->GetUQ_Delta_B(),
+                        config->GetUQ_URLX(), gradient, density, viscosity, k, difference);
+    su2double parent[3][3]{};
+    ComputeStressTensor(nDim, parent, gradient, viscosity, su2double(0), su2double(0), true);
+    const su2double trace = (difference[0][0]+difference[1][1]+difference[2][2])/3;
+    for (int i=0;i<3;++i) difference[i][i] -= trace;
+    for (int i=0;i<3;++i) for (int j=0;j<3;++j)
+      difference[i][j] = config->GetStressDiscrepancyScale()*(difference[i][j]+parent[i][j]/density);
+  }
+
   /*!
    * \brief Add a correction using a Quadratic Constitutive Relation to the stress tensor.
    *
@@ -574,6 +599,17 @@ public:
     for (size_t iDim = 0; iDim < nDim; iDim++)
       for (size_t jDim = 0; jDim < nDim; jDim++)
         tau[iDim][jDim] -= turb_fraction * c_cr1 * tauQCR[iDim][jDim];
+  }
+
+  /*! \brief Kinematic QCR donor difference at a supplied reconstructed state; diagnostic only. */
+  template<class Gradient>
+  static void ComputeQCRStressDiscrepancy(size_t nDim, const Gradient& gradient, su2double density,
+                                          su2double viscosity, su2double (&difference)[3][3]) {
+    su2double parent[3][3]{}, corrected[3][3]{};
+    ComputeStressTensor(nDim, parent, gradient, viscosity, su2double(0), su2double(0), true);
+    for (int i=0;i<3;++i) for (int j=0;j<3;++j) corrected[i][j]=parent[i][j];
+    AddQCR(nDim, gradient, corrected, su2double(1));
+    for (int i=0;i<3;++i) for (int j=0;j<3;++j) difference[i][j]=-(corrected[i][j]-parent[i][j])/density;
   }
 
   /*!

@@ -38,6 +38,7 @@
 #include <cstring>
 #include <vector>
 #include <array>
+#include <memory>
 #include <stdlib.h>
 #include <cmath>
 #include <map>
@@ -54,6 +55,8 @@
 
 using namespace std;
 
+namespace StressField { class Field; }
+
 /*!
  * \class CConfig
  * \brief Main class for defining the problem; basically this class reads the configuration file, and
@@ -63,6 +66,11 @@ using namespace std;
 
 class CConfig {
 private:
+  string stress_discrepancy_mode = "NONE", stress_discrepancy_file;
+  string stress_discrepancy_purpose = "SCENARIO", stress_restart_policy = "SAME_FIELD";
+  su2double stress_discrepancy_scale = 1.0;
+  std::shared_ptr<const StressField::Field> stress_field;
+  void InitializeStressDiscrepancy();
   SU2_MPI::Comm SU2_Communicator; /*!< \brief MPI communicator of SU2.*/
   int rank, size;                 /*!< \brief MPI rank and size.*/
   bool base_config;
@@ -1490,6 +1498,14 @@ private:
   void addPythonOption(const string& name);
 
 public:
+  bool GetStressDiscrepancy() const { return stress_discrepancy_mode != "NONE"; }
+  bool GetPrescribedStress() const { return stress_discrepancy_mode == "PRESCRIBED"; }
+  bool GetMatchedEPM() const { return stress_discrepancy_mode == "EPM_MATCHED"; }
+  su2double GetStressDiscrepancyScale() const { return stress_discrepancy_scale; }
+  void EvaluateStressDiscrepancy(const su2double* coord, unsigned short dim, su2double (&tensor)[3][3]) const;
+  string StressDiscrepancyIdentity(bool with_internal_units = false) const;
+  void CheckStressRestart(const string& basename) const;
+  void WriteStressRestart(const string& basename) const;
 
   /*!
    * \brief Tags for the different fields in a restart file.

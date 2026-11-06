@@ -1408,6 +1408,28 @@ template void CDriver::InstantiateSpeciesNumerics<CIncEulerVariable::CIndices<un
 void CDriver::InitializeNumerics(CConfig *config, CGeometry **geometry, CSolver ***solver, CNumerics ****&numerics) const {
   SU2_ZONE_SCOPED
 
+  if (config->GetStressDiscrepancy()) {
+    if (config->GetRestart() || config->GetRestart_Flow()) config->CheckStressRestart(config->GetSolution_FileName());
+    if (rank == MASTER_NODE)
+      cout << "Stress field units: x_physical=x_internal*" << config->GetLength_Ref()
+           << "; E_internal=E_physical/" << pow(config->GetVelocity_Ref(),2)
+           << ". Interior flux queries use edge midpoints; SST sources use nodes." << endl;
+    if (config->GetPrescribedStress()) {
+      auto* mesh = geometry[MESH_0];
+      for (unsigned short marker=0;marker<mesh->GetnMarker();++marker) {
+        if (config->GetMarker_All_KindBC(marker)==SEND_RECEIVE) continue;
+        for (unsigned long vertex=0;vertex<mesh->GetnVertex(marker);++vertex) {
+          const auto point=mesh->vertex[marker][vertex]->GetNode();
+          su2double difference[3][3]{};
+          config->EvaluateStressDiscrepancy(mesh->nodes->GetCoord(point),mesh->GetnDim(),difference);
+          for (auto& row:difference) for (auto entry:row)
+            if (entry != 0.0) SU2_MPI::Error("The initial prescribed-field scope requires exact zero stress on every physical "
+                                           "boundary. Supply matching walls/support tapers.", CURRENT_FUNCTION);
+        }
+      }
+    }
+  }
+
   if (rank == MASTER_NODE)
     cout << endl <<"------------------- Numerics Preprocessing ( Zone " << config->GetiZone() <<" ) -------------------" << endl;
 

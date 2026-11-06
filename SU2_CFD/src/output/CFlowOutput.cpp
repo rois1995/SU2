@@ -1605,6 +1605,16 @@ void CFlowOutput::SetVolumeOutputFieldsScalarLookup(const CConfig* config) {
 
 void CFlowOutput::SetVolumeOutputFieldsScalarMisc(const CConfig* config) {
   /*--- Only place outputs of the group for scalar transport here that do not fit in other categories. ---*/
+  if (config->GetStressDiscrepancy() || config->GetSAParsedOptions().qcr2000) {
+    for (const string component : {"XX", "YY", "ZZ", "XY", "XZ", "YZ"})
+      AddVolumeOutput("STRESS_E_"+component, "Stress_E_"+component, "STRESS_DISCREPANCY", "Applied discrepancy or QCR donor difference in internal units");
+    AddVolumeOutput("STRESS_WORK", "Stress_Work", "STRESS_DISCREPANCY", "Signed extra stress work; diagnostic only for SA");
+    AddVolumeOutput("STRESS_VOLUME", "Stress_Volume", "STRESS_DISCREPANCY", "Owned-node control volume in internal units");
+    if (config->GetKind_Turb_Model() == TURB_MODEL::SST) {
+      for (const string name : {"PARENT", "RAW", "LIMITED", "OMEGA", "LOWER_CAP", "UPPER_CAP", "COV_MIN"})
+        AddVolumeOutput("STRESS_"+name, "Stress_"+name, "STRESS_DISCREPANCY", "SST discrepancy/source diagnostic in internal units");
+    }
+  }
 
   if (config->GetSAParsedOptions().bc) {
     AddVolumeOutput("INTERMITTENCY", "gamma_BC", "INTERMITTENCY", "Intermittency");
@@ -1652,6 +1662,55 @@ void CFlowOutput::LoadVolumeDataScalar(const CConfig* config, const CSolver* con
   const auto* Node_Turb = (config->GetKind_Turb_Model() != TURB_MODEL::NONE) ? turb_solver->GetNodes() : nullptr;
   const auto* Node_Trans = (config->GetKind_Trans_Model() != TURB_TRANS_MODEL::NONE) ? trans_solver->GetNodes() : nullptr;
   const auto* Node_Geo = geometry->nodes;
+
+  if (config->GetStressDiscrepancy() || config->GetSAParsedOptions().qcr2000) {
+    const bool sst = config->GetKind_Turb_Model() == TURB_MODEL::SST;
+    const auto* flow = su2staticcast_p<const CFlowVariable*>(Node_Flow);
+    const auto gradient = flow->GetVelocityGradient(iPoint);
+    const su2double density = flow->GetDensity(iPoint), mu = flow->GetEddyViscosity(iPoint);
+    const su2double k = sst ? Node_Turb->GetSolution(iPoint,0) : su2double(0);
+    su2double difference[3][3]{};
+    su2double point[3]{};
+    for (unsigned short j=0;j<nDim;++j) point[j]=Node_Geo->GetCoord(iPoint,j);
+    if (config->GetSAParsedOptions().qcr2000)
+      CNumerics::ComputeQCRStressDiscrepancy(nDim,gradient,density,mu,difference);
+    else
+      CNumerics::ComputeStressDiscrepancy(nDim,config,point,gradient,density,mu,k,difference);
+    const char* names[6] = {"XX","YY","ZZ","XY","XZ","YZ"};
+    const int row[6] = {0,1,2,0,0,1}, col[6] = {0,1,2,1,2,2};
+    for (int j=0;j<6;++j) SetVolumeOutputValue(string("STRESS_E_")+names[j],iPoint,difference[row[j]][col[j]]);
+    const auto work=CNumerics::ComputeReynoldsStressProduction(nDim,difference,gradient,density);
+    SetVolumeOutputValue("STRESS_WORK",iPoint,work);
+    SetVolumeOutputValue("STRESS_VOLUME",iPoint,Node_Geo->GetVolume(iPoint));
+    if (sst) {
+      const auto* constants=turb_solver->GetConstants();
+      const auto omega=Node_Turb->GetSolution(iPoint,1);
+      const auto parent=mu*pow(flow->GetStrainMag(iPoint),2), raw=parent+work;
+      const auto cap=constants[10]*constants[6]*density*k*omega;
+      const auto limited=max(su2double(0),min(raw,cap));
+      const auto alpha=Node_Turb->GetF1blending(iPoint)*constants[8]+(1-Node_Turb->GetF1blending(iPoint))*constants[9];
+      const bool interior=Node_Geo->GetWall_Distance(iPoint)>1e-10;
+      SetVolumeOutputValue("STRESS_PARENT",iPoint,interior?parent:su2double(0));
+      SetVolumeOutputValue("STRESS_RAW",iPoint,interior?raw:su2double(0));
+      SetVolumeOutputValue("STRESS_LIMITED",iPoint,interior?limited:su2double(0));
+      su2double omega_production=0;
+      if (interior && mu>0) {
+        if (work!=0 && k>0) {
+          const auto zeta=max(omega,flow->GetStrainMag(iPoint)*Node_Turb->GetF2blending(iPoint)/constants[7]);
+          const auto ratio=raw<=0 ? su2double(0) : (raw>=cap ? constants[10]*constants[6]*density*omega : raw/k);
+          omega_production=alpha*zeta*ratio;
+        } else omega_production=(alpha*density/mu)*limited;
+      }
+      SetVolumeOutputValue("STRESS_OMEGA",iPoint,omega_production);
+      SetVolumeOutputValue("STRESS_LOWER_CAP",iPoint,interior&&raw<0?1:0);
+      SetVolumeOutputValue("STRESS_UPPER_CAP",iPoint,interior&&raw>cap?1:0);
+      su2double covariance[3][3]{},vectors[3][3],values[3],scratch[3];
+      CNumerics::ComputeStressTensor(nDim,covariance,gradient,mu,density,k,true);
+      for (int i=0;i<3;++i) for (int j=0;j<3;++j) covariance[i][j]=-covariance[i][j]/density+difference[i][j];
+      CBlasStructure::EigenDecomposition(covariance,vectors,values,3,scratch);
+      SetVolumeOutputValue("STRESS_COV_MIN",iPoint,values[0]);
+    }
+  }
 
   SetVolumeOutputValue("DELTA_TIME", iPoint, Node_Flow->GetDelta_Time(iPoint));
   SetVolumeOutputValue("CFL", iPoint, Node_Flow->GetLocalCFL(iPoint));
