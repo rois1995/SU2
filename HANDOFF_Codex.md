@@ -89,16 +89,23 @@ prefixes and stage-counter deltas. Early yield/rate essentially unchanged; no
 late-tail/closure or source-only speedup claim. Upper traversal66.371Mwork vs
 66.499M219; boundary smoothing118.36rank-s vs119.04, interior3.11rank-s in both.
 Timers overlap; join/collective call seconds are not pure wait or CPU time.
-Latest COMPLETE window34752 at2048.908397s(464.748680s since entry):
-886575cells/92608q/92467J/1954geometry/0size. Net cumulative q removal20.3336/s
-versus21920.6837/s at456.348695quality seconds; mixed tiny count differences
-(-11q/+5J/-3geometry) do not establish a late-tail or speed benefit.
-A225/matched_quality_comparison219.json preserves all complete matching-round
-windows with actual quality times and validates the following ownership transition:
-counts/flags unchanged; q/J debt min/max3485.69/5940.85→4332.71/5825.71.
+Latest COMPLETE window34816 at2370.173291s(786.013574s since entry):
+894027cells/87667q/87486J/1942geometry/0size. Last window net4941q/4981J/12geo
+removed in321.264894s including preceding ownership, versus219236.145989s.
+Complete matching-round counts differ only+8q/-19J/-2geometry versus219.
+A225/matched_quality_comparison219.json preserves matching rounds with actual
+quality times and validates the preceding ownership transition: counts/flags
+unchanged; q/J debt min/max3485.69/5940.85→4332.71/5825.71.
 Window-to-committed14.90056s includes transition work; no pure partition-time claim.
+A225/fourth_quality_comparison219.json preserves per-rank service/churn and work:
+traversal142.651M versus125.080M(+14.05%); boundary candidates14897vs14173(+5.11%),
+boundary time260.78vs204.31rank-s(+27.64%). Extra wall time is not explained solely
+by equal work under contention: work/trajectory changed too, without clear net
+shape/geometry benefit yet. Keep frozen; no new profiler/implementation/baseline.
+Read-only OS CPU samples in A225/process_cpu_observations.jsonl show54–57CPU-s per
+rank in66.49wall-s; this includes possible MPI spin, not useful mesh-work proof.
 A225/owned_observations.jsonl records current exact all10handles LIVE/no stop:
-sampled summed RSS9.942GB, available RAM26.082GB(decimal), load8.34. Host contention
+sampled summed RSS10.318GB, available RAM25.335GB(decimal), load13.40. Host contention
 exists; compare counters/stage vectors alongside elapsed time. No new implementation
 or baseline/profiler campaign. Sources/fixtures/helpers/config/inputs remain FROZEN.
 Compare complete whole-field q/J-bad removal/s and geometry-bad at matching quality

@@ -18,7 +18,7 @@
       }
     }
   ],
-  "time": 1793998210.5448327,
+  "time": 1793998534.1332657,
   "scope": "First quality episode, matching complete repair rounds; elapsed quality times reported rather than assumed equal. No interpolation, contention isolation or closure forecast.",
   "windows": [
     {
@@ -101,10 +101,37 @@
       },
       "cumulative_net_q_per_second219": 20.68374492600491,
       "cumulative_net_q_per_second225": 20.333570412170793
+    },
+    {
+      "round": 34816,
+      "quality_seconds_219": 692.494683899,
+      "quality_seconds_225": 786.0135735899999,
+      "counts219": {
+        "cells": 893783,
+        "q_bad": 87659,
+        "j_bad": 87505,
+        "geometry_bad": 1944,
+        "size_bad": 0
+      },
+      "counts225": {
+        "cells": 894027,
+        "q_bad": 87667,
+        "j_bad": 87486,
+        "geometry_bad": 1942,
+        "size_bad": 0
+      },
+      "bad_counts_225_minus_219": {
+        "q_bad": 8,
+        "j_bad": -19,
+        "geometry_bad": -2,
+        "size_bad": 0
+      },
+      "cumulative_net_q_per_second219": 20.79293940413857,
+      "cumulative_net_q_per_second225": 18.308844126280484
     }
   ],
   "source_assessment_sha256": {
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build219_local_metricL1_real_cfd50k/construction_progress_assessment.json": "76094321cb8eb6b99d0441220c03199540e635b4b88a8b4ce5341cf9a8f971fb",
-    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/construction_progress_assessment.json": "0cbaa9967ddf19b21b5ee5d76783f46a8977c4332ec736ccd85664176c551b5a"
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/construction_progress_assessment.json": "30596f77d03ce88a19cb3654419aed2edbda7cbed157a72265ee75d302f7bf5f"
   }
 }

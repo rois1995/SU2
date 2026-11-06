@@ -1,5 +1,5 @@
 {
-  "time": 1793998191.1736467,
+  "time": 1793998533.8839371,
   "scope": "First complete quality episode only, corrected L1target matching219; no speed attribution or closure forecast",
   "entry": {
     "stage": "quality_entry",
@@ -108,32 +108,60 @@
         "shape_complete": true,
         "geometry_complete": true
       }
+    },
+    {
+      "round": 34816,
+      "maximum_native_elapsed": 2370.173291494,
+      "seconds": 321.2648940199997,
+      "totals": {
+        "cells": 894027,
+        "measured": 894027,
+        "q_measured": 894027,
+        "j_measured": 894027,
+        "q_bad": 87667,
+        "j_bad": 87486,
+        "geometry_bad": 1942,
+        "size_bad": 0
+      },
+      "net_removed": {
+        "q_bad": 4941,
+        "j_bad": 4981,
+        "geometry_bad": 12
+      },
+      "q_bad_removed_per_second": 15.379831696433062,
+      "J_bad_removed_per_second": 15.504339542589168,
+      "complete_flags": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": true,
+        "geometry_complete": true
+      }
     }
   ],
   "source_prefixes": {
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/rank_output/1/rank.0/stdout": {
-      "bytes": 381292,
-      "sha256": "2617d42e84bb247f8412e64d3119e4cae616c0e4c0ff40ddf139349b10a48825"
+      "bytes": 387454,
+      "sha256": "2a56ef6d9165d9b30f081a10339e8a4d4da3e0cd9e3525faefe95dc041d7d5e5"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/rank_output/1/rank.1/stdout": {
-      "bytes": 358684,
-      "sha256": "c4d2453a2f5a8caee26cd11c6953d9bd35bc904cc31d8a4c8e0dd41646a17d8e"
+      "bytes": 364874,
+      "sha256": "3d8a89cb2c1ef2c638d4dfc2dd83288908d22945972231c8a7acfadadfc75b6f"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/rank_output/1/rank.2/stdout": {
-      "bytes": 358274,
-      "sha256": "745bdbf47f6e0b31e76b689a4886f5ddf5f1d05a48ee30cb3b87069833b1321d"
+      "bytes": 364470,
+      "sha256": "3c1eeb8f816b58d8c8831b99b46b575f8f2f049c9481f0a96c6acba96494926f"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/rank_output/1/rank.3/stdout": {
-      "bytes": 358592,
-      "sha256": "2015fc23ec008d473a8b4615bc7f5d6c44778fc02817ca83d063a4d4e1f458ea"
+      "bytes": 364795,
+      "sha256": "2d5d26feec881cc4ab562c551c977c068a6003a2fda3a6a5ea94015771a02040"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/rank_output/1/rank.4/stdout": {
-      "bytes": 357882,
-      "sha256": "75261273a20d3ec944c8a299c6ce692be27484008a4a107c4b57540a50512529"
+      "bytes": 364084,
+      "sha256": "6033f509b16cfdfa33408f0c0fdd6158ea406fedd3df19493849beef453bfdec"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/rank_output/1/rank.5/stdout": {
-      "bytes": 358476,
-      "sha256": "d2bd9d297d0e96901adf9ac6bd38681c282c6c38f4eb10faaec015eb8f7d120d"
+      "bytes": 364677,
+      "sha256": "c496fea949c135cf933dd20293bb198493d6819561c5368cbf9d8ff35063f247"
     }
   }
 }
