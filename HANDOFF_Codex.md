@@ -46,8 +46,8 @@ A217/quality_entry_comparison.json preserves per-rank rows/work and exact prefix
 First window preserved in A217/quality_window1_assessment.json. Actual20992
 ownership transition preserves728520cells/43972q/42277J/2679geometry/0size and ALL
 complete flags. Debt max/mean1.40089→1.13770 is balance evidence only, not closure.
-A217/quality_ownership20992_assessment.json. Latest preserved census21312reaches
-749677cells/29907q/27436J/2620geometry/0size at2106.800323native seconds; all19
+A217/quality_ownership20992_assessment.json. Latest preserved census21504reaches
+760495cells/22619q/19688J/2604geometry/0size at2622.089927native seconds; all24
 complete quality/ownership groups are in A217/quality_trend_assessment.json.
 Capture is still pending.
 A217/metric_export_preflight_review.json checks exact shared-tensor/export contracts;
