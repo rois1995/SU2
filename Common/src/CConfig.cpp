@@ -3246,6 +3246,9 @@ void CConfig::SetConfig_Options() {
   /* DESCRIPTION: Permuting eigenvectors for UQ analysis */
   addBoolOption("UQ_PERMUTE", uq_permute, false);
 
+  /* DESCRIPTION: Experimental classical EPM sensitivities after coupled adjoint convergence. */
+  addBoolOption("SST_EPM_POSTPROCESS", epmExtraction.enabled, false);
+
   /* DESCRIPTION: Number of calls to 'Build' that trigger re-factorization (0 means only once). */
   addUnsignedLongOption("PASTIX_FACTORIZATION_FREQUENCY", pastix_fact_freq, 1);
 
@@ -6129,6 +6132,41 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       SU2_MPI::Error("Flame ignition temperature must be higher than the initial temperature of the flow field.", CURRENT_FUNCTION);
     }
   }
+
+  if (epmExtraction.enabled) {
+#ifndef CODI_REVERSE_TYPE
+    SU2_MPI::Error("SST_EPM_POSTPROCESS requires SU2_CFD_AD (reverse AD build).", CURRENT_FUNCTION);
+#endif
+#ifdef HAVE_OMP
+    SU2_MPI::Error("SST_EPM_POSTPROCESS currently requires a build without OpenMP.", CURRENT_FUNCTION);
+#endif
+    if (!GetDiscrete_Adjoint() || GetTime_Domain() || GetMultizone_Problem() || GetnZone() != 1 ||
+        (Kind_Solver != MAIN_SOLVER::RANS && Kind_Solver != MAIN_SOLVER::DISC_ADJ_RANS) ||
+        Kind_Turb_Model != TURB_MODEL::SST || sstParsedOptions.version != SST_OPTIONS::V2003 ||
+        !sstParsedOptions.modified || sstParsedOptions.production != SST_OPTIONS::NONE ||
+        sstParsedOptions.sust || sstParsedOptions.dll || sstParsedOptions.uq)
+      SU2_MPI::Error("SST_EPM_POSTPROCESS requires steady single-zone discrete-adjoint RANS with ordinary V2003m.", CURRENT_FUNCTION);
+    if (GetFrozen_Visc_Disc() || GetFrozen_Limiter_Disc() || GetInconsistent_Disc())
+      SU2_MPI::Error("EPM requires FROZEN_VISC_DISC=NO, FROZEN_LIMITER_DISC=NO, INCONSISTENT_DISC=NO.", CURRENT_FUNCTION);
+    if (uq_delta_b != 1.0 || uq_urlx != 1.0 || eig_val_comp != 1 || uq_permute)
+      SU2_MPI::Error("EPM extraction requires UQ_DELTA_B=1, UQ_URLX=1; leave UQ_COMPONENT=1 and UQ_PERMUTE=NO.", CURRENT_FUNCTION);
+    if (GetUseVectorization() || GetnMGLevels() || GetCFL_Adapt() || GetNewtonKrylov() || GetMUSCL_Turb() || GetMUSCLRamp() ||
+        GetnMarker_Periodic() ||
+        GetKind_TimeIntScheme_Flow() != EULER_IMPLICIT || GetKind_TimeIntScheme_Turb() != EULER_IMPLICIT ||
+        GetKind_SlopeLimit_Flow() != LIMITER::NONE)
+      SU2_MPI::Error("EPM requires scalar fluxes, MGLEVEL=0, fixed CFL, implicit Euler flow/turbulence and SLOPE_LIMITER_FLOW=NONE.", CURRENT_FUNCTION);
+    if (GetGrid_Movement() || GetDeform_Mesh() || GetnMarker_Moving() || GetAxisymmetric() ||
+        GetWall_Functions() || GetnRoughWall() || GetFixed_CL_Mode() || GetBoolTurbomachinery() ||
+        GetKind_Trans_Model() != TURB_TRANS_MODEL::NONE || GetKind_Species_Model() != SPECIES_MODEL::NONE ||
+        GetWeakly_Coupled_Heat() || AddRadiation() || GetBody_Force() || GetGravityForce() || GetWind_Gust() || GetRampMotionFrame() || GetRampOutflow() ||
+        GetnMarker_EngineInflow() || GetnMarker_EngineExhaust() || GetnMarker_ActDiskInlet() || GetnMarker_ActDiskOutlet() ||
+        GetnMarker_ZoneInterface() ||
+        GetSBSParam().StochasticBackscatter || (GetKind_FluidModel() != STANDARD_AIR && GetKind_FluidModel() != IDEAL_GAS))
+      SU2_MPI::Error("EPM supports only stationary smooth-wall ideal-gas SST without additional physics or fixed-lift control.", CURRENT_FUNCTION);
+    if (GetnObj() != 1 || GetWeight_ObjFunc(0) != 1.0 || (GetKind_ObjFunc() != DRAG_COEFFICIENT && GetKind_ObjFunc() != LIFT_COEFFICIENT))
+      SU2_MPI::Error("EPM requires a single DRAG or LIFT objective.", CURRENT_FUNCTION);
+  }
+
 
 }
 

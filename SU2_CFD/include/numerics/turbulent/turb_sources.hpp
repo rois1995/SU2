@@ -1014,6 +1014,24 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
         dk = min(max(eff_intermittency, 0.1), 1.0) * dk;
       }
 
+      if (config->GetEPMExtraction().active) {
+        const auto& amplitude = config->GetEPMExtraction().amplitude;
+        AD::SetPreaccIn(amplitude);
+        passivedouble target[3][3], grad[3][3] = {};
+        EPMExtractionTarget(nDim, PrimVar_Grad_i + idx.Velocity(), Density_i,
+                            Eddy_Viscosity_i, ScalarVar_i[0], config, target);
+        for (size_t i = 0; i < nDim; ++i)
+          for (size_t j = 0; j < nDim; ++j)
+            grad[i][j] = SU2_TYPE::GetValue(PrimVar_Grad_i[i + idx.Velocity()][j]);
+        const auto rho = SU2_TYPE::GetValue(Density_i);
+        const auto mu = SU2_TYPE::GetValue(Eddy_Viscosity_i);
+        const auto raw = ComputeReynoldsStressProduction(nDim, target, grad, rho);
+        const auto epm_pk = max(0.0, min(raw, SU2_TYPE::GetValue(prod_limit)));
+        const auto epm_pw = mu > 0 ? SU2_TYPE::GetValue(alfa_blended) * rho / mu * epm_pk : 0.0;
+        pk += amplitude * (epm_pk - SU2_TYPE::GetValue(pk));
+        pw += amplitude * (epm_pw - SU2_TYPE::GetValue(pw));
+      }
+
       /*--- Add the production terms to the residuals. ---*/
 
       Residual[0] += pk * Volume;

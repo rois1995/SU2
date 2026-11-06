@@ -44,6 +44,7 @@
 #include <assert.h>
 
 #include "option_structure.hpp"
+#include "CEPMExtraction.hpp"
 #include "containers/container_decorators.hpp"
 #include "toolboxes/printing_toolbox.hpp"
 #include "tracy_structure.hpp"
@@ -1283,6 +1284,7 @@ private:
   SST_ParsedOptions sstParsedOptions; /*!< \brief Additional parameters for the SST turbulence model. */
   SA_ParsedOptions saParsedOptions;   /*!< \brief Additional parameters for the SA turbulence model. */
   LM_ParsedOptions lmParsedOptions;   /*!< \brief Additional parameters for the LM transition model. */
+  mutable CEPMExtraction epmExtraction;
   su2double uq_delta_b;         /*!< \brief Parameter used to perturb eigenvalues of Reynolds Stress Matrix */
   unsigned short eig_val_comp;  /*!< \brief Parameter used to determine type of eigenvalue perturbation */
   su2double uq_urlx;            /*!< \brief Under-relaxation factor */
@@ -9763,6 +9765,8 @@ public:
    * \brief Get the amount of eigenvalue perturbation to be done
    * \return Value of the uq_delta_b parameter
    */
+  CEPMExtraction& GetEPMExtraction() const { return epmExtraction; }
+
   su2double GetUQ_Delta_B(void) const { return uq_delta_b; }
 
   /*!

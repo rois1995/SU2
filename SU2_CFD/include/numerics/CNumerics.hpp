@@ -590,9 +590,11 @@ public:
    * \param[out] MeanPerturbedRSM - Perturbed stress tensor.
    */
   template<class Mat1, class Mat2, class Scalar>
-  NEVERINLINE static void ComputePerturbedRSM(size_t nDim, size_t uq_eigval_comp, bool uq_permute, su2double uq_delta_b,
-                                              su2double uq_urlx, const Mat1& velgrad, Scalar density,
-                                              Scalar viscosity, Scalar turb_ke, Mat2& MeanPerturbedRSM) {
+  NEVERINLINE static void ComputePerturbedRSM(size_t nDim, size_t uq_eigval_comp, bool uq_permute, Scalar uq_delta_b,
+                                              Scalar uq_urlx, const Mat1& velgrad, Scalar density,
+                                              Scalar viscosity, Scalar turb_ke, Mat2& MeanPerturbedRSM,
+                                              double probe_angle = 0.0, double gap_tolerance = 0.0,
+                                              bool* ambiguous = nullptr, size_t probe_pair = 3) {
     Scalar MeanReynoldsStress[3][3] = {{}};
     ComputeStressTensor(nDim, MeanReynoldsStress, velgrad, viscosity, density, turb_ke, true);
     for (size_t iDim = 0; iDim < 3; iDim++)
@@ -620,6 +622,8 @@ public:
 
     Scalar work[3], Eig_Vec[3][3], Eig_Val[3];
     CBlasStructure::EigenDecomposition(A_ij, Eig_Vec, Eig_Val, 3, work);
+
+    const Scalar baseline_eigenvalues[3] = {Eig_Val[0], Eig_Val[1], Eig_Val[2]};
 
     /* compute convex combination coefficients */
     Scalar c1c = Eig_Val[2] - Eig_Val[1];
@@ -659,6 +663,28 @@ public:
     Eig_Val[1] = 0.5 *c2c + Eig_Val[0];
     Eig_Val[2] = c1c + Eig_Val[1];
 
+    // Probe tied/near-tied eigenspaces without weakening the target eigenvalues.
+    if (ambiguous) {
+      *ambiguous = false;
+      size_t pair = 0;
+      for (size_t i = 0; i < 2; ++i) {
+        for (size_t j = i + 1; j < 3; ++j, ++pair) {
+          const auto gap = fabs(SU2_TYPE::GetValue(baseline_eigenvalues[j] - baseline_eigenvalues[i]));
+          const auto assignment_gap = fabs(SU2_TYPE::GetValue(
+              Eig_Val[uq_permute ? 2-j : j] - Eig_Val[uq_permute ? 2-i : i]));
+          if (gap <= gap_tolerance && assignment_gap > gap_tolerance) {
+            *ambiguous = true;
+            if (pair != probe_pair) continue;
+            for (size_t row = 0; row < 3; ++row) {
+              const Scalar vi = Eig_Vec[row][i], vj = Eig_Vec[row][j];
+              Eig_Vec[row][i] = cos(probe_angle) * vi + sin(probe_angle) * vj;
+              Eig_Vec[row][j] = -sin(probe_angle) * vi + cos(probe_angle) * vj;
+            }
+          }
+        }
+      }
+    }
+
     /* Eigenvectors are columns; exchange eigenvalue assignments, not coordinate axes. */
     if (uq_permute) {
       for (size_t jDim = 0; jDim < 3; jDim++)
@@ -676,6 +702,31 @@ public:
           uq_urlx*(MeanPerturbedRSM[iDim][jDim] - MeanReynoldsStress[iDim][jDim]);
       }
     }
+  }
+
+  /*! \brief Passive classical target at the actual replay stage; no eigenvector AD. */
+  template<class Mat>
+  static void EPMExtractionTarget(size_t nDim, const Mat& gradient, su2double density,
+                                  su2double viscosity, su2double k, const CConfig* config,
+                                  passivedouble (&target)[3][3]) {
+    auto& epm = config->GetEPMExtraction();
+    passivedouble grad[3][3] = {};
+    const auto rho = SU2_TYPE::GetValue(density);
+    const auto mu = SU2_TYPE::GetValue(viscosity);
+    const auto tke = SU2_TYPE::GetValue(k);
+    if (!(rho > 0) || !(mu >= 0) || !(tke >= 0) || !std::isfinite(rho) ||
+        !std::isfinite(mu) || !std::isfinite(tke) || (tke == 0 && mu != 0))
+      SU2_MPI::Error("EPM extraction needs finite rho>0, k>=0, mu_t>=0 and mu_t=0 when k=0.", CURRENT_FUNCTION);
+    for (size_t i = 0; i < nDim; ++i)
+      for (size_t j = 0; j < nDim; ++j) {
+        grad[i][j] = SU2_TYPE::GetValue(gradient[i][j]);
+        if (!std::isfinite(grad[i][j])) SU2_MPI::Error("Nonfinite EPM gradient.", CURRENT_FUNCTION);
+      }
+    bool ambiguous = false;
+    ComputePerturbedRSM(nDim, epm.component, epm.permute, 1.0, 1.0, grad, rho, mu, tke,
+                       target, epm.angle, CEPMExtraction::gap_tolerance, &ambiguous, epm.probe_pair);
+    ++epm.evaluations;
+    epm.ambiguous += ambiguous;
   }
 
   /*!

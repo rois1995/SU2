@@ -52,6 +52,9 @@ CDiscAdjSinglezoneDriver::CDiscAdjSinglezoneDriver(char* confFile,
   geometry    = geometry_container[ZONE_0][INST_0][MESH_0];
   integration = integration_container[ZONE_0][INST_0];
 
+  if (config->GetEPMExtraction().enabled && (nDim != 2 || SU2_MPI::GetSize() != 1))
+    SU2_MPI::Error("SST_EPM_POSTPROCESS currently supports 2D and one MPI process only.", CURRENT_FUNCTION);
+
   /*--- Store the recording state ---*/
   RecordingState = RECORDING::CLEAR_INDICES;
 
@@ -229,6 +232,8 @@ void CDiscAdjSinglezoneDriver::Run() {
 void CDiscAdjSinglezoneDriver::Postprocess() {
   SU2_ZONE_SCOPED
 
+  if (config->GetEPMExtraction().enabled) ExtractEPMSensitivities();
+
   switch(config->GetKind_Solver())
   {
     case MAIN_SOLVER::DISC_ADJ_EULER :     case MAIN_SOLVER::DISC_ADJ_NAVIER_STOKES :     case MAIN_SOLVER::DISC_ADJ_RANS :
@@ -293,6 +298,12 @@ void CDiscAdjSinglezoneDriver::SetRecording(RECORDING kind_recording){
     AD::StartRecording();
 
     iteration->RegisterInput(solver_container, geometry_container, config_container, ZONE_0, INST_0, kind_recording);
+    if (config->GetEPMExtraction().active) {
+      auto& amplitude = config->GetEPMExtraction().amplitude;
+      amplitude = 0.0;
+      AD::ResetInput(amplitude);
+      AD::RegisterInput(amplitude);
+    }
   }
 
   /*--- Set the dependencies of the iteration ---*/
@@ -481,4 +492,92 @@ void CDiscAdjSinglezoneDriver::SecondaryRecording(){
 
   AD::ClearAdjoints();
 
+}
+
+void CDiscAdjSinglezoneDriver::ExtractEPMSensitivities() {
+  // shortcut: serial planar extraction only; extend after driver and parallel replay validation.
+  if (!output_container[ZONE_0]->GetConvergence() || output_container[ZONE_0]->GetConvergenceInterrupted())
+    SU2_MPI::Error("EPM extraction requires the native adjoint convergence criterion to pass.", CURRENT_FUNCTION);
+
+  auto& epm = config->GetEPMExtraction();
+  const auto saved_iter = config->GetInnerIter();
+  const passivedouble baseline = SU2_TYPE::GetValue(ObjFunc);
+  std::vector<passivedouble> baseline_outputs[2], adjoints[2];
+  const unsigned short direct_blocks[] = {FLOW_SOL, TURB_SOL};
+  const unsigned short adjoint_blocks[] = {ADJFLOW_SOL, ADJTURB_SOL};
+  for (unsigned short block = 0; block < 2; ++block) {
+    for (unsigned long point = 0; point < geometry->GetnPoint(); ++point)
+      for (unsigned short var = 0; var < solver[direct_blocks[block]]->GetnVar(); ++var) {
+        baseline_outputs[block].push_back(SU2_TYPE::GetValue(solver[direct_blocks[block]]->GetNodes()->GetSolution(point,var)));
+        adjoints[block].push_back(SU2_TYPE::GetValue(solver[adjoint_blocks[block]]->GetNodes()->GetSolution(point,var)));
+      }
+  }
+  const char* names[] = {"1C_KEEP", "1C_SWAP", "2C_KEEP", "2C_SWAP", "3C"};
+  std::ostringstream rows;
+  rows << std::setprecision(17);
+  rows << "case,objective,probe_pair,probe_angle,J_baseline,dJ_da_at_zero,J_linear_at_one,"
+          "ambiguous_evaluations,total_evaluations,gap_tolerance,delta_b,tensor_blend_factor,"
+          "primal_converged,adjoint_converged,status\n";
+  passivedouble lower = baseline, upper = baseline;
+
+  for (unsigned short mode = 0; mode < 5; ++mode) {
+    epm.component = mode / 2 + 1;
+    epm.permute = mode % 2;
+    for (unsigned short probe = 0; probe < 4; ++probe) {
+      epm.active = false;
+      config->SetInnerIter(saved_iter);
+      SetRecording(RECORDING::CLEAR_INDICES);
+      epm.angle = probe == 0 ? 0.0 : PI_NUMBER / 2;
+      epm.probe_pair = probe == 0 ? 3 : probe - 1;
+      epm.evaluations = epm.ambiguous = 0;
+      epm.active = true;
+      config->SetInnerIter(saved_iter);
+      SetRecording(MainVariables);
+      const auto recorded_objective = SU2_TYPE::GetValue(ObjFunc);
+      if (!std::isfinite(recorded_objective) || fabs(recorded_objective - baseline) > 1e-10 * max(1.0, fabs(baseline)))
+        SU2_MPI::Error("EPM zero-amplitude replay changed the baseline objective.", CURRENT_FUNCTION);
+      for (unsigned short block = 0; block < 2; ++block) {
+        size_t entry = 0;
+        for (unsigned long point = 0; point < geometry->GetnPoint(); ++point)
+          for (unsigned short var = 0; var < solver[direct_blocks[block]]->GetnVar(); ++var, ++entry) {
+            const auto value = SU2_TYPE::GetValue(solver[direct_blocks[block]]->GetNodes()->GetSolution(point,var));
+            if (!std::isfinite(value) || fabs(value - baseline_outputs[block][entry]) >
+                1e-12 * max(1.0, fabs(baseline_outputs[block][entry])))
+              SU2_MPI::Error("EPM replay changed the baseline iteration output.", CURRENT_FUNCTION);
+            if (SU2_TYPE::GetValue(solver[adjoint_blocks[block]]->GetNodes()->GetSolution(point,var)) != adjoints[block][entry])
+              SU2_MPI::Error("EPM replay changed the saved coupled adjoint.", CURRENT_FUNCTION);
+          }
+      }
+      iteration->InitializeAdjoint(solver_container, geometry_container, config_container, ZONE_0, INST_0);
+      SetAdjObjFunction();
+      AD::ComputeAdjoint();
+      const auto gradient = SU2_TYPE::GetDerivative(epm.amplitude);
+      if (!std::isfinite(gradient)) SU2_MPI::Error("Nonfinite EPM sensitivity.", CURRENT_FUNCTION);
+      rows << names[mode] << ',' << (config->GetKind_ObjFunc() == DRAG_COEFFICIENT ? "DRAG" : "LIFT") << ','
+           << epm.probe_pair << ',' << epm.angle << ',' << baseline << ',' << gradient << ',' << baseline + gradient << ','
+           << epm.ambiguous << ',' << epm.evaluations << ',' << CEPMExtraction::gap_tolerance
+           << ",1,1,unverified,true,frozen_forcing_unverified\n";
+      lower = min(lower, baseline + gradient);
+      upper = max(upper, baseline + gradient);
+      AD::ClearAdjoints();
+      epm.active = false;
+      if (epm.ambiguous == 0) break;
+    }
+  }
+
+  // Clear tape indices, then restore all direct blocks and rebuild their dependencies.
+  SetRecording(RECORDING::CLEAR_INDICES);
+  for (unsigned short iSol = 0; iSol < MAX_SOLS; ++iSol)
+    if (solver[iSol] && solver[iSol]->GetAdjoint()) solver[iSol]->SetRecording(geometry, config);
+  config->SetInnerIter(saved_iter);
+  iteration->SetDependencies(solver_container, geometry_container, numerics_container, config_container,
+                             ZONE_0, INST_0, MainVariables);
+  AD::ResetInput(epm.amplitude);
+  epm.amplitude = 0.0;
+  std::ofstream output("sst_epm_sensitivities.csv");
+  output << rows.str();
+  output.close();
+  if (!output) SU2_MPI::Error("Could not write sst_epm_sensitivities.csv.", CURRENT_FUNCTION);
+  cout << "\nClassical EPM first-order frozen-forcing predictions: [" << lower << ", " << upper
+       << "]. Includes baseline and sampled orientations; not verified nonlinear bounds.\n";
 }

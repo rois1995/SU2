@@ -14,13 +14,54 @@ The estimator must return the baseline QoI, five first derivatives, five first-o
 
 This is not an implementation of a probabilistic uncertainty interval or a guarantee of bounds. It is not one ordinary flow run that produces a validated EPM envelope without additional work. Independent lift and drag estimates normally require separate adjoints; an adjoint for a weighted objective gives that combination's sensitivity.
 
-**Implementation status (2026-11-06):** branch `rois1995/SU2:feature_UQ` starts at the upstream commit below. Commit `671a0f400779560d2e5458773cffa05902617f52` corrects eigenvector permutation and SST-2003 EPM production. Four local C++ unit tests pass, with 169 assertions (GCC 13.3.0, C++17, serial passive build). Reintroducing the old row swap and the old norm-squared production separately causes the corresponding tests to fail. Tests instantiate the actual source class and tensor helper. No CFD simulation, production run, cluster access, full executable build, MPI test, or reverse-mode test was performed.
+**Implementation status (2026-11-06):** branch `rois1995/SU2:feature_UQ` starts at the upstream commit below. The reference fixes correct eigenvector permutation and SST-2003 EPM production. The experimental extraction path augments the native coupled adjoint and its scalar numerics. Local C++ checks pass: 421 assertions in six passive tests (reference plus extraction), and 315 assertions in three reverse-AD extraction tests. Eight unsupported configuration variants are rejected. GCC 13.3.0, C++17, serial, CoDiPack JacobianLinear tape were used; the modified driver passes a reverse-AD syntax check. No CFD simulation, production run, cluster access, full executable build or parallel execution was performed. End-to-end replay and sensitivity validation remain pending.
 
 **Study constraint: preserve classical EPM.** Keep the corrected classical 1C/2C/3C targets, orientation permutations, and endpoint controls. Do not introduce spectral smoothing, average admissible orientations into a weaker stress tensor, or attenuate anisotropy to obtain a derivative. The earlier smooth-target proposal is withdrawn: at isotropy it collapses all five targets to 3C and changes the uncertainty experiment. The smoothing prototype has been removed; its historical commit remains available for audit. The reference-model bug fixes remain in place.
 
-**Adjoint status:** a common baseline adjoint remains appropriate wherever the classical target correction has a suitable continuous or justified directional limit. Degenerate targets require explicit orientation diagnostics and qualification; no globally valid live-EPM derivative is established by selecting an arbitrary eigensolver basis. Section 5.5 specifies the model-preserving investigation. No `SST_EPM_*` options, continuation solver, parameter tapes, sensitivity CSVs, or campaign runner have been implemented. Sections 6–13 remain requirements, not working infrastructure.
+**Adjoint status:** a common baseline adjoint remains appropriate wherever the classical target correction has a suitable continuous or justified directional limit. Degenerate targets require explicit orientation diagnostics and qualification; no globally valid live-EPM derivative is established by selecting an arbitrary eigensolver basis. Section 5.5 specifies the model-preserving investigation. The first extraction implementation now exists behind `SST_EPM_POSTPROCESS=YES`: runtime scalar registration in the native adjoint driver, passive classical target corrections in scalar viscous momentum/energy flux and limited SST sources, reuse of the coupled adjoint, sampled eigenspace probes, and CSV output. Nonlinear continuation, SIMD/MPI/OpenMP extraction, full driver integration tests, and the campaign runner remain pending. The broader `SST_EPM_ANALYSIS/CASE/AMPLITUDE/OUTPUT` interface below remains proposed and is not accepted by this branch.
 
 **Execution contract:** only small local tests are authorized for this task. Production campaigns and all cluster access are prohibited. The numerical campaigns below are future validation instructions and must not be launched under the current authorization. Pushing this branch to the user's fork is explicitly authorized.
+
+### Implemented extraction interface
+
+For a compatible saved ordinary-SST primal and its coupled adjoint configuration, use this overlay (not a complete case):
+
+```ini
+SOLVER= RANS
+KIND_TURB_MODEL= SST
+SST_OPTIONS= V2003m
+MATH_PROBLEM= DISCRETE_ADJOINT
+OBJECTIVE_FUNCTION= DRAG
+OBJECTIVE_WEIGHT= 1
+FROZEN_VISC_DISC= NO
+FROZEN_LIMITER_DISC= NO
+INCONSISTENT_DISC= NO
+USE_VECTORIZATION= NO
+MGLEVEL= 0
+CFL_ADAPT= NO
+TIME_DISCRE_FLOW= EULER_IMPLICIT
+TIME_DISCRE_TURB= EULER_IMPLICIT
+SLOPE_LIMITER_FLOW= NONE
+MUSCL_TURB= NO
+RAMP_MUSCL= NO
+UQ_DELTA_B= 1
+UQ_URLX= 1
+UQ_COMPONENT= 1
+UQ_PERMUTE= NO
+SST_EPM_POSTPROCESS= YES
+```
+
+Use a reverse-AD build without OpenMP and one process. The driver currently accepts 2D only. Smooth stationary ideal-gas flow without extra coupled physics, moving/deforming grids, wall functions, rough walls, periodic interfaces, Newton–Krylov, fixed-lift control, or ramping is required. A single unit-weight DRAG or LIFT objective is accepted. Unsupported combinations fail explicitly. The normal baseline and classical UQ runs leave the new option disabled.
+
+Extraction runs in the adjoint driver's postprocess after its native convergence criterion passes, before the usual geometry sensitivity recording. Each replay clears old indices, restores all direct state blocks, registers the single persistent amplitude before dependencies, records one direct iteration, seeds the saved coupled state adjoints and native objective, reverses, extracts only the amplitude derivative, and clears derivatives. It does not call the state-adjoint extraction/update. Zero-amplitude flow/turbulence iteration outputs and the saved adjoint arrays are checked against their original values; an altered baseline objective also stops extraction. Direct states and dependencies are restored before subsequent processing.
+
+`sst_epm_sensitivities.csv` is written only after all replays succeed. It contains the baseline, five canonical case gradients/predictions, and diagnostic rows when small eigenvalue gaps affect the target. `probe_pair=3, probe_angle=0` identifies the canonical result. Other rows swap a pair of nearly tied eigenvectors using a 90-degree rotation: pair 0=(0,1), 1=(0,2), 2=(1,2), with zero-based ascending baseline eigenvalue indices. These swaps preserve the full target eigenvalues and avoid introducing finite out-of-plane shear merely by continuously tilting a planar eigensystem. There are five canonical recordings and up to three extra recordings per ambiguous anisotropic case (at most 17 total).
+
+The fixed dimensionless gap threshold is `1e-10` in baseline anisotropy eigenvalues. `ambiguous_evaluations` counts numerical evaluations, not unique cells; scalar faces and SST sources both contribute. Near ties these probes are conditioning diagnostics, not exact additional members of the classical five-case set. They sample a few basis permutations, not every orientation or spatially varying orientation field. Agreement among samples does not prove a unique derivative, rotation-invariant uncertainty range, or global extrema. No stress averaging or target attenuation is used.
+
+Rows are labeled `frozen_forcing_unverified`, with `primal_converged=unverified` and `adjoint_converged=true` meaning only that SU2's configured adjoint criterion passed. The console range includes the baseline and all sampled predictions. It is not a validated nonlinear envelope. This first version writes no full provenance manifest: preserve the mesh, input configuration, source/build identity, restart and convergence histories alongside the CSV. Use separate directories for separate objectives. A rerun replaces this CSV.
+
+The extraction scalar is internal; setting it to nonzero in a local test verifies contribution identities, not a user-accessible nonlinear continuation solver. State derivatives of the passive target correction are intentionally absent at zero amplitude; ordinary baseline flow/turbulence derivatives remain active. Reference and extraction use the same corrected tensor and production floor/cap, including the existing zero-mu_t omega-production fallback. The unresolved physical-limit qualification for that fallback still applies.
 
 ### Inspected source
 
@@ -410,7 +451,7 @@ A five-component active parameter vector can later expose all projections in one
 
 ## 8. Proposed configuration interface
 
-**These names are proposed new options; they do not exist in the inspected SU2 version.** Adjust names to repository conventions, preserving these semantics.
+**The `SST_EPM_ANALYSIS/CASE/AMPLITUDE/OUTPUT` names below remain proposed and are not implemented. The current experimental entry point is `SST_EPM_POSTPROCESS` described in Section 1.** Adjust names to repository conventions, preserving these semantics.
 
 | Option | Proposed values | Meaning |
 |---|---|---|
@@ -1113,32 +1154,46 @@ The core implementation deliverable is the verified attached-case workflow with 
 
 ## 13. Completion checklist
 
-Current branch: reference corrections and focused serial passive tests are complete. Gate A remains partial (assembled scalar/SIMD comparison and reference CFD regression values pending). Gates B–E, parameter replay, output/configuration infrastructure, reverse-mode and MPI validation are not implemented or verified. No numerical sensitivity or speed-up is claimed.
+Current branch: reference corrections and the first serial scalar extraction implementation are present. Local passive and reverse-AD tests cover source/flux zero-amplitude identities, classical local endpoints, final-contribution blending, amplitude finite differences through preaccumulation, baseline state derivatives, and full-strength tie probes. The modified driver compiles in syntax checks. Full-executable linkage, end-to-end driver/restart replay, assembled boundaries, CFD Taylor tests, nonlinear continuation and full-endpoint accuracy remain unverified. SIMD/MPI/OpenMP extraction is rejected. No actual CFD sensitivity or speed-up is claimed.
 
-Reproduce the lightweight tests without building or running a CFD executable, from the repository root:
+Reproduce the lightweight tests without building or running a CFD executable, from the repository root. This Bash snippet requires the normal external headers, including CoDiPack for reverse mode. `CODI_INCLUDE` can point to an existing local CoDiPack include directory. During these local checks, the available sibling checkout's headers were used; their exact revision was not independently verified against the pinned submodule.
 
 ```bash
-mkdir -p build-epm-local
-printf '#define CATCH_CONFIG_MAIN\n#include "catch.hpp"\n' > build-epm-local/epm_main.cpp
-for source in \
-  Common/src/CConfig.cpp \
-  SU2_CFD/src/numerics/CNumerics.cpp \
-  Common/include/parallelization/mpi_structure.cpp \
-  Common/src/toolboxes/printing_toolbox.cpp \
-  Common/src/toolboxes/SwapBytes.cpp \
-  Common/src/fem/fem_gauss_jacobi_quadrature.cpp \
-  UnitTests/SU2_CFD/numerics/epm_tests.cpp \
-  UnitTests/SU2_CFD/numerics/epm_source_tests.cpp \
-  build-epm-local/epm_main.cpp
-do
-  g++ -std=c++17 -O0 -ffunction-sections -fdata-sections -I externals/catch2 \
-    -c "$source" -o "build-epm-local/$(basename "$source" .cpp).check.o" || exit 1
+for mode in passive reverse; do
+  build="build-epm-local/$mode"
+  mkdir -p "$build"
+  printf '#define CATCH_CONFIG_MAIN\n#include "catch.hpp"\n' > "$build/main.cpp"
+  flags=(-std=c++17 -O0 -ffunction-sections -fdata-sections -I externals/catch2)
+  tests=(UnitTests/SU2_CFD/numerics/epm_extraction_tests.cpp)
+  if [[ "$mode" == reverse ]]; then
+    flags+=(-DCODI_REVERSE_TYPE -DCODI_JACOBIAN_LINEAR_TAPE
+            -I "${CODI_INCLUDE:-externals/codi/include}")
+  else
+    tests+=(UnitTests/SU2_CFD/numerics/epm_tests.cpp
+            UnitTests/SU2_CFD/numerics/epm_source_tests.cpp)
+  fi
+  objects=()
+  for source in \
+    Common/src/CConfig.cpp \
+    SU2_CFD/src/numerics/CNumerics.cpp \
+    SU2_CFD/src/numerics/flow/flow_diffusion.cpp \
+    Common/include/parallelization/mpi_structure.cpp \
+    Common/src/toolboxes/printing_toolbox.cpp \
+    Common/src/toolboxes/SwapBytes.cpp \
+    Common/src/fem/fem_gauss_jacobi_quadrature.cpp \
+    Common/src/basic_types/ad_structure.cpp \
+    "${tests[@]}" "$build/main.cpp"
+  do
+    object="$build/$(basename "$source" .cpp).o"
+    g++ "${flags[@]}" -c "$source" -o "$object" || exit 1
+    objects+=("$object")
+  done
+  g++ -Wl,--gc-sections "${objects[@]}" -o "$build/test_epm" || exit 1
+  "$build/test_epm" '[EPM],[EPMExtraction]' || exit 1
 done
-g++ -Wl,--gc-sections build-epm-local/*.check.o -o build-epm-local/epm_checks
-build-epm-local/epm_checks '[EPM]'
 ```
 
-These same test files are registered in `UnitTests/meson.build` for the ordinary SU2 unit-test driver. The direct compilation above was used to keep local validation small; it does not replace a complete SU2 build or AD/MPI checks.
+The extraction test is also registered in `UnitTests/meson.build` for passive and reverse-AD test drivers. Local tests cover zero-amplitude flux/source values and state derivatives, full classical local endpoints, final-contribution blending, amplitude finite differences with preaccumulation enabled, capped/uncapped production, full-strength tie probes and the accepted serial configuration. These checks do not replace full linkage, end-to-end driver replay, boundary assembly or nonlinear CFD Taylor checks. The runtime replay guards are implemented but have not been exercised in a complete solver run.
 
 
 The feature is ready for review when:

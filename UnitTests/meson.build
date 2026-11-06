@@ -18,6 +18,7 @@ su2_cfd_tests = files(['Common/CConfig_tests.cpp',
                        'SU2_CFD/numerics/CNumerics_tests.cpp',
                        'SU2_CFD/numerics/epm_tests.cpp',
                        'SU2_CFD/numerics/epm_source_tests.cpp',
+                       'SU2_CFD/numerics/epm_extraction_tests.cpp',
                        'SU2_CFD/fluid/CFluidModel_tests.cpp',
                        'SU2_CFD/output/CNEMOCompOutput_tests.cpp',
                        'SU2_CFD/output/COutput_convergence_tests.cpp',
@@ -33,6 +34,7 @@ su2_cfd_tests = files(['Common/CConfig_tests.cpp',
 
 # Reverse-mode (algorithmic differentiation) tests:
 su2_cfd_tests_ad = files(['Common/simple_ad_test.cpp',
+                          'SU2_CFD/numerics/epm_extraction_tests.cpp',
                           'SU2_CFD/solvers/under_relaxation_ad_tests.cpp',
                           'SU2_CFD/fluid/CFluidModel_tests_AD.cpp',
                           'Common/toolboxes/multilayer_perceptron/MLP_Jacobian_tests.cpp'])

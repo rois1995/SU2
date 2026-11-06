@@ -142,6 +142,19 @@ void CAvgGrad_Base::SetStressTensor(const su2double *val_primvar,
     ComputeStressTensor(nDim, tau, val_gradprimvar+1, total_viscosity, Density, su2double(0.0));
   }
 
+  if (config->GetEPMExtraction().active) {
+    const auto& amplitude = config->GetEPMExtraction().amplitude;
+    AD::SetPreaccIn(amplitude);
+    passivedouble target[3][3], grad[3][3] = {}, baseline[3][3] = {};
+    EPMExtractionTarget(nDim, val_gradprimvar+1, Density, val_eddy_viscosity, val_turb_ke, config, target);
+    for (size_t i = 0; i < nDim; ++i)
+      for (size_t j = 0; j < nDim; ++j) grad[i][j] = SU2_TYPE::GetValue(val_gradprimvar[i+1][j]);
+    ComputeStressTensor(nDim, baseline, grad, SU2_TYPE::GetValue(val_eddy_viscosity));
+    for (size_t i = 0; i < nDim; ++i)
+      for (size_t j = 0; j < nDim; ++j)
+        tau[i][j] += amplitude * (-SU2_TYPE::GetValue(Density) * target[i][j] - baseline[i][j]);
+  }
+
   /* --- If the Stochastic Backscatter Model is active, add random contribution to stress tensor ---*/
 
   if (config->GetSBSParam().StochasticBackscatter) {
