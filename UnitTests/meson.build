@@ -3,6 +3,8 @@
 # Begin unit test listings
 # -------------------------------------------------------------------------
 
+unit_test_data_args = ['-DSU2_UNIT_TEST_DATA_DIR="' + meson.current_source_dir() + '"']
+
 # Direct-mode tests:
 su2_cfd_tests = files(['Common/CConfig_tests.cpp',
                        'Common/geometry/primal_grid/CPrimalGrid_tests.cpp',
@@ -52,7 +54,7 @@ if get_option('enable-tests')
         install : true,
         install_rpath : '$ORIGIN/../lib',
         dependencies : [su2_cfd_dep, common_dep, su2_deps, catch2_dep],
-        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args]
+        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args, unit_test_data_args]
     )
     test('Catch2 test driver', test_driver)
     test('Reject intersecting rotational periodic pairs', python,
@@ -83,7 +85,7 @@ if get_option('enable-tests')
         install : true,
         install_rpath : '$ORIGIN/../lib',
         dependencies : [su2_cfd_dep_ad, commonAD_dep, su2_deps, codi_dep, catch2_dep],
-        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args, codi_rev_args]
+        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args, unit_test_data_args, codi_rev_args]
     )
     test('Catch2 test driver (AD)', test_driver_AD)
     # The standalone tape test does not initialize OpDiLib.
@@ -102,7 +104,7 @@ if get_option('enable-tests')
         install : true,
         install_rpath : '$ORIGIN/../lib',
         dependencies : [su2_cfd_dep_dd, commonDD_dep, su2_deps, codi_dep, catch2_dep],
-        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args, codi_for_args]
+        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args, unit_test_data_args, codi_for_args]
     )
     test('Catch2 test driver (DD)', test_driver_DD)
     wall_model_test_dd = executable('wall_function_model_test_DD', 'SU2_CFD/wall_function_model.cpp',
