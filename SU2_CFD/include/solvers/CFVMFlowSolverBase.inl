@@ -3062,7 +3062,15 @@ void CFVMFlowSolverBase<V, FlowRegime>::Pressure_Forces(const CGeometry* geometr
    *    are confined to the master thread, synchronized with a barrier so that the
    *    subsequent parallel loop over markers sees consistent, zeroed accumulators. ---*/
 
+  /*--- P1_WALL_FORCES: the boundary fluxes of the scheme replace the nodal forces (ComputeP1WallForces), the nodal
+   *    ones go to P1NodalInv. ---*/
+  const bool p1WallForces = config->GetP1_Wall_Forces();
+
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    if (p1WallForces) {
+      ComputeP1WallForces(geometry, config);
+      for (auto& value : P1NodalInv) value = 0.0;
+    }
     SetReferenceValues(*config);
     Total_CNearFieldOF = 0.0;
     Total_Heat = 0.0;
@@ -3107,6 +3115,11 @@ void CFVMFlowSolverBase<V, FlowRegime>::Pressure_Forces(const CGeometry* geometr
       su2double ForceInviscid[MAXNDIM] = {0.0}, MomentInviscid[MAXNDIM] = {0.0};
       su2double MomentX_Force[MAXNDIM] = {0.0}, MomentY_Force[MAXNDIM] = {0.0}, MomentZ_Force[MAXNDIM] = {0.0};
 
+      /*--- P1_WALL_FORCES: nodal sums, and whether the force of the marker is the closure C one. ---*/
+      su2double NodalForce[MAXNDIM] = {0.0}, NodalMoment[MAXNDIM] = {0.0};
+      su2double NodalMomentX[MAXNDIM] = {0.0}, NodalMomentY[MAXNDIM] = {0.0}, NodalMomentZ[MAXNDIM] = {0.0};
+      const bool p1Pressure = p1WallForces && P1WallPressureMarker[iMarker];
+
       su2double NFPressOF = 0.0;
 
       /*--- Loop over the vertices to compute the forces ---*/
@@ -3144,8 +3157,19 @@ void CFVMFlowSolverBase<V, FlowRegime>::Pressure_Forces(const CGeometry* geometr
           su2double Force[MAXNDIM] = {0.0};
           for (unsigned short iDim = 0; iDim < nDim; iDim++) {
             Force[iDim] = -(Pressure - Pressure_Inf) * Normal[iDim] * factor * AxiFactor;
-            ForceInviscid[iDim] += Force[iDim];
           }
+
+          /*--- P1_WALL_FORCES: keep the nodal force for the comparison totals, use the closure C one. ---*/
+          if (p1WallForces) {
+            for (unsigned short iDim = 0; iDim < nDim; iDim++) NodalForce[iDim] += Force[iDim];
+            AccumulateMoment(nDim, RefLength, Force, MomentDist, Coord, NodalMoment, NodalMomentX, NodalMomentY,
+                             NodalMomentZ);
+            if (p1Pressure) {
+              for (unsigned short iDim = 0; iDim < nDim; iDim++)
+                Force[iDim] = P1WallPressureForce[iMarker][iVertex * nDim + iDim] * factor;
+            }
+          }
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) ForceInviscid[iDim] += Force[iDim];
 
           /*--- Moment with respect to the reference axis ---*/
 
@@ -3162,6 +3186,14 @@ void CFVMFlowSolverBase<V, FlowRegime>::Pressure_Forces(const CGeometry* geometr
               MomentZ_Force);
 
           AddCoeffContribution(iMarker, iMarker_Monitoring, partial, InvCoeff, AllBoundInvCoeff, SurfaceInvCoeff);
+
+          if (p1WallForces) {
+            const auto nodal = ComputeAeroCoeffsFromForceMoment<AeroCoeffs>(
+                nDim, CosAlpha, SinAlpha, CosBeta, SinBeta, NodalForce, NodalMoment, NodalMomentX, NodalMomentY,
+                NodalMomentZ);
+            SU2_OMP_CRITICAL { AddP1NodalCoeffs(nodal, P1NodalInv); }
+            END_SU2_OMP_CRITICAL
+          }
         } else {
           /*--- At the Nearfield SU2 only cares about the pressure coeffient ---*/
           SU2_OMP_CRITICAL {
@@ -3209,6 +3241,7 @@ void CFVMFlowSolverBase<V, FlowRegime>::Pressure_Forces(const CGeometry* geometr
     /*--- AllBound_CNearFieldOF_Inv, not covered by ReduceCoeffsMPI, is reduced separately. ---*/
     if (config->GetComm_Level() == COMM_FULL) {
       AllBound_CNearFieldOF_Inv = MPIReduceSum(AllBound_CNearFieldOF_Inv);
+      if (p1WallForces) MPIReduceSumInPlace(P1NodalInv, P1_NODAL_NCOEFF);
     }
 
     AccumulateTotalCoeffs(config, AllBoundInvCoeff, SurfaceInvCoeff, TotalCoeff, SurfaceCoeff, /*overwrite=*/true);
@@ -3362,10 +3395,17 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
 
   /*--- Variables initialization ---*/
 
+  /*--- P1_WALL_FORCES: on the owned vertices of the weak walls (all viscous walls with BC_WALL_ENTROPY_P1) the weighted
+   *    traction -Fhat of ComputeP1WallForces (called in Pressure_Forces) replaces the force, its tangential part over
+   *    the vertex area the skin friction and its energy part over the area the heat flux; the nodal values are kept
+   *    in P1NodalSkinFriction, P1NodalHeatFlux and P1NodalVisc. Wall shear stress and y+ stay nodal. ---*/
+  const bool p1WallForces = config->GetP1_Wall_Forces() && (P1WallViscousForce.size() == nMarker);
+
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     AllBound_HF_Visc = 0.0;
     AllBound_MaxHF_Visc = 0.0;
     AllBoundViscCoeff.setZero();
+    for (auto& value : P1NodalVisc) value = 0.0;
   }
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 
@@ -3406,6 +3446,8 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
     su2double ForceViscous[MAXNDIM] = {0.0}, MomentViscous[MAXNDIM] = {0.0};
     su2double MomentX_Force[MAXNDIM] = {0.0}, MomentY_Force[MAXNDIM] = {0.0}, MomentZ_Force[MAXNDIM] = {0.0};
     su2double HF_Visc_Local = 0.0, MaxHF_Visc_Local = 0.0;
+    su2double NodalForce[MAXNDIM] = {0.0}, NodalMoment[MAXNDIM] = {0.0};
+    su2double NodalMomentX[MAXNDIM] = {0.0}, NodalMomentY[MAXNDIM] = {0.0}, NodalMomentZ[MAXNDIM] = {0.0};
 
     /* --- check if wall functions are used --- */
 
@@ -3578,6 +3620,26 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
         }
       }
 
+      /*--- P1_WALL_FORCES: scheme traction t = -Fhat / |n_v| of the owned vertex, Cf from t - (t.n_v) n_v, the heat
+       *    flux into the wall from the energy part (dimensional scaling as for the nodal heat flux). ---*/
+      const bool p1Vertex = p1WallForces && geometry->nodes->GetDomain(iPoint);
+      su2double P1Force[MAXNDIM] = {0.0};
+      if (p1Vertex) {
+        const su2double* wallFlux = &P1WallViscousForce[iMarker][iVertex * nVar];
+        su2double traction[MAXNDIM] = {0.0}, tractionNormal = 0.0;
+        for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+          P1NodalSkinFriction[iMarker][iVertex * nDim + iDim] = CSkinFriction[iMarker](iVertex, iDim);
+          P1Force[iDim] = wallFlux[iDim + 1];
+          traction[iDim] = wallFlux[iDim + 1] / Area;
+          tractionNormal += traction[iDim] * UnitNormal[iDim];
+        }
+        for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+          CSkinFriction[iMarker](iVertex, iDim) = (traction[iDim] - tractionNormal * UnitNormal[iDim]) * factorFric;
+        }
+        P1NodalHeatFlux[iMarker][iVertex] = HeatFlux[iMarker][iVertex];
+        HeatFlux[iMarker][iVertex] = wallFlux[nDim + 1] / Area * RefHeatFlux;
+      }
+
       /*--- Note that heat is computed at the
        halo cells (for visualization purposes), but not the forces ---*/
 
@@ -3591,9 +3653,15 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
         su2double Force[MAXNDIM] = {0.0}, MomentDist[MAXNDIM] = {0.0};
         for (unsigned short iDim = 0; iDim < nDim; iDim++) {
           Force[iDim] = TauElem[iDim] * Area * factor * AxiFactor;
-          ForceViscous[iDim] += Force[iDim];
           MomentDist[iDim] = Coord[iDim] - Origin[iDim];
         }
+        if (p1Vertex) {
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) NodalForce[iDim] += Force[iDim];
+          AccumulateMoment(nDim, RefLength, Force, MomentDist, Coord, NodalMoment, NodalMomentX, NodalMomentY,
+                           NodalMomentZ);
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) Force[iDim] = P1Force[iDim] * factor;
+        }
+        for (unsigned short iDim = 0; iDim < nDim; iDim++) ForceViscous[iDim] += Force[iDim];
 
         /*--- Moment with respect to the reference axis ---*/
 
@@ -3616,6 +3684,14 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
           MomentZ_Force);
 
       AddCoeffContribution(iMarker, iMarker_Monitoring, partial, ViscCoeff, AllBoundViscCoeff, SurfaceViscCoeff);
+
+      if (p1WallForces) {
+        const auto nodal = ComputeAeroCoeffsFromForceMoment<AeroCoeffs>(
+            nDim, CosAlpha, SinAlpha, CosBeta, SinBeta, NodalForce, NodalMoment, NodalMomentX, NodalMomentY,
+            NodalMomentZ);
+        SU2_OMP_CRITICAL { AddP1NodalCoeffs(nodal, P1NodalVisc); }
+        END_SU2_OMP_CRITICAL
+      }
 
       /*--- Heat flux, not covered by AddCoeffContribution, is folded in its own critical section. ---*/
 
@@ -3666,6 +3742,7 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
     if (config->GetComm_Level() == COMM_FULL) {
       AllBound_HF_Visc = MPIReduceSum(AllBound_HF_Visc);
       AllBound_MaxHF_Visc = MPIReduceSum(AllBound_MaxHF_Visc);
+      if (p1WallForces) MPIReduceSumInPlace(P1NodalVisc, P1_NODAL_NCOEFF);
 
       const int nMarkerMon = config->GetnMarker_Monitoring();
       MPIReduceSumInPlace(Surface_HF_Visc.data(), nMarkerMon);

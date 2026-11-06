@@ -278,4 +278,37 @@ inline void FaceResidual(unsigned short nDim, unsigned short nNodes, const su2do
   }
 }
 
+/*!
+ * \brief Pressure force of closure C on a wall face (P1_WALL_FORCES), split over the face nodes:
+ *        share_i = sum_q phi_i(x_q) a_q (p~_q - pRef), with the entropy projected states u~_q of FaceResidual, so that
+ *        node i carries share_i A_f nu. The coupling terms G_qi - sum_k phi_k(x_q) G_qk sum to zero over i, hence
+ *        sum_i share_i A_f nu + pRef A_f nu is the momentum part of sum_i b_i at a (moving) pressure wall, and with
+ *        sum_i phi_i(x_q) x_i = x_q the moments of the nodal shares are those of the face points. Same formulas as the
+ *        static closure of BC_ENTROPY_P1 and BC_WALL_ENTROPY_P1 (EsFaceResidual in CSolver.cpp).
+ * \param[in] nodeState - States of the face nodes.
+ * \param[in] pRef - Reference pressure subtracted at the points (free stream pressure for the forces).
+ * \param[out] share - share[i] of the face nodes, overwritten.
+ */
+inline void WallPressureShares(unsigned short nDim, unsigned short nNodes, const su2double& gamma,
+                               const State* nodeState, const su2double& pRef, su2double* share) {
+  const unsigned short nVar = nDim + 2;
+
+  su2double phi[3][3];
+  const su2double weight = FaceRule(nNodes, phi);
+
+  su2double w[3][MAXNVAR] = {{0.0}};
+  for (unsigned short k = 0; k < nNodes; ++k) EntropyVariables(nDim, gamma, nodeState[k], w[k]);
+
+  for (unsigned short i = 0; i < nNodes; ++i) share[i] = 0.0;
+
+  for (unsigned short q = 0; q < nNodes; ++q) {
+    su2double wq[MAXNVAR] = {0.0};
+    for (unsigned short k = 0; k < nNodes; ++k)
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) wq[iVar] += phi[q][k] * w[k][iVar];
+    State sq;
+    StateFromEntropyVariables(nDim, gamma, wq, sq);
+    for (unsigned short i = 0; i < nNodes; ++i) share[i] += phi[q][i] * weight * (sq.p - pRef);
+  }
+}
+
 }  // namespace P1AleEntropy

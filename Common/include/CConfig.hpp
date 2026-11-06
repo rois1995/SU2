@@ -91,6 +91,7 @@ private:
   bool BC_Entropy_P1;          /*!< \brief Entropy stable hybridized weak boundary of BC_WEAK_P1 (closure C). */
   bool Visc_P1_Entropy;        /*!< \brief P1 Galerkin viscous operator in entropy variables, one frozen K per simplex. */
   bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
+  bool P1_Wall_Forces;         /*!< \brief Wall forces, Cf and heat flux from the boundary fluxes of the P1 entropy walls. */
   bool Visc_P1_Entropy_Moved;  /*!< \brief Element viscous fluxes of VISC_P1_ENTROPY on the moved (MOD_CENTROIDS) dual test space, 3D. */
   bool Edge_Form_P1_Mixed;     /*!< \brief EDGE_FORM_P1 on quadrilaterals, hexahedra, prisms and pyramids by split averages (P1_MIXED.md). */
   bool Positive_Update_Flow;   /*!< \brief Positivity-preserving step length of the implicit flow and SST updates (P1_POSITIVITY.md). */
@@ -10103,6 +10104,13 @@ public:
    *        flux plus the SIPG penalty in entropy variables with the K of the wall element.
    */
   bool GetBC_Wall_Entropy_P1() const { return BC_Wall_Entropy_P1; }
+
+  /*!
+   * \brief P1_WALL_FORCES: forces, skin friction and heat flux of the walls from the boundary fluxes of the scheme:
+   *        the weighted SIPG traction -Fhat of BC_WALL_ENTROPY_P1 (no adjoint term) and the closure C pressure on the
+   *        walls that use closure C. Output only, the nodal values are kept as extra output fields.
+   */
+  bool GetP1_Wall_Forces() const { return P1_Wall_Forces; }
 
   /*!
    * \brief VISC_P1_ENTROPY_MOVED: test vectors (|T| I + (1 - theta_v) Y_T^T) g_a of the moved dual for the element

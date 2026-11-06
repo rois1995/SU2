@@ -359,13 +359,17 @@ inline void MovingWallProjector(unsigned short nDim, const su2double* wallVel, c
  *            Theorem A18), nullptr for a wall at rest. Adiabatic: P_a = MovingWallProjector(v_w,a), g = 0, so
  *            e_a = P_a w_a = (0, z, v_w.z) with z from y = theta_a (v_a - v_w); the consistency term P_a F_T nu then
  *            has the traction work of the wall in the energy row. Isothermal: P unchanged, g = (0, theta_w v_w, -theta_w).
+ * \param[out] faceFlux - P1_WALL_FORCES: faceFlux[k][iVar] = -(weight_k) (P F_T nu - sigma_f M e_k), the consistency and
+ *            penalty terms of face node faceNodes[k] with the weight of the face rule or of the shares, without the
+ *            adjoint term (it sums to zero over the element, sum_c g_c = 0). Its momentum rows are the force of the wall
+ *            traction on the body, the energy row the heat flow into the wall. nullptr if not needed.
  */
 inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsigned short* faceNodes,
                        const su2double* faceNormal, bool isothermal, const su2double& wallTheta,
                        unsigned short nWallFaces, const su2double& s, const su2double& c, su2double res[][MAXNVAR],
                        const su2double (*dwdu)[MAXNVAR][MAXNVAR] = nullptr,
                        su2double (*jac)[MAXNODE][MAXNVAR][MAXNVAR] = nullptr, const su2double* shareFrac = nullptr,
-                       const su2double (*wallVel)[3] = nullptr) {
+                       const su2double (*wallVel)[3] = nullptr, su2double (*faceFlux)[MAXNVAR] = nullptr) {
   const unsigned short nDim = E.nDim, nVar = E.nVar, nNodes = E.nNodes;
 
   su2double area = 0.0;
@@ -439,6 +443,8 @@ inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsign
     E.FluxOuter(e, nu, F);
     projectNormalAt(k, F, Me);
     for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[a][iVar] -= weight[k] * (FTn[iVar] - sigma * Me[iVar]);
+    if (faceFlux != nullptr)
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) faceFlux[k][iVar] = -weight[k] * (FTn[iVar] - sigma * Me[iVar]);
   }
 
   /*--- Adjoint term. ---*/

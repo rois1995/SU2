@@ -3552,3 +3552,274 @@ TEST_CASE("POSITIVE_UPDATE_FLOW: SST flow step and k limit keep q - rho k positi
   CHECK(failed == 0);
   CHECK(limitedK > 0);
 }
+
+/*--- P1_WALL_FORCES: the wall forces of the weak no-slip wall (weighted -Fhat) and of closure C (pressure shares). ---*/
+
+namespace {
+
+/*--- Local index of the marker "tag", -1 if it is not on this rank. ---*/
+int MarkerIndex(const CConfig& config, const CGeometry& geometry, const std::string& tag) {
+  for (unsigned short iMarker = 0; iMarker < geometry.GetnMarker(); ++iMarker)
+    if (config.GetMarker_All_TagBound(iMarker) == tag) return iMarker;
+  return -1;
+}
+
+/*--- Volume simplex of a boundary face and the element-local index of its node opposite the face. ---*/
+bool FaceElement(const CGeometry& geometry, const CPrimalGrid& face, unsigned long& iElem, unsigned short& opposite) {
+  const auto p0 = face.GetNode(0);
+  for (unsigned short i = 0; i < geometry.nodes->GetnElem(p0); ++i) {
+    const auto jElem = geometry.nodes->GetElem(p0, i);
+    const auto* elem = geometry.elem[jElem];
+    unsigned short found = 0, other = 0;
+    for (unsigned short c = 0; c < elem->GetnNodes(); ++c) {
+      bool onFace = false;
+      for (unsigned short k = 0; k < face.GetnNodes(); ++k) onFace = onFace || (elem->GetNode(c) == face.GetNode(k));
+      if (onFace) ++found;
+      else other = c;
+    }
+    if (found == face.GetnNodes()) {
+      iElem = jElem;
+      opposite = other;
+      return true;
+    }
+  }
+  return false;
+}
+
+/*--- Smooth nodal data from the coordinates (the same on every rank), with a nonzero wall velocity. ---*/
+pve::NodeState WallTestState(const su2double* x, int nDim) {
+  pve::NodeState S;
+  S.rho = 1.0 + 0.3 * sin(2.0 * x[0] + x[1]);
+  S.p = 0.8 + 0.2 * cos(x[0] - 3.0 * x[nDim - 1]);
+  for (int i = 0; i < nDim; ++i) S.vel[i] = 0.4 * sin(1.0 + i + 3.0 * x[(i + 1) % nDim]) + 0.2 * x[nDim - 1];
+  S.mu = 0.05 * (1.0 + 0.5 * x[0]);
+  S.kappa = 0.07 * (1.0 + 0.3 * x[nDim - 1]);
+  return S;
+}
+
+/*--- Wall element of a bottom face: nodes, coordinates, states of "field", face nodes and outward area vector. ---*/
+template <class Field>
+void WallTestElement(const CGeometry& geometry, const CPrimalGrid& face, int nDim, const Field& field,
+                     const su2double* coord[4], pve::NodeState* state, unsigned short* faceNodes, su2double* N,
+                     unsigned long* point) {
+  unsigned long iElem = 0;
+  unsigned short opposite = 0;
+  REQUIRE(FaceElement(geometry, face, iElem, opposite));
+  const auto* elem = geometry.elem[iElem];
+  for (unsigned short c = 0, k = 0; c <= nDim; ++c) {
+    point[c] = elem->GetNode(c);
+    coord[c] = geometry.nodes->GetCoord(point[c]);
+    state[c] = field(coord[c]);
+    if (c != opposite) faceNodes[k++] = c;
+  }
+  pve::WallFaceNormal(nDim, coord, opposite, faceNodes, N);
+}
+
+}  // namespace
+
+TEST_CASE("P1_WALL_FORCES: weak wall rows sum to the weighted traction without the adjoint term", "[P1Flux]") {
+  /*--- Over all rows, R with the weak no-slip wall minus R without it is the sum of NoSlipWall over the wall faces. The
+   * adjoint term sums to zero over each element (sum_c g_c = 0), so this equals the sum of the weighted -Fhat of the
+   * face nodes that P1_WALL_FORCES reports (lumped and moved shares, adiabatic and isothermal). The output argument
+   * leaves the residual unchanged. Faces counted on the rank owning their first node, sums MPI-reduced. ---*/
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    const std::string mesh = "p1_wall_forces_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 8 : 3, 0.4, 1.0);
+    MeshCase test(mesh);
+    const auto& geometry = *test.geometry;
+    const int iMarker = MarkerIndex(*test.config, geometry, "bottom");
+    const unsigned long nFace = (iMarker < 0) ? 0 : geometry.GetnElem_Bound(iMarker);
+    auto field = [&](const su2double* x) { return WallTestState(x, nDim); };
+
+    for (int variant = 0; variant < 4; ++variant) {
+      const bool isothermal = (variant % 2 == 1);
+      const bool moved = (variant >= 2) && (nDim == 3);
+      const su2double wallTheta = 1.0 / (kGas * 1.1);
+      const su2double shares[3] = {0.3, 0.45, 0.25};
+      su2double rows[5] = {0.0}, fluxes[5] = {0.0}, scale = 0.0, changed = 0.0;
+
+      for (unsigned long iFace = 0; iFace < nFace; ++iFace) {
+        const auto& face = *geometry.bound[iMarker][iFace];
+        if (!geometry.nodes->GetDomain(face.GetNode(0))) continue;
+        const su2double* coord[4];
+        pve::NodeState state[4];
+        unsigned short faceNodes[3] = {0, 0, 0};
+        unsigned long point[4];
+        su2double N[3] = {0.0, 0.0, 0.0};
+        WallTestElement(geometry, face, nDim, field, coord, state, faceNodes, N, point);
+        pve::Element E;
+        REQUIRE(E.Set(nDim, coord, state, kGas) > 0.0);
+
+        su2double wall[4][5], plain[4][5], faceFlux[3][5];
+        pve::NoSlipWall(E, nDim, faceNodes, N, isothermal, wallTheta, 1, pve::NOSLIP_SIPG, pve::NOSLIP_PENALTY, wall,
+                        nullptr, nullptr, moved ? shares : nullptr, nullptr, faceFlux);
+        pve::NoSlipWall(E, nDim, faceNodes, N, isothermal, wallTheta, 1, pve::NOSLIP_SIPG, pve::NOSLIP_PENALTY, plain,
+                        nullptr, nullptr, moved ? shares : nullptr);
+        for (int c = 0; c <= nDim; ++c) {
+          for (int v = 0; v < nVar; ++v) {
+            rows[v] += wall[c][v];
+            scale = std::max(scale, fabs(wall[c][v]));
+            changed = std::max(changed, fabs(wall[c][v] - plain[c][v]));
+          }
+        }
+        for (int k = 0; k < nDim; ++k)
+          for (int v = 0; v < nVar; ++v) fluxes[v] += faceFlux[k][v];
+      }
+
+      const su2double scaleAll = GlobalMax(scale);
+      const su2double changedAll = GlobalMax(changed);
+      INFO("nDim " << nDim << " variant " << variant);
+      CHECK(scaleAll > 0.0);
+      CHECK(changedAll <= 1e-14 * scaleAll);
+      for (int v = 0; v < nVar; ++v) {
+        const su2double rowSum = GlobalSum(rows[v]), fluxSum = GlobalSum(fluxes[v]);
+        CHECK(fabs(rowSum - fluxSum) < 1e-12 * scaleAll);
+      }
+    }
+  }
+}
+
+TEST_CASE("P1_WALL_FORCES: weak wall traction of a linear shear flow is the exact friction force", "[P1Flux]") {
+  /*--- u = (a x_d, 0, 0) with uniform rho, p and mu: the P1 element flux is exact and the wall values vanish (no
+   * penalty), so the weighted -Fhat over the bottom wall (x_d = 0, unit area, fluid above, adiabatic) is the force
+   * (mu a, 0, 0) on the body and no heat flow. ---*/
+  const su2double a = 0.7, mu = 0.03;
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    const std::string mesh = "p1_wall_shear_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 8 : 3, 0.4, 1.0);
+    MeshCase test(mesh);
+    const auto& geometry = *test.geometry;
+    const int iMarker = MarkerIndex(*test.config, geometry, "bottom");
+    const unsigned long nFace = (iMarker < 0) ? 0 : geometry.GetnElem_Bound(iMarker);
+    auto field = [&](const su2double* x) {
+      pve::NodeState S;
+      S.rho = 1.2;
+      S.p = 1.0;
+      S.vel[0] = a * x[nDim - 1];
+      S.mu = mu;
+      S.kappa = 0.05;
+      return S;
+    };
+
+    su2double force[5] = {0.0};
+    for (unsigned long iFace = 0; iFace < nFace; ++iFace) {
+      const auto& face = *geometry.bound[iMarker][iFace];
+      if (!geometry.nodes->GetDomain(face.GetNode(0))) continue;
+      const su2double* coord[4];
+      pve::NodeState state[4];
+      unsigned short faceNodes[3] = {0, 0, 0};
+      unsigned long point[4];
+      su2double N[3] = {0.0, 0.0, 0.0};
+      WallTestElement(geometry, face, nDim, field, coord, state, faceNodes, N, point);
+      pve::Element E;
+      REQUIRE(E.Set(nDim, coord, state, kGas) > 0.0);
+      su2double wall[4][5], faceFlux[3][5];
+      pve::NoSlipWall(E, nDim, faceNodes, N, false, 1.0, 1, pve::NOSLIP_SIPG, pve::NOSLIP_PENALTY, wall, nullptr,
+                      nullptr, nullptr, nullptr, faceFlux);
+      for (int k = 0; k < nDim; ++k)
+        for (int v = 0; v < nVar; ++v) force[v] += faceFlux[k][v];
+    }
+    INFO("nDim " << nDim);
+    CHECK(fabs(GlobalSum(force[1]) - mu * a) < 1e-12 * mu * a);
+    for (int v = 2; v < nVar; ++v) CHECK(fabs(GlobalSum(force[v])) < 1e-12 * mu * a);
+    CHECK(GlobalSum(force[0]) == 0.0);
+  }
+}
+
+TEST_CASE("P1_WALL_FORCES: closure C pressure shares are its wall force and the nodal force for a uniform state", "[P1Flux]") {
+  /*--- (i) Random faces: sum_i share_i A_f nu + pRef A_f nu is the momentum part of sum_i b_i of closure C at a wall
+   * (FaceResidual with v = 0 and kappa = 0 is the static closure). (ii) Uniform state on the mesh: at every owned vertex
+   * of the bottom wall the shares of its faces give -(p - pRef) n_v, the nodal force of Pressure_Forces (n_v points
+   * into the domain), so the closure C force equals the nodal one. ---*/
+  std::mt19937 gen(4242);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const su2double zeroVel[3][3] = {{0.0}};
+  for (int nDim : {2, 3}) {
+    for (int trial = 0; trial < 100; ++trial) {
+      ale::State fs[3];
+      for (int k = 0; k < nDim; ++k) fs[k] = RandomAleState(gen, nDim, (trial % 2) ? 0.5 : 0.05);
+      su2double N[3] = {0.0, 0.0, 0.0}, normN = 0.0;
+      for (int i = 0; i < nDim; ++i) {
+        N[i] = u(gen);
+        normN += N[i] * N[i];
+      }
+      normN = sqrt(normN);
+      const su2double pRef = exp(u(gen));
+      su2double res[3][ale::MAXNVAR], share[3];
+      ale::FaceResidual(nDim, nDim, kGamma, nullptr, N, fs, zeroVel, 0.0, res);
+      ale::WallPressureShares(nDim, nDim, kGamma, fs, pRef, share);
+      su2double scale = pRef;
+      for (int k = 0; k < nDim; ++k) {
+        su2double vel2 = 0.0;
+        for (int i = 0; i < nDim; ++i) vel2 += fs[k].vel[i] * fs[k].vel[i];
+        scale = std::max(scale, fs[k].p + fs[k].rho * vel2);
+      }
+      for (int i = 0; i < nDim; ++i) {
+        su2double sumRes = 0.0, sumShare = pRef * N[i];
+        for (int k = 0; k < nDim; ++k) {
+          sumRes += res[k][i + 1];
+          sumShare += share[k] * N[i];
+        }
+        CHECK(fabs(sumRes - sumShare) < 1e-12 * scale * normN);
+      }
+    }
+
+    const std::string mesh = "p1_wall_pressure_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 8 : 3, 0.4, 1.0);
+    MeshCase test(mesh);
+    auto& geometry = *test.geometry;
+    const int iMarker = MarkerIndex(*test.config, geometry, "bottom");
+    const su2double pRef = 0.7;
+    ale::State uniform;
+    uniform.rho = 1.3;
+    uniform.p = 0.9;
+    uniform.vel[0] = 0.2;
+    uniform.vel[1] = -0.1;
+    uniform.vel[2] = (nDim == 3) ? 0.05 : 0.0;
+    auto field = [&](const su2double*) {
+      pve::NodeState S;
+      S.rho = uniform.rho;
+      S.p = uniform.p;
+      for (int i = 0; i < 3; ++i) S.vel[i] = uniform.vel[i];
+      return S;
+    };
+
+    su2double err = 0.0, scale = 0.0;
+    if (iMarker >= 0) {
+      std::vector<std::array<su2double, 3>> force(geometry.GetnVertex(iMarker), {0.0, 0.0, 0.0});
+      for (unsigned long iFace = 0; iFace < geometry.GetnElem_Bound(iMarker); ++iFace) {
+        const auto& face = *geometry.bound[iMarker][iFace];
+        const su2double* coord[4];
+        pve::NodeState state[4];
+        unsigned short faceNodes[3] = {0, 0, 0};
+        unsigned long point[4];
+        su2double N[3] = {0.0, 0.0, 0.0};
+        WallTestElement(geometry, face, nDim, field, coord, state, faceNodes, N, point);
+        ale::State fs[3];
+        for (int k = 0; k < nDim; ++k) fs[k] = uniform;
+        su2double share[3];
+        ale::WallPressureShares(nDim, nDim, kGamma, fs, pRef, share);
+        for (int k = 0; k < nDim; ++k) {
+          const long iVertex = geometry.nodes->GetVertex(point[faceNodes[k]], iMarker);
+          REQUIRE(iVertex >= 0);
+          for (int i = 0; i < nDim; ++i) force[iVertex][i] += share[k] * N[i];
+        }
+      }
+      for (unsigned long iVertex = 0; iVertex < geometry.GetnVertex(iMarker); ++iVertex) {
+        if (!geometry.nodes->GetDomain(geometry.vertex[iMarker][iVertex]->GetNode())) continue;
+        const su2double* normal = geometry.vertex[iMarker][iVertex]->GetNormal();
+        for (int i = 0; i < nDim; ++i) {
+          const su2double nodal = -(uniform.p - pRef) * normal[i];
+          err = std::max(err, fabs(force[iVertex][i] - nodal));
+          scale = std::max(scale, fabs(nodal));
+        }
+      }
+    }
+    const su2double scaleAll = GlobalMax(scale);
+    INFO("nDim " << nDim);
+    CHECK(scaleAll > 0.0);
+    CHECK(GlobalMax(err) < 1e-12 * scaleAll);
+  }
+}

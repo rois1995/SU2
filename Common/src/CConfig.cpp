@@ -1853,6 +1853,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("VISC_P1_ENTROPY", Visc_P1_Entropy, false);
   /*!\brief BC_WALL_ENTROPY_P1 \n DESCRIPTION: Weak no-slip walls (HEAT_FLUX with zero heat flux, ISOTHERMAL): closure C with the pressure flux, plus the SIPG penalty in entropy variables with the K of the wall element, sigma_f = 5/2 (1+s)^2 d m_T/(4 h_f), s = 1, h_f = d|T|/A_f. Needs VISC_P1_ENTROPY and BC_WEAK_P1. \ingroup Config \default false */
   addBoolOption("BC_WALL_ENTROPY_P1", BC_Wall_Entropy_P1, false);
+  /*!\brief P1_WALL_FORCES \n DESCRIPTION: Output only. Wall forces from the boundary fluxes of the scheme instead of the nodal values: the friction force is the weighted SIPG traction -Fhat of BC_WALL_ENTROPY_P1 per wall vertex (consistency and penalty terms, moved shares and mixed sub-simplex weights included, without the adjoint term), skin friction its tangential part over the vertex area, heat flux its energy part over the vertex area; the pressure force is the closure C pressure at the entropy projected face points on BC_WALL_ENTROPY_P1 walls and, with BC_ENTROPY_P1, on Euler walls. The nodal values are kept as the history fields *_NODAL and the surface fields SKIN_FRICTION_NODAL, HEAT_FLUX_NODAL. Needs BC_WALL_ENTROPY_P1, static meshes. \ingroup Config \default false */
+  addBoolOption("P1_WALL_FORCES", P1_Wall_Forces, false);
   /*!\brief VISC_P1_ENTROPY_MOVED \n DESCRIPTION: 3D, the element fluxes F_T of VISC_P1_ENTROPY on the test space of the moved (MOD_CENTROIDS) dual, i.e. the finite volume of F_T on the dual cells: residual of node a F_T (|T| I + (1 - theta_v) Y_T^T) g_a, Y_T = (3|T|/2) sum_o xi_o (x) g_o with xi_o the shift of the dual point of face o from its centroid. Its entropy defect P^v_T is paid in the element budget of EDGE_FORM_ES_BLEND, E_T = P^c_T + P^v_T - D^gal_T (+ W_T at weak walls): theta_v = min(1, E_T/P^v_T) first, then theta_c = (E_T - theta_v P^v_T)^+/D^c_T. Weak walls use the moved wall shares. Needs VISC_P1_ENTROPY, MOD_CENTROIDS, EDGE_FORM_P1 and EDGE_FORM_ES_BLEND. \ingroup Config \default false */
   addBoolOption("VISC_P1_ENTROPY_MOVED", Visc_P1_Entropy_Moved, false);
   /*!\brief EDGE_FORM_P1_MIXED \n DESCRIPTION: EDGE_FORM_P1 (JST) on meshes with quadrilaterals, hexahedra, prisms and pyramids: each non-simplex cell carries the mean of the neighbour-fan subset of its pulling splits (hexahedra: the 4 Kuhn triangulations; prisms, pyramids, quadrilaterals: all pulling splits), merged into weighted sub-simplices t with W = |t|/(d+1) (no E part, no blend), n_ik on the true edges and on the face and body diagonals (Ismail-Roe with EDGE_FORM_EC_FLUX, no dissipation, no Jacobian on the diagonals), VISC_P1_ENTROPY per sub-simplex, quad boundary faces with both diagonals at 1/2 (BC_WEAK_P1, BC_ENTROPY_P1, BC_WALL_ENTROPY_P1). Simplices keep EDGE_FORM_P1. Needs EDGE_FORM_P1 and JST; steady, static meshes. \ingroup Config \default false */
@@ -6274,6 +6276,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_TeCNO) active.push_back("EDGE_FORM_TECNO");
   if (Visc_P1_Entropy) active.push_back("VISC_P1_ENTROPY");
   if (BC_Wall_Entropy_P1) active.push_back("BC_WALL_ENTROPY_P1");
+  if (P1_Wall_Forces) active.push_back("P1_WALL_FORCES");
   if (Visc_P1_Entropy_Moved) active.push_back("VISC_P1_ENTROPY_MOVED");
   if (Edge_Form_P1_Mixed) active.push_back("EDGE_FORM_P1_MIXED");
   if (Edge_Form_TeCNO_Adjoint) active.push_back("EDGE_FORM_TECNO_ADJOINT");
@@ -6519,6 +6522,12 @@ void CConfig::CheckP1FluxOptions() const {
         if (Marker_PyCustom[iMarker] == Marker_Isothermal[jMarker])
           SU2_MPI::Error(name + "not available for the custom marker " + Marker_PyCustom[iMarker] + ".", CURRENT_FUNCTION);
     }
+  }
+  if (P1_Wall_Forces) {
+    /*--- Output only: the forces of the weak no-slip wall and of closure C. Moving walls are not covered. ---*/
+    const string name = "P1_WALL_FORCES: ";
+    if (!BC_Wall_Entropy_P1) SU2_MPI::Error(name + "needs BC_WALL_ENTROPY_P1= YES.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid() || Grid_Entropy_P1) SU2_MPI::Error(name + "not available with grid motion or GRID_ENTROPY_P1.", CURRENT_FUNCTION);
   }
   if ((Edge_Form_Positive_Sensor < 0.0) || ((Edge_Form_Positive_Sensor > 0.0) && (Edge_Form_Positive_Diss == 0.0))) {
     SU2_MPI::Error("EDGE_FORM_POSITIVE_SENSOR: must be positive and needs EDGE_FORM_POSITIVE_DISS.", CURRENT_FUNCTION);

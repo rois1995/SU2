@@ -282,6 +282,15 @@ void CFlowCompOutput::SetVolumeOutputFields(CConfig *config){
 
     AddVolumeOutput("HEAT_FLUX", "Heat_Flux", "PRIMITIVE", "Heat-flux");
     AddVolumeOutput("Y_PLUS", "Y_Plus", "PRIMITIVE", "Non-dim. wall distance (Y-Plus)");
+
+    /*--- P1_WALL_FORCES: SKIN_FRICTION and HEAT_FLUX come from the weak wall traction, the nodal ones are kept. ---*/
+    if (config->GetP1_Wall_Forces()) {
+      AddVolumeOutput("SKIN_FRICTION_NODAL-X", "Skin_Friction_Coefficient_nodal_x", "PRIMITIVE", "x-component of the nodal skin friction vector (P1_WALL_FORCES)");
+      AddVolumeOutput("SKIN_FRICTION_NODAL-Y", "Skin_Friction_Coefficient_nodal_y", "PRIMITIVE", "y-component of the nodal skin friction vector (P1_WALL_FORCES)");
+      if (nDim == 3)
+        AddVolumeOutput("SKIN_FRICTION_NODAL-Z", "Skin_Friction_Coefficient_nodal_z", "PRIMITIVE", "z-component of the nodal skin friction vector (P1_WALL_FORCES)");
+      AddVolumeOutput("HEAT_FLUX_NODAL", "Heat_Flux_nodal", "PRIMITIVE", "Nodal heat-flux (P1_WALL_FORCES)");
+    }
   }
 
   SetVolumeOutputFieldsScalarPrimitive(config);

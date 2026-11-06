@@ -160,6 +160,27 @@ class CFVMFlowSolverBase : public CSolver {
   AeroCoeffsArray SurfaceCoeff; /*!< \brief Totals for each monitoring surface. */
   AeroCoeffs TotalCoeff;        /*!< \brief Totals for all boundaries. */
 
+  /*--- P1_WALL_FORCES: nodal pressure and friction totals over all boundaries (CD, CL, CSF, CFx, CFy, CFz, CMx, CMy,
+   * CMz), the values reported without the option; the momentum part is AllBoundMntCoeff in both. ---*/
+  static constexpr int P1_NODAL_NCOEFF = 9;
+  su2double P1NodalInv[P1_NODAL_NCOEFF] = {0.0};  /*!< \brief Nodal pressure part. */
+  su2double P1NodalVisc[P1_NODAL_NCOEFF] = {0.0}; /*!< \brief Nodal friction part. */
+
+  /*!
+   * \brief P1_WALL_FORCES: add one marker's nodal coefficients to sum (order of P1NodalInv).
+   */
+  static void AddP1NodalCoeffs(const AeroCoeffs& c, su2double* sum) {
+    sum[0] += c.CD;
+    sum[1] += c.CL;
+    sum[2] += c.CSF;
+    sum[3] += c.CFx;
+    sum[4] += c.CFy;
+    sum[5] += c.CFz;
+    sum[6] += c.CMx;
+    sum[7] += c.CMy;
+    sum[8] += c.CMz;
+  }
+
   su2double AeroCoeffForceRef = 1.0;    /*!< \brief Reference force for aerodynamic coefficients. */
   su2double DynamicPressureRef = 1.0;   /*!< \brief Reference dynamic pressure. */
 
@@ -1600,6 +1621,17 @@ class CFVMFlowSolverBase : public CSolver {
    * \return Value of the drag coefficient (inviscid + viscous contribution).
    */
   inline su2double GetTotal_CD() const final { return TotalCoeff.CD; }
+
+  /*!
+   * \brief P1_WALL_FORCES: total coefficient of the nodal wall forces plus the momentum part, as without the option.
+   * \param[in] iCoeff - 0 CD, 1 CL, 2 CSF, 3 CFx, 4 CFy, 5 CFz, 6 CMx, 7 CMy, 8 CMz.
+   */
+  inline su2double GetP1NodalCoeff(unsigned short iCoeff) const final {
+    if (iCoeff >= P1_NODAL_NCOEFF) return 0.0;
+    su2double momentum[P1_NODAL_NCOEFF] = {0.0};
+    AddP1NodalCoeffs(AllBoundMntCoeff, momentum);
+    return P1NodalInv[iCoeff] + P1NodalVisc[iCoeff] + momentum[iCoeff];
+  }
 
   /*!
    * \brief Provide the total (inviscid + viscous) non dimensional x moment coefficient.

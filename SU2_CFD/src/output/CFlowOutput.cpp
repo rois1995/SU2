@@ -1853,6 +1853,14 @@ void CFlowOutput::LoadSurfaceData(CConfig *config, CGeometry *geometry, CSolver 
   SetVolumeOutputValue("HEAT_FLUX", iPoint, solver[heat_sol]->GetHeatFlux(iMarker, iVertex));
   SetVolumeOutputValue("Y_PLUS", iPoint, solver[FLOW_SOL]->GetYPlus(iMarker, iVertex));
 
+  if (config->GetP1_Wall_Forces()) {
+    SetVolumeOutputValue("SKIN_FRICTION_NODAL-X", iPoint, solver[FLOW_SOL]->GetP1NodalSkinFriction(iMarker, iVertex, 0));
+    SetVolumeOutputValue("SKIN_FRICTION_NODAL-Y", iPoint, solver[FLOW_SOL]->GetP1NodalSkinFriction(iMarker, iVertex, 1));
+    if (nDim == 3)
+      SetVolumeOutputValue("SKIN_FRICTION_NODAL-Z", iPoint, solver[FLOW_SOL]->GetP1NodalSkinFriction(iMarker, iVertex, 2));
+    SetVolumeOutputValue("HEAT_FLUX_NODAL", iPoint, solver[FLOW_SOL]->GetP1NodalHeatFlux(iMarker, iVertex));
+  }
+
   if (config->GetTime_Domain()) {
     SetAvgVolumeOutputValue("MEAN_SKIN_FRICTION-X", iPoint, solver[FLOW_SOL]->GetCSkinFriction(iMarker, iVertex, 0));
     SetAvgVolumeOutputValue("MEAN_SKIN_FRICTION-Y", iPoint, solver[FLOW_SOL]->GetCSkinFriction(iMarker, iVertex, 1));
@@ -1915,6 +1923,22 @@ void CFlowOutput::AddAerodynamicCoefficients(const CConfig* config) {
   AddHistoryOutputPerSurface("EFFICIENCY_ON_SURFACE", "CEff", ScreenOutputFormat::FIXED, "AERO_COEFF_SURF", Marker_Monitoring, HistoryFieldType::COEFFICIENT);
   /// END_GROUP
 
+  /// BEGIN_GROUP: AERO_COEFF_NODAL, DESCRIPTION: P1_WALL_FORCES: totals of the nodal wall forces (nodal pressure and
+  /// nodal velocity gradients), the values reported without the option; the AERO_COEFF totals are then the forces of
+  /// the boundary fluxes of the scheme (closure C pressure, weak wall traction).
+  if (config->GetP1_Wall_Forces()) {
+    AddHistoryOutput("DRAG_NODAL",      "CD_nodal",  ScreenOutputFormat::FIXED, "AERO_COEFF_NODAL", "Total drag coefficient from the nodal wall forces (P1_WALL_FORCES)");
+    AddHistoryOutput("LIFT_NODAL",      "CL_nodal",  ScreenOutputFormat::FIXED, "AERO_COEFF_NODAL", "Total lift coefficient from the nodal wall forces (P1_WALL_FORCES)");
+    AddHistoryOutput("SIDEFORCE_NODAL", "CSF_nodal", ScreenOutputFormat::FIXED, "AERO_COEFF_NODAL", "Total sideforce coefficient from the nodal wall forces (P1_WALL_FORCES)");
+    AddHistoryOutput("MOMENT_X_NODAL",  "CMx_nodal", ScreenOutputFormat::FIXED, "AERO_COEFF_NODAL", "Total moment x-component from the nodal wall forces (P1_WALL_FORCES)");
+    AddHistoryOutput("MOMENT_Y_NODAL",  "CMy_nodal", ScreenOutputFormat::FIXED, "AERO_COEFF_NODAL", "Total moment y-component from the nodal wall forces (P1_WALL_FORCES)");
+    AddHistoryOutput("MOMENT_Z_NODAL",  "CMz_nodal", ScreenOutputFormat::FIXED, "AERO_COEFF_NODAL", "Total moment z-component from the nodal wall forces (P1_WALL_FORCES)");
+    AddHistoryOutput("FORCE_X_NODAL",   "CFx_nodal", ScreenOutputFormat::FIXED, "AERO_COEFF_NODAL", "Total force x-component from the nodal wall forces (P1_WALL_FORCES)");
+    AddHistoryOutput("FORCE_Y_NODAL",   "CFy_nodal", ScreenOutputFormat::FIXED, "AERO_COEFF_NODAL", "Total force y-component from the nodal wall forces (P1_WALL_FORCES)");
+    AddHistoryOutput("FORCE_Z_NODAL",   "CFz_nodal", ScreenOutputFormat::FIXED, "AERO_COEFF_NODAL", "Total force z-component from the nodal wall forces (P1_WALL_FORCES)");
+  }
+  /// END_GROUP
+
   /// DESCRIPTION: Angle of attack
   AddHistoryOutput("AOA", "AoA", ScreenOutputFormat::FIXED, "AOA", "Angle of attack");
 
@@ -1962,6 +1986,20 @@ void CFlowOutput::SetAerodynamicCoefficients(const CConfig* config, const CSolve
       SetHistoryOutputPerSurfaceValue("PITCH", config->GetAeroelastic_pitch(iMarker_Monitoring), iMarker_Monitoring);
       SetHistoryOutputPerSurfaceValue("PLUNGE", config->GetAeroelastic_plunge(iMarker_Monitoring), iMarker_Monitoring);
     }
+  }
+
+  if (config->GetP1_Wall_Forces()) {
+    SetHistoryOutputValue("DRAG_NODAL", flow_solver->GetP1NodalCoeff(0));
+    SetHistoryOutputValue("LIFT_NODAL", flow_solver->GetP1NodalCoeff(1));
+    if (nDim == 3) {
+      SetHistoryOutputValue("SIDEFORCE_NODAL", flow_solver->GetP1NodalCoeff(2));
+      SetHistoryOutputValue("MOMENT_X_NODAL", flow_solver->GetP1NodalCoeff(6));
+      SetHistoryOutputValue("MOMENT_Y_NODAL", flow_solver->GetP1NodalCoeff(7));
+      SetHistoryOutputValue("FORCE_Z_NODAL", flow_solver->GetP1NodalCoeff(5));
+    }
+    SetHistoryOutputValue("MOMENT_Z_NODAL", flow_solver->GetP1NodalCoeff(8));
+    SetHistoryOutputValue("FORCE_X_NODAL", flow_solver->GetP1NodalCoeff(3));
+    SetHistoryOutputValue("FORCE_Y_NODAL", flow_solver->GetP1NodalCoeff(4));
   }
 
   SetHistoryOutputValue("AOA", config->GetAoA());

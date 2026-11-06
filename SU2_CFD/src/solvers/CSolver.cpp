@@ -5696,10 +5696,23 @@ void CSolver::SetP1WallFaces(const CGeometry *geometry, const CConfig *config) {
     wallFaces.emplace(FaceKey{r[0], r[1], r[2]}, r[3]);
   }
 
+  /*--- Local marker of each wall marker (config file index), for the forces of P1_WALL_FORCES. ---*/
+  std::map<unsigned long, short> localMarker;
+  for (unsigned short iMarker = 0; iMarker < config->GetnMarker_All(); ++iMarker) {
+    const auto kind = config->GetMarker_All_KindBC(iMarker);
+    if ((kind != HEAT_FLUX) && (kind != ISOTHERMAL)) continue;
+    localMarker[config->GetMarker_CfgFile_TagBound(config->GetMarker_All_TagBound(iMarker))] = static_cast<short>(iMarker);
+  }
+  auto markerOf = [&](unsigned long cfgMarker) -> short {
+    const auto it = localMarker.find(cfgMarker);
+    return (it == localMarker.end()) ? static_cast<short>(-1) : it->second;
+  };
+
   auto wallRecord = [&](unsigned long iElem, std::map<FaceKey, unsigned long>::const_iterator it) {
     const auto tag = config->GetMarker_CfgFile_TagBound(static_cast<unsigned short>(it->second));
     P1WallFace record;
     record.elem = iElem;
+    record.marker = markerOf(it->second);
     record.isothermal = (config->GetMarker_CfgFile_KindBC(tag) == ISOTHERMAL);
     if (record.isothermal) {
       const su2double wallTemperature = config->GetIsothermal_Temperature(tag) / config->GetTemperature_Ref();
@@ -5748,6 +5761,7 @@ void CSolver::SetP1WallFaces(const CGeometry *geometry, const CConfig *config) {
       const auto tag = config->GetMarker_CfgFile_TagBound(static_cast<unsigned short>(it->second));
       P1WallFace record;
       record.elem = iElem;
+      record.marker = markerOf(it->second);
       record.opposite = opp;
       record.isothermal = (config->GetMarker_CfgFile_KindBC(tag) == ISOTHERMAL);
       if (record.isothermal) {
@@ -5967,6 +5981,148 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
   }
 }
 
+
+void CSolver::ComputeP1WallForces(const CGeometry *geometry, const CConfig *config) {
+
+  namespace pve = P1ViscousEntropy;
+  namespace ale = P1AleEntropy;
+
+  UpdateP1WallFaces(geometry, config);
+
+  const su2double gamma = config->GetGamma(), pRef = GetPressure_Inf();
+  const su2double prandtlTurb = config->GetPrandtl_Turb(), gasConst = config->GetGas_ConstantND();
+  const su2double sipg = pve::NOSLIP_SIPG, penalty = pve::NOSLIP_PENALTY;
+  const bool movedShares = config->GetVisc_P1_Entropy_Moved() && (nDim == 3);
+  const bool bcEntropyP1 = config->GetBC_Entropy_P1();
+
+  /*--- Closure C on the BC_WALL_ENTROPY_P1 walls (always, WeakNoSlipWallResidual) and on the Euler walls with
+   * BC_ENTROPY_P1 (Weak_BC_Residual); the other markers keep the nodal pressure force. ---*/
+  P1WallPressureForce.resize(nMarker);
+  P1WallViscousForce.resize(nMarker);
+  P1NodalSkinFriction.resize(nMarker);
+  P1NodalHeatFlux.resize(nMarker);
+  P1WallPressureMarker.assign(nMarker, false);
+  for (unsigned long iMarker = 0; iMarker < nMarker; ++iMarker) {
+    const auto kind = config->GetMarker_All_KindBC(iMarker);
+    P1WallPressureMarker[iMarker] = (kind == HEAT_FLUX) || (kind == ISOTHERMAL) || (bcEntropyP1 && (kind == EULER_WALL));
+    const unsigned long nVertex = geometry->GetnVertex(iMarker);
+    P1WallPressureForce[iMarker].assign(nVertex * nDim, 0.0);
+    P1WallViscousForce[iMarker].assign(nVertex * nVar, 0.0);
+    P1NodalSkinFriction[iMarker].resize(nVertex * nDim, 0.0);
+    P1NodalHeatFlux[iMarker].resize(nVertex, 0.0);
+  }
+
+  /*--- Owned vertex of point iPoint on marker iMarker, -1 for halo points. ---*/
+  auto ownedVertex = [&](unsigned long iMarker, unsigned long iPoint) -> long {
+    if (!geometry->nodes->GetDomain(iPoint)) return -1;
+    return geometry->nodes->GetVertex(iPoint, iMarker);
+  };
+
+  /*--- Weak no-slip walls: the element of WeakNoSlipWallResidual for each record. ---*/
+  for (const auto& record : P1WallFaces) {
+    if (record.marker < 0) continue;
+    const auto iMarker = static_cast<unsigned short>(record.marker);
+    const auto* elem = geometry->elem[record.elem];
+    const unsigned short nNodes = nDim + 1;
+
+    const bool subSimplex = (record.simplex >= 0);
+    const auto* local = subSimplex ? geometry->GetMixedSimplices(elem->GetVTK_Type())[record.simplex].nodes.data() : nullptr;
+    unsigned long point[pve::MAXNODE];
+    for (unsigned short c = 0; c < nNodes; ++c) point[c] = elem->GetNode(subSimplex ? local[c] : c);
+
+    unsigned short faceNodes[3] = {0, 0, 0};
+    bool owned = false;
+    for (unsigned short c = 0, k = 0; c < nNodes; ++c) {
+      if (c == record.opposite) continue;
+      faceNodes[k++] = c;
+      owned |= geometry->nodes->GetDomain(point[c]);
+    }
+    if (!owned) continue;
+
+    const su2double* coord[pve::MAXNODE];
+    pve::NodeState state[pve::MAXNODE];
+    for (unsigned short c = 0; c < nNodes; ++c) {
+      coord[c] = geometry->nodes->GetCoord(point[c]);
+      pve::GatherNode(*base_nodes, point[c], nDim, prandtlTurb, state[c]);
+    }
+    pve::Element simplex;
+    if (simplex.Set(nDim, coord, state, gasConst) == 0.0) {
+      SU2_MPI::Error("P1_WALL_FORCES: degenerate wall element.", CURRENT_FUNCTION);
+    }
+    su2double faceNormal[3] = {0.0, 0.0, 0.0};
+    pve::WallFaceNormal(nDim, coord, record.opposite, faceNodes, faceNormal);
+
+    /*--- Weighted -Fhat without the adjoint term. ---*/
+    su2double res[pve::MAXNODE][pve::MAXNVAR], faceFlux[3][pve::MAXNVAR];
+    pve::NoSlipWall(simplex, nDim, faceNodes, faceNormal, record.isothermal, record.wallTheta, record.nWallFaces,
+                    sipg, penalty, res, nullptr, nullptr, (movedShares && !subSimplex) ? record.share : nullptr,
+                    nullptr, faceFlux);
+
+    /*--- Closure C pressure force of the face. ---*/
+    ale::State faceStates[3];
+    for (unsigned short a = 0; a < nDim; ++a) {
+      const auto& S = state[faceNodes[a]];
+      faceStates[a].rho = S.rho;
+      faceStates[a].p = S.p;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceStates[a].vel[iDim] = S.vel[iDim];
+    }
+    su2double share[3] = {0.0, 0.0, 0.0};
+    ale::WallPressureShares(nDim, nDim, gamma, faceStates, pRef, share);
+
+    /*--- EDGE_FORM_P1_MIXED: omega_t of the sub-simplex, as in the residual. ---*/
+    const su2double weight = record.weight;
+    for (unsigned short a = 0; a < nDim; ++a) {
+      const long iVertex = ownedVertex(iMarker, point[faceNodes[a]]);
+      if (iVertex < 0) continue;
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+        P1WallViscousForce[iMarker][iVertex * nVar + iVar] += weight * faceFlux[a][iVar];
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+        P1WallPressureForce[iMarker][iVertex * nDim + iDim] += weight * share[a] * faceNormal[iDim];
+    }
+  }
+
+  if (!bcEntropyP1) return;
+
+  /*--- Euler walls with BC_ENTROPY_P1: the boundary faces of Weak_BC_Residual, quadrilaterals on their four
+   * sub-triangles with A_tau/2 (EDGE_FORM_P1_MIXED). ---*/
+  for (unsigned long iMarker = 0; iMarker < nMarker; ++iMarker) {
+    if (config->GetMarker_All_KindBC(iMarker) != EULER_WALL) continue;
+    for (unsigned long iElem = 0; iElem < geometry->GetnElem_Bound(iMarker); ++iElem) {
+      const auto* element = geometry->bound[iMarker][iElem];
+      const unsigned short nNodes = element->GetnNodes();
+      const su2double* elemNormal = element->getNormal();
+
+      auto addFace = [&](unsigned short nFace, const unsigned short* faceLocal, const su2double* faceNormal) {
+        ale::State faceStates[3];
+        for (unsigned short a = 0; a < nFace; ++a) {
+          const su2double* V = base_nodes->GetPrimitive(element->GetNode(faceLocal[a]));
+          faceStates[a].rho = V[nDim + 2];
+          faceStates[a].p = V[nDim + 1];
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceStates[a].vel[iDim] = V[iDim + 1];
+        }
+        su2double share[3] = {0.0, 0.0, 0.0};
+        ale::WallPressureShares(nDim, nFace, gamma, faceStates, pRef, share);
+        for (unsigned short a = 0; a < nFace; ++a) {
+          const long iVertex = ownedVertex(iMarker, element->GetNode(faceLocal[a]));
+          if (iVertex < 0) continue;
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            P1WallPressureForce[iMarker][iVertex * nDim + iDim] += share[a] * faceNormal[iDim];
+        }
+      };
+
+      if (nNodes == 4) {
+        std::array<const su2double*, 4> faceCoord;
+        for (unsigned short k = 0; k < 4; ++k) faceCoord[k] = geometry->nodes->GetCoord(element->GetNode(k));
+        su2double subNormal[4][3];
+        P1Mixed::QuadSubNormals(faceCoord, elemNormal, subNormal);
+        for (unsigned short tri = 0; tri < 4; ++tri) addFace(3, P1Mixed::QuadTriangles[tri], subNormal[tri]);
+      } else {
+        const unsigned short faceLocal[3] = {0, 1, 2};
+        addFace(nNodes, faceLocal, elemNormal);
+      }
+    }
+  }
+}
 
 void CSolver::Strong_BC(CGeometry* geometry, CSolver** solver_container, CConfig* config, unsigned short iMesh) {
 

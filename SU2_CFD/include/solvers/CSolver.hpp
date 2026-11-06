@@ -195,6 +195,8 @@ protected:
     short simplex = -1;              /*!< \brief EDGE_FORM_P1_MIXED: entry of the split average of a non-simplex cell
                                           (CGeometry::GetMixedSimplices), "opposite" is local to it; -1 for a simplex. */
     passivedouble weight = 1.0;      /*!< \brief omega_t of that entry, 1 for a simplex. */
+    short marker = -1;               /*!< \brief Local (Marker_All) index of the wall marker of the face, -1 if the marker
+                                          is not on this rank (then no node of the face is owned here). */
   };
   vector<P1WallFace> P1WallFaces;    /*!< \brief Wall faces of the local elements (BC_WALL_ENTROPY_P1), sorted by element. */
   bool P1WallFacesReady = false;     /*!< \brief P1WallFaces is built on first use. */
@@ -224,6 +226,25 @@ protected:
    * \param[in] config - Definition of the particular problem.
    */
   void WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config);
+
+  /*--- P1_WALL_FORCES: wall forces of the boundary operators in use, per marker and vertex, owned vertices only
+   * (ComputeP1WallForces), and the nodal values SU2 reports without the option, kept for the output. ---*/
+  vector<vector<su2double> > P1WallPressureForce;  /*!< \brief [iMarker][iVertex*nDim+iDim], closure C pressure force (p - p_inf). */
+  vector<vector<su2double> > P1WallViscousForce;   /*!< \brief [iMarker][iVertex*nVar+iVar], weighted -Fhat of the weak wall. */
+  vector<bool> P1WallPressureMarker;               /*!< \brief Marker whose pressure force is the one of closure C. */
+  vector<vector<su2double> > P1NodalSkinFriction;  /*!< \brief [iMarker][iVertex*nDim+iDim], nodal skin friction coefficient. */
+  vector<vector<su2double> > P1NodalHeatFlux;      /*!< \brief [iMarker][iVertex], nodal heat flux. */
+
+  /*!
+   * \brief P1_WALL_FORCES: wall forces from the boundary fluxes of the scheme at the current primitives. Closure C
+   *        pressure force (P1AleEntropy::WallPressureShares) on the faces of BC_WALL_ENTROPY_P1 walls and, with
+   *        BC_ENTROPY_P1, of Euler walls; weighted -Fhat of the weak no-slip wall (P1ViscousEntropy::NoSlipWall,
+   *        consistency and penalty terms, moved shares and sub-simplex weights as in WeakNoSlipWallResidual). Added to
+   *        the owned face nodes of the marker of each face. Collective (MPI) on first use, see UpdateP1WallFaces.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void ComputeP1WallForces(const CGeometry *geometry, const CConfig *config);
 
 private:
 
@@ -3240,6 +3261,37 @@ public:
   inline virtual su2double GetCSkinFriction(unsigned short val_marker,
                                             unsigned long val_vertex,
                                             unsigned short val_dim) const { return 0; }
+
+  /*!
+   * \brief P1_WALL_FORCES: nodal skin friction coefficient (from the nodal velocity gradient), as without the option.
+   * \param[in] val_marker - Surface marker.
+   * \param[in] val_vertex - Vertex of the marker, owned.
+   * \param[in] val_dim - Component.
+   */
+  inline su2double GetP1NodalSkinFriction(unsigned short val_marker, unsigned long val_vertex,
+                                          unsigned short val_dim) const {
+    if (val_marker >= P1NodalSkinFriction.size()) return 0.0;
+    const unsigned long index = val_vertex * nDim + val_dim;
+    if (index >= P1NodalSkinFriction[val_marker].size()) return 0.0;
+    return P1NodalSkinFriction[val_marker][index];
+  }
+
+  /*!
+   * \brief P1_WALL_FORCES: nodal heat flux, as without the option.
+   * \param[in] val_marker - Surface marker.
+   * \param[in] val_vertex - Vertex of the marker, owned.
+   */
+  inline su2double GetP1NodalHeatFlux(unsigned short val_marker, unsigned long val_vertex) const {
+    if ((val_marker >= P1NodalHeatFlux.size()) || (val_vertex >= P1NodalHeatFlux[val_marker].size())) return 0.0;
+    return P1NodalHeatFlux[val_marker][val_vertex];
+  }
+
+  /*!
+   * \brief P1_WALL_FORCES: total coefficient of the nodal wall forces (nodal pressure and nodal velocity gradients),
+   *        the value SU2 reports without the option.
+   * \param[in] iCoeff - 0 CD, 1 CL, 2 CSF, 3 CFx, 4 CFy, 5 CFz, 6 CMx, 7 CMy, 8 CMz.
+   */
+  inline virtual su2double GetP1NodalCoeff(unsigned short iCoeff) const { return 0.0; }
 
   /*!
    * \brief A virtual member.
