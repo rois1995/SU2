@@ -74,18 +74,18 @@ First COMPLETE quality entry round34594 at1584.159718native seconds:
 871607cells/102058q/101860J/1997geometry/0size, allflags1, counts/flags match219.
 Counts alone do not prove identical connectivity. quality_entry_assessment.json.
 
-Latest COMPLETE window35200 at3797.356784s(2213.197066s since entry):
-931836cells/60563q/59944J/1887geometry/0size; allflags1. Tenth window net4344q/
-4600J/1geo removed in248.992599s including preceding ownership(17.45q/18.47J/s).
-At matching repair round219has60149q/59528J/1867geometry at1768.251094quality
-seconds. At nearly MATCHING QUALITY TIME,219has48084q/46780J/1842geometry at
-2210.501935s, only2.695131s earlier. Thus useful progress materially trails219;
-no demonstrated whole-field benefit. Contention and changed geometry work are
-not isolated. quality_net_progress.json contains first quality episode only;
-matched_quality_comparison219.json now records BOTH matching rounds and neighboring
-observed censuses at matching quality time, with explicit time differences and no
-interpolation/forecast/count bounds. Earlier first/fourth/fifth counter comparisons
-remain the detailed work receipts. Keep frozen until its outcome.
+Latest COMPLETE window35328 at4145.132923s(2560.973205s since entry):
+941827cells/53183q/52357J/1869geometry/0size; allflags1. Twelfth window net3282q/
+3336J/1geo removed in169.328883s(19.38q/19.70J/s). Matching219repair round has
+51659q/50688J/1850geometry at2094.318080quality seconds. Near current quality
+time219has39067q/37007J/1821geometry at2575.566893s,14.593688s later. These are
+observations, not bounds/interpolated counts. Previous near-exact time comparison:
+22560563q at2213.197066s versus21948084q at2210.501935s. Useful progress materially
+trails219; no demonstrated whole-field benefit. Contention and changed geometry
+work are not isolated. quality_net_progress.json contains first quality episode
+only; matched_quality_comparison219.json records BOTH matching rounds and observed
+neighboring censuses at matching quality time, explicit time differences and no
+interpolation/forecast/count bounds. Keep frozen to its outcome.
 quality_location35072_assessment.json: qsurface6629/interior62575, Jsurface10112/
 interior58806; badunion90207,90183with edge<.9,87801with edge<.5. Interior means
 no physical face, not necessarily unconstrained vertices. Short-edge association
@@ -107,7 +107,7 @@ work proof. No profiler/new baseline/competing implementation is selected.
 
 All10exact owned handles remain LIVE/no stop: owned_observations.jsonl.
 Sampled summed RSS briefly12.635GB during migration, then10.436GB; available
-RAM26.282GB(decimal),load9.50 at the latest ninth-window observation. Not a whole-job physical-memory
+RAM26.252GB(decimal),load10.73 at the latest eleventh-window observation. Not a whole-job physical-memory
 peak. Keep sources/fixtures/helpers/binary/config/inputs FROZEN to its outcome.
 Judge complete whole-field q/J-bad net removal/s and geometry-bad at matching
 quality times, alongside work/certification/busy/wait/rank spread. Commits/debt
