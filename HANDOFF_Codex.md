@@ -74,13 +74,18 @@ First COMPLETE quality entry round34594 at1584.159718native seconds:
 871607cells/102058q/101860J/1997geometry/0size, allflags1, counts/flags match219.
 Counts alone do not prove identical connectivity. quality_entry_assessment.json.
 
-Latest COMPLETE window35008 at3022.224564s(1438.064846s since entry):
-911686cells/74342q/74046J/1906geometry/0size; allflags1. Seventh window net3993q/
-4008J/1geo removed in137.721195s(~29q/J per second). Matching219round has
-73345q/73076J/1899geometry at1164.925319quality seconds; cumulative q removal
-19.2731/s versus24.6479/s. No established whole-field benefit. quality_net_progress.json
+Latest COMPLETE window35072 at3326.320453s(1742.160736s since entry):
+918982cells/69204q/68918J/1899geometry/0size; allflags1. Eighth window net5138q/
+5128J/7geo removed in304.095889s(~16.9q/J per second). Matching219round has
+68336q/68174J/1881geometry at1434.694624quality seconds; cumulative q removal
+18.8582/s versus23.5047/s. No established whole-field benefit. quality_net_progress.json
 contains first quality episode only; matched_quality_comparison219.json records
 complete matched rounds with actual times, no interpolation/forecast.
+quality_location35072_assessment.json: qsurface6629/interior62575, Jsurface10112/
+interior58806; badunion90207,90183with edge<.9,87801with edge<.5. Interior means
+no physical face, not necessarily unconstrained vertices. Short-edge association
+is not proof of construction causality. Stuckshape0/queue585178. All16fixed metric
+samples supported/0lost, maxrelativeFrobenius3.92349%; not a whole-field drift bound.
 Both quality redistributions35008/34752preserved counts/flags. Latest q/J debt
 min/max1924.43/3174.72→2090.30/2943.72; window-to-committed20.2641s includes
 transition work. These observations do not independently prove every history field.
@@ -97,7 +102,7 @@ work proof. No profiler/new baseline/competing implementation is selected.
 
 All10exact owned handles remain LIVE/no stop: owned_observations.jsonl.
 Sampled summed RSS briefly12.635GB during migration, then10.436GB; available
-RAM25.125GB(decimal),load10.42 after transition. Not a whole-job physical-memory
+RAM26.050GB(decimal),load9.20 at the latest eighth-window observation. Not a whole-job physical-memory
 peak. Keep sources/fixtures/helpers/binary/config/inputs FROZEN to its outcome.
 Judge complete whole-field q/J-bad net removal/s and geometry-bad at matching
 quality times, alongside work/certification/busy/wait/rank spread. Commits/debt
