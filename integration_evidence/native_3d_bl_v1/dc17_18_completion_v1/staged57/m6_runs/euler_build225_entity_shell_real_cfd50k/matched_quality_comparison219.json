@@ -443,6 +443,82 @@
         }
       ],
       "caveat": "Observed neighboring censuses, not bounds on unobserved counts; no interpolation or contention correction."
+    },
+    {
+      "round225": 35392,
+      "quality_seconds225": 2670.6739401020004,
+      "counts225": {
+        "cells": 947004,
+        "q_bad": 49638,
+        "j_bad": 48555,
+        "geometry_bad": 1853,
+        "size_bad": 0
+      },
+      "baseline219_observations_around_same_quality_time": [
+        {
+          "round": 35584,
+          "quality_seconds": 2575.566893414,
+          "seconds_minus225": -95.10704668800054,
+          "counts": {
+            "cells": 964234,
+            "q_bad": 39067,
+            "j_bad": 37007,
+            "geometry_bad": 1821,
+            "size_bad": 0
+          }
+        },
+        {
+          "round": 35648,
+          "quality_seconds": 2720.3724463179997,
+          "seconds_minus225": 49.69850621599926,
+          "counts": {
+            "cells": 968589,
+            "q_bad": 36597,
+            "j_bad": 34213,
+            "geometry_bad": 1808,
+            "size_bad": 0
+          }
+        }
+      ],
+      "caveat": "Observed neighboring censuses, not bounds on unobserved counts; no interpolation or contention correction."
+    },
+    {
+      "round225": 35456,
+      "quality_seconds225": 2793.23298366,
+      "counts225": {
+        "cells": 952093,
+        "q_bad": 46044,
+        "j_bad": 44698,
+        "geometry_bad": 1848,
+        "size_bad": 0
+      },
+      "baseline219_observations_around_same_quality_time": [
+        {
+          "round": 35648,
+          "quality_seconds": 2720.3724463179997,
+          "seconds_minus225": -72.8605373420005,
+          "counts": {
+            "cells": 968589,
+            "q_bad": 36597,
+            "j_bad": 34213,
+            "geometry_bad": 1808,
+            "size_bad": 0
+          }
+        },
+        {
+          "round": 35712,
+          "quality_seconds": 2849.047604898,
+          "seconds_minus225": 55.814621237999745,
+          "counts": {
+            "cells": 972496,
+            "q_bad": 34070,
+            "j_bad": 31475,
+            "geometry_bad": 1808,
+            "size_bad": 0
+          }
+        }
+      ],
+      "caveat": "Observed neighboring censuses, not bounds on unobserved counts; no interpolation or contention correction."
     }
   ],
   "ownership_transitions": [
@@ -496,9 +572,26 @@
         "q_bad_min": 8636,
         "q_bad_max": 12271
       }
+    },
+    {
+      "round": 35456,
+      "counts_and_flags_preserved": true,
+      "window_to_committed_seconds": 14.19858396499967,
+      "rank_spread_before": {
+        "qJ_debt_min": 534.5240539297829,
+        "qJ_debt_max": 977.880876398587,
+        "q_bad_min": 6548,
+        "q_bad_max": 9214
+      },
+      "rank_spread_after": {
+        "qJ_debt_min": 606.1816637601344,
+        "qJ_debt_max": 877.7789507812452,
+        "q_bad_min": 4778,
+        "q_bad_max": 10532
+      }
     }
   ],
-  "time": 1794000282.8732805,
+  "time": 1794000548.446728,
   "scope": "First quality episode, matching complete repair rounds; elapsed quality times reported rather than assumed equal. No interpolation, contention isolation or closure forecast.",
   "windows": [
     {
@@ -824,10 +917,64 @@
       },
       "cumulative_net_q_per_second219": 24.06463491389131,
       "cumulative_net_q_per_second225": 19.08454172871616
+    },
+    {
+      "round": 35392,
+      "quality_seconds_219": 2210.501935368,
+      "quality_seconds_225": 2670.6739401020004,
+      "counts219": {
+        "cells": 950268,
+        "q_bad": 48084,
+        "j_bad": 46780,
+        "geometry_bad": 1842,
+        "size_bad": 0
+      },
+      "counts225": {
+        "cells": 947004,
+        "q_bad": 49638,
+        "j_bad": 48555,
+        "geometry_bad": 1853,
+        "size_bad": 0
+      },
+      "bad_counts_225_minus_219": {
+        "q_bad": 1554,
+        "j_bad": 1775,
+        "geometry_bad": 11,
+        "size_bad": 0
+      },
+      "cumulative_net_q_per_second219": 24.41707882559013,
+      "cumulative_net_q_per_second225": 19.628004457181298
+    },
+    {
+      "round": 35456,
+      "quality_seconds_219": 2313.956549304,
+      "quality_seconds_225": 2793.23298366,
+      "counts219": {
+        "cells": 955766,
+        "q_bad": 44668,
+        "j_bad": 42963,
+        "geometry_bad": 1835,
+        "size_bad": 0
+      },
+      "counts225": {
+        "cells": 952093,
+        "q_bad": 46044,
+        "j_bad": 44698,
+        "geometry_bad": 1848,
+        "size_bad": 0
+      },
+      "bad_counts_225_minus_219": {
+        "q_bad": 1376,
+        "j_bad": 1735,
+        "geometry_bad": 13,
+        "size_bad": 0
+      },
+      "cumulative_net_q_per_second219": 24.80167573468999,
+      "cumulative_net_q_per_second225": 20.05346504486866
     }
   ],
   "source_assessment_sha256": {
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build219_local_metricL1_real_cfd50k/construction_progress_assessment.json": "76094321cb8eb6b99d0441220c03199540e635b4b88a8b4ce5341cf9a8f971fb",
-    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/construction_progress_assessment.json": "54dbbc21a7a3191f4f11f4715209af5a76169c44d1c28044bf704f185180ec6c"
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/construction_progress_assessment.json": "78cd7cb8c1992089c9423b92f50b6a485dd77ff163121023b480e3cbb41df8d7"
   }
 }
