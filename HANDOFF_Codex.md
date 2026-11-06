@@ -40,6 +40,10 @@ short<.5cells do not prove construction causation; saved clean controls are also
 continuous-target fidelity proof. Private smoothing merit is not published gain.
 
 Next target: repair power and geometry/shape reclosure, with geometry cost secondary.
+Dedicated shape-preserving geometry repair was never reached in210(all6sealed
+prefixes): it needs zero q/J/height/size debt first. Its strict geometry descent
+then precedes residual construction/reclosure; final two-sided gates independent.
+A/geometry_phase_readiness_assessment.json.
 One connected cycle; classify actual conservative refusals/support and repair
 limitations using existing saved witnesses before production edits. Bernstein-bound
 subdivision is UNPROVEN/backlogged, not a selected implementation or saving.
@@ -47,30 +51,27 @@ No new scheduler/config, gate relaxation, time increase or construction q/J poli
 Then focused affected serial and ONE MPI milestone, immediately full M6 same seed.
 [Terminal210 findings and continuation](Handbook/ADAPTATION_BUILD210_OUTCOME_20261106.md).
 
-## Active bounded repair/support diagnostic: build214
+## Current selected inspection: latest tested build217, launch next
 
-Only the captured202fixture changed; production source remains6744638324.
-Build212PASS156.166044s/1301pins, case tool48060TERMINAL0,39500assertions/1case
-PASS87.688321s, runtime allcovered/unchanged, all5exact host handles ABSENT.
-R/geometry212_partition_assessment.json:1/4/16piece existing bounds tighten, but
-certify NO additional bad face beyond210's union refinement. Two difficult leading
-faces remain above tolerance; this does not prove true distance violations.
-Two depth2trace checks hit unchanged1048576work; fresh/repeated bounds bit-exact.
-Do NOT add production subdivision from this evidence. Initial211failure was
-preserved; corrected diagnostic establishes resource refusal, not path mismatch.
+Production source/binary remain6744638324/EXACT210binary; only hidden captured202
+fixture changed.217buildPASS174.143064s/1301pins, case tool57630TERMINAL0,
+39853assertions/1case PASS89.622024s, all5host handles absent/runtime unchanged.
+217mirrors engine extra no-added-size/quality-progress checks. Collapse then full49
+optimizer closes q/J with zero guidance and valid boundary/interface, BUT3of4
+SMALLER star controls also close, including9active cells/1trial. Larger cavities
+are NOT justified by this witness. One control raises q-bad1→2despite lower debt.
+R/repair217_support_assessment.json. No new production correction selected.
 
-Next bounded experiment uses existing OptimizeMetricMesh with production160trial
-allowance on the saved52cell union of four COMPLETE seed-vertex stars, and on
-49cells after the qualified4502→181199364collapse including the retained star.
-Same current nodal target, existing geometry/trace checks,30s per optimizer,
-explicit memory reservation. Compare whole52region q/J/debt/geometry and boundary/
-interior rejection counters. No global contact/publication or210tail replay claim.
-Build213TERMINAL1/tool92521,15.107502s/1301pins unchanged: the diagnostic
-called a private engine coverage-pruning helper. Fixed test-local pruning matching
-that existing behavior, no new production API. Build214 LIVE tool57838;
-R/build214_status.json/source pins. Sandbox PID3 is NOT a host PID. Freeze
-until actual build/case handles terminal.
-No production repair decisions, construction paths, gates/config/budgets changed.
+User explicitly requests latest-checkpoint complete mesh WITH metric, even if
+rejected. Launch SELECTED full two-event M6 with existing run_m6.py --inspect-rejected,
+same saved CFD seed/50k/5400strict budget. Planned attempt:
+euler_build217_real_cfd50k_inspection_metric (verify unused before launch).
+This capture also supplies actual CURRENT residual witnesses. After all6shards
+complete and owned run terminal, export complete SU2/VTU plus bad/cavity views
+with existing metric-enabled exporter. Preserve natural rejection/capture BEFORE
+any authorized stop of the verified owned launcher. No automatic/per-trial dump.
+210in-memory mesh was NOT saved; do not label202aslatest. No other heavy job live.
+[Detailed findings and limits](Handbook/ADAPTATION_REPAIR_SUPPORT_20261106.md).
 
 ## Preserved qualification, runtime and evidence
 
@@ -136,6 +137,7 @@ junction/interface/subsequent-operation/redistribution/height MPI checks and RAN
 - [How to proceed](HowToProceed.md)
 - [Integrated specification](Handbook/ADAPTATION_INTEGRATED_NEXT_TASK.md)
 - [Current geometry review](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md)
+- [Repair/support diagnostic and required controls](Handbook/ADAPTATION_REPAIR_SUPPORT_20261106.md)
 - [Actual inspection](Handbook/ADAPTATION_M6_INSPECTION_20261101.md)
 - [Assessment review](Handbook/ADAPTATION_TECHNICAL_ASSESSMENT_REVIEW_20261101.md)
 - [Backlog](Handbook/ADAPTATION_BACKLOG.md)

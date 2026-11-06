@@ -38,10 +38,22 @@ Next target is repair power and geometry/shape reclosure, with geometry cost a
 measured efficiency opportunity. Reuse existing saved witnesses and query/context
 facilities before selecting another connected correction. Postterminal212 tested
 existing exact subdivision: no additional bad face was certified beyond210's union
-refinement; do not add it to production. No speedup is established. Current bounded
-repair/support diagnosis is recorded in HANDOFF_Codex.md. Construction soft q/J policies remain unproved and must not be introduced
+refinement; do not add it to production. No speedup is established. 217controls show three smaller postcollapse stars also close the saved witness;
+broader cavities are not justified. The user now explicitly requests a latest
+whole-mesh/metric capture; current launch state is in HANDOFF_Codex.md. Construction soft q/J policies remain unproved and must not be introduced
 under validity-only construction. Qualify a demonstrated change, then immediately
 full two-event M6 with the same real CFD seed/50k/5400s and unchanged gates.
+
+Geometry closure after shape uses the existing dedicated geometry-repair phase:
+`clean_quality` plus zero size debt enables `EnableGeometryRepairs`. Those trials
+must preserve strict q/J, size and requested heights while reducing complete
+geometry guidance. Build210 never entered this phase: all six sealed first-event
+prefixes contain no `geometry_repair_entry`. Its26-cell blocked shape tail instead
+triggered geometry construction and reopened shape. If dedicated geometry repair
+stalls, bounded validity-only geometry construction still requires subsequent
+shape/size/height reclosure. Final whole-mesh two-sided geometry and transfer gates
+remain independent; neither a zero-guidance cavity nor this plan proves closure.
+See210/geometry_phase_readiness_assessment.json for source/prefix receipts.
 
 Previous206terminal was809684cells/281q/341J/2129geometry/0size. Current has fewer
 shape failures but154more geometry-admission failures; this is mixed, not strict

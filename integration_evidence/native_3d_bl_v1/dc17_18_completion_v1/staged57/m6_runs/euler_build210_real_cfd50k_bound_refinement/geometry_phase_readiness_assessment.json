@@ -1,0 +1,51 @@
+{
+  "time": 1793969185.3587317,
+  "source_hashes": {
+    "Common/src/adaptation/CNativeEngine3D.cpp": "a2f5117bd8a19bf939c4b7f618cbac95cc282363f1982e7b0ee5534024176ea1"
+  },
+  "sealed_prefix_observations": [
+    {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/rank_output/1/rank.0/stdout",
+      "prefix_sha256": "9a91abb631f8e422f9100a89c4caef726361fa0673773cb89a5e48a290a9692b",
+      "geometry_repair_entry": 0,
+      "quality_entry": 8
+    },
+    {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/rank_output/1/rank.1/stdout",
+      "prefix_sha256": "1cfe9a9ccf6c4824ed011d7c1286be0187a2d4ef3f613b5592e5e312d1d70d1d",
+      "geometry_repair_entry": 0,
+      "quality_entry": 8
+    },
+    {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/rank_output/1/rank.2/stdout",
+      "prefix_sha256": "c1fe3911bce2b4c672440d362917125827ede2aa590d0c89a11b363ec014a958",
+      "geometry_repair_entry": 0,
+      "quality_entry": 8
+    },
+    {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/rank_output/1/rank.3/stdout",
+      "prefix_sha256": "bb244c764d117befb18a064c8a9b5a5e2949ed4a5e83c46f569ae113e6a461c1",
+      "geometry_repair_entry": 0,
+      "quality_entry": 8
+    },
+    {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/rank_output/1/rank.4/stdout",
+      "prefix_sha256": "b345b3c5009fcb085390b13bbcc738df197d3ababc0cca898c8cf7253af552c8",
+      "geometry_repair_entry": 0,
+      "quality_entry": 8
+    },
+    {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/rank_output/1/rank.5/stdout",
+      "prefix_sha256": "5d58e5480648e8f94b65f665ed58c23654427af8c9dd3b3642e254a5a1ffbc41",
+      "geometry_repair_entry": 0,
+      "quality_entry": 8
+    }
+  ],
+  "interpretation": "Build210 never reached the dedicated shape-preserving geometry-repair entry: first shape tail26blocked and final64q/39J remained nonzero.",
+  "plan": [
+    "Close whole-field q/J and requested-height gates, then residual size using existing phased improvement.",
+    "Existing EnableGeometryRepairs follows clean_quality and zero size debt; it requires strict q/J preservation, no added size excess, requested heights and strict decrease in complete geometry guidance.",
+    "If residual geometry repair stalls, existing bounded validity-only geometry construction returns to shape/size/height reclosure; do not add construction q/J ranking or relax gates.",
+    "Final whole-mesh two-sided geometry/association/body/feature/height and transfer/CFD/restart checks remain independent. No closure or timing saving is established."
+  ]
+}

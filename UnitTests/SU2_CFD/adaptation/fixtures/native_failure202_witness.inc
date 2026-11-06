@@ -243,7 +243,8 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
     Face face;for(unsigned k=0;k<3;++k)face[k]=row.cell.v[opposite[slot][k]].id;
     full_patch.surface.push_back({face,row.physical[slot].facet});
   }
-  auto assess_optimizer=[&](const Patch& seed,const char* label) {
+  reference->WithAtlasReservation(budget)->ExportParameters(full_patch);
+  auto assess_optimizer=[&](const Patch& seed,const char* label,const std::set<Id>& frozen=std::set<Id>{}) {
     struct RestoreCaller {SU2NativeGeometry::AtlasBudget& b;size_t caller;~RestoreCaller(){b.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
     budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,state->ResidentBytes(),reference->ResidentBytes(),
         2*MaximumFrozenFieldBytes,size_t(64)<<20);
@@ -258,6 +259,7 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
       REQUIRE(local.emplace(cell.id,std::move(row)).second);}
     OptimizeOptions options;options.maximum_work=160;options.maximum_seconds=30;
     options.cache_entries=8*MaximumReplacementCells;options.boundary=false;options.geometry=context.get();options.surface_tolerance=1e-4;
+    options.frozen_cells=frozen;
     Id next_node=300000000,next_cell=400000000;OptimizeReport report;
     const bool changed=OptimizeMetricMesh(local,RegionMetric(*full_field),next_node,next_cell,options,report);
     CHECK(report.trials<=160);CHECK(local.size()<=MaximumReplacementCells);
@@ -277,8 +279,18 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
     auto final_context=context->PrivateParameters(result);REQUIRE(final_context);final_context->ExportParameters(result);
     const auto before=MeasureMetricCells(full_patch.cells,*full_field),after=MeasureMetricCells(result.cells,*full_field);
     std::string metric_reason,replacement_reason;
-    const bool metric_valid=ValidateMetricChange(full_patch.cells.size(),before,result.cells.size(),after,MetricChange::Repair,metric_reason);
+    MetricDiagnosis diagnosis;
+    const bool metric_primitive=ValidateMetricChange(full_patch.cells.size(),before,result.cells.size(),after,MetricChange::Repair,metric_reason,&diagnosis);
+    const bool metric_valid=metric_primitive&&diagnosis.added_excess<=diagnosis.removed_excess&&
+        (diagnosis.quality_progress||(after.shape_measured&&after.minimum_mean_ratio>=MinimumMeanRatio&&after.minimum_scaled_jacobian>=MinimumScaledJacobian));
     const bool replacement=state->CheckReplacement(full_patch,result,replacement_reason,ceiling,budget.caller_bytes,&budget);
+    std::set<Face> old_physical;for(auto face:full_patch.surface){std::sort(face.v.begin(),face.v.end());old_physical.insert(face.v);}
+    std::map<Face,Face> expected_skin;
+    for(auto face:Incidence(full_patch.cells).Boundary()){auto key=face;std::sort(key.begin(),key.end());if(!old_physical.count(key))expected_skin.emplace(key,face);}
+    for(auto face:result.surface){std::rotate(face.v.begin(),std::min_element(face.v.begin(),face.v.end()),face.v.end());auto key=face.v;std::sort(key.begin(),key.end());expected_skin.emplace(key,face.v);}
+    std::vector<Face> prescribed;for(const auto& face:expected_skin)prescribed.push_back(face.second);
+    std::string interface_reason;const bool interface_valid=ValidatePrescribedInterface(full_patch.cells,result.cells,prescribed,interface_reason);
+    INFO(interface_reason);CHECK(interface_valid);INFO(replacement_reason);CHECK(replacement);
     const auto old_guidance=GeometryGuidanceExcess(full_patch,*scope,1e-4);
     const auto new_guidance=GeometryGuidanceExcess(result,*final_context,1e-4,old_guidance.excess);
     log<<"{\"stage\":\"complete_support_optimizer\",\"seed\":"<<std::quoted(label)<<",\"changed\":"<<changed
@@ -287,8 +299,12 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
        <<",\"old_q_bad\":"<<before.q_bad_cells<<",\"old_J_bad\":"<<before.j_bad_cells
        <<",\"new_q_bad\":"<<after.q_bad_cells<<",\"new_J_bad\":"<<after.j_bad_cells
        <<",\"old_debt\":"<<double(before.shape_debt)<<",\"new_debt\":"<<double(after.shape_debt)
+       <<",\"frozen_cells\":"<<frozen.size()<<",\"old_maximum_edge\":"<<double(before.maximum_length)<<",\"new_maximum_edge\":"<<double(after.maximum_length)
+       <<",\"removed_size_excess\":"<<double(diagnosis.removed_excess)<<",\"added_size_excess\":"<<double(diagnosis.added_excess)
+       <<",\"metric_primitive\":"<<metric_primitive
        <<",\"metric_valid\":"<<metric_valid<<",\"metric_reason\":"<<std::quoted(metric_reason)
        <<",\"replacement\":"<<replacement<<",\"replacement_reason\":"<<std::quoted(replacement_reason)
+       <<",\"interface_valid\":"<<interface_valid<<",\"interface_reason\":"<<std::quoted(interface_reason)
        <<",\"old_geometry\":"<<double(old_guidance.excess)<<",\"new_geometry\":"<<double(new_guidance.excess)
        <<",\"geometry_complete\":"<<(old_guidance.complete&&new_guidance.complete)
        <<",\"boundary_candidates\":"<<report.boundary_candidates<<",\"boundary_moves\":"<<report.boundary_moves
@@ -342,6 +358,15 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
       joined.surface.insert(joined.surface.end(),fresh.surface.begin(),fresh.surface.end());
       joined.parameters=fresh.parameters;joined.coverage=fresh.coverage;
       assess_optimizer(joined,"collapse_with_retained_star_49");
+      std::set<Id> bad_vertices;const Cell* obstruction=nullptr;long double largest_debt=0;
+      for(const auto& cell:joined.cells){const auto measured=MeasureMetricCells({cell},*full_field);
+        if(measured.shape_debt>largest_debt){largest_debt=measured.shape_debt;obstruction=&cell;}}
+      REQUIRE(obstruction);for(const auto& node:obstruction->v)bad_vertices.insert(node.id);REQUIRE(bad_vertices.size()==4);
+      for(Id vertex:bad_vertices){std::set<Id> frozen;
+        for(const auto& cell:joined.cells)if(std::none_of(cell.v.begin(),cell.v.end(),[&](const Node& n){return n.id==vertex;}))frozen.insert(cell.id);
+        const auto label="collapsed_bad_vertex_"+std::to_string(vertex)+"_star";
+        assess_optimizer(joined,label.c_str(),frozen);
+      }
     }
     log<<"{\"stage\":\"directed_collapse\",\"removed\":"<<direction[0]<<",\"retained\":"<<direction[1]
        <<",\"compatible\":"<<compatible<<",\"constructed\":"<<constructed<<",\"construction_reason\":"<<std::quoted(construction_reason)
