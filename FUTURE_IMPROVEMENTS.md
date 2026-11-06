@@ -12,7 +12,7 @@ scenarios, not trustworthy error bars without further evidence.
   comparison without advancing the solution. Tiny 2D and 3D QCR/EPM checks pass.
 - A bounded local runner checks baseline recovery, nonzero fields, disk restarts,
   changed-input rejection and actual scalar/vectorized assembly. It saves hashes,
-  timings and failures. The final suite passes 37 checks and 20 comparisons.
+  timings and failures. The final suite passes 39 checks and 22 comparisons.
 - Owned-volume summaries show stress work, production limits, floor activity and
   physically impossible SST covariance. Query counts, failures, storage and time
   are reported. These summaries do not claim an exact discrete energy balance.
@@ -20,7 +20,8 @@ scenarios, not trustworthy error bars without further evidence.
   The saved physical field remains fixed during a solve.
 - Study tools freeze parameter and reference files, separate calibration from
   independent validation, and report missing cases, misses, widths and costs.
-  Their tests use synthetic data; no physical study has been performed.
+  A flat-plate study design now supplies real nominal references, a case split,
+  candidate fields and numerical gates. No physical study has been performed.
 
 The [verification report](Docs/CAMPAIGN_REPORT.md) records evidence and limits.
 The [runbook](Docs/STRESS_DISCREPANCY.md) gives commands. Production runs and
@@ -75,10 +76,17 @@ check whether a solve reaches the donor solution. A nodal fit alone cannot
 establish exact face/source recovery. Recovering QCR or EPM validates machinery,
 not predictions against reality.
 
-Retain failed cases. A nearly uniform 1C EPM scalar/vectorized comparison differed
-by 2.17e-10, above the fixed 1e-10 threshold. A nonuniform 1C case and a uniform
-3C case pass. Nearly repeated eigenvalues remain a qualification limit; the
-threshold was not relaxed and a general fix is not claimed.
+The nearly uniform 1C EPM comparison exposed cancellation in the vectorized
+gradient calculation. Subtracting the velocity difference first fixes it without
+changing the physical model or tolerance. The original residual error falls
+from 2.17e-10 to 1.63e-13. The regression fails with the old arithmetic and passes
+with the fix. Exact isotropy still does not provide a unique anisotropic direction.
+
+The tiny native QCR/EPM donors expose another restriction: their nonzero boundary
+corrections cannot fit a physical field required to vanish there. The rejection
+is correct. A compatible donor or a separately verified boundary-stress extension
+is needed before iterative physical-field recovery. No taper or clipping was used
+to disguise this obstruction. See the [recovery record](Docs/stress_checks/recovery_preparation.md).
 
 ### Establish numerical robustness before enlarging studies
 
@@ -90,23 +98,29 @@ can be sensitive to small errors in some formulations; see
 [Wu and colleagues](https://arxiv.org/abs/1803.05581).
 
 Local MPI checks remain blocked by this environment's socket restrictions.
-Parallel execution and repartitioned restarts need verification on an authorized
-local setup. Exact replay deliberately supports one rank and one thread only.
+Twenty parser-checked localhost jobs are prepared, including one/two-rank
+comparisons and restarts in both partition directions. Execution needs a working
+local MPI environment and an MPI-enabled build. Exact replay deliberately supports one rank and one thread only.
 
-## How I would proceed in practice
+## Current preparation and next steps
 
-1. Choose a small initial flow family and a few outputs, collect reference
-   intervals and record uncertainty in the measurements and boundary conditions.
-2. Use the study tools to separate calibration and validation cases. Choose field
-   parameters using calibration cases, then freeze the parameter file and case list.
-3. On an authorized local setup, finish parallel checks and donor representation
-   studies. Keep the current nearly uniform 1C EPM limitation visible.
-4. Run a separately authorized validation study with explicit convergence and
-   mesh-error criteria. Save every requested scenario, including failures.
-5. Add more field flexibility or improve the implicit derivative only when the
-   evidence identifies a shortcoming. Revalidate after changing the model family.
+The [flat-plate study design](Docs/validation_study/README.md) contains three
+experimental cases, eight nominal friction references and 58 unexecuted run
+definitions. Wieghardt data are reserved for calibration; both Österlund cases
+are kept together for validation. Candidate amplitudes, output scales, selection
+rules and numerical gates are recorded before any physical run.
 
-The agreed infrastructure work is implemented. Remaining physical calibration,
-converged donor recovery and mesh studies are research work. Broader geometry,
-parallel replay and a complete derivative would be additional implementation work
-if those capabilities become necessary. None is silently claimed ready here.
+This is a concrete design, not a runnable physical campaign. Original inlet/trip
+conditions, source-supported uncertainty, physical meshes and selected parameters
+remain prerequisites. The reference point tables do not imply zero measurement
+uncertainty. No calibrated lock was created without calibration.
+
+Next, resolve those experimental inputs and build matched domains/meshes; complete
+the prepared local parallel checks when the environment permits; and identify a
+compatible donor before a recovery solve. Physical baseline and calibration runs
+remain unexecuted under the current restriction. After calibration, freeze the
+chosen parameters before evaluating held-out responses.
+
+The [preparation status](Docs/PREPARATION_STATUS.md) records the exact stopping
+point. Broader geometry, prescribed boundary tractions, parallel replay or a
+complete derivative would be separate implementation work if evidence requires it.

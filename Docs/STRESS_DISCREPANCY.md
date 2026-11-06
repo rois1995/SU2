@@ -224,7 +224,9 @@ nodal group or work on a different state/grid. Compare residual tables instead.
 For ideal-gas Roe/MSW diagnostic assembly, USE_VECTORIZATION=NO forces the scalar
 route and YES uses SIMD. The log explicitly states the selected route. This
 choice is deliberately confined to diagnostics; normal solver selection is
-unchanged. Near-isotropic 1C EPM remains a documented parity qualification limit.
+unchanged. The nearly uniform 1C regression now passes after correcting SIMD
+gradient cancellation; exact repeated eigenvalues retain their mathematical
+orientation ambiguity.
 
 ## Localized fields and study records
 
@@ -320,3 +322,22 @@ execution records and a report. Four expected changed-input failures count as
 successful rejection checks. Fixed internal-unit residual scales are one with
 1e-10 tolerance; full saved-output restart tolerance is 1e-9. These are small
 implementation checks, with no cluster access and no physical validation claim.
+
+## Prepared parallel and physical studies
+
+```bash
+python3 SU2_PY/stress_field/prepare_parallel_checks.py --output /tmp/stress-parallel-inputs --solver /path/to/MPI/SU2_CFD --config-probe /tmp/stress-checks/stress_config_probe --field-probe /tmp/stress-checks/stress_field_probe
+python3 Docs/validation_study/check_preparation.py
+```
+
+The first command only prepares 20 bounded localhost jobs and ten comparisons,
+including restarts from one rank to two and back. It does not launch MPI or CFD.
+A real MPI build and a functioning local launcher are required before execution.
+The second checks the physical study design and nominal reference integrity;
+it does not generate physical meshes or claim calibrated parameters.
+
+`run_recovery_checks.py --solver /path/to/SU2_CFD --probe /path/to/stress_field_probe
+--output /tmp/stress-recovery-checks` runs four bounded local checks: two short
+81-node donors and two expected boundary rejections. It preserves the distinction
+between a rejected physical fit and an accurate unrestricted offline fit. It does
+not claim nonlinear recovery. See [preparation status](PREPARATION_STATUS.md).

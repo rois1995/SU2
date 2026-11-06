@@ -26,22 +26,24 @@ The runbook records reproducible commands and the manifest records source hashes
 | Check | Result |
 |---|---|
 | EPM, coupling and replay C++ checks | 436 assertions in 15 cases pass |
-| Actual scalar/SIMD viscous operators | 172 assertions pass, four SIMD lanes |
-| Python parser, provider, campaign, target and study tools | 17 tests pass, including 4,000 circular provider queries |
+| Actual scalar/SIMD viscous operators | 244 assertions in two cases pass, four SIMD lanes; O0 and optimized build |
+| Python parser, provider, campaign, target and study tools | 19 tests pass, including 4,000 circular provider queries |
 | Existing MeshAdaptation barycentric reference | Prior unchanged reference check: 200 queries pass |
 | Complete serial solver | Builds and links |
-| Bounded solver suite | 37 process checks and 20 comparisons pass; four processes intentionally reject changed inputs |
+| Bounded solver suite | 39 process checks and 22 comparisons pass; four processes intentionally reject changed inputs |
 | Baseline versus zero field, SA and SST | Exact agreement in saved solution/primitive columns |
 | Actual ASCII disk restarts, SA and SST, energy enabled/disabled | Maximum absolute difference 1.10e-11; threshold 1e-9 |
 | Same-state QCR/EPM donor replay, 2D and 3D | Flow and turbulence residual differences exactly zero |
 | Assembled prescribed and nonuniform 1C EPM scalar/SIMD residuals | Maximum differences 1.14e-13 and 1.09e-13; threshold 1e-10 |
+| Nearly uniform 1C EPM scalar/SIMD residuals | Maximum difference 1.58e-13; threshold 1e-10 |
 | Uniform 3C EPM scalar/SIMD residuals | Maximum difference 1.58e-13; threshold 1e-10 |
 | Local MPI launcher | BLOCKED_ENVIRONMENT: socket/PMIx initialization fails, even for localhost `/usr/bin/true` |
 | Physical validation, converged donor recovery, mesh studies | NOT_RUN |
 
-There were 180 bounded process checks across all debugging and final-suite
-attempts; the final 37 are reported separately above. Earlier attempts and
-failures are retained in the linked record.
+The earlier implementation pass made 180 bounded process checks across debugging
+and final-suite attempts; those remain in the linked record. The preparation pass
+adds the expanded 39-check suite, instrumented 1C diagnosis and four donor-boundary
+checks. None is a production run.
 
 The final suite uses 81-node triangles and a 27-node tetrahedral cube. Each solve
 has at most four iterations and a 45-second timeout. Diagnostic runs assemble
@@ -76,13 +78,37 @@ Diagnostics now explicitly honor it and report the actual path. Earlier apparent
 parity results that exercised SIMD twice are recorded as invalid parity evidence.
 Normal solver selection is unchanged outside diagnostics.
 
-## Observed limitation retained
+## Arithmetic failure resolved; donor gate retained
 
-The first genuine 1C EPM scalar/SIMD comparison on a nearly uniform state failed
-with 2.1703143698436483e-10 difference, above 1e-10. Its record is retained.
-Nonuniform 1C and orientation-independent 3C controls pass without relaxing the
-threshold. Nearly repeated eigenvalues make anisotropic orientation sensitive;
-these controls do not prove a general resolution. That regime remains unqualified.
+The original nearly uniform 1C error was 2.1703143698436483e-10, above 1e-10.
+Actual query traces located the cause in shared SIMD gradient correction:
+`dot - Vj + Vi` loses a small projection against the common velocity offset.
+The scalar path uses `dot - (Vj - Vi)`. Matching that order fixes the error.
+All 307 diagnostic query inputs/stresses then agree exactly; original-case
+assembled error falls to 1.6259e-13. The independently regenerated final case
+passes at 1.5716e-13. The tolerance and EPM physics are unchanged.
+
+The new directional-derivative regression fails before the fix and passes after
+it, including an optimized fast-math check. Temporary trace instrumentation was
+removed. [Diagnosis](stress_checks/epm_investigation.json),
+[old-formula failure](stress_checks/epm_regression_before.log),
+[optimized test](stress_checks/simd_optimized.log).
+Exactly repeated eigenvalues still do not define a unique anisotropic direction;
+that mathematical limitation was not the justification for accepting this failure.
+
+The tiny QCR/EPM donors were also tested against the physical-field representation.
+Both have nonzero boundary corrections, so the mandated zero-boundary map rejects
+them with relative maximum nodal error 1.0. Removing the map for an offline-only
+fit gives near-machine-precision nodal agreement, but solver startup correctly
+rejects those unrestricted fields before iteration. This identifies a boundary
+contract obstruction, not failed convergence. Nonlinear recovery remains unrun.
+See the [recovery preparation](stress_checks/recovery_preparation.md).
+
+Twenty local MPI jobs are parser/field-checked and prepared, but a fresh localhost
+capability probe still fails to initialize sockets. The [physical study design](validation_study/README.md)
+contains three cases, eight nominal references and 58 unexecuted run definitions.
+It is design-ready, not solver-ready: experimental inputs, uncertainty and meshes
+remain explicit prerequisites. No production or cluster work was performed.
 
 The deliberately strong SST toy field also produces negative total-covariance
 eigenvalues over 65.625% of owned volume at tolerance 1e-12. Lower and upper

@@ -1,0 +1,141 @@
+{
+  "before": {
+    "files": {
+      "/tmp/su2-epm-trace-scalar/case.cfg": "16e8adc9d4aeecb3d140c975cd8188f4876c388eac545504b6f6e4117be77d0d",
+      "/tmp/su2-epm-trace-scalar/initial.csv": "a5b479e938d8a55991187a2d9be1699ae62eaea73b306c5048aa0d62555ae70c",
+      "/tmp/su2-epm-trace-scalar/mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+      "/tmp/su2-epm-trace-scalar/epm_queries.tsv": "db64734025534c58da5beb663628e10f4f3005ffd0b2d8a215a9c13351535c2d",
+      "/tmp/su2-epm-trace-simd/case.cfg": "5e9cd37d33a42c37c66c38fb7291f90eafd08f6b52debf509e8f5626ae23cca9",
+      "/tmp/su2-epm-trace-simd/initial.csv": "a5b479e938d8a55991187a2d9be1699ae62eaea73b306c5048aa0d62555ae70c",
+      "/tmp/su2-epm-trace-simd/mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+      "/tmp/su2-epm-trace-simd/epm_queries.tsv": "d401617d24eac9074a6efdbd4d5a7ba78626b1eae16cf98ea5efcbade38f16e0"
+    },
+    "query_count": 307,
+    "maximum_input_difference": 8.881784197001252e-16,
+    "maximum_stress_difference": 1.6730628275200918e-09,
+    "example_face": {
+      "kind_dimension_coordinates": [
+        "F",
+        "2",
+        "0.625",
+        "0.8125"
+      ],
+      "scalar_density_viscosity_k_gradient_stress": [
+        1.0000000000002034,
+        0.009999966456558382,
+        0.003749924521494155,
+        -2.128486276120612e-11,
+        -3.703704010149522e-12,
+        -2.5029817269478558e-11,
+        1.9208471453609492e-11,
+        0.0004308196139569333,
+        0.00021700729017809004,
+        0.0,
+        0.00021700729017809004,
+        -0.00018082464585870715,
+        0.0,
+        0.0,
+        0.0,
+        -0.00024999496809822617
+      ],
+      "simd_density_viscosity_k_gradient_stress": [
+        1.0000000000002034,
+        0.009999966456558382,
+        0.003749924521494155,
+        -2.128486276120612e-11,
+        -3.703370943242135e-12,
+        -2.5029817269478558e-11,
+        1.9208471453609492e-11,
+        0.0004308208011330429,
+        0.00021700561711526252,
+        0.0,
+        0.00021700561711526252,
+        -0.00018082583303481674,
+        0.0,
+        0.0,
+        0.0,
+        -0.00024999496809822617
+      ]
+    },
+    "flow_max_error": 2.1703143698436483e-10,
+    "turb_max_error": 0.0
+  },
+  "after": {
+    "files": {
+      "/tmp/su2-epm-fixed-trace-scalar/case.cfg": "16e8adc9d4aeecb3d140c975cd8188f4876c388eac545504b6f6e4117be77d0d",
+      "/tmp/su2-epm-fixed-trace-scalar/initial.csv": "a5b479e938d8a55991187a2d9be1699ae62eaea73b306c5048aa0d62555ae70c",
+      "/tmp/su2-epm-fixed-trace-scalar/mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+      "/tmp/su2-epm-fixed-trace-scalar/epm_queries.tsv": "db64734025534c58da5beb663628e10f4f3005ffd0b2d8a215a9c13351535c2d",
+      "/tmp/su2-epm-fixed-trace-simd/case.cfg": "5e9cd37d33a42c37c66c38fb7291f90eafd08f6b52debf509e8f5626ae23cca9",
+      "/tmp/su2-epm-fixed-trace-simd/initial.csv": "a5b479e938d8a55991187a2d9be1699ae62eaea73b306c5048aa0d62555ae70c",
+      "/tmp/su2-epm-fixed-trace-simd/mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+      "/tmp/su2-epm-fixed-trace-simd/epm_queries.tsv": "db64734025534c58da5beb663628e10f4f3005ffd0b2d8a215a9c13351535c2d"
+    },
+    "query_count": 307,
+    "maximum_input_difference": 0.0,
+    "maximum_stress_difference": 0.0,
+    "example_face": {
+      "kind_dimension_coordinates": [
+        "F",
+        "2",
+        "0.625",
+        "0.8125"
+      ],
+      "scalar_density_viscosity_k_gradient_stress": [
+        1.0000000000002034,
+        0.009999966456558382,
+        0.003749924521494155,
+        -2.128486276120612e-11,
+        -3.703704010149522e-12,
+        -2.5029817269478558e-11,
+        1.9208471453609492e-11,
+        0.0004308196139569333,
+        0.00021700729017809004,
+        0.0,
+        0.00021700729017809004,
+        -0.00018082464585870715,
+        0.0,
+        0.0,
+        0.0,
+        -0.00024999496809822617
+      ],
+      "simd_density_viscosity_k_gradient_stress": [
+        1.0000000000002034,
+        0.009999966456558382,
+        0.003749924521494155,
+        -2.128486276120612e-11,
+        -3.703704010149522e-12,
+        -2.5029817269478558e-11,
+        1.9208471453609492e-11,
+        0.0004308196139569333,
+        0.00021700729017809004,
+        0.0,
+        0.00021700729017809004,
+        -0.00018082464585870715,
+        0.0,
+        0.0,
+        0.0,
+        -0.00024999496809822617
+      ]
+    },
+    "flow_max_error": 1.6258988174366017e-13,
+    "turb_max_error": 0.0
+  },
+  "root_cause": "SIMD corrected gradient computed dot - Vj + Vi, losing the small projection against the common velocity offset. Scalar uses dot - (Vj - Vi). Subtracting velocities first matches the scalar arithmetic and avoids that cancellation.",
+  "fix_file": "SU2_CFD/include/numerics_simd/flow/diffusion/common.hpp",
+  "physical_model_changed": false,
+  "comparison_tolerance_changed": false,
+  "temporary_instrumentation_removed": true,
+  "regression": "Zero edge-direction derivative must stay zero under common velocity offsets 0, 1 and 1e6; transverse derivative unchanged.",
+  "focused_tests": {
+    "before": "old formula fails the new regression",
+    "after": "244 assertions in 2 cases pass at O0 and O3 -ffast-math -fno-finite-math-only"
+  },
+  "final_solver_sha256": "95aaa1e3f820f677e1ba6ae8e66b2dd991491e36281d45982f5685ab7c83b1d1",
+  "checks_sha256": {
+    "/tmp/su2-epm-regression-before.log": "14e1aad534102f3cafad22ada51e5416518b9492637ec9bd6258b7cb241208aa",
+    "/tmp/su2-epm-simd-final.log": "d7553d6c6d5f0b570ae02630540ad55864482b11348d934472f643f5aad12743",
+    "/tmp/su2-epm-simd-optimized.log": "d7553d6c6d5f0b570ae02630540ad55864482b11348d934472f643f5aad12743",
+    "/tmp/su2-epm-final-build.log": "b4872afabbddd1852426a9327cbd8c2628df8628cc658a7feb2368bb09b3630a"
+  }
+}

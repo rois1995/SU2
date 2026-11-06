@@ -78,12 +78,12 @@ Exact capture now records the correction at actual face and source queries.
 Replaying it at the same saved state gives identical flow and turbulence residuals
 in tiny 2D and 3D QCR/EPM tests. Actual disk restarts pass for SA and SST with the
 incompressible energy equation enabled and disabled. The bounded final suite has
-37 checks and 20 comparisons, on 81-node and 27-node meshes with at most four
+39 checks and 22 comparisons, on 81-node and 27-node meshes with at most four
 iterations. These are wiring tests, not converged physical cases.
 
 Actual scalar/vectorized assembly agrees for prescribed stress, nonuniform 1C EPM
-and uniform 3C EPM. A nearly uniform 1C EPM comparison missed the fixed tolerance
-and remains recorded as a limitation. The deliberately strong SST test field also
+and uniform 3C EPM. The nearly uniform 1C EPM failure was traced to cancellation in the vectorized
+gradient calculation and fixed without changing the tolerance or physical model. The deliberately strong SST test field also
 violates physical covariance constraints; the diagnostics flag that clearly.
 
 The initial coupled scope remains fixed planar walls or no walls, with zero added
@@ -92,7 +92,12 @@ The implicit derivative is incomplete. Parallel execution could not be tested
 because the local launcher is blocked by socket restrictions. No cluster was used.
 
 Converged donor recovery, physical-field representation error, mesh studies and
-independent validation remain separate work. Exact replay does not replace them.
+independent validation remain separate work. The tiny native donors have nonzero
+boundary corrections and correctly fail the present physical-field fitting gate;
+iterative recovery needs a compatible donor. A concrete flat-plate study design
+is prepared with real nominal references and an explicit calibration/validation
+split, but its physical inputs and uncertainty still need completion. Exact
+replay does not replace these checks.
 The [runbook](STRESS_DISCREPANCY.md) and [verification report](CAMPAIGN_REPORT.md)
 state the supported scope and actual evidence.
 

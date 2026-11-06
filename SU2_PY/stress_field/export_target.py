@@ -40,7 +40,7 @@ def fit(csv_path,mesh_path,definition_path,probe,output,velocity_ref,length_ref,
             "source_csv_sha256":digest(csv_path),"mesh_sha256":digest(mesh_path),"definition_sha256":digest(definition_path),
             "internal_velocity_ref":velocity_ref,"internal_length_ref":length_ref,"max_nodal_error":float(error.max()),
             "relative_max_nodal_error":float(error.max()/scale),"worst_node":int(error.argmax()),
-            "exact_face_replay":"NOT_IMPLEMENTED","coupled_recovery":"NOT_RUN"}
+            "exact_face_replay":"NOT_PROVIDED_BY_NODAL_FIT","coupled_recovery":"NOT_RUN"}
     save(str(output)+".fit.json",report)
     if error.max()>1e-9*scale:raise ValueError("target is incompatible with declared wall/support map; see fit report")
     definition["donor_fit"]=report

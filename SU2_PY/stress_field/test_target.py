@@ -22,7 +22,7 @@ class TargetTests(unittest.TestCase):
             report=fit(root/"donor.csv",root/"mesh.npz",path,self.probe,out,1,1,"QCR","SYNTHETIC")
             self.assertLess(report["max_nodal_error"],1e-14)
             self.assertFalse(report["raw_bounds_satisfied"])
-            self.assertEqual(report["exact_face_replay"],"NOT_IMPLEMENTED")
+            self.assertEqual(report["exact_face_replay"],"NOT_PROVIDED_BY_NODAL_FIT")
             certificate=json.loads((root/"target.suf.json").read_text())
             self.assertEqual(certificate["definition"]["purpose"],"COUPLING_CONTROL")
             definition["geometry"]={"type":"PLANES","walls":[{"normal":[0,1,0],"offset":0}]}

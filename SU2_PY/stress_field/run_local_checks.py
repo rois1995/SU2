@@ -42,5 +42,8 @@ def main():
     run([sys.executable,"SU2_PY/stress_field/test_campaign.py"])
     run([sys.executable,"SU2_PY/stress_field/test_target.py","--probe",probe])
     run([sys.executable,"SU2_PY/stress_field/test_validation.py"])
+    run([sys.executable,"SU2_PY/stress_field/test_parallel_preparation.py"])
+    run([sys.executable,"SU2_PY/stress_field/test_recovery.py"])
+    run([sys.executable,"Docs/validation_study/check_preparation.py"])
 
 if __name__=="__main__":main()

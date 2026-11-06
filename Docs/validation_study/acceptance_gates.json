@@ -1,0 +1,47 @@
+{
+  "status": "PROPOSED_PRE_RUN_CRITERIA",
+  "definitions": "These thresholds are chosen study gates, not measured errors or source-reported uncertainty.",
+  "output_scales": {
+    "Cf": 0.005,
+    "U_over_Ue": 1,
+    "theta_over_L_ref": 0.01
+  },
+  "iteration": {
+    "residual_drop_decades_each_transported_block": 6,
+    "history_window_iterations": 200,
+    "max_Cf_drift_divided_by_scale": 0.001,
+    "max_normalized_net_mass_imbalance": 1e-06,
+    "repeat_from_second_start": true
+  },
+  "mesh": {
+    "minimum_levels": 3,
+    "refinement_ratio_target": 2,
+    "first_node_y_plus_max": 1,
+    "Cf_medium_fine_difference_divided_by_scale_max": 0.01,
+    "require_ordered_convergence_or_report_failure": true
+  },
+  "field": {
+    "maximum_H_over_ell": 0.3333333333333333,
+    "refine_field_independently": true,
+    "fixed_raw_field_under_CFD_refinement": true,
+    "max_Cf_change_divided_by_scale": 0.005
+  },
+  "comparison": {
+    "must_bracket_requested_ReTheta": true,
+    "ReTheta_resampling": "Interpolate each actual scalar Cf curve onto predeclared reference ReTheta; no extrapolation. Record station displacement as a separate diagnostic.",
+    "include_physical_y_velocity_profiles": true,
+    "profile_interpolation_error_divided_by_Ue_max": 0.001,
+    "same_resampling_for_all_scenarios": true,
+    "stress_covariance_violation": "Report magnitude and volume for SST; do not clip or relabel SA stress work as a turbulence source."
+  },
+  "separation_of_errors": "For each output the iteration, CFD-mesh, field-mesh and resampling indicators must each be below 10% of the smallest nonzero scenario change being interpreted; otherwise call that response unresolved.",
+  "uncertainty": "Reference uncertainty must come from its source. If unavailable, report nominal-reference distances only and block uncertainty-coverage claims.",
+  "retention": "Keep every failed, unsupported and missing scenario. All must reach the requested final field before counting as completed.",
+  "calibration_selection": {
+    "prerequisite": "Source-supported reference intervals and numerical gates must be ready; nominal point tables alone do not qualify physical uncertainty.",
+    "criterion": "For each parent model, require zero interval miss at all six calibration outputs and mean scenario width divided by fixed Cf scale <= 0.2.",
+    "selection": "Choose the smallest candidate epsilon meeting both criteria. If none passes, retain failure of this field family; do not retune using held-out responses.",
+    "maximum_mean_scaled_width": 0.2,
+    "threshold_status": "Proposed pre-run study choice, not a measured uncertainty or guaranteed achievable target"
+  }
+}

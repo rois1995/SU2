@@ -1,0 +1,57 @@
+{
+  "schema": "SU2_STRESS_STUDY_PREPARATION_1",
+  "status": "DESIGN_PREPARED_NOT_RUN",
+  "family": "Smooth, attached, low-Mach-number zero-pressure-gradient turbulent flat-plate boundary layers",
+  "scope": "Steady planar SA and SST-2003m; no transition model or curved walls",
+  "cases": [
+    {
+      "id": "wieghardt",
+      "group": "WIEGHARDT_EXPERIMENT_ALL_STATIONS",
+      "split": "CALIBRATION",
+      "reference": "references/wieghardt.csv",
+      "comparison_coordinate": "ReTheta",
+      "conditions_status": "Original experimental inlet/trip/pressure-gradient history still requires source reconciliation; do not substitute the NASA M=0.2 acceleration setup as measured experiment conditions."
+    },
+    {
+      "id": "osterlund_21",
+      "group": "OSTERLUND_MTL_EXPERIMENT_ALL_RUNS",
+      "split": "VALIDATION",
+      "reference": "references/osterlund_21.csv",
+      "comparison_coordinate": "ReTheta",
+      "Ue_m_s": 21.4208,
+      "x_m": 5.5,
+      "rho_kg_m3": 1.24736,
+      "mu_Pa_s": 1.8181e-05,
+      "ReTheta": 12633.1,
+      "conditions_status": "Header values verified; inlet/trip and pressure history must be reconciled from the experiment report."
+    },
+    {
+      "id": "osterlund_52",
+      "group": "OSTERLUND_MTL_EXPERIMENT_ALL_RUNS",
+      "split": "VALIDATION",
+      "reference": "references/osterlund_52.csv",
+      "comparison_coordinate": "ReTheta",
+      "Ue_m_s": 52.182,
+      "x_m": 5.5,
+      "rho_kg_m3": 1.24655,
+      "mu_Pa_s": 1.82344e-05,
+      "ReTheta": 26612.1,
+      "conditions_status": "Header values verified; inlet/trip and pressure history must be reconciled from the experiment report; Reynolds-number extrapolation beyond calibration range."
+    }
+  ],
+  "parameters": "parameter_candidates.json",
+  "source_manifest": "sources.json",
+  "reference_interval_policy": "Nominal means only at preparation. Recover measurement uncertainty before a physical uncertainty assessment; no assumed percentages.",
+  "calibration_lock": null,
+  "solver_ready": false,
+  "physical_runs": 0,
+  "cluster_access": false,
+  "prerequisites": [
+    "Resolve experimental inlet, trip and pressure-gradient history; demonstrate downstream insensitivity to unresolved transition before scoring.",
+    "Retrieve original reference bytes, preserve metadata and hash them; current hashes cover transcribed scalar references only.",
+    "Resolve measurement and boundary-condition uncertainty from original reports.",
+    "Create matched physical domains and three nested meshes; resolve y+ and outer boundaries.",
+    "Select parameters using calibration results, then create a SU2_STRESS_STUDY_1 input and freeze it using validation.py before evaluating validation cases.",
+    "Pass numerical acceptance gates and separately authorize physical runs."
+  ]
+}

@@ -133,11 +133,13 @@ def main():
                    "STRESS_DISCREPANCY_PURPOSE":"COUPLING_CONTROL","STRESS_DIAGNOSTIC":"RESIDUAL",
                    "STRESS_DIAGNOSTIC_FILE":"control.sur"},initial=initial,replay=capture)
         for block in ("flow","turb"):compare("CUBE_"+model+"_"+block,capture,replay,"control.sur."+block+".csv")
-    independent={**compressible,"STRESS_DISCREPANCY":"EPM_MATCHED","ITER":"1","STRESS_DIAGNOSTIC":"RESIDUAL",
-                 "STRESS_DIAGNOSTIC_FILE":"control.sur","UQ_COMPONENT":"3","UQ_DELTA_B":"1","UQ_URLX":"0.1"}
-    scalar=run("COMP_3C_uniform_scalar",independent,initial=uniform)
-    vector=run("COMP_3C_uniform_simd",{**independent,"USE_VECTORIZATION":"YES"},initial=uniform)
-    for block in ("flow","turb"):compare("COMP_3C_uniform_"+block,scalar,vector,"control.sur."+block+".csv")
+    for component in (1,3):
+        independent={**compressible,"STRESS_DISCREPANCY":"EPM_MATCHED","ITER":"1","STRESS_DIAGNOSTIC":"RESIDUAL",
+                     "STRESS_DIAGNOSTIC_FILE":"control.sur","UQ_COMPONENT":str(component),"UQ_DELTA_B":"1","UQ_URLX":"0.1"}
+        name=f"COMP_{component}C_uniform"
+        scalar=run(name+"_scalar",independent,initial=uniform)
+        vector=run(name+"_simd",{**independent,"USE_VECTORIZATION":"YES"},initial=uniform)
+        for block in ("flow","turb"):compare(name+"_"+block,scalar,vector,"control.sur."+block+".csv")
     report["status"]="PASS";persist();print(json.dumps({"status":"PASS","runs":len(report["runs"]),"comparisons":len(report["comparisons"])}))
 
 if __name__=="__main__":main()

@@ -1,0 +1,227 @@
+{
+  "schema": "SU2_DONOR_REPRESENTATION_CHECKS_1",
+  "solver_sha256": "95aaa1e3f820f677e1ba6ae8e66b2dd991491e36281d45982f5685ab7c83b1d1",
+  "probe_sha256": "0913fef75d1cd696098d09de4789a7721c94b646e8362cd023516ced0416e6da",
+  "mesh_points": 81,
+  "maximum_iterations": 4,
+  "timeout_seconds": 45,
+  "production_runs": 0,
+  "cluster_access": false,
+  "runs": [
+    {
+      "id": "SA_donor",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "seconds": 0.06423365599766839,
+      "returncode": 0,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "a8feb750d3d45043876903d640e54e541d6e7e092f19e5dbaa361b5e4ae2922c"
+      },
+      "outputs": {
+        "history.csv": "804e836b63a78dcffc0aa4878d3edab79530b4dd19ea46bfa43877fcb715d45b",
+        "solver.log": "c676eb14a7c9ce7931193071251110ab7d0cd61e711a34b2572bd39eb9ed9f7b",
+        "restart.csv": "2b8dc2303ff03a0aa0c93fd100b88768dad10d3a90ce4430637715a251964b14"
+      }
+    },
+    {
+      "id": "SA_boundary_rejection",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "seconds": 0.032269405004626606,
+      "returncode": 1,
+      "status": "PASS",
+      "expected_error": "requires exact zero stress on every physical",
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "19d511b13bec64329175dee1f1a2da5004708d88e2663b0467d107c831bb6752",
+        "field.suf": "91a09493a29d630ce2508e97df165fc92940ea4ba1ed2e6d68ebc69fcca60b9c"
+      },
+      "outputs": {
+        "history.csv": "9a590c4c97fae67df2a888f69bf05890676b718a1a41e74ca5080cd799499e85",
+        "solver.log": "abafc23746f156454719daea9acbe22f9f876c645e65f16d8a62e0cc2ec9b270"
+      }
+    },
+    {
+      "id": "SST_donor",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "seconds": 0.06441156600340037,
+      "returncode": 0,
+      "status": "PASS",
+      "expected_error": null,
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "78d502afdb29790dcf89f41582817e5f08246d6e95e4e0008a91d8542897e70b"
+      },
+      "outputs": {
+        "history.csv": "d80f4a6071897652051c3d8c46215710fef025f479411ebc90505872919485c3",
+        "solver.log": "b9edb04f6d6b27db93c9afc1e1274179ddb3a80767f4b584520d2d41c60f6e6d",
+        "restart.stress": "7a61299c372ebd5fff1ac6c984758a62664b677bc5aa7b7c984718ffb54823f7",
+        "restart.csv": "ef7260d7194ec6b2c2d6ff81ce6c408e7a608bb3181b9740d755720bb50feb81"
+      }
+    },
+    {
+      "id": "SST_boundary_rejection",
+      "command": [
+        "/tmp/su2-uq-build/SU2_CFD/src/SU2_CFD",
+        "case.cfg"
+      ],
+      "seconds": 0.03272307400038699,
+      "returncode": 1,
+      "status": "PASS",
+      "expected_error": "requires exact zero stress on every physical",
+      "inputs": {
+        "mesh.su2": "da0ed7a6bc78fcfc29e429d10639a381da3fcda1c7885b330b2e2aa39b603e60",
+        "case.cfg": "f8ded13c4b3bc6e8d83e0fcbbdab4b7d6f4ae2a77c28eca846f9e75a6b49d818",
+        "field.suf": "a1eb2636e1303dbed1c5965eec47b3c04e333d73193bf0309eeae3952deb0681"
+      },
+      "outputs": {
+        "history.csv": "5b4f4c01cb629299e6fbe328edafa1627a9c85ee1bf11d93427b9a22d566472a",
+        "solver.log": "35e76dec9867f60e54454542b605f6d13b421744163d6b22a6938c7a88042714"
+      }
+    }
+  ],
+  "donors": {
+    "SA": {
+      "boundary_stress": {
+        "norm": "Euclidean norm of six stored tensor components",
+        "max_all_nodes": 0.0007811956232380062,
+        "wall": {
+          "maximum": 1.8818427351880242e-57,
+          "worst_point_id": 0,
+          "nonzero_nodes": 9
+        },
+        "inlet": {
+          "maximum": 0.0006046808107707767,
+          "worst_point_id": 9,
+          "nonzero_nodes": 8
+        },
+        "outlet": {
+          "maximum": 0.0007811956232380062,
+          "worst_point_id": 17,
+          "nonzero_nodes": 8
+        },
+        "top": {
+          "maximum": 0.0,
+          "worst_point_id": 72,
+          "nonzero_nodes": 0
+        }
+      },
+      "donor_convergence": "NOT_CLAIMED_FOUR_ITERATIONS",
+      "nodal_csv_sha256": "2b8dc2303ff03a0aa0c93fd100b88768dad10d3a90ce4430637715a251964b14",
+      "physical_fit": "REJECTED_INCOMPATIBLE_BOUNDARY",
+      "physical_fit_report": {
+        "kind": "QCR",
+        "donor_id": "SA_four_iteration_donor",
+        "purpose": "COUPLING_CONTROL",
+        "representation": "SAME_NODE_FIT",
+        "source_csv_sha256": "2b8dc2303ff03a0aa0c93fd100b88768dad10d3a90ce4430637715a251964b14",
+        "mesh_sha256": "645db85e88cd9020f2031ed2b6dba434161b7965cb16a6b0b6026c890464cc19",
+        "definition_sha256": "61a797ee7d323273e6b432cbb3d4e94056ee2991dfe2339269ee99ff18389ae4",
+        "internal_velocity_ref": 1,
+        "internal_length_ref": 1,
+        "max_nodal_error": 0.0007811956232380062,
+        "relative_max_nodal_error": 1.0,
+        "worst_node": 17,
+        "exact_face_replay": "NOT_PROVIDED_BY_NODAL_FIT",
+        "coupled_recovery": "NOT_RUN"
+      },
+      "unrestricted_nodal_fit": {
+        "kind": "QCR",
+        "donor_id": "SA_OFFLINE_ONLY",
+        "purpose": "COUPLING_CONTROL",
+        "representation": "SAME_NODE_FIT",
+        "source_csv_sha256": "2b8dc2303ff03a0aa0c93fd100b88768dad10d3a90ce4430637715a251964b14",
+        "mesh_sha256": "645db85e88cd9020f2031ed2b6dba434161b7965cb16a6b0b6026c890464cc19",
+        "definition_sha256": "cf2808b65132fca0202b55a084c4a861d5aa8ae778a14edb2e095e1b2eaea500",
+        "internal_velocity_ref": 1,
+        "internal_length_ref": 1,
+        "max_nodal_error": 1.6162331726870267e-19,
+        "relative_max_nodal_error": 2.0689224627089474e-16,
+        "worst_node": 12,
+        "exact_face_replay": "NOT_PROVIDED_BY_NODAL_FIT",
+        "coupled_recovery": "NOT_RUN",
+        "raw_bounds_satisfied": true,
+        "field_sha256": "91a09493a29d630ce2508e97df165fc92940ea4ba1ed2e6d68ebc69fcca60b9c"
+      },
+      "receiver": "REJECTED_BEFORE_ITERATION"
+    },
+    "SST": {
+      "boundary_stress": {
+        "norm": "Euclidean norm of six stored tensor components",
+        "max_all_nodes": 0.0006122844650142539,
+        "wall": {
+          "maximum": 0.0,
+          "worst_point_id": 0,
+          "nonzero_nodes": 0
+        },
+        "inlet": {
+          "maximum": 0.0006122843777623872,
+          "worst_point_id": 36,
+          "nonzero_nodes": 8
+        },
+        "outlet": {
+          "maximum": 0.0006122844650142539,
+          "worst_point_id": 80,
+          "nonzero_nodes": 8
+        },
+        "top": {
+          "maximum": 0.0006122844650142539,
+          "worst_point_id": 80,
+          "nonzero_nodes": 9
+        }
+      },
+      "donor_convergence": "NOT_CLAIMED_FOUR_ITERATIONS",
+      "nodal_csv_sha256": "ef7260d7194ec6b2c2d6ff81ce6c408e7a608bb3181b9740d755720bb50feb81",
+      "physical_fit": "REJECTED_INCOMPATIBLE_BOUNDARY",
+      "physical_fit_report": {
+        "kind": "EPM",
+        "donor_id": "SST_four_iteration_donor",
+        "purpose": "COUPLING_CONTROL",
+        "representation": "SAME_NODE_FIT",
+        "source_csv_sha256": "ef7260d7194ec6b2c2d6ff81ce6c408e7a608bb3181b9740d755720bb50feb81",
+        "mesh_sha256": "645db85e88cd9020f2031ed2b6dba434161b7965cb16a6b0b6026c890464cc19",
+        "definition_sha256": "61a797ee7d323273e6b432cbb3d4e94056ee2991dfe2339269ee99ff18389ae4",
+        "internal_velocity_ref": 1,
+        "internal_length_ref": 1,
+        "max_nodal_error": 0.0006122844650142539,
+        "relative_max_nodal_error": 1.0,
+        "worst_node": 80,
+        "exact_face_replay": "NOT_PROVIDED_BY_NODAL_FIT",
+        "coupled_recovery": "NOT_RUN"
+      },
+      "unrestricted_nodal_fit": {
+        "kind": "EPM",
+        "donor_id": "SST_OFFLINE_ONLY",
+        "purpose": "COUPLING_CONTROL",
+        "representation": "SAME_NODE_FIT",
+        "source_csv_sha256": "ef7260d7194ec6b2c2d6ff81ce6c408e7a608bb3181b9740d755720bb50feb81",
+        "mesh_sha256": "645db85e88cd9020f2031ed2b6dba434161b7965cb16a6b0b6026c890464cc19",
+        "definition_sha256": "cf2808b65132fca0202b55a084c4a861d5aa8ae778a14edb2e095e1b2eaea500",
+        "internal_velocity_ref": 1,
+        "internal_length_ref": 1,
+        "max_nodal_error": 8.00861476890611e-19,
+        "relative_max_nodal_error": 1.3079892152285246e-15,
+        "worst_node": 67,
+        "exact_face_replay": "NOT_PROVIDED_BY_NODAL_FIT",
+        "coupled_recovery": "NOT_RUN",
+        "raw_bounds_satisfied": true,
+        "field_sha256": "a1eb2636e1303dbed1c5965eec47b3c04e333d73193bf0309eeae3952deb0681"
+      },
+      "receiver": "REJECTED_BEFORE_ITERATION"
+    }
+  },
+  "iterative_recovery": "NOT_RUN",
+  "status": "PASS_GATE_CHECKS_RECOVERY_BLOCKED",
+  "recovery_blocker": "Donor corrections violate the prescribed-field zero-boundary contract; no taper or clipping applied.",
+  "next_step": "Choose a nontrivial compatible donor, or separately implement and verify prescribed boundary tractions. Do not claim recovery from these donors."
+}

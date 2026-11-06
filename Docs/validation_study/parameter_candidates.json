@@ -1,0 +1,85 @@
+{
+  "schema": "SU2_STRESS_PARAMETER_CANDIDATES_1",
+  "status": "UNSELECTED_NOT_CALIBRATED",
+  "selection_uses": "CALIBRATION cases only, separately for each parent model",
+  "amplitude_candidates": [
+    0.002,
+    0.005,
+    0.01
+  ],
+  "U_ref": "declared freestream speed from each resolved physical case",
+  "L_ref": "declared physical plate reference length; resolve before generating fields",
+  "ell_over_L_ref": 0.02,
+  "ell_w_over_L_ref": 0.001,
+  "coordinate_system": "x streamwise, y wall normal; all coordinates scaled by the declared L_ref before exporting physical field",
+  "seed_type": "LOCALIZED_PHYSICAL_V1",
+  "unsigned_patterns": [
+    {
+      "id": "broad_shear",
+      "terms": [
+        {
+          "center_over_L_ref": [
+            0.5,
+            0.01
+          ],
+          "width_over_L_ref": [
+            0.3,
+            0.01
+          ],
+          "coefficients": [
+            0,
+            0,
+            1,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "opposite_patches",
+      "terms": [
+        {
+          "center_over_L_ref": [
+            0.3,
+            0.01
+          ],
+          "width_over_L_ref": [
+            0.15,
+            0.01
+          ],
+          "coefficients": [
+            0,
+            0,
+            1,
+            0,
+            0
+          ]
+        },
+        {
+          "center_over_L_ref": [
+            0.7,
+            0.01
+          ],
+          "width_over_L_ref": [
+            0.15,
+            0.01
+          ],
+          "coefficients": [
+            0,
+            0,
+            -1,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "signs": [
+    1,
+    -1
+  ],
+  "wall_rule": "existing planar-wall map; zero correction on all physical boundaries",
+  "interpretation": "Three candidate strengths and four signed fields are a restricted scenario family, not bounds over all possible stresses."
+}

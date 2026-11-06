@@ -1,39 +1,43 @@
-+ c++ -std=c++17 -O0 -ffunction-sections -fdata-sections -Iexternals/catch2 UnitTests/SU2_CFD/numerics/stress_config_probe.cpp /tmp/su2-finalize-checks/support0.o /tmp/su2-finalize-checks/support1.o /tmp/su2-finalize-checks/support2.o /tmp/su2-finalize-checks/support3.o /tmp/su2-finalize-checks/support4.o /tmp/su2-finalize-checks/support5.o /tmp/su2-finalize-checks/support6.o -Wl,--gc-sections -o /tmp/su2-finalize-checks/stress_config_probe
-+ /usr/bin/python3 SU2_PY/stress_field/test_config.py --probe /tmp/su2-finalize-checks/stress_config_probe
++ test_config.py
 ...
 ----------------------------------------------------------------------
-Ran 3 tests in 0.142s
+Ran 3 tests in 0.122s
 
 OK
-+ c++ -std=c++17 -O2 -Wall -Wextra UnitTests/SU2_CFD/numerics/stress_field_probe.cpp -o /tmp/su2-finalize-checks/stress_field_probe
-+ /usr/bin/python3 SU2_PY/stress_field/test_field.py --probe /tmp/su2-finalize-checks/stress_field_probe --v07-root /tmp/su2-research-v07/SA_stress_uncertainty_v07
++ test_field.py
 .......
 ----------------------------------------------------------------------
-Ran 7 tests in 1.647s
+Ran 7 tests in 1.633s
 
 OK
-+ /usr/bin/python3 SU2_PY/stress_field/test_campaign.py
++ test_campaign.py
 .....
 ----------------------------------------------------------------------
-Ran 5 tests in 0.058s
+Ran 5 tests in 0.052s
 
 OK
-+ /usr/bin/python3 SU2_PY/stress_field/test_target.py --probe /tmp/su2-finalize-checks/stress_field_probe
++ test_target.py
 .
 ----------------------------------------------------------------------
-Ran 1 test in 0.027s
+Ran 1 test in 0.025s
 
 OK
-+ /usr/bin/python3 SU2_PY/stress_field/test_validation.py
++ test_validation.py
 .
 ----------------------------------------------------------------------
-Ran 1 test in 0.004s
+Ran 1 test in 0.017s
 
 OK
-
-Final study tool check after adding all-failed scenario reporting:
++ test_parallel_preparation.py
 .
 ----------------------------------------------------------------------
-Ran 1 test in 0.004s
+Ran 1 test in 0.030s
 
 OK
++ test_recovery.py
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK
+PASS: 3 cases, 8 nominal references, 58 unexecuted definitions; no calibrated lock or solver execution.

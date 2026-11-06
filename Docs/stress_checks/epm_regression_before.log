@@ -1,0 +1,20 @@
+Filters: *zero directional*
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+su2-epm-old-arithmetic-test is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+SIMD gradient correction preserves a zero directional derivative
+-------------------------------------------------------------------------------
+/tmp/su2-epm-old-arithmetic-test.cpp:103
+...............................................................................
+
+/tmp/su2-epm-old-arithmetic-test.cpp:120: FAILED:
+  REQUIRE( gradient(variable, 1)[lane] == Approx(0.).margin(1e-25) )
+with expansion:
+  0.0 == Approx( 0.0 )
+
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 25 | 24 passed | 1 failed

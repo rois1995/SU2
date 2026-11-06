@@ -58,7 +58,8 @@ FORCEINLINE void correctGradient(const PrimitiveType& V,
                                  const Double& dist2_ij,
                                  MatrixDbl<nVar,nDim>& avgGrad) {
   for (size_t iVar = 0; iVar < nVar; ++iVar) {
-    Double corr = (dot(avgGrad[iVar],vector_ij) - V.j.all(iVar) + V.i.all(iVar)) / dist2_ij;
+    // Subtract velocities first to preserve a small gradient in nearly uniform flow.
+    Double corr = (dot(avgGrad[iVar],vector_ij) - (V.j.all(iVar) - V.i.all(iVar))) / dist2_ij;
     for (size_t iDim = 0; iDim < nDim; ++iDim) {
       avgGrad(iVar,iDim) -= corr * vector_ij(iDim);
     }

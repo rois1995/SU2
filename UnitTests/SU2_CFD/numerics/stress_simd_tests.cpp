@@ -99,3 +99,23 @@ TEST_CASE("Scalar and SIMD viscous stress operators agree", "[stress][simd]") {
     CheckFlux<3>("EPM_MATCHED", scale);
   }
 }
+
+TEST_CASE("SIMD gradient correction preserves a zero directional derivative", "[stress][simd]") {
+  CPair<CCompressiblePrimitives<2, 11>> values;
+  VectorDbl<2> edge;
+  edge(0) = 0.; edge(1) = .125;
+  for (double offset : {0., 1., 1e6}) {
+    MatrixDbl<3, 2> gradient;
+    for (size_t variable = 0; variable < 3; ++variable) {
+      values.i.all(variable) = offset; values.j.all(variable) = offset;
+      gradient(variable, 0) = -2.12848628e-11;
+      gradient(variable, 1) = -3.70370401e-12;
+    }
+    correctGradient(values, edge, Double(.015625), gradient);
+    for (size_t variable = 0; variable < 3; ++variable)
+      for (size_t lane = 0; lane < Double::Size; ++lane) {
+        REQUIRE(gradient(variable, 1)[lane] == Approx(0.).margin(1e-25));
+        REQUIRE(gradient(variable, 0)[lane] == Approx(-2.12848628e-11).margin(1e-25));
+      }
+  }
+}
