@@ -33,6 +33,7 @@
 #include "../../include/numerics/flow/p1_viscous_entropy.hpp"
 #include "../../include/numerics/flow/p1_ale_entropy.hpp"
 #include "../../include/numerics/flow/p1_positive_update.hpp"
+#include "../../include/numerics/flow/p1_boundary_ghost.hpp"
 #include "../../include/fluid/CIdealGas.hpp"
 #include "../../include/fluid/CVanDerWaalsGas.hpp"
 #include "../../include/fluid/CPengRobinson.hpp"
