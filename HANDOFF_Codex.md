@@ -14,19 +14,22 @@ sources, fixtures, helpers, binary/config/inputs through each run. Verify actual
 owned handle terminal before edits/restarts. Preserve failures; authorized stop/
 fix/retry for demonstrated failures, clear bottlenecks or actual resource pressure.
 
-## LIVE225: complete two-event M6, FROZEN
+## TERMINAL225: native rejected; selected mesh export LIVE
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A225=`R/m6_runs/euler_build225_entity_shell_real_cfd50k`.
 Build225TERMINAL0(33.114415s),1302pins unchanged, both targets up to date.
 Final serial exec34204TERMINAL0:116cases/75941assertions PASS across geometry88,
 quality13,failure/census14,actual-current1. MPI6exec35336TERMINAL0:26cases on EACH
-of6ranks PASS. All validation handles terminal; full M6exec32146 LIVE is the sole heavy workload.
-Source integration checkpoint60b32aaf74 is PUSHED. Helper1530921; launcher1531290/
-start4040862; ranks1531301/2/3/4/5/10. Exact all10argv/cwd/startticks and1519pins
-are in A225/owned_startup.json. All owned handles verified live; NO stop sent.
-Freeze C++/fixtures/helpers/binary/config/inputs until terminal or preserved evidence
-justifies the authorized owned stop. NEVER signal historical219/217/210handles.
+of6ranks PASS. All validation handles terminal. Full M6exec32146TERMINAL1:
+first event naturally rejected time budget; wrapper stopped ONCE only after complete
+capture. All10owned solver handles ABSENT/1519pins unchanged: A225/terminal_handles.json.
+SIGTERM ALREADY SENT ONCE to launcher1531290/start4040862; NEVER repeat. Historical
+219/217/210launchers also must never be signaled. Source checkpoint60b32aaf74 PUSHED.
+Selected actual mesh+metric export exec13387 LIVE is the sole heavy workload:
+helper1784558/start4614743,timeout1784681/start4615012,child1784682/start4615013.
+Exact argv/cwd in A225/inspection_export_owned_startup.json. Freeze exporter/helper
+and30raw inputs until terminal; full artifacts/independent reader checks still pending.
 R/shell225_qualification.json is the complete focused receipt, not workflow proof.
 
 Connected production correction:
@@ -74,15 +77,21 @@ First COMPLETE quality entry round34594 at1584.159718native seconds:
 871607cells/102058q/101860J/1997geometry/0size, allflags1, counts/flags match219.
 Counts alone do not prove identical connectivity. quality_entry_assessment.json.
 
-Latest COMPLETE window35776 at4956.718380s(3372.558662s since entry):
-975770cells/31139q/28606J/1798geometry/0size; allflags1. Nineteenth window net2967q/
-3273J/5geo removed in102.838182s(28.85q/31.83J/s). Matching219repair round has
-31747q/28890J/1798geometry at2960.397882quality seconds. Thus shape counts are
-slightly better at this round, but reached412.160780quality seconds later.
-Whole-field useful progress per second still trails219; no closure/speedup claim.
-quality_net_progress.json contains first quality episode only; comparisons include
-both repair rounds and observed neighboring censuses at matching quality time,
-explicit time differences, no interpolation/forecast/count bounds. Keep frozen.
+COMPLETE first native EXIT round35976 at5326.087064s/3741.927346quality seconds:
+987865cells/24200q/21065J/1784geometry/0size, all completeness flags1.
+All30capture files complete/hashed; binary row counts and1519pins verified unchanged.
+A225/capture_ready.json,first_failure_prefix.json,terminal_counter_assessment.json.
+Net quality removal77858q/80795J/213geometry across49649commits, with substantial
+churn532222qretired/454364introduced. Seven stuckshape/queue324400. Terminal
+qsurface1731/interior22469; Jsurface3014/interior18051.16metric samples supported/
+0lost/max5.00896%, sample-only. No accepted mesh/transfer/continued-CFD/restart proof.
+Next target SPEED: geometry certification/boundary trial cost within this SAME cycle;
+shape still progresses with a large nonempty queue. Boundary repair power remains
+a residual risk. Review existing reuse/bounds first; no speedup from slack envelopes
+is established. [Outcome and next analysis](Handbook/ADAPTATION_BUILD225_OUTCOME_20261106.md).
+quality_net_progress.json seals first episode windows; actual EXIT is in terminal
+receipt. matched_quality_comparison219.json preserves rounds AND observed neighboring
+quality-time censuses, explicit differences/no interpolation/forecast/count bounds.
 sixteenth_quality_comparison219.json: traversal48.413Mvs29.752M, upperwork55.693Mvs
 38.220M, uppercalls37206vs32545; boundary candidates24339vs19080/moves1024vs734/
 private debt30.413vs19.972/time100.846vs82.216rank-s. Boundary private yield is
@@ -110,21 +119,18 @@ join/collective call seconds are not pure wait/CPU; private debt is not whole-fi
 benefit. OS process_cpu_observations.jsonl includes possible MPI spin, not useful
 work proof. No profiler/new baseline/competing implementation is selected.
 
-All10exact owned handles remain LIVE/no stop: owned_observations.jsonl.
-Sampled summed RSS briefly12.635GB during migration, then10.436GB; available
-RAM26.252GB(decimal),load10.73 at the latest eleventh-window observation. Not a whole-job physical-memory
-peak. Keep sources/fixtures/helpers/binary/config/inputs FROZEN to its outcome.
-Terminal preparation reviewed; functions store m6_225_capture_readiness_cmd is a
-READ-ONLY checker, prepared but awaits first complete six-rank EXIT. It sends NO
-signals. Require all6complete manifest flags and all30shards
-hashed before any post-failure stop; owned.bin has8byte count plus416bytes/row
-in this qualified writer. Independently validate/export after owned handles terminal.
-NO stop sent; never signal historical handles.
+Solver owned handles are all ABSENT; owned_stop_once.json proves the one postfailure
+stop. Do not reuse old live-audit commands that report stop_sent=false. Functions
+store m6_225_owned_observe_cmd now verifies terminal solver handles/pins;
+m6_225_capture_readiness_cmd reads the sealed receipt and never signals.
+Export13387LIVE, sampled~2.70GB summed RSS; status/resources recorded in A225.
+After export terminal: independently read/count VTUs/SU2, validate metric arrays and
+report bounded bad-cell/cavity omissions. Full raw mesh is complete; export pending.
 Judge complete whole-field q/J-bad net removal/s and geometry-bad at matching
-quality times, alongside work/certification/busy/wait/rank spread. Commits/debt
-alone do not establish closure. Construction remains unchanged.
+quality times, alongside actual work/busy/wait/rank spread. Timers overlap;
+commits/debt alone do not establish closure. Construction remains validity-first.
 
-## Corrected target and latest TERMINAL M6:219
+## Corrected target and previous terminal M6:219
 
 Shared2D/3DComputeMetric local regularization/log normalization/flat handling was
 reviewed/integrated6209e172e3; related serial40cases/207605assertions and MPI6each

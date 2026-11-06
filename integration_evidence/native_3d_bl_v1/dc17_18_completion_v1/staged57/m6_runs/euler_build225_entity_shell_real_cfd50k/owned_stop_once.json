@@ -1,0 +1,26 @@
+{
+  "time": 1794001571.3712227,
+  "action": "SIGTERM once to verified owned current launcher using pidfd",
+  "launcher": {
+    "pid": 1531290,
+    "ppid": 1531288,
+    "state": "S",
+    "startticks": 4040862,
+    "argv": [
+      "mpirun",
+      "--output-filename",
+      "rank_output",
+      "-n",
+      "6",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+      "[NativeSelectedFailureWorkflow3D]"
+    ],
+    "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k",
+    "rss_bytes": 15794176
+  },
+  "capture_ready_sha256": "4af2046aefb7ed97760dafb1461b4ed9ae6bb6c5a7fb32bddf735c63a3e70b00",
+  "failure_prefix_sha256": "611780f480772861285d88a49c057edf67e221bc1fbe836a1e16cd8e54bf952d",
+  "reason": "First native event naturally rejected time budget with all complete capture files and unchanged source/runtime/input pins; two accepted events cannot be proved by continuing post-reject original-grid work.",
+  "state": "signal_sent",
+  "signal_sent_at": 1794001571.948045
+}

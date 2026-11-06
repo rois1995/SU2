@@ -1,0 +1,49 @@
+{
+  "time": 1794001843.5145848,
+  "tool_session": 13387,
+  "state": "verified_export_live",
+  "processes": [
+    {
+      "pid": 1784558,
+      "startticks": 4614743,
+      "state": "S",
+      "argv": [
+        "python3",
+        "-"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated"
+    },
+    {
+      "pid": 1784681,
+      "startticks": 4615012,
+      "state": "S",
+      "argv": [
+        "timeout",
+        "1200",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/*_inspection_rank*_manifest.json",
+        "--output",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/inspection"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k"
+    },
+    {
+      "pid": 1784682,
+      "startticks": 4615013,
+      "state": "R",
+      "argv": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/*_inspection_rank*_manifest.json",
+        "--output",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/inspection"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k"
+    }
+  ],
+  "last_summed_rss_bytes": 2703167488,
+  "sole_owned_heavy_job": true,
+  "solver_handles_terminal": true,
+  "stop_sent_to_export": false
+}

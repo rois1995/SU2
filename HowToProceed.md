@@ -35,7 +35,11 @@ Actual223regression enables2of4root stars (best q5→3/J3→2/geometry8→6). Mi
 shell can now construct but is correctly refused for increased geometry excess.
 The connected225milestone is qualified (116serial cases;26MPI6cases per rank),
 including a demonstrated geometry-version provenance fix in common import. Full
-same-seed two-event M6 is now LIVE225/FROZEN; HANDOFF_Codex.md has exact handles,
+same-seed two-event M6 is now TERMINAL225:987865cells/24200q/21065J/1784geometry/0size.
+All owned solver handles absent; complete capture preserved, selected mesh+metric
+export13387LIVE. Next is existing geometry-certification/boundary-cost analysis,
+with speed the measured priority and repair power a residual risk. See
+[225outcome](Handbook/ADAPTATION_BUILD225_OUTCOME_20261106.md). HANDOFF_Codex.md has exact handles,
 source pins, initial-target equality and the authoritative run state.
 Context unions67/91cells do not enlarge active operator supports: selected core
 vertex stars remain8–42cells.
