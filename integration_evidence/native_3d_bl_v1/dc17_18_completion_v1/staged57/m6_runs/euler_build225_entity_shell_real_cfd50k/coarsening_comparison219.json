@@ -1,0 +1,138 @@
+{
+  "time": 1793997147.5135276,
+  "scope": "First complete coarsening exit; initial CFD/metric and run config bitwise identical; no quality-stage speed or closure claim. Rank sums for replicated global_work are not distinct work.",
+  "stage": "length_collapse_exit",
+  "build219": {
+    "round": 1777,
+    "elapsed": 301.972878243,
+    "totals": {
+      "cells": 293396,
+      "measured": 293396,
+      "q_measured": 0,
+      "j_measured": 0,
+      "q_bad": 0,
+      "j_bad": 0,
+      "geometry_bad": 2968,
+      "size_bad": 119026
+    },
+    "flags": {
+      "cache_consistent": true,
+      "census_complete": true,
+      "shape_complete": false,
+      "geometry_complete": true
+    }
+  },
+  "build225": {
+    "round": 1777,
+    "elapsed": 953.638857656,
+    "totals": {
+      "cells": 293396,
+      "measured": 293396,
+      "q_measured": 0,
+      "j_measured": 0,
+      "q_bad": 0,
+      "j_bad": 0,
+      "geometry_bad": 2968,
+      "size_bad": 119026
+    },
+    "flags": {
+      "cache_consistent": true,
+      "census_complete": true,
+      "shape_complete": false,
+      "geometry_complete": true
+    }
+  },
+  "wall_ratio_225_over_219": 3.158028175260823,
+  "counters": {
+    "accepted": {
+      "build219_rank_sum": 2520,
+      "build225_rank_sum": 2520,
+      "rank_vectors_identical": true,
+      "sums_identical": true
+    },
+    "updated_cells": {
+      "build219_rank_sum": 24428,
+      "build225_rank_sum": 24428,
+      "rank_vectors_identical": true,
+      "sums_identical": true
+    },
+    "geometry_trials": {
+      "build219_rank_sum": 10313,
+      "build225_rank_sum": 10313,
+      "rank_vectors_identical": true,
+      "sums_identical": true
+    },
+    "geometry_rejected": {
+      "build219_rank_sum": 3075,
+      "build225_rank_sum": 3075,
+      "rank_vectors_identical": true,
+      "sums_identical": true
+    },
+    "direct_calls": {
+      "build219_rank_sum": 65977,
+      "build225_rank_sum": 65977,
+      "rank_vectors_identical": true,
+      "sums_identical": true
+    },
+    "upper_calls": {
+      "build219_rank_sum": 21669,
+      "build225_rank_sum": 21669,
+      "rank_vectors_identical": true,
+      "sums_identical": true
+    },
+    "upper_work": {
+      "build219_rank_sum": 116831381,
+      "build225_rank_sum": 116831381,
+      "rank_vectors_identical": true,
+      "sums_identical": true
+    },
+    "traversal_work": {
+      "build219_rank_sum": 106031874,
+      "build225_rank_sum": 106031874,
+      "rank_vectors_identical": true,
+      "sums_identical": true
+    },
+    "scope_builds": {
+      "build219_rank_sum": 13940,
+      "build225_rank_sum": 13940,
+      "rank_vectors_identical": true,
+      "sums_identical": true
+    },
+    "scope_build_work": {
+      "build219_rank_sum": 2511405,
+      "build225_rank_sum": 2511405,
+      "rank_vectors_identical": true,
+      "sums_identical": true
+    },
+    "memo_union_hits": {
+      "build219_rank_sum": 3370,
+      "build225_rank_sum": 3370,
+      "rank_vectors_identical": true,
+      "sums_identical": true
+    },
+    "memo_union_misses": {
+      "build219_rank_sum": 18299,
+      "build225_rank_sum": 18299,
+      "rank_vectors_identical": true,
+      "sums_identical": true
+    },
+    "length_collapses": {
+      "build219_rank_sum": 2520,
+      "build225_rank_sum": 2520,
+      "rank_vectors_identical": true,
+      "sums_identical": true
+    },
+    "global_work": {
+      "build219_rank_sum": 46332,
+      "build225_rank_sum": 46332,
+      "rank_vectors_identical": true,
+      "sums_identical": true
+    }
+  },
+  "evidence": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/construction_progress_assessment.json": "765c12bc6538e615d193ce22b231866dd5c48285b9ca8a3c77b81d8cb66f03f4",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build219_local_metricL1_real_cfd50k/construction_progress_assessment.json": "76094321cb8eb6b99d0441220c03199540e635b4b88a8b4ce5341cf9a8f971fb",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/initial_target_match.json": "94391f116152e13f4d83db252e428c59739524bded55ccf754c546f29f98f21d"
+  },
+  "interpretation": "Matching counted work can support comparing work done despite contention. Elevated host load is observed, but these data alone do not isolate contention from all runtime effects."
+}

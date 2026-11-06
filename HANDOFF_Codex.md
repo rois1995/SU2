@@ -65,9 +65,16 @@ mesh exports. Actual initial restart coordinates,6metric components and7flow fie
 BITWISE match219and its assessed production L1target: A225/initial_target_match.json,
 restartSHA5132ee2a83635b457943c2679a3a50c5e0b733427e620cc748da53865ce5d692.
 Restarted CL.269535/CD.013536. Curved mobility181938600setup work; initial6rank
-ownership migration completed. No complete engine census yet at this observation.
-A225/owned_observations.jsonl records resource receipts: summed RSS4.447GB, available
-RAM30.406GB(decimal), load13.66. Host contention exists; counters/stage vectors
+ownership migration completed. First complete coarsening exit/round1777:
+293396cells/2968geometry/119026size demands; q/J deliberately unmeasured.
+Coarsening work/counter vectors are IDENTICAL per rank to219, including2520
+collapses/10313geometry trials/21669upper queries/106031874traversal work, but
+953.638858s vs301.972880s(~3.158xwall). A225/coarsening_comparison219.json.
+Ownership transition preserved counts; splitting follows. Do not attribute raw
+time differences to quality code; host contention is present.
+A225/owned_observations.jsonl records resource receipts: summed RSS6.261GB, available
+RAM29.573GB(decimal), load11.74 at the complete coarsening observation. Host
+contention exists; counters/stage vectors
 matter for comparison. No new implementation or baseline/profiler campaign.
 Compare complete whole-field q/J-bad removal/s and geometry-bad at matching quality
 times, plus work/certification, busy/wait and rank spread; commits/debt alone do not
