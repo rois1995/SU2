@@ -56,6 +56,20 @@ shape/geometry flags1. Actual quality ownership migration preserves every count 
 flag; committed q/J/debt max-over-mean1.2605/1.2797/1.1389. A219/quality_entry_assessment.json.
 A219/construction_progress_assessment.json preserves complete6-rank stages/prefix
 hashes. Shape zeros during construction were unmeasured, never closure.
+First complete quality window round34624at923.308223s:874775cells/100040q/99867J/
+1989geometry/0size, all6flags1. Net2018q/1993J/8geometry removed in124.748571s
+(16.1765q/s,15.9761J/s),1170commits. Retired/introduced q31648/29630,J29200/27207
+reconcile exactly to whole-field net changes; not a closure forecast. Busy/join/
+collective timers overlap. A219/quality_window1_assessment.json.
+Second complete window round34688at1076.441229s:880752cells/96227q/96055J/
+1970geometry/0size, all flags1. Net3813q/3812J/19geometry in153.133006s
+(~24.9q/J cells per second). A219/quality_net_progress.json retains measured
+window deltas; target changed, no source speed attribution or closure forecast.
+Third complete window round34752at1254.908347s:886620cells/92619q/92462J/
+1957geometry/0size; net3608q/3593J in178.467118s. Following actual ownership
+migration at1268.112285s preserves all counts/flags. Latest owned observation:
+1518pins unchanged, all10handles live, summed sampled RSS10.24GB. Wait for
+terminal outcome; no competing correction or prediction-based stop.
 Latest sampled tree RSS~10.0GB; all10owned handles live and1518pins unchanged.
 No source speedup claim against217because target changed. All strict gates and construction policy retained.
 
