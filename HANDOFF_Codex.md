@@ -44,11 +44,16 @@ not measured repair yield/acceptance. LIVE/quality_entry_comparison.json preserv
 all6rows, counters and source prefixes. Keep run frozen; assess net q/J removal
 per second with geometry counts at complete quality windows. No stop justified.
 First complete quality window census3/round20928 now723343cells/48006q/46652J/
-2700geometry/0size. Net1374q/1566J/13geometry removed in81.891419quality seconds,
+2700geometry/0size. Net1374q/1566J/13geometry removed in81.966318quality seconds,
 725commits. qretired18987/introduced17613, J17788/16222 reconcile to whole-field
 net; do not judge by commits or debt alone. LIVE/quality_window1_assessment.json
 preserves all6stage/service rows, timing limits and source prefixes. Baseline206
 first complete window is158.290quality seconds, not matched to this early window.
+Latest complete window round20992:728526cells/44355q/42667J/2675geometry/0size;
+all6complete flags1. Subsequent staged→committed quality ownership migration at
+that round preserves these global counts, full measurement counts and q/Jdebt sum.
+LIVE/quality_ownership20992_assessment.json records per-rank rows/source prefixes;
+count preservation alone does not prove every attribute/history. Run remains live.
 Checkpoint293b8361bf verified on fork2026-11-06; no owned heavy handles live before edits.
 Current unvalidated change: budgeted entity direct-bound failures try the existing
 singleton-support physical union query, retain the tighter upper and independent
