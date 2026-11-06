@@ -16,9 +16,9 @@ This is not an implementation of a probabilistic uncertainty interval or a guara
 
 **Implementation status (2026-11-06):** branch `rois1995/SU2:feature_UQ` starts at the upstream commit below. Commit `671a0f400779560d2e5458773cffa05902617f52` corrects eigenvector permutation and SST-2003 EPM production. Four local C++ unit tests pass, with 169 assertions (GCC 13.3.0, C++17, serial passive build). Reintroducing the old row swap and the old norm-squared production separately causes the corresponding tests to fail. Tests instantiate the actual source class and tensor helper. No CFD simulation, production run, cluster access, full executable build, MPI test, or reverse-mode test was performed.
 
-**Adjoint decision:** do not advertise or enable the live-EPM estimator yet. Its iteration-map adjoint algebra is valid under the regularity assumptions stated below, but the unregularized 1C/2C targets fail a necessary continuity assumption at an isotropic state. The new test demonstrates distinct finite target limits for rotated velocity gradients of size `1e-4`, `1e-8`, and `1e-12` tending to the same zero-gradient state. A deterministic eigensolver does not cure this. No `SST_EPM_*` options, continuation solver, parameter tapes, sensitivity CSVs, or campaign runner have been implemented. Sections 6–13 describe a conditional design and future acceptance work, not executable infrastructure delivered on this branch.
+**Adjoint decision:** proceed with the shared smooth spectral target defined in Section 5.5. It resolves the repeated-eigenvalue ambiguity without differentiating eigenvectors, while retaining the common ordinary-SST baseline and one adjoint per objective. The price is an explicitly regularized EPM model near tied eigenvalues. Classical EPM remains a separate reference for model-bias assessment. A local NumPy prototype passes the algebraic checks in Section 5.5; this is not solver-level validation.
 
-The next model decision must either define a shared regularized target for nonlinear EPM and extraction, prove a suitable directional limit for the particular baseline, or explicitly narrow the result to sensitivity to a saved frozen forcing. The first choice changes the target model; the last does not establish sensitivity of the original live EPM equations. Neither change is silently made here.
+No `SST_EPM_*` options, continuation solver, parameter tapes, sensitivity CSVs, or campaign runner have been implemented. Sections 6–13 remain implementation requirements. The target-limit design is now specified; solver integration and its verification gates remain open.
 
 **Execution contract:** only small local tests are authorized for this task. Production campaigns and all cluster access are prohibited. The numerical campaigns below are future validation instructions and must not be launched under the current authorization. Pushing this branch to the user's fork is explicitly authorized.
 
@@ -64,7 +64,7 @@ Do not freeze `k`, `omega`, eddy viscosity, SST blending functions, or the basel
 
 ## 3. Mathematical definition: fix the path before coding
 
-Let `q` contain all flow and SST state variables participating in the recorded steady iteration. Let `R_0(q)` be the exact ordinary SST-2003m discrete equation residual, including boundaries. Let `R_m^EPM(q)` be the residual for corrected nonlinear EPM case `m`, with its endpoint controls fixed.
+Let `q` contain all flow and SST state variables participating in the recorded steady iteration. Let `R_0(q)` be the exact ordinary SST-2003m discrete equation residual, including boundaries. Let `R_m^EPM(q)` denote the residual for the shared regularized nonlinear target in Section 5.5, at fixed positive epsilon and full endpoint controls. In the formulas below this notation now refers to regularized EPM; corrected legacy EPM is a separate model-bias comparator.
 
 Use this equation-level continuation:
 
@@ -113,7 +113,7 @@ This distinction is part of the model definition:
 
 in general. Do not accidentally implement the second expression while claiming the first. Put source clipping and limiting inside each endpoint contribution before blending. Post-blend operations must be linear or demonstrably equivalent/inactive for the supported states; otherwise they define a different homotopy that must be specified and validated explicitly. Merely documenting an unchanged nonlinear clip is insufficient. Endpoint-identity checks alone do not establish the interior path.
 
-Intermediate amplitudes define an equation-level continuation. They need not correspond to a conventional single stress-based closure. At `a=1`, the residual and reported objective must match the corrected standalone EPM case.
+Intermediate amplitudes define an equation-level continuation. They need not correspond to a conventional single stress-based closure. At `a=1`, the residual and reported objective must match the regularized standalone target at the same epsilon.
 
 ### Objective consistency
 
@@ -243,6 +243,60 @@ The local counterexample uses trace-free strain `diag(-epsilon, 0, epsilon)` and
 Establish a suitable continuous target limit at the actual baseline, or justify a directional limit agreeing with the selected target. Without it, a saved-forcing sensitivity must not be labeled a verified live-continuation derivative. A deterministic tie rule alone does not establish continuity. Freestream and zero-strain regions make this a relevant model issue rather than an exotic test input.
 
 Do not silently introduce a taper, floor, realizability projection, or smoothing only on the adjoint side. Any regularization that changes the target belongs to both reference and estimator and must be documented as a model choice. Reuse compatible existing physical floors where possible, test representative near-degenerate states, and report unresolved ambiguity honestly.
+
+### 5.5 Selected solution: smooth spectral targets shared by reference and estimator
+
+Use a **regularized five-target EPM study**, with full endpoint controls `UQ_DELTA_B=UQ_URLX=1` for the first implementation. This is a model choice, not a claim to reproduce the unregularized five cases exactly. Keep the corrected legacy EPM available as a separate comparator. Do not silently reinterpret its existing configuration.
+
+For symmetric baseline anisotropy `A=R_base/(2k)-I/3`, define a fixed positive, dimensionless smoothing width `epsilon` and
+
+\[
+W_+(A)=\frac{\exp(A/\epsilon)}{\operatorname{tr}\exp(A/\epsilon)},\qquad
+W_-(A)=\frac{\exp(-A/\epsilon)}{\operatorname{tr}\exp(-A/\epsilon)}.
+\]
+
+These are matrix exponentials, not entrywise exponentials. Construct trace-one tensors:
+
+| Case | Regularized target `T_m` |
+|---|---|
+| `1C_KEEP` | `W_+` |
+| `1C_SWAP` | `W_-` |
+| `2C_KEEP` | `(I-W_-)/2` |
+| `2C_SWAP` | `(I-W_+)/2` |
+| `3C` | `I/3` |
+
+The Reynolds stress per unit mass is `R_m=2k T_m`. The labels denote the classical limiting targets; for finite epsilon the first four tensors are generally full rank, not exact 1C/2C states.
+
+**Why this resolves the ambiguity.** Matrix exponentials are smooth functions of the matrix, including at repeated eigenvalues. In any repeated eigenspace all eigenvectors receive the same weight, so rotations inside that eigenspace cannot change the result. Under a rigid coordinate rotation Q, `T(Q A Q^T)=Q T(A) Q^T`. Every target is positive semidefinite with trace one, hence `R_m` is realizable for `k>=0` and has trace `2k`. At `A=0`, every target equals `I/3`, independent of the approach direction. For separated relevant extreme eigenvalues and epsilon tending to zero, the four targets recover the corresponding classical projectors; 3C is already exact.
+
+This is a necessary tradeoff, not a numerical trick: any single-valued rotation-covariant tensor function of an isotropic tensor alone must itself be isotropic. One cannot simultaneously demand a unique continuous isotropic limit, exact anisotropic 1C/2C targets there, and no additional directional information. Arbitrary tie-breaking, adding a fixed coordinate-axis bias, or normalizing a vanishing anisotropy by its norm does not meet the study's invariance/continuity requirements. An adjoint-dependent choice of orientation would instead define QoI-dependent targets and a different study.
+
+**Compatibility with one baseline adjoint.** Define `R_m^epsilon(q)` using these targets in all affected momentum, energy, and SST source terms. Keep the equation-level continuation
+
+\[
+\mathcal R_m(q,a;\epsilon)=\mathcal R_0(q)
++a[\mathcal R_m^\epsilon(q)-\mathcal R_0(q)].
+\]
+
+Use the same epsilon in the live nonlinear reference and in extraction; hold it fixed while differentiating with respect to amplitude. At zero amplitude, `R_q=R_0,q` and `R_a=R_m^epsilon(q0)-R_0(q0)`. The same fully coupled baseline adjoint therefore supplies all five gradients and can also be reused for several epsilon values. Computing the passive correction at the restored baseline gives the correct first derivative: continuity makes `a[b(q)-b(q0)]=o(a)` along a regular solution branch. With locally Lipschitz corrections and a smooth nonsingular baseline problem, the usual quadratic Taylor remainder is expected. SST switches, boundary constraints, replay plumbing, and convergence remain separate verification gates.
+
+The existing native iteration-map adjoint still requires recording parameter propagation through the update; do not contract its stored adjoint directly with the raw residual difference. This regularization resolves the target ambiguity, not that implementation requirement.
+
+**Small-k and omega-production policy.** At SST-2003 nodes with `k>0`, `rho>0`, `omega>0`, the implemented eddy viscosity obeys `mu_t=rho*k/zeta`, where `zeta=max(omega, |S| F2/a1)`. Thus compute `A=-S_dev/zeta`, avoiding division by k. Here `S_dev` is the full three-dimensional deviatoric symmetric velocity gradient, with zero out-of-plane velocity derivatives in a 2-D calculation. This identity uses the actual SST closure; it must not be assumed for arbitrary prescribed eddy viscosities or for independently averaged face quantities. At a face with positive k use its actual `mu_t/(rho*k)` and its actual gradient. At exact `k=mu_t=0`, return zero stress; bounded `T_m` guarantees `2k T_m -> 0` regardless of orientation. Reject inconsistent negative states according to the solver's physical admissibility policy.
+
+At nodes, define `pbar=max(0,min(-2 T_m:grad(U), C_lim*beta_star*omega))`. Then use `p_k=rho*k*pbar` and `p_omega=alpha*rho*zeta*pbar`. For positive k these equal the required capped stress contraction and `(alpha*rho/mu_t)*p_k`. They provide a finite algebraic k-to-zero extension without 0/0. The former legacy fallback `p_omega=0` at `mu_t=0` is **not** that limit and must not be copied into the regularized target. Strong wall rows continue to use the existing boundary prescription. This policy must be implemented and tested in the new shared reference path; it is presently a design, not a change to the legacy source routine.
+
+**Numerical evaluation.** For passive extraction, the existing symmetric eigensolver is sufficient: evaluate shifted exponential weights `exp((+/-lambda_i-max_j(+/-lambda_j))/epsilon)`, normalize, and recompose. Equal eigenvalues have equal weights. Never differentiate individual eigensolver vectors for the zero-amplitude correction. If future finite-amplitude AD is needed, use a matrix-function derivative valid at repeated eigenvalues. Choose epsilon above numerical eigenvalue noise; do not take epsilon to zero as a function of amplitude or normalize it by a quantity that vanishes at isotropy.
+
+**Selecting epsilon and assessing model bias.** There is no calibrated default yet. Explore, for example, dimensionless widths `1e-2, 3e-3, 1e-3` using the same baseline adjoint and extra inexpensive recordings. Record the active extreme eigenvalue gaps and the variation of each QoI gradient with epsilon. Away from a tie, the missing extreme weight is at most `2 exp(-gap/epsilon)`, giving a useful local diagnostic for recovery of the classical target. Do not accept gradients solely because two epsilon values agree: quantify the contributions from regions where relevant gaps are comparable to epsilon and ultimately compare nonlinear regularized and legacy endpoints where each has a credible steady solution.
+
+For trace-free `A=-S_dev/zeta`, the departure of the regularized raw production from its classical extremum is bounded locally by `2 rho k zeta epsilon log(3)` for 1C and `rho k zeta epsilon log(3)` for 2C. This follows from the entropy bound for exponential spectral weights; it does not bound momentum-flux error, a global QoI, or error after an unrelated closure change. At isotropy the regularized anisotropic spread collapses, so it must not be called full orientation-uncertainty coverage.
+
+Separate (i) regularization bias relative to classical EPM, (ii) amplitude-one extrapolation error, and (iii) discretization/convergence/AD error. At finite epsilon the exact endpoint identity is with the **regularized** nonlinear reference. The legacy endpoint is a separate comparison, not an identity test. At partial endpoint controls the old permutation also acts on the retained eigenvalue spectrum; do not extend the formulas above by an undocumented blend. Reject partial controls in the first regularized implementation.
+
+**Evidence and status.** `UnitTests/SU2_CFD/numerics/check_epm_regularization.py` is a NumPy algebraic prototype/self-check, invoked explicitly with `python3 UnitTests/SU2_CFD/numerics/check_epm_regularization.py`. It checks rotations, isotropic and double-eigenvalue states, PSD/trace, approach-direction continuity, the separated-eigenvalue classical limit, the production bound, and five shared-adjoint Taylor checks on a two-variable implicit toy problem. It launches no CFD runs and is not registered as a dependency of the SU2 C++ test driver. All checks pass. No solver-level implementation or CFD gradient validation is claimed.
+
+The spectral smoothing is established mathematics; its use for these five targets is the proposed study design, not a turbulence-model validation from the cited literature. Sources: [d'Aspremont, smooth spectral optimization, equations 3.3–3.4](https://arxiv.org/pdf/math/0512344); [Iaccarino, Mishra and Ghili, five-case EPM and production-extreme orientations](https://link.aps.org/accepted/10.1103/PhysRevFluids.2.024605); [Matha and Morsbach, consistency of moderated EPM targets](https://arxiv.org/abs/2303.06149).
 
 ## 6. Add the active continuation without losing derivatives
 
@@ -396,7 +450,7 @@ A five-component active parameter vector can later expose all projections in one
 
 ## 8. Proposed configuration interface
 
-**These names are proposed new options; they do not exist in the inspected SU2 version.** Adjust names to repository conventions, preserving these semantics.
+**These names are proposed new options; they do not exist in the inspected SU2 version or the current feature branch.** The regularized mode additionally requires an explicit finite positive `SST_EPM_EPSILON`, held fixed across nonlinear and adjoint comparisons; no calibrated default is selected. Existing configuration fragments below need this value before the future regularized mode can run. Adjust names to repository conventions, preserving these semantics.
 
 | Option | Proposed values | Meaning |
 |---|---|---|
@@ -435,7 +489,7 @@ This is a configuration fragment, not a complete runnable case. Supply the mesh,
 
 For nonlinear continuation use `MATH_PROBLEM=DIRECT`, select `CONTINUATION`, one case, and a finite amplitude.
 
-For standalone endpoint-identity checks, the corrected legacy EPM branch uses `SST_OPTIONS=(V2003m,UQ)` with the corresponding existing `UQ_COMPONENT` and `UQ_PERMUTE`. Keep the new analysis mode disabled there.
+For endpoint-identity checks, compare against the shared regularized target at the same epsilon. The corrected legacy EPM branch uses `SST_OPTIONS=(V2003m,UQ)` with the corresponding existing `UQ_COMPONENT` and `UQ_PERMUTE`, with new analysis disabled; it is a separate model-bias comparison and no longer the exact finite-epsilon endpoint.
 
 ## 9. Required verification and acceptance gates
 
@@ -452,7 +506,7 @@ Do not update expected values merely to make tests pass.
 At representative admissible states, not only a converged solution:
 
 - `a=0`: assembled residuals, affected face fluxes/sources, boundaries, and objective equal ordinary SST.
-- `a=1`: they equal corrected standalone EPM for each mode.
+- `a=1`: they equal the shared regularized standalone target for each mode at the same epsilon.
 - At `a=0`, state-map and objective derivatives agree across modes and with the baseline.
 - New feature disabled: ordinary SST behavior is unchanged.
 - Deliberately zero residual and explicit objective corrections produce zero parameter sensitivity. A zero residual correction alone does not imply a zero sensitivity if the objective has direct amplitude dependence. Do not use `UQ_DELTA_B=0` with an active permutation as a zero-correction test.
@@ -522,7 +576,7 @@ case, objective, J_baseline, dJ_da_at_zero, J_linear_at_one,
 delta_b, tensor_blend_factor, primal_converged, adjoint_converged
 ```
 
-Put units/normalization, actual commit, solver/build/AD options, mesh identifier, configuration provenance, iteration settings, and gradient-verification status in a companion metadata object or documented output header. Record whether endpoint bug fixes are present.
+Record the smoothing width as `spectral_epsilon`, distinct from numerical-error estimates `epsilon_J` and `epsilon_g`; include it in every comparison join. Put units/normalization, actual commit, solver/build/AD options, mesh identifier, configuration provenance, iteration settings, and gradient-verification status in a companion metadata object or documented output header. Record whether endpoint bug fixes are present.
 
 Add nonlinear values/errors when running the comparison script. Keep unavailable nonlinear results empty or explicitly marked unavailable; never present linear estimates as completed nonlinear simulations.
 
@@ -553,7 +607,7 @@ Do not implement a new adjoint solver, stochastic surrogate, Hessian method, or 
 
 ## 12. Operational runbook: simulations and sensitivity results
 
-This section defines a future validation workflow after implementing Sections 1–11 and resolving the target-limit gate. It is not authorized for execution in this infrastructure-only task. It also defines the user workflow for an already implemented patch. The new `SST_EPM_*` options, campaign helper, and sensitivity CSV files below are **implementation requirements**, not features available in unmodified SU2. No CFD results were generated while writing this brief.
+This section defines a future validation workflow after implementing Sections 1–11, including the target-limit policy in Section 5.5. It is not authorized for execution in this infrastructure-only task. It also defines the user workflow for an already implemented patch. The new `SST_EPM_*` options, campaign helper, and sensitivity CSV files below are **implementation requirements**, not features available in unmodified SU2. No CFD results were generated while writing this brief.
 
 ### 12.1 Build and identify the executables
 
@@ -795,7 +849,7 @@ The generator must add the absolute `SOLUTION_FILENAME` stem of the common basel
 
 Save both physical `CD` and `CL` and their equivalent native single-objective values from every primal run. Changing the monitored objective between drag and lift does not require another primal solve in this fixed-AOA case, provided the normalization/evaluation is consistent.
 
-For a standalone corrected legacy EPM check, use `SST_EPM_ANALYSIS=NONE`, `SST_OPTIONS=(V2003m,UQ)`, and the case's `UQ_COMPONENT/UQ_PERMUTE` mapping. A converged continuation state at `a=1` can serve as this endpoint's solution once assembled residual and objective identity have been verified. Do not duplicate five full endpoint solves solely to change their labels.
+For a separate classical-model comparison, use `SST_EPM_ANALYSIS=NONE`, `SST_OPTIONS=(V2003m,UQ)`, and the case's `UQ_COMPONENT/UQ_PERMUTE` mapping. A regularized continuation state at `a=1` is only an initial guess for that different model, not its converged solution. Nonlinear legacy comparisons add separately counted solves; they are future work outside the current no-production-run authorization.
 
 ### 12.5 Commands and execution stages
 
@@ -946,7 +1000,7 @@ A sensible execution order is: baseline; drag adjoint; a pilot small-amplitude c
 
 Start every core small-amplitude and endpoint run from the common baseline. This makes the timing of the five full endpoint solves comparable. If an endpoint needs intermediate continuation to converge, record the extra states and include their cost in obtaining it. Do not count initialization from a previously converged perturbed state as free.
 
-The full-amplitude continuation solution is reusable as a corrected standalone EPM reference after the endpoint residual/objective identities pass. Extra standalone solves are needed only to resolve a concrete remaining inconsistency, not as routine duplicate calculations.
+The full-amplitude continuation solution is the regularized endpoint reference at the chosen epsilon. It is not automatically a solution of corrected classical EPM. Classical-model bias assessment needs separately converged legacy references, whose cost must be added to the core regularized campaign count.
 
 ### 12.8 Compute derivative checks and prediction errors
 
@@ -1099,7 +1153,7 @@ The core implementation deliverable is the verified attached-case workflow with 
 
 ## 13. Completion checklist
 
-Current branch: reference corrections and focused serial passive tests are complete. Gate A remains partial (assembled scalar/SIMD comparison and reference CFD regression values pending). Gates B–E, parameter replay, output/configuration infrastructure, reverse-mode and MPI validation are not implemented or verified. No numerical sensitivity or speed-up is claimed.
+Current branch: reference corrections and focused serial passive tests are complete; the regularized-target design and its standalone algebraic prototype are also complete. Solver integration is pending. Gate A remains partial (assembled scalar/SIMD comparison and reference CFD regression values pending). Gates B–E, parameter replay, output/configuration infrastructure, reverse-mode and MPI validation are not implemented or verified. No numerical sensitivity or speed-up is claimed.
 
 Reproduce the lightweight tests without building or running a CFD executable, from the repository root:
 
