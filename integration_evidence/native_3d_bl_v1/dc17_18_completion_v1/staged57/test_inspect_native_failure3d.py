@@ -1,3 +1,4 @@
+import base64
 import importlib.util
 import itertools
 import json
@@ -14,6 +15,14 @@ SPEC = importlib.util.spec_from_file_location("inspect_native_failure3d", SCRIPT
 INSPECT = importlib.util.module_from_spec(SPEC)
 assert SPEC and SPEC.loader
 SPEC.loader.exec_module(INSPECT)
+
+
+def _float_values(element):
+    assert element.get("format") == "binary"
+    raw = base64.b64decode(element.text, validate=True)
+    size, = struct.unpack("<I", raw[:4])
+    assert size == len(raw) - 4 and size % 8 == 0
+    return list(struct.unpack(f"<{size // 8}d", raw[4:]))
 
 
 def _owned_record(cell_id, version, nodes, physical=None, sensors=None):
@@ -145,6 +154,8 @@ class InspectNativeFailureTests(unittest.TestCase):
         for filename, expected in (("bad_cells.vtu", 1), ("cavities.vtu", 2)):
             doc = ET.parse(self.root / "out" / filename).getroot()
             piece = doc.find("./UnstructuredGrid/Piece")
+            self.assertIsNone(piece.find("FieldData"))
+            self.assertIsNotNone(doc.find("./UnstructuredGrid/FieldData"))
             self.assertEqual(int(piece.attrib["NumberOfCells"]), expected)
             ids = piece.findall("./CellData/DataArray[@Name='global_cell_id']")[0].text.split()
             self.assertEqual([int(x) for x in ids], [10] if expected == 1 else [10, 20])
@@ -152,13 +163,15 @@ class InspectNativeFailureTests(unittest.TestCase):
         self.assertEqual(reference.find("./UnstructuredGrid/Piece").attrib["NumberOfCells"], "1")
         full = ET.parse(self.root / "out/rejected_mesh.vtu").getroot()
         full_piece = full.find("./UnstructuredGrid/Piece")
+        self.assertIsNone(full_piece.find("FieldData"))
+        self.assertIsNotNone(full.find("./UnstructuredGrid/FieldData"))
         self.assertEqual(full_piece.attrib["NumberOfCells"], "3")
         full_ids = [int(x) for x in full_piece.find("./CellData/DataArray[@Name='global_cell_id']").text.split()]
         self.assertEqual(full_ids, [10, 20, 30])
         full_node_ids = [int(x) for x in full_piece.find("./PointData/DataArray[@Name='global_node_id']").text.split()]
         full_conn = [int(x) for x in full_piece.find("./Cells/DataArray[@Name='connectivity']").text.split()]
         self.assertEqual(full_piece.find("./PointData/DataArray[@Name='captured_nodal_metric_available']").text.split(), ["0"] * 9)
-        self.assertEqual(full_piece.find("./PointData/DataArray[@Name='captured_nodal_metric']").text.split(), ["nan"] * 81)
+        self.assertTrue(all(math.isnan(x) for x in _float_values(full_piece.find("./PointData/DataArray[@Name='captured_nodal_metric']"))))
         self.assertEqual([full_node_ids[i] for i in full_conn[:8]], [1, 2, 3, 4, 1, 2, 3, 5])
         self.assertEqual(set(full_ids) - {10, 20}, {30})
         records = (self.root / "out/reference_records.jsonl").read_text()
@@ -181,7 +194,7 @@ class InspectNativeFailureTests(unittest.TestCase):
             ids = list(map(int, data.find("DataArray[@Name='global_node_id']").text.split()))
             array = data.find("DataArray[@Name='captured_nodal_metric']")
             self.assertEqual(array.attrib["NumberOfComponents"], "9")
-            actual = list(map(float, array.text.split()))
+            actual = _float_values(array)
             self.assertEqual(actual, [v for i in ids for v in INSPECT._tensor9(tensors[i])])
             self.assertEqual(data.find("DataArray[@Name='captured_nodal_metric_available']").text.split(), ["1"] * len(ids))
         changed = dict(tensors);changed[1] = (99., 0., 0., 99., 0., 99.)
@@ -206,8 +219,9 @@ class InspectNativeFailureTests(unittest.TestCase):
         full = ET.parse(self.root / "out/rejected_mesh.vtu").getroot()
         piece = full.find("./UnstructuredGrid/Piece")
         for name in ("q", "J", "geometry_bad", "metric_edge_min", "metric_edge_max"):
-            value = piece.find(f"./CellData/DataArray[@Name='{name}']").text.strip()
-            self.assertEqual(value, "nan")
+            value = _float_values(piece.find(f"./CellData/DataArray[@Name='{name}']"))
+            self.assertEqual(len(value), 1)
+            self.assertTrue(math.isnan(value[0]))
 
     def test_cached_row_can_have_unmeasured_shape_and_geometry_channels(self):
         nodes = [(1, (0.0, 0.0, 0.0)), (2, (1.0, 0.0, 0.0)),
@@ -219,9 +233,9 @@ class InspectNativeFailureTests(unittest.TestCase):
         self.assertEqual(result["unknown_metric_rows"], 1)
         self.assertFalse(result["full_mesh_measurements_complete"])
         piece = ET.parse(self.root / "out/rejected_mesh.vtu").getroot().find("./UnstructuredGrid/Piece")
-        self.assertEqual(piece.find("./CellData/DataArray[@Name='q']").text.strip(), "nan")
-        self.assertEqual(piece.find("./CellData/DataArray[@Name='geometry_excess_l2']").text.strip(), "nan")
-        self.assertEqual(piece.find("./CellData/DataArray[@Name='J']").text.strip(), "0.01")
+        self.assertTrue(math.isnan(_float_values(piece.find("./CellData/DataArray[@Name='q']"))[0]))
+        self.assertTrue(math.isnan(_float_values(piece.find("./CellData/DataArray[@Name='geometry_excess_l2']"))[0]))
+        self.assertEqual(_float_values(piece.find("./CellData/DataArray[@Name='J']")), [0.01])
 
     def test_explicit_partial_and_missing_rank_never_claim_complete(self):
         xyz = {i: (float(i), 0.0, 0.0) for i in range(1, 5)}

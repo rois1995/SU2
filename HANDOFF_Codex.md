@@ -10,53 +10,58 @@ Geometry1e-4,q>=.2,J>=.05,maxedge1.8 and requested heights stay strict. Construc
 remains validity-first: positive/nondegenerate/topology/body/feature/height validity,
 no fresh q/J measurements/ranking/vetoes. CAD optional; no-CAD authority sufficient.
 
-## LIVE: selected full M6 build217 mesh/metric capture
+## TERMINAL217: latest requested mesh and metric saved
 
-User explicitly requests the actual latest-checkpoint mesh even if refused, WITH
-metric. Selected full two-event M6 is LIVE from pushed sourcebb61db8c0d; production
-source/binary remain6744638324/EXACT210binary, hidden diagnostic fixture only changed.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A217=`R/m6_runs/euler_build217_real_cfd50k_inspection_metric`.
-Host tool27489 LIVE. Helper552625/start1488380; launcher552832/start1489019;
-time552830/timeout552831/start1489019; ranks552835/start1489022 and
-552836–552840/start1489023. A217/owned_startup.json is exact authority.
-1518pins unchanged;6test ranks,84observed ELFs all covered by runtime193pins.
-R/inspection217_launch.json records4TBscratch, nice19/MPI6/libs1/pt2pt,46.029GB
-available RAM and32.868GB free disk at launch. One owned heavy workload ONLY.
-CFD seed SHA1eaee788...a880 verified; config BYTE-IDENTICAL210(SHA74b2e9f...2bfe8d),
-50k/5400native budget/two events/all strict gates unchanged. Initial CFD completed;
-original-grid00000restart is not adapted-transfer/restart proof.
+Selected full two-event M6 used pushed sourcebb61db8c0d; production source/binary
+remain6744638324/EXACT210binary. Same saved real CFD seed, byte-identical210config
+SHA74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d,
+50k/two events/5400native/all gates unchanged. First event NATURALLY failed
+`time_budget`, max5346.271730native seconds, round25473,790537working tetrahedra.
+ZERO accepted meshes. All6EXIT/DETAIL rows preserved in event1_natural_failure.json.
+Final full census is INCOMPLETE on5ranks: q0/J0 and geometry42 in EXIT are NOT
+whole-field closure counts. Final working mesh and nodal tensor capture ARE complete.
 
-Freeze ALL executing/pinned code/helpers/config/inputs until owned handles terminal
-or preserved natural failure permits authorized stop. Do not restart from log age.
-Existing --inspect-rejected workflow captures the FIRST rejected actual exit;
-no trial/routine mesh dumps. Before any stop preserve EXIT/DETAIL evidence AND all6
-capture manifests/raw shards; stop only verified current owned launcher ONCE.
-After owned run terminal, use existing inspect_native_failure3d.py on all6manifests
-using explicit A217/*_inspection_rank*_manifest.json inputs and --output
-A217/inspection. It produces full rejected_mesh.su2/rejected_mesh.vtu
-plus bad_cells/cavities/reference views; metric tensor/availability included in
-whole/bad/cavity VTUs. Verify actual counts, completeness, full nodal metric and
-file hashes before giving user links. No217mesh file is ready yet. Keep watching.
-210in-memory mesh was not captured;202inspection remains historical, not latest.
-First complete217quality entry:721643cells/49380q/48218J/2713geometry/0size,
-all6census/cache/shape/geometry flags1, maximum759.619664native seconds. Whole-field
-entry counts MATCH210(905.707714s); no source timing improvement is inferred.
-A217/quality_entry_comparison.json preserves per-rank rows/work and exact prefixes.
-First window preserved in A217/quality_window1_assessment.json. Actual20992
-ownership transition preserves728520cells/43972q/42277J/2679geometry/0size and ALL
-complete flags. Debt max/mean1.40089→1.13770 is balance evidence only, not closure.
-A217/quality_ownership20992_assessment.json. Latest preserved census22720reaches
-787930cells/201q/53J/2505geometry/0size at4634.750916native seconds; all69
-complete quality/ownership groups are in A217/quality_trend_assessment.json.
-Capture is still pending.
-Mid-quality6-rank runtime audit:84mapped ELFs, no missing/changed/deleted files.
-A217/loaded_runtime_midquality.json.1518frozen pins remain unchanged.
-A217/metric_export_preflight_review.json checks exact shared-tensor/export contracts;
-actual output validation remains mandatory. Current sources/pins remain frozen.
-Read-only source review found existing publication/support invalidation covers
-changed neighbor stars and migration retains history; no demonstrated gap selected
-for a fix. A217/repair_invalidation_source_review.json. Await actual217residuals.
+After preserving natural failure and hashing all30capture files, sent SIGTERM ONCE
+to verified launcher552832/start1489019. NEVER repeat or signal historical PIDs.
+M6tool27489TERMINAL1; all10exact owned handles ABSENT,1518pins unchanged:
+A217/terminal_handles.json. No live solver/build. Exporttool31700TERMINAL0.
+
+Actual requested files: A217/inspection/rejected_mesh.vtu (WITH9component
+captured_nodal_metric and availability), rejected_mesh.su2, bad_cells.vtu,
+cavities.vtu, reference.vtu. Full mesh159281points/790537tets; all159281nodal
+metrics present. Engine current_nodal/full_target1 makes this the transported nodal
+target, not an immutable original-background reconstruction. Surface extraction
+inherits that3Dfield; tangential restriction is used for surface motion.
+
+User reported VTK ASCII NaN read failure. Array lengths were correct; corrected
+floating arrays to inline binary IEEE encoding, and moved FieldData from Piece to
+UnstructuredGrid. Original ASCII files retained locally as *.vtu.ascii-original.
+Exporter12focused checks pass; actual corrected files independently read with
+installed meshio. A217/inspection_binary_repair.json and inspection_artifacts.json
+record checks/hashes. No geometry/connectivity/tensor values changed. Final q/J/
+geometry cache unavailable for589332cells: bad_cells42/cavities685are PARTIAL views,
+not all remaining failures. Full mesh/tensor are complete; mesh remains UNAPPROVED.
+[Inspection details](Handbook/ADAPTATION_M6_INSPECTION_20261101.md).
+
+Complete quality entry721643cells/49380q/48218J/2713geometry/0size at759.619664s
+matches210whole-field entry counts. Shape tail reached49q/16J/2505geometry at
+4885.723s and then stalled despite coordinate/optimizer commits and hundreds of
+unsuccessful topology trials per window. Geometry construction reopened shape:
+complete next entry789125cells/441q/527J/2259geometry/0size at5085.871720s.
+quality_trend_assessment.json retains113complete groups. No source timing speedup
+claim (same production binary). Final incomplete census must not supersede these
+last complete measurements. Existing neighbor invalidation review found no concrete
+gap; geometry subdivision and larger-star controls did not justify a new operator.
+
+Next: inspect current saved residual cavities. Reuse current OwnedCell sensors via
+existing EvaluateCavitySample at represented Centroid then Measure for cheap
+independent q/J diagnosis, checked against known rank4rows. Do NOT average tensors
+or treat diagnostic recensus as acceptance; geometry/edges still need strict final
+certification. Select one demonstrated connected repair/geometry-reclosure fix,
+focused affected checks and one MPI milestone, then immediate full two-event M6.
+No new scheduler/config, gate relaxation, budget increase or construction q/J policy.
 
 ## Latest terminal reference: build210; coupled closure still missing
 
@@ -73,8 +78,7 @@ A/event1_natural_failure.json SHA7877d7ff7b6fe2322236097eee02f35efd6a1714f05c4ee
 Only after preservation, SIGTERM was sent ONCE to verified launcher195411/start480761.
 NEVER repeat that stop or signal historical PIDs. A/event1_failure_owned_stop.json.
 Tool54752TERMINAL1, all10exact handles ABSENT,1517pins unchanged:
-A/terminal_handles.json. Those historical handles are absent; LIVE217 above now
-prevents pinned source changes.
+A/terminal_handles.json. Those historical handles and217handles are absent.
 Overall helper5704.300732s includes post-rejection original-grid work; those files
 are not adapted transfer/continuation/restart proof.
 
@@ -109,7 +113,7 @@ Mirrored engine size/quality gates: full49postcollapse optimizer closes the old2
 witness, BUT3of4SMALLER star controls also close (9active cells/1trial for one).
 Larger cavities are NOT justified. One control raises q-bad1→2despite lower debt.
 R/repair217_support_assessment.json. No new production correction selected from
-that historical now-repairable witness. Use LIVE217capture for CURRENT residuals.
+that historical now-repairable witness. Use saved217capture for CURRENT residuals.
 [Detailed findings and limits](Handbook/ADAPTATION_REPAIR_SUPPORT_20261106.md).
 
 ## Preserved qualification, runtime and evidence
@@ -148,7 +152,7 @@ quality_trend_assessment.json, quality_entry_comparison.json. Sealed first-nativ
 prefixes exclude later original-grid work. Peak sampled descendant RSS14736031744B,
 largest process2649538560B; not physical RAM/true peak. No pressure-driven stop.
 
-Actual selected inspection remains202: R/m6_runs/euler_build202_real_cfd50k_inspection/
+Historical selected inspection202: R/m6_runs/euler_build202_real_cfd50k_inspection/
 inspection/rejected_mesh.su2 and rejected_mesh.vtu (164526points/810163tets).
 Do not call it210. Save no per-trial/routine-attempt meshes; select useful major
 milestones. Next selected rejected VTU includes9-component captured nodal metric

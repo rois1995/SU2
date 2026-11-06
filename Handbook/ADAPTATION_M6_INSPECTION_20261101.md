@@ -1,4 +1,30 @@
-# Selected build202 M6 mesh inspection
+# Latest selected M6 inspection: build217
+
+Updated2026-11-06. Actual current selected first-event rejected mesh:
+`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build217_real_cfd50k_inspection_metric/inspection/`.
+
+- `rejected_mesh.vtu`: complete159281points/790537tetrahedra, with all nodal target tensors.
+- `rejected_mesh.su2`: same complete volume mesh, fallback marker labels.
+- `bad_cells.vtu` and `cavities.vtu`: PARTIAL42bad/685neighboring cells.
+- `reference.vtu`: reference visualization; exact controls in reference_records.jsonl.
+
+The event naturally failed the unchanged native time budget. Final cache classification
+is unavailable on5ranks/589332cells, so missing q/J/geometry values are IEEE NaNs;
+zero partial EXIT q/J counts do not establish closure. Geometry gates remain strict.
+Full mesh and all159281captured_nodal_metric tensors ARE complete. This M6 run uses
+current_nodal/full_target1; the captured tensor is the current transported nodal target.
+Surface extraction retains the same3Dmetric, with surface motion using its tangent
+restriction; there is no separately fabricated surface field.
+
+The user reported ASCII NaN reader failures. Floating arrays now use inline binary
+VTK encoding; FieldData is at UnstructuredGrid scope. Original ASCII artifacts remain
+as *.vtu.ascii-original. Corrected mesh/metric values and connectivity are unchanged.
+Twelve exporter tests pass. Installed meshio independently reads the actual files;
+artifact hashes and array/mesh checks are in inspection_artifacts.json beside the
+inspection directory. VTK GUI itself was not available in this environment.
+This is an UNAPPROVED diagnostic mesh, with no adapted transfer/restart proof.
+
+# Historical build202 inspection
 
 Updated2026-11-01. The full Euler goal remains active; no adapted mesh has been
 accepted. This is the deliberately selected substantial diagnostic snapshot,

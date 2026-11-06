@@ -1,0 +1,28 @@
+{
+  "time": 1793976357.5540187,
+  "launcher": {
+    "pid": 552832,
+    "startticks": 1489019,
+    "state": "S",
+    "comm": "mpirun",
+    "argv": [
+      "mpirun",
+      "--output-filename",
+      "rank_output",
+      "-n",
+      "6",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+      "[NativeSelectedFailureWorkflow3D]"
+    ],
+    "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build217_real_cfd50k_inspection_metric"
+  },
+  "failure_sha256": "d50bc0dc471a4b4a2cec9bb0daa1fb4978580ca07697fa920aa8da2b1ea1f15c",
+  "capture_ready_sha256": "37bf6248ef5c3e3f33ac2b7c7678692c66a0b9ab66af729ca07e87a31b8a7e0e",
+  "pins": 1518,
+  "changed": [],
+  "signal": "SIGTERM",
+  "intent_recorded": true,
+  "sent": true,
+  "authorization": "Natural first native time-budget failure makes two accepted events impossible in the configured two-event attempt; all6complete working-mesh capture shards preserved before stopping only the verified owned launcher.",
+  "sent_at": 1793976357.6335468
+}

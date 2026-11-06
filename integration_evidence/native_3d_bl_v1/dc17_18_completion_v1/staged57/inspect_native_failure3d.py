@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+import array
+import base64
 import glob
 import json
 import math
@@ -454,11 +456,26 @@ def _collect_rejections(manifests: list[dict[str, Any]]) -> list[dict[str, Any]]
     return result
 
 
+def _binary_float64(values: Iterator[Any]) -> str:
+    # Binary preserves unavailable IEEE NaNs across VTK readers with ASCII limitations.
+    payload = array.array("d", (float(value) for value in values))
+    if sys.byteorder != "little":
+        payload.byteswap()
+    size = len(payload) * payload.itemsize
+    if size > MAX_FULL_VTU_BYTES:
+        raise InspectionError("floating-point VTU array exceeds output cap")
+    return base64.b64encode(struct.pack("<I", size) + payload.tobytes()).decode("ascii")
+
+
 def _xml_array(parent: ET.Element, name: str, kind: str, values: list[Any], components: int = 1) -> None:
     array = ET.SubElement(parent, "DataArray", type=kind, Name=name, format="ascii")
     if components != 1:
         array.set("NumberOfComponents", str(components))
-    array.text = " ".join(str(x) for x in values)
+    if kind == "Float64":
+        array.set("format", "binary")
+        array.text = _binary_float64(iter(values))
+    else:
+        array.text = " ".join(str(x) for x in values)
 
 
 def _write_vtu(path: Path, cells: list[dict[str, Any]], *, reference: bool = False) -> None:
@@ -482,7 +499,7 @@ def _write_vtu(path: Path, cells: list[dict[str, Any]], *, reference: bool = Fal
     vtk = ET.Element("VTKFile", type="UnstructuredGrid", version="0.1", byte_order="LittleEndian")
     grid = ET.SubElement(vtk, "UnstructuredGrid")
     piece = ET.SubElement(grid, "Piece", NumberOfPoints=str(len(points)), NumberOfCells=str(len(cells)))
-    field = ET.SubElement(piece, "FieldData")
+    field = ET.SubElement(grid, "FieldData")
     _xml_array(field, "visualization_only", "UInt8", [1])
     _xml_array(field, "global_node_ids", "UInt64", [p[0] for p in points])
     _xml_array(field, "global_cell_ids", "UInt64",
@@ -570,6 +587,11 @@ class _CappedText:
 def _stream_data_array(stream: _CappedText, name: str, vtk_type: str,
                        values: Iterator[Any], components: int = 1) -> None:
     extra = f' NumberOfComponents="{components}"' if components != 1 else ""
+    if vtk_type == "Float64":
+        stream.write(f'<DataArray type="{vtk_type}" Name="{name}"{extra} format="binary">')
+        stream.write(_binary_float64(values))
+        stream.write("</DataArray>")
+        return
     stream.write(f'<DataArray type="{vtk_type}" Name="{name}"{extra} format="ascii">')
     first = True
     for value in values:
@@ -587,10 +609,10 @@ def _write_full_vtu(path: Path, manifests: list[dict[str, Any]],
     stream = _CappedText(path, MAX_FULL_VTU_BYTES)
     try:
         stream.write('<?xml version="1.0"?>\n<VTKFile type="UnstructuredGrid" version="0.1" byte_order="LittleEndian"><UnstructuredGrid>')
-        stream.write(f'<Piece NumberOfPoints="{len(node_ids)}" NumberOfCells="{total_cells}"><FieldData>')
+        stream.write('<FieldData>')
         _stream_data_array(stream, "visualization_only", "UInt8", iter([1]))
         _stream_data_array(stream, "global_node_ids", "UInt64", iter(node_ids))
-        stream.write('</FieldData><PointData Tensors="captured_nodal_metric">')
+        stream.write(f'</FieldData><Piece NumberOfPoints="{len(node_ids)}" NumberOfCells="{total_cells}"><PointData Tensors="captured_nodal_metric">')
         _stream_data_array(stream, "global_node_id", "UInt64", iter(node_ids))
         _stream_data_array(stream, "captured_nodal_metric", "Float64",
                            (x for node_id in node_ids for x in _tensor9(node_metrics.get(node_id))), 9)
