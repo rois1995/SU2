@@ -54,6 +54,7 @@ class CEdge {
   su2activematrix SplitE; /*!< \brief Coefficient E_ik of those pairs, allocated only for SPLIT_EDGE_FLUX. */
   su2activematrix SplitBoundNormal; /*!< \brief Per point, outward split area minus outward vertex normal. */
   su2activevector SplitVolume; /*!< \brief Nodal volume of the split, sum_t |t|/(d+1), allocated only for SPLIT_EDGE_FLUX. */
+  su2activevector FormMass; /*!< \brief Mass of the P1 form per node: W of the simplices plus omega_t |t|/(d+1) of the split averages, only for EDGE_FORM_P1_MIXED. */
   su2activevector FormSwept; /*!< \brief Term omega_ik of the true edges, allocated only for GCL_EXACT_P1. */
   su2activevector SplitSwept; /*!< \brief Term omega_ik of the split pairs, allocated only for GCL_EXACT_P1. */
   su2activevector BoundSwept; /*!< \brief Per point, nodal boundary term, allocated only for GCL_EXACT_P1. */
@@ -235,6 +236,12 @@ class CEdge {
    * \brief Coefficient E_ik of the split edges that are not true edges, one row per pair.
    */
   inline const su2activematrix& GetSplitE() const { return SplitE; }
+
+  /*!
+   * \brief Mass of the P1 form at each node (EDGE_FORM_P1_MIXED): sum of W_i over the simplices and of omega_t |t|/(d+1)
+   *        over the sub-simplices of the split averages, the H of the averaged SBP operator (P1_MIXED.md, 5.2).
+   */
+  inline const su2activevector& GetFormMass() const { return FormMass; }
 
   /*!
    * \brief Per point, outward area of the fans of the boundary faces minus the outward vertex normal.

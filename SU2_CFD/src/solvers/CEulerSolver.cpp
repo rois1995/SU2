@@ -31,6 +31,7 @@
 #include "../../../Common/include/toolboxes/printing_toolbox.hpp"
 #include "../../../Common/include/toolboxes/p1_simplex.hpp"
 #include "../../include/numerics/flow/p1_viscous_entropy.hpp"
+#include "../../include/numerics/flow/p1_ale_entropy.hpp"
 #include "../../include/fluid/CIdealGas.hpp"
 #include "../../include/fluid/CVanDerWaalsGas.hpp"
 #include "../../include/fluid/CPengRobinson.hpp"
@@ -1831,7 +1832,7 @@ void CEulerSolver::Centered_Residual(CGeometry *geometry, CSolver **solver_conta
 
   if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry, config);
   EdgeFluxResidual(geometry, solver_container, config);
-  if ((iMesh == MESH_0) && config->GetSplit_Edge_Flux()) SplitEdgeResidual(geometry, config);
+  if ((iMesh == MESH_0) && (config->GetSplit_Edge_Flux() || config->GetEdge_Form_P1_Mixed())) SplitEdgeResidual(geometry, config);
   if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry, config);
 }
 
@@ -1936,6 +1937,37 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
     }
   };
 
+  /*--- EDGE_FORM_P1_MIXED (P1_MIXED.md, 8.3): the face and body diagonals of the split averages carry only the central
+   * part along n_ik, E = 0 (W = |t|/(d+1)). With EDGE_FORM_EC_FLUX it is the Ismail-Roe flux, so that the whole central
+   * part is entropy conservative at interior nodes (Theorem X4). No dissipation, no Jacobian (the diagonals are not in
+   * the sparsity pattern), static meshes only. ---*/
+  if (config->GetEdge_Form_P1_Mixed()) {
+    const bool ecFlux = config->GetEdge_Form_EC_Flux();
+    auto state = [&](unsigned long iPoint) {
+      P1AleEntropy::State S;
+      S.rho = nodes->GetDensity(iPoint);
+      S.p = nodes->GetPressure(iPoint);
+      for (auto iDim = 0u; iDim < nDim; ++iDim) S.vel[iDim] = nodes->GetVelocity(iPoint, iDim);
+      return S;
+    };
+    BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+      for (auto iSplit = 0ul; iSplit < splitNodes.size(); ++iSplit) {
+        const auto iPoint = splitNodes[iSplit][0], kPoint = splitNodes[iSplit][1];
+        su2double flux[MAXNVAR] = {};
+        if (ecFlux) {
+          P1AleEntropy::IsmailRoeFlux(nDim, Gamma, state(iPoint), state(kPoint), splitNormal[iSplit], flux);
+        } else {
+          addFlux(iPoint, splitNormal[iSplit], 0.5, flux);
+          addFlux(kPoint, splitNormal[iSplit], 0.5, flux);
+        }
+        if (geometry->nodes->GetDomain(iPoint)) LinSysRes.AddBlock(iPoint, flux);
+        if (geometry->nodes->GetDomain(kPoint)) LinSysRes.SubtractBlock(kPoint, flux);
+      }
+    }
+    END_SU2_OMP_SAFE_GLOBAL_ACCESS
+    return;
+  }
+
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     for (auto iSplit = 0ul; iSplit < splitNodes.size(); ++iSplit) {
       const auto iPoint = splitNodes[iSplit][0], kPoint = splitNodes[iSplit][1];
@@ -2012,6 +2044,9 @@ void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *
 
     for (auto iElem = 0ul; iElem < geometry->GetnElem(); ++iElem) {
       const auto* element = geometry->elem[iElem];
+
+      /*--- EDGE_FORM_P1_MIXED: the split averages have E = 0, so P_C = 0 and no theta (P1_MIXED.md, X5 with M0). ---*/
+      if (element->GetnNodes() != nNodes) continue;
 
       std::array<const su2double*, MAXNDIM + 1> coord;
       unsigned long point[MAXNDIM + 1];

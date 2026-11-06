@@ -221,6 +221,11 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
    * the Jacobian, which is no longer symmetric). ---*/
   const bool moved = config->GetVisc_P1_Entropy_Moved();
 
+  /*--- EDGE_FORM_P1_MIXED (P1_MIXED.md, Theorem X6): a non-simplex cell is the omega-weighted sum of V-A on the
+   * sub-simplices of its split average, with K per sub-simplex. Same test functions as the convective part (M0), no
+   * moved test vectors. Jacobian blocks of node pairs that are not edges are not in the sparsity pattern and drop. ---*/
+  const bool mixed = config->GetEdge_Form_P1_Mixed();
+
   /*--- The coloring is built on first use. ---*/
   SU2_OMP_SAFE_GLOBAL_ACCESS(geometry->GetElementColoring();)
 
@@ -237,7 +242,9 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
       const auto nNodes = element->GetnNodes();
 
       if (nNodes != nDim + 1) {
-        SU2_MPI::Error("VISC_P1_ENTROPY needs triangles or tetrahedra.", CURRENT_FUNCTION);
+        if (!mixed) SU2_MPI::Error("VISC_P1_ENTROPY needs triangles or tetrahedra, or EDGE_FORM_P1_MIXED= YES.", CURRENT_FUNCTION);
+        MixedViscousResidual(geometry, element, implicit, prandtlTurb, gasConst);
+        continue;
       }
 
       /*--- An element sits on every rank that owns one of its nodes, each rank adds to its owned rows only. ---*/
@@ -290,6 +297,65 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
       }
     }
     END_SU2_OMP_FOR
+  }
+}
+
+void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, bool implicit,
+                                     const su2double& prandtlTurb, const su2double& gasConst) {
+  namespace pve = P1ViscousEntropy;
+
+  const auto nCellNodes = element->GetnNodes();
+  bool owned = false;
+  for (auto iNode = 0u; iNode < nCellNodes; ++iNode) owned |= geometry->nodes->GetDomain(element->GetNode(iNode));
+  if (!owned) return;
+
+  pve::NodeState cellState[N_POINTS_MAXIMUM];
+  for (auto iNode = 0u; iNode < nCellNodes; ++iNode)
+    pve::GatherNode(*nodes, element->GetNode(iNode), nDim, prandtlTurb, cellState[iNode]);
+
+  const unsigned short nNodes = nDim + 1;
+  for (const auto& entry : geometry->GetMixedSimplices(element->GetVTK_Type())) {
+    const su2double* coord[pve::MAXNODE];
+    pve::NodeState state[pve::MAXNODE];
+    unsigned long point[pve::MAXNODE];
+    for (unsigned short a = 0; a < nNodes; ++a) {
+      point[a] = element->GetNode(entry.nodes[a]);
+      coord[a] = geometry->nodes->GetCoord(point[a]);
+      state[a] = cellState[entry.nodes[a]];
+    }
+
+    pve::Element simplex;
+    if (simplex.Set(nDim, coord, state, gasConst) == 0.0) {
+      SU2_MPI::Error("VISC_P1_ENTROPY: degenerate sub-simplex of a split average.", CURRENT_FUNCTION);
+    }
+    const su2double weight = entry.weight;
+
+    su2double residual[pve::MAXNODE][pve::MAXNVAR];
+    simplex.Residual(residual);
+    for (unsigned short a = 0; a < nNodes; ++a) {
+      if (!geometry->nodes->GetDomain(point[a])) continue;
+      for (auto iVar = 0u; iVar < nVar; ++iVar) residual[a][iVar] *= weight;
+      LinSysRes.AddBlock(point[a], residual[a]);
+    }
+
+    if (!implicit) continue;
+
+    su2double dwdu[pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR], jacobian[pve::MAXNODE][pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
+    for (unsigned short a = 0; a < nNodes; ++a) pve::EntropyVariableJacobian(nDim, Gamma, state[a], dwdu[a]);
+    simplex.Jacobian(dwdu, jacobian);
+
+    for (unsigned short a = 0; a < nNodes; ++a) {
+      if (!geometry->nodes->GetDomain(point[a])) continue;
+      for (unsigned short b = 0; b < nNodes; ++b) {
+        const su2double* rows[pve::MAXNVAR];
+        for (auto iVar = 0u; iVar < nVar; ++iVar) {
+          for (auto jVar = 0u; jVar < nVar; ++jVar) jacobian[a][b][iVar][jVar] *= weight;
+          rows[iVar] = jacobian[a][b][iVar];
+        }
+        if (b == a) Jacobian.AddBlock2Diag(point[a], rows);
+        else Jacobian.AddBlock(point[a], point[b], rows);
+      }
+    }
   }
 }
 

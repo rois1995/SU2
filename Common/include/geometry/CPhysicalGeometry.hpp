@@ -30,6 +30,7 @@
 #include <array>
 #include <map>
 #include <vector>
+#include <set>
 
 #include "CGeometry.hpp"
 #include "meshreader/CMeshReaderBase.hpp"
@@ -466,15 +467,32 @@ class CPhysicalGeometry final : public CGeometry {
    *        n_ik += W_i grad(phi_k) - W_k grad(phi_i) and
    *        E_ik += 0.5 [(W_i - |T|/(d+1)) grad(phi_k) + (W_k - |T|/(d+1)) grad(phi_i)].
    */
-  void SetEdgeFormP1() override;
+  void SetEdgeFormP1(bool mixed = false) override;
 
   /*!
    * \brief Per simplex T, delta_a = W_a - |T|/(d+1) with the W of SetEdgeFormP1, and the edge of each node pair,
    *        so that the element pieces E^T_ab = 0.5 (delta_a g_b + delta_b g_a) of E_ab can be rebuilt.
    *        With movedViscous (3D), also Y_T = (3|T|/2) sum_o xi_o (x) g_o from the dual points of the faces.
    * \param[in] movedViscous - Store Y_T (VISC_P1_ENTROPY_MOVED).
+   * \param[in] mixed - EDGE_FORM_P1_MIXED: skip the non-simplex cells, and compute Y_T with xi_o = 0 on the faces that
+   *            a tetrahedron shares with a prism or a pyramid (P1_MIXED.md, 5.3).
    */
-  void SetEdgeFormBlend(bool movedViscous) override;
+  void SetEdgeFormBlend(bool movedViscous, bool mixed = false) override;
+
+  /*!
+   * \brief EDGE_FORM_P1_MIXED: the weighted sub-simplices of the neighbour-fan subset of the pulling splits of a cell
+   *        type (P1Mixed::NeighbourFanAverage on GetSplitPatterns), built on first use and kept by VTK type.
+   * \param[in] element - A non-simplex cell of that type.
+   * \return The list, also returned by CGeometry::GetMixedSimplices from then on.
+   */
+  const std::vector<P1Mixed::Simplex>& SetMixedSimplices(const CPrimalGrid* element);
+
+  /*!
+   * \brief EDGE_FORM_P1_MIXED: the triangle faces of prisms and pyramids that are not shared with another non-simplex
+   *        cell or a boundary on any rank, as sorted global node IDs, gathered on all ranks (collective). A tetrahedron
+   *        face in this set is shared with a prism or a pyramid.
+   */
+  std::set<std::array<unsigned long, 3>> MixedTriangleFaces() const;
 
   /*!
    * \brief Mean of all pulling splits of each cell, with no new points and no dependence on node IDs. In each

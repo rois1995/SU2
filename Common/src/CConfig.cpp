@@ -1855,6 +1855,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("BC_WALL_ENTROPY_P1", BC_Wall_Entropy_P1, false);
   /*!\brief VISC_P1_ENTROPY_MOVED \n DESCRIPTION: 3D, the element fluxes F_T of VISC_P1_ENTROPY on the test space of the moved (MOD_CENTROIDS) dual, i.e. the finite volume of F_T on the dual cells: residual of node a F_T (|T| I + (1 - theta_v) Y_T^T) g_a, Y_T = (3|T|/2) sum_o xi_o (x) g_o with xi_o the shift of the dual point of face o from its centroid. Its entropy defect P^v_T is paid in the element budget of EDGE_FORM_ES_BLEND, E_T = P^c_T + P^v_T - D^gal_T (+ W_T at weak walls): theta_v = min(1, E_T/P^v_T) first, then theta_c = (E_T - theta_v P^v_T)^+/D^c_T. Weak walls use the moved wall shares. Needs VISC_P1_ENTROPY, MOD_CENTROIDS, EDGE_FORM_P1 and EDGE_FORM_ES_BLEND. \ingroup Config \default false */
   addBoolOption("VISC_P1_ENTROPY_MOVED", Visc_P1_Entropy_Moved, false);
+  /*!\brief EDGE_FORM_P1_MIXED \n DESCRIPTION: EDGE_FORM_P1 (JST) on meshes with quadrilaterals, hexahedra, prisms and pyramids: each non-simplex cell carries the mean of the neighbour-fan subset of its pulling splits (hexahedra: the 4 Kuhn triangulations; prisms, pyramids, quadrilaterals: all pulling splits), merged into weighted sub-simplices t with W = |t|/(d+1) (no E part, no blend), n_ik on the true edges and on the face and body diagonals (Ismail-Roe with EDGE_FORM_EC_FLUX, no dissipation, no Jacobian on the diagonals), VISC_P1_ENTROPY per sub-simplex, quad boundary faces with both diagonals at 1/2 (BC_WEAK_P1, BC_ENTROPY_P1, BC_WALL_ENTROPY_P1). Simplices keep EDGE_FORM_P1. Needs EDGE_FORM_P1 and JST; steady, static meshes. \ingroup Config \default false */
+  addBoolOption("EDGE_FORM_P1_MIXED", Edge_Form_P1_Mixed, false);
   /*!\brief GCL_EXACT_P1 \n DESCRIPTION: Add the swept terms that make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX (or of the median dual of EDGE_DISS_PROJECTED with GRID_ENTROPY_P1) equal to the BDF difference of the volumes, for conservation in time on moving meshes. \ingroup Config*/
   addBoolOption("GCL_EXACT_P1", GCL_Exact_P1, false);
   /*!\brief GRID_ENTROPY_P1 \n DESCRIPTION: ALE terms of the P1 entropy methods with JST (P1_ALE.md): grid term -ubar^EC(u_i,u_k) g_ik with the temporal entropy conservative average, [[w]].ubar^EC = [[rho]], and the pair grid flux g_ik of the GCL (swept terms included); on the moved dual the E part of the relative flux F - u {{v}}^T; relative speeds (u - {{v}}).E in the Lemma 3 bounds of EDGE_FORM_ES_DISS and EDGE_FORM_ES_BLEND; closure C with the grid fluxes of the face points (BC_ENTROPY_P1, BC_WALL_ENTROPY_P1); moving weak no-slip wall w_m + w_E v_w = 0; the nodal swept remainder of GCL_EXACT_P1 enters the wall pressure work instead of -U sigma at walls. Needs grid motion, GCL_EXACT_P1, EDGE_FORM_EC_FLUX and EDGE_FORM_P1 or EDGE_DISS_PROJECTED. \ingroup Config \default false */
@@ -6261,6 +6263,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Visc_P1_Entropy) active.push_back("VISC_P1_ENTROPY");
   if (BC_Wall_Entropy_P1) active.push_back("BC_WALL_ENTROPY_P1");
   if (Visc_P1_Entropy_Moved) active.push_back("VISC_P1_ENTROPY_MOVED");
+  if (Edge_Form_P1_Mixed) active.push_back("EDGE_FORM_P1_MIXED");
   if (Edge_Form_TeCNO_Wide && !Edge_Form_TeCNO) SU2_MPI::Error("EDGE_FORM_TECNO_WIDE: needs EDGE_FORM_TECNO= YES.", CURRENT_FUNCTION);
   if (Edge_Form_TeCNO_Smooth && (!Edge_Form_TeCNO || Edge_Form_TeCNO_Wide)) SU2_MPI::Error("EDGE_FORM_TECNO_SMOOTH: needs EDGE_FORM_TECNO= YES and not EDGE_FORM_TECNO_WIDE.", CURRENT_FUNCTION);
 
@@ -6482,6 +6485,28 @@ void CConfig::CheckP1FluxOptions() const {
     if (Kind_ConvNumScheme_Flow == SPACE_UPWIND && Kind_Upwind_Flow != UPWIND::ROE) {
       SU2_MPI::Error(name + "among the upwind schemes only ROE is supported.", CURRENT_FUNCTION);
     }
+  }
+  if (Edge_Form_P1_Mixed) {
+    /*--- P1_MIXED.md, section 8. The split averages are built for the steady JST-P1ES family: the mass of the split
+     * operator is not the dual volume (time accurate runs and volume sources would be inconsistent), the diagonals
+     * have no grid flux or swept terms, and the other edge form options are not derived for them. ---*/
+    const string name = "EDGE_FORM_P1_MIXED: ";
+    if (!Edge_Form_P1) SU2_MPI::Error(name + "needs EDGE_FORM_P1= YES.", CURRENT_FUNCTION);
+    if (!(Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST))
+      SU2_MPI::Error(name + "only for JST.", CURRENT_FUNCTION);
+    if (!idealGas) SU2_MPI::Error(name + "needs an ideal gas.", CURRENT_FUNCTION);
+    if (Time_Domain) SU2_MPI::Error(name + "steady problems only, the mass of the split operator is not the dual volume.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid() || GetGrid_Movement() || GCL_Exact_P1 || Grid_Entropy_P1)
+      SU2_MPI::Error(name + "not available with grid motion, GCL_EXACT_P1 or GRID_ENTROPY_P1.", CURRENT_FUNCTION);
+    if (Edge_Form_Exact_Jacobian || (Edge_Form_Positive_Diss != 0.0) || Edge_Form_Entropy_Diss || Edge_Form_ES_Diss ||
+        Edge_Form_TeCNO || Split_Edge_Flux || Edge_Diss_Projected) {
+      SU2_MPI::Error(name + "only with EDGE_FORM_EC_FLUX, EDGE_FORM_ES_BLEND, BC_WEAK_P1, BC_ENTROPY_P1, VISC_P1_ENTROPY, "
+                     "VISC_P1_ENTROPY_MOVED and BC_WALL_ENTROPY_P1 among the P1 options.", CURRENT_FUNCTION);
+    }
+    if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries.", CURRENT_FUNCTION);
+    if (nMGLevels > 0) SU2_MPI::Error(name + "not available with multigrid, set MGLEVEL= 0.", CURRENT_FUNCTION);
+    if (Body_Force || Rotating_Frame || GravityForce)
+      SU2_MPI::Error(name + "not available with body forces, gravity or a rotating frame (sources scaled by the dual volume).", CURRENT_FUNCTION);
   }
   if (Edge_Diss_Projected) {
     /*--- The central part keeps the median normal n and the dissipation uses nu = (n.e/|e|^2) e. This needs the

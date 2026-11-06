@@ -4987,6 +4987,11 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
    * WeakNoSlipWallResidual after the marker loop. ---*/
   const bool bcWallEntropyP1 = config->GetBC_Wall_Entropy_P1();
 
+  /*--- EDGE_FORM_P1_MIXED: a quadrilateral face is closed on its four sub-triangles, both diagonals with weight 1/2
+   * (P1_MIXED.md, Theorem X10), each as a boundary triangle with its own area vector, so that sum_k n_ik = -beta_i of
+   * the split average is met exactly, warped faces included. ---*/
+  const bool mixedP1 = config->GetEdge_Form_P1_Mixed();
+
   /*--- Pick one numerics object per thread. ---*/
   CNumerics* conv_bound_numerics = numerics_container[CONV_BOUND_TERM + omp_get_thread_num()*MAX_TERMS];
   CNumerics* visc_bound_numerics = numerics_container[VISC_BOUND_TERM + omp_get_thread_num()*MAX_TERMS];
@@ -5075,7 +5080,71 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
     for (iElem = 0; iElem < geometry->GetnElem_Bound(iMarker); ++iElem ) {
       auto& element = geometry->bound[iMarker][iElem];
       const auto nNodes = element->GetnNodes();
-      if (weakP1 && (nNodes == 4)) SU2_MPI::Error("BC_WEAK_P1 needs segments or triangles on the boundary.", CURRENT_FUNCTION);
+      if (weakP1 && (nNodes == 4) && !mixedP1) {
+        SU2_MPI::Error("BC_WEAK_P1 needs segments or triangles on the boundary, or EDGE_FORM_P1_MIXED= YES.", CURRENT_FUNCTION);
+      }
+
+      /*--- EDGE_FORM_P1_MIXED, quadrilateral face: per sub-triangle tau with N = A_tau/2, the 6:1:1 weights of the nodal
+       * boundary fluxes (BC_WEAK_P1, 9:1:1:1/48 on parallelograms) or closure C (BC_ENTROPY_P1, 12 points). The nodal
+       * fluxes read the face normal of the boundary element, so it is set to N for the call and restored. ---*/
+      if (weakP1 && (nNodes == 4)) {
+        su2double* faceNormal = element->getNormal();
+        const su2double savedNormal[3] = {faceNormal[0], faceNormal[1], faceNormal[2]};
+        std::array<const su2double*, 4> faceCoord;
+        for (unsigned short k = 0; k < 4; ++k) faceCoord[k] = geometry->nodes->GetCoord(element->GetNode(k));
+        su2double subNormal[4][3];
+        P1Mixed::QuadSubNormals(faceCoord, savedNormal, subNormal);
+
+        /*--- (6,1,1)/24 of the triangle path, also the weights of the approximate Jacobian of closure C. ---*/
+        const su2double omegaSelf = 0.25, omegaOther = 1.0 / 24.0;
+
+        for (unsigned short tri = 0; tri < 4; ++tri) {
+          const auto* local = P1Mixed::QuadTriangles[tri];
+          for (unsigned short iDim = 0; iDim < 3; ++iDim) faceNormal[iDim] = subNormal[tri][iDim];
+          for (unsigned short a = 0; a < 3; ++a) {
+            std::memset(buffer[a].data(), 0, (MAXNVAR + MAXNVAR * MAXNVAR) * sizeof(su2double));
+            compute_BC_residual(iMarker, KindBC, iElem, local[a], buffer[a].data());
+          }
+          for (unsigned short iDim = 0; iDim < 3; ++iDim) faceNormal[iDim] = savedNormal[iDim];
+
+          su2double triRes[3][MAXNVAR] = {{0.0}};
+          if (bcEntropyP1) {
+            EsState faceStates[3];
+            for (unsigned short a = 0; a < 3; ++a) {
+              const su2double* V = base_nodes->GetPrimitive(element->GetNode(local[a]));
+              faceStates[a].rho = V[nDim+2];
+              faceStates[a].p = V[nDim+1];
+              for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceStates[a].vel[iDim] = V[iDim+1];
+            }
+            su2double faceRes[3][ES_NVAR] = {{0.0}};
+            EsFaceResidual(nDim, 3, config->GetGamma(), (KindBC == FAR_FIELD) ? &esInf : nullptr, subNormal[tri],
+                           faceStates, faceRes);
+            for (unsigned short a = 0; a < 3; ++a)
+              for (iVar = 0; iVar < nVar; ++iVar) triRes[a][iVar] = faceRes[a][iVar];
+          } else {
+            for (unsigned short a = 0; a < 3; ++a)
+              for (unsigned short b = 0; b < 3; ++b)
+                for (iVar = 0; iVar < nVar; ++iVar) triRes[a][iVar] += ((b == a) ? omegaSelf : omegaOther) * buffer[b][iVar];
+          }
+
+          for (unsigned short a = 0; a < 3; ++a) {
+            const auto pointA = element->GetNode(local[a]);
+            if (!geometry->nodes->GetDomain(pointA)) continue;
+            LinSysRes.AddBlock(pointA, triRes[a]);
+            if (!implicit) continue;
+
+            for (unsigned short b = 0; b < 3; ++b) {
+              const auto pointB = element->GetNode(local[b]);
+              const su2double omega = (b == a) ? omegaSelf : omegaOther;
+              for (iVar = 0; iVar < nVar; ++iVar)
+                for (jVar = 0; jVar < nVar; ++jVar) jac[iVar][jVar] = omega * buffer[b][MAXNVAR + iVar * nVar + jVar];
+              if (b == a) Jacobian.AddBlock2Diag(pointA, jac);
+              else if (geometry->nodes->GetDomain(pointB)) Jacobian.AddBlock(pointA, pointB, jac);
+            }
+          }
+        }
+        continue;
+      }
       auto nodeCoeffs = [&](unsigned short node) -> const su2double* { return weakP1 ? p1Coeffs : element->getNodeCoeffs(node); };
       su2double Area = GeometryToolbox::Norm(nDim,element->getNormal());
       su2double Area2 = GeometryToolbox::Norm(nDim,element->getNormal());
@@ -5579,6 +5648,11 @@ void CSolver::SetP1WallFaces(const CGeometry *geometry, const CConfig *config) {
   constexpr int RECORD = 4;
   using FaceKey = std::array<unsigned long, 3>;
 
+  /*--- EDGE_FORM_P1_MIXED (P1_MIXED.md, 6.2): a quadrilateral wall face enters as its four sub-triangles (both
+   * diagonals), the walls are then closed per sub-simplex t of the split averages that has one of them as a face,
+   * with omega_t: the entries over the triangles of one diagonal sum to 1/2. ---*/
+  const bool mixed = config->GetEdge_Form_P1_Mixed();
+
   vector<unsigned long> sendRecords;
   for (unsigned short iMarker = 0; iMarker < config->GetnMarker_All(); ++iMarker) {
     const auto kind = config->GetMarker_All_KindBC(iMarker);
@@ -5586,14 +5660,20 @@ void CSolver::SetP1WallFaces(const CGeometry *geometry, const CConfig *config) {
     const unsigned long cfgMarker = config->GetMarker_CfgFile_TagBound(config->GetMarker_All_TagBound(iMarker));
     for (unsigned long iElem = 0; iElem < geometry->GetnElem_Bound(iMarker); ++iElem) {
       const auto* face = geometry->bound[iMarker][iElem];
-      if (face->GetnNodes() != nDim) {
-        SU2_MPI::Error("BC_WALL_ENTROPY_P1 needs segments or triangles on the walls.", CURRENT_FUNCTION);
+      const bool quad = mixed && (nDim == 3) && (face->GetnNodes() == 4);
+      if ((face->GetnNodes() != nDim) && !quad) {
+        SU2_MPI::Error("BC_WALL_ENTROPY_P1 needs segments or triangles on the walls, or EDGE_FORM_P1_MIXED= YES.",
+                       CURRENT_FUNCTION);
       }
-      FaceKey key = {NONE, NONE, NONE};
-      for (unsigned short k = 0; k < nDim; ++k) key[k] = geometry->nodes->GetGlobalIndex(face->GetNode(k));
-      std::sort(key.begin(), key.end());
-      sendRecords.insert(sendRecords.end(), key.begin(), key.end());
-      sendRecords.push_back(cfgMarker);
+      for (unsigned short tri = 0; tri < (quad ? 4 : 1); ++tri) {
+        FaceKey key = {NONE, NONE, NONE};
+        for (unsigned short k = 0; k < nDim; ++k) {
+          key[k] = geometry->nodes->GetGlobalIndex(face->GetNode(quad ? P1Mixed::QuadTriangles[tri][k] : k));
+        }
+        std::sort(key.begin(), key.end());
+        sendRecords.insert(sendRecords.end(), key.begin(), key.end());
+        sendRecords.push_back(cfgMarker);
+      }
     }
   }
 
@@ -5616,10 +5696,46 @@ void CSolver::SetP1WallFaces(const CGeometry *geometry, const CConfig *config) {
     wallFaces.emplace(FaceKey{r[0], r[1], r[2]}, r[3]);
   }
 
+  auto wallRecord = [&](unsigned long iElem, std::map<FaceKey, unsigned long>::const_iterator it) {
+    const auto tag = config->GetMarker_CfgFile_TagBound(static_cast<unsigned short>(it->second));
+    P1WallFace record;
+    record.elem = iElem;
+    record.isothermal = (config->GetMarker_CfgFile_KindBC(tag) == ISOTHERMAL);
+    if (record.isothermal) {
+      const su2double wallTemperature = config->GetIsothermal_Temperature(tag) / config->GetTemperature_Ref();
+      record.wallTheta = 1.0 / (config->GetGas_ConstantND() * wallTemperature);
+    }
+    return record;
+  };
+
   P1WallFaces.clear();
   for (unsigned long iElem = 0; iElem < geometry->GetnElem(); ++iElem) {
     const auto* elem = geometry->elem[iElem];
     const unsigned short nNodes = elem->GetnNodes();
+
+    /*--- EDGE_FORM_P1_MIXED: the wall faces of each sub-simplex of the split average, m_t counted per sub-simplex. ---*/
+    if ((nNodes != nDim + 1) && mixed) {
+      const auto& list = geometry->GetMixedSimplices(elem->GetVTK_Type());
+      for (unsigned short t = 0; t < list.size(); ++t) {
+        const auto first = P1WallFaces.size();
+        for (unsigned short opp = 0; opp < nDim + 1; ++opp) {
+          FaceKey key = {NONE, NONE, NONE};
+          for (unsigned short c = 0, k = 0; c < nDim + 1; ++c)
+            if (c != opp) key[k++] = geometry->nodes->GetGlobalIndex(elem->GetNode(list[t].nodes[c]));
+          std::sort(key.begin(), key.end());
+          const auto it = wallFaces.find(key);
+          if (it == wallFaces.end()) continue;
+          auto record = wallRecord(iElem, it);
+          record.opposite = opp;
+          record.simplex = t;
+          record.weight = list[t].weight;
+          P1WallFaces.push_back(record);
+        }
+        for (auto i = first; i < P1WallFaces.size(); ++i) P1WallFaces[i].nWallFaces = P1WallFaces.size() - first;
+      }
+      continue;
+    }
+
     if (nNodes != nDim + 1) continue;  /*--- VISC_P1_ENTROPY stops the run on other cells. ---*/
     const auto first = P1WallFaces.size();
     for (unsigned short opp = 0; opp < nNodes; ++opp) {
@@ -5663,13 +5779,14 @@ void CSolver::SetP1WallFaces(const CGeometry *geometry, const CConfig *config) {
     for (auto i = first; i < P1WallFaces.size(); ++i) P1WallFaces[i].nWallFaces = P1WallFaces.size() - first;
   }
 
-  /*--- Every local wall face must belong to a local triangle or tetrahedron. ---*/
+  /*--- Every local wall face must belong to a local triangle or tetrahedron (or sub-simplex of a split average). ---*/
   std::set<FaceKey> localFaces;
   for (const auto& record : P1WallFaces) {
     const auto* elem = geometry->elem[record.elem];
+    const auto* local = (record.simplex < 0) ? nullptr : geometry->GetMixedSimplices(elem->GetVTK_Type())[record.simplex].nodes.data();
     FaceKey key = {NONE, NONE, NONE};
     for (unsigned short c = 0, k = 0; c < nDim + 1; ++c)
-      if (c != record.opposite) key[k++] = geometry->nodes->GetGlobalIndex(elem->GetNode(c));
+      if (c != record.opposite) key[k++] = geometry->nodes->GetGlobalIndex(elem->GetNode(local ? local[c] : c));
     std::sort(key.begin(), key.end());
     localFaces.insert(key);
   }
@@ -5719,9 +5836,16 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
     const auto* elem = geometry->elem[record.elem];
     const unsigned short nNodes = nDim + 1;
 
+    /*--- EDGE_FORM_P1_MIXED: the wall element is a sub-simplex of a split average, its terms are scaled by omega_t
+     * and use the shares |tau|/d (W = |t|/(d+1)), not the moved ones (P1_MIXED.md, 6.2). ---*/
+    const bool subSimplex = (record.simplex >= 0);
+    const auto* local = subSimplex ? geometry->GetMixedSimplices(elem->GetVTK_Type())[record.simplex].nodes.data() : nullptr;
+    unsigned long point[pve::MAXNODE];
+    for (unsigned short c = 0; c < nNodes; ++c) point[c] = elem->GetNode(subSimplex ? local[c] : c);
+
     /*--- An element sits on every rank that owns one of its nodes, each rank adds to its owned rows only. ---*/
     bool owned = false;
-    for (unsigned short c = 0; c < nNodes; ++c) owned |= geometry->nodes->GetDomain(elem->GetNode(c));
+    for (unsigned short c = 0; c < nNodes; ++c) owned |= geometry->nodes->GetDomain(point[c]);
     if (!owned) continue;
 
     unsigned short faceNodes[3] = {0, 0, 0};
@@ -5731,7 +5855,7 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
     const su2double* coord[pve::MAXNODE];
     pve::NodeState state[pve::MAXNODE];
     for (unsigned short c = 0; c < nNodes; ++c) {
-      const auto iPoint = elem->GetNode(c);
+      const auto iPoint = point[c];
       coord[c] = geometry->nodes->GetCoord(iPoint);
       pve::GatherNode(*base_nodes, iPoint, nDim, prandtlTurb, state[c]);
     }
@@ -5752,7 +5876,7 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
       unsigned long facePoints[3] = {0, 0, 0};
       for (unsigned short a = 0; a < nDim; ++a) {
         const auto& S = state[faceNodes[a]];
-        facePoints[a] = elem->GetNode(faceNodes[a]);
+        facePoints[a] = point[faceNodes[a]];
         faceStates[a].rho = S.rho;
         faceStates[a].p = S.p;
         for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
@@ -5781,7 +5905,7 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
     }
     pve::NoSlipWall(simplex, nDim, faceNodes, faceNormal, record.isothermal, record.wallTheta, record.nWallFaces,
                     sipg, penalty, res, implicit ? dwdu : nullptr, implicit ? jac : nullptr,
-                    movedShares ? record.share : nullptr, movingWall ? wallVel : nullptr);
+                    (movedShares && !subSimplex) ? record.share : nullptr, movingWall ? wallVel : nullptr);
 
     for (unsigned short a = 0; a < nDim; ++a)
       for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[faceNodes[a]][iVar] += faceRes[a][iVar];
@@ -5814,9 +5938,21 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
       }
     }
 
+    if (subSimplex) {
+      const su2double weight = record.weight;
+      for (unsigned short c = 0; c < nNodes; ++c) {
+        for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+          res[c][iVar] *= weight;
+          if (!implicit) continue;
+          for (unsigned short b = 0; b < nNodes; ++b)
+            for (unsigned short jVar = 0; jVar < nVar; ++jVar) jac[c][b][iVar][jVar] *= weight;
+        }
+      }
+    }
+
     /*--- Owned rows only; the adjoint term reaches every node of the wall element. ---*/
     for (unsigned short c = 0; c < nNodes; ++c) {
-      const auto pointC = elem->GetNode(c);
+      const auto pointC = point[c];
       if (!geometry->nodes->GetDomain(pointC)) continue;
       LinSysRes.AddBlock(pointC, res[c]);
       if (!implicit) continue;
@@ -5825,7 +5961,7 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
         const su2double* rows[pve::MAXNVAR];
         for (unsigned short iVar = 0; iVar < nVar; ++iVar) rows[iVar] = jac[c][b][iVar];
         if (b == c) Jacobian.AddBlock2Diag(pointC, rows);
-        else Jacobian.AddBlock(pointC, elem->GetNode(b), rows);
+        else Jacobian.AddBlock(pointC, point[b], rows);
       }
     }
   }

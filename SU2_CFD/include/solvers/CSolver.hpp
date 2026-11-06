@@ -192,6 +192,9 @@ protected:
     su2double wallTheta = 0.0;       /*!< \brief 1/(R T_w) of an isothermal wall. */
     su2double share[3] = {0.0, 0.0, 0.0}; /*!< \brief Moved wall shares a_a/A_f of the face nodes in increasing local
                                                index (VISC_P1_ENTROPY_MOVED, 3D), unused otherwise. */
+    short simplex = -1;              /*!< \brief EDGE_FORM_P1_MIXED: entry of the split average of a non-simplex cell
+                                          (CGeometry::GetMixedSimplices), "opposite" is local to it; -1 for a simplex. */
+    passivedouble weight = 1.0;      /*!< \brief omega_t of that entry, 1 for a simplex. */
   };
   vector<P1WallFace> P1WallFaces;    /*!< \brief Wall faces of the local elements (BC_WALL_ENTROPY_P1), sorted by element. */
   bool P1WallFacesReady = false;     /*!< \brief P1WallFaces is built on first use. */

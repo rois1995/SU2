@@ -25,7 +25,9 @@
  */
 
 #include "catch.hpp"
+#include <algorithm>
 #include <array>
+#include <map>
 #include <fstream>
 #include <memory>
 #include <random>
@@ -35,6 +37,11 @@
 #include "../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../Common/include/toolboxes/boundary_closure.hpp"
 #include "../../Common/include/toolboxes/p1_simplex.hpp"
+#include "../../Common/include/toolboxes/p1_mixed.hpp"
+#include "../../Common/include/geometry/primal_grid/CHexahedron.hpp"
+#include "../../Common/include/geometry/primal_grid/CPrism.hpp"
+#include "../../Common/include/geometry/primal_grid/CPyramid.hpp"
+#include "../../Common/include/geometry/primal_grid/CQuadrilateral.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_viscous_entropy.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_ale_entropy.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
@@ -2242,4 +2249,966 @@ TEST_CASE("GRID_ENTROPY_P1 on a closed moving domain: exact GCL, swept remainder
       }
     }
   }
+}
+
+/*--- EDGE_FORM_P1_MIXED (P1_MIXED.md): split averages of quadrilaterals, hexahedra, prisms and pyramids. ---*/
+
+namespace {
+
+/*!
+ * \brief Write a conforming mixed mesh. 2D: quadrilaterals and triangle pairs in a checkerboard. 3D (n >= 3): columns
+ *        of hexahedra ((i+j) even) and of prism pairs below z = (n-2)/n, a transition layer of pyramids with 4
+ *        tetrahedra on the hexahedra and of Kuhn cells on the prisms, Kuhn tetrahedra on top. So every cell type and
+ *        every interface (hex-prism quads, hex-pyramid quads, prism-tet and pyramid-tet triangles) occurs. Interior
+ *        nodes are jittered, the z scale stretches the cells. Markers: bottom (quads and triangles), rest.
+ */
+void WriteMixedMesh(const std::string& name, int nDim, unsigned long n, double jitter, double stretch) {
+  if (SU2_MPI::GetRank() != MASTER_NODE) return;
+
+  std::mt19937 gen(2718);
+  std::uniform_real_distribution<double> rnd(-0.5, 0.5);
+  std::ofstream f(name);
+  f.precision(17);
+  std::ostringstream elems, points, bottom, rest;
+  unsigned long nElem = 0, nBottom = 0, nRest = 0;
+
+  if (nDim == 2) {
+    auto id = [&](unsigned long i, unsigned long j) { return i * (n + 1) + j; };
+    for (auto i = 0ul; i < n; ++i) {
+      for (auto j = 0ul; j < n; ++j) {
+        const unsigned long q[] = {id(i, j), id(i + 1, j), id(i + 1, j + 1), id(i, j + 1)};
+        if ((i + j) % 2 == 0) {
+          elems << "9 " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << "\n";
+          ++nElem;
+        } else {
+          elems << "5 " << q[0] << " " << q[1] << " " << q[2] << "\n5 " << q[0] << " " << q[2] << " " << q[3] << "\n";
+          nElem += 2;
+        }
+      }
+    }
+    for (auto i = 0ul; i <= n; ++i) {
+      for (auto j = 0ul; j <= n; ++j) {
+        const bool inner = (i > 0) && (j > 0) && (i < n) && (j < n);
+        points << (i + (inner ? jitter * rnd(gen) : 0.0)) / n << " "
+               << (j + (inner ? jitter * rnd(gen) : 0.0)) / n * stretch << "\n";
+      }
+    }
+    f << "NDIME= 2\nNELEM= " << nElem << "\n" << elems.str() << "NPOIN= " << (n + 1) * (n + 1) << "\n" << points.str();
+    f << "NMARK= 2\nMARKER_TAG= bottom\nMARKER_ELEMS= " << n << "\n";
+    for (auto i = 0ul; i < n; ++i) f << "3 " << id(i, 0) << " " << id(i + 1, 0) << "\n";
+    f << "MARKER_TAG= rest\nMARKER_ELEMS= " << 3 * n << "\n";
+    for (auto i = 0ul; i < n; ++i) f << "3 " << id(i + 1, n) << " " << id(i, n) << "\n";
+    for (auto j = 0ul; j < n; ++j) f << "3 " << id(0, j + 1) << " " << id(0, j) << "\n";
+    for (auto j = 0ul; j < n; ++j) f << "3 " << id(n, j) << " " << id(n, j + 1) << "\n";
+    return;
+  }
+
+  static const int kuhn[6][4] = {{0, 1, 2, 6}, {0, 2, 3, 6}, {0, 3, 7, 6}, {0, 7, 4, 6}, {0, 4, 5, 6}, {0, 5, 1, 6}};
+  for (auto i = 0ul; i < n; ++i) {
+    for (auto j = 0ul; j < n; ++j) {
+      const bool hexColumn = ((i + j) % 2 == 0);
+      for (auto k = 0ul; k < n; ++k) {
+        const unsigned long h[] = {Lattice(i, j, k, n),             Lattice(i + 1, j, k, n),
+                                   Lattice(i + 1, j + 1, k, n),     Lattice(i, j + 1, k, n),
+                                   Lattice(i, j, k + 1, n),         Lattice(i + 1, j, k + 1, n),
+                                   Lattice(i + 1, j + 1, k + 1, n), Lattice(i, j + 1, k + 1, n)};
+        auto tets = [&](int first) {
+          for (int t = first; t < 6; ++t) {
+            elems << "10 " << h[kuhn[t][0]] << " " << h[kuhn[t][1]] << " " << h[kuhn[t][2]] << " " << h[kuhn[t][3]] << "\n";
+            ++nElem;
+          }
+        };
+        if (k + 2 < n) {
+          if (hexColumn) {
+            elems << "12";
+            for (const auto node : h) elems << " " << node;
+            elems << "\n";
+            ++nElem;
+          } else {
+            elems << "13 " << h[0] << " " << h[1] << " " << h[2] << " " << h[4] << " " << h[5] << " " << h[6] << "\n";
+            elems << "13 " << h[0] << " " << h[2] << " " << h[3] << " " << h[4] << " " << h[6] << " " << h[7] << "\n";
+            nElem += 2;
+          }
+        } else if ((k + 2 == n) && hexColumn) {
+          /*--- The Kuhn tets 0-1-2-6 and 0-2-3-6 merged into the pyramid on the quad face below. ---*/
+          elems << "14 " << h[0] << " " << h[1] << " " << h[2] << " " << h[3] << " " << h[6] << "\n";
+          ++nElem;
+          tets(2);
+        } else {
+          tets(0);
+        }
+      }
+    }
+  }
+  for (auto i = 0ul; i <= n; ++i) {
+    for (auto j = 0ul; j <= n; ++j) {
+      for (auto k = 0ul; k <= n; ++k) {
+        const bool inner = (i > 0) && (j > 0) && (k > 0) && (i < n) && (j < n) && (k < n);
+        points << (i + (inner ? jitter * rnd(gen) : 0.0)) / n << " " << (j + (inner ? jitter * rnd(gen) : 0.0)) / n << " "
+               << (k + (inner ? jitter * rnd(gen) : 0.0)) / n * stretch << "\n";
+      }
+    }
+  }
+
+  /*--- Triangles follow the diagonal of the Kuhn split (or of the prism pair at the bottom). ---*/
+  auto quad = [&](std::ostringstream& os, unsigned long& count, bool tris, unsigned long a, unsigned long b,
+                  unsigned long c, unsigned long d) {
+    if (tris) {
+      os << "5 " << a << " " << b << " " << c << "\n5 " << a << " " << c << " " << d << "\n";
+      count += 2;
+    } else {
+      os << "9 " << a << " " << b << " " << c << " " << d << "\n";
+      ++count;
+    }
+  };
+  for (auto u = 0ul; u < n; ++u) {
+    for (auto v = 0ul; v < n; ++v) {
+      const bool side = (v + 2 >= n);
+      quad(bottom, nBottom, (u + v) % 2 == 1, Lattice(u, v, 0, n), Lattice(u, v + 1, 0, n), Lattice(u + 1, v + 1, 0, n),
+           Lattice(u + 1, v, 0, n));
+      quad(rest, nRest, true, Lattice(u, v, n, n), Lattice(u + 1, v, n, n), Lattice(u + 1, v + 1, n, n), Lattice(u, v + 1, n, n));
+      quad(rest, nRest, side, Lattice(u, 0, v, n), Lattice(u + 1, 0, v, n), Lattice(u + 1, 0, v + 1, n), Lattice(u, 0, v + 1, n));
+      quad(rest, nRest, side, Lattice(u, n, v, n), Lattice(u, n, v + 1, n), Lattice(u + 1, n, v + 1, n), Lattice(u + 1, n, v, n));
+      quad(rest, nRest, side, Lattice(0, u, v, n), Lattice(0, u, v + 1, n), Lattice(0, u + 1, v + 1, n), Lattice(0, u + 1, v, n));
+      quad(rest, nRest, side, Lattice(n, u, v, n), Lattice(n, u + 1, v, n), Lattice(n, u + 1, v + 1, n), Lattice(n, u, v + 1, n));
+    }
+  }
+  f << "NDIME= 3\nNELEM= " << nElem << "\n" << elems.str() << "NPOIN= " << (n + 1) * (n + 1) * (n + 1) << "\n" << points.str();
+  f << "NMARK= 2\nMARKER_TAG= bottom\nMARKER_ELEMS= " << nBottom << "\n" << bottom.str();
+  f << "MARKER_TAG= rest\nMARKER_ELEMS= " << nRest << "\n" << rest.str();
+}
+
+const std::string MixedOptions =
+    "MOD_CENTROIDS= YES\nCONV_NUM_METHOD_FLOW= JST\nEDGE_FORM_P1= YES\nEDGE_FORM_P1_MIXED= YES\nBC_WEAK_P1= YES\n";
+
+/*--- A single cell of a VTK type with local node IDs, and its reference coordinates. ---*/
+std::unique_ptr<CPrimalGrid> MakeCell(int vtk) {
+  if (vtk == HEXAHEDRON) return std::unique_ptr<CPrimalGrid>(new CHexahedron(0, 1, 2, 3, 4, 5, 6, 7));
+  if (vtk == PRISM) return std::unique_ptr<CPrimalGrid>(new CPrism(0, 1, 2, 3, 4, 5));
+  if (vtk == PYRAMID) return std::unique_ptr<CPrimalGrid>(new CPyramid(0, 1, 2, 3, 4));
+  return std::unique_ptr<CPrimalGrid>(new CQuadrilateral(0, 1, 2, 3));
+}
+
+/*--- Reference cell, then a non-affine perturbation, a stretch of the last axis and a rotation. ---*/
+std::vector<std::array<su2double, 3>> CellCoords(std::mt19937& gen, int vtk, double perturbation, double stretch) {
+  std::vector<std::array<su2double, 3>> x;
+  if (vtk == HEXAHEDRON) x = {{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}, {0, 0, 1}, {1, 0, 1}, {1, 1, 1}, {0, 1, 1}};
+  else if (vtk == PRISM) x = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {1, 0, 1}, {0, 1, 1}};
+  else if (vtk == PYRAMID) x = {{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}, {0.5, 0.5, 0.6}};
+  else x = {{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}};
+  const int nDim = (vtk == QUADRILATERAL) ? 2 : 3;
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const double a = 0.7, b = 0.4;
+  for (auto& p : x) {
+    for (int i = 0; i < nDim; ++i) p[i] += perturbation * u(gen);
+    p[nDim - 1] *= stretch;
+    const su2double x0 = p[0], x1 = p[1];
+    p[0] = cos(a) * x0 - sin(a) * x1;
+    p[1] = sin(a) * x0 + cos(a) * x1;
+    if (nDim == 3) {
+      const su2double y = p[1], z = p[2];
+      p[1] = cos(b) * y - sin(b) * z;
+      p[2] = sin(b) * y + cos(b) * z;
+    }
+  }
+  return x;
+}
+
+/*--- The kept (neighbour-fan) pulling splits of a cell type, each as a list of weight-1 sub-simplices. ---*/
+std::vector<std::vector<P1Mixed::Simplex>> KeptSplits(CPhysicalGeometry& geometry, const CPrimalGrid& cell, int nDim) {
+  std::vector<std::vector<P1Mixed::Simplex>> splits;
+  for (const auto& pattern : geometry.GetSplitPatterns(&cell)) {
+    if (!P1Mixed::NeighbourFan(cell, nDim, pattern.simplices)) continue;
+    std::vector<P1Mixed::Simplex> split;
+    for (const auto& t : pattern.simplices) {
+      P1Mixed::Simplex entry;
+      entry.nodes = t;
+      entry.weight = 1.0;
+      split.push_back(entry);
+    }
+    splits.push_back(split);
+  }
+  return splits;
+}
+
+/*--- Sorted node tuple of a sub-simplex. ---*/
+std::array<unsigned short, 4> SimplexKey(const P1Mixed::Simplex& t, int nDim) {
+  std::array<unsigned short, 4> key = {{0, 0, 0, 0}};
+  for (int a = 0; a <= nDim; ++a) key[a] = t.nodes[a];
+  std::sort(key.begin(), key.begin() + nDim + 1);
+  return key;
+}
+
+/*--- Sizes (oriented like the cell) and gradients of the sub-simplices of a list on coordinates x. ---*/
+struct SubSimplices {
+  std::vector<su2double> size;
+  std::vector<std::array<std::array<su2double, 3>, 4>> grad;
+  SubSimplices(int nDim, const std::vector<P1Mixed::Simplex>& list, const std::vector<std::array<su2double, 3>>& x) {
+    su2double total = 0.0;
+    for (const auto& t : list) {
+      const su2double* X[4] = {nullptr, nullptr, nullptr, nullptr};
+      for (int a = 0; a <= nDim; ++a) X[a] = x[t.nodes[a]].data();
+      su2double g[4][3] = {};
+      size.push_back(P1Simplex::ShapeGradients(nDim, X, g));
+      std::array<std::array<su2double, 3>, 4> G;
+      for (int a = 0; a < 4; ++a)
+        for (int i = 0; i < 3; ++i) G[a][i] = g[a][i];
+      grad.push_back(G);
+      total += t.weight * size.back();
+    }
+    for (auto& s : size) s *= (total < 0.0) ? -1.0 : 1.0;
+  }
+};
+
+using PairMap = std::map<std::pair<int, int>, std::array<su2double, 3>>;
+
+/*--- n_ik (from i to k, i < k) of the M0 operator of a list: sum_t omega_t m_t (g_k - g_i), and the masses. With
+ * delta != nullptr, the E part sum_t omega_t (delta_i g_k + delta_k g_i)/2 of the weights W = m_t + delta instead. ---*/
+PairMap MixedPairs(int nDim, const std::vector<P1Mixed::Simplex>& list, const std::vector<std::array<su2double, 3>>& x,
+                   std::vector<su2double>* mass = nullptr,
+                   const std::map<std::array<unsigned short, 4>, std::array<su2double, 4>>* delta = nullptr) {
+  SubSimplices sub(nDim, list, x);
+  PairMap pairs;
+  for (size_t t = 0; t < list.size(); ++t) {
+    const su2double m = sub.size[t] / (nDim + 1);
+    const std::array<su2double, 4>* d = delta ? &delta->at(SimplexKey(list[t], nDim)) : nullptr;
+    for (int a = 0; a <= nDim; ++a) {
+      if (mass) (*mass)[list[t].nodes[a]] += list[t].weight * m;
+      for (int b = a + 1; b <= nDim; ++b) {
+        int i = list[t].nodes[a], k = list[t].nodes[b], ia = a, kb = b;
+        if (i > k) {
+          std::swap(i, k);
+          std::swap(ia, kb);
+        }
+        auto& n = pairs[{i, k}];
+        for (int j = 0; j < nDim; ++j) {
+          if (d) {
+            /*--- delta of each node is stored in the sorted order of the key. ---*/
+            const auto key = SimplexKey(list[t], nDim);
+            su2double di = 0.0, dk = 0.0;
+            for (int c = 0; c <= nDim; ++c) {
+              if (key[c] == i) di = (*d)[c];
+              if (key[c] == k) dk = (*d)[c];
+            }
+            n[j] += list[t].weight * 0.5 * (di * sub.grad[t][kb][j] + dk * sub.grad[t][ia][j]);
+          } else {
+            n[j] += list[t].weight * m * (sub.grad[t][kb][j] - sub.grad[t][ia][j]);
+          }
+        }
+      }
+    }
+  }
+  return pairs;
+}
+
+/*--- Lemma 3 speed of a pair piece E and the production / dissipation terms of the pair. ---*/
+void PairEntropy(int nDim, const ale::State& Si, const ale::State& Sk, const su2double* E, su2double& production,
+                 su2double& dissipation) {
+  su2double Fi[5], Fk[5], wi[5], wk[5], Ui[5], Uk[5];
+  AleFluxN(nDim, Si, E, Fi);
+  AleFluxN(nDim, Sk, E, Fk);
+  ale::EntropyVariables(nDim, kGamma, Si, wi);
+  ale::EntropyVariables(nDim, kGamma, Sk, wk);
+  ale::Conservative(nDim, kGamma, Si, Ui);
+  ale::Conservative(nDim, kGamma, Sk, Uk);
+  su2double area = 0.0, ui = 0.0, uk = 0.0;
+  for (int j = 0; j < nDim; ++j) {
+    area += E[j] * E[j];
+    ui += Si.vel[j] * E[j];
+    uk += Sk.vel[j] * E[j];
+  }
+  area = sqrt(area);
+  const su2double c = sqrt(kGamma * std::max(Si.p / Si.rho, Sk.p / Sk.rho));
+  const su2double lam = std::max(su2double(0.0), std::max(ui, uk) + c * area);
+  production = 0.0;
+  dissipation = 0.0;
+  for (int v = 0; v < nDim + 2; ++v) {
+    production += (wk[v] - wi[v]) * (Fk[v] - Fi[v]);
+    dissipation += lam * (wk[v] - wi[v]) * (Uk[v] - Ui[v]);
+  }
+}
+
+constexpr int MixedTypes[4] = {HEXAHEDRON, PRISM, PYRAMID, QUADRILATERAL};
+
+}  // namespace
+
+TEST_CASE("EDGE_FORM_P1_MIXED: split averages per cell type, face balance, symmetry, linear exactness", "[P1Flux]") {
+  std::mt19937 gen(1357);
+  for (int nDim : {2, 3}) {
+    const std::string mesh = "p1_mixed_cells_" + std::to_string(nDim) + "d.su2";
+    WriteMixedMesh(mesh, nDim, (nDim == 2) ? 8 : 4, 0.0, 1.0);
+    MeshCase test(mesh, MixedOptions);
+    auto& geometry = static_cast<CPhysicalGeometry&>(*test.geometry);
+
+    for (const int vtk : MixedTypes) {
+      if ((vtk == QUADRILATERAL) != (nDim == 2)) continue;
+      const auto cell = MakeCell(vtk);
+      const auto& list = geometry.SetMixedSimplices(cell.get());
+      INFO("VTK type " << vtk);
+
+      /*--- Sizes and weights (P1_MIXED.md, 8.1). ---*/
+      const size_t expected = (vtk == HEXAHEDRON) ? 24 : (vtk == PRISM) ? 12 : 4;
+      CHECK(list.size() == expected);
+      su2double sumWeight = 0.0;
+      for (const auto& t : list) {
+        sumWeight += t.weight;
+        if (vtk == PRISM) CHECK(((fabs(t.weight - 1.0 / 6.0) < 1e-14) || (fabs(t.weight - 1.0 / 3.0) < 1e-14)));
+        else CHECK(fabs(t.weight - ((vtk == HEXAHEDRON) ? 0.25 : 0.5)) < 1e-14);
+      }
+      const auto splits = KeptSplits(geometry, *cell, nDim);
+      CHECK(splits.size() == ((vtk == HEXAHEDRON) ? 8u : (vtk == PRISM) ? 12u : (vtk == PYRAMID) ? 6u : 4u));
+      CHECK(fabs(sumWeight - splits[0].size()) < 1e-12);
+
+      /*--- Face condition (Lemma X2): each sub-triangle of a quad face has weight 1/2, every other face weight 1. ---*/
+      auto faceWeight = [&](const std::vector<unsigned short>& face) {
+        su2double w = 0.0;
+        for (const auto& t : list) {
+          size_t found = 0;
+          for (const auto node : face)
+            for (int a = 0; a <= nDim; ++a) found += (t.nodes[a] == node);
+          if (found == face.size()) w += t.weight;
+        }
+        return w;
+      };
+      for (unsigned short iFace = 0; iFace < cell->GetnFaces(); ++iFace) {
+        const auto nFaceNodes = (nDim == 2) ? 2 : cell->GetnNodesFace(iFace);
+        std::vector<unsigned short> face;
+        for (unsigned short k = 0; k < nFaceNodes; ++k) face.push_back(cell->GetFaces(iFace, k));
+        if (nFaceNodes == 4) {
+          for (const auto& tri : P1Mixed::QuadTriangles) {
+            CHECK(fabs(faceWeight({face[tri[0]], face[tri[1]], face[tri[2]]}) - 0.5) < 1e-14);
+          }
+        } else {
+          CHECK(fabs(faceWeight(face) - 1.0) < 1e-14);
+        }
+      }
+
+      /*--- Node-ID independence: the list is invariant under the symmetries of the reference cell. ---*/
+      std::vector<std::vector<unsigned short>> maps;
+      if (vtk == HEXAHEDRON) maps = {{1, 2, 3, 0, 5, 6, 7, 4}, {4, 5, 6, 7, 0, 1, 2, 3}, {3, 2, 6, 7, 0, 1, 5, 4}};
+      if (vtk == PRISM) maps = {{1, 2, 0, 4, 5, 3}, {3, 4, 5, 0, 1, 2}, {0, 2, 1, 3, 5, 4}};
+      if (vtk == PYRAMID) maps = {{1, 2, 3, 0, 4}, {0, 3, 2, 1, 4}};
+      if (vtk == QUADRILATERAL) maps = {{1, 2, 3, 0}, {0, 3, 2, 1}};
+      std::map<std::array<unsigned short, 4>, su2double> weights;
+      for (const auto& t : list) weights[SimplexKey(t, nDim)] = t.weight;
+      for (const auto& map : maps) {
+        for (const auto& t : list) {
+          P1Mixed::Simplex image = t;
+          for (int a = 0; a <= nDim; ++a) image.nodes[a] = map[t.nodes[a]];
+          const auto found = weights.find(SimplexKey(image, nDim));
+          REQUIRE(found != weights.end());
+          CHECK(fabs(found->second - t.weight) < 1e-14);
+        }
+      }
+
+      /*--- Single cells (affine, stretched, non-affine), Lemma X1: sum_t omega_t |t| is the mean volume of the kept
+       * splits; c_ik = sum_t omega_t m_t g^t_k (rows i of t) is linearly exact, sum_k c_ik (x) x_k = H_i I, with
+       * zero row sums; n = c - c^T has sum_k n_ik = -beta_i with sum_i beta_i = 0 (closed cell). ---*/
+      for (int draw = 0; draw < 20; ++draw) {
+        const auto x = CellCoords(gen, vtk, (draw < 4) ? 0.0 : 0.12, (draw % 2) ? 1e-3 : 1.0);
+        const auto nv = x.size();
+        SubSimplices sub(nDim, list, x);
+        std::vector<su2double> mass(nv, 0.0);
+        std::vector<std::array<su2double, 3>> c(nv * nv, {0.0, 0.0, 0.0});
+        for (size_t t = 0; t < list.size(); ++t) {
+          CHECK(sub.size[t] > 0.0);
+          const su2double m = sub.size[t] / (nDim + 1);
+          for (int a = 0; a <= nDim; ++a) {
+            mass[list[t].nodes[a]] += list[t].weight * m;
+            for (int b = 0; b <= nDim; ++b)
+              for (int j = 0; j < nDim; ++j) c[list[t].nodes[a] * nv + list[t].nodes[b]][j] += list[t].weight * m * sub.grad[t][b][j];
+          }
+        }
+        su2double volume = 0.0, splitVolume = 0.0;
+        for (const auto value : mass) volume += value;
+        for (const auto& split : splits) {
+          SubSimplices subSplit(nDim, split, x);
+          for (const auto s : subSplit.size) splitVolume += s / splits.size();
+        }
+        CHECK(fabs(volume - splitVolume) < 1e-12 * fabs(volume));
+
+        su2double exactness = 0.0, rowSum = 0.0, gradScale = 0.0;
+        for (size_t i = 0; i < nv; ++i) {
+          for (int p = 0; p < nDim; ++p) {
+            su2double sum = 0.0;
+            for (size_t k = 0; k < nv; ++k) {
+              sum += c[i * nv + k][p];
+              gradScale = std::max(gradScale, fabs(c[i * nv + k][p]));
+            }
+            rowSum = std::max(rowSum, fabs(sum));
+            for (int q = 0; q < nDim; ++q) {
+              su2double cx = 0.0;
+              for (size_t k = 0; k < nv; ++k) cx += c[i * nv + k][p] * x[k][q];
+              exactness = std::max(exactness, fabs(cx - ((p == q) ? mass[i] : 0.0)) / volume);
+            }
+          }
+        }
+        CHECK(exactness < 1e-11);
+        CHECK(rowSum < 1e-12 * gradScale);
+
+        const auto pairs = MixedPairs(nDim, list, x);
+        std::vector<std::array<su2double, 3>> beta(nv, {0.0, 0.0, 0.0});
+        su2double maxBeta = 0.0, sumBeta[3] = {0.0, 0.0, 0.0};
+        for (const auto& pair : pairs) {
+          for (int j = 0; j < nDim; ++j) {
+            beta[pair.first.first][j] -= pair.second[j];
+            beta[pair.first.second][j] += pair.second[j];
+            /*--- n_ik = c_ik - c_ki from the operator above. ---*/
+            const auto i = pair.first.first, k = pair.first.second;
+            CHECK(fabs(pair.second[j] - (c[i * nv + k][j] - c[k * nv + i][j])) < 1e-12 * gradScale);
+          }
+        }
+        for (const auto& b : beta) {
+          for (int j = 0; j < nDim; ++j) {
+            sumBeta[j] += b[j];
+            maxBeta = std::max(maxBeta, fabs(b[j]));
+          }
+        }
+        for (int j = 0; j < nDim; ++j) CHECK(fabs(sumBeta[j]) < 1e-13 * maxBeta);
+      }
+    }
+  }
+}
+
+TEST_CASE("EDGE_FORM_P1_MIXED on a mixed mesh: linear exactness with the form mass, closure on quad faces", "[P1Flux]") {
+  for (int nDim : {2, 3}) {
+    for (double stretch : {1.0, 1e-3}) {
+      const std::string mesh = "p1_mixed_mesh_" + std::to_string(nDim) + "d.su2";
+      WriteMixedMesh(mesh, nDim, (nDim == 2) ? 10 : 5, 0.3, stretch);
+      MeshCase test(mesh, MixedOptions);
+      auto& geometry = *test.geometry;
+      geometry.SetEdgeFormP1(true);
+      const auto& mass = geometry.edges->GetFormMass();
+      INFO("nDim " << nDim << " stretch " << stretch);
+
+      /*--- The masses H_i fill the box (sum over the split averages, faces shared consistently). ---*/
+      su2double localVolume = 0.0;
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) localVolume += mass[iPoint];
+      CHECK(fabs(GlobalSum(localVolume) - stretch) < 1e-10 * stretch);
+
+      /*--- A linear flux is exact at interior nodes, R_i = H_i div F (true edges and diagonals), and at every node
+       * with the boundary closure (quad faces with both diagonals at 1/2). E = 0 on the non-simplex cells. ---*/
+      LinearFlux flux;
+      const auto div = flux.Div(nDim);
+      auto R = SplitSum(geometry, flux, false);
+      su2double interior = 0.0;
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+        if (geometry.nodes->GetPhysicalBoundary(iPoint)) continue;
+        interior = std::max(interior, fabs(R[iPoint] / mass[iPoint] - div) / fabs(div));
+      }
+      for (auto iMarker = 0u; iMarker < geometry.GetnMarker(); ++iMarker) {
+        if (test.config->GetMarker_All_KindBC(iMarker) == SEND_RECEIVE) continue;
+        for (auto iDim = 0; iDim < nDim; ++iDim) {
+          su2activematrix face(geometry.GetnVertex(iMarker), nDim);
+          face = su2double(0.0);
+          auto field = [&](unsigned long iPoint) { return flux.Eval(geometry, iPoint, iDim); };
+          BoundaryClosure::AddMarkerFlux(geometry, iMarker, field, face);
+          for (auto iVertex = 0ul; iVertex < geometry.GetnVertex(iMarker); ++iVertex) {
+            R[geometry.vertex[iMarker][iVertex]->GetNode()] += face(iVertex, iDim);
+          }
+        }
+      }
+      su2double all = 0.0;
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+        all = std::max(all, fabs(R[iPoint] / mass[iPoint] - div) / fabs(div));
+      }
+      CHECK(GlobalMax(interior) < 1e-9);
+      CHECK(GlobalMax(all) < 1e-9);
+
+      /*--- The diagonals carry no E part (M0) and exist on every mesh with non-simplex cells. ---*/
+      su2double maxE = 0.0;
+      for (auto iSplit = 0ul; iSplit < geometry.edges->GetSplitNodes().size(); ++iSplit)
+        for (auto iDim = 0; iDim < nDim; ++iDim) maxE = std::max(maxE, fabs(geometry.edges->GetSplitE()(iSplit, iDim)));
+      CHECK(maxE == 0.0);
+      CHECK(GlobalSum(geometry.edges->GetSplitNodes().size()) > 0.0);
+    }
+  }
+}
+
+TEST_CASE("EDGE_FORM_P1_MIXED: moved viscous test vectors of tetrahedra next to prisms and pyramids", "[P1Flux]") {
+  /*--- P1_MIXED.md 5.3: Y_T with xi_o = 0 on the faces a tetrahedron shares with a prism or a pyramid. Then the
+   * assembled test vectors, (|T| I + Y_T^T) g_a on the tetrahedra and omega_t |t| g_a on the sub-simplices of the
+   * split averages, sum to zero at interior nodes (constant fluxes are exact, MV1(e)). ---*/
+  for (double stretch : {1.0, 1e-3}) {
+    const std::string mesh = "p1_mixed_moved_3d.su2";
+    WriteMixedMesh(mesh, 3, 5, 0.3, stretch);
+    MeshCase test(mesh, MixedOptions);
+    auto& geometry = *test.geometry;
+    geometry.SetEdgeFormP1(true);
+    geometry.SetEdgeFormBlend(true, true);
+    const auto& blendY = geometry.edges->GetBlendY();
+
+    std::vector<std::array<su2double, 3>> S(geometry.GetnPoint(), {0.0, 0.0, 0.0});
+    su2double scale = 0.0, maxY = 0.0;
+    for (auto iElem = 0ul; iElem < geometry.GetnElem(); ++iElem) {
+      const auto* element = geometry.elem[iElem];
+      const auto nNodes = element->GetnNodes();
+      if (nNodes == 4) {
+        su2double x[4][3], grad[4][3];
+        for (int a = 0; a < 4; ++a)
+          for (int i = 0; i < 3; ++i) x[a][i] = geometry.nodes->GetCoord(element->GetNode(a), i);
+        const su2double size = fabs(P1Simplex::ShapeGradients(3, x, grad));
+        for (int k = 0; k < 9; ++k) maxY = std::max(maxY, fabs(blendY(iElem, k)) / size);
+        for (int a = 0; a < 4; ++a) {
+          for (int j = 0; j < 3; ++j) {
+            su2double nu = size * grad[a][j];
+            for (int i = 0; i < 3; ++i) nu += blendY(iElem, 3 * i + j) * grad[a][i];
+            S[element->GetNode(a)][j] += nu;
+            scale = std::max(scale, fabs(size * grad[a][j]));
+          }
+        }
+        continue;
+      }
+      for (const auto& t : geometry.GetMixedSimplices(element->GetVTK_Type())) {
+        su2double x[4][3], grad[4][3];
+        for (int a = 0; a < 4; ++a)
+          for (int i = 0; i < 3; ++i) x[a][i] = geometry.nodes->GetCoord(element->GetNode(t.nodes[a]), i);
+        const su2double size = fabs(P1Simplex::ShapeGradients(3, x, grad));
+        for (int a = 0; a < 4; ++a)
+          for (int j = 0; j < 3; ++j) S[element->GetNode(t.nodes[a])][j] += t.weight * size * grad[a][j];
+      }
+    }
+    su2double local = 0.0;
+    for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+      if (geometry.nodes->GetPhysicalBoundary(iPoint)) continue;
+      for (int j = 0; j < 3; ++j) local = std::max(local, fabs(S[iPoint][j]));
+    }
+    INFO("stretch " << stretch);
+    CHECK(GlobalMax(local) < 1e-10 * GlobalMax(scale));
+    CHECK(GlobalMax(maxY) > 1e-3);
+  }
+}
+
+TEST_CASE("EDGE_FORM_P1_MIXED: central part and entropy production of the average are the means of the splits", "[P1Flux]") {
+  /*--- Theorem X4: Ismail-Roe is linear in its normal, the E production is linear in E, so on one cell the averaged
+   * operator gives the weighted mean of the split residuals and productions, for any W (here random delta). ---*/
+  std::mt19937 gen(9753);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const std::string mesh = "p1_mixed_x4_" + std::to_string(nDim) + "d.su2";
+    WriteMixedMesh(mesh, nDim, (nDim == 2) ? 4 : 3, 0.0, 1.0);
+    MeshCase test(mesh, MixedOptions);
+    auto& geometry = static_cast<CPhysicalGeometry&>(*test.geometry);
+    for (const int vtk : MixedTypes) {
+      if ((vtk == QUADRILATERAL) != (nDim == 2)) continue;
+      const auto cell = MakeCell(vtk);
+      const auto& list = geometry.SetMixedSimplices(cell.get());
+      const auto splits = KeptSplits(geometry, *cell, nDim);
+      INFO("VTK type " << vtk);
+      for (int draw = 0; draw < 40; ++draw) {
+        const auto x = CellCoords(gen, vtk, 0.12, (draw % 2) ? 1e-2 : 1.0);
+        std::vector<ale::State> state(x.size());
+        for (auto& S : state) S = RandomAleState(gen, nDim);
+
+        /*--- Random W = m_t + delta per distinct sub-simplex, sum_a delta_a = 0. ---*/
+        std::map<std::array<unsigned short, 4>, std::array<su2double, 4>> delta;
+        SubSimplices sub(nDim, list, x);
+        for (size_t t = 0; t < list.size(); ++t) {
+          std::array<su2double, 4> d = {0.0, 0.0, 0.0, 0.0};
+          su2double mean = 0.0;
+          for (int a = 0; a <= nDim; ++a) {
+            d[a] = 0.3 * u(gen) * sub.size[t] / (nDim + 1);
+            mean += d[a] / (nDim + 1);
+          }
+          for (int a = 0; a <= nDim; ++a) d[a] -= mean;
+          delta[SimplexKey(list[t], nDim)] = d;
+        }
+
+        auto residual = [&](const PairMap& pairs, std::vector<std::array<su2double, 5>>& R) {
+          for (const auto& pair : pairs) {
+            su2double F[5];
+            ale::IsmailRoeFlux(nDim, kGamma, state[pair.first.first], state[pair.first.second], pair.second.data(), F);
+            for (int v = 0; v < nDim + 2; ++v) {
+              R[pair.first.first][v] += F[v];
+              R[pair.first.second][v] -= F[v];
+            }
+          }
+        };
+        auto production = [&](const PairMap& pieces) {
+          su2double P = 0.0;
+          for (const auto& pair : pieces) {
+            su2double p = 0.0, d = 0.0;
+            PairEntropy(nDim, state[pair.first.first], state[pair.first.second], pair.second.data(), p, d);
+            P += p;
+          }
+          return P;
+        };
+
+        std::vector<std::array<su2double, 5>> Ravg(x.size(), {0, 0, 0, 0, 0}), Rmean(x.size(), {0, 0, 0, 0, 0});
+        residual(MixedPairs(nDim, list, x), Ravg);
+        const su2double Pavg = production(MixedPairs(nDim, list, x, nullptr, &delta));
+        su2double Pmean = 0.0, Pscale = 0.0;
+        for (const auto& split : splits) {
+          std::vector<std::array<su2double, 5>> Rs(x.size(), {0, 0, 0, 0, 0});
+          residual(MixedPairs(nDim, split, x), Rs);
+          for (size_t i = 0; i < x.size(); ++i)
+            for (int v = 0; v < nDim + 2; ++v) Rmean[i][v] += Rs[i][v] / splits.size();
+          const su2double Ps = production(MixedPairs(nDim, split, x, nullptr, &delta));
+          Pmean += Ps / splits.size();
+          Pscale += fabs(Ps) / splits.size();
+        }
+        su2double err = 0.0, rScale = 0.0;
+        for (size_t i = 0; i < x.size(); ++i) {
+          for (int v = 0; v < nDim + 2; ++v) {
+            err = std::max(err, fabs(Ravg[i][v] - Rmean[i][v]));
+            rScale = std::max(rScale, fabs(Rmean[i][v]));
+          }
+        }
+        CHECK(err < 1e-12 * rScale);
+        CHECK(fabs(Pavg - Pmean) < 1e-12 * (Pscale + fabs(Pmean)));
+
+        /*--- M0 (delta = 0): no E part, no production. ---*/
+        for (auto& entry : delta) entry.second = {0.0, 0.0, 0.0, 0.0};
+        CHECK(fabs(production(MixedPairs(nDim, list, x, nullptr, &delta))) == 0.0);
+      }
+    }
+  }
+}
+
+TEST_CASE("EDGE_FORM_P1_MIXED: one theta per cell on the averaged pieces", "[P1Flux]") {
+  /*--- Theorem X5 for any W: theta_C = P_C^+ / D_C in [0,1], cell production P_C - theta_C D_C = min(P_C, 0); the
+   * averaged floor and the positive part are below the means of the split ones. With M0 the code has P_C = 0. ---*/
+  std::mt19937 gen(8642);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const std::string mesh = "p1_mixed_x5_" + std::to_string(nDim) + "d.su2";
+    WriteMixedMesh(mesh, nDim, (nDim == 2) ? 4 : 3, 0.0, 1.0);
+    MeshCase test(mesh, MixedOptions);
+    auto& geometry = static_cast<CPhysicalGeometry&>(*test.geometry);
+    for (const int vtk : MixedTypes) {
+      if ((vtk == QUADRILATERAL) != (nDim == 2)) continue;
+      const auto cell = MakeCell(vtk);
+      const auto& list = geometry.SetMixedSimplices(cell.get());
+      const auto splits = KeptSplits(geometry, *cell, nDim);
+      INFO("VTK type " << vtk);
+      int nActive = 0;
+      for (int draw = 0; draw < 200; ++draw) {
+        const auto x = CellCoords(gen, vtk, 0.12, (draw % 2) ? 1e-2 : 1.0);
+        std::vector<ale::State> state(x.size());
+        for (auto& S : state) S = RandomAleState(gen, nDim, 0.3);
+        std::map<std::array<unsigned short, 4>, std::array<su2double, 4>> delta;
+        SubSimplices sub(nDim, list, x);
+        for (size_t t = 0; t < list.size(); ++t) {
+          std::array<su2double, 4> d = {0.0, 0.0, 0.0, 0.0};
+          su2double mean = 0.0;
+          for (int a = 0; a <= nDim; ++a) {
+            d[a] = 0.5 * u(gen) * sub.size[t] / (nDim + 1);
+            mean += d[a] / (nDim + 1);
+          }
+          for (int a = 0; a <= nDim; ++a) d[a] -= mean;
+          delta[SimplexKey(list[t], nDim)] = d;
+        }
+        auto budget = [&](const std::vector<P1Mixed::Simplex>& simplices, su2double& P, su2double& D) {
+          P = 0.0;
+          D = 0.0;
+          for (const auto& pair : MixedPairs(nDim, simplices, x, nullptr, &delta)) {
+            su2double p = 0.0, d = 0.0;
+            PairEntropy(nDim, state[pair.first.first], state[pair.first.second], pair.second.data(), p, d);
+            P += p;
+            D += d;
+          }
+        };
+        su2double P = 0.0, D = 0.0, meanD = 0.0, meanPplus = 0.0;
+        budget(list, P, D);
+        for (const auto& split : splits) {
+          su2double Ps = 0.0, Ds = 0.0;
+          budget(split, Ps, Ds);
+          CHECK(Ps <= Ds * (1.0 + 1e-12));
+          meanD += Ds / splits.size();
+          meanPplus += std::max(Ps, su2double(0.0)) / splits.size();
+        }
+        CHECK(P <= D * (1.0 + 1e-12));
+        const su2double theta = (P > 0.0 && D > 0.0) ? std::min(P / D, su2double(1.0)) : 0.0;
+        nActive += (theta > 0.0);
+        CHECK(theta >= 0.0);
+        CHECK(theta <= 1.0);
+        CHECK(fabs((P - theta * D) - std::min(P, su2double(0.0))) <= 1e-12 * (fabs(P) + D));
+        CHECK(D <= meanD * (1.0 + 1e-12));
+        CHECK(std::max(P, su2double(0.0)) <= meanPplus * (1.0 + 1e-12) + 1e-14 * D);
+      }
+      CHECK(nActive > 0);
+    }
+  }
+}
+
+TEST_CASE("EDGE_FORM_P1_MIXED: closure C on quad faces, closed cells are entropy conservative", "[P1Flux]") {
+  /*--- Theorem X10: interior Ismail-Roe on the averaged n_ik (E = 0), closure C with the pressure flux on every face,
+   * quad faces on their four sub-triangles with A_tau/2 (P1Mixed::QuadSubNormals). The entropy rate is zero (to the
+   * series error of the logarithmic mean), the rest state is exact, and the linear analog on a parallelogram has the
+   * weights 9:1:1:1/48. ---*/
+  std::mt19937 gen(3141);
+  const std::string mesh = "p1_mixed_x10_3d.su2";
+  WriteMixedMesh(mesh, 3, 3, 0.0, 1.0);
+  MeshCase test(mesh, MixedOptions);
+  auto& geometry = static_cast<CPhysicalGeometry&>(*test.geometry);
+  for (const int vtk : {HEXAHEDRON, PRISM, PYRAMID}) {
+    const auto cell = MakeCell(vtk);
+    const auto& list = geometry.SetMixedSimplices(cell.get());
+    INFO("VTK type " << vtk);
+    for (int draw = 0; draw < 30; ++draw) {
+      const auto x = CellCoords(gen, vtk, (draw < 3) ? 0.0 : 0.15, (draw % 2) ? 1e-2 : 1.0);
+      const auto nv = x.size();
+      const auto pairs = MixedPairs(3, list, x);
+      su2double center[3] = {0.0, 0.0, 0.0};
+      for (const auto& p : x)
+        for (int i = 0; i < 3; ++i) center[i] += p[i] / nv;
+
+      for (const bool rest : {false, true}) {
+        std::vector<ale::State> state(nv);
+        for (auto& S : state) {
+          S = RandomAleState(gen, 3);
+          if (rest) S = ale::State{1.2, {0.0, 0.0, 0.0}, 0.8};
+        }
+        std::vector<std::array<su2double, 5>> R(nv, {0, 0, 0, 0, 0});
+        for (const auto& pair : pairs) {
+          su2double F[5];
+          ale::IsmailRoeFlux(3, kGamma, state[pair.first.first], state[pair.first.second], pair.second.data(), F);
+          for (int v = 0; v < 5; ++v) {
+            R[pair.first.first][v] += F[v];
+            R[pair.first.second][v] -= F[v];
+          }
+        }
+        const su2double zeroVel[3][3] = {{0.0}};
+        for (unsigned short iFace = 0; iFace < cell->GetnFaces(); ++iFace) {
+          const auto nf = cell->GetnNodesFace(iFace);
+          unsigned short fn[4];
+          su2double fc[3] = {0.0, 0.0, 0.0}, A[3];
+          for (unsigned short k = 0; k < nf; ++k) {
+            fn[k] = cell->GetFaces(iFace, k);
+            for (int i = 0; i < 3; ++i) fc[i] += x[fn[k]][i] / nf;
+          }
+          const auto& x0 = x[fn[0]];
+          const auto& x1 = x[fn[1]];
+          const auto& x2 = x[fn[2]];
+          const auto& x3 = x[fn[(nf == 4) ? 3 : 0]];
+          su2double a[3], b[3];
+          for (int i = 0; i < 3; ++i) {
+            a[i] = (nf == 4) ? x2[i] - x0[i] : x1[i] - x0[i];
+            b[i] = (nf == 4) ? x3[i] - x1[i] : x2[i] - x0[i];
+          }
+          A[0] = 0.5 * (a[1] * b[2] - a[2] * b[1]);
+          A[1] = 0.5 * (a[2] * b[0] - a[0] * b[2]);
+          A[2] = 0.5 * (a[0] * b[1] - a[1] * b[0]);
+          su2double orient = 0.0;
+          for (int i = 0; i < 3; ++i) orient += A[i] * (fc[i] - center[i]);
+          if (orient < 0.0)
+            for (auto& value : A) value = -value;
+
+          if (nf == 3) {
+            ale::State fs[3] = {state[fn[0]], state[fn[1]], state[fn[2]]};
+            su2double res[3][ale::MAXNVAR];
+            ale::FaceResidual(3, 3, kGamma, nullptr, A, fs, zeroVel, 0.0, res);
+            for (int k = 0; k < 3; ++k)
+              for (int v = 0; v < 5; ++v) R[fn[k]][v] += res[k][v];
+            continue;
+          }
+          std::array<const su2double*, 4> X = {x[fn[0]].data(), x[fn[1]].data(), x[fn[2]].data(), x[fn[3]].data()};
+          su2double sub[4][3];
+          P1Mixed::QuadSubNormals(X, A, sub);
+
+          /*--- The pairs of sub-normals sum to the face area vector; on a parallelogram the linear analog is 9:1:1:1/48. ---*/
+          su2double weights[4][4] = {{0.0}}, area = 0.0;
+          for (int i = 0; i < 3; ++i) area += A[i] * A[i];
+          area = sqrt(area);
+          for (int i = 0; i < 3; ++i) {
+            CHECK(fabs(sub[0][i] + sub[1][i] - 0.5 * A[i]) < 1e-14 * area);
+            CHECK(fabs(sub[2][i] + sub[3][i] - 0.5 * A[i]) < 1e-14 * area);
+          }
+          for (int tri = 0; tri < 4; ++tri) {
+            ale::State fs[3];
+            int nodes[3];
+            su2double subArea = 0.0;
+            for (int i = 0; i < 3; ++i) subArea += sub[tri][i] * sub[tri][i];
+            for (int k = 0; k < 3; ++k) {
+              nodes[k] = fn[P1Mixed::QuadTriangles[tri][k]];
+              fs[k] = state[nodes[k]];
+            }
+            for (int k = 0; k < 3; ++k)
+              for (int l = 0; l < 3; ++l)
+                weights[P1Mixed::QuadTriangles[tri][k]][P1Mixed::QuadTriangles[tri][l]] += ((k == l) ? 6.0 : 1.0) / 24.0 * sqrt(subArea) / area;
+            su2double res[3][ale::MAXNVAR];
+            ale::FaceResidual(3, 3, kGamma, nullptr, sub[tri], fs, zeroVel, 0.0, res);
+            for (int k = 0; k < 3; ++k)
+              for (int v = 0; v < 5; ++v) R[nodes[k]][v] += res[k][v];
+          }
+          if (draw < 3) {
+            for (int k = 0; k < 4; ++k)
+              for (int l = 0; l < 4; ++l) CHECK(fabs(weights[k][l] - ((k == l) ? 9.0 : 1.0) / 48.0) < 1e-13);
+          }
+        }
+
+        su2double rate = 0.0, rateScale = 0.0, maxR = 0.0, scale = 0.0;
+        for (size_t i = 0; i < nv; ++i) {
+          su2double w[5];
+          ale::EntropyVariables(3, kGamma, state[i], w);
+          for (int v = 0; v < 5; ++v) {
+            rate += w[v] * R[i][v];
+            rateScale += fabs(w[v] * R[i][v]);
+            maxR = std::max(maxR, fabs(R[i][v]));
+          }
+          scale = std::max(scale, state[i].p);
+        }
+        if (rest) {
+          su2double faceScale = 0.0;
+          for (const auto& pair : pairs)
+            for (int i = 0; i < 3; ++i) faceScale = std::max(faceScale, fabs(pair.second[i]));
+          CHECK(maxR < 1e-13 * scale * faceScale);
+        } else {
+          CHECK(fabs(rate) < 1e-9 * rateScale);
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("EDGE_FORM_P1_MIXED: weak no-slip SIPG bound on quad wall faces", "[P1Flux]") {
+  /*--- P1_MIXED.md 6.2: SIPG on each sub-simplex t over a wall sub-triangle, with omega_t, h = d|t|/|tau| and m_t the
+   * wall faces of t. W_t <= D_t/c holds per sub-simplex (Theorem N6), so for the cell sum_t omega_t W_t <= D/c, D the
+   * omega-weighted Galerkin dissipation of the cell. The wall sub-triangles carry total weight 1/2 per diagonal. ---*/
+  std::mt19937 gen(2357);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const std::string mesh = "p1_mixed_wall_3d.su2";
+  WriteMixedMesh(mesh, 3, 3, 0.0, 1.0);
+  MeshCase test(mesh, MixedOptions);
+  auto& geometry = static_cast<CPhysicalGeometry&>(*test.geometry);
+  const su2double c = pve::NOSLIP_PENALTY;
+  for (const int vtk : {HEXAHEDRON, PRISM}) {
+    const auto cell = MakeCell(vtk);
+    const auto& list = geometry.SetMixedSimplices(cell.get());
+    /*--- A quad face of the cell as the wall: hexahedron bottom 0-3-2-1, prism side 3-4-1-0. ---*/
+    const unsigned short wallFace = (vtk == HEXAHEDRON) ? 4 : 0;
+    std::vector<unsigned short> wall;
+    for (unsigned short k = 0; k < 4; ++k) wall.push_back(cell->GetFaces(wallFace, k));
+    auto onWall = [&](unsigned short node) { return std::find(wall.begin(), wall.end(), node) != wall.end(); };
+    INFO("VTK type " << vtk);
+
+    su2double worst = -1e300;
+    for (int trial = 0; trial < 300; ++trial) {
+      const bool isothermal = (trial % 2 == 1);
+      const auto x = CellCoords(gen, vtk, (trial % 3 == 0) ? 0.0 : 0.15, (trial % 3 == 2) ? 1e-3 : 1.0);
+      std::vector<pve::NodeState> cellState(x.size());
+      for (auto& S : cellState) {
+        S.rho = exp(u(gen));
+        S.p = S.rho * kGas * exp(u(gen));
+        for (int i = 0; i < 3; ++i) S.vel[i] = 1.5 * u(gen);
+        S.mu = exp(2.0 * u(gen) - 1.0);
+        S.kappa = exp(2.0 * u(gen));
+      }
+      const su2double wallTheta = 1.0 / (kGas * exp(u(gen)));
+
+      su2double W = 0.0, D = 0.0, wallWeight = 0.0;
+      for (const auto& t : list) {
+        const su2double* coord[4];
+        pve::NodeState state[4];
+        for (int a = 0; a < 4; ++a) {
+          coord[a] = x[t.nodes[a]].data();
+          state[a] = cellState[t.nodes[a]];
+        }
+        pve::Element E;
+        REQUIRE(E.Set(3, coord, state, kGas) > 0.0);
+        const su2double Dt = E.GalerkinDissipation();
+        D += t.weight * Dt;
+
+        unsigned short nWallFaces = 0;
+        for (unsigned short opp = 0; opp < 4; ++opp) {
+          bool all = true;
+          for (unsigned short a = 0; a < 4; ++a)
+            if (a != opp) all = all && onWall(t.nodes[a]);
+          nWallFaces += all;
+        }
+        su2double Wt = 0.0;
+        for (unsigned short opp = 0; opp < 4; ++opp) {
+          unsigned short faceNodes[3], k = 0;
+          bool all = true;
+          for (unsigned short a = 0; a < 4; ++a) {
+            if (a == opp) continue;
+            all = all && onWall(t.nodes[a]);
+            faceNodes[k++] = a;
+          }
+          if (!all) continue;
+          if (trial == 0) wallWeight += t.weight;
+          su2double N[3];
+          pve::WallFaceNormal(3, coord, opp, faceNodes, N);
+          Wt += pve::NoSlipWallProduction(E, 3, faceNodes, N, isothermal, wallTheta, nWallFaces, pve::NOSLIP_SIPG, c);
+        }
+        CHECK(Wt <= Dt / c * (1.0 + 1e-10) + 1e-14);
+        W += t.weight * Wt;
+      }
+      if (trial == 0) CHECK(fabs(wallWeight - 2.0) < 1e-14);  /*--- four sub-triangles, 1/2 each. ---*/
+      CHECK(W <= D / c * (1.0 + 1e-10));
+      worst = std::max(worst, (W - D / c) / D);
+    }
+    CHECK(worst <= 0.0);
+  }
+}
+
+TEST_CASE("EDGE_FORM_P1_MIXED: the Kuhn subset of a brick has dihedral angles <= 90 degrees", "[P1Flux]") {
+  /*--- Lemma X9(e): on bricks of any axis ratios the 24 sub-tetrahedra of the hexahedron list are orthoschemes. The
+   * full pulling family holds slivers (Lemma X8). ---*/
+  std::mt19937 gen(1729);
+  std::uniform_real_distribution<double> u(-1.0, 1.0), logScale(-3.0, 3.0);
+  const std::string mesh = "p1_mixed_kuhn_3d.su2";
+  WriteMixedMesh(mesh, 3, 3, 0.0, 1.0);
+  MeshCase test(mesh, MixedOptions);
+  auto& geometry = static_cast<CPhysicalGeometry&>(*test.geometry);
+  const auto cell = MakeCell(HEXAHEDRON);
+  const auto& list = geometry.SetMixedSimplices(cell.get());
+
+  auto maxDihedral = [](const su2double* const* p) {
+    su2double n[4][3];
+    for (int o = 0; o < 4; ++o) {
+      int f[3], k = 0;
+      for (int a = 0; a < 4; ++a)
+        if (a != o) f[k++] = a;
+      su2double a[3], b[3];
+      for (int i = 0; i < 3; ++i) {
+        a[i] = p[f[1]][i] - p[f[0]][i];
+        b[i] = p[f[2]][i] - p[f[0]][i];
+      }
+      su2double cr[3] = {a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]};
+      su2double dir = 0.0;
+      for (int i = 0; i < 3; ++i) dir += cr[i] * (p[f[0]][i] - p[o][i]);
+      const su2double len = sqrt(cr[0] * cr[0] + cr[1] * cr[1] + cr[2] * cr[2]) * ((dir < 0.0) ? -1.0 : 1.0);
+      for (int i = 0; i < 3; ++i) n[o][i] = cr[i] / len;
+    }
+    su2double worst = 0.0;
+    for (int a = 0; a < 4; ++a) {
+      for (int b = a + 1; b < 4; ++b) {
+        su2double dot = 0.0;
+        for (int i = 0; i < 3; ++i) dot += n[a][i] * n[b][i];
+        worst = std::max(worst, 180.0 - acos(std::max(su2double(-1.0), std::min(su2double(1.0), dot))) * 180.0 / M_PI);
+      }
+    }
+    return worst;
+  };
+
+  su2double worstKuhn = 0.0, worstAll = 0.0;
+  for (int trial = 0; trial < 2000; ++trial) {
+    const su2double s[3] = {pow(10.0, logScale(gen)), pow(10.0, logScale(gen)), pow(10.0, logScale(gen))};
+    const su2double angle[2] = {3.0 * u(gen), 3.0 * u(gen)};
+    std::vector<std::array<su2double, 3>> x = {{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0},
+                                                {0, 0, 1}, {1, 0, 1}, {1, 1, 1}, {0, 1, 1}};
+    for (auto& p : x) {
+      for (int i = 0; i < 3; ++i) p[i] *= s[i];
+      su2double y = cos(angle[0]) * p[0] - sin(angle[0]) * p[1], z = sin(angle[0]) * p[0] + cos(angle[0]) * p[1];
+      p[0] = y;
+      p[1] = z;
+      y = cos(angle[1]) * p[1] - sin(angle[1]) * p[2];
+      z = sin(angle[1]) * p[1] + cos(angle[1]) * p[2];
+      p[1] = y;
+      p[2] = z;
+    }
+    for (const auto& t : list) {
+      const su2double* p[4] = {x[t.nodes[0]].data(), x[t.nodes[1]].data(), x[t.nodes[2]].data(), x[t.nodes[3]].data()};
+      worstKuhn = std::max(worstKuhn, maxDihedral(p));
+    }
+    for (const auto& pattern : geometry.GetSplitPatterns(cell.get())) {
+      for (const auto& t : pattern.simplices) {
+        const su2double* p[4] = {x[t[0]].data(), x[t[1]].data(), x[t[2]].data(), x[t[3]].data()};
+        worstAll = std::max(worstAll, maxDihedral(p));
+      }
+    }
+  }
+  CHECK(worstKuhn <= 90.0 + 1e-6);
+  CHECK(worstAll > 170.0);
 }

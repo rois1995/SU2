@@ -7124,21 +7124,81 @@ su2double SplitWeights(const CSplitPattern& pattern, unsigned short nDim,
 
 }  // namespace
 
-void CPhysicalGeometry::SetEdgeFormP1() {
+void CPhysicalGeometry::SetEdgeFormP1(bool mixed) {
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     edges->FormNormal.resize(edges->nEdgeSIMD, nDim) = su2double(0.0);
     edges->FormE.resize(edges->nEdgeSIMD, nDim) = su2double(0.0);
+
+    /*--- EDGE_FORM_P1_MIXED (P1_MIXED.md, 8.2): the non-simplex cells add the pieces of their weighted sub-simplices
+     * with W = m_t = |t|/(d+1) (dual M0): n_ik += omega_t m_t (g_k - g_i), no E. The node pairs that are not true
+     * edges (face and body diagonals) are kept as in SetSplitEdges. ---*/
+    using PairNormal = std::array<su2double, MAXNDIM>;
+    std::map<std::pair<unsigned long, unsigned long>, PairNormal> pairs;
+    unsigned long nInverted = 0;
+    if (mixed) edges->FormMass.resize(nPoint) = su2double(0.0);
 
     for (auto iElem = 0ul; iElem < nElem; iElem++) {
       auto* element = elem[iElem];
       const auto nNodes = element->GetnNodes();
 
-      if (nNodes != nDim + 1) {
-        SU2_MPI::Error("EDGE_FORM_P1 needs a mesh of triangles or tetrahedra.", CURRENT_FUNCTION);
+      if ((nNodes != nDim + 1) && !mixed) {
+        SU2_MPI::Error("EDGE_FORM_P1 needs a mesh of triangles or tetrahedra, or EDGE_FORM_P1_MIXED= YES.", CURRENT_FUNCTION);
       }
 
       array<const su2double*, N_POINTS_MAXIMUM> Coord;
       for (unsigned short iNode = 0; iNode < nNodes; iNode++) Coord[iNode] = nodes->GetCoord(element->GetNode(iNode));
+
+      if (nNodes != nDim + 1) {
+        const auto& list = SetMixedSimplices(element);
+        const unsigned short nSub = nDim + 1;
+        vector<su2double> size(list.size());
+        vector<array<array<su2double, 3>, MAXNDIM + 1>> grad(list.size());
+
+        /*--- The sub-simplices of a cell type have one orientation, the cell fixes its sign. ---*/
+        su2double total = 0.0;
+        for (size_t t = 0; t < list.size(); t++) {
+          array<const su2double*, MAXNDIM + 1> tCoord;
+          for (unsigned short a = 0; a < nSub; a++) tCoord[a] = Coord[list[t].nodes[a]];
+          su2double g[MAXNDIM + 1][3] = {{0.0}};
+          size[t] = P1Simplex::ShapeGradients(nDim, tCoord, g);
+          for (unsigned short a = 0; a < nSub; a++)
+            for (unsigned short iDim = 0; iDim < 3; iDim++) grad[t][a][iDim] = g[a][iDim];
+          total += list[t].weight * size[t];
+        }
+        const su2double sign = (total < 0.0) ? -1.0 : 1.0;
+
+        for (size_t t = 0; t < list.size(); t++) {
+          if (!(sign * size[t] > 0.0)) {
+            ++nInverted;
+            continue;
+          }
+          const su2double factor = list[t].weight * sign * size[t] / nSub;
+
+          for (unsigned short a = 0; a < nSub; a++) {
+            const auto iPoint = element->GetNode(list[t].nodes[a]);
+            edges->FormMass[iPoint] += factor;
+
+            for (unsigned short b = a + 1; b < nSub; b++) {
+              const auto kPoint = element->GetNode(list[t].nodes[b]);
+              const auto& gradA = grad[t][a];
+              const auto& gradB = grad[t][b];
+
+              if (FindEdge(iPoint, kPoint, false) >= 0) {
+                const auto iEdge = FindEdge(iPoint, kPoint);
+                const su2double dir = (edges->GetNode(iEdge, CEdge::LEFT) == iPoint) ? 1.0 : -1.0;
+                for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+                  edges->FormNormal(iEdge, iDim) += dir * factor * (gradB[iDim] - gradA[iDim]);
+                }
+              } else {
+                const su2double dir = (iPoint < kPoint) ? 1.0 : -1.0;
+                auto& entry = pairs[{std::min(iPoint, kPoint), std::max(iPoint, kPoint)}];
+                for (unsigned short iDim = 0; iDim < nDim; iDim++) entry[iDim] += dir * factor * (gradB[iDim] - gradA[iDim]);
+              }
+            }
+          }
+        }
+        continue;
+      }
 
       /*--- W = |C_i cap T|, built with the sub-volumes of SetControlVolume, so that sum_T W = V_i. ---*/
 
@@ -7161,12 +7221,99 @@ void CPhysicalGeometry::SetEdgeFormP1() {
           }
         }
       }
+      if (mixed) {
+        for (unsigned short a = 0; a < nNodes; a++) edges->FormMass[element->GetNode(a)] += W[a];
+      }
+    }
+
+    if (nInverted > 0) {
+      SU2_MPI::Error("EDGE_FORM_P1_MIXED: " + std::to_string(nInverted) + " sub-simplices of the split averages on rank " +
+                         std::to_string(SU2_MPI::GetRank()) +
+                         " are inverted or flat (strongly non-convex or degenerate cells), the averaged P1 operator "
+                         "needs positive sub-simplices.",
+                     CURRENT_FUNCTION);
+    }
+
+    if (mixed) {
+      /*--- Only pairs that touch an owned node add to the residual of this rank, their cells are all local. ---*/
+      edges->SplitNodes.clear();
+      for (const auto& entry : pairs) {
+        if (nodes->GetDomain(entry.first.first) || nodes->GetDomain(entry.first.second)) {
+          edges->SplitNodes.push_back({entry.first.first, entry.first.second});
+        }
+      }
+      edges->SplitNormal.resize(edges->SplitNodes.size(), nDim) = su2double(0.0);
+      edges->SplitE.resize(edges->SplitNodes.size(), nDim) = su2double(0.0);
+      for (auto iSplit = 0ul; iSplit < edges->SplitNodes.size(); iSplit++) {
+        const auto& entry = pairs.at({edges->SplitNodes[iSplit][0], edges->SplitNodes[iSplit][1]});
+        for (unsigned short iDim = 0; iDim < nDim; iDim++) edges->SplitNormal(iSplit, iDim) = entry[iDim];
+      }
     }
   }
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
-void CPhysicalGeometry::SetEdgeFormBlend(bool movedViscous) {
+const vector<P1Mixed::Simplex>& CPhysicalGeometry::SetMixedSimplices(const CPrimalGrid* element) {
+  const auto found = MixedSimplices.find(element->GetVTK_Type());
+  if (found != MixedSimplices.end()) return found->second;
+  auto list = P1Mixed::NeighbourFanAverage(*element, nDim, GetSplitPatterns(element));
+  if (list.empty()) SU2_MPI::Error("EDGE_FORM_P1_MIXED: no split of this cell type.", CURRENT_FUNCTION);
+  return MixedSimplices.emplace(element->GetVTK_Type(), std::move(list)).first->second;
+}
+
+std::set<std::array<unsigned long, 3>> CPhysicalGeometry::MixedTriangleFaces() const {
+  using FaceKey = std::array<unsigned long, 3>;
+  std::map<FaceKey, unsigned short> count;
+  std::set<FaceKey> boundary;
+
+  if (nDim == 3) {
+    for (auto iElem = 0ul; iElem < nElem; iElem++) {
+      const auto* element = elem[iElem];
+      if (element->GetnNodes() == 4) continue;
+      for (unsigned short iFace = 0; iFace < element->GetnFaces(); iFace++) {
+        if (element->GetnNodesFace(iFace) != 3) continue;
+        FaceKey key;
+        for (unsigned short k = 0; k < 3; k++) key[k] = nodes->GetGlobalIndex(element->GetNode(element->GetFaces(iFace, k)));
+        std::sort(key.begin(), key.end());
+        ++count[key];
+      }
+    }
+    for (unsigned short iMarker = 0; iMarker < nMarker; iMarker++) {
+      for (auto iElem = 0ul; iElem < nElem_Bound[iMarker]; iElem++) {
+        const auto* face = bound[iMarker][iElem];
+        if (face->GetnNodes() != 3) continue;
+        FaceKey key;
+        for (unsigned short k = 0; k < 3; k++) key[k] = nodes->GetGlobalIndex(face->GetNode(k));
+        std::sort(key.begin(), key.end());
+        boundary.insert(key);
+      }
+    }
+  }
+
+  /*--- A face held by two local non-simplex cells, or on a boundary, is never a tetrahedron face. Faces of a
+   * non-simplex cell whose neighbour is on another rank only may be prism-prism faces, which is harmless. ---*/
+  vector<unsigned long> sendKeys;
+  for (const auto& entry : count) {
+    if ((entry.second == 1) && (boundary.count(entry.first) == 0)) {
+      sendKeys.insert(sendKeys.end(), entry.first.begin(), entry.first.end());
+    }
+  }
+
+  const int nRank = SU2_MPI::GetSize();
+  const int nLocal = sendKeys.size();
+  vector<int> counts(nRank), displs(nRank, 0);
+  SU2_MPI::Allgather(&nLocal, 1, MPI_INT, counts.data(), 1, MPI_INT, SU2_MPI::GetComm());
+  for (int iRank = 1; iRank < nRank; iRank++) displs[iRank] = displs[iRank - 1] + counts[iRank - 1];
+  vector<unsigned long> allKeys(displs[nRank - 1] + counts[nRank - 1]);
+  SU2_MPI::Allgatherv(sendKeys.data(), nLocal, MPI_UNSIGNED_LONG, allKeys.data(), counts.data(), displs.data(),
+                      MPI_UNSIGNED_LONG, SU2_MPI::GetComm());
+
+  std::set<FaceKey> faces;
+  for (size_t i = 0; i + 2 < allKeys.size(); i += 3) faces.insert(FaceKey{allKeys[i], allKeys[i + 1], allKeys[i + 2]});
+  return faces;
+}
+
+void CPhysicalGeometry::SetEdgeFormBlend(bool movedViscous, bool mixed) {
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     const unsigned short nNodes = nDim + 1;
     edges->BlendDelta.resize(nElem, nNodes) = su2double(0.0);
@@ -7176,10 +7323,18 @@ void CPhysicalGeometry::SetEdgeFormBlend(bool movedViscous) {
     const bool storeY = movedViscous && (nDim == 3);
     if (storeY) edges->BlendY.resize(nElem, 9) = su2double(0.0);
 
+    /*--- EDGE_FORM_P1_MIXED (P1_MIXED.md, 5.3): a face that a tetrahedron shares with a prism or a pyramid gets the
+     * shares |f|/3 from the split average (W = m_t), so the tetrahedron takes xi_o = 0 there too (MV1(e), constant
+     * flux exactness). Collective. ---*/
+    std::set<std::array<unsigned long, 3>> mixedFaces;
+    if (storeY && mixed) mixedFaces = MixedTriangleFaces();
+
     for (auto iElem = 0ul; iElem < nElem; iElem++) {
       auto* element = elem[iElem];
 
       if (element->GetnNodes() != nNodes) {
+        /*--- EDGE_FORM_P1_MIXED: W = |t|/(d+1) on the sub-simplices, their E part is zero (P_C = 0, no theta). ---*/
+        if (mixed) continue;
         SU2_MPI::Error("EDGE_FORM_ES_BLEND needs a mesh of triangles or tetrahedra.", CURRENT_FUNCTION);
       }
 
@@ -7218,6 +7373,14 @@ void CPhysicalGeometry::SetEdgeFormBlend(bool movedViscous) {
       su2double localGrad[4][3], xi[4][3], Y[3][3];
       const su2double size = fabs(P1Simplex::ShapeGradients(nDim, localCoord, localGrad));
       P1Simplex::FaceShifts(*element, localCoord, xi);
+      for (unsigned short o = 0; !mixedFaces.empty() && (o < nNodes); o++) {
+        std::array<unsigned long, 3> key;
+        for (unsigned short c = 0, k = 0; c < nNodes; c++)
+          if (c != o) key[k++] = nodes->GetGlobalIndex(element->GetNode(c));
+        std::sort(key.begin(), key.end());
+        if (mixedFaces.count(key) > 0)
+          for (unsigned short iDim = 0; iDim < 3; iDim++) xi[o][iDim] = 0.0;
+      }
       P1Simplex::MovedFaceTensor(size, localGrad, xi, Y);
       for (unsigned short i = 0; i < 3; i++)
         for (unsigned short j = 0; j < 3; j++) edges->BlendY(iElem, 3 * i + j) = Y[i][j];

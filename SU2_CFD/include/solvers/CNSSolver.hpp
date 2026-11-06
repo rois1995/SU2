@@ -140,6 +140,18 @@ private:
   void Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *config);
 
   /*!
+   * \brief EDGE_FORM_P1_MIXED: VISC_P1_ENTROPY of one non-simplex cell, the omega-weighted V-A residuals and Picard
+   *        Jacobians of the sub-simplices of its split average (P1_MIXED.md, Theorem X6). Owned rows only.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] element - The cell.
+   * \param[in] implicit - Add the Jacobian.
+   * \param[in] prandtlTurb - Turbulent Prandtl number.
+   * \param[in] gasConst - Gas constant (non-dimensional).
+   */
+  void MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, bool implicit, const su2double& prandtlTurb,
+                            const su2double& gasConst);
+
+  /*!
    * \brief VISC_P1_ENTROPY_MOVED: P^v_T and D^gal_T - W_T of a simplex with an owned node, for the one-budget blend
    *        of SetEdgeBlendLambda (W_T: weak no-slip faces of BC_WALL_ENTROPY_P1).
    */

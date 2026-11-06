@@ -88,6 +88,7 @@ private:
   bool Visc_P1_Entropy;        /*!< \brief P1 Galerkin viscous operator in entropy variables, one frozen K per simplex. */
   bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
   bool Visc_P1_Entropy_Moved;  /*!< \brief Element viscous fluxes of VISC_P1_ENTROPY on the moved (MOD_CENTROIDS) dual test space, 3D. */
+  bool Edge_Form_P1_Mixed;     /*!< \brief EDGE_FORM_P1 on quadrilaterals, hexahedra, prisms and pyramids by split averages (P1_MIXED.md). */
   su2double Mod_Centroid_Exponent; /*!< \brief Power of the face area in the modified centroid. */
   su2double Highlite_Area;        /*!< \brief Highlite area. */
   su2double Fan_Poly_Eff;         /*!< \brief Fan polytropic effeciency. */
@@ -10060,6 +10061,13 @@ public:
    *        fluxes of VISC_P1_ENTROPY (3D), theta_v from the one-budget element blend of EDGE_FORM_ES_BLEND.
    */
   bool GetVisc_P1_Entropy_Moved() const { return Visc_P1_Entropy_Moved; }
+
+  /*!
+   * \brief EDGE_FORM_P1_MIXED: the P1 pieces of non-simplex cells (quadrilaterals, hexahedra, prisms, pyramids) as
+   *        the mean over the neighbour-fan subset of their pulling splits, with W = |t|/(d+1) on every sub-simplex
+   *        (P1_MIXED.md, section 8). Simplices keep EDGE_FORM_P1 unchanged.
+   */
+  bool GetEdge_Form_P1_Mixed() const { return Edge_Form_P1_Mixed; }
 
   /*!
    * \brief Make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes.

@@ -62,6 +62,7 @@ extern "C" {
 
 #include "../CConfig.hpp"
 #include "../toolboxes/graph_toolbox.hpp"
+#include "../toolboxes/p1_mixed.hpp"
 #include "../adt/CADTElemClass.hpp"
 
 using namespace std;
@@ -946,14 +947,16 @@ class CGeometry {
   inline virtual void SetBoundControlVolume(const CConfig* config, unsigned short action) {}
   /*!
    * \brief Set the coefficients of the P1 edge form on the current (modified) dual.
+   * \param[in] mixed - EDGE_FORM_P1_MIXED: non-simplex cells by their split averages (P1_MIXED.md), else refused.
    */
-  inline virtual void SetEdgeFormP1() {}
+  inline virtual void SetEdgeFormP1(bool mixed = false) {}
 
   /*!
    * \brief Per simplex, the moved-dual shares delta_a = W_a - |T|/(d+1) and the edges of its node pairs (EDGE_FORM_ES_BLEND).
    * \param[in] movedViscous - Also the face tensor Y_T of each tetrahedron (VISC_P1_ENTROPY_MOVED).
+   * \param[in] mixed - EDGE_FORM_P1_MIXED: non-simplex cells are skipped (no E part with W = |t|/(d+1)).
    */
-  inline virtual void SetEdgeFormBlend(bool movedViscous) {}
+  inline virtual void SetEdgeFormBlend(bool movedViscous, bool mixed = false) {}
 
   /*!
    * \brief Split all cells into simplices and set the central flux coefficients of the split edges.
@@ -984,8 +987,24 @@ class CGeometry {
  protected:
   bool sweptFluxStale = false; /*!< \brief The mesh moved since the terms of GCL_EXACT_P1 were computed. */
   unsigned long p1FluxVersion = 0; /*!< \brief Number of calls of UpdateP1FluxCoefficients (mesh updates). */
+  std::map<unsigned short, std::vector<P1Mixed::Simplex>> MixedSimplices; /*!< \brief EDGE_FORM_P1_MIXED, weighted
+                                                                              sub-simplices by VTK cell type. */
 
  public:
+
+  /*!
+   * \brief EDGE_FORM_P1_MIXED: weighted sub-simplices of the split average of a non-simplex cell type (P1_MIXED.md,
+   *        Lemma X9), built by SetEdgeFormP1 for the cell types of this rank.
+   * \param[in] vtkType - VTK type of the cell.
+   */
+  inline const std::vector<P1Mixed::Simplex>& GetMixedSimplices(unsigned short vtkType) const {
+    const auto found = MixedSimplices.find(vtkType);
+    if (found == MixedSimplices.end()) {
+      SU2_MPI::Error("EDGE_FORM_P1_MIXED: no split average for this cell type, SetEdgeFormP1 has not built it.",
+                     CURRENT_FUNCTION);
+    }
+    return found->second;
+  }
 
   /*!
    * \brief Grid flux residual of each node with the pairs, coefficients and boundary weights of the P1 flux options.
