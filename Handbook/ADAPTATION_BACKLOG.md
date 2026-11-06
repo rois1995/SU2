@@ -436,3 +436,17 @@ are not all present. Reuse existing Stage/TransactionCapture only if inspection
 demonstrates that those missing pieces block a causal explanation. No new repair,
 construction, bound/cache or scheduler selected. See
 ADAPTATION_TECHNICAL_ASSESSMENT_REVIEW_20261101.md for verified facts and limits.
+
+- Conditional after frozen210 outcome: assess bounded subdivision of the existing
+  interval Bernstein correspondence bound before paying for full surface-union
+  traversal. `CubicDeviation` currently takes the maximum norm of ten outward
+  control boxes after `Blossom` restriction; no threshold-directed subdivision is
+  visible in that function. Reuse existing restriction/subdivision and interval
+  primitives first. Test the saved actual207bad/clean faces to determine whether
+  the looseness is control-hull slack or genuinely large correspondence error.
+  A tighter correspondence bound remains a sufficient one-sided bound; failure
+  must retain the existing union fallback and all independent gates. Charge work,
+  scratch and retained overlaps; do not assume any traversal or elapsed saving.
+  This is UNPROVEN and not an active implementation or validation campaign while
+  210 is live. Select it only if terminal evidence and a bounded existing-witness
+  diagnostic justify it; no new cache/configuration/framework follows from it.

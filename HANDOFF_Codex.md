@@ -49,15 +49,18 @@ First complete quality window census3/round20928 now723343cells/48006q/46652J/
 net; do not judge by commits or debt alone. LIVE/quality_window1_assessment.json
 preserves all6stage/service rows, timing limits and source prefixes. Baseline206
 first complete window is158.290quality seconds, not matched to this early window.
-Latest preserved trend round21888: 777352cells/10427q/7639J/
-2594geometry/0size, 3259.567842quality seconds after entry.
-Net since entry38953q/40579J removed through29926quality commits.
-All6complete flags1. LIVE/quality_trend_assessment.json preserves16measured windows.
-Last interval removed2076q/1869J in165.346043s. Rates vary
+Latest preserved trend round22080: 783739cells/5873q/3604J/
+2572geometry/0size, 3664.087743quality seconds after entry.
+Net since entry43507q/44614J removed through35542quality commits.
+All6complete flags1. LIVE/quality_trend_assessment.json preserves19measured windows.
+Last interval removed1447q/1214J in150.242441s. Rates vary
 with workload/contention under frozen code; no isolated attribution or forecast.
 The preserved EARLY nearby-time comparison (967.730s vs206912.143s,55.588s gap)
 remains in LIVE/quality_comparison_early.json with immutable source-prefix hashes;
 it is not the latest window or an exactly matched-time benchmark. No stop justified.
+Current downstream audit: LIVE/workflow_acceptance_readiness_current.json; transfer/
+projection/kernel pins match prior review, with the driver diagnostic hook reviewed
+and inactive. Actual conservative/admissible transfer and adapted restart are unproved.
 Earlier staged→committed ownership migration at20992 preserved728526cells/
 44355q/42667J/2675geometry/0size, all measurement counts and q/Jdebt sum.
 LIVE/quality_ownership20992_assessment.json records per-rank rows/source prefixes;
@@ -73,7 +76,7 @@ merit/moves are PRIVATE cumulative trial diagnostics merged before publication
 it does not prove a distance violation. Published boundary/interior repair yield
 cannot be fully separated with existing counters; do not infer it from location.
 Checkpoint293b8361bf verified on fork2026-11-06; no owned heavy handles live before edits.
-Current unvalidated change: budgeted entity direct-bound failures try the existing
+Qualified current change: budgeted entity direct-bound failures try the existing
 singleton-support physical union query, retain the tighter upper and independent
 planar bound; cheap successful direct paths unchanged. Admitted scratch before
 allocation; work/storage exhaustion propagates. Actual saved-face fixture adds
