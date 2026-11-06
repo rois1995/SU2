@@ -17,6 +17,7 @@ from run import sha, save
 REPO = ROOT.parents[3]
 BINARY = REPO / "integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver"
 CASES = {
+    "geometry_current_queries": (1, "[NativeM6GeometryQueries3D]"),
     "current_compound": (1, "[NativeCurrentCompound3D]"),
     "current_residual": (1, "[NativeCurrentResidual3D]"),
     "captured_cavity": (1, "[NativeCapturedCavity3D]"),
@@ -249,6 +250,19 @@ def main():
                     path = folder / f"stage_quality_entry_rank{rank}_{suffix}"
                     pins[str(path)] = sha(path)
         stage_environment = {}
+        if case == "geometry_current_queries":
+            query_input = Path(os.environ["SU2_NATIVE_GEOMETRY_QUERY_INPUT"]).resolve()
+            preparation_path = query_input.parent / "geometry_query_preparation.json"
+            preparation = json.loads(preparation_path.read_text())
+            if preparation["schema"] != "native_current_geometry_query_preparation_v1" or preparation["input_hashes_before"] != preparation["input_hashes_after"]:
+                raise RuntimeError("current geometry query provenance incomplete")
+            for name, item in preparation["outputs"].items():
+                path = query_input.parent / name
+                if sha(path) != item["sha256"] or path.stat().st_size != item["bytes"]:
+                    raise RuntimeError("current geometry query input changed: " + str(path))
+                pins[str(path.resolve())] = item["sha256"]
+            for path in (preparation_path, ROOT / "prepare_geometry225_queries.py"):
+                pins[str(path.resolve())] = sha(path)
         if case in ("current_residual", "current_compound"):
             config = Path(os.environ["SU2_NATIVE_FROZEN_CONFIG"]).resolve()
             receipt = config.parent / "witness_preparation.json"

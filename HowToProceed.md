@@ -13,7 +13,7 @@ Actual mesh point/cell counts are separate from metric complexity. Keep geometry
 1e-4, q>=.2, J>=.05, maximum metric edge1.8 and requested heights unchanged. CAD
 remains optional.
 
-The latest selected corrected-target build219mesh is saved WITH its complete nodal
+The previous selected corrected-target build219mesh is saved WITH its complete nodal
 metric:197550points/1011596tetrahedra. It is unapproved. Its complete final census
 is10286q/6872J/1753geometry-bad/0size-bad. All ten owned M6handles are absent;
 first event naturally rejected at the time budget. Complete VTU/SU2 and independent
@@ -42,6 +42,13 @@ bounded bad-cell/cavity views partial. Next is existing geometry-certification/b
 with speed the measured priority and repair power a residual risk. See
 [225outcome](Handbook/ADAPTATION_BUILD225_OUTCOME_20261106.md). HANDOFF_Codex.md has exact handles,
 source pins, initial-target equality and the authoritative run state.
+Current227candidate is a bounded shared geometry-path correction, after terminal225:
+reuse the existing rigorous sample witness upper bound to skip a complete-support
+lower search that cannot prove outside. Full domain/final gates remain unchanged.
+On twelve actual current faces, all bounds and production guidance stay EXACT;
+traversal work falls45.7%, with no query regression. Connected serial102cases/MPI6each26cases qualification passes;
+full M6 useful-progress measurement remains required; no full-run speedup claimed.
+[Current proof and evidence](Handbook/ADAPTATION_GEOMETRY_WITNESS_20261106.md).
 Context unions67/91cells do not enlarge active operator supports: selected core
 vertex stars remain8–42cells.
 Old218diagnostic remains deferred/unexecuted; preserve its unrelated local edits.

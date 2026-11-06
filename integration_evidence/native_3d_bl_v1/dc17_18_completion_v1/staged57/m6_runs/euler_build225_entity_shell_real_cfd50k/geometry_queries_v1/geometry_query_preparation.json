@@ -1,0 +1,1291 @@
+{
+  "schema": "native_current_geometry_query_preparation_v1",
+  "source_event": 1,
+  "archive_format_version": 7,
+  "geometry_definition_version": 18,
+  "input_hashes_before": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank0_manifest.json": {
+      "bytes": 1466,
+      "sha256": "ada4e4d89b3275d48e89fde832c2d9490733ab41ee719c2bd0e6427748182103"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank0_owned.bin": {
+      "bytes": 69406696,
+      "sha256": "0eb9308522b32d7436856c83c9c90c036b5d1183791e1ec9520370828c6b631f"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank0_metrics.jsonl": {
+      "bytes": 117423179,
+      "sha256": "26c835b807281479bb7552c88ecd646b3af6c18da2475bbc18fa89e0de3a7bb0"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank0_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank0_rejections.jsonl": {
+      "bytes": 34492,
+      "sha256": "4535e52bc27a725d7cbb98e4a663adb770dfa796dcc5c4dda5c2b62e71b1de24"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank1_manifest.json": {
+      "bytes": 1436,
+      "sha256": "04752b7da8e143d4fe755c1df302ddccb820351fc10e940ab6352d336708e3ea"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank1_owned.bin": {
+      "bytes": 62359656,
+      "sha256": "3d12ba7b2a8f31b1e525114591ddbddc22ae3e619c8a333419366a4d55eed653"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank1_metrics.jsonl": {
+      "bytes": 107415733,
+      "sha256": "696c15c2b5a76d42b7d97c2fc1675469b3250d5d216ad865c9d05ef6b467cefc"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank1_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank1_rejections.jsonl": {
+      "bytes": 34221,
+      "sha256": "01464fa828ff13ba1931fd3f1a1c9af6a8551a0bbfa75ecf8de8e35e00634bd5"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank2_manifest.json": {
+      "bytes": 1436,
+      "sha256": "f6f6350a50ca2651ef5773bd5c87816493f122848eefc331d40e43817180ca04"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank2_owned.bin": {
+      "bytes": 67530952,
+      "sha256": "5f6f8e6ec7da168c0b9fded342d74e35e3c100fcdf73ebbbb66202acee0d8215"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank2_metrics.jsonl": {
+      "bytes": 116406318,
+      "sha256": "f1b86ce95a8345418d0e72e67642ddc3bf57c83a6f12ca40344c8228efa5d0fe"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank2_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank2_rejections.jsonl": {
+      "bytes": 33838,
+      "sha256": "6eb69061d4f45b5bd3b0051b1ccb9da5ed857bc0c55ee51ab832d25c7dfa3cd7"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank3_manifest.json": {
+      "bytes": 1466,
+      "sha256": "c2baed52effd83737ac87e18ede28c9ff7fbfb952a4d60c6fe27e136b83e55d5"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank3_owned.bin": {
+      "bytes": 68972808,
+      "sha256": "22026f4d03c2d7a169d32d108398cdf17b30232a0bb21220fccaad958ccdda52"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank3_metrics.jsonl": {
+      "bytes": 117062005,
+      "sha256": "dc0e067b9415eb40bb3403a12e86e563adce1e5bd7afe14793811420cf732772"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank3_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank3_rejections.jsonl": {
+      "bytes": 32908,
+      "sha256": "f565b8bd7d8f36ab6842429e1504cff9dd2baaa9b7522ddea6e14dfa3a255edd"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank4_manifest.json": {
+      "bytes": 1466,
+      "sha256": "df0809eedcd823dfb045949a4d71c8297b94805bafa26939ea5f6f2344fbdefb"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank4_owned.bin": {
+      "bytes": 74613768,
+      "sha256": "2e4de3d6aac17f16a6474cee9dc81605ba6601c5ab8fa6e1ccf9f9cf33bb08e6"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank4_metrics.jsonl": {
+      "bytes": 124224861,
+      "sha256": "4b3b0109e503d21ae41b63e751d3b62952fb0399b98c1a429a9a10e2eb9b1bf8"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank4_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank4_rejections.jsonl": {
+      "bytes": 30430,
+      "sha256": "f480a3c655751747924a4a5b4409865e62e573c51d50ed648dcc3dd486b90d20"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank5_manifest.json": {
+      "bytes": 1429,
+      "sha256": "e40c2c17db2db7688028c1e5be7a688be1121c8f96e7fdac56c43f716c4bf73a"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank5_owned.bin": {
+      "bytes": 68068008,
+      "sha256": "29aad394b2f9d38b1cc2d8afc71d8167d52468928b431c423c132b20d7a11815"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank5_metrics.jsonl": {
+      "bytes": 118162426,
+      "sha256": "5eda9c58d7016c44b7dbb58c036749f03f3f831753567a8ad46d7c10b58e0d68"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank5_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank5_rejections.jsonl": {
+      "bytes": 33794,
+      "sha256": "149af33378d693dc059273607cbca7e3279146deb779ffd3381478839e0dcd39"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/capture_ready.json": {
+      "bytes": 55077,
+      "sha256": "4af2046aefb7ed97760dafb1461b4ed9ae6bb6c5a7fb32bddf735c63a3e70b00"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/terminal_handles.json": {
+      "bytes": 1334,
+      "sha256": "113aa46c22d1617a5e1d037ea41a2e56fffab3052f43be942be5defa68d50526"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/run.cfg": {
+      "bytes": 2539,
+      "sha256": "74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/m6.su2.native_ref": {
+      "bytes": 46610856,
+      "sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py": {
+      "bytes": 51304,
+      "sha256": "028b7184ff25a0b5de1333c1da287c433251f4b52cccb34b05607e8a2f55c76d"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/prepare_geometry225_queries.py": {
+      "bytes": 10000,
+      "sha256": "9dfb7179af8218ded7ca5e7ff194c486094b8a0324c14bdb5dea450eea69fe9a"
+    }
+  },
+  "input_hashes_after": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank0_manifest.json": {
+      "bytes": 1466,
+      "sha256": "ada4e4d89b3275d48e89fde832c2d9490733ab41ee719c2bd0e6427748182103"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank0_owned.bin": {
+      "bytes": 69406696,
+      "sha256": "0eb9308522b32d7436856c83c9c90c036b5d1183791e1ec9520370828c6b631f"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank0_metrics.jsonl": {
+      "bytes": 117423179,
+      "sha256": "26c835b807281479bb7552c88ecd646b3af6c18da2475bbc18fa89e0de3a7bb0"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank0_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank0_rejections.jsonl": {
+      "bytes": 34492,
+      "sha256": "4535e52bc27a725d7cbb98e4a663adb770dfa796dcc5c4dda5c2b62e71b1de24"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank1_manifest.json": {
+      "bytes": 1436,
+      "sha256": "04752b7da8e143d4fe755c1df302ddccb820351fc10e940ab6352d336708e3ea"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank1_owned.bin": {
+      "bytes": 62359656,
+      "sha256": "3d12ba7b2a8f31b1e525114591ddbddc22ae3e619c8a333419366a4d55eed653"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank1_metrics.jsonl": {
+      "bytes": 107415733,
+      "sha256": "696c15c2b5a76d42b7d97c2fc1675469b3250d5d216ad865c9d05ef6b467cefc"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank1_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank1_rejections.jsonl": {
+      "bytes": 34221,
+      "sha256": "01464fa828ff13ba1931fd3f1a1c9af6a8551a0bbfa75ecf8de8e35e00634bd5"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank2_manifest.json": {
+      "bytes": 1436,
+      "sha256": "f6f6350a50ca2651ef5773bd5c87816493f122848eefc331d40e43817180ca04"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank2_owned.bin": {
+      "bytes": 67530952,
+      "sha256": "5f6f8e6ec7da168c0b9fded342d74e35e3c100fcdf73ebbbb66202acee0d8215"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank2_metrics.jsonl": {
+      "bytes": 116406318,
+      "sha256": "f1b86ce95a8345418d0e72e67642ddc3bf57c83a6f12ca40344c8228efa5d0fe"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank2_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank2_rejections.jsonl": {
+      "bytes": 33838,
+      "sha256": "6eb69061d4f45b5bd3b0051b1ccb9da5ed857bc0c55ee51ab832d25c7dfa3cd7"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank3_manifest.json": {
+      "bytes": 1466,
+      "sha256": "c2baed52effd83737ac87e18ede28c9ff7fbfb952a4d60c6fe27e136b83e55d5"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank3_owned.bin": {
+      "bytes": 68972808,
+      "sha256": "22026f4d03c2d7a169d32d108398cdf17b30232a0bb21220fccaad958ccdda52"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank3_metrics.jsonl": {
+      "bytes": 117062005,
+      "sha256": "dc0e067b9415eb40bb3403a12e86e563adce1e5bd7afe14793811420cf732772"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank3_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank3_rejections.jsonl": {
+      "bytes": 32908,
+      "sha256": "f565b8bd7d8f36ab6842429e1504cff9dd2baaa9b7522ddea6e14dfa3a255edd"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank4_manifest.json": {
+      "bytes": 1466,
+      "sha256": "df0809eedcd823dfb045949a4d71c8297b94805bafa26939ea5f6f2344fbdefb"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank4_owned.bin": {
+      "bytes": 74613768,
+      "sha256": "2e4de3d6aac17f16a6474cee9dc81605ba6601c5ab8fa6e1ccf9f9cf33bb08e6"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank4_metrics.jsonl": {
+      "bytes": 124224861,
+      "sha256": "4b3b0109e503d21ae41b63e751d3b62952fb0399b98c1a429a9a10e2eb9b1bf8"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank4_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank4_rejections.jsonl": {
+      "bytes": 30430,
+      "sha256": "f480a3c655751747924a4a5b4409865e62e573c51d50ed648dcc3dd486b90d20"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank5_manifest.json": {
+      "bytes": 1429,
+      "sha256": "e40c2c17db2db7688028c1e5be7a688be1121c8f96e7fdac56c43f716c4bf73a"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank5_owned.bin": {
+      "bytes": 68068008,
+      "sha256": "29aad394b2f9d38b1cc2d8afc71d8167d52468928b431c423c132b20d7a11815"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank5_metrics.jsonl": {
+      "bytes": 118162426,
+      "sha256": "5eda9c58d7016c44b7dbb58c036749f03f3f831753567a8ad46d7c10b58e0d68"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank5_reference.jsonl": {
+      "bytes": 49419846,
+      "sha256": "0a3f43c1f8fd58bb72f6f9b83147105282fb6f86b82a5b24551ca3761afd0e69"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/adapted_mesh_inspection_rank5_rejections.jsonl": {
+      "bytes": 33794,
+      "sha256": "149af33378d693dc059273607cbca7e3279146deb779ffd3381478839e0dcd39"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/capture_ready.json": {
+      "bytes": 55077,
+      "sha256": "4af2046aefb7ed97760dafb1461b4ed9ae6bb6c5a7fb32bddf735c63a3e70b00"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/terminal_handles.json": {
+      "bytes": 1334,
+      "sha256": "113aa46c22d1617a5e1d037ea41a2e56fffab3052f43be942be5defa68d50526"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/run.cfg": {
+      "bytes": 2539,
+      "sha256": "74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/m6.su2.native_ref": {
+      "bytes": 46610856,
+      "sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py": {
+      "bytes": 51304,
+      "sha256": "028b7184ff25a0b5de1333c1da287c433251f4b52cccb34b05607e8a2f55c76d"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/prepare_geometry225_queries.py": {
+      "bytes": 10000,
+      "sha256": "9dfb7179af8218ded7ca5e7ff194c486094b8a0324c14bdb5dea450eea69fe9a"
+    }
+  },
+  "outputs": {
+    "current_geometry_queries.bin": {
+      "bytes": 3120,
+      "sha256": "b89689b08e921e8c483fbd678136fa3a3aa383cc8e35d9664bb4612193ca7f87"
+    },
+    "run.cfg": {
+      "bytes": 2539,
+      "sha256": "74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d"
+    },
+    "m6.su2.native_ref": {
+      "bytes": 46610856,
+      "sha256": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de"
+    }
+  },
+  "paired_rows": 987865,
+  "wing_physical_cells": 53366,
+  "queries": [
+    {
+      "cell": 213457155,
+      "rank": 3,
+      "rank_index": 764,
+      "physical_slot": 3,
+      "facet": 16696,
+      "entity": {
+        "body": 0,
+        "sheet": 10154,
+        "marker": 2
+      },
+      "nodes": [
+        {
+          "id": 267577762,
+          "xyz": [
+            0.17157291853807274,
+            0.2793313713197882,
+            0.014352962539376606
+          ]
+        },
+        {
+          "id": 8220,
+          "xyz": [
+            0.1788504478150806,
+            0.2802608661210864,
+            0.01737384707915785
+          ]
+        },
+        {
+          "id": 266240290,
+          "xyz": [
+            0.17098337651835951,
+            0.2745309379925378,
+            0.015520557344976092
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "id": 267577762,
+          "feature": 16696,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.2519084653828474,
+          "v": 0.24993482820686114,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 8220,
+          "feature": 8220,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 266240290,
+          "feature": 10860,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.5001479426561101,
+          "v": 0.0023012836671203337,
+          "mobility_dimension": 2
+        }
+      ],
+      "definition_version": 18,
+      "q": 0.3831141328184795,
+      "J": 0.13865467996460962,
+      "geometry_excess_l2": 0.004354627778991805,
+      "near_feature": false,
+      "face_area": 1.9564490014872738e-05,
+      "center": [
+        0.17380224762383764,
+        0.27804105847780414,
+        0.01574912232117018
+      ],
+      "curved_control_proved": true,
+      "role": "geometry_bad",
+      "region": "root"
+    },
+    {
+      "cell": 216041612,
+      "rank": 3,
+      "rank_index": 1919,
+      "physical_slot": 2,
+      "facet": 30161,
+      "entity": {
+        "body": 0,
+        "sheet": 10154,
+        "marker": 2
+      },
+      "nodes": [
+        {
+          "id": 254630722,
+          "xyz": [
+            0.14405421943616645,
+            0.24345435081855696,
+            -0.00883992746192831
+          ]
+        },
+        {
+          "id": 268604194,
+          "xyz": [
+            0.14291618573956757,
+            0.23889183987284188,
+            -0.010462421260638802
+          ]
+        },
+        {
+          "id": 18723,
+          "xyz": [
+            0.1454645194980509,
+            0.2374218219376238,
+            -0.01328528615614763
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "id": 254630722,
+          "feature": 30161,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.7454006169278192,
+          "v": 0.004480672081689118,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 268604194,
+          "feature": 30171,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.5039551878338996,
+          "v": 0.49590343281232063,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 18723,
+          "feature": 18723,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        }
+      ],
+      "definition_version": 18,
+      "q": 0.33401697443344963,
+      "J": 0.08790863883154505,
+      "geometry_excess_l2": 0.003613018767396175,
+      "near_feature": false,
+      "face_area": 9.233000424789123e-06,
+      "center": [
+        0.14414497489126163,
+        0.2399226708763409,
+        -0.010862544959571582
+      ],
+      "curved_control_proved": true,
+      "role": "geometry_bad",
+      "region": "root"
+    },
+    {
+      "cell": 215414023,
+      "rank": 5,
+      "rank_index": 121998,
+      "physical_slot": 3,
+      "facet": 45534,
+      "entity": {
+        "body": 0,
+        "sheet": 10154,
+        "marker": 2
+      },
+      "nodes": [
+        {
+          "id": 17012,
+          "xyz": [
+            0.4098284186858783,
+            0.3289030123846275,
+            -0.03419038677292537
+          ]
+        },
+        {
+          "id": 17071,
+          "xyz": [
+            0.3939635991009581,
+            0.2824533534855599,
+            -0.03498171890551345
+          ]
+        },
+        {
+          "id": 272310754,
+          "xyz": [
+            0.42115264083139353,
+            0.29288257837391146,
+            -0.035129004863447784
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "id": 17012,
+          "feature": 17012,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 17071,
+          "feature": 17071,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 272310754,
+          "feature": 44547,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.12187469412336549,
+          "v": 0.050999043154448774,
+          "mobility_dimension": 2
+        }
+      ],
+      "definition_version": 18,
+      "q": 0.686578621806553,
+      "J": 0.2916282307235546,
+      "geometry_excess_l2": 0.0,
+      "near_feature": false,
+      "face_area": 0.0005489134436643153,
+      "center": [
+        0.40831488620607664,
+        0.3014129814146996,
+        -0.034767036847295534
+      ],
+      "curved_control_proved": true,
+      "role": "clean_curved_control",
+      "region": "root"
+    },
+    {
+      "cell": 2920703,
+      "rank": 5,
+      "rank_index": 60020,
+      "physical_slot": 3,
+      "facet": 26088,
+      "entity": {
+        "body": 0,
+        "sheet": 10154,
+        "marker": 2
+      },
+      "nodes": [
+        {
+          "id": 6718,
+          "xyz": [
+            0.4702650321911704,
+            0.1511637728805413,
+            0.03517366283028946
+          ]
+        },
+        {
+          "id": 6786,
+          "xyz": [
+            0.488314229396984,
+            0.1116531704299656,
+            0.03396980988763101
+          ]
+        },
+        {
+          "id": 6785,
+          "xyz": [
+            0.4618167732999182,
+            0.1156666989011054,
+            0.03535703414291429
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "id": 6718,
+          "feature": 6718,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 6786,
+          "feature": 6786,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 6785,
+          "feature": 6785,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        }
+      ],
+      "definition_version": 18,
+      "q": 0.7364769864529198,
+      "J": 0.33303619003323004,
+      "geometry_excess_l2": 0.0,
+      "near_feature": false,
+      "face_area": 0.00048789718880987555,
+      "center": [
+        0.4734653449626909,
+        0.12616121407053743,
+        0.03483350228694492
+      ],
+      "curved_control_proved": true,
+      "role": "clean_curved_control",
+      "region": "root"
+    },
+    {
+      "cell": 219491355,
+      "rank": 0,
+      "rank_index": 3681,
+      "physical_slot": 1,
+      "facet": 16718,
+      "entity": {
+        "body": 0,
+        "sheet": 10154,
+        "marker": 2
+      },
+      "nodes": [
+        {
+          "id": 268535506,
+          "xyz": [
+            0.3473196378709016,
+            0.5826472944007436,
+            0.013584573843770402
+          ]
+        },
+        {
+          "id": 270187912,
+          "xyz": [
+            0.3454189481826599,
+            0.584462255500236,
+            0.011964006608890836
+          ]
+        },
+        {
+          "id": 265370674,
+          "xyz": [
+            0.35068865785192826,
+            0.5850975870836825,
+            0.014444997764498313
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "id": 268535506,
+          "feature": 16717,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.5030313183393496,
+          "v": 0.00013797373911493609,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 270187912,
+          "feature": 16718,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.8882178475282905,
+          "v": 0.04053233008538714,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 265370674,
+          "feature": 16718,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.2482453221218181,
+          "v": 0.25007088544198636,
+          "mobility_dimension": 2
+        }
+      ],
+      "definition_version": 18,
+      "q": 0.3786005380073335,
+      "J": 0.19042064373525508,
+      "geometry_excess_l2": 0.0025195029934901073,
+      "near_feature": false,
+      "face_area": 6.34955800377123e-06,
+      "center": [
+        0.3478090813018299,
+        0.584069045661554,
+        0.013331192739053184
+      ],
+      "curved_control_proved": true,
+      "role": "geometry_bad",
+      "region": "midspan"
+    },
+    {
+      "cell": 213773580,
+      "rank": 0,
+      "rank_index": 732,
+      "physical_slot": 0,
+      "facet": 10651,
+      "entity": {
+        "body": 0,
+        "sheet": 10154,
+        "marker": 2
+      },
+      "nodes": [
+        {
+          "id": 263621074,
+          "xyz": [
+            0.32891134788480886,
+            0.562208051944961,
+            0.009111009559893303
+          ]
+        },
+        {
+          "id": 268504402,
+          "xyz": [
+            0.3269975079547696,
+            0.5588528793862508,
+            0.009121029768814857
+          ]
+        },
+        {
+          "id": 8034,
+          "xyz": [
+            0.3252169923899652,
+            0.5598841235901065,
+            0.006208828760584001
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "id": 263621074,
+          "feature": 10651,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.2500066091014377,
+          "v": 0.25626120205340436,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 268504402,
+          "feature": 16421,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.5039549753875086,
+          "v": 0.00014705621506716854,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 8034,
+          "feature": 8034,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        }
+      ],
+      "definition_version": 18,
+      "q": 0.3046819526014191,
+      "J": 0.2104249911677825,
+      "geometry_excess_l2": 0.002272480468950065,
+      "near_feature": false,
+      "face_area": 6.886513088188344e-06,
+      "center": [
+        0.32704194940984793,
+        0.5603150183071062,
+        0.008146956029764054
+      ],
+      "curved_control_proved": true,
+      "role": "geometry_bad",
+      "region": "midspan"
+    },
+    {
+      "cell": 3769601,
+      "rank": 4,
+      "rank_index": 41310,
+      "physical_slot": 3,
+      "facet": 45941,
+      "entity": {
+        "body": 0,
+        "sheet": 10154,
+        "marker": 2
+      },
+      "nodes": [
+        {
+          "id": 16521,
+          "xyz": [
+            0.7493914887022326,
+            0.513765800022145,
+            -0.0219748501323451
+          ]
+        },
+        {
+          "id": 16505,
+          "xyz": [
+            0.7787071577743525,
+            0.5174132373705437,
+            -0.01950658631087661
+          ]
+        },
+        {
+          "id": 16470,
+          "xyz": [
+            0.7579472763108814,
+            0.5529284002435028,
+            -0.02209593083292193
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "id": 16521,
+          "feature": 16521,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 16505,
+          "feature": 16505,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 16470,
+          "feature": 16470,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        }
+      ],
+      "definition_version": 18,
+      "q": 0.867629837077919,
+      "J": 0.6560702468915822,
+      "geometry_excess_l2": 0.0,
+      "near_feature": false,
+      "face_area": 0.0005606779459509869,
+      "center": [
+        0.7620153075958221,
+        0.5280358125453971,
+        -0.021192455758714545
+      ],
+      "curved_control_proved": true,
+      "role": "clean_curved_control",
+      "region": "midspan"
+    },
+    {
+      "cell": 213707010,
+      "rank": 4,
+      "rank_index": 151046,
+      "physical_slot": 3,
+      "facet": 26687,
+      "entity": {
+        "body": 0,
+        "sheet": 10154,
+        "marker": 2
+      },
+      "nodes": [
+        {
+          "id": 270150324,
+          "xyz": [
+            0.8267065932706089,
+            0.5631910590560637,
+            0.016189445240320673
+          ]
+        },
+        {
+          "id": 5914,
+          "xyz": [
+            0.8495972043257335,
+            0.5637230664390133,
+            0.01394818223513923
+          ]
+        },
+        {
+          "id": 5970,
+          "xyz": [
+            0.8420538452672875,
+            0.5206004549587752,
+            0.01351457383020511
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "id": 270150324,
+          "feature": 24994,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.8300065810631726,
+          "v": 0.09666018229894624,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 5914,
+          "feature": 5914,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 5970,
+          "feature": 5970,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        }
+      ],
+      "definition_version": 18,
+      "q": 0.806726016603964,
+      "J": 0.503928313292769,
+      "geometry_excess_l2": 0.0,
+      "near_feature": false,
+      "face_area": 0.000494108091944127,
+      "center": [
+        0.8394525476212099,
+        0.5491715268179508,
+        0.014550733768555002
+      ],
+      "curved_control_proved": true,
+      "role": "clean_curved_control",
+      "region": "midspan"
+    },
+    {
+      "cell": 212988220,
+      "rank": 4,
+      "rank_index": 854,
+      "physical_slot": 0,
+      "facet": 16155,
+      "entity": {
+        "body": 0,
+        "sheet": 10154,
+        "marker": 2
+      },
+      "nodes": [
+        {
+          "id": 268431826,
+          "xyz": [
+            0.5393720042355228,
+            0.9334255751633905,
+            0.002657936938521306
+          ]
+        },
+        {
+          "id": 4254,
+          "xyz": [
+            0.5390124738349592,
+            0.933635022236601,
+            -1.669598770573998e-16
+          ]
+        },
+        {
+          "id": 263649586,
+          "xyz": [
+            0.5412923513379208,
+            0.9358838256703174,
+            0.003918255817854437
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "id": 268431826,
+          "feature": 10362,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.00013676548075224458,
+          "v": 0.4956969820520978,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 4254,
+          "feature": 4254,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 263649586,
+          "feature": 16155,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.24763435161961744,
+          "v": 0.2500616399891478,
+          "mobility_dimension": 2
+        }
+      ],
+      "definition_version": 18,
+      "q": 0.3543143269662347,
+      "J": 0.17557386805333555,
+      "geometry_excess_l2": 0.0021523952315999576,
+      "near_feature": false,
+      "face_area": 4.168234648059309e-06,
+      "center": [
+        0.5398922764694676,
+        0.9343148076901029,
+        0.002192064252125192
+      ],
+      "curved_control_proved": true,
+      "role": "geometry_bad",
+      "region": "tip"
+    },
+    {
+      "cell": 220945288,
+      "rank": 4,
+      "rank_index": 3411,
+      "physical_slot": 0,
+      "facet": 10298,
+      "entity": {
+        "body": 0,
+        "sheet": 10154,
+        "marker": 2
+      },
+      "nodes": [
+        {
+          "id": 265383634,
+          "xyz": [
+            0.5861988521636821,
+            1.007432953641258,
+            0.008256127936224036
+          ]
+        },
+        {
+          "id": 268455154,
+          "xyz": [
+            0.5838922609305879,
+            1.005374637125504,
+            0.007249035958759422
+          ]
+        },
+        {
+          "id": 279311262,
+          "xyz": [
+            0.582831712233612,
+            1.0061228880844757,
+            0.00553721930046906
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "id": 265383634,
+          "feature": 10298,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.25007762155560664,
+          "v": 0.5022024926032721,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 268455154,
+          "feature": 16459,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.5039543674498507,
+          "v": 0.0001609905951831985,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 279311262,
+          "feature": 10298,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.009842819044075425,
+          "v": 0.11579125068186664,
+          "mobility_dimension": 2
+        }
+      ],
+      "definition_version": 18,
+      "q": 0.2575927202008196,
+      "J": 0.1310692153253143,
+      "geometry_excess_l2": 0.001846889925011411,
+      "near_feature": false,
+      "face_area": 3.2353004663288842e-06,
+      "center": [
+        0.5843076084426273,
+        1.0063101596170794,
+        0.007014127731817505
+      ],
+      "curved_control_proved": true,
+      "role": "geometry_bad",
+      "region": "tip"
+    },
+    {
+      "cell": 4608261,
+      "rank": 4,
+      "rank_index": 41797,
+      "physical_slot": 3,
+      "facet": 44035,
+      "entity": {
+        "body": 0,
+        "sheet": 10154,
+        "marker": 2
+      },
+      "nodes": [
+        {
+          "id": 15827,
+          "xyz": [
+            0.7803259127143285,
+            0.9789318698127877,
+            -0.02517960607975038
+          ]
+        },
+        {
+          "id": 15859,
+          "xyz": [
+            0.7541812132575292,
+            0.9891664239676913,
+            -0.02513324275717776
+          ]
+        },
+        {
+          "id": 15860,
+          "xyz": [
+            0.7613062890330323,
+            0.9440095459560498,
+            -0.02571932744354174
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "id": 15827,
+          "feature": 15827,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 15859,
+          "feature": 15859,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 15860,
+          "feature": 15860,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        }
+      ],
+      "definition_version": 18,
+      "q": 0.7216217376939403,
+      "J": 0.31700989386968587,
+      "geometry_excess_l2": 0.0,
+      "near_feature": false,
+      "face_area": 0.0005538996851649247,
+      "center": [
+        0.7652711383349633,
+        0.9707026132455097,
+        -0.025344058760156624
+      ],
+      "curved_control_proved": true,
+      "role": "clean_curved_control",
+      "region": "tip"
+    },
+    {
+      "cell": 215713024,
+      "rank": 4,
+      "rank_index": 155495,
+      "physical_slot": 3,
+      "facet": 46528,
+      "entity": {
+        "body": 0,
+        "sheet": 10154,
+        "marker": 2
+      },
+      "nodes": [
+        {
+          "id": 15764,
+          "xyz": [
+            0.7858889826678003,
+            1.043252528032537,
+            -0.02438307214429044
+          ]
+        },
+        {
+          "id": 272689186,
+          "xyz": [
+            0.7882379511560326,
+            1.0842966342010012,
+            -0.023652936192626654
+          ]
+        },
+        {
+          "id": 15765,
+          "xyz": [
+            0.7613159929294925,
+            1.059967253237029,
+            -0.02371731294776451
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "id": 15764,
+          "feature": 15764,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 272689186,
+          "feature": 46527,
+          "version": 18,
+          "dimension": 2,
+          "u": 0.21451334964616675,
+          "v": 0.028280576127246555,
+          "mobility_dimension": 2
+        },
+        {
+          "id": 15765,
+          "feature": 15765,
+          "version": 18,
+          "dimension": 0,
+          "u": 0,
+          "v": 0,
+          "mobility_dimension": 2
+        }
+      ],
+      "definition_version": 18,
+      "q": 0.5705102856724035,
+      "J": 0.19527855964516594,
+      "geometry_excess_l2": 0.0,
+      "near_feature": false,
+      "face_area": 0.000524064689326876,
+      "center": [
+        0.7784809755844417,
+        1.0625054718235225,
+        -0.023917773761560537
+      ],
+      "curved_control_proved": true,
+      "role": "clean_curved_control",
+      "region": "tip"
+    }
+  ],
+  "omissions": [],
+  "seconds": 28.183854825001617,
+  "scope": "Actual captured current physical faces, not historical trial replay or publication. No support discovery in Python; no synthesized nearby positions. Genuine-feature cases remain covered by existing affected validation."
+}

@@ -14,6 +14,48 @@ sources, fixtures, helpers, binary/config/inputs through each run. Verify actual
 owned handle terminal before edits/restarts. Preserve failures; authorized stop/
 fix/retry for demonstrated failures, clear bottlenecks or actual resource pressure.
 
+## ACTIVE227: rigorous witness screening in the existing geometry path
+
+Production candidate builds on terminal226analysis, not a competing cycle.
+Existing exact repeats are cheap; no new cache/motion envelope is justified.
+Twelve ACTUAL225captured curved faces (root/midspan/tip, six geometry-bad/six
+clean) passed production SurfaceDeviation/cold/repeated/recomputed equality:
+exec30653TERMINAL0,268assertions/1case. Exact v1packet replay with existing work
+trace exec26793TERMINAL0,163assertions/1case. Both pins unchanged/all host handles
+absent. R/geometry226_current_terminal_handles.json and replay_terminal_handles.json.
+First setup60789MPI_Win_create failure preserved; qualified pt2pt/4TBscratch fixed
+setup without a source change. Build226terminal0/1302pins unchanged. No full226M6.
+
+R/geometry226_trace_review.json: cold domain upper458395work, distance412553work;
+7752failed footprint checks/239081work,1536passed/69740work, lift40365work. Graph
+work is NESTED in upper work. Expensive clean near-tolerance faces dominate.
+Identical repeats23–292work. Nearby trial positions are not sampled by this packet.
+
+227candidate changes ONLY SurfaceForest sample-distance screening: when the
+already-computed rigorous witness upper bound <= query tolerance, return lower0
+and that upper, avoiding complete-support lower traversal. Such a sample cannot
+prove outside. Domain upper certification, uncertain-sample complete support,
+association/body/features/heights and final two-sided gates remain unchanged.
+No new config/cache/representation/construction policy. Exact repeat/recomputed
+answers and hard-query work must be checked before selecting this candidate.
+
+Build227exec56586TERMINAL0,36.105134s,1302pins unchanged/both targets up to date;
+host wrapper1900768/Ninja1900769 absent. R/build227_terminal_handles.json.
+Actual-current query exec7179TERMINAL0,268assertions/1case,58.594722s,pins unchanged;
+all observed host handles absent. Packet byte-identical226; all bounds/production
+guidance EXACT. Traversal870948→472780(-45.7%),cold910366→512198(-43.7%);
+eight improve/four unchanged/no increases. R/geometry227_query_comparison.json.
+No full-run speedup established.
+
+Connected227qualification PASS: serial102cases/35396assertions (actual current1,
+geometry88,quality13); MPI6exec59919TERMINAL0,26cases on EACH rank. All source/
+runtime/input pins unchanged; all owned geometry/build/serial/MPI host handles
+absent. R/geometry_witness227_qualification.json and witness227_*_terminal_handles.json.
+No owned heavy workload. Next immediately full same-seed correctedL1/50k/5400
+TWO-event M6; no accepted mesh or full-run speedup established.
+[Proof, scope and measured work](Handbook/ADAPTATION_GEOMETRY_WITNESS_20261106.md).
+Do not apply old225source-pin assertion after intentional226/227source edits.
+
 ## TERMINAL225: rejected; full mesh+metric saved and independently read
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
@@ -65,7 +107,7 @@ assessment.json and shell224_failed_mpi_assessment.json. Missing TMPDIR caused a
 separate preserved setup failure; helper now defaults to existing4TBscratch and
 records it. All affected checks subsequently PASS; no production import-mode rollback.
 
-LIVE run uses same qualified real CFD seed, correctedL1/50k,6ranks/nice19/libs1,
+The completed225run used the same qualified real CFD seed, correctedL1/50k,6ranks/nice19/libs1,
 5400native/14400outer/two events. Generated config BYTEIDENTICAL219:
 SHA74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d.
 Selected --inspect-rejected for this first coupled-boundary attempt after corrected

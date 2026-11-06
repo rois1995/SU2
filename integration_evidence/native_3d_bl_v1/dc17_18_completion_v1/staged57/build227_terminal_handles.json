@@ -1,0 +1,42 @@
+{
+  "time": 1794004723.253813,
+  "tool_session": 56586,
+  "host_handles_absent": true,
+  "handles": [
+    {
+      "pid": 1900768,
+      "startticks": 4908371,
+      "argv": [
+        "python3",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build_checkpoint.py",
+        "227"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+      "state": "S"
+    },
+    {
+      "pid": 1900769,
+      "startticks": 4908385,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/tools/ninja",
+        "-C",
+        "integration_evidence/build-integrated-v3-currenthost",
+        "-j3",
+        "UnitTests/test_driver",
+        "-k",
+        "0",
+        "SU2_CFD/src/SU2_CFD"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost",
+      "state": "S"
+    }
+  ],
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 36.10513377189636,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  }
+}

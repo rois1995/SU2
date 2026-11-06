@@ -554,12 +554,14 @@ class TriangleUnion {
 // A local joined witness bounds from above; only the complete exact support can bound from below.
 class SurfaceForest {
  public:
-  std::vector<TriangleUnion*> leaves;TriangleUnion* witness=nullptr;double maximum_error=0;bool complete_witness=false;
+  std::vector<TriangleUnion*> leaves;TriangleUnion* witness=nullptr;double maximum_error=0,accuracy=0;bool complete_witness=false;
   template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op){return witness->Upper(hull,op);}
   double ApproximationError()const{return maximum_error;}
   TriangleDistanceBounds Distance(const Box& point,AtlasOps& op) {
     if(complete_witness)return witness->Distance(point,op);
     TriangleDistanceBounds bound{INFINITY,witness->Distance(point,op).upper};
+    // A rigorous witness upper bound within tolerance makes an outside proof at this sample impossible.
+    if(bound.upper<=accuracy)return {0,bound.upper};
     for(auto* leaf:leaves){op.Work();if(BoxGap(point,leaf->Bounds())>bound.upper)continue;
       const auto next=leaf->Distance(point,op);bound.lower=std::min(bound.lower,next.lower);bound.upper=std::min(bound.upper,next.upper);}
     if(!std::isfinite(bound.lower))throw std::logic_error("Surface witness lost its exact support.");
@@ -1880,7 +1882,7 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
   std::unique_lock<std::mutex> preparation;
   std::shared_ptr<CurvedSearch::PreparedFacet> prepared_model;
   std::vector<std::shared_ptr<CurvedSearch::PreparedFacet>> retained_models;
-  SurfaceForest forest;
+  SurfaceForest forest;forest.accuracy=tolerance;
   std::vector<UnionTriangle> model;size_t model_pieces=0;
   if(include_mesh && curved_search) {
     preparation=std::unique_lock<std::mutex>(curved_search->prepared_mutex);

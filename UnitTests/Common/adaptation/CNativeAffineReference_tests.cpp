@@ -1435,13 +1435,33 @@ TEST_CASE("Representative saved M6 geometry queries preserve exact inputs and ex
   // Use the same rounded host-share allowance as166; this is not a process-memory cap.
   uint64_t quota=MappedFacetReference::SurfaceQueryStorageBytes(authority->Curves().size(),559070549);
   const auto* replay=std::getenv("SU2_NATIVE_GEOMETRY_QUERY_INPUT");
+  bool current_capture=false;
+  std::shared_ptr<const PlanarReference> current_context;
+  auto discover_support=[&](Query& q,const BoundaryParameterState& parameters) {
+    const auto start=std::chrono::steady_clock::now();
+    auto lo=q.points[0].node.p,hi=lo;const auto model=authority->Realize(q.points[0].binding);double radius=0;
+    for(const auto& point:q.points) {const auto p=point.node.p;
+      lo={std::min(lo.x,p.x),std::min(lo.y,p.y),std::min(lo.z,p.z)};
+      hi={std::max(hi.x,p.x),std::max(hi.y,p.y),std::max(hi.z,p.z)};
+      radius=std::max(radius,std::hypot(p.x-model.x,p.y-model.y,p.z-model.z));
+    }
+    radius=std::nextafter(radius+tolerance,INFINITY);
+    lo={std::nextafter(lo.x-radius,-INFINITY),std::nextafter(lo.y-radius,-INFINITY),std::nextafter(lo.z-radius,-INFINITY)};
+    hi={std::nextafter(hi.x+radius,INFINITY),std::nextafter(hi.y+radius,INFINITY),std::nextafter(hi.z+radius,INFINITY)};
+    q.facets=authority->NearbySurfaceFacets(q.face.facet,{lo,hi});const auto entity=parameters.Entity(q.face.facet);
+    q.facets.erase(std::remove_if(q.facets.begin(),q.facets.end(),[&](Id facet){return parameters.Entity(facet)!=entity;}),q.facets.end());
+    discovery_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+    REQUIRE_FALSE(q.facets.empty());
+  };
   if(replay) {
     const auto bytes=read(replay);RecordStream input(bytes);uint64_t magic=0,version=0,count=0,geometry_version=0;double saved_tolerance=0;
     input(magic,version,geometry_version,count,saved_tolerance,quota);
-    REQUIRE(magic==0x4d36515545525931ULL);REQUIRE(version==1);REQUIRE(geometry_version==authority->Version());
+    REQUIRE(magic==0x4d36515545525931ULL);REQUIRE((version==1||version==2));REQUIRE(geometry_version==authority->Version());
+    current_capture=version==2;
     REQUIRE(count>0);REQUIRE(count<=query_limit);REQUIRE(saved_tolerance==tolerance);
     for(uint64_t i=0;i<count;++i) {
-      Query q;uint64_t facets=0;input(q.face,q.points,facets);REQUIRE(facets>0);REQUIRE(facets<=authority->Reference().Facets().size());
+      Query q;uint64_t facets=0;input(q.face,q.points,facets);
+      REQUIRE((current_capture?facets==0:facets>0));REQUIRE(facets<=authority->Reference().Facets().size());
       q.facets.resize(facets);for(auto& facet:q.facets)input(facet);
       REQUIRE(std::is_sorted(q.facets.begin(),q.facets.end()));REQUIRE(std::adjacent_find(q.facets.begin(),q.facets.end())==q.facets.end());
       for(unsigned k=0;k<3;++k)REQUIRE(q.points[k].node.id==q.face.v[k]);
@@ -1457,20 +1477,7 @@ TEST_CASE("Representative saved M6 geometry queries preserve exact inputs and ex
       for(const auto& point:q.points)direct=direct&&authority->Supports(q.face.facet,point.binding);
       if(direct || !parameters->ContainsEntityFace(q.face.facet,q.points))return;
       ++cross_patch;
-      const auto support_start=std::chrono::steady_clock::now();
-      auto lo=q.points[0].node.p,hi=lo;const auto model=authority->Realize(q.points[0].binding);double radius=0;
-      for(const auto& point:q.points) {const auto p=point.node.p;
-        lo={std::min(lo.x,p.x),std::min(lo.y,p.y),std::min(lo.z,p.z)};
-        hi={std::max(hi.x,p.x),std::max(hi.y,p.y),std::max(hi.z,p.z)};
-        radius=std::max(radius,std::hypot(p.x-model.x,p.y-model.y,p.z-model.z));
-      }
-      radius=std::nextafter(radius+tolerance,INFINITY);
-      lo={std::nextafter(lo.x-radius,-INFINITY),std::nextafter(lo.y-radius,-INFINITY),std::nextafter(lo.z-radius,-INFINITY)};
-      hi={std::nextafter(hi.x+radius,INFINITY),std::nextafter(hi.y+radius,INFINITY),std::nextafter(hi.z+radius,INFINITY)};
-      q.facets=authority->NearbySurfaceFacets(q.face.facet,{lo,hi});const auto entity=parameters->Entity(q.face.facet);
-      q.facets.erase(std::remove_if(q.facets.begin(),q.facets.end(),[&](Id facet){return parameters->Entity(facet)!=entity;}),q.facets.end());
-      discovery_seconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-support_start).count();
-      REQUIRE_FALSE(q.facets.empty());
+      discover_support(q,*parameters);
       // Retain distinct overlapping scopes, with two physical faces per scope for repeated-trial work.
       if(std::count_if(queries.begin(),queries.end(),[&](const Query& old){return old.facets==q.facets;})>=2)return;
       queries.push_back(std::move(q));
@@ -1541,19 +1548,43 @@ TEST_CASE("Representative saved M6 geometry queries preserve exact inputs and ex
     trial_generation_seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count()-discovery_seconds;
   }
   REQUIRE_FALSE(queries.empty());
+  if(current_capture) {
+    AtlasBudget setup;setup.maximum_bytes=memory_limit;setup.maximum_integer_bits=size_t(1)<<20;
+    const auto* initial=reference.original->Parameters();
+    setup.maximum_work=transfer_memory::Mul(transfer_memory::Add(reference.facets.size(),initial->Surface().size()),MappedFacetReference::ClearanceWork);
+    setup.caller_bytes=reference.original->ResidentBytes();
+    const std::map<int,int> roles{{0,2},{1,0},{2,2}};
+    auto mobile=initial->Mobility().identity?std::shared_ptr<BoundaryParameterState>{}:
+        initial->WithMobilityPolicy(60,roles,setup,memory_limit,setup.caller_bytes);
+    const auto* active=mobile?mobile.get():initial;
+    REQUIRE(active->Mobility().angle==60);REQUIRE(active->Mobility().roles==roles);
+    auto entity=active->WithEntityGeometry(tolerance,setup,memory_limit,setup.caller_bytes);
+    current_context=reference.original->WithParameterState(entity);
+    for(auto& q:queries) {
+      ++inspected;REQUIRE(entity->ContainsEntityFace(q.face.facet,q.points));
+      bool direct=true;
+      for(const auto& point:q.points){REQUIRE(authority->Admissible(point.binding,point.node.p));
+        direct=direct&&authority->Supports(q.face.facet,point.binding);}
+      if(direct)q.facets={q.face.facet};
+      else {++cross_patch;discover_support(q,*entity);}
+    }
+  }
   std::vector<char> payload;RecordStream encoded(payload);uint64_t magic=0x4d36515545525931ULL,version=1;
   uint64_t geometry_version=authority->Version(),count=queries.size();double saved_tolerance=tolerance;
   encoded(magic,version,geometry_version,count,saved_tolerance,quota);
   for(auto& q:queries){uint64_t facets=q.facets.size();encoded(q.face,q.points,facets);for(auto& facet:q.facets)encoded(facet);}
   std::ofstream binary("m6_surface_queries.bin",std::ios::binary);binary.write(payload.data(),payload.size());binary.close();REQUIRE(bool(binary));
-  if(replay)CHECK(payload==read(replay));
+  if(replay&&!current_capture)CHECK(payload==read(replay));
   const auto definition=std::make_shared<PlanarReference>(authority->Reference());
   MappedFacetReference cached(definition,authority->Errors(),authority->Version(),memory_limit,false,authority->Curves(),quota);
   MappedFacetReference uncached(definition,authority->Errors(),authority->Version(),memory_limit,false,authority->Curves(),0);
-  const auto caller=reference.original->ResidentBytes()+cached.ResidentBytes()+uncached.ResidentBytes()+payload.capacity();
+  const auto caller=reference.original->ResidentBytes()+cached.ResidentBytes()+uncached.ResidentBytes()+payload.capacity()+
+      (current_context?current_context->ResidentBytes():0);
   auto budget=[&](){AtlasBudget b;b.maximum_work=200000000;b.maximum_bytes=memory_limit;b.maximum_integer_bits=size_t(1)<<26;b.caller_bytes=caller;return b;};
   std::ofstream out("m6_surface_queries.json");out<<std::setprecision(17)
-      <<"{\"scope\":\"representative captured M6 geometry inputs, not exact166state or mesh acceptance\",\"geometry_version\":"<<geometry_version
+      <<"{\"scope\":"<<std::quoted(current_capture?
+          "Actual captured current M6 faces; fresh entity context, not historical trial replay or publication":
+          "Representative saved M6 geometry inputs, not exact166state or mesh acceptance")<<",\"geometry_version\":"<<geometry_version
       <<",\"tolerance\":"<<tolerance<<",\"initial_resolution\":"<<tolerance<<",\"include_model\":false,\"include_mesh\":true"
       <<",\"prepared_quota\":"<<quota<<",\"faces_inspected\":"<<inspected<<",\"cross_patch_faces\":"<<cross_patch
       <<",\"projected_star_trials\":"<<projected_trials
@@ -1566,8 +1597,24 @@ TEST_CASE("Representative saved M6 geometry queries preserve exact inputs and ex
     auto repeated=budget();const auto repeated_answer=cached.BoundPhysicalSurface(q.facets,physical,tolerance,repeated);
     auto recomputed=budget();const auto oracle=uncached.BoundPhysicalSurface(q.facets,physical,tolerance,recomputed);
     REQUIRE(std::isfinite(answer));CHECK(answer==repeated_answer);CHECK(answer==oracle);
+    double production=0;size_t production_work=0;
+    if(current_context) {
+      auto fresh=budget();Patch overlay;overlay.surface.push_back(q.face);
+      for(const auto& point:q.points)overlay.parameters.emplace(point.node.id,point);
+      auto context=current_context->PrivateParameters(overlay,&fresh);REQUIRE(context);
+      production=context->SurfaceDeviation(q.face.facet,physical.front(),true);
+      production_work=fresh.work;const auto again=context->SurfaceDeviation(q.face.facet,physical.front(),true);
+      CHECK(production==again);REQUIRE(std::isfinite(production));
+      bool direct=true;double plane=0;
+      for(const auto& point:q.points){direct=direct&&authority->Supports(q.face.facet,point.binding);
+        const auto affine=reference.original->Affine().find(q.face.facet);
+        if(affine!=reference.original->Affine().end())plane=std::max(plane,AffineChart(affine->second).ErrorBound(point.node.p));}
+      if(!direct)CHECK(production==std::max(plane,answer));
+    }
     if(i)out<<',';
     out<<"{\"id\":"<<i<<",\"anchor\":"<<q.face.facet<<",\"facets\":"<<q.facets.size()<<",\"bound\":"<<answer
+       <<",\"current_checkpoint_input\":"<<(current_capture?"true":"false")<<",\"production_guidance_upper\":"<<production
+       <<",\"production_guidance_work\":"<<production_work
        <<",\"within_tolerance\":"<<(answer<=tolerance?"true":"false")<<",\"seconds\":"<<seconds
        <<",\"work\":"<<cold.work<<",\"repeat_work\":"<<repeated.work<<",\"recomputed_work\":"<<recomputed.work
        <<",\"scope_build_work\":"<<first.scope_build_work-before.scope_build_work

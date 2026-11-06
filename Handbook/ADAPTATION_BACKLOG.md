@@ -491,3 +491,12 @@ justified now. Existing root shell could also motivate candidate ordering only i
 full-run counters show futile original-star smoothing dominates. Neither change,
 new motion/slack cache nor extra envelope is active; first measure net whole-field
 progress from225. Construction quality-aware policies remain unproved/deferred.
+
+- Terminal225 geometry analysis: retain parent-footprint certificate inheritance,
+  nearby-position tolerance envelopes and a tighter failed-query upper bound as
+  UNPROVEN alternatives. Current226queries show expensive clean near-tolerance
+  traversal and cheap identical repeats, but do not measure nearby trial reuse.
+  Parent coverage often fails before subdivision; no saving is established from
+  inheriting it. The active227candidate only skips a sample lower search when an
+  existing rigorous upper bound already proves that sample within tolerance.
+  See [captured evidence and proof](ADAPTATION_GEOMETRY_WITNESS_20261106.md).
