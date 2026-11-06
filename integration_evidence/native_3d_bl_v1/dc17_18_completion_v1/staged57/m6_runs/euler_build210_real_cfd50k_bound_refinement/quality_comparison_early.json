@@ -1,0 +1,86 @@
+{
+  "time": 1793962736.6561449,
+  "scope": "Nearby complete quality-time censuses from reused206evidence and current210; not an exact-time or isolated source benchmark.",
+  "before206": {
+    "round": 21888,
+    "quality_seconds": 912.142608699,
+    "q_bad": 37310.0,
+    "J_bad": 35416.0,
+    "geometry_bad": 3462.0,
+    "net_q_removed": 16771.0,
+    "net_J_removed": 17976.0,
+    "commits": 9621.0,
+    "net_q_per_second": 18.386379322769145,
+    "net_J_per_second": 19.70744467867737,
+    "commits_per_second": 10.547692771114539,
+    "net_q_per_commit": 1.7431659910612203,
+    "upper_work_delta": 443815277.0,
+    "traversal_work_delta": 410528876.0,
+    "upper_work_per_commit": 46129.8489761979,
+    "traversal_work_per_net_q": 24478.49716773001
+  },
+  "after210": {
+    "round": 21120,
+    "quality_seconds": 967.7302560989999,
+    "q_bad": 37477.0,
+    "J_bad": 35375.0,
+    "geometry_bad": 2652.0,
+    "net_q_removed": 11903.0,
+    "net_J_removed": 12843.0,
+    "commits": 6667.0,
+    "net_q_per_second": 12.299915110623873,
+    "net_J_per_second": 13.271260166827053,
+    "commits_per_second": 6.8893164784112715,
+    "net_q_per_commit": 1.7853607319634017,
+    "upper_work_delta": 407073960.0,
+    "traversal_work_delta": 384631492.0,
+    "upper_work_per_commit": 61058.041097945104,
+    "traversal_work_per_net_q": 32313.827774510628
+  },
+  "quality_time_gap_seconds": 55.58764739999992,
+  "exactly_matched_quality_time": false,
+  "artifact_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build206_real_cfd50k_feature_companion/quality_trend_assessment.json": "f7c41a75c9a3f1a8d7980fcade85b54d3e0614740c7e58de3aeadb6d35006a5b",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/quality_trend_assessment.json": "7f0960dd9ad2b9a06005e468e0590fd4f12f90563310e9b86738794ca8c5f093"
+  },
+  "limits": [
+    "Do not interpolate unobserved counts or assume a stationary rate.",
+    "Initial populations differ; source, compiler/runtime and host conditions differ.",
+    "Operation counts expose recorded geometry work independently of scheduling, but work units are not identical CPU costs.",
+    "Early net closure throughput is lower; no terminal blocker or safe next correction is established from this comparison alone.",
+    "Fewer geometry-admission failures does not establish equivalent physical error reduction or full acceptance."
+  ],
+  "after210_source_prefixes": [
+    {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/rank_output/1/rank.0/stdout",
+      "prefix_bytes": 303643,
+      "prefix_sha256": "64d6e82b9dd1688deb75b9717f809a25d038dcc2c60ac001af305e790cc516ae"
+    },
+    {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/rank_output/1/rank.1/stdout",
+      "prefix_bytes": 279032,
+      "prefix_sha256": "0870af11c776fe821076e455335314aa5312a9440f06387c288dcb5fc09bc359"
+    },
+    {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/rank_output/1/rank.2/stdout",
+      "prefix_bytes": 278944,
+      "prefix_sha256": "113516577c69a64f485226c6a91f45e073b9288adeead6ee22f03890643f6b9f"
+    },
+    {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/rank_output/1/rank.3/stdout",
+      "prefix_bytes": 278455,
+      "prefix_sha256": "e98261b8166b70d9a69993651f115063e20d3fe1b1fd2fedd590dbf857116788"
+    },
+    {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/rank_output/1/rank.4/stdout",
+      "prefix_bytes": 279288,
+      "prefix_sha256": "44320f79da69e1d18b98eae2e20f4ae47fcbbb44a6221af28e21916c85c45055"
+    },
+    {
+      "path": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/rank_output/1/rank.5/stdout",
+      "prefix_bytes": 278951,
+      "prefix_sha256": "c8beb594ce83015992607394df9aae2c9248a43248c3af07490ef3d2b24193bc"
+    }
+  ],
+  "artifact_note": "Current trend hash identifies this observed snapshot; the live trend may later advance. Immutable raw log prefixes and this selected summary retain the comparison evidence."
+}

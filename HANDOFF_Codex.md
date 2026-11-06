@@ -49,9 +49,16 @@ First complete quality window census3/round20928 now723343cells/48006q/46652J/
 net; do not judge by commits or debt alone. LIVE/quality_window1_assessment.json
 preserves all6stage/service rows, timing limits and source prefixes. Baseline206
 first complete window is158.290quality seconds, not matched to this early window.
-Latest complete window round20992:728526cells/44355q/42667J/2675geometry/0size;
-all6complete flags1. Subsequent staged→committed quality ownership migration at
-that round preserves these global counts, full measurement counts and q/Jdebt sum.
+Latest preserved trend round21120: 738609cells/37477q/35375J/
+2652geometry/0size, 967.730256quality seconds after entry.
+Net since entry11903q/12843J removed through6667quality commits.
+All6complete flags1. LIVE/quality_trend_assessment.json preserves measured windows.
+Nearby-time comparison LIVE/quality_comparison_early.json: current967.730s versus
+206912.143s (55.588s gap, not exact matching). Current netq/second12.30 versus18.39;
+upper work/commit~61058versus46130. Source/compiler/runtime/host and entry populations
+differ; no isolated timing attribution or closure forecast. Run stays frozen.
+Earlier staged→committed ownership migration at20992 preserved728526cells/
+44355q/42667J/2675geometry/0size, all measurement counts and q/Jdebt sum.
 LIVE/quality_ownership20992_assessment.json records per-rank rows/source prefixes;
 count preservation alone does not prove every attribute/history. Run remains live.
 Checkpoint293b8361bf verified on fork2026-11-06; no owned heavy handles live before edits.
