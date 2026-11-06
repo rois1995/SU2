@@ -1,0 +1,30 @@
+{
+  "scope": "Preserved failed MPI milestone; not passing qualification",
+  "build": "build224",
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T194237_1439234",
+  "status": {
+    "state": "terminal",
+    "exit_code": 12,
+    "seconds": 7.364246845245361,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 48386048,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "rank_summaries": [
+    "test cases:   26 |   25 passed |  1 failed\nassertions: 2841 | 2829 passed | 12 failed",
+    "test cases:   26 |   25 passed |  1 failed\nassertions: 2869 | 2857 passed | 12 failed",
+    "test cases:   26 |   25 passed |  1 failed\nassertions: 2874 | 2862 passed | 12 failed",
+    "test cases:   26 |   25 passed |  1 failed\nassertions: 3020 | 3008 passed | 12 failed",
+    "test cases:   26 |   25 passed |  1 failed\nassertions: 2685 | 2673 passed | 12 failed",
+    "test cases:   26 |   25 passed |  1 failed\nassertions: 3678 | 3666 passed | 12 failed"
+  ],
+  "failure": "Current-nodal import accepts differing nonempty affine declaration versions across ranks. Empty declaration presence mismatch is already rejected. Existing complete-byte agreement is only called by Coverage, skipped for current nodal fields.",
+  "resolution": "Extract/reuse complete-byte geometry declaration agreement in the common import path, independently of metric/source-envelope mode; retain memory admission, collective alignment and unchanged-output refusal. Do not restore eager envelopes.",
+  "evidence": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T194237_1439234/pins.json": "30f4d08f0e27fbbc845ccba4846cb7a16f5683b6a19f02125503ea39d8d87275",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T194237_1439234/status.json": "3f1a90dc8cdea031862b348ccc700adb58ab7f531fb44f197602b1e0962cdd61",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T194237_1439234/command.json": "c2613f90c286b0a47890ee57f14c25638809215a0a8cd97c3a13914cc0aadfc7",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/failure_capture_mpi6_20261106T194237_1439234/run.log": "29b820fa9f12c7533986307f7e041260242ca00beb65c944ae87beba781ba147"
+  }
+}

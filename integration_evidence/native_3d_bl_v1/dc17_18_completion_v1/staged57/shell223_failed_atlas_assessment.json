@@ -1,0 +1,35 @@
+{
+  "scope": "Preserved broader serial qualification failure; not a passing campaign",
+  "build": "build223",
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/atlas_checks_20261106T192209_1392017",
+  "status": {
+    "state": "terminal",
+    "exit_code": 14,
+    "seconds": 232.59670686721802,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 63123456,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "test_cases": 88,
+  "passed_test_cases": 86,
+  "failed_test_cases": 2,
+  "assertions": 30315,
+  "failed_assertions": 14,
+  "failing_tests": [
+    "Joint affine import freezes a conforming owner-sourced shell through N/M migration",
+    "Joint source rejects a narrow disconnected gap without publishing its shell"
+  ],
+  "source_hashes": {
+    "Common/src/adaptation/CNativeImport3D.cpp": "540124489002adc2af0136d00065654a948a66098618831d9e795fe596fc9e12",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "07be831584e7cd3d3ac25528c98ac4eaadd38e9a231c730877e8cd61ed85a5f6"
+  },
+  "evidence": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/atlas_checks_20261106T192209_1392017/pins.json": "74828bcfdff1d881720b8367d1011490902bff859180c037e430d9c1650c7dc6",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/atlas_checks_20261106T192209_1392017/status.json": "50a37f47c1533c4ed142a92368fbfc1a10aa4096f94c5642cf23596f8b3b34c1",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/atlas_checks_20261106T192209_1392017/command.json": "e31ec7ea0ad84dd4c8f69429d5c0685a04dee8b7152e718e69402f2769bdcf3f",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/atlas_checks_20261106T192209_1392017/run.log": "fc51192190146e64651e338226eea905900d38d42fc566f8842d41eab0e39d52"
+  },
+  "diagnosis": "Tests expect eager original-source metric envelopes, but all imported rows already carry current nodal tensors and Coverage is skipped. This behavior is present in159a5fe538 and predates223. Import code was not changed by the connected shell fix.",
+  "resolution": "Align tests with current production nodal import: no auxiliary source envelope; preserve owner tensors, original donor fields and CFD/time histories across N/M migration; original separated bodies do not collide merely because an unused hypothetical extension shell would. Do not restore the global envelope or weaken actual geometry/contact gates."
+}

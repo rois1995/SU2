@@ -6387,16 +6387,25 @@ bool MeshOptimizer::ShellBoundary(Id id) {
   if(!std::isfinite(score)){++report.rejected_validity;return false;}
   if(!(Progress(score,OldMerit(shell,debt),debt))){++report.rejected_quality;return false;}
   auto context=geometry.PrivateParameters(fresh);const auto& proposed=context?*context:geometry;
-  std::map<Face,FacetBinding> bindings;
+  std::map<Face,FacetBinding> bindings;bool strict_geometry=true;
   for(const auto& face:fresh.surface) {
     const auto key=Key(face.v);
     if(!physical.count(key) && options.surface_tolerance>0) {
       const std::array<Point,3> p{points.at(face.v[0]),points.at(face.v[1]),points.at(face.v[2])};
       if(!(proposed.SurfaceErrorForValidatedFace(face.facet,p)<=options.surface_tolerance)) {
-        ++report.rejected_interface;return false;
+        strict_geometry=false;
       }
     }
     bindings.emplace(key,FacetBinding{true,face.facet});
+  }
+  if(!strict_geometry) {
+    if(GetShapeAdmission()!=ShapeAdmission::ValidityOnly){++report.rejected_interface;return false;}
+    // As for boundary smoothing, a useful intermediate may retain non-increasing geometry debt.
+    const auto before=GeometryGuidanceExcess(old,geometry,options.surface_tolerance);
+    const auto after=GeometryGuidanceExcess(fresh,proposed,options.surface_tolerance,before.excess);
+    if(!before.complete || !after.complete || !std::isfinite(after.excess) || after.excess>before.excess) {
+      ++report.rejected_interface;return false;
+    }
   }
   Commit(shell,fresh.cells,UINT64_MAX,bindings);
   for(const auto& p:fresh.parameters)report.parameters.insert_or_assign(p.first,p.second);

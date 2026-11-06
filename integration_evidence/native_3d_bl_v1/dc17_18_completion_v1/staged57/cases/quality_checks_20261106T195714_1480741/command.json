@@ -1,0 +1,27 @@
+{
+  "build": "build225",
+  "case": "quality_checks",
+  "ranks": 1,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "600",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeOptimize3D],[NativeHeightOptimization3D],[NativeCoarsenQualityReturn3D],[NativeStageProgress3D]",
+    "--durations",
+    "yes"
+  ],
+  "environment": {
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMPI_MCA_osc": "pt2pt",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/shell225_serial__9owzxk6",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "timeout_seconds": 600
+}

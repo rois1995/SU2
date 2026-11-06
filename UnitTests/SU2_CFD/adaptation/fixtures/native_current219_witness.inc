@@ -189,15 +189,21 @@ static void CapturedCurrentResidual(bool compound) {
          <<",\"upper_calls\":"<<stats1.upper_calls-stats0.upper_calls<<",\"traversal_work\":"<<stats1.traversal_work-stats0.traversal_work
          <<",\"requested_heights\":0,\"nonlocal_contact_and_publication_checked\":false,\"accepted_mesh\":false}\n";log.flush();
       CHECK_FALSE(budget.work_exhausted);CHECK(budget.geometry_failure.empty());
+      return metric_valid && replacement && interface_valid && after.q_bad_cells<=before.q_bad_cells &&
+          after.j_bad_cells<=before.j_bad_cells && (after.q_bad_cells<before.q_bad_cells || after.j_bad_cells<before.j_bad_cells) &&
+          new_geometry.excess<=old_geometry.excess;
     };
     auto subset=[&](Id a,Id b){Owned out;for(const auto& row:owned)
       if(std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return n.id==a||n.id==b;}))out.insert(row);
       if(a==b)REQUIRE(out.size()==expected_stars.at(a));return out;};
-    if(!compound)for(const auto& vertex:owned.at(test.second).cell.v) {
+    bool useful_star=false;
+    for(const auto& vertex:owned.at(test.second).cell.v) {
       auto local=subset(vertex.id,vertex.id);std::set<Id> retired;for(const auto& row:local)retired.insert(row.first);
-      auto seed=patch_from(local);scope->ExportParameters(seed);assess(local,retired,seed,seed,vertex.id,"original_star");
+      auto seed=patch_from(local);scope->ExportParameters(seed);
+      useful_star=assess(local,retired,seed,seed,vertex.id,"original_star")||useful_star;
     }
-    else for(const auto& removed:owned.at(test.second).cell.v)for(const auto& retained:owned.at(test.second).cell.v) {
+    if(compound && test.second==224633219)CHECK(useful_star);
+    if(compound)for(const auto& removed:owned.at(test.second).cell.v)for(const auto& retained:owned.at(test.second).cell.v) {
       if(removed.id==retained.id)continue;
       auto removed_rows=subset(removed.id,removed.id);auto old=patch_from(removed_rows);scope->ExportParameters(old);
       Patch fresh;std::string why;
@@ -227,7 +233,9 @@ static void CapturedCurrentResidual(bool compound) {
     if(compound) {
       const auto& core=owned.at(test.second);std::vector<unsigned> faces;
       for(unsigned slot=0;slot<4;++slot)if(core.physical[slot].present)faces.push_back(slot);
-      REQUIRE(faces.size()==2);const Id a=core.cell.v[faces[0]].id,b=core.cell.v[faces[1]].id;
+      REQUIRE(faces.size()==2);
+      REQUIRE(state->Entity(core.physical[faces[0]].facet)==state->Entity(core.physical[faces[1]].facet));
+      const Id a=core.cell.v[faces[0]].id,b=core.cell.v[faces[1]].id;
       Owned shell;
       for(const auto& row:owned){bool has_a=false,has_b=false;for(Node n:row.second.cell.v){has_a=has_a||n.id==a;has_b=has_b||n.id==b;}
         if(has_a&&has_b)shell.insert(row);}

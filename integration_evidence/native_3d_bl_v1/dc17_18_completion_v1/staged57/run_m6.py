@@ -358,7 +358,7 @@ def main():
             "argv": argv,
             "environment": {key: value for key, value in env.items()
                             if key.startswith(("SU2_NATIVE_", "OMPI_")) or
-                            key in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS")},
+                            key in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "TMPDIR")},
             "config_sha256": sha(attempt / "run.cfg"),
             "input_manifest": str(INPUTS), "runtime_manifest": str(RUNTIME),
         })

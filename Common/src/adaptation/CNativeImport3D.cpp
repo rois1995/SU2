@@ -796,15 +796,15 @@ PrimitiveKey Primitive(const AnalyticSurface& g) {
  * Bump columns copy nodal tensors vertically; spherical frusta copy them radially. Original P1 has priority.
  * Capped cylinders use one shared radial/axial collar map, including disk faces and rim identities.
  * Sorted source IDs choose compatible prism diagonals; component tags still control later association. */
-bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,const PlanarReference& reference,
-              double geometry_tolerance,size_t live,size_t ceiling,BridgeStats& stats,std::string& reason,double maximum_seconds,
-              bool exact_audit=true) {
+bool CheckGeometryDeclarations(World& world,const PlanarReference& reference,size_t live,size_t ceiling,
+    BridgeStats& stats,std::string& reason) {
   if(reference.Analytic().empty() && reference.Affine().empty() && !reference.Mapped())return true;
-  // Agree on source policy before any analytic/affine branch or geometry collective.
+  // Geometry authority agreement is independent of current nodal metric/source coverage.
   // Complete bytes, not a hash, cover identities, versions, definitions and finite-facet assignments.
   const auto declaration_started=world.seconds();CLocalFailure declarations_failed;
-  const auto declaration_bound=transfer_memory::Add(128,transfer_memory::Mul(128,
+  const auto local_bound=transfer_memory::Add(128,transfer_memory::Mul(128,
       transfer_memory::Add(reference.Analytic().size(),reference.Affine().size())),reference.Mapped()?reference.Parameters()->SnapshotBytes():0);
+  const auto declaration_bound=CPassiveComm::Allreduce(uint64_t(local_bound),CPassiveComm::Op::MAX,world.comm);
   if(!Admit(world,transfer_memory::Add(live,transfer_memory::Mul(4,declaration_bound),
       transfer_memory::TransportBytes(world.size)),ceiling,stats,reason))return false;
   std::vector<char> declarations;
@@ -824,7 +824,12 @@ bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,con
   if(declarations!=expected)declarations_failed.Set(1,0,"Original-source geometry declarations differ across ranks.");
   const bool consistent=Vote(world,declarations_failed,reason);
   stats.source_envelope_seconds+=world.seconds()-declaration_started;
-  if(!consistent)return false;
+  return consistent;
+}
+bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,const PlanarReference& reference,
+              double geometry_tolerance,size_t live,size_t ceiling,BridgeStats& stats,std::string& reason,double maximum_seconds,
+              bool exact_audit=true) {
+  if(reference.Analytic().empty() && reference.Affine().empty() && !reference.Mapped())return true;
   if(reference.Mapped())return JointAffineCoverage(world,cells,source,reference,maximum_seconds,live,ceiling,stats,reason,exact_audit);
   if(reference.Analytic().empty())return AffineCoverage(world,cells,source,reference,live,ceiling,stats,reason,maximum_seconds);
   CLocalFailure failure;
@@ -1283,6 +1288,8 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
     CLocalFailure declaration_failure;
     try {CheckDeclaredSymmetry(authority,declared_planes);}catch(const std::exception& e){declaration_failure.Set(1,0,e.what());}
     if(!Vote(parent,declaration_failure,reason))return false;
+    if(!CheckGeometryDeclarations(parent,*authority.original,
+        transfer_memory::Add(reference_base,state.original?0:ReferenceStorageBytes(pending)),ceiling,stats,reason))return false;
     if (!Admit(parent, transfer_memory::Add(reference_base,
                    state.original ? 0 : ReferenceStorageBytes(pending), authority.original->SearchWorkspaceBytes(),
                    transfer_memory::Mul(names.size(),sizeof(size_t))),

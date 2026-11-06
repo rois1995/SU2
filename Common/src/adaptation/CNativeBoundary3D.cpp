@@ -3062,7 +3062,10 @@ bool ShellBoundaryCell(const Patch& old, Id cell, Id first, const PlanarReferenc
     std::vector<SurfaceFace> retired;
     for(const auto& row:physical)if(std::all_of(row.second.v.begin(),row.second.v.end(),[&](Id id){
       return std::any_of(found->v.begin(),found->v.end(),[&](Node n){return n.id==id;});}))retired.push_back(row.second);
-    if(retired.size()!=2 || retired[0].facet!=retired[1].facet)
+    const auto* parameters=reference.Parameters();
+    if(retired.size()!=2 || (retired[0].facet!=retired[1].facet &&
+        !(reference.EntityGeometry() && parameters &&
+          parameters->Entity(retired[0].facet)==parameters->Entity(retired[1].facet))))
       throw std::invalid_argument("Boundary shelling requires two faces on one original surface entity.");
     Edge removed{},diagonal{};size_t nr=0,nd=0;
     for(const auto& n:found->v) {

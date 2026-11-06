@@ -479,3 +479,15 @@ Revisit current residual cavities only if the corrected-target run demonstrates
 that blocker. Old217last complete window is71q/39J/2223geometry-bad; incomplete
 EXIT zeros are not closure. Independent metric assessments choose correctedL1;
 L2corner-demand tradeoff is measured, not selected or universally rejected.
+
+
+2026-11-06 after225qualification (DEFERRED until full225outcome): current midspan
+cell218068745 remains a bounded coupled surface/volume obstruction. Existing
+6-cell shell can retire shape failures but INCREASES certified weighted geometry
+excess, so refusal remains. If this mechanism survives the full attempt, test one
+coupled placement/connectivity hypothesis with existing facilities and complete
+neighbor/feature/geometry/height admission; no larger cavity/new representation is
+justified now. Existing root shell could also motivate candidate ordering only if
+full-run counters show futile original-star smoothing dominates. Neither change,
+new motion/slack cache nor extra envelope is active; first measure net whole-field
+progress from225. Construction quality-aware policies remain unproved/deferred.

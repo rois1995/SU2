@@ -28,7 +28,7 @@ CASES = {
     "failure_capture_mpi6": (6, "[NativeFailureCapture3D],[NativeRejectedState3D],[NativeStageProgress3D],"
                               "[NativePhaseOwnership3D],[NativeRepairBatch3D],[NativeGeometryReturn3D],"
                               "[NativeHeightOptimization3D],[NativeCurvedTransaction3D],[NativeFeaturePublication3D],"
-                              "[NativeConcurrentComposed3D],[NativeConcurrentRepair3D],[NativeDefault3D]"),
+                              "[NativeConcurrentComposed3D],[NativeConcurrentRepair3D],[NativeDefault3D],[NativeJointAffineSource3D]"),
     "nodal_metric": (1, "[NativeMesh3D],[NativeDistributed3D],[NativeBridge3D],[NativeReassessment3D],[NativeCurrentNormalization3D],[NativeMetricFamily3D],[NativeBLTargetNormalization]"),
     "nodal_metric6": (6, "[NativeMesh3D],[NativeDistributed3D],[NativeBridge3D],[NativeReassessment3D],[NativeCurrentNormalization3D],[NativeMetricFamily3D],[NativeBLTargetNormalization]"),
     "m6_stage": (6, "[NativeFrozenVolume3D]"),
@@ -299,6 +299,9 @@ def main():
         save(attempt / "pins.json", pins)
         env = os.environ.copy()
         env.update(OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1")
+        env.setdefault("TMPDIR", str(REPO / "integration_evidence/build-integrated-v2/compile-tmp"))
+        if not Path(env["TMPDIR"]).is_dir():
+            raise RuntimeError("validation scratch directory is missing: " + env["TMPDIR"])
         env.update(stage_environment)
         if case == "allworker6":
             env["SU2_NATIVE_MAPPED_ALL_WORKERS"] = "1"
@@ -311,7 +314,7 @@ def main():
             "build": build, "case": case, "ranks": ranks, "argv": argv,
             "environment": {key: value for key, value in env.items()
                             if key.startswith(("SU2_NATIVE_", "OMPI_")) or
-                            key in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS")},
+                            key in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "TMPDIR")},
             "timeout_seconds": timeout_seconds,
         })
         largest_sampled_rss = 0

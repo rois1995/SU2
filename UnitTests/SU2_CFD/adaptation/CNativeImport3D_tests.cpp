@@ -1075,7 +1075,7 @@ void JointSourceReference(ReferenceState& state,bool gap,double error=1e-13) {
   REQUIRE(affine.size()>2);state.original=std::make_shared<PlanarReference>(state.facets,SIZE_MAX,std::map<Id,AnalyticSurface>{},affine);
 }
 }
-TEST_CASE("Joint affine import freezes a conforming owner-sourced shell through N/M migration", "[NativeJointAffineSource3D]") {
+TEST_CASE("Joint affine import preserves current nodal sensors and donor fields through N/M migration", "[NativeJointAffineSource3D]") {
   World parent;const bool rans=GENERATE(false,true);const int workers=GENERATE(1,2,4);if(workers>parent.size)return;
   auto config=JointSourceConfig(rans);
   MeshSolution mesh(config.get(),JointSourceMesh(false),0);const auto field=AffineFlow(3);
@@ -1091,28 +1091,22 @@ TEST_CASE("Joint affine import freezes a conforming owner-sourced shell through 
   for(size_t p=0;p<metric.rows();++p){const auto m=Sensor(mesh.Fine().nodes->GetCoord(p),4);const std::array<double,6> row{m.xx,m.xy,m.xz,m.yy,m.yz,m.zz};for(unsigned k=0;k<6;++k)metric(p,k)=row[k];}
   const auto plain=ImportGeometry(*config,mesh.Fine(),&metric,state);JointSourceReference(state,false);
   const auto encoded=EncodeReference(state);const auto imported=ImportGeometry(*config,mesh.Fine(),&metric,state);
-  CHECK(imported.stats.source_envelope_nodes==8);CHECK(imported.stats.source_envelope_cells==3*state.facets.size());
-  CHECK(imported.stats.source_envelope_solves>0);CHECK(imported.stats.source_envelope_contacts>0);CHECK(imported.stats.source_envelope_distances>0);
-  const auto span=OriginalSourceNodeSpan(parent,imported.original);const auto global=parent.metadata(imported.original);std::map<Id,Node> old,outer;
-  std::map<Id,Tensor> sensors;
-  for(const auto& d:global)if(d.extension_component==UINT64_MAX)for(unsigned k=0;k<4;++k){old.emplace(d.cell.v[k].id,d.cell.v[k]);sensors.emplace(d.cell.v[k].id,d.sensor[k]);}
-  for(const auto& d:global)if(d.extension_component!=UINT64_MAX)for(unsigned k=0;k<4;++k) {
-    const auto n=d.cell.v[k];const auto id=n.id%span;REQUIRE(sensors.count(id));
-    CHECK(Bytes(std::vector<Tensor>{d.sensor[k]})==Bytes(std::vector<Tensor>{sensors.at(id)}));
-    if(n.id>=span)outer.emplace(id,n);
-  }
-  REQUIRE(old.size()==8);REQUIRE(outer.size()==8);
-  std::set<Id> first,second;
-  for(const auto& f:state.facets)if(state.original->Affine().count(f.id))for(auto n:f.v)
-    (state.original->Affine().at(f.id).identity==17?first:second).insert(n.id);
-  std::vector<Id> junction;std::set_intersection(first.begin(),first.end(),second.begin(),second.end(),std::back_inserter(junction));
-  REQUIRE_FALSE(junction.empty());const auto corner=old.at(junction.front()).p;const auto out=outer.at(junction.front()).p;
-  const Point q{double((long double)corner.x+((long double)out.x-corner.x)/32),
-                double((long double)corner.y+((long double)out.y-corner.y)/32),
-                double((long double)corner.z+((long double)out.z-corner.z)/32)};
+  CHECK(imported.stats.source_envelope_nodes==0);CHECK(imported.stats.source_envelope_cells==0);
+  CHECK(imported.stats.source_envelope_solves==0);CHECK(imported.stats.source_envelope_contacts==0);CHECK(imported.stats.source_envelope_distances==0);
+  CHECK(Bytes(imported.original)==Bytes(plain.original));
+  const auto global=parent.metadata(imported.original);std::map<Id,Tensor> sensors;
+  for(const auto& d:global){REQUIRE(d.extension_component==UINT64_MAX);
+    for(unsigned k=0;k<4;++k){const auto n=d.cell.v[k];const su2double coordinates[]{n.p.x,n.p.y,n.p.z};
+      const auto expected=Sensor(coordinates,4);
+      CHECK(Bytes(std::vector<Tensor>{d.sensor[k]})==Bytes(std::vector<Tensor>{expected}));sensors.emplace(n.id,d.sensor[k]);}}
+  REQUIRE(sensors.size()==8);
+  std::vector<OwnedCell> local_rows;for(const auto& row:imported.cells)local_rows.push_back(row.second);
+  std::map<Id,std::vector<char>> saved_rows;
+  for(const auto& row:parent.metadata(local_rows)){REQUIRE(row.sensor_present);REQUIRE(saved_rows.emplace(row.cell.id,Bytes(std::vector<OwnedCell>{row})).second);}
+  const auto q=SourceFrame({.75,.75,.75});
   const auto inside=SourceFrame({.25,.25,.25});DonorImport service(parent,true);std::string reason;REQUIRE(service.Build(imported.original,reason));
   const auto sample=service.SamplePoints({q,inside},state.original->ExtensionComponents());INFO(sample.reason);REQUIRE(sample.valid);
-  REQUIRE(sample.samples.size()==2);CHECK(sample.samples[0].extension_component!=UINT64_MAX);CHECK(sample.samples[1].extension_component==UINT64_MAX);
+  REQUIRE(sample.samples.size()==2);CHECK(sample.samples[0].extension_component==UINT64_MAX);CHECK(sample.samples[1].extension_component==UINT64_MAX);
   FrozenField frozen(global,{},false,AssociatedExtensions(global,*state.original)),original(global);
   const auto a=frozen.Query(inside),b=original.Query(inside);CHECK(a.donor==b.donor);CHECK(a.weights==b.weights);
   CHECK(Bytes(std::vector<Tensor>{a.sensor})==Bytes(std::vector<Tensor>{b.sensor}));
@@ -1122,6 +1116,8 @@ TEST_CASE("Joint affine import freezes a conforming owner-sourced shell through 
   CHECK(calls==2);CHECK(composed.Statistics().hits==1);
   auto working=imported.cells;std::map<Id,int> destinations;PartitionStats partition;
   REQUIRE(Repartition(parent,working,std::vector<uint32_t>(working.size(),1),workers,partition,reason));
+  for(const auto& row:working)CHECK(Bytes(std::vector<OwnedCell>{row.second})==saved_rows.at(row.first));
+  CHECK(parent.sum(working.size())==saved_rows.size());
   size_t position=0;for(const auto& row:imported.cells)destinations.emplace(row.first,partition.destinations.at(position++));
   std::vector<std::vector<DonorCell>> send(parent.size);
   for(auto d:imported.original)send[destinations.at(d.extension_component==UINT64_MAX?d.cell.id:d.parent_cell)].push_back(d);
@@ -1161,13 +1157,16 @@ TEST_CASE("Joint affine import freezes a conforming owner-sourced shell through 
        <<",\"nodes\":"<<b.source_envelope_nodes<<",\"cells\":"<<b.source_envelope_cells<<",\"column_work\":"<<b.source_envelope_solves
        <<",\"contacts\":"<<b.source_envelope_contacts<<",\"distances\":"<<b.source_envelope_distances<<"}\n";CHECK(out.good());}
 }
-TEST_CASE("Joint source rejects a narrow disconnected gap without publishing its shell", "[NativeJointAffineSource3D]") {
+TEST_CASE("Current nodal affine import keeps separated bodies without generating a global shell", "[NativeJointAffineSource3D]") {
   World world;auto config=JointSourceConfig(false);
   MeshSolution mesh(config.get(),JointSourceMesh(true),0);const auto saved=State(mesh);ReferenceState state;
   const auto plain=ImportGeometry(*config,mesh.Fine(),nullptr,state);JointSourceReference(state,true,1e-3);
   const auto encoded=EncodeReference(state);auto retained=plain;const auto before=Bytes(retained.original);BridgeStats attempted;std::string reason;
-  CHECK_FALSE(ImportGeometry(*config,mesh.Fine(),nullptr,state,retained,reason,attempted,size_t(128)<<20));
-  INFO(reason);CHECK(reason.find("joint original-source contact")!=std::string::npos);
+  REQUIRE(ImportGeometry(*config,mesh.Fine(),nullptr,state,retained,reason,attempted,size_t(128)<<20));
+  CHECK(reason.empty());CHECK(attempted.source_envelope_nodes==0);CHECK(attempted.source_envelope_cells==0);
+  for(const auto& row:retained.cells){REQUIRE(row.second.sensor_present);
+    for(const auto& tensor:row.second.sensor)CHECK(Bytes(std::vector<Tensor>{tensor})==Bytes(std::vector<Tensor>{{1,0,0,1,0,1}}));}
+  for(const auto& donor:retained.original)CHECK(donor.extension_component==UINT64_MAX);
   CHECK(Bytes(retained.original)==before);CHECK(EncodeReference(state)==encoded);CHECK(State(mesh)==saved);
 }
 

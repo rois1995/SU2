@@ -209,3 +209,37 @@ construction unchanged. This reuses existing quality-stage semantics; no new
 scheduler/operator/config or geometry representation. Qualify affected serial
 behavior, actual current candidates and ONE MPI milestone, then full two-event
 same-seed corrected-L1M6. Passing this local diagnostic is not completion.
+
+## Qualified225 integration; return to full M6
+
+R/shell225_qualification.json records116serial cases/75941assertions and26MPI6
+cases on each rank PASS, all1302build pins unchanged. Production scope is the two
+shell-admission guards above plus a common import provenance check discovered by
+that MPI milestone. Existing full-byte affine/analytic/mapped declaration agreement
+had lived only inside skipped source-envelope Coverage: current-nodal ranks could
+disagree about nonempty affine versions. The checker is now called before metric
+coverage branching, with a global maximum serialized size admitted before broadcast.
+This adds no slot collective or source envelope. Failed attempts are preserved;
+all affected groups were rerun successfully. Old eager-envelope fixture expectations
+were aligned with current nodal transport, retaining exact N/M row/tensor/donor/
+CFD-history checks. Missing validation TMPDIR was fixed in the harness/provenance.
+
+On the final225actual regression, root2of4stars progress; best complete context
+q5→3/J3→2/geometry8→6. Midspan shell now constructs, but weighted guidance rises
+9.2149352e-12→2.9332610e-10 despite q6→5/J2→1/geometry5→4. Optimizer refusal is
+CORRECT; neither fewer bad cells nor semantic facet equivalence permits geometry
+regression. No midspan displacement/extra-cavity correction is selected now.
+
+All final gates, validity-first construction, geometry query identity/invalidation,
+requested heights, oldest fairness, rejected-star invalidation, full-vertex-disjoint
+reservation, dependency/publication, ownership phase modes and budgets remain.
+Full feature publication is authoritative: a private candidate may need refusal
+there even if local geometry constructs. Existing nonseparating feature/curved/
+body/hole/resource and MPI publication checks are included in qualification.
+
+Next is the complete two-event M6, same saved real CFD seed/correctedL1/50k/
+5400native/14400outer. The first full coupled-boundary attempt is selected for
+actual rejected mesh+metric inspection because leading-edge before/after data is
+useful; no intermediate candidate mesh output. Compare whole-field q/J-bad net
+removal/s and geometry-bad at matching quality times. No claimed all-field speedup,
+accepted mesh, conservative transfer, continued adapted CFD or disk restart yet.

@@ -27,9 +27,17 @@ This corrected-target attempt has now supplied actual residuals. Most remaining
 q-bad cells have no physical face; boundary certification is expensive. Current
 bounded existing-operator witness tests compare complete neighboring q/J/geometry/
 size effects on leading edge, blocked midspan, feature tip and an interior control.
-These distinguish placement, constraints, connectivity and certification before a
-new production correction is selected. Context unions67/91cells do not enlarge
-active operator supports: all selected core vertex stars are8–42cells.
+These distinguish placement, constraints, connectivity and certification. The
+existing root4-cell shell was useful but suppressed by an extra strict-new-face
+veto; the selected connected fix reuses exact entity identity across released seams
+and non-increasing whole-ring geometry guidance in validity-only quality repair.
+Actual223regression enables2of4root stars (best q5→3/J3→2/geometry8→6). Midspan
+shell can now construct but is correctly refused for increased geometry excess.
+The connected225milestone is qualified (116serial cases;26MPI6cases per rank),
+including a demonstrated geometry-version provenance fix in common import. Full
+same-seed two-event M6 is next; HANDOFF_Codex.md has the authoritative run state.
+Context unions67/91cells do not enlarge active operator supports: selected core
+vertex stars remain8–42cells.
 Old218diagnostic remains deferred/unexecuted; preserve its unrelated local edits.
 There are still zero accepted adapted meshes and no adapted transfer/restart proof.
 
