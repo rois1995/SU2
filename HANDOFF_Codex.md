@@ -14,7 +14,7 @@ sources, fixtures, helpers, binary/config/inputs through each run. Verify actual
 owned handle terminal before edits/restarts. Preserve failures; authorized stop/
 fix/retry for demonstrated failures, clear bottlenecks or actual resource pressure.
 
-## ACTIVE227: frozen full M6, complete construction and quality entry
+## ACTIVE227: frozen full M6, eight quality windows
 
 Source checkpoint bd653aa58f PUSHED; live provenance636e1360c4 PUSHED. One connected
 geometry cycle: existing rigorous sample witness upper<=query tolerance returns
@@ -36,9 +36,10 @@ correctedL1/50000,2events,native5400/outer14400. All C++/fixtures/helpers/binary
 config/inputs FROZEN. Exact host handles: A227/startup_verification.json,
 helper1929640/start4972961,time1929996/start4973666,timeout1929997/start4973666,
 mpirun1929998/start4973666,rank PIDs1930001..1930006. No stop justified.
-Last host observation1794006215: ALL10identities LIVE/1519pins unchanged;
-sampled sumRSS10.095GB(decimal), not physicalRAM/whole-job peak. Memory PSI
-avg60.34% is a small observed transient, not evidence of insufficient RAM.
+Quality-entry host snapshot1794006215: ALL10identities LIVE/1519pins unchanged;
+sampled sumRSS10.095GB(decimal), not physicalRAM/whole-job peak. Small memory PSI
+transient avg60.34% did not establish insufficient RAM. Latest host check1794007481:
+ALL10identities LIVE/1519pins unchanged,sumRSS10.465GB, memory PSI0.
 A227/quality_entry_resources.json is immutable; latest_owned_observation.json updates.
 No terminal inference from quiet logs/timeouts; host /proc required, sandbox PID
 namespace differs. Historical225/219/217/210handles must never be signaled again.
@@ -59,13 +60,28 @@ code timing claim. A227/construction_comparison225.json records all matching gro
 COMPLETE quality entry34594 at775.819046native seconds (2251584.159718):
 871607cells/102058q-bad/101860J-bad/1997geometry-bad/0size-bad; all measurement flags1.
 Counts/flags/per-rank q/Jdebt EXACT225. A227/quality_entry_assessment.json.
-First complete quality window34624:874801cells/100036q/99863J/1991geometry/0size.
-Counts/flags,1170commits and churn EXACT225:31647q retired/29625introduced,
-net2022q/1997J/6geometry removed. Quality112.763195s vs225124.113013s;
-netq17.9314vs16.2916/s(+10.1%); traversal66370834→59277782(-10.7%). Boundary
-private work118.356→107.106rank-s; interior3.111→3.117rank-s, moves/debt same.
-Join-call wall share48.45%vs48.19% is NOT CPU-idle share; timers overlap.
-A227/first_quality_comparison225.json. Host effects remain; no repair-yield gain.
+Latest COMPLETE eighth quality window35072 at2060.838778native seconds:
+918982cells/69204q-bad/68918J-bad/1899geometry-bad/0size-bad; all flags1.
+All8matching-round whole-field counts/flags, commits and churn match225. Net from
+entry32854q/32942J/98geometry removed in1285.019732quality seconds (2251742.160736).
+Observed netq25.5669vs18.8582/s(+35.6%), NOT an isolated source timing claim.
+Counted QUALITY traversal687999677→580219284(-15.7%); query/preparation counts same.
+17536commits and netq1.8735/commit unchanged. Gross qretired306998/introduced274144;
+this high churn remains a repair-yield risk, not a proved next blocker before outcome.
+Boundary private rank-s1255.407→965.292; interior69.278→59.092, moves/debt same.
+Join-call wall share45.60%vs44.54% is NOT CPU-idle share; timers overlap/host effects.
+Nearest measured quality times1285.020vs2251300.344(-15.324s): new69204q/68918J/
+1899geometry vs22578335q/78054J/1907geometry. Explicit unequal census times; no
+interpolated counts or same-time causal claim. A227/quality_comparison225.json.
+Resumable COUNTER-ONLY helper R/compare_quality227.py reads existing log prefixes,
+checks SHA/rank/completeness and cumulative churn==net whole-field q/J changes.
+Run from repo root AFTER refreshing construction_progress_assessment.json from
+complete first-event rank logs; no frozen runtime helper or production code changed.
+Bounded independent review covers first5windows; primary corrected its mixed
+window-only/cumulative wording before checkpoint. R/quality227_metadata_review.json.
+Evidence checkpoint a2bba55357 PUSHED; newer8window/helper/migration receipts local
+pending next push. First in-quality redistribution34752 preserves counts/flags;
+A227/first_quality_redistribution.json. It does not prove every fairness/history key.
 Continue frozen; judge net whole-field q/J-bad removal per QUALITY second alongside
 geometry counts, churn and interior/boundary useful work. No accepted mesh yet.
 After shape closes, residual geometry/size repair must preserve shape/heights;

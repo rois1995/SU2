@@ -134,3 +134,26 @@ preparation work unchanged. Boundary private seconds118.356→107.106; interior
 is not CPU-idle share and cannot be added to overlapping tracked collectives.
 This window establishes counted savings with unchanged yield, not isolated timing
 causality or eventual acceptance. A227/first_quality_comparison225.json.
+
+## Eight complete quality windows
+
+At matching round35072, both225/227 have918982cells/69204q/68918J/1899geometry/0size
+bad, with all measurement flags complete. All8matching-window counts/flags and
+cumulative service commits/churn agree.17536commits, net32854q/32942J/98geometry
+removed. Quality1742.160736→1285.019732s, observed netq18.8582→25.5669/s(+35.6%).
+Counted quality traversal687999677→580219284(-15.7%); calls/preparation unchanged.
+Per-commit netq1.8735unchanged; gross qretired306998/introduced274144 illustrates
+churn. These are counted savings with the same yield; timing is not isolated.
+
+At nearest measured complete quality times1285.020(new) versus1300.344(old), new
+69204q/68918J/1899geometry versus78335q/78054J/1907geometry. The15.324s time gap is
+explicit, with no interpolated counts. Join-call wall share45.60%versus44.54%is not
+CPU idle; overlapping timers must not be added.
+
+R/compare_quality227.py resumes the counter-only comparison from existing first-event
+construction_progress_assessment.json and rank logs. It verifies exact log-prefix
+SHA, rank/completeness, matching rounds and cumulative churn versus whole-field net
+q/J. It records its own hash and does not assess workflow acceptance. No production
+or executing runtime helper changed. R/quality227_metadata_review.json records a
+bounded independent first5window review and the primary's correction of an initially
+mixed window-only/cumulative review description; arithmetic in the helper was correct.

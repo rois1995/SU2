@@ -1,0 +1,41 @@
+{
+  "time": 1794007475.2765212,
+  "scope": "Bounded independent metadata review of first five complete quality windows and first in-quality redistribution; model review is supporting evidence, not workflow correctness proof.",
+  "reviewed_rounds": [
+    34624,
+    34688,
+    34752,
+    34816,
+    34880
+  ],
+  "checks": [
+    "Quality-entry time normalization and exact stage/round matching",
+    "Six rank rows, complete flags, exact saved source-prefix hashes",
+    "Cumulative retired-minus-introduced q/J equals whole-field count reduction",
+    "Round34880 checked against all six actual quality rows in both runs",
+    "Helper SHA equals report and workflow acceptance explicitly unassessed",
+    "Redistribution34752 preserves whole-field counts/flags, with limited fairness claim"
+  ],
+  "timing_limit": "Max-window minus max-entry elapsed may involve different ranks. Compared with rank-paired max differences at first/fifth windows, discrepancy <0.019s in checked examples. Join/busy/tracked collective timers overlap, are not CPU-idle or serial-time shares. Nearest complete quality times are explicitly unequal and not interpolated.",
+  "helper_sha256": "2a3d1c5a2a40088442bc2bb92261d60676792509dc7f6724d0857df06dcda4fa",
+  "primary_review_time": 1794007549.115636,
+  "fifth_window_only_six_rank_sums": {
+    "commits": 2421,
+    "q_retired": 39206,
+    "q_introduced": 34268,
+    "net_q_removed": 4938,
+    "j_retired": 34815,
+    "j_introduced": 29761,
+    "net_j_removed": 5054
+  },
+  "cumulative_through_fifth_window": {
+    "commits": 10590,
+    "q_retired": 215992,
+    "q_introduced": 196663,
+    "net_q_removed": 19329,
+    "j_retired": 192491,
+    "j_introduced": 173063,
+    "net_j_removed": 19428
+  },
+  "review_correction": "The model review initially described fifth-window-only commits alongside cumulative churn. Primary independently read all six actual fifth-window rows in both runs, confirmed the helper is correct, and separated both scopes here before checkpointing. This was a review wording/scope error, not a solver or report arithmetic change."
+}
