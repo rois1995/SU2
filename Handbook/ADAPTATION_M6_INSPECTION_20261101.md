@@ -1,6 +1,42 @@
-# Latest selected M6 inspection: build217
+# Latest selected M6 inspection: build225
 
-Updated2026-11-06. Actual current selected first-event rejected mesh:
+Updated2026-11-06. Actual selected first-event rejected mesh:
+`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build225_entity_shell_real_cfd50k/inspection/`.
+
+- `rejected_mesh.vtu`: COMPLETE193855points/987865tetrahedra, with all193855nodal
+  `captured_nodal_metric` tensors, nine row-major components and availability flags.
+- `rejected_mesh.su2`: same COMPLETE mesh and exact point coordinates, fallback
+  boundary markers Marker_0/1/2. These are visualization/export labels.
+- All full-mesh q/J/geometry measurements complete:24200q-bad/21065J-bad/
+  1784geometry-bad/0size-bad. This is UNAPPROVED; the event rejected its time budget.
+- `bad_cells.vtu`: bounded PARTIAL32768of37353all-gate bad cells,4585omitted.
+- `cavities.vtu`: bounded PARTIAL262144cells,177089neighboring cells omitted.
+- `reference.vtu`: COMPLETE48954facets; exact controls in reference_records.jsonl.
+
+Independent meshio5.3.5 reads all4VTUs/SU2, verifies every array length, full counts,
+finite symmetric positive-definite tensors and exact SU2/VTU point agreement.
+Artifact hashes/read receipts: attempt/inspection_artifacts.json. Export428.700427s,
+reader3.378982s; all solver/export handles terminal. No ParaView GUI qualification.
+The unchanged qualified binary Float64 writer avoids the historical ASCII NaN issue.
+Surface extraction inherits the same3Dtransported nodal field; tangential restriction
+is used for boundary movement. This is not proof of immutable continuous-background
+metric fidelity. No accepted mesh, adapted transfer or disk-restart proof exists.
+
+[Terminal outcome and next analysis](ADAPTATION_BUILD225_OUTCOME_20261106.md).
+This was selected as a substantial coupled-boundary implementation checkpoint;
+ordinary attempts and individual trials are not automatically exported.
+
+## Previous selected corrected-target219
+
+Its complete mesh remains saved in
+`staged57/m6_runs/euler_build219_local_metricL1_real_cfd50k/inspection/`:
+197550points/1011596tets, nodal metric complete;10286q/6872J/1753geometry-bad.
+Full mesh/bad set complete; only its bounded cavity view is partial. That run also
+failed the strict budget; it supplies same-seed correctedL1comparison evidence.
+
+# Historical build217 inspection
+
+Updated2026-11-06. Historical selected first-event rejected mesh:
 `integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build217_real_cfd50k_inspection_metric/inspection/`.
 
 - `rejected_mesh.vtu`: complete159281points/790537tetrahedra, with all nodal target tensors.

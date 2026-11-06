@@ -20,14 +20,20 @@ was natural; the wrapper exit follows the authorized post-failure stop. See
 owned_stop_once.json and terminal_handles.json. Historical219/217/210handles must
 also never be signaled.
 
-Selected export is LIVE exec13387,helper1784558/start4614743,timeout1784681/
-start4615012,Python child1784682/start4615013. Exact argv/cwd/starts are in
-inspection_export_owned_startup.json. This is the sole owned heavy job,nice19,
-libs1,1200s bounded,4TBscratch. Helper SHA028b7184ff25a0b5de1333c1da287c433251f4b52cccb34b05607e8a2f55c76d
-matches the previously qualified exporter. Freeze its helper and30raw inputs until
-terminal. Full VTU/SU2/metric and independent reader checks are still pending.
-The full mesh export is independent of bounded bad-cell/cavity view caps; the
-35731-cell bad union exceeds the32768core cap, so report view omissions explicitly.
+Selected export exec13387TERMINAL0(428.700427s), all3exact owned handles ABSENT,
+helper+30raw input hashes unchanged. Independent reader exec45220TERMINAL0
+(3.378982s),meshio5.3.5: all4VTUs/SU2 readable, correct per-point/per-cell array
+lengths, full tensors finite/symmetric/SPD/available, full q/J/geometry counts exact.
+Actual inspection/rejected_mesh.vtu WITH9component captured_nodal_metric and
+rejected_mesh.su2 contain193855points/987865tets, complete full classifications.
+Full SU2/VTU point coordinates exactly match. No ParaView GUI qualification.
+
+The bounded bad_cells.vtu retains32768of37353all-gate bad cells(4585omitted).
+The q/J-only bad union is35731; geometry adds other cells to the all-gate set.
+Cavities retain262144cells,177089neighbors omitted. Reference48954facets complete.
+Full mesh completeness is independent of these bounded view omissions.
+A225/inspection_artifacts.json and inspection_export_terminal_handles.json preserve
+hashes/read checks/terminal handles. No owned heavy workload remains.
 
 ## What the counters establish
 

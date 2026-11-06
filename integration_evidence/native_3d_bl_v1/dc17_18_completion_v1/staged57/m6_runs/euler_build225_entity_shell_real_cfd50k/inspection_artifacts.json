@@ -1,0 +1,58 @@
+{
+  "time": 1794002247.511376,
+  "reader": "meshio 5.3.5",
+  "accepted": false,
+  "full_mesh_complete": true,
+  "full_classifications_complete": true,
+  "bad_cell_view_complete": false,
+  "bad_cells_omitted": 4585,
+  "cavity_view_complete": false,
+  "cavity_cells_omitted": 177089,
+  "files": {
+    "rejected_mesh.vtu": {
+      "points": 193855,
+      "cells": 987865,
+      "bytes": 138692817,
+      "sha256": "45e530d88b92ec3f368e93db6ef3dc4960eeada6f4a38e2eaac38b4758b2d443",
+      "all_nodal_metrics_finite_symmetric_SPD": true,
+      "q_bad": 24200,
+      "J_bad": 21065,
+      "geometry_bad": 1784
+    },
+    "bad_cells.vtu": {
+      "points": 49400,
+      "cells": 32768,
+      "bytes": 15316295,
+      "sha256": "003b0fb0a3bdf00e699fa7f446acebaac21b1df1a416e655316df1e1f3cf9cfd",
+      "all_nodal_metrics_finite_symmetric_SPD": true
+    },
+    "cavities.vtu": {
+      "points": 76862,
+      "cells": 262144,
+      "bytes": 75402089,
+      "sha256": "57edf85608f81baee99d4af14d87a6d3e79808446bca5940bb68f18827243809",
+      "all_nodal_metrics_finite_symmetric_SPD": true
+    },
+    "reference.vtu": {
+      "points": 24479,
+      "cells": 48954,
+      "bytes": 3834731,
+      "sha256": "f199d5699cc3ff13964785d0c862d4914f96c70f07d0906b734c0c5282a239d8"
+    },
+    "rejected_mesh.su2": {
+      "points": 193855,
+      "tetrahedra": 987865,
+      "bytes": 42322234,
+      "sha256": "8a64d2d37a0ddd9578417cbcefd8e0beacb66934d5976463b7790a7c3ebb574c",
+      "points_exactly_match_vtu": true
+    }
+  },
+  "manifest_sha256": "fbcd376fb2267aa9a3ea9daf4e7220e3620dfab0ab4b8b1fa6fb1d4c12918dac",
+  "capture_ready_sha256": "4af2046aefb7ed97760dafb1461b4ed9ae6bb6c5a7fb32bddf735c63a3e70b00",
+  "helper_sha256": "028b7184ff25a0b5de1333c1da287c433251f4b52cccb34b05607e8a2f55c76d",
+  "limitations": [
+    "No ParaView GUI qualification",
+    "VTU is visualization; final engine geometry gates still failed",
+    "Nodal tensor transport is not a proof of immutable continuous-background fidelity"
+  ]
+}

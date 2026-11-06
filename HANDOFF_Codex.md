@@ -14,7 +14,7 @@ sources, fixtures, helpers, binary/config/inputs through each run. Verify actual
 owned handle terminal before edits/restarts. Preserve failures; authorized stop/
 fix/retry for demonstrated failures, clear bottlenecks or actual resource pressure.
 
-## TERMINAL225: native rejected; selected mesh export LIVE
+## TERMINAL225: rejected; full mesh+metric saved and independently read
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A225=`R/m6_runs/euler_build225_entity_shell_real_cfd50k`.
@@ -26,10 +26,16 @@ first event naturally rejected time budget; wrapper stopped ONCE only after comp
 capture. All10owned solver handles ABSENT/1519pins unchanged: A225/terminal_handles.json.
 SIGTERM ALREADY SENT ONCE to launcher1531290/start4040862; NEVER repeat. Historical
 219/217/210launchers also must never be signaled. Source checkpoint60b32aaf74 PUSHED.
-Selected actual mesh+metric export exec13387 LIVE is the sole heavy workload:
-helper1784558/start4614743,timeout1784681/start4615012,child1784682/start4615013.
-Exact argv/cwd in A225/inspection_export_owned_startup.json. Freeze exporter/helper
-and30raw inputs until terminal; full artifacts/independent reader checks still pending.
+Selected mesh+metric export exec13387TERMINAL0(428.700427s); all3owned export
+handles absent, helper/30raw input hashes unchanged. Reader exec45220TERMINAL0
+(3.378982s). No owned heavy workload. Exact receipts:
+A225/inspection_export_terminal_handles.json and inspection_artifacts.json.
+Actual full A225/inspection/rejected_mesh.vtu WITH9component captured_nodal_metric;
+also rejected_mesh.su2.193855points/987865tets. Independent meshio5.3.5 reads all4VTU
+and SU2 PASS; point tensors all finite/symmetric/SPD/available, q/J/geometry counts
+match terminal exactly. Full mesh/classifications COMPLETE. Bounded bad_cells.vtu
+omits4585of37353all-gate bad cells; cavities.vtu omits177089neighbors. Reference
+complete. No ParaView GUI qualification. Surface extraction inherits the same3Dtensor.
 R/shell225_qualification.json is the complete focused receipt, not workflow proof.
 
 Connected production correction:
@@ -119,13 +125,16 @@ join/collective call seconds are not pure wait/CPU; private debt is not whole-fi
 benefit. OS process_cpu_observations.jsonl includes possible MPI spin, not useful
 work proof. No profiler/new baseline/competing implementation is selected.
 
-Solver owned handles are all ABSENT; owned_stop_once.json proves the one postfailure
-stop. Do not reuse old live-audit commands that report stop_sent=false. Functions
-store m6_225_owned_observe_cmd now verifies terminal solver handles/pins;
+Solver and export owned handles are all ABSENT; owned_stop_once.json proves the
+one solver postfailure stop. Never repeat it. No export stop was sent. Functions
+store m6_225_owned_observe_cmd verifies terminal solver handles/pins;
 m6_225_capture_readiness_cmd reads the sealed receipt and never signals.
-Export13387LIVE, sampled~2.70GB summed RSS; status/resources recorded in A225.
-After export terminal: independently read/count VTUs/SU2, validate metric arrays and
-report bounded bad-cell/cavity omissions. Full raw mesh is complete; export pending.
+Full mesh+metric export and independent reader checks are complete. Original raw
+capture remains complete; bounded bad-cell/cavity view omissions are explicit.
+Next ACTIVE work is analysis first of cheaper geometry certification/boundary trial
+cost using existing facilities and actual evidence, then ONE justified connected
+change/affected validation/full M6. No configuration/gate/budget/construction-policy
+change selected; no certificate-slack/envelope speedup established. See225outcome.
 Judge complete whole-field q/J-bad net removal/s and geometry-bad at matching
 quality times, alongside actual work/busy/wait/rank spread. Timers overlap;
 commits/debt alone do not establish closure. Construction remains validity-first.
