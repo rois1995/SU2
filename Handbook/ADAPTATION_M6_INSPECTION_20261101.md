@@ -179,3 +179,25 @@ Natural failure and pins/handles were preserved before the exact owned-launcher
 stop. All10exact handles are absent and1403pins unchanged; HANDOFF_Codex.md is
 current authority. The selected202mesh remains the inspection artifact. Use the
 terminal counters and existing geometry facilities before selecting another fix.
+
+## Next selected export: captured metric tensors (2026-11-06)
+
+The user requests the metric in the next substantially useful selected rejected
+mesh, not a new mesh dump per attempt. The offline exporter now writes
+`captured_nodal_metric` as nine row-major symmetric tensor components in PointData
+and `captured_nodal_metric_available` as UInt8. Missing captured values are NaN;
+conflicting shared-node tensors fail export instead of being averaged. Full mesh,
+bad-cell and cavity VTUs carry the field. Extracting the surface retains it.
+The existing selected202files have not been rewritten.
+
+This is the **current transported nodal sensor**. Current M6 receipts report
+`full_target=1`, so it is the nodal target for this run. It does not reconstruct
+original continuous-field values or any query-time composition in other modes.
+Surface and volume use the same3Dtensor; permitted surface displacements see its
+tangential restriction. Geometry, body, feature and requested-height checks remain
+separate constraints. No fabricated independent surface metric is exported.
+
+All12offline-export tests PASS, including anisotropic off-diagonal tensor order,
+cross-rank shared-node consistency, missing tensors and existing partial-capture
+behavior. Receipt: `staged57/metric_vtu209_qualification.json`. These files are
+outside live build209pins; all1301frozen build inputs remained unchanged.

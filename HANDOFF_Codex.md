@@ -9,7 +9,7 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current — shared geometry admission correction implemented; build208 qualification starting
+## Current — shared geometry admission correction implemented; fresh build209 live
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 Checkpoint293b8361bf verified on fork2026-11-06; no owned heavy handles live before edits.
@@ -35,9 +35,19 @@ xi=x-y/sqrt(3) in[0,.02), |z|<.08, y[-.01,1.23] contains281/450shape-union,
 1371/2110geometry-bad. Region is a proxy, not association/feature classification;
 no clean-population denominator or construction causation claimed. Two worst
 q witnesses151610623/152331796 are existing saved-face probes whose alternative
-bounds remain above tolerance. Current correction cannot alone explain/repair
-that leading-edge shape tail. Keep this localization within the active cycle;
+bounds remain above tolerance. Current correction has not demonstrated shape repair or closure
+of that leading-edge tail. Keep this localization within the active cycle;
 no competing construction/operator implementation while build is frozen.
+User requests metric field in NEXT selected rejected-mesh VTU. Offline exporter
+(not in build209pins and not used by live build) now writes symmetric9-component
+PointData `captured_nodal_metric` plus UInt8 availability to whole/bad/cavity VTUs.
+Shared known values must agree exactly; absent values are NaN. All12offline tests
+PASS, frozen1301build pins unchanged; R/metric_vtu209_qualification.json.
+Current M6 logs full_target=1, so this is its current nodal target. In composed
+modes it is only the captured sensor, not reconstructed query-time composition
+or original background. Surface extraction inherits same3Dfield; permitted
+surface motion uses its tangent restriction. No separate surface metric invented.
+Existing selected202mesh stays unchanged; no per-attempt dump is requested.
 LAST=`R/m6_runs/euler_build206_real_cfd50k_feature_companion`.
 INSPECT202=`R/m6_runs/euler_build202_real_cfd50k_inspection`.
 Build207 exec83367 TERMINAL0,331.648681s,1298source pins unchanged and targets up
@@ -61,9 +71,9 @@ captured_cavity_20261106T092108_43129 exec76931 TERMINAL0,100.622s,
 38924assertions/1case PASS; all5exact HOST handles ABSENT, pins unchanged.
 Current175-file runtime snapshot covered ldd/MPI modules, but actual maps found
 additional hwloc modules/dependencies. Their observed hashes stayed unchanged
-through exit; expand a NEW versioned runtime snapshot before production qualification.
-The in-use175-file manifest remains preserved. No owned heavy job is live.
-Only diagnostic fixture plus its helper input pin changed:4saved202bad/clean faces,
+through exit; NEW runtime-v2 now includes them before production qualification.
+The historical175-file manifest remains preserved. Build209 is the sole live heavy job.
+Historical build207 changed only the diagnostic fixture/helper input pin:4saved202bad/clean faces,
 recorded direct bounds, existing union query, exact cached/fresh comparisons and
 1,048,576work/query. R/geometry_probe207_assessment.json: one saved bad face
 (cell152256924/facet10699) has direct1.2346577241708644e-4 but existing union
@@ -71,7 +81,7 @@ recorded direct bounds, existing union query, exact cached/fresh comparisons and
 match exactly; all52oldq/J bit-exact. Two other bad faces remain uncertified;
 their union bounds are worse, so retain the better bound. Nearby clean face
 direct7.4427575719935332e-5 should keep its cheap path. No mesh acceptance/speedup.
-Selected connected change: shared ParameterError refines failed direct bounds
+Implemented, not yet qualified in build209: shared ParameterError refines failed direct bounds
 through EXISTING physical union query when budgeted, preserving min of valid
 upper bounds and independent affine maximum. No new cache/config. Runtime-v2
 closure and focused geometry/constraint/resource/MPI validation precede full M6.
@@ -141,10 +151,10 @@ empty queues); final18of466shape-bad blocked,queue4920. Final q139surface/142int
 J220surface/121interior; all466short<.5,not construction causation. Drift16/16supported,
 max4.04324%; immutable continuous target fidelity remains unproved.
 Source review confirms existing reuse/screens; direct single-patch sufficient
-geometry bounds may conservatively refuse. The bounded diagnostic now building reuses selected
-202actual bad/clean faces to compare those bounds with EXISTING rigorous physical
-union queries and cache behavior before selecting ONE connected correction. See
-Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md. No production change yet.
+geometry bounds may conservatively refuse. The terminal207diagnostic reused selected202actual bad/clean faces and
+demonstrated one conservative refusal using EXISTING rigorous physical union
+queries. The selected correction is now in frozen current-host build209. See
+Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md. Production correction unvalidated.
 No new operator,
 cache, scheduler, config option, construction q/J policy or gate relaxation is
 authorized by an unproven idea. Reuse selected202actual cavities/reference before

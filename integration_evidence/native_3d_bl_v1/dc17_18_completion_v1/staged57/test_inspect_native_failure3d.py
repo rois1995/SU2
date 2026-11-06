@@ -16,7 +16,7 @@ assert SPEC and SPEC.loader
 SPEC.loader.exec_module(INSPECT)
 
 
-def _owned_record(cell_id, version, nodes, physical=None):
+def _owned_record(cell_id, version, nodes, physical=None, sensors=None):
     data = bytearray()
     data += struct.pack("<QQ", INSPECT.OWNED_FORMAT, cell_id)
     for node_id, xyz in nodes:
@@ -24,8 +24,9 @@ def _owned_record(cell_id, version, nodes, physical=None):
     data += struct.pack("<Q", version)
     for present, facet_id in (physical or [(False, 0)] * 4):
         data += struct.pack("<QQ", int(present), facet_id)
-    data += struct.pack("<Q", 0)
-    data += struct.pack("<24d", *([0.0] * 24))
+    data += struct.pack("<Q", int(sensors is not None))
+    data += struct.pack("<24d", *([value for node_id, _ in nodes for value in sensors[node_id]]
+                                 if sensors is not None else [0.0] * 24))
     assert len(data) == INSPECT.OWNED_RECORD_BYTES
     return data
 
@@ -52,14 +53,14 @@ def _reference():
 
 def _write_shard(directory, rank, ranks, cells, *, event=7, written_rows=None, working_rows=None,
                  complete=True, reference=None, rejections=None, physical_slots=None, marker_names=None,
-                 owned_complete=None, metrics_complete=None, reference_complete=None, rejections_complete=None):
+                 owned_complete=None, metrics_complete=None, reference_complete=None, rejections_complete=None, sensors=None):
     prefix = f"event{event}_rank{rank}"
     owned_name, metrics_name = prefix + ".owned", prefix + ".metrics.jsonl"
     reference_name, rejections_name = prefix + ".reference.jsonl", prefix + ".rejections.jsonl"
     with (directory / owned_name).open("wb") as stream:
         stream.write(struct.pack("<Q", len(cells)))
         for cell_id, version, nodes, metric in cells:
-            stream.write(_owned_record(cell_id, version, nodes, (physical_slots or {}).get(cell_id)))
+            stream.write(_owned_record(cell_id, version, nodes, (physical_slots or {}).get(cell_id), sensors))
     with (directory / metrics_name).open("w", encoding="utf-8") as stream:
         for cell_id, version, nodes, metric in cells:
             stream.write(json.dumps(metric) + "\n")
@@ -133,6 +134,7 @@ class InspectNativeFailureTests(unittest.TestCase):
         self.assertTrue(result["bad_set_complete"])
         self.assertTrue(result["cavity_complete"])
         self.assertFalse(result["final_mesh_accepted"])
+        self.assertFalse(result["captured_nodal_metric_complete"])
         self.assertTrue(result["final_su2_complete"])
         su2_header = (self.root / "out/rejected_mesh.su2").read_text().splitlines()
         self.assertEqual(su2_header[:3], ["% Unapproved rejected diagnostic mesh; not an accepted restart.",
@@ -155,11 +157,37 @@ class InspectNativeFailureTests(unittest.TestCase):
         self.assertEqual(full_ids, [10, 20, 30])
         full_node_ids = [int(x) for x in full_piece.find("./PointData/DataArray[@Name='global_node_id']").text.split()]
         full_conn = [int(x) for x in full_piece.find("./Cells/DataArray[@Name='connectivity']").text.split()]
+        self.assertEqual(full_piece.find("./PointData/DataArray[@Name='captured_nodal_metric_available']").text.split(), ["0"] * 9)
+        self.assertEqual(full_piece.find("./PointData/DataArray[@Name='captured_nodal_metric']").text.split(), ["nan"] * 81)
         self.assertEqual([full_node_ids[i] for i in full_conn[:8]], [1, 2, 3, 4, 1, 2, 3, 5])
         self.assertEqual(set(full_ids) - {10, 20}, {30})
         records = (self.root / "out/reference_records.jsonl").read_text()
         self.assertIn('"controls"', records)
         self.assertEqual(len(manifests), 4)
+
+    def test_captured_nodal_tensors_keep_shared_identity_and_vtk_order(self):
+        a = [(1, (0., 0., 0.)), (2, (1., 0., 0.)), (3, (0., 1., 0.)), (4, (0., 0., 1.))]
+        b = a[:3] + [(5, (0., 0., -1.))]
+        tensors = {i: (10. + i, .1 * i, .2 * i, 20. + i, .3 * i, 30. + i) for i in range(1, 6)}
+        _write_shard(self.root, 0, 2, [(10, 1, a, _metric(10, 1, a, bad=True))], sensors=tensors)
+        second = _write_shard(self.root, 1, 2, [(20, 1, b, _metric(20, 1, b))], sensors=tensors)
+        result = INSPECT.inspect([str(self.root)], str(self.root / "out"))
+        self.assertTrue(result["captured_nodal_metric_complete"])
+        self.assertEqual(result["captured_nodal_metric_points"], 5)
+        for name in ("rejected_mesh.vtu", "bad_cells.vtu", "cavities.vtu"):
+            piece = ET.parse(self.root / "out" / name).getroot().find("./UnstructuredGrid/Piece")
+            data = piece.find("PointData")
+            self.assertEqual(data.attrib["Tensors"], "captured_nodal_metric")
+            ids = list(map(int, data.find("DataArray[@Name='global_node_id']").text.split()))
+            array = data.find("DataArray[@Name='captured_nodal_metric']")
+            self.assertEqual(array.attrib["NumberOfComponents"], "9")
+            actual = list(map(float, array.text.split()))
+            self.assertEqual(actual, [v for i in ids for v in INSPECT._tensor9(tensors[i])])
+            self.assertEqual(data.find("DataArray[@Name='captured_nodal_metric_available']").text.split(), ["1"] * len(ids))
+        changed = dict(tensors);changed[1] = (99., 0., 0., 99., 0., 99.)
+        _write_shard(self.root, 1, 2, [(20, 1, b, _metric(20, 1, b))], sensors=changed)
+        with self.assertRaisesRegex(INSPECT.InspectionError, "conflicting captured nodal metric"):
+            INSPECT.inspect([str(second), str(self.root / "event7_rank0_manifest.json")], str(self.root / "conflict"))
 
     def test_unknown_metric_is_explicit_nan_and_partial(self):
         xyz = {i: (float(i), 0.0, 0.0) for i in range(1, 5)}

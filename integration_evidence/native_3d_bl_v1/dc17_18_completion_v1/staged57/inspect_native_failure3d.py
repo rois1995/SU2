@@ -351,8 +351,25 @@ def _validate_reference(row: dict[str, Any]) -> tuple[str, Any]:
     raise InspectionError(f"unknown reference record kind: {kind!r}")
 
 
+def _merge_node_metrics(cell: dict[str, Any], values: dict[int, tuple[float, ...]]) -> None:
+    if not cell["sensor_present"]:
+        return
+    for index, node in enumerate(cell["nodes"]):
+        tensor = tuple(cell["sensor"][6 * index:6 * (index + 1)])
+        if values.setdefault(node["id"], tensor) != tensor:
+            raise InspectionError(f"conflicting captured nodal metric for global node {node['id']}")
+
+
+def _tensor9(tensor: tuple[float, ...] | None) -> tuple[Any, ...]:
+    if tensor is None:
+        return ("nan",) * 9
+    xx, xy, xz, yy, yz, zz = tensor
+    return (xx, xy, xz, xy, yy, yz, xz, yz, zz)
+
+
 def _pair_rows(manifest: dict[str, Any], cell_ids: set[int], node_coords: dict[int, tuple[float, float, float]],
-               core: dict[int, dict[str, Any]], counts: dict[str, int]) -> None:
+               core: dict[int, dict[str, Any]], counts: dict[str, int],
+               node_metrics: dict[int, tuple[float, ...]]) -> None:
     files = manifest["_resolved_files"]
     rank = manifest["rank"]
     cap = manifest["_caps"]
@@ -371,6 +388,7 @@ def _pair_rows(manifest: dict[str, Any], cell_ids: set[int], node_coords: dict[i
             raise InspectionError(f"duplicate cell owner/id {cell['id']}")
         cell_ids.add(cell["id"])
         counts["input_rows"] += 1
+        _merge_node_metrics(cell, node_metrics)
         if counts["input_rows"] > MAX_TOTAL_ROWS:
             raise InspectionError("input row count exceeds internal safety cap")
         for node in cell["nodes"]:
@@ -471,6 +489,15 @@ def _write_vtu(path: Path, cells: list[dict[str, Any]], *, reference: bool = Fal
                [c["id"] if reference else c["cell"]["id"] for c in cells])
     point_data = ET.SubElement(piece, "PointData")
     _xml_array(point_data, "global_node_id", "UInt64", [p[0] for p in points])
+    if not reference:
+        node_metrics: dict[int, tuple[float, ...]] = {}
+        for item in cells:
+            _merge_node_metrics(item["cell"], node_metrics)
+        point_data.set("Tensors", "captured_nodal_metric")
+        _xml_array(point_data, "captured_nodal_metric", "Float64",
+                   [x for node_id, _ in points for x in _tensor9(node_metrics.get(node_id))], 9)
+        _xml_array(point_data, "captured_nodal_metric_available", "UInt8",
+                   [int(node_id in node_metrics) for node_id, _ in points])
     cell_data = ET.SubElement(piece, "CellData")
     if reference:
         for name, kind, getter in (
@@ -552,7 +579,8 @@ def _stream_data_array(stream: _CappedText, name: str, vtk_type: str,
 
 
 def _write_full_vtu(path: Path, manifests: list[dict[str, Any]],
-                    node_coords: dict[int, tuple[float, float, float]]) -> int:
+                    node_coords: dict[int, tuple[float, float, float]],
+                    node_metrics: dict[int, tuple[float, ...]]) -> int:
     node_ids = sorted(node_coords)
     point_index = {node_id: index for index, node_id in enumerate(node_ids)}
     total_cells = sum(m["written_rows"] for m in manifests)
@@ -562,8 +590,12 @@ def _write_full_vtu(path: Path, manifests: list[dict[str, Any]],
         stream.write(f'<Piece NumberOfPoints="{len(node_ids)}" NumberOfCells="{total_cells}"><FieldData>')
         _stream_data_array(stream, "visualization_only", "UInt8", iter([1]))
         _stream_data_array(stream, "global_node_ids", "UInt64", iter(node_ids))
-        stream.write('</FieldData><PointData>')
+        stream.write('</FieldData><PointData Tensors="captured_nodal_metric">')
         _stream_data_array(stream, "global_node_id", "UInt64", iter(node_ids))
+        _stream_data_array(stream, "captured_nodal_metric", "Float64",
+                           (x for node_id in node_ids for x in _tensor9(node_metrics.get(node_id))), 9)
+        _stream_data_array(stream, "captured_nodal_metric_available", "UInt8",
+                           (int(node_id in node_metrics) for node_id in node_ids))
         stream.write('</PointData><CellData>')
 
         def cell_values(name: str) -> Iterator[Any]:
@@ -763,6 +795,7 @@ def inspect(inputs: list[str], output: str) -> dict[str, Any]:
 
     cell_ids: set[int] = set()
     node_coords: dict[int, tuple[float, float, float]] = {}
+    node_metrics: dict[int, tuple[float, ...]] = {}
     core: dict[int, dict[str, Any]] = {}
     counts = {"input_rows": 0, "bad_rows_total": 0, "unknown_metric_rows": 0}
     partial_reasons = []
@@ -775,7 +808,7 @@ def inspect(inputs: list[str], output: str) -> dict[str, Any]:
             partial_reasons.append(f"rank {manifest['rank']} metrics source is incomplete")
         if not manifest["reference_complete"]:
             partial_reasons.append(f"rank {manifest['rank']} reference source is incomplete")
-        _pair_rows(manifest, cell_ids, node_coords, core, counts)
+        _pair_rows(manifest, cell_ids, node_coords, core, counts, node_metrics)
     if missing_ranks:
         partial_reasons.append("missing ranks: " + ",".join(missing_ranks))
     if counts["unknown_metric_rows"]:
@@ -833,7 +866,7 @@ def inspect(inputs: list[str], output: str) -> dict[str, Any]:
     full_mesh_complete = False
     full_mesh_error = None
     try:
-        full_mesh_exported_cells = _write_full_vtu(output_path / "rejected_mesh.vtu", manifests, node_coords)
+        full_mesh_exported_cells = _write_full_vtu(output_path / "rejected_mesh.vtu", manifests, node_coords, node_metrics)
         full_mesh_complete = source_complete and full_mesh_exported_cells == counts["input_rows"]
         if not full_mesh_complete:
             partial_reasons.append("rejected_mesh.vtu contains only the available owned source rows")
@@ -887,6 +920,9 @@ def inspect(inputs: list[str], output: str) -> dict[str, Any]:
         "full_mesh_measurements_complete": all(m["metrics_complete"] for m in manifests)
                                                 and counts["unknown_metric_rows"] == 0,
         "full_mesh_error": full_mesh_error,
+        "captured_nodal_metric_points": len(node_metrics),
+        "captured_nodal_metric_complete": len(node_metrics) == len(node_coords),
+        "captured_nodal_metric_semantics": "Current transported nodal sensor tensor; full target only when engine full_target=1. Query-time composition and original frozen background are not reconstructed. Nine row-major symmetric components in PointData; absent tensors are NaN with availability=0. Surface extraction retains this same volume field; no separate surface tensor is fabricated.",
         "reference_facets": len(facets), "reference_features_corners": len(feature_rows),
         "historical_rejections": len(rejections), "rejection_scope": "historical_not_final_state_reason",
         "star_definition": "cells sharing any global node id with a retained bad core cell",

@@ -1,0 +1,17 @@
+{
+  "time": 1793958707.1346195,
+  "scope": "Offline exporter enhancement requested by user; not compiled/pinned/used by live build209. No existing selected mesh is rewritten.",
+  "source_sha256": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py": "727a341f30afb210c5bbb64d38baf1782444f4dda56d95aacf7fe58256b5456d",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/test_inspect_native_failure3d.py": "e5763db5d97413a6c738d02c86c9548ab73e16fa58fa3da4a15dd65c655b1418",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_vtu209_checks.log": "ad9656094174aeff519f167e7818a59866073fab508101f42087a9f51720d089"
+  },
+  "tests": "............\n----------------------------------------------------------------------\nRan 12 tests in 0.121s\n\nOK\n",
+  "build209_frozen_pins_changed": [],
+  "arrays": [
+    "PointData/captured_nodal_metric: Float64 symmetric row-major 9 components",
+    "PointData/captured_nodal_metric_available: UInt8"
+  ],
+  "behavior": "Shared known tensors must agree exactly; missing values explicitly NaN. Whole mesh and selected bad/cavity exports carry current transported nodal sensor. Surface extraction inherits the same field.",
+  "limitation": "No original continuous-field reconstruction or query-time metric composition is inferred. Current M6 full_target=1 makes captured sensor the nodal target."
+}
