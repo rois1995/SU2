@@ -158,6 +158,7 @@ private:
   Edge_Form_P1,             /*!< \brief Central flux with the edge coefficients n_ik and E_ik of the modified dual.*/
   Edge_Form_Exact_Jacobian, /*!< \brief Central Jacobian of the edge form with n_ik and E_ik.*/
   GCL_Exact_P1,             /*!< \brief Make the grid flux of the P1 forms equal to the BDF difference of the volumes.*/
+  Grid_Entropy_P1,          /*!< \brief Entropy-neutral ALE terms of the P1 entropy methods (GRID_ENTROPY_P1).*/
   Split_Edge_Flux,          /*!< \brief Central flux on the split edges of the cells, with no new points.*/
   Edge_Diss_Projected,      /*!< \brief Median dual, dissipation on the edge projection nu = (n.e/|e|^2) e of the normal.*/
   Pressure_Based;           /*!< \brief Flag to check if we are using a pressure-based system.*/
@@ -10065,6 +10066,13 @@ public:
    * \return <code>TRUE</code> if the swept terms are added.
    */
   bool GetGCL_Exact_P1() const { return GCL_Exact_P1; }
+
+  /*!
+   * \brief GRID_ENTROPY_P1: ALE terms of the P1 entropy methods (P1_ALE.md, section 10): grid term -ubar^EC(u_i,u_k) g_ik
+   *        with the temporal entropy conservative average, the E part of the relative flux, relative speeds in the
+   *        Lemma 3 bounds, closure C on moving boundaries and the moving weak no-slip wall.
+   */
+  bool GetGrid_Entropy_P1() const { return Grid_Entropy_P1; }
 
   /*!
    * \brief Get if the central flux uses the split edges of all cells (section 4.2 of the P1 flux variants).

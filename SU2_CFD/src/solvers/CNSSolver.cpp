@@ -335,9 +335,18 @@ bool CNSSolver::P1MovedViscousBudget(const CGeometry *geometry, const CConfig *c
       if (c != record->opposite) faceNodes[k++] = c;
     su2double faceNormal[3] = {0.0, 0.0, 0.0};
     pve::WallFaceNormal(nDim, coord, record->opposite, faceNodes, faceNormal);
+
+    /*--- GRID_ENTROPY_P1: the moving wall data of WeakNoSlipWallResidual, v_w the grid velocity of the face nodes. ---*/
+    su2double wallVel[3][3] = {{0.0}};
+    const bool movingWall = config->GetGrid_Entropy_P1();
+    if (movingWall) {
+      for (unsigned short k = 0; k < nDim; ++k)
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+          wallVel[k][iDim] = geometry->nodes->GetGridVel(element->GetNode(faceNodes[k]))[iDim];
+    }
     dissipation -= pve::NoSlipWallProduction(simplex, nDim, faceNodes, faceNormal, record->isothermal,
                                              record->wallTheta, record->nWallFaces, pve::NOSLIP_SIPG,
-                                             pve::NOSLIP_PENALTY, record->share);
+                                             pve::NOSLIP_PENALTY, record->share, movingWall ? wallVel : nullptr);
   }
   return true;
 }

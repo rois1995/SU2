@@ -307,6 +307,30 @@ class Element {
 };
 
 /*!
+ * \brief Projector of the moving adiabatic no-slip wall (P1_ALE.md, Lemma A17, Theorem A18): v = v_w is the linear,
+ *        solution independent condition C w = w_m + w_E v_w = 0, C = [0 | I | v_w], and
+ *        P_C x = C^T (C C^T)^-1 C x with (C C^T)^-1 = I - v_w v_w^T / (1 + |v_w|^2): with y = x_m + x_E v_w and
+ *        z = y - v_w (v_w.y)/(1 + |v_w|^2), P_C x = (0, z, v_w.z). Symmetric and idempotent; v_w = 0 gives the
+ *        momentum rows of the static wall.
+ */
+inline void MovingWallProjector(unsigned short nDim, const su2double* wallVel, const su2double* x, su2double* Px) {
+  su2double y[3] = {0.0, 0.0, 0.0}, vel2 = 0.0, velY = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    y[iDim] = x[iDim + 1] + wallVel[iDim] * x[nDim + 1];
+    vel2 += wallVel[iDim] * wallVel[iDim];
+    velY += wallVel[iDim] * y[iDim];
+  }
+  const su2double factor = velY / (1.0 + vel2);
+  su2double velZ = 0.0;
+  Px[0] = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    Px[iDim + 1] = y[iDim] - wallVel[iDim] * factor;
+    velZ += wallVel[iDim] * Px[iDim + 1];
+  }
+  Px[nDim + 1] = velZ;
+}
+
+/*!
  * \brief Weak no-slip wall on the face f of the element E (P1 no-slip notes, section 3.1), SIPG/IIPG/NIPG family.
  *
  * Wall data P w = g: P = momentum rows (adiabatic), momentum + energy rows (isothermal), g_E = -1/(R T_w).
@@ -331,12 +355,17 @@ class Element {
  * \param[out] jac - jac[a][b][iVar][jVar] (Picard: K and sigma frozen), overwritten if dwdu is given.
  * \param[in] shareFrac - Moved wall shares a_a/A_f of the face nodes (VISC_P1_ENTROPY_MOVED, Lemma MV11), in the
  *            order of faceNodes; nullptr for the lumped rule 1/d. They replace A_f/d in all three terms.
+ * \param[in] wallVel - Wall velocities v_w of the face nodes, in the order of faceNodes (GRID_ENTROPY_P1, P1_ALE.md,
+ *            Theorem A18), nullptr for a wall at rest. Adiabatic: P_a = MovingWallProjector(v_w,a), g = 0, so
+ *            e_a = P_a w_a = (0, z, v_w.z) with z from y = theta_a (v_a - v_w); the consistency term P_a F_T nu then
+ *            has the traction work of the wall in the energy row. Isothermal: P unchanged, g = (0, theta_w v_w, -theta_w).
  */
 inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsigned short* faceNodes,
                        const su2double* faceNormal, bool isothermal, const su2double& wallTheta,
                        unsigned short nWallFaces, const su2double& s, const su2double& c, su2double res[][MAXNVAR],
                        const su2double (*dwdu)[MAXNVAR][MAXNVAR] = nullptr,
-                       su2double (*jac)[MAXNODE][MAXNVAR][MAXNVAR] = nullptr, const su2double* shareFrac = nullptr) {
+                       su2double (*jac)[MAXNODE][MAXNVAR][MAXNVAR] = nullptr, const su2double* shareFrac = nullptr,
+                       const su2double (*wallVel)[3] = nullptr) {
   const unsigned short nDim = E.nDim, nVar = E.nVar, nNodes = E.nNodes;
 
   su2double area = 0.0;
@@ -365,6 +394,33 @@ inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsign
     }
   };
 
+  /*--- Moving adiabatic wall: P_a of face node k instead of the mask (the isothermal P does not move). ---*/
+  const bool movingProjector = (wallVel != nullptr) && !isothermal;
+  auto projectNormalAt = [&](unsigned short k, const su2double (*F)[3], su2double* Fn) {
+    if (!movingProjector) return projectNormal(F, Fn);
+    su2double raw[MAXNVAR] = {0.0};
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) raw[iVar] += F[iVar][iDim] * nu[iDim];
+    MovingWallProjector(nDim, wallVel[k], raw, Fn);
+  };
+
+  /*--- e_k = P_k (w_a - g_k) at the face node a = faceNodes[k]. ---*/
+  auto wallError = [&](unsigned short k, su2double* e) {
+    const auto a = faceNodes[k];
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) e[iVar] = 0.0;
+    if (movingProjector) {
+      su2double w[MAXNVAR] = {0.0};
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) w[iDim + 1] = E.wMom[a][iDim];
+      w[nDim + 1] = -E.thetaNode[a];
+      MovingWallProjector(nDim, wallVel[k], w, e);
+      return;
+    }
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) e[iDim + 1] = E.wMom[a][iDim];
+    if (wallVel != nullptr)
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) e[iDim + 1] -= wallTheta * wallVel[k][iDim];
+    if (isothermal) e[nDim + 1] = wallTheta - E.thetaNode[a];
+  };
+
   for (unsigned short a = 0; a < nNodes; ++a)
     for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[a][iVar] = 0.0;
 
@@ -376,12 +432,12 @@ inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsign
   for (unsigned short k = 0; k < nFaceNodes; ++k) {
     const auto a = faceNodes[k];
     su2double e[MAXNVAR] = {0.0}, F[MAXNVAR][3] = {{0.0}}, Me[MAXNVAR] = {0.0};
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim) e[iDim + 1] = E.wMom[a][iDim];
-    if (isothermal) e[nDim + 1] = wallTheta - E.thetaNode[a];
+    wallError(k, e);
+    if (movingProjector) projectNormalAt(k, E.flux, FTn);
     for (unsigned short iVar = 0; iVar < nVar; ++iVar) ebar[iVar] += weight[k] * e[iVar];
 
     E.FluxOuter(e, nu, F);
-    projectNormal(F, Me);
+    projectNormalAt(k, F, Me);
     for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[a][iVar] -= weight[k] * (FTn[iVar] - sigma * Me[iVar]);
   }
 
@@ -412,19 +468,27 @@ inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsign
       for (unsigned short iVar = 0; iVar < nVar; ++iVar) dw[iVar] = dwdu[b][iVar][jVar];
       E.FluxOuter(dw, E.grad[b], F);
       projectNormal(F, Fn);
-      for (unsigned short k = 0; k < nFaceNodes; ++k)
+      for (unsigned short k = 0; k < nFaceNodes; ++k) {
+        if (movingProjector) projectNormalAt(k, F, Fn);
         for (unsigned short iVar = 0; iVar < nVar; ++iVar) jac[faceNodes[k]][b][iVar][jVar] -= weight[k] * Fn[iVar];
+      }
     }
   }
 
-  /*--- Penalty (row a, column a) and adjoint (rows c, column a): de_a/du_a = P W_a. ---*/
+  /*--- Penalty (row a, column a) and adjoint (rows c, column a): de_a/du_a = P W_a (g does not depend on u). ---*/
   for (unsigned short k = 0; k < nFaceNodes; ++k) {
     const auto a = faceNodes[k];
     for (unsigned short jVar = 0; jVar < nVar; ++jVar) {
       su2double de[MAXNVAR] = {0.0}, F[MAXNVAR][3] = {{0.0}}, Fn[MAXNVAR] = {0.0};
-      for (unsigned short iVar = 0; iVar < nVar; ++iVar) de[iVar] = mask[iVar] * dwdu[a][iVar][jVar];
+      if (movingProjector) {
+        su2double dw[MAXNVAR] = {0.0};
+        for (unsigned short iVar = 0; iVar < nVar; ++iVar) dw[iVar] = dwdu[a][iVar][jVar];
+        MovingWallProjector(nDim, wallVel[k], dw, de);
+      } else {
+        for (unsigned short iVar = 0; iVar < nVar; ++iVar) de[iVar] = mask[iVar] * dwdu[a][iVar][jVar];
+      }
       E.FluxOuter(de, nu, F);
-      projectNormal(F, Fn);
+      projectNormalAt(k, F, Fn);
       for (unsigned short iVar = 0; iVar < nVar; ++iVar) jac[a][a][iVar][jVar] += weight[k] * sigma * Fn[iVar];
       if (s == 0.0) continue;
       for (unsigned short b = 0; b < nNodes; ++b) {
@@ -447,7 +511,7 @@ inline void NoSlipWall(const Element& E, unsigned short nFaceNodes, const unsign
 inline su2double NoSlipWallProduction(const Element& E, unsigned short nFaceNodes, const unsigned short* faceNodes,
                                       const su2double* faceNormal, bool isothermal, const su2double& wallTheta,
                                       unsigned short nWallFaces, const su2double& s, const su2double& c,
-                                      const su2double* shareFrac = nullptr) {
+                                      const su2double* shareFrac = nullptr, const su2double (*wallVel)[3] = nullptr) {
   const unsigned short nDim = E.nDim, nVar = E.nVar;
 
   su2double area = 0.0;
@@ -472,16 +536,39 @@ inline su2double NoSlipWallProduction(const Element& E, unsigned short nFaceNode
   su2double FTn[MAXNVAR] = {0.0};
   projectNormal(E.flux, FTn);
 
+  /*--- Moving walls as in NoSlipWall. With e_a = P_a e_a, e_a.P_a F_T nu = e_a.F_T nu. ---*/
+  const bool movingProjector = (wallVel != nullptr) && !isothermal;
+
   su2double production = 0.0;
   for (unsigned short k = 0; k < nFaceNodes; ++k) {
     const auto a = faceNodes[k];
     su2double weight = area / nDim;
     if (shareFrac != nullptr) weight = area * shareFrac[k];
     su2double e[MAXNVAR] = {0.0}, F[MAXNVAR][3] = {{0.0}}, Me[MAXNVAR] = {0.0};
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim) e[iDim + 1] = E.wMom[a][iDim];
-    if (isothermal) e[nDim + 1] = wallTheta - E.thetaNode[a];
+    if (movingProjector) {
+      su2double w[MAXNVAR] = {0.0};
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) w[iDim + 1] = E.wMom[a][iDim];
+      w[nDim + 1] = -E.thetaNode[a];
+      MovingWallProjector(nDim, wallVel[k], w, e);
+      su2double raw[MAXNVAR] = {0.0};
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) raw[iVar] += E.flux[iVar][iDim] * nu[iDim];
+      MovingWallProjector(nDim, wallVel[k], raw, FTn);
+    } else {
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) e[iDim + 1] = E.wMom[a][iDim];
+      if (wallVel != nullptr)
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) e[iDim + 1] -= wallTheta * wallVel[k][iDim];
+      if (isothermal) e[nDim + 1] = wallTheta - E.thetaNode[a];
+    }
     E.FluxOuter(e, nu, F);
-    projectNormal(F, Me);
+    if (movingProjector) {
+      su2double raw[MAXNVAR] = {0.0};
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) raw[iVar] += F[iVar][iDim] * nu[iDim];
+      MovingWallProjector(nDim, wallVel[k], raw, Me);
+    } else {
+      projectNormal(F, Me);
+    }
     su2double eFTn = 0.0, eMe = 0.0;
     for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
       eFTn += e[iVar] * FTn[iVar];

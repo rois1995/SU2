@@ -36,6 +36,9 @@
 #include "../../Common/include/toolboxes/boundary_closure.hpp"
 #include "../../Common/include/toolboxes/p1_simplex.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_viscous_entropy.hpp"
+#include "../../SU2_CFD/include/numerics/flow/p1_ale_entropy.hpp"
+#include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
+#include "../../SU2_CFD/include/numerics_simd/flow/variables.hpp"
 
 namespace {
 
@@ -1691,6 +1694,549 @@ TEST_CASE("VISC_P1_ENTROPY_MOVED: face tensor of the moved dual on a mesh, const
       CHECK(errYAll < 1e-10);
       if (modCentroids) CHECK(maxYAll > 1e-3);
       else CHECK(maxYAll < 1e-11);
+    }
+  }
+}
+
+/*--- GRID_ENTROPY_P1 (P1_ALE.md): kernels and the semi-discrete ALE entropy balance on moving meshes. The identities
+ * that go through the logarithmic mean hold to its series error (u < 1e-2: 1e-9 relative), not to round-off. ---*/
+
+namespace {
+
+namespace ale = P1AleEntropy;
+
+ale::State RandomAleState(std::mt19937& gen, int nDim, double spread = 0.5) {
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  ale::State S;
+  S.rho = exp(2.0 * spread * u(gen));
+  S.p = exp(2.0 * spread * u(gen));
+  for (int i = 0; i < 3; ++i) S.vel[i] = (i < nDim) ? 0.8 * u(gen) : 0.0;
+  return S;
+}
+
+/*--- Physical flux F(S).N. ---*/
+void AleFluxN(int nDim, const ale::State& S, const su2double* N, su2double* F) {
+  su2double vn = 0.0, vel2 = 0.0;
+  for (int i = 0; i < nDim; ++i) {
+    vn += S.vel[i] * N[i];
+    vel2 += S.vel[i] * S.vel[i];
+  }
+  const su2double E = S.p / (kGamma - 1.0) + 0.5 * S.rho * vel2;
+  F[0] = S.rho * vn;
+  for (int i = 0; i < nDim; ++i) F[i + 1] = S.rho * vn * S.vel[i] + S.p * N[i];
+  F[nDim + 1] = (E + S.p) * vn;
+}
+
+}  // namespace
+
+TEST_CASE("GRID_ENTROPY_P1: temporal entropy conservative average and relative Lemma 3", "[P1Flux]") {
+  std::mt19937 gen(2468);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int trial = 0; trial < 4000; ++trial) {
+    const int nDim = 2 + trial % 2, nVar = nDim + 2;
+    const auto a = RandomAleState(gen, nDim, 1.0), b = RandomAleState(gen, nDim, 1.0);
+    su2double wa[5], wb[5], ubar[5], uaa[5], Ua[5], Ub[5];
+    ale::EntropyVariables(nDim, kGamma, a, wa);
+    ale::EntropyVariables(nDim, kGamma, b, wb);
+    ale::TemporalAverage(nDim, kGamma, a, b, ubar);
+
+    /*--- [[w]].ubar = [[rho]] (the temporal potential), ubar(U,U) = U. ---*/
+    su2double dot = 0.0, scale = 0.0;
+    for (int v = 0; v < nVar; ++v) {
+      dot += (wb[v] - wa[v]) * ubar[v];
+      scale += fabs((wb[v] - wa[v]) * ubar[v]);
+    }
+    CHECK(fabs(dot - (b.rho - a.rho)) <= 1e-8 * scale);
+    ale::TemporalAverage(nDim, kGamma, a, a, uaa);
+    ale::Conservative(nDim, kGamma, a, Ua);
+    for (int v = 0; v < nVar; ++v) CHECK(fabs(uaa[v] - Ua[v]) <= 1e-14 * (1.0 + fabs(Ua[v])));
+
+    /*--- The vectorized kernel of the edge loop gives the same average. ---*/
+    if (nDim == 2) {
+      CCompressiblePrimitives<2, 7> Vi, Vj;
+      Vi.density() = a.rho; Vi.pressure() = a.p; Vj.density() = b.rho; Vj.pressure() = b.p;
+      for (int i = 0; i < 2; ++i) { Vi.velocity(i) = a.vel[i]; Vj.velocity(i) = b.vel[i]; }
+      const auto simd = ecTemporalAverage(Double(kGamma), Vi, Vj);
+      for (int v = 0; v < nVar; ++v) CHECK(fabs(simd(v)[0] - ubar[v]) <= 1e-13 * (1.0 + fabs(ubar[v])));
+    } else {
+      CCompressiblePrimitives<3, 8> Vi, Vj;
+      Vi.density() = a.rho; Vi.pressure() = a.p; Vj.density() = b.rho; Vj.pressure() = b.p;
+      for (int i = 0; i < 3; ++i) { Vi.velocity(i) = a.vel[i]; Vj.velocity(i) = b.vel[i]; }
+      const auto simd = ecTemporalAverage(Double(kGamma), Vi, Vj);
+      for (int v = 0; v < nVar; ++v) CHECK(fabs(simd(v)[0] - ubar[v]) <= 1e-13 * (1.0 + fabs(ubar[v])));
+    }
+
+    /*--- Lemma A12: [[w]].((F_k - F_i).E - (vbar.E)(U_k - U_i)) <= lam_rel [[w]].[[U]],
+     * lam_rel = max(0, max(u_i.E, u_k.E) - vbar.E + max(c_i, c_k)|E|), as in centered.hpp and SetEdgeBlendLambda. ---*/
+    su2double E[3] = {0.0, 0.0, 0.0}, vbar[3] = {0.0, 0.0, 0.0}, Fa[5], Fb[5];
+    for (int i = 0; i < nDim; ++i) {
+      E[i] = u(gen);
+      vbar[i] = 1.5 * u(gen);
+    }
+    AleFluxN(nDim, a, E, Fa);
+    AleFluxN(nDim, b, E, Fb);
+    ale::Conservative(nDim, kGamma, b, Ub);
+    su2double areaE = 0.0, projA = 0.0, projB = 0.0, projV = 0.0;
+    for (int i = 0; i < nDim; ++i) {
+      areaE += E[i] * E[i];
+      projA += a.vel[i] * E[i];
+      projB += b.vel[i] * E[i];
+      projV += vbar[i] * E[i];
+    }
+    areaE = sqrt(areaE);
+    const su2double lam = std::max(su2double(0.0), std::max(projA, projB) - projV +
+                                                       sqrt(kGamma * std::max(a.p / a.rho, b.p / b.rho)) * areaE);
+    su2double production = 0.0, dissipation = 0.0;
+    for (int v = 0; v < nVar; ++v) {
+      production += (wb[v] - wa[v]) * ((Fb[v] - Fa[v]) - projV * (Ub[v] - Ua[v]));
+      dissipation += (wb[v] - wa[v]) * (Ub[v] - Ua[v]);
+    }
+    CHECK(production <= lam * dissipation + 1e-12 * fabs(lam * dissipation));
+  }
+}
+
+TEST_CASE("GRID_ENTROPY_P1: closure C-ALE on one face, moving wall and far field", "[P1Flux]") {
+  std::mt19937 gen(1357);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int trial = 0; trial < 1000; ++trial) {
+    const int nDim = 2 + trial % 2, nNodes = nDim, nVar = nDim + 2;
+    su2double x[3][3] = {}, N[3] = {};
+    for (int k = 0; k < nNodes; ++k)
+      for (int i = 0; i < nDim; ++i) x[k][i] = u(gen);
+    if (nDim == 2) {
+      N[0] = x[1][1] - x[0][1];
+      N[1] = -(x[1][0] - x[0][0]);
+    } else {
+      const su2double a[3] = {x[1][0] - x[0][0], x[1][1] - x[0][1], x[1][2] - x[0][2]};
+      const su2double b[3] = {x[2][0] - x[0][0], x[2][1] - x[0][1], x[2][2] - x[0][2]};
+      GeometryToolbox::CrossProduct(a, b, N);
+      for (int i = 0; i < 3; ++i) N[i] *= 0.5;
+    }
+    ale::State S[3];
+    su2double gridVel[3][3] = {}, w[3][5];
+    for (int k = 0; k < nNodes; ++k) {
+      S[k] = RandomAleState(gen, nDim);
+      for (int i = 0; i < nDim; ++i) gridVel[k][i] = u(gen);
+      ale::EntropyVariables(nDim, kGamma, S[k], w[k]);
+    }
+    const su2double kappa = 0.3 * u(gen);
+    su2double phi[3][3];
+    const su2double weight = ale::FaceRule(nNodes, phi);
+
+    /*--- beta_i = sum_q phi_i(x_q) N_q and g^b_i = sum_q phi_i(x_q) gamma_iq of the face. ---*/
+    su2double beta[3][3] = {}, gridFlux[3] = {};
+    for (int q = 0; q < nNodes; ++q) {
+      su2double vq[3] = {};
+      for (int k = 0; k < nNodes; ++k)
+        for (int i = 0; i < nDim; ++i) vq[i] += phi[q][k] * gridVel[k][i];
+      for (int a = 0; a < nNodes; ++a) {
+        su2double gamma = kappa;
+        for (int i = 0; i < nDim; ++i) {
+          beta[a][i] += phi[q][a] * weight * N[i];
+          gamma += 0.5 * (gridVel[a][i] + vq[i]) * weight * N[i];
+        }
+        gridFlux[a] += phi[q][a] * gamma;
+      }
+    }
+    auto theta = [&](const su2double (*res)[5], su2double& scale) {
+      su2double value = 0.0;
+      scale = 0.0;
+      for (int a = 0; a < nNodes; ++a) {
+        for (int i = 0; i < nDim; ++i) value += S[a].rho * S[a].vel[i] * beta[a][i];
+        value -= S[a].rho * gridFlux[a];
+        for (int v = 0; v < nVar; ++v) {
+          value -= w[a][v] * res[a][v];
+          scale += fabs(w[a][v] * res[a][v]);
+        }
+      }
+      return value;
+    };
+
+    /*--- Moving pressure wall: Theta = 0 for any state (Theorem A13 ii, Lemma A14), no mass flux. ---*/
+    su2double res[3][5], scale = 0.0;
+    ale::FaceResidual(nDim, nNodes, kGamma, nullptr, N, S, gridVel, kappa, res);
+    CHECK(fabs(theta(res, scale)) <= 1e-8 * scale);
+    su2double mass = 0.0;
+    for (int a = 0; a < nNodes; ++a) mass += res[a][0];
+    CHECK(fabs(mass) <= 1e-13 * scale);
+
+    /*--- Free stream: b_i = F(U).beta_i - U g^b_i with the far field at the uniform state. ---*/
+    const auto inf = RandomAleState(gen, nDim);
+    const ale::State uniform[3] = {inf, inf, inf};
+    ale::FaceResidual(nDim, nNodes, kGamma, &inf, N, uniform, gridVel, kappa, res);
+    su2double Uinf[5];
+    ale::Conservative(nDim, kGamma, inf, Uinf);
+    for (int a = 0; a < nNodes; ++a) {
+      su2double F[5];
+      AleFluxN(nDim, inf, beta[a], F);
+      for (int v = 0; v < nVar; ++v)
+        CHECK(fabs(res[a][v] - (F[v] - Uinf[v] * gridFlux[a])) <= 1e-12 * (fabs(F[v]) + fabs(Uinf[v] * gridFlux[a]) + 1.0));
+    }
+
+    /*--- Far field at another state: Theta <= the relative entropy flux of the ghosts (Lemma A15), conservation. ---*/
+    ale::FaceResidual(nDim, nNodes, kGamma, &inf, N, S, gridVel, kappa, res);
+    su2double area = 0.0;
+    for (int i = 0; i < nDim; ++i) area += N[i] * N[i];
+    area = sqrt(area);
+    su2double unit[3] = {}, Nq[3] = {}, bound = 0.0, sumFstar[5] = {};
+    for (int i = 0; i < nDim; ++i) {
+      unit[i] = N[i] / area;
+      Nq[i] = weight * N[i];
+    }
+    for (int q = 0; q < nNodes; ++q) {
+      su2double wq[5] = {}, vq[3] = {};
+      for (int k = 0; k < nNodes; ++k) {
+        for (int v = 0; v < nVar; ++v) wq[v] += phi[q][k] * w[k][v];
+        for (int i = 0; i < nDim; ++i) vq[i] += phi[q][k] * gridVel[k][i];
+      }
+      ale::State sq, ghost;
+      ale::StateFromEntropyVariables(nDim, kGamma, wq, sq);
+      su2double gq = kappa;
+      for (int i = 0; i < nDim; ++i) gq += vq[i] * Nq[i];
+      const su2double speed = gq / (weight * area);
+      ale::RelativeFarFieldGhost(nDim, kGamma, sq, inf, unit, speed, ghost);
+      su2double F[5], Uq[5], Ug[5], wg[5];
+      ale::AleFlux(nDim, kGamma, sq, ghost, Nq, gq, F);
+      su2double vnq = -speed, vng = -speed;
+      for (int i = 0; i < nDim; ++i) {
+        vnq += sq.vel[i] * unit[i];
+        vng += ghost.vel[i] * unit[i];
+      }
+      const su2double lam = std::max(fabs(vnq) + sqrt(kGamma * sq.p / sq.rho), fabs(vng) + sqrt(kGamma * ghost.p / ghost.rho));
+      ale::Conservative(nDim, kGamma, sq, Uq);
+      ale::Conservative(nDim, kGamma, ghost, Ug);
+      ale::EntropyVariables(nDim, kGamma, ghost, wg);
+      for (int v = 0; v < nVar; ++v) F[v] -= 0.5 * lam * weight * area * (Ug[v] - Uq[v]);
+      for (int i = 0; i < nDim; ++i) bound += ghost.rho * ghost.vel[i] * Nq[i];
+      bound -= ghost.rho * gq;
+      for (int v = 0; v < nVar; ++v) {
+        bound -= wg[v] * F[v];
+        sumFstar[v] += F[v];
+      }
+    }
+    const su2double th = theta(res, scale);
+    CHECK(th <= bound + 1e-8 * scale);
+    for (int v = 0; v < nVar; ++v) {
+      su2double sum = 0.0;
+      for (int a = 0; a < nNodes; ++a) sum += res[a][v];
+      CHECK(fabs(sum - sumFstar[v]) <= 1e-12 * (fabs(sumFstar[v]) + scale));
+    }
+  }
+}
+
+TEST_CASE("GRID_ENTROPY_P1: moving weak no-slip wall, projector, entropy bound, rest state, Jacobian", "[P1Flux]") {
+  std::mt19937 gen(97531);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nNodes = nDim + 1, nVar = nDim + 2;
+    const unsigned short faceNodes[3] = {1, 2, 3};
+    for (int trial = 0; trial < 200; ++trial) {
+      const bool isothermal = (trial % 2 == 1);
+      const su2double sipg = (trial % 4 < 2) ? 1.0 : 0.0;
+      su2double x[4][3];
+      pve::NodeState state[4];
+      RandomElement(gen, nDim, (trial % 3) ? 1.0 : 1e-3, x, state);
+      pve::Element E;
+      REQUIRE(E.Set(nDim, x, state, kGas) > 0.0);
+      su2double N[3] = {};
+      pve::WallFaceNormal(nDim, x, 0, faceNodes, N);
+
+      /*--- Nodal wall velocities (deforming wall) for adiabatic walls, one (translating wall) for isothermal ones, where
+       * the wall data g = (0, theta_w v_w, -theta_w) is then constant on the element. ---*/
+      su2double wallVel[3][3] = {};
+      for (int i = 0; i < nDim; ++i) wallVel[0][i] = 1.2 * u(gen);
+      for (int k = 1; k < nDim; ++k)
+        for (int i = 0; i < nDim; ++i) wallVel[k][i] = isothermal ? wallVel[0][i] : 1.2 * u(gen);
+
+      /*--- P_C is symmetric, idempotent, and P_C w = 0 iff w_m + w_E v_w = 0. ---*/
+      su2double P[5][5];
+      for (int j = 0; j < nVar; ++j) {
+        su2double e[5] = {}, Pe[5];
+        e[j] = 1.0;
+        pve::MovingWallProjector(nDim, wallVel[0], e, Pe);
+        for (int i = 0; i < nVar; ++i) P[i][j] = Pe[i];
+      }
+      for (int i = 0; i < nVar; ++i) {
+        for (int j = 0; j < nVar; ++j) {
+          su2double PP = 0.0;
+          for (int k = 0; k < nVar; ++k) PP += P[i][k] * P[k][j];
+          CHECK(fabs(P[i][j] - P[j][i]) < 1e-14);
+          CHECK(fabs(PP - P[i][j]) < 1e-14);
+        }
+      }
+      su2double wWall[5] = {u(gen), 0.0, 0.0, 0.0, -exp(u(gen))}, Pw[5];
+      for (int i = 0; i < nDim; ++i) wWall[i + 1] = -wWall[nDim + 1] * wallVel[0][i];
+      pve::MovingWallProjector(nDim, wallVel[0], wWall, Pw);
+      for (int i = 0; i < nVar; ++i) CHECK(fabs(Pw[i]) < 1e-14 * (1.0 + fabs(wWall[nDim + 1])));
+
+      /*--- Theorem A18 on one element (m_T = 1): sum_a (w_a - g).(R_a + b_a) >= 0. ---*/
+      const su2double wallT = exp(u(gen)), wallTheta = 1.0 / (kGas * wallT);
+      su2double res[4][5], wall[4][5];
+      E.Residual(res);
+      pve::NoSlipWall(E, nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, wall, nullptr, nullptr, nullptr, wallVel);
+      su2double rate = 0.0, scale = 0.0, resScale = 0.0, wallRate = 0.0, wallScale = 0.0;
+      for (int a = 0; a < nNodes; ++a) {
+        su2double w[5];
+        FullEntropyVariables(nDim, state[a], w);
+        for (int v = 0; v < nVar; ++v) {
+          wallRate += w[v] * wall[a][v];
+          wallScale += fabs(w[v] * wall[a][v]);
+        }
+        if (isothermal) {
+          w[nDim + 1] += wallTheta;
+          for (int i = 0; i < nDim; ++i) w[i + 1] -= wallTheta * wallVel[0][i];
+        }
+        for (int v = 0; v < nVar; ++v) {
+          rate += w[v] * (res[a][v] + wall[a][v]);
+          scale += fabs(w[v] * (res[a][v] + wall[a][v]));
+          resScale = std::max(resScale, fabs(res[a][v]) + fabs(wall[a][v]));
+        }
+      }
+      CHECK(rate >= -1e-12 * scale);
+
+      /*--- Adiabatic: the production used by the element budget is -sum_c w_c . b_c. ---*/
+      if (!isothermal) {
+        const su2double production =
+            pve::NoSlipWallProduction(E, nDim, faceNodes, N, false, wallTheta, 1, sipg, 2.5, nullptr, wallVel);
+        CHECK(fabs(production + wallRate) <= 1e-12 * wallScale);
+      }
+
+      /*--- Rest in the wall frame (uniform v = v_w, T = T_w if isothermal): no residual. ---*/
+      su2double restVel[3][3] = {};
+      for (int k = 0; k < nDim; ++k)
+        for (int i = 0; i < nDim; ++i) restVel[k][i] = wallVel[0][i];
+      pve::NodeState rest[4];
+      for (int a = 0; a < nNodes; ++a) {
+        rest[a] = state[a];
+        for (int i = 0; i < nDim; ++i) rest[a].vel[i] = wallVel[0][i];
+        rest[a].p = rest[a].rho * kGas * (isothermal ? wallT : 0.8);
+      }
+      pve::Element Erest;
+      Erest.Set(nDim, x, rest, kGas);
+      su2double resRest[4][5], wallRest[4][5];
+      Erest.Residual(resRest);
+      pve::NoSlipWall(Erest, nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, wallRest, nullptr, nullptr, nullptr,
+                      restVel);
+      for (int a = 0; a < nNodes; ++a)
+        for (int v = 0; v < nVar; ++v) CHECK(fabs(resRest[a][v] + wallRest[a][v]) < 1e-9 * resScale);
+
+      /*--- v_w = 0 is the wall at rest. ---*/
+      const su2double zeroVel[3][3] = {};
+      su2double wallZero[4][5], wallStatic[4][5];
+      pve::NoSlipWall(E, nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, wallZero, nullptr, nullptr, nullptr, zeroVel);
+      pve::NoSlipWall(E, nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, wallStatic);
+      for (int a = 0; a < nNodes; ++a)
+        for (int v = 0; v < nVar; ++v) CHECK(fabs(wallZero[a][v] - wallStatic[a][v]) <= 1e-13 * resScale);
+
+      /*--- Picard Jacobian (K and sigma frozen) against central differences. ---*/
+      su2double dwdu[4][5][5], jac[4][4][5][5], jacMax = 0.0, jacErr = 0.0;
+      for (int a = 0; a < nNodes; ++a) pve::EntropyVariableJacobian(nDim, kGamma, state[a], dwdu[a]);
+      pve::NoSlipWall(E, nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, wall, dwdu, jac, nullptr, wallVel);
+      for (int b = 0; b < nNodes; ++b) {
+        for (int j = 0; j < nVar; ++j) {
+          const su2double h = 1e-6;
+          pve::NodeState plus[4], minus[4];
+          for (int a = 0; a < nNodes; ++a) plus[a] = minus[a] = state[a];
+          Perturb(nDim, plus[b], j, h);
+          Perturb(nDim, minus[b], j, -h);
+          su2double rp[4][5], rm[4][5];
+          pve::NoSlipWall(Frozen(E, plus), nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, rp, nullptr, nullptr,
+                          nullptr, wallVel);
+          pve::NoSlipWall(Frozen(E, minus), nDim, faceNodes, N, isothermal, wallTheta, 1, sipg, 2.5, rm, nullptr, nullptr,
+                          nullptr, wallVel);
+          for (int a = 0; a < nNodes; ++a) {
+            for (int v = 0; v < nVar; ++v) {
+              jacErr = std::max(jacErr, fabs((rp[a][v] - rm[a][v]) / (2 * h) - jac[a][b][v][j]));
+              jacMax = std::max(jacMax, fabs(jac[a][b][v][j]));
+            }
+          }
+        }
+      }
+      CHECK(jacErr <= 1e-6 * jacMax);
+    }
+  }
+}
+
+namespace {
+
+/*--- Nodal state from the global index, the same on all ranks and halos. ---*/
+ale::State GlobalState(unsigned long globalIndex, int nDim) {
+  std::mt19937 gen(1000 + globalIndex);
+  return RandomAleState(gen, nDim, 0.4);
+}
+
+}  // namespace
+
+TEST_CASE("GRID_ENTROPY_P1 on a closed moving domain: exact GCL, swept remainder, entropy balance, free stream", "[P1Flux]") {
+  struct Kind {
+    int nDim;
+    unsigned long n;
+    std::string options;
+    bool form;
+  };
+  const std::string common = "CONV_NUM_METHOD_FLOW= JST\nEDGE_FORM_EC_FLUX= YES\nBC_WEAK_P1= YES\nGCL_EXACT_P1= YES\nGRID_ENTROPY_P1= YES\n";
+  const std::string moved = "MOD_CENTROIDS= YES\nEDGE_FORM_P1= YES\n" + common;
+  const std::string median = "EDGE_DISS_PROJECTED= YES\n" + common;
+  const std::vector<Kind> cases = {Kind{2, 8, moved, true}, Kind{3, 3, moved, true}, Kind{2, 8, median, false},
+                                   Kind{3, 3, median, false}};
+
+  for (int order : {1, 2}) {
+    for (const auto& mesh : cases) {
+      const std::string name = "p1_grid_entropy_" + std::to_string(mesh.nDim) + "d.su2";
+      WriteSimplexMesh(name, mesh.nDim, mesh.n, 0.4, 1.0);
+      const std::string motion = "TIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-" +
+                                 std::string(order == 1 ? "1ST" : "2ND") +
+                                 "_ORDER\nTIME_STEP= 0.01\nGRID_MOVEMENT= RIGID_MOTION\n";
+      MeshCase test(name, motion + mesh.options);
+      auto& geometry = *test.geometry;
+      const auto config = test.config.get();
+      const auto nDim = geometry.GetnDim();
+      const unsigned short nVar = nDim + 2;
+      INFO("BDF" << order << " nDim " << mesh.nDim << " " << (mesh.form ? "moved dual" : "median dual"));
+
+      /*--- Three levels of a large step of a rotation (angle 0.8 s about the box centre, axis z) composed with the
+       * nonlinear deformation of MoveMesh; grid velocity = BDF difference of the coordinates. ---*/
+      const su2double dt = 0.01, step = 0.1;
+      config->SetDelta_UnstTimeND(dt);
+      const auto X0 = StoreCoord(geometry);
+      auto moveRotating = [&](su2double s) {
+        const su2double c = cos(0.8 * s), sn = sin(0.8 * s);
+        for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+          su2double d[3] = {}, y[3] = {};
+          Displacement(nDim, X0[iPoint].data(), d);
+          for (auto iDim = 0u; iDim < nDim; ++iDim) y[iDim] = X0[iPoint][iDim] + s * d[iDim] - 0.5;
+          geometry.nodes->SetCoord(iPoint, 0, 0.5 + c * y[0] - sn * y[1]);
+          geometry.nodes->SetCoord(iPoint, 1, 0.5 + sn * y[0] + c * y[1]);
+          if (nDim == 3) geometry.nodes->SetCoord(iPoint, 2, 0.5 + y[2]);
+        }
+        geometry.SetControlVolume(config, UPDATE);
+        geometry.SetBoundControlVolume(config, UPDATE);
+        geometry.SetBoundCVCoeffs(config, UPDATE);
+        geometry.UpdateP1FluxCoefficients(config);
+      };
+      moveRotating(0.5 - 2 * step);
+      geometry.nodes->SetVolume_n();
+      geometry.nodes->SetCoord_n();
+      moveRotating(0.5 - step);
+      geometry.nodes->SetVolume_nM1();
+      geometry.nodes->SetVolume_n();
+      geometry.nodes->SetCoord_n1();
+      geometry.nodes->SetCoord_n();
+      moveRotating(0.5);
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+        const auto* x = geometry.nodes->GetCoord(iPoint);
+        const auto* x_n = geometry.nodes->GetCoord_n(iPoint);
+        const auto* x_n1 = geometry.nodes->GetCoord_n1(iPoint);
+        for (auto iDim = 0u; iDim < nDim; ++iDim) {
+          const su2double vel = (order == 1) ? (x[iDim] - x_n[iDim]) / dt
+                                             : (1.5 * x[iDim] - 2.0 * x_n[iDim] + 0.5 * x_n1[iDim]) / dt;
+          geometry.nodes->SetGridVel(iPoint, iDim, vel);
+        }
+      }
+      geometry.UpdateSweptFluxP1(config);
+      su2activevector G;
+      geometry.SetGridFluxP1(config, G);
+
+      /*--- (a) G = D_t V on both duals; (b) the nodal remainder is the sum of kappa_f of the boundary faces. ---*/
+      std::vector<su2double> kappaSum(geometry.GetnPoint(), 0.0);
+      for (auto iMarker = 0u; iMarker < geometry.GetnMarker(); ++iMarker) {
+        if (config->GetMarker_All_KindBC(iMarker) == SEND_RECEIVE) continue;
+        for (auto iElem = 0ul; iElem < geometry.GetnElem_Bound(iMarker); ++iElem) {
+          const auto* face = geometry.bound[iMarker][iElem];
+          unsigned long points[3] = {};
+          for (unsigned short k = 0; k < face->GetnNodes(); ++k) points[k] = face->GetNode(k);
+          const su2double kappa = geometry.BoundaryFaceKappa(config, face->GetnNodes(), points, face->getNormal());
+          for (unsigned short k = 0; k < face->GetnNodes(); ++k) kappaSum[points[k]] += kappa;
+        }
+      }
+      su2double gclError = 0.0, kappaError = 0.0, scale = 0.0, sigmaMax = 0.0;
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+        const auto V = geometry.nodes->GetVolume(iPoint);
+        const auto V_n = geometry.nodes->GetVolume_n(iPoint);
+        const auto V_n1 = geometry.nodes->GetVolume_nM1(iPoint);
+        const su2double dVdt = (order == 1) ? (V - V_n) / dt : (1.5 * V - 2.0 * V_n + 0.5 * V_n1) / dt;
+        gclError = std::max(gclError, fabs(G[iPoint] - dVdt));
+        scale = std::max(scale, fabs(dVdt));
+        const su2double sigma = geometry.edges->GetBoundSwept()[iPoint];
+        kappaError = std::max(kappaError, fabs(sigma - kappaSum[iPoint]));
+        sigmaMax = std::max(sigmaMax, fabs(sigma));
+      }
+      CHECK(GlobalMax(gclError) < 1e-10 * GlobalMax(scale));
+      CHECK(GlobalMax(kappaError) < 1e-10 * GlobalMax(scale));
+      CHECK(GlobalMax(sigmaMax) > 1e-6 * GlobalMax(scale));  /*--- The remainder is not trivially zero. ---*/
+
+      /*--- Residual of the entropy conservative central part, the grid term -ubar^EC g_ik of centered.hpp and closure
+       * C-ALE at all boundary faces (walls or far field), without the E part (its production is the P_E of the blend).
+       * (c) Walls: -sum_i w_i.(R_i + b_i) - sum_i rho_i G_i = 0 (Theorem A10: all grid terms telescope).
+       * (d) Far field at the uniform state: R_i + b_i + U G_i = 0 (free stream with the dual time source U G). ---*/
+      for (int farField = 0; farField < 2; ++farField) {
+        std::vector<ale::State> state(geometry.GetnPoint());
+        const auto uniform = GlobalState(12345, nDim);
+        for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+          state[iPoint] = farField ? uniform : GlobalState(geometry.nodes->GetGlobalIndex(iPoint), nDim);
+        }
+        std::vector<std::array<su2double, 5>> R(geometry.GetnPoint(), std::array<su2double, 5>{});
+
+        for (auto iEdge = 0ul; iEdge < geometry.GetnEdge(); ++iEdge) {
+          const auto iPoint = geometry.edges->GetNode(iEdge, 0), kPoint = geometry.edges->GetNode(iEdge, 1);
+          const su2double* normal = mesh.form ? geometry.edges->GetFormNormal()[iEdge] : geometry.edges->GetNormal(iEdge);
+          const su2double zero[3] = {0.0, 0.0, 0.0};
+          const su2double* formE = mesh.form ? geometry.edges->GetFormE()[iEdge] : zero;
+          const auto* v_i = geometry.nodes->GetGridVel(iPoint);
+          const auto* v_k = geometry.nodes->GetGridVel(kPoint);
+          su2double gridFlux = geometry.edges->GetFormSwept()[iEdge];
+          for (auto iDim = 0u; iDim < nDim; ++iDim)
+            gridFlux += 0.5 * (v_i[iDim] + v_k[iDim]) * normal[iDim] + (v_k[iDim] - v_i[iDim]) * formE[iDim];
+          su2double flux[5];
+          ale::AleFlux(nDim, kGamma, state[iPoint], state[kPoint], normal, gridFlux, flux);
+          for (unsigned short v = 0; v < nVar; ++v) {
+            R[iPoint][v] += flux[v];
+            R[kPoint][v] -= flux[v];
+          }
+        }
+
+        const auto inf = uniform;
+        for (auto iMarker = 0u; iMarker < geometry.GetnMarker(); ++iMarker) {
+          if (config->GetMarker_All_KindBC(iMarker) == SEND_RECEIVE) continue;
+          for (auto iElem = 0ul; iElem < geometry.GetnElem_Bound(iMarker); ++iElem) {
+            const auto* face = geometry.bound[iMarker][iElem];
+            const auto nFaceNodes = face->GetnNodes();
+            unsigned long points[3] = {};
+            ale::State faceState[3];
+            su2double faceVel[3][3] = {}, faceRes[3][5];
+            for (unsigned short k = 0; k < nFaceNodes; ++k) {
+              points[k] = face->GetNode(k);
+              faceState[k] = state[points[k]];
+              for (auto iDim = 0u; iDim < nDim; ++iDim) faceVel[k][iDim] = geometry.nodes->GetGridVel(points[k])[iDim];
+            }
+            const su2double kappa = geometry.BoundaryFaceKappa(config, nFaceNodes, points, face->getNormal());
+            ale::FaceResidual(nDim, nFaceNodes, kGamma, farField ? &inf : nullptr, face->getNormal(), faceState, faceVel,
+                              kappa, faceRes);
+            for (unsigned short k = 0; k < nFaceNodes; ++k)
+              for (unsigned short v = 0; v < nVar; ++v) R[points[k]][v] += faceRes[k][v];
+          }
+        }
+
+        su2double rate = 0.0, rateScale = 0.0, freeStream = 0.0, freeScale = 0.0;
+        for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+          su2double w[5], U[5];
+          ale::EntropyVariables(nDim, kGamma, state[iPoint], w);
+          ale::Conservative(nDim, kGamma, state[iPoint], U);
+          rate -= state[iPoint].rho * G[iPoint];
+          rateScale += fabs(state[iPoint].rho * G[iPoint]);
+          for (unsigned short v = 0; v < nVar; ++v) {
+            rate -= w[v] * R[iPoint][v];
+            rateScale += fabs(w[v] * R[iPoint][v]);
+            freeStream = std::max(freeStream, fabs(R[iPoint][v] + U[v] * G[iPoint]));
+            freeScale = std::max(freeScale, fabs(U[v] * G[iPoint]) + fabs(R[iPoint][v]));
+          }
+        }
+        if (farField) {
+          CHECK(GlobalMax(freeStream) < 1e-10 * GlobalMax(freeScale));
+        } else {
+          CHECK(fabs(GlobalSum(rate)) < 1e-8 * GlobalSum(rateScale));
+        }
+      }
     }
   }
 }

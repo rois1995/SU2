@@ -983,6 +983,7 @@ class CGeometry {
 
  protected:
   bool sweptFluxStale = false; /*!< \brief The mesh moved since the terms of GCL_EXACT_P1 were computed. */
+  unsigned long p1FluxVersion = 0; /*!< \brief Number of calls of UpdateP1FluxCoefficients (mesh updates). */
 
  public:
 
@@ -1003,6 +1004,27 @@ class CGeometry {
    * \param[in] config - Definition of the particular problem.
    */
   void UpdateSweptFluxP1(const CConfig* config);
+
+  /*!
+   * \brief Number of coefficient updates (UpdateP1FluxCoefficients), to rebuild data that follow the coordinates.
+   */
+  inline unsigned long GetP1FluxVersion() const { return p1FluxVersion; }
+
+  /*!
+   * \brief GRID_ENTROPY_P1: point grid flux kappa_f of a boundary simplex face (P1_ALE.md, 6.3), the share per face
+   *        node of the nodal remainder of GCL_EXACT_P1 that this face causes: kappa_f = delta_f / d with
+   *        delta_f = Psi_f - A_f(x^{n+1}).mean_f(v), Psi_f the BDF combination of the volumes swept by the face on
+   *        straight node paths. With BC_WEAK_P1 the remainder of a boundary node is sum_{f ni i} kappa_f, and with the
+   *        face rules of closure C (sum_q phi_a(x_q) = 1) kappa_q = kappa_f at every face point.
+   * \note Uses the coordinates of the three time levels and the grid velocity of the face nodes (halo nodes too).
+   * \param[in] config - Definition of the particular problem (time scheme, time step).
+   * \param[in] nFaceNodes - nDim (segment or triangle).
+   * \param[in] facePoints - The nodes of the face.
+   * \param[in] outward - A vector pointing out of the domain at the face (orientation only).
+   * \return kappa_f.
+   */
+  su2double BoundaryFaceKappa(const CConfig* config, unsigned short nFaceNodes, const unsigned long* facePoints,
+                              const su2double* outward) const;
 
   inline virtual void SetBoundCVCoeffs(const CConfig* config, unsigned short action) {}
 

@@ -500,10 +500,12 @@ public:
   void SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *config);
 
   /*!
-   * \brief Add the nodal boundary term of the grid flux of GCL_EXACT_P1.
+   * \brief Add the nodal boundary term of the grid flux of GCL_EXACT_P1. With GRID_ENTROPY_P1 the share of the faces of
+   *        closure C goes to their face points and the rest is pressure work at wall nodes (P1_ALE.md, 6.3).
    * \param[in] geometry - Geometrical definition.
+   * \param[in] config - Definition of the particular problem.
    */
-  void SweptBoundaryResidual(const CGeometry *geometry);
+  void SweptBoundaryResidual(const CGeometry *geometry, const CConfig *config);
 
   /*!
    * \brief Recompute the extrapolated quantities, after MUSCL reconstruction,

@@ -58,6 +58,7 @@ protected:
   const bool esDiss;
   const bool esBlend;
   const bool sweptFlux;
+  const bool gridEntropy;  /*!< \brief GRID_ENTROPY_P1, ALE terms of the entropy methods (P1_ALE.md, section 10). */
   const su2double stretchParam = 0.3;
 
   /*!
@@ -74,7 +75,8 @@ protected:
     ecFlux((edgeForm || projDiss) && config.GetEdge_Form_EC_Flux()),
     esDiss(edgeForm && config.GetEdge_Form_ES_Diss()),
     esBlend(edgeForm && config.GetEdge_Form_ES_Blend()),
-    sweptFlux(edgeForm && config.GetGCL_Exact_P1()) {
+    sweptFlux((edgeForm || projDiss) && config.GetGCL_Exact_P1()),
+    gridEntropy((edgeForm || projDiss) && config.GetDynamic_Grid() && config.GetGrid_Entropy_P1()) {
   }
 
   /*!
@@ -210,6 +212,15 @@ public:
         proj_i += V.i.velocity(iDim) * formE(iDim);
         proj_j += V.j.velocity(iDim) * formE(iDim);
       }
+      /*--- GRID_ENTROPY_P1: Lemma 3 with the relative speed, A - ({{v}}.E) I (P1_ALE.md, Lemma A12). ---*/
+      if (gridEntropy) {
+        const auto& gridVel = geometry.nodes->GetGridVel();
+        const auto gridVel_i = gatherVariables<nDim>(iPoint, gridVel);
+        const auto gridVel_j = gatherVariables<nDim>(jPoint, gridVel);
+        const Double projGridE = 0.5 * (dot(gridVel_i, formE) + dot(gridVel_j, formE));
+        proj_i -= projGridE;
+        proj_j -= projGridE;
+      }
       const Double lam = fmax(0.0, fmax(proj_i, proj_j) + sqrt(gamma * fmax(V.i.pressure() / V.i.density(), V.j.pressure() / V.j.density())) * areaE);
       for (size_t iVar = 0; iVar < nVar; ++iVar) {
         flux(iVar) -= lam * (U.j.all(iVar) - U.i.all(iVar));
@@ -242,7 +253,38 @@ public:
       const auto gridVel_j = gatherVariables<nDim>(jPoint,gridVel);
       projGridVel = 0.5*(dot(gridVel_i, normal)+dot(gridVel_j, normal));
 
-      if (edgeForm) {
+      if (gridEntropy) {
+        /*--- GRID_ENTROPY_P1 (P1_ALE.md, Definition A9): -ubar^EC(U_i,U_k) g_ik - (U_k - U_i) {{v}}.E_ik, with the pair
+         * grid flux of the GCL g_ik = 0.5(v_i+v_k).n_ik + (v_k-v_i).E_ik + omega_ik (CGeometry::SetGridFluxP1), and
+         * the E part of the relative flux F - U {{v}}^T. The median dual has E = 0 and the median normal. Production
+         * -g_ik [[rho]] telescopes with the GCL source to boundary terms; the static E part is unchanged above. ---*/
+        Double gridFlux = projGridVel, projGridE = 0.0;
+        if (edgeForm) {
+          const auto formNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal());
+          const auto formE = gatherVariables<nDim>(iEdge, geometry.edges->GetFormE());
+          gridFlux = 0.5 * (dot(gridVel_i, formNormal) + dot(gridVel_j, formNormal)) +
+                     dot(gridVel_j, formE) - dot(gridVel_i, formE);
+          projGridE = 0.5 * (dot(gridVel_i, formE) + dot(gridVel_j, formE));
+        }
+        if (sweptFlux) gridFlux += gatherVariables(iEdge, geometry.edges->GetFormSwept());
+
+        const auto ubar = ecTemporalAverage(gamma, V.i, V.j);
+
+        /*--- Frozen, like the flux Jacobians: 0.5 g on the dual normal, or 0.5 g -+ {{v}}.E with the exact form. ---*/
+        Double jacGrid_i = 0.5 * projGridVel, jacGrid_j = 0.5 * projGridVel;
+        if (exactFormJac) {
+          jacGrid_i = 0.5 * gridFlux - projGridE;
+          jacGrid_j = 0.5 * gridFlux + projGridE;
+        }
+
+        for (size_t iVar = 0; iVar < nVar; ++iVar) {
+          flux(iVar) -= ubar(iVar) * gridFlux + projGridE * (U.j.all(iVar) - U.i.all(iVar));
+          if (implicit) {
+            jac_i(iVar,iVar) -= jacGrid_i;
+            jac_j(iVar,iVar) -= jacGrid_j;
+          }
+        }
+      } else if (edgeForm) {
         /*--- The nodal flux F - U v with the coefficients of F, as CGeometry::SetGridFluxP1 does for the GCL. ---*/
         const auto formNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal());
         const auto formE = gatherVariables<nDim>(iEdge, geometry.edges->GetFormE());
@@ -297,7 +339,15 @@ public:
     const VectorDbl<nDim>& rUnitNormal = projDiss ? projUnitNormal : unitNormal;
     const Double& rArea = projDiss ? projArea : area;
 
-    const Double projVel = dot(avgV.velocity(), rNormal) - projGridVel;
+    /*--- GRID_ENTROPY_P1 with EDGE_DISS_PROJECTED: the relative speed along the dissipation normal, (u - {{v}}).nu. ---*/
+    Double projGridDiss = projGridVel;
+    if (gridEntropy && projDiss) {
+      const auto& gridVel = geometry.nodes->GetGridVel();
+      const auto gridVel_i = gatherVariables<nDim>(iPoint, gridVel);
+      const auto gridVel_j = gatherVariables<nDim>(jPoint, gridVel);
+      projGridDiss = 0.5 * (dot(gridVel_i, projNormal) + dot(gridVel_j, projNormal));
+    }
+    const Double projVel = dot(avgV.velocity(), rNormal) - projGridDiss;
 
     /*--- Finalize in derived class (static polymorphism). ---*/
 

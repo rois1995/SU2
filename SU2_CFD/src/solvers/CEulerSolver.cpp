@@ -1832,23 +1832,79 @@ void CEulerSolver::Centered_Residual(CGeometry *geometry, CSolver **solver_conta
   if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry, config);
   EdgeFluxResidual(geometry, solver_container, config);
   if ((iMesh == MESH_0) && config->GetSplit_Edge_Flux()) SplitEdgeResidual(geometry, config);
-  if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry);
+  if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry, config);
 }
 
-void CEulerSolver::SweptBoundaryResidual(const CGeometry *geometry) {
+void CEulerSolver::SweptBoundaryResidual(const CGeometry *geometry, const CConfig *config) {
   SU2_ZONE_SCOPED
 
   /*--- -U_i beta_i, the nodal boundary term of the grid flux of GCL_EXACT_P1. No Jacobian, as for the split pairs. ---*/
 
   const auto& boundSwept = geometry->edges->GetBoundSwept();
 
-  SU2_OMP_FOR_STAT(omp_chunk_size)
-  for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
-    for (auto iVar = 0u; iVar < nVar; ++iVar) {
-      LinSysRes(iPoint, iVar) -= boundSwept[iPoint] * nodes->GetSolution(iPoint, iVar);
+  if (!config->GetGrid_Entropy_P1()) {
+    SU2_OMP_FOR_STAT(omp_chunk_size)
+    for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
+      for (auto iVar = 0u; iVar < nVar; ++iVar) {
+        LinSysRes(iPoint, iVar) -= boundSwept[iPoint] * nodes->GetSolution(iPoint, iVar);
+      }
+    }
+    END_SU2_OMP_FOR
+    return;
+  }
+
+  /*--- GRID_ENTROPY_P1 (P1_ALE.md, 6.3): -U_i sigma_i at a wall adds mass Sum rho_i sigma_i and entropy U_i sigma_i.
+   * The remainder sigma_i is the grid flux of the boundary: with BC_WEAK_P1 it is sum_{f ni i} kappa_f over the
+   * boundary faces of the node (CGeometry::BoundaryFaceKappa). The faces of closure C (BC_ENTROPY_P1 walls, symmetry
+   * planes and far field, weak no-slip walls of BC_WALL_ENTROPY_P1) put kappa_f into the grid fluxes of their face
+   * points, so their share is removed here. What is left is lumped: at nodes that are only on walls it is the
+   * pressure work p_i r_i of a wall with zero relative mass flux, elsewhere -U_i r_i as before. No Jacobian. ---*/
+
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    const bool closureC = config->GetBC_Entropy_P1();
+    const bool weakNoSlip = config->GetBC_Wall_Entropy_P1();
+
+    auto isWall = [](unsigned short kind) {
+      return (kind == EULER_WALL) || (kind == SYMMETRY_PLANE) || (kind == HEAT_FLUX) || (kind == ISOTHERMAL);
+    };
+    auto inClosure = [&](unsigned short kind) {
+      return (closureC && ((kind == EULER_WALL) || (kind == SYMMETRY_PLANE) || (kind == FAR_FIELD))) ||
+             (weakNoSlip && ((kind == HEAT_FLUX) || (kind == ISOTHERMAL)));
+    };
+
+    vector<su2double> remainder(nPointDomain);
+    for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) remainder[iPoint] = boundSwept[iPoint];
+
+    for (auto iMarker = 0u; iMarker < geometry->GetnMarker(); ++iMarker) {
+      if (!inClosure(config->GetMarker_All_KindBC(iMarker))) continue;
+      for (auto iElem = 0ul; iElem < geometry->GetnElem_Bound(iMarker); ++iElem) {
+        const auto* face = geometry->bound[iMarker][iElem];
+        const auto nFaceNodes = face->GetnNodes();
+        unsigned long points[3] = {0, 0, 0};
+        for (unsigned short k = 0; k < nFaceNodes; ++k) points[k] = face->GetNode(k);
+        const su2double kappa = geometry->BoundaryFaceKappa(config, nFaceNodes, points, face->getNormal());
+        for (unsigned short k = 0; k < nFaceNodes; ++k) {
+          if (geometry->nodes->GetDomain(points[k])) remainder[points[k]] -= kappa;
+        }
+      }
+    }
+
+    for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
+      if (!geometry->nodes->GetPhysicalBoundary(iPoint)) continue;
+      bool wallOnly = true;
+      for (auto iMarker = 0u; iMarker < geometry->GetnMarker(); ++iMarker) {
+        const auto kind = config->GetMarker_All_KindBC(iMarker);
+        if ((kind == SEND_RECEIVE) || (geometry->nodes->GetVertex(iPoint, iMarker) < 0)) continue;
+        wallOnly = wallOnly && isWall(kind);
+      }
+      if (wallOnly) {
+        LinSysRes(iPoint, nDim + 1) += remainder[iPoint] * nodes->GetPressure(iPoint);
+      } else {
+        for (auto iVar = 0u; iVar < nVar; ++iVar) LinSysRes(iPoint, iVar) -= remainder[iPoint] * nodes->GetSolution(iPoint, iVar);
+      }
     }
   }
-  END_SU2_OMP_FOR
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
 void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *config) {
@@ -1942,11 +1998,17 @@ void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *
   const unsigned short nNodes = nDim + 1;
   const bool movedVisc = config->GetVisc_P1_Entropy_Moved();
 
+  /*--- GRID_ENTROPY_P1 (P1_ALE.md, Lemma A12 and 5): the E part of the pair is that of the relative flux
+   * F - U vbar^T, vbar = {{v}}_ab, so P_T gets -(vbar.E)(w_b - w_a).(U_b - U_a) and lam the relative speed
+   * max(u_a.E, u_b.E) - vbar.E + max(c_a, c_b)|E|. theta_T is computed on the current geometry (the coefficients of
+   * SetEdgeFormBlend follow the mesh), so the bound P_T <= D_T holds at every instant. ---*/
+  const bool relative = config->GetGrid_Entropy_P1() && dynamic_grid;
+
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
     lamBlend = su2double(0.0);
 
     /*--- The wall faces of the budget (W_T), built on first use (collective). ---*/
-    if (movedVisc && config->GetBC_Wall_Entropy_P1() && !P1WallFacesReady) SetP1WallFaces(geometry, config);
+    if (movedVisc && config->GetBC_Wall_Entropy_P1()) UpdateP1WallFaces(geometry, config);
 
     for (auto iElem = 0ul; iElem < geometry->GetnElem(); ++iElem) {
       const auto* element = geometry->elem[iElem];
@@ -2003,7 +2065,14 @@ void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *
           const su2double projVel_a = GeometryToolbox::DotProduct(nDim, velocity[a], E);
           const su2double projVel_b = GeometryToolbox::DotProduct(nDim, velocity[b], E);
 
-          const su2double maxProjVel = max(projVel_a, projVel_b);
+          su2double projGridE = 0.0;
+          if (relative) {
+            const su2double* gridVel_a = geometry->nodes->GetGridVel(point[a]);
+            const su2double* gridVel_b = geometry->nodes->GetGridVel(point[b]);
+            for (unsigned short iDim = 0; iDim < nDim; ++iDim) projGridE += 0.5 * (gridVel_a[iDim] + gridVel_b[iDim]) * E[iDim];
+          }
+
+          const su2double maxProjVel = relative ? max(projVel_a, projVel_b) - projGridE : max(projVel_a, projVel_b);
           const su2double maxSoundSpeed = sqrt(max(soundSpeed2[a], soundSpeed2[b]));
           const su2double speed = maxProjVel + maxSoundSpeed * areaE;
           lam[pair] = max(su2double(0.0), speed);
@@ -2020,6 +2089,7 @@ void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *
 
           su2double dissPair = 0.0;
           for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) dissPair += (w[b][iVar] - w[a][iVar]) * (U[b][iVar] - U[a][iVar]);
+          if (relative) prodPair -= projGridE * dissPair;
 
           production += prodPair;
           dissipation += lam[pair] * dissPair;
@@ -2073,7 +2143,7 @@ void CEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_contain
       if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry, config);
       EdgeFluxResidual(geometry, solver_container, config);
       if ((iMesh == MESH_0) && config->GetSplit_Edge_Flux()) SplitEdgeResidual(geometry, config);
-      if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry);
+      if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry, config);
       return;
     }
   }

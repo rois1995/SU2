@@ -49,6 +49,7 @@
 #include "../../../Common/include/toolboxes/printing_toolbox.hpp"
 #include "../../../Common/include/toolboxes/C1DInterpolation.hpp"
 #include "../../include/numerics/flow/p1_viscous_entropy.hpp"
+#include "../../include/numerics/flow/p1_ale_entropy.hpp"
 #include <array>
 #include <map>
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
@@ -4970,6 +4971,11 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
     esInf.p = GetPressure_Inf();
     for (unsigned short iDim = 0; iDim < nDim; ++iDim) esInf.vel[iDim] = GetVelocity_Inf(iDim);
   }
+  const bool gridEntropyP1 = config->GetGrid_Entropy_P1();
+  P1AleEntropy::State aleInf;
+  aleInf.rho = esInf.rho;
+  aleInf.p = esInf.p;
+  for (unsigned short iDim = 0; iDim < 3; ++iDim) aleInf.vel[iDim] = esInf.vel[iDim];
 
   const bool implicit         = config->GetKind_TimeIntScheme() == EULER_IMPLICIT;
   const bool viscous          = config->GetViscous();
@@ -5085,16 +5091,37 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
        * fluxes in "buffer" (pressure flux at walls, Riemann ghost flux at the far field), which is the linearization
        * of closure C in its linear analog (Thm B9 iv). Same sparsity as the path below. ---*/
       if (bcEntropyP1) {
-        EsState faceStates[3];
-        for (unsigned short a = 0; a < nNodes; ++a) {
-          const su2double* V = base_nodes->GetPrimitive(element->GetNode(a));
-          faceStates[a].rho = V[nDim+2];
-          faceStates[a].p = V[nDim+1];
-          for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceStates[a].vel[iDim] = V[iDim+1];
-        }
         su2double faceRes[3][ES_NVAR] = {{0.0}};
-        EsFaceResidual(nDim, nNodes, config->GetGamma(), (KindBC == FAR_FIELD) ? &esInf : nullptr,
-                       element->getNormal(), faceStates, faceRes);
+        if (gridEntropyP1) {
+          /*--- GRID_ENTROPY_P1: closure C-ALE (p1_ale_entropy.hpp) with the grid velocities of the face nodes and the
+           * point grid flux kappa_f of the nodal swept remainder; SweptBoundaryResidual leaves this face out. ---*/
+          P1AleEntropy::State faceStates[3];
+          su2double faceGridVel[3][3] = {{0.0}};
+          unsigned long facePoints[3] = {0, 0, 0};
+          for (unsigned short a = 0; a < nNodes; ++a) {
+            facePoints[a] = element->GetNode(a);
+            const su2double* V = base_nodes->GetPrimitive(facePoints[a]);
+            faceStates[a].rho = V[nDim+2];
+            faceStates[a].p = V[nDim+1];
+            for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+              faceStates[a].vel[iDim] = V[iDim+1];
+              faceGridVel[a][iDim] = geometry->nodes->GetGridVel(facePoints[a])[iDim];
+            }
+          }
+          const su2double kappa = geometry->BoundaryFaceKappa(config, nNodes, facePoints, element->getNormal());
+          P1AleEntropy::FaceResidual(nDim, nNodes, config->GetGamma(), (KindBC == FAR_FIELD) ? &aleInf : nullptr,
+                                     element->getNormal(), faceStates, faceGridVel, kappa, faceRes);
+        } else {
+          EsState faceStates[3];
+          for (unsigned short a = 0; a < nNodes; ++a) {
+            const su2double* V = base_nodes->GetPrimitive(element->GetNode(a));
+            faceStates[a].rho = V[nDim+2];
+            faceStates[a].p = V[nDim+1];
+            for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceStates[a].vel[iDim] = V[iDim+1];
+          }
+          EsFaceResidual(nDim, nNodes, config->GetGamma(), (KindBC == FAR_FIELD) ? &esInf : nullptr,
+                         element->getNormal(), faceStates, faceRes);
+        }
 
         su2double omegaSelf = wSelf, omegaOther = wOther;
         if (nNodes == 3) {
@@ -5653,16 +5680,29 @@ void CSolver::SetP1WallFaces(const CGeometry *geometry, const CConfig *config) {
     }
   }
   P1WallFacesReady = true;
+  P1WallFacesVersion = geometry->GetP1FluxVersion();
+}
+
+void CSolver::UpdateP1WallFaces(const CGeometry *geometry, const CConfig *config) {
+  if (P1WallFacesReady && config->GetGrid_Entropy_P1() && (P1WallFacesVersion != geometry->GetP1FluxVersion())) {
+    P1WallFacesReady = false;
+  }
+  if (!P1WallFacesReady) SetP1WallFaces(geometry, config);
 }
 
 void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config) {
 
   namespace pve = P1ViscousEntropy;
 
-  if (!P1WallFacesReady) SetP1WallFaces(geometry, config);
+  UpdateP1WallFaces(geometry, config);
 
   const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
   const su2double gamma = config->GetGamma(), gm1 = gamma - 1.0;
+
+  /*--- GRID_ENTROPY_P1 (P1_ALE.md, 6.4): moving wall, v = v_w the grid velocity of the face nodes. Inviscid part closure
+   * C-ALE with the moving pressure wall (entropy conservative), viscous part with the projector of C(v_w) w = 0 (adiabatic)
+   * or the wall data g = (0, theta_w v_w, -theta_w) (isothermal). ---*/
+  const bool movingWall = config->GetGrid_Entropy_P1();
   const su2double prandtlTurb = config->GetPrandtl_Turb(), gasConst = config->GetGas_ConstantND();
 
   /*--- SIPG (s = 1) and c = 5/2, the maximum of lambda(c)/c (P1_NOSLIP.md, 3.3). ---*/
@@ -5705,15 +5745,33 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
     pve::WallFaceNormal(nDim, coord, record.opposite, faceNodes, faceNormal);
 
     /*--- Inviscid part: closure C with the pressure flux, as at Euler walls (entropy conservative). ---*/
-    EsState faceStates[3];
-    for (unsigned short a = 0; a < nDim; ++a) {
-      const auto& S = state[faceNodes[a]];
-      faceStates[a].rho = S.rho;
-      faceStates[a].p = S.p;
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceStates[a].vel[iDim] = S.vel[iDim];
-    }
     su2double faceRes[3][ES_NVAR] = {{0.0}};
-    EsFaceResidual(nDim, nDim, gamma, nullptr, faceNormal, faceStates, faceRes);
+    su2double wallVel[3][3] = {{0.0}}, kappa = 0.0;
+    if (movingWall) {
+      P1AleEntropy::State faceStates[3];
+      unsigned long facePoints[3] = {0, 0, 0};
+      for (unsigned short a = 0; a < nDim; ++a) {
+        const auto& S = state[faceNodes[a]];
+        facePoints[a] = elem->GetNode(faceNodes[a]);
+        faceStates[a].rho = S.rho;
+        faceStates[a].p = S.p;
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+          faceStates[a].vel[iDim] = S.vel[iDim];
+          wallVel[a][iDim] = geometry->nodes->GetGridVel(facePoints[a])[iDim];
+        }
+      }
+      kappa = geometry->BoundaryFaceKappa(config, nDim, facePoints, faceNormal);
+      P1AleEntropy::FaceResidual(nDim, nDim, gamma, nullptr, faceNormal, faceStates, wallVel, kappa, faceRes);
+    } else {
+      EsState faceStates[3];
+      for (unsigned short a = 0; a < nDim; ++a) {
+        const auto& S = state[faceNodes[a]];
+        faceStates[a].rho = S.rho;
+        faceStates[a].p = S.p;
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceStates[a].vel[iDim] = S.vel[iDim];
+      }
+      EsFaceResidual(nDim, nDim, gamma, nullptr, faceNormal, faceStates, faceRes);
+    }
 
     /*--- Viscous part: consistency, adjoint term and penalty with the K of the wall element. ---*/
     su2double res[pve::MAXNODE][pve::MAXNVAR], dwdu[pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
@@ -5723,7 +5781,7 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
     }
     pve::NoSlipWall(simplex, nDim, faceNodes, faceNormal, record.isothermal, record.wallTheta, record.nWallFaces,
                     sipg, penalty, res, implicit ? dwdu : nullptr, implicit ? jac : nullptr,
-                    movedShares ? record.share : nullptr);
+                    movedShares ? record.share : nullptr, movingWall ? wallVel : nullptr);
 
     for (unsigned short a = 0; a < nDim; ++a)
       for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[faceNodes[a]][iVar] += faceRes[a][iVar];
@@ -5744,6 +5802,14 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
           for (unsigned short iDim = 0; iDim < nDim; ++iDim)
             for (unsigned short jVar = 0; jVar < nVar; ++jVar)
               jac[faceNodes[a]][faceNodes[b]][iDim + 1][jVar] += omega * faceNormal[iDim] * dpdu[jVar];
+
+          /*--- Moving wall: the pressure work p (v_w.N + kappa), same weights, kappa on the node itself. ---*/
+          if (movingWall) {
+            su2double work = omega * GeometryToolbox::DotProduct(nDim, wallVel[b], faceNormal);
+            if (b == a) work += kappa;
+            for (unsigned short jVar = 0; jVar < nVar; ++jVar)
+              jac[faceNodes[a]][faceNodes[b]][nDim + 1][jVar] += work * dpdu[jVar];
+          }
         }
       }
     }

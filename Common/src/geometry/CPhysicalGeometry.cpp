@@ -7636,6 +7636,8 @@ void CPhysicalGeometry::SetSweptFluxP1(const CConfig* config) {
     array<array<su2double, MAXNDIM + 1>, 3> W{};
 
     if (!split) {
+      /*--- EDGE_FORM_P1 already stops on other cells, the median dual of EDGE_DISS_PROJECTED does not. ---*/
+      if (nElemNodes != nNodes) SU2_MPI::Error("GCL_EXACT_P1 needs a mesh of triangles or tetrahedra.", CURRENT_FUNCTION);
       for (unsigned short level = 0; level < nLevels; level++) {
         for (auto a = 0u; a < nNodes; a++) W[level][a] = shares[level][a];
       }

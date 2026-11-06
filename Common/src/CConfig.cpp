@@ -1855,8 +1855,10 @@ void CConfig::SetConfig_Options() {
   addBoolOption("BC_WALL_ENTROPY_P1", BC_Wall_Entropy_P1, false);
   /*!\brief VISC_P1_ENTROPY_MOVED \n DESCRIPTION: 3D, the element fluxes F_T of VISC_P1_ENTROPY on the test space of the moved (MOD_CENTROIDS) dual, i.e. the finite volume of F_T on the dual cells: residual of node a F_T (|T| I + (1 - theta_v) Y_T^T) g_a, Y_T = (3|T|/2) sum_o xi_o (x) g_o with xi_o the shift of the dual point of face o from its centroid. Its entropy defect P^v_T is paid in the element budget of EDGE_FORM_ES_BLEND, E_T = P^c_T + P^v_T - D^gal_T (+ W_T at weak walls): theta_v = min(1, E_T/P^v_T) first, then theta_c = (E_T - theta_v P^v_T)^+/D^c_T. Weak walls use the moved wall shares. Needs VISC_P1_ENTROPY, MOD_CENTROIDS, EDGE_FORM_P1 and EDGE_FORM_ES_BLEND. \ingroup Config \default false */
   addBoolOption("VISC_P1_ENTROPY_MOVED", Visc_P1_Entropy_Moved, false);
-  /*!\brief GCL_EXACT_P1 \n DESCRIPTION: Add the swept terms that make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX equal to the BDF difference of the volumes, for conservation in time on moving meshes. \ingroup Config*/
+  /*!\brief GCL_EXACT_P1 \n DESCRIPTION: Add the swept terms that make the grid flux of EDGE_FORM_P1 or SPLIT_EDGE_FLUX (or of the median dual of EDGE_DISS_PROJECTED with GRID_ENTROPY_P1) equal to the BDF difference of the volumes, for conservation in time on moving meshes. \ingroup Config*/
   addBoolOption("GCL_EXACT_P1", GCL_Exact_P1, false);
+  /*!\brief GRID_ENTROPY_P1 \n DESCRIPTION: ALE terms of the P1 entropy methods with JST (P1_ALE.md): grid term -ubar^EC(u_i,u_k) g_ik with the temporal entropy conservative average, [[w]].ubar^EC = [[rho]], and the pair grid flux g_ik of the GCL (swept terms included); on the moved dual the E part of the relative flux F - u {{v}}^T; relative speeds (u - {{v}}).E in the Lemma 3 bounds of EDGE_FORM_ES_DISS and EDGE_FORM_ES_BLEND; closure C with the grid fluxes of the face points (BC_ENTROPY_P1, BC_WALL_ENTROPY_P1); moving weak no-slip wall w_m + w_E v_w = 0; the nodal swept remainder of GCL_EXACT_P1 enters the wall pressure work instead of -U sigma at walls. Needs grid motion, GCL_EXACT_P1, EDGE_FORM_EC_FLUX and EDGE_FORM_P1 or EDGE_DISS_PROJECTED. \ingroup Config \default false */
+  addBoolOption("GRID_ENTROPY_P1", Grid_Entropy_P1, false);
   /*!\brief SPLIT_EDGE_FLUX \n DESCRIPTION: Central flux 0.5(F_i+F_k).n_ik on the split edges of the cells, dissipation and Jacobians stay on the true edges. \ingroup Config*/
   addBoolOption("SPLIT_EDGE_FLUX", Split_Edge_Flux, false);
   /*!\brief EDGE_DISS_PROJECTED \n DESCRIPTION: Median dual, central part on the median normal n, dissipation on its edge projection nu = (n.e/|e|^2) e. ROE: Roe flux on nu plus 0.5(F_i+F_k).(n-nu) with nodal states; JST: spectral radius |u.nu| + c|nu|. Fine grid only. \ingroup Config \default false */
@@ -6252,6 +6254,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_ES_Blend) active.push_back("EDGE_FORM_ES_BLEND");
   if (BC_Entropy_P1) active.push_back("BC_ENTROPY_P1");
   if (GCL_Exact_P1) active.push_back("GCL_EXACT_P1");
+  if (Grid_Entropy_P1) active.push_back("GRID_ENTROPY_P1");
   if (Split_Edge_Flux) active.push_back("SPLIT_EDGE_FLUX");
   if (Edge_Diss_Projected) active.push_back("EDGE_DISS_PROJECTED");
   if (Edge_Form_TeCNO) active.push_back("EDGE_FORM_TECNO");
@@ -6321,13 +6324,28 @@ void CConfig::CheckP1FluxOptions() const {
   }
   if (GCL_Exact_P1) {
     const string name = "GCL_EXACT_P1: ";
-    if (!Edge_Form_P1 && !Split_Edge_Flux) SU2_MPI::Error(name + "needs EDGE_FORM_P1 or SPLIT_EDGE_FLUX.", CURRENT_FUNCTION);
+    /*--- On the median dual (EDGE_DISS_PROJECTED) the swept terms are those of W = |T|/(d+1), used by GRID_ENTROPY_P1. ---*/
+    if (!Edge_Form_P1 && !Split_Edge_Flux && !(Edge_Diss_Projected && Grid_Entropy_P1))
+      SU2_MPI::Error(name + "needs EDGE_FORM_P1, SPLIT_EDGE_FLUX, or EDGE_DISS_PROJECTED with GRID_ENTROPY_P1.", CURRENT_FUNCTION);
     if (!GetGrid_Movement() || !dualTime) SU2_MPI::Error(name + "needs grid motion with dual time stepping.", CURRENT_FUNCTION);
     if (nMGLevels > 0) SU2_MPI::Error(name + "not available with multigrid, set MGLEVEL= 0.", CURRENT_FUNCTION);
     if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries.", CURRENT_FUNCTION);
     if (Restart && ((Kind_GridMovement == RIGID_MOTION) || Deform_Mesh)) {
       SU2_MPI::Error(name + "a restart does not restore the old coordinates of this motion.", CURRENT_FUNCTION);
     }
+  }
+  if (Grid_Entropy_P1) {
+    /*--- The entropy balance of P1_ALE.md (Theorem A10) needs the exact discrete GCL and the entropy conservative
+     * central part. Only the centered path has the new grid term, the Roe/TeCNO grid term is unchanged. ---*/
+    const string name = "GRID_ENTROPY_P1: ";
+    if (!GetGrid_Movement() || !dualTime) SU2_MPI::Error(name + "needs grid motion with dual time stepping.", CURRENT_FUNCTION);
+    if (!GCL_Exact_P1) SU2_MPI::Error(name + "needs GCL_EXACT_P1= YES, the entropy balance needs the exact discrete GCL.", CURRENT_FUNCTION);
+    if (!Edge_Form_P1 && !Edge_Diss_Projected)
+      SU2_MPI::Error(name + "needs EDGE_FORM_P1 (moved dual) or EDGE_DISS_PROJECTED (median dual).", CURRENT_FUNCTION);
+    if (!(Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST))
+      SU2_MPI::Error(name + "only for JST, the grid term of the upwind schemes is not changed.", CURRENT_FUNCTION);
+    if (!Edge_Form_EC_Flux) SU2_MPI::Error(name + "needs EDGE_FORM_EC_FLUX= YES, the grid term is the temporal part of the entropy conservative flux.", CURRENT_FUNCTION);
+    if (!idealGas) SU2_MPI::Error(name + "the entropy variables need an ideal gas.", CURRENT_FUNCTION);
   }
   if (Edge_Form_Positive_Diss != 0.0) {
     const string name = "EDGE_FORM_POSITIVE_DISS: ";
@@ -6346,7 +6364,7 @@ void CConfig::CheckP1FluxOptions() const {
                            (Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST)))
       SU2_MPI::Error(name + "needs EDGE_FORM_P1 with ROE or JST.", CURRENT_FUNCTION);
     if (!idealGas) SU2_MPI::Error(name + "the bound uses c^2 = gamma p / rho, it needs an ideal gas.", CURRENT_FUNCTION);
-    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid() && !Grid_Entropy_P1) SU2_MPI::Error(name + "not available with grid motion without GRID_ENTROPY_P1.", CURRENT_FUNCTION);
   }
   if (Edge_Form_ES_Blend) {
     const string name = "EDGE_FORM_ES_BLEND: ";
@@ -6356,7 +6374,7 @@ void CConfig::CheckP1FluxOptions() const {
     if (Edge_Form_ES_Diss) SU2_MPI::Error(name + "not together with EDGE_FORM_ES_DISS, which is the blend with theta = 1.", CURRENT_FUNCTION);
     if (Split_Edge_Flux) SU2_MPI::Error(name + "needs the simplices of EDGE_FORM_P1, not available with SPLIT_EDGE_FLUX.", CURRENT_FUNCTION);
     if (!idealGas) SU2_MPI::Error(name + "the entropy variables and the bound use an ideal gas.", CURRENT_FUNCTION);
-    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid() && !Grid_Entropy_P1) SU2_MPI::Error(name + "not available with grid motion without GRID_ENTROPY_P1.", CURRENT_FUNCTION);
   }
   if (Edge_Form_EC_Flux) {
     const string name = "EDGE_FORM_EC_FLUX: ";
@@ -6365,7 +6383,7 @@ void CConfig::CheckP1FluxOptions() const {
           (Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST)))
       SU2_MPI::Error(name + "needs EDGE_FORM_P1 or EDGE_DISS_PROJECTED with ROE or JST.", CURRENT_FUNCTION);
     if (!idealGas) SU2_MPI::Error(name + "the Ismail-Roe flux needs an ideal gas.", CURRENT_FUNCTION);
-    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid() && !Grid_Entropy_P1) SU2_MPI::Error(name + "not available with grid motion without GRID_ENTROPY_P1.", CURRENT_FUNCTION);
   }
   if (Edge_Form_TeCNO) {
     /*--- Entropy stable Roe part: Ismail-Roe flux of the nodal states plus a PSD dissipation on a sign preserving
@@ -6388,7 +6406,7 @@ void CConfig::CheckP1FluxOptions() const {
     if (!BC_Weak_P1 || !Edge_Form_P1) SU2_MPI::Error(name + "needs BC_WEAK_P1= YES and EDGE_FORM_P1= YES.", CURRENT_FUNCTION);
     if (Kind_Solver != MAIN_SOLVER::EULER) SU2_MPI::Error(name + "inviscid boundary fluxes only, needs SOLVER= EULER.", CURRENT_FUNCTION);
     if (!idealGas) SU2_MPI::Error(name + "the Ismail-Roe flux and the entropy variables need an ideal gas.", CURRENT_FUNCTION);
-    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid() && !Grid_Entropy_P1) SU2_MPI::Error(name + "not available with grid motion without GRID_ENTROPY_P1.", CURRENT_FUNCTION);
     if ((nMarker_Inlet > 0) || (nMarker_Outlet > 0) || (nMarker_Supersonic_Inlet > 0)) {
       SU2_MPI::Error(name + "only Euler walls, symmetry planes and far field are supported, not inlets or outlets.", CURRENT_FUNCTION);
     }
@@ -6421,7 +6439,7 @@ void CConfig::CheckP1FluxOptions() const {
     const string name = "BC_WALL_ENTROPY_P1: ";
     if (!Visc_P1_Entropy || !BC_Weak_P1) SU2_MPI::Error(name + "needs VISC_P1_ENTROPY= YES and BC_WEAK_P1= YES.", CURRENT_FUNCTION);
     if (!Edge_Form_P1 && !Edge_Diss_Projected) SU2_MPI::Error(name + "needs EDGE_FORM_P1 or EDGE_DISS_PROJECTED.", CURRENT_FUNCTION);
-    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion, the wall data must be w_m = 0.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid() && !Grid_Entropy_P1) SU2_MPI::Error(name + "not available with grid motion, without GRID_ENTROPY_P1 the wall data are w_m = 0.", CURRENT_FUNCTION);
     if (Kind_ConductivityModel != CONDUCTIVITYMODEL::CONSTANT_PRANDTL)
       SU2_MPI::Error(name + "needs CONDUCTIVITY_MODEL= CONSTANT_PRANDTL.", CURRENT_FUNCTION);
     if ((Kind_Turb_Model != TURB_MODEL::NONE) && (Kind_ConductivityModel_Turb != CONDUCTIVITYMODEL_TURB::CONSTANT_PRANDTL))
@@ -6473,7 +6491,7 @@ void CConfig::CheckP1FluxOptions() const {
     if (FluxCorrection) SU2_MPI::Error(name + "not available with FLUX_CORRECTION.", CURRENT_FUNCTION);
     if (Edge_Form_P1) SU2_MPI::Error(name + "not available with EDGE_FORM_P1.", CURRENT_FUNCTION);
     if (Split_Edge_Flux) SU2_MPI::Error(name + "not available with SPLIT_EDGE_FLUX.", CURRENT_FUNCTION);
-    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
+    if (GetDynamic_Grid() && !Grid_Entropy_P1) SU2_MPI::Error(name + "not available with grid motion without GRID_ENTROPY_P1.", CURRENT_FUNCTION);
     if (!((Kind_ConvNumScheme_Flow == SPACE_UPWIND && Kind_Upwind_Flow == UPWIND::ROE) ||
           (Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST))) {
       SU2_MPI::Error(name + "only ROE and JST are supported.", CURRENT_FUNCTION);

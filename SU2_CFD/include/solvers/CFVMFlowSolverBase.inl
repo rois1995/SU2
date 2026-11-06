@@ -2577,7 +2577,8 @@ void CFVMFlowSolverBase<V, FlowRegime>::SetResidual_DualTime(CGeometry *geometry
      match the grid term of their convective residual exactly. Multigrid levels use the normal path. ---*/
 
     const bool p1GridFlux = (iMesh == MESH_0) &&
-                            (config->GetEdge_Form_P1() || config->GetSplit_Edge_Flux() || config->GetBC_Weak_P1());
+                            (config->GetEdge_Form_P1() || config->GetSplit_Edge_Flux() || config->GetBC_Weak_P1() ||
+                             config->GetGCL_Exact_P1());
 
     if (p1GridFlux) {
       BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {

@@ -386,6 +386,30 @@ FORCEINLINE VectorDbl<nDim+2> ismailRoeProjFlux(const Double& gamma,
 }
 
 /*!
+ * \brief Temporal entropy conservative average of two states (GRID_ENTROPY_P1, P1_ALE.md, Lemma A6), ideal gas:
+ * ubar = rho_ln (1, {v}, 1/(2(gamma-1) beta_ln) + |{v}|^2 - {|v|^2}/2), beta = rho/(2p), ln the logarithmic mean.
+ * It is symmetric, ubar(U,U) = U, and [[w]].ubar = [[rho]] for the entropy variables w of U = -rho s/(gamma-1),
+ * rho being the temporal potential w.U - U. So -ubar g_ik with an antisymmetric grid flux g_ik that satisfies the
+ * discrete GCL produces only boundary terms of entropy.
+ */
+template<class PrimVarType, size_t nDim = PrimVarType::nDim>
+FORCEINLINE VectorDbl<nDim+2> ecTemporalAverage(const Double& gamma, const PrimVarType& Vi, const PrimVarType& Vj) {
+  const Double rhoLog = logMean(Vi.density(), Vj.density());
+  const Double betaLog = logMean(0.5 * Vi.density() / Vi.pressure(), 0.5 * Vj.density() / Vj.pressure());
+  Double velAvg2 = 0.0, vel2Avg = 0.0;
+  VectorDbl<nDim+2> ubar;
+  ubar(0) = rhoLog;
+  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+    const Double velAvg = 0.5 * (Vi.velocity(iDim) + Vj.velocity(iDim));
+    velAvg2 += velAvg * velAvg;
+    vel2Avg += 0.5 * (Vi.velocity(iDim) * Vi.velocity(iDim) + Vj.velocity(iDim) * Vj.velocity(iDim));
+    ubar(iDim+1) = rhoLog * velAvg;
+  }
+  ubar(nDim+1) = rhoLog * (0.5 / ((gamma - 1.0) * betaLog) + velAvg2 - 0.5 * vel2Avg);
+  return ubar;
+}
+
+/*!
  * \brief Edge projection of a dual normal, nu = (n.e/|e|^2) e (EDGE_DISS_PROJECTED).
  * \note nu.e = n.e, and nu = n when n is parallel to e. Among the normals with the edge projection n.e it has the
  *       least length, hence the least acoustic dissipation c|nu| (Lemma G4 of the optimal dual notes).

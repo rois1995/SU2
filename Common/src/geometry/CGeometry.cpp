@@ -2734,6 +2734,9 @@ void CGeometry::UpdateP1FluxCoefficients(const CConfig* config) {
   if (config->GetSplit_Edge_Flux()) SetSplitEdges();
   if (config->GetGCL_Exact_P1()) sweptFluxStale = true;
   if (config->GetEdge_Diss_Projected()) CheckProjectedDissipation();
+  /*--- One increment whether all threads, one thread or no parallel region calls this; no barrier, so that runs
+   * without P1 options synchronize as before. It is read in later residual calls only. ---*/
+  if (omp_get_thread_num() == 0) p1FluxVersion++;
 }
 
 void CGeometry::CheckProjectedDissipation() const {
@@ -2771,6 +2774,76 @@ void CGeometry::UpdateSweptFluxP1(const CConfig* config) {
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
+su2double CGeometry::BoundaryFaceKappa(const CConfig* config, unsigned short nFaceNodes, const unsigned long* facePoints,
+                                       const su2double* outward) const {
+  const bool secondOrder = (config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND);
+  const su2double dt = config->GetDelta_UnstTimeND();
+  const unsigned short nLevels = secondOrder ? 3 : 2;
+
+  /*--- The factors of the two intervals of the BDF difference, as in CPhysicalGeometry::SetSweptFluxP1. ---*/
+  const su2double interval[2] = {(secondOrder ? 1.5 : 1.0) / dt, (secondOrder ? -0.5 : 0.0) / dt};
+
+  auto coordAt = [&](unsigned short level, unsigned short k) -> const su2double* {
+    if (level == 0) return nodes->GetCoord(facePoints[k]);
+    return (level == 1) ? nodes->GetCoord_n(facePoints[k]) : nodes->GetCoord_n1(facePoints[k]);
+  };
+
+  /*--- Area vector of the face, linear (2D) or quadratic (3D) in the coordinates, orientation fixed below. ---*/
+  auto faceArea = [&](const su2double (*x)[3], su2double* area) {
+    for (unsigned short iDim = 0; iDim < 3; iDim++) area[iDim] = 0.0;
+    if (nDim == 2) {
+      area[0] = x[1][1] - x[0][1];
+      area[1] = -(x[1][0] - x[0][0]);
+    } else {
+      const su2double a[3] = {x[1][0] - x[0][0], x[1][1] - x[0][1], x[1][2] - x[0][2]};
+      const su2double b[3] = {x[2][0] - x[0][0], x[2][1] - x[0][1], x[2][2] - x[0][2]};
+      GeometryToolbox::CrossProduct(a, b, area);
+      for (unsigned short iDim = 0; iDim < 3; iDim++) area[iDim] *= 0.5;
+    }
+  };
+
+  auto levelCoord = [&](unsigned short level, su2double (*x)[3]) {
+    for (unsigned short k = 0; k < nFaceNodes; k++)
+      for (unsigned short iDim = 0; iDim < 3; iDim++) x[k][iDim] = (iDim < nDim) ? coordAt(level, k)[iDim] : 0.0;
+  };
+
+  su2double x0[3][3], area0[3];
+  levelCoord(0, x0);
+  faceArea(x0, area0);
+  const su2double sign = (GeometryToolbox::DotProduct(nDim, area0, outward) < 0.0) ? -1.0 : 1.0;
+
+  /*--- Psi between two levels: A at the midpoint (2D) or Simpson's rule (3D) dotted with the mean displacement,
+   * exact on straight node paths. ---*/
+  su2double psi = 0.0;
+  for (unsigned short iInterval = 0; iInterval + 1 < nLevels; iInterval++) {
+    su2double xNew[3][3], xOld[3][3], xMid[3][3], meanDx[3] = {0.0, 0.0, 0.0};
+    levelCoord(iInterval, xNew);
+    levelCoord(iInterval + 1, xOld);
+    for (unsigned short k = 0; k < nFaceNodes; k++) {
+      for (unsigned short iDim = 0; iDim < 3; iDim++) {
+        xMid[k][iDim] = 0.5 * (xNew[k][iDim] + xOld[k][iDim]);
+        meanDx[iDim] += (xNew[k][iDim] - xOld[k][iDim]) / nFaceNodes;
+      }
+    }
+    su2double area[3];
+    faceArea(xMid, area);
+    if (nDim == 3) {
+      su2double areaNew[3], areaOld[3];
+      faceArea(xNew, areaNew);
+      faceArea(xOld, areaOld);
+      for (unsigned short iDim = 0; iDim < 3; iDim++) area[iDim] = (areaOld[iDim] + 4.0 * area[iDim] + areaNew[iDim]) / 6.0;
+    }
+    psi += interval[iInterval] * sign * GeometryToolbox::DotProduct(nDim, area, meanDx);
+  }
+
+  su2double meanVel[3] = {0.0, 0.0, 0.0};
+  for (unsigned short k = 0; k < nFaceNodes; k++)
+    for (unsigned short iDim = 0; iDim < nDim; iDim++) meanVel[iDim] += nodes->GetGridVel(facePoints[k])[iDim] / nFaceNodes;
+
+  const su2double delta = psi - sign * GeometryToolbox::DotProduct(nDim, area0, meanVel);
+  return delta / nDim;
+}
+
 void CGeometry::SetGridFluxP1(const CConfig* config, su2activevector& gridFlux) const {
   const bool split = config->GetSplit_Edge_Flux();
   const bool form = config->GetEdge_Form_P1() || split;
@@ -2799,7 +2872,8 @@ void CGeometry::SetGridFluxP1(const CConfig* config, su2activevector& gridFlux) 
       addPair(iPoint, kPoint, edges->GetFormNormal()[iEdge], edges->GetFormE()[iEdge],
               exact ? edges->GetFormSwept()[iEdge] : su2double(0.0));
     } else {
-      addPair(iPoint, kPoint, edges->GetNormal(iEdge), nullptr, 0.0);
+      /*--- GCL_EXACT_P1 on the median dual (EDGE_DISS_PROJECTED with GRID_ENTROPY_P1). ---*/
+      addPair(iPoint, kPoint, edges->GetNormal(iEdge), nullptr, exact ? edges->GetFormSwept()[iEdge] : su2double(0.0));
     }
   }
 

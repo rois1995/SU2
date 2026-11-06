@@ -195,6 +195,15 @@ protected:
   };
   vector<P1WallFace> P1WallFaces;    /*!< \brief Wall faces of the local elements (BC_WALL_ENTROPY_P1), sorted by element. */
   bool P1WallFacesReady = false;     /*!< \brief P1WallFaces is built on first use. */
+  unsigned long P1WallFacesVersion = 0; /*!< \brief CGeometry::GetP1FluxVersion of the coordinates P1WallFaces was built on. */
+
+  /*!
+   * \brief Build P1WallFaces on first use, and again after the mesh has moved with GRID_ENTROPY_P1 (the moved wall
+   *        shares follow the coordinates). Collective (MPI): all ranks see the same geometry versions.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void UpdateP1WallFaces(const CGeometry *geometry, const CConfig *config);
 
   /*!
    * \brief Find the no-slip wall faces of the local volume elements (BC_WALL_ENTROPY_P1). The wall faces are

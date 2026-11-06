@@ -484,6 +484,7 @@ class CPrimalGrid {
 
   inline su2double* getNodeCoeffs(unsigned short iNode) {return BCCoeffs[iNode];};
   inline su2double* getNormal() {return Normal;};
+  inline const su2double* getNormal() const { return Normal; }
   
 };
 
