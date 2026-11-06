@@ -56,16 +56,17 @@ shape/geometry flags1. Actual quality ownership migration preserves every count 
 flag; committed q/J/debt max-over-mean1.2605/1.2797/1.1389. A219/quality_entry_assessment.json.
 A219/construction_progress_assessment.json preserves complete6-rank stages/prefix
 hashes. Shape zeros during construction were unmeasured, never closure.
-18 complete quality windows are preserved in A219/quality_net_progress.json.
-Latest round35712at3647.607257native seconds:972496cells/
-34070q-bad/31475J-bad/1808geometry-bad/0size-bad; all6census/cache/shape/geometry
-flags1. Latest window removes2527q/2738J/0geometry in128.675159s
-(19.64q/s,21.28J/s). Rates vary; this is measured net progress,
-not a closure forecast.
+23 complete quality windows are preserved in A219/quality_net_progress.json.
+Latest round36032at4233.437021native seconds:990557cells/
+23298q-bad/19782J-bad/1789geometry-bad/0size-bad; all6census/cache/shape/geometry
+flags1. Latest window removes1859q/2006J/7geometry in136.668918s
+(13.60q/s,14.68J/s). Rates vary; this is measured net progress,
+not a closure forecast. Counter parser now seals each rank at its FIRST native EXIT
+(self-check passed); later original-grid work cannot contaminate first-event counts.
 First-window retired/introduced populations reconcile exactly to whole-field net
 counts; they are published-cavity populations, not unique-cell cure counts.
 A219/quality_window1_assessment.json. Actual ownership at34752preserves all counts/
-flags. All10owned handles remain live and1518pins unchanged; sampled tree RSS~10.6GB.
+flags. All10owned handles remain live and1518pins unchanged; sampled tree RSS~10.7GB.
 Wait for terminal outcome; no source speed attribution, closure forecast, competing
 correction or prediction-based stop.
 Bounded read-only historical window35008/census11counter review is preserved in
@@ -79,7 +80,11 @@ quality policy selected before frozen219outcome. All strict gates and constructi
 
 If native event naturally rejects, preserve all6first-event EXIT/DETAIL rows AND
 complete6-rank capture shards/hashes before any authorized single owned-launcher
-stop. Final census completeness must be checked; never treat partial zero counts
+stop. Capture source review confirms boundary bindings are serialized independently
+of CellDiagnostic cache validity, and OwnedCell carries the nodal tensors. Actual
+manifests/row counts/hashes must still prove capture completeness. If q/J is missing,
+reuse the existing centroid/Measure diagnostic after terminal; the deferred218test
+currently has a217-specific790537cell assertion and must not be run on219unchanged. Final census completeness must be checked; never treat partial zero counts
 as closure. Do not repeat historical217or210stops. If accepted, continue event2,
 conservative admissible transfer, finite adapted CFD and isolated actual restart.
 
@@ -109,7 +114,7 @@ whole-field closure counts. Final working mesh and nodal tensor capture ARE comp
 After preserving natural failure and hashing all30capture files, sent SIGTERM ONCE
 to verified launcher552832/start1489019. NEVER repeat or signal historical PIDs.
 M6tool27489TERMINAL1; all10exact owned handles ABSENT,1518pins unchanged:
-A217/terminal_handles.json. No live solver/build. Exporttool31700TERMINAL0.
+A217/terminal_handles.json. No live217solver/build. Exporttool31700TERMINAL0.
 
 Actual requested files: A217/inspection/rejected_mesh.vtu (WITH9component
 captured_nodal_metric and availability), rejected_mesh.su2, bad_cells.vtu,
