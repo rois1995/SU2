@@ -11,6 +11,7 @@ paths.add(str(Path(__file__).resolve()))
 paths.update(str(ROOT.parents[3]/p) for p in (
     'Common/include/adaptation/CNativeFailureCapture3D.hpp',
     'UnitTests/SU2_CFD/adaptation/fixtures/native_failure202_witness.inc',
+    'UnitTests/SU2_CFD/adaptation/fixtures/native_current219_witness.inc',
     'Common/include/adaptation/CNativeMetricTransport3D.hpp',
     'Common/include/adaptation/CNativeAtlas3D.hpp',
     'Common/include/adaptation/CNativeCurvedAtlas3D.hpp',

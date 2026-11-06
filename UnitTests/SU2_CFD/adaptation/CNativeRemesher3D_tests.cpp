@@ -35,6 +35,7 @@ using namespace transfer_test;
 using namespace SU2Native3D;
 #include "fixtures/native_transaction_capture.inc"
 #include "fixtures/native_failure202_witness.inc"
+#include "fixtures/native_current219_witness.inc"
 
 #if defined(__GNUC__) && defined(__linux__)
 // Optional test-only PMPI collector; ordinary binaries do not supply these symbols.

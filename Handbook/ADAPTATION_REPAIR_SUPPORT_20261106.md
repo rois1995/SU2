@@ -5,7 +5,7 @@ budget, followed by two accepted adapted meshes, conservative admissible transfe
 continued adapted CFD and an isolated adapted disk restart. Then BL/MPI and RANS500k.
 This diagnostic does not establish that capability or authorize a new scheduler.
 
-## Why repair power is the active target
+## Historical repair-power evidence
 
 Build210 reached26q/11J with all26shape-union cells blocked and an empty queue.
 Geometry construction then reopened356q/488J. Actual final state was64q/39J/
@@ -20,7 +20,7 @@ refinement. Two difficult leading faces remain unresolved at16pieces. Two deeper
 trace checks hit the unchanged work ceiling. No production subdivision selected;
 no speedup or actual distance violation follows. R/geometry212_partition_assessment.json.
 
-## Current actual witness
+## Historical actual202 witness
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 The saved202cell143424775 has four complete vertex stars totaling52cells. This is
@@ -101,7 +101,8 @@ zero one-sided guidance in one cavity proves final geometry closure.
 ## User-supplied literature steering after corrected-target219
 
 These are design references and hypotheses only; no competing implementation.
-The LIVE219corrected-L1attempt and its residuals decide the next experiment.
+The TERMINAL219corrected-L1attempt supplies the current residuals; its complete
+census failed10286q/6872J/1753geometry/0size at the native time budget.
 
 - [Loseille, Alauzet, Menier: Unique cavity-based operator and hierarchical domain partitioning](https://www.sciencedirect.com/science/article/pii/S0010448516301142).
   Publisher abstract and [author-hosted indexed PDF](https://pages.saclay.inria.fr/frederic.alauzet/download/Loseille_Unique%20cavity%20based%20operator%20and%20hierarchical%20domain%20partitioning%20for%20fast%20parallel%20generation%20of%20anisotropic%20meshes.pdf)
@@ -139,3 +140,31 @@ support is unnecessary for one historical now-repairable witness; current correc
 metric cavities are required to establish a fresh limitation. Completion remains
 two accepted Euler meshes, admissible conservative transfer, finite adapted CFD,
 actual isolated adapted disk restart, then BL/MPI and RANS500k.
+
+## Current219 bounded-star findings and next connected test
+
+R/current_residual220_assessment.json preserves the16actual-current star tests:
+34503assertions/1case PASS, unchanged pins, complete original-neighbor supports.
+Captured q/J match exactly and maximum edge mismatch is below1e-10. Current
+geometry associations are reconstructed fresh; this is not historical replay.
+
+All four root/leading stars and all four blocked-midspan stars make no progress.
+Root context59cells stays5q/3J/8geometry-bad; midspan67stays6q/2J/5geometry-bad.
+These are CONTEXT unions, never enlarged optimizer inputs; active stars12–30cells
+at root and17–24at midspan. Both shape screening and geometry refusals occur;
+a geometry-refusal counter alone does not establish actual distance violation.
+
+Three tip-star candidates improve whole-context q/J without geometry increase;
+all four interior controls close the single J failure using existing movement/
+connectivity operations. Thus the sampled interior is repairable cheaply; this
+neither proves every interior residual repairable nor identifies production delay.
+
+The next SAME-cycle hypothesis is existing directed collapse followed by optimizer
+on the complete retained-point star, compared atomically against the original
+bounded joint support. No new operator or larger cavity is selected. Test all
+core-edge directions on the two refusing surface witnesses, record exact collapse
+refusals, then whole-context q/J retirement/introduction, geometry, interface and
+metric admission. Existing primitive outputs are not automatically engine-admissible:
+metric_valid is observational, while interface/boundary replacement are asserted.
+Nonlocal contact/publication and requested-height qualification remain separate.
+No production change is yet justified; build221 is this bounded diagnostic only.

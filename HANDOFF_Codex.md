@@ -37,7 +37,7 @@ All18metric-assessment owned handles ABSENT; frozen assessment pins unchanged.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A219=`R/m6_runs/euler_build219_local_metricL1_real_cfd50k`.
-Implementation/target checkpoint6209e172e3; latest pushed live evidence d219bf9627.
+Implementation/target checkpoint6209e172e3; terminal evidence checkpoint a8b0a5049c.
 Same saved real CFD seed,50k/defaultL1, unchanged5400native/14400outer budgets and
 all strict gates. Initial restart/6metric components/7flow fields BITWISE match the
 assessed production L1target(SHA5132ee2a...5d692); initial_target_match.json.
@@ -80,8 +80,16 @@ seals four actual residual core/neighbor supports and input/output hashes.
 Leading/root59cells, blocked midspan67, tip feature55, interior control91 are
 CONTEXT unions only. Active core-vertex stars contain8–42cells, within existing64.
 Do not enlarge operator bounds. Witness preparation/export/solver are terminal.
-Build220 LIVE (exec14915): test-only current-star diagnostic and input pin support;
-freeze C++/fixtures/build helper until terminal. No production operator changed.
+Build220TERMINAL0 (270.196755s),1302pins unchanged, both targets up to date.
+Test-only current-star diagnostic and input pin support; no production operator changed.
+Current-residual serial check TERMINAL0 (exec3121),34503assertions/1case;
+119.859523s helper wall, all pins unchanged. Earlier sandbox/MPI default-runtime
+failures occurred before tests; preserved, then same pt2pt settings as217used.
+R/current_residual220_assessment.json records16bounded-star results.
+Build221TERMINAL0 (402.404887s),1302pins unchanged, targets up to date.
+Current compound serial check LIVE (exec82386): existing collapse followed by
+retained-star optimizer, no production change. Freeze sources/fixtures/helpers/
+binary/witness inputs until terminal. One owned heavy workload.
 Next diagnostic reuses existing operators on these bounded stars; fresh current
 associations are reconstructed, not historical dependency/scheduling replay.
 

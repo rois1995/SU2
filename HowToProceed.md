@@ -13,19 +13,25 @@ Actual mesh point/cell counts are separate from metric complexity. Keep geometry
 1e-4, q>=.2, J>=.05, maximum metric edge1.8 and requested heights unchanged. CAD
 remains optional.
 
-The latest selected build217mesh is saved WITH its complete nodal metric:
-159281points/790537tetrahedra. It remains unapproved. Its last complete census
-reports71q/39J/2223geometry-bad; terminal classification is incomplete on5ranks,
-so raw final q0/J0is not closure. Actual corrected VTU/SU2links and artifact checks
-are in HANDOFF_Codex.md and the inspection handbook. All owned217handles are absent.
+The latest selected corrected-target build219mesh is saved WITH its complete nodal
+metric:197550points/1011596tetrahedra. It is unapproved. Its complete final census
+is10286q/6872J/1753geometry-bad/0size-bad. All ten owned M6handles are absent;
+first event naturally rejected at the time budget. Complete VTU/SU2 and independent
+reader/tensor checks are recorded in HANDOFF_Codex.md and A219/inspection_artifacts.json.
+Only the bounded cavity visualization is partial; full mesh and bad-cell view are complete.
 
-The user-authorized shared metric correction is reviewed and qualified in build219.
-Actual same-seed production L1/L2targets at50k were measured before remeshing; select
-correctedL1. See [metric correction and target choice](Handbook/ADAPTATION_METRIC_FLOOR_20261106.md).
-The next immediate action is the complete two-event M6 with unchanged gates/budgets.
-Old-target residual diagnosis218is deferred to this corrected-target outcome; retain
-its local fixture/helper edits. No competing implementation or extra baseline run.
-There are still zero accepted adapted M6 meshes and no adapted transfer/restart proof.
+The shared metric correction is reviewed and qualified in build219. Actual same-seed
+production L1/L2targets at50k were measured before remeshing; correctedL1was chosen.
+See [metric correction and target choice](Handbook/ADAPTATION_METRIC_FLOOR_20261106.md).
+This corrected-target attempt has now supplied actual residuals. Most remaining
+q-bad cells have no physical face; boundary certification is expensive. Current
+bounded existing-operator witness tests compare complete neighboring q/J/geometry/
+size effects on leading edge, blocked midspan, feature tip and an interior control.
+These distinguish placement, constraints, connectivity and certification before a
+new production correction is selected. Context unions67/91cells do not enlarge
+active operator supports: all selected core vertex stars are8–42cells.
+Old218diagnostic remains deferred/unexecuted; preserve its unrelated local edits.
+There are still zero accepted adapted meshes and no adapted transfer/restart proof.
 
 Historical build210 naturally rejected64q/39J/2283geometry-bad with complete census.
 Its terminal evidence remains useful for coupled closure, but219changes the target;

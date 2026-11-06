@@ -17,6 +17,8 @@ from run import sha, save
 REPO = ROOT.parents[3]
 BINARY = REPO / "integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver"
 CASES = {
+    "current_compound": (1, "[NativeCurrentCompound3D]"),
+    "current_residual": (1, "[NativeCurrentResidual3D]"),
     "captured_cavity": (1, "[NativeCapturedCavity3D]"),
     "feature_publication": (1, "[NativeFeaturePublication3D],Entity feature reconstruction handles ordinary and genuine routes"),
     "failure_capture": (1, "[NativeFailureCapture3D]"),
@@ -247,6 +249,19 @@ def main():
                     path = folder / f"stage_quality_entry_rank{rank}_{suffix}"
                     pins[str(path)] = sha(path)
         stage_environment = {}
+        if case in ("current_residual", "current_compound"):
+            config = Path(os.environ["SU2_NATIVE_FROZEN_CONFIG"]).resolve()
+            receipt = config.parent / "witness_preparation.json"
+            preparation = json.loads(receipt.read_text())
+            if preparation["schema"] != "native_current_witness_preparation_v1" or preparation["input_hashes_before"] != preparation["input_hashes_after"]:
+                raise RuntimeError("current witness provenance incomplete")
+            for name, item in preparation["outputs"].items():
+                path = config.parent / name
+                if sha(path) != item["sha256"] or path.stat().st_size != item["bytes"]:
+                    raise RuntimeError("current witness input changed: " + str(path))
+                pins[str(path.resolve())] = item["sha256"]
+            for path in (receipt, ROOT / "prepare_current219_witnesses.py"):
+                pins[str(path.resolve())] = sha(path)
         if case == "captured_cavity":
             config = Path(os.environ["SU2_NATIVE_FROZEN_CONFIG"]).resolve()
             folder = config.parent
