@@ -33,7 +33,8 @@ Existing --inspect-rejected workflow captures the FIRST rejected actual exit;
 no trial/routine mesh dumps. Before any stop preserve EXIT/DETAIL evidence AND all6
 capture manifests/raw shards; stop only verified current owned launcher ONCE.
 After owned run terminal, use existing inspect_native_failure3d.py on all6manifests
-with --output A217/inspection. It produces full rejected_mesh.su2/rejected_mesh.vtu
+using explicit A217/*_inspection_rank*_manifest.json inputs and --output
+A217/inspection. It produces full rejected_mesh.su2/rejected_mesh.vtu
 plus bad_cells/cavities/reference views; metric tensor/availability included in
 whole/bad/cavity VTUs. Verify actual counts, completeness, full nodal metric and
 file hashes before giving user links. No217mesh file is ready yet. Keep watching.
@@ -42,9 +43,15 @@ First complete217quality entry:721643cells/49380q/48218J/2713geometry/0size,
 all6census/cache/shape/geometry flags1, maximum759.619664native seconds. Whole-field
 entry counts MATCH210(905.707714s); no source timing improvement is inferred.
 A217/quality_entry_comparison.json preserves per-rank rows/work and exact prefixes.
-First complete quality window:723557cells/47621q/46229J/2693geometry/0size;
-net1759q/1989J/20geometry removed over93.314469native seconds. No closure forecast.
-A217/quality_window1_assessment.json; window indices/ownership differ from210.
+First window preserved in A217/quality_window1_assessment.json. Actual20992
+ownership transition preserves728520cells/43972q/42277J/2679geometry/0size and ALL
+complete flags. Debt max/mean1.40089→1.13770 is balance evidence only, not closure.
+A217/quality_ownership20992_assessment.json. Latest preserved census21312reaches
+749677cells/29907q/27436J/2620geometry/0size at2106.800323native seconds; all19
+complete quality/ownership groups are in A217/quality_trend_assessment.json.
+Capture is still pending.
+A217/metric_export_preflight_review.json checks exact shared-tensor/export contracts;
+actual output validation remains mandatory. Current sources/pins remain frozen.
 Read-only source review found existing publication/support invalidation covers
 changed neighbor stars and migration retains history; no demonstrated gap selected
 for a fix. A217/repair_invalidation_source_review.json. Await actual217residuals.

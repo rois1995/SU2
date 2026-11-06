@@ -17,7 +17,7 @@
   "export_command": [
     "python3",
     "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py",
-    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build217_real_cfd50k_inspection_metric",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build217_real_cfd50k_inspection_metric/*_inspection_rank*_manifest.json",
     "--output",
     "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build217_real_cfd50k_inspection_metric/inspection"
   ],
@@ -29,6 +29,7 @@
     "The current217mesh does not yet exist as an exported file.",
     "202inspection is historical and210in-memory mesh was not saved.",
     "Do not stop until native outcome/capture evidence justifies existing authorization; verify exact owned handles before any signal.",
-    "Run exporter only after all6shards closed and owned heavy run terminal; verify complete metric/mesh output before providing file links."
+    "Run exporter only after all6shards closed and owned heavy run terminal; verify complete metric/mesh output before providing file links.",
+    "Existing selected hook captures a rejected native-engine exit. If native succeeds and a later checker/transfer fails, rejected-engine shards may be absent; inspect actual outputs after terminal and do not claim missing files exist."
   ]
 }

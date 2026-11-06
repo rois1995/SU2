@@ -1,0 +1,20 @@
+{
+  "time": 1793972118.3349218,
+  "scope": "Read-only preflight of metric export semantics while M6 remains frozen; no extra computation campaign or mesh dump.",
+  "source_hashes": {
+    "Common/include/adaptation/CNativeMetricTransport3D.hpp": "cb9a45c0b8a990e1e58514fe7335ba970aecc4a6240401bf0120a308c62b3494",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py": "727a341f30afb210c5bbb64d38baf1782444f4dda56d95aacf7fe58256b5456d",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/test_inspect_native_failure3d.py": "e5763db5d97413a6c738d02c86c9548ab73e16fa58fa3da4a15dd65c655b1418"
+  },
+  "findings": [
+    "Production SameMetric compares all6tensor components exactly, matching exporter conflict policy.",
+    "PublishMetrics preserves existing nodal values and transports each new global node once per replacement before copying its tensor to every fresh cell.",
+    "Exporter emits the captured6components as a symmetric9component VTK tensor, refuses conflicting shared known values and marks missing values NaN/availability0.",
+    "Actual complete217shards, global nodal consistency, exported array counts/completeness and file hashes remain required after terminal capture."
+  ],
+  "existing_qualification": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_vtu209_qualification.json",
+  "limits": [
+    "Source review does not prove current output completeness.",
+    "Current nodal target is exported; original continuous-field reconstruction/query-time composition is not inferred."
+  ]
+}
