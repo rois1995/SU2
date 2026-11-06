@@ -128,6 +128,7 @@ TEST_CASE("AD test case for ideal gas fluid model", "[AD tests]") {
   delete fluid_model;
 }
 
+#ifdef HAVE_MLPCPP
 TEST_CASE("AD test case for data-driven fluid model", "[AD tests]") {
   std::stringstream config_options;
 
@@ -154,3 +155,4 @@ TEST_CASE("AD test case for data-driven fluid model", "[AD tests]") {
   delete config;
   delete fluid_model;
 }
+#endif
