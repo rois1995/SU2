@@ -38,6 +38,12 @@ plus bad_cells/cavities/reference views; metric tensor/availability included in
 whole/bad/cavity VTUs. Verify actual counts, completeness, full nodal metric and
 file hashes before giving user links. No217mesh file is ready yet. Keep watching.
 210in-memory mesh was not captured;202inspection remains historical, not latest.
+Latest preserved complete construction census:688657cells/3530geometry-bad/
+11355size-bad at406.957711native seconds. q/J intentionally UNMEASURED, not zero
+accepted shape. A217/stage_progress_snapshot.json (live observation, not terminal).
+Read-only source review found existing publication/support invalidation covers
+changed neighbor stars and migration retains history; no demonstrated gap selected
+for a fix. A217/repair_invalidation_source_review.json. Await actual217residuals.
 
 ## Latest terminal reference: build210; coupled closure still missing
 
