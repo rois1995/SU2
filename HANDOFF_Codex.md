@@ -74,13 +74,18 @@ First COMPLETE quality entry round34594 at1584.159718native seconds:
 871607cells/102058q/101860J/1997geometry/0size, allflags1, counts/flags match219.
 Counts alone do not prove identical connectivity. quality_entry_assessment.json.
 
-Latest COMPLETE window35136 at3548.364185s(1964.204467s since entry):
-925595cells/64907q/64544J/1888geometry/0size; allflags1. Ninth window net4297q/
-4374J/11geo removed in222.043732s(~19.4q/19.7J per second). Matching219round has
-63801q/63385J/1869geometry at1622.540435quality seconds; cumulative q removal
-18.9140/s versus23.5785/s. No established whole-field benefit. quality_net_progress.json
-contains first quality episode only; matched_quality_comparison219.json records
-complete matched rounds with actual times, no interpolation/forecast.
+Latest COMPLETE window35200 at3797.356784s(2213.197066s since entry):
+931836cells/60563q/59944J/1887geometry/0size; allflags1. Tenth window net4344q/
+4600J/1geo removed in248.992599s including preceding ownership(17.45q/18.47J/s).
+At matching repair round219has60149q/59528J/1867geometry at1768.251094quality
+seconds. At nearly MATCHING QUALITY TIME,219has48084q/46780J/1842geometry at
+2210.501935s, only2.695131s earlier. Thus useful progress materially trails219;
+no demonstrated whole-field benefit. Contention and changed geometry work are
+not isolated. quality_net_progress.json contains first quality episode only;
+matched_quality_comparison219.json now records BOTH matching rounds and neighboring
+observed censuses at matching quality time, with explicit time differences and no
+interpolation/forecast/count bounds. Earlier first/fourth/fifth counter comparisons
+remain the detailed work receipts. Keep frozen until its outcome.
 quality_location35072_assessment.json: qsurface6629/interior62575, Jsurface10112/
 interior58806; badunion90207,90183with edge<.9,87801with edge<.5. Interior means
 no physical face, not necessarily unconstrained vertices. Short-edge association
