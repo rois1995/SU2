@@ -443,9 +443,11 @@ bool CNSSolver::P1MovedViscousBudget(const CGeometry *geometry, const CConfig *c
         for (unsigned short iDim = 0; iDim < nDim; ++iDim)
           wallVel[k][iDim] = geometry->nodes->GetGridVel(element->GetNode(faceNodes[k]))[iDim];
     }
+    /*--- Symmetry faces (BC_ENTROPY_P1, viscous) enter W_T like the walls (P1_NOSLIP.md, 11.3). ---*/
     dissipation -= pve::NoSlipWallProduction(simplex, nDim, faceNodes, faceNormal, record->isothermal,
                                              record->wallTheta, record->nWallFaces, pve::NOSLIP_SIPG,
-                                             pve::NOSLIP_PENALTY, record->share, movingWall ? wallVel : nullptr);
+                                             pve::NOSLIP_PENALTY, record->share,
+                                             (movingWall && !record->symmetry) ? wallVel : nullptr, record->symmetry);
   }
   return true;
 }

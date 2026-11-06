@@ -182,12 +182,13 @@ protected:
   void SetUndivided_Laplacian(CGeometry *geometry, const CConfig *config);
 
   /*!
-   * \brief A no-slip wall face of BC_WALL_ENTROPY_P1 seen from a local volume element.
+   * \brief A no-slip wall face of BC_WALL_ENTROPY_P1 (or a symmetry face with BC_ENTROPY_P1 in viscous runs) seen
+   *        from a local volume element.
    */
   struct P1WallFace {
     unsigned long elem = 0;          /*!< \brief Local triangle or tetrahedron. */
     unsigned short opposite = 0;     /*!< \brief Element-local index of the node opposite the wall face. */
-    unsigned short nWallFaces = 1;   /*!< \brief m_T, number of no-slip wall faces of the element. */
+    unsigned short nWallFaces = 1;   /*!< \brief m_T, number of SAT faces (no-slip walls and symmetry) of the element. */
     bool isothermal = false;         /*!< \brief Isothermal wall, otherwise adiabatic. */
     su2double wallTheta = 0.0;       /*!< \brief 1/(R T_w) of an isothermal wall. */
     su2double share[3] = {0.0, 0.0, 0.0}; /*!< \brief Moved wall shares a_a/A_f of the face nodes in increasing local
@@ -197,6 +198,9 @@ protected:
     passivedouble weight = 1.0;      /*!< \brief omega_t of that entry, 1 for a simplex. */
     short marker = -1;               /*!< \brief Local (Marker_All) index of the wall marker of the face, -1 if the marker
                                           is not on this rank (then no node of the face is owned here). */
+    bool symmetry = false;           /*!< \brief Symmetry plane with the SAT for u.n = 0 only (BC_ENTROPY_P1 in viscous
+                                          runs, P1_NOSLIP.md 11.3); its inviscid part is the closure C of
+                                          Weak_BC_Residual. Not a force marker. */
   };
   vector<P1WallFace> P1WallFaces;    /*!< \brief Wall faces of the local elements (BC_WALL_ENTROPY_P1), sorted by element. */
   bool P1WallFacesReady = false;     /*!< \brief P1WallFaces is built on first use. */

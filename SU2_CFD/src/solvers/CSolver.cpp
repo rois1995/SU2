@@ -50,6 +50,7 @@
 #include "../../../Common/include/toolboxes/C1DInterpolation.hpp"
 #include "../../include/numerics/flow/p1_viscous_entropy.hpp"
 #include "../../include/numerics/flow/p1_ale_entropy.hpp"
+#include "../../include/numerics/flow/p1_boundary_ghost.hpp"
 #include <array>
 #include <map>
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
@@ -4843,35 +4844,76 @@ void EsConservative(unsigned short nDim, const su2double& gamma, const EsState& 
 }
 
 /*--- Characteristic far-field ghost of CEulerSolver::BC_Far_Field_Residual (Riemann invariants, no grid motion),
- * built from the state S at a face point instead of the nodal state. ---*/
+ * built from the state S at a face point instead of the nodal state (P1BoundaryGhost::FarField). ---*/
 void EsFarFieldGhost(unsigned short nDim, const su2double& gamma, const EsState& S, const EsState& Inf,
                      const su2double* unitNormal, EsState& G) {
-  const su2double gm1 = gamma - 1.0;
-  su2double VnB = 0.0, VnI = 0.0;
-  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-    VnB += S.vel[iDim] * unitNormal[iDim];
-    VnI += Inf.vel[iDim] * unitNormal[iDim];
-  }
-  const su2double cB = sqrt(gamma * S.p / S.rho), cI = sqrt(gamma * Inf.p / Inf.rho);
-  const su2double entropyB = pow(S.rho, gamma) / S.p, entropyI = pow(Inf.rho, gamma) / Inf.p;
+  P1BoundaryGhost::FarFieldState ghost;
+  P1BoundaryGhost::FarField(nDim, gamma, S.rho, S.vel, S.p, Inf.rho, Inf.vel, Inf.p, unitNormal, nullptr, ghost);
+  G.rho = ghost.Density;
+  G.p = ghost.Pressure;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) G.vel[iDim] = ghost.Velocity[iDim];
+}
 
-  /*--- if/else rather than ?: so that the AD expression types need not match. ---*/
-  su2double rPlus, rMinus;
-  if (VnI > -cI) rPlus = VnB + 2.0 * cB / gm1;
-  else rPlus = VnI + 2.0 * cI / gm1;
-  if (VnI > cI) rMinus = VnB - 2.0 * cB / gm1;
-  else rMinus = VnI - 2.0 * cI / gm1;
-  const su2double Vn = 0.5 * (rPlus + rMinus);
-  const su2double c = 0.25 * (rPlus - rMinus) * gm1;
+/*--- BC_ENTROPY_P1 (P1_NOSLIP.md, 11): the marker of a boundary face and its data at the face nodes, in the order of
+ * the face states of EsFaceResidual. Far field, inlet and outlet get the ghost of the weak boundary residuals of
+ * CEulerSolver at every face point, from the projected state u~_q and the data interpolated to the point; walls and
+ * symmetry planes the pressure flux. ---*/
+struct EsBoundaryData {
+  unsigned short kind = EULER_WALL;   /*!< \brief KindBC of the marker. */
+  string tag;                         /*!< \brief Marker tag, for the messages. */
+  EsState inf;                        /*!< \brief Free stream (far field). */
+  bool massFlow = false;              /*!< \brief Inlet: mass flow, otherwise total conditions. */
+  bool useNormal = false;             /*!< \brief Inlet: flow along the negative face normal. */
+  su2double gasConst = 1.0, refT = 1.0, refP = 1.0;   /*!< \brief Inlet: gas constant, references of the data. */
+  su2double dataT[3] = {0.0, 0.0, 0.0};               /*!< \brief Inlet: Inlet_Ttotal of the face nodes. */
+  su2double dataP[3] = {0.0, 0.0, 0.0};               /*!< \brief Inlet: Inlet_Ptotal of the face nodes. */
+  su2double flowDir[3][3] = {{0.0}};                  /*!< \brief Inlet: flow direction of the face nodes. */
+  su2double pExit[3] = {0.0, 0.0, 0.0};               /*!< \brief Outlet: non-dimensional back pressure of the face nodes. */
+};
 
-  const bool outflow = (VnI > 0.0);
-  const su2double entropy = outflow ? entropyB : entropyI;
-  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-    if (outflow) G.vel[iDim] = S.vel[iDim] + (Vn - VnB) * unitNormal[iDim];
-    else G.vel[iDim] = Inf.vel[iDim] + (Vn - VnI) * unitNormal[iDim];
+/*--- Ghost g_q at a face point with phi_k(x_q) = phiq[k]. False for walls and symmetry planes (pressure flux). The
+ * ghost must be admissible (Lemma B7 needs rho, p > 0), otherwise the run stops. ---*/
+bool EsBoundaryGhost(unsigned short nDim, unsigned short nNodes, const su2double& gamma, const EsBoundaryData& data,
+                     const su2double* phiq, const EsState& sq, const su2double* unitNormal, EsState& gq) {
+  switch (data.kind) {
+    case FAR_FIELD:
+      EsFarFieldGhost(nDim, gamma, sq, data.inf, unitNormal, gq);
+      break;
+    case INLET_FLOW: {
+      su2double dataT = 0.0, dataP = 0.0, flowDir[3] = {0.0, 0.0, 0.0}, vel2 = 0.0;
+      for (unsigned short k = 0; k < nNodes; ++k) {
+        dataT += phiq[k] * data.dataT[k];
+        dataP += phiq[k] * data.dataP[k];
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) flowDir[iDim] += phiq[k] * data.flowDir[k][iDim];
+      }
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) vel2 += sq.vel[iDim] * sq.vel[iDim];
+      const su2double enthalpy = gamma * sq.p / ((gamma - 1.0) * sq.rho) + 0.5 * vel2;
+      P1BoundaryGhost::InletState ghost;
+      P1BoundaryGhost::Inlet(nDim, data.massFlow, gamma, data.gasConst, sq.rho, sq.vel, sq.p, enthalpy, dataT, dataP,
+                             flowDir, data.useNormal, unitNormal, data.refT, data.refP, ghost);
+      gq.rho = ghost.Density;
+      gq.p = ghost.Pressure;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) gq.vel[iDim] = ghost.Velocity[iDim];
+      break;
+    }
+    case OUTLET_FLOW: {
+      su2double pExit = 0.0;
+      for (unsigned short k = 0; k < nNodes; ++k) pExit += phiq[k] * data.pExit[k];
+      P1BoundaryGhost::OutletState ghost;
+      P1BoundaryGhost::Outlet(nDim, gamma, sq.rho, sq.vel, sq.p, pExit, unitNormal, ghost);
+      gq.rho = ghost.Density;
+      gq.p = ghost.Pressure;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) gq.vel[iDim] = ghost.Velocity[iDim];
+      break;
+    }
+    default:
+      return false;
   }
-  G.rho = pow(entropy * c * c / gamma, 1.0 / gm1);
-  G.p = G.rho * c * c / gamma;
+  if (!P1BoundaryGhost::Admissible(gq.rho, gq.p)) {
+    SU2_MPI::Error("BC_ENTROPY_P1: inadmissible ghost state (rho or p not positive) on marker " + data.tag + ".",
+                   CURRENT_FUNCTION);
+  }
+  return true;
 }
 
 /*--- Closure C on one boundary simplex face (segment: 2 nodes, triangle: 3 nodes) with the outward area vector
@@ -4879,9 +4921,11 @@ void EsFarFieldGhost(unsigned short nDim, const su2double& gamma, const EsState&
  * (2/3,1/6,1/6) on triangles (a_q = 1/3), both exact to degree 2. With N_q = a_q A_f nu_f,
  * w~_q = sum_k phi_k(x_q) w_k, u~_q = u(w~_q) and G_qk = F_IR(u~_q, u_k; N_q):
  *   b_i = sum_q phi_i(x_q) [ G_qi - sum_k phi_k(x_q) G_qk + F*_q ],
- * F*_q = (0, p~_q N_q, 0) at walls (entropy conservative), and at the far field
- * F*_q = F_IR(u~_q, g_q; N_q) - lam/2 |N_q| (U(g_q) - U(u~_q)), lam = max(|u.nu| + c) over u~_q and the ghost g_q. ---*/
-void EsFaceResidual(unsigned short nDim, unsigned short nNodes, const su2double& gamma, const EsState* inf,
+ * F*_q = (0, p~_q N_q, 0) at walls and symmetry planes (entropy conservative, also for data = nullptr), and at the
+ * far field, inlets and outlets (EsBoundaryGhost)
+ * F*_q = F_IR(u~_q, g_q; N_q) - lam/2 |N_q| (U(g_q) - U(u~_q)), lam = max(|u.nu| + c) over u~_q and the ghost g_q,
+ * Tadmor entropy stable for any admissible ghost (Lemma B7). ---*/
+void EsFaceResidual(unsigned short nDim, unsigned short nNodes, const su2double& gamma, const EsBoundaryData* data,
                     const su2double* faceNormal, const EsState* nodeState, su2double (*res)[ES_NVAR]) {
   const unsigned short nVar = nDim + 2;
 
@@ -4925,11 +4969,11 @@ void EsFaceResidual(unsigned short nDim, unsigned short nNodes, const su2double&
     }
 
     su2double Fstar[ES_NVAR] = {0.0};
-    if (inf == nullptr) {
+    EsState gq;
+    const bool ghost = (data != nullptr) && EsBoundaryGhost(nDim, nNodes, gamma, *data, phi[q], sq, unitNormal, gq);
+    if (!ghost) {
       for (unsigned short iDim = 0; iDim < nDim; ++iDim) Fstar[iDim+1] = sq.p * pointNormal[iDim];
     } else {
-      EsState gq;
-      EsFarFieldGhost(nDim, gamma, sq, *inf, unitNormal, gq);
       EsIsmailRoeFlux(nDim, gamma, sq, gq, pointNormal, Fstar);
       su2double velNq = 0.0, velNg = 0.0;
       for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
@@ -4962,8 +5006,10 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
   const su2double wOther = weakP1 ? 1.0 / 12.0 : 1.0 / 8.0;
   const su2double p1Coeffs[3] = {1.0 / 3.0, 1.0 / 8.0, 1.0 / 8.0};
 
-  /*--- BC_ENTROPY_P1: closure C (EsFaceResidual) replaces the weighted nodal fluxes of Euler walls, symmetry planes
-   * and far field. CConfig makes sure that BC_WEAK_P1 is on, so the face weights below are (5,1)/12 and (6,1,1)/24. ---*/
+  /*--- BC_ENTROPY_P1: closure C (EsFaceResidual) replaces the weighted nodal fluxes of Euler walls, symmetry planes,
+   * far field, inlets and outlets. CConfig makes sure that BC_WEAK_P1 is on, so the face weights below are (5,1)/12 and
+   * (6,1,1)/24. In viscous runs the viscous flux of these markers is the natural one (zero) of VISC_P1_ENTROPY, and
+   * symmetry planes get the SAT for u.n = 0 of WeakNoSlipWallResidual (P1_NOSLIP.md, 11). ---*/
   const bool bcEntropyP1 = config->GetBC_Entropy_P1();
   EsState esInf;
   if (bcEntropyP1) {
@@ -4971,6 +5017,33 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
     esInf.p = GetPressure_Inf();
     for (unsigned short iDim = 0; iDim < nDim; ++iDim) esInf.vel[iDim] = GetVelocity_Inf(iDim);
   }
+  /*--- Marker data of closure C (P1_NOSLIP.md, 11): kind and tag per marker, inlet and outlet data per face node. ---*/
+  EsBoundaryData esData;
+  esData.inf = esInf;
+  esData.gasConst = config->GetGas_ConstantND();
+  esData.massFlow = (config->GetKind_Inlet() == INLET_TYPE::MASS_FLOW);
+  esData.useNormal = config->GetInletUseNormal();
+  esData.refT = esData.massFlow ? config->GetDensity_Ref() : config->GetTemperature_Ref();
+  esData.refP = esData.massFlow ? config->GetVelocity_Ref() : config->GetPressure_Ref();
+  const bool gravity = config->GetGravityForce();
+  auto setFaceData = [&](int iMarker, unsigned short nFace, const unsigned long* facePoints) {
+    if ((esData.kind != INLET_FLOW) && (esData.kind != OUTLET_FLOW)) return;
+    for (unsigned short k = 0; k < nFace; ++k) {
+      const long iVertex = geometry->nodes->GetVertex(facePoints[k], iMarker);
+      if (iVertex < 0) SU2_MPI::Error("BC_ENTROPY_P1: face node without vertex on " + esData.tag + ".", CURRENT_FUNCTION);
+      if (esData.kind == INLET_FLOW) {
+        esData.dataT[k] = GetInletTtotal(iMarker, iVertex);
+        esData.dataP[k] = GetInletPtotal(iMarker, iVertex);
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) esData.flowDir[k][iDim] = GetInletFlowDir(iMarker, iVertex, iDim);
+      } else {
+        /*--- Back pressure of BC_Outlet_Residual at the node. ---*/
+        su2double pExit = config->GetOutlet_Pressure(esData.tag);
+        if (gravity) pExit = config->GetOutlet_Pressure(esData.tag) - geometry->nodes->GetCoord(facePoints[k], nDim-1)*STANDARD_GRAVITY;
+        esData.pExit[k] = pExit / config->GetPressure_Ref();
+      }
+    }
+  };
+
   const bool gridEntropyP1 = config->GetGrid_Entropy_P1();
   P1AleEntropy::State aleInf;
   aleInf.rho = esInf.rho;
@@ -5069,9 +5142,18 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
 
     const bool weakNoSlip = bcWallEntropyP1 && ((KindBC == HEAT_FLUX) || (KindBC == ISOTHERMAL));
 
-    if (bcEntropyP1 && !weakNoSlip && (KindBC != EULER_WALL) && (KindBC != SYMMETRY_PLANE) && (KindBC != FAR_FIELD)) {
-      SU2_MPI::Error("BC_ENTROPY_P1 supports Euler walls, symmetry planes and far field, not marker " +
+    /*--- BC_ENTROPY_P1: Euler walls, symmetry planes, far field, inlets and outlets (closure C), weak no-slip walls
+     * (WeakNoSlipWallResidual). Inlets and outlets only on static meshes (no ALE ghost). ---*/
+    const bool esKind = (KindBC == EULER_WALL) || (KindBC == SYMMETRY_PLANE) || (KindBC == FAR_FIELD) ||
+                        (((KindBC == INLET_FLOW) || (KindBC == OUTLET_FLOW)) && !gridEntropyP1);
+    if (bcEntropyP1 && !weakNoSlip && !esKind) {
+      SU2_MPI::Error("BC_ENTROPY_P1 supports Euler walls, symmetry planes, far field, inlets and outlets (static "
+                     "meshes) and the weak no-slip walls of BC_WALL_ENTROPY_P1, not marker " +
                      config->GetMarker_All_TagBound(iMarker) + ".", CURRENT_FUNCTION);
+    }
+    if (bcEntropyP1) {
+      esData.kind = KindBC;
+      esData.tag = config->GetMarker_All_TagBound(iMarker);
     }
 
     if (weakNoSlip) continue;
@@ -5110,15 +5192,17 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
           su2double triRes[3][MAXNVAR] = {{0.0}};
           if (bcEntropyP1) {
             EsState faceStates[3];
+            unsigned long facePoints[3] = {0, 0, 0};
             for (unsigned short a = 0; a < 3; ++a) {
-              const su2double* V = base_nodes->GetPrimitive(element->GetNode(local[a]));
+              facePoints[a] = element->GetNode(local[a]);
+              const su2double* V = base_nodes->GetPrimitive(facePoints[a]);
               faceStates[a].rho = V[nDim+2];
               faceStates[a].p = V[nDim+1];
               for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceStates[a].vel[iDim] = V[iDim+1];
             }
+            setFaceData(iMarker, 3, facePoints);
             su2double faceRes[3][ES_NVAR] = {{0.0}};
-            EsFaceResidual(nDim, 3, config->GetGamma(), (KindBC == FAR_FIELD) ? &esInf : nullptr, subNormal[tri],
-                           faceStates, faceRes);
+            EsFaceResidual(nDim, 3, config->GetGamma(), &esData, subNormal[tri], faceStates, faceRes);
             for (unsigned short a = 0; a < 3; ++a)
               for (iVar = 0; iVar < nVar; ++iVar) triRes[a][iVar] = faceRes[a][iVar];
           } else {
@@ -5157,7 +5241,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
 
       /*--- BC_ENTROPY_P1: residual of closure C from the nodal primitives (halo nodes included, as above), added to
        * the owned nodes only. The Jacobian is the approximate one of the 5:1 / 6:1:1 closure of the nodal boundary
-       * fluxes in "buffer" (pressure flux at walls, Riemann ghost flux at the far field), which is the linearization
+       * fluxes in "buffer" (pressure flux at walls, ghost fluxes at the far field, inlets, outlets), the linearization
        * of closure C in its linear analog (Thm B9 iv). Same sparsity as the path below. ---*/
       if (bcEntropyP1) {
         su2double faceRes[3][ES_NVAR] = {{0.0}};
@@ -5182,14 +5266,16 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
                                      element->getNormal(), faceStates, faceGridVel, kappa, faceRes);
         } else {
           EsState faceStates[3];
+          unsigned long facePoints[3] = {0, 0, 0};
           for (unsigned short a = 0; a < nNodes; ++a) {
-            const su2double* V = base_nodes->GetPrimitive(element->GetNode(a));
+            facePoints[a] = element->GetNode(a);
+            const su2double* V = base_nodes->GetPrimitive(facePoints[a]);
             faceStates[a].rho = V[nDim+2];
             faceStates[a].p = V[nDim+1];
             for (unsigned short iDim = 0; iDim < nDim; ++iDim) faceStates[a].vel[iDim] = V[iDim+1];
           }
-          EsFaceResidual(nDim, nNodes, config->GetGamma(), (KindBC == FAR_FIELD) ? &esInf : nullptr,
-                         element->getNormal(), faceStates, faceRes);
+          setFaceData(iMarker, nNodes, facePoints);
+          EsFaceResidual(nDim, nNodes, config->GetGamma(), &esData, element->getNormal(), faceStates, faceRes);
         }
 
         su2double omegaSelf = wSelf, omegaOther = wOther;
@@ -5653,10 +5739,17 @@ void CSolver::SetP1WallFaces(const CGeometry *geometry, const CConfig *config) {
    * with omega_t: the entries over the triangles of one diagonal sum to 1/2. ---*/
   const bool mixed = config->GetEdge_Form_P1_Mixed();
 
+  /*--- BC_ENTROPY_P1 in viscous runs (P1_NOSLIP.md, 11.3-11.4): the symmetry planes carry the SAT for u.n = 0 of the
+   * same element machinery, so they are records too, and m_T counts the wall and symmetry faces of an element. ---*/
+  const bool symmetrySAT = config->GetBC_Entropy_P1() && config->GetViscous();
+  auto isSatMarker = [&](unsigned short kind) {
+    return (kind == HEAT_FLUX) || (kind == ISOTHERMAL) || (symmetrySAT && (kind == SYMMETRY_PLANE));
+  };
+
   vector<unsigned long> sendRecords;
   for (unsigned short iMarker = 0; iMarker < config->GetnMarker_All(); ++iMarker) {
     const auto kind = config->GetMarker_All_KindBC(iMarker);
-    if ((kind != HEAT_FLUX) && (kind != ISOTHERMAL)) continue;
+    if (!isSatMarker(kind)) continue;
     const unsigned long cfgMarker = config->GetMarker_CfgFile_TagBound(config->GetMarker_All_TagBound(iMarker));
     for (unsigned long iElem = 0; iElem < geometry->GetnElem_Bound(iMarker); ++iElem) {
       const auto* face = geometry->bound[iMarker][iElem];
@@ -5700,7 +5793,7 @@ void CSolver::SetP1WallFaces(const CGeometry *geometry, const CConfig *config) {
   std::map<unsigned long, short> localMarker;
   for (unsigned short iMarker = 0; iMarker < config->GetnMarker_All(); ++iMarker) {
     const auto kind = config->GetMarker_All_KindBC(iMarker);
-    if ((kind != HEAT_FLUX) && (kind != ISOTHERMAL)) continue;
+    if (!isSatMarker(kind)) continue;
     localMarker[config->GetMarker_CfgFile_TagBound(config->GetMarker_All_TagBound(iMarker))] = static_cast<short>(iMarker);
   }
   auto markerOf = [&](unsigned long cfgMarker) -> short {
@@ -5713,6 +5806,7 @@ void CSolver::SetP1WallFaces(const CGeometry *geometry, const CConfig *config) {
     P1WallFace record;
     record.elem = iElem;
     record.marker = markerOf(it->second);
+    record.symmetry = (config->GetMarker_CfgFile_KindBC(tag) == SYMMETRY_PLANE);
     record.isothermal = (config->GetMarker_CfgFile_KindBC(tag) == ISOTHERMAL);
     if (record.isothermal) {
       const su2double wallTemperature = config->GetIsothermal_Temperature(tag) / config->GetTemperature_Ref();
@@ -5763,6 +5857,7 @@ void CSolver::SetP1WallFaces(const CGeometry *geometry, const CConfig *config) {
       record.elem = iElem;
       record.marker = markerOf(it->second);
       record.opposite = opp;
+      record.symmetry = (config->GetMarker_CfgFile_KindBC(tag) == SYMMETRY_PLANE);
       record.isothermal = (config->GetMarker_CfgFile_KindBC(tag) == ISOTHERMAL);
       if (record.isothermal) {
         const su2double wallTemperature = config->GetIsothermal_Temperature(tag) / config->GetTemperature_Ref();
@@ -5885,10 +5980,14 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
     su2double faceNormal[3] = {0.0, 0.0, 0.0};
     pve::WallFaceNormal(nDim, coord, record.opposite, faceNodes, faceNormal);
 
-    /*--- Inviscid part: closure C with the pressure flux, as at Euler walls (entropy conservative). ---*/
+    /*--- Inviscid part: closure C with the pressure flux, as at Euler walls (entropy conservative). Symmetry planes
+     * (BC_ENTROPY_P1, viscous): closure C is in Weak_BC_Residual, here only the SAT for u.n = 0 (P1_NOSLIP.md, 11.3). ---*/
+    const bool symmetry = record.symmetry;
     su2double faceRes[3][ES_NVAR] = {{0.0}};
     su2double wallVel[3][3] = {{0.0}}, kappa = 0.0;
-    if (movingWall) {
+    if (symmetry) {
+      /*--- faceRes stays zero. ---*/
+    } else if (movingWall) {
       P1AleEntropy::State faceStates[3];
       unsigned long facePoints[3] = {0, 0, 0};
       for (unsigned short a = 0; a < nDim; ++a) {
@@ -5922,25 +6021,27 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
     }
     pve::NoSlipWall(simplex, nDim, faceNodes, faceNormal, record.isothermal, record.wallTheta, record.nWallFaces,
                     sipg, penalty, res, implicit ? dwdu : nullptr, implicit ? jac : nullptr,
-                    (movedShares && !subSimplex) ? record.share : nullptr, movingWall ? wallVel : nullptr);
+                    (movedShares && !subSimplex) ? record.share : nullptr,
+                    (movingWall && !symmetry) ? wallVel : nullptr, nullptr, symmetry);
 
     for (unsigned short a = 0; a < nDim; ++a)
       for (unsigned short iVar = 0; iVar < nVar; ++iVar) res[faceNodes[a]][iVar] += faceRes[a][iVar];
 
     /*--- VISC_P1_TIME_STEP: consistency, penalty and adjoint terms of the face (P1_TIME_STEP.md, Theorem T3), omega_t
-     * on a sub-simplex, owned rows only. ---*/
+     * on a sub-simplex, owned rows only. A symmetry face uses the no-slip (all momentum rows) bound: its projector
+     * nu nu^T is dominated by that one, so the bound stays valid (conservative). ---*/
     if (rowBound) {
       su2double rows[pve::MAXNODE] = {0.0};
       pve::NoSlipWallRowBound(simplex, state, gamma, nDim, faceNodes, faceNormal, record.isothermal, record.nWallFaces,
                               sipg, penalty, rows, (movedShares && !subSimplex) ? record.share : nullptr,
-                              movingWall ? wallVel : nullptr);
+                              (movingWall && !symmetry) ? wallVel : nullptr);
       const su2double weight = subSimplex ? su2double(record.weight) : su2double(1.0);
       for (unsigned short c = 0; c < nNodes; ++c)
         if (geometry->nodes->GetDomain(point[c])) P1ViscRowBound[point[c]] += weight * rows[c];
     }
 
     /*--- Approximate Jacobian of the pressure flux, N (x) dp/du with the 5:1 / 6:1:1 weights. ---*/
-    if (implicit) {
+    if (implicit && !symmetry) {
       for (unsigned short a = 0; a < nDim; ++a) {
         for (unsigned short b = 0; b < nDim; ++b) {
           const auto& S = state[faceNodes[b]];
@@ -6035,7 +6136,7 @@ void CSolver::ComputeP1WallForces(const CGeometry *geometry, const CConfig *conf
 
   /*--- Weak no-slip walls: the element of WeakNoSlipWallResidual for each record. ---*/
   for (const auto& record : P1WallFaces) {
-    if (record.marker < 0) continue;
+    if ((record.marker < 0) || record.symmetry) continue;
     const auto iMarker = static_cast<unsigned short>(record.marker);
     const auto* elem = geometry->elem[record.elem];
     const unsigned short nNodes = nDim + 1;

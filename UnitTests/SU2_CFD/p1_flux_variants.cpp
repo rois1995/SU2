@@ -47,6 +47,7 @@
 #include "../../SU2_CFD/include/numerics/flow/p1_viscous_entropy.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_ale_entropy.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_positive_update.hpp"
+#include "../../SU2_CFD/include/numerics/flow/p1_boundary_ghost.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/variables.hpp"
 #include "tecno_adjoint_checks.hpp"
@@ -4232,5 +4233,506 @@ TEST_CASE("VISC_P1_TIME_STEP: uniform simplex meshes against the SU2 edge formul
     const su2double ratio = volume * rowBound / lambdaSU2;
     INFO("nDim " << nDim << " ratio " << ratio << " expected " << p.geometric * physical);
     CHECK(fabs(ratio - p.geometric * physical) < 1e-10 * ratio);
+  }
+}
+
+namespace {
+
+namespace pbg = P1BoundaryGhost;
+
+/*--- The ghosts of the weak boundary residuals of CEulerSolver as they were before P1BoundaryGhost (transcribed from
+ * BC_Far_Field_Residual, BC_Inlet_Residual and BC_Outlet_Residual at c922d6d5a4). Output: rho, v, p. ---*/
+void OldFarField(int nDim, const ale::State& B, const ale::State& Inf, const su2double* n, const su2double* gridVel,
+                 ale::State& G) {
+  const su2double Gamma = kGamma, Gamma_Minus_One = kGamma - 1.0;
+  su2double Vn_Bound = 0.0, Vn_Infty = 0.0, Velocity[3] = {0.0, 0.0, 0.0};
+  for (int i = 0; i < nDim; i++) Vn_Bound += B.vel[i] * n[i];
+  const su2double SoundSpeed_Bound = sqrt(Gamma * B.p / B.rho);
+  const su2double Entropy_Bound = pow(B.rho, Gamma) / B.p;
+  for (int i = 0; i < nDim; i++) Vn_Infty += Inf.vel[i] * n[i];
+  const su2double SoundSpeed_Infty = sqrt(Gamma * Inf.p / Inf.rho);
+  const su2double Entropy_Infty = pow(Inf.rho, Gamma) / Inf.p;
+  su2double Qn_Infty = Vn_Infty;
+  if (gridVel != nullptr)
+    for (int i = 0; i < nDim; i++) Qn_Infty -= gridVel[i] * n[i];
+  su2double RiemannPlus, RiemannMinus, Entropy;
+  if (Qn_Infty > -SoundSpeed_Infty) RiemannPlus = Vn_Bound + 2.0 * SoundSpeed_Bound / Gamma_Minus_One;
+  else RiemannPlus = Vn_Infty + 2.0 * SoundSpeed_Infty / Gamma_Minus_One;
+  if (Qn_Infty > SoundSpeed_Infty) RiemannMinus = Vn_Bound - 2.0 * SoundSpeed_Bound / Gamma_Minus_One;
+  else RiemannMinus = Vn_Infty - 2.0 * SoundSpeed_Infty / Gamma_Minus_One;
+  const su2double Vn = 0.5 * (RiemannPlus + RiemannMinus);
+  const su2double SoundSpeed = 0.25 * (RiemannPlus - RiemannMinus) * Gamma_Minus_One;
+  if (Qn_Infty > 0.0) {
+    for (int i = 0; i < nDim; i++) Velocity[i] = B.vel[i] + (Vn - Vn_Bound) * n[i];
+    Entropy = Entropy_Bound;
+  } else {
+    for (int i = 0; i < nDim; i++) Velocity[i] = Inf.vel[i] + (Vn - Vn_Infty) * n[i];
+    Entropy = Entropy_Infty;
+  }
+  G.rho = pow(Entropy * SoundSpeed * SoundSpeed / Gamma, 1.0 / Gamma_Minus_One);
+  G.p = G.rho * SoundSpeed * SoundSpeed / Gamma;
+  for (int i = 0; i < 3; i++) G.vel[i] = (i < nDim) ? Velocity[i] : 0.0;
+}
+
+void OldInlet(int nDim, bool massFlow, const ale::State& B, const su2double& dataT, const su2double& dataP,
+              const su2double* dir, bool useNormal, const su2double* n, const su2double& refT, const su2double& refP,
+              ale::State& G) {
+  const su2double Gamma = kGamma, Gamma_Minus_One = kGamma - 1.0, Gas_Constant = kGas;
+  const su2double Two_Gamma_M1 = 2.0 / Gamma_Minus_One;
+  su2double vel2 = 0.0;
+  for (int i = 0; i < nDim; i++) vel2 += B.vel[i] * B.vel[i];
+  const su2double enthalpy = Gamma * B.p / (Gamma_Minus_One * B.rho) + 0.5 * vel2;
+  su2double mag = 0.0, Flow_Dir[3] = {0.0, 0.0, 0.0}, Velocity[3] = {0.0, 0.0, 0.0};
+  for (int i = 0; i < nDim; i++) mag += dir[i] * dir[i];
+  mag = sqrt(mag);
+  for (int i = 0; i < nDim; i++) Flow_Dir[i] = useNormal ? -n[i] : dir[i] / mag;
+  if (!massFlow) {
+    const su2double P_Total = dataP / refP, T_Total = dataT / refT;
+    su2double Density = B.rho, Velocity2 = 0.0;
+    for (int i = 0; i < nDim; i++) {
+      Velocity[i] = B.vel[i];
+      Velocity2 += Velocity[i] * Velocity[i];
+    }
+    const su2double Energy = enthalpy - B.p / B.rho;
+    su2double Pressure = B.p;
+    const su2double H_Total = (Gamma * Gas_Constant / Gamma_Minus_One) * T_Total;
+    su2double SoundSpeed2 = Gamma * Pressure / Density;
+    su2double Riemann = 2.0 * sqrt(SoundSpeed2) / Gamma_Minus_One;
+    for (int i = 0; i < nDim; i++) Riemann += Velocity[i] * n[i];
+    const su2double SoundSpeed_Total2 =
+        Gamma_Minus_One * (H_Total - (Energy + Pressure / Density) + 0.5 * Velocity2) + SoundSpeed2;
+    su2double alpha = 0.0;
+    for (int i = 0; i < nDim; i++) alpha += n[i] * Flow_Dir[i];
+    const su2double aa = 1.0 + 0.5 * Gamma_Minus_One * alpha * alpha;
+    const su2double bb = -1.0 * Gamma_Minus_One * alpha * Riemann;
+    const su2double cc = 0.5 * Gamma_Minus_One * Riemann * Riemann - 2.0 * SoundSpeed_Total2 / Gamma_Minus_One;
+    su2double dd = bb * bb - 4.0 * aa * cc;
+    dd = sqrt(std::max(su2double(0.0), dd));
+    su2double Vel_Mag = (-bb + dd) / (2.0 * aa);
+    Vel_Mag = std::max(su2double(0.0), Vel_Mag);
+    Velocity2 = Vel_Mag * Vel_Mag;
+    SoundSpeed2 = SoundSpeed_Total2 - 0.5 * Gamma_Minus_One * Velocity2;
+    su2double Mach2 = Velocity2 / SoundSpeed2;
+    Mach2 = std::min(su2double(1.0), Mach2);
+    Velocity2 = Mach2 * SoundSpeed2;
+    Vel_Mag = sqrt(Velocity2);
+    SoundSpeed2 = SoundSpeed_Total2 - 0.5 * Gamma_Minus_One * Velocity2;
+    for (int i = 0; i < nDim; i++) Velocity[i] = Vel_Mag * Flow_Dir[i];
+    const su2double Temperature = SoundSpeed2 / (Gamma * Gas_Constant);
+    Pressure = P_Total * pow((Temperature / T_Total), Gamma / Gamma_Minus_One);
+    Density = Pressure / (Gas_Constant * Temperature);
+    G.rho = Density;
+    G.p = Pressure;
+  } else {
+    const su2double Density = dataT / refT, Vel_Mag = dataP / refP;
+    su2double SoundSpeed2 = Gamma * B.p / B.rho;
+    su2double Riemann = Two_Gamma_M1 * sqrt(SoundSpeed2);
+    for (int i = 0; i < nDim; i++) Riemann += B.vel[i] * n[i];
+    SoundSpeed2 = Riemann;
+    for (int i = 0; i < nDim; i++) SoundSpeed2 -= Vel_Mag * Flow_Dir[i] * n[i];
+    SoundSpeed2 = std::max(su2double(0.0), su2double(0.5 * Gamma_Minus_One * SoundSpeed2));
+    SoundSpeed2 = SoundSpeed2 * SoundSpeed2;
+    G.p = SoundSpeed2 * Density / Gamma;
+    G.rho = Density;
+    for (int i = 0; i < nDim; i++) Velocity[i] = Vel_Mag * Flow_Dir[i];
+  }
+  for (int i = 0; i < 3; i++) G.vel[i] = (i < nDim) ? Velocity[i] : 0.0;
+}
+
+void OldOutlet(int nDim, const ale::State& B, const su2double& P_Exit, const su2double* n, ale::State& G) {
+  const su2double Gamma = kGamma, Gamma_Minus_One = kGamma - 1.0;
+  su2double Density = B.rho, Velocity2 = 0.0, Vn = 0.0, Velocity[3] = {0.0, 0.0, 0.0};
+  for (int i = 0; i < nDim; i++) {
+    Velocity[i] = B.vel[i];
+    Velocity2 += Velocity[i] * Velocity[i];
+    Vn += Velocity[i] * n[i];
+  }
+  su2double Pressure = B.p;
+  su2double SoundSpeed = sqrt(Gamma * Pressure / Density);
+  const su2double Mach_Exit = sqrt(Velocity2) / SoundSpeed;
+  if (Mach_Exit >= 1.0) {
+    G = B;
+    return;
+  }
+  const su2double Entropy = Pressure * pow(1.0 / Density, Gamma);
+  const su2double Riemann = Vn + 2.0 * SoundSpeed / Gamma_Minus_One;
+  Density = pow(P_Exit / Entropy, 1.0 / Gamma);
+  Pressure = P_Exit;
+  SoundSpeed = sqrt(Gamma * P_Exit / Density);
+  const su2double Vn_Exit = Riemann - 2.0 * SoundSpeed / Gamma_Minus_One;
+  for (int i = 0; i < nDim; i++) Velocity[i] = Velocity[i] + (Vn_Exit - Vn) * n[i];
+  G.rho = Density;
+  G.p = Pressure;
+  for (int i = 0; i < 3; i++) G.vel[i] = (i < nDim) ? Velocity[i] : 0.0;
+}
+
+/*--- Random unit normal. ---*/
+void RandomUnitNormal(std::mt19937& gen, int nDim, su2double* n) {
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  su2double norm = 0.0;
+  while (norm < 1e-2) {
+    norm = 0.0;
+    for (int i = 0; i < 3; ++i) {
+      n[i] = (i < nDim) ? u(gen) : 0.0;
+      norm += n[i] * n[i];
+    }
+  }
+  norm = sqrt(norm);
+  for (int i = 0; i < nDim; ++i) n[i] /= norm;
+}
+
+/*--- Inlet data and builder calls on the state B. ---*/
+struct InletCase {
+  bool massFlow = false, useNormal = false;
+  su2double dataT = 1.0, dataP = 1.0, dir[3] = {0.0, 0.0, 0.0}, refT = 1.0, refP = 1.0;
+};
+
+InletCase RandomInlet(std::mt19937& gen, int nDim, const ale::State& B, const su2double* n, int variant) {
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  InletCase c;
+  c.massFlow = (variant % 2 == 1);
+  c.useNormal = (variant % 4 >= 2);
+  c.refT = exp(0.3 * u(gen));
+  c.refP = exp(0.3 * u(gen));
+  /*--- Flow direction into the domain (dir.n < 0), not normalized. ---*/
+  su2double dn = 0.0;
+  for (int i = 0; i < nDim; ++i) {
+    c.dir[i] = u(gen) - 1.5 * n[i];
+    dn += c.dir[i] * n[i];
+  }
+  if (dn > -0.1) for (int i = 0; i < nDim; ++i) c.dir[i] -= (dn + 0.5) * n[i];
+  for (int i = 0; i < nDim; ++i) c.dir[i] *= exp(0.5 * u(gen));
+  const su2double T = B.p / (kGas * B.rho);
+  if (!c.massFlow) {
+    c.dataT = c.refT * T * (1.0 + 0.3 * (1.0 + u(gen)));
+    c.dataP = c.refP * B.p * exp(0.5 + 0.3 * u(gen));
+  } else {
+    c.dataT = c.refT * B.rho * exp(0.3 * u(gen));
+    c.dataP = c.refP * sqrt(kGamma * B.p / B.rho) * 0.3 * (1.0 + u(gen));
+  }
+  return c;
+}
+
+ale::State InletGhost(int nDim, const ale::State& B, const InletCase& c, const su2double* n) {
+  su2double vel2 = 0.0;
+  for (int i = 0; i < nDim; ++i) vel2 += B.vel[i] * B.vel[i];
+  const su2double enthalpy = kGamma * B.p / ((kGamma - 1.0) * B.rho) + 0.5 * vel2;
+  pbg::InletState g;
+  pbg::Inlet(nDim, c.massFlow, kGamma, kGas, B.rho, B.vel, B.p, enthalpy, c.dataT, c.dataP, c.dir, c.useNormal, n,
+             c.refT, c.refP, g);
+  ale::State G;
+  G.rho = g.Density;
+  G.p = g.Pressure;
+  for (int i = 0; i < 3; ++i) G.vel[i] = (i < nDim) ? g.Velocity[i] : 0.0;
+  return G;
+}
+
+ale::State FarFieldGhost(int nDim, const ale::State& B, const ale::State& Inf, const su2double* n,
+                         const su2double* gridVel) {
+  pbg::FarFieldState g;
+  pbg::FarField(nDim, kGamma, B.rho, B.vel, B.p, Inf.rho, Inf.vel, Inf.p, n, gridVel, g);
+  ale::State G;
+  G.rho = g.Density;
+  G.p = g.Pressure;
+  for (int i = 0; i < 3; ++i) G.vel[i] = (i < nDim) ? g.Velocity[i] : 0.0;
+  return G;
+}
+
+ale::State OutletGhost(int nDim, const ale::State& B, const su2double& pExit, const su2double* n) {
+  pbg::OutletState g;
+  pbg::Outlet(nDim, kGamma, B.rho, B.vel, B.p, pExit, n, g);
+  ale::State G;
+  G.rho = g.Density;
+  G.p = g.Pressure;
+  for (int i = 0; i < 3; ++i) G.vel[i] = (i < nDim) ? g.Velocity[i] : 0.0;
+  return G;
+}
+
+/*--- Relative difference of two states. ---*/
+su2double StateDiff(int nDim, const ale::State& A, const ale::State& B) {
+  su2double vScale = sqrt(A.p / A.rho) + sqrt(fabs(B.p / B.rho));
+  su2double d = std::max(fabs(A.rho - B.rho) / fabs(A.rho), fabs(A.p - B.p) / fabs(A.p));
+  for (int i = 0; i < nDim; ++i) d = std::max(d, fabs(A.vel[i] - B.vel[i]) / vScale);
+  return d;
+}
+
+/*--- Point flux of closure C at the far field, inlet and outlet: F* = F_IR(u, g; N) - lam/2 |N| (U(g) - U(u)). ---*/
+void TadmorPointFlux(int nDim, const ale::State& S, const ale::State& G, const su2double* N, su2double* Fstar) {
+  su2double area = 0.0;
+  for (int i = 0; i < nDim; ++i) area += N[i] * N[i];
+  area = sqrt(area);
+  ale::IsmailRoeFlux(nDim, kGamma, S, G, N, Fstar);
+  su2double vnS = 0.0, vnG = 0.0;
+  for (int i = 0; i < nDim; ++i) {
+    vnS += S.vel[i] * N[i] / area;
+    vnG += G.vel[i] * N[i] / area;
+  }
+  const su2double lam = std::max(fabs(vnS) + sqrt(kGamma * S.p / S.rho), fabs(vnG) + sqrt(kGamma * G.p / G.rho));
+  su2double US[5], UG[5];
+  ale::Conservative(nDim, kGamma, S, US);
+  ale::Conservative(nDim, kGamma, G, UG);
+  for (int v = 0; v < nDim + 2; ++v) Fstar[v] -= 0.5 * lam * area * (UG[v] - US[v]);
+}
+
+}  // namespace
+
+TEST_CASE("BC_ENTROPY_P1 viscous: ghost builders equal the old weak boundary states", "[P1Flux]") {
+  /*--- P1BoundaryGhost against the transcribed ghosts of BC_Far_Field_Residual (static and moving grid),
+   * BC_Inlet_Residual (total conditions, mass flow, flow direction or normal) and BC_Outlet_Residual (subsonic and
+   * supersonic), on random states and normals. The operations are the same, so the states agree to round-off. ---*/
+  std::mt19937 gen(5150);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    for (int trial = 0; trial < 400; ++trial) {
+      su2double n[3];
+      RandomUnitNormal(gen, nDim, n);
+      ale::State B = RandomAleState(gen, nDim), Inf = RandomAleState(gen, nDim);
+      if (trial % 5 == 0) for (int i = 0; i < nDim; ++i) Inf.vel[i] *= 4.0;  /*--- supersonic free streams ---*/
+      su2double gridVel[3] = {0.0, 0.0, 0.0};
+      for (int i = 0; i < nDim; ++i) gridVel[i] = 0.3 * u(gen);
+      const su2double* gv = (trial % 2) ? gridVel : nullptr;
+
+      ale::State Gnew = FarFieldGhost(nDim, B, Inf, n, gv), Gold;
+      OldFarField(nDim, B, Inf, n, gv, Gold);
+      INFO("far field nDim " << nDim << " trial " << trial);
+      CHECK(StateDiff(nDim, Gnew, Gold) < 1e-13);
+
+      const InletCase c = RandomInlet(gen, nDim, B, n, trial % 4);
+      const ale::State Inew = InletGhost(nDim, B, c, n);
+      ale::State Iold;
+      OldInlet(nDim, c.massFlow, B, c.dataT, c.dataP, c.dir, c.useNormal, n, c.refT, c.refP, Iold);
+      INFO("inlet variant " << trial % 4);
+      CHECK(StateDiff(nDim, Inew, Iold) < 1e-13);
+
+      ale::State Bout = B;
+      if (trial % 3 == 0) for (int i = 0; i < nDim; ++i) Bout.vel[i] *= 5.0;  /*--- supersonic exits ---*/
+      const su2double pExit = B.p * exp(0.5 * u(gen));
+      const ale::State Onew = OutletGhost(nDim, Bout, pExit, n);
+      ale::State Oold;
+      OldOutlet(nDim, Bout, pExit, n, Oold);
+      CHECK(StateDiff(nDim, Onew, Oold) < 1e-13);
+    }
+  }
+}
+
+TEST_CASE("BC_ENTROPY_P1 viscous: inlet outlet and far field points satisfy the Tadmor inequality of Lemma B7", "[P1Flux]") {
+  /*--- At a face point with the projected state u and the ghost g of each kind: (w_g - w).F* <= (psi_g - psi).N with
+   * psi = rho u, i.e. psi.N - w.F* <= psi_g.N - w_g.F* (Lemma B7), for F* = F_IR - lam/2 |N| (U_g - U). Inadmissible
+   * ghosts are what the code refuses; for physical data they do not occur here. ---*/
+  std::mt19937 gen(6061);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    int admissible = 0, total = 0;
+    for (int trial = 0; trial < 600; ++trial) {
+      su2double n[3], N[3] = {0.0, 0.0, 0.0};
+      RandomUnitNormal(gen, nDim, n);
+      const su2double area = exp(u(gen));
+      for (int i = 0; i < nDim; ++i) N[i] = area * n[i];
+      const ale::State S = RandomAleState(gen, nDim);
+      ale::State G;
+      const int kind = trial % 3;
+      if (kind == 0) G = FarFieldGhost(nDim, S, RandomAleState(gen, nDim), n, nullptr);
+      if (kind == 1) G = InletGhost(nDim, S, RandomInlet(gen, nDim, S, n, trial % 4), n);
+      if (kind == 2) G = OutletGhost(nDim, S, S.p * exp(0.5 * u(gen)), n);
+      ++total;
+      if (!pbg::Admissible(G.rho, G.p)) continue;
+      ++admissible;
+
+      su2double Fstar[5], w[5], wg[5];
+      TadmorPointFlux(nDim, S, G, N, Fstar);
+      ale::EntropyVariables(nDim, kGamma, S, w);
+      ale::EntropyVariables(nDim, kGamma, G, wg);
+      su2double lhs = 0.0, psiN = 0.0, psiGN = 0.0, scale = 0.0;
+      for (int v = 0; v < nDim + 2; ++v) {
+        lhs += (wg[v] - w[v]) * Fstar[v];
+        scale += fabs(wg[v] * Fstar[v]) + fabs(w[v] * Fstar[v]);
+      }
+      for (int i = 0; i < nDim; ++i) {
+        psiN += S.rho * S.vel[i] * N[i];
+        psiGN += G.rho * G.vel[i] * N[i];
+      }
+      scale += fabs(psiN) + fabs(psiGN);
+      INFO("nDim " << nDim << " kind " << kind << " trial " << trial);
+      CHECK(lhs <= (psiGN - psiN) + 1e-12 * scale);
+
+      su2double wF = 0.0, wgF = 0.0;
+      for (int v = 0; v < nDim + 2; ++v) {
+        wF += w[v] * Fstar[v];
+        wgF += wg[v] * Fstar[v];
+      }
+      CHECK(psiN - wF <= psiGN - wgF + 1e-12 * scale);
+    }
+    INFO("nDim " << nDim);
+    CHECK(admissible >= 0.95 * total);
+  }
+}
+
+TEST_CASE("BC_ENTROPY_P1 viscous: symmetry SAT entropy sign, normal force only, corner with a wall, Jacobian", "[P1Flux]") {
+  /*--- Theorem S1 (P1_NOSLIP.md, 11.3): with P_s = nu nu^T on the momentum rows and g = 0, sum_a w_a.(R_a + b_a) >= 0 on
+   * one element (m_T = 1), and with a wall face and a symmetry face on the same element (m_T = 2, 11.4). The SAT has no
+   * mass and energy total and its momentum total is along nu. NoSlipWallProduction is -sum_c w_c.b_c. Picard Jacobian
+   * against central differences. ---*/
+  std::mt19937 gen(7377);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nNodes = nDim + 1, nVar = nDim + 2;
+    const unsigned short faceSym[3] = {1, 2, 3};   /*--- face opposite node 0 ---*/
+    const unsigned short faceWall[3] = {0, 2, 3};  /*--- face opposite node 1 ---*/
+    for (int trial = 0; trial < 200; ++trial) {
+      const su2double sipg = (trial % 4 < 2) ? 1.0 : 0.0;
+      su2double x[4][3];
+      pve::NodeState state[4];
+      RandomElement(gen, nDim, (trial % 3) ? 1.0 : 1e-3, x, state);
+      pve::Element E;
+      REQUIRE(E.Set(nDim, x, state, kGas) > 0.0);
+      su2double Ns[3] = {0.0, 0.0, 0.0}, Nw[3] = {0.0, 0.0, 0.0};
+      pve::WallFaceNormal(nDim, x, 0, faceSym, Ns);
+      pve::WallFaceNormal(nDim, x, 1, faceWall, Nw);
+      su2double area = 0.0, nu[3] = {0.0, 0.0, 0.0};
+      for (int i = 0; i < nDim; ++i) area += Ns[i] * Ns[i];
+      area = sqrt(area);
+      for (int i = 0; i < nDim; ++i) nu[i] = Ns[i] / area;
+
+      su2double res[4][5], sym[4][5], sym2[4][5], wall2[4][5];
+      E.Residual(res);
+      pve::NoSlipWall(E, nDim, faceSym, Ns, false, 1.0, 1, sipg, 2.5, sym, nullptr, nullptr, nullptr, nullptr, nullptr,
+                      true);
+      pve::NoSlipWall(E, nDim, faceSym, Ns, false, 1.0, 2, sipg, 2.5, sym2, nullptr, nullptr, nullptr, nullptr, nullptr,
+                      true);
+      pve::NoSlipWall(E, nDim, faceWall, Nw, false, 1.0, 2, sipg, 2.5, wall2);
+
+      su2double rate = 0.0, rate2 = 0.0, scale = 0.0, wSym = 0.0, total[5] = {0.0}, totScale = 0.0;
+      for (int a = 0; a < nNodes; ++a) {
+        su2double w[5];
+        FullEntropyVariables(nDim, state[a], w);
+        for (int v = 0; v < nVar; ++v) {
+          rate += w[v] * (res[a][v] + sym[a][v]);
+          rate2 += w[v] * (res[a][v] + sym2[a][v] + wall2[a][v]);
+          scale += fabs(w[v] * res[a][v]) + fabs(w[v] * sym[a][v]) + fabs(w[v] * sym2[a][v]) + fabs(w[v] * wall2[a][v]);
+          wSym += w[v] * sym[a][v];
+          total[v] += sym[a][v];
+          totScale = std::max(totScale, fabs(sym[a][v]));
+        }
+      }
+      INFO("nDim " << nDim << " trial " << trial);
+      CHECK(rate >= -1e-12 * scale);
+      CHECK(rate2 >= -1e-12 * scale);
+      CHECK(fabs(pve::NoSlipWallProduction(E, nDim, faceSym, Ns, false, 1.0, 1, sipg, 2.5, nullptr, nullptr, true) + wSym)
+            <= 1e-12 * scale);
+
+      /*--- Totals: no mass, no energy, momentum along nu. ---*/
+      CHECK(fabs(total[0]) <= 1e-12 * totScale);
+      CHECK(fabs(total[nDim + 1]) <= 1e-12 * totScale);
+      su2double tn = 0.0;
+      for (int i = 0; i < nDim; ++i) tn += total[i + 1] * nu[i];
+      for (int i = 0; i < nDim; ++i) CHECK(fabs(total[i + 1] - tn * nu[i]) <= 1e-12 * totScale);
+
+      /*--- Picard Jacobian. ---*/
+      su2double dwdu[4][5][5], jac[4][4][5][5], jacMax = 0.0, jacErr = 0.0;
+      for (int a = 0; a < nNodes; ++a) pve::EntropyVariableJacobian(nDim, kGamma, state[a], dwdu[a]);
+      pve::NoSlipWall(E, nDim, faceSym, Ns, false, 1.0, 1, sipg, 2.5, sym, dwdu, jac, nullptr, nullptr, nullptr, true);
+      for (int b = 0; b < nNodes; ++b) {
+        for (int j = 0; j < nVar; ++j) {
+          const su2double h = 1e-6;
+          pve::NodeState plus[4], minus[4];
+          for (int a = 0; a < nNodes; ++a) plus[a] = minus[a] = state[a];
+          Perturb(nDim, plus[b], j, h);
+          Perturb(nDim, minus[b], j, -h);
+          su2double rp[4][5], rm[4][5];
+          pve::NoSlipWall(Frozen(E, plus), nDim, faceSym, Ns, false, 1.0, 1, sipg, 2.5, rp, nullptr, nullptr, nullptr,
+                          nullptr, nullptr, true);
+          pve::NoSlipWall(Frozen(E, minus), nDim, faceSym, Ns, false, 1.0, 1, sipg, 2.5, rm, nullptr, nullptr, nullptr,
+                          nullptr, nullptr, true);
+          for (int a = 0; a < nNodes; ++a) {
+            for (int v = 0; v < nVar; ++v) {
+              jacErr = std::max(jacErr, fabs((rp[a][v] - rm[a][v]) / (2 * h) - jac[a][b][v][j]));
+              jacMax = std::max(jacMax, fabs(jac[a][b][v][j]));
+            }
+          }
+        }
+      }
+      CHECK(jacErr <= 1e-6 * jacMax);
+    }
+  }
+}
+
+TEST_CASE("BC_ENTROPY_P1 viscous: free stream preservation of the ghosts and the symmetry SAT", "[P1Flux]") {
+  /*--- A uniform state with consistent marker data is its own ghost: far field with the state as free stream, outlet
+   * with p_e = p (subsonic) or any p_e (supersonic), inlet with the total conditions or the mass flow of the state.
+   * With F* = F(u).N closure C keeps the free stream (Thm B9 iii). A uniform flow tangent to a symmetry face gives a
+   * zero SAT (no gradient, u.n = 0). ---*/
+  std::mt19937 gen(8181);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    for (int trial = 0; trial < 200; ++trial) {
+      su2double n[3];
+      RandomUnitNormal(gen, nDim, n);
+      ale::State S = RandomAleState(gen, nDim);
+      const su2double c = sqrt(kGamma * S.p / S.rho);
+      INFO("nDim " << nDim << " trial " << trial);
+
+      /*--- Far field, any Mach number. ---*/
+      ale::State Sfast = S;
+      if (trial % 4 == 0) for (int i = 0; i < nDim; ++i) Sfast.vel[i] *= 4.0;
+      CHECK(StateDiff(nDim, FarFieldGhost(nDim, Sfast, Sfast, n, nullptr), Sfast) < 1e-12);
+
+      /*--- Outlet: subsonic with p_e = p, supersonic with any p_e. ---*/
+      su2double vel2 = 0.0;
+      for (int i = 0; i < nDim; ++i) vel2 += S.vel[i] * S.vel[i];
+      if (vel2 < c * c) CHECK(StateDiff(nDim, OutletGhost(nDim, S, S.p, n), S) < 1e-12);
+      ale::State Ssup = S;
+      const su2double factor = 1.5 * c / sqrt(vel2 + 1e-30);
+      for (int i = 0; i < nDim; ++i) Ssup.vel[i] *= factor;
+      CHECK(StateDiff(nDim, OutletGhost(nDim, Ssup, 0.3 * S.p, n), Ssup) < 1e-12);
+
+      /*--- Inlet: subsonic inflow (v.n < 0) along the flow direction of the state. ---*/
+      ale::State Sin = S;
+      su2double vn = 0.0;
+      for (int i = 0; i < nDim; ++i) vn += Sin.vel[i] * n[i];
+      for (int i = 0; i < nDim; ++i) Sin.vel[i] -= (vn + 0.3 * c) * n[i];
+      su2double v2 = 0.0;
+      for (int i = 0; i < nDim; ++i) v2 += Sin.vel[i] * Sin.vel[i];
+      if (v2 >= 0.81 * c * c) {
+        for (int i = 0; i < nDim; ++i) Sin.vel[i] *= 0.9 * c / sqrt(v2);
+        v2 = 0.81 * c * c;
+      }
+      InletCase total, mass;
+      const su2double T = Sin.p / (kGas * Sin.rho), mach2 = v2 / (c * c);
+      total.dataT = T * (1.0 + 0.5 * (kGamma - 1.0) * mach2);
+      total.dataP = Sin.p * pow(total.dataT / T, kGamma / (kGamma - 1.0));
+      mass.massFlow = true;
+      mass.dataT = Sin.rho;
+      mass.dataP = sqrt(v2);
+      for (int i = 0; i < nDim; ++i) total.dir[i] = mass.dir[i] = Sin.vel[i];
+      CHECK(StateDiff(nDim, InletGhost(nDim, Sin, total, n), Sin) < 1e-10);
+      CHECK(StateDiff(nDim, InletGhost(nDim, Sin, mass, n), Sin) < 1e-10);
+
+      /*--- Symmetry SAT of a uniform flow along the face. ---*/
+      su2double x[4][3];
+      pve::NodeState state[4];
+      RandomElement(gen, nDim, 1.0, x, state);
+      const unsigned short faceSym[3] = {1, 2, 3};
+      su2double Ns[3] = {0.0, 0.0, 0.0}, area = 0.0;
+      pve::WallFaceNormal(nDim, x, 0, faceSym, Ns);
+      for (int i = 0; i < nDim; ++i) area += Ns[i] * Ns[i];
+      area = sqrt(area);
+      su2double tangent[3] = {0.0, 0.0, 0.0}, tn = 0.0;
+      for (int i = 0; i < nDim; ++i) tangent[i] = S.vel[i];
+      for (int i = 0; i < nDim; ++i) tn += tangent[i] * Ns[i] / area;
+      for (int i = 0; i < nDim; ++i) tangent[i] -= tn * Ns[i] / area;
+      for (int a = 0; a <= nDim; ++a) {
+        state[a].rho = S.rho;
+        state[a].p = S.p;
+        for (int i = 0; i < 3; ++i) state[a].vel[i] = (i < nDim) ? tangent[i] : 0.0;
+      }
+      pve::Element E;
+      REQUIRE(E.Set(nDim, x, state, kGas) > 0.0);
+      su2double res[4][5], sym[4][5], scale = S.p * area;
+      E.Residual(res);
+      pve::NoSlipWall(E, nDim, faceSym, Ns, false, 1.0, 1, pve::NOSLIP_SIPG, pve::NOSLIP_PENALTY, sym, nullptr, nullptr,
+                      nullptr, nullptr, nullptr, true);
+      for (int a = 0; a <= nDim; ++a)
+        for (int v = 0; v < nDim + 2; ++v) CHECK(fabs(res[a][v] + sym[a][v]) <= 1e-12 * scale);
+    }
   }
 }

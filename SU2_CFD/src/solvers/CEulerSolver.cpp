@@ -6155,95 +6155,34 @@ void CEulerSolver::BC_Far_Field_Residual(CGeometry* geometry, CSolver** solver_c
       Entropy_Bound    = pow(Density_Bound, Gamma)/Pressure_Bound;
       Energy_Bound = nodes->GetEnergy(iPoint);
 
-      /*--- Store the primitive variable state for the freestream. Project
-         the freestream velocity vector into the local normal direction,
-         i.e. compute v_infty.n. ---*/
+      /*--- Store the primitive variable state for the freestream and build the characteristic ghost from the
+         Riemann invariants (see CFD texts by Hirsch or Blazek; adapted from bcFarfield.f90 of SUmb by Edwin van der
+         Weide): P1BoundaryGhost::FarField, shared with closure C of BC_ENTROPY_P1. Positive characteristics are
+         incoming and take the freestream, negative ones the boundary state; grid movement enters the eigenvalue
+         check through the relative normal velocity of the freestream. ---*/
 
       Density_Infty = GetDensity_Inf();
-      Vel2_Infty = 0.0; Vn_Infty = 0.0;
-      for (iDim = 0; iDim < nDim; iDim++) {
-        Vel_Infty[iDim] = GetVelocity_Inf(iDim);
-        Vel2_Infty     += Vel_Infty[iDim]*Vel_Infty[iDim];
-        Vn_Infty       += Vel_Infty[iDim]*UnitNormal[iDim];
-      }
-      Pressure_Infty   = GetPressure_Inf();
-      SoundSpeed_Infty = sqrt(Gamma*Pressure_Infty/Density_Infty);
-      Entropy_Infty    = pow(Density_Infty, Gamma)/Pressure_Infty;
+      Pressure_Infty = GetPressure_Inf();
+      for (iDim = 0; iDim < nDim; iDim++) Vel_Infty[iDim] = GetVelocity_Inf(iDim);
 
-      /*--- Adjust the normal freestream velocity for grid movement ---*/
-
-      Qn_Infty = Vn_Infty;
-      if (dynamic_grid) {
-        GridVel = geometry->nodes->GetGridVel(iPoint);
-        for (iDim = 0; iDim < nDim; iDim++)
-          Qn_Infty -= GridVel[iDim]*UnitNormal[iDim];
-      }
-
-      /*--- Compute acoustic Riemann invariants: R = u.n +/- 2c/(gamma-1).
-         These correspond with the eigenvalues (u+c) and (u-c), respectively,
-         which represent the acoustic waves. Positive characteristics are
-         incoming, and a physical boundary condition is imposed (freestream
-         state). This occurs when either (u.n+c) > 0 or (u.n-c) > 0. Negative
-         characteristics are leaving the domain, and numerical boundary
-         conditions are required by extrapolating from the interior state
-         using the Riemann invariants. This occurs when (u.n+c) < 0 or
-         (u.n-c) < 0. Note that grid movement is taken into account when
-         checking the sign of the eigenvalue. ---*/
-
-      /*--- Check whether (u.n+c) is greater or less than zero ---*/
-
-      if (Qn_Infty > -SoundSpeed_Infty) {
-        /*--- Subsonic inflow or outflow ---*/
-        RiemannPlus = Vn_Bound + 2.0*SoundSpeed_Bound/Gamma_Minus_One;
-      } else {
-        /*--- Supersonic inflow ---*/
-        RiemannPlus = Vn_Infty + 2.0*SoundSpeed_Infty/Gamma_Minus_One;
-      }
-
-      /*--- Check whether (u.n-c) is greater or less than zero ---*/
-
-      if (Qn_Infty > SoundSpeed_Infty) {
-        /*--- Supersonic outflow ---*/
-        RiemannMinus = Vn_Bound - 2.0*SoundSpeed_Bound/Gamma_Minus_One;
-      } else {
-        /*--- Subsonic outflow ---*/
-        RiemannMinus = Vn_Infty - 2.0*SoundSpeed_Infty/Gamma_Minus_One;
-      }
-
-      /*--- Compute a new value for the local normal velocity and speed of
-         sound from the Riemann invariants. ---*/
-
-      Vn = 0.5 * (RiemannPlus + RiemannMinus);
-      SoundSpeed = 0.25 * (RiemannPlus - RiemannMinus)*Gamma_Minus_One;
-
-      /*--- Construct the primitive variable state at the boundary for
-         computing the flux for the weak boundary condition. The values
-         that we choose to construct the solution (boundary or freestream)
-         depend on whether we are at an inflow or outflow. At an outflow, we
-         choose boundary information (at most one characteristic is incoming),
-         while at an inflow, we choose infinity values (at most one
-         characteristic is outgoing). ---*/
-
-      if (Qn_Infty > 0.0)   {
-        /*--- Outflow conditions ---*/
-        for (iDim = 0; iDim < nDim; iDim++)
-          Velocity[iDim] = Vel_Bound[iDim] + (Vn-Vn_Bound)*UnitNormal[iDim];
-        Entropy = Entropy_Bound;
-      } else  {
-        /*--- Inflow conditions ---*/
-        for (iDim = 0; iDim < nDim; iDim++)
-          Velocity[iDim] = Vel_Infty[iDim] + (Vn-Vn_Infty)*UnitNormal[iDim];
-        Entropy = Entropy_Infty;
-      }
+      P1BoundaryGhost::FarFieldState ghost;
+      P1BoundaryGhost::FarField(nDim, Gamma, Density_Bound, Vel_Bound, Pressure_Bound, Density_Infty, Vel_Infty,
+                                Pressure_Infty, UnitNormal, dynamic_grid ? geometry->nodes->GetGridVel(iPoint) : nullptr,
+                                ghost);
+      Qn_Infty = ghost.Qn_Infty;
+      SoundSpeed_Infty = ghost.SoundSpeed_Infty;
+      SoundSpeed = ghost.SoundSpeed;
+      Entropy = ghost.Entropy;
+      Density = ghost.Density;
+      for (iDim = 0; iDim < nDim; iDim++) Velocity[iDim] = ghost.Velocity[iDim];
 
       /*--- Recompute the primitive variables. ---*/
 
-      Density = pow(Entropy*SoundSpeed*SoundSpeed/Gamma,1.0/Gamma_Minus_One);
       Velocity2 = 0.0;
       for (iDim = 0; iDim < nDim; iDim++) {
         Velocity2 += Velocity[iDim]*Velocity[iDim];
       }
-      Pressure = Density*SoundSpeed*SoundSpeed/Gamma;
+      Pressure = ghost.Pressure;
       Energy   = Pressure/(Gamma_Minus_One*Density) + 0.5*Velocity2;
       if (tkeNeeded) Energy += GetTke_Inf();
 
@@ -8731,191 +8670,35 @@ void CEulerSolver::BC_Inlet_Residual(CGeometry* geometry, CSolver** solver_conta
 
       switch (Kind_Inlet) {
 
-          /*--- Total properties have been specified at the inlet. ---*/
+          /*--- Total properties (total pressure, total temperature and flow direction) or mass flow (density,
+             velocity magnitude and flow direction) have been specified at the inlet. The ghost is built by
+             P1BoundaryGhost::Inlet, shared with closure C of BC_ENTROPY_P1: the flow direction is the prescribed one or,
+             if requested, the local boundary normal (negative); the inputs are non-dimensionalized there. ---*/
 
-        case INLET_TYPE::TOTAL_CONDITIONS: {
+        case INLET_TYPE::TOTAL_CONDITIONS:
+        case INLET_TYPE::MASS_FLOW: {
 
-          /*--- Retrieve the specified total conditions for this inlet. ---*/
-
-          P_Total  = Inlet_Ptotal[val_marker][iVertex];
-          T_Total  = Inlet_Ttotal[val_marker][iVertex];
-          const su2double* dir = Inlet_FlowDir[val_marker][iVertex];
-          const su2double mag = GeometryToolbox::Norm(nDim, dir);
-
-          /*--- Store the unit flow direction vector.
-           If requested, use the local boundary normal (negative),
-           instead of the prescribed flow direction in the config. ---*/
-
-          if (config->GetInletUseNormal()) {
-            for (iDim = 0; iDim < nDim; iDim++)
-              Flow_Dir[iDim] = -UnitNormal[iDim];
-          } else {
-            for (iDim = 0; iDim < nDim; iDim++)
-              Flow_Dir[iDim] = dir[iDim]/mag;
-          }
-
-          /*--- Non-dim. the inputs if necessary. ---*/
-
-          P_Total /= config->GetPressure_Ref();
-          T_Total /= config->GetTemperature_Ref();
-
-          /*--- Store primitives and set some variables for clarity. ---*/
-
-          Density = V_domain[nDim+2];
-          Velocity2 = 0.0;
-          for (iDim = 0; iDim < nDim; iDim++) {
-            Velocity[iDim] = V_domain[iDim+1];
-            Velocity2 += Velocity[iDim]*Velocity[iDim];
-          }
-          Energy      = V_domain[nDim+3] - V_domain[nDim+1]/V_domain[nDim+2];
-          Pressure    = V_domain[nDim+1];
-          H_Total     = (Gamma*Gas_Constant/Gamma_Minus_One)*T_Total;
-          SoundSpeed2 = Gamma*Pressure/Density;
-
-          /*--- Compute the acoustic Riemann invariant that is extrapolated
-             from the domain interior. ---*/
-
-          Riemann   = 2.0*sqrt(SoundSpeed2)/Gamma_Minus_One;
-          for (iDim = 0; iDim < nDim; iDim++)
-            Riemann += Velocity[iDim]*UnitNormal[iDim];
-
-          /*--- Total speed of sound ---*/
-
-          SoundSpeed_Total2 = Gamma_Minus_One*(H_Total - (Energy + Pressure/Density)+0.5*Velocity2) + SoundSpeed2;
-
-          /*--- Dot product of normal and flow direction. This should
-             be negative due to outward facing boundary normal convention. ---*/
-
-          alpha = 0.0;
-          for (iDim = 0; iDim < nDim; iDim++)
-            alpha += UnitNormal[iDim]*Flow_Dir[iDim];
-
-          /*--- Coefficients in the quadratic equation for the velocity ---*/
-
-          aa =  1.0 + 0.5*Gamma_Minus_One*alpha*alpha;
-          bb = -1.0*Gamma_Minus_One*alpha*Riemann;
-          cc =  0.5*Gamma_Minus_One*Riemann*Riemann
-               -2.0*SoundSpeed_Total2/Gamma_Minus_One;
-
-          /*--- Solve quadratic equation for velocity magnitude. Value must
-             be positive, so the choice of root is clear. ---*/
-
-          dd = bb*bb - 4.0*aa*cc;
-          dd = sqrt(max(0.0, dd));
-          Vel_Mag   = (-bb + dd)/(2.0*aa);
-          Vel_Mag   = max(0.0, Vel_Mag);
-          Velocity2 = Vel_Mag*Vel_Mag;
-
-          /*--- Compute speed of sound from total speed of sound eqn. ---*/
-
-          SoundSpeed2 = SoundSpeed_Total2 - 0.5*Gamma_Minus_One*Velocity2;
-
-          /*--- Mach squared (cut between 0-1), use to adapt velocity ---*/
-
-          Mach2 = Velocity2/SoundSpeed2;
-          Mach2 = min(1.0, Mach2);
-          Velocity2   = Mach2*SoundSpeed2;
-          Vel_Mag     = sqrt(Velocity2);
-          SoundSpeed2 = SoundSpeed_Total2 - 0.5*Gamma_Minus_One*Velocity2;
-
-          /*--- Compute new velocity vector at the inlet ---*/
-
-          for (iDim = 0; iDim < nDim; iDim++)
-            Velocity[iDim] = Vel_Mag*Flow_Dir[iDim];
-
-          /*--- Static temperature from the speed of sound relation ---*/
-
-          Temperature = SoundSpeed2/(Gamma*Gas_Constant);
-
-          /*--- Static pressure using isentropic relation at a point ---*/
-
-          Pressure = P_Total*pow((Temperature/T_Total), Gamma/Gamma_Minus_One);
-
-          /*--- Density at the inlet from the gas law ---*/
-
-          Density = Pressure/(Gas_Constant*Temperature);
+          const bool massFlow = (Kind_Inlet == INLET_TYPE::MASS_FLOW);
+          P1BoundaryGhost::InletState ghost;
+          P1BoundaryGhost::Inlet(nDim, massFlow, Gamma, Gas_Constant, V_domain[nDim+2], &V_domain[1], V_domain[nDim+1],
+                                 V_domain[nDim+3], Inlet_Ttotal[val_marker][iVertex], Inlet_Ptotal[val_marker][iVertex],
+                                 Inlet_FlowDir[val_marker][iVertex], config->GetInletUseNormal(), UnitNormal,
+                                 massFlow ? config->GetDensity_Ref() : config->GetTemperature_Ref(),
+                                 massFlow ? config->GetVelocity_Ref() : config->GetPressure_Ref(), ghost);
+          Pressure = ghost.Pressure;
+          Density = ghost.Density;
 
           /*--- Using pressure, density, & velocity, compute the energy ---*/
 
-          Energy = Pressure/(Density*Gamma_Minus_One) + 0.5*Velocity2;
+          if (massFlow) Energy = Pressure/(Density*Gamma_Minus_One) + 0.5*ghost.Vel_Mag*ghost.Vel_Mag;
+          else Energy = Pressure/(Density*Gamma_Minus_One) + 0.5*ghost.Velocity2;
           if (tkeNeeded) Energy += GetTke_Inf();
 
           /*--- Primitive variables, using the derived quantities ---*/
 
-          V_inlet[0] = Temperature;
+          V_inlet[0] = ghost.Temperature;
           for (iDim = 0; iDim < nDim; iDim++)
-            V_inlet[iDim+1] = Velocity[iDim];
-          V_inlet[nDim+1] = Pressure;
-          V_inlet[nDim+2] = Density;
-          V_inlet[nDim+3] = Energy + Pressure/Density;
-
-          break;
-        }
-          /*--- Mass flow has been specified at the inlet. ---*/
-
-        case INLET_TYPE::MASS_FLOW: {
-
-          /*--- Retrieve the specified mass flow for the inlet. ---*/
-
-          Density  = Inlet_Ttotal[val_marker][iVertex];
-          Vel_Mag  = Inlet_Ptotal[val_marker][iVertex];
-          const su2double* dir = Inlet_FlowDir[val_marker][iVertex];
-          const su2double mag = GeometryToolbox::Norm(nDim, dir);
-
-          /*--- Store the unit flow direction vector.
-           If requested, use the local boundary normal (negative),
-           instead of the prescribed flow direction in the config. ---*/
-
-          if (config->GetInletUseNormal()) {
-            for (iDim = 0; iDim < nDim; iDim++)
-              Flow_Dir[iDim] = -UnitNormal[iDim];
-          } else {
-            for (iDim = 0; iDim < nDim; iDim++)
-              Flow_Dir[iDim] = dir[iDim]/mag;
-          }
-
-          /*--- Non-dim. the inputs if necessary. ---*/
-
-          Density /= config->GetDensity_Ref();
-          Vel_Mag /= config->GetVelocity_Ref();
-
-          /*--- Get primitives from current inlet state. ---*/
-
-          for (iDim = 0; iDim < nDim; iDim++)
-            Velocity[iDim] = nodes->GetVelocity(iPoint,iDim);
-          Pressure    = nodes->GetPressure(iPoint);
-          SoundSpeed2 = Gamma*Pressure/V_domain[nDim+2];
-
-          /*--- Compute the acoustic Riemann invariant that is extrapolated
-             from the domain interior. ---*/
-
-          Riemann = Two_Gamma_M1*sqrt(SoundSpeed2);
-          for (iDim = 0; iDim < nDim; iDim++)
-            Riemann += Velocity[iDim]*UnitNormal[iDim];
-
-          /*--- Speed of sound squared for fictitious inlet state ---*/
-
-          SoundSpeed2 = Riemann;
-          for (iDim = 0; iDim < nDim; iDim++)
-            SoundSpeed2 -= Vel_Mag*Flow_Dir[iDim]*UnitNormal[iDim];
-
-          SoundSpeed2 = max(0.0,0.5*Gamma_Minus_One*SoundSpeed2);
-          SoundSpeed2 = SoundSpeed2*SoundSpeed2;
-
-          /*--- Pressure for the fictitious inlet state ---*/
-
-          Pressure = SoundSpeed2*Density/Gamma;
-
-          /*--- Energy for the fictitious inlet state ---*/
-
-          Energy = Pressure/(Density*Gamma_Minus_One) + 0.5*Vel_Mag*Vel_Mag;
-          if (tkeNeeded) Energy += GetTke_Inf();
-
-          /*--- Primitive variables, using the derived quantities ---*/
-
-          V_inlet[0] = Pressure / ( Gas_Constant * Density);
-          for (iDim = 0; iDim < nDim; iDim++)
-            V_inlet[iDim+1] = Vel_Mag*Flow_Dir[iDim];
+            V_inlet[iDim+1] = ghost.Velocity[iDim];
           V_inlet[nDim+1] = Pressure;
           V_inlet[nDim+2] = Density;
           V_inlet[nDim+3] = Energy + Pressure/Density;
@@ -9188,50 +8971,23 @@ void CEulerSolver::BC_Outlet_Residual(CGeometry* geometry, CSolver** solver_cont
       /*--- Non-dim. the inputs if necessary. ---*/
       P_Exit = P_Exit/config->GetPressure_Ref();
 
-      /*--- Check whether the flow is supersonic at the exit. The type
-         of boundary update depends on this. ---*/
-      Density = V_domain[nDim+2];
-      Velocity2 = 0.0; Vn = 0.0;
-      for (iDim = 0; iDim < nDim; iDim++) {
-        Velocity[iDim] = V_domain[iDim+1];
-        Velocity2 += Velocity[iDim]*Velocity[iDim];
-        Vn += Velocity[iDim]*UnitNormal[iDim];
-      }
-      Pressure   = V_domain[nDim+1];
-      SoundSpeed = sqrt(Gamma*Pressure/Density);
-      Mach_Exit  = sqrt(Velocity2)/SoundSpeed;
+      /*--- Supersonic exit: the outlet state is the current state, the upwinding handles the direction of
+         propagation. Subsonic exit: the back pressure with the extrapolated entropy, acoustic Riemann variable and
+         tangential velocity (adapted from bcSubsonicOutflow.f90 of SUmb by Edwin van der Weide).
+         P1BoundaryGhost::Outlet, shared with closure C of BC_ENTROPY_P1. ---*/
+      P1BoundaryGhost::OutletState ghost;
+      P1BoundaryGhost::Outlet(nDim, Gamma, V_domain[nDim+2], &V_domain[1], V_domain[nDim+1], P_Exit, UnitNormal, ghost);
 
-      if (Mach_Exit >= 1.0) {
+      if (ghost.supersonic) {
 
-        /*--- Supersonic exit flow: there are no incoming characteristics,
-           so no boundary condition is necessary. Set outlet state to current
-           state so that upwinding handles the direction of propagation. ---*/
         for (iVar = 0; iVar < nPrimVar; iVar++) V_outlet[iVar] = V_domain[iVar];
 
       } else {
 
-        /*--- Subsonic exit flow: there is one incoming characteristic,
-           therefore one variable can be specified (back pressure) and is used
-           to update the conservative variables. Compute the entropy and the
-           acoustic Riemann variable. These invariants, as well as the
-           tangential velocity components, are extrapolated. Adapted from an
-           original implementation in the Stanford University multi-block
-           (SUmb) solver in the routine bcSubsonicOutflow.f90 by Edwin van
-           der Weide, last modified 09-10-2007. ---*/
-
-        Entropy = Pressure*pow(1.0/Density, Gamma);
-        Riemann = Vn + 2.0*SoundSpeed/Gamma_Minus_One;
-
-        /*--- Compute the new fictious state at the outlet ---*/
-        Density    = pow(P_Exit/Entropy,1.0/Gamma);
-        Pressure   = P_Exit;
-        SoundSpeed = sqrt(Gamma*P_Exit/Density);
-        Vn_Exit    = Riemann - 2.0*SoundSpeed/Gamma_Minus_One;
-        Velocity2  = 0.0;
-        for (iDim = 0; iDim < nDim; iDim++) {
-          Velocity[iDim] = Velocity[iDim] + (Vn_Exit-Vn)*UnitNormal[iDim];
-          Velocity2 += Velocity[iDim]*Velocity[iDim];
-        }
+        Density = ghost.Density;
+        Pressure = ghost.Pressure;
+        for (iDim = 0; iDim < nDim; iDim++) Velocity[iDim] = ghost.Velocity[iDim];
+        Velocity2 = ghost.Velocity2;
         Energy = P_Exit/(Density*Gamma_Minus_One) + 0.5*Velocity2;
         if (tkeNeeded) Energy += GetTke_Inf();
 

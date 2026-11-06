@@ -1847,7 +1847,7 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_FORM_ES_DISS", Edge_Form_ES_Diss, false);
   /*!\brief EDGE_FORM_ES_BLEND \n DESCRIPTION: Per element T, theta_T = P_T^+ / D_T with P_T the exact entropy production of the E part of EDGE_FORM_P1 in T and D_T that of the Lemma 3 dissipation on the element pieces E^T_ik; adds sum_T theta_T lam^T_ik (U_k-U_i) on each edge. Entropy stable for any states, second order at smooth steady states. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_ES_BLEND", Edge_Form_ES_Blend, false);
-  /*!\brief BC_ENTROPY_P1 \n DESCRIPTION: Entropy stable weak boundary of BC_WEAK_P1 with EDGE_FORM_P1: degree 2 face rule, entropy projected states at the points, Ismail-Roe coupling to the face nodes; pressure flux at Euler walls and symmetry planes, Ismail-Roe plus Rusanov against the characteristic ghost at the far field. \ingroup Config \default false */
+  /*!\brief BC_ENTROPY_P1 \n DESCRIPTION: Entropy stable weak boundary of BC_WEAK_P1 with EDGE_FORM_P1: degree 2 face rule, entropy projected states at the points, Ismail-Roe coupling to the face nodes; pressure flux at Euler walls and symmetry planes, Ismail-Roe plus Rusanov against the ghost of the far field, inlet (total conditions, mass flow) and outlet built at the points from the projected state. EULER, NAVIER_STOKES and RANS with SA; viscous runs need BC_WALL_ENTROPY_P1, symmetry planes then get the SIPG term for u.n = 0 (normal stress only), far field, inlets and outlets the natural (zero) viscous flux. \ingroup Config \default false */
   addBoolOption("BC_ENTROPY_P1", BC_Entropy_P1, false);
   /*!\brief VISC_P1_ENTROPY \n DESCRIPTION: Viscous residual of the flow equations from the P1 Galerkin operator in entropy variables: on each simplex F_T = K(wbar_T) grad(w_h), evaluated with the stress tensor and heat flux of the effective gradients grad(v) = (G_m - v* G_theta)/theta*, grad(T) = -G_theta/(R theta*^2), theta = rho/p, mean of the nodal entropy variables, mean mu + mu_t (mu_t >= 0) and conductivity. Replaces the edge viscous flux and its Jacobian (Picard element Jacobian, frozen K). Triangles and tetrahedra. Entropy dissipative for any state. \ingroup Config \default false */
   addBoolOption("VISC_P1_ENTROPY", Visc_P1_Entropy, false);
@@ -6469,13 +6469,31 @@ void CConfig::CheckP1FluxOptions() const {
                      "in the Jacobian of EDGE_FORM_EXACT_JACOBIAN, set it to YES.", CURRENT_FUNCTION);
   }
   if (BC_Entropy_P1) {
+    /*--- Closure C on Euler walls, symmetry planes, far field, inlets and outlets; with NAVIER_STOKES and RANS (SA) the
+     * weak no-slip walls of BC_WALL_ENTROPY_P1 and the symmetry SAT for u.n = 0 (P1_NOSLIP.md, 11). SST puts rho k in
+     * the energy of the boundary ghosts, which the entropy pair of closure C does not have (SHARED_FIXES_PLAN.md, 2). ---*/
     const string name = "BC_ENTROPY_P1: ";
+    const bool viscousP1 = (Kind_Solver == MAIN_SOLVER::NAVIER_STOKES) || (Kind_Solver == MAIN_SOLVER::RANS);
     if (!BC_Weak_P1 || !Edge_Form_P1) SU2_MPI::Error(name + "needs BC_WEAK_P1= YES and EDGE_FORM_P1= YES.", CURRENT_FUNCTION);
-    if (Kind_Solver != MAIN_SOLVER::EULER) SU2_MPI::Error(name + "inviscid boundary fluxes only, needs SOLVER= EULER.", CURRENT_FUNCTION);
+    if ((Kind_Solver != MAIN_SOLVER::EULER) && !viscousP1)
+      SU2_MPI::Error(name + "needs SOLVER= EULER, NAVIER_STOKES or RANS.", CURRENT_FUNCTION);
+    if ((Kind_Solver == MAIN_SOLVER::RANS) && (Kind_Turb_Model != TURB_MODEL::SA))
+      SU2_MPI::Error(name + "RANS only with SA: SST puts rho k in the boundary energy, not covered by the entropy pair.", CURRENT_FUNCTION);
+    if (viscousP1 && !BC_Wall_Entropy_P1)
+      SU2_MPI::Error(name + "a viscous solver needs BC_WALL_ENTROPY_P1= YES (weak no-slip walls).", CURRENT_FUNCTION);
     if (!idealGas) SU2_MPI::Error(name + "the Ismail-Roe flux and the entropy variables need an ideal gas.", CURRENT_FUNCTION);
     if (GetDynamic_Grid() && !Grid_Entropy_P1) SU2_MPI::Error(name + "not available with grid motion without GRID_ENTROPY_P1.", CURRENT_FUNCTION);
-    if ((nMarker_Inlet > 0) || (nMarker_Outlet > 0) || (nMarker_Supersonic_Inlet > 0)) {
-      SU2_MPI::Error(name + "only Euler walls, symmetry planes and far field are supported, not inlets or outlets.", CURRENT_FUNCTION);
+    if ((nMarker_Supersonic_Inlet > 0) || (nMarker_Supersonic_Outlet > 0)) {
+      SU2_MPI::Error(name + "supersonic inlets and outlets are not supported.", CURRENT_FUNCTION);
+    }
+    if ((nMarker_Inlet > 0) && (Kind_Inlet != INLET_TYPE::TOTAL_CONDITIONS) && (Kind_Inlet != INLET_TYPE::MASS_FLOW)) {
+      SU2_MPI::Error(name + "inlets only with INLET_TYPE= TOTAL_CONDITIONS or MASS_FLOW.", CURRENT_FUNCTION);
+    }
+    if (((nMarker_Inlet > 0) || (nMarker_Outlet > 0)) && (GetDynamic_Grid() || Grid_Entropy_P1)) {
+      SU2_MPI::Error(name + "inlets and outlets only on static meshes (no ALE ghost).", CURRENT_FUNCTION);
+    }
+    if (viscousP1 && (nMarker_SymWall > 0) && (GetDynamic_Grid() || Grid_Entropy_P1)) {
+      SU2_MPI::Error(name + "viscous symmetry planes only on static meshes (the moving SAT is not derived).", CURRENT_FUNCTION);
     }
   }
   if (Visc_P1_Entropy || BC_Wall_Entropy_P1) {
