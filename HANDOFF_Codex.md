@@ -70,8 +70,13 @@ ownership migration completed. First complete coarsening exit/round1777:
 Coarsening work/counter vectors are IDENTICAL per rank to219, including2520
 collapses/10313geometry trials/21669upper queries/106031874traversal work, but
 953.638858s vs301.972880s(~3.158xwall). A225/coarsening_comparison219.json.
-Ownership transition preserved counts; splitting follows. Do not attribute raw
-time differences to quality code; host contention is present.
+Ownership transition preserved counts. Splitting reached round32393:850809cells,
+3696geometry/3407size demands; q/J still deliberately unmeasured. All29matching
+complete construction stage/round pairs have identical tested per-rank work vectors,
+mesh totals and census flags versus219: A225/construction_comparison219.json.
+Current matching split exit1255.048979s vs513.916554s; this is not a quality-stage
+speed comparison. Do not attribute raw time differences to quality code; host
+contention is present.
 A225/owned_observations.jsonl records resource receipts: summed RSS6.261GB, available
 RAM29.573GB(decimal), load11.74 at the complete coarsening observation. Host
 contention exists; counters/stage vectors
