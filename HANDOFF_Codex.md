@@ -61,6 +61,16 @@ Earlier staged→committed ownership migration at20992 preserved728526cells/
 44355q/42667J/2675geometry/0size, all measurement counts and q/Jdebt sum.
 LIVE/quality_ownership20992_assessment.json records per-rank rows/source prefixes;
 count preservation alone does not prove every attribute/history. Run remains live.
+Latest preserved profile census11/round21184 has743174cells/34688q/32455J/
+2643geometry/0size, all6complete flags1, maximum engine2246.689082s. Source/handles
+stay frozen/live; no acceptance or terminal forecast. Existing-counter profile is in
+LIVE/quality_profile_census11.json. Published interval net2789q/2920J reconciles:
+coordinate471q/478J, optimizer2184q/2312J, collapse/reconnect134q/130J. qbad7369surface/
+27319interior; J10734surface/21721interior. Interior can be constrained. Smoothing
+merit/moves are PRIVATE cumulative trial diagnostics merged before publication
+(source3776), not published gains. Rejection bucket0 combines geometry/topology;
+it does not prove a distance violation. Published boundary/interior repair yield
+cannot be fully separated with existing counters; do not infer it from location.
 Checkpoint293b8361bf verified on fork2026-11-06; no owned heavy handles live before edits.
 Current unvalidated change: budgeted entity direct-bound failures try the existing
 singleton-support physical union query, retain the tighter upper and independent
