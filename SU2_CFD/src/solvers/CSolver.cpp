@@ -402,32 +402,6 @@ su2activematrix* CSolver::GetPeriodicProjections(const CGeometry& geometry, cons
   return &PeriodicProj;
 }
 
-bool CSolver::HasPeriodicRotation(const CConfig& config) const {
-  if (!rotate_periodic) return false;
-  // Use the global marker configuration so every MPI rank selects the same packet size.
-  for (auto iMarker = 0u; iMarker < config.GetnMarker_Periodic(); ++iMarker) {
-    if (GeometryToolbox::HasRotation(config.GetPeriodicRotAngles(config.GetMarker_PerBound(iMarker)))) return true;
-  }
-  return false;
-}
-
-su2activematrix* CSolver::GetPeriodicProjections(const CGeometry& geometry, const CConfig& config) {
-
-  if (!HasPeriodicRotation(config)) return nullptr;
-
-  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS
-  {
-    if (PeriodicProj.empty() && geometry.nPeriodicRecv > 0) {
-      for (auto iRecv = 0; iRecv < geometry.nPoint_PeriodicRecv[geometry.nPeriodicRecv]; ++iRecv)
-        PeriodicProjIndex.emplace(geometry.Local_Point_PeriodicRecv[iRecv], PeriodicProjIndex.size());
-      PeriodicProj.resize(PeriodicProjIndex.size(), 2*nPrimVarGrad);
-    }
-  }
-  END_SU2_OMP_SAFE_GLOBAL_ACCESS
-
-  return &PeriodicProj;
-}
-
 void CSolver::InitiatePeriodicComms(CGeometry *geometry,
                                     const CConfig *config,
                                     unsigned short val_periodic_index,
