@@ -28,6 +28,15 @@ are in LIVE receipts; historical206terminal values below are comparison evidence
 At complete matching stages compare whole-field q/J/geometry counts, net removal,
 query traversal/work and CPU/elapsed counters; changed toolchain/runtime prevents
 isolated attribution of wall-time differences. No accepted mesh claimed yet.
+LIVE/initial_construction_comparison.json now preserves first complete6-rank
+construction exits vs206. Coarsening:292680cells/2970geometry-bad/55181size-bad,
+2632commits vs292709/3512/55180,2627commits. Surface exit294000/3171/55678,
+3226cumulative commits vs294186/3861/55674,3287commits. Upper-work ratios1.0506/
+1.1202, max engine elapsed428.451/462.763s vs239.095/266.788s. All6census/cache/
+geometry flags complete, shape_complete0 and q/Jmeasured0 as required. Geometry
+counts include conservative refusals, so lower counts do not prove proportional
+physical improvement. Fresh compiler/runtime/contention prevent isolated elapsed
+attribution. Wait for quality-entry whole-field q/J and net closure, no stop yet.
 Checkpoint293b8361bf verified on fork2026-11-06; no owned heavy handles live before edits.
 Current unvalidated change: budgeted entity direct-bound failures try the existing
 singleton-support physical union query, retain the tighter upper and independent
