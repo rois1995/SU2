@@ -67,6 +67,9 @@ if get_option('enable-tests')
           dependencies: su2_deps, cpp_args: su2_cpp_args)
       test('Wall-function model roots', wall_model_test)
     endif
+    test('Streamwise periodic support', python,
+         args: files('Common/check_periodic_support.py') + [test_driver.full_path(), '--streamwise'],
+         timeout: 150)
     test('NEMO convergence field migration', python,
          args: files('SU2_CFD/output/check_nemo_convergence_migration.py') + [test_driver.full_path()],
          timeout: 300)
