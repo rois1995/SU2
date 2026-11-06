@@ -1,0 +1,151 @@
+{
+  "time": 1793985418.7186007,
+  "scope": "Historical complete corrected-target219 window35008/census11; COUNTERS ONLY, not latest or terminal diagnosis",
+  "source_prefixes": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build219_local_metricL1_real_cfd50k/rank_output/1/rank.0/stdout": {
+      "bytes": 405996,
+      "sha256": "c42d0fb09867224e8e6ee0da4e76a09e224e8e133e8f867d5cc5af00a75b67ef"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build219_local_metricL1_real_cfd50k/rank_output/1/rank.1/stdout": {
+      "bytes": 383211,
+      "sha256": "5d756e8639977723cab84b83361e54a5fc9ff242996a5f6d949703d341601fef"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build219_local_metricL1_real_cfd50k/rank_output/1/rank.2/stdout": {
+      "bytes": 382910,
+      "sha256": "fde64a545d785575179180cce778c74a9284a744cf208a7b828f2c8f7d4c69d1"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build219_local_metricL1_real_cfd50k/rank_output/1/rank.3/stdout": {
+      "bytes": 383092,
+      "sha256": "067f6f00880a8e8d6ddbb348977a7b71115e4c14b0862c6a5e35156ad372906b"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build219_local_metricL1_real_cfd50k/rank_output/1/rank.4/stdout": {
+      "bytes": 382652,
+      "sha256": "9f98303349fbe5b3bb8f285689315379bc9eb5fdd207dd15972b1486a3783b30"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build219_local_metricL1_real_cfd50k/rank_output/1/rank.5/stdout": {
+      "bytes": 383289,
+      "sha256": "df0686c42154f97dd44189c1e4edcfc9eba46444f5471494c3efc9c4e8cf5089"
+    }
+  },
+  "service": {
+    "commits": 2403.0,
+    "owned_q_removed": 4678.0,
+    "owned_j_removed": 4839.0,
+    "owned_debt_removed": 2834.216883128617,
+    "q_retired": 30244.0,
+    "q_introduced": 25566.0,
+    "j_retired": 27630.0,
+    "j_introduced": 22791.0,
+    "queue": 602658.0,
+    "blocked_features": 178.0,
+    "stuck_shape": 0.0,
+    "stuck_required": 0.0,
+    "missing_features": 0.0
+  },
+  "ladder_kind_0_coordinate_1_optimizer_2_collapse_reconnect": {
+    "0": {
+      "trials": 6681.0,
+      "certified": 1223.0,
+      "commits": 1223.0,
+      "seconds": 77.28633129000085,
+      "debt_removed": 544.8531387382121,
+      "q_removed": 1017.0,
+      "j_removed": 878.0,
+      "rejections": [
+        1277,
+        0,
+        0,
+        4181,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "1": {
+      "trials": 1422.0,
+      "certified": 1155.0,
+      "commits": 1155.0,
+      "seconds": 139.35678903299998,
+      "debt_removed": 2230.0399273434064,
+      "q_removed": 3575.0,
+      "j_removed": 3872.0,
+      "rejections": [
+        227,
+        0,
+        0,
+        225,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "2": {
+      "trials": 3708.0,
+      "certified": 25.0,
+      "commits": 25.0,
+      "seconds": 1.8897285049999992,
+      "debt_removed": 59.32381704699878,
+      "q_removed": 86.0,
+      "j_removed": 89.0,
+      "rejections": [
+        3507,
+        0,
+        0,
+        128,
+        0,
+        0,
+        0,
+        48
+      ]
+    }
+  },
+  "rejection_order": [
+    "geometry_or_topology",
+    "height",
+    "shape",
+    "progress",
+    "measurement",
+    "contact",
+    "dependency",
+    "no_candidate"
+  ],
+  "location": {
+    "q_surface": 7251,
+    "q_interior": 66094,
+    "j_surface": 10837,
+    "j_interior": 62239,
+    "q_feature": 1856,
+    "q_no_feature": 71489,
+    "q_feature_unknown": 0,
+    "j_feature": 1541,
+    "j_no_feature": 71535,
+    "j_feature_unknown": 0,
+    "bad_union": 94517,
+    "short09": 94489,
+    "short05": 92063
+  },
+  "optimizer_smoothing_deltas": {
+    "boundary": {
+      "candidates": 15627.0,
+      "moves": 715.0,
+      "debt_reduction": 53.85092500923166,
+      "seconds": 86.6986060189999
+    },
+    "interior": {
+      "candidates": 14960.0,
+      "moves": 1979.0,
+      "debt_reduction": 421.3318533015539,
+      "seconds": 8.223118984999982
+    }
+  },
+  "limits": [
+    "Smoothing counters can include private moves and are not whole-field published efficiency.",
+    "Ladder cavity net q/J changes reconcile globally; churn counts can revisit cells and are not unique identities.",
+    "Blocked features are not the number of fully blocked cells.",
+    "Geometry/topology rejection does not distinguish physical violations from conservative certification refusal.",
+    "Whole-field complete census deltas remain the primary closure measure.",
+    "No implementation or new experiment selected before frozen219terminal outcome."
+  ]
+}

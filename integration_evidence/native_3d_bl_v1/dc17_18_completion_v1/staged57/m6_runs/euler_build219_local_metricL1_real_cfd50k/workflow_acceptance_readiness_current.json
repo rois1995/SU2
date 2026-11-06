@@ -1,0 +1,45 @@
+{
+  "time": 1793985139.910028,
+  "scope": "Read-only reuse of downstream acceptance plan; no additional workload or adapted result claim",
+  "build": "build219",
+  "prior_review": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build210_real_cfd50k_bound_refinement/workflow_acceptance_readiness_current.json",
+  "prior_review_sha256": "b3ad010ac7155c37e7e1ed9557c321612ff736c34de21aba27127a735560784a",
+  "original_readiness": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build196_real_cfd50k_witness_first/workflow_acceptance_readiness.json",
+  "original_readiness_sha256": "0456d9e9ba352ecb2081e7bdda71cbbe6b18b499be01b8c76df1beba922118ea",
+  "current_source_checks": {
+    "SU2_CFD/src/adaptation/CConservativeTransfer.cpp": {
+      "sha256": "9da510e846516899f222b5421d72e09fd05d89e978f8d592c02003c63604fee2",
+      "same_as_reviewed210_source": true,
+      "matches_executing219_pin": true
+    },
+    "SU2_CFD/src/adaptation/CDistributedProjection.cpp": {
+      "sha256": "b651e393ee2897167a45c990c214ae2c77a602444361813970fa5620bf3944bb",
+      "same_as_reviewed210_source": true,
+      "matches_executing219_pin": true
+    },
+    "SU2_CFD/src/adaptation/ConservativeKernels.cpp": {
+      "sha256": "e81a533c852898a39fa15889ad7bf7d0cb5571baae8a16ef42d892dc722634d9",
+      "same_as_reviewed210_source": true,
+      "matches_executing219_pin": true
+    },
+    "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": {
+      "sha256": "911b97ae0c16fcfb1650155094330b17061441e92dc365295036db37f2bc92cb",
+      "same_as_reviewed210_source": true,
+      "matches_executing219_pin": true
+    }
+  },
+  "diagnostic_hook": "This selected test-driver run installs the already-reviewed observer before Remesh. It captures only the first invalid exit; it does not change acceptance, transfer/publication or CFD/restart. Actual loaded runtime pins covered at startup; sources remain frozen.",
+  "acceptance_checks": [
+    "Both strict accepted meshes and native_ref, actual adapted continued CFD files/order.",
+    "Actual per-event projection residuals and execution of unconditional conservation/admissibility gates before publication. Donor-relative integral change is distinct from target-integral residual.",
+    "Independent exact mesh/restart coordinate/order, finite conserved variables, rho and internal-energy checks using existing run_m6_seed.validate_state.",
+    "After owned run terminal: isolated ADAP_LOOP=NO disk restart on actual final adapted mesh/native_ref/solution, distinct input/output prefixes, finite continued CFD and before/after state audit."
+  ],
+  "transfer_thresholds": "Require actual true-control-volume mass residual <=1e-10, admissibility of all projected states/levels, and scaled target-integral gate 1e-12 BEFORE publication. Donor-to-new domain integral difference is a distinct quantity.",
+  "completion_status": "ZERO accepted adapted M6 meshes; no actual adapted transfer, continued CFD or isolated adapted disk restart proved.",
+  "limits": [
+    "No accepted adapted M6 mesh or restart has been demonstrated.",
+    "Post-CFD states alone do not prove immediate transfer conservation.",
+    "General adaptation resume cycle0/output collision remains open; isolated solver restart is a separate requested check."
+  ]
+}

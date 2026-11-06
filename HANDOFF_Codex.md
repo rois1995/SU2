@@ -56,16 +56,26 @@ shape/geometry flags1. Actual quality ownership migration preserves every count 
 flag; committed q/J/debt max-over-mean1.2605/1.2797/1.1389. A219/quality_entry_assessment.json.
 A219/construction_progress_assessment.json preserves complete6-rank stages/prefix
 hashes. Shape zeros during construction were unmeasured, never closure.
-Six complete quality windows are preserved in A219/quality_net_progress.json.
-Latest round34944at1810.470366native seconds:906743cells/78023q-bad/77915J-bad/
-1915geometry-bad/0size-bad; all6census/cache/shape/geometry flags1. Latest window
-removes4530q/4477J/9geometry in127.771072s(~35.5q/s,35.0J/s).
+Ten complete quality windows are preserved in A219/quality_net_progress.json.
+Latest round35200at2566.810746native seconds:932925cells/60149q-bad/59528J-bad/
+1867geometry-bad/0size-bad; all6census/cache/shape/geometry flags1. Latest window
+removes3652q/3857J/2geometry in145.710659s(~25.06q/s,26.47J/s). Actual ownership
+migration at2580.147477s preserves all counts/flags. Rates vary; this is measured
+net progress, not a closure forecast.
 First-window retired/introduced populations reconcile exactly to whole-field net
 counts; they are published-cavity populations, not unique-cell cure counts.
 A219/quality_window1_assessment.json. Actual ownership at34752preserves all counts/
 flags. All10owned handles remain live and1518pins unchanged; sampled tree RSS~10.2GB.
 Wait for terminal outcome; no source speed attribution, closure forecast, competing
-correction or prediction-based stop. All strict gates and construction policy retained.
+correction or prediction-based stop.
+Bounded read-only historical window35008/census11counter review is preserved in
+A219/quality_window35008_counter_assessment.json. Primary recomputation reconciles
+ladder q/Jnet4678/4839to whole-field deltas. Of73345q-bad,66094are interior;
+geometry/topology refusals are not classified as physical vs conservative failures.
+Boundary/interior optimizer smoothing deltas cost86.70/8.22rank-summed seconds and
+reduce private debt53.85/421.33; not a published whole-field efficiency comparison.
+No new operator, larger cavity, scheduler, geometry representation or construction
+quality policy selected before frozen219outcome. All strict gates and construction policy retained.
 
 If native event naturally rejects, preserve all6first-event EXIT/DETAIL rows AND
 complete6-rank capture shards/hashes before any authorized single owned-launcher
@@ -234,6 +244,12 @@ transported nodal target, not original background or other-mode query compositio
 Surface extraction inherits3Dfield; surface motion uses its tangent restriction.
 
 ## Remaining complete-workflow obligations
+
+Current219read-only downstream readiness is A219/workflow_acceptance_readiness_current.json:
+all4executing transfer/projection/kernel/driver source hashes match reviewed210paths.
+The active selected observer captures only invalid exit, not acceptance/publication.
+No additional workload or adapted transfer/restart claim. Use this current receipt
+with actual accepted outputs; the historical plan below remains applicable.
 
 A/workflow_acceptance_readiness_current.json revalidates transfer/projection/kernel
 source pins; driver differs only by inactive diagnostic hook. Require actual true
