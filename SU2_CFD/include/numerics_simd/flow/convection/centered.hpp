@@ -59,6 +59,7 @@ protected:
   const bool esBlend;
   const bool sweptFlux;
   const bool gridEntropy;  /*!< \brief GRID_ENTROPY_P1, ALE terms of the entropy methods (P1_ALE.md, section 10). */
+  const bool weakWallDiss; /*!< \brief JST_WEAK_WALL_DISSIPATION, eps4 = 0 on edges that leave a weak no-slip wall. */
   const su2double stretchParam = 0.3;
 
   /*!
@@ -76,7 +77,17 @@ protected:
     esDiss(edgeForm && config.GetEdge_Form_ES_Diss()),
     esBlend(edgeForm && config.GetEdge_Form_ES_Blend()),
     sweptFlux((edgeForm || projDiss) && config.GetGCL_Exact_P1()),
-    gridEntropy((edgeForm || projDiss) && config.GetDynamic_Grid() && config.GetGrid_Entropy_P1()) {
+    gridEntropy((edgeForm || projDiss) && config.GetDynamic_Grid() && config.GetGrid_Entropy_P1()),
+    weakWallDiss(iMesh == MESH_0 && config.GetJST_Weak_Wall_Diss()) {
+  }
+
+  /*!
+   * \brief JST_WEAK_WALL_DISSIPATION: factor of eps4 on the edge (iPoint, jPoint) from the wall flags of the nodes.
+   */
+  template<class T>
+  FORCEINLINE static Double weakWallFactor(const T& iPoint, const T& jPoint, const CEulerVariable& solution) {
+    return jstWallFactor(gatherVariables(iPoint, solution.GetJSTWallNode()),
+                         gatherVariables(jPoint, solution.GetJSTWallNode()));
   }
 
   /*!
@@ -390,6 +401,7 @@ private:
   using Base::gamma;
   using Base::fixFactor;
   using Base::stretchParam;
+  using Base::weakWallDiss;
   const su2double kappa2;
   const su2double kappa4;
 
@@ -436,7 +448,11 @@ public:
     const auto si = gatherVariables(iPoint, solution.GetSensor());
     const auto sj = gatherVariables(jPoint, solution.GetSensor());
     const Double eps2 = kappa2 * 0.5*(si+sj) * sc2;
-    const Double eps4 = fmax(0.0, kappa4-eps2) * sc4;
+    Double eps4 = fmax(0.0, kappa4-eps2) * sc4;
+
+    /*--- JST_WEAK_WALL_DISSIPATION (P1_WALL_DISSIPATION.md): no fourth-order term on edges with one end on a weak
+     * no-slip wall, in the flux and in the eps4 part of the Jacobian below. Elsewhere the factor is exactly 1. ---*/
+    if (weakWallDiss) eps4 *= Base::weakWallFactor(iPoint, jPoint, solution);
 
     /*--- Update flux and Jacobians with dissipation terms. ---*/
 
@@ -469,6 +485,7 @@ private:
   using Base::nVar;
   using Base::gamma;
   using Base::fixFactor;
+  using Base::weakWallDiss;
   const su2double kappa2;
   const su2double kappa4;
   const su2double entropyFix;
@@ -515,7 +532,10 @@ public:
     const auto si = gatherVariables(iPoint, solution.GetSensor());
     const auto sj = gatherVariables(jPoint, solution.GetSensor());
     const Double eps2 = kappa2 * 0.5*(si+sj) * sc2;
-    const Double eps4 = fmax(0.0, kappa4-eps2) * sc4;
+    Double eps4 = fmax(0.0, kappa4-eps2) * sc4;
+
+    /*--- JST_WEAK_WALL_DISSIPATION, as for CJSTScheme: the scalar dissipation and its Jacobian factor lose eps4. ---*/
+    if (weakWallDiss) eps4 *= Base::weakWallFactor(iPoint, jPoint, solution);
 
     const auto lapl_i = gatherVariables<nVar>(iPoint, solution.GetUndivided_Laplacian());
     const auto lapl_j = gatherVariables<nVar>(jPoint, solution.GetUndivided_Laplacian());

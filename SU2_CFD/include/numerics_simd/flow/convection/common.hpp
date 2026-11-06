@@ -771,3 +771,14 @@ FORCEINLINE void scalarDissipationJacobian(const VariableType& V,
     jac(nVar-1,0) += dissipConst * pow(V.velocity(iDim), 2);
   }
 }
+
+/*!
+ * \brief JST_WEAK_WALL_DISSIPATION (P1_WALL_DISSIPATION.md): factor of eps4 on an edge from the weak no-slip wall flags
+ *        of its nodes (1 on the wall, 0 elsewhere). It is 0 when exactly one end is on the wall, where L of the wall
+ *        node has only boundary neighbours and eps4 lam (L_k - L_s) is not a third difference, and 1 otherwise.
+ */
+FORCEINLINE Double jstWallFactor(const Double& wall_i, const Double& wall_j) {
+  const Double jump = wall_i - wall_j;
+  return 1.0 - abs(jump);
+}
+

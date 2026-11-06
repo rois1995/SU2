@@ -92,6 +92,7 @@ private:
   bool Visc_P1_Entropy;        /*!< \brief P1 Galerkin viscous operator in entropy variables, one frozen K per simplex. */
   bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
   bool P1_Wall_Forces;         /*!< \brief Wall forces, Cf and heat flux from the boundary fluxes of the P1 entropy walls. */
+  bool JST_Weak_Wall_Diss;     /*!< \brief JST fourth-order term off on edges that leave a weak no-slip wall (P1_WALL_DISSIPATION.md). */
   bool Visc_P1_Entropy_Moved;  /*!< \brief Element viscous fluxes of VISC_P1_ENTROPY on the moved (MOD_CENTROIDS) dual test space, 3D. */
   bool Visc_P1_Time_Step;      /*!< \brief Viscous local time step from the block row bounds of VISC_P1_ENTROPY and the weak walls (P1_TIME_STEP.md). */
   VISC_P1_JACOBIAN Kind_Visc_P1_Jacobian; /*!< \brief Jacobian of VISC_P1_ENTROPY and its weak walls: Picard (K frozen) or full (plus dK/du). */
@@ -10106,6 +10107,12 @@ public:
    *        flux plus the SIPG penalty in entropy variables with the K of the wall element.
    */
   bool GetBC_Wall_Entropy_P1() const { return BC_Wall_Entropy_P1; }
+
+  /*!
+   * \brief JST_WEAK_WALL_DISSIPATION: eps4 = 0 on the edges with exactly one end on a weak no-slip wall of
+   *        BC_WALL_ENTROPY_P1, in the residual and in the Jacobian of JST and JST_MAT.
+   */
+  bool GetJST_Weak_Wall_Diss() const { return JST_Weak_Wall_Diss; }
 
   /*!
    * \brief P1_WALL_FORCES: forces, skin friction and heat flux of the walls from the boundary fluxes of the scheme:

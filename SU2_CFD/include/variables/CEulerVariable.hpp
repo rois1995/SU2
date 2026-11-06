@@ -91,6 +91,13 @@ class CEulerVariable : public CFlowVariable {
    */
   inline const su2activevector& GetEdgeBlendLambda() const { return EdgeBlendLambda; }
 
+  su2activevector JSTWallNode; /*!< \brief JST_WEAK_WALL_DISSIPATION: 1 on the nodes of weak no-slip walls, 0 elsewhere. */
+
+  /*!
+   * \brief JST_WEAK_WALL_DISSIPATION: weak no-slip wall flag of each node, owned and halo (empty when the option is off).
+   */
+  inline const su2activevector& GetJSTWallNode() const { return JSTWallNode; }
+
   /*--- EDGE_FORM_TECNO_ADJOINT (TeCNOAdjoint in numerics/flow/tecno_adjoint.hpp), sized only with the option. The
    * edge stores are written by the (const) edge kernel and read by CEulerSolver::TeCNOAdjointResidual. ---*/
   CVectorOfMatrix TeCNOAdjGradient;      /*!< \brief Green-Gauss gradient of the entropy variables (iPoint, iVar, iDim). */

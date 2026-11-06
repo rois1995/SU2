@@ -49,6 +49,7 @@
 #include "../../SU2_CFD/include/numerics/flow/p1_positive_update.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_boundary_ghost.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_boundary_closure.hpp"
+#include "../../SU2_CFD/include/numerics/flow/jst_weak_wall.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/variables.hpp"
 #include "tecno_adjoint_checks.hpp"
@@ -5325,4 +5326,233 @@ TEST_CASE("BC_ENTROPY_P1 Jacobian: pressure flux faces and the scalar Ismail-Roe
   INFO("wall " << worstWall << " port " << worstPort);
   CHECK(worstWall < 1e-6);
   CHECK(worstPort < 1e-12);
+}
+
+namespace {
+
+/*--- JST_WEAK_WALL_DISSIPATION (P1_WALL_DISSIPATION.md). Copy of the dissipation of CJSTScheme::finalizeFlux (the
+ * kernel needs a solver to run): coefficients, the factor of jstWallFactor when the option is on, flux increment
+ * (eps2 (Ut_i - Ut_j) - eps4 (L_i - L_j)) lambda and the Jacobian factors fixFactor (eps2 + eps4 (n+1)) lambda. ---*/
+template <size_t nVar>
+void JSTEdgeDissipation(su2double kappa2, su2double kappa4, su2double fixFactor, const Double& ni, const Double& nj,
+                        const Double& si, const Double& sj, const Double& lambda, bool weakWall, su2double wall_i,
+                        su2double wall_j, const VectorDbl<nVar>& diffU, const VectorDbl<nVar>& lapl_i,
+                        const VectorDbl<nVar>& lapl_j, VectorDbl<nVar>& flux, Double& dissip_i, Double& dissip_j) {
+  const Double sc2 = 3 * (ni+nj) / (ni*nj);
+  const Double sc4 = 0.25*pow(sc2, 2);
+  const Double eps2 = kappa2 * 0.5*(si+sj) * sc2;
+  Double eps4 = fmax(0.0, kappa4-eps2) * sc4;
+  if (weakWall) eps4 *= jstWallFactor(Double(wall_i), Double(wall_j));
+  for (size_t iVar = 0; iVar < nVar; ++iVar) {
+    flux(iVar) += (eps2*diffU(iVar) - eps4*(lapl_i(iVar)-lapl_j(iVar))) * lambda;
+  }
+  dissip_i = fixFactor * (eps2 + eps4*(ni+1)) * lambda;
+  dissip_j = -fixFactor * (eps2 + eps4*(nj+1)) * lambda;
+}
+
+/*--- A small graph: wall nodes 0..3 on a line, two interior layers (4..7, 8..11) of triangles. Undivided Laplacian as
+ * in CEulerSolver::SetUndivided_Laplacian: a wall node uses only its wall neighbours. ---*/
+struct JSTGraph {
+  static constexpr int nNode = 12;
+  std::vector<std::array<int, 2>> edges;
+  std::vector<std::vector<int>> nbr;
+  bool wall[nNode];
+
+  JSTGraph() : nbr(nNode) {
+    for (int i = 0; i < nNode; ++i) wall[i] = (i < 4);
+    for (int layer = 0; layer < 3; ++layer) {
+      for (int i = 0; i < 3; ++i) Add(4 * layer + i, 4 * layer + i + 1);
+      if (layer == 2) break;
+      for (int i = 0; i < 4; ++i) Add(4 * layer + i, 4 * (layer + 1) + i);
+      for (int i = 0; i < 3; ++i) Add(4 * layer + i, 4 * (layer + 1) + i + 1);
+    }
+  }
+  void Add(int a, int b) {
+    edges.push_back({a, b});
+    nbr[a].push_back(b);
+    nbr[b].push_back(a);
+  }
+  /*--- L of one variable for the nodal values u. ---*/
+  void Laplacian(const su2double* u, su2double* L) const {
+    for (int i = 0; i < nNode; ++i) {
+      L[i] = 0.0;
+      for (int k : nbr[i]) {
+        if (wall[i] && !wall[k]) continue;
+        L[i] += u[k] - u[i];
+      }
+    }
+  }
+  /*--- Flux increment of edge e for one variable (kappa2 0.5, fixed sensors and lambda, so eps2, eps4 and lambda are
+   * frozen as in the SU2 Jacobian); the Jacobian factors of both ends in dissip. ---*/
+  su2double EdgeTerm(int e, const su2double* u, su2double kappa4, bool weakWall, su2double* dissip) const {
+    const int i = edges[e][0], j = edges[e][1];
+    su2double L[nNode];
+    Laplacian(u, L);
+    VectorDbl<1> diffU, lapl_i, lapl_j, flux;
+    diffU(0) = u[i] - u[j];
+    lapl_i(0) = L[i];
+    lapl_j(0) = L[j];
+    flux(0) = 0.0;
+    Double di, dj;
+    const Double ni = su2double(nbr[i].size()), nj = su2double(nbr[j].size());
+    JSTEdgeDissipation<1>(0.5, kappa4, 1.0, ni, nj, Double(0.004), Double(0.006), Double(1.7), weakWall,
+                          wall[i] ? 1.0 : 0.0, wall[j] ? 1.0 : 0.0, diffU, lapl_i, lapl_j, flux, di, dj);
+    dissip[0] = di[0];
+    dissip[1] = dj[0];
+    return flux(0)[0];
+  }
+};
+
+}  // namespace
+
+TEST_CASE("JST weak wall: the eps4 factor is zero only on edges with one end on the wall", "[P1Flux]") {
+  const su2double flag[2] = {0.0, 1.0};
+  for (int a = 0; a < 2; ++a) {
+    for (int b = 0; b < 2; ++b) {
+      const Double f = jstWallFactor(Double(flag[a]), Double(flag[b]));
+      INFO("flags " << a << " " << b);
+      CHECK(f[0] == ((a == b) ? 1.0 : 0.0));
+    }
+  }
+}
+
+TEST_CASE("JST weak wall: option off and edges off the wall are unchanged and wall-crossing edges keep only eps2", "[P1Flux]") {
+  /*--- The option multiplies eps4 by exactly 1 on edges with both ends off the wall or both on it, so their flux and
+   * Jacobian factors are those of the option off, bit for bit. With one end on the wall the term is the derived one:
+   * flux eps2 lambda (Ut_i - Ut_j) and factors +-fixFactor eps2 lambda. ---*/
+  constexpr size_t nVar = 5;
+  std::mt19937 gen(4242);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const su2double kappa2 = 0.5, kappa4 = 0.02, fixFactor = 4.0;
+  int mismatches = 0, compared = 0;
+  for (int trial = 0; trial < 200; ++trial) {
+    const Double ni = su2double(3 + trial % 6), nj = su2double(3 + (trial / 6) % 7);
+    const Double si = su2double(0.002 * (1.0 + u(gen))), sj = su2double(0.002 * (1.0 + u(gen)));
+    const Double lambda = su2double(exp(u(gen)));
+    VectorDbl<nVar> diffU, lapl_i, lapl_j, start;
+    for (size_t v = 0; v < nVar; ++v) {
+      diffU(v) = su2double(u(gen));
+      lapl_i(v) = su2double(u(gen));
+      lapl_j(v) = su2double(u(gen));
+      start(v) = su2double(0.1 * v);
+    }
+    const su2double sc2 = 3 * (ni[0] + nj[0]) / (ni[0] * nj[0]);
+    const su2double eps2 = kappa2 * 0.5 * (si[0] + sj[0]) * sc2;
+    REQUIRE(kappa4 > eps2);
+
+    VectorDbl<nVar> fluxOff = start, fluxOne = start, fluxZero = start;
+    Double offI, offJ, oneI, oneJ, zeroI, zeroJ;
+    const su2double same = trial % 2;
+    JSTEdgeDissipation<nVar>(kappa2, kappa4, fixFactor, ni, nj, si, sj, lambda, false, 1.0, 0.0, diffU, lapl_i, lapl_j,
+                             fluxOff, offI, offJ);
+    JSTEdgeDissipation<nVar>(kappa2, kappa4, fixFactor, ni, nj, si, sj, lambda, true, same, same, diffU, lapl_i,
+                             lapl_j, fluxOne, oneI, oneJ);
+    JSTEdgeDissipation<nVar>(kappa2, kappa4, fixFactor, ni, nj, si, sj, lambda, true, same, 1.0 - same, diffU, lapl_i,
+                             lapl_j, fluxZero, zeroI, zeroJ);
+    mismatches += (oneI[0] != offI[0]) + (oneJ[0] != offJ[0]);
+    const su2double eps2Lam = eps2 * lambda[0];
+    mismatches += (fabs(zeroI[0] - fixFactor * eps2Lam) > 1e-15 * fixFactor * eps2Lam);
+    mismatches += (fabs(zeroJ[0] + fixFactor * eps2Lam) > 1e-15 * fixFactor * eps2Lam);
+    for (size_t v = 0; v < nVar; ++v) {
+      mismatches += (fluxOne(v)[0] != fluxOff(v)[0]);
+      const su2double expected = start(v)[0] + eps2Lam * diffU(v)[0];
+      mismatches += (fabs(fluxZero(v)[0] - expected) > 1e-14 * (1.0 + fabs(expected)));
+      ++compared;
+    }
+    /*--- The option off really carries the fourth-order term on that edge. ---*/
+    mismatches += (offI[0] <= fixFactor * eps2Lam * (1.0 + 1e-12));
+  }
+  INFO("compared " << compared << " flux components");
+  CHECK(mismatches == 0);
+}
+
+TEST_CASE("JST weak wall: Jacobian factors equal finite differences of the edge flux on the changed edges", "[P1Flux]") {
+  /*--- SU2's JST Jacobian is fixFactor (eps2 + eps4 (n+1)) lambda dUt/dU with eps2, eps4 and lambda frozen. In Ut it
+   * is exact when both Laplacians contain all neighbours of the node (interior edges). With one end on the wall the
+   * wall Laplacian lacks the interior neighbours, so its eps4 part is approximate; with the option eps4 is zero in the
+   * flux and in the factor, which is then exact again. Central differences in Ut of each end, fixFactor 1. ---*/
+  const JSTGraph graph;
+  std::mt19937 gen(777);
+  std::uniform_real_distribution<double> rnd(-1.0, 1.0);
+  su2double u[JSTGraph::nNode];
+  for (auto& x : u) x = rnd(gen);
+  const su2double kappa4 = 0.02, h = 1e-6;
+
+  int crossing = 0, interior = 0;
+  su2double errCrossingOn = 0.0, errInterior = 0.0, errCrossingOffMin = 1e30, scale = 0.0;
+  for (int weak = 0; weak < 2; ++weak) {
+    for (int e = 0; e < static_cast<int>(graph.edges.size()); ++e) {
+      const int i = graph.edges[e][0], j = graph.edges[e][1];
+      const bool isCrossing = (graph.wall[i] != graph.wall[j]);
+      const bool isInterior = !graph.wall[i] && !graph.wall[j];
+      if (!isCrossing && !isInterior) continue;
+      su2double dissip[2], dummy[2];
+      graph.EdgeTerm(e, u, kappa4, weak, dissip);
+      for (int side = 0; side < 2; ++side) {
+        su2double up[JSTGraph::nNode], um[JSTGraph::nNode];
+        for (int k = 0; k < JSTGraph::nNode; ++k) up[k] = um[k] = u[k];
+        up[graph.edges[e][side]] += h;
+        um[graph.edges[e][side]] -= h;
+        const su2double fd = (graph.EdgeTerm(e, up, kappa4, weak, dummy) - graph.EdgeTerm(e, um, kappa4, weak, dummy)) / (2 * h);
+        const su2double err = fabs(fd - dissip[side]);
+        scale = std::max(scale, fabs(dissip[side]));
+        if (isInterior) errInterior = std::max(errInterior, err);
+        if (isCrossing && weak) errCrossingOn = std::max(errCrossingOn, err);
+        if (isCrossing && !weak) errCrossingOffMin = std::min(errCrossingOffMin, err);
+      }
+      crossing += isCrossing;
+      interior += isInterior;
+    }
+  }
+  INFO("crossing edges " << crossing / 2 << " interior edges " << interior / 2 << " scale " << scale
+       << " smallest off-mode error on crossing edges " << errCrossingOffMin);
+  CHECK(crossing > 0);
+  CHECK(interior > 0);
+  CHECK(errInterior < 1e-8 * scale);
+  CHECK(errCrossingOn < 1e-8 * scale);
+  /*--- Without the option the factor of a crossing edge is off by eps4 lambda times a neighbour count (>= 1). ---*/
+  CHECK(errCrossingOffMin > 1e-3 * scale);
+}
+
+TEST_CASE("JST weak wall: node flags are exact on owned and halo nodes and select the edges that leave the wall", "[P1Flux]") {
+  /*--- The bottom marker plays the weak no-slip wall (x_d = 0). After WallNodeFlags every point of every rank, halo
+   * points included, carries the flag of its position; the factor is 0 exactly on the edges with one end at x_d = 0. ---*/
+  for (int nDim : {2, 3}) {
+    const std::string mesh = "p1_jst_weak_wall_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 8 : 3, 0.4, 0.5);
+    MeshCase test(mesh);
+    auto& geometry = *test.geometry;
+    geometry.PreprocessP2PComms(test.geometry.get(), test.config.get());
+    CHECK_FALSE(test.config->GetJST_Weak_Wall_Diss());
+
+    const auto& config = *test.config;
+    auto isBottom = [&](unsigned short iMarker) { return config.GetMarker_All_TagBound(iMarker) == "bottom"; };
+    su2activevector flags;
+    JSTWeakWall::WallNodeFlags(geometry, config, isBottom, flags);
+    REQUIRE(flags.size() == geometry.GetnPoint());
+
+    auto onWall = [&](unsigned long iPoint) { return geometry.nodes->GetCoord(iPoint, nDim - 1) == 0.0; };
+    su2double wrongFlags = 0.0, wrongEdges = 0.0, crossing = 0.0, along = 0.0;
+    for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+      wrongFlags += (flags(iPoint) != (onWall(iPoint) ? 1.0 : 0.0));
+    }
+    for (auto iEdge = 0ul; iEdge < geometry.GetnEdge(); ++iEdge) {
+      const auto iPoint = geometry.edges->GetNode(iEdge, 0);
+      const auto jPoint = geometry.edges->GetNode(iEdge, 1);
+      if (!geometry.nodes->GetDomain(iPoint) && !geometry.nodes->GetDomain(jPoint)) continue;
+      const su2double factor = jstWallFactor(Double(flags(iPoint)), Double(flags(jPoint)))[0];
+      const bool leaves = (onWall(iPoint) != onWall(jPoint));
+      wrongEdges += (factor != (leaves ? 0.0 : 1.0));
+      /*--- Count each edge once, on the rank that owns its first node. ---*/
+      if (geometry.nodes->GetDomain(iPoint)) {
+        crossing += leaves;
+        along += (onWall(iPoint) && onWall(jPoint));
+      }
+    }
+    INFO("nDim " << nDim);
+    CHECK(GlobalSum(wrongFlags) == 0.0);
+    CHECK(GlobalSum(wrongEdges) == 0.0);
+    CHECK(GlobalSum(crossing) > 0.0);
+    CHECK(GlobalSum(along) > 0.0);
+  }
 }

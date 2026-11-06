@@ -34,6 +34,7 @@
 #include "../../include/numerics/flow/p1_ale_entropy.hpp"
 #include "../../include/numerics/flow/p1_positive_update.hpp"
 #include "../../include/numerics/flow/p1_boundary_ghost.hpp"
+#include "../../include/numerics/flow/jst_weak_wall.hpp"
 #include "../../include/fluid/CIdealGas.hpp"
 #include "../../include/fluid/CVanDerWaalsGas.hpp"
 #include "../../include/fluid/CPengRobinson.hpp"
@@ -311,6 +312,14 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
     if (config->GetEdge_Form_P1() && config->GetEdge_Form_ES_Blend()) {
       nodes->EdgeBlendLambda.resize(geometry->GetnEdge()) = su2double(0.0);
       if (config->GetVisc_P1_Entropy_Moved()) P1MovedThetaV.resize(geometry->GetnElem()) = su2double(0.0);
+    }
+    if (config->GetJST_Weak_Wall_Diss()) {
+      /*--- JST_WEAK_WALL_DISSIPATION: the weak no-slip walls of BC_WALL_ENTROPY_P1, flags on owned and halo nodes. ---*/
+      auto isWeakWall = [&](unsigned short iMarker) {
+        const auto kind = config->GetMarker_All_KindBC(iMarker);
+        return (kind == HEAT_FLUX) || (kind == ISOTHERMAL);
+      };
+      JSTWeakWall::WallNodeFlags(*geometry, *config, isWeakWall, nodes->JSTWallNode);
     }
     if (config->GetEdge_Form_TeCNO_Adjoint()) {
       /*--- Simplex meshes only for now (P1_TECNO_CONVERGENCE.md, 5.1). ---*/
