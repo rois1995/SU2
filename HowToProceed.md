@@ -13,6 +13,15 @@ Actual mesh point/cell counts are separate from metric complexity. Keep geometry
 1e-4, q>=.2, J>=.05, maximum metric edge1.8 and requested heights unchanged. CAD
 remains optional.
 
+The user explicitly requests a fresh latest-checkpoint whole mesh WITH metric,
+including rejection. Selected full two-event build217M6 is LIVE, exact same saved
+CFD seed/config/50k/5400 and unchanged production binary. Existing first-rejected
+exit capture is enabled; freeze sources. After terminal owned handles, assemble
+complete SU2/VTU plus bad/cavity/reference views with the metric-enabled exporter.
+The current actual handles and pending export are in HANDOFF_Codex.md. No217mesh
+is ready yet;202inspection is historical. This selected run also supplies current
+failure witnesses rather than guessing from the older repaired cavity.
+
 Latest terminal build210 first event naturally rejected at the unchanged time
 budget: **790388cells/64q-bad/39J-bad/2283geometry-bad/0size-bad**, complete6-rank
 census/cache/shape/geometry flags. All10owned handles are absent and1517pins

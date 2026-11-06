@@ -10,7 +10,36 @@ Geometry1e-4,q>=.2,J>=.05,maxedge1.8 and requested heights stay strict. Construc
 remains validity-first: positive/nondegenerate/topology/body/feature/height validity,
 no fresh q/J measurements/ranking/vetoes. CAD optional; no-CAD authority sufficient.
 
-## Current: build210 terminal; classify coupled closure before the next correction
+## LIVE: selected full M6 build217 mesh/metric capture
+
+User explicitly requests the actual latest-checkpoint mesh even if refused, WITH
+metric. Selected full two-event M6 is LIVE from pushed sourcebb61db8c0d; production
+source/binary remain6744638324/EXACT210binary, hidden diagnostic fixture only changed.
+R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+A217=`R/m6_runs/euler_build217_real_cfd50k_inspection_metric`.
+Host tool27489 LIVE. Helper552625/start1488380; launcher552832/start1489019;
+time552830/timeout552831/start1489019; ranks552835/start1489022 and
+552836–552840/start1489023. A217/owned_startup.json is exact authority.
+1518pins unchanged;6test ranks,84observed ELFs all covered by runtime193pins.
+R/inspection217_launch.json records4TBscratch, nice19/MPI6/libs1/pt2pt,46.029GB
+available RAM and32.868GB free disk at launch. One owned heavy workload ONLY.
+CFD seed SHA1eaee788...a880 verified; config BYTE-IDENTICAL210(SHA74b2e9f...2bfe8d),
+50k/5400native budget/two events/all strict gates unchanged. Initial CFD completed;
+original-grid00000restart is not adapted-transfer/restart proof.
+
+Freeze ALL executing/pinned code/helpers/config/inputs until owned handles terminal
+or preserved natural failure permits authorized stop. Do not restart from log age.
+Existing --inspect-rejected workflow captures the FIRST rejected actual exit;
+no trial/routine mesh dumps. Before any stop preserve EXIT/DETAIL evidence AND all6
+capture manifests/raw shards; stop only verified current owned launcher ONCE.
+After owned run terminal, use existing inspect_native_failure3d.py on all6manifests
+with --output A217/inspection. It produces full rejected_mesh.su2/rejected_mesh.vtu
+plus bad_cells/cavities/reference views; metric tensor/availability included in
+whole/bad/cavity VTUs. Verify actual counts, completeness, full nodal metric and
+file hashes before giving user links. No217mesh file is ready yet. Keep watching.
+210in-memory mesh was not captured;202inspection remains historical, not latest.
+
+## Latest terminal reference: build210; coupled closure still missing
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A=`R/m6_runs/euler_build210_real_cfd50k_bound_refinement`.
@@ -25,7 +54,8 @@ A/event1_natural_failure.json SHA7877d7ff7b6fe2322236097eee02f35efd6a1714f05c4ee
 Only after preservation, SIGTERM was sent ONCE to verified launcher195411/start480761.
 NEVER repeat that stop or signal historical PIDs. A/event1_failure_owned_stop.json.
 Tool54752TERMINAL1, all10exact handles ABSENT,1517pins unchanged:
-A/terminal_handles.json. No owned heavy workload is live; source changes are now safe.
+A/terminal_handles.json. Those historical handles are absent; LIVE217 above now
+prevents pinned source changes.
 Overall helper5704.300732s includes post-rejection original-grid work; those files
 are not adapted transfer/continuation/restart proof.
 
@@ -51,26 +81,16 @@ No new scheduler/config, gate relaxation, time increase or construction q/J poli
 Then focused affected serial and ONE MPI milestone, immediately full M6 same seed.
 [Terminal210 findings and continuation](Handbook/ADAPTATION_BUILD210_OUTCOME_20261106.md).
 
-## Current selected inspection: latest tested build217, launch next
+## Completed217 diagnosis before the selected full run
 
-Production source/binary remain6744638324/EXACT210binary; only hidden captured202
-fixture changed.217buildPASS174.143064s/1301pins, case tool57630TERMINAL0,
-39853assertions/1case PASS89.622024s, all5host handles absent/runtime unchanged.
-217mirrors engine extra no-added-size/quality-progress checks. Collapse then full49
-optimizer closes q/J with zero guidance and valid boundary/interface, BUT3of4
-SMALLER star controls also close, including9active cells/1trial. Larger cavities
-are NOT justified by this witness. One control raises q-bad1→2despite lower debt.
-R/repair217_support_assessment.json. No new production correction selected.
-
-User explicitly requests latest-checkpoint complete mesh WITH metric, even if
-rejected. Launch SELECTED full two-event M6 with existing run_m6.py --inspect-rejected,
-same saved CFD seed/50k/5400strict budget. Planned attempt:
-euler_build217_real_cfd50k_inspection_metric (verify unused before launch).
-This capture also supplies actual CURRENT residual witnesses. After all6shards
-complete and owned run terminal, export complete SU2/VTU plus bad/cavity views
-with existing metric-enabled exporter. Preserve natural rejection/capture BEFORE
-any authorized stop of the verified owned launcher. No automatic/per-trial dump.
-210in-memory mesh was NOT saved; do not label202aslatest. No other heavy job live.
+217buildPASS174.143064s/1301pins; case tool57630TERMINAL0,39853assertions/1case
+PASS89.622024s, all5case handles absent/runtime unchanged. Existing exact partition
+bounds admitted no additional bad face; no production subdivision selected.
+Mirrored engine size/quality gates: full49postcollapse optimizer closes the old202
+witness, BUT3of4SMALLER star controls also close (9active cells/1trial for one).
+Larger cavities are NOT justified. One control raises q-bad1→2despite lower debt.
+R/repair217_support_assessment.json. No new production correction selected from
+that historical now-repairable witness. Use LIVE217capture for CURRENT residuals.
 [Detailed findings and limits](Handbook/ADAPTATION_REPAIR_SUPPORT_20261106.md).
 
 ## Preserved qualification, runtime and evidence

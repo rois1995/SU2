@@ -1,0 +1,38 @@
+{
+  "build": "build217",
+  "case": "M6 Euler full adaptation",
+  "ranks": 6,
+  "expected_events": 2,
+  "target_complexity": 50000,
+  "qualified_seed_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_original_force_seed_v1",
+  "selected_rejected_mesh_inspection": true,
+  "native_budget_seconds": 5400,
+  "outer_timeout_seconds": 14400,
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "14400",
+    "mpirun",
+    "--output-filename",
+    "rank_output",
+    "-n",
+    "6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver",
+    "[NativeSelectedFailureWorkflow3D]"
+  ],
+  "environment": {
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/native_inspection217_1793970444164625369",
+    "OMPI_MCA_osc": "pt2pt",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "SU2_NATIVE_FROZEN_CONFIG": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build217_real_cfd50k_inspection_metric/run.cfg"
+  },
+  "config_sha256": "74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d",
+  "input_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/validation54/m6_euler/input_pins.json",
+  "runtime_manifest": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/runtime_20261106_v2/loaded_runtime_pins.json"
+}

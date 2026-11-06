@@ -1,0 +1,34 @@
+{
+  "time": 1793970661.1255717,
+  "task": "Explicit latest-checkpoint whole-mesh inspection with metric, even if refused.",
+  "state": "running_capture_not_yet_written",
+  "expected_artifacts": [
+    "inspection/rejected_mesh.vtu",
+    "inspection/rejected_mesh.su2",
+    "inspection/bad_cells.vtu",
+    "inspection/cavities.vtu",
+    "inspection/reference.vtu",
+    "inspection/inspect_manifest.json"
+  ],
+  "metric_arrays": [
+    "PointData/captured_nodal_metric",
+    "PointData/captured_nodal_metric_available"
+  ],
+  "export_command": [
+    "python3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build217_real_cfd50k_inspection_metric",
+    "--output",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build217_real_cfd50k_inspection_metric/inspection"
+  ],
+  "source_checkpoint": "bb61db8c0d",
+  "native_budget_seconds": 5400,
+  "config_identical_to_210": true,
+  "config_sha256": "74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d",
+  "limitations": [
+    "The current217mesh does not yet exist as an exported file.",
+    "202inspection is historical and210in-memory mesh was not saved.",
+    "Do not stop until native outcome/capture evidence justifies existing authorization; verify exact owned handles before any signal.",
+    "Run exporter only after all6shards closed and owned heavy run terminal; verify complete metric/mesh output before providing file links."
+  ]
+}
