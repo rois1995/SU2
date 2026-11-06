@@ -2,7 +2,7 @@
  * \file CPhysicalGeometry.cpp
  * \brief Implementation of the physical geometry class.
  * \author F. Palacios, T. Economon
- * \version 8.5.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
@@ -6984,6 +6984,8 @@ void CPhysicalGeometry::SetBoundControlVolume(const CConfig* config, unsigned sh
   }
   END_SU2_OMP_FOR
 
+  /*--- Allocate on the whole team before the master computes periodic slip normals. ---*/
+  if (nPeriodicSend || nPeriodicRecv) AllocatePeriodicComms(nDim);
   SU2_OMP_SAFE_GLOBAL_ACCESS(ComputeModifiedSymmetryNormals(config);)
 }
 

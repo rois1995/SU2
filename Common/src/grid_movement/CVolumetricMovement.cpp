@@ -2,7 +2,7 @@
  * \file CVolumetricMovement.cpp
  * \brief Subroutines for moving mesh volume elements
  * \author F. Palacios, T. Economon, S. Padron
- * \version 8.5.0 "Harrier"
+ * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
@@ -45,6 +45,7 @@ dual mesh control volumes in the domain and on the boundaries. ---*/
   geometry->SetControlVolume(config, UPDATE);
   geometry->SetBoundControlVolume(config, UPDATE);
   geometry->SetMaxLength(config);
+  geometry->UpdatePeriodicVolumes(config);
 }
 
 void CVolumetricMovement::UpdateMultiGrid(CGeometry** geometry, CConfig* config) {
@@ -58,6 +59,7 @@ including computing the grid velocities on the coarser levels. ---*/
     geometry[iMGlevel]->SetControlVolume(geometry[iMGfine], UPDATE);
     geometry[iMGlevel]->SetBoundControlVolume(geometry[iMGfine], config, UPDATE);
     geometry[iMGlevel]->SetCoord(geometry[iMGfine]);
+    geometry[iMGlevel]->UpdatePeriodicVolumes(config);
     if (config->GetGrid_Movement()) geometry[iMGlevel]->SetRestricted_GridVelocity(geometry[iMGfine]);
   }
 }
