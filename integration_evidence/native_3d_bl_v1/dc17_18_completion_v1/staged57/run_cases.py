@@ -223,12 +223,14 @@ def main():
         changed = [path for path, digest in source_pins.items() if sha(path) != digest]
         if changed:
             raise RuntimeError("build source pins changed: " + ", ".join(changed[:8]))
-        runtime_manifest = ROOT.parent / "validation54/m6_euler/loaded_runtime_pins.json"
+        runtime_manifest = ROOT / "runtime_20261106/loaded_runtime_pins.json"
         runtime_pins = json.loads(runtime_manifest.read_text())
         changed = [path for path, digest in runtime_pins.items() if sha(path) != digest]
         if changed:
             raise RuntimeError("saved M6 loaded-runtime pins changed: " + ", ".join(changed[:8]))
         libraries = loaded_libraries()
+        if set(libraries) - set(runtime_pins):
+            raise RuntimeError("loaded libraries are outside the pinned current-host runtime")
         helper_paths = [Path(__file__).resolve(), (DIAGNOSTIC / "run.py").resolve()]
         pins = dict(source_pins)
         for path in [BINARY, *libraries, *helper_paths, build_status_path, source_pins_path, runtime_manifest]:
@@ -261,7 +263,7 @@ def main():
             if sha(owned) != state["owned_sha256"]:
                 raise RuntimeError("captured cavity owned records changed")
             for path in (config, folder / "m6.su2.native_ref", owned, state_path, preparation_path,
-                         ROOT / "prepare_boundary202.py"):
+                         folder / "inspection_analysis.json", ROOT / "prepare_boundary202.py"):
                 pins[str(path.resolve())] = sha(path)
         if case == "mapped_work_trace":
             stage_environment["SU2_NATIVE_GEOMETRY_WORK_TRACE"] = "1"

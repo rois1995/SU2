@@ -43,6 +43,18 @@ queries remain unresolved; all associations, features, bodies, heights, reverse
 coverage and final gates stay independent. Only measured results may select a
 connected correction. No production fallback or speedup is established yet.
 
+2026-11-06probe207completed: three saved direct-bad faces and one clean neighbor;
+38924assertions/1case PASS, old52q/J bit-exact. Cell152256924/facet10699 has direct
+1.2346577241708644e-4 but existing one-sided union9.4657910071089152e-5, inside1e-4.
+All4cached/fresh bounds match exactly. Two other bad faces get worse union bounds,
+so the better valid bound must be retained; the clean direct path remains cheap.
+This selects refinement of failed direct bounds in shared ParameterError when an
+atlas budget is present, retaining the independent affine maximum. No acceptance
+or production speedup follows yet. R/geometry_probe207_assessment.json records scope.
+Host runtime changed since November1; the successful probe observed extra hwloc
+modules beyond prelaunch pins. Their hashes stayed stable through exit, but an
+expanded versioned runtime and fresh production serial/MPI qualification are required.
+
 Older whole-query displacement/slack certifies0of12saved queries, and optimistic
 subtree reuse saved only0.5765%before overhead in that population. Do not add a
 motion cache, envelope or scheduler from these results. Exact memo misses still

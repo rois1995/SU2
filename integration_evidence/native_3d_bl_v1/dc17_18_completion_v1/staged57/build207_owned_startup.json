@@ -1,0 +1,50 @@
+{
+  "time": 1793555908.2491567,
+  "state": "HOST handles verified running; source/helper frozen",
+  "exec_session": 83367,
+  "handles": [
+    {
+      "pid": 2320271,
+      "startticks": 97086031,
+      "nice": 19,
+      "argv": [
+        "python3",
+        "-B",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build_checkpoint.py",
+        "207"
+      ],
+      "nspid": [
+        "NSpid:\t2320271\t9"
+      ]
+    },
+    {
+      "pid": 2320273,
+      "startticks": 97086042,
+      "nice": 19,
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/tools/ninja",
+        "-C",
+        "integration_evidence/build-integrated-v2",
+        "-j3",
+        "UnitTests/test_driver",
+        "-k",
+        "0",
+        "SU2_CFD/src/SU2_CFD"
+      ],
+      "nspid": [
+        "NSpid:\t2320273\t10"
+      ]
+    }
+  ],
+  "invalid_initial_namespace_observation": {
+    "time": 1793555867.2690008,
+    "ninja_pid": 10,
+    "startticks": 33,
+    "nice": -20,
+    "argv": [],
+    "exec_session": 83367,
+    "source_pins": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/build207_source_pins.json",
+    "state": "running; source/helper frozen"
+  },
+  "correction": "Helper status PID10 was a sandbox namespace ID. HOST PID10 is unrelated and was never signalled; exact helper argv/cwd and direct-child Ninja identify ownership."
+}

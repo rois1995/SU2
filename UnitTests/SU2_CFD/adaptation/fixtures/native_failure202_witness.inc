@@ -73,6 +73,65 @@ TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructe
   log<<"{\"stage\":\"current_boundary_validated\",\"traces\":"<<state->Coverage().traces.size()
      <<",\"work\":"<<budget.work<<",\"fresh_revision\":1,\"historical_trace_identity_proved\":false}\n";log.flush();
 
+  // Saved single-face census excesses; a correspondence bound is not a distance violation proof.
+  struct GeometryProbe {Id cell,facet;Face vertices;double excess;};
+  const std::array<GeometryProbe,4> geometry_probes{{
+    {152256924,10699,{8075,174384024,191931538},2.3465772417086435e-5},
+    {151610623,16737,{7849,191559586,7844},0.00030667155886447245},
+    {152331796,16677,{8370,173784300,7322},0.0004730775988526313},
+    {152256925,10699,{191931538,174384024,181694598},0.}
+  }};
+  {
+    const auto& authority=state->Geometry();const auto retained=authority.GeometryStatsSnapshot();
+    const auto cache_bytes=transfer_memory::Add(retained.prepared_limit,retained.memo_limit);
+    const auto caller=transfer_memory::Add(budget.caller_bytes,state->ResidentBytes(),reference->ResidentBytes(),cache_bytes);
+    REQUIRE(transfer_memory::Add(caller,cache_bytes)<ceiling);
+    auto immutable=std::shared_ptr<const PlanarReference>(state->Authority(),&authority.Reference());
+    SU2NativeGeometry::MappedFacetReference recomputed(immutable,authority.Errors(),authority.Version(),
+        ceiling-caller-cache_bytes,authority.ReferenceComponents(),authority.Curves(),cache_bytes);
+    const auto query_caller=transfer_memory::Add(caller,recomputed.ResidentBytes(),cache_bytes);
+    REQUIRE(query_caller<ceiling);
+    for(const auto& probe:geometry_probes) {
+      auto key=probe.vertices;std::sort(key.begin(),key.end());
+      const auto found=std::find_if(surface.begin(),surface.end(),[&](const SurfaceFace& f){
+        auto vertices=f.v;std::sort(vertices.begin(),vertices.end());return f.facet==probe.facet&&vertices==key;
+      });
+      REQUIRE(found!=surface.end());std::array<Point,3> physical;std::array<SU2NativeGeometry::SurfaceBinding,3> bindings;
+      for(unsigned k=0;k<3;++k){const auto& p=points.at(found->v[k]);physical[k]=p.node.p;bindings[k]=p.binding;
+        REQUIRE(authority.Supports(probe.facet,p.binding));}
+      const double direct=authority.SurfaceError(probe.facet,bindings,physical);
+      const double production=reference->SurfaceDeviation(probe.facet,physical);
+      CHECK(direct==production);CHECK(std::abs(std::max(0.,production-1e-4)-probe.excess)<=1e-12);
+      auto query=budget;query.work=0;query.maximum_work=64*SU2NativeGeometry::MappedFacetReference::ClearanceWork;
+      query.caller_bytes=query_caller;query.work_exhausted=false;query.geometry_failure.clear();
+      auto fresh_budget=query;const auto before=authority.GeometryStatsSnapshot();
+      log<<"{\"stage\":\"geometry_probe_start\",\"cell\":"<<probe.cell<<",\"facet\":"<<probe.facet
+         <<",\"direct_upper\":"<<direct<<",\"recorded_excess\":"<<probe.excess
+         <<",\"query_work_limit\":"<<query.maximum_work<<"}\n";log.flush();
+      try {
+        const std::vector<Id> support{probe.facet};const std::vector<std::array<Point,3>> triangles{physical};
+        const double bound=authority.BoundPhysicalSurface(support,triangles,1e-4,query);const auto first_work=query.work;
+        const double cached=authority.BoundPhysicalSurface(support,triangles,1e-4,query);
+        const double fresh=recomputed.BoundPhysicalSurface(support,triangles,1e-4,fresh_budget);
+        REQUIRE(std::isfinite(bound));CHECK(bound==cached);CHECK(bound==fresh);
+        const auto after=authority.GeometryStatsSnapshot();CHECK(after.memo_union_hits>before.memo_union_hits);
+        log<<"{\"stage\":\"geometry_probe_result\",\"cell\":"<<probe.cell<<",\"query_completed\":true"
+           <<",\"union_upper\":"<<bound<<",\"cached_upper\":"<<cached<<",\"recomputed_upper\":"<<fresh
+           <<",\"directed_within\":"<<(bound<=1e-4)<<",\"first_work\":"<<first_work
+           <<",\"cached_work\":"<<query.work-first_work<<",\"recomputed_work\":"<<fresh_budget.work
+           <<",\"traversal_work\":"<<after.traversal_work-before.traversal_work
+           <<",\"scope_build_work\":"<<after.scope_build_work-before.scope_build_work<<"}\n";
+      }catch(const std::exception& error) {
+        WARN(error.what());
+        log<<"{\"stage\":\"geometry_probe_result\",\"cell\":"<<probe.cell<<",\"query_completed\":false"
+           <<",\"work_exhausted\":"<<(query.work_exhausted||fresh_budget.work_exhausted)
+           <<",\"query_work\":"<<query.work<<",\"recomputed_work\":"<<fresh_budget.work<<"}\n";
+      }
+      budget.work=transfer_memory::Add(budget.work,query.work,fresh_budget.work);REQUIRE(budget.work<=budget.maximum_work);
+      log.flush();
+    }
+  }
+
   CavityMetricSource source(world,owned);const auto identity=std::make_shared<const FrozenMetricIdentity>();
   auto field=[&](const std::vector<Cell>& query,const std::vector<OwnedCell>& cavity) {
     auto imported=source.ImportCellsLocal(query,cavity,ceiling,budget.caller_bytes);INFO(imported.reason);REQUIRE(imported.valid);

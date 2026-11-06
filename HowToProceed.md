@@ -25,6 +25,16 @@ has identified a sufficient direct geometry bound to compare with the existing
 rigorous union query on saved202bad/clean faces. This is a bounded diagnostic,
 not an established production fallback or speedup. See HANDOFF_Codex.md and the
 [current geometry review](Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md).
+Build207passed with source pins unchanged; its exact owned handles are absent.
+The focused run with the current runtime and portable MPI window backend passed:
+one actual face's direct1.23466e-4 was rigorously bounded by the existing union
+query at9.46579e-5. Four cached/fresh results matched, old52cell q/J stayed exact.
+This selects a shared failed-direct-bound refinement for implementation, retaining
+the better bound and all independent gates. Full mesh closure remains unproved.
+Preserved earlier failures cover missing historical loader paths and default
+MPI_Win_create failure. Expand the runtime snapshot with observed hwloc modules
+before production qualification; old runtime checks do not qualify this host.
+Exact handles, runtime migration and the namespace caveat are in HANDOFF_Codex.md.
 
 Latest build202 finished naturally at the unchanged native time budget. Its
 complete terminal census contains **810163cells,295q-bad,294J-bad,2110geometry-bad

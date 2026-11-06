@@ -1,0 +1,41 @@
+{
+  "time": 1793957179.904685,
+  "handles": [
+    {
+      "pid": 43129,
+      "expected_startticks": 130776,
+      "state": "ABSENT"
+    },
+    {
+      "pid": 43201,
+      "expected_startticks": 131032,
+      "state": "ABSENT"
+    },
+    {
+      "pid": 43202,
+      "expected_startticks": 131032,
+      "state": "ABSENT"
+    },
+    {
+      "pid": 43203,
+      "expected_startticks": 131032,
+      "state": "ABSENT"
+    },
+    {
+      "pid": 43204,
+      "expected_startticks": 131033,
+      "state": "ABSENT"
+    }
+  ],
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 100.62238669395447,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 507133952,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "observed_extra_runtime_unchanged": true,
+  "runtime_coverage_limit": "Additional hwloc ELFs were observed after launch; they must enter a new runtime snapshot before production qualification."
+}

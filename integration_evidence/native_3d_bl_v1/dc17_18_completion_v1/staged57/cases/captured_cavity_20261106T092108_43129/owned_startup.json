@@ -1,0 +1,87 @@
+{
+  "time": 1793956887.0907245,
+  "exec_session": 76931,
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/captured_cavity_20261106T092108_43129",
+  "handles": [
+    {
+      "pid": 43129,
+      "startticks": 130776,
+      "nice": 19,
+      "comm": "python3",
+      "argv": [
+        "python3",
+        "-B",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_cases.py",
+        "build207",
+        "captured_cavity"
+      ]
+    },
+    {
+      "pid": 43201,
+      "startticks": 131032,
+      "nice": 19,
+      "comm": "time",
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "timeout",
+        "600",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeCapturedCavity3D]",
+        "--durations",
+        "yes"
+      ]
+    },
+    {
+      "pid": 43202,
+      "startticks": 131032,
+      "nice": 19,
+      "comm": "timeout",
+      "argv": [
+        "timeout",
+        "600",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeCapturedCavity3D]",
+        "--durations",
+        "yes"
+      ]
+    },
+    {
+      "pid": 43203,
+      "startticks": 131032,
+      "nice": 19,
+      "comm": "test_driver",
+      "argv": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeCapturedCavity3D]",
+        "--durations",
+        "yes"
+      ]
+    },
+    {
+      "pid": 43204,
+      "startticks": 131033,
+      "nice": 19,
+      "comm": "orted",
+      "argv": [
+        "orted",
+        "--hnp",
+        "--set-sid",
+        "--report-uri",
+        "8",
+        "--singleton-died-pipe",
+        "9",
+        "-mca",
+        "state_novm_select",
+        "1",
+        "-mca",
+        "ess",
+        "hnp",
+        "-mca",
+        "pmix",
+        "^s1,s2,cray,isolated"
+      ]
+    }
+  ],
+  "state": "live pt2pt diagnostic; source/helpers/runtime frozen"
+}

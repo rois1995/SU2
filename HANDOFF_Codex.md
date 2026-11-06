@@ -1,6 +1,6 @@
 # Native adaptation — current handoff
 
-Updated2026-11-01(Europe/Rome). Goal ACTIVE: TWO strictly accepted ONERA M6 Euler CFD → mesh →
+Updated2026-11-06(Europe/Rome). Goal ACTIVE: TWO strictly accepted ONERA M6 Euler CFD → mesh →
 CFD → mesh events at50k metric complexity; actual conservative admissible transfer,
 finite continued CFD and isolated usable adapted disk restart. Then dedicated BL/
 constraint/MPI qualification and corresponding RANS500k workflow. Actual point/cell
@@ -9,11 +9,48 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current — build206 terminal rejection; no owned heavy job
+## Current — build207 diagnostic terminal; shared geometry admission correction selected
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 LAST=`R/m6_runs/euler_build206_real_cfd50k_feature_companion`.
 INSPECT202=`R/m6_runs/euler_build202_real_cfd50k_inspection`.
+Build207 exec83367 TERMINAL0,331.648681s,1298source pins unchanged and targets up
+to date. Exact HOST helper2320271/start97086031 and Ninja2320273/start97086042
+ABSENT, verified2026-11-06 in R/build207_terminal_handles.json.
+R/build207_owned_startup.json preserves argv/cwd/children.
+Helper status uses namespace PID10 for Ninja (HOST2320273), NOT hostPID10. Initial
+invalid namespace lookup is preserved/corrected in that receipt; no signals sent.
+Focused helper exec61871 TERMINAL1; case captured_cavity_20261106T090838_20867
+stopped BEFORE worker launch, status exit2/pins_verified=false: historical loader
+/usr/lib/x86_64-linux-gnu/ld-2.31.so is absent. No test_driver/command was launched.
+Historical libc/libstdc++/MPI/PMIx paths changed on this host. Old runtime receipts
+stay preserved; qualification under that runtime does not establish current-host
+behavior. R/runtime_20261106 is being captured from both binaries' ldd dependencies
+and current MPI/PMIx modules/dependencies. Active validation helpers will verify
+that versioned snapshot and loaded-library coverage before the focused retry.
+Subsequent current-runtime attempt captured_cavity_20261106T091823_38316 failed
+MPI_Win_create before any geometry query (exit53,pins unchanged). The pinned
+OMPI_MCA_osc=pt2pt backend initialized successfully. Attempt
+captured_cavity_20261106T092108_43129 exec76931 TERMINAL0,100.622s,
+38924assertions/1case PASS; all5exact HOST handles ABSENT, pins unchanged.
+Current175-file runtime snapshot covered ldd/MPI modules, but actual maps found
+additional hwloc modules/dependencies. Their observed hashes stayed unchanged
+through exit; expand a NEW versioned runtime snapshot before production qualification.
+The in-use175-file manifest remains preserved. No owned heavy job is live.
+Only diagnostic fixture plus its helper input pin changed:4saved202bad/clean faces,
+recorded direct bounds, existing union query, exact cached/fresh comparisons and
+1,048,576work/query. R/geometry_probe207_assessment.json: one saved bad face
+(cell152256924/facet10699) has direct1.2346577241708644e-4 but existing union
+9.4657910071089152e-5, rigorous directed within1e-4. Four cached/fresh results
+match exactly; all52oldq/J bit-exact. Two other bad faces remain uncertified;
+their union bounds are worse, so retain the better bound. Nearby clean face
+direct7.4427575719935332e-5 should keep its cheap path. No mesh acceptance/speedup.
+Selected connected change: shared ParameterError refines failed direct bounds
+through EXISTING physical union query when budgeted, preserving min of valid
+upper bounds and independent affine maximum. No new cache/config. Runtime-v2
+closure and focused geometry/constraint/resource/MPI validation precede full M6.
+
+Most recent full M6 outcome:
 Normal full M6 exec39395 is TERMINAL1. Event1 naturally failed the unchanged
 native time budget on all6ranks BEFORE the authorized owned-launcher stop.
 COMPLETE actual first EXIT round24710: **809684cells/281q-bad/341J-bad/
@@ -32,8 +69,8 @@ that output is not an adapted continuation or restart proof. Two accepted events
 could no longer be obtained in this configured two-event attempt.
 
 LAST/terminal_handles.json proves all10exact owned handles ABSENT at
-1793554482.9539447 and1403pins unchanged. Sources can now change safely. No owned
-heavy job remains. Host then MemAvailable40,200,848kB/load5.55; rerun resource and
+1793554482.9539447 and1403pins unchanged. Sources were then safe to edit and were
+frozen through successful207build. No owned M6 job remains. Host then MemAvailable40,200,848kB/load5.55; rerun resource and
 handle checks before sustained work. Overall helper5619.598s includes startup,
 post-rejection original-grid work and owned shutdown, not just first native work.
 LAST/terminal_resource_assessment.json:2731existing tree samples peak15,283,798,016B
@@ -78,7 +115,7 @@ empty queues); final18of466shape-bad blocked,queue4920. Final q139surface/142int
 J220surface/121interior; all466short<.5,not construction causation. Drift16/16supported,
 max4.04324%; immutable continuous target fidelity remains unproved.
 Source review confirms existing reuse/screens; direct single-patch sufficient
-geometry bounds may conservatively refuse. Next bounded diagnostic reuses selected
+geometry bounds may conservatively refuse. The bounded diagnostic now building reuses selected
 202actual bad/clean faces to compare those bounds with EXISTING rigorous physical
 union queries and cache behavior before selecting ONE connected correction. See
 Handbook/ADAPTATION_GEOMETRY_CERTIFICATION_20261101.md. No production change yet.

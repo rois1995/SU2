@@ -20,7 +20,7 @@ from run_cases import sample_tree
 REPO = ROOT.parents[3]
 BASE = ROOT.parent / "validation54/m6_euler"
 CFD = REPO / "integration_evidence/build-integrated-v2/SU2_CFD/src/SU2_CFD"
-RUNTIME = BASE / "loaded_runtime_pins.json"
+RUNTIME = ROOT / "runtime_20261106/loaded_runtime_pins.json"
 INPUTS = BASE / "input_pins.json"
 EULER_TARGET = 50000
 
@@ -325,6 +325,8 @@ def main():
         (attempt / "run.cfg").write_text(seed_config((attempt / "run.cfg").read_text()))
         binary = REPO / "integration_evidence/build-integrated-v2/UnitTests/test_driver" if inspect_rejected else CFD
         libraries = ldd_paths(binary)
+        if set(libraries) - set(runtime_pins):
+            raise RuntimeError("M6 loaded libraries are outside the pinned current-host runtime")
         utilities = [Path(shutil.which(name) or "/nonexistent").resolve()
                      for name in ("nice", "timeout", "mpirun")]
         utilities.append(Path("/usr/bin/time"))
