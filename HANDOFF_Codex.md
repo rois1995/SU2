@@ -9,9 +9,25 @@ requested heights stay strict. Construction preserves exact positive/nondegenera
 topology/body/feature/height validity and deliberately omits q/J. CAD optional;
 no-CAD geometry authority sufficient. ZERO accepted adapted M6 meshes so far.
 
-## Current — build210 geometry qualification passed; full M6 starting
+## Current — full M6 build210 frozen and live
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+LIVE=`R/m6_runs/euler_build210_real_cfd50k_bound_refinement`.
+Full two-event M6 exact tool session54752 CONFIRMED LIVE; helper195103/start479820,
+time195409/timeout195410/launcher195411allstart480761; ranks195414–18and195420
+start480765. LIVE/owned_startup.json records exact argv/cwd/start/nice/parents;
+LIVE/loaded_runtime_startup.json covers all6CFDranks and mapped ELFs with no
+uncovered library.1517pins, fresh current-host GCC13.3 build210/runtime-v2.
+Source checkpoint6744638324 PUSHED. Same saved real CFD seed,50k metric complexity,
+2events,5400native budget; strict gates unchanged. No selected failure dump.
+Keep all executing/pinned sources, helpers, binary/config/inputs unchanged. Do not
+signal or restart from stale logs/time alone; verify this exact owned session.
+Only this heavy workload is live. R/euler_build210_launch.json records TMPDIR,
+pt2pt backend/isolated4TB MPI scratch, argv and CFD SHA. Current resource/handles
+are in LIVE receipts; historical206terminal values below are comparison evidence.
+At complete matching stages compare whole-field q/J/geometry counts, net removal,
+query traversal/work and CPU/elapsed counters; changed toolchain/runtime prevents
+isolated attribution of wall-time differences. No accepted mesh claimed yet.
 Checkpoint293b8361bf verified on fork2026-11-06; no owned heavy handles live before edits.
 Current unvalidated change: budgeted entity direct-bound failures try the existing
 singleton-support physical union query, retain the tighter upper and independent
@@ -49,8 +65,8 @@ failed because launcher omitted TMPDIR; only verified mpirun181079/start444653
 received SIGTERM after pins/error/handles preserved; all10handles now absent.
 NEVERrepeat that signal. Corrected MPI-only session87663 TERMINAL0 used pt2pt and
 4TB TMPDIR, no source change; serial evidence reused. Tests do not prove full M6.
-Next full attempt euler_build210_real_cfd50k_bound_refinement, same saved realCFD
-seed,2events,50k,5400native budget. Verify handles/resource before launch. No
+Full attempt euler_build210_real_cfd50k_bound_refinement is now live as above, same
+saved realCFD seed,2events,50k,5400native budget. No
 routine rejected-mesh dump; future selected export includes requested metric.
 No speedup or full-mesh acceptance established. Full M6 follows affected checks.
 User observes poor leading-edge mesh. Read-only selected202localization receipt
@@ -96,7 +112,7 @@ captured_cavity_20261106T092108_43129 exec76931 TERMINAL0,100.622s,
 Current175-file runtime snapshot covered ldd/MPI modules, but actual maps found
 additional hwloc modules/dependencies. Their observed hashes stayed unchanged
 through exit; NEW runtime-v2 now includes them before production qualification.
-The historical175-file manifest remains preserved. Build210 is terminal; qualification is terminal; no owned workload live until the next full M6 starts.
+The historical175-file manifest remains preserved. Build210 is terminal; qualification is terminal; full M6 session54752 is the sole live workload.
 Historical build207 changed only the diagnostic fixture/helper input pin:4saved202bad/clean faces,
 recorded direct bounds, existing union query, exact cached/fresh comparisons and
 1,048,576work/query. R/geometry_probe207_assessment.json: one saved bad face

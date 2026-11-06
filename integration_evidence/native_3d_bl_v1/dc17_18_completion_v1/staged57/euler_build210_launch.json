@@ -1,0 +1,27 @@
+{
+  "time": 1793960358.595155,
+  "source_commit": "67446383243ed02fbe68f4efb02728a14b92dcad",
+  "argv": [
+    "/usr/bin/python3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_m6.py",
+    "build210",
+    "euler_build210_real_cfd50k_bound_refinement",
+    "2",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_inputs/euler_original_force_seed_v1"
+  ],
+  "environment": {
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp",
+    "OMPI_MCA_osc": "pt2pt",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/native_m6_210",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "CFD_sha256": "11608ab077ea319ebe9fe92a253a1bd525daa4780e180baf45367b04d2ce16cd",
+  "qualification": "geometry210_qualification.json",
+  "one_heavy_job": true,
+  "native_budget": 5400,
+  "requested_events": 2,
+  "Euler_metric_complexity": 50000,
+  "inspection_dump_selected": false
+}
