@@ -5981,6 +5981,7 @@ void CSolver::ComputeP1WallForces(const CGeometry *geometry, const CConfig *conf
   const su2double sipg = pve::NOSLIP_SIPG, penalty = pve::NOSLIP_PENALTY;
   const bool movedShares = config->GetVisc_P1_Entropy_Moved() && (nDim == 3);
   const bool bcEntropyP1 = config->GetBC_Entropy_P1();
+  const bool bcWallEntropyP1 = config->GetBC_Wall_Entropy_P1();
 
   /*--- Closure C on the BC_WALL_ENTROPY_P1 walls (always, WeakNoSlipWallResidual) and on the Euler walls with
    * BC_ENTROPY_P1 (Weak_BC_Residual); the other markers keep the nodal pressure force. ---*/
@@ -5991,7 +5992,8 @@ void CSolver::ComputeP1WallForces(const CGeometry *geometry, const CConfig *conf
   P1WallPressureMarker.assign(nMarker, false);
   for (unsigned long iMarker = 0; iMarker < nMarker; ++iMarker) {
     const auto kind = config->GetMarker_All_KindBC(iMarker);
-    P1WallPressureMarker[iMarker] = (kind == HEAT_FLUX) || (kind == ISOTHERMAL) || (bcEntropyP1 && (kind == EULER_WALL));
+    P1WallPressureMarker[iMarker] = (bcWallEntropyP1 && ((kind == HEAT_FLUX) || (kind == ISOTHERMAL))) ||
+                                    (bcEntropyP1 && (kind == EULER_WALL));
     const unsigned long nVertex = geometry->GetnVertex(iMarker);
     P1WallPressureForce[iMarker].assign(nVertex * nDim, 0.0);
     P1WallViscousForce[iMarker].assign(nVertex * nVar, 0.0);
