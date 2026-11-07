@@ -50,10 +50,10 @@ claim. Initial quality ownership preserves ALL census totals/flags; joined data 
 A_MACH/quality_entry_observation.json. Sampled tree RSS about9.4GiB,not physical/
 whole-job peak. Keep frozen; no accepted mesh yet.
 A_MACH/owned_live_observation.json is current exact live handle confirmation.
-Mach-only quality is active. Latest complete window round32000/native910.893268:
-888081cells/99363q/99351J/1355geometry/0size,ALL flags complete,stuck_shape0/
-missing_features0/private_tracked_collectives0. First-pass churn checks match net
-field changes. Recheck current JSON for exact elapsed; no combined-target benchmark.
+Mach-only quality is active. Latest complete window round32192/native1625.651721:
+911472cells/85596q/84995J/1253geometry/0size,ALL flags complete,
+stuck_shape0/missing_features0/private_tracked_collectives0.
+First-pass churn checks match net field changes. No combined-target benchmark.
 A_MACH/{quality_progress,quality_counter_assessment}.json records work/service/
 location/ladder data; continued ownership commits preserve all flags/totals.
 
