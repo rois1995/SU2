@@ -1,5 +1,9 @@
 # Tiny SST–EPM infrastructure check
 
+For the paper's physical case matrix and preparation-only configuration generator,
+see [paper_cases/README.md](paper_cases/README.md). Those cases are separate from
+this tiny infrastructure regression and have not been simulated.
+
 This is a coarse numerical regression, not a physically resolved flat-plate study.
 It generates a 117-point 2D rectangle or a 315-point 3D box with spanwise flow.
 Each solver invocation is limited to 2,000 iterations and 300 seconds. No mesh

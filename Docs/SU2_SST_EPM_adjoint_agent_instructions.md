@@ -14,11 +14,11 @@ The estimator must return the baseline QoI, five first derivatives, five first-o
 
 This is not an implementation of a probabilistic uncertainty interval or a guarantee of bounds. It is not one ordinary flow run that produces a validated EPM envelope without additional work. Independent lift and drag estimates normally require separate adjoints; an adjoint for a weighted objective gives that combination's sensitivity.
 
-**Implementation status (2026-11-06):** branch `rois1995/SU2:feature_UQ` starts at the upstream commit below. Reference corrections and experimental 2D/3D extraction are implemented. The complete serial reverse-AD executable builds and passes tiny 2D and 3D end-to-end regressions: all primal/adjoint residuals below `1e-10`, unchanged adjoint iterations with extraction enabled, full interior-edge coverage, finite nonzero five-case sensitivities, saved-adjoint restart agreement, and an unchanged primal restart. Local numerics tests pass 721 assertions in seven passive cases and 695 in four reverse-AD cases, including the fused edge kernel. MPI reductions, synchronized probes and master-only CSV output are implemented; modified driver/flux sources pass MPI/MeDiPack syntax compilation. Two-rank runtime validation is blocked by the sandbox's socket permissions (`errno=1`) and remains pending. No production runs or cluster access occurred. Nonlinear derivative and endpoint validation remain separate pending gates.
+**Implementation status (2026-11-07):** branch `rois1995/SU2:feature_UQ` starts at the upstream commit below. Reference corrections and experimental 2D/3D extraction are implemented. The complete serial reverse-AD executable builds and passes tiny 2D and 3D end-to-end regressions: all primal/adjoint residuals below `1e-10`, unchanged adjoint iterations with extraction enabled, full interior-edge coverage, finite nonzero five-case sensitivities, saved-adjoint restart agreement, and an unchanged primal restart. Local numerics tests pass 721 assertions in seven passive cases and 695 in four reverse-AD cases, including the fused edge kernel. MPI reductions, synchronized probes and master-only CSV output are implemented; modified driver/flux sources pass MPI/MeDiPack syntax compilation. Two-rank runtime validation is blocked by the sandbox's socket permissions (`errno=1`) and remains pending. No production runs or cluster access occurred. Nonlinear derivative and endpoint validation remain separate pending gates.
 
 **Study constraint: preserve classical EPM.** Keep the corrected classical 1C/2C/3C targets, orientation permutations, and endpoint controls. Do not introduce spectral smoothing, average admissible orientations into a weaker stress tensor, or attenuate anisotropy to obtain a derivative. The earlier smooth-target proposal is withdrawn: at isotropy it collapses all five targets to 3C and changes the uncertainty experiment. The smoothing prototype has been removed; its historical commit remains available for audit. The reference-model bug fixes remain in place.
 
-**Adjoint status:** a common baseline adjoint remains appropriate wherever the classical target correction has a suitable continuous or justified directional limit. Degenerate targets require explicit orientation diagnostics and qualification; no globally valid live-EPM derivative is established by selecting an arbitrary eigensolver basis. Section 5.5 specifies the model-preserving investigation. The first extraction implementation now exists behind `SST_EPM_POSTPROCESS=YES`: runtime scalar registration in the native adjoint driver, passive classical target corrections in scalar and fused-edge viscous momentum/energy fluxes and limited SST sources, reuse of the coupled adjoint, sampled eigenspace probes, and CSV output. Nonlinear continuation, wide-SIMD/OpenMP extraction, nonlinear CFD Taylor tests, and the campaign runner remain pending. MPI runtime validation is pending despite implemented distributed extraction. The broader `SST_EPM_ANALYSIS/CASE/AMPLITUDE/OUTPUT` interface below remains proposed and is not accepted by this branch.
+**Adjoint status:** a common baseline adjoint remains appropriate wherever the classical target correction has a suitable continuous or justified directional limit. Degenerate targets require explicit orientation diagnostics and qualification; no globally valid live-EPM derivative is established by selecting an arbitrary eigensolver basis. Section 5.5 specifies the model-preserving investigation. The first extraction implementation now exists behind `SST_EPM_POSTPROCESS=YES`: runtime scalar registration in the native adjoint driver, passive classical target corrections in scalar and fused-edge viscous momentum/energy fluxes and limited SST sources, reuse of the coupled adjoint, sampled eigenspace probes, and CSV output. A preparation-only paper-case generator now supplies ordinary baselines, coupled drag/lift adjoints and the five classical endpoints for NACA 0012, the NASA hump and ONERA M6. Nonlinear continuation, wide-SIMD/OpenMP extraction, nonlinear CFD Taylor tests, and an execution/comparison campaign runner remain pending. MPI runtime validation is pending despite implemented distributed extraction. The broader `SST_EPM_ANALYSIS/CASE/AMPLITUDE/OUTPUT` interface below remains proposed and is not accepted by this branch.
 
 **Execution contract:** only small local tests are authorized for this task. Production campaigns and all cluster access are prohibited. The numerical campaigns below are future validation instructions and must not be launched under the current authorization. Pushing this branch to the user's fork is explicitly authorized.
 
@@ -736,204 +736,57 @@ Evaluate all baseline flow and turbulence residual components with the new code,
 
 The adjoint itself performs direct preprocessing and tape-recording iterations. These are part of sensitivity evaluation and do not mean the primal must be converged again from scratch.
 
-### 12.4 Required files and complete configuration generation
+### 12.4 Implemented paper-case preparation
 
-Provide an example and one campaign helper, preferably under `TestCases/disc_adj_rans/sst_epm_adjoint/`. The helper's proposed name is `epm_campaign.py`, with `prepare`, `run`, and `compare` subcommands. These must be implemented or replaced with documented equivalent commands.
+The preparation-only implementation is [paper_cases/prepare.py](../TestCases/disc_adj_rans/sst_epm_adjoint/paper_cases/prepare.py), with the complete physical definitions, mesh sources and acceptance plan in [paper_cases/README.md](../TestCases/disc_adj_rans/sst_epm_adjoint/paper_cases/README.md). It emits only options accepted by this branch. The internal common/case overlays are expanded into standalone `run.cfg` files; SU2 has no implicit include requirement.
 
-The generated working directory should have at least:
+From the repository root, prepare each case without launching a solver:
 
-| Relative path under the campaign root | Purpose |
+```bash
+PAPER_CASES=TestCases/disc_adj_rans/sst_epm_adjoint/paper_cases
+python3 "$PAPER_CASES/prepare.py" naca0012 build-epm-local/paper/naca0012
+python3 "$PAPER_CASES/prepare.py" nasa_hump build-epm-local/paper/nasa_hump
+python3 "$PAPER_CASES/prepare.py" onera_m6 build-epm-local/paper/onera_m6
+```
+
+Without `--mesh`, the manifests explicitly say `mesh_required`. With `--mesh /path/to/mesh.su2`, the generator validates dimension/count/marker metadata, copies the ASCII SU2 mesh and records its source path and SHA256. Always use a new output directory. Geometry correctness, wall resolution, mesh independence and experimental setup matching remain separate gates. No benchmark mesh is bundled. The NASA hump converter accepts the official single-block 2D no-plenum PLOT3D format and preserves chord units, full precision and source hash; it has only been tested on synthetic input so far.
+
+| Path under each case root | Purpose |
 |---|---|
-| `mesh/n0012_225-65.su2` | Fixed mesh |
-| `baseline/baseline.cfg` | Ordinary direct baseline or restart-polishing configuration |
-| `baseline/baseline_restart.dat` | Selected binary primal restart |
-| `baseline/baseline_summary.json` | Verified residuals, native objectives, physical coefficients, and provenance |
-| `adjoint_drag/adjoint_drag.cfg` | Fresh coupled drag adjoint and five-case extraction |
-| `adjoint_drag/epm_drag.csv` | Five drag sensitivity rows |
-| `adjoint_lift/adjoint_lift.cfg` | Fresh coupled lift adjoint and five-case extraction |
-| `adjoint_lift/epm_lift.csv` | Five lift sensitivity rows |
-| `nonlinear/<case>/a_<value>/run.cfg` | One direct continuation or equivalent endpoint calculation |
-| `nonlinear/<case>/a_<value>/qoi.json` | Converged objectives, coefficients, and numerical uncertainty estimates |
-| `results/run_manifest.json` | Complete job list, status, paths, amplitudes, inputs, timings |
-| `results/gradient_check.csv` | AD versus finite-difference/Taylor checks |
-| `results/nonlinear_comparison.csv` | Predictions and nonlinear responses |
-| `results/summary.md` | Interpretation, failures, and measured cost |
+| `mesh/mesh.su2` | Supplied mesh; absent until explicitly supplied |
+| `baseline/run.cfg` | Ordinary direct SST-2003m baseline |
+| `baseline/restart_flow.dat` | Future converged binary baseline output |
+| `adjoint_drag/run.cfg`, `adjoint_lift/run.cfg` | Fresh coupled adjoints, same primal, extraction enabled |
+| `adjoint_*/sst_epm_sensitivities.csv` | Future per-objective extraction output |
+| `nonlinear/<case>/run.cfg` | Five standalone corrected classical endpoints |
+| `manifest.json` | Job dependencies, input hashes, unrun status and pending gates |
 
-Each run gets its own directory, log, history file, and output restart so jobs cannot overwrite the common baseline or each other. Resolve the mesh and restart stems to absolute paths, or verify relative paths from each job's actual working directory.
+All generated paths resolve from the job's actual working directory. Each run writes its own restart/history/output files and cannot overwrite the common baseline. Fresh adjoints use `RESTART_SOL=NO`, `SOLUTION_FILENAME=../baseline/restart_flow` and `SST_EPM_POSTPROCESS=YES`; loading the saved primal is implicit in the discrete-adjoint mode. Use a separate saved-adjoint restart only intentionally, following SU2's objective suffix convention. Do not reuse a frozen-viscosity adjoint as a converged fully coupled one.
 
-Generate fully expanded configurations with each key defined once. The following snippets are **overlays**, not complete runnable files; do not assume an unsupported config-include syntax. The agent must supply the complete mesh, boundary, physical, numerical, monitoring, and convergence settings.
+Classical endpoints use `SST_OPTIONS=(V2003m,UQ)`, `UQ_DELTA_B=1`, `UQ_URLX=1`, and the component/permutation mapping in Section 3. They restart from the ordinary baseline as an initial guess. Every primal outputs both CD and CL, so there is no additional primal solve per objective.
 
-#### Ordinary baseline overlay
+**Unavailable continuation stage:** the proposed `SST_EPM_ANALYSIS/CASE/AMPLITUDE/OUTPUT` interface is not accepted. No small-amplitude configurations are generated. The h=0.005, 0.01, 0.02 Taylor matrix in Sections 12.7–12.8 remains a requirement blocked on that implementation. Reducing `UQ_DELTA_B` or relabeling endpoint secants would not implement the same residual continuation. A future continuation endpoint at a=1 may replace the standalone classical solve only after residual/objective identity is verified.
 
-```ini
-SOLVER= RANS
-KIND_TURB_MODEL= SST
-SST_OPTIONS= V2003m
-MATH_PROBLEM= DIRECT
+### 12.5 Checks and future execution stages
 
-RESTART_SOL= NO
-RESTART_FILENAME= baseline_restart
-READ_BINARY_RESTART= YES
-
-OBJECTIVE_FUNCTION= DRAG
-OBJECTIVE_WEIGHT= 1.0
-MARKER_MONITORING= ( airfoil )
-
-SST_EPM_ANALYSIS= NONE
-SST_EPM_AMPLITUDE= 0.0
-UQ_DELTA_B= 1.0
-UQ_URLX= 1.0
-
-TABULAR_FORMAT= CSV
-CONV_FILENAME= history_baseline
-OUTPUT_FILES= (RESTART, SURFACE_CSV)
-OUTPUT_PRECISION= 17
-```
-
-For a direct restart/polishing run, change `RESTART_SOL=YES` and set `SOLUTION_FILENAME` to the existing primal file stem, while retaining a distinct output stem. The binary input must match `READ_BINARY_RESTART=YES`.
-
-#### Fresh drag adjoint from the saved baseline
-
-```ini
-SOLVER= RANS
-KIND_TURB_MODEL= SST
-SST_OPTIONS= V2003m
-MATH_PROBLEM= DISCRETE_ADJOINT
-
-OBJECTIVE_FUNCTION= DRAG
-OBJECTIVE_WEIGHT= 1.0
-MARKER_MONITORING= ( airfoil )
-
-RESTART_SOL= NO
-SOLUTION_FILENAME= ../baseline/baseline_restart
-READ_BINARY_RESTART= YES
-RESTART_ADJ_FILENAME= adjoint_restart
-
-FROZEN_VISC_DISC= NO
-FROZEN_LIMITER_DISC= NO
-INCONSISTENT_DISC= NO
-
-SST_EPM_ANALYSIS= ADJOINT_ESTIMATE
-SST_EPM_AMPLITUDE= 0.0
-SST_EPM_OUTPUT= epm_drag.csv
-UQ_DELTA_B= 1.0
-UQ_URLX= 1.0
-
-TABULAR_FORMAT= CSV
-CONV_FILENAME= history_adjoint_drag
-OUTPUT_FILES= (RESTART)
-OUTPUT_PRECISION= 17
-```
-
-In this steady discrete-adjoint path, `MATH_PROBLEM=DISCRETE_ADJOINT` enables loading the saved direct solution internally. `RESTART_SOL=NO` is correct for a **fresh adjoint that loads an existing primal**. Set `RESTART_SOL=YES` only when intentionally loading a compatible saved adjoint as well.
-
-For a saved adjoint, use `SOLUTION_ADJ_FILENAME` according to the actual branch's objective-suffix convention; do not blindly append a suffix already added by SU2. Do not reuse a frozen-viscosity adjoint as a converged fully coupled adjoint.
-
-The lift configuration changes `OBJECTIVE_FUNCTION=LIFT`, the log/history/output names, and the adjoint output directory. It uses the same primal restart. One weighted drag-plus-lift objective does not provide the two separate gradients.
-
-Restart behavior sources: [COptionMathProblem](https://github.com/su2code/SU2/blob/f4b67d23deaac22948cc8d2a2c0da3138ae804f6/Common/include/option_structure.inl), [CDriver::RestartSolver](https://github.com/su2code/SU2/blob/f4b67d23deaac22948cc8d2a2c0da3138ae804f6/SU2_CFD/src/drivers/CDriver.cpp).
-
-#### Direct continuation overlay: one example job
-
-For `1C_KEEP` at `a=0.01`:
-
-```ini
-MATH_PROBLEM= DIRECT
-SOLVER= RANS
-KIND_TURB_MODEL= SST
-SST_OPTIONS= V2003m
-
-RESTART_SOL= YES
-READ_BINARY_RESTART= YES
-RESTART_FILENAME= endpoint_restart
-
-OBJECTIVE_FUNCTION= DRAG
-OBJECTIVE_WEIGHT= 1.0
-MARKER_MONITORING= ( airfoil )
-
-SST_EPM_ANALYSIS= CONTINUATION
-SST_EPM_CASE= 1C_KEEP
-SST_EPM_AMPLITUDE= 0.01
-UQ_DELTA_B= 1.0
-UQ_URLX= 1.0
-
-TABULAR_FORMAT= CSV
-CONV_FILENAME= history_nonlinear
-OUTPUT_FILES= (RESTART, SURFACE_CSV)
-OUTPUT_PRECISION= 17
-```
-
-The generator must add the absolute `SOLUTION_FILENAME` stem of the common baseline. Change only the case and amplitude across the controlled continuation jobs. Recompute the endpoint contributions live at every iteration; do not use the saved frozen correction for these nonlinear solves.
-
-Save both physical `CD` and `CL` and their equivalent native single-objective values from every primal run. Changing the monitored objective between drag and lift does not require another primal solve in this fixed-AOA case, provided the normalization/evaluation is consistent.
-
-For a standalone corrected legacy EPM check, use `SST_EPM_ANALYSIS=NONE`, `SST_OPTIONS=(V2003m,UQ)`, and the case's `UQ_COMPONENT/UQ_PERMUTE` mapping. A converged continuation state at `a=1` can serve as this endpoint's solution once assembled residual and objective identity have been verified. Do not duplicate five full endpoint solves solely to change their labels.
-
-### 12.5 Commands and execution stages
-
-The case generator must make the commands below executable with the installed binaries and actual file paths. From the corresponding working directories:
+The lightweight preparation tests use synthetic mesh metadata and a synthetic PLOT3D grid:
 
 ```bash
-cd "$EPM_RUN_ROOT/baseline"
-"$EPM_PRIMAL" baseline.cfg > run.log 2>&1
-
-cd "$EPM_RUN_ROOT/adjoint_drag"
-"$EPM_ADJOINT" adjoint_drag.cfg > run.log 2>&1
-
-cd "$EPM_RUN_ROOT/adjoint_lift"
-"$EPM_ADJOINT" adjoint_lift.cfg > run.log 2>&1
-
-cd "$EPM_RUN_ROOT/nonlinear/1C_KEEP/a_0.01"
-"$EPM_PRIMAL" run.cfg > run.log 2>&1
+python3 "$PAPER_CASES/test_prepare.py"
+python3 "$PAPER_CASES/test_prepare.py" --binary /path/to/SU2_CFD_AD
 ```
 
-Skip a new baseline convergence solve when the compatible saved baseline has passed the reuse checks. Record tape construction, the adjoint convergence, and parameter extractions as separate cost components even if one executable invocation performs all three.
+Both tests pass locally. The optional executable check invokes only `--dryrun`: all 24 configurations pass parsing; the three baselines finish dummy-geometry preprocessing, while the 21 dependent configurations reach the expected missing-primal-restart error. SU2's dry run still attempts restart loading. These checks validate neither actual meshes nor converged physical solutions.
 
-The campaign helper must support explicit stages so routine estimation does not unexpectedly launch the validation campaign. A proposed interface, to implement and test, is:
+Production execution remains prohibited under the current authorization. Once separately authorized and meshes qualified, run `SU2_CFD_AD run.cfg > run.log 2>&1` **from the selected job directory**, using the compatible reverse-AD build without OpenMP. Complete and verify the baseline before any dependent jobs. Run the two adjoints and five endpoints only in their respective directories. No automatic run/resume/comparison or cluster launcher is provided. The manifest records preparation, not later execution status; archive actual commands, logs, times, executable/source/restart hashes and convergence certificates with each result.
 
-```bash
-EPM_CAMPAIGN="$EPM_REPO_ROOT/TestCases/disc_adj_rans/sst_epm_adjoint/epm_campaign.py"
+A zero exit code and the 20,000-iteration cap are not convergence certificates. Apply Section 12.9 to every primal and coupled adjoint, including tighter-solve noise checks. Reuse a compatible saved primal only after Section 12.3's checks. Count baseline, adjoint convergence, tape/replays and nonlinear reference costs separately. Do not silently launch validation cases when requesting an estimate.
 
-python3 "$EPM_CAMPAIGN" prepare \
-  --root "$EPM_RUN_ROOT" \
-  --mesh "$EPM_RUN_ROOT/mesh/n0012_225-65.su2" \
-  --objectives DRAG LIFT \
-  --small-amplitudes 0.02 0.01 0.005
-
-python3 "$EPM_CAMPAIGN" run \
-  --root "$EPM_RUN_ROOT" --stage baseline \
-  --primal "$EPM_PRIMAL"
-
-python3 "$EPM_CAMPAIGN" run \
-  --root "$EPM_RUN_ROOT" --stage estimate \
-  --adjoint "$EPM_ADJOINT"
-
-python3 "$EPM_CAMPAIGN" run \
-  --root "$EPM_RUN_ROOT" --stage gradient-check \
-  --primal "$EPM_PRIMAL"
-
-python3 "$EPM_CAMPAIGN" run \
-  --root "$EPM_RUN_ROOT" --stage endpoints \
-  --primal "$EPM_PRIMAL"
-
-python3 "$EPM_CAMPAIGN" compare --root "$EPM_RUN_ROOT"
-```
-
-`prepare` must also accept a supplied primal restart and its original configuration/provenance. In that case `baseline` validates compatibility and residuals, reconverging only when necessary. Provide a dry-run listing of commands and costs, resume completed jobs only when their input hashes and convergence records match, and fail a stage clearly when required output is absent or unconverged. A process exit code of zero alone is not a convergence certificate.
-
-The script must expand the five cases listed in Section 3, keep nonlinear jobs separate, and record the actual command, working directory, start/end time, exit status, and convergence result. `compare` is postprocessing only and must never launch CFD implicitly.
-
-For MPI verification, copy/generate a separate output directory and repeat the drag adjoint with two ranks against the same verified primal:
-
-```bash
-mpirun -np 2 "$EPM_ADJOINT" adjoint_drag.cfg > run.log 2>&1
-```
-
-Compare all five globally summed sensitivities with the one-process values using the recorded numerical error budget. Adapt the launcher to the actual environment. Do not rerun all nonlinear cases under MPI merely to check the parameter reduction.
+The existing tiny `check_extraction.py --ranks 2 --reference ...` is the local MPI verification path. Its runtime gate remains pending because the sandbox cannot create the required sockets. Do not infer parallel correctness from syntax compilation or bypass that restriction. Production MPI execution requires a later successful runtime check.
 
 ### 12.6 Exactly how the sensitivity result is obtained
 
-The new `ADJOINT_ESTIMATE` driver path must perform the five replays after the selected baseline adjoint is converged. For each replay:
+The implemented `SST_EPM_POSTPROCESS=YES` driver performs the five canonical replays after the selected baseline adjoint is converged, with additional eigenspace probes when required. For each replay:
 
 1. Restore the same baseline and preserve the converged flow and turbulence adjoint arrays.
 2. Register the persistent amplitude at zero before dependent computations.
@@ -1159,15 +1012,25 @@ Generate standard scientific plots when available: `J(a)` versus `J0+a*g` for ea
 
 Report one-objective and two-objective costs separately. Five nonlinear EPM calculations provide all monitored quantities together; the adjoint method needs one solve per independent scalar objective.
 
-### 12.11 Later challenge case and completion boundary
+### 12.11 Paper matrix and completion boundary
 
-After the attached-case derivative checks pass, use the same setup at 15 degrees as a candidate separated-flow challenge. Establish a credible steady baseline and verify separation from wall shear/field data; angle alone is not evidence of separation.
+Use three principal cases, with the exact preparation inputs and primary references in [paper_cases/README.md](../TestCases/disc_adj_rans/sst_epm_adjoint/paper_cases/README.md):
 
-Repeat the core matrix only if a defensible steady comparison exists. Two complete core cases correspond to 42 distinct primal states including both baselines, four adjoint solves, and 20 parameter replays, before retries, extra probes, or MPI duplicates. Adding the two optional intermediate amplitudes to both cases raises the distinct primal-state total to 62.
+| Case | Conditions | Role |
+|---|---|---|
+| NACA 0012 | 2D, M=0.15, Re=6e6, alpha=2 degrees | Attached-flow verification, nonzero drag and lift |
+| NASA wall-mounted hump, no plenum/control | 2D, M=0.1, Re=936000 | Separation, reattachment and model sensitivity |
+| ONERA M6 test 2308 | 3D, M=0.8395, Re=11.72e6, alpha=3.06 degrees | Three-dimensional transonic challenge |
 
-If the challenge does not converge steadily, record that limitation. Do not use an arbitrary unconverged iteration as the reference, silently change endpoint strength, or present a switch to an unsteady problem as validation of this steady estimator.
+The hump replaces high-incidence NACA as the main separated-flow benchmark. A 15-degree NACA calculation may be a later robustness check, but incidence alone proves neither separation nor a credible steady solution. The 2-degree NACA point is controlled verification, not a matched experimental Cp condition. ONERA M6 uses centered JST consistently across all jobs because extraction excludes slope limiters; the Roe reconstruction-gradient option must not be applied to JST.
 
-The core implementation deliverable is the verified attached-case workflow with actual sensitivity files and a reproducible comparison. A successful Taylor check establishes derivative correctness; acceptable full-endpoint error is a separate empirical result. If computation cannot be completed in the available environment, deliver the complete generated configs, exact commands, and explicit pending gates without inventing results.
+All cases retain SST-2003m and full classical EPM targets. The available adjoint QoIs are drag and lift only. Hump forces integrate the complete lower wall, with a fixed pressure/area convention; they are estimator-reference quantities, not isolated-hump experimental forces. Cp, Cf, reattachment and section profiles are nonlinear diagnostics, not adjoint-predicted local uncertainty bands. NASA's posted SSTm results are not an exact reference for this branch's model variant.
+
+At one mesh per case, the currently preparable matrix comprises 18 primal solves (three baselines plus 15 endpoints), six adjoints and 30 canonical parameter replays inside those adjoint jobs. Three meshes per case would give 72 jobs, before retries or extra eigenspace probes. If the full planned small-amplitude matrix is later implemented at one mesh per case, it adds 45 primal states: 63 primal states plus six adjoints, not 24 total jobs. Validation cost must be separated from routine estimation cost.
+
+No physical case has been run here. Actual benchmark meshes, three-grid/y+ evidence, converged solutions, numerical-noise budgets, nonlinear Taylor checks and full-endpoint errors remain pending. The NASA mesh converter is synthetically tested; actual grid conversion/inspection is pending. If a case or endpoint does not converge steadily, record that limitation instead of using an arbitrary iteration, weakening EPM, discarding the case silently, or switching to an unsteady problem under the same claim.
+
+A successful Taylor check establishes derivative correctness under the stated regularity/degeneracy qualifications; acceptable full-endpoint error is a separate empirical outcome. Paper figures must report individual endpoint errors as well as envelope errors, and one-/two-QoI costs separately. Infrastructure and preparation checks alone do not establish uncertainty bounds or speed-up.
 
 ## 13. Completion checklist
 
