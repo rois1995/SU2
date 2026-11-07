@@ -14,7 +14,7 @@ sources, fixtures, helpers, binary/config/inputs through each run. Verify actual
 owned handle terminal before edits/restarts. Preserve failures; authorized stop/
 fix/retry for demonstrated failures, clear bottlenecks or actual resource pressure.
 
-## TERMINAL227; exported mesh+metric verified, ACTIVE residual shape recovery
+## TERMINAL227; actual residual tests complete, ACTIVE geometry-conforming repair design
 
 Full goal remains ACTIVE/zero accepted adapted meshes. Source bd653aa58f and
 late-run evidence0e9b07bf61 PUSHED.227geometry witness screening passed build,
@@ -80,15 +80,64 @@ defaults retained), no larger active cavities/supports. Recovered centroid q/J i
 oracle; captured edge caches explicitly unavailable. Fresh full boundary/feature
 reconstruction, not historical private publication replay.
 
-SOLE heavy workload: build229exec43967LIVE, host ninja2241504, nice19/libs1/3workers,
-existing build_checkpoint.py. All C++/runtime helpers FROZEN until build and actual
-current serial diagnostic terminal. Next run SU2_NATIVE_FROZEN_CONFIG pointing to
-A227/current_witnesses_v1/run.cfg with run_cases.py build229 current_residual,
-OMPI_MCA_osc=pt2pt and4TBscratch. Then choose connected closure hypothesis and ONE
-MPI6 qualification; full same-seed M6 follows. Do not reuse old build227/228pin
-assertions as current after intentional source changes.
+Build229exec43967TERMINAL0,168.136292s,1302pins unchanged/both targets up to date;
+all recorded host compiler handles absent. Actual-current serial exec81937TERMINAL0,
+92.748418s/36241assertions/1case PASS, all source/runtime/input pins unchanged;
+wrapper2248558/time2248733/timeout2248734/test_driver2248735/orted2248736 all absent.
+R/current_residual229_assessment.json:16single-star tests on4current contexts.
+Interior/free and interior-touching-wing each4/4stars useful; both physical-wing-face
+contexts0/4useful. Whole-context before/after q/J/geometry/size, exact centroid-shape
+oracle and interface/replacement checked. Not nonlocal contact/publication proof.
 
-Production optional-ownership guard locally changed, UNBUILT/UNVALIDATED: collective
+Build230exec43204TERMINAL0,165.149283s,1302pins unchanged/both targets up to date;
+all compiler handles absent. Current_compoundexec2635TERMINAL0,93.798626s,
+all pins unchanged, handles2262047/2262243/2262244/2262245/2262246all absent.
+R/current_compound230_assessment.json: both existing shell candidates construct,
+q/J improve but geometry excess rises27–32x; refusal CORRECT.23of24directed
+collapses cannot construct. Sole constructible collapse+optimizer worsens context
+q2→3/J1→4 and geometry excess; no useful compound candidate established. Diagnostic
+PASS means completed comparisons, not capability/progress/nonlocal-publication proof.
+
+Build231exec34608TERMINAL0,165.159724s,1302pins unchanged/both targets up to date;
+compiler handles absent. Current_compoundexec83281TERMINAL0,95.806336s, pins unchanged;
+helper2275188/time2275420/timeout2275421/test2275422/orted2275423all host ABSENT.
+R/current_compound231_assessment.json: one existing shell+complete50-cell optimizer
+hypothesis closes q2→0/J1→0 in51trials/1.741938s (2boundary moves), but geometry
+excess2.78685e-12→6.63231e-11(~23.8x), geometry-bad4→4; candidate STILL REFUSED.
+No new production closure implementation justified. Do not add a ladder of local
+operator variants or enlarge supports from this failed local hypothesis.
+
+Geometry queryexec68593TERMINAL0,53.608959s/180assertions/1case, all pins unchanged;
+helper2289918/time2289989/timeout2289990/test2289991/orted2289992all host ABSENT.
+NO OWNED HEAVY WORKLOAD. Current source build231; production Engine contains only
+optional admission-consensus correction since227 (compiled, MPI behavior still
+pending). Latest fixture changes are DIAGNOSTIC ONLY, not a closure implementation.
+
+R/shell_geometry231_assessment.json:8old/raw-shell-exposed faces through existing
+query facilities, native support discovery, cached/recomputed exact answers. Both
+raw shell replacements have1new face rigorously outside queried support at
+125.5107or104.3380micrometers vs100tolerance; other new face certified within.
+Production upper answers reproduce BOTH native whole-guidance deltas (relative
+error<=1.9e-16), proving the reconstructed raw face identity. Lower witnesses
+refer to exact queried support, not arbitrary other bodies/sheets. Optimized-position
+faces were NOT exported. Trace overhead means no diagnostic speedup claim. No
+sampling acceptance, CAD requirement, configuration/gate/work/time-limit change.
+Source permits conservative upper-only refusal, but these two raw faces also have
+positive outside witnesses: quicker certification alone cannot admit them.
+
+NEXT ACTIVE DESIGN TARGET from actual corrected M6 evidence: repair power through
+geometry-conforming surface/adjacent-volume construction. Existing original-star,
+collapse+optimizer and raw shell+complete-star relocation tested; the latter closes
+local q/J but increases geometry debt. Reconsider missing geometry/construction
+coordination using existing facilities before another implementation. Do NOT add
+a ladder of local variants, increase supports/budgets, change validity-first policy,
+or launch full M6 solely for the ownership guard/passing fixtures. Further geometry
+or scheduler ideas remain backlog. ONE connected serial/MPI6 milestone, then
+immediately full same-seed L1/50k two-event M6 after a justified closure change.
+Strict shape→residual geometry/size→shape-reclosure, transfer/continued-CFD/disk
+restart and subsequent BL/MPI/RANS500k obligations remain OPEN.
+
+Production optional-ownership guard built229, behavior qualification pending: collective
 AND of local admission decisions using existing world.maximum prevents split
 participation before repartition. No scheduler/config/gate/budget change. All old
 227/228source pins now historical after intentional Engine/fixture edits. After build229terminal, run actual-current serial diagnostic,
@@ -111,7 +160,7 @@ progress/last-complete state, not that tail, for later227windows. Timers overlap
 join-call wall share is not CPU idle, private smoothing debt is not global gain.
 
 REQUIRED postterminal source correction within this SAME cycle (implemented locally,
-not yet built/qualified): optional ownership
+built231, MPI qualification pending): optional ownership
 admission uses rank-local wall/ownership timers without a collective proceed vote
 (CNativeEngine3D.cpp2671-2689). False ranks return while true ranks enter collective
 repartition. No actual split was observed in sealed28group six-rank audit;

@@ -90,3 +90,38 @@ This refines the earlier face-only interior label. Among free interior residuals
 wing-touching interior429, wing-face98. Do not increase bounds from this statistic.
 Representative bounded contexts selected for existing-operator analysis; no new
 repair strategy or quality-aware construction policy is established yet.
+
+## Actual existing-operator and combined-candidate results
+
+Current229diagnostic36241assertions/1case passed:16stars on4actual contexts;
+each interior context4/4useful, both wing-face contexts0/4useful. Complete context,
+interfaces, current centroid q/J oracle and geometry/size effects checked. Current230
+compound diagnostic:23of24directed collapses cannot construct; the sole collapse
+plus optimizer worsens complete counts q2→3/J1→4 and geometry excess. Both existing
+surface-shell candidates construct and reduce q/J, but raise geometry excess27–32x.
+Their refusal is correct. Passing diagnostics do not imply useful repair power.
+
+Current231tests ONE connected hypothesis: existing shell then existing optimization
+inside complete50-cell context (66-cell context excluded, active limit64unchanged).
+34927assertions/1case passed;51trials/2boundary moves close q2→0/J1→0, but geometry
+excess2.78685e-12→6.63231e-11(~23.8x), geometry-bad4→4. Still inadmissible; no
+production closure change integrated from this failed hypothesis. All handles
+terminal and pins unchanged. R/current_{residual229,compound230,compound231}_assessment.json.
+
+Eight actual old/raw-shell replacement queries,180assertions/1case, all pins unchanged:
+one exposed face per shell has a rigorous outside-support witness125.5107or104.3380µm
+versus100µm tolerance, its other new face certifies within. Exact production guidance
+reproduces both native shell whole-guidance deltas to relative1.9e-16orbetter.
+R/shell_geometry231_assessment.json. This is not optimized-position replay or a
+statistical sample of all smoothing costs; no wall-time claim with work trace enabled.
+Witnesses concern exact queried support, not arbitrary other bodies/sheets.
+
+The next target for these actual boundary residuals is geometry-conforming coupled
+repair power. Faster certification alone cannot admit the demonstrated raw violating
+faces. Reconsider missing surface/adjacent-volume construction coordination using
+existing facilities; avoid a ladder of local fallbacks, larger supports or raised
+limits. No new scheduler/geometry representation or quality-aware construction.
+Optional ownership collective-AND correction compiled in229/230/231but MPI behavior
+qualification remains pending; do not launch full M6 solely for this guard or fixture.
+After a justified connected closure change: affected serial/ONE MPI6 milestone,
+then immediately full same-seed correctedL1/50k two-event M6 under unchanged gates.

@@ -6,7 +6,6 @@ static void CapturedCurrentResidual(bool compound) {
   const auto directory=config.substr(0,slash+1);
   std::ifstream current_cases(directory+"current_residual_cases.tsv");
   const bool current_capture=bool(current_cases);
-  if(current_capture)REQUIRE_FALSE(compound);
   REQUIRE_FALSE(bool(std::ifstream("native_current_residual_result.jsonl")));
   std::ofstream log("native_current_residual_result.jsonl");REQUIRE(bool(log));log<<std::setprecision(17)<<std::boolalpha;
   auto bytes=Captured202Bytes(directory+"m6.su2.native_ref");
@@ -91,7 +90,14 @@ static void CapturedCurrentResidual(bool compound) {
   REQUIRE(budget.caller_bytes<ceiling);
   auto scope=reference->WithAtlasReservation(budget);
   for(const auto& test:cases) {
-    if(compound && test.second!=224633219 && test.second!=218068745)continue;
+    if(compound) {
+      if(current_capture) {
+        const auto rows=Captured202Rows<OwnedCell>(directory+test.first+"_owned.bin",416);
+        const auto core=std::find_if(rows.begin(),rows.end(),[&](const OwnedCell& row){return row.cell.id==test.second;});
+        REQUIRE(core!=rows.end());
+        if(std::count_if(core->physical.begin(),core->physical.end(),[](const auto& f){return f.present;})!=2)continue;
+      } else if(test.second!=224633219 && test.second!=218068745)continue;
+    }
     INFO(test.first);
     auto rows=Captured202Rows<OwnedCell>(directory+test.first+"_owned.bin",416);
     auto expected=Captured202Rows<Captured202Metric>(directory+test.first+"_expected_metrics.bin",168);
@@ -225,7 +231,7 @@ static void CapturedCurrentResidual(bool compound) {
       auto seed=patch_from(local);scope->ExportParameters(seed);
       useful_star=assess(local,retired,seed,seed,vertex.id,"original_star")||useful_star;
     }
-    if(compound && test.second==224633219)CHECK(useful_star);
+    if(compound && !current_capture && test.second==224633219)CHECK(useful_star);
     if(compound)for(const auto& removed:owned.at(test.second).cell.v)for(const auto& retained:owned.at(test.second).cell.v) {
       if(removed.id==retained.id)continue;
       auto removed_rows=subset(removed.id,removed.id);auto old=patch_from(removed_rows);scope->ExportParameters(old);
@@ -257,12 +263,13 @@ static void CapturedCurrentResidual(bool compound) {
       const auto& core=owned.at(test.second);std::vector<unsigned> faces;
       for(unsigned slot=0;slot<4;++slot)if(core.physical[slot].present)faces.push_back(slot);
       REQUIRE(faces.size()==2);
-      REQUIRE(state->Entity(core.physical[faces[0]].facet)==state->Entity(core.physical[faces[1]].facet));
+      if(!current_capture)REQUIRE(state->Entity(core.physical[faces[0]].facet)==state->Entity(core.physical[faces[1]].facet));
       const Id a=core.cell.v[faces[0]].id,b=core.cell.v[faces[1]].id;
       Owned shell;
       for(const auto& row:owned){bool has_a=false,has_b=false;for(Node n:row.second.cell.v){has_a=has_a||n.id==a;has_b=has_b||n.id==b;}
         if(has_a&&has_b)shell.insert(row);}
-      REQUIRE(shell.size()==(test.second==224633219?4:6));REQUIRE(shell.size()<=MaximumCavityCells);
+      if(!current_capture)REQUIRE(shell.size()==(test.second==224633219?4:6));
+      REQUIRE_FALSE(shell.empty());REQUIRE(shell.size()<=MaximumCavityCells);
       auto old=patch_from(shell);scope->ExportParameters(old);Patch fresh;std::string reason;
       const auto started=std::chrono::steady_clock::now();
       const bool constructed=ShellBoundaryCell(old,test.second,800000000,*scope,fresh,reason);
@@ -278,6 +285,18 @@ static void CapturedCurrentResidual(bool compound) {
             std::sort(key.begin(),key.end());auto f=physical.find(key);if(f!=physical.end())row.physical[slot]={true,f->second};}
           REQUIRE(local.emplace(c.id,row).second);}
         assess(local,retired,old,fresh,test.second,"existing_shell_without_optimizer",false);
+        if(current_capture && complete.cells.size()<=MaximumCavityCells) {
+          // Complete existing stars permit relocation after shelling; final merit is against the original patch.
+          Owned joined=owned;for(Id id:retired)joined.erase(id);
+          for(const auto& row:local)REQUIRE(joined.emplace(row).second);
+          auto input=patch_from(joined);input.parameters=complete.parameters;input.coverage=complete.coverage;
+          for(const auto& p:fresh.parameters)input.parameters.insert_or_assign(p.first,p.second);
+          for(const auto& p:fresh.coverage.faces)input.coverage.faces.insert_or_assign(p.first,p.second);
+          for(const auto& p:fresh.coverage.traces)input.coverage.traces.insert_or_assign(p.first,p.second);
+          retain_coverage(input);
+          std::set<Id> all_retired;for(const auto& row:owned)all_retired.insert(row.first);
+          assess(joined,all_retired,complete,input,test.second,"existing_shell_then_complete_context_optimizer");
+        }
       }
     }
   }

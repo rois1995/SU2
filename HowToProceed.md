@@ -1,6 +1,6 @@
 # How to proceed
 
-Updated 2026-11-06. This is a consolidation checkpoint, not a claim that the
+Updated 2026-11-07. This is a consolidation checkpoint, not a claim that the
 adaptation workflow or the new diagnostic is complete.
 
 ## Objective and current state
@@ -13,46 +13,68 @@ Actual mesh point/cell counts are separate from metric complexity. Keep geometry
 1e-4, q>=.2, J>=.05, maximum metric edge1.8 and requested heights unchanged. CAD
 remains optional.
 
-The previous selected corrected-target build219mesh is saved WITH its complete nodal
-metric:197550points/1011596tetrahedra. It is unapproved. Its complete final census
-is10286q/6872J/1753geometry-bad/0size-bad. All ten owned M6handles are absent;
-first event naturally rejected at the time budget. Complete VTU/SU2 and independent
-reader/tensor checks are recorded in HANDOFF_Codex.md and A219/inspection_artifacts.json.
-Only the bounded cavity visualization is partial; full mesh and bad-cell view are complete.
+Authoritative live handles/source pins are in [HANDOFF_Codex.md](HANDOFF_Codex.md).
+Latest full corrected-target attempt227naturally rejected at the time budget.
+The actual final selected mesh is saved with its full nodal metric:198364points/
+1017523tetrahedra, independently read. Final measurement caches were invalidated
+by the deadline. Never interpret printed final zero counts or empty classified
+views as passing gates. Last complete census:2691q/1295J/1700geometry-bad/0size.
+Native centroid q/J recomputation on the sealed final cells recovers2368q/1101J,
+union3258; explicit diagnostic bad/cavity VTUs with metric are now saved. Geometry
+is still unknown on that final mesh. No accepted adapted meshes/transfer/restart.
+See [227outcome](Handbook/ADAPTATION_BUILD227_OUTCOME_20261107.md).
 
-The shared metric correction is reviewed and qualified in build219. Actual same-seed
-production L1/L2targets at50k were measured before remeshing; correctedL1was chosen.
-See [metric correction and target choice](Handbook/ADAPTATION_METRIC_FLOOR_20261106.md).
-This corrected-target attempt has now supplied actual residuals. Most remaining
-q-bad cells have no physical face; boundary certification is expensive. Current
-bounded existing-operator witness tests compare complete neighboring q/J/geometry/
-size effects on leading edge, blocked midspan, feature tip and an interior control.
-These distinguish placement, constraints, connectivity and certification. The
-existing root4-cell shell was useful but suppressed by an extra strict-new-face
-veto; the selected connected fix reuses exact entity identity across released seams
-and non-increasing whole-ring geometry guidance in validity-only quality repair.
-Actual223regression enables2of4root stars (best q5→3/J3→2/geometry8→6). Midspan
-shell can now construct but is correctly refused for increased geometry excess.
-The connected225milestone is qualified (116serial cases;26MPI6cases per rank),
-including a demonstrated geometry-version provenance fix in common import. Full
-same-seed two-event M6 is now TERMINAL225:987865cells/24200q/21065J/1784geometry/0size.
-All owned solver/export handles absent; complete capture preserved, selected mesh+metric
-export/independent reader checks PASS:193855points/987865tets. Full VTU/SU2 complete;
-bounded bad-cell/cavity views partial. Next is existing geometry-certification/boundary-cost analysis,
-with speed the measured priority and repair power a residual risk. See
-[225outcome](Handbook/ADAPTATION_BUILD225_OUTCOME_20261106.md). HANDOFF_Codex.md has exact handles,
-source pins, initial-target equality and the authoritative run state.
-Current227candidate is a bounded shared geometry-path correction, after terminal225:
-reuse the existing rigorous sample witness upper bound to skip a complete-support
-lower search that cannot prove outside. Full domain/final gates remain unchanged.
-On twelve actual current faces, all bounds and production guidance stay EXACT;
-traversal work falls45.7%, with no query regression. Connected serial102cases/MPI6each26cases qualification passes;
-full M6 useful-progress measurement remains required; no full-run speedup claimed.
-[Current proof and evidence](Handbook/ADAPTATION_GEOMETRY_WITNESS_20261106.md).
-Context unions67/91cells do not enlarge active operator supports: selected core
-vertex stars remain8–42cells.
-Old218diagnostic remains deferred/unexecuted; preserve its unrelated local edits.
-There are still zero accepted adapted meshes and no adapted transfer/restart proof.
+Corrected production L1at50k was selected over L2using the SAME saved real CFD
+seed and unchanged constraints; L2was not assumed better. Keep this seed/target
+for subsequent attempts. [Metric assessment](Handbook/ADAPTATION_METRIC_FLOOR_20261106.md).
+
+The qualified225coupled shell admission correction preserved exact entity identity
+across released seams and non-increasing whole-ring geometry guidance. Qualified227
+shared geometry screening then avoided a lower search that cannot prove outside,
+using an existing rigorous witness upper bound; full domain certification remains.
+On matching construction work it reduced traversal17.6%. The first19quality windows
+match225; later deadline-dependent ownership migration differs, so elapsed-time
+comparisons cannot isolate a kernel speedup. [Geometry evidence](Handbook/ADAPTATION_GEOMETRY_WITNESS_20261106.md).
+
+The remaining shape problem is not uniformly free interior. Actual final residuals:
+1414bad cells have no physical face but touch wing vertices;1341are free interior,
+452have wing faces,39other physical faces,12touch other boundary vertices. Some
+existing single-vertex stars exceed64cells; that alone does not justify larger
+cavities. Select representative ACTUAL bounded contexts and test existing operators
+and complete neighbors before adding a strategy. Distinguish placement, constrained
+movement, connectivity limits and certification refusals. Preserve fresh association
+reconstruction and do not claim historical private publication replay.
+
+The last complete110.6795s window net-removed853q/502J failures, with1211commits.
+Boundary smoothing recorded12063candidates/445moves and72.60summed-rank seconds;
+interior5641/676and3.26seconds. Timers overlap and local debt credits are not global
+net improvement. Geometry-bad fell only2. Prioritize boundary repair efficiency,
+separating expensive trials from low useful yield using current cavities. This is
+a measured diagnostic priority, not an established new repair hypothesis.
+
+Build229contains a small collective AND for existing ownership admission:
+rank-local timing estimates must not split collective repartition participation.
+The generalized current-star diagnostic passed36241assertions: four useful stars
+each in the free/interior-wing-touch contexts, zero useful stars in both selected
+physical-wing-face contexts. Build230existing compound diagnostic on those two cells finds shelling improves
+shape but raises geometry excess27–32x, correctly refused;23of24collapses fail
+construction, the remaining collapse+optimizer worsens whole-context counts.
+One connected hypothesis tested in build231: existing shell followed by
+existing relocation inside the complete50-cell context before checking against
+the ORIGINAL patch. The66-cell context is excluded from this test;64-cell active
+bound,160optimizer-work/30s limits and all gates remain unchanged. It closed local q2→0/J1→0 but increased geometry excess23.8x; still refused.
+Eight old/replacement-face queries reproduce native guidance deltas and show one
+raw exposed face per shell rigorously outside queried support (125.5/104.3µm vs
+100µm). Cheaper certification alone cannot admit these two raw candidates.
+No useful final compound candidate or new production closure change established.
+Next design target is geometry-conforming surface/adjacent-volume repair power,
+using the measured failure to reconsider coordination before another implementation.
+Do not add local variants or raise bounds because one fixture stalls. Production guard behavior remains unqualified until
+the appropriate connected serial/MPI milestone passes. No new scheduler/configuration,
+larger cavities, quality-aware construction or geometry representation is selected.
+Return immediately to full same-seed L1/50k two-event M6 after the connected change
+is justified and qualified. Shape closure, residual geometry/size closure and shape
+reclosure must all fit the unchanged budgets and gates before downstream transfer.
 
 Historical build210 naturally rejected64q/39J/2283geometry-bad with complete census.
 Its terminal evidence remains useful for coupled closure, but219changes the target;

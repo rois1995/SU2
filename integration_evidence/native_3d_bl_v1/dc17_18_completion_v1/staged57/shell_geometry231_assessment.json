@@ -1,0 +1,404 @@
+{
+  "build": "build231",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 53.60895895957947,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 410537984,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "accepted_mesh": false,
+  "queries": [
+    {
+      "core": 220904843,
+      "kind": "shell_exposed",
+      "facet": 36291,
+      "face": [
+        272252924,
+        279260070,
+        18578
+      ],
+      "diagnostic": {
+        "id": 0,
+        "anchor": 36291,
+        "facets": 17,
+        "bound": 0.003290734069022852,
+        "current_checkpoint_input": true,
+        "production_guidance_upper": 0.003290734069022852,
+        "production_guidance_work": 3680,
+        "within_tolerance": false,
+        "seconds": 0.122068148,
+        "work": 3680,
+        "repeat_work": 29,
+        "recomputed_work": 3633,
+        "scope_build_work": 107,
+        "scope_build_seconds": 0.003136539,
+        "facet_build_work": 3046,
+        "facet_build_seconds": 0.11747184800000003,
+        "piece_selection_work": 111,
+        "piece_selection_seconds": 4.4855e-05,
+        "traversal_work": 369,
+        "traversal_seconds": 0.0013746,
+        "selected_pieces": 88,
+        "support_pieces": 2276,
+        "scope_hits": 0,
+        "facet_hits": 0,
+        "peak_query_bytes": 1561653464
+      },
+      "trace": {
+        "header": "NATIVE_SURFACE_QUERY tolerance=0.0001 model=0 mesh=1 facets=29981,29990,29991,29999,30000,30008,30009,30018,35707,35708,36001,36002,36291,36292,36574,36575,36852, points=0.30969920718509009,0.49618592809475537,-0.017852410435719605;0.31013106728536616,0.50048917658742254,-0.017418995109605432;0.3039308299623325,0.49955387279838781,-0.01582143937279008;",
+        "maximum_rigorous_sample_lower": 0.00012551067354372368,
+        "max_depth": 0
+      },
+      "outside_queried_support": true,
+      "weighted_geometry_excess": 2.797211983802844e-10
+    },
+    {
+      "core": 220904843,
+      "kind": "shell_exposed",
+      "facet": 36291,
+      "face": [
+        279260070,
+        272252924,
+        18577
+      ],
+      "diagnostic": {
+        "id": 1,
+        "anchor": 36291,
+        "facets": 11,
+        "bound": 1.4956918870391387e-05,
+        "current_checkpoint_input": true,
+        "production_guidance_upper": 1.4956918870391387e-05,
+        "production_guidance_work": 361,
+        "within_tolerance": true,
+        "seconds": 0.0014907710000000001,
+        "work": 361,
+        "repeat_work": 23,
+        "recomputed_work": 1704,
+        "scope_build_work": 32,
+        "scope_build_seconds": 0.0009056899999999998,
+        "facet_build_work": 0,
+        "facet_build_seconds": 0,
+        "piece_selection_work": 44,
+        "piece_selection_seconds": 2.0393999999999995e-05,
+        "traversal_work": 250,
+        "traversal_seconds": 0.000540457,
+        "selected_pieces": 26,
+        "support_pieces": 1028,
+        "scope_hits": 0,
+        "facet_hits": 11,
+        "peak_query_bytes": 1561250296
+      },
+      "trace": {
+        "header": "NATIVE_SURFACE_QUERY tolerance=0.0001 model=0 mesh=1 facets=29990,29999,30008,30009,30018,36002,36291,36292,36574,36575,36852, points=0.31013106728536616,0.50048917658742254,-0.017418995109605432;0.30969920718509009,0.49618592809475537,-0.017852410435719605;0.31123401780377052,0.49531876363429139,-0.018276368645227151;",
+        "maximum_rigorous_sample_lower": 0.0,
+        "max_depth": 0
+      },
+      "outside_queried_support": false,
+      "weighted_geometry_excess": 0.0
+    },
+    {
+      "core": 220904843,
+      "kind": "old",
+      "facet": 36291,
+      "face": [
+        18577,
+        18578,
+        272252924
+      ],
+      "diagnostic": {
+        "id": 2,
+        "anchor": 36291,
+        "facets": 1,
+        "bound": 0.004388720219849573,
+        "current_checkpoint_input": true,
+        "production_guidance_upper": 0.00035790071323713133,
+        "production_guidance_work": 1094,
+        "within_tolerance": false,
+        "seconds": 0.003607542,
+        "work": 1094,
+        "repeat_work": 13,
+        "recomputed_work": 1265,
+        "scope_build_work": 43,
+        "scope_build_seconds": 0.0014279540000000004,
+        "facet_build_work": 0,
+        "facet_build_seconds": 0,
+        "piece_selection_work": 40,
+        "piece_selection_seconds": 1.7456000000000004e-05,
+        "traversal_work": 996,
+        "traversal_seconds": 0.002149434,
+        "selected_pieces": 38,
+        "support_pieces": 139,
+        "scope_hits": 0,
+        "facet_hits": 1,
+        "peak_query_bytes": 1561239416
+      },
+      "trace": {
+        "header": "NATIVE_SURFACE_QUERY tolerance=0.0001 model=0 mesh=1 facets=36291, points=0.31123401780377052,0.49531876363429139,-0.018276368645227151;0.3039308299623325,0.49955387279838781,-0.01582143937279008;0.30969920718509009,0.49618592809475537,-0.017852410435719605;",
+        "maximum_rigorous_sample_lower": 0.00016863270818345464,
+        "max_depth": 1
+      },
+      "outside_queried_support": true,
+      "weighted_geometry_excess": 5.1091680552620074e-14
+    },
+    {
+      "core": 220904843,
+      "kind": "old",
+      "facet": 29999,
+      "face": [
+        18577,
+        279260070,
+        18578
+      ],
+      "diagnostic": {
+        "id": 3,
+        "anchor": 29999,
+        "facets": 1,
+        "bound": 0.004390117062780711,
+        "current_checkpoint_input": true,
+        "production_guidance_upper": 0.00035790071323713133,
+        "production_guidance_work": 376,
+        "within_tolerance": false,
+        "seconds": 0.0034789910000000003,
+        "work": 376,
+        "repeat_work": 13,
+        "recomputed_work": 495,
+        "scope_build_work": 69,
+        "scope_build_seconds": 0.0024024579999999997,
+        "facet_build_work": 0,
+        "facet_build_seconds": 0,
+        "piece_selection_work": 59,
+        "piece_selection_seconds": 4.5986e-05,
+        "traversal_work": 233,
+        "traversal_seconds": 0.001009164,
+        "selected_pieces": 57,
+        "support_pieces": 100,
+        "scope_hits": 0,
+        "facet_hits": 1,
+        "peak_query_bytes": 1561377024
+      },
+      "trace": {
+        "header": "NATIVE_SURFACE_QUERY tolerance=0.0001 model=0 mesh=1 facets=29999, points=0.31123401780377052,0.49531876363429139,-0.018276368645227151;0.31013106728536616,0.50048917658742254,-0.017418995109605432;0.3039308299623325,0.49955387279838781,-0.01582143937279008;",
+        "maximum_rigorous_sample_lower": 0.00015006511119292952,
+        "max_depth": 0
+      },
+      "outside_queried_support": true,
+      "weighted_geometry_excess": 2.294118026565985e-12
+    },
+    {
+      "core": 219735950,
+      "kind": "shell_exposed",
+      "facet": 10477,
+      "face": [
+        277601838,
+        277780687,
+        7868
+      ],
+      "diagnostic": {
+        "id": 4,
+        "anchor": 10477,
+        "facets": 13,
+        "bound": 0.002324493708719992,
+        "current_checkpoint_input": true,
+        "production_guidance_upper": 0.002324493708719992,
+        "production_guidance_work": 5487,
+        "within_tolerance": false,
+        "seconds": 0.105216561,
+        "work": 5487,
+        "repeat_work": 25,
+        "recomputed_work": 5448,
+        "scope_build_work": 105,
+        "scope_build_seconds": 0.0029776520000000008,
+        "facet_build_work": 2358,
+        "facet_build_seconds": 0.09455968599999996,
+        "piece_selection_work": 105,
+        "piece_selection_seconds": 5.2495000000000005e-05,
+        "traversal_work": 2880,
+        "traversal_seconds": 0.007595374,
+        "selected_pieces": 85,
+        "support_pieces": 1762,
+        "scope_hits": 0,
+        "facet_hits": 0,
+        "peak_query_bytes": 1561675056
+      },
+      "trace": {
+        "header": "NATIVE_SURFACE_QUERY tolerance=0.0001 model=0 mesh=1 facets=10469,10477,10478,10485,10486,10494,10502,16440,16441,16734,16735,17024,17025, points=0.46954176866868413,0.79435271591012646,0.012731253585763162;0.46603435745526861,0.79246212437415553,0.011558928358861234;0.46622350819989,0.7962695263412376,0.0103120061303646;",
+        "maximum_rigorous_sample_lower": 0.00010433802096138388,
+        "max_depth": 2
+      },
+      "outside_queried_support": true,
+      "weighted_geometry_excess": 7.610696463901807e-11
+    },
+    {
+      "core": 219735950,
+      "kind": "shell_exposed",
+      "facet": 10477,
+      "face": [
+        277780687,
+        277601838,
+        7876
+      ],
+      "diagnostic": {
+        "id": 5,
+        "anchor": 10477,
+        "facets": 13,
+        "bound": 9.976139972788692e-05,
+        "current_checkpoint_input": true,
+        "production_guidance_upper": 9.976139972788692e-05,
+        "production_guidance_work": 6970,
+        "within_tolerance": true,
+        "seconds": 0.014000293,
+        "work": 6970,
+        "repeat_work": 25,
+        "recomputed_work": 9289,
+        "scope_build_work": 44,
+        "scope_build_seconds": 0.0014776700000000004,
+        "facet_build_work": 0,
+        "facet_build_seconds": 0,
+        "piece_selection_work": 58,
+        "piece_selection_seconds": 2.8202000000000012e-05,
+        "traversal_work": 6829,
+        "traversal_seconds": 0.012467733,
+        "selected_pieces": 39,
+        "support_pieces": 1762,
+        "scope_hits": 0,
+        "facet_hits": 13,
+        "peak_query_bytes": 1561272128
+      },
+      "trace": {
+        "header": "NATIVE_SURFACE_QUERY tolerance=0.0001 model=0 mesh=1 facets=10469,10477,10478,10485,10486,10494,10502,16440,16441,16734,16735,17024,17025, points=0.46603435745526861,0.79246212437415553,0.011558928358861234;0.46954176866868413,0.79435271591012646,0.012731253585763162;0.47144706648824419,0.79324615307239743,0.013742342791495849;",
+        "maximum_rigorous_sample_lower": 0.0,
+        "max_depth": 7
+      },
+      "outside_queried_support": false,
+      "weighted_geometry_excess": 0.0
+    },
+    {
+      "core": 219735950,
+      "kind": "old",
+      "facet": 10477,
+      "face": [
+        7876,
+        7868,
+        277601838
+      ],
+      "diagnostic": {
+        "id": 6,
+        "anchor": 10477,
+        "facets": 1,
+        "bound": 0.003468815450842232,
+        "current_checkpoint_input": true,
+        "production_guidance_upper": 0.00041410525524174864,
+        "production_guidance_work": 265,
+        "within_tolerance": false,
+        "seconds": 0.002190268,
+        "work": 265,
+        "repeat_work": 13,
+        "recomputed_work": 400,
+        "scope_build_work": 44,
+        "scope_build_seconds": 0.0014881689999999993,
+        "facet_build_work": 0,
+        "facet_build_seconds": 0,
+        "piece_selection_work": 41,
+        "piece_selection_seconds": 1.8687000000000006e-05,
+        "traversal_work": 165,
+        "traversal_seconds": 0.0006664109999999987,
+        "selected_pieces": 39,
+        "support_pieces": 112,
+        "scope_hits": 0,
+        "facet_hits": 1,
+        "peak_query_bytes": 1561266720
+      },
+      "trace": {
+        "header": "NATIVE_SURFACE_QUERY tolerance=0.0001 model=0 mesh=1 facets=10477, points=0.47144706648824419,0.79324615307239743,0.013742342791495849;0.46622350819989,0.7962695263412376,0.0103120061303646;0.46954176866868413,0.79435271591012646,0.012731253585763162;",
+        "maximum_rigorous_sample_lower": 0.00011972919205628767,
+        "max_depth": 0
+      },
+      "outside_queried_support": true,
+      "weighted_geometry_excess": 1.4364841972250537e-13
+    },
+    {
+      "core": 219735950,
+      "kind": "old",
+      "facet": 16734,
+      "face": [
+        7876,
+        277780687,
+        7868
+      ],
+      "diagnostic": {
+        "id": 7,
+        "anchor": 16734,
+        "facets": 1,
+        "bound": 0.003467845538302737,
+        "current_checkpoint_input": true,
+        "production_guidance_upper": 0.00041410525524174864,
+        "production_guidance_work": 373,
+        "within_tolerance": false,
+        "seconds": 0.002876303,
+        "work": 373,
+        "repeat_work": 13,
+        "recomputed_work": 580,
+        "scope_build_work": 66,
+        "scope_build_seconds": 0.0018518849999999993,
+        "facet_build_work": 0,
+        "facet_build_seconds": 0,
+        "piece_selection_work": 56,
+        "piece_selection_seconds": 2.3581999999999992e-05,
+        "traversal_work": 236,
+        "traversal_seconds": 0.000987525999999999,
+        "selected_pieces": 54,
+        "support_pieces": 166,
+        "scope_hits": 0,
+        "facet_hits": 1,
+        "peak_query_bytes": 1561388560
+      },
+      "trace": {
+        "header": "NATIVE_SURFACE_QUERY tolerance=0.0001 model=0 mesh=1 facets=16734, points=0.47144706648824419,0.79324615307239743,0.013742342791495849;0.46603435745526861,0.79246212437415553,0.011558928358861234;0.46622350819989,0.7962695263412376,0.0103120061303646;",
+        "maximum_rigorous_sample_lower": 0.00017490574464805906,
+        "max_depth": 0
+      },
+      "outside_queried_support": true,
+      "weighted_geometry_excess": 2.3268986925613632e-12
+    }
+  ],
+  "native_guidance_delta_identity": {
+    "220904843": {
+      "from_eight_face_queries": 2.773759886731658e-10,
+      "from_native_shell_diagnostic": 2.7737598867316585e-10
+    },
+    "219735950": {
+      "from_eight_face_queries": 7.36364175267342e-11,
+      "from_native_shell_diagnostic": 7.36364175267342e-11
+    }
+  },
+  "provenance": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261107T013613_2289918/pins.json": {
+      "bytes": 254083,
+      "sha256": "9549f3207f38abe5e51356bab4b514a401318b9b1a3c584610fec8f776153456"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261107T013613_2289918/run.log": {
+      "bytes": 32880961,
+      "sha256": "ca380e310b2587adb54b21201cf125067764aa03ead80504b78f4068e1d3d707"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261107T013613_2289918/m6_surface_queries.json": {
+      "bytes": 5505,
+      "sha256": "821fac55fe48bd601ba763c6b0c227993a1f5c254556473f17297376c840b750"
+    },
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build227_witness_real_cfd50k/shell_geometry_queries_v1/geometry_query_preparation.json": {
+      "bytes": 11218,
+      "sha256": "f9763edf560a9944ba70afa972624c855b088e289ae472a2a4644d9230b856e5"
+    }
+  },
+  "conclusion": "Each shell replacement exposes one face with a rigorous outside-support witness at125.5107 or104.3380 micrometers versus100 micrometer tolerance; its other new face is certified within. Geometry refusal is not merely an expensive unresolved upper bound for these raw candidates.",
+  "limits": [
+    "Witness proves distance from the exact queried support, not arbitrary other bodies or sheets",
+    "Faithful raw-shell face/production-guidance delta checked; optimized-position geometry queries were not exported",
+    "Eight targeted faces are not a statistical sample of all costly smoothing trials",
+    "Existing work trace adds overhead; do not compare diagnostic wall times",
+    "No final accepted mesh, nonlocal publication, transfer or restart proof"
+  ],
+  "next_target": "Repair power with geometry-conforming surface/adjacent-volume construction; quicker certification alone cannot admit the two demonstrated violating raw faces. Reconsider coordination, avoid adding speculative local fallbacks or raising bounds."
+}
