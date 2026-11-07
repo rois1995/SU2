@@ -5932,6 +5932,18 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config,
       EsFaceResidual(nDim, nDim, gamma, nullptr, faceNormal, faceStates, faceRes);
     }
 
+    /*--- SST on a rough wall (k_D != 0 at its strong-k nodes): the closure rows carry nodal masses, their energy rows get
+     * k_D,a m_a (P1SSTMatched::WallNodeKine, M5), the same number goes to the k row store. Smooth walls: k_D = 0. ---*/
+    su2double kWallRow[3] = {0.0, 0.0, 0.0};
+    const bool roughKine = (turbNodes != nullptr) && config->GetTke_Matched_P1() && !symmetry && (record.marker >= 0) &&
+                           (config->GetWallRoughnessProperties(config->GetMarker_All_TagBound(record.marker)).first ==
+                            WALL_TYPE::ROUGH);
+    if (roughKine) {
+      su2double kWall[3] = {0.0, 0.0, 0.0};
+      for (unsigned short a = 0; a < nDim; ++a) kWall[a] = state[faceNodes[a]].k;
+      P1SSTMatched::WallNodeKine(nDim, nVar, kWall, faceRes, kWallRow);
+    }
+
     /*--- Viscous part: consistency, adjoint term and penalty with the K of the wall element. ---*/
     su2double res[pve::MAXNODE][pve::MAXNVAR], dwdu[pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
     su2double jac[pve::MAXNODE][pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR];
@@ -6006,6 +6018,12 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config,
             for (unsigned short jVar = 0; jVar < nVar; ++jVar) jac[c][b][iVar][jVar] *= weight;
         }
       }
+    }
+
+    if (roughKine && (P1KNodalRes.size() == nPoint)) {
+      const su2double weight = subSimplex ? su2double(record.weight) : su2double(1.0);
+      for (unsigned short a = 0; a < nDim; ++a)
+        if (geometry->nodes->GetDomain(point[faceNodes[a]])) P1KNodalRes[point[faceNodes[a]]] += weight * kWallRow[a];
     }
 
     /*--- Owned rows only; the adjoint term reaches every node of the wall element. ---*/

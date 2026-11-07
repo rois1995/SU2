@@ -153,4 +153,21 @@ inline su2double KineDiffusionJacobian(unsigned short nDim, const su2double& siz
   return size * D * proj;
 }
 
+/*!
+ * \brief Weak no-slip wall closure (BC_WALL_ENTROPY_P1, pressure flux of closure C) at strong-k nodes with k_D != 0
+ *        (rough walls): the closure rows have nodal masses m_a = sum_q phi_a(x_q) (G_qa - Gbar_q)[0] (zero sum over the
+ *        face). The energy row of the face node a gets k_D,a m_a: with U = Uhat + rho k e_E this is the k part of the
+ *        closure on the node's own k (the wall rule k_b = k_a), and it is the number k_D,a R_rho,a that the Dirichlet k
+ *        row stands for (Theorem C1 with Dirichlet nodes), so X_a - k_D,a R_rho,a = 0 for these terms (M5, exact).
+ *        Returns the added k-row numbers in kRow (for P1KNodalRes). Smooth walls (k_D = 0) add nothing.
+ */
+template <class Res>
+FORCEINLINE void WallNodeKine(unsigned short nFace, unsigned short nVar, const su2double* kWall, Res& res,
+                              su2double* kRow) {
+  for (unsigned short a = 0; a < nFace; ++a) {
+    kRow[a] = kWall[a] * res[a][0];
+    res[a][nVar - 1] += kRow[a];
+  }
+}
+
 }  // namespace P1SSTMatched

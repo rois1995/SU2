@@ -6695,11 +6695,8 @@ void CConfig::CheckP1FluxOptions() const {
      * Roe/TeCNO P1 paths and JST_MAT are not made hat. ---*/
     const string name = "P1 options with SST (matched k, P1_SST_COUPLED.md): ";
     if (nMGLevels > 0) SU2_MPI::Error(name + "needs MGLEVEL= 0.", CURRENT_FUNCTION);
-    /*--- Rough walls give k != 0 at strong-k nodes, where the weak-wall closures have nodal mass rows (M5). ---*/
-    for (unsigned short iMarker = 0; iMarker < nRough_Wall; ++iMarker) {
-      if (Roughness_Height[iMarker] > 0.0)
-        SU2_MPI::Error(name + "not available with WALL_ROUGHNESS (k != 0 at the wall nodes).", CURRENT_FUNCTION);
-    }
+    /*--- Rough walls give k_D != 0 at strong-k nodes: the weak-wall closure adds k_D m_a to the energy rows of its nodal
+     * mass rows (P1SSTMatched::WallNodeKine, M5); the interior inflow remainder of Lemma C4 stays (stated). ---*/
     if (!((Kind_ConvNumScheme_Flow == SPACE_CENTERED) && (Kind_Centered_Flow == CENTERED::JST)))
       SU2_MPI::Error(name + "only with CONV_NUM_METHOD_FLOW= JST (JST-P1ES, JST-PD).", CURRENT_FUNCTION);
     if (GetBounded_Turb())

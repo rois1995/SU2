@@ -6012,6 +6012,66 @@ TEST_CASE("BC_ENTROPY_P1 Jacobian: custom Dirichlet faces against finite differe
   }
 }
 
+TEST_CASE("P1 SST matched rough wall: k_D m_a on the weak-wall closure rows, hat rows, uniform k, M5 identity", "[P1Flux]") {
+  /*--- Pressure-flux closure of a weak no-slip wall face (EsFaceResidual without data) and the strong wall k k_D,a of a
+   * rough wall. (a) rho and momentum rows unchanged, E - k_D m = Ehat, the k-row number is k_D,a m_a; (b) the nodal
+   * masses sum to zero, so a uniform k_D adds no energy over the face; (c) free stream with a k jump: a uniform state
+   * tangent to the face has m_a = 0, nothing is added for any k_D; (d) M5 at the Dirichlet nodes: sum_a theta_a (X_a -
+   * k_D,a R_rho,a) = 0 exactly. ---*/
+  std::mt19937 gen(7313);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nNodes = nDim, nVar = nDim + 2;
+    for (int trial = 0; trial < 50; ++trial) {
+      su2double n[3], t[3], N[3];
+      JacRandomNormal(gen, nDim, n, t, N);
+      const pbc::EsState base = JacRandomState(gen, nDim, 0.4, 0.5);
+      pbc::EsState states[3];
+      for (int k = 0; k < nNodes; ++k) states[k] = JacPerturb(gen, nDim, base, 0.3);
+      su2double res0[3][pbc::ES_NVAR] = {{0.0}}, res[3][pbc::ES_NVAR] = {{0.0}};
+      pbc::EsFaceResidual(nDim, nNodes, kGamma, nullptr, N, states, res0);
+      su2double kD[3] = {0.0, 0.0, 0.0}, kRow[3] = {0.0, 0.0, 0.0};
+      for (int k = 0; k < nNodes; ++k) kD[k] = 0.01 * exp(u(gen));
+      for (int a = 0; a < nNodes; ++a)
+        for (int v = 0; v < nVar; ++v) res[a][v] = res0[a][v];
+      P1SSTMatched::WallNodeKine(nNodes, nVar, kD, res, kRow);
+      su2double massSum = 0.0, scale = 0.0, m5 = 0.0;
+      for (int a = 0; a < nNodes; ++a) {
+        for (int v = 0; v < nVar - 1; ++v) CHECK(res[a][v] == res0[a][v]);
+        CHECK(kRow[a] == kD[a] * res0[a][0]);
+        CHECK(fabs((res[a][nVar - 1] - kRow[a]) - res0[a][nVar - 1]) <= 1e-15 * (1.0 + fabs(res0[a][nVar - 1])));
+        massSum += res0[a][0];
+        scale += fabs(res0[a][0]);
+        m5 += (states[a].rho / states[a].p) * (kRow[a] - kD[a] * res[a][0]);
+      }
+      CHECK(fabs(massSum) <= 1e-13 * (1.0 + scale));
+      CHECK(m5 == 0.0);
+
+      /*--- (b) uniform k_D. ---*/
+      su2double kU[3] = {0.02, 0.02, 0.02}, kRowU[3] = {0.0, 0.0, 0.0};
+      for (int a = 0; a < nNodes; ++a)
+        for (int v = 0; v < nVar; ++v) res[a][v] = res0[a][v];
+      P1SSTMatched::WallNodeKine(nNodes, nVar, kU, res, kRowU);
+      CHECK(fabs(kRowU[0] + kRowU[1] + (nNodes == 3 ? kRowU[2] : 0.0)) <= 1e-13 * (1.0 + 0.02 * scale));
+
+      /*--- (c) uniform state tangent to the face, k jump. ---*/
+      pbc::EsState T = base;
+      su2double vn = 0.0;
+      for (int i = 0; i < nDim; ++i) vn += T.vel[i] * n[i];
+      for (int i = 0; i < nDim; ++i) T.vel[i] -= vn * n[i];
+      pbc::EsState flat[3] = {T, T, T};
+      pbc::EsFaceResidual(nDim, nNodes, kGamma, nullptr, N, flat, res0);
+      for (int a = 0; a < nNodes; ++a)
+        for (int v = 0; v < nVar; ++v) res[a][v] = res0[a][v];
+      P1SSTMatched::WallNodeKine(nNodes, nVar, kD, res, kRow);
+      for (int a = 0; a < nNodes; ++a) {
+        CHECK(fabs(kRow[a]) <= 1e-14 * (1.0 + kD[a]));
+        CHECK(fabs(res[a][nVar - 1] - res0[a][nVar - 1]) <= 1e-14 * (1.0 + fabs(res0[a][nVar - 1])));
+      }
+    }
+  }
+}
+
 TEST_CASE("BC_ENTROPY_P1 Jacobian: pressure flux faces and the scalar Ismail-Roe Jacobian", "[P1Flux]") {
   /*--- The wall branch of EsFaceJacobian (not used by the solver, which keeps the approximate wall Jacobian) and the
    * port of ismailRoeProjJac, which must equal the vectorized one to round-off. ---*/
