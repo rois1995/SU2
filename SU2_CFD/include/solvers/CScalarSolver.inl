@@ -836,71 +836,89 @@ void CScalarSolver<VariableType>::SetResidual_DualTime(CGeometry* geometry, CSol
      we will loop over the edges and boundaries to compute the GCL component
      of the dual time source term that depends on grid velocities. ---*/
 
-    SU2_OMP_FOR_STAT(omp_chunk_size)
-    for (iPoint = 0; iPoint < nPointDomain; ++iPoint) {
-      GridVel_i = geometry->nodes->GetGridVel(iPoint);
-      U_time_n = nodes->GetSolution_time_n(iPoint);
+    /*--- Matched k of SST with the P1 options (SSTPATHS_PLAN.md 3): the convection uses the P1 mass flux with its grid
+     * terms, so the GCL term is that of the flow, (rho phi)^n G_i with the P1 grid flux G of
+     * CFVMFlowSolverBase::SetResidual_DualTime; then a uniform phi gives phi times the continuity row. ---*/
+    const bool p1GridFlux = Conservative && (iMesh == MESH_0) && config->GetTke_Matched_P1();
 
-      if (Conservative) {
-        Density_n = flowNodes->GetDensity_time_n(iPoint);
+    if (p1GridFlux) {
+      BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+        su2activevector gridFlux;
+        geometry->SetGridFluxP1(config, gridFlux);
+        for (iPoint = 0; iPoint < nPointDomain; iPoint++) {
+          U_time_n = nodes->GetSolution_time_n(iPoint);
+          Density_n = flowNodes->GetDensity_time_n(iPoint);
+          for (iVar = 0; iVar < nVar; iVar++) LinSysRes(iPoint, iVar) += Density_n * U_time_n[iVar] * gridFlux[iPoint];
+        }
       }
+      END_SU2_OMP_SAFE_GLOBAL_ACCESS
+    } else {
+      SU2_OMP_FOR_STAT(omp_chunk_size)
+      for (iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+        GridVel_i = geometry->nodes->GetGridVel(iPoint);
+        U_time_n = nodes->GetSolution_time_n(iPoint);
 
-      for (iNeigh = 0; iNeigh < geometry->nodes->GetnPoint(iPoint); iNeigh++) {
-        iEdge = geometry->nodes->GetEdge(iPoint, iNeigh);
-        Normal = geometry->edges->GetNormal(iEdge);
+        if (Conservative) {
+          Density_n = flowNodes->GetDensity_time_n(iPoint);
+        }
 
-        jPoint = geometry->nodes->GetPoint(iPoint, iNeigh);
-        GridVel_j = geometry->nodes->GetGridVel(jPoint);
+        for (iNeigh = 0; iNeigh < geometry->nodes->GetnPoint(iPoint); iNeigh++) {
+          iEdge = geometry->nodes->GetEdge(iPoint, iNeigh);
+          Normal = geometry->edges->GetNormal(iEdge);
 
-        /*--- Determine whether to consider the normal outward or inward. ---*/
-        su2double dir = (iPoint < jPoint) ? 0.5 : -0.5;
+          jPoint = geometry->nodes->GetPoint(iPoint, iNeigh);
+          GridVel_j = geometry->nodes->GetGridVel(jPoint);
 
-        Residual_GCL = 0.0;
-        for (iDim = 0; iDim < nDim; iDim++) Residual_GCL += dir * (GridVel_i[iDim] + GridVel_j[iDim]) * Normal[iDim];
-
-        Residual_GCL *= Density_n;
-
-        for (iVar = 0; iVar < nVar; iVar++) LinSysRes(iPoint, iVar) += U_time_n[iVar] * Residual_GCL;
-      }
-    }
-    END_SU2_OMP_FOR
-
-    /*--- Loop over the boundary edges ---*/
-
-    for (iMarker = 0; iMarker < geometry->GetnMarker(); iMarker++) {
-      if ((config->GetMarker_All_KindBC(iMarker) != INTERNAL_BOUNDARY) &&
-          (config->GetMarker_All_KindBC(iMarker) != NEARFIELD_BOUNDARY) &&
-          (config->GetMarker_All_KindBC(iMarker) != PERIODIC_BOUNDARY)) {
-        SU2_OMP_FOR_STAT(OMP_MIN_SIZE)
-        for (iVertex = 0; iVertex < geometry->GetnVertex(iMarker); iVertex++) {
-          /*--- Get the index for node i plus the boundary face normal ---*/
-
-          iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
-          Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
-
-          /*--- Grid velocities stored at boundary node i ---*/
-
-          GridVel_i = geometry->nodes->GetGridVel(iPoint);
-
-          /*--- Compute the GCL term by dotting the grid velocity with the face
-           normal. The normal is negated to match the boundary convention. ---*/
+          /*--- Determine whether to consider the normal outward or inward. ---*/
+          su2double dir = (iPoint < jPoint) ? 0.5 : -0.5;
 
           Residual_GCL = 0.0;
-          for (iDim = 0; iDim < nDim; iDim++) Residual_GCL -= 0.5 * (GridVel_i[iDim] + GridVel_i[iDim]) * Normal[iDim];
+          for (iDim = 0; iDim < nDim; iDim++) Residual_GCL += dir * (GridVel_i[iDim] + GridVel_j[iDim]) * Normal[iDim];
 
-          /*--- Compute the GCL component of the source term for node i ---*/
+          Residual_GCL *= Density_n;
 
-          U_time_n = nodes->GetSolution_time_n(iPoint);
-
-          /*--- Multiply by density at node i for the SST model ---*/
-
-          if (Conservative) {
-            Density_n = flowNodes->GetDensity_time_n(iPoint);
-          }
-
-          for (iVar = 0; iVar < nVar; iVar++) LinSysRes(iPoint, iVar) += Density_n * U_time_n[iVar] * Residual_GCL;
+          for (iVar = 0; iVar < nVar; iVar++) LinSysRes(iPoint, iVar) += U_time_n[iVar] * Residual_GCL;
         }
-        END_SU2_OMP_FOR
+      }
+      END_SU2_OMP_FOR
+
+      /*--- Loop over the boundary edges ---*/
+
+      for (iMarker = 0; iMarker < geometry->GetnMarker(); iMarker++) {
+        if ((config->GetMarker_All_KindBC(iMarker) != INTERNAL_BOUNDARY) &&
+            (config->GetMarker_All_KindBC(iMarker) != NEARFIELD_BOUNDARY) &&
+            (config->GetMarker_All_KindBC(iMarker) != PERIODIC_BOUNDARY)) {
+          SU2_OMP_FOR_STAT(OMP_MIN_SIZE)
+          for (iVertex = 0; iVertex < geometry->GetnVertex(iMarker); iVertex++) {
+            /*--- Get the index for node i plus the boundary face normal ---*/
+
+            iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+            Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+
+            /*--- Grid velocities stored at boundary node i ---*/
+
+            GridVel_i = geometry->nodes->GetGridVel(iPoint);
+
+            /*--- Compute the GCL term by dotting the grid velocity with the face
+             normal. The normal is negated to match the boundary convention. ---*/
+
+            Residual_GCL = 0.0;
+            for (iDim = 0; iDim < nDim; iDim++) Residual_GCL -= 0.5 * (GridVel_i[iDim] + GridVel_i[iDim]) * Normal[iDim];
+
+            /*--- Compute the GCL component of the source term for node i ---*/
+
+            U_time_n = nodes->GetSolution_time_n(iPoint);
+
+            /*--- Multiply by density at node i for the SST model ---*/
+
+            if (Conservative) {
+              Density_n = flowNodes->GetDensity_time_n(iPoint);
+            }
+
+            for (iVar = 0; iVar < nVar; iVar++) LinSysRes(iPoint, iVar) += Density_n * U_time_n[iVar] * Residual_GCL;
+          }
+          END_SU2_OMP_FOR
+        }
       }
     }
 

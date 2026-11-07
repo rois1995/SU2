@@ -538,7 +538,7 @@ public:
    * \param[in] geometry - Geometrical definition.
    * \param[in] config - Definition of the particular problem.
    */
-  void SweptBoundaryResidual(const CGeometry *geometry, const CConfig *config);
+  void SweptBoundaryResidual(const CGeometry *geometry, const CConfig *config, const CVariable* turbMatched = nullptr);
 
   /*!
    * \brief Recompute the extrapolated quantities, after MUSCL reconstruction,

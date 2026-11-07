@@ -6447,3 +6447,241 @@ TEST_CASE("P1 SST matched MUSCL_TURB: face k, free stream with a k jump, uniform
     }
   }
 }
+
+/*--- SST matched k on moving meshes (SSTPATHS_PLAN.md 3): GRID_ENTROPY_P1 + GCL_EXACT_P1 on the moved dual, the
+ * entropy conservative central part with its grid term -ubar g_ik (AleFlux) on the hat states, closure C-ALE at every
+ * boundary face, the dual-time GCL terms U G_i (flow) and (rho k) G_i (k row, the P1 grid flux), at a common state. ---*/
+namespace {
+ale::State StateFromConservative(int nDim, const su2double* U) {
+  ale::State S;
+  S.rho = U[0];
+  su2double m2 = 0.0;
+  for (int d = 0; d < nDim; ++d) { S.vel[d] = U[d + 1] / U[0]; m2 += U[d + 1] * U[d + 1]; }
+  S.p = (kGamma - 1.0) * (U[nDim + 1] - 0.5 * m2 / U[0]);
+  return S;
+}
+}  // namespace
+
+TEST_CASE("P1 SST matched on moving meshes: free stream with a k jump, uniform k, entropy balance, ALE Jacobian", "[P1Flux]") {
+  const std::string options = "TIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nTIME_STEP= 0.01\n"
+                              "GRID_MOVEMENT= RIGID_MOTION\nCONV_NUM_METHOD_FLOW= JST\nEDGE_FORM_EC_FLUX= YES\n"
+                              "BC_WEAK_P1= YES\nGCL_EXACT_P1= YES\nGRID_ENTROPY_P1= YES\nMOD_CENTROIDS= YES\nEDGE_FORM_P1= YES\n";
+  for (int nDim : {2, 3}) {
+    const std::string name = "p1_sst_moving_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(name, nDim, (nDim == 2) ? 8 : 3, 0.4, 1.0);
+    MeshCase test(name, options);
+    auto& geometry = *test.geometry;
+    const auto config = test.config.get();
+    const unsigned short nVar = nDim + 2;
+    const su2double dt = 0.01, step = 0.1;
+    config->SetDelta_UnstTimeND(dt);
+    const auto X0 = StoreCoord(geometry);
+    auto move = [&](su2double s) {
+      const su2double c = cos(0.8 * s), sn = sin(0.8 * s);
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+        su2double d[3] = {}, y[3] = {};
+        Displacement(nDim, X0[iPoint].data(), d);
+        for (int iDim = 0; iDim < nDim; ++iDim) y[iDim] = X0[iPoint][iDim] + s * d[iDim] - 0.5;
+        geometry.nodes->SetCoord(iPoint, 0, 0.5 + c * y[0] - sn * y[1]);
+        geometry.nodes->SetCoord(iPoint, 1, 0.5 + sn * y[0] + c * y[1]);
+        if (nDim == 3) geometry.nodes->SetCoord(iPoint, 2, 0.5 + y[2]);
+      }
+      geometry.SetControlVolume(config, UPDATE);
+      geometry.SetBoundControlVolume(config, UPDATE);
+      geometry.SetBoundCVCoeffs(config, UPDATE);
+      geometry.UpdateP1FluxCoefficients(config);
+    };
+    move(0.5 - 2 * step);
+    geometry.nodes->SetVolume_n();
+    geometry.nodes->SetCoord_n();
+    move(0.5 - step);
+    geometry.nodes->SetVolume_nM1();
+    geometry.nodes->SetVolume_n();
+    geometry.nodes->SetCoord_n1();
+    geometry.nodes->SetCoord_n();
+    move(0.5);
+    for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+      const auto* x = geometry.nodes->GetCoord(iPoint);
+      const auto* x_n = geometry.nodes->GetCoord_n(iPoint);
+      const auto* x_n1 = geometry.nodes->GetCoord_n1(iPoint);
+      for (int iDim = 0; iDim < nDim; ++iDim)
+        geometry.nodes->SetGridVel(iPoint, iDim, (1.5 * x[iDim] - 2.0 * x_n[iDim] + 0.5 * x_n1[iDim]) / dt);
+    }
+    geometry.UpdateSweptFluxP1(config);
+    su2activevector G;
+    geometry.SetGridFluxP1(config, G);
+    const su2double kInf = 0.04;
+
+    /*--- Coupled residual (flow rows R incl. U G, k row Rk incl. rho k G) of states with k, and the hat residual. ---*/
+    auto residual = [&](const std::vector<ale::State>& state, const std::vector<su2double>& k, bool farField,
+                        std::vector<State5>& R, std::vector<su2double>& Rk, su2double& pairSum) {
+      R.assign(geometry.GetnPoint(), State5{});
+      Rk.assign(geometry.GetnPoint(), 0.0);
+      pairSum = 0.0;
+      for (auto iEdge = 0ul; iEdge < geometry.GetnEdge(); ++iEdge) {
+        const auto iPoint = geometry.edges->GetNode(iEdge, 0), kPoint = geometry.edges->GetNode(iEdge, 1);
+        const su2double* normal = geometry.edges->GetFormNormal()[iEdge];
+        const su2double* formE = geometry.edges->GetFormE()[iEdge];
+        const auto* v_i = geometry.nodes->GetGridVel(iPoint);
+        const auto* v_k = geometry.nodes->GetGridVel(kPoint);
+        su2double gridFlux = geometry.edges->GetFormSwept()[iEdge];
+        for (int iDim = 0; iDim < nDim; ++iDim)
+          gridFlux += 0.5 * (v_i[iDim] + v_k[iDim]) * normal[iDim] + (v_k[iDim] - v_i[iDim]) * formE[iDim];
+        su2double flux[5];
+        ale::AleFlux(nDim, kGamma, state[iPoint], state[kPoint], normal, gridFlux, flux);
+        const su2double kFlux = P1SSTMatched::PairKine(flux[0], k[iPoint], k[kPoint]);
+        flux[nVar - 1] += kFlux;
+        for (unsigned short v = 0; v < nVar; ++v) { R[iPoint][v] += flux[v]; R[kPoint][v] -= flux[v]; }
+        Rk[iPoint] += kFlux;
+        Rk[kPoint] -= kFlux;
+      }
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) pairSum += Rk[iPoint];
+      const auto inf = GlobalState(12345, nDim);
+      for (auto iMarker = 0u; iMarker < geometry.GetnMarker(); ++iMarker) {
+        if (config->GetMarker_All_KindBC(iMarker) == SEND_RECEIVE) continue;
+        for (auto iElem = 0ul; iElem < geometry.GetnElem_Bound(iMarker); ++iElem) {
+          const auto* face = geometry.bound[iMarker][iElem];
+          const auto nFaceNodes = face->GetnNodes();
+          unsigned long points[3] = {};
+          ale::State faceState[3];
+          su2double faceVel[3][3] = {}, faceRes[3][5];
+          for (unsigned short a = 0; a < nFaceNodes; ++a) {
+            points[a] = face->GetNode(a);
+            faceState[a] = state[points[a]];
+            for (int iDim = 0; iDim < nDim; ++iDim) faceVel[a][iDim] = geometry.nodes->GetGridVel(points[a])[iDim];
+          }
+          const su2double kappa = geometry.BoundaryFaceKappa(config, nFaceNodes, points, face->getNormal());
+          ale::FaceResidual(nDim, nFaceNodes, kGamma, farField ? &inf : nullptr, face->getNormal(), faceState, faceVel,
+                            kappa, faceRes);
+          for (unsigned short a = 0; a < nFaceNodes; ++a) {
+            /*--- Closure C rule of Weak_BC_Residual: k_b = k_a out, k_inf in (far field), k_a at walls. ---*/
+            su2double mp = 0.0, in = 0.0;
+            const su2double m = faceRes[a][0];
+            const su2double kb = P1SSTMatched::FaceKine(m, k[points[a]], farField ? kInf : k[points[a]], mp, in);
+            faceRes[a][nVar - 1] += kb * m;
+            for (unsigned short v = 0; v < nVar; ++v) R[points[a]][v] += faceRes[a][v];
+            Rk[points[a]] += k[points[a]] * mp + in;
+          }
+        }
+      }
+      /*--- Dual-time GCL terms at the common state: U G_i (U with k in the energy) and (rho k) G_i. ---*/
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+        su2double U[5];
+        ale::Conservative(nDim, kGamma, state[iPoint], U);
+        U[nVar - 1] += state[iPoint].rho * k[iPoint];
+        for (unsigned short v = 0; v < nVar; ++v) R[iPoint][v] += U[v] * G[iPoint];
+        Rk[iPoint] += state[iPoint].rho * k[iPoint] * G[iPoint];
+      }
+    };
+
+    for (int farField = 0; farField < 2; ++farField) {
+      std::vector<ale::State> state(geometry.GetnPoint());
+      const auto uniform = GlobalState(12345, nDim);
+      std::vector<su2double> kJump(geometry.GetnPoint()), kUniform(geometry.GetnPoint(), kInf);
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+        const auto gi = geometry.nodes->GetGlobalIndex(iPoint);
+        state[iPoint] = farField ? uniform : GlobalState(gi, nDim);
+        kJump[iPoint] = kInf * (1.0 + 0.9 * sin(1.3 * gi));
+      }
+      const std::vector<su2double> zero(geometry.GetnPoint(), 0.0);
+      std::vector<State5> R, Rh, Ru;
+      std::vector<su2double> Rk, Rkh, Rku;
+      su2double pairSum = 0.0, dummy = 0.0;
+      residual(state, kJump, farField, R, Rk, pairSum);
+      residual(state, zero, farField, Rh, Rkh, dummy);
+      residual(state, kUniform, farField, Ru, Rku, dummy);
+      su2double worstHat = 0.0, worstFree = 0.0, worstUniform = 0.0, scale = 1e-30, coupled = 0.0, hatRate = 0.0, mag = 0.0;
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+        /*--- The k changes only the energy row, by the k row: R_E - R_k = Rhat_E, the other rows equal. ---*/
+        for (unsigned short v = 0; v + 1 < nVar; ++v) worstHat = std::max(worstHat, fabs(R[iPoint][v] - Rh[iPoint][v]));
+        worstHat = std::max(worstHat, fabs(R[iPoint][nVar - 1] - Rk[iPoint] - Rh[iPoint][nVar - 1]));
+        for (unsigned short v = 0; v < nVar; ++v) scale = std::max(scale, fabs(Rh[iPoint][v]) + 1e-12);
+        /*--- Uniform k: R_k = k R_rho with every boundary and GCL term (far field: k = k_inf). ---*/
+        worstUniform = std::max(worstUniform, fabs(Rku[iPoint] - kInf * Ru[iPoint][0]));
+        /*--- Free stream: the coupled rows vanish (hat free stream, X = R_k). ---*/
+        if (farField) {
+          for (unsigned short v = 0; v + 1 < nVar; ++v) worstFree = std::max(worstFree, fabs(R[iPoint][v]));
+          worstFree = std::max(worstFree, fabs(R[iPoint][nVar - 1] - Rk[iPoint]));
+        }
+        /*--- Entropy balance at walls (Theorem A10): -sum w.(R_rho, R_m, R_E - R_k) - sum rho G = 0 with the spatial
+         * residuals (the GCL terms U G and rho k G taken out again). ---*/
+        su2double w[5], Uh[5];
+        ale::EntropyVariables(nDim, kGamma, state[iPoint], w);
+        ale::Conservative(nDim, kGamma, state[iPoint], Uh);
+        const su2double rk = state[iPoint].rho * kJump[iPoint];
+        coupled -= state[iPoint].rho * G[iPoint];
+        hatRate -= state[iPoint].rho * G[iPoint];
+        for (unsigned short v = 0; v + 1 < nVar; ++v) {
+          coupled -= w[v] * (R[iPoint][v] - Uh[v] * G[iPoint]);
+          hatRate -= w[v] * (Rh[iPoint][v] - Uh[v] * G[iPoint]);
+        }
+        coupled -= w[nVar - 1] * ((R[iPoint][nVar - 1] - (Uh[nVar - 1] + rk) * G[iPoint]) - (Rk[iPoint] - rk * G[iPoint]));
+        hatRate -= w[nVar - 1] * (Rh[iPoint][nVar - 1] - Uh[nVar - 1] * G[iPoint]);
+        for (unsigned short v = 0; v < nVar; ++v) mag += fabs(w[v] * Rh[iPoint][v]);
+        mag += fabs(state[iPoint].rho * G[iPoint]);
+      }
+      INFO("nDim " << nDim << (farField ? " far field" : " walls"));
+      CHECK(GlobalMax(worstHat) < 1e-11 * GlobalMax(scale));
+      CHECK(GlobalMax(worstUniform) < 1e-11 * GlobalMax(scale));
+      CHECK(fabs(GlobalSum(pairSum)) < 1e-11 * GlobalMax(scale));
+      if (farField) {
+        CHECK(GlobalMax(worstFree) < 1e-10 * GlobalMax(scale));
+      } else {
+        CHECK(fabs(GlobalSum(coupled) - GlobalSum(hatRate)) < 1e-11 * GlobalSum(mag));
+        CHECK(fabs(GlobalSum(hatRate)) < 1e-8 * GlobalSum(mag));
+      }
+    }
+
+    /*--- ALE edge Jacobian: FD of the matched AleFlux with k_up frozen = L(k_up) Jhat T(k) (D1 with the grid term). ---*/
+    std::mt19937 gen(4711 + nDim);
+    std::uniform_real_distribution<double> u(-1.0, 1.0);
+    for (int trial = 0; trial < 20; ++trial) {
+      su2double U[2][5], k[2], n[3] = {u(gen), u(gen), u(gen)};
+      for (int s = 0; s < 2; ++s) {
+        const su2double rho = exp(0.3 * u(gen)), p = exp(0.3 * u(gen));
+        su2double vel2 = 0.0;
+        k[s] = 0.1 * exp(u(gen));
+        U[s][0] = rho;
+        for (int d = 0; d < nDim; ++d) { const su2double v = 0.5 * u(gen); U[s][d + 1] = rho * v; vel2 += v * v; }
+        U[s][nDim + 1] = p / (kGamma - 1.0) + 0.5 * rho * vel2 + rho * k[s];
+      }
+      const su2double g = 0.7 * u(gen);
+      auto hatFlux = [&](const su2double (*H)[5], su2double* F) {
+        ale::AleFlux(nDim, kGamma, StateFromConservative(nDim, H[0]), StateFromConservative(nDim, H[1]), n, g, F);
+      };
+      su2double H[2][5];
+      for (int s = 0; s < 2; ++s) {
+        for (int v = 0; v < nVar; ++v) H[s][v] = U[s][v];
+        H[s][nVar - 1] -= U[s][0] * k[s];
+      }
+      su2double F0[5];
+      hatFlux(H, F0);
+      if (fabs(F0[0]) < 1e-3) continue;
+      const su2double kUp = P1SSTMatched::KUpwind(F0[0], k[0], k[1]);
+      for (int side = 0; side < 2; ++side) {
+        su2activematrix J(nVar, nVar), Jfd(nVar, nVar);
+        const su2double h = 1e-6;
+        for (int jv = 0; jv < nVar; ++jv) {
+          su2double Hp[2][5], Hm[2][5], Fp[5], Fm[5];
+          for (int s = 0; s < 2; ++s) for (int v = 0; v < nVar; ++v) Hp[s][v] = Hm[s][v] = H[s][v];
+          Hp[side][jv] += h; Hm[side][jv] -= h;
+          hatFlux(Hp, Fp);
+          hatFlux(Hm, Fm);
+          for (int iv = 0; iv < nVar; ++iv) J(iv, jv) = (Fp[iv] - Fm[iv]) / (2 * h);
+          /*--- The matched flux w.r.t. U of this side, k frozen: hat state T(k) U, plus kUp times the mass row. ---*/
+          for (int s = 0; s < 2; ++s) for (int v = 0; v < nVar; ++v) Hp[s][v] = Hm[s][v] = U[s][v];
+          Hp[side][jv] += h; Hm[side][jv] -= h;
+          for (int s = 0; s < 2; ++s) { Hp[s][nVar - 1] -= Hp[s][0] * k[s]; Hm[s][nVar - 1] -= Hm[s][0] * k[s]; }
+          hatFlux(Hp, Fp);
+          hatFlux(Hm, Fm);
+          Fp[nVar - 1] += kUp * Fp[0];
+          Fm[nVar - 1] += kUp * Fm[0];
+          for (int iv = 0; iv < nVar; ++iv) Jfd(iv, jv) = (Fp[iv] - Fm[iv]) / (2 * h);
+        }
+        P1SSTMatched::TransformJacobian(nVar, J, kUp, k[side]);
+        for (int iv = 0; iv < nVar; ++iv)
+          for (int jv = 0; jv < nVar; ++jv) CHECK(J(iv, jv) == Approx(Jfd(iv, jv)).margin(1e-6 * (1.0 + fabs(Jfd(iv, jv)))));
+      }
+    }
+  }
+}

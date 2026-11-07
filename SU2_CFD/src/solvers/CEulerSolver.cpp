@@ -1920,15 +1920,18 @@ void CEulerSolver::Centered_Residual(CGeometry *geometry, CSolver **solver_conta
   EdgeFluxResidual(geometry, solver_container, config);
   if ((iMesh == MESH_0) && config->GetJST_Entropy_Budget()) JSTEntropyResidual(geometry, solver_container, config);
   if ((iMesh == MESH_0) && (config->GetSplit_Edge_Flux() || config->GetEdge_Form_P1_Mixed())) SplitEdgeResidual(geometry, config, turbMatched);
-  if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry, config);
+  if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry, config, turbMatched);
 }
 
-void CEulerSolver::SweptBoundaryResidual(const CGeometry *geometry, const CConfig *config) {
+void CEulerSolver::SweptBoundaryResidual(const CGeometry *geometry, const CConfig *config, const CVariable* turbMatched) {
   SU2_ZONE_SCOPED
 
-  /*--- -U_i beta_i, the nodal boundary term of the grid flux of GCL_EXACT_P1. No Jacobian, as for the split pairs. ---*/
+  /*--- -U_i beta_i, the nodal boundary term of the grid flux of GCL_EXACT_P1. No Jacobian, as for the split pairs.
+   * Matched k (SSTPATHS_PLAN.md 3): its mass part -rho_i beta_i carries the node's k, -(rho k)_i beta_i, which is the k
+   * part of -rhoE_i beta_i in the energy row; the same number goes to the SST k row (P1KNodalRes). ---*/
 
   const auto& boundSwept = geometry->edges->GetBoundSwept();
+  auto rhoK = [&](unsigned long iPoint) { return nodes->GetDensity(iPoint) * turbMatched->GetSolution(iPoint, 0); };
 
   if (!config->GetGrid_Entropy_P1()) {
     SU2_OMP_FOR_STAT(omp_chunk_size)
@@ -1936,6 +1939,7 @@ void CEulerSolver::SweptBoundaryResidual(const CGeometry *geometry, const CConfi
       for (auto iVar = 0u; iVar < nVar; ++iVar) {
         LinSysRes(iPoint, iVar) -= boundSwept[iPoint] * nodes->GetSolution(iPoint, iVar);
       }
+      if (turbMatched) P1KNodalRes[iPoint] -= boundSwept[iPoint] * rhoK(iPoint);
     }
     END_SU2_OMP_FOR
     return;
@@ -1989,6 +1993,7 @@ void CEulerSolver::SweptBoundaryResidual(const CGeometry *geometry, const CConfi
         LinSysRes(iPoint, nDim + 1) += remainder[iPoint] * nodes->GetPressure(iPoint);
       } else {
         for (auto iVar = 0u; iVar < nVar; ++iVar) LinSysRes(iPoint, iVar) -= remainder[iPoint] * nodes->GetSolution(iPoint, iVar);
+        if (turbMatched) P1KNodalRes[iPoint] -= remainder[iPoint] * rhoK(iPoint);
       }
     }
   }

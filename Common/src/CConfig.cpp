@@ -6652,9 +6652,9 @@ void CConfig::CheckP1FluxOptions() const {
       SU2_MPI::Error(name + "not available with the quantized preconditioners Q_*, they drop the correction Jacobian blocks.", CURRENT_FUNCTION);
   }
   if (GetTke_Matched_P1()) {
-    /*--- P1_SST_COUPLED.md, section 8: hat states and matched k in every P1 part, first-order upwind k with the P1 mass
-     * flux, simplices, fine grid. The Roe/TeCNO P1 paths and JST_MAT are not made hat; the SST GCL of moving meshes is not
-     * matched to the flow one. ---*/
+    /*--- P1_SST_COUPLED.md, section 8, and SSTPATHS_PLAN.md: hat states and matched k in every P1 part (edges, split
+     * pairs, mixed-cell diagonals, nodal terms, closure C, MUSCL_TURB face k, the P1 GCL of moving meshes), fine grid. The
+     * Roe/TeCNO P1 paths and JST_MAT are not made hat. ---*/
     const string name = "P1 options with SST (matched k, P1_SST_COUPLED.md): ";
     if (nMGLevels > 0) SU2_MPI::Error(name + "needs MGLEVEL= 0.", CURRENT_FUNCTION);
     /*--- Rough walls give k != 0 at strong-k nodes, where the weak-wall closures have nodal mass rows (M5). ---*/
@@ -6665,7 +6665,6 @@ void CConfig::CheckP1FluxOptions() const {
     if (Axisymmetric) SU2_MPI::Error(name + "not available with AXISYMMETRIC.", CURRENT_FUNCTION);
     if (!((Kind_ConvNumScheme_Flow == SPACE_CENTERED) && (Kind_Centered_Flow == CENTERED::JST)))
       SU2_MPI::Error(name + "only with CONV_NUM_METHOD_FLOW= JST (JST-P1ES, JST-PD).", CURRENT_FUNCTION);
-    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
     if (GetBounded_Turb())
       SU2_MPI::Error(name + "not with CONV_NUM_METHOD_TURB= BOUNDED_SCALAR (the matched convection replaces it).", CURRENT_FUNCTION);
   }
