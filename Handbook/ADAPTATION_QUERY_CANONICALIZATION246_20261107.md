@@ -147,3 +147,10 @@ CFD target or baseline campaign. Checkpoint and return immediately to
 full same-seed MACH-only L1/50k TWO-event M6. Full247TWO-event M6 is LIVE,tool14272,after pushed checkpoint f7855ed7ec.
 A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k`. Config bytes match
 Mach-only244;exact live handles and source/input freeze are in HANDOFF_Codex.md.
+
+Full247quality_entry is complete at native689.582599 versus244701.671352.
+Whole-field counts match EXACTLY:878443cells/106454q/106204J/1381geometry/0size,
+all measured/flags complete. Construction upper work282283657→274601233 and
+traversal263600528→256967738,with identical120785local accepted operations.
+A247/quality_entry_comparison244.json and comparison244_matching_stages.json
+preserve the measured scope;this is not quality closure or a full-run speedup.

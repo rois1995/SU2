@@ -115,6 +115,14 @@ Trace UNSET;pt2pt/private4TBscratch/nice19/libs1. Selected bounded raw refusal c
 retained;no routine VTU exports. Frozen C++/fixtures/helpers/binary/config/inputs.
 Compare complete-census whole-field q/J/geometry and counted work at matching stages;
 allow run to finish unless preserved evidence justifies an authorized owned stop.
+Latest COMPLETE247quality_entry:native689.582599/round31898,
+878443cells/106454q/106204J/1381geometry/0size,ALL measured/flags complete.
+Counts EXACTLY match Mach-only244quality_entry(native701.671352).
+Construction upper_work282283657→274601233,traversal263600528→256967738;
+120785accepted local operations in both runs,not accepted meshes. A247/
+{construction_progress_assessment,comparison244_matching_stages,quality_entry_comparison244}.json
+preserve exact prefix hashes/scope. Quality closure is now active;no full-run speedup
+or accepted mesh is established. No new implementation while the run is frozen.
 ZERO accepted meshes;all downstream obligations open.
 
 Diagnostic245baseline remains historical,traces/raw-control only:
