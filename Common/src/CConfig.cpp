@@ -1849,7 +1849,7 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_FORM_ES_DISS", Edge_Form_ES_Diss, false);
   /*!\brief EDGE_FORM_ES_BLEND \n DESCRIPTION: Per element T, theta_T = P_T^+ / D_T with P_T the exact entropy production of the E part of EDGE_FORM_P1 in T and D_T that of the Lemma 3 dissipation on the element pieces E^T_ik; adds sum_T theta_T lam^T_ik (U_k-U_i) on each edge. Entropy stable for any states, second order at smooth steady states. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_ES_BLEND", Edge_Form_ES_Blend, false);
-  /*!\brief BC_ENTROPY_P1 \n DESCRIPTION: Entropy stable weak boundary of BC_WEAK_P1 with EDGE_FORM_P1: degree 2 face rule, entropy projected states at the points, Ismail-Roe coupling to the face nodes; pressure flux at Euler walls and symmetry planes, Ismail-Roe plus Rusanov against the ghost of the far field, inlet (total conditions, mass flow) and outlet built at the points from the projected state, and against the Dirichlet state of the verification solution at the points on custom markers (order studies; their viscous flux stays the one of the exact gradient). EULER, NAVIER_STOKES and RANS with SA; viscous runs need BC_WALL_ENTROPY_P1, symmetry planes then get the SIPG term for u.n = 0 (normal stress only), far field, inlets and outlets the natural (zero) viscous flux. \ingroup Config \default false */
+  /*!\brief BC_ENTROPY_P1 \n DESCRIPTION: Entropy stable weak boundary of BC_WEAK_P1 with EDGE_FORM_P1, or with EDGE_DISS_PROJECTED and EDGE_FORM_EC_FLUX (median dual, JST-PD): degree 2 face rule, entropy projected states at the points, Ismail-Roe coupling to the face nodes; pressure flux at Euler walls and symmetry planes, Ismail-Roe plus Rusanov against the ghost of the far field, inlet (total conditions, mass flow) and outlet built at the points from the projected state, and against the Dirichlet state of the verification solution at the points on custom markers (order studies; their viscous flux stays the one of the exact gradient). EULER, NAVIER_STOKES and RANS with SA; viscous runs need BC_WALL_ENTROPY_P1, symmetry planes then get the SIPG term for u.n = 0 (normal stress only), far field, inlets and outlets the natural (zero) viscous flux. \ingroup Config \default false */
   addBoolOption("BC_ENTROPY_P1", BC_Entropy_P1, false);
   /*!\brief VISC_P1_ENTROPY \n DESCRIPTION: Viscous residual of the flow equations from the P1 Galerkin operator in entropy variables: on each simplex F_T = K(wbar_T) grad(w_h), evaluated with the stress tensor and heat flux of the effective gradients grad(v) = (G_m - v* G_theta)/theta*, grad(T) = -G_theta/(R theta*^2), theta = rho/p, mean of the nodal entropy variables, mean mu + mu_t (mu_t >= 0) and conductivity. Replaces the edge viscous flux and its Jacobian (Picard element Jacobian, frozen K). Triangles and tetrahedra. Entropy dissipative for any state. \ingroup Config \default false */
   addBoolOption("VISC_P1_ENTROPY", Visc_P1_Entropy, false);
@@ -6568,7 +6568,11 @@ void CConfig::CheckP1FluxOptions() const {
      * the energy of the boundary ghosts, which the entropy pair of closure C does not have (SHARED_FIXES_PLAN.md, 2). ---*/
     const string name = "BC_ENTROPY_P1: ";
     const bool viscousP1 = (Kind_Solver == MAIN_SOLVER::NAVIER_STOKES) || (Kind_Solver == MAIN_SOLVER::RANS);
-    if (!BC_Weak_P1 || !Edge_Form_P1) SU2_MPI::Error(name + "needs BC_WEAK_P1= YES and EDGE_FORM_P1= YES.", CURRENT_FUNCTION);
+    /*--- The closure needs an entropy conservative interior flux on antisymmetric normals with sum_k n_ik = -n_i^b, n_i^b
+     * the closure share A_f nu_f/d of the node: the P1 edge form (any W) and the median dual of JST-PD (EDGE_DISS_PROJECTED
+     * with EDGE_FORM_EC_FLUX) both have it (JSTFIN_PLAN.md 9). ---*/
+    if (!BC_Weak_P1 || !(Edge_Form_P1 || (Edge_Diss_Projected && Edge_Form_EC_Flux)))
+      SU2_MPI::Error(name + "needs BC_WEAK_P1= YES and EDGE_FORM_P1= YES, or EDGE_DISS_PROJECTED= YES with EDGE_FORM_EC_FLUX= YES.", CURRENT_FUNCTION);
     if ((Kind_Solver != MAIN_SOLVER::EULER) && !viscousP1)
       SU2_MPI::Error(name + "needs SOLVER= EULER, NAVIER_STOKES or RANS.", CURRENT_FUNCTION);
     if ((Kind_Solver == MAIN_SOLVER::RANS) && (Kind_Turb_Model != TURB_MODEL::SA) && (Kind_Turb_Model != TURB_MODEL::SST))

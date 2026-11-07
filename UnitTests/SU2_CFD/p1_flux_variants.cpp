@@ -4234,6 +4234,102 @@ TEST_CASE("P1_WALL_FORCES: weak wall traction of a linear shear flow is the exac
   }
 }
 
+TEST_CASE("BC_ENTROPY_P1 with EDGE_DISS_PROJECTED (JST-PD): closure C closes the median-dual EC scheme", "[P1Flux]") {
+  /*--- The median dual (no MOD_CENTROIDS) with the Ismail-Roe flux on the median normals n_ik and closure C (pressure flux,
+   * all boundary faces as walls). (i) Free stream: the closure share of node i on a face, sum_q phi_i(x_q) a_q A_f nu_f =
+   * A_f nu_f / d, is its median boundary normal, so with the far-field closure against the same state (ghost = state)
+   * sum_k F(u).n_ik + sum_f b_i = 0 at every owned node. (ii) Entropy:
+   * sum_i w_i.R_i = sum_f sum_q (w~_q.F*_q - psi~_q.N_q) = 0 for the pressure flux (entropy conservative), to the
+   * truncated log mean. Faces and edges on the ranks of their owned rows, sums MPI-reduced. ---*/
+  namespace pbcl = P1BoundaryClosure;
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    const std::string mesh = "p1_jstpd_closure_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 8 : 3, 0.4, 1.0);
+    /*--- The configuration gate accepts the JST-PD + closure C combination (it stops the run otherwise). ---*/
+    MeshCase test(mesh, "CONV_NUM_METHOD_FLOW= JST\nEDGE_DISS_PROJECTED= YES\nEDGE_FORM_EC_FLUX= YES\nBC_WEAK_P1= YES\n"
+                        "BC_ENTROPY_P1= YES\n");
+    REQUIRE(test.config->GetBC_Entropy_P1());
+    const auto& geometry = *test.geometry;
+    const unsigned long nPoint = geometry.GetnPoint();
+    for (int uniform : {1, 0}) {
+      auto field = [&](const su2double* x) {
+        pve::NodeState S;
+        if (uniform) {
+          S.rho = 1.2; S.p = 0.8; S.vel[0] = 0.3; S.vel[1] = -0.2; S.vel[2] = (nDim == 3) ? 0.1 : 0.0;
+        } else {
+          const su2double z = (nDim == 3) ? x[2] : 0.0;
+          S.rho = 1.0 + 0.3 * sin(7.1 * x[0] + 3.3 * x[1] + 5.7 * z);
+          S.p = 0.9 + 0.2 * cos(4.3 * x[0] - 6.1 * x[1] + 2.9 * z);
+          S.vel[0] = 0.4 * sin(5.3 * x[1] + 1.1 * z);
+          S.vel[1] = 0.3 * cos(6.7 * x[0] - 2.3 * z);
+          S.vel[2] = (nDim == 3) ? 0.2 * sin(3.9 * x[0] + 4.1 * x[1]) : 0.0;
+        }
+        return S;
+      };
+      auto esOf = [&](const pve::NodeState& N) {
+        pbcl::EsState S;
+        S.rho = N.rho; S.p = N.p;
+        for (int i = 0; i < 3; ++i) S.vel[i] = N.vel[i];
+        return S;
+      };
+      std::vector<std::array<su2double, 5>> R(nPoint, {0.0, 0.0, 0.0, 0.0, 0.0});
+      for (auto iEdge = 0ul; iEdge < geometry.GetnEdge(); ++iEdge) {
+        const auto i = geometry.edges->GetNode(iEdge, 0), k = geometry.edges->GetNode(iEdge, 1);
+        su2double F[pbcl::ES_NVAR] = {0.0};
+        pbcl::EsIsmailRoeFlux(nDim, kGamma, esOf(field(geometry.nodes->GetCoord(i))), esOf(field(geometry.nodes->GetCoord(k))),
+                              geometry.edges->GetNormal(iEdge), F);
+        for (int v = 0; v < nVar; ++v) {
+          R[i][v] += F[v];
+          R[k][v] -= F[v];
+        }
+      }
+      for (const char* tag : {"bottom", "rest"}) {
+        const int iMarker = MarkerIndex(*test.config, geometry, tag);
+        if (iMarker < 0) continue;
+        for (unsigned long iFace = 0; iFace < geometry.GetnElem_Bound(iMarker); ++iFace) {
+          const auto& face = *geometry.bound[iMarker][iFace];
+          const su2double* coord[4];
+          pve::NodeState state[4];
+          unsigned short faceNodes[3] = {0, 0, 0};
+          unsigned long point[4];
+          su2double N[3] = {0.0, 0.0, 0.0};
+          WallTestElement(geometry, face, nDim, field, coord, state, faceNodes, N, point);
+          pbcl::EsState fs[3];
+          for (int a = 0; a < nDim; ++a) fs[a] = esOf(state[faceNodes[a]]);
+          su2double res[3][pbcl::ES_NVAR] = {{0.0}};
+          /*--- Free stream: far-field closure against the same state (ghost = state, F* = F(u).N_q); entropy: walls. ---*/
+          pbcl::EsBoundaryData far;
+          far.kind = FAR_FIELD;
+          far.tag = "farfield";
+          far.inf = fs[0];
+          pbcl::EsFaceResidual(nDim, nDim, kGamma, uniform ? &far : nullptr, N, fs, res);
+          for (int a = 0; a < nDim; ++a)
+            for (int v = 0; v < nVar; ++v) R[point[faceNodes[a]]][v] += res[a][v];
+        }
+      }
+      su2double maxR = 0.0, scale = 0.0, entropy = 0.0, entropyScale = 0.0;
+      for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+        const auto S = esOf(field(geometry.nodes->GetCoord(iPoint)));
+        su2double w[pbcl::ES_NVAR] = {0.0};
+        pbcl::EsEntropyVariables(nDim, kGamma, S, w);
+        for (int v = 0; v < nVar; ++v) {
+          maxR = std::max(maxR, su2double(fabs(R[iPoint][v])));
+          entropy += w[v] * R[iPoint][v];
+          entropyScale += fabs(w[v] * R[iPoint][v]);
+        }
+        scale = std::max(scale, S.p + S.rho);
+      }
+      INFO("nDim " << nDim << (uniform ? " uniform" : " random"));
+      if (uniform) {
+        CHECK(GlobalMax(maxR) <= 1e-13 * GlobalMax(scale));
+      } else {
+        CHECK(fabs(GlobalSum(entropy)) <= 1e-10 * GlobalSum(entropyScale));
+      }
+    }
+  }
+}
+
 TEST_CASE("P1_WALL_FORCES AXISYMMETRIC: sum_i 2 pi y_i share_i is the face rule of int 2 pi y (p~ - pRef) n", "[P1Flux]") {
   /*--- 2D segments with random end points and states: y is linear on the face, the share of node i is
    * sum_q phi_i(x_q) a_q (p~_q - pRef), so sum_i y_i share_i = sum_q y(x_q) a_q (p~_q - pRef) exactly (the 2 pi y_i weight
