@@ -6284,7 +6284,8 @@ TEST_CASE("P1 SST matched rough wall: k_D m_a on the weak-wall closure rows, hat
         m5 += (states[a].rho / states[a].p) * (kRow[a] - kD[a] * res[a][0]);
       }
       CHECK(fabs(massSum) <= 1e-13 * (1.0 + scale));
-      CHECK(m5 == 0.0);
+      /*--- Zero to roundoff: the compiler may contract kRow - kD m into a fused multiply-add. ---*/
+      CHECK(fabs(m5) <= 1e-15 * (1.0 + scale));
 
       /*--- (b) uniform k_D. ---*/
       su2double kU[3] = {0.02, 0.02, 0.02}, kRowU[3] = {0.0, 0.0, 0.0};
