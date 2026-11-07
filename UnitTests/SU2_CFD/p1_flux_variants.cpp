@@ -6243,9 +6243,13 @@ TEST_CASE("P1 SST matched: weighted sub-simplex k diffusion of a mixed cell, con
     const su2double D = 0.7;
     for (auto iElem = 0ul; iElem < geometry.GetnElem(); ++iElem) {
       const auto* element = geometry.elem[iElem];
-      if (element->GetnNodes() == nNodes) continue;
+      /*--- A simplex is its own list with weight 1, as in CTurbSSTSolver::P1KineDiffusion. ---*/
+      std::vector<P1Mixed::Simplex> own(1);
+      for (unsigned short a = 0; a < nNodes; ++a) own[0].nodes[a] = a;
+      own[0].weight = 1.0;
+      const auto& list = (element->GetnNodes() == nNodes) ? own : geometry.GetMixedSimplices(element->GetVTK_Type());
       su2double cellSum = 0.0;
-      for (const auto& entry : geometry.GetMixedSimplices(element->GetVTK_Type())) {
+      for (const auto& entry : list) {
         const su2double* coord[4];
         unsigned long point[4];
         su2double kNode[4], res[4], grad[4][3];
@@ -6268,13 +6272,11 @@ TEST_CASE("P1 SST matched: weighted sub-simplex k diffusion of a mixed cell, con
       }
       cellWorst = fmax(cellWorst, fabs(cellSum));
     }
-    /*--- Interior nodes of the mixed cells: a linear k with constant D gives zero (the split average is consistent). ---*/
+    /*--- Interior nodes: a linear k with constant D gives zero (the split averages are consistent with the simplices
+     * and with each other across the quad faces, P1_MIXED.md X2). ---*/
     su2double interiorWorst = 0.0;
     for (auto i = 0ul; i < geometry.GetnPointDomain(); ++i) {
       if (geometry.nodes->GetPhysicalBoundary(i)) continue;
-      bool allMixed = true;
-      for (auto iElem : geometry.nodes->GetElems(i)) allMixed &= (geometry.elem[iElem]->GetnNodes() != nNodes);
-      if (!allMixed) continue;
       interiorWorst = fmax(interiorWorst, fabs(R[i]));
     }
     INFO("nDim " << nDim);
@@ -6683,5 +6685,86 @@ TEST_CASE("P1 SST matched on moving meshes: free stream with a k jump, uniform k
           for (int jv = 0; jv < nVar; ++jv) CHECK(J(iv, jv) == Approx(Jfd(iv, jv)).margin(1e-6 * (1.0 + fabs(Jfd(iv, jv)))));
       }
     }
+  }
+}
+
+/*--- SST matched k with AXISYMMETRIC (SSTPATHS_PLAN.md 5): the inviscid source of CSourceAxisymmetric_Flow (v/r form
+ * and the axis form rho dv/dr, blended by alpha), with k in the total energy, against its hat form. ---*/
+namespace {
+void AxiSource(int nDim, const su2double* U, su2double k, su2double y, su2double dvdr, su2double alpha, su2double V,
+               su2double* S) {
+  su2double m2 = 0.0;
+  for (int d = 0; d < nDim; ++d) m2 += U[d + 1] * U[d + 1];
+  const su2double p = (kGamma - 1.0) * (U[nDim + 1] - 0.5 * m2 / U[0] - U[0] * k);
+  const su2double H = (U[nDim + 1] + p) / U[0];
+  const su2double yinv = 1.0 / y, rho = U[0], u = U[1] / U[0];
+  const su2double stdS[4] = {yinv * V * U[2], yinv * V * U[1] * U[2] / U[0], yinv * V * U[2] * U[2] / U[0], yinv * V * H * U[2]};
+  const su2double gradS[4] = {V * rho * dvdr, V * rho * u * dvdr, 0.0, V * rho * H * dvdr};
+  for (int v = 0; v < 4; ++v) S[v] = (1.0 - alpha) * gradS[v] + alpha * stdS[v];
+}
+}  // namespace
+
+TEST_CASE("P1 SST matched AXISYMMETRIC: S_E = Shat_E + k S_rho in both forms, uniform k, entropy identity, Jacobian", "[P1Flux]") {
+  std::mt19937 gen(8642);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const int nDim = 2, nVar = 4;
+  for (int trial = 0; trial < 200; ++trial) {
+    const su2double alpha = (trial % 3 == 0) ? 1.0 : (trial % 3 == 1) ? 0.0 : 0.5 * (1.0 + u(gen));
+    const su2double y = 0.2 + exp(u(gen)), dvdr = u(gen), V = 0.3 * exp(u(gen));
+    const su2double rho = exp(0.4 * u(gen)), p = exp(0.4 * u(gen)), k = 0.2 * exp(u(gen));
+    const su2double vel[2] = {u(gen), u(gen)};
+    su2double U[4], Uhat[4];
+    U[0] = rho;
+    U[1] = rho * vel[0];
+    U[2] = rho * vel[1];
+    U[3] = p / (kGamma - 1.0) + 0.5 * rho * (vel[0] * vel[0] + vel[1] * vel[1]) + rho * k;
+    for (int v = 0; v < nVar; ++v) Uhat[v] = U[v];
+    Uhat[3] -= rho * k;
+    su2double S[4], Shat[4];
+    AxiSource(nDim, U, k, y, dvdr, alpha, V, S);
+    AxiSource(nDim, Uhat, 0.0, y, dvdr, alpha, V, Shat);
+
+    /*--- Free stream with a k jump: (rho, u, p) fixed, the k changes only S_E, by k S_rho (the matched k row). ---*/
+    for (int v = 0; v < nVar - 1; ++v) CHECK(S[v] == Approx(Shat[v]).margin(1e-14 * (1.0 + fabs(Shat[v]))));
+    CHECK(S[3] - k * S[0] == Approx(Shat[3]).margin(1e-13 * (1.0 + fabs(Shat[3]))));
+
+    /*--- Entropy identity: v.(S, k S_rho) = w.Shat; in the v/r form w.Shat = (V v / y) eta (no production). ---*/
+    State5 Us;
+    for (int v = 0; v < nVar; ++v) Us[v] = U[v];
+    su2double w[5];
+    HatEntropyVariables(nDim, Us, k, w);
+    su2double coupled = 0.0, hat = 0.0;
+    for (int v = 0; v < nVar - 1; ++v) { coupled += w[v] * S[v]; hat += w[v] * Shat[v]; }
+    coupled += w[3] * (S[3] - k * S[0]);
+    hat += w[3] * Shat[3];
+    CHECK(coupled == Approx(hat).margin(1e-13 * (1.0 + fabs(hat))));
+    if (alpha == 1.0) {
+      const su2double eta = -rho * (log(p) - kGamma * log(rho)) / (kGamma - 1.0);
+      CHECK(hat == Approx(V * vel[1] * eta / y).margin(1e-12 * (1.0 + fabs(hat))));
+    }
+
+    /*--- Jacobians with k frozen: dS/dU = L(k) dShat/dUhat T(k) (D1 with k_up = k_i), and the k-row diagonal
+     * d(k S_rho)/d(rho k) = S_rho/rho at a frozen flow. ---*/
+    su2activematrix J(nVar, nVar), Jfd(nVar, nVar);
+    const su2double h = 1e-6;
+    for (int jv = 0; jv < nVar; ++jv) {
+      su2double Up[4], Um[4], Sp[4], Sm[4];
+      for (int v = 0; v < nVar; ++v) { Up[v] = Uhat[v]; Um[v] = Uhat[v]; }
+      Up[jv] += h; Um[jv] -= h;
+      AxiSource(nDim, Up, 0.0, y, dvdr, alpha, V, Sp);
+      AxiSource(nDim, Um, 0.0, y, dvdr, alpha, V, Sm);
+      for (int iv = 0; iv < nVar; ++iv) J(iv, jv) = (Sp[iv] - Sm[iv]) / (2 * h);
+      for (int v = 0; v < nVar; ++v) { Up[v] = U[v]; Um[v] = U[v]; }
+      Up[jv] += h; Um[jv] -= h;
+      AxiSource(nDim, Up, k, y, dvdr, alpha, V, Sp);
+      AxiSource(nDim, Um, k, y, dvdr, alpha, V, Sm);
+      for (int iv = 0; iv < nVar; ++iv) Jfd(iv, jv) = (Sp[iv] - Sm[iv]) / (2 * h);
+    }
+    P1SSTMatched::TransformJacobian(nVar, J, k, k);
+    for (int iv = 0; iv < nVar; ++iv)
+      for (int jv = 0; jv < nVar; ++jv) CHECK(J(iv, jv) == Approx(Jfd(iv, jv)).margin(1e-6 * (1.0 + fabs(Jfd(iv, jv)))));
+    const su2double rk = rho * k;
+    const su2double fd = ((rk + h) / rho * S[0] - (rk - h) / rho * S[0]) / (2 * h);
+    CHECK(fd == Approx(S[0] / rho).margin(1e-8));
   }
 }

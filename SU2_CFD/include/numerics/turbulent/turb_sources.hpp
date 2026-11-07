@@ -743,6 +743,8 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
   const bool sustaining_terms = false;
   const bool axisymmetric = false;
   const bool stressWorkProduction = false; /*!< \brief SST_ENERGY_CONSISTENT: P = mu_t (2 S:S - 2/3 (div u)^2). */
+  const bool matchedAxiK = false; /*!< \brief Matched k of the P1 options: the convective axisymmetric k term comes from
+                                   *   the flow source, k_i S_rho,i (P1KNodalRes, SSTPATHS_PLAN.md 5). */
   bool useP1Production = false;            /*!< \brief P = P* of the P1 element loop (SetP1Production). */
   su2double p1Production = 0.0;
 
@@ -792,8 +794,10 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
     const su2double sigma_k_i = F1_i * sigma_k_1 + (1.0 - F1_i) * sigma_k_2;
     const su2double sigma_w_i = F1_i * sigma_w_1 + (1.0 - F1_i) * sigma_w_2;
 
-    /*--- Convection-Diffusion ---*/
-    const su2double cdk_axi = rhov * k - (Laminar_Viscosity_i + sigma_k_i * Eddy_Viscosity_i) * ScalarVar_Grad_i[0][1];
+    /*--- Convection-Diffusion. Matched k: the convective part of k is k_i S_rho,i of the flow source (the same number as
+     * the k part of its energy row, axis blend included), added by CTurbSSTSolver::MatchedNodalKine. ---*/
+    su2double cdk_axi = -(Laminar_Viscosity_i + sigma_k_i * Eddy_Viscosity_i) * ScalarVar_Grad_i[0][1];
+    if (!matchedAxiK) cdk_axi = rhov * k - (Laminar_Viscosity_i + sigma_k_i * Eddy_Viscosity_i) * ScalarVar_Grad_i[0][1];
     const su2double cdw_axi = rhov * w - (Laminar_Viscosity_i + sigma_w_i * Eddy_Viscosity_i) * ScalarVar_Grad_i[1][1];
 
     /*--- Add terms to the residuals ---*/
@@ -804,7 +808,7 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
     /*--- Derivative w.r.t. the conservative variables (rho k, rho w), only the part that increases
      * diagonal dominance (v > 0) is kept, as the term is destabilizing for flow towards the axis. ---*/
     const su2double jac_axi = yinv * Volume * max(V_i[idx.Velocity() + 1], 0.0);
-    Jacobian_i[0][0] -= jac_axi;
+    if (!matchedAxiK) Jacobian_i[0][0] -= jac_axi;
     Jacobian_i[1][1] -= jac_axi;
 
   }
@@ -824,6 +828,7 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
         idx(val_nDim, config->GetnSpecies()),
         axisymmetric(config->GetAxisymmetric()),
         stressWorkProduction(config->GetSST_Energy_Consistent()),
+        matchedAxiK(config->GetAxisymmetric() && config->GetTke_Matched_P1()),
         sigma_k_1(constants[0]),
         sigma_k_2(constants[1]),
         sigma_w_1(constants[2]),

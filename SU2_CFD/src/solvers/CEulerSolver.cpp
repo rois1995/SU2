@@ -3055,6 +3055,10 @@ void CEulerSolver::Source_Residual(CGeometry *geometry, CSolver **solver_contain
 
   if (axisymmetric) {
 
+    const bool axiMatchedK = (iMesh == MESH_0) && config->GetTke_Matched_P1();
+    if (axiMatchedK && (P1KNodalRes.size() != nPoint))
+      SU2_MPI::Error("Matched k: the nodal k sums are not allocated (CONV_NUM_METHOD_FLOW= JST needed).", CURRENT_FUNCTION);
+
     /*--- For viscous problems, we need an additional gradient. ---*/
     if (viscous) {
       ComputeAxisymmetricAuxGradients(geometry, config);
@@ -3100,6 +3104,14 @@ void CEulerSolver::Source_Residual(CGeometry *geometry, CSolver **solver_contain
 
       /*--- Add Residual ---*/
       LinSysRes.AddBlock(iPoint, residual);
+
+      /*--- Matched k (SSTPATHS_PLAN.md 5): S_E = Shat_E + k_i S_rho,i (H = Hhat + k, both blend branches), the same
+       * k_i S_rho,i goes to the SST k row, which drops its own convective axisymmetric k term. ---*/
+      if (axiMatchedK) {
+        const su2double kNode = solver_container[TURB_SOL]->GetNodes()->GetSolution(iPoint, 0);
+        P1KNodalRes[iPoint] += kNode * residual[0];
+        P1KNodalJac[iPoint] += fmax(residual[0] / nodes->GetDensity(iPoint), 0.0);
+      }
 
       /*--- Implicit part ---*/
       if (implicit)

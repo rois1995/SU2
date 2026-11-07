@@ -6374,7 +6374,16 @@ void CConfig::CheckP1FluxOptions() const {
   }
   if (ContinuousAdjoint || DiscreteAdjoint) refuse("not available for adjoint problems.");
   if (Multizone_Problem) refuse("not available for multizone problems.");
-  if (Axisymmetric) refuse("not available for axisymmetric problems.");
+  /*--- AXISYMMETRIC: SU2's nodal source with the centered JST P1 family. It is consistent, and its inviscid part has
+   * w.S = (V v/y) eta node by node (v/r branch), but the Cartesian dual sums are not the y-weighted entropy, so there is
+   * no global entropy statement (SSTPATHS_PLAN.md 5). ---*/
+  if (Axisymmetric) {
+    if (!(Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST))
+      refuse("axisymmetric problems only with CONV_NUM_METHOD_FLOW= JST.");
+    if (GetDynamic_Grid()) refuse("axisymmetric problems not with grid motion.");
+    if (Edge_Form_P1_Mixed) refuse("axisymmetric problems not with EDGE_FORM_P1_MIXED (the split mass is not the dual volume of the source).");
+    if (P1_Wall_Forces) refuse("axisymmetric problems not with P1_WALL_FORCES (no 2 pi r weight of the boundary forces).");
+  }
 
   /*--- The form is in the vectorized numerics. Upwind_Residual uses them only for an ideal gas without
    * LOW_MACH_CORR, otherwise the form would be dropped without a message. ---*/
@@ -6662,7 +6671,6 @@ void CConfig::CheckP1FluxOptions() const {
       if (Roughness_Height[iMarker] > 0.0)
         SU2_MPI::Error(name + "not available with WALL_ROUGHNESS (k != 0 at the wall nodes).", CURRENT_FUNCTION);
     }
-    if (Axisymmetric) SU2_MPI::Error(name + "not available with AXISYMMETRIC.", CURRENT_FUNCTION);
     if (!((Kind_ConvNumScheme_Flow == SPACE_CENTERED) && (Kind_Centered_Flow == CENTERED::JST)))
       SU2_MPI::Error(name + "only with CONV_NUM_METHOD_FLOW= JST (JST-P1ES, JST-PD).", CURRENT_FUNCTION);
     if (GetBounded_Turb())
