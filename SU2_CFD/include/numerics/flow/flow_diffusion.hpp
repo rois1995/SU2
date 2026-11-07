@@ -46,6 +46,8 @@ protected:
   const unsigned short nPrimVar;          /*!< \brief The size of the primitive variable array used in the numerics class. */
   const VISCOUS_GRAD_CORR correct_gradient;            /*!< \brief Apply a correction to the gradient term */
   bool implicit = false;                  /*!< \brief Implicit calculus. */
+  bool sstEnergyKine = false;             /*!< \brief SST_ENERGY_CONSISTENT on this interior edge (see SetSSTEnergyKineDiffusion). */
+  su2double sstF1_i = 1.0, sstF1_j = 1.0; /*!< \brief SST blending F1 of the two points (SST_ENERGY_CONSISTENT). */
   su2double
   heat_flux_vector[MAXNDIM] = {0.0},      /*!< \brief Flux of total energy due to molecular and turbulent diffusion */
   *heat_flux_jac_i = nullptr,             /*!< \brief Jacobian of the molecular + turbulent heat flux vector, projected onto the normal vector. */
@@ -80,6 +82,17 @@ protected:
    */
   void AddTauWall(const su2double *UnitNormal,
                   su2double TauWall);
+
+  /*!
+   * \brief SST_ENERGY_CONSISTENT: add the k diffusion of the SST k row of this edge, D_ij g_ij (sst_energy.hpp), to the
+   *        energy component of Proj_Flux_Tensor (the physical viscous flux, subtracted from the residual of i).
+   */
+  void AddSSTKineDiffusion();
+
+public:
+  inline void SetF1blending(su2double val_F1_i, su2double val_F1_j) override { sstF1_i = val_F1_i; sstF1_j = val_F1_j; }
+  inline void SetSSTEnergyKineDiffusion(bool val_active) override { sstEnergyKine = val_active; }
+protected:
 
   /**
    * \brief Calculate the Jacobian of the viscous + turbulent stress tensor

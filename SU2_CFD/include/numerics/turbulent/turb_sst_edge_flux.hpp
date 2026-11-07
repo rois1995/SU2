@@ -28,6 +28,7 @@
 #pragma once
 
 #include "../scalar/scalar_edge_flux.hpp"
+#include "sst_energy.hpp"
 
 /*!
  * \class CScalarFlux_SST
@@ -56,6 +57,8 @@ class CScalarFlux_SST
   static constexpr passivedouble sigma_k2 = 1.0;
   static constexpr passivedouble sigma_om1 = 0.5;
   static constexpr passivedouble sigma_om2 = 0.856;
+  static_assert(sigma_k1 == SSTEnergy::sigma_k1 && sigma_k2 == SSTEnergy::sigma_k2,
+                "SST_ENERGY_CONSISTENT copies the k diffusion of this row (sst_energy.hpp).");
 
  public:
   /*!

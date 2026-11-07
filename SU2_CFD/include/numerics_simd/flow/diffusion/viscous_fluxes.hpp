@@ -31,6 +31,8 @@
 #include "../../util.hpp"
 #include "../variables.hpp"
 #include "common.hpp"
+#include "../../../variables/CTurbVariable.hpp"
+#include "../../../numerics/turbulent/sst_energy.hpp"
 
 /*!
  * \class CNoViscousFlux
@@ -88,6 +90,7 @@ protected:
   const bool wallFun;
   const bool uq;
   const bool tkeInEnergy;
+  const bool sstEnergy;  /*!< \brief SST_ENERGY_CONSISTENT: k diffusion of the k row in the energy flux, fine grid. */
   const bool uq_permute;
   const size_t uq_eigval_comp;
   const su2double uq_delta_b;
@@ -114,6 +117,7 @@ protected:
     wallFun(config.GetWall_Functions()),
     uq(config.GetSSTParsedOptions().uq),
     tkeInEnergy(config.GetKind_Turb_Model() == TURB_MODEL::SST),
+    sstEnergy(iMesh == MESH_0 && config.GetSST_Energy_Consistent() && (turbVars_ != nullptr)),
     uq_permute(config.GetUQ_Permute()),
     uq_eigval_comp(config.GetEig_Val_Comp()),
     uq_delta_b(config.GetUQ_Delta_B()),
@@ -206,6 +210,28 @@ protected:
       flux(iVar) -= viscFlux(iVar);
     }
 
+    /*--- SST_ENERGY_CONSISTENT: the energy flux gets the k diffusion of the SST k row of this edge, the same number
+     * -D_ij g_ij (sst_energy.hpp): edge normal, nodal mu and mu_t, F1 blending, corrected average gradient of k. ---*/
+    Double kineProj = 0.0;
+    if (sstEnergy) {
+      const auto& turb = *static_cast<const CTurbVariable*>(turbVars);
+      const auto edgeNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetNormal());
+      const auto gradK_i = gatherVariables<nDim>(iPoint, turb.GetGradient(), 0);
+      const auto gradK_j = gatherVariables<nDim>(jPoint, turb.GetGradient(), 0);
+      Double g_i[3], g_j[3], e[3], n[3];
+      for (size_t iDim = 0; iDim < nDim; ++iDim) {
+        g_i[iDim] = gradK_i(iDim); g_j[iDim] = gradK_j(iDim); e[iDim] = vector_ij(iDim); n[iDim] = edgeNormal(iDim);
+      }
+      const Double k_i = gatherVariables(iPoint, turb.GetSolution(), 0);
+      const Double k_j = gatherVariables(jPoint, turb.GetSolution(), 0);
+      const Double F1_i = gatherVariables(iPoint, turb.GetF1blending());
+      const Double F1_j = gatherVariables(jPoint, turb.GetF1blending());
+      kineProj = SSTEnergy::CorrectedProjection(int(nDim), g_i, g_j, k_i, k_j, e, n);
+      const Double diffKine = SSTEnergy::EdgeDiffusivity(V.i.laminarVisc(), V.i.eddyVisc(), F1_i,
+                                                         V.j.laminarVisc(), V.j.eddyVisc(), F1_j);
+      flux(nDim+1) -= diffKine * kineProj;
+    }
+
     if (!implicit) return;
 
         /*--- Flux Jacobians. ---*/
@@ -227,6 +253,25 @@ protected:
           jac_i(iVar,jVar) += area*dFdUL(iVar,jVar);
           jac_j(iVar,jVar) += area*dFdUR(iVar,jVar);
         }
+      }
+
+      /*--- SST_ENERGY_CONSISTENT: d(-D_ij g_ij)/dU_a = -0.5 g_ij dmu_a/dU_a (mu_t, k, F1 frozen as above), with
+       * mu(rho, T) and T(rho, e), e = E - |v|^2/2 - k: de/drho = (|v|^2 - E)/rho, de/dm = -v/rho, de/d(rho E) = 1/rho. ---*/
+      if (sstEnergy) {
+        auto addViscosityDerivative = [&](const Int& point, const PrimVarType& Vp, MatrixDbl<nVar>& jac) {
+          const auto sec = gatherVariables<nSeconVar>(point, solution.GetSecondary());
+          const Double rho = Vp.density();
+          const Double vel2 = squaredNorm<nDim>(Vp.velocity());
+          const Double E = Vp.enthalpy() - Vp.pressure() / rho;
+          const Double dTde = sec(3);
+          const Double dTdrho = sec(2) + dTde * (vel2 - E) / rho;
+          const Double factor = -0.5 * kineProj * sec(5);
+          jac(nDim+1, 0) += -0.5 * kineProj * sec(4) + factor * dTdrho;
+          for (size_t iDim = 0; iDim < nDim; ++iDim) jac(nDim+1, iDim+1) -= factor * dTde * Vp.velocity(iDim) / rho;
+          jac(nDim+1, nDim+1) += factor * dTde / rho;
+        };
+        addViscosityDerivative(iPoint, V.i, jac_i);
+        addViscosityDerivative(jPoint, V.j, jac_j);
       }
 
     } else {

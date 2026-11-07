@@ -28,6 +28,7 @@
 
 #include "../../../include/numerics/flow/flow_diffusion.hpp"
 #include "../../../../Common/include/toolboxes/geometry_toolbox.hpp"
+#include "../../../include/numerics/turbulent/sst_energy.hpp"
 
 CAvgGrad_Base::CAvgGrad_Base(unsigned short val_nDim,
                              unsigned short val_nVar,
@@ -216,6 +217,15 @@ void CAvgGrad_Base::SetHeatFluxVector(const su2double* const* val_gradprimvar, c
   for (unsigned short iDim = 0; iDim < nDim; iDim++) {
     heat_flux_vector[iDim] = heat_flux_factor * val_gradprimvar[0][iDim];
   }
+}
+
+void CAvgGrad_Base::AddSSTKineDiffusion() {
+  /*--- Nodal mu and mu_t of the primitives (as the k row), the raw edge normal and x_j - x_i. ---*/
+  const su2double kineProj = SSTEnergy::CorrectedProjection(int(nDim), ScalarVar_Grad_i[0], ScalarVar_Grad_j[0],
+                                                            turb_ke_i, turb_ke_j, Edge_Vector, Normal);
+  const su2double diffKine = SSTEnergy::EdgeDiffusivity(V_i[nDim+5], V_i[nDim+6], sstF1_i,
+                                                        V_j[nDim+5], V_j[nDim+6], sstF1_j);
+  Proj_Flux_Tensor[nVar-1] += diffKine * kineProj;
 }
 
 void CAvgGrad_Base::AddTauWall(const su2double *UnitNormal,
@@ -442,6 +452,10 @@ CNumerics::ResidualType<> CAvgGrad_Flow::ComputeResidual(const CConfig* config) 
   AD::SetPreaccIn(turb_ke_i); AD::SetPreaccIn(turb_ke_j);
   AD::SetPreaccIn(TauWall_i); AD::SetPreaccIn(TauWall_j);
   AD::SetPreaccIn(Normal, nDim);
+  if (sstEnergyKine) {
+    AD::SetPreaccIn(ScalarVar_Grad_i, 1, nDim); AD::SetPreaccIn(ScalarVar_Grad_j, 1, nDim);
+    AD::SetPreaccIn(sstF1_i); AD::SetPreaccIn(sstF1_j);
+  }
 
   unsigned short iVar, jVar, iDim;
 
@@ -550,6 +564,10 @@ CNumerics::ResidualType<> CAvgGrad_Flow::ComputeResidual(const CConfig* config) 
     }
 
   }
+
+  /*--- SST_ENERGY_CONSISTENT: k diffusion of the k row in the energy flux. It depends on the flow only through the
+   * viscosities, which this Jacobian does not differentiate, and on the frozen k: no Jacobian term. ---*/
+  if (sstEnergyKine) AddSSTKineDiffusion();
 
   AD::SetPreaccOut(Proj_Flux_Tensor, nVar);
   AD::SetPreaccOut(Jacobian_i, nVar, nVar);
@@ -952,6 +970,10 @@ CNumerics::ResidualType<> CGeneralAvgGrad_Flow::ComputeResidual(const CConfig* c
   AD::SetPreaccIn(turb_ke_i); AD::SetPreaccIn(turb_ke_j);
   AD::SetPreaccIn(TauWall_i); AD::SetPreaccIn(TauWall_j);
   AD::SetPreaccIn(Normal, nDim);
+  if (sstEnergyKine) {
+    AD::SetPreaccIn(ScalarVar_Grad_i, 1, nDim); AD::SetPreaccIn(ScalarVar_Grad_j, 1, nDim);
+    AD::SetPreaccIn(sstF1_i); AD::SetPreaccIn(sstF1_j);
+  }
 
   unsigned short iVar, jVar, iDim;
 
@@ -1070,6 +1092,9 @@ CNumerics::ResidualType<> CGeneralAvgGrad_Flow::ComputeResidual(const CConfig* c
     }
 
   }
+
+  /*--- SST_ENERGY_CONSISTENT: as CAvgGrad_Flow. ---*/
+  if (sstEnergyKine) AddSSTKineDiffusion();
 
   AD::SetPreaccOut(Proj_Flux_Tensor, nVar);
   AD::EndPreacc();

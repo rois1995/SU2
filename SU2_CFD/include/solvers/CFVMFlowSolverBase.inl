@@ -479,6 +479,14 @@ CNumerics::ResidualType<> CFVMFlowSolverBase<V, R>::Viscous_Residual_impl(unsign
     numerics->SetTurbKineticEnergy(turbNodes->GetSolution(iPoint,0),
                                    turbNodes->GetSolution(jPoint,0));
 
+  /*--- SST_ENERGY_CONSISTENT (fine grid): the inputs of the k diffusion of the k row, for the energy flux. ---*/
+
+  if (tkeNeeded && (MGLevel == MESH_0) && config->GetSST_Energy_Consistent()) {
+    numerics->SetScalarVarGradient(turbNodes->GetGradient(iPoint), turbNodes->GetGradient(jPoint));
+    numerics->SetF1blending(turbNodes->GetF1blending(iPoint), turbNodes->GetF1blending(jPoint));
+    numerics->SetSSTEnergyKineDiffusion(true);
+  }
+
   /*--- Stochastic variables from Langevin equations (Stochastic Backscatter Model). ---*/
 
   if (backscatter) {

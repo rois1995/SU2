@@ -807,6 +807,13 @@ public:
   virtual void SetF1blending(su2double val_F1_i, su2double val_F1_j) {/* empty */};
 
   /*!
+   * \brief SST_ENERGY_CONSISTENT: this interior edge carries the SST k diffusion inputs (k, grad k, F1), so the
+   *        compressible viscous flux adds the k diffusion of the k row to its energy flux. Boundary numerics never
+   *        set it.
+   */
+  virtual void SetSSTEnergyKineDiffusion(bool val_active) {/* empty */};
+
+  /*!
    * \brief Set the value of the second blending function.
    * \param[in] val_F2_i - Value of the second Menter blending function at point i.
    */

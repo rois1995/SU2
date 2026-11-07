@@ -1199,6 +1199,8 @@ void CConfig::SetConfig_Options() {
   addEnumOption("KIND_TURB_MODEL", Kind_Turb_Model, Turb_Model_Map, TURB_MODEL::NONE);
   /*!\brief SST_OPTIONS \n DESCRIPTION: Specify SST turbulence model options/corrections. \n Options: see \link SST_Options_Map \endlink \n DEFAULT: NONE \ingroup Config*/
   addEnumListOption("SST_OPTIONS", nSST_Options, SST_Options, SST_Options_Map);
+  /*!\brief SST_ENERGY_CONSISTENT \n DESCRIPTION: SST with the two energy approximations of SSTm removed: (a) the total-energy viscous flux gets the k diffusion (mu + sigma_k mu_t) grad k, with the numbers of the k equation on every interior edge; (b) the k production is the contraction of the turbulent stress with the velocity gradient, mu_t (2 S:S - 2/3 (div u)^2), before the limiter (the -2/3 rho k stress stays dropped, in the stress and in P). Compressible RANS, strain production only, fine grid only. \ingroup Config \default false */
+  addBoolOption("SST_ENERGY_CONSISTENT", SST_Energy_Consistent, false);
   /*!\brief SST_OPTIONS \n DESCRIPTION: Specify SA turbulence model options/corrections. \n Options: see \link SA_Options_Map \endlink \n DEFAULT: NONE \ingroup Config*/
   addEnumListOption("SA_OPTIONS", nSA_Options, SA_Options, SA_Options_Map);
 
@@ -6328,6 +6330,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Visc_P1_Entropy) active.push_back("VISC_P1_ENTROPY");
   if (BC_Wall_Entropy_P1) active.push_back("BC_WALL_ENTROPY_P1");
   if (JST_Weak_Wall_Diss) active.push_back("JST_WEAK_WALL_DISSIPATION");
+  if (SST_Energy_Consistent) active.push_back("SST_ENERGY_CONSISTENT");
   if (P1_Wall_Forces) active.push_back("P1_WALL_FORCES");
   if (Visc_P1_Entropy_Moved) active.push_back("VISC_P1_ENTROPY_MOVED");
   if (Visc_P1_Time_Step) active.push_back("VISC_P1_TIME_STEP");
@@ -6616,6 +6619,22 @@ void CConfig::CheckP1FluxOptions() const {
           (Kind_Centered_Flow == CENTERED::JST || Kind_Centered_Flow == CENTERED::JST_MAT)))
       SU2_MPI::Error(name + "only for JST and JST_MAT (the schemes with a fourth-order term).", CURRENT_FUNCTION);
     if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries.", CURRENT_FUNCTION);
+  }
+  if (SST_Energy_Consistent) {
+    /*--- k diffusion in the energy flux and production from the stress work (P1_SST_COUPLED.md, section 4). The energy
+     * term copies the interior edge diffusion of the k row; boundaries where the SST imposes a diffusive k flux
+     * (turbomachinery inlets, fluid interfaces) and the P1 element viscous operator (its own k diffusion) are not
+     * covered. The production is defined for the strain form only. ---*/
+    const string name = "SST_ENERGY_CONSISTENT: ";
+    if (Kind_Turb_Model != TURB_MODEL::SST) SU2_MPI::Error(name + "needs KIND_TURB_MODEL= SST.", CURRENT_FUNCTION);
+    if ((Kind_Solver != MAIN_SOLVER::RANS) && (Kind_Solver != MAIN_SOLVER::DISC_ADJ_RANS))
+      SU2_MPI::Error(name + "only for the compressible RANS solver.", CURRENT_FUNCTION);
+    if (sstParsedOptions.production != SST_OPTIONS::NONE)
+      SU2_MPI::Error(name + "only with the strain production (no VORTICITY, KATO_LAUNDER or UQ).", CURRENT_FUNCTION);
+    if (Axisymmetric) SU2_MPI::Error(name + "not available with AXISYMMETRIC (the energy source of the k flux is not derived).", CURRENT_FUNCTION);
+    if (Visc_P1_Entropy) SU2_MPI::Error(name + "not available with VISC_P1_ENTROPY.", CURRENT_FUNCTION);
+    if (GetBoolTurbomachinery() || GetBoolMixingPlaneInterface() || (nMarker_Fluid_InterfaceBound > 0))
+      SU2_MPI::Error(name + "not available with turbomachinery, mixing-plane or fluid-interface markers (diffusive k boundary fluxes).", CURRENT_FUNCTION);
   }
   if (P1_Wall_Forces) {
     /*--- Output only: the forces of the weak no-slip wall and of closure C. Moving walls are not covered. ---*/

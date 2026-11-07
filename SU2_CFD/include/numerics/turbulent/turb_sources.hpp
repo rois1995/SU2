@@ -742,6 +742,7 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
   const FlowIndices idx; /*!< \brief Object to manage the access to the flow primitives. */
   const bool sustaining_terms = false;
   const bool axisymmetric = false;
+  const bool stressWorkProduction = false; /*!< \brief SST_ENERGY_CONSISTENT: P = mu_t (2 S:S - 2/3 (div u)^2). */
 
   /*--- Closure constants ---*/
   const su2double sigma_k_1, sigma_k_2, sigma_w_1, sigma_w_2, beta_1, beta_2, beta_star, a1, alfa_1, alfa_2;
@@ -820,6 +821,7 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
       : CNumerics(val_nDim, 2, 0, 0, config),
         idx(val_nDim, config->GetnSpecies()),
         axisymmetric(config->GetAxisymmetric()),
+        stressWorkProduction(config->GetSST_Energy_Consistent()),
         sigma_k_1(constants[0]),
         sigma_k_2(constants[1]),
         sigma_w_1(constants[2]),
@@ -957,6 +959,10 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
       const su2double prod_limit = prod_lim_const * beta_star * Density_i * ScalarVar_i[1] * ScalarVar_i[0];
 
       su2double P = Eddy_Viscosity_i * pow(P_Base, 2);
+
+      /*--- SST_ENERGY_CONSISTENT: the work of SU2's turbulent stress, mu_t (2 S:S - 2/3 (div u)^2) = tau_t : grad u, the
+       * same gradient as StrainMag; only with the strain production (refused otherwise). ---*/
+      if (stressWorkProduction) P = Eddy_Viscosity_i * (pow(StrainMag_i, 2) - TWO3 * pow(diverg, 2));
       su2double pk = max(0.0, min(P, prod_limit));
 
       const su2double eddy_visc_var = sstParsedOptions.version == SST_OPTIONS::V1994 ? VorticityMag : StrainMag_i;

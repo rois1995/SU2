@@ -93,6 +93,7 @@ private:
   bool BC_Wall_Entropy_P1;     /*!< \brief Entropy stable weak no-slip walls: closure C plus the SIPG penalty in entropy variables. */
   bool P1_Wall_Forces;         /*!< \brief Wall forces, Cf and heat flux from the boundary fluxes of the P1 entropy walls. */
   bool JST_Weak_Wall_Diss;     /*!< \brief JST fourth-order term off on edges that leave a weak no-slip wall (P1_WALL_DISSIPATION.md). */
+  bool SST_Energy_Consistent;  /*!< \brief SST: k diffusion in the energy flux and production from the stress work (no SSTm energy approximations). */
   bool Visc_P1_Entropy_Moved;  /*!< \brief Element viscous fluxes of VISC_P1_ENTROPY on the moved (MOD_CENTROIDS) dual test space, 3D. */
   bool Visc_P1_Time_Step;      /*!< \brief Viscous local time step from the block row bounds of VISC_P1_ENTROPY and the weak walls (P1_TIME_STEP.md). */
   VISC_P1_JACOBIAN Kind_Visc_P1_Jacobian; /*!< \brief Jacobian of VISC_P1_ENTROPY and its weak walls: Picard (K frozen) or full (plus dK/du). */
@@ -10117,6 +10118,13 @@ public:
    *        BC_WALL_ENTROPY_P1, in the residual and in the Jacobian of JST and JST_MAT.
    */
   bool GetJST_Weak_Wall_Diss() const { return JST_Weak_Wall_Diss; }
+
+  /*!
+   * \brief SST_ENERGY_CONSISTENT: the two energy approximations of SSTm off: the total-energy viscous flux gets the
+   *        k diffusion (mu + sigma_k mu_t) grad k of the k equation, and the k production is the work of the
+   *        turbulent stress, mu_t (2 S:S - 2/3 (div u)^2), before the limiter (P1_SST_COUPLED.md, section 4).
+   */
+  bool GetSST_Energy_Consistent() const { return SST_Energy_Consistent; }
 
   /*!
    * \brief P1_WALL_FORCES: forces, skin friction and heat flux of the walls from the boundary fluxes of the scheme:
