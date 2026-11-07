@@ -2369,6 +2369,8 @@ void CFVMFlowSolverBase<V, R>::BC_Custom_Weak_Residual(CGeometry* geometry, CSol
 
 
 
+        /*--- BC_ENTROPY_P1 (P1CustomViscousOnly): closure C gives the inviscid part, the buffer keeps its zeros here. ---*/
+        if (!P1CustomViscousOnly) {
         /*--- Set various quantities in the solver class ---*/
         conv_numerics->SetPrimitive(V_domain, V_outlet);
 
@@ -2390,6 +2392,7 @@ void CFVMFlowSolverBase<V, R>::BC_Custom_Weak_Residual(CGeometry* geometry, CSol
           residualBuffer[MAXNVAR + iVar*nVar + jVar] = residual.jacobian_i[iVar][jVar];
         }
           }
+        }
         }
 
         if (viscous) {

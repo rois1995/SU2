@@ -4801,7 +4801,31 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
   esData.refT = esData.massFlow ? config->GetDensity_Ref() : config->GetTemperature_Ref();
   esData.refP = esData.massFlow ? config->GetVelocity_Ref() : config->GetPressure_Ref();
   const bool gravity = config->GetGravityForce();
+  /*--- MARKER_CUSTOM with a verification solution: closure C against the Dirichlet ghost g_q = u_D(x_q) at each face
+   * point (Lemma B7 holds for any admissible ghost), the conservative state of GetBCState as for BC_Custom. ---*/
+  if (bcEntropyP1 && VerificationSolution) {
+    const su2double time = (config->GetTime_Marching() != TIME_MARCHING::STEADY) ? config->GetPhysicalTime() : 0.0;
+    const su2double gm1 = config->GetGamma() - 1.0;
+    const unsigned short nd = nDim;
+    const CVerificationSolution* verification = VerificationSolution;
+    esData.dirichlet = [verification, time, gm1, nd](const su2double* x, EsState& S) {
+      su2double U[ES_NVAR] = {0.0};
+      verification->GetBCState(x, time, U);
+      S.rho = U[0];
+      su2double vel2 = 0.0;
+      for (unsigned short iDim = 0; iDim < nd; ++iDim) {
+        S.vel[iDim] = U[iDim + 1] / U[0];
+        vel2 += S.vel[iDim] * S.vel[iDim];
+      }
+      S.p = gm1 * (U[nd + 1] - 0.5 * U[0] * vel2);
+    };
+  }
   auto setFaceData = [&](int iMarker, unsigned short nFace, const unsigned long* facePoints) {
+    if (esData.kind == CUSTOM_BOUNDARY) {
+      for (unsigned short k = 0; k < nFace; ++k)
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) esData.coord[k][iDim] = geometry->nodes->GetCoord(facePoints[k], iDim);
+      return;
+    }
     if ((esData.kind != INLET_FLOW) && (esData.kind != OUTLET_FLOW)) return;
     for (unsigned short k = 0; k < nFace; ++k) {
       const long iVertex = geometry->nodes->GetVertex(facePoints[k], iMarker);
@@ -4928,14 +4952,24 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
     const bool weakNoSlip = bcWallEntropyP1 && ((KindBC == HEAT_FLUX) || (KindBC == ISOTHERMAL));
 
     /*--- BC_ENTROPY_P1: Euler walls, symmetry planes, far field, inlets and outlets (closure C), weak no-slip walls
-     * (WeakNoSlipWallResidual). Inlets and outlets only on static meshes (no ALE ghost). ---*/
+     * (WeakNoSlipWallResidual). Inlets, outlets and Dirichlet custom markers (verification solution) only on static
+     * meshes (no ALE ghost). ---*/
+    const bool customDirichlet = (KindBC == CUSTOM_BOUNDARY) && (VerificationSolution != nullptr);
     const bool esKind = (KindBC == EULER_WALL) || (KindBC == SYMMETRY_PLANE) || (KindBC == FAR_FIELD) ||
-                        (((KindBC == INLET_FLOW) || (KindBC == OUTLET_FLOW)) && !gridEntropyP1);
+                        (((KindBC == INLET_FLOW) || (KindBC == OUTLET_FLOW) || customDirichlet) && !gridEntropyP1);
     if (bcEntropyP1 && !weakNoSlip && !esKind) {
-      SU2_MPI::Error("BC_ENTROPY_P1 supports Euler walls, symmetry planes, far field, inlets and outlets (static "
-                     "meshes) and the weak no-slip walls of BC_WALL_ENTROPY_P1, not marker " +
-                     config->GetMarker_All_TagBound(iMarker) + ".", CURRENT_FUNCTION);
+      SU2_MPI::Error("BC_ENTROPY_P1 supports Euler walls, symmetry planes, far field, inlets, outlets and custom markers "
+                     "with a verification solution (static meshes) and the weak no-slip walls of BC_WALL_ENTROPY_P1, not "
+                     "marker " + config->GetMarker_All_TagBound(iMarker) + ".", CURRENT_FUNCTION);
     }
+    /*--- Custom markers under closure C: BC_Custom_Weak_Residual gives only its viscous part (the flux of the exact
+     * gradient at the node, full face normal), added with the boundary weights of the viscous operator: the Galerkin
+     * mass weights (2,1)/6 and (2,1,1)/12 of int phi_i F.n (exact for a linear flux) with VISC_P1_ENTROPY, otherwise
+     * those of the weak boundary; the inviscid part is closure C. ---*/
+    const bool customViscous = bcEntropyP1 && customDirichlet;
+    const bool galerkinVisc = config->GetVisc_P1_Entropy();
+    const su2double viscSelf = galerkinVisc ? ((nDim == 2) ? 1.0 / 3.0 : 1.0 / 6.0) : 0.0;
+    const su2double viscOther = galerkinVisc ? ((nDim == 2) ? 1.0 / 6.0 : 1.0 / 12.0) : 0.0;
     if (bcEntropyP1) {
       esData.kind = KindBC;
       esData.tag = config->GetMarker_All_TagBound(iMarker);
@@ -4966,15 +5000,18 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
          * symmetry planes; far field, inlets and outlets get the exact one of each sub-triangle (EsFaceJacobian). ---*/
         const su2double omegaSelf = 0.25, omegaOther = 1.0 / 24.0;
         const bool exactJac = bcEntropyP1 && implicit &&
-                              ((KindBC == FAR_FIELD) || (KindBC == INLET_FLOW) || (KindBC == OUTLET_FLOW));
+                              ((KindBC == FAR_FIELD) || (KindBC == INLET_FLOW) || (KindBC == OUTLET_FLOW) ||
+                               (KindBC == CUSTOM_BOUNDARY));
 
         for (unsigned short tri = 0; tri < 4; ++tri) {
           const auto* local = P1Mixed::QuadTriangles[tri];
           for (unsigned short iDim = 0; iDim < 3; ++iDim) faceNormal[iDim] = subNormal[tri][iDim];
+          P1CustomViscousOnly = customViscous;
           for (unsigned short a = 0; a < 3; ++a) {
             std::memset(buffer[a].data(), 0, (MAXNVAR + MAXNVAR * MAXNVAR) * sizeof(su2double));
             compute_BC_residual(iMarker, KindBC, iElem, local[a], buffer[a].data());
           }
+          P1CustomViscousOnly = false;
           for (unsigned short iDim = 0; iDim < 3; ++iDim) faceNormal[iDim] = savedNormal[iDim];
 
           su2double triRes[3][MAXNVAR] = {{0.0}};
@@ -4995,6 +5032,12 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
             for (unsigned short a = 0; a < 3; ++a)
               for (iVar = 0; iVar < nVar; ++iVar) triRes[a][iVar] = faceRes[a][iVar];
             if (exactJac) EsFaceJacobian(nDim, 3, config->GetGamma(), &esData, subNormal[tri], faceStates, triJac);
+            if (customViscous) {
+              const su2double vSelf = galerkinVisc ? viscSelf : omegaSelf, vOther = galerkinVisc ? viscOther : omegaOther;
+              for (unsigned short a = 0; a < 3; ++a)
+                for (unsigned short b = 0; b < 3; ++b)
+                  for (iVar = 0; iVar < nVar; ++iVar) triRes[a][iVar] += ((b == a) ? vSelf : vOther) * buffer[b][iVar];
+            }
           } else {
             for (unsigned short a = 0; a < 3; ++a)
               for (unsigned short b = 0; b < 3; ++b)
@@ -5037,6 +5080,10 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
                 for (jVar = 0; jVar < nVar; ++jVar) {
                   if (exactJac) jac[iVar][jVar] = triJac[a][b][iVar][jVar];
                   else jac[iVar][jVar] = omega * buffer[b][MAXNVAR + iVar * nVar + jVar];
+                  if (exactJac && customViscous) {
+                    const su2double vOmega = galerkinVisc ? ((b == a) ? viscSelf : viscOther) : omega;
+                    jac[iVar][jVar] += vOmega * buffer[b][MAXNVAR + iVar * nVar + jVar];
+                  }
                 }
               }
               if (matchedK) P1SSTMatched::TransformJacobian(nVar, jac, kRowTri[a], kNodeTri[b]);
@@ -5052,10 +5099,12 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
       su2double Area2 = GeometryToolbox::Norm(nDim,element->getNormal());
       Area = 1.0;
 
+      P1CustomViscousOnly = customViscous;
       for (iNode = 0; iNode < nNodes; ++iNode) {
         std::memset(buffer[iNode].data(),0,(MAXNVAR+MAXNVAR*MAXNVAR) * sizeof(su2double));
         compute_BC_residual(iMarker,KindBC,iElem,iNode,buffer[iNode].data());
       }
+      P1CustomViscousOnly = false;
 
       /*--- BC_ENTROPY_P1: residual of closure C from the nodal primitives (halo nodes included, as above), added to
        * the owned nodes only. Far field, inlets and outlets on static meshes: the exact Jacobian of the face residual
@@ -5097,7 +5146,8 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
           }
           setFaceData(iMarker, nNodes, facePoints);
           EsFaceResidual(nDim, nNodes, config->GetGamma(), &esData, element->getNormal(), faceStates, faceRes);
-          exactJac = implicit && ((KindBC == FAR_FIELD) || (KindBC == INLET_FLOW) || (KindBC == OUTLET_FLOW));
+          exactJac = implicit && ((KindBC == FAR_FIELD) || (KindBC == INLET_FLOW) || (KindBC == OUTLET_FLOW) ||
+                                  (KindBC == CUSTOM_BOUNDARY));
           if (exactJac) {
             EsFaceJacobian(nDim, nNodes, config->GetGamma(), &esData, element->getNormal(), faceStates, faceJac);
           }
@@ -5107,6 +5157,12 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
         if (nNodes == 3) {
           omegaSelf = p1Coeffs[0] * (1.0 - p1Coeffs[1] - p1Coeffs[2]);
           omegaOther = p1Coeffs[0] * p1Coeffs[1];
+        }
+        const su2double vSelf = galerkinVisc ? viscSelf : omegaSelf, vOther = galerkinVisc ? viscOther : omegaOther;
+        if (customViscous) {
+          for (unsigned short a = 0; a < nNodes; ++a)
+            for (unsigned short b = 0; b < nNodes; ++b)
+              for (iVar = 0; iVar < nVar; ++iVar) faceRes[a][iVar] += ((b == a) ? vSelf : vOther) * buffer[b][iVar];
         }
 
         /*--- Matched k: the k of the mass row of each face node (closure C is hat, its rows carry no k). ---*/
@@ -5145,6 +5201,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
               for (jVar = 0; jVar < nVar; ++jVar) {
                 if (exactJac) jac[iVar][jVar] = faceJac[a][b][iVar][jVar];
                 else jac[iVar][jVar] = omega * buffer[b][MAXNVAR + iVar * nVar + jVar];
+                if (exactJac && customViscous) jac[iVar][jVar] += ((b == a) ? vSelf : vOther) * buffer[b][MAXNVAR + iVar * nVar + jVar];
               }
             }
             if (matchedK) P1SSTMatched::TransformJacobian(nVar, jac, kRow[a], kNode[b]);

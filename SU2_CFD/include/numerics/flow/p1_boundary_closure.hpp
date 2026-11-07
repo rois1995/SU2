@@ -28,6 +28,7 @@
 #pragma once
 
 #include <cmath>
+#include <functional>
 #include <string>
 #include "../../../../Common/include/basic_types/datatype_structure.hpp"
 #include "../../../../Common/include/option_structure.hpp"
@@ -147,6 +148,10 @@ struct EsBoundaryData {
   su2double dataP[3] = {0.0, 0.0, 0.0};               /*!< \brief Inlet: Inlet_Ptotal of the face nodes. */
   su2double flowDir[3][3] = {{0.0}};                  /*!< \brief Inlet: flow direction of the face nodes. */
   su2double pExit[3] = {0.0, 0.0, 0.0};               /*!< \brief Outlet: non-dimensional back pressure of the face nodes. */
+  /*--- MARKER_CUSTOM with a verification solution (Dirichlet data, order studies): the ghost at a face point x_q is the
+   * Dirichlet state at x_q, g_q = u_D(x_q), x_q = sum_k phi_k(x_q) x_k. It does not depend on the interior state. ---*/
+  std::function<void(const su2double* x, EsState& state)> dirichlet; /*!< \brief Custom: Dirichlet state at a point. */
+  su2double coord[3][3] = {{0.0}};                    /*!< \brief Custom: coordinates of the face nodes. */
 };
 
 /*--- Ghost g_q at a face point with phi_k(x_q) = phiq[k]. False for walls and symmetry planes (pressure flux). The
@@ -172,6 +177,14 @@ inline bool EsBoundaryGhost(unsigned short nDim, unsigned short nNodes, const su
       gq.rho = ghost.Density;
       gq.p = ghost.Pressure;
       for (unsigned short iDim = 0; iDim < nDim; ++iDim) gq.vel[iDim] = ghost.Velocity[iDim];
+      break;
+    }
+    case CUSTOM_BOUNDARY: {
+      if (!data.dirichlet) SU2_MPI::Error("BC_ENTROPY_P1: marker " + data.tag + " has no Dirichlet data.", CURRENT_FUNCTION);
+      su2double x[3] = {0.0, 0.0, 0.0};
+      for (unsigned short k = 0; k < nNodes; ++k)
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] += phiq[k] * data.coord[k][iDim];
+      data.dirichlet(x, gq);
       break;
     }
     case OUTLET_FLOW: {
@@ -200,7 +213,7 @@ inline bool EsBoundaryGhost(unsigned short nDim, unsigned short nNodes, const su
  * w~_q = sum_k phi_k(x_q) w_k, u~_q = u(w~_q) and G_qk = F_IR(u~_q, u_k; N_q):
  *   b_i = sum_q phi_i(x_q) [ G_qi - sum_k phi_k(x_q) G_qk + F*_q ],
  * F*_q = (0, p~_q N_q, 0) at walls and symmetry planes (entropy conservative, also for data = nullptr), and at the
- * far field, inlets and outlets (EsBoundaryGhost)
+ * far field, inlets, outlets and Dirichlet (custom) markers (EsBoundaryGhost)
  * F*_q = F_IR(u~_q, g_q; N_q) - lam/2 |N_q| (U(g_q) - U(u~_q)), lam = max(|u.nu| + c) over u~_q and the ghost g_q,
  * Tadmor entropy stable for any admissible ghost (Lemma B7). ---*/
 inline void EsFaceResidual(unsigned short nDim, unsigned short nNodes, const su2double& gamma, const EsBoundaryData* data,
@@ -499,6 +512,11 @@ inline bool EsBoundaryGhostJacobian(unsigned short nDim, unsigned short nNodes, 
       P1BoundaryGhost::OutletJacobian(nDim, gamma, sq.rho, sq.vel, sq.p, pExit, unitNormal, dG);
       return true;
     }
+    case CUSTOM_BOUNDARY:
+      /*--- Dirichlet data: the ghost does not depend on u~_q. ---*/
+      for (unsigned short a = 0; a < ES_NVAR; ++a)
+        for (unsigned short b = 0; b < ES_NVAR; ++b) dG[a][b] = 0.0;
+      return true;
     default:
       return false;
   }

@@ -5804,6 +5804,171 @@ TEST_CASE("BC_ENTROPY_P1 Jacobian: outlet faces with subsonic and supersonic exi
   }
 }
 
+namespace {
+/*--- Smooth Dirichlet field of the custom-marker tests: rho, u, p of order 1 with gradients of order 1. ---*/
+pbc::EsState DirichletField(int nDim, const su2double* x, su2double un) {
+  pbc::EsState S;
+  S.rho = 1.0 + 0.2 * sin(1.3 * x[0] + 0.7 * x[1] + 0.3 * x[2]);
+  S.p = 0.8 + 0.15 * cos(0.9 * x[0] - 1.1 * x[1] + 0.5 * x[2]);
+  for (int i = 0; i < 3; ++i) S.vel[i] = 0.0;
+  for (int i = 0; i < nDim; ++i) S.vel[i] = 0.3 * sin(x[i] + 0.4 * i) + un;
+  return S;
+}
+
+/*--- Face rule of EsFaceResidual: phi[q][k] and the weight a_q. ---*/
+su2double EsFaceRule(int nNodes, su2double (*phi)[3]) {
+  if (nNodes == 2) {
+    const su2double g = 0.5 / sqrt(3.0);
+    phi[0][0] = 0.5 + g; phi[0][1] = 0.5 - g;
+    phi[1][0] = 0.5 - g; phi[1][1] = 0.5 + g;
+    return 0.5;
+  }
+  for (int q = 0; q < 3; ++q)
+    for (int k = 0; k < 3; ++k) phi[q][k] = (q == k) ? 2.0 / 3.0 : 1.0 / 6.0;
+  return 1.0 / 3.0;
+}
+}  // namespace
+
+TEST_CASE("BC_ENTROPY_P1 custom Dirichlet: free stream, conservation and face entropy bound of the Dirichlet ghost", "[P1Flux]") {
+  /*--- (a) Node states equal to a uniform Dirichlet state D: the residual is the far-field closure with inf = D and
+   * sum_i b_i = F(D).A_f (free stream). (b) Random node states, x-dependent Dirichlet data: sum_i b_i = sum_q F*_q
+   * (the G - Gbar terms cancel) with F*_q the Tadmor flux against g_q = u_D(x_q). (c) Face entropy bound (Lemma B7 at
+   * each point plus the EC identity of the Ismail-Roe coupling):
+   *   sum_i w_i.b_i >= sum_q [ sum_i phi_i(x_q) psi_i.N_q - psi(g_q).N_q + w(g_q).F*_q ],  psi = rho u. ---*/
+  std::mt19937 gen(7311);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nNodes = nDim, nVar = nDim + 2;
+    for (int trial = 0; trial < 60; ++trial) {
+      su2double n[3], t[3], N[3];
+      JacRandomNormal(gen, nDim, n, t, N);
+      const su2double un = 0.4 * u(gen);
+      pbc::EsBoundaryData data;
+      data.kind = CUSTOM_BOUNDARY;
+      data.tag = "custom";
+      for (int k = 0; k < nNodes; ++k)
+        for (int i = 0; i < 3; ++i) data.coord[k][i] = (i < nDim) ? u(gen) : 0.0;
+
+      /*--- (a) uniform data. ---*/
+      const pbc::EsState D = JacRandomState(gen, nDim, 0.4, 0.6);
+      data.dirichlet = [D](const su2double*, pbc::EsState& S) { S = D; };
+      pbc::EsState states[3] = {D, D, D};
+      su2double res[3][pbc::ES_NVAR] = {{0.0}}, resFar[3][pbc::ES_NVAR] = {{0.0}};
+      pbc::EsFaceResidual(nDim, nNodes, kGamma, &data, N, states, res);
+      pbc::EsBoundaryData far;
+      far.kind = FAR_FIELD;
+      far.tag = "farfield";
+      far.inf = D;
+      pbc::EsFaceResidual(nDim, nNodes, kGamma, &far, N, states, resFar);
+      su2double U[pbc::ES_NVAR] = {0.0}, flux[pbc::ES_NVAR] = {0.0};
+      pbc::EsConservative(nDim, kGamma, D, U);
+      su2double vn = 0.0;
+      for (int i = 0; i < nDim; ++i) vn += D.vel[i] * N[i];
+      for (int v = 0; v < nVar; ++v) flux[v] = U[v] * vn;
+      for (int i = 0; i < nDim; ++i) flux[i + 1] += D.p * N[i];
+      flux[nVar - 1] += D.p * vn;
+      for (int v = 0; v < nVar; ++v) {
+        su2double sum = 0.0;
+        for (int a = 0; a < nNodes; ++a) {
+          CHECK(fabs(res[a][v] - resFar[a][v]) <= 1e-13 * (1.0 + fabs(resFar[a][v])));
+          sum += res[a][v];
+        }
+        CHECK(fabs(sum - flux[v]) <= 1e-12 * (1.0 + fabs(flux[v])));
+      }
+
+      /*--- (b), (c) x-dependent data, node states near it. ---*/
+      data.dirichlet = [nDim, un](const su2double* x, pbc::EsState& S) { S = DirichletField(nDim, x, un); };
+      for (int k = 0; k < nNodes; ++k) states[k] = JacPerturb(gen, nDim, DirichletField(nDim, data.coord[k], un), 0.3);
+      pbc::EsFaceResidual(nDim, nNodes, kGamma, &data, N, states, res);
+
+      su2double phi[3][3] = {{0.0}};
+      const su2double weight = EsFaceRule(nNodes, phi);
+      su2double area = 0.0, unit[3] = {0.0, 0.0, 0.0}, Nq[3] = {0.0, 0.0, 0.0};
+      for (int i = 0; i < nDim; ++i) area += N[i] * N[i];
+      area = sqrt(area);
+      for (int i = 0; i < nDim; ++i) {
+        unit[i] = N[i] / area;
+        Nq[i] = weight * N[i];
+      }
+      su2double w[3][pbc::ES_NVAR] = {{0.0}};
+      for (int k = 0; k < nNodes; ++k) pbc::EsEntropyVariables(nDim, kGamma, states[k], w[k]);
+      su2double sumF[pbc::ES_NVAR] = {0.0}, bound = 0.0, scale = 0.0;
+      for (int q = 0; q < nNodes; ++q) {
+        su2double wq[pbc::ES_NVAR] = {0.0}, xq[3] = {0.0, 0.0, 0.0};
+        for (int k = 0; k < nNodes; ++k) {
+          for (int v = 0; v < nVar; ++v) wq[v] += phi[q][k] * w[k][v];
+          for (int i = 0; i < nDim; ++i) xq[i] += phi[q][k] * data.coord[k][i];
+        }
+        pbc::EsState sq, gq = DirichletField(nDim, xq, un);
+        pbc::EsStateFromEntropyVariables(nDim, kGamma, wq, sq);
+        su2double Fs[pbc::ES_NVAR] = {0.0}, Uq[pbc::ES_NVAR] = {0.0}, Ug[pbc::ES_NVAR] = {0.0}, wg[pbc::ES_NVAR] = {0.0};
+        pbc::EsIsmailRoeFlux(nDim, kGamma, sq, gq, Nq, Fs);
+        su2double vq = 0.0, vg = 0.0;
+        for (int i = 0; i < nDim; ++i) {
+          vq += sq.vel[i] * unit[i];
+          vg += gq.vel[i] * unit[i];
+        }
+        const su2double lam = std::max(su2double(fabs(vq) + sqrt(kGamma * sq.p / sq.rho)),
+                                       su2double(fabs(vg) + sqrt(kGamma * gq.p / gq.rho)));
+        pbc::EsConservative(nDim, kGamma, sq, Uq);
+        pbc::EsConservative(nDim, kGamma, gq, Ug);
+        for (int v = 0; v < nVar; ++v) {
+          Fs[v] -= 0.5 * lam * weight * area * (Ug[v] - Uq[v]);
+          sumF[v] += Fs[v];
+        }
+        pbc::EsEntropyVariables(nDim, kGamma, gq, wg);
+        for (int k = 0; k < nNodes; ++k)
+          for (int i = 0; i < nDim; ++i) bound += phi[q][k] * states[k].rho * states[k].vel[i] * Nq[i];
+        for (int i = 0; i < nDim; ++i) bound -= gq.rho * gq.vel[i] * Nq[i];
+        for (int v = 0; v < nVar; ++v) {
+          bound += wg[v] * Fs[v];
+          scale += fabs(wg[v] * Fs[v]);
+        }
+      }
+      su2double wb = 0.0;
+      for (int v = 0; v < nVar; ++v) {
+        su2double sum = 0.0;
+        for (int a = 0; a < nNodes; ++a) {
+          sum += res[a][v];
+          wb += w[a][v] * res[a][v];
+          scale += fabs(w[a][v] * res[a][v]);
+        }
+        INFO("nDim " << nDim << " trial " << trial << " var " << v);
+        CHECK(fabs(sum - sumF[v]) <= 1e-12 * (1.0 + fabs(sumF[v])));
+      }
+      INFO("nDim " << nDim << " trial " << trial << " w.b " << wb << " bound " << bound);
+      /*--- The truncated logarithmic mean makes the Ismail-Roe EC identity exact only to about 1e-11. ---*/
+      CHECK(wb >= bound - 1e-9 * (1.0 + scale));
+    }
+  }
+}
+
+TEST_CASE("BC_ENTROPY_P1 Jacobian: custom Dirichlet faces against finite differences", "[P1Flux]") {
+  /*--- The Dirichlet ghost does not depend on the face states (dG = 0); inflow and outflow, sub- and supersonic. ---*/
+  std::mt19937 gen(7312);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    su2double worst = 0.0;
+    for (int trial = 0; trial < 80; ++trial) {
+      su2double n[3], t[3], N[3];
+      JacRandomNormal(gen, nDim, n, t, N);
+      const su2double un = 1.5 * u(gen);
+      pbc::EsBoundaryData data;
+      data.kind = CUSTOM_BOUNDARY;
+      data.tag = "custom";
+      for (int k = 0; k < nDim; ++k)
+        for (int i = 0; i < 3; ++i) data.coord[k][i] = (i < nDim) ? u(gen) : 0.0;
+      data.dirichlet = [nDim, un](const su2double* x, pbc::EsState& S) { S = DirichletField(nDim, x, un); };
+      const double eps = (trial % 2) ? 0.2 : 0.02;
+      pbc::EsState states[3];
+      for (int k = 0; k < nDim; ++k) states[k] = JacPerturb(gen, nDim, DirichletField(nDim, data.coord[k], un), eps);
+      worst = std::max(worst, FaceJacobianError(nDim, &data, N, states));
+    }
+    INFO("nDim " << nDim << " worst relative error " << worst);
+    CHECK(worst < 1e-6);
+  }
+}
+
 TEST_CASE("BC_ENTROPY_P1 Jacobian: pressure flux faces and the scalar Ismail-Roe Jacobian", "[P1Flux]") {
   /*--- The wall branch of EsFaceJacobian (not used by the solver, which keeps the approximate wall Jacobian) and the
    * port of ismailRoeProjJac, which must equal the vectorized one to round-off. ---*/

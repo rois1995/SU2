@@ -215,6 +215,8 @@ protected:
   /*--- SST with the P1 options (matched k, P1_SST_COUPLED.md M2): per node the sums over the closure C face rows of
    * max(m, 0) and of min(m, 0) k_b, from the last flow residual; the SST k row takes k_a M+ + KIn from them. ---*/
   su2activevector P1KMassPlus;         /*!< \brief M+ of each node. */
+  bool P1CustomViscousOnly = false;    /*!< \brief BC_ENTROPY_P1 on a custom marker: BC_Custom_Weak_Residual gives only
+                                        *   its viscous part, closure C the inviscid one (set by Weak_BC_Residual). */
   su2activevector P1KInflow;           /*!< \brief Inflow k flux sum of each node. */
 
   /*--- SST with the P1 options (matched k, SSTPATHS_PLAN.md 0): the k-row residual of every mass term of the flow residual
