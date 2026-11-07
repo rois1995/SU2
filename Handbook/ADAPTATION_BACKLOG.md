@@ -597,3 +597,27 @@ Canonical cache-key aliases and tighter quantitative merit bounds remain UNPROVE
 backlog items; this outside proof does not establish all upper values are tight.
 Do not divert into those optimizations or alter geometry representation/gates merely
 because another conservative result might be tighter. No CAD requirement added.
+
+
+2026-11-07 Mach-only245actual trace supersedes the earlier unmeasured vertex-
+permutation question:1907complete queries,1516identical repeats ALLhits,64permuted
+single-triangle misses73450work(12.18%of miss work in this bounded corpus).
+Canonical key AND full-query normalization is now the ONE selected active246change;
+see ADAPTATION_QUERY_CANONICALIZATION246_20261107.md. No whole-run speedup established.
+Nearby same-support numeric margin holds for127queries/45181work(7.49%of misses),
+using exact rational squared-distance comparison. This does not qualify a motion
+cache or other association/height/body/invalidation/admission obligations; DEFERRED.
+Prior negative expensive twelve-query evidence remains valid in its sampled scope.
+
+Actual245raw control confirms a quality coupling gap for Mach-only core211800460,
+retained279303589: raw11q/9J→13q/13J fails Repair; collapse+retained-star optimizer
+→8q/7J with zero geometry excess and valid complete-context local checks. Production
+quality validates raw collapse and optimizes the original feature patch; current
+shell+split composite is a different primitive/scope. Another already-useful raw
+7q/7J becomes9q/8J after optimization,so composition must retain the useful raw
+option rather than blindly replacing it. Safe complete retained-star MPI dependency
+closure/reservation,version checks,fresh private parameters and shared work/identity/
+memory budgets are required before publication. DEFERRED until active246full-M6
+outcome warrants it;do not add per-slot collectives,a scheduler or a larger cavity.
+All tested combinations for actual shape+geometry core206935582still regress
+geometry excess;do not bypass that guard or infer certification is merely conservative.

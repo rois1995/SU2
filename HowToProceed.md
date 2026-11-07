@@ -56,15 +56,22 @@ improves the shape-only/feature-adjacent cases,but all tested shape+geometry var
 regress geometry excess and remain inadmissible. No new production fix is selected.
 Details and source/input/status evidence are in the Mach-only outcome and handoff.
 
-Next:one connected diagnostic build to enrich EXISTING query work tracing with
-exact support/coordinate identity,cache hit,work and returned bound,and measure raw
-collapse merit before its optimizer. Then use bounded actual contexts to distinguish
-identical/permuted query repetition from nearby positions and evaluate remaining
-certificate slack. Candidate ordering and motion reuse remain unproved alternatives;
-keep all exact support/invalidation/resource/geometry/height/final gates. This is
-analysis within the active cycle,not an old-code full baseline or new scheduler.
-Return to complete two-event M6 immediately after the justified fix and affected
-qualification. No accepted mesh,transfer,continued adapted CFD or restart yet.
+Diagnostic245passed,including traced actual contexts and raw-collapse controls.
+1907queries:1516identical repeats ALLhits;64vertex-permutation aliases consumed
+12.18%of miss work in this bounded corpus.127nearby queries have a sufficient
+numeric margin but represent only7.49%of miss work;no production motion reuse is
+selected. The raw-collapse control also proves a useful combined candidate after a
+raw Repair veto;safe MPI retained-star closure is not implemented. Keep it deferred.
+
+ACTIVE NEXT:ONE connected canonical single-triangle query change;normalize key AND
+full query while retaining exact support/authority/tolerance and all fresh geometry/
+height/association gates. Cover transient storage/work and full fallback under tight
+admission. [Design and acceptance](Handbook/ADAPTATION_QUERY_CANONICALIZATION246_20261107.md).
+Use focused affected serial,ONE connected MPI6 milestone,then immediately complete
+same-seed MACH-only L1/50k TWO-event M6 with unchanged gates/budgets. No new scheduler,
+configuration,operator or construction-quality policy. No whole-run speedup is yet
+established; judge net whole-field q/J/geometry counts. All transfer/continued-CFD/
+disk-restart,BL/MPI and RANS500kobligations remain open.
 
 ## What the actual cavities established
 

@@ -21,7 +21,7 @@ A237=`R/m6_runs/euler_build237_signed_bounds_real_cfd50k`.
 ## CURRENT — Mach-only refused; measured mesh saved and independently read
 
 User requested PRESSURE removed: ADAP_SENSOR=(MACH), generator3a6a558e6e.
-Production C++ remains build244/236e03ed64; same saved real CFD seed,L1/50k,
+Last full workflow uses build244/236e03ed64; same saved real CFD seed,L1/50k,
 strict gates/native5400/outer14400. Actual metric check passed32.579044s,
 complexity49999.999626,finite SPD,0gradation violations; flow fields unchanged.
 
@@ -76,15 +76,36 @@ A_MACH/{mach244_coverage_assessment,residual_preparation_status}.json,
 current_witnesses_v1/witness_preparation.json and compound_probe_v1/witness_preparation.json.
 Current final contexts are NOT historical replay; gains overlap,not additive.
 
-NEXT within the SAME analysis/optimization cycle: enrich the EXISTING geometry
-work trace with exact authority/support/triangle query identity and hit/work/bound
-outcomes;add raw-collapse pre-optimizer assessment to existing diagnostic. One
-connected diagnostic build (next245),then bounded actual-context measurement only.
-No new production config/operator or full old-code baseline campaign. Classify
-identical/permuted queries separately from nearby positions and inspect certified
-margin before selecting any motion bound/cache or candidate ordering. Existing
-negative twelve-query motion-slack evidence still stands; speedup UNPROVEN.
-All production sources remain unchanged; observation helper updated AFTER full run
+ACTIVE connected implementation NEXT246: canonical SINGLE-triangle numeric queries
+in shared BoundPhysicalSurface. [Design/evidence](Handbook/ADAPTATION_QUERY_CANONICALIZATION246_20261107.md).
+Normalize both key AND full query;retain exact authority,ordered support,tolerance,
+coordinate identity,all association/feature/body/height/final gates. Account canonical
+scratch with key/query overlap;memory-short cases use existing full computation.
+No new scheduler/config/operator/geometry representation or quality-aware construction.
+Do not introduce motion reuse/collapse coupling simultaneously. After focused affected
+serial and ONE connected MPI6 milestone,return immediately to same-seed MACH-only
+L1/50k full TWO-event M6,unchanged budgets. Whole-field counts judge completion.
+
+Latest compiled build245TERMINAL0/168.177528s,1303pins unchanged,both targets current,
+all5sampled compiler/build handles absent. ONLY exact query trace enrichment under
+existing SU2_NATIVE_GEOMETRY_WORK_TRACE plus fixture raw-collapse control changed;
+no repair decision/gate change,no M6run after245. C++changes are diagnostic-only;no selected optimization is implemented yet.
+Full-run baseline remains A_MACH/build244,not combined sensors.
+Traced actual probe68907terminal0/92.918482s,pins unchanged,
+R/cases/current_compound_20261107T135435_4105949. Runner and all4process IDs sampled
+during execution absent;no pre-exit start-tick snapshot,no stop sent. Exact scope in
+case/terminal_handles.json. Same3actual boundary contexts and current nodal field.
+A_MACH/{current_query245_attempt,mach245_query_identity_assessment,
+mach245_raw_collapse_assessment}.json. R/analyze_mach245_queries.py self-check passes.
+1907complete queries,0unresolved:1516identical repeats ALLhits,391misses603099work.
+64vertex-permutation aliases consume73450work(12.178763%of miss work in this corpus).
+127nearby same-support queries have exact rational numeric margin;45181work(7.49%).
+These are bounded local opportunities,not measured M6speedups or association proofs.
+Raw collapse for core211800460/retained279303589:11q/9J→13q/13J fails Repair;
+combined retained-star optimizer→8q/7J with geometry0 and all local checks. Another
+raw7q/7J becomes9q/8J after optimizer,so blanket coupling is unjustified. Safe MPI
+retained-star reservation/closure remains open;recorded backlog,not competing work.
+Repair/construction decisions are unchanged by245; observation helper updated AFTER full run
 terminal to join the first COMPLETE exit census as well as windows. Churn/histogram/
 rank/census assertions pass. Use R/analyze_m6244_mach_only.py,not the hard-coded
 combined-target analyze_m6244_quality.py. Final quality metadata in

@@ -385,6 +385,7 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
       for(const auto& row:fresh.coverage.faces)input.coverage.faces.insert_or_assign(row.first,row.second);
       for(const auto& row:fresh.coverage.traces)input.coverage.traces.insert_or_assign(row.first,row.second);
       retain_coverage(input);
+      assess(prior,retired,seed,input,retained.id,"collapse_before_retained_star_optimizer",false);
       assess(prior,retired,seed,input,retained.id,"collapse_then_retained_star_optimizer");
     }
     if(compound) {
