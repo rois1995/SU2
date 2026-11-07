@@ -34,18 +34,19 @@ Selected bounded raw refusal capture uses the production driver with an observer
 no routine VTU export. A247/command.json,pins.json,run.cfg,owned_startup.json,
 resources.jsonl and owned_observations.jsonl preserve runtime/host scope.
 
-Latest complete quality window32448,all-rank census19:
-936877cells/68289q/67119J/1215geometry/0size,all measured/flags complete.
-Quality1358.564680s;net38165q/39085J/166geometry removed.
-Net q/s28.092148 versus25.844990 in baseline at matching round.
-Current field differs from baseline by +172q,+88J,−4geometry;do not claim exact
-progress equivalence after round32320. First seven windows had identical field
-counts/commits/churn;first small divergence32384 was +12q,+17J,+1geometry.
-Its cause is UNATTRIBUTED;no certification failure or gate change is established.
+Latest complete quality window32960,all-rank census31:native2929.747482:
+978303cells/40158q/37605J/1161geometry/0size,all measured/flags complete.
+Quality2240.164883s;net66296q/68599J/220geometry removed.
+Net q/s29.594250 versus27.208918 in baseline at matching round.
+Field delta247−244:{'q_bad': -961, 'j_bad': -827, 'geometry_bad': -4}. Do not claim exact progress
+identity after32320. First seven windows had identical field counts/commits/churn;
+first slight divergence32384was +12q,+17J,+1geometry. Cause UNATTRIBUTED;
+no certification failure or gate change is established. Shape improvement still
+active;no shape closure/residual geometry construction or reclosure yet proved.
 
-A247/quality_comparison244.json covers nine COMPLETE matching windows,exact field
-differences,churn,rank debt spread,memo hits/misses and BOTH cumulative-native and
-quality-entry-subtracted geometry/smoothing work. First divergence round is explicit.
+A247/quality_comparison244.json covers 17 COMPLETE matching first-pass windows,
+exact differences,churn,rank debt spread,memo hits/misses and BOTH cumulative-native
+and quality-entry-subtracted geometry/smoothing work. First divergence is explicit.
 Cumulative32384upper/traversal work883.831M/834.958M versus987.267M/932.164M;
 these include construction. Union hits145593versus120610,misses155235versus180038.
 Boundary/interior candidate counts nearly unchanged;rank-summed smoothing timers
