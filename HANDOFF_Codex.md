@@ -41,7 +41,8 @@ After evidence sealed, SIGTERM sent ONCE via verified pidfd to launcher1929998/
 start4973666. NEVER REPEAT. A227/owned_stop_once.json. All10exact host solver handles
 ABSENT;30capture files/1519pins reverified unchanged after stop. A227/terminal_handles.json
 and terminal_source_receipt.json. Historical225/219/217/210stops also never repeat.
-No C++/runtime helper has changed after this run yet.
+Current production/diagnostic source changes since227are described below; all
+227run pin receipts remain sealed historical evidence.
 
 Selected export exec24795TERMINAL0,362.480822s; all3host handles absent and
 helper/30raw input hashes unchanged. Independent reader4exec83790TERMINAL0,
@@ -109,7 +110,7 @@ operator variants or enlarge supports from this failed local hypothesis.
 
 Geometry queryexec68593TERMINAL0,53.608959s/180assertions/1case, all pins unchanged;
 helper2289918/time2289989/timeout2289990/test2289991/orted2289992all host ABSENT.
-NO OWNED HEAVY WORKLOAD. Current source build231; production Engine contains only
+At completion of query231there was no owned heavy workload. Production Engine contains only
 optional admission-consensus correction since227 (compiled, MPI behavior still
 pending). Latest fixture changes are DIAGNOSTIC ONLY, not a closure implementation.
 
@@ -126,23 +127,42 @@ Source permits conservative upper-only refusal, but these two raw faces also hav
 positive outside witnesses: quicker certification alone cannot admit them.
 
 NEXT ACTIVE DESIGN TARGET from actual corrected M6 evidence: repair power through
-geometry-conforming surface/adjacent-volume construction. Existing original-star,
-collapse+optimizer and raw shell+complete-star relocation tested; the latter closes
-local q/J but increases geometry debt. Reconsider missing geometry/construction
-coordination using existing facilities before another implementation. Do NOT add
-a ladder of local variants, increase supports/budgets, change validity-first policy,
-or launch full M6 solely for the ownership guard/passing fixtures. Further geometry
-or scheduler ideas remain backlog. ONE connected serial/MPI6 milestone, then
-immediately full same-seed L1/50k two-event M6 after a justified closure change.
-Strict shape→residual geometry/size→shape-reclosure, transfer/continued-CFD/disk
-restart and subsequent BL/MPI/RANS500k obligations remain OPEN.
+geometry-conforming surface/adjacent-volume construction. Source review confirmed
+geometry-only repair waits for global shape closure. The tested useful topology
+change needs local geometry refinement before it can improve shape admissibly;
+this does NOT justify changing global phase ordering or construction policy.
 
-Production optional-ownership guard built229, behavior qualification pending: collective
-AND of local admission decisions using existing world.maximum prevents split
-participation before repartition. No scheduler/config/gate/budget change. All old
-227/228source pins now historical after intentional Engine/fixture edits. After build229terminal, run actual-current serial diagnostic,
-select ONE connected closure hypothesis from those results, qualify affected
-serial behavior plus ONE MPI6 milestone, then immediately same-seed full M6.
+Build232exec73594TERMINAL0,168.171538s,1302pins unchanged/both targets up to date;
+compiler handles absent. Actual compoundexec34615TERMINAL0,95.715764s,pins unchanged;
+helper2315988/time2316142/timeout2316143/test2316144/orted2316145all host ABSENT.
+NO OWNED HEAVY WORKLOAD. R/current_compound232_assessment.json proves one useful
+GEOMETRY-CONFORMING coupled candidate: existing raw shell, existing SplitEdge on
+its new diagonal (midpoint projected by existing authority), existing optimizer.
+Original complete50cell context→53cells, q2→0/J1→0/geometry4→2, geometry excess
+2.78685e-12→2.95773e-13(-89.39%), maximum edge.883405511263unchanged.99optimizer
+trials/.556931s,3boundary moves/1edge removal, no introduced q/J/geometry failures.
+Exact positive children, interface/replacement/current q/J/geometry/size comparisons
+pass. Local fixture lacks nonlocal contact/publication and nonzero requested heights;
+this is NOT an accepted global mesh. Raw refined pre-optimizer merit not logged yet.
+
+NEXT connected production integration uses EXISTING geometry-conforming shell/split
+inside quality optimization only. Preserve strict final gates, fresh position/metric/
+geometry contexts, height checks on selected candidate, projected new-edge length
+certification, complete original-ring dependencies, extra work/node/cell reservation
+accounting and transient admission. No new operator, config, scheduler, geometry
+representation, larger support, construction-policy change or budget increase.
+Keep original supplied source/geometry CAD-optional. Qualify useful actual-current
+behavior plus affected serial/ONE MPI6 milestone (including ownership consensus),
+then immediately full same-seed correctedL1/50k two-event M6. No full run solely
+for a fixture/ownership guard. All transfer/continued-CFD/disk-restart/BL/RANS goals
+remain OPEN, zero accepted meshes. Current C++ build232; local fixture/handoff changes
+not yet checkpointed after37e8e831ea. All sources may now be edited only after these
+verified terminal handles; freeze again before next build/validation.
+
+Production optional-ownership guard built231, MPI behavior qualification pending:
+collective AND of local admission decisions using existing world.maximum prevents
+split participation before repartition. No actual split observed in227. Qualify
+with the connected milestone; no separate full campaign solely for this guard.
 
 Deadline invalidated final measurement cache. Existing local218test tag
 NativeCapturedShapeCensus3D was reviewed/generalized: historical790537row assertion

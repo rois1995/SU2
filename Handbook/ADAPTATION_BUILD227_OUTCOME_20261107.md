@@ -125,3 +125,16 @@ Optional ownership collective-AND correction compiled in229/230/231but MPI behav
 qualification remains pending; do not launch full M6 solely for this guard or fixture.
 After a justified connected closure change: affected serial/ONE MPI6 milestone,
 then immediately full same-seed correctedL1/50k two-event M6 under unchanged gates.
+
+## Geometry-conforming existing-kernel candidate232
+
+Actual next diagnostic followed the proven need to fit the new surface diagonal:
+existing shell→existing reference-projected SplitEdge→existing volume optimizer.
+Build232and pinned serial case pass (95.715764s). Complete original50-cell context
+becomes53; q2→0/J1→0/geometry4→2, no introduced bad cells, geometry excess falls
+89.39%, maximum metric edge unchanged.99optimizer trials,3boundary moves/1edge
+removal. R/current_compound232_assessment.json. No new active support or budget.
+This is local proof of a connected existing-operator hypothesis, not whole-field
+closure or nonlocal publication/height/MPI qualification. Next is production
+quality integration with work/ID/geometry-context/edge/height/transient accounting,
+affected serial plus ONE MPI6 milestone, then full same-seed L1/50k two-event M6.

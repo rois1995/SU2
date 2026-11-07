@@ -296,6 +296,27 @@ static void CapturedCurrentResidual(bool compound) {
           retain_coverage(input);
           std::set<Id> all_retired;for(const auto& row:owned)all_retired.insert(row.first);
           assess(joined,all_retired,complete,input,test.second,"existing_shell_then_complete_context_optimizer");
+          const Point pa=core.cell.v[faces[0]].p,pb=core.cell.v[faces[1]].p;
+          const Node midpoint{900000000,{double(((long double)pa.x+pb.x)/2),double(((long double)pa.y+pb.y)/2),double(((long double)pa.z+pb.z)/2)}};
+          auto raw_context=scope->PrivateParameters(fresh);REQUIRE(raw_context);Patch refined;std::string split_reason;
+          const bool split=SplitEdge(fresh,{a,b},midpoint,900000001,*raw_context,refined,split_reason);
+          log<<"{\"stage\":\"existing_shell_geometry_split\",\"case\":"<<std::quoted(test.first)
+             <<",\"constructed\":"<<split<<",\"reason\":"<<std::quoted(split_reason)<<"}\n";log.flush();
+          if(split) {
+            Owned combined=owned;for(Id id:retired)combined.erase(id);
+            std::map<Face,Id> refined_physical;
+            for(auto f:refined.surface){std::sort(f.v.begin(),f.v.end());refined_physical.emplace(f.v,f.facet);}
+            for(const auto& c:refined.cells){OwnedCell row;row.cell=c;
+              for(unsigned slot=0;slot<4;++slot){Face key;for(unsigned k=0;k<3;++k)key[k]=c.v[opposite[slot][k]].id;
+                std::sort(key.begin(),key.end());auto f=refined_physical.find(key);if(f!=refined_physical.end())row.physical[slot]={true,f->second};}
+              REQUIRE(combined.emplace(c.id,row).second);}
+            auto proposed=patch_from(combined);proposed.parameters=complete.parameters;proposed.coverage=complete.coverage;
+            for(const auto& p:refined.parameters)proposed.parameters.insert_or_assign(p.first,p.second);
+            for(const auto& p:refined.coverage.faces)proposed.coverage.faces.insert_or_assign(p.first,p.second);
+            for(const auto& p:refined.coverage.traces)proposed.coverage.traces.insert_or_assign(p.first,p.second);
+            retain_coverage(proposed);
+            assess(combined,all_retired,complete,proposed,test.second,"existing_shell_geometry_split_then_optimizer");
+          }
         }
       }
     }

@@ -67,8 +67,13 @@ Eight old/replacement-face queries reproduce native guidance deltas and show one
 raw exposed face per shell rigorously outside queried support (125.5/104.3µm vs
 100µm). Cheaper certification alone cannot admit these two raw candidates.
 No useful final compound candidate or new production closure change established.
-Next design target is geometry-conforming surface/adjacent-volume repair power,
-using the measured failure to reconsider coordination before another implementation.
+The resulting geometry-conforming candidate232uses existing shell, reference-projected
+split of its new diagonal and existing optimizer. On the complete50-cell context,
+q2→0/J1→0/geometry4→2 with89.39%less geometry excess and unchanged maximum edge.
+This supports connected production quality integration with work/ID/transient
+accounting and fresh edge/metric/geometry/height checks, followed by the affected
+serial/ONE MPI6 milestone and immediately the full M6. It is still one local
+candidate, not accepted-mesh or publication proof.
 Do not add local variants or raise bounds because one fixture stalls. Production guard behavior remains unqualified until
 the appropriate connected serial/MPI milestone passes. No new scheduler/configuration,
 larger cavities, quality-aware construction or geometry representation is selected.
