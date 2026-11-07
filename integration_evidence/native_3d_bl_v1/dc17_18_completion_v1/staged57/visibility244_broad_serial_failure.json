@@ -1,0 +1,196 @@
+{
+  "scope": "Preserved failed legacy overbroad serial campaign; not a passing qualification",
+  "status": {
+    "state": "terminal",
+    "exit_code": 27,
+    "seconds": 305.5299243927002,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 145661952,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal_handles": {
+    "time": 1794043934.569036,
+    "sampled_pids": [
+      3406868,
+      3406970,
+      3406971,
+      3406972,
+      3406973
+    ],
+    "live_pids": [],
+    "all_absent": true
+  },
+  "summary": [
+    "test cases:     344 |     336 passed |  8 failed",
+    "assertions: 1161529 | 1161502 passed | 27 failed"
+  ],
+  "failures": [
+    {
+      "case": "Native3D complexity reference does not rebase the wall on the adapted surface",
+      "location": "../../UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp:1260: FAILED:",
+      "assertion": "  CHECK( CPassiveComm::Allreduce(uint64_t(output.original.size()),CPassiveComm::Op::SUM,SU2_MPI::GetComm())> CPassiveComm::Allreduce(uint64_t(imported.original.size()),CPassiveComm::Op::SUM,SU2_MPI::GetComm()) )",
+      "expansion": "with expansion:\n  48 > 48\n\n0.021 s: Native3D complexity reference does not rebase the wall on the adapted surface\n0.051 s: Native3D volume integration resolves a far vertex closest to another wall face\nNativeBL3DQuadrature {\"tiny\":false,\"shifted\":false,\"points\":38072,\"integral\":2.477486333995861,\"reference\":2.4775664409698486,\"analytic_on_rule\":2.4774863339958637,\"pointwise_mismatch\":3.6193270602780103e-14,\"stronger_points\":16720,\"stronger_integral\":95.234706692879968,\"stronger_reference\":95.234018527627256}\n1.413 s: Native3D volume support detects a thin finite wall missed by all cell vertices"
+    },
+    {
+      "case": "Native3D driver publishes only accepted mesh and transfers affine BDF2 states",
+      "location": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:542: FAILED:",
+      "assertion": "  CHECK( counts[2]>counts[1] )",
+      "expansion": "with expansion:\n  54 > 58\n\n0.244 s: Native3D driver publishes only accepted mesh and transfers affine BDF2 states\nWARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.\n\nParsing config file for zone 0"
+    },
+    {
+      "case": "Native3D driver publishes only accepted mesh and transfers affine BDF2 states",
+      "location": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:542: FAILED:",
+      "assertion": "  CHECK( counts[2]>counts[1] )",
+      "expansion": "with expansion:\n  54 > 58\n\n0.146 s: Native3D driver publishes only accepted mesh and transfers affine BDF2 states\nWARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.\n\nParsing config file for zone 0"
+    },
+    {
+      "case": "Native3D driver publishes only accepted mesh and transfers affine BDF2 states",
+      "location": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:542: FAILED:",
+      "assertion": "  CHECK( counts[2]>counts[1] )",
+      "expansion": "with expansion:\n  54 > 58\n\n0.146 s: Native3D driver publishes only accepted mesh and transfers affine BDF2 states\nWARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.\n\nParsing config file for zone 0"
+    },
+    {
+      "case": "Native3D driver publishes only accepted mesh and transfers affine BDF2 states",
+      "location": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:542: FAILED:",
+      "assertion": "  CHECK( counts[2]>counts[1] )",
+      "expansion": "with expansion:\n  54 > 58\n\n0.150 s: Native3D driver publishes only accepted mesh and transfers affine BDF2 states\n0.000 s: Native3D driver publishes only accepted mesh and transfers affine BDF2 states\n0.000 s: Native3D driver publishes only accepted mesh and transfers affine BDF2 states\n0.000 s: Native3D driver publishes only accepted mesh and transfers affine BDF2 states"
+    },
+    {
+      "case": "Actual CFD import generates bounded bump sensor columns with collective",
+      "location": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1184: FAILED:",
+      "assertion": "  CHECK( total==12 )",
+      "expansion": "with expansion:\n  6 == 12\n\n../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1187: FAILED:\n  CHECK( CPassiveComm::Allreduce(uint64_t(ext),CPassiveComm::Op::SUM,world.comm)==6 )\nwith expansion:\n  0 == 6"
+    },
+    {
+      "case": "Actual CFD import generates bounded bump sensor columns with collective",
+      "location": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1187: FAILED:",
+      "assertion": "  CHECK( CPassiveComm::Allreduce(uint64_t(ext),CPassiveComm::Op::SUM,world.comm)==6 )",
+      "expansion": "with expansion:\n  0 == 6\n\n../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1189: FAILED:\n  REQUIRE( patch.cells.size()==12 )\nwith expansion:\n  6 == 12"
+    },
+    {
+      "case": "Actual CFD import generates bounded bump sensor columns with collective",
+      "location": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1189: FAILED:",
+      "assertion": "  REQUIRE( patch.cells.size()==12 )",
+      "expansion": "with expansion:\n  6 == 12\n\n0.000 s: Actual CFD import generates bounded bump sensor columns with collective provenance and refusal\n0.000 s: Actual CFD import generates bounded bump sensor columns with collective provenance and refusal\n0.000 s: Actual CFD import generates bounded bump sensor columns with collective provenance and refusal\n0.000 s: Actual CFD import generates bounded bump sensor columns with collective provenance and refusal"
+    },
+    {
+      "case": "Actual CFD import generates a finite spherical sensor shell with copied",
+      "location": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1228: FAILED:",
+      "assertion": "  CHECK( CPassiveComm::Allreduce(uint64_t(source.original.size()),CPassiveComm::Op::SUM,world.comm)==13 )",
+      "expansion": "with expansion:\n  1 == 13\n\n../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1230: FAILED:\n  REQUIRE( patch.cells.size()==13 )\nwith expansion:\n  1 == 13"
+    },
+    {
+      "case": "Actual CFD import generates a finite spherical sensor shell with copied",
+      "location": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1230: FAILED:",
+      "assertion": "  REQUIRE( patch.cells.size()==13 )",
+      "expansion": "with expansion:\n  1 == 13\n\n0.000 s: Actual CFD import generates a finite spherical sensor shell with copied boundary values\nWARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.\n\nParsing config file for zone 0"
+    },
+    {
+      "case": "Native3D production wall policy preserves sensor donors and RANS histories",
+      "location": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:1785: FAILED:",
+      "assertion": "  REQUIRE( result.status==CRemeshResult::Status::COMPLETE )",
+      "expansion": "with expansion:\n  2 == 0\nwith message:\n  workers=1 cycle=0\n\n0.000 s: Native3D production wall policy preserves sensor donors and RANS histories across worker counts\n0.000 s: Native3D production wall policy preserves sensor donors and RANS histories across worker counts"
+    },
+    {
+      "case": "Mapped native runtime completes a uniform target before conservative BDF2",
+      "location": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2780: FAILED:",
+      "assertion": "  CHECK( CPassiveComm::Allreduce(backend.Statistics().refine.geometry_progress,CPassiveComm::Op::SUM,world.comm)>0 )",
+      "expansion": "with expansion:\n  0 > 0\nwith message:\n  refine=complete, coarsen=none\n\n../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2781: FAILED:\n  CHECK( CPassiveComm::Allreduce(backend.Statistics().refine.geometry_reactivated,CPassiveComm::Op::SUM,world.comm)>0 )"
+    },
+    {
+      "case": "Mapped native runtime completes a uniform target before conservative BDF2",
+      "location": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2781: FAILED:",
+      "assertion": "  CHECK( CPassiveComm::Allreduce(backend.Statistics().refine.geometry_reactivated,CPassiveComm::Op::SUM,world.comm)>0 )",
+      "expansion": "with expansion:\n  0 > 0\nwith message:\n  refine=complete, coarsen=none\n\nNATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296\nNATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296"
+    },
+    {
+      "case": "Mapped native runtime completes a uniform target before conservative BDF2",
+      "location": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2780: FAILED:",
+      "assertion": "  CHECK( CPassiveComm::Allreduce(backend.Statistics().refine.geometry_progress,CPassiveComm::Op::SUM,world.comm)>0 )",
+      "expansion": "with expansion:\n  0 > 0\nwith message:\n  refine=complete, coarsen=none\n\n../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2781: FAILED:\n  CHECK( CPassiveComm::Allreduce(backend.Statistics().refine.geometry_reactivated,CPassiveComm::Op::SUM,world.comm)>0 )"
+    },
+    {
+      "case": "Mapped native runtime completes a uniform target before conservative BDF2",
+      "location": "../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:2781: FAILED:",
+      "assertion": "  CHECK( CPassiveComm::Allreduce(backend.Statistics().refine.geometry_reactivated,CPassiveComm::Op::SUM,world.comm)>0 )",
+      "expansion": "with expansion:\n  0 > 0\nwith message:\n  refine=complete, coarsen=none\n\nNATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296\nNATIVE3D_REFERENCE_CACHE host_ranks=1 host_quota_bytes=4294967296 rank_quota_bytes=4294967296"
+    },
+    {
+      "case": "Native automatic MPI repair selects complete failing features and restores",
+      "location": "../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:1686: FAILED:",
+      "assertion": "  CHECK( count==fixture.patch.cells.size() )",
+      "expansion": "with expansion:\n  6 == 3\n\nAUTO_FINAL auto_wall_unit_m1 0.20246071552234657 0.054975148068560638 1.4490006985863386\nMESH auto_wall_unit_m1 14339 0 18039 0.064672627829985702 0.083188666574639317 0.7342925536459558 0 0 0 0 1 1 0 0 3 0 0 1 1 1 0 0 0 0 0 0\nMESH auto_wall_unit_m1 14341 0 18039 0.064672627829985702 0.083188666574639317 0.7342925536459558 0 0 0 0 3 0 0 1 2 0 1 0 1 2 0 0 0 0 0 0\nMESH auto_wall_unit_m1 14343 0 18039 0.064672627829985702 0.083188666574639317 0.7342925536459558 1 1 0 0 2 0 1 0 3 0 0 1 1 3 0 0 0 0 0 0"
+    },
+    {
+      "case": "Native automatic MPI repair selects complete failing features and restores",
+      "location": "../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:1686: FAILED:",
+      "assertion": "  CHECK( count==fixture.patch.cells.size() )",
+      "expansion": "with expansion:\n  6 == 3\n\nAUTO_FINAL auto_wall_thin8_m1 0.20246071552234657 0.054975148068560631 1.4490006985863386\nMESH auto_wall_thin8_m1 14339 0 18039 0.064672627829985702 0.083188666574639317 7.3429255364595607e-09 0 0 0 0 1 1 0 0 3 0 0 1e-08 1 1 0 0 0 0 0 0\nMESH auto_wall_thin8_m1 14341 0 18039 0.064672627829985702 0.083188666574639317 7.3429255364595607e-09 0 0 0 0 3 0 0 1e-08 2 0 1 0 1 2 0 0 0 0 0 0\nMESH auto_wall_thin8_m1 14343 0 18039 0.064672627829985702 0.083188666574639317 7.3429255364595607e-09 1 1 0 0 2 0 1 0 3 0 0 1e-08 1 3 0 0 0 0 0 0"
+    },
+    {
+      "case": "Native automatic MPI repair selects complete failing features and restores",
+      "location": "../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:1686: FAILED:",
+      "assertion": "  CHECK( count==fixture.patch.cells.size() )",
+      "expansion": "with expansion:\n  6 == 3\n\nAUTO_FINAL auto_wall_shear4_m1 0.2788144820895786 0.11103498152964081 1.4832396974191326\nMESH auto_wall_shear4_m1 15363 0 19325 0.53333333333333333 0.26666666666666666 2.0000000000000002e-05 0 0 0 0 1 1 0 0 3 0 0 0.0001 1 1 0 0 0 0 0 0\nMESH auto_wall_shear4_m1 15364 0 19325 0.53333333333333333 0.26666666666666666 2.0000000000000002e-05 0 0 0 0 3 0 0 0.0001 2 1 1 0 1 2 0 0 0 0 0 0\nMESH auto_wall_shear4_m1 15365 0 19325 0.53333333333333333 0.26666666666666666 2.0000000000000002e-05 3 0 0 0.0001 1 1 0 0 2 1 1 0 1 3 0 0 0 0 0 0"
+    },
+    {
+      "case": "Native original support preserves affine P1 and falls back at inserted source-",
+      "location": "../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2549: FAILED:",
+      "assertion": "  CHECK( Bytes(result.cells)==saved )",
+      "expansion": "with expansion:\n  { 0, 0, 0, 0, 0, 0, 0, 0, 2, 'L', 'L', 'E', 'C', 'D', '3', 'N', 0, 0, 0, 0,\n  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '\ufffd',\n  '?', 0, 0, 0, 0, 0, 0, '\ufffd', '?', 0, 0, 0, 0, 0, 0, '\ufffd', '?', 1, 0, 0, 0, 0,\n  0, 0, 0, 0, 0, 0, 0, 0, 0, '\ufffd', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n  0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '\ufffd', '?', 0, 0, 0, 0, 0,"
+    },
+    {
+      "case": "Native original support preserves affine P1 and falls back at inserted source-",
+      "location": "../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2552: FAILED:",
+      "assertion": "  CHECK( result.stats.metric_support_cells==result.stats.initial_cells )",
+      "expansion": "with expansion:\n  0 == 6\nwith message:\n  Native 3D global proposal budget exhausted before admission; feasibility is\n  undetermined.\n\n../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2553: FAILED:"
+    },
+    {
+      "case": "Native original support preserves affine P1 and falls back at inserted source-",
+      "location": "../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2553: FAILED:",
+      "assertion": "  CHECK( (result.stats.metric_support_edges>0 || input.empty()) )",
+      "expansion": "with expansion:\n  false\nwith message:\n  Native 3D global proposal budget exhausted before admission; feasibility is\n  undetermined.\n\n0.001 s: Native original support preserves affine P1 and falls back at inserted source-edge points"
+    },
+    {
+      "case": "Native original support preserves affine P1 and falls back at inserted source-",
+      "location": "../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2549: FAILED:",
+      "assertion": "  CHECK( Bytes(result.cells)==saved )",
+      "expansion": "with expansion:\n  { 'd', 0, 0, 0, 0, 0, 0, 0, 2, 'L', 'L', 'E', 'C', 'D', '3', 'N', 'd', 0, 0,\n  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n  '\ufffd', '?', 0, 0, 0, 0, 0, 0, '\ufffd', '?', 0, 0, 0, 0, 0, 0, '\ufffd', '?', 1, 0, 0, 0,\n  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '\ufffd', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n  0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '\ufffd', '?', 0, 0, 0, 0,"
+    },
+    {
+      "case": "Native original support preserves affine P1 and falls back at inserted source-",
+      "location": "../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2552: FAILED:",
+      "assertion": "  CHECK( result.stats.metric_support_cells==result.stats.initial_cells )",
+      "expansion": "with expansion:\n  0 == 12\nwith message:\n  Native 3D global proposal budget exhausted before admission; feasibility is\n  undetermined.\n\n../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2553: FAILED:"
+    },
+    {
+      "case": "Native original support preserves affine P1 and falls back at inserted source-",
+      "location": "../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2553: FAILED:",
+      "assertion": "  CHECK( (result.stats.metric_support_edges>0 || input.empty()) )",
+      "expansion": "with expansion:\n  false\nwith message:\n  Native 3D global proposal budget exhausted before admission; feasibility is\n  undetermined.\n\n0.004 s: Native original support preserves affine P1 and falls back at inserted source-edge points"
+    },
+    {
+      "case": "Native original support preserves affine P1 and falls back at inserted source-",
+      "location": "../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2549: FAILED:",
+      "assertion": "  CHECK( Bytes(result.cells)==saved )",
+      "expansion": "with expansion:\n  { 'd', 0, 0, 0, 0, 0, 0, 0, 2, 'L', 'L', 'E', 'C', 'D', '3', 'N', 'd', 0, 0,\n  0, 0, 0, 0, 0, '2', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '\ufffd', '?', 0, 0, 0,\n  0, 0, 0, '\ufffd', '?', 0, 0, 0, 0, 0, 0, '\ufffd', '?', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0,\n  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '\ufffd', '?', 0, 0, 0, 0, 0, 0, '\ufffd', '?', 0, 0, 0,\n  0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '\ufffd', '?', 0, 0, 0,"
+    },
+    {
+      "case": "Native original support preserves affine P1 and falls back at inserted source-",
+      "location": "../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2552: FAILED:",
+      "assertion": "  CHECK( result.stats.metric_support_cells==result.stats.initial_cells )",
+      "expansion": "with expansion:\n  0 == 16\nwith message:\n  Native 3D global proposal budget exhausted before admission; feasibility is\n  undetermined.\n\n../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2553: FAILED:"
+    },
+    {
+      "case": "Native original support preserves affine P1 and falls back at inserted source-",
+      "location": "../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2553: FAILED:",
+      "assertion": "  CHECK( (result.stats.metric_support_edges>0 || input.empty()) )",
+      "expansion": "with expansion:\n  false\nwith message:\n  Native 3D global proposal budget exhausted before admission; feasibility is\n  undetermined.\n\n0.009 s: Native original support preserves affine P1 and falls back at inserted source-edge points"
+    }
+  ],
+  "historical_warning": "Handbook/ADAPTATION_GEOMETRY_QUERY_REUSE_20261031.md:244-258",
+  "baseline_campaign_performed": false,
+  "expectations_or_gates_changed": false,
+  "run_log_sha256": "6654b6898889180594bafdc002078ff02ff01b2b5a266b2d3f744f565e842528"
+}

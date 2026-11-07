@@ -3572,7 +3572,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const auto epoch=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);
     const auto token=transfer_memory::Add(transfer_memory::Mul(epoch,options.candidate_batch),slot);
     const auto offset=transfer_memory::Mul(token,MaximumReplacementCells);
-    const size_t construction_nodes=!options.wall_heights.empty() ? MaximumReplacementCells+3 : composition ? 9 : curved ? 2 : 1;
+    const size_t construction_nodes=!options.wall_heights.empty() ? MaximumReplacementCells+3 : (composition || curved) ? 9 : 1;
     const size_t node_stride=construction_nodes+160;
     const auto node_offset=transfer_memory::Mul(token,node_stride);
     bool capture=false, capture_selected=false;
@@ -4218,7 +4218,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!(ready=vote(failure)))return false;
         stats.global_work+=concurrent ? trial_reduce(uint64_t(report.trials),CPassiveComm::Op::SUM) : trial_maximum(report.trials);
         const auto retained_metric=certified;
-        const bool passed=validate_private(candidate,MetricChange::Refine,false,false,
+        const bool passed=validate_private(candidate,choice.geometric?MetricChange::GeometryRefine:MetricChange::Refine,false,false,
             height_apex==UINT64_MAX && candidate ? reserved_relocations() : 0);
         if(search && !approved){approved=passed;stats.placement_validated+=passed;}
         else if(!search)certified=retained_metric;
@@ -4523,9 +4523,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         std::set<Id> components;
         for(const auto& row:star.cells)for(unsigned f=0;f<4;++f)
           if(row.physical[f].present && row.cell.v[f].id!=vertex)components.insert(geometry.Canonical(row.physical[f].facet));
+        if(choice.geometric)return components.empty();  // Geometry placement moves free volume support, not its prescribed surface.
         return components.size()<=1;  // Smooth physical vertices share the same complete-star admission as interior points.
       };
-      bool search=joint && composition && flat_edge && !choice.geometric && wallApices.empty() && !approved;
+      bool search=joint && (choice.geometric || (composition && flat_edge)) && wallApices.empty() && !approved;
       std::vector<Id> apices;
       if(trial_maximum(search)) {
         std::vector<Id> candidates;std::vector<Feature> features;

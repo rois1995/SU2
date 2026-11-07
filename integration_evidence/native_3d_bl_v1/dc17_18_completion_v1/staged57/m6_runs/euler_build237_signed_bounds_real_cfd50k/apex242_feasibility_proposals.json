@@ -1,0 +1,64 @@
+{
+  "seconds": 1.0624816417694092,
+  "numpy": "1.26.4",
+  "input_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/probe_apex242.py": "66d497b76f09c538917b11e37607933adb9ae2cf2f41821ba09b5ed0aa0f2254",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/prepare_boundary202.py": "75f508e82479a18bb91a675ac3a57cc2b0d760003b6a0d0fccd1387215bc73c0",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py": "028b7184ff25a0b5de1333c1da287c433251f4b52cccb34b05607e8a2f55c76d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/current_witnesses_v1/geometry_bad_1_owned.bin": "9edb12fd0788f7b5656499f2a92d8cf531ba3d405d95fbd6c48a314c5854e083",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/inspection/reference_records.jsonl": "902b7095cb3ec5506dae55c8bd877b2d24e7e3da43f494f22adb681ef8a07b05"
+  },
+  "apex": 287802006,
+  "complete_apex_star_cells": 18,
+  "results": {
+    "unprojected_midpoint_control": {
+      "point_proxy": [
+        0.4688352873440671,
+        0.7947578397068176,
+        0.012027174460930224
+      ],
+      "apex_proposal": [
+        0.4671048277795614,
+        0.7918247620097992,
+        0.013969244120959574
+      ],
+      "floating_margin": 0.001260882960735376,
+      "represented_children_exact_positive": true,
+      "child_cells": 20,
+      "box_half_width": 0.015824605431047512
+    },
+    "cubic_edge_half_proxy": {
+      "point_proxy": [
+        0.4687163488575311,
+        0.7948272500332592,
+        0.012234938096645349
+      ],
+      "apex_proposal": [
+        0.46776325470758806,
+        0.7926951130805926,
+        0.014699118412403105
+      ],
+      "floating_margin": 0.0008873634220733043,
+      "represented_children_exact_positive": true,
+      "child_cells": 20,
+      "box_half_width": 0.015824605431047512
+    },
+    "single_facet_closest_proxy": {
+      "point_proxy": [
+        0.46873155728480353,
+        0.7948162017811966,
+        0.012245144229288723
+      ],
+      "apex_proposal": [
+        0.46781185269764897,
+        0.7926495464634443,
+        0.014671429370712677
+      ],
+      "floating_margin": 0.0009137707102660635,
+      "represented_children_exact_positive": true,
+      "child_cells": 20,
+      "box_half_width": 0.015824605431047512
+    }
+  },
+  "limits": "Floating, bounded one-apex retained-connectivity feasibility PROPOSALS only. Cubic/closest proxies are not the native BindNewPoint projection. No infeasibility certificate or geometry/quality/admissible-mesh proof; exact positivity applies only to represented proxy children. No production change or dependency closure inference."
+}

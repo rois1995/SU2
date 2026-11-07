@@ -19,11 +19,11 @@ A235=`R/m6_runs/euler_build235_geometry_coupled_real_cfd50k`.
 
 ## Current240 — terminal, exact actual geometry diagnosis
 
-Latest pushed checkpoint65a7db8ee9; production source4d1e2ec5b0unchanged since237.
+Latest pushed checkpoint808aed6c7f; production source4d1e2ec5b0unchanged since237.
 238only broadened DIAGNOSTIC current-cavity coverage to non-two-face collapse trials;
 239/240only extend opt-in geometry query DIAGNOSTIC with rigorous outside witnesses.
-No production operator/config/policy/gate/budget change. Current Common test source
-and240metadata need the next exact-whitelist checkpoint. All owned heavy jobs terminal.
+No production operator/config/policy/gate/budget change through240.240source/metadata
+pushed; current244production/qualification state below supersedes historical handles.
 
 [Authoritative240geometry findings/next action](Handbook/ADAPTATION_CAVITY_GEOMETRY240_20261107.md).
 One-face230222079/52-cell context: all4original stars give no net q/J gain. Only one
@@ -65,25 +65,80 @@ Query tool49570/case...080717_3175207terminal0,53.562074s,443assertions/1case,pi
 supplemental source/preparation pins unchanged,all5sampled handles absent. Runner
 start ticks captured; job ended before detailed tree/start sampling; no stop sent.
 R/{build240_status,build240_terminal_handles,query240_launch}.json and case
-terminal_handles.json authoritative. No live frozen workload; sources may change.
+terminal_handles.json authoritative.240is terminal; current244state below governs.
 
-## Next action — same cycle, actual geometry/volume reconstruction
+## Current244 — connected qualification terminal; full M6 next
 
-Assess EXISTING projected SplitEdge/InsertEdgeCavity/ReconstructSplitPatch on the
-actual chord7876–7868 and complete CURRENT neighboring volume in captured52cells.
-First identify primitive projection/positive-cell/interface/dependency obstruction
-or later quality undoing useful geometry refinement. Do not add another local
-variant, larger cavity, scheduler, geometry representation or construction-policy
-change from these data. No new full-M6 baseline repeat on diagnostic-only240.
+All241/242 builds and diagnostic cases are TERMINAL0, pins unchanged and owned
+handles absent.241tested four existing constructors on the
+actual chord; all refused: inherited child inversion, immutable junction, or lack
+of retained-skin visibility.242also tested four existing metric-normal damping
+proposals; all inverted inherited volume connectivity. Do not enable that shortcut.
+Case241...082556_3233611:33458assertions/91.044460s;
+case242...084032_3276914:33498assertions/90.933268s.
 
-Preserved rejection ring includes edge[7868,7876] at37419,oldcells[227654017,227654022],
-shape unmeasured,failure0,EMPTY reason. Source records rejected proposals; it proves
-consideration, NOT failed primitive or faithful replay. Current context differs.
-Source review: geometry-directed joint split exists, but complete apex/strip searches
-are gated differently from metric/height paths. This is a QUESTION, not established
-cause. RefitWallSplit explicitly requires nonempty heights; don't reuse it blindly.
+[Current connected design](Handbook/ADAPTATION_VISIBILITY_PLACEMENT243_20261107.md).
+Build243 TERMINAL0 tool21850/363.243376s, all1303pins unchanged, both targets current,
+all sampled compiler handles absent. Actual cavity tool80518 TERMINAL0/93.042200s,
+pins unchanged/all5sampled handles absent, case current_compound_20261107T091818_3385861.
+Native geometry placement succeeds in3trials/1interior move on18complete-star cells.
+Whole52→54 context:4q/3J/6geometry→3q/3J/6geometry, excess−74.68%,maxedge unchanged.
+Existing optimizer then gives59cells/1q/1J/5geometry,excess−82.97%,strict replacement/
+interface and metric admission pass. Eight prior constructor refusals preserved.
+Raw GeometryRefine passes, raw Repair correctly refuses. NOT an accepted whole mesh.
+A237/visibility243_assessment.json authoritative results/limits.
+
+Current244build TERMINAL0 tool10499/168.129617s,1303pins unchanged/both targets
+current/all compiler handles absent. Legacy serial_full tool85577 TERMINAL27/305.529924s,344cases/336pass/8fail,
+1161529assertions/27fail. Pins unchanged/all5handles absent. Failed broad campaign
+is NOT qualification. Known historical donor-count/scenario assumptions documented
+in ADAPTATION_GEOMETRY_QUERY_REUSE_20261031.md244–258; two less-documented failures
+reviewed: zero-work support returns before changed placement; planar RANS
+wall policy consumes existing4096work and refuses, with placement95trials/0moves.
+No baseline equivalence proven; retain as downstream BL qualification issue. No old-code baseline or expectation/gate changes.
+R/visibility244_broad_serial_failure.json preserves exact failures.
+Connected MPI6 tool33555 TERMINAL0/101.983105s,55cases on EVERY rank,
+all frozen pins unchanged/all10sampled handles absent. Actual native placement and
+whole-neighbor optimized result match on all6ranks; stale/veto/refusal and complete
+cell-record publication pass with initially empty owners. Engine selection and
+distributed parameter edit are not established by that direct directory check;
+existing curved runtime and requested-height cases pass separately.
+R/visibility244_qualification.json authoritative scope/provenance. Filter reuses qualified connected groups plus actual curved-star
+publication, not the obsolete generic suite. Reuse individually passing affected
+serial cases; do not repeat generic broad campaign.
+Production unchanged243;
+fixture adds actual curved-star stale-dependency/veto/complete-publication check with
+all initial owners onrank0 and empty peers. R/run_cases.py placement_mpi6 combines
+that actual check and existing connected MPI6 suite. Need source-frozen terminal
+build then affected serial and ONE MPI6 milestone before full same-seed M6.
+Current UNVALIDATED production changes restore bounded positivity-only
+placement inside existing PlaceSplitPatch, which previously tried no movable-apex
+positions. Reuse existing convex clipping as a proposal kernel; exact strip,
+association, interface, positivity and requested-height admission remain decisive.
+Existing engine complete-star lookup/reservation/dependencies/publication now admit
+free interior apex support for geometric splits, within the same64-cell/8-apex caps,
+existing work/time/memory budgets and existing9-node identity allocation. No q/J
+construction measurement, new operator/scheduler/config or relaxed final gate.
+Common clipping header is a mechanical extraction; CFD retains a forwarding header.
+Existing signed-bound/cache/ownership improvements remain intact.
+
+A bounded floating-point feasibility probe on the actual18-cell apex star suggests
+positive children can exist with relocated free apex, but uses projection proxies:
+NOT native association/geometry acceptance and NOT an infeasibility proof.
+A237/apex242_feasibility_proposals.json records hashes and exact-positive checks.
+Next: actual cavity raw/optimized whole-context assessment, affected serial
+and ONE MPI6 milestone, then immediately full same-seed two-event M6. Need prove
+geometry-triggered multi-apex IDs/dependencies, empty ranks, curved contexts/heights,
+cache equivalence and conservative clipping consumers. Zero accepted meshes.
+
+Preserved rejection[7868,7876] at37419 has oldcells[227654017,227654022],shape unmeasured,
+failure0,EMPTY reason. Proves consideration, NOT which primitive failed; current
+context differs. Geometry-directed joint split exists, but complete apex/strip searches
+are gated differently from metric/height paths. This remains a QUESTION,not cause.
+RefitWallSplit requires nonempty heights; don't reuse it blindly. No larger cavity,
+new operator/scheduler/geometry representation/construction-policy change selected.
 After a justified connected production correction and affected serial/ONE MPI6
-milestone, immediately complete SAME-seed two-event M6. All downstream goals persist.
+milestone, immediately full same-seed TWO-event M6. Do not declare fixtures completion.
 
 ## Full237 outcome and selected actual metric mesh
 

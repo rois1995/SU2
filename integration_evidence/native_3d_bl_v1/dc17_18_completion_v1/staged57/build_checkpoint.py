@@ -9,6 +9,7 @@ assert not (ROOT/(name+'_status.json')).exists(), 'Inspect the previous owned ha
 paths={p.replace('/build-integrated-v2/', '/build-integrated-v3-currenthost/') for p in json.loads((ROOT/'build4_source_pins.json').read_text())}
 paths.add(str(Path(__file__).resolve()))
 paths.update(str(ROOT.parents[3]/p) for p in (
+    'Common/include/adaptation/CConvexClipping.hpp',
     'Common/include/adaptation/CNativeFailureCapture3D.hpp',
     'UnitTests/SU2_CFD/adaptation/fixtures/native_failure202_witness.inc',
     'UnitTests/SU2_CFD/adaptation/fixtures/native_current219_witness.inc',

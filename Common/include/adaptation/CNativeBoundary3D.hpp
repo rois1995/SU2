@@ -297,8 +297,9 @@ struct JointSplitReport {
 bool ReconstructHeightStar(const Patch& old,Id vertex,Id first_node,Id first_cell,FrozenField& target,
                            const PlanarReference& reference,const WallHeights& heights,
                            Patch& fresh,JointSplitReport& report,std::string& reason,size_t maximum_trials=128);
-/*! Geometry-first placement of one split and up to eight complete-star surface/interior vertices.
- * Surface points retain their finite authority; the split may leave a same-chart edge. Trials preserve positive
+/*! Geometry-first placement of one split with up to eight complete-star interior vertices.
+ * Surface apices retain their coordinates here; other strip operators provide surface movement. A bounded clipped
+ * visibility kernel proposes interior coordinates without q/J measurements. The split retains its authority. Trials preserve positive
  * orientation, interfaces and requested first heights. Metric quality/progress is checked downstream.
  * Output is unchanged on failure; distributed admission and external clearance are caller duties. */
 bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Id>>& apices,Id first_cell,

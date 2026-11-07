@@ -8,6 +8,7 @@
 #include "../../include/adaptation/CNativeCurvedAtlas3D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
 #include "../../include/adaptation/CNativeMetric3D.hpp"
+#include "../../include/adaptation/CConvexClipping.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <cmath>
@@ -1871,6 +1872,72 @@ bool PlaceSplitPatch(const Patch& old,Edge edge,Node point,const std::vector<std
       return true;
     };
     if(trial(point,{}))return true;
+    if(!apices.empty()) {
+      // Clip only a proposal kernel; exact strip/interface/height checks still decide admission.
+      const auto projected=ProjectSplitPoint(edge,point,nodes,physical,reference,nullptr,true);
+      std::set<Id> boundary;for(const auto& face:physical)boundary.insert(face.second.v.begin(),face.second.v.end());
+      std::map<Id,Point> positions;for(const auto& node:nodes)positions.emplace(node.first,node.second.p);
+      constexpr unsigned opposite[4][3]={{1,2,3},{0,3,2},{0,1,3},{0,2,1}};
+      for(size_t sweep=0;sweep<=apices.size() && report.trials<placement_limit;++sweep) {
+        bool changed=false;
+        for(const auto& apex:apices) {
+          if(report.trials>=placement_limit)break;
+          if(boundary.count(apex.first) || apex.first==edge[0] || apex.first==edge[1])continue;
+          ++report.trials;const auto origin=positions.at(apex.first);long double scale=0;
+          for(const auto& node:positions)scale=std::max(scale,Norm(Delta(node.second,origin)));
+          scale=std::max(scale,Norm(Delta(projected.p,origin)));
+          if(!(scale>0 && std::isfinite(scale)))continue;
+          passivedouble box[4][3]={{-2,-2,-2},{10,-2,-2},{-2,10,-2},{-2,-2,10}};
+          const passivedouble* vertices[4]={box[0],box[1],box[2],box[3]};
+          convex_clip::Polyhedron kernel;kernel.InitTetrahedron(vertices);bool usable=true;
+          auto clip=[&](const std::array<Node,4>& child) {
+            unsigned slot=0;while(slot<4 && child[slot].id!=apex.first)++slot;if(slot==4 || !usable)return;
+            std::array<Vector,3> face;
+            for(unsigned k=0;k<3;++k) {
+              const auto& node=child[opposite[slot][k]];
+              const auto p=node.id==projected.id?projected.p:positions.at(node.id);
+              face[k]=Delta(p,origin);for(auto& x:face[k])x/=scale;
+            }
+            Vector a{},b{};for(unsigned k=0;k<3;++k){a[k]=face[2][k]-face[0][k];b[k]=face[1][k]-face[0][k];}
+            auto normal=Cross(a,b);const auto length=Norm(normal);
+            if(!(length>0 && std::isfinite(length))){usable=false;return;}
+            for(auto& x:normal)x/=length;
+            const auto count=kernel.Clip(double(normal[0]),double(normal[1]),double(normal[2]),double(-Dot(normal,face[0])));
+            if(count<=0) {
+              usable=false;
+              reason=count<0?"Native3D visibility proposal exceeds fixed clipping capacity.":
+                  "Native3D bounded visibility proposal has no computed interior.";
+              if(count==0 && report.blocked_interior_vertex==UINT64_MAX)
+                for(unsigned k=0;k<3;++k) {
+                  const Id id=child[opposite[slot][k]].id;
+                  if(id!=projected.id && id!=edge[0] && id!=edge[1] && !selected.count(id) && !boundary.count(id)) {
+                    report.blocked_interior_vertex=id;break;
+                  }
+                }
+            }
+          };
+          for(const auto& cell:old.cells) {
+            auto left=cell.v,right=cell.v;bool a=false,b=false;
+            for(unsigned k=0;k<4;++k){if(cell.v[k].id==edge[0]){right[k]=projected;a=true;}
+                                     if(cell.v[k].id==edge[1]){left[k]=projected;b=true;}}
+            if(!(a&&b))left=cell.v;clip(left);if(a&&b)clip(right);
+          }
+          if(!usable){++report.geometry_rejected;continue;}
+          passivedouble volume=0,center[3];kernel.Moments(volume,center);
+          if(!(std::isfinite(volume)&&volume>0))continue;
+          const Point candidate{double(origin.x+scale*center[0]),double(origin.y+scale*center[1]),double(origin.z+scale*center[2])};
+          if(!(std::isfinite(candidate.x)&&std::isfinite(candidate.y)&&std::isfinite(candidate.z)))continue;
+          if(candidate.x==origin.x && candidate.y==origin.y && candidate.z==origin.z)continue;
+          positions.at(apex.first)=candidate;changed=true;std::vector<std::pair<Id,Node>> moves;
+          for(const auto& item:apices) {
+            const auto p=positions.at(item.first),previous=nodes.at(item.first).p;
+            if(p.x!=previous.x || p.y!=previous.y || p.z!=previous.z)moves.emplace_back(item.first,Node{item.second,p});
+          }
+          if(trial(point,moves)){report.moves=moves.size();return true;}
+        }
+        if(!changed)break;
+      }
+    }
     if(reason.empty())reason="Native3D joint placement has no geometry-valid split at the proposed point.";
     return false;
   }catch(const std::exception& e){reason=e.what();return false;}

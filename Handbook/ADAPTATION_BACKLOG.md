@@ -4,6 +4,11 @@ Current cycle: [cache and phase ownership integration](ADAPTATION_CACHE_PHASE_20
 Keep one active cycle; pursue another item only when the target run demonstrates
 its relevance or the user explicitly reprioritizes it.
 
+- Actual242 chord replay rejected all four existing metric-normal strip proposals
+  with inherited-cell inversion. Do not enable geometry strip eligibility or infer
+  useful motion from normal damping alone. Active243 tests positivity-only free-apex
+  placement within existing support; larger cavities/quality-aware construction
+  remain unproven alternatives.
 - Preserve wider steady/unsteady/history and 2D/3D qualification obligations in
   [the established design](ADAPTATION_ESTABLISHED_DESIGN.md). Euler, BL and RANS
   workflow acceptance remains sequential under the active instructions.

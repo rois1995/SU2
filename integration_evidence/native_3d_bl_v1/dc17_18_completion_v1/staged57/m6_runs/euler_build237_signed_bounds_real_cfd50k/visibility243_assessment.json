@@ -1,0 +1,333 @@
+{
+  "scope": "Actual final237 chord and full52-neighbor context, not historical replay or whole mesh acceptance",
+  "build": "build243",
+  "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T091818_3385861",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 93.0421998500824,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 436183040,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "terminal_handles": {
+    "time": 1794043246.6474624,
+    "sampled_pids": [
+      3385861,
+      3386102,
+      3386103,
+      3386104,
+      3386105
+    ],
+    "live_pids": [],
+    "all_absent": true
+  },
+  "constructors": [
+    {
+      "stage": "current_geometry_construction",
+      "case": "geometry_bad_1",
+      "kind": 0,
+      "edge": [
+        7868,
+        7876
+      ],
+      "active_cells": 2,
+      "constructed": false,
+      "reason": "Native3D projected split inverts inherited child connectivity.",
+      "placement_trials": 0,
+      "placement_moves": 0,
+      "obstruction": [
+        0,
+        0,
+        0
+      ],
+      "seconds": 0.001631047
+    },
+    {
+      "stage": "current_geometry_construction",
+      "case": "geometry_bad_1",
+      "kind": 1,
+      "edge": [
+        7868,
+        7876
+      ],
+      "active_cells": 2,
+      "constructed": false,
+      "reason": "Native 3D insertion cannot change an immutable facet or marker junction.",
+      "placement_trials": 0,
+      "placement_moves": 0,
+      "obstruction": [
+        0,
+        0,
+        0
+      ],
+      "seconds": 2.0364e-05
+    },
+    {
+      "stage": "current_geometry_construction",
+      "case": "geometry_bad_1",
+      "kind": 2,
+      "edge": [
+        7868,
+        7876
+      ],
+      "active_cells": 2,
+      "constructed": false,
+      "reason": "Native3D joint point cannot see its retained skin.",
+      "placement_trials": 0,
+      "placement_moves": 0,
+      "obstruction": [
+        0,
+        0,
+        0
+      ],
+      "seconds": 0.001687106
+    },
+    {
+      "stage": "current_geometry_construction",
+      "case": "geometry_bad_1",
+      "kind": 3,
+      "edge": [
+        7868,
+        7876
+      ],
+      "active_cells": 52,
+      "constructed": false,
+      "reason": "Native3D joint point cannot see its retained skin.",
+      "placement_trials": 0,
+      "placement_moves": 0,
+      "obstruction": [
+        14236978,
+        270756855,
+        287770904
+      ],
+      "seconds": 0.003449722
+    },
+    {
+      "stage": "current_geometry_construction",
+      "case": "geometry_bad_1",
+      "kind": 4,
+      "edge": [
+        7868,
+        7876
+      ],
+      "active_cells": 52,
+      "constructed": false,
+      "reason": "Native3D surface strip inverts inherited volume connectivity.",
+      "placement_trials": 0,
+      "placement_moves": 0,
+      "obstruction": [
+        0,
+        0,
+        0
+      ],
+      "seconds": 0.002095267
+    },
+    {
+      "stage": "current_geometry_construction",
+      "case": "geometry_bad_1",
+      "kind": 5,
+      "edge": [
+        7868,
+        7876
+      ],
+      "active_cells": 52,
+      "constructed": false,
+      "reason": "Native3D surface strip inverts inherited volume connectivity.",
+      "placement_trials": 0,
+      "placement_moves": 0,
+      "obstruction": [
+        0,
+        0,
+        0
+      ],
+      "seconds": 0.002072795
+    },
+    {
+      "stage": "current_geometry_construction",
+      "case": "geometry_bad_1",
+      "kind": 6,
+      "edge": [
+        7868,
+        7876
+      ],
+      "active_cells": 52,
+      "constructed": false,
+      "reason": "Native3D surface strip inverts inherited volume connectivity.",
+      "placement_trials": 0,
+      "placement_moves": 0,
+      "obstruction": [
+        0,
+        0,
+        0
+      ],
+      "seconds": 0.0020650900000000003
+    },
+    {
+      "stage": "current_geometry_construction",
+      "case": "geometry_bad_1",
+      "kind": 7,
+      "edge": [
+        7868,
+        7876
+      ],
+      "active_cells": 52,
+      "constructed": false,
+      "reason": "Native3D surface strip inverts inherited volume connectivity.",
+      "placement_trials": 0,
+      "placement_moves": 0,
+      "obstruction": [
+        0,
+        0,
+        0
+      ],
+      "seconds": 0.0020520900000000003
+    },
+    {
+      "stage": "current_geometry_construction",
+      "case": "geometry_bad_1",
+      "kind": 8,
+      "edge": [
+        7868,
+        7876
+      ],
+      "active_cells": 18,
+      "constructed": true,
+      "reason": "",
+      "placement_trials": 3,
+      "placement_moves": 1,
+      "obstruction": [
+        0,
+        0,
+        0
+      ],
+      "seconds": 0.006825604000000001
+    }
+  ],
+  "raw": {
+    "stage": "bounded_star_result",
+    "case": "geometry_bad_1",
+    "vertex": 900000000,
+    "kind": "geometry_construction_8_raw",
+    "active_cells": 18,
+    "context_cells": 52,
+    "new_context_cells": 54,
+    "changed": false,
+    "trials": 0,
+    "seconds": 0.9971331280000001,
+    "optimizer_seconds": 0,
+    "stop": "",
+    "old_q_bad": 4,
+    "new_q_bad": 3,
+    "old_J_bad": 3,
+    "new_J_bad": 3,
+    "old_geometry_bad": 6,
+    "new_geometry_bad": 6,
+    "q_retired": 3,
+    "q_introduced": 2,
+    "J_retired": 2,
+    "J_introduced": 2,
+    "geometry_retired": 3,
+    "geometry_introduced": 3,
+    "old_geometry_excess": 1.7369589027103044e-12,
+    "new_geometry_excess": 4.3986594049519444e-13,
+    "old_maximum_edge": 0.5538042218845237,
+    "new_maximum_edge": 0.5538042218845237,
+    "added_size_excess": 0,
+    "removed_size_excess": 0,
+    "metric_valid": false,
+    "metric_reason": "Native 3D repair reduces neither frozen size excess nor complete measured shape debt.",
+    "geometry_refine_valid": true,
+    "geometry_refine_reason": "",
+    "replacement": true,
+    "replacement_reason": "",
+    "interface_valid": true,
+    "interface_reason": "",
+    "boundary_candidates": 0,
+    "boundary_moves": 0,
+    "boundary_shape_rejected": 0,
+    "boundary_geometry_rejected": 0,
+    "interior_candidates": 0,
+    "interior_moves": 0,
+    "collapses": 0,
+    "edge_removals": 0,
+    "face_swaps": 0,
+    "shell_insertions": 0,
+    "boundary_flips": 0,
+    "optimizer_upper_calls": 0,
+    "optimizer_traversal_work": 0,
+    "upper_calls": 86,
+    "traversal_work": 242614,
+    "requested_heights": 0,
+    "nonlocal_contact_and_publication_checked": false,
+    "accepted_mesh": false
+  },
+  "optimized": {
+    "stage": "bounded_star_result",
+    "case": "geometry_bad_1",
+    "vertex": 900000000,
+    "kind": "geometry_construction_8_optimized",
+    "active_cells": 18,
+    "context_cells": 52,
+    "new_context_cells": 59,
+    "changed": true,
+    "trials": 46,
+    "seconds": 1.382471896,
+    "optimizer_seconds": 1.366686445,
+    "stop": "complete",
+    "old_q_bad": 4,
+    "new_q_bad": 1,
+    "old_J_bad": 3,
+    "new_J_bad": 1,
+    "old_geometry_bad": 6,
+    "new_geometry_bad": 5,
+    "q_retired": 3,
+    "q_introduced": 0,
+    "J_retired": 2,
+    "J_introduced": 0,
+    "geometry_retired": 3,
+    "geometry_introduced": 2,
+    "old_geometry_excess": 1.7369589027103044e-12,
+    "new_geometry_excess": 2.9580954127791946e-13,
+    "old_maximum_edge": 0.5538042218845237,
+    "new_maximum_edge": 0.5538042218845237,
+    "added_size_excess": 0,
+    "removed_size_excess": 0,
+    "metric_valid": true,
+    "metric_reason": "",
+    "geometry_refine_valid": true,
+    "geometry_refine_reason": "",
+    "replacement": true,
+    "replacement_reason": "",
+    "interface_valid": true,
+    "interface_reason": "",
+    "boundary_candidates": 39,
+    "boundary_moves": 2,
+    "boundary_shape_rejected": 27,
+    "boundary_geometry_rejected": 9,
+    "interior_candidates": 20,
+    "interior_moves": 2,
+    "collapses": 0,
+    "edge_removals": 1,
+    "face_swaps": 0,
+    "shell_insertions": 1,
+    "boundary_flips": 0,
+    "optimizer_upper_calls": 32,
+    "optimizer_traversal_work": 865218,
+    "upper_calls": 118,
+    "traversal_work": 865430,
+    "requested_heights": 0,
+    "nonlocal_contact_and_publication_checked": false,
+    "accepted_mesh": false
+  },
+  "raw_geometry_excess_reduction": 0.7467608820169324,
+  "optimized_geometry_excess_reduction": 0.8296968680051404,
+  "accepted_mesh": false,
+  "limits": [
+    "single free apex",
+    "no requested height in captured case",
+    "nonlocal global publication not checked here",
+    "raw candidate is geometry construction, not a quality repair"
+  ]
+}

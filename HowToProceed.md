@@ -23,14 +23,20 @@ native candidate to3.73e-16relative. Diagnostic240passes443assertions; productio
 code remains unchanged. This does not establish that all intermediate upper-bound
 merit is tight or that every refusal is physical.
 
-Next inspect EXISTING projected splitting/reconstruction of original chord7876–7868
-and its complete current neighboring volume. Its midpoint already violates the
-geometry gate by a certified248.334µm. Preserved rejection history shows the edge
-was considered, with an empty reason; do not infer which primitive failed or call
-this faithful historical replay. Determine projection/positive-cell/interface/
-dependency obstruction or later quality undoing geometry work before selecting ONE
-connected correction. No larger cavity, new scheduler, quality-aware construction,
-new geometry representation or gate/budget change follows from these diagnostics.
+The existing-constructor assessment is now complete:241all four paths refused;
+242all four normal-displacement proposals inverted cells. The connected243change,
+now locally useful but awaiting integrated qualification, adds positivity-only free-apex visibility placement to
+the existing split path and reuses complete-star reservation/publication. Native
+projection and exact strip/association/interface/height checks decide admission;
+clipping only proposes coordinates. Validate the actual18-cell moving star joined
+to its complete52-cell context, affected serial/MPI behavior, then immediately run
+the full same-seed two-event50k attempt. Actual243 native placement constructs the18-cell free-apex star in3trials.
+Complete context4q/3J/6geometry becomes3q/3J/6geometry, excess−74.68%; existing
+optimizer then gives1q/1J/5geometry, excess−82.97%, with interface/replacement and
+metric gates passing. This is a local repair result, not whole-mesh acceptance.
+244adds directly affected distributed publication coverage before full M6.
+No quality-aware construction is authorized
+by these results; all construction/final gates and budgets remain unchanged.
 
 Authoritative handles/source pins are in [HANDOFF_Codex.md](HANDOFF_Codex.md).
 Latest full237first native event refused at the unchanged budget with COMPLETE

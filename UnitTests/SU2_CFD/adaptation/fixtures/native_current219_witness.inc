@@ -1,13 +1,14 @@
 // Actual corrected-target residuals: existing operators only, never historical replay or acceptance.
-static void CapturedCurrentResidual(bool compound) {
-  World world;REQUIRE(world.size==1);
+static void CapturedCurrentResidual(bool compound,bool distributed=false) {
+  World world;if(!distributed)REQUIRE(world.size==1);
   const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");REQUIRE(cfg);
   const std::string config(cfg);const auto slash=config.find_last_of('/');REQUIRE(slash!=std::string::npos);
   const auto directory=config.substr(0,slash+1);
   std::ifstream current_cases(directory+"current_residual_cases.tsv");
   const bool current_capture=bool(current_cases);
-  REQUIRE_FALSE(bool(std::ifstream("native_current_residual_result.jsonl")));
-  std::ofstream log("native_current_residual_result.jsonl");REQUIRE(bool(log));log<<std::setprecision(17)<<std::boolalpha;
+  const auto logfile=distributed?"native_current_residual_rank"+std::to_string(world.rank)+".jsonl":"native_current_residual_result.jsonl";
+  REQUIRE_FALSE(bool(std::ifstream(logfile)));
+  std::ofstream log(logfile);REQUIRE(bool(log));log<<std::setprecision(17)<<std::boolalpha;
   auto bytes=Captured202Bytes(directory+"m6.su2.native_ref");
   auto original=DecodeReference(std::string(bytes.begin(),bytes.end()));
   REQUIRE(original.original);REQUIRE(original.original->Parameters());
@@ -69,6 +70,15 @@ static void CapturedCurrentResidual(bool compound) {
     }
     REQUIRE(current_cases.eof());REQUIRE_FALSE(cases.empty());
   }
+  std::map<std::string,std::vector<Edge>> construction_edges;
+  std::ifstream edge_cases(directory+"current_geometry_edges.tsv");
+  if(edge_cases) {
+    std::string label;Edge edge;size_t count=0;
+    while(edge_cases>>label>>edge[0]>>edge[1]) {
+      REQUIRE(++count<=12);REQUIRE(edge[0]<edge[1]);construction_edges[label].push_back(edge);
+    }
+    REQUIRE(edge_cases.eof());REQUIRE(current_capture);
+  }
   const std::array<std::array<unsigned,3>,4> opposite{{{{1,2,3}},{{0,3,2}},{{0,1,3}},{{0,2,1}}}};
   auto patch_from=[&](const Owned& rows) {
     Patch p;for(const auto& entry:rows){const auto& row=entry.second;p.cells.push_back(row.cell);
@@ -117,7 +127,7 @@ static void CapturedCurrentResidual(bool compound) {
     log<<"{\"stage\":\"current_metric_match\",\"case\":"<<std::quoted(test.first)<<",\"cells\":"<<rows.size()
        <<",\"q_error\":"<<q_error<<",\"J_error\":"<<j_error<<",\"edge_error\":"<<edge_error
        <<",\"captured_edges_available\":"<<!current_capture<<"}\n";log.flush();
-    auto assess=[&](Owned local,const std::set<Id>& retired,const Patch& seed,Patch input,Id vertex,const char* kind,bool optimize=true) {
+    auto assess=[&](Owned local,const std::set<Id>& retired,const Patch& seed,Patch input,Id vertex,const char* kind,bool optimize=true,size_t relocated=0) {
       REQUIRE_FALSE(seed.cells.empty());REQUIRE(seed.cells.size()<=MaximumCavityCells);
       auto context=scope->PrivateParameters(input);REQUIRE(context);context->ExportParameters(input);
       const auto stats0=state->Geometry().GeometryStatsSnapshot();
@@ -157,6 +167,9 @@ static void CapturedCurrentResidual(bool compound) {
       const auto old_active=MeasureMetricCells(seed.cells,field),new_active=MeasureMetricCells(result.cells,field);
       MetricDiagnosis diagnosis;
       const bool primitive=ValidateMetricChange(seed.cells.size(),old_active,result.cells.size(),new_active,MetricChange::Repair,metric_reason,&diagnosis);
+      MetricDiagnosis geometry_diagnosis;std::string geometry_metric_reason;
+      const bool geometry_metric=ValidateMetricChange(seed.cells.size(),old_active,result.cells.size(),new_active,
+          MetricChange::GeometryRefine,geometry_metric_reason,&geometry_diagnosis,relocated);
       const bool metric_valid=primitive&&diagnosis.added_excess<=diagnosis.removed_excess&&
           (diagnosis.quality_progress||(new_active.minimum_mean_ratio>=MinimumMeanRatio&&new_active.minimum_scaled_jacobian>=MinimumScaledJacobian));
       const auto old_geometry=GeometryGuidanceExcess(complete,*scope,1e-4);
@@ -196,6 +209,7 @@ static void CapturedCurrentResidual(bool compound) {
          <<",\"old_maximum_edge\":"<<double(before.maximum_length)<<",\"new_maximum_edge\":"<<double(after.maximum_length)
          <<",\"added_size_excess\":"<<double(diagnosis.added_excess)<<",\"removed_size_excess\":"<<double(diagnosis.removed_excess)
          <<",\"metric_valid\":"<<metric_valid<<",\"metric_reason\":"<<std::quoted(metric_reason)
+         <<",\"geometry_refine_valid\":"<<geometry_metric<<",\"geometry_refine_reason\":"<<std::quoted(geometry_metric_reason)
          <<",\"replacement\":"<<replacement<<",\"replacement_reason\":"<<std::quoted(replacement_reason)
          <<",\"interface_valid\":"<<interface_valid<<",\"interface_reason\":"<<std::quoted(interface_reason)
          <<",\"boundary_candidates\":"<<report.boundary_candidates<<",\"boundary_moves\":"<<report.boundary_moves
@@ -215,6 +229,121 @@ static void CapturedCurrentResidual(bool compound) {
     auto subset=[&](Id a,Id b){Owned out;for(const auto& row:owned)
       if(std::any_of(row.second.cell.v.begin(),row.second.cell.v.end(),[&](Node n){return n.id==a||n.id==b;}))out.insert(row);
       if(a==b)REQUIRE(out.size()==expected_stars.at(a));return out;};
+    if(!construction_edges.empty()) {
+      const auto selected=construction_edges.find(test.first);REQUIRE(selected!=construction_edges.end());
+      for(const auto& edge:selected->second) {
+        Owned ring;std::map<Id,Node> nodes;
+        for(const auto& row:owned) {
+          unsigned count=0;for(Node n:row.second.cell.v){nodes.emplace(n.id,n);count+=n.id==edge[0]||n.id==edge[1];}
+          if(count==2)ring.insert(row);
+        }
+        REQUIRE_FALSE(ring.empty());const auto a=nodes.at(edge[0]).p,b=nodes.at(edge[1]).p;
+        const Node midpoint{900000000,{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)}};
+        for(unsigned kind=distributed?8:0;kind<9;++kind) {
+          Owned motion;std::vector<Id> apices;
+          if(kind==8) {
+            auto edge_patch=patch_from(ring);scope->ExportParameters(edge_patch);apices=SplitPatchApices(edge_patch,edge);
+            REQUIRE_FALSE(apices.empty());
+            for(Id apex:apices){REQUIRE(expected_stars.count(apex));auto star=subset(apex,apex);motion.insert(star.begin(),star.end());}
+            for(const auto& row:ring)REQUIRE(motion.count(row.first));
+          }
+          const auto& active=kind==8?motion:kind>=3?owned:ring;auto seed=patch_from(active);scope->ExportParameters(seed);
+          Patch fresh;Face obstruction{};std::string reason;bool constructed=false;JointSplitReport placement;
+          const auto started=std::chrono::steady_clock::now();
+          if(kind==0)constructed=SplitEdge(seed,edge,midpoint,800000000,*scope,fresh,reason);
+          if(kind==1)constructed=InsertEdgeCavity(seed,edge,midpoint,800000000,*scope,fresh,reason);
+          if(kind==2 || kind==3)constructed=ReconstructSplitPatch(seed,edge,midpoint,{900000001,{}},
+              field.Query(Centroid(seed.cells.front())).target,800000000,*scope,fresh,obstruction,reason);
+          if(kind>=4 && kind<8) {
+            auto edge_patch=patch_from(ring);scope->ExportParameters(edge_patch);
+            const auto apices=SplitPatchApices(edge_patch,edge);REQUIRE_FALSE(apices.empty());
+            std::vector<SurfaceFace> incident;
+            for(const auto& f:edge_patch.surface)if(std::find(f.v.begin(),f.v.end(),edge[0])!=f.v.end() &&
+                std::find(f.v.begin(),f.v.end(),edge[1])!=f.v.end())incident.push_back(f);
+            REQUIRE(incident.size()==2);
+            REQUIRE(state->Entity(incident[0].facet)==state->Entity(incident[1].facet));
+            const auto p=nodes.at(incident[0].v[0]).p,q=nodes.at(incident[0].v[1]).p,t=nodes.at(incident[0].v[2]).p;
+            const long double u[3]={(long double)q.x-p.x,(long double)q.y-p.y,(long double)q.z-p.z};
+            const long double v[3]={(long double)t.x-p.x,(long double)t.y-p.y,(long double)t.z-p.z};
+            std::array<long double,3> normal{{u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]}};
+            const auto norm=std::hypot(normal[0],normal[1],normal[2]);REQUIRE(norm>0);for(auto& x:normal)x/=norm;
+            const double alpha=std::array<double,4>{{1.,.5,.25,.125}}[kind-4];
+            std::vector<std::pair<Id,Node>> moves;
+            for(Id apex:apices) {
+              REQUIRE(expected_stars.count(apex));REQUIRE(subset(apex,apex).size()==expected_stars.at(apex));
+              const auto origin=nodes.at(apex).p;const auto metric=field.Query(origin).target;
+              const auto side=normal[0]*((long double)origin.x-p.x)+normal[1]*((long double)origin.y-p.y)+normal[2]*((long double)origin.z-p.z);
+              const auto quadratic=metric.xx*normal[0]*normal[0]+metric.yy*normal[1]*normal[1]+metric.zz*normal[2]*normal[2]+
+                  2*(metric.xy*normal[0]*normal[1]+metric.xz*normal[0]*normal[2]+metric.yz*normal[1]*normal[2]);
+              REQUIRE(quadratic>0);REQUIRE(std::isfinite(quadratic));REQUIRE(side!=0);
+              const auto step=alpha*std::copysign(.25L/std::sqrt(quadratic),side);
+              Node proposed{900000001+moves.size(),{double(origin.x+step*normal[0]),double(origin.y+step*normal[1]),double(origin.z+step*normal[2])}};
+              moves.emplace_back(apex,ConstrainMovePoint(seed,apex,proposed,{},*scope));
+            }
+            constructed=SplitSurfaceStrip(seed,edge,midpoint,moves,800000000,*scope,fresh,reason);
+          }
+          if(kind==8) {
+            std::vector<std::pair<Id,Id>> reserved;for(Id apex:apices)reserved.emplace_back(apex,900000001+reserved.size());
+            constructed=PlaceSplitPatch(seed,edge,midpoint,reserved,800000000,field,*scope,{},fresh,placement,reason,256);
+          }
+          log<<"{\"stage\":\"current_geometry_construction\",\"case\":"<<std::quoted(test.first)
+             <<",\"kind\":"<<kind<<",\"edge\":["<<edge[0]<<','<<edge[1]<<"],\"active_cells\":"<<active.size()
+             <<",\"constructed\":"<<constructed<<",\"reason\":"<<std::quoted(reason)
+             <<",\"placement_trials\":"<<placement.trials<<",\"placement_moves\":"<<placement.moves
+             <<",\"obstruction\":["<<obstruction[0]<<','<<obstruction[1]<<','<<obstruction[2]
+             <<"],\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()<<"}\n";log.flush();
+          if(distributed)REQUIRE(constructed);
+          if(!constructed)continue;
+          Owned local;std::set<Id> retired;for(const auto& row:active)retired.insert(row.first);
+          std::map<Face,Id> physical;for(auto f:fresh.surface){std::sort(f.v.begin(),f.v.end());physical.emplace(f.v,f.facet);}
+          for(const auto& c:fresh.cells){OwnedCell row;row.cell=c;
+            for(unsigned slot=0;slot<4;++slot){Face key;for(unsigned k=0;k<3;++k)key[k]=c.v[opposite[slot][k]].id;
+              std::sort(key.begin(),key.end());auto f=physical.find(key);if(f!=physical.end())row.physical[slot]={true,f->second};}
+            REQUIRE(local.emplace(c.id,row).second);}
+          if(distributed) {
+            REQUIRE(kind==8);REQUIRE(constructed);REQUIRE(placement.moves>0);
+            // Empty owners still participate in every lookup/reservation/publication collective.
+            Owned published;if(!world.rank)published=active;
+            Directory service(world);REQUIRE(service.Build(published,reason));const auto metadata_before=service.Snapshot();
+            const std::vector<Feature> feature{{{{apices.front(),0,0}},1}};
+            const auto dependencies=service.Lookup(feature);REQUIRE(dependencies.valid);REQUIRE(dependencies.cells.size()==active.size());
+            auto stale=dependencies;if(!world.rank)++stale.cells.front().version;
+            CHECK_FALSE(service.Fetch(stale,published).valid);CHECK(service.Snapshot()==metadata_before);
+            const auto imported=service.Fetch(dependencies,published);REQUIRE(imported.valid);
+            const bool chosen=service.Reserve(imported,true,reason);CHECK(chosen==(!world.rank));
+            REQUIRE(world.sum(int(chosen))==1);
+            std::vector<std::vector<Dependency>> remove_to(world.size);
+            std::vector<std::vector<OwnedCell>> add_to(world.size);
+            if(chosen) {
+              auto current=scope->PrivateParameters(fresh);REQUIRE(current);current->ExportParameters(fresh);
+              REQUIRE(state->CheckReplacement(seed,fresh,reason,ceiling,budget.caller_bytes,&budget));
+              for(const auto& dep:dependencies.cells)remove_to[dep.owner].push_back(dep);
+              for(const auto& row:local)add_to[row.first%world.size].push_back(row.second);
+            }
+            const auto removed=world.exchange(remove_to);const auto added=world.exchange(add_to);
+            CHECK_FALSE(service.Publish(published,removed,added,world.rank!=0,reason));
+            CHECK(service.Snapshot()==metadata_before);CHECK(world.sum(int(published.size()))==int(active.size()));
+            REQUIRE(service.Publish(published,removed,added,true,reason));
+            CHECK(world.sum(int(published.size()))==int(fresh.cells.size()));
+            const auto inserted=service.Lookup({{{{midpoint.id,0,0}},1}});REQUIRE(inserted.valid);
+            const auto returned=service.Fetch(inserted,published);REQUIRE(returned.valid);
+            for(const auto& row:returned.cells)for(Node n:row.cell.v)if(n.id==midpoint.id) {
+              bool matched=false;for(const auto& c:fresh.cells)for(Node expected:c.v)if(expected.id==n.id)
+                matched=matched||(n.p.x==expected.p.x&&n.p.y==expected.p.y&&n.p.z==expected.p.z);
+              CHECK(matched);
+            }
+            log<<"{\"stage\":\"current_placement_publication\",\"rank\":"<<world.rank
+               <<",\"initially_empty\":"<<bool(world.rank)<<",\"winner\":"<<chosen
+               <<",\"published_cells\":"<<published.size()<<",\"moves\":"<<placement.moves
+               <<",\"engine_path_exercised\":false}\n";log.flush();
+          }
+          const std::string name="geometry_construction_"+std::to_string(kind);
+          assess(local,retired,seed,fresh,midpoint.id,(name+"_raw").c_str(),false,placement.moves);
+          assess(local,retired,seed,fresh,midpoint.id,(name+"_optimized").c_str());
+        }
+      }
+      continue;
+    }
     bool useful_star=false;
     for(const auto& vertex:owned.at(test.second).cell.v) {
       auto local=subset(vertex.id,vertex.id);std::set<Id> retired;for(const auto& row:local)retired.insert(row.first);
@@ -328,3 +457,6 @@ TEST_CASE("Current M6 residual stars assess existing coupled repair and complete
           "[.][NativeCurrentResidual3D]") {CapturedCurrentResidual(false);}
 TEST_CASE("Current M6 boundary residuals assess existing collapse and retained-star optimization",
           "[.][NativeCurrentCompound3D]") {CapturedCurrentResidual(true);}
+
+TEST_CASE("Actual M6 geometry placement publishes complete curved stars with empty owners",
+          "[.][NativeCurrentPlacementMPI3D]") {CapturedCurrentResidual(true,true);}

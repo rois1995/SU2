@@ -105,6 +105,11 @@ ranks, filters = CASES["serial_full"]
 CASES["serial_full"] = ranks, filters + ",Conservative projection:*,Conservative transfer:*"
 
 
+CASES["placement_mpi6"] = (6, CASES["failure_capture_mpi6"][1] +
+    ",[NativeCurrentPlacementMPI3D],[NativeStagedConstruction3D],[NativeJointGeometry3D],"
+    "[NativeSurfaceStrip3D],[NativePlanarStrip3D],[NativeFirstLayer3D],[NativeInteriorPlacement3D],"
+    "[NativeMetricSplitRule3D],[ConservativeClipRobustness],[NativeCurvedRuntime3D],[NativeReference3D]")
+
 def loaded_libraries():
     result = subprocess.run(["ldd", str(BINARY)], check=True, text=True, capture_output=True)
     paths = set()
@@ -274,7 +279,7 @@ def main():
                 pins[str(path.resolve())] = item["sha256"]
             for path in (preparation_path, ROOT / "prepare_geometry225_queries.py"):
                 pins[str(path.resolve())] = sha(path)
-        if case in ("current_residual", "current_compound"):
+        if case in ("current_residual", "current_compound", "placement_mpi6"):
             config = Path(os.environ["SU2_NATIVE_FROZEN_CONFIG"]).resolve()
             receipt = config.parent / "witness_preparation.json"
             preparation = json.loads(receipt.read_text())
