@@ -26,8 +26,9 @@ gradation violations and bit-identical CFD fields. Full two-event Mach-only M6 R
 `euler_build244_mach_only_real_cfd50k`,native5347.578358,1032169cells/2035q/967J/
 1046geometry/0size,complete measured census. Same implementation244,no C++ rebuild.
 All30capture files sealed,1520pins unchanged,one verified owned launcher stop and
-all10owned handles absent. Meaningful mesh+metric export73509is the sole live heavy
-job; its exact handles/freeze are in HANDOFF_Codex.md.
+all10owned handles absent. Meaningful mesh+metric export73509is terminal0/425.718486s,1553pins unchanged,all
+3owned handles absent. Independent reader16670passed3.711577s. No heavy job is live;
+current provenance and next analysis are in HANDOFF_Codex.md.
 [Mach-only outcome](Handbook/ADAPTATION_MACH_ONLY244_OUTCOME_20261107.md).
 Combined-target timing comparisons do not describe an unchanged Mach-only target.
 Analyze geometry-query/smoothing cost before selecting one connected next change.
@@ -130,14 +131,14 @@ Keep unrelated alternatives in [the backlog](Handbook/ADAPTATION_BACKLOG.md).
 
 ## Saved meshes and completion
 
-Latest saved rejected mesh is244:198598points/1018217tets, with full nodal tensor,
-verified array lengths/SPD/connectivity and runtime q/J/geometry UNKNOWN(NaN).
-Previous237is the latest fully measured rejected mesh:198941points/1020222tets,
-`rejected_mesh.vtu` plus `.su2`, with captured nodal metric9row-major. All1725bad
-cores/25856neighbors, q/J/geometry/edge fields and reference/rejection context are
-saved; array lengths, correct PointData/CellData, finite SPD metric and connectivity
-were independently checked. No ParaView GUI validation. Assess a meaningful244
-terminal mesh for the next inspection; do not export each trial.
+Latest saved rejected mesh is MACH-only244:201113points/1032169tets,
+`euler_build244_mach_only_real_cfd50k/inspection/rejected_mesh.vtu` plus `.su2`.
+Complete captured_nodal_metric9row-major,finite SPD,correct array lengths and exact
+VTU/SU2 coordinate/tet match independently checked. Measured2035q/967J/1046geometry/
+0size,all3841bad cores/142889neighboring cavities retained,reference and historical
+rejection records saved. This is a refused diagnostic mesh,not final acceptance.
+No ParaView GUI qualification. Older combined244retains UNKNOWN caches;237is an
+older measured mesh. Save only meaningful terminal meshes,not each trial.
 
 Require TWO accepted whole meshes, true CV mass-solve residual<=1e-10 for every
 field/time level, admissible states and scaled TARGET-integral defect<=1e-12 BEFORE

@@ -18,7 +18,7 @@ A244=`R/m6_runs/euler_build244_visibility_real_cfd50k`(completed combined sensor
 A_MACH=`R/m6_runs/euler_build244_mach_only_real_cfd50k`(terminal REFUSED).
 A237=`R/m6_runs/euler_build237_signed_bounds_real_cfd50k`.
 
-## CURRENT — Mach-only first event refused; meaningful mesh export LIVE
+## CURRENT — Mach-only refused; measured mesh saved and independently read
 
 User requested PRESSURE removed: ADAP_SENSOR=(MACH), generator3a6a558e6e.
 Production C++ remains build244/236e03ed64; same saved real CFD seed,L1/50k,
@@ -36,11 +36,18 @@ reference/rejections. Metric census is COMPLETE, unlike combined244final cache.
 A_MACH/{source_freeze_before_stop,owned_stop_once,terminal_handles}.json:all10owned
 handles absent. Never repeat this stop or treat old launch metadata as live.
 
-ONE heavy workload NOW: meaningful terminal mesh+metric export,tool73509,
-runner3995462,timeout3995672; exact starts/argv/cwd in
-A_MACH/inspection_export_owned_startup.json. Existing bounded exporter,nice19/libs1,
-1200s bound,1553pins frozen. A_MACH/inspection_export_{status,pins}.json.
-No C++/fixtures/helpers/binary/config/input edits until this owned export is terminal.
+No owned heavy job is live. Export73509TERMINAL0/425.718486s,1553pins unchanged;
+all3sampled export handles absent. A_MACH/inspection_export_{status,pins,
+owned_startup,terminal_handles}.json. Independent meshio reader16670TERMINAL0/
+3.711577s:201113points/1032169tets,complete finite SPD nodal tensors(min eigen
+.002704938038),correct PointData/CellData lengths,exact VTU/SU2 coordinates/tets,
+measured bad counts2035q/967J/1046geometry confirmed.3841bad cells/142889neighboring
+cavity cells,all retained. A_MACH/inspection_reader_status.json; no ParaView GUI or
+mesh acceptance claim. Latest inspectable files A_MACH/inspection/rejected_mesh.vtu
+and .su2; captured_nodal_metric has9row-major components in PointData. The surface
+extract retains this volume tensor,not a separately fabricated surface field.
+Sources/helpers are no longer pinned by an executing job; select ONE justified
+connected speed fix only after actual residual/query analysis.
 All production sources remain unchanged; observation helper updated AFTER full run
 terminal to join the first COMPLETE exit census as well as windows. Churn/histogram/
 rank/census assertions pass. Use R/analyze_m6244_mach_only.py,not the hard-coded
@@ -190,13 +197,13 @@ ran out of budget. Actual geometry/volume construction obstruction selected afte
 [240exact face diagnosis](Handbook/ADAPTATION_CAVITY_GEOMETRY240_20261107.md), not from
 literature alone. Complete final context is not faithful replay of earlier blocked tail.
 
-Latest meaningful saved rejected mesh is A244/inspection/rejected_mesh.vtu and .su2:
-198598points/1018217tets, full captured_nodal_metric9row-major. Independent reader
-passed, tensor/arrays/connectivity verified. Native q/J/geometry cache unknown; do
-not infer clean cells from empty bad/cavity views. Previous237inspection remains the
-latest fully MEASURED rejected mesh:198941points/1020222tets,296q/327J/1366geometry,
-all1725bad cores/25856neighbors, finite SPD metric/array lengths checked. No ParaView
-GUI qualification. Save only meaningful terminal meshes, never every trial.
+Latest meaningful saved mesh is A_MACH/inspection/rejected_mesh.vtu and .su2:
+201113points/1032169tets,complete captured_nodal_metric9row-major,all measured
+2035q/967J/1046geometry/0size.3841bad cores/142889neighboring cavities,reference and
+historical rejection records retained; independent tensor/array/count/connectivity
+checks passed. No ParaView GUI or strict whole-mesh acceptance qualification.
+Previous combined244has UNKNOWN runtime caches; older237is separately measured.
+Save only meaningful terminal meshes,never every trial.
 
 ## Remaining acceptance obligations — all open
 

@@ -6,7 +6,7 @@ actual isolated adapted disk restart; then BL/constraint/MPI and RANS500k.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`;
 A=`R/m6_runs/euler_build244_mach_only_real_cfd50k`.
-Live export handles and freeze are authoritative in [handoff](../HANDOFF_Codex.md).
+Current owned handles and source state are authoritative in [handoff](../HANDOFF_Codex.md).
 
 ## Inputs and terminal evidence
 
@@ -96,7 +96,30 @@ validation, return immediately to full TWO-event M6 with this same Mach-only see
 and unchanged gates/budgets. Transfer,continued adapted CFD,disk restart,BL/MPI and
 RANS500k all remain unproved. Construction remains validity-first.
 
-The meaningful terminal rejected-mesh export is underway using the existing bounded
-exporter: mesh,full nodal tensor,measured cell fields,bad cells,neighboring cavities,
-reference and historical rejection records. Its live state is in the handoff;
-this paragraph does not claim export or independent reader success.
+The meaningful terminal export73509passed425.718486s with all1553pins unchanged;
+all3sampled export handles absent. A/inspection/rejected_mesh.vtu and .su2 contain
+201113points/1032169tets,full captured_nodal_metric(9row-major components in PointData),
+measured q/J/geometry/edge CellData. All3841bad cores and142889neighboring cavity
+cells are retained with reference and historical rejection records. No per-trial
+exports were made. Surface extraction retains this same volume tensor; no separate
+surface metric is fabricated.
+
+Independent meshio5.3.5/numpy1.26.4reader16670passed3.711577s:all PointData/CellData
+lengths correct,q/J/geometry absent from PointData,tensors finite/symmetric/SPD
+(min eigen.002704938038),all metric availability flags true,cell caches complete,
+2035q/967J/1046geometry confirmed,exact VTU/SU2 points/tets,output hashes unchanged.
+A/inspection_reader_status.json. Meshio assigns numeric tags to diagnostic Marker_0/1/2
+names; this is not native boundary-association or strict gate qualification.
+No ParaView GUI validation or mesh acceptance is claimed.
+
+Source inventory for the next analysis: SmoothBoundary already prepares its atlas
+once per star,applies a projected shape upper screen before MoveVertex,uses fresh
+merit and incident-edge checks before guidance,and lazily computes the old guidance
+once. GeometryGuidanceExcess stops a nonnegative same-order partial sum above the
+rejection threshold; BoundPhysicalSurface memoizes exact authority/support/tolerance/
+triangle queries. Those facilities must be reused. Boundary candidate rejections
+were23653validity/709144shape/7432edge/37399geometry;118133guidance calls evaluated
+655563faces,with34321early guidance rejections. These aggregate counters do not
+establish how much candidate reordering,motion slack or changed-face-only reuse
+would save. Prior twelve-query motion-slack results were negative; no new cache or
+speedup is selected or established by this source review.
