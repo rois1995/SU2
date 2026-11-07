@@ -85,7 +85,9 @@ when it cannot beat the current upper witness. It preserves all exact results an
 reduces counted query work2.2087%in that corpus. No whole-M6 speedup established.
 [Current design/proof](Handbook/ADAPTATION_UPPER_CUTOFF251_20261107.md).
 Build251passed;focused serial38cases/2044assertions and ONE connected MPI6
-qualification90cases on EACH rank passed. Full same-seed TWO-eventM6 is next.
+qualification90cases on EACH rank passed. Checkpoint1943eb3199pushed;full same-seed
+TWO-event251M6 is LIVE,all pinned code/inputs frozen. Exact config matches247;
+initial continued CFD CL.269535/CD.013536. Current handles are in HANDOFF_Codex.md.
 Keep CAD optional,all gates/budgets and validity-first construction.
 Then immediately same-seed MACH-only L1/50k complete TWO-event M6,conservative
 admissible transfer,continued adapted CFD and actual disk restart;then BL/MPI and

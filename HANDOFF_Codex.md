@@ -17,7 +17,24 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k` (terminal REFUSED).
 A_MACH=`R/m6_runs/euler_build244_mach_only_real_cfd50k` (terminal REFUSED baseline).
 
-## CURRENT — terminal247 refusal; next-cycle analysis active
+## CURRENT — frozen251 full TWO-event M6 LIVE
+
+A251=`R/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k`.
+Tool5327LIVE;source checkpoint1943eb3199pushed. Same saved realCFDseed,MACH-only
+L1/50k,strict gates,native5400/outer14400,pt2pt/private4TBscratch/nice19/libs1,
+geometry trace UNSET. ConfigSHA5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e
+matches247exactly. Initial continued CFD CL.269535/CD.013536;61330point-sensor fits.
+HOST verified10live identities:runner475457,time475668,timeout475669,MPI475670,
+workers475673–475678. Exact starts/argv/cwd in A251/owned_startup.json and
+R/m6_251_startup_checkpoint.json. Wrapper continuously refreshes startup identities;
+R/m6_251_upper_cutoff_launch.json is live,not a terminal receipt.
+Keep ALL pinned C++/fixtures/helpers/binary/config/inputs FROZEN. No other heavy job.
+Observe complete stages and net whole-field q/J-bad removal,geometry counts/work.
+Do not stop for elapsed time or contention alone. Preserve full evidence before
+any authorized stop for demonstrated failure/bottleneck/resource pressure.
+ZERO accepted meshes;transfer/continued adapted CFD/disk-restart remain unproved.
+
+## Terminal247 outcome and current251 qualification
 
 Full TWO-event M6 tool14272TERMINAL1/5546.863332s,pins verified unchanged.
 First event REFUSED at native5347.699778/round34816:
@@ -60,10 +77,8 @@ Final251serial PASSED38cases/2044assertions61.301636s,pins unchanged;all five
 case handles absent. ONE MPI6milestone PASSED90cases on EACH rank163.894983s,
 pins unchanged;all ten case handles and sequential wrapper absent.
 R/upper251_qualification.json seals cases/results;all affected checks complete.
-No heavy workload currently live. Push coherent checkpoint,then immediately full
-same-seed MACH-only L1/50k TWO-event M6 with unchanged native5400/outer14400.
-Next:run the qualified monotone losing-graph cutoff in immediately same-seed
-MACH-only L1/50k full TWO-event M6. Do not declare cache/work/fixture improvement
+Checkpoint1943eb3199pushed. Full same-seed TWO-event251M6 is LIVE above.
+Next:observe the frozen251full TWO-event M6 through its terminal outcome. Do not declare cache/work/fixture improvement
 completion. All transfer/continued adapted CFD/disk-restart/BL/MPI/RANS obligations open.
 
 Runtime pt2pt/private4TBscratch/nice19/libs1/geometry trace UNSET.
@@ -115,7 +130,7 @@ Preserve all gates/budgets. [Failed experiment/history](Handbook/ADAPTATION_FOOT
 Actual shape+geometry and geometry-only selected contexts have no useful tested
 original/combined candidates;local successes elsewhere are not global closure.
 
-Actual comparisons and final251qualification are terminal;full M6next.
+Actual comparisons and final251qualification are terminal;ONE heavy workload is full251M6above.
 C++/fixtures now include the local248change and are pinned by that live build. Analysis/source preparation helpers
 changed only as recorded above. Historical incremental comparisons and explicit
 age offsets remain in quality_comparison244/nearest_quality_age_comparison244.json;
@@ -130,9 +145,9 @@ latest_matched_quality_census.json is an EARLIER32256snapshot with actual baseli
 age bracket (no interpolation),not the latest window. Complete prefix hashes are
 preserved;unmeasured construction q/J zeros mean UNKNOWN.
 
-## Active implementation and qualified checkpoint
+## Preserved qualified predecessor247
 
-ONE active cycle:canonical SINGLE-triangle numeric certification queries in shared
+Predecessor247cycle:canonical SINGLE-triangle numeric certification queries in shared
 BoundPhysicalSurface. BOTH memo key and full computation sort exact corner bits;
 exact authority/support/tolerance/coordinates and all fresh association/feature/
 body/interface/height checks remain. Multi-triangle path unchanged. Nine work units;
@@ -141,7 +156,7 @@ tight admission uses full-query fallback. No new scheduler/config/operator or
 quality-aware construction. No competing motion cache/collapse coupling.
 [Design,proof and detailed history](Handbook/ADAPTATION_QUERY_CANONICALIZATION246_20261107.md).
 
-Latest compiled build247TERMINAL0/42.102124s,1303pins unchanged,both targets current,
+Predecessor build247TERMINAL0/42.102124s,1303pins unchanged,both targets current,
 all five sampled build handles absent. Build246serial failure preserved:two fixture
 contracts (unsorted support throws;exact work includes nine canonical units).
 Production budgets/gates were not enlarged. Build247serial38cases/1678assertions

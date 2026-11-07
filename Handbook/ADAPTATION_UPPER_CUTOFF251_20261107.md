@@ -44,3 +44,10 @@ Final serial PASSED38cases/2044assertions61.301636s,pins unchanged and all five
 case handles absent. ONE MPI6milestone PASSED90cases on EACH rank163.894983s,pins unchanged;all ten
 case handles and sequential wrapper absent. R/upper251_qualification.json seals
 complete affected validation. Coherent checkpoint then full TWO-eventM6 next. No accepted mesh or transfer/restart established.
+
+Checkpoint1943eb3199pushed. Full TWO-event same-seed M6 is LIVE tool5327:
+R/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k. Exact config matches247;
+initial continued CFD CL.269535/CD.013536,one MACH sensor/61330fits. Host MPI475670,
+workers475673–475678 and runner chain verified live. All pinned code/fixtures/
+helpers/binary/config/inputs FROZEN. Live/startup identities and resource receipts
+in the attempt and R/m6_251_startup_checkpoint.json. No adapted acceptance yet.

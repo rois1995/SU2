@@ -1,6 +1,7 @@
 # Selected connected change: reuse proved footprint regions within a query
 
-2026-11-07. Implementation LOCAL,compiled250;final validation pending;ZERO accepted meshes.
+2026-11-07. HISTORICAL REJECTED experiment after actual250comparison;production
+memo removed. Active successor is [monotone cutoff251](ADAPTATION_UPPER_CUTOFF251_20261107.md). ZERO accepted meshes.
 Current build247M6first event refused with1148q/484J/1044geometry-bad cells.
 The immediate demonstrated blocker is deadline exhaustion with useful queued work.
 Geometry/repair power,transfer,continued adapted CFD and actual disk restart remain
