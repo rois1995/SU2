@@ -22,11 +22,18 @@ The user now requests **MACH ONLY**, removing PRESSURE from ADAP_SENSOR. The run
 config and generator are updated and checked; same saved real CFD seed,L1,50k and
 unchanged gates/budgets. Production metric-only check passed,tool18760/32.579044s:
 `staged57/metric_target244_mach_only`,complexity49999.999626,finite SPD,zero
-gradation violations and bit-identical CFD fields. Full two-event Mach-only M6 is now ACTIVE/FROZEN,tool73370,
-`euler_build244_mach_only_real_cfd50k`,same implementation244; no C++ rebuild or new
-quality implementation. Live handles/provenance are in HANDOFF_Codex.md.
+gradation violations and bit-identical CFD fields. Full two-event Mach-only M6 REFUSED its first event,tool73370terminal1:
+`euler_build244_mach_only_real_cfd50k`,native5347.578358,1032169cells/2035q/967J/
+1046geometry/0size,complete measured census. Same implementation244,no C++ rebuild.
+All30capture files sealed,1520pins unchanged,one verified owned launcher stop and
+all10owned handles absent. Meaningful mesh+metric export73509is the sole live heavy
+job; its exact handles/freeze are in HANDOFF_Codex.md.
+[Mach-only outcome](Handbook/ADAPTATION_MACH_ONLY244_OUTCOME_20261107.md).
 Combined-target timing comparisons do not describe an unchanged Mach-only target.
-Keep the coupled-quality hypothesis deferred until this changed-target outcome.
+Analyze geometry-query/smoothing cost before selecting one connected next change.
+Time expired while most remaining shape-bad cells still had unblocked features;
+this supports speed as the immediate target, with geometry repair power still open.
+Keep the coupled-quality hypothesis deferred until actual Mach-only residuals justify it.
 
 The prior combined-target production L1/L2 comparison selected L1: L2coarsened4/11shock
 points, increased tip allocation and maximum anisotropy. Do not assume L2 is better
@@ -109,7 +116,8 @@ It may contribute, but current evidence does not establish that a soft construct
 quality preference would solve closure.237polishing removed almost all initial
 shape failures, then geometry reconstruction introduced new ones. Short edges occur
 in both failing and nearby clean cells; correlation does not prove causality.
-Current244must show whether the connected placement change improves actual closure.
+Both combined244 and Mach-only244 refused; neither establishes closure from the
+connected placement change. Use the actual Mach-only residuals for the next hypothesis.
 
 The current validity-first policy excludes construction q/J measurements and
 ranking, not only hard vetoes. A soft q/J preference is therefore a deliberate

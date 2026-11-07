@@ -15,54 +15,63 @@ Preserve evidence before authorized stop/fix/retry; never repeat historical stop
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A244=`R/m6_runs/euler_build244_visibility_real_cfd50k`(completed combined sensor).
-A_MACH=`R/m6_runs/euler_build244_mach_only_real_cfd50k`(LIVE).
+A_MACH=`R/m6_runs/euler_build244_mach_only_real_cfd50k`(terminal REFUSED).
 A237=`R/m6_runs/euler_build237_signed_bounds_real_cfd50k`.
 
-## ACTIVE — Mach-only full TWO-event M6, frozen
+## CURRENT — Mach-only first event refused; meaningful mesh export LIVE
 
-User requested PRESSURE removed from adaptation sensors: ADAP_SENSOR=(MACH).
-Generator/config committed3a6a558e6e; underlying C++ remains build244/236e03ed64.
-Same qualified real CFD seed,L1/50k,gates/native5400/outer14400 unchanged.
-Actual Mach-only production target passed32.579044s,complexity49999.999626,
-finite SPD,0gradation violations; CFD fields/coords bit-identical to combined L1.
+User requested PRESSURE removed: ADAP_SENSOR=(MACH), generator3a6a558e6e.
+Production C++ remains build244/236e03ed64; same saved real CFD seed,L1/50k,
+strict gates/native5400/outer14400. Actual metric check passed32.579044s,
+complexity49999.999626,finite SPD,0gradation violations; flow fields unchanged.
 
-Full Mach-only M6 ACTIVE tool73370. Runner3756305/start9561866;
-MPIlauncher3756595/start9562400,timeout3756594,6solver workers.
-R/m6_244_mach_only_{launch,owned_startup}.json exact HOST PID/start/argv/cwd.
-No stop sent. ONE heavy job,nice19/libs1/private4TBscratch. Freeze ALL current
-source/helpers/binary/config/inputs. A_MACH/initial_input_provenance.json proves
-actual run.cfg EXACTLY matches prepared Mach-only variant; original mesh/reference/
-CFD seed byte-identical completed244. No accepted mesh yet; let this attempt drive
-next work. No competing quality implementation. Latest target input preference
-also applies when preparing the later M6 RANS500k configuration.
+Full Mach-only attempt tool73370 TERMINAL1/5590.219278s,pins verified unchanged.
+First event REFUSED native5347.578358/round34425:1032169cells/2035q/967J/
+1046geometry/0size,ALL cells measured and ALL census flags complete. Still first
+shape pass: no shape closure or subsequent geometry-construction closure established.
+ZERO accepted meshes; no transfer/continued adapted CFD/adapted restart.
+A_MACH/capture_ready.json seals ALL30files,1032169owned/metric rows,complete
+reference/rejections. Metric census is COMPLETE, unlike combined244final cache.
+1520pins verified before ONE pidfdSIGTERM only launcher3756595/start9562400.
+A_MACH/{source_freeze_before_stop,owned_stop_once,terminal_handles}.json:all10owned
+handles absent. Never repeat this stop or treat old launch metadata as live.
 
-IMPORTANT: analyze_m6244_quality.py is hard-coded to the COMPLETED COMBINED case,
-not A_MACH. Reuse its parser only with the explicit new path for live Mach telemetry.
-Combined-target timing/work comparisons are not same-target Mach-only benchmarks.
-Never repeat the old244stop or signal historical PID3440421.
-Use R/analyze_m6244_mach_only.py for live first-event stage/churn/location/ladder
-analysis; it reuses existing exact-census assertions with NO combined-target
-benchmark. Latest observation: actual Hessian recovery61330point-sensor pairs,0WLS fallbacks.
-Construction entry round31898/native656.507283:878443cells/1381geometry/0size,
-shape UNMEASURED. Fresh quality entry native701.671352:106454q/106204J/1381geometry/
-0size,ALL flags complete. Target differs from combined244, so no same-target speed
-claim. Initial quality ownership preserves ALL census totals/flags; joined data in
-A_MACH/quality_entry_observation.json. Sampled tree RSS about9.4GiB,not physical/
-whole-job peak. Keep frozen; no accepted mesh yet.
-A_MACH/owned_live_observation.json is current exact live handle confirmation.
-Mach-only quality is active. Latest complete window round33728/native4387.919328:
-1017949cells/14963q/11095J/1089geometry/0size,ALL flags complete,
-stuck_shape28/missing_features0/private_tracked_collectives0.
-Quality age3686.247976s:net91491q/95109J/292geometry removed; net q24.819546/s.
-64359commits, q retired582335/introduction490844; churn matches whole-field change.
-13923/14963q-bad have no physical face (not necessarily free vertices).
-Current debt max/mean1.544043; unchanged migration preserves all flags/totals.
-HOST launcher identity reverified live; MemAvailable30012844 kB,load7.34.
-All16fixed metric samples supported; maximum relative Frobenius drift0.060889993
-at recent windows, not a whole-field norm or pointwise frozen-target claim.
-First-pass churn checks match net field changes. No combined-target benchmark.
-A_MACH/{quality_progress,quality_counter_assessment}.json records work/service/
-location/ladder data; continued ownership commits preserve all flags/totals.
+ONE heavy workload NOW: meaningful terminal mesh+metric export,tool73509,
+runner3995462,timeout3995672; exact starts/argv/cwd in
+A_MACH/inspection_export_owned_startup.json. Existing bounded exporter,nice19/libs1,
+1200s bound,1553pins frozen. A_MACH/inspection_export_{status,pins}.json.
+No C++/fixtures/helpers/binary/config/input edits until this owned export is terminal.
+All production sources remain unchanged; observation helper updated AFTER full run
+terminal to join the first COMPLETE exit census as well as windows. Churn/histogram/
+rank/census assertions pass. Use R/analyze_m6244_mach_only.py,not the hard-coded
+combined-target analyze_m6244_quality.py. Final quality metadata in
+A_MACH/{quality_progress,quality_counter_assessment,construction_progress_assessment}.json.
+
+Quality4645.907007s:net104419q/105237J/335geometry removed,22.475482net q/s;
+83052commits,q retired625636/introduction521217. Terminal41/2842shape-union cells
+all-features blocked,queue34414,missing0,private tracked collectives0. Most residual
+q-bad1754/2035have no physical face (not necessarily free vertices). Rank q counts
+568/6/523/25/425/488. Join-call wall share.418988 is NOT CPU idle.
+Geometry traversal3642.913284summed rank seconds,scope build413.772205,
+upper4183.204704; these timers OVERLAP boundary smoothing3622.500379.
+Boundary823863candidates/31476kernel moves versus interior481294/60002;
+interior271.350417s. Kernel moves/debt are not global published bad-cell gain.
+Exact union memo658692hits/674905misses; these do NOT distinguish identical query
+misses from nearby trial positions. Star-context reuse2/998072boundary stars.
+Late redistribution was evaluated and declined: estimated gain~165–198s below
+estimated cost~214–223s. Do not invent a scheduler or blindly force migration.
+
+NEXT active cycle: analysis FIRST, selecting cheaper geometry-query/smoothing work
+from these counters and actual residual contexts. Speed is the immediate measured
+blocker (time exhausted while most bad cells still had unblocked features); geometry
+repair power also remains open. Inspect existing reuse/screening/prepared support
+before ONE justified connected fix. Deferred coupled-candidate hypothesis is not
+implemented or automatically selected. Preserve exact association/invalidation,
+seams/features/body/height/resource/final gates. Unproven ideas stay backlog.
+Then return immediately to full TWO-event M6/MACH-only/same seed/L1/50k/unchanged
+budgets. No same-target speed claim against older combined MACH+PRESSURE runs.
+Latest sensor preference also applies to future M6 RANS500k configuration.
+[Mach-only terminal outcome](Handbook/ADAPTATION_MACH_ONLY244_OUTCOME_20261107.md).
 
 ## Preserved combined244 outcome and Mach-only preparation
 
@@ -109,11 +118,9 @@ The helper's expected sensor directive self-check was corrected AFTER this check
 terminal; underlying metric/config/CFD unchanged. Existing runner self-check and
 exact generated Mach-only config now pass; build244C++ source pins unchanged.
 
-NEXT: continue the frozen TWO-event M6 with build244/MACH-only/L1/50k and same CFD seed/gates/
-native5400/outer14400. No competing quality implementation before changed-target
-outcome. Deferred coupled-candidate hypothesis stays backlog. New attempt must
-have fresh helper/config/runtime pins; older combined-target pins intentionally
-record the earlier generator. Freeze current sources after launch.
+The Mach-only attempt has now refused; its terminal outcome above supersedes launch
+plans. Future attempts need fresh helper/config/runtime pins. Earlier combined-target
+pins intentionally record the previous generator.
 
 R/analyze_m6244_quality.py reuses stage/churn/exact-census joins, stopping at first
 native event. A244/{construction_progress_assessment,quality_comparison237,
