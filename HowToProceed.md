@@ -88,12 +88,12 @@ Build251passed;focused serial38cases/2044assertions and ONE connected MPI6
 qualification90cases on EACH rank passed. Checkpoint1943eb3199pushed;full same-seed
 TWO-event251M6 is LIVE,all pinned code/inputs frozen. Exact config matches247;
 initial continued CFD CL.269535/CD.013536. Current handles are in HANDOFF_Codex.md.
-Quality entry and TWENTY matched quality windows have exactly247counts/commits/
-churn. At quality2579.014368s:32031q/28869J/1156geometry-bad on990530cells,
-all flags complete. Quality counted upper work is down1.07%;the early timing
-advantage has NOT held:quality+35.92s at matching progress. This is observational,
-not a causal speedup/regression. Six ownership publications preserve whole-field
-counts/flags. Keep the run frozen through its actual outcome;no accepted mesh.
+Quality entry and THIRTY-ONE matched quality windows have exactly247counts/commits/
+churn. At quality3604.256898s:13978q/10156J/1090geometry-bad on1020076cells,
+all flags complete. Quality counted upper work is down1.02%;quality is31.61s slower
+at matching progress. This is observational,not a causal speedup/regression. Six
+ownership publications preserve whole-field counts/flags. Keep the run frozen
+through its actual outcome;no accepted mesh or complete workflow yet.
 Keep CAD optional,all gates/budgets and validity-first construction.
 Then immediately same-seed MACH-only L1/50k complete TWO-event M6,conservative
 admissible transfer,continued adapted CFD and actual disk restart;then BL/MPI and

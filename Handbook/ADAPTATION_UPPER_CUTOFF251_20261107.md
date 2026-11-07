@@ -117,3 +117,13 @@ whole-native3256.667975vs3232.679556;no runtime speedup established. Kernel boun
 debt. Timers overlap other work. Location29238interior/2793surface q-bad,
 stuck_shape6,missing0,private tracked collectives0. All1520pins unchanged and10owned
 host handles live at3524.7s;sampled RSS10.708GB,PSI0.00. Full251LIVE/FROZEN.
+
+Thirty-one-window snapshot33856/census45,quality3604.256898s(vs2473572.648732):
+1020076cells/13978q/10156J/1090geometry/0size,all flags complete. Same counts,
+65704commits and churn as247;net92476q/96048J/291geometry removed.
+Quality upper1555478086→1539568095(-1.0228%),same1081831queries. Quality+31.608166s,
+whole-native4281.910505vs4262.231331;no runtime speedup established. Kernel boundary
+3039.287829→3020.864266seconds,interior215.914263→219.723396;same candidates/moves/
+debt. Timers overlap. Location12915interior/1063surface q-bad,stuck_shape29,
+missing0,private tracked collectives0. All1520pins unchanged and10owned host handles
+live at4494.3s;sampled RSS10.752GB,PSI0.00. Full251LIVE/FROZEN;no accepted mesh.
