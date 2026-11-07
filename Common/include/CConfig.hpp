@@ -10135,12 +10135,12 @@ public:
   bool GetSST_Energy_Consistent() const { return SST_Energy_Consistent; }
 
   /*!
-   * \brief SST with the P1 options (EDGE_FORM_P1, EDGE_DISS_PROJECTED or BC_ENTROPY_P1): the P1 parts act on the hat
-   *        state (rhoE - rho k), the energy row carries mdot k_upwind with the P1 mass flux, which the SST k convection
-   *        also uses, and closure C carries the k of its mass rows (matched form, P1_SST_COUPLED.md, M1, M2).
+   * \brief SST with the P1 options (EDGE_FORM_P1, EDGE_DISS_PROJECTED, BC_ENTROPY_P1 or SPLIT_EDGE_FLUX): the P1 parts
+   *        act on the hat state (rhoE - rho k), every mass term of the continuity row carries k_face m into the energy
+   *        row, and the SST k row has the same numbers (matched form, P1_SST_COUPLED.md, M1, M2; SSTPATHS_PLAN.md).
    */
   bool GetTke_Matched_P1() const {
-    return (Kind_Turb_Model == TURB_MODEL::SST) && (Edge_Form_P1 || Edge_Diss_Projected || BC_Entropy_P1);
+    return (Kind_Turb_Model == TURB_MODEL::SST) && (Edge_Form_P1 || Edge_Diss_Projected || BC_Entropy_P1 || Split_Edge_Flux);
   }
 
   /*!

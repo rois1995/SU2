@@ -217,6 +217,13 @@ protected:
   su2activevector P1KMassPlus;         /*!< \brief M+ of each node. */
   su2activevector P1KInflow;           /*!< \brief Inflow k flux sum of each node. */
 
+  /*--- SST with the P1 options (matched k, SSTPATHS_PLAN.md 0): the k-row residual of every mass term of the flow residual
+   * that is neither an edge of the edge loop nor a closure C face (split pairs, mixed-cell diagonals, nodal boundary and
+   * swept terms, axisymmetric source), the same numbers as their k parts in the energy row, and a diagonal Jacobian
+   * w.r.t. rho k. From the last flow residual; the SST adds them (CTurbSSTSolver::MatchedNodalKine). ---*/
+  su2activevector P1KNodalRes;         /*!< \brief k-row residual of the nodal and pair mass terms. */
+  su2activevector P1KNodalJac;         /*!< \brief Its diagonal Jacobian. */
+
   /*--- SST with VISC_P1_ENTROPY and SST_ENERGY_CONSISTENT (M4): Pi_i = sum_T omega_T,i D_t,T / theta_i, the k production
    * integral over the dual volume of i (owned nodes), from the last flow residual. ---*/
   su2activevector P1TurbProduction;
@@ -3540,6 +3547,12 @@ public:
    */
   inline const su2activevector& GetP1KMassPlus() const { return P1KMassPlus; }
   inline const su2activevector& GetP1KInflow() const { return P1KInflow; }
+
+  /*!
+   * \brief Matched k of SST: the k-row residual and diagonal Jacobian of the non-edge mass terms (flow solver).
+   */
+  inline const su2activevector& GetP1KNodalRes() const { return P1KNodalRes; }
+  inline const su2activevector& GetP1KNodalJac() const { return P1KNodalJac; }
 
   /*!
    * \brief SST with VISC_P1_ENTROPY and SST_ENERGY_CONSISTENT: the production integral Pi_i (flow solver), see P1TurbProduction.

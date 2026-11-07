@@ -512,7 +512,7 @@ public:
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  void SplitEdgeResidual(const CGeometry *geometry, const CConfig *config);
+  void SplitEdgeResidual(const CGeometry *geometry, const CConfig *config, const CVariable* turbMatched = nullptr);
 
   /*!
    * \brief JST_ENTROPY_BUDGET (P1_JST_ENTROPY.md, Theorem J7): the matched Laplacian Lh and cb of each owned node from the

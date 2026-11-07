@@ -5001,6 +5001,29 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
                 for (iVar = 0; iVar < nVar; ++iVar) triRes[a][iVar] += ((b == a) ? omegaSelf : omegaOther) * buffer[b][iVar];
           }
 
+          /*--- Matched k (SSTPATHS_PLAN.md 1): the closure C rule of the triangle faces on each sub-triangle. ---*/
+          su2double kRowTri[3] = {0.0, 0.0, 0.0}, kNodeTri[3] = {0.0, 0.0, 0.0};
+          if (matchedK) {
+            for (unsigned short a = 0; a < 3; ++a) {
+              const auto pointA = element->GetNode(local[a]);
+              kNodeTri[a] = turbNodesK->GetSolution(pointA, 0);
+              su2double kBc = kNodeTri[a];
+              if (KindBC == FAR_FIELD) kBc = kInf;
+              if (KindBC == INLET_FLOW) {
+                kBc = solver_container[TURB_SOL]->GetMatchedInletKine(config, this, iMarker,
+                                                                      geometry->nodes->GetVertex(pointA, iMarker));
+              }
+              const su2double m = triRes[a][0];
+              su2double massPlus = 0.0, inflow = 0.0;
+              kRowTri[a] = P1SSTMatched::FaceKine(m, kNodeTri[a], kBc, massPlus, inflow);
+              triRes[a][nVar - 1] += kRowTri[a] * m;
+              if (geometry->nodes->GetDomain(pointA)) {
+                P1KMassPlus[pointA] += massPlus;
+                P1KInflow[pointA] += inflow;
+              }
+            }
+          }
+
           for (unsigned short a = 0; a < 3; ++a) {
             const auto pointA = element->GetNode(local[a]);
             if (!geometry->nodes->GetDomain(pointA)) continue;
@@ -5016,6 +5039,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
                   else jac[iVar][jVar] = omega * buffer[b][MAXNVAR + iVar * nVar + jVar];
                 }
               }
+              if (matchedK) P1SSTMatched::TransformJacobian(nVar, jac, kRowTri[a], kNodeTri[b]);
               if (b == a) Jacobian.AddBlock2Diag(pointA, jac);
               else if (geometry->nodes->GetDomain(pointB)) Jacobian.AddBlock(pointA, pointB, jac);
             }

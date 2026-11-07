@@ -289,7 +289,8 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
 
       if (nNodes != nDim + 1) {
         if (!mixed) SU2_MPI::Error("VISC_P1_ENTROPY needs triangles or tetrahedra, or EDGE_FORM_P1_MIXED= YES.", CURRENT_FUNCTION);
-        MixedViscousResidual(geometry, element, implicit, rowBound, prandtlTurb, gasConst, fullJacobian ? &law : nullptr);
+        MixedViscousResidual(geometry, element, implicit, rowBound, prandtlTurb, gasConst, fullJacobian ? &law : nullptr,
+                             turbNodes, elementKine);
         continue;
       }
 
@@ -388,7 +389,8 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
 
 void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, bool implicit, bool rowBound,
                                      const su2double& prandtlTurb, const su2double& gasConst,
-                                     const P1ViscousEntropy::TransportLaw* law) {
+                                     const P1ViscousEntropy::TransportLaw* law, const CVariable* turbNodes,
+                                     bool elementKine) {
   namespace pve = P1ViscousEntropy;
 
   const auto nCellNodes = element->GetnNodes();
@@ -397,8 +399,11 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
   if (!owned) return;
 
   pve::NodeState cellState[N_POINTS_MAXIMUM];
-  for (auto iNode = 0u; iNode < nCellNodes; ++iNode)
+  for (auto iNode = 0u; iNode < nCellNodes; ++iNode) {
     pve::GatherNode(*nodes, element->GetNode(iNode), nDim, prandtlTurb, cellState[iNode]);
+    /*--- SST: k of the total energy for dp/drho of the entropy-variable Jacobian (D3). ---*/
+    if (turbNodes) cellState[iNode].k = turbNodes->GetSolution(element->GetNode(iNode), 0);
+  }
 
   /*--- VISC_P1_JACOBIAN= FULL: d mu/dT, d kappa/dT of the cell nodes for the dK/du terms of every sub-simplex. ---*/
   const bool fullJacobian = implicit && (law != nullptr);
@@ -426,10 +431,32 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
 
     su2double residual[pve::MAXNODE][pve::MAXNVAR];
     simplex.Residual(residual);
+
+    /*--- M3 and M4 on the sub-simplex (SSTPATHS_PLAN.md 1): the KineDiffusion numbers of CTurbSSTSolver::P1KineDiffusion
+     * (same inputs and weight), not at strong-k nodes (M5), and the shares omega D_t,s / ((d+1) theta_a) of P*. ---*/
+    su2double shareProd[pve::MAXNODE] = {0.0};
+    if (elementKine) {
+      su2double kNode[pve::MAXNODE], muLam[pve::MAXNODE], muTurb[pve::MAXNODE], F1[pve::MAXNODE], resK[pve::MAXNODE];
+      for (unsigned short a = 0; a < nNodes; ++a) {
+        kNode[a] = turbNodes->GetSolution(point[a], 0);
+        muLam[a] = nodes->GetLaminarViscosity(point[a]);
+        muTurb[a] = state[a].mut;
+        F1[a] = turbNodes->GetF1blending(point[a]);
+      }
+      const su2double D = P1SSTMatched::ElementKineDiffusivity(nNodes, muLam, muTurb, F1);
+      P1SSTMatched::KineDiffusion(nDim, simplex.size, simplex.grad, kNode, D, resK);
+      const su2double Dt = simplex.TurbulentDissipation();
+      for (unsigned short a = 0; a < nNodes; ++a) {
+        if (!P1KStrongNode[point[a]]) residual[a][nVar - 1] += resK[a];
+        shareProd[a] = Dt / (nNodes * simplex.thetaNode[a]);
+      }
+    }
+
     for (unsigned short a = 0; a < nNodes; ++a) {
       if (!geometry->nodes->GetDomain(point[a])) continue;
       for (auto iVar = 0u; iVar < nVar; ++iVar) residual[a][iVar] *= weight;
       LinSysRes.AddBlock(point[a], residual[a]);
+      if (elementKine) P1TurbProduction[point[a]] += weight * shareProd[a];
     }
 
     /*--- VISC_P1_TIME_STEP: the omega-weighted row bounds of the sub-simplex. ---*/

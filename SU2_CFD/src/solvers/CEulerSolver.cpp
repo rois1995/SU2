@@ -403,7 +403,7 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
   /*--- Sizing edge mass flux array, padded to a multiple of the SIMD size since the vectorized
    *    numerics write to it with contiguous (unmasked) SIMD stores, same as CEdge's Normal. ---*/
   /*--- Matched k of SST with the P1 options: the P1 element terms and the closure k rule are written for simplices. ---*/
-  if (config->GetTke_Matched_P1()) {
+  if (config->GetTke_Matched_P1() && !config->GetEdge_Form_P1_Mixed() && !config->GetSplit_Edge_Flux()) {
     unsigned long nonSimplex = 0;
     for (unsigned long iElem = 0; iElem < geometry->GetnElem(); ++iElem)
       nonSimplex += (geometry->elem[iElem]->GetnNodes() != nDim + 1);
@@ -1902,9 +1902,14 @@ void CEulerSolver::Centered_Residual(CGeometry *geometry, CSolver **solver_conta
   /*--- Matched k (SST with the P1 options): the blend pre-pass takes the hat states, as the edge loop. ---*/
   const CVariable* turbMatched = ((iMesh == MESH_0) && config->GetTke_Matched_P1()) ? solver_container[TURB_SOL]->GetNodes() : nullptr;
   if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry, config, turbMatched);
+  /*--- Matched k: the k rows of the non-edge mass terms of this residual (split pairs, diagonals, nodal terms, the
+   * axisymmetric source), filled by the passes below and by Source_Residual, added by the SST (MatchedNodalKine). ---*/
+  if (turbMatched) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(P1KNodalRes.resize(nPoint) = su2double(0.0); P1KNodalJac.resize(nPoint) = su2double(0.0);)
+  }
   EdgeFluxResidual(geometry, solver_container, config);
   if ((iMesh == MESH_0) && config->GetJST_Entropy_Budget()) JSTEntropyResidual(geometry, solver_container, config);
-  if ((iMesh == MESH_0) && (config->GetSplit_Edge_Flux() || config->GetEdge_Form_P1_Mixed())) SplitEdgeResidual(geometry, config);
+  if ((iMesh == MESH_0) && (config->GetSplit_Edge_Flux() || config->GetEdge_Form_P1_Mixed())) SplitEdgeResidual(geometry, config, turbMatched);
   if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry, config);
 }
 
@@ -1980,7 +1985,7 @@ void CEulerSolver::SweptBoundaryResidual(const CGeometry *geometry, const CConfi
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
-void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *config) {
+void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *config, const CVariable* turbMatched) {
   SU2_ZONE_SCOPED
 
   const auto& splitNodes = geometry->edges->GetSplitNodes();
@@ -1988,6 +1993,24 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
   const auto& splitE = geometry->edges->GetSplitE();
   const auto& boundNormal = geometry->edges->GetSplitBoundNormal();
   const bool sweptFlux = config->GetGCL_Exact_P1();
+
+  /*--- Matched k of SST (SSTPATHS_PLAN.md 1, 4): the pairs act on the hat states (H - k, rhoE - rho k) and carry k_up m
+   * in the energy row; the same numbers go to the SST k row through P1KNodalRes (pairs: + at i, - at k; the 3D boundary
+   * nodal term: k_i m_b at i). ---*/
+  auto tke = [&](unsigned long iPoint) { return turbMatched->GetSolution(iPoint, 0); };
+  auto hatSolution = [&](unsigned long iPoint, unsigned short iVar) {
+    su2double U = nodes->GetSolution(iPoint, iVar);
+    if (turbMatched && (iVar == nDim + 1)) U -= nodes->GetDensity(iPoint) * tke(iPoint);
+    return U;
+  };
+  auto addPairKine = [&](unsigned long iPoint, unsigned long kPoint, su2double* flux) {
+    const su2double kFlux = P1SSTMatched::PairKine(flux[0], tke(iPoint), tke(kPoint));
+    su2double diag_i = 0.0, diag_k = 0.0;
+    P1SSTMatched::PairKineDiag(flux[0], nodes->GetDensity(iPoint), nodes->GetDensity(kPoint), diag_i, diag_k);
+    flux[nDim + 1] += kFlux;
+    if (geometry->nodes->GetDomain(iPoint)) { P1KNodalRes[iPoint] += kFlux; P1KNodalJac[iPoint] += diag_i; }
+    if (geometry->nodes->GetDomain(kPoint)) { P1KNodalRes[kPoint] -= kFlux; P1KNodalJac[kPoint] += diag_k; }
+  };
 
   /*--- Convective flux of a point through an area vector, added with a factor. ---*/
 
@@ -2001,11 +2024,12 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
     for (auto iDim = 0u; iDim < nDim; ++iDim) {
       flux[iDim + 1] += factor * (density * projVel * nodes->GetVelocity(iPoint, iDim) + pressure * normal[iDim]);
     }
-    flux[nDim + 1] += factor * density * projVel * nodes->GetEnthalpy(iPoint);
+    if (turbMatched) flux[nDim + 1] += factor * density * projVel * (nodes->GetEnthalpy(iPoint) - tke(iPoint));
+    else flux[nDim + 1] += factor * density * projVel * nodes->GetEnthalpy(iPoint);
 
     if (dynamic_grid) {
       const su2double projGridVel = GeometryToolbox::DotProduct(nDim, geometry->nodes->GetGridVel(iPoint), normal);
-      for (auto iVar = 0u; iVar < nVar; ++iVar) flux[iVar] -= factor * projGridVel * nodes->GetSolution(iPoint, iVar);
+      for (auto iVar = 0u; iVar < nVar; ++iVar) flux[iVar] -= factor * projGridVel * hatSolution(iPoint, iVar);
     }
   };
 
@@ -2032,6 +2056,7 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
           addFlux(iPoint, splitNormal[iSplit], 0.5, flux);
           addFlux(kPoint, splitNormal[iSplit], 0.5, flux);
         }
+        if (turbMatched) addPairKine(iPoint, kPoint, flux);
         if (geometry->nodes->GetDomain(iPoint)) LinSysRes.AddBlock(iPoint, flux);
         if (geometry->nodes->GetDomain(kPoint)) LinSysRes.SubtractBlock(kPoint, flux);
       }
@@ -2055,9 +2080,10 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
       if (sweptFlux) {
         const su2double omega = geometry->edges->GetSplitSwept()[iSplit];
         for (auto iVar = 0u; iVar < nVar; ++iVar) {
-          flux[iVar] -= 0.5 * omega * (nodes->GetSolution(iPoint, iVar) + nodes->GetSolution(kPoint, iVar));
+          flux[iVar] -= 0.5 * omega * (hatSolution(iPoint, iVar) + hatSolution(kPoint, iVar));
         }
       }
+      if (turbMatched) addPairKine(iPoint, kPoint, flux);
 
       if (geometry->nodes->GetDomain(iPoint)) LinSysRes.AddBlock(iPoint, flux);
       if (geometry->nodes->GetDomain(kPoint)) LinSysRes.SubtractBlock(kPoint, flux);
@@ -2067,6 +2093,13 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
       for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
         su2double flux[MAXNVAR] = {};
         addFlux(iPoint, boundNormal[iPoint], 1.0, flux);
+        if (turbMatched) {
+          /*--- A nodal mass term: the k of the node itself. ---*/
+          const su2double kFlux = tke(iPoint) * flux[0];
+          flux[nDim + 1] += kFlux;
+          P1KNodalRes[iPoint] += kFlux;
+          P1KNodalJac[iPoint] += fmax(flux[0], 0.0) / nodes->GetDensity(iPoint);
+        }
         LinSysRes.AddBlock(iPoint, flux);
       }
     }

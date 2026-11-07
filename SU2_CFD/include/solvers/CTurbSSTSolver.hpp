@@ -76,6 +76,13 @@ private:
   void MatchedBoundaryKine(CGeometry* geometry, CSolver** solver_container, const CConfig* config);
 
   /*!
+   * \brief SST with the P1 options (matched k, SSTPATHS_PLAN.md 0): the k rows of the non-edge mass terms of the flow
+   *        residual (split pairs, mixed-cell diagonals, nodal boundary and swept terms, axisymmetric source),
+   *        R_k,i += P1KNodalRes_i, Jacobian diagonal P1KNodalJac_i.
+   */
+  void MatchedNodalKine(CGeometry* geometry, CSolver** solver_container, const CConfig* config);
+
+  /*!
    * \brief SST with VISC_P1_ENTROPY and SST_ENERGY_CONSISTENT (M3): the P1 element k diffusion of the k row, the same
    *        numbers as the energy row of CNSSolver::Viscous_Residual_P1Entropy (P1SSTMatched::KineDiffusion).
    */

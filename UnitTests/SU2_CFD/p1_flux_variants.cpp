@@ -5988,3 +5988,298 @@ TEST_CASE("JST entropy: matched term reduces to JST for constant positive c on i
   CHECK(cb == 0.0);
   for (int v = 0; v < nVar; ++v) CHECK(Lh[v] == 0.0);
 }
+
+/*--- SST matched k on the pairs that are not edges (SSTPATHS_PLAN.md 1, 4): the diagonals of EDGE_FORM_P1_MIXED and the
+ * pairs and 3D boundary nodal terms of SPLIT_EDGE_FLUX. Model hat scheme on the pair data of a real geometry: the mean of
+ * the nodal hat Euler fluxes along n, the E part (F_k - F_i).E, a scalar dissipation on the hat jump of the true edges
+ * only (split pairs and diagonals have none, as CEulerSolver::SplitEdgeResidual), and the matched k of
+ * P1SSTMatched::PairKine in the energy row and in the k row. ---*/
+namespace {
+using State5 = std::array<su2double, 5>;
+
+struct PairResidual {
+  std::vector<State5> R;     /*!< \brief Flow rows (rho, m, rhoE). */
+  std::vector<su2double> Rk; /*!< \brief SST k row. */
+  std::vector<su2double> Dk; /*!< \brief Diagonal of the k-row Jacobian (P1KNodalJac of the pairs). */
+};
+
+su2double NormOf(int nDim, const su2double* n) {
+  su2double a = 0.0;
+  for (int d = 0; d < nDim; ++d) a += n[d] * n[d];
+  return sqrt(a);
+}
+
+/*--- U: conservative states with k in the energy; with k = 0 and U = Uhat this is the hat scheme. ---*/
+PairResidual MatchedPairResidual(const CGeometry& g, bool mixed, const std::vector<State5>& U,
+                                 const std::vector<su2double>& k) {
+  const int nDim = g.GetnDim(), nVar = nDim + 2;
+  PairResidual out;
+  out.R.assign(g.GetnPoint(), State5{});
+  out.Rk.assign(g.GetnPoint(), 0.0);
+  out.Dk.assign(g.GetnPoint(), 0.0);
+  auto hat = [&](unsigned long i) {
+    State5 H = U[i];
+    H[nDim + 1] -= U[i][0] * k[i];
+    return H;
+  };
+  auto add = [&](unsigned long i, unsigned long j, const su2double* n, const su2double* E, su2double lam) {
+    const State5 Hi = hat(i), Hj = hat(j);
+    su2double Fi[5], Fj[5], flux[5];
+    EulerFluxK(nDim, Hi.data(), 0.0, n, Fi);
+    EulerFluxK(nDim, Hj.data(), 0.0, n, Fj);
+    for (int v = 0; v < nVar; ++v) flux[v] = 0.5 * (Fi[v] + Fj[v]) - lam * (Hj[v] - Hi[v]);
+    if (E != nullptr) {
+      EulerFluxK(nDim, Hi.data(), 0.0, E, Fi);
+      EulerFluxK(nDim, Hj.data(), 0.0, E, Fj);
+      for (int v = 0; v < nVar; ++v) flux[v] += Fj[v] - Fi[v];
+    }
+    const su2double kFlux = P1SSTMatched::PairKine(flux[0], k[i], k[j]);
+    su2double di = 0.0, dj = 0.0;
+    P1SSTMatched::PairKineDiag(flux[0], U[i][0], U[j][0], di, dj);
+    flux[nVar - 1] += kFlux;
+    for (int v = 0; v < nVar; ++v) {
+      out.R[i][v] += flux[v];
+      out.R[j][v] -= flux[v];
+    }
+    out.Rk[i] += kFlux;
+    out.Rk[j] -= kFlux;
+    out.Dk[i] += di;
+    out.Dk[j] += dj;
+  };
+  for (auto iEdge = 0ul; iEdge < g.GetnEdge(); ++iEdge) {
+    const su2double* n = g.edges->GetFormNormal()[iEdge];
+    add(g.edges->GetNode(iEdge, 0), g.edges->GetNode(iEdge, 1), n, g.edges->GetFormE()[iEdge], 0.3 * NormOf(nDim, n));
+  }
+  const auto& pairs = g.edges->GetSplitNodes();
+  for (auto iSplit = 0ul; iSplit < pairs.size(); ++iSplit) {
+    add(pairs[iSplit][0], pairs[iSplit][1], g.edges->GetSplitNormal()[iSplit],
+        mixed ? nullptr : g.edges->GetSplitE()[iSplit], 0.0);
+  }
+  /*--- SPLIT_EDGE_FLUX in 3D: the nodal boundary term F_i . n_b, its k part k_i m_b (the node's own k). ---*/
+  if (!mixed && (nDim == 3)) {
+    for (auto i = 0ul; i < g.GetnPointDomain(); ++i) {
+      const State5 Hi = hat(i);
+      su2double F[5];
+      EulerFluxK(nDim, Hi.data(), 0.0, g.edges->GetSplitBoundNormal()[i], F);
+      const su2double kFlux = k[i] * F[0];
+      F[nVar - 1] += kFlux;
+      for (int v = 0; v < nVar; ++v) out.R[i][v] += F[v];
+      out.Rk[i] += kFlux;
+      out.Dk[i] += fmax(F[0], 0.0) / U[i][0];
+    }
+  }
+  return out;
+}
+
+/*--- Entropy variables w of the hat state: the coupled v has v_K = -v_E, so v.(R, R_k) = w.(R_rho, R_m, R_E - R_k). ---*/
+void HatEntropyVariables(int nDim, const State5& U, su2double k, su2double* w) {
+  su2double m2 = 0.0;
+  for (int i = 0; i < nDim; ++i) m2 += U[i + 1] * U[i + 1];
+  const su2double rho = U[0];
+  const su2double p = (kGamma - 1.0) * (U[nDim + 1] - 0.5 * m2 / rho - rho * k);
+  const su2double s = log(p) - kGamma * log(rho), beta = 0.5 * rho / p;
+  w[0] = (kGamma - s) / (kGamma - 1.0) - beta * m2 / (rho * rho);
+  for (int i = 0; i < nDim; ++i) w[i + 1] = 2.0 * beta * U[i + 1] / rho;
+  w[nDim + 1] = -2.0 * beta;
+}
+
+/*--- Random or uniform (rho, u, p) and k, conservative states with k in the energy. ---*/
+void FillMatchedStates(std::mt19937& gen, int nDim, const CGeometry& g, bool uniformFlow, bool uniformK,
+                       std::vector<State5>& U, std::vector<su2double>& k) {
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const auto nPoint = g.GetnPoint();
+  U.assign(nPoint, State5{});
+  k.assign(nPoint, 0.0);
+  const su2double vel0[3] = {0.6, -0.2, 0.3};
+  for (auto i = 0ul; i < nPoint; ++i) {
+    /*--- From the coordinates, so that halo copies on other ranks hold the same state. ---*/
+    const su2double* x = g.nodes->GetCoord(i);
+    su2double phase = 0.0;
+    for (int d = 0; d < nDim; ++d) phase += (d + 1.3) * x[d];
+    const su2double rho = uniformFlow ? 1.1 : 1.1 * exp(0.3 * sin(3.1 * phase));
+    const su2double p = uniformFlow ? 0.9 : 0.9 * exp(0.3 * cos(2.3 * phase));
+    k[i] = uniformK ? 0.05 : 0.05 * exp(sin(5.7 * phase + 0.4));
+    su2double vel2 = 0.0;
+    U[i][0] = rho;
+    for (int d = 0; d < nDim; ++d) {
+      const su2double v = uniformFlow ? vel0[d] : vel0[d] + 0.3 * sin(1.7 * phase + d);
+      U[i][d + 1] = rho * v;
+      vel2 += v * v;
+    }
+    U[i][nDim + 1] = p / (kGamma - 1.0) + 0.5 * rho * vel2 + rho * k[i];
+  }
+  (void)gen;
+}
+
+std::vector<State5> HatStates(int nDim, const std::vector<State5>& U, const std::vector<su2double>& k) {
+  auto H = U;
+  for (auto i = 0ul; i < U.size(); ++i) H[i][nDim + 1] -= U[i][0] * k[i];
+  return H;
+}
+
+/*--- (a) free stream with a k jump, (b) uniform k, (c) conservation, (d) entropy identity, (e) k-row diagonal by FD. ---*/
+void CheckMatchedPairs(const CGeometry& g, bool mixed) {
+  const int nDim = g.GetnDim(), nVar = nDim + 2;
+  const auto nPoint = g.GetnPoint();
+  std::mt19937 gen(2468 + nDim);
+  std::vector<State5> U;
+  std::vector<su2double> k;
+  const std::vector<su2double> zero(nPoint, 0.0);
+  su2double worst[6] = {0.0};
+
+  /*--- (a) uniform (rho, u, p) with a k jump: the k changes only the energy row, by the k row; interior hat rows = 0. ---*/
+  FillMatchedStates(gen, nDim, g, true, false, U, k);
+  const auto res = MatchedPairResidual(g, mixed, U, k);
+  const auto hatRes = MatchedPairResidual(g, mixed, HatStates(nDim, U, k), zero);
+  for (auto i = 0ul; i < g.GetnPointDomain(); ++i) {
+    for (int v = 0; v < nVar - 1; ++v) worst[0] = fmax(worst[0], fabs(res.R[i][v] - hatRes.R[i][v]));
+    worst[0] = fmax(worst[0], fabs(res.R[i][nVar - 1] - res.Rk[i] - hatRes.R[i][nVar - 1]));
+    if (!g.nodes->GetPhysicalBoundary(i)) {
+      for (int v = 0; v < nVar; ++v) worst[1] = fmax(worst[1], fabs(hatRes.R[i][v]));
+      worst[1] = fmax(worst[1], fabs(res.R[i][nVar - 1] - res.Rk[i]));
+    }
+  }
+
+  /*--- (b) uniform k with a random flow: R_k = k R_rho at every node (every mass term carries k). ---*/
+  FillMatchedStates(gen, nDim, g, false, true, U, k);
+  const auto resU = MatchedPairResidual(g, mixed, U, k);
+  for (auto i = 0ul; i < g.GetnPointDomain(); ++i)
+    worst[2] = fmax(worst[2], fabs(resU.Rk[i] - k[i] * resU.R[i][0]) / (1.0 + fabs(resU.R[i][0])));
+
+  /*--- (c) conservation: the pairs give sum_i R_k,i = 0, the 3D split nodal terms add their own k_i m_b. ---*/
+  FillMatchedStates(gen, nDim, g, false, false, U, k);
+  const auto resC = MatchedPairResidual(g, mixed, U, k);
+  su2double sumK = 0.0, nodal = 0.0, scale = 0.0;
+  for (auto i = 0ul; i < g.GetnPointDomain(); ++i) {
+    sumK += resC.Rk[i];
+    scale += fabs(resC.Rk[i]);
+    if (!mixed && (nDim == 3)) {
+      State5 Hi = U[i];
+      Hi[nVar - 1] -= U[i][0] * k[i];
+      su2double F[5];
+      EulerFluxK(nDim, Hi.data(), 0.0, g.edges->GetSplitBoundNormal()[i], F);
+      nodal += k[i] * F[0];
+    }
+  }
+  worst[3] = fabs(GlobalSum(sumK) - GlobalSum(nodal)) / (1.0 + GlobalSum(scale));
+
+  /*--- (d) -sum v.(R, R_k) of the coupled scheme = -sum w.Rhat of the hat scheme (Theorem C1 with M1). ---*/
+  const auto resH = MatchedPairResidual(g, mixed, HatStates(nDim, U, k), zero);
+  su2double coupled = 0.0, hatRate = 0.0, mag = 0.0;
+  for (auto i = 0ul; i < g.GetnPointDomain(); ++i) {
+    su2double w[5];
+    HatEntropyVariables(nDim, U[i], k[i], w);
+    for (int v = 0; v < nVar - 1; ++v) {
+      coupled -= w[v] * resC.R[i][v];
+      hatRate -= w[v] * resH.R[i][v];
+    }
+    coupled -= w[nVar - 1] * (resC.R[i][nVar - 1] - resC.Rk[i]);
+    hatRate -= w[nVar - 1] * resH.R[i][nVar - 1];
+    for (int v = 0; v < nVar; ++v) mag += fabs(w[v] * resH.R[i][v]);
+  }
+  worst[4] = fabs(GlobalSum(coupled) - GlobalSum(hatRate)) / (1.0 + GlobalSum(mag));
+
+  /*--- (e) the k-row diagonal of a pair against central differences in rho k at a frozen mass flux. ---*/
+  const auto& pairs = g.edges->GetSplitNodes();
+  for (auto iSplit = 0ul; iSplit < pairs.size(); ++iSplit) {
+    const auto i = pairs[iSplit][0], j = pairs[iSplit][1];
+    for (const su2double m : {0.37, -0.53}) {
+      su2double di = 0.0, dj = 0.0;
+      P1SSTMatched::PairKineDiag(m, U[i][0], U[j][0], di, dj);
+      const su2double h = 1e-7;
+      const su2double fdi = (P1SSTMatched::PairKine(m, k[i] + h / U[i][0], k[j]) -
+                             P1SSTMatched::PairKine(m, k[i] - h / U[i][0], k[j])) / (2 * h);
+      const su2double fdj = -(P1SSTMatched::PairKine(m, k[i], k[j] + h / U[j][0]) -
+                              P1SSTMatched::PairKine(m, k[i], k[j] - h / U[j][0])) / (2 * h);
+      worst[5] = fmax(worst[5], fabs(di - fdi) + fabs(dj - fdj));
+    }
+  }
+
+  INFO("nDim " << nDim << (mixed ? " mixed diagonals" : " split pairs"));
+  CHECK(GlobalMax(worst[0]) < 1e-12);
+  CHECK(GlobalMax(worst[1]) < 1e-11);
+  CHECK(GlobalMax(worst[2]) < 1e-13);
+  CHECK(worst[3] < 1e-13);
+  CHECK(worst[4] < 1e-13);
+  CHECK(GlobalMax(worst[5]) < 1e-7);
+}
+}  // namespace
+
+TEST_CASE("P1 SST matched: mixed-cell diagonals, free stream with a k jump, uniform k, conservation, entropy identity", "[P1Flux]") {
+  for (int nDim : {2, 3}) {
+    const std::string mesh = "p1_sst_mixed_" + std::to_string(nDim) + "d.su2";
+    WriteMixedMesh(mesh, nDim, (nDim == 2) ? 6 : 3, 0.2, 1.0);
+    MeshCase test(mesh, MixedOptions);
+    auto& geometry = *test.geometry;
+    geometry.SetEdgeFormP1(true);
+    REQUIRE(GlobalSum(su2double(geometry.edges->GetSplitNodes().size())) > 0.0);
+    CheckMatchedPairs(geometry, true);
+  }
+}
+
+TEST_CASE("P1 SST matched: SPLIT_EDGE_FLUX pairs and boundary nodal terms, the same identities", "[P1Flux]") {
+  struct Kind { int nDim, kind; unsigned long n; };
+  for (const auto& m : {Kind{2, 0, 6}, Kind{3, 0, 3}, Kind{3, 1, 3}}) {
+    const std::string name = "p1_sst_split_" + std::to_string(m.nDim) + "_" + std::to_string(m.kind) + ".su2";
+    WriteGeneralMesh(name, m.nDim, m.kind, m.n, 0.2, 1.0);
+    MeshCase test(name, "CONV_NUM_METHOD_FLOW= JST\nSPLIT_EDGE_FLUX= YES\n");
+    auto& geometry = *test.geometry;
+    geometry.SetSplitEdges();
+    INFO("kind " << m.kind);
+    CheckMatchedPairs(geometry, false);
+  }
+}
+
+TEST_CASE("P1 SST matched: weighted sub-simplex k diffusion of a mixed cell, conservation, linear k, D_t shares (M3, M4)", "[P1Flux]") {
+  for (int nDim : {2, 3}) {
+    const std::string mesh = "p1_sst_mixedk_" + std::to_string(nDim) + "d.su2";
+    WriteMixedMesh(mesh, nDim, (nDim == 2) ? 6 : 3, 0.2, 1.0);
+    MeshCase test(mesh, MixedOptions);
+    auto& geometry = static_cast<CPhysicalGeometry&>(*test.geometry);
+    geometry.SetEdgeFormP1(true);
+    const unsigned short nNodes = nDim + 1;
+    std::vector<su2double> R(geometry.GetnPoint(), 0.0);
+    su2double cellWorst = 0.0, shareWorst = 0.0;
+    const su2double D = 0.7;
+    for (auto iElem = 0ul; iElem < geometry.GetnElem(); ++iElem) {
+      const auto* element = geometry.elem[iElem];
+      if (element->GetnNodes() == nNodes) continue;
+      su2double cellSum = 0.0;
+      for (const auto& entry : geometry.GetMixedSimplices(element->GetVTK_Type())) {
+        const su2double* coord[4];
+        unsigned long point[4];
+        su2double kNode[4], res[4], grad[4][3];
+        for (unsigned short a = 0; a < nNodes; ++a) {
+          point[a] = element->GetNode(entry.nodes[a]);
+          coord[a] = geometry.nodes->GetCoord(point[a]);
+          kNode[a] = 0.3 + 0.7 * coord[a][0] - 0.2 * coord[a][1] + ((nDim == 3) ? 0.4 * coord[a][2] : 0.0);
+        }
+        const su2double size = fabs(P1Simplex::ShapeGradients(nDim, coord, grad));
+        P1SSTMatched::KineDiffusion(nDim, size, grad, kNode, D, res);
+        for (unsigned short a = 0; a < nNodes; ++a) {
+          R[point[a]] += entry.weight * res[a];
+          cellSum += entry.weight * res[a];
+        }
+        /*--- Shares Dt/((d+1) theta_a) summed with theta_a give Dt for any Dt and theta (E1). ---*/
+        const su2double Dt = 0.37 * size, theta[4] = {1.3, 0.8, 1.1, 0.9};
+        su2double back = 0.0;
+        for (unsigned short a = 0; a < nNodes; ++a) back += theta[a] * Dt / (nNodes * theta[a]);
+        shareWorst = fmax(shareWorst, fabs(back - Dt));
+      }
+      cellWorst = fmax(cellWorst, fabs(cellSum));
+    }
+    /*--- Interior nodes of the mixed cells: a linear k with constant D gives zero (the split average is consistent). ---*/
+    su2double interiorWorst = 0.0;
+    for (auto i = 0ul; i < geometry.GetnPointDomain(); ++i) {
+      if (geometry.nodes->GetPhysicalBoundary(i)) continue;
+      bool allMixed = true;
+      for (auto iElem : geometry.nodes->GetElems(i)) allMixed &= (geometry.elem[iElem]->GetnNodes() != nNodes);
+      if (!allMixed) continue;
+      interiorWorst = fmax(interiorWorst, fabs(R[i]));
+    }
+    INFO("nDim " << nDim);
+    CHECK(GlobalMax(cellWorst) < 1e-13);
+    CHECK(GlobalMax(shareWorst) < 1e-15);
+    CHECK(GlobalMax(interiorWorst) < 1e-12);
+  }
+}

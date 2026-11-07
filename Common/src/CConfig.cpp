@@ -6658,8 +6658,11 @@ void CConfig::CheckP1FluxOptions() const {
     const string name = "P1 options with SST (matched k, P1_SST_COUPLED.md): ";
     if (nMGLevels > 0) SU2_MPI::Error(name + "needs MGLEVEL= 0.", CURRENT_FUNCTION);
     if (MUSCL_Turb) SU2_MPI::Error(name + "needs MUSCL_TURB= NO (the same upwind k in the energy and k rows).", CURRENT_FUNCTION);
-    if (Edge_Form_P1_Mixed || Split_Edge_Flux)
-      SU2_MPI::Error(name + "not available with EDGE_FORM_P1_MIXED or SPLIT_EDGE_FLUX (simplex meshes only).", CURRENT_FUNCTION);
+    /*--- Rough walls give k != 0 at strong-k nodes, where the weak-wall closures have nodal mass rows (M5). ---*/
+    for (unsigned short iMarker = 0; iMarker < nRough_Wall; ++iMarker) {
+      if (Roughness_Height[iMarker] > 0.0)
+        SU2_MPI::Error(name + "not available with WALL_ROUGHNESS (k != 0 at the wall nodes).", CURRENT_FUNCTION);
+    }
     if (Axisymmetric) SU2_MPI::Error(name + "not available with AXISYMMETRIC.", CURRENT_FUNCTION);
     if (!((Kind_ConvNumScheme_Flow == SPACE_CENTERED) && (Kind_Centered_Flow == CENTERED::JST)))
       SU2_MPI::Error(name + "only with CONV_NUM_METHOD_FLOW= JST (JST-P1ES, JST-PD).", CURRENT_FUNCTION);

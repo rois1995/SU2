@@ -327,8 +327,28 @@ void CTurbSSTSolver::Upwind_Residual(CGeometry* geometry, CSolver** solver_conta
   });
 
   if (matched && config->GetBC_Entropy_P1()) MatchedBoundaryKine(geometry, solver_container, config);
+  if (matched) MatchedNodalKine(geometry, solver_container, config);
   if (matched && config->GetJST_Entropy_Budget()) MatchedCorrectionKine(geometry, solver_container, config);
   if ((iMesh == MESH_0) && config->GetSST_P1_Element_Kine()) P1KineDiffusion(geometry, solver_container, config);
+}
+
+void CTurbSSTSolver::MatchedNodalKine(CGeometry* geometry, CSolver** solver_container, const CConfig* config) {
+  /*--- The k rows of the non-edge mass terms of the flow residual (SSTPATHS_PLAN.md 0): split pairs, mixed-cell diagonals,
+   * nodal boundary and swept terms, the axisymmetric source. Nodes without such terms are skipped (bitwise unchanged). ---*/
+  const auto& res = solver_container[FLOW_SOL]->GetP1KNodalRes();
+  const auto& jac = solver_container[FLOW_SOL]->GetP1KNodalJac();
+  if ((res.size() != nPoint) || (jac.size() != nPoint)) {
+    SU2_MPI::Error("Matched k: the nodal k sums of the flow solver are missing.", CURRENT_FUNCTION);
+  }
+  const bool implicit = (config->GetKind_TimeIntScheme_Turb() == EULER_IMPLICIT);
+
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+    if ((res(iPoint) == 0.0) && (jac(iPoint) == 0.0)) continue;
+    LinSysRes(iPoint, 0) += res(iPoint);
+    if (implicit) Jacobian.AddVal2Diag(iPoint, 0, jac(iPoint));
+  }
+  END_SU2_OMP_FOR
 }
 
 void CTurbSSTSolver::MatchedBoundaryKine(CGeometry* geometry, CSolver** solver_container, const CConfig* config) {
@@ -396,22 +416,36 @@ void CTurbSSTSolver::P1KineDiffusion(CGeometry* geometry, CSolver** solver_conta
   const bool implicit = (config->GetKind_TimeIntScheme_Turb() == EULER_IMPLICIT);
   constexpr unsigned short MAXN = MAXNDIM + 1;
 
+  /*--- EDGE_FORM_P1_MIXED: non-simplex cells by the weighted sub-simplices of their split averages. ---*/
+  const bool mixed = config->GetEdge_Form_P1_Mixed();
+  P1Mixed::Simplex self;
+  for (unsigned short a = 0; a <= nDim; ++a) self.nodes[a] = a;
+  self.weight = 1.0;
+  const std::vector<P1Mixed::Simplex> selfList(1, self);
+
   /*--- One pass over the simplices (serial, the rows of an element are not disjoint between elements). ---*/
   SU2_OMP_MASTER
   for (unsigned long iElem = 0; iElem < geometry->GetnElem(); ++iElem) {
     const auto* element = geometry->elem[iElem];
-    const unsigned short nNodes = element->GetnNodes();
-    if (nNodes != nDim + 1) SU2_MPI::Error("P1 k diffusion: needs triangles or tetrahedra.", CURRENT_FUNCTION);
+    const unsigned short nCellNodes = element->GetnNodes();
+    const unsigned short nNodes = nDim + 1;
+    if ((nCellNodes != nNodes) && !mixed) SU2_MPI::Error("P1 k diffusion: needs triangles or tetrahedra.", CURRENT_FUNCTION);
 
     bool owned = false;
-    for (unsigned short a = 0; a < nNodes; ++a) owned |= geometry->nodes->GetDomain(element->GetNode(a));
+    for (unsigned short a = 0; a < nCellNodes; ++a) owned |= geometry->nodes->GetDomain(element->GetNode(a));
     if (!owned) continue;
 
+    /*--- A simplex is its own list with weight 1; a mixed cell the weighted sub-simplices of its split average, as in
+     * CNSSolver::MixedViscousResidual (SSTPATHS_PLAN.md 1). ---*/
+    const bool subCell = (nCellNodes != nNodes);
+    const auto& subs = (nCellNodes == nNodes) ? selfList : geometry->GetMixedSimplices(element->GetVTK_Type());
+
+    for (const auto& entry : subs) {
     const su2double* coord[MAXN];
     unsigned long point[MAXN];
     su2double k[MAXN], mu[MAXN], muT[MAXN], F1[MAXN], rho[MAXN];
     for (unsigned short a = 0; a < nNodes; ++a) {
-      point[a] = element->GetNode(a);
+      point[a] = element->GetNode(entry.nodes[a]);
       coord[a] = geometry->nodes->GetCoord(point[a]);
       k[a] = nodes->GetSolution(point[a], 0);
       mu[a] = flowNodes->GetLaminarViscosity(point[a]);
@@ -425,18 +459,24 @@ void CTurbSSTSolver::P1KineDiffusion(CGeometry* geometry, CSolver** solver_conta
     const su2double D = P1SSTMatched::ElementKineDiffusivity(nNodes, mu, muT, F1);
     su2double res[MAXN];
     P1SSTMatched::KineDiffusion(nDim, size, grad, k, D, res);
+    const su2double weight = entry.weight;
 
     for (unsigned short a = 0; a < nNodes; ++a) {
       if (!geometry->nodes->GetDomain(point[a])) continue;
+      /*--- The energy row multiplies the same res by the same weight (CNSSolver::MixedViscousResidual). ---*/
+      if (subCell) res[a] *= weight;
       LinSysRes(point[a], 0) += res[a];
       if (!implicit) continue;
       for (unsigned short b = 0; b < nNodes; ++b) {
         su2double block[2][2] = {{0.0, 0.0}, {0.0, 0.0}};
         block[0][0] = P1SSTMatched::KineDiffusionJacobian(nDim, size, grad, D, a, b) / rho[b];
+        if (subCell) block[0][0] *= weight;
         const su2double* rows[2] = {block[0], block[1]};
+        /*--- Non-edge pairs of a mixed cell are not in the sparsity pattern, AddBlock drops them (as the flow). ---*/
         if (b == a) Jacobian.AddBlock2Diag(point[a], rows);
         else Jacobian.AddBlock(point[a], point[b], rows);
       }
+    }
     }
   }
   END_SU2_OMP_MASTER

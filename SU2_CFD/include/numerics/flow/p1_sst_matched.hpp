@@ -71,6 +71,25 @@ inline su2double FaceKine(const su2double& m, const su2double& kNode, const su2d
 }
 
 /*!
+ * \brief Matched k of a pair that is not an edge of the edge loop (split pairs, mixed-cell diagonals, SSTPATHS_PLAN.md 1):
+ *        the k flux k_up m of the mass flux m from i to k, added to the energy row of the pair and, as the same number,
+ *        to the SST k row (+ at i, - at k).
+ */
+inline su2double PairKine(const su2double& m, const su2double& k_i, const su2double& k_k) {
+  return KUpwind(m, k_i, k_k) * m;
+}
+
+/*!
+ * \brief Diagonal Jacobian of PairKine in the k rows w.r.t. rho k (m frozen): max(m,0)/rho_i at i, -min(m,0)/rho_k at k.
+ *        The off-diagonal blocks of non-edge pairs are not in the sparsity pattern (as for the flow).
+ */
+inline void PairKineDiag(const su2double& m, const su2double& rho_i, const su2double& rho_k, su2double& diag_i,
+                         su2double& diag_k) {
+  diag_i = fmax(m, 0.0) / rho_i;
+  diag_k = -fmin(m, 0.0) / rho_k;
+}
+
+/*!
  * \brief Element diffusivity of k, the vertex mean of mu + sigma_k mu_t (sigma_k blended by F1, as the k row).
  */
 inline su2double ElementKineDiffusivity(unsigned short nNodes, const su2double* mu, const su2double* muT,

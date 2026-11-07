@@ -160,10 +160,14 @@ private:
    * \param[in] prandtlTurb - Turbulent Prandtl number.
    * \param[in] gasConst - Gas constant (non-dimensional).
    * \param[in] law - VISC_P1_JACOBIAN= FULL: transport laws for the dK/du terms, nullptr for the Picard Jacobian.
+   * \param[in] turbNodes - SST: k of the total energy (D3), else nullptr.
+   * \param[in] elementKine - SST_ENERGY_CONSISTENT with VISC_P1_ENTROPY: the weighted sub-simplex k diffusion of the energy
+   *            row (M3) and the shares of P* (M4), as CTurbSSTSolver::P1KineDiffusion (SSTPATHS_PLAN.md 1).
    */
   void MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *element, bool implicit, bool rowBound,
                             const su2double& prandtlTurb, const su2double& gasConst,
-                            const P1ViscousEntropy::TransportLaw* law);
+                            const P1ViscousEntropy::TransportLaw* law, const CVariable* turbNodes = nullptr,
+                            bool elementKine = false);
 
   /*!
    * \brief VISC_P1_ENTROPY_MOVED: P^v_T and D^gal_T - W_T of a simplex with an owned node, for the one-budget blend
