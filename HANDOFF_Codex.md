@@ -40,6 +40,12 @@ IMPORTANT: analyze_m6244_quality.py is hard-coded to the COMPLETED COMBINED case
 not A_MACH. Reuse its parser only with the explicit new path for live Mach telemetry.
 Combined-target timing/work comparisons are not same-target Mach-only benchmarks.
 Never repeat the old244stop or signal historical PID3440421.
+Use R/analyze_m6244_mach_only.py for live first-event stage/churn/location/ladder
+analysis; it reuses existing exact-census assertions with NO combined-target
+benchmark. Latest observation: actual Hessian recovery61330point-sensor pairs,
+0WLS fallbacks,one sensor per original-grid point; no complete construction stage
+yet. Sampled process-tree RSS about4.3GiB; not a whole-job/physical peak.
+A_MACH/owned_live_observation.json is current exact live handle confirmation.
 
 ## Preserved combined244 outcome and Mach-only preparation
 
