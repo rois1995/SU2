@@ -14,12 +14,55 @@ ONE active cycle/ONE owned heavy job;all pinned sources/fixtures/helpers/binary/
 config/inputs FROZEN while running. Verify actual HOST identities before any action.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-A251=`R/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k`(LIVE).
+A251=`R/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k`(terminal REFUSED).
 A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k`(REFUSED baseline).
 
-## CURRENT — frozen251 full TWO-event M6 LIVE
+## CURRENT — terminal251 refusal; diagnosis active
 
-Tool5327LIVE;source checkpoint1943eb3199pushed. Same saved realCFDseed,MACH-only
+Tool5327TERMINAL1/5537.759614s,pins verified unchanged. First native event REFUSED
+at5348.321852/round34773:1032521cells/1487q/639J/1044geometry/0size,
+ALL measured/complete flags. Reason:private repair round exhausts elapsed-time
+budget. Still first shape pass;no accepted mesh or geometry closure.
+A251/capture_ready.json seals ALL30files and1032521owned/metric rows. All1520pins
+verified before ONE pidfdSIGTERM to HOST MPI475670. A251/owned_stop_once.json
+records exact identity;NEVER repeat. All10sampled owned handles PLUS wrapper absent
+in A251/terminal_handles.json. No heavy workload currently live. No C++ edits yet.
+Terminal analysis complete;[251outcome](Handbook/ADAPTATION_BUILD251_OUTCOME_20261107.md)
+and A251/terminal_comparison247.json preserve full first-event scope.
+Actual candidate201192points/1032521tets. Versus247terminal:339MOREq/155MOREJ,
+same1044geometry. Quality4670.668245vs4658.117179,net q/s22.473658vs22.606988.
+Last matching34752counts/85055commits/query counts identical;quality upper work
+−0.9735%,but no runtime/closure gain. EXIT34773NONZERO219commits/net154q/56J;
+baseline EXIT34816shares final window and has zero delta. Do not drop current EXIT.
+Queue24031,stuck_shape46of1999,missing0,private tracked collectives0. Latest q-bad
+1236interior/251surface,J495interior/144surface. All1999shape-union cells haveedge<.9;
+1889<.5is correlation,not a construction-policy justification.
+Immediate blocker remains SPEED of useful closure;retained geometry phase untested.
+
+ONE next bounded diagnosis:existing whole-context optimizer versus existing single-
+star and collapsed-retained-star candidates at SAME160work/64cell cap. All SEVEN
+prior247actual contexts are EXACTLY unchanged in251(full stars,raw geometry/nodal
+metric/physical facets,q/Joracles,forward bindings,dependency versions). The2.212690s
+identity check is terminal/host absent. All1563pins of the qualified251same-corpus
+case and all30current capture hashes verified;A251/qualified_fixture_reuse251.json.
+No new full VTU/baseline campaign. Source review confirms existing cheap merit
+screening and old-side guidance reuse;no duplicate filter needed.
+Production optimizer sees original feature star,then raw topology is immediately
+validated. Existing pre-reservation full-star union is limited to geometry-bad
+shape-bad cores with2physical faces;reuse point for required support closure.
+Current surface core212134150has raw1q/0J→3q/4J(no progress,refused),then existing
+retained-star optimization→0/0with geometry0 and valid metric/interface/replacement
+checks. Assess whole-context optimizer FIRST before adding a composite branch.
+Build252will be DIAGNOSTIC-ONLY fixture extension;no production change planned
+until that bounded test resolves the hypothesis. Then ONE connected fix,focused
+serial/ONE MPI6,and immediately full same-seed M6. No new config/cap/pass/scheduler.
+No new baseline/perf/GDB campaign. Preserve every gate/construction policy.
+The driver continued CFD on its ORIGINAL grid after refusal;its adap-named restart
+is NOT adapted transfer/continued-CFD/restart proof. Full goal remains OPEN.
+
+## Frozen251 startup and measured prefixes — historical
+
+Frozen runtime source checkpoint1943eb3199pushed;tool5327is now terminal above. Same saved realCFDseed,MACH-only
 L1/50k,strict gates,native5400/outer14400,pt2pt/private4TBscratch/nice19/libs1;
 geometry trace UNSET. ConfigSHA5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e
 matches247exactly. Initial continued CFD CL.269535/CD.013536;61330point-sensor fits.
@@ -60,7 +103,7 @@ all complete. Same cfg,CFDseed AND initial continued original-grid restart bytes
 A251/quality_entry_comparison247.json. Construction120785commits/52092upper calls
 in both;upper274601233→271243211(−1.2229%),native689.582599→677.653607observational.
 
-Keep the full run FROZEN until its terminal outcome or preserved evidence warrants
+For future attempts,keep the full run FROZEN until its terminal outcome or preserved evidence warrants
 an authorized stop for demonstrated failure,clear bottleneck or actual pressure.
 No profiler/GDB/baseline campaign/new configuration. At refusal,seal all30capture
 files/complete flags and verify source pins BEFORE one exact verified owned stop;

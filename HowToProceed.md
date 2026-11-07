@@ -6,6 +6,19 @@ build, input and evidence provenance; older build/status notes never override it
 
 ## Goal and active work
 
+CURRENT:build251full TWO-event attempt is terminal REFUSED. Native5348.321852,
+201192points/1032521tets,1487q/639J/1044geometry-bad/0size,all flags complete.
+All30capture files sealed,1520pins unchanged before one verified owned MPI stop;
+all owned handles absent. No accepted mesh/transfer/adapted CFD/disk restart.
+[Outcome and next diagnosis](Handbook/ADAPTATION_BUILD251_OUTCOME_20261107.md).
+Immediate blocker remains speed;the1%counted certificate saving established no
+runtime gain. Existing actual seven-cavity evidence is reusable:complete stars,
+geometry/nodal tensors,bindings,versions and q/Joracles are unchanged in251.
+Next bounded check compares existing whole-context optimization with existing
+single-star/composed candidates at160work/64cells before a production change.
+Keep validity-first construction and all final gates. Historical LIVE notes below
+are superseded by this state and HANDOFF_Codex.md.
+
 Complete TWO strictly accepted ONERA M6 Euler CFD→mesh→CFD→mesh events at **50k
 metric complexity**, conservative admissible transfer, finite continued adapted CFD
 and an actual isolated adapted disk restart. Then dedicated BL/constraint/MPI

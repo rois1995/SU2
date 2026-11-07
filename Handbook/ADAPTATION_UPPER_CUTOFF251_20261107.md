@@ -1,6 +1,9 @@
-# Shared graph-upper monotone cutoff — active251 cycle
+# Shared graph-upper monotone cutoff251 — terminal outcome
 
-2026-11-07. ZERO accepted meshes. Same50k/Mach-only/saved CFD seed/gates/budgets.
+2026-11-07. TERMINAL REFUSED;ZERO accepted meshes. Same50k/Mach-only/saved seed/gates.
+[Complete outcome and next bounded diagnosis](ADAPTATION_BUILD251_OUTCOME_20261107.md).
+The LIVE notes below are historical prefixes. Lower counted work did NOT establish
+an end-to-end speedup or closure. No owned heavy job live after terminal proof.
 
 The terminal247M6attempt exhausted its deadline with useful queued work and
 1148q/484J/1044geometry-bad cells. Its actual seven-context trace locates3822194
