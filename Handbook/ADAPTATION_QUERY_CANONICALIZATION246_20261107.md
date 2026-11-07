@@ -154,3 +154,13 @@ all measured/flags complete. Construction upper work282283657→274601233 and
 traversal263600528→256967738,with identical120785local accepted operations.
 A247/quality_entry_comparison244.json and comparison244_matching_stages.json
 preserve the measured scope;this is not quality closure or a full-run speedup.
+
+At nine complete matching quality windows,the first seven have identical field
+counts/commits/churn. First slight field divergence appears at round32384:
+247has +12q,+17J,+1geometry relative to244. At32448it has68289q/67119J/1215geometry,
+versus68117q/67031J/1219geometry. Quality age1358.564680s;net q removal28.092148/s
+versus25.844990/s. Cause of divergence is unattributed;do not claim full-path repair
+identity or causal wall speedup. A247/quality_comparison244.json records exact fields,
+churn,memo and BOTH cumulative-native and quality-entry-subtracted work. Cumulative
+32384upper/traversal883.831M/834.958M versus987.267M/932.164M INCLUDE construction;
+rank-summed smoothing timers overlap geometry. Full run remains frozen/live.

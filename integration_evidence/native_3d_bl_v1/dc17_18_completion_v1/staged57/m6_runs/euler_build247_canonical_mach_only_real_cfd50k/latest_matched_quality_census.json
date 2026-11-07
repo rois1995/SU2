@@ -1,38 +1,71 @@
 {
-  "round": 32064,
+  "round": 32256,
   "totals_equal": true,
   "remaining": {
-    "cells": 895674,
-    "measured": 895674,
-    "q_measured": 895674,
-    "j_measured": 895674,
-    "q_bad": 94913,
-    "j_bad": 94850,
-    "geometry_bad": 1299,
+    "cells": 918431,
+    "measured": 918431,
+    "q_measured": 918431,
+    "j_measured": 918431,
+    "q_bad": 80763,
+    "j_bad": 80098,
+    "geometry_bad": 1239,
     "size_bad": 0
   },
   "by_build": {
     "244": {
-      "quality_age": 418.4262516929999,
+      "quality_age": 1090.4072043209999,
       "net_removed": {
-        "q_bad": 11541,
-        "j_bad": 11354,
-        "geometry_bad": 82
+        "q_bad": 25691,
+        "j_bad": 26106,
+        "geometry_bad": 142
       },
-      "net_q_removed_per_second": 27.581921433714566,
-      "upper_work": 207185753,
-      "traversal_work": 196356133
+      "net_q_removed_per_second": 23.560922835242884,
+      "qJ_debt_max_over_mean": 1.0996805324566272,
+      "upper_work": 582984243,
+      "traversal_work": 556288473
     },
     "247": {
-      "quality_age": 383.993092275,
+      "quality_age": 1009.698319247,
       "net_removed": {
-        "q_bad": 11541,
-        "j_bad": 11354,
-        "geometry_bad": 82
+        "q_bad": 25691,
+        "j_bad": 26106,
+        "geometry_bad": 142
       },
-      "net_q_removed_per_second": 30.055228159507653,
-      "upper_work": 174312520,
-      "traversal_work": 164853898
+      "net_q_removed_per_second": 25.444233698595745,
+      "qJ_debt_max_over_mean": 1.0996805324566272,
+      "upper_work": 506685602,
+      "traversal_work": 483444012
     }
-  }
+  },
+  "baseline_age_bracket_no_interpolation": [
+    {
+      "round": 32192,
+      "quality_age": 923.980369191,
+      "totals": {
+        "cells": 911472,
+        "measured": 911472,
+        "q_measured": 911472,
+        "j_measured": 911472,
+        "q_bad": 85596,
+        "j_bad": 84995,
+        "geometry_bad": 1253,
+        "size_bad": 0
+      }
+    },
+    {
+      "round": 32256,
+      "quality_age": 1090.4072043209999,
+      "totals": {
+        "cells": 918431,
+        "measured": 918431,
+        "q_measured": 918431,
+        "j_measured": 918431,
+        "q_bad": 80763,
+        "j_bad": 80098,
+        "geometry_bad": 1239,
+        "size_bad": 0
+      }
+    }
+  ],
+  "scope": "Complete first-pass groups,matched round/field progress and actual baseline age bracket; no interpolation,wall rates remain contention-sensitive. Not mesh acceptance."
 }
