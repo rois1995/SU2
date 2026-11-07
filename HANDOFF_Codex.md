@@ -15,9 +15,37 @@ ONE active cycle/ONE owned heavy job;all pinned sources/fixtures/helpers/binary/
 config/inputs FROZEN while running. Preserve authorized evidence/stop/fix/retry.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
+A254=`R/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k`(LIVE/FROZEN).
 A253=`R/m6_runs/euler_build253_witness_cutoff_mach_only_real_cfd50k`(TERMINAL REFUSED;partial terminal census).
 A251=`R/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k`(terminal REFUSED).
 A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k`(REFUSED baseline).
+
+## CURRENT — frozen full two-event254M6
+
+Tool70856LIVE;source/qualification checkpoint8a2c4e1d48PUSHED. New active attempt
+A254 launched immediately after target audit. R/m6_254_condition_launch.json and
+A254/owned_startup.json authoritative HOST identities;R/m6_254_startup_checkpoint.json
+preserves first all1520source/runtime/input pins unchanged and SAME configSHA
+5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e as253.
+Wrapper1274142/start13601208;runner1274263/start13601422;time1274728/start13602152;
+timeout1274729/start13602153;MPI1274730/start13602153;workers1274736,1274737,
+1274738,1274741,1274744,1274749. Verify exact ticks/argv/cwd before any action.
+ALL compiled/executing/pinned sources,fixtures,helpers,binary/config/input FROZEN.
+Same saved real CFDseed,MACH-only L1/50k,gates/native5400/outer14400 unchanged,
+trace UNSET,nice19/libs1,private4TBMPI scratch. No competing implementation.
+Source254 differs by base quadratic condition admission and focused regression;
+construction/geometry/cache/ownership improvements preserved. New target means
+same-round decision identity versus253 is NOT expected;compare matching phases/
+quality-time and net whole-field q/J removal with geometry counts and workload.
+Do not claim closure from target redistribution or counters. Need all acceptance/
+transfer/continued-adapted-CFD/isolated-disk-restart obligations below.
+
+Let frozen attempt finish unless PRESERVED demonstrated failure/bottleneck/actual
+pressure warrants authorized stop. For first-event refusal:seal all30raw files,
+explicitly retain any incomplete-census unknown rows,verify pins BEFORE ONE stop
+of exact owned MPI,then prove all handles/tool terminal. NEVER repeat a stop.
+Driver may continue original-grid CFD after refusal;adap-named files alone prove
+nothing. No routine VTU per trial;latest meaningful247inspection remains available.
 
 ## CURRENT — terminal253; active same-seed target/delivery diagnosis
 
@@ -30,7 +58,7 @@ capture_preserved_partial_census.json;NOT a complete capture_ready qualification
 All1520source/runtime/input pins verified in source_freeze_before_stop.json BEFORE
 ONE pidfdSIGTERM to verified HOST MPI871976/start12808268. owned_stop_once.json
 records exactly one signal. ALL11owned handles including wrapper absent in
-terminal_handles.json. NEVER repeat that stop. No owned M6 job remains. Build254 is now the ONE owned heavy job (below).
+terminal_handles.json. NEVER repeat that stop. The253 owned job is gone. A254 is now the ONE owned heavy job (below).
 Driver continued ORIGINAL-grid CFD after refusal;adap-named files are not adapted
 workflow proof. Pinned-source freeze released after terminal host proof.
 
@@ -80,7 +108,7 @@ q/Jbad after queue exhaustion,prior progress and strict census/size/height/geome
 conditions. Do not invent a hard shape-zero barrier. Current last complete run was
 still first shape pass;residual geometry closure not yet demonstrated.
 
-## ACTIVE — qualified conditioning254; full M6 launch next
+## Qualified conditioning254 — now under full frozen M6
 
 Existing-output trace verified raw Hessians;bounded actual smooth-LE compound
 checks passed35836assertions/103.969246s,all pins unchanged and all handles gone.
@@ -112,7 +140,7 @@ absent. ALLflow fields/coords bit-identical;71Hessians changed;maxrawHnorm
 Finalcomplexity49999.999976,SPD/bounds/AR and independent directed-gradation audit
 passed. Sampled shock target5–12%finer;farfield share34.872→40.398% (not solved).
 R/target_delivery254_v1/comparison.json. No norm/sensor/complexity change.
-NEXT IMMEDIATE full same-seed two-event M6 at unchanged gates/native5400/outer14400.
+Full same-seed two-event M6 is now LIVE/FROZEN at unchanged gates/native5400/outer14400.
 Zero accepted meshes;no transfer/adaptedCFD/restart claim. No competing cycle.
 
 ## Qualified active change and diagnosis
