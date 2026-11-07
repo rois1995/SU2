@@ -64,10 +64,11 @@ Quality-entry native705.179721s (235969.422254s), round34594: COMPLETE census,
 IDENTICAL235. All1519source/runtime/input pins rechecked unchanged in
 A237/quality_entry_assessment.json. Source remains frozen.
 
-Fourth complete quality window34816/native1322.426656s:893757cells,87659q/87545J/
-1946geometry/0size. Cumulative net14399q/14315J/51g removed,8192commits; matching-round
-counts/flags/rank debt distribution remain equal235. Quality-only traversal ratio
-.94814(-5.19%); observed netq23.33/s vs21.33/s over617.25s vs675.04s quality ages.
+Eighth complete quality census35072/native1931.767085s:921102cells,68927q/68614J/
+1882geometry/0size. Cumulative net33131q/33246J/115g removed,17796commits. ALL91matching
+complete stage reports preserve235counts/flags. Quality-only traversal ratio.94939
+(-5.06%); observed cumulative netq27.01/s vs25.10/s over1226.59s vs1319.85s quality ages.
+All1519source/runtime/input pins rechecked unchanged at mid_quality_assessment.json.
 These are descriptive timing measurements, not isolated causal proof. Churn includes
 retirement/reintroduction; net bad counts judge progress. Join-call share is not CPU
 idle and timers overlap. Geometry-only repair is not yet exercised.
@@ -82,8 +83,9 @@ No acceptance, geometry-only closure, transfer, adapted CFD or disk restart yet.
 Resources at quality entry: summed tree RSS10.11GB (shared pages included, not physical
 peak),MemAvailable~27.5GiB. Subsequent observation~10.15GB/RAM~27.9GiB, all owned
 VmSwap0 and memory PSI avg10/60/300=0. Global swap use includes unrelated cold pages.
-A237/{quality_entry_owned_receipt,quality_entry_memory_receipt}.json and local
-owned_observations.jsonl retain receipts. No demonstrated resource-stop condition.
+A237/{quality_entry_owned_receipt,quality_entry_memory_receipt,mid_quality_owned_receipt}.json
+and local owned_observations.jsonl retain receipts. Live tree remains~10.5GB, all owned
+VmSwap0, memory PSI zero. No demonstrated resource-stop condition.
 
 Read-only refresh (existing first-event prefix parser, exact rank/stage/round joins):
 `python3 R/analyze_m6237_stages.py`, then `python3 R/analyze_m6237_quality.py`.
