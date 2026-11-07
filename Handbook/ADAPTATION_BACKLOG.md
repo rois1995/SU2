@@ -691,3 +691,17 @@ validation campaign chosen;complete frozen253and use its actual outcome.
   broad in sampled compression strips. Do not switch p/sensors/complexity or suppress
   curvature from nearly constant Mach alone. Base-fit conditioning is the ONE active
   demonstrated correction;reassess these after its same-seed/full-M6 evidence.
+
+-253LE cavity admission scope:existing compound diagnostic checks MetricChange::Repair
+ and GeometryRefine,but not GeometryRepair. Clean-shape collapses fail those first
+ two for different reasons;this does NOT prove they fail the dedicated geometry-
+ repair mode. The sole GeometryRefine metric pass worsens shape/guidance counts.
+ Separate metric-kind predicates,physical replacement,strict geometry certification
+ and nonlocal publication before choosing any boundary correction after254 outcome.
+
+-254source review confirms Euler(no ADAP_BL)has no geometric metric composition:
+ q/J/edges/complexity see Mach tensor,geometry enforced separately. Test geometric
+ resolution versus flow-metric shape conformity on actual residual complete patches
+ before inferring unnecessary spanwise density. The tested2D TangentialSize helper
+ has no production caller and is not ready3D coupling. No mandatory curvature metric,
+ CAD dependency,normalization or gate change authorized by source/paper alone.

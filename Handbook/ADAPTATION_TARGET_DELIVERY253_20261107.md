@@ -113,8 +113,8 @@ Existing complete-cavity compound test on actual LE cores197029133/213247623
 passed35836assertions,103.969s including harness,all pins unchanged/handles absent.
 Eight original-star controls,24directed collapses. Many collapse directions fail
 exact positive-cell obstruction;some fail body/feature contraction permission
-(despite broad two-dimensional mobility). One51cell context admits collapse plus
-retained-star optimization removing2of4 guidance-geometry failures with no shape
+(despite broad two-dimensional mobility). One51cell context constructs collapse plus
+retained-star optimization removing2of4 guidance-geometry bad-cell counts with no shape
 failures,where raw collapse introduces3q/2J. Other candidates worsen shape or
 geometry;one40cell context has a useful original-star shape control already.
 Do not add an operator/scheduler based on this mixed evidence. Boundary=false in
@@ -159,3 +159,36 @@ mobility does not authorize embedding the physical boundary in the interior.
 Seven directed collapses construct,eleven fail cell obstruction,six fail this
 association check. Guidance bad-cell retirement can also reassign unchanged
 physical faces to fewer cells;it does not prove fewer failed face certificates.
+
+
+Admission clarification:only ONE of22bounded result rows passes the GeometryRefine
+METRIC-change validator:it is a worsening coupled candidate(1→2q,0→1J,5→7guidance
+geometry bad-cell counts),not a successful geometry repair. The two shape-clean
+51cell collapsed+optimized candidates fail the exercised MetricChange::Repair
+validator(no size/shape debt gain) and GeometryRefine validator(requires cell
+count growth). Replacement/interface pass,but these are separate checks.
+The fixture DOES NOT evaluate MetricChange::GeometryRepair,whose metric admission
+has no cell-growth requirement. No conclusion about that production mode follows.
+Private guidance/cell-count improvements are insufficient proof of production
+admission or fewer failed physical-face certificates. Boundary smoothing and
+nonlocal publication are also untested by this diagnostic. Preserve these gaps;
+no further implementation while254 is frozen.
+
+
+## Confirmed Euler metric/geometry separation (source review while frozen254)
+
+Primary checked CSolver.cpp2665–69 and CNativeRemesher3D.cpp349–374:the geometric
+BL metric and composition are gated by actual ADAP_BL requests. This M6 has none.
+FrozenField::Query starts target=sensor and only applies composition if present
+(CNativeField3D.cpp524–544,638–645). Runtime full_target=1 matches empty composition.
+Thus current q/J,metric edge length and complexity use the Mach tensor;surface
+geometry is separately certified/refined. ADAP_SURFACE=YES permits surface work,
+but does not create a geometry metric. CAD remains optional.
+
+The passed TangentialSize tolerance/coarsening test is the 2D PolylineReference
+helper (CNativeMesh2D_tests.cpp568+);no production caller was found. It is not
+proof of a ready3D M6 geometry-metric intersection. Hypothesis only:geometry-required
+short nose chords combined with flow-metric shape constraints may require short
+spanwise/volume spacing. Existing data do not establish the necessary spacing,
+point count or a new metric policy. Do not introduce a mandatory curvature metric,
+change complexity/gradation/p,or relax q/J from this source observation.

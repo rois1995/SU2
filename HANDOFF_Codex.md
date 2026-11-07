@@ -55,6 +55,19 @@ and coordinates exactly:A254/initial_cfd_target_equivalence.json (original-grid 
 not adapted proof). FROZEN attempt remains live. Need net whole-field q/J removal,
 geometry/size closure and shape reclosure;then all transfer/CFD/restart obligations.
 
+SIX complete quality windows through23680/census10:native1815.931599,
+quality1060.408789s,715285cells/13140q/11979J/1076geometry/0size,all flags complete.
+Net13876q/15474J/129geometry retired since entry. q10346interior/2794surface;
+J6269/5710. Stuck3of17802shape-bad union,missing0,private tracked collectives0.
+TWO complete ownership publications preserve aggregate counts/flags. Fixed16point
+samples all supported,maxrelative tensor drift.03421424;not whole-field equality.
+A254/{quality_progress,quality_counter_assessment,quality_comparison253,
+target_drift_census,live_quality254_analysis_provenance}.json. Read-only refresh:
+R/analyze_m6254_frozen.py reuses existing parsers/BOTH path substitutions,filters
+location to complete flags,retains partial EXIT. No new profiling/repair decisions.
+Comparisons use nearest measured quality times (explicit gaps,not interpolation);
+corrected target changes workload. Boundary timers include certification and overlap.
+
 Let frozen attempt finish unless PRESERVED demonstrated failure/bottleneck/actual
 pressure warrants authorized stop. For first-event refusal:seal all30raw files,
 explicitly retain any incomplete-census unknown rows,verify pins BEFORE ONE stop
