@@ -36,12 +36,12 @@ shape deliberately UNMEASURED. Fresh quality entry native691.245338:
 102043q/101849J/2008geometry/0size, ALL flags complete,871576cells.
 237entry native705.18/871607cells/102058q/101860J/1997geometry/0size.
 
-Latest complete window round35072/native1881.357870:916768cells,70567q/69979J/
-1948geometry/0size, ALL flags complete. Cumulative net q-removal
-26.45/s versus23727.01/s at common round; traversal ratio0.9623.
+Latest complete window round35648/native3012.489135:969870cells,35068q/32891J/
+1828geometry/0size, ALL flags complete. Cumulative net q-removal
+28.85/s versus23728.23/s at common round; traversal ratio1.0018.
 Ages and trajectories differ; no isolated speedup or predicted acceptance claim.
-Latest location:63843/70567q-bad have no physical face (does not prove free vertices),
-stuck_shape0,missing_features0,private_tracked_collectives0.
+Latest location:32231/35068q-bad have no physical face (does not prove free vertices),
+stuck_shape4,missing_features0,private_tracked_collectives0.
 Net retired−introduced exactly matches field change.
 Initial quality redistribution preserves ALL census totals/flags; q+J debt max/min
 6.575→1.485(max/mean1.757→1.125). Later committed redistribution also retains flags.

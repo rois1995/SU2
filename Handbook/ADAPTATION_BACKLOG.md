@@ -4,6 +4,15 @@ Current cycle: [cache and phase ownership integration](ADAPTATION_CACHE_PHASE_20
 Keep one active cycle; pursue another item only when the target run demonstrates
 its relevance or the user explicitly reprioritizes it.
 
+- Conditional hypothesis AFTER frozen244terminal only: if useful geometry placement
+  is offered too late after shape exhaustion, assess existing positive-visibility
+  split plus existing optimizer as ONE complete private quality candidate. Actual243
+  full-context4q/3J/6geometry→1q/1J/5geometry supports a local proposal, not global
+  scheduling/eligibility or success. PlaceSplitPatch currently enters the Engine
+  non-repairing path; investigate existing quality callers/preimport/reservation
+  facilities before any addition. Preserve complete/versioned/disjoint support,
+  private contexts at use, net whole-patch/neighbor bad counts and existing budgets;
+  no new scheduler/config/cavity cap, no active implementation while244is frozen.
 - Preserved244legacy broad-suite failures: visibility244_broad_serial_failure.json.
   Do not repeat generic serial_full; reuse individually passing affected cases.
   RANS wall-policy fixture exhausts4096work,95placement trials/0moves; attribution
