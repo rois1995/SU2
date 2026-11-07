@@ -1,0 +1,62 @@
+{
+  "time": 1794013380.276674,
+  "reader": "meshio 5.3.5",
+  "accepted": false,
+  "unknown_metric_rows": 1017523,
+  "classification_note": "Empty bad/cavity views reflect unknown cache, not zero bad cells.",
+  "full_mesh_complete": true,
+  "full_classifications_complete": false,
+  "bad_cell_view_complete": false,
+  "bad_cells_omitted": 0,
+  "cavity_view_complete": false,
+  "cavity_cells_omitted": 0,
+  "files": {
+    "rejected_mesh.vtu": {
+      "points": 198364,
+      "cells": 1017523,
+      "bytes": 142987215,
+      "sha256": "6dcf10279e619012b5b812b487d4ddc7491d9506f03e10235a2afc6231393c91",
+      "all_nodal_metrics_finite_symmetric_SPD": true,
+      "q_J_geometry_all_unknown": true,
+      "classification_status": "Unmeasured after deadline; not passing counts"
+    },
+    "bad_cells.vtu": {
+      "points": 0,
+      "cells": 0,
+      "bytes": 2821,
+      "sha256": "e5be64cfb525e028c8d46f833cf5553ceb48c16625a469f4a1e45a2158e638c5",
+      "reader": "ElementTree structural zero-cell check; meshio empty ASCII FieldData limitation",
+      "classification_status": "Unavailable; empty view, not zero bad cells"
+    },
+    "cavities.vtu": {
+      "points": 0,
+      "cells": 0,
+      "bytes": 2821,
+      "sha256": "e5be64cfb525e028c8d46f833cf5553ceb48c16625a469f4a1e45a2158e638c5",
+      "reader": "ElementTree structural zero-cell check; meshio empty ASCII FieldData limitation",
+      "classification_status": "Unavailable; empty view, not zero bad cells"
+    },
+    "reference.vtu": {
+      "points": 24479,
+      "cells": 48954,
+      "bytes": 3834731,
+      "sha256": "f199d5699cc3ff13964785d0c862d4914f96c70f07d0906b734c0c5282a239d8"
+    },
+    "rejected_mesh.su2": {
+      "points": 198364,
+      "tetrahedra": 1017523,
+      "bytes": 43620534,
+      "sha256": "7758db46d763f4788a1e538ae01b8e03ad6a485f86374931e136e706ebc8dd94",
+      "points_exactly_match_vtu": true
+    }
+  },
+  "manifest_sha256": "8273e6b19e4944f4205edaa65354c39fb7c40ae227162564d0062be0a10ccd0c",
+  "capture_ready_sha256": "1fc4a028b5cfd7de36e41c5b28695311ace8dfbd8b9ea2b117c17f328613d012",
+  "helper_sha256": "028b7184ff25a0b5de1333c1da287c433251f4b52cccb34b05607e8a2f55c76d",
+  "limitations": [
+    "No ParaView GUI qualification",
+    "Empty bad/cavity views structurally checked; meshio rejects empty ASCII FieldData",
+    "VTU is visualization; final engine geometry gates still failed",
+    "Nodal tensor transport is not a proof of immutable continuous-background fidelity"
+  ]
+}

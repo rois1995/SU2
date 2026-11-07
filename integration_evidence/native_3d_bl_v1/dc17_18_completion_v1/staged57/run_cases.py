@@ -20,6 +20,7 @@ CASES = {
     "geometry_current_queries": (1, "[NativeM6GeometryQueries3D]"),
     "current_compound": (1, "[NativeCurrentCompound3D]"),
     "current_residual": (1, "[NativeCurrentResidual3D]"),
+    "captured_shape_census": (1, "[NativeCapturedShapeCensus3D]"),
     "captured_cavity": (1, "[NativeCapturedCavity3D]"),
     "feature_publication": (1, "[NativeFeaturePublication3D],Entity feature reconstruction handles ordinary and genuine routes"),
     "failure_capture": (1, "[NativeFailureCapture3D]"),
@@ -250,6 +251,16 @@ def main():
                     path = folder / f"stage_quality_entry_rank{rank}_{suffix}"
                     pins[str(path)] = sha(path)
         stage_environment = {}
+        if case == "captured_shape_census":
+            config = Path(os.environ["SU2_NATIVE_FROZEN_CONFIG"]).resolve()
+            receipt = config.parent / "capture_ready.json"
+            for name, item in json.loads(receipt.read_text())["files"].items():
+                path = Path(name)
+                if sha(path) != item["sha256"] or path.stat().st_size != item["bytes"]:
+                    raise RuntimeError("captured diagnostic input changed: " + str(path))
+                pins[str(path)] = item["sha256"]
+            for path in (config, receipt):
+                pins[str(path)] = sha(path)
         if case == "geometry_current_queries":
             query_input = Path(os.environ["SU2_NATIVE_GEOMETRY_QUERY_INPUT"]).resolve()
             preparation_path = query_input.parent / "geometry_query_preparation.json"
@@ -274,7 +285,12 @@ def main():
                 if sha(path) != item["sha256"] or path.stat().st_size != item["bytes"]:
                     raise RuntimeError("current witness input changed: " + str(path))
                 pins[str(path.resolve())] = item["sha256"]
-            for path in (receipt, ROOT / "prepare_current219_witnesses.py"):
+            preparer = "prepare_current227_witnesses.py" if (config.parent / "current_residual_cases.tsv").exists() else "prepare_current219_witnesses.py"
+            for name, digest in preparation["input_hashes_before"].items():
+                if sha(Path(name)) != digest:
+                    raise RuntimeError("current witness source input changed: " + name)
+                pins[name] = digest
+            for path in (receipt, ROOT / preparer):
                 pins[str(path.resolve())] = sha(path)
         if case == "captured_cavity":
             config = Path(os.environ["SU2_NATIVE_FROZEN_CONFIG"]).resolve()

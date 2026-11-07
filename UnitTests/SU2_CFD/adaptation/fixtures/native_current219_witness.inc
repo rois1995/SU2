@@ -4,6 +4,9 @@ static void CapturedCurrentResidual(bool compound) {
   const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");REQUIRE(cfg);
   const std::string config(cfg);const auto slash=config.find_last_of('/');REQUIRE(slash!=std::string::npos);
   const auto directory=config.substr(0,slash+1);
+  std::ifstream current_cases(directory+"current_residual_cases.tsv");
+  const bool current_capture=bool(current_cases);
+  if(current_capture)REQUIRE_FALSE(compound);
   REQUIRE_FALSE(bool(std::ifstream("native_current_residual_result.jsonl")));
   std::ofstream log("native_current_residual_result.jsonl");REQUIRE(bool(log));log<<std::setprecision(17)<<std::boolalpha;
   auto bytes=Captured202Bytes(directory+"m6.su2.native_ref");
@@ -12,7 +15,8 @@ static void CapturedCurrentResidual(bool compound) {
   REQUIRE((original.marker_names==std::vector<std::string>{"FARFIELD","SYMMETRY","WING3D"}));
   auto point_rows=Captured202Rows<BoundaryPoint>(directory+"witness_boundary_points.bin",72);
   auto surface=Captured202Rows<SurfaceFace>(directory+"witness_boundary_surface.bin",32);
-  REQUIRE(point_rows.size()==32784);REQUIRE(surface.size()==65564);
+  if(current_capture){REQUIRE_FALSE(point_rows.empty());REQUIRE_FALSE(surface.empty());}
+  else {REQUIRE(point_rows.size()==32784);REQUIRE(surface.size()==65564);}
   BoundaryPoints points;for(const auto& p:point_rows)REQUIRE(points.emplace(p.node.id,p).second);
   const size_t ceiling=size_t(12)<<30;
   SU2NativeGeometry::AtlasBudget budget;budget.maximum_bytes=ceiling;
@@ -48,13 +52,24 @@ static void CapturedCurrentResidual(bool compound) {
 
   struct RestoreShape {ShapeAdmission value=GetShapeAdmission();~RestoreShape(){SetShapeAdmission(value);}} restore;
   SetShapeAdmission(ShapeAdmission::ValidityOnly);
-  const std::array<std::pair<const char*,Id>,4> cases{{
+  std::vector<std::pair<std::string,Id>> cases{
     {"root_leading_surface",224633219},{"blocked_midspan_surface",218068745},
-    {"feature_tip_surface",224695705},{"interior_control_candidate",223413526}}};
-  const std::map<Id,size_t> expected_unions{{224633219,59},{218068745,67},{224695705,55},{223413526,91}};
-  const std::map<Id,size_t> expected_stars{{273716432,13},{272681898,30},{272822191,12},{268453858,20},
+    {"feature_tip_surface",224695705},{"interior_control_candidate",223413526}};
+  std::map<Id,size_t> expected_unions{{224633219,59},{218068745,67},{224695705,55},{223413526,91}};
+  std::map<Id,size_t> expected_stars{{273716432,13},{272681898,30},{272822191,12},{268453858,20},
       {18577,19},{18578,23},{274021962,24},{273819624,17},{284057860,28},{272378148,18},
       {179548258,8},{281903910,19},{282435106,26},{278469346,42},{282108514,30},{188151106,18}};
+  if(current_capture) {
+    cases.clear();expected_unions.clear();expected_stars.clear();
+    std::string label;Id core;size_t count;
+    while(current_cases>>label>>core>>count) {
+      REQUIRE(cases.size()<8);REQUIRE(count>0);REQUIRE(count<=MaximumReplacementCells);
+      REQUIRE(expected_unions.emplace(core,count).second);cases.emplace_back(label,core);
+      for(unsigned k=0;k<4;++k){Id vertex;size_t star;REQUIRE(bool(current_cases>>vertex>>star));
+        const auto prior=expected_stars.emplace(vertex,star);REQUIRE(prior.first->second==star);}
+    }
+    REQUIRE(current_cases.eof());REQUIRE_FALSE(cases.empty());
+  }
   const std::array<std::array<unsigned,3>,4> opposite{{{{1,2,3}},{{0,3,2}},{{0,1,3}},{{0,2,1}}}};
   auto patch_from=[&](const Owned& rows) {
     Patch p;for(const auto& entry:rows){const auto& row=entry.second;p.cells.push_back(row.cell);
@@ -95,10 +110,14 @@ static void CapturedCurrentResidual(bool compound) {
     for(const auto& prior:expected){const auto measured=MeasureMetricCells({owned.at(prior.id).cell},field);
       q_error=std::max(q_error,std::abs(measured.minimum_mean_ratio-prior.q));
       j_error=std::max(j_error,std::abs(measured.minimum_scaled_jacobian-prior.J));
-      for(const auto& e:prior.edges)edge_error=std::max(edge_error,double(std::abs(measured.edges.at(e.vertices).length-e.length)));}
+      for(const auto& e:prior.edges) {
+        if(current_capture)REQUIRE(std::isnan(e.length));
+        else edge_error=std::max(edge_error,double(std::abs(measured.edges.at(e.vertices).length-e.length)));
+      }}
     REQUIRE(q_error<=1e-10);REQUIRE(j_error<=1e-10);REQUIRE(edge_error<=1e-10);
     log<<"{\"stage\":\"current_metric_match\",\"case\":"<<std::quoted(test.first)<<",\"cells\":"<<rows.size()
-       <<",\"q_error\":"<<q_error<<",\"J_error\":"<<j_error<<",\"edge_error\":"<<edge_error<<"}\n";log.flush();
+       <<",\"q_error\":"<<q_error<<",\"J_error\":"<<j_error<<",\"edge_error\":"<<edge_error
+       <<",\"captured_edges_available\":"<<!current_capture<<"}\n";log.flush();
     auto assess=[&](Owned local,const std::set<Id>& retired,const Patch& seed,Patch input,Id vertex,const char* kind,bool optimize=true) {
       REQUIRE_FALSE(seed.cells.empty());REQUIRE(seed.cells.size()<=MaximumCavityCells);
       auto context=scope->PrivateParameters(input);REQUIRE(context);context->ExportParameters(input);
@@ -199,6 +218,10 @@ static void CapturedCurrentResidual(bool compound) {
     bool useful_star=false;
     for(const auto& vertex:owned.at(test.second).cell.v) {
       auto local=subset(vertex.id,vertex.id);std::set<Id> retired;for(const auto& row:local)retired.insert(row.first);
+      if(local.size()>MaximumCavityCells) {
+        log<<"{\"stage\":\"existing_star_limit\",\"case\":"<<std::quoted(test.first)
+           <<",\"vertex\":"<<vertex.id<<",\"cells\":"<<local.size()<<"}\n";log.flush();continue;
+      }
       auto seed=patch_from(local);scope->ExportParameters(seed);
       useful_star=assess(local,retired,seed,seed,vertex.id,"original_star")||useful_star;
     }

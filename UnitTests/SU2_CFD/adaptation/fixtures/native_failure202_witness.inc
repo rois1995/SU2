@@ -23,6 +23,38 @@ struct Captured202Metric {
 };
 }
 
+TEST_CASE("Captured M6 current nodal cells recover independent centroid shape diagnostics",
+          "[.][NativeCapturedShapeCensus3D]") {
+  World world;REQUIRE(world.size==1);
+  const auto* cfg=std::getenv("SU2_NATIVE_FROZEN_CONFIG");REQUIRE(cfg);
+  const std::string config(cfg);const auto slash=config.find_last_of('/');REQUIRE(slash!=std::string::npos);
+  const auto folder=config.substr(0,slash+1);
+  REQUIRE_FALSE(bool(std::ifstream("captured_shape_census.tsv")));
+  std::ofstream output("captured_shape_census.tsv");REQUIRE(bool(output));
+  output<<std::setprecision(17)<<"rank\tid\tversion\tq\tJ\n";
+  size_t total=0,q_bad=0,j_bad=0;
+  std::vector<DonorCell> donor(1);
+  for(unsigned rank=0;rank<6;++rank) {
+    const auto rows=Captured202Rows<OwnedCell>(folder+"adapted_mesh_inspection_rank"+
+        std::to_string(rank)+"_owned.bin",416);
+    for(const auto& row:rows) {
+      REQUIRE(row.sensor_present);
+      donor[0].cell=row.cell;donor[0].sensor=row.sensor;
+      const auto target=EvaluateCavitySample(donor,Centroid(row.cell)).sensor;
+      const auto quality=Measure({row.cell.v[0].p,row.cell.v[1].p,row.cell.v[2].p,row.cell.v[3].p},target);
+      REQUIRE(std::isfinite(quality.mean_ratio));REQUIRE(std::isfinite(quality.minimum_scaled_jacobian));
+      q_bad+=quality.mean_ratio<MinimumMeanRatio;j_bad+=quality.minimum_scaled_jacobian<MinimumScaledJacobian;
+      output<<rank<<'\t'<<row.cell.id<<'\t'<<row.version<<'\t'<<quality.mean_ratio<<'\t'
+            <<quality.minimum_scaled_jacobian<<'\n';
+    }
+    total+=rows.size();output.flush();REQUIRE(bool(output));
+  }
+  // Each sealed shard is consumed to its declared count and exact end, independent of mesh size.
+  REQUIRE(total>0);
+  INFO("Diagnostic only: no geometry, edge, transfer or final acceptance certification");
+  std::cout<<"CAPTURED_SHAPE_DIAG cells="<<total<<" q_bad="<<q_bad<<" J_bad="<<j_bad<<'\n';
+}
+
 TEST_CASE("Captured M6 feature-star tests existing collapse against reconstructed current authority",
           "[.][NativeCapturedCavity3D]") {
   World world;REQUIRE(world.size==1);

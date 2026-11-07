@@ -2681,8 +2681,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const double predicted_cost=estimate_seconds+rebuild+warming+stats.ownership_seconds;
     const double predicted_gain=remaining*(1-1/std::max(1.,imbalance));
     stats.ownership_predicted_gain+=predicted_gain;stats.ownership_predicted_cost+=predicted_cost;
-    const bool proceed=options.phase_ownership==PhaseOwnership::DiagnosticAlways || (imbalance>1.25 && predicted_gain>2*predicted_cost &&
+    const bool locally_eligible=options.phase_ownership==PhaseOwnership::DiagnosticAlways || (imbalance>1.25 && predicted_gain>2*predicted_cost &&
         (!options.maximum_seconds || 2*predicted_cost<options.maximum_seconds-wall));
+    // Local elapsed/cost estimates must not split participation in collective repartition.
+    const bool proceed=!world.maximum(!locally_eligible);
     if(options.timings)std::cout<<"NATIVE3D_PHASE_OWNERSHIP rank="<<world.rank<<" quality="<<quality<<" evaluate=1 migrate="<<proceed
         <<" predicted_imbalance="<<imbalance<<" predicted_gain_seconds="<<predicted_gain<<" predicted_cost_seconds="<<predicted_cost
         <<" estimate_seconds="<<estimate_seconds<<" rebuild_allowance="<<rebuild<<" warming_allowance="<<warming<<" uncertainty_factor=2"<<'\n';
