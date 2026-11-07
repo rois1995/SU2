@@ -361,6 +361,13 @@ struct LinearizationResult {
   double firstRing = 0.0;   /*!< \brief max(0, -lambda_min(2 J - A) / lambda_max(A)), J of TECNO_ADJOINT_JACOBIAN= FIRST_RING. */
   double firstRingEdge = 0.0; /*!< \brief |J_edge - sum_e a_e a_e^T D_e| / |.|, reference beta from EdgeJump. */
   double firstRingSpread = 0.0; /*!< \brief lambda_max(A)/lambda_max(J), for information. */
+  double jumps = 0.0;        /*!< \brief max(0, -lambda_min(2 J - A) / lambda_max(A)), J of FIRST_RING_JUMPS. */
+  double jumpsRef = 0.0;     /*!< \brief |J - J_ref| / |J_ref|, J_ref assembled pair by pair from the definition (exact
+                                  tau, nu; J carries the roundoff margin, O(sqrt(n eps)) where tau vanishes). */
+  double jumpsAlpha = 0.0;   /*!< \brief max |alpha_e - alpha_ref| / (|alpha_ref| + 1), alpha_ref from EdgeJump. */
+  double jumpsRowSum = 0.0;  /*!< \brief max_m |sum_n J(m, n)| / |J| (J 1 = 0). */
+  double jumpsAsym = 0.0;    /*!< \brief |J - J^T| / |J|. */
+  bool jumpsFinite = true;   /*!< \brief all entries of J and the eigensolves finite. */
 };
 
 template <size_t nDim, class Geometry>
@@ -373,10 +380,15 @@ LinearizationResult LinearizationCheck(const Geometry& geometry, unsigned long n
   const auto nDof = nVar * nPoint;
   for (int t = 0; t < nTrials; ++t) {
     const auto S = RandomStates(nPoint, nDim, gen, 1.0);
-    const auto D = FrozenD<nDim>(geometry, S, t % 2);
+    auto D = FrozenD<nDim>(geometry, S, t % 2);
     su2activevector phi(nPoint);
     for (auto i = 0ul; i < nPoint; ++i) phi(i) = -0.5 + 2.0 * r01(gen);
-    const double ramp = 1.0, kappa = (t % 2) ? 1.0 / 3.0 : 0.0;
+    /*--- Last two trials: an intermediate ramp, some phi = 0 and one D_e = 0 (zero weights, Codex S3b review). ---*/
+    const double ramp = (t == nTrials - 1) ? 0.4 : 1.0, kappa = (t % 2) ? 1.0 / 3.0 : 0.0;
+    if (t == nTrials - 2) {
+      for (auto i = 0ul; i < nPoint; i += 3) phi(i) = 0.0;
+      for (size_t k = 0; k < nVar * nVar; ++k) D(0, k) = 0.0;
+    }
 
     /*--- The residual is linear in w for frozen D and phi: its matrix column by column. ---*/
     Eigen::MatrixXd A(nDof, nDof);
@@ -490,6 +502,119 @@ LinearizationResult LinearizationCheck(const Geometry& geometry, unsigned long n
       res.firstRing = std::max(res.firstRing, -eigJ.eigenvalues().minCoeff() / lamMax);
       Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigJs(Js);
       res.firstRingSpread = std::max(res.firstRingSpread, lamMax / eigJs.eigenvalues().maxCoeff());
+
+      /*--- TECNO_ADJOINT_JACOBIAN= FIRST_RING_JUMPS: J from the solver functions (edge weights w = trace(D), H = I
+       * here), against J_ref assembled pair by pair from the definition with independent loops (E_x from the
+       * coordinates, tau and nu as direct sums over the pairs, alpha from the EdgeJump coefficients beta), and
+       * 2 J - A >= 0, J 1 = 0, J = J^T. ---*/
+      auto edgeW = [&](unsigned long e) {
+        su2double tr = 0.0;
+        for (size_t a = 0; a < nVar; ++a) tr += D(e, a * nVar + a);
+        return tr;
+      };
+      su2activematrix Sj(nPoint, 3 + 2 * nDim * nDim), Qj(nPoint, nVar * nVar);
+      TeCNOAdjoint::JumpNodal(geometry, nDim, weights, volume, edgeW, Sj);
+      TeCNOAdjoint::JumpNodalQ(geometry, nDim, nVar, weights, Sj, phi, coefDelta, gam, D, Qj);
+      Eigen::MatrixXd Jj = Eigen::MatrixXd::Zero(nDof, nDof);
+      for (auto i = 0ul; i < nPoint; ++i) {
+        TeCNOAdjoint::Block diag;
+        TeCNOAdjoint::JumpRow(geometry, nDim, nVar, weights, Sj, Qj, D, phi, coefDelta, gam, i, diag,
+                              [&](unsigned long k, const TeCNOAdjoint::Block& off) {
+          for (size_t a = 0; a < nVar; ++a)
+            for (size_t b = 0; b < nVar; ++b) Jj(nVar * i + a, nVar * k + b) += off(a, b);
+        });
+        for (size_t a = 0; a < nVar; ++a)
+          for (size_t b = 0; b < nVar; ++b) Jj(nVar * i + a, nVar * i + b) += diag(a, b);
+      }
+      /*--- Reference: per node the pairs (m, a_xm, edge), E_x, mu_xm. ---*/
+      struct Pair { unsigned long m, edge; double a[3]; };
+      std::vector<std::vector<Pair>> pairs(nPoint);
+      for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+        const unsigned long node[2] = {geometry.edges->GetNode(e, 0), geometry.edges->GetNode(e, 1)};
+        for (int x = 0; x < 2; ++x) {
+          Pair pr{node[1 - x], e, {0.0, 0.0, 0.0}};
+          for (size_t d = 0; d < nDim; ++d) pr.a[d] = weights(e, x * nDim + d);
+          pairs[node[x]].push_back(pr);
+        }
+      }
+      std::vector<Eigen::MatrixXd> Ex(nPoint, Eigen::MatrixXd::Zero(nDim, nDim));
+      std::vector<std::vector<double>> mu(nPoint);
+      for (auto x = 0ul; x < nPoint; ++x) {
+        double sw = 0.0;
+        for (const auto& pr : pairs[x]) sw += edgeW(pr.edge);
+        for (const auto& pr : pairs[x]) {
+          Eigen::VectorXd f(nDim);
+          for (size_t d = 0; d < nDim; ++d) f(d) = geometry.nodes->GetCoord(pr.m)[d] - geometry.nodes->GetCoord(x)[d];
+          Ex[x] += ((sw > 0.0) ? edgeW(pr.edge) / sw : 1.0 / pairs[x].size()) * f * f.transpose();
+        }
+        for (const auto& pr : pairs[x]) {
+          Eigen::VectorXd av(nDim);
+          for (size_t d = 0; d < nDim; ++d) av(d) = pr.a[d];
+          mu[x].push_back(std::sqrt(std::max(0.0, av.dot(Ex[x] * av))));
+        }
+      }
+      Eigen::MatrixXd Jr = Eigen::MatrixXd::Zero(nDof, nDof);
+      auto addPair = [&](unsigned long p, unsigned long q, double w, unsigned long e) {
+        for (size_t a = 0; a < nVar; ++a) {
+          for (size_t b = 0; b < nVar; ++b) {
+            const double blk = 0.5 * w * D(e, a * nVar + b);
+            Jr(nVar * p + a, nVar * p + b) += blk;
+            Jr(nVar * q + a, nVar * q + b) += blk;
+            Jr(nVar * p + a, nVar * q + b) -= blk;
+            Jr(nVar * q + a, nVar * p + b) -= blk;
+          }
+        }
+      };
+      for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+        const unsigned long node[2] = {geometry.edges->GetNode(e, 0), geometry.edges->GetNode(e, 1)};
+        double ev[3] = {0.0, 0.0, 0.0};
+        for (size_t d = 0; d < nDim; ++d) ev[d] = geometry.nodes->GetCoord(node[1])[d] - geometry.nodes->GetCoord(node[0])[d];
+        double t[2] = {0.0, 0.0}, r[2] = {0.0, 0.0}, sumOther[2] = {0.0, 0.0};
+        for (int x = 0; x < 2; ++x) {
+          const auto p = node[x];
+          const double g = std::fabs(gam * phi(p) / volume(p));
+          double tau = 0.0, nu = 0.0;
+          for (size_t j = 0; j < pairs[p].size(); ++j) {
+            const auto& pr = pairs[p][j];
+            double ae = 0.0;
+            for (size_t d = 0; d < nDim; ++d) ae += pr.a[d] * ev[d];
+            if (pr.m == node[1 - x]) continue;
+            sumOther[x] += gam * phi(p) / volume(p) * ae;
+            if (mu[p][j] > 0.0) tau += ae * ae / mu[p][j];
+            nu += mu[p][j];
+          }
+          t[x] = g * std::sqrt(tau * nu);
+          r[x] = (nu > 0.0) ? g * std::sqrt(tau / nu) : 0.0;
+        }
+        /*--- alpha from beta of the end 1: beta_{e,1} = alpha - sum_{m != 0} c^1_m. ---*/
+        const double alpha = beta(e, 1) + sumOther[1];
+        su2double alphaCode, sumT, rc[2], muc[2];
+        TeCNOAdjoint::JumpEdge(geometry, nDim, weights, Sj, phi, coefDelta, gam, e, alphaCode, sumT, rc, muc);
+        res.jumpsAlpha = std::max(res.jumpsAlpha, std::fabs(alphaCode - alpha) / (std::fabs(alpha) + 1.0));
+        const double S = std::fabs(alpha) + t[0] + t[1];
+        addPair(node[0], node[1], S * std::fabs(alpha), e);
+        for (int x = 0; x < 2; ++x) {
+          const auto p = node[x];
+          for (size_t j = 0; j < pairs[p].size(); ++j)
+            if (pairs[p][j].m != node[1 - x]) addPair(p, pairs[p][j].m, S * r[x] * mu[p][j], e);
+        }
+      }
+      res.jumpsFinite = res.jumpsFinite && Jj.allFinite() && Jr.allFinite();
+      res.jumpsRef = std::max(res.jumpsRef, (Jj - Jr).norm() / Jr.norm());
+      res.jumpsAsym = std::max(res.jumpsAsym, (Jj - Jj.transpose()).norm() / Jj.norm());
+      for (auto i = 0ul; i < nPoint; ++i) {
+        for (size_t a = 0; a < nVar; ++a) {
+          for (size_t b = 0; b < nVar; ++b) {
+            double sum = 0.0;
+            for (auto k = 0ul; k < nPoint; ++k) sum += Jj(nVar * i + a, nVar * k + b);
+            res.jumpsRowSum = std::max(res.jumpsRowSum, std::fabs(sum) / Jj.norm());
+          }
+        }
+      }
+      const Eigen::MatrixXd Jjs = 0.5 * (Jj + Jj.transpose());
+      Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigJj(2.0 * Jjs - As);
+      res.jumpsFinite = res.jumpsFinite && (eigJj.info() == Eigen::Success) && std::isfinite(lamMax);
+      res.jumps = std::max(res.jumps, -eigJj.eigenvalues().minCoeff() / lamMax);
     };
     if (p1) {
       firstRing(p1->weights, p1->volume);

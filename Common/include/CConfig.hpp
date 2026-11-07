@@ -10109,7 +10109,8 @@ public:
   TECNO_ADJ_LIMITER GetKind_TeCNO_Adj_Limiter() const { return Kind_TeCNO_Adj_Limiter; }
 
   /*!
-   * \brief TECNO_ADJOINT_JACOBIAN: Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT, ROE1 (default) or FIRST_RING.
+   * \brief TECNO_ADJOINT_JACOBIAN: Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT, ROE1 (default), FIRST_RING
+   *        or FIRST_RING_JUMPS.
    */
   TECNO_ADJ_JACOBIAN GetKind_TeCNO_Adj_Jacobian() const { return Kind_TeCNO_Adj_Jacobian; }
 

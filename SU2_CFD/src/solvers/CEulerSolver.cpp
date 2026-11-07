@@ -351,10 +351,12 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
         nodes->TeCNOAdjEdgeD.resize(geometry->GetnEdge(), nVar * nVar) = su2double(0.0);
         TeCNOAdjP.resize(nPoint, nVar * nVar) = su2double(0.0);
       }
-      if (config->GetKind_TeCNO_Adj_Jacobian() == TECNO_ADJ_JACOBIAN::FIRST_RING) {
+      if (config->GetKind_TeCNO_Adj_Jacobian() != TECNO_ADJ_JACOBIAN::ROE1) {
         nodes->TeCNOAdjEdgeD.resize(geometry->GetnEdge(), nVar * nVar) = su2double(0.0);
         TeCNOAdjP.resize(nPoint, nVar * nVar) = su2double(0.0);
-        TeCNOAdjS.resize(nPoint, nDim + 1 + nDim * nDim) = su2double(0.0);
+        /*--- FIRST_RING: (s, 1/V, T); FIRST_RING_JUMPS: (1/V, E, T, M, margin). ---*/
+        const bool jumps = (config->GetKind_TeCNO_Adj_Jacobian() == TECNO_ADJ_JACOBIAN::FIRST_RING_JUMPS);
+        TeCNOAdjS.resize(nPoint, jumps ? 3 + 2 * nDim * nDim : nDim + 1 + nDim * nDim) = su2double(0.0);
       }
       if (config->GetKind_TeCNO_Adj_Gradient() == TECNO_ADJ_GRADIENT::P1_AVERAGE) {
         /*--- P1 average (P1_TECNO_ADJ_GRADIENT.md, G2): edge weights a and volumes Vhat, fixed (no grid motion). ---*/
@@ -2662,10 +2664,11 @@ void CEulerSolver::TeCNOAdjointResidual(CGeometry *geometry, const CConfig *conf
   }
 
   /*--- TECNO_ADJOINT_JACOBIAN= FIRST_RING (TeCNOAdjoint::FirstRingRow): rows of the owned nodes, J_w(m, n) dw/dU_n with
-   * the edge blocks beta_{e,m} beta_{e,n} D_e and the diagonal majorant of the second-ring part, 2 J >= C^T D C. The
-   * edge loop added the central part and stored D_e. ---*/
+   * the edge blocks beta_{e,m} beta_{e,n} D_e and the diagonal majorant of the second-ring part, 2 J >= C^T D C;
+   * FIRST_RING_JUMPS (TeCNOAdjoint::JumpRow): the edge-jump majorant, 2 J >= C^T D C and J 1 = 0. The edge loop added
+   * the central part and stored D_e. ---*/
 
-  if ((config->GetKind_TeCNO_Adj_Jacobian() == TECNO_ADJ_JACOBIAN::FIRST_RING) &&
+  if ((config->GetKind_TeCNO_Adj_Jacobian() != TECNO_ADJ_JACOBIAN::ROE1) &&
       (config->GetKind_TimeIntScheme() == EULER_IMPLICIT)) {
     TeCNOAdjointFirstRingJacobian(geometry, config);
   }
@@ -2687,10 +2690,30 @@ void CEulerSolver::TeCNOAdjointFirstRingJacobian(CGeometry *geometry, const CCon
     TeCNOAdjoint::EntropyHessian(nDim, Gamma, nodes->GetPrimitive(iPoint, nDim + 2), velocity,
                                  nodes->GetPrimitive(iPoint, nDim + 1), H);
   };
+  const bool jumps = (config->GetKind_TeCNO_Adj_Jacobian() == TECNO_ADJ_JACOBIAN::FIRST_RING_JUMPS);
   auto assemble = [&](const auto& weights, const auto& volume) {
-    TeCNOAdjoint::FirstRingNodal(*geometry, nDim, weights, volume, TeCNOAdjS);
-    CommPointData(geometry, config, TeCNOAdjS.data(), nDim + 1 + nDim * nDim);
-    TeCNOAdjoint::FirstRingNodalP(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeD, TeCNOAdjS, phi, gam, TeCNOAdjP);
+    if (jumps) {
+      /*--- FIRST_RING_JUMPS: S = (1/V, E, T, M) and Q on the owned nodes, copied to the halos. Edge weights of E:
+       * w_f = trace(D_f H_f), H_f the mean entropy Hessian of the two nodes. ---*/
+      auto edgeWeight = [&](unsigned long iEdge) {
+        TeCNOAdjoint::Block H0, H1;
+        hessian(geometry->edges->GetNode(iEdge, 0), H0);
+        hessian(geometry->edges->GetNode(iEdge, 1), H1);
+        su2double w = 0.0;
+        for (auto iVar = 0u; iVar < nVar; ++iVar)
+          for (auto jVar = 0u; jVar < nVar; ++jVar)
+            w += nodes->TeCNOAdjEdgeD(iEdge, iVar * nVar + jVar) * (H0(jVar, iVar) + H1(jVar, iVar));
+        return 0.5 * w;
+      };
+      TeCNOAdjoint::JumpNodal(*geometry, nDim, weights, volume, edgeWeight, TeCNOAdjS);
+      CommPointData(geometry, config, TeCNOAdjS.data(), 3 + 2 * nDim * nDim);
+      TeCNOAdjoint::JumpNodalQ(*geometry, nDim, nVar, weights, TeCNOAdjS, phi, coefDelta, gam, nodes->TeCNOAdjEdgeD,
+                               TeCNOAdjP);
+    } else {
+      TeCNOAdjoint::FirstRingNodal(*geometry, nDim, weights, volume, TeCNOAdjS);
+      CommPointData(geometry, config, TeCNOAdjS.data(), nDim + 1 + nDim * nDim);
+      TeCNOAdjoint::FirstRingNodalP(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeD, TeCNOAdjS, phi, gam, TeCNOAdjP);
+    }
     CommPointData(geometry, config, TeCNOAdjP.data(), nVar * nVar);
 
     SU2_OMP_FOR_STAT(omp_chunk_size)
@@ -2708,11 +2731,17 @@ void CEulerSolver::TeCNOAdjointFirstRingJacobian(CGeometry *geometry, const CCon
         }
       };
       TeCNOAdjoint::Block diagW;
-      TeCNOAdjoint::FirstRingRow(*geometry, nDim, nVar, weights, TeCNOAdjS, TeCNOAdjP, nodes->TeCNOAdjEdgeD, phi,
-                                 coefDelta, gam, iPoint, diagW, [&](unsigned long jPoint, const TeCNOAdjoint::Block& offW) {
+      auto addOff = [&](unsigned long jPoint, const TeCNOAdjoint::Block& offW) {
         toCons(offW, jPoint);
         Jacobian.AddBlock(iPoint, jPoint, flat);
-      });
+      };
+      if (jumps) {
+        TeCNOAdjoint::JumpRow(*geometry, nDim, nVar, weights, TeCNOAdjS, TeCNOAdjP, nodes->TeCNOAdjEdgeD, phi,
+                              coefDelta, gam, iPoint, diagW, addOff);
+      } else {
+        TeCNOAdjoint::FirstRingRow(*geometry, nDim, nVar, weights, TeCNOAdjS, TeCNOAdjP, nodes->TeCNOAdjEdgeD, phi,
+                                   coefDelta, gam, iPoint, diagW, addOff);
+      }
       toCons(diagW, iPoint);
       Jacobian.AddBlock(iPoint, iPoint, flat);
     }

@@ -3,7 +3,7 @@
  * \brief Adjoint (dual consistent) entropy dissipation of EDGE_FORM_TECNO (EDGE_FORM_TECNO_ADJOINT): the linear
  *        U-MUSCL jump of the nodal entropy variables, its Green-Gauss gradient, the transpose of that gradient, and
  *        the Lemma A4 majorant of its linearization (P1_TECNO_CONVERGENCE.md, 3.2 and 5.1), and the first-ring
- *        Jacobian of TECNO_ADJOINT_JACOBIAN= FIRST_RING.
+ *        Jacobians of TECNO_ADJOINT_JACOBIAN= FIRST_RING and FIRST_RING_JUMPS.
  * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
@@ -640,6 +640,175 @@ void FirstRingRow(const Geometry& geometry, unsigned short nDim, unsigned short 
         const su2double d = edgeD(iEdge, iVar * nVar + jVar);
         diag(iVar, jVar) += bm * bm * d + aNorm * P(jPoint, iVar * nVar + jVar);
         off(iVar, jVar) = bm * bk * d;
+      }
+    }
+    offBlock(jPoint, off);
+  }
+}
+
+/*--- TECNO_ADJOINT_JACOBIAN= FIRST_RING_JUMPS (ROE_TECNO_PLAN.md 6.4): a first-ring majorant written in edge jumps, so
+ * that J 1 = 0 as K 1 = 0 (FIRST_RING bounds the second-ring part by a diagonal, J 1 != 0, which acts like an O(1) CFL
+ * pseudo-time term on all modes). With gamma_x = gam phi_x / V_x and the difference form of the gradient,
+ *   L_e = alpha_e Delta_e + u_0 + u_1,   alpha_e = coefDelta + gamma_0 a_01.e - gamma_1 a_10.e,
+ *   u_x = gamma_x sum_{m in N(x), m != x'} (a_xm.e)(w_m - w_x)        (x' the other end, e = x_1 - x_0),
+ * all terms jumps over mesh edges. Pair weights (any positive values are admissible): mu_xm = sqrt(a_xm^T E_x a_xm),
+ * E_x = sum_{f ni x} w_f f f^T / sum_f w_f, the w_f-weighted quadratic mean of |a_xm.f| over the edges f of x (the
+ * per-edge optimum of the Cauchy-Schwarz weight is |a_xm.e|), with w_f = trace(D_f H_f) >= 0 the mean of
+ * delta^T D_f delta over entropy-normalized jumps (E[delta delta^T] = H_f = dw/dU, mean of the two nodes); uniform
+ * weights if all w_f = 0. If E_x a_xm = 0 then a_xm.f = 0 on every edge with w_f > 0, i.e. D_f != 0, so mu_xm = 0 only
+ * where the pair carries no term. Cauchy-Schwarz with D PSD inside u_x, then the three-term weighted Cauchy-Schwarz
+ * with t_0 = |alpha|, t_x = |gamma_x| sqrt(tau nu):
+ *   L^T D L <= S_e [ |alpha| Delta^T D Delta + sum_x r_x sum_{m != x'} mu_xm delta_xm^T D delta_xm ],
+ *   tau_x = e^T T_x e - (a_xx'.e)^2/mu_xx',  nu_x = M_x - mu_xx',  T_x = sum_m a_xm a_xm^T/mu_xm,  M_x = sum_m mu_xm,
+ *   S_e = |alpha| + t_0 + t_1,  r_x = |gamma_x| sqrt(tau_x/nu_x)   (t_x = 0 means u_x = 0: no term).
+ * Regrouped by mesh edges f = (m, j): K <= 2 J = sum_f W_f (x) (e_m - e_j)(e_m - e_j)^T,
+ *   W_f = S_f |alpha_f| D_f + mu_mj (Q_m - S_f r_m^f D_f) + mu_jm (Q_j - S_f r_j^f D_f),   Q_x = sum_{e ni x} S_e r_x^e D_e,
+ * so 2 J >= K (C4 (ii)), J symmetric, J 1 = 0, first-neighbour blocks only. The exclusions of the own pair in tau and
+ * nu are subtractions (without them the model needs 1.4-1.8 x more iterations); their rounding error is at most
+ * (n_x + 2) eps (e^T T e + own) and (n_x + 2) eps M (n_x terms in T_x, M_x, one product, one subtraction), and that
+ * margin is added, so tau and nu are not below their exact values and the bound holds in floating point (the sqrt in
+ * t and r turns the margin into a relative O(sqrt(n eps)) excess where the exact tau vanishes). MPI: S = (1/V, E, T, M) and Q on the owned nodes, copied to the halos; mu, tau of a halo end j from E_j,
+ * T_j, M_j and the edge weights a_jm (complete on the edges of owned nodes). ---*/
+
+/*!
+ * \brief S(i, 0) = 1/V_i, S(i, 1 + nDim d + d') = E_i(d, d'), S(i, 1 + nDim^2 + nDim d + d') = T_i(d, d'),
+ *        S(i, 1 + 2 nDim^2) = M_i, S(i, 2 + 2 nDim^2) = (n_i + 2) eps (the roundoff margin factor, n_i the number of
+ *        neighbours) on the owned nodes (FIRST_RING_JUMPS), width 3 + 2 nDim^2.
+ * \param[in] edgeWeight - w_f >= 0 of each edge (callable), trace(D_f H_f) in the solver.
+ */
+template <class Geometry, class WeightType, class VolumeType, class EdgeWeightType, class NodeType>
+void JumpNodal(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
+               const EdgeWeightType& edgeWeight, NodeType& S) {
+  const unsigned short offT = 1 + nDim * nDim, offM = 1 + 2 * nDim * nDim;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double E[3][3] = {}, T[3][3] = {}, M = 0.0;
+    const auto* xi = geometry.nodes->GetCoord(iPoint);
+    su2double sumWeight = 0.0;
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) sumWeight += edgeWeight(iEdge);
+    const bool uniform = !(sumWeight > 0.0);
+    if (uniform) sumWeight = su2double(geometry.nodes->GetnPoint(iPoint));
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const auto jPoint = geometry.edges->GetNode(iEdge, (geometry.edges->GetNode(iEdge, 0) == iPoint) ? 1 : 0);
+      const auto* xj = geometry.nodes->GetCoord(jPoint);
+      const su2double w = (uniform ? su2double(1.0) : edgeWeight(iEdge)) / sumWeight;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+        for (unsigned short jDim = 0; jDim < nDim; ++jDim)
+          E[iDim][jDim] += w * (xj[iDim] - xi[iDim]) * (xj[jDim] - xi[jDim]);
+    }
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const unsigned short own = (geometry.edges->GetNode(iEdge, 0) == iPoint) ? 0 : nDim;
+      su2double a[3] = {}, aEa = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) a[iDim] = weights(iEdge, own + iDim);
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+        for (unsigned short jDim = 0; jDim < nDim; ++jDim) aEa += a[iDim] * E[iDim][jDim] * a[jDim];
+      const su2double mu = sqrt(fmax(aEa, su2double(0.0)));
+      M += mu;
+      if (mu == 0.0) continue;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+        for (unsigned short jDim = 0; jDim < nDim; ++jDim) T[iDim][jDim] += a[iDim] * a[jDim] / mu;
+    }
+    S(iPoint, 0) = 1.0 / volume(iPoint);
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim) {
+        S(iPoint, 1 + nDim * iDim + jDim) = E[iDim][jDim];
+        S(iPoint, offT + nDim * iDim + jDim) = T[iDim][jDim];
+      }
+    }
+    S(iPoint, offM) = M;
+    S(iPoint, offM + 1) = (geometry.nodes->GetnPoint(iPoint) + 2) * std::numeric_limits<su2double>::epsilon();
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Edge quantities of FIRST_RING_JUMPS: alpha_e, S_e, r_0, r_1 and the pair weights mu_01 (end 0), mu_10 (end 1).
+ *        S and phi needed at both nodes.
+ */
+template <class Geometry, class WeightType, class NodeType, class PhiType>
+void JumpEdge(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const NodeType& S,
+              const PhiType& phi, su2double coefDelta, su2double gam, unsigned long iEdge, su2double& alpha,
+              su2double& sumT, su2double* r, su2double* mu) {
+  const unsigned short offT = 1 + nDim * nDim, offM = 1 + 2 * nDim * nDim;
+  const unsigned long node[2] = {geometry.edges->GetNode(iEdge, 0), geometry.edges->GetNode(iEdge, 1)};
+  const auto* x0 = geometry.nodes->GetCoord(node[0]);
+  const auto* x1 = geometry.nodes->GetCoord(node[1]);
+  su2double e[3] = {};
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) e[iDim] = x1[iDim] - x0[iDim];
+  su2double t[2] = {}, ae[2] = {};
+  for (unsigned short x = 0; x < 2; ++x) {
+    const auto p = node[x];
+    su2double a[3] = {}, aEa = 0.0, eTe = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      a[iDim] = weights(iEdge, x * nDim + iDim);
+      ae[x] += a[iDim] * e[iDim];
+    }
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim) {
+        aEa += a[iDim] * S(p, 1 + nDim * iDim + jDim) * a[jDim];
+        eTe += e[iDim] * S(p, offT + nDim * iDim + jDim) * e[jDim];
+      }
+    }
+    mu[x] = sqrt(fmax(aEa, su2double(0.0)));
+    const su2double own = (mu[x] > 0.0) ? ae[x] * ae[x] / mu[x] : su2double(0.0);
+    const su2double margin = S(p, offM + 1);
+    const su2double tau = fmax(eTe - own, su2double(0.0)) + margin * (eTe + own);
+    const su2double nu = fmax(S(p, offM) - mu[x], su2double(0.0)) + margin * S(p, offM);
+    const su2double g = fabs(gam * phi(p) * S(p, 0));
+    t[x] = g * sqrt(tau * nu);
+    r[x] = (nu > 0.0) ? g * sqrt(tau / nu) : su2double(0.0);
+  }
+  alpha = coefDelta + gam * (phi(node[0]) * S(node[0], 0) * ae[0] - phi(node[1]) * S(node[1], 0) * ae[1]);
+  sumT = fabs(alpha) + t[0] + t[1];
+}
+
+/*!
+ * \brief Q_i = sum_{e ni i} S_e r_i^e D_e on the owned nodes (FIRST_RING_JUMPS).
+ * \param[in] edgeD - D_e of each edge, row major (iEdge, iVar*nVar + jVar).
+ */
+template <class Geometry, class WeightType, class NodeType, class PhiType, class EdgeType, class NodeTypeQ>
+void JumpNodalQ(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+                const NodeType& S, const PhiType& phi, su2double coefDelta, su2double gam, const EdgeType& edgeD,
+                NodeTypeQ& Q) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double sum[MAXNVAR * MAXNVAR] = {};
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      su2double alpha, sumT, r[2], mu[2];
+      JumpEdge(geometry, nDim, weights, S, phi, coefDelta, gam, iEdge, alpha, sumT, r, mu);
+      const su2double coef = sumT * r[(geometry.edges->GetNode(iEdge, 0) == iPoint) ? 0 : 1];
+      for (unsigned short k = 0; k < nVar * nVar; ++k) sum[k] += coef * edgeD(iEdge, k);
+    }
+    for (unsigned short k = 0; k < nVar * nVar; ++k) Q(iPoint, k) = sum[k];
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Row of the owned node m of J (in w, FIRST_RING_JUMPS): for each edge f = (m, j) the block W_f / 2 on the
+ *        diagonal and -W_f / 2 passed to offBlock(j, block). S, phi, Q on halos.
+ */
+template <class Geometry, class WeightType, class NodeType, class NodeTypeQ, class EdgeType, class PhiType,
+          class OffFunc>
+void JumpRow(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+             const NodeType& S, const NodeTypeQ& Q, const EdgeType& edgeD, const PhiType& phi, su2double coefDelta,
+             su2double gam, unsigned long iPoint, Block& diag, OffFunc&& offBlock) {
+  for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+    for (unsigned short jVar = 0; jVar < nVar; ++jVar) diag(iVar, jVar) = 0.0;
+  for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+    const unsigned long node[2] = {geometry.edges->GetNode(iEdge, 0), geometry.edges->GetNode(iEdge, 1)};
+    const unsigned long jPoint = (node[0] == iPoint) ? node[1] : node[0];
+    su2double alpha, sumT, r[2], mu[2];
+    JumpEdge(geometry, nDim, weights, S, phi, coefDelta, gam, iEdge, alpha, sumT, r, mu);
+    Block off;
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+      for (unsigned short jVar = 0; jVar < nVar; ++jVar) {
+        const unsigned short k = iVar * nVar + jVar;
+        const su2double d = edgeD(iEdge, k);
+        su2double w = sumT * fabs(alpha) * d;
+        for (unsigned short x = 0; x < 2; ++x) w += mu[x] * (Q(node[x], k) - sumT * r[x] * d);
+        diag(iVar, jVar) += 0.5 * w;
+        off(iVar, jVar) = -0.5 * w;
       }
     }
     offBlock(jPoint, off);

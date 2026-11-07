@@ -1893,7 +1893,7 @@ void CConfig::SetConfig_Options() {
   addEnumOption("TECNO_ADJOINT_GRADIENT", Kind_TeCNO_Adj_Gradient, TeCNO_Adj_Gradient_Map, TECNO_ADJ_GRADIENT::GREEN_GAUSS);
   /*!\brief TECNO_ADJOINT_LIMITER \n DESCRIPTION: Per-edge-end limiter of the dissipation of EDGE_FORM_TECNO_ADJOINT. EDGE_ENTROPY_VA: for each edge end and characteristic entropy field j (shear as one block), phi = (Delta^2 + a Delta + tau)/(a^2 + Delta^2 + tau) with Delta the nodal jump and a the U-MUSCL slope of that field, unclipped, tau the roundoff floor (eps S_j)^2; the residual applies the transpose, so the entropy identity holds for any values (P1_TECNO_ADJ_LIMITER.md). \ingroup Config \default NONE */
   addEnumOption("TECNO_ADJOINT_LIMITER", Kind_TeCNO_Adj_Limiter, TeCNO_Adj_Limiter_Map, TECNO_ADJ_LIMITER::NONE);
-  /*!\brief TECNO_ADJOINT_JACOBIAN \n DESCRIPTION: Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT. ROE1: first order Roe dissipation on the dissipation normal. FIRST_RING: for frozen D_e and phi, the edge blocks a_e a_e^T D_e of the exact linearization C^T D C (a_e the coefficients of the jump at the two edge nodes, gradient entries included) plus a diagonal majorant of the second-ring part (Young with eps = 1 and Cauchy-Schwarz), so that 2 J >= C^T D C; first-neighbour blocks only (ROE_TECNO_PLAN.md M4, J2). \ingroup Config \default ROE1 */
+  /*!\brief TECNO_ADJOINT_JACOBIAN \n DESCRIPTION: Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT. ROE1: first order Roe dissipation on the dissipation normal. FIRST_RING: for frozen D_e and phi, the edge blocks a_e a_e^T D_e of the exact linearization C^T D C (a_e the coefficients of the jump at the two edge nodes, gradient entries included) plus a diagonal majorant of the second-ring part (Young with eps = 1 and Cauchy-Schwarz), so that 2 J >= C^T D C; first-neighbour blocks only (ROE_TECNO_PLAN.md M4, J2). FIRST_RING_JUMPS: every term of the jump written as a jump over a mesh edge, Cauchy-Schwarz with the pair weights mu_xm = sqrt(a_xm^T E_x a_xm) (E_x the mean of e e^T over the edges of x weighted by trace(D_e H_e), H the entropy Hessian; uniform if all weights vanish) and a three-term weighted Cauchy-Schwarz, so that 2 J >= C^T D C and J 1 = 0 (as C^T D C); first-neighbour blocks only (ROE_TECNO_PLAN.md 6.4). \ingroup Config \default ROE1 */
   addEnumOption("TECNO_ADJOINT_JACOBIAN", Kind_TeCNO_Adj_Jacobian, TeCNO_Adj_Jacobian_Map, TECNO_ADJ_JACOBIAN::ROE1);
   /*!\brief EDGE_FORM_EC_EXACT_JACOBIAN \n DESCRIPTION: ROE with EDGE_FORM_EC_FLUX or EDGE_FORM_TECNO: exact Jacobian of the Ismail-Roe flux of the nodal states (both node blocks) instead of 1/2 A_i, 1/2 A_k. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_EC_EXACT_JACOBIAN", Edge_Form_EC_Exact_Jacobian, false);
@@ -6541,7 +6541,8 @@ void CConfig::CheckP1FluxOptions() const {
       SU2_MPI::Error(name + "not with EDGE_FORM_TECNO_A4_JACOBIAN (the majorant with per-edge limiters is not derived).", CURRENT_FUNCTION);
   }
   if (Kind_TeCNO_Adj_Jacobian != TECNO_ADJ_JACOBIAN::ROE1) {
-    const string name = "TECNO_ADJOINT_JACOBIAN= FIRST_RING: ";
+    const string name = (Kind_TeCNO_Adj_Jacobian == TECNO_ADJ_JACOBIAN::FIRST_RING) ? "TECNO_ADJOINT_JACOBIAN= FIRST_RING: "
+                                                                                   : "TECNO_ADJOINT_JACOBIAN= FIRST_RING_JUMPS: ";
     if (!Edge_Form_TeCNO_Adjoint) SU2_MPI::Error(name + "needs EDGE_FORM_TECNO_ADJOINT= YES.", CURRENT_FUNCTION);
     if (Edge_Form_TeCNO_A4_Jacobian)
       SU2_MPI::Error(name + "not with EDGE_FORM_TECNO_A4_JACOBIAN, one dissipation Jacobian at a time.", CURRENT_FUNCTION);

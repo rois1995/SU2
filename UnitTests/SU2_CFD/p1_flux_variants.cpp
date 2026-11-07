@@ -3256,12 +3256,19 @@ void TeCNOAdjointLinearizationCase() {
   const auto r = TeCNOAdjointChecks::LinearizationCheck<nDim>(geometry, geometry.GetnPoint(), 8, 9);
   INFO("nDim " << nDim << ": asymmetry " << r.asymmetry << ", negative " << r.negative << ", majorant " << r.majorant
                << ", first ring " << r.firstRing << " (edge part " << r.firstRingEdge << ", spread " << r.firstRingSpread
-               << ")");
+               << "), jumps " << r.jumps << " (ref " << r.jumpsRef << ", alpha " << r.jumpsAlpha << ", row sum "
+               << r.jumpsRowSum << ", asym " << r.jumpsAsym << ", finite " << r.jumpsFinite << ")");
   CHECK(r.asymmetry < 1e-12);
   CHECK(r.negative < 1e-12);
   CHECK(r.majorant < 1e-12);
   CHECK(r.firstRing < 1e-12);
   CHECK(r.firstRingEdge < 1e-12);
+  CHECK(r.jumpsFinite);
+  CHECK(r.jumps < 1e-12);
+  CHECK(r.jumpsRef < 1e-6);
+  CHECK(r.jumpsAlpha < 1e-12);
+  CHECK(r.jumpsRowSum < 1e-12);
+  CHECK(r.jumpsAsym < 1e-12);
 }
 
 template <size_t nDim>
@@ -3563,12 +3570,20 @@ void P1AverageLinearizationCase() {
     const auto r = TeCNOAdjointChecks::LinearizationCheck<nDim>(geometry, geometry.GetnPoint(), 6, 11, &p1);
     INFO("nDim " << nDim << " moved " << moved << ": asymmetry " << r.asymmetry << ", negative " << r.negative
                  << ", majorant " << r.majorant << ", first ring " << r.firstRing << " (edge part " << r.firstRingEdge
-                 << ", spread " << r.firstRingSpread << ")");
+                 << ", spread " << r.firstRingSpread << "), jumps " << r.jumps << " (ref " << r.jumpsRef << ", alpha "
+                 << r.jumpsAlpha << ", row sum " << r.jumpsRowSum << ", asym " << r.jumpsAsym << ", finite "
+                 << r.jumpsFinite << ")");
     CHECK(r.asymmetry < 1e-12);
     CHECK(r.negative < 1e-12);
     CHECK(r.majorant < 1e-12);
     CHECK(r.firstRing < 1e-12);
     CHECK(r.firstRingEdge < 1e-12);
+    CHECK(r.jumpsFinite);
+    CHECK(r.jumps < 1e-12);
+    CHECK(r.jumpsRef < 1e-6);
+    CHECK(r.jumpsAlpha < 1e-12);
+    CHECK(r.jumpsRowSum < 1e-12);
+    CHECK(r.jumpsAsym < 1e-12);
   }
 }
 }  // namespace
