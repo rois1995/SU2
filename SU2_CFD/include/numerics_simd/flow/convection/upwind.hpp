@@ -102,6 +102,7 @@ protected:
   const su2double roeKappa;       /*!< \brief ROE_KAPPA, weight of the central Jacobian of finalizeFlux. */
   const CVariable* const tkeVars; /*!< \brief SST turbulence variables (k is part of the total energy), else nullptr. */
   const bool tecnoAdjVA;          /*!< \brief TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_VA (extended instances only). */
+  const bool tecnoAdjFR;          /*!< \brief TECNO_ADJOINT_JACOBIAN= FIRST_RING (extended instances only). */
 
   /*!
    * \brief Constructor, store some constants and forward args to base.
@@ -137,7 +138,8 @@ protected:
     ecExactJac(finestGrid && config.GetEdge_Form_EC_Exact_Jacobian()),
     roeKappa(config.GetRoe_Kappa()),
     tkeVars(config.GetKind_Turb_Model() == TURB_MODEL::SST ? findTurbVars(args...) : nullptr),
-    tecnoAdjVA(tecnoAdj && config.GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_VA) {
+    tecnoAdjVA(tecnoAdj && config.GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_VA),
+    tecnoAdjFR(tecnoAdj && config.GetKind_TeCNO_Adj_Jacobian() == TECNO_ADJ_JACOBIAN::FIRST_RING) {
   }
 
   /*!
@@ -146,7 +148,9 @@ protected:
    *        tecnoAdjointEdgeVA): one phi per edge end and characteristic entropy field, B^T q of end 0 in [0, nVar) and of
    *        end 1 in [nVar, 2 nVar) of the edge store (TeCNOAdjoint::NodalMomentEnds), the nodal phi refused; otherwise
    *        the default jump and store. Jacobian: the central part and the first order Roe dissipation of the default
-   *        branch (EDGE_FORM_TECNO_A4_JACOBIAN is refused with these options).
+   *        branch, or with TECNO_ADJOINT_JACOBIAN= FIRST_RING the central part only and D_e stored per edge for the
+   *        first-ring blocks added by the solver (TeCNOAdjoint::FirstRingRow). EDGE_FORM_TECNO_A4_JACOBIAN is refused
+   *        with these options.
    */
   template<class PrimVarType, class GradType, class VariableType>
   void tecnoAdjointExt(VectorDbl<nVar>& flux, MatrixDbl<nVar>& jac_i, MatrixDbl<nVar>& jac_j, const bool implicit,
@@ -198,6 +202,20 @@ protected:
       const auto U_j = compressibleConservatives(V1st.j);
       jac_i = inviscidProjJac(gamma, V1st.i.velocity(), U_i.energy(), normal, 0.5);
       jac_j = inviscidProjJac(gamma, V1st.j.velocity(), U_j.energy(), normal, 0.5);
+    }
+    if (tecnoAdjFR) {
+      /*--- D_e (dense, row major) for the first-ring Jacobian of the solver; no dissipation block here. ---*/
+      auto& edgeD = solution.TeCNOAdjEdgeD;
+      for (size_t jVar = 0; jVar < nVar; ++jVar) {
+        VectorDbl<nVar> unit;
+        for (size_t iVar = 0; iVar < nVar; ++iVar) unit(iVar) = (iVar == jVar) ? 1.0 : 0.0;
+        const auto col = tecnoDissipation(gamma, avg, unitNormal, lamM, lam0, lamP, scale, unit);
+        for (size_t k = 0; k < Double::Size; ++k) {
+          if (updateMask[k] == 0.0) continue;
+          for (size_t iVar = 0; iVar < nVar; ++iVar) edgeD(iEdge[k], iVar * nVar + jVar) = col(iVar)[k];
+        }
+      }
+      return;
     }
     /*--- First order Roe dissipation on nu (sigma = 1, frozen eigenvectors), as in the default branch. ---*/
     const Double& c = avg.speedSound;
@@ -301,7 +319,7 @@ protected:
       const Double phi_i = gatherVariables(iPoint, solution.TeCNOAdjPhi);
       const Double phi_j = gatherVariables(jPoint, solution.TeCNOAdjPhi);
       if constexpr (TeCNOAdjExtTrait<Derived>::value) {
-        /*--- Extended instances only (TECNO_ADJOINT_LIMITER); discarded in the default ones. ---*/
+        /*--- Extended instances only (TECNO_ADJOINT_LIMITER, TECNO_ADJOINT_JACOBIAN); discarded in the default ones. ---*/
         tecnoAdjointExt(flux, jac_i, jac_j, implicit, unitNormal, normal, V1st, vector_ij, iEdge, updateMask, solution,
                         umusclRamp, avg, lamM, lam0, lamP, scale, dw, gradW_i, gradW_j, phi_i, phi_j);
         return;

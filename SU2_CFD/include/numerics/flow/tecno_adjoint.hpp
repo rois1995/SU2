@@ -2,7 +2,8 @@
  * \file tecno_adjoint.hpp
  * \brief Adjoint (dual consistent) entropy dissipation of EDGE_FORM_TECNO (EDGE_FORM_TECNO_ADJOINT): the linear
  *        U-MUSCL jump of the nodal entropy variables, its Green-Gauss gradient, the transpose of that gradient, and
- *        the Lemma A4 majorant of its linearization (P1_TECNO_CONVERGENCE.md, 3.2 and 5.1).
+ *        the Lemma A4 majorant of its linearization (P1_TECNO_CONVERGENCE.md, 3.2 and 5.1), and the first-ring
+ *        Jacobian of TECNO_ADJOINT_JACOBIAN= FIRST_RING.
  * \version 8.6.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
@@ -500,6 +501,149 @@ void MajorantDiagonalP1(const Geometry& geometry, unsigned short nDim, unsigned 
   const su2double weight = 1.5 * sqrt(normSum);
   for (unsigned short iVar = 0; iVar < nVar; ++iVar)
     for (unsigned short jVar = 0; jVar < nVar; ++jVar) block(iVar, jVar) += weight * P(iPoint, iVar * nVar + jVar);
+}
+
+/*--- TECNO_ADJOINT_JACOBIAN= FIRST_RING (ROE_TECNO_PLAN.md M4, J2): for frozen D_e and phi the dissipation has the
+ * linearization K = sum_e beta_e beta_e^T (x) D_e in w, beta_{e,m} the scalar coefficients of L_e = sum_m beta_{e,m} w_m,
+ *   beta_{e,m} = (1 - rho kappa)(delta_{m,1} - delta_{m,0}) + gam [phi_0 g_{0m}.e + phi_1 g_{1m}.e],  g_im = dG_i/dw_m,
+ * (nodes 0, 1 of the edge, e = x_1 - x_0, gam = -1/2 rho (1-kappa)). Split beta_e = a_e + b_e with a_e the entries at the
+ * two ends (Delta part and the gradient entries g_00, g_01, g_10, g_11) and b_e = b_e^0 + b_e^1 the entries at the other
+ * stencil nodes, b^x_m = gam phi_x (a_xm.e)/V_x for m in N(x) (g_xm = a_xm/V_x). Young (eps = 1) twice:
+ *   beta beta^T <= 2 a a^T + 2 b b^T,   b b^T <= 2 (b^0 b^0^T + b^1 b^1^T),
+ * and Cauchy-Schwarz with D PSD and the weights c_m = |a_xm| (direction-aware, exact for one active neighbour):
+ *   b^x b^x^T (x) D <= (sum_m (b^x_m)^2 / |a_xm|) diag_m(|a_xm|) (x) D,  sum_m (b^x_m)^2/|a_xm| <= gam^2 phi_x^2 V_x^-2 e^T T_x e,
+ * T_x = sum_k a_xk a_xk^T / |a_xk| (a nodal tensor; on stretched cells e^T T e follows the cell shape, unlike |e|^2 |a|).
+ * So K <= 2 J with
+ *   J = sum_e a_e a_e^T (x) D_e  +  diag_m( sum_{i in N(m)} |a_im| P_i ),   P_i = 2 gam^2 phi_i^2 V_i^-2 sum_{e ni i} (e^T T_i e) D_e,
+ * whose blocks are first neighbours only: the edge blocks of a_e a_e^T exactly (first-ring part of the consistent
+ * linearization) and a diagonal majorant of the rest. g_ii = -s_i, s_i = V_i^-1 sum_k a_ik: the weights a of
+ * TECNO_ADJOINT_GRADIENT (P1 average: the stored a, V = Vhat; Green-Gauss: a_{0,1} = n/2, a_{1,0} = -n/2, V the dual
+ * volume). MPI: S = (s, 1/V, T) and P on the owned nodes, copied to the halos; rows of owned nodes. ---*/
+
+/*!
+ * \brief Edge weights of the Green-Gauss gradient in the layout of the P1 average weights: a_{0,1} = n/2 in columns
+ *        [0, nDim), a_{1,0} = -n/2 in [nDim, 2 nDim).
+ */
+template <class Geometry>
+struct GreenGaussWeights {
+  const Geometry& geometry;
+  unsigned short nDim;
+  su2double operator()(unsigned long iEdge, unsigned short col) const {
+    const auto* normal = geometry.edges->GetNormal(iEdge);
+    return (col < nDim) ? 0.5 * normal[col] : -0.5 * normal[col - nDim];
+  }
+};
+
+/*!
+ * \brief S(i, 0:nDim) = s_i, S(i, nDim) = 1/V_i, S(i, nDim+1 + nDim*d + d') = T_i(d, d') on the owned nodes (FIRST_RING),
+ *        width nDim + 1 + nDim^2.
+ */
+template <class Geometry, class WeightType, class VolumeType, class NodeType>
+void FirstRingNodal(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
+                    NodeType& S) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double sum[3] = {}, T[3][3] = {};
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const unsigned short own = (geometry.edges->GetNode(iEdge, 0) == iPoint) ? 0 : nDim;
+      su2double a[3] = {}, norm2 = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+        a[iDim] = weights(iEdge, own + iDim);
+        sum[iDim] += a[iDim];
+        norm2 += a[iDim] * a[iDim];
+      }
+      if (norm2 == 0.0) continue;
+      const su2double invNorm = 1.0 / sqrt(norm2);
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+        for (unsigned short jDim = 0; jDim < nDim; ++jDim) T[iDim][jDim] += a[iDim] * a[jDim] * invNorm;
+    }
+    const su2double invVol = 1.0 / volume(iPoint);
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) S(iPoint, iDim) = sum[iDim] * invVol;
+    S(iPoint, nDim) = invVol;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim) S(iPoint, nDim + 1 + nDim * iDim + jDim) = T[iDim][jDim];
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief beta of the two ends of an edge (FIRST_RING), S and phi needed at both nodes.
+ */
+template <class Geometry, class WeightType, class NodeType, class PhiType>
+void FirstRingBeta(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const NodeType& S,
+                   const PhiType& phi, su2double coefDelta, su2double gam, unsigned long iEdge, su2double& beta0,
+                   su2double& beta1) {
+  const unsigned long i0 = geometry.edges->GetNode(iEdge, 0), i1 = geometry.edges->GetNode(iEdge, 1);
+  const auto* x0 = geometry.nodes->GetCoord(i0);
+  const auto* x1 = geometry.nodes->GetCoord(i1);
+  su2double g00 = 0.0, g01 = 0.0, g10 = 0.0, g11 = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    const su2double e = x1[iDim] - x0[iDim];
+    g00 -= S(i0, iDim) * e;
+    g11 -= S(i1, iDim) * e;
+    g01 += weights(iEdge, iDim) * S(i0, nDim) * e;
+    g10 += weights(iEdge, nDim + iDim) * S(i1, nDim) * e;
+  }
+  beta0 = -coefDelta + gam * (phi(i0) * g00 + phi(i1) * g10);
+  beta1 = coefDelta + gam * (phi(i0) * g01 + phi(i1) * g11);
+}
+
+/*!
+ * \brief P_i = 2 gam^2 phi_i^2 V_i^-2 sum_{e ni i} (e^T T_i e) D_e on the owned nodes (FIRST_RING).
+ * \param[in] edgeD - D_e of each edge, row major (iEdge, iVar*nVar + jVar).
+ */
+template <class Geometry, class EdgeType, class NodeType, class PhiType, class NodeTypeP>
+void FirstRingNodalP(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const EdgeType& edgeD,
+                     const NodeType& S, const PhiType& phi, su2double gam, NodeTypeP& P) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double sum[MAXNVAR * MAXNVAR] = {};
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const auto* x0 = geometry.nodes->GetCoord(geometry.edges->GetNode(iEdge, 0));
+      const auto* x1 = geometry.nodes->GetCoord(geometry.edges->GetNode(iEdge, 1));
+      su2double eTe = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+        for (unsigned short jDim = 0; jDim < nDim; ++jDim)
+          eTe += (x1[iDim] - x0[iDim]) * S(iPoint, nDim + 1 + nDim * iDim + jDim) * (x1[jDim] - x0[jDim]);
+      for (unsigned short k = 0; k < nVar * nVar; ++k) sum[k] += eTe * edgeD(iEdge, k);
+    }
+    const su2double coef = 2.0 * pow(gam * phi(iPoint) * S(iPoint, nDim), 2);
+    for (unsigned short k = 0; k < nVar * nVar; ++k) P(iPoint, k) = coef * sum[k];
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Row of the owned node m of J (in w, FIRST_RING): diag = sum_{e ni m} beta_{e,m}^2 D_e + sum_{k in N(m)} |a_km| P_k,
+ *        and for each edge (m, k) the block beta_{e,m} beta_{e,k} D_e, passed to offBlock(k, block). S, phi, P on halos.
+ */
+template <class Geometry, class WeightType, class NodeType, class NodeTypeP, class EdgeType, class PhiType,
+          class OffFunc>
+void FirstRingRow(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+                  const NodeType& S, const NodeTypeP& P, const EdgeType& edgeD, const PhiType& phi, su2double coefDelta,
+                  su2double gam, unsigned long iPoint, Block& diag, OffFunc&& offBlock) {
+  for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+    for (unsigned short jVar = 0; jVar < nVar; ++jVar) diag(iVar, jVar) = 0.0;
+  for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+    const bool first = (geometry.edges->GetNode(iEdge, 0) == iPoint);
+    const unsigned long jPoint = geometry.edges->GetNode(iEdge, first ? 1 : 0);
+    su2double beta0, beta1;
+    FirstRingBeta(geometry, nDim, weights, S, phi, coefDelta, gam, iEdge, beta0, beta1);
+    const su2double bm = first ? beta0 : beta1, bk = first ? beta1 : beta0;
+    const unsigned short other = first ? nDim : 0; /*--- a_km, k = jPoint. ---*/
+    su2double norm2 = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) norm2 += pow(weights(iEdge, other + iDim), 2);
+    const su2double aNorm = sqrt(norm2);
+    Block off;
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+      for (unsigned short jVar = 0; jVar < nVar; ++jVar) {
+        const su2double d = edgeD(iEdge, iVar * nVar + jVar);
+        diag(iVar, jVar) += bm * bm * d + aNorm * P(jPoint, iVar * nVar + jVar);
+        off(iVar, jVar) = bm * bk * d;
+      }
+    }
+    offBlock(jPoint, off);
+  }
 }
 
 }  // namespace TeCNOAdjoint

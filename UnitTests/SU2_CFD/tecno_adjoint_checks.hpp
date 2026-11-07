@@ -358,6 +358,9 @@ struct LinearizationResult {
   double asymmetry = 0.0;   /*!< \brief |A - A^T| / |A|. */
   double negative = 0.0;    /*!< \brief max(0, -lambda_min / lambda_max) of A. */
   double majorant = 0.0;    /*!< \brief max(0, -lambda_min(2 M# - A) / lambda_max(A)). */
+  double firstRing = 0.0;   /*!< \brief max(0, -lambda_min(2 J - A) / lambda_max(A)), J of TECNO_ADJOINT_JACOBIAN= FIRST_RING. */
+  double firstRingEdge = 0.0; /*!< \brief |J_edge - sum_e a_e a_e^T D_e| / |.|, reference beta from EdgeJump. */
+  double firstRingSpread = 0.0; /*!< \brief lambda_max(A)/lambda_max(J), for information. */
 };
 
 template <size_t nDim, class Geometry>
@@ -426,6 +429,74 @@ LinearizationResult LinearizationCheck(const Geometry& geometry, unsigned long n
     }
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigM(2.0 * M - As);
     res.majorant = std::max(res.majorant, -eigM.eigenvalues().minCoeff() / lamMax);
+
+    /*--- TECNO_ADJOINT_JACOBIAN= FIRST_RING: J from the solver functions (the same calls as CEulerSolver), its edge
+     * part against sum_e a_e a_e^T D_e with beta_{e,end} from EdgeJump of nodal indicator fields (independent of the
+     * FirstRing formulas), and 2 J - A >= 0. ---*/
+    auto firstRing = [&](const auto& weights, const auto& volume) {
+      su2activematrix Sn(nPoint, nDim + 1 + nDim * nDim), Pn(nPoint, nVar * nVar), P0(nPoint, nVar * nVar);
+      P0 = su2double(0.0);
+      TeCNOAdjoint::FirstRingNodal(geometry, nDim, weights, volume, Sn);
+      TeCNOAdjoint::FirstRingNodalP(geometry, nDim, nVar, D, Sn, phi, gam, Pn);
+      auto assemble = [&](const su2activematrix& P) {
+        Eigen::MatrixXd J = Eigen::MatrixXd::Zero(nDof, nDof);
+        for (auto i = 0ul; i < nPoint; ++i) {
+          TeCNOAdjoint::Block diag;
+          TeCNOAdjoint::FirstRingRow(geometry, nDim, nVar, weights, Sn, P, D, phi, coefDelta, gam, i, diag,
+                                     [&](unsigned long k, const TeCNOAdjoint::Block& off) {
+            for (size_t a = 0; a < nVar; ++a)
+              for (size_t b = 0; b < nVar; ++b) J(nVar * i + a, nVar * k + b) += off(a, b);
+          });
+          for (size_t a = 0; a < nVar; ++a)
+            for (size_t b = 0; b < nVar; ++b) J(nVar * i + a, nVar * i + b) += diag(a, b);
+        }
+        return J;
+      };
+      su2activematrix beta(geometry.GetnEdge(), 2);
+      for (auto m = 0ul; m < nPoint; ++m) {
+        su2activematrix w(nPoint, nVar);
+        w = su2double(0.0);
+        for (size_t v = 0; v < nVar; ++v) w(m, v) = 1.0;
+        CVectorOfMatrix grad(nPoint, nVar, nDim, 0.0);
+        if (p1) {
+          TeCNOAdjoint::GradientP1(geometry, nDim, nVar, p1->weights, p1->volume, w, grad);
+        } else {
+          TeCNOAdjoint::Gradient(geometry, nDim, nVar, w, grad);
+        }
+        for (auto e : geometry.nodes->GetEdges(m)) {
+          const auto i = geometry.edges->GetNode(e, 0), k = geometry.edges->GetNode(e, 1);
+          Vector<su2double, nVar> dw, L;
+          Vector<su2double, nDim> edge;
+          for (size_t v = 0; v < nVar; ++v) dw(v) = w(k, v) - w(i, v);
+          for (size_t d = 0; d < nDim; ++d) edge(d) = geometry.nodes->GetCoord(k)[d] - geometry.nodes->GetCoord(i)[d];
+          TeCNOAdjoint::EdgeJump(nDim, nVar, dw, grad[i], grad[k], phi(i), phi(k), edge, ramp, kappa, L);
+          beta(e, (i == m) ? 0 : 1) = L(0);
+        }
+      }
+      Eigen::MatrixXd Jref = Eigen::MatrixXd::Zero(nDof, nDof);
+      for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+        const unsigned long node[2] = {geometry.edges->GetNode(e, 0), geometry.edges->GetNode(e, 1)};
+        for (int x = 0; x < 2; ++x)
+          for (int y = 0; y < 2; ++y)
+            for (size_t a = 0; a < nVar; ++a)
+              for (size_t b = 0; b < nVar; ++b)
+                Jref(nVar * node[x] + a, nVar * node[y] + b) += beta(e, x) * beta(e, y) * D(e, a * nVar + b);
+      }
+      const Eigen::MatrixXd Jedge = assemble(P0);
+      res.firstRingEdge = std::max(res.firstRingEdge, (Jedge - Jref).norm() / Jref.norm());
+      const Eigen::MatrixXd J = assemble(Pn);
+      const Eigen::MatrixXd Js = 0.5 * (J + J.transpose());
+      Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigJ(2.0 * Js - As);
+      res.firstRing = std::max(res.firstRing, -eigJ.eigenvalues().minCoeff() / lamMax);
+      Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigJs(Js);
+      res.firstRingSpread = std::max(res.firstRingSpread, lamMax / eigJs.eigenvalues().maxCoeff());
+    };
+    if (p1) {
+      firstRing(p1->weights, p1->volume);
+    } else {
+      auto volume = [&](unsigned long i) { return geometry.nodes->GetVolume(i); };
+      firstRing(TeCNOAdjoint::GreenGaussWeights<Geometry>{geometry, nDim}, volume);
+    }
   }
   return res;
 }

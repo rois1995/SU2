@@ -351,6 +351,11 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
         nodes->TeCNOAdjEdgeD.resize(geometry->GetnEdge(), nVar * nVar) = su2double(0.0);
         TeCNOAdjP.resize(nPoint, nVar * nVar) = su2double(0.0);
       }
+      if (config->GetKind_TeCNO_Adj_Jacobian() == TECNO_ADJ_JACOBIAN::FIRST_RING) {
+        nodes->TeCNOAdjEdgeD.resize(geometry->GetnEdge(), nVar * nVar) = su2double(0.0);
+        TeCNOAdjP.resize(nPoint, nVar * nVar) = su2double(0.0);
+        TeCNOAdjS.resize(nPoint, nDim + 1 + nDim * nDim) = su2double(0.0);
+      }
       if (config->GetKind_TeCNO_Adj_Gradient() == TECNO_ADJ_GRADIENT::P1_AVERAGE) {
         /*--- P1 average (P1_TECNO_ADJ_GRADIENT.md, G2): edge weights a and volumes Vhat, fixed (no grid motion). ---*/
         geometry->SetTeCNOAdjointP1Weights(TeCNOAdjEdgeA, TeCNOAdjVol);
@@ -2631,6 +2636,70 @@ void CEulerSolver::TeCNOAdjointResidual(CGeometry *geometry, const CConfig *conf
       Jacobian.AddBlock2Diag(iPoint, block.v);
     }
     END_SU2_OMP_FOR
+  }
+
+  /*--- TECNO_ADJOINT_JACOBIAN= FIRST_RING (TeCNOAdjoint::FirstRingRow): rows of the owned nodes, J_w(m, n) dw/dU_n with
+   * the edge blocks beta_{e,m} beta_{e,n} D_e and the diagonal majorant of the second-ring part, 2 J >= C^T D C. The
+   * edge loop added the central part and stored D_e. ---*/
+
+  if ((config->GetKind_TeCNO_Adj_Jacobian() == TECNO_ADJ_JACOBIAN::FIRST_RING) &&
+      (config->GetKind_TimeIntScheme() == EULER_IMPLICIT)) {
+    TeCNOAdjointFirstRingJacobian(geometry, config);
+  }
+}
+
+void CEulerSolver::TeCNOAdjointFirstRingJacobian(CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
+
+  /*--- Same coefficients as TeCNOAdjointResidual and the edge kernel. Not inlined into TeCNOAdjointResidual, so that
+   * its default code generation is unchanged. ---*/
+  const su2double ramp = config->GetMUSCLRampValue() * config->GetNewtonKrylovRelaxation();
+  const su2double gam = TeCNOAdjoint::GradientCoefficient(ramp, config->GetMUSCL_Kappa_Flow());
+  const auto& phi = nodes->TeCNOAdjPhi;
+  const bool p1Average = (config->GetKind_TeCNO_Adj_Gradient() == TECNO_ADJ_GRADIENT::P1_AVERAGE);
+  const su2double coefDelta = 1.0 - ramp * config->GetMUSCL_Kappa_Flow();
+  auto hessian = [&](unsigned long iPoint, TeCNOAdjoint::Block& H) {
+    su2double velocity[MAXNDIM] = {0.0};
+    for (auto iDim = 0u; iDim < nDim; ++iDim) velocity[iDim] = nodes->GetPrimitive(iPoint, iDim + 1);
+    TeCNOAdjoint::EntropyHessian(nDim, Gamma, nodes->GetPrimitive(iPoint, nDim + 2), velocity,
+                                 nodes->GetPrimitive(iPoint, nDim + 1), H);
+  };
+  auto assemble = [&](const auto& weights, const auto& volume) {
+    TeCNOAdjoint::FirstRingNodal(*geometry, nDim, weights, volume, TeCNOAdjS);
+    CommPointData(geometry, config, TeCNOAdjS.data(), nDim + 1 + nDim * nDim);
+    TeCNOAdjoint::FirstRingNodalP(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeD, TeCNOAdjS, phi, gam, TeCNOAdjP);
+    CommPointData(geometry, config, TeCNOAdjP.data(), nVar * nVar);
+
+    SU2_OMP_FOR_STAT(omp_chunk_size)
+    for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
+      su2double flat[TeCNOAdjoint::MAXNVAR * TeCNOAdjoint::MAXNVAR];
+      auto toCons = [&](const TeCNOAdjoint::Block& blockW, unsigned long jPoint) {
+        TeCNOAdjoint::Block H;
+        hessian(jPoint, H);
+        for (auto iVar = 0u; iVar < nVar; ++iVar) {
+          for (auto jVar = 0u; jVar < nVar; ++jVar) {
+            su2double d = 0.0;
+            for (auto kVar = 0u; kVar < nVar; ++kVar) d += blockW(iVar, kVar) * H(kVar, jVar);
+            flat[iVar * nVar + jVar] = d;
+          }
+        }
+      };
+      TeCNOAdjoint::Block diagW;
+      TeCNOAdjoint::FirstRingRow(*geometry, nDim, nVar, weights, TeCNOAdjS, TeCNOAdjP, nodes->TeCNOAdjEdgeD, phi,
+                                 coefDelta, gam, iPoint, diagW, [&](unsigned long jPoint, const TeCNOAdjoint::Block& offW) {
+        toCons(offW, jPoint);
+        Jacobian.AddBlock(iPoint, jPoint, flat);
+      });
+      toCons(diagW, iPoint);
+      Jacobian.AddBlock(iPoint, iPoint, flat);
+    }
+    END_SU2_OMP_FOR
+  };
+  if (p1Average) {
+    assemble(TeCNOAdjEdgeA, TeCNOAdjVol);
+  } else {
+    auto volume = [&](unsigned long iPoint) { return geometry->nodes->GetVolume(iPoint); };
+    assemble(TeCNOAdjoint::GreenGaussWeights<CGeometry>{*geometry, nDim}, volume);
   }
 }
 

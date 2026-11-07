@@ -86,7 +86,7 @@ public:
   static CNumericsSIMD* CreateNumerics(const CConfig& config, int nDim, int iMesh, const CVariable* turbVars = nullptr);
 
   /*!
-   * \brief Factory of the extended adjoint TeCNO kernels (ROE with TECNO_ADJOINT_LIMITER), CRoeScheme<Decorator, true>,
+   * \brief Factory of the extended adjoint TeCNO kernels (ROE with TECNO_ADJOINT_LIMITER or _JACOBIAN), CRoeScheme<Decorator, true>,
    *        in their own translation unit (CNumericsSIMD_TeCNOExt.cpp), so that the default kernels are compiled as before.
    */
   static CNumericsSIMD* CreateTeCNOAdjExtNumerics(const CConfig& config, int nDim, int iMesh, const CVariable* turbVars);

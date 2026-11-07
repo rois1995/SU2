@@ -1,6 +1,6 @@
 ﻿/*!
  * \file CNumericsSIMD_TeCNOExt.cpp
- * \brief Vectorized (SIMD) Roe kernels with the extended adjoint TeCNO options (TECNO_ADJOINT_LIMITER).
+ * \brief Vectorized (SIMD) Roe kernels with the extended adjoint TeCNO options (TECNO_ADJOINT_LIMITER, _JACOBIAN).
  * \note Separate from CNumericsSIMD.cpp so that the default kernels are compiled as without these options.
  * \author P. Gomes
  * \version 8.6.0 "Harrier"
@@ -30,7 +30,7 @@
 #include "flow/convection/upwind.hpp"
 #include "flow/diffusion/viscous_fluxes.hpp"
 
-/*--- Extended adjoint TeCNO kernels, CRoeScheme<Decorator, true> (TECNO_ADJOINT_LIMITER, ROE_TECNO_PLAN.md S2): kept out
+/*--- Extended adjoint TeCNO kernels, CRoeScheme<Decorator, true> (TECNO_ADJOINT_LIMITER, TECNO_ADJOINT_JACOBIAN): kept out
  * of CNumericsSIMD.cpp so that the default Roe kernels there are compiled exactly as without these options. ---*/
 
 namespace {

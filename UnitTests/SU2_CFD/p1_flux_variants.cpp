@@ -3254,10 +3254,14 @@ void TeCNOAdjointLinearizationCase() {
   MeshCase test(mesh);
   const auto& geometry = *test.geometry;
   const auto r = TeCNOAdjointChecks::LinearizationCheck<nDim>(geometry, geometry.GetnPoint(), 8, 9);
-  INFO("nDim " << nDim << ": asymmetry " << r.asymmetry << ", negative " << r.negative << ", majorant " << r.majorant);
+  INFO("nDim " << nDim << ": asymmetry " << r.asymmetry << ", negative " << r.negative << ", majorant " << r.majorant
+               << ", first ring " << r.firstRing << " (edge part " << r.firstRingEdge << ", spread " << r.firstRingSpread
+               << ")");
   CHECK(r.asymmetry < 1e-12);
   CHECK(r.negative < 1e-12);
   CHECK(r.majorant < 1e-12);
+  CHECK(r.firstRing < 1e-12);
+  CHECK(r.firstRingEdge < 1e-12);
 }
 
 template <size_t nDim>
@@ -3558,10 +3562,13 @@ void P1AverageLinearizationCase() {
     const TeCNOAdjointChecks::P1Average p1(geometry);
     const auto r = TeCNOAdjointChecks::LinearizationCheck<nDim>(geometry, geometry.GetnPoint(), 6, 11, &p1);
     INFO("nDim " << nDim << " moved " << moved << ": asymmetry " << r.asymmetry << ", negative " << r.negative
-                 << ", majorant " << r.majorant);
+                 << ", majorant " << r.majorant << ", first ring " << r.firstRing << " (edge part " << r.firstRingEdge
+                 << ", spread " << r.firstRingSpread << ")");
     CHECK(r.asymmetry < 1e-12);
     CHECK(r.negative < 1e-12);
     CHECK(r.majorant < 1e-12);
+    CHECK(r.firstRing < 1e-12);
+    CHECK(r.firstRingEdge < 1e-12);
   }
 }
 }  // namespace

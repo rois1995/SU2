@@ -1893,6 +1893,8 @@ void CConfig::SetConfig_Options() {
   addEnumOption("TECNO_ADJOINT_GRADIENT", Kind_TeCNO_Adj_Gradient, TeCNO_Adj_Gradient_Map, TECNO_ADJ_GRADIENT::GREEN_GAUSS);
   /*!\brief TECNO_ADJOINT_LIMITER \n DESCRIPTION: Per-edge-end limiter of the dissipation of EDGE_FORM_TECNO_ADJOINT. EDGE_ENTROPY_VA: for each edge end and characteristic entropy field j (shear as one block), phi = (Delta^2 + a Delta + tau)/(a^2 + Delta^2 + tau) with Delta the nodal jump and a the U-MUSCL slope of that field, unclipped, tau the roundoff floor (eps S_j)^2; the residual applies the transpose, so the entropy identity holds for any values (P1_TECNO_ADJ_LIMITER.md). \ingroup Config \default NONE */
   addEnumOption("TECNO_ADJOINT_LIMITER", Kind_TeCNO_Adj_Limiter, TeCNO_Adj_Limiter_Map, TECNO_ADJ_LIMITER::NONE);
+  /*!\brief TECNO_ADJOINT_JACOBIAN \n DESCRIPTION: Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT. ROE1: first order Roe dissipation on the dissipation normal. FIRST_RING: for frozen D_e and phi, the edge blocks a_e a_e^T D_e of the exact linearization C^T D C (a_e the coefficients of the jump at the two edge nodes, gradient entries included) plus a diagonal majorant of the second-ring part (Young with eps = 1 and Cauchy-Schwarz), so that 2 J >= C^T D C; first-neighbour blocks only (ROE_TECNO_PLAN.md M4, J2). \ingroup Config \default ROE1 */
+  addEnumOption("TECNO_ADJOINT_JACOBIAN", Kind_TeCNO_Adj_Jacobian, TeCNO_Adj_Jacobian_Map, TECNO_ADJ_JACOBIAN::ROE1);
   /*!\brief EDGE_FORM_EC_EXACT_JACOBIAN \n DESCRIPTION: ROE with EDGE_FORM_EC_FLUX or EDGE_FORM_TECNO: exact Jacobian of the Ismail-Roe flux of the nodal states (both node blocks) instead of 1/2 A_i, 1/2 A_k. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_EC_EXACT_JACOBIAN", Edge_Form_EC_Exact_Jacobian, false);
   /*!\brief POSITIVE_UPDATE_FLOW \n DESCRIPTION: Positivity-preserving implicit update (P1_POSITIVITY.md). The factor of MAX_UPDATE_FLOW is reduced per node to the largest alpha with rho >= eps_r rho_old (linear) and q >= eps_e q_old (smallest positive root of a quadratic, q = rhoE - |m|^2/(2 rho), minus rho k with SST), eps_r = eps_e = 0.1, the rounded state checked again (halving). A nonfinite increment cancels the update. With SST the turbulence factor also keeps rho k <= (1 - eps_e) q; SA and SST updates with a nonfinite increment are cancelled. Positive pressure for an ideal gas. History fields POSITIVE_LIMITED_POINTS and POSITIVE_FAILED_POINTS (group POSITIVE_UPDATE). \ingroup Config \default false */
@@ -6348,6 +6350,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_TeCNO_A4_Jacobian) active.push_back("EDGE_FORM_TECNO_A4_JACOBIAN");
   if (Kind_TeCNO_Adj_Gradient == TECNO_ADJ_GRADIENT::P1_AVERAGE) active.push_back("TECNO_ADJOINT_GRADIENT= P1_AVERAGE");
   if (Kind_TeCNO_Adj_Limiter != TECNO_ADJ_LIMITER::NONE) active.push_back("TECNO_ADJOINT_LIMITER");
+  if (Kind_TeCNO_Adj_Jacobian != TECNO_ADJ_JACOBIAN::ROE1) active.push_back("TECNO_ADJOINT_JACOBIAN");
   if (Edge_Form_EC_Exact_Jacobian) active.push_back("EDGE_FORM_EC_EXACT_JACOBIAN");
   if (Edge_Form_TeCNO_Wide && !Edge_Form_TeCNO) SU2_MPI::Error("EDGE_FORM_TECNO_WIDE: needs EDGE_FORM_TECNO= YES.", CURRENT_FUNCTION);
   if (Edge_Form_TeCNO_Smooth && (!Edge_Form_TeCNO || Edge_Form_TeCNO_Wide)) SU2_MPI::Error("EDGE_FORM_TECNO_SMOOTH: needs EDGE_FORM_TECNO= YES and not EDGE_FORM_TECNO_WIDE.", CURRENT_FUNCTION);
@@ -6537,6 +6540,14 @@ void CConfig::CheckP1FluxOptions() const {
       SU2_MPI::Error(name + "not with EDGE_FORM_TECNO_ADJOINT_LIMITER (the nodal weights), one limiter at a time.", CURRENT_FUNCTION);
     if (Edge_Form_TeCNO_A4_Jacobian)
       SU2_MPI::Error(name + "not with EDGE_FORM_TECNO_A4_JACOBIAN (the majorant with per-edge limiters is not derived).", CURRENT_FUNCTION);
+  }
+  if (Kind_TeCNO_Adj_Jacobian != TECNO_ADJ_JACOBIAN::ROE1) {
+    const string name = "TECNO_ADJOINT_JACOBIAN= FIRST_RING: ";
+    if (!Edge_Form_TeCNO_Adjoint) SU2_MPI::Error(name + "needs EDGE_FORM_TECNO_ADJOINT= YES.", CURRENT_FUNCTION);
+    if (Edge_Form_TeCNO_A4_Jacobian)
+      SU2_MPI::Error(name + "not with EDGE_FORM_TECNO_A4_JACOBIAN, one dissipation Jacobian at a time.", CURRENT_FUNCTION);
+    if (Kind_TeCNO_Adj_Limiter != TECNO_ADJ_LIMITER::NONE)
+      SU2_MPI::Error(name + "not with TECNO_ADJOINT_LIMITER (per-edge limiter matrices are not derived).", CURRENT_FUNCTION);
   }
   if (Edge_Form_TeCNO_A4_Jacobian) {
     const string name = "EDGE_FORM_TECNO_A4_JACOBIAN: ";

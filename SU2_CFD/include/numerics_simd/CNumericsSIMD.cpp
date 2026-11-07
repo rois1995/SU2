@@ -1,4 +1,4 @@
-﻿/*!
+/*!
  * \file CNumericsSIMD.hpp
  * \brief Vectorized (SIMD) numerics classes.
  * \note This should be the only cpp for this family of classes
@@ -149,8 +149,10 @@ CNumericsSIMD* CNumericsSIMD::CreateNumerics(const CConfig& config, int nDim, in
             "         see https://su2code.github.io/docs_v7/Build-SU2-Linux-MacOS/#compiler-optimizations" << endl;
   }
 #endif
-  /*--- TECNO_ADJOINT_LIMITER (needs EDGE_FORM_TECNO_ADJOINT, i.e. ROE): extended adjoint kernels, own translation unit. ---*/
-  if (config.GetKind_TeCNO_Adj_Limiter() != TECNO_ADJ_LIMITER::NONE)
+  /*--- TECNO_ADJOINT_LIMITER, TECNO_ADJOINT_JACOBIAN (need EDGE_FORM_TECNO_ADJOINT, i.e. ROE): extended adjoint
+   * kernels, own translation unit. ---*/
+  if (config.GetKind_TeCNO_Adj_Limiter() != TECNO_ADJ_LIMITER::NONE ||
+      config.GetKind_TeCNO_Adj_Jacobian() != TECNO_ADJ_JACOBIAN::ROE1)
     return CreateTeCNOAdjExtNumerics(config, nDim, iMesh, turbVars);
 
   if (nDim == 2) return createNumerics<2>(config, iMesh, turbVars);

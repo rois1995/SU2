@@ -887,6 +887,18 @@ static const MapType<std::string, TECNO_ADJ_LIMITER> TeCNO_Adj_Limiter_Map = {
 };
 
 /*!
+ * \brief Jacobian of the dissipation of EDGE_FORM_TECNO_ADJOINT (TECNO_ADJOINT_JACOBIAN).
+ */
+enum class TECNO_ADJ_JACOBIAN {
+  ROE1,       /*!< \brief First order Roe dissipation on the dissipation normal (default). */
+  FIRST_RING, /*!< \brief Exact first-ring part of C^T D C plus a diagonal majorant of the rest, 2 J >= C^T D C. */
+};
+static const MapType<std::string, TECNO_ADJ_JACOBIAN> TeCNO_Adj_Jacobian_Map = {
+  MakePair("ROE1", TECNO_ADJ_JACOBIAN::ROE1)
+  MakePair("FIRST_RING", TECNO_ADJ_JACOBIAN::FIRST_RING)
+};
+
+/*!
  * \brief types of mass diffusivity models
  */
 enum class DIFFUSIVITYMODEL {

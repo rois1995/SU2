@@ -53,6 +53,7 @@ protected:
   su2activematrix TeCNOAdjLimiter, TeCNOAdjMin, TeCNOAdjMax; /*!< \brief Limiter of w and its work arrays. */
   su2activematrix TeCNOAdjEdgeA;   /*!< \brief TECNO_ADJOINT_GRADIENT= P1_AVERAGE: a_{0,1}, a_{1,0} of each edge (iEdge, 2 nDim). */
   su2activevector TeCNOAdjVol;     /*!< \brief Its nodal volumes Vhat_i = sum_T W_i^T. */
+  su2activematrix TeCNOAdjS;       /*!< \brief TECNO_ADJOINT_JACOBIAN= FIRST_RING: (s_i, 1/V_i, T_i) of each node. */
 
   /*!
    * \brief EDGE_FORM_TECNO_ADJOINT: entropy variables, their gradient (TECNO_ADJOINT_GRADIENT: Green-Gauss in difference
@@ -70,6 +71,14 @@ protected:
    * \param[in] config - Definition of the particular problem.
    */
   void TeCNOAdjointResidual(CGeometry *geometry, const CConfig *config);
+
+  /*!
+   * \brief TECNO_ADJOINT_JACOBIAN= FIRST_RING: the first-ring blocks and the diagonal majorant of the adjoint dissipation
+   *        (TeCNOAdjoint::FirstRingRow), rows of the owned nodes. Called by TeCNOAdjointResidual; not inlined.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   */
+  NEVERINLINE void TeCNOAdjointFirstRingJacobian(CGeometry *geometry, const CConfig *config);
 
   /*!
    * \brief VISC_P1_ENTROPY_MOVED: viscous part of the element budget of SetEdgeBlendLambda (Navier-Stokes solver).
