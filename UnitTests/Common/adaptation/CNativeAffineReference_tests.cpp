@@ -10,6 +10,7 @@
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/adaptation/CNativeGeometryBackend3D.hpp"
+#include "../../../Common/include/adaptation/CNativePointConstruction3D.hpp"
 #include <fstream>
 #include <iomanip>
 #include <chrono>
@@ -1581,6 +1582,8 @@ TEST_CASE("Representative saved M6 geometry queries preserve exact inputs and ex
   const auto caller=reference.original->ResidentBytes()+cached.ResidentBytes()+uncached.ResidentBytes()+payload.capacity()+
       (current_context?current_context->ResidentBytes():0);
   auto budget=[&](){AtlasBudget b;b.maximum_work=200000000;b.maximum_bytes=memory_limit;b.maximum_integer_bits=size_t(1)<<26;b.caller_bytes=caller;return b;};
+  std::ofstream witnesses("m6_surface_witnesses.jsonl");REQUIRE(bool(witnesses));witnesses<<std::setprecision(17);
+  double witness_model_error=0;for(const auto& error:authority->Errors())witness_model_error=std::max(witness_model_error,error.second);
   std::ofstream out("m6_surface_queries.json");out<<std::setprecision(17)
       <<"{\"scope\":"<<std::quoted(current_capture?
           "Actual captured current M6 faces; fresh entity context, not historical trial replay or publication":
@@ -1597,6 +1600,30 @@ TEST_CASE("Representative saved M6 geometry queries preserve exact inputs and ex
     auto repeated=budget();const auto repeated_answer=cached.BoundPhysicalSurface(q.facets,physical,tolerance,repeated);
     auto recomputed=budget();const auto oracle=uncached.BoundPhysicalSurface(q.facets,physical,tolerance,recomputed);
     REQUIRE(std::isfinite(answer));CHECK(answer==repeated_answer);CHECK(answer==oracle);
+    size_t witness_samples=0,witness_unknown=0,witness_work=0;double witness_lower=0;
+    if(answer>tolerance)for(unsigned u=0;u<=4;++u)for(unsigned v=0;v<=4-u;++v) {
+      // A certified distance at an enclosed exact face point can prove outside, never acceptance.
+      const auto box=ParametricPointBounds({physical[0][0],physical[0][1],physical[0][2],u/4.,v/4.});
+      const auto roundoff=DisplacementBound(box[0],box[1]);size_t attempted=0;
+      try {
+        const auto closest=authority->ClosestCurved(q.face.facet,box[0],tolerance/64,16384,memory_limit,{},&attempted);
+        REQUIRE(std::isfinite(closest.lower));REQUIRE(std::isfinite(closest.upper));REQUIRE(closest.lower>=0);REQUIRE(closest.lower<=closest.upper);
+        const auto nominal_lower=std::nextafter(closest.lower-roundoff,-INFINITY);
+        const auto lower=std::max(0.,std::nextafter(nominal_lower-witness_model_error,-INFINITY));
+        witness_lower=std::max(witness_lower,lower);++witness_samples;
+        witnesses<<"{\"query\":"<<i<<",\"u\":"<<u/4.<<",\"v\":"<<v/4.
+            <<",\"point\":["<<box[0].x<<','<<box[0].y<<','<<box[0].z<<"],\"source_roundoff\":"<<roundoff
+            <<",\"model_error_allowance\":"<<witness_model_error
+            <<",\"distance_lower\":"<<closest.lower<<",\"distance_upper\":"<<closest.upper
+            <<",\"face_point_distance_lower\":"<<lower<<",\"outside_proved\":"<<(lower>tolerance?"true":"false")
+            <<",\"closest_facet\":"<<closest.facet<<",\"work\":"<<attempted<<"}\n";
+      } catch(const std::exception& error) {
+        ++witness_unknown;
+        witnesses<<"{\"query\":"<<i<<",\"u\":"<<u/4.<<",\"v\":"<<v/4.
+            <<",\"unknown\":true,\"reason\":"<<std::quoted(error.what())<<",\"work\":"<<attempted<<"}\n";
+      }
+      witness_work+=attempted;witnesses.flush();REQUIRE(bool(witnesses));
+    }
     double production=0;size_t production_work=0;
     if(current_context) {
       auto fresh=budget();Patch overlay;overlay.surface.push_back(q.face);
@@ -1615,6 +1642,8 @@ TEST_CASE("Representative saved M6 geometry queries preserve exact inputs and ex
     out<<"{\"id\":"<<i<<",\"anchor\":"<<q.face.facet<<",\"facets\":"<<q.facets.size()<<",\"bound\":"<<answer
        <<",\"current_checkpoint_input\":"<<(current_capture?"true":"false")<<",\"production_guidance_upper\":"<<production
        <<",\"production_guidance_work\":"<<production_work
+       <<",\"outside_witness_lower\":"<<witness_lower<<",\"outside_witness_proved\":"<<(witness_lower>tolerance?"true":"false")
+       <<",\"witness_samples\":"<<witness_samples<<",\"witness_unknown\":"<<witness_unknown<<",\"witness_work\":"<<witness_work
        <<",\"within_tolerance\":"<<(answer<=tolerance?"true":"false")<<",\"seconds\":"<<seconds
        <<",\"work\":"<<cold.work<<",\"repeat_work\":"<<repeated.work<<",\"recomputed_work\":"<<recomputed.work
        <<",\"scope_build_work\":"<<first.scope_build_work-before.scope_build_work

@@ -13,6 +13,25 @@ Actual mesh point/cell counts are separate from metric complexity. Keep geometry
 1e-4, q>=.2, J>=.05, maximum metric edge1.8 and requested heights unchanged. CAD
 remains optional.
 
+The current diagnostic outcome is in
+[actual240geometry evidence](Handbook/ADAPTATION_CAVITY_GEOMETRY240_20261107.md).
+Both refused collapsed faces contain genuine violations of the stored no-CAD cubic
+surface: certified lower248.334µm/112.330µm versus100µm. All six old/collapsed queries
+validate fresh associations/cached-vs-recomputed results. Exact rational checks verify
+source-point rounding correction; reconstructed geometry-merit delta agrees with the
+native candidate to3.73e-16relative. Diagnostic240passes443assertions; production
+code remains unchanged. This does not establish that all intermediate upper-bound
+merit is tight or that every refusal is physical.
+
+Next inspect EXISTING projected splitting/reconstruction of original chord7876–7868
+and its complete current neighboring volume. Its midpoint already violates the
+geometry gate by a certified248.334µm. Preserved rejection history shows the edge
+was considered, with an empty reason; do not infer which primitive failed or call
+this faithful historical replay. Determine projection/positive-cell/interface/
+dependency obstruction or later quality undoing geometry work before selecting ONE
+connected correction. No larger cavity, new scheduler, quality-aware construction,
+new geometry representation or gate/budget change follows from these diagnostics.
+
 Authoritative handles/source pins are in [HANDOFF_Codex.md](HANDOFF_Codex.md).
 Latest full237first native event refused at the unchanged budget with COMPLETE
 final census:296q/327J/1366geometry-bad/0size,1020222cells. All30capture files sealed,
@@ -32,8 +51,8 @@ show no tested net q/J improvement. The bounded238follow-up now tests existing c
 retained-star optimization for one-face230222079/52cells. Only one of12collapses
 constructs; it removes one J failure but raises geometry excess62.46%, so the
 hypothesis is REJECTED for production. The fixture coverage fix passes37975assertions;
-all33previous outcomes are preserved. Next inspect refused changed-face certificates
-with existing rigorous query/reference facilities before another implementation. Two-face230712740already shows strong q/J gains correctly refused
+all33previous outcomes are preserved. That replay has now completed240above; next assess existing projected splitting/
+reconstruction of the actual under-resolved chord and complete neighboring volume. Two-face230712740already shows strong q/J gains correctly refused
 for increased geometry excess. See237outcome for exact complete-context results/limits.
 
 All46blocked first-pass cells had short edges<.5; this correlation is not construction

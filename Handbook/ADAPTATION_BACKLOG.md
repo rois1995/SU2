@@ -562,3 +562,13 @@ domain identity, fresh association/feature/body checks, cached/recomputed numeri
 ordering qualification and unchanged memory/work fail-closed admission. Key-only
 aliasing could return a different conservative bound than recomputation, so do not
 assume decision equivalence or a speedup. No implementation selected; keep237frozen.
+
+
+2026-11-07 actual240diagnosis: the one-face238candidate's two collapsed faces are
+PROVEN outside the stored cubic component at100µm (lower248.334/112.330µm), and its
+weighted guidance delta is reproduced. Next active analysis concerns existing
+geometry split/reconstruction of actual chord7876–7868 and complete volume support.
+Canonical cache-key aliases and tighter quantitative merit bounds remain UNPROVEN
+backlog items; this outside proof does not establish all upper values are tight.
+Do not divert into those optimizations or alter geometry representation/gates merely
+because another conservative result might be tighter. No CAD requirement added.
