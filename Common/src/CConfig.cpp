@@ -6391,7 +6391,6 @@ void CConfig::CheckP1FluxOptions() const {
       refuse("axisymmetric problems only with CONV_NUM_METHOD_FLOW= JST.");
     if (GetDynamic_Grid()) refuse("axisymmetric problems not with grid motion.");
     if (Edge_Form_P1_Mixed) refuse("axisymmetric problems not with EDGE_FORM_P1_MIXED (the split mass is not the dual volume of the source).");
-    if (P1_Wall_Forces) refuse("axisymmetric problems not with P1_WALL_FORCES (no 2 pi r weight of the boundary forces).");
   }
 
   /*--- The form is in the vectorized numerics. Upwind_Residual uses them only for an ideal gas without
@@ -6672,7 +6671,8 @@ void CConfig::CheckP1FluxOptions() const {
       SU2_MPI::Error(name + "only for the compressible RANS solver.", CURRENT_FUNCTION);
     if (sstParsedOptions.production != SST_OPTIONS::NONE)
       SU2_MPI::Error(name + "only with the strain production (no VORTICITY, KATO_LAUNDER or UQ).", CURRENT_FUNCTION);
-    if (Axisymmetric) SU2_MPI::Error(name + "not available with AXISYMMETRIC (the energy source of the k flux is not derived).", CURRENT_FUNCTION);
+    /*--- AXISYMMETRIC: the energy row gets the axisymmetric k diffusion -(1/y) V D_k dk/dy of the k row (CEulerSolver::
+     * Source_Residual, M3 node by node); with VISC_P1_ENTROPY the production P* gets the hoop part of mu_t Q. ---*/
     if (GetBoolTurbomachinery() || GetBoolMixingPlaneInterface() || (nMarker_Fluid_InterfaceBound > 0))
       SU2_MPI::Error(name + "not available with turbomachinery, mixing-plane or fluid-interface markers (diffusive k boundary fluxes).", CURRENT_FUNCTION);
   }

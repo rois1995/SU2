@@ -3166,6 +3166,15 @@ void CEulerSolver::Source_Residual(CGeometry *geometry, CSolver **solver_contain
     if (axiMatchedK && (P1KNodalRes.size() != nPoint))
       SU2_MPI::Error("Matched k: the nodal k sums are not allocated (CONV_NUM_METHOD_FLOW= JST needed).", CURRENT_FUNCTION);
 
+    /*--- SST_ENERGY_CONSISTENT: the k diffusion of the energy flux has the axisymmetric part (1/y) (-D_k dk/dy) of
+     * div(-D_k grad k) in cylindrical coordinates, the same term as the k row of CSourcePieceWise_TurbSST
+     * (ResidualAxisymmetricConvectionDiffusion: D_k = mu + sigma_k(F1) mu_t, the turbulence gradient of k), so the energy
+     * row holds the same discrete k diffusion (M3) node by node. ---*/
+    const bool axiKineDiffusion = (iMesh == MESH_0) && viscous && config->GetSST_Energy_Consistent() &&
+                                  (config->GetKind_Turb_Model() == TURB_MODEL::SST);
+    const CVariable* axiTurbNodes = axiKineDiffusion ? solver_container[TURB_SOL]->GetNodes() : nullptr;
+    const su2double* sstConstants = axiKineDiffusion ? solver_container[TURB_SOL]->GetConstants() : nullptr;
+
     /*--- For viscous problems, we need an additional gradient. ---*/
     if (viscous) {
       ComputeAxisymmetricAuxGradients(geometry, config);
@@ -3214,6 +3223,17 @@ void CEulerSolver::Source_Residual(CGeometry *geometry, CSolver **solver_contain
 
       /*--- Matched k (SSTPATHS_PLAN.md 5): S_E = Shat_E + k_i S_rho,i (H = Hhat + k, both blend branches), the same
        * k_i S_rho,i goes to the SST k row, which drops its own convective axisymmetric k term. ---*/
+      /*--- Same guards as the SST source: no source at the wall nodes (dist <= 1e-10, strong k) or below y = EPS. ---*/
+      if (axiKineDiffusion && (geometry->nodes->GetWall_Distance(iPoint) > 1e-10) &&
+          !(geometry->nodes->GetCoord(iPoint, 1) < EPS)) {
+        const su2double yinv = 1.0 / geometry->nodes->GetCoord(iPoint, 1);
+        const su2double F1 = axiTurbNodes->GetF1blending(iPoint);
+        const su2double sigma_k = F1 * sstConstants[0] + (1.0 - F1) * sstConstants[1];
+        const su2double cdk_axi = -(nodes->GetLaminarViscosity(iPoint) + sigma_k * nodes->GetEddyViscosity(iPoint)) *
+                                  axiTurbNodes->GetGradient(iPoint, 0, 1);
+        LinSysRes(iPoint, nVar - 1) += yinv * geometry->nodes->GetVolume(iPoint) * cdk_axi;
+      }
+
       if (axiMatchedK) {
         const su2double kNode = solver_container[TURB_SOL]->GetNodes()->GetSolution(iPoint, 0);
         P1KNodalRes[iPoint] += kNode * residual[0];

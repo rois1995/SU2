@@ -984,6 +984,12 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
       if (useP1Production) {
         AD::SetPreaccIn(p1Production);
         P = p1Production;
+        /*--- AXISYMMETRIC: P* is the mu_t part of the planar element dissipation; mu_t Q of the axisymmetric strain has
+         * the hoop part Q_axi - Q_planar = 2 (v/y)^2 - 2/3 (2 div_pl v/y + (v/y)^2) = 4/3 (v/y) (v/y - div_pl), nodal. ---*/
+        if (axisymmetric && Coord_i[1] > EPS) {
+          const su2double vy = V_i[idx.Velocity() + 1] / Coord_i[1];
+          P += 4.0 / 3.0 * Eddy_Viscosity_i * vy * (2.0 * vy - diverg);
+        }
       }
       su2double pk = max(0.0, min(P, prod_limit));
 

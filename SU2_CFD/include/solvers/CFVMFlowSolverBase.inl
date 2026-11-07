@@ -3202,8 +3202,9 @@ void CFVMFlowSolverBase<V, FlowRegime>::Pressure_Forces(const CGeometry* geometr
             AccumulateMoment(nDim, RefLength, Force, MomentDist, Coord, NodalMoment, NodalMomentX, NodalMomentY,
                              NodalMomentZ);
             if (p1Pressure) {
+              /*--- AXISYMMETRIC: 2 pi y_i, exact for the phi_i-weighted face shares (y linear on the face). ---*/
               for (unsigned short iDim = 0; iDim < nDim; iDim++)
-                Force[iDim] = P1WallPressureForce[iMarker][iVertex * nDim + iDim] * factor;
+                Force[iDim] = P1WallPressureForce[iMarker][iVertex * nDim + iDim] * factor * AxiFactor;
             }
           }
           for (unsigned short iDim = 0; iDim < nDim; iDim++) ForceInviscid[iDim] += Force[iDim];
@@ -3696,7 +3697,7 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
           for (unsigned short iDim = 0; iDim < nDim; iDim++) NodalForce[iDim] += Force[iDim];
           AccumulateMoment(nDim, RefLength, Force, MomentDist, Coord, NodalMoment, NodalMomentX, NodalMomentY,
                            NodalMomentZ);
-          for (unsigned short iDim = 0; iDim < nDim; iDim++) Force[iDim] = P1Force[iDim] * factor;
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) Force[iDim] = P1Force[iDim] * factor * AxiFactor;
         }
         for (unsigned short iDim = 0; iDim < nDim; iDim++) ForceViscous[iDim] += Force[iDim];
 

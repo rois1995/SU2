@@ -4234,6 +4234,49 @@ TEST_CASE("P1_WALL_FORCES: weak wall traction of a linear shear flow is the exac
   }
 }
 
+TEST_CASE("P1_WALL_FORCES AXISYMMETRIC: sum_i 2 pi y_i share_i is the face rule of int 2 pi y (p~ - pRef) n", "[P1Flux]") {
+  /*--- 2D segments with random end points and states: y is linear on the face, the share of node i is
+   * sum_q phi_i(x_q) a_q (p~_q - pRef), so sum_i y_i share_i = sum_q y(x_q) a_q (p~_q - pRef) exactly (the 2 pi y_i weight
+   * of Pressure_Forces applied to the closure C shares is the face rule of the axisymmetric pressure force). Also the hoop
+   * part of the production: Q_axi - Q_planar = 4/3 (v/y)(v/y - div_pl) for random velocity gradients. ---*/
+  std::mt19937 gen(7314);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const int nDim = 2;
+  for (int trial = 0; trial < 100; ++trial) {
+    ale::State fs[2];
+    for (int k = 0; k < 2; ++k) fs[k] = RandomAleState(gen, nDim, (trial % 2) ? 0.5 : 0.05);
+    const su2double y[2] = {0.05 + exp(u(gen)), 0.05 + exp(u(gen))};
+    const su2double pRef = exp(u(gen));
+    su2double share[2];
+    ale::WallPressureShares(nDim, 2, kGamma, fs, pRef, share);
+    su2double phi[3][3] = {{0.0}};
+    const su2double weight = ale::FaceRule(2, phi);
+    su2double w[2][ale::MAXNVAR] = {{0.0}};
+    for (int k = 0; k < 2; ++k) ale::EntropyVariables(nDim, kGamma, fs[k], w[k]);
+    su2double lhs = y[0] * share[0] + y[1] * share[1], rhs = 0.0, scale = pRef;
+    for (int q = 0; q < 2; ++q) {
+      su2double wq[ale::MAXNVAR] = {0.0};
+      for (int k = 0; k < 2; ++k)
+        for (int v = 0; v < nDim + 2; ++v) wq[v] += phi[q][k] * w[k][v];
+      ale::State sq;
+      ale::StateFromEntropyVariables(nDim, kGamma, wq, sq);
+      rhs += (phi[q][0] * y[0] + phi[q][1] * y[1]) * weight * (sq.p - pRef);
+      scale = std::max(scale, sq.p);
+    }
+    CHECK(fabs(lhs - rhs) <= 1e-13 * scale * (y[0] + y[1]));
+
+    /*--- Hoop production: 2 S:S - 2/3 div^2 with the hoop strain v/y. ---*/
+    su2double G[2][2] = {{u(gen), u(gen)}, {u(gen), u(gen)}};
+    const su2double vy = u(gen);
+    const su2double s01 = 0.5 * (G[0][1] + G[1][0]), divPl = G[0][0] + G[1][1];
+    const su2double qPl = 2.0 * (G[0][0] * G[0][0] + G[1][1] * G[1][1] + 2.0 * s01 * s01) - 2.0 / 3.0 * divPl * divPl;
+    const su2double qAxi = 2.0 * (G[0][0] * G[0][0] + G[1][1] * G[1][1] + vy * vy + 2.0 * s01 * s01) -
+                           2.0 / 3.0 * (divPl + vy) * (divPl + vy);
+    const su2double divAxi = divPl + vy;
+    CHECK(fabs((qAxi - qPl) - 4.0 / 3.0 * vy * (2.0 * vy - divAxi)) <= 1e-14 * (1.0 + fabs(qAxi)));
+  }
+}
+
 TEST_CASE("P1_WALL_FORCES: closure C pressure shares are its wall force and the nodal force for a uniform state", "[P1Flux]") {
   /*--- (i) Random faces: sum_i share_i A_f nu + pRef A_f nu is the momentum part of sum_i b_i of closure C at a wall
    * (FaceResidual with v = 0 and kappa = 0 is the static closure). (ii) Uniform state on the mesh: at every owned vertex
