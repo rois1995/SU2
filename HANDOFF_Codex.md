@@ -19,7 +19,8 @@ A235=`R/m6_runs/euler_build235_geometry_coupled_real_cfd50k`.
 
 ## Current240 — terminal, exact actual geometry diagnosis
 
-Latest pushed checkpoint808aed6c7f; production source4d1e2ec5b0unchanged since237.
+Latest pushed checkpoint236e03ed64; production243/244 introduces the connected
+visibility placement change below. Historical production4d1e2ec5b0was frozen237.
 238only broadened DIAGNOSTIC current-cavity coverage to non-two-face collapse trials;
 239/240only extend opt-in geometry query DIAGNOSTIC with rigorous outside witnesses.
 No production operator/config/policy/gate/budget change through240.240source/metadata
@@ -67,7 +68,7 @@ start ticks captured; job ended before detailed tree/start sampling; no stop sen
 R/{build240_status,build240_terminal_handles,query240_launch}.json and case
 terminal_handles.json authoritative.240is terminal; current244state below governs.
 
-## Current244 — connected qualification terminal; full M6 next
+## ACTIVE244 — full same-seed two-event M6 frozen
 
 All241/242 builds and diagnostic cases are TERMINAL0, pins unchanged and owned
 handles absent.241tested four existing constructors on the
@@ -87,6 +88,16 @@ Existing optimizer then gives59cells/1q/1J/5geometry,excess−82.97%,strict repl
 interface and metric admission pass. Eight prior constructor refusals preserved.
 Raw GeometryRefine passes, raw Repair correctly refuses. NOT an accepted whole mesh.
 A237/visibility243_assessment.json authoritative results/limits.
+
+FULL244 ACTIVE tool82306, source236e03ed64/build244, expected TWO events.
+Attempt R/m6_runs/euler_build244_visibility_real_cfd50k. Runner3440151/start8863722;
+MPIlauncher3440421/start8864247, outer timeout3440420,6solver workers. Exact HOST
+handles R/m6_244_owned_startup.json; live-launch R/m6_244_launch.json. No stop sent.
+Native5400/outer14400,6ranks,nice19/libs1,private4TBscratch; freeze ALL source,
+fixtures/helpers/binary/config/inputs. Same real CFD seed and corrected-L1/50k:
+run.cfg,original mesh/reference and initialrestart byte-identical237, recorded in
+attempt/initial_metric_input_provenance.json. One owned heavy workload. ZERO
+accepted meshes so far. Use observed outcome; no competing implementation.
 
 Current244build TERMINAL0 tool10499/168.129617s,1303pins unchanged/both targets
 current/all compiler handles absent. Legacy serial_full tool85577 TERMINAL27/305.529924s,344cases/336pass/8fail,

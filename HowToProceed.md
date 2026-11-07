@@ -34,7 +34,12 @@ the full same-seed two-event50k attempt. Actual243 native placement constructs t
 Complete context4q/3J/6geometry becomes3q/3J/6geometry, excess−74.68%; existing
 optimizer then gives1q/1J/5geometry, excess−82.97%, with interface/replacement and
 metric gates passing. This is a local repair result, not whole-mesh acceptance.
-244adds directly affected distributed publication coverage before full M6.
+244passes the connected MPI6 milestone,55cases on every rank. Full two-event
+M6 is now ACTIVE/FROZEN: euler_build244_visibility_real_cfd50k, tool82306,
+source236e03ed64, same saved real CFD seed/L1 target and unchanged budgets.
+The overbroad legacy serial campaign FAILED8cases; documented historical scenario/
+donor-count assumptions and an unattributed wall-policy budget refusal remain
+preserved, not waived. Use actual M6 outcome to choose further work.
 No quality-aware construction is authorized
 by these results; all construction/final gates and budgets remain unchanged.
 
