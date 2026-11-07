@@ -51,3 +51,11 @@ initial continued CFD CL.269535/CD.013536,one MACH sensor/61330fits. Host MPI475
 workers475673–475678 and runner chain verified live. All pinned code/fixtures/
 helpers/binary/config/inputs FROZEN. Live/startup identities and resource receipts
 in the attempt and R/m6_251_startup_checkpoint.json. No adapted acceptance yet.
+
+Early full-run evidence:four complete six-rank construction stage groups match247
+in counts/flags and operation/query counts. Through surface-split exit/interior
+entry round1706:294566cells,3164geometry-bad/114872size-bad;shape UNKNOWN.
+3056local construction commits in both;upper work84644580→84224118(-0.4967%),
+traversal74441810→74021348. Native245.460453vs251.374581seconds is observational,
+not causal. A251/construction_comparison247.json seals raw prefixes. All1520pins
+unchanged in A251/source_freeze_observation.json. Full251remains LIVE and FROZEN.

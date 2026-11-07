@@ -28,6 +28,16 @@ HOST verified10live identities:runner475457,time475668,timeout475669,MPI475670,
 workers475673–475678. Exact starts/argv/cwd in A251/owned_startup.json and
 R/m6_251_startup_checkpoint.json. Wrapper continuously refreshes startup identities;
 R/m6_251_upper_cutoff_launch.json is live,not a terminal receipt.
+Startup/handoff checkpoint0455cd3eddpushed. First FOUR complete construction
+stage groups now match247in cell counts,flags and operation/query counts.
+Through surface-split exit/interior-split entry(round1706):294566cells,
+3164geometry-bad/114872size-bad;shape UNKNOWN(q/Jnot measured).
+3056local construction commits in both. Upper work84644580→84224118(-0.4967%),
+traversal74441810→74021348. Native245.460453versus251.374581seconds is observational,
+not a causal timing claim. A251/construction_comparison247.json verifies raw prefixes.
+All1520runtime/source/input pins unchanged:A251/source_freeze_observation.json.
+Latest host resource observation at285s:sampled tree RSS5.216GB;workers active,
+available RAM ample. RSS sample is not physical/whole-job peak memory.
 Keep ALL pinned C++/fixtures/helpers/binary/config/inputs FROZEN. No other heavy job.
 Observe complete stages and net whole-field q/J-bad removal,geometry counts/work.
 Do not stop for elapsed time or contention alone. Preserve full evidence before
@@ -131,7 +141,8 @@ Actual shape+geometry and geometry-only selected contexts have no useful tested
 original/combined candidates;local successes elsewhere are not global closure.
 
 Actual comparisons and final251qualification are terminal;ONE heavy workload is full251M6above.
-C++/fixtures now include the local248change and are pinned by that live build. Analysis/source preparation helpers
+C++now contains qualified251monotone cutoff;the failed248memo was removed.
+Fixtures retain useful hole/body/lift/resource assertions. All are pinned by full251. Analysis/source preparation helpers
 changed only as recorded above. Historical incremental comparisons and explicit
 age offsets remain in quality_comparison244/nearest_quality_age_comparison244.json;
 terminal_comparison244 supersedes their old final-state scope.
@@ -206,7 +217,7 @@ ALL30capture files sealed;1520pins unchanged before ONE verified owned stop;
 tool73370TERMINAL1/5590.219278s,all ten owned handles absent. Historical stop only.
 [Mach-only baseline outcome](Handbook/ADAPTATION_MACH_ONLY244_OUTCOME_20261107.md).
 
-Latest meaningful saved mesh:A_MACH/inspection/rejected_mesh.vtu and .su2,
+Historical244saved mesh:A_MACH/inspection/rejected_mesh.vtu and .su2,
 201113points/1032169tets. captured_nodal_metric has nine row-major components in
 PointData;q/J/geometry/edge arrays in CellData,complete measured counts above.
 3841bad cores/142889neighboring cavity cells,reference/rejections retained.
@@ -217,7 +228,7 @@ terminal meshes only,never every trial. A247terminal inspection export/readback 
 
 ## Next action and downstream obligations — all open
 
-After current250qualification,run the full same-seed attempt;compare net whole-field q/J-bad removal,
+Continue frozen251full attempt;compare net whole-field q/J-bad removal,
 geometry counts and counted work at complete stages/explicit quality ages.
 At refusal preserve/seal bounded evidence and exact source pins before any authorized
 owned stop. Use its demonstrated blocker to select ONE next connected cycle.
