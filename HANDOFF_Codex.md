@@ -50,9 +50,13 @@ claim. Initial quality ownership preserves ALL census totals/flags; joined data 
 A_MACH/quality_entry_observation.json. Sampled tree RSS about9.4GiB,not physical/
 whole-job peak. Keep frozen; no accepted mesh yet.
 A_MACH/owned_live_observation.json is current exact live handle confirmation.
-Mach-only quality is active. Latest complete window round32192/native1625.651721:
-911472cells/85596q/84995J/1253geometry/0size,ALL flags complete,
+Mach-only quality is active. Latest complete window round32384/native2043.949016:
+931172cells/71971q/71055J/1225geometry/0size,ALL flags complete,
 stuck_shape0/missing_features0/private_tracked_collectives0.
+Quality age1342.277665s:net34483q/35149J/156geometry removed; net q25.689916/s.
+18239commits, q retired300842/introduction266359; churn matches whole-field change.
+64806/71971q-bad have no physical face (not necessarily free vertices).
+HOST launcher identity reverified live; MemAvailable30317384kB,load7.96.
 First-pass churn checks match net field changes. No combined-target benchmark.
 A_MACH/{quality_progress,quality_counter_assessment}.json records work/service/
 location/ladder data; continued ownership commits preserve all flags/totals.
@@ -102,7 +106,7 @@ The helper's expected sensor directive self-check was corrected AFTER this check
 terminal; underlying metric/config/CFD unchanged. Existing runner self-check and
 exact generated Mach-only config now pass; build244C++ source pins unchanged.
 
-NEXT: full TWO-event M6 with build244/MACH-only/L1/50k and same CFD seed/gates/
+NEXT: continue the frozen TWO-event M6 with build244/MACH-only/L1/50k and same CFD seed/gates/
 native5400/outer14400. No competing quality implementation before changed-target
 outcome. Deferred coupled-candidate hypothesis stays backlog. New attempt must
 have fresh helper/config/runtime pins; older combined-target pins intentionally
