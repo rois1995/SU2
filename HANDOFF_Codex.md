@@ -56,6 +56,15 @@ NEXT: observe existing run and compare counted work/whole-field q/J/geometry at
 matching stages against227. Do not edit pinned sources or launch another heavy job.
 Stop only after preserved demonstrated failure/bottleneck/resource evidence under
 authorized policy; no stop signal sent235. Full M6 determines next implementation.
+Quality entry235 COMPLETE all6ranks:871607cells/102058q/101860J/1997geometry/0size,
+EXACT same entry counts as227. All matching construction-stage counts/checked
+operation/query/traversal/cache work agree; same prepared limits. Quality-entry
+native969.422s vs775.819s; construction-entry902.062s vs730.001s. Wall-time
+variation is observational, not isolated implementation overhead. WorkerCPU/wall
+~.88–.91 over sampled251s (includes MPI spinning, not pure useful CPU).
+A235/{comparison227_matching_stages,quality_entry_comparison227}.json preserves
+prefix-verified data. NEXT evaluate net whole-field q/J removal and geometry/churn
+from quality entry; remaining time is smaller, budgets unchanged. No accepted mesh.
 
 [Current connected design](Handbook/ADAPTATION_GEOMETRY_CONFORMING_REPAIR_20261107.md):
 existing batch preflight optionally merges four vertex stars for a measured owned
