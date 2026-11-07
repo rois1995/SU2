@@ -1,0 +1,31 @@
+{
+  "time": 1794090899.7258337,
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T223407_1231283",
+  "handles": [
+    {
+      "pid": 1231283,
+      "startticks": 13528732,
+      "argv": "python3 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_cases.py build253 current_compound ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated"
+    },
+    {
+      "pid": 1231619,
+      "startticks": 13529248,
+      "argv": "/usr/bin/time -v timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeCurrentCompound3D] --durations yes ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T223407_1231283"
+    },
+    {
+      "pid": 1231620,
+      "startticks": 13529248,
+      "argv": "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeCurrentCompound3D] --durations yes ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T223407_1231283"
+    },
+    {
+      "pid": 1231621,
+      "startticks": 13529248,
+      "argv": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeCurrentCompound3D] --durations yes ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T223407_1231283"
+    }
+  ],
+  "scope": "Existing two actual LE compound contexts;all compiled/pinned sources frozen until terminal"
+}

@@ -750,6 +750,55 @@ TEST_CASE("Quadratic Hessians preserve signed curvature and report failed fits",
     }
 }
 
+TEST_CASE("Quadratic Hessians grow nearly dependent fits despite small residuals", "[HessianReliability][QuadraticConditioning]") {
+  if (SU2_MPI::GetSize() != 1) return;  // Synthetic graph is local; owner exchange is covered separately.
+  AdaptBoxTest test("MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n",
+                    "QUADRATIC_LEAST_SQUARES", "ADAP_SENSOR= (MACH)\n", 4);
+  auto& geometry = *test.geometry;
+  auto* nodes = test.solver[FLOW_SOL]->GetNodes();
+  const auto count = geometry.GetnPoint();
+  REQUIRE(count >= 43);
+  vector<vector<unsigned long>> graph(count);
+  geometry.nodes->SetCoord(0, 0, 0.0);
+  geometry.nodes->SetCoord(0, 1, 0.0);
+  geometry.nodes->SetCoord(0, 2, 0.0);
+  // The near-paraboloid first ring has isotropic displacements but dependent polynomial columns.
+  for (unsigned long k = 0; k < 16; ++k) {
+    const auto angle = 2 * acos(-1.0) * k / 16;
+    const auto radius = .1 + .02 * (k % 5);
+    const auto x = radius * cos(angle), y = radius * sin(angle);
+    geometry.nodes->SetCoord(k + 1, 0, x);
+    geometry.nodes->SetCoord(k + 1, 1, y);
+    geometry.nodes->SetCoord(k + 1, 2, x*x + y*y + 1e-8*sin(7*angle));
+    graph[0].push_back(k + 1);
+  }
+  unsigned long next = 17;
+  for (int x = -1; x <= 1; ++x) for (int y = -1; y <= 1; ++y) for (int z = -1; z <= 1; ++z) {
+    if (!x && !y && !z) continue;
+    geometry.nodes->SetCoord(next, 0, .3*x);
+    geometry.nodes->SetCoord(next, 1, .3*y);
+    geometry.nodes->SetCoord(next, 2, .3*z);
+    for (unsigned long k = 1; k <= 16; ++k) graph[k].push_back(next);
+    ++next;
+  }
+  // Only neighbor-based reconstruction is consumed; no element geometry uses this synthetic graph.
+  geometry.nodes->SetPoints(graph);
+  for (auto point = 0ul; point < count; ++point) {
+    const auto* x = geometry.nodes->GetCoord(point);
+    nodes->SetAuxVar_Adapt(point, 0, 1 + x[0] + .5*x[1] + x[0]*x[0] +
+                          2*x[1]*x[1] + 3*x[2]*x[2] + .001*x[0]*x[0]*x[0]);
+    for (unsigned k = 0; k < 6; ++k) nodes->GetHessian()(point, 0, k) = 13.0;
+  }
+  {
+    transfer_test::Mute mute;
+    computeHessiansQuadratic(geometry, 1, nodes->GetAuxVar_Adapt(), nodes->GetGradient_Adapt(),
+                             nodes->GetHessian());
+  }
+  const passivedouble exact[6] = {2, 0, 0, 4, 0, 6};
+  for (unsigned k = 0; k < 6; ++k)
+    CHECK(SU2_TYPE::GetValue(nodes->GetHessian()(0, 0, k)) == Approx(exact[k]).margin(1e-3));
+}
+
 TEST_CASE("Quadratic Hessian residuals expose sensor noise without zeroing curvature", "[HessianReliability]") {
   AdaptBoxTest test("MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n", "QUADRATIC_LEAST_SQUARES");
   auto* flow = test.solver[FLOW_SOL];

@@ -30,7 +30,7 @@ capture_preserved_partial_census.json;NOT a complete capture_ready qualification
 All1520source/runtime/input pins verified in source_freeze_before_stop.json BEFORE
 ONE pidfdSIGTERM to verified HOST MPI871976/start12808268. owned_stop_once.json
 records exactly one signal. ALL11owned handles including wrapper absent in
-terminal_handles.json. NEVER repeat that stop. No owned heavy job remains.
+terminal_handles.json. NEVER repeat that stop. No owned M6 job remains. Build254 is now the ONE owned heavy job (below).
 Driver continued ORIGINAL-grid CFD after refusal;adap-named files are not adapted
 workflow proof. Pinned-source freeze released after terminal host proof.
 
@@ -65,11 +65,11 @@ nonsmooth shock residual alone is not proof of recovery failure.
 Existing HESSIAN volume-output group exposes raw production tensors without C++
 changes;old target restart omitted it. A bounded same-seed metric-only output trace
 may supply missing observability;require original flow/final metric bit equality.
-No correction selected;no production source edited after253qualification.
+ONE correction selected after diagnosis:base quadratic conditioning254 (below).
 [Current target/delivery diagnosis](Handbook/ADAPTATION_TARGET_DELIVERY253_20261107.md)
 records the output-only Hessian trace,bit-identical22fields,independent target
 stages and actual-face/exact-edge LE reproduction. Next:existing complete-cavity
-controls;no demonstrated production correction yet.
+controls and selected conditioning correction;qualification pending.
 No new baseline/perf/GDB campaign,config options,scheduler,cavity-size increase,
 quality-aware construction,norm/sensor/complexity sweep or blanket minimum edge gate.
 
@@ -79,6 +79,41 @@ geometry repair requires clean q/J,but existing construction return can run with
 q/Jbad after queue exhaustion,prior progress and strict census/size/height/geometry
 conditions. Do not invent a hard shape-zero barrier. Current last complete run was
 still first shape pass;residual geometry closure not yet demonstrated.
+
+## ACTIVE — qualified conditioning254; full M6 launch next
+
+Existing-output trace verified raw Hessians;bounded actual smooth-LE compound
+checks passed35836assertions/103.969246s,all pins unchanged and all handles gone.
+First setup omitted OMPI_MCA_osc=pt2pt and failed MPI_Win_create before tests;
+receipts preserve failure and corrected retry. Two actual contexts(51/40cells),
+24directed collapses and original-star controls;some combined repairs help,others
+worsen q/J/geometry. Generic fixture boundary=false;no boundary-smoothing proof.
+Its geometry-guidance score differs from terminal certification;do not conflate.
+Worst geographical LE candidate115cells/star90 exceeds64;not enlarged.
+
+ONE connected correction selected in R/condition254_plan.json:apply existing
+QR Frobenius condition<=1000 admission to BASE quadratic fits too,not just richer
+wall polynomials. Actual trailing-edge extreme H matches first-ring designs with
+condition~2.9e6..1.45e8;many residuals below.05 prevented growth. Independent
+well-conditioned two rings give far smaller H. Controlled smooth cubic perturbation
+reproduces Hxx10.60 instead of2 at residual2.55e-6;two-ring Hxx1.99999968.
+Unsupported base first ring now uses existing complete-owner two-ring retry;
+unsupported final fit retains caller fallback. No sensor filter/norm/config/gate/
+construction/scheduler change. Shared2D/3D path plus one focused serial synthetic
+regression. Existing MPI owner/recovery tests must qualify changed behavior.
+
+Build254TERMINAL0/75.129806s,ALL1303pins unchanged,both targets up-to-date,
+all build handles absent. Focused serial31cases/168175assertions PASSED6.659140s;
+ONE MPI6 milestone17cases on EACH rank PASSED6.839107s;all source/runtime pins
+unchanged,all owned handles terminal. R/condition254_qualification.json.
+Same-seed production target replayTERMINAL0/57.147841s,pins unchanged,all handles
+absent. ALLflow fields/coords bit-identical;71Hessians changed;maxrawHnorm
+1.3025e13→8.5484e7,minQRpivotratio1.1528e-8→.00290566,zero WLSfallbacks.
+Finalcomplexity49999.999976,SPD/bounds/AR and independent directed-gradation audit
+passed. Sampled shock target5–12%finer;farfield share34.872→40.398% (not solved).
+R/target_delivery254_v1/comparison.json. No norm/sensor/complexity change.
+NEXT IMMEDIATE full same-seed two-event M6 at unchanged gates/native5400/outer14400.
+Zero accepted meshes;no transfer/adaptedCFD/restart claim. No competing cycle.
 
 ## Qualified active change and diagnosis
 

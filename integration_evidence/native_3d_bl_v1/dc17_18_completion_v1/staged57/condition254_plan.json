@@ -1,0 +1,13 @@
+{
+  "missing_capability": "Reliable same-seed flow-to-target recovery before testing closure against that target.",
+  "evidence": "Eight actual trailing-edge raw H match ill-conditioned first-ring quadratic fits (condition~2.9e6..1.45e8),often residual<.05;two-ring independent fits condition~3..6 and far smaller curvature. Controlled smooth cubic perturbation reproduces first-ring condition6.87e6,residual2.55e-6,Hxx10.60 instead of2;two-ring Hxx1.99999968.",
+  "connected_change": "Apply existing richer-fit QR Frobenius condition bound<=1000 to base quadratic fits too. An unsupported first ring grows through existing complete-owner two-ring import;unsupported final fit preserves existing caller fallback. No sensor filter/norm/config/gate/construction change.",
+  "affected_scope": [
+    "computeHessiansQuadratic shared2D/3D",
+    "existing gradient/Hessian tests plus focused bounded-stencil regression",
+    "same-seed production metric-only target replay",
+    "full two-event M6"
+  ],
+  "acceptance": "Regression exposes small-residual ill-conditioned fit;recovered smooth known curvature accurate;existing signed/flat/noise/stretched/curved/symmetry tests;one MPI6 meaningful milestone incl owner stencils;actual same-seed rawH/metric/flow comparison then immediate full M6. All strict mesh/transfer/restart obligations remain.",
+  "boundary_hypotheses": "Actual LE geometrybad contexts have mixed collapse+optimizer yield;no boundary implementation selected. Preserve source map and results;do not claim generic boundary=false harness covers boundary smoothing or exact terminal geometry excess."
+}

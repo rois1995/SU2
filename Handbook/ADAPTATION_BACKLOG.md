@@ -678,3 +678,16 @@ Do not infer a hard shape-zero phase deadlock from the small all-features-blocke
 set. Neighbor changes may also reopen rejected demand. No new implementation or
 validation campaign chosen;complete frozen253and use its actual outcome.
 [Exact guards and pinned source proof](ADAPTATION_RECOVERY_GUARDS253_20261107.md).
+
+
+2026-11-07 target/delivery253 diagnosis (deferred within conditioning254 cycle):
+- Explain terminal certificate excess versus bounded actual-cavity geometry-guidance
+  score;neither scalar is automatically an equivalent cached/recomputed oracle.
+- Mixed actual smooth-LE collapse+retained-star results:some geometry/shape improvement,
+  some churn/obstruction. Test current production opportunities after corrected target;
+  no new operator,scheduler,larger cavity,post-refinement pass or policy authorized by
+  two private examples. Worst sampled core115/star90 exceeds current64.
+- Justify large-volume farfield L1 allocation physically;raw normalized target already
+  broad in sampled compression strips. Do not switch p/sensors/complexity or suppress
+  curvature from nearly constant Mach alone. Base-fit conditioning is the ONE active
+  demonstrated correction;reassess these after its same-seed/full-M6 evidence.

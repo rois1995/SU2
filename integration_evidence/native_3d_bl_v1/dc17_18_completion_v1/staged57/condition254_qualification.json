@@ -1,0 +1,117 @@
+{
+  "scope": "ONE base-quadratic conditioning correction; build, focused serial,oneMPI6 and actual same-seed target qualified. Zero accepted meshes; full M6 next.",
+  "time": 1794091498.673644,
+  "build": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 75.12980580329895,
+    "pins_verified": true,
+    "changed": [],
+    "completed_build": true
+  },
+  "source_pins_verified": 1303,
+  "files": {
+    "SU2_CFD/include/gradients/computeHessiansQuadratic.hpp": "1187f55cf589df29266b383599c93dd2611631ae0bce0c304272d6040f1de23a",
+    "UnitTests/SU2_CFD/gradients.cpp": "da0493d8dd23a5722862be144bdd9336e61b6eb62166296343131f23b43f42d3",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/condition254_validate.py": "07ba2695afeb89f5cc1afb0bcba82db00ee873824954f479b7a746509e9221b6",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/compare_condition254.py": "8353fecadf0661ddf5d212fbdf68d7348bf1ba2de19bdac031ae486a17a00425"
+  },
+  "checks": [
+    {
+      "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/condition254_serial_20261107T223955_1251354",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 6.659139633178711,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 59219968,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "summaries": [
+        {
+          "assertions": 168175,
+          "cases": 31
+        }
+      ],
+      "sha256": {
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/condition254_serial_20261107T223955_1251354/command.json": "310b2f00fb21b7c50175ced4dc24dde2000f29c13ecd3d18a93f1ea1f9047ac5",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/condition254_serial_20261107T223955_1251354/pins.json": "fda534803965d4a235f86567627e9a6a24e088508093d8f622fd8686989eb202",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/condition254_serial_20261107T223955_1251354/status.json": "57826d5941a125a04dcc8484c0450ce073c1f6601c292f53fe5626a6b1878abb",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/condition254_serial_20261107T223955_1251354/run.log": "9e348aec1bda1b3edc68eda2895013e690531e88d189be1007140928f1d16759"
+      }
+    },
+    {
+      "attempt": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/condition254_mpi6_20261107T224035_1253740",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 6.839106559753418,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 46358528,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "summaries": [
+        {
+          "assertions": 96645,
+          "cases": 17
+        },
+        {
+          "assertions": 95319,
+          "cases": 17
+        },
+        {
+          "assertions": 96806,
+          "cases": 17
+        },
+        {
+          "assertions": 96868,
+          "cases": 17
+        },
+        {
+          "assertions": 96162,
+          "cases": 17
+        },
+        {
+          "assertions": 95590,
+          "cases": 17
+        }
+      ],
+      "sha256": {
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/condition254_mpi6_20261107T224035_1253740/command.json": "96711203489edab758229cca63acf835c83bd50b2f7e0448df9b661273372c4c",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/condition254_mpi6_20261107T224035_1253740/pins.json": "fda534803965d4a235f86567627e9a6a24e088508093d8f622fd8686989eb202",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/condition254_mpi6_20261107T224035_1253740/status.json": "1380c99a141d7168653fba37999c1aa1ed2555fee842a3fbe2832cfcf6f7342c",
+        "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/condition254_mpi6_20261107T224035_1253740/run.log": "bf4867b44299e35024bfd9f1af75c67e8e3cc6b3048841104b8cf57e6d9ca264"
+      }
+    }
+  ],
+  "actual_same_seed_target": {
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 57.147841453552246,
+      "pins_verified": true,
+      "restart_sha256": "fccc2b94dc8595a69567edcadc5049a7ef34d421e38e922b3a61cdf730052577"
+    },
+    "comparison_sha256": "13f40f67e4091dd5f540d5334fad03a01b8641573db469eb6ce2a0a82f943f33",
+    "all_flow_fields_and_coordinates_bit_identical": true,
+    "changed_hessians": 71,
+    "minimum_QR_pivot_ratio_before": 1.1528e-08,
+    "minimum_QR_pivot_ratio_after": 0.00290566,
+    "WLS_fallbacks": 0,
+    "constraints": {
+      "complexity": 49999.99997556426,
+      "min_eigenvalue": 0.0031294906435304862,
+      "max_eigenvalue": 444742.7906207214,
+      "max_aspect_ratio": 15.314033602897885,
+      "directed_edges": 778330,
+      "gradation_violations": 0,
+      "maximum_transported_ratio": 1.0000000999999143,
+      "threshold": 1.00001
+    },
+    "limitations": "Farfield share grows34.872\u219240.398%;sampled shock target5\u201312%finer is not shock-resolution or closure proof. No p/complexity/sensor change."
+  },
+  "review": "Primary source review plus bounded read-only agent review found no loop/rank/MPI collective defect. Frobenius bound conservative;may grow more stencils. Serial synthetic regression does not establish same graph acrossMPI;existing owner tests exercised17cases perrank.",
+  "next": "Immediately full same-seed two-event Euler50k;all strict gates,budgets,transfer/continuedCFD/isolatedadapteddiskrestart remain."
+}

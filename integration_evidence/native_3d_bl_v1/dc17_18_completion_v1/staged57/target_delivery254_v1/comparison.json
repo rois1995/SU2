@@ -1,0 +1,478 @@
+{
+  "scope": "Same CFD seed,config/constraints bit-identical,one base-fit conditioning correction;no adaptation acceptance or speed claim.",
+  "unchanged_non_hessian_metric_fields_bit_identical": {
+    "x": true,
+    "y": true,
+    "z": true,
+    "Density": true,
+    "Momentum_x": true,
+    "Momentum_y": true,
+    "Momentum_z": true,
+    "Energy": true,
+    "Pressure": true,
+    "Temperature": true,
+    "Mach": true,
+    "Pressure_Coefficient": true,
+    "Velocity_x": true,
+    "Velocity_y": true,
+    "Velocity_z": true,
+    "SENSOR_MACH": true
+  },
+  "positions_bit_identical": true,
+  "hessian_changed_points_exact": 71,
+  "hessian_relative_change_points_gt_1e8": 71,
+  "raw_hessian_frobenius_max_before": 13025114629277.762,
+  "raw_hessian_frobenius_max_after": 85484047.65803471,
+  "old_shells": [
+    {
+      "radius": [
+        0,
+        2
+      ],
+      "points": 54368,
+      "volume_fraction": 8.44410153081086e-06,
+      "raw_complexity": 4535.576850860038,
+      "pre_gradation_complexity": 1084.7738140498088,
+      "final_complexity": 23958.973859058235,
+      "Mach": {
+        "min": 0.009887926412687749,
+        "p10": 0.579331363488624,
+        "median": 0.7430599091132613,
+        "p90": 0.9322819960134374,
+        "max": 1.4266956598992548
+      },
+      "raw_H_frobenius": {
+        "min": 0.0019825148633144905,
+        "p10": 5.957439744602116,
+        "median": 121.84000257027334,
+        "p90": 16444.643091025006,
+        "max": 13025114629277.762
+      },
+      "final_shortest_spacing": {
+        "min": 4.060251487868502e-05,
+        "p10": 0.001588435181813664,
+        "median": 0.008205458311332597,
+        "p90": 0.02949662911590192,
+        "max": 0.35064483558623005
+      },
+      "final_longest_spacing": {
+        "min": 0.0011848052905245076,
+        "p10": 0.005713199174184496,
+        "median": 0.029034374732868382,
+        "p90": 0.07868702643663228,
+        "max": 0.6688984444677076
+      }
+    },
+    {
+      "radius": [
+        2,
+        5
+      ],
+      "points": 1128,
+      "volume_fraction": 0.00012413416397011058,
+      "raw_complexity": 3687.229245159909,
+      "pre_gradation_complexity": 881.8745361551237,
+      "final_complexity": 3357.3842811513678,
+      "Mach": {
+        "min": 0.8256116361343782,
+        "p10": 0.8358721605484907,
+        "median": 0.8389605686044266,
+        "p90": 0.8422145950482275,
+        "max": 0.8527599395819984
+      },
+      "raw_H_frobenius": {
+        "min": 5.414435795146527e-05,
+        "p10": 0.000372623743067746,
+        "median": 0.004036093350814423,
+        "p90": 0.06623948180220142,
+        "max": 0.8820710949007758
+      },
+      "final_shortest_spacing": {
+        "min": 0.030204578906806855,
+        "p10": 0.11919050815815364,
+        "median": 0.2788038018002344,
+        "p90": 0.5016289878203479,
+        "max": 0.7946562632073536
+      },
+      "final_longest_spacing": {
+        "min": 0.10695875341312086,
+        "p10": 0.206657852714526,
+        "median": 0.4751717114695992,
+        "p90": 0.8179000995502461,
+        "max": 1.3534842332131136
+      }
+    },
+    {
+      "radius": [
+        5,
+        20
+      ],
+      "points": 1219,
+      "volume_fraction": 0.008231997016876403,
+      "raw_complexity": 10427.647752460332,
+      "pre_gradation_complexity": 2493.9802798974497,
+      "final_complexity": 5247.618658514022,
+      "Mach": {
+        "min": 0.8352734984027662,
+        "p10": 0.8391223023280207,
+        "median": 0.8394804762740699,
+        "p90": 0.8397207689539701,
+        "max": 0.8408468334753085
+      },
+      "raw_H_frobenius": {
+        "min": 1.8813385066657747e-07,
+        "p10": 1.5915314339719694e-06,
+        "median": 2.3132692840038672e-05,
+        "p90": 0.00029516146454072604,
+        "max": 0.009122120718320583
+      },
+      "final_shortest_spacing": {
+        "min": 0.2112085555345239,
+        "p10": 0.4551377622827238,
+        "median": 0.8554639199887569,
+        "p90": 1.5438089229248464,
+        "max": 2.4849947451219334
+      },
+      "final_longest_spacing": {
+        "min": 0.48768154461692553,
+        "p10": 0.8662230994867713,
+        "median": 1.5820870858738336,
+        "p90": 2.914121583541341,
+        "max": 6.067770727732511
+      }
+    },
+    {
+      "radius": [
+        20,
+        50
+      ],
+      "points": 894,
+      "volume_fraction": 0.11719248599268015,
+      "raw_complexity": 13312.819030570663,
+      "pre_gradation_complexity": 3184.0597349128793,
+      "final_complexity": 6589.426353463242,
+      "Mach": {
+        "min": 0.8389585669966247,
+        "p10": 0.8394741447562281,
+        "median": 0.8394985437296945,
+        "p90": 0.8395198922211644,
+        "max": 0.8395736744241127
+      },
+      "raw_H_frobenius": {
+        "min": 4.753231706497855e-09,
+        "p10": 2.464764773362433e-08,
+        "median": 1.3722338483662582e-07,
+        "p90": 1.4535553963475534e-06,
+        "max": 4.059562265095001e-05
+      },
+      "final_shortest_spacing": {
+        "min": 0.26968377573367874,
+        "p10": 1.0805733041894934,
+        "median": 2.3390823918190247,
+        "p90": 3.944947823625819,
+        "max": 5.790656849346444
+      },
+      "final_longest_spacing": {
+        "min": 1.2317274856836933,
+        "p10": 2.629643858682252,
+        "median": 4.506455152428087,
+        "p90": 7.174850801545801,
+        "max": 11.17942370650535
+      }
+    },
+    {
+      "radius": [
+        50,
+        200
+      ],
+      "points": 3721,
+      "volume_fraction": 0.8744429387249425,
+      "raw_complexity": 18036.727120949003,
+      "pre_gradation_complexity": 4316.674319728718,
+      "final_complexity": 10846.59647400987,
+      "Mach": {
+        "min": 0.8394128446216956,
+        "p10": 0.839496972881008,
+        "median": 0.8394997911756247,
+        "p90": 0.8395029375818942,
+        "max": 0.839514032844777
+      },
+      "raw_H_frobenius": {
+        "min": 1.5709324936038954e-10,
+        "p10": 1.041785923848985e-09,
+        "median": 4.176678942180015e-09,
+        "p90": 2.144997571372909e-08,
+        "max": 9.13976716713884e-05
+      },
+      "final_shortest_spacing": {
+        "min": 0.16806669846260464,
+        "p10": 2.6068706848778116,
+        "median": 4.700288768064919,
+        "p90": 6.335837679377882,
+        "max": 10.97721125776029
+      },
+      "final_longest_spacing": {
+        "min": 2.8935855695678536,
+        "p10": 6.003610673059969,
+        "median": 9.368159089013087,
+        "p90": 13.9965716469538,
+        "max": 19.22743445031217
+      }
+    }
+  ],
+  "new_shells": [
+    {
+      "radius": [
+        0,
+        2
+      ],
+      "points": 54368,
+      "volume_fraction": 8.44410153081086e-06,
+      "raw_complexity": 4523.679877465687,
+      "pre_gradation_complexity": 1681.4270826313948,
+      "final_complexity": 18797.169222057742,
+      "Mach": {
+        "min": 0.009887926412687749,
+        "p10": 0.579331363488624,
+        "median": 0.7430599091132613,
+        "p90": 0.9322819960134374,
+        "max": 1.4266956598992548
+      },
+      "raw_H_frobenius": {
+        "min": 0.0019825148633144905,
+        "p10": 5.954474182444724,
+        "median": 121.33676833171552,
+        "p90": 16293.19326976293,
+        "max": 85484047.65803471
+      },
+      "final_shortest_spacing": {
+        "min": 0.0014994967941569627,
+        "p10": 0.002757766230474,
+        "median": 0.01059784868719265,
+        "p90": 0.0350968126629746,
+        "max": 0.33532380711000564
+      },
+      "final_longest_spacing": {
+        "min": 0.0022575246256905214,
+        "p10": 0.007153054228312176,
+        "median": 0.02964621893804193,
+        "p90": 0.076455402948172,
+        "max": 0.6104103325552246
+      }
+    },
+    {
+      "radius": [
+        2,
+        5
+      ],
+      "points": 1128,
+      "volume_fraction": 0.00012413416397011058,
+      "raw_complexity": 3691.7197547654364,
+      "pre_gradation_complexity": 1372.192052773084,
+      "final_complexity": 3767.9367628365612,
+      "Mach": {
+        "min": 0.8256116361343782,
+        "p10": 0.8358721605484907,
+        "median": 0.8389605686044266,
+        "p90": 0.8422145950482275,
+        "max": 0.8527599395819984
+      },
+      "raw_H_frobenius": {
+        "min": 5.414435795146527e-05,
+        "p10": 0.000372623743067746,
+        "median": 0.004036093350814423,
+        "p90": 0.06623948180220142,
+        "max": 0.8820710949007758
+      },
+      "final_shortest_spacing": {
+        "min": 0.05752987845885337,
+        "p10": 0.12280484944403616,
+        "median": 0.2507545265163247,
+        "p90": 0.45470723079500963,
+        "max": 0.7096378096212733
+      },
+      "final_longest_spacing": {
+        "min": 0.10395675091128107,
+        "p10": 0.2198666680662118,
+        "median": 0.46159842303288046,
+        "p90": 0.7921147895175569,
+        "max": 1.3094913430990773
+      }
+    },
+    {
+      "radius": [
+        5,
+        20
+      ],
+      "points": 1219,
+      "volume_fraction": 0.008231997016876403,
+      "raw_complexity": 10440.347112679647,
+      "pre_gradation_complexity": 3880.619951641394,
+      "final_complexity": 7235.86422803736,
+      "Mach": {
+        "min": 0.8352734984027662,
+        "p10": 0.8391223023280207,
+        "median": 0.8394804762740699,
+        "p90": 0.8397207689539701,
+        "max": 0.8408468334753085
+      },
+      "raw_H_frobenius": {
+        "min": 1.8813385066657747e-07,
+        "p10": 1.5915314339719694e-06,
+        "median": 2.3132692840038672e-05,
+        "p90": 0.00029516146454072604,
+        "max": 0.009122120718320583
+      },
+      "final_shortest_spacing": {
+        "min": 0.1838482352413627,
+        "p10": 0.40392592878706723,
+        "median": 0.769865192510849,
+        "p90": 1.3644974976825086,
+        "max": 2.3514385909433813
+      },
+      "final_longest_spacing": {
+        "min": 0.45302123025127533,
+        "p10": 0.798113458162413,
+        "median": 1.425317742724492,
+        "p90": 2.6677026370741754,
+        "max": 5.7580892264913786
+      }
+    },
+    {
+      "radius": [
+        20,
+        50
+      ],
+      "points": 894,
+      "volume_fraction": 0.11719248599268015,
+      "raw_complexity": 13329.03211030035,
+      "pre_gradation_complexity": 4954.363489273175,
+      "final_complexity": 8187.188476069228,
+      "Mach": {
+        "min": 0.8389585669966247,
+        "p10": 0.8394741447562281,
+        "median": 0.8394985437296945,
+        "p90": 0.8395198922211644,
+        "max": 0.8395736744241127
+      },
+      "raw_H_frobenius": {
+        "min": 4.753231706497855e-09,
+        "p10": 2.464764773362433e-08,
+        "median": 1.3722338483662582e-07,
+        "p90": 1.4535553963475534e-06,
+        "max": 4.059562265095001e-05
+      },
+      "final_shortest_spacing": {
+        "min": 0.5182379195343393,
+        "p10": 1.2115167577619987,
+        "median": 2.3025162877549867,
+        "p90": 3.5159368638550865,
+        "max": 5.003212123820414
+      },
+      "final_longest_spacing": {
+        "min": 1.1326473074877477,
+        "p10": 2.364311002999292,
+        "median": 4.195477751780942,
+        "p90": 6.714833838889457,
+        "max": 10.763754335212834
+      }
+    },
+    {
+      "radius": [
+        50,
+        200
+      ],
+      "points": 3721,
+      "volume_fraction": 0.8744429387249425,
+      "raw_complexity": 18015.221144788855,
+      "pre_gradation_complexity": 6699.3170608583405,
+      "final_complexity": 12011.841286563355,
+      "Mach": {
+        "min": 0.8394128446216956,
+        "p10": 0.839496972881008,
+        "median": 0.8394997911756247,
+        "p90": 0.8395029375818942,
+        "max": 0.839514032844777
+      },
+      "raw_H_frobenius": {
+        "min": 1.5709324936038954e-10,
+        "p10": 1.0406385293984206e-09,
+        "median": 4.168387588353302e-09,
+        "p90": 2.1269020317574503e-08,
+        "max": 1.600224982352159e-06
+      },
+      "final_shortest_spacing": {
+        "min": 0.8286214347131325,
+        "p10": 2.881000814909442,
+        "median": 4.443634848784596,
+        "p90": 5.820500644983102,
+        "max": 9.777369911291057
+      },
+      "final_longest_spacing": {
+        "min": 2.577397512351676,
+        "p10": 5.536939875625107,
+        "median": 8.688775475684407,
+        "p90": 13.591032268397896,
+        "max": 17.87570468400637
+      }
+    }
+  ],
+  "compression_strip_median_spacing_before": [
+    0.05007010980916717,
+    0.0523972412740965,
+    0.04448299253463113,
+    0.044057022685776895,
+    0.05188359062261669,
+    0.055245827640527566,
+    0.06644007639007382,
+    0.06789914012529155,
+    0.06634966356457737,
+    0.05015708941549183,
+    0.04571805115939462
+  ],
+  "compression_strip_median_spacing_after": [
+    0.04592433992124427,
+    0.049694640024763904,
+    0.04245677200680954,
+    0.04068172762800364,
+    0.04565727982852144,
+    0.049279979757755395,
+    0.059672596707795955,
+    0.06281472768801244,
+    0.06012937893671812,
+    0.045309620629885874,
+    0.04099254635374325
+  ],
+  "metric_log_lines": [
+    "Quadratic Hessian fits (owned point-sensor pairs): 39541 first ring, 21789 grown stencil, 0 WLS fallbacks.",
+    "Quadratic Hessian relative weighted fit residual: mean 0.140334, maximum 0.96661; 39813 fits above 0.05; minimum QR pivot ratio 0.00290566. Second-ring MPI: 4501 requested owner neighborhoods, 66136 exported samples.",
+    "Mesh complexity after native constraints: 50000 (ADAP_COMPLEXITY= 50000).",
+    "Sensor metric complexity before gradation: 18587.9."
+  ],
+  "analysis_transform": {
+    "base_sha256": "c19b416a7e55f502eac487cec6c92a1834576449f355f406a8516be3066eca37",
+    "transformed_sha256": "b5bf3cf8a36b6709a5960f7eb84d320786a97051f1417fe0fe785ae5760bdd3c",
+    "changes": [
+      "Redirect output directory",
+      "Use corrected target input",
+      "Use actual rounded pre-gradation complexity from current log"
+    ]
+  },
+  "sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_target253_hessian_trace_v1/L1/restart_flow.dat": "4b8e30282dafc991a84c98323f69d18f7a22abbaeaf52025dab6dcd809a41984",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_target254_conditioned_v1/L1/restart_flow.dat": "fccc2b94dc8595a69567edcadc5049a7ef34d421e38e922b3a61cdf730052577",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_target253_hessian_trace_v1/L1/run.cfg": "8ac882dace1fb4fb2d2318a8cf6918ecf4ae50a83574376cdb97510d9ace1190",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_target254_conditioned_v1/L1/run.cfg": "8ac882dace1fb4fb2d2318a8cf6918ecf4ae50a83574376cdb97510d9ace1190",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/compare_condition254.py": "8353fecadf0661ddf5d212fbdf68d7348bf1ba2de19bdac031ae486a17a00425"
+  },
+  "final_target_constraints": {
+    "complexity": 49999.99997556426,
+    "min_eigenvalue": 0.0031294906435304862,
+    "max_eigenvalue": 444742.7906207214,
+    "max_aspect_ratio": 15.314033602897885,
+    "directed_edges": 778330,
+    "gradation_violations": 0,
+    "maximum_transported_ratio": 1.0000000999999143,
+    "threshold": 1.00001
+  }
+}

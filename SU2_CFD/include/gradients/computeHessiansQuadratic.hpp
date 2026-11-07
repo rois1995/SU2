@@ -241,8 +241,9 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
       }
       Eigen::ColPivHouseholderQR<Eigen::MatrixXd> qr(design);
       qr.setThreshold(1e-10);
-      while (fitTerms > terms) {
-        bool supported = qr.rank() == fitTerms;
+      bool supported = false;
+      while (true) {
+        supported = qr.rank() == fitTerms;
         if (supported) {
           const Eigen::MatrixXd R = qr.matrixR().topLeftCorner(fitTerms, fitTerms)
               .template triangularView<Eigen::Upper>();
@@ -252,12 +253,13 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
           const auto conditionBound = R.norm() * inverseR.norm();
           supported = std::isfinite(conditionBound) && conditionBound <= 1000;
         }
-        if (supported) break;
+        if (supported || fitTerms == terms) break;
         fitTerms = fitTerms > cubicFitTerms ? cubicFitTerms : terms;
         design.conservativeResize(Eigen::NoChange, fitTerms);
         qr.compute(design);
       }
-      if (qr.rank() != fitTerms) {
+      // A small residual does not establish curvature when the quadratic design is nearly singular.
+      if (!supported) {
         if (ring == 1) grow[point] = true;
         continue;
       }

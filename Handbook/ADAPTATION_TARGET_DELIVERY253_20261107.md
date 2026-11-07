@@ -1,6 +1,6 @@
 # Same-seed shock/leading-edge diagnosis — active253 cycle
 
-No production correction selected. Zero accepted meshes; all Euler transfer,
+One production correction selected after diagnosis: base quadratic conditioning254; qualified; full M6 next. Zero accepted meshes; all Euler transfer,
 adapted continuation/disk restart, dedicated BL/MPI and RANS500k obligations remain.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 Evidence: `R/target_delivery253_v1/{target_diagnosis,radial_reproduction,leading_edge_diagnosis}.json`.
@@ -54,7 +54,7 @@ Thus coarse shock demand is already present in the raw normalized target; it is
 not solely a late bound/gradation loss. Original triangles can already be finer.
 Changing p, complexity or sensors is not justified by this observation alone.
 
-Bounded independent SVD quadratic fits on57points/two rings (114fits): sampled
+Bounded independent SVD quadratic fits on65points/two rings (130fits): sampled
 surface compression directions generally agree with production; many two-ring
 Hessians agree to floating-point accuracy. Near-nose residuals are high
 (two-ring median.379), and some stencil-dependent magnitudes differ. Interior
@@ -106,3 +106,47 @@ Reuse existing actual-cavity harness and prior controls. No larger cavities,
 blanket minimum edge gate, quality-aware construction or new geometry authority.
 Select ONE correction only after that evidence; qualify affected behavior then
 immediately resume the full same-seed two-event M6 workflow.
+
+## Follow-through: actual cavities and selected condition correction
+
+Existing complete-cavity compound test on actual LE cores197029133/213247623
+passed35836assertions,103.969s including harness,all pins unchanged/handles absent.
+Eight original-star controls,24directed collapses. Many collapse directions fail
+exact positive-cell obstruction;some fail body/feature contraction permission
+(despite broad two-dimensional mobility). One51cell context admits collapse plus
+retained-star optimization removing2of4 guidance-geometry failures with no shape
+failures,where raw collapse introduces3q/2J. Other candidates worsen shape or
+geometry;one40cell context has a useful original-star shape control already.
+Do not add an operator/scheduler based on this mixed evidence. Boundary=false in
+this harness means it did not exercise boundary smoothing. Recomputed guidance
+geometry scores differ from terminal census certificate excess;this is an open
+certification-semantics question,not a successful cached/recomputed equality check.
+The worst sampled core has115cells and a90cell vertex star;excluded at unchanged64.
+
+Eight largest-curvature trailing-edge nodes have first-ring polynomial design
+condition2.9million–145million;production Hessians match those fits. Several
+residuals are below.05,so current first-ring growth never asks for the existing
+well-conditioned second ring. Independent two-ring quadratic conditions≈3–6;
+curvature norms drop by orders of magnitude. Smooth manufactured cubic perturbation
+also gives first-ring Hxx10.60 instead of2 while relative residual2.55e-6,versus
+2ring1.99999968. This establishes a condition-admission defect,not a claim that all
+farfield curvature or missing shock refinement is caused by it.
+
+Selected ONE correction:reuse the existing richer-fit Frobenius QR condition<=1000
+check for base quadratic fits;grow through existing owner-complete two rings and
+preserve fallback if both unsupported. Shared2D/3D path,one controlled-stencil
+regression. No physical sensor filtering,target norm,complexity,gates,geometry
+representation,construction policy or scheduling changes. R/condition254_plan.json
+sets evidence/acceptance;build254 and focused31serial/168175assertions plus ONE MPI6(17cases each rank) passed. After
+focused checks and one MPI6 milestone compare actual same-seed target/flow,then
+immediately resume complete M6. Independent surface/volume cleanup and certificate
+questions remain hypotheses in backlog.
+
+
+Actual corrected target replay254:all flow fields/coordinates bit-identical;71raw
+Hessians change. Max raw H norm1.3025e13→8.5484e7;minimum QR pivot ratio
+1.1528e-8→.00290566;zero WLS fallbacks. Final complexity49999.999976;independent
+SPD/bounds/AR and directed-gradation audit passed. Sampled compression target
+5–12%finer (about.041–.063chord),farfield share34.872→40.398%;farfield allocation
+remains unresolved. No claim of resolved shock or M6 closure. Qualified correction
+returns immediately to full same-seed two-event M6;R/condition254_qualification.json.

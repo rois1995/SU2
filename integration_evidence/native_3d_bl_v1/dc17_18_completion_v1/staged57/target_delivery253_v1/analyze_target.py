@@ -80,6 +80,8 @@ for y in [.2,.4,.6,.8,1.0]:
  near=np.linalg.norm(P-C[shock],axis=1);near[surface]=np.inf;samples.extend((int(j),'compression_interior') for j in np.argsort(near)[:3])
  band=np.flatnonzero(surface&(abs(P[:,1]-y)<.03));xi=P[band,0]-P[band,1]/np.sqrt(3);samples.extend((int(j),'leading_edge') for j in band[np.argsort(xi)[:3]])
 ff=np.flatnonzero(radius>20);samples.extend((int(j),'farfield') for j in ff[np.argsort(final[ff])[-12:]])
+samples.extend((int(j),'largest_curvature') for j in np.argsort(np.linalg.norm(H,axis=(1,2)))[-8:])
+assert len(set(samples))<=65
 fit_rows=[]
 for point,region in dict.fromkeys(samples):
  one=neighbors[starts[point]:starts[point+1]];two=np.unique(np.concatenate([one,*[neighbors[starts[j]:starts[j+1]] for j in one]]));two=two[two!=point]
@@ -93,7 +95,7 @@ for point,region in dict.fromkeys(samples):
   HH=whitening@HH@whitening.T;de,dq=np.linalg.eigh(HH);order=np.argmax(abs(de));pe,pq=np.linalg.eigh(H[point]);po=np.argmax(abs(pe));norm=max(np.linalg.norm(H[point]),1e-300)
   fit_rows.append({'point':point,'region':region,'ring':ring,'samples':len(cloud),'rank':int(rank),'design_condition':float(s[0]/s[-1]),'displacement_condition':float(sing[0]/sing[-1]),'relative_residual':float(np.linalg.norm(D@coef-rhs)/max(np.linalg.norm(rhs),1e-300)),'H_relative_difference':float(np.linalg.norm(HH-H[point])/norm),'independent_H_norm':float(np.linalg.norm(HH)),'production_H_norm':float(norm),'dominant_axis_abs_dot':float(abs(dq[:,order]@pq[:,po])),'coord':P[point].tolist()})
 report['independent_quadratic_samples']=fit_rows
-report['fit_scope']='At most 57 representative points/two rings; SVD least squares independent solver. Pure quadratic only, NOT production thin-wall cubic/quartic selection or per-node warning localization; nonsmooth truncation and stencil sensitivity remain.'
+report['fit_scope']='At most 65 representative points/two rings; SVD least squares independent solver. Pure quadratic only, NOT production thin-wall cubic/quartic selection or per-node warning localization; nonsmooth truncation and stencil sensitivity remain.'
 files=[source/'m6.su2',source/'baseline_euler_seed.dat',source/'restart_flow.dat',source/'run.cfg',Path(__file__)]
 report['sha256']={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
 (HERE/'target_diagnosis.json').write_text(json.dumps(report,indent=2,allow_nan=False)+'\n')
