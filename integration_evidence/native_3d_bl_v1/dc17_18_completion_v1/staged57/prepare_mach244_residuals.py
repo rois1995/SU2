@@ -15,7 +15,8 @@ RUN = ROOT / "m6_runs/euler_build244_mach_only_real_cfd50k"
 SELECTION = RUN / "mach244_coverage_assessment.json"
 
 
-def main():
+def prepare(run, selection):
+    RUN, SELECTION = Path(run), Path(selection)
     started = time.monotonic()
     assert not SELECTION.exists(), "Preserve and inspect an existing preparation before resuming"
     readback = json.loads((RUN / "inspection_reader_status.json").read_text())
@@ -25,7 +26,7 @@ def main():
         [str(RUN / "adapted_mesh_inspection_rank*_manifest.json")])
     assert not missing and len(manifests) == 6 and ready["metric_census_complete"]
     paths = [RUN / "inspection" / name for name in ("rejected_mesh.vtu", "bad_cells.vtu")]
-    paths += [RUN / "inspection_reader_status.json", RUN / "capture_ready.json", Path(__file__),
+    paths += [RUN / "inspection_reader_status.json", RUN / "capture_ready.json", RUN / "command.json", Path(__file__),
               Path(preparation.__file__), ROOT / "prepare_boundary202.py", ROOT / "inspect_native_failure3d.py"]
     paths += [m["_resolved_files"]["owned"] for m in manifests]
     before = {str(p.resolve()): preparation.old.sha256(p) for p in paths}
@@ -42,11 +43,11 @@ def main():
     nodes = full.point_data["global_node_id"]
     data = {k: v["tetra"] for k, v in full.cell_data_dict.items()}
     defects = {k: v["tetra"] for k, v in bad.cell_data_dict.items()}
-    assert len(cells) == ready["owned_rows"] == 1032169
-    assert len(bad.cells_dict["tetra"]) == 3841
-    assert int(np.count_nonzero(data["q"] < .2)) == 2035
-    assert int(np.count_nonzero(data["J"] < .05)) == 967
-    assert int(np.count_nonzero(data["geometry_bad"])) == 1046
+    assert len(cells) == ready["owned_rows"] == readback["actual_cells"]
+    assert len(bad.cells_dict["tetra"]) == readback["bad_cells"]
+    assert int(np.count_nonzero(data["q"] < .2)) == ready["totals"]["q_bad"] == readback["measured_bad_counts"]["q_bad"]
+    assert int(np.count_nonzero(data["J"] < .05)) == ready["totals"]["j_bad"] == readback["measured_bad_counts"]["j_bad"]
+    assert int(np.count_nonzero(data["geometry_bad"])) == ready["totals"]["geometry_bad"] == readback["measured_bad_counts"]["geometry_bad"]
     assert len(np.unique(ids)) == len(ids)
     sorted_ids = np.argsort(ids)
     bad_indices = sorted_ids[np.searchsorted(ids[sorted_ids], defects["global_cell_id"])]
@@ -132,7 +133,7 @@ def main():
     assert any(row["physical_faces"] and row["geometry_bad"] for row in selected)
     assert any(row["role"] == "nearby_clean_surface_control" for row in selected)
     assert before == {str(p.resolve()): preparation.old.sha256(p) for p in paths}
-    result = {"schema": "native_actual_residual_selection_v1", "source_build": "build244",
+    result = {"schema": "native_actual_residual_selection_v1", "source_build": json.loads((RUN / "command.json").read_text())["build"],
               "sensor": "MACH", "source_event": 1, "expected_bounded_contexts": len(selected),
               "bounded_selected_contexts": selected, "omissions": omissions,
               "input_hashes_before": before, "input_hashes_after": before,
@@ -141,6 +142,10 @@ def main():
     SELECTION.write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps({"selected": [{k: row[k] for k in ("id", "role", "four_star_union_size", "physical_faces")} for row in selected], "omissions": omissions}), flush=True)
     preparation.prepare(RUN, SELECTION)
+
+
+def main():
+    prepare(RUN, SELECTION)
 
 
 if __name__ == "__main__":

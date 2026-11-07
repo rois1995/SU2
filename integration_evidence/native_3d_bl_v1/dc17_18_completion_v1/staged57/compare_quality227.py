@@ -10,21 +10,22 @@ for label,name in [('build225','euler_build225_entity_shell_real_cfd50k'),('buil
    if not line.startswith('NATIVE3D_QUALITY '):continue
    row=dict(item.split('=',1) for item in line.split()[1:] if '=' in item)
    if row.get('stage')!='window':continue
-   assert int(row['rank'])==rank and row['complete']=='1';key=(int(row['round']),rank);assert key not in service;service[key]=row
+   assert int(row['rank'])==rank and row['complete']=='1';key=(int(row['round']),row['stage'],rank);assert key not in service;service[key]=row
  windows={}
  for window in progress['events']:
   if window['stage']!='window' or window['phase']!='improvement':continue
   round_=window['round']
-  if any((round_,rank) not in service for rank in range(6)):continue
+  if any((round_,window['stage'],rank) not in service for rank in range(6)):continue
   elapsed=window['maximum_native_elapsed']-entry['maximum_native_elapsed'];assert elapsed>0
-  cumulative=[v for (rnd,rank),v in service.items() if rnd<=round_]
+  # Exit may share its round with the final window; count both deltas only at exit.
+  cumulative=[v for (rnd,stage,rank),v in service.items() if rnd<round_ or (rnd==round_ and (stage==window['stage'] or window['stage']=='exit'))]
   sums={k:sum(float(v[k]) for v in cumulative) for k in ['commits','q_retired','q_introduced','j_retired','j_introduced','busy_seconds','join_call_seconds','tracked_collective_call_seconds']}
   removed={k:entry['totals'][k]-window['totals'][k] for k in ['q_bad','j_bad','geometry_bad']}
   assert sums['q_retired']-sums['q_introduced']==removed['q_bad'],(label,round_,'q churn')
   assert sums['j_retired']-sums['j_introduced']==removed['j_bad'],(label,round_,'J churn')
   work={k:sum(float(window['rank_rows'][str(rank)][k])-float(entry['rank_rows'][str(rank)][k]) for rank in range(6)) for k in ['upper_calls','upper_work','traversal_work','scope_build_work','facet_build_work','piece_selection_work','smooth_boundary_candidates','smooth_boundary_moves','smooth_boundary_seconds','smooth_boundary_debt_reduction','smooth_interior_candidates','smooth_interior_moves','smooth_interior_seconds','smooth_interior_debt_reduction']}
   debt=[sum(float(window['rank_rows'][str(rank)][k]) for k in ['q_debt','j_debt']) for rank in range(6)]
-  windows[round_]={'quality_seconds':elapsed,'maximum_native_seconds':window['maximum_native_elapsed'],'totals':window['totals'],'complete_flags':window['complete_flags'],'net_bad_removed':removed,'net_bad_removed_per_quality_second':{k:v/elapsed for k,v in removed.items()},'cumulative_service':sums,'rank_window_service':{str(rank):service[(round_,rank)] for rank in range(6)},'quality_work':work,'q_removed_per_commit':removed['q_bad']/sums['commits'] if sums['commits'] else None,'join_call_wall_share':sums['join_call_seconds']/(6*elapsed),'rank_q_bad':[int(window['rank_rows'][str(rank)]['q_bad']) for rank in range(6)],'rank_q_J_debt':debt,'debt_max_over_mean':max(debt)/(sum(debt)/6) if sum(debt)>0 else 0}
+  windows[round_]={'quality_seconds':elapsed,'maximum_native_seconds':window['maximum_native_elapsed'],'totals':window['totals'],'complete_flags':window['complete_flags'],'net_bad_removed':removed,'net_bad_removed_per_quality_second':{k:v/elapsed for k,v in removed.items()},'cumulative_service':sums,'rank_window_service':{str(rank):service[(round_,window['stage'],rank)] for rank in range(6)},'quality_work':work,'q_removed_per_commit':removed['q_bad']/sums['commits'] if sums['commits'] else None,'join_call_wall_share':sums['join_call_seconds']/(6*elapsed),'rank_q_bad':[int(window['rank_rows'][str(rank)]['q_bad']) for rank in range(6)],'rank_q_J_debt':debt,'debt_max_over_mean':max(debt)/(sum(debt)/6) if sum(debt)>0 else 0}
  records[label]={'entry':entry['totals'],'windows':windows,'source_prefixes':progress['source_prefixes']}
 matching=[];closest=[]
 old,new=records['build225']['windows'],records['build227']['windows']

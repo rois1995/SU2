@@ -621,3 +621,21 @@ memory budgets are required before publication. DEFERRED until active246full-M6
 outcome warrants it;do not add per-slot collectives,a scheduler or a larger cavity.
 All tested combinations for actual shape+geometry core206935582still regress
 geometry excess;do not bypass that guard or infer certification is merely conservative.
+
+### 2026-11-07 — terminal247 query opportunities not selected
+
+Actual seven-context terminal corpus:5241completed queries,4137hits/1104misses;
+4003identical repeats ALLhit. The201proved nearby pass-margin misses cost133782
+work,only2.6%of total query work. This does not justify a motion-cache implementation
+from this corpus. Root-lower-first outside witnesses could avoid only65672upper-work
+units,about1.3%of total;tol-level outside is also insufficient to reject a candidate
+when old geometry debt permits improvement. Keep actual caller cutoffs and fallback.
+Deep lower-witness rejection exists already. Sampling is never an acceptance proof.
+
+Traversal accounts for4164650of4609448miss work;upper evaluation3822194dominates,
+while sample distance uses342456. Existing per-facet/scope reuse,bbox witness cropping
+and complete-support lower pruning are active. Investigate existing reusable upper
+query/subtree computations in the active cycle before any new envelope or representation.
+A247/actual_terminal247_{query_and_cavity_assessment,lower_witness_opportunity}.json;
+[terminal outcome](ADAPTATION_BUILD247_OUTCOME_20261107.md). Local gains overlap and
+cannot establish global closure. Construction policy and strict gates stay unchanged.

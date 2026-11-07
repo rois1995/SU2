@@ -14,17 +14,36 @@ ONE connected cycle/ONE owned heavy job; freeze all pinned C++/fixtures/helpers/
 binary/config/inputs. Actual HOST process identity overrides stale metadata.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k` (LIVE).
+A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k` (terminal REFUSED).
 A_MACH=`R/m6_runs/euler_build244_mach_only_real_cfd50k` (terminal REFUSED baseline).
 
-## LIVE — full build247 two-event M6
+## CURRENT — terminal247 refusal; next-cycle analysis active
 
-Tool session14272 remains LIVE. Runner58992/start10785929;
-launcher59206/start10786445,MPI59208/start10786446;
-ranks59229–59234/start10786457–58. Exact ten identities in A247/owned_startup.json.
-Wrapper58990/start10785923 is also recorded in R/m6_247_canonical_launch.json.
-Keep these processes/sources frozen until terminal or preserved evidence justifies
-an authorized owned stop. Never stop/restart solely on timeout or stale logs.
+Full TWO-event M6 tool14272TERMINAL1/5546.863332s,pins verified unchanged.
+First event REFUSED at native5347.699778/round34816:
+1032602cells/1148q/484J/1044geometry/0size,ALL measured/flags complete.
+Reason:phase ownership exceeds event deadline;prior ownership retained. This is
+still the first shape pass,not geometry closure or an accepted mesh.
+A247/capture_ready.json seals ALL30files and1032602owned/metric rows;reference/
+rejections complete. All1520pins verified before ONE pidfdSIGTERM to verified
+MPI59208/start10786446. A247/{source_freeze_before_stop,owned_stop_once,status,
+terminal_handles}.json preserve scope. All ten owned identities PLUS wrapper58990
+are absent. Never repeat the stop. Export8143TERMINAL0/430.702597s,1555pins unchanged;all3owned handles absent.
+Independent reader92301TERMINAL0/3.587198s;array lengths,metric SPD,exact SU2/VTU
+coordinates/connectivity and measured bad counts verified. Reader handle absent.
+A247/inspection/rejected_mesh.vtu and .su2:201203points/1032602tets,
+complete nine-component captured_nodal_metric in PointData;q/J/geometry in CellData.
+ALL2525bad cores/90430neighboring cavity cells retained,reference/rejections complete.
+No ParaView GUI or strict acceptance claim. No owned heavy job currently live.
+Terminal analysis duplicate window+exit round34816 is FIXED in unpinned
+compare_quality227.py using stage-aware keys. Legacy baseline records unchanged;
+actual exit churn identities pass. A247/terminal_analysis247_join_qualification.json.
+Production C++/pinned export source were unchanged.
+Current C++/binary remain build247;selected248coverage-reuse design is not implemented.
+Next:implement that ONE bounded query-local proof reuse,validate affected behavior
+and the actual seven-context corpus,then ONE MPI6milestone and immediately same-seed
+MACH-only L1/50k full TWO-event M6. Do not declare cache/work/fixture improvement
+completion. All transfer/continued adapted CFD/disk-restart/BL/MPI/RANS obligations open.
 
 Runtime pt2pt/private4TBscratch/nice19/libs1/geometry trace UNSET.
 Same saved REAL CFD seed,MACH ONLY,L1/50k,native5400/outer14400.
@@ -34,29 +53,51 @@ Selected bounded raw refusal capture uses the production driver with an observer
 no routine VTU export. A247/command.json,pins.json,run.cfg,owned_startup.json,
 resources.jsonl and owned_observations.jsonl preserve runtime/host scope.
 
-Latest SAVED complete quality window33536,all-rank census40:native3810.160821:
-1007799cells/21393q/17660J/1117geometry/0size,all measured/flags complete.
-Quality3120.578222s;net85061q/88544J/264geometry removed.
-Net q/s27.258089 versus25.575426 at matching baseline round.
-Field delta247−244:{'q_bad': 1337, 'j_bad': 1526, 'geometry_bad': 7}. Exact progress identity
-is not claimed after32320. First seven windows had identical counts/commits/churn;
-first slight divergence32384was +12q,+17J,+1geometry,cause UNATTRIBUTED.
-No certification failure or gate change established. First shape pass still active;
-no accepted mesh,shape closure,residual geometry construction or reclosure proved.
+Terminal analysis is refreshed through EXIT34816/census61. Compared with244,
+247has887FEWER q-bad,483FEWER J-bad and2FEWER geometry-bad cells.
+Quality4658.117179s versus4645.907007s;net q/s22.606988versus22.475482.
+85783commits versus83052;q retired635923/introduced530617,J559825/454105.
+Last positive window(census60)net493q/211J over48.211s;exit61hasZERO deltas.
+Terminal shape union1525;937q cells have no physical face,211do. Interior cells
+may share constrained vertices. Queue18275,blocked features655,all-blocked shape45,
+missing0,private tracked collectives0. Rank q255/14/404/16/394/65,debtmax/mean1.849875.
+Deadline with useful queued work confirms SPEED as immediate blocker. Geometry
+repair power remains unmet;construction-policy change is not justified.
+A247/terminal_comparison244.json and [247outcome](Handbook/ADAPTATION_BUILD247_OUTCOME_20261107.md).
 
-A247/quality_comparison244.json covers 26 COMPLETE matching first-pass windows,
-exact differences,churn,rank debt spread,memo hits/misses and BOTH cumulative-native
-and quality-entry-subtracted geometry/smoothing work. First divergence is explicit.
-A247/nearest_quality_age_comparison244.json compares actual complete censuses at
-nearest quality ages,explicit signed time mismatches and NO interpolation. Latest:
-247age3120.578222s versus baseline3151.120432s;
-q/J/geometry delta247−baseline {'q_bad': -2889, 'j_bad': -2779, 'geometry_bad': -2}.
-Matching-round path differences must not be mistaken for equal-age differences.
-Cumulative32384upper/traversal work883.831M/834.958M versus987.267M/932.164M;
-these include construction. Union hits145593versus120610,misses155235versus180038.
-Boundary/interior candidate counts nearly unchanged;rank-summed smoothing timers
-OVERLAP geometry timers and are not additive wall savings. Wall rates remain
-contention-sensitive;join-call share is not CPU idle. No full-run causal speedup.
+ONE actual-terminal diagnostic PASSED:tool17680TERMINAL0/103.902201s,pins unchanged,
+R/cases/current_compound_20261107T164754_308827,all5owned handles absent.
+Seven current contexts44–63cells within existing64,all q/Joracles exact,no role
+omissions. Interior "severe" means most severe among admitted four-star contexts,
+not a claim the globally worst residual fits64. R/prepare_mach244_residuals.py now
+accepts run/selection and validates counts against capture+independent readback;
+old producer bytes preserved under A247/producer_snapshots. No production changes.
+
+A247/actual_terminal247_query_and_cavity_assessment.json:5241completed queries,
+4003identical repeats ALLhits,total4137hits/1104misses. Miss work4609448;
+traversal4164650,of which3822194upper and342456sample-distance work. Exact prepared
+facet/scope reuse,bbox cropping and complete-support distance pruning already exist.
+201small-motion pass margins cover133782work(2.6%of total);NOT selected for a cache.
+Root-lower-first potential saves only65672upper-work units and is not a general
+old-geometry-debt rejection. Existing lower witnesses already reject proven bad
+queries. No benefit from new cheap reject/envelope has been established.
+ACTIVE selected next connected change:query-local finite-footprint coverage-region
+reuse in shared upper traversal. [Design/acceptance](Handbook/ADAPTATION_FOOTPRINT_REUSE248_20261107.md).
+Implementation NOT YET started. Prove each new projected triangle contained in a
+previously fully proved convex region;skip only repeated 2D coverage. Fresh padding/
+3D lifts and all association/body/feature/height/final gates remain. Bounded optional
+transient storage/work with full fallback. No new config/representation/scheduler.
+Measured coverage1349783/lift1412491 of3822194upper work motivates this hypothesis;
+no speedup established. Validate affected proofs/current corpus,ONE MPI6,then fullM6. No motion-cache/operator/scheduler/representation/
+quality-aware-construction implementation is underway. Preserve all gates/budgets.
+Actual shape+geometry and geometry-only selected contexts have no useful tested
+original/combined candidates;local successes elsewhere are not global closure.
+
+Current last-owned workload17680is terminal;NO owned heavy job is live.
+All runtime C++/fixture sources remain build247. Analysis/source preparation helpers
+changed only as recorded above. Historical incremental comparisons and explicit
+age offsets remain in quality_comparison244/nearest_quality_age_comparison244.json;
+terminal_comparison244 supersedes their old final-state scope.
 
 Quality entry was EXACTLY identical:878443cells/106454q/106204J/1381geometry/0size,
 all measured/flags complete;native689.582599 versus701.671352.
@@ -135,7 +176,7 @@ PointData;q/J/geometry/edge arrays in CellData,complete measured counts above.
 Independent reader passed exact array lengths/connectivity/coordinates and SPD
 (min eigen.002704938038);no ParaView GUI or mesh acceptance claim. Surface extraction
 retains the volume nodal tensor,not a fabricated separate metric. Export meaningful
-terminal meshes only,never every trial. A247has no terminal inspection export yet.
+terminal meshes only,never every trial. A247terminal inspection export/readback above supersede this older mesh.
 
 ## Next action and downstream obligations — all open
 

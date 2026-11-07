@@ -1,0 +1,232 @@
+{
+  "time": 1794070353.9777746,
+  "accepted_meshes": 0,
+  "runs": {
+    "244": {
+      "native_elapsed": 5347.5783582,
+      "round": 34425,
+      "totals": {
+        "cells": 1032169,
+        "measured": 1032169,
+        "q_measured": 1032169,
+        "j_measured": 1032169,
+        "q_bad": 2035,
+        "j_bad": 967,
+        "geometry_bad": 1046,
+        "size_bad": 0
+      },
+      "complete_flags": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": true,
+        "geometry_complete": true
+      },
+      "quality_seconds": 4645.9070065880005,
+      "net_removed": {
+        "q_bad": 104419,
+        "j_bad": 105237,
+        "geometry_bad": 335
+      },
+      "net_removed_per_second": {
+        "q_bad": 22.475482150618063,
+        "j_bad": 22.651551107409503,
+        "geometry_bad": 0.07210647985957586
+      },
+      "cumulative_service": {
+        "commits": 83052.0,
+        "q_retired": 625636.0,
+        "q_introduced": 521217.0,
+        "j_retired": 552147.0,
+        "j_introduced": 446910.0,
+        "busy_seconds": 7764.838059245994,
+        "join_call_seconds": 11679.478375569994,
+        "tracked_collective_call_seconds": 4015.355019768612
+      },
+      "rank_q_bad": [
+        568,
+        6,
+        523,
+        25,
+        425,
+        488
+      ],
+      "qJ_debt_max_over_mean": 1.6714815196437887,
+      "quality_work": {
+        "upper_calls": 1333597.0,
+        "upper_work": 2028785325.0,
+        "traversal_work": 1806039360.0,
+        "scope_build_work": 12597517.0,
+        "facet_build_work": 1273940.0,
+        "piece_selection_work": 117516305.0,
+        "smooth_boundary_candidates": 823863.0,
+        "smooth_boundary_moves": 31476.0,
+        "smooth_boundary_seconds": 3622.5003790220035,
+        "smooth_boundary_debt_reduction": 1027.559529803932,
+        "smooth_interior_candidates": 481294.0,
+        "smooth_interior_moves": 60002.0,
+        "smooth_interior_seconds": 271.3504165100002,
+        "smooth_interior_debt_reduction": 6579.055439984419
+      },
+      "cumulative_native_geometry": {
+        "upper_work": 2311068982,
+        "traversal_work": 2069639888,
+        "memo_union_hits": 662689,
+        "memo_union_misses": 723000
+      }
+    },
+    "247": {
+      "native_elapsed": 5347.699777991,
+      "round": 34816,
+      "totals": {
+        "cells": 1032602,
+        "measured": 1032602,
+        "q_measured": 1032602,
+        "j_measured": 1032602,
+        "q_bad": 1148,
+        "j_bad": 484,
+        "geometry_bad": 1044,
+        "size_bad": 0
+      },
+      "complete_flags": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": true,
+        "geometry_complete": true
+      },
+      "quality_seconds": 4658.117179224,
+      "net_removed": {
+        "q_bad": 105306,
+        "j_bad": 105720,
+        "geometry_bad": 337
+      },
+      "net_removed_per_second": {
+        "q_bad": 22.606988177472818,
+        "j_bad": 22.69586528899043,
+        "geometry_bad": 0.07234682749139022
+      },
+      "cumulative_service": {
+        "commits": 85783.0,
+        "q_retired": 635923.0,
+        "q_introduced": 530617.0,
+        "j_retired": 559825.0,
+        "j_introduced": 454105.0,
+        "busy_seconds": 8088.269585908006,
+        "join_call_seconds": 11564.581540119012,
+        "tracked_collective_call_seconds": 4068.4883172724512
+      },
+      "rank_q_bad": [
+        255,
+        14,
+        404,
+        16,
+        394,
+        65
+      ],
+      "qJ_debt_max_over_mean": 1.849875105733145,
+      "quality_work": {
+        "upper_calls": 1459798.0,
+        "upper_work": 1935993679.0,
+        "traversal_work": 1739847047.0,
+        "scope_build_work": 12718563.0,
+        "facet_build_work": 1285216.0,
+        "piece_selection_work": 102846662.0,
+        "smooth_boundary_candidates": 887635.0,
+        "smooth_boundary_moves": 34205.0,
+        "smooth_boundary_seconds": 3913.2998882400016,
+        "smooth_boundary_debt_reduction": 1032.0289084200588,
+        "smooth_interior_candidates": 489046.0,
+        "smooth_interior_moves": 60568.0,
+        "smooth_interior_seconds": 275.28465854,
+        "smooth_interior_debt_reduction": 6556.138296919057
+      },
+      "cumulative_native_geometry": {
+        "upper_work": 2210594912,
+        "traversal_work": 1996814785,
+        "memo_union_hits": 823416,
+        "memo_union_misses": 688474
+      }
+    }
+  },
+  "terminal_service": {
+    "commits": 0,
+    "q_retired": 0,
+    "q_introduced": 0,
+    "j_retired": 0,
+    "j_introduced": 0,
+    "unmeasured_churn": 0,
+    "construction_edits": 0,
+    "queue": 18275,
+    "blocked_features": 655,
+    "stuck_shape": 45,
+    "stuck_required": 45,
+    "missing_features": 0,
+    "private_tracked_collectives": 0
+  },
+  "terminal_locations": {
+    "q_surface": 211,
+    "q_interior": 937,
+    "j_surface": 121,
+    "j_interior": 363,
+    "q_feature": 104,
+    "q_no_feature": 1044,
+    "q_feature_unknown": 0,
+    "j_feature": 29,
+    "j_no_feature": 455,
+    "j_feature_unknown": 0,
+    "bad_union": 1525,
+    "short09": 1525,
+    "short05": 1441
+  },
+  "terminal_histograms": {
+    "q_miss_hist": [
+      572,
+      531,
+      21,
+      19,
+      5,
+      0
+    ],
+    "j_miss_hist": [
+      217,
+      242,
+      11,
+      13,
+      1,
+      0
+    ],
+    "geometry_excess_hist": [
+      64,
+      191,
+      454,
+      326,
+      9,
+      0
+    ],
+    "geometry_authority_types": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      1043,
+      0
+    ]
+  },
+  "bad_cell_delta247_minus244": {
+    "q_bad": -887,
+    "j_bad": -483,
+    "geometry_bad": -2
+  },
+  "next_target": "speed",
+  "next_target_evidence": "Time-budget refusal with continued net q/J removal,18275queue entries and only45all-blocked shape entries. Geometry repair power remains unproven;no construction-policy change is justified.",
+  "scope": "Full same-seed Mach-only attempts at unchanged L1/50k/gates/budgets. Quality-entry fields identical. Wall rates contention-sensitive;timers overlap. Fewer remaining bad cells are not acceptance. Terminal exit delta counters are zero after a same-round final window;do not mistake zero ladder deltas for no preceding work.",
+  "evidence_hashes": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/capture_ready.json": "0cda56a247312ac32614078eaaa597c0f23a6abde90925bb44408eb24937e95f",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/status.json": "3204a3aad150ee1548594ae7bde8937a916a57051eae51185d6de5f28d7182f0",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/terminal_handles.json": "851bbeec8452773fdb80374d2f4912c6e785d0be6cd5defdef1b45e1c126d141",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/quality_progress.json": "49b4e5ac80157a2a64446e81d80edf2c8f18ca07a0bb79434c994c598dae7af0",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/quality_counter_assessment.json": "58a19d73d3a2d5cf950432c3e7681472cbe28c21001a2e87cdd14fdbe7300834",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/terminal_analysis247_join_qualification.json": "f54e51677534da6ea7f98def470316f921d9e0dca0c972ea6c2eb6cb56df1bcb"
+  }
+}

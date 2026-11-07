@@ -1,0 +1,28 @@
+{
+  "time": 1794069406.3792977,
+  "legacy_baseline_records_unchanged": true,
+  "same_round_terminal_exit_joined": true,
+  "terminal_round": 34816,
+  "terminal_totals": {
+    "cells": 1032602,
+    "measured": 1032602,
+    "q_measured": 1032602,
+    "j_measured": 1032602,
+    "q_bad": 1148,
+    "j_bad": 484,
+    "geometry_bad": 1044,
+    "size_bad": 0
+  },
+  "cumulative_service": {
+    "commits": 85783.0,
+    "q_retired": 635923.0,
+    "q_introduced": 530617.0,
+    "j_retired": 559825.0,
+    "j_introduced": 454105.0,
+    "busy_seconds": 8088.269585908006,
+    "join_call_seconds": 11564.581540119012,
+    "tracked_collective_call_seconds": 4068.4883172724512
+  },
+  "helper_sha256": "f72ee7c158c8602dbe4bc3154675da916ef614a9677e2ef7d8fb1a0ac3dbcf21",
+  "scope": "Actual same-round window+exit regression,with churn invariants at every complete record and unchanged legacy baseline records. Analysis-only change;no production or pinned export source changed."
+}

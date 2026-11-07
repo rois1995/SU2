@@ -164,3 +164,13 @@ identity or causal wall speedup. A247/quality_comparison244.json records exact f
 churn,memo and BOTH cumulative-native and quality-entry-subtracted work. Cumulative
 32384upper/traversal883.831M/834.958M versus987.267M/932.164M INCLUDE construction;
 rank-summed smoothing timers overlap geometry. Full run remains frozen/live.
+
+## Terminal full-workflow outcome
+
+Full247has now REFUSED its first event at native5347.699778,with1148q/484J/
+1044geometry/0size and ALL measured/flags complete. All30files sealed and1520pins
+verified before a single owned MPI stop;all handles terminal. It improved residual
+shape counts but established ZERO accepted meshes. [Terminal analysis and latest
+mesh](ADAPTATION_BUILD247_OUTCOME_20261107.md) supersedes earlier live notes.
+Next actual-context trace shows upper evaluations dominate;motion pass-margin
+reuse covers only2.6%of total work and is not selected. No new implementation yet.

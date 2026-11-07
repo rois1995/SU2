@@ -63,18 +63,24 @@ numeric margin but represent only7.49%of miss work;no production motion reuse is
 selected. The raw-collapse control also proves a useful combined candidate after a
 raw Repair veto;safe MPI retained-star closure is not implemented. Keep it deferred.
 
-ACTIVE:build247 implements canonical single-triangle keys AND full computation,
-with exact support/authority/tolerance and all fresh geometry/height/association
-checks retained. Affected serial38cases/1678assertions pass. Actual-context counted
-query work falls7.4228%with identical complete candidate counts/outcomes; no
-whole-run speedup claim. ONE connected MPI6 milestone passed90cases on every rank;exact terminal handles and
-pinning correction evidence are in HANDOFF_Codex.md.
-[Design and acceptance](Handbook/ADAPTATION_QUERY_CANONICALIZATION246_20261107.md).
-Qualified checkpoint f7855ed7ec is pushed. Full247same-seed MACH-only L1/50k
-TWO-event M6 is LIVE,tool14272;exact handles in HANDOFF_Codex.md. Inputs and
-configuration match Mach-only244byte-for-byte;all pinned code/helpers are frozen. No competing motion cache/operator/
-scheduler/construction-quality change. Judge net whole-field q/J/geometry counts.
-All transfer/continued-CFD/disk-restart,BL/MPI and RANS500kobligations remain open.
+Build247canonical-query integration passed affected serial38cases/1678assertions
+and MPI6every90cases,but full M6first event REFUSED native5347.699778:
+1148q/484J/1044geometry/0size,complete measured census. ZERO accepted meshes.
+All30capture files sealed,1520pins unchanged before one verified MPI stop;
+all owned handles are absent. Latest saved mesh+metric is build247inspection,
+201203points/1032602tets,independent readback passed. Do not confuse diagnostics
+with acceptance. [247outcome](Handbook/ADAPTATION_BUILD247_OUTCOME_20261107.md).
+
+Immediate target remains SPEED,with residual geometry/repair power unresolved.
+One bounded seven-context actual-terminal probe passed and localized75%of query
+work to repeated per-domain upper evaluations. Identical repeats already hit;
+small-motion pass margins cover only2.6%of total work and are not selected for a
+new cache. The selected ONE connected hypothesis is query-local reuse of fully proved convex
+footprint regions,with fresh exact containment and all3D lift calculations retained.
+[Design](Handbook/ADAPTATION_FOOTPRINT_REUSE248_20261107.md);implementation pending. Keep CAD optional,all gates/budgets and validity-first construction.
+Then immediately same-seed MACH-only L1/50k complete TWO-event M6,conservative
+admissible transfer,continued adapted CFD and actual disk restart;then BL/MPI and
+RANS500k. No new scheduler/config/geometry representation or competing operator.
 
 ## What the actual cavities established
 
