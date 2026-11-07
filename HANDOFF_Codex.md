@@ -19,8 +19,8 @@ A235=`R/m6_runs/euler_build235_geometry_coupled_real_cfd50k`.
 
 ## LIVE237 — full same-seed two-event M6, source FROZEN
 
-Production source checkpoint4d1e2ec5b0, pushed. Latest measured-entry/first-window
-checkpoint179f299dfd pushed; earlier startup32d4873423/construction4a3376d903.
+Production source checkpoint4d1e2ec5b0, pushed. Consolidated handoff/second-window
+checkpoint57913b8a53 pushed; earlier entry179f299dfd/startup32d4873423.
 Full tool session2688 is ACTIVE. Native5400/outer14400, unchanged gates/target/seed.
 R/m6_237_launch.json records helper2861865/start7510148, runner2861866/start7510152,
 qualification SHA/resources/scratch. A237/owned_startup.json records exact live tree:
@@ -64,14 +64,18 @@ Quality-entry native705.179721s (235969.422254s), round34594: COMPLETE census,
 IDENTICAL235. All1519source/runtime/input pins rechecked unchanged in
 A237/quality_entry_assessment.json. Source remains frozen.
 
-Second complete quality window34688/native945.000761s:880804cells,96237q/96066J/
-1969geometry/0size. Cumulative net5821q/5794J/28g removed; counts/churn/3439commits,
-rank debt distribution and smoothing decisions match235at the same round.
-Quality-only traversal ratio.94547(-5.45%). Observed netq24.27/s versus21.20/s over
-239.82s versus274.53s quality ages; not an isolated causal timing proof. Cumulative
-q-retired83817/q-introduced77996, not83817net fixes. Join-call wall share45.58% vs46.15%
-is not CPU idle; counters/timers overlap. Boundary19775candidates/869moves, interior
-13305/1646 equal235. Geometry-only repair is not yet exercised.
+Fourth complete quality window34816/native1322.426656s:893757cells,87659q/87545J/
+1946geometry/0size. Cumulative net14399q/14315J/51g removed,8192commits; matching-round
+counts/flags/rank debt distribution remain equal235. Quality-only traversal ratio
+.94814(-5.19%); observed netq23.33/s vs21.33/s over617.25s vs675.04s quality ages.
+These are descriptive timing measurements, not isolated causal proof. Churn includes
+retirement/reintroduction; net bad counts judge progress. Join-call share is not CPU
+idle and timers overlap. Geometry-only repair is not yet exercised.
+Quality redistribution at complete census34752 preserved exact global counts/flags,
+total q/Jdebt to roundoff, and all16unique globally replicated drift samples (none
+lost; sampled max.0059577373unchanged). Rank q/Jdebt max/min1.70435→1.23133. This is
+not a whole-field metric norm or closure proof. A237/ownership34752_assessment.json;
+quality_window4_assessment.json records useful progress after that migration.
 A237/quality_comparison235.json verifies churn and states unequal nearest census times.
 No acceptance, geometry-only closure, transfer, adapted CFD or disk restart yet.
 
