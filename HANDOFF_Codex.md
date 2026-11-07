@@ -15,12 +15,13 @@ restarts. Preserve failures; authorized stop/fix/retry remains in force.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A227=`R/m6_runs/euler_build227_witness_real_cfd50k`.
+A235=`R/m6_runs/euler_build235_geometry_coupled_real_cfd50k`.
 
 ## ACTIVE235: geometry-conforming private quality candidate
 
-Latest pushed source/evidence checkpoint8107f77356 (232local feasibility), previous
-37e8e831ea (227terminal/current-cavity analysis),6fc7492e47 (terminal mesh evidence).
-Current235Engine/fixture changes are LOCAL/uncommitted; preserve unrelated work.
+Latest pushed source/evidence checkpoint3839534f25 (connected235production and
+qualification), previous8107f77356 (232local feasibility),37e8e831ea (227analysis).
+Production/fixture changes committed; preserve unrelated working changes.
 Build235exec12651TERMINAL0,63.151040s,1302pins unchanged/both targets up to date.
 All recorded host compiler/linker handles absent. Build234also terminal0,168.133394s.
 
@@ -33,18 +34,28 @@ Serial integrationexec89949TERMINAL0,244.277670s, all3groups exit0/pins unchange
 quality13cases/4586assertions,atlas88/30542,failure-census14/6845. With actual case,
 116serial cases/78351assertions. MPI6exec61924TERMINAL0,6.375343s, EACH rank26cases,
 pins unchanged. All observed serial/MPI host handles absent:
-R/{serial235_terminal_handles,mpi235_terminal_handles}.json. NO OWNED HEAVY JOB.
+R/{serial235_terminal_handles,mpi235_terminal_handles}.json. Qualification terminal.
 R/geometry_conforming235_qualification.json records exact scope/limits. Adjacent
 MPI protocols qualified; exact joint two-face predicate not explicitly asserted
 by those fixtures, full M6 is first exact-predicate MPI workflow test.
 
-NEXT IMMEDIATE: checkpoint current235source/evidence, then existing run_m6.py:
-build235 euler_build235_geometry_coupled_real_cfd50k 2
-R/m6_inputs/euler_original_force_seed_v1 --inspect-rejected.
-Use nice19/libs1,pt2pt,unique MPI scratch under4TBcompile-tmp. Same correctedL1/
-50k/native5400/outer14400 config/seed. Once launched C++/helpers/binary/config/inputs
-FROZEN until verified terminal or authorized preserved-evidence stop. Keep ONE heavy
-job. Do not run another baseline or broaden passing suites. Complete M6 drives fixes.
+SOLE OWNED HEAVY JOB: full two-event235 M6 LIVE, tool session38789. Existing
+run_m6.py build235 euler_build235_geometry_coupled_real_cfd50k 2 with saved realCFD
+seed and --inspect-rejected. Source/helpers/binary/config/inputs FROZEN. Same
+correctedL1/50k/native5400/outer14400; nice19/libs1,pt2pt,unique4TB MPI scratch.
+Host handles verified by PID/startticks/argv/cwd:
+helper2473644/6446256, runner2473645/6446259,
+GNUtime2473939/6446870, timeout2473947/6446870, launcher2473948/6446871;
+workers2473951–2473955/start6446874,2473956/start6446875.
+Exact identities in A235/owned_startup.json; R/m6_235_launch.json launch receipt.
+All1519source/runtime/input pins verified; config SHA unchanged and initial restart
+BYTE-IDENTICAL219/225/227: A235/initial_target_identity.json. Latest observation
+A235/owned_observations.jsonl: all11handles live, availableRAM~31.1GiB, load~10.
+Summed RSS is not unique physical memory. Construction underway; no accepted mesh.
+NEXT: observe existing run and compare counted work/whole-field q/J/geometry at
+matching stages against227. Do not edit pinned sources or launch another heavy job.
+Stop only after preserved demonstrated failure/bottleneck/resource evidence under
+authorized policy; no stop signal sent235. Full M6 determines next implementation.
 
 [Current connected design](Handbook/ADAPTATION_GEOMETRY_CONFORMING_REPAIR_20261107.md):
 existing batch preflight optionally merges four vertex stars for a measured owned
