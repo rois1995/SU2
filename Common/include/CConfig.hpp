@@ -88,6 +88,7 @@ private:
   bool Edge_Form_TeCNO_Adjoint_Limiter; /*!< \brief Nodal limiter phi of SLOPE_LIMITER_FLOW on w in that dissipation. */
   bool Edge_Form_TeCNO_A4_Jacobian; /*!< \brief Provable majorant (Lemma A4) of its linearization as the Jacobian. */
   TECNO_ADJ_GRADIENT Kind_TeCNO_Adj_Gradient; /*!< \brief Gradient of w in that dissipation (TECNO_ADJOINT_GRADIENT). */
+  TECNO_ADJ_LIMITER Kind_TeCNO_Adj_Limiter;   /*!< \brief Per-edge-end limiter of that dissipation (TECNO_ADJOINT_LIMITER). */
   bool Edge_Form_EC_Exact_Jacobian; /*!< \brief Exact Jacobian of the Ismail-Roe central parts of the ROE options. */
   bool BC_Entropy_P1;          /*!< \brief Entropy stable hybridized weak boundary of BC_WEAK_P1 (closure C). */
   bool Visc_P1_Entropy;        /*!< \brief P1 Galerkin viscous operator in entropy variables, one frozen K per simplex. */
@@ -10100,6 +10101,11 @@ public:
    * \brief TECNO_ADJOINT_GRADIENT: gradient of w in EDGE_FORM_TECNO_ADJOINT, Green-Gauss (default) or the P1 average.
    */
   TECNO_ADJ_GRADIENT GetKind_TeCNO_Adj_Gradient() const { return Kind_TeCNO_Adj_Gradient; }
+
+  /*!
+   * \brief TECNO_ADJOINT_LIMITER: per-edge-end limiter of EDGE_FORM_TECNO_ADJOINT, none (default) or EDGE_ENTROPY_VA.
+   */
+  TECNO_ADJ_LIMITER GetKind_TeCNO_Adj_Limiter() const { return Kind_TeCNO_Adj_Limiter; }
 
   /*!
    * \brief EDGE_FORM_EC_EXACT_JACOBIAN: exact Jacobian of the Ismail-Roe central flux of the nodal states (both node

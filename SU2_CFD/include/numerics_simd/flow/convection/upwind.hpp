@@ -36,6 +36,23 @@
 #include "../../../../../Common/include/geometry/CGeometry.hpp"
 
 /*!
+ * \brief Roe scheme; TeCNOAdjExt = true is the instance with the extended adjoint TeCNO kernel (TECNO_ADJOINT_LIMITER),
+ *        compiled in its own translation unit (CNumericsSIMD_TeCNOExt.cpp) and created only when such an option is on.
+ */
+template<class Decorator, bool TeCNOAdjExt = false>
+class CRoeScheme;
+
+/*!
+ * \brief True for the extended adjoint TeCNO instances (CRoeScheme<Decorator, true>), false for every other scheme.
+ *        Compile-time dispatch: the default instances keep the adjoint branch of tecnoFlux token for token, so their
+ *        code generation (inlining, FP contraction under -ffast-math) is unchanged by the extended options.
+ */
+template<class Derived>
+struct TeCNOAdjExtTrait { static constexpr bool value = false; };
+template<class Decorator>
+struct TeCNOAdjExtTrait<CRoeScheme<Decorator, true> > { static constexpr bool value = true; };
+
+/*!
  * \class CUpwindBase
  * \ingroup ConvDiscr
  * \brief Base class for upwind schemes, derived classes implement
@@ -84,6 +101,7 @@ protected:
   const bool ecExactJac;          /*!< \brief EDGE_FORM_EC_EXACT_JACOBIAN, exact Jacobian of the Ismail-Roe parts. */
   const su2double roeKappa;       /*!< \brief ROE_KAPPA, weight of the central Jacobian of finalizeFlux. */
   const CVariable* const tkeVars; /*!< \brief SST turbulence variables (k is part of the total energy), else nullptr. */
+  const bool tecnoAdjVA;          /*!< \brief TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_VA (extended instances only). */
 
   /*!
    * \brief Constructor, store some constants and forward args to base.
@@ -118,7 +136,86 @@ protected:
     tecnoA4(tecnoAdj && config.GetEdge_Form_TeCNO_A4_Jacobian()),
     ecExactJac(finestGrid && config.GetEdge_Form_EC_Exact_Jacobian()),
     roeKappa(config.GetRoe_Kappa()),
-    tkeVars(config.GetKind_Turb_Model() == TURB_MODEL::SST ? findTurbVars(args...) : nullptr) {
+    tkeVars(config.GetKind_Turb_Model() == TURB_MODEL::SST ? findTurbVars(args...) : nullptr),
+    tecnoAdjVA(tecnoAdj && config.GetKind_TeCNO_Adj_Limiter() == TECNO_ADJ_LIMITER::EDGE_ENTROPY_VA) {
+  }
+
+  /*!
+   * \brief Adjoint branch of tecnoFlux in the extended instances (TeCNOAdjExtTrait): the Delta part of the flux, the
+   *        edge store of the gradient part and the Jacobian. TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_VA (P1_TECNO_ADJ_LIMITER.md,
+   *        tecnoAdjointEdgeVA): one phi per edge end and characteristic entropy field, B^T q of end 0 in [0, nVar) and of
+   *        end 1 in [nVar, 2 nVar) of the edge store (TeCNOAdjoint::NodalMomentEnds), the nodal phi refused; otherwise
+   *        the default jump and store. Jacobian: the central part and the first order Roe dissipation of the default
+   *        branch (EDGE_FORM_TECNO_A4_JACOBIAN is refused with these options).
+   */
+  template<class PrimVarType, class GradType, class VariableType>
+  void tecnoAdjointExt(VectorDbl<nVar>& flux, MatrixDbl<nVar>& jac_i, MatrixDbl<nVar>& jac_j, const bool implicit,
+                       const VectorDbl<nDim>& unitNormal, const VectorDbl<nDim>& normal, const CPair<PrimVarType>& V1st,
+                       const VectorDbl<nDim>& vector_ij, const Int& iEdge, const Double& updateMask,
+                       const VariableType& solution, const su2double& umusclRamp, const CRoeVariables<nDim>& avg,
+                       const Double& lamM, const Double& lam0, const Double& lamP, const Double& scale,
+                       const VectorDbl<nVar>& dw, const GradType& gradW_i, const GradType& gradW_j,
+                       const Double& phi_i, const Double& phi_j) const {
+    const su2double coefDelta = 1.0 - umusclRamp * umusclKappa;
+    auto& edgeQ = solution.TeCNOAdjEdgeQ;
+    if (tecnoAdjVA) {
+      VectorDbl<nVar> p_i, p_j, q, q_i, q_j;
+      for (size_t iVar = 0; iVar < nVar; ++iVar) {
+        p_i(iVar) = 0.0;
+        p_j(iVar) = 0.0;
+        for (size_t iDim = 0; iDim < nDim; ++iDim) {
+          p_i(iVar) += gradW_i(iVar, iDim) * vector_ij(iDim);
+          p_j(iVar) += gradW_j(iVar, iDim) * vector_ij(iDim);
+        }
+      }
+      tecnoAdjointEdgeVA(gamma, avg, unitNormal, lamM, lam0, lamP, scale, dw, p_i, p_j, V1st.i, V1st.j, umusclRamp,
+                         umusclKappa, q, q_i, q_j);
+      for (size_t iVar = 0; iVar < nVar; ++iVar) flux(iVar) -= coefDelta * q(iVar);
+      for (size_t k = 0; k < Double::Size; ++k) {
+        if (updateMask[k] == 0.0) continue;
+        for (size_t iVar = 0; iVar < nVar; ++iVar) {
+          edgeQ(iEdge[k], iVar) = q_i(iVar)[k];
+          edgeQ(iEdge[k], nVar + iVar) = q_j(iVar)[k];
+        }
+      }
+    } else {
+      VectorDbl<nVar> jump;
+      TeCNOAdjoint::EdgeJump(nDim, nVar, dw, gradW_i, gradW_j, phi_i, phi_j, vector_ij, umusclRamp, umusclKappa, jump);
+      const auto q = tecnoDissipation(gamma, avg, unitNormal, lamM, lam0, lamP, scale, jump);
+      for (size_t iVar = 0; iVar < nVar; ++iVar) flux(iVar) -= coefDelta * q(iVar);
+      for (size_t k = 0; k < Double::Size; ++k) {
+        if (updateMask[k] == 0.0) continue;
+        for (size_t iVar = 0; iVar < nVar; ++iVar) edgeQ(iEdge[k], iVar) = q(iVar)[k];
+      }
+    }
+    if (!implicit) return;
+
+    /*--- Central part: exact Ismail-Roe Jacobian, or 1/2 A of the nodal states. ---*/
+    if (ecExactJac) {
+      ismailRoeProjJac(gamma, V1st.i, V1st.j, normal, jac_i, jac_j);
+    } else {
+      const auto U_i = compressibleConservatives(V1st.i);
+      const auto U_j = compressibleConservatives(V1st.j);
+      jac_i = inviscidProjJac(gamma, V1st.i.velocity(), U_i.energy(), normal, 0.5);
+      jac_j = inviscidProjJac(gamma, V1st.j.velocity(), U_j.energy(), normal, 0.5);
+    }
+    /*--- First order Roe dissipation on nu (sigma = 1, frozen eigenvectors), as in the default branch. ---*/
+    const Double& c = avg.speedSound;
+    const Double& un = avg.projVel;
+    VectorDbl<nVar> lambda;
+    for (size_t iDim = 0; iDim < nDim; ++iDim) lambda(iDim) = lam0;
+    lambda(nDim) = lamP;
+    lambda(nDim+1) = lamM;
+    const auto pMat = pMatrix(gamma, avg.density, avg.velocity, un, c, unitNormal);
+    const auto pMatInv = pMatrixInv(gamma, avg.density, avg.velocity, un, c, unitNormal);
+    for (size_t iVar = 0; iVar < nVar; ++iVar) {
+      for (size_t jVar = 0; jVar < nVar; ++jVar) {
+        Double d = 0.0;
+        for (size_t kVar = 0; kVar < nVar; ++kVar) d += pMat(iVar,kVar) * lambda(kVar) * pMatInv(kVar,jVar);
+        jac_i(iVar,jVar) += scale * d;
+        jac_j(iVar,jVar) -= scale * d;
+      }
+    }
   }
 
   /*!
@@ -203,6 +300,12 @@ protected:
       const auto gradW_j = gatherVariables<nVar, nDim>(jPoint, solution.TeCNOAdjGradient);
       const Double phi_i = gatherVariables(iPoint, solution.TeCNOAdjPhi);
       const Double phi_j = gatherVariables(jPoint, solution.TeCNOAdjPhi);
+      if constexpr (TeCNOAdjExtTrait<Derived>::value) {
+        /*--- Extended instances only (TECNO_ADJOINT_LIMITER); discarded in the default ones. ---*/
+        tecnoAdjointExt(flux, jac_i, jac_j, implicit, unitNormal, normal, V1st, vector_ij, iEdge, updateMask, solution,
+                        umusclRamp, avg, lamM, lam0, lamP, scale, dw, gradW_i, gradW_j, phi_i, phi_j);
+        return;
+      }
       VectorDbl<nVar> jump;
       TeCNOAdjoint::EdgeJump(nDim, nVar, dw, gradW_i, gradW_j, phi_i, phi_j, vector_ij, umusclRamp, umusclKappa, jump);
       const auto q = tecnoDissipation(gamma, avg, unitNormal, lamM, lam0, lamP, scale, jump);
@@ -767,10 +870,10 @@ public:
  * \ingroup ConvDiscr
  * \brief Classical Roe scheme.
  */
-template<class Decorator>
-class CRoeScheme : public CUpwindBase<CRoeScheme<Decorator>, Decorator> {
+template<class Decorator, bool TeCNOAdjExt>
+class CRoeScheme : public CUpwindBase<CRoeScheme<Decorator, TeCNOAdjExt>, Decorator> {
 private:
-  using Base = CUpwindBase<CRoeScheme<Decorator>, Decorator>;
+  using Base = CUpwindBase<CRoeScheme<Decorator, TeCNOAdjExt>, Decorator>;
   using Base::nDim;
   using Base::nVar;
   using Base::nPrimVarGrad;

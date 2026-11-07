@@ -337,7 +337,9 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
       }
       nodes->TeCNOAdjGradient.resize(nPoint, nVar, nDim, 0.0);
       nodes->TeCNOAdjPhi.resize(nPoint) = su2double(1.0);
-      nodes->TeCNOAdjEdgeQ.resize(geometry->GetnEdge(), nVar) = su2double(0.0);
+      /*--- TECNO_ADJOINT_LIMITER: B^T q of both edge ends (P1_TECNO_ADJ_LIMITER.md), else q. ---*/
+      const bool edgeEnds = (config->GetKind_TeCNO_Adj_Limiter() != TECNO_ADJ_LIMITER::NONE);
+      nodes->TeCNOAdjEdgeQ.resize(geometry->GetnEdge(), edgeEnds ? 2 * nVar : nVar) = su2double(0.0);
       TeCNOAdjW.resize(nPoint, nVar) = su2double(0.0);
       TeCNOAdjY.resize(nPoint, nVar, nDim, 0.0);
       if (config->GetEdge_Form_TeCNO_Adjoint_Limiter()) {
@@ -2574,7 +2576,15 @@ void CEulerSolver::TeCNOAdjointResidual(CGeometry *geometry, const CConfig *conf
   /*--- TECNO_ADJOINT_GRADIENT= P1_AVERAGE: Y = Z/Vhat and R_m += gam sum_k (a_km.Y_k - a_mk.Y_m) (G3). ---*/
   const bool p1Average = (config->GetKind_TeCNO_Adj_Gradient() == TECNO_ADJ_GRADIENT::P1_AVERAGE);
 
-  if (p1Average) {
+  /*--- TECNO_ADJOINT_LIMITER: Z_a = sum_e e_e (x) (B^T q)_{e,a} from the edge-end stores (no nodal phi). ---*/
+  const bool edgeEnds = (config->GetKind_TeCNO_Adj_Limiter() != TECNO_ADJ_LIMITER::NONE);
+
+  if (edgeEnds && p1Average) {
+    TeCNOAdjoint::NodalMomentEnds(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeQ, TeCNOAdjVol, TeCNOAdjY);
+  } else if (edgeEnds) {
+    auto volume = [&](unsigned long iPoint) { return geometry->nodes->GetVolume(iPoint); };
+    TeCNOAdjoint::NodalMomentEnds(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeQ, volume, TeCNOAdjY);
+  } else if (p1Average) {
     TeCNOAdjoint::NodalMomentP1(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeQ, phi, TeCNOAdjVol, TeCNOAdjY);
   } else {
     TeCNOAdjoint::NodalMoment(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeQ, phi, TeCNOAdjY);

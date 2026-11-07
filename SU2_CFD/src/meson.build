@@ -153,7 +153,8 @@ su2_cfd_src += files(['numerics/CNumerics.cpp',
                       'numerics/elasticity/nonlinear_models.cpp',
                       'numerics/CGradSmoothing.cpp'])
 
-su2_cfd_src += files(['../include/numerics_simd/CNumericsSIMD.cpp'])
+su2_cfd_src += files(['../include/numerics_simd/CNumericsSIMD.cpp',
+                      '../include/numerics_simd/CNumericsSIMD_TeCNOExt.cpp'])
 
 su2_cfd_src += files(['interfaces/CInterface.cpp',
                       'interfaces/cfd/CConservativeVarsInterface.cpp',

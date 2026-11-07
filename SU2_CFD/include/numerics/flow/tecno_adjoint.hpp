@@ -29,6 +29,7 @@
 #pragma once
 
 #include <cmath>
+#include <limits>
 #include "../../../../Common/include/basic_types/datatype_structure.hpp"
 #include "../../../../Common/include/parallelization/omp_structure.hpp"
 
@@ -387,6 +388,50 @@ void MajorantDiagonal(const Geometry& geometry, unsigned short nDim, unsigned sh
   const su2double weight = 0.75 * sqrt(normSum);
   for (unsigned short iVar = 0; iVar < nVar; ++iVar)
     for (unsigned short jVar = 0; jVar < nVar; ++jVar) block(iVar, jVar) += weight * P(iPoint, iVar * nVar + jVar);
+}
+
+/*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_VA (P1_TECNO_ADJ_LIMITER.md): per edge end a and characteristic entropy field j,
+ *   phi_aj = (Delta_j^2 + alpha_aj Delta_j + tau_j) / (alpha_aj^2 + Delta_j^2 + tau_j),
+ * Delta_j = (R^T (w_k - w_i))_j, alpha_aj = rho ((1-kappa) (R^T G_a w . e)_j + kappa Delta_j) the U-MUSCL slope, the shear
+ * block as one field with inner products, tau_j = (eps S_j)^2 the roundoff floor. Unclipped: Theorem A1 holds for any
+ * values because the residual applies the transpose B^T q = R Phi R^-1 q per edge end (L1). alpha = Delta and
+ * Delta = alpha = 0 give phi = 1 exactly. The edge store then holds B^T q of end 0 in [0, nVar) and of end 1 in
+ * [nVar, 2 nVar), the moment loop below takes the end of each node. ---*/
+
+/*!
+ * \brief Van Albada algebra of EDGE_ENTROPY_VA from the inner products dd = Delta.Delta, ad = alpha.Delta,
+ *        aa = alpha.alpha (scalars or the shear block), guard tau > 0.
+ */
+template <class Scalar>
+inline Scalar EdgeVanAlbada(const Scalar& dd, const Scalar& ad, const Scalar& aa, const Scalar& tau) {
+  return (dd + ad + tau) / (aa + dd + tau);
+}
+
+/*!
+ * \brief Y_a = V_a^-1 sum_{e ni a} e_e (x) (B^T q)_{e,a} on the owned nodes, (B^T q)_{e,a} read from the half of the
+ *        edge store of the end a (EDGE_ENTROPY_VA). volume(i): the volumes of the gradient (V or Vhat).
+ *        Not inlined, to keep the code generation of the default moment loops of the caller.
+ */
+template <class Geometry, class EdgeType, class VolumeType, class MomentType>
+NEVERINLINE void NodalMomentEnds(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const EdgeType& edgeQ,
+                     const VolumeType& volume, MomentType& Y) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double z[MAXNVAR][3] = {};
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const unsigned short offset = (geometry.edges->GetNode(iEdge, 0) == iPoint) ? 0 : nVar;
+      const auto* x0 = geometry.nodes->GetCoord(geometry.edges->GetNode(iEdge, 0));
+      const auto* x1 = geometry.nodes->GetCoord(geometry.edges->GetNode(iEdge, 1));
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+        const su2double q = edgeQ(iEdge, offset + iVar);
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) z[iVar][iDim] += (x1[iDim] - x0[iDim]) * q;
+      }
+    }
+    const su2double scale = 1.0 / volume(iPoint);
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) Y(iPoint, iVar, iDim) = scale * z[iVar][iDim];
+  }
+  END_SU2_OMP_FOR
 }
 
 /*--- Lemma A4 for the P1 average (P1_TECNO_ADJ_GRADIENT.md, G3): g_im = a_im / Vhat_i (m != i), g_ii = -sum_k a_ik / Vhat_i,

@@ -3586,6 +3586,231 @@ TEST_CASE("TECNO_ADJOINT_GRADIENT= P1_AVERAGE: transpose, Theorem A1, conservati
   P1AverageLinearizationCase<3>();
 }
 
+/*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_VA (P1_TECNO_ADJ_LIMITER.md): Theorem A1 with the per-edge-end limiter of the
+ * kernel function, linear data and zero fields give phi = 1, Phi = I gives tecnoDissipation, the L4 range. ---*/
+namespace {
+template <size_t nDim>
+void EdgeEntropyVAEntropyCase() {
+  for (const bool moved : {false, true}) {
+    for (const bool p1Average : {false, true}) {
+      const std::string mesh = "tecno_va_entropy_" + std::to_string(nDim) + "d.su2";
+      WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 6 : 3, 0.4, 0.2, (nDim == 2) ? BendMesh2D : BendMesh3D);
+      MeshCase test(mesh, moved ? P1AverageMoved : "");
+      auto& geometry = *test.geometry;
+      const TeCNOAdjointChecks::P1Average p1(geometry);
+      const auto r = TeCNOAdjointChecks::EntropyCheckVA<nDim>(geometry, geometry.GetnPoint(), 40, 13,
+                                                              p1Average ? &p1 : nullptr);
+      INFO("nDim " << nDim << " moved " << moved << " P1 average " << p1Average << ": identity " << r.identity
+                   << ", production " << r.production << ", conservation " << r.conservation << ", phi in ["
+                   << r.phiMin << ", " << r.phiMax << "]");
+      CHECK(r.identity < 1e-12);
+      CHECK(r.production < 0.0);
+      CHECK(r.conservation < 1e-12);
+      CHECK(r.phiMax > 1.0);  /*--- Unclipped: values outside [0, 1] occur for random data. ---*/
+      CHECK(r.phiMin < 0.0);
+    }
+  }
+}
+
+template <size_t nDim>
+void EdgeEntropyVAPropertiesCase() {
+  constexpr size_t nVar = nDim + 2;
+  std::mt19937 gen(29);
+  std::uniform_real_distribution<double> r(-1.0, 1.0);
+  double worstLinear = 0.0, worstZero = 0.0, worstIdentity = 0.0;
+  for (int t = 0; t < 200; ++t) {
+    double u_i[3] = {0.0}, u_k[3] = {0.0};
+    for (size_t d = 0; d < nDim; ++d) {
+      u_i[d] = 0.5 * r(gen);
+      u_k[d] = 0.5 * r(gen);
+    }
+    CPair<CCompressiblePrimitives<nDim, nDim + 4>> V;
+    V.i = TeCNOAdjointChecks::Primitives<nDim>(exp(r(gen)), u_i, exp(r(gen)));
+    V.j = TeCNOAdjointChecks::Primitives<nDim>(exp(r(gen)), u_k, exp(r(gen)));
+    VectorDbl<nDim> unit;
+    double norm = 0.0, n[3];
+    for (size_t d = 0; d < nDim; ++d) {
+      n[d] = r(gen);
+      norm += n[d] * n[d];
+    }
+    for (size_t d = 0; d < nDim; ++d) unit(d) = n[d] / sqrt(norm);
+    const auto avg = roeAveragedVariables(Double(TeCNOAdjointChecks::GAMMA), V, unit);
+    const Double lamM = abs(avg.projVel - avg.speedSound) + 0.1, lam0 = abs(avg.projVel) + 0.1;
+    const Double lamP = abs(avg.projVel + avg.speedSound) + 0.1, scale = 0.7;
+    const double ramp = (t % 2) ? 1.0 : 0.6, kappa = (t % 3 == 0) ? 1.0 / 3.0 : 0.0;
+    VectorDbl<nVar> dw, zero, q, q_i, q_k;
+    for (size_t v = 0; v < nVar; ++v) {
+      dw(v) = r(gen);
+      zero(v) = 0.0;
+    }
+    Double phi[8];
+    /*--- Linear data (ramp 1): the slopes of both ends equal the jump, so alpha = Delta and phi = 1. ---*/
+    tecnoAdjointEdgeVA(Double(TeCNOAdjointChecks::GAMMA), avg, unit, lamM, lam0, lamP, scale, dw, dw, dw, V.i, V.j,
+                       1.0, kappa, q, q_i, q_k, phi);
+    for (int a = 0; a < 8; ++a) worstLinear = std::max(worstLinear, fabs(phi[a][0] - 1.0));
+    /*--- Zero slopes, kappa = 0: alpha = 0, phi = 1 exactly, q_i = q_k = q = tecnoDissipation(dw). ---*/
+    tecnoAdjointEdgeVA(Double(TeCNOAdjointChecks::GAMMA), avg, unit, lamM, lam0, lamP, scale, dw, zero, zero, V.i, V.j,
+                       ramp, 0.0, q, q_i, q_k, phi);
+    for (int a = 0; a < 8; ++a) worstZero = std::max(worstZero, fabs(phi[a][0] - 1.0));
+    const auto ref = tecnoDissipation(Double(TeCNOAdjointChecks::GAMMA), avg, unit, lamM, lam0, lamP, scale, dw);
+    double refMax = 1e-300;
+    for (size_t v = 0; v < nVar; ++v) refMax = std::max(refMax, fabs(ref(v)[0]));
+    for (size_t v = 0; v < nVar; ++v) {
+      worstIdentity = std::max(worstIdentity, fabs(q(v)[0] - ref(v)[0]) / refMax);
+      worstIdentity = std::max(worstIdentity, fabs(q_i(v)[0] - q(v)[0]) / refMax);
+      worstIdentity = std::max(worstIdentity, fabs(q_k(v)[0] - q(v)[0]) / refMax);
+    }
+    /*--- Zero field: tau/tau = 1, q = 0. ---*/
+    tecnoAdjointEdgeVA(Double(TeCNOAdjointChecks::GAMMA), avg, unit, lamM, lam0, lamP, scale, zero, zero, zero, V.i,
+                       V.j, ramp, kappa, q, q_i, q_k, phi);
+    for (int a = 0; a < 8; ++a) worstZero = std::max(worstZero, fabs(phi[a][0] - 1.0));
+    for (size_t v = 0; v < nVar; ++v) worstZero = std::max(worstZero, fabs(q(v)[0]) + fabs(q_i(v)[0]));
+  }
+  INFO("nDim " << nDim << ": linear |phi - 1| " << worstLinear << ", zero field " << worstZero << ", Phi = I "
+               << worstIdentity);
+  CHECK(worstLinear < 1e-12);
+  CHECK(worstZero == 0.0);
+  CHECK(worstIdentity < 1e-12);
+
+  /*--- The computed guard: positive at a uniform state at rest (w_m = u = 0), phi = 1 there for zero data, and
+   * rotation invariant (tau and phi of rotated states, normal and momentum components). ---*/
+  {
+    const double rest[3] = {0.0, 0.0, 0.0};
+    CPair<CCompressiblePrimitives<nDim, nDim + 4>> V;
+    V.i = TeCNOAdjointChecks::Primitives<nDim>(1.3, rest, 0.8);
+    V.j = V.i;
+    VectorDbl<nDim> unit;
+    for (size_t d = 0; d < nDim; ++d) unit(d) = (d == 0) ? 1.0 : 0.0;
+    const auto avg = roeAveragedVariables(Double(TeCNOAdjointChecks::GAMMA), V, unit);
+    VectorDbl<nVar> zero, q, q_i, q_k;
+    for (size_t v = 0; v < nVar; ++v) zero(v) = 0.0;
+    Double phi[8], tau[2];
+    tecnoAdjointEdgeVA(Double(TeCNOAdjointChecks::GAMMA), avg, unit, Double(1.0), Double(1.0), Double(1.0), Double(0.5),
+                       zero, zero, zero, V.i, V.j, 1.0, 0.0, q, q_i, q_k, phi, nullptr, tau);
+    double worst = 0.0;
+    for (int a = 0; a < 8; ++a) worst = std::max(worst, fabs(phi[a][0] - 1.0));
+    INFO("nDim " << nDim << ": rest state tau " << tau[0][0] << " " << tau[1][0] << ", |phi - 1| " << worst);
+    CHECK(tau[0][0] > 0.0);
+    CHECK(tau[1][0] > 0.0);
+    CHECK(worst == 0.0);
+  }
+  {
+    double Qr[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+    if (nDim == 2) {
+      Qr[0][0] = cos(0.7); Qr[0][1] = -sin(0.7); Qr[1][0] = sin(0.7); Qr[1][1] = cos(0.7);
+    } else {
+      const double ax[3] = {1.0 / sqrt(14.0), 2.0 / sqrt(14.0), 3.0 / sqrt(14.0)}, c = cos(0.7), sn = sin(0.7);
+      for (int a = 0; a < 3; ++a)
+        for (int b = 0; b < 3; ++b) Qr[a][b] = c * (a == b) + (1.0 - c) * ax[a] * ax[b];
+      Qr[0][1] -= sn * ax[2]; Qr[1][0] += sn * ax[2];
+      Qr[0][2] += sn * ax[1]; Qr[2][0] -= sn * ax[1];
+      Qr[1][2] -= sn * ax[0]; Qr[2][1] += sn * ax[0];
+    }
+    auto rotate = [&](const double* x, double* y) {
+      for (size_t a = 0; a < nDim; ++a) {
+        y[a] = 0.0;
+        for (size_t b = 0; b < nDim; ++b) y[a] += Qr[a][b] * x[b];
+      }
+    };
+    double worstPhi = 0.0, worstTau = 0.0;
+    for (int t = 0; t < 50; ++t) {
+      double u[2][3] = {{0.0}}, ur[2][3] = {{0.0}}, n[3] = {0.0}, nr[3] = {0.0}, norm = 0.0;
+      for (size_t d = 0; d < nDim; ++d) {
+        u[0][d] = 0.6 * r(gen);
+        u[1][d] = 0.6 * r(gen);
+        n[d] = r(gen);
+        norm += n[d] * n[d];
+      }
+      for (size_t d = 0; d < nDim; ++d) n[d] /= sqrt(norm);
+      rotate(u[0], ur[0]);
+      rotate(u[1], ur[1]);
+      rotate(n, nr);
+      const double rho[2] = {exp(r(gen)), exp(r(gen))}, p[2] = {exp(r(gen)), exp(r(gen))};
+      VectorDbl<nVar> dw[2], pa[2], pb[2];
+      for (size_t v = 0; v < nVar; ++v) {
+        dw[0](v) = r(gen);
+        pa[0](v) = r(gen);
+        pb[0](v) = r(gen);
+      }
+      double m[3][3], mr[3][3];
+      for (size_t d = 0; d < nDim; ++d) {
+        m[0][d] = dw[0](d + 1)[0];
+        m[1][d] = pa[0](d + 1)[0];
+        m[2][d] = pb[0](d + 1)[0];
+      }
+      for (int a = 0; a < 3; ++a) rotate(m[a], mr[a]);
+      dw[1] = dw[0];
+      pa[1] = pa[0];
+      pb[1] = pb[0];
+      for (size_t d = 0; d < nDim; ++d) {
+        dw[1](d + 1) = mr[0][d];
+        pa[1](d + 1) = mr[1][d];
+        pb[1](d + 1) = mr[2][d];
+      }
+      Double phi[2][8], tau[2][2];
+      for (int side = 0; side < 2; ++side) {
+        CPair<CCompressiblePrimitives<nDim, nDim + 4>> V;
+        V.i = TeCNOAdjointChecks::Primitives<nDim>(rho[0], side ? ur[0] : u[0], p[0]);
+        V.j = TeCNOAdjointChecks::Primitives<nDim>(rho[1], side ? ur[1] : u[1], p[1]);
+        VectorDbl<nDim> unit;
+        for (size_t d = 0; d < nDim; ++d) unit(d) = side ? nr[d] : n[d];
+        const auto avg = roeAveragedVariables(Double(TeCNOAdjointChecks::GAMMA), V, unit);
+        VectorDbl<nVar> q, q_i, q_k;
+        tecnoAdjointEdgeVA(Double(TeCNOAdjointChecks::GAMMA), avg, unit, Double(1.0), Double(1.0), Double(1.0),
+                           Double(0.5), dw[side], pa[side], pb[side], V.i, V.j, 1.0, 0.0, q, q_i, q_k, phi[side],
+                           nullptr, tau[side]);
+      }
+      for (int a = 0; a < 8; ++a) worstPhi = std::max(worstPhi, fabs(phi[1][a][0] - phi[0][a][0]));
+      for (int a = 0; a < 2; ++a) worstTau = std::max(worstTau, fabs(tau[1][a][0] - tau[0][a][0]) / tau[0][a][0]);
+    }
+    INFO("nDim " << nDim << ": rotation, max |dphi| " << worstPhi << ", max |dtau|/tau " << worstTau);
+    CHECK(worstPhi < 1e-10);
+    CHECK(worstTau < 1e-12);
+  }
+}
+}  // namespace
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_VA: Theorem A1 and conservation with the per-edge-end limiter", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  EdgeEntropyVAEntropyCase<2>();
+  EdgeEntropyVAEntropyCase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_VA: phi = 1 for linear data and zero fields, Phi = I, range of L4", "[P1Flux]") {
+  EdgeEntropyVAPropertiesCase<2>();
+  EdgeEntropyVAPropertiesCase<3>();
+  /*--- L4: phi alpha = Delta g(t), t = alpha / Delta, g = t(1+t)/(1+t^2) in [(1-sqrt2)/2, (1+sqrt2)/2] (tau = 0). ---*/
+  double gMin = 1e300, gMax = -1e300;
+  for (int k = -40000; k <= 40000; ++k) {
+    const double t = k / 1000.0;
+    const double g = t * TeCNOAdjoint::EdgeVanAlbada(1.0, t, t * t, 0.0);
+    gMin = std::min(gMin, g);
+    gMax = std::max(gMax, g);
+  }
+  INFO("L4 range [" << gMin << ", " << gMax << "]");
+  CHECK(fabs(gMin - 0.5 * (1.0 - sqrt(2.0))) < 1e-6);
+  CHECK(fabs(gMax - 0.5 * (1.0 + sqrt(2.0))) < 1e-6);
+
+  /*--- L3: smooth through Delta = alpha = 0 with tau > 0: phi(h d, h a) = 1 - h^2 (a^2 - a d)/tau + O(h^4), so the
+   * deviation from 1 falls by 100 when h falls by 10, for any direction (d, a). ---*/
+  const double tau = 1e-30;
+  double worstRatio = 0.0;
+  for (int k = 0; k < 16; ++k) {
+    const double d = cos(0.4 * k), a = 1.7 * sin(0.4 * k + 0.3);
+    if (fabs(a * a - a * d) < 1e-3) continue;
+    auto dev = [&](double h) {
+      const double D = h * d, A = h * a;
+      return 1.0 - TeCNOAdjoint::EdgeVanAlbada(D * D, A * D, A * A, tau);
+    };
+    const double h1 = 1e-3 * sqrt(tau), h2 = 1e-4 * sqrt(tau);
+    const double expected = h1 * h1 * (a * a - a * d) / tau;
+    worstRatio = std::max(worstRatio, fabs(dev(h1) / expected - 1.0));
+    worstRatio = std::max(worstRatio, fabs(dev(h1) / dev(h2) / 100.0 - 1.0));
+  }
+  INFO("L3 smoothness at the origin, worst relative deviation " << worstRatio);
+  CHECK(worstRatio < 1e-3);
+}
+
 TEST_CASE("EDGE_FORM_EC_EXACT_JACOBIAN: exact Ismail-Roe Jacobian and dw/dU against finite differences", "[P1Flux]") {
   std::mt19937 gen(3);
   double far2 = 0.0, near2 = 0.0, far3 = 0.0, near3 = 0.0, equal = 0.0, hessian = 0.0;

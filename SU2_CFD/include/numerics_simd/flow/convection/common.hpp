@@ -31,6 +31,7 @@
 #include "../../util.hpp"
 #include "../variables.hpp"
 #include "../../../variables/CNSVariable.hpp"
+#include "../../../numerics/flow/tecno_adjoint.hpp"
 
 /*!
  * \brief Retrieve primitive variables for points i/j, reconstructing them if needed.
@@ -564,6 +565,161 @@ FORCEINLINE VectorDbl<nDim+2> tecnoDissipation(const Double& gamma, const CRoeVa
   q(nDim+1) = (coefM + coefP) * enthalpy + (coefP - coefM) * un * c + coef0 * halfSqVel +
               coefS * dot(avg.velocity, yS);
   return q;
+}
+
+/*!
+ * \brief The second half of tecnoDissipation for given characteristic entropy variables y = R^T v (TECNO_ADJOINT_LIMITER):
+ *        q = R c, c_j = scale lam_j T_j y_j. With y the projection of v it equals tecnoDissipation(v) up to roundoff;
+ *        per-field weights phi_j y_j give B^T q = R Phi R^-1 q of the per-edge-end limiter (P1_TECNO_ADJ_LIMITER.md, L1).
+ * \param[in] yS - Shear amplitudes, tangent to the unit normal.
+ */
+template<size_t nDim>
+FORCEINLINE VectorDbl<nDim+2> tecnoDissipationFromY(const Double& gamma, const CRoeVariables<nDim>& avg,
+                                                    const VectorDbl<nDim>& unitNormal, const Double& lamM,
+                                                    const Double& lam0, const Double& lamP, const Double& scale,
+                                                    const Double& yM, const Double& y0, const VectorDbl<nDim>& yS,
+                                                    const Double& yP) {
+  const Double& c = avg.speedSound;
+  const Double& un = avg.projVel;
+  const Double& enthalpy = avg.enthalpy;
+  const Double halfSqVel = 0.5 * squaredNorm(avg.velocity);
+
+  const Double coefM = scale * lamM * avg.density / (2.0 * gamma) * yM;
+  const Double coef0 = scale * lam0 * avg.density * (gamma - 1.0) / gamma * y0;
+  const Double coefP = scale * lamP * avg.density / (2.0 * gamma) * yP;
+  const Double coefS = scale * lam0 * avg.density * c * c / gamma;
+
+  VectorDbl<nDim+2> q;
+  q(0) = coefM + coef0 + coefP;
+  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+    q(iDim+1) = (coefM + coef0 + coefP) * avg.velocity(iDim) + (coefP - coefM) * c * unitNormal(iDim) +
+                coefS * yS(iDim);
+  }
+  q(nDim+1) = (coefM + coefP) * enthalpy + (coefP - coefM) * un * c + coef0 * halfSqVel +
+              coefS * dot(avg.velocity, yS);
+  return q;
+}
+
+/*!
+ * \brief Characteristic entropy variables y = R^T v of tecnoDissipation: acoustic (u.n -+ c), entropy (u.n), shear
+ *        (the tangent vector P(v_m + u v_E)), the projection of CUpwindBase::tecnoFlux.
+ */
+template<size_t nDim>
+FORCEINLINE void tecnoProject(const CRoeVariables<nDim>& avg, const VectorDbl<nDim>& unitNormal,
+                              const VectorDbl<nDim+2>& v, Double& yM, Double& y0, VectorDbl<nDim>& yS, Double& yP) {
+  const Double& c = avg.speedSound;
+  const Double& un = avg.projVel;
+  const Double& enthalpy = avg.enthalpy;
+  const Double halfSqVel = 0.5 * squaredNorm(avg.velocity);
+  Double uv = 0.0, nv = 0.0, nq = 0.0;
+  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+    uv += avg.velocity(iDim) * v(iDim+1);
+    nv += unitNormal(iDim) * v(iDim+1);
+    yS(iDim) = v(iDim+1) + avg.velocity(iDim) * v(nDim+1);
+    nq += unitNormal(iDim) * yS(iDim);
+  }
+  for (size_t iDim = 0; iDim < nDim; ++iDim) yS(iDim) -= nq * unitNormal(iDim);
+  yM = v(0) + uv - c * nv + (enthalpy - un * c) * v(nDim+1);
+  y0 = v(0) + uv + halfSqVel * v(nDim+1);
+  yP = v(0) + uv + c * nv + (enthalpy + un * c) * v(nDim+1);
+}
+
+/*!
+ * \brief TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_VA on one edge (P1_TECNO_ADJ_LIMITER.md): with dy = R^T dw, s_a = R^T p_a,
+ *        p_a = G_a w . e, one phi per end and field (TeCNOAdjoint::EdgeVanAlbada on alpha = rho((1-kappa) s + kappa dy),
+ *        the shear block as one field, tau_j = (eps S_j)^2, S_j a rotation invariant bound of the terms of y_j(w),
+ *        max of the two nodes, > 0), R^T L = (1 - rho kappa) dy - 1/2 rho (1-kappa)(Phi_i s_i + Phi_k s_k), and
+ *        q = R c (the Delta part), q_a = R Phi_a c = B_a^T q (the gradient part of end a), c the amplitudes of R^T L.
+ * \param[out] phi - Optional, the 8 values (M, 0, S, P of end i, then of end k).
+ * \param[out] yL - Optional, R^T L: (M, 0, P, then the nDim shear components).
+ * \param[out] tau - Optional, the guards of the scalar fields and of the shear block.
+ */
+template<size_t nDim, class PrimVarType>
+FORCEINLINE void tecnoAdjointEdgeVA(const Double& gamma, const CRoeVariables<nDim>& avg,
+                                    const VectorDbl<nDim>& unitNormal, const Double& lamM, const Double& lam0,
+                                    const Double& lamP, const Double& scale, const VectorDbl<nDim+2>& dw,
+                                    const VectorDbl<nDim+2>& p_i, const VectorDbl<nDim+2>& p_j,
+                                    const PrimVarType& V_i, const PrimVarType& V_j, su2double ramp, su2double kappa,
+                                    VectorDbl<nDim+2>& q, VectorDbl<nDim+2>& q_i, VectorDbl<nDim+2>& q_j,
+                                    Double* phi = nullptr, Double* yL = nullptr, Double* tau = nullptr) {
+  const Double& c = avg.speedSound;
+  const Double& enthalpy = avg.enthalpy;
+
+  Double dM, d0, dP, sM_i, s0_i, sP_i, sM_j, s0_j, sP_j;
+  VectorDbl<nDim> dS, sS_i, sS_j;
+  tecnoProject(avg, unitNormal, dw, dM, d0, dS, dP);
+  tecnoProject(avg, unitNormal, p_i, sM_i, s0_i, sS_i, sP_i);
+  tecnoProject(avg, unitNormal, p_j, sM_j, s0_j, sS_j, sP_j);
+
+  /*--- Roundoff floor (P1_TECNO_ADJ_LIMITER.md, guard): rotation invariant bounds of the terms that form y from the
+   * nodal w, |w_0| + (|u| + c)|w_m| + (H + |u| c)|w_E| for the scalar fields (dimensionless) and |w_m| + (|u| + c)|w_E|
+   * for the shear block (units of w_m), max of the two nodes. Both are > 0 (|w_E| = rho/p), so tau > 0 always. ---*/
+  const Double sqVel = squaredNorm(avg.velocity);
+  const Double speed = sqrt(sqVel);
+  Double SA = 0.0, SS = 0.0;
+  auto scaleOf = [&](const PrimVarType& V) {
+    const Double beta = V.density() / V.pressure();
+    const Double s = log(V.pressure()) - gamma * log(V.density());
+    Double sq = 0.0;
+    for (size_t iDim = 0; iDim < nDim; ++iDim) sq += pow(V.velocity(iDim), 2);
+    const Double w0 = abs((gamma - s) / (gamma - 1.0) - 0.5 * beta * sq);
+    const Double wm = beta * sqrt(sq);
+    SA = fmax(SA, w0 + (speed + c) * wm + (enthalpy + speed * c) * beta);
+    SS = fmax(SS, wm + (speed + c) * beta);
+  };
+  scaleOf(V_i);
+  scaleOf(V_j);
+  const su2double eps = std::numeric_limits<su2double>::epsilon();
+  const Double tauA = pow(eps * SA, 2), tauS = pow(eps * SS, 2);
+  const Double& tauM = tauA;
+  const Double& tau0 = tauA;
+  const Double& tauP = tauA;
+  if (tau) {
+    tau[0] = tauA;
+    tau[1] = tauS;
+  }
+
+  const su2double slopeGrad = ramp * (1.0 - kappa), slopeDelta = ramp * kappa;
+  auto phiScalar = [&](const Double& d, const Double& s, const Double& guard) {
+    const Double a = slopeGrad * s + slopeDelta * d;
+    return TeCNOAdjoint::EdgeVanAlbada<Double>(d * d, a * d, a * a, guard);
+  };
+  auto phiShear = [&](const VectorDbl<nDim>& s) {
+    Double dd = 0.0, ad = 0.0, aa = 0.0;
+    for (size_t iDim = 0; iDim < nDim; ++iDim) {
+      const Double a = slopeGrad * s(iDim) + slopeDelta * dS(iDim);
+      dd += dS(iDim) * dS(iDim);
+      ad += a * dS(iDim);
+      aa += a * a;
+    }
+    return TeCNOAdjoint::EdgeVanAlbada<Double>(dd, ad, aa, tauS);
+  };
+  const Double phiM_i = phiScalar(dM, sM_i, tauM), phi0_i = phiScalar(d0, s0_i, tau0), phiP_i = phiScalar(dP, sP_i, tauP);
+  const Double phiM_j = phiScalar(dM, sM_j, tauM), phi0_j = phiScalar(d0, s0_j, tau0), phiP_j = phiScalar(dP, sP_j, tauP);
+  const Double phiS_i = phiShear(sS_i), phiS_j = phiShear(sS_j);
+  if (phi) {
+    phi[0] = phiM_i; phi[1] = phi0_i; phi[2] = phiS_i; phi[3] = phiP_i;
+    phi[4] = phiM_j; phi[5] = phi0_j; phi[6] = phiS_j; phi[7] = phiP_j;
+  }
+
+  const su2double coefDelta = 1.0 - ramp * kappa;
+  const su2double coefGrad = 0.5 * ramp * (1.0 - kappa);
+  const Double LM = coefDelta * dM - coefGrad * (phiM_i * sM_i + phiM_j * sM_j);
+  const Double L0 = coefDelta * d0 - coefGrad * (phi0_i * s0_i + phi0_j * s0_j);
+  const Double LP = coefDelta * dP - coefGrad * (phiP_i * sP_i + phiP_j * sP_j);
+  VectorDbl<nDim> LS, LS_i, LS_j;
+  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+    LS(iDim) = coefDelta * dS(iDim) - coefGrad * (phiS_i * sS_i(iDim) + phiS_j * sS_j(iDim));
+    LS_i(iDim) = phiS_i * LS(iDim);
+    LS_j(iDim) = phiS_j * LS(iDim);
+  }
+  if (yL) {
+    yL[0] = LM; yL[1] = L0; yL[2] = LP;
+    for (size_t iDim = 0; iDim < nDim; ++iDim) yL[3 + iDim] = LS(iDim);
+  }
+  q = tecnoDissipationFromY(gamma, avg, unitNormal, lamM, lam0, lamP, scale, LM, L0, LS, LP);
+  q_i = tecnoDissipationFromY(gamma, avg, unitNormal, lamM, lam0, lamP, scale, phiM_i * LM, phi0_i * L0, LS_i, phiP_i * LP);
+  q_j = tecnoDissipationFromY(gamma, avg, unitNormal, lamM, lam0, lamP, scale, phiM_j * LM, phi0_j * L0, LS_j, phiP_j * LP);
 }
 
 /*!

@@ -875,6 +875,18 @@ static const MapType<std::string, TECNO_ADJ_GRADIENT> TeCNO_Adj_Gradient_Map = {
 };
 
 /*!
+ * \brief Per-edge-end limiter of the dissipation of EDGE_FORM_TECNO_ADJOINT (TECNO_ADJOINT_LIMITER).
+ */
+enum class TECNO_ADJ_LIMITER {
+  NONE,            /*!< \brief No per-edge limiter (default; the nodal EDGE_FORM_TECNO_ADJOINT_LIMITER is separate). */
+  EDGE_ENTROPY_VA, /*!< \brief Van Albada algebra per edge end and characteristic entropy field, unclipped. */
+};
+static const MapType<std::string, TECNO_ADJ_LIMITER> TeCNO_Adj_Limiter_Map = {
+  MakePair("NONE", TECNO_ADJ_LIMITER::NONE)
+  MakePair("EDGE_ENTROPY_VA", TECNO_ADJ_LIMITER::EDGE_ENTROPY_VA)
+};
+
+/*!
  * \brief types of mass diffusivity models
  */
 enum class DIFFUSIVITYMODEL {

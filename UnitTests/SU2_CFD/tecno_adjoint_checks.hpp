@@ -240,6 +240,119 @@ EntropyResult EntropyCheck(const Geometry& geometry, unsigned long nPoint, int n
   return res;
 }
 
+/*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_VA: the edge function of the kernel (tecnoAdjointEdgeVA) on every edge, the
+ * Delta part scattered as in the edge loop, the per-end B^T q through NodalMomentEnds and the transpose of the solver.
+ * Theorem A1 with the state-dependent per-edge-end Phi: sum_m w_m.R_m = sum_e L_e^T D_e L_e, the right side from R^T L
+ * and the amplitudes (L^T q = (R^T L).c). Serial. ---*/
+struct EntropyVAResult {
+  double identity = 0.0, production = -1e300, conservation = 0.0;
+  double phiMin = 1e300, phiMax = -1e300; /*!< \brief Range of the limiter values (unclipped). */
+};
+
+template <size_t nDim, class Geometry>
+EntropyVAResult EntropyCheckVA(const Geometry& geometry, unsigned long nPoint, int nTrials, unsigned seed,
+                               const P1Average* p1 = nullptr) {
+  constexpr size_t nVar = nDim + 2;
+  std::mt19937 gen(seed);
+  EntropyVAResult res;
+  for (int t = 0; t < nTrials; ++t) {
+    const auto S = RandomStates(nPoint, nDim, gen, (t % 2) ? 0.3 : 2.0);
+    const bool projected = (t % 2);
+    const double ramp = (t % 3 == 0) ? 0.6 : 1.0, kappa = (t % 4 == 1) ? 1.0 / 3.0 : 0.0;
+    const auto w = EntropyField(S, nDim);
+    CVectorOfMatrix grad(nPoint, nVar, nDim, 0.0);
+    if (p1) {
+      TeCNOAdjoint::GradientP1(geometry, nDim, nVar, p1->weights, p1->volume, w, grad);
+    } else {
+      TeCNOAdjoint::Gradient(geometry, nDim, nVar, w, grad);
+    }
+    su2activematrix Q(geometry.GetnEdge(), 2 * nVar), R(nPoint, nVar);
+    R = su2double(0.0);
+    double sumLDL = 0.0;
+    const double coefDelta = 1.0 - ramp * kappa;
+    for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+      const auto i = geometry.edges->GetNode(e, 0), k = geometry.edges->GetNode(e, 1);
+      const auto* n = geometry.edges->GetNormal(e);
+      double edge[3] = {0.0}, e2 = 0.0, ne = 0.0;
+      for (size_t d = 0; d < nDim; ++d) {
+        edge[d] = geometry.nodes->GetCoord(k)[d] - geometry.nodes->GetCoord(i)[d];
+        e2 += edge[d] * edge[d];
+        ne += n[d] * edge[d];
+      }
+      double nu[3] = {0.0}, area = 0.0;
+      for (size_t d = 0; d < nDim; ++d) {
+        nu[d] = projected ? ne / e2 * edge[d] : n[d];
+        area += nu[d] * nu[d];
+      }
+      area = sqrt(area);
+      VectorDbl<nDim> unit;
+      for (size_t d = 0; d < nDim; ++d) unit(d) = nu[d] / area;
+      CPair<CCompressiblePrimitives<nDim, nDim + 4>> V;
+      V.i = Primitives<nDim>(S.rho[i], S.u[i].data(), S.p[i]);
+      V.j = Primitives<nDim>(S.rho[k], S.u[k].data(), S.p[k]);
+      const auto avg = roeAveragedVariables(Double(GAMMA), V, unit);
+      const Double lamMin = 0.001 * (abs(avg.projVel) + avg.speedSound);
+      const Double lamM = fmax(abs(avg.projVel - avg.speedSound), lamMin);
+      const Double lam0 = fmax(abs(avg.projVel), lamMin);
+      const Double lamP = fmax(abs(avg.projVel + avg.speedSound), lamMin);
+      const Double scale = 0.5 * area;
+      VectorDbl<nVar> dw, p_i, p_k, q, q_i, q_k;
+      for (size_t v = 0; v < nVar; ++v) {
+        dw(v) = w(k, v) - w(i, v);
+        p_i(v) = 0.0;
+        p_k(v) = 0.0;
+        for (size_t d = 0; d < nDim; ++d) {
+          p_i(v) += grad(i, v, d) * edge[d];
+          p_k(v) += grad(k, v, d) * edge[d];
+        }
+      }
+      Double phi[8], yL[nDim + 3];
+      tecnoAdjointEdgeVA(Double(GAMMA), avg, unit, lamM, lam0, lamP, scale, dw, p_i, p_k, V.i, V.j, ramp, kappa, q, q_i,
+                         q_k, phi, yL);
+      for (int a = 0; a < 8; ++a) {
+        res.phiMin = std::min(res.phiMin, phi[a][0]);
+        res.phiMax = std::max(res.phiMax, phi[a][0]);
+      }
+      /*--- L^T D L = (R^T L).c, c the amplitudes of tecnoDissipationFromY. ---*/
+      const double rho = avg.density[0], c = avg.speedSound[0], sc = scale[0];
+      double ldl = sc * lamM[0] * rho / (2.0 * GAMMA) * yL[0][0] * yL[0][0] +
+                   sc * lam0[0] * rho * (GAMMA - 1.0) / GAMMA * yL[1][0] * yL[1][0] +
+                   sc * lamP[0] * rho / (2.0 * GAMMA) * yL[2][0] * yL[2][0];
+      for (size_t d = 0; d < nDim; ++d) ldl += sc * lam0[0] * rho * c * c / GAMMA * yL[3 + d][0] * yL[3 + d][0];
+      sumLDL += ldl;
+      for (size_t v = 0; v < nVar; ++v) {
+        R(i, v) -= coefDelta * q(v)[0];
+        R(k, v) += coefDelta * q(v)[0];
+        Q(e, v) = q_i(v)[0];
+        Q(e, nVar + v) = q_k(v)[0];
+      }
+    }
+    CVectorOfMatrix Y(nPoint, nVar, nDim, 0.0);
+    const su2double gam = TeCNOAdjoint::GradientCoefficient(ramp, kappa);
+    if (p1) {
+      TeCNOAdjoint::NodalMomentEnds(geometry, nDim, nVar, Q, p1->volume, Y);
+      TeCNOAdjoint::AddTransposeP1(geometry, nDim, nVar, p1->weights, Y, gam, R);
+    } else {
+      auto volume = [&](unsigned long iPoint) { return geometry.nodes->GetVolume(iPoint); };
+      TeCNOAdjoint::NodalMomentEnds(geometry, nDim, nVar, Q, volume, Y);
+      TeCNOAdjoint::AddTranspose(geometry, nDim, nVar, Y, gam, R);
+    }
+    double wR = 0.0, absWR = 0.0, maxR = 0.0, cons[nVar] = {0.0};
+    for (auto i = 0ul; i < nPoint; ++i) {
+      for (size_t v = 0; v < nVar; ++v) {
+        wR += w(i, v) * R(i, v);
+        absWR += fabs(w(i, v) * R(i, v));
+        maxR = std::max(maxR, fabs(R(i, v)));
+        cons[v] += R(i, v);
+      }
+    }
+    res.identity = std::max(res.identity, fabs(wR - sumLDL) / absWR);
+    res.production = std::max(res.production, -sumLDL / absWR);
+    for (size_t v = 0; v < nVar; ++v) res.conservation = std::max(res.conservation, fabs(cons[v]) / maxR);
+  }
+  return res;
+}
+
 /*--- Linearization with frozen data: symmetry, PSD, and the Lemma A4 majorant 2 M# - C^T D C >= 0. ---*/
 struct LinearizationResult {
   double asymmetry = 0.0;   /*!< \brief |A - A^T| / |A|. */
