@@ -111,3 +111,19 @@ At2527.1s all10HOST handles live,all1520pins unchanged,treeRSS10.753GB,hostavail
 ~32.1GB,owned VmSwap0,memory PSI avg10/60zero(some avg300.06). Worker runqueue wait
 ~25.8–29.5s since initial sample;CPU includes MPIspin. No matched251scheduler record
 proves timing causality. Full253LIVE/FROZEN;no acceptance or later geometry closure.
+
+
+Twenty-window snapshot33152/census34:990530cells/32031q/28869J/1156geometry/0size,
+ALL complete flags,EXACT251. Same45458commits/691887upper calls;net74423q/77335J/
+225geometry removed. Quality2438.908721vs2579.014368s;net q/s30.514877vs28.857148,
+J31.708854vs29.986262. Observed lead140.105647s has narrowed from prior windows;
+no causal/final closure claim. Upper1111190322→1028151819(−7.4729%). Boundary
+377367candidates/16145moves in both,summed seconds2105.805401→1946.489102;interior
+266921/34488,153.993901→155.575497. Timers overlap;join-call share.404817→.383512
+is not CPU idle. Seven ownership publications preserve complete counts/flags.
+At3287.6s all10HOST handles live,all1520pins unchanged,treeRSS10.777GB,hostavailable
+~31.4GB,owned VmSwap0,memory PSI avg10/60zero. CPU PSI some9.80/6.82/7.20;worker
+runqueue wait~65.4–69.1s since initial sample (up~40s/rank since13window sample).
+This establishes increased contention within253;no matched251scheduler data
+establishes causal timing differences. Full253LIVE/FROZEN;no accepted mesh or
+later geometry closure. Preserve same gates/budgets and complete the attempt.

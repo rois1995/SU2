@@ -55,25 +55,25 @@ Current first quality entry31898EXACT251:878443cells/106454q/106204J/1381geometr
 0size,ALL measured/complete flags. Construction120785commits/52092upper queries
 same;upper work271243211→246122779(−9.2612%),native677.653607→645.622059s.
 A253/quality_entry_comparison251.json.
-THIRTEEN quality windows through32704/census27EXACT251:958775cells/53409q/51736J/
-1188geometry/0size,ALL complete flags. Net53045q/54468J/193geometry removed.
-Quality1688.661406vs1850.882429s;net q/s31.412455vs28.659303,J32.255134vs29.428125.
-Observational gain persists;NOT a causal/final closure claim. Same29387commits/
-410337upper calls;upper817867345→754758170(−7.7163%). Boundary218656candidates/
-9507moves in BOTH;1442.650358→1294.214495SUMMED-rank seconds;interior168426/21914,
-98.652096→97.272613. Timers overlap,not additive. Join-call share.416977→.400865
-is NOT CPU idle. SEVEN complete ownership publications (including construction)
-retain whole-field counts/flags:A253/ownership_census_integrity.json;not individual
-row/dependency identity proof. qlocation48325interior/5084surface,J43915/7821;
-stuckshape0,missing features0,private tracked collectives0. Interior may share
-boundary vertices. A253/quality_comparison251.json,quality_counter_assessment.json,
+TWENTY quality windows through33152/census34EXACT251:990530cells/32031q/28869J/
+1156geometry/0size,ALL complete flags. Net74423q/77335J/225geometry removed.
+Quality2438.908721vs2579.014368s;net q/s30.514877vs28.857148,J31.708854vs29.986262.
+Observed lead140.105647s,narrower than at13/18windows;NOT causal/final closure proof.
+Same45458commits/691887upper calls;upper1111190322→1028151819(−7.4729%). Boundary
+377367candidates/16145moves in BOTH;2105.805401→1946.489102SUMMED-rank seconds;
+interior266921/34488,153.993901→155.575497. Timers overlap,not additive. Join-call
+share.404817→.383512is NOT CPU idle. SEVEN complete ownership publications,
+including construction,preserve counts/flags:A253/ownership_census_integrity.json;
+not individual row/dependency identity proof. qlocation29238interior/2793surface,
+J24276/4593;stuckshape6,missing features0,private tracked collectives0. Interior may
+share boundary vertices. A253/quality_comparison251.json,quality_counter_assessment.json,
 quality_progress.json and parser provenance preserve complete raw-prefix hashes.
-At2527.1s all10HOST handles live,ALL1520pins unchanged,treeRSS10.753GB,hostavailable
-~32.1GB,owned VmSwap0,memory PSI avg10/60zero(some avg300.06). Worker runqueue wait
-~25.8–29.5s since initial sample over2527s;CPU includes MPIspin. CPU PSI some
-2.19/1.73/1.96;no matched251scheduler record establishes causality. A253/
-quality_window13_live_observation.json. RSS is not whole-job physical peak.
-Keep full run FROZEN until outcome/preserved authorized-stop evidence.
+At3287.6s all10HOST handles live,ALL1520pins unchanged,treeRSS10.777GB,hostavailable
+~31.4GB,owned VmSwap0,memory PSI avg10/60zero(some avg300.05). CPU PSI some
+9.80/6.82/7.20;worker runqueue wait~65.4–69.1s since initial sample,up~40s/rank
+since13window sample over760s. CPU includes MPIspin;no matched251scheduler record
+establishes timing causality. A253/quality_window20_live_observation.json. RSS is
+not whole-job physical peak. Keep full run FROZEN until outcome/preserved authorized-stop evidence.
 
 ## Qualified active change and diagnosis
 
