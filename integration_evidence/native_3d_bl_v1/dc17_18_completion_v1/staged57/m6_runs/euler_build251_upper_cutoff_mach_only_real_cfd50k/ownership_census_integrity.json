@@ -1,6 +1,6 @@
 {
-  "time": 1794075788.8367589,
-  "scope": "Actual complete-census ownership publications preserve whole-field measured counts and flags. Rank debt spread is descriptive,not acceptance or complete phase-mode proof.",
+  "time": 1794076374.3238618,
+  "scope": "Actual complete-census ownership publications preserve whole-field measured counts and flags. Rank debt spread descriptive,not acceptance or complete phase-mode proof.",
   "pairs": [
     {
       "round": 32000,
@@ -119,32 +119,150 @@
         "q_max_mean": 1.1876349920453468,
         "debt_max_mean": 1.113256928377627
       }
+    },
+    {
+      "round": 32128,
+      "counts_preserved": {
+        "cells": 903481,
+        "measured": 903481,
+        "q_measured": 903481,
+        "j_measured": 903481,
+        "q_bad": 90673,
+        "j_bad": 90387,
+        "geometry_bad": 1272,
+        "size_bad": 0
+      },
+      "complete_flags": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": true,
+        "geometry_complete": true
+      },
+      "before": {
+        "rank_q_bad": [
+          15637,
+          16685,
+          18249,
+          12467,
+          14237,
+          13398
+        ],
+        "rank_shape_debt": [
+          4120.49951593454,
+          4590.440490025401,
+          5205.78938431037,
+          3552.6637080763094,
+          4542.297422573416,
+          4322.654106020602
+        ],
+        "q_max_mean": 1.207570059444377,
+        "debt_max_mean": 1.1860836769755179
+      },
+      "after": {
+        "rank_q_bad": [
+          14377,
+          18083,
+          17555,
+          12322,
+          13749,
+          14587
+        ],
+        "rank_shape_debt": [
+          4009.145983800981,
+          4949.202289902681,
+          4988.359748664981,
+          3520.8963382881752,
+          4251.245716393741,
+          4615.494549890078
+        ],
+        "q_max_mean": 1.1965855326282355,
+        "debt_max_mean": 1.1365446498095362
+      }
+    },
+    {
+      "round": 32192,
+      "counts_preserved": {
+        "cells": 911472,
+        "measured": 911472,
+        "q_measured": 911472,
+        "j_measured": 911472,
+        "q_bad": 85596,
+        "j_bad": 84995,
+        "geometry_bad": 1253,
+        "size_bad": 0
+      },
+      "complete_flags": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": true,
+        "geometry_complete": true
+      },
+      "before": {
+        "rank_q_bad": [
+          13496,
+          17126,
+          16593,
+          11671,
+          13176,
+          13534
+        ],
+        "rank_shape_debt": [
+          3265.0160063912354,
+          4144.6425734034265,
+          4203.829529849967,
+          2891.424704904156,
+          3617.6672543520162,
+          3633.8531840551486
+        ],
+        "q_max_mean": 1.200476657787747,
+        "debt_max_mean": 1.1593342017893888
+      },
+      "after": {
+        "rank_q_bad": [
+          14226,
+          15565,
+          15431,
+          12322,
+          14472,
+          13580
+        ],
+        "rank_shape_debt": [
+          3435.7136821870427,
+          3808.328738697309,
+          3872.745334858303,
+          3245.022764798181,
+          3673.891453622461,
+          3720.731278792653
+        ],
+        "q_max_mean": 1.0910556568063927,
+        "debt_max_mean": 1.068027637572109
+      }
     }
   ],
   "source_prefixes": {
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
-      "bytes": 431586,
-      "sha256": "c0b70b07afa05e48d68a1877bdf3821840798d48cce5df0c5a0977ac6e53ce2e"
+      "bytes": 473995,
+      "sha256": "8408d76b0554a1837cc3b33ebae4762a647e2967d4421d47d7d1cf4c12f81c32"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
-      "bytes": 408266,
-      "sha256": "5bf65214cb7d31b3d534827d5f1e7c7f78629fa3a8a2a13f1a10c9b20f73877f"
+      "bytes": 450721,
+      "sha256": "3cb82efc585e2acddd24922023bef69e252e651389b4a5ca0d29a5158e228881"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
-      "bytes": 407824,
-      "sha256": "69a5daaea1a4b691f3e7dc00cb7b835bdad631c1195ebada586d76b802eedf5b"
+      "bytes": 450025,
+      "sha256": "fbd5b4ba2a47d20c112c875ab7b7abc3b97b0b3790f55d96e6c2cac802b18ef5"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
-      "bytes": 408137,
-      "sha256": "c5457527ba6a45c41bb39462031d29dcf8064d5f684c3e6676476d716ccf8c18"
+      "bytes": 450451,
+      "sha256": "3495b0f18b1b357fb7029806379e5c1034c0da3cbe76fac0c6b28c016d198b7c"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
-      "bytes": 408820,
-      "sha256": "79dfd14b21a221bca9b4171927ec33e7b480fe96bdb04d3f80c9bf7238573504"
+      "bytes": 451208,
+      "sha256": "1cccdff93c19f2be3e16c6a8777e27dbd813a45b736e4ee167f23b28225ef122"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
-      "bytes": 407753,
-      "sha256": "73dfbdb9350eb8700f3ffa009fa5b69040c561d730c70725db5a2ab499b9428c"
+      "bytes": 449954,
+      "sha256": "6a95591abd9a1816512fd96b7825721def6ae50df721a9950502bca3b438543f"
     }
   }
 }

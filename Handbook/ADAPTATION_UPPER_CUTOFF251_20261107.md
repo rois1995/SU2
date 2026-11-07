@@ -79,3 +79,17 @@ q/s30.51020vs30.05523observational. Cumulative quality upper work174312520→172
 whole-field measurement/flags;latest debt max/mean1.16414→1.11326. None establishes
 acceptance. Full251continues LIVE/FROZEN. Host full swap has no active pressure:
 owned VmSwap0,0swap-out/9swap-in pages over108.93s,PSI averages0.00.
+
+Six-window snapshot32256/census16,quality992.290793s(vs2471009.698319):
+918431cells/80763q/80098J/1239geometry/0size,ALL flags complete. Same counts,
+13595commits and churn as247;net25691q/26106J/142geometry removed.
+Cumulative quality upper506685602→500018875(-1.3158%),same188700queries.
+Net q/s25.89060vs25.44423observational;no causal whole-run or acceptance claim.
+FOUR ownership publications preserve complete whole-field measured counts/flags.
+Boundary kernels90740candidates/4083moves in both,838.050232→816.750316summed-rank
+seconds;interior68388/9081,39.839324→39.820345. Timers overlap other work and
+kernel debt/move gains are not published global gains. smooth_boundary_reused=0
+is recorded without diagnosing its cause before terminal. Raw existing counters
+and scope are in A251/smoothing_comparison247_census16.json.
+At1990.9s all10host handles live and all1520pins unchanged;sampled RSS10.402GB,
+PSI0.00. A251/quality_window6_live_observation.json. Full251LIVE/FROZEN.
