@@ -540,11 +540,13 @@ public:
    * \param[in] nDim - Number of physical dimensions.
    * \param[in,out] primitive - Primitive variables.
    * \param[out] secondary - Secondary variables.
+   * \param[in] tke - Turbulent kinetic energy included in the total enthalpy (SST), zero otherwise.
    */
   static void ComputeConsistentExtrapolation(CFluidModel *fluidModel,
                                              unsigned short nDim,
                                              su2double *primitive,
-                                             su2double *secondary);
+                                             su2double *secondary,
+                                             su2double tke = 0.0);
 
   /*!
    * \brief Apply low Mach number correction to the primitives at two points,
@@ -555,11 +557,15 @@ public:
    * \param[in] nDim - Number of physical dimensions.
    * \param[in,out] primitive_i - Primitive variables at point i.
    * \param[in,out] primitive_j - Primitive variables at point j.
+   * \param[in] tke_i - Turbulent kinetic energy included in the total enthalpy at point i (SST), zero otherwise.
+   * \param[in] tke_j - Same at point j.
    */
   static void LowMachPrimitiveCorrection(CFluidModel *fluidModel,
                                          unsigned short nDim,
                                          su2double *primitive_i,
-                                         su2double *primitive_j);
+                                         su2double *primitive_j,
+                                         su2double tke_i = 0.0,
+                                         su2double tke_j = 0.0);
 
   /*!
    * \brief Source term integration.
@@ -969,7 +975,7 @@ public:
    * a nonlinear iteration for stability.
    * \param[in] config - Definition of the particular problem.
    */
-  void ComputeUnderRelaxationFactor(const CConfig *config) final;
+  void ComputeUnderRelaxationFactor(const CConfig* config, CSolver** solver_container) final;
 
   /*!
    * \brief POSITIVE_UPDATE_FLOW: reduce the factor of each node to the positivity-preserving step length of

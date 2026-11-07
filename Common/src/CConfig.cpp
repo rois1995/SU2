@@ -2271,6 +2271,8 @@ void CConfig::SetConfig_Options() {
   addDoubleOption("LAX_SENSOR_COEFF", Kappa_1st_Flow, 0.15);
   /*!\brief USE_ACCURATE_FLUX_JACOBIANS \n DESCRIPTION: Use numerically computed Jacobians for AUSM+up(2) and SLAU(2) \ingroup Config*/
   addBoolOption("USE_ACCURATE_FLUX_JACOBIANS", Use_Accurate_Jacobians, false);
+  /*!\brief USE_EXACT_HLLC_JACOBIANS \n DESCRIPTION: Exact HLLC Jacobians with wave speeds held fixed \ingroup Config*/
+  addBoolOption("USE_EXACT_HLLC_JACOBIANS", Use_Exact_HLLC_Jacobians, false);
   /*!\brief CENTRAL_JACOBIAN_FIX_FACTOR \n DESCRIPTION: Improve the numerical properties (diagonal dominance) of the global Jacobian matrix, 3 to 4 is "optimum" (central schemes) \ingroup Config*/
   addDoubleOption("CENTRAL_JACOBIAN_FIX_FACTOR", Cent_Jac_Fix_Factor, 4.0);
   /*!\brief CENTRAL_JACOBIAN_FIX_FACTOR \n DESCRIPTION: Control numerical properties of the global Jacobian matrix using a multiplication factor for incompressible central schemes \ingroup Config*/
@@ -4832,6 +4834,36 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
 
   Rotating_Frame = (Kind_GridMovement == ROTATING_FRAME);
 
+  /*--- The finite volume flow solvers apply these source terms with a single numerics object, which is built
+   for only one of them: combinations would apply one source several times and ignore the others. Only these
+   solvers (and their discrete adjoints) are checked: e.g. elasticity uses BODY_FORCE and GRAVITY_FORCE together. ---*/
+
+  if (GetFluidProblem() && !GetNEMOProblem()) {
+    const bool inc = (Kind_Regime == ENUM_REGIME::INCOMPRESSIBLE);
+    const int nSources = int(Body_Force) + int(Rotating_Frame) + int(Axisymmetric) + int(GravityForce && !inc) +
+                         int(inc && Kind_DensityModel == INC_DENSITYMODEL::BOUSSINESQ) +
+                         int(inc && Kind_Streamwise_Periodic != ENUM_STREAMWISE_PERIODIC::NONE);
+    if (nSources > 1) {
+      SU2_MPI::Error("Only one of BODY_FORCE, GRID_MOVEMENT= ROTATING_FRAME, AXISYMMETRIC, GRAVITY_FORCE (compressible), "
+                     "INC_DENSITY_MODEL= BOUSSINESQ and KIND_STREAMWISE_PERIODIC (incompressible) can be used at a time.",
+                     CURRENT_FUNCTION);
+    }
+  }
+
+  /*--- The second source object, for radiation, the energy correction of incompressible streamwise periodic flow
+   (without periodic temperature) or vorticity confinement, is also built for only one of them. ---*/
+
+  if (GetFluidProblem() && !GetNEMOProblem()) {
+    const bool inc = (Kind_Regime == ENUM_REGIME::INCOMPRESSIBLE);
+    const bool periodicOutlet = inc && Kind_Streamwise_Periodic != ENUM_STREAMWISE_PERIODIC::NONE && Energy_Equation &&
+                                !Streamwise_Periodic_Temperature;
+    if (int(Radiation) + int(periodicOutlet) + int(VorticityConfinement) > 1) {
+      SU2_MPI::Error("Only one of RADIATION, the energy correction of KIND_STREAMWISE_PERIODIC (incompressible, "
+                     "STREAMWISE_PERIODIC_TEMPERATURE= NO) and VORTICITY_CONFINEMENT can be used at a time.",
+                     CURRENT_FUNCTION);
+    }
+  }
+
   /*--- In case the grid movement parameters have not been declared in the
    config file, set them equal to zero for safety. Also check to make sure
    that for each option, a value has been declared for each moving marker. ---*/
@@ -5191,6 +5223,11 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
 
   if (Restart || ((Kind_MGCycle == MG_CYCLE::FULL) && ContinuousAdjoint)) Kind_MGCycle = MG_CYCLE::V;
 
+  /*--- The multigrid arrays hold at most 10 coarse levels (CMultiGridIntegration::MAX_MG_LEVELS). ---*/
+  if (nMGLevels > 10) {
+    SU2_MPI::Error("MGLEVEL must be between 0 and 10; larger multigrid hierarchies are not supported.", CURRENT_FUNCTION);
+  }
+
   FinestMesh = MESH_0;
   if (Kind_MGCycle == MG_CYCLE::FULL) FinestMesh = nMGLevels;
 
@@ -5207,6 +5244,14 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       Kind_Solver == MAIN_SOLVER::NEMO_EULER ||
       Kind_Solver == MAIN_SOLVER::FEM_EULER)
     Kind_Turb_Model = TURB_MODEL::NONE;
+
+  /*--- SST has no engine or actuator-disk boundary conditions: the faces would get no turbulence flux at all.
+   Checked after the turbulence model of Euler zones is cleared (multizone). ---*/
+  if (Kind_Turb_Model == TURB_MODEL::SST &&
+      (nMarker_EngineInflow + nMarker_EngineExhaust + nMarker_ActDiskInlet + nMarker_ActDiskOutlet) > 0) {
+    SU2_MPI::Error("MARKER_ENGINE_INFLOW, MARKER_ENGINE_EXHAUST and MARKER_ACTDISK are not supported with the SST model.",
+                   CURRENT_FUNCTION);
+  }
 
   Kappa_2nd_Flow = jst_coeff[0];
   Kappa_4th_Flow = jst_coeff[1];
@@ -7300,16 +7345,12 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
                 cout << "\nperturbing the Reynold's Stress Matrix towards " << eig_val_comp << " component turbulence";
                 if (uq_permute) cout << " (permuting eigenvectors)";
                 break;
-              case SST_OPTIONS::COMP_Wilcox:
-                cout << " with compressibility correction of Wilcox";
-                break;
-              case SST_OPTIONS::COMP_Sarkar:
-                cout << " with compressibility correction of Sarkar";
-                break;
               default:
                 cout << " with no production modification";
                 break;
             }
+            if (sstParsedOptions.compWilcox) cout << ", with compressibility correction of Wilcox";
+            if (sstParsedOptions.compSarkar) cout << ", with compressibility correction of Sarkar";
 
             if (sstParsedOptions.dll){
               cout << "\nusing non dimensional lower limits relative to infinity values clipping by Coefficients:" ;

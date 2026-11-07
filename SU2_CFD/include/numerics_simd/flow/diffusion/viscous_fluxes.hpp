@@ -87,6 +87,7 @@ protected:
   const bool useSA_QCR;
   const bool wallFun;
   const bool uq;
+  const bool tkeInEnergy;
   const bool uq_permute;
   const size_t uq_eigval_comp;
   const su2double uq_delta_b;
@@ -112,6 +113,7 @@ protected:
     useSA_QCR(config.GetSAParsedOptions().qcr2000),
     wallFun(config.GetWall_Functions()),
     uq(config.GetSSTParsedOptions().uq),
+    tkeInEnergy(config.GetKind_Turb_Model() == TURB_MODEL::SST),
     uq_permute(config.GetUQ_Permute()),
     uq_eigval_comp(config.GetEig_Val_Comp()),
     uq_delta_b(config.GetUQ_Delta_B()),
@@ -329,16 +331,17 @@ public:
   /*!
    * \brief Compute Jacobian of the energy flux, except the part due to the work of viscous forces.
    */
-  template<size_t nVar, size_t nDim, class PrimitiveType, class... Ts>
-  FORCEINLINE VectorDbl<nVar> energyJacobian(const PrimitiveType& V,
-                                             const MatrixDbl<nDim,nVar>& dtau,
-                                             const Double& thermalCond,
-                                             const Double& area,
-                                             const Double& dist_ij,
-                                             Ts&... args) const {
+  template <size_t nVar, size_t nDim, class PrimitiveType, class VariableType>
+  FORCEINLINE VectorDbl<nVar> energyJacobian(const PrimitiveType& V, const MatrixDbl<nDim, nVar>& dtau,
+                                             const Double& thermalCond, const Double& area, const Double& dist_ij,
+                                             const Int& iPoint, const Int& jPoint, const VariableType&) const {
     Double vel2 = 0.5 * squaredNorm<nDim>(V.velocity());
-    Double phi = (gamma-1) / V.density();
-    Double RdTdrho = phi*vel2 - V.pressure() / pow(V.density(),2);
+    Double phi = (gamma - 1) / V.density();
+    Double tke = 0.0;
+    if (this->tkeInEnergy)
+      tke = 0.5 * (gatherVariables(iPoint, this->turbVars->GetSolution()) +
+                   gatherVariables(jPoint, this->turbVars->GetSolution()));
+    Double RdTdrho = phi * (vel2 - tke) - V.pressure() / pow(V.density(), 2);
     Double condOnRd = thermalCond / (gasConst * dist_ij);
     Double contraction = 0.0;
     for (size_t iDim = 0; iDim < nDim; ++iDim) {

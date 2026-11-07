@@ -1196,10 +1196,11 @@ public:
    * \param[in] val_normal - Normal vector, the norm of the vector is the area of the face.
    * \param[in] val_scale - Scale of the projection.
    * \param[out] val_Proj_Jac_tensor - Pointer to the projected inviscid Jacobian.
+   * \param[in] val_tke - Turbulent kinetic energy contained in the total energy (SST), held fixed.
    */
   void GetInviscidProjJac(const su2double *val_velocity, const su2double *val_energy,
                           const su2double *val_normal, su2double val_scale,
-                          su2double **val_Proj_Jac_tensor) const;
+                          su2double **val_Proj_Jac_tensor, su2double val_tke = 0.0) const;
 
   /*!
    * \brief Compute the projection of the inviscid Jacobian matrices.
@@ -1287,11 +1288,12 @@ public:
    * \param[in] val_normal - Normal vector, the norm of the vector is the area of the face.
    * \param[in] val_scale - Scale of the projection.
    * \param[out] val_Proj_Jac_tensor - Pointer to the projected inviscid Jacobian.
+   * \param[in] val_tke - Turbulent kinetic energy contained in the total energy (SST), held fixed.
    */
   void GetInviscidProjJac(const su2double *val_velocity, const su2double *val_enthalphy,
                           const su2double *val_chi, const su2double *val_kappa,
                           const su2double *val_normal, su2double val_scale,
-                          su2double **val_Proj_Jac_tensor) const;
+                          su2double **val_Proj_Jac_tensor, su2double val_tke = 0.0) const;
 
   /*!
    * \brief Mapping between primitives variables P and conservatives variables C.
@@ -1318,7 +1320,7 @@ public:
   void GetPMatrix(const su2double *val_density, const su2double *val_velocity,
                   const su2double *val_soundspeed, const su2double *val_enthalpy,
                   const su2double *val_chi, const su2double *val_kappa,
-                  const su2double *val_normal, su2double **val_p_tensor) const;
+                  const su2double *val_normal, su2double **val_p_tensor, su2double val_tke = 0.0) const;
 
   /*!
    * \brief Computation of the matrix P, this matrix diagonalize the conservative Jacobians in
@@ -1332,12 +1334,13 @@ public:
   template <typename Matrix>
   void GetPMatrix(const su2double& density, const su2double* velocity,
                   const su2double& soundspeed, const su2double* normal,
-                  Matrix& p_tensor) const {
+                  Matrix& p_tensor, su2double tke = 0.0) const {
+    /*--- With SST the total energy contains k (tke): it is added to the kinetic energy of the energy row. ---*/
     const su2double rhooc = density / soundspeed;
     const su2double rhoxc = density * soundspeed;
 
     if (nDim == 2) {
-      const su2double ke = 0.5 * GeometryToolbox::SquaredNorm(2, velocity);
+      const su2double ke = 0.5 * GeometryToolbox::SquaredNorm(2, velocity) + tke;
       const su2double projvel = GeometryToolbox::DotProduct(2, velocity, normal);
 
       p_tensor[0][0] = 1.0;
@@ -1360,7 +1363,7 @@ public:
       p_tensor[3][2] = 0.5 * (ke * rhooc + density * projvel + rhoxc / Gamma_Minus_One);
       p_tensor[3][3] = 0.5 * (ke * rhooc - density * projvel + rhoxc / Gamma_Minus_One);
     } else {
-      const su2double ke = 0.5 * GeometryToolbox::SquaredNorm(3, velocity);
+      const su2double ke = 0.5 * GeometryToolbox::SquaredNorm(3, velocity) + tke;
       const su2double projvel = GeometryToolbox::DotProduct(3, velocity, normal);
 
       p_tensor[0][0] = normal[0];
@@ -1495,7 +1498,7 @@ public:
   void GetPMatrix_inv(su2double **val_invp_tensor, const su2double *val_density,
                       const su2double *val_velocity, const su2double *val_soundspeed,
                       const su2double *val_chi, const su2double *val_kappa,
-                      const su2double *val_normal) const;
+                      const su2double *val_normal, su2double val_tke = 0.0) const;
 
   /*!
    * \brief Computation of the matrix P^{-1}, this matrix diagonalize the conservative Jacobians
@@ -1509,7 +1512,8 @@ public:
   template <typename Matrix>
   void GetPMatrix_inv(const su2double& density, const su2double* velocity,
                       const su2double& soundspeed, const su2double* normal,
-                      Matrix& inv_p_tensor) const {
+                      Matrix& inv_p_tensor, su2double tke = 0.0) const {
+    /*--- With SST the total energy contains k (tke), dp/drho = (gamma-1) (|u|^2/2 - k). ---*/
     const su2double rhoxc = density * soundspeed;
     const su2double c2 = pow(soundspeed, 2);
     const su2double gm1 = Gamma_Minus_One;
@@ -1520,7 +1524,7 @@ public:
 
     if (nDim == 3) {
       const su2double k2orho = normal[2] / density;
-      const su2double ke = 0.5 * GeometryToolbox::SquaredNorm(3, velocity);
+      const su2double ke = 0.5 * GeometryToolbox::SquaredNorm(3, velocity) - tke;
       const su2double projvel_o_rho = GeometryToolbox::DotProduct(3, velocity, normal) / density;
 
       inv_p_tensor[0][0] = normal[0] + k1orho * velocity[2] - k2orho * velocity[1] - normal[0] * gm1_o_c2 * ke;
@@ -1553,7 +1557,7 @@ public:
       inv_p_tensor[4][3] = -k2orho - gm1_o_rhoxc * velocity[2];
       inv_p_tensor[4][4] = gm1_o_rhoxc;
     } else {
-      const su2double ke = 0.5 * GeometryToolbox::SquaredNorm(2, velocity);
+      const su2double ke = 0.5 * GeometryToolbox::SquaredNorm(2, velocity) - tke;
       const su2double projvel_o_rho = GeometryToolbox::DotProduct(2, velocity, normal) / density;
 
       inv_p_tensor[0][0] = 1 - gm1_o_c2 * ke;

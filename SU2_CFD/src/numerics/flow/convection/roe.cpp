@@ -102,6 +102,7 @@ CNumerics::ResidualType<> CUpwRoeBase_Flow::ComputeResidual(const CConfig* confi
 
   AD::StartPreacc();
   AD::SetPreaccIn(V_i, nDim+4); AD::SetPreaccIn(V_j, nDim+4); AD::SetPreaccIn(Normal, nDim);
+  AD::SetPreaccIn(turb_ke_i); AD::SetPreaccIn(turb_ke_j);  // SST: k in the total energy
   if (dynamic_grid) {
     AD::SetPreaccIn(GridVel_i, nDim); AD::SetPreaccIn(GridVel_j, nDim);
   }
@@ -147,7 +148,9 @@ CNumerics::ResidualType<> CUpwRoeBase_Flow::ComputeResidual(const CConfig* confi
     sq_vel += RoeVelocity[iDim]*RoeVelocity[iDim];
   }
   RoeEnthalpy = (R*Enthalpy_j+Enthalpy_i)/(R+1);
-  RoeSoundSpeed2 = (Gamma-1)*(RoeEnthalpy-0.5*sq_vel);
+  /*--- With SST the total enthalpy contains k, which is not part of the speed of sound. ---*/
+  RoeTke = (R*turb_ke_j+turb_ke_i)/(R+1);
+  RoeSoundSpeed2 = (Gamma-1)*(RoeEnthalpy-0.5*sq_vel-RoeTke);
 
   /*--- Negative RoeSoundSpeed^2, the jump variables is too large, clear fluxes and exit. ---*/
 
@@ -171,7 +174,7 @@ CNumerics::ResidualType<> CUpwRoeBase_Flow::ComputeResidual(const CConfig* confi
 
   /*--- P tensor ---*/
 
-  GetPMatrix(RoeDensity, RoeVelocity, RoeSoundSpeed, UnitNormal, P_Tensor);
+  GetPMatrix(RoeDensity, RoeVelocity, RoeSoundSpeed, UnitNormal, P_Tensor, RoeTke);
 
   /*--- Projected velocity adjusted for mesh motion ---*/
 
@@ -223,8 +226,8 @@ CNumerics::ResidualType<> CUpwRoeBase_Flow::ComputeResidual(const CConfig* confi
     Flux[iVar] = 0.5*(ProjFlux_i[iVar]+ProjFlux_j[iVar]);
 
   if (implicit) {
-    GetInviscidProjJac(Velocity_i, &Energy_i, Normal, 0.5, Jacobian_i);
-    GetInviscidProjJac(Velocity_j, &Energy_j, Normal, 0.5, Jacobian_j);
+    GetInviscidProjJac(Velocity_i, &Energy_i, Normal, 0.5, Jacobian_i, turb_ke_i);
+    GetInviscidProjJac(Velocity_j, &Energy_j, Normal, 0.5, Jacobian_j, turb_ke_j);
   }
 
   /*--- Finalize in children class ---*/
@@ -263,11 +266,16 @@ void CUpwRoe_Flow::FinalizeResidual(su2double *val_residual, su2double **val_Jac
   unsigned short iVar, jVar, kVar;
 
   /*--- Compute inverse P tensor ---*/
-  GetPMatrix_inv(RoeDensity, RoeVelocity, RoeSoundSpeed, UnitNormal, invP_Tensor);
+  GetPMatrix_inv(RoeDensity, RoeVelocity, RoeSoundSpeed, UnitNormal, invP_Tensor, RoeTke);
 
   /*--- Diference between conservative variables at jPoint and iPoint ---*/
   for (iVar = 0; iVar < nVar; iVar++)
     Diff_U[iVar] = Conservatives_j[iVar]-Conservatives_i[iVar];
+
+  /*--- With SST rho*E contains rho*k, and Delta(rho k) = RoeDensity Delta k + RoeTke Delta rho. The part with
+   Delta k is not a pressure jump: remove it before the projection and advect it with the contact wave. ---*/
+  const su2double rhoDeltaTke = RoeDensity*(turb_ke_j-turb_ke_i);
+  Diff_U[nVar-1] -= rhoDeltaTke;
 
   /*--- Low dissipation formulation ---*/
   if (roe_low_dissipation)
@@ -293,6 +301,7 @@ void CUpwRoe_Flow::FinalizeResidual(su2double *val_residual, su2double **val_Jac
       }
     }
   }
+  val_residual[nVar-1] -= (1.0-kappa)*Lambda[0]*rhoDeltaTke*Area*Dissipation_ij;
 
   CorrectResidual(val_residual);
 
@@ -339,9 +348,12 @@ void CUpwL2Roe_Flow::FinalizeResidual(su2double *val_residual, su2double **val_J
     delta_wave[2] = proj_delta_vel + delta_p/(RoeDensity*RoeSoundSpeed);
     delta_wave[3] = -proj_delta_vel + delta_p/(RoeDensity*RoeSoundSpeed);
   } else {
-    delta_wave[0] = delta_rho - delta_p/RoeSoundSpeed2;
-    delta_wave[1] = (UnitNormal[0]*delta_vel[2]-UnitNormal[2]*delta_vel[0])*zeta;
-    delta_wave[2] = (UnitNormal[1]*delta_vel[0]-UnitNormal[0]*delta_vel[1])*zeta;
+    /*--- The first three columns of the 3D P matrix combine the entropy wave (weighted by the normal) with the
+     shear waves, so their strengths are n_j (Delta rho - Delta p / c^2) + (Delta u x n)_j. ---*/
+    const auto delta_entropy = delta_rho - delta_p/RoeSoundSpeed2;
+    delta_wave[0] = UnitNormal[0]*delta_entropy + (delta_vel[1]*UnitNormal[2]-delta_vel[2]*UnitNormal[1])*zeta;
+    delta_wave[1] = UnitNormal[1]*delta_entropy + (delta_vel[2]*UnitNormal[0]-delta_vel[0]*UnitNormal[2])*zeta;
+    delta_wave[2] = UnitNormal[2]*delta_entropy + (delta_vel[0]*UnitNormal[1]-delta_vel[1]*UnitNormal[0])*zeta;
     delta_wave[3] = proj_delta_vel + delta_p/(RoeDensity*RoeSoundSpeed);
     delta_wave[4] = -proj_delta_vel + delta_p/(RoeDensity*RoeSoundSpeed);
   }
@@ -352,11 +364,14 @@ void CUpwL2Roe_Flow::FinalizeResidual(su2double *val_residual, su2double **val_J
     for (kVar = 0; kVar < nVar; kVar++)
       val_residual[iVar] -= (1.0-kappa)*Lambda[kVar]*delta_wave[kVar]*P_Tensor[iVar][kVar]*Area;
 
+  /*--- With SST, the jump of k in rho*E is advected with the contact wave. ---*/
+  val_residual[nVar-1] -= (1.0-kappa)*Lambda[0]*RoeDensity*(turb_ke_j-turb_ke_i)*Area;
+
   if (!implicit) return;
 
   /*--- If implicit use the Jacobians of the standard Roe scheme as an approximation ---*/
 
-  GetPMatrix_inv(RoeDensity, RoeVelocity, RoeSoundSpeed, UnitNormal, invP_Tensor);
+  GetPMatrix_inv(RoeDensity, RoeVelocity, RoeSoundSpeed, UnitNormal, invP_Tensor, RoeTke);
 
   for (iVar = 0; iVar < nVar; iVar++) {
     for (jVar = 0; jVar < nVar; jVar++) {
@@ -412,9 +427,12 @@ void CUpwLMRoe_Flow::FinalizeResidual(su2double *val_residual, su2double **val_J
     delta_wave[2] = proj_delta_vel + delta_p/(RoeDensity*RoeSoundSpeed);
     delta_wave[3] = -proj_delta_vel + delta_p/(RoeDensity*RoeSoundSpeed);
   } else {
-    delta_wave[0] = delta_rho - delta_p/RoeSoundSpeed2;
-    delta_wave[1] = (UnitNormal[0]*delta_vel[2]-UnitNormal[2]*delta_vel[0]);
-    delta_wave[2] = (UnitNormal[1]*delta_vel[0]-UnitNormal[0]*delta_vel[1]);
+    /*--- The first three columns of the 3D P matrix combine the entropy wave (weighted by the normal) with the
+     shear waves, so their strengths are n_j (Delta rho - Delta p / c^2) + (Delta u x n)_j. ---*/
+    const auto delta_entropy = delta_rho - delta_p/RoeSoundSpeed2;
+    delta_wave[0] = UnitNormal[0]*delta_entropy + (delta_vel[1]*UnitNormal[2]-delta_vel[2]*UnitNormal[1]);
+    delta_wave[1] = UnitNormal[1]*delta_entropy + (delta_vel[2]*UnitNormal[0]-delta_vel[0]*UnitNormal[2]);
+    delta_wave[2] = UnitNormal[2]*delta_entropy + (delta_vel[0]*UnitNormal[1]-delta_vel[1]*UnitNormal[0]);
     delta_wave[3] = proj_delta_vel + delta_p/(RoeDensity*RoeSoundSpeed);
     delta_wave[4] = -proj_delta_vel + delta_p/(RoeDensity*RoeSoundSpeed);
   }
@@ -425,11 +443,14 @@ void CUpwLMRoe_Flow::FinalizeResidual(su2double *val_residual, su2double **val_J
     for (kVar = 0; kVar < nVar; kVar++)
       val_residual[iVar] -= (1.0-kappa)*Lambda[kVar]*delta_wave[kVar]*P_Tensor[iVar][kVar]*Area;
 
+  /*--- With SST, the jump of k in rho*E is advected with the contact wave. ---*/
+  val_residual[nVar-1] -= (1.0-kappa)*Lambda[0]*RoeDensity*(turb_ke_j-turb_ke_i)*Area;
+
   if (!implicit) return;
 
   /*--- If implicit use the Jacobians of the standard Roe scheme as an approximation ---*/
 
-  GetPMatrix_inv(RoeDensity, RoeVelocity, RoeSoundSpeed, UnitNormal, invP_Tensor);
+  GetPMatrix_inv(RoeDensity, RoeVelocity, RoeSoundSpeed, UnitNormal, invP_Tensor, RoeTke);
 
   for (iVar = 0; iVar < nVar; iVar++) {
     for (jVar = 0; jVar < nVar; jVar++) {
@@ -568,7 +589,8 @@ CNumerics::ResidualType<> CUpwTurkel_Flow::ComputeResidual(const CConfig* config
     sq_vel += RoeVelocity[iDim]*RoeVelocity[iDim];
   }
   RoeEnthalpy = (R*Enthalpy_j+Enthalpy_i)/(R+1);
-  RoeSoundSpeed = sqrt(fabs((Gamma-1)*(RoeEnthalpy-0.5*sq_vel)));
+  /*--- With SST the total enthalpy contains k, which is not part of the speed of sound. ---*/
+  RoeSoundSpeed = sqrt(fabs((Gamma-1)*(RoeEnthalpy-0.5*sq_vel-(R*turb_ke_j+turb_ke_i)/(R+1))));
   RoePressure = RoeDensity/Gamma*RoeSoundSpeed*RoeSoundSpeed;
 
   /*--- Compute ProjFlux_i ---*/
@@ -627,16 +649,21 @@ CNumerics::ResidualType<> CUpwTurkel_Flow::ComputeResidual(const CConfig* config
   GetPrecondJacobian(Beta2, r_hat, s_hat, t_hat, rhoB2a2, Lambda, UnitNormal, absPeJac);
 
   /*--- Compute the matrix from entropic variables to conserved variables ---*/
-  GetinvRinvPe(Beta2, RoeEnthalpy, RoeSoundSpeed, RoeDensity, RoeVelocity, invRinvPe);
+  const su2double roeTke = (R * turb_ke_j + turb_ke_i) / (R + 1);
+  GetinvRinvPe(Beta2, RoeEnthalpy - roeTke, RoeSoundSpeed, RoeDensity, RoeVelocity, invRinvPe);
+  for (iVar = 0; iVar < nVar; ++iVar) invRinvPe[nVar - 1][iVar] += roeTke * invRinvPe[0][iVar];
 
   /*--- Compute the matrix from entropic variables to conserved variables ---*/
   GetRMatrix(RoePressure, RoeSoundSpeed, RoeDensity, RoeVelocity, R_Tensor);
+  for (iVar = 0; iVar < nVar; ++iVar) R_Tensor[iVar][0] -= roeTke * R_Tensor[iVar][nVar - 1];
+  const su2double rhoDeltaTke = RoeDensity * (turb_ke_j - turb_ke_i);
+  Diff_U[nVar - 1] -= rhoDeltaTke;
 
   if (implicit) {
     /*--- Jacobians of the inviscid flux, scaled by
      0.5 because Flux ~ 0.5*(fc_i+fc_j)*Normal ---*/
-    GetInviscidProjJac(Velocity_i, &Energy_i, Normal, 0.5, Jacobian_i);
-    GetInviscidProjJac(Velocity_j, &Energy_j, Normal, 0.5, Jacobian_j);
+    GetInviscidProjJac(Velocity_i, &Energy_i, Normal, 0.5, Jacobian_i, turb_ke_i);
+    GetInviscidProjJac(Velocity_j, &Energy_j, Normal, 0.5, Jacobian_j, turb_ke_j);
   }
 
   for (iVar = 0; iVar < nVar; iVar ++) {
@@ -666,6 +693,8 @@ CNumerics::ResidualType<> CUpwTurkel_Flow::ComputeResidual(const CConfig* config
       }
     }
   }
+
+  Flux[nVar - 1] -= 0.5 * fabs(ProjVelocity) * Area * rhoDeltaTke;
 
   /*--- Contributions due to mesh motion---*/
   if (dynamic_grid) {
@@ -748,6 +777,7 @@ CNumerics::ResidualType<> CUpwGeneralRoe_Flow::ComputeResidual(const CConfig* co
 
   AD::StartPreacc();
   AD::SetPreaccIn(V_i, nDim+4); AD::SetPreaccIn(V_j, nDim+4); AD::SetPreaccIn(Normal, nDim);
+  AD::SetPreaccIn(turb_ke_i); AD::SetPreaccIn(turb_ke_j);  // SST: k in the total energy
   AD::SetPreaccIn(S_i, 2); AD::SetPreaccIn(S_j, 2);
   if (dynamic_grid) {
     AD::SetPreaccIn(GridVel_i, nDim); AD::SetPreaccIn(GridVel_j, nDim);
@@ -775,7 +805,7 @@ CNumerics::ResidualType<> CUpwGeneralRoe_Flow::ComputeResidual(const CConfig* co
   Density_i = V_i[nDim+2];
   Enthalpy_i = V_i[nDim+3];
   Energy_i = Enthalpy_i - Pressure_i/Density_i;
-  StaticEnthalpy_i = Enthalpy_i - 0.5*Velocity2_i;
+  StaticEnthalpy_i = Enthalpy_i - 0.5*Velocity2_i - turb_ke_i;  // SST: H contains k
   StaticEnergy_i = StaticEnthalpy_i - Pressure_i/Density_i;
 
   Kappa_i = S_i[1]/Density_i;
@@ -795,7 +825,7 @@ CNumerics::ResidualType<> CUpwGeneralRoe_Flow::ComputeResidual(const CConfig* co
   Enthalpy_j = V_j[nDim+3];
   Energy_j = Enthalpy_j - Pressure_j/Density_j;
 
-  StaticEnthalpy_j = Enthalpy_j - 0.5*Velocity2_j;
+  StaticEnthalpy_j = Enthalpy_j - 0.5*Velocity2_j - turb_ke_j;  // SST: H contains k
   StaticEnergy_j = StaticEnthalpy_j - Pressure_j/Density_j;
 
   Kappa_j = S_j[1]/Density_j;
@@ -818,8 +848,8 @@ CNumerics::ResidualType<> CUpwGeneralRoe_Flow::ComputeResidual(const CConfig* co
     for (iVar = 0; iVar < nVar; iVar++) {
       Flux[iVar] = 0.0;
       for (jVar = 0; jVar < nVar; jVar++) {
-      Jacobian_i[iVar][iVar] = 0.0;
-      Jacobian_j[iVar][iVar] = 0.0;
+        Jacobian_i[iVar][jVar] = 0.0;
+        Jacobian_j[iVar][jVar] = 0.0;
       }
     }
     AD::SetPreaccOut(Flux, nVar);
@@ -838,7 +868,8 @@ CNumerics::ResidualType<> CUpwGeneralRoe_Flow::ComputeResidual(const CConfig* co
 
   /*--- Compute P and Lambda (do it with the Normal) ---*/
 
-  GetPMatrix(&RoeDensity, RoeVelocity, &RoeSoundSpeed, &RoeEnthalpy, &RoeChi, &RoeKappa, UnitNormal, P_Tensor);
+  GetPMatrix(&RoeDensity, RoeVelocity, &RoeSoundSpeed, &RoeEnthalpy, &RoeChi, &RoeKappa, UnitNormal, P_Tensor,
+             (R*turb_ke_j+turb_ke_i)/(R+1));
 
   ProjVelocity = 0.0; ProjVelocity_i = 0.0; ProjVelocity_j = 0.0;
   for (iDim = 0; iDim < nDim; iDim++) {
@@ -908,9 +939,12 @@ CNumerics::ResidualType<> CUpwGeneralRoe_Flow::ComputeResidual(const CConfig* co
       delta_wave[2] = proj_delta_vel + delta_p/(RoeDensity*RoeSoundSpeed);
       delta_wave[3] = -proj_delta_vel + delta_p/(RoeDensity*RoeSoundSpeed);
     } else {
-      delta_wave[0] = delta_rho - delta_p/(RoeSoundSpeed*RoeSoundSpeed);
-      delta_wave[1] = UnitNormal[0]*delta_vel[2]-UnitNormal[2]*delta_vel[0];
-      delta_wave[2] = UnitNormal[1]*delta_vel[0]-UnitNormal[0]*delta_vel[1];
+      /*--- The first three columns of the 3D P matrix combine the entropy wave (weighted by the normal) with the
+       shear waves, so their strengths are n_j (Delta rho - Delta p / c^2) + (Delta u x n)_j. ---*/
+      const auto delta_entropy = delta_rho - delta_p/(RoeSoundSpeed*RoeSoundSpeed);
+      delta_wave[0] = UnitNormal[0]*delta_entropy + delta_vel[1]*UnitNormal[2]-delta_vel[2]*UnitNormal[1];
+      delta_wave[1] = UnitNormal[1]*delta_entropy + delta_vel[2]*UnitNormal[0]-delta_vel[0]*UnitNormal[2];
+      delta_wave[2] = UnitNormal[2]*delta_entropy + delta_vel[0]*UnitNormal[1]-delta_vel[1]*UnitNormal[0];
       delta_wave[3] = proj_delta_vel + delta_p/(RoeDensity*RoeSoundSpeed);
       delta_wave[4] = -proj_delta_vel + delta_p/(RoeDensity*RoeSoundSpeed);
     }
@@ -921,6 +955,8 @@ CNumerics::ResidualType<> CUpwGeneralRoe_Flow::ComputeResidual(const CConfig* co
       for (jVar = 0; jVar < nVar; jVar++)
         Flux[iVar] -= 0.5*Lambda[jVar]*delta_wave[jVar]*P_Tensor[iVar][jVar]*Area;
     }
+    /*--- With SST, the jump of k in rho*E is advected with the contact wave. ---*/
+    Flux[nVar-1] -= 0.5*Lambda[0]*RoeDensity*(turb_ke_j-turb_ke_i)*Area;
 
     /*--- Flux contribution due to grid motion ---*/
     if (dynamic_grid) {
@@ -936,19 +972,25 @@ CNumerics::ResidualType<> CUpwGeneralRoe_Flow::ComputeResidual(const CConfig* co
 
     /*--- Compute inverse P ---*/
 
-    GetPMatrix_inv(invP_Tensor, &RoeDensity, RoeVelocity, &RoeSoundSpeed, &RoeChi , &RoeKappa, UnitNormal);
+    GetPMatrix_inv(invP_Tensor, &RoeDensity, RoeVelocity, &RoeSoundSpeed, &RoeChi , &RoeKappa, UnitNormal,
+                   (R*turb_ke_j+turb_ke_i)/(R+1));
 
      /*--- Jacobians of the inviscid flux, scaled by
       0.5 because val_resconv ~ 0.5*(fc_i+fc_j)*Normal ---*/
 
-    GetInviscidProjJac(Velocity_i, &Enthalpy_i, &Chi_i, &Kappa_i, Normal, 0.5, Jacobian_i);
+    GetInviscidProjJac(Velocity_i, &Enthalpy_i, &Chi_i, &Kappa_i, Normal, 0.5, Jacobian_i, turb_ke_i);
 
-    GetInviscidProjJac(Velocity_j, &Enthalpy_j, &Chi_j, &Kappa_j, Normal, 0.5, Jacobian_j);
+    GetInviscidProjJac(Velocity_j, &Enthalpy_j, &Chi_j, &Kappa_j, Normal, 0.5, Jacobian_j, turb_ke_j);
 
 
     /*--- Diference variables iPoint and jPoint ---*/
     for (iVar = 0; iVar < nVar; iVar++)
       Diff_U[iVar] = U_j[iVar]-U_i[iVar];
+
+    /*--- With SST, the part of the jump of rho*E due to the jump of k is not a pressure jump: remove it before the
+     projection and advect it with the contact wave. ---*/
+    const su2double rhoDeltaTke = RoeDensity*(turb_ke_j-turb_ke_i);
+    Diff_U[nVar-1] -= rhoDeltaTke;
 
     /*--- Roe's Flux approximation ---*/
     for (iVar = 0; iVar < nVar; iVar++) {
@@ -966,6 +1008,7 @@ CNumerics::ResidualType<> CUpwGeneralRoe_Flow::ComputeResidual(const CConfig* co
         Jacobian_j[iVar][jVar] -= (1.0-kappa)*Proj_ModJac_Tensor_ij*Area;
       }
     }
+    Flux[nVar-1] -= (1.0-kappa)*Lambda[0]*rhoDeltaTke*Area;
 
     /*--- Jacobian contributions due to grid motion ---*/
     if (dynamic_grid) {
@@ -1024,7 +1067,7 @@ void CUpwGeneralRoe_Flow::ComputeRoeAverage() {
 //
 //  }
 
-  RoeSoundSpeed2 = RoeChi + RoeKappa*(RoeEnthalpy-0.5*sq_vel);
+  RoeSoundSpeed2 = RoeChi + RoeKappa*(RoeEnthalpy-0.5*sq_vel-(R*turb_ke_j+turb_ke_i)/(R+1));  // SST: H contains k
 
 }
 

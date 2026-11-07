@@ -119,7 +119,8 @@ struct InletState {
  * \brief Inlet ghost: total conditions (P_t, T_t, flow direction) or mass flow (density, velocity magnitude, flow
  *        direction), closed with the outgoing Riemann invariant of the boundary state.
  * \param[in] massFlow - INLET_TYPE::MASS_FLOW, otherwise TOTAL_CONDITIONS.
- * \param[in] enthalpyB - h = (rho E + p)/rho of the boundary state (primitive nDim+3).
+ * \param[in] enthalpyB - h = (rho E + p)/rho of the boundary state without k (SST: primitive nDim+3 minus k, as
+ *            BC_Inlet; the imposed total enthalpy has no k).
  * \param[in] dataT - Inlet_Ttotal: total temperature, or the density for mass flow (dimensional).
  * \param[in] dataP - Inlet_Ptotal: total pressure, or the velocity magnitude for mass flow (dimensional).
  * \param[in] flowDir - Flow direction (not necessarily unit), unused with useNormal.

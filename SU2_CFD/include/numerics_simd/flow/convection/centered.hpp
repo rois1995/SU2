@@ -61,6 +61,7 @@ protected:
   const bool gridEntropy;  /*!< \brief GRID_ENTROPY_P1, ALE terms of the entropy methods (P1_ALE.md, section 10). */
   const bool weakWallDiss; /*!< \brief JST_WEAK_WALL_DISSIPATION, eps4 = 0 on edges that leave a weak no-slip wall. */
   const su2double stretchParam = 0.3;
+  const CVariable* const tkeVars; /*!< \brief SST turbulence variables (k is part of the total energy), else nullptr. */
 
   /*!
    * \brief Constructor, store some constants and forward args to base.
@@ -78,7 +79,8 @@ protected:
     esBlend(edgeForm && config.GetEdge_Form_ES_Blend()),
     sweptFlux((edgeForm || projDiss) && config.GetGCL_Exact_P1()),
     gridEntropy((edgeForm || projDiss) && config.GetDynamic_Grid() && config.GetGrid_Entropy_P1()),
-    weakWallDiss(iMesh == MESH_0 && config.GetJST_Weak_Wall_Diss()) {
+    weakWallDiss(iMesh == MESH_0 && config.GetJST_Weak_Wall_Diss()),
+    tkeVars(config.GetKind_Turb_Model() == TURB_MODEL::SST ? findTurbVars(args...) : nullptr) {
   }
 
   /*!
@@ -88,6 +90,10 @@ protected:
   FORCEINLINE static Double weakWallFactor(const T& iPoint, const T& jPoint, const CEulerVariable& solution) {
     return jstWallFactor(gatherVariables(iPoint, solution.GetJSTWallNode()),
                          gatherVariables(jPoint, solution.GetJSTWallNode()));
+  }
+
+  FORCEINLINE Double getTke(const Int& point) const {
+    return tkeVars ? gatherVariables(point, tkeVars->GetSolution()) : Double(0.0);
   }
 
   /*!
@@ -193,6 +199,12 @@ public:
 
     MatrixDbl<nVar> jac_i, jac_j;
     if (implicit) {
+      /*--- With SST the total energy contains k, held fixed in the Jacobian. ---*/
+      Double tke_i = 0.0, tke_j = 0.0;
+      if (tkeVars) {
+        tke_i = gatherVariables(iPoint, tkeVars->GetSolution());
+        tke_j = gatherVariables(jPoint, tkeVars->GetSolution());
+      }
       if (exactFormJac) {
         const auto formNormal = gatherVariables<nDim>(iEdge, geometry.edges->GetFormNormal());
         const auto formE = gatherVariables<nDim>(iEdge, geometry.edges->GetFormE());
@@ -201,11 +213,11 @@ public:
           normal_i(iDim) = formNormal(iDim) - 2.0 * formE(iDim);
           normal_j(iDim) = formNormal(iDim) + 2.0 * formE(iDim);
         }
-        jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), normal_i, 0.5);
-        jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), normal_j, 0.5);
+        jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), normal_i, 0.5, tke_i);
+        jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), normal_j, 0.5, tke_j);
       } else {
-        jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), normal, 0.5);
-        jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), normal, 0.5);
+        jac_i = inviscidProjJac(gamma, V.i.velocity(), U.i.energy(), normal, 0.5, tke_i);
+        jac_j = inviscidProjJac(gamma, V.j.velocity(), U.j.energy(), normal, 0.5, tke_j);
       }
     }
 
@@ -464,10 +476,10 @@ public:
     }
 
     if (implicit) {
-      const Double dissip_i = fixFactor * (eps2 + eps4*(ni+1)) * lambda;
-      const Double dissip_j = -fixFactor * (eps2 + eps4*(nj+1)) * lambda;
-      scalarDissipationJacobian(V.i, gamma, dissip_i, jac_i);
-      scalarDissipationJacobian(V.j, gamma, dissip_j, jac_j);
+      const Double dissip_i = fixFactor * (eps2 + eps4 * (ni + 1)) * lambda;
+      const Double dissip_j = -fixFactor * (eps2 + eps4 * (nj + 1)) * lambda;
+      scalarDissipationJacobian(V.i, gamma, dissip_i, jac_i, Base::getTke(iPoint));
+      scalarDissipationJacobian(V.j, gamma, dissip_j, jac_j, Base::getTke(jPoint));
     }
   }
 };
@@ -486,6 +498,7 @@ private:
   using Base::gamma;
   using Base::fixFactor;
   using Base::weakWallDiss;
+  using Base::tkeVars;
   const su2double kappa2;
   const su2double kappa4;
   const su2double entropyFix;
@@ -542,25 +555,39 @@ public:
 
     VectorDbl<nVar> scalarDissip;
     for (size_t iVar = 0; iVar < nVar; ++iVar) {
-      scalarDissip(iVar) = eps2*diffU(iVar) - eps4*(lapl_i(iVar)-lapl_j(iVar));
+      scalarDissip(iVar) = eps2 * diffU(iVar) - eps4 * (lapl_i(iVar) - lapl_j(iVar));
     }
+
+    Double tke_i = 0.0, tke_j = 0.0;
+    if (tkeVars) {
+      tke_i = gatherVariables(iPoint, tkeVars->GetSolution());
+      tke_j = gatherVariables(jPoint, tkeVars->GetSolution());
+    }
+    const Double avgTke = 0.5 * (tke_i + tke_j);
 
     MatrixDbl<nVar> scalarJac;
     if (implicit) {
       scalarJac = Double(0.0);
-      Double factor = fixFactor * (eps2 + 0.5*eps4*(ni+nj+2));
-      scalarDissipationJacobian(avgV, gamma, factor, scalarJac);
+      Double factor = fixFactor * (eps2 + 0.5 * eps4 * (ni + nj + 2));
+      scalarDissipationJacobian(avgV, gamma, factor, scalarJac, avgTke);
     }
 
     /*--- Compute matrix dissipation terms. ---*/
 
     const auto unitProjVel = dot(avgV.velocity(), unitNormal);
 
-    auto pMat = pMatrix(gamma, avgV.density(), avgV.velocity(),
-                        unitProjVel, avgV.speedSound(), unitNormal);
+    // Remove changes in k before acoustic projection, including the fourth-order term.
+    Double rhoDeltaTke = eps2 * avgV.density() * (tke_i - tke_j);
+    if (tkeVars) {
+      const auto lapK_i = gatherVariables(iPoint, solution.GetUndivided_Laplacian(), nVar);
+      const auto lapK_j = gatherVariables(jPoint, solution.GetUndivided_Laplacian(), nVar);
+      rhoDeltaTke -= eps4 * (lapK_i - lapK_j - avgTke * (lapl_i(0) - lapl_j(0)));
+    }
+    scalarDissip(nVar - 1) -= rhoDeltaTke;
+    auto pMat = pMatrix(gamma, avgV.density(), avgV.velocity(), unitProjVel, avgV.speedSound(), unitNormal, avgTke);
 
     auto pMatInv = pMatrixInv(gamma, avgV.density(), avgV.velocity(),
-                              unitProjVel, avgV.speedSound(), unitNormal);
+                              unitProjVel, avgV.speedSound(), unitNormal, avgTke);
 
     /*--- Compute limited absolute eigenvalues (times area). ---*/
 
@@ -600,6 +627,7 @@ public:
         }
       }
     }
+    flux(nVar-1) += lambda(0) * rhoDeltaTke;
   }
 };
 
@@ -668,8 +696,8 @@ public:
     }
 
     if (implicit) {
-      scalarDissipationJacobian(V.i, gamma, fixFactor*dissip, jac_i);
-      scalarDissipationJacobian(V.j, gamma, -fixFactor*dissip, jac_j);
+      scalarDissipationJacobian(V.i, gamma, fixFactor * dissip, jac_i, Base::getTke(iPoint));
+      scalarDissipationJacobian(V.j, gamma, -fixFactor * dissip, jac_j, Base::getTke(jPoint));
     }
   }
 };
@@ -735,8 +763,8 @@ public:
     }
 
     if (implicit) {
-      scalarDissipationJacobian(V.i, gamma, fixFactor*dissip, jac_i);
-      scalarDissipationJacobian(V.j, gamma, -fixFactor*dissip, jac_j);
+      scalarDissipationJacobian(V.i, gamma, fixFactor * dissip, jac_i, Base::getTke(iPoint));
+      scalarDissipationJacobian(V.j, gamma, -fixFactor * dissip, jac_j, Base::getTke(jPoint));
     }
   }
 };
