@@ -551,3 +551,14 @@ complete-context measures and limits. Motion-slack reuse remains deferred: none
 of six expensive actual nearby pairs has sufficient certificate margin.236coarse
 plane screening saved no counted work and was rejected/reverted.237is only the
 same lift path's redundant signed-solve elimination, not another repair strategy.
+
+2026-11-07 UNPROVEN, only after frozen237outcome selects geometry work as the next
+blocker: BoundPhysicalSurface's exact memo key stores ordered physical-triangle
+coordinates. The1304distinct exact-key misses do NOT rule out geometrically identical
+triangles under vertex permutations. First count same-authority/support/tolerance/
+unordered-coordinate duplicates and their traversal work in existing diagnostic
+traces; no new baseline campaign. Any canonicalization would need mathematical
+domain identity, fresh association/feature/body checks, cached/recomputed numerical
+ordering qualification and unchanged memory/work fail-closed admission. Key-only
+aliasing could return a different conservative bound than recomputation, so do not
+assume decision equivalence or a speedup. No implementation selected; keep237frozen.
