@@ -4,6 +4,12 @@ Current cycle: [cache and phase ownership integration](ADAPTATION_CACHE_PHASE_20
 Keep one active cycle; pursue another item only when the target run demonstrates
 its relevance or the user explicitly reprioritizes it.
 
+- Preserved244legacy broad-suite failures: visibility244_broad_serial_failure.json.
+  Do not repeat generic serial_full; reuse individually passing affected cases.
+  RANS wall-policy fixture exhausts4096work,95placement trials/0moves; attribution
+  to current visibility change is unproved, and no baseline equivalence is claimed.
+  Keep as a required BL qualification issue after accepted Euler. Zero-work support
+  assertions fail before changed placement; no expectation/gate weakened.
 - Actual242 chord replay rejected all four existing metric-normal strip proposals
   with inherited-cell inversion. Do not enable geometry strip eligibility or infer
   useful motion from normal damping alone. Active243 tests positivity-only free-apex

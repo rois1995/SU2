@@ -19,7 +19,7 @@ A235=`R/m6_runs/euler_build235_geometry_coupled_real_cfd50k`.
 
 ## Current240 — terminal, exact actual geometry diagnosis
 
-Latest pushed checkpoint236e03ed64; production243/244 introduces the connected
+Production checkpoint236e03ed64 (launch metadata pushed07272ec108);243/244 introduces the connected
 visibility placement change below. Historical production4d1e2ec5b0was frozen237.
 238only broadened DIAGNOSTIC current-cavity coverage to non-two-face collapse trials;
 239/240only extend opt-in geometry query DIAGNOSTIC with rigorous outside witnesses.
@@ -98,6 +98,25 @@ fixtures/helpers/binary/config/inputs. Same real CFD seed and corrected-L1/50k:
 run.cfg,original mesh/reference and initialrestart byte-identical237, recorded in
 attempt/initial_metric_input_provenance.json. One owned heavy workload. ZERO
 accepted meshes so far. Use observed outcome; no competing implementation.
+Latest joined first-event observation: coarsen round1777/293396cells/2968geometry
+and surface round1957/294585cells/3171geometry match237EXACTLY, including upper
+calls/traversal work. Shape intentionally unmeasured, all census/geometry/cache
+flags complete. Slightly lower elapsed is not work reduction.
+attempt/live_stage_observation.json has exact six-rank hashed prefixes.
+Fresh first quality entry: native691.245338/871576cells/102043q/101849J/2008geometry/
+0size, ALL flags complete.237entry705.18/871607cells/102058q/101860J/1997geometry.
+At quality206.046414s:95863q/95724J/2010geometry, net6180q/6125Jremoved. Nearest237
+snapshot239.821040s:96237q/96066J/1969geometry; ages differ34s, no exact-time/source-
+isolated speedup claim. Geometry count not improved.
+attempt/{quality_entry_observation,live_quality_observation}.json preserves joined
+rank prefixes. Continue frozen toward outcome, no new implementation.
+Latest reused churn checker (analyze_m6244_quality.py): quality395.169929s,
+91877q/91928J/1980geometry/0size,ALL flags complete. Retired−introduced exactly
+matches net field change. q-removal25.73/s vs23723.98/s at common round34752,
+traversal ratio.9484; trajectories/ages differ, no isolated speedup claim.
+Actual initial quality ownership preserves all census totals/flags and improves
+q+J debt max/min6.575→1.485(max/mean1.757→1.125).
+attempt/{quality_comparison237,quality_ownership_observation}.json records scope.
 
 Current244build TERMINAL0 tool10499/168.129617s,1303pins unchanged/both targets
 current/all compiler handles absent. Legacy serial_full tool85577 TERMINAL27/305.529924s,344cases/336pass/8fail,
