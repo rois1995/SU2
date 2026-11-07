@@ -1,0 +1,16 @@
+{
+  "time": 1794067243.0578113,
+  "precision_options": {
+    "enable-mixedprec": false,
+    "enable-singleprec": false
+  },
+  "transfer_compile_command": "c++ -ISU2_CFD/src/libSU2core.a.p -ISU2_CFD/src -I../../SU2_CFD/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -ICommon/src -I../../Common/src -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -Wno-dangling-pointer -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ SU2_CFD/src/libSU2core.a.p/adaptation_CConservativeTransfer.cpp.o -MF SU2_CFD/src/libSU2core.a.p/adaptation_CConservativeTransfer.cpp.o.d -o SU2_CFD/src/libSU2core.a.p/adaptation_CConservativeTransfer.cpp.o -c ../../SU2_CFD/src/adaptation/CConservativeTransfer.cpp",
+  "pinned_cfd_binary_sha256": "a7df63e4d841e080cc8cf3b2be4921c1cb161bfa54086a4972ba004c87e53ebd",
+  "source_metadata_sha256": {
+    "integration_evidence/build-integrated-v3-currenthost/meson-info/intro-buildoptions.json": "3403b6121ccf9db6b53ac6e518be249dfef43f7777476cd0993179ba7d72d127",
+    "integration_evidence/build-integrated-v3-currenthost/compile_commands.json": "835292183524ed866d23d1f4035de60bc4c9adf83c98ff000f2d632d9812aa13",
+    "Common/include/adaptation/TransferTolerances.hpp": "8cb439e27283c910e1fba102427f6455771eb5ae384cd69bdca4366cf94a89ca",
+    "SU2_CFD/src/adaptation/CConservativeTransfer.cpp": "9da510e846516899f222b5421d72e09fd05d89e978f8d592c02003c63604fee2"
+  },
+  "scope": "Read-only build precision/provenance check. Selects double transfer tolerances;does NOT establish any M6 transfer solve,admissibility,conservation or disk restart."
+}

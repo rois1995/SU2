@@ -34,19 +34,24 @@ Selected bounded raw refusal capture uses the production driver with an observer
 no routine VTU export. A247/command.json,pins.json,run.cfg,owned_startup.json,
 resources.jsonl and owned_observations.jsonl preserve runtime/host scope.
 
-Latest complete quality window32960,all-rank census31:native2929.747482:
-978303cells/40158q/37605J/1161geometry/0size,all measured/flags complete.
-Quality2240.164883s;net66296q/68599J/220geometry removed.
-Net q/s29.594250 versus27.208918 in baseline at matching round.
-Field delta247−244:{'q_bad': -961, 'j_bad': -827, 'geometry_bad': -4}. Do not claim exact progress
-identity after32320. First seven windows had identical field counts/commits/churn;
-first slight divergence32384was +12q,+17J,+1geometry. Cause UNATTRIBUTED;
-no certification failure or gate change is established. Shape improvement still
-active;no shape closure/residual geometry construction or reclosure yet proved.
+Latest SAVED complete quality window33536,all-rank census40:native3810.160821:
+1007799cells/21393q/17660J/1117geometry/0size,all measured/flags complete.
+Quality3120.578222s;net85061q/88544J/264geometry removed.
+Net q/s27.258089 versus25.575426 at matching baseline round.
+Field delta247−244:{'q_bad': 1337, 'j_bad': 1526, 'geometry_bad': 7}. Exact progress identity
+is not claimed after32320. First seven windows had identical counts/commits/churn;
+first slight divergence32384was +12q,+17J,+1geometry,cause UNATTRIBUTED.
+No certification failure or gate change established. First shape pass still active;
+no accepted mesh,shape closure,residual geometry construction or reclosure proved.
 
-A247/quality_comparison244.json covers 17 COMPLETE matching first-pass windows,
+A247/quality_comparison244.json covers 26 COMPLETE matching first-pass windows,
 exact differences,churn,rank debt spread,memo hits/misses and BOTH cumulative-native
 and quality-entry-subtracted geometry/smoothing work. First divergence is explicit.
+A247/nearest_quality_age_comparison244.json compares actual complete censuses at
+nearest quality ages,explicit signed time mismatches and NO interpolation. Latest:
+247age3120.578222s versus baseline3151.120432s;
+q/J/geometry delta247−baseline {'q_bad': -2889, 'j_bad': -2779, 'geometry_bad': -2}.
+Matching-round path differences must not be mistaken for equal-age differences.
 Cumulative32384upper/traversal work883.831M/834.958M versus987.267M/932.164M;
 these include construction. Union hits145593versus120610,misses155235versus180038.
 Boundary/interior candidate counts nearly unchanged;rank-summed smoothing timers
@@ -149,7 +154,10 @@ True CV mass-solve residual<=1e-10 EVERY field/time level;all transferred states
 admissible;scaled TARGET integral defect<=1e-12 BEFORE publication. Printed old/new
 DOMAIN integral change is separate. SU2_CFD/src/adaptation/CConservativeTransfer.cpp
 997–1039enforces final admissibility/target totals;PrintSummary1420+true residuals.
-run_m6finite-integral helper alone is insufficient.
+run_m6finite-integral helper alone is insufficient. Read-only current build check
+confirms single/mixed precision OFF and transfer compile has no single-precision
+define;A247/transfer_precision_provenance.json pins metadata/source/binary. This
+selects strict double tolerances,not proof of an actual adapted transfer.
 
 Actual adapted_mesh_adap_00001/2.su2+.native_ref and matching
 restart_flow_adap_00001/2.dat,exact point order/coordinates1e-12,finite conserved
