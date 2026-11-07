@@ -527,6 +527,22 @@ public:
   void SplitEdgeResidual(const CGeometry *geometry, const CConfig *config, const CVariable* turbMatched = nullptr);
 
   /*!
+   * \brief SPLIT_EDGE_FLUX with SST (matched k): the far field, inlet and outlet fluxes of BC_Far_Field, BC_Inlet and
+   *        BC_Outlet on hat states with the closure C k rule (JSTFIN_PLAN.md 5). Hat copies of the two boundary states
+   *        (the node's k out of both total enthalpies) go to the numerics, which then carry no k.
+   */
+  void SetBoundaryHatStates(CNumerics* numerics, const su2double* V_domain, const su2double* V_ghost, su2double kNode,
+                            su2double (*Vhat)[MAXNVAR + 8]) const;
+
+  /*!
+   * \brief The matched k of a boundary node (SPLIT_EDGE_FLUX with SST): k_b = k_i for m >= 0, kBc otherwise; adds k_b m
+   *        to the energy row of res, the same number to the k-row store (P1KNodalRes, diagonal max(m,0)/rho_i), and
+   *        transforms the hat Jacobian jac to L(k_b) jac T(k_i) (D1).
+   */
+  void AddBoundaryMatchedKine(unsigned long iPoint, su2double kNode, su2double kBc, su2double* res,
+                              su2double (*jac)[5], bool implicit);
+
+  /*!
    * \brief JST_ENTROPY_BUDGET (P1_JST_ENTROPY.md, Theorem J7): the matched Laplacian Lh and cb of each owned node from the
    *        edge coefficients of the JST kernel and theta, each sent to the halos, then on every edge the correction from the
    *        kernel's -c4 (L_i - L_k) to the matched, budgeted eps4 flux plus the floor, and its frozen-theta Jacobian. With

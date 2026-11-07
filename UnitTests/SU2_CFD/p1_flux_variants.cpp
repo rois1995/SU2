@@ -6072,6 +6072,91 @@ TEST_CASE("P1 SST matched rough wall: k_D m_a on the weak-wall closure rows, hat
   }
 }
 
+TEST_CASE("P1 SST matched SPLIT boundary: hat nodal flux + k_b m, k jump, uniform k, L(k_b) Jhat T(k_i) against FD", "[P1Flux]") {
+  /*--- Model of the nodal boundary flux of BC_Far_Field / BC_Inlet / BC_Outlet with SPLIT_EDGE_FLUX: a hat flux of the
+   * node state against a fixed hat ghost (Ismail-Roe here), U = Uhat + rho k e_E with the node's k frozen, plus the closure
+   * C k rule (BoundaryNodeKine). (a) k jump: the rho and momentum rows and E - k_b m do not depend on k_i; (b) uniform k
+   * (k_i = kBc): the k-row number is k m; (c) outflow takes k_i, inflow kBc; (d) the transformed Jacobian is the derivative
+   * of the matched flux with respect to the conservative U_i (central differences). ---*/
+  std::mt19937 gen(7315);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    su2double worst = 0.0;
+    for (int trial = 0; trial < 60; ++trial) {
+      su2double n[3], t[3], N[3];
+      JacRandomNormal(gen, nDim, n, t, N);
+      const pbc::EsState ghost = JacRandomState(gen, nDim, 0.3, 0.6);
+      const pbc::EsState hatState = JacPerturb(gen, nDim, ghost, 0.3);
+      const su2double kNode = 0.05 * exp(u(gen)), kBc = 0.05 * exp(u(gen));
+      su2double Uhat[pbc::ES_NVAR] = {0.0}, U[pbc::ES_NVAR] = {0.0};
+      pbc::EsConservative(nDim, kGamma, hatState, Uhat);
+      for (int v = 0; v < nVar; ++v) U[v] = Uhat[v];
+      U[nVar - 1] += Uhat[0] * kNode;
+
+      /*--- Matched flux of the conservative state with the frozen k. ---*/
+      auto matched = [&](const su2double* Ux, su2double k, su2double* res) {
+        su2double Uh[pbc::ES_NVAR];
+        for (int v = 0; v < nVar; ++v) Uh[v] = Ux[v];
+        Uh[nVar - 1] -= Ux[0] * k;
+        const pbc::EsState S = JacStateOf(nDim, Uh);
+        pbc::EsIsmailRoeFlux(nDim, kGamma, S, ghost, N, res);
+        return P1SSTMatched::BoundaryNodeKine<su2double[pbc::ES_NVAR]>(nVar, k, kBc, res, nullptr);
+      };
+      su2double res[pbc::ES_NVAR] = {0.0}, resHat[pbc::ES_NVAR] = {0.0};
+      const su2double kRow = matched(U, kNode, res);
+      pbc::EsIsmailRoeFlux(nDim, kGamma, hatState, ghost, N, resHat);
+      const su2double m = resHat[0], kB = (m >= 0.0) ? kNode : kBc;
+      for (int v = 0; v < nVar - 1; ++v) CHECK(fabs(res[v] - resHat[v]) <= 1e-13 * (1.0 + fabs(resHat[v])));
+      CHECK(fabs(kRow - kB * m) <= 1e-13 * (1.0 + fabs(m)));
+      CHECK(fabs((res[nVar - 1] - kRow) - resHat[nVar - 1]) <= 1e-13 * (1.0 + fabs(resHat[nVar - 1])));
+
+      /*--- (a) another k with the same hat state: hat rows unchanged. ---*/
+      su2double U2[pbc::ES_NVAR], res2[pbc::ES_NVAR] = {0.0};
+      const su2double k2 = 3.0 * kNode;
+      for (int v = 0; v < nVar; ++v) U2[v] = Uhat[v];
+      U2[nVar - 1] += Uhat[0] * k2;
+      const su2double kRow2 = matched(U2, k2, res2);
+      for (int v = 0; v < nVar - 1; ++v) CHECK(fabs(res2[v] - res[v]) <= 1e-13 * (1.0 + fabs(res[v])));
+      CHECK(fabs((res2[nVar - 1] - kRow2) - (res[nVar - 1] - kRow)) <= 1e-13 * (1.0 + fabs(res[nVar - 1])));
+
+      /*--- (b) uniform k. ---*/
+      su2double res3[pbc::ES_NVAR];
+      for (int v = 0; v < nVar; ++v) res3[v] = resHat[v];
+      const su2double kRow3 = P1SSTMatched::BoundaryNodeKine<su2double[pbc::ES_NVAR]>(nVar, kNode, kNode, res3, nullptr);
+      CHECK(kRow3 == kNode * m);
+
+      /*--- (d) Jacobian. ---*/
+      su2double jL[pbc::ES_NVAR][pbc::ES_NVAR], jR[pbc::ES_NVAR][pbc::ES_NVAR], jac[pbc::ES_NVAR][pbc::ES_NVAR];
+      pbc::EsIsmailRoeJacobian(nDim, kGamma, hatState, ghost, N, jL, jR);
+      for (int a = 0; a < nVar; ++a)
+        for (int b = 0; b < nVar; ++b) jac[a][b] = jL[a][b];
+      su2double resJ[pbc::ES_NVAR];
+      for (int v = 0; v < nVar; ++v) resJ[v] = resHat[v];
+      P1SSTMatched::BoundaryNodeKine(nVar, kNode, kBc, resJ, jac);
+      if (fabs(m) < 1e-3 * (1.0 + fabs(resHat[1]))) continue;  // k_b switches at m = 0
+      su2double err = 0.0, ref = 0.0;
+      for (int c = 0; c < nVar; ++c) {
+        const su2double h = 1e-6 * std::max(su2double(1.0), su2double(fabs(U[c])));
+        su2double Up[pbc::ES_NVAR], Um[pbc::ES_NVAR], rp[pbc::ES_NVAR] = {0.0}, rm[pbc::ES_NVAR] = {0.0};
+        for (int v = 0; v < nVar; ++v) Up[v] = Um[v] = U[v];
+        Up[c] += h;
+        Um[c] -= h;
+        matched(Up, kNode, rp);
+        matched(Um, kNode, rm);
+        for (int a = 0; a < nVar; ++a) {
+          const su2double fd = (rp[a] - rm[a]) / (2.0 * h);
+          err = std::max(err, su2double(fabs(fd - jac[a][c])));
+          ref = std::max(ref, su2double(fabs(fd)));
+        }
+      }
+      worst = std::max(worst, err / ref);
+    }
+    INFO("nDim " << nDim << " worst relative Jacobian error " << worst);
+    CHECK(worst < 1e-6);
+  }
+}
+
 TEST_CASE("BC_ENTROPY_P1 Jacobian: pressure flux faces and the scalar Ismail-Roe Jacobian", "[P1Flux]") {
   /*--- The wall branch of EsFaceJacobian (not used by the solver, which keeps the approximate wall Jacobian) and the
    * port of ismailRoeProjJac, which must equal the vectorized one to round-off. ---*/

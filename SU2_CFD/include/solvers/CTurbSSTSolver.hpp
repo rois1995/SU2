@@ -96,11 +96,12 @@ private:
 
   /*!
    * \brief Options of the convective boundary flux of this marker: the k row is skipped where the matched k of closure
-   *        C replaces it (far field, inlets, outlets with BC_ENTROPY_P1 and the matched form).
+   *        C replaces it (far field, inlets, outlets with BC_ENTROPY_P1 and the matched form), and with SPLIT_EDGE_FLUX,
+   *        whose BC_Far_Field, BC_Inlet, BC_Outlet put the same k_b m in the energy row and in P1KNodalRes.
    */
   ScalarFluxOptions ConvectiveBCOptions(const CConfig* config) const {
     auto opt = ScalarFluxOptions::BoundaryConvective(*config, config->GetBounded_Turb());
-    opt.skipFirstConvective = config->GetTke_Matched_P1() && config->GetBC_Entropy_P1();
+    opt.skipFirstConvective = config->GetTke_Matched_P1() && (config->GetBC_Entropy_P1() || config->GetSplit_Edge_Flux());
     return opt;
   }
 

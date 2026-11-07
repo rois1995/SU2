@@ -6701,6 +6701,13 @@ void CConfig::CheckP1FluxOptions() const {
       SU2_MPI::Error(name + "only with CONV_NUM_METHOD_FLOW= JST (JST-P1ES, JST-PD).", CURRENT_FUNCTION);
     if (GetBounded_Turb())
       SU2_MPI::Error(name + "not with CONV_NUM_METHOD_TURB= BOUNDED_SCALAR (the matched convection replaces it).", CURRENT_FUNCTION);
+    /*--- SPLIT_EDGE_FLUX: the matched boundary k (hat flux + k_b m) is in BC_Far_Field, BC_Inlet and BC_Outlet; the SST
+     * skips its own convective k flux there. Other inflow/outflow kinds would keep the unmatched k. ---*/
+    if (Split_Edge_Flux && ((nMarker_Riemann + nMarker_Giles + nMarker_Supersonic_Inlet + nMarker_Supersonic_Outlet +
+                             nMarker_EngineInflow + nMarker_EngineExhaust + nMarker_ActDiskInlet + nMarker_ActDiskOutlet +
+                             nMarker_NearFieldBound + nMarker_Fluid_InterfaceBound) > 0))
+      SU2_MPI::Error(name + "SPLIT_EDGE_FLUX: the matched boundary k covers far field, inlets, outlets, walls and symmetry "
+                     "planes only.", CURRENT_FUNCTION);
   }
   if (GetSST_P1_Element_Kine()) {
     /*--- M4: the net k source must stay below P*; the sustaining terms, custom sources and the LM intermittency

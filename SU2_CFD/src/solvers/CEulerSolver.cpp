@@ -1934,6 +1934,29 @@ void CEulerSolver::Centered_Residual(CGeometry *geometry, CSolver **solver_conta
   if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry, config, turbMatched);
 }
 
+void CEulerSolver::SetBoundaryHatStates(CNumerics* numerics, const su2double* V_domain, const su2double* V_ghost,
+                                        su2double kNode, su2double (*Vhat)[MAXNVAR + 8]) const {
+  if (nPrimVar > MAXNVAR + 8) SU2_MPI::Error("Matched k: too many primitive variables.", CURRENT_FUNCTION);
+  for (unsigned short iVar = 0; iVar < nPrimVar; ++iVar) {
+    Vhat[0][iVar] = V_domain[iVar];
+    Vhat[1][iVar] = V_ghost[iVar];
+  }
+  /*--- Both states carry the k of the node in their total enthalpy (BC_Far_Field, BC_Inlet, BC_Outlet). ---*/
+  Vhat[0][nDim + 3] -= kNode;
+  Vhat[1][nDim + 3] -= kNode;
+  numerics->SetPrimitive(Vhat[0], Vhat[1]);
+  numerics->SetTurbKineticEnergy(0.0, 0.0);
+}
+
+void CEulerSolver::AddBoundaryMatchedKine(unsigned long iPoint, su2double kNode, su2double kBc, su2double* res,
+                                          su2double (*jac)[5], bool implicit) {
+  /*--- Closure C k rule (P1_SST_COUPLED.md M2, SSTPATHS_PLAN.md revision 1): the hat boundary flux plus k_b m, the SST
+   * k row gets the same k_b m (MatchedNodalKine) and skips its own convective boundary flux (ConvectiveBCOptions). ---*/
+  const su2double m = res[0];
+  P1KNodalRes[iPoint] += P1SSTMatched::BoundaryNodeKine(nVar, kNode, kBc, res, implicit ? jac : nullptr);
+  P1KNodalJac[iPoint] += fmax(m, 0.0) / nodes->GetDensity(iPoint);
+}
+
 void CEulerSolver::SweptBoundaryResidual(const CGeometry *geometry, const CConfig *config, const CVariable* turbMatched) {
   SU2_ZONE_SCOPED
 
@@ -6116,6 +6139,10 @@ void CEulerSolver::BC_Far_Field(CGeometry *geometry, CSolver **solver_container,
   CVariable* turbNodes = nullptr;
   if (tkeNeeded) turbNodes = solver_container[TURB_SOL]->GetNodes();
 
+  /*--- SPLIT_EDGE_FLUX with SST (matched k): hat flux and the closure C k rule, k_inf on inflow (JSTFIN_PLAN.md 5). ---*/
+  const bool splitMatchedK = config->GetSplit_Edge_Flux() && config->GetTke_Matched_P1();
+  const su2double kInfMatched = splitMatchedK ? solver_container[TURB_SOL]->GetTke_Inf() : 0.0;
+
   auto *Normal = new su2double[nDim];
 
   /*--- Loop over all the vertices on this boundary marker ---*/
@@ -6182,6 +6209,8 @@ void CEulerSolver::BC_Far_Field(CGeometry *geometry, CSolver **solver_container,
       SoundSpeed_Bound = sqrt(Gamma*Pressure_Bound/Density_Bound);
       Entropy_Bound    = pow(Density_Bound, Gamma)/Pressure_Bound;
       Energy_Bound = nodes->GetEnergy(iPoint);
+      /*--- Matched k: the ghost Jacobian on the hat state (k frozen). ---*/
+      if (splitMatchedK) Energy_Bound -= turbNodes->GetSolution(iPoint, 0);
 
       /*--- Store the primitive variable state for the freestream. Project
          the freestream velocity vector into the local normal direction,
@@ -6431,6 +6460,10 @@ void CEulerSolver::BC_Far_Field(CGeometry *geometry, CSolver **solver_container,
 
       /*--- Set various quantities in the numerics class ---*/
 
+      su2double Vhat[2][MAXNVAR + 8];
+      if (splitMatchedK) {
+        SetBoundaryHatStates(conv_numerics, V_domain, V_infty, turbNodes->GetSolution(iPoint, 0), Vhat);
+      } else {
       conv_numerics->SetPrimitive(V_domain, V_infty);
 
       /*--- SST: both states contain the k of the node in their total enthalpy. ---*/
@@ -6442,6 +6475,7 @@ void CEulerSolver::BC_Far_Field(CGeometry *geometry, CSolver **solver_container,
         conv_numerics->SetTurbKineticEnergy(tke, tke);
 
       }
+      }
 
       if (dynamic_grid) {
         conv_numerics->SetGridVel(geometry->nodes->GetGridVel(iPoint),
@@ -6451,10 +6485,6 @@ void CEulerSolver::BC_Far_Field(CGeometry *geometry, CSolver **solver_container,
       /*--- Compute the convective residual using an upwind scheme ---*/
 
       auto residual = conv_numerics->ComputeResidual(config);
-
-      /*--- Update residual value ---*/
-
-      LinSysRes.AddBlock(iPoint, residual);
 
       /*--- Convective Jacobian contribution for implicit integration ---*/
 
@@ -6466,9 +6496,20 @@ void CEulerSolver::BC_Far_Field(CGeometry *geometry, CSolver **solver_container,
             for (int kVar = 0; kVar < nVar; ++kVar)
               totJac[iVar][jVar] += residual.jacobian_j[iVar][kVar] * dUInfdUBound[kVar][jVar];
           }
-
-        Jacobian.AddBlock2Diag(iPoint, totJac);
       }
+
+      /*--- Update residual value ---*/
+
+      if (splitMatchedK) {
+        su2double resK[MAXNVAR] = {0.0};
+        for (int iVar = 0; iVar < nVar; ++iVar) resK[iVar] = residual[iVar];
+        AddBoundaryMatchedKine(iPoint, turbNodes->GetSolution(iPoint, 0), kInfMatched, resK, totJac, implicit);
+        LinSysRes.AddBlock(iPoint, resK);
+      } else {
+        LinSysRes.AddBlock(iPoint, residual);
+      }
+
+      if (implicit) Jacobian.AddBlock2Diag(iPoint, totJac);
 
       /*--- Viscous residual contribution ---*/
 
@@ -8842,6 +8883,8 @@ void CEulerSolver::BC_Inlet(CGeometry *geometry, CSolver **solver_container,
   const auto Kind_Inlet_Cfg = config->GetKind_Inlet();
   const auto Marker_Tag = config->GetMarker_All_TagBound(val_marker);
   const bool tkeNeeded = (config->GetKind_Turb_Model() == TURB_MODEL::SST);
+  /*--- SPLIT_EDGE_FLUX with SST (matched k): hat flux and the closure C k rule, the SST inlet k on inflow. ---*/
+  const bool splitMatchedK = config->GetSplit_Edge_Flux() && config->GetTke_Matched_P1();
 
   /*--- Loop over all the vertices on this boundary marker ---*/
 
@@ -9100,6 +9143,10 @@ void CEulerSolver::BC_Inlet(CGeometry *geometry, CSolver **solver_container,
 
     /*--- Set various quantities in the solver class ---*/
 
+    su2double Vhat[2][MAXNVAR + 8];
+    if (splitMatchedK) {
+      SetBoundaryHatStates(conv_numerics, V_domain, V_inlet, solver_container[TURB_SOL]->GetNodes()->GetSolution(iPoint, 0), Vhat);
+    } else {
     conv_numerics->SetPrimitive(V_domain, V_inlet);
 
     /*--- SST: both states contain the k of the node in their total enthalpy. ---*/
@@ -9111,6 +9158,7 @@ void CEulerSolver::BC_Inlet(CGeometry *geometry, CSolver **solver_container,
       conv_numerics->SetTurbKineticEnergy(tke, tke);
 
     }
+    }
 
     if (dynamic_grid)
       conv_numerics->SetGridVel(geometry->nodes->GetGridVel(iPoint), geometry->nodes->GetGridVel(iPoint));
@@ -9118,6 +9166,20 @@ void CEulerSolver::BC_Inlet(CGeometry *geometry, CSolver **solver_container,
     /*--- Compute the residual using an upwind scheme ---*/
 
     auto residual = conv_numerics->ComputeResidual(config);
+
+    if (splitMatchedK) {
+      su2double resK[MAXNVAR] = {0.0}, jacK[5][5] = {{0.0}};
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+        resK[iVar] = residual[iVar];
+        for (unsigned short jVar = 0; jVar < nVar; ++jVar) jacK[iVar][jVar] = implicit ? residual.jacobian_i[iVar][jVar] : 0.0;
+      }
+      const su2double kBc = solver_container[TURB_SOL]->GetMatchedInletKine(config, this, val_marker, iVertex);
+      AddBoundaryMatchedKine(iPoint, solver_container[TURB_SOL]->GetNodes()->GetSolution(iPoint, 0), kBc, resK, jacK,
+                             implicit);
+      LinSysRes.AddBlock(iPoint, resK);
+      if (implicit) Jacobian.AddBlock2Diag(iPoint, jacK);
+      continue;
+    }
 
     /*--- Update residual value ---*/
 
@@ -9289,6 +9351,9 @@ void CEulerSolver::BC_Outlet(CGeometry *geometry, CSolver **solver_container,
   CVariable* turbNodes = nullptr;
   if (tkeNeeded) turbNodes = solver_container[TURB_SOL]->GetNodes();
 
+  /*--- SPLIT_EDGE_FLUX with SST (matched k): hat flux and the closure C k rule, the node's k on backflow (outlets). ---*/
+  const bool splitMatchedK = config->GetSplit_Edge_Flux() && config->GetTke_Matched_P1();
+
   auto *Normal = new su2double[nDim];
 
   /*--- Loop over all the vertices on this boundary marker ---*/
@@ -9383,11 +9448,16 @@ void CEulerSolver::BC_Outlet(CGeometry *geometry, CSolver **solver_container,
       }
 
       /*--- Set various quantities in the solver class ---*/
+      su2double Vhat[2][MAXNVAR + 8];
+      if (splitMatchedK) {
+        SetBoundaryHatStates(conv_numerics, V_domain, V_outlet, turbNodes->GetSolution(iPoint, 0), Vhat);
+      } else {
       conv_numerics->SetPrimitive(V_domain, V_outlet);
       /*--- SST: both states contain the k of the node in their total enthalpy. ---*/
       if (config->GetKind_Turb_Model() == TURB_MODEL::SST) {
         const su2double tke = solver_container[TURB_SOL]->GetNodes()->GetSolution(iPoint, 0);
         conv_numerics->SetTurbKineticEnergy(tke, tke);
+      }
       }
 
       if (dynamic_grid)
@@ -9399,9 +9469,21 @@ void CEulerSolver::BC_Outlet(CGeometry *geometry, CSolver **solver_container,
 
       /*--- Add Residuals and Jacobians ---*/
 
+      if (splitMatchedK) {
+        su2double resK[MAXNVAR] = {0.0}, jacK[5][5] = {{0.0}};
+        for (iVar = 0; iVar < nVar; ++iVar) {
+          resK[iVar] = residual[iVar];
+          for (unsigned short jVar = 0; jVar < nVar; ++jVar) jacK[iVar][jVar] = implicit ? residual.jacobian_i[iVar][jVar] : 0.0;
+        }
+        const su2double kNode = turbNodes->GetSolution(iPoint, 0);
+        AddBoundaryMatchedKine(iPoint, kNode, kNode, resK, jacK, implicit);
+        LinSysRes.AddBlock(iPoint, resK);
+        if (implicit) Jacobian.AddBlock2Diag(iPoint, jacK);
+      } else {
       LinSysRes.AddBlock(iPoint, residual);
       if (implicit)
         Jacobian.AddBlock2Diag(iPoint, residual.jacobian_i);
+      }
 
 //      /*--- Viscous contribution, commented out because serious convergence problems  ---*/
 //

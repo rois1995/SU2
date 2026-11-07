@@ -154,6 +154,27 @@ inline su2double KineDiffusionJacobian(unsigned short nDim, const su2double& siz
 }
 
 /*!
+ * \brief Nodal boundary flux of SU2's far field, inlet and outlet on hat states (SPLIT_EDGE_FLUX with SST): the closure
+ *        C k rule of the face node, k_b = k_i for m = res[0] >= 0 and kBc otherwise, res[E] += k_b m (M2 with the k row
+ *        number k_b m), and the hat Jacobian becomes L(k_b) jac T(k_i) (D1; k_b frozen, the inflow k is data). Returns
+ *        k_b m. jac may be null (explicit).
+ */
+template <class Jac>
+FORCEINLINE su2double BoundaryNodeKine(unsigned short nVar, const su2double& kNode, const su2double& kBc, su2double* res,
+                                       Jac* jac) {
+  const su2double m = res[0];
+  const su2double kRow = KUpwind(m, kNode, kBc) * m;
+  res[nVar - 1] += kRow;
+  if (jac) {
+    const su2double kB = KUpwind(m, kNode, kBc);
+    const unsigned short iE = nVar - 1;
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) jac[iVar][0] -= kNode * jac[iVar][iE];
+    for (unsigned short jVar = 0; jVar < nVar; ++jVar) jac[iE][jVar] += kB * jac[0][jVar];
+  }
+  return kRow;
+}
+
+/*!
  * \brief Weak no-slip wall closure (BC_WALL_ENTROPY_P1, pressure flux of closure C) at strong-k nodes with k_D != 0
  *        (rough walls): the closure rows have nodal masses m_a = sum_q phi_a(x_q) (G_qa - Gbar_q)[0] (zero sum over the
  *        face). The energy row of the face node a gets k_D,a m_a: with U = Uhat + rho k e_E this is the k part of the
