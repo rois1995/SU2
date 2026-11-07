@@ -1,7 +1,9 @@
 # Paper cases: classical EPM versus the adjoint estimate
 
-This directory prepares the results campaign; it does not run it. Production
-calculations and cluster access are outside the current authorization. The
+This directory prepares the results campaign; it does not run it. The user has
+selected CFDHub for execution; follow the [cluster workflow and storage contract](../../../../Docs/CFDHUB_SST_EPM.md).
+SU2/postprocessing outputs stay inside the modified checkout under global scratch;
+MPI and scheduler runtime files keep their default locations. The
 scientific question is the accuracy and cost of approximating the **corrected,
 unchanged classical EPM endpoints**, including cases where the approximation fails.
 The five-case range is an epistemic response envelope, not a confidence interval
@@ -83,7 +85,7 @@ baseline. Fresh adjoints use `RESTART_SOL=NO` while still reading the primal;
 nonlinear endpoints use `RESTART_SOL=YES` with the baseline as an initial guess.
 Each adjoint writes its own `sst_epm_sensitivities.csv`.
 
-Future execution, only after authorization, uses the reverse-AD binary without
+Future CFDHub execution uses the cluster-built reverse-AD binary without
 OpenMP in each job directory: `SU2_CFD_AD run.cfg > run.log 2>&1`. Solve and qualify
 the baseline first. Each endpoint supplies both CD and CL; do not duplicate primal
 solves per objective. MPI campaigns require the still-pending runtime verification.
