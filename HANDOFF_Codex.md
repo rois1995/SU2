@@ -14,10 +14,34 @@ fixtures/helpers/binary/config/inputs. Verify exact HOST handles before edits/re
 Preserve evidence before authorized stop/fix/retry; never repeat historical stops.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-A244=`R/m6_runs/euler_build244_visibility_real_cfd50k`.
+A244=`R/m6_runs/euler_build244_visibility_real_cfd50k`(completed combined sensor).
+A_MACH=`R/m6_runs/euler_build244_mach_only_real_cfd50k`(LIVE).
 A237=`R/m6_runs/euler_build237_signed_bounds_real_cfd50k`.
 
-## Current244 terminal; Mach-only target verified; next full attempt ready
+## ACTIVE — Mach-only full TWO-event M6, frozen
+
+User requested PRESSURE removed from adaptation sensors: ADAP_SENSOR=(MACH).
+Generator/config committed3a6a558e6e; underlying C++ remains build244/236e03ed64.
+Same qualified real CFD seed,L1/50k,gates/native5400/outer14400 unchanged.
+Actual Mach-only production target passed32.579044s,complexity49999.999626,
+finite SPD,0gradation violations; CFD fields/coords bit-identical to combined L1.
+
+Full Mach-only M6 ACTIVE tool73370. Runner3756305/start9561866;
+MPIlauncher3756595/start9562400,timeout3756594,6solver workers.
+R/m6_244_mach_only_{launch,owned_startup}.json exact HOST PID/start/argv/cwd.
+No stop sent. ONE heavy job,nice19/libs1/private4TBscratch. Freeze ALL current
+source/helpers/binary/config/inputs. A_MACH/initial_input_provenance.json proves
+actual run.cfg EXACTLY matches prepared Mach-only variant; original mesh/reference/
+CFD seed byte-identical completed244. No accepted mesh yet; let this attempt drive
+next work. No competing quality implementation. Latest target input preference
+also applies when preparing the later M6 RANS500k configuration.
+
+IMPORTANT: analyze_m6244_quality.py is hard-coded to the COMPLETED COMBINED case,
+not A_MACH. Reuse its parser only with the explicit new path for live Mach telemetry.
+Combined-target timing/work comparisons are not same-target Mach-only benchmarks.
+Never repeat the old244stop or signal historical PID3440421.
+
+## Preserved combined244 outcome and Mach-only preparation
 
 Full244 first event REFUSED native5347.387821/round37843. Final metric cache is
 UNKNOWN:1018217cells/measured0,ALL flags false; printed zero bad counts are NOT clean.

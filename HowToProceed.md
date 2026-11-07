@@ -22,8 +22,9 @@ The user now requests **MACH ONLY**, removing PRESSURE from ADAP_SENSOR. The run
 config and generator are updated and checked; same saved real CFD seed,L1,50k and
 unchanged gates/budgets. Production metric-only check passed,tool18760/32.579044s:
 `staged57/metric_target244_mach_only`,complexity49999.999626,finite SPD,zero
-gradation violations and bit-identical CFD fields. Use existing implementation244
-for the full two-event Mach-only M6; no C++ rebuild or new quality implementation.
+gradation violations and bit-identical CFD fields. Full two-event Mach-only M6 is now ACTIVE/FROZEN,tool73370,
+`euler_build244_mach_only_real_cfd50k`,same implementation244; no C++ rebuild or new
+quality implementation. Live handles/provenance are in HANDOFF_Codex.md.
 Combined-target timing comparisons do not describe an unchanged Mach-only target.
 Keep the coupled-quality hypothesis deferred until this changed-target outcome.
 
