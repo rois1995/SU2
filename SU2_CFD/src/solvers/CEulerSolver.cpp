@@ -349,6 +349,10 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
         nodes->TeCNOAdjEdgeD.resize(geometry->GetnEdge(), nVar * nVar) = su2double(0.0);
         TeCNOAdjP.resize(nPoint, nVar * nVar) = su2double(0.0);
       }
+      if (config->GetKind_TeCNO_Adj_Gradient() == TECNO_ADJ_GRADIENT::P1_AVERAGE) {
+        /*--- P1 average (P1_TECNO_ADJ_GRADIENT.md, G2): edge weights a and volumes Vhat, fixed (no grid motion). ---*/
+        geometry->SetTeCNOAdjointP1Weights(TeCNOAdjEdgeA, TeCNOAdjVol);
+      }
     }
   }
 
@@ -2352,7 +2356,11 @@ void CEulerSolver::SetTeCNOAdjointGradient(CGeometry *geometry, const CConfig *c
   END_SU2_OMP_FOR
 
   auto& gradient = nodes->TeCNOAdjGradient;
-  TeCNOAdjoint::Gradient(*geometry, nDim, nVar, TeCNOAdjW, gradient);
+  if (config->GetKind_TeCNO_Adj_Gradient() == TECNO_ADJ_GRADIENT::P1_AVERAGE) {
+    TeCNOAdjoint::GradientP1(*geometry, nDim, nVar, TeCNOAdjEdgeA, TeCNOAdjVol, TeCNOAdjW, gradient);
+  } else {
+    TeCNOAdjoint::Gradient(*geometry, nDim, nVar, TeCNOAdjW, gradient);
+  }
   CommPointData(geometry, config, gradient.data(), nVar * nDim);
 
   if (config->GetEdge_Form_TeCNO_Adjoint_Limiter()) {
@@ -2563,21 +2571,41 @@ void CEulerSolver::TeCNOAdjointResidual(CGeometry *geometry, const CConfig *conf
   const su2double gam = TeCNOAdjoint::GradientCoefficient(ramp, config->GetMUSCL_Kappa_Flow());
   const auto& phi = nodes->TeCNOAdjPhi;
 
-  TeCNOAdjoint::NodalMoment(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeQ, phi, TeCNOAdjY);
+  /*--- TECNO_ADJOINT_GRADIENT= P1_AVERAGE: Y = Z/Vhat and R_m += gam sum_k (a_km.Y_k - a_mk.Y_m) (G3). ---*/
+  const bool p1Average = (config->GetKind_TeCNO_Adj_Gradient() == TECNO_ADJ_GRADIENT::P1_AVERAGE);
+
+  if (p1Average) {
+    TeCNOAdjoint::NodalMomentP1(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeQ, phi, TeCNOAdjVol, TeCNOAdjY);
+  } else {
+    TeCNOAdjoint::NodalMoment(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeQ, phi, TeCNOAdjY);
+  }
   CommPointData(geometry, config, TeCNOAdjY.data(), nVar * nDim);
-  TeCNOAdjoint::AddTranspose(*geometry, nDim, nVar, TeCNOAdjY, gam, LinSysRes);
+  if (p1Average) {
+    TeCNOAdjoint::AddTransposeP1(*geometry, nDim, nVar, TeCNOAdjEdgeA, TeCNOAdjY, gam, LinSysRes);
+  } else {
+    TeCNOAdjoint::AddTranspose(*geometry, nDim, nVar, TeCNOAdjY, gam, LinSysRes);
+  }
 
   /*--- EDGE_FORM_TECNO_A4_JACOBIAN: diagonal blocks 3/2 [sum_k |n_mk|/2 Phat_k + |sum_k n_mk|/2 Phat_m] dw/dU_m of
    * M#, the edge loop added the Delta blocks. ---*/
 
   if (config->GetEdge_Form_TeCNO_A4_Jacobian() && (config->GetKind_TimeIntScheme() == EULER_IMPLICIT)) {
-    TeCNOAdjoint::MajorantNodal(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeD, phi, gam, TeCNOAdjP);
+    if (p1Average) {
+      TeCNOAdjoint::MajorantNodalP1(*geometry, nDim, nVar, TeCNOAdjEdgeA, TeCNOAdjVol, nodes->TeCNOAdjEdgeD, phi, gam,
+                                    TeCNOAdjP);
+    } else {
+      TeCNOAdjoint::MajorantNodal(*geometry, nDim, nVar, nodes->TeCNOAdjEdgeD, phi, gam, TeCNOAdjP);
+    }
     CommPointData(geometry, config, TeCNOAdjP.data(), nVar * nVar);
 
     SU2_OMP_FOR_STAT(omp_chunk_size)
     for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
       TeCNOAdjoint::Block blockW, H, block;
-      TeCNOAdjoint::MajorantDiagonal(*geometry, nDim, nVar, TeCNOAdjP, iPoint, blockW);
+      if (p1Average) {
+        TeCNOAdjoint::MajorantDiagonalP1(*geometry, nDim, nVar, TeCNOAdjEdgeA, TeCNOAdjP, iPoint, blockW);
+      } else {
+        TeCNOAdjoint::MajorantDiagonal(*geometry, nDim, nVar, TeCNOAdjP, iPoint, blockW);
+      }
       su2double velocity[MAXNDIM] = {0.0};
       for (auto iDim = 0u; iDim < nDim; ++iDim) velocity[iDim] = nodes->GetPrimitive(iPoint, iDim + 1);
       const su2double density = nodes->GetPrimitive(iPoint, nDim + 2);

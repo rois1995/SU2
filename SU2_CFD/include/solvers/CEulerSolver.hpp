@@ -51,10 +51,13 @@ protected:
   CVectorOfMatrix TeCNOAdjY;       /*!< \brief Y_i = Z_i / V_i of the adjoint gradient loop (iPoint, iVar, iDim). */
   su2activematrix TeCNOAdjP;       /*!< \brief Phat_i of the Lemma A4 majorant (iPoint, iVar*nVar + jVar). */
   su2activematrix TeCNOAdjLimiter, TeCNOAdjMin, TeCNOAdjMax; /*!< \brief Limiter of w and its work arrays. */
+  su2activematrix TeCNOAdjEdgeA;   /*!< \brief TECNO_ADJOINT_GRADIENT= P1_AVERAGE: a_{0,1}, a_{1,0} of each edge (iEdge, 2 nDim). */
+  su2activevector TeCNOAdjVol;     /*!< \brief Its nodal volumes Vhat_i = sum_T W_i^T. */
 
   /*!
-   * \brief EDGE_FORM_TECNO_ADJOINT: entropy variables, their Green-Gauss gradient (difference form) and the nodal
-   *        weights phi, owned nodes copied to the halos. Called in Preprocessing, before the residual.
+   * \brief EDGE_FORM_TECNO_ADJOINT: entropy variables, their gradient (TECNO_ADJOINT_GRADIENT: Green-Gauss in difference
+   *        form or the P1 average) and the nodal weights phi, owned nodes copied to the halos. Called in Preprocessing,
+   *        before the residual.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
    */

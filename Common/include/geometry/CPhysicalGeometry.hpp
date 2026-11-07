@@ -480,6 +480,14 @@ class CPhysicalGeometry final : public CGeometry {
   void SetEdgeFormBlend(bool movedViscous, bool mixed = false) override;
 
   /*!
+   * \brief TECNO_ADJOINT_GRADIENT= P1_AVERAGE: with the shares W of SetControlVolume (CellNodeShares) and the P1 shape
+   *        gradients g of each simplex, a_ik = sum_{T ni i,k} W_i^T g_k^T on every edge and Vhat_i = sum_T W_i^T.
+   * \param[out] weights - (iEdge, 2 nDim): a_{node 0, node 1} in columns [0, nDim), a_{node 1, node 0} in [nDim, 2 nDim).
+   * \param[out] volume - Vhat (iPoint).
+   */
+  void SetTeCNOAdjointP1Weights(su2activematrix& weights, su2activevector& volume) override;
+
+  /*!
    * \brief EDGE_FORM_P1_MIXED: the weighted sub-simplices of the neighbour-fan subset of the pulling splits of a cell
    *        type (P1Mixed::NeighbourFanAverage on GetSplitPatterns), built on first use and kept by VTK type.
    * \param[in] element - A non-simplex cell of that type.

@@ -1889,6 +1889,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("EDGE_FORM_TECNO_ADJOINT_LIMITER", Edge_Form_TeCNO_Adjoint_Limiter, false);
   /*!\brief EDGE_FORM_TECNO_A4_JACOBIAN \n DESCRIPTION: Dissipation Jacobian of EDGE_FORM_TECNO_ADJOINT from a majorant of C^T D C in the sparsity of the edge loop (Lemma A4, with a three-term split): provably sufficient for contraction (Lemma C4), slower than the default first order Roe Jacobian on nu. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_TECNO_A4_JACOBIAN", Edge_Form_TeCNO_A4_Jacobian, false);
+  /*!\brief TECNO_ADJOINT_GRADIENT \n DESCRIPTION: Gradient G of the entropy variables in the dissipation of EDGE_FORM_TECNO_ADJOINT. GREEN_GAUSS: Green-Gauss on the dual in difference form (linear exact only at interior nodes of the median dual). P1_AVERAGE: G_i w = sum_T W_i^T grad(w_h)|_T / sum_T W_i^T with the dual shares W of the residual (moved with MOD_CENTROIDS), linear exact at every node, simplices only (P1_TECNO_ADJ_GRADIENT.md). \ingroup Config \default GREEN_GAUSS */
+  addEnumOption("TECNO_ADJOINT_GRADIENT", Kind_TeCNO_Adj_Gradient, TeCNO_Adj_Gradient_Map, TECNO_ADJ_GRADIENT::GREEN_GAUSS);
   /*!\brief EDGE_FORM_EC_EXACT_JACOBIAN \n DESCRIPTION: ROE with EDGE_FORM_EC_FLUX or EDGE_FORM_TECNO: exact Jacobian of the Ismail-Roe flux of the nodal states (both node blocks) instead of 1/2 A_i, 1/2 A_k. \ingroup Config \default false */
   addBoolOption("EDGE_FORM_EC_EXACT_JACOBIAN", Edge_Form_EC_Exact_Jacobian, false);
   /*!\brief POSITIVE_UPDATE_FLOW \n DESCRIPTION: Positivity-preserving implicit update (P1_POSITIVITY.md). The factor of MAX_UPDATE_FLOW is reduced per node to the largest alpha with rho >= eps_r rho_old (linear) and q >= eps_e q_old (smallest positive root of a quadratic, q = rhoE - |m|^2/(2 rho), minus rho k with SST), eps_r = eps_e = 0.1, the rounded state checked again (halving). A nonfinite increment cancels the update. With SST the turbulence factor also keeps rho k <= (1 - eps_e) q; SA and SST updates with a nonfinite increment are cancelled. Positive pressure for an ideal gas. History fields POSITIVE_LIMITED_POINTS and POSITIVE_FAILED_POINTS (group POSITIVE_UPDATE). \ingroup Config \default false */
@@ -6342,6 +6344,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (Edge_Form_TeCNO_Adjoint) active.push_back("EDGE_FORM_TECNO_ADJOINT");
   if (Edge_Form_TeCNO_Adjoint_Limiter) active.push_back("EDGE_FORM_TECNO_ADJOINT_LIMITER");
   if (Edge_Form_TeCNO_A4_Jacobian) active.push_back("EDGE_FORM_TECNO_A4_JACOBIAN");
+  if (Kind_TeCNO_Adj_Gradient == TECNO_ADJ_GRADIENT::P1_AVERAGE) active.push_back("TECNO_ADJOINT_GRADIENT= P1_AVERAGE");
   if (Edge_Form_EC_Exact_Jacobian) active.push_back("EDGE_FORM_EC_EXACT_JACOBIAN");
   if (Edge_Form_TeCNO_Wide && !Edge_Form_TeCNO) SU2_MPI::Error("EDGE_FORM_TECNO_WIDE: needs EDGE_FORM_TECNO= YES.", CURRENT_FUNCTION);
   if (Edge_Form_TeCNO_Smooth && (!Edge_Form_TeCNO || Edge_Form_TeCNO_Wide)) SU2_MPI::Error("EDGE_FORM_TECNO_SMOOTH: needs EDGE_FORM_TECNO= YES and not EDGE_FORM_TECNO_WIDE.", CURRENT_FUNCTION);
@@ -6519,6 +6522,10 @@ void CConfig::CheckP1FluxOptions() const {
     if (!Edge_Form_TeCNO_Adjoint) SU2_MPI::Error(name + "needs EDGE_FORM_TECNO_ADJOINT= YES.", CURRENT_FUNCTION);
     if ((Kind_SlopeLimit_Flow == LIMITER::NONE) || (Kind_SlopeLimit_Flow == LIMITER::VAN_ALBADA_EDGE))
       SU2_MPI::Error(name + "needs a nodal SLOPE_LIMITER_FLOW (not NONE or VAN_ALBADA_EDGE).", CURRENT_FUNCTION);
+  }
+  if (Kind_TeCNO_Adj_Gradient == TECNO_ADJ_GRADIENT::P1_AVERAGE) {
+    const string name = "TECNO_ADJOINT_GRADIENT= P1_AVERAGE: ";
+    if (!Edge_Form_TeCNO_Adjoint) SU2_MPI::Error(name + "needs EDGE_FORM_TECNO_ADJOINT= YES.", CURRENT_FUNCTION);
   }
   if (Edge_Form_TeCNO_A4_Jacobian) {
     const string name = "EDGE_FORM_TECNO_A4_JACOBIAN: ";

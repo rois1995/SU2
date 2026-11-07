@@ -959,6 +959,15 @@ class CGeometry {
   inline virtual void SetEdgeFormBlend(bool movedViscous, bool mixed = false) {}
 
   /*!
+   * \brief TECNO_ADJOINT_GRADIENT= P1_AVERAGE: edge weights a_ik, a_ki and nodal volumes of the P1 average gradient.
+   * \param[out] weights - (iEdge, 2 nDim): a_{node 0, node 1} in columns [0, nDim), a_{node 1, node 0} in [nDim, 2 nDim).
+   * \param[out] volume - Sum of the dual shares of each node.
+   */
+  inline virtual void SetTeCNOAdjointP1Weights(su2activematrix& weights, su2activevector& volume) {
+    SU2_MPI::Error("TECNO_ADJOINT_GRADIENT= P1_AVERAGE needs the physical geometry.", CURRENT_FUNCTION);
+  }
+
+  /*!
    * \brief Split all cells into simplices and set the central flux coefficients of the split edges.
    */
   inline virtual void SetSplitEdges() {}

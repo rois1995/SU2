@@ -90,6 +90,16 @@ CCompressiblePrimitives<nDim, nDim + 4> PrimitivesOfConservatives(const double* 
   return Primitives<nDim>(U[0], u, (GAMMA - 1.0) * (U[nDim + 1] - 0.5 * U[0] * q2));
 }
 
+/*!
+ * \brief TECNO_ADJOINT_GRADIENT= P1_AVERAGE data of a geometry (CPhysicalGeometry::SetTeCNOAdjointP1Weights).
+ */
+struct P1Average {
+  su2activematrix weights; /*!< \brief a_{0,1}, a_{1,0} of each edge (iEdge, 2 nDim). */
+  su2activevector volume;  /*!< \brief Vhat (iPoint). */
+  template <class Geometry>
+  explicit P1Average(Geometry& geometry) { geometry.SetTeCNOAdjointP1Weights(weights, volume); }
+};
+
 inline su2activematrix EntropyField(const States& S, unsigned short nDim) {
   su2activematrix w(S.rho.size(), nDim + 2);
   for (auto i = 0ul; i < S.rho.size(); ++i)
@@ -143,15 +153,21 @@ su2activematrix FrozenD(const Geometry& geometry, const States& S, bool projecte
 /*!
  * \brief Adjoint dissipation residual for frozen D and phi, any nodal field w: the Delta part of the edge loop
  *        -(1 - ramp kappa) q (+ at node 0, - at node 1 of the flux convention, i.e. R_i -= , R_k +=) and the transpose
- *        loop of the solver. Returns R (nPoint, nVar), and sum_e L_e^T D_e L_e.
+ *        loop of the solver. Returns R (nPoint, nVar), and sum_e L_e^T D_e L_e. With p1, the P1 average gradient
+ *        (TECNO_ADJOINT_GRADIENT= P1_AVERAGE) and its transpose, else Green-Gauss.
  */
 template <size_t nDim, class Geometry>
 su2activematrix Residual(const Geometry& geometry, const su2activematrix& D, const su2activevector& phi,
-                         const su2activematrix& w, double ramp, double kappa, double& sumLDL) {
+                         const su2activematrix& w, double ramp, double kappa, double& sumLDL,
+                         const P1Average* p1 = nullptr) {
   constexpr size_t nVar = nDim + 2;
   const auto nPoint = w.rows();
   CVectorOfMatrix grad(nPoint, nVar, nDim, 0.0);
-  TeCNOAdjoint::Gradient(geometry, nDim, nVar, w, grad);
+  if (p1) {
+    TeCNOAdjoint::GradientP1(geometry, nDim, nVar, p1->weights, p1->volume, w, grad);
+  } else {
+    TeCNOAdjoint::Gradient(geometry, nDim, nVar, w, grad);
+  }
   su2activematrix Q(geometry.GetnEdge(), nVar);
   su2activematrix R(nPoint, nVar);
   R = su2double(0.0);
@@ -174,8 +190,14 @@ su2activematrix Residual(const Geometry& geometry, const su2activematrix& D, con
     }
   }
   CVectorOfMatrix Y(nPoint, nVar, nDim, 0.0);
-  TeCNOAdjoint::NodalMoment(geometry, nDim, nVar, Q, phi, Y);
-  TeCNOAdjoint::AddTranspose(geometry, nDim, nVar, Y, TeCNOAdjoint::GradientCoefficient(ramp, kappa), R);
+  const su2double gam = TeCNOAdjoint::GradientCoefficient(ramp, kappa);
+  if (p1) {
+    TeCNOAdjoint::NodalMomentP1(geometry, nDim, nVar, Q, phi, p1->volume, Y);
+    TeCNOAdjoint::AddTransposeP1(geometry, nDim, nVar, p1->weights, Y, gam, R);
+  } else {
+    TeCNOAdjoint::NodalMoment(geometry, nDim, nVar, Q, phi, Y);
+    TeCNOAdjoint::AddTranspose(geometry, nDim, nVar, Y, gam, R);
+  }
   return R;
 }
 
@@ -187,7 +209,8 @@ struct EntropyResult {
 };
 
 template <size_t nDim, class Geometry>
-EntropyResult EntropyCheck(const Geometry& geometry, unsigned long nPoint, int nTrials, unsigned seed) {
+EntropyResult EntropyCheck(const Geometry& geometry, unsigned long nPoint, int nTrials, unsigned seed,
+                           const P1Average* p1 = nullptr) {
   constexpr size_t nVar = nDim + 2;
   std::mt19937 gen(seed);
   std::uniform_real_distribution<double> r01(0.0, 1.0);
@@ -200,7 +223,7 @@ EntropyResult EntropyCheck(const Geometry& geometry, unsigned long nPoint, int n
     const double ramp = (t % 3 == 0) ? 0.6 : 1.0, kappa = (t % 4 == 1) ? 1.0 / 3.0 : 0.0;
     const auto w = EntropyField(S, nDim);
     double sumLDL = 0.0;
-    const auto R = Residual<nDim>(geometry, D, phi, w, ramp, kappa, sumLDL);
+    const auto R = Residual<nDim>(geometry, D, phi, w, ramp, kappa, sumLDL, p1);
     double wR = 0.0, absWR = 0.0, maxR = 0.0, cons[nVar] = {0.0};
     for (auto i = 0ul; i < nPoint; ++i) {
       for (size_t v = 0; v < nVar; ++v) {
@@ -225,7 +248,8 @@ struct LinearizationResult {
 };
 
 template <size_t nDim, class Geometry>
-LinearizationResult LinearizationCheck(const Geometry& geometry, unsigned long nPoint, int nTrials, unsigned seed) {
+LinearizationResult LinearizationCheck(const Geometry& geometry, unsigned long nPoint, int nTrials, unsigned seed,
+                                       const P1Average* p1 = nullptr) {
   constexpr size_t nVar = nDim + 2;
   std::mt19937 gen(seed);
   std::uniform_real_distribution<double> r01(0.0, 1.0);
@@ -245,7 +269,7 @@ LinearizationResult LinearizationCheck(const Geometry& geometry, unsigned long n
       w = su2double(0.0);
       w(col / nVar, col % nVar) = 1.0;
       double sumLDL = 0.0;
-      const auto R = Residual<nDim>(geometry, D, phi, w, ramp, kappa, sumLDL);
+      const auto R = Residual<nDim>(geometry, D, phi, w, ramp, kappa, sumLDL, p1);
       for (auto i = 0ul; i < nPoint; ++i)
         for (size_t v = 0; v < nVar; ++v) A(nVar * i + v, col) = R(i, v);
     }
@@ -272,10 +296,18 @@ LinearizationResult LinearizationCheck(const Geometry& geometry, unsigned long n
       }
     }
     su2activematrix P(nPoint, nVar * nVar);
-    TeCNOAdjoint::MajorantNodal(geometry, nDim, nVar, D, phi, gam, P);
+    if (p1) {
+      TeCNOAdjoint::MajorantNodalP1(geometry, nDim, nVar, p1->weights, p1->volume, D, phi, gam, P);
+    } else {
+      TeCNOAdjoint::MajorantNodal(geometry, nDim, nVar, D, phi, gam, P);
+    }
     for (auto i = 0ul; i < nPoint; ++i) {
       TeCNOAdjoint::Block blk;
-      TeCNOAdjoint::MajorantDiagonal(geometry, nDim, nVar, P, i, blk);
+      if (p1) {
+        TeCNOAdjoint::MajorantDiagonalP1(geometry, nDim, nVar, p1->weights, P, i, blk);
+      } else {
+        TeCNOAdjoint::MajorantDiagonal(geometry, nDim, nVar, P, i, blk);
+      }
       for (size_t a = 0; a < nVar; ++a)
         for (size_t b = 0; b < nVar; ++b) M(nVar * i + a, nVar * i + b) += blk(a, b);
     }

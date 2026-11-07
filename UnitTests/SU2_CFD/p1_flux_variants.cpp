@@ -65,9 +65,11 @@ inline unsigned long Lattice(unsigned long i, unsigned long j, unsigned long k, 
 
 /*!
  * \brief Write a jittered triangle (2D) or Kuhn tet (3D) mesh of the unit square/cube. Interior nodes move,
- *        boundary nodes stay on the box, the z scale stretches the cells. Markers: bottom, rest.
+ *        boundary nodes stay on the box, the z scale stretches the cells. Markers: bottom, rest. An optional map
+ *        moves every point (x, y, z) after the stretch (e.g. bends the box so that the bottom wall is curved).
  */
-void WriteSimplexMesh(const std::string& name, int nDim, unsigned long n, double jitter, double stretch) {
+void WriteSimplexMesh(const std::string& name, int nDim, unsigned long n, double jitter, double stretch,
+                      void (*map)(double*) = nullptr) {
   if (SU2_MPI::GetRank() != MASTER_NODE) return;
 
   std::mt19937 gen(1234);
@@ -95,7 +97,9 @@ void WriteSimplexMesh(const std::string& name, int nDim, unsigned long n, double
         const bool inner = (i > 0) && (j > 0) && (i < n) && (j < n);
         const double x = (i + (inner ? jitter * rnd(gen) : 0.0)) / n;
         const double y = (j + (inner ? jitter * rnd(gen) : 0.0)) / n;
-        points << x << " " << y * stretch << "\n";
+        double p[3] = {x, y * stretch, 0.0};
+        if (map) map(p);
+        points << p[0] << " " << p[1] << "\n";
         ++nPoint;
       }
     }
@@ -131,7 +135,9 @@ void WriteSimplexMesh(const std::string& name, int nDim, unsigned long n, double
         const double x = (i + (inner ? jitter * rnd(gen) : 0.0)) / n;
         const double y = (j + (inner ? jitter * rnd(gen) : 0.0)) / n;
         const double z = (k + (inner ? jitter * rnd(gen) : 0.0)) / n;
-        points << x << " " << y << " " << z * stretch << "\n";
+        double p[3] = {x, y, z * stretch};
+        if (map) map(p);
+        points << p[0] << " " << p[1] << " " << p[2] << "\n";
         ++nPoint;
       }
     }
@@ -3315,6 +3321,269 @@ TEST_CASE("EDGE_FORM_TECNO_ADJOINT: the jump C_e w is linear exact and third ord
   if (SU2_MPI::GetSize() > 1) return;
   TeCNOAdjointJumpCase<2>();
   TeCNOAdjointJumpCase<3>();
+}
+
+/*--- TECNO_ADJOINT_GRADIENT= P1_AVERAGE (P1_TECNO_ADJ_GRADIENT.md, G2/G3): weights and volumes, linear exactness at every
+ * node of jittered, stretched and curved-wall meshes on both duals (1/2/4 ranks, owned nodes and the edges between
+ * owned nodes), the median-dual identity with Green-Gauss, the transpose, Theorem A1 and Lemma A4 (serial). ---*/
+
+namespace {
+const char* const P1AverageMoved = "MOD_CENTROIDS= YES\nCONV_NUM_METHOD_FLOW= JST\nEDGE_FORM_P1= YES\n";
+
+/*--- Bend the box: x -> angle, the bottom (y = 0 in 2D, z = 0 in 3D) becomes an arc of radius 2. ---*/
+void BendMesh2D(double* p) {
+  const double angle = 0.8 * (p[0] - 0.5), r = 2.0 + p[1];
+  p[0] = r * sin(angle);
+  p[1] = r * cos(angle) - 2.0;
+}
+void BendMesh3D(double* p) {
+  const double angle = 0.8 * (p[0] - 0.5), r = 2.0 + p[2];
+  p[0] = r * sin(angle);
+  p[2] = r * cos(angle) - 2.0;
+}
+
+struct P1AverageErrors {
+  double volume = 0.0;   /*!< \brief max |Vhat - V| / V. */
+  double identity = 0.0; /*!< \brief max |sum_k a_ik (x) e_ik - Vhat I| / Vhat. */
+  double linear = 0.0;   /*!< \brief max |G w - A| / max|A| for w = A x + b. */
+  double constant = 0.0; /*!< \brief max |G 1|. */
+  double jump = 0.0;     /*!< \brief max |L_e| / max |w_k - w_i| for the linear w, edges between owned nodes. */
+  double minShare = 0.0; /*!< \brief min Vhat / V (positivity of the shares). */
+};
+
+template <size_t nDim>
+P1AverageErrors P1AverageExactness(CGeometry& geometry) {
+  constexpr size_t nVar = nDim + 2;
+  const TeCNOAdjointChecks::P1Average p1(geometry);
+  const auto nPoint = geometry.GetnPoint();
+  P1AverageErrors local;
+  local.minShare = 1e300;
+
+  su2double A[nVar][nDim];
+  for (size_t v = 0; v < nVar; ++v)
+    for (size_t d = 0; d < nDim; ++d) A[v][d] = 1.0 + v - 0.7 * d + 0.3 * v * d;
+  su2activematrix w(nPoint, nVar), one(nPoint, nVar);
+  double maxA = 0.0;
+  for (size_t v = 0; v < nVar; ++v)
+    for (size_t d = 0; d < nDim; ++d) maxA = std::max(maxA, fabs(A[v][d]));
+  for (auto i = 0ul; i < nPoint; ++i) {
+    for (size_t v = 0; v < nVar; ++v) {
+      su2double val = 0.3 + v;
+      for (size_t d = 0; d < nDim; ++d) val += A[v][d] * geometry.nodes->GetCoord(i, d);
+      w(i, v) = val;
+      one(i, v) = 1.0;
+    }
+  }
+  CVectorOfMatrix grad(nPoint, nVar, nDim, 0.0), gradOne(nPoint, nVar, nDim, 0.0);
+  TeCNOAdjoint::GradientP1(geometry, nDim, nVar, p1.weights, p1.volume, w, grad);
+  TeCNOAdjoint::GradientP1(geometry, nDim, nVar, p1.weights, p1.volume, one, gradOne);
+
+  for (auto i = 0ul; i < geometry.GetnPointDomain(); ++i) {
+    const su2double V = geometry.nodes->GetVolume(i), Vhat = p1.volume(i);
+    local.volume = std::max(local.volume, fabs(Vhat - V) / V);
+    local.minShare = std::min(local.minShare, Vhat / V);
+    su2double M[3][3] = {{0.0}};
+    for (auto iEdge : geometry.nodes->GetEdges(i)) {
+      const bool first = (geometry.edges->GetNode(iEdge, 0) == i);
+      const auto k = geometry.edges->GetNode(iEdge, first ? 1 : 0);
+      for (size_t a = 0; a < nDim; ++a)
+        for (size_t b = 0; b < nDim; ++b)
+          M[a][b] += p1.weights(iEdge, (first ? 0 : nDim) + a) *
+                     (geometry.nodes->GetCoord(k, b) - geometry.nodes->GetCoord(i, b));
+    }
+    for (size_t a = 0; a < nDim; ++a)
+      for (size_t b = 0; b < nDim; ++b) local.identity = std::max(local.identity, fabs(M[b][a] - (a == b) * Vhat) / Vhat);
+    for (size_t v = 0; v < nVar; ++v) {
+      for (size_t d = 0; d < nDim; ++d) {
+        local.linear = std::max(local.linear, fabs(grad(i, v, d) - A[v][d]) / maxA);
+        local.constant = std::max(local.constant, fabs(gradOne(i, v, d)));
+      }
+    }
+  }
+  for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+    const auto i = geometry.edges->GetNode(e, 0), k = geometry.edges->GetNode(e, 1);
+    if (!geometry.nodes->GetDomain(i) || !geometry.nodes->GetDomain(k)) continue;
+    Vector<su2double, nVar> dw, L;
+    Vector<su2double, nDim> edge;
+    double maxDw = 0.0;
+    for (size_t v = 0; v < nVar; ++v) {
+      dw(v) = w(k, v) - w(i, v);
+      maxDw = std::max(maxDw, fabs(dw(v)));
+    }
+    for (size_t d = 0; d < nDim; ++d) edge(d) = geometry.nodes->GetCoord(k)[d] - geometry.nodes->GetCoord(i)[d];
+    TeCNOAdjoint::EdgeJump(nDim, nVar, dw, grad[i], grad[k], su2double(1.0), su2double(1.0), edge, 1.0, 0.0, L);
+    for (size_t v = 0; v < nVar; ++v) local.jump = std::max(local.jump, fabs(L(v)) / maxDw);
+  }
+  P1AverageErrors global;
+  SU2_MPI::Allreduce(&local.volume, &global.volume, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&local.identity, &global.identity, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&local.linear, &global.linear, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&local.constant, &global.constant, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&local.jump, &global.jump, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&local.minShare, &global.minShare, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
+  return global;
+}
+
+template <size_t nDim>
+void P1AverageExactnessCase() {
+  struct Mesh {
+    const char* tag;
+    unsigned long n;
+    double jitter, stretch;
+    void (*map)(double*);
+  };
+  const std::vector<Mesh> meshes = {{"jitter", (nDim == 2) ? 8ul : 3ul, 0.4, 1.0, nullptr},
+                                    {"stretch", (nDim == 2) ? 8ul : 3ul, 0.3, 1e-3, nullptr},
+                                    {"curved", (nDim == 2) ? 8ul : 3ul, 0.3, 0.1, (nDim == 2) ? BendMesh2D : BendMesh3D}};
+  for (const auto& m : meshes) {
+    for (const bool moved : {false, true}) {
+      const std::string mesh = "p1avg_" + std::string(m.tag) + "_" + std::to_string(nDim) + "d.su2";
+      WriteSimplexMesh(mesh, nDim, m.n, m.jitter, m.stretch, m.map);
+      MeshCase test(mesh, moved ? P1AverageMoved : "");
+      const auto r = P1AverageExactness<nDim>(*test.geometry);
+      INFO("nDim " << nDim << " mesh " << m.tag << " moved " << moved << ": volume " << r.volume << ", identity "
+                   << r.identity << ", linear " << r.linear << ", constant " << r.constant << ", jump " << r.jump
+                   << ", min share " << r.minShare);
+      CHECK(r.volume < 1e-12);
+      CHECK(r.identity < 1e-10);
+      CHECK(r.linear < 1e-9);
+      CHECK(r.constant == 0.0);
+      CHECK(r.jump < 1e-9);
+      CHECK(r.minShare > 0.5);
+    }
+  }
+}
+
+/*--- Median dual: G = Green-Gauss at interior nodes for any nodal data (G2 (d)); boundary nodes differ. ---*/
+template <size_t nDim>
+void P1AverageMedianIdentityCase() {
+  constexpr size_t nVar = nDim + 2;
+  const std::string mesh = "p1avg_median_" + std::to_string(nDim) + "d.su2";
+  WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 8 : 4, 0.4, 1.0);
+  MeshCase test(mesh);
+  auto& geometry = *test.geometry;
+  const TeCNOAdjointChecks::P1Average p1(geometry);
+  const auto nPoint = geometry.GetnPoint();
+  su2activematrix w(nPoint, nVar);
+  for (auto i = 0ul; i < nPoint; ++i) {
+    const auto* x = geometry.nodes->GetCoord(i);
+    for (size_t v = 0; v < nVar; ++v) w(i, v) = sin(3.0 * x[0] + v) * cos(2.0 * x[1] - 0.5 * v) + x[nDim - 1] * x[0];
+  }
+  CVectorOfMatrix g1(nPoint, nVar, nDim, 0.0), g2(nPoint, nVar, nDim, 0.0);
+  TeCNOAdjoint::GradientP1(geometry, nDim, nVar, p1.weights, p1.volume, w, g1);
+  TeCNOAdjoint::Gradient(geometry, nDim, nVar, w, g2);
+  double interior = 0.0, boundary = 0.0, scale = 0.0;
+  for (auto i = 0ul; i < geometry.GetnPointDomain(); ++i) {
+    for (size_t v = 0; v < nVar; ++v) {
+      for (size_t d = 0; d < nDim; ++d) {
+        scale = std::max(scale, fabs(g2(i, v, d)));
+        auto& worst = geometry.nodes->GetBoundary(i) ? boundary : interior;
+        worst = std::max(worst, fabs(g1(i, v, d) - g2(i, v, d)));
+      }
+    }
+  }
+  double global[3], local[3] = {interior, boundary, scale};
+  SU2_MPI::Allreduce(local, global, 3, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  INFO("nDim " << nDim << ": interior " << global[0] / global[2] << ", boundary " << global[1] / global[2]);
+  CHECK(global[0] / global[2] < 1e-12);
+  CHECK(global[1] / global[2] > 1e-3);
+}
+
+/*--- <G w, Z> = <w, G^T Z> with G^T Z = AddTransposeP1(Y = Z / Vhat, gam = 1), serial. ---*/
+template <size_t nDim>
+void P1AverageTransposeCase() {
+  constexpr size_t nVar = nDim + 2;
+  for (const bool moved : {false, true}) {
+    const std::string mesh = "p1avg_transpose_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 6 : 3, 0.4, 0.2, (nDim == 2) ? BendMesh2D : BendMesh3D);
+    MeshCase test(mesh, moved ? P1AverageMoved : "");
+    auto& geometry = *test.geometry;
+    const TeCNOAdjointChecks::P1Average p1(geometry);
+    const auto nPoint = geometry.GetnPoint();
+    std::mt19937 gen(17);
+    std::uniform_real_distribution<double> r(-1.0, 1.0);
+    su2activematrix w(nPoint, nVar), R(nPoint, nVar);
+    CVectorOfMatrix Z(nPoint, nVar, nDim, 0.0), Y(nPoint, nVar, nDim, 0.0), G(nPoint, nVar, nDim, 0.0);
+    R = su2double(0.0);
+    for (auto i = 0ul; i < nPoint; ++i) {
+      for (size_t v = 0; v < nVar; ++v) {
+        w(i, v) = r(gen);
+        for (size_t d = 0; d < nDim; ++d) {
+          Z(i, v, d) = r(gen);
+          Y(i, v, d) = Z(i, v, d) / p1.volume(i);
+        }
+      }
+    }
+    TeCNOAdjoint::GradientP1(geometry, nDim, nVar, p1.weights, p1.volume, w, G);
+    TeCNOAdjoint::AddTransposeP1(geometry, nDim, nVar, p1.weights, Y, 1.0, R);
+    double lhs = 0.0, rhs = 0.0, absLhs = 0.0;
+    for (auto i = 0ul; i < nPoint; ++i) {
+      for (size_t v = 0; v < nVar; ++v) {
+        rhs += w(i, v) * R(i, v);
+        for (size_t d = 0; d < nDim; ++d) {
+          lhs += G(i, v, d) * Z(i, v, d);
+          absLhs += fabs(G(i, v, d) * Z(i, v, d));
+        }
+      }
+    }
+    INFO("nDim " << nDim << " moved " << moved << ": <Gw,Z> " << lhs << ", <w,G^T Z> " << rhs);
+    CHECK(fabs(lhs - rhs) < 1e-12 * absLhs);
+  }
+}
+
+template <size_t nDim>
+void P1AverageEntropyCase() {
+  for (const bool moved : {false, true}) {
+    const std::string mesh = "p1avg_entropy_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 6 : 3, 0.4, 0.2, (nDim == 2) ? BendMesh2D : BendMesh3D);
+    MeshCase test(mesh, moved ? P1AverageMoved : "");
+    auto& geometry = *test.geometry;
+    const TeCNOAdjointChecks::P1Average p1(geometry);
+    const auto r = TeCNOAdjointChecks::EntropyCheck<nDim>(geometry, geometry.GetnPoint(), 60, 7, &p1);
+    INFO("nDim " << nDim << " moved " << moved << ": identity " << r.identity << ", production " << r.production
+                 << ", conservation " << r.conservation);
+    CHECK(r.identity < 1e-12);
+    CHECK(r.production < 0.0);
+    CHECK(r.conservation < 1e-12);
+  }
+}
+
+template <size_t nDim>
+void P1AverageLinearizationCase() {
+  for (const bool moved : {false, true}) {
+    const std::string mesh = "p1avg_lin_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 3 : 2, 0.4, 0.2, (nDim == 2) ? BendMesh2D : BendMesh3D);
+    MeshCase test(mesh, moved ? P1AverageMoved : "");
+    auto& geometry = *test.geometry;
+    const TeCNOAdjointChecks::P1Average p1(geometry);
+    const auto r = TeCNOAdjointChecks::LinearizationCheck<nDim>(geometry, geometry.GetnPoint(), 6, 11, &p1);
+    INFO("nDim " << nDim << " moved " << moved << ": asymmetry " << r.asymmetry << ", negative " << r.negative
+                 << ", majorant " << r.majorant);
+    CHECK(r.asymmetry < 1e-12);
+    CHECK(r.negative < 1e-12);
+    CHECK(r.majorant < 1e-12);
+  }
+}
+}  // namespace
+
+TEST_CASE("TECNO_ADJOINT_GRADIENT= P1_AVERAGE: volumes, weights and linear exactness at every node", "[P1Flux]") {
+  P1AverageExactnessCase<2>();
+  P1AverageExactnessCase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_GRADIENT= P1_AVERAGE: equals Green-Gauss at interior nodes of the median dual", "[P1Flux]") {
+  P1AverageMedianIdentityCase<2>();
+  P1AverageMedianIdentityCase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_GRADIENT= P1_AVERAGE: transpose, Theorem A1, conservation, Lemma A4 majorant", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  P1AverageTransposeCase<2>();
+  P1AverageTransposeCase<3>();
+  P1AverageEntropyCase<2>();
+  P1AverageEntropyCase<3>();
+  P1AverageLinearizationCase<2>();
+  P1AverageLinearizationCase<3>();
 }
 
 TEST_CASE("EDGE_FORM_EC_EXACT_JACOBIAN: exact Ismail-Roe Jacobian and dw/dU against finite differences", "[P1Flux]") {

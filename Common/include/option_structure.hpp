@@ -863,6 +863,18 @@ static const MapType<std::string, VISC_P1_JACOBIAN> Visc_P1_Jacobian_Map = {
 };
 
 /*!
+ * \brief Gradient of the entropy variables in the dissipation of EDGE_FORM_TECNO_ADJOINT (TECNO_ADJOINT_GRADIENT).
+ */
+enum class TECNO_ADJ_GRADIENT {
+  GREEN_GAUSS, /*!< \brief Green-Gauss on the dual in difference form (default). */
+  P1_AVERAGE,  /*!< \brief Average of the P1 element gradients with the dual shares, linear exact at every node. */
+};
+static const MapType<std::string, TECNO_ADJ_GRADIENT> TeCNO_Adj_Gradient_Map = {
+  MakePair("GREEN_GAUSS", TECNO_ADJ_GRADIENT::GREEN_GAUSS)
+  MakePair("P1_AVERAGE", TECNO_ADJ_GRADIENT::P1_AVERAGE)
+};
+
+/*!
  * \brief types of mass diffusivity models
  */
 enum class DIFFUSIVITYMODEL {

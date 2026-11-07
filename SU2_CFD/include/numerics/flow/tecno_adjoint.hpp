@@ -53,7 +53,16 @@
  * MPI: G, Y and phi are computed on the owned nodes, whose edges, neighbours, volumes and normals are all on this
  * rank, and copied to the halos. Z_i needs q_e on all edges of i, i.e. G and phi of its neighbours (halos after the
  * copy). Y is divided by the volume on the owner, halo volumes being incomplete. The residual of an owned node then
- * equals the serial one. ---*/
+ * equals the serial one.
+ *
+ * TECNO_ADJOINT_GRADIENT= P1_AVERAGE (P1_TECNO_ADJ_GRADIENT.md, G2/G3): G_i w = Vhat_i^-1 sum_{T ni i} W_i^T grad(w_h)|_T,
+ * W_i^T the dual share of node i in the simplex T (the sub-volumes of the residual's dual, moved with MOD_CENTROIDS),
+ * Vhat_i = sum_T W_i^T. On simplices this is the difference form G_i w = Vhat_i^-1 sum_k a_ik (w_k - w_i),
+ * a_ik = sum_{T ni i,k} W_i^T g_k^T (a_ik != a_ki), linear exact at every node (sum_k a_ik (x) (x_k - x_i) = Vhat_i I),
+ * G 1 = 0. Its transpose: R_m += gam sum_k (a_km.Y_k - a_mk.Y_m), Y = Z/Vhat. Green-Gauss is the case a_ik = n_ik/2,
+ * a_ki = -n_ik/2; its functions keep their own arithmetic. The weights are stored per edge, a_{0,1} in columns
+ * [0, nDim) and a_{1,0} in [nDim, 2 nDim) (node 0 / 1 of the edge); they are complete on the edges of owned nodes,
+ * and Vhat on owned nodes, since all cells of an owned node are on its rank. ---*/
 
 namespace TeCNOAdjoint {
 
@@ -198,6 +207,85 @@ void NodalMoment(const Geometry& geometry, unsigned short nDim, unsigned short n
 }
 
 /*!
+ * \brief P1 average gradient (TECNO_ADJOINT_GRADIENT= P1_AVERAGE) on the owned nodes,
+ *        G_i w = Vhat_i^-1 sum_k a_ik (w_k - w_i).
+ * \param[in] weights - a of each edge (iEdge, 2 nDim), see above.
+ * \param[in] volume - Vhat (iPoint).
+ */
+template <class Geometry, class WeightType, class VolumeType, class FieldType, class GradientType>
+void GradientP1(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+                const VolumeType& volume, const FieldType& w, GradientType& grad) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double g[MAXNVAR][3] = {};
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const bool first = (geometry.edges->GetNode(iEdge, 0) == iPoint);
+      const unsigned long jPoint = geometry.edges->GetNode(iEdge, first ? 1 : 0);
+      const unsigned short offset = first ? 0 : nDim;
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+        const su2double delta = w(jPoint, iVar) - w(iPoint, iVar);
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) g[iVar][iDim] += delta * weights(iEdge, offset + iDim);
+      }
+    }
+    const su2double invVol = 1.0 / volume(iPoint);
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) grad(iPoint, iVar, iDim) = g[iVar][iDim] * invVol;
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief NodalMoment with the volumes Vhat of the P1 average, Y_i = (phi_i / Vhat_i) sum_{e ni i} e_e (x) q_e.
+ */
+template <class Geometry, class EdgeType, class PhiType, class VolumeType, class MomentType>
+void NodalMomentP1(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const EdgeType& edgeQ,
+                   const PhiType& phi, const VolumeType& volume, MomentType& Y) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double z[MAXNVAR][3] = {};
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const auto* x0 = geometry.nodes->GetCoord(geometry.edges->GetNode(iEdge, 0));
+      const auto* x1 = geometry.nodes->GetCoord(geometry.edges->GetNode(iEdge, 1));
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+        const su2double q = edgeQ(iEdge, iVar);
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) z[iVar][iDim] += (x1[iDim] - x0[iDim]) * q;
+      }
+    }
+    const su2double scale = phi(iPoint) / volume(iPoint);
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) Y(iPoint, iVar, iDim) = scale * z[iVar][iDim];
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Gradient part of the residual for the P1 average, the transpose of GradientP1 applied to Y:
+ *        R_m += gam sum_k (a_km.Y_k - a_mk.Y_m) on the owned nodes, Y needed on the halos too.
+ */
+template <class Geometry, class WeightType, class MomentType, class ResidualType>
+void AddTransposeP1(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+                    const MomentType& Y, su2double gam, ResidualType& residual) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double res[MAXNVAR] = {};
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const bool first = (geometry.edges->GetNode(iEdge, 0) == iPoint);
+      const unsigned long jPoint = geometry.edges->GetNode(iEdge, first ? 1 : 0);
+      const unsigned short own = first ? 0 : nDim;   /*--- a_mk, m = iPoint. ---*/
+      const unsigned short other = first ? nDim : 0; /*--- a_km. ---*/
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+        su2double flux = 0.0;
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+          flux += weights(iEdge, other + iDim) * Y(jPoint, iVar, iDim) - weights(iEdge, own + iDim) * Y(iPoint, iVar, iDim);
+        res[iVar] += gam * flux;
+      }
+    }
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) residual(iPoint, iVar) += res[iVar];
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
  * \brief Gradient part of the residual, the transpose of Gradient applied to Y:
  *        R_m += -gam/2 sum_k n_mk.(Y_m + Y_k) on the owned nodes, Y needed on the halos too.
  */
@@ -297,6 +385,74 @@ void MajorantDiagonal(const Geometry& geometry, unsigned short nDim, unsigned sh
   su2double normSum = 0.0;
   for (unsigned short iDim = 0; iDim < nDim; ++iDim) normSum += sumNormal[iDim] * sumNormal[iDim];
   const su2double weight = 0.75 * sqrt(normSum);
+  for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+    for (unsigned short jVar = 0; jVar < nVar; ++jVar) block(iVar, jVar) += weight * P(iPoint, iVar * nVar + jVar);
+}
+
+/*--- Lemma A4 for the P1 average (P1_TECNO_ADJ_GRADIENT.md, G3): g_im = a_im / Vhat_i (m != i), g_ii = -sum_k a_ik / Vhat_i,
+ * so N_i = sum_k |a_ik| + |sum_k a_ik| and the diagonal block of m is 3/2 [sum_k |a_km| Phat_k + |sum_k a_mk| Phat_m],
+ * Phat_i = gam^2 phi_i^2 N_i S_i / Vhat_i^2 (Green-Gauss: |a| = |n|/2). ---*/
+
+/*!
+ * \brief Phat_i of the P1 average on the owned nodes (MajorantNodal with the weights a and volumes Vhat).
+ */
+template <class Geometry, class WeightType, class VolumeType, class EdgeType, class PhiType, class NodeType>
+void MajorantNodalP1(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+                     const VolumeType& volume, const EdgeType& edgeD, const PhiType& phi, su2double gam, NodeType& P) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double S[MAXNVAR * MAXNVAR] = {};
+    su2double sumWeight[3] = {}, sumNorm = 0.0;
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      const bool first = (geometry.edges->GetNode(iEdge, 0) == iPoint);
+      const unsigned short own = first ? 0 : nDim;
+      const auto* x0 = geometry.nodes->GetCoord(geometry.edges->GetNode(iEdge, 0));
+      const auto* x1 = geometry.nodes->GetCoord(geometry.edges->GetNode(iEdge, 1));
+      su2double length2 = 0.0, norm2 = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+        length2 += pow(x1[iDim] - x0[iDim], 2);
+        norm2 += pow(weights(iEdge, own + iDim), 2);
+        sumWeight[iDim] += weights(iEdge, own + iDim);
+      }
+      sumNorm += sqrt(norm2);
+      for (unsigned short k = 0; k < nVar * nVar; ++k) S[k] += length2 * edgeD(iEdge, k);
+    }
+    su2double normSum = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) normSum += sumWeight[iDim] * sumWeight[iDim];
+    const su2double N = sumNorm + sqrt(normSum);
+    const su2double vol = volume(iPoint);
+    const su2double coef = gam * gam * phi(iPoint) * phi(iPoint) * N / (vol * vol);
+    for (unsigned short k = 0; k < nVar * nVar; ++k) P(iPoint, k) = coef * S[k];
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Diagonal block of M# (in w) of the owned node iPoint for the P1 average, Phat needed on the halos, 3/2 included.
+ */
+template <class Geometry, class WeightType, class NodeType, class MatrixType>
+void MajorantDiagonalP1(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+                        const NodeType& P, unsigned long iPoint, MatrixType& block) {
+  for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+    for (unsigned short jVar = 0; jVar < nVar; ++jVar) block(iVar, jVar) = 0.0;
+  su2double sumWeight[3] = {};
+  for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+    const bool first = (geometry.edges->GetNode(iEdge, 0) == iPoint);
+    const unsigned long jPoint = geometry.edges->GetNode(iEdge, first ? 1 : 0);
+    const unsigned short own = first ? 0 : nDim;
+    const unsigned short other = first ? nDim : 0;
+    su2double norm2 = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      norm2 += pow(weights(iEdge, other + iDim), 2);
+      sumWeight[iDim] += weights(iEdge, own + iDim);
+    }
+    const su2double weight = 1.5 * sqrt(norm2);
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+      for (unsigned short jVar = 0; jVar < nVar; ++jVar) block(iVar, jVar) += weight * P(jPoint, iVar * nVar + jVar);
+  }
+  su2double normSum = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) normSum += sumWeight[iDim] * sumWeight[iDim];
+  const su2double weight = 1.5 * sqrt(normSum);
   for (unsigned short iVar = 0; iVar < nVar; ++iVar)
     for (unsigned short jVar = 0; jVar < nVar; ++jVar) block(iVar, jVar) += weight * P(iPoint, iVar * nVar + jVar);
 }

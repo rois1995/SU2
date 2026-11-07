@@ -7389,6 +7389,47 @@ void CPhysicalGeometry::SetEdgeFormBlend(bool movedViscous, bool mixed) {
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
+void CPhysicalGeometry::SetTeCNOAdjointP1Weights(su2activematrix& weights, su2activevector& volume) {
+  /*--- TECNO_ADJOINT_GRADIENT= P1_AVERAGE (P1_TECNO_ADJ_GRADIENT.md, G2): G_i w = Vhat_i^-1 sum_k a_ik (w_k - w_i),
+   * a_ik = sum_{T ni i,k} W_i^T g_k^T, with the W of SetControlVolume (as SetEdgeFormP1, whose normal is a_ik - a_ki).
+   * Every cell of an owned node is on its rank, so a on the edges of owned nodes and Vhat on owned nodes are
+   * complete. ---*/
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    const unsigned short nNodes = nDim + 1;
+    weights.resize(nEdge, 2 * nDim) = su2double(0.0);
+    volume.resize(nPoint) = su2double(0.0);
+
+    for (auto iElem = 0ul; iElem < nElem; iElem++) {
+      auto* element = elem[iElem];
+      if (element->GetnNodes() != nNodes) {
+        SU2_MPI::Error("TECNO_ADJOINT_GRADIENT= P1_AVERAGE needs a mesh of triangles or tetrahedra.", CURRENT_FUNCTION);
+      }
+      array<const su2double*, N_POINTS_MAXIMUM> Coord;
+      for (unsigned short iNode = 0; iNode < nNodes; iNode++) Coord[iNode] = nodes->GetCoord(element->GetNode(iNode));
+
+      su2double W[MAXNDIM + 1] = {0.0};
+      CellNodeShares(element, nDim, Coord, W);
+      su2double grad[MAXNDIM + 1][3];
+      P1Simplex::ShapeGradients(nDim, Coord, grad);
+
+      for (unsigned short a = 0; a < nNodes; a++) {
+        volume[element->GetNode(a)] += W[a];
+        for (unsigned short b = a + 1; b < nNodes; b++) {
+          const auto iEdge = FindEdge(element->GetNode(a), element->GetNode(b));
+          const bool sameOrder = (edges->GetNode(iEdge, CEdge::LEFT) == element->GetNode(a));
+          const auto i = sameOrder ? a : b;
+          const auto k = sameOrder ? b : a;
+          for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+            weights(iEdge, iDim) += W[i] * grad[k][iDim];
+            weights(iEdge, nDim + iDim) += W[k] * grad[i][iDim];
+          }
+        }
+      }
+    }
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+}
+
 const vector<CSplitPattern>& CPhysicalGeometry::GetSplitPatterns(const CPrimalGrid* element) {
   const auto found = SplitPatterns.find(element->GetVTK_Type());
   if (found != SplitPatterns.end()) return found->second;
