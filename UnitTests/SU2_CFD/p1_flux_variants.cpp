@@ -5342,9 +5342,13 @@ void JSTEdgeDissipation(su2double kappa2, su2double kappa4, su2double fixFactor,
                         const VectorDbl<nVar>& lapl_j, VectorDbl<nVar>& flux, Double& dissip_i, Double& dissip_j) {
   const Double sc2 = 3 * (ni+nj) / (ni*nj);
   const Double sc4 = 0.25*pow(sc2, 2);
-  const Double eps2 = kappa2 * 0.5*(si+sj) * sc2;
+  Double eps2 = kappa2 * 0.5*(si+sj) * sc2;
   Double eps4 = fmax(0.0, kappa4-eps2) * sc4;
-  if (weakWall) eps4 *= jstWallFactor(Double(wall_i), Double(wall_j));
+  if (weakWall) {
+    const Double keep = jstWallFactor(Double(wall_i), Double(wall_j));
+    eps4 *= keep;
+    eps2 *= keep;
+  }
   for (size_t iVar = 0; iVar < nVar; ++iVar) {
     flux(iVar) += (eps2*diffU(iVar) - eps4*(lapl_i(iVar)-lapl_j(iVar))) * lambda;
   }
@@ -5418,10 +5422,10 @@ TEST_CASE("JST weak wall: the eps4 factor is zero only on edges with one end on 
   }
 }
 
-TEST_CASE("JST weak wall: option off and edges off the wall are unchanged and wall-crossing edges keep only eps2", "[P1Flux]") {
-  /*--- The option multiplies eps4 by exactly 1 on edges with both ends off the wall or both on it, so their flux and
-   * Jacobian factors are those of the option off, bit for bit. With one end on the wall the term is the derived one:
-   * flux eps2 lambda (Ut_i - Ut_j) and factors +-fixFactor eps2 lambda. ---*/
+TEST_CASE("JST weak wall: option off and edges off the wall are unchanged and wall-crossing edges carry no JST dissipation", "[P1Flux]") {
+  /*--- The option multiplies eps2 and eps4 by exactly 1 on edges with both ends off the wall or both on it, so their
+   * flux and Jacobian factors are those of the option off, bit for bit. With one end on the wall both terms are gone:
+   * no flux increment and zero factors. ---*/
   constexpr size_t nVar = 5;
   std::mt19937 gen(4242);
   std::uniform_real_distribution<double> u(-1.0, 1.0);
@@ -5453,12 +5457,10 @@ TEST_CASE("JST weak wall: option off and edges off the wall are unchanged and wa
                              lapl_j, fluxZero, zeroI, zeroJ);
     mismatches += (oneI[0] != offI[0]) + (oneJ[0] != offJ[0]);
     const su2double eps2Lam = eps2 * lambda[0];
-    mismatches += (fabs(zeroI[0] - fixFactor * eps2Lam) > 1e-15 * fixFactor * eps2Lam);
-    mismatches += (fabs(zeroJ[0] + fixFactor * eps2Lam) > 1e-15 * fixFactor * eps2Lam);
+    mismatches += (zeroI[0] != 0.0) + (zeroJ[0] != 0.0);
     for (size_t v = 0; v < nVar; ++v) {
       mismatches += (fluxOne(v)[0] != fluxOff(v)[0]);
-      const su2double expected = start(v)[0] + eps2Lam * diffU(v)[0];
-      mismatches += (fabs(fluxZero(v)[0] - expected) > 1e-14 * (1.0 + fabs(expected)));
+      mismatches += (fluxZero(v)[0] != start(v)[0]);
       ++compared;
     }
     /*--- The option off really carries the fourth-order term on that edge. ---*/

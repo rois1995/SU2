@@ -490,12 +490,17 @@ public:
 
     const auto si = gatherVariables(iPoint, solution.GetSensor());
     const auto sj = gatherVariables(jPoint, solution.GetSensor());
-    const Double eps2 = kappa2 * 0.5*(si+sj) * sc2;
+    Double eps2 = kappa2 * 0.5*(si+sj) * sc2;
     Double eps4 = fmax(0.0, kappa4-eps2) * sc4;
 
-    /*--- JST_WEAK_WALL_DISSIPATION (P1_WALL_DISSIPATION.md): no fourth-order term on edges with one end on a weak
-     * no-slip wall, in the flux and in the eps4 part of the Jacobian below. Elsewhere the factor is exactly 1. ---*/
-    if (weakWallDiss) eps4 *= Base::weakWallFactor(iPoint, jPoint, solution);
+    /*--- JST_WEAK_WALL_DISSIPATION (P1_WALL_DISSIPATION.md): no JST dissipation on edges with one end on a weak no-slip
+     * wall, neither the fourth-order term nor the second-order one (which drives the wall-node slip), in the flux and in
+     * the Jacobian below; eps4 is formed from the unchanged eps2 first. Elsewhere the factor is exactly 1. ---*/
+    if (weakWallDiss) {
+      const Double keep = Base::weakWallFactor(iPoint, jPoint, solution);
+      eps4 *= keep;
+      eps2 *= keep;
+    }
 
     /*--- Update flux and Jacobians with dissipation terms. ---*/
 
@@ -593,11 +598,16 @@ public:
 
     const auto si = gatherVariables(iPoint, solution.GetSensor());
     const auto sj = gatherVariables(jPoint, solution.GetSensor());
-    const Double eps2 = kappa2 * 0.5*(si+sj) * sc2;
+    Double eps2 = kappa2 * 0.5*(si+sj) * sc2;
     Double eps4 = fmax(0.0, kappa4-eps2) * sc4;
 
-    /*--- JST_WEAK_WALL_DISSIPATION, as for CJSTScheme: the scalar dissipation and its Jacobian factor lose eps4. ---*/
-    if (weakWallDiss) eps4 *= Base::weakWallFactor(iPoint, jPoint, solution);
+    /*--- JST_WEAK_WALL_DISSIPATION, as for CJSTScheme: the scalar dissipation, its k part and its Jacobian factor lose
+     * eps2 and eps4. ---*/
+    if (weakWallDiss) {
+      const Double keep = Base::weakWallFactor(iPoint, jPoint, solution);
+      eps4 *= keep;
+      eps2 *= keep;
+    }
 
     const auto lapl_i = gatherVariables<nVar>(iPoint, solution.GetUndivided_Laplacian());
     const auto lapl_j = gatherVariables<nVar>(jPoint, solution.GetUndivided_Laplacian());
