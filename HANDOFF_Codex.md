@@ -42,13 +42,20 @@ Combined-target timing/work comparisons are not same-target Mach-only benchmarks
 Never repeat the old244stop or signal historical PID3440421.
 Use R/analyze_m6244_mach_only.py for live first-event stage/churn/location/ladder
 analysis; it reuses existing exact-census assertions with NO combined-target
-benchmark. Latest observation: actual Hessian recovery61330point-sensor pairs,
-0WLS fallbacks,one sensor per original-grid point. Eight complete construction
-stage groups: latest length_split_exit round20878/native326.490414,744827cells/
-3391geometry/21733size; cache/census/geometry complete,shape UNMEASURED.
-A_MACH/initial_construction_observation.json stores joined stages/hashed prefixes.
-Sampled process-tree RSS about6.3GiB, not physical/whole-job peak.
+benchmark. Latest observation: actual Hessian recovery61330point-sensor pairs,0WLS fallbacks.
+Construction entry round31898/native656.507283:878443cells/1381geometry/0size,
+shape UNMEASURED. Fresh quality entry native701.671352:106454q/106204J/1381geometry/
+0size,ALL flags complete. Target differs from combined244, so no same-target speed
+claim. Initial quality ownership preserves ALL census totals/flags; joined data in
+A_MACH/quality_entry_observation.json. Sampled tree RSS about9.4GiB,not physical/
+whole-job peak. Keep frozen; no accepted mesh yet.
 A_MACH/owned_live_observation.json is current exact live handle confirmation.
+Mach-only quality is active. Latest complete window round32000/native910.893268:
+888081cells/99363q/99351J/1355geometry/0size,ALL flags complete,stuck_shape0/
+missing_features0/private_tracked_collectives0. First-pass churn checks match net
+field changes. Recheck current JSON for exact elapsed; no combined-target benchmark.
+A_MACH/{quality_progress,quality_counter_assessment}.json records work/service/
+location/ladder data; continued ownership commits preserve all flags/totals.
 
 ## Preserved combined244 outcome and Mach-only preparation
 

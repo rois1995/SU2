@@ -1,0 +1,117 @@
+{
+  "time": 1794052135.3788412,
+  "scope": "Mach-only first-event fresh quality entry and actual ownership preservation; no accepted mesh or same-target comparison with combined sensors",
+  "construction_entry": {
+    "stage": "construction_entry",
+    "round": 31898,
+    "phase": "construction",
+    "maximum_native_elapsed": 656.507282836,
+    "totals": {
+      "cells": 878443,
+      "measured": 878443,
+      "q_measured": 0,
+      "j_measured": 0,
+      "q_bad": 0,
+      "j_bad": 0,
+      "geometry_bad": 1381,
+      "size_bad": 0
+    },
+    "complete_flags": {
+      "cache_consistent": true,
+      "census_complete": true,
+      "shape_complete": false,
+      "geometry_complete": true
+    },
+    "replicated_global_work": 131202
+  },
+  "quality_entry": {
+    "stage": "quality_entry",
+    "round": 31898,
+    "phase": "improvement",
+    "maximum_native_elapsed": 701.671351612,
+    "totals": {
+      "cells": 878443,
+      "measured": 878443,
+      "q_measured": 878443,
+      "j_measured": 878443,
+      "q_bad": 106454,
+      "j_bad": 106204,
+      "geometry_bad": 1381,
+      "size_bad": 0
+    },
+    "complete_flags": {
+      "cache_consistent": true,
+      "census_complete": true,
+      "shape_complete": true,
+      "geometry_complete": true
+    },
+    "replicated_global_work": 131202
+  },
+  "ownership_totals_and_flags_preserved": true,
+  "ownership_before": {
+    "rank_q_bad": [
+      13063,
+      28280,
+      17222,
+      13369,
+      30550,
+      3970
+    ],
+    "rank_q_J_debt": [
+      5008.49361130989,
+      13457.266824373988,
+      7735.724391440715,
+      5003.637301440412,
+      15413.672824422,
+      2118.8645676607816
+    ],
+    "max_over_mean": 1.8975477660627473,
+    "max_over_min": 7.274496473098625
+  },
+  "ownership_after": {
+    "rank_q_bad": [
+      18008,
+      21266,
+      22272,
+      13071,
+      19081,
+      12756
+    ],
+    "rank_q_J_debt": [
+      7592.762959231746,
+      8340.08546653466,
+      9260.038120908132,
+      6539.703360688361,
+      8495.252951905784,
+      8509.816661379105
+    ],
+    "max_over_mean": 1.1399855732077289,
+    "max_over_min": 1.4159721947898003
+  },
+  "source_prefixes": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
+      "bytes": 388907,
+      "sha256": "2fbe00fafb54e27ae5a97162a4f5b6d1c57720bed5d70f5f76a040dd66286cb9"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
+      "bytes": 366540,
+      "sha256": "81b2d15bf56fe38deec7edc6124e7beb3a71a127c447dbf839bb8517a65eedc0"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
+      "bytes": 366274,
+      "sha256": "985f33bb2e77ecdbc0118005499a0f5a6dca5b23eea320ae0e26cd91d9c008b4"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
+      "bytes": 366328,
+      "sha256": "8c89422eb36dadbc43d708be442a046aabe99a57462f9506c71f3320076822f0"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
+      "bytes": 366855,
+      "sha256": "947986465dbc1dd03bbb9a3fb71527f4a1a79bb5c4526ab7770069f7d2864c0a"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
+      "bytes": 366121,
+      "sha256": "963a501971fe3dbb9f335fa11759a7ed93520359189b08b51ea6b199aa0a35aa"
+    }
+  }
+}
