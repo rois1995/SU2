@@ -1,0 +1,165 @@
+{
+  "time": 1794083770.500411,
+  "elapsed_seconds": 132.58574032783508,
+  "processes": [
+    {
+      "pid": 871751,
+      "start_ticks": 12807752,
+      "name": "python3",
+      "rss_bytes": 72310784,
+      "schedstat": [
+        5241279217,
+        17928194,
+        102
+      ],
+      "status": {
+        "VmRSS": "70616 kB",
+        "VmSwap": "0 kB"
+      }
+    },
+    {
+      "pid": 871974,
+      "start_ticks": 12808267,
+      "name": "time",
+      "rss_bytes": 1536000,
+      "schedstat": [
+        1753245,
+        0,
+        1
+      ],
+      "status": {
+        "VmRSS": "1500 kB",
+        "VmSwap": "0 kB"
+      }
+    },
+    {
+      "pid": 871975,
+      "start_ticks": 12808268,
+      "name": "timeout",
+      "rss_bytes": 2093056,
+      "schedstat": [
+        1226295,
+        0,
+        1
+      ],
+      "status": {
+        "VmRSS": "2044 kB",
+        "VmSwap": "0 kB"
+      }
+    },
+    {
+      "pid": 871976,
+      "start_ticks": 12808268,
+      "name": "mpirun",
+      "rss_bytes": 15757312,
+      "schedstat": [
+        35582195,
+        10827376,
+        170
+      ],
+      "status": {
+        "VmRSS": "15388 kB",
+        "VmSwap": "0 kB"
+      }
+    },
+    {
+      "pid": 871984,
+      "start_ticks": 12808271,
+      "name": "test_driver",
+      "rss_bytes": 705163264,
+      "schedstat": [
+        125911218778,
+        1320892501,
+        13345
+      ],
+      "status": {
+        "VmRSS": "688636 kB",
+        "VmSwap": "0 kB"
+      }
+    },
+    {
+      "pid": 871983,
+      "start_ticks": 12808271,
+      "name": "test_driver",
+      "rss_bytes": 733736960,
+      "schedstat": [
+        126006696716,
+        1222570053,
+        13351
+      ],
+      "status": {
+        "VmRSS": "716540 kB",
+        "VmSwap": "0 kB"
+      }
+    },
+    {
+      "pid": 871982,
+      "start_ticks": 12808271,
+      "name": "test_driver",
+      "rss_bytes": 626462720,
+      "schedstat": [
+        125865068679,
+        1366215106,
+        11539
+      ],
+      "status": {
+        "VmRSS": "611780 kB",
+        "VmSwap": "0 kB"
+      }
+    },
+    {
+      "pid": 871981,
+      "start_ticks": 12808271,
+      "name": "test_driver",
+      "rss_bytes": 680579072,
+      "schedstat": [
+        126024401592,
+        1202083350,
+        15583
+      ],
+      "status": {
+        "VmRSS": "664628 kB",
+        "VmSwap": "0 kB"
+      }
+    },
+    {
+      "pid": 871980,
+      "start_ticks": 12808271,
+      "name": "test_driver",
+      "rss_bytes": 687910912,
+      "schedstat": [
+        126174918078,
+        1054586612,
+        12283
+      ],
+      "status": {
+        "VmRSS": "671788 kB",
+        "VmSwap": "0 kB"
+      }
+    },
+    {
+      "pid": 871979,
+      "start_ticks": 12808271,
+      "name": "test_driver",
+      "rss_bytes": 673652736,
+      "schedstat": [
+        126077071121,
+        1154605458,
+        13929
+      ],
+      "status": {
+        "VmRSS": "657864 kB",
+        "VmSwap": "0 kB"
+      }
+    }
+  ],
+  "loadavg": "6.64 5.04 3.54 7/4382 876792",
+  "memory": {
+    "MemAvailable": 38582517760,
+    "SwapFree": 58507264
+  },
+  "memory_pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=72673896\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=51171423\n",
+  "cpu_pressure": "some avg10=0.66 avg60=1.47 avg300=2.71 total=5595209689\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+  "sampled_tree_rss_bytes": 4199202816,
+  "scope": "Exact host PID/start identities verified. RSS sample is not physical/whole-job peak;CPU includes MPI spin."
+}
