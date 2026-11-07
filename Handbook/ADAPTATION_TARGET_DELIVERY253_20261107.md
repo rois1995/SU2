@@ -150,3 +150,12 @@ SPD/bounds/AR and directed-gradation audit passed. Sampled compression target
 5–12%finer (about.041–.063chord),farfield share34.872→40.398%;farfield allocation
 remains unresolved. No claim of resolved shock or M6 closure. Qualified correction
 returns immediately to full same-seed two-event M6;R/condition254_qualification.json.
+
+
+Refusal classification:all SIX body/feature contraction refusals among24trials
+remove a boundary-associated vertex toward an UNASSOCIATED INTERIOR retained
+vertex. These are not evidence of unnecessary seam constraints. Broad surface
+mobility does not authorize embedding the physical boundary in the interior.
+Seven directed collapses construct,eleven fail cell obstruction,six fail this
+association check. Guidance bad-cell retirement can also reassign unchanged
+physical faces to fewer cells;it does not prove fewer failed face certificates.

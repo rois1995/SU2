@@ -1,6 +1,6 @@
 # Native adaptation — current handoff
 
-Updated2026-11-07(Europe/Rome). Goal ACTIVE;ZERO accepted meshes.
+Updated2026-11-08(Europe/Rome). Goal ACTIVE;ZERO accepted meshes.
 Complete TWO strictly accepted ONERA M6 Euler CFD→mesh→CFD→mesh events at50k
 METRIC COMPLEXITY,conservative admissible transfer,finite continued ADAPTED CFD
 and ACTUAL isolated ADAPTED disk restart. Then dedicated BL/constraint/MPI
@@ -39,6 +39,21 @@ same-round decision identity versus253 is NOT expected;compare matching phases/
 quality-time and net whole-field q/J removal with geometry counts and workload.
 Do not claim closure from target redistribution or counters. Need all acceptance/
 transfer/continued-adapted-CFD/isolated-disk-restart obligations below.
+
+First COMPLETE quality entry23314:690715cells/27016q/27453J/1205geometry/0size,
+ALL cells measured/flags complete. Versus253entry878443cells/106454q/106204J/
+1381geometry/0size. Native755.522810vs645.622059s (construction110s SLOWER).
+Construction commits85157vs120785;upperwork245091394vs246122779 (almost unchanged),
+uppercalls49857vs52092. Corrected target reduces initial shape failures substantially;
+NOT a same-workload speedup or acceptance. A254/quality_entry_comparison253.json.
+Complete quality ownership publication preserves aggregate counts/flags;not full
+individual-row/dependency proof:A254/ownership_census_integrity.json.
+At entry all11HOST identities and ALL1520pins verified unchanged;tree sampledRSS
+8.912GB,available~32.65GB;RSS not physical peak. A254/quality_entry_live_observation.json.
+Actual full-run initial restart matches ALL22qualified corrected flow/metric fields
+and coordinates exactly:A254/initial_cfd_target_equivalence.json (original-grid CFD,
+not adapted proof). FROZEN attempt remains live. Need net whole-field q/J removal,
+geometry/size closure and shape reclosure;then all transfer/CFD/restart obligations.
 
 Let frozen attempt finish unless PRESERVED demonstrated failure/bottleneck/actual
 pressure warrants authorized stop. For first-event refusal:seal all30raw files,
