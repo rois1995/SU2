@@ -78,8 +78,27 @@ ONE actual MPI6 milestone PASSED90cases on EACH rank187.187539s,pins unchanged;
 placement_mpi6_20261107T202852_858268,tool53521TERMINAL0. All10case handles
 PLUS wrapper absent:R/witness253_validation_terminal_handles.json.
 R/witness253_qualification.json seals affected serial/MPI evidence.
-NO HEAVY JOB LIVE. Push coherent253checkpoint,then IMMEDIATELY full same-seed
-Mach-only L1/50k TWO-event M6 with unchanged gates/native5400/outer14400.
+Checkpoint d56b5588a2 PUSHED to origin/codex/native-3d-bl.
+FULL TWO-event M6 witness253 is LIVE/FROZEN tool54771:
+A253=R/m6_runs/euler_build253_witness_cutoff_mach_only_real_cfd50k.
+R/m6_253_witness_launch.json and A253/owned_startup.json are authoritative HOST
+identities;wrapper871749/start12807749. Startup verified ALL1520source/runtime/
+input pins unchanged;configSHA5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e
+EXACT251. R/m6_253_startup_checkpoint.json;immutable launch snapshot
+R/m6_253_launch_checkpoint.json. HOST runner871751,time871974,
+timeout871975,MPI871976,workers871979–871984 live at startup (exactticks/argv/cwd
+in receipt);never infer terminal from stale logs or observation timeouts. Same saved real CFDseed,MACH-only L1/50k,
+strict gates,native5400/outer14400,trace UNSET,pt2pt/private4TBscratch/nice19/libs1.
+ONE heavy workload;keep ALL pinned source/fixtures/helpers/binary/config/inputs
+FROZEN until terminal or preserved evidence authorizes owned stop. No competing
+implementation. Compare useful whole-field q/J retirement/s and geometry counts
+at matching rounds/quality times;counted diagnostic savings are not runtime proof.
+Initial/latest per-handle scheduler counters are included in owned_startup.json;
+CPU includes MPI spinning,not all useful compute. No new profiler/GDB campaign.
+On refusal:seal complete six-rank owned/metric/reference/rejection captures and
+verify all pins BEFORE one exact verified owned stop;verify terminal handles.
+No routine VTU export. On acceptance:actual conservative/admissible transfer,
+continued adapted CFD and isolated ADAPTED disk restart remain required below.
 [Complete result/next decision](Handbook/ADAPTATION_COMPLETE_CONTEXT252_20261107.md).
 All four useful complete-context cases already have useful original stars.
 Feature-adjacent complete context worsens1q→3q despite debt admission;geometry

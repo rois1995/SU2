@@ -35,8 +35,10 @@ setup failed BEFORE MPI launch because the required saved-cavity config was
 omitted;that failure is preserved separately. Retry restored the same qualified
 A244/placement246_inputs_v1/run.cfg;no source/gate/budget changes. Qualification:
 staged57/witness253_qualification.json and witness253_validation_terminal_handles.json.
-Push the reviewable checkpoint and immediately run full same-seed Mach-only
-L1/50k TWO-event M6 with unchanged gates and native5400/outer14400.
+Checkpoint d56b5588a2 is PUSHED. Full same-seed Mach-only L1/50k TWO-event M6
+is LIVE/FROZEN,tool54771,with unchanged gates/native5400/outer14400.
+A253=euler_build253_witness_cutoff_mach_only_real_cfd50k;HOST identities and
+resource provenance are in A253/owned_startup.json and R/m6_253_witness_launch.json.
 Compare whole-field q/J-bad and geometry counts at matching stages/times, net
 retirement per second and useful work, not commits or debt alone.
 

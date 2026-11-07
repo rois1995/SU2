@@ -28,8 +28,9 @@ rank passed;all pins unchanged and owned handles terminal.
 The first MPI harness setup omitted its required configuration and failed before
 MPI launch;preserved separately. No gate/source change was needed to correct it.
 [253proof and qualification](Handbook/ADAPTATION_WITNESS_CUTOFF253_20261107.md).
-After MPI success,push then immediately full same-seed Mach-only L1/50k two-event
-M6. No full-M6 speedup or accepted mesh has yet been established.
+Checkpoint d56b5588a2 is pushed. Full same-seed Mach-only L1/50k TWO-event253M6
+is LIVE/FROZEN;HANDOFF_Codex.md has authoritative handles. No full-M6 speedup or
+accepted mesh has yet been established.
 Keep validity-first construction and all final gates. Historical LIVE notes below
 are superseded by this state and HANDOFF_Codex.md.
 
