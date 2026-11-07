@@ -107,3 +107,13 @@ counters show~27–29s/rank runqueue wait over2710s,CPU PSI some~4.5–4.9%;no b
 scheduler sample exists to establish comparative contention. CPU includes MPI
 spinning. No new profiling campaign or repair decisions. Full251LIVE/FROZEN;
 all1520pins unchanged and10owned handles live at2810.3s,source receipt in A251.
+
+Twenty-window snapshot33152/census34,quality2579.014368s(vs2472543.096958):
+990530cells/32031q/28869J/1156geometry/0size,all flags complete. Same counts,
+45458commits and churn as247;net74423q/77335J/225geometry removed.
+Quality upper1123249596→1111190322(-1.0736%),same691887queries. Quality+35.917411s,
+whole-native3256.667975vs3232.679556;no runtime speedup established. Kernel boundary
+2112.458520→2105.805401seconds,interior150.503772→153.993901;same candidates/moves/
+debt. Timers overlap other work. Location29238interior/2793surface q-bad,
+stuck_shape6,missing0,private tracked collectives0. All1520pins unchanged and10owned
+host handles live at3524.7s;sampled RSS10.708GB,PSI0.00. Full251LIVE/FROZEN.

@@ -27,32 +27,32 @@ HOST identities:runner475457,time475668,timeout475669,MPI475670,
 workers475673–475678. Exact starts/argv/cwd and wrapper identity in
 A251/owned_startup.json,R/m6_251_startup_checkpoint.json and live
 R/m6_251_upper_cutoff_launch.json. Status/elapsed alone NEVER prove termination.
-Latest HOST verification at2810.3s:all10sampled handles live,ALL1520pins unchanged,
-sampled process-tree RSS10.698GB,PSI averages0.00. A251/quality_window13_live_observation.json.
+Latest HOST verification at3524.7s:all10sampled handles live,ALL1520pins unchanged,
+sampled process-tree RSS10.708GB,PSI averages0.00. A251/quality_window20_live_observation.json.
 RSS is a sample,not physical or whole-job peak. Owned VmSwap=0at prior check;
 full host swap had0swap-out/9swap-in pages over108.93s,PSI0.00. No memory pressure.
-Current host load8.03/8.10on allowed CPUs0–7;CPU PSI some4.85/4.55/4.71.
+Resource snapshot AFTERwindow13had load8.03/8.10on CPUs0–7,CPU PSI some4.85/4.55/4.71.
 Workers cumulative scheduler waits27–29s over~2710s;CPU includes MPI spinning.
 No comparable baseline scheduler sample exists,so this does NOT establish the
 cause of timing differences. A251/scheduler_observation_after_window13.json.
 
-THIRTEEN-window comparison snapshot through32704/census27,quality age1850.882429s:
-958775cells/53409q/51736J/1188geometry/0size,ALL measured/complete flags.
-Exactly matching247counts/29387commits/churn;net53045q/54468J/193geometry removed.
-Net q/s28.65930vs29.13124;baseline age1820.897725s,offset+29.984704s.
-The EARLY timing advantage has NOT held. Whole-native time2528.536036vs2510.480323.
-Timings are observational;no causal speedup/regression or closure established.
-Cumulative quality upper827726733→817867345(−1.1911%),same410337upper queries.
-Boundary kernels218656candidates/9507moves in both,1448.332404→1442.650358summed-rank
-seconds;interior168426/21914,95.771974→98.652096. Timers OVERLAP geometry/other work;
-kernel moves/debt are not published whole-field gain. smooth_boundary_reused=1is
+TWENTY-window comparison snapshot through33152/census34,quality age2579.014368s:
+990530cells/32031q/28869J/1156geometry/0size,ALL measured/complete flags.
+Exactly matching247counts/45458commits/churn;net74423q/77335J/225geometry removed.
+Net q/s28.85715vs29.26471;baseline age2543.096958s,offset+35.917411s.
+The EARLY timing advantage has NOT held. Whole-native3256.667975vs3232.679556.
+Timings observational;no causal speedup/regression or closure established.
+Quality upper1123249596→1111190322(−1.0736%),same691887upper queries.
+Boundary kernels377367candidates/16145moves in both,2112.458520→2105.805401summed-rank
+seconds;interior266921/34488,150.503772→153.993901. Timers OVERLAP geometry/other work;
+kernel moves/debt are not published whole-field gain. smooth_boundary_reused=3is
 recorded without diagnosing a new blocker before terminal.
 
 A251/quality_comparison247.json verifies complete raw prefixes,matching rounds,
 explicit nearest-age pairs and whole-field churn identities. quality_counter_assessment.json
 has current location/ladder/rejections/height/metric-drift counters. Latest q-bad
-location:48325interior/5084surface;no stuck shape,missing features or tracked
-private collectives. Interior means no physical face,not necessarily free vertices.
+location:29238interior/2793surface;stuck_shape6,missing features0,tracked
+private collectives0. Interior means no physical face,not necessarily free vertices.
 SIX actual ownership publications preserve whole-field measured counts/flags:
 A251/ownership_census_integrity.json. Balanced debt is not mesh acceptance.
 First quality entry EXACTLY247:878443cells/106454q/106204J/1381geometry/0size,

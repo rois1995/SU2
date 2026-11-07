@@ -1,5 +1,5 @@
 {
-  "time": 1794077115.283524,
+  "time": 1794077882.3037248,
   "template": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/analyze_m6244_mach_only.py",
   "template_sha256": "656d0f79b3fcae2f7ab8d958e8876030be491776df6929150f2939c8f670c9a0",
   "substitutions": 2,
@@ -20,7 +20,14 @@
     "32512",
     "32576",
     "32640",
-    "32704"
+    "32704",
+    "32768",
+    "32832",
+    "32896",
+    "32960",
+    "33024",
+    "33088",
+    "33152"
   ],
   "post_generation_inspection": "Initial wrapper tried list indexing on the records dict and failed AFTER existing helper generated correct results;now corrected and all entries/windows explicitly matched against current complete six-rank stage groups."
 }
