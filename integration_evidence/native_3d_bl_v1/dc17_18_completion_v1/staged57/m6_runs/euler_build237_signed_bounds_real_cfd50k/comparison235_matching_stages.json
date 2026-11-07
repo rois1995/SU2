@@ -1,5 +1,5 @@
 {
-  "time": 1794031580.2563083,
+  "time": 1794031803.4893036,
   "scope": "Matching complete first-event stage/round groups, prefix hashes verified. Unmeasured q/J printed zeros are UNKNOWN. Wall time is contention/cache/ownership sensitive; not causal kernel speedup.",
   "matching": [
     {
@@ -7681,6 +7681,102 @@
         "scope_misses": 0,
         "cache_evictions": 0
       }
+    },
+    {
+      "stage": "window",
+      "round": 34688,
+      "phase": "improvement",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals237": {
+        "cells": 880804,
+        "measured": 880804,
+        "q_measured": 880804,
+        "j_measured": 880804,
+        "q_bad": 96237,
+        "j_bad": 96066,
+        "geometry_bad": 1969,
+        "size_bad": 0
+      },
+      "complete_flags237": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": true,
+        "geometry_complete": true
+      },
+      "build235": {
+        "native_seconds": 1243.956008996,
+        "work": {
+          "accepted": 122563,
+          "length_splits": 116604,
+          "length_collapses": 2520,
+          "geometry_trials": 242489,
+          "guidance_trials": 10831,
+          "guidance_faces": 54466,
+          "upper_calls": 94678,
+          "upper_work": 411694767,
+          "traversal_work": 386921113,
+          "scope_build_work": 7196071,
+          "facet_build_work": 1971732,
+          "piece_selection_work": 11273272,
+          "scope_hits": 20669,
+          "scope_misses": 49731,
+          "cache_evictions": 37722
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build237": {
+        "native_seconds": 945.000760962,
+        "work": {
+          "accepted": 122563,
+          "length_splits": 116604,
+          "length_collapses": 2520,
+          "geometry_trials": 242489,
+          "guidance_trials": 10831,
+          "guidance_faces": 54466,
+          "upper_calls": 94678,
+          "upper_work": 391722120,
+          "traversal_work": 366948466,
+          "scope_build_work": 7196071,
+          "facet_build_work": 1971732,
+          "piece_selection_work": 11273272,
+          "scope_hits": 20669,
+          "scope_misses": 49731,
+          "cache_evictions": 37722
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences237_minus235": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": -19972647,
+        "traversal_work": -19972647,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
     }
   ],
   "source_prefixes": {
@@ -7712,28 +7808,28 @@
     },
     "build237": {
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/rank_output/1/rank.0/stdout": {
-        "bytes": 357194,
-        "sha256": "f0f1f4db33a10c0ac0bbdcdccf3b64378b027673598482e11c40d136018f8455"
+        "bytes": 363342,
+        "sha256": "7e72cda1fe0f4601b881acb72372e7f71326c76f114607af3ce0fb689913c0a9"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/rank_output/1/rank.1/stdout": {
-        "bytes": 334670,
-        "sha256": "a02cf0e8ce71ffd64ddb1df1d9cd4b33807368792c21778436d96c321bfee56b"
+        "bytes": 340841,
+        "sha256": "9b1a3e679395919ee93e4e2238915560d8d0dca72cf43006ea9ef63f54b72c34"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/rank_output/1/rank.2/stdout": {
-        "bytes": 334307,
-        "sha256": "ceb5b061b8306047f458d05816b41f2383ba26a2ed9d66294acf9144ca2a1846"
+        "bytes": 340457,
+        "sha256": "faf99e7fa63a4bdde0af6662e36ed88838cc0297c728883ab326569f82fca0a4"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/rank_output/1/rank.3/stdout": {
-        "bytes": 334513,
-        "sha256": "cb2a49f5c53e5ce2951d5073e7205301fd8ce63f204d4e0eb1270ae16ca5fe13"
+        "bytes": 340655,
+        "sha256": "35f6179e1a2bfbc244e9b7bf95dd71e18f31bd8850131bd60a84bbfea1bbcd19"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/rank_output/1/rank.4/stdout": {
-        "bytes": 333933,
-        "sha256": "d71229538b1be9a34fc7be2eec229fc4da91e04e3d9a4a7076a70e50303668f5"
+        "bytes": 340122,
+        "sha256": "cf55343669f33473f757aa5bde091bd441ec5bb8eeb815d605e8c2d921c1d90d"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/rank_output/1/rank.5/stdout": {
-        "bytes": 334458,
-        "sha256": "0f27802990d081def81fa01fe4949eb7b1ab1702e8ddc4023a3394154da25436"
+        "bytes": 340624,
+        "sha256": "da6b180696b5d8cab62eebca3795c4eb22205e4e89a9da7675c8db0c65e8ece3"
       }
     }
   },
