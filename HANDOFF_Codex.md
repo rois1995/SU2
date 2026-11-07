@@ -55,24 +55,25 @@ Current first quality entry31898EXACT251:878443cells/106454q/106204J/1381geometr
 0size,ALL measured/complete flags. Construction120785commits/52092upper queries
 same;upper work271243211→246122779(−9.2612%),native677.653607→645.622059s.
 A253/quality_entry_comparison251.json.
-SIX quality windows through32256/census16EXACT251:918431cells/80763q/80098J/
-1239geometry/0size,ALL complete flags. Net25691q/26106J/142geometry removed.
-Quality917.403711vs992.290793s;net q/s28.004029vs25.890596,J28.456392vs26.308820.
-EARLY observational gain only;251's early gain did not persist. No causal/final
-closure claim. Same13595commits/188700upper calls;upper500018875→459462501(−8.1110%).
-Boundary90740candidates/4083moves in BOTH;816.750316→737.004011SUMMED-rank seconds;
-interior68388/9081,39.820345→39.953413. Timers overlap,not additive. Join-call wall
-share.438044→.416998is NOT CPU idle. FIVE complete ownership publications retain
-whole-field counts/flags:A253/ownership_census_integrity.json (not row/dependency
-identity proof). qlocation72274interior/8489surface,J67810/12288;stuckshape0,
-missing features0,private tracked collectives0. Interior may share boundary vertices.
-A253/quality_comparison251.json,quality_counter_assessment.json,quality_progress.json
-and parser provenance preserve complete raw-prefix hashes and churn identities.
-At1696.3s all10HOST handles live,ALL1520pins unchanged,treeRSS10.457GB,hostavailable
-~31.3GB,all memory PSI averages0.00,owned VmSwap0. Worker runqueue wait~16–17s
-since initial sample over1696s;CPU includes MPIspin. CPU PSI some1.85/1.60/1.72;
-no matched251scheduler sample establishes causality. A253/quality_window6_live_observation.json.
-RSS is not whole-job physical peak. Keep full run FROZEN;no competing implementation.
+THIRTEEN quality windows through32704/census27EXACT251:958775cells/53409q/51736J/
+1188geometry/0size,ALL complete flags. Net53045q/54468J/193geometry removed.
+Quality1688.661406vs1850.882429s;net q/s31.412455vs28.659303,J32.255134vs29.428125.
+Observational gain persists;NOT a causal/final closure claim. Same29387commits/
+410337upper calls;upper817867345→754758170(−7.7163%). Boundary218656candidates/
+9507moves in BOTH;1442.650358→1294.214495SUMMED-rank seconds;interior168426/21914,
+98.652096→97.272613. Timers overlap,not additive. Join-call share.416977→.400865
+is NOT CPU idle. SEVEN complete ownership publications (including construction)
+retain whole-field counts/flags:A253/ownership_census_integrity.json;not individual
+row/dependency identity proof. qlocation48325interior/5084surface,J43915/7821;
+stuckshape0,missing features0,private tracked collectives0. Interior may share
+boundary vertices. A253/quality_comparison251.json,quality_counter_assessment.json,
+quality_progress.json and parser provenance preserve complete raw-prefix hashes.
+At2527.1s all10HOST handles live,ALL1520pins unchanged,treeRSS10.753GB,hostavailable
+~32.1GB,owned VmSwap0,memory PSI avg10/60zero(some avg300.06). Worker runqueue wait
+~25.8–29.5s since initial sample over2527s;CPU includes MPIspin. CPU PSI some
+2.19/1.73/1.96;no matched251scheduler record establishes causality. A253/
+quality_window13_live_observation.json. RSS is not whole-job physical peak.
+Keep full run FROZEN until outcome/preserved authorized-stop evidence.
 
 ## Qualified active change and diagnosis
 

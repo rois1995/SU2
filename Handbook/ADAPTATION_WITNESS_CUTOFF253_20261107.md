@@ -98,3 +98,16 @@ hostavailable~31.3GB,owned VmSwap0,memory PSI averages0.00. Worker runqueue wait
 ~16–17s since initial sample;CPU includes MPIspin,no matched251scheduler record
 establishes causal timing gains. No accepted mesh or later geometry closure.
 Full253LIVE/FROZEN;no source/gate/budget/repair-decision change during execution.
+
+
+Thirteen-window snapshot32704/census27:958775cells/53409q/51736J/1188geometry/0size,
+ALL complete flags,EXACT251. Same29387commits/410337upper calls;net53045q/54468J/
+193geometry removed. Quality1688.661406vs1850.882429s,net q/s31.412455vs28.659303,
+J32.255134vs29.428125. Upper817867345→754758170(−7.7163%). Boundary218656candidates/
+9507moves in both,summed seconds1442.650358→1294.214495;interior168426/21914,
+98.652096→97.272613. Timers overlap;join-call share.416977→.400865is not CPU idle.
+Seven complete ownership publications,including construction,preserve counts/flags.
+At2527.1s all10HOST handles live,all1520pins unchanged,treeRSS10.753GB,hostavailable
+~32.1GB,owned VmSwap0,memory PSI avg10/60zero(some avg300.06). Worker runqueue wait
+~25.8–29.5s since initial sample;CPU includes MPIspin. No matched251scheduler record
+proves timing causality. Full253LIVE/FROZEN;no acceptance or later geometry closure.
