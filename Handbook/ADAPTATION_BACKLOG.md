@@ -650,3 +650,19 @@ more tickets,nearby-position caches or a new footprint representation without
 measured evidence addressing this failure. Active same-cycle251work is the smaller
 monotone losing-graph cutoff;its initial actual-corpus saving is2.2087%query work,
 not a whole-M6 closure claim. All coupled-operator/construction ideas stay deferred.
+
+
+### 2026-11-07 — complete-context252 diagnosis does not justify support expansion
+
+All seven actual terminal251residual contexts match the previously saved247inputs.
+Existing full-context optimizer at160work/64cells finds no useful context lacking
+useful original-star controls. Feature-adjacent whole context worsens1q→3q despite
+debt-based admission;shape+geometry and geometry-only controls stay unchanged.
+Useful severe/surface-clean original stars remain queued/unblocked at terminal.
+Defer generalized four-star support and raw-collapse+retained-star production
+composition until a representative cavity establishes missing capability.
+Count-first merit is also only a hypothesis:preventing every transient count
+increase could obstruct later closure. Do not silently replace current merit.
+[Full diagnostic](ADAPTATION_COMPLETE_CONTEXT252_20261107.md).
+Current253active work prunes losing triangle witnesses in the existing geometry
+query path;no competing support/merit/scheduler/construction implementation.

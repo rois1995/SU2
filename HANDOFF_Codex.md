@@ -58,7 +58,28 @@ both targets current,all11host handles absent. ONE current_residual case
 current_residual_20261107T201453_813263 TERMINAL0/96.082380s,39213assertions;
 all case pins unchanged,all6recorded HOST handles/wrapper absent. Tool97581terminal.
 R/diagnostic252_{assessment,terminal_handles,owned_startup}.json.
-NO HEAVY JOB LIVE. Production unchanged;fixture extension preserved.
+Diagnostic252 production unchanged;fixture extension preserved.
+BUILD253 TERMINAL0/33.104877s,1303pins unchanged,both targets current,
+all recorded host handles absent:R/build253_terminal_handles.json.
+Shared TriangleUnion::Upper now stops a losing convex-triangle witness once
+its partial max reaches current best and skips the already measured seed.
+No state/config/gate/construction policy change. Actual current_compound253
+TERMINAL0/104.023934s,pins unchanged,all6HOST handles/wrapper absent. EXACT5241
+orderedquery identities/cache outcomes/bounds and166candidate rows match251.
+Counted query work4983517→4599314(−7.709475%);no whole-M6 speedup claim.
+R/witness253_actual_comparison.json;[proof/current validation](Handbook/ADAPTATION_WITNESS_CUTOFF253_20261107.md).
+Focused canonical_serial253 PASSED38cases/2044assertions71.699312s,pins unchanged,
+all5case handles absent. The initial sequential wrapper tool84208 TERMINAL1:
+MPI harness lacked SU2_NATIVE_FROZEN_CONFIG and failed BEFORE launching MPI;
+preserved placement_mpi6_20261107T202808_856307,status2;wrapper/runner absent.
+No C++ failure or MPI test occurred there. Required MPI config is
+A244/placement246_inputs_v1/run.cfg (NOT the seven-context247 config).
+ONE actual MPI6 milestone PASSED90cases on EACH rank187.187539s,pins unchanged;
+placement_mpi6_20261107T202852_858268,tool53521TERMINAL0. All10case handles
+PLUS wrapper absent:R/witness253_validation_terminal_handles.json.
+R/witness253_qualification.json seals affected serial/MPI evidence.
+NO HEAVY JOB LIVE. Push coherent253checkpoint,then IMMEDIATELY full same-seed
+Mach-only L1/50k TWO-event M6 with unchanged gates/native5400/outer14400.
 [Complete result/next decision](Handbook/ADAPTATION_COMPLETE_CONTEXT252_20261107.md).
 All four useful complete-context cases already have useful original stars.
 Feature-adjacent complete context worsens1q→3q despite debt admission;geometry
@@ -66,9 +87,7 @@ controls unchanged. DO NOT generalize support or add a composite operator from
 these results. Existing useful severe/surface-clean stars have all14features
 UNBLOCKED at terminal251;A251/diagnostic252_residual_frontier.json. Queued work
 remains;speed of net useful closure is still immediate target,not missing support.
-NEXT within this ONE cycle:use existing service counters/query corpus to identify
-material certification/trial-order repetition or poor-yield choice before ONE
-connected production fix. No further broad baseline/larger-cavity campaign/new
+The measured witness253 fix above is the ONE active production change. No further broad baseline/larger-cavity campaign/new
 scheduler/config/cap/pass/construction quality policy. Then focused serial/ONE
 MPI6 and IMMEDIATELY same-seed Mach-only L1/50k full two-event M6. Geometry
 residuals require targeted construction/size closure then shape REclosure;not

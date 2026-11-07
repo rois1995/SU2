@@ -1,0 +1,67 @@
+{
+  "time": 1794083569.3644366,
+  "source_sha256": "67cef6435d2641f95c4391e59827aff858a20f7cf89b7f5c87737e20d926b932",
+  "scope": "Affected shared witness253 validation;not M6 acceptance, adapted transfer/restart or dedicated BL qualification.",
+  "stages": [
+    {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/canonical_serial_20261107T202656_852435",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 71.69931173324585,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 59428864,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "summaries": [
+        [
+          "2044",
+          "38"
+        ]
+      ],
+      "log_sha256": "619c1ad96fda6268f622b8639723bc0430b131771c4c8d55ed0c8110896d7695"
+    },
+    {
+      "case": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/placement_mpi6_20261107T202852_858268",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 187.18753910064697,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 446918656,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "summaries": [
+        [
+          "58941",
+          "90"
+        ],
+        [
+          "59847",
+          "90"
+        ],
+        [
+          "59144",
+          "90"
+        ],
+        [
+          "59022",
+          "90"
+        ],
+        [
+          "58761",
+          "90"
+        ],
+        [
+          "58969",
+          "90"
+        ]
+      ],
+      "log_sha256": "ee6c1012b572a8f1323b4188068bbcfebd383fea57b8d085771cdea1e5a5df08"
+    }
+  ],
+  "setup_failure": "placement_mpi6_20261107T202808_856307 failed before MPI launch:required configuration missing. Preserved;retry correct qualified input,no source/gate change.",
+  "parser_note": "Initial local summary extraction did not strip MPI ANSI color escapes and asserted zero matches. Corrected extraction strips ANSI and verifies all six summaries. No test rerun or changed test result."
+}

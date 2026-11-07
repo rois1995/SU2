@@ -14,8 +14,22 @@ all owned handles absent. No accepted mesh/transfer/adapted CFD/disk restart.
 Immediate blocker remains speed;the1%counted certificate saving established no
 runtime gain. Existing actual seven-cavity evidence is reusable:complete stars,
 geometry/nodal tensors,bindings,versions and q/Joracles are unchanged in251.
-Next bounded check compares existing whole-context optimization with existing
-single-star/composed candidates at160work/64cells before a production change.
+That bounded check252passed39213assertions:useful complete contexts already had
+useful original stars;one feature context regressed1q→3q despite debt improvement.
+Do not broaden support or add a composite from this evidence. Useful residual
+stars remain queued/unblocked,confirming speed of useful closure as immediate target.
+[252diagnosis](Handbook/ADAPTATION_COMPLETE_CONTEXT252_20261107.md).
+
+Current253extends the existing losing-witness cutoff to convex-triangle maxima
+and skips an already evaluated seed. Actual5241query answers/cache outcomes and
+166candidate outcomes remain EXACT;counted query work falls7.709475%relative251.
+Focused serial38cases/2044assertions and ONE actual MPI6milestone90cases on EACH
+rank passed;all pins unchanged and owned handles terminal.
+The first MPI harness setup omitted its required configuration and failed before
+MPI launch;preserved separately. No gate/source change was needed to correct it.
+[253proof and qualification](Handbook/ADAPTATION_WITNESS_CUTOFF253_20261107.md).
+After MPI success,push then immediately full same-seed Mach-only L1/50k two-event
+M6. No full-M6 speedup or accepted mesh has yet been established.
 Keep validity-first construction and all final gates. Historical LIVE notes below
 are superseded by this state and HANDOFF_Codex.md.
 

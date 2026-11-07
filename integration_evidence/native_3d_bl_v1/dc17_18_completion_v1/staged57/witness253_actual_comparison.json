@@ -1,0 +1,119 @@
+{
+  "baseline": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T175201_454502",
+  "current": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T202424_844325",
+  "status": {
+    "state": "terminal",
+    "exit_code": 0,
+    "seconds": 104.02393436431885,
+    "pins_verified": true,
+    "changed": [],
+    "largest_sampled_individual_process_rss_bytes": 479576064,
+    "rss_note": "sampled process RSS; not a whole-job peak"
+  },
+  "baseline_log_sha256": "a3c1af3b055e4e27dfdfdf731adae0fdc0490d8f2f4432801d7be5e0d63bd47b",
+  "current_log_sha256": "509ecf9eb5d9c0f1ceb0742a2b7a4b5dd62895b8eb48bda704d119702f93ef84",
+  "ordered_queries": 5241,
+  "result_rows": 166,
+  "changed_query_results": [],
+  "changed_candidate_results": [],
+  "baseline_work": 4983517,
+  "current_work": 4599314,
+  "work_reduction_fraction": 0.07709475055467852,
+  "current_query_report": {
+    "traced_queries": 5241,
+    "counts": {
+      "unresolved_queries": 0,
+      "identical_repeat_misses": 0,
+      "identical_answer_changes": 0,
+      "completed_queries": 5241,
+      "cache_miss": 1104,
+      "new_single_triangle_queries": 1104,
+      "new_positions_sharing_edge": 806,
+      "cache_hit": 4137,
+      "identical_repeats": 4003,
+      "numeric_margin_proved_queries": 201,
+      "numeric_margin_proved_misses": 201,
+      "permutation_alias_queries": 134
+    },
+    "counted_work": {
+      "miss": 4112689,
+      "hit": 486625,
+      "numeric_margin_proved_misses": 132996
+    },
+    "numeric_margin_examples": [
+      {
+        "query": 118,
+        "prior_query": 52,
+        "work": 1355,
+        "cache": "miss"
+      },
+      {
+        "query": 123,
+        "prior_query": 48,
+        "work": 1378,
+        "cache": "miss"
+      },
+      {
+        "query": 125,
+        "prior_query": 49,
+        "work": 1352,
+        "cache": "miss"
+      },
+      {
+        "query": 126,
+        "prior_query": 57,
+        "work": 1355,
+        "cache": "miss"
+      },
+      {
+        "query": 127,
+        "prior_query": 119,
+        "work": 1354,
+        "cache": "miss"
+      },
+      {
+        "query": 129,
+        "prior_query": 121,
+        "work": 1415,
+        "cache": "miss"
+      },
+      {
+        "query": 130,
+        "prior_query": 122,
+        "work": 1433,
+        "cache": "miss"
+      },
+      {
+        "query": 132,
+        "prior_query": 116,
+        "work": 1318,
+        "cache": "miss"
+      },
+      {
+        "query": 133,
+        "prior_query": 117,
+        "work": 1308,
+        "cache": "miss"
+      },
+      {
+        "query": 134,
+        "prior_query": 70,
+        "work": 1355,
+        "cache": "miss"
+      },
+      {
+        "query": 135,
+        "prior_query": 119,
+        "work": 1331,
+        "cache": "miss"
+      },
+      {
+        "query": 137,
+        "prior_query": 121,
+        "work": 1396,
+        "cache": "miss"
+      }
+    ]
+  },
+  "scope": "Exact local geometry/candidate comparison; diagnostic timing is not whole-M6 performance, global acceptance or publication proof."
+}

@@ -299,16 +299,20 @@ class TriangleUnion {
   }
   template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op) {
     Box box;for(unsigned d=0;d<3;++d){box[d]={INFINITY,-INFINITY};for(const auto& p:hull){box[d].lo=std::min(box[d].lo,p[d].lo);box[d].hi=std::max(box[d].hi,p[d].hi);}}
-    auto witness=[&](size_t i){double b=0;for(const auto& p:hull)b=std::max(b,Distance(p,i,op,false).upper);return b;};
+    auto witness=[&](size_t i,double cutoff)->double{double b=0;for(const auto& p:hull){
+      b=std::max(b,Distance(p,i,op,false).upper);
+      // Remaining maxima cannot make this triangle improve the caller's witness.
+      if(b>=cutoff)return INFINITY;
+    }return b;};
     if(++visit==0){std::fill(visited.begin(),visited.end(),0);visit=1;}
     // A convex triangle witness can certify small domains before expensive finite-footprint coverage.
-    const auto seed=Seed(box,op);double best=witness(seed);if(best<=accuracy)return best;
+    const auto seed=Seed(box,op);double best=witness(seed,INFINITY);if(best<=accuracy)return best;
     auto plane_bound=[&](size_t i)->double{const auto group=triangle_plane[i];if(group==SIZE_MAX||visited[group]==visit)return INFINITY;
       visited[group]=visit;op.Work();return planes[group].Upper(hull,op,best);};
     best=std::min(best,plane_bound(seed));if(best<=accuracy)return best;
     // A passing witness must intersect the hull's tolerance neighbourhood; retain the seed's valid upper bound.
     Candidates(box,std::min(best,accuracy),op);
-    for(auto i:candidates){best=std::min(best,witness(i));if(best<=accuracy)return best;
+    for(auto i:candidates){if(i==seed)continue;best=std::min(best,witness(i,best));if(best<=accuracy)return best;
       best=std::min(best,plane_bound(i));if(best<=accuracy)return best;}return best;
   }
   size_t ResidentBytes()const {
