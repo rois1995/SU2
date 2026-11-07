@@ -123,6 +123,20 @@ Construction upper_work282283657→274601233,traversal263600528→256967738;
 {construction_progress_assessment,comparison244_matching_stages,quality_entry_comparison244}.json
 preserve exact prefix hashes/scope. Quality closure is now active;no full-run speedup
 or accepted mesh is established. No new implementation while the run is frozen.
+Latest COMPLETE quality window32064/all-rank census7:native1073.575691,
+895674cells/94913q/94850J/1299geometry/0size,all flags complete. Whole-field
+counts match244at that round. Quality383.993092s versus418.426252s;
+net11541q/11354J/82geometry removed,30.055228q/s versus27.581921q/s.
+Quality upper_work207185753→174312520,traversal196356133→164853898,about16%less
+counted work for matching field progress. Early wall rates remain contention-sensitive;
+no full-run speedup or acceptance established. A247/latest_matched_quality_census.json.
+The first three-window service/churn comparison is A247/quality_comparison244.json.
+Existing analysis helper was reused with ALL literal attempt-directory occurrences
+replaced;first ad-hoc wrapper had replaced only one and produced old244quality
+records. Invalid derived hashes and correction are explicit in A247/
+analysis247_scope_correction.json;those invalid records were never reported/pushed.
+Corrected window set/counts are asserted against current complete stage groups.
+No production/pinned source,input or repair decisions changed.
 ZERO accepted meshes;all downstream obligations open.
 
 Diagnostic245baseline remains historical,traces/raw-control only:

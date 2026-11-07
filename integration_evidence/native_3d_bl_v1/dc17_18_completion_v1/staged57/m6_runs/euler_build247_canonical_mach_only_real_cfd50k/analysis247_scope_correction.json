@@ -1,0 +1,17 @@
+{
+  "time": 1794064415.2908988,
+  "invalid_derived_outputs": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/quality_progress.json": "c97c6635e91c4ec376cfc74de97664da1061a15ead0880c8fd4fb84d6da01165",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/quality_counter_assessment.json": "e9f8ae5b3376fc907bea76134a879362daa15d349805e56e5f7136bd0fe4f78d",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/quality_comparison244.json": "d538f4a66f21e722c28d38d8ebf889adcb2191b6032d1f12dab29d1909614a9c"
+  },
+  "reason": "First ad-hoc wrapper replaced only attempt assignment,leaving a second hardcoded quality directory pointing at old244. Those quality records/comparison are invalid and superseded below. Stage census/location joins were current; no production source,input or repair decision changed. No result from invalid comparison was reported or pushed.",
+  "helper": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/analyze_m6244_mach_only.py",
+  "helper_sha256": "656d0f79b3fcae2f7ab8d958e8876030be491776df6929150f2939c8f670c9a0",
+  "invocation": "Replace ALL literal occurrences of old attempt directory with current247 before executing existing helper;verify quality windows exactly match current complete stage windows.",
+  "corrected_window_rounds": [
+    "31936",
+    "32000"
+  ],
+  "corrected_quality_sha256": "ee5d55e829de41ac409f0a727dfff5b60afb04d75c73c386eaa3e6898f50411b"
+}
