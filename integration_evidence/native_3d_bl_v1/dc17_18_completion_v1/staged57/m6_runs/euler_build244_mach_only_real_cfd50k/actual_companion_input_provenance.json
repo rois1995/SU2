@@ -1,0 +1,29 @@
+{
+  "state": "terminal",
+  "actual_companion_payloads_verified": true,
+  "records": [
+    {
+      "prelaunch_preparation": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/compound_probe_v1/witness_preparation.json",
+      "preparation_sha256": "5eee796861967a8f7e99a72e4073182f8802d8004ed176e51c341853e370f239",
+      "pins_from_prelaunch_preparation": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/compound_probe_v1/geometry_clean_2_expected_metrics.bin": "aebfa8a6cedf91f2fb34394ad123fc68d35d2037716b92dcfa24b57e16741a1b",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/compound_probe_v1/run.cfg": "5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/compound_probe_v1/geometry_bad_3_owned.bin": "695652189cc78e5a37fcbf73d33e54732e7876a316a6011a42efc6447565cd95",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/compound_probe_v1/witness_boundary_surface.bin": "d13ee1a6d563aac3b44214b6a2c5cf88c1a5157096bcf617f3f909537e6180ca",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/compound_probe_v1/geometry_clean_5_owned.bin": "53d3ef5abed54d8c3270438a8e45e63ed41a123b6db540894c5d47b2ad09b9be",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/compound_probe_v1/geometry_bad_3_expected_metrics.bin": "a1deab0bc215ac6c4de361057b06a009b6d78152092b4c4057a4f9f1c906b3b0",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/compound_probe_v1/witness_boundary_points.bin": "a1f6ecda50e9deb1f5d6e2ef598a0b9bed5407221f457fbe71449d37abe53b91",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/compound_probe_v1/geometry_clean_5_expected_metrics.bin": "e86621b967de9b8b3b186e6933885710e34b3bb57e4c720f450230fc035eb092",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/compound_probe_v1/current_residual_cases.tsv": "ff2efd69501bdbf2a8cc0f57334fd78652d8bcc4020c483dd7da7c87e5538fe6",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/compound_probe_v1/m6.su2.native_ref": "2e99fb7870e2c718f110da8509e4c0f7e746ce138e7f27ab57aa0dedbb6c42de",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/compound_probe_v1/geometry_clean_2_owned.bin": "27c574613001c1d1b0ffb3a2dfeb6eeaa313be72d4c0d6d598fa908940a02d8f"
+      },
+      "verified_unchanged_after_attempts": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T133648_4064110",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T135435_4105949",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T143840_16331"
+      ]
+    }
+  ],
+  "scope": "Supplement old harness pins using the unchanged actual payload hashes saved by preparation BEFORE these attempts. Old harness followed run.cfg symlink target for companion pinning; C++ used the requested directory. Harness now preserves requested config directory. This is explicit supplemental provenance,not a claim that the original pins included the subset TSV."
+}

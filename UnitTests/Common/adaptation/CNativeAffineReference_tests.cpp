@@ -912,6 +912,43 @@ TEST_CASE("Geometry workload snapshots and cheap facet estimates", "[NativeSurfa
   CHECK(uncached.GeometryStatsSnapshot().retention_refusals>=1);
 }
 
+TEST_CASE("Single triangle permutations reuse canonical certified queries", "[NativeSurfaceMemo3D]") {
+  using namespace SU2Native3D;CurvedAtlasFixture fixture;auto& g=*fixture.geometry;
+  const auto& f=fixture.facets.front();std::array<unsigned,3> order{0,1,2};double expected=-1;
+  std::vector<std::array<Point,3>> physical(1);
+  do {
+    for(unsigned k=0;k<3;++k)physical.front()[k]=f.v[order[k]].p;
+    auto budget=GeometryAtlasBudget();budget.caller_bytes=12345;
+    const auto value=g.BoundPhysicalSurface({0,1},physical,.01,budget);
+    REQUIRE(std::isfinite(value));CHECK(budget.caller_bytes==12345);CHECK(budget.peak_bytes<=budget.maximum_bytes);
+    if(expected<0)expected=value;else CHECK(value==expected);
+    CurvedAtlasFixture recomputed(0,.03,0);auto oracle=GeometryAtlasBudget();
+    CHECK(recomputed.geometry->BoundPhysicalSurface({0,1},physical,.01,oracle)==expected);
+  } while(std::next_permutation(order.begin(),order.end()));
+  auto stats=g.GeometryStatsSnapshot();CHECK(stats.memo_union_misses==1);CHECK(stats.memo_union_hits==5);
+  auto query=[&](std::vector<Id> support,double tolerance) {
+    auto budget=GeometryAtlasBudget();const auto answer=g.BoundPhysicalSurface(support,physical,tolerance,budget);
+    CHECK(std::isfinite(answer));CHECK(budget.caller_bytes==0);
+  };
+  query({0},.01);
+  auto unsorted=GeometryAtlasBudget();CHECK_THROWS(g.BoundPhysicalSurface({1,0},physical,.01,unsorted));
+  CHECK(unsorted.caller_bytes==0);query({0,1},std::nextafter(.01,INFINITY));
+  CHECK(g.GeometryStatsSnapshot().memo_union_misses==4);
+  physical.front()[1].x=std::nextafter(physical.front()[1].x,INFINITY);query({0,1},.01);
+  CHECK(g.GeometryStatsSnapshot().memo_union_misses==5);
+  for(unsigned k=0;k<3;++k)physical.front()[k]=f.v[k].p;
+  CurvedAtlasFixture other(.5);auto separate=GeometryAtlasBudget();
+  CHECK(other.geometry->BoundPhysicalSurface({0,1},physical,.01,separate)>expected);
+  CHECK(other.geometry->GeometryStatsSnapshot().memo_union_misses==1);
+  auto denied=GeometryAtlasBudget();denied.maximum_work=0;
+  CHECK_THROWS(g.BoundPhysicalSurface({0,1},physical,.01,denied));CHECK(denied.work_exhausted);CHECK(denied.caller_bytes==0);
+  denied.maximum_work=SIZE_MAX;CHECK_THROWS(g.BoundPhysicalSurface({0,1},physical,.01,denied));
+  auto storage=GeometryAtlasBudget();storage.maximum_bytes=1;
+  CHECK_THROWS(g.BoundPhysicalSurface({0,1},physical,.01,storage));CHECK(storage.caller_bytes==0);
+  storage=GeometryAtlasBudget();storage.maximum_bytes=512;
+  CHECK_THROWS(g.BoundPhysicalSurface({0,1},physical,.01,storage));CHECK(storage.caller_bytes==0);
+}
+
 TEST_CASE("Curved surface caches stay within split quota and rebuild exact answers after clock eviction", "[NativeSurfaceCache3D]") {
   using namespace SU2Native3D;
   CurvedAtlasFixture fixture;

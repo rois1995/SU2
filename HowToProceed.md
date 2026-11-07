@@ -27,7 +27,7 @@ gradation violations and bit-identical CFD fields. Full two-event Mach-only M6 R
 1046geometry/0size,complete measured census. Same implementation244,no C++ rebuild.
 All30capture files sealed,1520pins unchanged,one verified owned launcher stop and
 all10owned handles absent. Meaningful mesh+metric export73509is terminal0/425.718486s,1553pins unchanged,all
-3owned handles absent. Independent reader16670passed3.711577s. No heavy job is live;
+3owned handles absent. Independent reader16670passed3.711577s. The connected MPI qualification has passed;
 current provenance and next analysis are in HANDOFF_Codex.md.
 [Mach-only outcome](Handbook/ADAPTATION_MACH_ONLY244_OUTCOME_20261107.md).
 Combined-target timing comparisons do not describe an unchanged Mach-only target.
@@ -53,7 +53,7 @@ Existing diagnostic passed with exact q/Joracles. Near-gate interior4/4and sever
 interior2/4stars yield useful whole-context q/Jretirement. Selected shape-only and
 shape+geometry boundary contexts each0/4. Existing collapse/shell+optimizer probe
 improves the shape-only/feature-adjacent cases,but all tested shape+geometry variants
-regress geometry excess and remain inadmissible. No new production fix is selected.
+regress geometry excess and remain inadmissible. The selected canonical-query fix is now implemented and qualifying.
 Details and source/input/status evidence are in the Mach-only outcome and handoff.
 
 Diagnostic245passed,including traced actual contexts and raw-collapse controls.
@@ -63,15 +63,17 @@ numeric margin but represent only7.49%of miss work;no production motion reuse is
 selected. The raw-collapse control also proves a useful combined candidate after a
 raw Repair veto;safe MPI retained-star closure is not implemented. Keep it deferred.
 
-ACTIVE NEXT:ONE connected canonical single-triangle query change;normalize key AND
-full query while retaining exact support/authority/tolerance and all fresh geometry/
-height/association gates. Cover transient storage/work and full fallback under tight
-admission. [Design and acceptance](Handbook/ADAPTATION_QUERY_CANONICALIZATION246_20261107.md).
-Use focused affected serial,ONE connected MPI6 milestone,then immediately complete
-same-seed MACH-only L1/50k TWO-event M6 with unchanged gates/budgets. No new scheduler,
-configuration,operator or construction-quality policy. No whole-run speedup is yet
-established; judge net whole-field q/J/geometry counts. All transfer/continued-CFD/
-disk-restart,BL/MPI and RANS500kobligations remain open.
+ACTIVE:build247 implements canonical single-triangle keys AND full computation,
+with exact support/authority/tolerance and all fresh geometry/height/association
+checks retained. Affected serial38cases/1678assertions pass. Actual-context counted
+query work falls7.4228%with identical complete candidate counts/outcomes; no
+whole-run speedup claim. ONE connected MPI6 milestone passed90cases on every rank;exact terminal handles and
+pinning correction evidence are in HANDOFF_Codex.md.
+[Design and acceptance](Handbook/ADAPTATION_QUERY_CANONICALIZATION246_20261107.md).
+Push the qualified checkpoint then immediately same-seed MACH-only L1/50k full
+TWO-event M6 with unchanged gates/budgets. No competing motion cache/operator/
+scheduler/construction-quality change. Judge net whole-field q/J/geometry counts.
+All transfer/continued-CFD/disk-restart,BL/MPI and RANS500kobligations remain open.
 
 ## What the actual cavities established
 

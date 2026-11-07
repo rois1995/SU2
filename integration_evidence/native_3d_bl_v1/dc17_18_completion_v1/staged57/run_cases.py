@@ -110,6 +110,10 @@ CASES["placement_mpi6"] = (6, CASES["failure_capture_mpi6"][1] +
     "[NativeSurfaceStrip3D],[NativePlanarStrip3D],[NativeFirstLayer3D],[NativeInteriorPlacement3D],"
     "[NativeMetricSplitRule3D],[ConservativeClipRobustness],[NativeCurvedRuntime3D],[NativeReference3D]")
 
+CANONICAL_CHECKS = "[NativeSurfaceMemo3D],[NativeSurfaceCache3D],[NativeGeometryBackend3D],[NativeMappedComponent3D],[NativeOverlappingAtlas3D],[NativeHeightOptimization3D],[NativeAcceptedFaceCertificate3D],[NativeTraceCoverage3D]"
+CASES["canonical_serial"] = (1, CANONICAL_CHECKS)
+CASES["placement_mpi6"] = (6, CASES["placement_mpi6"][1] + "," + CANONICAL_CHECKS)
+
 def loaded_libraries():
     result = subprocess.run(["ldd", str(BINARY)], check=True, text=True, capture_output=True)
     paths = set()
@@ -257,7 +261,7 @@ def main():
                     pins[str(path)] = sha(path)
         stage_environment = {}
         if case == "captured_shape_census":
-            config = Path(os.environ["SU2_NATIVE_FROZEN_CONFIG"]).resolve()
+            config = Path(os.environ["SU2_NATIVE_FROZEN_CONFIG"]).absolute()
             receipt = config.parent / "capture_ready.json"
             for name, item in json.loads(receipt.read_text())["files"].items():
                 path = Path(name)
@@ -280,7 +284,8 @@ def main():
             for path in (preparation_path, ROOT / "prepare_geometry225_queries.py"):
                 pins[str(path.resolve())] = sha(path)
         if case in ("current_residual", "current_compound", "placement_mpi6"):
-            config = Path(os.environ["SU2_NATIVE_FROZEN_CONFIG"]).resolve()
+            # C++ companion files follow the requested directory, even when run.cfg is a symlink.
+            config = Path(os.environ["SU2_NATIVE_FROZEN_CONFIG"]).absolute()
             receipt = config.parent / "witness_preparation.json"
             preparation = json.loads(receipt.read_text())
             if preparation["schema"] != "native_current_witness_preparation_v1" or preparation["input_hashes_before"] != preparation["input_hashes_after"]:
@@ -298,7 +303,7 @@ def main():
             for path in (receipt, ROOT / preparer):
                 pins[str(path.resolve())] = sha(path)
         if case == "captured_cavity":
-            config = Path(os.environ["SU2_NATIVE_FROZEN_CONFIG"]).resolve()
+            config = Path(os.environ["SU2_NATIVE_FROZEN_CONFIG"]).absolute()
             folder = config.parent
             preparation_path = folder / "witness_boundary_preparation.json"
             preparation = json.loads(preparation_path.read_text())

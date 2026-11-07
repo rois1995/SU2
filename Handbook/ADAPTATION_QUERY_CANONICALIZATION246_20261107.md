@@ -1,7 +1,7 @@
 # Selected connected change: canonical single-triangle certification queries
 
 2026-11-07. Design selected after the terminal Mach-only M6 and actual-context
-analysis; implementation/qualification remain pending. ZERO accepted meshes.
+analysis; implemented in build247, with serial and MPI qualification passed. ZERO accepted meshes.
 Full Euler50k/transfer/continued-CFD/actual disk-restart,then BL/MPI and RANS500k
 obligations remain unchanged. CAD stays optional and all gates/budgets stay strict.
 
@@ -108,3 +108,40 @@ Candidate ordering and motion-certificate reuse also remain deferred. The numeri
 motion argument alone does not establish association,height,body separation,
 invalidation,resource admission or final mesh acceptance. Select additional work
 only from the next complete M6 outcome or its demonstrated bottleneck.
+
+## Build247 implementation and qualification
+
+The shared single-triangle path now canonicalizes exact coordinate bits for BOTH
+cache keys and computation. It charges nine work units and admits canonical scratch
+before allocation; temporary buffers die before caller-byte restoration. Multi-face
+queries are unchanged; admission failure retains full-query fallback.
+
+Build246 and247 completed successfully with1303source pins unchanged. The first
+serial attempt on246 failed two fixture contracts: unsorted support must throw,and
+an exact work allowance must include the nine new units. Production budgets were
+not enlarged. These fixture corrections are the only246→247source differences.
+Build247 affected serial:38cases/1678assertions passed;case
+`canonical_serial_20261107T143317_2642`,all five sampled handles absent.
+
+The same actual three-context trace on247 completed successfully;case
+`current_compound_20261107T143840_16331`,all five sampled handles absent.
+Counted query work681926→631308(−7.4228%),including canonical/key overhead;
+64permutation misses become hits. Complete candidate inventory and q/J/geometry
+bad counts are identical; no useful candidate is lost or gained. Trace wall times
+are not performance evidence. A/canonical247_actual_comparison.json records scope.
+
+A harness provenance bug was corrected before MPI qualification: companion files
+follow the requested config directory,even when run.cfg is a symlink. Three branches
+now use absolute() instead of resolve(). Earlier subset probes have explicit
+supplemental provenance from their unchanged PRELAUNCH preparation hashes in
+A/actual_companion_input_provenance.json; their original harness pins did not cover
+the subset TSV. Original raw cell/metric payloads were shared and pinned.
+
+ONE connected placement_mpi6 milestone passed on247,case
+`placement_mpi6_20261107T145231_48860`,tool session52411terminal0/165.014869s.
+90cases on EVERY rank,pins unchanged,all ten owned handles absent. Exact owned startup
+identities are in its owned_startup.json. Qualified pt2pt/private4TBscratch/libs1;
+geometry trace disabled. Reuses byte-identical historical geometry/ownership
+fixture payloads with archived exact original producer source; this is not a new
+CFD target or baseline campaign. Checkpoint and return immediately to
+full same-seed MACH-only L1/50k TWO-event M6. No full247attempt has started yet.

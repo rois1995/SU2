@@ -46,7 +46,7 @@ cavity cells,all retained. A_MACH/inspection_reader_status.json; no ParaView GUI
 mesh acceptance claim. Latest inspectable files A_MACH/inspection/rejected_mesh.vtu
 and .su2; captured_nodal_metric has9row-major components in PointData. The surface
 extract retains this volume tensor,not a separately fabricated surface field.
-No owned heavy job is live. Actual-residual31976terminal0/97.991032s,pins unchanged,
+Historical actual-residual31976terminal0/97.991032s,pins unchanged,
 case R/cases/current_residual_20261107T133112_4050059,all5handles absent. Exact q/J
 oracles match all7contexts. Near-gate interior4/4and severe interior2/4stars yield
 useful complete-context q/J retirement; selected shape-only boundary and shape+
@@ -76,21 +76,38 @@ A_MACH/{mach244_coverage_assessment,residual_preparation_status}.json,
 current_witnesses_v1/witness_preparation.json and compound_probe_v1/witness_preparation.json.
 Current final contexts are NOT historical replay; gains overlap,not additive.
 
-ACTIVE connected implementation NEXT246: canonical SINGLE-triangle numeric queries
-in shared BoundPhysicalSurface. [Design/evidence](Handbook/ADAPTATION_QUERY_CANONICALIZATION246_20261107.md).
-Normalize both key AND full query;retain exact authority,ordered support,tolerance,
-coordinate identity,all association/feature/body/height/final gates. Account canonical
-scratch with key/query overlap;memory-short cases use existing full computation.
-No new scheduler/config/operator/geometry representation or quality-aware construction.
-Do not introduce motion reuse/collapse coupling simultaneously. After focused affected
-serial and ONE connected MPI6 milestone,return immediately to same-seed MACH-only
-L1/50k full TWO-event M6,unchanged budgets. Whole-field counts judge completion.
+ACTIVE connected implementation: canonical SINGLE-triangle numeric query reuse,
+implemented in build247. [Design/evidence](Handbook/ADAPTATION_QUERY_CANONICALIZATION246_20261107.md).
+Both key AND computation normalize exact corner bits; exact authority/support/
+tolerance and all association/feature/body/height/final gates remain. Nine charged
+work units; admitted canonical scratch/key overlap; tight admission uses full query.
+No motion reuse/collapse coupling or construction changes alongside this cycle.
 
-Latest compiled build245TERMINAL0/168.177528s,1303pins unchanged,both targets current,
-all5sampled compiler/build handles absent. ONLY exact query trace enrichment under
-existing SU2_NATIVE_GEOMETRY_WORK_TRACE plus fixture raw-collapse control changed;
-no repair decision/gate change,no M6run after245. C++changes are diagnostic-only;no selected optimization is implemented yet.
-Full-run baseline remains A_MACH/build244,not combined sensors.
+Latest build247TERMINAL0/42.102124s,1303pins unchanged,both targets current,
+all5sampled handles absent. Build246serial failure preserved:two fixture contracts
+(unsorted support throws,and exact work includes9new units),not relaxed gates.
+Build247serial TERMINAL0/62.274139s:38cases/1678assertions pass,
+R/cases/canonical_serial_20261107T143317_2642,all5handles absent.
+Actual247probeTERMINAL0/92.804422s,pins unchanged,all5handles absent,
+R/cases/current_compound_20261107T143840_16331. Same candidate inventory and all
+q/J/geometry bad counts;counted query work681926→631308(−7.4228%). No whole-M6
+speedup established. A_MACH/canonical247_actual_comparison.json.
+
+Build247 placement_mpi6 TERMINAL0/165.014869s:90cases on EVERY rank,
+pins unchanged,all10owned handles absent. R/canonical247_qualification.json;
+R/cases/placement_mpi6_20261107T145231_48860/{status,owned_startup,terminal_handles}.json.
+Tool session52411is terminal. No owned heavy job live at this checkpoint.
+Main harness now preserves requested config directory for companion pinning even
+when run.cfg is a symlink. Three earlier subset probes have explicit supplemental
+PRELAUNCH actual-input hashes in A_MACH/actual_companion_input_provenance.json;
+original harness did not cover subset TSV. Actual raw payloads were pinned.
+MPI input reuse pins exact original producer snapshot and byte-identical previously
+qualified geometry fixture;not a CFD baseline or production target reselection.
+The ONE MPI milestone passed;push exact-whitelist checkpoint and IMMEDIATELY
+full TWO-event M6,same saved real CFD seed,MACH-only,L1/50k,native5400/outer14400.
+No full247attempt yet. ZERO accepted meshes;all downstream obligations open.
+
+Diagnostic245baseline remains historical,traces/raw-control only:
 Traced actual probe68907terminal0/92.918482s,pins unchanged,
 R/cases/current_compound_20261107T135435_4105949. Runner and all4process IDs sampled
 during execution absent;no pre-exit start-tick snapshot,no stop sent. Exact scope in

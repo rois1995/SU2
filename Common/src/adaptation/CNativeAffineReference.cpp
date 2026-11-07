@@ -1764,23 +1764,39 @@ double MappedFacetReference::BoundPhysicalSurface(const std::vector<Id>& facets,
         static_cast<unsigned long long>(bits(result)));
     return result;
   };
+  const auto canonical_bytes=physical.size()==1 ? transfer_memory::Add(sizeof(physical),
+      transfer_memory::GrowthBound(1,sizeof(std::array<Point,3>))) : 0;
+  if(transfer_memory::Add(budget.caller_bytes,canonical_bytes)>budget.maximum_bytes)
+    return traced_result(QuerySurfaceUnion(facets,physical,tolerance,budget,false,true).mesh_to_model,"bypass");
+  AtlasOps op{budget,__func__};
+  struct Restore{AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
+  std::vector<std::array<Point,3>> canonical;
+  if(physical.size()==1) {
+    op.Work(9);op.Storage(canonical_bytes);
+    budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,canonical_bytes);
+    canonical=physical;
+    // All six corner orders describe the same triangle; recomputation must use the memo's order too.
+    std::sort(canonical.front().begin(),canonical.front().end(),[&](Point a,Point b) {
+      return std::array<uint64_t,3>{bits(a.x),bits(a.y),bits(a.z)}<std::array<uint64_t,3>{bits(b.x),bits(b.y),bits(b.z)};
+    });
+  }
+  const auto& query=canonical.empty()?physical:canonical;
   const auto words=transfer_memory::Add(3,facets.size(),transfer_memory::Mul(physical.size(),9));
   const auto temporary=transfer_memory::GrowthBound(words,sizeof(uint64_t));
   if(!face_memo || FaceMemo::UnionBytes(words)>FaceMemo::Capacity() ||
       transfer_memory::Add(budget.caller_bytes,temporary)>budget.maximum_bytes)
-    return traced_result(QuerySurfaceUnion(facets,physical,tolerance,budget,false,true).mesh_to_model,"bypass");
-  AtlasOps op{budget,__func__};op.Work(words);
+    return traced_result(QuerySurfaceUnion(facets,query,tolerance,budget,false,true).mesh_to_model,"bypass");
+  op.Work(words);op.Storage(temporary);
   FaceMemo::UnionKey key;key.reserve(words);
   key.push_back(facets.size());key.insert(key.end(),facets.begin(),facets.end());
   key.push_back(physical.size());key.push_back(bits(tolerance));
-  for(const auto& triangle:physical)for(auto p:triangle)for(auto x:Values(p))key.push_back(bits(x));
+  for(const auto& triangle:query)for(auto p:triangle)for(auto x:Values(p))key.push_back(bits(x));
+  budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(key.capacity(),sizeof(uint64_t)));
   {std::lock_guard<std::mutex> guard(face_memo->lock);double cached=0;
     if(face_memo->Find(key,cached)){std::lock_guard<std::mutex> stats_lock(geometry_stats->mutex);
       ++geometry_stats->value.upper_calls;geometry_stats->value.upper_refusals+=cached>tolerance;return traced_result(cached,"hit");}}
   // The immutable authority, complete support set, tolerance and coordinates identify the certified query.
-  struct Restore{AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{budget,budget.caller_bytes};
-  budget.caller_bytes=transfer_memory::Add(budget.caller_bytes,transfer_memory::Mul(key.capacity(),sizeof(uint64_t)));
-  const auto before=budget.work;const auto result=QuerySurfaceUnion(facets,physical,tolerance,budget,false,true).mesh_to_model;
+  const auto before=budget.work;const auto result=QuerySurfaceUnion(facets,query,tolerance,budget,false,true).mesh_to_model;
   {std::lock_guard<std::mutex> guard(face_memo->lock);face_memo->Store(std::move(key),result,budget.work-before,op);}
   return traced_result(result,"miss");
 }
