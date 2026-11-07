@@ -93,3 +93,17 @@ is recorded without diagnosing its cause before terminal. Raw existing counters
 and scope are in A251/smoothing_comparison247_census16.json.
 At1990.9s all10host handles live and all1520pins unchanged;sampled RSS10.402GB,
 PSI0.00. A251/quality_window6_live_observation.json. Full251LIVE/FROZEN.
+
+Thirteen-window snapshot32704/census27,quality1850.882429s(vs2471820.897725):
+958775cells/53409q/51736J/1188geometry/0size,all flags complete. Same counts,
+29387commits and churn as247;net53045q/54468J/193geometry removed.
+Quality upper827726733→817867345(-1.1911%),same410337queries. Despite lower counted
+work,the EARLY timing advantage has NOT held:quality+29.984704s,whole native
+2528.536036vs2510.480323. Net q/s28.65930vs29.13124is observational,not a causal
+speedup/regression. SIX actual ownership publications preserve whole-field counts/
+flags. Boundary kernel1448.332404→1442.650358summed-rank seconds,interior95.771974→
+98.652096;same candidates/moves/debt. Timers overlap. Existing host scheduler
+counters show~27–29s/rank runqueue wait over2710s,CPU PSI some~4.5–4.9%;no baseline
+scheduler sample exists to establish comparative contention. CPU includes MPI
+spinning. No new profiling campaign or repair decisions. Full251LIVE/FROZEN;
+all1520pins unchanged and10owned handles live at2810.3s,source receipt in A251.

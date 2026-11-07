@@ -1,6 +1,6 @@
 {
-  "time": 1794076374.3238618,
-  "scope": "Actual complete-census ownership publications preserve whole-field measured counts and flags. Rank debt spread descriptive,not acceptance or complete phase-mode proof.",
+  "time": 1794077266.299484,
+  "scope": "Actual complete-census publications preserve whole-field measured counts/flags. Debt spread descriptive,not acceptance or complete phase-mode proof.",
   "pairs": [
     {
       "round": 32000,
@@ -237,32 +237,150 @@
         "q_max_mean": 1.0910556568063927,
         "debt_max_mean": 1.068027637572109
       }
+    },
+    {
+      "round": 32448,
+      "counts_preserved": {
+        "cells": 936877,
+        "measured": 936877,
+        "q_measured": 936877,
+        "j_measured": 936877,
+        "q_bad": 68289,
+        "j_bad": 67119,
+        "geometry_bad": 1215,
+        "size_bad": 0
+      },
+      "complete_flags": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": true,
+        "geometry_complete": true
+      },
+      "before": {
+        "rank_q_bad": [
+          11061,
+          12904,
+          11806,
+          9788,
+          13121,
+          9609
+        ],
+        "rank_shape_debt": [
+          1621.2798864354959,
+          2333.276621265048,
+          1838.6903744597123,
+          1757.0390374462331,
+          2608.1904623161067,
+          1444.3795834261573
+        ],
+        "q_max_mean": 1.1528357422132407,
+        "debt_max_mean": 1.348731969148965
+      },
+      "after": {
+        "rank_q_bad": [
+          10905,
+          11366,
+          14150,
+          10903,
+          9652,
+          11313
+        ],
+        "rank_shape_debt": [
+          1841.7936463357235,
+          2027.1446590848964,
+          2196.377321207254,
+          1960.6401255870844,
+          1915.7858061375707,
+          1661.114406996224
+        ],
+        "q_max_mean": 1.243245617888679,
+        "debt_max_mean": 1.1357776022213526
+      }
+    },
+    {
+      "round": 32640,
+      "counts_preserved": {
+        "cells": 952812,
+        "measured": 952812,
+        "q_measured": 952812,
+        "j_measured": 952812,
+        "q_bad": 57435,
+        "j_bad": 56014,
+        "geometry_bad": 1189,
+        "size_bad": 0
+      },
+      "complete_flags": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": true,
+        "geometry_complete": true
+      },
+      "before": {
+        "rank_q_bad": [
+          9762,
+          9265,
+          11489,
+          8948,
+          8874,
+          9097
+        ],
+        "rank_shape_debt": [
+          1252.9516032312808,
+          1236.7112118893406,
+          1250.5087042508585,
+          1213.049696384394,
+          1446.1826072868735,
+          914.9528547544523
+        ],
+        "q_max_mean": 1.2002089318359885,
+        "debt_max_mean": 1.1863101604083168
+      },
+      "after": {
+        "rank_q_bad": [
+          9307,
+          8789,
+          11309,
+          9243,
+          7465,
+          11322
+        ],
+        "rank_shape_debt": [
+          1277.3152421397842,
+          1176.072607077389,
+          1353.9020946902665,
+          1237.3749009023147,
+          1122.9629482814553,
+          1146.7288847059901
+        ],
+        "q_max_mean": 1.182763123530948,
+        "debt_max_mean": 1.1106120368453312
+      }
     }
   ],
   "source_prefixes": {
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
-      "bytes": 473995,
-      "sha256": "8408d76b0554a1837cc3b33ebae4762a647e2967d4421d47d7d1cf4c12f81c32"
+      "bytes": 541291,
+      "sha256": "d1b377486aca2077f7aa9ec968ab20839b3ae518f8e043c3e0f5e40a21845379"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
-      "bytes": 450721,
-      "sha256": "3cb82efc585e2acddd24922023bef69e252e651389b4a5ca0d29a5158e228881"
+      "bytes": 517931,
+      "sha256": "b5d7b5e95501378636829171866671da38b2e00a7e9c56d54987f8221dfe4081"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
-      "bytes": 450025,
-      "sha256": "fbd5b4ba2a47d20c112c875ab7b7abc3b97b0b3790f55d96e6c2cac802b18ef5"
+      "bytes": 517291,
+      "sha256": "4b12e71b5c2f5bdc33d809f6970b18198429c61bf1b24ebd35797ab7b87c3e49"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
-      "bytes": 450451,
-      "sha256": "3495b0f18b1b357fb7029806379e5c1034c0da3cbe76fac0c6b28c016d198b7c"
+      "bytes": 517606,
+      "sha256": "cc8123db8d0cf8408f6da2829af4e9a7e1e7a16a740609a2ffc847ebcd1e580e"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
-      "bytes": 451208,
-      "sha256": "1cccdff93c19f2be3e16c6a8777e27dbd813a45b736e4ee167f23b28225ef122"
+      "bytes": 518612,
+      "sha256": "5b631d5587b06189d2c5eebf473996a50d53bf8053735871cf0bfffaf83218d2"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
-      "bytes": 449954,
-      "sha256": "6a95591abd9a1816512fd96b7825721def6ae50df721a9950502bca3b438543f"
+      "bytes": 517135,
+      "sha256": "064db589dee5d0618020630b681f2efd6520a6b5cca116de96db81c6c98ad255"
     }
   }
 }
