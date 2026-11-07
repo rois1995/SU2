@@ -14,7 +14,8 @@ Actual mesh point/cell counts are separate from metric complexity. Keep geometry
 remains optional.
 
 Authoritative live handles/source pins are in [HANDOFF_Codex.md](HANDOFF_Codex.md).
-Latest full corrected-target attempt227naturally rejected at the time budget.
+Latest TERMINAL corrected-target attempt227naturally rejected at the time budget.
+Full two-event235 is now frozen and LIVE; do not launch a second attempt.
 The actual final selected mesh is saved with its full nodal metric:198364points/
 1017523tetrahedra, independently read. Final measurement caches were invalidated
 by the deadline. Never interpret printed final zero counts or empty classified
@@ -66,7 +67,7 @@ bound,160optimizer-work/30s limits and all gates remain unchanged. It closed loc
 Eight old/replacement-face queries reproduce native guidance deltas and show one
 raw exposed face per shell rigorously outside queried support (125.5/104.3µm vs
 100µm). Cheaper certification alone cannot admit these two raw candidates.
-No useful final compound candidate or new production closure change established.
+That231candidate remained inadmissible; later232/235results below address its geometry failure.
 The resulting geometry-conforming candidate232uses existing shell, reference-projected
 split of its new diagonal and existing optimizer. On the complete50-cell context,
 q2→0/J1→0/geometry4→2 with89.39%less geometry excess and unchanged maximum edge.
@@ -294,7 +295,7 @@ must distinguish those cases before selecting another change.
 Existing source facilities include the stage/rejected-state hooks and the
 `NativeStageCapture` fixture. Prefer extending those over a new capture framework.
 
-The current connected correction is the strict retained-feature proof described in
+The historical205/206correction is the strict retained-feature proof described in
 [the inspection record](Handbook/ADAPTATION_M6_INSPECTION_20261101.md). Build205
 reproduces all52oldq/J exactly and identifies a missing unchanged companion-face
 contribution. Build206passed the narrow proof correction and distributed regression,
@@ -304,33 +305,37 @@ closure; no weaker geometry or shape gate is proposed.
 
 ## Resume and validation order
 
-1. Read AGENTS.md, HANDOFF_Codex.md and this file. Verify the current owned
-   handles and terminal receipts before starting another workload. Historical
-   build199and202handles must never be signaled.
-2. Reuse the qualified build202 diagnostic and its exact source/runtime/helper
-   evidence. Serial and one connected MPI6 milestone already passed; rerun only
-   checks affected by actual changes or unresolved failures. Keep capture explicitly
-   selected, not automatic on ordinary rejection or `WRT_ADAP_MESH` use.
-3. Verify206terminal receipts and all10exact handle absences before source changes
-   or sustained computation. Reuse the qualified local witness work and202saved
-   SU2/VTU. Assess current counters and existing certification/reuse facilities
-   before selecting one connected correction; do not launch another baseline campaign.
-4. Use complete all-rank censuses to judge whole-field q/J retirement/introduction,
-   geometry and size closure, then transfer/continued CFD. Diagnose a demonstrated
-   failure before another correction. A local admissible private trial and its
-   debt reduction cannot substitute for the complete workflow.
-5. Use that evidence before pursuing the construction/repair hypotheses above;
-   test one connected hypothesis thoroughly. If M6 accepts, continue the second
-   accepted event, conservative admissible transfer, continued CFD and isolated
-   adapted restart. Only after Euler passes proceed to dedicated BL/MPI and RANS500k.
+1. Read AGENTS.md and the current HANDOFF_Codex.md. Verify exact current host
+   handles, source/binary/runtime/config/input pins and resource headroom. Full235
+   is frozen and running in tool session38789; do not restart from a stale status
+   file or observation timeout. Historical owned stops must never be repeated.
+2. Reuse235focused qualification and the existing capture/export facilities. Do
+   not repeat passing suites or launch an old-code baseline. MPI fixtures qualified
+   adjacent protocols; the full M6 is the pending end-to-end qualification of the
+   exact new support-selection path.
+3. Keep235source/helpers/binary/config/inputs frozen until verified terminal or
+   an authorized stop justified by preserved demonstrated failure/resource evidence.
+   If refused, seal the selected actual full mesh/metric and bounded cavity evidence;
+   then use existing exporters after the owned solver is terminal. No trial meshes.
+4. Judge complete all-rank whole-field q/J removal per second, geometry/size counts,
+   churn and counted work. Call timers overlap. A local private candidate, debt
+   reduction or commit rate cannot replace accepted meshes. Select the next tested
+   hypothesis from the terminal evidence; unrelated ideas stay in the backlog.
+5. If accepted, complete the second event, conservative admissible transfer,
+   continued CFD and isolated actual adapted disk restart, then BL/MPI and RANS500k.
+   Current production distributed transfer checks every state/time level and scaled
+   target-integral defect<=1e-12 collectively BEFORE setting new solver arrays
+   (CConservativeTransfer.cpp final-check block). Its per-field summary prints true
+   mass-solve residuals; require<=1e-10. Printed old/new-domain integral changes are
+   a separate quantity. Preserve source/observed-path evidence and finite matching-
+   grid disk states; the run_m6 finite-integral helper alone is insufficient.
 
-One owned heavy job; nice19; single-threaded libraries;2–4build workers. Root/tmp
-had only about1.5MBfree at the latest check. Put build, test, MPI and export scratch
-on the4TBworkspace compile-tmp. Leave unrelated jobs/files alone. Freeze source,
-binary, helpers and inputs during builds/runs; preserve receipts and push bounded,
-reviewable checkpoints. Do not raise the native time limit or relax a gate.
+One owned heavy job; nice19; single-threaded libraries;2–4build workers. Check
+current RAM/load/disk, use4TBcompile-tmp for build/MPI/export scratch, and leave
+unrelated jobs/files alone. Preserve resumable receipts and pushed reviewable
+checkpoints. Do not raise the native time limit or relax a gate.
 
-## Connected235integration qualified; return to full M6
+## Connected235integration qualified; full M6 frozen and live
 
 The complete geometry-conforming candidate is now production code, with bounded
 four-star prefetch before reservation and private shell/split/optimization before
@@ -341,7 +346,7 @@ fixes canonical interface packaging without relaxing it. Actual full-context235
 regression q2→0/J1→0/geometry4→2passes in143/160trials.116serial cases/78351assertions
 and ONE MPI6milestone26cases/rank pass, pins unchanged. This is focused qualification,
 not accepted meshes. Adjacent MPI protocols pass; exact support-selection predicate
-is first exercised in the next full M6. Run it immediately from the same saved real
-CFD seed/correctedL1/50k with unchanged5400native/14400outer limits, then let outcome
-drive further work. See [current design](Handbook/ADAPTATION_GEOMETRY_CONFORMING_REPAIR_20261107.md)
+is being qualified by the CURRENT frozen full M6, launched from the same saved real
+CFD seed/correctedL1/50k with unchanged5400native/14400outer limits. Let its outcome
+drive further work; do not launch another attempt while this one runs. See [current design](Handbook/ADAPTATION_GEOMETRY_CONFORMING_REPAIR_20261107.md)
 and HANDOFF_Codex.md for authoritative owned handles.

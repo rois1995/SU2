@@ -20,7 +20,7 @@ A235=`R/m6_runs/euler_build235_geometry_coupled_real_cfd50k`.
 ## ACTIVE235: geometry-conforming private quality candidate
 
 Production source checkpoint3839534f25 (connected235production/qualification);
-preceding pushed evidencec7b3a78de4,fc72256a3d. Earlier8107f77356local feasibility.
+preceding pushed evidencec70641d475(mid-quality),c7b3a78de4. Earlier8107f77356local feasibility.
 Production/fixture changes committed; preserve unrelated working changes.
 Build235exec12651TERMINAL0,63.151040s,1302pins unchanged/both targets up to date.
 All recorded host compiler/linker handles absent. Build234also terminal0,168.133394s.
@@ -65,27 +65,30 @@ variation is observational, not isolated implementation overhead. WorkerCPU/wall
 A235/{comparison227_matching_stages,quality_entry_comparison227}.json preserves
 prefix-verified data. NEXT evaluate net whole-field q/J removal and geometry/churn
 from quality entry; remaining time is smaller, budgets unchanged. No accepted mesh.
-LATEST COMPLETE35392/native3004.085s:950314cells/49437q/48119J/1831geometry/0size,
-all completeness flags1. Thirteen quality windows; quality2034.663s, net52621q/
-53741J/166geometry removed. Netq25.8623/s vs22726.5062/s at matching round;
-traversal.991306x227. No useful speedup established. First window counts/churn/
-checked work EXACT227; second diverges rank5, later populations/ownership differ.
-Current join-call wall share.44061 is an overlapping call scope, NOT CPU idle.
-A235/quality_comparison227.json uses existing checker with explicit attempt/label
-substitution and prefix verification; runtime decisions unchanged. Nearest measured
-quality-time comparison states each time gap explicitly; no interpolated counts.
-Quality migrations preserve whole-field counts/all completeness flags; existing
-quality_ownership235_assessment.json records initial and34752 checks. Whole
-preceding-window→publication13.169s at34752, publication alone.144s; subsequent
-cache warming excluded. Further production migrations are in raw complete censuses.
-All1519pins unchanged at quality recheck; source_freeze_quality_observation.json.
-Bounded location/ladder summary primary-reviewed independently against hashes and
-exact rank/stage/round/count joins: quality_early_location235_assessment.json.
-First3windows netq2264surface/7176interior removed; interior labels can touch
-constrained vertices. Almostall bad cells have edge<.9 (correlation, not causality).
-No stuck/missing features then; blocked0→80. Fixeddrift16DISTINCTglobal points
-repeated on6ranks, not96distinct; all supported, maxsampledrelativeFrobenius.00595774
-bywindow2/3. Sampled nodal sensor drift is not a whole-target norm. No competing code.
+LATEST COMPLETE36096/native4144.457s:993905cells/21070q/17509J/1749geometry/0size,
+all completeness flags1. Twenty-four windows, quality3175.035s; net80988q/84351J/
+248geometry removed. Netq25.5078/s vs22725.4864/s at matching round; traversal
+.946623x227. No useful timing speedup/closure established. First window EXACT227
+counts/churn/checked work; second diverges rank5, later populations/ownership differ.
+A235/quality_comparison227.json reuses existing checker by explicit labels/paths,
+verifies source prefixes and global q/J churn reconciliation. Nearest measured
+quality-time comparisons retain actual gaps; no interpolated counts/causal claim.
+Quality migrations keep full-field counts/measurement flags; initial and34752
+checks in quality_ownership235_assessment.json. Publication.144s excludes policy/
+preparation/later warming; preceding-window→publication13.169s at34752. Later raw
+complete census groups preserve further migrations. Call timers overlap, not CPU idle.
+All1519pins unchanged at late recheck:source_freeze_late_quality_observation.json.
+Primary reviewed both bounded location summaries against hashes/exact stage-round-
+rank/census joins:quality_early_location235_assessment.json and
+quality_mid_location235_assessment.json. Mid snapshot35904:26843q/23653J/1764geometry;
+24856q have no physical face, but can touch constrained vertices. Do not infer
+unconstrained volume from face-only labels; exact location net changes are in artifact.
+In its last window optimizer net1447q/1539J; topology fallback net100q/105J from
+28/6304trials in3.90rank-s, so low yield alone is not the dominant timing cost.
+Stuck4/39251bad union, blocked266/queue346669, missing0. Nearlyall bad cells have
+edge<.9 (correlation, not construction-causality proof). Fixeddrift16DISTINCTglobal
+points repeated on6ranks, not96distinct; all supported, maxsampledrelativeFrobenius
+.038733 at35904, not a whole-target norm. No competing implementation.
 
 
 [Current connected design](Handbook/ADAPTATION_GEOMETRY_CONFORMING_REPAIR_20261107.md):
