@@ -1,0 +1,30 @@
+{
+  "time": 1794009843.5013568,
+  "scope": "Read-only preparation; no stop/capture/export invoked and no pinned code changed.",
+  "source_sha256": {
+    "UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp": "d6c37c86c93a46c496f63c893dc9207bccf3cc543d5f662a9513688ad4dbeb56",
+    "Common/include/adaptation/CNativeFailureCapture3D.hpp": "c8bfc77dd0e8a2ed1de148295bbe466168e3036d26bc240cdf6ae3c325377ebb",
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/inspect_native_failure3d.py": "028b7184ff25a0b5de1333c1da287c433251f4b52cccb34b05607e8a2f55c76d"
+  },
+  "capture_contract": {
+    "driver_one_shot": "CNativeRemesher3D_tests.cpp276-294: driver captured flag is set before Save; captures first INVALID exit across callbacks/events",
+    "writer_one_shot": "CNativeFailureCapture3D.hpp26-31 and132-136: saved guard, refuses existing files, exclusive creation; partial failures are not retried",
+    "event_selection": "Use actual driver/manifest event numbering and match all6ranks. If first mesh succeeds and second fails, seal the first INVALID event prefix, not blindly the first native exit.",
+    "files": "adapted_mesh_inspection_rankN_{manifest.json,owned.bin,metrics.jsonl,reference.jsonl,rejections.jsonl}",
+    "expected_ranks": 6,
+    "owned_header_bytes": 8,
+    "owned_record_bytes": 416,
+    "owned_magic": "0x4E334443454C4C02",
+    "per_file_cap_bytes": 134217728
+  },
+  "preserve_before_authorized_postfailure_stop": [
+    "Actual first invalid native exit/rejected event evidence and complete6rank source prefixes",
+    "All6 NATIVE3D_FAILURE_EXPORT receipts; inspect their complete flags, not workflow completion alone",
+    "All6 manifests same event/ranks and schema; written_rows/working_rows and per-source completeness flags",
+    "Hash all existing capture files and verify owned framing/header size against written rows",
+    "Verify all current frozen run pins and exact HOST owned handle identities; never signal historical handles"
+  ],
+  "partial_capture_policy": "Preserve partial/error receipts honestly; one-shot means a partial save will not become complete later. Export/measurement completeness must not be invented.",
+  "after_terminal": "Use qualified generic inspect_native_failure3d.py with a NEW output directory, then independent full VTU/SU2/tensor/array checks if this selected checkpoint merits inspection. Full-mesh flags are separate from bounded bad/cavity partial flags.",
+  "do_not_repurpose": "prepare_geometry225_queries.py is tied to sealed225 inputs/terminal handles; keep it unchanged."
+}

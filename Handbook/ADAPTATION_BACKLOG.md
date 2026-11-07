@@ -500,3 +500,15 @@ progress from225. Construction quality-aware policies remain unproved/deferred.
   inheriting it. The active227candidate only skips a sample lower search when an
   existing rigorous upper bound already proves that sample within tolerance.
   See [captured evidence and proof](ADAPTATION_GEOMETRY_WITNESS_20261106.md).
+
+- Source-grounded correctness risk for POSTTERMINAL review in the active ownership
+  cycle: CNativeEngine3D.cpp2671-2689 computes optional migration admission using
+  rank-local elapsed/ownership time and branches without a collective vote.
+  A false rank returns while true ranks enter Directory/Repartition collectives.
+  This can split collective order near the benefit/deadline boundary. Existing
+  world.maximum/vote facilities are the starting point; no new scheduler/config.
+  The reviewed227prefix has all six ranks agreeing at every observed evaluation;
+  this is NOT an observed current failure and does not justify interrupting its
+  frozen attempt. Preserve the run; correct/qualify this guard after terminal,
+  alongside the existing cycle's actual outcome. Source/counter proof is distinct
+  from the legitimate old225/new227deadline-admission difference at round35776.

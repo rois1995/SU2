@@ -14,82 +14,87 @@ sources, fixtures, helpers, binary/config/inputs through each run. Verify actual
 owned handle terminal before edits/restarts. Preserve failures; authorized stop/
 fix/retry for demonstrated failures, clear bottlenecks or actual resource pressure.
 
-## ACTIVE227: frozen full M6, eight quality windows
+## ACTIVE227: frozen first M6 event; late quality, postterminal guard issue recorded
 
-Source checkpoint bd653aa58f PUSHED; live provenance636e1360c4 PUSHED. One connected
-geometry cycle: existing rigorous sample witness upper<=query tolerance returns
-lower0 instead of searching full support for a lower bound that cannot prove
-outside. Full domain upper/final two-sided certification and uncertain samples'
-complete-support search unchanged. No new cache/config/representation/policy.
-Twelve ACTUAL225faces pass cached/recomputed/production-guidance equality; exact
-packet unchanged, traversal870948→472780(-45.7%). Source review/failed setup/
-226measurement and proof: [current handbook](Handbook/ADAPTATION_GEOMETRY_WITNESS_20261106.md).
+Source bd653aa58f and evidence2a600e505e PUSHED.227changes only the shared geometry
+sample lower search: an existing rigorous witness upper<=query tolerance permits
+lower0, skipping full-support lower traversal that cannot establish outside.
+Full domain/final two-sided certification and uncertain samples remain unchanged.
+No new production cache/config/representation/construction policy. Captured12actual
+faces: same exact bounds/production guidance, traversal-45.7%. Build227TERMINAL0,
+1302pins unchanged; serial102cases/35396assertions, MPI6each26cases PASS/all handles
+terminal. R/geometry_witness227_qualification.json and
+[proof/evidence](Handbook/ADAPTATION_GEOMETRY_WITNESS_20261106.md).
 
-Build227exec56586TERMINAL0,36.105134s,1302pins unchanged/both targets up to date.
-Serial102cases/35396assertions and MPI6exec59919TERMINAL0,26cases on EACH rank PASS.
-All qualification handles absent; R/geometry_witness227_qualification.json. These
-checks do not establish the later separate BL qualification or workflow completion.
+Full M6exec50998LIVE, sole heavy job. A227=R/m6_runs/euler_build227_witness_real_cfd50k.
+ALL C++/fixtures/runtime helpers/binary/config/inputs FROZEN. Same real CFD seed,
+correctedL1/50000,2events,native5400/outer14400. Exact host identities in
+A227/startup_verification.json: helper1929640/start4972961,time1929996/start4973666,
+timeout1929997/start4973666,mpirun1929998/start4973666,rank1930001..1930006.
+Host check1794009752: ALL10LIVE/1519pins unchanged, sampled sumRSS10.712GB(decimal),
+not whole-job peak/physicalRAM; memory PSI0. No stop justified. Host /proc required;
+sandbox namespaces differ. Never signal historical225/219/217/210handles again.
 
-Full M6exec50998LIVE, sole owned heavy job:
-A227=R/m6_runs/euler_build227_witness_real_cfd50k. Same saved real CFD seed,
-correctedL1/50000,2events,native5400/outer14400. All C++/fixtures/helpers/binary/
-config/inputs FROZEN. Exact host handles: A227/startup_verification.json,
-helper1929640/start4972961,time1929996/start4973666,timeout1929997/start4973666,
-mpirun1929998/start4973666,rank PIDs1930001..1930006. No stop justified.
-Quality-entry host snapshot1794006215: ALL10identities LIVE/1519pins unchanged;
-sampled sumRSS10.095GB(decimal), not physicalRAM/whole-job peak. Small memory PSI
-transient avg60.34% did not establish insufficient RAM. Latest host check1794007481:
-ALL10identities LIVE/1519pins unchanged,sumRSS10.465GB, memory PSI0.
-A227/quality_entry_resources.json is immutable; latest_owned_observation.json updates.
-No terminal inference from quiet logs/timeouts; host /proc required, sandbox PID
-namespace differs. Historical225/219/217/210handles must never be signaled again.
-
-ConfigSHA74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d EXACT225.
+Run configSHA74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d EXACT225.
 Initial restartSHA5132ee2a83635b457943c2679a3a50c5e0b733427e620cc748da53865ce5d692
-BYTE-IDENTICAL225/219: coordinates,6tensor/7flow fields. CL.269535/CD.013536.
+BYTE-IDENTICAL225/219: coordinates,6tensor/7flow fields; CL.269535/CD.013536.
 A227/initial_target_match.json; R/geometry_witness227_M6_preflight.json.
 
-ALL76matching complete construction groups preserve all checked counts/flags and
-15selected per-rank operation/preparation/call vectors. Construction ends730.000648s,
-871607cells/1997geometry-bad/0size-bad; q/J deliberately UNMEASURED until quality.
-Counted traversal330406661→272143468(-17.6%),upper349202166→290938973(-16.7%);
-scope/facet/piece selection work unchanged. Coarsening alone traversal-34.3%.
-Native construction time2251527.934458vs227730.000648 is host-sensitive; NO isolated
-code timing claim. A227/construction_comparison225.json records all matching groups.
+ALL76construction groups preserve checked counts/flags and15selected per-rank
+operation/preparation/call vectors. Ends730.000648s vs2251527.934458, host-sensitive.
+871607cells/1997geometry-bad/0size-bad, q/J intentionally UNMEASURED. Counted
+construction traversal330406661→272143468(-17.6%),upper-16.7%; preparation unchanged.
+COMPLETE quality entry34594 at775.819046s:102058q/101860J/1997geometry/0size bad,
+counts/flags/per-rank debt EXACT225. A227/construction_comparison225.json,
+quality_entry_assessment.json; matching counts do not prove full connectivity equality.
 
-COMPLETE quality entry34594 at775.819046native seconds (2251584.159718):
-871607cells/102058q-bad/101860J-bad/1997geometry-bad/0size-bad; all measurement flags1.
-Counts/flags/per-rank q/Jdebt EXACT225. A227/quality_entry_assessment.json.
-Latest COMPLETE eighth quality window35072 at2060.838778native seconds:
-918982cells/69204q-bad/68918J-bad/1899geometry-bad/0size-bad; all flags1.
-All8matching-round whole-field counts/flags, commits and churn match225. Net from
-entry32854q/32942J/98geometry removed in1285.019732quality seconds (2251742.160736).
-Observed netq25.5669vs18.8582/s(+35.6%), NOT an isolated source timing claim.
-Counted QUALITY traversal687999677→580219284(-15.7%); query/preparation counts same.
-17536commits and netq1.8735/commit unchanged. Gross qretired306998/introduced274144;
-this high churn remains a repair-yield risk, not a proved next blocker before outcome.
-Boundary private rank-s1255.407→965.292; interior69.278→59.092, moves/debt same.
-Join-call wall share45.60%vs44.54% is NOT CPU-idle share; timers overlap/host effects.
-Nearest measured quality times1285.020vs2251300.344(-15.324s): new69204q/68918J/
-1899geometry vs22578335q/78054J/1907geometry. Explicit unequal census times; no
-interpolated counts or same-time causal claim. A227/quality_comparison225.json.
-Resumable COUNTER-ONLY helper R/compare_quality227.py reads existing log prefixes,
-checks SHA/rank/completeness and cumulative churn==net whole-field q/J changes.
-Run from repo root AFTER refreshing construction_progress_assessment.json from
-complete first-event rank logs; no frozen runtime helper or production code changed.
-Bounded independent review covers first5windows; primary corrected its mixed
-window-only/cumulative wording before checkpoint. R/quality227_metadata_review.json.
-Evidence checkpoint a2bba55357 PUSHED; newer8window/helper/migration receipts local
-pending next push. First in-quality redistribution34752 preserves counts/flags;
-A227/first_quality_redistribution.json. It does not prove every fairness/history key.
-Continue frozen; judge net whole-field q/J-bad removal per QUALITY second alongside
-geometry counts, churn and interior/boundary useful work. No accepted mesh yet.
-After shape closes, residual geometry/size repair must preserve shape/heights;
-any validity-only geometry construction requires shape remeasurement/reclosure.
-Workflow receipts only show finite reported integral changes; independently verify
-true CV residual/admissibility/scaled target-integral gate and actual isolated
-adapted disk restart. Do not treat helper workflow_accepted as full goal completion.
-Do not apply old225source-pin assertion after intentional226/227source edits.
+Latest sealed state: ownership_committed36352 at4449.934728native seconds,
+1005854cells/13500q-bad/9984J-bad/1747geometry-bad/0size-bad; all measurement flags1.
+Nineteen quality-window counts matched225 through35776. First difference35840 follows
+actual ownership admission:225skips35776 migration (<=443s remaining vs621.8s
+safety hurdle),227migrates (~1997s remaining vs403.7s hurdle). Next window227has
+251fewerq/333fewerJ/+5geometry/+221cells and155morecommits. This is an observed
+deadline-based path difference, not an established gate failure.
+A227/first_quality_divergence225.json preserves source/log proof. Before divergence,
+traversal at35776 was-16.4%; later populations differ. Do not attribute all wall-time
+change to the kernel or claim identical work after migration.
+
+Current round is beyond225's final matching-round horizon35968. Read actual latest
+construction_progress_assessment.json FIRST: compare_quality227.py prints matched
+baseline windows, which can lag the current run. It records nearest actual quality
+census times with explicit gaps, not interpolated/same-time claims. Counter helper
+reads existing prefix hashes, verifies six-rank completeness and churn==net q/J.
+A227/quality_comparison225.json and quality_redistributions.json. Timers overlap;
+join-call wall share is NOT CPU-idle share. Private smoothing debt is not global gain.
+Newer progress/first-divergence/capture/readiness analysis local pending next push.
+
+POSTTERMINAL correctness issue, within this same ownership cycle: source2671-2689
+uses rank-local wall/ownership time in optional migration admission without a
+collective decision; false ranks return while true ranks enter repartition.
+No observed split: sealed A227/ownership_admission_alignment.json has28complete
+six-rank evaluations agreeing. Record is source-level latent risk, NOT a reason
+to interrupt this frozen attempt. Correct/qualify after terminal using existing
+collective facilities; no new scheduler/config. [Backlog](Handbook/ADAPTATION_BACKLOG.md).
+
+Capture is one-shot first INVALID exit across callbacks/events; exclusive files
+cannot be overwritten, and partial saves are not retried. Verify all6 export
+receipts/manifests and416-byte owned framing, preserve hashes/pins/first-invalid
+prefix before any authorized postfailure stop. R/capture227_terminal_preparation.json.
+If first event succeeds and second fails, use actual manifest event numbering and
+the INVALID event, not blindly the first exit. Generic inspect_native_failure3d.py
+is qualified; old prepare_geometry225_queries.py is225-specific and stays unchanged.
+Do not launch another heavy export/check while this owned workload remains live.
+
+Continue to native terminal under unchanged budgets. Judge net whole-field q/J-bad
+removal/s alongside geometry counts, churn, rejection and location counters. After
+shape closes, residual geometry/size repair must preserve shape/heights; any
+validity-only geometry construction requires shape remeasurement/reclosure.
+ZERO accepted meshes in this sealed prefix. If event1 accepts, switch observation
+to actual event2; first-event comparison is not two-event workflow evidence.
+Workflow receipts only show finite integral changes; verify trueCV residual<=1e-10,
+full admissibility and scaled target-integral1e-12 BEFOREpublication, continued CFD
+and actual isolated disk restart. Do not treat helper workflow_accepted as full goal.
+Do not apply old225source-pin assertions after intentional226/227source edits.
 
 ## TERMINAL225: rejected; full mesh+metric saved and independently read
 

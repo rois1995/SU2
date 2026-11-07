@@ -157,3 +157,28 @@ q/J. It records its own hash and does not assess workflow acceptance. No product
 or executing runtime helper changed. R/quality227_metadata_review.json records a
 bounded independent first5window review and the primary's correction of an initially
 mixed window-only/cumulative review description; arithmetic in the helper was correct.
+
+## Late divergence and required postterminal ownership guard review
+
+Counts match225through quality round35776. At that census old225declines migration:
+its prior native stage4956.672566leaves at most443.327434s under5400, below twofold
+predicted cost621.834573s. New227admits: prior stage3402.805460and twofold cost
+403.723616s. The next complete35840census differs:251fewerq/333fewerJ/+5geometry/
++221cells,155additional cumulative commits. All completeness flags hold. This is
+consistent with the actual different migration and subsequent work; exact-work
+comparisons must use the preceding matched prefix. A227/first_quality_divergence225.json.
+
+A separate source audit finds migration admission uses local wall/ownership timers
+without collectively reconciling proceed. A false rank returns while true ranks
+enter Directory/Repartition collectives. Existing world.maximum/vote are the
+starting point for a postterminal correctness fix. It is NOT an observed current
+failure:28complete six-rank evaluated decisions agree in the sealed prefix. Keep
+227frozen; record in backlog and correct/qualify after terminal within this cycle.
+A227/ownership_admission_alignment.json. No new framework or config is justified.
+
+Selected capture source was also reviewed: driver/writer guards are one-shot at
+first INVALID exit, file creation is exclusive, and partial failures are not retried.
+All six export receipts, manifest completeness,416-byte binary framing and stable
+hashes must be checked before postfailure stop/export. Actual manifest event IDs
+must be used if a later event is the first refusal. R/capture227_terminal_preparation.json
+records source hashes and existing qualified parser; no capture/export was launched.
