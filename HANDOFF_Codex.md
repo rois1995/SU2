@@ -51,6 +51,23 @@ No routine VTU export. Driver may continue ORIGINAL-grid CFD and write adap-name
 restart after refusal;that is NOT adapted workflow proof.
 If accepted:perform actual transfer/continued-CFD/disk checks below.
 
+Current first quality entry31898EXACT251:878443cells/106454q/106204J/1381geometry/
+0size,ALL measured/complete flags. Construction120785commits/52092upper queries
+same;upper work271243211→246122779(−9.2612%),native677.653607→645.622059s.
+A253/quality_entry_comparison251.json.
+FIRST quality window31936EXACT251:881845cells/103678q/103513J/1369geometry/0size,
+ALL complete flags. Net2776q/2691J/12geometry removed. Quality84.555829vs92.152580s;
+net q/s32.830380vs30.123953,J31.825127vs29.201570. EARLY observational gain only;
+no causal or final closure claim. Upper49402128→44956595(−8.9987%),same20002calls.
+Boundary8345candidates/418moves in BOTH;79.102270→70.040411SUMMED-rank seconds;
+interior5005/628,3.988227→3.995057. Timers overlap other/geometry work,not additive.
+Join-call wall share.417947→.396648is NOT CPU idle. A253/quality_comparison251.json,
+quality_counter_assessment.json,quality_progress.json and parser provenance.
+At814.6s all10HOST handles live,ALL1520pins unchanged,treeRSS10.133GB,hostavailable
+~31.6GB;memory PSI avg10zero (avg60.28/avg300.18). No demonstrated owned pressure.
+A253/quality_entry_live_observation.json. RSS not whole-job physical peak.
+
+
 ## Qualified active change and diagnosis
 
 [Witness253 proof/qualification](Handbook/ADAPTATION_WITNESS_CUTOFF253_20261107.md).

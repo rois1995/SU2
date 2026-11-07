@@ -46,3 +46,27 @@ Shape closure must be followed by residual geometry/size construction and shape
 reclosure. Faster shape certification does not prove that geometry-only residuals
 will close. No accepted mesh, conservative admissible transfer, adapted continued
 CFD or adapted disk restart is established;BL/MPI and RANS500k remain required.
+
+
+## First complete M6 quality window — live, not outcome
+
+Quality entry31898is EXACT251:878443cells/106454q/106204J/1381geometry/0size,
+all measured and completeness flags. Same cfg,real seed,byte-identical continued
+original-grid CFD restart and initial partition counters. A stale initial-restart
+hash in the old handoff was corrected against actual files and251's earlier
+quality-entry receipt;initial_cfd_restart_comparison251.json records this.
+Construction upper work271243211→246122779(−9.2612%),same120785commits/52092queries;
+native677.653607→645.622059s is observational,not a causal speedup proof.
+
+First quality window31936has identical881845cells/103678q/103513J/1369geometry/0size.
+Net2776q/2691J/12geometry removed in84.555829s vs25192.152580s;net q/s32.830380vs
+30.123953,J/s31.825127vs29.201570. Same20002upper calls,upper work49402128→44956595.
+Boundary8345candidates/418moves,interior5005/628in both. Summed boundary-kernel
+seconds79.102270→70.040411;interior3.988227→3.995057. Timers overlap other work;
+join-call wall share.417947→.396648is not CPU idle. This is an EARLY observation;
+251also had an early timing lead that did not persist. No closure/acceptance claim.
+Complete-prefix hashes and unchanged existing parsers/churn identities support
+A253/quality_{entry_comparison251,comparison251,counter_assessment,progress}.json.
+At814.6s all10host handles live,all1520pins unchanged,treeRSS10.133GB,hostavailable
+~31.6GB,memory PSI avg10zero. Keep the full run frozen and judge its terminal
+whole-field outcome. Shape/geometry/reclosure,transfer,CFD,restart,BL/RANS remain open.
