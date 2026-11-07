@@ -32,7 +32,8 @@ counted work and was REJECTED/reverted.237tests only omitting a signed lift solv
 when fresh residual intervals prove it nonpositive. Same12query replay preserves
 ALL bounds bit-for-bit, with5.96%less traversal work; this is not whole-M6 speedup.
 Connected qualification passes116serial cases/82379assertions and ONE MPI6milestone
-with26cases on every rank, pins unchanged/owned handles terminal. Full retry is next.
+with26cases on every rank, pins unchanged/qualification handles terminal. Checkpoint
+4d1e2ec5b0is pushed; full same-seed two-event237is ACTIVE and source-frozen, tool2688.
 Verify current handles/pins in HANDOFF before acting. No new repair strategy.
 
 Historical227saved198364points/1017523tets, but its final measurement caches were

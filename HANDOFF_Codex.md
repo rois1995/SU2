@@ -16,10 +16,12 @@ restarts. Preserve failures; authorized stop/fix/retry remains in force.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A227=`R/m6_runs/euler_build227_witness_real_cfd50k`.
 A235=`R/m6_runs/euler_build235_geometry_coupled_real_cfd50k`.
+A237=`R/m6_runs/euler_build237_signed_bounds_real_cfd50k`.
 
 ## Current cycle: terminal235 geometry/smoothing efficiency, signed bound237
 
-Production source checkpoint3839534f25 (connected235production/qualification);
+Latest pushed source/evidence checkpoint4d1e2ec5b0 (qualified signed-bound237).
+Preceding production checkpoint3839534f25 (connected235production/qualification);
 preceding pushed evidencec70641d475(mid-quality),c7b3a78de4. Earlier8107f77356local feasibility.
 Production235/fixture changes committed; preserve unrelated working changes.
 Current production change237 touches ONLY
@@ -41,9 +43,19 @@ contexts),quality,atlas,failure-census;116cases/82379assertions. All168measured 
 cavity outcomes equal235 excluding time/work. MPI6tool19231TERMINAL0,6.322127s,
 EACH rank26cases. All pins unchanged;21serial and10MPI sampled owned handles absent.
 R/{serial237_terminal_handles,mpi237_terminal_handles}.json. Qualification complete:
-R/signed237_qualification.json. NO OWNED HEAVY JOB. Next IMMEDIATE full same-seed
-two-event M6 on237, unchanged gates/native5400/outer14400. Verify host resources/
-handles then launch; freeze source/fixtures/helpers/binary/config/inputs throughout.
+R/signed237_qualification.json. ACTIVE FULL237 same-seed TWO-event M6, tool session
+2688, unchanged gates/native5400/outer14400. R/m6_237_launch.json records exact helper
+2861865/start7510148 and runner2861866/start7510152, source commit4d1e2ec5b0,
+qualification hash/resources/scratch. Verify actual owned handles before edits or
+another workload. Source/fixtures/helpers/binary/config/inputs FROZEN throughout.
+Startup A237/owned_startup.json verifies1519pins unchanged and records exact live
+GNUtime2862080/start7510715,timeout2862081/start7510715,launcher2862082/start7510715,
+workers2862112/7510779,2862113/7510779,2862114/7510780,2862115/7510780,
+2862116/7510780,2862117/7510781. All11owned handles live at that receipt. Same
+configSHA74b2e9f... and initialrestartSHA5132ee2a... byte-identical219/225/227/235;
+A237/initial_metric_input_provenance.json. First continued CFD printsCL.269535/CD.013536.
+No routine VTU export; existing selected final capture preserves evidence if needed.
+Full workflow, geometry-only closure, transfer/CFD/restart remain unproved.
 Build235exec12651TERMINAL0,63.151040s,1302pins unchanged/both targets up to date.
 All recorded host compiler/linker handles absent. Build234also terminal0,168.133394s.
 

@@ -126,7 +126,8 @@ serial237tool51486terminal0,372.369733s. All168actual-cavity outcome records mat
 excluding timing/work. ONE MPI6milestone passes26cases on EVERY rank,tool19231
 terminal0,6.322127s. Pins unchanged; all21serial and10MPI sampled handles absent.
 R/signed237_qualification.json records scope/provenance. IMMEDIATE next is the full
-same-seed two-event M6.
+same-seed two-event M6, now ACTIVE237/tool2688/source checkpoint4d1e2ec5b0 pushed.
+R/m6_237_launch.json records exact owned handles; preserve the frozen attempt.
 Judge whole-field q/J net removal/s and geometry counts at matching quality ages,
 not query time alone. Source remains frozen throughout build/validation.
 
