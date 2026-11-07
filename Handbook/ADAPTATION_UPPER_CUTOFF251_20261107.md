@@ -70,3 +70,12 @@ First complete quality window31936/census3:1435commits and identical whole-field
 same20002queries. No causal whole-runtime speedup or closure claim. All relevant
 prefix hashes and complete census flags checked;A251/quality_comparison247.json.
 Full251still LIVE/FROZEN;wait for its actual terminal outcome.
+
+Three-window snapshot through32064/census7,quality age378.266885s(vs383.993092):
+895674cells/94913q/94850J/1299geometry/0size,all flags complete. Same whole-field
+counts,6248commits and churn as247. Net11541q/11354J/82geometry removed;
+q/s30.51020vs30.05523observational. Cumulative quality upper work174312520→172669208
+(-0.9427%),same84602queries. Actual ownership publications32000and32064preserve
+whole-field measurement/flags;latest debt max/mean1.16414→1.11326. None establishes
+acceptance. Full251continues LIVE/FROZEN. Host full swap has no active pressure:
+owned VmSwap0,0swap-out/9swap-in pages over108.93s,PSI averages0.00.

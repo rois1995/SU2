@@ -1,6 +1,6 @@
 {
-  "time": 1794075380.6208186,
-  "scope": "First complete quality windows after exactly matching entry. Matching round and explicit nearest-age pair;no interpolation or causal speedup claim. Join-call/busy/tracked timers overlap,not CPU wait percentages. Whole-field counts and net removal govern.",
+  "time": 1794075749.881218,
+  "scope": "First uninterrupted quality pass,complete six-rank censuses and churn identities. Matching rounds plus explicit nearest-age pair;no interpolation or causal speedup claim. Join/busy/tracked timers overlap,not CPU wait shares. Whole-field q/J/geometry and net removal govern.",
   "entry_equal": true,
   "windows": [
     {
@@ -16,6 +16,12 @@
           "j_bad": 103513,
           "geometry_bad": 1369,
           "size_bad": 0
+        },
+        "complete_flags": {
+          "cache_consistent": true,
+          "census_complete": true,
+          "shape_complete": true,
+          "geometry_complete": true
         },
         "net_bad_removed": {
           "q_bad": 2776,
@@ -49,6 +55,12 @@
           "j_bad": 103513,
           "geometry_bad": 1369,
           "size_bad": 0
+        },
+        "complete_flags": {
+          "cache_consistent": true,
+          "census_complete": true,
+          "shape_complete": true,
+          "geometry_complete": true
         },
         "net_bad_removed": {
           "q_bad": 2776,
@@ -84,6 +96,12 @@
           "geometry_bad": 1369,
           "size_bad": 0
         },
+        "complete_flags": {
+          "cache_consistent": true,
+          "census_complete": true,
+          "shape_complete": true,
+          "geometry_complete": true
+        },
         "net_bad_removed": {
           "q_bad": 2776,
           "j_bad": 2691,
@@ -106,7 +124,7 @@
         }
       },
       "age_offset251_minus247": -1.457041110000091,
-      "matching_window_counted_geometry_work": {
+      "cumulative_quality_counted_work": {
         "current251": {
           "accepted": 1435,
           "upper_calls": 20002,
@@ -124,33 +142,313 @@
           "scope_misses": 4076
         }
       }
+    },
+    {
+      "round": 32000,
+      "current251": {
+        "quality_seconds": 185.42560661599998,
+        "totals": {
+          "cells": 888081,
+          "measured": 888081,
+          "q_measured": 888081,
+          "j_measured": 888081,
+          "q_bad": 99363,
+          "j_bad": 99351,
+          "geometry_bad": 1355,
+          "size_bad": 0
+        },
+        "complete_flags": {
+          "cache_consistent": true,
+          "census_complete": true,
+          "shape_complete": true,
+          "geometry_complete": true
+        },
+        "net_bad_removed": {
+          "q_bad": 7091,
+          "j_bad": 6853,
+          "geometry_bad": 26
+        },
+        "net_bad_removed_per_quality_second": {
+          "q_bad": 38.24175166208211,
+          "j_bad": 36.95821804262427,
+          "geometry_bad": 0.14021795842816737
+        },
+        "cumulative_service": {
+          "commits": 3727.0,
+          "q_retired": 87937.0,
+          "q_introduced": 80846.0,
+          "j_retired": 79441.0,
+          "j_introduced": 72588.0,
+          "busy_seconds": 335.758128026,
+          "join_call_seconds": 423.48524108000004,
+          "tracked_collective_call_seconds": 167.6961974769879
+        }
+      },
+      "matching_round247": {
+        "quality_seconds": 188.261919616,
+        "totals": {
+          "cells": 888081,
+          "measured": 888081,
+          "q_measured": 888081,
+          "j_measured": 888081,
+          "q_bad": 99363,
+          "j_bad": 99351,
+          "geometry_bad": 1355,
+          "size_bad": 0
+        },
+        "complete_flags": {
+          "cache_consistent": true,
+          "census_complete": true,
+          "shape_complete": true,
+          "geometry_complete": true
+        },
+        "net_bad_removed": {
+          "q_bad": 7091,
+          "j_bad": 6853,
+          "geometry_bad": 26
+        },
+        "net_bad_removed_per_quality_second": {
+          "q_bad": 37.66560977633498,
+          "j_bad": 36.40141359430597,
+          "geometry_bad": 0.1381054652636736
+        },
+        "cumulative_service": {
+          "commits": 3727.0,
+          "q_retired": 87937.0,
+          "q_introduced": 80846.0,
+          "j_retired": 79441.0,
+          "j_introduced": 72588.0,
+          "busy_seconds": 342.54548247099996,
+          "join_call_seconds": 434.224742326,
+          "tracked_collective_call_seconds": 168.29014017801228
+        }
+      },
+      "nearest_age247_round": 32000,
+      "nearest_age247": {
+        "quality_seconds": 188.261919616,
+        "totals": {
+          "cells": 888081,
+          "measured": 888081,
+          "q_measured": 888081,
+          "j_measured": 888081,
+          "q_bad": 99363,
+          "j_bad": 99351,
+          "geometry_bad": 1355,
+          "size_bad": 0
+        },
+        "complete_flags": {
+          "cache_consistent": true,
+          "census_complete": true,
+          "shape_complete": true,
+          "geometry_complete": true
+        },
+        "net_bad_removed": {
+          "q_bad": 7091,
+          "j_bad": 6853,
+          "geometry_bad": 26
+        },
+        "net_bad_removed_per_quality_second": {
+          "q_bad": 37.66560977633498,
+          "j_bad": 36.40141359430597,
+          "geometry_bad": 0.1381054652636736
+        },
+        "cumulative_service": {
+          "commits": 3727.0,
+          "q_retired": 87937.0,
+          "q_introduced": 80846.0,
+          "j_retired": 79441.0,
+          "j_introduced": 72588.0,
+          "busy_seconds": 342.54548247099996,
+          "join_call_seconds": 434.224742326,
+          "tracked_collective_call_seconds": 168.29014017801228
+        }
+      },
+      "age_offset251_minus247": -2.8363130000000183,
+      "cumulative_quality_counted_work": {
+        "current251": {
+          "accepted": 3727,
+          "upper_calls": 47684,
+          "upper_work": 78880965,
+          "traversal_work": 73917894,
+          "scope_hits": 11219,
+          "scope_misses": 8400
+        },
+        "baseline247": {
+          "accepted": 3727,
+          "upper_calls": 47684,
+          "upper_work": 79516324,
+          "traversal_work": 74553253,
+          "scope_hits": 11219,
+          "scope_misses": 8400
+        }
+      }
+    },
+    {
+      "round": 32064,
+      "current251": {
+        "quality_seconds": 378.2668849759999,
+        "totals": {
+          "cells": 895674,
+          "measured": 895674,
+          "q_measured": 895674,
+          "j_measured": 895674,
+          "q_bad": 94913,
+          "j_bad": 94850,
+          "geometry_bad": 1299,
+          "size_bad": 0
+        },
+        "complete_flags": {
+          "cache_consistent": true,
+          "census_complete": true,
+          "shape_complete": true,
+          "geometry_complete": true
+        },
+        "net_bad_removed": {
+          "q_bad": 11541,
+          "j_bad": 11354,
+          "geometry_bad": 82
+        },
+        "net_bad_removed_per_quality_second": {
+          "q_bad": 30.51020445718437,
+          "j_bad": 30.0158445028049,
+          "geometry_bad": 0.21677816181345796
+        },
+        "cumulative_service": {
+          "commits": 6248.0,
+          "q_retired": 136571.0,
+          "q_introduced": 125030.0,
+          "j_retired": 122489.0,
+          "j_introduced": 111135.0,
+          "busy_seconds": 648.7818301660001,
+          "join_call_seconds": 912.2852910660004,
+          "tracked_collective_call_seconds": 312.4804122470364
+        }
+      },
+      "matching_round247": {
+        "quality_seconds": 383.993092275,
+        "totals": {
+          "cells": 895674,
+          "measured": 895674,
+          "q_measured": 895674,
+          "j_measured": 895674,
+          "q_bad": 94913,
+          "j_bad": 94850,
+          "geometry_bad": 1299,
+          "size_bad": 0
+        },
+        "complete_flags": {
+          "cache_consistent": true,
+          "census_complete": true,
+          "shape_complete": true,
+          "geometry_complete": true
+        },
+        "net_bad_removed": {
+          "q_bad": 11541,
+          "j_bad": 11354,
+          "geometry_bad": 82
+        },
+        "net_bad_removed_per_quality_second": {
+          "q_bad": 30.055228159507653,
+          "j_bad": 29.568240232479845,
+          "geometry_bad": 0.21354550810845052
+        },
+        "cumulative_service": {
+          "commits": 6248.0,
+          "q_retired": 136571.0,
+          "q_introduced": 125030.0,
+          "j_retired": 122489.0,
+          "j_introduced": 111135.0,
+          "busy_seconds": 662.076731849,
+          "join_call_seconds": 937.0943197140001,
+          "tracked_collective_call_seconds": 314.4817715980022
+        }
+      },
+      "nearest_age247_round": 32064,
+      "nearest_age247": {
+        "quality_seconds": 383.993092275,
+        "totals": {
+          "cells": 895674,
+          "measured": 895674,
+          "q_measured": 895674,
+          "j_measured": 895674,
+          "q_bad": 94913,
+          "j_bad": 94850,
+          "geometry_bad": 1299,
+          "size_bad": 0
+        },
+        "complete_flags": {
+          "cache_consistent": true,
+          "census_complete": true,
+          "shape_complete": true,
+          "geometry_complete": true
+        },
+        "net_bad_removed": {
+          "q_bad": 11541,
+          "j_bad": 11354,
+          "geometry_bad": 82
+        },
+        "net_bad_removed_per_quality_second": {
+          "q_bad": 30.055228159507653,
+          "j_bad": 29.568240232479845,
+          "geometry_bad": 0.21354550810845052
+        },
+        "cumulative_service": {
+          "commits": 6248.0,
+          "q_retired": 136571.0,
+          "q_introduced": 125030.0,
+          "j_retired": 122489.0,
+          "j_introduced": 111135.0,
+          "busy_seconds": 662.076731849,
+          "join_call_seconds": 937.0943197140001,
+          "tracked_collective_call_seconds": 314.4817715980022
+        }
+      },
+      "age_offset251_minus247": -5.726207299000066,
+      "cumulative_quality_counted_work": {
+        "current251": {
+          "accepted": 6248,
+          "upper_calls": 84602,
+          "upper_work": 172669208,
+          "traversal_work": 163210586,
+          "scope_hits": 19072,
+          "scope_misses": 17322
+        },
+        "baseline247": {
+          "accepted": 6248,
+          "upper_calls": 84602,
+          "upper_work": 174312520,
+          "traversal_work": 164853898,
+          "scope_hits": 19072,
+          "scope_misses": 17322
+        }
+      }
     }
   ],
   "source_prefixes": {
     "current251": {
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
-        "bytes": 395514,
-        "sha256": "aa9f2e288663d999e203da52058409a99a28dc3b2b5212c7ab437aa7b8ba4e51"
+        "bytes": 431586,
+        "sha256": "c0b70b07afa05e48d68a1877bdf3821840798d48cce5df0c5a0977ac6e53ce2e"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
-        "bytes": 372276,
-        "sha256": "593fde7c1c20bde7d856138088af6d1bb89ca8a62dc104f7e1fb6a24b6d2491d"
+        "bytes": 408266,
+        "sha256": "5bf65214cb7d31b3d534827d5f1e7c7f78629fa3a8a2a13f1a10c9b20f73877f"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
-        "bytes": 372017,
-        "sha256": "a438e0ed2ad8c636ff0d864da574cf71e95d67cb5049234557939dfbbbf2a774"
+        "bytes": 407824,
+        "sha256": "69a5daaea1a4b691f3e7dc00cb7b835bdad631c1195ebada586d76b802eedf5b"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
-        "bytes": 372177,
-        "sha256": "915772539fa6bd0588cda16869a1a0721ee53ce7c95c40de07a09d2c3032d17a"
+        "bytes": 408137,
+        "sha256": "c5457527ba6a45c41bb39462031d29dcf8064d5f684c3e6676476d716ccf8c18"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
-        "bytes": 372787,
-        "sha256": "a9f31369885e43e50416d465af945e2f20547f6694f087c78da3f151be8a1431"
+        "bytes": 408820,
+        "sha256": "79dfd14b21a221bca9b4171927ec33e7b480fe96bdb04d3f80c9bf7238573504"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
-        "bytes": 371831,
-        "sha256": "3cb5ff5824e11c57e77ed726c000dc8b6b911c72c258f8d27c3d4a369a17d167"
+        "bytes": 407753,
+        "sha256": "73dfbdb9350eb8700f3ffa009fa5b69040c561d730c70725db5a2ab499b9428c"
       }
     },
     "baseline247": {
@@ -180,6 +478,5 @@
       }
     }
   },
-  "accepted_meshes": 0,
-  "prefix_hashes_verified_at": 1794075406.127882
+  "accepted_meshes": 0
 }

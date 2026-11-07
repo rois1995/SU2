@@ -44,9 +44,23 @@ Existing analysis reused with ALL TWO literal run references replaced;output ent
 window sets/counts explicitly checked against actual complete six-rank groups.
 A251/live_quality251_analysis_provenance.json records the corrected post-generation
 inspection wrapper(no production error);source parsers unchanged.
+THREE-window comparison snapshot through32064/census7:quality age378.266885s
+versus247383.993092s.895674cells/94913q/94850J/1299geometry/0size,all flags complete.
+Same counts/6248commits/churn as247;net11541q/11354J/82geometry removed.
+Net q/s30.51020vs30.05523;observational,not a whole-run causal speedup claim.
+Cumulative quality upper work174312520→172669208(-0.9427%),same84602upper calls.
+Ownership publications32000and32064preserve ALL whole-field measured counts/flags;
+latest debt max/mean1.16414→1.11326. A251/ownership_census_integrity.json.
+Latest counter snapshot:83648interior/11265surface q-bad;no stuck shape,missing
+features or tracked private collectives. "Interior" means no physical face,not
+necessarily unconstrained vertices. Data remains in quality_counter_assessment.json.
+Host swap nearly full but ALL owned VmSwap=0;over108.93s,0swap-out/9swap-in pages,
+PSI averages0.00. No actual resource pressure;A251/swap_observation_*.json.
+Full251continues LIVE/FROZEN beyond this prefix;do not confuse snapshot with terminal.
 All1520source/runtime/input pins unchanged at last verification.
-At827s all10owned host identities still live;sampled process-tree RSS10.056GB,
-no actual resource pressure. RSS sample is not physical or whole-job peak memory.
+At1395s all10owned host identities remain live;all1520pins unchanged.
+Sampled process-tree RSS12.773GB,no actual resource pressure.
+A251/quality_window3_live_observation.json;RSS is not physical/whole-job peak memory.
 Keep ALL pinned C++/fixtures/helpers/binary/config/inputs FROZEN. No other heavy job.
 Observe complete stages and net whole-field q/J-bad removal,geometry counts/work.
 Do not stop for elapsed time or contention alone. Preserve full evidence before
