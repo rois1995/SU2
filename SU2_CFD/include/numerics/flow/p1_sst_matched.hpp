@@ -154,6 +154,39 @@ inline su2double KineDiffusionJacobian(unsigned short nDim, const su2double& siz
 }
 
 /*!
+ * \brief VISC_P1_JACOBIAN= FULL: the state part of the Jacobian of the energy-row element k diffusion R_a = |T| D
+ *        grad k . g_a. In D = (1/n) sum_b (mu_b + sigma_b mu_t,b) only mu_b(T_b) depends on the flow state (mu_t, F1 and
+ *        k frozen, as everywhere in SU2's Jacobians), so dR_a/dU_b = |T| (grad k . g_a) (1/n) (d mu/dT)_b dT_b/dU_b with
+ *        T = p/(rho R) and p = (gamma-1)(rhoE - |m|^2/(2 rho) - rho k). Added to jac[a][b][E][:] for the rows with
+ *        addRow[a] (the energy rows that hold the term: not the strong-k nodes). State: rho, vel, p, k, dmudT.
+ */
+template <class State, class Jac>
+inline void KineDiffusionStateJacobian(unsigned short nDim, const su2double& gamma, const su2double& gasConst,
+                                       const su2double& size, const su2double (*grad)[3], const State* S,
+                                       const bool* addRow, Jac& jac) {
+  const unsigned short nNodes = nDim + 1, nVar = nDim + 2;
+  su2double gradK[3] = {0.0, 0.0, 0.0};
+  for (unsigned short b = 0; b < nNodes; ++b)
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) gradK[iDim] += S[b].k * grad[b][iDim];
+  for (unsigned short b = 0; b < nNodes; ++b) {
+    if (S[b].dmudT == 0.0) continue;
+    su2double vel2 = 0.0, dTdU[5] = {0.0};
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) vel2 += S[b].vel[iDim] * S[b].vel[iDim];
+    const su2double rhoR = S[b].rho * gasConst;
+    dTdU[0] = (gamma - 1.0) * (0.5 * vel2 - S[b].k) / rhoR - S[b].p / (S[b].rho * rhoR);
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) dTdU[iDim + 1] = -(gamma - 1.0) * S[b].vel[iDim] / rhoR;
+    dTdU[nVar - 1] = (gamma - 1.0) / rhoR;
+    for (unsigned short a = 0; a < nNodes; ++a) {
+      if (!addRow[a]) continue;
+      su2double proj = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) proj += gradK[iDim] * grad[a][iDim];
+      const su2double coef = size * proj * S[b].dmudT / nNodes;
+      for (unsigned short j = 0; j < nVar; ++j) jac[a][b][nVar - 1][j] += coef * dTdU[j];
+    }
+  }
+}
+
+/*!
  * \brief Nodal boundary flux of SU2's far field, inlet and outlet on hat states (SPLIT_EDGE_FLUX with SST): the closure
  *        C k rule of the face node, k_b = k_i for m = res[0] >= 0 and kBc otherwise, res[E] += k_b m (M2 with the k row
  *        number k_b m), and the hat Jacobian becomes L(k_b) jac T(k_i) (D1; k_b frozen, the inflow k is data). Returns

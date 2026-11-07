@@ -5819,6 +5819,149 @@ TEST_CASE("BC_ENTROPY_P1 Jacobian: inlet faces with total conditions and mass fl
   }
 }
 
+TEST_CASE("P1 SST matched exact Jacobians: inlet k_bc(U) and the d mu/dT part of the element k diffusion, against FD", "[P1Flux]") {
+  /*--- (a) k_bc = 3/2 I^2 |v_g|^2 of the nodal inlet ghost (EsInletKineGradient) as a function of the conservative U of
+   * the node with k frozen: gradient against central differences, total conditions and mass flow, flow direction or
+   * normal. (b) R_a = |T| D grad k . g_a with D the vertex mean of mu(T) + sigma mu_t, Sutherland mu: the state Jacobian
+   * of KineDiffusionStateJacobian against central differences in U_b (k, mu_t, F1 frozen), strong rows skipped. ---*/
+  std::mt19937 gen(7316);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    su2double worstA = 0.0, worstB = 0.0;
+    for (int trial = 0; trial < 40; ++trial) {
+      su2double n[3], t[3], N[3];
+      JacRandomNormal(gen, nDim, n, t, N);
+      const pbc::EsState base = JacStateWithMach(gen, nDim, n, t, -0.4 + 0.2 * u(gen), 0.3 * u(gen));
+      pbc::EsBoundaryData data;
+      data.kind = INLET_FLOW;
+      data.tag = "inlet";
+      data.massFlow = (trial % 2 == 1);
+      data.useNormal = ((trial / 2) % 2 == 1);
+      data.gasConst = kGas;
+      data.refT = exp(0.3 * u(gen));
+      data.refP = exp(0.3 * u(gen));
+      const su2double T = base.p / (kGas * base.rho), c = sqrt(kGamma * base.p / base.rho);
+      su2double dn = 0.0;
+      for (int i = 0; i < nDim; ++i) {
+        data.flowDir[0][i] = u(gen) - 1.5 * n[i];
+        dn += data.flowDir[0][i] * n[i];
+      }
+      if (dn > -0.1) for (int i = 0; i < nDim; ++i) data.flowDir[0][i] -= (dn + 0.5) * n[i];
+      if (!data.massFlow) {
+        data.dataT[0] = data.refT * T * (1.0 + 0.3 * (1.0 + u(gen)));
+        data.dataP[0] = data.refP * base.p * exp(0.5 + 0.3 * u(gen));
+      } else {
+        data.dataT[0] = data.refT * base.rho * exp(0.3 * u(gen));
+        data.dataP[0] = data.refP * c * 0.3 * (1.0 + u(gen));
+      }
+      const su2double kNode = 0.02 * exp(u(gen)), intensity = 0.05 * exp(0.5 * u(gen));
+      su2double U[pbc::ES_NVAR] = {0.0};
+      pbc::EsConservative(nDim, kGamma, base, U);
+      U[nVar - 1] += base.rho * kNode;
+      auto kbc = [&](const su2double* Ux, su2double* dk) {
+        su2double Uh[pbc::ES_NVAR];
+        for (int v = 0; v < nVar; ++v) Uh[v] = Ux[v];
+        Uh[nVar - 1] -= Ux[0] * kNode;
+        const pbc::EsState S = JacStateOf(nDim, Uh);
+        su2double vel2 = 0.0;
+        for (int i = 0; i < nDim; ++i) vel2 += S.vel[i] * S.vel[i];
+        const su2double h = kGamma * S.p / ((kGamma - 1.0) * S.rho) + 0.5 * vel2;
+        return pbc::EsInletKineGradient(nDim, kGamma, data, 0, S, kNode, h, n, intensity, dk);
+      };
+      su2double dk[pbc::ES_NVAR] = {0.0}, dummy[pbc::ES_NVAR];
+      kbc(U, dk);
+      su2double err = 0.0, ref = 0.0;
+      for (int cIdx = 0; cIdx < nVar; ++cIdx) {
+        const su2double h = 1e-6 * std::max(su2double(1.0), su2double(fabs(U[cIdx])));
+        su2double Up[pbc::ES_NVAR], Um[pbc::ES_NVAR];
+        for (int v = 0; v < nVar; ++v) Up[v] = Um[v] = U[v];
+        Up[cIdx] += h;
+        Um[cIdx] -= h;
+        const su2double fd = (kbc(Up, dummy) - kbc(Um, dummy)) / (2.0 * h);
+        err = std::max(err, su2double(fabs(fd - dk[cIdx])));
+        ref = std::max(ref, su2double(fabs(fd)));
+      }
+      /*--- Mass flow: the ghost velocity is data, dk_bc/dU = 0 (absolute check). ---*/
+      if (ref > 1e-12) worstA = std::max(worstA, err / ref);
+      else CHECK(err <= 1e-12);
+
+      /*--- (b) element k diffusion, Sutherland mu. ---*/
+      const int nNodes = nDim + 1;
+      su2double xyz[4][3] = {{0.0}};
+      for (int a = 1; a < nNodes; ++a) xyz[a][a - 1] = 1.0;
+      for (int a = 0; a < nNodes; ++a)
+        for (int i = 0; i < nDim; ++i) xyz[a][i] += 0.15 * u(gen);
+      const su2double* coord[pve::MAXNODE];
+      pve::NodeState S[pve::MAXNODE];
+      su2double muT[pve::MAXNODE], F1[pve::MAXNODE];
+      for (int a = 0; a < nNodes; ++a) {
+        coord[a] = xyz[a];
+        const pbc::EsState P = JacRandomState(gen, nDim, 0.3, 0.5);
+        S[a].rho = P.rho;
+        S[a].p = P.p;
+        for (int i = 0; i < 3; ++i) S[a].vel[i] = P.vel[i];
+        S[a].k = 0.03 * exp(u(gen));
+        muT[a] = 0.5 * exp(u(gen));
+        F1[a] = 0.5 * (1.0 + u(gen));
+        RecomputeTransport(S[a], muT[a]);
+        S[a].mut = muT[a];
+      }
+      pve::Element simplex;
+      REQUIRE(simplex.Set(nDim, coord, S, kGas) != 0.0);
+      const bool addRow[4] = {true, (trial % 3) != 0, true, true};
+      su2double jac[pve::MAXNODE][pve::MAXNODE][pve::MAXNVAR][pve::MAXNVAR] = {};
+      P1SSTMatched::KineDiffusionStateJacobian(nDim, kGamma, kGas, simplex.size, simplex.grad, S, addRow, jac);
+      auto energyRows = [&](const pve::NodeState* St, su2double* res) {
+        su2double mu[pve::MAXNODE], k[pve::MAXNODE];
+        for (int a = 0; a < nNodes; ++a) {
+          const su2double Tn = St[a].p / (St[a].rho * kGas);
+          mu[a] = kMuRef * pow(Tn / kTRef, 1.5) * (kTRef + kSuth) / (Tn + kSuth);
+          k[a] = St[a].k;
+        }
+        const su2double D = P1SSTMatched::ElementKineDiffusivity(nNodes, mu, muT, F1);
+        P1SSTMatched::KineDiffusion(nDim, simplex.size, simplex.grad, k, D, res);
+      };
+      su2double errB = 0.0, refB = 0.0;
+      for (int b = 0; b < nNodes; ++b) {
+        pbc::EsState Pb;
+        Pb.rho = S[b].rho;
+        Pb.p = S[b].p;
+        for (int i = 0; i < 3; ++i) Pb.vel[i] = S[b].vel[i];
+        su2double Ub[pbc::ES_NVAR] = {0.0};
+        pbc::EsConservative(nDim, kGamma, Pb, Ub);
+        Ub[nVar - 1] += S[b].rho * S[b].k;
+        for (int cIdx = 0; cIdx < nVar; ++cIdx) {
+          const su2double h = 1e-6 * std::max(su2double(1.0), su2double(fabs(Ub[cIdx])));
+          su2double rp[pve::MAXNODE], rm[pve::MAXNODE];
+          for (int sgn : {1, -1}) {
+            su2double Ux[pbc::ES_NVAR];
+            for (int v = 0; v < nVar; ++v) Ux[v] = Ub[v];
+            Ux[cIdx] += sgn * h;
+            Ux[nVar - 1] -= Ux[0] * S[b].k;
+            const pbc::EsState Q = JacStateOf(nDim, Ux);
+            pve::NodeState St[pve::MAXNODE];
+            for (int a = 0; a < nNodes; ++a) St[a] = S[a];
+            St[b].rho = Q.rho;
+            St[b].p = Q.p;
+            for (int i = 0; i < 3; ++i) St[b].vel[i] = Q.vel[i];
+            energyRows(St, sgn > 0 ? rp : rm);
+          }
+          for (int a = 0; a < nNodes; ++a) {
+            const su2double fd = addRow[a] ? (rp[a] - rm[a]) / (2.0 * h) : 0.0;
+            errB = std::max(errB, su2double(fabs(fd - jac[a][b][nVar - 1][cIdx])));
+            refB = std::max(refB, su2double(fabs(fd)));
+          }
+        }
+      }
+      worstB = std::max(worstB, errB / refB);
+    }
+    INFO("nDim " << nDim << " inlet k_bc gradient worst " << worstA << " k diffusion state Jacobian worst " << worstB);
+    CHECK(worstA < 1e-6);
+    CHECK(worstB < 1e-6);
+  }
+}
+
 TEST_CASE("BC_ENTROPY_P1 Jacobian: outlet faces with subsonic and supersonic exits and backflow against finite differences", "[P1Flux]") {
   /*--- Interior normal Mach number 0.5 (subsonic exit), 2.2 (supersonic, ghost = state), -0.3 (subsonic backflow);
    * back pressure per face node. ---*/

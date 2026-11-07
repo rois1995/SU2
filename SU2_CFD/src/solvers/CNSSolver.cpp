@@ -368,6 +368,13 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver
         for (auto iNode = 0u; iNode < nNodes; ++iNode)
           pve::GatherTransportDerivatives(*nodes, element->GetNode(iNode), gasConst, law, state[iNode]);
         simplex.AddStateJacobian(state, dwdu, jacobian);
+        /*--- SST_ENERGY_CONSISTENT: d mu/dT of the element k diffusion in the energy row (mu_t, F1, k frozen). ---*/
+        if (elementKine) {
+          bool addRow[pve::MAXNODE];
+          for (auto iNode = 0u; iNode < nNodes; ++iNode) addRow[iNode] = !P1KStrongNode[element->GetNode(iNode)];
+          P1SSTMatched::KineDiffusionStateJacobian(nDim, Gamma, gasConst, simplex.size, simplex.grad, state, addRow,
+                                                   jacobian);
+        }
       }
 
       for (auto iNode = 0u; iNode < nNodes; ++iNode) {
@@ -473,6 +480,12 @@ void CNSSolver::MixedViscousResidual(CGeometry *geometry, const CPrimalGrid *ele
     for (unsigned short a = 0; a < nNodes; ++a) pve::EntropyVariableJacobian(nDim, Gamma, state[a], dwdu[a]);
     simplex.Jacobian(dwdu, jacobian);
     if (fullJacobian) simplex.AddStateJacobian(state, dwdu, jacobian);
+    /*--- SST_ENERGY_CONSISTENT: d mu/dT of the sub-simplex k diffusion in the energy row (scaled by omega below). ---*/
+    if (fullJacobian && elementKine) {
+      bool addRow[pve::MAXNODE];
+      for (unsigned short a = 0; a < nNodes; ++a) addRow[a] = !P1KStrongNode[point[a]];
+      P1SSTMatched::KineDiffusionStateJacobian(nDim, Gamma, gasConst, simplex.size, simplex.grad, state, addRow, jacobian);
+    }
 
     /*--- Blocks of non-edge pairs (face and body diagonals) are not in the sparsity pattern, AddBlock drops them. ---*/
     for (unsigned short a = 0; a < nNodes; ++a) {

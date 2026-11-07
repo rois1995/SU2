@@ -663,4 +663,36 @@ inline void EsFaceJacobian(unsigned short nDim, unsigned short nNodes, const su2
   }
 }
 
+/*!
+ * \brief Matched k of SST at an inlet face node (BC_ENTROPY_P1): gradient of the inlet k k_bc = 3/2 I^2 |v_g|^2 of
+ *        CTurbSSTSolver::GetMatchedInletKine (no inlet profile) with respect to the conservative U of the node (k frozen),
+ *        v_g the nodal inlet ghost of BC_Inlet_Residual: P1BoundaryGhost::Inlet at the node state S, the hat enthalpy
+ *        h + |v|^2/2 of the node, the vertex data of face node a in data and the unit normal of the face. Returns k_bc.
+ *        d k_bc/dU = 3 I^2 v_g . (dv_g/dP)(dP/dUhat) T(k), T(k) = I - k e_E e_rho^T.
+ */
+inline su2double EsInletKineGradient(unsigned short nDim, const su2double& gamma, const EsBoundaryData& data,
+                                     unsigned short a, const EsState& S, const su2double& kNode,
+                                     const su2double& enthalpyHat, const su2double* unitNormal,
+                                     const su2double& intensity, su2double* dk) {
+  const unsigned short nVar = nDim + 2;
+  P1BoundaryGhost::InletState ghost;
+  P1BoundaryGhost::Inlet(nDim, data.massFlow, gamma, data.gasConst, S.rho, S.vel, S.p, enthalpyHat, data.dataT[a],
+                         data.dataP[a], data.flowDir[a], data.useNormal, unitNormal, data.refT, data.refP, ghost);
+  su2double dG[ES_NVAR][ES_NVAR], dPdU[ES_NVAR][ES_NVAR];
+  P1BoundaryGhost::InletJacobian(nDim, data.massFlow, gamma, data.gasConst, S.rho, S.vel, S.p, enthalpyHat,
+                                 data.dataT[a], data.dataP[a], data.flowDir[a], data.useNormal, unitNormal, data.refT,
+                                 data.refP, dG);
+  EsPrimitiveJacobian(nDim, gamma, S, dPdU);
+  for (unsigned short b = 0; b < nVar; ++b) dPdU[b][0] -= kNode * dPdU[b][nVar - 1];
+  const su2double c = 3.0 * intensity * intensity;
+  su2double vel2 = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) vel2 += ghost.Velocity[iDim] * ghost.Velocity[iDim];
+  for (unsigned short j = 0; j < nVar; ++j) {
+    dk[j] = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+      for (unsigned short b = 0; b < nVar; ++b) dk[j] += c * ghost.Velocity[iDim] * dG[iDim + 1][b] * dPdU[b][j];
+  }
+  return 1.5 * vel2 * intensity * intensity;
+}
+
 }  // namespace P1BoundaryClosure

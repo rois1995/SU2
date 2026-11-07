@@ -4849,6 +4849,25 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
   const bool matchedK = bcEntropyP1 && config->GetTke_Matched_P1();
   const CVariable* turbNodesK = matchedK ? solver_container[TURB_SOL]->GetNodes() : nullptr;
   const su2double kInf = matchedK ? solver_container[TURB_SOL]->GetTke_Inf() : 0.0;
+  /*--- Matched k at inlets without a profile: k_bc = 3/2 I^2 |v_g|^2 depends on the node state through the nodal inlet
+   * ghost v_g, so the inflow energy row k_bc m gets m dk_bc/dU_a in its own block (EsInletKineGradient; exact). ---*/
+  const bool inletKineJac = matchedK && (config->GetKind_TimeIntScheme() == EULER_IMPLICIT) &&
+                            !config->GetInlet_Profile_From_File();
+  auto inletKineGradient = [&](unsigned short iMarker, unsigned long pointA, unsigned short a, const su2double* normal,
+                               su2double* dk) {
+    const su2double* V = base_nodes->GetPrimitive(pointA);
+    const su2double kA = turbNodesK->GetSolution(pointA, 0);
+    EsState S;
+    S.rho = V[nDim + 2];
+    S.p = V[nDim + 1];
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) S.vel[iDim] = V[iDim + 1];
+    const su2double area = GeometryToolbox::Norm(nDim, normal);
+    su2double unit[3] = {0.0, 0.0, 0.0};
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) unit[iDim] = normal[iDim] / area;
+    const su2double intensity = config->GetInlet_TurbVal(config->GetMarker_All_TagBound(iMarker))[0];
+    P1BoundaryClosure::EsInletKineGradient(nDim, config->GetGamma(), esData, a, S, kA, V[nDim + 3] - kA, unit,
+                                           intensity, dk);
+  };
   if (matchedK) {
     SU2_OMP_SAFE_GLOBAL_ACCESS(P1KMassPlus.resize(nPoint) = su2double(0.0); P1KInflow.resize(nPoint) = su2double(0.0);)
   }
@@ -5045,7 +5064,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
           }
 
           /*--- Matched k (SSTPATHS_PLAN.md 1): the closure C rule of the triangle faces on each sub-triangle. ---*/
-          su2double kRowTri[3] = {0.0, 0.0, 0.0}, kNodeTri[3] = {0.0, 0.0, 0.0};
+          su2double kRowTri[3] = {0.0, 0.0, 0.0}, kNodeTri[3] = {0.0, 0.0, 0.0}, dkTri[3][ES_NVAR] = {{0.0}};
           if (matchedK) {
             for (unsigned short a = 0; a < 3; ++a) {
               const auto pointA = element->GetNode(local[a]);
@@ -5059,6 +5078,10 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
               const su2double m = triRes[a][0];
               su2double massPlus = 0.0, inflow = 0.0;
               kRowTri[a] = P1SSTMatched::FaceKine(m, kNodeTri[a], kBc, massPlus, inflow);
+              if ((KindBC == INLET_FLOW) && inletKineJac && (m < 0.0) && exactJac) {
+                inletKineGradient(iMarker, pointA, a, subNormal[tri], dkTri[a]);
+                for (unsigned short j = 0; j < nVar; ++j) dkTri[a][j] *= m;
+              }
               triRes[a][nVar - 1] += kRowTri[a] * m;
               if (geometry->nodes->GetDomain(pointA)) {
                 P1KMassPlus[pointA] += massPlus;
@@ -5087,6 +5110,9 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
                 }
               }
               if (matchedK) P1SSTMatched::TransformJacobian(nVar, jac, kRowTri[a], kNodeTri[b]);
+              if ((b == a) && (dkTri[a][0] != 0.0 || dkTri[a][nVar - 1] != 0.0)) {
+                for (jVar = 0; jVar < nVar; ++jVar) jac[nVar - 1][jVar] += dkTri[a][jVar];
+              }
               if (b == a) Jacobian.AddBlock2Diag(pointA, jac);
               else if (geometry->nodes->GetDomain(pointB)) Jacobian.AddBlock(pointA, pointB, jac);
             }
@@ -5166,7 +5192,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
         }
 
         /*--- Matched k: the k of the mass row of each face node (closure C is hat, its rows carry no k). ---*/
-        su2double kRow[3] = {0.0, 0.0, 0.0}, kNode[3] = {0.0, 0.0, 0.0};
+        su2double kRow[3] = {0.0, 0.0, 0.0}, kNode[3] = {0.0, 0.0, 0.0}, dkIn[3][ES_NVAR] = {{0.0}};
         if (matchedK) {
           for (unsigned short a = 0; a < nNodes; ++a) {
             const auto pointA = element->GetNode(a);
@@ -5180,6 +5206,10 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
             const su2double m = faceRes[a][0];
             su2double massPlus = 0.0, inflow = 0.0;
             kRow[a] = P1SSTMatched::FaceKine(m, kNode[a], kBc, massPlus, inflow);
+            if ((KindBC == INLET_FLOW) && inletKineJac && (m < 0.0) && exactJac) {
+              inletKineGradient(iMarker, pointA, a, element->getNormal(), dkIn[a]);
+              for (unsigned short j = 0; j < nVar; ++j) dkIn[a][j] *= m;
+            }
             faceRes[a][nVar - 1] += kRow[a] * m;
             if (geometry->nodes->GetDomain(pointA)) {
               P1KMassPlus[pointA] += massPlus;
@@ -5205,6 +5235,9 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
               }
             }
             if (matchedK) P1SSTMatched::TransformJacobian(nVar, jac, kRow[a], kNode[b]);
+            if ((b == a) && (dkIn[a][0] != 0.0 || dkIn[a][nVar - 1] != 0.0)) {
+              for (jVar = 0; jVar < nVar; ++jVar) jac[nVar - 1][jVar] += dkIn[a][jVar];
+            }
             if (b == a) Jacobian.AddBlock2Diag(pointA, jac);
             else if (geometry->nodes->GetDomain(pointB)) Jacobian.AddBlock(pointA, pointB, jac);
           }
