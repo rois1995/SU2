@@ -26,7 +26,7 @@ budget. Still first shape pass;no accepted mesh or geometry closure.
 A251/capture_ready.json seals ALL30files and1032521owned/metric rows. All1520pins
 verified before ONE pidfdSIGTERM to HOST MPI475670. A251/owned_stop_once.json
 records exact identity;NEVER repeat. All10sampled owned handles PLUS wrapper absent
-in A251/terminal_handles.json. No heavy workload currently live. No C++ edits yet.
+in A251/terminal_handles.json. Production C++unchanged;diagnostic fixture changed below.
 Terminal analysis complete;[251outcome](Handbook/ADAPTATION_BUILD251_OUTCOME_20261107.md)
 and A251/terminal_comparison247.json preserve full first-event scope.
 Actual candidate201192points/1032521tets. Versus247terminal:339MOREq/155MOREJ,
@@ -53,10 +53,26 @@ shape-bad cores with2physical faces;reuse point for required support closure.
 Current surface core212134150has raw1q/0J→3q/4J(no progress,refused),then existing
 retained-star optimization→0/0with geometry0 and valid metric/interface/replacement
 checks. Assess whole-context optimizer FIRST before adding a composite branch.
-Build252will be DIAGNOSTIC-ONLY fixture extension;no production change planned
-until that bounded test resolves the hypothesis. Then ONE connected fix,focused
-serial/ONE MPI6,and immediately full same-seed M6. No new config/cap/pass/scheduler.
-No new baseline/perf/GDB campaign. Preserve every gate/construction policy.
+Build252DIAGNOSTIC-ONLY extension TERMINAL0/180.178644s,1303pins unchanged,
+both targets current,all11host handles absent. ONE current_residual case
+current_residual_20261107T201453_813263 TERMINAL0/96.082380s,39213assertions;
+all case pins unchanged,all6recorded HOST handles/wrapper absent. Tool97581terminal.
+R/diagnostic252_{assessment,terminal_handles,owned_startup}.json.
+NO HEAVY JOB LIVE. Production unchanged;fixture extension preserved.
+[Complete result/next decision](Handbook/ADAPTATION_COMPLETE_CONTEXT252_20261107.md).
+All four useful complete-context cases already have useful original stars.
+Feature-adjacent complete context worsens1q→3q despite debt admission;geometry
+controls unchanged. DO NOT generalize support or add a composite operator from
+these results. Existing useful severe/surface-clean stars have all14features
+UNBLOCKED at terminal251;A251/diagnostic252_residual_frontier.json. Queued work
+remains;speed of net useful closure is still immediate target,not missing support.
+NEXT within this ONE cycle:use existing service counters/query corpus to identify
+material certification/trial-order repetition or poor-yield choice before ONE
+connected production fix. No further broad baseline/larger-cavity campaign/new
+scheduler/config/cap/pass/construction quality policy. Then focused serial/ONE
+MPI6 and IMMEDIATELY same-seed Mach-only L1/50k full two-event M6. Geometry
+residuals require targeted construction/size closure then shape REclosure;not
+established by these shape controls. All full-goal obligations below remain OPEN.
 The driver continued CFD on its ORIGINAL grid after refusal;its adap-named restart
 is NOT adapted transfer/continued-CFD/restart proof. Full goal remains OPEN.
 

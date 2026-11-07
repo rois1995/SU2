@@ -109,7 +109,7 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
     Owned owned;std::vector<DonorCell> donors;
     for(const auto& row:rows){REQUIRE(row.sensor_present);REQUIRE(owned.emplace(row.cell.id,row).second);
       DonorCell d;d.cell=row.cell;d.sensor=row.sensor;donors.push_back(d);}
-    // Context-only current nodal field; active operator inputs below remain bounded complete single-vertex stars.
+    // Current nodal field for bounded complete-star and complete-context operator comparisons.
     REQUIRE(donors.size()<=MaximumDonors);
     auto extensions=AssociatedExtensions(donors,*scope);
     FrozenField field(std::move(donors),MetricComposition{},false,extensions,MetricEdgeBreakpoints{},identity,true,MaximumDonors,true);
@@ -355,10 +355,11 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
       useful_star=assess(local,retired,seed,seed,vertex.id,"original_star")||useful_star;
     }
     if(compound && !current_capture && test.second==224633219)CHECK(useful_star);
-    if(current_capture && !compound && test.second==219735950) {
+    if(current_capture && !compound) {
       REQUIRE(complete.cells.size()<=MaximumCavityCells);
       std::set<Id> retired;for(const auto& row:owned)retired.insert(row.first);
-      CHECK(assess(owned,retired,complete,complete,test.second,"production_complete_context"));
+      const bool useful=assess(owned,retired,complete,complete,test.second,"production_complete_context");
+      if(test.second==219735950)CHECK(useful);
     }
     if(compound)for(const auto& removed:owned.at(test.second).cell.v)for(const auto& retained:owned.at(test.second).cell.v) {
       if(removed.id==retained.id)continue;
