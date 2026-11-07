@@ -19,8 +19,8 @@ A235=`R/m6_runs/euler_build235_geometry_coupled_real_cfd50k`.
 
 ## ACTIVE235: geometry-conforming private quality candidate
 
-Latest pushed source/evidence checkpoint3839534f25 (connected235production and
-qualification), previous8107f77356 (232local feasibility),37e8e831ea (227analysis).
+Production source checkpoint3839534f25 (connected235production/qualification);
+preceding pushed evidencec7b3a78de4,fc72256a3d. Earlier8107f77356local feasibility.
 Production/fixture changes committed; preserve unrelated working changes.
 Build235exec12651TERMINAL0,63.151040s,1302pins unchanged/both targets up to date.
 All recorded host compiler/linker handles absent. Build234also terminal0,168.133394s.
@@ -65,27 +65,28 @@ variation is observational, not isolated implementation overhead. WorkerCPU/wall
 A235/{comparison227_matching_stages,quality_entry_comparison227}.json preserves
 prefix-verified data. NEXT evaluate net whole-field q/J removal and geometry/churn
 from quality entry; remaining time is smaller, budgets unchanged. No accepted mesh.
-First4 COMPLETE quality windows through34816:893757cells/87659q/87545J/1946geometry/
-0size, quality675.036s/net14399q/14315J/51geometry removed. Netq21.331/s vs22721.792/s
-at same round/660.390s.235has8fewerq but59moreJ/4moregeometry; populations differ,
-not same-time or causal proof. Traversal work.98828x227. No useful speedup established.
-First window EXACT same counts/churn/checked work:2022q/1997J/6geometry removed,
-1170commits,q31647retired/29625introduced,130.461s vs112.763s. Second diverges rank5.
-A235/{quality_comparison227,quality_first_window_comparison227}.json. Existing
-checker reused by explicit attempt/label substitution; runtime decisions unchanged.
-Quality migration at34752 preserved whole-field counts and all completeness flags;
-q-by-rank changed[8029,16985,17733,19206,15688,14977]→
-[15512,11914,19007,15638,15628,14919]. Preceding-window→publication13.169s;
-publication alone.144s excludes preparation and later warming. See
-A235/quality_ownership235_assessment.json. All1519pins unchanged at quality recheck:
-source_freeze_quality_observation.json. Bound read-only Luna location/ladder aggregation COMPLETE, primary independently
-rechecked prefix hashes/exact rank-stage-round joins/per-rank histograms. See
-quality_early_location235_assessment.json. First3windows netq removal2264surface/
-7176interior; interior labels can touch constrained boundary vertices. Almostall
-bad cells have edge<.9 (correlation, not construction-causality proof). No stuck/
-missing features; blocked0→80. Fixeddrift16DISTINCTglobal points repeated on6ranks,
-not96distinct; all supported, maxsampledrelativeFrobenius.00595774 bywindow2/3.
-Sampled nodal sensor drift is not a whole-target norm. No competing code.
+LATEST COMPLETE35392/native3004.085s:950314cells/49437q/48119J/1831geometry/0size,
+all completeness flags1. Thirteen quality windows; quality2034.663s, net52621q/
+53741J/166geometry removed. Netq25.8623/s vs22726.5062/s at matching round;
+traversal.991306x227. No useful speedup established. First window counts/churn/
+checked work EXACT227; second diverges rank5, later populations/ownership differ.
+Current join-call wall share.44061 is an overlapping call scope, NOT CPU idle.
+A235/quality_comparison227.json uses existing checker with explicit attempt/label
+substitution and prefix verification; runtime decisions unchanged. Nearest measured
+quality-time comparison states each time gap explicitly; no interpolated counts.
+Quality migrations preserve whole-field counts/all completeness flags; existing
+quality_ownership235_assessment.json records initial and34752 checks. Whole
+preceding-window→publication13.169s at34752, publication alone.144s; subsequent
+cache warming excluded. Further production migrations are in raw complete censuses.
+All1519pins unchanged at quality recheck; source_freeze_quality_observation.json.
+Bounded location/ladder summary primary-reviewed independently against hashes and
+exact rank/stage/round/count joins: quality_early_location235_assessment.json.
+First3windows netq2264surface/7176interior removed; interior labels can touch
+constrained vertices. Almostall bad cells have edge<.9 (correlation, not causality).
+No stuck/missing features then; blocked0→80. Fixeddrift16DISTINCTglobal points
+repeated on6ranks, not96distinct; all supported, maxsampledrelativeFrobenius.00595774
+bywindow2/3. Sampled nodal sensor drift is not a whole-target norm. No competing code.
+
 
 [Current connected design](Handbook/ADAPTATION_GEOMETRY_CONFORMING_REPAIR_20261107.md):
 existing batch preflight optionally merges four vertex stars for a measured owned

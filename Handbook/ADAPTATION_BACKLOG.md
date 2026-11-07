@@ -512,3 +512,20 @@ progress from225. Construction quality-aware policies remain unproved/deferred.
   frozen attempt. Preserve the run; correct/qualify this guard after terminal,
   alongside the existing cycle's actual outcome. Source/counter proof is distinct
   from the legitimate old225/new227deadline-admission difference at round35776.
+
+
+2026-11-07 status of the ownership-admission risk above: connected235 uses the
+existing collective maximum as an all-rank eligibility agreement before migration.
+Focused serial/MPI qualification passed; full235 remains frozen and running.
+No split was observed in227. This source risk is addressed, not a competing cycle.
+
+2026-11-07 conditional support idea, UNPROVEN/DEFERRED until235 terminal evidence:
+the actual227two-face contexts include one66-cell four-star union, beyond the
+unchanged64-cell limit; current235 correctly retains the original feature there.
+If actual remaining cavities show this is a blocker, first test whether existing
+keep/sliding controls can restrict mobility to a smaller complete changed footprint
+while retaining every required dependency, prescribed interface and full-vertex
+reservation. A smaller support must be proved sufficient; simply dropping adjacent
+cells is invalid. Existing original-star controls stalled, so no benefit is known.
+This does not authorize larger cavities, more work, a new operator/scheduler or a
+construction-policy change, and does not alter the current frozen attempt.
