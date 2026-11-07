@@ -221,6 +221,11 @@ protected:
    * integral over the dual volume of i (owned nodes), from the last flow residual. ---*/
   su2activevector P1TurbProduction;
 
+  /*--- JST_ENTROPY_BUDGET (P1_JST_ENTROPY.md, J4): theta of each node, and with the matched SST form the mass flux of the
+   * correction of each edge (orientation of the edge), whose k the SST k row transports with the same numbers. ---*/
+  su2activevector JSTTheta;
+  su2activevector JSTMassCorrection;
+
   /*!
    * \brief Build P1WallFaces on first use, and again after the mesh has moved with GRID_ENTROPY_P1 (the moved wall
    *        shares follow the coordinates). Collective (MPI): all ranks see the same geometry versions.
@@ -3536,6 +3541,11 @@ public:
    * \brief SST with VISC_P1_ENTROPY and SST_ENERGY_CONSISTENT: the production integral Pi_i (flow solver), see P1TurbProduction.
    */
   inline const su2activevector& GetP1TurbProduction() const { return P1TurbProduction; }
+
+  /*!
+   * \brief JST_ENTROPY_BUDGET with the matched SST form: mass flux of the correction of each edge (flow solver).
+   */
+  inline const su2activevector& GetJSTMassCorrection() const { return JSTMassCorrection; }
 
   /*!
    * \brief Matched k of SST with BC_ENTROPY_P1: the inlet k of the turbulence solver at a vertex (CTurbSSTSolver::BC_Inlet),

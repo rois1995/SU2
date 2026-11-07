@@ -1857,6 +1857,8 @@ void CConfig::SetConfig_Options() {
   addBoolOption("BC_WALL_ENTROPY_P1", BC_Wall_Entropy_P1, false);
   /*!\brief JST_WEAK_WALL_DISSIPATION \n DESCRIPTION: JST and JST_MAT: eps4 = 0 on every edge with exactly one end on a weak no-slip wall of BC_WALL_ENTROPY_P1, in the residual and in the eps4 part of the Jacobian; edges along the wall and all other edges are unchanged (P1_WALL_DISSIPATION.md). The wall node Laplacian has only boundary neighbours, so on such an edge eps4 lam (L_k - L_s) is a first or second difference that competes with the no-slip penalty (backward slip); setting it to zero is the continuation L_s = L_k on that edge. Needs BC_WALL_ENTROPY_P1, no periodic boundaries. Fine grid only. \ingroup Config \default false */
   addBoolOption("JST_WEAK_WALL_DISSIPATION", JST_Weak_Wall_Diss, false);
+  /*!\brief JST_ENTROPY_BUDGET \n DESCRIPTION: JST with EDGE_FORM_EC_FLUX (JST-P1ES, JST-PD): the fourth-order term under a node entropy budget (P1_JST_ENTROPY.md, Theorem J4). Per node B_i = P2_i + Pi4_i (eps2 and eps4 productions of its ring), theta_i = B_i^+ / (Pi4_i + D_i); the eps4 flux uses (1 - theta_i) L_i and a second-difference floor 1/2 (theta_i + theta_k) mu_ik (U_i - U_k) is added, so the production of all JST terms is sum_i min(B_i, 0) <= 0 for any states. theta is frozen in the Jacobian. Fine grid only. \ingroup Config \default false */
+  addBoolOption("JST_ENTROPY_BUDGET", JST_Entropy_Budget, false);
   /*!\brief P1_WALL_FORCES \n DESCRIPTION: Output only. Wall forces from the boundary fluxes of the scheme instead of the nodal values: the friction force is the weighted SIPG traction -Fhat of BC_WALL_ENTROPY_P1 per wall vertex (consistency and penalty terms, moved shares and mixed sub-simplex weights included, without the adjoint term), skin friction its tangential part over the vertex area, heat flux its energy part over the vertex area; the pressure force is the closure C pressure at the entropy projected face points on BC_WALL_ENTROPY_P1 walls and, with BC_ENTROPY_P1, on Euler walls. The nodal values are kept as the history fields *_NODAL and the surface fields SKIN_FRICTION_NODAL, HEAT_FLUX_NODAL. Needs BC_WALL_ENTROPY_P1, static meshes. \ingroup Config \default false */
   addBoolOption("P1_WALL_FORCES", P1_Wall_Forces, false);
   /*!\brief VISC_P1_ENTROPY_MOVED \n DESCRIPTION: 3D, the element fluxes F_T of VISC_P1_ENTROPY on the test space of the moved (MOD_CENTROIDS) dual, i.e. the finite volume of F_T on the dual cells: residual of node a F_T (|T| I + (1 - theta_v) Y_T^T) g_a, Y_T = (3|T|/2) sum_o xi_o (x) g_o with xi_o the shift of the dual point of face o from its centroid. Its entropy defect P^v_T is paid in the element budget of EDGE_FORM_ES_BLEND, E_T = P^c_T + P^v_T - D^gal_T (+ W_T at weak walls): theta_v = min(1, E_T/P^v_T) first, then theta_c = (E_T - theta_v P^v_T)^+/D^c_T. Weak walls use the moved wall shares. Needs VISC_P1_ENTROPY, MOD_CENTROIDS, EDGE_FORM_P1 and EDGE_FORM_ES_BLEND. \ingroup Config \default false */
@@ -6331,6 +6333,7 @@ void CConfig::CheckP1FluxOptions() const {
   if (BC_Wall_Entropy_P1) active.push_back("BC_WALL_ENTROPY_P1");
   if (JST_Weak_Wall_Diss) active.push_back("JST_WEAK_WALL_DISSIPATION");
   if (SST_Energy_Consistent) active.push_back("SST_ENERGY_CONSISTENT");
+  if (JST_Entropy_Budget) active.push_back("JST_ENTROPY_BUDGET");
   if (P1_Wall_Forces) active.push_back("P1_WALL_FORCES");
   if (Visc_P1_Entropy_Moved) active.push_back("VISC_P1_ENTROPY_MOVED");
   if (Visc_P1_Time_Step) active.push_back("VISC_P1_TIME_STEP");
@@ -6634,6 +6637,19 @@ void CConfig::CheckP1FluxOptions() const {
     if (Axisymmetric) SU2_MPI::Error(name + "not available with AXISYMMETRIC (the energy source of the k flux is not derived).", CURRENT_FUNCTION);
     if (GetBoolTurbomachinery() || GetBoolMixingPlaneInterface() || (nMarker_Fluid_InterfaceBound > 0))
       SU2_MPI::Error(name + "not available with turbomachinery, mixing-plane or fluid-interface markers (diffusive k boundary fluxes).", CURRENT_FUNCTION);
+  }
+  if (JST_Entropy_Budget) {
+    /*--- P1_JST_ENTROPY.md, section 7: the scalar JST of the entropy methods; the node rings must be complete (no periodic
+     * pairs); the stored edge coefficients are not registered for the discrete adjoint. ---*/
+    const string name = "JST_ENTROPY_BUDGET: ";
+    if (!((Kind_ConvNumScheme_Flow == SPACE_CENTERED) && (Kind_Centered_Flow == CENTERED::JST)))
+      SU2_MPI::Error(name + "only for CONV_NUM_METHOD_FLOW= JST.", CURRENT_FUNCTION);
+    if (!Edge_Form_EC_Flux || !((Edge_Form_P1 && Edge_Form_ES_Blend) || Edge_Diss_Projected))
+      SU2_MPI::Error(name + "needs EDGE_FORM_EC_FLUX= YES and EDGE_FORM_P1 with EDGE_FORM_ES_BLEND, or EDGE_DISS_PROJECTED.", CURRENT_FUNCTION);
+    if (nMarker_PerBound > 0) SU2_MPI::Error(name + "not available with periodic boundaries.", CURRENT_FUNCTION);
+    if (DiscreteAdjoint) SU2_MPI::Error(name + "not available with the discrete adjoint.", CURRENT_FUNCTION);
+    if ((Kind_Linear_Solver_Prec == Q_LU_SGS) || (Kind_Linear_Solver_Prec == Q_JACOBI) || (Kind_Linear_Solver_Prec == Q_IDENTITY))
+      SU2_MPI::Error(name + "not available with the quantized preconditioners Q_*, they drop the correction Jacobian blocks.", CURRENT_FUNCTION);
   }
   if (GetTke_Matched_P1()) {
     /*--- P1_SST_COUPLED.md, section 8: hat states and matched k in every P1 part, first-order upwind k with the P1 mass

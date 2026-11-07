@@ -51,6 +51,7 @@
 #include "../../SU2_CFD/include/numerics/flow/p1_boundary_closure.hpp"
 #include "../../SU2_CFD/include/numerics/flow/jst_weak_wall.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_sst_matched.hpp"
+#include "../../SU2_CFD/include/numerics/flow/jst_entropy.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/variables.hpp"
 #include "tecno_adjoint_checks.hpp"
@@ -5768,5 +5769,118 @@ TEST_CASE("P1 SST matched: element k diffusion conserves, is exact for a linear 
       CHECK(Dt >= -1e-14 * fabs(Dgal));
       CHECK(Dt == Approx(Dgal).epsilon(1e-10));
     }
+  }
+}
+
+/*--- JST_ENTROPY_BUDGET (P1_JST_ENTROPY.md, Lemma J1, Theorem J4). ---*/
+namespace {
+void RandomJSTState(std::mt19937& gen, int nDim, double spread, JSTEntropy::NodeState& S) {
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const su2double rho = exp(spread * u(gen)), p = exp(spread * u(gen));
+  su2double vel[3] = {0.0, 0.0, 0.0}, vel2 = 0.0;
+  for (int i = 0; i < nDim; ++i) { vel[i] = 1.5 * u(gen); vel2 += vel[i] * vel[i]; }
+  const su2double h = kGamma / (kGamma - 1.0) * p / rho + 0.5 * vel2;
+  JSTEntropy::SetState(nDim, kGamma, rho, vel, p, h, S);
+}
+}  // namespace
+
+TEST_CASE("JST entropy: dw.dUt is between lam_g and Lam_g times dw.dU (Lemma J1)", "[P1Flux]") {
+  std::mt19937 gen(1203);
+  const su2double lamG = 0.5 * (kGamma + 1.0 - sqrt(kGamma * (kGamma - 1.0)));
+  const su2double LamG = 0.5 * (kGamma + 1.0 + sqrt(kGamma * (kGamma - 1.0)));
+  for (int nDim : {2, 3}) {
+    for (int trial = 0; trial < 2000; ++trial) {
+      JSTEntropy::NodeState A, B;
+      RandomJSTState(gen, nDim, 2.0, A);
+      RandomJSTState(gen, nDim, (trial % 2) ? 0.01 : 2.0, B);
+      su2double dwU = 0.0, dwUt = 0.0;
+      for (int v = 0; v < nDim + 2; ++v) {
+        dwU += (B.w[v] - A.w[v]) * (B.U[v] - A.U[v]);
+        dwUt += (B.w[v] - A.w[v]) * (B.Ut[v] - A.Ut[v]);
+      }
+      CHECK(dwU >= 0.0);
+      CHECK(dwUt >= lamG * dwU * (1.0 - 1e-10));
+      CHECK(dwUt <= LamG * dwU * (1.0 + 1e-10));
+    }
+  }
+}
+
+TEST_CASE("JST entropy: node budget theta in [0,1] and JST production sum_i min(B_i,0) on random rings (Theorem J4)", "[P1Flux]") {
+  namespace je = JSTEntropy;
+  std::mt19937 gen(2718);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const int nx = 7, ny = 6, nPoint = nx * ny, nDim = 2, nVar = 4;
+  /*--- Triangulated grid: horizontal, vertical and one diagonal per cell. ---*/
+  std::vector<std::array<int, 2>> edges;
+  for (int j = 0; j < ny; ++j)
+    for (int i = 0; i < nx; ++i) {
+      const int p = i + nx * j;
+      if (i + 1 < nx) edges.push_back({p, p + 1});
+      if (j + 1 < ny) edges.push_back({p, p + nx});
+      if ((i + 1 < nx) && (j + 1 < ny)) edges.push_back({p, p + nx + 1});
+    }
+  auto boundary = [&](int p) { const int i = p % nx, j = p / nx; return (i == 0) || (j == 0) || (i == nx - 1) || (j == ny - 1); };
+  for (int trial = 0; trial < 60; ++trial) {
+    std::vector<je::NodeState> S(nPoint);
+    const bool shock = (trial % 6 == 5);
+    for (int p = 0; p < nPoint; ++p) RandomJSTState(gen, nDim, (trial % 3 == 0) ? 2.0 : 0.2, S[p]);
+    if (trial % 4 == 1) for (int p = 0; p < nPoint; ++p) if (p % nx > nx / 2) RandomJSTState(gen, nDim, 0.0, S[p]);  // a jump
+    std::vector<su2double> c2(edges.size()), c4(edges.size());
+    std::vector<int> nNeigh(nPoint, 0);
+    for (size_t e = 0; e < edges.size(); ++e) {
+      c2[e] = exp(2.0 * u(gen)) * ((trial % 2) ? 1.0 : 0.0);
+      c4[e] = shock ? 0.0 : exp(2.0 * u(gen));
+      nNeigh[edges[e][0]]++;
+      nNeigh[edges[e][1]]++;
+    }
+    /*--- L_i = sum over N*(i) of (Ut_k - Ut_i), N*(i) = boundary neighbours for boundary nodes (SetUndivided_Laplacian). ---*/
+    std::vector<std::array<su2double, 5>> L(nPoint);
+    for (auto& l : L) l.fill(0.0);
+    for (const auto& e : edges) {
+      const int a = e[0], b = e[1];
+      for (int v = 0; v < nVar; ++v) {
+        if (!boundary(a) || boundary(b)) L[a][v] += S[b].Ut[v] - S[a].Ut[v];
+        if (!boundary(b) || boundary(a)) L[b][v] += S[a].Ut[v] - S[b].Ut[v];
+      }
+    }
+    /*--- theta and B per node. ---*/
+    std::vector<su2double> theta(nPoint), B(nPoint);
+    for (int p = 0; p < nPoint; ++p) {
+      su2double P2 = 0.0, D = 0.0, Lc[5] = {0.0};
+      for (size_t e = 0; e < edges.size(); ++e) {
+        int q = -1;
+        if (edges[e][0] == p) q = edges[e][1];
+        if (edges[e][1] == p) q = edges[e][0];
+        if (q < 0) continue;
+        je::AddEdge(nVar, S[p], S[q], c2[e], c4[e], 0.5 * c4[e] * (nNeigh[p] + nNeigh[q] + 2.0), P2, Lc, D);
+      }
+      su2double Pi4 = 0.0;
+      for (int v = 0; v < nVar; ++v) Pi4 -= L[p][v] * Lc[v];
+      B[p] = P2 + Pi4;
+      theta[p] = je::NodeTheta(nVar, P2, L[p].data(), Lc, D);
+      CHECK(theta[p] >= 0.0);
+      CHECK(theta[p] <= 1.0);
+      if (shock) CHECK(theta[p] == 0.0);
+    }
+    /*--- Production of the corrected JST fluxes, from the fluxes. ---*/
+    su2double production = 0.0, scale = 0.0, budget = 0.0;
+    for (size_t e = 0; e < edges.size(); ++e) {
+      const int a = edges[e][0], b = edges[e][1];
+      su2double corr[5];
+      je::CorrectionFlux(nVar, c4[e], 0.5 * c4[e] * (nNeigh[a] + nNeigh[b] + 2.0), theta[a], theta[b], L[a].data(),
+                         L[b].data(), S[a].U, S[b].U, corr);
+      for (int v = 0; v < nVar; ++v) {
+        const su2double d = c2[e] * (S[a].Ut[v] - S[b].Ut[v]) - c4[e] * (L[a][v] - L[b][v]) + corr[v];
+        production -= (S[a].w[v] - S[b].w[v]) * d;
+        scale += fabs((S[a].w[v] - S[b].w[v]) * d);
+      }
+    }
+    for (int p = 0; p < nPoint; ++p) budget += fmin(B[p], 0.0);
+    CHECK(production <= 1e-12 * scale);
+    CHECK(production == Approx(budget).margin(1e-10 * (scale + 1.0)));
+    /*--- theta = 0 everywhere: no correction. ---*/
+    su2double zero[5];
+    je::CorrectionFlux(nVar, c4[0], 1.0, 0.0, 0.0, L[0].data(), L[1].data(), S[0].U, S[1].U, zero);
+    for (int v = 0; v < nVar; ++v) CHECK(zero[v] == 0.0);
   }
 }

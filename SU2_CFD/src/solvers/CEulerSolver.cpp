@@ -35,6 +35,8 @@
 #include "../../include/numerics/flow/p1_positive_update.hpp"
 #include "../../include/numerics/flow/p1_boundary_ghost.hpp"
 #include "../../include/numerics/flow/jst_weak_wall.hpp"
+#include "../../include/numerics/flow/jst_entropy.hpp"
+#include "../../include/numerics/flow/p1_sst_matched.hpp"
 #include "../../include/fluid/CIdealGas.hpp"
 #include "../../include/fluid/CVanDerWaalsGas.hpp"
 #include "../../include/fluid/CPengRobinson.hpp"
@@ -407,6 +409,13 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
       nonSimplex += (geometry->elem[iElem]->GetnNodes() != nDim + 1);
     if (nonSimplex > 0)
       SU2_MPI::Error("The P1 options with SST (matched k) need a mesh of triangles or tetrahedra.", CURRENT_FUNCTION);
+  }
+
+  /*--- JST_ENTROPY_BUDGET (fine grid): edge coefficients of the kernel, node theta and the correction mass fluxes. ---*/
+  if (config->GetJST_Entropy_Budget() && (MGLevel == MESH_0)) {
+    nodes->JSTEdgeCoeff.resize(geometry->GetnEdge(), 2) = su2double(0.0);
+    JSTTheta.resize(nPoint) = su2double(0.0);
+    if (config->GetTke_Matched_P1()) JSTMassCorrection.resize(geometry->GetnEdge()) = su2double(0.0);
   }
 
   if (config->GetBounded_Scalar() || config->GetTke_Matched_P1()) {
@@ -1886,6 +1895,7 @@ void CEulerSolver::Centered_Residual(CGeometry *geometry, CSolver **solver_conta
   const CVariable* turbMatched = ((iMesh == MESH_0) && config->GetTke_Matched_P1()) ? solver_container[TURB_SOL]->GetNodes() : nullptr;
   if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry, config, turbMatched);
   EdgeFluxResidual(geometry, solver_container, config);
+  if ((iMesh == MESH_0) && config->GetJST_Entropy_Budget()) JSTEntropyResidual(geometry, solver_container, config);
   if ((iMesh == MESH_0) && (config->GetSplit_Edge_Flux() || config->GetEdge_Form_P1_Mixed())) SplitEdgeResidual(geometry, config);
   if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry, config);
 }
@@ -2304,6 +2314,141 @@ void CEulerSolver::SetTeCNOAdjointGradient(CGeometry *geometry, const CConfig *c
       END_SU2_OMP_FOR
     }
   }
+}
+
+void CEulerSolver::JSTEntropyResidual(CGeometry *geometry, CSolver **solver_container, const CConfig *config) {
+  SU2_ZONE_SCOPED
+
+  namespace je = JSTEntropy;
+
+  /*--- P1_JST_ENTROPY.md, Theorem J4. The edge loop stored c2 = eps2 lam and c4 = eps4 lam of every local edge (halo data
+   * are the owners', so both ranks of an edge store the same numbers). Ut = (rho, m, rho H), L the undivided Laplacian of
+   * Ut (its boundary rule N*(i)), U conservative; with the matched SST form all of them of the hat state (H - k), as
+   * the edge flux. ---*/
+
+  const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
+  const su2double fixFactor = config->GetCent_Jac_Fix_Factor();
+  const bool matched = config->GetTke_Matched_P1();
+  const CVariable* turb = matched ? solver_container[TURB_SOL]->GetNodes() : nullptr;
+  const auto& coeff = nodes->JSTEdgeCoeff;
+  const auto& lapl = nodes->GetUndivided_Laplacian();
+
+  auto nodeState = [&](unsigned long iPoint, je::NodeState& S) {
+    const su2double* V = nodes->GetPrimitive(iPoint);
+    su2double h = V[nDim + 3];
+    if (turb) h -= turb->GetSolution(iPoint, 0);
+    je::SetState(nDim, Gamma, V[nDim + 2], &V[1], V[nDim + 1], h, S);
+  };
+  auto laplacian = [&](unsigned long iPoint, su2double* L) {
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) L[iVar] = lapl(iPoint, iVar);
+    if (matched) L[nVar - 1] -= lapl(iPoint, nVar);
+  };
+
+  /*--- a. theta of the owned nodes: P2_i, Lc_i, D_i over all edges of i, Pi4_i = -L_i . Lc_i. ---*/
+  SU2_OMP_MASTER
+  for (unsigned long iPoint = 0; iPoint < nPoint; ++iPoint) {
+    JSTTheta(iPoint) = 0.0;
+    if (!geometry->nodes->GetDomain(iPoint)) continue;
+    je::NodeState Si, Sk;
+    nodeState(iPoint, Si);
+    const su2double ni = geometry->nodes->GetnNeighbor(iPoint);
+    su2double P2 = 0.0, D = 0.0, Lc[je::MAXNVAR] = {0.0}, L[je::MAXNVAR] = {0.0};
+    for (unsigned short iNeigh = 0; iNeigh < geometry->nodes->GetnPoint(iPoint); ++iNeigh) {
+      const auto kPoint = geometry->nodes->GetPoint(iPoint, iNeigh);
+      const auto iEdge = geometry->nodes->GetEdge(iPoint, iNeigh);
+      nodeState(kPoint, Sk);
+      const su2double nk = geometry->nodes->GetnNeighbor(kPoint);
+      const su2double c4 = coeff(iEdge, 1);
+      je::AddEdge(nVar, Si, Sk, coeff(iEdge, 0), c4, 0.5 * c4 * (ni + nk + 2.0), P2, Lc, D);
+    }
+    laplacian(iPoint, L);
+    JSTTheta(iPoint) = je::NodeTheta(nVar, P2, L, Lc, D);
+  }
+  END_SU2_OMP_MASTER
+  SU2_OMP_BARRIER
+
+  /*--- b. The owners' theta on the halos. ---*/
+  CommPointData(geometry, config, JSTTheta.data(), 1);
+
+  /*--- c. Correction edge fluxes, added to the owned ends (R_i += f, R_k -= f). Jacobian with theta frozen: the eps4 part
+   * of SU2's surrogate (fixFactor, full neighbour counts) gets -c4 (theta_i n_i + theta_k) on (i,i) and
+   * +c4 (theta_i + theta_k n_k) on (i,k) through dUt/dU, the floor +-1/2 (theta_i + theta_k) mu I is exact. ---*/
+  SU2_OMP_MASTER
+  {
+  if (matched) JSTMassCorrection = su2double(0.0);
+  su2activematrix Jii(nVar, nVar), Jik(nVar, nVar), Jki(nVar, nVar), Jkk(nVar, nVar);
+  for (unsigned long iEdge = 0; iEdge < geometry->GetnEdge(); ++iEdge) {
+    const auto iPoint = geometry->edges->GetNode(iEdge, 0);
+    const auto kPoint = geometry->edges->GetNode(iEdge, 1);
+    const bool own_i = geometry->nodes->GetDomain(iPoint), own_k = geometry->nodes->GetDomain(kPoint);
+    if (!own_i && !own_k) continue;
+    const su2double theta_i = JSTTheta(iPoint), theta_k = JSTTheta(kPoint);
+    if ((theta_i == 0.0) && (theta_k == 0.0)) continue;
+
+    je::NodeState Si, Sk;
+    nodeState(iPoint, Si);
+    nodeState(kPoint, Sk);
+    su2double L_i[je::MAXNVAR], L_k[je::MAXNVAR], f[je::MAXNVAR];
+    laplacian(iPoint, L_i);
+    laplacian(kPoint, L_k);
+    const su2double ni = geometry->nodes->GetnNeighbor(iPoint), nk = geometry->nodes->GetnNeighbor(kPoint);
+    const su2double c4 = coeff(iEdge, 1), mu = 0.5 * c4 * (ni + nk + 2.0);
+    je::CorrectionFlux(nVar, c4, mu, theta_i, theta_k, L_i, L_k, Si.U, Sk.U, f);
+
+    /*--- Matched SST form: the mass part of the correction carries its upwind k, the same numbers in the SST k row. ---*/
+    su2double kUp = 0.0, k_i = 0.0, k_k = 0.0;
+    if (matched) {
+      k_i = turb->GetSolution(iPoint, 0);
+      k_k = turb->GetSolution(kPoint, 0);
+      kUp = P1SSTMatched::KUpwind(f[0], k_i, k_k);
+      f[nVar - 1] += kUp * f[0];
+      JSTMassCorrection(iEdge) = f[0];
+    }
+
+    if (own_i) LinSysRes.AddBlock(iPoint, f);
+    if (own_k) LinSysRes.SubtractBlock(kPoint, f);
+    if (!implicit) continue;
+
+    /*--- d f/dU_i and d f/dU_k (hat), then L(k_up) J T(k) with the matched form. ---*/
+    auto dUtdU = [&](const su2double* V, const su2double& factor, su2activematrix& J) {
+      su2double vel2 = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) vel2 += V[iDim + 1] * V[iDim + 1];
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+        for (unsigned short jVar = 0; jVar < nVar; ++jVar) J(iVar, jVar) = 0.0;
+      for (unsigned short iVar = 0; iVar < nVar - 1; ++iVar) J(iVar, iVar) = factor;
+      J(nVar - 1, nVar - 1) = factor * Gamma;
+      J(nVar - 1, 0) = 0.5 * factor * Gamma_Minus_One * vel2;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) J(nVar - 1, iDim + 1) = -factor * Gamma_Minus_One * V[iDim + 1];
+    };
+    const su2double floor = 0.5 * (theta_i + theta_k) * mu;
+    dUtdU(nodes->GetPrimitive(iPoint), -fixFactor * c4 * (theta_i * ni + theta_k), Jii);
+    dUtdU(nodes->GetPrimitive(kPoint), fixFactor * c4 * (theta_i + theta_k * nk), Jik);
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+      Jii(iVar, iVar) += floor;
+      Jik(iVar, iVar) -= floor;
+    }
+    if (matched) {
+      P1SSTMatched::TransformJacobian(nVar, Jii, kUp, k_i);
+      P1SSTMatched::TransformJacobian(nVar, Jik, kUp, k_k);
+    }
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+      for (unsigned short jVar = 0; jVar < nVar; ++jVar) {
+        Jki(iVar, jVar) = -Jii(iVar, jVar);
+        Jkk(iVar, jVar) = -Jik(iVar, jVar);
+      }
+    }
+    if (own_i) {
+      Jacobian.AddBlock2Diag(iPoint, Jii);
+      Jacobian.AddBlock(iPoint, kPoint, Jik);
+    }
+    if (own_k) {
+      Jacobian.AddBlock(kPoint, iPoint, Jki);
+      Jacobian.AddBlock2Diag(kPoint, Jkk);
+    }
+  }
+  }
+  END_SU2_OMP_MASTER
+  SU2_OMP_BARRIER
 }
 
 void CEulerSolver::TeCNOAdjointResidual(CGeometry *geometry, const CConfig *config) {

@@ -391,7 +391,7 @@ public:
     const auto derived = static_cast<const Derived*>(this);
 
     derived->finalizeFlux(flux, jac_i, jac_j, implicit, rArea, projVel, avgV, V,
-                          diffU, iPoint, jPoint, geometry, solution, rUnitNormal);
+                          diffU, iPoint, jPoint, geometry, solution, rUnitNormal, iEdge, updateMask);
 
     /*--- Matched k: mdot k_up with the final mass flux (stored below for the SST k convection), and the Jacobian
      * L(k_up) Jhat T(k) of the hat Jacobian (D1), before the viscous terms whose Jacobian is already w.r.t. U. ---*/
@@ -442,6 +442,7 @@ private:
   using Base::matchedK;
   const su2double kappa2;
   const su2double kappa4;
+  const bool entropyBudget; /*!< \brief JST_ENTROPY_BUDGET: store (eps2 lam, eps4 lam) of the edge (fine grid). */
 
 public:
   /*!
@@ -450,7 +451,8 @@ public:
   template<class... Ts>
   CJSTScheme(const CConfig& config, Ts&... args) : Base(config, args...),
     kappa2(config.GetKappa_2nd_Flow()),
-    kappa4(config.GetKappa_4th_Flow()) {
+    kappa4(config.GetKappa_4th_Flow()),
+    entropyBudget(config.GetJST_Entropy_Budget() && (Base::edgeForm || Base::projDiss)) {
   }
 
   /*!
@@ -471,6 +473,9 @@ public:
                                 const Int& jPoint,
                                 const CGeometry& geometry,
                                 const CEulerVariable& solution,
+                                const VectorDbl<nDim>&,
+                                const Int& iEdge,
+                                const Double& updateMask,
                                 Ts&...) const {
 
     Double lambda = abs(projVel) + avgV.speedSound()*area;
@@ -505,6 +510,18 @@ public:
 
     for (size_t iVar = 0; iVar < nVar; ++iVar) {
       flux(iVar) += (eps2*diffU(iVar) - eps4*(lapl_i(iVar)-lapl_j(iVar))) * lambda;
+    }
+
+    /*--- JST_ENTROPY_BUDGET: the coefficients of this edge for the node budget (P1_JST_ENTROPY.md, J4), unmasked lanes
+     * (masked lanes repeat an edge). The flux above is unchanged here. ---*/
+    if (entropyBudget) {
+      const Double c2 = eps2 * lambda, c4 = eps4 * lambda;
+      auto& coeff = solution.JSTEdgeCoeff;
+      for (size_t k = 0; k < Double::Size; ++k) {
+        if (updateMask[k] == 0.0) continue;
+        coeff(iEdge[k], 0) = c2[k];
+        coeff(iEdge[k], 1) = c4[k];
+      }
     }
 
     if (implicit) {

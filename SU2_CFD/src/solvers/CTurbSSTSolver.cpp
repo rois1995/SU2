@@ -327,6 +327,7 @@ void CTurbSSTSolver::Upwind_Residual(CGeometry* geometry, CSolver** solver_conta
   });
 
   if (matched && config->GetBC_Entropy_P1()) MatchedBoundaryKine(geometry, solver_container, config);
+  if (matched && config->GetJST_Entropy_Budget()) MatchedCorrectionKine(geometry, solver_container, config);
   if ((iMesh == MESH_0) && config->GetSST_P1_Element_Kine()) P1KineDiffusion(geometry, solver_container, config);
 }
 
@@ -347,6 +348,47 @@ void CTurbSSTSolver::MatchedBoundaryKine(CGeometry* geometry, CSolver** solver_c
     if (implicit) Jacobian.AddVal2Diag(iPoint, 0, massPlus(iPoint) / flowNodes->GetDensity(iPoint));
   }
   END_SU2_OMP_FOR
+}
+
+void CTurbSSTSolver::MatchedCorrectionKine(CGeometry* geometry, CSolver** solver_container, const CConfig* config) {
+  const auto* flowSolver = solver_container[FLOW_SOL];
+  const auto& massCorr = flowSolver->GetJSTMassCorrection();
+  if (massCorr.size() != geometry->GetnEdge()) {
+    SU2_MPI::Error("Matched k: the JST correction mass fluxes of the flow solver are missing.", CURRENT_FUNCTION);
+  }
+  const auto* flowNodes = su2staticcast_p<const CFlowVariable*>(flowSolver->GetNodes());
+  const bool implicit = (config->GetKind_TimeIntScheme_Turb() == EULER_IMPLICIT);
+
+  SU2_OMP_MASTER
+  for (unsigned long iEdge = 0; iEdge < geometry->GetnEdge(); ++iEdge) {
+    const su2double m = massCorr(iEdge);
+    if (m == 0.0) continue;
+    const auto iPoint = geometry->edges->GetNode(iEdge, 0);
+    const auto kPoint = geometry->edges->GetNode(iEdge, 1);
+    const bool own_i = geometry->nodes->GetDomain(iPoint), own_k = geometry->nodes->GetDomain(kPoint);
+    const su2double kUp = P1SSTMatched::KUpwind(m, nodes->GetSolution(iPoint, 0), nodes->GetSolution(kPoint, 0));
+    const su2double flux = kUp * m;
+    if (own_i) LinSysRes(iPoint, 0) += flux;
+    if (own_k) LinSysRes(kPoint, 0) -= flux;
+    if (!implicit) continue;
+    /*--- d(k_up m)/d(rho k) with m frozen: max(m,0)/rho_i on column i, min(m,0)/rho_k on column k. ---*/
+    const su2double a0 = fmax(m, 0.0) / flowNodes->GetDensity(iPoint);
+    const su2double a1 = fmin(m, 0.0) / flowNodes->GetDensity(kPoint);
+    su2double block[2][2] = {{0.0, 0.0}, {0.0, 0.0}};
+    const su2double* rows[2] = {block[0], block[1]};
+    if (own_i) {
+      Jacobian.AddVal2Diag(iPoint, 0, a0);
+      block[0][0] = a1;
+      Jacobian.AddBlock(iPoint, kPoint, rows);
+    }
+    if (own_k) {
+      Jacobian.AddVal2Diag(kPoint, 0, -a1);
+      block[0][0] = -a0;
+      Jacobian.AddBlock(kPoint, iPoint, rows);
+    }
+  }
+  END_SU2_OMP_MASTER
+  SU2_OMP_BARRIER
 }
 
 void CTurbSSTSolver::P1KineDiffusion(CGeometry* geometry, CSolver** solver_container, const CConfig* config) {

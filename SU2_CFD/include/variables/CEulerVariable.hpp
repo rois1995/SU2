@@ -107,6 +107,10 @@ class CEulerVariable : public CFlowVariable {
   mutable su2activematrix TeCNOAdjEdgeQ; /*!< \brief q_e = D_e L_e of each edge (iEdge, iVar). */
   mutable su2activematrix TeCNOAdjEdgeD; /*!< \brief D_e of each edge, row major (EDGE_FORM_TECNO_A4_JACOBIAN). */
 
+  /*--- JST_ENTROPY_BUDGET: (eps2 lam, eps4 lam) of each edge, written by the (const) JST kernel, read by
+   * CEulerSolver::JSTEntropyResidual. ---*/
+  mutable su2activematrix JSTEdgeCoeff;
+
   /*!
    * \brief Constructor of the class.
    * \param[in] density - Value of the flow density (initialization value).
