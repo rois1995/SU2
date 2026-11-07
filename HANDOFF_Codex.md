@@ -65,6 +65,27 @@ variation is observational, not isolated implementation overhead. WorkerCPU/wall
 A235/{comparison227_matching_stages,quality_entry_comparison227}.json preserves
 prefix-verified data. NEXT evaluate net whole-field q/J removal and geometry/churn
 from quality entry; remaining time is smaller, budgets unchanged. No accepted mesh.
+First4 COMPLETE quality windows through34816:893757cells/87659q/87545J/1946geometry/
+0size, quality675.036s/net14399q/14315J/51geometry removed. Netq21.331/s vs22721.792/s
+at same round/660.390s.235has8fewerq but59moreJ/4moregeometry; populations differ,
+not same-time or causal proof. Traversal work.98828x227. No useful speedup established.
+First window EXACT same counts/churn/checked work:2022q/1997J/6geometry removed,
+1170commits,q31647retired/29625introduced,130.461s vs112.763s. Second diverges rank5.
+A235/{quality_comparison227,quality_first_window_comparison227}.json. Existing
+checker reused by explicit attempt/label substitution; runtime decisions unchanged.
+Quality migration at34752 preserved whole-field counts and all completeness flags;
+q-by-rank changed[8029,16985,17733,19206,15688,14977]→
+[15512,11914,19007,15638,15628,14919]. Preceding-window→publication13.169s;
+publication alone.144s excludes preparation and later warming. See
+A235/quality_ownership235_assessment.json. All1519pins unchanged at quality recheck:
+source_freeze_quality_observation.json. Bound read-only Luna location/ladder aggregation COMPLETE, primary independently
+rechecked prefix hashes/exact rank-stage-round joins/per-rank histograms. See
+quality_early_location235_assessment.json. First3windows netq removal2264surface/
+7176interior; interior labels can touch constrained boundary vertices. Almostall
+bad cells have edge<.9 (correlation, not construction-causality proof). No stuck/
+missing features; blocked0→80. Fixeddrift16DISTINCTglobal points repeated on6ranks,
+not96distinct; all supported, maxsampledrelativeFrobenius.00595774 bywindow2/3.
+Sampled nodal sensor drift is not a whole-target norm. No competing code.
 
 [Current connected design](Handbook/ADAPTATION_GEOMETRY_CONFORMING_REPAIR_20261107.md):
 existing batch preflight optionally merges four vertex stars for a measured owned

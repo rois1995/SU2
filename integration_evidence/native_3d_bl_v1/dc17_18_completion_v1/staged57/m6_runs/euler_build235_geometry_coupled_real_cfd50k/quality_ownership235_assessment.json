@@ -1,0 +1,101 @@
+{
+  "time": 1794021674.0667403,
+  "scope": "Complete-census ownership publication preserved whole-field counts and all cache/shape/geometry completeness flags. Not full workflow or per-cell semantic proof.",
+  "migrations": [
+    {
+      "round": 34594,
+      "all_flags_complete": true,
+      "counts_unchanged": true,
+      "totals": {
+        "cells": 871607,
+        "measured": 871607,
+        "q_measured": 871607,
+        "j_measured": 871607,
+        "q_bad": 102058,
+        "j_bad": 101860,
+        "geometry_bad": 1997,
+        "size_bad": 0
+      },
+      "q_before_by_rank": [
+        4573,
+        28042,
+        14449,
+        9395,
+        17063,
+        28536
+      ],
+      "q_after_by_rank": [
+        9349,
+        18541,
+        19556,
+        21440,
+        16667,
+        16505
+      ],
+      "ownership_publication_seconds": 0.21542709800007742,
+      "preceding_complete_stage": "construction_entry",
+      "preceding_stage_to_publication_seconds": 64.82223885300004
+    },
+    {
+      "round": 34752,
+      "all_flags_complete": true,
+      "counts_unchanged": true,
+      "totals": {
+        "cells": 886574,
+        "measured": 886574,
+        "q_measured": 886574,
+        "j_measured": 886574,
+        "q_bad": 92618,
+        "j_bad": 92480,
+        "geometry_bad": 1955,
+        "size_bad": 0
+      },
+      "q_before_by_rank": [
+        8029,
+        16985,
+        17733,
+        19206,
+        15688,
+        14977
+      ],
+      "q_after_by_rank": [
+        15512,
+        11914,
+        19007,
+        15638,
+        15628,
+        14919
+      ],
+      "ownership_publication_seconds": 0.14427772099998037,
+      "preceding_complete_stage": "window",
+      "preceding_stage_to_publication_seconds": 13.168523520000008
+    }
+  ],
+  "source_prefixes": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build235_geometry_coupled_real_cfd50k/rank_output/1/rank.0/stdout": {
+      "bytes": 381508,
+      "sha256": "59c56df8cb01fe60e4287c4739dc2960c3e7d82eeb2173d9fdc804b8f3ab7d9f"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build235_geometry_coupled_real_cfd50k/rank_output/1/rank.1/stdout": {
+      "bytes": 358908,
+      "sha256": "fe1e84651f93abb67e5bafdbedc396a9dac357df7d5bd50a080c4f7f0ac5294f"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build235_geometry_coupled_real_cfd50k/rank_output/1/rank.2/stdout": {
+      "bytes": 358353,
+      "sha256": "2e296acfc24495a06ee8ed3c0bd3893193ec7193b04bad863e6528d33c86128a"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build235_geometry_coupled_real_cfd50k/rank_output/1/rank.3/stdout": {
+      "bytes": 358656,
+      "sha256": "4077d0f15f0e36e5990528edaaa969185955f6a56fd22e34bb83ec298e668f91"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build235_geometry_coupled_real_cfd50k/rank_output/1/rank.4/stdout": {
+      "bytes": 358148,
+      "sha256": "a8d7e39b655ef324b48267b5bda22fb52fe0b91abc744cd410d84a3379db472f"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build235_geometry_coupled_real_cfd50k/rank_output/1/rank.5/stdout": {
+      "bytes": 358696,
+      "sha256": "1167c5b4951303bc12e9b03ffbd2e25218c6a06455d278f01efbe86c0ea46d24"
+    }
+  },
+  "timing_limit": "Publication alone excludes policy estimation/partition preparation. Preceding-stage interval includes these, but subsequent cache warming is not included; neither is claimed as complete amortized migration cost."
+}
