@@ -1,0 +1,185 @@
+{
+  "time": 1794075380.6208186,
+  "scope": "First complete quality windows after exactly matching entry. Matching round and explicit nearest-age pair;no interpolation or causal speedup claim. Join-call/busy/tracked timers overlap,not CPU wait percentages. Whole-field counts and net removal govern.",
+  "entry_equal": true,
+  "windows": [
+    {
+      "round": 31936,
+      "current251": {
+        "quality_seconds": 92.15257951899991,
+        "totals": {
+          "cells": 881845,
+          "measured": 881845,
+          "q_measured": 881845,
+          "j_measured": 881845,
+          "q_bad": 103678,
+          "j_bad": 103513,
+          "geometry_bad": 1369,
+          "size_bad": 0
+        },
+        "net_bad_removed": {
+          "q_bad": 2776,
+          "j_bad": 2691,
+          "geometry_bad": 12
+        },
+        "net_bad_removed_per_quality_second": {
+          "q_bad": 30.12395327932896,
+          "j_bad": 29.20156998367227,
+          "geometry_bad": 0.13021881821035572
+        },
+        "cumulative_service": {
+          "commits": 1435.0,
+          "q_retired": 36829.0,
+          "q_introduced": 34053.0,
+          "j_retired": 33784.0,
+          "j_introduced": 31093.0,
+          "busy_seconds": 179.622161008,
+          "join_call_seconds": 231.089561289,
+          "tracked_collective_call_seconds": 68.01663143997826
+        }
+      },
+      "matching_round247": {
+        "quality_seconds": 93.609620629,
+        "totals": {
+          "cells": 881845,
+          "measured": 881845,
+          "q_measured": 881845,
+          "j_measured": 881845,
+          "q_bad": 103678,
+          "j_bad": 103513,
+          "geometry_bad": 1369,
+          "size_bad": 0
+        },
+        "net_bad_removed": {
+          "q_bad": 2776,
+          "j_bad": 2691,
+          "geometry_bad": 12
+        },
+        "net_bad_removed_per_quality_second": {
+          "q_bad": 29.65507157647857,
+          "j_bad": 28.74704524938899,
+          "geometry_bad": 0.12819195205970563
+        },
+        "cumulative_service": {
+          "commits": 1435.0,
+          "q_retired": 36829.0,
+          "q_introduced": 34053.0,
+          "j_retired": 33784.0,
+          "j_introduced": 31093.0,
+          "busy_seconds": 183.227746829,
+          "join_call_seconds": 236.34046719800003,
+          "tracked_collective_call_seconds": 68.39527124500353
+        }
+      },
+      "nearest_age247_round": 31936,
+      "nearest_age247": {
+        "quality_seconds": 93.609620629,
+        "totals": {
+          "cells": 881845,
+          "measured": 881845,
+          "q_measured": 881845,
+          "j_measured": 881845,
+          "q_bad": 103678,
+          "j_bad": 103513,
+          "geometry_bad": 1369,
+          "size_bad": 0
+        },
+        "net_bad_removed": {
+          "q_bad": 2776,
+          "j_bad": 2691,
+          "geometry_bad": 12
+        },
+        "net_bad_removed_per_quality_second": {
+          "q_bad": 29.65507157647857,
+          "j_bad": 28.74704524938899,
+          "geometry_bad": 0.12819195205970563
+        },
+        "cumulative_service": {
+          "commits": 1435.0,
+          "q_retired": 36829.0,
+          "q_introduced": 34053.0,
+          "j_retired": 33784.0,
+          "j_introduced": 31093.0,
+          "busy_seconds": 183.227746829,
+          "join_call_seconds": 236.34046719800003,
+          "tracked_collective_call_seconds": 68.39527124500353
+        }
+      },
+      "age_offset251_minus247": -1.457041110000091,
+      "matching_window_counted_geometry_work": {
+        "current251": {
+          "accepted": 1435,
+          "upper_calls": 20002,
+          "upper_work": 49402128,
+          "traversal_work": 47120380,
+          "scope_hits": 4557,
+          "scope_misses": 4076
+        },
+        "baseline247": {
+          "accepted": 1435,
+          "upper_calls": 20002,
+          "upper_work": 49727863,
+          "traversal_work": 47446115,
+          "scope_hits": 4557,
+          "scope_misses": 4076
+        }
+      }
+    }
+  ],
+  "source_prefixes": {
+    "current251": {
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
+        "bytes": 395514,
+        "sha256": "aa9f2e288663d999e203da52058409a99a28dc3b2b5212c7ab437aa7b8ba4e51"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
+        "bytes": 372276,
+        "sha256": "593fde7c1c20bde7d856138088af6d1bb89ca8a62dc104f7e1fb6a24b6d2491d"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
+        "bytes": 372017,
+        "sha256": "a438e0ed2ad8c636ff0d864da574cf71e95d67cb5049234557939dfbbbf2a774"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
+        "bytes": 372177,
+        "sha256": "915772539fa6bd0588cda16869a1a0721ee53ce7c95c40de07a09d2c3032d17a"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
+        "bytes": 372787,
+        "sha256": "a9f31369885e43e50416d465af945e2f20547f6694f087c78da3f151be8a1431"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
+        "bytes": 371831,
+        "sha256": "3cb5ff5824e11c57e77ed726c000dc8b6b911c72c258f8d27c3d4a369a17d167"
+      }
+    },
+    "baseline247": {
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
+        "bytes": 751595,
+        "sha256": "b9d9f95fdcc0c37f54cf880947c2ae75e40c1ddd2faf370d1eea7c3a644260c4"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
+        "bytes": 727077,
+        "sha256": "9b0939c5557a7597f6263e7cc4c30fe17d38d720018c512e486572d5ce4620e9"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
+        "bytes": 726224,
+        "sha256": "cdecfcede8a25dc24176ab1a1052cba6cadecd01e72a03f3349224fddb66d452"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
+        "bytes": 726301,
+        "sha256": "6687af4fcb3be396cd24d644c6aab83d24953a4d8a33327995d09dbe84a32af1"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
+        "bytes": 729210,
+        "sha256": "4119e9477bc2f81c57eac068dcae5b5096db3ed6670f8c9b180abc90baf931cd"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build247_canonical_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
+        "bytes": 726685,
+        "sha256": "430d62cb655661377e090b242731893f62a37d9b875fa9f18550b4a6941f7a3c"
+      }
+    }
+  },
+  "accepted_meshes": 0,
+  "prefix_hashes_verified_at": 1794075406.127882
+}

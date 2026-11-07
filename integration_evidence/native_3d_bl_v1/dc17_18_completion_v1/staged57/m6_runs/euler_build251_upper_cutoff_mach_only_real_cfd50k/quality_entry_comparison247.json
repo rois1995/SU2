@@ -1,0 +1,93 @@
+{
+  "time": 1794075333.4389038,
+  "entry": {
+    "stage": "quality_entry",
+    "round": 31898,
+    "phase": "improvement",
+    "counts_equal": true,
+    "flags_equal": true,
+    "current_totals": {
+      "cells": 878443,
+      "measured": 878443,
+      "q_measured": 878443,
+      "j_measured": 878443,
+      "q_bad": 106454,
+      "j_bad": 106204,
+      "geometry_bad": 1381,
+      "size_bad": 0
+    },
+    "baseline_totals": {
+      "cells": 878443,
+      "measured": 878443,
+      "q_measured": 878443,
+      "j_measured": 878443,
+      "q_bad": 106454,
+      "j_bad": 106204,
+      "geometry_bad": 1381,
+      "size_bad": 0
+    },
+    "baseline247": {
+      "native_seconds": 689.582598767,
+      "work": {
+        "accepted": 120785,
+        "upper_calls": 52092,
+        "upper_work": 274601233,
+        "traversal_work": 256967738,
+        "scope_hits": 3279,
+        "scope_misses": 42454
+      }
+    },
+    "current251": {
+      "native_seconds": 677.653606875,
+      "work": {
+        "accepted": 120785,
+        "upper_calls": 52092,
+        "upper_work": 271243211,
+        "traversal_work": 253609716,
+        "scope_hits": 3279,
+        "scope_misses": 42454
+      }
+    }
+  },
+  "input_equality": {
+    "run.cfg": {
+      "current": "5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e",
+      "baseline": "5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e"
+    },
+    "baseline_euler_seed.dat": {
+      "current": "1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880",
+      "baseline": "1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880"
+    },
+    "restart_flow_adap_00000.dat": {
+      "current": "c99d057882238eb75a768da717e939ab426fa60a5cc0a27ec484eb6cb758a147",
+      "baseline": "c99d057882238eb75a768da717e939ab426fa60a5cc0a27ec484eb6cb758a147"
+    }
+  },
+  "scope": "First complete whole-field quality entry;exact cfg,CFDseed and continued original-grid restart bytes. Matching counts/flags are not a mesh-coordinate identity or acceptance proof.",
+  "source_prefixes": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
+      "bytes": 395514,
+      "sha256": "aa9f2e288663d999e203da52058409a99a28dc3b2b5212c7ab437aa7b8ba4e51"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
+      "bytes": 372276,
+      "sha256": "593fde7c1c20bde7d856138088af6d1bb89ca8a62dc104f7e1fb6a24b6d2491d"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
+      "bytes": 372017,
+      "sha256": "a438e0ed2ad8c636ff0d864da574cf71e95d67cb5049234557939dfbbbf2a774"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
+      "bytes": 372177,
+      "sha256": "915772539fa6bd0588cda16869a1a0721ee53ce7c95c40de07a09d2c3032d17a"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
+      "bytes": 372787,
+      "sha256": "a9f31369885e43e50416d465af945e2f20547f6694f087c78da3f151be8a1431"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
+      "bytes": 371831,
+      "sha256": "3cb5ff5824e11c57e77ed726c000dc8b6b911c72c258f8d27c3d4a369a17d167"
+    }
+  }
+}

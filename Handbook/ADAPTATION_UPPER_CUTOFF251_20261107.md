@@ -59,3 +59,14 @@ entry round1706:294566cells,3164geometry-bad/114872size-bad;shape UNKNOWN.
 traversal74441810→74021348. Native245.460453vs251.374581seconds is observational,
 not causal. A251/construction_comparison247.json seals raw prefixes. All1520pins
 unchanged in A251/source_freeze_observation.json. Full251remains LIVE and FROZEN.
+
+Quality entry matched247EXACTLY:878443cells/106454q/106204J/1381geometry/0size,
+all flags complete. cfg,CFDseed and initial continued original-grid restart hashes
+also equal. Construction upper work274601233→271243211(-1.2229%);same120785
+commits/52092queries. Native677.653607vs689.582599is observational.
+First complete quality window31936/census3:1435commits and identical whole-field
+881845cells/103678q/103513J/1369geometry/0size. Net2776q/2691J/12geometry removed;
+92.152580vs93.609621quality seconds. Upper work49727863→49402128(-0.6550%)for
+same20002queries. No causal whole-runtime speedup or closure claim. All relevant
+prefix hashes and complete census flags checked;A251/quality_comparison247.json.
+Full251still LIVE/FROZEN;wait for its actual terminal outcome.

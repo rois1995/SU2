@@ -28,16 +28,25 @@ HOST verified10live identities:runner475457,time475668,timeout475669,MPI475670,
 workers475673–475678. Exact starts/argv/cwd in A251/owned_startup.json and
 R/m6_251_startup_checkpoint.json. Wrapper continuously refreshes startup identities;
 R/m6_251_upper_cutoff_launch.json is live,not a terminal receipt.
-Startup/handoff checkpoint0455cd3eddpushed. First FOUR complete construction
-stage groups now match247in cell counts,flags and operation/query counts.
-Through surface-split exit/interior-split entry(round1706):294566cells,
-3164geometry-bad/114872size-bad;shape UNKNOWN(q/Jnot measured).
-3056local construction commits in both. Upper work84644580→84224118(-0.4967%),
-traversal74441810→74021348. Native245.460453versus251.374581seconds is observational,
-not a causal timing claim. A251/construction_comparison247.json verifies raw prefixes.
-All1520runtime/source/input pins unchanged:A251/source_freeze_observation.json.
-Latest host resource observation at285s:sampled tree RSS5.216GB;workers active,
-available RAM ample. RSS sample is not physical/whole-job peak memory.
+Startup/handoff0455cd3eddand initial construction6bf0ef30b5pushed.
+QUALITY ENTRY complete:878443cells/106454q/106204J/1381geometry/0size,all measured/
+complete flags true;EXACTLY247. Same cfg,CFDseed AND initial continued original-grid
+restart bytes verified. Native677.653607vs689.582599;120785construction commits,
+52092upper calls in both;upper work274601233→271243211(-1.2229%).
+A251/quality_entry_comparison247.json and construction_comparison247.json seal scope.
+FIRST quality window31936/census3 at age92.152580s(vs24793.609621):
+881845cells/103678q/103513J/1369geometry/0size,all flags complete;EXACTLY247counts.
+1435commits,q retired36829/introduced34053(net2776),J33784/31093(net2691),
+geometry net12. Net q/s30.12395vs29.65507;timings observational,not causal.
+Matching-window upper work49727863→49402128(-0.6550%);20002upper calls in both.
+A251/quality_comparison247.json;current complete stage prefixes/hashes verified.
+Existing analysis reused with ALL TWO literal run references replaced;output entry/
+window sets/counts explicitly checked against actual complete six-rank groups.
+A251/live_quality251_analysis_provenance.json records the corrected post-generation
+inspection wrapper(no production error);source parsers unchanged.
+All1520source/runtime/input pins unchanged at last verification.
+At827s all10owned host identities still live;sampled process-tree RSS10.056GB,
+no actual resource pressure. RSS sample is not physical or whole-job peak memory.
 Keep ALL pinned C++/fixtures/helpers/binary/config/inputs FROZEN. No other heavy job.
 Observe complete stages and net whole-field q/J-bad removal,geometry counts/work.
 Do not stop for elapsed time or contention alone. Preserve full evidence before

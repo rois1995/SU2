@@ -1,6 +1,6 @@
 {
-  "time": 1794074816.783364,
-  "scope": "Complete first-event six-rank stage/round groups only;unmeasured q/J zeros UNKNOWN. Wall times are observational,not a causal speedup claim.",
+  "time": 1794075333.3464315,
+  "scope": "Complete first-event six-rank matching stage/round groups;unmeasured construction q/J zeros UNKNOWN. Wall times observational,not causal speedup.",
   "matches": [
     {
       "stage": "length_collapse_exit",
@@ -197,32 +197,4197 @@
           "scope_misses": 15054
         }
       }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 14251,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 599988,
+        "measured": 599988,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3164,
+        "size_bad": 75710
+      },
+      "baseline_totals": {
+        "cells": 599988,
+        "measured": 599988,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3164,
+        "size_bad": 75710
+      },
+      "baseline247": {
+        "native_seconds": 284.075096696,
+        "work": {
+          "accepted": 61364,
+          "upper_calls": 23846,
+          "upper_work": 86151981,
+          "traversal_work": 75743195,
+          "scope_hits": 2254,
+          "scope_misses": 15491
+        }
+      },
+      "current251": {
+        "native_seconds": 277.098956212,
+        "work": {
+          "accepted": 61364,
+          "upper_calls": 23846,
+          "upper_work": 85730127,
+          "traversal_work": 75321341,
+          "scope_hits": 2254,
+          "scope_misses": 15491
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 14393,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 601492,
+        "measured": 601492,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3391,
+        "size_bad": 75714
+      },
+      "baseline_totals": {
+        "cells": 601492,
+        "measured": 601492,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3391,
+        "size_bad": 75714
+      },
+      "baseline247": {
+        "native_seconds": 302.165483391,
+        "work": {
+          "accepted": 61972,
+          "upper_calls": 25303,
+          "upper_work": 97746733,
+          "traversal_work": 86777943,
+          "scope_hits": 2263,
+          "scope_misses": 16938
+        }
+      },
+      "current251": {
+        "native_seconds": 295.205303532,
+        "work": {
+          "accepted": 61972,
+          "upper_calls": 25303,
+          "upper_work": 97166957,
+          "traversal_work": 86198167,
+          "scope_hits": 2263,
+          "scope_misses": 16938
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 14393,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 601492,
+        "measured": 601492,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3391,
+        "size_bad": 75714
+      },
+      "baseline_totals": {
+        "cells": 601492,
+        "measured": 601492,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3391,
+        "size_bad": 75714
+      },
+      "baseline247": {
+        "native_seconds": 302.170176926,
+        "work": {
+          "accepted": 61972,
+          "upper_calls": 25303,
+          "upper_work": 97746733,
+          "traversal_work": 86777943,
+          "scope_hits": 2263,
+          "scope_misses": 16938
+        }
+      },
+      "current251": {
+        "native_seconds": 295.210380272,
+        "work": {
+          "accepted": 61972,
+          "upper_calls": 25303,
+          "upper_work": 97166957,
+          "traversal_work": 86198167,
+          "scope_hits": 2263,
+          "scope_misses": 16938
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 20878,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 744827,
+        "measured": 744827,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3391,
+        "size_bad": 21733
+      },
+      "baseline_totals": {
+        "cells": 744827,
+        "measured": 744827,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3391,
+        "size_bad": 21733
+      },
+      "baseline247": {
+        "native_seconds": 318.384442417,
+        "work": {
+          "accepted": 89946,
+          "upper_calls": 25493,
+          "upper_work": 97753591,
+          "traversal_work": 86780510,
+          "scope_hits": 2272,
+          "scope_misses": 16945
+        }
+      },
+      "current251": {
+        "native_seconds": 311.400326293,
+        "work": {
+          "accepted": 89946,
+          "upper_calls": 25493,
+          "upper_work": 97173815,
+          "traversal_work": 86200734,
+          "scope_hits": 2272,
+          "scope_misses": 16945
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 21022,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 746431,
+        "measured": 746431,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3534,
+        "size_bad": 21608
+      },
+      "baseline_totals": {
+        "cells": 746431,
+        "measured": 746431,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3534,
+        "size_bad": 21608
+      },
+      "baseline247": {
+        "native_seconds": 337.855746239,
+        "work": {
+          "accepted": 90583,
+          "upper_calls": 27051,
+          "upper_work": 109689693,
+          "traversal_work": 98147425,
+          "scope_hits": 2296,
+          "scope_misses": 18478
+        }
+      },
+      "current251": {
+        "native_seconds": 330.727025147,
+        "work": {
+          "accepted": 90583,
+          "upper_calls": 27051,
+          "upper_work": 108975566,
+          "traversal_work": 97433298,
+          "scope_hits": 2296,
+          "scope_misses": 18478
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 21022,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 746431,
+        "measured": 746431,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3534,
+        "size_bad": 21608
+      },
+      "baseline_totals": {
+        "cells": 746431,
+        "measured": 746431,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3534,
+        "size_bad": 21608
+      },
+      "baseline247": {
+        "native_seconds": 337.859959471,
+        "work": {
+          "accepted": 90583,
+          "upper_calls": 27051,
+          "upper_work": 109689693,
+          "traversal_work": 98147425,
+          "scope_hits": 2296,
+          "scope_misses": 18478
+        }
+      },
+      "current251": {
+        "native_seconds": 330.731609124,
+        "work": {
+          "accepted": 90583,
+          "upper_calls": 27051,
+          "upper_work": 108975566,
+          "traversal_work": 97433298,
+          "scope_hits": 2296,
+          "scope_misses": 18478
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 24187,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 787537,
+        "measured": 787537,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3534,
+        "size_bad": 19981
+      },
+      "baseline_totals": {
+        "cells": 787537,
+        "measured": 787537,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3534,
+        "size_bad": 19981
+      },
+      "baseline247": {
+        "native_seconds": 346.360139841,
+        "work": {
+          "accepted": 98414,
+          "upper_calls": 27068,
+          "upper_work": 109690402,
+          "traversal_work": 98147759,
+          "scope_hits": 2298,
+          "scope_misses": 18478
+        }
+      },
+      "current251": {
+        "native_seconds": 339.849697286,
+        "work": {
+          "accepted": 98414,
+          "upper_calls": 27068,
+          "upper_work": 108976275,
+          "traversal_work": 97433632,
+          "scope_hits": 2298,
+          "scope_misses": 18478
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 24345,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 789263,
+        "measured": 789263,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3674,
+        "size_bad": 19827
+      },
+      "baseline_totals": {
+        "cells": 789263,
+        "measured": 789263,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3674,
+        "size_bad": 19827
+      },
+      "baseline247": {
+        "native_seconds": 368.556767499,
+        "work": {
+          "accepted": 99098,
+          "upper_calls": 28767,
+          "upper_work": 122010308,
+          "traversal_work": 109956074,
+          "scope_hits": 2335,
+          "scope_misses": 20138
+        }
+      },
+      "current251": {
+        "native_seconds": 361.248075658,
+        "work": {
+          "accepted": 99098,
+          "upper_calls": 28767,
+          "upper_work": 121092045,
+          "traversal_work": 109037811,
+          "scope_hits": 2335,
+          "scope_misses": 20138
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 24345,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 789263,
+        "measured": 789263,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3674,
+        "size_bad": 19827
+      },
+      "baseline_totals": {
+        "cells": 789263,
+        "measured": 789263,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3674,
+        "size_bad": 19827
+      },
+      "baseline247": {
+        "native_seconds": 368.562122138,
+        "work": {
+          "accepted": 99098,
+          "upper_calls": 28767,
+          "upper_work": 122010308,
+          "traversal_work": 109956074,
+          "scope_hits": 2335,
+          "scope_misses": 20138
+        }
+      },
+      "current251": {
+        "native_seconds": 361.254591896,
+        "work": {
+          "accepted": 99098,
+          "upper_calls": 28767,
+          "upper_work": 121092045,
+          "traversal_work": 109037811,
+          "scope_hits": 2335,
+          "scope_misses": 20138
+        }
+      }
+    },
+    {
+      "stage": "split_interior_exit",
+      "round": 27363,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 832198,
+        "measured": 832198,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3674,
+        "size_bad": 11931
+      },
+      "baseline_totals": {
+        "cells": 832198,
+        "measured": 832198,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3674,
+        "size_bad": 11931
+      },
+      "baseline247": {
+        "native_seconds": 375.798322465,
+        "work": {
+          "accepted": 107048,
+          "upper_calls": 28773,
+          "upper_work": 122010720,
+          "traversal_work": 109956221,
+          "scope_hits": 2336,
+          "scope_misses": 20138
+        }
+      },
+      "current251": {
+        "native_seconds": 368.399387269,
+        "work": {
+          "accepted": 107048,
+          "upper_calls": 28773,
+          "upper_work": 121092457,
+          "traversal_work": 109037958,
+          "scope_hits": 2336,
+          "scope_misses": 20138
+        }
+      }
+    },
+    {
+      "stage": "split_surface_resume",
+      "round": 27363,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 832198,
+        "measured": 832198,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3674,
+        "size_bad": 11931
+      },
+      "baseline_totals": {
+        "cells": 832198,
+        "measured": 832198,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3674,
+        "size_bad": 11931
+      },
+      "baseline247": {
+        "native_seconds": 375.802532697,
+        "work": {
+          "accepted": 107048,
+          "upper_calls": 28773,
+          "upper_work": 122010720,
+          "traversal_work": 109956221,
+          "scope_hits": 2336,
+          "scope_misses": 20138
+        }
+      },
+      "current251": {
+        "native_seconds": 368.403580402,
+        "work": {
+          "accepted": 107048,
+          "upper_calls": 28773,
+          "upper_work": 121092457,
+          "traversal_work": 109037958,
+          "scope_hits": 2336,
+          "scope_misses": 20138
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 27364,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 832204,
+        "measured": 832204,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3674,
+        "size_bad": 11931
+      },
+      "baseline_totals": {
+        "cells": 832204,
+        "measured": 832204,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3674,
+        "size_bad": 11931
+      },
+      "baseline247": {
+        "native_seconds": 376.262840901,
+        "work": {
+          "accepted": 107049,
+          "upper_calls": 28773,
+          "upper_work": 122010720,
+          "traversal_work": 109956221,
+          "scope_hits": 2336,
+          "scope_misses": 20138
+        }
+      },
+      "current251": {
+        "native_seconds": 368.896360601,
+        "work": {
+          "accepted": 107049,
+          "upper_calls": 28773,
+          "upper_work": 121092457,
+          "traversal_work": 109037958,
+          "scope_hits": 2336,
+          "scope_misses": 20138
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 27364,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 832204,
+        "measured": 832204,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3674,
+        "size_bad": 11931
+      },
+      "baseline_totals": {
+        "cells": 832204,
+        "measured": 832204,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3674,
+        "size_bad": 11931
+      },
+      "baseline247": {
+        "native_seconds": 376.267116597,
+        "work": {
+          "accepted": 107049,
+          "upper_calls": 28773,
+          "upper_work": 122010720,
+          "traversal_work": 109956221,
+          "scope_hits": 2336,
+          "scope_misses": 20138
+        }
+      },
+      "current251": {
+        "native_seconds": 368.900639371,
+        "work": {
+          "accepted": 107049,
+          "upper_calls": 28773,
+          "upper_work": 121092457,
+          "traversal_work": 109037958,
+          "scope_hits": 2336,
+          "scope_misses": 20138
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 27364,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 832204,
+        "measured": 832204,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3674,
+        "size_bad": 11931
+      },
+      "baseline_totals": {
+        "cells": 832204,
+        "measured": 832204,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3674,
+        "size_bad": 11931
+      },
+      "baseline247": {
+        "native_seconds": 376.556495097,
+        "work": {
+          "accepted": 107049,
+          "upper_calls": 28773,
+          "upper_work": 122010720,
+          "traversal_work": 109956221,
+          "scope_hits": 2336,
+          "scope_misses": 20138
+        }
+      },
+      "current251": {
+        "native_seconds": 369.21434648,
+        "work": {
+          "accepted": 107049,
+          "upper_calls": 28773,
+          "upper_work": 121092457,
+          "traversal_work": 109037958,
+          "scope_hits": 2336,
+          "scope_misses": 20138
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 27530,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 833944,
+        "measured": 833944,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3719,
+        "size_bad": 11729
+      },
+      "baseline_totals": {
+        "cells": 833944,
+        "measured": 833944,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3719,
+        "size_bad": 11729
+      },
+      "baseline247": {
+        "native_seconds": 401.04765089,
+        "work": {
+          "accepted": 107737,
+          "upper_calls": 30474,
+          "upper_work": 137841992,
+          "traversal_work": 125228934,
+          "scope_hits": 2385,
+          "scope_misses": 21789
+        }
+      },
+      "current251": {
+        "native_seconds": 393.462258418,
+        "work": {
+          "accepted": 107737,
+          "upper_calls": 30474,
+          "upper_work": 136672578,
+          "traversal_work": 124059520,
+          "scope_hits": 2385,
+          "scope_misses": 21789
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 27530,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 833944,
+        "measured": 833944,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3719,
+        "size_bad": 11729
+      },
+      "baseline_totals": {
+        "cells": 833944,
+        "measured": 833944,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3719,
+        "size_bad": 11729
+      },
+      "baseline247": {
+        "native_seconds": 401.052071431,
+        "work": {
+          "accepted": 107737,
+          "upper_calls": 30474,
+          "upper_work": 137841992,
+          "traversal_work": 125228934,
+          "scope_hits": 2385,
+          "scope_misses": 21789
+        }
+      },
+      "current251": {
+        "native_seconds": 393.467211663,
+        "work": {
+          "accepted": 107737,
+          "upper_calls": 30474,
+          "upper_work": 136672578,
+          "traversal_work": 124059520,
+          "scope_hits": 2385,
+          "scope_misses": 21789
+        }
+      }
+    },
+    {
+      "stage": "split_interior_exit",
+      "round": 29073,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 854309,
+        "measured": 854309,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3719,
+        "size_bad": 3832
+      },
+      "baseline_totals": {
+        "cells": 854309,
+        "measured": 854309,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3719,
+        "size_bad": 3832
+      },
+      "baseline247": {
+        "native_seconds": 405.890403591,
+        "work": {
+          "accepted": 111518,
+          "upper_calls": 30478,
+          "upper_work": 137842380,
+          "traversal_work": 125229052,
+          "scope_hits": 2386,
+          "scope_misses": 21789
+        }
+      },
+      "current251": {
+        "native_seconds": 398.145519028,
+        "work": {
+          "accepted": 111518,
+          "upper_calls": 30478,
+          "upper_work": 136672966,
+          "traversal_work": 124059638,
+          "scope_hits": 2386,
+          "scope_misses": 21789
+        }
+      }
+    },
+    {
+      "stage": "split_surface_resume",
+      "round": 29073,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 854309,
+        "measured": 854309,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3719,
+        "size_bad": 3832
+      },
+      "baseline_totals": {
+        "cells": 854309,
+        "measured": 854309,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3719,
+        "size_bad": 3832
+      },
+      "baseline247": {
+        "native_seconds": 405.894607689,
+        "work": {
+          "accepted": 111518,
+          "upper_calls": 30478,
+          "upper_work": 137842380,
+          "traversal_work": 125229052,
+          "scope_hits": 2386,
+          "scope_misses": 21789
+        }
+      },
+      "current251": {
+        "native_seconds": 398.149803258,
+        "work": {
+          "accepted": 111518,
+          "upper_calls": 30478,
+          "upper_work": 136672966,
+          "traversal_work": 124059638,
+          "scope_hits": 2386,
+          "scope_misses": 21789
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 29074,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 854313,
+        "measured": 854313,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3719,
+        "size_bad": 3829
+      },
+      "baseline_totals": {
+        "cells": 854313,
+        "measured": 854313,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3719,
+        "size_bad": 3829
+      },
+      "baseline247": {
+        "native_seconds": 406.438355853,
+        "work": {
+          "accepted": 111519,
+          "upper_calls": 30478,
+          "upper_work": 137842380,
+          "traversal_work": 125229052,
+          "scope_hits": 2386,
+          "scope_misses": 21789
+        }
+      },
+      "current251": {
+        "native_seconds": 398.655745639,
+        "work": {
+          "accepted": 111519,
+          "upper_calls": 30478,
+          "upper_work": 136672966,
+          "traversal_work": 124059638,
+          "scope_hits": 2386,
+          "scope_misses": 21789
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 29074,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 854313,
+        "measured": 854313,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3719,
+        "size_bad": 3829
+      },
+      "baseline_totals": {
+        "cells": 854313,
+        "measured": 854313,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3719,
+        "size_bad": 3829
+      },
+      "baseline247": {
+        "native_seconds": 406.442552934,
+        "work": {
+          "accepted": 111519,
+          "upper_calls": 30478,
+          "upper_work": 137842380,
+          "traversal_work": 125229052,
+          "scope_hits": 2386,
+          "scope_misses": 21789
+        }
+      },
+      "current251": {
+        "native_seconds": 398.659837906,
+        "work": {
+          "accepted": 111519,
+          "upper_calls": 30478,
+          "upper_work": 136672966,
+          "traversal_work": 124059638,
+          "scope_hits": 2386,
+          "scope_misses": 21789
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 29074,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 854313,
+        "measured": 854313,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3719,
+        "size_bad": 3829
+      },
+      "baseline_totals": {
+        "cells": 854313,
+        "measured": 854313,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3719,
+        "size_bad": 3829
+      },
+      "baseline247": {
+        "native_seconds": 406.774610027,
+        "work": {
+          "accepted": 111519,
+          "upper_calls": 30478,
+          "upper_work": 137842380,
+          "traversal_work": 125229052,
+          "scope_hits": 2386,
+          "scope_misses": 21789
+        }
+      },
+      "current251": {
+        "native_seconds": 398.952074626,
+        "work": {
+          "accepted": 111519,
+          "upper_calls": 30478,
+          "upper_work": 136672966,
+          "traversal_work": 124059638,
+          "scope_hits": 2386,
+          "scope_misses": 21789
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 29240,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 856079,
+        "measured": 856079,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3786,
+        "size_bad": 3615
+      },
+      "baseline_totals": {
+        "cells": 856079,
+        "measured": 856079,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3786,
+        "size_bad": 3615
+      },
+      "baseline247": {
+        "native_seconds": 429.453496725,
+        "work": {
+          "accepted": 112233,
+          "upper_calls": 32225,
+          "upper_work": 152155955,
+          "traversal_work": 139017343,
+          "scope_hits": 2437,
+          "scope_misses": 23483
+        }
+      },
+      "current251": {
+        "native_seconds": 420.801852982,
+        "work": {
+          "accepted": 112233,
+          "upper_calls": 32225,
+          "upper_work": 150713300,
+          "traversal_work": 137574688,
+          "scope_hits": 2437,
+          "scope_misses": 23483
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 29240,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 856079,
+        "measured": 856079,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3786,
+        "size_bad": 3615
+      },
+      "baseline_totals": {
+        "cells": 856079,
+        "measured": 856079,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3786,
+        "size_bad": 3615
+      },
+      "baseline247": {
+        "native_seconds": 429.457664164,
+        "work": {
+          "accepted": 112233,
+          "upper_calls": 32225,
+          "upper_work": 152155955,
+          "traversal_work": 139017343,
+          "scope_hits": 2437,
+          "scope_misses": 23483
+        }
+      },
+      "current251": {
+        "native_seconds": 420.80718177,
+        "work": {
+          "accepted": 112233,
+          "upper_calls": 32225,
+          "upper_work": 150713300,
+          "traversal_work": 137574688,
+          "scope_hits": 2437,
+          "scope_misses": 23483
+        }
+      }
+    },
+    {
+      "stage": "split_interior_exit",
+      "round": 29530,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 857302,
+        "measured": 857302,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3786,
+        "size_bad": 3106
+      },
+      "baseline_totals": {
+        "cells": 857302,
+        "measured": 857302,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3786,
+        "size_bad": 3106
+      },
+      "baseline247": {
+        "native_seconds": 430.762033435,
+        "work": {
+          "accepted": 112461,
+          "upper_calls": 32226,
+          "upper_work": 152155955,
+          "traversal_work": 139017343,
+          "scope_hits": 2437,
+          "scope_misses": 23483
+        }
+      },
+      "current251": {
+        "native_seconds": 422.238272055,
+        "work": {
+          "accepted": 112461,
+          "upper_calls": 32226,
+          "upper_work": 150713300,
+          "traversal_work": 137574688,
+          "scope_hits": 2437,
+          "scope_misses": 23483
+        }
+      }
+    },
+    {
+      "stage": "split_surface_resume",
+      "round": 29530,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 857302,
+        "measured": 857302,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3786,
+        "size_bad": 3106
+      },
+      "baseline_totals": {
+        "cells": 857302,
+        "measured": 857302,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3786,
+        "size_bad": 3106
+      },
+      "baseline247": {
+        "native_seconds": 430.766230331,
+        "work": {
+          "accepted": 112461,
+          "upper_calls": 32226,
+          "upper_work": 152155955,
+          "traversal_work": 139017343,
+          "scope_hits": 2437,
+          "scope_misses": 23483
+        }
+      },
+      "current251": {
+        "native_seconds": 422.242499273,
+        "work": {
+          "accepted": 112461,
+          "upper_calls": 32226,
+          "upper_work": 150713300,
+          "traversal_work": 137574688,
+          "scope_hits": 2437,
+          "scope_misses": 23483
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 29531,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 857306,
+        "measured": 857306,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3786,
+        "size_bad": 3106
+      },
+      "baseline_totals": {
+        "cells": 857306,
+        "measured": 857306,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3786,
+        "size_bad": 3106
+      },
+      "baseline247": {
+        "native_seconds": 431.236102127,
+        "work": {
+          "accepted": 112462,
+          "upper_calls": 32226,
+          "upper_work": 152155955,
+          "traversal_work": 139017343,
+          "scope_hits": 2437,
+          "scope_misses": 23483
+        }
+      },
+      "current251": {
+        "native_seconds": 422.738392679,
+        "work": {
+          "accepted": 112462,
+          "upper_calls": 32226,
+          "upper_work": 150713300,
+          "traversal_work": 137574688,
+          "scope_hits": 2437,
+          "scope_misses": 23483
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 29531,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 857306,
+        "measured": 857306,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3786,
+        "size_bad": 3106
+      },
+      "baseline_totals": {
+        "cells": 857306,
+        "measured": 857306,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3786,
+        "size_bad": 3106
+      },
+      "baseline247": {
+        "native_seconds": 431.240206504,
+        "work": {
+          "accepted": 112462,
+          "upper_calls": 32226,
+          "upper_work": 152155955,
+          "traversal_work": 139017343,
+          "scope_hits": 2437,
+          "scope_misses": 23483
+        }
+      },
+      "current251": {
+        "native_seconds": 422.74258912,
+        "work": {
+          "accepted": 112462,
+          "upper_calls": 32226,
+          "upper_work": 150713300,
+          "traversal_work": 137574688,
+          "scope_hits": 2437,
+          "scope_misses": 23483
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 29531,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 857306,
+        "measured": 857306,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3786,
+        "size_bad": 3106
+      },
+      "baseline_totals": {
+        "cells": 857306,
+        "measured": 857306,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3786,
+        "size_bad": 3106
+      },
+      "baseline247": {
+        "native_seconds": 431.541756915,
+        "work": {
+          "accepted": 112462,
+          "upper_calls": 32226,
+          "upper_work": 152155955,
+          "traversal_work": 139017343,
+          "scope_hits": 2437,
+          "scope_misses": 23483
+        }
+      },
+      "current251": {
+        "native_seconds": 423.060462107,
+        "work": {
+          "accepted": 112462,
+          "upper_calls": 32226,
+          "upper_work": 150713300,
+          "traversal_work": 137574688,
+          "scope_hits": 2437,
+          "scope_misses": 23483
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 29694,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 859025,
+        "measured": 859025,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3790,
+        "size_bad": 2865
+      },
+      "baseline_totals": {
+        "cells": 859025,
+        "measured": 859025,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3790,
+        "size_bad": 2865
+      },
+      "baseline247": {
+        "native_seconds": 450.338681505,
+        "work": {
+          "accepted": 113153,
+          "upper_calls": 33921,
+          "upper_work": 164019400,
+          "traversal_work": 150391305,
+          "scope_hits": 2503,
+          "scope_misses": 25111
+        }
+      },
+      "current251": {
+        "native_seconds": 441.827643048,
+        "work": {
+          "accepted": 113153,
+          "upper_calls": 33921,
+          "upper_work": 162436481,
+          "traversal_work": 148808386,
+          "scope_hits": 2503,
+          "scope_misses": 25111
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 29694,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 859025,
+        "measured": 859025,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3790,
+        "size_bad": 2865
+      },
+      "baseline_totals": {
+        "cells": 859025,
+        "measured": 859025,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3790,
+        "size_bad": 2865
+      },
+      "baseline247": {
+        "native_seconds": 450.342977307,
+        "work": {
+          "accepted": 113153,
+          "upper_calls": 33921,
+          "upper_work": 164019400,
+          "traversal_work": 150391305,
+          "scope_hits": 2503,
+          "scope_misses": 25111
+        }
+      },
+      "current251": {
+        "native_seconds": 441.83209626,
+        "work": {
+          "accepted": 113153,
+          "upper_calls": 33921,
+          "upper_work": 162436481,
+          "traversal_work": 148808386,
+          "scope_hits": 2503,
+          "scope_misses": 25111
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 29893,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 859709,
+        "measured": 859709,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3790,
+        "size_bad": 2523
+      },
+      "baseline_totals": {
+        "cells": 859709,
+        "measured": 859709,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3790,
+        "size_bad": 2523
+      },
+      "baseline247": {
+        "native_seconds": 451.13494391,
+        "work": {
+          "accepted": 113284,
+          "upper_calls": 33924,
+          "upper_work": 164019887,
+          "traversal_work": 150391483,
+          "scope_hits": 2503,
+          "scope_misses": 25112
+        }
+      },
+      "current251": {
+        "native_seconds": 442.632242586,
+        "work": {
+          "accepted": 113284,
+          "upper_calls": 33924,
+          "upper_work": 162436968,
+          "traversal_work": 148808564,
+          "scope_hits": 2503,
+          "scope_misses": 25112
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 30047,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 861361,
+        "measured": 861361,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3752,
+        "size_bad": 2295
+      },
+      "baseline_totals": {
+        "cells": 861361,
+        "measured": 861361,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3752,
+        "size_bad": 2295
+      },
+      "baseline247": {
+        "native_seconds": 471.436204758,
+        "work": {
+          "accepted": 113955,
+          "upper_calls": 35595,
+          "upper_work": 177160157,
+          "traversal_work": 163043655,
+          "scope_hits": 2572,
+          "scope_misses": 26713
+        }
+      },
+      "current251": {
+        "native_seconds": 462.158359641,
+        "work": {
+          "accepted": 113955,
+          "upper_calls": 35595,
+          "upper_work": 175375724,
+          "traversal_work": 161259222,
+          "scope_hits": 2572,
+          "scope_misses": 26713
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 30047,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 861361,
+        "measured": 861361,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3752,
+        "size_bad": 2295
+      },
+      "baseline_totals": {
+        "cells": 861361,
+        "measured": 861361,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3752,
+        "size_bad": 2295
+      },
+      "baseline247": {
+        "native_seconds": 471.440595796,
+        "work": {
+          "accepted": 113955,
+          "upper_calls": 35595,
+          "upper_work": 177160157,
+          "traversal_work": 163043655,
+          "scope_hits": 2572,
+          "scope_misses": 26713
+        }
+      },
+      "current251": {
+        "native_seconds": 462.162714631,
+        "work": {
+          "accepted": 113955,
+          "upper_calls": 35595,
+          "upper_work": 175375724,
+          "traversal_work": 161259222,
+          "scope_hits": 2572,
+          "scope_misses": 26713
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 30195,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 861920,
+        "measured": 861920,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3752,
+        "size_bad": 2011
+      },
+      "baseline_totals": {
+        "cells": 861920,
+        "measured": 861920,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3752,
+        "size_bad": 2011
+      },
+      "baseline247": {
+        "native_seconds": 472.026778603,
+        "work": {
+          "accepted": 114057,
+          "upper_calls": 35595,
+          "upper_work": 177160157,
+          "traversal_work": 163043655,
+          "scope_hits": 2572,
+          "scope_misses": 26713
+        }
+      },
+      "current251": {
+        "native_seconds": 462.70864628,
+        "work": {
+          "accepted": 114057,
+          "upper_calls": 35595,
+          "upper_work": 175375724,
+          "traversal_work": 161259222,
+          "scope_hits": 2572,
+          "scope_misses": 26713
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 30326,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 863530,
+        "measured": 863530,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3731,
+        "size_bad": 1823
+      },
+      "baseline_totals": {
+        "cells": 863530,
+        "measured": 863530,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3731,
+        "size_bad": 1823
+      },
+      "baseline247": {
+        "native_seconds": 490.087759588,
+        "work": {
+          "accepted": 114706,
+          "upper_calls": 37248,
+          "upper_work": 188425095,
+          "traversal_work": 173865901,
+          "scope_hits": 2630,
+          "scope_misses": 28304
+        }
+      },
+      "current251": {
+        "native_seconds": 480.590536344,
+        "work": {
+          "accepted": 114706,
+          "upper_calls": 37248,
+          "upper_work": 186466986,
+          "traversal_work": 171907792,
+          "scope_hits": 2630,
+          "scope_misses": 28304
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 30326,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 863530,
+        "measured": 863530,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3731,
+        "size_bad": 1823
+      },
+      "baseline_totals": {
+        "cells": 863530,
+        "measured": 863530,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3731,
+        "size_bad": 1823
+      },
+      "baseline247": {
+        "native_seconds": 490.092050324,
+        "work": {
+          "accepted": 114706,
+          "upper_calls": 37248,
+          "upper_work": 188425095,
+          "traversal_work": 173865901,
+          "scope_hits": 2630,
+          "scope_misses": 28304
+        }
+      },
+      "current251": {
+        "native_seconds": 480.596433511,
+        "work": {
+          "accepted": 114706,
+          "upper_calls": 37248,
+          "upper_work": 186466986,
+          "traversal_work": 171907792,
+          "scope_hits": 2630,
+          "scope_misses": 28304
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 30429,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 864056,
+        "measured": 864056,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3731,
+        "size_bad": 1532
+      },
+      "baseline_totals": {
+        "cells": 864056,
+        "measured": 864056,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3731,
+        "size_bad": 1532
+      },
+      "baseline247": {
+        "native_seconds": 490.710580725,
+        "work": {
+          "accepted": 114804,
+          "upper_calls": 37250,
+          "upper_work": 188425095,
+          "traversal_work": 173865901,
+          "scope_hits": 2630,
+          "scope_misses": 28304
+        }
+      },
+      "current251": {
+        "native_seconds": 481.263804055,
+        "work": {
+          "accepted": 114804,
+          "upper_calls": 37250,
+          "upper_work": 186466986,
+          "traversal_work": 171907792,
+          "scope_hits": 2630,
+          "scope_misses": 28304
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 30545,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 865602,
+        "measured": 865602,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3694,
+        "size_bad": 1325
+      },
+      "baseline_totals": {
+        "cells": 865602,
+        "measured": 865602,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3694,
+        "size_bad": 1325
+      },
+      "baseline247": {
+        "native_seconds": 508.462340342,
+        "work": {
+          "accepted": 115440,
+          "upper_calls": 38920,
+          "upper_work": 199554932,
+          "traversal_work": 184550561,
+          "scope_hits": 2683,
+          "scope_misses": 29920
+        }
+      },
+      "current251": {
+        "native_seconds": 498.652988539,
+        "work": {
+          "accepted": 115440,
+          "upper_calls": 38920,
+          "upper_work": 197441369,
+          "traversal_work": 182436998,
+          "scope_hits": 2683,
+          "scope_misses": 29920
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 30545,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 865602,
+        "measured": 865602,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3694,
+        "size_bad": 1325
+      },
+      "baseline_totals": {
+        "cells": 865602,
+        "measured": 865602,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3694,
+        "size_bad": 1325
+      },
+      "baseline247": {
+        "native_seconds": 508.466750628,
+        "work": {
+          "accepted": 115440,
+          "upper_calls": 38920,
+          "upper_work": 199554932,
+          "traversal_work": 184550561,
+          "scope_hits": 2683,
+          "scope_misses": 29920
+        }
+      },
+      "current251": {
+        "native_seconds": 498.657531646,
+        "work": {
+          "accepted": 115440,
+          "upper_calls": 38920,
+          "upper_work": 197441369,
+          "traversal_work": 182436998,
+          "scope_hits": 2683,
+          "scope_misses": 29920
+        }
+      }
+    },
+    {
+      "stage": "split_interior_exit",
+      "round": 30602,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 865826,
+        "measured": 865826,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3694,
+        "size_bad": 1208
+      },
+      "baseline_totals": {
+        "cells": 865826,
+        "measured": 865826,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3694,
+        "size_bad": 1208
+      },
+      "baseline247": {
+        "native_seconds": 508.870023206,
+        "work": {
+          "accepted": 115485,
+          "upper_calls": 38924,
+          "upper_work": 199555556,
+          "traversal_work": 184550757,
+          "scope_hits": 2683,
+          "scope_misses": 29921
+        }
+      },
+      "current251": {
+        "native_seconds": 499.040250043,
+        "work": {
+          "accepted": 115485,
+          "upper_calls": 38924,
+          "upper_work": 197441993,
+          "traversal_work": 182437194,
+          "scope_hits": 2683,
+          "scope_misses": 29921
+        }
+      }
+    },
+    {
+      "stage": "split_surface_resume",
+      "round": 30602,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 865826,
+        "measured": 865826,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3694,
+        "size_bad": 1208
+      },
+      "baseline_totals": {
+        "cells": 865826,
+        "measured": 865826,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3694,
+        "size_bad": 1208
+      },
+      "baseline247": {
+        "native_seconds": 508.875202979,
+        "work": {
+          "accepted": 115485,
+          "upper_calls": 38924,
+          "upper_work": 199555556,
+          "traversal_work": 184550757,
+          "scope_hits": 2683,
+          "scope_misses": 29921
+        }
+      },
+      "current251": {
+        "native_seconds": 499.044448446,
+        "work": {
+          "accepted": 115485,
+          "upper_calls": 38924,
+          "upper_work": 197441993,
+          "traversal_work": 182437194,
+          "scope_hits": 2683,
+          "scope_misses": 29921
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 30603,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 865830,
+        "measured": 865830,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3694,
+        "size_bad": 1211
+      },
+      "baseline_totals": {
+        "cells": 865830,
+        "measured": 865830,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3694,
+        "size_bad": 1211
+      },
+      "baseline247": {
+        "native_seconds": 509.171645252,
+        "work": {
+          "accepted": 115486,
+          "upper_calls": 38924,
+          "upper_work": 199555556,
+          "traversal_work": 184550757,
+          "scope_hits": 2683,
+          "scope_misses": 29921
+        }
+      },
+      "current251": {
+        "native_seconds": 499.314242285,
+        "work": {
+          "accepted": 115486,
+          "upper_calls": 38924,
+          "upper_work": 197441993,
+          "traversal_work": 182437194,
+          "scope_hits": 2683,
+          "scope_misses": 29921
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 30603,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 865830,
+        "measured": 865830,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3694,
+        "size_bad": 1211
+      },
+      "baseline_totals": {
+        "cells": 865830,
+        "measured": 865830,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3694,
+        "size_bad": 1211
+      },
+      "baseline247": {
+        "native_seconds": 509.175848873,
+        "work": {
+          "accepted": 115486,
+          "upper_calls": 38924,
+          "upper_work": 199555556,
+          "traversal_work": 184550757,
+          "scope_hits": 2683,
+          "scope_misses": 29921
+        }
+      },
+      "current251": {
+        "native_seconds": 499.318451868,
+        "work": {
+          "accepted": 115486,
+          "upper_calls": 38924,
+          "upper_work": 197441993,
+          "traversal_work": 182437194,
+          "scope_hits": 2683,
+          "scope_misses": 29921
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 30603,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 865830,
+        "measured": 865830,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3694,
+        "size_bad": 1211
+      },
+      "baseline_totals": {
+        "cells": 865830,
+        "measured": 865830,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3694,
+        "size_bad": 1211
+      },
+      "baseline247": {
+        "native_seconds": 509.49776652,
+        "work": {
+          "accepted": 115486,
+          "upper_calls": 38924,
+          "upper_work": 199555556,
+          "traversal_work": 184550757,
+          "scope_hits": 2683,
+          "scope_misses": 29921
+        }
+      },
+      "current251": {
+        "native_seconds": 499.622439724,
+        "work": {
+          "accepted": 115486,
+          "upper_calls": 38924,
+          "upper_work": 197441993,
+          "traversal_work": 182437194,
+          "scope_hits": 2683,
+          "scope_misses": 29921
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 30721,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 867343,
+        "measured": 867343,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3592,
+        "size_bad": 1034
+      },
+      "baseline_totals": {
+        "cells": 867343,
+        "measured": 867343,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3592,
+        "size_bad": 1034
+      },
+      "baseline247": {
+        "native_seconds": 528.981935628,
+        "work": {
+          "accepted": 116118,
+          "upper_calls": 40554,
+          "upper_work": 211413264,
+          "traversal_work": 196001828,
+          "scope_hits": 2736,
+          "scope_misses": 31498
+        }
+      },
+      "current251": {
+        "native_seconds": 518.406393198,
+        "work": {
+          "accepted": 116118,
+          "upper_calls": 40554,
+          "upper_work": 209106384,
+          "traversal_work": 193694948,
+          "scope_hits": 2736,
+          "scope_misses": 31498
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 30721,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 867343,
+        "measured": 867343,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3592,
+        "size_bad": 1034
+      },
+      "baseline_totals": {
+        "cells": 867343,
+        "measured": 867343,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3592,
+        "size_bad": 1034
+      },
+      "baseline247": {
+        "native_seconds": 528.986270517,
+        "work": {
+          "accepted": 116118,
+          "upper_calls": 40554,
+          "upper_work": 211413264,
+          "traversal_work": 196001828,
+          "scope_hits": 2736,
+          "scope_misses": 31498
+        }
+      },
+      "current251": {
+        "native_seconds": 518.410684538,
+        "work": {
+          "accepted": 116118,
+          "upper_calls": 40554,
+          "upper_work": 209106384,
+          "traversal_work": 193694948,
+          "scope_hits": 2736,
+          "scope_misses": 31498
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 30759,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 867547,
+        "measured": 867547,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3592,
+        "size_bad": 888
+      },
+      "baseline_totals": {
+        "cells": 867547,
+        "measured": 867547,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3592,
+        "size_bad": 888
+      },
+      "baseline247": {
+        "native_seconds": 529.568592926,
+        "work": {
+          "accepted": 116155,
+          "upper_calls": 40556,
+          "upper_work": 211413264,
+          "traversal_work": 196001828,
+          "scope_hits": 2736,
+          "scope_misses": 31498
+        }
+      },
+      "current251": {
+        "native_seconds": 519.056119882,
+        "work": {
+          "accepted": 116155,
+          "upper_calls": 40556,
+          "upper_work": 209106384,
+          "traversal_work": 193694948,
+          "scope_hits": 2736,
+          "scope_misses": 31498
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 30874,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 868997,
+        "measured": 868997,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3457,
+        "size_bad": 719
+      },
+      "baseline_totals": {
+        "cells": 868997,
+        "measured": 868997,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3457,
+        "size_bad": 719
+      },
+      "baseline247": {
+        "native_seconds": 543.789633746,
+        "work": {
+          "accepted": 116760,
+          "upper_calls": 42160,
+          "upper_work": 220587187,
+          "traversal_work": 204817728,
+          "scope_hits": 2777,
+          "scope_misses": 33059
+        }
+      },
+      "current251": {
+        "native_seconds": 533.227353426,
+        "work": {
+          "accepted": 116760,
+          "upper_calls": 42160,
+          "upper_work": 218157252,
+          "traversal_work": 202387793,
+          "scope_hits": 2777,
+          "scope_misses": 33059
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 30874,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 868997,
+        "measured": 868997,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3457,
+        "size_bad": 719
+      },
+      "baseline_totals": {
+        "cells": 868997,
+        "measured": 868997,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3457,
+        "size_bad": 719
+      },
+      "baseline247": {
+        "native_seconds": 543.793847632,
+        "work": {
+          "accepted": 116760,
+          "upper_calls": 42160,
+          "upper_work": 220587187,
+          "traversal_work": 204817728,
+          "scope_hits": 2777,
+          "scope_misses": 33059
+        }
+      },
+      "current251": {
+        "native_seconds": 533.232728193,
+        "work": {
+          "accepted": 116760,
+          "upper_calls": 42160,
+          "upper_work": 218157252,
+          "traversal_work": 202387793,
+          "scope_hits": 2777,
+          "scope_misses": 33059
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 30892,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 869093,
+        "measured": 869093,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3457,
+        "size_bad": 673
+      },
+      "baseline_totals": {
+        "cells": 869093,
+        "measured": 869093,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3457,
+        "size_bad": 673
+      },
+      "baseline247": {
+        "native_seconds": 544.130971558,
+        "work": {
+          "accepted": 116777,
+          "upper_calls": 42161,
+          "upper_work": 220587187,
+          "traversal_work": 204817728,
+          "scope_hits": 2777,
+          "scope_misses": 33059
+        }
+      },
+      "current251": {
+        "native_seconds": 533.593315663,
+        "work": {
+          "accepted": 116777,
+          "upper_calls": 42161,
+          "upper_work": 218157252,
+          "traversal_work": 202387793,
+          "scope_hits": 2777,
+          "scope_misses": 33059
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 31006,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 870446,
+        "measured": 870446,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3314,
+        "size_bad": 514
+      },
+      "baseline_totals": {
+        "cells": 870446,
+        "measured": 870446,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3314,
+        "size_bad": 514
+      },
+      "baseline247": {
+        "native_seconds": 558.885065961,
+        "work": {
+          "accepted": 117345,
+          "upper_calls": 43667,
+          "upper_work": 229546155,
+          "traversal_work": 213439941,
+          "scope_hits": 2830,
+          "scope_misses": 34511
+        }
+      },
+      "current251": {
+        "native_seconds": 548.150044815,
+        "work": {
+          "accepted": 117345,
+          "upper_calls": 43667,
+          "upper_work": 226981219,
+          "traversal_work": 210875005,
+          "scope_hits": 2830,
+          "scope_misses": 34511
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 31006,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 870446,
+        "measured": 870446,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3314,
+        "size_bad": 514
+      },
+      "baseline_totals": {
+        "cells": 870446,
+        "measured": 870446,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3314,
+        "size_bad": 514
+      },
+      "baseline247": {
+        "native_seconds": 558.889624217,
+        "work": {
+          "accepted": 117345,
+          "upper_calls": 43667,
+          "upper_work": 229546155,
+          "traversal_work": 213439941,
+          "scope_hits": 2830,
+          "scope_misses": 34511
+        }
+      },
+      "current251": {
+        "native_seconds": 548.154251593,
+        "work": {
+          "accepted": 117345,
+          "upper_calls": 43667,
+          "upper_work": 226981219,
+          "traversal_work": 210875005,
+          "scope_hits": 2830,
+          "scope_misses": 34511
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 31017,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 870530,
+        "measured": 870530,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3314,
+        "size_bad": 448
+      },
+      "baseline_totals": {
+        "cells": 870530,
+        "measured": 870530,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3314,
+        "size_bad": 448
+      },
+      "baseline247": {
+        "native_seconds": 559.251752553,
+        "work": {
+          "accepted": 117361,
+          "upper_calls": 43667,
+          "upper_work": 229546155,
+          "traversal_work": 213439941,
+          "scope_hits": 2830,
+          "scope_misses": 34511
+        }
+      },
+      "current251": {
+        "native_seconds": 548.483003036,
+        "work": {
+          "accepted": 117361,
+          "upper_calls": 43667,
+          "upper_work": 226981219,
+          "traversal_work": 210875005,
+          "scope_hits": 2830,
+          "scope_misses": 34511
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 31124,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 871765,
+        "measured": 871765,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3115,
+        "size_bad": 295
+      },
+      "baseline_totals": {
+        "cells": 871765,
+        "measured": 871765,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3115,
+        "size_bad": 295
+      },
+      "baseline247": {
+        "native_seconds": 572.186834205,
+        "work": {
+          "accepted": 117885,
+          "upper_calls": 45024,
+          "upper_work": 237393154,
+          "traversal_work": 221006168,
+          "scope_hits": 2882,
+          "scope_misses": 35815
+        }
+      },
+      "current251": {
+        "native_seconds": 560.74819039,
+        "work": {
+          "accepted": 117885,
+          "upper_calls": 45024,
+          "upper_work": 234712645,
+          "traversal_work": 218325659,
+          "scope_hits": 2882,
+          "scope_misses": 35815
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 31124,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 871765,
+        "measured": 871765,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3115,
+        "size_bad": 295
+      },
+      "baseline_totals": {
+        "cells": 871765,
+        "measured": 871765,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3115,
+        "size_bad": 295
+      },
+      "baseline247": {
+        "native_seconds": 572.191169337,
+        "work": {
+          "accepted": 117885,
+          "upper_calls": 45024,
+          "upper_work": 237393154,
+          "traversal_work": 221006168,
+          "scope_hits": 2882,
+          "scope_misses": 35815
+        }
+      },
+      "current251": {
+        "native_seconds": 560.7523108,
+        "work": {
+          "accepted": 117885,
+          "upper_calls": 45024,
+          "upper_work": 234712645,
+          "traversal_work": 218325659,
+          "scope_hits": 2882,
+          "scope_misses": 35815
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 31128,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 871788,
+        "measured": 871788,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3115,
+        "size_bad": 276
+      },
+      "baseline_totals": {
+        "cells": 871788,
+        "measured": 871788,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3115,
+        "size_bad": 276
+      },
+      "baseline247": {
+        "native_seconds": 572.541010569,
+        "work": {
+          "accepted": 117889,
+          "upper_calls": 45024,
+          "upper_work": 237393154,
+          "traversal_work": 221006168,
+          "scope_hits": 2882,
+          "scope_misses": 35815
+        }
+      },
+      "current251": {
+        "native_seconds": 561.065314751,
+        "work": {
+          "accepted": 117889,
+          "upper_calls": 45024,
+          "upper_work": 234712645,
+          "traversal_work": 218325659,
+          "scope_hits": 2882,
+          "scope_misses": 35815
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 31239,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 872942,
+        "measured": 872942,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2910,
+        "size_bad": 169
+      },
+      "baseline_totals": {
+        "cells": 872942,
+        "measured": 872942,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2910,
+        "size_bad": 169
+      },
+      "baseline247": {
+        "native_seconds": 584.667153279,
+        "work": {
+          "accepted": 118383,
+          "upper_calls": 46320,
+          "upper_work": 244837422,
+          "traversal_work": 228192611,
+          "scope_hits": 2930,
+          "scope_misses": 37062
+        }
+      },
+      "current251": {
+        "native_seconds": 573.087609246,
+        "work": {
+          "accepted": 118383,
+          "upper_calls": 46320,
+          "upper_work": 242020379,
+          "traversal_work": 225375568,
+          "scope_hits": 2930,
+          "scope_misses": 37062
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 31239,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 872942,
+        "measured": 872942,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2910,
+        "size_bad": 169
+      },
+      "baseline_totals": {
+        "cells": 872942,
+        "measured": 872942,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2910,
+        "size_bad": 169
+      },
+      "baseline247": {
+        "native_seconds": 584.671516762,
+        "work": {
+          "accepted": 118383,
+          "upper_calls": 46320,
+          "upper_work": 244837422,
+          "traversal_work": 228192611,
+          "scope_hits": 2930,
+          "scope_misses": 37062
+        }
+      },
+      "current251": {
+        "native_seconds": 573.091946974,
+        "work": {
+          "accepted": 118383,
+          "upper_calls": 46320,
+          "upper_work": 242020379,
+          "traversal_work": 225375568,
+          "scope_hits": 2930,
+          "scope_misses": 37062
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 31241,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 872947,
+        "measured": 872947,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2910,
+        "size_bad": 164
+      },
+      "baseline_totals": {
+        "cells": 872947,
+        "measured": 872947,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2910,
+        "size_bad": 164
+      },
+      "baseline247": {
+        "native_seconds": 584.978642482,
+        "work": {
+          "accepted": 118384,
+          "upper_calls": 46320,
+          "upper_work": 244837422,
+          "traversal_work": 228192611,
+          "scope_hits": 2930,
+          "scope_misses": 37062
+        }
+      },
+      "current251": {
+        "native_seconds": 573.430661012,
+        "work": {
+          "accepted": 118384,
+          "upper_calls": 46320,
+          "upper_work": 242020379,
+          "traversal_work": 225375568,
+          "scope_hits": 2930,
+          "scope_misses": 37062
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 31340,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 873962,
+        "measured": 873962,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2677,
+        "size_bad": 109
+      },
+      "baseline_totals": {
+        "cells": 873962,
+        "measured": 873962,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2677,
+        "size_bad": 109
+      },
+      "baseline247": {
+        "native_seconds": 595.035483134,
+        "work": {
+          "accepted": 118826,
+          "upper_calls": 47511,
+          "upper_work": 251057228,
+          "traversal_work": 234183932,
+          "scope_hits": 2969,
+          "scope_misses": 38210
+        }
+      },
+      "current251": {
+        "native_seconds": 583.64393029,
+        "work": {
+          "accepted": 118826,
+          "upper_calls": 47511,
+          "upper_work": 248145392,
+          "traversal_work": 231272096,
+          "scope_hits": 2969,
+          "scope_misses": 38210
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 31340,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 873962,
+        "measured": 873962,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2677,
+        "size_bad": 109
+      },
+      "baseline_totals": {
+        "cells": 873962,
+        "measured": 873962,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2677,
+        "size_bad": 109
+      },
+      "baseline247": {
+        "native_seconds": 595.039651522,
+        "work": {
+          "accepted": 118826,
+          "upper_calls": 47511,
+          "upper_work": 251057228,
+          "traversal_work": 234183932,
+          "scope_hits": 2969,
+          "scope_misses": 38210
+        }
+      },
+      "current251": {
+        "native_seconds": 583.648366465,
+        "work": {
+          "accepted": 118826,
+          "upper_calls": 47511,
+          "upper_work": 248145392,
+          "traversal_work": 231272096,
+          "scope_hits": 2969,
+          "scope_misses": 38210
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 31342,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 873968,
+        "measured": 873968,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2677,
+        "size_bad": 105
+      },
+      "baseline_totals": {
+        "cells": 873968,
+        "measured": 873968,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2677,
+        "size_bad": 105
+      },
+      "baseline247": {
+        "native_seconds": 595.349411816,
+        "work": {
+          "accepted": 118827,
+          "upper_calls": 47512,
+          "upper_work": 251057228,
+          "traversal_work": 234183932,
+          "scope_hits": 2969,
+          "scope_misses": 38210
+        }
+      },
+      "current251": {
+        "native_seconds": 583.97964485,
+        "work": {
+          "accepted": 118827,
+          "upper_calls": 47512,
+          "upper_work": 248145392,
+          "traversal_work": 231272096,
+          "scope_hits": 2969,
+          "scope_misses": 38210
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 31445,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 874936,
+        "measured": 874936,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2423,
+        "size_bad": 66
+      },
+      "baseline_totals": {
+        "cells": 874936,
+        "measured": 874936,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2423,
+        "size_bad": 66
+      },
+      "baseline247": {
+        "native_seconds": 605.858460554,
+        "work": {
+          "accepted": 119255,
+          "upper_calls": 48580,
+          "upper_work": 257050117,
+          "traversal_work": 239980296,
+          "scope_hits": 3002,
+          "scope_misses": 39244
+        }
+      },
+      "current251": {
+        "native_seconds": 594.377697833,
+        "work": {
+          "accepted": 119255,
+          "upper_calls": 48580,
+          "upper_work": 254014541,
+          "traversal_work": 236944720,
+          "scope_hits": 3002,
+          "scope_misses": 39244
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 31445,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 874936,
+        "measured": 874936,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2423,
+        "size_bad": 66
+      },
+      "baseline_totals": {
+        "cells": 874936,
+        "measured": 874936,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2423,
+        "size_bad": 66
+      },
+      "baseline247": {
+        "native_seconds": 605.862718269,
+        "work": {
+          "accepted": 119255,
+          "upper_calls": 48580,
+          "upper_work": 257050117,
+          "traversal_work": 239980296,
+          "scope_hits": 3002,
+          "scope_misses": 39244
+        }
+      },
+      "current251": {
+        "native_seconds": 594.382853912,
+        "work": {
+          "accepted": 119255,
+          "upper_calls": 48580,
+          "upper_work": 254014541,
+          "traversal_work": 236944720,
+          "scope_hits": 3002,
+          "scope_misses": 39244
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 31446,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 874936,
+        "measured": 874936,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2423,
+        "size_bad": 66
+      },
+      "baseline_totals": {
+        "cells": 874936,
+        "measured": 874936,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2423,
+        "size_bad": 66
+      },
+      "baseline247": {
+        "native_seconds": 606.19022055,
+        "work": {
+          "accepted": 119255,
+          "upper_calls": 48580,
+          "upper_work": 257050117,
+          "traversal_work": 239980296,
+          "scope_hits": 3002,
+          "scope_misses": 39244
+        }
+      },
+      "current251": {
+        "native_seconds": 594.711201442,
+        "work": {
+          "accepted": 119255,
+          "upper_calls": 48580,
+          "upper_work": 254014541,
+          "traversal_work": 236944720,
+          "scope_hits": 3002,
+          "scope_misses": 39244
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 31541,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 875811,
+        "measured": 875811,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2183,
+        "size_bad": 42
+      },
+      "baseline_totals": {
+        "cells": 875811,
+        "measured": 875811,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2183,
+        "size_bad": 42
+      },
+      "baseline247": {
+        "native_seconds": 614.9854992,
+        "work": {
+          "accepted": 119639,
+          "upper_calls": 49510,
+          "upper_work": 261773415,
+          "traversal_work": 244546921,
+          "scope_hits": 3061,
+          "scope_misses": 40115
+        }
+      },
+      "current251": {
+        "native_seconds": 603.135738924,
+        "work": {
+          "accepted": 119639,
+          "upper_calls": 49510,
+          "upper_work": 258651611,
+          "traversal_work": 241425117,
+          "scope_hits": 3061,
+          "scope_misses": 40115
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 31541,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 875811,
+        "measured": 875811,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2183,
+        "size_bad": 42
+      },
+      "baseline_totals": {
+        "cells": 875811,
+        "measured": 875811,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2183,
+        "size_bad": 42
+      },
+      "baseline247": {
+        "native_seconds": 614.989862479,
+        "work": {
+          "accepted": 119639,
+          "upper_calls": 49510,
+          "upper_work": 261773415,
+          "traversal_work": 244546921,
+          "scope_hits": 3061,
+          "scope_misses": 40115
+        }
+      },
+      "current251": {
+        "native_seconds": 603.139910212,
+        "work": {
+          "accepted": 119639,
+          "upper_calls": 49510,
+          "upper_work": 258651611,
+          "traversal_work": 241425117,
+          "scope_hits": 3061,
+          "scope_misses": 40115
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 31542,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 875818,
+        "measured": 875818,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2183,
+        "size_bad": 35
+      },
+      "baseline_totals": {
+        "cells": 875818,
+        "measured": 875818,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2183,
+        "size_bad": 35
+      },
+      "baseline247": {
+        "native_seconds": 615.330635191,
+        "work": {
+          "accepted": 119640,
+          "upper_calls": 49512,
+          "upper_work": 261773415,
+          "traversal_work": 244546921,
+          "scope_hits": 3061,
+          "scope_misses": 40115
+        }
+      },
+      "current251": {
+        "native_seconds": 603.457631625,
+        "work": {
+          "accepted": 119640,
+          "upper_calls": 49512,
+          "upper_work": 258651611,
+          "traversal_work": 241425117,
+          "scope_hits": 3061,
+          "scope_misses": 40115
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 31634,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 876574,
+        "measured": 876574,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1964,
+        "size_bad": 14
+      },
+      "baseline_totals": {
+        "cells": 876574,
+        "measured": 876574,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1964,
+        "size_bad": 14
+      },
+      "baseline247": {
+        "native_seconds": 623.560055232,
+        "work": {
+          "accepted": 119967,
+          "upper_calls": 50288,
+          "upper_work": 265581239,
+          "traversal_work": 248229792,
+          "scope_hits": 3112,
+          "scope_misses": 40834
+        }
+      },
+      "current251": {
+        "native_seconds": 611.358313743,
+        "work": {
+          "accepted": 119967,
+          "upper_calls": 50288,
+          "upper_work": 262392919,
+          "traversal_work": 245041472,
+          "scope_hits": 3112,
+          "scope_misses": 40834
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 31634,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 876574,
+        "measured": 876574,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1964,
+        "size_bad": 14
+      },
+      "baseline_totals": {
+        "cells": 876574,
+        "measured": 876574,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1964,
+        "size_bad": 14
+      },
+      "baseline247": {
+        "native_seconds": 623.564269802,
+        "work": {
+          "accepted": 119967,
+          "upper_calls": 50288,
+          "upper_work": 265581239,
+          "traversal_work": 248229792,
+          "scope_hits": 3112,
+          "scope_misses": 40834
+        }
+      },
+      "current251": {
+        "native_seconds": 611.362460388,
+        "work": {
+          "accepted": 119967,
+          "upper_calls": 50288,
+          "upper_work": 262392919,
+          "traversal_work": 245041472,
+          "scope_hits": 3112,
+          "scope_misses": 40834
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 31634,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 876574,
+        "measured": 876574,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1964,
+        "size_bad": 14
+      },
+      "baseline_totals": {
+        "cells": 876574,
+        "measured": 876574,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1964,
+        "size_bad": 14
+      },
+      "baseline247": {
+        "native_seconds": 623.895413117,
+        "work": {
+          "accepted": 119967,
+          "upper_calls": 50288,
+          "upper_work": 265581239,
+          "traversal_work": 248229792,
+          "scope_hits": 3112,
+          "scope_misses": 40834
+        }
+      },
+      "current251": {
+        "native_seconds": 611.677717355,
+        "work": {
+          "accepted": 119967,
+          "upper_calls": 50288,
+          "upper_work": 262392919,
+          "traversal_work": 245041472,
+          "scope_hits": 3112,
+          "scope_misses": 40834
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 31726,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 877253,
+        "measured": 877253,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1768,
+        "size_bad": 9
+      },
+      "baseline_totals": {
+        "cells": 877253,
+        "measured": 877253,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1768,
+        "size_bad": 9
+      },
+      "baseline247": {
+        "native_seconds": 631.766601709,
+        "work": {
+          "accepted": 120268,
+          "upper_calls": 50975,
+          "upper_work": 269249593,
+          "traversal_work": 251783942,
+          "scope_hits": 3166,
+          "scope_misses": 41459
+        }
+      },
+      "current251": {
+        "native_seconds": 619.467480257,
+        "work": {
+          "accepted": 120268,
+          "upper_calls": 50975,
+          "upper_work": 265994365,
+          "traversal_work": 248528714,
+          "scope_hits": 3166,
+          "scope_misses": 41459
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 31726,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 877253,
+        "measured": 877253,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1768,
+        "size_bad": 9
+      },
+      "baseline_totals": {
+        "cells": 877253,
+        "measured": 877253,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1768,
+        "size_bad": 9
+      },
+      "baseline247": {
+        "native_seconds": 631.770780696,
+        "work": {
+          "accepted": 120268,
+          "upper_calls": 50975,
+          "upper_work": 269249593,
+          "traversal_work": 251783942,
+          "scope_hits": 3166,
+          "scope_misses": 41459
+        }
+      },
+      "current251": {
+        "native_seconds": 619.471833411,
+        "work": {
+          "accepted": 120268,
+          "upper_calls": 50975,
+          "upper_work": 265994365,
+          "traversal_work": 248528714,
+          "scope_hits": 3166,
+          "scope_misses": 41459
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 31726,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 877253,
+        "measured": 877253,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1768,
+        "size_bad": 9
+      },
+      "baseline_totals": {
+        "cells": 877253,
+        "measured": 877253,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1768,
+        "size_bad": 9
+      },
+      "baseline247": {
+        "native_seconds": 632.073282445,
+        "work": {
+          "accepted": 120268,
+          "upper_calls": 50975,
+          "upper_work": 269249593,
+          "traversal_work": 251783942,
+          "scope_hits": 3166,
+          "scope_misses": 41459
+        }
+      },
+      "current251": {
+        "native_seconds": 619.817516124,
+        "work": {
+          "accepted": 120268,
+          "upper_calls": 50975,
+          "upper_work": 265994365,
+          "traversal_work": 248528714,
+          "scope_hits": 3166,
+          "scope_misses": 41459
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 31812,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 877890,
+        "measured": 877890,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1560,
+        "size_bad": 6
+      },
+      "baseline_totals": {
+        "cells": 877890,
+        "measured": 877890,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1560,
+        "size_bad": 6
+      },
+      "baseline247": {
+        "native_seconds": 637.913406186,
+        "work": {
+          "accepted": 120545,
+          "upper_calls": 51583,
+          "upper_work": 271985015,
+          "traversal_work": 254424915,
+          "scope_hits": 3221,
+          "scope_misses": 42012
+        }
+      },
+      "current251": {
+        "native_seconds": 625.749758253,
+        "work": {
+          "accepted": 120545,
+          "upper_calls": 51583,
+          "upper_work": 268679642,
+          "traversal_work": 251119542,
+          "scope_hits": 3221,
+          "scope_misses": 42012
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 31812,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 877890,
+        "measured": 877890,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1560,
+        "size_bad": 6
+      },
+      "baseline_totals": {
+        "cells": 877890,
+        "measured": 877890,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1560,
+        "size_bad": 6
+      },
+      "baseline247": {
+        "native_seconds": 637.917572524,
+        "work": {
+          "accepted": 120545,
+          "upper_calls": 51583,
+          "upper_work": 271985015,
+          "traversal_work": 254424915,
+          "scope_hits": 3221,
+          "scope_misses": 42012
+        }
+      },
+      "current251": {
+        "native_seconds": 625.754225196,
+        "work": {
+          "accepted": 120545,
+          "upper_calls": 51583,
+          "upper_work": 268679642,
+          "traversal_work": 251119542,
+          "scope_hits": 3221,
+          "scope_misses": 42012
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 31812,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 877890,
+        "measured": 877890,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1560,
+        "size_bad": 6
+      },
+      "baseline_totals": {
+        "cells": 877890,
+        "measured": 877890,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1560,
+        "size_bad": 6
+      },
+      "baseline247": {
+        "native_seconds": 638.231242733,
+        "work": {
+          "accepted": 120545,
+          "upper_calls": 51583,
+          "upper_work": 271985015,
+          "traversal_work": 254424915,
+          "scope_hits": 3221,
+          "scope_misses": 42012
+        }
+      },
+      "current251": {
+        "native_seconds": 626.104304039,
+        "work": {
+          "accepted": 120545,
+          "upper_calls": 51583,
+          "upper_work": 268679642,
+          "traversal_work": 251119542,
+          "scope_hits": 3221,
+          "scope_misses": 42012
+        }
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 31898,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 878443,
+        "measured": 878443,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1381,
+        "size_bad": 0
+      },
+      "baseline_totals": {
+        "cells": 878443,
+        "measured": 878443,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1381,
+        "size_bad": 0
+      },
+      "baseline247": {
+        "native_seconds": 644.441567356,
+        "work": {
+          "accepted": 120785,
+          "upper_calls": 52092,
+          "upper_work": 274601233,
+          "traversal_work": 256967738,
+          "scope_hits": 3279,
+          "scope_misses": 42454
+        }
+      },
+      "current251": {
+        "native_seconds": 632.448980015,
+        "work": {
+          "accepted": 120785,
+          "upper_calls": 52092,
+          "upper_work": 271243211,
+          "traversal_work": 253609716,
+          "scope_hits": 3279,
+          "scope_misses": 42454
+        }
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 31898,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 878443,
+        "measured": 878443,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1381,
+        "size_bad": 0
+      },
+      "baseline_totals": {
+        "cells": 878443,
+        "measured": 878443,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1381,
+        "size_bad": 0
+      },
+      "baseline247": {
+        "native_seconds": 644.445714598,
+        "work": {
+          "accepted": 120785,
+          "upper_calls": 52092,
+          "upper_work": 274601233,
+          "traversal_work": 256967738,
+          "scope_hits": 3279,
+          "scope_misses": 42454
+        }
+      },
+      "current251": {
+        "native_seconds": 632.453251692,
+        "work": {
+          "accepted": 120785,
+          "upper_calls": 52092,
+          "upper_work": 271243211,
+          "traversal_work": 253609716,
+          "scope_hits": 3279,
+          "scope_misses": 42454
+        }
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 31898,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 878443,
+        "measured": 878443,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1381,
+        "size_bad": 0
+      },
+      "baseline_totals": {
+        "cells": 878443,
+        "measured": 878443,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1381,
+        "size_bad": 0
+      },
+      "baseline247": {
+        "native_seconds": 644.748318069,
+        "work": {
+          "accepted": 120785,
+          "upper_calls": 52092,
+          "upper_work": 274601233,
+          "traversal_work": 256967738,
+          "scope_hits": 3279,
+          "scope_misses": 42454
+        }
+      },
+      "current251": {
+        "native_seconds": 632.787309688,
+        "work": {
+          "accepted": 120785,
+          "upper_calls": 52092,
+          "upper_work": 271243211,
+          "traversal_work": 253609716,
+          "scope_hits": 3279,
+          "scope_misses": 42454
+        }
+      }
+    },
+    {
+      "stage": "construction_entry",
+      "round": 31898,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 878443,
+        "measured": 878443,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1381,
+        "size_bad": 0
+      },
+      "baseline_totals": {
+        "cells": 878443,
+        "measured": 878443,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1381,
+        "size_bad": 0
+      },
+      "baseline247": {
+        "native_seconds": 644.752313794,
+        "work": {
+          "accepted": 120785,
+          "upper_calls": 52092,
+          "upper_work": 274601233,
+          "traversal_work": 256967738,
+          "scope_hits": 3279,
+          "scope_misses": 42454
+        }
+      },
+      "current251": {
+        "native_seconds": 632.791959624,
+        "work": {
+          "accepted": 120785,
+          "upper_calls": 52092,
+          "upper_work": 271243211,
+          "traversal_work": 253609716,
+          "scope_hits": 3279,
+          "scope_misses": 42454
+        }
+      }
+    },
+    {
+      "stage": "ownership_staged",
+      "round": 31898,
+      "phase": "improvement",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 878443,
+        "measured": 878443,
+        "q_measured": 878443,
+        "j_measured": 878443,
+        "q_bad": 106454,
+        "j_bad": 106204,
+        "geometry_bad": 1381,
+        "size_bad": 0
+      },
+      "baseline_totals": {
+        "cells": 878443,
+        "measured": 878443,
+        "q_measured": 878443,
+        "j_measured": 878443,
+        "q_bad": 106454,
+        "j_bad": 106204,
+        "geometry_bad": 1381,
+        "size_bad": 0
+      },
+      "baseline247": {
+        "native_seconds": 688.0706393,
+        "work": {
+          "accepted": 120785,
+          "upper_calls": 52092,
+          "upper_work": 274601233,
+          "traversal_work": 256967738,
+          "scope_hits": 3279,
+          "scope_misses": 42454
+        }
+      },
+      "current251": {
+        "native_seconds": 675.98142969,
+        "work": {
+          "accepted": 120785,
+          "upper_calls": 52092,
+          "upper_work": 271243211,
+          "traversal_work": 253609716,
+          "scope_hits": 3279,
+          "scope_misses": 42454
+        }
+      }
+    },
+    {
+      "stage": "ownership_committed",
+      "round": 31898,
+      "phase": "improvement",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 878443,
+        "measured": 878443,
+        "q_measured": 878443,
+        "j_measured": 878443,
+        "q_bad": 106454,
+        "j_bad": 106204,
+        "geometry_bad": 1381,
+        "size_bad": 0
+      },
+      "baseline_totals": {
+        "cells": 878443,
+        "measured": 878443,
+        "q_measured": 878443,
+        "j_measured": 878443,
+        "q_bad": 106454,
+        "j_bad": 106204,
+        "geometry_bad": 1381,
+        "size_bad": 0
+      },
+      "baseline247": {
+        "native_seconds": 688.166632766,
+        "work": {
+          "accepted": 120785,
+          "upper_calls": 52092,
+          "upper_work": 274601233,
+          "traversal_work": 256967738,
+          "scope_hits": 3279,
+          "scope_misses": 42454
+        }
+      },
+      "current251": {
+        "native_seconds": 676.087223109,
+        "work": {
+          "accepted": 120785,
+          "upper_calls": 52092,
+          "upper_work": 271243211,
+          "traversal_work": 253609716,
+          "scope_hits": 3279,
+          "scope_misses": 42454
+        }
+      }
+    },
+    {
+      "stage": "quality_entry",
+      "round": 31898,
+      "phase": "improvement",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 878443,
+        "measured": 878443,
+        "q_measured": 878443,
+        "j_measured": 878443,
+        "q_bad": 106454,
+        "j_bad": 106204,
+        "geometry_bad": 1381,
+        "size_bad": 0
+      },
+      "baseline_totals": {
+        "cells": 878443,
+        "measured": 878443,
+        "q_measured": 878443,
+        "j_measured": 878443,
+        "q_bad": 106454,
+        "j_bad": 106204,
+        "geometry_bad": 1381,
+        "size_bad": 0
+      },
+      "baseline247": {
+        "native_seconds": 689.582598767,
+        "work": {
+          "accepted": 120785,
+          "upper_calls": 52092,
+          "upper_work": 274601233,
+          "traversal_work": 256967738,
+          "scope_hits": 3279,
+          "scope_misses": 42454
+        }
+      },
+      "current251": {
+        "native_seconds": 677.653606875,
+        "work": {
+          "accepted": 120785,
+          "upper_calls": 52092,
+          "upper_work": 271243211,
+          "traversal_work": 253609716,
+          "scope_hits": 3279,
+          "scope_misses": 42454
+        }
+      }
+    },
+    {
+      "stage": "window",
+      "round": 31936,
+      "phase": "improvement",
+      "counts_equal": true,
+      "flags_equal": true,
+      "current_totals": {
+        "cells": 881845,
+        "measured": 881845,
+        "q_measured": 881845,
+        "j_measured": 881845,
+        "q_bad": 103678,
+        "j_bad": 103513,
+        "geometry_bad": 1369,
+        "size_bad": 0
+      },
+      "baseline_totals": {
+        "cells": 881845,
+        "measured": 881845,
+        "q_measured": 881845,
+        "j_measured": 881845,
+        "q_bad": 103678,
+        "j_bad": 103513,
+        "geometry_bad": 1369,
+        "size_bad": 0
+      },
+      "baseline247": {
+        "native_seconds": 783.192219396,
+        "work": {
+          "accepted": 122220,
+          "upper_calls": 72094,
+          "upper_work": 324329096,
+          "traversal_work": 304413853,
+          "scope_hits": 7836,
+          "scope_misses": 46530
+        }
+      },
+      "current251": {
+        "native_seconds": 769.806186394,
+        "work": {
+          "accepted": 122220,
+          "upper_calls": 72094,
+          "upper_work": 320645339,
+          "traversal_work": 300730096,
+          "scope_hits": 7836,
+          "scope_misses": 46530
+        }
+      }
     }
   ],
   "current_prefixes": {
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
-      "bytes": 38979,
-      "sha256": "0cd9387167b5340cd585c545862a970a1990957f1cd19ffda3378261a203e54a"
+      "bytes": 395514,
+      "sha256": "aa9f2e288663d999e203da52058409a99a28dc3b2b5212c7ab437aa7b8ba4e51"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
-      "bytes": 16399,
-      "sha256": "7a53ceb9664aece1883c9dcfdd1e2ebb1307e66a7db5a1046c2c66c94f8502ac"
+      "bytes": 372276,
+      "sha256": "593fde7c1c20bde7d856138088af6d1bb89ca8a62dc104f7e1fb6a24b6d2491d"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
-      "bytes": 16380,
-      "sha256": "479be96465f7cc8215f661ff1150832a2798c4accbfbf33a67a4caa6d1d8893c"
+      "bytes": 372017,
+      "sha256": "a438e0ed2ad8c636ff0d864da574cf71e95d67cb5049234557939dfbbbf2a774"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
-      "bytes": 16343,
-      "sha256": "17c879793b45c46dbbce84fca1bda2c78e0c3915aefe72d81c18cda50de1f51b"
+      "bytes": 372177,
+      "sha256": "915772539fa6bd0588cda16869a1a0721ee53ce7c95c40de07a09d2c3032d17a"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
-      "bytes": 16393,
-      "sha256": "28717188db33702f4d4b3e83daae17a5a892b7e5b60c5de50e23759782913281"
+      "bytes": 372787,
+      "sha256": "a9f31369885e43e50416d465af945e2f20547f6694f087c78da3f151be8a1431"
     },
     "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
-      "bytes": 16403,
-      "sha256": "81b5f261dcc85701b83ea1f6fbc17298c4154be7f511c3adc972c43f0990b904"
+      "bytes": 371831,
+      "sha256": "3cb5ff5824e11c57e77ed726c000dc8b6b911c72c258f8d27c3d4a369a17d167"
     }
   },
   "baseline_prefixes": {
