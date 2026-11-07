@@ -496,6 +496,10 @@ public:
     /*--- JST_WEAK_WALL_DISSIPATION (P1_WALL_DISSIPATION.md): no JST dissipation on edges with one end on a weak no-slip
      * wall, neither the fourth-order term nor the second-order one (which drives the wall-node slip), in the flux and in
      * the Jacobian below; eps4 is formed from the unchanged eps2 first. Elsewhere the factor is exactly 1. ---*/
+    /*--- The Jacobian keeps the unmasked eps2 (a positive diagonal shift of SU2's surrogate): without it the implicit
+     * operator of the wall-normal edges loses its diagonal dominance and impulsive starts at large CFL diverge (T4 from
+     * free stream, CFL 1000); the residual, which defines the scheme, has neither term on those edges. ---*/
+    const Double eps2Jac = eps2;
     if (weakWallDiss) {
       const Double keep = Base::weakWallFactor(iPoint, jPoint, solution);
       eps4 *= keep;
@@ -530,8 +534,8 @@ public:
     }
 
     if (implicit) {
-      const Double dissip_i = fixFactor * (eps2 + eps4 * (ni + 1)) * lambda;
-      const Double dissip_j = -fixFactor * (eps2 + eps4 * (nj + 1)) * lambda;
+      const Double dissip_i = fixFactor * (eps2Jac + eps4 * (ni + 1)) * lambda;
+      const Double dissip_j = -fixFactor * (eps2Jac + eps4 * (nj + 1)) * lambda;
       scalarDissipationJacobian(V.i, gamma, dissip_i, jac_i, Base::getTke(iPoint));
       scalarDissipationJacobian(V.j, gamma, dissip_j, jac_j, Base::getTke(jPoint));
     }
@@ -603,6 +607,7 @@ public:
 
     /*--- JST_WEAK_WALL_DISSIPATION, as for CJSTScheme: the scalar dissipation, its k part and its Jacobian factor lose
      * eps2 and eps4. ---*/
+    const Double eps2Jac = eps2;  // as CJSTScheme: the Jacobian keeps the unmasked eps2
     if (weakWallDiss) {
       const Double keep = Base::weakWallFactor(iPoint, jPoint, solution);
       eps4 *= keep;
@@ -627,7 +632,7 @@ public:
     MatrixDbl<nVar> scalarJac;
     if (implicit) {
       scalarJac = Double(0.0);
-      Double factor = fixFactor * (eps2 + 0.5 * eps4 * (ni + nj + 2));
+      Double factor = fixFactor * (eps2Jac + 0.5 * eps4 * (ni + nj + 2));
       scalarDissipationJacobian(avgV, gamma, factor, scalarJac, avgTke);
     }
 

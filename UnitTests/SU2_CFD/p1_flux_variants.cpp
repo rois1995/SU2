@@ -5344,6 +5344,7 @@ void JSTEdgeDissipation(su2double kappa2, su2double kappa4, su2double fixFactor,
   const Double sc4 = 0.25*pow(sc2, 2);
   Double eps2 = kappa2 * 0.5*(si+sj) * sc2;
   Double eps4 = fmax(0.0, kappa4-eps2) * sc4;
+  const Double eps2Jac = eps2;
   if (weakWall) {
     const Double keep = jstWallFactor(Double(wall_i), Double(wall_j));
     eps4 *= keep;
@@ -5352,8 +5353,8 @@ void JSTEdgeDissipation(su2double kappa2, su2double kappa4, su2double fixFactor,
   for (size_t iVar = 0; iVar < nVar; ++iVar) {
     flux(iVar) += (eps2*diffU(iVar) - eps4*(lapl_i(iVar)-lapl_j(iVar))) * lambda;
   }
-  dissip_i = fixFactor * (eps2 + eps4*(ni+1)) * lambda;
-  dissip_j = -fixFactor * (eps2 + eps4*(nj+1)) * lambda;
+  dissip_i = fixFactor * (eps2Jac + eps4*(ni+1)) * lambda;
+  dissip_j = -fixFactor * (eps2Jac + eps4*(nj+1)) * lambda;
 }
 
 /*--- A small graph: wall nodes 0..3 on a line, two interior layers (4..7, 8..11) of triangles. Undivided Laplacian as
@@ -5424,8 +5425,8 @@ TEST_CASE("JST weak wall: the eps4 factor is zero only on edges with one end on 
 
 TEST_CASE("JST weak wall: option off and edges off the wall are unchanged and wall-crossing edges carry no JST dissipation", "[P1Flux]") {
   /*--- The option multiplies eps2 and eps4 by exactly 1 on edges with both ends off the wall or both on it, so their
-   * flux and Jacobian factors are those of the option off, bit for bit. With one end on the wall both terms are gone:
-   * no flux increment and zero factors. ---*/
+   * flux and Jacobian factors are those of the option off, bit for bit. With one end on the wall both terms are gone
+   * from the flux, and the Jacobian factors keep only the eps2 shift +-fixFactor eps2 lambda. ---*/
   constexpr size_t nVar = 5;
   std::mt19937 gen(4242);
   std::uniform_real_distribution<double> u(-1.0, 1.0);
@@ -5457,7 +5458,8 @@ TEST_CASE("JST weak wall: option off and edges off the wall are unchanged and wa
                              lapl_j, fluxZero, zeroI, zeroJ);
     mismatches += (oneI[0] != offI[0]) + (oneJ[0] != offJ[0]);
     const su2double eps2Lam = eps2 * lambda[0];
-    mismatches += (zeroI[0] != 0.0) + (zeroJ[0] != 0.0);
+    mismatches += (fabs(zeroI[0] - fixFactor * eps2Lam) > 1e-15 * fixFactor * eps2Lam);
+    mismatches += (fabs(zeroJ[0] + fixFactor * eps2Lam) > 1e-15 * fixFactor * eps2Lam);
     for (size_t v = 0; v < nVar; ++v) {
       mismatches += (fluxOne(v)[0] != fluxOff(v)[0]);
       mismatches += (fluxZero(v)[0] != start(v)[0]);
@@ -5473,8 +5475,9 @@ TEST_CASE("JST weak wall: option off and edges off the wall are unchanged and wa
 TEST_CASE("JST weak wall: Jacobian factors equal finite differences of the edge flux on the changed edges", "[P1Flux]") {
   /*--- SU2's JST Jacobian is fixFactor (eps2 + eps4 (n+1)) lambda dUt/dU with eps2, eps4 and lambda frozen. In Ut it
    * is exact when both Laplacians contain all neighbours of the node (interior edges). With one end on the wall the
-   * wall Laplacian lacks the interior neighbours, so its eps4 part is approximate; with the option eps4 is zero in the
-   * flux and in the factor, which is then exact again. Central differences in Ut of each end, fixFactor 1. ---*/
+   * wall Laplacian lacks the interior neighbours, so its eps4 part is approximate; with the option the crossing flux has
+   * no JST term (zero central differences) and the factor keeps only the eps2 shift. Central differences in Ut of each
+   * end, fixFactor 1. ---*/
   const JSTGraph graph;
   std::mt19937 gen(777);
   std::uniform_real_distribution<double> rnd(-1.0, 1.0);
@@ -5501,7 +5504,8 @@ TEST_CASE("JST weak wall: Jacobian factors equal finite differences of the edge 
         const su2double err = fabs(fd - dissip[side]);
         scale = std::max(scale, fabs(dissip[side]));
         if (isInterior) errInterior = std::max(errInterior, err);
-        if (isCrossing && weak) errCrossingOn = std::max(errCrossingOn, err);
+        /*--- With the option the crossing flux has no JST term (fd = 0) and the factor is the eps2 shift. ---*/
+        if (isCrossing && weak) errCrossingOn = std::max(errCrossingOn, fabs(fd));
         if (isCrossing && !weak) errCrossingOffMin = std::min(errCrossingOffMin, err);
       }
       crossing += isCrossing;
