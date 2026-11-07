@@ -84,3 +84,17 @@ hostavailable~31.4GB,owned VmSwap0,memory PSI averages0.00. CPU contention sampl
 are recorded;no matched251scheduler sampling exists to prove timing causality.
 The early observational advantage persists,but no mesh is accepted. Full253LIVE/
 FROZEN. Preserve raw-prefix hashes/census/churn identities;no code/gate/budget change.
+
+
+Six-window snapshot32256/census16:918431cells/80763q/80098J/1239geometry/0size,
+ALL measured/complete flags,EXACT251. Same13595commits/188700upper calls;
+net25691q/26106J/142geometry removed. Quality917.403711vs992.290793s;net q/s
+28.004029vs25.890596,J28.456392vs26.308820. Upper500018875→459462501(−8.1110%).
+Boundary90740candidates/4083moves,summed seconds816.750316→737.004011;interior
+68388/9081,39.820345→39.953413. Timers overlap;join-call share.438044→.416998is
+not CPU idle. Five ownership publications preserve complete whole-field counts/
+flags. At1696.3s all10HOST handles live,all1520pins unchanged,treeRSS10.457GB,
+hostavailable~31.3GB,owned VmSwap0,memory PSI averages0.00. Worker runqueue wait
+~16–17s since initial sample;CPU includes MPIspin,no matched251scheduler record
+establishes causal timing gains. No accepted mesh or later geometry closure.
+Full253LIVE/FROZEN;no source/gate/budget/repair-decision change during execution.
