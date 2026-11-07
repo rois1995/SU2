@@ -90,14 +90,7 @@ static void CapturedCurrentResidual(bool compound) {
   REQUIRE(budget.caller_bytes<ceiling);
   auto scope=reference->WithAtlasReservation(budget);
   for(const auto& test:cases) {
-    if(compound) {
-      if(current_capture) {
-        const auto rows=Captured202Rows<OwnedCell>(directory+test.first+"_owned.bin",416);
-        const auto core=std::find_if(rows.begin(),rows.end(),[&](const OwnedCell& row){return row.cell.id==test.second;});
-        REQUIRE(core!=rows.end());
-        if(std::count_if(core->physical.begin(),core->physical.end(),[](const auto& f){return f.present;})!=2)continue;
-      } else if(test.second!=224633219 && test.second!=218068745)continue;
-    }
+    if(compound && !current_capture && test.second!=224633219 && test.second!=218068745)continue;
     INFO(test.first);
     auto rows=Captured202Rows<OwnedCell>(directory+test.first+"_owned.bin",416);
     auto expected=Captured202Rows<Captured202Metric>(directory+test.first+"_expected_metrics.bin",168);
@@ -268,6 +261,8 @@ static void CapturedCurrentResidual(bool compound) {
     if(compound) {
       const auto& core=owned.at(test.second);std::vector<unsigned> faces;
       for(unsigned slot=0;slot<4;++slot)if(core.physical[slot].present)faces.push_back(slot);
+      // Collapse/retained-star trials above apply to all cores; shelling requires two physical faces.
+      if(faces.size()!=2)continue;
       REQUIRE(faces.size()==2);
       if(!current_capture)REQUIRE(state->Entity(core.physical[faces[0]].facet)==state->Entity(core.physical[faces[1]].facet));
       const Id a=core.cell.v[faces[0]].id,b=core.cell.v[faces[1]].id;

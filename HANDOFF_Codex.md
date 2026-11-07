@@ -19,7 +19,7 @@ A235=`R/m6_runs/euler_build235_geometry_coupled_real_cfd50k`.
 
 ## TERMINAL237 — current outcome, next diagnostic
 
-Production source checkpoint4d1e2ec5b0, pushed; latest preterminal metadatafe3db7d0be.
+Production source checkpoint4d1e2ec5b0, pushed; terminal/inspection checkpointd423a0b661 pushed.
 Full tool2688 TERMINAL1,5633.581992s,pins unchanged. First native event naturally
 refused at5347.003818s/round37505:1020222cells/296q/327J/1366geometry/0size,
 ALL final measurement flags TRUE. ZERO accepted meshes. All30capture files sealed
@@ -87,11 +87,63 @@ R/prepare_current237_witnesses.py prepares these five using existing raw fixture
 tool23557 TERMINAL0,42.698837s,all1020222rows paired,32968boundary points/65932faces,
 input hashes unchanged. Five actual contexts plus cached q/J oracles prepared.
 
-ACTIVE bounded current_compound tool89903, case current_compound_20261107T073703_3082067;
-A237/current_cavity_launch.json has exact host handles:3082282/8146791time,
-3082283/8146791timeout,3082284/8146791testdriver,3082285/8146792orted. Nice19/libs1,
-600s,OMPI_MCA_osc=pt2pt,private4TBscratch w237_yevahmbc. Freeze C++/fixtures/helpers/
-binary/config/inputs until terminal. No new implementation or config/policy change.
+Current actual-cavity diagnostics BOTH TERMINAL0,all pins unchanged/all sampled host
+handles absent: compound tool89903/case...073703_3082067,121.090848s,36470assertions;
+controls tool49679/case...074059_3095033,153.948427s,34392assertions. Compound covers
+THREE two-face contexts; separate current_residual covers ONLY the other TWO, avoiding
+repeat controls. All FIVE old q/J fields match exactly; all20original-star controls
+and13alternative candidates retain whole-context/churn/geometry/size measurements.
+A237/current_residual_assessment.json, derived by R/assess_current237.py, passes exact
+joins/source-hash checks. No production edits, accepted mesh, nonlocal publication
+or nonzero-height proof. Fresh associations/context-only current nodal field, not
+historical replay of first-pass blocked44q/17J tail. Alternatives overlap, never sum gains.
+
+Useful original stars: geometry_clean_0(no-face)3/4, geometry_bad_1(one-face)0/4,
+geometry_clean_2(two-face)2/4, geometry_bad_3(two-face)0/4, geometry_bad_4(two-face)1/4.
+Bad_3's tested combined shell+geometry split+optimizer improves5q/3J→1q/0J but
+geometry7→11 and excess6.56x, correctly refused. Collapse+retained-star improves
+5q/3J→4q/2J but geometry excess rises~3.1%, also refused. No failure of certification
+soundness follows. Bad_1 lowers debt/geometry in one star but retires NO net q/J.
+
+## TERMINAL238 — bounded one-face hypothesis rejected
+
+Build238only changes the DIAGNOSTIC fixture's filter: collapse/retained-star tests
+now cover current non-two-face cores; shell-only branch retains its two-face guard.
+Production code/config/gates/budgets unchanged. Buildtool2530 TERMINAL0,234.181180s,
+all1302pins unchanged,both targets current,all compiler handles absent.
+Current_compound tool45667/case...075136_3126162 TERMINAL0,125.348654s,
+37975assertions/1case,allpins unchanged/all4observed handles absent. No heavy job live.
+R/{build238_status,build238_terminal_handles,current238_launch}.json are authoritative.
+
+All FIVE old q/J match exactly;20original-star controls and15alternatives measured.
+All33previous237candidate outcomes unchanged (shape/geometry/counts/metric/interface/
+trials,excluding work/timers). R/assess_current238.py validates this and churn identities;
+A237/current_residual238_assessment.json retains all outcomes/reasons/source hashes.
+
+One-face230222079/52-cell context:12directed collapses,onlyONE constructs. Seven
+obstructed-cell refusals,three body/feature refusals,one leaves/reverses geometry
+support. The constructed collapse+retained-star candidate changes4q/3J→4q/2J,geometry
+bad6→6 but excess1.73696e-12→2.82190e-12(+62.46%),correctly refused. No useful
+alternative. Reject production integration/support broadening from this hypothesis;
+keep the diagnostic coverage fix. No larger cavity, new operator, scheduler or
+construction-policy change selected; no new full-M6 baseline repeat on fixture238.
+
+Next SAME-cycle diagnostic: distinguish actual geometric displacement vs conservative
+certification on refused changed faces of this one-face context and two-face230712740.
+Reuse existing query/reference export and rigorous lower/upper facilities; sampling
+alone cannot prove geometry acceptance. Do not add another local operator variant or
+relax whole-context geometry/shape/size/height gates without a demonstrated correction.
+Current nodal/context-only field/fresh-association limits and nonlocal/height exclusions
+above remain. Once justified production change is qualified, immediately full same-seed
+TWO-event M6; downstream acceptance/transfer/CFD/restart obligations remain unchanged.
+
+Controls run config was a byte-identical symlink: run_cases resolves it when adding
+extra receipt pins, while fixture uses the raw environment directory and correctly
+executed ONLY two cases. Supplemental current_controls_actual_input_pins.json
+verifies49actual two-case input pins from PRELAUNCH preparation, unchanged at terminal.
+Use a physical copy of run.cfg for future selected subdirectories so harness receipt
+lookup follows actual selected inputs. Current result needs no rerun: input/output
+hashes and exact two-case result rows independently establish its executed scope.
 Prior tool35421/case...073615_3079660 TERMINAL53 BEFORE test execution: omitted the
 previously qualified MPI pt2pt environment, MPI_Win_create failed. Pins unchanged,
 all sampled handles absent before retry; preserved evidence. No repair outcome from it.

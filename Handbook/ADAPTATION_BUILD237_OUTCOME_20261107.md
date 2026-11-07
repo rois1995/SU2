@@ -112,3 +112,90 @@ face counts, IDs, complete global star memberships, clean populations and source
 No-face cells may still touch constrained boundary vertices. The reused probe initially
 needed explicit boolean conversion for float-valued VTU indicator arrays; corrected
 and completed without changing solver data or production code.
+
+## Completed five-context operator assessment
+
+Existing current_compound covers the three two-face contexts,36470assertions/1case,
+tool89903TERMINAL0,121.090848s. Existing current_residual covers only the other two,
+34392assertions/1case,tool49679TERMINAL0,153.948427s. All source/runtime pins unchanged,
+all sampled host handles absent; all five old q/J fields match exactly. No MPI milestone
+repeated because no production C++ was changed. The first launch failed at MPI startup
+before any test: missing previously qualified OMPI_MCA_osc=pt2pt; preserved as terminal53
+and retried only after owned handles absent, restoring that environment/private4TBscratch.
+
+| Actual core/context | Useful original stars | Useful tested alternatives |
+| --- | ---: | ---: |
+| 230716933/no-face42 | 3/4 | Not tested |
+| 230222079/one-face52 | 0/4 | Not tested |
+| 230694271/two-face48 | 2/4 | 4/4 |
+| 230712740/two-face55 | 0/4 | 0/4 |
+| 230691583/two-face35 | 1/4 | 2/5 |
+
+Useful means net whole-context q/J reduction with neither count increasing, valid
+metric/interface/replacement and non-increasing geometry excess. Alternatives overlap.
+For230712740, shell+projected geometry split+optimizer reduces5q/3J→1q/0J but geometry
+7→11,excess1.3994e-11→9.1785e-11(6.56x), correctly refused. Collapse+retained-star
+reduces5q/3J→4q/2J,geometry7→6 but excess1.3994e-11→1.4424e-11, also refused. Neither
+proves actual distance violation or an overly conservative refusal. A different core
+already has an original star closing1q/1J→0/0 and reducing geometry8→4.
+
+One-face230222079has four failed net-count original-star controls; one lowers debt
+and geometry, but4q/3J remain. **Next bounded hypothesis:** test existing directed
+collapse plus retained-star optimization in its52-cell context. The current compound
+diagnostic globally skips non-two-face cores, so it has NOT assessed that combination
+there. Move the diagnostic filter to only the shell-specific branch if source review
+confirms that change is sufficient; no production change/new operator/budget follows
+until a useful whole-context candidate is demonstrated. Do not extrapolate this final
+residual to faithful replay of the earlier blocked tail.
+
+A237/current_residual_assessment.json retains all20original-star controls,13alternative
+candidates, churn identities, counted query work, overlapping timers and source hashes.
+Requested heights are zero in these actual Euler contexts; no nonzero-height/MPI/nonlocal
+publication/accepted mesh/transfer/restart proof follows. Geometry-clean labels describe
+cores, not neighbors. Context-only current nodal fields with fresh associations match
+old q/J; captured edge equality is disabled, candidate edges freshly checked.
+
+The two-control subdirectory used a byte-identical symlinked config. run_cases resolves
+that path for extra receipt lookup; fixture reads the raw environment directory, and
+result rows prove only the two selected cases executed. Supplemental input checks use
+all49actual-directory input hashes from its PRELAUNCH preparation and verify unchanged
+at terminal. Future selected subdirectories should copy run.cfg physically so extra
+receipt lookup follows selection. No rerun is needed solely to replace an identical
+config symlink after the completed, independently pinned run.
+
+## Completed bounded follow-up238 — hypothesis rejected
+
+Only native_current219_witness.inc changed: moved current-capture two-face filtering
+from the top of the compound loop to its shell-only branch. Directed collapse still
+receives a complete removed-vertex star; scoring uses the complete removed+retained
+star union, unchanged64-cell cap, replacement/interface/metric/geometry guards.
+No production C++/config/gate/budget change. Primary/source second opinion found no
+concrete unsafe assumption; source review is not correctness qualification.
+
+Build238tool2530 TERMINAL0,234.181180s,all1302pins unchanged,both targets current,
+all sampled compiler handles absent. Existing compound fixture on SAME five actual
+contexts tool45667TERMINAL0,125.348654s,37975assertions/1case;allpins unchanged/all4
+observed handles absent. All five old q/J fields match exactly. All33previous237
+candidate outcomes are unchanged (including counts, certified excess, metric/interface,
+trials; work/timers excluded).15alternatives now assessed in addition to20star controls.
+R/assess_current238.py validates source joins, churn identities and preserved outcomes;
+A237/current_residual238_assessment.json retains every candidate and raw refusal.
+
+One-face230222079has12directed collapse trials:seven obstructed-cell refusals,three
+body/feature refusals,one leaves/reverses geometry support;only one constructs.
+Its collapse+retained-star optimizer gives4q/3J→4q/2J with geometry count6unchanged,
+but certified excess1.7369589e-12→2.8218985e-12(+62.46%). The optimizer finds no further
+progress. Metric, replacement/interface and size pass; geometry merit correctly refuses.
+No useful alternative on this core. The new no-face control's additional constructed
+collapse also gives no useful admitted improvement; its existing original stars suffice.
+
+**Reject production integration of this hypothesis.** Keep the diagnostic coverage fix,
+not a new production fallback or support expansion. No extra MPI campaign or full-M6
+baseline repeat solely for a fixture change. The next same-cycle analysis must inspect
+the refused changed faces and separate actual geometric displacement from conservative
+certification using existing reference/query export and rigorous lower/upper facilities.
+Sampling alone is insufficient. Do not add another local variant, larger cavity, new
+scheduler or construction-policy change based on these refused results. After a justified
+connected production correction and affected serial/ONE MPI qualification, immediately
+return to full same-seed two-event M6. All acceptance/transfer/CFD/restart obligations
+remain open. These final contexts are not historical replay of the earlier blocked tail.

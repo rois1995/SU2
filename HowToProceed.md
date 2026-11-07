@@ -26,6 +26,16 @@ First quality pass exhausted with44q/17J,46shape-union ALL blocked, empty queue.
 Existing surface reconstruction reduced geometry1656→1379 but fresh shape entry
 became410q/493J. Thus the next diagnostic targets repair power and coupled surface/
 volume reclosure using representative ACTUAL residual cavities and existing operators.
+Five actual final contexts have now been tested with existing original-star controls
+and applicable compound alternatives; three have useful original-star repairs, two
+show no tested net q/J improvement. The bounded238follow-up now tests existing collapse plus
+retained-star optimization for one-face230222079/52cells. Only one of12collapses
+constructs; it removes one J failure but raises geometry excess62.46%, so the
+hypothesis is REJECTED for production. The fixture coverage fix passes37975assertions;
+all33previous outcomes are preserved. Next inspect refused changed-face certificates
+with existing rigorous query/reference facilities before another implementation. Two-face230712740already shows strong q/J gains correctly refused
+for increased geometry excess. See237outcome for exact complete-context results/limits.
+
 All46blocked first-pass cells had short edges<.5; this correlation is not construction
 causality and does not authorize quality-aware construction. Dedicated geometry-only
 phase was not reached. Final set is not all stuck; preserve that distinction.
