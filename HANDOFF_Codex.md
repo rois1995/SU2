@@ -15,73 +15,70 @@ ONE active cycle/ONE owned heavy job;all pinned sources/fixtures/helpers/binary/
 config/inputs FROZEN while running. Preserve authorized evidence/stop/fix/retry.
 
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
-A253=`R/m6_runs/euler_build253_witness_cutoff_mach_only_real_cfd50k`(LIVE/FROZEN).
+A253=`R/m6_runs/euler_build253_witness_cutoff_mach_only_real_cfd50k`(TERMINAL REFUSED;partial terminal census).
 A251=`R/m6_runs/euler_build251_upper_cutoff_mach_only_real_cfd50k`(terminal REFUSED).
 A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k`(REFUSED baseline).
 
-## CURRENT — frozen full two-event253M6
+## CURRENT — terminal253; active same-seed target/delivery diagnosis
 
-Tool54771LIVE;source checkpointd56b5588a2PUSHED;startup checkpointf42261931bPUSHED.
-R/m6_253_witness_launch.json and A253/owned_startup.json are authoritative live
-HOST identities. Immutable R/m6_253_{launch,startup}_checkpoint.json record launch,
-ALL1520source/runtime/input pins unchanged,and configSHA
-5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e EXACT251.
-Wrapper871749/start12807749;runner871751,time871974,timeout871975,MPI871976,
-workers871979–871984. Verify exactticks/argv/cwd before action;stale logs,timeouts
-or elapsed time NEVER establish termination. No other owned heavy job.
+Build253 first event REFUSED at native5346.554979s/round34761:elapsed-time
+budget exhausted. Tool54771TERMINAL1/5590.075827s. NO accepted mesh.
+Terminal census INCOMPLETE on ranks0,2,4,5:1032510owned cells,339507measured,
+693003UNKNOWN. Printed30q/20J/505geometry are PARTIAL,not whole-field counts.
+ALL30raw files closed,validated and hashed in A253/
+capture_preserved_partial_census.json;NOT a complete capture_ready qualification.
+All1520source/runtime/input pins verified in source_freeze_before_stop.json BEFORE
+ONE pidfdSIGTERM to verified HOST MPI871976/start12808268. owned_stop_once.json
+records exactly one signal. ALL11owned handles including wrapper absent in
+terminal_handles.json. NEVER repeat that stop. No owned heavy job remains.
+Driver continued ORIGINAL-grid CFD after refusal;adap-named files are not adapted
+workflow proof. Pinned-source freeze released after terminal host proof.
 
-Same saved real CFDseed,MACH-only L1/50k,strict gates,native5400/outer14400;
-trace UNSET,pt2pt/private4TBscratch/nice19/libs1. Target complexity49999.999626.
-All source/fixtures/helpers/binary/config/inputs FROZEN. No competing implementation.
-At132.6s all10sampled HOST handles live,tree RSS4.199GB,host available38.583GB,
-owned VmSwap0,memory PSI averages0.00. This is a sample,not whole-job physical peak.
-A253/live_observation_current.json is overwritten by later observations.
-Initial/latest scheduler counters in owned_startup.json;CPU includes MPI spinning,
-not all useful compute. No new profiler/GDB campaign. Keep run frozen until outcome
-or preserved evidence warrants authorized stop for demonstrated failure,bottleneck
-or actual pressure. Do not stop from timing conjectures or diagnostic gains alone.
+Last COMPLETE census34752/census59:1032495cells/1641q/695J/1044geometry/0size.
+At SAME round251 has EXACT counts,85055commits,1447277upper calls. Quality time
+4688.136713vs4650.479851s:253 is37.656862s SLOWER;native5333.758772vs5328.133458.
+Quality upper work1902523254→1763180893(−7.32%) did NOT establish wall-time or
+closure improvement. Host contention changed;no matched251scheduler record
+establishes causality. Last complete q1381interior/260surface,J537/158;2197shape
+bad union,all edge<.9,2079<.5;stuckshape42,missing0,private tracked collectives0.
+Full stage evidence retains partial EXIT;quality_progress has45complete windows.
+Legacy location selector was corrected IN MEMORY to require complete flags;
+terminal_analysis_scope_correction.json records analysis scope and unknown rows.
+quality_comparison251.json,quality_counter_assessment.json and
+ownership_census_integrity.json preserve complete-window comparisons/publications.
+Sampled individualRSS2.821GB includes post-refusal original-grid event2;not first
+phase or physical whole-job peak. No demonstrated owned memory pressure.
 
-Compare net WHOLE-field q/J-bad retirement per second AND geometry counts at
-matching rounds/stages/quality times;timers overlap,commits/debt/cache hits alone
-are not success. Preserve nonzero EXIT deltas and exact-census completeness.
-If first event refuses:seal ALL30six-rank owned/metric/reference/rejection files
-and complete row counts/hashes;verify source/runtime/input pins BEFORE ONE stop
-of exact verified owned MPI;then verify tool/host terminal. NEVER repeat a stop.
-No routine VTU export. Driver may continue ORIGINAL-grid CFD and write adap-named
-restart after refusal;that is NOT adapted workflow proof.
-If accepted:perform actual transfer/continued-CFD/disk checks below.
+Latest user investigation is ONE cycle:flow→target chain FIRST,then leading-edge
+metric delivery/complete cavities,then ONE demonstrated correction. Same saved
+real CFD seed,MACH-only L1/50k,unchanged gates/budgets. No competing implementation.
+Read local CDT3D paper §§3.2–3.5/4/5.1/5.4,AppendixA/Fig20;its methods are hypotheses,
+not equivalent certification or first-adaptation50k evidence. Recovery L2projection
+is distinct from Lp error objective. No CAD dependence/mandatory curvature metric.
+Side-investigation surface restrictions/triangle extents and approximate796/1044
+leading-edge geometry classification must be reproduced using actual associations.
+Existing target requests coarser transverse spacing than sampled compression
+triangles;cause along recovery/normalization/bounds/gradation remains unresolved.
+35%complexity beyond radius20 is reproduced in old target report,not yet justified.
+Quadratic warning39786/61330residual>.05(mean.140203,max.96661) needs localization;
+nonsmooth shock residual alone is not proof of recovery failure.
+Existing HESSIAN volume-output group exposes raw production tensors without C++
+changes;old target restart omitted it. A bounded same-seed metric-only output trace
+may supply missing observability;require original flow/final metric bit equality.
+No correction selected;no production source edited after253qualification.
+[Current target/delivery diagnosis](Handbook/ADAPTATION_TARGET_DELIVERY253_20261107.md)
+records the output-only Hessian trace,bit-identical22fields,independent target
+stages and actual-face/exact-edge LE reproduction. Next:existing complete-cavity
+controls;no demonstrated production correction yet.
+No new baseline/perf/GDB campaign,config options,scheduler,cavity-size increase,
+quality-aware construction,norm/sensor/complexity sweep or blanket minimum edge gate.
 
-Current first quality entry31898EXACT251:878443cells/106454q/106204J/1381geometry/
-0size,ALL measured/complete flags. Construction120785commits/52092upper queries
-same;upper work271243211→246122779(−9.2612%),native677.653607→645.622059s.
-A253/quality_entry_comparison251.json.
-THIRTY-ONE-window snapshot33856/census45EXACT251:1020076cells/13978q/10156J/
-1090geometry/0size,ALL complete flags. Net92476q/96048J/291geometry removed.
-Quality3522.079041vs3604.256898s;net q/s26.256083vs25.657439,J27.270257vs26.648489.
-Observed lead82.177857s has narrowed;NOT causal/final closure proof. Same65704commits/
-1081831upper calls;upper1539568095→1427140488(−7.3025%). Boundary597991candidates/
-24612moves in BOTH;3020.864266→2871.809692SUMMED-rank seconds;interior383308/48715,
-219.723396→227.572288. Timers overlap,not additive. Join-call share.403283→.378562
-is NOT CPU idle. SEVEN complete ownership publications,including construction,
-preserve counts/flags:A253/ownership_census_integrity.json;not individual row/
-dependency identity proof. qlocation12915interior/1063surface,J8573/1583;
-stuckshape29,missing features0,private tracked collectives0. Interior may share
-boundary vertices. A253/quality_comparison251.json,quality_counter_assessment.json,
-quality_progress.json and parser provenance preserve complete raw-prefix hashes.
-At4466.2s all10HOST handles live,ALL1520pins unchanged,treeRSS10.796GB,hostavailable
-~29.9GB,owned VmSwap0,memory PSI avg10/60zero(some avg300.33/full.01). CPU PSI some
-8.12/6.29/7.87;worker runqueue wait~124.9–128.9s since initial sample. CPU includes
-MPIspin;no matched251scheduler data establishes timing causality. A253/
-quality_window31_live_observation.json. RSS not whole-job physical peak.
-Keep full run FROZEN until outcome/preserved authorized-stop evidence.
-
-Read-only recovery-guard survey independently verified against pinned source:
+Read-only recovery-guard survey independently checked:
 [Existing recovery](Handbook/ADAPTATION_RECOVERY_GUARDS253_20261107.md). Dedicated
-geometry-repair mode requires clean q/J,but a separate construction return can
-run with q/Jbad remaining after global queue exhaustion,prior progress,and strict
-census/size/height/geometry conditions. DO NOT infer a hard global shape-zero
-barrier from the small blocked set. No implementation/test/job change from this
-survey;current run still determines the next blocker and any next cycle.
+geometry repair requires clean q/J,but existing construction return can run with
+q/Jbad after queue exhaustion,prior progress and strict census/size/height/geometry
+conditions. Do not invent a hard shape-zero barrier. Current last complete run was
+still first shape pass;residual geometry closure not yet demonstrated.
 
 ## Qualified active change and diagnosis
 

@@ -1,0 +1,232 @@
+{
+  "method": "Existing capcheck dual_volumes(mesh) and metric_complexity(mesh,M); radius=Euclidean norm from (0,0,0), the M6 half-spherical domain outer radius 100; bins are node-radius shells. Principal spacing uses h=1/sqrt(eigenvalue), eigenvalues ascending, so column 1 is longest spacing.",
+  "inputs": {
+    "mesh": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_mach_only_real_cfd50k/m6.su2",
+    "mesh_sha256": "8c839170eb5e359f7de6a41434aa6a9c2d620053f37de6d9360bd04d2a63088b",
+    "restart": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_target244_mach_only/L1/restart_flow.dat",
+    "restart_sha256": "c99d057882238eb75a768da717e939ab426fa60a5cc0a27ec484eb6cb758a147",
+    "capcheck": "TestCases/adaptation/capability/capcheck.py",
+    "capcheck_sha256": "38ee0fe9fc60d7b29ab796303d8c5cec2770ad1beb06e2e5b76d5c687d495f92",
+    "points": 61330,
+    "tetrahedra": 303359
+  },
+  "totals": {
+    "dual_volume": 2088461.8106155486,
+    "metric_complexity_reproduced": 49999.99962619674,
+    "beyond_radius20": {
+      "nodes": 4615,
+      "node_fraction": 0.07524865481819665,
+      "dual_volume_fraction": 0.9916354247176227,
+      "complexity_fraction": 0.34872045915651917,
+      "volume": 2070992.7145762849,
+      "allocated_complexity": 17436.022827473113
+    }
+  },
+  "shells": [
+    {
+      "radius": [
+        0,
+        2
+      ],
+      "nodes": 54368,
+      "dual_volume_fraction": 8.44410153081086e-06,
+      "complexity_fraction": 0.4791794807635417,
+      "mach_min_median_max_std": [
+        0.009887926412687749,
+        0.7430599091132613,
+        1.4266956598992548,
+        0.1676736503512012
+      ],
+      "principal_spacing_q05_q50_q95": [
+        [
+          0.003802680892375454,
+          0.029034374732868393,
+          0.10295731234731668
+        ],
+        [
+          0.0023263937073945452,
+          0.01390293977419597,
+          0.06421238929581334
+        ],
+        [
+          0.0004908421942741505,
+          0.008205458311332597,
+          0.04803850047628911
+        ]
+      ]
+    },
+    {
+      "radius": [
+        2,
+        5
+      ],
+      "nodes": 1128,
+      "dual_volume_fraction": 0.00012413416397011055,
+      "complexity_fraction": 0.06714768612502783,
+      "mach_min_median_max_std": [
+        0.8256116361343782,
+        0.8389605686044265,
+        0.8527599395819985,
+        0.0031601435403214575
+      ],
+      "principal_spacing_q05_q50_q95": [
+        [
+          0.16314389329035348,
+          0.4751717114695992,
+          0.9476460900638561
+        ],
+        [
+          0.13266950319203105,
+          0.3437874877172692,
+          0.6914378263713026
+        ],
+        [
+          0.08598965968787302,
+          0.27880380180023445,
+          0.563101963904328
+        ]
+      ]
+    },
+    {
+      "radius": [
+        5,
+        20
+      ],
+      "nodes": 1219,
+      "dual_volume_fraction": 0.008231997016876403,
+      "complexity_fraction": 0.10495237395491123,
+      "mach_min_median_max_std": [
+        0.8352734984027663,
+        0.83948047627407,
+        0.8408468334753084,
+        0.0004046896070003972
+      ],
+      "principal_spacing_q05_q50_q95": [
+        [
+          0.7696498349149593,
+          1.5820870858738332,
+          3.522654568114928
+        ],
+        [
+          0.55113322018523,
+          1.1867731727386936,
+          2.461919905463466
+        ],
+        [
+          0.3903841236866061,
+          0.8554639199887569,
+          1.8071009773447515
+        ]
+      ]
+    },
+    {
+      "radius": [
+        20,
+        50
+      ],
+      "nodes": 894,
+      "dual_volume_fraction": 0.11719248599268015,
+      "complexity_fraction": 0.13178852805452446,
+      "mach_min_median_max_std": [
+        0.8389585669966247,
+        0.8394985437296943,
+        0.8395736744241127,
+        4.329057067429659e-05
+      ],
+      "principal_spacing_q05_q50_q95": [
+        [
+          2.37940949120621,
+          4.506455152428087,
+          8.104799742021536
+        ],
+        [
+          1.6919569438825226,
+          3.3481618038770824,
+          5.626401872656153
+        ],
+        [
+          0.8688489830148535,
+          2.3390823918190247,
+          4.2576254447650195
+        ]
+      ]
+    },
+    {
+      "radius": [
+        50,
+        100.00001
+      ],
+      "nodes": 3721,
+      "dual_volume_fraction": 0.8744429387249425,
+      "complexity_fraction": 0.21693193110199466,
+      "mach_min_median_max_std": [
+        0.8394128446216956,
+        0.8394997911756247,
+        0.8395140328447771,
+        4.405842393314446e-06
+      ],
+      "principal_spacing_q05_q50_q95": [
+        [
+          5.314381739314298,
+          9.368159089013087,
+          15.675805565742397
+        ],
+        [
+          3.884387671931219,
+          6.677624890702517,
+          10.317311171194913
+        ],
+        [
+          1.9579261942787227,
+          4.700288768064919,
+          6.775916067951495
+        ]
+      ]
+    }
+  ],
+  "coarse_outer_points_by_longest_principal_spacing": [
+    {
+      "xyz": [
+        -99.17151080438751,
+        12.82876272476456,
+        0.6590081387534228
+      ],
+      "radius": 100.00000000000001,
+      "mach": 0.8394999097259751,
+      "principal_h": [
+        19.227434450312174,
+        12.324528618507772,
+        6.349732359895032
+      ]
+    },
+    {
+      "xyz": [
+        -99.51847268947165,
+        0.0,
+        9.801713807028111
+      ],
+      "radius": 100.0,
+      "mach": 0.8394999129668902,
+      "principal_h": [
+        19.176192258828337,
+        13.36305957308975,
+        8.19411425770129
+      ]
+    },
+    {
+      "xyz": [
+        -98.07852801916063,
+        0.0,
+        19.50903230800342
+      ],
+      "radius": 99.99999999999999,
+      "mach": 0.8394999150266623,
+      "principal_h": [
+        18.985342641974018,
+        12.241326888726173,
+        9.501496374187349
+      ]
+    }
+  ],
+  "interpretation_limit": "Reproduces allocation only; it does not establish why the saved metric has this spatial distribution. The restart contains SENSOR_MACH and final Metric_* fields, but no recovered Hessian/stencil evidence."
+}

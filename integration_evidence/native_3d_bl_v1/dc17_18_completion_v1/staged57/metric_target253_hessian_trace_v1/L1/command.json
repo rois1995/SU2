@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "nice",
+    "-n",
+    "19",
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "900",
+    "mpirun",
+    "--output-filename",
+    "rank_output",
+    "-n",
+    "6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/SU2_CFD/src/SU2_CFD",
+    "run.cfg"
+  ],
+  "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_target253_hessian_trace_v1/L1",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "TMPDIR": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/metric253_hessian_trace_L1",
+    "OMPI_MCA_orte_tmpdir_base": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/compile-tmp/metric253_hessian_trace_L1",
+    "OMPI_MCA_osc": "pt2pt"
+  },
+  "load": "5.63 6.98 9.53 4/4535 1187969\n",
+  "meminfo": "MemTotal:       65618220 kB\nMemFree:        10168376 kB\nMemAvailable:   38723652 kB\nBuffers:         2578380 kB\nCached:         21606520 kB\nSwapCached:       177436 kB\nActive:         16849316 kB\nInactive:       29364340 kB\nActive(anon):   14363224 kB\nInactive(anon):  9032560 kB\nActive(file):    2486092 kB\nInactive(file): 20331780 kB\nUnevictable:      987744 kB\nMlocked:             152 kB\nSwapTotal:      15625212 kB\nSwapFree:         259124 kB\nZswap:                 0 kB\nZswapped:              0 kB\nDirty:              1160 kB\nWriteback:             0 kB\nAnonPages:      22836652 kB\nMapped:          1682016 kB\nShmem:           1723780 kB\nKReclaimable:    6461928 kB\nSlab:            7235744 kB\nSReclaimable:    6461928 kB\nSUnreclaim:       773816 kB\nKernelStack:       72464 kB\nPageTables:       296840 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    48434320 kB\nCommitted_AS:   87404096 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:      114024 kB\nVmallocChunk:          0 kB\nPercpu:            11648 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:     40960 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nUnaccepted:            0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:      430768 kB\nDirectMap2M:    26601472 kB\nDirectMap1G:    39845888 kB\n"
+}
