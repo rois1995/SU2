@@ -56,6 +56,15 @@ configSHA74b2e9f... and initialrestartSHA5132ee2a... byte-identical219/225/227/2
 A237/initial_metric_input_provenance.json. First continued CFD printsCL.269535/CD.013536.
 No routine VTU export; existing selected final capture preserves evidence if needed.
 Full workflow, geometry-only closure, transfer/CFD/restart remain unproved.
+First4complete six-rank237stages through split_interior_entry/round1957 match235:
+294585cells/3171geometry-bad/119231size-bad,3039commits(2520collapses/519splits),
+ALL compared non-work counts/cache events and preparation limits equal. Traversal
+88,087,471→85,541,353(-2.89%); upper-call count23014equal. Native time380.68→277.22s
+is descriptive, not isolated causal speedup. q/J UNMEASURED, not zero debt/closure.
+A237/comparison235_matching_stages.json and construction_progress_assessment.json
+verify complete-prefix hashes. R/analyze_m6237_stages.py reuses existing parsers.
+All11exact host handles verified LIVE again at first_construction_owned_receipt.json;
+summed RSS6.33GB(shared pages included),MemAvailable~31.2GiB,no observed pressure.
 Build235exec12651TERMINAL0,63.151040s,1302pins unchanged/both targets up to date.
 All recorded host compiler/linker handles absent. Build234also terminal0,168.133394s.
 

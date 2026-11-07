@@ -1,0 +1,445 @@
+{
+  "time": 1794031032.348843,
+  "scope": "Matching complete first-event stage/round groups, prefix hashes verified. Unmeasured q/J printed zeros are UNKNOWN. Wall time is contention/cache/ownership sensitive; not causal kernel speedup.",
+  "matching": [
+    {
+      "stage": "length_collapse_exit",
+      "round": 1777,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals237": {
+        "cells": 293396,
+        "measured": 293396,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2968,
+        "size_bad": 119026
+      },
+      "complete_flags237": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build235": {
+        "native_seconds": 327.735774308,
+        "work": {
+          "accepted": 2520,
+          "length_splits": 0,
+          "length_collapses": 2520,
+          "geometry_trials": 10313,
+          "guidance_trials": 7238,
+          "guidance_faces": 24509,
+          "upper_calls": 21669,
+          "upper_work": 80484723,
+          "traversal_work": 69685216,
+          "scope_build_work": 2511405,
+          "facet_build_work": 1465784,
+          "piece_selection_work": 4578136,
+          "scope_hits": 4359,
+          "scope_misses": 13940,
+          "cache_evictions": 6151
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build237": {
+        "native_seconds": 246.585032736,
+        "work": {
+          "accepted": 2520,
+          "length_splits": 0,
+          "length_collapses": 2520,
+          "geometry_trials": 10313,
+          "guidance_trials": 7238,
+          "guidance_faces": 24509,
+          "upper_calls": 21669,
+          "upper_work": 79036218,
+          "traversal_work": 68236711,
+          "scope_build_work": 2511405,
+          "facet_build_work": 1465784,
+          "piece_selection_work": 4578136,
+          "scope_hits": 4359,
+          "scope_misses": 13940,
+          "cache_evictions": 6151
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences237_minus235": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": -1448505,
+        "traversal_work": -1448505,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "ownership_staged",
+      "round": 1777,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals237": {
+        "cells": 293396,
+        "measured": 293396,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2968,
+        "size_bad": 119026
+      },
+      "complete_flags237": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build235": {
+        "native_seconds": 335.186487143,
+        "work": {
+          "accepted": 2520,
+          "length_splits": 0,
+          "length_collapses": 2520,
+          "geometry_trials": 10313,
+          "guidance_trials": 7238,
+          "guidance_faces": 24509,
+          "upper_calls": 21669,
+          "upper_work": 80484723,
+          "traversal_work": 69685216,
+          "scope_build_work": 2511405,
+          "facet_build_work": 1465784,
+          "piece_selection_work": 4578136,
+          "scope_hits": 4359,
+          "scope_misses": 13940,
+          "cache_evictions": 6151
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build237": {
+        "native_seconds": 250.57283105,
+        "work": {
+          "accepted": 2520,
+          "length_splits": 0,
+          "length_collapses": 2520,
+          "geometry_trials": 10313,
+          "guidance_trials": 7238,
+          "guidance_faces": 24509,
+          "upper_calls": 21669,
+          "upper_work": 79036218,
+          "traversal_work": 68236711,
+          "scope_build_work": 2511405,
+          "facet_build_work": 1465784,
+          "piece_selection_work": 4578136,
+          "scope_hits": 4359,
+          "scope_misses": 13940,
+          "cache_evictions": 6151
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences237_minus235": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": -1448505,
+        "traversal_work": -1448505,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 1957,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals237": {
+        "cells": 294585,
+        "measured": 294585,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3171,
+        "size_bad": 119231
+      },
+      "complete_flags237": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build235": {
+        "native_seconds": 380.669690348,
+        "work": {
+          "accepted": 3039,
+          "length_splits": 519,
+          "length_collapses": 2520,
+          "geometry_trials": 10997,
+          "guidance_trials": 7238,
+          "guidance_faces": 24509,
+          "upper_calls": 23014,
+          "upper_work": 99691116,
+          "traversal_work": 88087471,
+          "scope_build_work": 2799091,
+          "facet_build_work": 1703784,
+          "piece_selection_work": 4826976,
+          "scope_hits": 4362,
+          "scope_misses": 15281,
+          "cache_evictions": 7363
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build237": {
+        "native_seconds": 277.215562009,
+        "work": {
+          "accepted": 3039,
+          "length_splits": 519,
+          "length_collapses": 2520,
+          "geometry_trials": 10997,
+          "guidance_trials": 7238,
+          "guidance_faces": 24509,
+          "upper_calls": 23014,
+          "upper_work": 97144998,
+          "traversal_work": 85541353,
+          "scope_build_work": 2799091,
+          "facet_build_work": 1703784,
+          "piece_selection_work": 4826976,
+          "scope_hits": 4362,
+          "scope_misses": 15281,
+          "cache_evictions": 7363
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences237_minus235": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": -2546118,
+        "traversal_work": -2546118,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 1957,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals237": {
+        "cells": 294585,
+        "measured": 294585,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3171,
+        "size_bad": 119231
+      },
+      "complete_flags237": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build235": {
+        "native_seconds": 380.678843484,
+        "work": {
+          "accepted": 3039,
+          "length_splits": 519,
+          "length_collapses": 2520,
+          "geometry_trials": 10997,
+          "guidance_trials": 7238,
+          "guidance_faces": 24509,
+          "upper_calls": 23014,
+          "upper_work": 99691116,
+          "traversal_work": 88087471,
+          "scope_build_work": 2799091,
+          "facet_build_work": 1703784,
+          "piece_selection_work": 4826976,
+          "scope_hits": 4362,
+          "scope_misses": 15281,
+          "cache_evictions": 7363
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build237": {
+        "native_seconds": 277.219653967,
+        "work": {
+          "accepted": 3039,
+          "length_splits": 519,
+          "length_collapses": 2520,
+          "geometry_trials": 10997,
+          "guidance_trials": 7238,
+          "guidance_faces": 24509,
+          "upper_calls": 23014,
+          "upper_work": 97144998,
+          "traversal_work": 85541353,
+          "scope_build_work": 2799091,
+          "facet_build_work": 1703784,
+          "piece_selection_work": 4826976,
+          "scope_hits": 4362,
+          "scope_misses": 15281,
+          "cache_evictions": 7363
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences237_minus235": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": -2546118,
+        "traversal_work": -2546118,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    }
+  ],
+  "source_prefixes": {
+    "build235": {
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build235_geometry_coupled_real_cfd50k/rank_output/1/rank.0/stdout": {
+        "bytes": 668579,
+        "sha256": "9ae4576c17ee1056675eb92c8064d293cd08f208010fd0350755413a40d039ef"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build235_geometry_coupled_real_cfd50k/rank_output/1/rank.1/stdout": {
+        "bytes": 646218,
+        "sha256": "47a0a1eff72fe24e2b6120c6ed880b5f037fd2e61e0235ce2270ea5247d7939d"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build235_geometry_coupled_real_cfd50k/rank_output/1/rank.2/stdout": {
+        "bytes": 646470,
+        "sha256": "87868f15925ae502add882c9ed0d7ac83f63aff2fcf3ac3023b319b8517801e8"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build235_geometry_coupled_real_cfd50k/rank_output/1/rank.3/stdout": {
+        "bytes": 645244,
+        "sha256": "22fa2dcf7453e03a8347393a97977041a7d720fe7914ad56253c676ca587a847"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build235_geometry_coupled_real_cfd50k/rank_output/1/rank.4/stdout": {
+        "bytes": 646113,
+        "sha256": "fc907886583ec8c05bf178ae33eeab09e0f02a47c7f16e41e45045b4acfdece2"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build235_geometry_coupled_real_cfd50k/rank_output/1/rank.5/stdout": {
+        "bytes": 646652,
+        "sha256": "71ef8ce54bab192a2bb98aec9d4dd9d286153926dbfa2e84270f3a440fe6733f"
+      }
+    },
+    "build237": {
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/rank_output/1/rank.0/stdout": {
+        "bytes": 38938,
+        "sha256": "bc3e9605d95f8e8d1d3ef220f96d84db9c8e0ae774f1e6fcbda18ae8ef86e8ff"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/rank_output/1/rank.1/stdout": {
+        "bytes": 16385,
+        "sha256": "a66862ef7f91592d96a2421147f2d0313f1d0db6f6725881da9f39b04ca79508"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/rank_output/1/rank.2/stdout": {
+        "bytes": 16397,
+        "sha256": "faab5fa045073168333a31925bfe00eacebce8887a14f3f0cebc967f01f78548"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/rank_output/1/rank.3/stdout": {
+        "bytes": 16385,
+        "sha256": "f7b881c076347c10880cd3d44f2dc84d606cb4c5636812a8bedc0b7762ef4300"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/rank_output/1/rank.4/stdout": {
+        "bytes": 16425,
+        "sha256": "3ee357cd3a67a88d8cfe785ae45e70f20a33474bfbd6b9fa55e25185916a22fe"
+      },
+      "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/rank_output/1/rank.5/stdout": {
+        "bytes": 16406,
+        "sha256": "25d78284892cc9acccc8a7fbf735cf9d8bf0cdfbabb5f2e04e0ef864077e8284"
+      }
+    }
+  },
+  "accepted_mesh_proven": false
+}
