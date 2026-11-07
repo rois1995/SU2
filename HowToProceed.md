@@ -70,8 +70,9 @@ query work falls7.4228%with identical complete candidate counts/outcomes; no
 whole-run speedup claim. ONE connected MPI6 milestone passed90cases on every rank;exact terminal handles and
 pinning correction evidence are in HANDOFF_Codex.md.
 [Design and acceptance](Handbook/ADAPTATION_QUERY_CANONICALIZATION246_20261107.md).
-Push the qualified checkpoint then immediately same-seed MACH-only L1/50k full
-TWO-event M6 with unchanged gates/budgets. No competing motion cache/operator/
+Qualified checkpoint f7855ed7ec is pushed. Full247same-seed MACH-only L1/50k
+TWO-event M6 is LIVE,tool14272;exact handles in HANDOFF_Codex.md. Inputs and
+configuration match Mach-only244byte-for-byte;all pinned code/helpers are frozen. No competing motion cache/operator/
 scheduler/construction-quality change. Judge net whole-field q/J/geometry counts.
 All transfer/continued-CFD/disk-restart,BL/MPI and RANS500kobligations remain open.
 

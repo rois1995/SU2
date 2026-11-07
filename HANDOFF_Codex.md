@@ -96,16 +96,26 @@ speedup established. A_MACH/canonical247_actual_comparison.json.
 Build247 placement_mpi6 TERMINAL0/165.014869s:90cases on EVERY rank,
 pins unchanged,all10owned handles absent. R/canonical247_qualification.json;
 R/cases/placement_mpi6_20261107T145231_48860/{status,owned_startup,terminal_handles}.json.
-Tool session52411is terminal. No owned heavy job live at this checkpoint.
+Tool session52411is terminal. The full M6 below is the sole owned heavy job.
 Main harness now preserves requested config directory for companion pinning even
 when run.cfg is a symlink. Three earlier subset probes have explicit supplemental
 PRELAUNCH actual-input hashes in A_MACH/actual_companion_input_provenance.json;
 original harness did not cover subset TSV. Actual raw payloads were pinned.
 MPI input reuse pins exact original producer snapshot and byte-identical previously
 qualified geometry fixture;not a CFD baseline or production target reselection.
-The ONE MPI milestone passed;push exact-whitelist checkpoint and IMMEDIATELY
-full TWO-event M6,same saved real CFD seed,MACH-only,L1/50k,native5400/outer14400.
-No full247attempt yet. ZERO accepted meshes;all downstream obligations open.
+Qualified checkpoint f7855ed7ec PUSHED to origin/codex/native-3d-bl.
+Full TWO-event M6 NOW LIVE:tool session14272,
+R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k (A247).
+Runner58992/start10785929;launcher59206/start10786445,MPI59208/start10786446,
+ranks59229–59234/start10786457–58. Exact10owned identities in A247/owned_startup.json;
+R/m6_247_canonical_launch.json records host/resources/scratch/source commit.
+Same saved real CFD seed,MACH-only,L1/50k,native5400/outer14400;run.cfg byte-identical
+to Mach-only244(sha5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e).
+Trace UNSET;pt2pt/private4TBscratch/nice19/libs1. Selected bounded raw refusal capture
+retained;no routine VTU exports. Frozen C++/fixtures/helpers/binary/config/inputs.
+Compare complete-census whole-field q/J/geometry and counted work at matching stages;
+allow run to finish unless preserved evidence justifies an authorized owned stop.
+ZERO accepted meshes;all downstream obligations open.
 
 Diagnostic245baseline remains historical,traces/raw-control only:
 Traced actual probe68907terminal0/92.918482s,pins unchanged,

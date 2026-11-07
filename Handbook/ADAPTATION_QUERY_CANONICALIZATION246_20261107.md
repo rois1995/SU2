@@ -144,4 +144,6 @@ identities are in its owned_startup.json. Qualified pt2pt/private4TBscratch/libs
 geometry trace disabled. Reuses byte-identical historical geometry/ownership
 fixture payloads with archived exact original producer source; this is not a new
 CFD target or baseline campaign. Checkpoint and return immediately to
-full same-seed MACH-only L1/50k TWO-event M6. No full247attempt has started yet.
+full same-seed MACH-only L1/50k TWO-event M6. Full247TWO-event M6 is LIVE,tool14272,after pushed checkpoint f7855ed7ec.
+A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k`. Config bytes match
+Mach-only244;exact live handles and source/input freeze are in HANDOFF_Codex.md.
