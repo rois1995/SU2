@@ -127,3 +127,19 @@ runqueue wait~65.4–69.1s since initial sample (up~40s/rank since13window sampl
 This establishes increased contention within253;no matched251scheduler data
 establishes causal timing differences. Full253LIVE/FROZEN;no accepted mesh or
 later geometry closure. Preserve same gates/budgets and complete the attempt.
+
+
+Thirty-one-window snapshot33856/census45:1020076cells/13978q/10156J/1090geometry/
+0size,ALL complete flags,EXACT251. Same65704commits/1081831upper calls;net92476q/
+96048J/291geometry removed. Quality3522.079041vs3604.256898s,net q/s26.256083vs
+25.657439,J27.270257vs26.648489. Observed lead82.177857s has narrowed;no causal/
+final closure claim. Upper1539568095→1427140488(−7.3025%). Boundary597991candidates/
+24612moves in both,summed seconds3020.864266→2871.809692;interior383308/48715,
+219.723396→227.572288. Timers overlap;join-call share.403283→.378562is not CPU idle.
+Seven ownership publications preserve complete counts/flags. At4466.2s all10HOST
+handles live,all1520pins unchanged,treeRSS10.796GB,hostavailable~29.9GB,owned
+VmSwap0,memory PSI avg10/60zero. CPU PSI some8.12/6.29/7.87;worker runqueue wait
+~124.9–128.9s since initial sample,no matched251scheduler data for causal timing.
+Full253LIVE/FROZEN. [Read-only recovery guards](ADAPTATION_RECOVERY_GUARDS253_20261107.md)
+verify an existing geometry-construction return with q/Jdebt after global repair
+queue exhaustion;no new phase-policy implementation or validation campaign.

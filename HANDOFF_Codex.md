@@ -55,25 +55,33 @@ Current first quality entry31898EXACT251:878443cells/106454q/106204J/1381geometr
 0size,ALL measured/complete flags. Construction120785commits/52092upper queries
 same;upper work271243211→246122779(−9.2612%),native677.653607→645.622059s.
 A253/quality_entry_comparison251.json.
-TWENTY quality windows through33152/census34EXACT251:990530cells/32031q/28869J/
-1156geometry/0size,ALL complete flags. Net74423q/77335J/225geometry removed.
-Quality2438.908721vs2579.014368s;net q/s30.514877vs28.857148,J31.708854vs29.986262.
-Observed lead140.105647s,narrower than at13/18windows;NOT causal/final closure proof.
-Same45458commits/691887upper calls;upper1111190322→1028151819(−7.4729%). Boundary
-377367candidates/16145moves in BOTH;2105.805401→1946.489102SUMMED-rank seconds;
-interior266921/34488,153.993901→155.575497. Timers overlap,not additive. Join-call
-share.404817→.383512is NOT CPU idle. SEVEN complete ownership publications,
-including construction,preserve counts/flags:A253/ownership_census_integrity.json;
-not individual row/dependency identity proof. qlocation29238interior/2793surface,
-J24276/4593;stuckshape6,missing features0,private tracked collectives0. Interior may
-share boundary vertices. A253/quality_comparison251.json,quality_counter_assessment.json,
+THIRTY-ONE-window snapshot33856/census45EXACT251:1020076cells/13978q/10156J/
+1090geometry/0size,ALL complete flags. Net92476q/96048J/291geometry removed.
+Quality3522.079041vs3604.256898s;net q/s26.256083vs25.657439,J27.270257vs26.648489.
+Observed lead82.177857s has narrowed;NOT causal/final closure proof. Same65704commits/
+1081831upper calls;upper1539568095→1427140488(−7.3025%). Boundary597991candidates/
+24612moves in BOTH;3020.864266→2871.809692SUMMED-rank seconds;interior383308/48715,
+219.723396→227.572288. Timers overlap,not additive. Join-call share.403283→.378562
+is NOT CPU idle. SEVEN complete ownership publications,including construction,
+preserve counts/flags:A253/ownership_census_integrity.json;not individual row/
+dependency identity proof. qlocation12915interior/1063surface,J8573/1583;
+stuckshape29,missing features0,private tracked collectives0. Interior may share
+boundary vertices. A253/quality_comparison251.json,quality_counter_assessment.json,
 quality_progress.json and parser provenance preserve complete raw-prefix hashes.
-At3287.6s all10HOST handles live,ALL1520pins unchanged,treeRSS10.777GB,hostavailable
-~31.4GB,owned VmSwap0,memory PSI avg10/60zero(some avg300.05). CPU PSI some
-9.80/6.82/7.20;worker runqueue wait~65.4–69.1s since initial sample,up~40s/rank
-since13window sample over760s. CPU includes MPIspin;no matched251scheduler record
-establishes timing causality. A253/quality_window20_live_observation.json. RSS is
-not whole-job physical peak. Keep full run FROZEN until outcome/preserved authorized-stop evidence.
+At4466.2s all10HOST handles live,ALL1520pins unchanged,treeRSS10.796GB,hostavailable
+~29.9GB,owned VmSwap0,memory PSI avg10/60zero(some avg300.33/full.01). CPU PSI some
+8.12/6.29/7.87;worker runqueue wait~124.9–128.9s since initial sample. CPU includes
+MPIspin;no matched251scheduler data establishes timing causality. A253/
+quality_window31_live_observation.json. RSS not whole-job physical peak.
+Keep full run FROZEN until outcome/preserved authorized-stop evidence.
+
+Read-only recovery-guard survey independently verified against pinned source:
+[Existing recovery](Handbook/ADAPTATION_RECOVERY_GUARDS253_20261107.md). Dedicated
+geometry-repair mode requires clean q/J,but a separate construction return can
+run with q/Jbad remaining after global queue exhaustion,prior progress,and strict
+census/size/height/geometry conditions. DO NOT infer a hard global shape-zero
+barrier from the small blocked set. No implementation/test/job change from this
+survey;current run still determines the next blocker and any next cycle.
 
 ## Qualified active change and diagnosis
 

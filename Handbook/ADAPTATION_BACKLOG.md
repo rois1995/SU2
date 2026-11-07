@@ -666,3 +666,15 @@ increase could obstruct later closure. Do not silently replace current merit.
 [Full diagnostic](ADAPTATION_COMPLETE_CONTEXT252_20261107.md).
 Current253active work prunes losing triangle witnesses in the existing geometry
 query path;no competing support/merit/scheduler/construction implementation.
+
+
+### 2026-11-07 — verify existing recovery before any phase-policy hypothesis
+
+Read-only253source review confirms a separate geometry-construction return can
+run with q/Jbad still present when global repair demand is exhausted,prior
+improvement exists,and census/size/height/geometry guards pass. Dedicated
+geometry-repair mode does require clean quality,but it is not the only route.
+Do not infer a hard shape-zero phase deadlock from the small all-features-blocked
+set. Neighbor changes may also reopen rejected demand. No new implementation or
+validation campaign chosen;complete frozen253and use its actual outcome.
+[Exact guards and pinned source proof](ADAPTATION_RECOVERY_GUARDS253_20261107.md).
