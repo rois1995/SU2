@@ -13,18 +13,25 @@ qualification and the corresponding RANS workflow at **500k**. Report actual mes
 points/cells separately. Keep geometry1e-4,q>=.2,J>=.05,maxedge1.8 and requested
 heights strict. CAD remains optional; existing no-CAD authority must suffice.
 
-The connected visibility-placement change is implemented, tested locally and in
-one MPI6 milestone, and now being assessed in the complete workflow. **Full244 is
-ACTIVE/FROZEN**, tool82306, production236e03ed64/build244:
-`staged57/m6_runs/euler_build244_visibility_real_cfd50k`. Same saved real CFD seed,
-corrected L1 metric at50k and unchanged native5400/outer14400 budgets. No new
-implementation, scheduler, cavity-size campaign or geometry representation now.
-Let it finish unless preserved demonstrated failure/bottleneck/resource pressure
-justifies an authorized owned stop. Never infer termination from stale logs/timeouts.
+The connected visibility-placement change is implemented and tested, but full244
+REFUSED at native5347.387821. Last first shape pass42q/18J/1717geometry; late geometry
+work reduces geometry to1418 but fresh shape rises414q/472J. Final cache UNKNOWN,
+not a pass. [244outcome](Handbook/ADAPTATION_BUILD244_OUTCOME_20261107.md).
 
-Same-seed production L1/L2 comparison already selected L1: L2coarsened4/11shock
+The user now requests **MACH ONLY**, removing PRESSURE from ADAP_SENSOR. The run
+config and generator are updated and checked; same saved real CFD seed,L1,50k and
+unchanged gates/budgets. Production metric-only check passed,tool18760/32.579044s:
+`staged57/metric_target244_mach_only`,complexity49999.999626,finite SPD,zero
+gradation violations and bit-identical CFD fields. Use existing implementation244
+for the full two-event Mach-only M6; no C++ rebuild or new quality implementation.
+Combined-target timing comparisons do not describe an unchanged Mach-only target.
+Keep the coupled-quality hypothesis deferred until this changed-target outcome.
+
+The prior combined-target production L1/L2 comparison selected L1: L2coarsened4/11shock
 points, increased tip allocation and maximum anisotropy. Do not assume L2 is better
-or launch another baseline. Corrected219metric floor and flat-sensor handling are
+or launch another baseline. L1 stays fixed for the requested sensor-only change;
+that prior comparison does not establish an optimum norm for every sensor set.
+Corrected219metric floor and flat-sensor handling are
 integrated; seed CL.269535/CD.013536 meets the user's reasonable-force criterion,
 not a claim of full residual convergence. Initial restart/config/mesh/reference
 are byte-identical237. Reuse the seed rather than recomputing it.
@@ -114,7 +121,9 @@ Keep unrelated alternatives in [the backlog](Handbook/ADAPTATION_BACKLOG.md).
 
 ## Saved meshes and completion
 
-Latest meaningful saved rejected mesh is237:198941points/1020222tets,
+Latest saved rejected mesh is244:198598points/1018217tets, with full nodal tensor,
+verified array lengths/SPD/connectivity and runtime q/J/geometry UNKNOWN(NaN).
+Previous237is the latest fully measured rejected mesh:198941points/1020222tets,
 `rejected_mesh.vtu` plus `.su2`, with captured nodal metric9row-major. All1725bad
 cores/25856neighbors, q/J/geometry/edge fields and reference/rejection context are
 saved; array lengths, correct PointData/CellData, finite SPD metric and connectivity

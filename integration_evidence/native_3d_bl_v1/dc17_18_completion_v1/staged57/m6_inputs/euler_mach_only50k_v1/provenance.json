@@ -1,0 +1,19 @@
+{
+  "time": 1794050411.0307262,
+  "scope": "User requested Mach-only adaptation sensor; next-attempt config, not an edit to preserved244or qualified CFD seed",
+  "base": "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build244_visibility_real_cfd50k/run.cfg",
+  "base_sha256": "74b2e9f476cf6ba1fdc5ebcdcb1c34a2b3c45b25e58d651e75417d89402bfe8d",
+  "output_sha256": "5ad2dc1d9a1cd8bff87f633617b191b50defbc261ab3d0b2ed0987a34722b89e",
+  "old_sensors": [
+    "MACH",
+    "PRESSURE"
+  ],
+  "new_sensors": [
+    "MACH"
+  ],
+  "complexity": 50000,
+  "metric_norm": "L1 unchanged",
+  "saved_cfd_seed": "m6_inputs/euler_original_force_seed_v1",
+  "only_changed_directive": "ADAP_SENSOR",
+  "prior_target_comparisons_apply_to": "combined Mach+pressure target, not this changed target"
+}

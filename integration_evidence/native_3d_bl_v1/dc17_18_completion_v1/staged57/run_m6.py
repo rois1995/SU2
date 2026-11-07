@@ -1,4 +1,4 @@
-"""Run the pinned six-rank M6 Euler case with its smaller adaptation target."""
+"""Run the pinned six-rank M6 Euler case with its Mach-only adaptation target."""
 import csv
 import io
 import json
@@ -27,6 +27,7 @@ EULER_TARGET = 50000
 
 def euler_config(text, expected_events, native_budget):
     changes = [
+        (r"(?m)^ADAP_SENSOR=[ \t]*\([ \t]*MACH[ \t]*,[ \t]*PRESSURE[ \t]*\)[ \t]*$", "ADAP_SENSOR= ( MACH )"),
         (r"(?m)^ADAP_COMPLEXITY=[ \t]*500000[ \t]*$", f"ADAP_COMPLEXITY= {EULER_TARGET}"),
         (r"(?m)^ADAP_SIZES=[ \t]*\([ \t]*500000[ \t]*\)[ \t]*$", f"ADAP_SIZES= ( {EULER_TARGET} )"),
     ]
@@ -190,7 +191,8 @@ def acceptance_self_check():
     baseline = (BASE / "run.cfg").read_text()
     for events, budget in ((1, 1800), (2, 5400)):
         expected = baseline.replace("ADAP_COMPLEXITY= 500000", "ADAP_COMPLEXITY= 50000").replace(
-            "ADAP_SIZES= ( 500000 )", "ADAP_SIZES= ( 50000 )")
+            "ADAP_SIZES= ( 500000 )", "ADAP_SIZES= ( 50000 )").replace(
+            "ADAP_SENSOR= ( MACH, PRESSURE )", "ADAP_SENSOR= ( MACH )")
         if events == 2:
             expected = expected.replace("ADAP_SUBITER= ( 1 )", "ADAP_SUBITER= ( 2 )").replace(
                 "ADAP_NATIVE_MAX_TIME= 1800", "ADAP_NATIVE_MAX_TIME= 5400")

@@ -13,6 +13,11 @@ its relevance or the user explicitly reprioritizes it.
   facilities before any addition. Preserve complete/versioned/disjoint support,
   private contexts at use, net whole-patch/neighbor bad counts and existing budgets;
   no new scheduler/config/cavity cap, no active implementation while244is frozen.
+  The actual243free-apex18-cell star is already complete if that vertex is the
+  chosen quality feature; investigate this existing private-cavity route before
+  adding MPI imports. Share the existing work/identity allowance across split and
+  optimizer, avoid recursive optimizer entry, rebuild private parameters at use,
+  and test complete candidate publication. This is a design hypothesis, not a fix.
 - Preserved244legacy broad-suite failures: visibility244_broad_serial_failure.json.
   Do not repeat generic serial_full; reuse individually passing affected cases.
   RANS wall-policy fixture exhausts4096work,95placement trials/0moves; attribution

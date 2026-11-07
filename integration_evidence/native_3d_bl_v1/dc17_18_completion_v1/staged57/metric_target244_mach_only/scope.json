@@ -1,0 +1,27 @@
+{
+  "scope": "Actual production ComputeMetric: Mach only, L1, complexity50k, same qualified real CFD seed and constraints; no remeshing",
+  "source_build": "build244",
+  "source_cpp_changed": false,
+  "old_sensor_set": [
+    "MACH",
+    "PRESSURE"
+  ],
+  "new_sensor_set": [
+    "MACH"
+  ],
+  "norm": 1,
+  "complexity": 50000,
+  "seed_qualified": true,
+  "source_helper": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_target219_production/run.py",
+  "source_helper_sha256": "7427f7f4ddc901a7bb3e3be8e00201db80776b33e456f6174577f0de3da373ad",
+  "same_saved_restart_sha256": "1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880",
+  "state": "production_target_checked_no_remesh",
+  "comparison": "comparison.json",
+  "metric_check": {
+    "complexity": 49999.999626196746,
+    "gradation_violations": 0,
+    "maximum_aspect_ratio": 40.70620318622006,
+    "flow_fields_bit_identical_to_combined_target": true
+  },
+  "post_terminal_helper_change": "Only run_m6.acceptance_self_check expected sensor directive updated after assessment terminal; ComputeMetric, CFD binary, generated assessment configuration and flow outputs unchanged"
+}

@@ -17,50 +17,62 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A244=`R/m6_runs/euler_build244_visibility_real_cfd50k`.
 A237=`R/m6_runs/euler_build237_signed_bounds_real_cfd50k`.
 
-## ACTIVE244 — full same-seed two-event M6, frozen
+## Current244 terminal; Mach-only target verified; next full attempt ready
 
-Production checkpoint236e03ed64, build244; launch metadata07272ec108, live quality
-checkpointf1ca3da200. Newer metadata commits do not change pinned production.
-Tool82306 ACTIVE, runner3440151/start8863722; MPIlauncher3440421/start8864247,
-outer timeout3440420;6solver workers. R/m6_244_{launch,owned_startup}.json exact
-HOST PID/start/argv/cwd identities. No stop sent. Native5400/outer14400 unchanged,
-nice19/libs1/private4TBscratch. Do not launch another heavy job or change sources.
-Host /proc is distinct from the sandbox: use escalated host inspection for identities.
+Full244 first event REFUSED native5347.387821/round37843. Final metric cache is
+UNKNOWN:1018217cells/measured0,ALL flags false; printed zero bad counts are NOT clean.
+Last complete first quality_exit5321.382052:42q/18J/1717geometry/0size,44shape-union
+ALL blocked/queue0/missing0. Late geometry construction reduces geometry1717→1418,
+then fresh quality_entry5333.173759has414q/472J/1418geometry/0size. New placement
+path actually tried48trials/3moves/3validated (not proof of3published commits).
+It is available only in non-repairing construction; coupled quality-candidate
+hypothesis is deferred in backlog, NOT an implementation.
 
-Same saved real CFD seed and corrected-L1/50k target: run.cfg, original mesh/reference
-and initial restart are byte-identical237; A244/initial_metric_input_provenance.json.
-Initial coarsening and early split counts/query work match237exactly. Later trajectories
-diverge slightly (new reserved node identities and placement), so same rounds are not
-identical batch histories. Construction entry871576cells/2008geometry/0size;
-shape deliberately UNMEASURED. Fresh quality entry native691.245338:
-102043q/101849J/2008geometry/0size, ALL flags complete,871576cells.
-237entry native705.18/871607cells/102058q/101860J/1997geometry/0size.
+All30shards sealed,1018217owned and metric rows,reference/rejections complete;
+metric CACHE incomplete. A244/capture_ready.json distinguishes file completeness
+from metric-census completeness.1520pins verified unchanged before ONE pidfdSIGTERM
+only to verified launcher3440421/start8864247. Tool82306 TERMINAL1/5613.368135s,
+pins unchanged; ALL10sampled host handles absent. A244/{owned_stop_once,
+source_freeze_before_stop,terminal_handles}.json. Never repeat this stop.
+ZERO accepted meshes; transfer/continued adapted CFD/restart remain open.
 
-Latest complete window round35648/native3012.489135:969870cells,35068q/32891J/
-1828geometry/0size, ALL flags complete. Cumulative net q-removal
-28.85/s versus23728.23/s at common round; traversal ratio1.0018.
-Ages and trajectories differ; no isolated speedup or predicted acceptance claim.
-Latest location:32231/35068q-bad have no physical face (does not prove free vertices),
-stuck_shape4,missing_features0,private_tracked_collectives0.
-Net retired−introduced exactly matches field change.
-Initial quality redistribution preserves ALL census totals/flags; q+J debt max/min
-6.575→1.485(max/mean1.757→1.125). Later committed redistribution also retains flags.
+Existing bounded full-mesh exporter tool1334 TERMINAL0/367.604136s,1553pins unchanged,
+all sampled handles absent. Reader tool62958 TERMINAL0/5.104009s:198598points/
+1018217tets, complete finite SPD nodal tensors(min eigen.0025878931), exact PointData/
+CellData lengths and SU2/VTU match. A244/inspection/rejected_mesh.vtu and .su2 saved.
+Runtime q/J/geometry caches remain NaN/UNKNOWN; empty bad/cavity subsets are not clean.
+A244/inspection_reader_status.json. No ParaView GUI qualification or acceptance.
+[244outcome](Handbook/ADAPTATION_BUILD244_OUTCOME_20261107.md) details phase evidence.
 
-Reuse R/analyze_m6244_quality.py for first-event stages, first uninterrupted quality
-churn and exact-census location/ladder joins. It reuses existing validated parsers and
-assertions, hashes complete six-rank prefixes and does not change runtime decisions.
-A244/{construction_progress_assessment,quality_comparison237,quality_counter_assessment,
-quality_entry_observation,quality_ownership_observation}.json current evidence.
-Nearest measured quality ages are stated explicitly; no interpolated counts.
-Timers overlap; join-call wall share is NOT CPU idle. Sampled summed RSS is not
-physical RAM or whole-job peak. Last host check28GiB available,21GiB disk free;
-last sampled tree about9.4GiB. Observe resources.jsonl while the frozen run proceeds.
+Latest USER STEERING: MACH is the sole adaptation sensor for future M6 workflow.
+R/m6_inputs/euler_mach_only50k_v1/run.cfg plus provenance.json/generator_check.json record
+ONLY ADAP_SENSOR=(MACH),same saved real CFD seed/L1/50k/gates/budgets. run_m6.euler_config
+is UPDATED after export terminal and verified to generate this config exactly.
+Qualified seed and preserved244inputs unchanged. Build244C++unchanged; no rebuild
+needed for this input change. Combined-target comparisons are not same-target
+benchmarks for Mach-only.
 
-Let this attempt finish unless preserved demonstrated failure/bottleneck/resource
-pressure justifies authorized stop. If first event refuses, two accepted events
-become impossible; before stopping ONLY verified owned processes, preserve complete
-terminal census, sealed capture, source/runtime/input pins and exact handles. Do not
-repeat old237/235/227/225/219/217/210 stops. No competing implementation now.
+Actual production Mach-only L1 metric check tool18760 TERMINAL0/32.579044s,
+1509pins unchanged at terminal/all sampled handles absent. Same production
+ComputeMetric and one CFD continuation from same saved seed, no remeshing.
+R/metric_target244_mach_only/{scope,comparison}.json:complexity49999.999626,
+finite SPD tensors,0gradation violations(maxratio1.000000100<1.00001),maxAR40.706
+versus combined38.259. CFD fields and coordinates bit-identical to combined L1.
+The helper's expected sensor directive self-check was corrected AFTER this check
+terminal; underlying metric/config/CFD unchanged. Existing runner self-check and
+exact generated Mach-only config now pass; build244C++ source pins unchanged.
+
+NEXT: full TWO-event M6 with build244/MACH-only/L1/50k and same CFD seed/gates/
+native5400/outer14400. No competing quality implementation before changed-target
+outcome. Deferred coupled-candidate hypothesis stays backlog. New attempt must
+have fresh helper/config/runtime pins; older combined-target pins intentionally
+record the earlier generator. Freeze current sources after launch.
+
+R/analyze_m6244_quality.py reuses stage/churn/exact-census joins, stopping at first
+native event. A244/{construction_progress_assessment,quality_comparison237,
+quality_counter_assessment}.json. First-pass net q/J counters match field change.
+Bulk useful rate remained near237, not a proven speedup; final counts UNKNOWN.
+Resource observations are sampled summed process RSS, not physical/whole-job peak.
 
 ## Connected placement change and qualification
 
@@ -124,12 +136,13 @@ ran out of budget. Actual geometry/volume construction obstruction selected afte
 [240exact face diagnosis](Handbook/ADAPTATION_CAVITY_GEOMETRY240_20261107.md), not from
 literature alone. Complete final context is not faithful replay of earlier blocked tail.
 
-Latest meaningful SAVED mesh remains A237/inspection/rejected_mesh.vtu and .su2:
-198941points/1020222tets, captured_nodal_metric9row-major. All1725bad cores/25856
-one-node neighbors included; exact array lengths/CellData vs PointData, finite SPD
-metric, coordinates/connectivity and whole-field counts independently verified.
-No ParaView GUI check; diagnostic SU2marker fallbacks. Not accepted/adapted restart.
-Do not export each trial. Assess meaningful244terminal mesh for a new saved inspection.
+Latest meaningful saved rejected mesh is A244/inspection/rejected_mesh.vtu and .su2:
+198598points/1018217tets, full captured_nodal_metric9row-major. Independent reader
+passed, tensor/arrays/connectivity verified. Native q/J/geometry cache unknown; do
+not infer clean cells from empty bad/cavity views. Previous237inspection remains the
+latest fully MEASURED rejected mesh:198941points/1020222tets,296q/327J/1366geometry,
+all1725bad cores/25856neighbors, finite SPD metric/array lengths checked. No ParaView
+GUI qualification. Save only meaningful terminal meshes, never every trial.
 
 ## Remaining acceptance obligations — all open
 
