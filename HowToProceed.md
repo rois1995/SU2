@@ -53,7 +53,8 @@ Existing diagnostic passed with exact q/Joracles. Near-gate interior4/4and sever
 interior2/4stars yield useful whole-context q/Jretirement. Selected shape-only and
 shape+geometry boundary contexts each0/4. Existing collapse/shell+optimizer probe
 improves the shape-only/feature-adjacent cases,but all tested shape+geometry variants
-regress geometry excess and remain inadmissible. The selected canonical-query fix is now implemented and qualifying.
+regress geometry excess and remain inadmissible. The canonical-query fix was
+subsequently qualified and exercised in the refused247attempt below.
 Details and source/input/status evidence are in the Mach-only outcome and handoff.
 
 Diagnostic245passed,including traced actual contexts and raw-collapse controls.
@@ -75,9 +76,17 @@ Immediate target remains SPEED,with residual geometry/repair power unresolved.
 One bounded seven-context actual-terminal probe passed and localized75%of query
 work to repeated per-domain upper evaluations. Identical repeats already hit;
 small-motion pass margins cover only2.6%of total work and are not selected for a
-new cache. The selected ONE connected hypothesis is query-local reuse of fully proved convex
-footprint regions,with fresh exact containment and all3D lift calculations retained.
-[Design](Handbook/ADAPTATION_FOOTPRINT_REUSE248_20261107.md);implementation pending. Keep CAD optional,all gates/budgets and validity-first construction.
+new cache. Query-local footprint proof reuse was implemented and tested on the
+same seven actual terminal247contexts:all5241queries/166result rows stayed exact,
+but counted query work rose10.97%. It was removed and the failed patch/evidence
+preserved. Do not reintroduce it based on cache hits.
+The smaller active251change abandons a graph's monotonically increasing bound
+when it cannot beat the current upper witness. It preserves all exact results and
+reduces counted query work2.2087%in that corpus. No whole-M6 speedup established.
+[Current design/proof](Handbook/ADAPTATION_UPPER_CUTOFF251_20261107.md).
+Build251passed;focused serial38cases/2044assertions and ONE connected MPI6
+qualification90cases on EACH rank passed. Full same-seed TWO-eventM6 is next.
+Keep CAD optional,all gates/budgets and validity-first construction.
 Then immediately same-seed MACH-only L1/50k complete TWO-event M6,conservative
 admissible transfer,continued adapted CFD and actual disk restart;then BL/MPI and
 RANS500k. No new scheduler/config/geometry representation or competing operator.

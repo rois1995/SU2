@@ -34,14 +34,35 @@ coordinates/connectivity and measured bad counts verified. Reader handle absent.
 A247/inspection/rejected_mesh.vtu and .su2:201203points/1032602tets,
 complete nine-component captured_nodal_metric in PointData;q/J/geometry in CellData.
 ALL2525bad cores/90430neighboring cavity cells retained,reference/rejections complete.
-No ParaView GUI or strict acceptance claim. No owned heavy job currently live.
+No ParaView GUI or strict acceptance claim. Live workload is stated below.
 Terminal analysis duplicate window+exit round34816 is FIXED in unpinned
 compare_quality227.py using stage-aware keys. Legacy baseline records unchanged;
 actual exit churn identities pass. A247/terminal_analysis247_join_qualification.json.
 Production C++/pinned export source were unchanged.
-Current C++/binary remain build247;selected248coverage-reuse design is not implemented.
-Next:implement that ONE bounded query-local proof reuse,validate affected behavior
-and the actual seven-context corpus,then ONE MPI6milestone and immediately same-seed
+Latest completed binary is251. Build250TERMINAL0/33.103694s,pins unchanged;
+all15sampled host build/wrapper handles absent in R/build250_terminal_handles.json.
+Build248passed;its first serial failed ONLY a new unprepared-scope low-memory
+fixture assumption(37/38cases,12failed assertions);failure preserved. Warming the
+exact prepared scope leaves the16384ceiling unchanged. Build249passed and focused
+serial38cases/2044assertions passed62.358936s;all owned handles terminal.
+Build250adds explicit3/2work charges when storing triangle/rectangle proofs.
+ONE actual seven-context build250comparison TERMINAL0/103.756774s,pins unchanged:tool74719,
+R/footprint250_compound_{launch,attempt}.json and case/owned_startup.json.
+All six owned host handles absent. Exact5241query results/166result rows match247,
+but work rises10.97%. Memo REMOVED;failed patch preserved in R. Active smaller
+shared-upper optimization:monotone losing-graph cutoff,local9-line net change.
+Build251TERMINAL0/33.100301s,pins unchanged,both targets current;sampled host
+handles absent. Actual251comparison TERMINAL0/102.925903s,pins unchanged,all six owned handles
+absent. EXACT5241query identities/cache outcomes/bounds and166result rows match247.
+Counted query work5096073→4983517(-2.2087%);graph lift1412491→1299935(-7.9686%).
+No whole-M6 timing claim. R/upper251_actual_comparison.json.
+Final251serial PASSED38cases/2044assertions61.301636s,pins unchanged;all five
+case handles absent. ONE MPI6milestone PASSED90cases on EACH rank163.894983s,
+pins unchanged;all ten case handles and sequential wrapper absent.
+R/upper251_qualification.json seals cases/results;all affected checks complete.
+No heavy workload currently live. Push coherent checkpoint,then immediately full
+same-seed MACH-only L1/50k TWO-event M6 with unchanged native5400/outer14400.
+Next:run the qualified monotone losing-graph cutoff in immediately same-seed
 MACH-only L1/50k full TWO-event M6. Do not declare cache/work/fixture improvement
 completion. All transfer/continued adapted CFD/disk-restart/BL/MPI/RANS obligations open.
 
@@ -81,20 +102,21 @@ facet/scope reuse,bbox cropping and complete-support distance pruning already ex
 Root-lower-first potential saves only65672upper-work units and is not a general
 old-geometry-debt rejection. Existing lower witnesses already reject proven bad
 queries. No benefit from new cheap reject/envelope has been established.
-ACTIVE selected next connected change:query-local finite-footprint coverage-region
-reuse in shared upper traversal. [Design/acceptance](Handbook/ADAPTATION_FOOTPRINT_REUSE248_20261107.md).
-Implementation NOT YET started. Prove each new projected triangle contained in a
-previously fully proved convex region;skip only repeated 2D coverage. Fresh padding/
-3D lifts and all association/body/feature/height/final gates remain. Bounded optional
-transient storage/work with full fallback. No new config/representation/scheduler.
-Measured coverage1349783/lift1412491 of3822194upper work motivates this hypothesis;
-no speedup established. Validate affected proofs/current corpus,ONE MPI6,then fullM6. No motion-cache/operator/scheduler/representation/
-quality-aware-construction implementation is underway. Preserve all gates/budgets.
+Footprint-region reuse was tested and REJECTED(+10.97%query work);its exact
+failed patch/results remain in R/footprint250_rejected.patch and associated receipts.
+ACTIVE same-cycle shared-upper change:monotone losing-graph cutoff.
+[Current design/proof/validation](Handbook/ADAPTATION_UPPER_CUTOFF251_20261107.md).
+Current upper graph accumulates a maximum;when partial bound>=current best witness,
+remaining graph lifts cannot improve the caller's minimum. Return a losing infinity
+and preserve the final selected bound exactly. Nine net source lines,no new state/
+config/representation/scheduler. Build251compiled;actual corpus passed with exact results and2.2087%less query work.
+No motion-cache/operator/scheduler/quality-aware-construction implementation underway.
+Preserve all gates/budgets. [Failed experiment/history](Handbook/ADAPTATION_FOOTPRINT_REUSE248_20261107.md).
 Actual shape+geometry and geometry-only selected contexts have no useful tested
 original/combined candidates;local successes elsewhere are not global closure.
 
-Current last-owned workload17680is terminal;NO owned heavy job is live.
-All runtime C++/fixture sources remain build247. Analysis/source preparation helpers
+Actual comparisons and final251qualification are terminal;full M6next.
+C++/fixtures now include the local248change and are pinned by that live build. Analysis/source preparation helpers
 changed only as recorded above. Historical incremental comparisons and explicit
 age offsets remain in quality_comparison244/nearest_quality_age_comparison244.json;
 terminal_comparison244 supersedes their old final-state scope.
@@ -180,7 +202,7 @@ terminal meshes only,never every trial. A247terminal inspection export/readback 
 
 ## Next action and downstream obligations — all open
 
-Continue frozen247to its terminal outcome;compare net whole-field q/J-bad removal,
+After current250qualification,run the full same-seed attempt;compare net whole-field q/J-bad removal,
 geometry counts and counted work at complete stages/explicit quality ages.
 At refusal preserve/seal bounded evidence and exact source pins before any authorized
 owned stop. Use its demonstrated blocker to select ONE next connected cycle.

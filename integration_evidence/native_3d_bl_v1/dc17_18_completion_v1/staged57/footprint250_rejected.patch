@@ -1,0 +1,190 @@
+diff --git a/Common/src/adaptation/CNativeAffineReference.cpp b/Common/src/adaptation/CNativeAffineReference.cpp
+index f5924af194..3bb9d7dc76 100644
+--- a/Common/src/adaptation/CNativeAffineReference.cpp
++++ b/Common/src/adaptation/CNativeAffineReference.cpp
+@@ -258,6 +258,60 @@ long double BoxGap(const Box& a,const Box& b) {
+   return gap;
+ }
+ struct RefineSurfaceTarget {};
++struct UpperCoverageMemo {
++  struct Region {
++    unsigned kind=0;
++    std::array<Point,3> triangle{};
++    std::array<double,2> lo{},hi{};
++  };
++  struct Group {
++    std::array<Region,4> regions{};unsigned next=0;
++    bool Contains(const std::array<Point,3>& triangle,bool positive,AtlasOps& op)const {
++      for(unsigned k=0;k<regions.size();++k) {
++        const auto& region=regions[(next+regions.size()-1-k)%regions.size()];
++        if(!region.kind)continue;
++        op.Work();bool inside=true;SU2Native3D::KernelStats predicates;
++        for(auto p:triangle) {
++          if(region.kind==1) {
++            op.Work();
++            if(p.x<region.lo[0]||p.x>region.hi[0]||p.y<region.lo[1]||p.y>region.hi[1]){inside=false;break;}
++          } else for(unsigned edge=0;edge<3;++edge) {
++            const auto side=SU2Native3D::SurfaceNormalSign({0,0,1},
++                {region.triangle[edge],region.triangle[(edge+1)%3],p},&predicates);
++            if(side && (side>0)!=positive){inside=false;break;}
++          }
++          if(!inside)break;
++        }
++        op.Work(transfer_memory::Add(predicates.filtered_orientations,predicates.exact_orientations));
++        if(inside)return true;
++      }
++      return false;
++    }
++    void Store(const std::array<Point,3>& triangle) {
++      auto& region=regions[next];region.kind=2;region.triangle=triangle;next=(next+1)%regions.size();
++    }
++    void Store(const std::array<double,2>& lo,const std::array<double,2>& hi) {
++      auto& region=regions[next];region.kind=1;region.lo=lo;region.hi=hi;next=(next+1)%regions.size();
++    }
++  };
++  const void* owner=nullptr;std::vector<Group> groups;bool disabled=false;
++  Group* Find(const void* target,size_t count,size_t group,AtlasOps& op) {
++    if(disabled)return nullptr;
++    if(owner && owner!=target)throw std::logic_error("Footprint proof crossed query targets.");
++    if(groups.empty()) {
++      // Leave kernel scratch headroom instead of consuming it for optional reuse.
++      const auto bytes=transfer_memory::Add(transfer_memory::GrowthBound(count,sizeof(Group)),8192);
++      if(transfer_memory::Add(op.budget.caller_bytes,bytes)>op.budget.maximum_bytes ||
++          op.budget.work>op.budget.maximum_work || count>op.budget.maximum_work-op.budget.work) {
++        disabled=true;return nullptr;
++      }
++      op.Storage(bytes);op.Work(count);groups.resize(count);owner=target;
++      op.budget.caller_bytes=transfer_memory::Add(op.budget.caller_bytes,
++          transfer_memory::Mul(groups.capacity(),sizeof(Group)));
++    }
++    return &groups.at(group);
++  }
++};
+ class TriangleUnion {
+  public:
+   TriangleUnion(const std::vector<UnionTriangle>& triangles,AtlasOps& op,double resolution,bool footprints=true):triangles(triangles),accuracy(resolution) {
+@@ -297,12 +351,12 @@ class TriangleUnion {
+     for(auto i:candidates){const auto b=Distance(point,i,op);bound.lower=std::min(bound.lower,b.lower);bound.upper=std::min(bound.upper,b.upper);}
+     return bound;
+   }
+-  template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op) {
++  template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op,UpperCoverageMemo* memo=nullptr) {
+     Box box;for(unsigned d=0;d<3;++d){box[d]={INFINITY,-INFINITY};for(const auto& p:hull){box[d].lo=std::min(box[d].lo,p[d].lo);box[d].hi=std::max(box[d].hi,p[d].hi);}}
+     auto witness=[&](size_t i){double b=0;for(const auto& p:hull)b=std::max(b,Distance(p,i,op,false).upper);return b;};
+     if(++visit==0){std::fill(visited.begin(),visited.end(),0);visit=1;}
+     auto plane_bound=[&](size_t i)->double{const auto group=triangle_plane[i];if(group==SIZE_MAX||visited[group]==visit)return INFINITY;
+-      visited[group]=visit;op.Work();return planes[group].Upper(hull,op);};
++      visited[group]=visit;op.Work();return planes[group].Upper(hull,op,memo?memo->Find(this,planes.size(),group,op):nullptr);};
+     // A convex triangle witness can certify small domains before expensive finite-footprint coverage.
+     const auto seed=Seed(box,op);double best=witness(seed);if(best<=accuracy)return best;
+     best=std::min(best,plane_bound(seed));if(best<=accuracy)return best;
+@@ -327,12 +381,12 @@ class TriangleUnion {
+     std::vector<Plane> faces;unsigned axis=0;
+     TriangleUnion* owner=nullptr;size_t group=0;double axis_lo=INFINITY,axis_hi=-INFINITY;
+     std::array<double,2> lo{},hi{};bool positive=true;
+-    template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op)const {
++    template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op,UpperCoverageMemo::Group* memo)const {
+       struct TraceReceipt {
+-        AtlasOps& op;size_t start,coverage_work=0;unsigned coverage=0;double bound=INFINITY;
++        AtlasOps& op;size_t start,coverage_work=0;unsigned coverage=0;double bound=INFINITY;bool reused=false;
+         ~TraceReceipt(){if(AtlasOps::Trace())std::fprintf(stderr,
+-            "NATIVE_SURFACE_GRAPH coverage=%u bound=%.17g coverage_work=%zu lift_work=%zu\n",
+-            coverage,bound,coverage_work,op.budget.work-start-coverage_work);}
++            "NATIVE_SURFACE_GRAPH coverage=%u bound=%.17g coverage_work=%zu lift_work=%zu coverage_reused=%d\n",
++            coverage,bound,coverage_work,op.budget.work-start-coverage_work,int(reused));}
+       } trace{op,op.budget.work};
+       const unsigned x=(axis==0?1:0),y=(axis==2?1:2);
+       long double dx=0,dy=0;std::array<long double,2> lower{{INFINITY,INFINITY}},upper{{-INFINITY,-INFINITY}};
+@@ -357,7 +411,10 @@ class TriangleUnion {
+         const auto orientation=SU2Native3D::SurfaceNormalSign({0,0,1},projected,&predicates);
+         if(std::isfinite(padding)&&orientation) {
+           if((orientation>0)!=positive)std::swap(projected[1],projected[2]);
+-          triangle_covered=footprint->ContainsFace(projected,&predicates);
++          // Only reuse an immutable footprint's coverage; padding and every 3D lift stay fresh.
++          trace.reused=memo && memo->Contains(projected,positive,op);
++          triangle_covered=trace.reused || footprint->ContainsFace(projected,&predicates);
++          if(triangle_covered && memo && !trace.reused){op.Work(3);memo->Store(projected);}
+         }
+         op.Work(transfer_memory::Add(predicates.filtered_orientations,predicates.exact_orientations));
+         if(triangle_covered) {
+@@ -375,6 +432,7 @@ class TriangleUnion {
+         else covered=positive ? (footprint->ContainsFace({p,q,r},&predicates)&&footprint->ContainsFace({p,r,s},&predicates)) :
+             (footprint->ContainsFace({p,r,q},&predicates)&&footprint->ContainsFace({p,s,r},&predicates));
+         op.Work(transfer_memory::Add(predicates.filtered_orientations,predicates.exact_orientations));
++        if(covered && memo){op.Work(2);memo->Store(a,b);}
+       }
+       trace.coverage_work=op.budget.work-trace.start;trace.coverage=covered?1:triangle_covered?2:0;
+       if(!covered&&!triangle_covered)return INFINITY;
+@@ -558,7 +616,7 @@ class TriangleUnion {
+ class SurfaceForest {
+  public:
+   std::vector<TriangleUnion*> leaves;TriangleUnion* witness=nullptr;double maximum_error=0,accuracy=0;bool complete_witness=false;
+-  template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op){return witness->Upper(hull,op);}
++  template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op,UpperCoverageMemo* memo=nullptr){return witness->Upper(hull,op,memo);}
+   double ApproximationError()const{return maximum_error;}
+   TriangleDistanceBounds Distance(const Box& point,AtlasOps& op) {
+     if(complete_witness)return witness->Distance(point,op);
+@@ -2027,13 +2085,16 @@ MappedFacetReference::SurfaceUnionBounds MappedFacetReference::QuerySurfaceUnion
+   struct NodeBound {UnionDomain domain;double upper,diameter;};
+   auto compare=[](const NodeBound& a,const NodeBound& b){return a.upper<b.upper;};
+   auto directed=[&](bool from_model,auto& target) {
++    struct CoverageRestore {AtlasBudget& budget;size_t caller;~CoverageRestore(){budget.caller_bytes=caller;}}
++        coverage_restore{budget,budget.caller_bytes};
++    UpperCoverageMemo coverage;
+     std::vector<NodeBound> queue;double lower=0,finished=0;size_t leaves=0;
+     size_t traced_work=budget.work;
+     auto prepare=[&](const UnionDomain& domain) {
+       const auto upper_work=budget.work;
+       op.Work();double upper=0,diameter=0;
+       if(from_model)upper=target.Upper(net(domain),op);
+-      else {std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=LinearPoint(physical.at(domain.facet),Exact(domain.parameter[k]));upper=target.Upper(points,op);
++      else {std::array<Box,3> points;for(unsigned k=0;k<3;++k)points[k]=LinearPoint(physical.at(domain.facet),Exact(domain.parameter[k]));upper=target.Upper(points,op,&coverage);
+         if(upper>tolerance&&target.ApproximationError()>0)for(unsigned k=0;k<3;++k)
+           diameter=std::max(diameter,NormBound(Difference(points[k],points[(k+1)%3])));}
+       const auto distance_work=budget.work;
+diff --git a/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp b/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
+index 34a2a3ab65..1487621f09 100644
+--- a/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeAffineReference_tests.cpp
+@@ -497,6 +497,13 @@ TEST_CASE("Mapped finite components retain two holes a notch and a disconnected
+     const auto answer=forest.BoundPhysicalSurface(support,physical,1e-4,a);
+     CHECK((answer<=1e-4)==accepted);CHECK(forest.BoundPhysicalSurface(support,physical,1e-4,b)==answer);
+     CHECK(oracle.BoundPhysicalSurface(support,physical,1e-4,c)==answer);
++    // Warm a covered region before testing holes and another body's footprint in the SAME query.
++    const std::array<Point,3> warm{chart.Lift({.2,.2,0}),chart.Lift({.3,.2,0}),chart.Lift({.2,.3,0})};
++    const std::vector<std::array<Point,3>> joined{warm,physical.front()};auto d=a,e=a;d.work=e.work=0;
++    const auto combined=forest.BoundPhysicalSurface(support,joined,1e-4,d);
++    CHECK((combined<=1e-4)==accepted);
++    CHECK(oracle.BoundPhysicalSurface(support,joined,1e-4,e)==combined);
++    CHECK(d.caller_bytes==a.caller_bytes);CHECK(d.peak_bytes<=d.maximum_bytes);
+     auto denied=a;denied.maximum_bytes=1;denied.work=0;
+     CHECK_THROWS(forest.BoundSurfaceUnion(support,physical,1e-4,denied));
+   };
+diff --git a/UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp b/UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp
+index 1d4a3ac7b4..2822aa313d 100644
+--- a/UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeGeometryBackend3D_tests.cpp
+@@ -453,6 +453,23 @@ TEST_CASE("Finite triangular graph envelopes bound the whole source face", "[Nat
+     CHECK(answer>=gap);CHECK((answer<=tolerance)==(gap<tolerance));
+     CHECK(cached.BoundPhysicalSurface({0,1,2,3},physical,tolerance,b)==answer);
+     CHECK(uncached.BoundPhysicalSurface({0,1,2,3},physical,tolerance,c)==answer);
++    // The second source has the same footprint but a different lift inside one query.
++    auto raised=triangle;const auto offset=transform({0,0,-2*tolerance});
++    for(auto& p:raised){p.x+=offset.x;p.y+=offset.y;p.z+=offset.z;}
++    const std::vector<std::array<Point,3>> mixed{triangle,raised};auto fresh=BackendBudget(),oracle=fresh;
++    const auto shifted=cached.BoundPhysicalSurface({0,1,2,3},mixed,tolerance,fresh);
++    CHECK(shifted>tolerance);CHECK(shifted>=gap+2*tolerance);
++    CHECK(uncached.BoundPhysicalSurface({0,1,2,3},mixed,tolerance,oracle)==shifted);
++    CHECK(fresh.caller_bytes==0);CHECK(fresh.peak_bytes<=fresh.maximum_bytes);
++    auto changed=mixed;const auto small=transform({0,0,-.125*tolerance});
++    for(auto& p:changed.front()){p.x+=small.x;p.y+=small.y;p.z+=small.z;}
++    // Warm this exact prepared scope without populating the upper-query result memo.
++    auto prepare=BackendBudget();cached.BoundSurfaceUnion({0,1,2,3},changed,tolerance,prepare);
++    auto fallback=BackendBudget(),recompute=fallback;fallback.maximum_bytes=16384;fallback.caller_bytes=123;
++    CHECK(cached.BoundPhysicalSurface({0,1,2,3},changed,tolerance,fallback)==
++          uncached.BoundPhysicalSurface({0,1,2,3},changed,tolerance,recompute));
++    CHECK(fallback.caller_bytes==123);CHECK_FALSE(fallback.work_exhausted);
++    CHECK(fallback.peak_bytes<=fallback.maximum_bytes);
+     auto limited=BackendBudget();limited.maximum_work=0;
+     CHECK_THROWS(cached.BoundPhysicalSurface({0,1,2,3},physical,tolerance,limited));CHECK(limited.work_exhausted);
+     auto storage=BackendBudget();storage.maximum_bytes=1;

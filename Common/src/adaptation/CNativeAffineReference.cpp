@@ -301,10 +301,10 @@ class TriangleUnion {
     Box box;for(unsigned d=0;d<3;++d){box[d]={INFINITY,-INFINITY};for(const auto& p:hull){box[d].lo=std::min(box[d].lo,p[d].lo);box[d].hi=std::max(box[d].hi,p[d].hi);}}
     auto witness=[&](size_t i){double b=0;for(const auto& p:hull)b=std::max(b,Distance(p,i,op,false).upper);return b;};
     if(++visit==0){std::fill(visited.begin(),visited.end(),0);visit=1;}
-    auto plane_bound=[&](size_t i)->double{const auto group=triangle_plane[i];if(group==SIZE_MAX||visited[group]==visit)return INFINITY;
-      visited[group]=visit;op.Work();return planes[group].Upper(hull,op);};
     // A convex triangle witness can certify small domains before expensive finite-footprint coverage.
     const auto seed=Seed(box,op);double best=witness(seed);if(best<=accuracy)return best;
+    auto plane_bound=[&](size_t i)->double{const auto group=triangle_plane[i];if(group==SIZE_MAX||visited[group]==visit)return INFINITY;
+      visited[group]=visit;op.Work();return planes[group].Upper(hull,op,best);};
     best=std::min(best,plane_bound(seed));if(best<=accuracy)return best;
     // A passing witness must intersect the hull's tolerance neighbourhood; retain the seed's valid upper bound.
     Candidates(box,std::min(best,accuracy),op);
@@ -327,7 +327,7 @@ class TriangleUnion {
     std::vector<Plane> faces;unsigned axis=0;
     TriangleUnion* owner=nullptr;size_t group=0;double axis_lo=INFINITY,axis_hi=-INFINITY;
     std::array<double,2> lo{},hi{};bool positive=true;
-    template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op)const {
+    template<size_t N> double Upper(const std::array<Box,N>& hull,AtlasOps& op,double cutoff)const {
       struct TraceReceipt {
         AtlasOps& op;size_t start,coverage_work=0;unsigned coverage=0;double bound=INFINITY;
         ~TraceReceipt(){if(AtlasOps::Trace())std::fprintf(stderr,
@@ -475,8 +475,12 @@ class TriangleUnion {
         su2double low[3],high[3];low[x]=a[0];high[x]=b[0];low[y]=a[1];high[y]=b[1];
         low[axis]=std::nextafter(axis_lo,-INFINITY);high[axis]=std::nextafter(axis_hi,INFINITY);
         auto& nearby=owner->graph_candidates;nearby.clear();op.Work();owner->index->DetermineIntersectingElements(low,high,nearby);
-        for(auto i:nearby)if(owner->triangle_plane[i]==group)lift(faces[owner->triangle_slot[i]]);
-      } else for(const auto& face:faces)lift(face);
+        for(auto i:nearby)if(owner->triangle_plane[i]==group) {
+          lift(faces[owner->triangle_slot[i]]);if(bound>=cutoff)break;
+        }
+      } else for(const auto& face:faces){lift(face);if(bound>=cutoff)break;}
+      // The graph's maximum can only grow; a losing graph cannot improve the caller's minimum.
+      if(bound>=cutoff)return INFINITY;
       if(!found)return INFINITY;
       // Every original hull point is within padding of a point on the covered nominal triangle.
       trace.bound=triangle_covered?std::nextafter(double(Add({bound,bound},{0,padding}).hi),INFINITY):bound;

@@ -1,6 +1,6 @@
 # Selected connected change: reuse proved footprint regions within a query
 
-2026-11-07. Implementation NOT YET started;ZERO accepted meshes.
+2026-11-07. Implementation LOCAL,compiled250;final validation pending;ZERO accepted meshes.
 Current build247M6first event refused with1148q/484J/1044geometry-bad cells.
 The immediate demonstrated blocker is deadline exhaustion with useful queued work.
 Geometry/repair power,transfer,continued adapted CFD and actual disk restart remain
@@ -84,3 +84,48 @@ continued CFD and isolated adapted disk restart. Geometry power remains open eve
 if this speeds shape search;select its remedy from that run's actual outcome.
 
 [247outcome](ADAPTATION_BUILD247_OUTCOME_20261107.md),[current handoff](../HANDOFF_Codex.md).
+
+Local implementation retains four exact projected regions per plane in a lazily
+allocated QUERY-LOCAL vector. All new triangle containment uses robust orientations
+or exact closed rectangle comparisons. Only the physical mesh-side upper calls
+receive the memo. Optional admission leaves8192bytes kernel scratch headroom;
+insufficient byte/work allowance uses the original path. Dynamic bytes are charged
+until the memo is destroyed,before caller restoration. Added checks warm coverage
+then vary lift,holes/body scope,and constrained transient memory. Build248passed45.107960s,all1303pins unchanged,both targets current,all20sampled IDs absent. Focused serial validation is live;keep pinned source/fixtures unchanged.
+
+First248serial run failed only the new low-memory fixture:37/38cases pass,
+12/2044assertions fail because one shifted input selects a new unprepared witness
+(16176scratch+9827caller exceeds16384). Preserved failure and all handles terminal.
+The fixture now warms THAT exact scope using BoundSurfaceUnion,which does not
+populate the upper-query result memo. The16384ceiling and production code remain
+unchanged. Build249is LIVE;keep all pinned sources frozen until terminal.
+
+Build249serial passed38cases/2044assertions in62.358936s after exact-scope warming;
+all owned handles terminal. Final250production adds explicit3/2work charges for
+triangle/rectangle proof stores. Build250passed33.103694s,pins unchanged and all
+15sampled host handles absent. Same actual seven-context comparison is LIVE in
+R/footprint250_compound_attempt.json;source/fixtures/helpers frozen until terminal.
+No geometry work saving or final acceptance established yet.
+
+## Actual250 outcome: rejected; smaller monotone cutoff selected
+
+Same seven actual-terminal contexts passed103.756774s,all pins unchanged and six
+host handles absent. All5241query identities/cache outcomes/bounds and166complete
+result rows match247exactly(excluding time/work). Footprint reuse raises counted
+query work5096073→5655099(+10.97%);2494hits save28422coverage units while40792misses
+add585937. No timing benefit established. Production memo is REMOVED before251;
+exact failed patch/evidence preserved as R/footprint250_rejected.patch and
+footprint250_{actual_comparison,lookup_cost,lift_cutoff_opportunity}.json.
+Focused hole/body/lift/resource assertions remain useful and are retained.
+
+Within the SAME shared upper-certification optimization cycle,selected smaller
+hypothesis:pass the current minimum upper witness into PlaneUnion::Upper and stop
+its monotone maximum once it cannot improve that minimum. Baseline19163graph
+calls end worse than the final selected upper,consuming548962lift units;this is
+only opportunity evidence,not a saving estimate. Each lift updates bound by max;
+remaining lifts cannot reduce it. Final padding is nonnegative. If partial bound
+>=current best,return infinity as a losing candidate;the caller's min stays EXACT.
+Otherwise preserve the existing complete graph evaluation. All coverage/support/
+body/association/height/metric/final gates remain unchanged;no new state/config.
+Validate exact actual-corpus results/work,focused serial resource/curved tests and
+ONE MPI6milestone. Only then full TWO-event same-seed M6. No cache benefit claim.

@@ -639,3 +639,14 @@ query/subtree computations in the active cycle before any new envelope or repres
 A247/actual_terminal247_{query_and_cavity_assessment,lower_witness_opportunity}.json;
 [terminal outcome](ADAPTATION_BUILD247_OUTCOME_20261107.md). Local gains overlap and
 cannot establish global closure. Construction policy and strict gates stay unchanged.
+
+### 2026-11-07 — footprint proof-region memo rejected after actual250 test
+
+Same seven terminal247contexts preserved5241exact query results and166complete
+result rows,but added557515coverage work for only2494reuses;total query work rose
+10.97%. Failed lookups add585937and successful lookups save28422. Production memo
+removed;R/footprint250_rejected.patch preserves the experiment. Do not reintroduce
+more tickets,nearby-position caches or a new footprint representation without
+measured evidence addressing this failure. Active same-cycle251work is the smaller
+monotone losing-graph cutoff;its initial actual-corpus saving is2.2087%query work,
+not a whole-M6 closure claim. All coupled-operator/construction ideas stay deferred.

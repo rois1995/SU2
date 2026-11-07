@@ -453,6 +453,23 @@ TEST_CASE("Finite triangular graph envelopes bound the whole source face", "[Nat
     CHECK(answer>=gap);CHECK((answer<=tolerance)==(gap<tolerance));
     CHECK(cached.BoundPhysicalSurface({0,1,2,3},physical,tolerance,b)==answer);
     CHECK(uncached.BoundPhysicalSurface({0,1,2,3},physical,tolerance,c)==answer);
+    // The second source has the same footprint but a different lift inside one query.
+    auto raised=triangle;const auto offset=transform({0,0,-2*tolerance});
+    for(auto& p:raised){p.x+=offset.x;p.y+=offset.y;p.z+=offset.z;}
+    const std::vector<std::array<Point,3>> mixed{triangle,raised};auto fresh=BackendBudget(),oracle=fresh;
+    const auto shifted=cached.BoundPhysicalSurface({0,1,2,3},mixed,tolerance,fresh);
+    CHECK(shifted>tolerance);CHECK(shifted>=gap+2*tolerance);
+    CHECK(uncached.BoundPhysicalSurface({0,1,2,3},mixed,tolerance,oracle)==shifted);
+    CHECK(fresh.caller_bytes==0);CHECK(fresh.peak_bytes<=fresh.maximum_bytes);
+    auto changed=mixed;const auto small=transform({0,0,-.125*tolerance});
+    for(auto& p:changed.front()){p.x+=small.x;p.y+=small.y;p.z+=small.z;}
+    // Warm this exact prepared scope without populating the upper-query result memo.
+    auto prepare=BackendBudget();cached.BoundSurfaceUnion({0,1,2,3},changed,tolerance,prepare);
+    auto fallback=BackendBudget(),recompute=fallback;fallback.maximum_bytes=16384;fallback.caller_bytes=123;
+    CHECK(cached.BoundPhysicalSurface({0,1,2,3},changed,tolerance,fallback)==
+          uncached.BoundPhysicalSurface({0,1,2,3},changed,tolerance,recompute));
+    CHECK(fallback.caller_bytes==123);CHECK_FALSE(fallback.work_exhausted);
+    CHECK(fallback.peak_bytes<=fallback.maximum_bytes);
     auto limited=BackendBudget();limited.maximum_work=0;
     CHECK_THROWS(cached.BoundPhysicalSurface({0,1,2,3},physical,tolerance,limited));CHECK(limited.work_exhausted);
     auto storage=BackendBudget();storage.maximum_bytes=1;

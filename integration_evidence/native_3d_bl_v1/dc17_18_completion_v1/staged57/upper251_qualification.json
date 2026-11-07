@@ -1,0 +1,178 @@
+{
+  "time": 1794074367.4936366,
+  "build": "build251",
+  "state": "affected milestone passed;full M6 next",
+  "checks": {
+    "compound": {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T175201_454502",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 102.92590284347534,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 478998528,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "log_sha256": "a3c1af3b055e4e27dfdfdf731adae0fdc0490d8f2f4432801d7be5e0d63bd47b",
+      "handles": {
+        "time": 1794074084.4785967,
+        "handles": [
+          {
+            "pid": 454502,
+            "present": false
+          },
+          {
+            "pid": 454707,
+            "present": false
+          },
+          {
+            "pid": 454708,
+            "present": false
+          },
+          {
+            "pid": 454709,
+            "present": false
+          },
+          {
+            "pid": 454710,
+            "present": false
+          },
+          {
+            "pid": 454501,
+            "present": false
+          }
+        ],
+        "scope": "Host diagnostic/wrapper handles absent"
+      }
+    },
+    "serial": {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/canonical_serial_20261107T175444_461100",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 61.30163621902466,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 70725632,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "log_sha256": "9e226bd9830248c49adee74c735e4f6db3d2cf645544fe4d31eb73d2a4ebeb96",
+      "handles": {
+        "time": 1794074146.6037536,
+        "scope": "All sampled host case handles absent; sequential validation wrapper continues",
+        "handles": [
+          {
+            "pid": 461100,
+            "present": false
+          },
+          {
+            "pid": 461173,
+            "present": false
+          },
+          {
+            "pid": 461174,
+            "present": false
+          },
+          {
+            "pid": 461175,
+            "present": false
+          },
+          {
+            "pid": 461176,
+            "present": false
+          }
+        ]
+      }
+    },
+    "mpi6": {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/placement_mpi6_20261107T175546_463529",
+      "status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "seconds": 163.8949830532074,
+        "pins_verified": true,
+        "changed": [],
+        "largest_sampled_individual_process_rss_bytes": 446943232,
+        "rss_note": "sampled process RSS; not a whole-job peak"
+      },
+      "rank_summaries": [
+        [
+          "58761",
+          "90"
+        ],
+        [
+          "58941",
+          "90"
+        ],
+        [
+          "58969",
+          "90"
+        ],
+        [
+          "59022",
+          "90"
+        ],
+        [
+          "59144",
+          "90"
+        ],
+        [
+          "59847",
+          "90"
+        ]
+      ],
+      "log_sha256": "2ca17467a113efac60eba1f0682506bfe46eefa87e854e191498c236684a5bcf",
+      "handles": {
+        "time": 1794074310.832725,
+        "scope": "All sampled host case handles absent; sequential validation wrapper continues",
+        "handles": [
+          {
+            "pid": 463529,
+            "present": false
+          },
+          {
+            "pid": 463694,
+            "present": false
+          },
+          {
+            "pid": 463695,
+            "present": false
+          },
+          {
+            "pid": 463696,
+            "present": false
+          },
+          {
+            "pid": 463704,
+            "present": false
+          },
+          {
+            "pid": 463703,
+            "present": false
+          },
+          {
+            "pid": 463702,
+            "present": false
+          },
+          {
+            "pid": 463701,
+            "present": false
+          },
+          {
+            "pid": 463700,
+            "present": false
+          },
+          {
+            "pid": 463699,
+            "present": false
+          }
+        ]
+      }
+    }
+  },
+  "actual_comparison": "upper251_actual_comparison.json",
+  "accepted_meshes": 0,
+  "scope": "Affected shared upper-bound optimization only;does not qualify full M6/transfer/restart/BL/RANS",
+  "validation_wrapper_host_terminal": true
+}

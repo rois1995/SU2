@@ -497,6 +497,13 @@ TEST_CASE("Mapped finite components retain two holes a notch and a disconnected 
     const auto answer=forest.BoundPhysicalSurface(support,physical,1e-4,a);
     CHECK((answer<=1e-4)==accepted);CHECK(forest.BoundPhysicalSurface(support,physical,1e-4,b)==answer);
     CHECK(oracle.BoundPhysicalSurface(support,physical,1e-4,c)==answer);
+    // Warm a covered region before testing holes and another body's footprint in the SAME query.
+    const std::array<Point,3> warm{chart.Lift({.2,.2,0}),chart.Lift({.3,.2,0}),chart.Lift({.2,.3,0})};
+    const std::vector<std::array<Point,3>> joined{warm,physical.front()};auto d=a,e=a;d.work=e.work=0;
+    const auto combined=forest.BoundPhysicalSurface(support,joined,1e-4,d);
+    CHECK((combined<=1e-4)==accepted);
+    CHECK(oracle.BoundPhysicalSurface(support,joined,1e-4,e)==combined);
+    CHECK(d.caller_bytes==a.caller_bytes);CHECK(d.peak_bytes<=d.maximum_bytes);
     auto denied=a;denied.maximum_bytes=1;denied.work=0;
     CHECK_THROWS(forest.BoundSurfaceUnion(support,physical,1e-4,denied));
   };
