@@ -221,10 +221,14 @@ protected:
    * integral over the dual volume of i (owned nodes), from the last flow residual. ---*/
   su2activevector P1TurbProduction;
 
-  /*--- JST_ENTROPY_BUDGET (P1_JST_ENTROPY.md, J4): theta of each node, and with the matched SST form the mass flux of the
+  /*--- JST_ENTROPY_BUDGET (P1_JST_ENTROPY.md, J7): theta of each node, and with the matched SST form the mass flux of the
    * correction of each edge (orientation of the edge), whose k the SST k row transports with the same numbers. ---*/
   su2activevector JSTTheta;
   su2activevector JSTMassCorrection;
+  /*--- Matched fourth-order term (Theorem J7): Lh_i (columns 0..nVar-1) and cb_i (column nVar) of each node, and the
+   * physical-boundary flags of the JST boundary rule N* with the owners' values on the halos. ---*/
+  su2activematrix JSTLaplacian;
+  su2activevector JSTBoundaryNode;
 
   /*!
    * \brief Build P1WallFaces on first use, and again after the mesh has moved with GRID_ENTROPY_P1 (the moved wall

@@ -515,10 +515,11 @@ public:
   void SplitEdgeResidual(const CGeometry *geometry, const CConfig *config);
 
   /*!
-   * \brief JST_ENTROPY_BUDGET (P1_JST_ENTROPY.md, Theorem J4): theta of each owned node from the edge coefficients of the
-   *        JST kernel, comm to the halos, then the correction edge fluxes c4 (theta_i L_i - theta_k L_k) + 1/2 (theta_i +
-   *        theta_k) mu (U_i - U_k) and their frozen-theta Jacobian. With the matched SST form on the hat states, and
-   *        the k of the correction mass flux (JSTMassCorrection) as the edge flux. After EdgeFluxResidual, fine grid.
+   * \brief JST_ENTROPY_BUDGET (P1_JST_ENTROPY.md, Theorem J7): the matched Laplacian Lh and cb of each owned node from the
+   *        edge coefficients of the JST kernel and theta, each sent to the halos, then on every edge the correction from the
+   *        kernel's -c4 (L_i - L_k) to the matched, budgeted eps4 flux plus the floor, and its frozen-theta Jacobian. With
+   *        the matched SST form on the hat states, and the k of the correction mass flux (JSTMassCorrection) as the edge
+   *        flux. After EdgeFluxResidual, fine grid.
    */
   void JSTEntropyResidual(CGeometry *geometry, CSolver **solver_container, const CConfig *config);
 

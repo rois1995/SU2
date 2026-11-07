@@ -94,7 +94,7 @@ private:
   bool P1_Wall_Forces;         /*!< \brief Wall forces, Cf and heat flux from the boundary fluxes of the P1 entropy walls. */
   bool JST_Weak_Wall_Diss;     /*!< \brief JST fourth-order term off on edges that leave a weak no-slip wall (P1_WALL_DISSIPATION.md). */
   bool SST_Energy_Consistent;  /*!< \brief SST: k diffusion in the energy flux and production from the stress work (no SSTm energy approximations). */
-  bool JST_Entropy_Budget;     /*!< \brief JST fourth-order term under a node entropy budget (P1_JST_ENTROPY.md, Theorem J4). */
+  bool JST_Entropy_Budget;     /*!< \brief Matched JST fourth-order term under a node entropy budget (P1_JST_ENTROPY.md, Theorem J7). */
   bool Visc_P1_Entropy_Moved;  /*!< \brief Element viscous fluxes of VISC_P1_ENTROPY on the moved (MOD_CENTROIDS) dual test space, 3D. */
   bool Visc_P1_Time_Step;      /*!< \brief Viscous local time step from the block row bounds of VISC_P1_ENTROPY and the weak walls (P1_TIME_STEP.md). */
   VISC_P1_JACOBIAN Kind_Visc_P1_Jacobian; /*!< \brief Jacobian of VISC_P1_ENTROPY and its weak walls: Picard (K frozen) or full (plus dK/du). */
@@ -10121,8 +10121,9 @@ public:
   bool GetJST_Weak_Wall_Diss() const { return JST_Weak_Wall_Diss; }
 
   /*!
-   * \brief JST_ENTROPY_BUDGET: per node theta_i = B_i^+ / (Pi4_i + D_i), the eps4 flux with (1 - theta_i) L_i and the floor
-   *        1/2 (theta_i + theta_k) mu_ik (U_i - U_k); the JST production is sum_i min(B_i, 0) <= 0 (P1_JST_ENTROPY.md, J4).
+   * \brief JST_ENTROPY_BUDGET: the matched fourth-order term -c4 (chi_ik (1-theta_i) Lh_i - chi_ki (1-theta_k) Lh_k),
+   *        Lh the c4-weighted Laplacian over N*, with theta_i = B_i^+ / (Pi4_i + D_i) and the floor 1/2 (theta_i + theta_k)
+   *        mu_ik (U_i - U_k); the JST production is sum_i min(B_i, 0) <= 0 (P1_JST_ENTROPY.md, J7).
    */
   bool GetJST_Entropy_Budget() const { return JST_Entropy_Budget; }
 
