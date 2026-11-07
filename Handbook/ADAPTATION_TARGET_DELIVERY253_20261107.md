@@ -117,8 +117,9 @@ exact positive-cell obstruction;some fail body/feature contraction permission
 retained-star optimization removing2of4 guidance-geometry bad-cell counts with no shape
 failures,where raw collapse introduces3q/2J. Other candidates worsen shape or
 geometry;one40cell context has a useful original-star shape control already.
-Do not add an operator/scheduler based on this mixed evidence. Boundary=false in
-this harness means it did not exercise boundary smoothing. Recomputed guidance
+Do not add an operator/scheduler based on this mixed evidence. Although boundary=false,geometry-constrained smoothing DID execute:302candidates/7moves.
+Smooth dispatch ignores that flag when geometry is supplied;the flag gates generic
+boundary topology. The earlier interpretation was wrong and is corrected from saved results. Recomputed guidance
 geometry scores differ from terminal census certificate excess;this is an open
 certification-semantics question,not a successful cached/recomputed equality check.
 The worst sampled core has115cells and a90cell vertex star;excluded at unchanged64.
@@ -170,8 +171,8 @@ count growth). Replacement/interface pass,but these are separate checks.
 The fixture DOES NOT evaluate MetricChange::GeometryRepair,whose metric admission
 has no cell-growth requirement. No conclusion about that production mode follows.
 Private guidance/cell-count improvements are insufficient proof of production
-admission or fewer failed physical-face certificates. Boundary smoothing and
-nonlocal publication are also untested by this diagnostic. Preserve these gaps;
+admission or fewer failed physical-face certificates. Boundary smoothing was exercised(302candidates/7moves),but
+nonlocal publication remains untested by this diagnostic. Preserve these gaps;
 no further implementation while254 is frozen.
 
 
@@ -192,3 +193,13 @@ short nose chords combined with flow-metric shape constraints may require short
 spanwise/volume spacing. Existing data do not establish the necessary spacing,
 point count or a new metric policy. Do not introduce a mandatory curvature metric,
 change complexity/gradation/p,or relax q/J from this source observation.
+
+
+Boundary-setting correction (2026-11-08):earlier source notes inferred that
+options.boundary=false disables boundary smoothing. Primary checked Smooth at
+CNativeEngine3D.cpp6169–6178:fixed nodes with geometry call SmoothBoundary
+independently of that flag. The saved22result rows contain302boundary candidates
+and7moves;the original-star and combined controls therefore DID exercise boundary
+relocation. Generic unbound BoundaryFlip/BoundaryCollapse are separately gated by
+options.boundary&&!options.geometry (6495/6509). No test/runtime rerun or source
+change was needed;le_compound_assessment.json records the correction explicitly.

@@ -143,7 +143,9 @@ checks passed35836assertions/103.969246s,all pins unchanged and all handles gone
 First setup omitted OMPI_MCA_osc=pt2pt and failed MPI_Win_create before tests;
 receipts preserve failure and corrected retry. Two actual contexts(51/40cells),
 24directed collapses and original-star controls;some combined repairs help,others
-worsen q/J/geometry. Generic fixture boundary=false;no boundary-smoothing proof.
+worsen q/J/geometry. Generic fixture boundary=false STILL allows geometry-constrained smoothing:
+302boundary candidates/7moves observed. Earlier no-smoothing inference was wrong;
+Smooth dispatch6169–6178 ignores that flag with geometry. No rerun/source change.
 Its geometry-guidance score differs from terminal certification;do not conflate.
 Worst geographical LE candidate115cells/star90 exceeds64;not enlarged.
 
