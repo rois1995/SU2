@@ -123,3 +123,61 @@ were23653validity/709144shape/7432edge/37399geometry;118133guidance calls evalua
 establish how much candidate reordering,motion slack or changed-face-only reuse
 would save. Prior twelve-query motion-slack results were negative; no new cache or
 speedup is selected or established by this source review.
+
+## Actual residual and existing combined-operator checks
+
+Preparation41434terminal0/52.295735s,all1309pins unchanged,all3owned handles absent.
+R/prepare_mach244_residuals.py selects7actual terminal cores with complete GLOBAL
+four-star unions42–54cells within existing64. It reuses the original current-star
+preparer through a small input/terminal-schema generalization; no C++ change.
+1032169owned/metric rows,33339boundary points/66674physical faces validated.
+A/{mach244_coverage_assessment,residual_preparation_status}.json and
+current_witnesses_v1/witness_preparation.json preserve hashes and selected IDs.
+
+One initial setup attempt54378failed MPI_Win_create/exit53 before any test: omitted
+previously qualified OMPI_MCA_osc=pt2pt. Its pins were unchanged/all4sampled handles
+absent; failure preserved in A/current_residual_runtime_failure.json. Qualified
+retry restores pt2pt and private4TBscratch,not an algorithm change.
+
+Existing diagnostic31976terminal0/97.991032s,pins unchanged/all5handles absent,
+case R/cases/current_residual_20261107T133112_4050059. Exact q/Joracles match all7
+current nodal contexts. Four complete single-vertex stars per core:
+
+| Core role | Core ID | Context cells | Useful stars of4 |
+|---|---:|---:|---:|
+| Severe interior shape |210829569|48|2|
+| Near-gate interior q |204870656|49|4|
+| Surface shape,geometry-clean core |211800460|42|0|
+| Surface shape+geometry |206935582|54|0|
+| Surface geometry-only core |209482881|54|1|
+| Feature-adjacent shape |211800451|45|1|
+| Nearby clean surface core |208808321|43|2|
+
+Useful here requires nonincreasing complete-context q/Jcounts,at least one reduced,
+no geometry count/excess regression,and existing metric/replacement/interface checks.
+A clean CORE need not have clean neighbors. These candidates are not global
+publications or acceptance,and overlapping gains must not be added. The clean-core
+control includes one candidate increasing q count while reducing J count; debt/metric
+admission alone does not guarantee net q retirement. A/mach244_current_residual_assessment.json.
+
+Existing compound probe87221terminal0/91.806188s,pins unchanged/all5handles absent,
+case R/cases/current_compound_20261107T133648_4064110. Same three boundary contexts,
+unchanged operators/cavity limits/geometry authority:
+
+- Shape-only context:two of12directed collapses construct. Collapse+retained-star
+  optimization produces11q/9J→8q/7Jor9q/8J,with zero geometry excess retained.
+- Feature-adjacent context:one of12constructs;combined result8q/7J→5q/4J,
+  zero geometry excess retained.
+- Shape+geometry context:one collapse and an existing shell/split construct.
+  All4combined results regress geometry excess. Shelling gives1q/1J→0q/0J but
+  excess4.382556e-12→5.316350e-11;existing subsequent split lowers that to1.831859e-11,
+  still worse than original. No acceptable combined candidate is established there.
+
+A/mach244_compound_assessment.json. The diagnostic measures collapse AFTER its
+optimizer,not the raw pre-optimization merit. It therefore does NOT prove new
+production coupling is necessary. Query/candidate ordering savings also remain
+unmeasured. Continue the same geometry-cost analysis: extend the existing work
+trace with exact query identity/hit/work/bound data and expose raw-collapse merit
+in this diagnostic before choosing a connected production fix. Prior negative
+motion-slack results remain valid for their sampled scope; no new cache/config/
+scheduler/operator/quality-aware-construction policy is selected.

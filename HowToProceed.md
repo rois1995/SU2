@@ -45,6 +45,27 @@ integrated; seed CL.269535/CD.013536 meets the user's reasonable-force criterion
 not a claim of full residual convergence. Initial restart/config/mesh/reference
 are byte-identical237. Reuse the seed rather than recomputing it.
 
+## Current analysis checkpoint
+
+Seven actual Mach-only terminal contexts (42–54cells each,complete global four-star
+unions within existing64) were prepared and checked with the unchanged build244.
+Existing diagnostic passed with exact q/Joracles. Near-gate interior4/4and severe
+interior2/4stars yield useful whole-context q/Jretirement. Selected shape-only and
+shape+geometry boundary contexts each0/4. Existing collapse/shell+optimizer probe
+improves the shape-only/feature-adjacent cases,but all tested shape+geometry variants
+regress geometry excess and remain inadmissible. No new production fix is selected.
+Details and source/input/status evidence are in the Mach-only outcome and handoff.
+
+Next:one connected diagnostic build to enrich EXISTING query work tracing with
+exact support/coordinate identity,cache hit,work and returned bound,and measure raw
+collapse merit before its optimizer. Then use bounded actual contexts to distinguish
+identical/permuted query repetition from nearby positions and evaluate remaining
+certificate slack. Candidate ordering and motion reuse remain unproved alternatives;
+keep all exact support/invalidation/resource/geometry/height/final gates. This is
+analysis within the active cycle,not an old-code full baseline or new scheduler.
+Return to complete two-event M6 immediately after the justified fix and affected
+qualification. No accepted mesh,transfer,continued adapted CFD or restart yet.
+
 ## What the actual cavities established
 
 [Full237 outcome](Handbook/ADAPTATION_BUILD237_OUTCOME_20261107.md): first shape pass

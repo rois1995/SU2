@@ -36,7 +36,7 @@ reference/rejections. Metric census is COMPLETE, unlike combined244final cache.
 A_MACH/{source_freeze_before_stop,owned_stop_once,terminal_handles}.json:all10owned
 handles absent. Never repeat this stop or treat old launch metadata as live.
 
-No owned heavy job is live. Export73509TERMINAL0/425.718486s,1553pins unchanged;
+Export73509TERMINAL0/425.718486s,1553pins unchanged;
 all3sampled export handles absent. A_MACH/inspection_export_{status,pins,
 owned_startup,terminal_handles}.json. Independent meshio reader16670TERMINAL0/
 3.711577s:201113points/1032169tets,complete finite SPD nodal tensors(min eigen
@@ -46,8 +46,44 @@ cavity cells,all retained. A_MACH/inspection_reader_status.json; no ParaView GUI
 mesh acceptance claim. Latest inspectable files A_MACH/inspection/rejected_mesh.vtu
 and .su2; captured_nodal_metric has9row-major components in PointData. The surface
 extract retains this volume tensor,not a separately fabricated surface field.
-Sources/helpers are no longer pinned by an executing job; select ONE justified
-connected speed fix only after actual residual/query analysis.
+No owned heavy job is live. Actual-residual31976terminal0/97.991032s,pins unchanged,
+case R/cases/current_residual_20261107T133112_4050059,all5handles absent. Exact q/J
+oracles match all7contexts. Near-gate interior4/4and severe interior2/4stars yield
+useful complete-context q/J retirement; selected shape-only boundary and shape+
+geometry boundary each0/4. A_MACH/mach244_current_residual_assessment.json.
+
+Existing compound-operator probe87221terminal0/91.806188s,pins unchanged,all5handles
+absent;case R/cases/current_compound_20261107T133648_4064110. Three actual boundary
+contexts,existing collapse/shell+optimization only. Shape-only boundary2useful
+candidates (11q/9J→8q/7Jor9q/8J,no geometry debt);feature-adjacent8q/7J→5q/4J,
+no geometry debt. Shape+geometry candidate can remove q/Jbut ALL4combined variants
+increase geometry excess and remain inadmissible. Raw-collapse merit BEFORE its
+optimizer was not measured,so necessity of new production coupling is UNPROVED.
+A_MACH/mach244_compound_assessment.json. No production operator/scheduler change.
+
+Earlier setup-only54378terminal53/MPI_Win_create was before tests: omitted qualified
+OMPI_MCA_osc=pt2pt. Preserved failure/all4handles absent; subsequent qualified retry
+uses pt2pt/private4TBscratch. Always reuse these runtime settings for singleton
+native diagnostics. A_MACH/current_residual_runtime_failure.json.
+
+R/prepare_mach244_residuals.py selects7actual cores with complete GLOBAL four-star
+unions42–54cells within existing64: severe/near-gate interior,surface shape with/
+without geometry debt,geometry-only,feature-adjacent,nearby clean control;no omissions.
+Reuses generalized prepare_current237_witnesses.prepare;legacy entry retained.
+Preparation41434terminal0/52.295735s,1309pins unchanged,all3handles absent;
+1032169paired rows,33339boundary points/66674physical faces validated.
+A_MACH/{mach244_coverage_assessment,residual_preparation_status}.json,
+current_witnesses_v1/witness_preparation.json and compound_probe_v1/witness_preparation.json.
+Current final contexts are NOT historical replay; gains overlap,not additive.
+
+NEXT within the SAME analysis/optimization cycle: enrich the EXISTING geometry
+work trace with exact authority/support/triangle query identity and hit/work/bound
+outcomes;add raw-collapse pre-optimizer assessment to existing diagnostic. One
+connected diagnostic build (next245),then bounded actual-context measurement only.
+No new production config/operator or full old-code baseline campaign. Classify
+identical/permuted queries separately from nearby positions and inspect certified
+margin before selecting any motion bound/cache or candidate ordering. Existing
+negative twelve-query motion-slack evidence still stands; speedup UNPROVEN.
 All production sources remain unchanged; observation helper updated AFTER full run
 terminal to join the first COMPLETE exit census as well as windows. Churn/histogram/
 rank/census assertions pass. Use R/analyze_m6244_mach_only.py,not the hard-coded
