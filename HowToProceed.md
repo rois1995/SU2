@@ -14,27 +14,31 @@ Actual mesh point/cell counts are separate from metric complexity. Keep geometry
 remains optional.
 
 Authoritative handles/source pins are in [HANDOFF_Codex.md](HANDOFF_Codex.md).
-Latest full235first native event refused at the unchanged time budget with a
-COMPLETE final census:3840q/2068J/1686geometry-bad/0size. All30capture files were
-sealed before the single authorized owned stop; all solver/export handles are
-terminal. The actual198318point/1017408tet mesh, all7090bad cores,220573neighbors,
-full nodal metric and measured q/J/geometry are exported and independently read.
-See [235outcome and next target](Handbook/ADAPTATION_BUILD235_OUTCOME_20261107.md).
-No adapted mesh is accepted; transfer/adapted CFD/restart are still unproved.
+Latest full237first native event refused at the unchanged budget with COMPLETE
+final census:296q/327J/1366geometry-bad/0size,1020222cells. All30capture files sealed,
+1519pins unchanged, one authorized owned stop, all11solver handles absent.
+See [237outcome and next target](Handbook/ADAPTATION_BUILD237_OUTCOME_20261107.md).
+No mesh accepted; transfer/adapted CFD/restart still unproved. The selected198941point/1020222tet rejected mesh WITH metric is saved and independently
+read: all1725bad cores/25856neighbors included, arrays/counts/SPD tensors verified.
+Use237inspection files; no ParaView GUI check. Verify handles in HANDOFF before work.
 
-Current same-cycle bounded residual/query analysis is in
+First quality pass exhausted with44q/17J,46shape-union ALL blocked, empty queue.
+Existing surface reconstruction reduced geometry1656→1379 but fresh shape entry
+became410q/493J. Thus the next diagnostic targets repair power and coupled surface/
+volume reclosure using representative ACTUAL residual cavities and existing operators.
+All46blocked first-pass cells had short edges<.5; this correlation is not construction
+causality and does not authorize quality-aware construction. Dedicated geometry-only
+phase was not reached. Final set is not all stuck; preserve that distinction.
+
+Current same-cycle proof/qualification is in
 [the screening assessment](Handbook/ADAPTATION_GEOMETRY_SCREEN236_20261107.md).
-All five geometry-clean two-face cores already have useful original-star controls;
-their exclusion from optional four-star preflight does not justify a filter change.
-Six expensive actual nearby query pairs have insufficient certificate slack for
-safe motion reuse.236simple-plane screening preserved strict outcomes but saved no
-counted work and was REJECTED/reverted.237tests only omitting a signed lift solve
-when fresh residual intervals prove it nonpositive. Same12query replay preserves
-ALL bounds bit-for-bit, with5.96%less traversal work; this is not whole-M6 speedup.
-Connected qualification passes116serial cases/82379assertions and ONE MPI6milestone
-with26cases on every rank, pins unchanged/qualification handles terminal. Checkpoint
-4d1e2ec5b0is pushed; full same-seed two-event237is ACTIVE and source-frozen, tool2688.
-Verify current handles/pins in HANDOFF before acting. No new repair strategy.
+237omits only a signed lift solve proven nonpositive by fresh intervals;116serial
+cases/82379assertions and MPI6all26cases/rank pass. Matching construction traversal
+falls5.04%, common quality~4.84%, all common stage outcomes equal235. More work fits
+the unchanged budget; wall differences are descriptive under contention.236screening
+was REJECTED/reverted; no slack cache, larger cavity, new scheduler or representation
+is selected. Use the actual blocked tail and reconstruction neighbors to select ONE
+connected hypothesis; then qualify and immediately rerun the complete same-seed loop.
 
 Historical227saved198364points/1017523tets, but its final measurement caches were
 invalidated and its printed final zero counts were UNKNOWN. Separate centroid

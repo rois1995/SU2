@@ -4,18 +4,29 @@ import json,hashlib
 p=Path('integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/compare_quality227.py');original=p.read_text()
 source=original.replace('euler_build225_entity_shell_real_cfd50k','OLD_ATTEMPT').replace('euler_build227_witness_real_cfd50k','NEW_ATTEMPT')
 source=source.replace('225','235').replace('227','237').replace('OLD_ATTEMPT','euler_build235_geometry_coupled_real_cfd50k').replace('NEW_ATTEMPT','euler_build237_signed_bounds_real_cfd50k')
+# Cumulative churn is comparable only within the first uninterrupted quality pass.
+needle="  if window['stage']!='window' or window['phase']!='improvement':continue\n"
+assert source.count(needle)==1
+source=source.replace(needle,needle+"  if any(e['stage']=='quality_exit' and e['round']<=window['round'] for e in progress['events']):continue\n")
 exec(compile(source,str(p),'exec'),{'__file__':str(p)})
-out=p.parent/'m6_runs/euler_build237_signed_bounds_real_cfd50k/quality_comparison235.json';d=json.loads(out.read_text());d['analysis_reuse']={'original_helper':str(p),'original_sha256':hashlib.sha256(original.encode()).hexdigest(),'executed_source_sha256':hashlib.sha256(source.encode()).hexdigest(),'transformation':'Existing225-vs227 checker with explicit baseline235/current237 labels and attempt paths; no runtime changes.'};out.write_text(json.dumps(d,indent=2)+'\n')
+out=p.parent/'m6_runs/euler_build237_signed_bounds_real_cfd50k/quality_comparison235.json';d=json.loads(out.read_text());d['analysis_reuse']={'original_helper':str(p),'original_sha256':hashlib.sha256(original.encode()).hexdigest(),'executed_source_sha256':hashlib.sha256(source.encode()).hexdigest(),'transformation':'Existing225-vs227 checker with explicit baseline235/current237 labels and attempt paths. Cumulative comparison stops at first quality exit; reconstruction changes the census outside those churn counters. Latest-window location/ladder assessment remains separate. No runtime changes.'};out.write_text(json.dumps(d,indent=2)+'\n')
 
 # Join the existing per-rank location/ladder records by their actual census serial, not window ordinal.
-latest=d['matching_rounds'][-1];current=latest['build237'];attempt=out.parent
+attempt=out.parent
 progress=json.loads((attempt/'construction_progress_assessment.json').read_text())
-event=next(e for e in progress['events'] if e['stage']=='window' and e['round']==latest['round'])
-locations={};ladders={};service=current['rank_window_service']
+event=[e for e in progress['events'] if e['stage']=='window' and e['phase']=='improvement'][-1]
+locations={};ladders={};service={}
 for rank in range(6):
     path=attempt/f'rank_output/1/rank.{rank}/stdout';receipt=progress['source_prefixes'][str(path)]
     raw=path.read_bytes()[:receipt['bytes']];assert hashlib.sha256(raw).hexdigest()==receipt['sha256']
-    census=service[str(rank)]['census'];found={}
+    window=[]
+    for line in raw.decode(errors='replace').splitlines():
+        if not line.startswith('NATIVE3D_QUALITY '):continue
+        row=dict(item.split('=',1) for item in line.split()[1:] if '=' in item)
+        if row['stage']=='window' and int(row['round'])==event['round']:
+            assert int(row['rank'])==rank and row['complete']=='1';window.append(row)
+    assert len(window)==1
+    service[str(rank)]=window[0];census=window[0]['census'];found={}
     for line in raw.decode(errors='replace').splitlines():
         prefix=line.split(' ',1)[0]
         if prefix not in ('NATIVE3D_QUALITY_LOCATION','NATIVE3D_QUALITY_LADDER'):continue
@@ -57,7 +68,9 @@ if service_totals['unmeasured_churn']==service_totals['construction_edits']==0:
     for stem in ('q','j'):
         assert sum(v[stem+'_removed'] for v in yield_by_kind.values())==service_totals[stem+'_retired']-service_totals[stem+'_introduced']
 header=Path('Common/include/adaptation/CNativeEngine3D.hpp')
-result={'round':latest['round'],'census_by_rank':{k:int(v['census']) for k,v in service.items()},
+result={'round':event['round'],'native_elapsed':event['maximum_native_elapsed'],'totals':event['totals'],
+        'same_round_baseline_available':any(e['round']==event['round'] for e in d['matching_rounds']),
+        'census_by_rank':{k:int(v['census']) for k,v in service.items()},
         'complete_flags':event['complete_flags'],'service_totals':service_totals,'location_totals':totals,
         'histograms':histograms,'ladder_window_yield':yield_by_kind,'per_rank_location':locations,
         'per_rank_ladder':ladders,'source_prefixes':progress['source_prefixes'],

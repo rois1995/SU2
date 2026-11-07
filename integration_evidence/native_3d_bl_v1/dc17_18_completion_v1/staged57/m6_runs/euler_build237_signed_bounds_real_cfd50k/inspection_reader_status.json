@@ -1,0 +1,139 @@
+{
+  "state": "terminal",
+  "started_at": 1794036824.5389583,
+  "reader": {
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "meshio": "5.3.5",
+    "numpy": "1.26.4"
+  },
+  "helper_sha256": "bb202146165927263a5a17bd0e6305b7e47485685521a3b95d2a6a1ef6164f3f",
+  "exit_code": 0,
+  "all_reader_checks_passed": true,
+  "seconds": 5.542227268218994,
+  "output_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/inspection/bad_cells.vtu": "928ef754d3b5aed88614fdcfbdff481b426684c4ab41a6e1f5bc27b9f9517a78",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/inspection/cavities.vtu": "a70a87f9dfec7130882b6f70a1ca121f034e460326db55b002c9e282b01387d9",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/inspection/inspect_manifest.json": "d457a5a282d823d2f75a519365745528cacfaea3d54960b1b77e9f2f6f09c14e",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/inspection/reference.vtu": "f199d5699cc3ff13964785d0c862d4914f96c70f07d0906b734c0c5282a239d8",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/inspection/reference_records.jsonl": "902b7095cb3ec5506dae55c8bd877b2d24e7e3da43f494f22adb681ef8a07b05",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/inspection/rejected_mesh.su2": "4bb7090c2f782ac6b79711cd5f191f0082e7041c013a818a17a3a39ee475e927",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/inspection/rejected_mesh.vtu": "9a3a58af9df1b4f6241ca665e70d5993fd361bd07e7143f29e3395652a2536d1",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/inspection/rejected_mesh_cells.jsonl": "0309b75109fa7b8febebdc54ae0ef74b9e7ca0b10425e9ca279ccbe0792b5d2b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/inspection/rejected_mesh_nodes.jsonl": "bfd7ee8701d2073fa734660fe252fa56de5c398536615a0b19c0717c0287640d",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build237_signed_bounds_real_cfd50k/inspection/rejections_historical.jsonl": "d4317dd1ed19b3b614205a4fc78a64f9470d325ff1631fc47f6d36f1fdeb6e21"
+  },
+  "files": {
+    "rejected_mesh.vtu": {
+      "points": 198941,
+      "cells": 1020222,
+      "point_arrays": [
+        "captured_nodal_metric",
+        "captured_nodal_metric_available",
+        "global_node_id"
+      ],
+      "cell_arrays": [
+        "J",
+        "cache_valid",
+        "geometry_bad",
+        "geometry_excess_l2",
+        "global_cell_id",
+        "metric_edge_max",
+        "metric_edge_min",
+        "q"
+      ]
+    },
+    "bad_cells.vtu": {
+      "points": 3149,
+      "cells": 1725,
+      "point_arrays": [
+        "captured_nodal_metric",
+        "captured_nodal_metric_available",
+        "global_node_id"
+      ],
+      "cell_arrays": [
+        "J",
+        "cache_valid",
+        "edge_0_length",
+        "edge_1_length",
+        "edge_2_length",
+        "edge_3_length",
+        "edge_4_length",
+        "edge_5_length",
+        "feature_known",
+        "geometry_bad",
+        "geometry_excess_l2",
+        "global_cell_id",
+        "height_bad",
+        "height_unresolved",
+        "is_bad_core",
+        "j_bad",
+        "metric_edge_max",
+        "metric_edge_min",
+        "near_feature",
+        "q",
+        "q_bad",
+        "size_bad",
+        "surface"
+      ]
+    },
+    "cavities.vtu": {
+      "points": 9193,
+      "cells": 25856,
+      "point_arrays": [
+        "captured_nodal_metric",
+        "captured_nodal_metric_available",
+        "global_node_id"
+      ],
+      "cell_arrays": [
+        "J",
+        "cache_valid",
+        "edge_0_length",
+        "edge_1_length",
+        "edge_2_length",
+        "edge_3_length",
+        "edge_4_length",
+        "edge_5_length",
+        "feature_known",
+        "geometry_bad",
+        "geometry_excess_l2",
+        "global_cell_id",
+        "height_bad",
+        "height_unresolved",
+        "is_bad_core",
+        "j_bad",
+        "metric_edge_max",
+        "metric_edge_min",
+        "near_feature",
+        "q",
+        "q_bad",
+        "size_bad",
+        "surface"
+      ]
+    },
+    "reference.vtu": {
+      "points": 24479,
+      "cells": 48954,
+      "point_arrays": [
+        "global_node_id"
+      ],
+      "cell_arrays": [
+        "body",
+        "global_facet_id",
+        "mapping_error",
+        "marker",
+        "sheet"
+      ]
+    }
+  },
+  "measured_bad_counts": {
+    "q_bad": 296,
+    "j_bad": 327,
+    "geometry_bad": 1366,
+    "shape_bad_union": 430,
+    "bad_union": 1725
+  },
+  "minimum_metric_eigenvalue": 0.0025878931094898477,
+  "maximum_metric_edge": 1.7999977267898075,
+  "su2_coordinates_and_tetrahedra_match": true,
+  "scope": "Independent meshio readback and array-length/tensor/count checks. No ParaView GUI qualification; mesh remains unapproved."
+}
