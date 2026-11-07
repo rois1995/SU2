@@ -65,6 +65,20 @@ A237/comparison235_matching_stages.json and construction_progress_assessment.jso
 verify complete-prefix hashes. R/analyze_m6237_stages.py reuses existing parsers.
 All11exact host handles verified LIVE again at first_construction_owned_receipt.json;
 summed RSS6.33GB(shared pages included),MemAvailable~31.2GiB,no observed pressure.
+Construction is now COMPLETE:871607cells/1997geometry-bad/0size, all76construction
+stage outcomes/cache/preparation counts equal235. Traversal272143468→258429382(-5.04%).
+Measured quality entry at native705.179721s vs235969.422254s:102058q/101860J/1997g/0size,
+rank counts/debt distribution IDENTICAL235. All1519source/runtime/input pins rechecked
+unchanged at A237/quality_entry_assessment.json. Source remains FROZEN.
+First quality window34624 at native810.860360s:874801cells/100036q/99863J/1991g/0size.
+Net2022q/1997J/6g removed; same outcomes/churn/commit counts as235at matching round.
+Quality-only traversal ratio.94418(-5.58%); observed netq19.13/s vs15.50/s over
+105.68s vs130.46s quality ages. Wall-rate difference is NOT isolated causal proof.
+A237/quality_comparison235.json and R/analyze_m6237_quality.py reuse the existing
+prefix-verified churn checker; nearest measured quality times are explicitly unequal.
+All11owned handles still LIVE at quality_entry_owned_receipt.json; summed RSS10.11GB,
+MemAvailable~27.5GiB. Owned VmSwap0, memory PSI avg10=0 at quality_entry_memory_receipt.json;
+global swap usage includes unrelated pages. No demonstrated resource stop condition.
 Build235exec12651TERMINAL0,63.151040s,1302pins unchanged/both targets up to date.
 All recorded host compiler/linker handles absent. Build234also terminal0,168.133394s.
 
