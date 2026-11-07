@@ -50,13 +50,16 @@ claim. Initial quality ownership preserves ALL census totals/flags; joined data 
 A_MACH/quality_entry_observation.json. Sampled tree RSS about9.4GiB,not physical/
 whole-job peak. Keep frozen; no accepted mesh yet.
 A_MACH/owned_live_observation.json is current exact live handle confirmation.
-Mach-only quality is active. Latest complete window round32384/native2043.949016:
-931172cells/71971q/71055J/1225geometry/0size,ALL flags complete,
+Mach-only quality is active. Latest complete window round32640/native2545.211770:
+951333cells/57709q/56150J/1187geometry/0size,ALL flags complete,
 stuck_shape0/missing_features0/private_tracked_collectives0.
-Quality age1342.277665s:net34483q/35149J/156geometry removed; net q25.689916/s.
-18239commits, q retired300842/introduction266359; churn matches whole-field change.
-64806/71971q-bad have no physical face (not necessarily free vertices).
-HOST launcher identity reverified live; MemAvailable30317384kB,load7.96.
+Quality age1843.540418s:net48745q/50054J/194geometry removed; net q26.440972/s.
+27110commits, q retired386563/introduction337818; churn matches whole-field change.
+52199/57709q-bad have no physical face (not necessarily free vertices).
+Current debt max/mean1.096358; unchanged migration preserves all flags/totals.
+HOST launcher identity reverified live; MemAvailable30089772kB,load6.65.
+All16fixed metric samples supported; maximum relative Frobenius drift0.060889993
+at recent windows, not a whole-field norm or pointwise frozen-target claim.
 First-pass churn checks match net field changes. No combined-target benchmark.
 A_MACH/{quality_progress,quality_counter_assessment}.json records work/service/
 location/ladder data; continued ownership commits preserve all flags/totals.
