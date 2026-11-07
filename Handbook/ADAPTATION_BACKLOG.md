@@ -529,3 +529,14 @@ reservation. A smaller support must be proved sufficient; simply dropping adjace
 cells is invalid. Existing original-star controls stalled, so no benefit is known.
 This does not authorize larger cavities, more work, a new operator/scheduler or a
 construction-policy change, and does not alter the current frozen attempt.
+
+
+2026-11-07 terminal235 caller-coverage question (UNPROVEN, no implementation):
+full-support prefetch requires a measured shape-bad AND geometry-invalid two-face
+core, whereas MeshOptimizer::CoupledBoundary accepts shape-bad two-face cores
+without that geometry-invalid condition. The complete final state has5466shape-bad
+cells,1686geometry-bad and7090in their union:only62overlap, BEFORE the two-face and
+ownership filters. This is not proof of a missed useful repair. Use the actual
+exported state to identify shape-bad/geometry-clean two-face cores and compare
+existing complete-context candidates with original-star controls and support costs.
+Do not remove the filter, add operators or enlarge cavities without those checks.

@@ -85,8 +85,12 @@ M6 attempt is the first exact-predicate distributed workflow qualification, not
 an already completed capability. Actual captured witness has zero requested height;
 nonzero height cases are separate and whole BL qualification remains downstream.
 
-Immediately return to full same saved CFD seed/correctedL1/50000,
-two events,5400native/14400outer limits. Compare complete q/J-bad net removal/s,
-geometry-bad counts, churn and counted geometry work at matching stages. Shape
-closure, residual geometry/size repair and shape reclosure precede transfer and
-CFD/restart acceptance. Passing this local fixture or MPI suite is not completion.
+The complete same-seed235attempt has now refused at the unchanged time budget.
+Its final census is COMPLETE:3840q/2068J/1686geometry-bad/0size across1017408cells.
+The actual198318point mesh, full transported metric, all bad cores and complete
+neighbor view are exported and independently read. No accepted mesh or speedup is
+established; see [235outcome](ADAPTATION_BUILD235_OUTCOME_20261107.md) for exact
+quality-age comparison, terminal handles, files and next analysis. Preserve this
+source and use actual residual/query controls before one connected correction;
+then immediately return to the complete two-event M6. Geometry-only closure,
+transfer/continued CFD and adapted disk restart remain unproved.

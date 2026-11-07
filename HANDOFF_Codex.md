@@ -39,56 +39,45 @@ R/geometry_conforming235_qualification.json records exact scope/limits. Adjacent
 MPI protocols qualified; exact joint two-face predicate not explicitly asserted
 by those fixtures, full M6 is first exact-predicate MPI workflow test.
 
-SOLE OWNED HEAVY JOB: full two-event235 M6 LIVE, tool session38789. Existing
-run_m6.py build235 euler_build235_geometry_coupled_real_cfd50k 2 with saved realCFD
-seed and --inspect-rejected. Source/helpers/binary/config/inputs FROZEN. Same
-correctedL1/50k/native5400/outer14400; nice19/libs1,pt2pt,unique4TB MPI scratch.
-Host handles verified by PID/startticks/argv/cwd:
-helper2473644/6446256, runner2473645/6446259,
-GNUtime2473939/6446870, timeout2473947/6446870, launcher2473948/6446871;
-workers2473951–2473955/start6446874,2473956/start6446875.
-Exact identities in A235/owned_startup.json; R/m6_235_launch.json launch receipt.
-All1519source/runtime/input pins verified; config SHA unchanged and initial restart
-BYTE-IDENTICAL219/225/227: A235/initial_target_identity.json. Latest observation
-A235/owned_observations.jsonl: all11handles live, availableRAM~31.1GiB, load~10.
-Summed RSS is not unique physical memory. Construction underway; no accepted mesh.
-NEXT: observe existing run and compare counted work/whole-field q/J/geometry at
-matching stages against227. Do not edit pinned sources or launch another heavy job.
-Stop only after preserved demonstrated failure/bottleneck/resource evidence under
-authorized policy; no stop signal sent235. Full M6 determines next implementation.
-Quality entry235 COMPLETE all6ranks:871607cells/102058q/101860J/1997geometry/0size,
-EXACT same entry counts as227. All matching construction-stage counts/checked
-operation/query/traversal/cache work agree; same prepared limits. Quality-entry
-native969.422s vs775.819s; construction-entry902.062s vs730.001s. Wall-time
-variation is observational, not isolated implementation overhead. WorkerCPU/wall
-~.88–.91 over sampled251s (includes MPI spinning, not pure useful CPU).
-A235/{comparison227_matching_stages,quality_entry_comparison227}.json preserves
-prefix-verified data. NEXT evaluate net whole-field q/J removal and geometry/churn
-from quality entry; remaining time is smaller, budgets unchanged. No accepted mesh.
-LATEST COMPLETE36096/native4144.457s:993905cells/21070q/17509J/1749geometry/0size,
-all completeness flags1. Twenty-four windows, quality3175.035s; net80988q/84351J/
-248geometry removed. Netq25.5078/s vs22725.4864/s at matching round; traversal
-.946623x227. No useful timing speedup/closure established. First window EXACT227
-counts/churn/checked work; second diverges rank5, later populations/ownership differ.
-A235/quality_comparison227.json reuses existing checker by explicit labels/paths,
-verifies source prefixes and global q/J churn reconciliation. Nearest measured
-quality-time comparisons retain actual gaps; no interpolated counts/causal claim.
-Quality migrations keep full-field counts/measurement flags; initial and34752
-checks in quality_ownership235_assessment.json. Publication.144s excludes policy/
-preparation/later warming; preceding-window→publication13.169s at34752. Later raw
-complete census groups preserve further migrations. Call timers overlap, not CPU idle.
-All1519pins unchanged at late recheck:source_freeze_late_quality_observation.json.
-Primary reviewed both bounded location summaries against hashes/exact stage-round-
-rank/census joins:quality_early_location235_assessment.json and
-quality_mid_location235_assessment.json. Mid snapshot35904:26843q/23653J/1764geometry;
-24856q have no physical face, but can touch constrained vertices. Do not infer
-unconstrained volume from face-only labels; exact location net changes are in artifact.
-In its last window optimizer net1447q/1539J; topology fallback net100q/105J from
-28/6304trials in3.90rank-s, so low yield alone is not the dominant timing cost.
-Stuck4/39251bad union, blocked266/queue346669, missing0. Nearlyall bad cells have
-edge<.9 (correlation, not construction-causality proof). Fixeddrift16DISTINCTglobal
-points repeated on6ranks, not96distinct; all supported, maxsampledrelativeFrobenius
-.038733 at35904, not a whole-target norm. No competing implementation.
+FULL235 FIRST EVENT TERMINAL/REFUSED at unchanged time budget: engine5334.959466s,
+round36852,1017408cells/3840q/2068J/1686geometry/0size. Unlike227, FINAL census is
+COMPLETE on all6ranks; cached q/J/geometry are measured, not unknown. All30selected
+capture files sealed with hashes/owned416-byte-record counts and final-census joins:
+A235/capture_ready.json, metric_census_complete=true. No accepted mesh.
+
+After sealing, SIGTERM sent ONCE via pidfd to verified launcher2473948/start6446871
+because a first refused event makes TWO accepted meshes impossible in2events.
+NEVER repeat this stop. A235/owned_stop_once.json. Full wrapper session38789
+TERMINAL1,5595.034596s; statuspins_verified=true/changed[]. All11recorded host
+handles ABSENT:terminal_handles.json. Source/runtime/input1519pins unchanged at
+source_freeze_before_stop.json and rechecked after all exports/readback in
+terminal_source_receipt.json. No CFD solver workload remains; production source
+still unchanged235. Export session52272 TERMINAL0,427.843911s,pins unchanged; all3
+export host handles absent. Reader session12859 TERMINAL0,4.287199s. NO OWNED HEAVY
+JOB. Existing inspector and all four VTUs independently read; full coordinates/
+tetrahedra matchSU2, metric tensors finite/symmetric/SPD, actual bad counts match.
+A235/inspection/rejected_mesh.vtu WITH metric:198318points/1017408tets; all7090bad
+cores and220573neighbor cells saved without omissions, reference/rejection/ID maps.
+q/J/geometry caches COMPLETE, unlike227. No ParaView GUI check; diagnostic SU2 has
+marker-name fallbacks. A235/inspection_reader_status.json has hashes/checks.
+[235outcome and next target](Handbook/ADAPTATION_BUILD235_OUTCOME_20261107.md).
+Next target SPEED OF USEFUL SHAPE CLOSURE, analysis first using existing geometry/
+smoothing facilities and actual residual cavities; no speedup from slack bounds
+established. No new implementation selected. Preserve source235 for bounded actual
+query/cavity controls before one connected correction and full M6 retry. Do not start another M6 before selecting and
+validating the one connected next step from this outcome.
+
+A235/owned_startup.json retains OLD handles only; they are terminal, never live.
+Same correctedL1/50k/realCFD seed/config as227, initialrestart byte-identical219/225/227.
+Terminal counter report PRIMARY-REVIEWED against exact rank/stage/round/census joins,
+prefix hashes and independently read VTU counts:terminal_quality235_assessment.json.
+Nearest COMPLETE227byquality age36864:4342.589895436s versus235EXIT4365.537211719s,
+gap22.947316283s; counts4606q/2421J/1711g versus3840q/2068J/1686g. No exact-time or
+causal speedup claim. Final66.0207s net861q/523J removed,g+3; boundary49.21versus
+interior4.03rank-s (overlapping scopes). Exact memo misses do not identify nearby
+queries. Queue63623/stuck28/missing0; short-edge correlation is not construction
+causality. Fixeddrift16unique global samples is not a whole-target norm.
+Detailed current outcome, data limits and next analysis are in the235outcome link.
 
 
 [Current connected design](Handbook/ADAPTATION_GEOMETRY_CONFORMING_REPAIR_20261107.md):
@@ -119,41 +108,20 @@ No broad/MPI/full M6 run on233/234. Current regression required useful PRODUCTIO
 COMPLETE50-cell-context progress, matching new support union; original-star controls
 retained. It passes; source remains frozen through current qualification.
 
-Focused serial and ONE MPI6 milestone pass; IMMEDIATELY full same
-saved CFD seed/correctedL1/50k/two-event M6 at5400native/14400outer. Pending optional
-ownership admission collective-AND guard is qualified in this SAME milestone;
-no actual split observed in227. Do not start a separate full run solely for a guard.
+Focused serial/ONE MPI6 milestone passed; full same-seed two-event235now refused
+as above. Ownership-admission collective AND was qualified in the SAME milestone;
+no split observed227. Do not launch a separate full run solely for this guard.
 
-## Terminal227 and actual saved mesh
+## Historical227 comparison and inspection
 
-Full M6exec50998TERMINAL1,5824.165090s,pins verified/changed[]. First native event1
-naturally rejected time budget at5335.996158s/round37022. Final1017523cells but ALL
-final census flags0, printed zero q/J/geometry counts UNKNOWN, never passing.
-Last COMPLETE census36992:1017224cells/2691q/1295J/1700geometry/0size-bad.
-After sealed30file capture, SIGTERM sent ONCE via pidfd to verified launcher1929998/
-start4973666; NEVER repeat. All10solver handles absent,1519pins unchanged. Historical
-225/219/217/210stops also NEVER repeat. A227/{capture_ready,owned_stop_once,
-terminal_handles,terminal_source_receipt}.json. Detailed [227outcome](Handbook/ADAPTATION_BUILD227_OUTCOME_20261107.md).
-
-Selected A227/inspection/rejected_mesh.vtu WITH9component captured_nodal_metric,
-also rejected_mesh.su2:198364points/1017523tets. Full mesh+metric COMPLETE; all point
-tensors finite/symmetric/SPD, independent meshio reader passes/exact SU2 coordinates.
-Final cached q/J/geometry allNaN/cache_valid0. Empty original bad/cavity views mean
-UNAVAILABLE classification, not zero bad cells. No ParaView GUI qualification.
-Surface extraction inherits SAME3Dnodal tensor; no separate surface tensor fabricated.
-
-Native centroid shape recovery228:1017523rows,2368q/1101J,union3258. Diagnostic
-shape_inspection/{bad_cells,cavities}.vtu WITH metric and explicit q/J_centroid fields;
-141392complete one-node-neighbor cells, exact raw ID/version join/readback verified.
-Geometry remains unknown.1414bad cells touch wing vertices without physical face;
-1341free interior,452wing face,39other physical face,12other-boundary-touching.
-Do not mistake face-only interior labels for unconstrained volume. No trial VTUs.
-
-Raw shell query231: one new face per tested shell rigorously outside exact queried
-support at125.5107/104.3380µm vs100µm; other new face certified within. Production
-upper bounds reproduce native shell guidance deltas to relative1.9e-16. Faster
-certification alone cannot admit those raw faces. Not optimized-position replay,
-not a statistical sample or arbitrary other-body nearest-distance claim.
+227first native event naturally refused at time budget; fullsession50998terminal1.
+Unlike235, its final cached counts were UNKNOWN. Last complete36992:2691q/1295J/
+1700geometry/0size. One sealed-evidence stop sent launcher1929998/start4973666;
+all handles terminal, NEVER repeat it (or225/219/217/210historical stops).
+A227/inspection actual198364points/1017523tets and full metric are saved; final q/J/
+geometry cache unavailable. Separate centroid shape diagnostic recovers2368q/1101J,
+not an equivalent complete production geometry census. Use235COMPLETE measured
+artifact for current inspection. [227outcome](Handbook/ADAPTATION_BUILD227_OUTCOME_20261107.md).
 
 ## Input, comparison and downstream acceptance
 
@@ -202,6 +170,7 @@ broken Eigen submodule. Local218shape diagnostic was reviewed/integrated, not lo
 - [How to proceed](HowToProceed.md)
 - [Integrated task](Handbook/ADAPTATION_INTEGRATED_NEXT_TASK.md)
 - [Current geometry-conforming repair](Handbook/ADAPTATION_GEOMETRY_CONFORMING_REPAIR_20261107.md)
+- [235complete-attempt outcome](Handbook/ADAPTATION_BUILD235_OUTCOME_20261107.md)
 - [227geometry witness qualification](Handbook/ADAPTATION_GEOMETRY_WITNESS_20261106.md)
 - [Repair/support and literature](Handbook/ADAPTATION_REPAIR_SUPPORT_20261106.md)
 - [Metric floor and L1/L2choice](Handbook/ADAPTATION_METRIC_FLOOR_20261106.md)

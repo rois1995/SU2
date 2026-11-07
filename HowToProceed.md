@@ -13,17 +13,21 @@ Actual mesh point/cell counts are separate from metric complexity. Keep geometry
 1e-4, q>=.2, J>=.05, maximum metric edge1.8 and requested heights unchanged. CAD
 remains optional.
 
-Authoritative live handles/source pins are in [HANDOFF_Codex.md](HANDOFF_Codex.md).
-Latest TERMINAL corrected-target attempt227naturally rejected at the time budget.
-Full two-event235 is now frozen and LIVE; do not launch a second attempt.
-The actual final selected mesh is saved with its full nodal metric:198364points/
-1017523tetrahedra, independently read. Final measurement caches were invalidated
-by the deadline. Never interpret printed final zero counts or empty classified
-views as passing gates. Last complete census:2691q/1295J/1700geometry-bad/0size.
-Native centroid q/J recomputation on the sealed final cells recovers2368q/1101J,
-union3258; explicit diagnostic bad/cavity VTUs with metric are now saved. Geometry
-is still unknown on that final mesh. No accepted adapted meshes/transfer/restart.
-See [227outcome](Handbook/ADAPTATION_BUILD227_OUTCOME_20261107.md).
+Authoritative handles/source pins are in [HANDOFF_Codex.md](HANDOFF_Codex.md).
+Latest full235first native event refused at the unchanged time budget with a
+COMPLETE final census:3840q/2068J/1686geometry-bad/0size. All30capture files were
+sealed before the single authorized owned stop; all solver/export handles are
+terminal. The actual198318point/1017408tet mesh, all7090bad cores,220573neighbors,
+full nodal metric and measured q/J/geometry are exported and independently read.
+See [235outcome and next target](Handbook/ADAPTATION_BUILD235_OUTCOME_20261107.md).
+No adapted mesh is accepted; transfer/adapted CFD/restart are still unproved.
+
+Historical227saved198364points/1017523tets, but its final measurement caches were
+invalidated and its printed final zero counts were UNKNOWN. Separate centroid
+shape diagnostics recovered2368q/1101J there; they did not recover final geometry.
+Those artifacts remain preserved in [227outcome](Handbook/ADAPTATION_BUILD227_OUTCOME_20261107.md).
+Use235COMPLETE measured state for current inspection; do not repeat old recensus
+work just because227needed it.
 
 Corrected production L1at50k was selected over L2using the SAME saved real CFD
 seed and unchanged constraints; L2was not assumed better. Keep this seed/target
@@ -307,8 +311,8 @@ closure; no weaker geometry or shape gate is proposed.
 
 1. Read AGENTS.md and the current HANDOFF_Codex.md. Verify exact current host
    handles, source/binary/runtime/config/input pins and resource headroom. Full235
-   is frozen and running in tool session38789; do not restart from a stale status
-   file or observation timeout. Historical owned stops must never be repeated.
+   session38789 is terminal; preserve its sealed final measured mesh/counter evidence.
+   Verify current export/analysis handles before another workload. Never repeat stops.
 2. Reuse235focused qualification and the existing capture/export facilities. Do
    not repeat passing suites or launch an old-code baseline. MPI fixtures qualified
    adjacent protocols; the full M6 is the pending end-to-end qualification of the
@@ -335,7 +339,7 @@ current RAM/load/disk, use4TBcompile-tmp for build/MPI/export scratch, and leave
 unrelated jobs/files alone. Preserve resumable receipts and pushed reviewable
 checkpoints. Do not raise the native time limit or relax a gate.
 
-## Connected235integration qualified; full M6 frozen and live
+## Connected235integration qualified; full M6 refused
 
 The complete geometry-conforming candidate is now production code, with bounded
 four-star prefetch before reservation and private shell/split/optimization before
@@ -346,7 +350,8 @@ fixes canonical interface packaging without relaxing it. Actual full-context235
 regression q2→0/J1→0/geometry4→2passes in143/160trials.116serial cases/78351assertions
 and ONE MPI6milestone26cases/rank pass, pins unchanged. This is focused qualification,
 not accepted meshes. Adjacent MPI protocols pass; exact support-selection predicate
-is being qualified by the CURRENT frozen full M6, launched from the same saved real
-CFD seed/correctedL1/50k with unchanged5400native/14400outer limits. Let its outcome
-drive further work; do not launch another attempt while this one runs. See [current design](Handbook/ADAPTATION_GEOMETRY_CONFORMING_REPAIR_20261107.md)
+was included in the full same-seed correctedL1/50k attempt, which refused at the
+unchanged budget with3840q/2068J/1686geometry-bad cells and a COMPLETE final census.
+No global closure/speedup is established. Preserve/export this actual final mesh
+and use its terminal evidence before another connected correction. See [current design](Handbook/ADAPTATION_GEOMETRY_CONFORMING_REPAIR_20261107.md)
 and HANDOFF_Codex.md for authoritative owned handles.
