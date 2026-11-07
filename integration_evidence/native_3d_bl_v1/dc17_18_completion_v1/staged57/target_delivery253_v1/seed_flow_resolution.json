@@ -1,0 +1,84 @@
+{
+  "scope": "Existing coarse-grid piecewise-linear upper-surface cuts on the qualified seed continuation. A connected half-maximum negative-Mach-gradient band is a discrete compression-width diagnostic,NOT a complete lambda-shock identification or proven physical shock thickness/resolution. No new CFD/target/remeshing run.",
+  "definition": "Within x/c .15.. .9,require Mach decrease and Cp rise;choose steepest cut segment,extend adjacent eligible segments while slope>=half peak. Width is endpoint x/c difference,not an interpolation-error bound.",
+  "sections": [
+    {
+      "y": 0.2,
+      "peak_x_over_c": 0.6458601742860917,
+      "maximum_negative_Mach_slope_per_chord": 2.2920686031932047,
+      "connected_half_peak_band_x_over_c": [
+        0.5954474127604314,
+        0.6784882637682591
+      ],
+      "connected_half_peak_width_over_chord": 0.08304085100782765,
+      "cut_segments_in_band": 7,
+      "Mach_drop_in_band": 0.16054290834039997,
+      "Cp_rise_in_band": 0.2983635334036
+    },
+    {
+      "y": 0.4,
+      "peak_x_over_c": 0.5653983753533889,
+      "maximum_negative_Mach_slope_per_chord": 2.1855349900981818,
+      "connected_half_peak_band_x_over_c": [
+        0.5233080491342755,
+        0.6389711898750347
+      ],
+      "connected_half_peak_width_over_chord": 0.11566314074075912,
+      "cut_segments_in_band": 8,
+      "Mach_drop_in_band": 0.19148123227269997,
+      "Cp_rise_in_band": 0.35744188413760003
+    },
+    {
+      "y": 0.6,
+      "peak_x_over_c": 0.5121374019077466,
+      "maximum_negative_Mach_slope_per_chord": 1.922607882611406,
+      "connected_half_peak_band_x_over_c": [
+        0.4707113825555336,
+        0.6040609768606452
+      ],
+      "connected_half_peak_width_over_chord": 0.13334959430511162,
+      "cut_segments_in_band": 8,
+      "Mach_drop_in_band": 0.19830708649000006,
+      "Cp_rise_in_band": 0.3766120659698
+    },
+    {
+      "y": 0.8,
+      "peak_x_over_c": 0.48746117523329086,
+      "maximum_negative_Mach_slope_per_chord": 1.7224021003522558,
+      "connected_half_peak_band_x_over_c": [
+        0.3937808435537193,
+        0.5360151145313165
+      ],
+      "connected_half_peak_width_over_chord": 0.14223427097759717,
+      "cut_segments_in_band": 8,
+      "Mach_drop_in_band": 0.1859534796722,
+      "Cp_rise_in_band": 0.3551939733925
+    },
+    {
+      "y": 1.0,
+      "peak_x_over_c": 0.3349819306359777,
+      "maximum_negative_Mach_slope_per_chord": 2.0957855400511956,
+      "connected_half_peak_band_x_over_c": [
+        0.27330028703419595,
+        0.38002238180103987
+      ],
+      "connected_half_peak_width_over_chord": 0.10672209476684391,
+      "cut_segments_in_band": 6,
+      "Mach_drop_in_band": 0.1879816479191,
+      "Cp_rise_in_band": 0.34752915166100007
+    }
+  ],
+  "one_CFD_continuation_max_absolute_field_change": {
+    "Mach": 0.004368974811618798,
+    "Pressure_Coefficient": 0.005851703766531491,
+    "Density": 0.002121883039667205,
+    "Energy": 774.4532736371038
+  },
+  "seed_points": 61330,
+  "sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/target_delivery253_v1/surface_cuts.csv": "ce4e52be215c11d8de1053b5bbbe670e336dc2ed5e60ca9d3c19996c893c6006",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_target244_mach_only/L1/baseline_euler_seed.dat": "1eaee788bd62bd92a92ec539577dcbcfc0f8042dcbcec23adb04e825bb01a880",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/metric_target244_mach_only/L1/restart_flow.dat": "c99d057882238eb75a768da717e939ab426fa60a5cc0a27ec484eb6cb758a147",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/target_delivery253_v1/analyze_flow_cuts.py": "1ec17a0fb2796364dd48345d45a993937f9979da71854fb34324b802e81bda91"
+  }
+}

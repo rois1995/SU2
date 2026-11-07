@@ -55,18 +55,26 @@ and coordinates exactly:A254/initial_cfd_target_equivalence.json (original-grid 
 not adapted proof). FROZEN attempt remains live. Need net whole-field q/J removal,
 geometry/size closure and shape reclosure;then all transfer/CFD/restart obligations.
 
-SIX complete quality windows through23680/census10:native1815.931599,
-quality1060.408789s,715285cells/13140q/11979J/1076geometry/0size,all flags complete.
-Net13876q/15474J/129geometry retired since entry. q10346interior/2794surface;
-J6269/5710. Stuck3of17802shape-bad union,missing0,private tracked collectives0.
-TWO complete ownership publications preserve aggregate counts/flags. Fixed16point
-samples all supported,maxrelative tensor drift.03421424;not whole-field equality.
-A254/{quality_progress,quality_counter_assessment,quality_comparison253,
-target_drift_census,live_quality254_analysis_provenance}.json. Read-only refresh:
-R/analyze_m6254_frozen.py reuses existing parsers/BOTH path substitutions,filters
-location to complete flags,retains partial EXIT. No new profiling/repair decisions.
-Comparisons use nearest measured quality times (explicit gaps,not interpolation);
-corrected target changes workload. Boundary timers include certification and overlap.
+FROZEN RECOVERY SNAPSHOT:round26176,native3658.670304,
+737632cells/72q/49J/196geometry/0size,ALL measured/flags complete.
+FIRST shape exit24832:native3274.720,49q/29J/974geometry. Existing guarded
+construction return then rebuilding/reclosure reduced geometry progressively:
+771→728→575→419→291→214→196. This is NOT full shape closure/acceptance.
+Current snapshotq39surface/33interior,J33/16,stuck15of73shape-bad union,missing0,
+private tracked collectives0. Geometry still nonzero;no adapted transfer/CFD proof.
+
+A254/phase_recovery_progress.json records ALL first-event phase transitions.
+quality_progress/quality_comparison253.json deliberately cover ONLY the FIRST
+uninterrupted shape pass(23windows);do NOT mistake that last-window state for
+current after reconstruction. quality_counter_assessment.json reports latest
+complete WINDOW/EXIT locations;check its round against current quality ENTRY.
+Construction may have unmeasured new q/J;only fresh complete measurement establishes
+new counts. No partial/cached zero is a shape pass. Three ownership publications
+preserve aggregate flags/counts;fixed16samples supported,maxdrift.03421424(not
+whole-field equality). Source/resource window10 receipt verifies all11HOST handles/
+ALL1520pins unchanged,treeRSS9.188GB,available~32.84GB,no observed memory stalls.
+Current first-event stage/target drift/provenance records remain underA254.
+Read-only refresh:R/analyze_m6254_frozen.py;no runtime sampling/repair changes.
 
 Let frozen attempt finish unless PRESERVED demonstrated failure/bottleneck/actual
 pressure warrants authorized stop. For first-event refusal:seal all30raw files,
@@ -75,66 +83,25 @@ of exact owned MPI,then prove all handles/tool terminal. NEVER repeat a stop.
 Driver may continue original-grid CFD after refusal;adap-named files alone prove
 nothing. No routine VTU per trial;latest meaningful247inspection remains available.
 
-## CURRENT — terminal253; active same-seed target/delivery diagnosis
+## Preserved253 outcome and active diagnosis
 
-Build253 first event REFUSED at native5346.554979s/round34761:elapsed-time
-budget exhausted. Tool54771TERMINAL1/5590.075827s. NO accepted mesh.
-Terminal census INCOMPLETE on ranks0,2,4,5:1032510owned cells,339507measured,
-693003UNKNOWN. Printed30q/20J/505geometry are PARTIAL,not whole-field counts.
-ALL30raw files closed,validated and hashed in A253/
-capture_preserved_partial_census.json;NOT a complete capture_ready qualification.
-All1520source/runtime/input pins verified in source_freeze_before_stop.json BEFORE
-ONE pidfdSIGTERM to verified HOST MPI871976/start12808268. owned_stop_once.json
-records exactly one signal. ALL11owned handles including wrapper absent in
-terminal_handles.json. NEVER repeat that stop. The253 owned job is gone. A254 is now the ONE owned heavy job (below).
-Driver continued ORIGINAL-grid CFD after refusal;adap-named files are not adapted
-workflow proof. Pinned-source freeze released after terminal host proof.
+253 first event REFUSED native5346.554979/round34761,time budget. Final census
+UNKNOWN on693003/1032510cells;partial30q/20J are NOT whole-field counts. Last
+complete34752:1641q/695J/1044geometry. ALL30raw files closed/hashed in
+A253/capture_preserved_partial_census.json (NOT capture_ready qualification).
+All1520pins verified BEFORE ONE pidfdSIGTERM to MPI871976/start12808268;
+all11handles gone. Never repeat that stop. Driver's later original-grid CFD and
+adap-named files do not prove adaptation. A253 terminal receipts authoritative.
+At matching34752,253 counts/decisions exactly251 but quality37.66s SLOWER despite
+7.32%less upper work. No causal timing/closure gain. Full partial EXIT retained.
 
-Last COMPLETE census34752/census59:1032495cells/1641q/695J/1044geometry/0size.
-At SAME round251 has EXACT counts,85055commits,1447277upper calls. Quality time
-4688.136713vs4650.479851s:253 is37.656862s SLOWER;native5333.758772vs5328.133458.
-Quality upper work1902523254→1763180893(−7.32%) did NOT establish wall-time or
-closure improvement. Host contention changed;no matched251scheduler record
-establishes causality. Last complete q1381interior/260surface,J537/158;2197shape
-bad union,all edge<.9,2079<.5;stuckshape42,missing0,private tracked collectives0.
-Full stage evidence retains partial EXIT;quality_progress has45complete windows.
-Legacy location selector was corrected IN MEMORY to require complete flags;
-terminal_analysis_scope_correction.json records analysis scope and unknown rows.
-quality_comparison251.json,quality_counter_assessment.json and
-ownership_census_integrity.json preserve complete-window comparisons/publications.
-Sampled individualRSS2.821GB includes post-refusal original-grid event2;not first
-phase or physical whole-job peak. No demonstrated owned memory pressure.
-
-Latest user investigation is ONE cycle:flow→target chain FIRST,then leading-edge
-metric delivery/complete cavities,then ONE demonstrated correction. Same saved
-real CFD seed,MACH-only L1/50k,unchanged gates/budgets. No competing implementation.
-Read local CDT3D paper §§3.2–3.5/4/5.1/5.4,AppendixA/Fig20;its methods are hypotheses,
-not equivalent certification or first-adaptation50k evidence. Recovery L2projection
-is distinct from Lp error objective. No CAD dependence/mandatory curvature metric.
-Side-investigation surface restrictions/triangle extents and approximate796/1044
-leading-edge geometry classification must be reproduced using actual associations.
-Existing target requests coarser transverse spacing than sampled compression
-triangles;cause along recovery/normalization/bounds/gradation remains unresolved.
-35%complexity beyond radius20 is reproduced in old target report,not yet justified.
-Quadratic warning39786/61330residual>.05(mean.140203,max.96661) needs localization;
-nonsmooth shock residual alone is not proof of recovery failure.
-Existing HESSIAN volume-output group exposes raw production tensors without C++
-changes;old target restart omitted it. A bounded same-seed metric-only output trace
-may supply missing observability;require original flow/final metric bit equality.
-ONE correction selected after diagnosis:base quadratic conditioning254 (below).
-[Current target/delivery diagnosis](Handbook/ADAPTATION_TARGET_DELIVERY253_20261107.md)
-records the output-only Hessian trace,bit-identical22fields,independent target
-stages and actual-face/exact-edge LE reproduction. Next:existing complete-cavity
-controls and selected conditioning correction;qualification pending.
-No new baseline/perf/GDB campaign,config options,scheduler,cavity-size increase,
-quality-aware construction,norm/sensor/complexity sweep or blanket minimum edge gate.
-
-Read-only recovery-guard survey independently checked:
-[Existing recovery](Handbook/ADAPTATION_RECOVERY_GUARDS253_20261107.md). Dedicated
-geometry repair requires clean q/J,but existing construction return can run with
-q/Jbad after queue exhaustion,prior progress and strict census/size/height/geometry
-conditions. Do not invent a hard shape-zero barrier. Current last complete run was
-still first shape pass;residual geometry closure not yet demonstrated.
+[Current diagnosis](Handbook/ADAPTATION_TARGET_DELIVERY253_20261107.md) records
+same-seed flow/target stages,exact LE edges/reference faces,cavity controls and
+paper assessment. Paper criteria differ from ours;final iterated result is not a
+first50kbenchmark;recovery L2projection differs from Lp error objective.
+Confirmed:coarse target in sampled compression strips;very short actual LE edges;
+71ill-conditioned first-ring fits corrected below. Farfield allocation/necessary
+geometric resolution/certification scopes remain unresolved;no second correction.
 
 ## Qualified conditioning254 — now under full frozen M6
 
@@ -173,68 +140,26 @@ R/target_delivery254_v1/comparison.json. No norm/sensor/complexity change.
 Full same-seed two-event M6 is now LIVE/FROZEN at unchanged gates/native5400/outer14400.
 Zero accepted meshes;no transfer/adaptedCFD/restart claim. No competing cycle.
 
-## Qualified active change and diagnosis
+## Preserved geometry improvements and inspection
 
-[Witness253 proof/qualification](Handbook/ADAPTATION_WITNESS_CUTOFF253_20261107.md).
-Shared TriangleUnion::Upper stops a losing convex-triangle witness once its
-partial maximum reaches caller's best and skips the already measured seed.
-No new state/cache/options/scheduler/representation/construction policy/gates.
-This extends the existing251monotone graph-lift cutoff across shared query callers.
-Build253TERMINAL0/33.104877s,1303pins unchanged,both targets current,all build
-HOST handles absent. Same-seven-context comparison passed104.023934s,all pins
-unchanged,all6handles/wrapper absent. EXACT5241ordered query identities/cache
-outcomes/bounds and166non-timing/work result rows match251. Counted query work
-4983517→4599314(−7.709475%). NO whole-M6 speedup or closure claim.
-R/witness253_{plan,actual_comparison,qualification}.json;compare_witness253.py.
-Serial38cases/2044assertions PASSED71.699312s;ONE actual MPI6milestone90cases
-on EACH rank PASSED187.187539s;all pins unchanged,all handles/wrappers terminal.
-Initial MPI harness setup omitted required config and failed BEFORE MPI launch;
-corrected using qualified A244/placement246_inputs_v1/run.cfg. Failure preserved
-placement_mpi6_20261107T202808_856307. No source/gate/budget change. Local summary
-parser initially missed ANSI-colored MPI text;stripped escapes then verified all
-six summaries without rerunning tests. Qualification records both corrections.
+[Witness253 qualification](Handbook/ADAPTATION_WITNESS_CUTOFF253_20261107.md):
+losing convex-triangle witness cutoff and seed reuse preserved unchanged in254.
+5241ordered query identities/bounds/cache outcomes and166result rows match251;
+7.709%less counted work. Serial38/2044 and MPI6(90cases EACHrank) passed;not closure.
+[252controls](Handbook/ADAPTATION_COMPLETE_CONTEXT252_20261107.md) did not justify
+larger supports/operators. [Recovery guards](Handbook/ADAPTATION_RECOVERY_GUARDS253_20261107.md):
+dedicated geometry repair requires clean q/J;separate construction return can run
+with q/Jbad after queue exhaustion/progress/strict census-size-height conditions.
+Do not invent a hard shape-zero barrier or change policy while frozen.
 
-[252complete-context diagnosis](Handbook/ADAPTATION_COMPLETE_CONTEXT252_20261107.md):
-39213assertions passed96.082380s on SAME seven actual terminal251contexts,proven
-exactly unchanged from saved247(full stars,geometry/nodal tensors,physical facets,
-q/Joracles,forward bindings AND dependency versions). All four useful whole-context
-cases already have useful original-star controls. Feature-adjacent whole context
-worsens1q→3q despite debt admission;geometry controls unchanged. Useful severe/
-surface-clean original stars have all14features UNBLOCKED at251terminal.
-Do NOT generalize support or add composite operators from this evidence.
-Speed of useful closure remains immediate blocker;small blocked boundary set
-still needs repair-power assessment. Existing cheap merit screening and old-side
-geometry-guidance reuse are already present;do not duplicate them.
-Motion/slack,raw-collapse completion,count-first merit,quality-aware construction,
-new geometry representation and unrelated ideas remain in the linked backlog.
-
-## Terminal baseline and inspectable mesh
-
-[251outcome](Handbook/ADAPTATION_BUILD251_OUTCOME_20261107.md):first event REFUSED
-native5348.321852/round34773,201192points/1032521tets,1487q/639J/1044geometry/0size;
-ALL measured/complete flags. Time budget,not global work/RAM,ended useful search.
-Tool5327TERMINAL1/5537.759614s;ALL30capture files sealed and1520pins verified BEFORE
-ONE pidfdSIGTERM to verified HOST MPI475670. All handles/wrapper absent. NEVER repeat.
-Still first shape pass;residual geometry phase NOT tested. Queue24031,stuckshape46
-of1999,missing0,private tracked collectives0. q1236interior/251surface,J495/144.
-All1999shape-bad union cells have edge<.9,1889<.5;correlation does not justify
-construction-policy change. Interior means no physical face,not all vertices free.
-Vs247terminal:339MOREq/155MOREJ,same1044geometry;net q/s22.473658vs22.606988.
-Last exact matching34752counts identical;−0.9735%quality upper work gave no runtime/
-closure improvement. EXIT34773NONZERO219commits/net154q/56J;247same-round EXITzero.
-A251/{terminal_comparison247,quality_comparison247,quality_counter_assessment}.json.
-
-[247outcome](Handbook/ADAPTATION_BUILD247_OUTCOME_20261107.md):REFUSED1032602tets/
-1148q/484J/1044geometry/0size. All capture files sealed,one verified stop,all handles
-terminal. Latest meaningful saved inspection:A247/inspection/rejected_mesh.vtu
-and.su2,201203points/1032602tets. PointData captured_nodal_metric9row-major tensor;
-CellData q/J/geometry/edge arrays. ALL2525bad cores/90430neighboring cavity cells/
-reference/rejections retained. Independent meshio exact array lengths/coords/
-connectivity/SPD(mineigen.00270493803760962)/positive tets passed. No GUI/acceptance
-claim. Surface extraction uses SAME volume nodal metric. Export only meaningful
-terminal progress,not every trial. Raw251capture is available;no new VTU required.
-Failed footprint memo250REMOVED:exact answers but query work+10.97%;full failed
-patch/receipts preserved. Do not reintroduce based on hits.
+[251outcome](Handbook/ADAPTATION_BUILD251_OUTCOME_20261107.md):REFUSED1487q/639J/
+1044geometry at native5348.32;complete capture,one owned stop,all handles gone.
+[247outcome](Handbook/ADAPTATION_BUILD247_OUTCOME_20261107.md):REFUSED1148q/484J/
+1044geometry. Latest meaningful saved mesh A247/inspection/rejected_mesh.vtu
+and.su2:201203points/1032602tets. Metric9row-major PointData;q/J/geometry/edges
+CellData. Complete bad/cavity/reference exports;independent reader/SPD/positive
+volume checks passed. Surface uses SAME volume nodal tensor;no fabricated field.
+No per-trial VTU export. Failed250footprint memo worsened work10.97%;do not revive.
 
 ## Seed and completion obligations — all open
 
@@ -289,5 +214,5 @@ connected production fix,affected serial/ONE MPI6 milestone,then immediately M6.
 [HowToProceed](HowToProceed.md),[AGENTS](AGENTS.md),[integrated task](Handbook/ADAPTATION_INTEGRATED_NEXT_TASK.md)
 (historical155numbers superseded),[backlog](Handbook/ADAPTATION_BACKLOG.md),
 [repair references](Handbook/ADAPTATION_REPAIR_SUPPORT_20261106.md).
-[Detailed pre-compaction state](Handbook/History/HANDOFF_Codex_before_compact253_20261107.md)
+[Detailed pre-compaction state](Handbook/History/HANDOFF_Codex_before_concise254_quality16_20261108.md)
 is HISTORICAL,not live;preserves earlier detailed timings/evidence/source maps.

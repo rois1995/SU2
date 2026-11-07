@@ -1,6 +1,6 @@
 # Same-seed shock/leading-edge diagnosis — active253 cycle
 
-One production correction selected after diagnosis: base quadratic conditioning254; qualified; full M6 next. Zero accepted meshes; all Euler transfer,
+One production correction selected after diagnosis: base quadratic conditioning254; qualified; full M6 running frozen. Zero accepted meshes; all Euler transfer,
 adapted continuation/disk restart, dedicated BL/MPI and RANS500k obligations remain.
 R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 Evidence: `R/target_delivery253_v1/{target_diagnosis,radial_reproduction,leading_edge_diagnosis}.json`.
@@ -203,3 +203,25 @@ and7moves;the original-star and combined controls therefore DID exercise boundar
 relocation. Generic unbound BoundaryFlip/BoundaryCollapse are separately gated by
 options.boundary&&!options.geometry (6495/6509). No test/runtime rerun or source
 change was needed;le_compound_assessment.json records the correction explicitly.
+
+
+Existing-cut flow-resolution diagnostic (no solver rerun):connected half-peak
+negative-Mach-gradient bands at y=.2,.4,.6,.8,1.0 span .0830,.1157,.1333,.1422,
+.1067chord,with Mach drops≈.16–.20 and Cp rises. These are broad discrete
+compression bands,NOT a complete lambda-shock identification or certified physical
+shock thickness. Together with requested4–7%chord spacing versus existing3–4%
+triangles,this supports a coherent flow-to-target explanation for little first
+surface refinement. It does not prove shock resolution. One saved-seed continuation
+changes maxMach.004369,maxCp.005852;forces alone do not establish local convergence.
+Same saved seed remains authoritative;no change of CFD solution,sensors,p,complexity
+or adaptation decisions. Reproduction:target_delivery253_v1/analyze_flow_cuts.py
+and seed_flow_resolution.json (all input/output hashes,explicit band definition).
+
+
+Frozen254 has now demonstrated the existing guarded geometry-construction return,
+not full shape closure: first quality exit24832/native3274.720 has49q/29J/974geometry.
+Reconstruction and fresh shape remeasurement repeat;at round26176/native3658.670,
+all737632cells measured:72q/49J/196geometry/0size. Current shape/geometry failures
+remain;no accepted mesh/transfer/adaptedCFD/disk-restart claim. The first-pass
+quality-comparison series is intentionally frozen to23windows;all later transitions
+are retained in A254/phase_recovery_progress.json and complete stage evidence.
