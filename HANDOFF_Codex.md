@@ -55,18 +55,21 @@ Current first quality entry31898EXACT251:878443cells/106454q/106204J/1381geometr
 0size,ALL measured/complete flags. Construction120785commits/52092upper queries
 same;upper work271243211→246122779(−9.2612%),native677.653607→645.622059s.
 A253/quality_entry_comparison251.json.
-FIRST quality window31936EXACT251:881845cells/103678q/103513J/1369geometry/0size,
-ALL complete flags. Net2776q/2691J/12geometry removed. Quality84.555829vs92.152580s;
-net q/s32.830380vs30.123953,J31.825127vs29.201570. EARLY observational gain only;
-no causal or final closure claim. Upper49402128→44956595(−8.9987%),same20002calls.
-Boundary8345candidates/418moves in BOTH;79.102270→70.040411SUMMED-rank seconds;
-interior5005/628,3.988227→3.995057. Timers overlap other/geometry work,not additive.
-Join-call wall share.417947→.396648is NOT CPU idle. A253/quality_comparison251.json,
-quality_counter_assessment.json,quality_progress.json and parser provenance.
-At814.6s all10HOST handles live,ALL1520pins unchanged,treeRSS10.133GB,hostavailable
-~31.6GB;memory PSI avg10zero (avg60.28/avg300.18). No demonstrated owned pressure.
-A253/quality_entry_live_observation.json. RSS not whole-job physical peak.
-
+THREE quality windows through32064/census7EXACT251:895674cells/94913q/94850J/
+1299geometry/0size,ALL complete flags. Net11541q/11354J/82geometry removed.
+Quality354.531242vs378.266885s;net q/s32.552843vs30.510204,J32.025386vs30.015845.
+EARLY observational gain only;251's early gain did not persist. No causal/final
+closure claim. Same6248commits/84602upper calls;upper172669208→158047617(−8.4680%).
+Boundary36734candidates/1684moves in BOTH;273.690777→248.491006SUMMED-rank seconds;
+interior16.917275→16.950925. Timers overlap,not additive. Join-call wall share
+.401958→.381792is NOT CPU idle. THREE complete ownership publications retain
+whole-field counts/flags:A253/ownership_census_integrity.json (not row/dependency
+identity proof). A253/quality_comparison251.json,quality_counter_assessment.json,
+quality_progress.json and parser provenance preserve complete raw-prefix hashes.
+At1273.9s all10HOST handles live,ALL1520pins unchanged,treeRSS10.364GB,hostavailable
+~31.4GB,all memory PSI averages0.00,owned VmSwap0. CPU PSI some3.31/1.75/1.77;
+no baseline scheduler samples establish causality. A253/quality_window3_live_observation.json.
+RSS is not whole-job physical peak. Keep full run FROZEN;no competing implementation.
 
 ## Qualified active change and diagnosis
 

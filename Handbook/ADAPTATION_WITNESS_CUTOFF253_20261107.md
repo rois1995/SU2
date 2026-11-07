@@ -70,3 +70,17 @@ A253/quality_{entry_comparison251,comparison251,counter_assessment,progress}.jso
 At814.6s all10host handles live,all1520pins unchanged,treeRSS10.133GB,hostavailable
 ~31.6GB,memory PSI avg10zero. Keep the full run frozen and judge its terminal
 whole-field outcome. Shape/geometry/reclosure,transfer,CFD,restart,BL/RANS remain open.
+
+
+Three-window snapshot through32064/census7:895674cells/94913q/94850J/1299geometry/
+0size,ALL measured/complete flags,EXACT251. Same6248commits/84602upper calls;
+net11541q/11354J/82geometry removed. Quality354.531242vs378.266885s,net q/s
+32.552843vs30.510204,J32.025386vs30.015845. Upper172669208→158047617(−8.4680%).
+Boundary36734candidates/1684moves,summed seconds273.690777→248.491006;interior
+16.917275→16.950925. Timers overlap. Join-call share.401958→.381792is not CPU idle.
+THREE complete ownership staged→committed publications preserve whole-field
+counts/flags. At1273.9s all10host handles live,all1520pins unchanged,treeRSS10.364GB,
+hostavailable~31.4GB,owned VmSwap0,memory PSI averages0.00. CPU contention samples
+are recorded;no matched251scheduler sampling exists to prove timing causality.
+The early observational advantage persists,but no mesh is accepted. Full253LIVE/
+FROZEN. Preserve raw-prefix hashes/census/churn identities;no code/gate/budget change.
