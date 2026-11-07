@@ -43,8 +43,11 @@ Never repeat the old244stop or signal historical PID3440421.
 Use R/analyze_m6244_mach_only.py for live first-event stage/churn/location/ladder
 analysis; it reuses existing exact-census assertions with NO combined-target
 benchmark. Latest observation: actual Hessian recovery61330point-sensor pairs,
-0WLS fallbacks,one sensor per original-grid point; no complete construction stage
-yet. Sampled process-tree RSS about4.3GiB; not a whole-job/physical peak.
+0WLS fallbacks,one sensor per original-grid point. Eight complete construction
+stage groups: latest length_split_exit round20878/native326.490414,744827cells/
+3391geometry/21733size; cache/census/geometry complete,shape UNMEASURED.
+A_MACH/initial_construction_observation.json stores joined stages/hashed prefixes.
+Sampled process-tree RSS about6.3GiB, not physical/whole-job peak.
 A_MACH/owned_live_observation.json is current exact live handle confirmation.
 
 ## Preserved combined244 outcome and Mach-only preparation
