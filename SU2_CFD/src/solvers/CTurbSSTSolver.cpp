@@ -320,6 +320,13 @@ void CTurbSSTSolver::Upwind_Residual(CGeometry* geometry, CSolver** solver_conta
   if (matched) {
     opt.boundedScalar = true;
     opt.matchedMassFlux = true;
+    /*--- MUSCL_TURB: the k row takes the face k of the flow edge kernel (SSTPATHS_PLAN.md 2). ---*/
+    if (config->GetMUSCL_Turb()) {
+      const auto* flowNodes = su2staticcast_p<const CFlowVariable*>(solver_container[FLOW_SOL]->GetNodes());
+      if (flowNodes->EdgeMatchedKine.size() < geometry->GetnEdge())
+        SU2_MPI::Error("Matched k with MUSCL_TURB: the face k of the flow edge kernel is missing.", CURRENT_FUNCTION);
+      opt.matchedFaceKine = &flowNodes->EdgeMatchedKine;
+    }
   }
 
   DispatchScheme<CScalarFlux_SST, 2>(config, [&](auto tag) {

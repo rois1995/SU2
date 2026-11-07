@@ -65,6 +65,8 @@ struct ScalarFluxOptions {
   bool matchedMassFlux = false;     /*!< \brief Matched k of the P1 options: bounded upwinding with the P1 mass flux and
                                      *   no divergence correction (P1_SST_COUPLED.md, M1). */
   bool skipFirstConvective = false; /*!< \brief Boundary flux without its first row (the matched k of closure C replaces it). */
+  const su2activevector* matchedFaceKine = nullptr; /*!< \brief Matched k with MUSCL_TURB: the face k of each edge from the
+                                                     *   flow edge kernel replaces the face values of the first row. */
   /*!
    * \brief Bounds of the transported variables (those that clip the solution). A reconstructed face
    *        value outside them falls back to the value of its point (first order). Null: no bounds.
@@ -393,7 +395,8 @@ class CUpwScalarBase : public CUpwScalarFlux<Double_, Derived, FlowIndices, nDim
   FORCEINLINE EdgeResidual<Double, nVar> ComputeFlux(const ScalarFluxOptions& opt, Int iPoint,
                                                      const EdgeSide<VariableType>& side_i, Int jPoint,
                                                      const EdgeSide<VariableType>& side_j,
-                                                     const Vector<Double, nDim>& normal, const Double& massFlux) const {
+                                                     const Vector<Double, nDim>& normal, const Double& massFlux,
+                                                     const Double& matchedFaceK = Double(0.0)) const {
     /*--- Inputs are registered as they are read, by each of the two terms. ---*/
     AD::StartPreacc();
     AD::SetPreaccIn(normal, nDim);
@@ -507,6 +510,14 @@ class CUpwScalarBase : public CUpwScalarFlux<Double_, Derived, FlowIndices, nDim
         }
       }
 
+      /*--- Matched k with MUSCL_TURB (SSTPATHS_PLAN.md 2): the face k of the flow edge kernel on both sides of the first
+       * row, so its flux is the k part of the energy row (to roundoff of m/rho rho); the other rows keep theirs. ---*/
+      if (opt.matchedFaceKine) {
+        AD::SetPreaccIn(matchedFaceK);
+        phi.i.all(0) = matchedFaceK;
+        phi.j.all(0) = matchedFaceK;
+      }
+
       static_cast<const Derived*>(this)->finalizeFlux(idx, opt, iPoint, side_i, jPoint, side_j, a0, a1, rhoConv, phi,
                                                       res);
     }
@@ -529,7 +540,8 @@ class CUpwScalarBase : public CUpwScalarFlux<Double_, Derived, FlowIndices, nDim
                                const Vector<Double, nDim>& normal, const Double& massFlux, UpdateType updateType,
                                Double updateMask, CSysVector<su2double>& vector, CSysVector<su2double>& vectorDiff,
                                SparseMatrixType& matrix) const {
-    const auto res = ComputeFlux(opt, iPoint, side_i, jPoint, side_j, normal, massFlux);
+    const Double faceK = opt.matchedFaceKine ? gatherVariables(iEdge, *opt.matchedFaceKine) : Double(0.0);
+    const auto res = ComputeFlux(opt, iPoint, side_i, jPoint, side_j, normal, massFlux, faceK);
 
     updateLinearSystem(iEdge, iPoint, jPoint, opt.implicit, updateType, updateMask, res, vector, vectorDiff, matrix);
   }

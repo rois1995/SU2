@@ -36,6 +36,15 @@
 #include "../../../../../Common/include/geometry/CGeometry.hpp"
 
 /*!
+ * \brief One reconstructed scalar with the all(iVar) accessor of the MUSCL helpers (the face k of the matched
+ *        MUSCL_TURB form, SSTPATHS_PLAN.md 2).
+ */
+struct CMatchedKineValue {
+  static constexpr size_t nVar = 1;
+  VectorDbl<1> all;
+};
+
+/*!
  * \class CCenteredBase
  * \ingroup ConvDiscr
  * \brief Base class for Centered schemes, derived classes implement
@@ -64,6 +73,9 @@ protected:
   const su2double stretchParam = 0.3;
   const CVariable* const tkeVars; /*!< \brief SST turbulence variables (k is part of the total energy), else nullptr. */
   const bool matchedK; /*!< \brief SST with the P1 options: hat states and matched k transport (P1_SST_COUPLED.md). */
+  const bool musclK;   /*!< \brief Matched k with MUSCL_TURB: the U-MUSCL face k of the k row (SSTPATHS_PLAN.md 2). */
+  const LIMITER limiterTurb;  /*!< \brief SLOPE_LIMITER_TURB of that reconstruction. */
+  const su2double kappaTurb;  /*!< \brief MUSCL_KAPPA_TURB of that reconstruction. */
 
   /*!
    * \brief Constructor, store some constants and forward args to base.
@@ -83,7 +95,23 @@ protected:
     gridEntropy((edgeForm || projDiss) && config.GetDynamic_Grid() && config.GetGrid_Entropy_P1()),
     weakWallDiss(iMesh == MESH_0 && config.GetJST_Weak_Wall_Diss()),
     tkeVars(config.GetKind_Turb_Model() == TURB_MODEL::SST ? findTurbVars(args...) : nullptr),
-    matchedK(iMesh == MESH_0 && config.GetTke_Matched_P1() && (tkeVars != nullptr)) {
+    matchedK(iMesh == MESH_0 && config.GetTke_Matched_P1() && (tkeVars != nullptr)),
+    musclK(matchedK && config.GetMUSCL_Turb()),
+    limiterTurb(config.GetKind_SlopeLimit_Turb()),
+    kappaTurb(config.GetMUSCL_Kappa_Turb()) {
+  }
+
+  /*!
+   * \brief Strong-k (viscous wall) flags of the nodes of the lanes, for the first-order face k at wall nodes (M5).
+   */
+  template<class T, size_t N>
+  FORCEINLINE static Double viscousWall(const simd::Array<T,N>& idx, const CGeometry& geometry) {
+    Double w;
+    for (size_t k=0; k<N; ++k) w[k] = geometry.nodes->GetViscousBoundary(idx[k]);
+    return w;
+  }
+  FORCEINLINE static Double viscousWall(unsigned long idx, const CGeometry& geometry) {
+    return geometry.nodes->GetViscousBoundary(idx);
   }
 
   /*!
@@ -160,6 +188,21 @@ public:
       kM_j = gatherVariables(jPoint, tkeVars->GetSolution());
       V.i.enthalpy() -= kM_i;
       V.j.enthalpy() -= kM_j;
+    }
+
+    /*--- MUSCL_TURB: the U-MUSCL face values of k with the turbulence gradient, limiter and kappa, as the k row
+     * (CScalarFlux_SST); the upwind one is chosen below and stored for the k row, so both rows use the same number. ---*/
+    Double kL = kM_i, kR = kM_j;
+    if (musclK) {
+      CPair<CMatchedKineValue> kRec;
+      kRec.i.all(0) = kM_i;
+      kRec.j.all(0) = kM_j;
+      const auto vector_ij = distanceVector<nDim>(iPoint, jPoint, geometry.nodes->GetCoord());
+      reconstruct<1, MusclLimiter::EDGE_SCALAR>(iPoint, jPoint, vector_ij, tkeVars->GetGradient_Reconstruction(),
+                                                tkeVars->GetLimiter(), limiterTurb, 0, kRec, kappaTurb,
+                                                config.GetMUSCLRampValue());
+      kL = kRec.i.all(0);
+      kR = kRec.j.all(0);
     }
 
     CCompressiblePrimitives<nDim,nPrimVar> avgV;
@@ -395,8 +438,15 @@ public:
 
     /*--- Matched k: mdot k_up with the final mass flux (stored below for the SST k convection), and the Jacobian
      * L(k_up) Jhat T(k) of the hat Jacobian (D1), before the viscous terms whose Jacobian is already w.r.t. U. ---*/
+    Double kUp = 0.0;
     if (matchedK) {
-      const Double kUp = P1SSTMatched::KUpwind(flux(0), kM_i, kM_j);
+      if (musclK) {
+        kUp = P1SSTMatched::MusclFaceKine(flux(0), kL, kR, kM_i, kM_j, viscousWall(iPoint, geometry),
+                                          viscousWall(jPoint, geometry), solution.MatchedKineBounds[0],
+                                          solution.MatchedKineBounds[1]);
+      } else {
+        kUp = P1SSTMatched::KUpwind(flux(0), kM_i, kM_j);
+      }
       flux(nVar-1) += kUp * flux(0);
       if (implicit) {
         P1SSTMatched::TransformJacobian(nVar, jac_i, kUp, kM_i);
@@ -421,6 +471,9 @@ public:
     /*--- Store the mass flux (density-equation flux) for bounded-scalar transport. ---*/
 
     updateEdgeMassFlux(iEdge, flux(0), edgeMassFluxes);
+
+    /*--- MUSCL_TURB: the face k of this edge for the SST k row (SSTPATHS_PLAN.md 2). ---*/
+    if (musclK) updateEdgeMassFlux(iEdge, kUp, &solution.EdgeMatchedKine);
   }
 };
 

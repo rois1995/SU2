@@ -6283,3 +6283,167 @@ TEST_CASE("P1 SST matched: weighted sub-simplex k diffusion of a mixed cell, con
     CHECK(GlobalMax(interiorWorst) < 1e-12);
   }
 }
+
+/*--- SST matched k with MUSCL_TURB (SSTPATHS_PLAN.md 2): the face k is the U-MUSCL value of the k row (reconstruct with
+ * EDGE_SCALAR as CScalarFlux_SST) on the upwind side, with the bounds and strong-node fallbacks of MusclFaceKine. ---*/
+namespace {
+/*--- The matched flux with a given face k: Fhat(T(k_i) U_i, T(k_j) U_j) + kFace Fhat_rho e_E. ---*/
+void MatchedEdgeFluxFace(int nDim, const su2double* Ui, const su2double* Uj, su2double ki, su2double kj, const su2double* n,
+                         su2double lam, su2double kFace, su2double* F) {
+  su2double Hi[5], Hj[5];
+  for (int v = 0; v < nDim + 2; ++v) { Hi[v] = Ui[v]; Hj[v] = Uj[v]; }
+  Hi[nDim + 1] -= Ui[0] * ki;
+  Hj[nDim + 1] -= Uj[0] * kj;
+  HatEdgeFlux(nDim, Hi, Hj, n, lam, F);
+  F[nDim + 1] += kFace * F[0];
+}
+
+/*--- One reconstructed scalar with the all(iVar) accessor of the MUSCL helpers. ---*/
+struct KineValue {
+  static constexpr size_t nVar = 1;
+  Vector<su2double, 1> all;
+};
+
+/*--- U-MUSCL face values of k on the edge from 0 to 1 (vector x_1 - x_0), as the k row reconstructs them. ---*/
+void MusclKine(int nDim, const su2double* x01, const su2double (*gradK)[3], su2double k0, su2double k1, LIMITER limiter,
+               const su2double* pointLim, su2double kappa, su2double& kL, su2double& kR) {
+  C3DDoubleMatrix gradient(2, 1, nDim);
+  su2activematrix lim(2, 1);
+  Vector<su2double, 3> edge3;
+  for (int s = 0; s < 2; ++s) {
+    for (int d = 0; d < nDim; ++d) gradient(s, 0, d) = gradK[s][d];
+    lim(s, 0) = pointLim[s];
+  }
+  CPair<KineValue> face;
+  face.i.all(0) = k0;
+  face.j.all(0) = k1;
+  if (nDim == 2) {
+    Vector<su2double, 2> edge;
+    for (int d = 0; d < 2; ++d) edge(d) = x01[d];
+    reconstruct<1, MusclLimiter::EDGE_SCALAR>(0ul, 1ul, edge, gradient, lim, limiter, 0, face, kappa, su2double(1.0));
+  } else {
+    for (int d = 0; d < 3; ++d) edge3(d) = x01[d];
+    reconstruct<1, MusclLimiter::EDGE_SCALAR>(0ul, 1ul, edge3, gradient, lim, limiter, 0, face, kappa, su2double(1.0));
+  }
+  kL = face.i.all(0);
+  kR = face.j.all(0);
+}
+}  // namespace
+
+TEST_CASE("P1 SST matched MUSCL_TURB: face k, free stream with a k jump, uniform k, fallbacks, entropy identity, L Jhat T", "[P1Flux]") {
+  std::mt19937 gen(31337);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  const su2double lo = 1e-10, hi = 1e10;
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    for (const LIMITER limiter : {LIMITER::NONE, LIMITER::VAN_ALBADA_EDGE, LIMITER::VENKATAKRISHNAN}) {
+      for (int trial = 0; trial < 40; ++trial) {
+        su2double x01[3] = {u(gen), u(gen), u(gen)}, n[3] = {u(gen), u(gen), u(gen)}, gradK[2][3], pointLim[2];
+        for (int s = 0; s < 2; ++s) {
+          for (int d = 0; d < 3; ++d) gradK[s][d] = 0.2 * u(gen);
+          pointLim[s] = 0.5 * (1.0 + u(gen));
+        }
+        su2double k[2] = {0.2 * exp(u(gen)), 0.2 * exp(u(gen))};
+        const su2double kappa = 0.3 * u(gen);
+        su2double kL, kR;
+        MusclKine(nDim, x01, gradK, k[0], k[1], limiter, pointLim, kappa, kL, kR);
+
+        /*--- (b) uniform k with zero gradient: the face value is k exactly. ---*/
+        {
+          const su2double zeroGrad[2][3] = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+          su2double uL, uR;
+          MusclKine(nDim, x01, zeroGrad, k[0], k[0], limiter, pointLim, kappa, uL, uR);
+          for (const su2double m : {0.4, -0.6}) {
+            CHECK(P1SSTMatched::MusclFaceKine(m, uL, uR, k[0], k[0], su2double(0.0), su2double(0.0), lo, hi) == k[0]);
+          }
+        }
+        /*--- (c) fallbacks: a strong-k upwind node and a face value out of the bounds give the node value. ---*/
+        CHECK(P1SSTMatched::MusclFaceKine(su2double(0.5), kL, kR, k[0], k[1], su2double(1.0), su2double(0.0), lo, hi) == k[0]);
+        CHECK(P1SSTMatched::MusclFaceKine(su2double(-0.5), kL, kR, k[0], k[1], su2double(0.0), su2double(1.0), lo, hi) == k[1]);
+        CHECK(P1SSTMatched::MusclFaceKine(su2double(0.5), su2double(-1.0), kR, k[0], k[1], su2double(0.0), su2double(0.0), lo, hi) == k[0]);
+        CHECK(P1SSTMatched::MusclFaceKine(su2double(0.5), kL, kR, k[0], k[1], su2double(0.0), su2double(0.0), lo, hi) ==
+              ((kL < lo) ? k[0] : kL));
+
+        /*--- (a) uniform (rho, u, p) with a k jump: the hat rows do not see k, the energy row differs by kFace m. ---*/
+        const su2double rho = exp(u(gen)), p = exp(u(gen));
+        su2double vel[3] = {u(gen), u(gen), u(gen)}, vel2 = 0.0;
+        for (int d = 0; d < nDim; ++d) vel2 += vel[d] * vel[d];
+        su2double U[2][5];
+        for (int s = 0; s < 2; ++s) {
+          U[s][0] = rho;
+          for (int d = 0; d < nDim; ++d) U[s][d + 1] = rho * vel[d];
+          U[s][nDim + 1] = p / (kGamma - 1.0) + 0.5 * rho * vel2 + rho * k[s];
+        }
+        su2double F[5], Fhat[5], H[5];
+        for (int v = 0; v < nVar; ++v) H[v] = U[0][v];
+        H[nVar - 1] -= rho * k[0];
+        HatEdgeFlux(nDim, H, H, n, 0.7, Fhat);
+        const su2double kFace0 = P1SSTMatched::MusclFaceKine(Fhat[0], kL, kR, k[0], k[1], su2double(0.0), su2double(0.0), lo, hi);
+        MatchedEdgeFluxFace(nDim, U[0], U[1], k[0], k[1], n, 0.7, kFace0, F);
+        for (int v = 0; v < nVar - 1; ++v) CHECK(F[v] == Approx(Fhat[v]).margin(1e-12 * (1.0 + fabs(Fhat[v]))));
+        CHECK(F[nVar - 1] - kFace0 * F[0] == Approx(Fhat[nVar - 1]).margin(1e-12 * (1.0 + fabs(Fhat[nVar - 1]))));
+
+        /*--- Random states for (d) and (e). ---*/
+        for (int s = 0; s < 2; ++s) {
+          const su2double r = exp(u(gen)), q = exp(u(gen));
+          su2double w2 = 0.0;
+          U[s][0] = r;
+          for (int d = 0; d < nDim; ++d) { const su2double v = u(gen); U[s][d + 1] = r * v; w2 += v * v; }
+          U[s][nDim + 1] = q / (kGamma - 1.0) + 0.5 * r * w2 + r * k[s];
+        }
+        MatchedEdgeFluxFace(nDim, U[0], U[1], k[0], k[1], n, 0.7, 0.0, F);
+        const su2double m = F[0];
+        if (fabs(m) < 1e-3) continue;
+        const su2double kFace = P1SSTMatched::MusclFaceKine(m, kL, kR, k[0], k[1], su2double(0.0), su2double(0.0), lo, hi);
+        MatchedEdgeFluxFace(nDim, U[0], U[1], k[0], k[1], n, 0.7, kFace, F);
+
+        /*--- (d) the edge production of the coupled scheme (v_K = -v_E) is that of the hat flux. ---*/
+        {
+          su2double w0[5], w1[5], Hh[2][5];
+          State5 S0, S1;
+          for (int v = 0; v < nVar; ++v) { S0[v] = U[0][v]; S1[v] = U[1][v]; }
+          HatEntropyVariables(nDim, S0, k[0], w0);
+          HatEntropyVariables(nDim, S1, k[1], w1);
+          for (int s = 0; s < 2; ++s) {
+            for (int v = 0; v < nVar; ++v) Hh[s][v] = U[s][v];
+            Hh[s][nVar - 1] -= U[s][0] * k[s];
+          }
+          HatEdgeFlux(nDim, Hh[0], Hh[1], n, 0.7, Fhat);
+          su2double coupled = 0.0, hat = 0.0;
+          const su2double Fk = kFace * F[0];
+          for (int v = 0; v < nVar - 1; ++v) { coupled += (w1[v] - w0[v]) * F[v]; hat += (w1[v] - w0[v]) * Fhat[v]; }
+          coupled += (w1[nVar - 1] - w0[nVar - 1]) * (F[nVar - 1] - Fk);
+          hat += (w1[nVar - 1] - w0[nVar - 1]) * Fhat[nVar - 1];
+          CHECK(coupled == Approx(hat).margin(1e-12 * (1.0 + fabs(hat))));
+        }
+
+        /*--- (e) FD of the matched flux with the face k frozen = L(kFace) Jhat T(k_side) (D1). ---*/
+        for (int side = 0; side < 2; ++side) {
+          su2double Hs[2][5];
+          for (int s = 0; s < 2; ++s) {
+            for (int v = 0; v < nVar; ++v) Hs[s][v] = U[s][v];
+            Hs[s][nVar - 1] -= U[s][0] * k[s];
+          }
+          su2activematrix J(nVar, nVar), Jfd(nVar, nVar);
+          const su2double h = 1e-6;
+          for (int jv = 0; jv < nVar; ++jv) {
+            su2double Hp[2][5], Hm[2][5], Up[2][5], Um[2][5], Fp[5], Fm[5];
+            for (int s = 0; s < 2; ++s)
+              for (int v = 0; v < nVar; ++v) { Hp[s][v] = Hm[s][v] = Hs[s][v]; Up[s][v] = Um[s][v] = U[s][v]; }
+            Hp[side][jv] += h; Hm[side][jv] -= h;
+            HatEdgeFlux(nDim, Hp[0], Hp[1], n, 0.7, Fp);
+            HatEdgeFlux(nDim, Hm[0], Hm[1], n, 0.7, Fm);
+            for (int iv = 0; iv < nVar; ++iv) J(iv, jv) = (Fp[iv] - Fm[iv]) / (2 * h);
+            Up[side][jv] += h; Um[side][jv] -= h;
+            MatchedEdgeFluxFace(nDim, Up[0], Up[1], k[0], k[1], n, 0.7, kFace, Fp);
+            MatchedEdgeFluxFace(nDim, Um[0], Um[1], k[0], k[1], n, 0.7, kFace, Fm);
+            for (int iv = 0; iv < nVar; ++iv) Jfd(iv, jv) = (Fp[iv] - Fm[iv]) / (2 * h);
+          }
+          P1SSTMatched::TransformJacobian(nVar, J, kFace, k[side]);
+          for (int iv = 0; iv < nVar; ++iv)
+            for (int jv = 0; jv < nVar; ++jv) CHECK(J(iv, jv) == Approx(Jfd(iv, jv)).margin(1e-6 * (1.0 + fabs(Jfd(iv, jv)))));
+        }
+      }
+    }
+  }
+}

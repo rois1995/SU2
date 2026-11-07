@@ -429,6 +429,10 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
   if (config->GetBounded_Scalar() || config->GetTke_Matched_P1()) {
     EdgeMassFluxes.resize(nextMultiple(geometry->GetnEdge(), simd::preferredLen<su2double>())) = su2double(0.0);
   }
+  /*--- Matched k with MUSCL_TURB: the face k of each edge, same layout (SSTPATHS_PLAN.md 2). ---*/
+  if (config->GetTke_Matched_P1() && config->GetMUSCL_Turb()) {
+    nodes->EdgeMatchedKine.resize(nextMultiple(geometry->GetnEdge(), simd::preferredLen<su2double>())) = su2double(0.0);
+  }
 
   /*--- Add the solver name.. ---*/
   SolverName = "C.FLOW";
@@ -1906,6 +1910,12 @@ void CEulerSolver::Centered_Residual(CGeometry *geometry, CSolver **solver_conta
    * axisymmetric source), filled by the passes below and by Source_Residual, added by the SST (MatchedNodalKine). ---*/
   if (turbMatched) {
     SU2_OMP_SAFE_GLOBAL_ACCESS(P1KNodalRes.resize(nPoint) = su2double(0.0); P1KNodalJac.resize(nPoint) = su2double(0.0);)
+    /*--- MUSCL_TURB: the bounds of the turbulence reconstruction for the face k of the edge kernel. ---*/
+    if (config->GetMUSCL_Turb()) {
+      SU2_OMP_SAFE_GLOBAL_ACCESS(
+      nodes->MatchedKineBounds[0] = solver_container[TURB_SOL]->GetScalarLowerLimit(0);
+      nodes->MatchedKineBounds[1] = solver_container[TURB_SOL]->GetScalarUpperLimit(0);)
+    }
   }
   EdgeFluxResidual(geometry, solver_container, config);
   if ((iMesh == MESH_0) && config->GetJST_Entropy_Budget()) JSTEntropyResidual(geometry, solver_container, config);

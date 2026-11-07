@@ -3543,6 +3543,12 @@ public:
   inline virtual su2double GetTke_Inf(void) const { return 0; }
 
   /*!
+   * \brief Bounds of a transported scalar (CScalarSolver lowerlimit/upperlimit), for the matched MUSCL_TURB face k.
+   */
+  inline virtual su2double GetScalarLowerLimit(unsigned short iVar) const { return 0.0; }
+  inline virtual su2double GetScalarUpperLimit(unsigned short iVar) const { return 0.0; }
+
+  /*!
    * \brief Matched k of SST with BC_ENTROPY_P1: the closure C sums M+ and KIn per node (flow solver).
    */
   inline const su2activevector& GetP1KMassPlus() const { return P1KMassPlus; }

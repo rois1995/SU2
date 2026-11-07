@@ -47,6 +47,24 @@ FORCEINLINE T KUpwind(const T& m, const T& k_i, const T& k_j) {
 }
 
 /*!
+ * \brief MUSCL_TURB with the matched form (SSTPATHS_PLAN.md 2): the face k of the upwind side of the mass flux m. kL, kR
+ *        are the U-MUSCL face values of the k row (turbulence gradient, limiter and kappa); a face value outside
+ *        [lo, hi] falls back to its node value (the bounds of CScalarSolver), and so does the side of a strong-k node
+ *        (strong = 1, a wall node of the SST: first order there, Lemma C4 / M5). Uniform k gives k for any m.
+ */
+template <class T>
+FORCEINLINE T MusclFaceKine(const T& m, const T& kL, const T& kR, const T& k_i, const T& k_j, const T& strong_i,
+                            const T& strong_j, const su2double& lo, const su2double& hi) {
+  T out_i = fmax(kL < lo, kL > hi);
+  T out_j = fmax(kR < lo, kR > hi);
+  out_i = fmax(out_i, strong_i);
+  out_j = fmax(out_j, strong_j);
+  const T face_i = out_i * k_i + (1.0 - out_i) * kL;
+  const T face_j = out_j * k_j + (1.0 - out_j) * kR;
+  return KUpwind(m, face_i, face_j);
+}
+
+/*!
  * \brief Jacobian of the matched flux from the hat Jacobian (D1): J = L(kRow) Jhat T(kCol), with
  *        T(k) = I - k e_E e_rho^T (Uhat = T(k) U at a fixed k) and L(k) = I + k e_E e_rho^T (the row of mdot k_up):
  *        column rho -= kCol column E, then row E += kRow row rho. Matrix accessed as jac(iVar, jVar).

@@ -4925,6 +4925,11 @@ public:
   /*! \brief Whether the turbulence equations reconstruct. */
   bool GetMUSCL_Turb(void) const { return MUSCL_Turb; }
 
+  /*!
+   * \brief U-MUSCL kappa of the turbulence equations (MUSCL_KAPPA_TURB), whatever the runtime equation system.
+   */
+  su2double GetMUSCL_Kappa_Turb(void) const { return MUSCL_Kappa_Turb; }
+
   /*! \brief Whether the species equations reconstruct. */
   bool GetMUSCL_Species(void) const { return MUSCL_Species; }
 

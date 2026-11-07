@@ -70,6 +70,12 @@ class CFlowVariable : public CVariable {
 
  public:
   mutable su2vector<int8_t> NonPhysicalEdgeCounter;  /*!< \brief Non-physical reconstruction counter for each edge. */
+
+  /*--- Matched k of SST with MUSCL_TURB (SSTPATHS_PLAN.md 2): the face k of each edge, written by the flow edge kernel
+   * (padded like the edge mass fluxes, contiguous SIMD stores) and read by the SST k row, so both rows use the same
+   * number; and the bounds of the turbulence reconstruction (CScalarSolver lowerlimit/upperlimit of k). ---*/
+  mutable su2activevector EdgeMatchedKine;
+  su2double MatchedKineBounds[2] = {0.0, 0.0};
   /*!
    * \brief Updates the non-physical counter of an edge.
    * \param[in] iEdge - Edge index.

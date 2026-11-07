@@ -6657,7 +6657,6 @@ void CConfig::CheckP1FluxOptions() const {
      * matched to the flow one. ---*/
     const string name = "P1 options with SST (matched k, P1_SST_COUPLED.md): ";
     if (nMGLevels > 0) SU2_MPI::Error(name + "needs MGLEVEL= 0.", CURRENT_FUNCTION);
-    if (MUSCL_Turb) SU2_MPI::Error(name + "needs MUSCL_TURB= NO (the same upwind k in the energy and k rows).", CURRENT_FUNCTION);
     /*--- Rough walls give k != 0 at strong-k nodes, where the weak-wall closures have nodal mass rows (M5). ---*/
     for (unsigned short iMarker = 0; iMarker < nRough_Wall; ++iMarker) {
       if (Roughness_Height[iMarker] > 0.0)

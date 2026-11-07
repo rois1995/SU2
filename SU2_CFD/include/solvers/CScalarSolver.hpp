@@ -440,6 +440,12 @@ class CScalarSolver : public CSolver {
 
  public:
   /*!
+   * \brief Bounds of the transported variables (those that clip the solution and the reconstructed face values).
+   */
+  inline su2double GetScalarLowerLimit(unsigned short iVar) const final { return lowerlimit[iVar]; }
+  inline su2double GetScalarUpperLimit(unsigned short iVar) const final { return upperlimit[iVar]; }
+
+  /*!
    * \brief Destructor of the class.
    */
   ~CScalarSolver() override;
