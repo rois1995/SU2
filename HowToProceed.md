@@ -329,3 +329,19 @@ had only about1.5MBfree at the latest check. Put build, test, MPI and export scr
 on the4TBworkspace compile-tmp. Leave unrelated jobs/files alone. Freeze source,
 binary, helpers and inputs during builds/runs; preserve receipts and push bounded,
 reviewable checkpoints. Do not raise the native time limit or relax a gate.
+
+## Connected235integration qualified; return to full M6
+
+The complete geometry-conforming candidate is now production code, with bounded
+four-star prefetch before reservation and private shell/split/optimization before
+admission. Original64/replacement128cell limits, remaining work/time/sweep bounds,
+strict q/J count progress, geometry/height/edge/interface checks and full publication
+remain. Failed primitive233and interface-packaging234attempts are preserved;235
+fixes canonical interface packaging without relaxing it. Actual full-context235
+regression q2→0/J1→0/geometry4→2passes in143/160trials.116serial cases/78351assertions
+and ONE MPI6milestone26cases/rank pass, pins unchanged. This is focused qualification,
+not accepted meshes. Adjacent MPI protocols pass; exact support-selection predicate
+is first exercised in the next full M6. Run it immediately from the same saved real
+CFD seed/correctedL1/50k with unchanged5400native/14400outer limits, then let outcome
+drive further work. See [current design](Handbook/ADAPTATION_GEOMETRY_CONFORMING_REPAIR_20261107.md)
+and HANDOFF_Codex.md for authoritative owned handles.

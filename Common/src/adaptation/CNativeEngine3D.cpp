@@ -3314,6 +3314,69 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           }
         } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         if (!(ready=vote(failure))) return finish();
+        if(repairing && curved && !selection.geometry_repairs) {
+          const auto support_bytes=transfer_memory::Mul(transfer_memory::Mul(4,choices.size()),
+              transfer_memory::Mul(MaximumCavityCells,sizeof(Dependency)+sizeof(OwnedCell)+8*(sizeof(Id)+4*sizeof(void*))));
+          batch_bytes=transfer_memory::Add(batch_bytes,support_bytes,
+              transfer_memory::Mul(retained_cells,sizeof(OwnedCell)+sizeof(Dependency)));
+          if(!admit(0))return finish();
+          std::vector<Feature> supports;std::vector<std::pair<size_t,size_t>> groups;
+          try {
+            for(size_t i=0;i<imported_batch.candidates.size();++i) {
+              const auto& candidate=imported_batch.candidates[i];
+              if(!candidate.valid || candidate.cells.size()>MaximumCavityCells)continue;
+              const OwnedCell* core=nullptr;long double worst=-1;
+              for(const auto& row:candidate.cells) {
+                const auto cached=selection.cells.find(row.cell.id);
+                if(cached==selection.cells.end() || !cached->second.shape_measured || cached->second.quality_valid ||
+                    !cached->second.geometry_invalid ||
+                    std::count_if(row.physical.begin(),row.physical.end(),[](const auto& f){return f.present;})!=2)continue;
+                const auto weight=selection.RepairWeight(cached->second);
+                if(weight>worst || (weight==worst && core && row.cell.id<core->cell.id)){worst=weight;core=&row;}
+              }
+              if(!core)continue;
+              groups.push_back({i,supports.size()});
+              for(const auto& node:core->cell.v)supports.push_back({{node.id,0,0},1});
+            }
+          }catch(const std::exception& e){failure.Set(2,0,e.what());}
+          if(!vote(failure))return finish();
+          if(world.maximum(!supports.empty())) {
+            // Complete moved stars are fetched before the existing full-vertex-disjoint reservation.
+            const auto extra=directory->LookupBatch(supports,options.memory_ceiling,
+                transfer_memory::Add(bytes(),source.ResidentBytes()));
+            if(!extra.valid){result.reason=extra.reason;return finish();}
+            bool expanded=false;
+            try {
+              for(const auto& group:groups) {
+                auto& original=dependency_batch.candidates.at(group.first);
+                std::map<Id,Dependency> merged;for(const auto& row:original.cells)merged.emplace(row.cell,row);
+                bool complete=true;
+                for(size_t k=0;k<4;++k) {
+                  const auto& star=extra.candidates.at(group.second+k);
+                  if(!star.valid) {
+                    if(!star.oversized)throw std::logic_error("Coupled boundary support lost a current vertex star.");
+                    complete=false;continue;
+                  }
+                  for(const auto& row:star.cells) {
+                    const auto prior=merged.emplace(row.cell,row);
+                    if(!prior.second && (prior.first->second.owner!=row.owner || prior.first->second.version!=row.version))
+                      throw std::logic_error("Coupled boundary support changed dependency ownership/version.");
+                  }
+                }
+                if(!complete || merged.size()>MaximumCavityCells || merged.size()==original.cells.size())continue;
+                original.cells.clear();for(const auto& row:merged)original.cells.push_back(row.second);
+                original.coordinate_star={};expanded=true;
+              }
+            }catch(const std::exception& e){failure.Set(2,0,e.what());}
+            if(!vote(failure))return finish();
+            if(world.maximum(expanded)) {
+              auto complete=directory->FetchBatch(dependency_batch,working,options.memory_ceiling,
+                  transfer_memory::Add(bytes(),source.ResidentBytes()));
+              if(!complete.valid){result.reason=complete.reason;return finish();}
+              imported_batch=std::move(complete);
+            }
+          }
+        }
         if(world.maximum(refused_receipt_count!=0)) {
           if(!service_frontier({},false,false,&refused_receipts,refused_receipt_count))return finish();
           refused_receipt_count=0;
@@ -5587,7 +5650,7 @@ class MeshOptimizer {
   OptimizeReport& report;
   Clock::time_point started;
   std::unique_ptr<PlanarReference> moved_geometry;
-  bool changed=false,limited=false;
+  bool changed=false,limited=false,coupled=true;
   size_t stage_work_end=SIZE_MAX;
   std::unordered_map<Id,std::vector<Id>> star;   // vertex -> incident cells
   std::unordered_map<Id,Point> points;
@@ -5781,6 +5844,8 @@ class MeshOptimizer {
   bool Collapse(Id p,Id q);
   bool Smooth(Id p);
   bool SmoothBoundary(Id p);
+  bool CoupledBoundary();
+  void AccountNested(const OptimizeReport& nested,bool selected);
   bool ShellBoundary(Id cell);
   bool TryCell(Id id,bool enrichment);
   // DC-13 (DC13_PLAN sect. 1): cone re-meshing of a star-shaped cavity from one new placed vertex
@@ -6444,6 +6509,125 @@ bool MeshOptimizer::TryCell(Id id,bool enrichment) {
   }
   return false;
 }
+void MeshOptimizer::AccountNested(const OptimizeReport& n,bool selected) {
+  // Charge attempted work once; credit progress only after the complete candidate is admitted.
+  if(!selected) {
+    report.sweeps+=n.sweeps;report.trials+=n.trials;
+    report.rejected_orientation+=n.rejected_orientation;report.rejected_interface+=n.rejected_interface;
+    report.rejected_quality+=n.rejected_quality;report.rejected_edge+=n.rejected_edge;report.rejected_frozen+=n.rejected_frozen;report.rejected_validity+=n.rejected_validity;
+    report.placements+=n.placements;report.placement_refusals+=n.placement_refusals;report.placement_evaluations+=n.placement_evaluations;
+    report.long_edges_seen+=n.long_edges_seen;report.point_queries+=n.point_queries;report.edge_integrations+=n.edge_integrations;report.edge_surrogates+=n.edge_surrogates;
+    report.boundary_stars_searched+=n.boundary_stars_searched;report.boundary_stars_reused+=n.boundary_stars_reused;report.boundary_candidates+=n.boundary_candidates;
+    report.boundary_rejected_validity+=n.boundary_rejected_validity;report.boundary_rejected_shape+=n.boundary_rejected_shape;
+    report.boundary_rejected_edge+=n.boundary_rejected_edge;report.boundary_rejected_geometry+=n.boundary_rejected_geometry;
+    report.boundary_guidance_calls+=n.boundary_guidance_calls;report.boundary_upper_queries+=n.boundary_upper_queries;
+    report.boundary_guidance_faces+=n.boundary_guidance_faces;report.boundary_guidance_early_rejections+=n.boundary_guidance_early_rejections;report.boundary_seconds+=n.boundary_seconds;
+    report.interior_stars_searched+=n.interior_stars_searched;report.interior_stars_reused+=n.interior_stars_reused;report.interior_candidates+=n.interior_candidates;
+    report.interior_rejected_validity+=n.interior_rejected_validity;report.interior_rejected_shape+=n.interior_rejected_shape;
+    report.interior_rejected_edge+=n.interior_rejected_edge;report.interior_rejected_geometry+=n.interior_rejected_geometry;
+    report.interior_guidance_calls+=n.interior_guidance_calls;report.interior_upper_queries+=n.interior_upper_queries;report.interior_seconds+=n.interior_seconds;
+  } else {
+    report.edge_removals+=n.edge_removals;report.face_swaps+=n.face_swaps;report.collapses+=n.collapses;report.moves+=n.moves;
+    report.boundary_flips+=n.boundary_flips;report.boundary_collapses+=n.boundary_collapses;report.length_removals+=n.length_removals;
+    report.shell_insertions+=n.shell_insertions;report.neighbourhood_insertions+=n.neighbourhood_insertions;report.length_insertions+=n.length_insertions;
+    report.boundary_moves+=n.boundary_moves;report.boundary_debt_reduction+=n.boundary_debt_reduction;
+    report.interior_moves+=n.interior_moves;report.interior_debt_reduction+=n.interior_debt_reduction;
+  }
+}
+bool MeshOptimizer::CoupledBoundary() {
+  if(!coupled || Limited() || !options.geometry || !options.swaps || !options.insertions ||
+      GetShapeAdmission()!=ShapeAdmission::ValidityOnly || mesh.size()>MaximumCavityCells ||
+      options.maximum_work-report.trials<3 || report.sweeps>=options.maximum_sweeps || next_node>=UINT64_MAX-1 ||
+      next_cell>=UINT64_MAX-MaximumReplacementCells)return false;
+  std::vector<std::pair<long double,Id>> candidates;
+  for(const auto& row:mesh)if(!Frozen(row.first) &&
+      std::count_if(row.second.physical.begin(),row.second.physical.end(),[](const auto& f){return f.present;})==2 &&
+      RowScore(row.first,row.second.cell)<1)candidates.push_back({RowPriority(row.first,row.second.cell),row.first});
+  if(candidates.empty())return false;
+  std::sort(candidates.begin(),candidates.end());const auto& core=mesh.at(candidates.front().second);
+  std::vector<unsigned> faces;for(unsigned k=0;k<4;++k)if(core.physical[k].present)faces.push_back(k);
+  const Id a=core.cell.v[faces[0]].id,b=core.cell.v[faces[1]].id;
+  const auto shell=Common(star.at(a),star.at(b));if(shell.size()<3 || shell.size()>options.maximum_shell)return false;
+  for(Id id:shell)if(Frozen(id))return false;
+  const auto& geometry=moved_geometry?*moved_geometry:*options.geometry;
+  auto* budget=geometry.AtlasReservation();if(!budget)return false;
+  struct Restore {SU2NativeGeometry::AtlasBudget& budget;size_t caller;~Restore(){budget.caller_bytes=caller;}} restore{*budget,budget->caller_bytes};
+  const auto live=transfer_memory::Add(budget->caller_bytes,transfer_memory::Mul(2*MaximumReplacementCells,8192),geometry.ParameterOverlayBytes());
+  if(live==SIZE_MAX || live>budget->maximum_bytes)throw std::length_error("Coupled boundary candidate exceeds storage admission.");
+  budget->caller_bytes=live;budget->peak_bytes=std::max(budget->peak_bytes,live);
+  std::vector<Id> all_ids;std::vector<Cell> all_cells,ring;
+  for(const auto& row:mesh){all_ids.push_back(row.first);all_cells.push_back(row.second.cell);}
+  for(Id id:shell)ring.push_back(mesh.at(id).cell);
+  const auto original=GeometryPatch(all_cells),old=GeometryPatch(ring);Patch exposed,refined;std::string reason;
+  ++report.trials;if(!ShellBoundaryCell(old,core.cell.id,next_cell,geometry,exposed,reason)){++report.rejected_interface;return false;}
+  if(Limited())return false;
+  const auto pa=points.at(a),pb=points.at(b);
+  const Node point{next_node,{double(((long double)pa.x+pb.x)/2),double(((long double)pa.y+pb.y)/2),double(((long double)pa.z+pb.z)/2)}};
+  auto exposed_context=geometry.PrivateParameters(exposed);const auto& exposed_geometry=exposed_context?*exposed_context:geometry;
+  ++report.trials;if(!SplitEdge(exposed,{a,b},point,next_cell,exposed_geometry,refined,reason)){++report.rejected_interface;return false;}
+  if(next_cell>UINT64_MAX-refined.cells.size())return false;
+  Owned pending=mesh;for(Id id:shell)pending.erase(id);
+  std::map<Face,Id> bindings;for(const auto& face:refined.surface)bindings.emplace(Key(face.v),face.facet);
+  for(const auto& cell:refined.cells){OwnedCell row;row.cell=cell;row.version=1;const auto skin=OppositeFaces(cell);
+    for(unsigned k=0;k<4;++k){const auto found=bindings.find(Key(skin[k]));if(found!=bindings.end())row.physical[k]={true,found->second};}
+    if(!pending.emplace(cell.id,row).second)throw std::logic_error("Coupled boundary candidate repeats a cell identity.");}
+  if(pending.size()>MaximumReplacementCells)return false;
+  auto patch=[&](const Owned& rows) {
+    Patch result;result.parameters=original.parameters;result.coverage=original.coverage;
+    for(const auto& row:refined.parameters)result.parameters.insert_or_assign(row.first,row.second);
+    for(const auto& row:refined.coverage.faces)result.coverage.faces.insert_or_assign(row.first,row.second);
+    for(const auto& row:refined.coverage.traces)result.coverage.traces.insert_or_assign(row.first,row.second);
+    for(const auto& row:rows){result.cells.push_back(row.second.cell);const auto skin=OppositeFaces(row.second.cell);
+      for(unsigned k=0;k<4;++k)if(row.second.physical[k].present)result.surface.push_back({skin[k],row.second.physical[k].facet});}
+    RetainPhysicalCoverage(result);return result;
+  };
+  auto initial=patch(pending);auto context=geometry.PrivateParameters(initial);if(!context)return false;
+  OptimizeOptions nested_options=options;nested_options.geometry=context.get();nested_options.keep_vertices=keep;nested_options.diagnostic_sliding=sliding;
+  nested_options.maximum_work=options.maximum_work-report.trials;
+  nested_options.maximum_sweeps=options.maximum_sweeps-report.sweeps;
+  if(options.maximum_seconds>0){nested_options.maximum_seconds=options.maximum_seconds-std::chrono::duration<double>(Clock::now()-started).count();if(nested_options.maximum_seconds<=0)return false;}
+  Id node=next_node+1,cell=next_cell+refined.cells.size();OptimizeReport nested_report;
+  std::set<Id> final_keep;std::map<Id,std::array<double,3>> final_sliding;
+  {
+    MeshOptimizer nested(pending,target,node,cell,nested_options,nested_report);nested.coupled=false;
+    nested.Run();final_keep=std::move(nested.keep);final_sliding=std::move(nested.sliding);
+  }
+  if(nested_report.trials>nested_options.maximum_work || nested_report.sweeps>nested_options.maximum_sweeps ||
+      node<next_node+1 || cell<next_cell+refined.cells.size() || node==UINT64_MAX || cell==UINT64_MAX)
+    throw std::logic_error("Coupled boundary candidate exceeded work/identity reservation.");
+  AccountNested(nested_report,false);
+  if(options.maximum_seconds>0 && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds){limited=true;return false;}
+  if(pending.size()>MaximumReplacementCells)return false;
+  auto candidate=patch(pending);
+  for(const auto& row:nested_report.parameters)candidate.parameters.insert_or_assign(row.first,row.second);
+  for(const auto& row:nested_report.coverage.faces)candidate.coverage.faces.insert_or_assign(row.first,row.second);
+  for(const auto& row:nested_report.coverage.traces)candidate.coverage.traces.insert_or_assign(row.first,row.second);
+  RetainPhysicalCoverage(candidate);
+  const bool debt=DebtMode(all_ids,&original);const auto before=OldMerit(all_ids,debt),after=FreshMerit(candidate.cells,debt,false,&candidate);
+  if(!Progress(after,before,debt)){++report.rejected_quality;return false;}
+  auto counts=[&](const std::vector<Cell>& cells){std::array<size_t,2> result{};for(const auto& c:cells){const auto q=Quality(c,false);
+    if(!q.Valid())throw std::invalid_argument("Coupled boundary candidate has invalid quality.");result[0]+=q.q<MinimumMeanRatio;result[1]+=q.J<MinimumScaledJacobian;}return result;};
+  const auto old_bad=counts(original.cells),new_bad=counts(candidate.cells);
+  if(new_bad[0]>old_bad[0] || new_bad[1]>old_bad[1] || new_bad==old_bad){++report.rejected_quality;return false;}
+  for(const auto& c:candidate.cells)for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)
+    if((!points.count(c.v[i].id)||!points.count(c.v[j].id)||!Adjacent(c.v[i].id,c.v[j].id)) &&
+        !Certified(c.v[i].p,c.v[j].p,MaximumMetricEdge)){++report.rejected_edge;return false;}
+  auto final_context=geometry.PrivateParameters(candidate);if(!final_context)return false;
+  const auto old_geometry=GeometryGuidanceExcess(original,geometry,options.surface_tolerance);
+  const auto new_geometry=GeometryGuidanceExcess(candidate,*final_context,options.surface_tolerance,old_geometry.excess);
+  if(!old_geometry.complete || !new_geometry.complete || !std::isfinite(new_geometry.excess) || new_geometry.excess>old_geometry.excess){++report.rejected_interface;return false;}
+  std::set<Face> old_physical;for(const auto& face:original.surface)old_physical.insert(Key(face.v));std::map<Face,Face> skin;
+  for(const auto& face:Incidence(original.cells).Boundary())if(!old_physical.count(Key(face)))skin.emplace(Key(face),face);
+  for(auto face:candidate.surface){std::rotate(face.v.begin(),std::min_element(face.v.begin(),face.v.end()),face.v.end());skin.emplace(Key(face.v),face.v);}
+  std::vector<Face> prescribed;for(const auto& face:skin)prescribed.push_back(face.second);
+  if(!ValidatePrescribedInterface(original.cells,candidate.cells,prescribed,reason)){report.stop=reason;++report.rejected_interface;return false;}
+  if(options.maximum_seconds>0 && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds){limited=true;return false;}
+  mesh.swap(pending);next_node=node;next_cell=cell;Index();keep=std::move(final_keep);sliding=std::move(final_sliding);
+  report.parameters=std::move(candidate.parameters);report.coverage=std::move(candidate.coverage);
+  for(const auto& row:nested_report.relabel){Id origin=row.first;for(const auto& prior:report.relabel)if(prior.second==row.first){origin=prior.first;break;}report.relabel[origin]=row.second;}
+  moved_geometry=std::move(final_context);AccountNested(nested_report,true);++report.shell_insertions;++report.boundary_flips;
+  changed=true;rejected_smoothing.clear();Bound();return true;
+}
 bool MeshOptimizer::Run() {
   Index();
   auto census=[&](size_t& bad,double& minimum){bad=0;minimum=INFINITY;for(const auto& row:mesh){if(options.frozen_cells.count(row.first))continue;const double s=RowScore(row.first,row.second.cell);minimum=std::min(minimum,s);bad+=s<1;}if(!std::isfinite(minimum))minimum=1;};
@@ -6485,7 +6669,8 @@ bool MeshOptimizer::Run() {
     }
     stage_work_end=options.maximum_work;
     if(Limited()){report.stop="limit";break;}
-    if(!accepted){census(report.bad_after,report.minimum_after);report.stop=report.bad_after?"no progress":"complete";break;}
+    if(!accepted){const bool combined=CoupledBoundary();census(report.bad_after,report.minimum_after);
+      if(combined || report.stop.empty())report.stop=report.bad_after?(combined?"coupled progress":"no progress"):"complete";break;}
   }
   if(report.stop.empty())report.stop="sweep cap";
   census(report.bad_after,report.minimum_after);

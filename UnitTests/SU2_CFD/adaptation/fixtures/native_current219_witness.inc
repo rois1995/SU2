@@ -209,6 +209,7 @@ static void CapturedCurrentResidual(bool compound) {
          <<",\"boundary_shape_rejected\":"<<report.boundary_rejected_shape<<",\"boundary_geometry_rejected\":"<<report.boundary_rejected_geometry
          <<",\"interior_candidates\":"<<report.interior_candidates<<",\"interior_moves\":"<<report.interior_moves
          <<",\"collapses\":"<<report.collapses<<",\"edge_removals\":"<<report.edge_removals<<",\"face_swaps\":"<<report.face_swaps
+         <<",\"shell_insertions\":"<<report.shell_insertions<<",\"boundary_flips\":"<<report.boundary_flips
          <<",\"optimizer_upper_calls\":"<<optimized_stats.upper_calls-stats0.upper_calls
          <<",\"optimizer_traversal_work\":"<<optimized_stats.traversal_work-stats0.traversal_work
          <<",\"upper_calls\":"<<stats1.upper_calls-stats0.upper_calls<<",\"traversal_work\":"<<stats1.traversal_work-stats0.traversal_work
@@ -232,6 +233,11 @@ static void CapturedCurrentResidual(bool compound) {
       useful_star=assess(local,retired,seed,seed,vertex.id,"original_star")||useful_star;
     }
     if(compound && !current_capture && test.second==224633219)CHECK(useful_star);
+    if(current_capture && !compound && test.second==219735950) {
+      REQUIRE(complete.cells.size()<=MaximumCavityCells);
+      std::set<Id> retired;for(const auto& row:owned)retired.insert(row.first);
+      CHECK(assess(owned,retired,complete,complete,test.second,"production_complete_context"));
+    }
     if(compound)for(const auto& removed:owned.at(test.second).cell.v)for(const auto& retained:owned.at(test.second).cell.v) {
       if(removed.id==retained.id)continue;
       auto removed_rows=subset(removed.id,removed.id);auto old=patch_from(removed_rows);scope->ExportParameters(old);
