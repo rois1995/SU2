@@ -30,6 +30,8 @@
 #include "../../include/variables/CTurbSSTVariable.hpp"
 #include "../../include/variables/CFlowVariable.hpp"
 #include "../../include/numerics/turbulent/turb_sst_edge_flux.hpp"
+#include "../../include/numerics/flow/p1_sst_matched.hpp"
+#include "../../../Common/include/toolboxes/p1_simplex.hpp"
 #include "../../../Common/include/parallelization/omp_structure.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 
@@ -309,12 +311,106 @@ void CTurbSSTSolver::Upwind_Residual(CGeometry* geometry, CSolver** solver_conta
                                      CConfig* config, unsigned short iMesh) {
   SU2_ZONE_SCOPED
 
-  const auto opt = ScalarFluxOptions::Interior(*config, config->GetBounded_Turb(),
-                                               config->GetUse_Accurate_Turb_Jacobians());
+  auto opt = ScalarFluxOptions::Interior(*config, config->GetBounded_Turb(),
+                                         config->GetUse_Accurate_Turb_Jacobians());
+
+  /*--- SST with the P1 options (matched k, P1_SST_COUPLED.md M1): upwind k with the final mass flux of the P1 flow edge
+   * flux (EdgeMassFluxes), max(0, mdot) k_i + min(0, mdot) k_j, without the bounded divergence correction. ---*/
+  const bool matched = config->GetTke_Matched_P1() && (iMesh == MESH_0);
+  if (matched) {
+    opt.boundedScalar = true;
+    opt.matchedMassFlux = true;
+  }
 
   DispatchScheme<CScalarFlux_SST, 2>(config, [&](auto tag) {
     EdgeFluxResidual<typename decltype(tag)::type>(geometry, solver_container, config, opt);
   });
+
+  if (matched && config->GetBC_Entropy_P1()) MatchedBoundaryKine(geometry, solver_container, config);
+  if ((iMesh == MESH_0) && config->GetSST_P1_Element_Kine()) P1KineDiffusion(geometry, solver_container, config);
+}
+
+void CTurbSSTSolver::MatchedBoundaryKine(CGeometry* geometry, CSolver** solver_container, const CConfig* config) {
+  const auto* flowSolver = solver_container[FLOW_SOL];
+  const auto& massPlus = flowSolver->GetP1KMassPlus();
+  const auto& inflow = flowSolver->GetP1KInflow();
+  if ((massPlus.size() != nPoint) || (inflow.size() != nPoint)) {
+    SU2_MPI::Error("Matched k: the closure C sums of the flow solver are missing.", CURRENT_FUNCTION);
+  }
+  const auto* flowNodes = su2staticcast_p<const CFlowVariable*>(flowSolver->GetNodes());
+  const bool implicit = (config->GetKind_TimeIntScheme_Turb() == EULER_IMPLICIT);
+
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+    if ((massPlus(iPoint) == 0.0) && (inflow(iPoint) == 0.0)) continue;
+    LinSysRes(iPoint, 0) += nodes->GetSolution(iPoint, 0) * massPlus(iPoint) + inflow(iPoint);
+    if (implicit) Jacobian.AddVal2Diag(iPoint, 0, massPlus(iPoint) / flowNodes->GetDensity(iPoint));
+  }
+  END_SU2_OMP_FOR
+}
+
+void CTurbSSTSolver::P1KineDiffusion(CGeometry* geometry, CSolver** solver_container, const CConfig* config) {
+  const auto* flowNodes = su2staticcast_p<const CFlowVariable*>(solver_container[FLOW_SOL]->GetNodes());
+  const bool implicit = (config->GetKind_TimeIntScheme_Turb() == EULER_IMPLICIT);
+  constexpr unsigned short MAXN = MAXNDIM + 1;
+
+  /*--- One pass over the simplices (serial, the rows of an element are not disjoint between elements). ---*/
+  SU2_OMP_MASTER
+  for (unsigned long iElem = 0; iElem < geometry->GetnElem(); ++iElem) {
+    const auto* element = geometry->elem[iElem];
+    const unsigned short nNodes = element->GetnNodes();
+    if (nNodes != nDim + 1) SU2_MPI::Error("P1 k diffusion: needs triangles or tetrahedra.", CURRENT_FUNCTION);
+
+    bool owned = false;
+    for (unsigned short a = 0; a < nNodes; ++a) owned |= geometry->nodes->GetDomain(element->GetNode(a));
+    if (!owned) continue;
+
+    const su2double* coord[MAXN];
+    unsigned long point[MAXN];
+    su2double k[MAXN], mu[MAXN], muT[MAXN], F1[MAXN], rho[MAXN];
+    for (unsigned short a = 0; a < nNodes; ++a) {
+      point[a] = element->GetNode(a);
+      coord[a] = geometry->nodes->GetCoord(point[a]);
+      k[a] = nodes->GetSolution(point[a], 0);
+      mu[a] = flowNodes->GetLaminarViscosity(point[a]);
+      muT[a] = fmax(flowNodes->GetEddyViscosity(point[a]), 0.0);
+      F1[a] = nodes->GetF1blending(point[a]);
+      rho[a] = flowNodes->GetDensity(point[a]);
+    }
+    su2double grad[MAXN][3];
+    const su2double size = fabs(P1Simplex::ShapeGradients(nDim, coord, grad));
+    if (size == 0.0) SU2_MPI::Error("P1 k diffusion: degenerate element.", CURRENT_FUNCTION);
+    const su2double D = P1SSTMatched::ElementKineDiffusivity(nNodes, mu, muT, F1);
+    su2double res[MAXN];
+    P1SSTMatched::KineDiffusion(nDim, size, grad, k, D, res);
+
+    for (unsigned short a = 0; a < nNodes; ++a) {
+      if (!geometry->nodes->GetDomain(point[a])) continue;
+      LinSysRes(point[a], 0) += res[a];
+      if (!implicit) continue;
+      for (unsigned short b = 0; b < nNodes; ++b) {
+        su2double block[2][2] = {{0.0, 0.0}, {0.0, 0.0}};
+        block[0][0] = P1SSTMatched::KineDiffusionJacobian(nDim, size, grad, D, a, b) / rho[b];
+        const su2double* rows[2] = {block[0], block[1]};
+        if (b == a) Jacobian.AddBlock2Diag(point[a], rows);
+        else Jacobian.AddBlock(point[a], point[b], rows);
+      }
+    }
+  }
+  END_SU2_OMP_MASTER
+  SU2_OMP_BARRIER
+}
+
+su2double CTurbSSTSolver::GetMatchedInletKine(const CConfig* config, CSolver* flowSolver, unsigned short iMarker,
+                                              unsigned long iVertex) const {
+  /*--- The k of BC_Inlet (its Inlet_Vars[0]): the inlet profile, or 3/2 |v|^2 I^2 with the flow ghost velocity. ---*/
+  if (config->GetInlet_Profile_From_File()) {
+    return Inlet_TurbVars[iMarker][iVertex][0] / pow(config->GetVelocity_Ref(), 2);
+  }
+  const su2double* V_inlet = flowSolver->GetCharacPrimVar(iMarker, iVertex);
+  const su2double* Turb_Properties = config->GetInlet_TurbVal(config->GetMarker_All_TagBound(iMarker));
+  const su2double VelMag2 = GeometryToolbox::SquaredNorm(nDim, &V_inlet[prim_idx.Velocity()]);
+  return 3.0 / 2.0 * (VelMag2 * pow(Turb_Properties[0], 2));
 }
 
 void CTurbSSTSolver::BoundaryFlux(CGeometry* geometry, CSolver** solver_container, CConfig* config,
@@ -333,6 +429,10 @@ void CTurbSSTSolver::Source_Residual(CGeometry *geometry, CSolver **solver_conta
   const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
 
   auto* flowNodes = su2staticcast_p<CFlowVariable*>(solver_container[FLOW_SOL]->GetNodes());
+  const bool p1Production = config->GetSST_P1_Element_Kine() && (iMesh == MESH_0);
+  const auto& p1ProductionSum = solver_container[FLOW_SOL]->GetP1TurbProduction();
+  if (p1Production && (p1ProductionSum.size() != nPoint))
+    SU2_MPI::Error("SST production P*: the element sums of the flow solver are missing.", CURRENT_FUNCTION);
 
   /*--- Pick one numerics object per thread. ---*/
   auto* numerics = numerics_container[SOURCE_FIRST_TERM + omp_get_thread_num()*MAX_TERMS];
@@ -378,6 +478,9 @@ void CTurbSSTSolver::Source_Residual(CGeometry *geometry, CSolver **solver_conta
     numerics->SetVorticity(flowNodes->GetVorticity(iPoint), nullptr);
 
     numerics->SetStrainMag(flowNodes->GetStrainMag(iPoint), 0.0);
+
+    /*--- SST with VISC_P1_ENTROPY and SST_ENERGY_CONSISTENT: P* = Pi_i / V_i of the flow element loop (M4). ---*/
+    if (p1Production) numerics->SetP1Production(p1ProductionSum(iPoint) / geometry->nodes->GetVolume(iPoint));
 
     /*--- Cross diffusion ---*/
 
@@ -730,8 +833,7 @@ void CTurbSSTSolver::BC_Inlet(CGeometry *geometry, CSolver **solver_container, C
   END_SU2_OMP_FOR
 
   /*--- The diffusive term at this boundary causes serious convergence problems. ---*/
-  BoundaryFlux(geometry, solver_container, config,
-               ScalarFluxOptions::BoundaryConvective(*config, config->GetBounded_Turb()), val_marker);
+  BoundaryFlux(geometry, solver_container, config, ConvectiveBCOptions(config), val_marker);
 }
 
 void CTurbSSTSolver::BC_Outlet(CGeometry *geometry, CSolver **solver_container, CNumerics*, CNumerics*,
@@ -754,8 +856,7 @@ void CTurbSSTSolver::BC_Outlet(CGeometry *geometry, CSolver **solver_container, 
   END_SU2_OMP_FOR
 
   /*--- The diffusive term at this boundary causes serious convergence problems. ---*/
-  BoundaryFlux(geometry, solver_container, config,
-               ScalarFluxOptions::BoundaryConvective(*config, config->GetBounded_Turb()), val_marker);
+  BoundaryFlux(geometry, solver_container, config, ConvectiveBCOptions(config), val_marker);
 }
 
 
@@ -775,8 +876,7 @@ void CTurbSSTSolver::BC_Far_Field(CGeometry *geometry, CSolver **solver_containe
   }
   END_SU2_OMP_FOR
 
-  BoundaryFlux(geometry, solver_container, config,
-               ScalarFluxOptions::BoundaryConvective(*config, config->GetBounded_Turb()), val_marker);
+  BoundaryFlux(geometry, solver_container, config, ConvectiveBCOptions(config), val_marker);
 }
 
 void CTurbSSTSolver::BC_Inlet_MixingPlane(CGeometry *geometry, CSolver **solver_container, CNumerics*,

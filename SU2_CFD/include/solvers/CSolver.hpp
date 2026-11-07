@@ -212,6 +212,15 @@ protected:
   su2activevector P1ViscRowBound;      /*!< \brief B_i of each node. */
   bool P1ViscRowBoundReady = false;    /*!< \brief P1ViscRowBound holds the bounds of a residual evaluation. */
 
+  /*--- SST with the P1 options (matched k, P1_SST_COUPLED.md M2): per node the sums over the closure C face rows of
+   * max(m, 0) and of min(m, 0) k_b, from the last flow residual; the SST k row takes k_a M+ + KIn from them. ---*/
+  su2activevector P1KMassPlus;         /*!< \brief M+ of each node. */
+  su2activevector P1KInflow;           /*!< \brief Inflow k flux sum of each node. */
+
+  /*--- SST with VISC_P1_ENTROPY and SST_ENERGY_CONSISTENT (M4): Pi_i = sum_T omega_T,i D_t,T / theta_i, the k production
+   * integral over the dual volume of i (owned nodes), from the last flow residual. ---*/
+  su2activevector P1TurbProduction;
+
   /*!
    * \brief Build P1WallFaces on first use, and again after the mesh has moved with GRID_ENTROPY_P1 (the moved wall
    *        shares follow the coordinates). Collective (MPI): all ranks see the same geometry versions.
@@ -235,7 +244,7 @@ protected:
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  void WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config);
+  void WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config, const CVariable* turbNodes = nullptr);
 
   /*--- P1_WALL_FORCES: wall forces of the boundary operators in use, per marker and vertex, owned vertices only
    * (ComputeP1WallForces), and the nodal values SU2 reports without the option, kept for the output. ---*/
@@ -3516,6 +3525,24 @@ public:
    * \return Value of the turbulent kinetic energy.
    */
   inline virtual su2double GetTke_Inf(void) const { return 0; }
+
+  /*!
+   * \brief Matched k of SST with BC_ENTROPY_P1: the closure C sums M+ and KIn per node (flow solver).
+   */
+  inline const su2activevector& GetP1KMassPlus() const { return P1KMassPlus; }
+  inline const su2activevector& GetP1KInflow() const { return P1KInflow; }
+
+  /*!
+   * \brief SST with VISC_P1_ENTROPY and SST_ENERGY_CONSISTENT: the production integral Pi_i (flow solver), see P1TurbProduction.
+   */
+  inline const su2activevector& GetP1TurbProduction() const { return P1TurbProduction; }
+
+  /*!
+   * \brief Matched k of SST with BC_ENTROPY_P1: the inlet k of the turbulence solver at a vertex (CTurbSSTSolver::BC_Inlet),
+   *        from the inlet profile or from the flow ghost velocity of CharacPrimVar.
+   */
+  inline virtual su2double GetMatchedInletKine(const CConfig* config, CSolver* flowSolver, unsigned short iMarker,
+                                               unsigned long iVertex) const { return 0.0; }
 
   /*!
    * \brief A virtual member.

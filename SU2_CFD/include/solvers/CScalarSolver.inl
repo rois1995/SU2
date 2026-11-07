@@ -235,7 +235,7 @@ void CScalarSolver<VariableType>::EdgeFluxResidual(const CGeometry* geometry, CS
 
       /*--- Bounded scalar divergence correction, per edge; the ReducerStrategy equivalent runs
        * in a per-point pass below, where the diagonal is not written from the edge loop. ---*/
-      if (opt.boundedScalar && !ReducerStrategy) {
+      if (opt.boundedScalar && !opt.matchedMassFlux && !ReducerStrategy) {
         const su2double rho_i = flowNodes->GetDensity(iPoint), rho_j = flowNodes->GetDensity(jPoint);
         const su2double q = BoundedScalarDivergenceFlux(massFlux, rho_i, rho_j);
         LinSysRes.AddBlock(iPoint, nodes->GetSolution(iPoint), -q);
@@ -256,7 +256,7 @@ void CScalarSolver<VariableType>::EdgeFluxResidual(const CGeometry* geometry, CS
     SumEdgeFluxes(geometry);
     if (opt.implicit) Jacobian.SetDiagonalAsColumnSum();
 
-    if (opt.boundedScalar) {
+    if (opt.boundedScalar && !opt.matchedMassFlux) {
       SU2_OMP_FOR_STAT(omp_chunk_size)
       for (unsigned long iPoint = 0; iPoint < nPoint; ++iPoint) {
         const auto* solution = nodes->GetSolution(iPoint);
@@ -312,7 +312,13 @@ void CScalarSolver<VariableType>::BoundaryFluxResidual(const CGeometry* geometry
                                      &ghostPrim[prim_idx.Velocity()], normal.data(), &ghostPrim[prim_idx.Density()]);
     }
 
-    const auto res = flux.ComputeFlux(opt, iPoint, side_i, iVertex, side_j, normal, massFlux);
+    auto res = flux.ComputeFlux(opt, iPoint, side_i, iVertex, side_j, normal, massFlux);
+
+    /*--- Matched k: the first row comes from closure C (CTurbSSTSolver::MatchedBoundaryKine). ---*/
+    if (opt.skipFirstConvective) {
+      res.flux_i(0) = 0.0;
+      for (auto jVar = 0ul; jVar < res.nVar; ++jVar) res.jac_ii(0, jVar) = 0.0;
+    }
 
     /*--- The ghost point has no row, only the contribution to i is assembled. ---*/
     for (auto iVar = 0ul; iVar < res.nVar; ++iVar) LinSysRes(iPoint, iVar) += res.flux_i(iVar);

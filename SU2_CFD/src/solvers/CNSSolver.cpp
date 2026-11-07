@@ -30,6 +30,7 @@
 #include "../../../Common/include/toolboxes/printing_toolbox.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../../include/numerics/flow/p1_viscous_entropy.hpp"
+#include "../../include/numerics/flow/p1_sst_matched.hpp"
 #include "../../include/solvers/CFVMFlowSolverBase.inl"
 
 /*--- Explicit instantiation of the parent class of CEulerSolver,
@@ -210,10 +211,10 @@ CNumerics::ResidualType<> CNSSolver::Viscous_Residual(unsigned long iEdge, CGeom
 
 void CNSSolver::Viscous_Residual(CGeometry *geometry, CSolver **solver_container, CNumerics **numerics_container,
                                  CConfig *config, unsigned short iMesh, unsigned short iRKStep) {
-  if ((iMesh == MESH_0) && config->GetVisc_P1_Entropy()) Viscous_Residual_P1Entropy(geometry, config);
+  if ((iMesh == MESH_0) && config->GetVisc_P1_Entropy()) Viscous_Residual_P1Entropy(geometry, solver_container, config);
 }
 
-void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *config) {
+void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver_container, const CConfig *config) {
   SU2_ZONE_SCOPED
 
   namespace pve = P1ViscousEntropy;
@@ -249,6 +250,28 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
     SU2_OMP_SAFE_GLOBAL_ACCESS(P1ViscRowBound = su2double(0.0); P1ViscRowBoundReady = true;)
   }
 
+  /*--- SST: k of the total energy for dp/drho of the entropy-variable Jacobian (D3). With SST_ENERGY_CONSISTENT the
+   * element k diffusion of the k row in the energy row (M3, not at strong-k wall nodes, M5) and the production
+   * integrals Pi_i = sum_T omega_T,i D_t,T / theta_i of the SST source (M4), omega the dual shares (P1_SST_COUPLED.md). ---*/
+  const bool sst = (config->GetKind_Turb_Model() == TURB_MODEL::SST) && (solver_container != nullptr) &&
+                   (solver_container[TURB_SOL] != nullptr);
+  const CVariable* turbNodes = sst ? solver_container[TURB_SOL]->GetNodes() : nullptr;
+  const bool elementKine = sst && config->GetSST_P1_Element_Kine();
+  const auto& blendDelta = geometry->edges->GetBlendDelta();
+  if (elementKine) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(
+    P1TurbProduction.resize(nPoint) = su2double(0.0);
+    if (P1KStrongNode.size() != nPoint) {
+      P1KStrongNode.assign(nPoint, 0);
+      for (unsigned short iMarker = 0; iMarker < config->GetnMarker_All(); ++iMarker) {
+        const auto kind = config->GetMarker_All_KindBC(iMarker);
+        if ((kind != HEAT_FLUX) && (kind != ISOTHERMAL)) continue;
+        for (unsigned long iVertex = 0; iVertex < geometry->nVertex[iMarker]; ++iVertex)
+          P1KStrongNode[geometry->vertex[iMarker][iVertex]->GetNode()] = 1;
+      }
+    })
+  }
+
   /*--- The coloring is built on first use. ---*/
   SU2_OMP_SAFE_GLOBAL_ACCESS(geometry->GetElementColoring();)
 
@@ -281,6 +304,7 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
         const auto iPoint = element->GetNode(iNode);
         coord[iNode] = geometry->nodes->GetCoord(iPoint);
         pve::GatherNode(*nodes, iPoint, nDim, prandtlTurb, state[iNode]);
+        if (turbNodes) state[iNode].k = turbNodes->GetSolution(iPoint, 0);
       }
 
       pve::Element simplex;
@@ -295,9 +319,34 @@ void CNSSolver::Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *c
       su2double residual[pve::MAXNODE][pve::MAXNVAR];
       simplex.Residual(residual);
 
+      /*--- M3 and M4: the same KineDiffusion numbers as CTurbSSTSolver::P1KineDiffusion (same inputs), and D_t,T. ---*/
+      su2double shareProd[pve::MAXNODE] = {0.0};
+      if (elementKine) {
+        su2double kNode[pve::MAXNODE], muLam[pve::MAXNODE], muTurb[pve::MAXNODE], F1[pve::MAXNODE], resK[pve::MAXNODE];
+        for (auto iNode = 0u; iNode < nNodes; ++iNode) {
+          const auto iPoint = element->GetNode(iNode);
+          kNode[iNode] = turbNodes->GetSolution(iPoint, 0);
+          muLam[iNode] = nodes->GetLaminarViscosity(iPoint);
+          muTurb[iNode] = state[iNode].mut;
+          F1[iNode] = turbNodes->GetF1blending(iPoint);
+        }
+        const su2double D = P1SSTMatched::ElementKineDiffusivity(nNodes, muLam, muTurb, F1);
+        P1SSTMatched::KineDiffusion(nDim, simplex.size, simplex.grad, kNode, D, resK);
+        const su2double Dt = simplex.TurbulentDissipation();
+        const auto iElem = indices[k];
+        for (auto iNode = 0u; iNode < nNodes; ++iNode) {
+          if (!P1KStrongNode[element->GetNode(iNode)]) residual[iNode][nVar - 1] += resK[iNode];
+          su2double omega = 1.0 / nNodes;
+          if (blendDelta.rows() > iElem) omega += blendDelta(iElem, iNode) / simplex.size;
+          shareProd[iNode] = omega * Dt / simplex.thetaNode[iNode];
+        }
+      }
+
       for (auto iNode = 0u; iNode < nNodes; ++iNode) {
         const auto iPoint = element->GetNode(iNode);
-        if (geometry->nodes->GetDomain(iPoint)) LinSysRes.AddBlock(iPoint, residual[iNode]);
+        if (!geometry->nodes->GetDomain(iPoint)) continue;
+        LinSysRes.AddBlock(iPoint, residual[iNode]);
+        if (elementKine) P1TurbProduction[iPoint] += shareProd[iNode];
       }
 
       if (rowBound) {
@@ -444,6 +493,8 @@ bool CNSSolver::P1MovedViscousBudget(const CGeometry *geometry, const CConfig *c
   }
   production = simplex.MovedProduction(geometry->edges->GetBlendY()[iElem]);
   dissipation = simplex.GalerkinDissipation();
+  /*--- SST production P*: D_t,T is spent on the k production (P1_SST_COUPLED.md, step 2), the blend budget keeps the rest. ---*/
+  if (config->GetSST_P1_Element_Kine()) dissipation -= simplex.TurbulentDissipation();
 
   if (!config->GetBC_Wall_Entropy_P1()) return true;
 

@@ -64,8 +64,9 @@ CEulerVariable::CEulerVariable(su2double density, const su2double* velocity, su2
 
   nSecondaryVar = EulerNSecVar(config);
   // Carry rho*k separately through the matrix JST projection and periodic/MPI exchange.
+  // The matched k form of the P1 options (JST) takes the fourth difference of rho Hhat with the same column.
   if (Undivided_Laplacian.size() && config->GetKind_Turb_Model() == TURB_MODEL::SST &&
-      config->GetKind_Centered_Flow() == CENTERED::JST_MAT)
+      (config->GetKind_Centered_Flow() == CENTERED::JST_MAT || config->GetTke_Matched_P1()))
     Undivided_Laplacian.resize(nPoint, nVar + 1);
 
   /*--- Solution initialization ---*/

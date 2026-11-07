@@ -31,6 +31,7 @@
 #include "../../util.hpp"
 #include "../variables.hpp"
 #include "common.hpp"
+#include "../../../numerics/flow/p1_sst_matched.hpp"
 #include "../../../variables/CEulerVariable.hpp"
 #include "../../../../../Common/include/geometry/CGeometry.hpp"
 
@@ -62,6 +63,7 @@ protected:
   const bool weakWallDiss; /*!< \brief JST_WEAK_WALL_DISSIPATION, eps4 = 0 on edges that leave a weak no-slip wall. */
   const su2double stretchParam = 0.3;
   const CVariable* const tkeVars; /*!< \brief SST turbulence variables (k is part of the total energy), else nullptr. */
+  const bool matchedK; /*!< \brief SST with the P1 options: hat states and matched k transport (P1_SST_COUPLED.md). */
 
   /*!
    * \brief Constructor, store some constants and forward args to base.
@@ -80,7 +82,8 @@ protected:
     sweptFlux((edgeForm || projDiss) && config.GetGCL_Exact_P1()),
     gridEntropy((edgeForm || projDiss) && config.GetDynamic_Grid() && config.GetGrid_Entropy_P1()),
     weakWallDiss(iMesh == MESH_0 && config.GetJST_Weak_Wall_Diss()),
-    tkeVars(config.GetKind_Turb_Model() == TURB_MODEL::SST ? findTurbVars(args...) : nullptr) {
+    tkeVars(config.GetKind_Turb_Model() == TURB_MODEL::SST ? findTurbVars(args...) : nullptr),
+    matchedK(iMesh == MESH_0 && config.GetTke_Matched_P1() && (tkeVars != nullptr)) {
   }
 
   /*!
@@ -93,7 +96,8 @@ protected:
   }
 
   FORCEINLINE Double getTke(const Int& point) const {
-    return tkeVars ? gatherVariables(point, tkeVars->GetSolution()) : Double(0.0);
+    /*--- Matched form: the dissipation acts on the hat state, its Jacobian is taken with k = 0 and transformed. ---*/
+    return (tkeVars && !matchedK) ? gatherVariables(point, tkeVars->GetSolution()) : Double(0.0);
   }
 
   /*!
@@ -148,6 +152,16 @@ public:
     V.i.all = gatherVariables<nPrimVar>(iPoint, solution.GetPrimitive());
     V.j.all = gatherVariables<nPrimVar>(jPoint, solution.GetPrimitive());
 
+    /*--- Matched k (P1_SST_COUPLED.md, section 7): every P1 part acts on the hat state, H - k, so U, the averages, the
+     * E part, the ES dissipation, the blend and the JST jumps carry rhoE - rho k; k moves with the final mass flux below. ---*/
+    Double kM_i = 0.0, kM_j = 0.0;
+    if (matchedK) {
+      kM_i = gatherVariables(iPoint, tkeVars->GetSolution());
+      kM_j = gatherVariables(jPoint, tkeVars->GetSolution());
+      V.i.enthalpy() -= kM_i;
+      V.j.enthalpy() -= kM_j;
+    }
+
     CCompressiblePrimitives<nDim,nPrimVar> avgV;
     for (size_t iVar = 0; iVar < nPrimVar; ++iVar) {
       avgV.all(iVar) = 0.5 * (V.i.all(iVar) + V.j.all(iVar));
@@ -201,7 +215,7 @@ public:
     if (implicit) {
       /*--- With SST the total energy contains k, held fixed in the Jacobian. ---*/
       Double tke_i = 0.0, tke_j = 0.0;
-      if (tkeVars) {
+      if (tkeVars && !matchedK) {
         tke_i = gatherVariables(iPoint, tkeVars->GetSolution());
         tke_j = gatherVariables(jPoint, tkeVars->GetSolution());
       }
@@ -379,6 +393,17 @@ public:
     derived->finalizeFlux(flux, jac_i, jac_j, implicit, rArea, projVel, avgV, V,
                           diffU, iPoint, jPoint, geometry, solution, rUnitNormal);
 
+    /*--- Matched k: mdot k_up with the final mass flux (stored below for the SST k convection), and the Jacobian
+     * L(k_up) Jhat T(k) of the hat Jacobian (D1), before the viscous terms whose Jacobian is already w.r.t. U. ---*/
+    if (matchedK) {
+      const Double kUp = P1SSTMatched::KUpwind(flux(0), kM_i, kM_j);
+      flux(nVar-1) += kUp * flux(0);
+      if (implicit) {
+        P1SSTMatched::TransformJacobian(nVar, jac_i, kUp, kM_i);
+        P1SSTMatched::TransformJacobian(nVar, jac_j, kUp, kM_j);
+      }
+    }
+
     /*--- Add the contributions from the base class (static decorator). ---*/
 
     Base::viscousTerms(iEdge, iPoint, jPoint, avgV, V, solution_, geometry,
@@ -414,6 +439,7 @@ private:
   using Base::fixFactor;
   using Base::stretchParam;
   using Base::weakWallDiss;
+  using Base::matchedK;
   const su2double kappa2;
   const su2double kappa4;
 
@@ -468,8 +494,14 @@ public:
 
     /*--- Update flux and Jacobians with dissipation terms. ---*/
 
-    const auto lapl_i = gatherVariables<nVar>(iPoint, solution.GetUndivided_Laplacian());
-    const auto lapl_j = gatherVariables<nVar>(jPoint, solution.GetUndivided_Laplacian());
+    auto lapl_i = gatherVariables<nVar>(iPoint, solution.GetUndivided_Laplacian());
+    auto lapl_j = gatherVariables<nVar>(jPoint, solution.GetUndivided_Laplacian());
+
+    /*--- Matched k: the fourth difference of rho Hhat, the energy entry minus the Laplacian of rho k (extra column). ---*/
+    if (matchedK) {
+      lapl_i(nVar-1) -= gatherVariables(iPoint, solution.GetUndivided_Laplacian(), nVar);
+      lapl_j(nVar-1) -= gatherVariables(jPoint, solution.GetUndivided_Laplacian(), nVar);
+    }
 
     for (size_t iVar = 0; iVar < nVar; ++iVar) {
       flux(iVar) += (eps2*diffU(iVar) - eps4*(lapl_i(iVar)-lapl_j(iVar))) * lambda;

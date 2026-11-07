@@ -2478,7 +2478,8 @@ void CFVMFlowSolverBase<V, R>::EdgeFluxResidual(const CGeometry *geometry,
   ErrorCounter = 0;
   END_SU2_OMP_MASTER
 
-  su2activevector* massFluxes = config->GetBounded_Scalar() ? &EdgeMassFluxes : nullptr;
+  /*--- The matched k form of the P1 options with SST: the SST k convection uses the final mass flux of each edge. ---*/
+  su2activevector* massFluxes = (config->GetBounded_Scalar() || config->GetTke_Matched_P1()) ? &EdgeMassFluxes : nullptr;
 
   /*--- For hybrid parallel AD, pause preaccumulation if there is shared reading of
   * variables, otherwise switch to the faster adjoint evaluation mode. ---*/

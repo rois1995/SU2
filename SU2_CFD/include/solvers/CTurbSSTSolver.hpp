@@ -69,6 +69,28 @@ private:
   void BoundaryFlux(CGeometry* geometry, CSolver** solver_container, CConfig* config, const ScalarFluxOptions& opt,
                     unsigned short val_marker);
 
+  /*!
+   * \brief SST with the P1 options and BC_ENTROPY_P1 (matched k, P1_SST_COUPLED.md M2): the k row of the closure C
+   *        markers from the flow sums, R_k,a += k_a M+_a + KIn_a, Jacobian M+_a / rho_a.
+   */
+  void MatchedBoundaryKine(CGeometry* geometry, CSolver** solver_container, const CConfig* config);
+
+  /*!
+   * \brief SST with VISC_P1_ENTROPY and SST_ENERGY_CONSISTENT (M3): the P1 element k diffusion of the k row, the same
+   *        numbers as the energy row of CNSSolver::Viscous_Residual_P1Entropy (P1SSTMatched::KineDiffusion).
+   */
+  void P1KineDiffusion(CGeometry* geometry, CSolver** solver_container, const CConfig* config);
+
+  /*!
+   * \brief Options of the convective boundary flux of this marker: the k row is skipped where the matched k of closure
+   *        C replaces it (far field, inlets, outlets with BC_ENTROPY_P1 and the matched form).
+   */
+  ScalarFluxOptions ConvectiveBCOptions(const CConfig* config) const {
+    auto opt = ScalarFluxOptions::BoundaryConvective(*config, config->GetBounded_Turb());
+    opt.skipFirstConvective = config->GetTke_Matched_P1() && config->GetBC_Entropy_P1();
+    return opt;
+  }
+
 public:
   /*!
    * \brief Constructor.
@@ -340,6 +362,12 @@ public:
    * \return Value of the turbulent kinetic energy.
    */
   inline su2double GetTke_Inf(void) const override { return Solution_Inf[0]; }
+
+  /*!
+   * \brief The inlet k of BC_Inlet at a vertex, for closure C of the flow (matched k).
+   */
+  su2double GetMatchedInletKine(const CConfig* config, CSolver* flowSolver, unsigned short iMarker,
+                                unsigned long iVertex) const override;
 
   /*!
    * \brief Get the value of the turbulent frequency.

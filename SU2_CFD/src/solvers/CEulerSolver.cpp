@@ -400,7 +400,16 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
 
   /*--- Sizing edge mass flux array, padded to a multiple of the SIMD size since the vectorized
    *    numerics write to it with contiguous (unmasked) SIMD stores, same as CEdge's Normal. ---*/
-  if (config->GetBounded_Scalar()) {
+  /*--- Matched k of SST with the P1 options: the P1 element terms and the closure k rule are written for simplices. ---*/
+  if (config->GetTke_Matched_P1()) {
+    unsigned long nonSimplex = 0;
+    for (unsigned long iElem = 0; iElem < geometry->GetnElem(); ++iElem)
+      nonSimplex += (geometry->elem[iElem]->GetnNodes() != nDim + 1);
+    if (nonSimplex > 0)
+      SU2_MPI::Error("The P1 options with SST (matched k) need a mesh of triangles or tetrahedra.", CURRENT_FUNCTION);
+  }
+
+  if (config->GetBounded_Scalar() || config->GetTke_Matched_P1()) {
     EdgeMassFluxes.resize(nextMultiple(geometry->GetnEdge(), simd::preferredLen<su2double>())) = su2double(0.0);
   }
 
@@ -1873,7 +1882,9 @@ void CEulerSolver::Centered_Residual(CGeometry *geometry, CSolver **solver_conta
                                      CConfig *config, unsigned short iMesh, unsigned short iRKStep) {
   SU2_ZONE_SCOPED
 
-  if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry, config);
+  /*--- Matched k (SST with the P1 options): the blend pre-pass takes the hat states, as the edge loop. ---*/
+  const CVariable* turbMatched = ((iMesh == MESH_0) && config->GetTke_Matched_P1()) ? solver_container[TURB_SOL]->GetNodes() : nullptr;
+  if ((iMesh == MESH_0) && config->GetEdge_Form_ES_Blend()) SetEdgeBlendLambda(geometry, config, turbMatched);
   EdgeFluxResidual(geometry, solver_container, config);
   if ((iMesh == MESH_0) && (config->GetSplit_Edge_Flux() || config->GetEdge_Form_P1_Mixed())) SplitEdgeResidual(geometry, config);
   if ((iMesh == MESH_0) && config->GetGCL_Exact_P1()) SweptBoundaryResidual(geometry, config);
@@ -2045,7 +2056,7 @@ void CEulerSolver::SplitEdgeResidual(const CGeometry *geometry, const CConfig *c
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
-void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *config) {
+void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *config, const CVariable* turbMatched) {
   SU2_ZONE_SCOPED
 
   /*--- EDGE_FORM_ES_BLEND, element theta blend of the Lemma 3 dissipation of the E part (P1_SECOND_ORDER.md, B2).
@@ -2110,6 +2121,7 @@ void CEulerSolver::SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *
         density[a] = nodes->GetPrimitive(point[a], nDim + 2);
         pressure[a] = nodes->GetPrimitive(point[a], nDim + 1);
         enthalpy[a] = nodes->GetPrimitive(point[a], nDim + 3);
+        if (turbMatched) enthalpy[a] -= turbMatched->GetSolution(point[a], 0);  // hat state, as the edge loop
         soundSpeed2[a] = Gamma * pressure[a] / density[a];
 
         const su2double beta = 0.5 * density[a] / pressure[a];

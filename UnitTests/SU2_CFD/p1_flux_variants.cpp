@@ -50,6 +50,7 @@
 #include "../../SU2_CFD/include/numerics/flow/p1_boundary_ghost.hpp"
 #include "../../SU2_CFD/include/numerics/flow/p1_boundary_closure.hpp"
 #include "../../SU2_CFD/include/numerics/flow/jst_weak_wall.hpp"
+#include "../../SU2_CFD/include/numerics/flow/p1_sst_matched.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/convection/common.hpp"
 #include "../../SU2_CFD/include/numerics_simd/flow/variables.hpp"
 #include "tecno_adjoint_checks.hpp"
@@ -5554,5 +5555,218 @@ TEST_CASE("JST weak wall: node flags are exact on owned and halo nodes and selec
     CHECK(GlobalSum(wrongEdges) == 0.0);
     CHECK(GlobalSum(crossing) > 0.0);
     CHECK(GlobalSum(along) > 0.0);
+  }
+}
+
+/*--- SST with the P1 options: the matched k form (P1_SST_COUPLED.md, sections 5, 7, D1-D4, E1). ---*/
+namespace {
+/*--- Euler flux of the conservative state Uc (rho, m, rhoE) along n, with p = (g-1)(rhoE - |m|^2/(2 rho) - rho k). ---*/
+void EulerFluxK(int nDim, const su2double* Uc, su2double k, const su2double* n, su2double* F) {
+  su2double m2 = 0.0, mn = 0.0;
+  for (int i = 0; i < nDim; ++i) { m2 += Uc[i + 1] * Uc[i + 1]; mn += Uc[i + 1] * n[i]; }
+  const su2double p = (kGamma - 1.0) * (Uc[nDim + 1] - 0.5 * m2 / Uc[0] - Uc[0] * k);
+  F[0] = mn;
+  for (int i = 0; i < nDim; ++i) F[i + 1] = Uc[i + 1] * mn / Uc[0] + p * n[i];
+  F[nDim + 1] = (Uc[nDim + 1] + p) * mn / Uc[0];
+}
+/*--- A hat edge flux: central Euler flux of the hat states plus a scalar dissipation on the hat jump. ---*/
+void HatEdgeFlux(int nDim, const su2double* Ui, const su2double* Uj, const su2double* n, su2double lam, su2double* F) {
+  su2double Fi[5], Fj[5];
+  EulerFluxK(nDim, Ui, 0.0, n, Fi);
+  EulerFluxK(nDim, Uj, 0.0, n, Fj);
+  for (int v = 0; v < nDim + 2; ++v) F[v] = 0.5 * (Fi[v] + Fj[v]) - lam * (Uj[v] - Ui[v]);
+}
+/*--- The matched flux of U_i, U_j with node k: Fhat(T(k_i) U_i, T(k_j) U_j) + k_up Fhat_rho e_E. ---*/
+void MatchedEdgeFlux(int nDim, const su2double* Ui, const su2double* Uj, su2double ki, su2double kj, const su2double* n,
+                     su2double lam, su2double* F) {
+  su2double Hi[5], Hj[5];
+  for (int v = 0; v < nDim + 2; ++v) { Hi[v] = Ui[v]; Hj[v] = Uj[v]; }
+  Hi[nDim + 1] -= Ui[0] * ki;
+  Hj[nDim + 1] -= Uj[0] * kj;
+  HatEdgeFlux(nDim, Hi, Hj, n, lam, F);
+  F[nDim + 1] += P1SSTMatched::KUpwind(F[0], ki, kj) * F[0];
+}
+}  // namespace
+
+TEST_CASE("P1 SST matched: L(k_up) Jhat T(k) is the Jacobian of the matched edge flux (D1)", "[P1Flux]") {
+  std::mt19937 gen(9137);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    for (int trial = 0; trial < 50; ++trial) {
+      su2double U[2][5], k[2], n[3] = {u(gen), u(gen), u(gen)};
+      for (int s = 0; s < 2; ++s) {
+        const su2double rho = exp(u(gen)), p = exp(u(gen));
+        k[s] = 0.3 * exp(u(gen));
+        su2double vel2 = 0.0;
+        U[s][0] = rho;
+        for (int i = 0; i < nDim; ++i) { const su2double v = u(gen); U[s][i + 1] = rho * v; vel2 += v * v; }
+        U[s][nDim + 1] = p / (kGamma - 1.0) + 0.5 * rho * vel2 + rho * k[s];
+      }
+      const su2double lam = 0.7;
+      su2double F0[5];
+      MatchedEdgeFlux(nDim, U[0], U[1], k[0], k[1], n, lam, F0);
+      const su2double kUp = P1SSTMatched::KUpwind(F0[0], k[0], k[1]);
+      if (fabs(F0[0]) < 1e-3) continue;  // k_up is piecewise smooth at mdot = 0
+      for (int side = 0; side < 2; ++side) {
+        /*--- Jhat by central differences of the hat flux w.r.t. the hat state of this side. ---*/
+        su2double H[2][5];
+        for (int s = 0; s < 2; ++s) {
+          for (int v = 0; v < nVar; ++v) H[s][v] = U[s][v];
+          H[s][nVar - 1] -= U[s][0] * k[s];
+        }
+        su2activematrix J(nVar, nVar), Jfd(nVar, nVar);
+        const su2double h = 1e-6;
+        for (int jv = 0; jv < nVar; ++jv) {
+          su2double Hp[2][5], Hm[2][5], Fp[5], Fm[5];
+          for (int s = 0; s < 2; ++s) for (int v = 0; v < nVar; ++v) { Hp[s][v] = H[s][v]; Hm[s][v] = H[s][v]; }
+          Hp[side][jv] += h; Hm[side][jv] -= h;
+          HatEdgeFlux(nDim, Hp[0], Hp[1], n, lam, Fp);
+          HatEdgeFlux(nDim, Hm[0], Hm[1], n, lam, Fm);
+          for (int iv = 0; iv < nVar; ++iv) J(iv, jv) = (Fp[iv] - Fm[iv]) / (2 * h);
+          /*--- The full matched flux w.r.t. U of this side (k frozen). ---*/
+          su2double Up[2][5], Um[2][5];
+          for (int s = 0; s < 2; ++s) for (int v = 0; v < nVar; ++v) { Up[s][v] = U[s][v]; Um[s][v] = U[s][v]; }
+          Up[side][jv] += h; Um[side][jv] -= h;
+          MatchedEdgeFlux(nDim, Up[0], Up[1], k[0], k[1], n, lam, Fp);
+          MatchedEdgeFlux(nDim, Um[0], Um[1], k[0], k[1], n, lam, Fm);
+          for (int iv = 0; iv < nVar; ++iv) Jfd(iv, jv) = (Fp[iv] - Fm[iv]) / (2 * h);
+        }
+        P1SSTMatched::TransformJacobian(nVar, J, kUp, k[side]);
+        for (int iv = 0; iv < nVar; ++iv)
+          for (int jv = 0; jv < nVar; ++jv) CHECK(J(iv, jv) == Approx(Jfd(iv, jv)).margin(1e-6 * (1.0 + fabs(Jfd(iv, jv)))));
+      }
+    }
+  }
+}
+
+TEST_CASE("P1 SST matched: uniform (rho, u, p) with a k jump keeps the hat rows, a uniform k gives X = k R_rho", "[P1Flux]") {
+  std::mt19937 gen(4242);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    for (int trial = 0; trial < 50; ++trial) {
+      const su2double rho = exp(u(gen)), p = exp(u(gen));
+      su2double vel[3] = {u(gen), u(gen), u(gen)}, vel2 = 0.0, n[3] = {u(gen), u(gen), u(gen)};
+      for (int i = 0; i < nDim; ++i) vel2 += vel[i] * vel[i];
+      su2double U[2][5], k[2] = {0.2 * exp(u(gen)), 0.2 * exp(u(gen))};
+      for (int s = 0; s < 2; ++s) {
+        U[s][0] = rho;
+        for (int i = 0; i < nDim; ++i) U[s][i + 1] = rho * vel[i];
+        U[s][nDim + 1] = p / (kGamma - 1.0) + 0.5 * rho * vel2 + rho * k[s];
+      }
+      su2double F[5], Fhat[5], Hs[5];
+      MatchedEdgeFlux(nDim, U[0], U[1], k[0], k[1], n, 0.7, F);
+      for (int v = 0; v < nVar; ++v) Hs[v] = U[0][v];
+      Hs[nVar - 1] -= rho * k[0];
+      HatEdgeFlux(nDim, Hs, Hs, n, 0.7, Fhat);
+      /*--- The k jump changes only the energy row, by the k flux of the k row, mdot k_up. ---*/
+      for (int v = 0; v < nVar - 1; ++v) CHECK(F[v] == Approx(Fhat[v]).margin(1e-12 * (1.0 + fabs(Fhat[v]))));
+      const su2double kFlux = P1SSTMatched::KUpwind(F[0], k[0], k[1]) * F[0];
+      CHECK(F[nVar - 1] - kFlux == Approx(Fhat[nVar - 1]).margin(1e-12 * (1.0 + fabs(Fhat[nVar - 1]))));
+      /*--- Closure C rule: k_b m = k_a max(m,0) + min(m,0) k_bc for both signs of m; uniform k = k_bc gives k m. ---*/
+      for (su2double m : {0.37 * F[0], -0.37 * F[0]}) {
+        su2double massPlus = 0.0, inflow = 0.0;
+        const su2double kb = P1SSTMatched::FaceKine(m, k[0], k[1], massPlus, inflow);
+        CHECK(kb * m == Approx(k[0] * massPlus + inflow).margin(1e-15));
+        su2double mp = 0.0, in = 0.0;
+        CHECK(P1SSTMatched::FaceKine(m, k[0], k[0], mp, in) * m == Approx(k[0] * m).margin(1e-15));
+      }
+    }
+  }
+}
+
+TEST_CASE("P1 SST matched: EntropyVariableJacobian with k against finite differences (D3)", "[P1Flux]") {
+  std::mt19937 gen(5511);
+  for (int nDim : {2, 3}) {
+    const int nVar = nDim + 2;
+    for (int trial = 0; trial < 50; ++trial) {
+      su2double x[4][3];
+      pve::NodeState state[4];
+      RandomElement(gen, nDim, 1.0, x, state);
+      auto S = state[0];
+      S.k = 0.4 * S.p / S.rho;
+      su2double vel2 = 0.0;
+      for (int i = 0; i < nDim; ++i) vel2 += S.vel[i] * S.vel[i];
+      su2double U[5];
+      U[0] = S.rho;
+      for (int i = 0; i < nDim; ++i) U[i + 1] = S.rho * S.vel[i];
+      U[nDim + 1] = S.p / (kGamma - 1.0) + 0.5 * S.rho * vel2 + S.rho * S.k;
+      /*--- w = (0, m/p, -rho/p) of the viscous operator, p with the fixed k. ---*/
+      auto wOf = [&](const su2double* Uc, su2double* w) {
+        su2double m2 = 0.0;
+        for (int i = 0; i < nDim; ++i) m2 += Uc[i + 1] * Uc[i + 1];
+        const su2double p = (kGamma - 1.0) * (Uc[nDim + 1] - 0.5 * m2 / Uc[0] - Uc[0] * S.k);
+        w[0] = 0.0;
+        for (int i = 0; i < nDim; ++i) w[i + 1] = Uc[i + 1] / p;
+        w[nDim + 1] = -Uc[0] / p;
+      };
+      su2double W[pve::MAXNVAR][pve::MAXNVAR];
+      pve::EntropyVariableJacobian(nDim, kGamma, S, W);
+      const su2double h = 1e-6;
+      for (int jv = 0; jv < nVar; ++jv) {
+        su2double Up[5], Um[5], wp[5], wm[5];
+        for (int v = 0; v < nVar; ++v) { Up[v] = U[v]; Um[v] = U[v]; }
+        Up[jv] += h; Um[jv] -= h;
+        wOf(Up, wp);
+        wOf(Um, wm);
+        for (int iv = 0; iv < nVar; ++iv) {
+          const su2double fd = (wp[iv] - wm[iv]) / (2 * h);
+          CHECK(W[iv][jv] == Approx(fd).margin(1e-6 * (1.0 + fabs(fd))));
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("P1 SST matched: element k diffusion conserves, is exact for a linear k, and its Jacobian; D_t,T (M3, E1)", "[P1Flux]") {
+  std::mt19937 gen(7788);
+  std::uniform_real_distribution<double> u(-1.0, 1.0);
+  for (int nDim : {2, 3}) {
+    const int nNodes = nDim + 1;
+    for (int trial = 0; trial < 100; ++trial) {
+      su2double x[4][3];
+      pve::NodeState state[4];
+      RandomElement(gen, nDim, (trial % 2) ? 1.0 : 1e-3, x, state);
+      su2double g[4][3];
+      const su2double size = fabs(P1Simplex::ShapeGradients(nDim, x, g));
+      su2double k[4], mu[4], muT[4], F1[4], res[4];
+      for (int a = 0; a < nNodes; ++a) {
+        k[a] = exp(u(gen));
+        mu[a] = exp(u(gen));
+        muT[a] = exp(u(gen));
+        F1[a] = 0.5 * (1.0 + u(gen));
+      }
+      const su2double D = P1SSTMatched::ElementKineDiffusivity(nNodes, mu, muT, F1);
+      CHECK(D > 0.0);
+      P1SSTMatched::KineDiffusion(nDim, size, g, k, D, res);
+      su2double sum = 0.0, scale = 0.0;
+      for (int a = 0; a < nNodes; ++a) { sum += res[a]; scale += fabs(res[a]); }
+      CHECK(fabs(sum) <= 1e-12 * scale);
+      /*--- Linear k = c + b.x: R_a = |T| D b.g_a, and the Jacobian is exact for this linear operator. ---*/
+      su2double b[3] = {u(gen), u(gen), u(gen)}, kl[4];
+      for (int a = 0; a < nNodes; ++a) {
+        kl[a] = 0.3;
+        for (int i = 0; i < nDim; ++i) kl[a] += b[i] * x[a][i];
+      }
+      P1SSTMatched::KineDiffusion(nDim, size, g, kl, D, res);
+      for (int a = 0; a < nNodes; ++a) {
+        su2double bg = 0.0, jsum = 0.0;
+        for (int i = 0; i < nDim; ++i) bg += b[i] * g[a][i];
+        for (int c = 0; c < nNodes; ++c) jsum += P1SSTMatched::KineDiffusionJacobian(nDim, size, g, D, a, c) * kl[c];
+        CHECK(res[a] == Approx(size * D * bg).margin(1e-12 * (1.0 + fabs(res[a]))));
+        CHECK(jsum == Approx(res[a]).margin(1e-12 * (1.0 + fabs(res[a]))));
+      }
+      /*--- E1: with mu = mu_t and kappa = 0, the Galerkin dissipation is D_t,T = |T| theta* mubar_t Q >= 0. ---*/
+      for (int a = 0; a < nNodes; ++a) {
+        state[a].mut = state[a].mu;
+        state[a].kappa = 0.0;
+      }
+      pve::Element E;
+      REQUIRE(E.Set(nDim, x, state, kGas) > 0.0);
+      const su2double Dt = E.TurbulentDissipation(), Dgal = E.GalerkinDissipation();
+      CHECK(Dt >= -1e-14 * fabs(Dgal));
+      CHECK(Dt == Approx(Dgal).epsilon(1e-10));
+    }
   }
 }

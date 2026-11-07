@@ -62,6 +62,9 @@ struct ScalarFluxOptions {
   bool viscous = false;   /*!< \brief Whether the diffusion term contributes. */
   bool oneSided = false;  /*!< \brief Whether only the row of i is assembled. */
   bool muscl = false;     /*!< \brief Whether the convective scheme reconstructs. */
+  bool matchedMassFlux = false;     /*!< \brief Matched k of the P1 options: bounded upwinding with the P1 mass flux and
+                                     *   no divergence correction (P1_SST_COUPLED.md, M1). */
+  bool skipFirstConvective = false; /*!< \brief Boundary flux without its first row (the matched k of closure C replaces it). */
   /*!
    * \brief Bounds of the transported variables (those that clip the solution). A reconstructed face
    *        value outside them falls back to the value of its point (first order). Null: no bounds.

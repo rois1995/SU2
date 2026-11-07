@@ -10127,6 +10127,23 @@ public:
   bool GetSST_Energy_Consistent() const { return SST_Energy_Consistent; }
 
   /*!
+   * \brief SST with the P1 options (EDGE_FORM_P1, EDGE_DISS_PROJECTED or BC_ENTROPY_P1): the P1 parts act on the hat
+   *        state (rhoE - rho k), the energy row carries mdot k_upwind with the P1 mass flux, which the SST k convection
+   *        also uses, and closure C carries the k of its mass rows (matched form, P1_SST_COUPLED.md, M1, M2).
+   */
+  bool GetTke_Matched_P1() const {
+    return (Kind_Turb_Model == TURB_MODEL::SST) && (Edge_Form_P1 || Edge_Diss_Projected || BC_Entropy_P1);
+  }
+
+  /*!
+   * \brief SST with VISC_P1_ENTROPY and SST_ENERGY_CONSISTENT: the k diffusion of the energy row and of the k row is the
+   *        P1 element operator, and the k production is the mu_t part P* of the element dissipation (M3, M4).
+   */
+  bool GetSST_P1_Element_Kine() const {
+    return (Kind_Turb_Model == TURB_MODEL::SST) && Visc_P1_Entropy && SST_Energy_Consistent;
+  }
+
+  /*!
    * \brief P1_WALL_FORCES: forces, skin friction and heat flux of the walls from the boundary fluxes of the scheme:
    *        the weighted SIPG traction -Fhat of BC_WALL_ENTROPY_P1 (no adjoint term) and the closure C pressure on the
    *        walls that use closure C. Output only, the nodal values are kept as extra output fields.

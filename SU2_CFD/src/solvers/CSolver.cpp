@@ -52,6 +52,7 @@
 #include "../../include/numerics/flow/p1_ale_entropy.hpp"
 #include "../../include/numerics/flow/p1_boundary_ghost.hpp"
 #include "../../include/numerics/flow/p1_boundary_closure.hpp"
+#include "../../include/numerics/flow/p1_sst_matched.hpp"
 #include <array>
 #include <map>
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
@@ -4818,6 +4819,16 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
     }
   };
 
+  /*--- SST with the P1 options (matched k, P1_SST_COUPLED.md M2): closure C adds k_b m to the energy row of each face
+   * node, k_b = k_a for m >= 0 and the boundary k otherwise (far field k_inf, inlet the k of the SST inlet, outlets, walls
+   * and symmetry planes k_a), and stores M+ and KIn for the SST k row. Jacobian L(k_b) J T(k) (D4). ---*/
+  const bool matchedK = bcEntropyP1 && config->GetTke_Matched_P1();
+  const CVariable* turbNodesK = matchedK ? solver_container[TURB_SOL]->GetNodes() : nullptr;
+  const su2double kInf = matchedK ? solver_container[TURB_SOL]->GetTke_Inf() : 0.0;
+  if (matchedK) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(P1KMassPlus.resize(nPoint) = su2double(0.0); P1KInflow.resize(nPoint) = su2double(0.0);)
+  }
+
   const bool gridEntropyP1 = config->GetGrid_Entropy_P1();
   P1AleEntropy::State aleInf;
   aleInf.rho = esInf.rho;
@@ -5074,6 +5085,29 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
           omegaOther = p1Coeffs[0] * p1Coeffs[1];
         }
 
+        /*--- Matched k: the k of the mass row of each face node (closure C is hat, its rows carry no k). ---*/
+        su2double kRow[3] = {0.0, 0.0, 0.0}, kNode[3] = {0.0, 0.0, 0.0};
+        if (matchedK) {
+          for (unsigned short a = 0; a < nNodes; ++a) {
+            const auto pointA = element->GetNode(a);
+            kNode[a] = turbNodesK->GetSolution(pointA, 0);
+            su2double kBc = kNode[a];
+            if (KindBC == FAR_FIELD) kBc = kInf;
+            if (KindBC == INLET_FLOW) {
+              kBc = solver_container[TURB_SOL]->GetMatchedInletKine(config, this, iMarker,
+                                                                    geometry->nodes->GetVertex(pointA, iMarker));
+            }
+            const su2double m = faceRes[a][0];
+            su2double massPlus = 0.0, inflow = 0.0;
+            kRow[a] = P1SSTMatched::FaceKine(m, kNode[a], kBc, massPlus, inflow);
+            faceRes[a][nVar - 1] += kRow[a] * m;
+            if (geometry->nodes->GetDomain(pointA)) {
+              P1KMassPlus[pointA] += massPlus;
+              P1KInflow[pointA] += inflow;
+            }
+          }
+        }
+
         for (unsigned short a = 0; a < nNodes; ++a) {
           const auto pointA = element->GetNode(a);
           if (!geometry->nodes->GetDomain(pointA)) continue;
@@ -5089,6 +5123,7 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
                 else jac[iVar][jVar] = omega * buffer[b][MAXNVAR + iVar * nVar + jVar];
               }
             }
+            if (matchedK) P1SSTMatched::TransformJacobian(nVar, jac, kRow[a], kNode[b]);
             if (b == a) Jacobian.AddBlock2Diag(pointA, jac);
             else if (geometry->nodes->GetDomain(pointB)) Jacobian.AddBlock(pointA, pointB, jac);
           }
@@ -5511,7 +5546,8 @@ void CSolver::Weak_BC_Residual(CGeometry *geometry, CSolver **solver_container,
   }
 
   if (bcWallEntropyP1) {
-    SU2_OMP_SAFE_GLOBAL_ACCESS(WeakNoSlipWallResidual(geometry, config);)
+    const CVariable* turbNodesWall = (config->GetKind_Turb_Model() == TURB_MODEL::SST) ? solver_container[TURB_SOL]->GetNodes() : nullptr;
+    SU2_OMP_SAFE_GLOBAL_ACCESS(WeakNoSlipWallResidual(geometry, config, turbNodesWall);)
   }
 
   AD::EndNoSharedReading();
@@ -5710,7 +5746,7 @@ void CSolver::UpdateP1WallFaces(const CGeometry *geometry, const CConfig *config
   if (!P1WallFacesReady) SetP1WallFaces(geometry, config);
 }
 
-void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config) {
+void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config, const CVariable* turbNodes) {
 
   namespace pve = P1ViscousEntropy;
 
@@ -5770,6 +5806,8 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
       const auto iPoint = point[c];
       coord[c] = geometry->nodes->GetCoord(iPoint);
       pve::GatherNode(*base_nodes, iPoint, nDim, prandtlTurb, state[c]);
+      /*--- SST: k of the total energy for dp/drho of the entropy-variable Jacobian (P1_SST_COUPLED.md, D3). ---*/
+      if (turbNodes) state[c].k = turbNodes->GetSolution(iPoint, 0);
     }
     pve::Element simplex;
     if (simplex.Set(nDim, coord, state, gasConst) == 0.0) {
@@ -5860,6 +5898,7 @@ void CSolver::WeakNoSlipWallResidual(CGeometry *geometry, const CConfig *config)
             dpdu[iDim + 1] = -gm1 * S.vel[iDim];
           }
           dpdu[0] = 0.5 * gm1 * vel2;
+          if (S.k != 0.0) dpdu[0] -= gm1 * S.k;  // SST: p with the fixed k of the total energy (D3)
           dpdu[nDim + 1] = gm1;
           for (unsigned short iDim = 0; iDim < nDim; ++iDim)
             for (unsigned short jVar = 0; jVar < nVar; ++jVar)

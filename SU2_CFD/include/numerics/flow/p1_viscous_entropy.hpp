@@ -65,6 +65,8 @@ constexpr double NOSLIP_PENALTY = 2.5;  /*!< \brief c of the weak no-slip wall, 
 struct NodeState {
   su2double rho = 1.0, vel[3] = {0.0, 0.0, 0.0}, p = 1.0, mu = 0.0, kappa = 0.0;
   su2double dmudT = 0.0, dkappadT = 0.0; /*!< \brief VISC_P1_JACOBIAN= FULL: d mu/dT, d kappa/dT (mu_t frozen), else 0. */
+  su2double mut = 0.0; /*!< \brief mu_t (clipped at 0), part of mu; SST production P* (P1_SST_COUPLED.md, M4). */
+  su2double k = 0.0;   /*!< \brief SST: k in the total energy (held fixed), for dp/drho in EntropyVariableJacobian. */
 };
 
 /*!
@@ -81,6 +83,7 @@ inline void GatherNode(const Nodes& nodes, unsigned long iPoint, unsigned short 
   if (eddy < 0.0) eddy = 0.0;
   S.mu = nodes.GetLaminarViscosity(iPoint) + eddy;
   S.kappa = nodes.GetThermalConductivity(iPoint) + nodes.GetSpecificHeatCp(iPoint) * eddy / prandtlTurb;
+  S.mut = eddy;
 }
 
 /*!
@@ -144,6 +147,8 @@ inline void EntropyVariableJacobian(unsigned short nDim, const su2double& gamma,
   su2double vel2 = 0.0, dpdu[MAXNVAR] = {0.0};
   for (unsigned short iDim = 0; iDim < nDim; ++iDim) vel2 += S.vel[iDim] * S.vel[iDim];
   dpdu[0] = 0.5 * (gamma - 1.0) * vel2;
+  /*--- SST: p = (gamma-1)(rhoE - |m|^2/(2 rho) - rho k) with k fixed (P1_SST_COUPLED.md, D3). ---*/
+  if (S.k != 0.0) dpdu[0] -= (gamma - 1.0) * S.k;
   for (unsigned short iDim = 0; iDim < nDim; ++iDim) dpdu[iDim + 1] = -(gamma - 1.0) * S.vel[iDim];
   dpdu[nDim + 1] = gamma - 1.0;
 
@@ -168,6 +173,7 @@ class Element {
   su2double thetaNode[MAXNODE] = {0.0};         /*!< \brief theta_a = rho_a/p_a = -w_E. */
   su2double wMom[MAXNODE][3] = {{0.0}};         /*!< \brief w_m = theta_a v_a. */
   su2double theta = 1.0, vel[3] = {0.0, 0.0, 0.0}, mu = 0.0, kappa = 0.0; /*!< \brief Frozen state. */
+  su2double muT = 0.0;                          /*!< \brief Vertex mean of mu_t (the mu_t part of mu). */
   su2double gasConst = 1.0;
   su2double flux[MAXNVAR][3] = {{0.0}};         /*!< \brief F_T, flux[iVar][iDim]. */
   bool moved = false;                           /*!< \brief Moved test vectors (SetMovedTest), otherwise |T| g_a. */
@@ -195,7 +201,9 @@ class Element {
     su2double sumTheta = 0.0, sumMom[3] = {0.0, 0.0, 0.0};
     mu = 0.0;
     kappa = 0.0;
+    muT = 0.0;
     for (unsigned short a = 0; a < nNodes; ++a) {
+      muT += node[a].mut / nNodes;
       thetaNode[a] = node[a].rho / node[a].p;
       sumTheta += thetaNode[a];
       for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
@@ -366,6 +374,31 @@ class Element {
     for (unsigned short iVar = 0; iVar < nVar; ++iVar)
       for (unsigned short jDim = 0; jDim < nDim; ++jDim) sum += G[iVar][jDim] * flux[iVar][jDim];
     return size * sum;
+  }
+
+  /*!
+   * \brief D_t,T = |T| theta* mubar_t Q(gv), Q = tau(gv; 1) : gv = 2 S:S - 2/3 (div)^2 of the effective velocity gradient
+   *        gv = (G_m - v* (x) G_theta)/theta*: the mu_t part of the stress term of GalerkinDissipation (P1_SST_COUPLED.md,
+   *        5.1, E1). Its nodal shares are the SST production P* (M4).
+   */
+  su2double TurbulentDissipation() const {
+    su2double gradTheta[3] = {0.0, 0.0, 0.0}, gradMom[3][3] = {{0.0}};
+    for (unsigned short a = 0; a < nNodes; ++a) {
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim) {
+        gradTheta[jDim] += thetaNode[a] * grad[a][jDim];
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) gradMom[iDim][jDim] += wMom[a][iDim] * grad[a][jDim];
+      }
+    }
+    su2double gradVel[3][3] = {{0.0}}, tau[3][3] = {{0.0}};
+    const su2double invTheta = 1.0 / theta;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim)
+        gradVel[iDim][jDim] = (gradMom[iDim][jDim] - vel[iDim] * gradTheta[jDim]) * invTheta;
+    CNumerics::ComputeStressTensor(nDim, tau, gradVel, su2double(1.0));
+    su2double Q = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim) Q += tau[iDim][jDim] * gradVel[iDim][jDim];
+    return size * theta * muT * Q;
   }
 
   /*!

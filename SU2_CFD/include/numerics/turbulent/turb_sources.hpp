@@ -743,6 +743,8 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
   const bool sustaining_terms = false;
   const bool axisymmetric = false;
   const bool stressWorkProduction = false; /*!< \brief SST_ENERGY_CONSISTENT: P = mu_t (2 S:S - 2/3 (div u)^2). */
+  bool useP1Production = false;            /*!< \brief P = P* of the P1 element loop (SetP1Production). */
+  su2double p1Production = 0.0;
 
   /*--- Closure constants ---*/
   const su2double sigma_k_1, sigma_k_2, sigma_w_1, sigma_w_2, beta_1, beta_2, beta_star, a1, alfa_1, alfa_2;
@@ -866,6 +868,14 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
   }
 
   /*!
+   * \brief SST with VISC_P1_ENTROPY and SST_ENERGY_CONSISTENT: the production P* of the node (M4).
+   */
+  inline void SetP1Production(su2double val_production) override {
+    useP1Production = true;
+    p1Production = val_production;
+  }
+
+  /*!
    * \brief Residual for source term integration.
    * \param[in] config - Definition of the particular problem.
    * \return A lightweight const-view (read-only) of the residual/flux and Jacobians.
@@ -963,6 +973,13 @@ class CSourcePieceWise_TurbSST final : public CNumerics {
       /*--- SST_ENERGY_CONSISTENT: the work of SU2's turbulent stress, mu_t (2 S:S - 2/3 (div u)^2) = tau_t : grad u, the
        * same gradient as StrainMag; only with the strain production (refused otherwise). ---*/
       if (stressWorkProduction) P = Eddy_Viscosity_i * (pow(StrainMag_i, 2) - TWO3 * pow(diverg, 2));
+
+      /*--- With VISC_P1_ENTROPY: P* from the mu_t part of the P1 element dissipation (P1_SST_COUPLED.md, M4), the same
+       * stress work on the discrete velocity gradient, so the coupled entropy rate keeps its sign. ---*/
+      if (useP1Production) {
+        AD::SetPreaccIn(p1Production);
+        P = p1Production;
+      }
       su2double pk = max(0.0, min(P, prod_limit));
 
       const su2double eddy_visc_var = sstParsedOptions.version == SST_OPTIONS::V1994 ? VorticityMag : StrainMag_i;

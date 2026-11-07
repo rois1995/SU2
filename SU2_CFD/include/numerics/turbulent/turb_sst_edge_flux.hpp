@@ -48,7 +48,13 @@ class CScalarFlux_SST
 
   using Base = CUpwScalarBase<Double, CScalarFlux_SST, FlowIndices, nDim, nVar>;
   using Int = typename Base::Int;
-  using Base::Base;
+
+  /*!
+   * \brief Constructor. With VISC_P1_ENTROPY and SST_ENERGY_CONSISTENT the k diffusion is the P1 element operator of
+   *        CTurbSSTSolver::P1KineDiffusion (the same numbers as the energy row), so the edge has none (M3).
+   */
+  explicit CScalarFlux_SST(const CConfig& config, size_t nEqn_ = nVar)
+      : Base(config, nEqn_), elementKine(config.GetSST_P1_Element_Kine()) {}
 
  private:
   /*--- Fixed regardless of SST_OPTIONS::version: only the production-limiter and source-term
@@ -59,6 +65,7 @@ class CScalarFlux_SST
   static constexpr passivedouble sigma_om2 = 0.856;
   static_assert(sigma_k1 == SSTEnergy::sigma_k1 && sigma_k2 == SSTEnergy::sigma_k2,
                 "SST_ENERGY_CONSISTENT copies the k diffusion of this row (sst_energy.hpp).");
+  const bool elementKine = false; /*!< \brief P1 element k diffusion instead of the edge one (constructor). */
 
  public:
   /*!
@@ -120,6 +127,11 @@ class CScalarFlux_SST
     D.j(0, 0) = diff_kine;
     D.j(1, 1) = diff_omega;
     D.j(1, 0) = diff_omega_T2 + diff_omega_T3_j;
+
+    if (elementKine) {
+      D.i(0, 0) = 0.0;
+      D.j(0, 0) = 0.0;
+    }
 
     return D;
   }

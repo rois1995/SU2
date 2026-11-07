@@ -814,6 +814,12 @@ public:
   virtual void SetSSTEnergyKineDiffusion(bool val_active) {/* empty */};
 
   /*!
+   * \brief SST with VISC_P1_ENTROPY and SST_ENERGY_CONSISTENT (P1_SST_COUPLED.md, M4): the k production P* of the node,
+   *        the mu_t part of the P1 element dissipation per unit volume, used in place of mu_t P_Base^2 before the limiter.
+   */
+  virtual void SetP1Production(su2double val_production) {/* empty */};
+
+  /*!
    * \brief Set the value of the second blending function.
    * \param[in] val_F2_i - Value of the second Menter blending function at point i.
    */

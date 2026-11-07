@@ -521,7 +521,7 @@ public:
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  void SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *config);
+  void SetEdgeBlendLambda(const CGeometry *geometry, const CConfig *config, const CVariable* turbMatched = nullptr);
 
   /*!
    * \brief Add the nodal boundary term of the grid flux of GCL_EXACT_P1. With GRID_ENTROPY_P1 the share of the faces of

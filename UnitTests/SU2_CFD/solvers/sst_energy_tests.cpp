@@ -279,16 +279,21 @@ TEST_CASE("SST_ENERGY_CONSISTENT: the vectorized JST viscous flux adds -D g of t
   test.InitGeometry();
   test.solver = CSolverFactory::CreateSolverContainer(test.config->GetKind_Solver(), test.config.get(),
                                                       test.geometry.get(), 0);
+  /*--- The residual is explicit only once the runtime scheme is set (SetGlobalParam does it in a real iteration). ---*/
+  test.config->SetKind_TimeIntScheme(test.config->GetKind_TimeIntScheme_Flow());
+  configOff.SetKind_TimeIntScheme(configOff.GetKind_TimeIntScheme_Flow());
+  auto* flow = static_cast<CEulerSolver*>(test.solver[FLOW_SOL]);
   auto& nodes = *static_cast<CNSVariable*>(test.solver[FLOW_SOL]->GetNodes());
   auto* turb = static_cast<CTurbSSTVariable*>(test.solver[TURB_SOL]->GetNodes());
   const auto nPoint = test.geometry->GetnPoint();
   for (auto p = 0ul; p < nPoint; ++p) {
+    turb->SetSolution(p, 0, 0.01 + 0.002 * p);
+    REQUIRE(nodes.SetPrimVar(p, 0.0, turb->GetSolution(p, 0), flow->GetFluidModel()));
     nodes.SetSensor(p, 0.0);
     nodes.SetLambda(p, 1.0);
     for (auto v = 0u; v < 4; ++v) nodes.SetUnd_Lapl(p, v, 0.0);
     nodes.SetLaminarViscosity(p, 1e-3 * (1.0 + 0.1 * p));
     nodes.SetEddyViscosity(p, 0.02 + 0.01 * p);
-    turb->SetSolution(p, 0, 0.01 + 0.002 * p);
     turb->SetF1blending(p, 0.2 + 0.05 * (p % 5));
     for (unsigned short iDim = 0; iDim < 2; ++iDim) turb->GetGradient(p)[0][iDim] = 0.1 * (iDim + 1) + 0.01 * p;
   }
@@ -325,4 +330,47 @@ TEST_CASE("SST_ENERGY_CONSISTENT: the vectorized JST viscous flux adds -D g of t
   CHECK(resOn(iPoint, 3) - resOff(iPoint, 3) == Approx(-D * g).epsilon(1e-9));
   CHECK(resOn(jPoint, 3) - resOff(jPoint, 3) == Approx(D * g).epsilon(1e-9));
   delete test.solver[TURB_SOL];
+}
+
+TEST_CASE("SST_ENERGY_CONSISTENT with VISC_P1_ENTROPY: the edge k row has no diffusion, the omega row is unchanged", "[SSTEnergy]") {
+  constexpr unsigned short nDim = 2;
+  auto makeConfig = [](bool on) {
+    std::stringstream options;
+    options << "SOLVER= RANS\nKIND_TURB_MODEL= SST\nMACH_NUMBER= 0.3\nREYNOLDS_NUMBER= 1e6\nVISC_P1_ENTROPY= YES\n"
+            << "SST_ENERGY_CONSISTENT= " << (on ? "YES" : "NO") << "\n";
+    return std::make_unique<CConfig>(options, SU2_COMPONENT::SU2_CFD, false);
+  };
+  auto configOn = makeConfig(true), configOff = makeConfig(false);
+  REQUIRE(configOn->GetSST_P1_Element_Kine());
+  REQUIRE_FALSE(configOff->GetSST_P1_Element_Kine());
+  const su2double vel0[2] = {0.0, 0.0};
+  CNSVariable flow(1.0, vel0, 2.5, 2, nDim, nDim + 2, configOn.get());
+  CTurbSSTVariable turb(0.0, 1.0, 0.0, 2, nDim, 2, sstConstants, configOn.get());
+  const CEulerVariable::CIndices<unsigned short> idx(nDim, 0);
+  su2activematrix coord(2, nDim);
+  coord(0, 0) = 0.0; coord(0, 1) = 0.0; coord(1, 0) = 0.3; coord(1, 1) = 0.1;
+  for (unsigned long p = 0; p < 2; ++p) {
+    flow.SetPrimitive(p, idx.Density(), 1.0 + 0.1 * p);
+    flow.SetPrimitive(p, idx.LaminarViscosity(), 1e-3);
+    flow.SetPrimitive(p, idx.EddyViscosity(), 0.05 + 0.02 * p);
+    turb.SetSolution(p, 0, 0.02 + 0.03 * p);
+    turb.SetSolution(p, 1, 3.0 + p);
+    turb.SetF1blending(p, 0.6);
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      turb.GetGradient(p)[0][iDim] = 0.2 + 0.1 * iDim + 0.05 * p;
+      turb.GetGradient(p)[1][iDim] = -0.4 + 0.3 * iDim;
+    }
+  }
+  using Model = CScalarFlux_SST<su2double, CEulerVariable::CIndices<unsigned short>, 2, 2>;
+  const Model modelOn(*configOn), modelOff(*configOff);
+  const EdgeSide<CTurbSSTVariable> side{turb, &flow, CMatrixView<const su2double>(coord), CMatrixView<const su2double>()};
+  Vector<su2double, 2> normal;
+  normal(0) = 0.5; normal(1) = 0.2;
+  const auto resOn = modelOn.ComputeFlux(ScalarFluxOptions::BoundaryDiffusive(*configOn, true), 0ul, side, 1ul, side,
+                                         normal, su2double(0.0));
+  const auto resOff = modelOff.ComputeFlux(ScalarFluxOptions::BoundaryDiffusive(*configOff, true), 0ul, side, 1ul, side,
+                                           normal, su2double(0.0));
+  CHECK(resOn.flux_i(0) == 0.0);
+  CHECK(resOff.flux_i(0) != 0.0);
+  CHECK(resOn.flux_i(1) == resOff.flux_i(1));
 }

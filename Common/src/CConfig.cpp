@@ -6531,8 +6531,8 @@ void CConfig::CheckP1FluxOptions() const {
     if (!BC_Weak_P1 || !Edge_Form_P1) SU2_MPI::Error(name + "needs BC_WEAK_P1= YES and EDGE_FORM_P1= YES.", CURRENT_FUNCTION);
     if ((Kind_Solver != MAIN_SOLVER::EULER) && !viscousP1)
       SU2_MPI::Error(name + "needs SOLVER= EULER, NAVIER_STOKES or RANS.", CURRENT_FUNCTION);
-    if ((Kind_Solver == MAIN_SOLVER::RANS) && (Kind_Turb_Model != TURB_MODEL::SA))
-      SU2_MPI::Error(name + "RANS only with SA: SST puts rho k in the boundary energy, not covered by the entropy pair.", CURRENT_FUNCTION);
+    if ((Kind_Solver == MAIN_SOLVER::RANS) && (Kind_Turb_Model != TURB_MODEL::SA) && (Kind_Turb_Model != TURB_MODEL::SST))
+      SU2_MPI::Error(name + "RANS only with SA or SST (SST: the matched k form, P1_SST_COUPLED.md).", CURRENT_FUNCTION);
     if (viscousP1 && !BC_Wall_Entropy_P1)
       SU2_MPI::Error(name + "a viscous solver needs BC_WALL_ENTROPY_P1= YES (weak no-slip walls).", CURRENT_FUNCTION);
     if (!idealGas) SU2_MPI::Error(name + "the Ismail-Roe flux and the entropy variables need an ideal gas.", CURRENT_FUNCTION);
@@ -6622,9 +6622,9 @@ void CConfig::CheckP1FluxOptions() const {
   }
   if (SST_Energy_Consistent) {
     /*--- k diffusion in the energy flux and production from the stress work (P1_SST_COUPLED.md, section 4). The energy
-     * term copies the interior edge diffusion of the k row; boundaries where the SST imposes a diffusive k flux
-     * (turbomachinery inlets, fluid interfaces) and the P1 element viscous operator (its own k diffusion) are not
-     * covered. The production is defined for the strain form only. ---*/
+     * term copies the interior edge diffusion of the k row (with VISC_P1_ENTROPY both rows use the P1 element operator
+     * instead, GetSST_P1_Element_Kine); boundaries where the SST imposes a diffusive k flux (turbomachinery inlets, fluid
+     * interfaces) are not covered. The production is defined for the strain form only. ---*/
     const string name = "SST_ENERGY_CONSISTENT: ";
     if (Kind_Turb_Model != TURB_MODEL::SST) SU2_MPI::Error(name + "needs KIND_TURB_MODEL= SST.", CURRENT_FUNCTION);
     if ((Kind_Solver != MAIN_SOLVER::RANS) && (Kind_Solver != MAIN_SOLVER::DISC_ADJ_RANS))
@@ -6632,9 +6632,32 @@ void CConfig::CheckP1FluxOptions() const {
     if (sstParsedOptions.production != SST_OPTIONS::NONE)
       SU2_MPI::Error(name + "only with the strain production (no VORTICITY, KATO_LAUNDER or UQ).", CURRENT_FUNCTION);
     if (Axisymmetric) SU2_MPI::Error(name + "not available with AXISYMMETRIC (the energy source of the k flux is not derived).", CURRENT_FUNCTION);
-    if (Visc_P1_Entropy) SU2_MPI::Error(name + "not available with VISC_P1_ENTROPY.", CURRENT_FUNCTION);
     if (GetBoolTurbomachinery() || GetBoolMixingPlaneInterface() || (nMarker_Fluid_InterfaceBound > 0))
       SU2_MPI::Error(name + "not available with turbomachinery, mixing-plane or fluid-interface markers (diffusive k boundary fluxes).", CURRENT_FUNCTION);
+  }
+  if (GetTke_Matched_P1()) {
+    /*--- P1_SST_COUPLED.md, section 8: hat states and matched k in every P1 part, first-order upwind k with the P1 mass
+     * flux, simplices, fine grid. The Roe/TeCNO P1 paths and JST_MAT are not made hat; the SST GCL of moving meshes is not
+     * matched to the flow one. ---*/
+    const string name = "P1 options with SST (matched k, P1_SST_COUPLED.md): ";
+    if (nMGLevels > 0) SU2_MPI::Error(name + "needs MGLEVEL= 0.", CURRENT_FUNCTION);
+    if (MUSCL_Turb) SU2_MPI::Error(name + "needs MUSCL_TURB= NO (the same upwind k in the energy and k rows).", CURRENT_FUNCTION);
+    if (Edge_Form_P1_Mixed || Split_Edge_Flux)
+      SU2_MPI::Error(name + "not available with EDGE_FORM_P1_MIXED or SPLIT_EDGE_FLUX (simplex meshes only).", CURRENT_FUNCTION);
+    if (Axisymmetric) SU2_MPI::Error(name + "not available with AXISYMMETRIC.", CURRENT_FUNCTION);
+    if (!((Kind_ConvNumScheme_Flow == SPACE_CENTERED) && (Kind_Centered_Flow == CENTERED::JST)))
+      SU2_MPI::Error(name + "only with CONV_NUM_METHOD_FLOW= JST (JST-P1ES, JST-PD).", CURRENT_FUNCTION);
+    if (GetDynamic_Grid()) SU2_MPI::Error(name + "not available with grid motion.", CURRENT_FUNCTION);
+    if (GetBounded_Turb())
+      SU2_MPI::Error(name + "not with CONV_NUM_METHOD_TURB= BOUNDED_SCALAR (the matched convection replaces it).", CURRENT_FUNCTION);
+  }
+  if (GetSST_P1_Element_Kine()) {
+    /*--- M4: the net k source must stay below P*; the sustaining terms, custom sources and the LM intermittency
+     * (gamma_eff up to 2) can exceed it. ---*/
+    const string name = "SST_ENERGY_CONSISTENT with VISC_P1_ENTROPY: ";
+    if (sstParsedOptions.sust) SU2_MPI::Error(name + "not available with the SUSTAINING terms.", CURRENT_FUNCTION);
+    if (Kind_Trans_Model != TURB_TRANS_MODEL::NONE) SU2_MPI::Error(name + "not available with a transition model.", CURRENT_FUNCTION);
+    if (PyCustomSource) SU2_MPI::Error(name + "not available with custom sources.", CURRENT_FUNCTION);
   }
   if (P1_Wall_Forces) {
     /*--- Output only: the forces of the weak no-slip wall and of closure C. Moving walls are not covered. ---*/

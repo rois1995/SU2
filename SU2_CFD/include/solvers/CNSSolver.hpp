@@ -141,7 +141,14 @@ private:
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  void Viscous_Residual_P1Entropy(CGeometry *geometry, const CConfig *config);
+  void Viscous_Residual_P1Entropy(CGeometry *geometry, CSolver **solver_container, const CConfig *config);
+
+  /*!
+   * \brief Nodes with a strong k (SST at heat flux and isothermal walls), where the energy row gets no P1 k diffusion
+   *        (M5 of P1_SST_COUPLED.md with the element k diffusion: X_i - k_D R_rho,i must not get the k diffusion of a
+   *        row that the SST replaces). Built on first use.
+   */
+  vector<char> P1KStrongNode;
 
   /*!
    * \brief EDGE_FORM_P1_MIXED: VISC_P1_ENTROPY of one non-simplex cell, the omega-weighted V-A residuals and Picard
