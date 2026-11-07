@@ -1,0 +1,34 @@
+diff --git a/Common/src/adaptation/CNativeAffineReference.cpp b/Common/src/adaptation/CNativeAffineReference.cpp
+index 25d5be2f71..091c348faa 100644
+--- a/Common/src/adaptation/CNativeAffineReference.cpp
++++ b/Common/src/adaptation/CNativeAffineReference.cpp
+@@ -388,6 +388,17 @@ class TriangleUnion {
+         std::array<Range,N> residual;
+         long double vertical=0;for(size_t i=0;i<N;++i){residual[i]=DotBox(Difference(source(i),Exact(face.origin)),normal);
+           vertical=std::max(vertical,std::max(std::abs(residual[i].lo),std::abs(residual[i].hi)));}
++        const auto nx=std::max(std::abs(normal[x].lo),std::abs(normal[x].hi)),ny=std::max(std::abs(normal[y].lo),std::abs(normal[y].hi));
++        const auto dz=DividePositive(Add(Multiply({dx,dx},nx),Multiply({dy,dy},ny)),denominator);
++        const Box shift{{{0,dx},{0,dy},{0,std::max(std::abs(dz.lo),std::abs(dz.hi))}}};
++        const auto shift_norm=NormBound(shift);
++        auto lifted=[&](long double value){return std::nextafter(double(Add(Add(DividePositive({0,value},denominator),
++            {face.error,face.error}),{0,shift_norm}).hi),INFINITY);};
++        const auto simple=lifted(vertical);
++        const auto screened=triangle_covered?std::nextafter(double(Add({simple,simple},{0,padding}).hi),INFINITY):simple;
++        // The unrestricted plane bound already certifies this piece; clipping cannot improve its gate decision.
++        op.Work();
++        if(screened<=owner->accuracy){found=true;bound=std::max(bound,simple);return;}
+         if constexpr(N==3) {
+           if(std::all_of(residual.begin(),residual.end(),[](Range value){return std::isfinite(value.lo)&&std::isfinite(value.hi);})) {
+             // Restrict the source simplex to weights that can meet this target piece.
+@@ -463,10 +474,7 @@ class TriangleUnion {
+           }
+         }
+         found=true;
+-        const auto nx=std::max(std::abs(normal[x].lo),std::abs(normal[x].hi)),ny=std::max(std::abs(normal[y].lo),std::abs(normal[y].hi));
+-        const auto dz=DividePositive(Add(Multiply({dx,dx},nx),Multiply({dy,dy},ny)),denominator);
+-        const Box shift{{{0,dx},{0,dy},{0,std::max(std::abs(dz.lo),std::abs(dz.hi))}}};
+-        bound=std::max(bound,std::nextafter(double(Add(Add(DividePositive({0,vertical},denominator),{face.error,face.error}),{0,NormBound(shift)}).hi),INFINITY));
++        bound=std::max(bound,lifted(vertical));
+       };
+       if(owner->index && faces.size()>16) {
+         su2double low[3],high[3];low[x]=a[0];high[x]=b[0];low[y]=a[1];high[y]=b[1];

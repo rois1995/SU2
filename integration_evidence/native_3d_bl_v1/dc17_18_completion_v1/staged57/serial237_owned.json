@@ -1,0 +1,151 @@
+{
+  "time": 1794030162.6946201,
+  "tool_session": 51486,
+  "status": {
+    "state": "running",
+    "helper_pid": 2840277,
+    "started_at": 1794030096.4155269,
+    "completed": [],
+    "case": "current_compound",
+    "child_pid": 2840278
+  },
+  "handles": [
+    {
+      "pid": 2840277,
+      "ppid": 2840276,
+      "start_ticks": 7453603,
+      "argv": "python3 - ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated"
+    },
+    {
+      "pid": 2840278,
+      "ppid": 2840277,
+      "start_ticks": 7453606,
+      "argv": "python3 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_cases.py build237 current_compound ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated"
+    },
+    {
+      "pid": 2840477,
+      "ppid": 2840278,
+      "start_ticks": 7454079,
+      "argv": "/usr/bin/time -v timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeCurrentCompound3D] --durations yes ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T054136_2840278"
+    },
+    {
+      "pid": 2840478,
+      "ppid": 2840477,
+      "start_ticks": 7454079,
+      "argv": "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeCurrentCompound3D] --durations yes ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T054136_2840278"
+    },
+    {
+      "pid": 2840479,
+      "ppid": 2840478,
+      "start_ticks": 7454079,
+      "argv": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeCurrentCompound3D] --durations yes ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T054136_2840278"
+    },
+    {
+      "pid": 2840480,
+      "ppid": 2840479,
+      "start_ticks": 7454079,
+      "argv": "orted --hnp --set-sid --report-uri 8 --singleton-died-pipe 9 -mca state_novm_select 1 -mca ess hnp -mca pmix ^s1,s2,cray,isolated ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T054136_2840278"
+    }
+  ],
+  "terminal": {
+    "time": 1794030506.8767056,
+    "all_owned_terminal": true,
+    "handles": [
+      {
+        "pid": 2840277,
+        "absent": true
+      },
+      {
+        "pid": 2840278,
+        "absent": true
+      },
+      {
+        "pid": 2840477,
+        "absent": true
+      },
+      {
+        "pid": 2840478,
+        "absent": true
+      },
+      {
+        "pid": 2840479,
+        "absent": true
+      },
+      {
+        "pid": 2840480,
+        "absent": true
+      },
+      {
+        "pid": 2845372,
+        "absent": true
+      },
+      {
+        "pid": 2845465,
+        "absent": true
+      },
+      {
+        "pid": 2845466,
+        "absent": true
+      },
+      {
+        "pid": 2845467,
+        "absent": true
+      },
+      {
+        "pid": 2845468,
+        "absent": true
+      },
+      {
+        "pid": 2845695,
+        "absent": true
+      },
+      {
+        "pid": 2845743,
+        "absent": true
+      },
+      {
+        "pid": 2845744,
+        "absent": true
+      },
+      {
+        "pid": 2845745,
+        "absent": true
+      },
+      {
+        "pid": 2845746,
+        "absent": true
+      },
+      {
+        "pid": 2854339,
+        "absent": true
+      },
+      {
+        "pid": 2854388,
+        "absent": true
+      },
+      {
+        "pid": 2854391,
+        "absent": true
+      },
+      {
+        "pid": 2854395,
+        "absent": true
+      },
+      {
+        "pid": 2854401,
+        "absent": true
+      }
+    ],
+    "loadavg": "1.33 1.51 1.52 1/3762 2855998",
+    "memory": {
+      "MemAvailable": "38719372 kB",
+      "SwapFree": "5561340 kB"
+    }
+  }
+}

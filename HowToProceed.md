@@ -22,6 +22,19 @@ full nodal metric and measured q/J/geometry are exported and independently read.
 See [235outcome and next target](Handbook/ADAPTATION_BUILD235_OUTCOME_20261107.md).
 No adapted mesh is accepted; transfer/adapted CFD/restart are still unproved.
 
+Current same-cycle bounded residual/query analysis is in
+[the screening assessment](Handbook/ADAPTATION_GEOMETRY_SCREEN236_20261107.md).
+All five geometry-clean two-face cores already have useful original-star controls;
+their exclusion from optional four-star preflight does not justify a filter change.
+Six expensive actual nearby query pairs have insufficient certificate slack for
+safe motion reuse.236simple-plane screening preserved strict outcomes but saved no
+counted work and was REJECTED/reverted.237tests only omitting a signed lift solve
+when fresh residual intervals prove it nonpositive. Same12query replay preserves
+ALL bounds bit-for-bit, with5.96%less traversal work; this is not whole-M6 speedup.
+Connected qualification passes116serial cases/82379assertions and ONE MPI6milestone
+with26cases on every rank, pins unchanged/owned handles terminal. Full retry is next.
+Verify current handles/pins in HANDOFF before acting. No new repair strategy.
+
 Historical227saved198364points/1017523tets, but its final measurement caches were
 invalidated and its printed final zero counts were UNKNOWN. Separate centroid
 shape diagnostics recovered2368q/1101J there; they did not recover final geometry.
@@ -41,7 +54,7 @@ On matching construction work it reduced traversal17.6%. The first19quality wind
 match225; later deadline-dependent ownership migration differs, so elapsed-time
 comparisons cannot isolate a kernel speedup. [Geometry evidence](Handbook/ADAPTATION_GEOMETRY_WITNESS_20261106.md).
 
-The remaining shape problem is not uniformly free interior. Actual final residuals:
+Historical227shape diagnostic: residuals are not uniformly free interior:
 1414bad cells have no physical face but touch wing vertices;1341are free interior,
 452have wing faces,39other physical faces,12touch other boundary vertices. Some
 existing single-vertex stars exceed64cells; that alone does not justify larger
@@ -50,7 +63,7 @@ and complete neighbors before adding a strategy. Distinguish placement, constrai
 movement, connectivity limits and certification refusals. Preserve fresh association
 reconstruction and do not claim historical private publication replay.
 
-The last complete110.6795s window net-removed853q/502J failures, with1211commits.
+Historical227last complete110.6795s window net-removed853q/502J failures, with1211commits.
 Boundary smoothing recorded12063candidates/445moves and72.60summed-rank seconds;
 interior5641/676and3.26seconds. Timers overlap and local debt credits are not global
 net improvement. Geometry-bad fell only2. Prioritize boundary repair efficiency,
@@ -317,10 +330,11 @@ closure; no weaker geometry or shape gate is proposed.
    not repeat passing suites or launch an old-code baseline. MPI fixtures qualified
    adjacent protocols; the full M6 is the pending end-to-end qualification of the
    exact new support-selection path.
-3. Keep235source/helpers/binary/config/inputs frozen until verified terminal or
-   an authorized stop justified by preserved demonstrated failure/resource evidence.
-   If refused, seal the selected actual full mesh/metric and bounded cavity evidence;
-   then use existing exporters after the owned solver is terminal. No trial meshes.
+3.235full run/export and bounded235/236queries are terminal. Keep the CURRENT
+   implementation/helpers/binary/config/inputs frozen through build/validation;
+   consult handoff for237handles. Require useful measured savings and affected
+   serial/ONE MPI6qualification before a full same-seed retry. Selected235mesh and
+   metric are already exported; no per-trial mesh dumps or repeated baseline runs.
 4. Judge complete all-rank whole-field q/J removal per second, geometry/size counts,
    churn and counted work. Call timers overlap. A local private candidate, debt
    reduction or commit rate cannot replace accepted meshes. Select the next tested

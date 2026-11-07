@@ -1,0 +1,75 @@
+{
+  "time": 1794030039.7975886,
+  "tool_session": 73632,
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261107T054026_2837742",
+  "status": {
+    "state": "running",
+    "pid": 2837839,
+    "started_at": 1794030026.4960382
+  },
+  "handles": [
+    {
+      "pid": 2837839,
+      "ppid": 2837742,
+      "start_ticks": 7446796,
+      "argv": "/usr/bin/time -v timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeM6GeometryQueries3D] --durations yes ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261107T054026_2837742"
+    },
+    {
+      "pid": 2837840,
+      "ppid": 2837839,
+      "start_ticks": 7446796,
+      "argv": "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeM6GeometryQueries3D] --durations yes ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261107T054026_2837742"
+    },
+    {
+      "pid": 2837841,
+      "ppid": 2837840,
+      "start_ticks": 7446796,
+      "argv": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeM6GeometryQueries3D] --durations yes ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261107T054026_2837742"
+    },
+    {
+      "pid": 2837842,
+      "ppid": 2837841,
+      "start_ticks": 7446797,
+      "argv": "orted --hnp --set-sid --report-uri 8 --singleton-died-pipe 9 -mca state_novm_select 1 -mca ess hnp -mca pmix ^s1,s2,cray,isolated ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/geometry_current_queries_20261107T054026_2837742"
+    }
+  ],
+  "terminal": {
+    "time": 1794030064.6573925,
+    "all_owned_terminal": true,
+    "handles": [
+      {
+        "pid": 2837742,
+        "absent": true
+      },
+      {
+        "pid": 2837839,
+        "absent": true
+      },
+      {
+        "pid": 2837840,
+        "absent": true
+      },
+      {
+        "pid": 2837841,
+        "absent": true
+      },
+      {
+        "pid": 2837842,
+        "absent": true
+      }
+    ],
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 18.607486724853516,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 353669120,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    }
+  }
+}

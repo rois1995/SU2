@@ -459,7 +459,10 @@ class TriangleUnion {
               }
               return best;
             };
-            vertical=std::min(vertical,std::max({0.L,maximum(false),maximum(true)}));
+            // A signed residual that is nonpositive over the whole hull cannot raise the absolute bound.
+            const bool positive=std::any_of(residual.begin(),residual.end(),[](Range value){return value.hi>0;});
+            const bool negative=std::any_of(residual.begin(),residual.end(),[](Range value){return value.lo<0;});
+            vertical=std::min(vertical,std::max({0.L,positive?maximum(false):0.L,negative?maximum(true):0.L}));
           }
         }
         found=true;

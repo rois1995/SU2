@@ -1,0 +1,84 @@
+{
+  "time": 1794029144.8647647,
+  "tool_session": 17179,
+  "attempt": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T052520_2804746",
+  "handles": [
+    {
+      "pid": 2804746,
+      "ppid": 27939,
+      "start_ticks": 7356012,
+      "argv": "python3 integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/run_cases.py build235 current_compound ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated"
+    },
+    {
+      "pid": 2804884,
+      "ppid": 2804746,
+      "start_ticks": 7356462,
+      "argv": "/usr/bin/time -v timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeCurrentCompound3D] --durations yes ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T052520_2804746"
+    },
+    {
+      "pid": 2804885,
+      "ppid": 2804884,
+      "start_ticks": 7356462,
+      "argv": "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeCurrentCompound3D] --durations yes ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T052520_2804746"
+    },
+    {
+      "pid": 2804886,
+      "ppid": 2804885,
+      "start_ticks": 7356463,
+      "argv": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeCurrentCompound3D] --durations yes ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T052520_2804746"
+    },
+    {
+      "pid": 2804887,
+      "ppid": 2804886,
+      "start_ticks": 7356463,
+      "argv": "orted --hnp --set-sid --report-uri 8 --singleton-died-pipe 9 -mca state_novm_select 1 -mca ess hnp -mca pmix ^s1,s2,cray,isolated ",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/cases/current_compound_20261107T052520_2804746"
+    }
+  ],
+  "loadavg": "0.95 1.09 1.41 2/3798 2805612",
+  "memory": {
+    "MemTotal": "65618220 kB",
+    "MemAvailable": "38550916 kB",
+    "SwapFree": "5555196 kB"
+  },
+  "scope": "existing build235 current_compound; seven actual terminal235 contexts; diagnostic trace only; no production source edits",
+  "terminal": {
+    "time": 1794029281.1338985,
+    "handles": [
+      {
+        "pid": 2804746,
+        "absent": true
+      },
+      {
+        "pid": 2804884,
+        "absent": true
+      },
+      {
+        "pid": 2804885,
+        "absent": true
+      },
+      {
+        "pid": 2804886,
+        "absent": true
+      },
+      {
+        "pid": 2804887,
+        "absent": true
+      }
+    ],
+    "all_owned_terminal": true,
+    "status": {
+      "state": "terminal",
+      "exit_code": 0,
+      "seconds": 135.9581482410431,
+      "pins_verified": true,
+      "changed": [],
+      "largest_sampled_individual_process_rss_bytes": 507547648,
+      "rss_note": "sampled process RSS; not a whole-job peak"
+    }
+  }
+}

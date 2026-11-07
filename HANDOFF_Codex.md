@@ -17,11 +17,33 @@ R=`integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57`.
 A227=`R/m6_runs/euler_build227_witness_real_cfd50k`.
 A235=`R/m6_runs/euler_build235_geometry_coupled_real_cfd50k`.
 
-## ACTIVE235: geometry-conforming private quality candidate
+## Current cycle: terminal235 geometry/smoothing efficiency, signed bound237
 
 Production source checkpoint3839534f25 (connected235production/qualification);
 preceding pushed evidencec70641d475(mid-quality),c7b3a78de4. Earlier8107f77356local feasibility.
-Production/fixture changes committed; preserve unrelated working changes.
+Production235/fixture changes committed; preserve unrelated working changes.
+Current production change237 touches ONLY
+CNativeAffineReference.cpp: skip a signed simplex residual solve when fresh outward
+intervals prove its maximum nonpositive (absolute bound already includes zero).
+Mixed-sign intervals retain both solves. No cache/association/policy change.
+[Evidence, proof and qualification plan](Handbook/ADAPTATION_GEOMETRY_SCREEN236_20261107.md).
+Build236session63876TERMINAL0,33.139646s,1302pins unchanged/both targets up to date;
+all observed compiler/build handles absent, R/build236_owned.json. Replay236tool7208
+TERMINAL0/163assertions,pins unchanged, all sampled PIDs absent.236preserved strict
+outcomes but slightly INCREASED counted work; REJECTED and fully reverted to exact
+235source hash. R/screen236_{source.patch,assessment.json}. No broad/MPI/M6on236.
+Build237tool64986TERMINAL0,33.141690s,pins unchanged/both targets up to date; exact
+compiler handles absent, R/build237_owned.json. Same12query replay237tool73632
+TERMINAL0/163assertions,pins unchanged/handles absent: ALL bounds bit-identical235,
+traversal575272→540961(-5.96%),totalwork593437→559126(-5.78%). No whole-M6 speedup claim.
+Connected serial237tool51486TERMINAL0,372.369733s: current_compound(same7actual
+contexts),quality,atlas,failure-census;116cases/82379assertions. All168measured actual
+cavity outcomes equal235 excluding time/work. MPI6tool19231TERMINAL0,6.322127s,
+EACH rank26cases. All pins unchanged;21serial and10MPI sampled owned handles absent.
+R/{serial237_terminal_handles,mpi237_terminal_handles}.json. Qualification complete:
+R/signed237_qualification.json. NO OWNED HEAVY JOB. Next IMMEDIATE full same-seed
+two-event M6 on237, unchanged gates/native5400/outer14400. Verify host resources/
+handles then launch; freeze source/fixtures/helpers/binary/config/inputs throughout.
 Build235exec12651TERMINAL0,63.151040s,1302pins unchanged/both targets up to date.
 All recorded host compiler/linker handles absent. Build234also terminal0,168.133394s.
 
@@ -51,10 +73,10 @@ NEVER repeat this stop. A235/owned_stop_once.json. Full wrapper session38789
 TERMINAL1,5595.034596s; statuspins_verified=true/changed[]. All11recorded host
 handles ABSENT:terminal_handles.json. Source/runtime/input1519pins unchanged at
 source_freeze_before_stop.json and rechecked after all exports/readback in
-terminal_source_receipt.json. No CFD solver workload remains; production source
-still unchanged235. Export session52272 TERMINAL0,427.843911s,pins unchanged; all3
-export host handles absent. Reader session12859 TERMINAL0,4.287199s. NO OWNED HEAVY
-JOB. Existing inspector and all four VTUs independently read; full coordinates/
+terminal_source_receipt.json. No235CFD solver workload remains; current237source
+change is listed above. Export session52272 TERMINAL0,427.843911s,pins unchanged; all3
+export host handles absent. Reader session12859 TERMINAL0,4.287199s. Original full
+workflow/export terminal; current workload is listed above. All four VTUs independently read; full coordinates/
 tetrahedra matchSU2, metric tensors finite/symmetric/SPD, actual bad counts match.
 A235/inspection/rejected_mesh.vtu WITH metric:198318points/1017408tets; all7090bad
 cores and220573neighbor cells saved without omissions, reference/rejection/ID maps.
@@ -63,9 +85,9 @@ marker-name fallbacks. A235/inspection_reader_status.json has hashes/checks.
 [235outcome and next target](Handbook/ADAPTATION_BUILD235_OUTCOME_20261107.md).
 Next target SPEED OF USEFUL SHAPE CLOSURE, analysis first using existing geometry/
 smoothing facilities and actual residual cavities; no speedup from slack bounds
-established. No new implementation selected. Preserve source235 for bounded actual
-query/cavity controls before one connected correction and full M6 retry. Do not start another M6 before selecting and
-validating the one connected next step from this outcome.
+established. Those controls are now complete below;237is the narrow measured
+correction selected for qualification. Do not start another M6 until its connected
+qualification passes; then return immediately to the full workflow.
 
 A235/owned_startup.json retains OLD handles only; they are terminal, never live.
 Same correctedL1/50k/realCFD seed/config as227, initialrestart byte-identical219/225/227.
@@ -78,6 +100,30 @@ interior4.03rank-s (overlapping scopes). Exact memo misses do not identify nearb
 queries. Queue63623/stuck28/missing0; short-edge correlation is not construction
 causality. Fixeddrift16unique global samples is not a whole-target norm.
 Detailed current outcome, data limits and next analysis are in the235outcome link.
+
+TERMINAL bounded diagnostic: existing build235
+current_compound, tool session17179, attempt
+R/cases/current_compound_20261107T052520_2804746. Source/fixtures/helpers/inputs
+were frozen; pins unchanged,135.958148s,40406assertions/1case, all handles absent.
+R/current_compound235_launch.json records terminal runner2804746/start7356012 and descendants.
+Existing query tracing enabled; traced wall time is not production timing evidence.
+Read-only support235_coverage_assessment.json finds five actual shape-bad,
+geometry-clean two-face cores excluded by current four-star preflight, all within
+existing64-cell limit; nine shape+geometry-bad two-face cores exist. This is an
+eligibility observation, NOT proof of useful repair. Seven prepared current
+contexts test all five excluded cores plus two geometry-bad controls using existing
+operators and complete original-neighbor measures. Preparation paired all1017408
+cached records; hashes unchanged. R/prepare_current235_witnesses.py and
+A235/current_witnesses_v1/witness_preparation.json retain provenance. Reconstructed
+associations are fresh, not historical private-query replay. All five excluded clean
+cores ALREADY have useful ORIGINAL-star controls, so do not broaden preflight merely
+from eligibility. Both geometry-bad controls refuse tested alternatives, often for
+increased excess. R/current235_residual_query_assessment.json is authoritative.
+Existing12query replay235session76832TERMINAL0,163assertions,pins unchanged, all sampled
+PIDs absent.1304distinct traced misses,918nearby same-support/two-fixed-vertex queries;
+none of six expensive nearby pairs passes the certificate motion-slack proof.
+No slack cache selected. Warm selected traversal296498/298329work; current237tests
+omitting a provably irrelevant signed lift solve, not new repair power.
 
 
 [Current connected design](Handbook/ADAPTATION_GEOMETRY_CONFORMING_REPAIR_20261107.md):

@@ -540,3 +540,14 @@ ownership filters. This is not proof of a missed useful repair. Use the actual
 exported state to identify shape-bad/geometry-clean two-face cores and compare
 existing complete-context candidates with original-star controls and support costs.
 Do not remove the filter, add operators or enlarge cavities without those checks.
+
+2026-11-07 terminal235bounded controls resolve the eligibility question above for
+the five available clean two-face cores: every core has a useful EXISTING original
+star (3/4,3/4,4/4,3/4,3/4), so no four-star filter broadening is selected. Two actual
+geometry-bad controls refuse all tested alternatives; shape improvement commonly
+increases certified geometry excess. Do not generalize this sample to all tails.
+R/current235_residual_query_assessment.json and the screening236handbook retain
+complete-context measures and limits. Motion-slack reuse remains deferred: none
+of six expensive actual nearby pairs has sufficient certificate margin.236coarse
+plane screening saved no counted work and was rejected/reverted.237is only the
+same lift path's redundant signed-solve elimination, not another repair strategy.
