@@ -6596,8 +6596,10 @@ TEST_CASE("P1 SST matched on moving meshes: free stream with a k jump, uniform k
       for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
         /*--- The k changes only the energy row, by the k row: R_E - R_k = Rhat_E, the other rows equal. ---*/
         for (unsigned short v = 0; v + 1 < nVar; ++v) worstHat = std::max(worstHat, fabs(R[iPoint][v] - Rh[iPoint][v]));
-        worstHat = std::max(worstHat, fabs(R[iPoint][nVar - 1] - Rk[iPoint] - Rh[iPoint][nVar - 1]));
-        for (unsigned short v = 0; v < nVar; ++v) scale = std::max(scale, fabs(Rh[iPoint][v]) + 1e-12);
+        /*--- (The k = 0 run has k_b = k_inf on far-field inflow, so its own k row is taken out as well.) ---*/
+        worstHat = std::max(worstHat, fabs(R[iPoint][nVar - 1] - Rk[iPoint] - (Rh[iPoint][nVar - 1] - Rkh[iPoint])));
+        for (unsigned short v = 0; v < nVar; ++v) scale = std::max(scale, fabs(Rh[iPoint][v]) + fabs(R[iPoint][v]));
+        scale = std::max(scale, fabs(Rk[iPoint]));
         /*--- Uniform k: R_k = k R_rho with every boundary and GCL term (far field: k = k_inf). ---*/
         worstUniform = std::max(worstUniform, fabs(Rku[iPoint] - kInf * Ru[iPoint][0]));
         /*--- Free stream: the coupled rows vanish (hat free stream, X = R_k). ---*/
@@ -6618,7 +6620,7 @@ TEST_CASE("P1 SST matched on moving meshes: free stream with a k jump, uniform k
           hatRate -= w[v] * (Rh[iPoint][v] - Uh[v] * G[iPoint]);
         }
         coupled -= w[nVar - 1] * ((R[iPoint][nVar - 1] - (Uh[nVar - 1] + rk) * G[iPoint]) - (Rk[iPoint] - rk * G[iPoint]));
-        hatRate -= w[nVar - 1] * (Rh[iPoint][nVar - 1] - Uh[nVar - 1] * G[iPoint]);
+        hatRate -= w[nVar - 1] * ((Rh[iPoint][nVar - 1] - Uh[nVar - 1] * G[iPoint]) - Rkh[iPoint]);
         for (unsigned short v = 0; v < nVar; ++v) mag += fabs(w[v] * Rh[iPoint][v]);
         mag += fabs(state[iPoint].rho * G[iPoint]);
       }
