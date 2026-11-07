@@ -19,8 +19,8 @@ A235=`R/m6_runs/euler_build235_geometry_coupled_real_cfd50k`.
 
 ## LIVE237 — full same-seed two-event M6, source FROZEN
 
-Production source checkpoint4d1e2ec5b0, pushed. Eighth-window/pin checkpoint9bac0048a1
-pushed; earlier ownershipaca4da405a/consolidation57913b8a53/entry179f299dfd.
+Production source checkpoint4d1e2ec5b0, pushed. Thirteenth-window/pin checkpoint
+0ebed14628 pushed; earlier mid-quality9bac0048a1/ownershipaca4da405a.
 Full tool session2688 is ACTIVE. Native5400/outer14400, unchanged gates/target/seed.
 R/m6_237_launch.json records helper2861865/start7510148, runner2861866/start7510152,
 qualification SHA/resources/scratch. A237/owned_startup.json records exact live tree:
@@ -64,12 +64,12 @@ Quality-entry native705.179721s (235969.422254s), round34594: COMPLETE census,
 IDENTICAL235. All1519source/runtime/input pins rechecked unchanged in
 A237/quality_entry_assessment.json. Source remains frozen.
 
-Thirteenth complete quality census35392/native2620.213300s:950314cells,49437q/48119J/
-1831geometry/0size. Cumulative net52621q/53741J/166g removed,29291commits. ALL100matching
-complete stage reports preserve235counts/flags and other compared work/cache vectors;
-only upper/traversal work differs. Quality-only traversal ratio.95120(-4.88%); observed
-cumulative netq27.48/s vs25.86/s over1915.03s vs2034.66s quality ages.
-All1519source/runtime/input pins rechecked unchanged at quality_window13_assessment.json.
+Twenty-first complete quality census35904; ownership committed/native3436.288397s:
+984321cells,26843q/23653J/1764geometry/0size. Cumulative net75215q/78207J/233g removed.
+ALL114matching complete stage reports preserve235counts/flags. Quality-only traversal
+ratio.95106(-4.89%). Geometry count rose1in window19, then fell; final gate stays strict.
+Native attempt remains live/frozen under unchanged5400budget. All1519source/runtime/
+input pins rechecked unchanged at quality_window21_assessment.json. No new heavy jobs.
 More than half initial q/J-bad counts removed is NOT workflow acceptance/completion.
 Full attempt remains live/frozen; no accepted mesh yet.
 These are descriptive timing measurements, not isolated causal proof. Churn includes
@@ -86,7 +86,7 @@ No acceptance, geometry-only closure, transfer, adapted CFD or disk restart yet.
 Resources at quality entry: summed tree RSS10.11GB (shared pages included, not physical
 peak),MemAvailable~27.5GiB. Subsequent observation~10.15GB/RAM~27.9GiB, all owned
 VmSwap0 and memory PSI avg10/60/300=0. Global swap use includes unrelated cold pages.
-A237/{quality_entry_owned_receipt,quality_entry_memory_receipt,quality_window13_owned_receipt}.json
+A237/{quality_entry_owned_receipt,quality_entry_memory_receipt,quality_window21_owned_receipt}.json
 and local owned_observations.jsonl retain receipts. Live tree~10.66GB, all owned VmSwap0,
 memory PSI averages zero,MemAvailable~27.2GiB,disk free~20.1GiB. Global swap usage includes
 unrelated pages. No demonstrated resource-stop condition.
