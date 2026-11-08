@@ -9,13 +9,34 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
+import zipfile
 
 from convert_hump import convert
+from fetch_hump import convert_archive
 from prepare import CASES, MODES, mesh_metadata, prepare, read_config
 
 
 class PreparationTest(unittest.TestCase):
     binary = None
+
+    def test_archive_pipeline(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            archive = root / "fixture.zip"
+            name = "hump2newtop_noplenumZ3x2.p2dfmt.gz"
+            grid = gzip.compress(b"1\n3 2\n-3 0.5 2 -3 0.5 2\n0 .1 0 1 1 1\n")
+            with zipfile.ZipFile(archive, "w") as bundle:
+                bundle.writestr("nested/" + name, grid)
+                bundle.writestr("../../not_a_mesh", "must not extract")
+            with patch("fetch_hump.LEVELS", ((3, 2),)):
+                records = convert_archive(archive, root)
+            self.assertEqual((records[0]["points"], records[0]["cells"], records[0]["jobs"]), (6, 2, 8))
+            self.assertEqual(records[0]["source_sha256"], hashlib.sha256(grid).hexdigest())
+            self.assertFalse((root / "not_a_mesh").exists())
+            with patch("fetch_hump.LEVELS", ((5, 3),)):
+                with self.assertRaises(ValueError):
+                    convert_archive(archive, root)
 
     def test_campaigns(self):
         with tempfile.TemporaryDirectory() as temporary:

@@ -113,6 +113,19 @@ python3 "$PAPER_CASES/convert_hump.py" \
   /path/to/hump2newtop_noplenumZ409x109.p2dfmt.gz /path/to/new/hump-409.su2
 ```
 
+To download the official archive and prepare all five levels in one operation:
+
+```bash
+python3 "$PAPER_CASES/fetch_hump.py" /path/inside/dedicated/SU2-study/new-hump-assets
+```
+
+This selects only the five named 2D no-plenum members, converts and checks each
+grid, and generates eight campaign configurations per level. It records archive,
+source and SU2 SHA256 hashes in `assets.json`, written only after all levels succeed.
+It refuses an existing destination and does not launch SU2. On CFDHub the output
+must be below the dedicated branch study in global scratch. The archive contains
+other formats; they are not extracted. Meshes and the archive stay outside Git.
+
 It rejects invalid cell orientation/nonconvex cells and records the source-file
 SHA256 in the mesh header. Boundary mapping: lower no-slip adiabatic `wall`,
 contoured slip `upper`, total-condition `inlet`, static-pressure `outlet`.
@@ -142,9 +155,12 @@ has only 43,008 elements and is expressly a setup mesh. Obtain/build a consisten
 three-level, wall-resolved family before drawing paper conclusions. No refined M6
 mesh is bundled or claimed to have been checked here.
 
-External benchmark meshes/data are **not downloaded by these scripts or bundled**.
-The NASA PLOT3D converter has been checked with synthetic fixtures; conversion of
-the actual NASA grids and geometric inspection remain pending.
+External benchmark meshes/data are **not bundled**. The NASA downloader/converter
+pipeline has passed a synthetic archive test, including nested member names and
+rejection of missing levels. The actual download attempt on 2026-11-08 failed with
+DNS resolution blocked by the session; escalated network execution was rejected
+by the permission policy. No NASA meshes have been downloaded or actually converted
+yet. Actual-grid conversion and geometric inspection remain pending.
 
 ### Existing mesh families inspected on 2026-11-08
 
