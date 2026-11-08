@@ -56,25 +56,31 @@ def convert_archive(archive, output):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output", type=Path, help="new asset directory; on CFDHub place under the dedicated SU2 study")
+    parser.add_argument("--archive", type=Path, help="use an existing NASA ZIP without downloading or copying it")
     args = parser.parse_args()
     try:
         args.output.mkdir(parents=True, exist_ok=False)
-        archive = args.output / "nasahump-grids.zip"
-        partial = args.output / "nasahump-grids.zip.partial"
+        archive = args.archive.resolve(strict=True) if args.archive else args.output / "nasahump-grids.zip"
         digest, size = hashlib.sha256(), 0
-        with urllib.request.urlopen(URL, timeout=60) as response, partial.open("xb") as target:
-            if response.status != 200:
-                raise ValueError(f"Unexpected download status: {response.status}")
-            while block := response.read(1024**2):
-                size += len(block)
-                if size > 2 * 1024**3:
-                    raise ValueError("Archive exceeds the 2 GiB download limit")
+        if not args.archive:
+            partial = args.output / "nasahump-grids.zip.partial"
+            with urllib.request.urlopen(URL, timeout=60) as response, partial.open("xb") as target:
+                if response.status != 200:
+                    raise ValueError(f"Unexpected download status: {response.status}")
+                while block := response.read(1024**2):
+                    size += len(block)
+                    if size > 2 * 1024**3:
+                        raise ValueError("Archive exceeds the 2 GiB download limit")
+                    target.write(block)
+            partial.rename(archive)
+        size = archive.stat().st_size
+        with archive.open("rb") as stream:
+            while block := stream.read(1024**2):
                 digest.update(block)
-                target.write(block)
-        partial.rename(archive)
         records = convert_archive(archive, args.output)
         (args.output / "assets.json").write_text(json.dumps({
             "url": URL, "archive_sha256": digest.hexdigest(), "archive_bytes": size,
+            "archive_source": str(archive.resolve()),
             "levels": records, "status": "converted_and_prepared_not_simulated",
         }, indent=2) + "\n")
         print(f"Converted {len(records)} NASA grids and prepared {8*len(records)} configurations. No solver launched.")

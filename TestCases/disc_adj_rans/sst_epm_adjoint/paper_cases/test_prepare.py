@@ -5,6 +5,7 @@ import argparse
 import gzip
 import hashlib
 import math
+import json
 from pathlib import Path
 import subprocess
 import tempfile
@@ -13,7 +14,7 @@ from unittest.mock import patch
 import zipfile
 
 from convert_hump import convert
-from fetch_hump import convert_archive
+from fetch_hump import convert_archive, main as fetch_main
 from prepare import CASES, MODES, mesh_metadata, prepare, read_config
 
 
@@ -37,6 +38,16 @@ class PreparationTest(unittest.TestCase):
             with patch("fetch_hump.LEVELS", ((5, 3),)):
                 with self.assertRaises(ValueError):
                     convert_archive(archive, root)
+            destination = root / "offline"
+            with patch("fetch_hump.LEVELS", ((3, 2),)), \
+                    patch("sys.argv", ["fetch_hump.py", str(destination), "--archive", str(archive)]), \
+                    patch("urllib.request.urlopen", side_effect=AssertionError("Offline mode used the network")):
+                fetch_main()
+            evidence = json.loads((destination / "assets.json").read_text())
+            self.assertEqual(evidence["archive_sha256"], hashlib.sha256(archive.read_bytes()).hexdigest())
+            self.assertEqual(evidence["archive_bytes"], archive.stat().st_size)
+            self.assertEqual(evidence["levels"][0]["jobs"], 8)
+            self.assertFalse((destination / archive.name).exists())
 
     def test_campaigns(self):
         with tempfile.TemporaryDirectory() as temporary:

@@ -119,6 +119,13 @@ To download the official archive and prepare all five levels in one operation:
 python3 "$PAPER_CASES/fetch_hump.py" /path/inside/dedicated/SU2-study/new-hump-assets
 ```
 
+Use a downloaded ZIP offline without duplicating the archive:
+
+```bash
+python3 "$PAPER_CASES/fetch_hump.py" build-epm-local/paper/nasa_hump_assets \
+  --archive /path/to/nasahump-grids.zip
+```
+
 This selects only the five named 2D no-plenum members, converts and checks each
 grid, and generates eight campaign configurations per level. It records archive,
 source and SU2 SHA256 hashes in `assets.json`, written only after all levels succeed.
@@ -155,12 +162,20 @@ has only 43,008 elements and is expressly a setup mesh. Obtain/build a consisten
 three-level, wall-resolved family before drawing paper conclusions. No refined M6
 mesh is bundled or claimed to have been checked here.
 
-External benchmark meshes/data are **not bundled**. The NASA downloader/converter
-pipeline has passed a synthetic archive test, including nested member names and
-rejection of missing levels. The actual download attempt on 2026-11-08 failed with
-DNS resolution blocked by the session; escalated network execution was rejected
-by the permission policy. No NASA meshes have been downloaded or actually converted
-yet. Actual-grid conversion and geometric inspection remain pending.
+External benchmark meshes/data are **not bundled in Git**. The user-supplied NASA
+archive has now been converted locally at
+`build-epm-local/paper/nasa_hump_assets/`. All five levels passed conversion and
+independent coordinate/topology checks; see [hump_mesh_validation.json](hump_mesh_validation.json).
+There are 40 complete configurations, eight in each `<level>/campaign/` directory.
+Each level also contains `mesh.su2` and its original compressed PLOT3D member.
+The asset root contains `assets.json` and `geometry_validation.json` with hashes
+and measured checks. The original ZIP is unchanged and was not copied.
+
+Source coordinates are preserved exactly as doubles. All quads are strictly convex
+with positive area; interior edges have two cells and exterior edges have exactly
+one declared boundary, without duplicates. All generated case mesh hashes match.
+This is file/geometry validation, not SU2 reader/runtime or physical validation.
+The current instruction is **local setup only: no CFD runs, transfers or jobs**.
 
 ### Existing mesh families inspected on 2026-11-08
 

@@ -1,0 +1,93 @@
+{
+  "archive_sha256": "59371f3fd81758459c54909b15091a029e6eadfb33e2c9952be314ced9690962",
+  "levels": [
+    {
+      "level": "103x28",
+      "points": 2884,
+      "cells": 2754,
+      "min_cell_area": 4.408543293928091e-07,
+      "max_cell_area": 0.3358966840448079,
+      "coordinate_max_abs_error": 0.0,
+      "interior_edges": 5379,
+      "boundary_edges": 258,
+      "topology": "passed",
+      "campaign_configs": 8,
+      "source_sha256": "d77fe802438b5a64b1db9bf1c698f318091f5a34817fb8df36f7b044c44d281d",
+      "su2_sha256": "1e0d9c286206a6439c343db98ec471319387576f236a7247e48094cf539440e0"
+    },
+    {
+      "level": "205x55",
+      "points": 11275,
+      "cells": 11016,
+      "min_cell_area": 1.084446857521626e-07,
+      "max_cell_area": 0.1016806492592277,
+      "coordinate_max_abs_error": 0.0,
+      "interior_edges": 21774,
+      "boundary_edges": 516,
+      "topology": "passed",
+      "campaign_configs": 8,
+      "source_sha256": "25f20c24451ebe62b2cb9447b428be48e27c1d725fb2fc1b6cd511e347737ce0",
+      "su2_sha256": "4315c57228347407f2067b84cfeaa14cfbb0ccffa27141310fed668d491f63c8"
+    },
+    {
+      "level": "409x109",
+      "points": 44581,
+      "cells": 44064,
+      "min_cell_area": 2.6996286817126958e-08,
+      "max_cell_area": 0.02818261837798186,
+      "coordinate_max_abs_error": 0.0,
+      "interior_edges": 87612,
+      "boundary_edges": 1032,
+      "topology": "passed",
+      "campaign_configs": 8,
+      "source_sha256": "f33fcdba13f7e5add6a65ef49b88b4b24658c267947f814b7a636ebedf2d7deb",
+      "su2_sha256": "d39c9e1ff15312ee613883e000c756341cc94d880c29fe40d86e9217823c06b3"
+    },
+    {
+      "level": "817x217",
+      "points": 177289,
+      "cells": 176256,
+      "min_cell_area": 6.741981355140592e-09,
+      "max_cell_area": 0.007434564788779241,
+      "coordinate_max_abs_error": 0.0,
+      "interior_edges": 351480,
+      "boundary_edges": 2064,
+      "topology": "passed",
+      "campaign_configs": 8,
+      "source_sha256": "70691a6f6bdd42240e7094672ae147119f5f52974945ff369b9b390c55b06ead",
+      "su2_sha256": "7f0c1d505b944f40ecda0f6c70dfe13a09019bab5c03973b0514db24b0a58d40"
+    },
+    {
+      "level": "1633x433",
+      "points": 707089,
+      "cells": 705024,
+      "min_cell_area": 1.685035534715329e-09,
+      "max_cell_area": 0.0019103536489994966,
+      "coordinate_max_abs_error": 0.0,
+      "interior_edges": 1407984,
+      "boundary_edges": 4128,
+      "topology": "passed",
+      "campaign_configs": 8,
+      "source_sha256": "7b16ed59f4aeefc1653bc7616776a69d2d51dd5293e759c30ab3300c2edecc5c",
+      "su2_sha256": "0c4bc49ef26ac52fd7a2c3028ceeefda102f64d23e5297f6c44b4ed545ddfe0a"
+    }
+  ],
+  "solver_run": false,
+  "archive_url": "https://www.nasa.gov/wp-content/uploads/2026/02/nasahump-grids.zip",
+  "archive_bytes": 115880295,
+  "checks": [
+    "coordinates exactly equal to source doubles",
+    "strictly convex positive-area cells",
+    "valid distinct vertex indices",
+    "each interior edge has two cells",
+    "each exterior edge has exactly one declared boundary",
+    "no duplicate boundary edges",
+    "Euler characteristic 1",
+    "all campaign mesh hashes match converted mesh"
+  ],
+  "limits": [
+    "No SU2 executable or CFD run",
+    "No physical convergence or y+ validation",
+    "No cluster transfer or job submission"
+  ]
+}
