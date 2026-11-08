@@ -111,6 +111,13 @@ class CEulerVariable : public CFlowVariable {
    * CEulerSolver::JSTEntropyResidual. ---*/
   mutable su2activematrix JSTEdgeCoeff;
 
+  /*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD (declared last, the offsets of the members above are unchanged): the
+   * characteristic ingredients of each edge, written by the ingredients pass of the extended kernel (local orientation,
+   * see tecnoAdjointTVDIngredients), and the per-edge-end limiter values Phi (iEdge, 8: M, 0, S, P of node 0, then of
+   * node 1), set by CEulerSolver::TeCNOAdjointTVDLimiter and read by the edge kernel and FIRST_RING_JUMPS. ---*/
+  mutable su2activematrix TeCNOAdjEdgeTVD;
+  su2activematrix TeCNOAdjEdgePhi;
+
   /*!
    * \brief Constructor of the class.
    * \param[in] density - Value of the flow density (initialization value).

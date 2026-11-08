@@ -3833,6 +3833,581 @@ TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_VA: phi = 1 for linear data and z
   CHECK(worstRatio < 1e-3);
 }
 
+/*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD (ROE_TECNO_PLAN.md 6.6, P1_TECNO_ADJ_LIMITER.md fourth candidate + freeze):
+ * the solver passes against an independent reference, the frozen-field box of the final values, Theorem A1 with the
+ * stored Phi, own clip = 1 on linear data, uniform states and D = 0, the freeze rule, numbering invariance, the shear
+ * block under rotation, the noise threshold, FIRST_RING_JUMPS with the stored Phi, and MPI (rho and Phi by global
+ * index written for 1/2/4 ranks, compared by the check job). ---*/
+namespace {
+
+namespace tac = TeCNOAdjointChecks;
+
+/*--- Nodal states as a function of the coordinates (a smoothed oblique shock with shear and a vortex-like swirl). ---*/
+template <class Geometry>
+tac::States CoordinateStates(const Geometry& geometry, unsigned short nDim) {
+  tac::States S;
+  const auto nPoint = geometry.GetnPoint();
+  S.rho.resize(nPoint);
+  S.p.resize(nPoint);
+  S.u.resize(nPoint);
+  for (auto i = 0ul; i < nPoint; ++i) {
+    const auto* x = geometry.nodes->GetCoord(i);
+    const double z = (nDim == 3) ? x[2] : 0.0;
+    const double xi = (x[0] + 0.4 * x[1] - 0.25 * z - 0.55) / 0.07;
+    const double step = tanh(xi);
+    S.rho[i] = 1.0 + 0.35 * step + 0.04 * sin(9.0 * x[1] + 3.0 * z);
+    S.p[i] = (1.0 + 0.6 * step) * (1.0 + 0.03 * cos(7.0 * x[0]));
+    S.u[i] = {0.9 - 0.3 * step + 0.1 * sin(5.0 * x[1]), 0.2 * step + 0.15 * cos(6.0 * x[0] + z), 0.0};
+    if (nDim == 3) S.u[i][2] = 0.1 * sin(4.0 * x[0] - 3.0 * x[1]) - 0.05 * step;
+  }
+  return S;
+}
+
+/*--- The same mesh file with the point numbers permuted (elements and markers renumbered). ---*/
+void PermuteSimplexMesh(const std::string& in, const std::string& out, unsigned seed) {
+  if (SU2_MPI::GetRank() != MASTER_NODE) return;
+  std::ifstream f(in);
+  std::vector<std::string> lines;
+  for (std::string line; std::getline(f, line);) lines.push_back(line);
+  unsigned long nPoint = 0;
+  size_t pointStart = 0;
+  for (size_t l = 0; l < lines.size(); ++l) {
+    if (lines[l].rfind("NPOIN=", 0) == 0) {
+      nPoint = std::stoul(lines[l].substr(6));
+      pointStart = l + 1;
+    }
+  }
+  std::vector<unsigned long> perm(nPoint);
+  for (auto i = 0ul; i < nPoint; ++i) perm[i] = i;
+  std::mt19937 gen(seed);
+  std::shuffle(perm.begin(), perm.end(), gen);
+  auto renumber = [&](const std::string& line) {
+    std::istringstream is(line);
+    std::ostringstream os;
+    int type;
+    is >> type;
+    os << type;
+    for (unsigned long node; is >> node;) os << " " << perm[node];
+    return os.str();
+  };
+  std::ofstream o(out);
+  o.precision(17);
+  enum { HEADER, ELEMS, MARKS } mode = HEADER;
+  std::vector<std::string> points(nPoint);
+  for (auto i = 0ul; i < nPoint; ++i) points[perm[i]] = lines[pointStart + i];
+  for (size_t l = 0; l < lines.size(); ++l) {
+    const auto& line = lines[l];
+    if (line.rfind("NELEM=", 0) == 0) { mode = ELEMS; o << line << "\n"; continue; }
+    if (line.rfind("NPOIN=", 0) == 0) {
+      o << line << "\n";
+      for (const auto& pt : points) o << pt << "\n";
+      l += nPoint;
+      mode = HEADER;
+      continue;
+    }
+    if (line.rfind("NMARK=", 0) == 0) { mode = MARKS; o << line << "\n"; continue; }
+    if ((line.rfind("MARKER_", 0) == 0) || (line.rfind("NDIME=", 0) == 0) || (mode == HEADER)) { o << line << "\n"; continue; }
+    o << renumber(line) << "\n";
+  }
+}
+
+/*--- Run the passes on a serial geometry: GG (median or moved dual) or the P1 average. ---*/
+template <size_t nDim, class Geometry>
+tac::TVDData RunTVD(const Geometry& geometry, const tac::States& S, bool projected, const tac::P1Average* p1,
+                    const su2activematrix* wOverride = nullptr) {
+  tac::TVDData d;
+  const auto es = tac::TVDEdgeStates<nDim>(geometry, S, projected);
+  const auto w = wOverride ? *wOverride : tac::EntropyField(S, nDim);
+  const auto grad = tac::TVDGradientOf<nDim>(geometry, w, p1);
+  d.ing = tac::TVDIngredientsOf<nDim>(geometry, w, grad, es);
+  auto noHalo = [](su2activematrix&) {};
+  if (p1) {
+    tac::TVDPasses(geometry, nDim, p1->weights, p1->volume, d, noHalo);
+  } else {
+    auto volume = [&](unsigned long i) { return geometry.nodes->GetVolume(i); };
+    tac::TVDPasses(geometry, nDim, TeCNOAdjoint::GreenGaussWeights<Geometry>{geometry, nDim}, volume, d, noHalo);
+  }
+  return d;
+}
+
+template <size_t nDim>
+void EdgeEntropyTVDCase() {
+  constexpr size_t nVar = nDim + 2;
+  for (const bool moved : {false, true}) {
+    for (const bool p1Average : {false, true}) {
+      const std::string mesh = "tecno_tvd_" + std::to_string(nDim) + "d.su2";
+      WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 7 : 3, 0.4, 0.3, (nDim == 2) ? BendMesh2D : BendMesh3D);
+      MeshCase test(mesh, moved ? P1AverageMoved : "");
+      auto& geometry = *test.geometry;
+      const tac::P1Average p1(geometry);
+      const tac::P1Average* p1p = p1Average ? &p1 : nullptr;
+      const auto nPoint = geometry.GetnPoint();
+      auto volumeV = [&](unsigned long i) { return geometry.nodes->GetVolume(i); };
+      double refDiff = 0.0, box = 0.0, identity = 0.0, production = -1e300, conservation = 0.0, phiMin = 1e300,
+             phiMax = -1e300, activity = 0.0;
+      std::mt19937 gen(71);
+      for (int t = 0; t < 8; ++t) {
+        const auto S = (t < 2) ? CoordinateStates(geometry, nDim) : tac::RandomStates(nPoint, nDim, gen, (t % 2) ? 0.3 : 1.0);
+        const bool projected = (t % 2);
+        const auto d = RunTVD<nDim>(geometry, S, projected, p1p);
+        double act = 0.0;
+        const auto ref = p1p ? tac::TVDReference(geometry, nDim, d.ing, p1.weights, p1.volume, &act)
+                             : tac::TVDReference(geometry, nDim, d.ing, TeCNOAdjoint::GreenGaussWeights<CGeometry>{geometry, nDim},
+                                                 volumeV, &act);
+        activity = std::max(activity, act);
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+          for (int c = 0; c < 8; ++c) {
+            refDiff = std::max(refDiff, double(fabs(d.phi(e, c) - ref(e, c))));
+            phiMin = std::min(phiMin, double(d.phi(e, c)));
+            phiMax = std::max(phiMax, double(d.phi(e, c)));
+          }
+        }
+        box = std::max(box, p1p ? tac::TVDBoxViolation(geometry, nDim, d.ing, d.phi, p1.weights, p1.volume)
+                                : tac::TVDBoxViolation(geometry, nDim, d.ing, d.phi,
+                                                       TeCNOAdjoint::GreenGaussWeights<CGeometry>{geometry, nDim}, volumeV));
+        /*--- Theorem A1 with the stored Phi, L^T D L from the ingredient coefficients D. ---*/
+        const auto es = tac::TVDEdgeStates<nDim>(geometry, S, projected);
+        const auto w = tac::EntropyField(S, nDim);
+        const double ramp = (t % 3 == 0) ? 0.6 : 1.0;
+        double sumLDL = 0.0;
+        const auto R = tac::TVDResidual<nDim>(geometry, es, d.phi, w, ramp, p1p, &d.ing, sumLDL);
+        double wR = 0.0, absWR = 0.0, maxR = 0.0, cons[nVar] = {0.0};
+        for (auto i = 0ul; i < nPoint; ++i) {
+          for (size_t v = 0; v < nVar; ++v) {
+            wR += w(i, v) * R(i, v);
+            absWR += fabs(w(i, v) * R(i, v));
+            maxR = std::max(maxR, double(fabs(R(i, v))));
+            cons[v] += R(i, v);
+          }
+        }
+        identity = std::max(identity, fabs(wR - sumLDL) / absWR);
+        production = std::max(production, -sumLDL / absWR);
+        for (size_t v = 0; v < nVar; ++v) conservation = std::max(conservation, fabs(cons[v]) / maxR);
+      }
+      INFO("nDim " << nDim << " moved " << moved << " P1 average " << p1Average << ": |Phi - Phi_ref| " << refDiff
+                   << ", box " << box << ", A1 identity " << identity << ", production " << production
+                   << ", conservation " << conservation << ", Phi in [" << phiMin << ", " << phiMax
+                   << "], largest activity " << activity);
+      CHECK(refDiff < 1e-10);
+      CHECK(box < 1e-12);
+      CHECK(identity < 1e-12);
+      CHECK(production < 0.0);
+      CHECK(conservation < 1e-12);
+      CHECK(phiMin >= 0.0);
+      CHECK(phiMax <= 1.0);
+      CHECK(phiMin < 0.5);  /*--- The shock-like states activate the limiter. ---*/
+      if (SU2_MPI::GetRank() == MASTER_NODE) WARN("EDGE_ENTROPY_TVD nDim " << nDim << " moved " << moved << " P1 "
+                                                  << p1Average << ": largest fraction of limited edge-end fields " << activity);
+
+      /*--- Linear w (P1 average, linear exact at every node): the own clip is 1 wherever the jump is above roundoff;
+       * the node factor activity is reported (the envelope may exceed the box on linear data, model 4). ---*/
+      if (p1Average) {
+        su2activematrix wLin(nPoint, nVar);
+        const double coef[5][3] = {{0.7, -0.4, 0.3}, {0.2, 0.9, -0.5}, {-0.6, 0.3, 0.8}, {0.4, 0.5, -0.7}, {-0.3, -0.8, 0.6}};
+        for (auto i = 0ul; i < nPoint; ++i) {
+          for (size_t v = 0; v < nVar; ++v) {
+            wLin(i, v) = 0.5 * (v + 1);
+            for (size_t dd = 0; dd < nDim; ++dd) wLin(i, v) += coef[v][dd] * geometry.nodes->GetCoord(i)[dd];
+          }
+        }
+        const auto S = CoordinateStates(geometry, nDim);
+        const auto d = RunTVD<nDim>(geometry, S, false, p1p, &wLin);
+        double worstOwn = 0.0;
+        unsigned long limited = 0;
+        const auto ed = tac::TVDRefEdges(geometry, nDim, d.ing);
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+          for (int f = 0; f < 4; ++f) {
+            if (!(fabs(ed[e].dy[f]) > 1e3 * ed[e].d[f])) continue;
+            for (int x = 0; x < 2; ++x) worstOwn = std::max(worstOwn, double(fabs(d.clip(e, TeCNOAdjoint::TVD_CLIP_P1 + 4 * x + f) - 1.0)));
+          }
+          for (int c = 0; c < 8; ++c) limited += (d.phi(e, c) < 1.0 - 1e-12);
+        }
+        INFO("nDim " << nDim << " moved " << moved << ": linear w, |P1 - 1| " << worstOwn << ", limited fraction "
+                     << double(limited) / (8.0 * geometry.GetnEdge()));
+        CHECK(worstOwn < 1e-12);
+      }
+
+      /*--- Uniform state: Phi = 1 exactly; D_M = 0 on every edge: rho_M = 1. ---*/
+      {
+        tac::States U;
+        U.rho.assign(nPoint, 1.3);
+        U.p.assign(nPoint, 0.9);
+        U.u.assign(nPoint, {0.4, -0.2, (nDim == 3) ? 0.1 : 0.0});
+        const auto d = RunTVD<nDim>(geometry, U, false, p1p);
+        double dev = 0.0;
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+          for (int c = 0; c < 8; ++c) dev = std::max(dev, double(fabs(d.phi(e, c) - 1.0)));
+        CHECK(dev == 0.0);
+
+        const auto Sx = CoordinateStates(geometry, nDim);
+        auto dz = RunTVD<nDim>(geometry, Sx, false, p1p);
+        /*--- Both acoustic columns (canonical M is the local P of a flipped edge). ---*/
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+          dz.ing(e, TeCNOAdjoint::TVD_D + 0) = 0.0;
+          dz.ing(e, TeCNOAdjoint::TVD_D + 2) = 0.0;
+        }
+        auto noHalo = [](su2activematrix&) {};
+        if (p1p) {
+          tac::TVDPasses(geometry, nDim, p1.weights, p1.volume, dz, noHalo);
+        } else {
+          tac::TVDPasses(geometry, nDim, TeCNOAdjoint::GreenGaussWeights<CGeometry>{geometry, nDim}, volumeV, dz, noHalo);
+        }
+        double devM = 0.0;
+        for (auto i = 0ul; i < nPoint; ++i) devM = std::max(devM, double(fabs(dz.rho(i, 0) - 1.0) + fabs(dz.rho(i, 3) - 1.0)));
+        CHECK(devM == 0.0);
+      }
+    }
+  }
+}
+
+template <size_t nDim>
+void EdgeEntropyTVDInvarianceCase() {
+  constexpr size_t nVar = nDim + 2;
+  /*--- Numbering: the same lattice mesh (ties of the leading coordinates) with permuted point numbers gives the same
+   * canonical Phi on every edge, keyed by the coordinates of the canonical ends. ---*/
+  for (const bool p1Average : {false, true}) {
+    const std::string mesh = "tecno_tvd_num_" + std::to_string(nDim) + "d.su2";
+    const std::string meshPerm = "tecno_tvd_perm_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 6 : 3, 0.3, 0.5);
+    PermuteSimplexMesh(mesh, meshPerm, 5);
+    std::map<std::vector<double>, std::array<double, 8>> values[2];
+    for (int m = 0; m < 2; ++m) {
+      MeshCase test(m ? meshPerm : mesh, "");
+      auto& geometry = *test.geometry;
+      const tac::P1Average p1(geometry);
+      const auto S = CoordinateStates(geometry, nDim);
+      const auto d = RunTVD<nDim>(geometry, S, true, p1Average ? &p1 : nullptr);
+      const auto ed = tac::TVDRefEdges(geometry, nDim, d.ing);
+      for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+        std::vector<double> key;
+        for (int x = 0; x < 2; ++x)
+          for (size_t dd = 0; dd < nDim; ++dd) key.push_back(geometry.nodes->GetCoord(ed[e].n[x])[dd]);
+        std::array<double, 8> v;
+        for (int x = 0; x < 2; ++x) {
+          for (int f = 0; f < 4; ++f) {
+            const int y = ed[e].flip ? 1 - x : x;
+            const int fl = ed[e].flip ? ((f == 0) ? 3 : ((f == 3) ? 0 : f)) : f;
+            v[4 * x + f] = d.phi(e, 4 * y + fl);
+          }
+        }
+        values[m][key] = v;
+      }
+    }
+    double worst = 0.0;
+    size_t matched = 0;
+    for (const auto& kv : values[0]) {
+      const auto it = values[1].find(kv.first);
+      if (it == values[1].end()) continue;
+      ++matched;
+      for (int c = 0; c < 8; ++c) worst = std::max(worst, fabs(kv.second[c] - it->second[c]));
+    }
+    INFO("nDim " << nDim << " P1 " << p1Average << ": renumbered mesh, " << matched << " of " << values[0].size()
+                 << " edges matched, max |dPhi| " << worst);
+    CHECK(matched == values[0].size());
+    CHECK(worst < 1e-10);
+  }
+
+  /*--- Shear block under rotation, and the scalar ingredients, D and the guards (rotation invariant). ---*/
+  std::mt19937 gen(83);
+  std::uniform_real_distribution<double> r(-1.0, 1.0);
+  double Qr[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+  if (nDim == 2) {
+    Qr[0][0] = cos(0.9); Qr[0][1] = -sin(0.9); Qr[1][0] = sin(0.9); Qr[1][1] = cos(0.9);
+  } else {
+    const double ax[3] = {2.0 / sqrt(29.0), -3.0 / sqrt(29.0), 4.0 / sqrt(29.0)}, c = cos(0.9), sn = sin(0.9);
+    for (int a = 0; a < 3; ++a)
+      for (int b = 0; b < 3; ++b) Qr[a][b] = c * (a == b) + (1.0 - c) * ax[a] * ax[b];
+    Qr[0][1] -= sn * ax[2]; Qr[1][0] += sn * ax[2];
+    Qr[0][2] += sn * ax[1]; Qr[2][0] -= sn * ax[1];
+    Qr[1][2] -= sn * ax[0]; Qr[2][1] += sn * ax[0];
+  }
+  auto rotate = [&](const double* x, double* y) {
+    for (size_t a = 0; a < nDim; ++a) {
+      y[a] = 0.0;
+      for (size_t b = 0; b < nDim; ++b) y[a] += Qr[a][b] * x[b];
+    }
+  };
+  double worst = 0.0;
+  for (int t = 0; t < 50; ++t) {
+    double u[2][3] = {{0.0}}, ur[2][3] = {{0.0}}, n[3] = {0.0}, nr[3] = {0.0}, norm = 0.0;
+    for (size_t dd = 0; dd < nDim; ++dd) {
+      u[0][dd] = 0.6 * r(gen);
+      u[1][dd] = 0.6 * r(gen);
+      n[dd] = r(gen);
+      norm += n[dd] * n[dd];
+    }
+    for (size_t dd = 0; dd < nDim; ++dd) n[dd] /= sqrt(norm);
+    rotate(u[0], ur[0]);
+    rotate(u[1], ur[1]);
+    rotate(n, nr);
+    const double rho[2] = {exp(r(gen)), exp(r(gen))}, p[2] = {exp(r(gen)), exp(r(gen))};
+    VectorDbl<nVar> vec[2][3];
+    for (int a = 0; a < 3; ++a)
+      for (size_t v = 0; v < nVar; ++v) vec[0][a](v) = r(gen);
+    for (int a = 0; a < 3; ++a) {
+      vec[1][a] = vec[0][a];
+      double m[3] = {0.0}, mr[3] = {0.0};
+      for (size_t dd = 0; dd < nDim; ++dd) m[dd] = vec[0][a](dd + 1)[0];
+      rotate(m, mr);
+      for (size_t dd = 0; dd < nDim; ++dd) vec[1][a](dd + 1) = mr[dd];
+    }
+    Double out[2][TeCNOAdjoint::TVD_SHEAR + 9];
+    for (int side = 0; side < 2; ++side) {
+      CPair<CCompressiblePrimitives<nDim, nDim + 4>> V;
+      V.i = tac::Primitives<nDim>(rho[0], side ? ur[0] : u[0], p[0]);
+      V.j = tac::Primitives<nDim>(rho[1], side ? ur[1] : u[1], p[1]);
+      VectorDbl<nDim> unit;
+      for (size_t dd = 0; dd < nDim; ++dd) unit(dd) = side ? nr[dd] : n[dd];
+      const auto avg = roeAveragedVariables(Double(tac::GAMMA), V, unit);
+      tecnoAdjointTVDIngredients(Double(tac::GAMMA), avg, unit, Double(1.1), Double(0.7), Double(1.9), Double(0.5),
+                                 vec[side][0], vec[side][1], vec[side][2], V.i, V.j, out[side]);
+    }
+    /*--- Columns 0..14 invariant; the shear vectors rotate (norms and mutual products invariant). ---*/
+    for (unsigned short c = 0; c < TeCNOAdjoint::TVD_SHEAR; ++c)
+      worst = std::max(worst, double(fabs(out[1][c][0] - out[0][c][0])) / (1.0 + fabs(out[0][c][0])));
+    for (int a = 0; a < 3; ++a) {
+      for (int b = 0; b < 3; ++b) {
+        double dot0 = 0.0, dot1 = 0.0;
+        for (size_t dd = 0; dd < nDim; ++dd) {
+          dot0 += out[0][TeCNOAdjoint::TVD_SHEAR + a * nDim + dd][0] * out[0][TeCNOAdjoint::TVD_SHEAR + b * nDim + dd][0];
+          dot1 += out[1][TeCNOAdjoint::TVD_SHEAR + a * nDim + dd][0] * out[1][TeCNOAdjoint::TVD_SHEAR + b * nDim + dd][0];
+        }
+        worst = std::max(worst, fabs(dot1 - dot0) / (1.0 + fabs(dot0)));
+      }
+    }
+  }
+  INFO("nDim " << nDim << ": rotation of the ingredients, worst relative deviation " << worst);
+  CHECK(worst < 1e-12);
+
+  /*--- tecnoAdjointEdgePhi with Phi = 1: q_i = q_k = q = tecnoDissipation(L), L = dw - 1/2 ramp (p_i + p_k). ---*/
+  {
+    double worstOnes = 0.0;
+    for (int t = 0; t < 50; ++t) {
+      double ui[3] = {0.0}, uk[3] = {0.0}, n[3] = {0.0}, norm = 0.0;
+      for (size_t dd = 0; dd < nDim; ++dd) {
+        ui[dd] = 0.5 * r(gen);
+        uk[dd] = 0.5 * r(gen);
+        n[dd] = r(gen);
+        norm += n[dd] * n[dd];
+      }
+      CPair<CCompressiblePrimitives<nDim, nDim + 4>> V;
+      V.i = tac::Primitives<nDim>(exp(r(gen)), ui, exp(r(gen)));
+      V.j = tac::Primitives<nDim>(exp(r(gen)), uk, exp(r(gen)));
+      VectorDbl<nDim> unit;
+      for (size_t dd = 0; dd < nDim; ++dd) unit(dd) = n[dd] / sqrt(norm);
+      const auto avg = roeAveragedVariables(Double(tac::GAMMA), V, unit);
+      VectorDbl<nVar> dw, pi, pk, L, q, qi, qk;
+      const double ramp = (t % 2) ? 1.0 : 0.6;
+      for (size_t v = 0; v < nVar; ++v) {
+        dw(v) = r(gen);
+        pi(v) = r(gen);
+        pk(v) = r(gen);
+        L(v) = dw(v) - 0.5 * ramp * (pi(v) + pk(v));
+      }
+      Double ones[8];
+      for (int c = 0; c < 8; ++c) ones[c] = 1.0;
+      tecnoAdjointEdgePhi(Double(tac::GAMMA), avg, unit, Double(1.1), Double(0.7), Double(1.9), Double(0.5), dw, pi, pk,
+                          ramp, 0.0, ones, q, qi, qk);
+      const auto ref = tecnoDissipation(Double(tac::GAMMA), avg, unit, Double(1.1), Double(0.7), Double(1.9), Double(0.5), L);
+      double refMax = 1e-300;
+      for (size_t v = 0; v < nVar; ++v) refMax = std::max(refMax, double(fabs(ref(v)[0])));
+      for (size_t v = 0; v < nVar; ++v) {
+        worstOnes = std::max(worstOnes, double(fabs(q(v)[0] - ref(v)[0])) / refMax);
+        worstOnes = std::max(worstOnes, double(fabs(qi(v)[0] - q(v)[0]) + fabs(qk(v)[0] - q(v)[0])) / refMax);
+      }
+    }
+    INFO("nDim " << nDim << ": Phi = 1, |q - D L|, |q_a - q| " << worstOnes);
+    CHECK(worstOnes < 1e-12);
+  }
+
+  /*--- Noise threshold of the shear block: |dy_S| just below / above (nDim + 2) d_S. ---*/
+  {
+    const std::string mesh = "tecno_tvd_noise_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, 2, 0.2, 1.0);
+    MeshCase test(mesh, "");
+    auto& geometry = *test.geometry;
+    const auto S = CoordinateStates(geometry, nDim);
+    auto d = RunTVD<nDim>(geometry, S, false, nullptr);
+    bool ok = true;
+    for (const double factor : {1.0 - 1e-6, 1.0 + 1e-6}) {
+      const double dS = d.ing(0, TeCNOAdjoint::TVD_GUARD + 1);
+      double n2 = 0.0;
+      for (size_t dd = 0; dd < nDim; ++dd) n2 += pow(d.ing(0, TeCNOAdjoint::TVD_SHEAR + dd), 2);
+      if (!(n2 > 0.0)) {
+        d.ing(0, TeCNOAdjoint::TVD_SHEAR) = 1.0;
+        n2 = 1.0;
+      }
+      const double scale = factor * (nDim + 2) * dS / sqrt(n2);
+      for (size_t dd = 0; dd < nDim; ++dd) d.ing(0, TeCNOAdjoint::TVD_SHEAR + dd) *= scale;
+      su2activematrix clip(geometry.GetnEdge(), TeCNOAdjoint::TVD_CLIP_WIDTH);
+      TeCNOAdjoint::TVDEdgeClip(geometry, nDim, d.ing, clip);
+      const bool noise = (clip(0, TeCNOAdjoint::TVD_CLIP_NOISE) != 0.0);
+      ok = ok && (noise == (factor < 1.0));
+      if (noise) ok = ok && (clip(0, TeCNOAdjoint::TVD_CLIP_B + 2) == 0.0);
+    }
+    CHECK(ok);
+  }
+}
+
+template <size_t nDim>
+void EdgeEntropyTVDJumpsCase() {
+  for (const bool p1Average : {false, true}) {
+    const std::string mesh = "tecno_tvd_jumps_" + std::to_string(nDim) + "d.su2";
+    WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 4 : 2, 0.4, 0.3, (nDim == 2) ? BendMesh2D : BendMesh3D);
+    MeshCase test(mesh, P1AverageMoved);
+    auto& geometry = *test.geometry;
+    const tac::P1Average p1(geometry);
+    const tac::P1Average* p1p = p1Average ? &p1 : nullptr;
+    std::mt19937 gen(19);
+    std::uniform_real_distribution<double> r01(0.0, 1.0);
+    tac::TVDJumpsResult worst;
+    for (int t = 0; t < 6; ++t) {
+      const auto S = (t == 0) ? CoordinateStates(geometry, nDim) : tac::RandomStates(geometry.GetnPoint(), nDim, gen, 1.0);
+      const bool projected = (t % 2);
+      const double ramp = (t == 5) ? 0.4 : 1.0;
+      su2activematrix phi;
+      if (t < 2) {
+        phi = RunTVD<nDim>(geometry, S, projected, p1p).phi;  /*--- limiter values ---*/
+      } else {
+        /*--- Prescribed heterogeneous values: random per field in [0, 1], unequal M and P, some ends zero. ---*/
+        phi.resize(geometry.GetnEdge(), 8);
+        for (auto e = 0ul; e < geometry.GetnEdge(); ++e)
+          for (int c = 0; c < 8; ++c) phi(e, c) = ((e + c) % 7 == 0) ? 0.0 : r01(gen);
+        for (auto e = 0ul; e < geometry.GetnEdge(); e += 5)
+          for (int c = 0; c < 4; ++c) phi(e, c) = 0.0;
+      }
+      const auto es = tac::TVDEdgeStates<nDim>(geometry, S, projected);
+      const auto res = tac::TVDJumpsCheck<nDim>(geometry, es, phi, ramp, p1p);
+      worst.jumps = std::max(worst.jumps, res.jumps);
+      worst.rowSum = std::max(worst.rowSum, res.rowSum);
+      worst.asym = std::max(worst.asym, res.asym);
+      worst.ones = std::max(worst.ones, res.ones);
+      worst.finite = worst.finite && res.finite;
+    }
+    INFO("nDim " << nDim << " P1 " << p1Average << ": lambda_min(J - K) " << -worst.jumps << ", row sums " << worst.rowSum
+                 << ", asymmetry " << worst.asym << ", Phi = 1 vs JumpEdge " << worst.ones);
+    CHECK(worst.finite);
+    CHECK(worst.jumps < 1e-12);
+    CHECK(worst.rowSum < 1e-12);
+    CHECK(worst.asym < 1e-12);
+    CHECK(worst.ones < 1e-14);
+  }
+}
+
+/*--- MPI: rho of the owned nodes and Phi of the edges of owned nodes by global index, the halo gradients and the halo
+ * rho from an Allgatherv by global index; cut edges computed on both ranks must agree. Written to
+ * tecno_tvd_mpi_<n>d_np<size>.dat (master), compared across 1/2/4 ranks by the check job. ---*/
+template <size_t nDim>
+void EdgeEntropyTVDMPICase() {
+  constexpr size_t nVar = nDim + 2;
+  const std::string mesh = "tecno_tvd_mpi_" + std::to_string(nDim) + "d.su2";
+  WriteSimplexMesh(mesh, nDim, (nDim == 2) ? 12 : 4, 0.4, 0.3, (nDim == 2) ? BendMesh2D : BendMesh3D);
+  MeshCase test(mesh, P1AverageMoved);
+  auto& geometry = *test.geometry;
+  const tac::P1Average p1(geometry);
+  const auto S = CoordinateStates(geometry, nDim);
+  const auto w = tac::EntropyField(S, nDim);
+  auto grad = tac::TVDGradientOf<nDim>(geometry, w, &p1);
+  su2activematrix flat(geometry.GetnPoint(), nVar * nDim);
+  for (auto i = 0ul; i < geometry.GetnPoint(); ++i)
+    for (size_t v = 0; v < nVar; ++v)
+      for (size_t dd = 0; dd < nDim; ++dd) flat(i, v * nDim + dd) = grad(i, v, dd);
+  tac::TVDHaloCopy(geometry, flat);
+  for (auto i = 0ul; i < geometry.GetnPoint(); ++i)
+    for (size_t v = 0; v < nVar; ++v)
+      for (size_t dd = 0; dd < nDim; ++dd) grad(i, v, dd) = flat(i, v * nDim + dd);
+  tac::TVDData d;
+  const auto es = tac::TVDEdgeStates<nDim>(geometry, S, false);
+  d.ing = tac::TVDIngredientsOf<nDim>(geometry, w, grad, es);
+  tac::TVDPasses(geometry, nDim, p1.weights, p1.volume, d, [&](su2activematrix& rho) { tac::TVDHaloCopy(geometry, rho); });
+
+  /*--- Rows: node (kind 0, global index, 4 rho) and edge (kind 1, canonical global ends, 8 canonical Phi). ---*/
+  std::vector<double> rows;
+  for (auto i = 0ul; i < geometry.GetnPointDomain(); ++i) {
+    rows.insert(rows.end(), {0.0, double(geometry.nodes->GetGlobalIndex(i)), 0.0});
+    for (int f = 0; f < 4; ++f) rows.push_back(d.rho(i, f));
+    for (int f = 0; f < 4; ++f) rows.push_back(0.0);
+  }
+  const auto ed = tac::TVDRefEdges(geometry, nDim, d.ing);
+  for (auto e = 0ul; e < geometry.GetnEdge(); ++e) {
+    const bool owned = (ed[e].n[0] < geometry.GetnPointDomain()) || (ed[e].n[1] < geometry.GetnPointDomain());
+    if (!owned) continue;
+    rows.insert(rows.end(), {1.0, double(geometry.nodes->GetGlobalIndex(ed[e].n[0])),
+                             double(geometry.nodes->GetGlobalIndex(ed[e].n[1]))});
+    for (int x = 0; x < 2; ++x) {
+      for (int f = 0; f < 4; ++f) {
+        const int y = ed[e].flip ? 1 - x : x;
+        const int fl = ed[e].flip ? ((f == 0) ? 3 : ((f == 3) ? 0 : f)) : f;
+        rows.push_back(d.phi(e, 4 * y + fl));
+      }
+    }
+  }
+  const int size = SU2_MPI::GetSize();
+  int count = static_cast<int>(rows.size());
+  std::vector<int> counts(size), displs(size, 0);
+  SU2_MPI::Allgather(&count, 1, MPI_INT, counts.data(), 1, MPI_INT, SU2_MPI::GetComm());
+  for (int rk = 1; rk < size; ++rk) displs[rk] = displs[rk - 1] + counts[rk - 1];
+  std::vector<double> all(displs[size - 1] + counts[size - 1]);
+  SU2_MPI::Allgatherv(rows.data(), count, MPI_DOUBLE, all.data(), counts.data(), displs.data(), MPI_DOUBLE,
+                      SU2_MPI::GetComm());
+  std::map<std::array<double, 3>, std::array<double, 8>> table;
+  double disagree = 0.0;
+  for (size_t p = 0; p < all.size(); p += 11) {
+    const std::array<double, 3> key = {all[p], all[p + 1], all[p + 2]};
+    std::array<double, 8> v;
+    for (int c = 0; c < 8; ++c) v[c] = all[p + 3 + c];
+    const auto it = table.find(key);
+    if (it != table.end()) {
+      for (int c = 0; c < 8; ++c) disagree = std::max(disagree, fabs(it->second[c] - v[c]));
+    } else {
+      table[key] = v;
+    }
+  }
+  if (SU2_MPI::GetRank() == MASTER_NODE) {
+    std::ofstream f("tecno_tvd_mpi_" + std::to_string(nDim) + "d_np" + std::to_string(size) + ".dat");
+    f.precision(17);
+    for (const auto& kv : table) {
+      f << kv.first[0] << " " << kv.first[1] << " " << kv.first[2];
+      for (int c = 0; c < 8; ++c) f << " " << kv.second[c];
+      f << "\n";
+    }
+  }
+  INFO("nDim " << nDim << " ranks " << size << ": " << table.size() << " rows, cut-edge disagreement " << disagree);
+  CHECK(disagree < 1e-13);
+  CHECK(table.size() > 0);
+}
+}  // namespace
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: reference, frozen-field box, Theorem A1, linear data, uniform state", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  EdgeEntropyTVDCase<2>();
+  EdgeEntropyTVDCase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: freeze rule, numbering invariance, shear rotation, noise threshold", "[P1Flux]") {
+  /*--- Freeze rule (TeCNOAdjoint::TVDRecompute): recompute while invalid (also after the limit) or up to LIMITER_ITER. ---*/
+  CHECK(TeCNOAdjoint::TVDRecompute(false, 0, 500));
+  CHECK(TeCNOAdjoint::TVDRecompute(false, 900, 500));
+  CHECK(TeCNOAdjoint::TVDRecompute(true, 500, 500));
+  CHECK(!TeCNOAdjoint::TVDRecompute(true, 501, 500));
+  CHECK(TeCNOAdjoint::TVDRecompute(true, 0, 0));
+  CHECK(!TeCNOAdjoint::TVDRecompute(true, 1, 0));
+  if (SU2_MPI::GetSize() > 1) return;
+  EdgeEntropyTVDInvarianceCase<2>();
+  EdgeEntropyTVDInvarianceCase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: FIRST_RING_JUMPS with the stored Phi, J >= K, J 1 = 0", "[P1Flux]") {
+  if (SU2_MPI::GetSize() > 1) return;
+  EdgeEntropyTVDJumpsCase<2>();
+  EdgeEntropyTVDJumpsCase<3>();
+}
+
+TEST_CASE("TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: MPI, rho and Phi by global index, cut edges", "[P1Flux]") {
+  EdgeEntropyTVDMPICase<2>();
+  EdgeEntropyTVDMPICase<3>();
+}
+
 TEST_CASE("EDGE_FORM_EC_EXACT_JACOBIAN: exact Ismail-Roe Jacobian and dw/dU against finite differences", "[P1Flux]") {
   std::mt19937 gen(3);
   double far2 = 0.0, near2 = 0.0, far3 = 0.0, near3 = 0.0, equal = 0.0, hessian = 0.0;

@@ -77,6 +77,14 @@ public:
   virtual ~CNumericsSIMD(void) = default;
 
   /*!
+   * \brief TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: per-edge ingredients of the limiter (no flux, no update of vector
+   *        or matrix). No-op except in the extended adjoint TeCNO kernels (CNumericsSIMD_TeCNOExt.cpp).
+   * \note Declared after the destructor, so the virtual slot of ComputeFlux is unchanged.
+   */
+  virtual void TeCNOAdjEdgeIngredients(Int /*iEdge*/, const CConfig& /*config*/, const CGeometry& /*geometry*/,
+                                       const CVariable& /*solution*/, Double /*updateMask*/) const {}
+
+  /*!
    * \brief Factory method.
    * \param[in] config - Problem definitions.
    * \param[in] nDim - 2D or 3D.

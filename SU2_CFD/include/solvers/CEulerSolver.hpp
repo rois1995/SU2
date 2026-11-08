@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <memory>
 #include "CFVMFlowSolverBase.hpp"
 #include "../variables/CEulerVariable.hpp"
 #include "../output/CTurboOutput.hpp"
@@ -54,6 +55,15 @@ protected:
   su2activematrix TeCNOAdjEdgeA;   /*!< \brief TECNO_ADJOINT_GRADIENT= P1_AVERAGE: a_{0,1}, a_{1,0} of each edge (iEdge, 2 nDim). */
   su2activevector TeCNOAdjVol;     /*!< \brief Its nodal volumes Vhat_i = sum_T W_i^T. */
   su2activematrix TeCNOAdjS;       /*!< \brief TECNO_ADJOINT_JACOBIAN: FIRST_RING (s_i, 1/V_i, T_i), FIRST_RING_JUMPS (1/V_i, E_i, T_i, M_i). */
+  /*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD (TeCNOAdjointTVDLimiter). ---*/
+  su2activematrix TeCNOAdjTVDClip;  /*!< \brief Own clip of each edge (B, P1 of both canonical ends, flip, noise). */
+  su2activematrix TeCNOAdjTVDRho;   /*!< \brief Node factors rho (iPoint, M, 0, S, P), owned nodes copied to the halos. */
+  std::unique_ptr<CNumericsSIMD> TeCNOAdjTVDNumerics; /*!< \brief Extended kernel used for the ingredients pass. */
+  bool TeCNOAdjTVDValid = false;    /*!< \brief The store holds the values of this run (not restarted). */
+  unsigned long TeCNOAdjTVDCount = 0; /*!< \brief Number of computations of the store in this run. */
+  unsigned long TeCNOAdjTVDLastIter = 0; /*!< \brief Inner iteration of the last computation. */
+  su2activematrix TeCNOAdjTVDSnapshot; /*!< \brief Copy of the stored values at their last computation (freeze check). */
+  bool TeCNOAdjTVDReported = false; /*!< \brief The freeze was reported. */
 
   /*!
    * \brief EDGE_FORM_TECNO_ADJOINT: entropy variables, their gradient (TECNO_ADJOINT_GRADIENT: Green-Gauss in difference
@@ -80,6 +90,20 @@ protected:
    * \param[in] config - Definition of the particular problem.
    */
   NEVERINLINE void TeCNOAdjointFirstRingJacobian(CGeometry *geometry, const CConfig *config);
+
+  /*!
+   * \brief TECNO_ADJOINT_JACOBIAN= FIRST_RING_JUMPS with TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: the edge-jump
+   *        majorant with alpha and phi of each edge end from the stored Phi (TeCNOAdjoint::JumpRowEnds). Not inlined.
+   */
+  NEVERINLINE void TeCNOAdjointJumpsTVDJacobian(CGeometry *geometry, const CConfig *config);
+
+  /*!
+   * \brief TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: ingredients pass of the extended kernel on every local edge, own
+   *        clip, node factors on the owned nodes (copied to the halos) and the per-edge-end values Phi, while
+   *        TeCNOAdjoint::TVDRecompute is true; afterwards the store is frozen (compared bitwise with a snapshot). Called in
+   *        Upwind_Residual before the edge loop. Not inlined.
+   */
+  NEVERINLINE void TeCNOAdjointTVDLimiter(CGeometry *geometry, CSolver **solver_container, const CConfig *config);
 
   /*!
    * \brief VISC_P1_ENTROPY_MOVED: viscous part of the element budget of SetEdgeBlendLambda (Navier-Stokes solver).

@@ -29,8 +29,10 @@
 
 #pragma once
 
+#include <array>
 #include <cmath>
 #include <limits>
+#include <vector>
 #include "../../../../Common/include/basic_types/datatype_structure.hpp"
 #include "../../../../Common/include/parallelization/omp_structure.hpp"
 
@@ -70,6 +72,13 @@ namespace TeCNOAdjoint {
 
 constexpr unsigned short MAXNVAR = 5;
 constexpr unsigned long OMP_CHUNK = 512;
+
+/*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD: columns of the per-edge ingredients (tecnoAdjointTVDIngredients, local
+ * orientation): dy, s_0, s_1 of the fields M, 0, P, the coefficients D of M, 0, P, S, the guards d_A, d_S, then the shear
+ * vectors dy_S, s_0S, s_1S (nDim each). Fields of the limiter values: 0 = M, 1 = 0 (entropy), 2 = S (shear), 3 = P. ---*/
+constexpr unsigned short TVD_DY = 0, TVD_S0 = 3, TVD_S1 = 6, TVD_D = 9, TVD_GUARD = 13, TVD_SHEAR = 15;
+constexpr unsigned short TVD_NFIELD = 4;
+inline unsigned short TVDWidth(unsigned short nDim) { return TVD_SHEAR + 3 * nDim; }
 
 /*!
  * \brief Small dense block, for the su2double users of the templates below.
@@ -809,6 +818,398 @@ void JumpRow(const Geometry& geometry, unsigned short nDim, unsigned short nVar,
         const unsigned short k = iVar * nVar + jVar;
         const su2double d = edgeD(iEdge, k);
         su2double w = sumT * fabs(alpha) * d;
+        for (unsigned short x = 0; x < 2; ++x) w += mu[x] * (Q(node[x], k) - sumT * r[x] * d);
+        diag(iVar, jVar) += w;
+        off(iVar, jVar) = -w;
+      }
+    }
+    offBlock(jPoint, off);
+  }
+}
+
+/*--- TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD (P1_TECNO_ADJ_LIMITER.md, fourth candidate (s) with the freeze path;
+ * ROE_TECNO_PLAN.md 6.6). Half-edge h = (edge e, end a), characteristic field f of e (shear: the component along
+ * t = dy_S/|dy_S|, one value for the block). In the canonical orientation of e (end 0 = the end with the
+ * lexicographically smaller coordinates, normal and fields M/P relative to it), with dy, s_a = (R^T G_a w . e)_f,
+ * b_a = 2 s_a - dy (the local far-side jump of the P1 slope), B = 2 minmod(dy, b_0, b_1), d = eps S (S2 guard):
+ *   own clip   P1_h = clip of s_a into [min(0,B) - d, max(0,B) + d] (a factor in [0, 1]),
+ *   moment     s_h(Phi) = Phi_h s_a + sum_{h' at a} pi_hh' Phi_h' D_h' l_e'(Phi) / D_h   (frozen field: field f of every
+ *              edge e' of the node, shear vectors projected on t of e),  pi_hh' = sigma_h (g_a,k(h) . e_e'),
+ *              l_e = dy - 1/2 (Phi_0 s_0 + Phi_1 s_1),  sigma_h = +1 / -1 at canonical end 0 / 1,  g_a,k = a_ak / V_a the
+ *              gradient weight of the other end k in G_a (P1 average: the stored a, Vhat; Green-Gauss: n_ak/2, V),
+ *   envelope   for every rho_a in [0, 1] and every other end Phi_o in [0, P1_o]:
+ *              s_h in rho_a (P + A + [Tm, Tp]) + rho_a^2 Q   (P = P1_h s_a, the sums of model 4),
+ *   factor     G_h = min(1, t_up) H(v), t_up the level |B| + d of the nondecreasing majorant of (P + A + Tp) rho + Q rho^2,
+ *              H(v) = (1 - v)^2 (1 + 2 v) on [0, 1] (0 beyond), v = max(0, -(A + Tm + min(0, Q))) / (P + d), in the
+ *              sign frame of B;  rho_a,f = prod_{h at a} G_h,f;  Phi_h = P1_h rho_a,f.
+ * Then the frozen-field moment of every final value lies in the box (model 4 proof: rho_a <= G_h for every h at a).
+ * Half-edges with D_h = 0 and the shear half-edges of an edge with |dy_S| <= (nDim + 2) d_S (noise: own clip with B = 0
+ * on the magnitude, P1 = min(1, d_S / |s_S|)) have G = 1. Theorem A1 holds for any Phi (S2 machinery). MPI: the
+ * ingredients and the clip on every local edge (halo gradients and primitives are current), rho on the owned nodes
+ * (all their edges, weights and Vhat are local), copied to the halos, Phi on every local edge. ---*/
+
+constexpr unsigned short TVD_CLIP_B = 0, TVD_CLIP_P1 = 4, TVD_CLIP_FLIP = 12, TVD_CLIP_NOISE = 13, TVD_CLIP_WIDTH = 14;
+
+/*!
+ * \brief Freeze rule of EDGE_ENTROPY_TVD: recompute while the store is not valid (first call of a run, e.g. after a
+ *        restart) or while innerIter <= limiterIter (LIMITER_ITER, as the point limiters); frozen afterwards.
+ */
+inline bool TVDRecompute(bool valid, unsigned long innerIter, unsigned long limiterIter) {
+  return !valid || (innerIter <= limiterIter);
+}
+
+/*!
+ * \brief Canonical orientation of EDGE_ENTROPY_TVD: true if node 1 of the edge has the lexicographically smaller
+ *        coordinates (x, then y, then z; the global index only on an exact tie), i.e. the canonical end 0 is node 1.
+ *        Independent of the numbering and of the partition.
+ */
+template <class Geometry>
+inline bool TVDFlip(const Geometry& geometry, unsigned short nDim, unsigned long iEdge) {
+  const auto n0 = geometry.edges->GetNode(iEdge, 0), n1 = geometry.edges->GetNode(iEdge, 1);
+  const auto* x0 = geometry.nodes->GetCoord(n0);
+  const auto* x1 = geometry.nodes->GetCoord(n1);
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    if (x0[iDim] < x1[iDim]) return false;
+    if (x0[iDim] > x1[iDim]) return true;
+  }
+  return geometry.nodes->GetGlobalIndex(n0) > geometry.nodes->GetGlobalIndex(n1);
+}
+
+/*!
+ * \brief Local field index of the canonical field f (a flipped edge has the opposite normal: M <-> P).
+ */
+inline unsigned short TVDLocalField(unsigned short f, bool flip) {
+  return flip ? ((f == 0) ? 3 : ((f == 3) ? 0 : f)) : f;
+}
+
+/*!
+ * \brief Canonical data of one edge (EDGE_ENTROPY_TVD): ends, edge vector, dy, s of the canonical ends, D, guards of the
+ *        four fields (shear: projected on t, or the magnitudes for a noise edge), the shear vectors and t.
+ */
+struct TVDEdgeView {
+  unsigned long node[2] = {0, 0};
+  bool flip = false, noise = false;
+  su2double e[3] = {}, dy[TVD_NFIELD] = {}, s[2][TVD_NFIELD] = {}, D[TVD_NFIELD] = {}, d[TVD_NFIELD] = {};
+  su2double dyS[3] = {}, sS[2][3] = {}, t[3] = {};
+};
+
+template <class Geometry, class StoreType>
+inline void TVDLoad(const Geometry& geometry, unsigned short nDim, const StoreType& ing, unsigned long iEdge,
+                    TVDEdgeView& v) {
+  v.flip = TVDFlip(geometry, nDim, iEdge);
+  const unsigned long n0 = geometry.edges->GetNode(iEdge, 0), n1 = geometry.edges->GetNode(iEdge, 1);
+  v.node[0] = v.flip ? n1 : n0;
+  v.node[1] = v.flip ? n0 : n1;
+  const auto* x0 = geometry.nodes->GetCoord(v.node[0]);
+  const auto* x1 = geometry.nodes->GetCoord(v.node[1]);
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) v.e[iDim] = x1[iDim] - x0[iDim];
+  const su2double sgn = v.flip ? -1.0 : 1.0;
+  auto col = [](unsigned short fl) { return (fl == 3) ? 2 : fl; };                  /*--- M, 0, P columns. ---*/
+  auto dcol = [](unsigned short fl) { return (fl == 3) ? 2 : ((fl == 2) ? 3 : fl); }; /*--- D columns. ---*/
+  for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+    const unsigned short fl = TVDLocalField(f, v.flip);
+    v.D[f] = ing(iEdge, TVD_D + dcol(fl));
+    if (f == 2) continue;
+    v.dy[f] = sgn * ing(iEdge, TVD_DY + col(fl));
+    for (unsigned short x = 0; x < 2; ++x) {
+      const unsigned short y = v.flip ? 1 - x : x;
+      v.s[x][f] = sgn * ing(iEdge, ((y == 0) ? TVD_S0 : TVD_S1) + col(fl));
+    }
+    v.d[f] = ing(iEdge, TVD_GUARD);
+  }
+  v.d[2] = ing(iEdge, TVD_GUARD + 1);
+  su2double norm = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    v.dyS[iDim] = sgn * ing(iEdge, TVD_SHEAR + iDim);
+    norm += v.dyS[iDim] * v.dyS[iDim];
+    for (unsigned short x = 0; x < 2; ++x) {
+      const unsigned short y = v.flip ? 1 - x : x;
+      v.sS[x][iDim] = sgn * ing(iEdge, TVD_SHEAR + (1 + y) * nDim + iDim);
+    }
+  }
+  norm = sqrt(norm);
+  v.noise = !(norm > (nDim + 2) * v.d[2]);
+  for (unsigned short x = 0; x < 2; ++x) {
+    su2double st = 0.0, ss = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      v.t[iDim] = v.noise ? su2double(0.0) : v.dyS[iDim] / norm;
+      st += v.sS[x][iDim] * v.t[iDim];
+      ss += v.sS[x][iDim] * v.sS[x][iDim];
+    }
+    v.s[x][2] = v.noise ? su2double(sqrt(ss)) : st;
+  }
+  v.dy[2] = v.noise ? su2double(0.0) : norm;
+}
+
+/*!
+ * \brief minmod of three values (0 unless all have the same strict sign).
+ */
+inline su2double TVDMinmod3(su2double a, su2double b, su2double c) {
+  if ((a > 0.0) && (b > 0.0) && (c > 0.0)) return fmin(a, fmin(b, c));
+  if ((a < 0.0) && (b < 0.0) && (c < 0.0)) return -fmin(-a, fmin(-b, -c));
+  return 0.0;
+}
+
+/*!
+ * \brief Own-slope clip of model 3: the factor that brings s into [lo, hi] (lo <= 0 <= hi), 1 inside.
+ */
+inline su2double TVDOwnClip(su2double s, su2double lo, su2double hi) {
+  if (s > hi) return hi / s;
+  if (s < lo) return lo / s;
+  return 1.0;
+}
+
+/*!
+ * \brief Smooth admissible factor G of one half-edge and field (model 4, factor_env), from the own limited slope
+ *        P = P1 s, the envelope sums A, Q, Tp >= 0 >= Tm, the bound B and the guard d.
+ */
+inline su2double TVDFactor(su2double own, su2double A, su2double Q, su2double Tp, su2double Tm, su2double B,
+                           su2double d) {
+  const su2double sg = (B >= 0.0) ? 1.0 : -1.0;
+  own *= sg;
+  A *= sg;
+  Q *= sg;
+  const su2double tp = (sg > 0.0) ? Tp : -Tm;
+  const su2double tm = (sg > 0.0) ? Tm : -Tp;
+  const su2double hi = fabs(B) + d;
+  const su2double U1 = own + A + tp;
+  /*--- t_up: the largest t with m(rho) <= hi on [0, t], m the nondecreasing majorant of U1 rho + Q rho^2 (the
+   * function up to its peak, then the line rho U1/2 through the peak value). ---*/
+  su2double tUp = std::numeric_limits<su2double>::infinity();
+  if (U1 > 0.0) {
+    tUp = 2.0 * hi / (U1 + sqrt(fmax(su2double(0.0), U1 * U1 + 4.0 * Q * hi)));
+  } else if (Q > 0.0) {
+    tUp = (-U1 + sqrt(U1 * U1 + 4.0 * Q * hi)) / (2.0 * Q);
+  }
+  const su2double md = -(A + tm + fmin(su2double(0.0), Q));
+  const su2double v = fmax(su2double(0.0), md) / fmax(own + d, std::numeric_limits<su2double>::min());
+  const su2double vv = fmin(su2double(1.0), v);
+  const su2double H = (1.0 - vv) * (1.0 - vv) * (1.0 + 2.0 * vv);
+  return fmin(su2double(1.0), tUp) * H;
+}
+
+/*!
+ * \brief Own clip of every local edge (EDGE_ENTROPY_TVD): clip(e, TVD_CLIP_B + f) = B, clip(e, TVD_CLIP_P1 + 4 x + f) =
+ *        P1 of the canonical end x, flip and noise flags.
+ * \param[in] ing - Ingredients (iEdge, TVDWidth(nDim)) of every local edge.
+ */
+template <class Geometry, class StoreType, class ClipType>
+void TVDEdgeClip(const Geometry& geometry, unsigned short nDim, const StoreType& ing, ClipType& clip) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    TVDEdgeView v;
+    TVDLoad(geometry, nDim, ing, iEdge, v);
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+      const su2double dy = v.dy[f];
+      const su2double B = ((f == 2) && v.noise)
+                              ? su2double(0.0)
+                              : 2.0 * TVDMinmod3(dy, 2.0 * v.s[0][f] - dy, 2.0 * v.s[1][f] - dy);
+      const su2double lo = fmin(su2double(0.0), B) - v.d[f], hi = fmax(su2double(0.0), B) + v.d[f];
+      clip(iEdge, TVD_CLIP_B + f) = B;
+      for (unsigned short x = 0; x < 2; ++x) clip(iEdge, TVD_CLIP_P1 + 4 * x + f) = TVDOwnClip(v.s[x][f], lo, hi);
+    }
+    clip(iEdge, TVD_CLIP_FLIP) = v.flip ? 1.0 : 0.0;
+    clip(iEdge, TVD_CLIP_NOISE) = v.noise ? 1.0 : 0.0;
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Node factors rho(a, f) = prod_{h at a} G_h,f on the owned nodes (EDGE_ENTROPY_TVD).
+ * \param[in] weights - Gradient weights a of each edge (iEdge, 2 nDim), a_{0,1} then a_{1,0} (P1 average, or
+ *            GreenGaussWeights); volume(a) the volumes of the gradient (Vhat or V).
+ * \param[in] ing, clip - Ingredients and own clip of every local edge.
+ * \param[out] rho - (iPoint, TVD_NFIELD), owned nodes.
+ */
+template <class Geometry, class WeightType, class VolumeType, class StoreType, class ClipType, class RhoType>
+void TVDNodeFactor(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const VolumeType& volume,
+                   const StoreType& ing, const ClipType& clip, RhoType& rho) {
+  std::vector<TVDEdgeView> view;
+  std::vector<unsigned short> end;
+  std::vector<std::array<su2double, 3> > gam;
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    const auto range = geometry.nodes->GetEdges(iPoint);
+    const auto* edges = range.begin();
+    const size_t nEdgeNode = range.end() - range.begin();
+    view.resize(nEdgeNode);
+    end.resize(nEdgeNode);
+    gam.resize(nEdgeNode);
+    const su2double invVol = 1.0 / volume(iPoint);
+    for (size_t h = 0; h < nEdgeNode; ++h) {
+      const auto iEdge = edges[h];
+      TVDLoad(geometry, nDim, ing, iEdge, view[h]);
+      end[h] = (view[h].node[0] == iPoint) ? 0 : 1;
+      const unsigned short own = (geometry.edges->GetNode(iEdge, 0) == iPoint) ? 0 : nDim;
+      gam[h] = {0.0, 0.0, 0.0};
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) gam[h][iDim] = weights(iEdge, own + iDim) * invVol;
+    }
+    su2double rhoNode[TVD_NFIELD] = {1.0, 1.0, 1.0, 1.0};
+    for (size_t h = 0; h < nEdgeNode; ++h) {
+      const auto& vh = view[h];
+      const auto eh = edges[h];
+      const unsigned short x = end[h];
+      const su2double sigma = (x == 0) ? 1.0 : -1.0;
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        const su2double Dh = vh.D[f];
+        if (!(Dh > 0.0) || ((f == 2) && vh.noise)) continue;
+        su2double A = 0.0, Q = 0.0, Tp = 0.0, Tm = 0.0;
+        for (size_t k = 0; k < nEdgeNode; ++k) {
+          const auto& vk = view[k];
+          const auto ek = edges[k];
+          su2double pi = 0.0;
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) pi += gam[h][iDim] * vk.e[iDim];
+          const su2double w = sigma * pi / Dh;
+          const unsigned short xk = end[k], ok = 1 - xk;
+          const su2double P1a = clip(ek, TVD_CLIP_P1 + 4 * xk + f), P1o = clip(ek, TVD_CLIP_P1 + 4 * ok + f);
+          su2double dy = vk.dy[f], sa = vk.s[xk][f], so = vk.s[ok][f];
+          if (f == 2) {
+            dy = sa = so = 0.0;
+            for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+              dy += vk.dyS[iDim] * vh.t[iDim];
+              sa += vk.sS[xk][iDim] * vh.t[iDim];
+              so += vk.sS[ok][iDim] * vh.t[iDim];
+            }
+          }
+          const su2double D = vk.D[f];
+          const su2double fix = P1a * D * dy;
+          const su2double tt = -0.5 * P1a * D * P1o * so;
+          const su2double q2 = -0.5 * P1a * P1a * D * sa;
+          A += w * fix;
+          Q += w * q2;
+          const su2double wt = w * tt;
+          Tp += fmax(su2double(0.0), wt);
+          Tm += fmin(su2double(0.0), wt);
+        }
+        const su2double own = clip(eh, TVD_CLIP_P1 + 4 * x + f) * vh.s[x][f];
+        rhoNode[f] *= TVDFactor(own, A, Q, Tp, Tm, clip(eh, TVD_CLIP_B + f), vh.d[f]);
+      }
+    }
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) rho(iPoint, f) = rhoNode[f];
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief Final values Phi = P1 rho of every local edge (EDGE_ENTROPY_TVD), stored in the local orientation:
+ *        phi(e, 4 y + f) for node y of the edge and the local field f (M, 0, S, P). rho needed on the halos.
+ */
+template <class Geometry, class ClipType, class RhoType, class PhiType>
+void TVDEdgePhi(const Geometry& geometry, const ClipType& clip, const RhoType& rho, PhiType& phi) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iEdge = 0; iEdge < geometry.GetnEdge(); ++iEdge) {
+    const bool flip = (clip(iEdge, TVD_CLIP_FLIP) != 0.0);
+    for (unsigned short x = 0; x < 2; ++x) {
+      const unsigned short y = flip ? 1 - x : x;
+      const auto node = geometry.edges->GetNode(iEdge, y);
+      for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+        phi(iEdge, 4 * y + TVDLocalField(f, flip)) = clip(iEdge, TVD_CLIP_P1 + 4 * x + f) * rho(node, f);
+      }
+    }
+  }
+  END_SU2_OMP_FOR
+}
+
+/*--- FIRST_RING_JUMPS with EDGE_ENTROPY_TVD (ROE_TECNO_PLAN.md 6.6, rev 3): with the per-edge-end, per-field values
+ * Phi_xf (diagonal in the characteristic basis of the edge, D = R C R^T, C diagonal >= 0 in the same basis) the jump is,
+ * per field f,  y_f(L) = alpha_f y_f(Delta) + Phi_0f y_f(u_0) + Phi_1f y_f(u_1),
+ *   alpha_f = coefDelta + gam (Phi_0f a_01.e / V_0 - Phi_1f a_10.e / V_1),  u_x = (gam / V_x) sum_{m != x'} (a_xm.e) delta_xm,
+ * and the three-term weighted Cauchy-Schwarz per field with the weights (alphaBar, phiBar_0 t'_0, phiBar_1 t'_1),
+ * alphaBar = max_f |alpha_f|, phiBar_x = max_f |Phi_xf|, gives the bound of JumpEdge with |alpha| -> alphaBar and
+ * |gam phi_x / V_x| -> phiBar_x |gam / V_x| (the inner Cauchy-Schwarz of u_x does not involve Phi). So J >= K(Phi),
+ * J 1 = 0, symmetric, first ring, with the same regrouping (JumpNodalQEnds, JumpRowEnds). Phi = 1 everywhere gives
+ * JumpEdge with phi = 1. ---*/
+
+/*!
+ * \brief JumpEdge with the per-edge-end limiter values of the edge store phi(e, 4 x + f) (local orientation).
+ */
+template <class Geometry, class WeightType, class NodeType, class PhiType>
+void JumpEdgeEnds(const Geometry& geometry, unsigned short nDim, const WeightType& weights, const NodeType& S,
+                  const PhiType& edgePhi, su2double coefDelta, su2double gam, unsigned long iEdge, su2double& alpha,
+                  su2double& sumT, su2double* r, su2double* mu) {
+  const unsigned short offT = 1 + nDim * nDim, offM = 1 + 2 * nDim * nDim;
+  const unsigned long node[2] = {geometry.edges->GetNode(iEdge, 0), geometry.edges->GetNode(iEdge, 1)};
+  const auto* x0 = geometry.nodes->GetCoord(node[0]);
+  const auto* x1 = geometry.nodes->GetCoord(node[1]);
+  su2double e[3] = {};
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) e[iDim] = x1[iDim] - x0[iDim];
+  su2double t[2] = {}, ae[2] = {}, phiBar[2] = {};
+  for (unsigned short x = 0; x < 2; ++x) {
+    for (unsigned short f = 0; f < TVD_NFIELD; ++f) phiBar[x] = fmax(phiBar[x], fabs(edgePhi(iEdge, 4 * x + f)));
+  }
+  for (unsigned short x = 0; x < 2; ++x) {
+    const auto p = node[x];
+    su2double a[3] = {}, aEa = 0.0, eTe = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      a[iDim] = weights(iEdge, x * nDim + iDim);
+      ae[x] += a[iDim] * e[iDim];
+    }
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      for (unsigned short jDim = 0; jDim < nDim; ++jDim) {
+        aEa += a[iDim] * S(p, 1 + nDim * iDim + jDim) * a[jDim];
+        eTe += e[iDim] * S(p, offT + nDim * iDim + jDim) * e[jDim];
+      }
+    }
+    mu[x] = sqrt(fmax(aEa, su2double(0.0)));
+    const su2double own = (mu[x] > 0.0) ? ae[x] * ae[x] / mu[x] : su2double(0.0);
+    const su2double margin = S(p, offM + 1);
+    const su2double tau = fmax(eTe - own, su2double(0.0)) + margin * (eTe + own);
+    const su2double nu = fmax(S(p, offM) - mu[x], su2double(0.0)) + margin * S(p, offM);
+    const su2double g = phiBar[x] * fabs(gam * S(p, 0));
+    t[x] = g * sqrt(tau * nu);
+    r[x] = (nu > 0.0) ? g * sqrt(tau / nu) : su2double(0.0);
+  }
+  alpha = 0.0;
+  for (unsigned short f = 0; f < TVD_NFIELD; ++f) {
+    const su2double af = coefDelta + gam * (edgePhi(iEdge, f) * S(node[0], 0) * ae[0] -
+                                            edgePhi(iEdge, 4 + f) * S(node[1], 0) * ae[1]);
+    alpha = fmax(alpha, fabs(af));
+  }
+  sumT = alpha + t[0] + t[1];
+}
+
+/*!
+ * \brief JumpNodalQ with JumpEdgeEnds (EDGE_ENTROPY_TVD).
+ */
+template <class Geometry, class WeightType, class NodeType, class PhiType, class EdgeType, class NodeTypeQ>
+void JumpNodalQEnds(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+                    const NodeType& S, const PhiType& edgePhi, su2double coefDelta, su2double gam, const EdgeType& edgeD,
+                    NodeTypeQ& Q) {
+  SU2_OMP_FOR_STAT(OMP_CHUNK)
+  for (unsigned long iPoint = 0; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double sum[MAXNVAR * MAXNVAR] = {};
+    for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+      su2double alpha, sumT, r[2], mu[2];
+      JumpEdgeEnds(geometry, nDim, weights, S, edgePhi, coefDelta, gam, iEdge, alpha, sumT, r, mu);
+      const su2double coef = sumT * r[(geometry.edges->GetNode(iEdge, 0) == iPoint) ? 0 : 1];
+      for (unsigned short k = 0; k < nVar * nVar; ++k) sum[k] += coef * edgeD(iEdge, k);
+    }
+    for (unsigned short k = 0; k < nVar * nVar; ++k) Q(iPoint, k) = sum[k];
+  }
+  END_SU2_OMP_FOR
+}
+
+/*!
+ * \brief JumpRow with JumpEdgeEnds (EDGE_ENTROPY_TVD): alpha is alphaBar >= 0 here.
+ */
+template <class Geometry, class WeightType, class NodeType, class NodeTypeQ, class EdgeType, class PhiType,
+          class OffFunc>
+void JumpRowEnds(const Geometry& geometry, unsigned short nDim, unsigned short nVar, const WeightType& weights,
+                 const NodeType& S, const NodeTypeQ& Q, const EdgeType& edgeD, const PhiType& edgePhi,
+                 su2double coefDelta, su2double gam, unsigned long iPoint, Block& diag, OffFunc&& offBlock) {
+  for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+    for (unsigned short jVar = 0; jVar < nVar; ++jVar) diag(iVar, jVar) = 0.0;
+  for (auto iEdge : geometry.nodes->GetEdges(iPoint)) {
+    const unsigned long node[2] = {geometry.edges->GetNode(iEdge, 0), geometry.edges->GetNode(iEdge, 1)};
+    const unsigned long jPoint = (node[0] == iPoint) ? node[1] : node[0];
+    su2double alpha, sumT, r[2], mu[2];
+    JumpEdgeEnds(geometry, nDim, weights, S, edgePhi, coefDelta, gam, iEdge, alpha, sumT, r, mu);
+    Block off;
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+      for (unsigned short jVar = 0; jVar < nVar; ++jVar) {
+        const unsigned short k = iVar * nVar + jVar;
+        const su2double d = edgeD(iEdge, k);
+        su2double w = sumT * alpha * d;
         for (unsigned short x = 0; x < 2; ++x) w += mu[x] * (Q(node[x], k) - sumT * r[x] * d);
         diag(iVar, jVar) += w;
         off(iVar, jVar) = -w;

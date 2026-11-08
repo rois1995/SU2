@@ -723,6 +723,108 @@ FORCEINLINE void tecnoAdjointEdgeVA(const Double& gamma, const CRoeVariables<nDi
 }
 
 /*!
+ * \brief TECNO_ADJOINT_LIMITER= EDGE_ENTROPY_TVD, ingredients of one edge in its LOCAL orientation (node 0 -> node 1,
+ *        the dissipation normal of the kernel), for the solver passes of TeCNOAdjoint (TVDEdgeClip, TVDNodeFactor):
+ *        dy = R^T dw and s_a = R^T p_a (p_a = G_a w . e) of the fields M (u.n - c), 0 (entropy), P (u.n + c), the shear
+ *        vectors (tangent to n), the amplitude coefficients D_j of tecnoDissipationFromY (c_j = D_j y_j) and the S2
+ *        roundoff guards d = eps S (S_A of the scalar fields, S_S of the shear block, as tecnoAdjointEdgeVA).
+ *        Layout (TeCNOAdjoint::TVD_*): [dy M,0,P | s_0 M,0,P | s_1 M,0,P | D_M, D_0, D_P, D_S | d_A, d_S | dy_S | s_0S | s_1S].
+ * \param[out] out - TeCNOAdjoint::TVDWidth(nDim) values.
+ */
+template<size_t nDim, class PrimVarType>
+FORCEINLINE void tecnoAdjointTVDIngredients(const Double& gamma, const CRoeVariables<nDim>& avg,
+                                            const VectorDbl<nDim>& unitNormal, const Double& lamM, const Double& lam0,
+                                            const Double& lamP, const Double& scale, const VectorDbl<nDim+2>& dw,
+                                            const VectorDbl<nDim+2>& p_i, const VectorDbl<nDim+2>& p_j,
+                                            const PrimVarType& V_i, const PrimVarType& V_j, Double* out) {
+  namespace ta = TeCNOAdjoint;
+  const Double& c = avg.speedSound;
+  const Double& enthalpy = avg.enthalpy;
+
+  Double dM, d0, dP, sM_i, s0_i, sP_i, sM_j, s0_j, sP_j;
+  VectorDbl<nDim> dS, sS_i, sS_j;
+  tecnoProject(avg, unitNormal, dw, dM, d0, dS, dP);
+  tecnoProject(avg, unitNormal, p_i, sM_i, s0_i, sS_i, sP_i);
+  tecnoProject(avg, unitNormal, p_j, sM_j, s0_j, sS_j, sP_j);
+  out[ta::TVD_DY + 0] = dM; out[ta::TVD_DY + 1] = d0; out[ta::TVD_DY + 2] = dP;
+  out[ta::TVD_S0 + 0] = sM_i; out[ta::TVD_S0 + 1] = s0_i; out[ta::TVD_S0 + 2] = sP_i;
+  out[ta::TVD_S1 + 0] = sM_j; out[ta::TVD_S1 + 1] = s0_j; out[ta::TVD_S1 + 2] = sP_j;
+
+  out[ta::TVD_D + 0] = scale * lamM * avg.density / (2.0 * gamma);
+  out[ta::TVD_D + 1] = scale * lam0 * avg.density * (gamma - 1.0) / gamma;
+  out[ta::TVD_D + 2] = scale * lamP * avg.density / (2.0 * gamma);
+  out[ta::TVD_D + 3] = scale * lam0 * avg.density * c * c / gamma;
+
+  /*--- The S2 guards (tecnoAdjointEdgeVA): rotation invariant bounds of the terms of y(w), max of the two nodes. ---*/
+  const Double speed = sqrt(squaredNorm(avg.velocity));
+  Double SA = 0.0, SS = 0.0;
+  auto scaleOf = [&](const PrimVarType& V) {
+    const Double beta = V.density() / V.pressure();
+    const Double s = log(V.pressure()) - gamma * log(V.density());
+    Double sq = 0.0;
+    for (size_t iDim = 0; iDim < nDim; ++iDim) sq += pow(V.velocity(iDim), 2);
+    const Double w0 = abs((gamma - s) / (gamma - 1.0) - 0.5 * beta * sq);
+    const Double wm = beta * sqrt(sq);
+    SA = fmax(SA, w0 + (speed + c) * wm + (enthalpy + speed * c) * beta);
+    SS = fmax(SS, wm + (speed + c) * beta);
+  };
+  scaleOf(V_i);
+  scaleOf(V_j);
+  const su2double eps = std::numeric_limits<su2double>::epsilon();
+  out[ta::TVD_GUARD + 0] = eps * SA;
+  out[ta::TVD_GUARD + 1] = eps * SS;
+
+  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+    out[ta::TVD_SHEAR + iDim] = dS(iDim);
+    out[ta::TVD_SHEAR + nDim + iDim] = sS_i(iDim);
+    out[ta::TVD_SHEAR + 2 * nDim + iDim] = sS_j(iDim);
+  }
+}
+
+/*!
+ * \brief Adjoint TeCNO jump and fluxes of one edge with given per-edge-end limiter values (EDGE_ENTROPY_TVD, the S2
+ *        algebra of tecnoAdjointEdgeVA with Phi read from the store): R^T L = (1 - rho kappa) dy - 1/2 rho (1-kappa)
+ *        (Phi_i s_i + Phi_k s_k) per field (the shear block one value), q = R c (the Delta part) and q_a = R Phi_a c =
+ *        B_a^T q (the gradient part of end a), c the amplitudes of R^T L. Theorem A1 holds for any values of phi.
+ * \param[in] phi - M, 0, S, P of node 0 (i), then of node 1 (k), local orientation.
+ * \param[out] yL - Optional, R^T L: (M, 0, P, then the nDim shear components).
+ */
+template<size_t nDim>
+FORCEINLINE void tecnoAdjointEdgePhi(const Double& gamma, const CRoeVariables<nDim>& avg,
+                                     const VectorDbl<nDim>& unitNormal, const Double& lamM, const Double& lam0,
+                                     const Double& lamP, const Double& scale, const VectorDbl<nDim+2>& dw,
+                                     const VectorDbl<nDim+2>& p_i, const VectorDbl<nDim+2>& p_j, su2double ramp,
+                                     su2double kappa, const Double* phi, VectorDbl<nDim+2>& q, VectorDbl<nDim+2>& q_i,
+                                     VectorDbl<nDim+2>& q_j, Double* yL = nullptr) {
+  Double dM, d0, dP, sM_i, s0_i, sP_i, sM_j, s0_j, sP_j;
+  VectorDbl<nDim> dS, sS_i, sS_j;
+  tecnoProject(avg, unitNormal, dw, dM, d0, dS, dP);
+  tecnoProject(avg, unitNormal, p_i, sM_i, s0_i, sS_i, sP_i);
+  tecnoProject(avg, unitNormal, p_j, sM_j, s0_j, sS_j, sP_j);
+
+  const Double &phiM_i = phi[0], &phi0_i = phi[1], &phiS_i = phi[2], &phiP_i = phi[3];
+  const Double &phiM_j = phi[4], &phi0_j = phi[5], &phiS_j = phi[6], &phiP_j = phi[7];
+  const su2double coefDelta = 1.0 - ramp * kappa;
+  const su2double coefGrad = 0.5 * ramp * (1.0 - kappa);
+  const Double LM = coefDelta * dM - coefGrad * (phiM_i * sM_i + phiM_j * sM_j);
+  const Double L0 = coefDelta * d0 - coefGrad * (phi0_i * s0_i + phi0_j * s0_j);
+  const Double LP = coefDelta * dP - coefGrad * (phiP_i * sP_i + phiP_j * sP_j);
+  VectorDbl<nDim> LS, LS_i, LS_j;
+  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+    LS(iDim) = coefDelta * dS(iDim) - coefGrad * (phiS_i * sS_i(iDim) + phiS_j * sS_j(iDim));
+    LS_i(iDim) = phiS_i * LS(iDim);
+    LS_j(iDim) = phiS_j * LS(iDim);
+  }
+  if (yL) {
+    yL[0] = LM; yL[1] = L0; yL[2] = LP;
+    for (size_t iDim = 0; iDim < nDim; ++iDim) yL[3 + iDim] = LS(iDim);
+  }
+  q = tecnoDissipationFromY(gamma, avg, unitNormal, lamM, lam0, lamP, scale, LM, L0, LS, LP);
+  q_i = tecnoDissipationFromY(gamma, avg, unitNormal, lamM, lam0, lamP, scale, phiM_i * LM, phi0_i * L0, LS_i, phiP_i * LP);
+  q_j = tecnoDissipationFromY(gamma, avg, unitNormal, lamM, lam0, lamP, scale, phiM_j * LM, phi0_j * L0, LS_j, phiP_j * LP);
+}
+
+/*!
  * \brief Temporal entropy conservative average of two states (GRID_ENTROPY_P1, P1_ALE.md, Lemma A6), ideal gas:
  * ubar = rho_ln (1, {v}, 1/(2(gamma-1) beta_ln) + |{v}|^2 - {|v|^2}/2), beta = rho/(2p), ln the logarithmic mean.
  * It is symmetric, ubar(U,U) = U, and [[w]].ubar = [[rho]] for the entropy variables w of U = -rho s/(gamma-1),
