@@ -503,15 +503,20 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
           std::sort(e.begin(),e.end());edges.insert(e);
         }
         if(production_source) {
-          const auto demand=GeometryGuidanceExcess(complete,*scope,1e-4);REQUIRE(demand.complete);
+          std::set<Id> bad_cells;
+          for(const auto& row:owned) {
+            Owned one;one.insert(row);auto patch=patch_from(one);scope->ExportParameters(patch);
+            const auto demand=GeometryGuidanceExcess(patch,*scope,1e-4);REQUIRE(demand.complete);
+            if(demand.excess>0)bad_cells.insert(row.first);
+          }
           std::set<Id> common;bool first=true;
-          for(const auto& row:owned)if(demand.bad_cells.count(row.first)) {
+          for(const auto& row:owned)if(bad_cells.count(row.first)) {
             std::set<Id> nodes;for(Node n:row.second.cell.v)nodes.insert(n.id);
             if(first){common=nodes;first=false;}
             else for(auto it=common.begin();it!=common.end();)if(!nodes.count(*it))it=common.erase(it);else ++it;
           }
           // A globally complete common vertex star proves every incident edge ring is present.
-          for(const auto& row:owned)if(demand.bad_cells.count(row.first))for(unsigned slot=0;slot<4;++slot)if(row.second.physical[slot].present)
+          for(const auto& row:owned)if(bad_cells.count(row.first))for(unsigned slot=0;slot<4;++slot)if(row.second.physical[slot].present)
             for(unsigned k=0;k<3;++k) {
               Edge edge{row.second.cell.v[opposite[slot][k]].id,row.second.cell.v[opposite[slot][(k+1)%3]].id};
               if((common.count(edge[0])&&expected_stars.count(edge[0]))||(common.count(edge[1])&&expected_stars.count(edge[1]))) {
@@ -564,6 +569,28 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false,bool pr
           for(const auto& p:fresh.coverage.faces)proposed.coverage.faces.insert_or_assign(p.first,p.second);
           for(const auto& p:fresh.coverage.traces)proposed.coverage.traces.insert_or_assign(p.first,p.second);
           retain_coverage(proposed);std::set<Id> retired;for(const auto& row:owned)retired.insert(row.first);
+          if(production_source) {
+            Patch strip;REQUIRE(SplitSurfaceStrip(complete,edge,midpoint,{},800000000,*scope,strip,why));
+            auto connectivity=[](const Patch& patch) {
+              std::set<std::array<Id,4>> cells;for(const auto& cell:patch.cells) {
+                std::array<Id,4> key;for(unsigned k=0;k<4;++k)key[k]=cell.v[k].id;
+                std::sort(key.begin(),key.end());REQUIRE(cells.insert(key).second);
+              }return cells;
+            };
+            REQUIRE(connectivity(strip)==connectivity(proposed));
+            std::map<Id,Point> positions;for(const auto& cell:proposed.cells)for(Node n:cell.v)positions.emplace(n.id,n.p);
+            for(const auto& cell:strip.cells)for(Node n:cell.v) {
+              const auto p=positions.at(n.id);REQUIRE(n.p.x==p.x);REQUIRE(n.p.y==p.y);REQUIRE(n.p.z==p.z);
+            }
+            joined.clear();std::map<Face,Id> physical;
+            for(auto f:strip.surface){std::sort(f.v.begin(),f.v.end());REQUIRE(physical.emplace(f.v,f.facet).second);}
+            for(const auto& cell:strip.cells){OwnedCell row;row.cell=cell;
+              for(unsigned slot=0;slot<4;++slot){Face key;for(unsigned k=0;k<3;++k)key[k]=cell.v[opposite[slot][k]].id;
+                std::sort(key.begin(),key.end());const auto f=physical.find(key);if(f!=physical.end())row.physical[slot]={true,f->second};}
+              REQUIRE(joined.emplace(cell.id,row).second);
+            }
+            proposed=std::move(strip);
+          }
           const std::string label="complete_edge_split_"+std::to_string(edge[0])+"_"+std::to_string(edge[1]);
           bool reclosure=false;
           assess(joined,retired,complete,proposed,midpoint.id,label.c_str(),false,0,&prediction,&reclosure);

@@ -3359,7 +3359,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           }
         } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         if (!(ready=vote(failure))) return finish();
-        if(repairing && curved && !selection.geometry_repairs) {
+        if(repairing && curved) {
           const auto support_bytes=transfer_memory::Mul(transfer_memory::Mul(4,choices.size()),
               transfer_memory::Mul(MaximumCavityCells,sizeof(Dependency)+sizeof(OwnedCell)+8*(sizeof(Id)+4*sizeof(void*))));
           batch_bytes=transfer_memory::Add(batch_bytes,support_bytes,
@@ -3373,9 +3373,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               const OwnedCell* core=nullptr;long double worst=-1;
               for(const auto& row:candidate.cells) {
                 const auto cached=selection.cells.find(row.cell.id);
-                if(cached==selection.cells.end() || !cached->second.shape_measured || cached->second.quality_valid ||
-                    !cached->second.geometry_invalid ||
-                    std::count_if(row.physical.begin(),row.physical.end(),[](const auto& f){return f.present;})!=2)continue;
+                if(cached==selection.cells.end() || !cached->second.geometry_invalid)continue;
+                const auto physical=std::count_if(row.physical.begin(),row.physical.end(),[](const auto& f){return f.present;});
+                if(selection.geometry_repairs ? physical==0 :
+                    (!cached->second.shape_measured || cached->second.quality_valid || physical!=2))continue;
                 const auto weight=selection.RepairWeight(cached->second);
                 if(weight>worst || (weight==worst && core && row.cell.id<core->cell.id)){worst=weight;core=&row;}
               }
@@ -3500,7 +3501,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       for(size_t i=0;i<choices.size();++i)if(reserved.chosen.at(i)) {
         const auto& imported=imported_batch.candidates.at(i);
         const bool coordinate=imported.coordinate_star.count==1&&imported.cells.size()>MaximumCavityCells;
-        eligible+=!coordinate&&!selection.geometry_repairs;
+        eligible+=!coordinate;
         retained=transfer_memory::Add(retained,transfer_memory::Mul(std::max(MaximumReplacementCells,imported.cells.size()),16384));
       }
       batch_bytes=transfer_memory::Add(batch_bytes,retained);
@@ -3604,7 +3605,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     CLocalFailure failure;
     const bool coordinate_only=repairing && imported.coordinate_star.count==1 && imported.cells.size()>MaximumCavityCells;
     const size_t private_scratch=transfer_memory::Add(transfer_memory::Bytes(imported.cells),
-        transfer_memory::Mul(std::max(MaximumReplacementCells,imported.cells.size()),8192),MaximumFrozenFieldBytes,MetricPatchSolveScratchBytes,
+        transfer_memory::Mul(std::max(MaximumReplacementCells,imported.cells.size()),8192),
+        transfer_memory::Mul(selection.geometry_repairs?2:1,MaximumFrozenFieldBytes),MetricPatchSolveScratchBytes,
         transfer_memory::Mul(3*MaximumCampaignEdges,sizeof(std::pair<const Edge,EdgeMeasure>)+6*sizeof(void*)),
         transfer_memory::Mul(8*MaximumReplacementCells,64)); // Bounded optimizer rejected-star set.
     Patch old,fresh;
@@ -5019,6 +5021,61 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if (!ready) return false;
         if (valid) { approved=true; repair_approved=true; moved=move_trial; }
         if(participating)note_ladder(move_trial?0:2,valid,trial_started,geometry_before,height_before);
+      }
+      if(selection.geometry_repairs && !coordinate_only && chosen && !approved && curved &&
+          maximum_node<=UINT64_MAX-node_stride && node_offset<=UINT64_MAX-maximum_node-node_stride) {
+        reserve_optimization(true);
+        std::map<Id,Node> nodes;std::set<Edge> edges;
+        for(const auto& cell:old.cells)for(auto n:cell.v)nodes.emplace(n.id,n);
+        for(const auto& face:old.surface)for(unsigned k=0;k<3;++k) {
+          Edge edge{face.v[k],face.v[(k+1)%3]};std::sort(edge.begin(),edge.end());edges.insert(edge);
+        }
+        std::set<Face> physical;for(const auto& face:old.surface)physical.insert(Key(face.v));
+        for(const auto& face:Incidence(old.cells).Boundary())if(!physical.count(Key(face)))
+          for(unsigned k=0;k<3;++k) {
+            Edge edge{face[k],face[(k+1)%3]};std::sort(edge.begin(),edge.end());edges.erase(edge);
+          }
+        DonorPatch donors;
+        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+          donors=trial_import_cells(repair_work<repair_budget?old.cells:empty,options.memory_ceiling,
+              transfer_memory::Add(bytes(),directory->ResidentBytes(),private_scratch));}
+        if(!donors.valid && !DonorCap(donors.reason)){result.reason=donors.reason;return false;}
+        if(donors.valid && repair_work<repair_budget) {
+          const auto components=AssociatedExtensions(donors.cells,geometry);
+          observe_transaction("support_donors",true,&donors);
+          FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints,field_identity,true,MaximumDonors,true);
+          FieldAccounting accounting{stats,target};
+          for(const auto& edge:edges) {
+            if(approved || repair_work>=repair_budget ||
+                (options.maximum_seconds && std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds))break;
+            const auto began=Clock::now();const auto geometry_before=stats.geometry_rejected;
+            const auto height_before=stats.height_rejected+stats.footprint_rejected;const auto work_before=repair_work;
+            ++repair_work;++stats.repair_proposals;
+            const auto a=nodes.at(edge[0]).p,b=nodes.at(edge[1]).p;
+            point={maximum_node+1+node_offset,{double(((long double)a.x+b.x)/2),
+                double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)}};
+            bool candidate;
+            {Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+              candidate=guarded_geometry(SplitSurfaceStrip(old,edge,point,{},maximum_cell+1+offset,
+                  geometry,fresh,result.reason),"SplitSurfaceStrip");}
+            bool valid=validate_private(candidate,MetricChange::GeometryRepair);
+            if(!ready)return false;
+            // Reclose shape privately; only the complete replacement is eligible for publication.
+            if(candidate && !valid && geometric_progress && certified.shape_measured &&
+                (certified.minimum_mean_ratio<MinimumMeanRatio || certified.minimum_scaled_jacobian<MinimumScaledJacobian) &&
+                repair_work<repair_budget) {
+              const Patch split=fresh;
+              {Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+                candidate=guarded_geometry(optimize_patch(split,RegionMetric(target),false),"OptimizeGeometrySplit");}
+              valid=validate_private(candidate,MetricChange::GeometryRepair);
+              if(!ready)return false;
+              if(valid){optimization_approved=true;++stats.optimization_validated;}
+            }
+            if(valid){approved=repair_approved=true;moved=false;}
+            note_ladder(2,valid,began,geometry_before,height_before,repair_work-work_before);
+          }
+        }
+        release_optimization();
       }
       if(selection.size_repairs && !optimize_repair())return false;
       if (repair_approved && !repairing) ++stats.fallback_accepted;

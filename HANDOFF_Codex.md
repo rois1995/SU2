@@ -17,33 +17,42 @@ A260=`R/m6_runs/euler_build260_paired_geometry_priority_mach_only_real_cfd50k`.
 A256=`R/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k`.
 A254=`R/m6_runs/euler_build254_conditioned_mach_only_real_cfd50k`.
 
-## CURRENT — MEASURED SPLIT/RECLOSURE FOLLOW-UP264 READY TO BUILD
+## CURRENT — COUPLED GEOMETRY REPAIR266 BUILD RUNNING/FROZEN
 
-Build263/serialtool6058 TERMINALPASS:40107assertions/97.945698s,1553casepinsunchanged;
-all5recordedserialhandles absent. R/closure263_assessment.json preservesresults.
-Known39q/Joracles exact,3unknownexplicit;252edgeoraclesmaxerror5.59e-17.
-Oldcanonicalgeometrymatchesactualcapture. Twelve directedcollapses:only1constructed,
-no useful geometrygain before/afteroptimizer. Originalqualityoptimizertried0moves
-onshape-cleanstars. Arawsplit8184–205050218 reduces4g→3g butintroduces1Jbad.
-ONEconnectedfollowup:existingboundedoptimizer ongeometry-progressingsplits that
-needshapereclosure. Includeallbadfaceedges incidenttocompletecommon8184star;
-SAME6edgecap/42context/64bound/160work/30soptimizer/600scase,NOnewproductionlogic.
-Correctdiagnosticgeometryprogress toEXACTnativeafter<before*(1-1e-12),notstrictlt.
-NextR/launch_build264.py thenR/closure264_validate.py. Priorhandlesallterminal;
-sourceeditscomplete but264notyetbuilt. No productionfixselected;fullgoalunchanged.
-Onlycompiledchange:UnitTests/SU2_CFD/adaptation/fixtures/native_current219_witness.inc.
-No productionadaptationchanges. R/run_cases.py addsfocusedcurrent_production case.
-NewhiddenNativeCurrentProduction3D variant explicitlycountsunknownoracles,imports
-current-source donorfields,comparesPublishMetrics tensors,andmeasurescandidate
-rebasing +completejoinedneighbors. Legacyfixture behaviorretained.
-Actual42contextpreparationCOMPLETE32.757683s/allrawpinsunchanged:39known/3unknown
-q/Joracles,252FINITEactualedgeoracles;34515boundarypoints/69026physicalfaces.
-A262/current_witnesses_v1/witness_preparation.json andR/prepare_current263_witnesses.py.
-Build263terminal/serialpassed; R/closure264_validate.py willrunONEfocusedserialcase,
-existing600stimeout/160work/30soptimizer/64cellbound. NoMPIcampaignfordiagnostic.
-[Design/acceptance](Handbook/ADAPTATION_CLOSURE263_20261108.md). No productionfix
-selected untilactualsource-gated candidate isdemonstrated;thenconnectedqualification
-andimmediatefullsame-seedM6. ZEROacceptedmeshes;allfullgoal obligationsunchanged.
+ONE owned build tool78205: helper3099775/start17669947, Ninja3099791.
+R/build266_owned_startup.json records exact identities. ALL1303sources/sixhelpers
+frozen, nice19/j3/libs1/4TBscratch,41.86GB available at launch.
+Sourcebasebcf2d1501d plus ONE connected production repair change and fixture parity
+checks. Construction remains unchanged. Read
+[design/qualification](Handbook/ADAPTATION_COUPLED_REPAIR266_20261108.md).
+Production extends existing complete-core support import before reservation into
+geometry repair; same64 bound/version checks. Geometry-repair-only existing edge
+split plus bounded optimizer, then unchanged source/shape/geometry/size/height/
+contact/publication gates. Shared160 work and existing node range; additional
+concurrent frozen field admitted explicitly. No new config/operator/scheduler.
+Only compiled files: Common/src/adaptation/CNativeEngine3D.cpp and
+UnitTests/SU2_CFD/adaptation/fixtures/native_current219_witness.inc.
+After terminal host audit: R/coupled266_validate.py serial, then ONE mpi6 milestone;
+return immediately to full same-seed two-event M6. No accepted mesh yet.
+
+265 build terminal0/209.303411s, allpins unchanged, old production CFD byte-identical;
+allten build handles absent. Focused serial tool98076 terminal0/98.567218s,
+45549 assertions, allpins unchanged/allfive ownedhandles absent. Actual complete
+42-cell context reproduces39finite q/J and252edgeoracles;threeunknown q/J explicit.
+Six edge controls yield THREE source-gated split/reclosure candidates, allq/J0.
+8184–205050218 plus ONE boundarymove189402863→newID reduces physicalbadfaces/
+geometrybadcells4→3, canonicalexcess4.533680586e-6→4.533675765e-6, maxedgeunchanged.
+8184–201067564 plus78optimizertrials reducesexcess36.18% butretains4badcells;
+8184–294622922 plus79trials also reducesexcess with4badcells. Counts remain primary.
+R/closure265_assessment.json preserves fullrows. Localcandidates areNOT nonlocal
+publication/contact/acceptedmesh proof. 266 compares existing SplitSurfaceStrip
+(empty moves, complete context) against ring split+unchangedneighbors before
+source-gated optimization. Legacy fixture behavior retained.
+263 serialpassed40107assertions;264 compilefailure preserved (nonexistentbad_cells
+member), corrected in265 after allhandles terminal. No264casewasrun.
+[Prior diagnostic/source semantics](Handbook/ADAPTATION_CLOSURE263_20261108.md).
+No immutable-original-target policy introduced: current nodal transport/rebasing
+is production authority. CADoptional/allgates unchanged/fullgoalunchanged.
 
 ## Build262 — terminal refused; complete saved mesh, q/J partial
 
