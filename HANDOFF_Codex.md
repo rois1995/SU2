@@ -23,7 +23,7 @@ A247=`R/m6_runs/euler_build247_canonical_mach_only_real_cfd50k`(REFUSED baseline
 
 ## CURRENT — full two-event256 M6 RUNNING FROZEN
 
-Latest pushed milestone3b580b2a7e;executing C++implementation42a3fedcc7.
+Latest pushed milestone d5f10f7d98;executing C++implementation42a3fedcc7.
 Preserved254implementation8a2c4e1d48/inspectionfc87c40994. 254first event
 REFUSED at native5332.870105/round42620:private repair round elapsed-time budget.
 COMPLETE terminal741236cells/251q/205J/95geometry/0size,all measured/flags complete.
@@ -91,7 +91,14 @@ Native451.071s versus254509.246s is NOT isolated-code speedup evidence.
 A256/construction_comparison254.json;source prefixes hashed by current parser.
 Latest sampled treeRSS6.72GB at wall563s,not physical peak. Keep construction/phase/queue/migration
 modes and all strict gates/budgets. No new baseline/perf/GDB or implementation.
-Latest COMPLETE quality window23424/native1085.928814,quality380.265073s:
+LATEST observed COMPLETE quality window23616/native1612.136214,quality906.472473s:
+713200cells/14069q/12878J/1078geometry/0size,all flags complete. Old254matching
+window atquality925.586017s:14549q/13445J/1095geometry(timegap−19.114s).
+Net q/J removal rates14.28/16.08 persecond vsold13.47/15.13;still NO global
+closure/acceptance proof or isolated timing gain. Three complete ownership
+publications preserve aggregate census flags/counts. quality_window5_snapshot.json
+is the compact pushed snapshot;detailed counter files refreshed locally.
+Earlier COMPLETE quality window23424/native1085.928814,quality380.265073s:
 703962cells/20201q/19573J/1144geometry/0size. All flags complete;following
 ownership publication preserves counts/flags. Old254window23424 atquality388.130433s:
 20157q/19485J/1148geometry. Early net counts/rates essentially similar;no global

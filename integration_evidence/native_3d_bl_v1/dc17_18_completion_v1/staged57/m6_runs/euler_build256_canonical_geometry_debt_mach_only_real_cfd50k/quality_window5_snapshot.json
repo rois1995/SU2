@@ -1,0 +1,125 @@
+{
+  "time": 1794102668.3668413,
+  "scope": "Fifth complete first-event quality window;actual measured-time pair with explicit gap,no interpolation or terminal forecast. Initial state and selected rank construction work exactly254. Full run remains frozen;zero accepted meshes.",
+  "latest_stage": {
+    "stage": "window",
+    "round": 23616,
+    "phase": "improvement",
+    "maximum_native_elapsed": 1612.136213866,
+    "totals": {
+      "cells": 713200,
+      "measured": 713200,
+      "q_measured": 713200,
+      "j_measured": 713200,
+      "q_bad": 14069,
+      "j_bad": 12878,
+      "geometry_bad": 1078,
+      "size_bad": 0
+    },
+    "complete_flags": {
+      "cache_consistent": true,
+      "census_complete": true,
+      "shape_complete": true,
+      "geometry_complete": true
+    },
+    "replicated_global_work": 1004197
+  },
+  "matched_quality_times": {
+    "round256": 23616,
+    "round254": 23616,
+    "quality_seconds256": 906.4724725079999,
+    "quality_seconds254": 925.586016609,
+    "gap256_minus254": -19.113544101000116
+  },
+  "new256": {
+    "totals": {
+      "cells": 713200,
+      "measured": 713200,
+      "q_measured": 713200,
+      "j_measured": 713200,
+      "q_bad": 14069,
+      "j_bad": 12878,
+      "geometry_bad": 1078,
+      "size_bad": 0
+    },
+    "net_bad_removed": {
+      "q_bad": 12947,
+      "j_bad": 14575,
+      "geometry_bad": 127
+    },
+    "net_bad_removed_per_quality_second": {
+      "q_bad": 14.282838577743727,
+      "j_bad": 16.078811483016516,
+      "geometry_bad": 0.14010353745064133
+    },
+    "cumulative_service": {
+      "commits": 9446.0,
+      "q_retired": 91867.0,
+      "q_introduced": 78920.0,
+      "j_retired": 86851.0,
+      "j_introduced": 72276.0,
+      "busy_seconds": 1701.655742809,
+      "join_call_seconds": 2346.034038152,
+      "tracked_collective_call_seconds": 695.151711061903
+    }
+  },
+  "old254": {
+    "totals": {
+      "cells": 713466,
+      "measured": 713466,
+      "q_measured": 713466,
+      "j_measured": 713466,
+      "q_bad": 14549,
+      "j_bad": 13445,
+      "geometry_bad": 1095,
+      "size_bad": 0
+    },
+    "net_bad_removed": {
+      "q_bad": 12467,
+      "j_bad": 14008,
+      "geometry_bad": 110
+    },
+    "net_bad_removed_per_quality_second": {
+      "q_bad": 13.469304609499625,
+      "j_bad": 15.134195794487106,
+      "geometry_bad": 0.1188436277408325
+    },
+    "cumulative_service": {
+      "commits": 8940.0,
+      "q_retired": 87072.0,
+      "q_introduced": 74605.0,
+      "j_retired": 82716.0,
+      "j_introduced": 68708.0,
+      "busy_seconds": 1750.34454316,
+      "join_call_seconds": 2520.7898410530006,
+      "tracked_collective_call_seconds": 693.19579381089
+    }
+  },
+  "source_prefixes": {
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
+      "bytes": 425708,
+      "sha256": "4bf47b81c1eb3d1d380608d5a1625b5e4b34a8f986958faee6d3692b56e962a3"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
+      "bytes": 403085,
+      "sha256": "78b4cda1a622760db7d53a0b25de9d811c70ab31f508ee057e7922c5994c294c"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
+      "bytes": 402451,
+      "sha256": "f75b5fde308d2b1f8d33882c8d0d49350366c2072edc4611b026d9f74f0e026e"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
+      "bytes": 403116,
+      "sha256": "ff258d69105ef1b769eb198eadf3906e2e99112243646426411353052a297118"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
+      "bytes": 403649,
+      "sha256": "6d0fe792c2293aa7bc51533cbd4102ed0b7ca89feae87c615dbcb4e25167f0a2"
+    },
+    "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build256_canonical_geometry_debt_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
+      "bytes": 402356,
+      "sha256": "d8e357cee74fd4bff6860122c9c53d6fff2bd34e102ef966fdc1642ca9f95ba9"
+    }
+  },
+  "analysis_sha256": "74969390f775157f83d8519925383105e86560e7f292c6e21beebcfcb27136eb"
+}
