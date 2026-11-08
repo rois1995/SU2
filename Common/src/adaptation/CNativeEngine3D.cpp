@@ -1254,7 +1254,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     return world.elect(local);
   };
   auto vote=[&](const CLocalFailure& local) {
-    if(atlas_budget.within_time && !atlas_budget.within_time())atlas_budget.time_exhausted=true;
+    if(private_repair && atlas_budget.within_time && !atlas_budget.within_time())atlas_budget.time_exhausted=true;
     stats.atlas_work=atlas_budget.work;stats.atlas_peak_bytes=atlas_budget.peak_bytes;
     stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,atlas_budget.peak_bytes);
     // Elect sticky geometry failures at the existing stage votes, even if a trial caught the exception.

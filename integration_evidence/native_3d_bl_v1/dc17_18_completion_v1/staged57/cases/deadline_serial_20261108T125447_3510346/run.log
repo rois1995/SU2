@@ -1,0 +1,67 @@
+Filters: [NativeDeadline3D]
+0.080 s: Interrupted surface certification preserves cache and releases query storage
+0.000 s: Atlas elapsed expiry is sticky and preserves exact outputs
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Private geometry expiry joins empty ranks and captures the last published mesh
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:4923
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:4959: FAILED:
+  CHECK( world.maximum(expired) )
+with expansion:
+  0
+with message:
+  Native3D analytic runtime requires a consistent positive frozen surface
+  tolerance.
+
+../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:4959: FAILED:
+  CHECK( result.stats.stop==EngineStop::TimeBudget )
+with expansion:
+  6 == 4
+with message:
+  Native3D analytic runtime requires a consistent positive frozen surface
+  tolerance.
+
+../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:4961: FAILED:
+  CHECK( world.sum(result.cells.size())==box.patch.cells.size() )
+with expansion:
+  0 == 12
+with message:
+  Native3D analytic runtime requires a consistent positive frozen surface
+  tolerance.
+
+0.001 s: Private geometry expiry joins empty ranks and captures the last published mesh
+===============================================================================
+test cases:  3 |  2 passed | 1 failed
+assertions: 36 | 33 passed | 3 failed
+
+Command exited with non-zero status 3
+	Command being timed: "timeout 600 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v3-currenthost/UnitTests/test_driver [NativeDeadline3D] --durations yes"
+	User time (seconds): 0.09
+	System time (seconds): 0.03
+	Percent of CPU this job got: 31%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.41
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 34960
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2926
+	Voluntary context switches: 950
+	Involuntary context switches: 30
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 3

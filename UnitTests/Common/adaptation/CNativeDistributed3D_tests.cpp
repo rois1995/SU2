@@ -4943,8 +4943,11 @@ TEST_CASE("Private geometry expiry joins empty ranks and captures the last publi
   parameters=parameters->WithMobilityPolicy(45,roles,setup);
   const auto snapshot=parameters->Snapshot();
   auto geometry=PlanarReference::WithParameters(root,parameters);
-  EngineOptions options;options.maximum_seconds=120;options.maximum_work=4096;
+  FailureCapture capture("deadline_expiry",world.rank,world.size,1);
+  EngineOptions options;options.maximum_seconds=120;options.maximum_work=4096;options.surface_tolerance=1e-3;
   options.capture_feature={{0,0,0},1};bool expired=false;unsigned captured=0;
+  options.stage_observer_bytes=FailureCapture::ScratchBytes;
+  options.stage_observer=[&](const StageProgressView& view){capture.Observe(view);};
   options.transaction_observer=[&](const TransactionView& view) {
     if(std::string(view.stage)!="begin" || !view.selected)return;
     auto* budget=view.geometry.AtlasReservation();REQUIRE(budget);
@@ -4956,7 +4959,7 @@ TEST_CASE("Private geometry expiry joins empty ranks and captures the last publi
     for(const auto& row:cells){const auto& v=row.second.cell.v;CHECK(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0);}
   };
   const auto result=Repair(world,input,Uniform(input,Tensor{}),*geometry,{},options);INFO(result.reason);
-  CHECK(world.maximum(expired));CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::TimeBudget);
+  CHECK(capture.Complete());CHECK(world.maximum(expired));CHECK_FALSE(result.valid);CHECK(result.stats.stop==EngineStop::TimeBudget);
   CHECK(world.sum(result.stats.accepted)==0);CHECK(captured==1);CHECK(Bytes(input)==saved);
   CHECK(world.sum(result.cells.size())==box.patch.cells.size());
   CHECK(result.stats.quality.private_tracked_collectives==0);

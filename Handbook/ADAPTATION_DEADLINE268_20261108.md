@@ -63,3 +63,38 @@ Limits: this is cooperative cancellation, not preemption within an external spat
 index call, allocation or standard-library sort. Tests distinguish exact output
 atomicity, interrupted/rebuilt/warm certificates, sticky resource state and a
 private trial cancellation with empty ranks and rejected-state serialization.
+
+A bounded read-only second review found no additional actionable publication,
+empty-rank alignment or refusal-capture defect. This is source review, not runtime
+qualification. The build and runtime checks remain required.
+
+Build268 passed479.549747s with unchanged pins. Focused tests: initial startup
+failed53 (omitted osc=pt2pt), retry passed exact/cache tests but the distributed
+fixture lacked a positive surface tolerance and stopped at input validation
+(3assertions). No private-expiry result yet. All failed handles terminal and
+receipts preserved. Build269 corrects ONLY that fixture setting; production
+sources are unchanged. Full qualification remains pending.
+
+Build269 passed83.144075s; production CFD bit-identical268, all pins unchanged.
+Focused serial retry passed3cases/49assertions5.521220s: actual private trial expiry
+was reached, no accepted edit, last-published state remained capturable. All
+focused/build handles terminal; connected serial milestone now running.
+
+Connected269serial:80of81cases pass/62877of62879assertions. Existing tiny-time
+metric-seed test catches an early-state regression: polling raw clock at every
+vote can refuse before copying working cells. Correct270polls raw clock only in
+private votes; global stage-specific deadline guards remain, and sticky query
+expiry is still elected at every vote. Full FailureCapture completion is now
+asserted by the private-expiry test. No gate/budget change. All269handles terminal
+before270edits. Build270/tool55378 running; no MPI/nextM6 yet.
+
+Build270 passed91.204566s, all pins unchanged. Focused2706/7cases passed,
+106/107assertions: early refusal contract now passes; full capture fixture lacked
+its existing ScratchBytes admission, so capture refused before writing. All
+handles terminal. Build271 corrects ONLY test admission; production unchanged270.
+Build271/tool89297 now running. No MPI milestone or nextM6 launched yet.
+
+Build271 passed83.170987s; CFDbyte-identical270, allpinsunchanged, allhandles
+terminal. Focused271 passed7cases/107assertions4.762013s, including the established
+early refusal contract and complete12-cell FailureCapture after private expiry.
+Connected serial271 now running/tool59043; MPI6/fullM6 still pending.

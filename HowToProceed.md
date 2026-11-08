@@ -18,8 +18,15 @@ was6q/5J/2geometry; actual terminal state is UNKNOWN. Zero accepted meshes.
 The active continuation is cooperative deadline enforcement through long query/
 certification work and safe private-round expiry. It must preserve the last
 published mesh so ordinary refusal capture can run. No budget/gate/target change.
-268deadline implementation and focused tests are frozen in build session88079,
-helper3486849/start18637953, ninja3486900. UNVALIDATED; do not edit pinned sources.
+268deadline build passed; exact/cache expiry cases passed. Distributed fixture
+stopped before expiry because a required surface tolerance was omitted. ONLY
+that test setting is corrected; build269 passed with byte-identical production CFD.
+Focused retry passed3cases/49assertions. Connected269serial found an early refusal-state regression (80/81cases pass).
+270restricts raw-clock sampling to private votes and tests actual refusal export;
+production270 built and early refusal passes. Full export fixture needed its
+existing scratch admission; build271 passed and focused7cases/107assertions pass,
+including actual12-cell refused-mesh export. Serial271/tool59043 is frozen;
+MPI6/full M6 pending. Do not edit pinned sources.
 Read the handoff for source/build/handle provenance.
 
 The latest complete saved mesh remains build262's734315-cell terminal refusal.

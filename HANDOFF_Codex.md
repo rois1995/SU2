@@ -50,10 +50,22 @@ published mesh so ordinary refusal capture can run after deadline expiry. Valida
 expired/unexpired/cached/recomputed behavior, geometry/feature/body/height gates,
 resource exhaustion and MPI6 empty-rank/private-join alignment. Then immediately
 return to full same-seed TWO-event M6. Primitive deadline checks are NOTcompletion.
-268deadline changes are local/unvalidated: AtlasBudget rank-local callback and sticky expiry,
-query/exact work checks, existing vote/join propagation and focused expiry tests. Build268 RUNNING: tool88079; helper3486849/start18637953, ninja3486900;
-11changed compiled files, all other267source pins unchanged. About41.79GB host
-MemAvailable/load2.57 at launch. Do not edit pinned code/helpers until terminal.
+Deadline268–271 is ONE connected implementation, still UNQUALIFIED. Latest
+production270 fixes an early-vote regression: raw clock sampling only in PRIVATE
+votes; existing global time guards and sticky query-expiry votes remain. Actual
+FailureCapture completion is added to private-expiry test. Build270passed91.204566s,
+CFDsha3449cdaf260c7e2014ba1d465b0b94fafd2fe0da7c5c183823acc13aa374093e.
+Focused270proved early policy/private expiry but export test lacked existing
+scratch admission (6/7cases,106/107assertions); allhandles terminal. ONLY fixture
+admission corrected. Build271 TERMINAL0/83.170987s, CFD BYTE-IDENTICAL270, all pins unchanged and
+owned handles terminal. Focused271cases/deadline_serial_20261108T130603_3540056
+PASSED7cases/107assertions/tool23147terminal0: includes actual full12-cell export
+after expiry and early refusal contract. All prior failures retained.
+Connected serial271 RUNNING tool59043 viaR/deadline271_validate.py serial.
+Sources/helpers FROZEN; get exact case/host handles from output/status before
+nextjob. ONE MPI6 and full same-seed TWO-event M6 still pending. Do not reuse old
+269focused/267qualification for current sources. Latest pushed WIP2bee93a0ac;
+subsequent regression fix/test admissions/evidence are being checkpointed.
 
 [Current coupled design/evidence](Handbook/ADAPTATION_COUPLED_REPAIR266_20261108.md).
 [Deferred hypotheses](Handbook/ADAPTATION_BACKLOG.md): proposal old-connectivity
