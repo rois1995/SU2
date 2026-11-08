@@ -31,16 +31,25 @@ all1520pins verified. Initial61330coordinates/22fields BIT-IDENTICAL256 and the
 qualified254target, Mach-only sensor; A271/initial_cfd_target_equivalence.json,
 initial_verifier_reuse.json,config_equivalence262.json. This is original-grid
 CFD/target provenance, NOT adapted CFD/transfer/acceptance proof.
-First TWO complete construction checkpoints match267: every non-time/non-byte
-rankfield, mesh counts/flags and compared work counters EXACT. Latestownership_staged
-round1627/native231.804496s:293202cells,2972geometry-bad,73682size-bad; q/J UNMEASURED.
-A271/first_construction_equivalence267.json seals prefix hashes/all1520pins verified.
-Subsequent22complete checkpoints match267counts/flags/comparedwork. Latest recorded
-length_split_exit round18686/native376.024317s:661010cells,3666geometry-bad,
-5129size-bad,q/JUNMEASURED. SeeA271/construction_progress_assessment.json and
-comparison267_matching_stages.json. No speedup/shapeclosure claim. Live receipt
-A271/first_construction_live_receipt.json confirmsall11identities, sampled whole-tree
-RSSpeak7.550500864GB/hostavailable40.476758016GB/load10.68; no resource stop condition.
+First83complete checkpoints throughFIRSTQUALITYENTRY match267: every non-time/
+non-byte rankfield, mesh counts/flags and work counters EXACT; all1520pins verified.
+Qualityentryround23314/native657.918548s:690715cells,27016q-bad,27453J-bad,
+1205geometry-bad,0size-bad; ALLmeasured/ALLcensusflagscomplete. Old267entry at
+691.831276s; elapsed difference is NOTcausal speedup proof. Sealed in
+A271/quality_entry_equivalence267.json; liveparser/comparison records inA271.
+Firstqualitywindowround23360/native796.908672s:697375cells,23178q-bad,23002J-bad,
+1184geometry-bad,0size-bad; ALLflagscomplete. EXACT267counts/comparedwork. Netremoval
+3838q/4451J/21geometry in138.990123s vs267143.453139s (27.61vs26.75q/s), NOTcausal
+speedup proof. Firstwindow1410commits,21415qretired/17577introduced; net2.72q/commit.
+Join-call rank-wall share37.03% (notCPUidle), max/meanq+Jdebt1.19; no missingfeatures,
+stuckshape0, private trackedcollectives0. Interiorq14442/surfaceq8736. Existing
+counter/churn/location/ladder checks reused; A271/quality_comparison267.json and
+quality_counter_assessment.json. Do not choose a new implementation from this
+EARLYwindow; actual terminal residual still governs the active cycle.
+A271/transfer_restart_readiness_reuse.json verifies ALL9audited256paths unchanged;
+source audit reusable, actual transfer/adaptedCFD/diskrestart NOTyetverified.
+Latest savedlive receipt confirmsall11identities; sampled treeRSSpeak7.55GB and
+hostavailable40.48GB; no resource stop condition.
 Then monitor complete q/J/geometry/size censuses/useful work, leave frozen unless
 preserved evidence meets existing authorized-stop conditions. On refusal, preserve
 actual raw mesh/metric/cavities before source changes. Full transfer/CFD/restart/

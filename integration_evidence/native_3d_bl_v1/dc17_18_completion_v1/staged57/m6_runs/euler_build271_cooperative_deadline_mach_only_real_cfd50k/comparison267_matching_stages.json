@@ -1,5 +1,5 @@
 {
-  "time": 1794144126.5621924,
+  "time": 1794144569.470046,
   "scope": "Matching complete first-event stage/round groups, prefix hashes verified. Unmeasured q/J printed zeros are UNKNOWN. Wall time is contention/cache/ownership sensitive; not causal kernel speedup.",
   "matching": [
     {
@@ -2113,6 +2113,5958 @@
         "scope_misses": 0,
         "cache_evictions": 0
       }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 18851,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 662765,
+        "measured": 662765,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3699,
+        "size_bad": 4893
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 401.691196841,
+        "work": {
+          "accepted": 74985,
+          "length_splits": 72490,
+          "length_collapses": 2495,
+          "geometry_trials": 149672,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 27598,
+          "upper_work": 120387193,
+          "traversal_work": 108152491,
+          "scope_build_work": 3805184,
+          "facet_build_work": 1642234,
+          "piece_selection_work": 4995689,
+          "scope_hits": 2079,
+          "scope_misses": 20059,
+          "cache_evictions": 11754
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 399.819637168,
+        "work": {
+          "accepted": 74985,
+          "length_splits": 72490,
+          "length_collapses": 2495,
+          "geometry_trials": 149672,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 27598,
+          "upper_work": 120387193,
+          "traversal_work": 108152491,
+          "scope_build_work": 3805184,
+          "facet_build_work": 1642234,
+          "piece_selection_work": 4995689,
+          "scope_hits": 2079,
+          "scope_misses": 20059,
+          "cache_evictions": 11754
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 18851,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 662765,
+        "measured": 662765,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3699,
+        "size_bad": 4893
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 401.696401922,
+        "work": {
+          "accepted": 74985,
+          "length_splits": 72490,
+          "length_collapses": 2495,
+          "geometry_trials": 149672,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 27598,
+          "upper_work": 120387193,
+          "traversal_work": 108152491,
+          "scope_build_work": 3805184,
+          "facet_build_work": 1642234,
+          "piece_selection_work": 4995689,
+          "scope_hits": 2079,
+          "scope_misses": 20059,
+          "cache_evictions": 11754
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 399.828969711,
+        "work": {
+          "accepted": 74985,
+          "length_splits": 72490,
+          "length_collapses": 2495,
+          "geometry_trials": 149672,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 27598,
+          "upper_work": 120387193,
+          "traversal_work": 108152491,
+          "scope_build_work": 3805184,
+          "facet_build_work": 1642234,
+          "piece_selection_work": 4995689,
+          "scope_hits": 2079,
+          "scope_misses": 20059,
+          "cache_evictions": 11754
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 19409,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 664215,
+        "measured": 664215,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3699,
+        "size_bad": 4449
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 403.345880001,
+        "work": {
+          "accepted": 75264,
+          "length_splits": 72769,
+          "length_collapses": 2495,
+          "geometry_trials": 151379,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 27598,
+          "upper_work": 120387193,
+          "traversal_work": 108152491,
+          "scope_build_work": 3805184,
+          "facet_build_work": 1642234,
+          "piece_selection_work": 4995689,
+          "scope_hits": 2079,
+          "scope_misses": 20059,
+          "cache_evictions": 11754
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 401.553044533,
+        "work": {
+          "accepted": 75264,
+          "length_splits": 72769,
+          "length_collapses": 2495,
+          "geometry_trials": 151379,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 27598,
+          "upper_work": 120387193,
+          "traversal_work": 108152491,
+          "scope_build_work": 3805184,
+          "facet_build_work": 1642234,
+          "piece_selection_work": 4995689,
+          "scope_hits": 2079,
+          "scope_misses": 20059,
+          "cache_evictions": 11754
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 19569,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 666027,
+        "measured": 666027,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3776,
+        "size_bad": 4190
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 423.38186014,
+        "work": {
+          "accepted": 75977,
+          "length_splits": 73482,
+          "length_collapses": 2495,
+          "geometry_trials": 152096,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 29299,
+          "upper_work": 132565317,
+          "traversal_work": 119825048,
+          "scope_build_work": 4057424,
+          "facet_build_work": 1642504,
+          "piece_selection_work": 5222272,
+          "scope_hits": 2121,
+          "scope_misses": 21716,
+          "cache_evictions": 13235
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 421.774024868,
+        "work": {
+          "accepted": 75977,
+          "length_splits": 73482,
+          "length_collapses": 2495,
+          "geometry_trials": 152096,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 29299,
+          "upper_work": 132565317,
+          "traversal_work": 119825048,
+          "scope_build_work": 4057424,
+          "facet_build_work": 1642504,
+          "piece_selection_work": 5222272,
+          "scope_hits": 2121,
+          "scope_misses": 21716,
+          "cache_evictions": 13235
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 19569,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 666027,
+        "measured": 666027,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3776,
+        "size_bad": 4190
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 423.389441057,
+        "work": {
+          "accepted": 75977,
+          "length_splits": 73482,
+          "length_collapses": 2495,
+          "geometry_trials": 152096,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 29299,
+          "upper_work": 132565317,
+          "traversal_work": 119825048,
+          "scope_build_work": 4057424,
+          "facet_build_work": 1642504,
+          "piece_selection_work": 5222272,
+          "scope_hits": 2121,
+          "scope_misses": 21716,
+          "cache_evictions": 13235
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 421.779011737,
+        "work": {
+          "accepted": 75977,
+          "length_splits": 73482,
+          "length_collapses": 2495,
+          "geometry_trials": 152096,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 29299,
+          "upper_work": 132565317,
+          "traversal_work": 119825048,
+          "scope_build_work": 4057424,
+          "facet_build_work": 1642504,
+          "piece_selection_work": 5222272,
+          "scope_hits": 2121,
+          "scope_misses": 21716,
+          "cache_evictions": 13235
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 20029,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 667391,
+        "measured": 667391,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3776,
+        "size_bad": 3773
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 425.165088253,
+        "work": {
+          "accepted": 76231,
+          "length_splits": 73736,
+          "length_collapses": 2495,
+          "geometry_trials": 153435,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 29299,
+          "upper_work": 132565317,
+          "traversal_work": 119825048,
+          "scope_build_work": 4057424,
+          "facet_build_work": 1642504,
+          "piece_selection_work": 5222272,
+          "scope_hits": 2121,
+          "scope_misses": 21716,
+          "cache_evictions": 13235
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 423.312416226,
+        "work": {
+          "accepted": 76231,
+          "length_splits": 73736,
+          "length_collapses": 2495,
+          "geometry_trials": 153435,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 29299,
+          "upper_work": 132565317,
+          "traversal_work": 119825048,
+          "scope_build_work": 4057424,
+          "facet_build_work": 1642504,
+          "piece_selection_work": 5222272,
+          "scope_hits": 2121,
+          "scope_misses": 21716,
+          "cache_evictions": 13235
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 20191,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 669178,
+        "measured": 669178,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3766,
+        "size_bad": 3494
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 444.274064682,
+        "work": {
+          "accepted": 76941,
+          "length_splits": 74446,
+          "length_collapses": 2495,
+          "geometry_trials": 154149,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 31026,
+          "upper_work": 143746503,
+          "traversal_work": 130509663,
+          "scope_build_work": 4300262,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5445670,
+          "scope_hits": 2181,
+          "scope_misses": 23382,
+          "cache_evictions": 14822
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 443.232855097,
+        "work": {
+          "accepted": 76941,
+          "length_splits": 74446,
+          "length_collapses": 2495,
+          "geometry_trials": 154149,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 31026,
+          "upper_work": 143746503,
+          "traversal_work": 130509663,
+          "scope_build_work": 4300262,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5445670,
+          "scope_hits": 2181,
+          "scope_misses": 23382,
+          "cache_evictions": 14822
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 20191,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 669178,
+        "measured": 669178,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3766,
+        "size_bad": 3494
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 444.279524344,
+        "work": {
+          "accepted": 76941,
+          "length_splits": 74446,
+          "length_collapses": 2495,
+          "geometry_trials": 154149,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 31026,
+          "upper_work": 143746503,
+          "traversal_work": 130509663,
+          "scope_build_work": 4300262,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5445670,
+          "scope_hits": 2181,
+          "scope_misses": 23382,
+          "cache_evictions": 14822
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 443.237749744,
+        "work": {
+          "accepted": 76941,
+          "length_splits": 74446,
+          "length_collapses": 2495,
+          "geometry_trials": 154149,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 31026,
+          "upper_work": 143746503,
+          "traversal_work": 130509663,
+          "scope_build_work": 4300262,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5445670,
+          "scope_hits": 2181,
+          "scope_misses": 23382,
+          "cache_evictions": 14822
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 20572,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 670142,
+        "measured": 670142,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3766,
+        "size_bad": 3117
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 445.513409568,
+        "work": {
+          "accepted": 77127,
+          "length_splits": 74632,
+          "length_collapses": 2495,
+          "geometry_trials": 155181,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 31026,
+          "upper_work": 143746503,
+          "traversal_work": 130509663,
+          "scope_build_work": 4300262,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5445670,
+          "scope_hits": 2181,
+          "scope_misses": 23382,
+          "cache_evictions": 14822
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 444.443994781,
+        "work": {
+          "accepted": 77127,
+          "length_splits": 74632,
+          "length_collapses": 2495,
+          "geometry_trials": 155181,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 31026,
+          "upper_work": 143746503,
+          "traversal_work": 130509663,
+          "scope_build_work": 4300262,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5445670,
+          "scope_hits": 2181,
+          "scope_misses": 23382,
+          "cache_evictions": 14822
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 20731,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 671839,
+        "measured": 671839,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3730,
+        "size_bad": 2868
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 463.668624072,
+        "work": {
+          "accepted": 77811,
+          "length_splits": 75316,
+          "length_collapses": 2495,
+          "geometry_trials": 155867,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 32711,
+          "upper_work": 154545691,
+          "traversal_work": 140830180,
+          "scope_build_work": 4539293,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5661152,
+          "scope_hits": 2239,
+          "scope_misses": 25006,
+          "cache_evictions": 16218
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 464.025223445,
+        "work": {
+          "accepted": 77811,
+          "length_splits": 75316,
+          "length_collapses": 2495,
+          "geometry_trials": 155867,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 32711,
+          "upper_work": 154545691,
+          "traversal_work": 140830180,
+          "scope_build_work": 4539293,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5661152,
+          "scope_hits": 2239,
+          "scope_misses": 25006,
+          "cache_evictions": 16218
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 20731,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 671839,
+        "measured": 671839,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3730,
+        "size_bad": 2868
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 463.673313422,
+        "work": {
+          "accepted": 77811,
+          "length_splits": 75316,
+          "length_collapses": 2495,
+          "geometry_trials": 155867,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 32711,
+          "upper_work": 154545691,
+          "traversal_work": 140830180,
+          "scope_build_work": 4539293,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5661152,
+          "scope_hits": 2239,
+          "scope_misses": 25006,
+          "cache_evictions": 16218
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 464.044348004,
+        "work": {
+          "accepted": 77811,
+          "length_splits": 75316,
+          "length_collapses": 2495,
+          "geometry_trials": 155867,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 32711,
+          "upper_work": 154545691,
+          "traversal_work": 140830180,
+          "scope_build_work": 4539293,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5661152,
+          "scope_hits": 2239,
+          "scope_misses": 25006,
+          "cache_evictions": 16218
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 21021,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 672433,
+        "measured": 672433,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3730,
+        "size_bad": 2632
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 464.728581846,
+        "work": {
+          "accepted": 77924,
+          "length_splits": 75429,
+          "length_collapses": 2495,
+          "geometry_trials": 156625,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 32711,
+          "upper_work": 154545691,
+          "traversal_work": 140830180,
+          "scope_build_work": 4539293,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5661152,
+          "scope_hits": 2239,
+          "scope_misses": 25006,
+          "cache_evictions": 16218
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 465.651180837,
+        "work": {
+          "accepted": 77924,
+          "length_splits": 75429,
+          "length_collapses": 2495,
+          "geometry_trials": 156625,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 32711,
+          "upper_work": 154545691,
+          "traversal_work": 140830180,
+          "scope_build_work": 4539293,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5661152,
+          "scope_hits": 2239,
+          "scope_misses": 25006,
+          "cache_evictions": 16218
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 21168,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 674057,
+        "measured": 674057,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3675,
+        "size_bad": 2403
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 483.259175223,
+        "work": {
+          "accepted": 78578,
+          "length_splits": 76083,
+          "length_collapses": 2495,
+          "geometry_trials": 157297,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 34360,
+          "upper_work": 165111383,
+          "traversal_work": 150967263,
+          "scope_build_work": 4753239,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5853906,
+          "scope_hits": 2280,
+          "scope_misses": 26613,
+          "cache_evictions": 17514
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 482.151511424,
+        "work": {
+          "accepted": 78578,
+          "length_splits": 76083,
+          "length_collapses": 2495,
+          "geometry_trials": 157297,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 34360,
+          "upper_work": 165111383,
+          "traversal_work": 150967263,
+          "scope_build_work": 4753239,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5853906,
+          "scope_hits": 2280,
+          "scope_misses": 26613,
+          "cache_evictions": 17514
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 21168,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 674057,
+        "measured": 674057,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3675,
+        "size_bad": 2403
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 483.265163844,
+        "work": {
+          "accepted": 78578,
+          "length_splits": 76083,
+          "length_collapses": 2495,
+          "geometry_trials": 157297,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 34360,
+          "upper_work": 165111383,
+          "traversal_work": 150967263,
+          "scope_build_work": 4753239,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5853906,
+          "scope_hits": 2280,
+          "scope_misses": 26613,
+          "cache_evictions": 17514
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 482.155873546,
+        "work": {
+          "accepted": 78578,
+          "length_splits": 76083,
+          "length_collapses": 2495,
+          "geometry_trials": 157297,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 34360,
+          "upper_work": 165111383,
+          "traversal_work": 150967263,
+          "scope_build_work": 4753239,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5853906,
+          "scope_hits": 2280,
+          "scope_misses": 26613,
+          "cache_evictions": 17514
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 21411,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 674741,
+        "measured": 674741,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3675,
+        "size_bad": 2086
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 484.387418467,
+        "work": {
+          "accepted": 78704,
+          "length_splits": 76209,
+          "length_collapses": 2495,
+          "geometry_trials": 157903,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 34360,
+          "upper_work": 165111383,
+          "traversal_work": 150967263,
+          "scope_build_work": 4753239,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5853906,
+          "scope_hits": 2280,
+          "scope_misses": 26613,
+          "cache_evictions": 17514
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 482.941660368,
+        "work": {
+          "accepted": 78704,
+          "length_splits": 76209,
+          "length_collapses": 2495,
+          "geometry_trials": 157903,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 34360,
+          "upper_work": 165111383,
+          "traversal_work": 150967263,
+          "scope_build_work": 4753239,
+          "facet_build_work": 1646312,
+          "piece_selection_work": 5853906,
+          "scope_hits": 2280,
+          "scope_misses": 26613,
+          "cache_evictions": 17514
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 21548,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 676280,
+        "measured": 676280,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3617,
+        "size_bad": 1915
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 502.430779921,
+        "work": {
+          "accepted": 79329,
+          "length_splits": 76834,
+          "length_collapses": 2495,
+          "geometry_trials": 158541,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 35977,
+          "upper_work": 176070562,
+          "traversal_work": 161498577,
+          "scope_build_work": 4966189,
+          "facet_build_work": 1646334,
+          "piece_selection_work": 6047333,
+          "scope_hits": 2335,
+          "scope_misses": 28174,
+          "cache_evictions": 18919
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 499.966860275,
+        "work": {
+          "accepted": 79329,
+          "length_splits": 76834,
+          "length_collapses": 2495,
+          "geometry_trials": 158541,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 35977,
+          "upper_work": 176070562,
+          "traversal_work": 161498577,
+          "scope_build_work": 4966189,
+          "facet_build_work": 1646334,
+          "piece_selection_work": 6047333,
+          "scope_hits": 2335,
+          "scope_misses": 28174,
+          "cache_evictions": 18919
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 21548,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 676280,
+        "measured": 676280,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3617,
+        "size_bad": 1915
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 502.43798292,
+        "work": {
+          "accepted": 79329,
+          "length_splits": 76834,
+          "length_collapses": 2495,
+          "geometry_trials": 158541,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 35977,
+          "upper_work": 176070562,
+          "traversal_work": 161498577,
+          "scope_build_work": 4966189,
+          "facet_build_work": 1646334,
+          "piece_selection_work": 6047333,
+          "scope_hits": 2335,
+          "scope_misses": 28174,
+          "cache_evictions": 18919
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 499.97182609,
+        "work": {
+          "accepted": 79329,
+          "length_splits": 76834,
+          "length_collapses": 2495,
+          "geometry_trials": 158541,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 35977,
+          "upper_work": 176070562,
+          "traversal_work": 161498577,
+          "scope_build_work": 4966189,
+          "facet_build_work": 1646334,
+          "piece_selection_work": 6047333,
+          "scope_hits": 2335,
+          "scope_misses": 28174,
+          "cache_evictions": 18919
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 21711,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 676680,
+        "measured": 676680,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3617,
+        "size_bad": 1687
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 503.040776085,
+        "work": {
+          "accepted": 79403,
+          "length_splits": 76908,
+          "length_collapses": 2495,
+          "geometry_trials": 158933,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 35977,
+          "upper_work": 176070562,
+          "traversal_work": 161498577,
+          "scope_build_work": 4966189,
+          "facet_build_work": 1646334,
+          "piece_selection_work": 6047333,
+          "scope_hits": 2335,
+          "scope_misses": 28174,
+          "cache_evictions": 18919
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 500.44443419,
+        "work": {
+          "accepted": 79403,
+          "length_splits": 76908,
+          "length_collapses": 2495,
+          "geometry_trials": 158933,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 35977,
+          "upper_work": 176070562,
+          "traversal_work": 161498577,
+          "scope_build_work": 4966189,
+          "facet_build_work": 1646334,
+          "piece_selection_work": 6047333,
+          "scope_hits": 2335,
+          "scope_misses": 28174,
+          "cache_evictions": 18919
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 21843,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 678137,
+        "measured": 678137,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3506,
+        "size_bad": 1517
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 520.983898453,
+        "work": {
+          "accepted": 80010,
+          "length_splits": 77515,
+          "length_collapses": 2495,
+          "geometry_trials": 159557,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 37563,
+          "upper_work": 187019358,
+          "traversal_work": 172046358,
+          "scope_build_work": 5166295,
+          "facet_build_work": 1647248,
+          "piece_selection_work": 6227479,
+          "scope_hits": 2380,
+          "scope_misses": 29714,
+          "cache_evictions": 20219
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 515.89657705,
+        "work": {
+          "accepted": 80010,
+          "length_splits": 77515,
+          "length_collapses": 2495,
+          "geometry_trials": 159557,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 37563,
+          "upper_work": 187019358,
+          "traversal_work": 172046358,
+          "scope_build_work": 5166295,
+          "facet_build_work": 1647248,
+          "piece_selection_work": 6227479,
+          "scope_hits": 2380,
+          "scope_misses": 29714,
+          "cache_evictions": 20219
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 21843,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 678137,
+        "measured": 678137,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3506,
+        "size_bad": 1517
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 520.993720957,
+        "work": {
+          "accepted": 80010,
+          "length_splits": 77515,
+          "length_collapses": 2495,
+          "geometry_trials": 159557,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 37563,
+          "upper_work": 187019358,
+          "traversal_work": 172046358,
+          "scope_build_work": 5166295,
+          "facet_build_work": 1647248,
+          "piece_selection_work": 6227479,
+          "scope_hits": 2380,
+          "scope_misses": 29714,
+          "cache_evictions": 20219
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 515.901065521,
+        "work": {
+          "accepted": 80010,
+          "length_splits": 77515,
+          "length_collapses": 2495,
+          "geometry_trials": 159557,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 37563,
+          "upper_work": 187019358,
+          "traversal_work": 172046358,
+          "scope_build_work": 5166295,
+          "facet_build_work": 1647248,
+          "piece_selection_work": 6227479,
+          "scope_hits": 2380,
+          "scope_misses": 29714,
+          "cache_evictions": 20219
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 21961,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 678375,
+        "measured": 678375,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3506,
+        "size_bad": 1391
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 521.833298841,
+        "work": {
+          "accepted": 80055,
+          "length_splits": 77560,
+          "length_collapses": 2495,
+          "geometry_trials": 159822,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 37563,
+          "upper_work": 187019358,
+          "traversal_work": 172046358,
+          "scope_build_work": 5166295,
+          "facet_build_work": 1647248,
+          "piece_selection_work": 6227479,
+          "scope_hits": 2380,
+          "scope_misses": 29714,
+          "cache_evictions": 20219
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 516.41920845,
+        "work": {
+          "accepted": 80055,
+          "length_splits": 77560,
+          "length_collapses": 2495,
+          "geometry_trials": 159822,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 37563,
+          "upper_work": 187019358,
+          "traversal_work": 172046358,
+          "scope_build_work": 5166295,
+          "facet_build_work": 1647248,
+          "piece_selection_work": 6227479,
+          "scope_hits": 2380,
+          "scope_misses": 29714,
+          "cache_evictions": 20219
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 22082,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 679828,
+        "measured": 679828,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3430,
+        "size_bad": 1249
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 536.614291928,
+        "work": {
+          "accepted": 80652,
+          "length_splits": 78157,
+          "length_collapses": 2495,
+          "geometry_trials": 160424,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 39161,
+          "upper_work": 194795560,
+          "traversal_work": 179456347,
+          "scope_build_work": 5347560,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6393978,
+          "scope_hits": 2438,
+          "scope_misses": 31252,
+          "cache_evictions": 21485
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 529.167338743,
+        "work": {
+          "accepted": 80652,
+          "length_splits": 78157,
+          "length_collapses": 2495,
+          "geometry_trials": 160424,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 39161,
+          "upper_work": 194795560,
+          "traversal_work": 179456347,
+          "scope_build_work": 5347560,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6393978,
+          "scope_hits": 2438,
+          "scope_misses": 31252,
+          "cache_evictions": 21485
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 22082,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 679828,
+        "measured": 679828,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3430,
+        "size_bad": 1249
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 536.621168196,
+        "work": {
+          "accepted": 80652,
+          "length_splits": 78157,
+          "length_collapses": 2495,
+          "geometry_trials": 160424,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 39161,
+          "upper_work": 194795560,
+          "traversal_work": 179456347,
+          "scope_build_work": 5347560,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6393978,
+          "scope_hits": 2438,
+          "scope_misses": 31252,
+          "cache_evictions": 21485
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 529.171763101,
+        "work": {
+          "accepted": 80652,
+          "length_splits": 78157,
+          "length_collapses": 2495,
+          "geometry_trials": 160424,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 39161,
+          "upper_work": 194795560,
+          "traversal_work": 179456347,
+          "scope_build_work": 5347560,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6393978,
+          "scope_hits": 2438,
+          "scope_misses": 31252,
+          "cache_evictions": 21485
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 22165,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 680128,
+        "measured": 680128,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3430,
+        "size_bad": 1080
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 537.127935821,
+        "work": {
+          "accepted": 80706,
+          "length_splits": 78211,
+          "length_collapses": 2495,
+          "geometry_trials": 160612,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 39161,
+          "upper_work": 194795560,
+          "traversal_work": 179456347,
+          "scope_build_work": 5347560,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6393978,
+          "scope_hits": 2438,
+          "scope_misses": 31252,
+          "cache_evictions": 21485
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 529.532223305,
+        "work": {
+          "accepted": 80706,
+          "length_splits": 78211,
+          "length_collapses": 2495,
+          "geometry_trials": 160612,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 39161,
+          "upper_work": 194795560,
+          "traversal_work": 179456347,
+          "scope_build_work": 5347560,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6393978,
+          "scope_hits": 2438,
+          "scope_misses": 31252,
+          "cache_evictions": 21485
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 22291,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 681528,
+        "measured": 681528,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3304,
+        "size_bad": 900
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 551.805582786,
+        "work": {
+          "accepted": 81289,
+          "length_splits": 78794,
+          "length_collapses": 2495,
+          "geometry_trials": 161199,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 40677,
+          "upper_work": 203306527,
+          "traversal_work": 187636368,
+          "scope_build_work": 5511936,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6544281,
+          "scope_hits": 2487,
+          "scope_misses": 32717,
+          "cache_evictions": 22653
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 543.332288029,
+        "work": {
+          "accepted": 81289,
+          "length_splits": 78794,
+          "length_collapses": 2495,
+          "geometry_trials": 161199,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 40677,
+          "upper_work": 203306527,
+          "traversal_work": 187636368,
+          "scope_build_work": 5511936,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6544281,
+          "scope_hits": 2487,
+          "scope_misses": 32717,
+          "cache_evictions": 22653
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 22291,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 681528,
+        "measured": 681528,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3304,
+        "size_bad": 900
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 551.848275859,
+        "work": {
+          "accepted": 81289,
+          "length_splits": 78794,
+          "length_collapses": 2495,
+          "geometry_trials": 161199,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 40677,
+          "upper_work": 203306527,
+          "traversal_work": 187636368,
+          "scope_build_work": 5511936,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6544281,
+          "scope_hits": 2487,
+          "scope_misses": 32717,
+          "cache_evictions": 22653
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 543.337187275,
+        "work": {
+          "accepted": 81289,
+          "length_splits": 78794,
+          "length_collapses": 2495,
+          "geometry_trials": 161199,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 40677,
+          "upper_work": 203306527,
+          "traversal_work": 187636368,
+          "scope_build_work": 5511936,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6544281,
+          "scope_hits": 2487,
+          "scope_misses": 32717,
+          "cache_evictions": 22653
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 22332,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 681662,
+        "measured": 681662,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3304,
+        "size_bad": 821
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 552.412772437,
+        "work": {
+          "accepted": 81313,
+          "length_splits": 78818,
+          "length_collapses": 2495,
+          "geometry_trials": 161288,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 40677,
+          "upper_work": 203306527,
+          "traversal_work": 187636368,
+          "scope_build_work": 5511936,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6544281,
+          "scope_hits": 2487,
+          "scope_misses": 32717,
+          "cache_evictions": 22653
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 543.644717226,
+        "work": {
+          "accepted": 81313,
+          "length_splits": 78818,
+          "length_collapses": 2495,
+          "geometry_trials": 161288,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 40677,
+          "upper_work": 203306527,
+          "traversal_work": 187636368,
+          "scope_build_work": 5511936,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6544281,
+          "scope_hits": 2487,
+          "scope_misses": 32717,
+          "cache_evictions": 22653
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 22446,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 682928,
+        "measured": 682928,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3162,
+        "size_bad": 674
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 565.580944696,
+        "work": {
+          "accepted": 81843,
+          "length_splits": 79348,
+          "length_collapses": 2495,
+          "geometry_trials": 161823,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 42078,
+          "upper_work": 210490407,
+          "traversal_work": 194525664,
+          "scope_build_work": 5659077,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6677778,
+          "scope_hits": 2533,
+          "scope_misses": 34072,
+          "cache_evictions": 23678
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 555.070084757,
+        "work": {
+          "accepted": 81843,
+          "length_splits": 79348,
+          "length_collapses": 2495,
+          "geometry_trials": 161823,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 42078,
+          "upper_work": 210490407,
+          "traversal_work": 194525664,
+          "scope_build_work": 5659077,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6677778,
+          "scope_hits": 2533,
+          "scope_misses": 34072,
+          "cache_evictions": 23678
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 22446,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 682928,
+        "measured": 682928,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3162,
+        "size_bad": 674
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 565.586569776,
+        "work": {
+          "accepted": 81843,
+          "length_splits": 79348,
+          "length_collapses": 2495,
+          "geometry_trials": 161823,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 42078,
+          "upper_work": 210490407,
+          "traversal_work": 194525664,
+          "scope_build_work": 5659077,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6677778,
+          "scope_hits": 2533,
+          "scope_misses": 34072,
+          "cache_evictions": 23678
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 555.074274988,
+        "work": {
+          "accepted": 81843,
+          "length_splits": 79348,
+          "length_collapses": 2495,
+          "geometry_trials": 161823,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 42078,
+          "upper_work": 210490407,
+          "traversal_work": 194525664,
+          "scope_build_work": 5659077,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6677778,
+          "scope_hits": 2533,
+          "scope_misses": 34072,
+          "cache_evictions": 23678
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 22469,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 682969,
+        "measured": 682969,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 3162,
+        "size_bad": 650
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 565.970670064,
+        "work": {
+          "accepted": 81852,
+          "length_splits": 79357,
+          "length_collapses": 2495,
+          "geometry_trials": 161871,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 42078,
+          "upper_work": 210490407,
+          "traversal_work": 194525664,
+          "scope_build_work": 5659077,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6677778,
+          "scope_hits": 2533,
+          "scope_misses": 34072,
+          "cache_evictions": 23678
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 555.390652418,
+        "work": {
+          "accepted": 81852,
+          "length_splits": 79357,
+          "length_collapses": 2495,
+          "geometry_trials": 161871,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 42078,
+          "upper_work": 210490407,
+          "traversal_work": 194525664,
+          "scope_build_work": 5659077,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6677778,
+          "scope_hits": 2533,
+          "scope_misses": 34072,
+          "cache_evictions": 23678
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 22574,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 684189,
+        "measured": 684189,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2967,
+        "size_bad": 515
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 577.294834714,
+        "work": {
+          "accepted": 82362,
+          "length_splits": 79867,
+          "length_collapses": 2495,
+          "geometry_trials": 162398,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 43419,
+          "upper_work": 216631493,
+          "traversal_work": 200408864,
+          "scope_build_work": 5787139,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6795302,
+          "scope_hits": 2580,
+          "scope_misses": 35356,
+          "cache_evictions": 24634
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 564.825809983,
+        "work": {
+          "accepted": 82362,
+          "length_splits": 79867,
+          "length_collapses": 2495,
+          "geometry_trials": 162398,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 43419,
+          "upper_work": 216631493,
+          "traversal_work": 200408864,
+          "scope_build_work": 5787139,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6795302,
+          "scope_hits": 2580,
+          "scope_misses": 35356,
+          "cache_evictions": 24634
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 22574,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 684189,
+        "measured": 684189,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2967,
+        "size_bad": 515
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 577.300154634,
+        "work": {
+          "accepted": 82362,
+          "length_splits": 79867,
+          "length_collapses": 2495,
+          "geometry_trials": 162398,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 43419,
+          "upper_work": 216631493,
+          "traversal_work": 200408864,
+          "scope_build_work": 5787139,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6795302,
+          "scope_hits": 2580,
+          "scope_misses": 35356,
+          "cache_evictions": 24634
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 564.830112528,
+        "work": {
+          "accepted": 82362,
+          "length_splits": 79867,
+          "length_collapses": 2495,
+          "geometry_trials": 162398,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 43419,
+          "upper_work": 216631493,
+          "traversal_work": 200408864,
+          "scope_build_work": 5787139,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6795302,
+          "scope_hits": 2580,
+          "scope_misses": 35356,
+          "cache_evictions": 24634
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 22588,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 684264,
+        "measured": 684264,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2967,
+        "size_bad": 469
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 577.696604908,
+        "work": {
+          "accepted": 82374,
+          "length_splits": 79879,
+          "length_collapses": 2495,
+          "geometry_trials": 162428,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 43419,
+          "upper_work": 216631493,
+          "traversal_work": 200408864,
+          "scope_build_work": 5787139,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6795302,
+          "scope_hits": 2580,
+          "scope_misses": 35356,
+          "cache_evictions": 24634
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 565.157746871,
+        "work": {
+          "accepted": 82374,
+          "length_splits": 79879,
+          "length_collapses": 2495,
+          "geometry_trials": 162428,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 43419,
+          "upper_work": 216631493,
+          "traversal_work": 200408864,
+          "scope_build_work": 5787139,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6795302,
+          "scope_hits": 2580,
+          "scope_misses": 35356,
+          "cache_evictions": 24634
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 22699,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 685389,
+        "measured": 685389,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2734,
+        "size_bad": 359
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 589.2211063,
+        "work": {
+          "accepted": 82859,
+          "length_splits": 80364,
+          "length_collapses": 2495,
+          "geometry_trials": 162927,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 44643,
+          "upper_work": 222713274,
+          "traversal_work": 206258266,
+          "scope_build_work": 5901789,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6902031,
+          "scope_hits": 2646,
+          "scope_misses": 36512,
+          "cache_evictions": 25528
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 575.198528143,
+        "work": {
+          "accepted": 82859,
+          "length_splits": 80364,
+          "length_collapses": 2495,
+          "geometry_trials": 162927,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 44643,
+          "upper_work": 222713274,
+          "traversal_work": 206258266,
+          "scope_build_work": 5901789,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6902031,
+          "scope_hits": 2646,
+          "scope_misses": 36512,
+          "cache_evictions": 25528
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 22699,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 685389,
+        "measured": 685389,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2734,
+        "size_bad": 359
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 589.226112936,
+        "work": {
+          "accepted": 82859,
+          "length_splits": 80364,
+          "length_collapses": 2495,
+          "geometry_trials": 162927,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 44643,
+          "upper_work": 222713274,
+          "traversal_work": 206258266,
+          "scope_build_work": 5901789,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6902031,
+          "scope_hits": 2646,
+          "scope_misses": 36512,
+          "cache_evictions": 25528
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 575.203240091,
+        "work": {
+          "accepted": 82859,
+          "length_splits": 80364,
+          "length_collapses": 2495,
+          "geometry_trials": 162927,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 44643,
+          "upper_work": 222713274,
+          "traversal_work": 206258266,
+          "scope_build_work": 5901789,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6902031,
+          "scope_hits": 2646,
+          "scope_misses": 36512,
+          "cache_evictions": 25528
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 22702,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 685398,
+        "measured": 685398,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2734,
+        "size_bad": 354
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 589.55200399,
+        "work": {
+          "accepted": 82861,
+          "length_splits": 80366,
+          "length_collapses": 2495,
+          "geometry_trials": 162935,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 44643,
+          "upper_work": 222713274,
+          "traversal_work": 206258266,
+          "scope_build_work": 5901789,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6902031,
+          "scope_hits": 2646,
+          "scope_misses": 36512,
+          "cache_evictions": 25528
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 575.455097546,
+        "work": {
+          "accepted": 82861,
+          "length_splits": 80366,
+          "length_collapses": 2495,
+          "geometry_trials": 162935,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 44643,
+          "upper_work": 222713274,
+          "traversal_work": 206258266,
+          "scope_build_work": 5901789,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6902031,
+          "scope_hits": 2646,
+          "scope_misses": 36512,
+          "cache_evictions": 25528
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 22802,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 686439,
+        "measured": 686439,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2527,
+        "size_bad": 241
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 599.082643108,
+        "work": {
+          "accepted": 83295,
+          "length_splits": 80800,
+          "length_collapses": 2495,
+          "geometry_trials": 163383,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 45707,
+          "upper_work": 227860685,
+          "traversal_work": 211213930,
+          "scope_build_work": 5996843,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6989664,
+          "scope_hits": 2700,
+          "scope_misses": 37503,
+          "cache_evictions": 26249
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 584.427151875,
+        "work": {
+          "accepted": 83295,
+          "length_splits": 80800,
+          "length_collapses": 2495,
+          "geometry_trials": 163383,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 45707,
+          "upper_work": 227860685,
+          "traversal_work": 211213930,
+          "scope_build_work": 5996843,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6989664,
+          "scope_hits": 2700,
+          "scope_misses": 37503,
+          "cache_evictions": 26249
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 22802,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 686439,
+        "measured": 686439,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2527,
+        "size_bad": 241
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 599.088026414,
+        "work": {
+          "accepted": 83295,
+          "length_splits": 80800,
+          "length_collapses": 2495,
+          "geometry_trials": 163383,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 45707,
+          "upper_work": 227860685,
+          "traversal_work": 211213930,
+          "scope_build_work": 5996843,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6989664,
+          "scope_hits": 2700,
+          "scope_misses": 37503,
+          "cache_evictions": 26249
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 584.431827987,
+        "work": {
+          "accepted": 83295,
+          "length_splits": 80800,
+          "length_collapses": 2495,
+          "geometry_trials": 163383,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 45707,
+          "upper_work": 227860685,
+          "traversal_work": 211213930,
+          "scope_build_work": 5996843,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6989664,
+          "scope_hits": 2700,
+          "scope_misses": 37503,
+          "cache_evictions": 26249
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 22804,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 686451,
+        "measured": 686451,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2527,
+        "size_bad": 229
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 599.400339273,
+        "work": {
+          "accepted": 83297,
+          "length_splits": 80802,
+          "length_collapses": 2495,
+          "geometry_trials": 163387,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 45707,
+          "upper_work": 227860685,
+          "traversal_work": 211213930,
+          "scope_build_work": 5996843,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6989664,
+          "scope_hits": 2700,
+          "scope_misses": 37503,
+          "cache_evictions": 26249
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 584.672512652,
+        "work": {
+          "accepted": 83297,
+          "length_splits": 80802,
+          "length_collapses": 2495,
+          "geometry_trials": 163387,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 45707,
+          "upper_work": 227860685,
+          "traversal_work": 211213930,
+          "scope_build_work": 5996843,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 6989664,
+          "scope_hits": 2700,
+          "scope_misses": 37503,
+          "cache_evictions": 26249
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 22902,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 687408,
+        "measured": 687408,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2249,
+        "size_bad": 140
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 607.799296781,
+        "work": {
+          "accepted": 83711,
+          "length_splits": 81216,
+          "length_collapses": 2495,
+          "geometry_trials": 163819,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 46679,
+          "upper_work": 231992900,
+          "traversal_work": 215190435,
+          "scope_build_work": 6072485,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7061685,
+          "scope_hits": 2756,
+          "scope_misses": 38379,
+          "cache_evictions": 26866
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 592.189639668,
+        "work": {
+          "accepted": 83711,
+          "length_splits": 81216,
+          "length_collapses": 2495,
+          "geometry_trials": 163819,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 46679,
+          "upper_work": 231992900,
+          "traversal_work": 215190435,
+          "scope_build_work": 6072485,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7061685,
+          "scope_hits": 2756,
+          "scope_misses": 38379,
+          "cache_evictions": 26866
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 22902,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 687408,
+        "measured": 687408,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2249,
+        "size_bad": 140
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 607.807665774,
+        "work": {
+          "accepted": 83711,
+          "length_splits": 81216,
+          "length_collapses": 2495,
+          "geometry_trials": 163819,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 46679,
+          "upper_work": 231992900,
+          "traversal_work": 215190435,
+          "scope_build_work": 6072485,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7061685,
+          "scope_hits": 2756,
+          "scope_misses": 38379,
+          "cache_evictions": 26866
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 592.201824932,
+        "work": {
+          "accepted": 83711,
+          "length_splits": 81216,
+          "length_collapses": 2495,
+          "geometry_trials": 163819,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 46679,
+          "upper_work": 231992900,
+          "traversal_work": 215190435,
+          "scope_build_work": 6072485,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7061685,
+          "scope_hits": 2756,
+          "scope_misses": 38379,
+          "cache_evictions": 26866
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 22902,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 687408,
+        "measured": 687408,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2249,
+        "size_bad": 140
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 608.255133134,
+        "work": {
+          "accepted": 83711,
+          "length_splits": 81216,
+          "length_collapses": 2495,
+          "geometry_trials": 163819,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 46679,
+          "upper_work": 231992900,
+          "traversal_work": 215190435,
+          "scope_build_work": 6072485,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7061685,
+          "scope_hits": 2756,
+          "scope_misses": 38379,
+          "cache_evictions": 26866
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 592.468974175,
+        "work": {
+          "accepted": 83711,
+          "length_splits": 81216,
+          "length_collapses": 2495,
+          "geometry_trials": 163819,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 46679,
+          "upper_work": 231992900,
+          "traversal_work": 215190435,
+          "scope_build_work": 6072485,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7061685,
+          "scope_hits": 2756,
+          "scope_misses": 38379,
+          "cache_evictions": 26866
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 22985,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 688257,
+        "measured": 688257,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2011,
+        "size_bad": 83
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 616.078457238,
+        "work": {
+          "accepted": 84077,
+          "length_splits": 81582,
+          "length_collapses": 2495,
+          "geometry_trials": 164202,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 47475,
+          "upper_work": 235163998,
+          "traversal_work": 218226912,
+          "scope_build_work": 6138417,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7123633,
+          "scope_hits": 2807,
+          "scope_misses": 39124,
+          "cache_evictions": 27392
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 599.105860502,
+        "work": {
+          "accepted": 84077,
+          "length_splits": 81582,
+          "length_collapses": 2495,
+          "geometry_trials": 164202,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 47475,
+          "upper_work": 235163998,
+          "traversal_work": 218226912,
+          "scope_build_work": 6138417,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7123633,
+          "scope_hits": 2807,
+          "scope_misses": 39124,
+          "cache_evictions": 27392
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 22985,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 688257,
+        "measured": 688257,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2011,
+        "size_bad": 83
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 616.088105418,
+        "work": {
+          "accepted": 84077,
+          "length_splits": 81582,
+          "length_collapses": 2495,
+          "geometry_trials": 164202,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 47475,
+          "upper_work": 235163998,
+          "traversal_work": 218226912,
+          "scope_build_work": 6138417,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7123633,
+          "scope_hits": 2807,
+          "scope_misses": 39124,
+          "cache_evictions": 27392
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 599.110969198,
+        "work": {
+          "accepted": 84077,
+          "length_splits": 81582,
+          "length_collapses": 2495,
+          "geometry_trials": 164202,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 47475,
+          "upper_work": 235163998,
+          "traversal_work": 218226912,
+          "scope_build_work": 6138417,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7123633,
+          "scope_hits": 2807,
+          "scope_misses": 39124,
+          "cache_evictions": 27392
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 22986,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 688261,
+        "measured": 688261,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 2011,
+        "size_bad": 79
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 616.542251879,
+        "work": {
+          "accepted": 84078,
+          "length_splits": 81583,
+          "length_collapses": 2495,
+          "geometry_trials": 164204,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 47475,
+          "upper_work": 235163998,
+          "traversal_work": 218226912,
+          "scope_build_work": 6138417,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7123633,
+          "scope_hits": 2807,
+          "scope_misses": 39124,
+          "cache_evictions": 27392
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 599.356515068,
+        "work": {
+          "accepted": 84078,
+          "length_splits": 81583,
+          "length_collapses": 2495,
+          "geometry_trials": 164204,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 47475,
+          "upper_work": 235163998,
+          "traversal_work": 218226912,
+          "scope_build_work": 6138417,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7123633,
+          "scope_hits": 2807,
+          "scope_misses": 39124,
+          "cache_evictions": 27392
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 23067,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 689002,
+        "measured": 689002,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1788,
+        "size_bad": 45
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 624.287766457,
+        "work": {
+          "accepted": 84398,
+          "length_splits": 81903,
+          "length_collapses": 2495,
+          "geometry_trials": 164564,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 48209,
+          "upper_work": 238297236,
+          "traversal_work": 221246307,
+          "scope_build_work": 6192913,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7176983,
+          "scope_hits": 2867,
+          "scope_misses": 39777,
+          "cache_evictions": 27832
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 606.137879843,
+        "work": {
+          "accepted": 84398,
+          "length_splits": 81903,
+          "length_collapses": 2495,
+          "geometry_trials": 164564,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 48209,
+          "upper_work": 238297236,
+          "traversal_work": 221246307,
+          "scope_build_work": 6192913,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7176983,
+          "scope_hits": 2867,
+          "scope_misses": 39777,
+          "cache_evictions": 27832
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 23067,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 689002,
+        "measured": 689002,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1788,
+        "size_bad": 45
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 624.293008294,
+        "work": {
+          "accepted": 84398,
+          "length_splits": 81903,
+          "length_collapses": 2495,
+          "geometry_trials": 164564,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 48209,
+          "upper_work": 238297236,
+          "traversal_work": 221246307,
+          "scope_build_work": 6192913,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7176983,
+          "scope_hits": 2867,
+          "scope_misses": 39777,
+          "cache_evictions": 27832
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 606.152565166,
+        "work": {
+          "accepted": 84398,
+          "length_splits": 81903,
+          "length_collapses": 2495,
+          "geometry_trials": 164564,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 48209,
+          "upper_work": 238297236,
+          "traversal_work": 221246307,
+          "scope_build_work": 6192913,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7176983,
+          "scope_hits": 2867,
+          "scope_misses": 39777,
+          "cache_evictions": 27832
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 23067,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 689002,
+        "measured": 689002,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1788,
+        "size_bad": 45
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 624.712991697,
+        "work": {
+          "accepted": 84398,
+          "length_splits": 81903,
+          "length_collapses": 2495,
+          "geometry_trials": 164564,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 48209,
+          "upper_work": 238297236,
+          "traversal_work": 221246307,
+          "scope_build_work": 6192913,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7176983,
+          "scope_hits": 2867,
+          "scope_misses": 39777,
+          "cache_evictions": 27832
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 606.445975081,
+        "work": {
+          "accepted": 84398,
+          "length_splits": 81903,
+          "length_collapses": 2495,
+          "geometry_trials": 164564,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 48209,
+          "upper_work": 238297236,
+          "traversal_work": 221246307,
+          "scope_build_work": 6192913,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7176983,
+          "scope_hits": 2867,
+          "scope_misses": 39777,
+          "cache_evictions": 27832
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 23151,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 689634,
+        "measured": 689634,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1578,
+        "size_bad": 21
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 632.144456615,
+        "work": {
+          "accepted": 84677,
+          "length_splits": 82182,
+          "length_collapses": 2495,
+          "geometry_trials": 164872,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 48825,
+          "upper_work": 241102386,
+          "traversal_work": 223955441,
+          "scope_build_work": 6238778,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7221885,
+          "scope_hits": 2919,
+          "scope_misses": 40321,
+          "cache_evictions": 28203
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 612.503120871,
+        "work": {
+          "accepted": 84677,
+          "length_splits": 82182,
+          "length_collapses": 2495,
+          "geometry_trials": 164872,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 48825,
+          "upper_work": 241102386,
+          "traversal_work": 223955441,
+          "scope_build_work": 6238778,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7221885,
+          "scope_hits": 2919,
+          "scope_misses": 40321,
+          "cache_evictions": 28203
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 23151,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 689634,
+        "measured": 689634,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1578,
+        "size_bad": 21
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 632.150511088,
+        "work": {
+          "accepted": 84677,
+          "length_splits": 82182,
+          "length_collapses": 2495,
+          "geometry_trials": 164872,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 48825,
+          "upper_work": 241102386,
+          "traversal_work": 223955441,
+          "scope_build_work": 6238778,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7221885,
+          "scope_hits": 2919,
+          "scope_misses": 40321,
+          "cache_evictions": 28203
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 612.507327185,
+        "work": {
+          "accepted": 84677,
+          "length_splits": 82182,
+          "length_collapses": 2495,
+          "geometry_trials": 164872,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 48825,
+          "upper_work": 241102386,
+          "traversal_work": 223955441,
+          "scope_build_work": 6238778,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7221885,
+          "scope_hits": 2919,
+          "scope_misses": 40321,
+          "cache_evictions": 28203
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 23151,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 689634,
+        "measured": 689634,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1578,
+        "size_bad": 21
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 632.508593137,
+        "work": {
+          "accepted": 84677,
+          "length_splits": 82182,
+          "length_collapses": 2495,
+          "geometry_trials": 164872,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 48825,
+          "upper_work": 241102386,
+          "traversal_work": 223955441,
+          "scope_build_work": 6238778,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7221885,
+          "scope_hits": 2919,
+          "scope_misses": 40321,
+          "cache_evictions": 28203
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 612.737854323,
+        "work": {
+          "accepted": 84677,
+          "length_splits": 82182,
+          "length_collapses": 2495,
+          "geometry_trials": 164872,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 48825,
+          "upper_work": 241102386,
+          "traversal_work": 223955441,
+          "scope_build_work": 6238778,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7221885,
+          "scope_hits": 2919,
+          "scope_misses": 40321,
+          "cache_evictions": 28203
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 23230,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 690206,
+        "measured": 690206,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1396,
+        "size_bad": 4
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 638.431637665,
+        "work": {
+          "accepted": 84927,
+          "length_splits": 82432,
+          "length_collapses": 2495,
+          "geometry_trials": 165158,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49392,
+          "upper_work": 243077390,
+          "traversal_work": 225848859,
+          "scope_build_work": 6277042,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7260574,
+          "scope_hits": 2974,
+          "scope_misses": 40791,
+          "cache_evictions": 28568
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 617.661998735,
+        "work": {
+          "accepted": 84927,
+          "length_splits": 82432,
+          "length_collapses": 2495,
+          "geometry_trials": 165158,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49392,
+          "upper_work": 243077390,
+          "traversal_work": 225848859,
+          "scope_build_work": 6277042,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7260574,
+          "scope_hits": 2974,
+          "scope_misses": 40791,
+          "cache_evictions": 28568
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 23230,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 690206,
+        "measured": 690206,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1396,
+        "size_bad": 4
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 638.438451535,
+        "work": {
+          "accepted": 84927,
+          "length_splits": 82432,
+          "length_collapses": 2495,
+          "geometry_trials": 165158,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49392,
+          "upper_work": 243077390,
+          "traversal_work": 225848859,
+          "scope_build_work": 6277042,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7260574,
+          "scope_hits": 2974,
+          "scope_misses": 40791,
+          "cache_evictions": 28568
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 617.666124816,
+        "work": {
+          "accepted": 84927,
+          "length_splits": 82432,
+          "length_collapses": 2495,
+          "geometry_trials": 165158,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49392,
+          "upper_work": 243077390,
+          "traversal_work": 225848859,
+          "scope_build_work": 6277042,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7260574,
+          "scope_hits": 2974,
+          "scope_misses": 40791,
+          "cache_evictions": 28568
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 23230,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 690206,
+        "measured": 690206,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1396,
+        "size_bad": 4
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 638.745596032,
+        "work": {
+          "accepted": 84927,
+          "length_splits": 82432,
+          "length_collapses": 2495,
+          "geometry_trials": 165158,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49392,
+          "upper_work": 243077390,
+          "traversal_work": 225848859,
+          "scope_build_work": 6277042,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7260574,
+          "scope_hits": 2974,
+          "scope_misses": 40791,
+          "cache_evictions": 28568
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 617.92576913,
+        "work": {
+          "accepted": 84927,
+          "length_splits": 82432,
+          "length_collapses": 2495,
+          "geometry_trials": 165158,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49392,
+          "upper_work": 243077390,
+          "traversal_work": 225848859,
+          "scope_build_work": 6277042,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7260574,
+          "scope_hits": 2974,
+          "scope_misses": 40791,
+          "cache_evictions": 28568
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_surface_exit",
+      "round": 23314,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 690715,
+        "measured": 690715,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1205,
+        "size_bad": 0
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 644.484569217,
+        "work": {
+          "accepted": 85157,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 165445,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49857,
+          "upper_work": 245091394,
+          "traversal_work": 227794161,
+          "scope_build_work": 6309453,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7293075,
+          "scope_hits": 3030,
+          "scope_misses": 41183,
+          "cache_evictions": 28849
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 623.030730646,
+        "work": {
+          "accepted": 85157,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 165445,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49857,
+          "upper_work": 245091394,
+          "traversal_work": 227794161,
+          "scope_build_work": 6309453,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7293075,
+          "scope_hits": 3030,
+          "scope_misses": 41183,
+          "cache_evictions": 28849
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "split_interior_entry",
+      "round": 23314,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 690715,
+        "measured": 690715,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1205,
+        "size_bad": 0
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 644.491963318,
+        "work": {
+          "accepted": 85157,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 165445,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49857,
+          "upper_work": 245091394,
+          "traversal_work": 227794161,
+          "scope_build_work": 6309453,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7293075,
+          "scope_hits": 3030,
+          "scope_misses": 41183,
+          "cache_evictions": 28849
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 623.034964481,
+        "work": {
+          "accepted": 85157,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 165445,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49857,
+          "upper_work": 245091394,
+          "traversal_work": 227794161,
+          "scope_build_work": 6309453,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7293075,
+          "scope_hits": 3030,
+          "scope_misses": 41183,
+          "cache_evictions": 28849
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "length_split_exit",
+      "round": 23314,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 690715,
+        "measured": 690715,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1205,
+        "size_bad": 0
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 644.793732347,
+        "work": {
+          "accepted": 85157,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 165445,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49857,
+          "upper_work": 245091394,
+          "traversal_work": 227794161,
+          "scope_build_work": 6309453,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7293075,
+          "scope_hits": 3030,
+          "scope_misses": 41183,
+          "cache_evictions": 28849
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 623.276003384,
+        "work": {
+          "accepted": 85157,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 165445,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49857,
+          "upper_work": 245091394,
+          "traversal_work": 227794161,
+          "scope_build_work": 6309453,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7293075,
+          "scope_hits": 3030,
+          "scope_misses": 41183,
+          "cache_evictions": 28849
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "construction_entry",
+      "round": 23314,
+      "phase": "construction",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 690715,
+        "measured": 690715,
+        "q_measured": 0,
+        "j_measured": 0,
+        "q_bad": 0,
+        "j_bad": 0,
+        "geometry_bad": 1205,
+        "size_bad": 0
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": false,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 644.800631401,
+        "work": {
+          "accepted": 85157,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 165445,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49857,
+          "upper_work": 245091394,
+          "traversal_work": 227794161,
+          "scope_build_work": 6309453,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7293075,
+          "scope_hits": 3030,
+          "scope_misses": 41183,
+          "cache_evictions": 28849
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 623.280292274,
+        "work": {
+          "accepted": 85157,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 165445,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49857,
+          "upper_work": 245091394,
+          "traversal_work": 227794161,
+          "scope_build_work": 6309453,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7293075,
+          "scope_hits": 3030,
+          "scope_misses": 41183,
+          "cache_evictions": 28849
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "ownership_staged",
+      "round": 23314,
+      "phase": "improvement",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 690715,
+        "measured": 690715,
+        "q_measured": 690715,
+        "j_measured": 690715,
+        "q_bad": 27016,
+        "j_bad": 27453,
+        "geometry_bad": 1205,
+        "size_bad": 0
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": true,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 690.498445356,
+        "work": {
+          "accepted": 85157,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 165445,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49857,
+          "upper_work": 245091394,
+          "traversal_work": 227794161,
+          "scope_build_work": 6309453,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7293075,
+          "scope_hits": 3030,
+          "scope_misses": 41183,
+          "cache_evictions": 28849
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 656.943842981,
+        "work": {
+          "accepted": 85157,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 165445,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49857,
+          "upper_work": 245091394,
+          "traversal_work": 227794161,
+          "scope_build_work": 6309453,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7293075,
+          "scope_hits": 3030,
+          "scope_misses": 41183,
+          "cache_evictions": 28849
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "ownership_committed",
+      "round": 23314,
+      "phase": "improvement",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 690715,
+        "measured": 690715,
+        "q_measured": 690715,
+        "j_measured": 690715,
+        "q_bad": 27016,
+        "j_bad": 27453,
+        "geometry_bad": 1205,
+        "size_bad": 0
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": true,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 690.553120555,
+        "work": {
+          "accepted": 85157,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 165445,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49857,
+          "upper_work": 245091394,
+          "traversal_work": 227794161,
+          "scope_build_work": 6309453,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7293075,
+          "scope_hits": 3030,
+          "scope_misses": 41183,
+          "cache_evictions": 28849
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 656.989462865,
+        "work": {
+          "accepted": 85157,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 165445,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49857,
+          "upper_work": 245091394,
+          "traversal_work": 227794161,
+          "scope_build_work": 6309453,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7293075,
+          "scope_hits": 3030,
+          "scope_misses": 41183,
+          "cache_evictions": 28849
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "quality_entry",
+      "round": 23314,
+      "phase": "improvement",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 690715,
+        "measured": 690715,
+        "q_measured": 690715,
+        "j_measured": 690715,
+        "q_bad": 27016,
+        "j_bad": 27453,
+        "geometry_bad": 1205,
+        "size_bad": 0
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": true,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 691.831275758,
+        "work": {
+          "accepted": 85157,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 165445,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49857,
+          "upper_work": 245091394,
+          "traversal_work": 227794161,
+          "scope_build_work": 6309453,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7293075,
+          "scope_hits": 3030,
+          "scope_misses": 41183,
+          "cache_evictions": 28849
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 657.918548311,
+        "work": {
+          "accepted": 85157,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 165445,
+          "guidance_trials": 6658,
+          "guidance_faces": 21851,
+          "upper_calls": 49857,
+          "upper_work": 245091394,
+          "traversal_work": 227794161,
+          "scope_build_work": 6309453,
+          "facet_build_work": 1647428,
+          "piece_selection_work": 7293075,
+          "scope_hits": 3030,
+          "scope_misses": 41183,
+          "cache_evictions": 28849
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
+    },
+    {
+      "stage": "window",
+      "round": 23360,
+      "phase": "improvement",
+      "counts_equal": true,
+      "flags_equal": true,
+      "totals271": {
+        "cells": 697375,
+        "measured": 697375,
+        "q_measured": 697375,
+        "j_measured": 697375,
+        "q_bad": 23178,
+        "j_bad": 23002,
+        "geometry_bad": 1184,
+        "size_bad": 0
+      },
+      "complete_flags271": {
+        "cache_consistent": true,
+        "census_complete": true,
+        "shape_complete": true,
+        "geometry_complete": true
+      },
+      "build267": {
+        "native_seconds": 835.284414703,
+        "work": {
+          "accepted": 86567,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 172663,
+          "guidance_trials": 8213,
+          "guidance_faces": 63514,
+          "upper_calls": 91556,
+          "upper_work": 324929447,
+          "traversal_work": 303942867,
+          "scope_build_work": 7202360,
+          "facet_build_work": 2238988,
+          "piece_selection_work": 8979257,
+          "scope_hits": 8995,
+          "scope_misses": 49767,
+          "cache_evictions": 37091
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "build271": {
+        "native_seconds": 796.908671579,
+        "work": {
+          "accepted": 86567,
+          "length_splits": 82662,
+          "length_collapses": 2495,
+          "geometry_trials": 172663,
+          "guidance_trials": 8213,
+          "guidance_faces": 63514,
+          "upper_calls": 91556,
+          "upper_work": 324929447,
+          "traversal_work": 303942867,
+          "scope_build_work": 7202360,
+          "facet_build_work": 2238988,
+          "piece_selection_work": 8979257,
+          "scope_hits": 8995,
+          "scope_misses": 49767,
+          "cache_evictions": 37091
+        },
+        "rank_prepared_limits": [
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624,
+          396836624
+        ]
+      },
+      "work_differences271_minus267": {
+        "accepted": 0,
+        "length_splits": 0,
+        "length_collapses": 0,
+        "geometry_trials": 0,
+        "guidance_trials": 0,
+        "guidance_faces": 0,
+        "upper_calls": 0,
+        "upper_work": 0,
+        "traversal_work": 0,
+        "scope_build_work": 0,
+        "facet_build_work": 0,
+        "piece_selection_work": 0,
+        "scope_hits": 0,
+        "scope_misses": 0,
+        "cache_evictions": 0
+      }
     }
   ],
   "source_prefixes": {
@@ -2144,28 +8096,28 @@
     },
     "build271": {
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build271_cooperative_deadline_mach_only_real_cfd50k/rank_output/1/rank.0/stdout": {
-        "bytes": 111455,
-        "sha256": "bdd03ee22b5093c7bc456132a06800919cb8a0b8a83353c5374b5c370f5940a7"
+        "bytes": 377993,
+        "sha256": "f2138f1d1adc48878fae8659d0371609e24e3066cb2d850c56672adaed52f425"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build271_cooperative_deadline_mach_only_real_cfd50k/rank_output/1/rank.1/stdout": {
-        "bytes": 88773,
-        "sha256": "5aefecdd2cce3d0c69de08230afdec5a455951da3dbfefcd650c32d4486bcff7"
+        "bytes": 355083,
+        "sha256": "2a63c2b5e26ac4106cfab1cd0a3d9a9cef6a0edf34a1c6362ef5e0d1465b66df"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build271_cooperative_deadline_mach_only_real_cfd50k/rank_output/1/rank.2/stdout": {
-        "bytes": 88676,
-        "sha256": "fad295b2987842c8ab6dbec553c466084bfbc454e782b2a63c30194a388ca442"
+        "bytes": 354390,
+        "sha256": "067a1cb3f9d684ee0f1bde34143afa86f16794cb9ad979ca760550dc7e9b006c"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build271_cooperative_deadline_mach_only_real_cfd50k/rank_output/1/rank.3/stdout": {
-        "bytes": 88760,
-        "sha256": "bb4cbdb637798e004e55d38f0fce132d63a3a4e80bebe36908275febd6fb4ace"
+        "bytes": 355217,
+        "sha256": "5df0a7a8072194717327dbfe46c0cf2badbb70195f1c7892c7a916200c9d8ecb"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build271_cooperative_deadline_mach_only_real_cfd50k/rank_output/1/rank.4/stdout": {
-        "bytes": 88835,
-        "sha256": "1d2a6256064a6db886a4367cba10ff5793976a4b0c8713b002669fc167bdb004"
+        "bytes": 355584,
+        "sha256": "aa0da7d29f89f427b68624e2d806bf0553d36dbd4041ec93c2bc86fd5233bcc9"
       },
       "integration_evidence/native_3d_bl_v1/dc17_18_completion_v1/staged57/m6_runs/euler_build271_cooperative_deadline_mach_only_real_cfd50k/rank_output/1/rank.5/stdout": {
-        "bytes": 88798,
-        "sha256": "a7d984be4dd5e24fd301e1a9c9b660f2b44804d851b2a0f8756b303c44ace5c2"
+        "bytes": 354293,
+        "sha256": "cbbd9d1496e01f39ace696f380d91a35e1f92c1e5e3c2252fa7839e6e137efd0"
       }
     }
   },
