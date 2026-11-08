@@ -68,3 +68,17 @@ legacy metadata exceeds the unchanged tight cap. All source/runtime pins held;
 all build/test handles terminal. See R/capture262_qualification.json. Immediate
 next action is full same-seed MPI6 two-event M6 via launch_m6262.py. Actual full
 M6 capture and strict workflow acceptance remain unproved.
+
+## Guard for the next actual-cavity selection
+
+Read-only source review while262isfrozen: existing
+UnitTests/SU2_CFD/adaptation/fixtures/native_current219_witness.inc builds its
+bounded field from CURRENT captured nodal tensors. It verifies cachedq/J onthe
+unchanged completecontext, but current_capture deliberately sets expectededge
+lengths toNaN and doesNOTassert productionedge equality. Thus its changed-point
+metrics alone doNOTprove equivalence to the immutable production background.
+Before choosing a productioncorrection, verify production frozen-field values/
+edge quadrature at changed trialpositions through existing source facilities,
+aswell as complete actualsupport, exactassociations, geometry certificates and
+neighboringcells. No fixture/C++ change or extra campaign was started. This is
+an interpretation limit already listed in the260handoff, not a new activecycle.
