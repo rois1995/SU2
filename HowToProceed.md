@@ -93,11 +93,13 @@ Late complete phase endpoints repeatedly alternate construction's 734,280 cells 
 states. This is a measured residual geometry repair/construction limitation, not
 an established reason for a speed campaign or another scheduler.
 
-1. Implement the ONE geometry-directed priority hypothesis in
+1. The ONE geometry-directed priority correction is implemented and qualified in
+   coherentbuild260. See [currentdesign](Handbook/ADAPTATION_GEOMETRY_PRIORITY260_20261108.md) and
    `staged57/geometry_priority259_plan.json`. The bounded follow-through is complete:
    all78facebounds reproduce exactly; a complete50cellcontrol has a useful
    second-longest split while the longest addsq/Jfailures withoutgeometryprogress.
-   This justifies testing paired-face prediction, not a guarantee of closure.
+   All14actualreplacementdeltas now match paired-faceprediction;serial58cases and
+   MPI699cases oneachrank pass. This doesnot establish fullM6closure.
 2. Use the COMPLETE runtime boundary state and fresh parameter overlays. Rank
    existing late geometry-return candidates by net squared certificate excess
    over both incident faces. Preserve all initial construction choices and every

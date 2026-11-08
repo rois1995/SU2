@@ -1001,6 +1001,11 @@ TEST_CASE("Bounded fitting guidance rejects losing trials without completing the
     for(const auto& f:patch.surface)
       if(sphere||std::find(f.v.begin(),f.v.end(),3)==f.v.end())curves.emplace(f.facet,g);
     const PlanarReference geometry(Facets(patch),SIZE_MAX,curves);
+    Edge edge{patch.cells.front().v[0].id,patch.cells.front().v[1].id};std::sort(edge.begin(),edge.end());
+    const std::array<Point,2> endpoints{Position(patch,edge[0]),Position(patch,edge[1])};
+    CHECK_FALSE(PredictGeometrySplit(edge,endpoints,geometry,tolerance).complete);
+    CHECK_THROWS(PredictGeometrySplit(edge,endpoints,geometry,NAN));
+    CHECK_THROWS(PredictGeometrySplit({edge[0],edge[0]},endpoints,geometry,tolerance));
     const auto full=GeometryGuidanceExcess(patch,geometry,tolerance);
     REQUIRE(full.complete);REQUIRE(full.excess>0);REQUIRE(full.evaluated_faces==patch.surface.size());
     // Complete-census face debt uses extended subtraction and the same sum order.

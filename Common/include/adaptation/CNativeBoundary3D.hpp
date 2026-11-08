@@ -161,6 +161,16 @@ struct GeometryGuidance {
  * it must not be used as a complete score or as evidence of geometric progress. */
 GeometryGuidance GeometryGuidanceExcess(const Patch& patch,const PlanarReference& geometry,double tolerance,
                                       long double reject_above=std::numeric_limits<long double>::infinity());
+struct GeometrySplitPrediction {
+  long double before=0,after=0;
+  size_t evaluated_faces=0;
+  bool complete=false;
+};
+/*! Advisory arithmetic-midpoint split score over both accepted smooth physical faces.
+ * Coordinates/support must match current accepted state. No cavity or publication permission;
+ * unsupported geometry returns incomplete, while resource exhaustion propagates. */
+GeometrySplitPrediction PredictGeometrySplit(Edge edge,const std::array<Point,2>& endpoints,
+                                            const PlanarReference& geometry,double tolerance);
 /*! DC-13: promote a plain faceted reference to the v6 mapped-component authority (MappedFacetReference with released
  * certified planar seams, declared mapping error `relative_error` x max(1, coordinate scale) per facet, every original
  * facet vertex bound to itself, skin = the facets). Crease and junction points then bind to their original feature

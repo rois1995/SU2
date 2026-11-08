@@ -210,6 +210,37 @@ class Selection {
   double tolerance;
   const WallHeights& heights;
   std::set<std::tuple<long double,Id,Edge>> geometry_queue;
+  std::map<Edge,long double> geometry_split_priorities;
+  bool geometry_priority_mode=false;
+  long double GeometryPriority(long double raw,Edge edge)const {
+    if(!geometry_priority_mode)return raw;
+    const auto found=geometry_split_priorities.find(edge);
+    return found!=geometry_split_priorities.end()&&found->second>1 ? found->second : raw/(1+raw);
+  }
+  size_t GeometryPriorityBytes()const {
+    return transfer_memory::Mul(geometry_queue.size(),sizeof(std::pair<const Edge,long double>)+4*sizeof(void*));
+  }
+  void PrioritizeGeometrySplits(Clock::time_point started,double maximum_seconds) {
+    geometry_split_priorities.clear();geometry_priority_mode=true;
+    auto pending=std::move(geometry_queue);geometry_queue.clear();
+    while(!pending.empty()) {
+      auto entry=pending.extract(pending.begin());const auto edge=std::get<2>(entry.value());
+      if(!geometry_split_priorities.count(edge)&&
+          (!maximum_seconds||std::chrono::duration<double>(Clock::now()-started).count()<maximum_seconds)) {
+        const auto& measured=edges.at(edge).measure;
+        Timer timer(stats.geometry_guidance_seconds,timings);++stats.geometry_guidance_trials;
+        const auto prediction=PredictGeometrySplit(edge,{measured.a,measured.b},geometry,tolerance);
+        stats.geometry_guidance_faces+=prediction.evaluated_faces;
+        const bool better=prediction.complete&&prediction.before>0&&prediction.after<prediction.before*(1-1e-12L);
+        geometry_split_priorities.emplace(edge,better?1+(prediction.before-prediction.after)/prediction.before:-1.L);
+      }
+      const auto id=std::get<1>(entry.value());const auto& row=cells.at(id);
+      const auto found=std::find(row.edges.begin(),row.edges.end(),edge);
+      if(found==row.edges.end())throw std::logic_error("Geometry priority lost its versioned edge.");
+      std::get<0>(entry.value())=-GeometryPriority(row.geometry_scores[found-row.edges.begin()],edge);
+      geometry_queue.insert(std::move(entry));
+    }
+  }
   std::set<std::pair<long double,Edge>> surface_queue;
   // One construction generation contains the edges present at its entry, including edges of
   // cells whose metric has not been progressively seeded yet. Publications cannot extend it.
@@ -295,7 +326,7 @@ class Selection {
   std::set<RepairFeature> repair_zero;
   size_t Bytes() const {
     return transfer_memory::Add(MapBytes(cells),MapBytes(edges),MapBytes(queue),MapBytes(surface_queue),MapBytes(edge_history),MapBytes(construction_frontier),MapBytes(cell_repairs),MapBytes(repair_users),MapBytes(repair_queue),MapBytes(repair_cell_severity),MapBytes(repair_severity),MapBytes(repair_severity_queue),MapBytes(repair_zero),repair_bytes,
-        MapBytes(geometry_queue),MapBytes(vertex_cells),MapBytes(blocked_edges),transfer_memory::Mul(transfer_memory::Add(vertex_links,blocked_links),sizeof(Id)+4*sizeof(void*)));
+        MapBytes(geometry_queue),MapBytes(geometry_split_priorities),MapBytes(vertex_cells),MapBytes(blocked_edges),transfer_memory::Mul(transfer_memory::Add(vertex_links,blocked_links),sizeof(Id)+4*sizeof(void*)));
   }
   long double RepairWeight(const CellState& row) const {
     // Cached local required debt steers search; only the complete distributed transaction certifies the feature.
@@ -527,7 +558,7 @@ class Selection {
         if(star!=vertex_cells.end())for(Id id:star->second) {
           const auto& row=cells.at(id);
           for(size_t k=0;k<row.edges.size();++k)if(row.edges[k]==key && row.geometry_scores[k]>0)
-            if(construction_frontier.count(key))stats.geometry_reactivated+=geometry_queue.insert({-row.geometry_scores[k],id,key}).second;
+            if(construction_frontier.count(key))stats.geometry_reactivated+=geometry_queue.insert({-GeometryPriority(row.geometry_scores[k],key),id,key}).second;
         }
       }
       if(!Candidate(measured->second.measure.length))continue;
@@ -585,7 +616,7 @@ class Selection {
     construction_invalid -= !found->second.construction_valid;
     quality_invalid -= !found->second.quality_valid;
     unmeasured_shape -= !found->second.shape_measured;
-    for(size_t i=0;i<6;++i)geometry_queue.erase({-found->second.geometry_scores[i],id,found->second.edges[i]});
+    for(size_t i=0;i<6;++i)geometry_queue.erase({-GeometryPriority(found->second.geometry_scores[i],found->second.edges[i]),id,found->second.edges[i]});
     for (Id vertex:found->second.vertices) {
       auto& star=vertex_cells.at(vertex);
       vertex_links-=star.erase(id);
@@ -625,6 +656,7 @@ class Selection {
     else if(!needed&&cell_repairs.count(cell.id))RemoveRepairs(cell.id);
   }
   void ChangePhase(bool improvement,const Owned& working,const std::shared_ptr<const FrozenMetricIdentity>& identity) {
+    geometry_split_priorities.clear();geometry_priority_mode=false;
     size_repairs=geometry_repairs=false;
     track_repairs=repair_event=improvement;prune_collapses=false;queue.clear();surface_queue.clear();geometry_queue.clear();construction_frontier.clear();
     for(auto& item:cells) {
@@ -646,7 +678,7 @@ class Selection {
       for(const auto& row:edges)Queue(row.first,row.second.measure.length,true);
       if(!coarsening)for(const auto& item:cells)for(size_t i=0;i<6;++i){const auto edge=item.second.edges[i];const auto blocked=blocked_edges.find(edge[1]);
         if(item.second.geometry_scores[i]>0 && construction_frontier.count(edge) && (blocked==blocked_edges.end()||!blocked->second.count(edge[0])))
-          geometry_queue.insert({-item.second.geometry_scores[i],item.first,edge});}
+          geometry_queue.insert({-GeometryPriority(item.second.geometry_scores[i],edge),item.first,edge});}
     }
   }
   void EnableSizeRepairs(const Owned& working) {
@@ -803,7 +835,7 @@ class Selection {
       const auto blocked=blocked_edges.find(key[1]);
       if(!coarsening && construction_frontier.count(key) && row.geometry_scores[slot]>0 &&
           (blocked==blocked_edges.end() || !blocked->second.count(key[0])))
-        geometry_queue.insert({-row.geometry_scores[slot],cell.id,key});
+        geometry_queue.insert({-GeometryPriority(row.geometry_scores[slot],key),cell.id,key});
       auto inserted=edges.emplace(key,EdgeState{measured.second,0});
       auto& state=inserted.first->second;
       Queue(key,state.measure.length,false);
@@ -886,11 +918,12 @@ class Selection {
     if(star!=vertex_cells.end())for(Id id:star->second) {
       const auto& row=cells.at(id);
       for(size_t slot=0;slot<row.edges.size();++slot)if(row.edges[slot]==edge)
-        geometry_queue.erase({-row.geometry_scores[slot],id,edge});
+        geometry_queue.erase({-GeometryPriority(row.geometry_scores[slot],edge),id,edge});
     }
     return serviced;
   }
   size_t ServiceClaimedVertex(Id vertex) {
+    // Full old/new vertex claims retire every edge whose paired-face prediction could have changed.
     const auto star=vertex_cells.find(vertex);if(star==vertex_cells.end())return 0;
     size_t serviced=0;
     for(Id id:star->second) {
@@ -988,7 +1021,9 @@ class Selection {
   }
   void SwapState(Selection& other) noexcept {
     cells.swap(other.cells);edges.swap(other.edges);queue.swap(other.queue);surface_queue.swap(other.surface_queue);
-    geometry_queue.swap(other.geometry_queue);construction_frontier.swap(other.construction_frontier);edge_history.swap(other.edge_history);
+    geometry_queue.swap(other.geometry_queue);geometry_split_priorities.swap(other.geometry_split_priorities);
+    std::swap(geometry_priority_mode,other.geometry_priority_mode);
+    construction_frontier.swap(other.construction_frontier);edge_history.swap(other.edge_history);
     vertex_cells.swap(other.vertex_cells);blocked_edges.swap(other.blocked_edges);cell_repairs.swap(other.cell_repairs);
     repair_users.swap(other.repair_users);repair_queue.swap(other.repair_queue);
     repair_cell_severity.swap(other.repair_cell_severity);repair_severity.swap(other.repair_severity);
@@ -999,6 +1034,7 @@ class Selection {
     std::swap(debt,other.debt);std::swap(progress_consistent,other.progress_consistent);std::swap(census_started,other.census_started);
   }
   void Reset(bool improvement) {
+    geometry_split_priorities.clear();geometry_priority_mode=false;
     cells.clear();edges.clear();queue.clear();surface_queue.clear();geometry_queue.clear();construction_frontier.clear();edge_history.clear();vertex_cells.clear();
     cell_repairs.clear();repair_users.clear();repair_queue.clear();repair_cell_severity.clear();
     repair_severity.clear();repair_severity_queue.clear();repair_zero.clear();
@@ -2812,6 +2848,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     // A phase census has no enclosing update timer to debit for donor imports.
     const bool measured=measure(initial,false,nullptr);retired_edges.clear();
     if(!measured)return false;seed_slot=initial.size();
+    if(refine_geometry&&!composition&&options.wall_heights.empty()&&geometry.EntityGeometry()) {
+      if(!admit(selection.GeometryPriorityBytes()))return false;
+      CLocalFailure priority_failure;
+      try{selection.PrioritizeGeometrySplits(started,options.maximum_seconds);}
+      catch(const std::exception& e){priority_failure.Set(2,0,e.what());}
+      if(!vote(priority_failure))return false;
+    }
     if(!repairing)construction_entry_reported=true;
     if(repairing && !phase_ownership(true))return false;
     return observe_progress(repairing?"quality_entry":"construction_entry");
@@ -3013,6 +3056,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(bidirectional&&phase==Phase::Construction&&!coarsening&&!any&&selection.lane==Selection::Lane::Surface&&
         !world.maximum(!selection.Progress(working.size()).census_complete)) {
       if(!generation_census()||!observe_progress("split_surface_exit"))return finish();
+      // Interior publications can reopen surface demand after the full-vertex claims end.
+      selection.geometry_split_priorities.clear();selection.geometry_priority_mode=false;
       directory->EndConstructionPass();construction_claims=false;selection.lane=Selection::Lane::Interior;stats.split_lane=2;
       if(!observe_progress("split_interior_entry"))return finish();
       continue;

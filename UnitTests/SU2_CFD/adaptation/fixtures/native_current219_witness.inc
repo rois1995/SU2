@@ -127,7 +127,8 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
     log<<"{\"stage\":\"current_metric_match\",\"case\":"<<std::quoted(test.first)<<",\"cells\":"<<rows.size()
        <<",\"q_error\":"<<q_error<<",\"J_error\":"<<j_error<<",\"edge_error\":"<<edge_error
        <<",\"captured_edges_available\":"<<!current_capture<<"}\n";log.flush();
-    auto assess=[&](Owned local,const std::set<Id>& retired,const Patch& seed,Patch input,Id vertex,const char* kind,bool optimize=true,size_t relocated=0) {
+    auto assess=[&](Owned local,const std::set<Id>& retired,const Patch& seed,Patch input,Id vertex,const char* kind,bool optimize=true,size_t relocated=0,
+                    const GeometrySplitPrediction* prediction=nullptr) {
       REQUIRE_FALSE(seed.cells.empty());REQUIRE(seed.cells.size()<=MaximumCavityCells);
       auto context=scope->PrivateParameters(input);REQUIRE(context);context->ExportParameters(input);
       const auto stats0=state->Geometry().GeometryStatsSnapshot();
@@ -178,6 +179,11 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
       const auto old_geometry=GeometryGuidanceExcess(complete,*scope,1e-4);
       const auto new_geometry=GeometryGuidanceExcess(all,*all_context,1e-4);
       REQUIRE(old_geometry.complete);REQUIRE(new_geometry.complete);
+      if(prediction&&prediction->complete) {
+        const long double actual=new_geometry.excess-old_geometry.excess,predicted=prediction->after-prediction->before;
+        const long double scale=std::max({old_geometry.excess,new_geometry.excess,prediction->before,prediction->after,1e-24L});
+        CHECK(std::abs(actual-predicted)<=1e-10L*scale);
+      }
       struct FaceErrors {std::set<Id> bad_cells;size_t bad_faces=0;long double excess_squared=0;double maximum_error=0;};
       auto geometry_errors=[&](const Owned& cells,const PlanarReference& geometry) {
         FaceErrors errors;
@@ -428,11 +434,26 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
           auto seed=patch_from(ring);scope->ExportParameters(seed);
           const auto a=nodes.at(edge[0]).p,b=nodes.at(edge[1]).p;
           const Node midpoint{900000000,{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)}};
+          CHECK_FALSE(PredictGeometrySplit(edge,{a,b},*original.original,1e-4).complete);
+          const auto prediction=PredictGeometrySplit(edge,{a,b},*scope,1e-4);
+          if(edge==Edge{18795,202090700}) {
+            REQUIRE(prediction.complete);CHECK(prediction.after<prediction.before);
+            auto changed=std::array<Point,2>{a,b};changed[0].x=std::nextafter(changed[0].x,INFINITY);
+            const auto before_work=budget.work;
+            CHECK_FALSE(PredictGeometrySplit(edge,changed,*scope,1e-4).complete);CHECK(budget.work==before_work);
+            const auto limit=budget.maximum_bytes;budget.maximum_bytes=budget.caller_bytes;
+            CHECK_THROWS_AS(PredictGeometrySplit(edge,{a,b},*scope,1e-4),std::length_error);budget.maximum_bytes=limit;
+            budget.work_exhausted=true;
+            CHECK_THROWS(PredictGeometrySplit(edge,{a,b},*scope,1e-4));CHECK(budget.work_exhausted);
+            budget.work_exhausted=false;
+          }
           Patch fresh;std::string why;const auto started=std::chrono::steady_clock::now();
           const bool constructed=SplitEdge(seed,edge,midpoint,800000000,*scope,fresh,why);
           log<<"{\"stage\":\"complete_boundary_edge_split\",\"case\":"<<std::quoted(test.first)
              <<",\"edge\":["<<edge[0]<<','<<edge[1]<<"],\"ring_cells\":"<<ring.size()
              <<",\"constructed\":"<<constructed<<",\"reason\":"<<std::quoted(why)
+             <<",\"prediction_complete\":"<<prediction.complete<<",\"predicted_before\":"<<prediction.before
+             <<",\"predicted_after\":"<<prediction.after<<",\"prediction_faces\":"<<prediction.evaluated_faces
              <<",\"seconds\":"<<std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count()<<"}\n";log.flush();
           if(!constructed)continue;
           Owned joined=owned;for(const auto& row:ring)joined.erase(row.first);
@@ -448,7 +469,7 @@ static void CapturedCurrentResidual(bool compound,bool distributed=false) {
           for(const auto& p:fresh.coverage.traces)proposed.coverage.traces.insert_or_assign(p.first,p.second);
           retain_coverage(proposed);std::set<Id> retired;for(const auto& row:owned)retired.insert(row.first);
           const std::string label="complete_edge_split_"+std::to_string(edge[0])+"_"+std::to_string(edge[1]);
-          assess(joined,retired,complete,proposed,midpoint.id,label.c_str(),false);
+          assess(joined,retired,complete,proposed,midpoint.id,label.c_str(),false,0,&prediction);
         }
       }
       // Collapse/retained-star trials above apply to all cores; shelling requires two physical faces.

@@ -1248,6 +1248,71 @@ double PlanarReference::SurfaceDeviation(Id facet,const std::array<Point,3>& tri
   // Geometry permissions use the original surface error, not a constant-curvature sizing surrogate.
   return validated?SurfaceErrorForValidatedFace(facet,triangle):SurfaceError(facet,triangle);
 }
+GeometrySplitPrediction PredictGeometrySplit(Edge edge,const std::array<Point,2>& endpoints,
+                                            const PlanarReference& geometry,double tolerance) {
+  if(edge[0]>=edge[1]||!std::isfinite(tolerance)||tolerance<0)
+    throw std::invalid_argument("Invalid geometry split prediction input.");
+  GeometrySplitPrediction prediction;
+  const auto* state=geometry.Parameters();
+  if(!state||!geometry.EntityGeometry())return prediction;
+  for(unsigned k=0;k<2;++k) {
+    const auto* p=state->Find(edge[k]);
+    if(!p||PointKey(p->node.p)!=PointKey(endpoints[k])||
+        state->Geometry().MobilityDimension(p->binding,state->Mobility())!=2)return prediction;
+  }
+  // Feature traces and constrained split positions retain their existing search policy.
+  if(state->Coverage().traces.count(edge))return prediction;
+  const auto incident=state->IncidentFaces(edge);
+  if(!incident[0]||!incident[1]||state->Entity(incident[0]->facet)!=state->Entity(incident[1]->facet))return prediction;
+  auto* budget=geometry.AtlasReservation();
+  if(!budget)throw std::invalid_argument("Geometry split prediction lacks admitted atlas storage.");
+  auto checked=[&]() {
+    if(budget->work_exhausted)throw std::length_error("Geometry split prediction exhausts atlas work.");
+    if(!budget->geometry_failure.empty())throw std::runtime_error(budget->geometry_failure);
+    return prediction;
+  };
+  checked();
+  AtlasStorage scratch(budget,transfer_memory::Add(budget->caller_bytes,geometry.ParameterOverlayBytes(),
+      sizeof(Patch),6*sizeof(std::array<Point,3>),8*512,4*128),budget->maximum_bytes);
+  try {
+    auto context=geometry.PrivateParameters(Patch{},budget);
+    const std::set<Id> facets{incident[0]->facet,incident[1]->facet};
+    Node midpoint{UINT64_MAX,{double(((long double)endpoints[0].x+endpoints[1].x)/2),
+        double(((long double)endpoints[0].y+endpoints[1].y)/2),double(((long double)endpoints[0].z+endpoints[1].z)/2)}};
+    midpoint=context->BindNewPoint(midpoint,facets,&edge);
+    if(PointKey(midpoint.p)==PointKey(endpoints[0])||PointKey(midpoint.p)==PointKey(endpoints[1]))return checked();
+    auto score=[&](Id facet,const std::array<Point,3>& triangle,long double& sum) {
+      if(!context->ContainsFace(facet,triangle))return false;
+      const double bound=context->SurfaceDeviation(facet,triangle,true);
+      if(!std::isfinite(bound))return false;
+      const long double excess=std::max(0.L,(long double)bound-tolerance);
+      sum+=excess*excess;++prediction.evaluated_faces;
+      return std::isfinite(sum);
+    };
+    for(const auto* face:incident) {
+      std::array<Point,3> parent;unsigned a=3,b=3;
+      for(unsigned k=0;k<3;++k) {
+        const auto* p=state->Find(face->v[k]);if(!p)return checked();parent[k]=p->node.p;
+        if(face->v[k]==edge[0])a=k;if(face->v[k]==edge[1])b=k;
+      }
+      if(a==3||b==3||!score(face->facet,parent,prediction.before))return checked();
+      auto left=parent,right=parent;left[a]=midpoint.p;right[b]=midpoint.p;
+      auto canonicalize=[&](std::array<Point,3>& triangle,unsigned replaced) {
+        auto ids=face->v;ids[replaced]=midpoint.id;
+        std::rotate(triangle.begin(),triangle.begin()+(std::min_element(ids.begin(),ids.end())-ids.begin()),triangle.end());
+      };
+      canonicalize(left,a);canonicalize(right,b);
+      if(!score(face->facet,left,prediction.after)||!score(face->facet,right,prediction.after))return checked();
+    }
+    prediction.complete=true;
+  }catch(const std::bad_alloc&){throw;}
+   catch(const std::length_error&){throw;}
+   catch(const std::invalid_argument&) {
+    if(budget->work_exhausted||!budget->geometry_failure.empty())throw;
+    return checked();
+  }
+  return checked();
+}
 Node PlanarReference::BindNewPoint(Node point,const std::set<Id>& incident,const Edge* edge)const {
   if(EntityGeometry()) {
     if(!parameter_view||!parameter_view->private_view||incident.empty()||!parameter_view->reservation)throw std::invalid_argument("Entity point insertion lacks a private geometry scope.");
